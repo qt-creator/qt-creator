@@ -1313,6 +1313,25 @@ class DumperBase():
         itemCount = typename[typename.find('[') + 1:typename.find(']')]
         return int(itemCount) if itemCount else fallbackMax
 
+    # Types whose arrays/pointers are shown as an inline string rather than
+    # expanded element by element.
+    def is_charish_type(self, name):
+        return name in (
+            'char',
+            'signed char',
+            'unsigned char',
+            'int8_t',
+            'uint8_t',
+            'qint8',
+            'quint8',
+            'wchar_t',
+            'CHAR',
+            'WCHAR',
+            'char8_t',
+            'char16_t',
+            'char32_t',
+        )
+
     def putCStyleArray(self, value):
         arrayType = value.type
         innerType = arrayType.target()
@@ -1341,21 +1360,7 @@ class DumperBase():
 
         p = value.address()
         if displayFormat != DisplayFormat.Raw and p:
-            if innerType.name in (
-                'char',
-                'int8_t',
-                'qint8',
-                'wchar_t',
-                'unsigned char',
-                'uint8_t',
-                'quint8',
-                'signed char',
-                'CHAR',
-                'WCHAR',
-                'char8_t',
-                'char16_t',
-                'char32_t'
-            ):
+            if self.is_charish_type(innerType.name):
                 self.putCharArrayHelper(p, n, innerType, self.currentItemFormat(),
                                         makeExpandable=False)
             else:
@@ -1614,21 +1619,7 @@ class DumperBase():
         #self.warn('INNER: %s' % innerType.name)
         if self.autoDerefPointers:
             # Generic pointer type with AutomaticFormat, but never dereference char types:
-            if innerType.name not in (
-                'char',
-                'signed char',
-                'int8_t',
-                'qint8',
-                'unsigned char',
-                'uint8_t',
-                'quint8',
-                'wchar_t',
-                'CHAR',
-                'WCHAR',
-                'char8_t',
-                'char16_t',
-                'char32_t'
-            ):
+            if not self.is_charish_type(innerType.name):
                 self.putDerefedPointer(value)
                 return
 
