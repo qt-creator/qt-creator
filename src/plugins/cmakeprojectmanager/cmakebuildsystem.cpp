@@ -2714,6 +2714,13 @@ CommandLine CMakeBuildSystem::commandLineForTests(const QStringList &tests,
     return {m_ctestPath, {options, "-I", testNumbers}};
 }
 
+FilePath CMakeBuildSystem::activeBuildTool() const
+{
+    Kit *k = kit();
+    return k ? CMakeKitAspect::cmakeExecutable(k)
+             : FilePath::fromString("cmake");
+}
+
 DeploymentData CMakeBuildSystem::deploymentDataFromFile() const
 {
     DeploymentData result;

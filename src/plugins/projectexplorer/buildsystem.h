@@ -143,6 +143,9 @@ public:
     virtual Utils::CommandLine commandLineForTests(const QStringList &tests,
                                                    const QStringList &options) const;
 
+    // provide file path of effective build tool, for now only used for CMake / Axivion
+    virtual Utils::FilePath activeBuildTool() const { return {}; }
+
     class PROJECTEXPLORER_EXPORT ParseGuard
     {
         friend class BuildSystem;

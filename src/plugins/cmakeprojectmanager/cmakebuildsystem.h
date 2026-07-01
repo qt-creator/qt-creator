@@ -133,6 +133,9 @@ public:
                                            const QStringList &options) const final;
 
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
+
+    Utils::FilePath activeBuildTool() const final;
+
     ProjectExplorer::MakeInstallCommand makeInstallCommand(
             const Utils::FilePath &installRoot) const final;
 
