@@ -85,7 +85,6 @@ private:
     QString m_tooltip;
     CMakeBuildTarget m_cmakeBuildTarget;
     Utils::FilePath m_buildDirectory;
-    Utils::FilePath m_artifact;
     CMakeConfig m_config;
     bool m_visibleAfterAddFileAction = true;
 };

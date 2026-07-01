@@ -12,8 +12,6 @@
 
 #include <coreplugin/documentmanager.h>
 
-#include <ios/iosconstants.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -233,27 +231,6 @@ QVariant CMakeTargetNode::data(Id role) const
     if (role == Android::Constants::AndroidApk)
         return {};
 
-    if (role == Ios::Constants::IosTarget) {
-        // For some reason the artifact is e.g. "Debug/untitled.app/untitled" which is wrong.
-        // It actually is e.g. "Debug-iphonesimulator/untitled.app/untitled".
-        // Anyway, the iOS plugin is only interested in the app bundle name without .app.
-        return m_artifact.fileName();
-    }
-
-    if (role == Ios::Constants::IosBuildDir) {
-        // This is a path relative to root build directory.
-        // When generating Xcode project, CMake may put here a "${EFFECTIVE_PLATFORM_NAME}" macro,
-        // which is expanded by Xcode at build time.
-        // To get an actual executable path, iOS plugin replaces this macro with either "-iphoneos"
-        // or "-iphonesimulator" depending on the device type (which is unavailable here).
-
-        // dir/target.app/target -> dir
-        return m_artifact.parentDir().parentDir().path();
-    }
-
-    if (role == Ios::Constants::IosCmakeGenerator)
-        return value("CMAKE_GENERATOR");
-
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED) // FIXME handle correctly
         return value(role.toString().toUtf8());
 
@@ -305,7 +282,6 @@ void CMakeTargetNode::setTargetInformation(const FilePaths &artifacts, const QSt
     } else {
         const QStringList tmp = Utils::transform(artifacts, &FilePath::toUserOutput);
         m_tooltip += Tr::tr("Build artifacts:") + "<br>" + tmp.join("<br>");
-        m_artifact = artifacts.first();
     }
     if (type == "EXECUTABLE")
         setProductType(ProductType::App);

@@ -215,8 +215,10 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
 
     CMakeBuildTarget ct;
     ct.title = t.name;
-    if (!t.artifacts.isEmpty())
+    if (!t.artifacts.isEmpty()) {
+        ct.artifact = t.artifacts.at(0);
         ct.executable = buildDirectory.resolvePath(t.artifacts.at(0));
+    }
     TargetType type = UtilityType;
     if (t.type == "EXECUTABLE")
         type = ExecutableType;

@@ -28,6 +28,7 @@ public:
     QString title;
     QString targetFolder;
     Utils::FilePath executable; // TODO: rename to output?
+    Utils::FilePath artifact; // Raw first artifact, relative to the build directory.
     QList<ProjectExplorer::Launcher> launchers;
     TargetType targetType = UtilityType;
     bool linksToQtGui = false;

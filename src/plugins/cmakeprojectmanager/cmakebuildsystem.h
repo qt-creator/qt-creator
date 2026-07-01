@@ -217,6 +217,7 @@ private:
     void updateCMakeConfiguration();
 
     void updateProjectData();
+    void updateExtraData();
     void updateFallbackProjectData();
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers();
     void updateInitialCMakeExpandableVars();

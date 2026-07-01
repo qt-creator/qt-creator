@@ -29,6 +29,8 @@
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <ios/iosconstants.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -1986,6 +1988,22 @@ void CMakeBuildSystem::updateFallbackProjectData()
     updateInitialCMakeExpandableVars();
 }
 
+void CMakeBuildSystem::updateExtraData()
+{
+    // Build data formerly served on demand from CMakeTargetNode::data().
+    const QString generator = configurationFromCMake().stringValueOf("CMAKE_GENERATOR");
+    for (const CMakeBuildTarget &ct : std::as_const(m_buildTargets)) {
+        if (ct.artifact.isEmpty())
+            continue;
+        // The iOS plugin wants the app bundle name without ".app".
+        setExtraData(ct.title, Ios::Constants::IosTarget, ct.artifact.fileName());
+        // dir/target.app/target -> dir, relative to the root build directory.
+        setExtraData(ct.title, Ios::Constants::IosBuildDir,
+                     ct.artifact.parentDir().parentDir().path());
+        setExtraData(ct.title, Ios::Constants::IosCmakeGenerator, generator);
+    }
+}
+
 void CMakeBuildSystem::updateCMakeConfiguration()
 {
     CMakeConfig cmakeConfig = m_reader.takeParsedConfiguration();
@@ -2079,6 +2097,7 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
     m_ctestPath = m_parameters.cmakeExecutable.withNewPath(m_reader.ctestPath());
 
     setApplicationTargets(appTargets());
+    updateExtraData();
 
     // Note: This is practically always wrong and resulting in an empty view.
     // Setting the real data is triggered from a successful run of a
