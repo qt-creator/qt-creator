@@ -7,8 +7,11 @@
 
 #include <QCanvasPainterWidget>
 #include <QCanvasPath>
+#include <QElapsedTimer>
 #include <QList>
 #include <QRgb>
+
+#include <chrono>
 
 QT_BEGIN_NAMESPACE
 class QCanvasPainter;
@@ -66,6 +69,10 @@ signals:
     void horizontalPan(int dx);
     void verticalPan(int dy);
     void zoomRequested(double cursorX, int dy);
+
+    // CPU time spent in this paint(), for the frame-time overlay. This single
+    // widget renders all tracks, so one paint() is the full-frame render time.
+    void painted(std::chrono::nanoseconds renderTime);
 
 protected:
     void paint(QCanvasPainter *painter) override;

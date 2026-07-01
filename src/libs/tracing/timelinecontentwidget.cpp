@@ -15,21 +15,31 @@
 #include "tracklabels.h"
 #include "trackpainter.h"
 
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QLoggingCategory>
 #include <QPainter>
 #include <QResizeEvent>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QSplitterHandle>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #include <cmath>
 
 namespace Timeline {
+
+// Off by default (QtWarningMsg); enable the overlay with
+// QT_LOGGING_RULES="qtc.tracing.frametime.debug=true".
+namespace {
+Q_LOGGING_CATEGORY(frameTimeLog, "qtc.tracing.frametime", QtWarningMsg)
+}
 
 class DividerHandle : public QSplitterHandle
 {
@@ -96,6 +106,32 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     m_overlay->resize(m_scrollArea->viewport()->size());
     m_overlay->raise();
     m_scrollArea->viewport()->installEventFilter(this);
+
+    // Frame-time overlay (top-right of the track area): shows the worst
+    // single-frame time over the last sample window. Off by default; enable with
+    // QT_LOGGING_RULES="qtc.tracing.frametime.debug=true".
+    if (frameTimeLog().isDebugEnabled()) {
+        using namespace Utils::StyleHelper;
+        m_frameTimeLabel = new QLabel(m_scrollArea->viewport());
+        m_frameTimeLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
+        m_frameTimeLabel->setAutoFillBackground(true);
+        m_frameTimeLabel->setContentsMargins(SpacingTokens::PaddingVXs, SpacingTokens::PaddingVXs,
+                                             SpacingTokens::PaddingVXs, SpacingTokens::PaddingVXs);
+        m_frameTimeLabel->setFont(uiFont(UiElementCaptionStrong));
+        QPalette pal = m_frameTimeLabel->palette();
+        pal.setColor(QPalette::WindowText, Utils::creatorColor(Utils::Theme::Token_Text_Accent));
+        const QColor bg = Utils::creatorColor(Utils::Theme::Token_Basic_Black);
+        pal.setColor(QPalette::Window, bg);
+        m_frameTimeLabel->setPalette(pal);
+        m_frameTimeLabel->setText("-- ms");
+        m_frameTimeLabel->adjustSize();
+        m_frameTimeLabel->raise();
+        auto frameTimeTimer = new QTimer(this);
+        frameTimeTimer->setInterval(500);
+        connect(frameTimeTimer, &QTimer::timeout, this, &TimelineContentWidget::updateFrameTime);
+        frameTimeTimer->start();
+        connect(m_tracksView, &TrackPainter::painted, this, &TimelineContentWidget::onFramePainted);
+    }
 
     // Drive the render widget's scroll offset from the scroll bar.
     connect(m_scrollArea->verticalScrollBar(), &QScrollBar::valueChanged,
@@ -319,8 +355,42 @@ bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
         m_tracksView->resize(re->size());
         m_overlay->resize(re->size());
         updateContainerSize();
+        positionFrameTimeLabel();
     }
     return false;
+}
+
+void TimelineContentWidget::onFramePainted(std::chrono::nanoseconds renderTime)
+{
+    // A single widget renders all tracks, so its paint duration is the full-frame
+    // render time. (The accumulate + queued flush mirrors the per-track build so
+    // both architectures report the same metric.)
+    m_frameAccum += renderTime;
+    if (!m_frameFlushScheduled) {
+        m_frameFlushScheduled = true;
+        QMetaObject::invokeMethod(this, [this] {
+            m_maxRender = std::max(m_maxRender, m_frameAccum);
+            m_frameAccum = {};
+            m_frameFlushScheduled = false;
+        }, Qt::QueuedConnection);
+    }
+}
+
+void TimelineContentWidget::positionFrameTimeLabel()
+{
+    if (m_frameTimeLabel)
+        m_frameTimeLabel->move(m_scrollArea->viewport()->width() - m_frameTimeLabel->width() - 4, 4);
+}
+
+void TimelineContentWidget::updateFrameTime()
+{
+    // Worst full-frame render time observed in the last sample window.
+    const double ms = std::chrono::duration<double, std::milli>(m_maxRender).count();
+    m_frameTimeLabel->setText(QString::number(ms, 'f', 1) + " ms");
+    m_maxRender = {};
+    m_frameTimeLabel->adjustSize();
+    positionFrameTimeLabel();
+    m_frameTimeLabel->raise();
 }
 
 void TimelineContentWidget::updateContainerSize()

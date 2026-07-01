@@ -9,7 +9,10 @@
 #include <QString>
 #include <QWidget>
 
+#include <chrono>
+
 QT_BEGIN_NAMESPACE
+class QLabel;
 class QScrollArea;
 class QVBoxLayout;
 class QWidget;
@@ -85,6 +88,9 @@ private:
     void recenterOnItem(int modelIndex, int itemIndex);
     void onItemHovered(int modelIndex, int itemIndex);
     void showItemDetails(int modelIndex, int itemIndex);
+    void onFramePainted(std::chrono::nanoseconds renderTime);
+    void updateFrameTime();
+    void positionFrameTimeLabel();
 
     // Translate between painter index (into m_painters) and aggregator model index.
     int painterToAggregator(int painterIdx) const;
@@ -121,6 +127,13 @@ private:
     int m_hoveredItemIndex = -1;
 
     bool m_selectionLocked = false;
+
+    // Frame-time overlay: shows the worst full-frame render time (the render
+    // widget's paint duration; a single widget renders all tracks here).
+    QLabel *m_frameTimeLabel = nullptr;
+    std::chrono::nanoseconds m_frameAccum{};  // paint time accumulated for the current cycle
+    std::chrono::nanoseconds m_maxRender{};   // worst full-frame render time this sample window
+    bool m_frameFlushScheduled = false;
 };
 
 } // namespace Timeline

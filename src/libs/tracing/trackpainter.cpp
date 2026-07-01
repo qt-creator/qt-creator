@@ -11,8 +11,10 @@
 
 #include <QCanvasPainter>
 #include <QColor>
+#include <QElapsedTimer>
 #include <QHash>
 #include <QMouseEvent>
+#include <QScopeGuard>
 #include <QString>
 #include <QVarLengthArray>
 #include <QWheelEvent>
@@ -198,6 +200,14 @@ int TrackPainter::trackAt(int contentY) const
 
 void TrackPainter::paint(QCanvasPainter *painter)
 {
+    // Time the CPU cost of producing this frame; this single widget renders all
+    // tracks, so its paint() is the full-frame render time (see painted()).
+    QElapsedTimer frameTimer;
+    frameTimer.start();
+    const QScopeGuard reportFrame([&] {
+        emit painted(std::chrono::nanoseconds(frameTimer.nsecsElapsed()));
+    });
+
     QCanvasPainter &p = *painter;
 
     ensureGeometry();
