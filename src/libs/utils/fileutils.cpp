@@ -56,6 +56,7 @@ FileSaverBase::~FileSaverBase() = default;
 
 Result<> FileSaverBase::finalize()
 {
+    QTC_ASSERT(m_file, return ResultError(ResultAssert));
     m_file->close();
     setResult(m_file->error() == QFile::NoError);
     m_file.reset();
