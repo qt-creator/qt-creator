@@ -1646,21 +1646,57 @@ class QtcInternalDumper():
                     self.putType(v[1:p])
                 else:
                     self.putType(tt)
-                    self.putValue(v)
+                    # The repr may contain quotes, commas or non-ASCII (e.g.
+                    # PySide objects with an object name), so encode it.
+                    self.putValue(self.hexencode(v))
+                    self.putField('valueencoded', 'utf8')
+
+            # PySide/Shiboken wrap Qt objects; their state is exposed as Qt
+            # meta-properties (and as methods, which are filtered out below),
+            # so plain attribute enumeration would show nothing useful. List
+            # the meta-properties instead when available.
+            metaProperties = self.qtMetaProperties(value)
+            if metaProperties:
+                self.putNumChild(__builtins__.len(metaProperties))
+
             if self.isExpanded(iname):
                 self.put('children=[')
-                for child in dir(value):
-                    if child in ('__dict__', '__doc__', '__module__'):
-                        continue
-                    attr = getattr(value, child)
-                    if callable(attr):
-                        continue
-                    try:
-                        self.dumpValue(attr, child, '%s.%s' % (iname, child))
-                    except Exception:
-                        pass
+                if metaProperties:
+                    for prop in metaProperties:
+                        try:
+                            self.dumpValue(value.property(prop), prop,
+                                           '%s.%s' % (iname, prop))
+                        except Exception:
+                            pass
+                else:
+                    for child in dir(value):
+                        if child in ('__dict__', '__doc__', '__module__'):
+                            continue
+                        attr = getattr(value, child)
+                        if callable(attr):
+                            continue
+                        try:
+                            self.dumpValue(attr, child, '%s.%s' % (iname, child))
+                        except Exception:
+                            pass
                 self.put('],')
         self.put('},')
+
+    @staticmethod
+    def qtMetaProperties(value):
+        # Returns the names of the Qt meta-properties of a PySide/Shiboken
+        # QObject, or an empty list for anything else.
+        t = __builtins__.type(value)
+        module = __builtins__.getattr(t, '__module__', '') or ''
+        if not (module.startswith('PySide') or module.startswith('shiboken')):
+            return []
+        if __builtins__.getattr(value, 'metaObject', None) is None:
+            return []
+        try:
+            mo = value.metaObject()
+            return [mo.property(i).name() for i in __builtins__.range(mo.propertyCount())]
+        except Exception:
+            return []
 
     def warn(self, msg):
         self.putField('warning', msg)
