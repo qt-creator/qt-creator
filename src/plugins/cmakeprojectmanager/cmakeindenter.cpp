@@ -10,20 +10,14 @@ class CMakeIndenter final : public TextEditor::TextIndenter
 public:
     explicit CMakeIndenter(QTextDocument *doc)
         : TextEditor::TextIndenter(doc)
-    {}
-
-    bool isElectricCharacter(const QChar &ch) const final;
+    {
+        setElectricCharacters("()");
+    }
 
     int indentFor(const QTextBlock &block,
                   const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) final;
 };
-
-
-bool CMakeIndenter::isElectricCharacter(const QChar &ch) const
-{
-    return ch == QLatin1Char('(') || ch == QLatin1Char(')');
-}
 
 static int startsWithChar(const QString &line, char character)
 {

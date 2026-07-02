@@ -116,12 +116,9 @@ class JsonAutoCompleter : public AutoCompleter
 class JsonIndenter : public TextIndenter
 {
 public:
-    JsonIndenter(QTextDocument *doc) : TextIndenter(doc) {}
-
-    bool isElectricCharacter(const QChar &c) const override
+    JsonIndenter(QTextDocument *doc) : TextIndenter(doc)
     {
-        static QString echars("{}[]");
-        return echars.contains(c);
+        setElectricCharacters("{}[]");
     }
 
     int indentFor(const QTextBlock &block,

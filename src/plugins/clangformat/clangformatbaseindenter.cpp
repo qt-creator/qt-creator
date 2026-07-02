@@ -586,7 +586,9 @@ public:
 
 ClangFormatBaseIndenter::ClangFormatBaseIndenter(QTextDocument *doc)
     : Indenter(doc), d(new ClangFormatBaseIndenterPrivate(this, doc, &m_fileName))
-{}
+{
+    setElectricCharacters("{}:#<>;()");
+}
 
 ClangFormatBaseIndenter::~ClangFormatBaseIndenter()
 {
@@ -869,23 +871,6 @@ IndentationForBlock ClangFormatBaseIndenter::indentationForBlocks(
     for (const QTextBlock &block : blocks)
         ret.insert(block.blockNumber(), indentationForBlock(toReplace, buffer, block));
     return ret;
-}
-
-bool ClangFormatBaseIndenter::isElectricCharacter(const QChar &ch) const
-{
-    switch (ch.toLatin1()) {
-    case '{':
-    case '}':
-    case ':':
-    case '#':
-    case '<':
-    case '>':
-    case ';':
-    case '(':
-    case ')':
-        return true;
-    }
-    return false;
 }
 
 std::optional<int> ClangFormat::ClangFormatBaseIndenter::margin() const

@@ -46,8 +46,6 @@ public:
                   const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
 
-    bool isElectricCharacter(const QChar &ch) const override;
-
     std::optional<int> margin() const override;
 
     const clang::format::FormatStyle &styleForFile() const;

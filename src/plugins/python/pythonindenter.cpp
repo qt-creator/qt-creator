@@ -33,10 +33,11 @@ class PythonIndenter : public TextEditor::TextIndenter
 public:
     explicit PythonIndenter(QTextDocument *doc)
         : TextEditor::TextIndenter(doc)
-    {}
+    {
+        setElectricCharacters(":");
+    }
 
 private:
-    bool isElectricCharacter(const QChar &ch) const override;
     int indentFor(const QTextBlock &block,
                   const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
@@ -45,16 +46,6 @@ private:
     int getIndentDiff(const QString &previousLine,
                       const TextEditor::TabSettingsData &tabSettings) const;
 };
-
-/**
- * @brief Does given character change indentation level?
- * @param ch Any value
- * @return True if character increases indentation level at the next line
- */
-bool PythonIndenter::isElectricCharacter(const QChar &ch) const
-{
-    return ch == ':';
-}
 
 int PythonIndenter::indentFor(const QTextBlock &block,
                               const TextEditor::TabSettingsData &tabSettings,

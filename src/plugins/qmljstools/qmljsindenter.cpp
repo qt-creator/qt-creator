@@ -19,9 +19,10 @@ class QmlJsIndenter final : public TextEditor::TextIndenter
 public:
     explicit QmlJsIndenter(QTextDocument *doc)
         : TextEditor::TextIndenter(doc)
-    {}
+    {
+        setElectricCharacters("{}]:");
+    }
 
-    bool isElectricCharacter(const QChar &ch) const final;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
                      const TextEditor::TabSettingsData &tabSettings,
@@ -37,14 +38,6 @@ public:
                                                          const TextEditor::TabSettingsData &tabSettings,
                                                          int cursorPositionInEditor = -1) final;
 };
-
-bool QmlJsIndenter::isElectricCharacter(const QChar &ch) const
-{
-    return ch == QLatin1Char('{')
-        || ch == QLatin1Char('}')
-        || ch == QLatin1Char(']')
-        || ch == QLatin1Char(':');
-}
 
 void QmlJsIndenter::indentBlock(const QTextBlock &block,
                            const QChar &typedChar,

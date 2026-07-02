@@ -21,11 +21,9 @@ namespace Android::Internal {
 class JavaIndenter final : public TextEditor::TextIndenter
 {
 public:
-    explicit JavaIndenter(QTextDocument *doc) : TextEditor::TextIndenter(doc) {}
-
-    bool isElectricCharacter(const QChar &ch) const final
+    explicit JavaIndenter(QTextDocument *doc) : TextEditor::TextIndenter(doc)
     {
-        return ch == QLatin1Char('{') || ch == QLatin1Char('}');
+        setElectricCharacters("{}");
     }
 
     void indentBlock(const QTextBlock &block,

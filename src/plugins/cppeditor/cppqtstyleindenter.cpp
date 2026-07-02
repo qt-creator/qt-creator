@@ -26,9 +26,10 @@ public:
         // Just for safety. setCodeStylePreferences should be called when the editor the
         // indenter belongs to gets initialized.
         m_cppCodeStylePreferences = cppCodeStyle();
+
+        setElectricCharacters("{}:#<>;");
     }
 
-    bool isElectricCharacter(const QChar &ch) const final;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
                      const TabSettingsData &tabSettings,
@@ -53,21 +54,6 @@ private:
     CppCodeStyleSettings codeStyleSettings() const;
     CppCodeStylePreferences *m_cppCodeStylePreferences = nullptr;
 };
-
-bool CppQtStyleIndenter::isElectricCharacter(const QChar &ch) const
-{
-    switch (ch.toLatin1()) {
-    case '{':
-    case '}':
-    case ':':
-    case '#':
-    case '<':
-    case '>':
-    case ';':
-        return true;
-    }
-    return false;
-}
 
 static bool isElectricInLine(const QChar ch, const QString &text)
 {

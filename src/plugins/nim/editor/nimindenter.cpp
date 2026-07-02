@@ -19,11 +19,8 @@ class NimIndenter final : public TextEditor::TextIndenter
 public:
     explicit NimIndenter(QTextDocument *doc)
         : TextEditor::TextIndenter(doc)
-    {}
-
-    bool isElectricCharacter(const QChar &ch) const final
     {
-        return ch == QLatin1Char(':') || ch == QLatin1Char('=');
+        setElectricCharacters(":=");
     }
 
     void indentBlock(const QTextBlock &block,

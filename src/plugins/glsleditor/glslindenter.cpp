@@ -18,9 +18,10 @@ class GlslIndenter final : public TextEditor::TextIndenter
 public:
     explicit GlslIndenter(QTextDocument *doc)
         : TextEditor::TextIndenter(doc)
-    {}
+    {
+        setElectricCharacters("{}:#");
+    }
 
-    bool isElectricCharacter(const QChar &ch) const final;
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
                      const TextEditor::TabSettingsData &tabSettings,
@@ -38,12 +39,6 @@ public:
                                                          const TextEditor::TabSettingsData &tabSettings,
                                                          int cursorPositionInEditor = -1) final;
 };
-
-bool GlslIndenter::isElectricCharacter(const QChar &ch) const
-{
-    return ch == QLatin1Char('{') || ch == QLatin1Char('}') || ch == QLatin1Char(':')
-           || ch == QLatin1Char('#');
-}
 
 void GlslIndenter::indentBlock(const QTextBlock &block,
                                const QChar &typedChar,
