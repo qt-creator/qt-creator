@@ -1404,12 +1404,19 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     const FilePath file = loc.fileName();
     const int line = loc.textPosition().line;
     bool newEditor = false;
+
+    // EditorManager::openEditor() spins a local event loop, during which the debug
+    // session may finish and destroy this engine (and its 'd'). Guard with a QPointer
+    // so we never touch freed memory afterwards.
+    const QPointer<DebuggerEngine> guard(this);
     IEditor *editor = EditorManager::openEditor(file,
                                                 Id(),
                                                 EditorManager::IgnoreNavigationHistory
                                                     | EditorManager::DoNotSwitchToDesignMode
                                                     | EditorManager::SwitchSplitIfAlreadyVisible,
                                                 &newEditor);
+    if (!guard)
+        return;
     QTC_ASSERT(editor, return); // Unreadable file?
 
     editor->gotoLine(line, 0, !settings().stationaryEditorWhileStepping());
