@@ -4133,7 +4133,7 @@ void GdbEngine::handleGdbDone()
         return;
     }
 
-    const QProcess::ProcessError error = m_gdbProc.error();
+    const QProcess::ProcessError error = toQProcess(m_gdbProc.error());
     if (error != QProcess::UnknownError) {
         QString msg = m_gdbProc.exitMessage();
         const QString errorString = m_gdbProc.errorString();
@@ -4711,9 +4711,9 @@ void GdbEngine::shutdownEngine()
     }
 
     CHECK_STATE(EngineShutdownRequested);
-    showMessage(QString("INITIATE GDBENGINE SHUTDOWN, PROC STATE: %1").arg(m_gdbProc.state()));
+    showMessage(QString("INITIATE GDBENGINE SHUTDOWN, PROC STATE: %1").arg(int(m_gdbProc.state())));
 
-    switch (m_gdbProc.state()) {
+    switch (toQProcess(m_gdbProc.state())) {
     case QProcess::Running: {
         if (runParameters().closeMode() == KillAndExitMonitorAtClose)
             runCommand({"monitor exit"});

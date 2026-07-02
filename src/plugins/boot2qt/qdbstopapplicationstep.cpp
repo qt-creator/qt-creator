@@ -61,7 +61,7 @@ GroupItem QdbStopApplicationStep::deployRecipe()
         }
         const QString errorOutput = process.cleanedStdErr();
         const QString failureMessage = Tr::tr("Could not check and possibly stop running application.");
-        if (process.exitStatus() == QProcess::CrashExit) {
+        if (process.exitStatus() == ProcessExitStatus::CrashExit) {
             addErrorMessage(failureMessage);
         } else if (process.result() != ProcessResult::FinishedWithSuccess) {
             handleStdErrData(process.errorString());

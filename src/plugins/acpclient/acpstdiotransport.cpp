@@ -128,7 +128,7 @@ void AcpStdioTransport::sendData(const QByteArray &data)
             Tr::tr("Cannot send data: process has not been started (%1).").arg(m_cmd.toUserOutput()));
         return;
     }
-    if (m_process->state() != QProcess::Running) {
+    if (m_process->state() != ProcessState::Running) {
         QString msg = Tr::tr("Cannot send data: process \"%1\" is not running (exit code %2).")
                           .arg(m_cmd.toUserOutput())
                           .arg(m_process->exitCode());

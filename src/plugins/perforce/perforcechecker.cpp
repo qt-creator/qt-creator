@@ -34,12 +34,12 @@ PerforceChecker::~PerforceChecker()
 
 bool PerforceChecker::isRunning() const
 {
-    return m_process.state() == QProcess::Running;
+    return m_process.state() == ProcessState::Running;
 }
 
 bool PerforceChecker::waitForFinished()
 {
-    return m_process.waitForFinished() || m_process.state() == QProcess::NotRunning;
+    return m_process.waitForFinished() || m_process.state() == ProcessState::NotRunning;
 }
 
 void PerforceChecker::resetOverrideCursor()
@@ -93,16 +93,16 @@ void PerforceChecker::slotDone()
 {
     if (m_timedOut)
         return;
-    if (m_process.error() == QProcess::FailedToStart) {
+    if (m_process.error() == ProcessError::FailedToStart) {
         emitFailed(Tr::tr("Unable to launch \"%1\": %2").
                    arg(m_binary.toUserOutput(), m_process.errorString()));
         return;
     }
     switch (m_process.exitStatus()) {
-    case QProcess::CrashExit:
+    case ProcessExitStatus::CrashExit:
         emitFailed(Tr::tr("\"%1\" crashed.").arg(m_binary.toUserOutput()));
         break;
-    case QProcess::NormalExit:
+    case ProcessExitStatus::NormalExit:
         if (m_process.exitCode()) {
             const QString stdErr = m_process.cleanedStdErr();
             emitFailed(Tr::tr("\"%1\" terminated with exit code %2: %3").

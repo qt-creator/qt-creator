@@ -61,13 +61,13 @@ public:
     qint64 processId() const;
     qint64 applicationMainThreadId() const;
 
-    QProcess::ProcessState state() const;
+    ProcessState state() const;
     ProcessResultData resultData() const;
 
     int exitCode() const;
-    QProcess::ExitStatus exitStatus() const;
+    ProcessExitStatus exitStatus() const;
 
-    QProcess::ProcessError error() const;
+    ProcessError error() const;
     QString errorString() const;
 
     bool waitForStarted(QDeadlineTimer timeout = std::chrono::seconds(30));
@@ -113,8 +113,8 @@ public:
     using ProcessInterfaceCreator = std::function<ProcessInterface *()>;
     void setProcessInterfaceCreator(const ProcessInterfaceCreator &creator);
 
-    void setProcessChannelMode(QProcess::ProcessChannelMode mode);
-    QProcess::ProcessChannelMode processChannelMode() const;
+    void setProcessChannelMode(ProcessChannelMode mode);
+    ProcessChannelMode processChannelMode() const;
 
     void setStandardInputFile(const QString &inputFile);
 
@@ -131,7 +131,7 @@ public:
 
     // TODO: Some usages of this method assume that Starting phase is also a running state
     // i.e. if isRunning() returns false, they assume NotRunning state, what may be an error.
-    bool isRunning() const; // Short for state() == QProcess::Running.
+    bool isRunning() const; // Short for state() == ProcessState::Running.
 
     // Other enhancements.
     // These (or some of them) may be potentially moved outside of the class.

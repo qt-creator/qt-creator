@@ -60,7 +60,7 @@ static Result<> runCommand(
             break;
     }
 
-    if (p.state() != QProcess::ProcessState::NotRunning) {
+    if (p.state() != ProcessState::NotRunning) {
         p.kill();
         if (shouldStop())
             return make_unexpected(Tr::tr("Process was canceled."));

@@ -372,10 +372,10 @@ void FileSystemAccessTest::testFileTransfer()
     loop.exec();
     QVERIFY(timer.isActive());
     timer.stop();
-    QCOMPARE(result.m_exitStatus, QProcess::NormalExit);
+    QCOMPARE(result.m_exitStatus, ProcessExitStatus::NormalExit);
     QVERIFY2(result.m_errorString.isEmpty(), qPrintable(result.m_errorString));
     QCOMPARE(result.m_exitCode, 0);
-    QCOMPARE(result.m_error, QProcess::UnknownError);
+    QCOMPARE(result.m_error, ProcessError::UnknownError);
 
     // Cleanup remote
     const FilePath remoteDir = m_device->filePath(QString("/tmp/foo/"));

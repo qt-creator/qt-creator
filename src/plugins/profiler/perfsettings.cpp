@@ -132,7 +132,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
     }
 
     QTC_ASSERT(device, return);
-    QTC_CHECK(!m_process || m_process->state() == QProcess::NotRunning);
+    QTC_CHECK(!m_process || m_process->state() == ProcessState::NotRunning);
 
     m_process.reset(new Process);
     m_process->setCommand({device->filePath("perf"), {"probe", "-l"}});
@@ -157,7 +157,7 @@ void PerfConfigWidget::readTracePoints()
 
 void PerfConfigWidget::handleProcessDone()
 {
-    if (m_process->error() == QProcess::FailedToStart) {
+    if (m_process->error() == ProcessError::FailedToStart) {
         Utils::AsynchronousMessageBox::warning(
                     Tr::tr("Cannot List Trace Points"),
                     Tr::tr("\"perf probe -l\" failed to start. Is perf installed?"));

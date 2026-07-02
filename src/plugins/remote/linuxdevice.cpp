@@ -128,7 +128,7 @@ signals:
 
 private:
     void emitConnected();
-    void emitError(QProcess::ProcessError processError, const QString &errorString);
+    void emitError(ProcessError processError, const QString &errorString);
     QString fullProcessError() const;
     QStringList connectionArgs(const FilePath &binary) const;
 
@@ -187,14 +187,14 @@ void SshSharedConnection::connectToHost()
 
     const FilePath sshBinary = sshSettings().sshFilePath();
     if (!sshBinary.exists()) {
-        emitError(QProcess::FailedToStart, Tr::tr("Cannot establish SSH connection: ssh binary "
+        emitError(ProcessError::FailedToStart, Tr::tr("Cannot establish SSH connection: ssh binary "
                   "\"%1\" does not exist.").arg(sshBinary.toUserOutput()));
         return;
     }
 
     m_masterSocketDir.reset(new QTemporaryDir);
     if (!m_masterSocketDir->isValid()) {
-        emitError(QProcess::FailedToStart,
+        emitError(ProcessError::FailedToStart,
                     Tr::tr("Cannot establish SSH connection: Failed to create temporary "
                            "directory for control socket: %1")
                   .arg(m_masterSocketDir->errorString()));
@@ -219,7 +219,7 @@ void SshSharedConnection::connectToHost()
         const ProcessResult result = m_masterProcess->result();
         const ProcessResultData resultData = m_masterProcess->resultData();
         if (result == ProcessResult::StartFailed) {
-            emitError(QProcess::FailedToStart, Tr::tr("Cannot establish SSH connection.\n"
+            emitError(ProcessError::FailedToStart, Tr::tr("Cannot establish SSH connection.\n"
                                                       "Control process failed to start."));
             return;
         } else if (result == ProcessResult::FinishedWithError) {
@@ -264,10 +264,11 @@ void SshSharedConnection::emitConnected()
     emit connected(socketFilePath());
 }
 
-void SshSharedConnection::emitError(QProcess::ProcessError error, const QString &errorString)
+void SshSharedConnection::emitError(ProcessError error, const QString &errorString)
 {
     m_state = QProcess::NotRunning;
-    ProcessResultData resultData{-1, QProcess::CrashExit, QProcess::UnknownError, {}};
+    ProcessResultData resultData{-1, ProcessExitStatus::CrashExit,
+                                 ProcessError::UnknownError, {}};
     if (m_masterProcess)
         resultData = m_masterProcess->resultData();
     resultData.m_error = error;
@@ -277,7 +278,7 @@ void SshSharedConnection::emitError(QProcess::ProcessError error, const QString 
 
 QString SshSharedConnection::fullProcessError() const
 {
-    const QString errorString = m_masterProcess->exitStatus() == QProcess::CrashExit
+    const QString errorString = m_masterProcess->exitStatus() == ProcessExitStatus::CrashExit
             ? m_masterProcess->errorString() : QString();
     const QString standardError = m_masterProcess->cleanedStdErr();
     const QString errorPrefix = errorString.isEmpty() && standardError.isEmpty()
@@ -710,7 +711,7 @@ void SshProcessInterface::emitStarted(qint64 processId)
 
 void SshProcessInterface::killIfRunning()
 {
-    if (d->m_killed || d->m_process.state() != QProcess::Running || d->m_processId == 0)
+    if (d->m_killed || d->m_process.state() != ProcessState::Running || d->m_processId == 0)
         return;
     sendControlSignal(ControlSignal::Kill);
     d->m_killed = true;
@@ -809,13 +810,13 @@ void SshProcessInterfacePrivate::handleDone()
 
     ProcessResultData finalData = m_process.resultData();
     if (!m_pidParsed) {
-        finalData.m_error = QProcess::FailedToStart;
+        finalData.m_error = ProcessError::FailedToStart;
         finalData.m_errorString = Utils::joinStrings({finalData.m_errorString,
                                                       QString::fromLocal8Bit(m_error)}, '\n');
     }
     if (finalData.m_exitCode == 255) {
-        finalData.m_exitStatus = QProcess::CrashExit;
-        finalData.m_error = QProcess::Crashed;
+        finalData.m_exitStatus = ProcessExitStatus::CrashExit;
+        finalData.m_error = ProcessError::Crashed;
         finalData.m_errorString = Tr::tr("The process crashed.");
     }
     emit q->done(finalData);
@@ -982,13 +983,14 @@ void SshProcessInterfacePrivate::handleDisconnected(const ProcessResultData &res
 {
     ProcessResultData resultData = result;
     if (m_connecting)
-        resultData.m_error = QProcess::FailedToStart;
+        resultData.m_error = ProcessError::FailedToStart;
 
     m_connecting = false;
     if (m_connectionHandle) // TODO: should it disconnect from signals first?
         m_connectionHandle.release()->deleteLater();
 
-    if (resultData.m_error != QProcess::UnknownError || m_process.state() != QProcess::NotRunning)
+    if (resultData.m_error != ProcessError::UnknownError
+        || m_process.state() != ProcessState::NotRunning)
         emit q->done(resultData); // TODO: don't emit done() on process finished afterwards
 }
 

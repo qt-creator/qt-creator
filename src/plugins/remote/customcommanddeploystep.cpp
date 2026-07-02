@@ -66,8 +66,8 @@ GroupItem CustomCommandDeployStep::deployRecipe()
     const auto onDone = [this](const Process &process, DoneWith result) {
         if (result == DoneWith::Success) {
             addProgressMessage(Tr::tr("Remote command finished successfully."));
-        } else if (process.error() != QProcess::UnknownError
-                || process.exitStatus() != QProcess::NormalExit) {
+        } else if (process.error() != ProcessError::UnknownError
+                || process.exitStatus() != ProcessExitStatus::NormalExit) {
             addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         } else if (process.exitCode() != 0) {
             addErrorMessage(Tr::tr("Remote process finished with exit code %1.")

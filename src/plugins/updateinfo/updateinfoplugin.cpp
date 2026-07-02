@@ -212,7 +212,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
                                          "--confirm-command",
                                          "--accept-licenses"};
             process.setCommand({m_d->m_maintenanceTool, args});
-            process.setProcessChannelMode(QProcess::MergedChannels);
+            process.setProcessChannelMode(ProcessChannelMode::MergedChannels);
             process.setStdOutLineCallback([installDetails](QString s) {
                 if (s.endsWith('\n'))
                     s.chop(1);
@@ -224,7 +224,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
         const auto onInstallDone =
             [&dialog, installLabel, installProgress, actionButton, cancelButton](
                 const Process &process) {
-                if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
+                if (process.exitStatus() != ProcessExitStatus::NormalExit || process.exitCode() != 0) {
                     installLabel->setText(
                         Tr::tr("An error occurred. Check the output of the installer below."));
                     installProgress->setRange(0, 100);
@@ -276,7 +276,7 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
     const auto onSearchSetup = [filterRegex](Process &process) {
         qCDebug(updateLog) << "Update service looking for packages matching" << filterRegex;
         process.setCommand({m_d->m_maintenanceTool, {"se", filterRegex, "--type=package"}});
-        process.setProcessChannelMode(QProcess::MergedChannels);
+        process.setProcessChannelMode(ProcessChannelMode::MergedChannels);
     };
     const auto onSearchDone = [&packages,
                                showNotFoundPage,
@@ -397,7 +397,7 @@ void UpdateInfoPlugin::startCheckForUpdates()
             //: %1=command, %2=error
             const QString errorMessage = Tr::tr("Failed to get update information (%1): %2")
                                              .arg(process.commandLine().toUserOutput());
-            if (process.error() != QProcess::UnknownError) {
+            if (process.error() != ProcessError::UnknownError) {
                 MessageManager::writeFlashing(errorMessage.arg(process.errorString()));
             } else if (process.exitCode() != 0) {
                 MessageManager::writeFlashing(errorMessage.arg(

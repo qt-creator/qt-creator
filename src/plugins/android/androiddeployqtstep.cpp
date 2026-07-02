@@ -380,7 +380,7 @@ Group AndroidDeployQtStep::deployRecipe()
         return SetupResult::Continue;
     };
     const auto onInstallDone = [this, storage](const Process &process) {
-        const QProcess::ExitStatus exitStatus = process.exitStatus();
+        const QProcess::ExitStatus exitStatus = toQProcess(process.exitStatus());
         const int exitCode = process.exitCode();
 
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {

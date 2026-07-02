@@ -888,7 +888,7 @@ static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> 
     run.start();
     QDeadlineTimer deadline(2min);
     while (!run.waitForFinished(500ms)) {
-        if (run.state() == QProcess::NotRunning)
+        if (run.state() == ProcessState::NotRunning)
             break; // Already finished (e.g. failed to start).
         if (promise.isCanceled()) {
             run.stop();

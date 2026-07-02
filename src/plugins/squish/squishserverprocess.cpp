@@ -17,14 +17,14 @@ SquishServerProcess::SquishServerProcess(QObject *parent)
 void SquishServerProcess::start(const Utils::CommandLine &commandLine,
                                 const Utils::Environment &environment)
 {
-    QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
+    QTC_ASSERT(m_process.state() == Utils::ProcessState::NotRunning, return);
     m_serverPort = -1;
     SquishProcessBase::start(commandLine, environment);
 }
 
 void SquishServerProcess::stop()
 {
-    if (m_process.state() != QProcess::NotRunning && m_serverPort > 0) {
+    if (m_process.state() != Utils::ProcessState::NotRunning && m_serverPort > 0) {
         Utils::Process serverKiller;
         serverKiller.setCommand({m_process.commandLine().executable(),
                                  {"--stop", "--port", QString::number(m_serverPort)}});
@@ -36,7 +36,7 @@ void SquishServerProcess::stop()
         }
     } else {
         qWarning() << "either no process running or port < 1?"
-                   << m_process.state() << m_serverPort;
+                   << int(m_process.state()) << m_serverPort;
         setState(StopFailed);
     }
 }

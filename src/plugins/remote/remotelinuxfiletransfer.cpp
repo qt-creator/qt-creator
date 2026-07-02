@@ -81,10 +81,10 @@ protected:
     bool handleError()
     {
         ProcessResultData resultData = m_process.resultData();
-        if (resultData.m_error == QProcess::FailedToStart) {
+        if (resultData.m_error == ProcessError::FailedToStart) {
             resultData.m_errorString = Tr::tr("\"%1\" failed to start: %2")
                     .arg(FileTransfer::transferMethodName(m_setup.m_method), resultData.m_errorString);
-        } else if (resultData.m_exitStatus != QProcess::NormalExit) {
+        } else if (resultData.m_exitStatus != ProcessExitStatus::NormalExit) {
             resultData.m_errorString = Tr::tr("\"%1\" crashed.")
                     .arg(FileTransfer::transferMethodName(m_setup.m_method));
         } else if (resultData.m_exitCode != 0) {
@@ -153,13 +153,13 @@ private:
     {
         ProcessResultData resultData = result;
         if (m_connecting)
-            resultData.m_error = QProcess::FailedToStart;
+            resultData.m_error = ProcessError::FailedToStart;
 
         m_connecting = false;
         if (m_connectionHandle) // TODO: should it disconnect from signals first?
             m_connectionHandle.release()->deleteLater();
 
-        if (resultData.m_error != QProcess::UnknownError || m_process.state() != QProcess::NotRunning)
+        if (resultData.m_error != ProcessError::UnknownError || m_process.state() != ProcessState::NotRunning)
             emit done(resultData); // TODO: don't emit done() on process finished afterwards
     }
 

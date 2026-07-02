@@ -357,7 +357,7 @@ Result<> Client::start(bool deleteOnExit)
             d->process->setCommand({d->remoteCmdBridgePath, args});
             d->process->setEnvironment(d->environment);
             d->process->setProcessMode(ProcessMode::Writer);
-            d->process->setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
+            d->process->setProcessChannelMode(ProcessChannelMode::SeparateChannels);
             // Make sure the process has a codec, otherwise it will try to ask us recursively
             // and dead lock.
             d->process->setUtf8Codec();

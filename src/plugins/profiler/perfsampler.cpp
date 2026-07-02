@@ -383,7 +383,7 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
         // only a genuine failure to launch perf is treated as an error here;
         // otherwise, whether perf exited by request or the target died on its
         // own, let perfparser finish and let onParserDone's sample count decide.
-        if (result == DoneWith::Error && process.error() == QProcess::FailedToStart
+        if (result == DoneWith::Error && process.error() == ProcessError::FailedToStart
             && !session->result) {
             session->result = ResultError(
                 Tr::tr("Failed to start \"perf record\": %1").arg(process.errorString()));
@@ -407,7 +407,7 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
 
         if (session->result)
             return;
-        if (result == DoneWith::Error && process.error() == QProcess::FailedToStart) {
+        if (result == DoneWith::Error && process.error() == ProcessError::FailedToStart) {
             session->result = ResultError(
                 Tr::tr("Failed to start perfparser: %1").arg(process.errorString()));
             return;

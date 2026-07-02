@@ -237,10 +237,10 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
         }
         const ProcessResultData resultData = transfer.resultData();
         QString error;
-        if (resultData.m_error == QProcess::FailedToStart) {
+        if (resultData.m_error == ProcessError::FailedToStart) {
             error = Tr::tr("Failed to start \"%1\": %2").arg(methodName, resultData.m_errorString)
                     + "\n";
-        } else if (resultData.m_exitStatus == QProcess::CrashExit) {
+        } else if (resultData.m_exitStatus == ProcessExitStatus::CrashExit) {
             error = Tr::tr("\"%1\" crashed.").arg(methodName) + "\n";
         } else if (resultData.m_exitCode != 0) {
             error = Tr::tr("\"%1\" failed with exit code %2: %3")

@@ -925,7 +925,7 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
 {
     const auto onSetup = [this, startModifier, config](Process &process) {
         process.setProcessChannelMode(appOutputPane().settings().mergeChannels()
-                                          ? QProcess::MergedChannels : QProcess::SeparateChannels);
+                                          ? ProcessChannelMode::MergedChannels : ProcessChannelMode::SeparateChannels);
         process.setCommand(commandLine());
         process.setWorkingDirectory(workingDirectory());
         process.setEnvironment(environment());
@@ -1058,7 +1058,7 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         postMessage(process.exitMessage(), NormalMessageFormat);
         // Expose the exit code to interested consumers (e.g. AutoTest::TestRunner).
         // Leave it unset on crash so a crash is not mistaken for a clean exit(0).
-        if (process.exitStatus() == QProcess::NormalExit)
+        if (process.exitStatus() == ProcessExitStatus::NormalExit)
             d->data.exitCode = process.exitCode();
         if (process.usesTerminal()) {
             Process &mutableProcess = const_cast<Process &>(process);

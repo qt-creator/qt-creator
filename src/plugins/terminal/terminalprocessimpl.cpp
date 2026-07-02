@@ -63,7 +63,7 @@ public:
 
         connect(terminal, &TerminalWidget::destroyed, m_process, [process = m_process] {
             if (process->inferiorProcessId())
-                process->emitFinished(-1, QProcess::CrashExit);
+                process->emitFinished(-1, ProcessExitStatus::CrashExit);
         });
 
         return 0;

@@ -105,11 +105,11 @@ void PerfTracePointDialog::runScript()
 
 void PerfTracePointDialog::handleProcessDone()
 {
-    const QProcess::ProcessError error = m_process->error();
+    const ProcessError error = m_process->error();
     QString message;
-    if (error == QProcess::FailedToStart) {
-        message = Tr::tr("Failed to run trace point script: %1").arg(error);
-    } else if ((m_process->exitStatus() == QProcess::CrashExit) || (m_process->exitCode() != 0)) {
+    if (error == ProcessError::FailedToStart) {
+        message = Tr::tr("Failed to run trace point script: %1").arg(int(error));
+    } else if ((m_process->exitStatus() == ProcessExitStatus::CrashExit) || (m_process->exitCode() != 0)) {
         message = Tr::tr("Failed to create trace points.");
     } else {
         message = Tr::tr("Created trace points for: %1").arg(
@@ -124,7 +124,7 @@ void PerfTracePointDialog::handleProcessDone()
 void PerfTracePointDialog::accept()
 {
     if (m_process) {
-        QTC_CHECK(m_process->state() == QProcess::NotRunning);
+        QTC_CHECK(m_process->state() == ProcessState::NotRunning);
         QDialog::accept();
     } else {
         runScript();

@@ -83,7 +83,7 @@ public:
     Environment m_environment;
     Environment m_controlEnvironment;
     QByteArray m_writeData;
-    QProcess::ProcessChannelMode m_processChannelMode = QProcess::SeparateChannels;
+    ProcessChannelMode m_processChannelMode = ProcessChannelMode::SeparateChannels;
     QVariantHash m_extraData;
     QString m_standardInputFile;
     QString m_runAsUser; // Empty means default
@@ -107,8 +107,8 @@ class QTCREATOR_UTILS_EXPORT ProcessResultData
 {
 public:
     int m_exitCode = 0;
-    QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
-    QProcess::ProcessError m_error = QProcess::UnknownError;
+    ProcessExitStatus m_exitStatus = ProcessExitStatus::NormalExit;
+    ProcessError m_error = ProcessError::UnknownError;
     QString m_errorString = {};
 };
 

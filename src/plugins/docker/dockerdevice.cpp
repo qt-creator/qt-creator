@@ -341,8 +341,8 @@ static WrappedProcessInterface *makeProcessInterface(
         processInterface->emitDone(
             ProcessResultData{
                 -1,
-                QProcess::ExitStatus::CrashExit,
-                QProcess::ProcessError::UnknownError,
+                ProcessExitStatus::CrashExit,
+                ProcessError::UnknownError,
                 Tr::tr("Device is shut down."),
             });
     });

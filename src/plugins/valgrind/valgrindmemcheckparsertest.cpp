@@ -169,7 +169,7 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
     QVERIFY(!m_server->hasPendingConnections());
 
     m_process.reset(new Process);
-    m_process->setProcessChannelMode(QProcess::ForwardedChannels);
+    m_process->setProcessChannelMode(ProcessChannelMode::ForwardedChannels);
     const QString fakeValgrind = fakeValgrindExecutable();
     const QFileInfo fileInfo(fakeValgrind);
     QVERIFY2(fileInfo.isExecutable(), qPrintable(fakeValgrind));
@@ -182,8 +182,8 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
 
     using namespace std::chrono_literals;
     QVERIFY(m_process->waitForStarted(5s));
-    QCOMPARE(m_process->state(), QProcess::Running);
-    QVERIFY2(m_process->error() == QProcess::UnknownError, qPrintable(m_process->errorString()));
+    QCOMPARE(m_process->state(), ProcessState::Running);
+    QVERIFY2(m_process->error() == ProcessError::UnknownError, qPrintable(m_process->errorString()));
     QVERIFY(m_server->waitForNewConnection(5000));
     m_socket.reset(m_server->nextPendingConnection());
     QVERIFY(m_socket);
@@ -271,8 +271,8 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
     parser.runBlocking();
 
     m_process->waitForFinished();
-    QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
-    QCOMPARE(m_process->state(), QProcess::NotRunning);
+    QCOMPARE(m_process->exitStatus(), ProcessExitStatus::NormalExit);
+    QCOMPARE(m_process->state(), ProcessState::NotRunning);
 
     QVERIFY2(parser.errorString().isEmpty(), qPrintable(parser.errorString()));
     const QList<Error> actualErrors = rec.errors;
@@ -346,8 +346,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
     parser.runBlocking();
 
     m_process->waitForFinished();
-    QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
-    QCOMPARE(m_process->state(), QProcess::NotRunning);
+    QCOMPARE(m_process->exitStatus(), ProcessExitStatus::NormalExit);
+    QCOMPARE(m_process->state(), ProcessState::NotRunning);
 
     QVERIFY2(parser.errorString().isEmpty(), qPrintable(parser.errorString()));
     const QList<Error> actualErrors = rec.errors;
@@ -376,8 +376,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample2()
     parser.runBlocking();
 
     m_process->waitForFinished();
-    QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
-    QCOMPARE(m_process->state(), QProcess::NotRunning);
+    QCOMPARE(m_process->exitStatus(), ProcessExitStatus::NormalExit);
+    QCOMPARE(m_process->state(), ProcessState::NotRunning);
     QVERIFY2(parser.errorString().isEmpty(), qPrintable(parser.errorString()));
 
     //tests: multiple stacks with auxwhat == stack count - 1.
@@ -401,8 +401,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample3()
     parser.runBlocking();
 
     m_process->waitForFinished();
-    QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
-    QCOMPARE(m_process->state(), QProcess::NotRunning);
+    QCOMPARE(m_process->exitStatus(), ProcessExitStatus::NormalExit);
+    QCOMPARE(m_process->state(), ProcessState::NotRunning);
     QVERIFY2(parser.errorString().isEmpty(), qPrintable(parser.errorString()));
 
     const QList<Error> errors = rec.errors;
@@ -453,8 +453,8 @@ void ValgrindMemcheckParserTest::testMemcheckCharm()
     parser.runBlocking();
 
     m_process->waitForFinished();
-    QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
-    QCOMPARE(m_process->state(), QProcess::NotRunning);
+    QCOMPARE(m_process->exitStatus(), ProcessExitStatus::NormalExit);
+    QCOMPARE(m_process->state(), ProcessState::NotRunning);
 
     const QList<Error> errors = rec.errors;
     QCOMPARE(errors.size(), 102);
@@ -469,8 +469,8 @@ void ValgrindMemcheckParserTest::testValgrindCrash()
     parser.setSocket(m_socket.release());
     parser.runBlocking();
     m_process->waitForFinished();
-    QCOMPARE(m_process->state(), QProcess::NotRunning);
-    QCOMPARE(m_process->exitStatus(), QProcess::CrashExit);
+    QCOMPARE(m_process->state(), ProcessState::NotRunning);
+    QCOMPARE(m_process->exitStatus(), ProcessExitStatus::CrashExit);
 
     QVERIFY(!parser.errorString().isEmpty());
 }
@@ -483,8 +483,8 @@ void ValgrindMemcheckParserTest::testValgrindGarbage()
     parser.setSocket(m_socket.release());
     parser.runBlocking();
     m_process->waitForFinished();
-    QCOMPARE(m_process->state(), QProcess::NotRunning);
-    QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
+    QCOMPARE(m_process->state(), ProcessState::NotRunning);
+    QCOMPARE(m_process->exitStatus(), ProcessExitStatus::NormalExit);
 
     QVERIFY(!parser.errorString().isEmpty());
     qDebug() << parser.errorString();

@@ -106,7 +106,7 @@ void setupProcessModule()
             sol::no_constructor,
             "start_cb",
             [guard](Process *process, sol::function callback) {
-                if (process->state() != QProcess::NotRunning)
+                if (process->state() != ProcessState::NotRunning)
                     callback(false, "Process is already running");
 
                 struct Connections
@@ -136,7 +136,7 @@ void setupProcessModule()
             },
             "stop_cb",
             [](Process *process, sol::function callback) {
-                if (process->state() != QProcess::Running)
+                if (process->state() != ProcessState::Running)
                     callback(false, "Process is not running");
 
                 // clang-format off

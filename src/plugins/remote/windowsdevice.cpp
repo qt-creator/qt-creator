@@ -124,8 +124,8 @@ public:
                                       << m_process.readAllRawStandardError();
             // 255 is ssh's own exit code for connection or authentication failures.
             if (result.m_exitCode == 255) {
-                result.m_exitStatus = QProcess::CrashExit;
-                result.m_error = QProcess::Crashed;
+                result.m_exitStatus = ProcessExitStatus::CrashExit;
+                result.m_error = ProcessError::Crashed;
             }
             emit done(result);
         });

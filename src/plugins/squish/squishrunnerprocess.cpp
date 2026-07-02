@@ -54,7 +54,7 @@ void SquishRunnerProcess::setupProcess(RunnerMode mode)
 
 void SquishRunnerProcess::start(const Utils::CommandLine &cmdline, const Utils::Environment &env)
 {
-    QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
+    QTC_ASSERT(m_process.state() == Utils::ProcessState::NotRunning, return);
     m_licenseIssues = false;
     m_autId = 0;
     m_outputMode = SingleLine;

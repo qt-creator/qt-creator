@@ -322,7 +322,7 @@ static ExecutableItem jdbRecipe(const Storage<RunnerStorage> &storage,
                                     .arg(s_localJdbServerPort.toString());
         process.setCommand({jdbPath, {"-connect", portArg}});
         process.setProcessMode(ProcessMode::Writer);
-        process.setProcessChannelMode(QProcess::MergedChannels);
+        process.setProcessChannelMode(ProcessChannelMode::MergedChannels);
         process.setReaperTimeout(s_jdbTimeout);
         QObject::connect(settledBarrier.activeStorage(), &QBarrier::done, &process, [processPtr = &process] {
             processPtr->write("ignore uncaught java.lang.Throwable\n"
@@ -786,7 +786,7 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     };
 
     const auto onIsAliveSetup = [storage](Process &process) {
-        process.setProcessChannelMode(QProcess::MergedChannels);
+        process.setProcessChannelMode(ProcessChannelMode::MergedChannels);
         process.setCommand(storage->adbCommand({"shell", pidPollingScript.arg(storage->m_processPID)}));
     };
 

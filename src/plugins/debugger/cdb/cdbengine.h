@@ -127,7 +127,7 @@ private:
     void doInterruptInferior(const InterruptCallback &cb = InterruptCallback());
     void doContinueInferior();
     void parseOutputLine(QString line);
-    bool isCdbProcessRunning() const { return m_process.state() != QProcess::NotRunning; }
+    bool isCdbProcessRunning() const { return m_process.state() != Utils::ProcessState::NotRunning; }
     inline void postDisassemblerCommand(quint64 address, DisassemblerAgent *agent);
     void postDisassemblerCommand(quint64 address, quint64 endAddress,
                                  DisassemblerAgent *agent);

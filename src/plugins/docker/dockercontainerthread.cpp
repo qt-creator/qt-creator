@@ -81,7 +81,7 @@ private:
         eventProcess.setProcessMode(ProcessMode::Reader);
         eventProcess.start();
         if (!eventProcess.waitForStarted(5s)) {
-            if (eventProcess.state() == QProcess::NotRunning) {
+            if (eventProcess.state() == ProcessState::NotRunning) {
                 return ResultError(
                     Tr::tr("Failed starting Docker event listener. Exit code: %1, output: %2")
                         .arg(eventProcess.exitCode())
@@ -96,7 +96,7 @@ private:
         m_startProcess->setProcessMode(ProcessMode::Writer);
         m_startProcess->start();
         if (!m_startProcess->waitForStarted(5s)) {
-            if (m_startProcess->state() == QProcess::NotRunning) {
+            if (m_startProcess->state() == ProcessState::NotRunning) {
                 return ResultError(
                     Tr::tr("Failed starting Docker container. Exit code: %1, output: %2")
                         .arg(m_startProcess->exitCode())

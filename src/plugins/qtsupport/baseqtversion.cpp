@@ -1789,7 +1789,7 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
         *error = Tr::tr("Timeout running \"%1\".").arg(binary.displayName());
         return {};
     }
-    if (process.exitStatus() != QProcess::NormalExit) {
+    if (process.exitStatus() != ProcessExitStatus::NormalExit) {
         *error = Tr::tr("\"%1\" crashed.").arg(binary.displayName());
         return {};
     }

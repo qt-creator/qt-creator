@@ -232,7 +232,7 @@ QbsSession::~QbsSession()
         d->packetReader->disconnect(this);
     if (d->qbsProcess) {
         d->qbsProcess->disconnect(this);
-        if (d->qbsProcess->state() == QProcess::Running) {
+        if (d->qbsProcess->state() == ProcessState::Running) {
             sendQuitPacket();
             using namespace std::chrono_literals;
             d->qbsProcess->waitForFinished(10s);
@@ -606,7 +606,7 @@ void QbsSession::setInactive()
     d->packetReader->disconnect(this);
     d->packetReader->deleteLater();
     d->packetReader = nullptr;
-    if (d->qbsProcess->state() == QProcess::Running)
+    if (d->qbsProcess->state() == ProcessState::Running)
         sendQuitPacket();
     d->qbsProcess = nullptr;
     d->languageClient = nullptr; // Owned by LanguageClientManager

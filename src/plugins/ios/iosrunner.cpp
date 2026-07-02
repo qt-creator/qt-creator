@@ -147,7 +147,7 @@ static GroupItem findApp(RunControl *runControl, const Storage<AppInfo> &appInfo
         return SetupResult::Continue;
     };
     const auto onDone = [runControl, appInfo](const Process &process) {
-        if (process.error() != QProcess::UnknownError) {
+        if (process.error() != ProcessError::UnknownError) {
             runControl->postMessage(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()),
                                     ErrorMessageFormat);
             return DoneResult::Error;
@@ -254,7 +254,7 @@ static Group deviceCtlKicker(const QStoredBarrier &barrier, RunControl *runContr
             QObject::connect(runControl, &RunControl::canceled, &process, &Process::stop);
         };
         const auto onDone = [runControl, appInfo](const Process &process) {
-            if (process.error() != QProcess::UnknownError) {
+            if (process.error() != ProcessError::UnknownError) {
                 runControl->postMessage(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()),
                                         ErrorMessageFormat);
             } else {
@@ -366,7 +366,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
             runControl->postMessage(Tr::tr("Running canceled."), ErrorMessageFormat);
             return DoneResult::Error;
         }
-        if (process.error() != QProcess::UnknownError) {
+        if (process.error() != ProcessError::UnknownError) {
             runControl->postMessage(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()),
                                     ErrorMessageFormat);
             return DoneResult::Error;
@@ -426,7 +426,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
                              QString::number(*pidStorage)}});
     };
     const auto onStopDone = [runControl, appInfo](const Process &process) {
-        if (process.error() != QProcess::UnknownError) {
+        if (process.error() != ProcessError::UnknownError) {
             runControl->postMessage(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()),
                                     ErrorMessageFormat);
             return DoneResult::Error;

@@ -173,8 +173,8 @@ int ProcessTestApp::StandardOutputAndErrorWriter::main()
 
 int ProcessTestApp::ChannelForwarding::main()
 {
-    const QProcess::ProcessChannelMode channelMode
-            = QProcess::ProcessChannelMode(qEnvironmentVariableIntValue(envVar()));
+    const ProcessChannelMode channelMode
+            = ProcessChannelMode(qEnvironmentVariableIntValue(envVar()));
     qunsetenv(envVar());
 
     SubProcessConfig subConfig(StandardOutputAndErrorWriter::envVar(), {});
@@ -246,7 +246,7 @@ int ProcessTestApp::RecursiveCrashingProcess::main()
     subConfig.setupSubProcess(&process);
     process.start();
     process.waitForFinished();
-    if (process.exitStatus() == QProcess::NormalExit)
+    if (process.exitStatus() == ProcessExitStatus::NormalExit)
         return process.exitCode();
     return s_crashCode;
 }
@@ -287,7 +287,7 @@ int ProcessTestApp::RecursiveBlockingProcess::main()
     SubProcessConfig subConfig(envVar(), QString::number(currentDepth - 1));
     Process process;
     subConfig.setupSubProcess(&process);
-    process.setProcessChannelMode(QProcess::ForwardedChannels);
+    process.setProcessChannelMode(ProcessChannelMode::ForwardedChannels);
     process.start();
     while (true) {
         if (process.waitForFinished(10ms))
@@ -300,7 +300,7 @@ int ProcessTestApp::RecursiveBlockingProcess::main()
         }
 #endif
     }
-    if (process.exitStatus() == QProcess::NormalExit)
+    if (process.exitStatus() == ProcessExitStatus::NormalExit)
         return process.exitCode();
     return s_crashCode;
 }

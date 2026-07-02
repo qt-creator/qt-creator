@@ -24,7 +24,7 @@ void SquishProcessBase::setState(SquishProcessState state)
 
 void SquishProcessBase::start(const Utils::CommandLine &cmdline, const Utils::Environment &env)
 {
-    QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
+    QTC_ASSERT(m_process.state() == Utils::ProcessState::NotRunning, return);
     // avoid crashes on fast re-use
     m_process.close();
 

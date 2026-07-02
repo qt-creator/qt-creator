@@ -121,7 +121,7 @@ public:
     {
         m_timer->stop();
 
-        if (m_proc.state() == QProcess::Running)
+        if (m_proc.state() == ProcessState::Running)
             m_proc.kill();
 
         if (m_socket.isOpen())

@@ -275,7 +275,7 @@ static void connectProcessToLog(
         });
 
     QObject::connect(&process, &Process::done, [instanceConfig, context, &process] {
-        if (process.error() != QProcess::UnknownError) {
+        if (process.error() != ProcessError::UnknownError) {
             const QString line = process.verboseExitMessage();
             if (context.isEmpty())
                 instanceConfig.logFunction(line.trimmed());

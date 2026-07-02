@@ -161,7 +161,7 @@ Group ValgrindProcessPrivate::runRecipe() const
         process.setCommand(cmd);
         process.setWorkingDirectory(m_debuggee.workingDirectory);
         process.setEnvironment(m_debuggee.environment);
-        process.setProcessChannelMode(m_channelMode);
+        process.setProcessChannelMode(fromQProcess(m_channelMode));
         process.setTerminalMode(m_useTerminal ? TerminalMode::Run : TerminalMode::Off);
 
         Process *processPtr = &process;

@@ -242,14 +242,10 @@ QtcLibrary {
         "processenums.h",
         "processhandle.cpp",
         "processhandle.h",
-        "processhelper.cpp",
-        "processhelper.h",
         "processinfo.cpp",
         "processinfo.h",
         "processinterface.cpp",
         "processinterface.h",
-        "processreaper.cpp",
-        "processreaper.h",
         "progressindicator.cpp",
         "progressindicator.h",
         "projectintropage.cpp",
@@ -387,6 +383,20 @@ QtcLibrary {
             "tips.h",
             "tooltip.cpp",
             "tooltip.h",
+        ]
+    }
+
+    // Process reaping/helper machinery wraps QProcess directly, which is compiled
+    // out on WebAssembly (QT_FEATURE_process == -1). It is only used by the
+    // QProcess-based process backend, which is itself excluded on Emscripten.
+    Group {
+        name: "ProcessReaper"
+        condition: !qbs.toolchain.contains("emscripten")
+        files: [
+            "processhelper.cpp",
+            "processhelper.h",
+            "processreaper.cpp",
+            "processreaper.h",
         ]
     }
 

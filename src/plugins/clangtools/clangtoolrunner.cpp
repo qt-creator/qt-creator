@@ -95,7 +95,7 @@ static QString processDetails(const Process &process, const QString &stdErr)
     }
     return Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")
         .arg(process.commandLine().toUserOutput())
-        .arg(process.error())
+        .arg(int(process.error()))
         .arg(fullOutput);
 }
 

@@ -229,7 +229,7 @@ TerminalWidget *TerminalPane::stoppedTerminalWithId(Id identifier) const
 {
     for (int i = 0; i < m_tabWidget.count(); ++i) {
         const auto terminal = qobject_cast<TerminalWidget *>(m_tabWidget.widget(i));
-        if (terminal && terminal->processState() == QProcess::NotRunning
+        if (terminal && terminal->processState() == ProcessState::NotRunning
             && terminal->identifier() == identifier)
             return terminal;
     }

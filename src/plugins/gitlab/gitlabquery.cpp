@@ -120,7 +120,7 @@ Group gitLabQuery(const QuerySetupHandler &onSetup, const QueryDoneHandler &onDo
         // Only offer to ignore the certificate while it is still being validated, so a
         // persistent SSL error can't keep prompting and retrying.
         if (server.secure && server.validateCert
-                && process.exitStatus() == QProcess::NormalExit
+                && process.exitStatus() == ProcessExitStatus::NormalExit
                 && (process.exitCode() == 35 || process.exitCode() == 60)) { // ssl certificate issues
             *needsPrompt = true;
             return DoneResult::Success; // proceed to the prompt + retry branch

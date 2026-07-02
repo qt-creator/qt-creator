@@ -40,7 +40,7 @@ public:
     Utils::FilePath cwd() const;
     Utils::CommandLine currentCommand() const;
     std::optional<Utils::Id> identifier() const;
-    QProcess::ProcessState processState() const;
+    Utils::ProcessState processState() const;
 
     void restart(const Utils::Terminal::OpenTerminalParameters &openParameters);
 

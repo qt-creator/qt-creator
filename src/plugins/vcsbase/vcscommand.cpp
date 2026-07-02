@@ -62,8 +62,8 @@ static ProcessTask vcsProcessTaskHelper(
         ProcessResult result;
         if (doneWith == DoneWith::Cancel) {
             result = ProcessResult::Canceled;
-        } else if (data.interpreter && process.error() != QProcess::FailedToStart
-            && process.exitStatus() == QProcess::NormalExit) {
+        } else if (data.interpreter && process.error() != ProcessError::FailedToStart
+            && process.exitStatus() == ProcessExitStatus::NormalExit) {
             result = data.interpreter(process.exitCode());
         } else {
             result = process.result();
@@ -105,7 +105,7 @@ static ProcessTask vcsProcessTaskHelper(
             VcsOutputWindow::appendCommand(data.runData.workingDirectory, data.runData.command);
 
         if (data.flags & RunFlag::MergeOutputChannels)
-            process.setProcessChannelMode(QProcess::MergedChannels);
+            process.setProcessChannelMode(ProcessChannelMode::MergedChannels);
 
         if (data.encoding.isValid())
             process.setEncoding(data.encoding);

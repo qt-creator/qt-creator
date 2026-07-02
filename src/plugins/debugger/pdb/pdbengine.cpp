@@ -397,7 +397,7 @@ void PdbEngine::handlePdbDone()
         return;
     }
 
-    const QProcess::ProcessError error = m_proc.error();
+    const QProcess::ProcessError error = toQProcess(m_proc.error());
     if (error != QProcess::UnknownError) {
         showMessage("HANDLE PDB ERROR");
         if (error != QProcess::Crashed)
@@ -406,7 +406,7 @@ void PdbEngine::handlePdbDone()
             return;
     }
     showMessage(QString("PDB PROCESS FINISHED, status %1, code %2")
-                .arg(m_proc.exitStatus()).arg(m_proc.exitCode()));
+                .arg(int(m_proc.exitStatus())).arg(m_proc.exitCode()));
     notifyEngineSpontaneousShutdown();
 }
 

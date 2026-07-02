@@ -120,10 +120,8 @@ add_qtc_library(Utils
     predicates.h
     processenums.h
     processhandle.cpp processhandle.h
-    processhelper.cpp processhelper.h
     processinfo.cpp processinfo.h
     processinterface.cpp processinterface.h
-    processreaper.cpp processreaper.h
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h
@@ -281,6 +279,15 @@ extend_qtc_library(Utils CONDITION APPLE
 extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
   SOURCES
     touchbar/touchbar.cpp
+)
+
+# Process reaping/helper machinery wraps QProcess directly, which is compiled out on
+# WebAssembly (QT_FEATURE_process == -1). It is only used by the QProcess-based process
+# backend, which is itself excluded on Emscripten.
+extend_qtc_library(Utils CONDITION NOT EMSCRIPTEN
+  SOURCES
+    processhelper.cpp processhelper.h
+    processreaper.cpp processreaper.h
 )
 
 extend_qtc_library(Utils

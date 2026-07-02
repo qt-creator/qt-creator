@@ -114,7 +114,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
     if (!stdErr.isEmpty())
         MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
 
-    if (patchProcess.exitStatus() != QProcess::NormalExit) {
+    if (patchProcess.exitStatus() != ProcessExitStatus::NormalExit) {
         MessageManager::writeFlashing(Tr::tr("\"%1\" crashed.").arg(patch.toUserOutput()));
         return false;
     }

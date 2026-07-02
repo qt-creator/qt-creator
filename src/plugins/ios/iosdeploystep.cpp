@@ -127,7 +127,7 @@ static GroupItem createDeviceCtlDeployTask(
             errorHandler(Tr::tr("Deployment canceled."), {});
             return DoneResult::Error;
         }
-        if (process.error() != QProcess::UnknownError) {
+        if (process.error() != ProcessError::UnknownError) {
             errorHandler(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()),
                          Task::Error);
             return DoneResult::Error;

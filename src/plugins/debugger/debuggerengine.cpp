@@ -2117,7 +2117,7 @@ void DebuggerEngine::notifyDebuggerProcessFinished(const ProcessResultData &resu
     const QString backendName = debuggerName();
     showMessage(QString("%1 PROCESS FINISHED, status %2, exit code %3 (0x%4)")
                     .arg(backendName)
-                    .arg(result.m_exitStatus)
+                    .arg(int(result.m_exitStatus))
                     .arg(result.m_exitCode)
                     .arg(QString::number(result.m_exitCode, 16)));
 
@@ -2142,7 +2142,7 @@ void DebuggerEngine::notifyDebuggerProcessFinished(const ProcessResultData &resu
     default: {
         // Initiate shutdown sequence
         notifyInferiorIll();
-        const QString msg = result.m_exitStatus == QProcess::CrashExit ?
+        const QString msg = result.m_exitStatus == ProcessExitStatus::CrashExit ?
                 Tr::tr("The %1 process terminated.") :
                 Tr::tr("The %2 process terminated unexpectedly (exit code %1).").arg(result.m_exitCode);
         AsynchronousMessageBox::critical(Tr::tr("Unexpected %1 Exit").arg(backendName),

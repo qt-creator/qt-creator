@@ -131,8 +131,8 @@ GroupItem AppManagerInstallPackageStep::deployRecipe()
         if (result == DoneWith::Success) {
             addProgressMessage(Tr::tr("Command finished successfully."));
         } else {
-            if (process.error() != QProcess::UnknownError
-                || process.exitStatus() != QProcess::NormalExit) {
+            if (process.error() != ProcessError::UnknownError
+                || process.exitStatus() != ProcessExitStatus::NormalExit) {
                 addErrorMessage(Tr::tr("Process failed: %1").arg(process.errorString()));
             } else if (process.exitCode() != 0) {
                 addErrorMessage(Tr::tr("Process finished with exit code %1.")

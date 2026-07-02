@@ -177,7 +177,7 @@ private:
     struct Deleter {
         void operator()(Process *process) const
         {
-            if (process->state() != QProcess::NotRunning) {
+            if (process->state() != ProcessState::NotRunning) {
                 process->write("k\n\r");
                 process->closeWriteChannel();
             }
@@ -564,11 +564,11 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
                      q, [this] { subprocessHasData(); });
     QObject::connect(process.get(), &Process::done, q, [this] {
         if (process->result() == ProcessResult::FinishedWithSuccess) {
-            stop((process->exitStatus() == QProcess::NormalExit) ? process->exitCode() : -1);
+            stop((process->exitStatus() == ProcessExitStatus::NormalExit) ? process->exitCode() : -1);
             qCDebug(toolHandlerLog) << "IosToolHandler::finished(" << this << ")";
         } else {
             if (state != Stopped)
-                errorMsg(Tr::tr("iOS tool error %1").arg(process->error()));
+                errorMsg(Tr::tr("iOS tool error %1").arg(int(process->error())));
             stop(-1);
             if (process->result() == ProcessResult::StartFailed)
                 qCDebug(toolHandlerLog) << "IosToolHandler::finished(" << this << ")";
@@ -629,7 +629,7 @@ void IosDeviceToolHandlerPrivate::requestDeviceInfo(const QString &deviceId, int
 
 bool IosDeviceToolHandlerPrivate::isRunning() const
 {
-    return process && (process->state() != QProcess::NotRunning);
+    return process && (process->state() != ProcessState::NotRunning);
 }
 
 void IosDeviceToolHandlerPrivate::start(const QString &exe, const QStringList &args)

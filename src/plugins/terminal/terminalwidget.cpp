@@ -493,12 +493,12 @@ std::optional<Id> TerminalWidget::identifier() const
     return m_openParameters.identifier;
 }
 
-QProcess::ProcessState TerminalWidget::processState() const
+ProcessState TerminalWidget::processState() const
 {
     if (m_process)
         return m_process->state();
 
-    return QProcess::NotRunning;
+    return ProcessState::NotRunning;
 }
 
 void TerminalWidget::restart(const OpenTerminalParameters &openParameters)

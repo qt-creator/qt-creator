@@ -33,8 +33,8 @@ public:
 
     void setStubCreator(StubCreator *creator);
 
-    void emitError(QProcess::ProcessError error, const QString &errorString);
-    void emitFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void emitError(ProcessError error, const QString &errorString);
+    void emitFinished(int exitCode, ProcessExitStatus exitStatus);
     void onStubExited();
 
 protected:

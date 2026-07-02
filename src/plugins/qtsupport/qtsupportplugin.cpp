@@ -61,7 +61,7 @@ static void processRunnerCallback(ProcessData *data)
     proc.runBlocking();
 
     data->exitCode = proc.exitCode();
-    data->exitStatus = proc.exitStatus();
+    data->exitStatus = toQProcess(proc.exitStatus());
     data->stdErr = proc.rawStdErr();
     data->stdOut = proc.rawStdOut();
 }

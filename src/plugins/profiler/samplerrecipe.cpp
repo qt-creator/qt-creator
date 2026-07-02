@@ -44,7 +44,7 @@ QtTaskTree::Group launchThenCapture(const std::shared_ptr<RecordingSession> &ses
         // display its output, and reading it ourselves would make Process install
         // channel socket notifiers whose teardown on macOS can crash when the
         // process exits (QTBUG-style QCFSocketNotifier removal fault).
-        process.setProcessChannelMode(QProcess::ForwardedChannels);
+        process.setProcessChannelMode(ProcessChannelMode::ForwardedChannels);
         *launched = &process;
         // The PID is known once the process is running; the same started() signal
         // also releases the capture in the When() clause below.

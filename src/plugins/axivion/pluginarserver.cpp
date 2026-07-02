@@ -228,7 +228,7 @@ void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &on
         });
     };
     const auto onDone = [bauhausSuite, storage, onFailed](const Process &proc) {
-        if (storage->m_state == State::Starting && proc.error() == QProcess::UnknownError) {
+        if (storage->m_state == State::Starting && proc.error() == ProcessError::UnknownError) {
             const QString error = Tr::tr("PluginArServer stopped with unknown error.").append('\n')
                     .append(proc.cleanedStdErr());
             writeError(error);

@@ -838,12 +838,12 @@ void LldbEngine::handleLldbDone()
         return;
     }
 
-    if (m_lldbProc.error() == QProcess::UnknownError) {
+    if (m_lldbProc.error() == ProcessError::UnknownError) {
         notifyDebuggerProcessFinished(m_lldbProc.resultData());
         return;
     }
 
-    const QProcess::ProcessError error = m_lldbProc.error();
+    const QProcess::ProcessError error = toQProcess(m_lldbProc.error());
     showMessage(QString("LLDB PROCESS ERROR: %1").arg(error));
     switch (error) {
     case QProcess::Crashed:

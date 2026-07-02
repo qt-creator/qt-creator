@@ -117,7 +117,7 @@ private:
 
     bool emitFinished()
     {
-        if (m_reaperSetup.m_process->state() != QProcess::NotRunning)
+        if (fromQProcess(m_reaperSetup.m_process->state()) != ProcessState::NotRunning)
             return false;
 
         if (!m_finished) {
@@ -272,7 +272,7 @@ void ProcessReaperImpl::reap(QProcess *process, milliseconds timeout)
                qWarning() << "Can't reap process from non-process's thread."; return);
 
     process->disconnect();
-    if (process->state() == QProcess::NotRunning) {
+    if (fromQProcess(process->state()) == ProcessState::NotRunning) {
         delete process;
         return;
     }

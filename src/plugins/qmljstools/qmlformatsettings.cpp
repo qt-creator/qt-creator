@@ -173,7 +173,7 @@ QmlFormatProcess::QmlFormatProcess(const CommandLine &cmd)
     connect(&m_process, &Process::done, this, [this] {
         ProcessResultData result = m_process.resultData();
         FilePath qmlformatIniFile = FilePath::fromString(m_tempDir.filePath(".qmlformat.ini"));
-        if (result.m_exitStatus == QProcess::NormalExit && result.m_exitCode == 0)
+        if (result.m_exitStatus == ProcessExitStatus::NormalExit && result.m_exitCode == 0)
             emit qmlformatIniCreated(qmlformatIniFile);
         else
             Core::MessageManager::writeSilently(

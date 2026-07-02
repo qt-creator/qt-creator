@@ -133,7 +133,7 @@ static Result<> testJavaC(const FilePath &jdkPath)
 
     Process javacProcess;
     const CommandLine cmd(bin, {versionParameter});
-    javacProcess.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
+    javacProcess.setProcessChannelMode(ProcessChannelMode::MergedChannels);
     javacProcess.setCommand(cmd);
     javacProcess.runBlocking();
 
@@ -675,8 +675,8 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
     connect(gitCloner, &Process::done, this, [this, openSslProgressDialog, gitCloner, failDialog] {
         openSslProgressDialog->close();
-        if (gitCloner->error() != QProcess::UnknownError) {
-            if (gitCloner->error() == QProcess::FailedToStart) {
+        if (gitCloner->error() != ProcessError::UnknownError) {
+            if (gitCloner->error() == ProcessError::FailedToStart) {
                 failDialog(Tr::tr("The Git tool might not be installed properly on your system."));
                 return;
             } else {

@@ -229,7 +229,7 @@ void CdbEngine::init()
     }
     // update source path maps from debugger start params
     mergeStartParametersSourcePathMap();
-    QTC_ASSERT(m_process.state() != QProcess::Running, m_process.stop());
+    QTC_ASSERT(m_process.state() != ProcessState::Running, m_process.stop());
 }
 
 CdbEngine::~CdbEngine() = default;
@@ -668,13 +668,13 @@ void CdbEngine::processDone()
         return;
     }
 
-    if (m_process.error() != QProcess::UnknownError)
+    if (m_process.error() != ProcessError::UnknownError)
         showMessage(m_process.errorString(), LogError);
 
     if (debug) {
         qDebug("CdbEngine::processFinished %dms '%s' (exit state=%d, ex=%d)",
                elapsedLogTime(), qPrintable(stateName(state())),
-               m_process.exitStatus(), m_process.exitCode());
+               int(m_process.exitStatus()), m_process.exitCode());
     }
 
     notifyDebuggerProcessFinished(m_process.resultData());

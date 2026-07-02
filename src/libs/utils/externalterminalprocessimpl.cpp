@@ -195,7 +195,7 @@ Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setu
 
     process->start();
     process->waitForStarted();
-    if (process->error() != QProcess::UnknownError) {
+    if (process->error() != ProcessError::UnknownError) {
         return ResultError(
             Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
     }

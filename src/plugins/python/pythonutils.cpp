@@ -128,9 +128,9 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     process.setTerminalMode(TerminalMode::Detached);
     process.start();
 
-    if (process.error() != QProcess::UnknownError) {
+    if (process.error() != ProcessError::UnknownError) {
         Core::MessageManager::writeDisrupting(
-            Tr::tr((process.error() == QProcess::FailedToStart)
+            Tr::tr((process.error() == ProcessError::FailedToStart)
                        ? "Failed to run Python (%1): \"%2\"."
                        : "Error while running Python (%1): \"%2\".")
                 .arg(process.commandLine().toUserOutput(), process.errorString()));

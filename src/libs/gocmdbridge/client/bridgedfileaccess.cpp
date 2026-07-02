@@ -61,7 +61,7 @@ Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputData = {}
 {
     Process p;
     p.setCommand(cmdLine);
-    p.setProcessChannelMode(QProcess::MergedChannels);
+    p.setProcessChannelMode(ProcessChannelMode::MergedChannels);
     if (!inputData.isEmpty())
         p.setWriteData(inputData);
     p.runBlocking();

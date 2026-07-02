@@ -94,9 +94,9 @@ QDateTime GenericDirectUploadStep::timestampFromStat(const DeployableFile &file,
 {
     bool succeeded = false;
     QString error;
-    if (statProc->error() == QProcess::FailedToStart) {
+    if (statProc->error() == ProcessError::FailedToStart) {
         error = Tr::tr("Failed to start \"stat\": %1").arg(statProc->errorString());
-    } else if (statProc->exitStatus() == QProcess::CrashExit) {
+    } else if (statProc->exitStatus() == ProcessExitStatus::CrashExit) {
         error = Tr::tr("\"stat\" crashed.");
     } else if (statProc->exitCode() != 0) {
         error = Tr::tr("\"stat\" failed with exit code %1: %2")

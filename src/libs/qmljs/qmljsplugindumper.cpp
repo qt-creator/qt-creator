@@ -198,26 +198,26 @@ static QString qmlPluginDumpErrorMessage(Process *process)
     QString errorMessage;
     const QString binary = process->commandLine().executable().toUserOutput();
     switch (process->error()) {
-    case QProcess::FailedToStart:
+    case ProcessError::FailedToStart:
         errorMessage = Tr::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
         break;
-    case QProcess::Crashed:
+    case ProcessError::Crashed:
         errorMessage = Tr::tr("\"%1\" crashed.").arg(binary);
         break;
-    case QProcess::Timedout:
+    case ProcessError::Timedout:
         errorMessage = Tr::tr("\"%1\" timed out.").arg(binary);
         break;
-    case QProcess::ReadError:
-    case QProcess::WriteError:
+    case ProcessError::ReadError:
+    case ProcessError::WriteError:
         errorMessage = Tr::tr("I/O error running \"%1\".").arg(binary);
         break;
-    case QProcess::UnknownError:
+    case ProcessError::UnknownError:
         if (process->exitCode())
             errorMessage = Tr::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
         break;
     }
     errorMessage += '\n' + Tr::tr("Arguments: %1").arg(process->commandLine().arguments());
-    if (process->error() != QProcess::FailedToStart) {
+    if (process->error() != ProcessError::FailedToStart) {
         const QString stdErr = QString::fromLocal8Bit(process->readAllRawStandardError());
         if (!stdErr.isEmpty()) {
             errorMessage += QLatin1Char('\n');
@@ -620,7 +620,7 @@ void PluginDumper::runQmlDump(const ModelManagerInterface::ProjectInfo &info,
 
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError,
                                             qmldumpFailedMessage(importPath, errorMessages));
-        if (process.error() != QProcess::UnknownError) {
+        if (process.error() != ProcessError::UnknownError) {
             libraryInfo.updateFingerprint();
             m_modelManager->updateLibraryInfo(importPath, libraryInfo);
             return DoneResult::Success;

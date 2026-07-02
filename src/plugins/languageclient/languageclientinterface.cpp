@@ -151,7 +151,7 @@ FilePath StdIOClientInterface::serverDeviceTemplate() const
 
 void StdIOClientInterface::sendData(const QByteArray &data)
 {
-    if (!m_process || m_process->state() != QProcess::Running) {
+    if (!m_process || m_process->state() != ProcessState::Running) {
         emit error(Tr::tr("Cannot send data to unstarted server %1")
             .arg(m_cmd.toUserOutput()));
         return;

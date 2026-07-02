@@ -854,7 +854,7 @@ void tst_Process::notRunningAfterStartingNonExistingProgram()
     int doneCount = 0;
     QObject::connect(&process, &Process::done, [&process, &doneCount]() {
         ++doneCount;
-        QCOMPARE(process.error(), QProcess::FailedToStart);
+        QCOMPARE(process.error(), ProcessError::FailedToStart);
     });
 
     const int loopCount = 2;
@@ -874,9 +874,9 @@ void tst_Process::notRunningAfterStartingNonExistingProgram()
 
         // shouldn't wait, should finish immediately
         QVERIFY(timer.elapsed() < duration_cast<milliseconds>(timeout).count());
-        QCOMPARE(process.state(), QProcess::NotRunning);
-        QCOMPARE(process.exitStatus(), QProcess::NormalExit);
-        QCOMPARE(process.error(), QProcess::FailedToStart);
+        QCOMPARE(process.state(), ProcessState::NotRunning);
+        QCOMPARE(process.exitStatus(), ProcessExitStatus::NormalExit);
+        QCOMPARE(process.error(), ProcessError::FailedToStart);
         QVERIFY(process.exitCode() != 0);
         QCOMPARE(process.result(), ProcessResult::StartFailed);
     }
@@ -960,7 +960,7 @@ void tst_Process::mergedChannels()
     Process process;
     subConfig.setupSubProcess(&process);
 
-    process.setProcessChannelMode(channelMode);
+    process.setProcessChannelMode(fromQProcess(channelMode));
     process.start();
     QVERIFY(process.waitForFinished());
 
@@ -1023,10 +1023,10 @@ void tst_Process::flushFinishedWhileWaitingForReadyRead()
     process.start();
 
     QVERIFY(process.waitForStarted());
-    QCOMPARE(process.state(), QProcess::Running);
+    QCOMPARE(process.state(), ProcessState::Running);
 
     QByteArray reply;
-    while (process.state() == QProcess::Running) {
+    while (process.state() == ProcessState::Running) {
         process.waitForReadyRead();
         if (processChannel == QProcess::StandardOutput)
             reply += process.readAllRawStandardOutput();
@@ -1050,8 +1050,8 @@ void tst_Process::crash()
     connect(&process, &Process::done, &loop, &QEventLoop::quit);
     loop.exec();
 
-    QCOMPARE(process.error(), QProcess::Crashed);
-    QCOMPARE(process.exitStatus(), QProcess::CrashExit);
+    QCOMPARE(process.error(), ProcessError::Crashed);
+    QCOMPARE(process.exitStatus(), ProcessExitStatus::CrashExit);
 }
 
 void tst_Process::crashAfterOneSecond()
@@ -1066,8 +1066,8 @@ void tst_Process::crashAfterOneSecond()
     timer.start();
     QVERIFY(process.waitForFinished(30s));
     QVERIFY(timer.elapsed() < 30000); // in milliseconds
-    QCOMPARE(process.state(), QProcess::NotRunning);
-    QCOMPARE(process.error(), QProcess::Crashed);
+    QCOMPARE(process.state(), ProcessState::NotRunning);
+    QCOMPARE(process.error(), ProcessError::Crashed);
 }
 
 void tst_Process::recursiveCrashingProcess()
@@ -1080,8 +1080,8 @@ void tst_Process::recursiveCrashingProcess()
     process.start();
     QVERIFY(process.waitForStarted(1s));
     QVERIFY(process.waitForFinished());
-    QCOMPARE(process.state(), QProcess::NotRunning);
-    QCOMPARE(process.exitStatus(), QProcess::NormalExit);
+    QCOMPARE(process.state(), ProcessState::NotRunning);
+    QCOMPARE(process.exitStatus(), ProcessExitStatus::NormalExit);
     QCOMPARE(process.exitCode(), s_crashCode);
 }
 
@@ -1121,7 +1121,7 @@ void tst_Process::recursiveBlockingProcess()
         QTRY_COMPARE(readSpy.count(), 2); // Wait until 2nd ready read signal comes.
         QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
         QTRY_COMPARE(doneSpy.count(), 1); // Wait until done signal comes.
-        QCOMPARE(process.exitStatus(), QProcess::NormalExit);
+        QCOMPARE(process.exitStatus(), ProcessExitStatus::NormalExit);
         QCOMPARE(process.exitCode(), s_crashCode);
     }
     ProcessReaper::deleteAll();
@@ -1197,11 +1197,11 @@ void tst_Process::quitBlockingProcess()
             if (HostOsInfo::isWindowsHost())
                 QSKIP(s_skipTerminateOnWindows);
             QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
-            QCOMPARE(process.exitStatus(), QProcess::NormalExit);
+            QCOMPARE(process.exitStatus(), ProcessExitStatus::NormalExit);
             QCOMPARE(process.exitCode(), s_crashCode);
         } else {
             QCOMPARE(process.readAllRawStandardOutput(), QByteArray());
-            QCOMPARE(process.exitStatus(), QProcess::CrashExit);
+            QCOMPARE(process.exitStatus(), ProcessExitStatus::CrashExit);
             QVERIFY(process.exitCode() != s_crashCode);
         }
     } else {

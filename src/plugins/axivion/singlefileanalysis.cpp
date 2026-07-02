@@ -270,7 +270,7 @@ void SingleFileAnalysis::onSessionStarted(const FilePath &filePath, int sessionI
         if (process.result() == ProcessResult::FinishedWithSuccess)
             qCDebug(sfaLog) << "Build succeeded";
         else
-            qCDebug(sfaLog) << "Build failed" << process.error() << process.errorString();
+            qCDebug(sfaLog) << "Build failed" << int(process.error()) << process.errorString();
 
         m_startedAnalyses.remove(filePath); // output still in localBuildInfos, rest now useless?
         qCDebug(sfaLog) << "requesting session finish";

@@ -150,7 +150,7 @@ WrappedProcessInterface::WrappedProcessInterface(
         ProcessResultData resultData = d->m_process.resultData();
 
         if (d->m_remotePID == 0 && !d->m_hasReceivedFirstOutput) {
-            resultData.m_error = QProcess::FailedToStart;
+            resultData.m_error = ProcessError::FailedToStart;
 
             const QByteArray stdOut = d->m_process.readAllRawStandardOutput();
             const QByteArray stdErr = d->m_process.readAllRawStandardError();
@@ -175,7 +175,7 @@ WrappedProcessInterface::WrappedProcessInterface(
 
 WrappedProcessInterface::~WrappedProcessInterface()
 {
-    if (d->m_process.state() == QProcess::Running)
+    if (d->m_process.state() == ProcessState::Running)
         sendControlSignal(ControlSignal::Kill);
 }
 
@@ -187,7 +187,7 @@ void WrappedProcessInterface::start()
     d->m_process.setReaperTimeout(m_setup.m_reaperTimeout);
     d->m_process.setWriteData(m_setup.m_writeData);
     // We need separate channels so we can intercept our Process ID markers.
-    d->m_process.setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
+    d->m_process.setProcessChannelMode(ProcessChannelMode::SeparateChannels);
     d->m_process.setExtraData(m_setup.m_extraData);
     d->m_process.setStandardInputFile(m_setup.m_standardInputFile);
     d->m_process.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
@@ -195,18 +195,18 @@ void WrappedProcessInterface::start()
     if (m_setup.m_lowPriority)
         d->m_process.setLowPriority();
 
-    d->m_forwardStdout = m_setup.m_processChannelMode == QProcess::ForwardedChannels
-                         || m_setup.m_processChannelMode == QProcess::ForwardedOutputChannel;
-    d->m_forwardStderr = m_setup.m_processChannelMode == QProcess::ForwardedChannels
-                         || m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel;
+    d->m_forwardStdout = m_setup.m_processChannelMode == ProcessChannelMode::ForwardedChannels
+                         || m_setup.m_processChannelMode == ProcessChannelMode::ForwardedOutputChannel;
+    d->m_forwardStderr = m_setup.m_processChannelMode == ProcessChannelMode::ForwardedChannels
+                         || m_setup.m_processChannelMode == ProcessChannelMode::ForwardedErrorChannel;
 
     const Result<CommandLine> fullCommandLine = d->m_wrapFunction(m_setup, "__qtc%1qtc__");
 
     if (!fullCommandLine) {
         emit done(ProcessResultData{
             -1,
-            QProcess::ExitStatus::CrashExit,
-            QProcess::ProcessError::FailedToStart,
+            ProcessExitStatus::CrashExit,
+            ProcessError::FailedToStart,
             fullCommandLine.error(),
         });
         return;

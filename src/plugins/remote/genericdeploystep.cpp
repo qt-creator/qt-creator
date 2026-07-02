@@ -172,10 +172,10 @@ GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storag
     };
     const auto onError = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
-        if (result.m_error == QProcess::FailedToStart) {
+        if (result.m_error == ProcessError::FailedToStart) {
             addErrorMessage(Tr::tr("%1 failed to start: %2")
                                 .arg(transfer.transferMethodName(), result.m_errorString));
-        } else if (result.m_exitStatus == QProcess::CrashExit) {
+        } else if (result.m_exitStatus == ProcessExitStatus::CrashExit) {
             addErrorMessage(Tr::tr("%1 crashed.").arg(transfer.transferMethodName()));
         } else if (result.m_exitCode != 0) {
             addErrorMessage(

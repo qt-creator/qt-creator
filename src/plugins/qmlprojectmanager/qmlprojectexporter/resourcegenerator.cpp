@@ -60,7 +60,7 @@ ResourceGenerator::ResourceGenerator(QObject *parent)
             return;
         }
 
-        if (m_rccProcess.exitStatus() != QProcess::NormalExit) {
+        if (m_rccProcess.exitStatus() != ProcessExitStatus::NormalExit) {
             Core::MessageManager::writeDisrupting(
                 Tr::tr("\"%1\" crashed.").arg(m_rccProcess.commandLine().toUserOutput()));
             emit errorOccurred(Tr::tr("Failed to generate deployable package."));
@@ -251,7 +251,7 @@ bool ResourceGenerator::createQrc(const ProjectExplorer::Project *project,
 void ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return);
-    if (m_rccProcess.state() != QProcess::NotRunning) {
+    if (m_rccProcess.state() != ProcessState::NotRunning) {
         Core::MessageManager::writeDisrupting(Tr::tr("Resource generator is already running."));
         return;
     }
@@ -271,7 +271,7 @@ void ResourceGenerator::createQmlrcAsync(const ProjectExplorer::Project *project
                                          const FilePath &qmlrcFilePath)
 {
     QTC_ASSERT(project, return);
-    if (m_rccProcess.state() != QProcess::NotRunning) {
+    if (m_rccProcess.state() != ProcessState::NotRunning) {
         Core::MessageManager::writeDisrupting(Tr::tr("Resource generator is already running."));
         return;
     }
@@ -314,7 +314,7 @@ bool ResourceGenerator::createQmlrc(const ProjectExplorer::Project *project,
 {
     QTC_ASSERT(project, return false);
 
-    if (m_rccProcess.state() != QProcess::NotRunning) {
+    if (m_rccProcess.state() != ProcessState::NotRunning) {
         Core::MessageManager::writeDisrupting(Tr::tr("Resource generator is already running."));
         return false;
     }
@@ -387,7 +387,7 @@ bool ResourceGenerator::runRcc(const FilePath &qmlrcFilePath,
             return false;
         }
 
-        if (m_rccProcess.exitStatus() != QProcess::NormalExit || m_rccProcess.exitCode() != 0)
+        if (m_rccProcess.exitStatus() != ProcessExitStatus::NormalExit || m_rccProcess.exitCode() != 0)
             return false;
     }
 

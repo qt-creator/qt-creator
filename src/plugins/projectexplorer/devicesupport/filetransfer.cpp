@@ -134,7 +134,7 @@ static IDeviceConstPtr matchedDevice(const FilesToTransfer &files)
 
 void FileTransferInterface::startFailed(const QString &errorString)
 {
-    emit done({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
+    emit done({0, ProcessExitStatus::NormalExit, ProcessError::FailedToStart, errorString});
 }
 
 class FileTransferPrivate : public QObject
@@ -219,7 +219,7 @@ void FileTransferPrivate::emitDone(const ProcessResultData &resultData)
 
 void FileTransferPrivate::startFailed(const QString &errorString)
 {
-    emitDone({0, QProcess::NormalExit, QProcess::FailedToStart, errorString});
+    emitDone({0, ProcessExitStatus::NormalExit, ProcessError::FailedToStart, errorString});
 }
 
 FileTransfer::FileTransfer()
@@ -295,8 +295,8 @@ QString FileTransfer::transferMethodName(FileTransferMethod method)
 static void setupTransfer(FileTransfer *transfer, QTaskInterface *iface)
 {
     QObject::connect(transfer, &FileTransfer::done, iface, [iface](const ProcessResultData &result) {
-        const bool success = result.m_exitStatus == QProcess::NormalExit
-                             && result.m_error == QProcess::UnknownError
+        const bool success = result.m_exitStatus == ProcessExitStatus::NormalExit
+                             && result.m_error == ProcessError::UnknownError
                              && result.m_exitCode == 0;
         iface->reportDone(toDoneResult(success));
     }, Qt::SingleShotConnection);

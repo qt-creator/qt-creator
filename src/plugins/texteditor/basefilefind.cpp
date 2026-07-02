@@ -100,7 +100,7 @@ void searchInProcessOutput(QPromise<SearchResultItems> &promise,
         return;
 
     process.start();
-    if (process.state() == QProcess::NotRunning)
+    if (process.state() == ProcessState::NotRunning)
         return;
 
     QFutureWatcher<void> watcher;
@@ -121,7 +121,7 @@ void searchInProcessOutput(QPromise<SearchResultItems> &promise,
                 promise.addResult(items);
         }
         outputBuffer.clear();
-        if (process.state() == QProcess::NotRunning)
+        if (process.state() == ProcessState::NotRunning)
             loop.quit();
     });
     watcher.setFuture(future);

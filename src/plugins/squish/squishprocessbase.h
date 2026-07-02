@@ -20,8 +20,8 @@ public:
 
     bool isRunning() const { return m_process.isRunning(); }
     Utils::ProcessResult result() const { return m_process.result(); }
-    QProcess::ProcessError error() const { return m_process.error(); }
-    QProcess::ProcessState state() const { return m_process.state(); }
+    QProcess::ProcessError error() const { return toQProcess(m_process.error()); }
+    QProcess::ProcessState state() const { return toQProcess(m_process.state()); }
 
     void closeProcess() { m_process.close(); }
 

@@ -66,7 +66,7 @@ public:
     bool isRunning() const override { return m_proc.isRunning(); }
     void writeRaw(const QByteArray &data) override
     {
-        if (m_proc.state() == QProcess::Running)
+        if (m_proc.state() == ProcessState::Running)
             m_proc.writeRaw(data);
     }
     void kill() override { m_proc.kill(); }
@@ -75,8 +75,8 @@ public:
     int exitCode() const override { return m_proc.exitCode(); }
     QString executable() const override { return m_proc.commandLine().executable().toUserOutput(); }
 
-    QProcess::ExitStatus exitStatus() const override { return m_proc.exitStatus(); }
-    QProcess::ProcessError error() const override { return m_proc.error(); }
+    QProcess::ExitStatus exitStatus() const override { return toQProcess(m_proc.exitStatus()); }
+    QProcess::ProcessError error() const override { return toQProcess(m_proc.error()); }
     Utils::ProcessResult result() const override { return m_proc.result(); }
     QString exitMessage() const override { return m_proc.exitMessage(); };
 

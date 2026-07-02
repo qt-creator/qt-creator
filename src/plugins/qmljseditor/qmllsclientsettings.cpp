@@ -250,7 +250,7 @@ static QVersionNumber estimateVersionOfOverridenQmlls(const FilePath &executable
 
     qmlls.start();
     qmlls.waitForFinished();
-    if (qmlls.exitStatus() != QProcess::NormalExit || qmlls.exitCode() != EXIT_SUCCESS) {
+    if (qmlls.exitStatus() != ProcessExitStatus::NormalExit || qmlls.exitCode() != EXIT_SUCCESS) {
         Core::MessageManager::writeFlashing(
             Tr::tr(
                 "Custom qmlls executable \"%1\" exited abnormally and was disabled. The custom "
@@ -316,7 +316,7 @@ print(Path(ref_mod.__file__).resolve().parent / "Qt" / "qml"))"}});
     queryImportPath.start();
     queryImportPath.waitForFinished();
 
-    if (queryImportPath.exitStatus() != QProcess::NormalExit
+    if (queryImportPath.exitStatus() != ProcessExitStatus::NormalExit
         || queryImportPath.exitCode() != EXIT_SUCCESS) {
         Core::MessageManager::writeFlashing(Tr::tr("No PySide import paths were found."));
         return {};
