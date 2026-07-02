@@ -9,7 +9,6 @@
 #include "qbsprojectmanagerplugin.h"
 #include "qbssession.h"
 
-#include <android/androidconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/fsengine/fileiconprovider.h>
@@ -123,64 +122,11 @@ QString QbsProductNode::getBuildKey(const QJsonObject &product)
             + product.value("multiplex-configuration-id").toString();
 }
 
-bool QbsProductNode::isAggregated() const
-{
-    return m_productData.value("is-multiplexed").toBool()
-            && m_productData.value("multiplex-configuration-id").toString().isEmpty();
-}
-
-const QList<const QbsProductNode*> QbsProductNode::aggregatedProducts() const
-{
-    if (!isAggregated())
-        return {};
-    const ProjectNode *parentNode = managingProject();
-    QTC_ASSERT(parentNode != nullptr && parentNode != this, return {});
-
-    QSet<QString> dependencies;
-    for (const auto &a : m_productData.value("dependencies").toArray())
-        dependencies << a.toString();
-
-    QList<const QbsProductNode*> qbsProducts;
-    parentNode->forEachProjectNode([&qbsProducts, dependencies](const ProjectNode *node) {
-        if (const auto qbsChildNode = dynamic_cast<const QbsProductNode *>(node)) {
-            if (dependencies.contains(qbsChildNode->fullDisplayName()))
-                qbsProducts << qbsChildNode;
-        }
-    });
-    return qbsProducts;
-}
-
 QVariant QbsProductNode::data(Id role) const
 {
-    if (role == Android::Constants::AndroidSoLibPath) {
-        QStringList ret{m_productData.value("build-directory").toString()};
-        if (!isAggregated()) {
-            forAllArtifacts(m_productData, ArtifactType::Generated,
-                            [&ret](const QJsonObject &artifact) {
-                if (artifact.value("file-tags").toArray().contains("dynamiclibrary"))
-                    ret << QFileInfo(artifact.value("file-path").toString()).path();
-            });
-        } else {
-            for (const auto &a : aggregatedProducts())
-                ret += a->data(Android::Constants::AndroidSoLibPath).toStringList();
-        }
-        ret.removeDuplicates();
-        return ret;
-    }
-
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
         return m_productData.value("module-properties").toObject()
                 .value("Qt.core.enableKeywords").toBool();
-
-    if (role == Android::Constants::AndroidClassPaths) {
-        QStringList paths;
-        for (const auto &p : m_productData.value("module-properties").toObject()
-            .value(Constants::JAVA_ADDITIONAL_CLASSPATHS).toArray()) {
-            if (p.isString())
-                paths << p.toString();
-        }
-        return paths;
-    }
 
     return {};
 }

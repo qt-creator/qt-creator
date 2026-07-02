@@ -1280,10 +1280,48 @@ static QVariant androidClassPathsForProduct(const QJsonObject &productData)
     return paths;
 }
 
+static QStringList androidSoLibPathsForProduct(const QJsonObject &productData,
+                                               const QHash<QString, QJsonObject> &productsByName)
+{
+    const auto collectDynLibs = [](const QJsonObject &pd, QStringList &ret) {
+        forAllArtifacts(pd, ArtifactType::Generated, [&ret](const QJsonObject &artifact) {
+            if (artifact.value("file-tags").toArray().contains("dynamiclibrary"))
+                ret << QFileInfo(artifact.value("file-path").toString()).path();
+        });
+    };
+
+    QStringList ret{productData.value("build-directory").toString()};
+    const bool aggregated = productData.value("is-multiplexed").toBool()
+                            && productData.value("multiplex-configuration-id").toString().isEmpty();
+    if (!aggregated) {
+        collectDynLibs(productData, ret);
+    } else {
+        // Aggregate over the multiplex variants this product depends on.
+        for (const QJsonValue &d : productData.value("dependencies").toArray()) {
+            const auto it = productsByName.constFind(d.toString());
+            if (it == productsByName.constEnd())
+                continue;
+            ret << it->value("build-directory").toString();
+            collectDynLibs(*it, ret);
+        }
+    }
+    ret.removeDuplicates();
+    return ret;
+}
+
 void QbsBuildSystem::updateExtraData()
 {
+    const QJsonObject projectData = session()->projectData();
+
+    // Look up products by full display name for the multiplex aggregation of
+    // AndroidSoLibPath below.
+    QHash<QString, QJsonObject> productsByName;
+    forAllProducts(projectData, [&productsByName](const QJsonObject &productData) {
+        productsByName.insert(productData.value("full-display-name").toString(), productData);
+    });
+
     // Build data formerly served on demand from QbsProductNode::data().
-    forAllProducts(session()->projectData(), [this](const QJsonObject &productData) {
+    forAllProducts(projectData, [this, &productsByName](const QJsonObject &productData) {
         const QString buildKey = QbsProductNode::getBuildKey(productData);
         setExtraData(buildKey, Android::Constants::AndroidAbis, androidAbisForProduct(productData));
         setExtraData(buildKey, Android::Constants::AndroidDeploySettingsFile,
@@ -1296,6 +1334,8 @@ void QbsBuildSystem::updateExtraData()
                      productData.value("target-executable").toString());
         setExtraData(buildKey, Android::Constants::AndroidClassPaths,
                      androidClassPathsForProduct(productData));
+        setExtraData(buildKey, Android::Constants::AndroidSoLibPath,
+                     androidSoLibPathsForProduct(productData, productsByName));
     });
 }
 

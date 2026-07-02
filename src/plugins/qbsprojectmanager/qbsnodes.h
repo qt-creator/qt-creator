@@ -43,9 +43,6 @@ public:
 
     static QString getBuildKey(const QJsonObject &product);
 
-    bool isAggregated() const;
-    const QList<const QbsProductNode*> aggregatedProducts() const;
-
     const QJsonObject productData() const { return m_productData; }
     QJsonObject mainGroup() const;
     QVariant data(Utils::Id role) const override;
