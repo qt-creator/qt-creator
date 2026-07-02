@@ -19,12 +19,18 @@ fresh session, and continues -- transparently to the MCP client.  This
 keeps the connection alive across the frequent restarts typical when
 working on Qt Creator itself, including when several instances are running.
 
-Usage: python3 mcp_proxy.py [--prefer-cwd]
+Usage: python3 mcp_proxy.py [--prefer-cwd] [--port N]
 
-  --prefer-cwd  Query each candidate's get_current_project tool and
-                prefer the instance whose active project path is a
-                prefix of the current working directory.  Falls back
-                to the first responding instance.
+  --prefer-cwd  Query each candidate's get_current_project tool and use only
+                the instance whose active project path contains the current
+                working directory. If no running instance matches, attach to
+                nothing (rather than an unrelated instance) -- this keeps
+                several parallel trees, each with their own Qt Creator, from
+                talking to each other's instance.
+
+  --port N      Pin to the Qt Creator MCP server on port N and skip discovery.
+                Use this from a per-tree, project-scoped configuration when a
+                fixed port-per-tree mapping is preferred over cwd matching.
 
 Register as a stdio MCP server in your MCP client's configuration, e.g.:
 
@@ -37,6 +43,20 @@ Register as a stdio MCP server in your MCP client's configuration, e.g.:
       }
     }
   }
+
+Alternative without this proxy:
+
+  Qt Creator accepts "-mcp-port N" and serves MCP over Streamable HTTP, which
+  MCP clients can talk to directly. When running several trees in parallel,
+  give each tree's Qt Creator a distinct fixed port and register a per-tree,
+  non-shared HTTP server pointing at it, for example (Claude Code):
+
+    claude mcp add --scope local --transport http qtcreator http://127.0.0.1:N/
+
+  Because the port is per-tree, the instances never talk to each other, and no
+  discovery or cwd matching is needed. Use this proxy instead when you want
+  automatic discovery of an auto-selected port and reconnection across the
+  frequent restarts typical while developing Qt Creator itself.
 """
 
 import sys
@@ -170,7 +190,17 @@ def _delete_session(port, sid):
         pass
 
 
-def _find_best_port(prefer_cwd):
+def _find_best_port(prefer_cwd, fixed_port=None):
+    # A pinned port skips discovery entirely: use it if it answers, else give
+    # up (do not fall back to some other instance).
+    if fixed_port is not None:
+        sid = _probe_mcp(fixed_port)
+        if sid:
+            _log(f"using pinned Qt Creator MCP on port {fixed_port}")
+            return fixed_port, sid
+        _log(f"pinned port {fixed_port} has no responsive Qt Creator MCP server")
+        return None, None
+
     ports = _qtcreator_loopback_ports()
     _log(f"candidate ports: {ports}")
     if not ports:
@@ -183,7 +213,7 @@ def _find_best_port(prefer_cwd):
         _log("no responsive Qt Creator MCP server found")
         return None, None
 
-    if not prefer_cwd or len(candidates) == 1:
+    if not prefer_cwd:
         for p, s in candidates[1:]:
             _delete_session(p, s)
         port, sid = candidates[0]
@@ -192,7 +222,7 @@ def _find_best_port(prefer_cwd):
 
     cwd_norm = os.path.normcase(os.path.normpath(os.getcwd()))
     _log(f"cwd for --prefer-cwd matching: {cwd_norm!r}")
-    best, best_len = candidates[0], -1
+    best, best_len = None, -1
     for port, sid in candidates:
         body = json.dumps({
             'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
@@ -241,15 +271,22 @@ def _find_best_port(prefer_cwd):
     for p, s in candidates:
         if (p, s) != best:
             _delete_session(p, s)
+    if best is None:
+        # No running Qt Creator has a project containing the cwd. Attaching to
+        # an unrelated instance is what causes cross-talk between the parallel
+        # trees, so attach to nothing instead.
+        _log("no Qt Creator project contains the cwd; not attaching to any instance")
+        return None, None
     _log(f"using Qt Creator MCP on port {best[0]} (best_len={best_len})")
     return best
 
 
 class _Proxy:
-    def __init__(self, port, probe_sid, prefer_cwd):
+    def __init__(self, port, probe_sid, prefer_cwd, fixed_port=None):
         self._port = port
         self._probe_sid = probe_sid
         self._prefer_cwd = prefer_cwd
+        self._fixed_port = fixed_port
         self._sid = None
         self._sse_started = False
         self._init_request = None
@@ -316,7 +353,7 @@ class _Proxy:
             if gen != self._generation:
                 # Another thread already reconnected since the caller failed.
                 return True
-            port, probe_sid = _find_best_port(self._prefer_cwd)
+            port, probe_sid = _find_best_port(self._prefer_cwd, self._fixed_port)
             if not port:
                 _log("re-discovery found no running Qt Creator MCP server")
                 return False
@@ -386,9 +423,19 @@ class _Proxy:
                     _send(obj)
 
 
+def _parse_port_arg(argv):
+    for i, a in enumerate(argv):
+        if a.startswith('--port='):
+            return int(a.split('=', 1)[1])
+        if a == '--port' and i + 1 < len(argv):
+            return int(argv[i + 1])
+    return None
+
+
 if __name__ == '__main__':
     prefer_cwd = '--prefer-cwd' in sys.argv
-    port, probe_sid = _find_best_port(prefer_cwd)
+    fixed_port = _parse_port_arg(sys.argv[1:])
+    port, probe_sid = _find_best_port(prefer_cwd, fixed_port)
     if not port:
         sys.exit(1)
-    _Proxy(port, probe_sid, prefer_cwd).run()
+    _Proxy(port, probe_sid, prefer_cwd, fixed_port).run()
