@@ -38,8 +38,6 @@
 #include <QTextDocument>
 #include <QIcon>
 
-#include <set>
-
 using namespace CPlusPlus;
 using namespace CppEditor;
 using namespace ProjectExplorer;
@@ -841,28 +839,18 @@ bool InternalCppCompletionAssistProcessor::accepts()
 
 IAssistProposal *InternalCppCompletionAssistProcessor::createContentProposal()
 {
-    // Duplicates are kept only if they are snippets.
-    std::set<QString> processed;
-    for (auto it = m_completions.begin(); it != m_completions.end();) {
-        if ((*it)->isSnippet()) {
-            ++it;
-            continue;
-        }
-        if (!processed.insert((*it)->text()).second) {
-            delete *it;
-            it = m_completions.erase(it);
-            continue;
-        }
-        auto item = static_cast<CppAssistProposalItem *>(*it);
-        if (!item->isOverloaded()) {
-            if (auto symbol = qvariant_cast<Symbol *>(item->data())) {
-                if (Function *funTy = symbol->type()->asFunctionType()) {
-                    if (funTy->hasArguments())
-                        item->markAsOverloaded();
+    for (AssistProposalItemInterface * const it : std::as_const(m_completions)) {
+        if (!it->isSnippet()) {
+            const auto item = static_cast<CppAssistProposalItem *>(it);
+            if (!item->isOverloaded()) {
+                if (auto symbol = qvariant_cast<Symbol *>(item->data())) {
+                    if (Function *funTy = symbol->type()->asFunctionType()) {
+                        if (funTy->hasArguments())
+                            item->markAsOverloaded();
+                    }
                 }
             }
         }
-        ++it;
     }
 
     m_model->loadContent(m_completions);
@@ -1121,6 +1109,9 @@ void InternalCppCompletionAssistProcessor::addCompletionItem(const QString &text
                                                              int order,
                                                              const QVariant &data)
 {
+    if (isKnownCompletion(text))
+        return;
+
     AssistProposalItem *item = new CppAssistProposalItem;
     item->setText(text);
     item->setIcon(icon);
@@ -1134,10 +1125,18 @@ void InternalCppCompletionAssistProcessor::addCompletionItem(Symbol *symbol, int
     ConvertToCompletionItem toCompletionItem;
     AssistProposalItem *item = toCompletionItem(symbol);
     if (item) {
+        if (isKnownCompletion(item->text())) {
+            delete item;
+            return;
+        }
         item->setIcon(Icons::iconForSymbol(symbol));
         item->setOrder(order);
         m_completions.append(item);
     }
+}
+bool InternalCppCompletionAssistProcessor::isKnownCompletion(const QString &text)
+{
+    return !m_knownCompletions.insert(text).second;
 }
 
 void InternalCppCompletionAssistProcessor::completeObjCMsgSend(ClassOrNamespace *binding,

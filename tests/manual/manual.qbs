@@ -13,6 +13,7 @@ Project {
         "proparser/testreader.qbs",
         "remotelinux/remotelinux.qbs",
         "sampler-testapp/sampler-testapp.qbs",
+        "remotelinux-profiletransfer/remotelinux-profiletransfer.qbs",
         "scripts/scripts.qbs",
         "spinner/spinner.qbs",
         "subdirfilecontainer/subdirfilecontainer.qbs",

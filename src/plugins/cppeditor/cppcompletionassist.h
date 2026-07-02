@@ -19,9 +19,10 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 
-
 #include <QStringList>
 #include <QVariant>
+
+#include <unordered_set>
 
 namespace CPlusPlus {
 class LookupItem;
@@ -119,6 +120,8 @@ private:
                            const QVariant &data = QVariant());
     void addCompletionItem(CPlusPlus::Symbol *symbol,
                            int order = 0);
+    bool isKnownCompletion(const QString &text);
+
     void addKeywords();
     void addMacros(const Utils::FilePath &filePath, const CPlusPlus::Snapshot &snapshot);
     void addMacros_helper(const CPlusPlus::Snapshot &snapshot,
@@ -135,6 +138,7 @@ private:
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
     const CppCompletionAssistInterface *cppInterface() const;
     CppAssistProposalModelPtr m_model;
+    std::unordered_set<QString> m_knownCompletions;
 };
 
 class CppCompletionAssistInterface : public TextEditor::AssistInterface

@@ -316,10 +316,11 @@ bool GitEditorWidget::supportChangeLinks() const
 
 FilePath GitEditorWidget::fileNameForLine(int line) const
 {
-    // 7971b6e7 share/qtcreator/dumper/dumper.py   (hjk
+    // 7971b6e7 share/qtcreator/dumper/dumper.py  228  (hjk
     QTextBlock block = document()->findBlockByLineNumber(line - 1);
     QTC_ASSERT(block.isValid(), return source());
-    static const QRegularExpression renameExp("^" CHANGE_PATTERN "\\s+([^(]+)");
+    static const QRegularExpression renameExp(
+        "^" CHANGE_PATTERN "\\s+(.+?)(?:\\s+\\d+)?\\s{2,}\\(");
     const QRegularExpressionMatch match = renameExp.match(block.text());
     if (match.hasMatch()) {
         const QString fileName = match.captured(1).trimmed();

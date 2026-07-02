@@ -596,7 +596,7 @@ void ClangTool::selectPerspective()
 void ClangTool::startTool(FileSelection fileSelection)
 {
     const RunSettingsData runSettingsData = runSettings().data();
-    startTool(fileSelection, runSettingsData, diagnosticConfig(runSettings().diagnosticConfigId()));
+    startTool(fileSelection, runSettingsData, diagnosticConfig(runSettings().safeDiagnosticConfigId()));
 }
 
 static bool continueDespiteReleaseBuild(const QString &toolName)
@@ -1037,7 +1037,7 @@ struct CheckResult {
 
 static CheckResult canAnalyze(ClangToolType type, const QString &name)
 {
-    const ClangDiagnosticConfig config = diagnosticConfig(runSettings().diagnosticConfigId());
+    const ClangDiagnosticConfig config = diagnosticConfig(runSettings().safeDiagnosticConfigId());
 
     if (toolEnabled(type, config, runSettings())
         && !toolExecutable(type).isExecutableFile()) {

@@ -322,16 +322,17 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
         async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
                                     workingDirectory(), arguments(), provider, buildEnvironment());
     };
-    const auto onDone = [this](const Async<FileNameToContentsHash> &async) {
-        if (!async.isResultAvailable())
-            return;
-        const FileNameToContentsHash data = async.result();
-        if (data.isEmpty())
-            return; // There was some kind of error...
-        for (auto it = data.constBegin(), end = data.constEnd(); it != end; ++it)
-            setContent(it.key(), it.value());
-        updateCompileTime();
-    };
+    const auto onDone =
+        [self = QPointer<ProcessExtraCompiler>(this)](const Async<FileNameToContentsHash> &async) {
+            if (!self || !async.isResultAvailable())
+                return;
+            const FileNameToContentsHash data = async.result();
+            if (data.isEmpty())
+                return; // There was some kind of error...
+            for (auto it = data.constBegin(), end = data.constEnd(); it != end; ++it)
+                self->setContent(it.key(), it.value());
+            self->updateCompileTime();
+        };
     return AsyncTask<FileNameToContentsHash>(onSetup, onDone, CallDoneFlag::OnSuccess);
 }
 
