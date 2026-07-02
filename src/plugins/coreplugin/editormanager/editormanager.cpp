@@ -3901,6 +3901,7 @@ bool EditorManager::closeDocuments(const QList<IDocument *> &documents, bool ask
 {
     QList<IEditor *> editorsToClose;
     for (IDocument *doc : documents) {
+        QTC_ASSERT(doc, continue);
         DocumentModel::Entry *entry = DocumentModel::entryForDocument(doc);
         // if entry is suspended, close the entry
         if (QTC_GUARD(entry) && entry->isSuspended) {
