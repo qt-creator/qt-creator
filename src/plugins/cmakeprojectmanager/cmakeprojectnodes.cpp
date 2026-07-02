@@ -8,8 +8,6 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectmanagertr.h"
 
-#include <android/androidconstants.h>
-
 #include <coreplugin/documentmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -179,35 +177,18 @@ void CMakeTargetNode::setBuildDirectory(const FilePath &directory)
 
 QVariant CMakeTargetNode::data(Id role) const
 {
-    auto value = [this](const QByteArray &key) -> QVariant {
+    if (role == Constants::BUILD_FOLDER_ROLE)
+        return m_buildDirectory.toVariant();
+
+    if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED) { // FIXME handle correctly
+        const QByteArray key = role.toString().toUtf8();
         for (const CMakeConfigItem &configItem : m_config) {
             if (configItem.key == key)
                 return configItem.value;
         }
-        return {};
-    };
+    }
 
-    if (role == Constants::BUILD_FOLDER_ROLE)
-        return m_buildDirectory.toVariant();
-
-    // TODO: Concerns the variables below. Qt 6 uses target properties which cannot be read
-    // by the current mechanism, and the variables start with "Qt_" prefix.
-
-    if (role == Android::Constants::AndroidApplicationArgs)
-        return value(Android::Constants::ANDROID_APPLICATION_ARGUMENTS);
-
-    if (role == Android::Constants::ANDROID_ABIS)
-        return value(Android::Constants::ANDROID_ABIS);
-
-    if (role == Android::Constants::AndroidApk)
-        return {};
-
-    if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED) // FIXME handle correctly
-        return value(role.toString().toUtf8());
-
-    QTC_ASSERT(false, qDebug() << "Unknown role" << role.toString());
-    // Better guess than "not present".
-    return value(role.toString().toUtf8());
+    return {};
 }
 
 void CMakeTargetNode::setConfig(const CMakeConfig &config)

@@ -364,15 +364,9 @@ QStringList QmakeProFileNode::targetApplications() const
 
 QVariant QmakeProFileNode::data(Id role) const
 {
-    if (role == Android::Constants::AndroidTargets)
-        return {};
-    if (role == Android::Constants::AndroidApk)
-        return {};
-
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
         return !proFile()->variableValue(Variable::Config).contains("no_keywords");
 
-    QTC_CHECK(false);
     return {};
 }
 
