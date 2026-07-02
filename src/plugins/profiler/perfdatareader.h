@@ -5,10 +5,13 @@
 
 #include "perfprofilertracefile.h"
 
+#include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 
-#include <QProcess>
+#include <QIODevice>
 #include <QQueue>
+
+#include <cstring>
 
 namespace Utils { class CommandLine; }
 
@@ -20,6 +23,55 @@ class RunControl;
 namespace Profiler::Internal {
 
 Utils::FilePath findPerfParser();
+
+// Minimal append-only, sequential QIODevice bridging the parser's stdout (Utils::Process is
+// not a QIODevice) to the QIODevice-based streaming reader in PerfProfilerTraceFile. Being
+// sequential keeps the reader on its incremental progress path; a random-access device would
+// make it derive progress from pos()/size(), which is meaningless for a stream we grow and
+// drain in place.
+class ProcessOutputBuffer : public QIODevice
+{
+public:
+    explicit ProcessOutputBuffer(QObject *parent = nullptr) : QIODevice(parent) {}
+
+    void append(const QByteArray &data)
+    {
+        // Drop what the reader already consumed before growing again. The reader stops at
+        // the first partial message, so m_readPos rarely lands on m_data.size() exactly;
+        // without compacting here the consumed prefix would pile up for the whole run. The
+        // memmove only covers the small unread tail.
+        if (m_readPos > 0) {
+            m_data.remove(0, m_readPos);
+            m_readPos = 0;
+        }
+        m_data.append(data);
+    }
+    void clearData() { m_data.clear(); m_readPos = 0; }
+
+    bool isSequential() const override { return true; }
+    qint64 bytesAvailable() const override
+    {
+        return (m_data.size() - m_readPos) + QIODevice::bytesAvailable();
+    }
+
+protected:
+    qint64 readData(char *data, qint64 maxSize) override
+    {
+        const qint64 count = qMin(maxSize, m_data.size() - m_readPos);
+        if (count > 0) {
+            std::memcpy(data, m_data.constData() + m_readPos, count);
+            m_readPos += count;
+            if (m_readPos == m_data.size()) // fully drained: reclaim right away
+                clearData();
+        }
+        return count;
+    }
+    qint64 writeData(const char *, qint64) override { return -1; }
+
+private:
+    QByteArray m_data;
+    qint64 m_readPos = 0;
+};
 
 class PerfDataReader : public PerfProfilerTraceFile
 {
@@ -69,10 +121,19 @@ private:
                           const QString &executableDirPath,
                           const ProjectExplorer::Kit *kit) const;
     void writeChunk();
+    bool parserKeepsUp() const;
+    bool writeToParser(const QByteArray &data);
+    void readFromProcess();
 
     bool m_recording;
     bool m_dataFinished;
-    QProcess m_input;
+    Utils::Process m_input;
+    // Bridges the process's stdout (Utils::Process is not a QIODevice) to the
+    // QIODevice-based streaming reader in PerfProfilerTraceFile.
+    ProcessOutputBuffer m_output;
+    // Bytes handed to perfparser's stdin since it last produced output, used to keep the
+    // process's write queue bounded. See writeToParser().
+    qint64 m_bytesSinceParserOutput = 0;
     QQueue<Utils::TemporaryFile *> m_buffer;
     qint64 m_localProcessStart;
     qint64 m_localRecordingEnd;
