@@ -125,7 +125,8 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
 
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
 {
-    EditorManager::closeDocuments({document});
+    if (document)
+        EditorManager::closeDocuments({document});
     document = nullptr;
     qDeleteAll(breakpointMarks);
 }
