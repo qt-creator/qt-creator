@@ -9,3 +9,9 @@ Whenever you modify a `CMakeLists.txt` file, also update the corresponding `.qbs
 ## Commit message rule
 
 Commit message titles must not exceed 72 characters, and commit message body lines must not exceed 80 characters.
+
+## UI design rules
+
+- Use `Utils::creatorColor()` or `QPalette::color()` for `QColor`. No hard-coded colors, no alpha-blended text.
+- Use `Utils::StyleHelper::uiFont()` for fonts. No manual `QFont::setPixelSize/setPointSize/setBold` etc.
+- Use `Utils::SpacingTokens` for margins/spacings/paddings. No hard-coded pixel numbers.
