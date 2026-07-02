@@ -42,7 +42,7 @@ def main():
             if not startCreatorVerifyingClang(useClang):
                 continue
             createProject_Qt_Console(tempDir(), "SquishProject")
-            selectBuildConfig(Targets.DESKTOP_5_10_1_DEFAULT, "Debug")
+            selectBuildConfig(Targets.DESKTOP_6_9_2, "Debug")
             checkCodeModelSettings(useClang)
             selectFromLocator("main.cpp")
 
