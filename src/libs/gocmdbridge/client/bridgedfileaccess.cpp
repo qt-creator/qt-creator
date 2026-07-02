@@ -765,19 +765,19 @@ Result<> FileAccess::signalProcess(int pid, ControlSignal signal) const
 
 Result<FilePath> FileAccess::createTemp(const FilePath &filePath, bool dir)
 {
-    try {
-        QString path = filePath.nativePath();
-        if (path.endsWith("XX")) {
-            // Find first "X" from end of string "path"
-            int i = path.size() - 1;
-            for (; i > -1; i--)
-                if (path[i] != 'X')
-                    break;
-            path = path.left(i + 1) + "*";
-        } else {
-            path += ".*";
-        }
+    QString path = filePath.nativePath();
+    if (int end = path.lastIndexOf("XX"); end != -1) {
+        int index = end - 1;
+        end += 2;
+        while (index >= 0 && path[index] == 'X')
+            --index;
+        ++index;
+        path = path.replace(index, end - index, "*");
+    } else {
+        path += ".*";
+    }
 
+    try {
         Result<QFuture<FilePath>> f = dir ? m_client->createTempDir(path)
                                           : m_client->createTempFile(path);
         QTC_ASSERT_RESULT(f, return ResultError(f.error()));
