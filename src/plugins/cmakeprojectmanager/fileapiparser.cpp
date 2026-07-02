@@ -103,7 +103,10 @@ std::vector<int> indexList(const QJsonValue &v)
 static ReplyFileContents readReplyFile(const FilePath &filePath, QString &errorMessage)
 {
     const QJsonDocument document = readJsonFile(filePath);
-    static const QString msg = Tr::tr("Invalid reply file created by CMake.");
+    static const QString msg = Tr::tr(
+        "Invalid or incomplete reply file created by CMake. The build directory may be "
+        "corrupt or stale. Try clearing the CMake configuration and reconfiguring the "
+        "project.");
 
     ReplyFileContents result;
     if (document.isNull() || document.isEmpty() || !document.isObject()) {
