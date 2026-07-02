@@ -580,7 +580,7 @@ static void reloadDocument(IDocument *doc,
             error = Tr::tr("Cannot reload %1").arg(filePath.toUserOutput());
 
         Core::MessageManager::writeDisrupting(error);
-    } else if (guardedDoc) { // guard against doc->reload deleting itself as a side effect
+    } else if (QTC_GUARD(guardedDoc)) { // guard against doc->reload deleting itself as a side effect
         guardedDoc->infoBar()->removeInfo(Constants::RELOAD_INFOBAR);
         guardedDoc->setConflicted(false);
     }

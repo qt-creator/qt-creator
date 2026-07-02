@@ -49,13 +49,20 @@ public:
 
     Result<> reload(ReloadFlag, ChangeType) final
     {
-        FolderNode *parent = m_node->parentFolderNode();
+        ResourceTopLevelNode *oldNode = m_node;
+        FolderNode *parent = oldNode->parentFolderNode();
         if (!parent)
             return ResultError("ASSERT: !parent");
-        parent->replaceSubtree(m_node, std::make_unique<ResourceTopLevelNode>(
-                                   m_node->filePath(), parent->filePath(), m_node->contents()));
+        // oldNode is deleted by replaceSubtree() below, which would take this watcher with
+        // it while reload() is still running on it. Detach it first and have the
+        // replacement node adopt it directly, so it survives past this call.
+        parent->replaceSubtree(oldNode, std::make_unique<ResourceTopLevelNode>(
+                                    oldNode->filePath(), parent->filePath(),
+                                    oldNode->takeWatcher()));
         return ResultOk;
     }
+
+    void setNode(ResourceTopLevelNode *node) { m_node = node; }
 
 private:
     ResourceTopLevelNode *m_node;
@@ -223,19 +230,31 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
                                            const QString &contents)
     : FolderNode(filePath)
 {
+    if (filePath.isEmpty())
+        m_contents = contents;
+    initNode(filePath, base);
+    if (!filePath.isEmpty() && filePath.isReadableFile())
+        setupWatcherIfNeeded();
+}
+
+ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
+                                           const FilePath &base,
+                                           Internal::ResourceFileWatcher *watcher)
+    : FolderNode(filePath)
+{
+    m_document = watcher;
+    m_document->setNode(this);
+    initNode(filePath, base);
+}
+
+void ResourceTopLevelNode::initNode(const FilePath &filePath, const FilePath &base)
+{
     setIcon([filePath] { return FileIconProvider::icon(filePath); });
     setPriority(Node::DefaultFilePriority);
     setListInProject(true);
     setAddFileFilter("*.png; *.jpg; *.gif; *.svg; *.ico; *.qml; *.qml.ui");
     setShowWhenEmpty(true);
     setCompressable(false);
-
-    if (!filePath.isEmpty()) {
-        if (filePath.isReadableFile())
-            setupWatcherIfNeeded();
-    } else {
-        m_contents = contents;
-    }
 
     // device prefix is removed by nativePath()
     if (filePath.isChildOf(base)){
@@ -254,6 +273,13 @@ void ResourceTopLevelNode::setupWatcherIfNeeded()
 
     m_document = new ResourceFileWatcher(this);
     DocumentManager::addDocument(m_document);
+}
+
+Internal::ResourceFileWatcher *ResourceTopLevelNode::takeWatcher()
+{
+    Internal::ResourceFileWatcher *watcher = m_document;
+    m_document = nullptr;
+    return watcher;
 }
 
 ResourceTopLevelNode::~ResourceTopLevelNode()

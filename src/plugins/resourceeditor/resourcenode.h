@@ -15,10 +15,19 @@ public:
     ResourceTopLevelNode(const Utils::FilePath &filePath,
                          const Utils::FilePath &basePath,
                          const QString &contents = {});
+    // Constructs a node that adopts an existing watcher (see takeWatcher()) instead of
+    // creating its own, e.g. when replacing a node whose watcher should survive the swap.
+    ResourceTopLevelNode(const Utils::FilePath &filePath,
+                         const Utils::FilePath &basePath,
+                         Internal::ResourceFileWatcher *watcher);
     ~ResourceTopLevelNode() override;
 
     void setupWatcherIfNeeded();
     void addInternalNodes();
+
+    // Detaches the watcher document from this node without unregistering or deleting it,
+    // so it can be adopted by another node via the constructor above.
+    Internal::ResourceFileWatcher *takeWatcher();
 
     bool supportsAction(ProjectExplorer::ProjectAction action, const Node *node) const override;
     bool addFiles(const Utils::FilePaths &filePaths, Utils::FilePaths *notAdded) override;
@@ -35,6 +44,8 @@ public:
     QString contents() const { return m_contents; }
 
 private:
+    void initNode(const Utils::FilePath &filePath, const Utils::FilePath &basePath);
+
     Internal::ResourceFileWatcher *m_document = nullptr;
     QString m_contents;
 };
