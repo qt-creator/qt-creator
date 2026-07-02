@@ -1656,8 +1656,20 @@ class QtcInternalDumper():
             # so plain attribute enumeration would show nothing useful. List
             # the meta-properties instead when available.
             metaProperties = self.qtMetaProperties(value)
+            # A user-defined subclass of a PySide type keeps its own Python
+            # attributes in __dict__ (the Qt state lives in the C++ object, not
+            # here), so show those next to the Qt meta-properties.
+            ownAttrs = []
             if metaProperties:
-                self.putNumChild(__builtins__.len(metaProperties))
+                for child in __builtins__.sorted(__builtins__.getattr(value, '__dict__', {})):
+                    if child.startswith('__') or child in metaProperties:
+                        continue
+                    try:
+                        if not __builtins__.callable(__builtins__.getattr(value, child)):
+                            ownAttrs.append(child)
+                    except Exception:
+                        pass
+                self.putNumChild(__builtins__.len(metaProperties) + __builtins__.len(ownAttrs))
 
             if self.isExpanded(iname):
                 self.put('children=[')
@@ -1666,6 +1678,12 @@ class QtcInternalDumper():
                         try:
                             self.dumpValue(value.property(prop), prop,
                                            '%s.%s' % (iname, prop))
+                        except Exception:
+                            pass
+                    for child in ownAttrs:
+                        try:
+                            self.dumpValue(__builtins__.getattr(value, child), child,
+                                           '%s.%s' % (iname, child))
                         except Exception:
                             pass
                 else:
@@ -1685,10 +1703,15 @@ class QtcInternalDumper():
     @staticmethod
     def qtMetaProperties(value):
         # Returns the names of the Qt meta-properties of a PySide/Shiboken
-        # QObject, or an empty list for anything else.
+        # QObject, or an empty list for anything else. Walks the whole MRO so
+        # that user-defined subclasses of PySide classes (whose own module is
+        # e.g. '__main__') are recognized as well.
         t = __builtins__.type(value)
-        module = __builtins__.getattr(t, '__module__', '') or ''
-        if not (module.startswith('PySide') or module.startswith('shiboken')):
+        isQt = __builtins__.any(
+            (__builtins__.getattr(base, '__module__', '') or '').startswith(
+                ('PySide', 'shiboken', 'Shiboken'))
+            for base in t.__mro__)
+        if not isQt:
             return []
         if __builtins__.getattr(value, 'metaObject', None) is None:
             return []
