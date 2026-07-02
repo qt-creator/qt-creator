@@ -1,0 +1,14 @@
+[package]
+name = "sampler-testapp-rust"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "sampler-testapp-rust"
+path = "src/main.rs"
+
+# Keep frames visible to the sampler: no cross-function inlining and full
+# debug info even in release, so the recorded call stacks are readable.
+[profile.release]
+debug = true
