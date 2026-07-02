@@ -219,9 +219,6 @@ QVariant CMakeTargetNode::data(Id role) const
     if (role == Android::Constants::AndroidSoLibPath)
         return values(Android::Constants::ANDROID_SO_LIBS_PATHS);
 
-    if (role == Android::Constants::AndroidTargets)
-        return values("TARGETS_BUILD_PATH");
-
     if (role == Android::Constants::AndroidApk)
         return {};
 

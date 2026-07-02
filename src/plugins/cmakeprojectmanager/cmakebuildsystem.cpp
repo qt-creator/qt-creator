@@ -1752,28 +1752,15 @@ void CMakeBuildSystem::updateProjectData()
     CMakeConfig patchedConfig = configurationFromCMake();
     {
         QSet<QString> res;
-        QStringList apps;
         for (const auto &target : std::as_const(m_buildTargets)) {
-            if (target.targetType == DynamicLibraryType) {
+            if (target.targetType == DynamicLibraryType)
                 res.insert(target.executable.parentDir().path());
-                apps.push_back(target.executable.toUserOutput());
-            }
             // ### shall we add also the ExecutableType ?
         }
-        {
-            CMakeConfigItem paths;
-            paths.key = Android::Constants::ANDROID_SO_LIBS_PATHS;
-            paths.values = Utils::toList(res);
-            patchedConfig.insert(paths);
-        }
-
-        apps.sort();
-        {
-            CMakeConfigItem appsPaths;
-            appsPaths.key = "TARGETS_BUILD_PATH";
-            appsPaths.values = apps;
-            patchedConfig.insert(appsPaths);
-        }
+        CMakeConfigItem paths;
+        paths.key = Android::Constants::ANDROID_SO_LIBS_PATHS;
+        paths.values = Utils::toList(res);
+        patchedConfig.insert(paths);
     }
 
     Project *p = project();
@@ -2006,10 +1993,19 @@ void CMakeBuildSystem::updateExtraData()
     const QVariant androidDeploySettings
         = value(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE);
 
+    // Formerly the TARGETS_BUILD_PATH config value, patched onto every node.
+    QStringList androidTargets;
+    for (const CMakeBuildTarget &ct : std::as_const(m_buildTargets)) {
+        if (ct.targetType == DynamicLibraryType)
+            androidTargets.push_back(ct.executable.toUserOutput());
+    }
+    androidTargets.sort();
+
     for (const CMakeBuildTarget &ct : std::as_const(m_buildTargets)) {
         setExtraData(ct.title, Android::Constants::AndroidAbi, androidAbi);
         setExtraData(ct.title, Android::Constants::AndroidAbis, androidAbis);
         setExtraData(ct.title, Android::Constants::AndroidDeploySettingsFile, androidDeploySettings);
+        setExtraData(ct.title, Android::Constants::AndroidTargets, androidTargets);
 
         if (ct.artifact.isEmpty())
             continue;
