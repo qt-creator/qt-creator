@@ -1173,6 +1173,13 @@ void QmakeBuildSystem::updateBuildSystemData()
                      node->variableValue(Variable::AndroidAbis));
         setExtraData(bti.buildKey, Android::Constants::AndroidDeploySettingsFile,
                      node->singleVariableValue(Variable::AndroidDeploySettingsFile));
+        QStringList soLibPaths = {ti.buildDir.toUrlishString()};
+        if (!ti.destDir.isEmpty()) {
+            const FilePath destDir = ti.buildDir.resolvePath(ti.destDir.path());
+            soLibPaths.append(destDir.toUrlishString());
+        }
+        soLibPaths.removeDuplicates();
+        setExtraData(bti.buildKey, Android::Constants::AndroidSoLibPath, soLibPaths);
 
         if (config.contains("console") && !config.contains("testcase")) {
             const QStringList qt = node->variableValue(Variable::Qt);

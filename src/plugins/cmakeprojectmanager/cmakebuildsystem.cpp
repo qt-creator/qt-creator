@@ -1750,18 +1750,6 @@ void CMakeBuildSystem::updateProjectData()
     buildConfiguration()->project()->setExtraProjectFiles(projectFilesToWatch(m_cmakeFiles));
 
     CMakeConfig patchedConfig = configurationFromCMake();
-    {
-        QSet<QString> res;
-        for (const auto &target : std::as_const(m_buildTargets)) {
-            if (target.targetType == DynamicLibraryType)
-                res.insert(target.executable.parentDir().path());
-            // ### shall we add also the ExecutableType ?
-        }
-        CMakeConfigItem paths;
-        paths.key = Android::Constants::ANDROID_SO_LIBS_PATHS;
-        paths.values = Utils::toList(res);
-        patchedConfig.insert(paths);
-    }
 
     Project *p = project();
     // Show the Project view only for the active build configuration
@@ -1995,17 +1983,23 @@ void CMakeBuildSystem::updateExtraData()
 
     // Formerly the TARGETS_BUILD_PATH config value, patched onto every node.
     QStringList androidTargets;
+    // Formerly the ANDROID_SO_LIBS_PATHS config value, patched onto every node.
+    QSet<QString> androidSoLibDirs;
     for (const CMakeBuildTarget &ct : std::as_const(m_buildTargets)) {
-        if (ct.targetType == DynamicLibraryType)
+        if (ct.targetType == DynamicLibraryType) {
             androidTargets.push_back(ct.executable.toUserOutput());
+            androidSoLibDirs.insert(ct.executable.parentDir().path());
+        }
     }
     androidTargets.sort();
+    const QStringList androidSoLibPaths = Utils::toList(androidSoLibDirs);
 
     for (const CMakeBuildTarget &ct : std::as_const(m_buildTargets)) {
         setExtraData(ct.title, Android::Constants::AndroidAbi, androidAbi);
         setExtraData(ct.title, Android::Constants::AndroidAbis, androidAbis);
         setExtraData(ct.title, Android::Constants::AndroidDeploySettingsFile, androidDeploySettings);
         setExtraData(ct.title, Android::Constants::AndroidTargets, androidTargets);
+        setExtraData(ct.title, Android::Constants::AndroidSoLibPath, androidSoLibPaths);
 
         if (ct.artifact.isEmpty())
             continue;

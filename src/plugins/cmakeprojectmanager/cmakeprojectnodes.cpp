@@ -187,14 +187,6 @@ QVariant CMakeTargetNode::data(Id role) const
         return {};
     };
 
-    auto values = [this](const QByteArray &key) -> QVariant {
-        for (const CMakeConfigItem &configItem : m_config) {
-            if (configItem.key == key)
-                return configItem.values;
-        }
-        return {};
-    };
-
     if (role == Constants::BUILD_FOLDER_ROLE)
         return m_buildDirectory.toVariant();
 
@@ -207,17 +199,11 @@ QVariant CMakeTargetNode::data(Id role) const
     if (role == Android::Constants::AndroidExtraLibs)
         return value(Android::Constants::ANDROID_EXTRA_LIBS);
 
-    if (role == Android::Constants::AndroidDeploySettingsFile)
-        return value(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE);
-
     if (role == Android::Constants::AndroidApplicationArgs)
         return value(Android::Constants::ANDROID_APPLICATION_ARGUMENTS);
 
     if (role == Android::Constants::ANDROID_ABIS)
         return value(Android::Constants::ANDROID_ABIS);
-
-    if (role == Android::Constants::AndroidSoLibPath)
-        return values(Android::Constants::ANDROID_SO_LIBS_PATHS);
 
     if (role == Android::Constants::AndroidApk)
         return {};

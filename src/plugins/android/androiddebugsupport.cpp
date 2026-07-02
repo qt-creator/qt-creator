@@ -15,6 +15,7 @@
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
@@ -46,19 +47,17 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-static FilePaths getSoLibSearchPath(const ProjectNode *node)
+static FilePaths getSoLibSearchPath(BuildConfiguration *bc, const QString &buildKey)
 {
-    if (!node)
+    if (!bc)
         return {};
 
     FilePaths res;
-    node->forEachProjectNode([&res](const ProjectNode *node) {
-        const QStringList paths = node->data(Constants::AndroidSoLibPath).toStringList();
-        res.append(Utils::transform(paths, &FilePath::fromUserInput));
-    });
+    const QStringList paths
+        = bc->buildSystem()->extraData(buildKey, Constants::AndroidSoLibPath).toStringList();
+    res.append(Utils::transform(paths, &FilePath::fromUserInput));
 
-    const FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(
-                node->getProject()->activeBuildConfiguration());
+    const FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(bc);
     if (const Result<QByteArray> contents = jsonFile.fileContents()) {
         QJsonParseError error;
         QJsonDocument doc = QJsonDocument::fromJson(*contents, &error);
@@ -112,7 +111,7 @@ static DebuggerRunParameters debuggerRunParameters(RunControl *runControl)
     if (rp.isCppDebugging()) {
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
         const ProjectNode *node = runControl->project()->findNodeForBuildKey(runControl->buildKey());
-        FilePaths solibSearchPath = getSoLibSearchPath(node);
+        FilePaths solibSearchPath = getSoLibSearchPath(bc, runControl->buildKey());
         if (qtVersion)
             solibSearchPath.append(qtVersion->qtSoPaths());
         const FilePaths extraLibs = getExtraLibs(node);

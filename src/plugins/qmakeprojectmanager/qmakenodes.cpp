@@ -368,17 +368,6 @@ QVariant QmakeProFileNode::data(Id role) const
         return variableValue(Variable::AndroidExtraLibs);
     if (role == Android::Constants::AndroidPackageSourceDir)
         return singleVariableValue(Variable::AndroidPackageSourceDir);
-    if (role == Android::Constants::AndroidSoLibPath) {
-        TargetInformation info = targetInformation();
-        QStringList res = {info.buildDir.toUrlishString()};
-        FilePath destDir = info.destDir;
-        if (!destDir.isEmpty()) {
-            destDir = info.buildDir.resolvePath(destDir.path());
-            res.append(destDir.toUrlishString());
-        }
-        res.removeDuplicates();
-        return res;
-    }
 
     if (role == Android::Constants::AndroidTargets)
         return {};
