@@ -152,15 +152,6 @@ const QList<const QbsProductNode*> QbsProductNode::aggregatedProducts() const
 
 QVariant QbsProductNode::data(Id role) const
 {
-    if (role == Android::Constants::AndroidDeploySettingsFile) {
-        for (const auto &a : m_productData.value("generated-artifacts").toArray()) {
-            const QJsonObject artifact = a.toObject();
-            if (artifact.value("file-tags").toArray().contains("qt_androiddeployqt_input"))
-                return artifact.value("file-path").toString();
-        }
-        return {};
-    }
-
     if (role == Android::Constants::AndroidSoLibPath) {
         QStringList ret{m_productData.value("build-directory").toString()};
         if (!isAggregated()) {
@@ -192,29 +183,6 @@ QVariant QbsProductNode::data(Id role) const
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
         return m_productData.value("module-properties").toObject()
                 .value("Qt.core.enableKeywords").toBool();
-
-    if (role == Android::Constants::AndroidAbis) {
-        // Try using qbs.architectures
-        QStringList qbsAbis;
-        QMap<QString, QString> archToAbi {
-            {"armv7a", ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A},
-            {"arm64", ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A},
-            {"x86", ProjectExplorer::Constants::ANDROID_ABI_X86},
-            {"x86_64", ProjectExplorer::Constants::ANDROID_ABI_X86_64}};
-        for (const auto &a : m_productData.value("module-properties").toObject()
-             .value(Constants::QBS_ARCHITECTURES).toArray()) {
-            if (archToAbi.contains(a.toString()))
-                qbsAbis << archToAbi[a.toString()];
-        }
-        if (!qbsAbis.empty())
-            return qbsAbis;
-        // Try using qbs.architecture
-        QString architecture = m_productData.value("module-properties").toObject()
-                .value(Constants::QBS_ARCHITECTURE).toString();
-        if (archToAbi.contains(architecture))
-            qbsAbis << archToAbi[architecture];
-        return qbsAbis;
-    }
 
     if (role == Android::Constants::AndroidPackageSourceDir) {
         return m_productData.value("properties").toObject()

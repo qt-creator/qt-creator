@@ -19,6 +19,8 @@
 #include "qbssession.h"
 #include "qbssettings.h"
 
+#include <android/androidconstants.h>
+
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -1224,6 +1226,50 @@ void QbsBuildSystem::updateApplicationTargets()
     setApplicationTargets(applications);
 }
 
+static QVariant androidAbisForProduct(const QJsonObject &productData)
+{
+    // Try using qbs.architectures
+    QStringList qbsAbis;
+    const QMap<QString, QString> archToAbi {
+        {"armv7a", ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A},
+        {"arm64", ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A},
+        {"x86", ProjectExplorer::Constants::ANDROID_ABI_X86},
+        {"x86_64", ProjectExplorer::Constants::ANDROID_ABI_X86_64}};
+    const QJsonObject moduleProps = productData.value("module-properties").toObject();
+    for (const auto &a : moduleProps.value(Constants::QBS_ARCHITECTURES).toArray()) {
+        if (archToAbi.contains(a.toString()))
+            qbsAbis << archToAbi[a.toString()];
+    }
+    if (!qbsAbis.empty())
+        return qbsAbis;
+    // Try using qbs.architecture
+    const QString architecture = moduleProps.value(Constants::QBS_ARCHITECTURE).toString();
+    if (archToAbi.contains(architecture))
+        qbsAbis << archToAbi[architecture];
+    return qbsAbis;
+}
+
+static QVariant androidDeploySettingsForProduct(const QJsonObject &productData)
+{
+    for (const QJsonValue &a : productData.value("generated-artifacts").toArray()) {
+        const QJsonObject artifact = a.toObject();
+        if (artifact.value("file-tags").toArray().contains("qt_androiddeployqt_input"))
+            return artifact.value("file-path").toString();
+    }
+    return {};
+}
+
+void QbsBuildSystem::updateExtraData()
+{
+    // Build data formerly served on demand from QbsProductNode::data().
+    forAllProducts(session()->projectData(), [this](const QJsonObject &productData) {
+        const QString buildKey = QbsProductNode::getBuildKey(productData);
+        setExtraData(buildKey, Android::Constants::AndroidAbis, androidAbisForProduct(productData));
+        setExtraData(buildKey, Android::Constants::AndroidDeploySettingsFile,
+                     androidDeploySettingsForProduct(productData));
+    });
+}
+
 void QbsBuildSystem::updateDeploymentInfo()
 {
     if (session()->projectData().isEmpty())
@@ -1249,6 +1295,7 @@ void QbsBuildSystem::updateBuildTargetData()
 {
     OpTimer optimer("updateBuildTargetData");
     updateApplicationTargets();
+    updateExtraData();
     updateDeploymentInfo();
 
     // This one used after a normal build.

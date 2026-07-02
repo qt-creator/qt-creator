@@ -121,6 +121,7 @@ private:
     void updateCppCodeModel();
     void updateExtraCompilers();
     void updateApplicationTargets();
+    void updateExtraData();
     void updateDeploymentInfo();
     void updateBuildTargetData();
     void updateAfterParse();
