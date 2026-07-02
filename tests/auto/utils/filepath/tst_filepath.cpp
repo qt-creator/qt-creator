@@ -964,6 +964,19 @@ void tst_filepath::toFSPathString_data()
         << "alpine.latest"
         << "" << QDir::rootPath() + "__qtc_devices__/docker/alpine.latest"
         << "docker://alpine.latest";
+
+    // Remote Windows: the drive-letter path has no leading slash, so the
+    // host/path separator has to be inserted explicitly.
+    QTest::newRow("remote-windows-drive")
+        << "ssh"
+        << "host"
+        << "c:/tmp" << QDir::rootPath() + "__qtc_devices__/ssh/host/c:/tmp"
+        << "ssh://host/c:/tmp";
+    QTest::newRow("remote-windows-drive-root")
+        << "ssh"
+        << "host"
+        << "c:/" << QDir::rootPath() + "__qtc_devices__/ssh/host/c:/"
+        << "ssh://host/c:/";
 }
 
 void tst_filepath::toFSPathString()
@@ -1178,27 +1191,24 @@ void tst_filepath::fromString_data()
     QTest::newRow("qtc-dev-type-dev-win")
         << D("c:/__qtc_devices__/docker/1234", "docker", "1234", "/");
 
-    // "Remote Windows" is currently truly not supported.
+    // "Remote Windows": the drive-letter path is canonicalized to the
+    // drive-letter-first form ("c:/test.txt"), never preceded by a slash.
     QTest::newRow("cross-os-linux") << D("/__qtc_devices__/docker/1234/c:/test.txt",
                                          "docker",
                                          "1234",
-                                         "c:/test.txt",
-                                         FailEverywhere);
+                                         "c:/test.txt");
     QTest::newRow("cross-os-win") << D("c:/__qtc_devices__/docker/1234/c:/test.txt",
                                        "docker",
                                        "1234",
-                                       "c:/test.txt",
-                                       FailEverywhere);
+                                       "c:/test.txt");
     QTest::newRow("cross-os-unclean-linux") << D("/__qtc_devices__/docker/1234/c:\\test.txt",
                                                  "docker",
                                                  "1234",
-                                                 "c:/test.txt",
-                                                 FailEverywhere);
+                                                 "c:/test.txt");
     QTest::newRow("cross-os-unclean-win") << D("c:/__qtc_devices__/docker/1234/c:\\test.txt",
                                                "docker",
                                                "1234",
-                                               "c:/test.txt",
-                                               FailEverywhere);
+                                               "c:/test.txt");
 
     QTest::newRow("unc-full-in-docker-linux")
         << D("/__qtc_devices__/docker/1234//server/share/test.txt",
@@ -1296,27 +1306,24 @@ void tst_filepath::fromUserInput_data()
     QTest::newRow("qtc-dev-type-dev-win")
         << D("c:/__qtc_devices__/docker/1234", "docker", "1234", "/");
 
-    // "Remote Windows" is currently truly not supported.
+    // "Remote Windows": the drive-letter path is canonicalized to the
+    // drive-letter-first form ("c:/test.txt"), never preceded by a slash.
     QTest::newRow("cross-os-linux") << D("/__qtc_devices__/docker/1234/c:/test.txt",
                                          "docker",
                                          "1234",
-                                         "c:/test.txt",
-                                         FailEverywhere);
+                                         "c:/test.txt");
     QTest::newRow("cross-os-win") << D("c:/__qtc_devices__/docker/1234/c:/test.txt",
                                        "docker",
                                        "1234",
-                                       "c:/test.txt",
-                                       FailEverywhere);
+                                       "c:/test.txt");
     QTest::newRow("cross-os-unclean-linux") << D("/__qtc_devices__/docker/1234/c:\\test.txt",
                                                  "docker",
                                                  "1234",
-                                                 "c:/test.txt",
-                                                 FailEverywhere);
+                                                 "c:/test.txt");
     QTest::newRow("cross-os-unclean-win") << D("c:/__qtc_devices__/docker/1234/c:\\test.txt",
                                                "docker",
                                                "1234",
-                                               "c:/test.txt",
-                                               FailEverywhere);
+                                               "c:/test.txt");
 
     QTest::newRow("unc-full-in-docker-linux")
         << D("/__qtc_devices__/docker/1234//server/share/test.txt",

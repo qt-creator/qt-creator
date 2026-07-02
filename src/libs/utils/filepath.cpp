@@ -316,24 +316,15 @@ FilePath FilePath::currentWorkingPath()
 bool FilePath::isRootPath() const
 {
     if (!isLocal()) {
-        QStringView path = pathView();
+        const QStringView path = pathView();
         if (osType() != OsTypeWindows)
-            return path == QLatin1String("/");
+            return path == u"/";
 
-        // Remote windows paths look like this: "/c:/", so we remove the leading '/'
-        if (path.startsWith('/'))
-            path = path.mid(1);
-
-        if (path.length() > 3)
-            return false;
-
-        if (!startsWithDriveLetter())
-            return false;
-
-        if (path.length() == 3 && path[2] != QLatin1Char('/'))
-            return false;
-
-        return true;
+        // A path is a root exactly when it consists of nothing but its root part,
+        // that is, a drive root ("c:/"), a bare drive ("c:") or a UNC share root.
+        // The drive letter is always the first path character (see setFromString()),
+        // never preceded by a slash, so rootLength() alone captures all cases.
+        return !path.isEmpty() && rootLength(path) == path.size();
     }
 
     return QDir(path()).isRoot();
@@ -546,6 +537,10 @@ QString FilePath::toFSPathString() const
 
     if (isRelativePath())
         return specialRootPath() + '/' + scheme() + '/' + encodedHost() + "/./" + pathView();
+    // A drive-letter path ("c:/...") has no leading slash, so insert the separator
+    // that divides host and path, mirroring toUrlishString().
+    if (isWindowsDriveLetter(pathView().at(0)))
+        return specialRootPath() + '/' + scheme() + '/' + encodedHost() + '/' + pathView();
     return specialRootPath() + '/' + scheme() + '/' + encodedHost() + pathView();
 }
 
@@ -1381,8 +1376,15 @@ static bool startsWithWindowsDriveLetter(QStringView path)
     return path.size() == 2 && path[1] == ':' && isWindowsDriveLetter(path[0]);
 }
 
-// This is a compromise across platforms. It will mis-classify "C:/..." as absolute
-// paths on non-Windows.
+// Drive-letter and root handling is centralized in the helpers above and in
+// rootLength() below. They share two invariants of the internally stored path:
+//   - separators are always forward slashes, and
+//   - a Windows drive letter, if present, is the very first character of the
+//     path, never preceded by a slash (canonicalized in setFromString()).
+// These helpers are deliberately OS-agnostic (they never consult osType(), which
+// is a potentially expensive device hook for remote paths). The trade-off is that
+// "C:/..." is classified as absolute even for paths associated with non-Windows
+// systems; in practice such paths do not occur.
 
 static bool isAbsolutePathHelper(QStringView path)
 {
@@ -1824,6 +1826,11 @@ void FilePath::setFromString(const QString &fileNameStr)
                 withoutQtcDeviceRoot.mid(firstSlash + 1, secondSlash - firstSlash - 1).toString());
             if (secondSlash != -1) {
                 QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
+                // Canonicalize to the drive-letter-first form, as for the
+                // "scheme://host/c:/..." case below: the slash separating host
+                // and path is not part of the path.
+                if (path.size() > 1 && path[0] == '/' && startsWithWindowsDriveLetter(path.mid(1)))
+                    path = path.mid(1);
                 setParts(scheme, host, path);
                 return;
             }
@@ -1845,6 +1852,11 @@ void FilePath::setFromString(const QString &fileNameStr)
         const QString host = decodeHost(
                     fileNameView.mid(schemeEnd + 3, hostEnd - schemeEnd - 3).toString());
 
+        // Canonicalize the path part to the drive-letter-first form: the slash that
+        // separates host and path in "scheme://host/c:/..." is a Url separator, not
+        // part of the path, so the stored path becomes "c:/..." rather than "/c:/...".
+        // All drive-letter reasoning (rootLength(), isAbsolutePath(), isRootPath())
+        // relies on this: a drive letter is never preceded by a slash.
         QStringView path = fileNameView.mid(hostEnd);
         if (!path.isEmpty() && path[0] == '/' && startsWithWindowsDriveLetter(path.mid(1)))
             hostEnd++;
