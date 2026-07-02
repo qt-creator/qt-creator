@@ -350,14 +350,21 @@ Qml2Imports=qml
     ## remove old
     get_target_property(existing_rpaths ${_arg_TARGET} INSTALL_RPATH)
     set(install_rpath "${_RPATH_BASE}/../Frameworks;${_RPATH_BASE}/../PlugIns/qtcreator")
-    install(CODE "
-      foreach (path ${existing_rpaths})
-        execute_process(COMMAND install_name_tool -delete_rpath \"\${path}\" \"\${CMAKE_INSTALL_PREFIX}/${libexec_dest}/${_bundle_output_name}\")
-      endforeach()
-      foreach (path ${install_rpath})
-        execute_process(COMMAND install_name_tool -add_rpath \"\${path}\" \"\${CMAKE_INSTALL_PREFIX}/${libexec_dest}/${_bundle_output_name}\")
-      endforeach()
-    "
+    # Generate one execute_process() call per rpath, with the (possibly
+    # space-containing, e.g. "Qt Creator.app") path already baked in as a
+    # quoted literal
+    set(_rpath_fixup_code "")
+    foreach (path IN LISTS existing_rpaths)
+      string(APPEND _rpath_fixup_code
+        "execute_process(COMMAND install_name_tool -delete_rpath \"${path}\" \"\${CMAKE_INSTALL_PREFIX}/${libexec_dest}/${_bundle_output_name}\")\n"
+      )
+    endforeach()
+    foreach (path IN LISTS install_rpath)
+      string(APPEND _rpath_fixup_code
+        "execute_process(COMMAND install_name_tool -add_rpath \"${path}\" \"\${CMAKE_INSTALL_PREFIX}/${libexec_dest}/${_bundle_output_name}\")\n"
+      )
+    endforeach()
+    install(CODE "${_rpath_fixup_code}"
     COMPONENT ${component_name}
     EXCLUDE_FROM_ALL
   )
