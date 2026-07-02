@@ -854,7 +854,7 @@ qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput)
 FilePaths usefulExtraSearchPaths()
 {
     if (HostOsInfo::isMacHost()) {
-        return {"/opt/homebrew/bin"};
+        return {"/opt/homebrew/bin", "/usr/local/bin"};
     } else if (HostOsInfo::isWindowsHost()) {
         const QString programData =
             qtcEnvironmentVariable("ProgramData",

@@ -18,6 +18,12 @@ private:
     QVariant volatileVariantValue() const override { return m_volatileValue.toVariant(); }
     QVariant defaultVariantValue() const override { return m_default.toVariant(); }
 
+    // An empty value is an invalid QVariant, which reads back as the default.
+    QVariant toSettingsValue(const QVariant &valueToSave) const override
+    {
+        return valueToSave.isValid() ? valueToSave : QVariant(QVariantMap());
+    }
+
     void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override
     {
         setValue(EnvironmentChanges::createFromVariant(value), howToAnnounce);

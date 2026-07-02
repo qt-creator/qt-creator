@@ -64,6 +64,18 @@ static NameValueDictionary defaultEnvVarSeparators()
             std::make_pair<QString, QString>("CXXFLAGS", " ")});
 }
 
+static EnvironmentItems defaultEnvironmentItems()
+{
+    QStringList dirs;
+    for (const FilePath &dir : Utils::FileUtils::usefulExtraSearchPaths()) {
+        if (dir.isReadableDir())
+            dirs.append(dir.nativePath());
+    }
+    if (dirs.isEmpty())
+        return {};
+    return {{"PATH", dirs.join(HostOsInfo::pathListSeparator()), EnvironmentItem::Append}};
+}
+
 static QString fileBrowserHelpText()
 {
     return Tr::tr(
@@ -111,6 +123,7 @@ SystemSettings::SystemSettings()
 
     environmentChangesAspect.setLabelText("Environment:");
     environmentChangesAspect.setSettingsKey(kEnvironmentChanges);
+    environmentChangesAspect.setDefaultValue(EnvironmentChanges(defaultEnvironmentItems()));
 
     terminalCommand.setLabelText(Tr::tr("Terminal:"));
 
