@@ -158,14 +158,12 @@ QString AndroidQtVersion::androidDeploymentSettingsFileName(const BuildConfigura
 
 Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const BuildConfiguration *bc)
 {
-    // Try to fetch the file name from node data as provided by qmake and Qbs
-    QString buildKey = bc->activeBuildKey();
-    const ProjectNode *node = bc->project()->findNodeForBuildKey(buildKey);
-    if (node) {
-        const QString nameFromData = node->data(Constants::AndroidDeploySettingsFile).toString();
-        if (!nameFromData.isEmpty())
-            return Utils::FilePath::fromUserInput(nameFromData);
-    }
+    // Try to fetch the file name as provided by qmake and Qbs
+    const QString buildKey = bc->activeBuildKey();
+    const QString nameFromData
+        = bc->buildSystem()->extraData(buildKey, Constants::AndroidDeploySettingsFile).toString();
+    if (!nameFromData.isEmpty())
+        return Utils::FilePath::fromUserInput(nameFromData);
 
     // If unavailable, construct the name by ourselves (CMake)
     const QString fileName = androidDeploymentSettingsFileName(bc);

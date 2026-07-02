@@ -198,12 +198,6 @@ QVariant CMakeTargetNode::data(Id role) const
     if (role == Constants::BUILD_FOLDER_ROLE)
         return m_buildDirectory.toVariant();
 
-    if (role == Android::Constants::AndroidAbi)
-        return value(Android::Constants::ANDROID_ABI);
-
-    if (role == Android::Constants::AndroidAbis)
-        return value(Android::Constants::ANDROID_ABIS);
-
     // TODO: Concerns the variables below. Qt 6 uses target properties which cannot be read
     // by the current mechanism, and the variables start with "Qt_" prefix.
 

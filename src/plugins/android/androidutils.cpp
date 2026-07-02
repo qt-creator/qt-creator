@@ -312,11 +312,10 @@ FilePath buildDirectory(const BuildConfiguration *bc)
 
     // Get the target build dir based on the settings file path
     FilePath buildDir;
-    const ProjectNode *node = bc->project()->findNodeForBuildKey(buildKey);
-    if (node) {
-        const QString settingsFile = node->data(Constants::AndroidDeploySettingsFile).toString();
+    const QString settingsFile
+        = bc->buildSystem()->extraData(buildKey, Constants::AndroidDeploySettingsFile).toString();
+    if (!settingsFile.isEmpty())
         buildDir = FilePath::fromUserInput(settingsFile).parentDir();
-    }
 
     if (!buildDir.isEmpty())
         return buildDir;
@@ -444,11 +443,13 @@ QString apkDevicePreferredAbi(const BuildConfiguration *bc)
 {
     const FilePath libsPath = androidBuildDirectory(bc).pathAppended("libs");
     if (!libsPath.exists()) {
-        if (const ProjectNode *node = currentProjectNode(bc)) {
+        if (currentProjectNode(bc)) {
+            BuildSystem *bs = bc->buildSystem();
+            const QString buildKey = bc->activeBuildKey();
             const QString abi = preferredAbi(
-                node->data(Android::Constants::AndroidAbis).toStringList(), bc);
+                bs->extraData(buildKey, Android::Constants::AndroidAbis).toStringList(), bc);
             if (abi.isEmpty())
-                return node->data(Android::Constants::AndroidAbi).toString();
+                return bs->extraData(buildKey, Android::Constants::AndroidAbi).toString();
         }
     }
     QStringList apkAbis;

@@ -364,16 +364,10 @@ QStringList QmakeProFileNode::targetApplications() const
 
 QVariant QmakeProFileNode::data(Id role) const
 {
-    if (role == Android::Constants::AndroidAbis)
-        return variableValue(Variable::AndroidAbis);
-    if (role == Android::Constants::AndroidAbi)
-        return singleVariableValue(Variable::AndroidAbi);
     if (role == Android::Constants::AndroidExtraLibs)
         return variableValue(Variable::AndroidExtraLibs);
     if (role == Android::Constants::AndroidPackageSourceDir)
         return singleVariableValue(Variable::AndroidPackageSourceDir);
-    if (role == Android::Constants::AndroidDeploySettingsFile)
-        return singleVariableValue(Variable::AndroidDeploySettingsFile);
     if (role == Android::Constants::AndroidSoLibPath) {
         TargetInformation info = targetInformation();
         QStringList res = {info.buildDir.toUrlishString()};

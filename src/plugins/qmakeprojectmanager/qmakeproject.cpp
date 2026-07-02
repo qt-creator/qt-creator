@@ -12,6 +12,8 @@
 #include "qmakeprojectmanagertr.h"
 #include "qmakestep.h"
 
+#include <android/androidconstants.h>
+
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -1165,6 +1167,12 @@ void QmakeBuildSystem::updateBuildSystemData()
         setExtraData(bti.buildKey, Ios::Constants::IosTarget, ti.target);
         setExtraData(bti.buildKey, Ios::Constants::IosBuildDir, ti.buildDir.toUrlishString());
         setExtraData(bti.buildKey, Ios::Constants::IosCmakeGenerator, QString());
+        setExtraData(bti.buildKey, Android::Constants::AndroidAbi,
+                     node->singleVariableValue(Variable::AndroidAbi));
+        setExtraData(bti.buildKey, Android::Constants::AndroidAbis,
+                     node->variableValue(Variable::AndroidAbis));
+        setExtraData(bti.buildKey, Android::Constants::AndroidDeploySettingsFile,
+                     node->singleVariableValue(Variable::AndroidDeploySettingsFile));
 
         if (config.contains("console") && !config.contains("testcase")) {
             const QStringList qt = node->variableValue(Variable::Qt);

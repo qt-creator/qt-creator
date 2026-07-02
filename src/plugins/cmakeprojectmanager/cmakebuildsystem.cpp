@@ -1990,9 +1990,27 @@ void CMakeBuildSystem::updateFallbackProjectData()
 
 void CMakeBuildSystem::updateExtraData()
 {
-    // Build data formerly served on demand from CMakeTargetNode::data().
-    const QString generator = configurationFromCMake().stringValueOf("CMAKE_GENERATOR");
+    // Data formerly served on demand from CMakeTargetNode::data(). The config
+    // values are global, so they are the same for every target node.
+    const CMakeConfig cfg = configurationFromCMake();
+    auto value = [&cfg](const QByteArray &key) -> QVariant {
+        for (const CMakeConfigItem &item : cfg) {
+            if (item.key == key)
+                return item.value;
+        }
+        return {};
+    };
+    const QString generator = cfg.stringValueOf("CMAKE_GENERATOR");
+    const QVariant androidAbi = value(Android::Constants::ANDROID_ABI);
+    const QVariant androidAbis = value(Android::Constants::ANDROID_ABIS);
+    const QVariant androidDeploySettings
+        = value(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE);
+
     for (const CMakeBuildTarget &ct : std::as_const(m_buildTargets)) {
+        setExtraData(ct.title, Android::Constants::AndroidAbi, androidAbi);
+        setExtraData(ct.title, Android::Constants::AndroidAbis, androidAbis);
+        setExtraData(ct.title, Android::Constants::AndroidDeploySettingsFile, androidDeploySettings);
+
         if (ct.artifact.isEmpty())
             continue;
         // The iOS plugin wants the app bundle name without ".app".
