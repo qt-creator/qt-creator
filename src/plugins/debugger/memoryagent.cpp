@@ -195,6 +195,7 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
     } else {
         // Editor: Register tracking not supported.
         m_service = factory->createEditorService(title, true);
+        m_isEditor = true;
     }
 
     if (!m_service)
@@ -254,7 +255,15 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
 
 MemoryAgent::~MemoryAgent()
 {
-    delete m_service;
+    // A separate view is owned by us, so delete it. An editor was handed to the
+    // EditorManager, which owns its lifetime: DebuggerEnginePrivate::cleanupViews()
+    // closes or keeps it on debugger exit depending on the settings, and
+    // setFinished() has already cleared the handlers that reference the engine.
+    // Deleting it here left a dangling editor (a crash); closing it here fought
+    // that owner (a double close, and it ignored the "keep buffers" setting).
+    // So leave an editor alone.
+    if (!m_isEditor)
+        delete m_service;
 }
 
 void MemoryAgent::updateContents()
