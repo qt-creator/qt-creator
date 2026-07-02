@@ -233,11 +233,11 @@ bool AndroidDeployQtStep::init()
         reportWarningOrError(Tr::tr("The deployment step's project node is invalid."), Task::Error);
         return false;
     }
-    m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
+    m_apkPath = FilePath::fromString(bs->extraData(buildKey, Constants::AndroidApk).toString());
     if (!m_apkPath.isEmpty()) {
         m_command = AndroidConfig::adbToolPath();
         Internal::setManifestPath(buildConfiguration(),
-            FilePath::fromString(node->data(Constants::AndroidManifest).toString()));
+            FilePath::fromString(bs->extraData(buildKey, Constants::AndroidManifest).toString()));
     } else {
         FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(buildConfiguration());
         if (jsonFile.isEmpty()) {

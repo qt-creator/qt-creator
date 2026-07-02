@@ -1259,6 +1259,27 @@ static QVariant androidDeploySettingsForProduct(const QJsonObject &productData)
     return {};
 }
 
+static QVariant androidManifestForProduct(const QJsonObject &productData)
+{
+    for (const QJsonValue &a : productData.value("generated-artifacts").toArray()) {
+        const QJsonObject artifact = a.toObject();
+        if (artifact.value("file-tags").toArray().contains("android.manifest_final"))
+            return artifact.value("file-path").toString();
+    }
+    return {};
+}
+
+static QVariant androidClassPathsForProduct(const QJsonObject &productData)
+{
+    QStringList paths;
+    for (const QJsonValue &p : productData.value("module-properties").toObject()
+             .value(Constants::JAVA_ADDITIONAL_CLASSPATHS).toArray()) {
+        if (p.isString())
+            paths << p.toString();
+    }
+    return paths;
+}
+
 void QbsBuildSystem::updateExtraData()
 {
     // Build data formerly served on demand from QbsProductNode::data().
@@ -1267,6 +1288,12 @@ void QbsBuildSystem::updateExtraData()
         setExtraData(buildKey, Android::Constants::AndroidAbis, androidAbisForProduct(productData));
         setExtraData(buildKey, Android::Constants::AndroidDeploySettingsFile,
                      androidDeploySettingsForProduct(productData));
+        setExtraData(buildKey, Android::Constants::AndroidManifest,
+                     androidManifestForProduct(productData));
+        setExtraData(buildKey, Android::Constants::AndroidApk,
+                     productData.value("target-executable").toString());
+        setExtraData(buildKey, Android::Constants::AndroidClassPaths,
+                     androidClassPathsForProduct(productData));
     });
 }
 

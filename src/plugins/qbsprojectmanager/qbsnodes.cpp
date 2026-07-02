@@ -168,18 +168,6 @@ QVariant QbsProductNode::data(Id role) const
         return ret;
     }
 
-    if (role == Android::Constants::AndroidManifest) {
-        for (const auto &a : m_productData.value("generated-artifacts").toArray()) {
-            const QJsonObject artifact = a.toObject();
-            if (artifact.value("file-tags").toArray().contains("android.manifest_final"))
-                return artifact.value("file-path").toString();
-        }
-        return {};
-    }
-
-    if (role == Android::Constants::AndroidApk)
-        return m_productData.value("target-executable").toString();
-
     if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED)
         return m_productData.value("module-properties").toObject()
                 .value("Qt.core.enableKeywords").toBool();
