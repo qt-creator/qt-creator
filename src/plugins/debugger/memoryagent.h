@@ -61,6 +61,7 @@ private:
 
     DebuggerEngine *m_engine = nullptr;
     bool m_trackRegisters = false;
+    bool m_isEditor = false; // Service was handed to the EditorManager as an editor.
 };
 
 QList<MemoryMarkup> registerViewMarkup(quint64 address, const QString &regName);
