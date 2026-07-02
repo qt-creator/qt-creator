@@ -1162,6 +1162,10 @@ FileApiData FileApiParser::parseData(const QFuture<void> &future,
     result.replyFile = readReplyFile(replyFilePath, errorMessage);
     if (cancelCheck())
         return {};
+    // An invalid or incomplete reply index means the reply objects below cannot be
+    // located. Report the error instead of walking into the parsers with empty paths.
+    if (!errorMessage.isEmpty())
+        return result;
     const FilePath cachePathFromReply = result.replyFile.jsonFile("cache", replyDir);
     if (cachePathFromReply.isEmpty())
         result.cache = CMakeConfig::fromFile(buildDir / Constants::CMAKE_CACHE_TXT, &errorMessage);
@@ -1169,12 +1173,15 @@ FileApiData FileApiParser::parseData(const QFuture<void> &future,
         result.cache = readCacheFile(cachePathFromReply, errorMessage);
     if (cancelCheck())
         return {};
-    result.cmakeFiles = readCMakeFilesFile(result.replyFile.jsonFile("cmakeFiles", replyDir),
-                                           errorMessage);
+    const FilePath cmakeFilesPath = result.replyFile.jsonFile("cmakeFiles", replyDir);
+    if (!cmakeFilesPath.isEmpty())
+        result.cmakeFiles = readCMakeFilesFile(cmakeFilesPath, errorMessage);
     if (cancelCheck())
         return {};
-    auto codeModels = readCodemodelFile(result.replyFile.jsonFile("codemodel", replyDir),
-                                         errorMessage);
+    const FilePath codemodelPath = result.replyFile.jsonFile("codemodel", replyDir);
+    auto codeModels = codemodelPath.isEmpty()
+                          ? std::vector<ConfigurationInfo>()
+                          : readCodemodelFile(codemodelPath, errorMessage);
 
     if (codeModels.size() == 0) {
         //: General Messages refers to the output view
