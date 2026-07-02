@@ -1513,16 +1513,27 @@ void BreakHandler::gotoLocation(const Breakpoint &bp) const
 {
     QTC_ASSERT(bp, return);
     QTC_ASSERT(m_engine, return);
-    if (bp->m_parameters.type == BreakpointByAddress) {
-        m_engine->gotoLocation(bp->m_parameters.address);
+
+    // Capture everything we need up front. EditorManager::openEditor() below spins
+    // a local event loop, during which the debug session may finish and destroy this
+    // engine - and with it this handler, the breakpoint items and m_engine. Guard the
+    // engine with a local QPointer so we never dereference freed memory afterwards.
+    const quint64 address = bp->m_parameters.address;
+    const BreakpointType type = bp->m_parameters.type;
+    const QPointer<DebuggerEngine> engine = m_engine;
+
+    if (type == BreakpointByAddress) {
+        engine->gotoLocation(address);
     } else {
+        const FilePath fileName = bp->markerFileName();
+        const int lineNumber = bp->markerLineNumber();
         // Don't use gotoLocation unconditionally as this ends up in
         // disassembly if OperateByInstruction is on. But fallback
         // to disassembly if we can't open the file.
-        if (IEditor *editor = EditorManager::openEditor(bp->markerFileName()))
-            editor->gotoLine(bp->markerLineNumber(), 0);
-        else
-            m_engine->openDisassemblerView(Location(bp->m_parameters.address));
+        if (IEditor *editor = EditorManager::openEditor(fileName))
+            editor->gotoLine(lineNumber, 0);
+        else if (engine)
+            engine->openDisassemblerView(Location(address));
     }
 }
 
