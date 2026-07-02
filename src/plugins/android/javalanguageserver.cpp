@@ -271,12 +271,13 @@ void JLSClient::updateProjectFiles()
         FilePaths libs = {androidJar};
         FilePaths sources;
 
-        projectNode->managingProject()->forEachProjectNode([&projectDir, &sources, &libs](const ProjectNode *node) {
+        BuildSystem *bs = buildConfiguration()->buildSystem();
+        projectNode->managingProject()->forEachProjectNode([bs, &projectDir, &sources, &libs](const ProjectNode *node) {
             if (!node->isProduct())
                 return;
 
             const FilePath packageSourceDir = FilePath::fromVariant(
-                node->data(Constants::AndroidPackageSourceDir));
+                bs->extraData(node->buildKey(), Constants::AndroidPackageSourceDir));
 
             FilePath sourceDir = packageSourceDir.pathAppended("src/main/java");
             if (!sourceDir.exists()) {

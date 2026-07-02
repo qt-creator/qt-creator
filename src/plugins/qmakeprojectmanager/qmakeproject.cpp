@@ -1219,6 +1219,14 @@ void QmakeBuildSystem::updateBuildSystemData()
         appTargetList.append(bti);
     });
 
+    // AndroidPackageSourceDir is read for every product (e.g. by the Java
+    // language server iterating the whole project), so cover all .pro files.
+    for (const QmakeProFile *pro : rootProFile()->allProFiles()) {
+        setExtraData(pro->filePath().toUrlishString(),
+                     Android::Constants::AndroidPackageSourceDir,
+                     pro->singleVariableValue(Variable::AndroidPackageSourceDir));
+    }
+
     setApplicationTargets(appTargetList);
 }
 

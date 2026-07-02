@@ -204,9 +204,8 @@ void ChooseDirectoryPage::initializePage()
     const QString buildKey = m_wizard->buildKey();
     const BuildTargetInfo bti = m_wizard->buildSystem()->buildTarget(buildKey);
 
-    FilePath androidPackageDir;
-    if (const ProjectNode *node = m_wizard->buildSystem()->project()->findNodeForBuildKey(buildKey))
-        androidPackageDir = FilePath::fromVariant(node->data(Android::Constants::AndroidPackageSourceDir));
+    const FilePath androidPackageDir = FilePath::fromVariant(
+        m_wizard->buildSystem()->extraData(buildKey, Android::Constants::AndroidPackageSourceDir));
 
     if (androidPackageDir.isEmpty()) {
         m_label->setText(Tr::tr(
@@ -287,7 +286,8 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         if (m_buildSystem->project()->type() != CMakeProjectManager::Constants::CMAKE_PROJECT_ID)
             node->addFiles(copy.files());
 
-        QString androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
+        QString androidPackageDir
+            = m_buildSystem->extraData(m_buildKey, Android::Constants::AndroidPackageSourceDir).toString();
         if (androidPackageDir.isEmpty()) {
             const BuildTargetInfo bti = m_buildSystem->buildTarget(m_buildKey);
             const FilePath projectDir = bti.projectFilePath.parentDir();

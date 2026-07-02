@@ -163,14 +163,13 @@ QString activityName(const BuildConfiguration *bc)
 
 static FilePath manifestSourcePath(const BuildConfiguration *bc)
 {
-    if (const ProjectNode *node = currentProjectNode(bc)) {
-        const QString packageSource
-            = node->data(Android::Constants::AndroidPackageSourceDir).toString();
-        if (!packageSource.isEmpty()) {
-            const FilePath manifest = FilePath::fromUserInput(packageSource + "/AndroidManifest.xml");
-            if (manifest.exists())
-                return manifest;
-        }
+    const QString packageSource
+        = bc->buildSystem()->extraData(bc->activeBuildKey(),
+                                       Android::Constants::AndroidPackageSourceDir).toString();
+    if (!packageSource.isEmpty()) {
+        const FilePath manifest = FilePath::fromUserInput(packageSource + "/AndroidManifest.xml");
+        if (manifest.exists())
+            return manifest;
     }
     return manifestPath(bc);
 }

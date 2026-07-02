@@ -832,10 +832,8 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
     parser->setProjectFileList(project()->files(Project::AllFiles));
 
     const QString buildKey = buildConfiguration()->activeBuildKey();
-    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
-    FilePath sourceDirPath;
-    if (node)
-        sourceDirPath = FilePath::fromVariant(node->data(Constants::AndroidPackageSourceDir));
+    const FilePath sourceDirPath = FilePath::fromVariant(
+        buildConfiguration()->buildSystem()->extraData(buildKey, Constants::AndroidPackageSourceDir));
     parser->setSourceDirectory(sourceDirPath.canonicalPath());
     parser->setBuildDirectory(androidBuildDirectory(buildConfiguration()));
     formatter->addLineParser(parser);

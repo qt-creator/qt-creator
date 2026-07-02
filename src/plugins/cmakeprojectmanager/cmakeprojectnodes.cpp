@@ -193,9 +193,6 @@ QVariant CMakeTargetNode::data(Id role) const
     // TODO: Concerns the variables below. Qt 6 uses target properties which cannot be read
     // by the current mechanism, and the variables start with "Qt_" prefix.
 
-    if (role == Android::Constants::AndroidPackageSourceDir)
-        return value(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
-
     if (role == Android::Constants::AndroidApplicationArgs)
         return value(Android::Constants::ANDROID_APPLICATION_ARGUMENTS);
 
