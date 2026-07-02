@@ -38,6 +38,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QStringList>
@@ -570,16 +571,18 @@ static void reloadDocument(IDocument *doc,
                            IDocument::ReloadFlag reloadFlag,
                            IDocument::ChangeType type = IDocument::TypeContents)
 {
+    const FilePath filePath = doc->filePath();
+    const QPointer<IDocument> guardedDoc(doc);
     const Result<> res = doc->reload(reloadFlag, type);
     if (!res) {
         QString error = res.error();
         if (error.isEmpty())
-            error = Tr::tr("Cannot reload %1").arg(doc->filePath().toUserOutput());
+            error = Tr::tr("Cannot reload %1").arg(filePath.toUserOutput());
 
         Core::MessageManager::writeDisrupting(error);
-    } else {
-        doc->infoBar()->removeInfo(Constants::RELOAD_INFOBAR);
-        doc->setConflicted(false);
+    } else if (guardedDoc) { // guard against doc->reload deleting itself as a side effect
+        guardedDoc->infoBar()->removeInfo(Constants::RELOAD_INFOBAR);
+        guardedDoc->setConflicted(false);
     }
 }
 
@@ -589,8 +592,10 @@ static void reloadDocument(IDocument *doc,
 static void reloadConflictedDocuments(IDocument::ReloadFlag reloadFlag)
 {
     const QList<IDocument *> list = DocumentManager::conflictedDocuments();
-    for (IDocument *doc : list)
-        reloadDocument(doc, reloadFlag);
+    for (const QPointer<IDocument> &doc : list) {
+        if (doc) // may have been deleted as a side effect of reloading another document
+            reloadDocument(doc, reloadFlag);
+    }
 }
 
 /*!
@@ -1140,10 +1145,13 @@ void DocumentManager::checkForReload()
             expectedFileKeys.insert(filePathKey(filePath, ResolveLinks));
     }
 
-    QList<IDocument *> documentsToClose;
-
+    QList<QPointer<IDocument>> documentsToClose;
+    const QList<QPointer<IDocument>>
+        changedDocList(changedIDocuments.cbegin(), changedIDocuments.cend());
     // handle the IDocuments
-    for (IDocument *document : std::as_const(changedIDocuments)) {
+    for (const QPointer<IDocument> &document : changedDocList) {
+        if (!document) // document was deleted as a side effect of handling another document
+            continue;
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
         std::optional<IDocument::ChangeType> type;
         bool changed = false;
@@ -1321,7 +1329,12 @@ void DocumentManager::checkForReload()
         }
     }
 
-    EditorManager::closeDocuments(documentsToClose, false);
+    const QList<IDocument *> validDocumentsToClose = Utils::transform(
+        Utils::filtered(documentsToClose, [](const QPointer<IDocument> &document) {
+            return bool(document);
+        }),
+        [](const QPointer<IDocument> &document) { return document.data(); });
+    EditorManager::closeDocuments(validDocumentsToClose, false);
 
     d->m_blockActivated = false;
     // re-check in case files where modified while the dialog was open
