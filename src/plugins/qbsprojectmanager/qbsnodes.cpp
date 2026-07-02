@@ -172,11 +172,6 @@ QVariant QbsProductNode::data(Id role) const
         return m_productData.value("module-properties").toObject()
                 .value("Qt.core.enableKeywords").toBool();
 
-    if (role == Android::Constants::AndroidPackageSourceDir) {
-        return m_productData.value("properties").toObject()
-            .value("sourceDirectory").toString();
-    }
-
     if (role == Android::Constants::AndroidClassPaths) {
         QStringList paths;
         for (const auto &p : m_productData.value("module-properties").toObject()

@@ -1288,6 +1288,8 @@ void QbsBuildSystem::updateExtraData()
         setExtraData(buildKey, Android::Constants::AndroidAbis, androidAbisForProduct(productData));
         setExtraData(buildKey, Android::Constants::AndroidDeploySettingsFile,
                      androidDeploySettingsForProduct(productData));
+        setExtraData(buildKey, Android::Constants::AndroidPackageSourceDir,
+                     productData.value("properties").toObject().value("sourceDirectory").toString());
         setExtraData(buildKey, Android::Constants::AndroidManifest,
                      androidManifestForProduct(productData));
         setExtraData(buildKey, Android::Constants::AndroidApk,
