@@ -3,7 +3,7 @@ import qbs.FileInfo
 QtcManualTest {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "RemoteLinux" }
+    Depends { name: "Remote" }
     Depends { name: "Utils" }
 
     cpp.defines: base.concat('QTC_TEST_LIBEXEC_PATH="'

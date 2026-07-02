@@ -15,7 +15,7 @@
 // the reply from stdin, so over a no-tty ssh exec it swallows the head of the
 // piped file. Without the fix that truncates the deployed binary.
 
-#include <remotelinux/linuxdevice.h>
+#include <remote/linuxdevice.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -41,7 +41,7 @@
 #include <chrono>
 
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
+using namespace Remote;
 using namespace Utils;
 using namespace std::chrono_literals;
 
