@@ -4,7 +4,9 @@ import qbs.Utilities
 QtcLibrary {
     name: "Utils"
     Properties { cpp.includePaths: base.concat("mimetypes2", ".") }
-    cpp.defines: base.concat(["UTILS_LIBRARY"])
+    // libarchive is unconditional here: qtcLibArchive takes the system copy when there is
+    // one and falls back to the bundled build otherwise.
+    cpp.defines: base.concat(["UTILS_LIBRARY", "QTC_UTILS_WITH_LIBARCHIVE"])
     Properties { cpp.dynamicLibraries: base }
 
     Properties {

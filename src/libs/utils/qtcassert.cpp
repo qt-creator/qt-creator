@@ -8,7 +8,7 @@
 #include <QMutex>
 #include <QTime>
 
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX) && !defined(__EMSCRIPTEN__)
 #include <execinfo.h>
 #elif defined(_MSC_VER)
 #ifdef QTCREATOR_PCH_H
@@ -27,7 +27,7 @@ void dumpBacktrace(int maxdepth)
     const int ArraySize = 1000;
     if (maxdepth < 0 || maxdepth > ArraySize)
         maxdepth = ArraySize;
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX) && !defined(__EMSCRIPTEN__)
     void *bt[ArraySize] = {nullptr};
     int size = backtrace(bt, maxdepth);
     char **lines = backtrace_symbols(bt, size);

@@ -293,7 +293,7 @@ extend_qtc_library(Utils CONDITION NOT EMSCRIPTEN
 
 extend_qtc_library(Utils
   CONDITION TARGET Qt::CorePrivate
-  DEPENDS Qt::CorePrivate ptyqt
+  DEPENDS Qt::CorePrivate
   DEFINES QTC_UTILS_WITH_FSENGINE
   SOURCES fsengine/diriterator.h
           fsengine/fileiteratordevicesappender.h
@@ -301,6 +301,15 @@ extend_qtc_library(Utils
           fsengine/fsenginehandler.cpp
           fsengine/fsenginehandler.h
           fsengine/filepathinfocache.h
+)
+
+# On WebAssembly libptyqt is skipped outright and libarchive is only a stub INTERFACE
+# target, so neither the pseudo-terminal support in qtcprocess.cpp nor the archive handling
+# in unarchiver.cpp is available there.
+extend_qtc_library(Utils
+  CONDITION NOT EMSCRIPTEN
+  DEPENDS ptyqt
+  DEFINES QTC_UTILS_WITH_LIBARCHIVE
   SBOM_ARGS
     ATTRIBUTION_FILE_PATHS
       "${QtCreator_SOURCE_DIR}/qt_attributions.json"
