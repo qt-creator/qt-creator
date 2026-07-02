@@ -1180,6 +1180,8 @@ void QmakeBuildSystem::updateBuildSystemData()
         }
         soLibPaths.removeDuplicates();
         setExtraData(bti.buildKey, Android::Constants::AndroidSoLibPath, soLibPaths);
+        setExtraData(bti.buildKey, Android::Constants::AndroidExtraLibs,
+                     node->variableValue(Variable::AndroidExtraLibs));
 
         if (config.contains("console") && !config.contains("testcase")) {
             const QStringList qt = node->variableValue(Variable::Qt);

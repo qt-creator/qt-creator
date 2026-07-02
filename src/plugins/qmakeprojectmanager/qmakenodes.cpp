@@ -364,8 +364,6 @@ QStringList QmakeProFileNode::targetApplications() const
 
 QVariant QmakeProFileNode::data(Id role) const
 {
-    if (role == Android::Constants::AndroidExtraLibs)
-        return variableValue(Variable::AndroidExtraLibs);
     if (role == Android::Constants::AndroidPackageSourceDir)
         return singleVariableValue(Variable::AndroidPackageSourceDir);
 

@@ -19,7 +19,6 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -73,12 +72,13 @@ static FilePaths getSoLibSearchPath(BuildConfiguration *bc, const QString &build
     return res;
 }
 
-static FilePaths getExtraLibs(const ProjectNode *node)
+static FilePaths getExtraLibs(BuildConfiguration *bc, const QString &buildKey)
 {
-    if (!node)
+    if (!bc)
         return {};
 
-    const QStringList paths = node->data(Constants::AndroidExtraLibs).toStringList();
+    const QStringList paths
+        = bc->buildSystem()->extraData(buildKey, Constants::AndroidExtraLibs).toStringList();
     FilePaths res = Utils::transform(paths, &FilePath::fromUserInput);
 
     FilePath::removeDuplicates(res);
@@ -110,11 +110,10 @@ static DebuggerRunParameters debuggerRunParameters(RunControl *runControl)
 
     if (rp.isCppDebugging()) {
         qCDebug(androidDebugSupportLog) << "C++ debugging enabled";
-        const ProjectNode *node = runControl->project()->findNodeForBuildKey(runControl->buildKey());
         FilePaths solibSearchPath = getSoLibSearchPath(bc, runControl->buildKey());
         if (qtVersion)
             solibSearchPath.append(qtVersion->qtSoPaths());
-        const FilePaths extraLibs = getExtraLibs(node);
+        const FilePaths extraLibs = getExtraLibs(bc, runControl->buildKey());
         solibSearchPath.append(extraLibs);
 
         FilePath buildDir = Internal::buildDirectory(bc);

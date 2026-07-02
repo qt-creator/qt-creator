@@ -221,7 +221,7 @@ void LibraryListModel::updateModel()
     bool enabled;
     beginResetModel();
     if (node->validParse()) {
-        m_entries = node->data(Constants::AndroidExtraLibs).toStringList();
+        m_entries = m_buildSystem->extraData(buildKey, Constants::AndroidExtraLibs).toStringList();
         enabled = true;
     } else {
         // parsing error

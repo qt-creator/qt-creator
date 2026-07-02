@@ -1980,6 +1980,7 @@ void CMakeBuildSystem::updateExtraData()
     const QVariant androidAbis = value(Android::Constants::ANDROID_ABIS);
     const QVariant androidDeploySettings
         = value(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE);
+    const QVariant androidExtraLibs = value(Android::Constants::ANDROID_EXTRA_LIBS);
 
     // Formerly the TARGETS_BUILD_PATH config value, patched onto every node.
     QStringList androidTargets;
@@ -2000,6 +2001,7 @@ void CMakeBuildSystem::updateExtraData()
         setExtraData(ct.title, Android::Constants::AndroidDeploySettingsFile, androidDeploySettings);
         setExtraData(ct.title, Android::Constants::AndroidTargets, androidTargets);
         setExtraData(ct.title, Android::Constants::AndroidSoLibPath, androidSoLibPaths);
+        setExtraData(ct.title, Android::Constants::AndroidExtraLibs, androidExtraLibs);
 
         if (ct.artifact.isEmpty())
             continue;

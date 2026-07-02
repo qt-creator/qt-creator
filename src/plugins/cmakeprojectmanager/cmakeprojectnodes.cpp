@@ -196,9 +196,6 @@ QVariant CMakeTargetNode::data(Id role) const
     if (role == Android::Constants::AndroidPackageSourceDir)
         return value(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
 
-    if (role == Android::Constants::AndroidExtraLibs)
-        return value(Android::Constants::ANDROID_EXTRA_LIBS);
-
     if (role == Android::Constants::AndroidApplicationArgs)
         return value(Android::Constants::ANDROID_APPLICATION_ARGUMENTS);
 
