@@ -33,7 +33,9 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#ifndef __EMSCRIPTEN__ // QtSupport is excluded from the WebAssembly build
 #include <qtsupport/qtkitaspect.h>
+#endif
 
 #include <tracing/rangedetailswidget.h>
 #include <tracing/timelinewidget.h>
@@ -544,6 +546,11 @@ void PerfProfilerTool::gotoSourceLocation(QString filePath, int lineNumber, int 
 
 static Utils::FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
 {
+#ifdef __EMSCRIPTEN__
+    // QtSupport is not part of the WebAssembly build.
+    Q_UNUSED(kit)
+    return Utils::FilePaths();
+#else
     QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit);
     if (qt == nullptr)
         return Utils::FilePaths();
@@ -555,6 +562,7 @@ static Utils::FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
         paths << Utils::FilePath::fromString(dit.filePath());
     }
     return paths;
+#endif
 }
 
 static Utils::FilePath sysroot(const Kit *kit)

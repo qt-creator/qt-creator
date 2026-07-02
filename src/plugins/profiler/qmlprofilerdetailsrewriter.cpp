@@ -12,7 +12,9 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
+#ifndef __EMSCRIPTEN__ // QtSupport is excluded from the WebAssembly build
 #include <qtsupport/baseqtversion.h>
+#endif
 
 #include <utils/qtcassert.h>
 
@@ -184,7 +186,12 @@ void QmlProfilerDetailsRewriter::documentReady(QmlJS::Document::Ptr doc)
 
 void QmlProfilerDetailsRewriter::populateFileFinder(const ProjectExplorer::BuildConfiguration *bc)
 {
+#ifndef __EMSCRIPTEN__
     QtSupport::QtVersion::populateQmlFileFinder(&m_projectFinder, bc);
+#else
+    // QtSupport is not part of the WebAssembly build; the file finder is left unpopulated.
+    Q_UNUSED(bc)
+#endif
 }
 
 } // namespace Profiler::Internal

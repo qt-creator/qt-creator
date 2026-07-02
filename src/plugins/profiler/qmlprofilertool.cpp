@@ -47,8 +47,6 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitaspect.h>
-
 #include <texteditor/texteditor.h>
 
 #include <tracing/rangedetailswidget.h>

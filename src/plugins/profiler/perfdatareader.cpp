@@ -21,7 +21,9 @@
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
+#ifndef __EMSCRIPTEN__ // QtSupport is excluded from the WebAssembly build
 #include <qtsupport/qtkitaspect.h>
+#endif
 
 #include <QDateTime>
 #include <QDebug>
@@ -281,6 +283,7 @@ void PerfDataReader::collectArguments(CommandLine *cmd, const QString &exe, cons
         cmd->addArg(exe);
     }
 
+#ifndef __EMSCRIPTEN__
     if (QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit)) {
         cmd->addArg("--extra");
         cmd->addArg(QString("%1%5%2%5%3%5%4")
@@ -290,6 +293,7 @@ void PerfDataReader::collectArguments(CommandLine *cmd, const QString &exe, cons
                      .arg(qt->qmlPath().nativePath())
                      .arg(cmd->executable().pathListSeparator()));
     }
+#endif
 
     if (auto toolChain = ToolchainKitAspect::cxxToolchain(kit)) {
         Abi::Architecture architecture = toolChain->targetAbi().architecture();

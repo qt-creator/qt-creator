@@ -119,11 +119,19 @@ set(PERFPROFILER_CPP_SOURCES
   perftracepointdialog.cpp perftracepointdialog.h
 )
 
+# QtSupport is only used for the live-profiling launch integration (selecting a Qt
+# kit/version to run and profile an app), which is unavailable on WebAssembly. Drop it
+# there so the offline trace viewer does not drag in QtSupport -> ProParser -> qmake.
+set(_profiler_qtsupport_dep QtSupport)
+if (EMSCRIPTEN)
+  set(_profiler_qtsupport_dep "")
+endif()
+
 add_qtc_plugin(Profiler
   CONDITION TARGET Tracing
   DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree
   INCLUDES ${PROJECT_SOURCE_DIR}/src
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
+  PLUGIN_DEPENDS Core ProjectExplorer ${_profiler_qtsupport_dep} TextEditor
   SOURCES
     ${TEST_SOURCES}
     ${QMLPROFILER_CPP_SOURCES}
