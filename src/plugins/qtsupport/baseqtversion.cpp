@@ -1309,8 +1309,21 @@ Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand)
 
 QtVersionData &QtVersionPrivate::data()
 {
+    // Shared placeholder returned while the qmake query keeps failing (see below). It is
+    // never stored as the authoritative, cached data and is treated as read-only.
+    static QtVersionData emptyData = [] {
+        QtVersionData data;
+        data.installed = true;
+        data.hasExamples = false;
+        data.hasDocumentation = false;
+        return data;
+    }();
+
     if (!m_data) {
-        if (!m_dataFuture.isRunning() && !m_dataFuture.isFinished())
+        // A default-constructed QFuture reports isFinished() == true but holds no result,
+        // which is the state left behind by the failure reset below. Key the (re-)query on
+        // the absence of a result instead, so result() is never called on an empty future.
+        if (!m_dataFuture.isRunning() && m_dataFuture.resultCount() == 0)
             updateVersionInfoNow();
 
         if (m_dataFuture.isRunning())
@@ -1321,16 +1334,20 @@ QtVersionData &QtVersionPrivate::data()
         if (!data.has_value()) {
             Core::MessageManager::writeFlashing(data.error());
 
-            m_data = QtVersionData();
-            m_data->installed = true;
-            m_data->hasExamples = false;
-            m_data->hasDocumentation = false;
+            // Do not cache the failure. Querying a remote qmake can fail transiently -
+            // most commonly because the device is not connected yet - and permanently
+            // caching an empty result would leave the Qt without version and ABI
+            // information forever. That in turn prevents it from being recognized (e.g.
+            // as a macOS Qt) and paired into an auto-created kit, even after the device
+            // becomes reachable. Reset the future and leave m_data unset so the next
+            // access retries the query; once it succeeds the result is cached normally.
+            m_dataFuture = {};
         } else {
             m_data = data.value();
         }
     }
 
-    return *m_data;
+    return m_data ? *m_data : emptyData;
 }
 
 void QtVersionPrivate::updateVersionInfoNow()
