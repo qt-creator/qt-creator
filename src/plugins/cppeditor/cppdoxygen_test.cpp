@@ -385,6 +385,22 @@ void DoxygenTest::testBasic_data()
         " */\n"
         "int a;\n") << int(CommandPrefix::Auto);
 
+    // Note: This will not be indented by the special doxygen handler, but
+    //       by the CppQtStyleIndenter.
+    QTest::newRow("continuation_after_extra_indent_without_asterisks") << _(
+        "bool preventFolding;\n"
+        "/*! leading comment\n"
+        "    cont|\n"
+        " */\n"
+        "int a;\n"
+        ) << _(
+        "bool preventFolding;\n"
+        "/*! leading comment\n"
+        "    cont\n"
+        "    \n"
+        " */\n"
+        "int a;\n") << int(CommandPrefix::Auto);
+
     QTest::newRow("continuation_on_asterisk") << _(
         "bool preventFolding;\n"
         "/* leading comment\n"
@@ -510,6 +526,9 @@ void DoxygenTest::runTest(const QByteArray &original,
                      Continue);
         QEXPECT_FAIL("noContinuationForExpressionAndComment2",
                      "ClangFormat indents differently",
+                     Continue);
+        QEXPECT_FAIL("continuation_after_extra_indent_without_asterisks",
+                     "ClangFormat does not indent inside comments",
                      Continue);
     }
     QCOMPARE(QLatin1String(result), QLatin1String(expected));

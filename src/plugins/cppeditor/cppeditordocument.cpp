@@ -15,6 +15,7 @@
 #include "cppmodelmanager.h"
 #include "cppoutlinemodel.h"
 #include "cppparsecontext.h"
+#include "cppqtstyleindenter.h"
 #include "editordocumenthandle.h"
 #include "quickfixes/cppquickfixassistant.h"
 
@@ -356,6 +357,12 @@ void CppEditorDocument::Private::onMimeTypeChanged()
     m_isObjCEnabled = (mt == QLatin1String(Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                        || mt == QLatin1String(Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
     m_completionAssistProvider = CppModelManager::completionAssistProvider();
+
+    // ClangFormat does not indent inside comments; see QTCREATORBUG-34604.
+    // TODO: It'd be preferable to be able to indent in comments everywhere.
+    // If and when that happens, this code can be removed.
+    if (mt == "text/x-qdoc")
+        q->setIndenter(createCppQtStyleIndenter(document()));
 
     initializeTimer();
 }
