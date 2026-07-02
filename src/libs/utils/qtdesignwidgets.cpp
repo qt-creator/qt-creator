@@ -339,7 +339,8 @@ void QtcButton::paintEvent(QPaintEvent *event)
     const int availableLabelWidth = bgR.width() - margins.left() - margins.right();
     const QFont font = tf.font();
     const QFontMetrics fm(font);
-    const QString elidedLabelText = fm.elidedText(text(), Qt::ElideRight, availableLabelWidth);
+    const QString elidedLabelText = fm.elidedText(text(), Qt::ElideRight, availableLabelWidth,
+                                                  Qt::TextShowMnemonic);
     const QRect labelR(margins.left(), margins.top(), availableLabelWidth, tf.lineHeight());
     p.setFont(font);
     const QColor textColor = isEnabled() ? tf.color() : creatorColor(Theme::Token_Text_Subtle);
@@ -716,7 +717,7 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
         p.setFont(SwitchLabelTf.font());
         p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
         const QString elidedLabel =
-            p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width());
+            p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);
         p.drawText(textR, SwitchLabelTf.drawTextFlags, elidedLabel);
     }
 }
