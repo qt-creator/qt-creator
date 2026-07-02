@@ -45,7 +45,6 @@ public:
     int indentFor(const QTextBlock &block,
                   const TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) final;
-    int visualIndentFor(const QTextBlock &block, const TabSettingsData &tabSettings) final;
     IndentationForBlock indentationForBlocks(const QList<QTextBlock> &blocks,
                                              const TabSettingsData &tabSettings,
                                              int cursorPositionInEditor = -1) final;
@@ -171,12 +170,6 @@ int CppQtStyleIndenter::indentFor(const QTextBlock &block,
     codeFormatter.indentFor(block, &indent, &padding);
 
     return indent;
-}
-
-int CppQtStyleIndenter::visualIndentFor(const QTextBlock &block,
-                                        const TabSettingsData &tabSettings)
-{
-    return indentFor(block, tabSettings);
 }
 
 CppCodeStyleSettings CppQtStyleIndenter::codeStyleSettings() const

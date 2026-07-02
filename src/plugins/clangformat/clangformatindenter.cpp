@@ -11,12 +11,10 @@
 #include <cppeditor/cpptoolssettings.h>
 
 #include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 
 #include <utils/genericconstants.h>
 #include <utils/qtcsettings.h>
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <texteditor/tabsettings.h>
@@ -172,12 +170,6 @@ int ClangFormatForwardingIndenter::indentFor(const QTextBlock &block,
                                           int cursorPositionInEditor)
 {
     return currentIndenter()->indentFor(block, tabSettings, cursorPositionInEditor);
-}
-
-int ClangFormatForwardingIndenter::visualIndentFor(const QTextBlock &block,
-                                                const TextEditor::TabSettingsData &tabSettings)
-{
-    return currentIndenter()->visualIndentFor(block, tabSettings);
 }
 
 void ClangFormatForwardingIndenter::autoIndent(const QTextCursor &cursor,

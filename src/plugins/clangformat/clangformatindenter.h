@@ -35,8 +35,6 @@ public:
     int indentFor(const QTextBlock &block,
                   const TextEditor::TabSettingsData &tabSettings,
                   int cursorPositionInEditor = -1) override;
-    int visualIndentFor(const QTextBlock &block,
-                        const TextEditor::TabSettingsData &tabSettings) override;
     void autoIndent(const QTextCursor &cursor,
                     const TextEditor::TabSettingsData &tabSettings,
                     int cursorPositionInEditor = -1) override;
