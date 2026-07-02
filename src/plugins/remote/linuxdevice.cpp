@@ -1088,6 +1088,21 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     CommandLine inner;
 
     if (!commandLine.isEmpty() && sourceProfile) {
+        // For non-terminal commands the command's std streams carry data, not a
+        // terminal: stdin is e.g. the file contents piped into "dd of=..." by
+        // writeFileContents(), and stdout/stderr carry command output or the
+        // cmdbridge binary protocol. Profile scripts must not interfere with them:
+        //  - a stray "read" (or busybox "resize", which read()s a terminal reply
+        //    from stdin) would eat the start of the piped data, truncating it;
+        //  - "resize" (and banners) also write escape sequences to stdout/stderr,
+        //    which corrupts command output and the cmdbridge protocol stream.
+        // Source the profile with all three std streams detached from the real
+        // ones; the command after the group keeps the real stdin/stdout/stderr.
+        // For terminal sessions we leave the profile attached to the pty.
+        // See QTCREATORBUG-34734.
+        const bool guardStdin = usePidMarker;
+        if (guardStdin)
+            inner.addArgs("{", CommandLine::Raw);
         const QStringList rcFilesToSource = {"/etc/profile", "$HOME/.profile"};
         for (const QString &filePath : rcFilesToSource) {
             inner.addArgs({"test", "-f", filePath});
@@ -1095,6 +1110,8 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
             inner.addArgs({".", filePath});
             inner.addArgs(";", CommandLine::Raw);
         }
+        if (guardStdin)
+            inner.addArgs("} </dev/null >/dev/null 2>/dev/null ;", CommandLine::Raw);
     }
 
     const FilePath &workingDirectory = q->m_setup.rawWorkingDirectory();
@@ -1471,6 +1488,9 @@ void LinuxDevicePrivate::setupFileAccessFinalize(const Result<> &result, const C
 
 void LinuxDevicePrivate::announceConnectionAttempt()
 {
+    if (!Core::ICore::instance())
+        return;
+
     const QString message = Tr::tr("Establishing initial connection to device \"%1\". "
                                    "This might take a moment.").arg(q->displayName());
     DEBUG(message);
@@ -1484,6 +1504,9 @@ void LinuxDevicePrivate::announceConnectionAttempt()
 
 void LinuxDevicePrivate::unannounceConnectionAttempt()
 {
+    if (!Core::ICore::instance())
+        return;
+
     QString message =
         Tr::tr("Connection attempt to device \"%1\" finished.").arg(q->displayName()) + "\n";
 
