@@ -38,8 +38,15 @@ FileAccess::~FileAccess()
         m_client->disconnect();
         // and we don't want to block the main thread while it does either.
         if (QThread::isMainThread()) {
-            futureSynchronizer()->addFuture(
-                asyncRun([client = std::move(m_client)]() mutable { client.reset(); }));
+            // There is no synchronizer to hand the future to once the application is
+            // being destroyed: asking for one then constructs a fresh one that nobody
+            // will ever drain. Blocking is all that is left at that point.
+            if (QCoreApplication::instance()) {
+                futureSynchronizer()->addFuture(
+                    asyncRun([client = std::move(m_client)]() mutable { client.reset(); }));
+            } else {
+                m_client.reset();
+            }
         }
     }
 }
