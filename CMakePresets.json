@@ -11,6 +11,36 @@
         "BUILD_EXECUTABLES": "QtCreator;qtcreator_ctrlc_stub;qtcreator_process_stub;win64interrupt",
         "WITH_QMLDESIGNER": "OFF"
       }
+    },
+    {
+      "name": "qtprofiler-wasm",
+      "displayName": "qtprofiler (WebAssembly, multithread)",
+      "description": "Cross-compile the standalone qtprofiler for Qt for WebAssembly. Builds only the Profiler plugin dependency closure plus the qtprofiler executable.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/builds/wasm-qtprofiler",
+      "toolchainFile": "$env{HOME}/Qt/6.11.1/wasm_multithread/lib/cmake/Qt6/qt.toolchain.cmake",
+      "environment": {
+        "EMSDK": "$env{HOME}/emsdk"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "QT_HOST_PATH": "$env{HOME}/Qt/6.11.1/macos",
+        "QTC_STATIC_BUILD": "ON",
+        "BUILD_SHARED_LIBS": "OFF",
+        "BUILD_PLUGINS": "Core;TextEditor;ProjectExplorer;Profiler",
+        "BUILD_EXECUTABLES": "qtprofiler",
+        "WITH_QMLDESIGNER": "OFF",
+        "WITH_TESTS": "OFF",
+        "BUILD_WITH_PCH": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "qtprofiler-wasm",
+      "displayName": "qtprofiler (WebAssembly)",
+      "configurePreset": "qtprofiler-wasm",
+      "targets": [ "qtprofiler" ]
     }
   ]
 }

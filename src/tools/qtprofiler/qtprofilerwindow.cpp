@@ -35,6 +35,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QtTaskTree/QBarrier>
 #include <QtTaskTree/QSingleTaskTreeRunner>
@@ -292,11 +293,13 @@ void WindowPrivate::showOpenFileDialog()
                            + Tr::tr("Chrome Trace Format Files (*.json)") + ";;"_L1
                            + Tr::tr("Common Trace Format Metadata Files (metadata)") + ";;"_L1
                            + Tr::tr("All Files (*)");
-    const FilePath filePath
-        = FileUtils::getOpenFilePath(Tr::tr("Load Trace"), settings().lastTraceFile(), filter);
-
-    if (!filePath.isEmpty())
-        q->loadTraceFile(filePath);
+    // Asynchronous (non-blocking) so it works on platforms where the calling thread
+    // must not block in a nested event loop, e.g. WebAssembly without asyncify.
+    FileUtils::getOpenFilePathAsync(Tr::tr("Load Trace"), settings().lastTraceFile(), filter)
+        .then(q, [this](const FilePath &filePath) {
+            if (!filePath.isEmpty())
+                q->loadTraceFile(filePath);
+        });
 }
 
 void WindowPrivate::showOpenCtfDirDialog()
@@ -462,7 +465,9 @@ void WindowPrivate::onError(const QString &error)
         QTimer::singleShot(0, []{ QApplication::exit(1); });
     }
 
-    QMessageBox::critical(nullptr, Tr::tr("Error"), error);
+    // Non-modal: the static QMessageBox::critical() spins a nested event loop via exec(),
+    // which aborts on Qt for WebAssembly (no asyncify). AsynchronousMessageBox does not block.
+    AsynchronousMessageBox::critical(Tr::tr("Error"), error);
 }
 
 void WindowPrivate::onLoadFinished()

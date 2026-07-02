@@ -40,6 +40,13 @@ int main(int argc, char *argv[])
     // A GUI tool has no use for a terminal hangup, so ignore it.
     std::signal(SIGHUP, SIG_IGN);
 #endif
+    // In the static (WebAssembly) build, resources compiled into the static Utils
+    // library are not auto-registered, so pull them in explicitly. In shared builds
+    // libUtils registers them via a constructor and does not export
+    // qInitResources_utils(), so calling Q_INIT_RESOURCE there fails to link.
+#ifdef __EMSCRIPTEN__
+    Q_INIT_RESOURCE(utils);
+#endif
 
     QApplication app(argc, argv);
     QApplication::setOrganizationName(Core::Constants::IDE_SETTINGSVARIANT_STR);
