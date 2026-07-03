@@ -19,13 +19,8 @@
 #include <qpa/qplatformnativeinterface.h>
 
 // for windows progress bar
-#ifndef __GNUC__
-#    define CALLBACK WINAPI
-#    include <shobjidl.h>
-#endif
-
-// Windows 7 SDK required
-#ifdef __ITaskbarList3_INTERFACE_DEFINED__
+#define CALLBACK WINAPI
+#include <shobjidl.h>
 
 namespace {
     int total = 0;
@@ -129,36 +124,3 @@ void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool 
     else
         pITask->SetProgressState(winId, TBPF_NOPROGRESS);
 }
-
-#else
-
-void Core::Internal::ProgressManagerPrivate::initInternal()
-{
-}
-
-void Core::Internal::ProgressManagerPrivate::cleanup()
-{
-}
-
-void Core::Internal::ProgressManagerPrivate::updateApplicationLabelNow()
-{
-}
-
-void Core::Internal::ProgressManagerPrivate::setApplicationProgressRange(int min, int max)
-{
-    Q_UNUSED(min)
-    Q_UNUSED(max)
-}
-
-void Core::Internal::ProgressManagerPrivate::setApplicationProgressValue(int value)
-{
-    Q_UNUSED(value)
-}
-
-void Core::Internal::ProgressManagerPrivate::setApplicationProgressVisible(bool visible)
-{
-    Q_UNUSED(visible)
-}
-
-
-#endif // __ITaskbarList2_INTERFACE_DEFINED__
