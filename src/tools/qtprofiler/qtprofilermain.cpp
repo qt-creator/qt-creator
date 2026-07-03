@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
     // resources.
 #ifdef __EMSCRIPTEN__
     Q_INIT_RESOURCE(utils);
+    Q_INIT_RESOURCE(core);
 #endif
 
     QApplication app(argc, argv);
