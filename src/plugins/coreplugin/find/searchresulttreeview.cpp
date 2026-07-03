@@ -134,7 +134,7 @@ bool SearchResultTreeView::event(QEvent *e)
 
 void SearchResultTreeView::emitJumpToSearchResult(const QModelIndex &index)
 {
-    if (model()->data(index, ItemDataRoles::IsGeneratedRole).toBool())
+    if (model()->data(index, ItemDataRoles::IsGroupingItemRole).toBool())
         return;
     SearchResultItem item = model()->data(index, ItemDataRoles::ResultItemRole).value<SearchResultItem>();
 

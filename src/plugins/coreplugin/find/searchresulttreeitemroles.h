@@ -19,7 +19,7 @@ enum Roles {
     ResultBeginColumnNumberRole,
     SearchTermLengthRole,
     ContainingFunctionNameRole,
-    IsGeneratedRole
+    IsGroupingItemRole
 };
 
 } // namespace Core::Internal::ItemDataRoles

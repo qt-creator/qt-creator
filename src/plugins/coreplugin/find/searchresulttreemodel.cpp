@@ -307,7 +307,7 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         result = row->item.lineText();
         break;
     case Qt::DisplayRole:
-        if (m_relativePaths && row->isGenerated()) {
+        if (m_relativePaths && row->isGroupingItem()) {
             result = ICore::pathRelativeToActiveProject(FilePath::fromUserInput(row->item.lineText())).toUserOutput();
         } else {
             result = row->item.lineText();
@@ -347,8 +347,8 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     case ItemDataRoles::ContainingFunctionNameRole:
         result = row->item.containingFunctionName().value_or(QString{});
         break;
-    case ItemDataRoles::IsGeneratedRole:
-        result = row->isGenerated();
+    case ItemDataRoles::IsGroupingItemRole:
+        result = row->isGroupingItem();
         break;
     default:
         result = QVariant();
@@ -387,7 +387,7 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
             partItem = new SearchResultTreeItem(item, currentItem);
             if (m_showReplaceUI)
                 partItem->setCheckState(Qt::Checked);
-            partItem->setGenerated(true);
+            partItem->setIsGroupingItem(true);
             beginInsertRows(currentItemIndex, insertionIndex, insertionIndex);
             currentItem->insertChild(insertionIndex, partItem);
             endInsertRows();
@@ -422,7 +422,7 @@ void SearchResultTreeModel::addResultsToCurrentParent(const SearchResultItems &i
             SearchResultTreeItem *existingItem;
             const int insertionIndex = m_currentParent->insertionIndex(item, &existingItem, mode);
             if (existingItem) {
-                existingItem->setGenerated(false);
+                existingItem->setIsGroupingItem(false);
                 existingItem->item = item;
                 QModelIndex itemIndex = index(insertionIndex, 0, m_currentIndex);
                 emit dataChanged(itemIndex, itemIndex);
@@ -531,7 +531,7 @@ QModelIndex SearchResultTreeModel::next(const QModelIndex &idx, bool includeGene
     QModelIndex value = idx;
     do {
         value = nextIndex(value, wrapped);
-    } while (value != idx && !includeGenerated && treeItemAtIndex(value)->isGenerated());
+    } while (value != idx && !includeGenerated && treeItemAtIndex(value)->isGroupingItem());
     return value;
 }
 
@@ -566,7 +566,7 @@ QModelIndex SearchResultTreeModel::prev(const QModelIndex &idx, bool includeGene
     QModelIndex value = idx;
     do {
         value = prevIndex(value, wrapped);
-    } while (value != idx && !includeGenerated && treeItemAtIndex(value)->isGenerated());
+    } while (value != idx && !includeGenerated && treeItemAtIndex(value)->isGroupingItem());
     return value;
 }
 

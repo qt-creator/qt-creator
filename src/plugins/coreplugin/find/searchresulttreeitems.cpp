@@ -7,12 +7,12 @@
 
 namespace Core::Internal {
 
-SearchResultTreeItem::SearchResultTreeItem(const Utils::SearchResultItem &item,
-                                           SearchResultTreeItem *parent)
-  : item(item),
-  m_parent(parent),
-  m_isGenerated(false),
-  m_checkState(item.selectForReplacement() ? Qt::Checked : Qt::Unchecked)
+SearchResultTreeItem::SearchResultTreeItem(
+    const Utils::SearchResultItem &item, SearchResultTreeItem *parent)
+    : item(item)
+    , m_parent(parent)
+    , m_isGroupingItem(false)
+    , m_checkState(item.selectForReplacement() ? Qt::Checked : Qt::Unchecked)
 {
 }
 

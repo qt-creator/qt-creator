@@ -32,15 +32,15 @@ public:
     Qt::CheckState checkState() const;
     void setCheckState(Qt::CheckState checkState);
 
-    bool isGenerated() const { return m_isGenerated; }
-    void setGenerated(bool value) { m_isGenerated = value; }
+    bool isGroupingItem() const { return m_isGroupingItem; }
+    void setIsGroupingItem(bool value) { m_isGroupingItem = value; }
 
     Utils::SearchResultItem item;
 
 private:
     SearchResultTreeItem *m_parent;
     QList<SearchResultTreeItem *> m_children;
-    bool m_isGenerated;
+    bool m_isGroupingItem;
     Qt::CheckState m_checkState;
 };
 
