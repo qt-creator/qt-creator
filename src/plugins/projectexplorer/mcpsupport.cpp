@@ -2281,8 +2281,19 @@ void registerMcpTools()
                 const bool hasKits = Utils::anyOf(KitManager::kits(), [&](Kit *k) {
                     return BuildDeviceKitAspect::deviceId(k) == device->id();
                 });
-                if (!hasKits)
+                if (!hasKits) {
                     KitManager::createKitsForBuildDevice(device);
+                } else {
+                    // Existing kits may predate the detection of some tools: a remote CMake
+                    // tool, for example, only becomes detectable once the device is reachable,
+                    // which is typically after the kits were first created. Re-complete the
+                    // device's kits so newly detected tools get bound into aspects that are
+                    // still unset (completeKit() runs setup() for those and fix() otherwise).
+                    for (Kit *k : KitManager::kits()) {
+                        if (BuildDeviceKitAspect::deviceId(k) == device->id())
+                            KitManager::completeKit(k);
+                    }
+                }
 
                 QJsonArray kits;
                 for (Kit *k : KitManager::kits()) {

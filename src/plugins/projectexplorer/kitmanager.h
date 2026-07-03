@@ -47,6 +47,10 @@ public:
     // Creates at least one kit for the given device if toolchains are known for it.
     static void createKitsForBuildDevice(const IDevicePtr &dev);
 
+    // Sets up any relevant kit aspect that is still unset and fixes the rest. Useful to
+    // bind tools into a kit that were detected only after the kit was first created.
+    static void completeKit(Kit *k);
+
     static void saveKits();
 
     static bool isLoaded();
@@ -85,7 +89,6 @@ private:
     static void restoreKits();
 
     static void notifyAboutUpdate(Kit *k);
-    static void completeKit(Kit *k);
 
     friend class ProjectExplorerPlugin; // for constructor
     friend class Kit;
