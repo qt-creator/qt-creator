@@ -111,6 +111,10 @@ private:
 
 struct DebuggerData
 {
+    DebuggerData() = default;
+    DebuggerData(DebuggerRunParameters runParameters, RunControl *runControl)
+        : runParameters(std::move(runParameters)), runControl(runControl) {}
+
     ~DebuggerData() {
         if (terminalProcess && runControl) {
             auto processInterface = terminalProcess->takeProcessInterface();

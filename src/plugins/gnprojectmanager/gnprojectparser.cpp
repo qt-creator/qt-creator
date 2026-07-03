@@ -70,7 +70,7 @@ static bool isSource(const FilePath &file)
         // swift
         u"swift",
     };
-    return srcs.contains(file.suffixView());
+    return srcs.count(file.suffixView()) > 0;
 }
 
 static std::unique_ptr<VirtualFolderNode> createVFolder(const FilePath &basePath,
@@ -349,13 +349,10 @@ QList<BuildTargetInfo> GNProjectParser::appsTargets() const
 {
     QList<BuildTargetInfo> apps;
     FilePaths libSearchPaths;
-    std::ranges::filter_view libs{m_parserResult.targets, [](const GNTarget &target) {
-                                      return target.type == GNTarget::Type::sharedLibrary
-                                             && !target.outputs.isEmpty();
-                                  }};
-    std::ranges::transform(libs, std::back_inserter(libSearchPaths), [&](const GNTarget &target) {
-        return FilePath::fromString(target.outputs.first()).parentDir();
-    });
+    for (const GNTarget &target : m_parserResult.targets) {
+        if (target.type == GNTarget::Type::sharedLibrary && !target.outputs.isEmpty())
+            libSearchPaths.append(FilePath::fromString(target.outputs.first()).parentDir());
+    }
     for (const GNTarget &target : m_parserResult.targets) {
         if (target.type == GNTarget::Type::executable && !target.outputs.isEmpty()) {
             BuildTargetInfo bti;

@@ -16,13 +16,7 @@ namespace Schema = Generated::Schema::_2025_11_25;
 class ServerPrivate;
 struct Responder;
 
-template<typename T>
-concept IsDuration = requires(T duration)
-{
-    std::chrono::duration_cast<std::chrono::milliseconds>(duration);
-};
-
-template<IsDuration DurationType>
+template<typename DurationType>
 void letTaskDieIn(Schema::Task &task, DurationType dieIn)
 {
     using namespace std::chrono_literals;
@@ -32,7 +26,8 @@ void letTaskDieIn(Schema::Task &task, DurationType dieIn)
     task.ttl(ttl.count());
 }
 
-static std::optional<Schema::ProgressToken> progressToken(const auto &message)
+template<typename Message>
+static std::optional<Schema::ProgressToken> progressToken(const Message &message)
 {
     if (!message._meta())
         return std::nullopt;
@@ -221,6 +216,19 @@ struct ToolInterfacePrivate;
 
     \sa Server::addTool()
 */
+// C++17 replacement for the IsDuration concept: matches types convertible to a
+// std::chrono::duration (so std::nullopt and plain ints do not match the
+// duration-taking startTask overloads below).
+template<typename T, typename = void>
+struct IsDurationTrait : std::false_type
+{};
+template<typename T>
+struct IsDurationTrait<
+    T,
+    std::void_t<decltype(std::chrono::duration_cast<std::chrono::milliseconds>(std::declval<T>()))>>
+    : std::true_type
+{};
+
 class MCPSERVER_EXPORT ToolInterface
 {
     friend class ServerPrivate;
@@ -286,12 +294,17 @@ public:
                 success, which can be called to push intermediate progress
                 notifications to the client, or an error on failure.
     */
+    template<typename PollDuration,
+             typename TtlDuration,
+             std::enable_if_t<IsDurationTrait<PollDuration>::value
+                                  && IsDurationTrait<TtlDuration>::value,
+                              bool> = true>
     Utils::Result<TaskProgressNotify> startTask(
-        IsDuration auto pollingInterval,
+        PollDuration pollingInterval,
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
         const std::optional<CancelTaskCallback> &onCancelTaskCallback,
-        IsDuration auto ttl,
+        TtlDuration ttl,
         std::optional<Schema::ProgressToken> progressToken) const
     {
         return startTask(
@@ -312,8 +325,10 @@ public:
         \sa startTask(IsDuration, const UpdateTaskCallback &, const TaskResultCallback &,
                      const std::optional<CancelTaskCallback> &, IsDuration)
     */
+    template<typename PollDuration,
+             std::enable_if_t<IsDurationTrait<PollDuration>::value, bool> = true>
     Utils::Result<TaskProgressNotify> startTask(
-        IsDuration auto pollingInterval,
+        PollDuration pollingInterval,
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
         const std::optional<CancelTaskCallback> &onCancelTaskCallback,
@@ -363,11 +378,13 @@ public:
         \sa startTask(IsDuration, const UpdateTaskCallback &, const TaskResultCallback &,
                      const std::optional<CancelTaskCallback> &, IsDuration)
     */
+    template<typename TtlDuration,
+             std::enable_if_t<IsDurationTrait<TtlDuration>::value, bool> = true>
     Utils::Result<TaskProgressNotify> startTask(
         const UpdateTaskCallback &onUpdateTask,
         const TaskResultCallback &onResultCallback,
         const std::optional<CancelTaskCallback> &onCancelTaskCallback,
-        IsDuration auto ttl,
+        TtlDuration ttl,
         std::optional<Schema::ProgressToken> progressToken) const
     {
         return startTask(

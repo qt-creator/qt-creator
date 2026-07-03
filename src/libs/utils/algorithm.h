@@ -62,7 +62,10 @@ bool eraseOne(T &container, F predicate);
 /////////////////////////
 // contains
 /////////////////////////
-template<typename T, typename F>
+template<typename T,
+         typename F,
+         std::enable_if_t<std::is_invocable_v<F &, decltype(*std::begin(std::declval<const T &>()))>,
+                          bool> = true>
 bool contains(const T &container, F function);
 template<typename T, typename R, typename S>
 bool contains(const T &container, R (S::*function)() const);
@@ -454,7 +457,12 @@ bool eraseOne(T &container, F predicate)
 //////////////////
 // contains
 /////////////////
-template<typename T, typename F>
+// Predicate form: contains(container, callable). Constrained to callables so it
+// does not compete with the value form below (C++17 has no concept subsumption).
+template<typename T,
+         typename F,
+         std::enable_if_t<std::is_invocable_v<F &, decltype(*std::begin(std::declval<const T &>()))>,
+                          bool>>
 bool contains(const T &container, F function)
 {
     return anyOf(container, function);
@@ -472,19 +480,29 @@ bool contains(const C &container, R S::*member)
     return anyOf(container, std::mem_fn(member));
 }
 
-template<std::indirectly_readable Iterator, std::indirectly_regular_unary_invocable<Iterator> Projection>
-using projected_value_t = std::remove_cvref_t<
-    std::invoke_result_t<Projection &, std::iter_value_t<Iterator> &>>;
+template<typename Iterator, typename Projection>
+using projected_value_t = std::remove_cv_t<std::remove_reference_t<
+    std::invoke_result_t<Projection &, typename std::iterator_traits<Iterator>::value_type &>>>;
 
-template<std::ranges::input_range Range,
-         typename Projection = std::identity,
-         class Value = projected_value_t<std::ranges::iterator_t<Range>, Projection>>
-    requires std::indirect_binary_predicate<std::ranges::equal_to,
-                                            std::projected<std::ranges::iterator_t<Range>, Projection>,
-                                            const Value *>
+// Value form: contains(range, value[, projection]). Enabled only when the
+// projected element is equality-comparable with the value, so predicates fall
+// through to the callable form above.
+template<typename Range,
+         typename Projection = identity,
+         class Value = projected_value_t<decltype(std::begin(std::declval<Range &>())), Projection>,
+         std::enable_if_t<std::is_convertible_v<
+                              decltype(std::invoke(std::declval<Projection &>(),
+                                                   *std::begin(std::declval<Range &>()))
+                                       == std::declval<const Value &>()),
+                              bool>,
+                          bool> = true>
 bool contains(Range &&range, const Value &value, Projection projection = {})
 {
-    return std::ranges::find(std::forward<Range>(range), value, projection) != std::ranges::end(range);
+    for (auto &&element : range) {
+        if (std::invoke(projection, element) == value)
+            return true;
+    }
+    return false;
 }
 
 template<typename T, std::size_t Size, typename V>

@@ -87,6 +87,9 @@ static void writeError(const QString &error)
 class ArServerProcessData
 {
 public:
+    ArServerProcessData() = default;
+    ArServerProcessData(OnServerStarted onRunning) : m_onRunning(std::move(onRunning)) {}
+
     OnServerStarted m_onRunning;
     QByteArray m_buffer = {};
     int m_msgCounter = 0;

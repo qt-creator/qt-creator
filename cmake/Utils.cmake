@@ -375,7 +375,10 @@ endfunction()
 function(configure_qml_designer Qt6_VERSION)
     set(QMLDESIGNER_QT6_REQUIRED_VERSION 6.7.3)
     set(QMLDESIGNER_GCC_REQUIRED_VERSION 10.0)
-    set(QMLDESIGNER_CLANG_REQUIRED_VERSION 13.0)
+    # QmlDesigner leans on C++20 ranges and views, which clang 15 cannot deliver
+    # with either standard library: libc++ 15 has no ranges algorithms, and with
+    # libstdc++ the view_interface CRTP constraint bug bites, fixed in clang 16.
+    set(QMLDESIGNER_CLANG_REQUIRED_VERSION 16.0)
     set(QMLDESIGNER_APPLECLANG_REQUIRED_VERSION 15.0)
     set(QMLDESIGNER_MSVC_REQUIRED_VERSION 19.30) # means MSVC 2022
 

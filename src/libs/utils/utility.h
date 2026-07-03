@@ -69,9 +69,30 @@ template<typename Type, typename... Arguments>
 constexpr auto to_sorted_array(Arguments &&...arguments)
 {
     auto array = to_array<Type>(std::forward<Arguments>(arguments)...);
-    std::ranges::sort(array);
+    // std::sort is not constexpr before C++20, so sort in place ourselves.
+    for (std::size_t i = 1; i < array.size(); ++i) {
+        Type key = array[i];
+        std::size_t j = i;
+        while (j > 0 && key < array[j - 1]) {
+            array[j] = array[j - 1];
+            --j;
+        }
+        array[j] = key;
+    }
     return array;
 }
+
+// C++17 stand-in for std::identity (C++20). Returns its argument unchanged.
+struct identity
+{
+    template<typename Type>
+    constexpr Type &&operator()(Type &&value) const noexcept
+    {
+        return std::forward<Type>(value);
+    }
+
+    using is_transparent = void;
+};
 
 // https://www.cppstories.com/2018/09/visit-variants/
 // https://en.cppreference.com/w/cpp/utility/variant/visit

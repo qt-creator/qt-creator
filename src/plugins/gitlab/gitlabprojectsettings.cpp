@@ -208,11 +208,11 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
 
     m_checkMode = mode;
     m_taskTreeRunner.start(gitLabQuery(
-        [serverId = server.id, projectName](GitLabQuery &query) {
+        [serverId = server.id, projectName = projectName](GitLabQuery &query) {
             query.setServerId(serverId);
             query.setQuery(Query(Query::Project, {projectName}));
         },
-        [this, serverId = server.id, remote, projectName](const GitLabQuery &query) {
+        [this, serverId = server.id, remote, projectName = projectName](const GitLabQuery &query) {
             onConnectionChecked(ResultParser::parseProject(query.result()), serverId, remote,
                                 projectName);
         }));

@@ -71,7 +71,9 @@ bool isCheckedByDefault(std::u16string_view property)
         u"Layout.verticalStretchFactor",
         u"materials");
 
-    return std::ranges::binary_search(properitesCheckedByDefault, property);
+    return std::binary_search(properitesCheckedByDefault.begin(),
+                              properitesCheckedByDefault.end(),
+                              property);
 }
 } // namespace
 

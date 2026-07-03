@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "utility.h"
+
 #include <functional>
 #include <type_traits>
 #include <utility>
@@ -45,39 +47,39 @@ auto compare(Type &&value, Compare compare, Projection projection)
     }
 }
 
-template<typename Type, typename Projection = std::identity>
+template<typename Type, typename Projection = identity>
 auto equalTo(Type &&value, Projection projection = {})
 {
-    return compare(value, std::ranges::equal_to{}, projection);
+    return compare(value, std::equal_to<>{}, projection);
 }
 
-template<typename Type, typename Projection = std::identity>
+template<typename Type, typename Projection = identity>
 auto unequalTo(Type &&value, Projection projection = {})
 {
-    return compare(value, std::ranges::not_equal_to{}, projection);
+    return compare(value, std::not_equal_to<>{}, projection);
 }
 
-template<typename Type, typename Projection = std::identity>
+template<typename Type, typename Projection = identity>
 auto lessThan(Type &&value, Projection projection = {})
 {
-    return compare(value, std::ranges::less{}, projection);
+    return compare(value, std::less<>{}, projection);
 }
 
-template<typename Type, typename Projection = std::identity>
+template<typename Type, typename Projection = identity>
 auto lessEqualThan(Type &&value, Projection projection = {})
 {
-    return compare(value, std::ranges::less_equal{}, projection);
+    return compare(value, std::less_equal<>{}, projection);
 }
 
-template<typename Type, typename Projection = std::identity>
+template<typename Type, typename Projection = identity>
 auto greaterThan(Type &&value, Projection projection = {})
 {
-    return compare(value, std::ranges::greater{}, projection);
+    return compare(value, std::greater<>{}, projection);
 }
 
-template<typename Type, typename Projection = std::identity>
+template<typename Type, typename Projection = identity>
 auto greaterEqualThan(Type &&value, Projection projection = {})
 {
-    return compare(value, std::ranges::greater_equal{}, projection);
+    return compare(value, std::greater_equal<>{}, projection);
 }
 } // namespace Utils

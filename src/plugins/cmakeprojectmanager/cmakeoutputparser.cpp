@@ -59,15 +59,13 @@ CMakeOutputParser::CMakeOutputParser()
 
 void CMakeOutputParser::setSourceDirectories(const FilePaths &sourceDirs)
 {
-    std::ranges::for_each(m_sourceDirectories, [this](const FilePath &path) {
+    for (const FilePath &path : m_sourceDirectories)
         emit searchDirExpired(path);
-    });
 
     m_sourceDirectories = sourceDirs;
 
-    std::ranges::for_each(m_sourceDirectories, [this](const FilePath &path) {
+    for (const FilePath &path : m_sourceDirectories)
         emit newSearchDirFound(path);
-    });
 }
 
 OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, OutputFormat type)

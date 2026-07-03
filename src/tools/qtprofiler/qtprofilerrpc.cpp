@@ -26,20 +26,20 @@ static void writeQJsonObject(const QJsonObject &object)
 
 void notifyTraceFileLoadingStarted(const Utils::FilePath &file)
 {
-    const TraceFileLoadingStartedNotification notification(
+    const TraceFileLoadingStartedNotification notification{
         TraceFileLoadingStartedNotification::Params()
-            .traceFilePath(file.toUserOutput()));
+            .traceFilePath(file.toUserOutput())};
 
     writeQJsonObject(toJson(notification));
 }
 
 void notifyTraceFileLoadingFinished(const Utils::FilePath &file, const QString &errorMessage)
 {
-    const TraceFileLoadingFinishedNotification notification(
+    const TraceFileLoadingFinishedNotification notification{
         TraceFileLoadingFinishedNotification::Params()
             .traceFilePath(file.toUserOutput())
             .successful(errorMessage.isEmpty())
-            .errorMessage(errorMessage));
+            .errorMessage(errorMessage)};
 
     writeQJsonObject(toJson(notification));
 }
@@ -47,14 +47,14 @@ void notifyTraceFileLoadingFinished(const Utils::FilePath &file, const QString &
 void notifyTraceEventSelected(const QString &sourceFilePath, int line, int column,
                               const QString &module, quint64 offset)
 {
-    const TraceEventSelectedNotification notification(
+    const TraceEventSelectedNotification notification{
         TraceEventSelectedNotification::Params()
             .sourceFilePath(sourceFilePath)
             .lineNumber(line)
             .columnNumber(column)
             .module(module.isEmpty() ? std::optional<QString>{} : std::optional<QString>{module})
             .offset(offset != 0 ? QString("0x%1").arg(offset, 0, 16)
-                                : std::optional<QString>{}));
+                                : std::optional<QString>{})};
 
     writeQJsonObject(toJson(notification));
 }

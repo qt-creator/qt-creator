@@ -42,6 +42,10 @@ namespace GitLab {
 // Cross-step state shared by the optional user query and the paginated events loop.
 struct EventsData
 {
+    EventsData() = default;
+    EventsData(QString projectName, QDateTime timeStamp)
+        : projectName(std::move(projectName)), timeStamp(std::move(timeStamp)) {}
+
     QString projectName;
     QDateTime timeStamp; // reference time; events newer than this get reported
     std::optional<int> currentPage = 1; // page to request; nullopt once there is nothing more

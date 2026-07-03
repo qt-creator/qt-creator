@@ -139,8 +139,8 @@ void PopupInfoBarDisplay::update()
         return;
 
     const QList<InfoBarEntry> entries = m_infoBar->entries();
-    for (const InfoBarEntry &info : entries | std::views::reverse) {
-        auto widget = new InfoWidget(info, m_infoBar);
+    for (auto it = entries.rbegin(); it != entries.rend(); ++it) {
+        auto widget = new InfoWidget(*it, m_infoBar);
         m_layout->addWidget(widget);
         m_infoWidgets.append(widget);
     }

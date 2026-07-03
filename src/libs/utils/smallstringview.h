@@ -8,6 +8,7 @@
 
 #include <QString>
 
+#include <compare>
 #include <cstring>
 #include <string>
 #include <string_view>
@@ -57,14 +58,22 @@ public:
     }
 };
 
-inline constexpr auto operator<=>(const SmallStringView &first, const SmallStringView &second)
-{
-    return std::string_view{first} <=> std::string_view{second};
-}
-
 inline constexpr bool operator==(const SmallStringView &first, const SmallStringView &second)
 {
     return std::string_view{first} == std::string_view{second};
+}
+
+// Spelled out instead of forwarding to std::string_view, which has no
+// three-way comparison in libc++ 15.
+inline constexpr std::strong_ordering operator<=>(const SmallStringView &first,
+                                                 const SmallStringView &second)
+{
+    const int difference = first.compare(second);
+    if (difference < 0)
+        return std::strong_ordering::less;
+    if (difference > 0)
+        return std::strong_ordering::greater;
+    return std::strong_ordering::equal;
 }
 
 constexpr int compare(SmallStringView first, SmallStringView second) noexcept

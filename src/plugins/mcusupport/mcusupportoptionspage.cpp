@@ -197,7 +197,7 @@ void McuSupportOptionsWidget::updateStatus()
         m_mcuTargetsGroupBox->setVisible(ready);
         m_packagesGroupBox->setVisible(ready && !mcuTarget->packages().isEmpty());
         m_optionalPackagesGroupBox->setVisible(
-            ready && std::ranges::any_of(mcuTarget->packages(), [](McuPackagePtr p) {
+            ready && Utils::anyOf(mcuTarget->packages(), [](McuPackagePtr p) {
                 return p->isOptional();
             }));
         m_kitCreationGroupBox->setVisible(ready);

@@ -271,7 +271,7 @@ void QmlProjectItem::addFileFilter(const Utils::FilePath &path)
 {
     QJsonArray filters = m_project["fileGroups"].toArray();
     auto pathString = path.path();
-    auto iter = std::ranges::find_if(filters, [pathString](const QJsonValue &elem) {
+    auto iter = std::find_if(filters.begin(), filters.end(), [pathString](const QJsonValue &elem) {
         return elem["directory"].toString() == pathString;
     });
 

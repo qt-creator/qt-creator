@@ -2184,7 +2184,7 @@ void CMakeBuildSystem::wireUpConnections()
                         return;
                     }
                     const auto factories = BuildStepFactory::allBuildStepFactories();
-                    auto factoryIt = std::ranges::find_if(factories, [](const BuildStepFactory *factory){
+                    auto factoryIt = std::find_if(factories.begin(), factories.end(), [](const BuildStepFactory *factory){
                         return factory->stepId() == Constants::CMAKE_INSTALL_STEP_ID;
                     });
                     QTC_ASSERT(factoryIt != factories.end(), return);

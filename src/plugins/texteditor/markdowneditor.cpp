@@ -194,8 +194,8 @@ public:
                 button->setVisible(false);
         }
 
-        for (auto button : m_markDownButtons | std::views::reverse)
-            m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left, button);
+        for (auto it = m_markDownButtons.rbegin(); it != m_markDownButtons.rend(); ++it)
+            m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left, *it);
 
         m_swapViews = Command::createToolButtonWithShortcutToolTip(SWAPVIEWS_ACTION);
         m_swapViews->setEnabled(showEditor && showPreview);

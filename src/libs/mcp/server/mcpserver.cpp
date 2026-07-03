@@ -1789,6 +1789,20 @@ struct ToolInterfacePrivate
     bool _isTask = false;
     QString _taskId;
 
+    // Explicit constructor (C++17 has no parenthesized aggregate initialization).
+    ToolInterfacePrivate(
+        Schema::ClientCapabilities clientCapabilities,
+        std::weak_ptr<ServerPrivate> server,
+        Schema::CallToolRequest initialRequest,
+        QString sessionId,
+        Responder responder)
+        : _clientCapabilities(std::move(clientCapabilities))
+        , _server(std::move(server))
+        , _initialRequest(std::move(initialRequest))
+        , _sessionId(std::move(sessionId))
+        , _responder(std::move(responder))
+    {}
+
     ~ToolInterfacePrivate()
     {
         if (!_isFinished && _cancelTaskCallback)
