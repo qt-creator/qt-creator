@@ -1111,6 +1111,39 @@ private slots:
             QCOMPARE(entry(*device).value("Origin").toInt(), int(IDevice::AddedBySdk));
     }
 
+    void testOriginRoundTrip_data()
+    {
+        QTest::addColumn<int>("origin");
+        QTest::newRow("manual") << int(IDevice::ManuallyAdded);
+        QTest::newRow("auto") << int(IDevice::AutoDetected);
+        QTest::newRow("sdk") << int(IDevice::AddedBySdk);
+    }
+
+    void testOriginRoundTrip()
+    {
+        QFETCH(int, origin);
+        DeviceOnlyToolDevice source(HostOsInfo::hostOs());
+        source.origin.setValue(IDevice::Origin(origin));
+        const Store map = source.toStore();
+        QCOMPARE(map.value("Origin", int(IDevice::ManuallyAdded)).toInt(), origin);
+
+        DeviceOnlyToolDevice restored(HostOsInfo::hostOs());
+        restored.restore(map);
+        QCOMPARE(int(restored.origin()), origin);
+        QCOMPARE(restored.type(), TestDevice::testTypeId());
+    }
+
+    void testOriginMissingKeyIsManuallyAdded()
+    {
+        DeviceOnlyToolDevice source(HostOsInfo::hostOs());
+        Store map = source.toStore();
+        map.remove("Origin");
+
+        DeviceOnlyToolDevice restored(HostOsInfo::hostOs());
+        restored.restore(map);
+        QCOMPARE(int(restored.origin()), int(IDevice::ManuallyAdded));
+    }
+
     void testIsDirty()
     {
         TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);

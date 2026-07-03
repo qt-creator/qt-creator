@@ -194,7 +194,6 @@ public:
     using DeviceInfo = QList<DeviceInfoItem>;
     virtual DeviceInfo deviceInformation() const;
 
-    Utils::Id type() const;
     void setType(Utils::Id type);
 
     bool isAutoDetected() const;
@@ -376,6 +375,8 @@ public:
     virtual Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const;
 
 public:
+    Utils::IdAspect type{this};
+    Utils::TypedSelectionAspect<Origin> origin{this};
     Utils::BoolAspect allowEmptyCommand{this};
     Utils::StringSelectionAspect linkDevice{this};
     Utils::BoolAspect sshForwardDebugServerPort{this};

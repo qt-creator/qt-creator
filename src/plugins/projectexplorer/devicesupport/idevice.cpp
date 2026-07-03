@@ -293,8 +293,6 @@ public:
     IDevice *q;
 
     QString displayType;
-    Id type;
-    IDevice::Origin origin = IDevice::AutoDetected;
     bool persistent = true;
     bool hasTemporaryTools = false;
     Id id;
@@ -767,6 +765,15 @@ IDevice::IDevice()
 {
     setAutoApply(false);
 
+    type.setSettingsKey(TypeKey);
+
+    origin.setSettingsKey(OriginKey);
+    origin.addOption({Tr::tr("Manually added"), {}, int(ManuallyAdded)});
+    origin.addOption({Tr::tr("Auto-detected"), {}, int(AutoDetected)});
+    origin.addOption({Tr::tr("Added by SDK"), {}, int(AddedBySdk)});
+    origin.setDefaultValue(ManuallyAdded);
+    origin.setValue(AutoDetected);
+
     // allowEmptyCommand.setSettingsKey() intentionally omitted, this is not persisted.
 
     sshForwardDebugServerPort.setSettingsKey(SshForwardDebugServerPortKey);
@@ -872,7 +879,7 @@ void IDevice::setOpenTerminal(const IDevice::OpenTerminal &openTerminal)
 
 void IDevice::setupId(Origin origin, Id id)
 {
-    d->origin = origin;
+    this->origin.setValue(origin);
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
 }
@@ -1136,20 +1143,15 @@ IDevice::DeviceInfo IDevice::deviceInformation() const
 }
 
 /*!
-    Identifies the type of the device. Devices with the same type share certain
-    abilities. This attribute is immutable.
+    Sets the type of the device to \a id. Devices with the same type share
+    certain abilities.
 
     \sa ProjectExplorer::IDeviceFactory
  */
 
-Id IDevice::type() const
+void IDevice::setType(Id id)
 {
-    return d->type;
-}
-
-void IDevice::setType(Id type)
-{
-    d->type = type;
+    type.setValue(id);
 }
 
 /*!
@@ -1162,7 +1164,7 @@ void IDevice::setType(Id type)
 
 bool IDevice::isAutoDetected() const
 {
-    return d->origin == AutoDetected || isFromSdk();
+    return origin() == AutoDetected || isFromSdk();
 }
 
 /*!
@@ -1171,7 +1173,7 @@ bool IDevice::isAutoDetected() const
 */
 bool IDevice::isFromSdk() const
 {
-    return d->origin == AddedBySdk;
+    return origin() == AddedBySdk;
 }
 
 /*!
@@ -1405,13 +1407,14 @@ void IDevice::fromMap(const Store &map)
     AspectContainer::fromMap(map);
     d->unclaimedSettings = map;
     removeClaimedSettings(*this, d->unclaimedSettings);
-    d->type = typeFromMap(map);
+    // The type aspect is read by AspectContainer::fromMap() above; verify it
+    // matches the value the manual code would have read during the transition.
+    QTC_CHECK(typeFromMap(map) == type());
 
     d->id = Id::fromSetting(map.value(IdKey));
     d->osType = osTypeFromString(map.value(ClientOsTypeKey).toString()).value_or(OsTypeLinux);
     if (!d->id.isValid())
         d->id = newId();
-    d->origin = static_cast<Origin>(map.value(OriginKey, ManuallyAdded).toInt());
 
     d->machineType = static_cast<MachineType>(map.value(MachineTypeKey, DefaultMachineType).toInt());
     d->version = map.value(VersionKey, 0).toInt();
@@ -1455,10 +1458,8 @@ void IDevice::toMap(Store &map) const
 {
     AspectContainer::toMap(map);
 
-    map.insert(TypeKey, d->type.toString());
     map.insert(ClientOsTypeKey, osTypeToString(d->osType.get()));
     map.insert(IdKey, d->id.toSetting());
-    map.insert(OriginKey, d->origin);
 
     map.insert(MachineTypeKey, d->machineType);
     map.insert(VersionKey, d->version);
@@ -1792,7 +1793,7 @@ int IDevice::version() const
 
 void IDevice::setFromSdk()
 {
-    d->origin = AddedBySdk;
+    origin.setValue(AddedBySdk);
 }
 
 QString IDevice::defaultPrivateKeyFilePath()
