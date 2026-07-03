@@ -1692,6 +1692,11 @@ void GdbEngine::handleInferiorShutdown(const DebuggerResponse &response)
         // This happens when someone removed the binary behind our back.
         // It is not really an error from a user's point of view.
         showMessage("NOTE: " + msg);
+    } else if (isGdbConnectionError(msg)) {
+        // The remote connection is gone, e.g. gdbserver exited together with
+        // the inferior we just killed. The application is stopped; this is
+        // the normal outcome, not an error worth alarming the user about.
+        showMessage("NOTE: " + msg);
     } else if (m_gdbProc.isRunning()) {
         AsynchronousMessageBox::critical(Tr::tr("Failed to Shut Down Application"),
                                          msgInferiorStopFailed(msg));
