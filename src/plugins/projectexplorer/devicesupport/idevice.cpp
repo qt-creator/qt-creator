@@ -1393,6 +1393,25 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
 
         for (const VersionAndPath &vp : qtBinPaths)
             paths += vp.second;
+
+        // The Qt online installer also ships build tools (CMake, Ninja) under
+        // <QtInstallation>/Tools/, which the version/arch scan above does not cover.
+        // Add their binary directories so cmake and ninja get detected as well.
+        const FilePath toolsDir = qtInstallation.pathAppended("Tools");
+        for (const FilePath &tool : toolsDir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
+            paths += tool; // e.g. Tools/Ninja holding the ninja binary directly.
+            const FilePath binDir = tool.pathAppended("bin");
+            if (binDir.exists()) // e.g. Tools/CMake/bin on Linux and Windows.
+                paths += binDir;
+            // On macOS the tool is an application bundle, e.g. Tools/CMake/CMake.app/Contents/bin.
+            for (const FilePath &sub : tool.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
+                if (sub.fileName().endsWith(".app")) {
+                    const FilePath appBin = sub.pathAppended("Contents/bin");
+                    if (appBin.exists())
+                        paths += appBin;
+                }
+            }
+        }
     }
 
     if (autoDetectInDirectories.volatileValue()) {
