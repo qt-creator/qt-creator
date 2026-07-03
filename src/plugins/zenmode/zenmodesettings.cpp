@@ -6,11 +6,15 @@
 #include "zenmodeplugintr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/shutdownguard.h>
+
+#include <QGuiApplication>
+#include <QLabel>
 
 using namespace Core;
 using namespace Utils;
@@ -53,13 +57,28 @@ ZenModeSettings::ZenModeSettings()
 
     setLayouter([this] {
         using namespace Layouting;
+        auto modeSelectorLabel = new QLabel(
+            QString("<a href=\""
+                    "qthelp://org.qt-project.qtcreator/doc/"
+                    "creator-how-to-switch-between-modes.html"
+                    "\">%1</a>")
+                .arg(Tr::tr("Mode selector:")));
+        modeSelectorLabel->setToolTip(
+            //: %1=Qt Creator
+            Tr::tr(
+                "Determines the style to use for the global mode selector in %1 (see View > Modes) "
+                "when Zen mode or Distraction Free mode is enabled.")
+                .arg(QGuiApplication::applicationDisplayName()));
+        QObject::connect(modeSelectorLabel, &QLabel::linkActivated, [](const QString &link) {
+            HelpManager::showHelpUrl(link, HelpManager::ExternalHelpAlways);
+        });
         // clang-format off
         return Column {
             Group {
-                title(Tr::tr("When Zen Mode is Active")),
+                title(Tr::tr("When Zen Mode or Distraction Free Mode Is Active")),
                 Column {
                     Row { contentWidth, st, },
-                    Row { Tr::tr("Mode selector:"), modes, st}
+                    Row { modeSelectorLabel, modes, st}
                 }
             },
             st
