@@ -7,6 +7,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -250,7 +251,7 @@ public:
     void addMarkup(quint64 a, quint64 l, const QColor &c, const QString &t) { m_markup.append(Markup(a, l, c, t)); }
     void commitMarkup() { setMarkup(m_markup); }
 
-    QLineEdit *addressEdit() const { return m_addressEdit; }
+    QToolBar *toolBar() const { return m_toolBar; }
 
     void updateAddressDisplay() {
         m_addressEdit->setText(QString::number(baseAddress() + m_cursorPosition, 16));
@@ -262,6 +263,9 @@ public:
 
     void aboutToReload() { m_savedCursorPosition = m_cursorPosition; }
     void reloadFinished(bool) { m_cursorPosition = m_savedCursorPosition; }
+
+signals:
+    void encodingChanged();
 
 public:
     void scrollContentsBy(int dx, int dy) final;
@@ -336,6 +340,7 @@ public:
     QList<Markup> m_markup;
 
     QLineEdit *m_addressEdit = nullptr;
+    QToolBar *m_toolBar = nullptr;
     TextEncoding m_encoding;
 };
 
@@ -386,10 +391,6 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
     connect(&globalFontSettings(), &FontSettings::changed,
             this, [this] { setFontSettings(globalFontSettings().data()); });
 
-    const QByteArray setting = ICore::settings()->value(C_ENCODING_SETTING).toByteArray();
-    if (!setting.isEmpty())
-        setEncoding(setting);
-
     m_addressEdit = new QLineEdit;
     auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
     m_addressEdit->setValidator(addressValidator);
@@ -399,6 +400,62 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
     });
 
     updateAddressDisplay();
+
+    // Encoding chooser
+    auto codecChooser = new CodecChooser;
+    codecChooser->prependNone();
+    connect(codecChooser, &CodecChooser::encodingChanged, this, &BinEditorWidget::setEncoding);
+    setEncoding(codecChooser->currentEncoding());
+    const QVariant encodingSetting = ICore::settings()->value(C_ENCODING_SETTING);
+    if (!encodingSetting.isNull())
+        codecChooser->setAssignedEncoding(encodingSetting.toByteArray());
+
+    // Tool bar
+    using namespace Layouting;
+    auto bar = Row {
+        customMargins(0, 0, 5, 0),
+        st,
+        codecChooser,
+        m_addressEdit
+    }.emerge();
+
+    m_toolBar = new QToolBar;
+    m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    m_toolBar->addWidget(bar);
+
+    // Actions
+    const Context context(Id::generate());
+    IContext::attach(this, context);
+
+    QAction *undoAction = nullptr;
+    ActionBuilder(this, Core::Constants::UNDO)
+        .bindContextAction(&undoAction)
+        .setContext(context)
+        .setEnabled(false)
+        .addOnTriggered(doc.get(), &BinEditorDocument::undo);
+
+    QAction *redoAction = nullptr;
+    ActionBuilder(this, Core::Constants::REDO)
+        .bindContextAction(&redoAction)
+        .setContext(context)
+        .setEnabled(false)
+        .addOnTriggered(doc.get(), &BinEditorDocument::redo);
+
+    ActionBuilder(this, Core::Constants::COPY)
+        .setContext(context)
+        .addOnTriggered(this, &BinEditorWidget::copy);
+
+    ActionBuilder(this, Core::Constants::SELECTALL)
+        .setContext(context)
+        .setEnabled(true)
+        .addOnTriggered(this, &BinEditorWidget::selectAll);
+
+    connect(doc.get(), &BinEditorDocument::undoAvailable, this, [this, undoAction] {
+        undoAction->setEnabled(isUndoAvailable());
+    });
+    connect(doc.get(), &BinEditorDocument::redoAvailable, this, [this, redoAction] {
+        redoAction->setEnabled(isRedoAvailable());
+    });
 
     init();
 }
@@ -1891,6 +1948,7 @@ void BinEditorWidget::setEncoding(const TextEncoding &encoding)
     m_encoding = encoding;
     ICore::settings()->setValue(C_ENCODING_SETTING, encoding.name());
     viewport()->update();
+    emit encodingChanged();
 }
 
 QByteArray BinEditorWidget::toByteArray(const QString &s) const
@@ -2192,70 +2250,10 @@ public:
         setWidget(m_widget);
         setDuplicateSupported(true);
 
-        auto codecChooser = new CodecChooser;
-        codecChooser->prependNone();
-        connect(codecChooser, &CodecChooser::encodingChanged,
-                m_widget, &BinEditorWidget::setEncoding);
-        m_widget->setEncoding(codecChooser->currentEncoding());
-
-        const QVariant setting = ICore::settings()->value(C_ENCODING_SETTING);
-        if (!setting.isNull())
-            codecChooser->setAssignedEncoding(setting.toByteArray());
-
-        using namespace Layouting;
-        auto w = Row {
-            customMargins(0, 0, 5, 0),
-            st,
-            codecChooser,
-            m_widget->addressEdit()
-        }.emerge();
-
-        m_toolBar = new QToolBar;
-        m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-        m_toolBar->addWidget(w);
-
-        const Context context(Id::generate());
-        setContext(context);
-
-        QAction *undoAction = nullptr;
-        ActionBuilder(this, Core::Constants::UNDO)
-            .bindContextAction(&undoAction)
-            .setContext(context)
-            .setEnabled(false)
-            .addOnTriggered(m_document.get(), &BinEditorDocument::undo);
-
-        QAction *redoAction = nullptr;
-        ActionBuilder(this, Core::Constants::REDO)
-            .bindContextAction(&redoAction)
-            .setContext(context)
-            .setEnabled(false)
-            .addOnTriggered(m_document.get(), &BinEditorDocument::redo);
-
-        ActionBuilder(this, Core::Constants::COPY)
-            .setContext(context)
-            .addOnTriggered(m_widget.data(), &BinEditorWidget::copy);
-
-        ActionBuilder(this, Core::Constants::SELECTALL)
-            .setContext(context)
-            .setEnabled(true)
-            .addOnTriggered(m_widget.data(), &BinEditorWidget::selectAll);
-
-        connect(m_document.get(), &BinEditorDocument::undoAvailable,
-                undoAction, [this, undoAction] {
-            undoAction->setEnabled(m_widget->isUndoAvailable());
-        });
-        connect(m_document.get(), &BinEditorDocument::redoAvailable,
-                redoAction, [this, redoAction] {
-            redoAction->setEnabled(m_widget->isRedoAvailable());
-        });
-
         auto aggregate = new Aggregation::Aggregate;
         auto binEditorFind = new BinEditorFind(m_widget);
-        connect(
-            codecChooser,
-            &CodecChooser::encodingChanged,
-            binEditorFind,
-            &BinEditorFind::rehighlightAll);
+        connect(m_widget, &BinEditorWidget::encodingChanged,
+                binEditorFind, &BinEditorFind::rehighlightAll);
 
         aggregate->add(binEditorFind);
         aggregate->add(m_widget);
@@ -2265,7 +2263,7 @@ public:
 
     IDocument *document() const final { return m_document.get(); }
 
-    QWidget *toolBar() final { return m_toolBar; }
+    QWidget *toolBar() final { return m_widget->toolBar(); }
 
     IEditor *duplicate() final
     {
@@ -2346,7 +2344,6 @@ public:
 private:
     std::shared_ptr<BinEditorDocument> m_document;
     QPointer<BinEditorWidget> m_widget;
-    QToolBar *m_toolBar;
 
 };
 
