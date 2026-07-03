@@ -72,19 +72,24 @@ void FlameGraphView::onVisibleFeaturesChanged(quint64 features)
 
 void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QMenu menu;
+    // Use popup() rather than exec() so we don't spin a nested event loop. On WebAssembly
+    // (without asyncify) a blocking QMenu::exec() aborts, since QEventLoop::WaitForMoreEvents
+    // is not supported on the main thread.
+    QMenu *menu = new QMenu(this);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
 
     QPoint position = ev->globalPos();
 
-    menu.addActions(QmlProfilerTool::profilerContextMenuActions());
-    menu.addSeparator();
-    QAction *getGlobalStatsAction = menu.addAction(Tr::tr("Show Full Range"));
+    menu->addActions(QmlProfilerTool::profilerContextMenuActions());
+    menu->addSeparator();
+    QAction *getGlobalStatsAction = menu->addAction(Tr::tr("Show Full Range"));
     getGlobalStatsAction->setEnabled(m_model->modelManager()->isRestrictedToRange());
-    menu.addAction(m_content->resetAction());
-
-    const QAction *selected = menu.exec(position);
-    if (selected == getGlobalStatsAction)
+    connect(getGlobalStatsAction, &QAction::triggered, this, [this] {
         emit showFullRange();
+    });
+    menu->addAction(m_content->resetAction());
+
+    menu->popup(position);
 }
 
 } // namespace Profiler::Internal

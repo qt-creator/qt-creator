@@ -207,38 +207,40 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
 
 void QmlProfilerTraceView::showContextMenu(QPoint position)
 {
-    QMenu menu;
-    QAction *viewAllAction = nullptr;
+    // Use popup() rather than exec() so we don't spin a nested event loop. On WebAssembly
+    // (without asyncify) a blocking QMenu::exec() aborts, since QEventLoop::WaitForMoreEvents
+    // is not supported on the main thread.
+    QMenu *menu = new QMenu(this);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    menu.addActions(QmlProfilerTool::profilerContextMenuActions());
-    menu.addSeparator();
+    menu->addActions(QmlProfilerTool::profilerContextMenuActions());
+    menu->addSeparator();
 
-    QAction *getLocalStatsAction = menu.addAction(Tr::tr("Analyze Current Range"));
+    QAction *getLocalStatsAction = menu->addAction(Tr::tr("Analyze Current Range"));
     if (!hasValidSelection())
         getLocalStatsAction->setEnabled(false);
 
-    QAction *getGlobalStatsAction = menu.addAction(Tr::tr("Analyze Full Range"));
+    QAction *getGlobalStatsAction = menu->addAction(Tr::tr("Analyze Full Range"));
     if (!d->m_modelManager->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
+    connect(getLocalStatsAction, &QAction::triggered, this, [this] {
+        d->m_modelManager->restrictToRange(selectionStart(), selectionEnd());
+    });
+    connect(getGlobalStatsAction, &QAction::triggered, this, [this] {
+        d->m_modelManager->restrictToRange(-1, -1);
+    });
+
     if (d->m_zoomControl.traceDuration() > 0) {
-        menu.addSeparator();
-        viewAllAction = menu.addAction(Tr::tr("Reset Zoom"));
-    }
-
-    QAction *selectedAction = menu.exec(position);
-
-    if (selectedAction) {
-        if (selectedAction == viewAllAction) {
+        menu->addSeparator();
+        QAction *viewAllAction = menu->addAction(Tr::tr("Reset Zoom"));
+        connect(viewAllAction, &QAction::triggered, this, [this] {
             d->m_zoomControl.setRange(d->m_zoomControl.traceStart(),
-                                       d->m_zoomControl.traceEnd());
-        }
-        if (selectedAction == getLocalStatsAction) {
-            d->m_modelManager->restrictToRange(selectionStart(), selectionEnd());
-        }
-        if (selectedAction == getGlobalStatsAction)
-            d->m_modelManager->restrictToRange(-1, -1);
+                                      d->m_zoomControl.traceEnd());
+        });
     }
+
+    menu->popup(position);
 }
 
 bool QmlProfilerTraceView::isSuspended() const

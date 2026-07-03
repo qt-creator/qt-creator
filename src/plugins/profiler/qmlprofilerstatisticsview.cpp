@@ -169,46 +169,48 @@ QStringList QmlProfilerStatisticsView::details(int typeId) const
 
 void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QMenu menu;
-    QAction *copyRowAction = nullptr;
-    QAction *copyTableAction = nullptr;
-    QAction *showExtendedStatsAction = nullptr;
-    QAction *getGlobalStatsAction = nullptr;
+    // Use popup() rather than exec() so we don't spin a nested event loop. On WebAssembly
+    // (without asyncify) a blocking QMenu::exec() aborts, since QEventLoop::WaitForMoreEvents
+    // is not supported on the main thread.
+    QMenu *menu = new QMenu(this);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
 
     QPoint position = ev->globalPos();
 
     const QList <QAction *> commonActions = QmlProfilerTool::profilerContextMenuActions();
     for (QAction *act : commonActions)
-        menu.addAction(act);
+        menu->addAction(act);
 
     if (mouseOnTable(position)) {
-        menu.addSeparator();
-        if (m_mainView->selectedModelIndex().isValid())
-            copyRowAction = menu.addAction(Tr::tr("Copy Row"));
-        copyTableAction = menu.addAction(Tr::tr("Copy Table"));
+        menu->addSeparator();
+        if (m_mainView->selectedModelIndex().isValid()) {
+            QAction *copyRowAction = menu->addAction(Tr::tr("Copy Row"));
+            connect(copyRowAction, &QAction::triggered, this, [this] {
+                m_mainView->copyRowToClipboard();
+            });
+        }
+        QAction *copyTableAction = menu->addAction(Tr::tr("Copy Table"));
+        connect(copyTableAction, &QAction::triggered, this, [this] {
+            m_mainView->copyTableToClipboard();
+        });
 
-        showExtendedStatsAction = menu.addAction(Tr::tr("Extended Event Statistics"));
+        QAction *showExtendedStatsAction = menu->addAction(Tr::tr("Extended Event Statistics"));
         showExtendedStatsAction->setCheckable(true);
         showExtendedStatsAction->setChecked(m_mainView->showExtendedStatistics());
+        connect(showExtendedStatsAction, &QAction::triggered, this, [this, showExtendedStatsAction] {
+            m_mainView->setShowExtendedStatistics(showExtendedStatsAction->isChecked());
+        });
     }
 
-    menu.addSeparator();
-    getGlobalStatsAction = menu.addAction(Tr::tr("Show Full Range"));
+    menu->addSeparator();
+    QAction *getGlobalStatsAction = menu->addAction(Tr::tr("Show Full Range"));
     if (!m_mainView->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
+    connect(getGlobalStatsAction, &QAction::triggered, this, [this] {
+        emit showFullRange();
+    });
 
-    QAction *selectedAction = menu.exec(position);
-
-    if (selectedAction) {
-        if (selectedAction == copyRowAction)
-            m_mainView->copyRowToClipboard();
-        if (selectedAction == copyTableAction)
-            m_mainView->copyTableToClipboard();
-        if (selectedAction == getGlobalStatsAction)
-            emit showFullRange();
-        if (selectedAction == showExtendedStatsAction)
-            m_mainView->setShowExtendedStatistics(showExtendedStatsAction->isChecked());
-    }
+    menu->popup(position);
 }
 
 bool QmlProfilerStatisticsView::mouseOnTable(const QPoint &position) const
