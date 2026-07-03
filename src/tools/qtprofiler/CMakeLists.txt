@@ -13,6 +13,11 @@ set(qtprofiler_destination "${IDE_LIBEXEC_PATH}")
 if (APPLE)
   list(APPEND qtprofiler_props MACOSX_BUNDLE ON OUTPUT_NAME "${qtprofiler_bundle_name}")
   set(qtprofiler_destination "${IDE_APP_PATH}")
+elseif (EMSCRIPTEN)
+  # Emit the WebAssembly app (qtprofiler.html/js/wasm plus qtloader.js/qtlogo.svg) into a
+  # flat directory at the build root instead of Qt Creator's libexec (which carries the
+  # host's "Qt Creator.app/Contents/Resources" layout), so it is easy to serve/deploy.
+  set(qtprofiler_destination "qtprofiler")
 endif()
 
 add_qtc_executable(qtprofiler
