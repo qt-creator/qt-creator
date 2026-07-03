@@ -675,9 +675,13 @@ void FancyMainWindow::showEvent(QShowEvent *event)
 
 void FancyMainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    QMenu menu;
-    addDockActionsToMenu(&menu);
-    menu.exec(event->globalPos());
+    // Use popup() rather than exec() so we don't spin a nested event loop. On WebAssembly
+    // (without asyncify) a blocking QMenu::exec() aborts, since QEventLoop::WaitForMoreEvents
+    // is not supported on the main thread.
+    QMenu *menu = new QMenu(this);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    addDockActionsToMenu(menu);
+    menu->popup(event->globalPos());
 }
 
 void FancyMainWindow::handleVisibilityChanged(bool visible)
