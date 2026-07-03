@@ -835,6 +835,18 @@ public:
     bool m_isExamineModulesEnabled = false;
 };
 
+void adaptDebuggerFontSize(QWidget *widget)
+{
+    QFont font = widget->font();
+    if (settings().fontSizeFollowsEditor()) {
+        const FontSettingsData fs = globalFontSettings().data();
+        font.setPointSizeF(fs.fontZoom() * fs.fontSize() / 100.);
+    } else {
+        font.setPointSizeF(QApplication::font().pointSizeF());
+    }
+    widget->setFont(font);
+}
+
 void DebuggerEnginePrivate::setupViews()
 {
     const DebuggerRunParameters &rp = m_runParameters;
@@ -1121,28 +1133,23 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addToolBarWidget(m_threadLabel);
     m_perspective->addToolBarWidget(m_threadsHandler.threadSwitcher());
 
-    connect(&globalFontSettings(), &FontSettings::changed,
-            this, [this] {
-        if (!Internal::settings().fontSizeFollowsEditor())
-            return;
-        const FontSettingsData fs = globalFontSettings().data();
-        const qreal size = fs.fontZoom() * fs.fontSize() / 100.;
-        QFont font = m_breakWindow->font();
-        font.setPointSizeF(size);
-        m_breakWindow->setFont(font);
-        m_logWindow->setFont(font);
-        m_localsWindow->setFont(font);
-        m_modulesWindow->setFont(font);
-        //m_consoleWindow->setFont(font);
-        m_registerWindow->setFont(font);
-        m_peripheralRegisterWindow->setFont(font);
-        m_returnWindow->setFont(font);
-        m_sourceFilesWindow->setFont(font);
-        m_stackWindow->setFont(font);
-        m_threadsWindow->setFont(font);
-        m_watchersWindow->setFont(font);
-        m_inspectorWindow->setFont(font);
-    });
+    const auto applyEditorFont = [this] {
+        const QList<QWidget *> windows = {
+            m_breakWindow, m_logWindow, m_localsWindow, m_modulesWindow,
+            /*m_consoleWindow,*/ m_registerWindow, m_peripheralRegisterWindow,
+            m_returnWindow, m_sourceFilesWindow, m_stackWindow, m_threadsWindow,
+            m_watchersWindow, m_inspectorWindow};
+        for (QWidget *w : windows)
+            adaptDebuggerFontSize(w);
+    };
+
+    // React both to editor font changes and to toggling the option itself, and
+    // apply the current setting immediately so that a freshly started session
+    // uses the editor font size right away instead of waiting for the next
+    // FontSettings change.
+    connect(&globalFontSettings(), &FontSettings::changed, this, applyEditorFont);
+    connect(&Internal::settings().fontSizeFollowsEditor, &BaseAspect::changed, this, applyEditorFont);
+    applyEditorFont();
 
     m_perspective->addWindow(m_stackWindow, Perspective::SplitVertical, nullptr);
     m_perspective->addWindow(m_breakWindow, Perspective::SplitHorizontal, m_stackWindow);

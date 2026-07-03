@@ -27,6 +27,7 @@
 QT_BEGIN_NAMESPACE
 class QDebug;
 class QPoint;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -785,6 +786,9 @@ private:
 
     QPointer<DebuggerEngine> m_engine;
 };
+
+// apply editor font size to \a widget
+void adaptDebuggerFontSize(QWidget *widget);
 
 } // namespace Internal
 } // namespace Debugger
