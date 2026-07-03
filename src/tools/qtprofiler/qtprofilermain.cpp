@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.addPositionalArgument(
         "tracefile",
-        "A QML trace (*.qtd, *.qzip), a Chrome Trace Format file (*.json), or a Common Trace "
+        "A QML trace (*.qtd, *.qzt), a Chrome Trace Format file (*.json), or a Common Trace "
         "Format trace directory (or its metadata file).");
     QCommandLineOption exitOnError(QStringList({"e", "exit-on-error"}),
                                    "Exit on error, with error message on stderr.");

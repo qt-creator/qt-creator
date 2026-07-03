@@ -252,8 +252,8 @@ void WindowPrivate::showOpenFileDialog()
 {
     // "metadata" matches a Common Trace Format metadata file, which selects the
     // containing directory as the CTF2 trace (see loadTraceFile).
-    const QString filter = Tr::tr("Traces (*.qtd *.qzip *.json metadata)") + ";;"_L1
-                           + Tr::tr("QML Trace Files (*.qtd *.qzip)") + ";;"_L1
+    const QString filter = Tr::tr("Traces (*.qtd *.qzt *.json metadata)") + ";;"_L1
+                           + Tr::tr("QML Trace Files (*.qtd *.qzt)") + ";;"_L1
                            + Tr::tr("Chrome Trace Format Files (*.json)") + ";;"_L1
                            + Tr::tr("Common Trace Format Metadata Files (metadata)") + ";;"_L1
                            + Tr::tr("All Files (*)");
