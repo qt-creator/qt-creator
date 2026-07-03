@@ -5,34 +5,21 @@
 
 #include "profilertr.h"
 
+#ifdef Q_OS_MACOS
+
+#include "sampletrace.h"
+#include "symbolicator.h"
+
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QStandardPaths>
 #include <QVarLengthArray>
 
-#ifdef Q_OS_MACOS
-#include "sampletrace.h"
-#include "symbolicator.h"
 #include <vector>
-#endif
 
 using namespace Profiler;
 using namespace Utils;
-
-namespace QmlProfiler::Internal {
-
-#ifndef Q_OS_MACOS
-
-Result<FilePath> recordSampleTrace(const SamplerOptions &, const std::atomic_bool &,
-                                   std::atomic<int> *)
-{
-    return ResultError(Tr::tr("Call-stack sampling is only implemented on macOS."));
-}
-
-#else // Q_OS_MACOS
-
-} // namespace QmlProfiler::Internal
 
 #include <libproc.h>
 #include <mach/mach.h>
@@ -320,7 +307,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         return ResultError(r.error());
     return dir;
 }
+} // namespace QmlProfiler::Internal
 
 #endif // Q_OS_MACOS
 
-} // namespace QmlProfiler::Internal

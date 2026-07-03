@@ -5,24 +5,11 @@
 
 #include "profiler_global.h"
 
-#include <utils/filepath.h>
-#include <utils/result.h>
-
-#include <QString>
-
-#include <atomic>
+#include "sampler.h"
 
 namespace QmlProfiler::Internal {
 
-// Options for a single sampling session. The target is selected by `pid` when it
-// is non-zero (e.g. a process launched to be profiled), otherwise by `processName`.
-struct SamplerOptions
-{
-    qint64 pid = 0;       // Process id to attach to; 0 selects by processName instead.
-    QString processName;  // Executable basename to attach to, e.g. "Qt Creator".
-    int intervalUs = 200; // Target delay between samples; 0 = as fast as possible.
-};
-
+#ifdef Q_OS_MACOS
 // Attaches to the target process, periodically suspends it and walks the
 // call stack of every thread, then writes the collected samples to a temporary
 // Common Trace Format directory (loadable via Window::loadTraceFile).
@@ -37,5 +24,6 @@ PROFILER_EXPORT Utils::Result<Utils::FilePath> recordSampleTrace(
     const SamplerOptions &opts,
     const std::atomic_bool &stop,
     std::atomic<int> *progressPercent = nullptr);
+#endif
 
 } // namespace QmlProfiler::Internal

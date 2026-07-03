@@ -138,6 +138,16 @@ add_qtc_plugin(Profiler
       json-nlohmann
 )
 
+# The Windows sampler backend is only compiled on Windows (its sources use
+# Windows APIs without Q_OS_WIN guards) and on every Windows toolchain, so the
+# libraries it needs are linked for all of them, not just MSVC.
+extend_qtc_plugin(Profiler CONDITION WIN32
+  DEPENDS dbghelp psapi
+  SOURCES
+    winsampler.cpp winsampler.h
+    winsymbolicator.cpp winsymbolicator.h
+)
+
 # The Perf Sampler backend shells out to perfparser at runtime (see
 # perfsampler.cpp); building Profiler (and anything that depends on it, e.g.
 # qtprofiler) should build it too. src/plugins is processed before src/tools,

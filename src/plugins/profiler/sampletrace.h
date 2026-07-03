@@ -40,6 +40,10 @@ public:
         int line = 0;
         QString module;     // binary/dylib name; empty if no loaded image
         quint64 offset = 0; // offset within the module (or the address if no image)
+        // Original virtual address for post-capture symbol resolution. Only
+        // meaningful in-process, before the trace is written: writeSampleTrace()
+        // does not persist it, so labels read back from disk carry 0 here.
+        quint64 address = 0;
 
         Label() = default;
         Label(const char *n) : name(QString::fromUtf8(n)) {}

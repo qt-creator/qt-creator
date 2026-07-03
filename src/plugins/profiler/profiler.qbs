@@ -23,6 +23,23 @@ QtcPlugin {
     Depends { name: "perfparser"; required: false }
 
     condition: Tracing.present
+    // The Windows sampler backend is compiled on every Windows toolchain, so
+    // the libraries it needs are linked for all of them.
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.dynamicLibraries: ["dbghelp", "psapi"]
+    }
+
+    // Only part of the build on Windows: the sources use Windows APIs without
+    // Q_OS_WIN guards.
+    Group {
+        name: "Windows sampler"
+        condition: qbs.targetOS.contains("windows")
+        files: [
+            "winsampler.cpp", "winsampler.h",
+            "winsymbolicator.cpp", "winsymbolicator.h",
+        ]
+    }
 
     Group {
         name: "General"

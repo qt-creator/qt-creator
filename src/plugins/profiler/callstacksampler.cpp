@@ -4,6 +4,9 @@
 #include "callstacksampler.h"
 
 #include "macsampler.h"
+#ifdef Q_OS_WIN
+#include "winsampler.h"
+#endif
 #include "processpickerdialog.h"
 
 #include "profilertr.h"
@@ -22,6 +25,16 @@ using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QmlProfiler::Internal {
+
+#if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
+// No sampling backend on this platform. isAvailable() already reports that, but
+// captureRecipe() still has to compile.
+static Result<FilePath> recordSampleTrace(const SamplerOptions &, const std::atomic_bool &,
+                                          std::atomic<int> *)
+{
+    return ResultError(Tr::tr("Call-stack sampling is only implemented on macOS and Windows."));
+}
+#endif
 
 CallStackSamplerSettings::CallStackSamplerSettings()
 {
@@ -100,12 +113,12 @@ QString CallStackSampler::displayName() const
 
 bool CallStackSampler::isAvailable(QString *error) const
 {
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     Q_UNUSED(error)
     return true;
 #else
     if (error)
-        *error = Tr::tr("Call-stack sampling is only implemented on macOS.");
+        *error = Tr::tr("Call-stack sampling is only implemented on macOS and Windows.");
     return false;
 #endif
 }

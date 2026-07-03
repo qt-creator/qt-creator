@@ -22,6 +22,15 @@
 
 namespace QmlProfiler::Internal {
 
+// Options for a single sampling session. The target is selected by `pid` when it
+// is non-zero (e.g. a process launched to be profiled), otherwise by `processName`.
+struct SamplerOptions
+{
+    qint64 pid = 0;       // Process id to attach to; 0 selects by processName instead.
+    QString processName;  // Executable basename to attach to, e.g. "Qt Creator".
+    int intervalUs = 200; // Target delay between samples; 0 = as fast as possible.
+};
+
 // Shared state for one recording session. The GUI thread owns it and observes
 // progress while a worker thread records; the sampler task captures it. Always
 // handled through a shared_ptr, never copied.
