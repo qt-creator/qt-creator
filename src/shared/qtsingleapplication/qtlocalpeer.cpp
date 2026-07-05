@@ -110,7 +110,7 @@ bool QtLocalPeer::sendMessage(const QString &message, int timeout, bool block)
     bool res = socket.waitForBytesWritten(timeout);
     res &= socket.waitForReadyRead(timeout); // wait for ack
     res &= (socket.read(qstrlen(ack)) == ack);
-    if (block) // block until peer disconnects
+    if (res && block) // block until peer disconnects
         socket.waitForDisconnected(-1);
     return res;
 }
