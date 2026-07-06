@@ -439,13 +439,8 @@ func processRenameFile(cmd command, out chan<- []byte) {
 }
 
 func processCreateTempDir(cmd command, out chan<- []byte) {
-	dir := cmd.Path
-	template := ""
-
-	if _, err := os.Stat(cmd.Path); os.IsNotExist(err) {
-		dir = filepath.Dir(cmd.Path)
-		template = filepath.Base(cmd.Path)
-	}
+	dir := filepath.Dir(cmd.Path)
+	template := filepath.Base(cmd.Path)
 
 	tempDir, err := os.MkdirTemp(dir, template)
 	if err != nil {
@@ -462,13 +457,8 @@ func processCreateTempDir(cmd command, out chan<- []byte) {
 }
 
 func processCreateTempFile(cmd command, out chan<- []byte) {
-	dir := cmd.Path
-	template := ""
-
-	if _, err := os.Stat(cmd.Path); os.IsNotExist(err) {
-		dir = filepath.Dir(cmd.Path)
-		template = filepath.Base(cmd.Path)
-	}
+	dir := filepath.Dir(cmd.Path)
+	template := filepath.Base(cmd.Path)
 
 	file, err := os.CreateTemp(dir, template)
 	if err != nil {
