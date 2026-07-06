@@ -5,10 +5,15 @@
 #pragma once
 
 #include <QMargins>
+#include <QObject>
+#include <QProperty>
 #include <QString>
 
 #include <functional>
 #include <initializer_list>
+#include <memory>
+#include <type_traits>
+#include <variant>
 
 #if defined(UTILS_LIBRARY)
 #  define QTCREATOR_UTILS_EXPORT Q_DECL_EXPORT
@@ -90,6 +95,39 @@ inline void doit(L *x, name##_TAG, const std::tuple<Args...> &arg) { \
 namespace Layouting {
 
 //////////////////////////////////////////////
+
+// A shared value channel backed by a QProperty. A source (onValueChanged)
+// writes it from a widget signal, readers (e.g. text()) observe it, and
+// transformed() derives a new one via a QProperty binding. Because QProperty
+// bindings track dependencies and evaluate lazily, the order in which the
+// expressions referring to a bindable appear does not matter.
+template <typename T>
+class Bindable
+{
+public:
+    Bindable() : prop(std::make_shared<QProperty<T>>()) {}
+    Bindable(const std::shared_ptr<QProperty<T>> &prop) : prop(prop) {}
+
+    // Source side: drive the value from a widget signal.
+    template <typename Sender, typename Signal>
+    void setup(Sender *sender, Signal signal, const std::function<T()> &producer)
+    {
+        *prop = producer();
+        QObject::connect(sender, signal, sender, [p = prop, producer] { *p = producer(); });
+    }
+
+    template <class U>
+    Bindable<U> transformed(const std::function<U(const T &)> &transformer) const
+    {
+        auto out = std::make_shared<QProperty<U>>();
+        out->setBinding([source = prop, transformer] { return transformer(source->value()); });
+        return Bindable<U>{out};
+    }
+
+    std::shared_ptr<QProperty<T>> prop;
+};
+
+template <class T> using SetterArg = std::variant<T, Bindable<T>>;
 
 //
 // Basic
@@ -282,13 +320,14 @@ public:
 class QTCREATOR_UTILS_EXPORT Label : public Widget
 {
 public:
-    using Implementation = QLabel;
+    using Implementation = class LabelImpl;
     using I = Building::BuilderItem<Label>;
 
     Label(std::initializer_list<I> ps);
-    Label(const QString &text);
+    Label(const SetterArg<QString> &text);
 
-    void setText(const QString &);
+    void setText(const SetterArg<QString> &);
+    // Label cannot act as a source: QLabel has no text-changed signal.
 };
 
 class QTCREATOR_UTILS_EXPORT Group : public Widget
@@ -306,13 +345,14 @@ public:
 class QTCREATOR_UTILS_EXPORT SpinBox : public Widget
 {
 public:
-    using Implementation = QSpinBox;
+    using Implementation = class SpinBoxImpl;
     using I = Building::BuilderItem<SpinBox>;
 
     SpinBox(std::initializer_list<I> ps);
 
-    void setValue(int);
-    void onTextChanged(const std::function<void(QString)> &);
+    void setValue(const SetterArg<int> &);
+
+    void onValueChanged(Bindable<int> &bindable);
 };
 
 class QTCREATOR_UTILS_EXPORT PushButton : public Widget
@@ -330,13 +370,14 @@ public:
 class QTCREATOR_UTILS_EXPORT TextEdit : public Widget
 {
 public:
-    using Implementation = QTextEdit;
+    using Implementation = class TextEditImpl;
     using I = Building::BuilderItem<TextEdit>;
-    using Id = Implementation *;
 
     TextEdit(std::initializer_list<I> ps);
 
-    void setText(const QString &);
+    void setText(const SetterArg<QString> &);
+
+    void onValueChanged(Bindable<QString> &bindable);
 };
 
 class QTCREATOR_UTILS_EXPORT Splitter : public Widget
@@ -418,29 +459,59 @@ public:
 
 // Special dispatchers
 
+// The parameter type of a unary callable (e.g. a lambda), stripped of the
+// reference, so withBindable() can take the Bindable type from the builder.
+template <typename F> struct FirstArg;
+template <typename C, typename R, typename A>
+struct FirstArg<R (C::*)(A) const> { using type = std::remove_reference_t<A>; };
+template <typename C, typename R, typename A>
+struct FirstArg<R (C::*)(A)> { using type = std::remove_reference_t<A>; };
 
-class BindToId {};
+// Scopes a bindable to a sub-layout, so a reader and a writer can share it
+// without a separate local variable: the bindable is handed to \a builder,
+// which returns the layout using it. Its type is taken from the builder's
+// parameter, so the caller spells it only once. The shared bindable data
+// outlives this call because the created widgets keep it alive.
+template <typename Builder>
+auto withBindable(const Builder &builder)
+{
+    typename FirstArg<decltype(&Builder::operator())>::type bindable;
+    return builder(bindable);
+}
+
+// Binding to a raw pointer
+
+class BindToPtr {};
 
 template <typename T>
 auto bindTo(T **p)
 {
-    return Building::IdAndArg{BindToId{}, p};
+    return Building::IdAndArg{BindToPtr{}, p};
 }
 
 template <typename Interface>
-void doit(Interface *x, BindToId, auto p)
+void doit(Interface *x, BindToPtr, auto p)
 {
     *p = static_cast<Interface::Implementation *>(x->ptr);
 }
 
-class IdId {};
-auto id(auto p) { return Building::IdAndArg{IdId{}, p}; }
+
+// Binding to another LayoutBuilder element
+
+class ForwardValueId {};
+
+template <typename T>
+auto onValueChanged(Bindable<T> &p)
+{
+    return Building::IdAndArg{ForwardValueId{}, p};
+}
 
 template <typename Interface>
-void doit(Interface *x, IdId, auto p)
+void doit(Interface *x, ForwardValueId, auto p)
 {
-    *p = static_cast<Interface::Implementation *>(x->ptr);
+    x->onValueChanged(p);
 }
+
 
 // Setter dispatchers
 
@@ -462,6 +533,7 @@ QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
 QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
 QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
 QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
+QTC_DEFINE_BUILDER_SETTER(value, setValue)
 
 // Nesting dispatchers
 

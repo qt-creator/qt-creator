@@ -17,6 +17,7 @@
 #include <QStyle>
 #include <QTabWidget>
 #include <QTextEdit>
+#include <QTimer>
 #include <QToolBar>
 
 namespace Layouting {
@@ -741,23 +742,56 @@ QWidget *Widget::emerge() const
     return access(this);
 }
 
+// ValueUpdater
+
+template <class T>
+class ValueUpdater
+{
+public:
+    ValueUpdater(const std::function<void(const T &)> &setter)
+        : m_setter(setter)
+    {}
+
+    void operator()(const SetterArg<T> &arg)
+    {
+        if (std::holds_alternative<T>(arg)) {
+            m_setter(std::get<T>(arg));
+        } else {
+            m_prop = std::get<Bindable<T>>(arg).prop;
+            m_setter(m_prop->value());
+            m_notifier = m_prop->addNotifier([this] { m_setter(m_prop->value()); });
+        }
+    }
+
+private:
+    const std::function<void(const T &)> m_setter;
+    std::shared_ptr<QProperty<T>> m_prop;
+    QPropertyNotifier m_notifier;
+};
+
 // Label
+
+class LabelImpl final : public QLabel
+{
+public:
+    ValueUpdater<QString> updater = { [this](const QString &t) { setText(t); } };
+};
 
 Label::Label(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    ptr = new LabelImpl;
     apply(this, ps);
 }
 
-Label::Label(const QString &text)
+Label::Label(const SetterArg<QString> &text)
 {
-    ptr = new Implementation;
-    setText(text);
+    ptr = new LabelImpl;
+    access(this)->updater(text);
 }
 
-void Label::setText(const QString &text)
+void Label::setText(const SetterArg<QString> &text)
 {
-    access(this)->setText(text);
+    access(this)->updater(text);
 }
 
 // Group
@@ -781,23 +815,36 @@ void Group::setGroupChecker(const std::function<void (QObject *)> &checker)
 
 // SpinBox
 
+class SpinBoxImpl final : public QSpinBox
+{
+public:
+    ValueUpdater<int> updater = { [this](const int &t) { setValue(t); } };
+};
+
 SpinBox::SpinBox(std::initializer_list<I> ps)
 {
     ptr = new Implementation;
     apply(this, ps);
 }
 
-void SpinBox::setValue(int val)
+void SpinBox::setValue(const SetterArg<int> &val)
 {
-    access(this)->setValue(val);
+    access(this)->updater(val);
 }
 
-void SpinBox::onTextChanged(const std::function<void (QString)> &func)
+void SpinBox::onValueChanged(Bindable<int> &bindable)
 {
-    QObject::connect(access(this), &QSpinBox::textChanged, func);
+    Implementation *sp = access(this);
+    bindable.setup(sp, &QSpinBox::valueChanged, [sp] { return sp->value(); });
 }
 
 // TextEdit
+
+class TextEditImpl final : public QTextEdit
+{
+public:
+    ValueUpdater<QString> updater = { [this](const QString &t) { setText(t); } };
+};
 
 TextEdit::TextEdit(std::initializer_list<I> ps)
 {
@@ -805,9 +852,15 @@ TextEdit::TextEdit(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
-void TextEdit::setText(const QString &text)
+void TextEdit::setText(const SetterArg<QString> &text)
 {
-    access(this)->setText(text);
+    access(this)->updater(text);
+}
+
+void TextEdit::onValueChanged(Bindable<QString> &bindable)
+{
+    Implementation *textEdit = access(this);
+    bindable.setup(textEdit, &QTextEdit::textChanged, [textEdit] { return textEdit->toPlainText(); });
 }
 
 // PushButton

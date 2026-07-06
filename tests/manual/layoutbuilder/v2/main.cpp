@@ -8,65 +8,93 @@
 #include <QLabel>
 #include <QGroupBox>
 #include <QTextEdit>
+#include <QSpinBox>
 
 using namespace Layouting;
 
-int main(int argc, char *argv[])
+void bindTest()
 {
-    QApplication app(argc, argv);
-
-    TextEdit::Id textId;
-
     QWidget *w = nullptr;
     QGroupBox *g = nullptr;
     QLabel *l = nullptr;
-
-    TextEdit {
-        id(&textId),
-        text("World")
-    }.show();
-
-    const QString a = "AAA";
-    Row { "r", a, "s" }.emerge()->show();
-
-    Group gg {
-        title("Title"),
-        Column {
-            PushButton {
-                text("GGGGGG")
-            },
-            TextEdit {
-        //        id(&textId),
-                text("Och noe")
-            }
-        }
-    };
 
     Group {
         bindTo(&w),  // Works, as GroupInterface derives from WidgetInterface
         // bindTo(&l),  // Does (intentionally) not work, GroupInterface does not derive from LabelInterface
         bindTo(&g),
+    };
+}
+
+// One source feeding two readers: editing the text edit updates both labels.
+// The local Bindable goes out of scope on return, but its shared state stays
+// alive: the created widgets hold it via their signal connections and notifiers.
+Column direct()
+{
+    Bindable<QString> content;
+
+    return Column {
+        Label {
+            text(content)
+        },
+        TextEdit {
+            onValueChanged(content)
+        },
+        Label {
+            text(content)
+        },
+    };
+}
+
+// A transformed binding: the spin box drives a text edit through a transform.
+Column transformed()
+{
+    Bindable<int> spinBoxValue;
+
+    Bindable<QString> spinBoxText = spinBoxValue.transformed<QString>([](int value) {
+         return QString("World: %1").arg(value);
+    });
+
+    return Column {
+        SpinBox {
+            onValueChanged(spinBoxValue),
+        },
+        TextEdit {
+            text(spinBoxText),
+        },
+    };
+}
+
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+
+    Group {
         size(300, 200),
         title("HHHHHHH"),
         Form {
             "Hallo",
             Group {
-                title("Title"),
-                Column {
-                    Label {
-                        text("World")
-                    },
-                    TextEdit {
-                        id(&textId),
-                        text("Och noe")
-                    }
-                }
+                title("Direct"),
+                direct(),
             },
-            br,
-            "Col",
-            Column {
-                Row { "1", "2", "3" },
-                Row { "3", "4", "6" }
+            Group {
+                title("Transformed"),
+                transformed(),
+            },
+            Group {
+                title("Nested"),
+                withBindable([](Bindable<int> &spinBoxValue) {
+                    return Column {
+                        TextEdit {
+                            text(spinBoxValue.transformed<QString>([](int value) {
+                                return QString("World: %1").arg(value);
+                            })),
+                        },
+                        SpinBox {
+                            onValueChanged(spinBoxValue),
+                        },
+                    };
+                }),
             },
             br,
             "Grid",
@@ -83,9 +111,6 @@ int main(int argc, char *argv[])
                     size(30, 20)
                 },
                 Row {
-                    SpinBox {
-                        onTextChanged([&](const QString &text) { textId->setText(text); })
-                    },
                     st,
                     PushButton {
                         text("Quit"),
