@@ -764,10 +764,17 @@ Window::Window(QWidget *parent)
     loadAction->setShortcut(QKeySequence::Open);
     connect(loadAction, &QAction::triggered, d, &WindowPrivate::showOpenFileDialog);
 
-    auto loadCtfDirAction
+    // Loading a Common Trace Format *directory* needs a directory picker, which blocks in a
+    // nested event loop (QFileDialog::getExistingDirectory) and which the browser cannot offer
+    // anyway (it only hands us file content, not a browsable directory). Omit the action on
+    // WebAssembly rather than crash on a dead-end feature.
+    QAction *loadCtfDirAction = nullptr;
+#ifndef Q_OS_WASM
+    loadCtfDirAction
         = new QAction(Icons::DIR.icon(), Tr::tr("Load Common Trace Format Directory"), this);
     loadCtfDirAction->setToolTip(Tr::tr("Load a Common Trace Format trace directory."));
     connect(loadCtfDirAction, &QAction::triggered, d, &WindowPrivate::showOpenCtfDirDialog);
+#endif
 
     auto clearAction = new QAction(Icons::CLEAN_TOOLBAR.icon(), Tr::tr("Discard Data"), this);
     clearAction->setShortcut(QKeySequence::Delete);
@@ -785,7 +792,11 @@ Window::Window(QWidget *parent)
 
     auto toolBar = new QToolBar;
     toolBar->setObjectName("QmlProfileTraceViewer");
-    toolBar->addActions(QList<QAction *>{loadAction, loadCtfDirAction, clearAction});
+    QList<QAction *> toolBarActions{loadAction};
+    if (loadCtfDirAction)
+        toolBarActions << loadCtfDirAction;
+    toolBarActions << clearAction;
+    toolBar->addActions(toolBarActions);
     toolBar->addSeparator();
     toolBar->addWidget(d->traceDurationLabel);
     toolBar->addAction(helpAction);

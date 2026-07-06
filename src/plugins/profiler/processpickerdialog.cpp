@@ -115,10 +115,18 @@ std::optional<ProcessInfo> ProcessPickerDialog::selectedProcess() const
 
 std::optional<ProcessInfo> ProcessPickerDialog::pickProcess(QWidget *parent)
 {
+#ifdef Q_OS_WASM
+    // Attaching to a local process is a desktop-only capability (there are no host processes to
+    // enumerate in the browser). A blocking QDialog::exec() would additionally abort on the
+    // WebAssembly main thread, since QEventLoop::WaitForMoreEvents needs asyncify.
+    Q_UNUSED(parent)
+    return std::nullopt;
+#else
     ProcessPickerDialog dialog(parent);
     if (dialog.exec() != QDialog::Accepted)
         return std::nullopt;
     return dialog.selectedProcess();
+#endif
 }
 
 void ProcessPickerDialog::updateOkButton()
