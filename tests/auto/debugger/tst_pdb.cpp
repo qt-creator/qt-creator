@@ -41,14 +41,33 @@ static bool isWorkingPython(const QString &python)
            && version.at(7).isDigit();
 }
 
+// Returns the first working Python interpreter, or an empty string if none is
+// found. On Windows CI the PYTHON3_PATH environment variable usually points at
+// the real Python installation (e.g. "C:\Python38_64"), so prefer it over the
+// bare PATH lookup, which may resolve to the Microsoft Store stub.
+static QString findWorkingPython()
+{
+    QStringList candidates;
+    const QString pythonRoot = qEnvironmentVariable("PYTHON3_PATH");
+    if (!pythonRoot.isEmpty()) {
+        candidates << QStandardPaths::findExecutable("python3", {pythonRoot})
+                   << QStandardPaths::findExecutable("python", {pythonRoot});
+    }
+    candidates << QStandardPaths::findExecutable("python3")
+               << QStandardPaths::findExecutable("python");
+
+    for (const QString &candidate : std::as_const(candidates)) {
+        if (!candidate.isEmpty() && isWorkingPython(candidate))
+            return candidate;
+    }
+    return {};
+}
+
 void tst_Pdb::dumper()
 {
-    QString python = QStandardPaths::findExecutable("python3");
-    if (python.isEmpty() || !isWorkingPython(python)) {
-        python = QStandardPaths::findExecutable("python");
-        if (python.isEmpty() || !isWorkingPython(python))
-            QSKIP("No working Python interpreter found in PATH.");
-    }
+    const QString python = findWorkingPython();
+    if (python.isEmpty())
+        QSKIP("No working Python interpreter found in PYTHON3_PATH or PATH.");
 
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
