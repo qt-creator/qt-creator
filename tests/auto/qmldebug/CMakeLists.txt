@@ -5,6 +5,12 @@ add_qtc_test(tst_qmlevent
     tst_qmlevent.h
 )
 
+add_qtc_test(tst_baseenginedebugclient
+  DEPENDS QmlDebug Qt::Network
+  SOURCES
+    tst_baseenginedebugclient.cpp
+)
+
 add_qtc_test(tst_qmleventlocation
   DEPENDS QmlDebug
   SOURCES

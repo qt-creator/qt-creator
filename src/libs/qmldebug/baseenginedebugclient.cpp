@@ -7,6 +7,13 @@
 
 namespace QmlDebug {
 
+// Cap on the nesting depth of a decoded object or context tree.
+// ObjectReference/ContextReference are recursive value types, so building,
+// walking or *destroying* an overly deep tree would overflow the call stack
+// regardless of how carefully it was decoded. The cap is far beyond any
+// realistic QML nesting yet well below that limit. See QTCREATORBUG-33434.
+static const int MaxDecodedDepth = 4096;
+
 struct QmlObjectData {
     QUrl url;
     int lineNumber;
@@ -48,64 +55,108 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
                                    ObjectReference &o,
                                    bool simple)
 {
-    QmlObjectData data;
-    int parentId = -1;
-    ds >> data >> parentId;
-    o.m_debugId = data.objectId;
-    o.m_className = data.objectType;
-    o.m_idString = data.idString;
-    o.m_name = data.objectName;
-    o.m_source.m_url = data.url;
-    o.m_source.m_lineNumber = data.lineNumber;
-    o.m_source.m_columnNumber = data.columnNumber;
-    o.m_contextDebugId = data.contextId;
-    o.m_needsMoreData = simple;
-    o.m_parentId = parentId;
+    // The wire format for one object is:
+    //   header, [childCount, recur, <each child object>], [propCount, <properties>]
+    // where a non-simple object's properties follow its entire child subtree.
+    // Decode this iteratively with an explicit stack instead of recursing, so a
+    // deeply nested object tree cannot overflow the call stack and crash Qt
+    // Creator (QTCREATORBUG-33434).
 
+    const auto readHeader = [&ds](ObjectReference &obj, bool simpleObj) {
+        QmlObjectData data;
+        int parentId = -1;
+        ds >> data >> parentId;
+        obj.m_debugId = data.objectId;
+        obj.m_className = data.objectType;
+        obj.m_idString = data.idString;
+        obj.m_name = data.objectName;
+        obj.m_source.m_url = data.url;
+        obj.m_source.m_lineNumber = data.lineNumber;
+        obj.m_source.m_columnNumber = data.columnNumber;
+        obj.m_contextDebugId = data.contextId;
+        obj.m_needsMoreData = simpleObj;
+        obj.m_parentId = parentId;
+    };
+
+    const auto readProperties = [&ds](ObjectReference &obj) {
+        int propCount = 0;
+        ds >> propCount;
+        for (int ii = 0; ii < propCount && ds.status() == QDataStream::Ok; ++ii) {
+            QmlObjectProperty data;
+            ds >> data;
+            PropertyReference prop;
+            prop.m_objectDebugId = obj.m_debugId;
+            prop.m_name = data.name;
+            prop.m_binding = data.binding;
+            prop.m_hasNotifySignal = data.hasNotifySignal;
+            prop.m_valueTypeName = data.valueTypeName;
+            switch (data.type) {
+            case QmlObjectProperty::Basic:
+            case QmlObjectProperty::List:
+            case QmlObjectProperty::SignalProperty:
+            case QmlObjectProperty::Variant:
+                prop.m_value = data.value;
+                break;
+            case QmlObjectProperty::Object: {
+                ObjectReference obj;
+                obj.m_debugId = prop.m_value.toInt();
+                prop.m_value = QVariant::fromValue(obj);
+                break;
+            }
+            case QmlObjectProperty::Unknown:
+                break;
+            }
+            obj.m_properties << prop;
+        }
+    };
+
+    readHeader(o, simple);
     if (simple)
         return;
 
-    int childCount;
-    bool recur;
-    ds >> childCount >> recur;
-
-    for (int ii = 0; ii < childCount; ++ii) {
-        o.m_children.append(ObjectReference());
-        decode(ds, o.m_children.last(), !recur);
+    struct Frame { ObjectReference obj; int childrenLeft; bool recur; };
+    QList<Frame> stack;
+    {
+        int childCount = 0;
+        bool recur = false;
+        ds >> childCount >> recur;
+        stack.append(Frame{std::move(o), childCount, recur});
     }
 
-    int propCount;
-    ds >> propCount;
-
-    for (int ii = 0; ii < propCount; ++ii) {
-        QmlObjectProperty data;
-        ds >> data;
-        PropertyReference prop;
-        prop.m_objectDebugId = o.m_debugId;
-        prop.m_name = data.name;
-        prop.m_binding = data.binding;
-        prop.m_hasNotifySignal = data.hasNotifySignal;
-        prop.m_valueTypeName = data.valueTypeName;
-        switch (data.type) {
-        case QmlObjectProperty::Basic:
-        case QmlObjectProperty::List:
-        case QmlObjectProperty::SignalProperty:
-        case QmlObjectProperty::Variant:
-        {
-            prop.m_value = data.value;
-            break;
+    bool capped = false;
+    while (!stack.isEmpty()) {
+        if (!capped && stack.last().childrenLeft > 0 && ds.status() == QDataStream::Ok) {
+            if (stack.size() >= MaxDecodedDepth) {
+                qWarning("QmlDebug: aborting object decode at depth %d; "
+                         "tree too deep or malformed.", MaxDecodedDepth);
+                capped = true;
+                continue;
+            }
+            stack.last().childrenLeft--;
+            const bool childRecur = stack.last().recur;
+            ObjectReference child;
+            readHeader(child, !childRecur);
+            if (!childRecur) {
+                // Simple child: header only, no nested children or properties.
+                stack.last().obj.m_children.append(std::move(child));
+            } else {
+                int childCount = 0;
+                bool recur = false;
+                ds >> childCount >> recur;
+                stack.append(Frame{std::move(child), childCount, recur});
+            }
+        } else {
+            Frame done = std::move(stack.last());
+            stack.removeLast();
+            // Skip further stream reads once capped: unwind and assemble the
+            // partial tree so the output is still well-formed.
+            if (!capped)
+                readProperties(done.obj);
+            if (stack.isEmpty())
+                o = std::move(done.obj);
+            else
+                stack.last().obj.m_children.append(std::move(done.obj));
         }
-        case QmlObjectProperty::Object:
-        {
-            ObjectReference obj;
-            obj.m_debugId = prop.m_value.toInt();
-            prop.m_value = QVariant::fromValue(obj);
-            break;
-        }
-        case QmlObjectProperty::Unknown:
-            break;
-        }
-        o.m_properties << prop;
     }
 }
 
@@ -113,9 +164,9 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
                                    QVariantList &o,
                                    bool simple)
 {
-    int count;
+    int count = 0;
     ds >> count;
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count && ds.status() == QDataStream::Ok; i++) {
         ObjectReference obj;
         decode(ds, obj, simple);
         o << QVariant::fromValue(obj);
@@ -125,24 +176,58 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
 void BaseEngineDebugClient::decode(QDataStream &ds,
                                    ContextReference &c)
 {
-    ds >> c.m_name >> c.m_debugId;
+    // Wire format per context: name, debugId, contextCount, <each child
+    // context>, objectCount, <each object (simple)>. Decode iteratively with an
+    // explicit stack rather than recursing over child contexts, so a deeply
+    // nested context tree cannot overflow the call stack (QTCREATORBUG-33434).
 
-    int contextCount;
-    ds >> contextCount;
-
-    for (int ii = 0; ii < contextCount && !ds.atEnd(); ++ii) {
-        c.m_contexts.append(ContextReference());
-        decode(ds, c.m_contexts.last());
+    struct Frame { ContextReference ctx; int contextsLeft; };
+    QList<Frame> stack;
+    {
+        ContextReference root;
+        int contextCount = 0;
+        ds >> root.m_name >> root.m_debugId >> contextCount;
+        stack.append(Frame{std::move(root), contextCount});
     }
 
-    int objectCount;
-    ds >> objectCount;
+    bool capped = false;
+    while (!stack.isEmpty()) {
+        if (!capped && stack.last().contextsLeft > 0 && !ds.atEnd()
+                && ds.status() == QDataStream::Ok) {
+            if (stack.size() >= MaxDecodedDepth) {
+                qWarning("QmlDebug: aborting context decode at depth %d; "
+                         "tree too deep or malformed.", MaxDecodedDepth);
+                capped = true;
+                continue;
+            }
+            stack.last().contextsLeft--;
+            ContextReference child;
+            int contextCount = 0;
+            ds >> child.m_name >> child.m_debugId >> contextCount;
+            stack.append(Frame{std::move(child), contextCount});
+        } else {
+            Frame done = std::move(stack.last());
+            stack.removeLast();
 
-    for (int ii = 0; ii < objectCount && !ds.atEnd(); ++ii) {
-        ObjectReference obj;
-        decode(ds, obj, true);
-        obj.m_contextDebugId = c.m_debugId;
-        c.m_objects << obj;
+            // Skip further stream reads once capped: unwind and assemble the
+            // partial tree so the output is still well-formed.
+            if (!capped) {
+                int objectCount = 0;
+                ds >> objectCount;
+                for (int ii = 0; ii < objectCount && !ds.atEnd()
+                         && ds.status() == QDataStream::Ok; ++ii) {
+                    ObjectReference obj;
+                    decode(ds, obj, true);
+                    obj.m_contextDebugId = done.ctx.m_debugId;
+                    done.ctx.m_objects << obj;
+                }
+            }
+
+            if (stack.isEmpty())
+                c = std::move(done.ctx);
+            else
+                stack.last().ctx.m_contexts.append(std::move(done.ctx));
+        }
     }
 }
 
