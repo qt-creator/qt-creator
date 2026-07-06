@@ -132,8 +132,12 @@ static const QByteArray s_qmakeProbeCMakeScript(R"(
     ]=])
     set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}")
 
-    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core QUIET)
+    if (NOT QT_FOUND)
+        message(WARNING "No Qt6 or Qt5 could be found!")
+        return()
+    endif()
+    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core QUIET)
 
     if (CMAKE_CROSSCOMPILING)
         if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
