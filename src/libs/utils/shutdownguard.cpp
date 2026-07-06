@@ -63,6 +63,10 @@ void triggerShutdownGuard()
 
     Only use this from the application's main thread.
 
+    To tie a single object's lifetime to the guard, prefer the GuardedObject
+    wrapper over connecting to this object's \c destroyed() signal by hand.
+
+    \sa Utils::GuardedObject
     \sa ExtensionSystem::IPlugin::aboutToShutdown()
 */
 
@@ -70,5 +74,29 @@ QObject *shutdownGuard()
 {
     return theShutdownGuardHolder.shutdownGuard();
 }
+
+/*!
+    \class Utils::GuardedObject
+    \inmodule QtCreator
+    \brief The GuardedObject class owns a heap-allocated object and deletes it
+    when the shutdown guard is destroyed.
+
+    This is the preferred way to hold a process-lifetime singleton, as it avoids
+    a manual shutdownGuard() connection. Typically used as a function-local
+    static:
+
+    \code
+    MyThing &myThing()
+    {
+        static GuardedObject<MyThing> theMyThing; // created on first use,
+        return *theMyThing;                       // deleted at shutdown
+    }
+    \endcode
+
+    Construct it from constructor arguments (as above) or from an existing
+    object pointer (\c {GuardedObject<MyThing>{new MyThing(...)}}).
+
+    \sa Utils::shutdownGuard()
+*/
 
 } // Utils

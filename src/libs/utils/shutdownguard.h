@@ -9,6 +9,7 @@
 
 namespace Utils {
 
+// To own a single object until shutdown, prefer the GuardedObject wrapper below.
 QTCREATOR_UTILS_EXPORT QObject *shutdownGuard();
 
 // Called from PluginManagerPrivate::deleteAll()
