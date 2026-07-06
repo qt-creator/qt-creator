@@ -8,6 +8,7 @@
 
 #include <QMargins>
 #include <QObject>
+#include <QPointer>
 #include <QProperty>
 #include <QString>
 
@@ -118,13 +119,7 @@ template <class T> using SetterArg = std::variant<T, Bindable<T>>;
 // Basic
 //
 
-class QTCREATOR_UTILS_EXPORT Thing
-{
-public:
-    void *ptr; // The product.
-};
-
-class QTCREATOR_UTILS_EXPORT Object : public Thing
+class QTCREATOR_UTILS_EXPORT Object
 {
 public:
     using Implementation = QObject;
@@ -132,6 +127,11 @@ public:
 
     Object() = default;
     Object(std::initializer_list<I> ps);
+
+    QObject *product() const { return ptr; }
+
+protected:
+    QPointer<QObject> ptr; // The product.
 };
 
 //
@@ -150,7 +150,7 @@ public:
     using I = Building::BuilderItem<Layout>;
 
     Layout() = default;
-    Layout(Implementation *w) { ptr = w; }
+    Layout(Implementation *w);
 
     class LayoutItem
     {
@@ -288,7 +288,7 @@ public:
 
     Widget() = default;
     Widget(std::initializer_list<I> ps);
-    Widget(Implementation *w) { ptr = w; }
+    Widget(Implementation *w);
 
     QWidget *emerge() const;
 
@@ -477,7 +477,7 @@ auto bindTo(T **p)
 template <typename Interface>
 void doit(Interface *x, BindToPtr, auto p)
 {
-    *p = static_cast<Interface::Implementation *>(x->ptr);
+    *p = static_cast<Interface::Implementation *>(x->product());
 }
 
 

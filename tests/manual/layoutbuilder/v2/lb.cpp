@@ -32,7 +32,7 @@ namespace Layouting {
 template <typename X>
 X::Implementation *access(const X *x)
 {
-    return static_cast<X::Implementation *>(x->ptr);
+    return static_cast<X::Implementation *>(x->product());
 }
 
 template <typename X>
@@ -334,6 +334,11 @@ static void addItemToFlowLayout(FlowLayout *layout, const LayoutItem &item)
 
 
 // Layout
+
+Layout::Layout(Implementation *w)
+{
+    ptr = w;
+}
 
 void Layout::span(int cols, int rows)
 {
@@ -690,6 +695,11 @@ QWidget *Layout::emerge() const
 }
 
 // "Widgets"
+
+Widget::Widget(Implementation *w)
+{
+    ptr = w;
+}
 
 Widget::Widget(std::initializer_list<I> ps)
 {
