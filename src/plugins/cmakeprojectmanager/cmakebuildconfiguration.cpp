@@ -1391,8 +1391,13 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
 
     if (configurePreset.trace) {
         const auto &trace = configurePreset.trace.value();
-        if (trace.mode)
-            initialArguments.append("--trace=" + trace.mode.value());
+        if (trace.mode) {
+            const QString mode = trace.mode.value();
+            if (mode == "expand")
+                initialArguments.append("--trace-expand");
+            else if (mode == "on")
+                initialArguments.append("--trace");
+        }
         if (trace.format)
             initialArguments.append("--trace-format=" + trace.format.value());
         if (trace.source) {
