@@ -108,14 +108,6 @@ public:
     Bindable() : prop(std::make_shared<QProperty<T>>()) {}
     Bindable(const std::shared_ptr<QProperty<T>> &prop) : prop(prop) {}
 
-    // Source side: drive the value from a widget signal.
-    template <typename Sender, typename Signal>
-    void setup(Sender *sender, Signal signal, const std::function<T()> &producer)
-    {
-        *prop = producer();
-        QObject::connect(sender, signal, sender, [p = prop, producer] { *p = producer(); });
-    }
-
     template <class U>
     Bindable<U> transformed(const std::function<U(const T &)> &transformer) const
     {
@@ -125,6 +117,45 @@ public:
     }
 
     std::shared_ptr<QProperty<T>> prop;
+};
+
+// A destination for the values a source widget produces on change. It unifies
+// the two ways to consume those values - writing them into a Bindable (so other
+// builder expressions observe them), or invoking a plain callback - so a widget
+// needs only a single onValueChanged(const ValueSink<T> &) instead of one
+// overload per kind.
+template <typename T>
+class ValueSink
+{
+public:
+    // Feed a Bindable: seed and update its shared property, so readers such as
+    // text() and transformed() observe the value.
+    ValueSink(Bindable<T> &bindable)
+        : m_push([p = bindable.prop](const T &value) { *p = value; })
+        , m_seedInitial(true)
+    {}
+
+    // Feed a plain callback, invoked on each change. The value type is fixed by
+    // the widget's ValueSink<T>, so the lambda parameter can be spelled directly:
+    // onValueChanged([](int value) { ... }).
+    template <typename F>
+        requires std::is_invocable_v<F, T>
+    ValueSink(F &&callback)
+        : m_push(std::forward<F>(callback))
+    {}
+
+    // Drive the sink from \a sender's \a signal, reading the value via \a producer.
+    template <typename Sender, typename Signal>
+    void setup(Sender *sender, Signal signal, const std::function<T()> &producer) const
+    {
+        if (m_seedInitial)
+            m_push(producer());
+        QObject::connect(sender, signal, sender, [push = m_push, producer] { push(producer()); });
+    }
+
+private:
+    std::function<void(const T &)> m_push;
+    bool m_seedInitial = false;
 };
 
 template <class T> using SetterArg = std::variant<T, Bindable<T>>;
@@ -352,7 +383,7 @@ public:
 
     void setValue(const SetterArg<int> &);
 
-    void onValueChanged(Bindable<int> &bindable);
+    void onValueChanged(const ValueSink<int> &sink);
 };
 
 class QTCREATOR_UTILS_EXPORT PushButton : public Widget
@@ -377,7 +408,7 @@ public:
 
     void setText(const SetterArg<QString> &);
 
-    void onValueChanged(Bindable<QString> &bindable);
+    void onValueChanged(const ValueSink<QString> &sink);
 };
 
 class QTCREATOR_UTILS_EXPORT Splitter : public Widget
@@ -500,10 +531,13 @@ void doit(Interface *x, BindToPtr, auto p)
 
 class ForwardValueId {};
 
-template <typename T>
-auto onValueChanged(Bindable<T> &p)
+// Accepts anything a ValueSink<T> can be built from - a Bindable<T> or a
+// callback invocable with T. The concrete T is pinned by the widget's
+// onValueChanged(const ValueSink<T> &), which the source converts to.
+template <typename Source>
+auto onValueChanged(Source &&source)
 {
-    return Building::IdAndArg{ForwardValueId{}, p};
+    return Building::IdAndArg{ForwardValueId{}, std::forward<Source>(source)};
 }
 
 template <typename Interface>

@@ -832,10 +832,10 @@ void SpinBox::setValue(const SetterArg<int> &val)
     access(this)->updater(val);
 }
 
-void SpinBox::onValueChanged(Bindable<int> &bindable)
+void SpinBox::onValueChanged(const ValueSink<int> &sink)
 {
     Implementation *sp = access(this);
-    bindable.setup(sp, &QSpinBox::valueChanged, [sp] { return sp->value(); });
+    sink.setup(sp, &QSpinBox::valueChanged, [sp] { return sp->value(); });
 }
 
 // TextEdit
@@ -857,10 +857,10 @@ void TextEdit::setText(const SetterArg<QString> &text)
     access(this)->updater(text);
 }
 
-void TextEdit::onValueChanged(Bindable<QString> &bindable)
+void TextEdit::onValueChanged(const ValueSink<QString> &sink)
 {
     Implementation *textEdit = access(this);
-    bindable.setup(textEdit, &QTextEdit::textChanged, [textEdit] { return textEdit->toPlainText(); });
+    sink.setup(textEdit, &QTextEdit::textChanged, [textEdit] { return textEdit->toPlainText(); });
 }
 
 // PushButton

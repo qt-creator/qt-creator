@@ -25,6 +25,8 @@ private slots:
     void transformedMultipleReaders();
     void plainReaderBeforeSource();
     void withBindableScope();
+    void callbackReceivesSpinBoxValue();
+    void callbackReceivesTextEditValue();
 };
 
 void tst_Binding::transformedReaderBeforeSource()
@@ -108,6 +110,32 @@ void tst_Binding::withBindableScope()
     w->findChild<QSpinBox *>()->setValue(3);
     QCoreApplication::processEvents();
     QCOMPARE(w->findChild<QLabel *>()->text(), QString("n=3"));
+}
+
+// A source can also feed a plain callback instead of a Bindable; the value type
+// is deduced from the lambda's parameter.
+void tst_Binding::callbackReceivesSpinBoxValue()
+{
+    int captured = 0;
+    const std::unique_ptr<QWidget> w(Column {
+        SpinBox { onValueChanged([&captured](int value) { captured = value; }) },
+    }.emerge());
+
+    w->findChild<QSpinBox *>()->setValue(11);
+    QCoreApplication::processEvents();
+    QCOMPARE(captured, 11);
+}
+
+void tst_Binding::callbackReceivesTextEditValue()
+{
+    QString captured;
+    const std::unique_ptr<QWidget> w(Column {
+        TextEdit { onValueChanged([&captured](QString value) { captured = value; }) },
+    }.emerge());
+
+    w->findChild<QTextEdit *>()->setPlainText("typed");
+    QCoreApplication::processEvents();
+    QCOMPARE(captured, QString("typed"));
 }
 
 QTEST_MAIN(tst_Binding)

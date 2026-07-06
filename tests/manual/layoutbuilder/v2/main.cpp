@@ -4,6 +4,7 @@
 #include "lb.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QWidget>
 #include <QLabel>
 #include <QGroupBox>
@@ -64,6 +65,17 @@ Column transformed()
     };
 }
 
+// A plain callback source: the spin box value is handed straight to a lambda,
+// without a Bindable in between. The value type is deduced from the parameter.
+Column callback()
+{
+    return Column {
+        SpinBox {
+            onValueChanged([](int value) { qDebug() << "spin box value:" << value; }),
+        },
+    };
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -80,6 +92,10 @@ int main(int argc, char *argv[])
             Group {
                 title("Transformed"),
                 transformed(),
+            },
+            Group {
+                title("Callback"),
+                callback(),
             },
             Group {
                 title("Nested"),
