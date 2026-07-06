@@ -2254,6 +2254,7 @@ int MsvcToolchain::priority() const
 void MsvcToolchain::cancelMsvcToolChainDetection()
 {
     envModThreadPool()->clear();
+    envModThreadPool()->waitForDone({2min});
 }
 
 MsvcToolchain::WarningFlagAdder::WarningFlagAdder(const QString &flag, WarningFlags &flags)
