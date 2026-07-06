@@ -162,6 +162,11 @@ class ServerPrivate : public std::enable_shared_from_this<ServerPrivate>
     Schema::Implementation serverInfo;
 
 public:
+    // Protocol versions this server can speak, latest first. Used both for
+    // negotiation in the initialize request body (onInitialize) and to validate
+    // the MCP-Protocol-Version header on all subsequent HTTP requests.
+    static const QStringList kSupportedProtocolVersions;
+
     ServerPrivate(Schema::Implementation serverInfo)
         : serverInfo(serverInfo)
     {
@@ -414,10 +419,9 @@ public:
         //   This SHOULD be the latest version supported by the server.
         // * If the client does not support the version in the server's response,
         //   it SHOULD disconnect.
-        QStringList supportedVersions = {"2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"};
-
-        QString negotiatedVersion = "2025-11-25"; // Latest supported version by the server
-        if (supportedVersions.contains(request.params().protocolVersion()))
+        // Latest supported version by the server.
+        QString negotiatedVersion = kSupportedProtocolVersions.first();
+        if (kSupportedProtocolVersions.contains(request.params().protocolVersion()))
             negotiatedVersion = request.params().protocolVersion();
 
         qCDebug(mcpServerLog).noquote()
@@ -1347,6 +1351,11 @@ public:
     Inspector *m_inspector = nullptr;
 };
 
+// Keep this list sorted in descending order of version, so that the first entry
+// is the latest supported version.
+const QStringList ServerPrivate::kSupportedProtocolVersions
+    = {"2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"};
+
 Server::Server(Schema::Implementation serverInfo)
     : d(std::make_shared<ServerPrivate>(serverInfo))
 {
@@ -1532,8 +1541,22 @@ Server::Server(Schema::Implementation serverInfo)
                 return;
             }
 
+            /* Protocol Version Header
+               If using HTTP, the client MUST include the MCP-Protocol-Version: <protocol-version>
+               HTTP header on all subsequent requests to the MCP server, allowing the MCP server to
+               respond based on the MCP protocol version.
+               For example: MCP-Protocol-Version: 2025-11-25
+               The protocol version sent by the client SHOULD be the one negotiated during initialization.
+               For backwards compatibility, if the server does not receive an MCP-Protocol-Version
+               header, and has no other way to identify the version - for example, by relying on the
+               protocol version negotiated during initialization - the server SHOULD assume protocol
+               version 2025-03-26.
+               If the server receives a request with an invalid or unsupported MCP-Protocol-Version,
+               it MUST respond with 400 Bad Request.
+            */
             if (req.headers().contains("mcp-protocol-version")
-                && req.headers().value("mcp-protocol-version") != "2025-11-25") {
+                && !ServerPrivate::kSupportedProtocolVersions.contains(
+                    QString::fromUtf8(req.headers().value("mcp-protocol-version")))) {
                 responder.write(
                     "Unsupported MCP protocol version",
                     errorHeaders,
