@@ -1344,9 +1344,12 @@ private:
 
     bool userWantsContextMenu(const QMouseEvent *e) const final
     {
+        if (e->button() != Qt::RightButton)
+            return false;
         // On Windows, we get additional mouse events for the item view when right-clicking,
         // causing unwanted kit activation (QTCREATORBUG-24156). Let's suppress these.
-        return HostOsInfo::isWindowsHost() && e->button() == Qt::RightButton;
+        // Without a context menu, a right click would activate the item on all hosts.
+        return HostOsInfo::isWindowsHost() || contextMenuPolicy() == Qt::NoContextMenu;
     }
 
     SelectorDelegate m_selectorDelegate;
@@ -1471,14 +1474,14 @@ public:
 
         m_projectSettingsView = new SelectorTree;
         m_projectSettingsView->setModel(&m_projectsModel);
-        m_projectSettingsView->setContextMenuPolicy(Qt::CustomContextMenu);
+        // No context menu here: the "Import Build", "Manage Kits" and kit
+        // activation entries only make sense for the Build & Run views.
+        m_projectSettingsView->setContextMenuPolicy(Qt::NoContextMenu);
         connect(m_projectSettingsView, &QAbstractItemView::activated, this, [this](const QModelIndex &idx) {
             m_targetsView->clearSelection();
             m_vanishedTargetsView->clearSelection();
             itemActivated(idx);
         });
-        connect(m_projectSettingsView, &QWidget::customContextMenuRequested,
-                this, &ProjectWindowPrivate::openContextMenu);
 
         const QFont labelFont = StyleHelper::uiFont(StyleHelper::UiElementH4);
 
