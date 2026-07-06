@@ -102,6 +102,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 static const bool DumpProjectInfo = qtcEnvironmentVariable("QTC_DUMP_PROJECT_INFO") == "1";
+static Q_LOGGING_CATEGORY(log, "qtc.cppeditor.modelmanager", QtWarningMsg)
 
 #ifdef QTCREATOR_WITH_DUMP_AST
 
@@ -1514,6 +1515,8 @@ void CppModelManager::updateCppEditorDocuments(bool projectsUpdated)
 QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
                                                  const QSet<FilePath> &additionalFiles)
 {
+    qCDebug(log) << "updateProjectInfo" << newProjectInfo.get() << additionalFiles;
+
     if (!newProjectInfo)
         return {};
 
@@ -1544,6 +1547,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
 
                 // If the project configuration changed, do a full reindexing
                 if (comparer.configurationChanged()) {
+                    qCDebug(log) << "config changed";
                     removeProjectInfoFilesAndIncludesFromSnapshot(*it->projectInfo);
                     filesToReindex.unite(newSourceFiles);
 
@@ -1556,15 +1560,18 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
                 // Otherwise check for added and modified files
                 } else {
                     const QSet<FilePath> addedFiles = comparer.addedFiles();
+                    qCDebug(log) << "added files:" << addedFiles;
                     filesToReindex.unite(addedFiles);
 
                     const QSet<FilePath> modifiedFiles = comparer.timeStampModifiedFiles(snapshot());
+                    qCDebug(log) << "modified files:" << modifiedFiles;
                     filesToReindex.unite(modifiedFiles);
                 }
 
                 // Announce and purge the removed files from the snapshot
                 const QSet<FilePath> removedFiles = comparer.removedFiles();
                 if (!removedFiles.isEmpty()) {
+                    qCDebug(log) << "removed files:" << removedFiles;
                     filesRemoved = true;
                     emit m_instance->aboutToRemoveFiles(toList(removedFiles));
                     removeFilesFromSnapshot(removedFiles);
@@ -1575,6 +1582,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
 
         // A new project was opened/created, do a full indexing
         } else {
+            qCDebug(log) << "full indexing";
             ld.m_dirty = true;
             filesToReindex.unite(newSourceFiles);
         }
