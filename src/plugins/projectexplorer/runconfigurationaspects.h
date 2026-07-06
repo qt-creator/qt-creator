@@ -152,15 +152,6 @@ public:
     UseDyldSuffixAspect(Utils::AspectContainer *container = nullptr);
 };
 
-class PROJECTEXPLORER_EXPORT RunAsRootAspect : public Utils::BoolAspect
-{
-    Q_OBJECT
-
-public:
-    [[deprecated("Use RunAsAspect instead")]] RunAsRootAspect(
-        Utils::AspectContainer *container = nullptr);
-};
-
 class PROJECTEXPLORER_EXPORT RunAsAspect : public Utils::AspectContainer
 {
     Q_OBJECT

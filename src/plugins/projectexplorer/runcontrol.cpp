@@ -960,12 +960,8 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         Environment env = process.environment();
 
         QString runAsUser;
-        if (auto runAsRootAspect = aspectData<RunAsRootAspect>()) {
-            if (runAsRootAspect->value)
-                runAsUser = "root";
-        } else if (auto runAsAspect = aspectData<RunAsAspect>()) {
+        if (auto runAsAspect = aspectData<RunAsAspect>())
             runAsUser = runAsAspect->value.toString();
-        }
 
         process.setRunAsUser(runAsUser);
 

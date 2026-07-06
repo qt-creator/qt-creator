@@ -794,26 +794,6 @@ UseDyldSuffixAspect::UseDyldSuffixAspect(AspectContainer *container)
 }
 
 /*!
-    \class ProjectExplorer::RunAsRootAspect
-    \inmodule QtCreator
-
-    \brief The RunAsRootAspect class lets a user specify whether the
-    application should run with root permissions.
-*/
-
-RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
-    : BoolAspect(container)
-{
-    setId("RunAsRoot");
-    setSettingsKey("RunConfiguration.RunAsRoot");
-    setLabel(Tr::tr("Run as root user"), LabelPlacement::AtCheckBox);
-
-    // Not technically correct, but sensible approximation.
-    // Client code with more context can override.
-    setVisible(HostOsInfo::isAnyUnixHost());
-}
-
-/*!
     \class ProjectExplorer::RunAsAspect
     \inmodule QtCreator
 

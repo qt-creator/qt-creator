@@ -189,10 +189,7 @@ bool AbstractProcessStep::setupProcess(Process &process)
     Environment envWithPwd = d->m_param.environment();
     envWithPwd.set("PWD", workingDir.path());
     process.setProcessMode(d->m_param.processMode());
-    if (const auto runAsRoot = aspect<RunAsRootAspect>(); runAsRoot && runAsRoot->value()) {
-        RunControl::provideAskPassEntry(envWithPwd);
-        process.setRunAsUser("root");
-    } else if (const auto runAs = aspect<RunAsAspect>(); runAs && !runAs->user().isEmpty()) {
+    if (const auto runAs = aspect<RunAsAspect>(); runAs && !runAs->user().isEmpty()) {
         RunControl::provideAskPassEntry(envWithPwd);
         process.setRunAsUser(runAs->user());
     }
