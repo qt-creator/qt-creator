@@ -762,11 +762,14 @@ static QString winExpandDelayedEnvReferences(QString in, const Utils::Environmen
     return in;
 }
 
-static Result<> generateEnvironmentSettings(const Environment &env,
-                                            const FilePath &batchFile,
-                                            const QString &batchArgs,
-                                            QMap<QString, QString> &envPairs)
+static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> &promise,
+                                     FilePath vcvarsBat, QString varsBatArg)
 {
+    // The vcvars path carries its device: a device-rooted path means we capture the
+    // environment on that device; a plain/local path keeps the original local behavior.
+    const FilePath batchFile = vcvarsBat;
+    const Environment inEnv = batchFile.deviceEnvironment();
+
     const QString marker = "####################";
 
     // Build the batch file content (identical for local and device).
@@ -778,9 +781,9 @@ static Result<> generateEnvironmentSettings(const Environment &env,
     // host would otherwise Unix-quote the Windows vcvarsall path and cmd.exe could not
     // parse it, so vcvars would silently fail and we would capture only the base env.
     call += ProcessArgs::quoteArg(batchFile.nativePath(), batchFile.osType()).toLocal8Bit();
-    if (!batchArgs.isEmpty()) {
+    if (!varsBatArg.isEmpty()) {
         call += ' ';
-        call += batchArgs.toLocal8Bit();
+        call += varsBatArg.toLocal8Bit();
     }
 
     if (batchFile.osType() == OsTypeWindows)
@@ -798,30 +801,34 @@ static Result<> generateEnvironmentSettings(const Environment &env,
     writeLine("set");
     writeLine("@echo " + marker.toLocal8Bit());
 
-    QString stdOut;
-
     // Write the batch file to the temp directory of the device the vcvars script lives on,
     // then run it there via that device's cmd.exe and capture the environment it sets. Because
     // all paths are rooted on 'batchFile's device, Process routes execution to the right host;
     // for a plain/local path this keeps the original local behavior.
     const Result<FilePath> tmpDir = batchFile.tmpDir();
-    if (!tmpDir)
-        return ResultError(tmpDir.error());
+    if (!tmpDir) {
+        promise.addResult(ResultError(tmpDir.error()));
+        return;
+    }
 
     TempFileSaver saver(tmpDir->pathAppended("qtc_msvcenv_XXXXXX.bat"));
     saver.write(content);
-    if (const Result<> &res = saver.finalize(); !res)
-        return ResultError(res.error());
+    if (const Result<> &res = saver.finalize(); !res) {
+        promise.addResult(ResultError(res.error()));
+        return;
+    }
 
-    const FilePath cmdPath = batchFile.findCmdExe(env);
-    if (!cmdPath.isExecutableFile())
-        return ResultError(Tr::tr("Failed to find cmd.exe"));
+    const FilePath cmdPath = batchFile.findCmdExe(inEnv);
+    if (!cmdPath.isExecutableFile()) {
+        promise.addResult(ResultError(Tr::tr("Failed to find cmd.exe")));
+        return;
+    }
 
     Process run;
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems
     // if Creator is launched within a session set up by setenv.cmd.
-    Environment runEnv = env;
+    Environment runEnv = inEnv;
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv);
     run.setUtf8Codec();
@@ -837,71 +844,51 @@ static Result<> generateEnvironmentSettings(const Environment &env,
         const QString message = run.exitMessage(Process::FailureMessageFormat::WithStdErr);
         qWarning().noquote() << message;
         QString command = batchFile.toUserOutput();
-        if (!batchArgs.isEmpty())
-            command += ' ' + batchArgs;
-        return ResultError(Tr::tr("Failed to retrieve MSVC Environment from \"%1\":\n%2")
-            .arg(command, message));
+        if (!varsBatArg.isEmpty())
+            command += ' ' + varsBatArg;
+        promise.addResult(ResultError(Tr::tr("Failed to retrieve MSVC Environment from \"%1\":\n%2")
+            .arg(command, message)));
+        return;
     }
-    stdOut = run.cleanedStdOut();
+    const QString stdOut = run.cleanedStdOut();
 
-    //
-    // Now parse the file to get the environment settings
+    // Now parse the file to get the environment settings. Missing markers are not an error:
+    // envPairs stays empty and we report an empty modification set below.
+    QMap<QString, QString> envPairs;
     const int start = stdOut.indexOf(marker);
+    const int end = start == -1 ? -1 : stdOut.indexOf(marker, start + 1);
     if (start == -1) {
         qWarning("Could not find start marker in stdout output.");
-        return ResultOk;
-    }
-
-    const int end = stdOut.indexOf(marker, start + 1);
-    if (end == -1) {
+    } else if (end == -1) {
         qWarning("Could not find end marker in stdout output.");
-        return ResultOk;
-    }
-
-    const QString output = stdOut.mid(start, end - start);
-
-    const QStringList lines = output.split(QLatin1String("\n"));
-    for (const QString &line : lines) {
-        const int pos = line.indexOf('=');
-        if (pos > 0) {
-            const QString varName = line.mid(0, pos);
-            const QString varValue = line.mid(pos + 1);
-            envPairs.insert(varName, varValue);
-        }
-    }
-
-    return ResultOk;
-}
-
-static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> &promise,
-                                     FilePath vcvarsBat, QString varsBatArg)
-{
-    // The vcvars path carries its device: a device-rooted path means we capture the
-    // environment on that device; a plain/local path keeps the original local behavior.
-    const FilePath batchFile = vcvarsBat;
-    const Environment inEnv = batchFile.deviceEnvironment();
-    Environment outEnv;
-    QMap<QString, QString> envPairs;
-    EnvironmentItems diff;
-    const Result<> result = generateEnvironmentSettings(inEnv, batchFile, varsBatArg, envPairs);
-    if (result) {
-        // Now loop through and process them
-        for (auto envIter = envPairs.cbegin(), end = envPairs.cend(); envIter != end; ++envIter) {
-            const QString expandedValue = winExpandDelayedEnvReferences(envIter.value(), inEnv);
-            if (!expandedValue.isEmpty())
-                outEnv.set(envIter.key(), expandedValue);
-        }
-
-        diff = inEnv.diff(outEnv, true);
-        for (int i = diff.size() - 1; i >= 0; --i) {
-            if (diff.at(i).name.startsWith(QLatin1Char('='))) { // Exclude "=C:", "=EXITCODE"
-                diff.removeAt(i);
+    } else {
+        const QString output = stdOut.mid(start, end - start);
+        const QStringList lines = output.split(QLatin1String("\n"));
+        for (const QString &line : lines) {
+            const int pos = line.indexOf('=');
+            if (pos > 0) {
+                const QString varName = line.mid(0, pos);
+                const QString varValue = line.mid(pos + 1);
+                envPairs.insert(varName, varValue);
             }
         }
-        promise.addResult(diff);
-    } else {
-        promise.addResult(ResultError(result.error()));
     }
+
+    // Now loop through and process them
+    Environment outEnv;
+    for (auto envIter = envPairs.cbegin(), end = envPairs.cend(); envIter != end; ++envIter) {
+        const QString expandedValue = winExpandDelayedEnvReferences(envIter.value(), inEnv);
+        if (!expandedValue.isEmpty())
+            outEnv.set(envIter.key(), expandedValue);
+    }
+
+    EnvironmentItems diff = inEnv.diff(outEnv, true);
+    for (int i = diff.size() - 1; i >= 0; --i) {
+        if (diff.at(i).name.startsWith(QLatin1Char('='))) { // Exclude "=C:", "=EXITCODE"
+            diff.removeAt(i);
+        }
+    }
+    promise.addResult(diff);
 }
 
 void MsvcToolchain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
