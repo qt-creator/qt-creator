@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "builderutils.h"
+
 #include <QMargins>
 #include <QObject>
 #include <QProperty>
@@ -43,54 +45,6 @@ class QToolBar;
 class QVBoxLayout;
 class QWidget;
 QT_END_NAMESPACE
-
-namespace Building {
-
-class NestId {};
-
-template <typename Id, typename Arg>
-class IdAndArg
-{
-public:
-    IdAndArg(Id, const Arg &arg) : arg(arg) {}
-    const Arg arg; // FIXME: Could be const &, but this would currently break bindTo().
-};
-
-// The main dispatcher
-
-void doit(auto x, auto id, auto p);
-
-template <typename X> class BuilderItem
-{
-public:
-    // Property setter
-    template <typename Id, typename Arg>
-    BuilderItem(IdAndArg<Id, Arg> && idarg)
-        : apply([&idarg](X *x) { doit(x, Id{}, idarg.arg); })
-    {}
-
-    // Nested child object
-    template <typename Inner>
-    BuilderItem(Inner && p)
-        : apply([&p](X *x) { doit(x, NestId{}, std::forward<Inner>(p)); })
-    {}
-
-    std::function<void(X *)> apply;
-};
-
-#define QTC_DEFINE_BUILDER_SETTER(name, setter) \
-class name##_TAG {}; \
-template <typename ...Args> \
-inline auto name(Args &&...args) { \
-    return Building::IdAndArg{name##_TAG{}, std::tuple<Args...>{std::forward<Args>(args)...}}; \
-} \
-template <typename L, typename ...Args> \
-inline void doit(L *x, name##_TAG, const std::tuple<Args...> &arg) { \
-    std::apply(&L::setter, std::tuple_cat(std::make_tuple(x), arg)); \
-}
-
-} // Building
-
 
 namespace Layouting {
 
@@ -550,24 +504,35 @@ void doit(Interface *x, ForwardValueId, auto p)
 // Setter dispatchers
 
 
-QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
-QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
-QTC_DEFINE_BUILDER_SETTER(openExternalLinks, setOpenExternalLinks)
-QTC_DEFINE_BUILDER_SETTER(size, setSize)
-QTC_DEFINE_BUILDER_SETTER(text, setText)
-QTC_DEFINE_BUILDER_SETTER(textFormat, setTextFormat)
-QTC_DEFINE_BUILDER_SETTER(textInteractionFlags, setTextInteractionFlags)
-QTC_DEFINE_BUILDER_SETTER(title, setTitle)
-QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
-QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
-QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
-QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);
-QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
-QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
-QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
-QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
-QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
-QTC_DEFINE_BUILDER_SETTER(value, setValue)
+inline constexpr auto columnStretch = Building::setter(
+    [](auto &x, auto &&...a) { x.setColumnStretch(a...); });
+inline constexpr auto customMargins = Building::setter(
+    [](auto &x, auto &&...a) { x.setContentsMargins(a...); });
+inline constexpr auto fieldGrowthPolicy = Building::setter(
+    [](auto &x, auto &&...a) { x.setFieldGrowthPolicy(a...); });
+inline constexpr auto groupChecker = Building::setter(
+    [](auto &x, auto &&...a) { x.setGroupChecker(a...); });
+inline constexpr auto onClicked = Building::setter([](auto &x, auto &&...a) { x.onClicked(a...); });
+inline constexpr auto onLinkHovered = Building::setter(
+    [](auto &x, auto &&...a) { x.onLinkHovered(a...); });
+inline constexpr auto onTextChanged = Building::setter(
+    [](auto &x, auto &&...a) { x.onTextChanged(a...); });
+inline constexpr auto openExternalLinks = Building::setter(
+    [](auto &x, auto &&...a) { x.setOpenExternalLinks(a...); });
+inline constexpr auto orientation = Building::setter(
+    [](auto &x, auto &&...a) { x.setOrientation(a...); });
+inline constexpr auto size = Building::setter([](auto &x, auto &&...a) { x.setSize(a...); });
+inline constexpr auto text = Building::setter([](auto &x, auto &&...a) { x.setText(a...); });
+inline constexpr auto textFormat = Building::setter(
+    [](auto &x, auto &&...a) { x.setTextFormat(a...); });
+inline constexpr auto textInteractionFlags = Building::setter(
+    [](auto &x, auto &&...a) { x.setTextInteractionFlags(a...); });
+inline constexpr auto title = Building::setter([](auto &x, auto &&...a) { x.setTitle(a...); });
+inline constexpr auto toolTip = Building::setter([](auto &x, auto &&...a) { x.setToolTip(a...); });
+inline constexpr auto value = Building::setter([](auto &x, auto &&...a) { x.setValue(a...); });
+inline constexpr auto windowTitle = Building::setter(
+    [](auto &x, auto &&...a) { x.setWindowTitle(a...); });
+inline constexpr auto wordWrap = Building::setter([](auto &x, auto &&...a) { x.setWordWrap(a...); });
 
 // Nesting dispatchers
 
