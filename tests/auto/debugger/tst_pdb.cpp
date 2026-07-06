@@ -18,13 +18,37 @@ private slots:
     void dumper();
 };
 
+// Returns true if the given path is a working Python interpreter. On Windows,
+// QStandardPaths::findExecutable() may return the Microsoft Store "App
+// execution alias" stub (WindowsApps\python.exe), which is not a real
+// interpreter: running it merely prints a message pointing at the Store
+// ("Python was not found; ...") instead of a version. Probe the candidate and
+// check that it actually reports a Python version before relying on it.
+static bool isWorkingPython(const QString &python)
+{
+    QProcess probe;
+    probe.setProcessChannelMode(QProcess::MergedChannels);
+    probe.start(python, {"--version"});
+    if (!probe.waitForStarted() || !probe.waitForFinished(10000))
+        return false;
+    if (probe.exitStatus() != QProcess::NormalExit || probe.exitCode() != 0)
+        return false;
+    // A real interpreter reports "Python <version>", e.g. "Python 3.12.1".
+    // The Store stub instead prints "Python was not found; ...", so require a
+    // digit right after the "Python " prefix to tell them apart.
+    const QString version = QString::fromLocal8Bit(probe.readAll()).trimmed();
+    return version.startsWith("Python ") && version.length() > 7
+           && version.at(7).isDigit();
+}
+
 void tst_Pdb::dumper()
 {
     QString python = QStandardPaths::findExecutable("python3");
-    if (python.isEmpty())
+    if (python.isEmpty() || !isWorkingPython(python)) {
         python = QStandardPaths::findExecutable("python");
-    if (python.isEmpty())
-        QSKIP("No Python interpreter found in PATH.");
+        if (python.isEmpty() || !isWorkingPython(python))
+            QSKIP("No working Python interpreter found in PATH.");
+    }
 
     QProcess process;
     process.setProcessChannelMode(QProcess::MergedChannels);
