@@ -164,50 +164,19 @@ static QString prettyPrintScale(qint64 amount)
     return result;
 }
 
-void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) const
+void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd,
+                                 const QRect &viewRect) const
 {
-    const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
-    const QColor bg2 = themeColor(Utils::Theme::Timeline_BackgroundColor2);
-
-    if (!m_model || m_model->hidden()) {
-        p.fillRect(0, 0, width(), height(), bg1);
+    if (!m_model || m_model->hidden())
         return;
-    }
-
-    const int rowCount = m_model->rowCount();
-    for (int row = 0; row < rowCount; ++row) {
-        const int rowY = m_model->rowOffset(row);
-        const int rowH = m_model->rowHeight(row);
-        p.fillRect(0, rowY, width(), rowH, ((row % 2 == 0) == m_startOdd) ? bg1 : bg2);
-    }
 
     const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
     if (m_model->isEmpty() || rangeDuration <= 0 || width() == 0)
         return;
 
-    // Vertical grid lines (same block geometry as TimeRuler)
-    {
-        const double scale = double(width()) / double(rangeDuration);
-        const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(width()));
-        const double pixelsPerBlock = double(timePerBlock) * scale;
-        const double pixelsPerSection = pixelsPerBlock / 5.0;
-        const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
-        const QColor gridColor = themeColor(Utils::Theme::Timeline_DividerColor);
-        p.setPen(QPen(gridColor, 1));
-        for (qint64 t = alignedStart; ; t += timePerBlock) {
-            const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(width()));
-            if (x > double(width()))
-                break;
-            for (int s = 1; s <= 4; ++s) {
-                const double sx = x + s * pixelsPerSection;
-                if (sx >= 0.0 && sx <= double(width()))
-                    p.drawLine(qRound(sx), 0, qRound(sx), height() - 1);
-            }
-            const double tickX = x + pixelsPerBlock;
-            if (tickX >= 0.0 && tickX <= double(width()))
-                p.drawLine(qRound(tickX), 0, qRound(tickX), height() - 1);
-        }
-    }
+    const int rowCount = m_model->rowCount();
+    const int visTop = viewRect.top();
+    const int visBottom = viewRect.bottom();
 
     // Density graphs (e.g. CPU usage) fill each pixel column by the activity in
     // the time it covers, rather than drawing one bar per item. The density
@@ -218,11 +187,13 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
         const int w = width();
         QList<float> columns;
         for (int row = 0; row < rowCount; ++row) {
+            const int rowH = m_model->rowHeight(row);
+            const int rowY = m_model->rowOffset(row);
+            if (rowY + rowH < visTop || rowY > visBottom)
+                continue;
             columns.assign(w, 0.0f);
             if (!m_model->fillDensityColumns(row, m_rangeStart, m_rangeEnd, columns))
                 continue;
-            const int rowH = m_model->rowHeight(row);
-            const int rowY = m_model->rowOffset(row);
             const QColor rowColor = QColor::fromRgb(m_model->rowColor(row));
             for (int x = 0; x < w; ++x) {
                 const double frac = qBound(0.0f, columns[x], 1.0f);
@@ -247,6 +218,10 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
 
         for (int i = first; i <= last; ++i) {
             const int row = m_model->row(i);
+            const int rowH = m_model->rowHeight(row);
+            const int rowY = m_model->rowOffset(row);
+            if (rowY + rowH < visTop || rowY > visBottom)
+                continue;
             const qint64 start = m_model->startTime(i);
             const qint64 end   = m_model->endTime(i);
 
@@ -267,8 +242,6 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
             const double drawX1 = qMax(x1, rowNextX[row]);
             rowNextX[row] = x2;
 
-            const int rowH = m_model->rowHeight(row);
-            const int rowY = m_model->rowOffset(row);
             const double relH = m_model->relativeHeight(i);
             const double itemH = rowH * relH;
             const double itemY = rowY + rowH - itemH;
@@ -285,7 +258,7 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
         p.setPen(QPen(handleColor, 2));
         for (qint64 ts : m_markers) {
             const double mx = timeToPixel(ts, m_rangeStart, m_rangeEnd, double(width()));
-            p.drawLine(QPointF(mx, 0), QPointF(mx, height()));
+            p.drawLine(QPointF(mx, visTop), QPointF(mx, visBottom));
         }
     }
 
@@ -304,6 +277,8 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
             const int row = m_model->row(idx);
             const double rowH = m_model->rowHeight(row);
             const double rowY = m_model->rowOffset(row);
+            if (rowY + rowH < visTop || rowY > visBottom)
+                continue;
             const qint64 center = (m_model->startTime(idx) + m_model->endTime(idx)) / 2;
             const double cx = timeToPixel(center, m_rangeStart, m_rangeEnd, double(width()));
             const double span = 0.8 * rowH;
@@ -314,6 +289,62 @@ void TrackPainter::renderContent(QPainter &p, qint64 iterStart, qint64 iterEnd) 
             p.drawLine(QPointF(cx, top), QPointF(cx, stickEnd));
             p.drawPoint(QPointF(cx, (dotStart + dotEnd) / 2.0));
         }
+    }
+}
+
+void TrackPainter::paintBackground(QPainter &p, const QRect &viewRect) const
+{
+    const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
+    const QColor bg2 = themeColor(Utils::Theme::Timeline_BackgroundColor2);
+
+    if (!m_model || m_model->hidden()) {
+        p.fillRect(viewRect, bg1);
+        return;
+    }
+
+    const int rowCount = m_model->rowCount();
+    for (int row = 0; row < rowCount; ++row) {
+        const int rowY = m_model->rowOffset(row);
+        const int rowH = m_model->rowHeight(row);
+        if (rowY + rowH < viewRect.top() || rowY > viewRect.bottom())
+            continue;
+        p.fillRect(viewRect.left(), rowY, viewRect.width(), rowH,
+                   ((row % 2 == 0) == m_startOdd) ? bg1 : bg2);
+    }
+}
+
+// Vertical grid lines (same block geometry as TimeRuler). Drawn live rather than
+// cached: they depend on the exact range, so baking them and shifting by an
+// integer pixel amount on pan made them drift away from the ruler over time.
+void TrackPainter::paintGridOverlay(QPainter &p, const QRect &viewRect) const
+{
+    if (!m_model || m_model->hidden())
+        return;
+    const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
+    if (m_model->isEmpty() || rangeDuration <= 0 || width() == 0)
+        return;
+
+    const int y0 = viewRect.top();
+    const int y1 = viewRect.bottom();
+    const double scale = double(width()) / double(rangeDuration);
+    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(width()));
+    const double pixelsPerBlock = double(timePerBlock) * scale;
+    const double pixelsPerSection = pixelsPerBlock / 5.0;
+    const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
+    const QColor gridColor = themeColor(Utils::Theme::Timeline_DividerColor);
+    p.setPen(QPen(gridColor, 1));
+    for (qint64 t = alignedStart; ; t += timePerBlock) {
+        const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(width()));
+        if (x > double(width()))
+            break;
+        for (int s = 1; s <= 4; ++s) {
+            const double sx = x + s * pixelsPerSection;
+            if (sx >= 0.0 && sx <= double(width()))
+                p.drawLine(qRound(sx), y0, qRound(sx), y1);
+        }
+        const double tickX = x + pixelsPerBlock;
+        if (tickX >= 0.0 && tickX <= double(width()))
+            p.drawLine(qRound(tickX), y0, qRound(tickX), y1);
     }
 }
 
@@ -378,25 +409,41 @@ void TrackPainter::paintScaleOverlay(QPainter &p)
 void TrackPainter::invalidateCache()
 {
     m_cache = QPixmap();
+    m_cacheRect = QRect();
     m_pendingShiftPx = 0;
 }
 
-void TrackPainter::rebuildCache()
+QRect TrackPainter::visibleRect() const
+{
+    // Inside the QScrollArea this returns only the on-screen portion of the
+    // (possibly very tall) widget, in widget-local coordinates. Fall back to the
+    // full rect for the degenerate case where nothing is reported visible.
+    QRect vis = visibleRegion().boundingRect();
+    if (vis.isEmpty())
+        vis = rect();
+    return vis;
+}
+
+void TrackPainter::rebuildCache(const QRect &viewRect)
 {
     m_cache = QPixmap();
+    m_cacheRect = QRect();
     m_pendingShiftPx = 0;
-    if (width() <= 0 || height() <= 0)
+    if (width() <= 0 || height() <= 0 || viewRect.isEmpty())
         return;
 
     const qreal dpr = devicePixelRatioF();
-    QPixmap pix(qRound(width() * dpr), qRound(height() * dpr));
+    QPixmap pix(qRound(viewRect.width() * dpr), qRound(viewRect.height() * dpr));
     pix.setDevicePixelRatio(dpr);
     pix.fill(Qt::transparent);
 
     QPainter p(&pix);
-    renderContent(p, m_rangeStart, m_rangeEnd);
+    // Map widget coordinates into the pixmap, which only covers viewRect.
+    p.translate(-viewRect.topLeft());
+    renderContent(p, m_rangeStart, m_rangeEnd, viewRect);
 
     m_cache = pix;
+    m_cacheRect = viewRect;
 }
 
 void TrackPainter::paintEvent(QPaintEvent *)
@@ -409,8 +456,13 @@ void TrackPainter::paintEvent(QPaintEvent *)
         emit painted(std::chrono::nanoseconds(frameTimer.nsecsElapsed()));
     });
 
-    if (m_cache.isNull())
-        rebuildCache();
+    const QRect vis = visibleRect();
+
+    // Rebuild when there is no cache yet or the on-screen slice moved
+    // (vertical scroll / resize). A horizontal pan keeps vis unchanged and is
+    // handled by the m_pendingShiftPx fast path below.
+    if (m_cache.isNull() || m_cacheRect != vis)
+        rebuildCache(vis);
 
     if (m_cache.isNull())
         return; // zero-size widget: nothing to paint
@@ -420,12 +472,14 @@ void TrackPainter::paintEvent(QPaintEvent *)
     if (m_pendingShiftPx != 0) {
         // Apply the accumulated pan: shift the cache and render the newly exposed strip.
         const qreal dpr = devicePixelRatioF();
-        QPixmap newCache(qRound(width() * dpr), qRound(height() * dpr));
+        QPixmap newCache(qRound(m_cacheRect.width() * dpr),
+                         qRound(m_cacheRect.height() * dpr));
         newCache.setDevicePixelRatio(dpr);
         newCache.fill(Qt::transparent);
 
         QPainter cp(&newCache);
         cp.drawPixmap(QPointF(m_pendingShiftPx, 0.0), m_cache);
+        cp.translate(-m_cacheRect.topLeft());
 
         // Exposed strip in pixel space, and the corresponding time range.
         int stripLeft, stripRight;
@@ -443,8 +497,10 @@ void TrackPainter::paintEvent(QPaintEvent *)
                                                   m_rangeStart, m_rangeEnd);
             const qint64 iterEnd = pixelToTime(double(stripRight), wf,
                                                 m_rangeStart, m_rangeEnd);
-            cp.setClipRect(stripLeft, 0, stripRight - stripLeft, height());
-            renderContent(cp, iterStart, iterEnd);
+            const QRect strip(stripLeft, m_cacheRect.top(),
+                              stripRight - stripLeft, m_cacheRect.height());
+            cp.setClipRect(strip);
+            renderContent(cp, iterStart, iterEnd, strip);
             cp.setClipping(false);
         }
 
@@ -452,7 +508,11 @@ void TrackPainter::paintEvent(QPaintEvent *)
         m_pendingShiftPx = 0;
     }
 
-    p.drawPixmap(QPointF(0, 0), m_cache);
+    // Live layers behind the cached events: cheap and drift-free.
+    paintBackground(p, m_cacheRect);
+    paintGridOverlay(p, m_cacheRect);
+
+    p.drawPixmap(m_cacheRect.topLeft(), m_cache);
 
     paintScaleOverlay(p);
 
