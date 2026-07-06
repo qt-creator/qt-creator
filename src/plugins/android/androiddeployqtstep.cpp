@@ -412,7 +412,7 @@ Group AndroidDeployQtStep::deployRecipe()
         return true;
     };
 
-    const auto onAskForUninstallSetup = [this, storage](DialogWrapper<QMessageBox> &task) {
+    const auto onAskForUninstallSetup = [storage](DialogWrapper<QMessageBox> &task) {
         const DeployErrorFlags &errorFlags = *storage;
         QString uninstallMsg = Tr::tr("Deployment failed with the following errors:") + "\n\n";
         if (errorFlags & InconsistentCertificates)

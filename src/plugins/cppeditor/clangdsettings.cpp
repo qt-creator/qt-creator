@@ -386,7 +386,7 @@ ClangdSettings::ClangdSettings()
 
     diagnosticConfigId.setSettingsKey(diagnosticConfigIdKey());
     diagnosticConfigId.setDefaultValue(initialClangDiagnosticConfigId());
-    diagnosticConfigId.setModelFactory([this] { return diagnosticConfigsModel(); });
+    diagnosticConfigId.setModelFactory([] { return diagnosticConfigsModel(); });
     diagnosticConfigId.setEditWidgetFactory(
         [](const ClangDiagnosticConfigs &configs, const Id &id) {
             return new ClangDiagnosticConfigsWidget(configs, id);
