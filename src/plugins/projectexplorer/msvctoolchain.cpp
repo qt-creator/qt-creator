@@ -838,7 +838,25 @@ static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> 
     qCDebug(Log) << "readEnvironmentSetting:" << call << cmd.toUserOutput()
                  << " Env:" << runEnv.toStringList().size();
     run.setCommand(cmd);
-    run.runBlocking(2min);
+
+    // Run non-blocking so we can abort the process when the
+    // future gets canceled, e.g. during shutdown, instead of blocking on it.
+    run.start();
+    QDeadlineTimer deadline(2min);
+    while (!run.waitForFinished(500ms)) {
+        if (run.state() == QProcess::NotRunning)
+            break; // Already finished (e.g. failed to start).
+        if (promise.isCanceled()) {
+            run.stop();
+            run.waitForFinished(2s);
+            return;
+        }
+        if (deadline.hasExpired()) {
+            run.stop();
+            run.waitForFinished(2s);
+            break;
+        }
+    }
 
     if (run.result() != ProcessResult::FinishedWithSuccess) {
         const QString message = run.exitMessage(Process::FailureMessageFormat::WithStdErr);
