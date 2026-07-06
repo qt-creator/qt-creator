@@ -414,22 +414,8 @@ void TrackPainter::paintEvent(QPaintEvent *)
 
     QPainter p(this);
 
-    if (m_cache.isNull()) {
-        // Degenerate state: no widget size yet — draw backgrounds manually.
-        const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
-        const QColor bg2 = themeColor(Utils::Theme::Timeline_BackgroundColor2);
-        if (!m_model || m_model->hidden()) {
-            p.fillRect(rect(), bg1);
-        } else {
-            for (int row = 0; row < m_model->rowCount(); ++row) {
-                const int rowY = m_model->rowOffset(row);
-                const int rowH = m_model->rowHeight(row);
-                p.fillRect(0, rowY, width(), rowH,
-                           ((row % 2 == 0) == m_startOdd) ? bg1 : bg2);
-            }
-        }
-        return;
-    }
+    if (m_cache.isNull())
+        return; // zero-size widget: nothing to paint
 
     if (m_pendingShiftPx != 0) {
         // Apply the accumulated pan: shift the cache and render the newly exposed strip.
