@@ -7,6 +7,7 @@
 #include "../icore.h"
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/searchresultitem.h>
 
 #include <QApplication>
@@ -56,7 +57,8 @@ public slots:
 private:
     QModelIndex index(SearchResultTreeItem *item) const;
     void addResultsToCurrentParent(const SearchResultItems &items, SearchResult::AddMode mode);
-    QSet<SearchResultTreeItem *> addPath(const QStringList &path);
+    QSet<SearchResultTreeItem *> addPath(
+        const QStringList &path, const std::optional<FilePath> &filePath);
     QVariant data(const SearchResultTreeItem *row, int role) const;
     bool setCheckState(const QModelIndex &idx, Qt::CheckState checkState, bool firstCall = true);
     void updateCheckStateFromChildren(const QModelIndex &idx, SearchResultTreeItem *item);
@@ -307,8 +309,8 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         result = row->item.lineText();
         break;
     case Qt::DisplayRole:
-        if (m_relativePaths && row->isGroupingItem()) {
-            result = ICore::pathRelativeToActiveProject(FilePath::fromUserInput(row->item.lineText())).toUserOutput();
+        if (m_relativePaths && row->isGroupingItem() && row->item.filePath()) {
+            result = ICore::pathRelativeToActiveProject(*row->item.filePath()).toUserOutput();
         } else {
             result = row->item.lineText();
         }
@@ -371,7 +373,8 @@ QVariant SearchResultTreeModel::headerData(int section, Qt::Orientation orientat
  * Makes sure that the nodes for a specific path exist and sets
  * m_currentParent to the last final
  */
-QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &path)
+QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(
+    const QStringList &path, const std::optional<FilePath> &filePath)
 {
     QSet<SearchResultTreeItem *> pathNodes;
     SearchResultTreeItem *currentItem = m_rootItem;
@@ -382,6 +385,8 @@ QSet<SearchResultTreeItem *> SearchResultTreeModel::addPath(const QStringList &p
         const int insertionIndex = currentItem->insertionIndex(part, &partItem);
         if (!partItem) {
             SearchResultItem item;
+            if (filePath && QTC_GUARD(path.size() == 1))
+                item.setFilePath(*filePath);
             item.setPath(currentPath);
             item.setLineText(part);
             partItem = new SearchResultTreeItem(item, currentItem);
@@ -471,7 +476,7 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const SearchResultItems &it
                 itemSet.clear();
             }
             // switch parent
-            pathNodes += addPath(item.path());
+            pathNodes += addPath(item.path(), item.filePath());
         }
         itemSet << item;
     }

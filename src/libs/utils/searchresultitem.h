@@ -47,7 +47,12 @@ class QTCREATOR_UTILS_EXPORT SearchResultItem
 public:
     QStringList path() const { return m_path; }
     void setPath(const QStringList &path) { m_path = path; }
-    void setFilePath(const Utils::FilePath &filePath) { m_path = {filePath.toUserOutput()}; }
+    void setFilePath(const Utils::FilePath &filePath)
+    {
+        m_filePath = filePath;
+        m_path = {filePath.toUserOutput()};
+    }
+    std::optional<FilePath> filePath() const { return m_filePath; }
 
     QString lineText() const { return m_lineText; }
     void setLineText(const QString &text) { m_lineText = text; }
@@ -81,6 +86,7 @@ public:
     bool operator==(const SearchResultItem &other) const;
 
 private:
+    std::optional<FilePath> m_filePath;
     QStringList m_path; // hierarchy to the parent item of this item
     QString m_lineText; // text to show for the item itself
     QIcon m_icon; // icon to show in front of the item (by be null icon to hide)
