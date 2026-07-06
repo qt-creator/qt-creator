@@ -64,11 +64,16 @@ CommonSettings::CommonSettings()
     setAutoApply(false);
     const Key debugModeGroup("DebugMode");
 
+    // For options whose purpose is not obvious from the label alone, show the
+    // explanation as a permanent label below the option (in addition to the
+    // tooltip), which is more discoverable, in particular for keyboard users.
+    const BoolAspect::LabelPlacement tip = BoolAspect::LabelPlacement::ShowTip;
+
     useAlternatingRowColors.setSettingsKey(debugModeGroup, "UseAlternatingRowColours");
     useAlternatingRowColors.setLabelText(Tr::tr("Use alternating row colors in debug views"));
 
     stationaryEditorWhileStepping.setSettingsKey(debugModeGroup, "StationaryEditorWhileStepping");
-    stationaryEditorWhileStepping.setLabelText(Tr::tr("Keep editor stationary when stepping"));
+    stationaryEditorWhileStepping.setLabel(Tr::tr("Keep editor stationary when stepping"), tip);
     stationaryEditorWhileStepping.setToolTip(
         Tr::tr("Scrolls the editor only when it is necessary to keep the current line in view, "
                "instead of keeping the next statement centered at all times."));
@@ -82,14 +87,14 @@ CommonSettings::CommonSettings()
 
     showUnsupportedBreakpointWarning.setSettingsKey(debugModeGroup, "ShowUnsupportedBreakpointWarning");
     showUnsupportedBreakpointWarning.setDefaultValue(true);
-    showUnsupportedBreakpointWarning.setLabelText(
-        Tr::tr("Show warnings for unsupported breakpoints"));
+    showUnsupportedBreakpointWarning.setLabel(
+        Tr::tr("Show warnings for unsupported breakpoints"), tip);
     showUnsupportedBreakpointWarning.setToolTip(
         Tr::tr("Shows a warning on debugger start-up when breakpoints are requested "
                "which are not supported by the selected debugger engine."));
 
     forceLoggingToConsole.setSettingsKey(debugModeGroup, "ForceLoggingToConsole");
-    forceLoggingToConsole.setLabelText(Tr::tr("Force logging to console"));
+    forceLoggingToConsole.setLabel(Tr::tr("Force logging to console"), tip);
     forceLoggingToConsole.setToolTip(
         Tr::tr("Sets QT_LOGGING_TO_CONSOLE=1 in the environment of the debugged program, "
                "preventing storing debug output in system logs."));
@@ -97,15 +102,16 @@ CommonSettings::CommonSettings()
     fontSizeFollowsEditor.setSettingsKey(debugModeGroup, "FontSizeFollowsEditor");
     fontSizeFollowsEditor.setToolTip(Tr::tr("Changes the font size in the debugger views when "
                                             "the font size in the main editor changes."));
-    fontSizeFollowsEditor.setLabelText(Tr::tr("Debugger font size follows main editor"));
+    fontSizeFollowsEditor.setLabel(Tr::tr("Debugger font size follows main editor"), tip);
 
 #ifdef Q_OS_WIN
     registerForPostMortem = new RegisterPostMortemAction;
     registerForPostMortem->setSettingsKey(debugModeGroup, "RegisterForPostMortem");
     registerForPostMortem->setToolTip(Tr::tr("Registers %1 for debugging crashed applications.")
                                           .arg(QGuiApplication::applicationDisplayName()));
-    registerForPostMortem->setLabelText(
-        Tr::tr("Use %1 for post-mortem debugging").arg(QGuiApplication::applicationDisplayName()));
+    registerForPostMortem->setLabel(
+        Tr::tr("Use %1 for post-mortem debugging").arg(QGuiApplication::applicationDisplayName()),
+        tip);
     registerAspect(registerForPostMortem);
 #else
     // Some dummy.
@@ -124,7 +130,7 @@ CommonSettings::CommonSettings()
     showQmlObjectTree.setDefaultValue(true);
     showQmlObjectTree.setToolTip(Tr::tr("Shows QML object tree in Locals and Expressions "
                                         "when connected and not stepping."));
-    showQmlObjectTree.setLabelText(Tr::tr("Show QML object tree"));
+    showQmlObjectTree.setLabel(Tr::tr("Show QML object tree"), tip);
 
     const QString t = Tr::tr("Stopping and stepping in the debugger "
           "will automatically open views associated with the current location.") + '\n';
@@ -142,8 +148,8 @@ CommonSettings::CommonSettings()
     switchModeOnExit.setLabelText(Tr::tr("Switch to previous mode on debugger exit"));
 
     breakpointsFullPathByDefault.setSettingsKey(debugModeGroup, "BreakpointsFullPath");
+    breakpointsFullPathByDefault.setLabel(Tr::tr("Set breakpoints using a full absolute path"), tip);
     breakpointsFullPathByDefault.setToolTip(Tr::tr("Enables a full file path in breakpoints by default also for GDB."));
-    breakpointsFullPathByDefault.setLabelText(Tr::tr("Set breakpoints using a full absolute path"));
 
     resolveBreakpointSymlinks.setSettingsKey(debugModeGroup, "ResolveBreakpointSymlinks");
     resolveBreakpointSymlinks.setToolTip(
@@ -170,7 +176,7 @@ CommonSettings::CommonSettings()
                                       .arg(QGuiApplication::applicationDisplayName()));
 
     useAnnotationsInMainEditor.setSettingsKey(debugModeGroup, "UseAnnotations");
-    useAnnotationsInMainEditor.setLabelText(Tr::tr("Use annotations in main editor when debugging"));
+    useAnnotationsInMainEditor.setLabel(Tr::tr("Use annotations in main editor when debugging"), tip);
     useAnnotationsInMainEditor.setToolTip(
         "<p>"
         + Tr::tr("Shows simple variable values "
@@ -179,7 +185,7 @@ CommonSettings::CommonSettings()
 
     warnOnReleaseBuilds.setSettingsKey(debugModeGroup, "WarnOnReleaseBuilds");
     warnOnReleaseBuilds.setDefaultValue(true);
-    warnOnReleaseBuilds.setLabelText(Tr::tr("Warn when debugging \"Release\" builds"));
+    warnOnReleaseBuilds.setLabel(Tr::tr("Warn when debugging \"Release\" builds"), tip);
     warnOnReleaseBuilds.setToolTip(Tr::tr("Shows a warning when starting the debugger "
                                           "on a binary with insufficient debug information."));
 
@@ -213,7 +219,7 @@ CommonSettings::CommonSettings()
     useGenericDebugger.setEnabled(!isUseGenericDebuggerOverride());
 
     useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");
-    useToolTipsInMainEditor.setLabelText(Tr::tr("Use tooltips in main editor when debugging"));
+    useToolTipsInMainEditor.setLabel(Tr::tr("Use tooltips in main editor when debugging"), tip);
     useToolTipsInMainEditor.setToolTip(
         "<p>"
         + Tr::tr("Enables tooltips for variable values during debugging. "
