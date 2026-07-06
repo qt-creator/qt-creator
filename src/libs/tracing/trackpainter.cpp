@@ -412,10 +412,10 @@ void TrackPainter::paintEvent(QPaintEvent *)
     if (m_cache.isNull())
         rebuildCache();
 
-    QPainter p(this);
-
     if (m_cache.isNull())
         return; // zero-size widget: nothing to paint
+
+    QPainter p(this);
 
     if (m_pendingShiftPx != 0) {
         // Apply the accumulated pan: shift the cache and render the newly exposed strip.
