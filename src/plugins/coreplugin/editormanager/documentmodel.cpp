@@ -213,7 +213,7 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
         const FilePath path = e->filePath();
         if (path.isEmpty()) {
             e->document->setUniqueDisplayName(QStringLiteral("%1 (%2)")
-                                                  .arg(e->document->displayName())
+                                                  .arg(e->plainDisplayName())
                                                   .arg(++countWithoutFilePath));
             continue;
         }

@@ -1,12 +1,15 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "../coreconstants.h"
 #include "../generalsettings.h"
+#include "../idocument.h"
 #include "documentmodel_p.h"
 #include "editormanager_p.h"
 
 #include <utils/temporaryfile.h>
 
+#include <QSet>
 #include <QTest>
 
 using namespace Utils;
@@ -34,6 +37,7 @@ private slots:
     void testAlwaysSwitchToTab();
     void testCloseSplit();
     void testPinned();
+    void testDisambiguateUnnamedDuplicates();
 };
 
 QObject *createTabbedEditorTest()
@@ -375,6 +379,34 @@ void TabbedEditorTest::testPinned()
     // and that after that the document is closed
     emit view0->tabCloseRequested(0);
     QCOMPARE(view0->tabs().size(), 1);
+}
+
+void TabbedEditorTest::testDisambiguateUnnamedDuplicates()
+{
+    // Editors without a file path that share a display name must get stable,
+    // distinct names. Re-running disambiguation (here by opening a third one)
+    // used to append " (N)" on top of an already-appended suffix, so names grew
+    // "View (1) (1) (1)" on each pass. See QTCREATORBUG-33271.
+    const Id id = Constants::K_DEFAULT_TEXT_EDITOR_ID;
+    const auto open = [id](const char *title) -> IEditor * {
+        QString pattern = QLatin1String(title);
+        return EM::openEditorWithContents(id, &pattern, "x", QString(),
+                                          EditorManager::IgnoreNavigationHistory);
+    };
+
+    IEditor *e1 = open("View");
+    IEditor *e2 = open("View");
+    IEditor *e3 = open("View");
+    QVERIFY(e1 && e2 && e3);
+
+    const QStringList names = {e1->document()->displayName(),
+                               e2->document()->displayName(),
+                               e3->document()->displayName()};
+    // No name grew a doubled " (n) (m)" suffix ...
+    for (const QString &name : names)
+        QVERIFY2(!name.contains(") ("), qPrintable(name));
+    // ... and they are all distinct.
+    QCOMPARE(QSet<QString>(names.begin(), names.end()).size(), names.size());
 }
 
 } // namespace Core::Internal
