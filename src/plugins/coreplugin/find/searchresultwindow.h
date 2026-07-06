@@ -6,6 +6,7 @@
 #include "../ioutputpane.h"
 
 #include <utils/searchresultitem.h>
+#include <utils/store.h>
 
 #include <QVariant>
 #include <QStringList>
@@ -144,9 +145,12 @@ public slots:
     void clearContents() override;
 
 public: // Used by plugin, do not use
-    void writeSettings();
+    Utils::Store save() const;
+    void restore(const Utils::Store &s);
+    void writeSettings(); // TODO remove in QtC 21 - only kept for binary compatibility
 
 private:
+    // TODO deprecated since QtC 20.0, kept for reading settings from older versions
     void readSettings();
 
     Internal::SearchResultWindowPrivate *d;

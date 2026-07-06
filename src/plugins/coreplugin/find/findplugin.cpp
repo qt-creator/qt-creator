@@ -415,6 +415,9 @@ void FindPrivate::writeSettings()
     const Store advanced = m_findDialog->save();
     if (!advanced.isEmpty())
         s.insert("AdvancedSearch", variantFromStore(advanced));
+    const Store searchResults = m_searchResultWindow->save();
+    if (!searchResults.isEmpty())
+        s.insert("SearchResults", variantFromStore(searchResults));
     SessionManager::setValue("Find", variantFromStore(s));
 }
 
@@ -437,6 +440,7 @@ void FindPrivate::readSettings()
         m_replaceCompletionModel.setStringList(m_replaceCompletions);
         m_findToolBar->restore(storeFromVariant(s.value("ToolBar")));
         m_findDialog->restore(storeFromVariant(s.value("AdvancedSearch")));
+        m_searchResultWindow->restore(storeFromVariant(s.value("SearchResults")));
     }
     emit m_instance->findFlagsChanged(); // would have been done in the setXXX methods above
 }
