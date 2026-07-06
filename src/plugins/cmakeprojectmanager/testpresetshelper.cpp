@@ -123,7 +123,7 @@ QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset)
 
         if (exe.repeat) {
             const PresetsDetails::Execution::Repeat &r = *exe.repeat;
-            args << "--repeat" << r.mode << "--count" << QString::number(r.count);
+            args << "--repeat" << r.mode + ":" + QString::number(r.count);
         }
 
         if (exe.interactiveDebugging.value_or(false))

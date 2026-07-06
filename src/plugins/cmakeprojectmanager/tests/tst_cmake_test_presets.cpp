@@ -473,6 +473,7 @@ private slots:
         QVERIFY(args.contains("--parallel"));
         QVERIFY(args.contains("--show-only=human"));
         QVERIFY(args.contains("--repeat"));
+        QVERIFY(args.contains("count:3"));
         QVERIFY(args.contains("--timeout"));
         QVERIFY(args.contains("--build-config"));
     }
