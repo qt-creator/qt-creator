@@ -30,6 +30,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/fileutils.h>
 #include <utils/guard.h>
+#include <utils/globaltasktree.h>
 #include <utils/port.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -231,6 +232,21 @@ static void setEmulatorArguments()
 
     if (dialog.exec() == QDialog::Accepted)
         AndroidConfig::setEmulatorArgs(dialog.textValue());
+}
+
+// "adb emu avd name" stalls while the emulator is still booting; the
+// answer's first line — the avd name — is parked in nameStorage.
+static ExecutableItem emulatorNameRecipe(const QString &serialNumber,
+                                         const Storage<QString> &nameStorage)
+{
+    const auto onSetup = [serialNumber](Process &process) {
+        process.setCommand(
+            {AndroidConfig::adbToolPath(), adbSelector(serialNumber) << "emu" << "avd" << "name"});
+    };
+    const auto onDone = [nameStorage](const Process &process) {
+        *nameStorage = process.cleanedStdOut().section('\n', 0, 0).trimmed();
+    };
+    return ProcessTask(onSetup, onDone);
 }
 
 static QString emulatorName(const QString &serialNumber)
@@ -900,9 +916,25 @@ void AndroidDevice::updateDeviceFileAccess()
 
 static QHash<QString, Id> s_trackedAvdSerialIds;
 
-static void handleDevicesListChange(const QString &serialNumber)
+static void routeEmulatorEvent(const QString &serial, const Id &avdId,
+                               IDevice::DeviceState state)
 {
-    const QStringList serialBits = serialNumber.split('\t');
+    // Update the serial before the state change is announced.
+    if (IDevice::Ptr dev = DeviceManager::find(avdId)) {
+        AndroidDevice *androidDev = static_cast<AndroidDevice *>(dev.get());
+        if (QTC_GUARD(androidDev))
+            androidDev->updateSerialNumber(serial);
+        if (dev->deviceState() != state)
+            qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
+                    avdId.toString().toUtf8().data());
+    }
+    DeviceManager::setDeviceState(avdId, state);
+    updateDeviceFileAccess(avdId);
+}
+
+static void handleDevicesListChange(const QString &event)
+{
+    const QStringList serialBits = event.split('\t');
     if (serialBits.size() < 2)
         return;
 
@@ -931,29 +963,33 @@ static void handleDevicesListChange(const QString &serialNumber)
         state = IDevice::DeviceConnected;
 
     if (isEmulator) {
-        Id avdId;
-        if (state == IDevice::DeviceDisconnected) {
-            avdId = s_trackedAvdSerialIds.take(serial);
-            if (!avdId.isValid())
-                return;
-        } else {
-            const QString avdName = emulatorName(serial);
-            if (avdName.isEmpty())
-                return;
-            avdId = androidDeviceId(avdName);
-            s_trackedAvdSerialIds.insert(serial, avdId);
+        // A disconnect forgets the serial; take() still hands out a known
+        // id so the disconnect itself gets routed.
+        const bool disconnected = state == IDevice::DeviceDisconnected;
+        const Id avdId = disconnected ? s_trackedAvdSerialIds.take(serial)
+                                      : s_trackedAvdSerialIds.value(serial);
+        if (avdId.isValid()) {
+            routeEmulatorEvent(serial, avdId, state);
+        } else if (!disconnected && !s_trackedAvdSerialIds.contains(serial)) {
+            const Storage<QString> name;
+            GlobalTaskTree::start({
+                name,
+                onGroupSetup([serial] { s_trackedAvdSerialIds.insert(serial, Id()); }),
+                emulatorNameRecipe(serial, name),
+                onGroupDone([serial, state, name] {
+                    if (!s_trackedAvdSerialIds.contains(serial)
+                        || s_trackedAvdSerialIds.value(serial).isValid())
+                        return;
+                    if (name->isEmpty()) {
+                        s_trackedAvdSerialIds.remove(serial);
+                        return;
+                    }
+                    const Id avdId = androidDeviceId(*name);
+                    s_trackedAvdSerialIds.insert(serial, avdId);
+                    routeEmulatorEvent(serial, avdId, state);
+                })
+            });
         }
-        // Update the serial before the state change is announced.
-        if (IDevice::Ptr dev = DeviceManager::find(avdId)) {
-            AndroidDevice *androidDev = static_cast<AndroidDevice *>(dev.get());
-            if (QTC_GUARD(androidDev))
-                androidDev->updateSerialNumber(serial);
-            if (dev->deviceState() != state)
-                qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
-                        avdId.toString().toUtf8().data());
-        }
-        DeviceManager::setDeviceState(avdId, state);
-        updateDeviceFileAccess(avdId);
     } else {
         const Id id = androidDeviceId(serial);
         QString displayName = AndroidConfig::getProductModel(serial);
