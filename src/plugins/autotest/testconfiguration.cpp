@@ -7,6 +7,7 @@
 #include "testrunconfiguration.h"
 
 #include "../ios/iosconstants.h" // soft dependency
+#include "../android/androidconstants.h" // soft dependency
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -29,9 +30,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Autotest {
-
-// HACK! Duplicate to avoid a dependency to Android plugin
-static const char ANDROID_DEVICE_TYPE[] = "Android.Device.Type";
 
 ITestConfiguration::ITestConfiguration(ITestBase *testBase)
     : m_testBase(testBase)
@@ -136,8 +134,12 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
         m_buildDir
             = (buildBase.resolvePath(m_projectFile.relativePathFromDir(projBase))).absolutePath();
     }
-    if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
+    const bool debugMode = runMode == TestRunMode::Debug
+                           || runMode == TestRunMode::DebugWithoutDeploy;
+    if (debugMode)
         m_runConfig = new Internal::TestRunConfiguration(rc->buildConfiguration(), this);
+    else if (runsOnAndroid())
+        setupAndroidRunner(buildConfig);
 }
 
 void TestConfiguration::completeTestInformation(TestRunMode runMode)
@@ -184,7 +186,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     BuildTargetInfo targetInfo = !buildTargets.isEmpty() ? buildTargets.first() : BuildTargetInfo();
 
     const Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(activeKit);
-    if (deviceTypeId == ANDROID_DEVICE_TYPE) {
+    if (deviceTypeId == Android::Constants::ANDROID_DEVICE_TYPE) {
         // Android can have test runner scripts named as displayName(.bat)
         const FilePath script = ensureBatEnding(
             targetInfo.targetFilePath.parentDir() / targetInfo.displayName);
@@ -276,6 +278,52 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
 
     if (displayName().isEmpty()) // happens e.g. when deducing the TestConfiguration or error
         setDisplayName(*buildSystemTargets.begin());
+
+    // on Android: test is run through androidtestrunner tool, which installs the package,
+    // launches it and collects the output - not applicable while debugging
+    const bool debugMode = runMode == TestRunMode::Debug
+                           || runMode == TestRunMode::DebugWithoutDeploy;
+    if (!debugMode && runsOnAndroid())
+        setupAndroidRunner(buildConfig);
+}
+
+// Android build exposes the pieces needed to run a test through
+// androidtestrunner via BuildSystem::extraData (see AndroidBuildApkStep)
+void TestConfiguration::setupAndroidRunner(BuildConfiguration *buildConfig)
+{
+    BuildSystem *buildSystem = buildConfig->buildSystem();
+    if (!buildSystem)
+        return;
+
+    const QString buildKey = buildConfig->activeBuildKey();
+    const auto value = [buildSystem, &buildKey](Utils::Id key) {
+        return buildSystem->extraData(buildKey, key).toString();
+    };
+
+    const FilePath testRunner = FilePath::fromUserInput(value(Android::Constants::AndroidTestRunner));
+    const QString package = value(Android::Constants::AndroidPackage);
+    const QString buildDir = value(Android::Constants::AndroidBuildDirectory);
+    if (testRunner.isEmpty() || package.isEmpty() || buildDir.isEmpty())
+        return;
+
+    m_androidTestRunner = testRunner;
+    m_androidTestRunnerArgs = {"--path", buildDir, "--apk", package};
+    const QString adb = value(Android::Constants::AndroidAdb);
+    if (!adb.isEmpty())
+        m_androidTestRunnerArgs << "--adb" << adb;
+    m_androidTestRunnerArgs << "--skip-install-root";
+    const QString makeCommand = value(Android::Constants::AndroidMakeCommand);
+    if (!makeCommand.isEmpty())
+        m_androidTestRunnerArgs << "--make" << makeCommand;
+    // separator after which androidtestrunner forwards arguments to the test
+    m_androidTestRunnerArgs << "--";
+}
+
+FilePath TestConfiguration::testExecutable() const
+{
+    if (!m_androidTestRunner.isEmpty())
+        return m_androidTestRunner;
+    return ITestConfiguration::testExecutable();
 }
 
 /**
@@ -320,6 +368,12 @@ bool TestConfiguration::runsOnIosDevice() const
     const auto kit = currentProject ? currentProject->activeKit() : nullptr;
 
     return kit && RunDeviceTypeKitAspect::deviceTypeId(kit) == Ios::Constants::IOS_DEVICE_TYPE;
+}
+
+bool TestConfiguration::runsOnAndroid() const
+{
+    const Kit *kit = project() ? project()->activeKit() : nullptr;
+    return kit && RunDeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE;
 }
 
 bool DebuggableTestConfiguration::isDebugRunMode() const
