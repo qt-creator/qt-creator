@@ -203,14 +203,15 @@ void installCheckSettingsDirtyTrigger(QObject *object)
     installDirtyTriggerHelper(object, true);
 }
 
-bool suppressSettingsDirtyTrigger(bool suppress)
+DirtySettingsGuard::DirtySettingsGuard()
 {
-    if (suppress)
-        return s_suppressSettingsDirtyLevel.fetch_add(1) > 0;
+    s_suppressSettingsDirtyLevel.fetch_add(1);
+}
 
+DirtySettingsGuard::~DirtySettingsGuard()
+{
     const int previousLevel = s_suppressSettingsDirtyLevel.fetch_sub(1);
-    QTC_CHECK(previousLevel > 0); // unbalanced pop
-    return previousLevel > 0;
+    QTC_CHECK(previousLevel > 0);
 }
 
 void installMarkSettingsDirtyTriggerRecursively(QObject *object)

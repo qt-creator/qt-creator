@@ -26,17 +26,13 @@ QTCREATOR_UTILS_EXPORT bool isIgnoredForDirtyHook(const QObject *object);
 QTCREATOR_UTILS_EXPORT void markSettingsDirty();
 QTCREATOR_UTILS_EXPORT void checkSettingsDirty();
 
-// Adjusts the suppression nesting level (positive = push, otherwise pop).
-// Prefer DirtySettingsGuard RAII-objects. Returns whether suppression was active before the call.
-QTCREATOR_UTILS_EXPORT bool suppressSettingsDirtyTrigger(bool suppress);
-
 // Disables use of dirty hooks while active. Reference-counted, so overlapping
 // guards (even from different threads) no longer strand the suppression state.
 class QTCREATOR_UTILS_EXPORT DirtySettingsGuard
 {
 public:
-    DirtySettingsGuard() { suppressSettingsDirtyTrigger(true); }
-    ~DirtySettingsGuard() { suppressSettingsDirtyTrigger(false); }
+    DirtySettingsGuard();
+    ~DirtySettingsGuard();
 };
 
 QTCREATOR_UTILS_EXPORT void installCheckSettingsDirtyTrigger(QObject *object);
