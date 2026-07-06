@@ -345,6 +345,11 @@ bool DeviceManager::isLoaded()
 // Thread safe
 IDevice::ConstPtr DeviceManager::deviceForPath(const FilePath &path)
 {
+    // During shutdown the DeviceManager may already be gone (static d reset in
+    // ~DeviceManager) while background tasks still touch the device-file hooks.
+    // Bail out instead of dereferencing a null d.
+    QTC_ASSERT(d, return {});
+
     const QList<IDevice::Ptr> devices = d->deviceList();
 
     if (path.scheme() == u"device") {
