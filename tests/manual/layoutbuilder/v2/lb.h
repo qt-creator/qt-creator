@@ -143,6 +143,27 @@ class Layout;
 using LayoutModifier = std::function<void(Layout *)>;
 // using LayoutModifier = void(*)(Layout *);
 
+class QTCREATOR_UTILS_EXPORT LayoutItem
+{
+public:
+    ~LayoutItem();
+    LayoutItem();
+    LayoutItem(QLayout *l) : layout(l) {}
+    LayoutItem(QWidget *w) : widget(w) {}
+    LayoutItem(const QString &t) : text(t) {}
+    LayoutItem(const LayoutModifier &inner);
+
+    QString text;
+    QLayout *layout = nullptr;
+    QWidget *widget = nullptr;
+    int stretch = -1;
+    int spanCols = 1;
+    int spanRows = 1;
+    bool empty = false;
+    LayoutModifier ownerModifier;
+    //Qt::Alignment align = {};
+};
+
 class QTCREATOR_UTILS_EXPORT Layout : public Object
 {
 public:
@@ -151,27 +172,6 @@ public:
 
     Layout() = default;
     Layout(Implementation *w);
-
-    class LayoutItem
-    {
-    public:
-        ~LayoutItem();
-        LayoutItem();
-        LayoutItem(QLayout *l) : layout(l) {}
-        LayoutItem(QWidget *w) : widget(w) {}
-        LayoutItem(const QString &t) : text(t) {}
-        LayoutItem(const LayoutModifier &inner);
-
-        QString text;
-        QLayout *layout = nullptr;
-        QWidget *widget = nullptr;
-        int stretch = -1;
-        int spanCols = 1;
-        int spanRows = 1;
-        bool empty = false;
-        LayoutModifier ownerModifier;
-        //Qt::Alignment align = {};
-    };
 
     void span(int cols, int rows);
     void noMargin();

@@ -229,11 +229,11 @@ private:
     as Form and Grid.
 */
 
-Layout::LayoutItem::LayoutItem() = default;
+LayoutItem::LayoutItem() = default;
 
-Layout::LayoutItem::~LayoutItem() = default;
+LayoutItem::~LayoutItem() = default;
 
-Layout::LayoutItem::LayoutItem(const LayoutModifier &inner)
+LayoutItem::LayoutItem(const LayoutModifier &inner)
 {
     ownerModifier = inner;
 }
@@ -281,8 +281,6 @@ static QLabel *createLabel(const QString &text)
     label->setTextInteractionFlags(Qt::TextSelectableByMouse);
     return label;
 }
-
-using LayoutItem = Layout::LayoutItem;
 
 static void addItemToBoxLayout(QBoxLayout *layout, const LayoutItem &item)
 {
