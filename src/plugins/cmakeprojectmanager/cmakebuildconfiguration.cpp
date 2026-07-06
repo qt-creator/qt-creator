@@ -2560,14 +2560,13 @@ void ConfigureEnvironmentAspect::fromMap(const Store &map)
 {
     // Match the key values from Qt Creator 9.0.0/1 to the ones from EnvironmentAspect
     const bool cleanSystemEnvironment = map.value(CLEAR_SYSTEM_ENVIRONMENT_KEY).toBool();
-    const QStringList userEnvironmentChanges
-        = map.value(USER_ENVIRONMENT_CHANGES_KEY).toStringList();
-
     const int baseEnvironmentIndex = map.value(BASE_ENVIRONMENT_KEY, baseEnvironmentBase()).toInt();
 
     Store tmpMap;
     tmpMap.insert(BASE_KEY, cleanSystemEnvironment ? 0 : baseEnvironmentIndex);
-    tmpMap.insert(CHANGES_KEY, userEnvironmentChanges);
+    tmpMap.insert(
+        CHANGES_KEY,
+        EnvironmentChanges::createFromVariant(map.value(USER_ENVIRONMENT_CHANGES_KEY)).toVariant());
 
     ProjectExplorer::EnvironmentAspect::fromMap(tmpMap);
 }
@@ -2581,7 +2580,7 @@ void ConfigureEnvironmentAspect::toMap(Store &map) const
 
     map.insert(CLEAR_SYSTEM_ENVIRONMENT_KEY, baseKey == 0);
     map.insert(BASE_ENVIRONMENT_KEY, baseKey);
-    map.insert(USER_ENVIRONMENT_CHANGES_KEY, tmpMap.value(CHANGES_KEY).toStringList());
+    map.insert(USER_ENVIRONMENT_CHANGES_KEY, tmpMap.value(CHANGES_KEY));
 }
 
 
