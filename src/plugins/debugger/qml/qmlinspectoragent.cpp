@@ -37,6 +37,15 @@ namespace Debugger::Internal {
 
 static Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector", QtWarningMsg)
 
+// Upper bound on the number of nodes visited while walking the QML context or
+// object tree. The underlying object graph may well be cyclic, but what we walk
+// here is the structure the wire decoder produced: its children are held by
+// value, so it is a finite tree, and the decoder also bounds its depth (see
+// BaseEngineDebugClient). The iterative traversals below are therefore
+// defensive; this node cap is a further last-resort guard against a
+// pathologically large tree. See QTCREATORBUG-33434.
+static const int MaxInspectorTreeNodes = 100000;
+
 
 /*!
  * DebuggerAgent updates the watchhandler with the object tree data.
@@ -416,16 +425,30 @@ void QmlInspectorAgent::fetchObject(int debugId)
 
 void QmlInspectorAgent::updateObjectTree(const ContextReference &context, int engineId)
 {
-    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << context << ')';
-
     if (!isConnected() || !settings().showQmlObjectTree())
         return;
 
-    for (const ObjectReference &obj : context.objects())
-        verifyAndInsertObjectInTree(obj, engineId, true);
+    // Walk the context tree iteratively rather than recursively. It is the
+    // finite tree the wire decoder produced (children held by value, depth
+    // bounded by the decoder), so this is defensive: iterating keeps the walk
+    // safe for any depth without relying on that bound. See QTCREATORBUG-33434.
+    QList<ContextReference> pending{context};
+    int visited = 0;
+    while (!pending.isEmpty()) {
+        const ContextReference ctx = pending.takeLast();
+        qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << ctx << ')';
 
-    for (const ContextReference &child : context.contexts())
-        updateObjectTree(child, engineId);
+        for (const ObjectReference &obj : ctx.objects())
+            verifyAndInsertObjectInTree(obj, engineId, true);
+
+        if (++visited > MaxInspectorTreeNodes) {
+            qCWarning(qmlInspectorLog) << __FUNCTION__ << "aborting after" << visited
+                                       << "contexts; tree too large or malformed.";
+            break;
+        }
+
+        pending.append(ctx.contexts());
+    }
 }
 
 void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &object, int engineId,
@@ -587,27 +610,41 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object, int pa
 
 void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
 {
-    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << ref << ')';
+    // Walk the object tree iteratively rather than recursively. It is the finite
+    // tree the wire decoder produced (children held by value, depth bounded by
+    // the decoder), so this is defensive: iterating keeps the walk safe for any
+    // depth. See QTCREATORBUG-33434.
+    QList<ObjectReference> pending{ref};
+    int visited = 0;
+    while (!pending.isEmpty()) {
+        const ObjectReference obj = pending.takeLast();
+        qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << obj << ')';
 
-    QUrl fileUrl = ref.source().url();
-    int lineNum = ref.source().lineNumber();
-    int colNum = ref.source().columnNumber();
+        QUrl fileUrl = obj.source().url();
+        int lineNum = obj.source().lineNumber();
+        int colNum = obj.source().columnNumber();
 
-    // handle the case where the url contains the revision number encoded.
-    // (for object created by the debugger)
-    static const QRegularExpression rx("^(.*)_(\\d+):(\\d+)$");
-    const QRegularExpressionMatch match = rx.match(fileUrl.path());
-    if (match.hasMatch()) {
-        fileUrl.setPath(match.captured(1));
-        lineNum += match.captured(3).toInt() - 1;
+        // handle the case where the url contains the revision number encoded.
+        // (for object created by the debugger)
+        static const QRegularExpression rx("^(.*)_(\\d+):(\\d+)$");
+        const QRegularExpressionMatch match = rx.match(fileUrl.path());
+        if (match.hasMatch()) {
+            fileUrl.setPath(match.captured(1));
+            lineNum += match.captured(3).toInt() - 1;
+        }
+
+        const FilePath filePath = m_qmlEngine->toFileInProject(fileUrl);
+        m_debugIdLocations.insert(obj.debugId(),
+                                  FileReference(filePath.toFSPathString(), lineNum, colNum));
+
+        if (++visited > MaxInspectorTreeNodes) {
+            qCWarning(qmlInspectorLog) << __FUNCTION__ << "aborting after" << visited
+                                       << "objects; tree too large or malformed.";
+            break;
+        }
+
+        pending.append(obj.children());
     }
-
-    const FilePath filePath = m_qmlEngine->toFileInProject(fileUrl);
-    m_debugIdLocations.insert(ref.debugId(), FileReference(filePath.toFSPathString(), lineNum, colNum));
-
-    const auto children = ref.children();
-    for (const ObjectReference &it : children)
-        buildDebugIdHashRecursive(it);
 }
 
 static QString buildIName(const QString &parentIname, int debugId)
