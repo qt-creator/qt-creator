@@ -101,6 +101,7 @@ private slots:
     void test_vim_ex_shift();
     void test_vim_ex_move();
     void test_vim_ex_join();
+    void test_vim_ex_normal();
     void test_advanced_commands();
 
 //public:
@@ -3436,6 +3437,33 @@ void FakeVimTester::test_vim_ex_join()
     COMMAND("u", "  abc" N X "  def" N "  ghi" N "  jkl");
     COMMAND("1j3", "  " X "abc def ghi" N "  jkl");
     COMMAND("u", X "  abc" N "  def" N "  ghi" N "  jkl");
+}
+
+void FakeVimTester::test_vim_ex_normal()
+{
+    TestData data;
+    setup(&data);
+
+    // :[range]normal runs the commands on every line in the range, not just the
+    // current one (QTCREATORBUG-33296).
+    data.setText("Line 1" N "Line 2" N "Line 3");
+    COMMAND("%normal A;", "Line 1;" N "Line 2;" N "Line 3" X ";");
+
+    // A sub-range only touches those lines.
+    data.setText("Line 1" N "Line 2" N "Line 3");
+    COMMAND("1,2normal A;", "Line 1;" N "Line 2" X ";" N "Line 3");
+
+    // A single addressed line runs on that line, not the current one.
+    data.setText("Line 1" N "Line 2" N "Line 3");
+    COMMAND("3normal A;", "Line 1" N "Line 2" N "Line 3" X ";");
+
+    // Without any range the commands run at the current cursor position.
+    data.setText("Line 1" N "Line 2" N "Line 3");
+    COMMAND("normal A;", "Line 1;" X N "Line 2" N "Line 3");
+
+    // Commands that delete lines work per line, too (as :%normal dd).
+    data.setText("Line 1" N "Line 2" N "Line 3");
+    COMMAND("%normal dd", X "");
 }
 
 void FakeVimTester::test_advanced_commands()

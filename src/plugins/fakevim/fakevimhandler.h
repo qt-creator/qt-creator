@@ -44,6 +44,7 @@ struct ExCommand
     bool hasBang = false;
     QString args;
     Range range;
+    bool hasRange = false;
     int count = 1;
 };
 

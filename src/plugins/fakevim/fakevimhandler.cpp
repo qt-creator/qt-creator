@@ -1711,7 +1711,7 @@ public:
     bool wantsOverride(QKeyEvent *ev);
     bool parseExCommand(QString *line, ExCommand *cmd);
     bool parseLineRange(QString *line, ExCommand *cmd);
-    int parseLineAddress(QString *cmd);
+    int parseLineAddress(QString *cmd, bool *hasAddress = nullptr);
     void parseRangeCount(const QString &line, Range *range) const;
     void handleCommand(const QString &cmd); // Sets m_tc + handleExCommand
     void handleExCommand(const QString &cmd);
@@ -5674,11 +5674,14 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
 }
 
 // This uses 0 based line counting (hidden lines included).
-int FakeVimHandler::Private::parseLineAddress(QString *cmd)
+int FakeVimHandler::Private::parseLineAddress(QString *cmd, bool *hasAddress)
 {
     //qDebug() << "CMD: " << cmd;
     if (cmd->isEmpty())
         return -1;
+
+    if (hasAddress)
+        *hasAddress = true;
 
     int result = -1;
     QChar c = cmd->at(0);
@@ -5730,6 +5733,8 @@ int FakeVimHandler::Private::parseLineAddress(QString *cmd)
             return -1;
         result = tc.block().blockNumber();
     } else {
+        if (hasAddress)
+            *hasAddress = false;
         return cursorBlockNumber();
     }
 
@@ -5837,9 +5842,11 @@ bool FakeVimHandler::Private::parseLineRange(QString *line, ExCommand *cmd)
     if (line->startsWith('%'))
         line->replace(0, 1, "1,$");
 
-    int beginLine = parseLineAddress(line);
+    bool hasAddress = false;
+    int beginLine = parseLineAddress(line, &hasAddress);
     int endLine;
     if (line->startsWith(',')) {
+        hasAddress = true;
         *line = line->mid(1).trimmed();
         endLine = parseLineAddress(line);
     } else {
@@ -5851,6 +5858,7 @@ bool FakeVimHandler::Private::parseLineRange(QString *line, ExCommand *cmd)
     const int beginPos = firstPositionInLine(qMin(beginLine, endLine) + 1, false);
     const int endPos = lastPositionInLine(qMax(beginLine, endLine) + 1, false);
     cmd->range = Range(beginPos, endPos, RangeLineMode);
+    cmd->hasRange = hasAddress;
     cmd->count = beginLine;
 
     return true;
@@ -6176,11 +6184,44 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
 {
-    // :norm[al]
+    // :[range]norm[al][!] {commands}
     if (!cmd.matches("norm", "normal"))
         return false;
-    //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(reNormal.cap(3));
-    replay(cmd.args);
+
+    const int beginLine = lineForPosition(cmd.range.beginPos);
+    const int endLine = lineForPosition(cmd.range.endPos);
+
+    // Without an explicit range Vim runs the commands once at the current
+    // cursor position.
+    if (!cmd.hasRange) {
+        //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(cmd.args);
+        replay(cmd.args);
+        return true;
+    }
+
+    // With a range Vim runs the commands once per line, placing the cursor at
+    // the start of each line first (this also applies to a single addressed
+    // line, e.g. ":3normal A;"). Collect a cursor per line up front so the
+    // positions stay valid even when the commands insert or delete lines
+    // (e.g. :%normal dd), mirroring the approach used for :global.
+    QList<QTextCursor> cursors;
+    cursors.reserve(endLine - beginLine + 1);
+    for (int line = beginLine; line <= endLine; ++line) {
+        QTextCursor tc(document());
+        tc.setPosition(firstPositionInLine(line));
+        cursors.append(tc);
+    }
+
+    beginEditBlock();
+    for (const QTextCursor &tc : std::as_const(cursors)) {
+        setPosition(tc.position());
+        // Vim terminates any pending insert mode at the end of each line's
+        // commands, so append <ESC> to ensure the next line starts in normal
+        // mode.
+        replay(cmd.args + QLatin1String("<ESC>"));
+    }
+    endEditBlock();
+
     return true;
 }
 
