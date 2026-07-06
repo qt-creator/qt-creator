@@ -5,6 +5,7 @@
 
 #include "abi.h"
 #include "devicesupport/devicekitaspects.h"
+#include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
@@ -168,12 +169,33 @@ static Id runDeviceTypeForKit(const Kit *kit)
     return buildDeviceType;
 };
 
+// Detection source id for a kit auto-created for a build device. Encodes the device and the
+// ABI so each such kit has a stable identity across re-detections and can be associated back
+// to its device. Passing an empty ABI yields the common prefix of all of a device's kits.
+static QString deviceKitDetectionSourceId(Utils::Id deviceId, const QString &abi)
+{
+    return deviceId.toString() + '/' + abi;
+}
+
 void KitManager::restoreKits()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "KitManager::restoreKits");
     QTC_ASSERT(!d->m_initialized, return );
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, &KitManager::saveKits);
+
+    // Remove the kits that were auto-created for a build device when that device goes away.
+    // They are identified by the detection source id set in createKitsFromToolchains(), so
+    // only our own auto-created kits for this device are affected, not SDK or manual kits.
+    connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, instance(), [](Id deviceId) {
+        const QString sourcePrefix = deviceKitDetectionSourceId(deviceId, {});
+        const QList<Kit *> obsolete = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
+            return k->detectionSource().isAutoDetected()
+                   && k->detectionSource().id.startsWith(sourcePrefix);
+        });
+        if (!obsolete.isEmpty())
+            deregisterKits(obsolete);
+    });
 
     std::vector<std::unique_ptr<Kit>> resultList;
 
@@ -388,14 +410,6 @@ void KitManager::showLoadingProgress()
                                         "LoadingKitsProgress",
                                         5s);
     connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
-}
-
-// Detection source id for a kit auto-created for a build device. Encodes the device and the
-// ABI so each such kit has a stable identity across re-detections and can be associated back
-// to its device.
-static QString deviceKitDetectionSourceId(Utils::Id deviceId, const QString &abi)
-{
-    return deviceId.toString() + '/' + abi;
 }
 
 void KitManager::createKitsFromToolchains(
