@@ -10,8 +10,6 @@
 
 #include <clang/Format/Format.h>
 
-#include <QFile>
-
 namespace TextEditor {
 class ICodeStylePreferences;
 class TabSettingsData;

@@ -3,16 +3,11 @@
 
 #include "clangformatconstants.h"
 #include "clangformatsettings.h"
-
-#include <coreplugin/icore.h>
-
-using namespace Utils;
+#include "clangformattr.h"
 
 namespace ClangFormat {
 
-const char FORMAT_CODE_INSTEAD_OF_INDENT_ID[] = "ClangFormat.FormatCodeInsteadOfIndent";
-
-ClangFormatSettings &ClangFormatSettings::instance()
+ClangFormatSettings &clangFormatSettings()
 {
     static ClangFormatSettings settings;
     return settings;
@@ -20,90 +15,24 @@ ClangFormatSettings &ClangFormatSettings::instance()
 
 ClangFormatSettings::ClangFormatSettings()
 {
-    QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(Constants::SETTINGS_ID);
-    m_useCustomSettings
-        = settings->value(Constants::USE_CUSTOM_SETTINGS_ID, false).toBool();
-    m_formatWhileTyping = settings->value(Constants::FORMAT_WHILE_TYPING_ID, false).toBool();
-    m_formatOnSave = settings->value(Constants::FORMAT_CODE_ON_SAVE_ID, false).toBool();
-    m_fileSizeThreshold = settings->value(Constants::FILE_SIZE_THREDSHOLD,
-                                          m_fileSizeThreshold).toInt();
+    setAutoApply(false);
+    setSettingsGroup("ClangFormat");
 
-    // Convert old settings to new ones. New settings were added to QtC 8.0
-    bool isOldFormattingOn = settings->value(FORMAT_CODE_INSTEAD_OF_INDENT_ID, false).toBool();
-    Core::ICore::settings()->remove(FORMAT_CODE_INSTEAD_OF_INDENT_ID);
+    mode.setSettingsKey(Constants::MODE_ID);
+    mode.addOption(Tr::tr("Indenting only"));
+    mode.addOption(Tr::tr("Full formatting"));
+    mode.addOption(Tr::tr("Disable"));
 
-    if (isOldFormattingOn) {
-        settings->setValue(Constants::MODE_ID,
-                           static_cast<int>(ClangFormatSettings::Mode::Formatting));
-        m_mode = ClangFormatSettings::Mode::Formatting;
-    } else
-        m_mode = static_cast<ClangFormatSettings::Mode>(
-            settings->value(Constants::MODE_ID, ClangFormatSettings::Mode::Indenting).toInt());
+    useCustomSettings.setSettingsKey(Constants::USE_CUSTOM_SETTINGS_ID);
 
-    settings->endGroup();
-}
+    formatWhileTyping.setSettingsKey(Constants::FORMAT_WHILE_TYPING_ID);
 
-void ClangFormatSettings::write() const
-{
-    QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(Constants::SETTINGS_ID);
-    settings->setValue(Constants::USE_CUSTOM_SETTINGS_ID, m_useCustomSettings);
-    settings->setValue(Constants::FORMAT_WHILE_TYPING_ID, m_formatWhileTyping);
-    settings->setValue(Constants::FORMAT_CODE_ON_SAVE_ID, m_formatOnSave);
-    settings->setValue(Constants::MODE_ID, static_cast<int>(m_mode));
-    settings->setValue(Constants::FILE_SIZE_THREDSHOLD, m_fileSizeThreshold);
-    settings->endGroup();
-}
+    formatOnSave.setSettingsKey(Constants::FORMAT_CODE_ON_SAVE_ID);
 
-void ClangFormatSettings::setUseCustomSettings(bool enable)
-{
-    m_useCustomSettings = enable;
-}
+    fileSizeThreshold.setSettingsKey(Constants::FILE_SIZE_THREDSHOLD);
+    fileSizeThreshold.setDefaultValue(200);
 
-bool ClangFormatSettings::useCustomSettings() const
-{
-    return m_useCustomSettings;
-}
-
-void ClangFormatSettings::setFormatWhileTyping(bool enable)
-{
-    m_formatWhileTyping = enable;
-}
-
-bool ClangFormatSettings::formatWhileTyping() const
-{
-    return m_formatWhileTyping;
-}
-
-void ClangFormatSettings::setFormatOnSave(bool enable)
-{
-    m_formatOnSave = enable;
-}
-
-bool ClangFormatSettings::formatOnSave() const
-{
-    return m_formatOnSave;
-}
-
-void ClangFormatSettings::setMode(Mode mode)
-{
-    m_mode = mode;
-}
-
-ClangFormatSettings::Mode ClangFormatSettings::mode() const
-{
-    return m_mode;
-}
-
-void ClangFormatSettings::setFileSizeThreshold(int fileSizeInKb)
-{
-    m_fileSizeThreshold = fileSizeInKb;
-}
-
-int ClangFormatSettings::fileSizeThreshold() const
-{
-    return m_fileSizeThreshold;
+    readSettings();
 }
 
 } // namespace ClangFormat

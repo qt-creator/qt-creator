@@ -49,7 +49,7 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     m_useClangFormat = new QCheckBox(Tr::tr("Use ClangFormat"));
     m_useGlobalSettings = new QCheckBox(Tr::tr("Use global settings"));
     m_useGlobalSettings->hide();
-    m_useCustomSettings = ClangFormatSettings::instance().useCustomSettings();
+    m_useCustomSettings = clangFormatSettings().useCustomSettings();
 
     m_currentProjectLabel = new Utils::InfoLabel(
         Tr::tr("Please note that the current project includes a .clang-format file, which will be "
@@ -120,8 +120,8 @@ void ClangFormatGlobalConfigWidget::initCheckBoxes()
     setEnableCheckBoxes(m_indentingOrFormatting->currentIndex());
     connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged, this, setEnableCheckBoxes);
 
-    m_formatOnSave->setChecked(ClangFormatSettings::instance().formatOnSave());
-    m_formatWhileTyping->setChecked(ClangFormatSettings::instance().formatWhileTyping());
+    m_formatOnSave->setChecked(clangFormatSettings().formatOnSave());
+    m_formatWhileTyping->setChecked(clangFormatSettings().formatWhileTyping());
 }
 
 void ClangFormatGlobalConfigWidget::initIndentationOrFormattingCombobox()
@@ -185,7 +185,7 @@ void ClangFormatGlobalConfigWidget::initFileSizeThresholdSpinBox()
     m_fileSizeThresholdSpinBox->setMinimum(1);
     m_fileSizeThresholdSpinBox->setMaximum(std::numeric_limits<int>::max());
     m_fileSizeThresholdSpinBox->setSuffix(" KB");
-    m_fileSizeThresholdSpinBox->setValue(ClangFormatSettings::instance().fileSizeThreshold());
+    m_fileSizeThresholdSpinBox->setValue(clangFormatSettings().fileSizeThreshold());
     if (m_project) {
         m_fileSizeThresholdSpinBox->hide();
         m_fileSizeThresholdLabel->hide();
@@ -261,7 +261,7 @@ void ClangFormatGlobalConfigWidget::initCustomSettingsCheckBox()
         if (m_project) {
             m_project->setNamedSettings(Constants::USE_CUSTOM_SETTINGS_ID, checked);
         } else {
-            ClangFormatSettings::instance().setUseCustomSettings(checked);
+            clangFormatSettings().useCustomSettings.setValue(checked);
         }
         emit useCustomSettingsChanged(checked);
     });
@@ -275,14 +275,14 @@ void ClangFormatGlobalConfigWidget::apply()
     if (m_project)
         return;
 
-    ClangFormatSettings &settings = ClangFormatSettings::instance();
-    settings.setFormatOnSave(m_formatOnSave->isChecked());
-    settings.setFormatWhileTyping(m_formatWhileTyping->isChecked());
-    settings.setMode(mode());
-    settings.setUseCustomSettings(m_useCustomSettingsCheckBox->isChecked());
-    settings.setFileSizeThreshold(m_fileSizeThresholdSpinBox->value());
+    ClangFormatSettings &settings = clangFormatSettings();
+    settings.formatOnSave.setValue(m_formatOnSave->isChecked());
+    settings.formatWhileTyping.setValue(m_formatWhileTyping->isChecked());
+    settings.mode.setValue(mode());
+    settings.useCustomSettings.setValue(m_useCustomSettingsCheckBox->isChecked());
+    settings.fileSizeThreshold.setValue(m_fileSizeThresholdSpinBox->value());
     m_useCustomSettings = m_useCustomSettingsCheckBox->isChecked();
-    settings.write();
+    settings.writeSettings();
 }
 
 void ClangFormatGlobalConfigWidget::cancel()
@@ -291,13 +291,13 @@ void ClangFormatGlobalConfigWidget::cancel()
     // only it needs to restore the original value on cancel.
     if (m_project)
         return;
-    ClangFormatSettings::instance().setUseCustomSettings(m_useCustomSettings);
+    clangFormatSettings().useCustomSettings.setValue(m_useCustomSettings);
 }
 
 ClangFormatSettings::Mode ClangFormatGlobalConfigWidget::mode() const
 {
     if (m_project && m_useGlobalSettings->isChecked())
-        return ClangFormatSettings::instance().mode();
+        return clangFormatSettings().mode();
     if (!m_useClangFormat->isChecked())
         return ClangFormatSettings::Mode::Disable;
     return static_cast<ClangFormatSettings::Mode>(m_indentingOrFormatting->currentIndex());

@@ -3,20 +3,14 @@
 
 #pragma once
 
-#include <QString>
+#include <utils/aspects.h>
 
 namespace ClangFormat {
 
-class ClangFormatSettings
+class ClangFormatSettings final : public Utils::AspectContainer
 {
 public:
-    static ClangFormatSettings &instance();
-
     ClangFormatSettings();
-    void write() const;
-
-    void setUseCustomSettings(bool enable);
-    bool useCustomSettings() const;
 
     enum Mode {
         Indenting = 0,
@@ -24,24 +18,13 @@ public:
         Disable
     };
 
-    void setMode(Mode mode);
-    Mode mode() const;
-
-    void setFormatWhileTyping(bool enable);
-    bool formatWhileTyping() const;
-
-    void setFormatOnSave(bool enable);
-    bool formatOnSave() const;
-
-    void setFileSizeThreshold(int fileSizeInKb);
-    int fileSizeThreshold() const;
-
-private:
-    Mode m_mode;
-    bool m_useCustomSettings = false;
-    bool m_formatWhileTyping = false;
-    bool m_formatOnSave = false;
-    int m_fileSizeThreshold = 200;
+    Utils::TypedSelectionAspect<Mode> mode{this};
+    Utils::BoolAspect useCustomSettings{this};
+    Utils::BoolAspect formatWhileTyping{this};
+    Utils::BoolAspect formatOnSave{this};
+    Utils::IntegerAspect fileSizeThreshold{this};
 };
+
+ClangFormatSettings &clangFormatSettings();
 
 } // namespace ClangFormat
