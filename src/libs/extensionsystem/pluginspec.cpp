@@ -9,6 +9,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -645,6 +646,20 @@ bool PluginSpec::provides(PluginSpec *spec, const PluginDependency &dependency) 
 {
     if (QString::compare(dependency.id, spec->id(), Qt::CaseInsensitive) != 0)
         return false;
+
+    // Escape hatch for out-of-tree plugin development, where a plugin may be
+    // built against a different Qt Creator version than the one it is loaded
+    // into. When set, an id match alone is enough to satisfy the dependency.
+    static const bool ignoreVersions = [] {
+        const bool ignore = Utils::qtcEnvironmentVariableIsSet("QTC_IGNORE_PLUGIN_VERSION_CHECK");
+        if (ignore) {
+            qCWarning(pluginLog) << "QTC_IGNORE_PLUGIN_VERSION_CHECK is set: plugin version "
+                                    "compatibility checks are disabled.";
+        }
+        return ignore;
+    }();
+    if (ignoreVersions)
+        return true;
 
     if (metaData().value("Type").toString().toLower() == "script") {
         QString scriptCompatibleVersion
