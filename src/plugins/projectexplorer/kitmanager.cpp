@@ -390,6 +390,14 @@ void KitManager::showLoadingProgress()
     connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
 }
 
+// Detection source id for a kit auto-created for a build device. Encodes the device and the
+// ABI so each such kit has a stable identity across re-detections and can be associated back
+// to its device.
+static QString deviceKitDetectionSourceId(Utils::Id deviceId, const QString &abi)
+{
+    return deviceId.toString() + '/' + abi;
+}
+
 void KitManager::createKitsFromToolchains(
     const IDeviceConstPtr &dev, std::vector<std::unique_ptr<Kit>> &kits)
 {
@@ -413,12 +421,19 @@ void KitManager::createKitsFromToolchains(
 
     // Create temporary kits for all toolchains found.
     for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
+        const QString abiString = it.key().toString();
         auto kit = std::make_unique<Kit>();
         if (dev) {
             BuildDeviceTypeKitAspect::setDeviceTypeId(kit.get(), dev->type());
             BuildDeviceKitAspect::setDevice(kit.get(), dev);
+            // The kit is auto-detected from this build device. Tie its detection source to
+            // the device and ABI so a re-detection recognizes and reuses the existing kit
+            // instead of creating a duplicate.
+            kit->setDetectionSource(
+                {DetectionSource::FromSystem, deviceKitDetectionSourceId(dev->id(), abiString)});
+        } else {
+            kit->setDetectionSource(DetectionSource::Manual);
         }
-        kit->setDetectionSource(DetectionSource::Manual); // TODO: Why manual? What does autodetected mean here?
         for (const auto &bundle : it.value())
             ToolchainKitAspect::setBundle(kit.get(), *bundle);
         if (contains(kits, [&kit](const std::unique_ptr<Kit> &existingKit) {
@@ -428,7 +443,6 @@ void KitManager::createKitsFromToolchains(
             continue;
         }
         const Id runDeviceType = runDeviceTypeForKit(kit.get());
-        const QString abiString = it.key().toString();
         RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), runDeviceType);
         //: <abi> on <device display name>
         const QString displayName = dev ? Tr::tr("%1 on %2").arg(abiString, dev->displayName())
@@ -673,6 +687,19 @@ void KitManager::createKitsForBuildDevice(const IDevicePtr &dev)
     kits.erase(firstWithNonMaxWeight, kits.end());
 
     for (const auto &kit : std::as_const(kits)) {
+        // Do not create a kit that duplicates one already registered for this build device.
+        // Auto-created kits carry a stable detection source id (device + ABI), so a
+        // re-detection recognizes the existing kit by that id and skips it instead of
+        // adding another identical copy.
+        const QString sourceId = kit->detectionSource().id;
+        const bool alreadyExists = !sourceId.isEmpty()
+            && Utils::anyOf(KitManager::kits(), [&sourceId](const Kit *existing) {
+                   return existing->detectionSource().isAutoDetected()
+                          && existing->detectionSource().id == sourceId;
+               });
+        if (alreadyExists)
+            continue;
+
         registerKit([&kit](Kit *k) {
             k->copyFrom(kit.get());
         });
