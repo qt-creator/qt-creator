@@ -32,41 +32,35 @@ public:
         QTC_ASSERT(targets.count() == 1, return);
     }
 
-protected:
-    FilePath command() const final;
-    QStringList arguments() const final { return {"-p"}; }
-    FileNameToContentsHash handleProcessFinished(Process *process) final;
+private:
+    Parameters parameters() const override
+    {
+        Parameters params;
+
+        Kit *kit = project()->activeKit();
+        if (!kit)
+            kit = KitManager::defaultKit();
+        if (QtVersion *version = QtKitAspect::qtVersion(kit))
+            params.command = {version->uicFilePath(), {"-p"}};
+        params.postRunner = [targets = this->targets()](Process *process) {
+            FileNameToContentsHash result;
+            if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
+                return result;
+
+            if (targets.size() != 1)
+                return result;
+
+            // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
+            // conversion below is to normalize both the encoding, and the line terminators.
+            QByteArray content = process->readAllStandardOutput().toUtf8();
+            content.prepend("#pragma once\n");
+            result[targets.first()] = content;
+            return result;
+        };
+
+        return params;
+    }
 };
-
-FilePath UicGenerator::command() const
-{
-    Kit *kit = project()->activeKit();
-    if (!kit)
-        kit = KitManager::defaultKit();
-    QtVersion *version = QtKitAspect::qtVersion(kit);
-
-    if (!version)
-        return {};
-
-    return version->uicFilePath();
-}
-
-FileNameToContentsHash UicGenerator::handleProcessFinished(Process *process)
-{
-    FileNameToContentsHash result;
-    if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
-        return result;
-
-    const FilePaths targetList = targets();
-    if (targetList.size() != 1)
-        return result;
-    // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
-    // conversion below is to normalize both the encoding, and the line terminators.
-    QByteArray content = process->readAllStandardOutput().toUtf8();
-    content.prepend("#pragma once\n");
-    result[targetList.first()] = content;
-    return result;
-}
 
 // UicGeneratorFactory
 

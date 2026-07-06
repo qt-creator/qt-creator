@@ -20,29 +20,33 @@ PySideUicExtraCompiler::PySideUicExtraCompiler(const FilePath &pySideUic,
 {
 }
 
+ProcessExtraCompiler::Parameters PySideUicExtraCompiler::parameters() const
+{
+    Parameters params;
+
+    params.command.setExecutable(m_pySideUic);
+
+    // TODO: Any reason not to share this with UicGenerator?
+    params.postRunner = [targets = this->targets()](Process *process) {
+        FileNameToContentsHash result;
+        if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
+            return result;
+
+        if (targets.size() != 1)
+            return result;
+        // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
+        // conversion below is to normalize both the encoding, and the line terminators.
+        result[targets.first()] = process->readAllStandardOutput().toUtf8();
+        return result;
+
+    };
+
+    return params;
+}
+
 FilePath PySideUicExtraCompiler::pySideUicPath() const
 {
     return m_pySideUic;
-}
-
-FilePath PySideUicExtraCompiler::command() const
-{
-    return m_pySideUic;
-}
-
-FileNameToContentsHash PySideUicExtraCompiler::handleProcessFinished(Process *process)
-{
-    FileNameToContentsHash result;
-    if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
-        return result;
-
-    const FilePaths targetList = targets();
-    if (targetList.size() != 1)
-        return result;
-    // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
-    // conversion below is to normalize both the encoding, and the line terminators.
-    result[targetList.first()] = process->readAllStandardOutput().toUtf8();
-    return result;
 }
 
 } // Python::Internal

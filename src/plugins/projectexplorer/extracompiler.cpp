@@ -319,8 +319,8 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
     const auto onSetup = [this, provider](Async<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
         // The passed synchronizer has cancelOnWait set to true by default.
-        async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
-                                    workingDirectory(), arguments(), provider, buildEnvironment());
+        async.setConcurrentCallData(
+            &ProcessExtraCompiler::runInThread, parameters(), provider, buildEnvironment());
     };
     const auto onDone =
         [self = QPointer<ProcessExtraCompiler>(this)](const Async<FileNameToContentsHash> &async) {
@@ -336,22 +336,6 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
     return AsyncTask<FileNameToContentsHash>(onSetup, onDone, CallDoneFlag::OnSuccess);
 }
 
-FilePath ProcessExtraCompiler::workingDirectory() const
-{
-    return {};
-}
-
-QStringList ProcessExtraCompiler::arguments() const
-{
-    return {};
-}
-
-bool ProcessExtraCompiler::prepareToRun(const QByteArray &sourceContents)
-{
-    Q_UNUSED(sourceContents)
-    return true;
-}
-
 Tasks ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
 {
     Q_UNUSED(stdErr)
@@ -359,23 +343,23 @@ Tasks ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
 }
 
 void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise,
-                                       const FilePath &cmd, const FilePath &workDir,
-                                       const QStringList &args, const ContentProvider &provider,
+                                       const Parameters &params, const ContentProvider &provider,
                                        const Environment &env)
 {
-    if (cmd.isEmpty() || !cmd.toFileInfo().isExecutable())
+    if (params.command.isEmpty() || !params.command.executable().isExecutableFile())
         return;
 
+    QTC_ASSERT(params.postRunner, return);
+
     const QByteArray sourceContents = provider();
-    if (sourceContents.isNull() || !prepareToRun(sourceContents))
+    if (sourceContents.isNull() || (params.preRunner && !params.preRunner(sourceContents)))
         return;
 
     Process process;
-
     process.setEnvironment(env);
-    if (!workDir.isEmpty())
-        process.setWorkingDirectory(workDir);
-    process.setCommand({cmd, args});
+    if (!params.workingDirectory.isEmpty())
+        process.setWorkingDirectory(params.workingDirectory);
+    process.setCommand(params.command);
     process.setWriteData(sourceContents);
     process.start();
     if (!process.waitForStarted())
@@ -390,7 +374,7 @@ void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise
     if (promise.isCanceled())
         return;
 
-    promise.addResult(handleProcessFinished(&process));
+    promise.addResult(params.postRunner(&process));
 }
 
 } // namespace ProjectExplorer

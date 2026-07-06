@@ -19,9 +19,7 @@ public:
     Utils::FilePath pySideUicPath() const;
 
 private:
-    Utils::FilePath command() const override;
-    ProjectExplorer::FileNameToContentsHash handleProcessFinished(
-        Utils::Process *process) override;
+    Parameters parameters() const override;
 
     Utils::FilePath m_pySideUic;
 };

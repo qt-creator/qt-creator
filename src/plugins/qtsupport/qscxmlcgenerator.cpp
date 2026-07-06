@@ -40,25 +40,41 @@ public:
     }
 
 private:
-    FilePath command() const override;
-
-    QStringList arguments() const override
+    Parameters parameters() const override
     {
-        return {"--header", m_header, "--impl", m_impl, tmpFile().fileName()};
+        Parameters params;
+
+        params.workingDirectory = m_tmpdir.path();
+        FilePath tmpFile = params.workingDirectory.pathAppended(source().fileName());
+        Kit *kit = project()->activeKit();
+        if (!kit)
+            kit = KitManager::defaultKit();
+        if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
+            params.command = {version->qscxmlcFilePath(),
+                              {"--header", m_header, "--impl", m_impl, tmpFile.fileName()}};
+        }
+        params.preRunner = [tmpFile](const QByteArray &sourceContents) {
+            QFile input(tmpFile.toUrlishString());
+            if (!input.open(QIODevice::WriteOnly))
+                return false;
+            input.write(sourceContents);
+            input.close();
+            return true;
+        };
+        params.postRunner = [wd = params.workingDirectory, targets = this->targets()](Process *) {
+            FileNameToContentsHash result;
+            for (const FilePath &target : targets) {
+                const FilePath file = wd.pathAppended(target.fileName());
+                QFile generated(file.toUrlishString());
+                if (generated.open(QIODevice::ReadOnly))
+                    result[target] = generated.readAll();
+            }
+            return result;
+        };
+
+        return params;
     }
 
-    FilePath workingDirectory() const override
-    {
-        return m_tmpdir.path();
-    }
-
-    FilePath tmpFile() const
-    {
-        return workingDirectory().pathAppended(source().fileName());
-    }
-
-    FileNameToContentsHash handleProcessFinished(Process *process) override;
-    bool prepareToRun(const QByteArray &sourceContents) override;
     Tasks parseIssues(const QByteArray &processStderr) override;
 
     TemporaryDirectory m_tmpdir;
@@ -84,46 +100,6 @@ Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
         }
     }
     return issues;
-}
-
-FilePath QScxmlcGenerator::command() const
-{
-    Kit *kit = project()->activeKit();
-    if (!kit)
-        kit = KitManager::defaultKit();
-    QtVersion *version = QtKitAspect::qtVersion(kit);
-
-    if (!version)
-        return {};
-
-    return version->qscxmlcFilePath();
-}
-
-bool QScxmlcGenerator::prepareToRun(const QByteArray &sourceContents)
-{
-    const FilePath fn = tmpFile();
-    QFile input(fn.toUrlishString());
-    if (!input.open(QIODevice::WriteOnly))
-        return false;
-    input.write(sourceContents);
-    input.close();
-
-    return true;
-}
-
-FileNameToContentsHash QScxmlcGenerator::handleProcessFinished(Process *process)
-{
-    Q_UNUSED(process)
-    const FilePath wd = workingDirectory();
-    FileNameToContentsHash result;
-    forEachTarget([&](const FilePath &target) {
-        const FilePath file = wd.pathAppended(target.fileName());
-        QFile generated(file.toUrlishString());
-        if (!generated.open(QIODevice::ReadOnly))
-            return;
-        result[target] = generated.readAll();
-    });
-    return result;
 }
 
 // QScxmlcGeneratorFactory

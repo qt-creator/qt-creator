@@ -8,6 +8,7 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 
@@ -90,23 +91,26 @@ public:
                          const Utils::FilePaths &targets, QObject *parent = nullptr);
 
 protected:
-    // Information about the process to run:
-    virtual Utils::FilePath workingDirectory() const;
-    virtual Utils::FilePath command() const = 0;
-    virtual QStringList arguments() const;
+    class Parameters
+    {
+    public:
+        Utils::FilePath workingDirectory;
+        Utils::CommandLine command;
 
-    virtual bool prepareToRun(const QByteArray &sourceContents);
-
-    virtual FileNameToContentsHash handleProcessFinished(Utils::Process *process) = 0;
-
+        // !!! Neither of these must capture the this pointer !!!
+        std::function<bool(const QByteArray &sourceContent)> preRunner;
+        std::function<FileNameToContentsHash(Utils::Process *)> postRunner;
+    };
+    virtual Parameters parameters() const = 0;
     virtual Tasks parseIssues(const QByteArray &stdErr);
 
 private:
     QtTaskTree::GroupItem taskItemImpl(const ContentProvider &provider) final;
-    void runInThread(QPromise<FileNameToContentsHash> &promise,
-                     const Utils::FilePath &cmd, const Utils::FilePath &workDir,
-                     const QStringList &args, const ContentProvider &provider,
-                     const Utils::Environment &env);
+    static void runInThread(
+        QPromise<FileNameToContentsHash> &promise,
+        const Parameters &params,
+        const ContentProvider &provider,
+        const Utils::Environment &env);
 };
 
 class PROJECTEXPLORER_EXPORT ExtraCompilerFactory
