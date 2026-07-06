@@ -53,9 +53,7 @@
 #include <QTranslator>
 #include <QtVersion>
 
-#include <iterator>
 #include <optional>
-#include <string>
 #include <vector>
 
 using namespace ExtensionSystem;
@@ -192,7 +190,7 @@ static void printThemes()
     displayHelpText(output);
 }
 
-QString applicationDirPath(char *arg = nullptr)
+static QString applicationDirPath(char *arg = nullptr)
 {
     static QString dir;
 
@@ -350,7 +348,7 @@ static void setRHIOpenGLVariable()
         qputenv("QSG_RHI_BACKEND", value.toByteArray());
 }
 
-void setPixmapCacheLimit()
+static void setPixmapCacheLimit()
 {
     const int originalLimit = QPixmapCache::cacheLimit();
     const qreal dpr = qApp->devicePixelRatio();
@@ -358,7 +356,7 @@ void setPixmapCacheLimit()
     QPixmapCache::setCacheLimit(originalLimit * multiplier);
 }
 
-void loadFonts()
+static void loadFonts()
 {
     const QDir dir(resourcePath() + "/fonts/");
 
@@ -385,7 +383,7 @@ struct Options
     bool hasStyleOption = false;
 };
 
-Options parseCommandLine(int argc, char *argv[])
+static Options parseCommandLine(int argc, char *argv[])
 {
     Options options;
     auto it = argv;
@@ -473,7 +471,7 @@ private:
     QString m_workingPath;
 };
 
-QStringList lastSessionArgument()
+static QStringList lastSessionArgument()
 {
     // using insider information here is not particularly beautiful, anyhow
     const bool hasProjectExplorer = PluginManager::specExists("projectexplorer");
@@ -520,7 +518,7 @@ private:
 
 ShowInGuiHandler *ShowInGuiHandler::instance = nullptr;
 
-FilePath userPluginsRoot()
+static FilePath userPluginsRoot()
 {
     /*
         Local plugin path: <localappdata>/plugins
@@ -551,7 +549,7 @@ FilePath userPluginsRoot()
     return rootPath;
 }
 
-FilePath userResourcePath(const QString &settingsPath, const QString &appId)
+static FilePath userResourcePath(const QString &settingsPath, const QString &appId)
 {
     const FilePath configDir = FilePath::fromUserInput(settingsPath).parentDir();
     const FilePath urp = configDir / appId;
