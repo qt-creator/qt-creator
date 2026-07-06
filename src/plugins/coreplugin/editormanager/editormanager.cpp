@@ -1196,7 +1196,7 @@ void EditorManagerPrivate::doEscapeKeyFocusMoveMagic()
     } else if (!( editorViewVisible && !editorViewActive && editorView->window() == activeWindow )) {
         QWidget *outputPane = OutputPanePlaceHolder::getCurrent();
         if (outputPane && outputPane->isVisible() && outputPane->window() == activeWindow) {
-            OutputPaneManager::instance()->slotHide();
+            hideOutputPaneManager();
             stuffHidden = true;
         }
         if (findPane && findPane->isVisible() && findPane->window() == activeWindow) {

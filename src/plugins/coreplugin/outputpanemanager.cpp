@@ -105,11 +105,63 @@ public:
     OutputPaneManageButton();
     void paintEvent(QPaintEvent *) override;
 
-    void contextMenuEvent(QContextMenuEvent *e) override;
+    void contextMenuEvent(QContextMenuEvent *e) final;
 
 signals:
     void menuRequested();
 };
+
+class OutputPaneManager final : public QWidget
+{
+public:
+    OutputPaneManager();
+    ~OutputPaneManager() final;
+
+    void updateStatusButtons(bool visible);
+    void updateMaximizeButton(bool maximized);
+
+    bool initialized();
+
+    void slotHide();
+    void slotNext();
+    void slotPrev();
+    static void toggleMaximized();
+
+    void focusInEvent(QFocusEvent *e) final;
+    bool eventFilter(QObject *o, QEvent *e) final;
+
+    void initialize();
+    void setupButtons();
+
+    void shortcutTriggered(int idx);
+    void clearPage();
+    void popupMenu();
+    void saveSettings() const;
+    void showPage(int idx, int flags);
+    void ensurePageVisible(int idx);
+    int currentIndex() const;
+    void setCurrentIndex(int idx);
+    void buttonTriggered(int idx);
+    void readSettings();
+    void updateActions(IOutputPane *pane);
+
+    QLabel m_titleLabel;
+    OutputPaneManageButton *m_manageButton = nullptr;
+
+    QAction *m_clearAction = nullptr;
+    QAction *m_closeAction = nullptr;
+    QAction *m_minMaxAction = nullptr;
+    QAction *m_nextAction = nullptr;
+    QAction *m_prevAction = nullptr;
+
+    QStackedWidget m_outputWidgetPane;
+    QStackedWidget m_opToolBarWidgets;
+    QWidget *m_buttonsWidget = nullptr;
+    int m_outputPaneHeightSetting = 0;
+    bool m_initialized = false;
+};
+
+static OutputPaneManager *outputPaneManager();
 
 } // Internal
 
@@ -171,7 +223,7 @@ OutputPanePlaceHolder::~OutputPanePlaceHolder()
 {
     sPlaceholders->removeOne(this);
     if (OutputPanePlaceHolderPrivate::m_current == this) {
-        if (Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance()) {
+        if (Internal::OutputPaneManager *om = outputPaneManager()) {
             om->setParent(nullptr);
             om->hide();
         }
@@ -184,18 +236,18 @@ void OutputPanePlaceHolder::currentModeChanged(Id mode)
 {
     if (OutputPanePlaceHolderPrivate::m_current == this) {
         OutputPanePlaceHolderPrivate::m_current = nullptr;
-        Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
+        Internal::OutputPaneManager *om = outputPaneManager();
         om->hide();
         om->setParent(nullptr);
         om->updateStatusButtons(false);
     }
     if (d->m_mode == mode) {
         Core::OutputPanePlaceHolderPrivate::m_current = this;
-        Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
+        Internal::OutputPaneManager *om = outputPaneManager();
         layout()->addWidget(om);
         om->show();
         om->updateStatusButtons(isVisible());
-        Internal::OutputPaneManager::updateMaximizeButton(d->m_isMaximized);
+        outputPaneManager()->updateMaximizeButton(d->m_isMaximized);
     }
 }
 
@@ -211,7 +263,7 @@ void OutputPanePlaceHolder::setMaximized(bool maximize)
 
     d->m_isMaximized = maximize;
     if (OutputPanePlaceHolderPrivate::m_current == this)
-        Internal::OutputPaneManager::updateMaximizeButton(d->m_isMaximized);
+        outputPaneManager()->updateMaximizeButton(d->m_isMaximized);
     QList<int> sizes = d->m_splitter->sizes();
 
     if (maximize) {
@@ -269,7 +321,7 @@ void OutputPanePlaceHolder::ensureSizeHintAsMinimum()
 {
     if (!d->m_splitter)
         return;
-    Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
+    Internal::OutputPaneManager *om = outputPaneManager();
     int minimum = (d->m_splitter->orientation() == Qt::Vertical
                    ? om->sizeHint().height() : om->sizeHint().width());
     if (nonMaximizedSize() < minimum && !d->m_isMaximized)
@@ -318,7 +370,7 @@ void OutputPanePlaceHolder::showEvent(QShowEvent *)
         setHeight(d->m_nonMaximizedSize);
     }
     if (OutputPanePlaceHolderPrivate::m_current == this) {
-        Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
+        Internal::OutputPaneManager *om = outputPaneManager();
         om->updateStatusButtons(true);
     }
 }
@@ -370,8 +422,8 @@ IOutputPane::IOutputPane(QObject *parent)
     connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOutRequested(1); });
 
     // reinitialize the output pane buttons if a lazy loaded plugin adds a pane
-    if (OutputPaneManager::initialized())
-        QMetaObject::invokeMethod(this, &OutputPaneManager::setupButtons, Qt::QueuedConnection);
+    if (OutputPaneManager *om = outputPaneManager(); om && om->initialized())
+        QMetaObject::invokeMethod(om, &OutputPaneManager::setupButtons, Qt::QueuedConnection);
 }
 
 const QList<IOutputPane *> IOutputPane::allOutputPanes()
@@ -654,22 +706,32 @@ static int numberAreaWidth()
 // OutputPaneManager
 ////
 
-static OutputPaneManager *m_instance = nullptr;
+static OutputPaneManager *theOutputPaneManager = nullptr;
 
-void OutputPaneManager::create()
+static OutputPaneManager *outputPaneManager()
 {
-   m_instance = new OutputPaneManager;
+    return theOutputPaneManager;
 }
 
-void OutputPaneManager::destroy()
+void setupOutputPaneManager()
 {
-    delete m_instance;
-    m_instance = nullptr;
+    theOutputPaneManager = new OutputPaneManager;
 }
 
-OutputPaneManager *OutputPaneManager::instance()
+void destroyOutputPaneManager()
 {
-    return m_instance;
+    delete theOutputPaneManager;
+    theOutputPaneManager = nullptr;
+}
+
+void populateOutputPaneManager()
+{
+    outputPaneManager()->initialize();
+}
+
+void hideOutputPaneManager()
+{
+    outputPaneManager()->slotHide();
 }
 
 void OutputPaneManager::updateStatusButtons(bool visible)
@@ -688,12 +750,12 @@ void OutputPaneManager::updateMaximizeButton(bool maximized)
 {
     if (maximized) {
         static const QIcon icon = Utils::Icons::ARROW_DOWN.icon();
-        m_instance->m_minMaxAction->setIcon(icon);
-        m_instance->m_minMaxAction->setText(Tr::tr("Minimize"));
+        m_minMaxAction->setIcon(icon);
+        m_minMaxAction->setText(Tr::tr("Minimize"));
     } else {
         static const QIcon icon = Utils::Icons::ARROW_UP.icon();
-        m_instance->m_minMaxAction->setIcon(icon);
-        m_instance->m_minMaxAction->setText(Tr::tr("Maximize"));
+        m_minMaxAction->setIcon(icon);
+        m_minMaxAction->setText(Tr::tr("Maximize"));
     }
 }
 
@@ -707,16 +769,12 @@ static QKeySequence paneShortCut(int number)
     return QKeySequence(modifier | (Qt::Key_0 + number));
 }
 
-OutputPaneManager::OutputPaneManager(QWidget *parent) :
-    QWidget(parent),
-    m_titleLabel(new QLabel),
-    m_manageButton(new OutputPaneManageButton),
-    m_outputWidgetPane(new QStackedWidget),
-    m_opToolBarWidgets(new QStackedWidget)
+OutputPaneManager::OutputPaneManager()
+    : m_manageButton(new OutputPaneManageButton)
 {
     setWindowTitle(Tr::tr("Output"));
 
-    m_titleLabel->setContentsMargins(5, 0, 5, 0);
+    m_titleLabel.setContentsMargins(5, 0, 5, 0);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &OutputPaneManager::saveSettings);
 
@@ -732,12 +790,12 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     using namespace Layouting;
     Row {
-        m_titleLabel,
+        &m_titleLabel,
         new StyledSeparator,
         clearButton,
         prevToolButton,
         nextToolButton,
-        m_opToolBarWidgets,
+        &m_opToolBarWidgets,
         minMaxButton,
         closeButton,
         spacing(0), noMargin,
@@ -745,7 +803,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     Column {
         toolBar,
-        m_outputWidgetPane,
+        &m_outputWidgetPane,
         new FindToolBarPlaceHolder(this),
         spacing(0), noMargin,
     }.attachTo(this);
@@ -821,25 +879,23 @@ void OutputPaneManager::initialize()
 {
     setupButtons();
 
-    const int currentIdx = m_instance->currentIndex();
+    const int currentIdx = currentIndex();
     if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
-        m_instance->m_titleLabel->setText(g_outputPanes[currentIdx].pane->displayName());
-    m_instance->m_buttonsWidget->layout()->addWidget(m_instance->m_manageButton);
-    connect(m_instance->m_manageButton,
-            &OutputPaneManageButton::menuRequested,
-            m_instance,
-            &OutputPaneManager::popupMenu);
+        m_titleLabel.setText(g_outputPanes[currentIdx].pane->displayName());
+    m_buttonsWidget->layout()->addWidget(m_manageButton);
+    connect(m_manageButton, &OutputPaneManageButton::menuRequested,
+            this, &OutputPaneManager::popupMenu);
 
     updateMaximizeButton(false); // give it an initial name
 
-    m_instance->readSettings();
+    readSettings();
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged, m_instance, [] {
-        const int index = m_instance->currentIndex();
-        m_instance->updateActions(index >= 0 ? g_outputPanes.at(index).pane : nullptr);
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged, this, [this] {
+        const int index = currentIndex();
+        updateActions(index >= 0 ? g_outputPanes.at(index).pane : nullptr);
     });
 
-    m_instance->m_initialized = true;
+    m_initialized = true;
 }
 
 void OutputPaneManager::setupButtons()
@@ -847,7 +903,7 @@ void OutputPaneManager::setupButtons()
     for (auto &pane : g_outputPanes)
         delete pane.button;
 
-    QFontMetrics titleFm = m_instance->m_titleLabel->fontMetrics();
+    QFontMetrics titleFm = m_titleLabel.fontMetrics();
     int minTitleWidth = 0;
 
     Utils::sort(g_outputPanes, [](const OutputPaneData &d1, const OutputPaneData &d2) {
@@ -860,29 +916,29 @@ void OutputPaneManager::setupButtons()
     for (int i = 0; i != n; ++i) {
         OutputPaneData &data = g_outputPanes[i];
         IOutputPane *outPane = data.pane;
-        QWidget *widget = outPane->outputWidget(m_instance);
-        int idx = m_instance->m_outputWidgetPane->indexOf(widget);
+        QWidget *widget = outPane->outputWidget(this);
+        int idx = m_outputWidgetPane.indexOf(widget);
         if (idx < 0) {
-            idx = m_instance->m_outputWidgetPane->insertWidget(i, widget);
+            idx = m_outputWidgetPane.insertWidget(i, widget);
 
-            connect(outPane, &IOutputPane::showPage, m_instance, [idx](int flags) {
-                m_instance->showPage(idx, flags);
+            connect(outPane, &IOutputPane::showPage, this, [this, idx](int flags) {
+                showPage(idx, flags);
             });
-            connect(outPane, &IOutputPane::hidePage, m_instance, &OutputPaneManager::slotHide);
+            connect(outPane, &IOutputPane::hidePage, this, &OutputPaneManager::slotHide);
 
-            connect(outPane, &IOutputPane::togglePage, m_instance, [idx](int flags) {
-                if (OutputPanePlaceHolder::isCurrentVisible() && m_instance->currentIndex() == idx)
-                    m_instance->slotHide();
+            connect(outPane, &IOutputPane::togglePage, this, [this, idx](int flags) {
+                if (OutputPanePlaceHolder::isCurrentVisible() && currentIndex() == idx)
+                    slotHide();
                 else
-                    m_instance->showPage(idx, flags);
+                    showPage(idx, flags);
             });
 
-            connect(outPane, &IOutputPane::navigateStateUpdate, m_instance, [idx, outPane] {
-                if (m_instance->currentIndex() == idx)
-                    m_instance->updateActions(outPane);
+            connect(outPane, &IOutputPane::navigateStateUpdate, this, [this, idx, outPane] {
+                if (currentIndex() == idx)
+                    updateActions(outPane);
             });
 
-            auto *toolBar = new QToolBar(m_instance->m_opToolBarWidgets);
+            auto *toolBar = new QToolBar(&m_opToolBarWidgets);
             toolBar->setContentsMargins(0, 0, 0, 0);
             const QList<QWidget *> toolBarWidgets = outPane->toolBarWidgets();
             for (QWidget *toolButton : toolBarWidgets)
@@ -891,7 +947,7 @@ void OutputPaneManager::setupButtons()
             stretch->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
             toolBar->addWidget(stretch);
 
-            m_instance->m_opToolBarWidgets->insertWidget(i, toolBar);
+            m_opToolBarWidgets.insertWidget(i, toolBar);
         }
         QTC_CHECK(idx == i);
 
@@ -903,10 +959,10 @@ void OutputPaneManager::setupButtons()
             delete data.action;
         }
 
-        ActionBuilder paneAction(m_instance, data.id);
+        ActionBuilder paneAction(this, data.id);
         paneAction
             .setText(outPane->displayName())
-            .addOnTriggered(m_instance, [i] { m_instance->shortcutTriggered(i); })
+            .addOnTriggered(this, [this, i] { shortcutTriggered(i); })
             .setDefaultKeySequence(paneShortCut(shortcutNumber))
             .addToContainer(Constants::M_VIEW_PANES, "Coreplugin.OutputPane.PanesGroup")
             .bindContextAction(&data.action);
@@ -914,8 +970,8 @@ void OutputPaneManager::setupButtons()
                                                  outPane->displayName(),
                                                  paneAction.commandAction());
         data.button = button;
-        connect(button, &OutputPaneToggleButton::contextMenuRequested, m_instance, [] {
-            m_instance->popupMenu();
+        connect(button, &OutputPaneToggleButton::contextMenuRequested, this, [this] {
+            popupMenu();
         });
 
         connect(outPane, &IOutputPane::flashButton, button, [button] { button->flash(); });
@@ -925,18 +981,18 @@ void OutputPaneManager::setupButtons()
                 &OutputPaneToggleButton::setIconBadgeNumber);
 
         ++shortcutNumber;
-        m_instance->m_buttonsWidget->layout()->addWidget(data.button);
-        connect(data.button, &QAbstractButton::clicked, m_instance, [i] {
-            m_instance->buttonTriggered(i);
+        m_buttonsWidget->layout()->addWidget(data.button);
+        connect(data.button, &QAbstractButton::clicked, this, [this, i] {
+            buttonTriggered(i);
         });
 
         const bool visible = outPane->priorityInStatusBar() >= 0;
         data.button->setVisible(visible);
     }
 
-    m_instance->m_titleLabel->setMinimumWidth(
-        minTitleWidth + m_instance->m_titleLabel->contentsMargins().left()
-        + m_instance->m_titleLabel->contentsMargins().right());
+    m_titleLabel.setMinimumWidth(
+        minTitleWidth + m_titleLabel.contentsMargins().left()
+        + m_titleLabel.contentsMargins().right());
 }
 
 OutputPaneManager::~OutputPaneManager() = default;
@@ -949,10 +1005,10 @@ void OutputPaneManager::shortcutTriggered(int idx)
     // then just give it focus.
     int current = currentIndex();
     if (OutputPanePlaceHolder::isCurrentVisible() && current == idx) {
-        if ((!m_outputWidgetPane->isActiveWindow() || !outputPane->hasFocus())
+        if ((!m_outputWidgetPane.isActiveWindow() || !outputPane->hasFocus())
             && outputPane->canFocus()) {
             outputPane->setFocus();
-            ICore::raiseWindow(m_outputWidgetPane);
+            ICore::raiseWindow(&m_outputWidgetPane);
         } else {
             slotHide();
         }
@@ -964,7 +1020,7 @@ void OutputPaneManager::shortcutTriggered(int idx)
 
 bool OutputPaneManager::initialized()
 {
-    return m_instance && m_instance->m_initialized;
+    return m_initialized;
 }
 
 void OutputPaneManager::toggleMaximized()
@@ -1092,7 +1148,7 @@ void OutputPaneManager::showPage(int idx, int flags)
     if (flags & IOutputPane::WithFocus) {
         if (out->canFocus())
             out->setFocus();
-        ICore::raiseWindow(m_outputWidgetPane);
+        ICore::raiseWindow(&m_outputWidgetPane);
     }
 
     if (flags & IOutputPane::EnsureSizeHint)
@@ -1101,7 +1157,7 @@ void OutputPaneManager::showPage(int idx, int flags)
 
 void OutputPaneManager::focusInEvent(QFocusEvent *e)
 {
-    if (QWidget *w = m_outputWidgetPane->currentWidget())
+    if (QWidget *w = m_outputWidgetPane.currentWidget())
         w->setFocus(e->reason());
 }
 
@@ -1124,8 +1180,8 @@ void OutputPaneManager::setCurrentIndex(int idx)
     }
 
     if (idx != -1) {
-        m_outputWidgetPane->setCurrentIndex(idx);
-        m_opToolBarWidgets->setCurrentIndex(idx);
+        m_outputWidgetPane.setCurrentIndex(idx);
+        m_opToolBarWidgets.setCurrentIndex(idx);
 
         OutputPaneData &data = g_outputPanes[idx];
         IOutputPane *pane = data.pane;
@@ -1135,7 +1191,7 @@ void OutputPaneManager::setCurrentIndex(int idx)
 
         updateActions(pane);
         g_outputPanes.at(idx).button->setChecked(OutputPanePlaceHolder::isCurrentVisible());
-        m_titleLabel->setText(pane->displayName());
+        m_titleLabel.setText(pane->displayName());
     }
 
     lastIndex = idx;
@@ -1214,7 +1270,7 @@ void OutputPaneManager::clearPage()
 
 int OutputPaneManager::currentIndex() const
 {
-    return m_outputWidgetPane->currentIndex();
+    return m_outputWidgetPane.currentIndex();
 }
 
 

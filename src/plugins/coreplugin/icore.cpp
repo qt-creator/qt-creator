@@ -404,7 +404,7 @@ ICore::ICore()
     Utils::setDialogParentGetter(&ICore::dialogParent);
 
     d->m_progressManager->init(); // needs the status bar manager
-    OutputPaneManager::create();
+    setupOutputPaneManager();
 }
 
 /*!
@@ -1483,7 +1483,7 @@ ICorePrivate::~ICorePrivate()
     //because they might trigger stuff that tries to access data from editorwindow, like removeContextWidget
 
     // All modes are now gone
-    OutputPaneManager::destroy();
+    destroyOutputPaneManager();
 
     delete m_leftNavigationWidget;
     delete m_rightNavigationWidget;
@@ -1518,7 +1518,7 @@ void ICore::extensionsInitialized()
     setupMimeTypeSettings();
     d->m_windowSupport = new WindowSupport(d->m_mainwindow, Context("Core.MainWindow"));
     d->m_windowSupport->setCloseActionEnabled(false);
-    OutputPaneManager::initialize();
+    populateOutputPaneManager();
     VcsManager::extensionsInitialized();
     NavigationWidget::updateFactories();
 

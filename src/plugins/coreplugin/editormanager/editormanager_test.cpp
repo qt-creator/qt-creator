@@ -1132,7 +1132,7 @@ void EscapeKeyTest::init()
 void EscapeKeyTest::cleanup()
 {
     Find::hideFindToolBar();
-    OutputPaneManager::instance()->slotHide();
+    hideOutputPaneManager();
     ModeManager::activateMode(Id(Constants::MODE_EDIT));
     closeAll();
 }
