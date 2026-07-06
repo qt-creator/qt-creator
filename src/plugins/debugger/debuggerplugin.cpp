@@ -2013,8 +2013,13 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
     if (PluginManager::isShuttingDown())
         return;
     QString titlePattern = titlePattern0;
+    // Ensure a trailing newline so clicking below the last line does not scroll
+    // the editor to the far right (QTCREATORBUG-33271).
+    QByteArray data = contents.toUtf8();
+    if (!data.isEmpty() && !data.endsWith('\n'))
+        data.append('\n');
     IEditor *editor = EditorManager::openEditorWithContents(
-                CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents.toUtf8(), QString(),
+                CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, data, QString(),
                 EditorManager::IgnoreNavigationHistory);
     if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
         QString suggestion = titlePattern;
