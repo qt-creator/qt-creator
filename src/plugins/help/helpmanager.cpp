@@ -296,7 +296,7 @@ QList<HelpLink> HelpManager::linksForKeyword(QHelpEngineCore *engine,
                                              std::optional<QString> filterName)
 {
     const QList<QHelpLink> qLinks = filterName.has_value()
-        ? engine->documentsForKeyword(key, filterName.value())
+        ? engine->documentsForKeyword(key, *filterName)
         : engine->documentsForKeyword(key);
     QList<Core::HelpLink> links = qHelpLinks2Links(qLinks);
 

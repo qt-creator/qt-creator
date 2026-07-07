@@ -2777,8 +2777,8 @@ void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_minimumValue && d->m_maximumValue)
-        d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
-                               int(d->m_maximumValue.value() / d->m_displayScaleFactor));
+        d->m_spinBox->setRange(int(*d->m_minimumValue / d->m_displayScaleFactor),
+                               int(*d->m_maximumValue / d->m_displayScaleFactor));
     volatileValueToGui();
     addLabeledItem(parent, d->m_spinBox);
     connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
@@ -2888,7 +2888,7 @@ void DoubleAspect::addToLayoutImpl(Layout &builder)
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_minimumValue && d->m_maximumValue)
-        d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
+        d->m_spinBox->setRange(*d->m_minimumValue, *d->m_maximumValue);
     volatileValueToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
     connect(d->m_spinBox.data(), &QDoubleSpinBox::valueChanged,

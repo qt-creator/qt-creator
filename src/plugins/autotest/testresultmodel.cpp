@@ -318,7 +318,7 @@ void TestResultItem::updateResult(bool &changed, ResultType addedChildType,
     default:
         break;
     }
-    changed = !m_summaryResult.has_value() || m_summaryResult.value() != newResult;
+    changed = !m_summaryResult.has_value() || *m_summaryResult != newResult;
 
     if (changed)
         m_summaryResult.emplace(newResult);

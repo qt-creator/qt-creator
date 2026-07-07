@@ -26,19 +26,19 @@ public:
     QString qmlProjectContent() const
     {
         return (m_qmlProjectFile.fileContents()
-                    ? QString::fromLatin1(m_qmlProjectFile.fileContents().value())
+                    ? QString::fromLatin1(*m_qmlProjectFile.fileContents())
                     : QString{});
     }
     QString jsonToQmlProjectContent() const
     {
         return m_jsonToQmlProjectFile.fileContents()
-                   ? QString::fromLatin1(m_jsonToQmlProjectFile.fileContents().value())
+                   ? QString::fromLatin1(*m_jsonToQmlProjectFile.fileContents())
                    : QString{};
     }
     QString qmlProjectToJsonContent() const
     {
         return m_qmlProjectToJsonFile.fileContents()
-                   ? QString::fromLatin1(m_qmlProjectToJsonFile.fileContents().value())
+                   ? QString::fromLatin1(*m_qmlProjectToJsonFile.fileContents())
                    : QString{};
     }
 

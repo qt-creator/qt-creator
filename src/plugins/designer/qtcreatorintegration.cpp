@@ -467,7 +467,7 @@ bool QtCreatorIntegration::setQtVersionFromFile(const FilePath &filePath)
 {
     if (const auto *uiProject = ProjectManager::projectForFile(filePath)) {
         if (auto versionOpt = qtVersionFromProject(uiProject)) {
-            setQtVersion(versionOpt.value());
+            setQtVersion(*versionOpt);
             return true;
         }
     }

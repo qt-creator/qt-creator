@@ -373,7 +373,7 @@ Core::GeneratedFiles SquishFileGenerator::fileList(MacroExpander *expander,
                 .pathAppended("templates/wizards/projects/git.ignore");
 
         if (QTC_GUARD(orig.exists())) {
-            gitignore.setBinaryContents(orig.fileContents().value());
+            gitignore.setBinaryContents(*orig.fileContents());
             result.append(gitignore);
         }
     }

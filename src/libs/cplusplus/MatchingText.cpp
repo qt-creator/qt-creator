@@ -221,11 +221,11 @@ static bool isAfterNamespaceDefinition(const BackwardsScanner &tokens, int index
         return false;
 
     // Handle optional attribute specifier sequence
-    newIndex = skipAttributeSpecifierSequence(tokens, newIndex.value());
+    newIndex = skipAttributeSpecifierSequence(tokens, *newIndex);
     if (!newIndex)
         return false;
 
-    return tokens[newIndex.value()].is(T_NAMESPACE);
+    return tokens[*newIndex].is(T_NAMESPACE);
 }
 
 static QTextBlock previousNonEmptyBlock(const QTextBlock &currentBlock)

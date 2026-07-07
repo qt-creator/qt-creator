@@ -1425,7 +1425,7 @@ bool PerforcePluginPrivate::activateCommit()
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
     const PerforceResponse submitResponse = runP4Cmd(workingDirectory, submitArgs,
                                                      LongTimeOut|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
-                                                     {}, normalizeNewlines(contents.value()));
+                                                     {}, normalizeNewlines(*contents));
     if (submitResponse.error)
         return false;
 

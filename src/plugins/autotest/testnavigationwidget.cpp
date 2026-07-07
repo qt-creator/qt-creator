@@ -390,8 +390,8 @@ void TestNavigationWidget::reapplyCachedExpandedState()
                 static_cast<ITestTreeItem *>(child));
             if (cached.has_value()) {
                 QModelIndex index = child->index();
-                if (m_view->isExpanded(index) != cached.value())
-                    m_view->setExpanded(index, cached.value());
+                if (m_view->isExpanded(index) != *cached)
+                    m_view->setExpanded(index, *cached);
             }
         });
     }

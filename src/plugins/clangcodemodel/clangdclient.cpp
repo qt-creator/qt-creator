@@ -800,7 +800,7 @@ RefactoringFilePtr ClangdClient::createRefactoringFile(const FilePath &filePath)
 QVersionNumber ClangdClient::versionNumber() const
 {
     if (d->versionNumber)
-        return d->versionNumber.value();
+        return *d->versionNumber;
 
     static const QRegularExpression versionPattern("^clangd version (\\d+)\\.(\\d+)\\.(\\d+).*$");
     QTC_CHECK(versionPattern.isValid());
@@ -812,7 +812,7 @@ QVersionNumber ClangdClient::versionNumber() const
         qCWarning(clangdLog) << "Failed to parse clangd server string" << serverVersion();
         d->versionNumber.emplace({0});
     }
-    return d->versionNumber.value();
+    return *d->versionNumber;
 }
 
 CppEditor::ClangdSettings::Data ClangdClient::settingsData() const { return d->settings; }

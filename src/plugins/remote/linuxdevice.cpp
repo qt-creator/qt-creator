@@ -633,12 +633,12 @@ Environment LinuxDevicePrivate::getEnvironment()
 {
     QReadLocker locker(&m_environmentCacheLock);
     if (m_environmentCache.has_value())
-        return m_environmentCache.value();
+        return *m_environmentCache;
 
     locker.unlock();
     QWriteLocker writeLocker(&m_environmentCacheLock);
     if (m_environmentCache.has_value())
-        return m_environmentCache.value();
+        return *m_environmentCache;
 
     const auto env = q->getUnixEnvironment();
     if (!env) {
@@ -647,7 +647,7 @@ Environment LinuxDevicePrivate::getEnvironment()
     }
 
     m_environmentCache = *env;
-    return m_environmentCache.value();
+    return *m_environmentCache;
 }
 
 Result<RunResult> LinuxDeviceAccess::runInShellImpl(
@@ -1456,7 +1456,7 @@ void LinuxDevicePrivate::setupFileAccessPhase2(
     q->setIsTesting(false);
     if (initResult) {
         DEBUG("Bridge ok to use");
-        q->setFileAccess(initResult.value());
+        q->setFileAccess(*initResult);
         q->setDeviceState(IDevice::DeviceReadyToUse);
         setupFileAccessFinalize(ResultOk, cont);
         return;

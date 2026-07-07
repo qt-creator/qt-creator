@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
     std::optional<int> error = tryParseCommandLine(origArgs);
     if (error)
-        return error.value();
+        return *error;
 
     QCoreApplication a(argc, argv);
 
@@ -107,11 +107,11 @@ int main(int argc, char *argv[])
 
     error = trySetWorkingDir();
     if (error)
-        return error.value();
+        return *error;
 
     error = readEnvFile();
     if (error)
-        return error.value();
+        return *error;
 
     if (testMode) {
         sendSelfPid();

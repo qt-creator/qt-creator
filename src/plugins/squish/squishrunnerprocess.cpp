@@ -34,7 +34,7 @@ void SquishRunnerProcess::setupProcess(RunnerMode mode)
         return;
 
     m_mode.emplace(mode);
-    switch (m_mode.value()) {
+    switch (*m_mode) {
     case Run:
     case StartAut:
         m_process.setProcessMode(Utils::ProcessMode::Writer);

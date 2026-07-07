@@ -2678,7 +2678,7 @@ void tst_filepath::exists()
     const Result<FilePath> tmpPath = FilePath().tmpDir();
     QVERIFY_RESULT(tmpPath);
 
-    const FilePath pattern = tmpPath.value() / "test.XXXXXXXXXXX";
+    const FilePath pattern = (*tmpPath) / "test.XXXXXXXXXXX";
 
     const Result<FilePath> resultPath = pattern.createTempFile();
     QVERIFY_RESULT(resultPath);
@@ -2695,7 +2695,7 @@ void tst_filepath::isNewerThan()
     const Result<FilePath> tmpPath = FilePath().tmpDir();
     QVERIFY_RESULT(tmpPath);
 
-    const FilePath pattern = (tmpPath.value() / "test.XXXXXXXXXXX");
+    const FilePath pattern = (*tmpPath / "test.XXXXXXXXXXX");
 
     const Result<FilePath> resultPath = pattern.createTempFile();
     QVERIFY_RESULT(resultPath);
@@ -2755,7 +2755,7 @@ void tst_filepath::watch()
         QVERIFY_RESULT(watchResult);
 
     // Verify that modifying one of the files triggers its watcher
-    Spy spy1(firstWatches[0].value().get());
+    Spy spy1(firstWatches[0]->get());
     QVERIFY_RESULT(fileName(0).writeFileContents("test 1"));
     QVERIFY(spy1.wait(3000));
     QCOMPARE(spy1.count(), 1);
@@ -2775,7 +2775,7 @@ void tst_filepath::watch()
         QVERIFY_RESULT(watchResult);
 
     // Make sure that both watchers are triggered when the file changes
-    Spy spy2(secondWatches[0].value().get());
+    Spy spy2(secondWatches[0]->get());
     QVERIFY_RESULT(fileName(0).writeFileContents("test 2"));
     QVERIFY(spy2.wait(3000));
     QCOMPARE(spy2.count(), 1);

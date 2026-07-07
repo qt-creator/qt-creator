@@ -91,7 +91,7 @@ void ExternaltoolTest::testRead1()
 {
     const Result<ExternalTool *> res = ExternalTool::createFromXml(QByteArray(TEST_XML1));
     QVERIFY(res.has_value());
-    ExternalTool *tool = res.value();
+    ExternalTool *tool = *res;
     QVERIFY(tool != nullptr);
     QCOMPARE(tool->id(), QString::fromLatin1("lupdate"));
     QVERIFY(tool->description().startsWith(QLatin1String("Synchronizes tran")));
@@ -113,7 +113,7 @@ void ExternaltoolTest::testRead2()
 {
     const Result<ExternalTool *> res = ExternalTool::createFromXml(QByteArray(TEST_XML2));
     QVERIFY(res.has_value());
-    ExternalTool *tool = res.value();
+    ExternalTool *tool = *res;
     QVERIFY(tool != nullptr);
     QCOMPARE(tool->id(), QString::fromLatin1("sort"));
     QVERIFY(tool->description().startsWith(QLatin1String("Sorts the")));
@@ -134,7 +134,7 @@ void ExternaltoolTest::testRead3()
 {
     const Result<ExternalTool *> res = ExternalTool::createFromXml(QByteArray(TEST_XML3));
     QVERIFY(res.has_value());
-    ExternalTool *tool = res.value();
+    ExternalTool *tool = *res;
     QVERIFY(tool != nullptr);
     QCOMPARE(tool->id(), QString::fromLatin1("vi"));
     QVERIFY(tool->description().startsWith(QLatin1String("Opens the")));

@@ -274,7 +274,7 @@ void TestResultsPane::scheduleTestResult(const TestResult &result)
 void TestResultsPane::handleNextBuffered()
 {
     if (m_lastCurrentMessage) {
-        addTestResult(m_lastCurrentMessage.value());
+        addTestResult(*m_lastCurrentMessage);
         m_lastCurrentMessage.reset();
     }
     for (int i = 0, end = qMin(30, m_buffered.size()); i < end; ++i)

@@ -418,7 +418,7 @@ Result<ExternalTool *> ExternalTool::createFromFile(const FilePath &filePath, co
     const Result<QByteArray> contents = filePath.fileContents();
     if (!contents)
         return ResultError(contents.error());
-    Result<ExternalTool *> res = ExternalTool::createFromXml(contents.value(), locale);
+    Result<ExternalTool *> res = ExternalTool::createFromXml(*contents, locale);
     if (!res)
         return ResultError(res.error());
     ExternalTool *tool = *res;

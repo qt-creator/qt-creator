@@ -1779,7 +1779,7 @@ bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory, Create
         if (!QTC_GUARD(gitIgnoreTemplate.exists()))
             return false;
 
-        gitIgnoreFile.setBinaryContents(gitIgnoreTemplate.fileContents().value());
+        gitIgnoreFile.setBinaryContents(*gitIgnoreTemplate.fileContents());
     }
 
     if (const Result<> res = gitIgnoreFile.write(); !res) {
@@ -1896,7 +1896,7 @@ QString GitClient::synchronousCurrentLocalBranch(const FilePath &workingDirector
         const FilePath rebaseHead = gitDir / "rebase-merge/head-name";
         const Result<QByteArray> head = rebaseHead.fileContents();
         if (head.has_value())
-            branch = QString::fromUtf8(head.value()).trimmed();
+            branch = QString::fromUtf8(*head).trimmed();
     }
     if (!branch.isEmpty()) {
         const QString refsHeadsPrefix = "refs/heads/";
@@ -2956,7 +2956,7 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
         const Result<QString> res = synchronousLog(repoDirectory, {HEAD, "--not", "--remotes", "-n1"},
                                                    RunFlag::SuppressCommandLogging);
         if (res)
-            output = res.value();
+            output = *res;
         else
             errorMessage = res.error();
         if (output.isEmpty())
@@ -3022,7 +3022,7 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
     switch (commitData.commitType) {
     case AmendCommit: {
         if (const Result<CommitData> res = enrichCommitData(repoDirectory, HEAD, commitData))
-            commitData = res.value();
+            commitData = *res;
         else
             return ResultError(res.error());
         break;
@@ -3033,7 +3033,7 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
         if (gitDir.pathAppended(CHERRY_PICK_HEAD).exists()) {
             if (const Result<CommitData> res = enrichCommitData(repoDirectory, CHERRY_PICK_HEAD, commitData)) {
                 authorFromCherryPick = true;
-                commitData = res.value();
+                commitData = *res;
             }
             commitData.amendHash.clear();
         }
@@ -3983,7 +3983,7 @@ QString GitClient::suggestedLocalBranchName(
                                            {"-n", "1", "--format=%s", target},
                                            RunFlag::NoOutput);
         if (res)
-            initialName = res.value().trimmed();
+            initialName = res->trimmed();
         else
             VcsOutputWindow::appendError(workingDirectory, res.error());
     }

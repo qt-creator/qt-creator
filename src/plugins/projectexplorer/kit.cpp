@@ -550,11 +550,11 @@ void Kit::toMap(Store &data) const
 
     if (d->m_relevantAspects) {
         data.insert(RELEVANT_ASPECTS_KEY, transform<QVariantList>(
-                        d->m_relevantAspects.value(), &Id::toSetting));
+                        *d->m_relevantAspects, &Id::toSetting));
     }
     if (d->m_irrelevantAspects) {
         data.insert(IRRELEVANT_ASPECTS_KEY, transform<QVariantList>(
-                        d->m_irrelevantAspects.value(), &Id::toSetting));
+                        *d->m_irrelevantAspects, &Id::toSetting));
     }
 
     Store extra;

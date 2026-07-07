@@ -1946,7 +1946,7 @@ void GetterSetterRefactoringHelper::generateGetter()
         const auto getReturnTypeAt = [&](CppRefactoringFilePtr targetFile,
                 InsertionLocation targetLoc) {
             if (m_data.getSetTemplate().returnTypeTemplate.has_value()) {
-                QString returnType = m_data.getSetTemplate().returnTypeTemplate.value();
+                QString returnType = *m_data.getSetTemplate().returnTypeTemplate;
                 if (m_data.returnTypeTemplateParameter().isValid()) {
                     const QString templateTypeName
                             = m_overview.prettyType(typeAt(m_data.returnTypeTemplateParameter(),
@@ -2339,7 +2339,7 @@ const FullySpecifiedType &GetterSetterRefactoringHelper::Data::returnTypeTemplat
     if (!m_returnTypeTemplateParameter) {
         m_returnTypeTemplateParameter.emplace();
         if (getSetTemplate().returnTypeTemplate.has_value()) {
-            QString returnTypeTemplate = getSetTemplate().returnTypeTemplate.value();
+            QString returnTypeTemplate = *getSetTemplate().returnTypeTemplate;
             if (returnTypeTemplate.contains(CppQuickFixSettings::GetterSetterTemplate::TEMPLATE_PARAMETER_PATTERN)) {
                 if (const auto param = getFirstTemplateParameter(decl()->type()))
                     m_returnTypeTemplateParameter = param;
@@ -2405,7 +2405,7 @@ FullySpecifiedType GetterSetterRefactoringHelper::Data::getReturnTypeHeader(
         env.enter(&minimal);
         return rewriteType(t, &env, control);
     }
-    QString typeTemplate = getSetTemplate().returnTypeTemplate.value();
+    QString typeTemplate = *getSetTemplate().returnTypeTemplate;
     if (returnTypeTemplateParameter().isValid())
         typeTemplate.replace(
                     CppQuickFixSettings::GetterSetterTemplate::TEMPLATE_PARAMETER_PATTERN,

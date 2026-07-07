@@ -103,14 +103,14 @@ void filteredFlags(const FilePath &filePath,
 
         if (includePathType) {
             const FilePath path = workingDir.resolvePath(flag);
-            headerPaths.append({path, includePathType.value()});
+            headerPaths.append({path, *includePathType});
             includePathType.reset();
             continue;
         }
 
         if (macroType) {
             Macro macro = Macro::fromKeyValue(flag);
-            macro.type = macroType.value();
+            macro.type = *macroType;
             macros.append(macro);
             macroType.reset();
             continue;

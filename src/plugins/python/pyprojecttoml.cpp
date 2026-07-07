@@ -157,7 +157,7 @@ PyProjectTomlParseResult parsePyProjectToml(const FilePath &pyProjectTomlPath)
         return result;
     }
 
-    QString pyProjectTomlContent = QString::fromUtf8(fileContentsResult.value());
+    QString pyProjectTomlContent = QString::fromUtf8(*fileContentsResult);
     toml::ordered_value rootTable;
     try {
         rootTable = toml::parse_str<toml::ordered_type_config>(pyProjectTomlContent.toStdString());

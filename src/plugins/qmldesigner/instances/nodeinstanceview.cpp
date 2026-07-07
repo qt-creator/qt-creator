@@ -1095,7 +1095,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
     std::optional oldNodeInstanceHash = m_nodeInstanceCache.take(model());
     if (oldNodeInstanceHash && oldNodeInstanceHash->instances.value(rootModelNode()).isValid()) {
-        instanceList = loadInstancesFromCache(nodeList, oldNodeInstanceHash.value());
+        instanceList = loadInstancesFromCache(nodeList, *oldNodeInstanceHash);
     } else {
         for (const ModelNode &node : std::as_const(nodeList)) {
             NodeInstance instance = loadNode(node);

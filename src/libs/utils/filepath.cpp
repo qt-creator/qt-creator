@@ -984,7 +984,7 @@ bool FilePath::hasHardLinks() const
     const Result<bool> res = (*access)->hasHardLinks(*this);
     if (!res)
         logError("hasHardlinks", res.error());
-    return res.has_value() ? res.value() : false;
+    return res.has_value() ? *res : false;
 }
 
 /*!

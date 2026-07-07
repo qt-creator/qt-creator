@@ -1561,7 +1561,7 @@ void EffectComposerModel::saveResources(const QString &name)
     QSet<QByteArray> oldExposedProps;
     Utils::FilePath oldQmlFile = Utils::FilePath::fromString(qmlFilePath);
     if (oldQmlFile.exists()) {
-        const QByteArray oldQmlContent = oldQmlFile.fileContents().value();
+        const QByteArray oldQmlContent = *oldQmlFile.fileContents();
         oldExposedProps = getExposedProperties(oldQmlContent);
     }
 

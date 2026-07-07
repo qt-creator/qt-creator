@@ -193,7 +193,7 @@ void createMatLibForFile(const QString &fileName,
     if (!fileContents.has_value())
         return;
 
-    const QString qmlStr = QString::fromUtf8(fileContents.value());
+    const QString qmlStr = QString::fromUtf8(*fileContents);
     QString cleanQmlStr = qmlStr;
     static QRegularExpression cppCommentsRE(R"(//[^\n]*)", QRegularExpression::MultilineOption);
     static QRegularExpression cCommentsRE(R"(/\*.*?\*/)", QRegularExpression::DotMatchesEverythingOption);

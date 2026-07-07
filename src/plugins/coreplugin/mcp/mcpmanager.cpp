@@ -225,8 +225,8 @@ public:
                     *errorString = result.error();
                     return;
                 }
-                beginInsertRows(QModelIndex(), 0, result.value().count() - 1);
-                m_mcpServers = std::move(result.value());
+                beginInsertRows(QModelIndex(), 0, result->count() - 1);
+                m_mcpServers = std::move(*result);
                 endInsertRows();
             };
 

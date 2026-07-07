@@ -668,7 +668,7 @@ int main(int argc, char *argv[])
                             .data(msg)));
             });
 
-        auto inHandler = bindResult.value();
+        auto inHandler = *bindResult;
         QSocketNotifier *stdinNotifier
             = new QSocketNotifier(fileno(stdin), QSocketNotifier::Read, &app);
 

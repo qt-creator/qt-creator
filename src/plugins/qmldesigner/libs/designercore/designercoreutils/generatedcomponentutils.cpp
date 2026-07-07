@@ -319,7 +319,7 @@ Utils::FilePath GeneratedComponentUtils::getImported3dQml(const QString &assetPa
     if (!data)
         return {};
 
-    Utils::FilePath assetQmlFilePath = Utils::FilePath::fromUtf8(data.value());
+    Utils::FilePath assetQmlFilePath = Utils::FilePath::fromUtf8(*data);
     Utils::FilePath projectPath = Utils::FilePath::fromString(m_externalDependencies.currentProjectDirPath());
 
     assetQmlFilePath = projectPath.resolvePath(assetQmlFilePath);

@@ -195,7 +195,7 @@ void DockerDeviceWidget::updateDaemonStateTexts()
     if (!daemonState.has_value()) {
         m_daemonReset->setIcon(Icons::INFO.icon());
         m_daemonState->setText(Tr::tr("Daemon state not evaluated."));
-    } else if (daemonState.value()) {
+    } else if (*daemonState) {
         m_daemonReset->setIcon(Icons::OK.icon());
         m_daemonState->setText(Tr::tr("Docker daemon running."));
     } else {

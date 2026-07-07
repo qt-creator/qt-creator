@@ -250,7 +250,7 @@ void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
     }
 
     // Parse into fields
-    const QStringList fields = fieldTexts(QString::fromUtf8(normalizeNewlines(config.value())));
+    const QStringList fields = fieldTexts(QString::fromUtf8(normalizeNewlines(*config)));
     if (fields.empty())
         return;
     // Create a completer on user names

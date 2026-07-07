@@ -66,7 +66,7 @@ ParseIssuesDialog::ParseIssuesDialog() : QDialog(dialogParent())
                                   .arg(filePath.toUserOutput(), res.error()));
             return;
         }
-        m_compileOutputEdit.setPlainText(QString::fromLocal8Bit(res.value()));
+        m_compileOutputEdit.setPlainText(QString::fromLocal8Bit(*res));
     });
 
     m_kitChooser.populate();

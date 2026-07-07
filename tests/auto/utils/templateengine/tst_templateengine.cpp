@@ -75,7 +75,7 @@ void tst_TemplateEngine::testTemplateEngine()
     const Result<QString> res = TemplateEngine::processText(globalMacroExpander(), input);
 
     if (res.has_value()) {
-        QCOMPARE(res.value(), expectedOutput);
+        QCOMPARE(*res, expectedOutput);
     } else {
         QCOMPARE(res.error(), expectedErrorMessage);
     }

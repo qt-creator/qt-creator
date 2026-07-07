@@ -102,7 +102,7 @@ struct result_awaiter
     template<typename R_ = R>
     requires(!std::is_void_v<R>) R await_resume()
     {
-        return std::move(value.value());
+        return std::move(*value);
     }
 
     template<typename R_ = R>

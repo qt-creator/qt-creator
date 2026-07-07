@@ -349,7 +349,7 @@ void DevContainerPlugin::onProjectTreeChanged(FolderNode *fn)
             continue;
         }
         connect(
-            watchResult.value().get(),
+            watchResult->get(),
             &FilePathWatcher::pathChanged,
             this,
             [this, ptr = QPointer<Project>(project)] {

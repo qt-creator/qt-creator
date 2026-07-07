@@ -123,7 +123,7 @@ void BaseFileWizard::reject()
 void BaseFileWizard::generateFileList()
 {
     if (const Result<GeneratedFiles> res = m_factory->generateFiles(this)) {
-        m_files = res.value();
+        m_files = *res;
     } else {
         QMessageBox::critical(parentWidget(), Tr::tr("File Generation Failure"), res.error());
         reject();

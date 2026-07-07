@@ -271,7 +271,7 @@ template<typename C>
 Q_REQUIRED_RESULT ValueType<C> takeOrDefault(C &container, PointerType<C> p)
 {
     auto result = take(container, [p](const ValueType<C> &v) { return v.get() == p; });
-    return bool(result) ? std::move(result.value()) : std::move(ValueType<C>());
+    return bool(result) ? std::move(*result) : std::move(ValueType<C>());
 }
 
 template <typename C>

@@ -271,7 +271,7 @@ void TestTreeModel::onBuildSystemTestsUpdated()
         ITestTreeItem *item = testTool->createItemFromTestCaseInfo(tci);
         QTC_ASSERT(item, continue);
         if (std::optional<Qt::CheckState> cached = m_checkStateCache->get(item))
-            item->setData(0, cached.value(), Qt::CheckStateRole);
+            item->setData(0, *cached, Qt::CheckStateRole);
         m_checkStateCache->insert(item, item->checked());
         rootNode->appendChild(item);
     }
@@ -439,7 +439,7 @@ void TestTreeModel::synchronizeTestTools()
                     ITestTreeItem *item = testTool->createItemFromTestCaseInfo(tci);
                     QTC_ASSERT(item, continue);
                     if (std::optional<Qt::CheckState> cached = m_checkStateCache->get(item))
-                        item->setData(0, cached.value(), Qt::CheckStateRole);
+                        item->setData(0, *cached, Qt::CheckStateRole);
                     m_checkStateCache->insert(item, item->checked());
                     rootNode->appendChild(item);
                 }
@@ -652,7 +652,7 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         std::optional<Qt::CheckState> cached = m_checkStateCache ? m_checkStateCache->get(item)
                                                                  : std::optional<Qt::CheckState>{};
         if (cached.has_value())
-            item->setData(0, cached.value(), Qt::CheckStateRole);
+            item->setData(0, *cached, Qt::CheckStateRole);
         else
             applyParentCheckState(parentNode, item);
         // ..and the failed state if available
@@ -779,7 +779,7 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
             return;
         std::optional<Qt::CheckState> cached = m_checkStateCache->get(childItem);
         if (cached.has_value())
-            childItem->setData(0, cached.value(), Qt::CheckStateRole);
+            childItem->setData(0, *cached, Qt::CheckStateRole);
         std::optional<bool> failed = m_failedStateCache.get(childItem);
         if (failed.has_value())
             childItem->setData(0, *failed, FailedRole);

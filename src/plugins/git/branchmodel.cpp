@@ -878,7 +878,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
                                                                {"-n1", "--format=%H %ct"},
                                                                RunFlag::SuppressCommandLogging);
         if (res) {
-            const QStringList values = res.value().split(' ');
+            const QStringList values = res->split(' ');
             startHash = values[0];
             branchDateTime = QDateTime::fromSecsSinceEpoch(values[1].toLongLong());
             qCDebug(modelLog) << "addBranch: fallback hash=" << startHash << "dateTime=" << branchDateTime;
@@ -1248,7 +1248,7 @@ QString BranchModel::toolTip(const QString &hash) const
     // Show the hash description excluding diff as toolTip
     const Result<QString> res = gitClient().synchronousLog(d->workingDirectory, {"-n1", hash},
                                                            RunFlag::SuppressCommandLogging);
-    const QString result = res ? res.value() : res.error();
+    const QString result = res ? *res : res.error();
     qCDebug(modelLog) << "toolTip: result=" << result;
     return result;
 }

@@ -414,7 +414,7 @@ OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, Out
 
 QTextCharFormat OutputFormatter::charFormat(OutputFormat format) const
 {
-    return d->formatOverride ? d->formatOverride.value() : d->formats[format];
+    return d->formatOverride ? *d->formatOverride : d->formats[format];
 }
 
 QList<FormattedText> OutputFormatter::parseAnsi(const QString &text, const QTextCharFormat &format)

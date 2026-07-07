@@ -215,11 +215,11 @@ void PyProjectTomlTest::testUpdatePyProject()
     const QStringList
         newProjectFiles{"folder/file_in_folder.py", "new_file.py", "main.py", "another_file.py"};
     const auto newProjectFileContent
-        = updatePyProjectTomlContent(projectFileContents.value(), newProjectFiles);
+        = updatePyProjectTomlContent(*projectFileContents, newProjectFiles);
     QVERIFY(newProjectFileContent);
 
     const auto expectedProjectFileContent = readTestFile("correct_after_update.toml");
-    QCOMPARE(newProjectFileContent.value(), expectedProjectFileContent);
+    QCOMPARE(*newProjectFileContent, expectedProjectFileContent);
 }
 
 QObject *createPyProjectTomlTest()

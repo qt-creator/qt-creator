@@ -133,10 +133,10 @@ private slots:
 
         QVERIFY_RESULT(tempFile);
         QVERIFY_RESULT(fileAccess.exists(*tempFile));
-        QVERIFY(fileAccess.exists(*tempFile).value());
+        QVERIFY(*fileAccess.exists(*tempFile));
         QVERIFY_RESULT(fileAccess.removeFile(*tempFile));
         QVERIFY_RESULT(fileAccess.exists(*tempFile));
-        QVERIFY(!fileAccess.exists(*tempFile).value());
+        QVERIFY(!*fileAccess.exists(*tempFile));
 
         tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath())
                                              / "test.XXXXXX");
@@ -144,9 +144,9 @@ private slots:
         QVERIFY(tempFile->fileName().startsWith("test."));
         QVERIFY(!tempFile->fileName().startsWith("test.XXXXXX"));
         QVERIFY_RESULT(fileAccess.exists(*tempFile));
-        QVERIFY(fileAccess.exists(*tempFile).value());
+        QVERIFY(*fileAccess.exists(*tempFile));
         QVERIFY_RESULT(fileAccess.removeFile(*tempFile));
-        QVERIFY(!fileAccess.exists(*tempFile).value());
+        QVERIFY(!*fileAccess.exists(*tempFile));
     }
 
     void testTempDir()
@@ -164,12 +164,12 @@ private slots:
 
         QVERIFY_RESULT(tempDir);
         QVERIFY_RESULT(fileAccess.exists(*tempDir));
-        QVERIFY(fileAccess.exists(*tempDir).value());
+        QVERIFY(*fileAccess.exists(*tempDir));
         QVERIFY_RESULT(fileAccess.isWritableDirectory(*tempDir));
-        QVERIFY(fileAccess.isWritableDirectory(*tempDir).value());
+        QVERIFY(*fileAccess.isWritableDirectory(*tempDir));
         QVERIFY_RESULT(fileAccess.removeRecursively(*tempDir));
         QVERIFY_RESULT(fileAccess.exists(*tempDir));
-        QVERIFY(!fileAccess.exists(*tempDir).value());
+        QVERIFY(!*fileAccess.exists(*tempDir));
     }
 
     void testTempFileWithoutPlaceholder()
@@ -192,10 +192,10 @@ private slots:
 
         QVERIFY_RESULT(tempFile);
         QVERIFY_RESULT(fileAccess.exists(*tempFile));
-        QVERIFY(fileAccess.exists(*tempFile).value());
+        QVERIFY(*fileAccess.exists(*tempFile));
         QVERIFY_RESULT(fileAccess.removeFile(*tempFile));
         QVERIFY_RESULT(fileAccess.exists(*tempFile));
-        QVERIFY(!fileAccess.exists(*tempFile).value());
+        QVERIFY(!*fileAccess.exists(*tempFile));
         QVERIFY(tempFile->fileName().startsWith("test.txt."));
     }
 
@@ -211,7 +211,7 @@ private slots:
 
         const FilePath testDir = FilePath::fromUserInput(QDir::tempPath() + "/testIsWritableDir");
         QVERIFY_RESULT(fileAccess.isWritableDirectory(testDir));
-        QVERIFY(!fileAccess.isWritableDirectory(testDir).value());
+        QVERIFY(!*fileAccess.isWritableDirectory(testDir));
     }
 
     void testEnsureWritableDir()
@@ -286,15 +286,15 @@ The end.
         const FilePath fileCopy = FilePath::fromUserInput(QDir::tempPath() + "/testcopy.txt");
         QVERIFY_RESULT(fileAccess.copyFile(testFile, fileCopy));
         QVERIFY_RESULT(fileAccess.exists(fileCopy));
-        QVERIFY(fileAccess.exists(fileCopy).value());
+        QVERIFY(*fileAccess.exists(fileCopy));
         QCOMPARE(fileAccess.fileContents(fileCopy, -1, 0), fileContents);
 
         const FilePath mvTarget = FilePath::fromUserInput(QDir::tempPath() + "/testmoved.txt");
         QVERIFY_RESULT(fileAccess.renameFile(fileCopy, mvTarget));
         QVERIFY_RESULT(fileAccess.exists(mvTarget));
-        QVERIFY(fileAccess.exists(mvTarget).value());
+        QVERIFY(*fileAccess.exists(mvTarget));
         QVERIFY_RESULT(fileAccess.exists(fileCopy));
-        QVERIFY(!fileAccess.exists(fileCopy).value());
+        QVERIFY(!*fileAccess.exists(fileCopy));
         QCOMPARE(fileAccess.fileContents(mvTarget, -1, 0), fileContents);
 
         QVERIFY_RESULT(fileAccess.removeFile(mvTarget));
@@ -307,12 +307,12 @@ The end.
         const FilePath dir = FilePath::fromUserInput(QDir::tempPath() + "/testdir");
         QVERIFY_RESULT(fileAccess.createDirectory(dir));
         QVERIFY_RESULT(fileAccess.exists(dir));
-        QVERIFY(fileAccess.exists(dir).value());
+        QVERIFY(*fileAccess.exists(dir));
         QVERIFY_RESULT(fileAccess.isReadableDirectory(dir));
-        QVERIFY(fileAccess.isReadableDirectory(dir).value());
+        QVERIFY(*fileAccess.isReadableDirectory(dir));
         QVERIFY_RESULT(fileAccess.removeRecursively(dir));
         QVERIFY_RESULT(fileAccess.exists(dir));
-        QVERIFY(!fileAccess.exists(dir).value());
+        QVERIFY(!*fileAccess.exists(dir));
     }
 
     void testIs()

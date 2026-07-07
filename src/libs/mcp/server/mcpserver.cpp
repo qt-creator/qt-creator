@@ -978,7 +978,7 @@ public:
             jsonDoc.object());
         if (clientNotification) {
             qCDebug(mcpServerLog) << "Received JSONRPCNotification:"
-                                  << Schema::dispatchValue(clientNotification.value());
+                                  << Schema::dispatchValue(*clientNotification);
 
             if (m_inspector)
                 m_inspector->onClientNotification(jsonDoc, sessionId);
@@ -2154,7 +2154,7 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
 
         d->_longRunningToolTimer.reset(new QTimer());
         d->_longRunningToolTimer->setSingleShot(false);
-        d->_longRunningToolTimer->setInterval(pollingIntervalMs.value());
+        d->_longRunningToolTimer->setInterval(*pollingIntervalMs);
         QObject::connect(
             d->_longRunningToolTimer.get(),
             &QTimer::timeout,

@@ -1073,7 +1073,7 @@ void QtSettingsPageWidget::linkWithQt()
                     -> FancyLineEdit::AsyncValidationResult {
                     if (!result)
                         return result;
-                    return validateQtInstallDir(result.value(), baseDir);
+                    return validateQtInstallDir(*result, baseDir);
                 });
         });
     const std::optional<FilePath> currentLink = currentlyLinkedQtDir(nullptr);

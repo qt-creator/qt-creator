@@ -1340,7 +1340,7 @@ bool TerminalView::checkLinkAt(const QPoint &pos)
         QString t = QString::fromUcs4(hit.text.c_str(), hit.text.size()).trimmed();
         auto newLink = toLink(t);
         if (newLink) {
-            const LinkSelection newSelection = LinkSelection{{hit.start, hit.end}, newLink.value()};
+            const LinkSelection newSelection = LinkSelection{{hit.start, hit.end}, *newLink};
             if (!d->m_linkSelection || *d->m_linkSelection != newSelection) {
                 d->m_linkSelection = newSelection;
                 updateViewport();

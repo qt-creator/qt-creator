@@ -240,7 +240,7 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
     ModelPointer compModel = QmlDesigner::Model::create("QtQuick/Item", 2, 1);
 #endif
     const Utils::FilePath compFilePath = Utils::FilePath::fromString(componentFilePath);
-    QByteArray src = compFilePath.fileContents().value();
+    QByteArray src = *compFilePath.fileContents();
 
     compModel->setFileUrl(QUrl::fromLocalFile(componentFilePath));
 

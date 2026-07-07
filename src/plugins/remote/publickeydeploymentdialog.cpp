@@ -69,7 +69,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
     }
 
     const QString command = "test -d .ssh || mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"
-            + QString::fromLocal8Bit(publicKey.value())
+            + QString::fromLocal8Bit(*publicKey)
             + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
 
     const SshParameters params = device.sshParameters();

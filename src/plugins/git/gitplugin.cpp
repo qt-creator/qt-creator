@@ -1428,7 +1428,7 @@ void GitPluginPrivate::startCommit(CommitType commitType)
         VcsOutputWindow::appendError(state.topLevel(), res.error());
         return;
     }
-    const CommitData data = res.value();
+    const CommitData data = *res;
 
     // Store repository for diff and the original list of
     // files to be able to unstage files the user unchecks

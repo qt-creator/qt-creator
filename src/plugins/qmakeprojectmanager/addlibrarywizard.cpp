@@ -182,7 +182,7 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
                 const FancyLineEdit::AsyncValidationResult &result) {
                 if (!result)
                     return result;
-                return validateLibraryPath(result.value(), pDialogFilter);
+                return validateLibraryPath(*result, pDialogFilter);
             });
     };
     libPathChooser->setValidationFunction(pathValidator);

@@ -139,7 +139,7 @@ ClangdMemoryUsageWidget::ClangdMemoryUsageWidget(ClangdClient *client)
 ClangdMemoryUsageWidget::~ClangdMemoryUsageWidget()
 {
     if (d->client && d->currentRequest.has_value())
-        d->client->cancelRequest(d->currentRequest.value());
+        d->client->cancelRequest(*d->currentRequest);
     delete d;
 }
 

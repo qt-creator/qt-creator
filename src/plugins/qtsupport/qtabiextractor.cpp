@@ -39,7 +39,7 @@ public:
             return printErrorAndReturn(content.error());
 
         QJsonParseError parseError;
-        const QJsonDocument jsonDoc = QJsonDocument::fromJson(content.value(), &parseError);
+        const QJsonDocument jsonDoc = QJsonDocument::fromJson(*content, &parseError);
         if (parseError.error != QJsonParseError::NoError)
             return printErrorAndReturn(parseError.errorString());
 

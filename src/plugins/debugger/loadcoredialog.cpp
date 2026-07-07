@@ -241,13 +241,13 @@ void AttachCoreDialog::accepted()
             if (!tmpPath)
                 return make_unexpected(tmpPath.error());
 
-            const FilePath pattern = (tmpPath.value()
+            const FilePath pattern = (*tmpPath
                                       / (srcPath.fileName() + ".XXXXXXXXXXX"));
 
             const Result<FilePath> resultPath = pattern.createTempFile();
             if (!resultPath)
                 return make_unexpected(resultPath.error());
-            const Result<> result = srcPath.copyFile(resultPath.value());
+            const Result<> result = srcPath.copyFile(*resultPath);
             if (!result)
                 return make_unexpected(result.error());
 

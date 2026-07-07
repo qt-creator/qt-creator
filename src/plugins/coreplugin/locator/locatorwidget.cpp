@@ -189,7 +189,7 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
             LocatorFilterEntry &entry = m_entries[index.row()];
             if (!entry.displayIcon && !entry.filePath.isEmpty())
                 entry.displayIcon = FileIconProvider::icon(entry.filePath);
-            return entry.displayIcon ? entry.displayIcon.value() : QIcon();
+            return entry.displayIcon ? *entry.displayIcon : QIcon();
         }
         break;
     case Qt::ForegroundRole:
@@ -934,7 +934,7 @@ void LocatorWidget::runMatcher(const QString &text)
         setProgressIndicatorVisible(false);
         m_locatorMatcher.release()->deleteLater();
         if (m_rowRequestedForAccept) {
-            acceptEntry(m_rowRequestedForAccept.value());
+            acceptEntry(*m_rowRequestedForAccept);
             m_rowRequestedForAccept.reset();
             return;
         }

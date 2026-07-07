@@ -237,7 +237,7 @@ void GitSubmitEditor::updateFileModel()
         const ResultType result = task.result();
         GitSubmitEditorWidget *w = submitEditorWidget();
         if (result) {
-            setCommitData(result.value());
+            setCommitData(*result);
             w->refreshLog(m_workingDirectory);
             w->setEnabled(true);
         } else {

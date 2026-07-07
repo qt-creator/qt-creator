@@ -602,7 +602,7 @@ Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const LogCallback 
     for (const auto &factory : KitAspectFactory::kitAspectFactories()) {
         const auto remover = factory->removeAutoDetected(detectionSource, logCallback);
         if (remover)
-            removerItems.append({remover.value()});
+            removerItems.append({*remover});
     }
 
     const auto removeKits = [device, detectionSource, logCallback]() {

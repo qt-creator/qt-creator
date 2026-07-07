@@ -67,7 +67,7 @@ static QStringList readLines(const FilePath &projectFile)
 
     const Result<QByteArray> contents = projectFile.fileContents();
     if (contents) {
-        QTextStream stream(contents.value());
+        QTextStream stream(*contents);
 
         while (true) {
             const QString line = stream.readLine();

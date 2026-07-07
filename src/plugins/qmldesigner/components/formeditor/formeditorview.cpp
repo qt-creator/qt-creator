@@ -934,9 +934,9 @@ void FormEditorView::setupRootItemSize()
         int rootElementInitHeight = designerSettings().rootElementInitHeight();
 
         if (rootModelNode().hasAuxiliaryData(defaultWidthProperty))
-            rootElementInitWidth = rootModelNode().auxiliaryData(defaultWidthProperty).value().toInt();
+            rootElementInitWidth = rootModelNode().auxiliaryData(defaultWidthProperty)->toInt();
         if (rootModelNode().hasAuxiliaryData(defaultHeightProperty))
-            rootElementInitHeight = rootModelNode().auxiliaryData(defaultHeightProperty).value().toInt();
+            rootElementInitHeight = rootModelNode().auxiliaryData(defaultHeightProperty)->toInt();
 
         bool affectedByCurrentState = rootQmlNode.propertyAffectedByCurrentState("width")
                                       || rootQmlNode.propertyAffectedByCurrentState("height")
@@ -955,8 +955,8 @@ void FormEditorView::setupRootItemSize()
             rootModelNode().setAuxiliaryData(autoSizeProperty, true);
 
             formEditorWidget()->updateActions();
-            rootRect.setWidth(rootModelNode().auxiliaryData(widthProperty).value().toFloat() );
-            rootRect.setHeight(rootModelNode().auxiliaryData(heightProperty).value().toFloat() );
+            rootRect.setWidth(rootModelNode().auxiliaryData(widthProperty)->toFloat() );
+            rootRect.setHeight(rootModelNode().auxiliaryData(heightProperty)->toFloat() );
 
         } else if (rootModelNode().hasAuxiliaryData(autoSizeProperty) && affectedByCurrentState ) {
             rootModelNode().removeAuxiliaryData(widthProperty);
@@ -969,7 +969,7 @@ void FormEditorView::setupRootItemSize()
         formEditorWidget()->centerScene();
 
         if (auto contextImage = rootModelNode().auxiliaryData(contextImageProperty))
-            formEditorWidget()->setBackgoundImage(contextImage.value().value<QImage>());
+            formEditorWidget()->setBackgoundImage(contextImage->value<QImage>());
     }
 }
 

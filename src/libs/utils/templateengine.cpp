@@ -220,7 +220,7 @@ Result<QString> TemplateEngine::processText(MacroExpander *expander, const QStri
     if (!res)
         return QString();
 
-    const QString out = res.value();
+    const QString out = *res;
 
     // Expand \n, \t and handle line continuation:
     QString result;

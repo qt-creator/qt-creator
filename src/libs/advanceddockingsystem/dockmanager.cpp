@@ -1529,7 +1529,7 @@ QByteArray DockManager::loadFile(const FilePath &filePath)
         return {};
     }
 
-    return data.value();
+    return *data;
 }
 
 QString DockManager::readDisplayName(const FilePath &filePath)

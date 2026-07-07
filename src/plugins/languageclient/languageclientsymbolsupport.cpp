@@ -88,7 +88,7 @@ static MessageId sendTextDocumentPositionParamsRequest(Client *client,
 {
     if (!request.isValid(nullptr))
         return {};
-    const DocumentUri uri = request.params().value().textDocument().uri();
+    const DocumentUri uri = request.params()->textDocument().uri();
     const bool supportedFile = client->isSupportedUri(uri);
     const DynamicCapabilities dynamicCapabilities = client->dynamicCapabilities();
     const ServerCapabilities serverCapability = client->capabilities();

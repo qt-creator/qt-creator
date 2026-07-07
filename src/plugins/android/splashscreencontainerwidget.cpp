@@ -635,7 +635,7 @@ void SplashScreenContainerWidget::loadImages()
             auto stickyResult = readManifestActivityMetaData(manifestFile,
                                                              QLatin1String("android.app.splash_screen_sticky"));
             if (stickyResult) {
-                const bool sticky = (stickyResult.value() == QLatin1String("true"));
+                const bool sticky = (*stickyResult == QLatin1String("true"));
                 m_splashScreenSticky = sticky;
                 if (m_stickyCheck)
                     m_stickyCheck->setChecked(sticky);

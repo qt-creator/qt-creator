@@ -298,7 +298,7 @@ bool BakeLightsDataModel::reset()
                 if (compFile.startsWith(projPath)) {
                     // Quick and dirty scan of the component source to check if it potentially has
                     // models or lights.
-                    QByteArray src = Utils::FilePath::fromString(compFile).fileContents().value();
+                    QByteArray src = *Utils::FilePath::fromString(compFile).fileContents();
                     src = src.mid(src.indexOf('{')); // Skip root element
                     if (src.contains("Model {") || src.contains("Light {")) {
                         data.isUnexposed = true;

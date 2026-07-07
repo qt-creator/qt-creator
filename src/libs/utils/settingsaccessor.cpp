@@ -291,7 +291,7 @@ void BackingUpSettingsAccessor::backupFile(const FilePath &path, const Store &da
     // Do we need to do a backup?
     if (std::optional<FilePath> backupFileName
             = m_strategy->backupName(oldSettings.data, path, data)) {
-        path.copyFile(backupFileName.value());
+        path.copyFile(*backupFileName);
     }
 }
 
@@ -553,7 +553,7 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &
 {
     RestoreData mainData = UpgradingSettingsAccessor::readData(path); // FULLY upgraded!
     if (mainData.hasIssue()) {
-        if (reportIssues(mainData.issue.value(), mainData.path) == DiscardAndContinue)
+        if (reportIssues(*mainData.issue, mainData.path) == DiscardAndContinue)
             mainData.data.clear();
         mainData.issue = std::nullopt;
     }
@@ -589,7 +589,7 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &
     }
 
     if (secondaryData.hasIssue()) {
-        if (reportIssues(secondaryData.issue.value(), secondaryData.path) == DiscardAndContinue)
+        if (reportIssues(*secondaryData.issue, secondaryData.path) == DiscardAndContinue)
             secondaryData.data.clear();
         secondaryData.issue = std::nullopt;
     }
@@ -703,7 +703,7 @@ static QVariant mergeQVariantMapsRecursion(const Store &mainTree, const Store &s
         if (!mergeResult)
             continue;
 
-        QPair<Key, QVariant> kv = mergeResult.value();
+        QPair<Key, QVariant> kv = *mergeResult;
 
         if (Utils::isStore(kv.second)) {
             const Key newKeyPrefix = keyPrefix + kv.first + '/';

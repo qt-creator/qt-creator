@@ -376,7 +376,7 @@ void setupSettingsModule()
             [](SecretAspect *aspect, sol::function callback) {
                 aspect->requestValue([callback](const Result<QString> &secret) {
                     if (secret) {
-                        auto res = void_safe_call(callback, true, secret.value());
+                        auto res = void_safe_call(callback, true, *secret);
                         QTC_CHECK_RESULT(res);
                     } else {
                         auto res = void_safe_call(callback, false, secret.error());

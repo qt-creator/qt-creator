@@ -271,10 +271,10 @@ void tst_PointerAlgorithm::take()
         std::vector<int *> ptrVector = Utils::toRawPointer(vector);
         int foo = 42;
 
-        QVERIFY(Utils::take(vector, ptrVector.at(0)).value().get() == ptrVector.at(0));
+        QVERIFY(Utils::take(vector, ptrVector.at(0))->get() == ptrVector.at(0));
         QVERIFY(Utils::take(vector, ptrVector.at(0)) == std::nullopt);
         QVERIFY(Utils::take(vector, &foo) == std::nullopt);
-        QVERIFY(Utils::take(vector, nullptr).value().get() == nullptr);
+        QVERIFY(Utils::take(vector, nullptr)->get() == nullptr);
     }
 }
 

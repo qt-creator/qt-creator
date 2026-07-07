@@ -29,7 +29,7 @@ void tst_ToolchainCache::insertOne()
     cache.insert(key1, value1);
 
     QVERIFY(bool(cache.check(key1)));
-    QCOMPARE(cache.check(key1).value(), value1);
+    QCOMPARE(*cache.check(key1), value1);
     QVERIFY(!cache.check({"other"}));
 }
 
@@ -43,7 +43,7 @@ void tst_ToolchainCache::insertOneOne()
     cache.insert(key1, value1);
 
     QVERIFY(bool(cache.check(key1)));
-    QCOMPARE(cache.check(key1).value(), value1);
+    QCOMPARE(*cache.check(key1), value1);
     QVERIFY(!cache.check({"other"}));
 }
 
@@ -59,9 +59,9 @@ void tst_ToolchainCache::insertOneTwo()
     cache.insert(key2, value2);
 
     QVERIFY(bool(cache.check(key1)));
-    QCOMPARE(cache.check(key1).value(), value1);
+    QCOMPARE(*cache.check(key1), value1);
     QVERIFY(bool(cache.check(key2)));
-    QCOMPARE(cache.check(key2).value(), value2);
+    QCOMPARE(*cache.check(key2), value2);
     QVERIFY(!cache.check({"other"}));
 }
 
@@ -81,9 +81,9 @@ void tst_ToolchainCache::insertOneTwoThree()
 
     QVERIFY(!cache.check(key1)); // key1 was evicted
     QVERIFY(bool(cache.check(key2)));
-    QCOMPARE(cache.check(key2).value(), value2);
+    QCOMPARE(*cache.check(key2), value2);
     QVERIFY(bool(cache.check(key3)));
-    QCOMPARE(cache.check(key3).value(), value3);
+    QCOMPARE(*cache.check(key3), value3);
     QVERIFY(!cache.check({"other"}));
 }
 
@@ -103,10 +103,10 @@ void tst_ToolchainCache::insertOneTwoOneThree()
     cache.insert(key3, value3);
 
     QVERIFY(bool(cache.check(key1)));
-    QCOMPARE(cache.check(key1).value(), value1);
+    QCOMPARE(*cache.check(key1), value1);
     QVERIFY(!cache.check(key2)); // key2 was evicted
     QVERIFY(bool(cache.check(key3)));
-    QCOMPARE(cache.check(key3).value(), value3);
+    QCOMPARE(*cache.check(key3), value3);
     QVERIFY(!cache.check({"other"}));
 }
 

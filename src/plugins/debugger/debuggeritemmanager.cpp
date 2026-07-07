@@ -813,14 +813,14 @@ public:
                             return result;
 
                         DebuggerItem item;
-                        item.setCommand(FilePath::fromUserInput(result.value()));
+                        item.setCommand(FilePath::fromUserInput(*result));
                         QString errorMessage;
                         item.reinitializeFromFile(&errorMessage);
 
                         if (!errorMessage.isEmpty())
                             return make_unexpected(errorMessage);
 
-                        return result.value();
+                        return *result;
                     });
             });
         m_binaryChooser.setAllowPathFromDevice(true);

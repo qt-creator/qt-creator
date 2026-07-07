@@ -53,12 +53,12 @@ SquishSettings::SquishSettings()
                         return result;
 
                     const FilePath squishServer
-                        = FilePath::fromUserInput(result.value())
+                        = FilePath::fromUserInput(*result)
                               .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
                     if (!squishServer.isExecutableFile())
                         return make_unexpected(Tr::tr(
                             "Path does not contain server executable at its default location."));
-                    return result.value();
+                    return *result;
                 });
         });
 

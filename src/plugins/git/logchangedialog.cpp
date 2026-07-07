@@ -221,7 +221,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
         return false;
     }
 
-    const QStringList lines = res.value().split('\n');
+    const QStringList lines = res->split('\n');
     for (const QString &line : lines) {
         const int colonPos = line.indexOf(':');
         if (colonPos != -1) {

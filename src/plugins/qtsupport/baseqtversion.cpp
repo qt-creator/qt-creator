@@ -1343,7 +1343,7 @@ QtVersionData &QtVersionPrivate::data()
             // access retries the query; once it succeeds the result is cached normally.
             m_dataFuture = {};
         } else {
-            m_data = data.value();
+            m_data = *data;
         }
     }
 

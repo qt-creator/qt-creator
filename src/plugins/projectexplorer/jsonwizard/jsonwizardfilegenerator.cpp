@@ -124,7 +124,7 @@ Result<Core::GeneratedFile> JsonWizardFileGenerator::generateFile(const File &fi
     if (!file.keepExisting) {
         if (file.isBinary.toBool()) {
             gf.setBinary(true);
-            gf.setBinaryContents(contents.value());
+            gf.setBinaryContents(*contents);
         } else {
             // TODO: Document that input files are UTF8 encoded!
             gf.setBinary(false);
@@ -149,7 +149,7 @@ Result<Core::GeneratedFile> JsonWizardFileGenerator::generateFile(const File &fi
 
             const Result<QString> res =
                     TemplateEngine::processText(&nested,
-                                    QString::fromUtf8(normalizeNewlines(contents.value())));
+                                    QString::fromUtf8(normalizeNewlines(*contents)));
             gf.setContents(res.value_or(QString()));
             if (!res) {
                 return ResultError(Tr::tr("When processing \"%1\":<br>%2")

@@ -755,7 +755,7 @@ TEST_F(QmlProjectItem, test_file_filters)
     // GIVEN
     auto fileListPath = Utils::FilePath::fromString(localTestDataDir + "/file-filters/filelist.txt");
     QStringList fileNameList
-        = QString::fromUtf8(fileListPath.fileContents().value()).replace("\r\n", "\n").split("\n");
+        = QString::fromUtf8(*fileListPath.fileContents()).replace("\r\n", "\n").split("\n");
     auto expectedAbsoluteFilePaths = createAbsoluteFilePaths(fileNameList);
 
     // WHEN

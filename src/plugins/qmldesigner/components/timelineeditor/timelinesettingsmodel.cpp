@@ -26,7 +26,7 @@ namespace QmlDesigner {
 static void setDataForFixedFrame(QStandardItem *item, std::optional<int> fixedValue)
 {
     if (fixedValue)
-        item->setData(fixedValue.value(), Qt::EditRole);
+        item->setData(*fixedValue, Qt::EditRole);
     else
         item->setData(Tr::tr("None"), Qt::EditRole);
 }

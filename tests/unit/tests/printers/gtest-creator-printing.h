@@ -94,7 +94,7 @@ template<typename Type>
 std::ostream &operator<<(std::ostream &out, const std::optional<Type> &optional)
 {
     if (optional)
-        return out << "optional " << optional.value();
+        return out << "optional " << *optional;
     else
         return out << "empty optional()";
 }

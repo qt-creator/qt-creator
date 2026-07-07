@@ -599,7 +599,7 @@ Utils::Result<ExecutableItem> QtKitAspectFactory::createAspectFromJson(
             return;
         }
 
-        QtVersion *qtVersion = result.value();
+        QtVersion *qtVersion = *result;
         if (!qtVersion->isValid()) {
             logCallback(Tr::tr("Qt version \"%1\" is not valid.").arg(qtVersion->displayName()));
             return;

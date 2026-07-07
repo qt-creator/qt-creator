@@ -65,7 +65,7 @@ protected:
     QString qmlFileContent() const
     {
         auto content = qmlFile.fileContents();
-        return (content ? QString::fromLatin1(content.value()) : QString{});
+        return (content ? QString::fromLatin1(*content) : QString{});
     }
 
     void parseDocument()
