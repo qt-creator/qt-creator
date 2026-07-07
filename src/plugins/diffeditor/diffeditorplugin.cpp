@@ -9,9 +9,12 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -232,6 +235,19 @@ static QList<ReloadInput> externalFilesReloadInputList(const FilePath &leftFileP
     return result;
 }
 
+// Diffs the in-memory contents of two documents (which may have no file on
+// disk, e.g. scratch editors). See QTCREATORBUG-33271.
+static QList<ReloadInput> documentsReloadInputList(
+    const QString &leftTitle, const QString &leftText,
+    const QString &rightTitle, const QString &rightText)
+{
+    ReloadInput reloadInput;
+    reloadInput.text = {leftText, rightText};
+    reloadInput.fileInfo[LeftSide].fileName = leftTitle;
+    reloadInput.fileInfo[RightSide].fileName = rightTitle;
+    return {reloadInput};
+}
+
 /////////////////
 
 static TextDocument *currentTextDocument()
@@ -247,6 +263,7 @@ class DiffEditorServiceImpl final : public QObject, public DiffService
 public:
     void diffFiles(const FilePath &leftFilePath, const FilePath &rightFilePath) final;
     void diffModifiedFiles(const FilePaths &filePaths) final;
+    void diffDocuments(IDocument *leftDocument, IDocument *rightDocument) final;
 };
 
 static void reload(const QString &vcsId, const QString &displayName,
@@ -280,6 +297,31 @@ void DiffEditorServiceImpl::diffModifiedFiles(const FilePaths &filePaths)
     reload(documentId, title, [filePaths] { return modifiedFilesReloadInputList(filePaths); });
 }
 
+void DiffEditorServiceImpl::diffDocuments(IDocument *leftDocument, IDocument *rightDocument)
+{
+    if (!leftDocument || !rightDocument)
+        return;
+
+    const auto textOf = [](IDocument *document) -> QString {
+        if (auto *textDocument = qobject_cast<TextDocument *>(document))
+            return textDocument->plainText();
+        return QString::fromUtf8(document->contents());
+    };
+    const auto titleOf = [](IDocument *document) -> QString {
+        return document->filePath().isEmpty() ? document->displayName()
+                                              : document->filePath().path();
+    };
+
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffDocuments");
+    const QString leftTitle = titleOf(leftDocument);
+    const QString leftText = textOf(leftDocument);
+    const QString rightTitle = titleOf(rightDocument);
+    const QString rightText = textOf(rightDocument);
+    reload(documentId, Tr::tr("Diff"), [leftTitle, leftText, rightTitle, rightText] {
+        return documentsReloadInputList(leftTitle, leftText, rightTitle, rightText);
+    });
+}
+
 class DiffEditorPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -306,6 +348,7 @@ private slots:
     void testReadPatch();
     void testFilterPatch_data();
     void testFilterPatch();
+    void testDiffDocuments();
 #endif // WITH_TESTS
 };
 
@@ -1479,6 +1522,31 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch()
         QCOMPARE(result.rows.at(i).line[LeftSide].text, rows.at(i).first);
         QCOMPARE(result.rows.at(i).line[RightSide].text, rows.at(i).second);
     }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testDiffDocuments()
+{
+    // Two scratch documents without a file path, as produced by "Copy to New
+    // Editor". diffDocuments() must open a diff of their in-memory contents,
+    // even though there is nothing on disk to compare. See QTCREATORBUG-33271.
+    QString leftTitle = "left";
+    QString rightTitle = "right";
+    IEditor *left = EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &leftTitle, "a\nb\nc\n");
+    IEditor *right = EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &rightTitle, "a\nB\nc\n");
+    QVERIFY(left && right);
+    QVERIFY(left->document()->filePath().isEmpty());
+
+    DiffService *service = DiffService::instance();
+    QVERIFY(service);
+    service->diffDocuments(left->document(), right->document());
+
+    // A diff editor for the two documents must have been opened and activated.
+    auto diffDocument = qobject_cast<DiffEditorDocument *>(EditorManager::currentDocument());
+    QVERIFY(diffDocument);
+
+    EditorManager::closeDocuments({left->document(), right->document(), diffDocument}, false);
 }
 
 #endif // WITH_TESTS

@@ -3206,16 +3206,27 @@ void EditorManagerPrivate::addPinEditorActions(QMenu *contextMenu, DocumentModel
 }
 
 QAction *EditorManager::createDiffAgainstCurrentFileAction(
-    QObject *parent, const std::function<Utils::FilePath()> &filePath)
+    QObject *parent, const std::function<Utils::FilePath()> &filePath,
+    const std::function<IDocument *()> &leftDocument)
 {
-    const auto diffAgainstCurrentFile = [filePath]() {
-        QTC_ASSERT(EditorManager::currentDocument(), return);
-        const FilePath leftFilePath = filePath();
-        const FilePath rightFilePath = EditorManager::currentDocument()->filePath();
-        if (leftFilePath.isEmpty() || rightFilePath.isEmpty())
+    const auto diffAgainstCurrentFile = [filePath, leftDocument]() {
+        IDocument *rightDocument = EditorManager::currentDocument();
+        QTC_ASSERT(rightDocument, return);
+        auto diffService = DiffService::instance();
+        if (!diffService)
             return;
-        if (auto diffService = DiffService::instance())
-            diffService->diffFiles(leftFilePath, rightFilePath);
+        const FilePath leftFilePath = filePath();
+        const FilePath rightFilePath = rightDocument->filePath();
+        if (leftFilePath.isEmpty() || rightFilePath.isEmpty()) {
+            // A side has no file on disk (e.g. a "Copy to New Editor" scratch
+            // buffer), so diff the documents' in-memory contents instead of
+            // reading files. QTCREATORBUG-33271.
+            IDocument *left = leftDocument ? leftDocument() : nullptr;
+            if (left)
+                diffService->diffDocuments(left, rightDocument);
+            return;
+        }
+        diffService->diffFiles(leftFilePath, rightFilePath);
     };
     auto diffAction = new QAction(Tr::tr("Diff Against Current File"), parent);
     diffAction->setEnabled(EditorManager::currentDocument());
@@ -3255,9 +3266,9 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
 
     if (!flags.testFlag(EditorManager::HideVersionControl)) {
         // Diff Against Current File
-        contextMenu->addAction(EditorManager::createDiffAgainstCurrentFileAction(d, [filePath] {
-            return filePath;
-        }));
+        contextMenu->addAction(EditorManager::createDiffAgainstCurrentFileAction(
+            d, [filePath] { return filePath; },
+            [editor] { return editor ? editor->document() : nullptr; }));
 
         // Version Control
         FilePath topLevel;

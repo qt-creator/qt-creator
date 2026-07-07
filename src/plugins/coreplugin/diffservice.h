@@ -14,6 +14,8 @@ class FilePaths;
 
 namespace Core {
 
+class IDocument;
+
 class CORE_EXPORT DiffService
 {
 public:
@@ -25,6 +27,9 @@ public:
     virtual void diffFiles(const Utils::FilePath &leftFilePath,
                            const Utils::FilePath &rightFilePath) = 0;
     virtual void diffModifiedFiles(const Utils::FilePaths &filePaths) = 0;
+    // Diffs the in-memory contents of two documents. Unlike diffFiles(), this
+    // works for documents that have no file on disk (e.g. scratch editors).
+    virtual void diffDocuments(IDocument *leftDocument, IDocument *rightDocument) = 0;
 };
 
 } // namespace Core
