@@ -148,7 +148,8 @@ def matches(expectedItems, items):
 
 
 def safeClickTab(tab):
-    for bar in [":Qt Creator.Events_QTabBar",
+    for bar in [":Qt Creator.Dashboard_QTabBar",
+                ":Qt Creator.Events_QTabBar",
                 ":Qt Creator.Timeline_QTabBar"]:
         try:
             clickOnTab(bar, tab, 1000)

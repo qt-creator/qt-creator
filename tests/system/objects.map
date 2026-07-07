@@ -137,6 +137,8 @@
 :Qt Creator.Replace All_QToolButton	{text='Replace All' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Replace_QToolButton	{text='Replace' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Dashboard_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='QmlProfiler.Dashboard.DockDockWidget' type='QDockWidget' visible='1'}
+:Qt Creator.Dashboard_QTabBar	{aboveWidget=':Qt Creator.Dashboard_QDockWidget' container=':Qt Creator.DebugModeWidget_QSplitter' type='QTabBar' unnamed='1' visible='1'}
 :Qt Creator.Timeline_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='QmlProfiler.Timeline.DockDockWidget' type='QDockWidget' visible='1'}
 :Qt Creator.Timeline_QTabBar	{aboveWidget=':Qt Creator.Timeline_QDockWidget' container=':Qt Creator.DebugModeWidget_QSplitter' type='QTabBar' unnamed='1' visible='1'}
 :Qt Creator.WelcomeScreenStackedWidget	{name='WelcomeScreenStackedWidget' type='QStackedWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
