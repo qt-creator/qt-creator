@@ -210,26 +210,26 @@ private slots:
         QCOMPARE(tp.output->maxTestNameWidth, 80);
 
         QVERIFY(tp.filter);
-        const auto &inc = tp.filter->include.value();
+        const auto &inc = *tp.filter->include;
         QCOMPARE(inc.name, QString("TestA"));
         QCOMPARE(inc.label, QString("unit"));
         QCOMPARE(inc.useUnion, true);
-        const auto &idx = inc.index.value();
+        const auto &idx = *inc.index;
         QCOMPARE(idx.start, 1);
         QCOMPARE(idx.end, 10);
         QCOMPARE(idx.stride, 2);
         QCOMPARE(idx.specificTests, QList<int>() << 1 << 3 << 5);
 
-        const auto &exc = tp.filter->exclude.value();
+        const auto &exc = *tp.filter->exclude;
         QCOMPARE(exc.name, QString("TestB"));
         QCOMPARE(exc.label, QString("integration"));
-        const auto &fx = exc.fixtures.value();
+        const auto &fx = *exc.fixtures;
         QCOMPARE(fx.any, QString("BaseFixture"));
         QCOMPARE(fx.setup, QString("SetupFixture"));
         QCOMPARE(fx.cleanup, QString("CleanupFixture"));
 
         QVERIFY(tp.execution);
-        const auto &exe = tp.execution.value();
+        const auto &exe = *tp.execution;
         QCOMPARE(exe.stopOnFailure, true);
         QCOMPARE(exe.enableFailover, false);
         QCOMPARE(exe.jobs, 4);
@@ -378,7 +378,7 @@ private slots:
         preset.environment = Utils::Environment();
         preset.environment->set("VAR", "VALUE");
 
-        Utils::Environment env = preset.environment.value();
+        Utils::Environment env = *preset.environment;
 
         // Test simple variable expansion
         QString val1 = "$env{VAR}";

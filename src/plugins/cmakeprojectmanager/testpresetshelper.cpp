@@ -36,10 +36,10 @@ QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset)
         if (out.outputJUnitFile)
             args << "--output-junit" << out.outputJUnitFile->toFSPathString();
 
-        if (out.labelSummary.has_value() && !out.labelSummary.value())
+        if (out.labelSummary.has_value() && !*out.labelSummary)
             args << "--no-label-summary";
 
-        if (out.subprojectSummary.has_value() && !out.subprojectSummary.value())
+        if (out.subprojectSummary.has_value() && !*out.subprojectSummary)
             args << "--no-subproject-summary";
 
         if (out.maxPassedTestOutputSize)

@@ -253,7 +253,7 @@ private:
                     cmakeProject->presetsData().testPresets,
                     [testInfo](const auto &preset) { return preset.name == testInfo.name; });
                 if (preset.displayName)
-                    return preset.displayName.value();
+                    return *preset.displayName;
                 return testInfo.name;
             };
 

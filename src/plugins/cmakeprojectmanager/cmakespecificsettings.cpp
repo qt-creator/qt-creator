@@ -178,7 +178,7 @@ void CMakeSpecificSettings::readSettings()
             if (cmakeProject && cmakeProject->presetsData().havePresets
                 && cmakeProject->presetsData().vendor) {
                 useGlobalSettings.setValue(false);
-                data = storeFromMap(cmakeProject->presetsData().vendor.value());
+                data = storeFromMap(*cmakeProject->presetsData().vendor);
                 fromMap(data);
 
                 // Write the new loaded CMakePresets settings into .user file

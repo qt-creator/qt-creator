@@ -140,7 +140,7 @@ static QStringList recursiveInheritsList(const T &presetsHash, const QStringList
         if (presetsHash.contains(inheritFrom)) {
             auto item = presetsHash[inheritFrom];
             if (item.inherits)
-                result << recursiveInheritsList(presetsHash, item.inherits.value());
+                result << recursiveInheritsList(presetsHash, *item.inherits);
         }
     }
     return result;
@@ -156,7 +156,7 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
     result.include = cmakePresetsData.include;
     if (result.include) {
         if (cmakeUserPresetsData.include)
-            result.include->append(cmakeUserPresetsData.include.value());
+            result.include->append(*cmakeUserPresetsData.include);
     } else {
         result.include = cmakeUserPresetsData.include;
     }
@@ -164,7 +164,7 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
     result.vendor = cmakePresetsData.vendor;
     if (result.vendor) {
         if (cmakeUserPresetsData.vendor)
-            result.vendor->insert(cmakeUserPresetsData.vendor.value());
+            result.vendor->insert(*cmakeUserPresetsData.vendor);
     } else {
         result.vendor = cmakeUserPresetsData.vendor;
     }
@@ -182,15 +182,15 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
         auto resolveInherits = [](auto &presetsHash, auto &presetsList) {
             Utils::sort(presetsList, [](const auto &left, const auto &right) {
                 const bool sameInheritance = left.inherits && right.inherits
-                                             && left.inherits.value() == right.inherits.value();
+                                             && *left.inherits == *right.inherits;
                 const bool leftInheritsRight = left.inherits
-                                               && left.inherits.value().contains(right.name);
+                                               && left.inherits->contains(right.name);
 
                 const bool inheritsGreater = left.inherits && right.inherits
-                                             && !left.inherits.value().isEmpty()
-                                             && !right.inherits.value().isEmpty()
-                                             && left.inherits.value().first()
-                                                    > right.inherits.value().first();
+                                             && !left.inherits->isEmpty()
+                                             && !right.inherits->isEmpty()
+                                             && left.inherits->first()
+                                                    > right.inherits->first();
 
                 const bool noInheritsGreaterEqual = !left.inherits &&
                                                     !right.inherits &&
@@ -206,7 +206,7 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
                     continue;
 
                 const QStringList inheritsList = recursiveInheritsList(presetsHash,
-                                                                       p.inherits.value());
+                                                                       *p.inherits);
                 for (const QString &inheritFrom : inheritsList) {
                     if (presetsHash.contains(inheritFrom)) {
                         p.inheritFrom(presetsHash[inheritFrom]);
@@ -374,7 +374,7 @@ void CMakeProject::readPresets()
     std::function<void(Internal::PresetsData & presetData, Utils::FilePaths & inclueStack)>
         resolveIncludes = [&](Internal::PresetsData &presetData, Utils::FilePaths &includeStack) {
             if (presetData.include) {
-                for (const QString &path : presetData.include.value()) {
+                for (const QString &path : *presetData.include) {
                     Utils::FilePath includePath = Utils::FilePath::fromUserInput(path);
                     if (!includePath.isAbsolutePath())
                         includePath = presetData.fileDir.resolvePath(path);
@@ -533,7 +533,7 @@ private slots:
 
         const PresetsDetails::ConfigurePreset &childPreset = *it;
         QVERIFY(childPreset.cacheVariables);
-        const auto &cache = childPreset.cacheVariables.value();
+        const auto &cache = *childPreset.cacheVariables;
 
         // The value should come from the first preset ("says-a")
         bool found = false;

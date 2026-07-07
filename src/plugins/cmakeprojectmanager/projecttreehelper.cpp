@@ -129,7 +129,7 @@ void addCMakePresets(FolderNode *root, const Utils::FilePath &sourceDir)
     QTC_ASSERT(cmakeProject, return);
 
     if (cmakeProject->presetsData().include)
-        presetFileNames.append(cmakeProject->presetsData().include.value());
+        presetFileNames.append(*cmakeProject->presetsData().include);
 
     std::vector<std::unique_ptr<FileNode>> presets;
     for (const auto &fileName : std::as_const(presetFileNames)) {

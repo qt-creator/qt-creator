@@ -230,7 +230,7 @@ void updateToolchainFile(
     if (!configurePreset.toolchainFile)
         return;
 
-    QString toolchainFileName = configurePreset.toolchainFile.value();
+    QString toolchainFileName = *configurePreset.toolchainFile;
     CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, toolchainFileName);
 
     // Resolve the relative path first to source and afterwards to build directory
@@ -248,7 +248,7 @@ void updateToolchainFile(
     const QString toolchainFileString = toolchainFile.cleanPath().path();
 
     // toolchainFile takes precedence to CMAKE_TOOLCHAIN_FILE
-    CMakeConfig cache = configurePreset.cacheVariables ? configurePreset.cacheVariables.value()
+    CMakeConfig cache = configurePreset.cacheVariables ? *configurePreset.cacheVariables
                                                        : CMakeConfig();
     cache.insert(CMakeConfigItem(
         "CMAKE_TOOLCHAIN_FILE", CMakeConfigItem::FILEPATH, toolchainFileString.toUtf8()));
@@ -263,7 +263,7 @@ void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
     if (!configurePreset.installDir)
         return;
 
-    QString installDirString = configurePreset.installDir.value();
+    QString installDirString = *configurePreset.installDir;
     CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, installDirString);
 
     // Resolve the relative path first to source and afterwards to build directory
@@ -277,7 +277,7 @@ void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
     installDirString = installDir.cleanPath().path();
 
     // installDir takes precedence to CMAKE_INSTALL_PREFIX
-    CMakeConfig cache = configurePreset.cacheVariables ? configurePreset.cacheVariables.value()
+    CMakeConfig cache = configurePreset.cacheVariables ? *configurePreset.cacheVariables
                                                        : CMakeConfig();
     cache.insert(
         CMakeConfigItem("CMAKE_INSTALL_PREFIX", CMakeConfigItem::PATH, installDirString.toUtf8()));
@@ -295,7 +295,7 @@ void updateCacheVariables(PresetsDetails::ConfigurePreset &configurePreset,
     if (!configurePreset.cacheVariables)
         return;
 
-    CMakeConfig cache = configurePreset.cacheVariables.value();
+    CMakeConfig cache = *configurePreset.cacheVariables;
 
     static const QSet<QByteArray> pathKeys{"CMAKE_C_COMPILER",
                                            "CMAKE_CXX_COMPILER",
@@ -335,35 +335,35 @@ void expandConditionValues(const PresetType &preset,
 {
     if (condition.isEquals() || condition.isNotEquals()) {
         if (condition.lhs)
-            expand(preset, env, sourceDirectory, condition.lhs.value());
+            expand(preset, env, sourceDirectory, *condition.lhs);
         if (condition.rhs)
-            expand(preset, env, sourceDirectory, condition.rhs.value());
+            expand(preset, env, sourceDirectory, *condition.rhs);
     }
 
     if (condition.isInList() || condition.isNotInList()) {
         if (condition.string)
-            expand(preset, env, sourceDirectory, condition.string.value());
+            expand(preset, env, sourceDirectory, *condition.string);
         if (condition.list)
-            for (QString &listValue : condition.list.value())
+            for (QString &listValue : *condition.list)
                 expand(preset, env, sourceDirectory, listValue);
     }
 
     if (condition.isMatches() || condition.isNotMatches()) {
         if (condition.string)
-            expand(preset, env, sourceDirectory, condition.string.value());
+            expand(preset, env, sourceDirectory, *condition.string);
         if (condition.regex)
-            expand(preset, env, sourceDirectory, condition.regex.value());
+            expand(preset, env, sourceDirectory, *condition.regex);
     }
 
     if (condition.isAnyOf() || condition.isAllOf()) {
         if (condition.conditions)
-            for (PresetsDetails::Condition::ConditionPtr &c : condition.conditions.value())
+            for (PresetsDetails::Condition::ConditionPtr &c : *condition.conditions)
                 expandConditionValues(preset, env, sourceDirectory, *c);
     }
 
     if (condition.isNot()) {
         if (condition.condition)
-            expandConditionValues(preset, env, sourceDirectory, *condition.condition.value());
+            expandConditionValues(preset, env, sourceDirectory, **condition.condition);
     }
 }
 
@@ -376,7 +376,7 @@ bool evaluatePresetCondition(const PresetType &preset, const Utils::FilePath &so
     Utils::Environment env = sourceDirectory.deviceEnvironment();
     expand(preset, env, sourceDirectory);
 
-    PresetsDetails::Condition condition = preset.condition.value();
+    PresetsDetails::Condition condition = *preset.condition;
     expandConditionValues(preset, env, sourceDirectory, condition);
 
     return condition.evaluate();

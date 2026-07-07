@@ -1342,65 +1342,65 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
 
     // Add the command line arguments
     if (configurePreset.warnings) {
-        if (configurePreset.warnings.value().dev) {
-            bool value = configurePreset.warnings.value().dev.value();
+        if (configurePreset.warnings->dev) {
+            bool value = *configurePreset.warnings->dev;
             initialArguments.append(value ? QString("-Wdev") : QString("-Wno-dev"));
         }
-        if (configurePreset.warnings.value().deprecated) {
-            bool value = configurePreset.warnings.value().deprecated.value();
+        if (configurePreset.warnings->deprecated) {
+            bool value = *configurePreset.warnings->deprecated;
             initialArguments.append(value ? QString("-Wdeprecated") : QString("-Wno-deprecated"));
         }
-        if (configurePreset.warnings.value().uninitialized
-            && configurePreset.warnings.value().uninitialized.value())
+        if (configurePreset.warnings->uninitialized
+            && *configurePreset.warnings->uninitialized)
             initialArguments.append("--warn-uninitialized");
-        if (configurePreset.warnings.value().unusedCli
-            && !configurePreset.warnings.value().unusedCli.value())
+        if (configurePreset.warnings->unusedCli
+            && !*configurePreset.warnings->unusedCli)
             initialArguments.append(" --no-warn-unused-cli");
-        if (configurePreset.warnings.value().systemVars
-            && configurePreset.warnings.value().systemVars.value())
+        if (configurePreset.warnings->systemVars
+            && *configurePreset.warnings->systemVars)
             initialArguments.append("--check-system-vars");
     }
 
     if (configurePreset.errors) {
-        if (configurePreset.errors.value().dev) {
-            bool value = configurePreset.errors.value().dev.value();
+        if (configurePreset.errors->dev) {
+            bool value = *configurePreset.errors->dev;
             initialArguments.append(value ? QString("-Werror=dev") : QString("-Wno-error=dev"));
         }
-        if (configurePreset.errors.value().deprecated) {
-            bool value = configurePreset.errors.value().deprecated.value();
+        if (configurePreset.errors->deprecated) {
+            bool value = *configurePreset.errors->deprecated;
             initialArguments.append(value ? QString("-Werror=deprecated")
                                           : QString("-Wno-error=deprecated"));
         }
     }
 
     if (configurePreset.debug) {
-        if (configurePreset.debug.value().find && configurePreset.debug.value().find.value())
+        if (configurePreset.debug->find && *configurePreset.debug->find)
             initialArguments.append("--debug-find");
-        if (configurePreset.debug.value().tryCompile
-            && configurePreset.debug.value().tryCompile.value())
+        if (configurePreset.debug->tryCompile
+            && *configurePreset.debug->tryCompile)
             initialArguments.append("--debug-trycompile");
-        if (configurePreset.debug.value().output && configurePreset.debug.value().output.value())
+        if (configurePreset.debug->output && *configurePreset.debug->output)
             initialArguments.append("--debug-output");
     }
 
     if (configurePreset.graphviz) {
-        QString graphvizValue = configurePreset.graphviz.value();
+        QString graphvizValue = *configurePreset.graphviz;
         CMakePresets::Macros::expand(configurePreset, env, project->projectDirectory(), graphvizValue);
         initialArguments.append("--graphviz=" + graphvizValue);
     }
 
     if (configurePreset.trace) {
-        const auto &trace = configurePreset.trace.value();
+        const auto &trace = *configurePreset.trace;
         if (trace.mode)
-            initialArguments.append("--trace=" + trace.mode.value());
+            initialArguments.append("--trace=" + *trace.mode);
         if (trace.format)
-            initialArguments.append("--trace-format=" + trace.format.value());
+            initialArguments.append("--trace-format=" + *trace.format);
         if (trace.source) {
-            for (const QString &source : trace.source.value())
+            for (const QString &source : *trace.source)
                 initialArguments.append("--trace-source=" + source);
         }
         if (trace.redirect)
-            initialArguments.append("--trace-redirect=" + trace.redirect.value());
+            initialArguments.append("--trace-redirect=" + *trace.redirect);
     }
 
     CMakePresets::Macros::updateToolchainFile(configurePreset,
@@ -1412,7 +1412,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
     // Merge the presets cache variables
     CMakeConfig cache;
     if (configurePreset.cacheVariables)
-        cache = configurePreset.cacheVariables.value();
+        cache = *configurePreset.cacheVariables;
 
     for (const CMakeConfigItem &presetItemRaw : std::as_const(cache)) {
 

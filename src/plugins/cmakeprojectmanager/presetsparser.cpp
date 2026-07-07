@@ -47,7 +47,7 @@ std::optional<QStringList> parseInclude(const QJsonValue &jsonValue)
             includes = QStringList();
             const QJsonArray includeArray = jsonValue.toArray();
             for (const auto &includeValue : includeArray)
-                includes.value() << includeValue.toString();
+                *includes << includeValue.toString();
         }
     }
 
@@ -106,7 +106,7 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
                 condition->list = QStringList();
                 const QJsonArray listArray = object.value("list").toArray();
                 for (const auto &listValue : listArray)
-                    condition->list.value() << listValue.toString();
+                    *condition->list << listValue.toString();
             }
         }
     }
@@ -130,9 +130,9 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
                 condition->conditions = std::vector<PresetsDetails::Condition::ConditionPtr>();
                 const QJsonArray conditionsArray = object.value("conditions").toArray();
                 for (const auto &conditionsValue : conditionsArray) {
-                    condition->conditions.value().emplace_back(
+                    condition->conditions->emplace_back(
                         std::make_shared<PresetsDetails::Condition>(
-                            parseCondition(conditionsValue).value()));
+                            *parseCondition(conditionsValue)));
                 }
             }
         }
@@ -143,7 +143,7 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
     if (type == "not") {
         condition->type = type;
         condition->condition = std::make_shared<PresetsDetails::Condition>(
-            parseCondition(object.value("condition")).value());
+            *parseCondition(object.value("condition")));
         return condition;
     }
 
@@ -193,7 +193,7 @@ static std::optional<PresetsDetails::Trace> parseTrace(const QJsonValue &jsonVal
             trace.source = QStringList();
             const QJsonArray sourceArray = sourceValue.toArray();
             for (const auto &sourceItem : sourceArray)
-                trace.source.value() << sourceItem.toString();
+                *trace.source << sourceItem.toString();
         } else if (sourceValue.isString()) {
             trace.source = QStringList{sourceValue.toString()};
         }
@@ -234,11 +234,11 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
             if (inherits.isArray()) {
                 const QJsonArray inheritsArray = inherits.toArray();
                 for (const auto &inheritsValue : inheritsArray)
-                    preset.inherits.value() << inheritsValue.toString();
+                    *preset.inherits << inheritsValue.toString();
             } else {
                 QString inheritsValue = inherits.toString();
                 if (!inheritsValue.isEmpty())
-                    preset.inherits.value() << inheritsValue;
+                    *preset.inherits << inheritsValue;
             }
         }
 
@@ -281,19 +281,19 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
                 item.type = CMakeConfigItem::typeStringToType(
                     cacheVariableObj.value("type").toString().toUtf8());
                 item.value = cacheVariableObj.value("value").toString().toUtf8();
-                preset.cacheVariables.value().insert(item);
+                preset.cacheVariables->insert(item);
 
             } else {
                 if (cacheValue.isBool()) {
-                    preset.cacheVariables.value().insert(CMakeConfigItem(
+                    preset.cacheVariables->insert(CMakeConfigItem(
                         cacheKey.toUtf8(),
                         CMakeConfigItem::BOOL,
                         cacheValue.toBool() ? "ON" : "OFF"));
                 } else if (CMakeConfigItem::toBool(cacheValue.toString()).has_value()) {
-                    preset.cacheVariables.value().insert(CMakeConfigItem(
+                    preset.cacheVariables->insert(CMakeConfigItem(
                         cacheKey.toUtf8(), CMakeConfigItem::BOOL, cacheValue.toString().toUtf8()));
                 } else {
-                    preset.cacheVariables.value().insert(
+                    preset.cacheVariables->insert(
                         CMakeConfigItem(cacheKey.toUtf8(), cacheValue.toString().toUtf8()));
                 }
             }
@@ -305,7 +305,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
                 preset.environment = Utils::Environment();
 
             QJsonValue envValue = environmentObj.value(envKey);
-            preset.environment.value().set(envKey, envValue.toString());
+            preset.environment->set(envKey, envValue.toString());
         }
 
         const QJsonObject warningsObj = object.value("warnings").toObject();
@@ -430,11 +430,11 @@ static bool parseBuildPresets(const QJsonValue &jsonValue,
             if (inherits.isArray()) {
                 const QJsonArray inheritsArray = inherits.toArray();
                 for (const auto &inheritsValue : inheritsArray)
-                    preset.inherits.value() << inheritsValue.toString();
+                    *preset.inherits << inheritsValue.toString();
             } else {
                 QString inheritsValue = inherits.toString();
                 if (!inheritsValue.isEmpty())
-                    preset.inherits.value() << inheritsValue;
+                    *preset.inherits << inheritsValue;
             }
         }
 
@@ -455,7 +455,7 @@ static bool parseBuildPresets(const QJsonValue &jsonValue,
                 preset.environment = Utils::Environment();
 
             QJsonValue envValue = environmentObj.value(envKey);
-            preset.environment.value().set(envKey, envValue.toString());
+            preset.environment->set(envKey, envValue.toString());
         }
 
         if (object.contains("configurePreset"))
@@ -471,11 +471,11 @@ static bool parseBuildPresets(const QJsonValue &jsonValue,
             if (targets.isArray()) {
                 const QJsonArray targetsArray = targets.toArray();
                 for (const auto &targetsValue : targetsArray)
-                    preset.targets.value() << targetsValue.toString();
+                    *preset.targets << targetsValue.toString();
             } else {
                 QString targetsValue = targets.toString();
                 if (!targetsValue.isEmpty())
-                    preset.targets.value() << targetsValue;
+                    *preset.targets << targetsValue;
             }
         }
         if (object.contains("configuration"))
@@ -491,7 +491,7 @@ static bool parseBuildPresets(const QJsonValue &jsonValue,
                 preset.nativeToolOptions = QStringList();
                 const QJsonArray toolOptionsArray = nativeToolOptions.toArray();
                 for (const auto &toolOptionsValue : toolOptionsArray)
-                    preset.nativeToolOptions.value() << toolOptionsValue.toString();
+                    *preset.nativeToolOptions << toolOptionsValue.toString();
             }
         }
 
@@ -576,7 +576,7 @@ static std::optional<PresetsDetails::Filter> parseFilter(const QJsonValue &jsonV
                             filter.include->index->specificTests = QList<int>();
                             const QJsonArray specificTestsArray = specificTestsValue.toArray();
                             for (const auto &arrayVal : specificTestsArray)
-                                filter.include->index->specificTests.value() << arrayVal.toInt();
+                                *filter.include->index->specificTests << arrayVal.toInt();
                         }
                     }
                 }
@@ -680,11 +680,11 @@ static bool parseTestPresets(const QJsonValue &jsonValue,
             if (inherits.isArray()) {
                 const QJsonArray inheritsArray = inherits.toArray();
                 for (const auto &inheritsValue : inheritsArray)
-                    preset.inherits.value() << inheritsValue.toString();
+                    *preset.inherits << inheritsValue.toString();
             } else {
                 QString inheritsValue = inherits.toString();
                 if (!inheritsValue.isEmpty())
-                    preset.inherits.value() << inheritsValue;
+                    *preset.inherits << inheritsValue;
             }
         }
         if (object.contains("condition"))
@@ -700,7 +700,7 @@ static bool parseTestPresets(const QJsonValue &jsonValue,
             if (!preset.environment)
                 preset.environment = Utils::Environment();
             QJsonValue envValue = environmentObj.value(envKey);
-            preset.environment.value().set(envKey, envValue.toString());
+            preset.environment->set(envKey, envValue.toString());
         }
         if (object.contains("configurePreset"))
             preset.configurePreset = object.value("configurePreset").toString();
@@ -713,7 +713,7 @@ static bool parseTestPresets(const QJsonValue &jsonValue,
             if (object.value("overwriteConfigurationFile").isArray()) {
                 const QJsonArray overwriteArray = object.value("overwriteConfigurationFile").toArray();
                 for (const auto &overwriteValue : overwriteArray)
-                    preset.overwriteConfigurationFile.value() << overwriteValue.toString();
+                    *preset.overwriteConfigurationFile << overwriteValue.toString();
             }
         }
         if (object.contains("output"))
@@ -743,11 +743,11 @@ bool PresetsParser::parse(const FilePath &jsonFile, QString &errorMessage, int &
     }
 
     QJsonParseError error;
-    const QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonContents.value(), &error);
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(*jsonContents, &error);
     if (jsonDoc.isNull()) {
         errorLine = 1;
         for (int i = 0; i < error.offset; ++i)
-            if (jsonContents.value().at(i) == '\n')
+            if (jsonContents->at(i) == '\n')
                 ++errorLine;
         errorMessage = error.errorString();
         return false;

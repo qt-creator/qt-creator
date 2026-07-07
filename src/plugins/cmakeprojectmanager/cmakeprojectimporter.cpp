@@ -1008,19 +1008,19 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
                 Task::TaskType::DisruptingError, Tr::tr("<No CMake Tool available>"));
         }
     } else {
-        const FilePath cmakeExecutable = configurePreset.cmakeExecutable.value();
+        const FilePath cmakeExecutable = *configurePreset.cmakeExecutable;
         QString cmake = cmakeExecutable.path(); // Don't replace in scheme/host
         CMakePresets::Macros::expand(configurePreset, env, projectDirectory, cmake);
 
         configurePreset.cmakeExecutable = cmakeExecutable.withNewPath(cmake);
     }
 
-    data.cmakeBinary = configurePreset.cmakeExecutable.value();
+    data.cmakeBinary = *configurePreset.cmakeExecutable;
     if (configurePreset.generator)
-        data.generator = configurePreset.generator.value();
+        data.generator = *configurePreset.generator;
 
     if (configurePreset.binaryDir) {
-        QString binaryDir = configurePreset.binaryDir.value();
+        QString binaryDir = *configurePreset.binaryDir;
         CMakePresets::Macros::expand(configurePreset, env, projectDirectory, binaryDir);
         data.buildDirectory = FilePath::fromString(binaryDir);
     }
@@ -1036,11 +1036,11 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
                  == PresetsDetails::ValueStrategyPair::Strategy::external;
 
     if (!architectureExternalStrategy && configurePreset.architecture
-        && configurePreset.architecture.value().value)
-        data.platform = configurePreset.architecture.value().value.value();
+        && configurePreset.architecture->value)
+        data.platform = *configurePreset.architecture->value;
 
-    if (!toolsetExternalStrategy && configurePreset.toolset && configurePreset.toolset.value().value)
-        data.toolset = configurePreset.toolset.value().value.value();
+    if (!toolsetExternalStrategy && configurePreset.toolset && configurePreset.toolset->value)
+        data.toolset = *configurePreset.toolset->value;
 
     if (architectureExternalStrategy && toolsetExternalStrategy) {
         const Toolchain *tc
@@ -1106,7 +1106,7 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
         }
 
         if (configurePreset.cacheVariables) {
-            CMakeConfig cacheVariables = configurePreset.cacheVariables.value();
+            CMakeConfig cacheVariables = *configurePreset.cacheVariables;
             // For the compiler probe we don't need VCPKG_MANIFEST_MODE
             cacheVariables.remove("VCPKG_MANIFEST_MODE");
 
@@ -1124,12 +1124,12 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
     config.insert(CMakeConfigItem(
         "CMAKE_COMMAND",
         CMakeConfigItem::PATH,
-        configurePreset.cmakeExecutable.value().path().toUtf8()));
+        configurePreset.cmakeExecutable->path().toUtf8()));
     if (configurePreset.generator)
         config.insert(CMakeConfigItem(
             "CMAKE_GENERATOR",
             CMakeConfigItem::STRING,
-            configurePreset.generator.value().toUtf8()));
+            configurePreset.generator->toUtf8()));
 
     return SetupResult::StopWithSuccess;
 }
