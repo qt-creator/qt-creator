@@ -2637,6 +2637,11 @@ void FakeVimTester::test_vim_copy_paste()
     KEYS("yyp", "abc" N X "abc");
     KEYS("4p", "abc" N "abc" N X "abc" N "abc" N "abc" N "abc");
 
+    // Yanking a whole line with "V" (visual line mode) is linewise, so "p"
+    // pastes it on a new line below, just like "yy" (QTCREATORBUG-22865).
+    data.setText("abc" N "def");
+    KEYS("Vyp", "abc" N X "abc" N "def");
+
     // cursor position after yank
     data.setText("ab" X "c" N "def");
     KEYS("Vjy", X "abc" N "def");
