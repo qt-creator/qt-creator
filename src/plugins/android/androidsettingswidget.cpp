@@ -13,10 +13,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
@@ -399,9 +402,26 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(m_ndkListWidget, &QListWidget::itemChanged, this, markSettingsDirty);
 }
 
+static bool androidQtVersionsInstalledButNoKits()
+{
+    const bool qtForAndroidInstalled = !QtSupport::QtVersionManager::versions(
+                                            &QtSupport::QtVersion::isAndroidQtVersion)
+                                            .isEmpty();
+
+    const bool qtForAndroidKitsConfigured = Utils::anyOf(
+        ProjectExplorer::KitManager::kits(), [](ProjectExplorer::Kit *k) {
+            return ProjectExplorer::RunDeviceTypeKitAspect::deviceTypeId(k)
+            == Constants::ANDROID_DEVICE_TYPE;
+        });
+
+    return qtForAndroidInstalled && !qtForAndroidKitsConfigured;
+}
+
 void AndroidSettingsWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
+    if (androidQtVersionsInstalledButNoKits())
+        markSettingsDirty();
     if (!m_isInitialReloadDone) {
         validateJdk();
         // Reloading SDK packages (force) is still synchronous. Use zero timer
