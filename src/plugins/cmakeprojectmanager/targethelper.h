@@ -9,6 +9,9 @@ namespace ProjectExplorer { class BuildSystem; }
 
 namespace CMakeProjectManager::Internal {
 
-void buildTarget(const ProjectExplorer::BuildSystem *buildSystem, const QString &targetName);
+void buildTarget(
+    const ProjectExplorer::BuildSystem *buildSystem,
+    const QString &targetName,
+    const QString &toolArguments = {});
 
 } // namespace CMakeProjectManager::Internal

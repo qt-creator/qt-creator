@@ -11,7 +11,10 @@
 
 namespace CMakeProjectManager::Internal {
 
-void buildTarget(const ProjectExplorer::BuildSystem *buildSystem, const QString &targetName)
+void buildTarget(
+    const ProjectExplorer::BuildSystem *buildSystem,
+    const QString &targetName,
+    const QString &toolArguments)
 {
     if (ProjectExplorer::BuildManager::isBuilding(buildSystem->project()))
         ProjectExplorer::BuildManager::cancel();
@@ -25,11 +28,15 @@ void buildTarget(const ProjectExplorer::BuildSystem *buildSystem, const QString 
 
     // Change the make step to build only the given target
     const QStringList oldTargets = buildStep->buildTargets();
+    const QString oldToolArguments = buildStep->toolArguments();
+
     buildStep->setBuildTargets({targetName});
+    buildStep->toolArguments.setValue(toolArguments);
 
     // Build
     ProjectExplorer::BuildManager::buildProjectWithDependencies(buildSystem->project());
     buildStep->setBuildTargets(oldTargets);
+    buildStep->toolArguments.setValue(oldToolArguments);
 }
 
 } // namespace CMakeProjectManager::Internal
