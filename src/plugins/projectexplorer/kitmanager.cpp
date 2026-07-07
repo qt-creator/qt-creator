@@ -458,6 +458,13 @@ void KitManager::createKitsFromToolchains(
         }
         const Id runDeviceType = runDeviceTypeForKit(kit.get());
         RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), runDeviceType);
+        // When the kit runs on the same kind of device it was built for (e.g. a remote
+        // macOS build device that also runs the binary), pin the run device to that very
+        // device. Otherwise the run device would default to the type's default device,
+        // which may be a different, unrelated device at the same host - leading to deploy
+        // and debug connecting to the wrong account.
+        if (dev && runDeviceType == dev->type())
+            RunDeviceKitAspect::setDevice(kit.get(), dev);
         //: <abi> on <device display name>
         const QString displayName = dev ? Tr::tr("%1 on %2").arg(abiString, dev->displayName())
                                         : runDeviceType == Constants::DESKTOP_DEVICE_TYPE
