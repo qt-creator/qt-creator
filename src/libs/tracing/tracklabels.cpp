@@ -131,7 +131,7 @@ static int insertionSlotY(const QList<TrackInfo> &tracks, int slot, int scrollOf
     return y;
 }
 
-void TrackLabels::paintEvent(QPaintEvent *)
+void TrackLabels::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
 
@@ -146,6 +146,7 @@ void TrackLabels::paintEvent(QPaintEvent *)
     int y = -m_scrollOffset;
     bool firstTrack = true;
 
+    const QRect viewRect = event->rect();
     for (const TrackInfo &track : std::as_const(m_tracks)) {
         const int titleHeight = trackTitleHeight(track);
         const int trackHeight = trackTotalHeight(track);
@@ -200,18 +201,21 @@ void TrackLabels::paintEvent(QPaintEvent *)
         if (track.expanded && track.rowLabels.size() == track.rowHeights.size() - 1) {
             int rowY = y + titleHeight;
             for (int i = 0; i < track.rowLabels.size(); ++i) {
+                if (rowY > viewRect.bottom())
+                    break;
                 const int rowH = track.rowHeights[i + 1];
-                const int rxText = textX + kTextLeftMargin;
+                if (rowY + rowH >= viewRect.top()) {
+                    const int rxText = textX + kTextLeftMargin;
 
-                // Row border
-                p.fillRect(rxText, rowY, width() - kAccentWidth, 1, dividerColor);
+                    // Row border
+                    p.fillRect(rxText, rowY, width() - kAccentWidth, 1, dividerColor);
 
-                // Row label text
-                const int rxW = width() - rxText - Utils::StyleHelper::SpacingTokens::PaddingHXxs;
-                const QRectF rowRect(rxText, rowY, rxW, rowH);
-                p.drawText(rowRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
-                           p.fontMetrics().elidedText(track.rowLabels[i], Qt::ElideRight, rxW));
-
+                    // Row label text
+                    const int rxW = width() - rxText - Utils::StyleHelper::SpacingTokens::PaddingHXxs;
+                    const QRectF rowRect(rxText, rowY, rxW, rowH);
+                    p.drawText(rowRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
+                               p.fontMetrics().elidedText(track.rowLabels[i], Qt::ElideRight, rxW));
+                }
                 rowY += rowH;
             }
         }
