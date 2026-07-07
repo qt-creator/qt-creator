@@ -2164,6 +2164,7 @@ public:
     // marks
     Mark mark(QChar code) const;
     void setMark(QChar code, CursorPosition position);
+    void removeMark(QChar code);
     // jump to valid mark return true if mark is valid and local
     bool jumpToMark(QChar mark, bool backTickMode);
     // update marks on undo/redo
@@ -2200,6 +2201,7 @@ public:
     bool handleExCommandHelper(ExCommand &cmd); // Returns success.
     bool handleExPluginCommand(const ExCommand &cmd); // Handled by plugin?
     bool handleExBangCommand(const ExCommand &cmd);
+    bool handleExDelMarksCommand(const ExCommand &cmd);
     bool handleExYankDeleteCommand(const ExCommand &cmd);
     bool handleExChangeCommand(const ExCommand &cmd);
     bool handleExMoveCommand(const ExCommand &cmd);
@@ -6487,6 +6489,42 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
     return true;
 }
 
+bool FakeVimHandler::Private::handleExDelMarksCommand(const ExCommand &cmd)
+{
+    // :delm[arks] {marks}   delete the listed marks (a range like "a-z" is
+    //                       allowed, spaces are optional separators)
+    // :delm[arks]!          delete all lowercase marks of the current buffer
+    if (!cmd.matches("delm", "delmarks"))
+        return false;
+
+    if (cmd.args.isEmpty()) {
+        if (cmd.hasBang) {
+            for (char c = 'a'; c <= 'z'; ++c)
+                m_buffer->marks.remove(QLatin1Char(c));
+        } else {
+            showMessage(MessageError, Tr::tr("Argument required."));
+        }
+        return true;
+    }
+
+    const QString marks = cmd.args;
+    for (int i = 0; i < marks.size(); ++i) {
+        const QChar c = marks.at(i);
+        if (c.isSpace())
+            continue;
+        // A range such as "a-z" removes every mark between the endpoints.
+        if (i + 2 < marks.size() && marks.at(i + 1) == QLatin1Char('-')
+                && marks.at(i + 2).unicode() >= c.unicode()) {
+            for (ushort u = c.unicode(); u <= marks.at(i + 2).unicode(); ++u)
+                removeMark(QChar(u));
+            i += 2;
+        } else {
+            removeMark(c);
+        }
+    }
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
 {
     // :[range]{<|>}* [count]
@@ -6751,6 +6789,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExBangCommand(cmd)
         || handleExHistoryCommand(cmd)
         || handleExRegisterCommand(cmd)
+        || handleExDelMarksCommand(cmd)
         || handleExYankDeleteCommand(cmd)
         || handleExChangeCommand(cmd)
         || handleExMoveCommand(cmd)
@@ -9276,6 +9315,14 @@ void FakeVimHandler::Private::setMark(QChar code, CursorPosition position)
         g.marks[code] = Mark(position, m_currentFileName);
     else
         m_buffer->marks[code] = Mark(position);
+}
+
+void FakeVimHandler::Private::removeMark(QChar code)
+{
+    if (code.isUpper())
+        g.marks.remove(code);
+    else
+        m_buffer->marks.remove(code);
 }
 
 bool FakeVimHandler::Private::jumpToMark(QChar mark, bool backTickMode)

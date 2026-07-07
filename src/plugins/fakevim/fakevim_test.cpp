@@ -2500,6 +2500,19 @@ void FakeVimTester::test_vim_marks()
     KEYS("<c-r>G" "`x",  "a" X "bc" N "df" N "ghi");
     KEYS("uG" "`x",      "abc" N "d" X "ef" N "ghi");
     KEYS("<c-r>G" "`x",  "a" X "bc" N "df" N "ghi");
+
+    // :delmarks deletes marks, so afterwards jumping to them is a no-op
+    // (QTCREATORBUG-21820).
+    data.setText(X "  abc" N "  def" N "  ghi");
+    data.doKeys("ma");          // mark 'a' at line 1
+    data.doKeys("jjmb");        // mark 'b' at line 3, cursor now on line 3
+    KEYS("`a", X "  abc" N "  def" N "  ghi");            // jump to 'a' works
+    KEYS("`b", "  abc" N "  def" N X "  ghi");            // jump to 'b' works
+    COMMAND("delmarks b", "  abc" N "  def" N X "  ghi"); // delete 'b'
+    KEYS("`b", "  abc" N "  def" N X "  ghi");            // 'b' no longer moves
+    KEYS("`a", X "  abc" N "  def" N "  ghi");            // 'a' still works
+    COMMAND("delmarks!", X "  abc" N "  def" N "  ghi");  // delete all lowercase
+    KEYS("`a", X "  abc" N "  def" N "  ghi");            // 'a' gone too
 }
 
 void FakeVimTester::test_vim_jumps()
