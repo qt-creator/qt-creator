@@ -3463,8 +3463,15 @@ void FakeVimTester::test_vim_ex_normal()
     COMMAND("3normal A;", "Line 1" N "Line 2" N "Line 3" X ";");
 
     // Without any range the commands run at the current cursor position.
+    // Insert mode started by the commands is terminated at the end, so the
+    // cursor ends up back in normal mode on the last inserted character
+    // (QTCREATORBUG-25820).
     data.setText("Line 1" N "Line 2" N "Line 3");
-    COMMAND("normal A;", "Line 1;" X N "Line 2" N "Line 3");
+    COMMAND("normal A;", "Line 1" X ";" N "Line 2" N "Line 3");
+
+    // Same for insert commands other than "A", e.g. ":normal Iasdf".
+    data.setText("Line 1" N "Line 2" N "Line 3");
+    COMMAND("normal Iasdf", "asd" X "fLine 1" N "Line 2" N "Line 3");
 
     // Commands that delete lines work per line, too (as :%normal dd).
     data.setText("Line 1" N "Line 2" N "Line 3");

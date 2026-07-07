@@ -6192,10 +6192,12 @@ bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
     const int endLine = lineForPosition(cmd.range.endPos);
 
     // Without an explicit range Vim runs the commands once at the current
-    // cursor position.
+    // cursor position. As in the ranged case, Vim terminates any pending
+    // insert mode at the end, so append <ESC> to return to normal mode
+    // (QTCREATORBUG-25820).
     if (!cmd.hasRange) {
         //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(cmd.args);
-        replay(cmd.args);
+        replay(cmd.args + QLatin1String("<ESC>"));
         return true;
     }
 
