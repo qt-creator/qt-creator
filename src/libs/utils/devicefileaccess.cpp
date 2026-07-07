@@ -50,6 +50,27 @@
 
 namespace Utils {
 
+// DesktopDeviceFileAccess::iterateDirectory() casts the homegrown DirFilterFlag and
+// DirIteratorFlag values straight to QDir::Filters / QDirIterator::IteratorFlags (via
+// toInt()). filepath.h deliberately no longer includes <QDir>/<QDirIterator>, so the enums
+// cannot be kept in sync there. Guard the raw casts here, where both are visible.
+static_assert(int(DirFilterFlag::Dirs) == int(QDir::Dirs));
+static_assert(int(DirFilterFlag::Files) == int(QDir::Files));
+static_assert(int(DirFilterFlag::Drives) == int(QDir::Drives));
+static_assert(int(DirFilterFlag::NoSymLinks) == int(QDir::NoSymLinks));
+static_assert(int(DirFilterFlag::AllEntries) == int(QDir::AllEntries));
+static_assert(int(DirFilterFlag::Readable) == int(QDir::Readable));
+static_assert(int(DirFilterFlag::Writable) == int(QDir::Writable));
+static_assert(int(DirFilterFlag::Executable) == int(QDir::Executable));
+static_assert(int(DirFilterFlag::Hidden) == int(QDir::Hidden));
+static_assert(int(DirFilterFlag::System) == int(QDir::System));
+static_assert(int(DirFilterFlag::NoDotAndDotDot) == int(QDir::NoDotAndDotDot));
+static_assert(int(DirFilterFlag::NoFilter) == int(QDir::NoFilter));
+
+static_assert(int(DirIteratorFlag::NoIteratorFlags) == int(QDirIterator::NoIteratorFlags));
+static_assert(int(DirIteratorFlag::FollowSymlinks) == int(QDirIterator::FollowSymlinks));
+static_assert(int(DirIteratorFlag::Subdirectories) == int(QDirIterator::Subdirectories));
+
 static ResultError notImplementedError(const QString &function, const FilePath &filePath)
 {
     return ResultError(ResultUnimplemented,
