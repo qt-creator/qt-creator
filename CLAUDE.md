@@ -15,3 +15,8 @@ Commit message titles must not exceed 72 characters, and commit message body lin
 - Use `Utils::creatorColor()` or `QPalette::color()` for `QColor`. No hard-coded colors, no alpha-blended text.
 - Use `Utils::StyleHelper::uiFont()` for fonts. No manual `QFont::setPixelSize/setPointSize/setBold` etc.
 - Use `Utils::SpacingTokens` for margins/spacings/paddings. No hard-coded pixel numbers.
+
+## Additional coding style rules
+
+- When calling free functions from the Utils namespace, always qualify the call with the `Utils::` namespace.
+- Do not use Q_ASSERT, use QTC_ASSERT, QTC_CHECK, and QTC_GUARD as appropriate instead.
