@@ -95,13 +95,12 @@ private:
 class DiffFilesController : public DiffEditorController
 {
 public:
-    DiffFilesController(IDocument *document);
+    using ReloadInputListGetter = std::function<QList<ReloadInput>()>;
 
-protected:
-    virtual QList<ReloadInput> reloadInputList() const = 0;
+    DiffFilesController(IDocument *document, const ReloadInputListGetter &getter);
 };
 
-DiffFilesController::DiffFilesController(IDocument *document)
+DiffFilesController::DiffFilesController(IDocument *document, const ReloadInputListGetter &getter)
     : DiffEditorController(document)
 {
     setDisplayName(Tr::tr("Diff"));
@@ -114,9 +113,9 @@ DiffFilesController::DiffFilesController(IDocument *document)
     };
     const Storage<StorageStruct> storage;
 
-    const auto onSetup = [this, storage] {
+    const auto onSetup = [getter, storage] {
         StorageStruct *activeStorage = storage.activeStorage();
-        activeStorage->inputList = reloadInputList();
+        activeStorage->inputList = getter();
         activeStorage->resultList.resize(activeStorage->inputList.size());
     };
 
@@ -154,20 +153,6 @@ DiffFilesController::DiffFilesController(IDocument *document)
     setReloadRecipe(recipe);
 }
 
-class DiffCurrentFileController final : public DiffFilesController
-{
-public:
-    DiffCurrentFileController(IDocument *document, const FilePath &filePath)
-        : DiffFilesController(document)
-        , m_filePath(filePath) {}
-
-protected:
-    QList<ReloadInput> reloadInputList() const final;
-
-private:
-    const FilePath m_filePath;
-};
-
 static QList<ReloadInput> reloadInputHelper(IDocument *doc)
 {
     auto textDocument = qobject_cast<TextDocument *>(doc);
@@ -198,23 +183,7 @@ static QList<ReloadInput> reloadInputHelper(const FilePath &filePath)
     return reloadInputHelper(DocumentModel::documentForFilePath(filePath));
 }
 
-QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
-{
-    return reloadInputHelper(m_filePath);
-}
-
-/////////////////
-
-class DiffOpenFilesController : public DiffFilesController
-{
-public:
-    DiffOpenFilesController(IDocument *document) : DiffFilesController(document) {}
-
-protected:
-    QList<ReloadInput> reloadInputList() const final;
-};
-
-QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
+static QList<ReloadInput> openFilesReloadInputList()
 {
     QList<ReloadInput> result;
     const QList<IDocument *> openedDocuments = DocumentModel::openedDocuments();
@@ -225,62 +194,27 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
     return result;
 }
 
-/////////////////
-
-class DiffModifiedFilesController : public DiffFilesController
-{
-public:
-    DiffModifiedFilesController(IDocument *document, const FilePaths &fileNames)
-        : DiffFilesController(document)
-        , m_filePaths(fileNames) {}
-
-protected:
-    QList<ReloadInput> reloadInputList() const final;
-
-private:
-    const FilePaths m_filePaths;
-};
-
-QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
+static QList<ReloadInput> modifiedFilesReloadInputList(const FilePaths &filePaths)
 {
     QList<ReloadInput> result;
-    for (const FilePath &filePath : m_filePaths)
+    for (const FilePath &filePath : filePaths)
         result << reloadInputHelper(filePath);
     return result;
 }
 
-/////////////////
-
-class DiffExternalFilesController : public DiffFilesController
-{
-public:
-    DiffExternalFilesController(
-        IDocument *document, const FilePath &leftFilePath, const FilePath &rightFilePath)
-        : DiffFilesController(document)
-        , m_leftFilePath(leftFilePath)
-        , m_rightFilePath(rightFilePath)
-    {}
-
-protected:
-    QList<ReloadInput> reloadInputList() const final;
-
-private:
-    const FilePath m_leftFilePath;
-    const FilePath m_rightFilePath;
-};
-
-QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
+static QList<ReloadInput> externalFilesReloadInputList(const FilePath &leftFilePath,
+                                                       const FilePath &rightFilePath)
 {
     TextFileFormat format;
     format.setEncoding(EditorManager::defaultTextEncoding());
 
-    const TextFileFormat::ReadResult leftResult = format.readFile(m_leftFilePath, format.encoding());
-    const TextFileFormat::ReadResult rightResult = format.readFile(m_rightFilePath, format.encoding());
+    const TextFileFormat::ReadResult leftResult = format.readFile(leftFilePath, format.encoding());
+    const TextFileFormat::ReadResult rightResult = format.readFile(rightFilePath, format.encoding());
 
     ReloadInput reloadInput;
     reloadInput.text = {leftResult.content, rightResult.content};
-    reloadInput.fileInfo[LeftSide].fileName = m_leftFilePath.path();
-    reloadInput.fileInfo[RightSide].fileName = m_rightFilePath.path();
+    reloadInput.fileInfo[LeftSide].fileName = leftFilePath.path();
+    reloadInput.fileInfo[RightSide].fileName = rightFilePath.path();
     reloadInput.binaryFiles = leftResult.code == TextFileFormat::ReadEncodingError
                            || rightResult.code == TextFileFormat::ReadEncodingError;
 
@@ -315,15 +249,15 @@ public:
     void diffModifiedFiles(const FilePaths &filePaths) final;
 };
 
-template <typename Controller, typename... Args>
-void reload(const QString &vcsId, const QString &displayName, Args &&...args)
+static void reload(const QString &vcsId, const QString &displayName,
+                   const DiffFilesController::ReloadInputListGetter &getter)
 {
     auto const document = qobject_cast<DiffEditorDocument *>(
         DiffEditorController::findOrCreateDocument(vcsId, displayName));
     if (!document)
         return;
     if (!DiffEditorController::controller(document))
-        new Controller(document, std::forward<Args>(args)...);
+        new DiffFilesController(document, getter);
     EditorManager::activateEditorForDocument(document);
     document->reload();
 }
@@ -334,14 +268,16 @@ void DiffEditorServiceImpl::diffFiles(const FilePath &leftFilePath, const FilePa
                                + leftFilePath.toUrlishString() + QLatin1Char('.')
                                + rightFilePath.toUrlishString();
     const QString title = Tr::tr("Diff Files");
-    reload<DiffExternalFilesController>(documentId, title, leftFilePath, rightFilePath);
+    reload(documentId, title, [leftFilePath, rightFilePath] {
+        return externalFilesReloadInputList(leftFilePath, rightFilePath);
+    });
 }
 
 void DiffEditorServiceImpl::diffModifiedFiles(const FilePaths &filePaths)
 {
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffModifiedFiles");
     const QString title = Tr::tr("Diff Modified Files");
-    reload<DiffModifiedFilesController>(documentId, title, filePaths);
+    reload(documentId, title, [filePaths] { return modifiedFilesReloadInputList(filePaths); });
 }
 
 class DiffEditorPlugin final : public ExtensionSystem::IPlugin
@@ -445,14 +381,14 @@ void DiffEditorPlugin::diffCurrentFile()
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".Diff.")
             + filePath.toUrlishString();
     const QString title = Tr::tr("Diff \"%1\"").arg(filePath.toUserOutput());
-    reload<DiffCurrentFileController>(documentId, title, filePath);
+    reload(documentId, title, [filePath] { return reloadInputHelper(filePath); });
 }
 
 void DiffEditorPlugin::diffOpenFiles()
 {
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffOpenFiles");
     const QString title = Tr::tr("Diff Open Files");
-    reload<DiffOpenFilesController>(documentId, title);
+    reload(documentId, title, openFilesReloadInputList);
 }
 
 void DiffEditorPlugin::diffExternalFiles()
@@ -471,7 +407,9 @@ void DiffEditorPlugin::diffExternalFiles()
     const QString documentId = QLatin1String(Constants::DIFF_EDITOR_PLUGIN)
             + ".DiffExternalFiles." + filePath1.toUrlishString() + '.' + filePath2.toUrlishString();
     const QString title = Tr::tr("Diff \"%1\", \"%2\"").arg(filePath1.toUserOutput(), filePath2.toUserOutput());
-    reload<DiffExternalFilesController>(documentId, title, filePath1, filePath2);
+    reload(documentId, title, [filePath1, filePath2] {
+        return externalFilesReloadInputList(filePath1, filePath2);
+    });
 }
 
 } // namespace DiffEditor::Internal
