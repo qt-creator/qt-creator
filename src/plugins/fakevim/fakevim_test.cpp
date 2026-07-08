@@ -4082,6 +4082,16 @@ void FakeVimTester::test_vim_command_w()
     KEYS("w",   lmid(0,4)+'\n' + "int main(int argc, char *|argv[])\n" + lmid(5));
     KEYS("w",   lmid(0,4)+'\n' + "int main(int argc, char *argv|[])\n" + lmid(5));
     KEYS("w",   lmid(0,5)+'\n' + "|{\n" + lmid(6));
+
+    // "w" on a non-BMP character (here the U+1F389 emoji, a surrogate pair)
+    // must advance past it instead of stalling / spinning forever
+    // (QTCREATORBUG-25873).
+    const QString emoji = QString::fromUtf8("\xf0\x9f\x8e\x89");
+    data.setText("");
+    data.editor()->document()->setPlainText(emoji + QLatin1String(" ab"));
+    data.setPosition(0);
+    data.doKeys("w");
+    QCOMPARE(data.position(), 3);
 }
 
 void FakeVimTester::test_vim_command_yyp()
