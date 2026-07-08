@@ -131,3 +131,20 @@ add_qtc_plugin(Profiler
     ATTRIBUTION_IDS
       json-nlohmann
 )
+
+# The Perf Sampler backend shells out to perfparser at runtime (see
+# perfsampler.cpp); building Profiler (and anything that depends on it, e.g.
+# qtprofiler) should build it too. src/plugins is processed before src/tools,
+# so perfparser does not exist yet at this point; defer the check to the end
+# of the top-level directory, by which time src/tools/perfparser has run.
+# perfparser only exists when elfutils was found (see
+# src/tools/perfparser/CMakeLists.txt), so this is a no-op, not an error, when
+# it is absent.
+function(qtc_profiler_add_perfparser_dependency)
+  if (TARGET perfparser)
+    add_dependencies(Profiler perfparser)
+  endif()
+endfunction()
+if (TARGET Profiler)
+  cmake_language(DEFER DIRECTORY "${CMAKE_SOURCE_DIR}" CALL qtc_profiler_add_perfparser_dependency)
+endif()

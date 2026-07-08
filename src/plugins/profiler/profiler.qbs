@@ -17,6 +17,11 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
 
+    // The Perf Sampler backend shells out to perfparser at runtime (see
+    // perfsampler.cpp); building Profiler should build it too. Not required:
+    // the "Perf Parser" project is Linux-only (see perfparser.qbs).
+    Depends { name: "perfparser"; required: false }
+
     Group {
         name: "General"
         files: [
