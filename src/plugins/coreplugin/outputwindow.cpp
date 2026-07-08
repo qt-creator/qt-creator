@@ -612,6 +612,10 @@ void OutputWindow::handleOutputChunk(
     qCDebug(chunkLog) << "new max block count:" << maxBlockCount;
     setMaximumBlockCount(maxBlockCount);
 
+    const int oldBlockCount = document()->blockCount();
+    const QTextBlock oldLastBlock = document()->lastBlock();
+    const int oldBlockLength = oldLastBlock.length();
+
     QElapsedTimer formatterTimer;
     formatterTimer.start();
     d->formatter.appendMessage(out, format);
@@ -628,6 +632,16 @@ void OutputWindow::handleOutputChunk(
         d->chunkSize = d->chunkSize * 1.5;
         qCDebug(chunkLog) << "lowering interval to" << d->queueTimer.interval()
                           << "ms and increasing chunk size to" << d->chunkSize << "bytes";
+    }
+
+    // We already filter on block count changes, but there are other cases where re-filtering
+    // becomes necessary:
+    //   - New content was added without a newline.
+    //   - New content "moved out" old content because the maximum block count was reached.
+    if (document()->blockCount() == oldBlockCount
+        && (document()->lastBlock() != oldLastBlock || oldLastBlock.length() != oldBlockLength)
+        && shouldFilterNewContentOnBlockCountChanged()) {
+        filterNewContent();
     }
 
     if (d->scrollToBottom) {
