@@ -331,27 +331,27 @@ class QmlProfilerDashboardViewPrivate : public QObject
 public:
     QmlProfilerDashboardViewPrivate(QObject *parent = nullptr);
 
-    Category *overallRating;
+    Category *overallRating = nullptr;
 
-    QLabel *gaugeTitle;
-    Gauge *gauge;
-    QLabel *gaugeText;
+    QLabel *gaugeTitle = nullptr;
+    Gauge *gauge = nullptr;
+    QLabel *gaugeText = nullptr;
 
-    QLabel *framesTitle;
-    QtcBadge *framesOnTargetBadge;
-    QLabel *framesOnTargetLabel;
-    QtcBadge *framesNearTargetBadge;
-    QLabel *framesNearTargetLabel;
-    QtcBadge *framesFailedBadge;
-    QLabel *framesFailedLabel;
-    QLabel *framesText;
+    QLabel *framesTitle = nullptr;
+    QtcBadge *framesOnTargetBadge = nullptr;
+    QLabel *framesOnTargetLabel = nullptr;
+    QtcBadge *framesNearTargetBadge = nullptr;
+    QLabel *framesNearTargetLabel = nullptr;
+    QtcBadge *framesFailedBadge = nullptr;
+    QLabel *framesFailedLabel = nullptr;
+    QLabel *framesText = nullptr;
 
-    QLabel *categoriesTitle;
-    Category *uiResponsiveness;
-    Category *frameConsistency;
-    Category *stutterPrevention;
-    Category *p99Quality;
-    Category *startupSpeed;
+    QLabel *categoriesTitle = nullptr;
+    Category *uiResponsiveness = nullptr;
+    Category *frameConsistency = nullptr;
+    Category *stutterPrevention = nullptr;
+    Category *p99Quality = nullptr;
+    Category *startupSpeed = nullptr;
 };
 
 QmlProfilerDashboardViewPrivate::QmlProfilerDashboardViewPrivate(QObject *parent)

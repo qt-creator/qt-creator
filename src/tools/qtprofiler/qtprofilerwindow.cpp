@@ -185,7 +185,7 @@ WindowPrivate::WindowPrivate(Window *window)
 
     // A command line passed on the CLI (--launch) seeds the active backend's
     // launch settings so it can be started straight away.
-    if (const FilePath exe = settings().recordExecutable(); !exe.isEmpty()) {
+    if (const FilePath exe = settings().recordExecutable(); sampler && !exe.isEmpty()) {
         if (SamplerSettings *s = sampler->settings()) {
             s->executable.setValue(exe);
             s->arguments.setValue(settings().recordArguments());
