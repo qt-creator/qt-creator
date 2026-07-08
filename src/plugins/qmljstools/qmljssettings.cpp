@@ -23,8 +23,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 
-#include <texteditor/codestyleeditor.h>
-#include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/command.h>
 #include <texteditor/displaysettings.h>
@@ -1242,32 +1240,6 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
     });
 }
 
-// QmlJsCodeStyleEditor
-
-class QmlJsCodeStyleEditor final : public CodeStyleEditor
-{
-public:
-    explicit QmlJsCodeStyleEditor(QmlJSCodeStylePreferences *codeStyle)
-        : m_selector{{}, this}
-        , m_widget{QString::fromLatin1(Internal::previewText), this}
-    {
-        m_selector.setCodeStyle(codeStyle);
-        addSelector(&m_selector);
-        m_widget.setPreferences(codeStyle);
-        addEditorWidget(&m_widget);
-        // The widget edits the (page-local) style live; report changes so the
-        // hosting CodeStyleAspect can track dirtiness and defer the commit.
-        connect(codeStyle, &ICodeStylePreferences::currentValueChanged,
-                this, &CodeStyleEditor::changed);
-        connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged,
-                this, &CodeStyleEditor::changed);
-    }
-
-private:
-    CodeStyleSelectorWidget m_selector;
-    QmlJSCodeStylePreferencesWidget m_widget;
-};
-
 // QmlJSCodeStylePreferencesFactory
 
 class QmlJSCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
@@ -1281,9 +1253,14 @@ public:
         setPreviewText(QString::fromLatin1(Internal::previewText));
         setIndenterCreator([](QTextDocument *doc) { return QmlJSEditor::createQmlJsIndenter(doc); });
         setCodeStyleCreator([] { return new QmlJSCodeStylePreferences; });
-        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
-            return new QmlJsCodeStyleEditor{static_cast<QmlJSCodeStylePreferences *>(codeStyle)};
+        setValueEditorCreator([](ICodeStylePreferences *codeStyle) {
+            auto widget = new QmlJSCodeStylePreferencesWidget(
+                QString::fromLatin1(Internal::previewText));
+            widget->setPreferences(static_cast<QmlJSCodeStylePreferences *>(codeStyle));
+            return widget;
         });
+        // The widget brings its own preview.
+        setValueEditorHasPreview(true);
 
         setGlobalCodeStyleId(idKey);
         setDefaultCodeStyleId("qt");
