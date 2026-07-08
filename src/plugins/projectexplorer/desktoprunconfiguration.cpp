@@ -5,6 +5,8 @@
 
 #include "buildsystem.h"
 #include "deploymentdata.h"
+#include "devicesupport/devicekitaspects.h"
+#include "devicesupport/idevice.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
@@ -135,6 +137,10 @@ FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetI
             .deployableForLocalFile(appInBuildDir).remoteFilePath();
     if (deployedAppFilePath.isEmpty())
         return appInBuildDir;
+
+    const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit());
+    if (runDevice && !runDevice->rootPath().isLocal())
+        return runDevice->filePath(deployedAppFilePath);
 
     const FilePath appInLocalInstallDir = deploymentData.localInstallRoot() / deployedAppFilePath;
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
