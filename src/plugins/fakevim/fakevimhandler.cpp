@@ -9245,14 +9245,21 @@ bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
     QTextCursor tc = m_cursor;
     int sz = quote.size();
 
+    // Vim's quote text objects (i", a", ...) operate on the current line
+    // only, so quotes on other lines must not influence the pairing
+    // (QTCREATORBUG-22484).
+    const QTextBlock line = tc.block();
+    const int lineEnd = line.position() + line.length() - 1;
+
     QTextCursor tc1;
     QTextCursor tc2(document());
+    tc2.setPosition(line.position());
     while (tc2 <= tc) {
         tc1 = document()->find(quote, tc2);
-        if (tc1.isNull())
+        if (tc1.isNull() || tc1.position() > lineEnd)
             return false;
         tc2 = document()->find(quote, tc1);
-        if (tc2.isNull())
+        if (tc2.isNull() || tc2.position() > lineEnd)
             return false;
     }
 

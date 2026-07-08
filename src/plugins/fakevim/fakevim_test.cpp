@@ -1659,6 +1659,12 @@ void FakeVimTester::test_vim_block_selection()
     KEYS("tj" "di\"", "abc \"\" ghi \"" X "\" mno");
     KEYS("l" "di\"", "abc \"\" ghi \"\"" X " mno");
 
+    /* QTCREATORBUG-22484: quote text objects are line-based, so an (odd)
+       quote on a previous line must not shift the pairing on this line. */
+    data.setText("x\"" N "a \"" X "b\" c");
+    KEYS("di\"", "x\"" N "a \"" X "\" c");
+    KEYS("u", "x\"" N "a \"" X "b\" c");
+
     NOT_IMPLEMENTED
     // quoted string with escaped character
     data.setText("\"abc\"");
