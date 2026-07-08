@@ -133,6 +133,9 @@ public:
     bool processingShown = false;                 // setProcessing() already called this session.
     bool closing = false;                         // Set while waiting for shutdown.
     std::vector<std::unique_ptr<Sampler>> backends; // Available profiling backends.
+    std::vector<int> offeredBackends;             // Indices into `backends` that are actually
+                                                   // usable here (see isAvailable()); this is
+                                                   // what the dropdown offers, in display order.
     Sampler *sampler = nullptr;                   // The selected backend (owned by `backends`).
     std::shared_ptr<RecordingSession> session;    // Non-null while recording.
     QtTaskTree::QSingleTaskTreeRunner recordingRunner;
@@ -172,19 +175,30 @@ WindowPrivate::WindowPrivate(Window *window)
     backends.push_back(std::make_unique<PerfSampler>());
     backends.push_back(std::make_unique<QmlProfilerSampler>());
 
-    QStringList backendNames;
-    int defaultBackend = -1;
-    for (int i = 0; i < int(backends.size()); ++i) {
-        if (SamplerSettings *s = backends[i]->settings())
+    for (const std::unique_ptr<Sampler> &backend : backends) {
+        if (SamplerSettings *s = backend->settings())
             s->readSettings();
-        backendNames << backends[i]->displayName();
-        if (defaultBackend < 0 && backends[i]->isAvailable())
-            defaultBackend = i;
     }
-    if (defaultBackend < 0)
-        defaultBackend = 0;
-    welcomePage->setBackends(backendNames, defaultBackend);
-    selectBackend(defaultBackend);
+
+    // Only offer backends that are actually usable here -- e.g. CallStackSampler
+    // doesn't even appear outside macOS. If that leaves nothing (shouldn't
+    // happen; QmlProfilerSampler is always available), fall back to offering
+    // everything so the dropdown isn't empty and Start Recording can still
+    // explain why.
+    for (int i = 0; i < int(backends.size()); ++i) {
+        if (backends[i]->isAvailable())
+            offeredBackends.push_back(i);
+    }
+    if (offeredBackends.empty()) {
+        for (int i = 0; i < int(backends.size()); ++i)
+            offeredBackends.push_back(i);
+    }
+
+    QStringList backendNames;
+    for (int index : offeredBackends)
+        backendNames << backends[index]->displayName();
+    welcomePage->setBackends(backendNames, 0);
+    selectBackend(0);
 
     // A command line passed on the CLI (--launch) seeds the active backend's
     // launch settings so it can be started straight away.
@@ -278,9 +292,9 @@ void WindowPrivate::showOpenCtfDirDialog()
 
 void WindowPrivate::selectBackend(int index)
 {
-    if (index < 0 || index >= int(backends.size()))
+    if (index < 0 || index >= int(offeredBackends.size()))
         return;
-    sampler = backends[index].get();
+    sampler = backends[offeredBackends[index]].get();
     QWidget *config = nullptr;
     if (SamplerSettings *s = sampler->settings()) {
         config = new QWidget;
@@ -291,8 +305,8 @@ void WindowPrivate::selectBackend(int index)
 
 bool WindowPrivate::selectBackendByName(const QString &name)
 {
-    for (int i = 0; i < int(backends.size()); ++i) {
-        if (backends[i]->displayName().contains(name, Qt::CaseInsensitive)) {
+    for (int i = 0; i < int(offeredBackends.size()); ++i) {
+        if (backends[offeredBackends[i]]->displayName().contains(name, Qt::CaseInsensitive)) {
             welcomePage->setCurrentBackend(i); // emits backendChanged() -> selectBackend()
             return true;
         }
