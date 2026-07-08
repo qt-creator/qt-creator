@@ -3,25 +3,18 @@
 
 #include "nimcodestylesettingspage.h"
 
-#include "../editor/nimeditorfactory.h"
 #include "../editor/nimindenter.h"
 #include "../nimconstants.h"
 #include "../nimtr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 #include <texteditor/codestyleeditor.h>
-#include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/codestylepool.h>
-#include <texteditor/displaysettings.h>
-#include <texteditor/fontsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/indenter.h>
-#include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/textdocument.h>
 
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
@@ -34,105 +27,22 @@ using namespace Utils;
 
 namespace Nim {
 
+// The Nim value editor: just the tab settings controls, editing the given
+// (page-local) preferences live. The selector and preview around it are
+// provided by the hosting CodeStyleAspect, which defers the commit.
 class NimCodeStylePreferencesWidget : public QWidget
 {
 public:
-    NimCodeStylePreferencesWidget(ICodeStylePreferences *preferences, QWidget *parent)
-        : QWidget(parent)
-        , m_preferences(preferences)
+    explicit NimCodeStylePreferencesWidget(ICodeStylePreferences *preferences)
     {
-        // Edits are held in the aspect and committed by the hosting page on
-        // apply(), not written through to the preferences immediately.
-        m_tabSettingsWidget.setAutoApply(false);
-        m_tabSettingsWidget.setPreferences(preferences);
-
-        m_previewTextEdit.setPlainText(Nim::Constants::C_NIMCODESTYLEPREVIEWSNIPPET);
-        DisplaySettingsData displaySettings = m_previewTextEdit.displaySettings();
-        displaySettings.m_visualizeWhitespace = true;
-        m_previewTextEdit.setDisplaySettings(displaySettings);
+        m_tabSettings.setPreferences(preferences);
 
         using namespace Layouting;
-        Row {
-            Column {
-                &m_tabSettingsWidget,
-                st,
-            },
-            &m_previewTextEdit,
-            noMargin,
-        }.attachTo(this);
-
-        decorateEditor();
-        connect(&globalFontSettings(), &FontSettings::changed,
-                this, &NimCodeStylePreferencesWidget::decorateEditor);
-
-        connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                this, &NimCodeStylePreferencesWidget::updatePreview);
-        connect(&m_tabSettingsWidget, &AspectContainer::volatileValueChanged,
-                this, &NimCodeStylePreferencesWidget::updatePreview);
-
-        updatePreview();
+        Column { &m_tabSettings, noMargin }.attachTo(this);
     }
-
-    TabSettings *tabSettings() { return &m_tabSettingsWidget; }
-    const TabSettings *tabSettings() const { return &m_tabSettingsWidget; }
 
 private:
-    void decorateEditor();
-    void updatePreview();
-
-    ICodeStylePreferences *m_preferences;
-    TabSettings m_tabSettingsWidget;
-    SnippetEditorWidget m_previewTextEdit;
-};
-
-void NimCodeStylePreferencesWidget::decorateEditor()
-{
-    m_previewTextEdit.textDocument()->setFontSettings(globalFontSettings().data());
-    NimEditorFactory::decorateEditor(&m_previewTextEdit);
-}
-
-void NimCodeStylePreferencesWidget::updatePreview()
-{
-    QTextDocument *doc = m_previewTextEdit.document();
-
-    const TabSettingsData ts = m_preferences
-            ? m_tabSettingsWidget.volatileData()
-            : globalCodeStyle().tabSettings();
-    m_previewTextEdit.textDocument()->setTabSettings(ts);
-
-    QTextBlock block = doc->firstBlock();
-    QTextCursor tc = m_previewTextEdit.textCursor();
-    tc.beginEditBlock();
-    while (block.isValid()) {
-        m_previewTextEdit.textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
-        block = block.next();
-    }
-    tc.endEditBlock();
-}
-
-// NimCodeStyleEditor
-
-class NimCodeStyleEditor final : public CodeStyleEditor
-{
-public:
-    explicit NimCodeStyleEditor(ICodeStylePreferences *codeStyle)
-        : m_selector{{}, this}
-        , m_widget{codeStyle, this}
-    {
-        m_selector.setCodeStyle(codeStyle);
-        addSelector(&m_selector);
-        addEditorWidget(&m_widget);
-        connect(m_widget.tabSettings(), &AspectContainer::volatileValueChanged,
-                this, &CodeStyleEditor::changed);
-    }
-
-    void apply() final { m_widget.tabSettings()->apply(); }
-    void cancel() final { m_widget.tabSettings()->cancel(); }
-    bool isDirty() const final { return m_widget.tabSettings()->isDirty(); }
-
-private:
-    CodeStyleSelectorWidget m_selector;
-    NimCodeStylePreferencesWidget m_widget;
+    TabSettings m_tabSettings;
 };
 
 // NimCodeStylePreferencesFactory
@@ -152,8 +62,8 @@ public:
             prefs->setSettingsSuffix("TabPreferences");
             return prefs;
         });
-        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
-            return new NimCodeStyleEditor{codeStyle};
+        setValueEditorCreator([](ICodeStylePreferences *codeStyle) {
+            return new NimCodeStylePreferencesWidget{codeStyle};
         });
 
         setGlobalCodeStyleId(Constants::C_NIMGLOBALCODESTYLE_ID);
