@@ -107,6 +107,7 @@ set(PERFPROFILER_CPP_SOURCES
   perfprofilertr.h
   perfresourcecounter.h
   perfrunconfigurationaspect.cpp perfrunconfigurationaspect.h
+  perfsampler.cpp perfsampler.h
   perfsettings.cpp perfsettings.h
   perftimelinemodel.cpp perftimelinemodel.h
   perftimelinemodelmanager.cpp perftimelinemodelmanager.h

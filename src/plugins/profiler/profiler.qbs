@@ -102,6 +102,7 @@ QtcPlugin {
             "perfprofilertracemanager.cpp", "perfprofilertracemanager.h",
             "perfresourcecounter.h",
             "perfrunconfigurationaspect.cpp", "perfrunconfigurationaspect.h",
+            "perfsampler.cpp", "perfsampler.h",
             "perfsettings.cpp", "perfsettings.h",
             "perftimelinemodel.cpp", "perftimelinemodel.h",
             "perftimelinemodelmanager.cpp", "perftimelinemodelmanager.h",

@@ -5,6 +5,7 @@
 
 #include <profiler/callstacksampler.h>
 #include "mainsidebar.h"
+#include <profiler/perfsampler.h>
 #include "qtprofilerrpc.h"
 #include "qtprofilersettings.h"
 #include "recordingpage.h"
@@ -163,10 +164,12 @@ WindowPrivate::WindowPrivate(Window *window)
             this, &WindowPrivate::startRecording);
     connect(welcomePage, &WelcomePage::backendChanged, this, &WindowPrivate::selectBackend);
 
-    // The native call-stack sampler first, then the QML-protocol profiler. Each
-    // backend persists and renders its own settings, and decides how to start
-    // (launch / attach / connect) from those settings in createSession().
+    // The native call-stack samplers first (macOS mach-based, Linux perf-based),
+    // then the QML-protocol profiler. Each backend persists and renders its own
+    // settings, and decides how to start (launch / attach / connect) from those
+    // settings in createSession().
     backends.push_back(std::make_unique<CallStackSampler>());
+    backends.push_back(std::make_unique<PerfSampler>());
     backends.push_back(std::make_unique<QmlProfilerSampler>());
 
     QStringList backendNames;

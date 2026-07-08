@@ -15,9 +15,10 @@
 namespace QmlProfiler::Internal {
 
 // Hosts the Instruments-like views for traces recorded by a call-stack sampler
-// backend: a CPU usage timeline and the merged call-stack tree. Counterpart to
-// the plain view managers in the qmlprofiler plugin, but specific to the
-// standalone viewer's sampler trace format.
+// backend (macOS mach-based or Linux perf-based): a CPU usage timeline and the
+// merged call-stack tree. Counterpart to the plain view managers in the
+// qmlprofiler plugin, but specific to the standalone viewer's sampler trace
+// format.
 class PROFILER_EXPORT SamplerViewManager : public QObject
 {
     Q_OBJECT
