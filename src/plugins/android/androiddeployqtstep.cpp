@@ -56,6 +56,7 @@ const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_F
 const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
 const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
 const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGRADE");
+const QLatin1String InstallFailedNoMatchingAbis("INSTALL_FAILED_NO_MATCHING_ABIS");
 
 enum DeployErrorFlag
 {
@@ -63,10 +64,15 @@ enum DeployErrorFlag
     InconsistentCertificates = 0x0001,
     UpdateIncompatible = 0x0002,
     PermissionModelDowngrade = 0x0004,
-    VersionDowngrade = 0x0008
+    VersionDowngrade = 0x0008,
+    NoMatchingAbis = 0x0010
 };
 
 Q_DECLARE_FLAGS(DeployErrorFlags, DeployErrorFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(DeployErrorFlags)
+
+constexpr DeployErrorFlags RecoverableInstallErrors = InconsistentCertificates
+    | UpdateIncompatible | PermissionModelDowngrade | VersionDowngrade;
 
 static DeployErrorFlags parseDeployErrors(const QString &deployOutputLine)
 {
@@ -80,6 +86,8 @@ static DeployErrorFlags parseDeployErrors(const QString &deployOutputLine)
         errorCode |= PermissionModelDowngrade;
     if (deployOutputLine.contains(InstallFailedVersionDowngrade))
         errorCode |= VersionDowngrade;
+    if (deployOutputLine.contains(InstallFailedNoMatchingAbis))
+        errorCode |= NoMatchingAbis;
 
     return errorCode;
 }
@@ -112,6 +120,8 @@ private:
     QString m_serialNumber;
     QString m_avdName;
     FilePath m_apkPath;
+    QStringList m_selectedAbis;
+    QStringList m_deviceAbis;
 
     BoolAspect m_uninstallPreviousPackage{this};
     bool m_uninstallPreviousPackageRun = false;
@@ -212,6 +222,8 @@ bool AndroidDeployQtStep::init()
             .arg(info.cpuAbi.first()));
     }
 
+    m_selectedAbis = selectedAbis;
+    m_deviceAbis = dev->supportedAbis();
     m_avdName = info.avdName;
     m_serialNumber = info.serialNumber;
     qCDebug(deployStepLog) << "Selected device info:" << info;
@@ -398,7 +410,13 @@ Group AndroidDeployQtStep::deployRecipe()
             reportWarningOrError(error, Task::Error);
         }
 
-        if (*storage == NoError) {
+        if (*storage & NoMatchingAbis) {
+            reportWarningOrError(
+                Tr::tr("Installing the app failed: none of the package's ABIs is supported "
+                       "by the device.\nThe kit supports \"%1\", but the device uses \"%2\".")
+                .arg(m_selectedAbis.join(", "), m_deviceAbis.join(", ")),
+                Task::Error);
+        } else if (*storage == NoError) {
             reportWarningOrError(Tr::tr("Installing the app failed with an unknown error."),
                                  Task::Error);
         } else if (m_uninstallPreviousPackageRun) {
@@ -439,7 +457,7 @@ Group AndroidDeployQtStep::deployRecipe()
     };
 
     const auto shouldRetryInstall = [this, storage] {
-        return *storage != NoError && !m_uninstallPreviousPackageRun;
+        return storage->testAnyFlags(RecoverableInstallErrors) && !m_uninstallPreviousPackageRun;
     };
     // A recoverable error is not a failure yet, the branch below retries it.
     const auto onFirstAttemptDone = [shouldRetryInstall](DoneWith result) {
