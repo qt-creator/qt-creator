@@ -6713,6 +6713,12 @@ bool FakeVimHandler::Private::handleExNohlsearchCommand(const ExCommand &cmd)
 
     g.highlightsCleared = true;
     updateHighlights();
+    // When Qt Creator's own search is used, matches are highlighted by the
+    // find tool, not tracked in m_highlighted, so updateHighlights() above
+    // cannot clear them. Hide the find tool bar, which clears its highlights
+    // and find scope (QTCREATORBUG-22298).
+    if (s.useCoreSearch())
+        q->findHideRequested();
     return true;
 }
 

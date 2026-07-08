@@ -1730,6 +1730,8 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         triggerAction(reverse ? Id(Core::Constants::FIND_PREVIOUS) : Id(Core::Constants::FIND_NEXT));
     });
 
+    handler->findHideRequested.set([] { Find::hideFindToolBar(); });
+
     handler->foldToggle.set([this, handler](int depth) {
         QTextBlock block = handler->textCursor().block();
         fold(handler, depth, !TextBlockUserData::isFolded(block));

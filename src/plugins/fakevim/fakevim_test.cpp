@@ -83,6 +83,7 @@ private slots:
 
     void test_vim_repeat();
     void test_vim_search();
+    void test_vim_nohlsearch_core_search();
     void test_vim_indent();
     void test_vim_marks();
     void test_vim_jumps();
@@ -2379,6 +2380,29 @@ void FakeVimTester::test_vim_search()
     data.doCommand("set noincsearch");
     data.setText("abc def ghi def.");
     KEYS("fe/d<C-R><ESC>ef<CR>", "abc def ghi " X "def.");
+}
+
+void FakeVimTester::test_vim_nohlsearch_core_search()
+{
+    TestData data;
+    setup(&data);
+
+    // With "Use Qt Creator's find" enabled the matches are highlighted by the
+    // find tool, not by FakeVim, so :nohlsearch clears them by hiding the find
+    // tool bar (via the findHideRequested() callback), which the plugin routes
+    // to Find::hideFindToolBar() (QTCREATORBUG-22298).
+    data.doCommand("set ucs");
+
+    int hideCount = 0;
+    data.handler->findHideRequested.set([&] { ++hideCount; });
+
+    data.setText("abc abc abc");
+    data.doCommand("nohlsearch");
+
+    QVERIFY(hideCount > 0);
+
+    // Restore the global setting so later tests use the default search path.
+    data.doCommand("set noucs");
 }
 
 void FakeVimTester::test_vim_indent()

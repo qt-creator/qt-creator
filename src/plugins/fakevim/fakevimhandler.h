@@ -151,6 +151,7 @@ public:
     Callback<void(const QString &key, int count)> windowCommandRequested;
     Callback<void(bool reverse)> findRequested;
     Callback<void(bool reverse)> findNextRequested;
+    Callback<void()> findHideRequested;
     Callback<void(bool *handled, const ExCommand &cmd)> handleExCommandRequested;
     Callback<void()> requestDisableBlockSelection;
     Callback<void(const QTextCursor &cursor)> requestSetBlockSelection;

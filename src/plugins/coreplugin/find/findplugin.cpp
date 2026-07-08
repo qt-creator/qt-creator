@@ -476,6 +476,14 @@ void Find::openFindToolBar(FindDirection direction)
     }
 }
 
+void Find::hideFindToolBar()
+{
+    // Hiding the toolbar clears the highlighted matches and the find scope
+    // (see FindToolBar::eventFilter), which is what we want here.
+    if (d->m_findToolBar && d->m_findToolBar->isVisible())
+        d->m_findToolBar->hide();
+}
+
 QAbstractListModel *Find::findCompletionModel()
 {
     return &(d->m_findCompletionModel);

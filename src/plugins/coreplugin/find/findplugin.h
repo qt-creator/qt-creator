@@ -40,6 +40,7 @@ public:
     static QStringListModel *replaceCompletionModel();
     static void setUseFakeVim(bool on);
     static void openFindToolBar(FindDirection direction);
+    static void hideFindToolBar();
     static void openFindDialog(IFindFilter *filter, const QString &findString = {});
 
     static void setCaseSensitive(bool sensitive);
