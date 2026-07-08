@@ -22,7 +22,6 @@
 #include <utils/macroexpander.h>
 
 #include <QComboBox>
-#include <QHBoxLayout>
 #include <QLabel>
 
 #include <tuple>
@@ -98,7 +97,7 @@ private:
     void addToInnerLayout(Layouting::Layout &layout) override
     {
         if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
-            Layouting::Layout box(new QHBoxLayout);
+            Layouting::Row box;
             box.addItem(createSubWidget<QLabel>(Tr::tr("Type:")));
             embedded.first()->addToInnerLayout(box);
             box.addItem(createSubWidget<QLabel>(Tr::tr("Device:")));

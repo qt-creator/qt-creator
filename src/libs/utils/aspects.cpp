@@ -800,9 +800,18 @@ void BaseAspect::volatileFromMap(const Store &map)
     Q_UNUSED(map)
 }
 
+/*!
+    Adds the widgets of this aspect to \a parent.
+
+    The widgets are created each time \a parent is built, so every product
+    gets widgets of its own.
+*/
 void BaseAspect::addToLayout(Layouting::Layout &parent) const
 {
-    const_cast<BaseAspect *>(this)->addToLayoutImpl(parent);
+    parent.addLazyItems([self = QPointer<const BaseAspect>(this)](Layouting::Layout &items) {
+        QTC_ASSERT(self, return);
+        const_cast<BaseAspect *>(self.data())->addToLayoutImpl(items);
+    });
 }
 
 void BaseAspect::readSettings()
@@ -2758,18 +2767,23 @@ void SelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 #else
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons: {
-        auto buttonGroup = new QButtonGroup(parent.product());
-        buttonGroup->setObjectName(objectName());
-        buttonGroup->setExclusive(true);
+        QButtonGroup *buttonGroup = nullptr;
         for (int i = 0, n = d->m_options.size(); i < n; ++i) {
             const Option &option = d->m_options.at(i);
             auto button = createSubWidget<QRadioButton>(option.displayName);
+            if (!buttonGroup) {
+                buttonGroup = new QButtonGroup(button);
+                buttonGroup->setObjectName(objectName());
+                buttonGroup->setExclusive(true);
+            }
             button->setChecked(i == value());
             button->setEnabled(option.enabled);
             button->setToolTip(option.tooltip);
             parent.addItem(button);
             buttonGroup->addButton(button, i);
         }
+        if (!buttonGroup)
+            break;
         volatileValueToGui();
         connect(&d->m_undoable.m_signal, &UndoSignaller::changed, buttonGroup, [buttonGroup, this] {
             QAbstractButton *button = buttonGroup->button(d->m_undoable.get());

@@ -5,6 +5,9 @@
 
 #include <sol/forward.hpp>
 
+#include <QPointer>
+#include <QWidget>
+
 namespace Lua::Internal {
 class LuaAspectContainer;
 }
@@ -80,18 +83,37 @@ class Flow;
 class Form;
 class Grid;
 class Preview;
-
-class Widget;
-class Group;
-class PushButton;
 class Row;
-class SpinBox;
-class Splitter;
-class Stack;
-class TabWidget;
-class TextEdit;
-class ToolBar;
 } // namespace Layouting
+
+namespace Lua::Internal {
+
+class WidgetHandle
+{
+public:
+    virtual ~WidgetHandle() = default;
+
+    QPointer<QWidget> widget;
+};
+
+template<class Builder>
+class Handle : public WidgetHandle
+{};
+
+} // namespace Lua::Internal
+
+namespace sol {
+template<>
+struct derive<Lua::Internal::WidgetHandle> : std::true_type
+{
+    typedef types<> type;
+};
+template<class Builder>
+struct base<Lua::Internal::Handle<Builder>> : std::true_type
+{
+    typedef types<Lua::Internal::WidgetHandle> type;
+};
+} // namespace sol
 
 SOL_BASE_CLASSES(Layouting::Layout, Layouting::Object);
 SOL_BASE_CLASSES(Layouting::Column, Layouting::Layout);
@@ -100,15 +122,6 @@ SOL_BASE_CLASSES(Layouting::Flow, Layouting::Layout);
 SOL_BASE_CLASSES(Layouting::Grid, Layouting::Layout);
 SOL_BASE_CLASSES(Layouting::Form, Layouting::Layout);
 SOL_BASE_CLASSES(Layouting::Preview, Layouting::Column, Layouting::Layout, Layouting::Object);
-SOL_BASE_CLASSES(Layouting::Widget, Layouting::Object);
-SOL_BASE_CLASSES(Layouting::Stack, Layouting::Widget);
-SOL_BASE_CLASSES(Layouting::Group, Layouting::Widget);
-SOL_BASE_CLASSES(Layouting::TextEdit, Layouting::Widget);
-SOL_BASE_CLASSES(Layouting::PushButton, Layouting::Widget);
-SOL_BASE_CLASSES(Layouting::SpinBox, Layouting::Widget);
-SOL_BASE_CLASSES(Layouting::Splitter, Layouting::Widget);
-SOL_BASE_CLASSES(Layouting::ToolBar, Layouting::Widget);
-SOL_BASE_CLASSES(Layouting::TabWidget, Layouting::Widget);
 
 SOL_DERIVED_CLASSES(
     Layouting::Object,
@@ -118,13 +131,4 @@ SOL_DERIVED_CLASSES(
     Layouting::Flow,
     Layouting::Grid,
     Layouting::Form,
-    Layouting::Preview,
-    Layouting::Widget,
-    Layouting::Stack,
-    Layouting::Group,
-    Layouting::TextEdit,
-    Layouting::PushButton,
-    Layouting::SpinBox,
-    Layouting::Splitter,
-    Layouting::ToolBar,
-    Layouting::TabWidget);
+    Layouting::Preview);

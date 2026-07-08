@@ -31,7 +31,6 @@
 #include <utils/qtcassert.h>
 
 #include <QAbstractListModel>
-#include <QHBoxLayout>
 #include <QJsonValue>
 #include <QLabel>
 
@@ -111,7 +110,7 @@ private:
     void addToInnerLayout(Layouting::Layout &layout) override
     {
         if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
-            Layouting::Layout box(new QHBoxLayout);
+            Layouting::Row box;
             KitAspect::addToInnerLayout(box);
             QSizePolicy p = comboBoxes().first()->sizePolicy();
             p.setHorizontalStretch(2);

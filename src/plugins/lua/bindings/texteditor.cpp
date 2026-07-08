@@ -4,6 +4,7 @@
 #include "../luaengine.h"
 #include "../luatr.h"
 
+#include "inheritance.h"
 #include "utils.h"
 
 #include <texteditor/basehoverhandler.h>
@@ -390,14 +391,14 @@ void setupTextEditorModule()
             "PreviousRow",      QTextCursor::PreviousRow
         );
 
-        using LayoutOrWidget = std::variant<Layouting::Layout *, Layouting::Widget *, QWidget *>;
+        using LayoutOrWidget = std::variant<Layouting::Layout *, WidgetHandle *, QWidget *>;
 
         static auto toWidget = [](LayoutOrWidget &arg) {
             return std::visit(
                 [](auto &&arg) -> QWidget * {
                     using T = std::decay_t<decltype(arg)>;
-                    if constexpr (std::is_same_v<T, Layouting::Widget *>)
-                        return arg->emerge();
+                    if constexpr (std::is_same_v<T, WidgetHandle *>)
+                        return arg->widget;
                     else if constexpr (std::is_same_v<T, QWidget *>)
                         return arg;
                     else if constexpr (std::is_same_v<T, Layouting::Layout *>)

@@ -13,7 +13,10 @@
 #include <QString>
 #include <QStringList>
 
+#include <concepts>
 #include <initializer_list>
+#include <memory>
+#include <optional>
 #include <vector>
 
 #if defined(UTILS_LIBRARY)
@@ -71,23 +74,66 @@ namespace Layouting {
 // Basic
 //
 
+class QTCREATOR_UTILS_EXPORT Build
+{
+public:
+    explicit Build(QObject *product);
+    virtual ~Build();
+
+    QPointer<QObject> product;
+};
+
 class QTCREATOR_UTILS_EXPORT Object
 {
 public:
     using Implementation = QObject;
     using I = Building::BuilderItem<Object>;
+    using Op = std::function<void(Build &)>;
 
     Object() = default;
+    Object(const Object &) = default;
+    Object(Object &&) = default;
+    Object &operator=(const Object &) = default;
+    Object &operator=(Object &&) = default;
+    virtual ~Object() = default;
     Object(std::initializer_list<I> ps);
 
     void setObjectName(const QString &objectName);
     void onDestroyed(QObject *guard, const std::function<void()> &func);
 
-    QObject *product() const { return ptr; }
+    QObject *materialize() const;
+    void applyTo(QObject *product) const;
+    void record(Op op);
+
+    std::function<QObject *()> creator;
 
 protected:
-    QPointer<QObject> ptr; // The product.
+    virtual std::shared_ptr<Build> newBuild(QObject *product) const;
+    virtual void finish(Build &) const {}
+    void replay(Build &build) const;
+
+private:
+    std::vector<Op> ops;
 };
+
+namespace Tools {
+
+template<typename X, typename Op>
+void modify(X *x, Op op)
+{
+    x->record([op = std::move(op)](Build &b) {
+        op(static_cast<typename X::Implementation *>(b.product.data()));
+    });
+}
+
+template<typename X>
+void apply(X *x, std::initializer_list<typename X::I> ps)
+{
+    for (const typename X::I &p : ps)
+        p.apply(x);
+}
+
+} // Tools
 
 //
 // Layouts
@@ -124,7 +170,6 @@ public:
     using I = Building::BuilderItem<Layout>;
 
     Layout() = default;
-    Layout(Implementation *w);
 
     void span(int cols, int rows);
     void align(Qt::Alignment alignment);
@@ -145,26 +190,20 @@ public:
     void addItems(std::initializer_list<I> items, bool addEmpty = true);
     void addRow(std::initializer_list<I> items);
     void addLayoutItem(const LayoutItem &item);
+    void addLazyLayoutItem(std::function<std::optional<LayoutItem>()> make);
+    void addLazyItems(std::function<void(Layout &)> fill);
 
     void flush();
-    void flush_() const;
 
+    QLayout *emergeLayout() const;
     QWidget *emerge() const;
     void show() const;
 
-    QFormLayout *asForm();
-    QGridLayout *asGrid();
-    QBoxLayout *asBox();
-    FlowLayout *asFlow();
+protected:
+    std::shared_ptr<Build> newBuild(QObject *product) const override;
+    void finish(Build &build) const override;
 
-    // Grid-only
-    int currentGridColumn = 0;
-    int currentGridRow = 0;
-    //Qt::Alignment align = {};
-    bool useFormAlignment = false;
-
-    std::vector<LayoutItem> pendingItems;
-
+private:
     // While set, empty items (e.g. a null widget) are dropped instead of
     // taking up a cell. Toggled by addItems() with addEmpty == false.
     bool skipEmptyItems = false;
@@ -293,13 +332,9 @@ public:
 
     Widget() = default;
     Widget(std::initializer_list<I> ps);
-    Widget(Implementation *w);
 
     QWidget *emerge() const;
-    void show();
-
-    bool isVisible() const;
-    bool isEnabled() const;
+    void show() const;
 
     void setVisible(bool);
     void setEnabled(bool);
@@ -322,9 +357,6 @@ public:
     void setMinimumHeight(int height);
     void setMaximumWidth(int maxWidth);
     void setMaximumHeight(int maxHeight);
-
-    void activateWindow();
-    void close();
 };
 
 class QTCREATOR_UTILS_EXPORT Label : public Widget
@@ -336,7 +368,6 @@ public:
     Label(std::initializer_list<I> ps);
     Label(const QString &text);
 
-    QString text() const;
     void setText(const QString &);
     void setTextFormat(Qt::TextFormat);
     void setWordWrap(bool);
@@ -394,7 +425,6 @@ public:
 
     TextEdit(std::initializer_list<I> ps);
 
-    QString markdown() const;
     void setText(const QString &);
     void setMarkdown(const QString &);
     void setReadOnly(bool);
@@ -411,7 +441,6 @@ public:
     void setItems(const QStringList &items);
     void addItem(const QString &item);
     void clear();
-    int currentRow() const;
     void setCurrentRow(int row);
     void onItemActivated(QObject *guard, const std::function<void(int)> &);
     void onCurrentRowChanged(QObject *guard, const std::function<void(int)> &);
@@ -426,19 +455,15 @@ public:
 
     CompletingTextEdit(std::initializer_list<I> ps);
 
-    QString markdown() const;
     void setMarkdown(const QString &);
-    QString text() const;
     void setText(const QString &);
     void setReadOnly(bool);
     void setPlaceHolderText(const QString &text);
     void setRightSideIconPath(const Utils::FilePath &path);
-    QCompleter *completer() const;
     void setCompleter(QCompleter *completer);
     void onReturnPressed(QObject *guard, const std::function<void(Implementation &)> &);
     void onRightSideIconClicked(QObject *guard, const std::function<void()> &);
     void onTextChanged(QObject *guard, const std::function<void(QString)> &func);
-    Utils::CompletingTextEdit::CompletionBehavior completionBehavior() const;
     void setCompletionBehavior(Utils::CompletingTextEdit::CompletionBehavior behavior);
 };
 
@@ -451,7 +476,6 @@ public:
 
     LineEdit(std::initializer_list<I> ps);
 
-    QString text() const;
     void setText(const QString &);
     void setRightSideIconPath(const Utils::FilePath &path);
     void setPlaceholderText(const QString &text);
@@ -558,7 +582,6 @@ public:
 
     MarkdownBrowser(std::initializer_list<I> items);
 
-    QString toMarkdown() const;
     void setMarkdown(const QString &);
     void setBasePath(const Utils::FilePath &);
     void setEnableCodeCopyButton(bool enable);
@@ -604,7 +627,9 @@ public:
 
     void addButton(QDialogButtonBox::ButtonRole role, const AbstractButtonBuilder auto &button)
     {
-        addButton(role, static_cast<QAbstractButton *>(button.product()));
+        Tools::modify(this, [role, button](QDialogButtonBox *box) {
+            box->addButton(static_cast<QAbstractButton *>(button.emerge()), role);
+        });
     }
 
     void addButton(QDialogButtonBox::ButtonRole role, QAbstractButton *button);
@@ -680,8 +705,7 @@ private:
 
 // Special dispatchers
 
-class BindToId
-{};
+class BindToId {};
 
 template <typename T>
 auto bindTo(T **p)
@@ -692,7 +716,9 @@ auto bindTo(T **p)
 template <typename Interface>
 void doit(Interface *x, BindToId, auto p)
 {
-    *p = static_cast<typename Interface::Implementation *>(x->product());
+    x->record([p](Build &b) {
+        *p = static_cast<typename Interface::Implementation *>(b.product.data());
+    });
 }
 
 class IdId
@@ -706,7 +732,9 @@ auto id(auto p)
 template <typename Interface>
 void doit(Interface *x, IdId, auto p)
 {
-    **p = static_cast<typename Interface::Implementation *>(x->product());
+    x->record([p](Build &b) {
+        **p = static_cast<typename Interface::Implementation *>(b.product.data());
+    });
 }
 
 // Setter dispatchers
@@ -808,6 +836,7 @@ QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, QWidget &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, QLayout *inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const LayoutModifier &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const QString &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const char *inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Space &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Stretch &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const If &inner);
@@ -832,9 +861,11 @@ template<typename FUNC>
 requires WidgetFactory<FUNC>
 void addToLayout(Layout *layout, FUNC factory)
 {
-    auto inner = factory();
-    if (inner)
-        addToLayout(layout, inner);
+    layout->addLazyLayoutItem([factory]() -> std::optional<LayoutItem> {
+        if (QWidget *inner = factory())
+            return LayoutItem(inner);
+        return {};
+    });
 }
 
 template<std::ranges::view T>
@@ -943,7 +974,9 @@ template<typename Interface, typename Sender, typename Signal, typename LayoutCr
     requires DerivedFromWidget<Interface>
 void doit(Interface *x, ReplaceLayoutOnId, const std::tuple<Sender *, Signal, LayoutCreateFunc> &arg)
 {
-    replaceLayoutOn(std::get<0>(arg), std::get<1>(arg), x->emerge(), std::get<2>(arg));
+    Tools::modify(static_cast<Layouting::Widget *>(x), [arg](QWidget *widget) {
+        replaceLayoutOn(std::get<0>(arg), std::get<1>(arg), widget, std::get<2>(arg));
+    });
 }
 
 template<class FUNC>
@@ -955,22 +988,5 @@ auto replaceLayoutOn(Sender *sender, Signal signal, const LayoutCreateFunc &func
 {
     return Building::IdAndArg{ReplaceLayoutOnId{}, std::make_tuple(sender, signal, func)};
 }
-
-namespace Tools {
-
-template<typename X>
-typename X::Implementation *access(const X *x)
-{
-    return static_cast<typename X::Implementation *>(x->product());
-}
-
-template<typename X>
-void apply(X *x, std::initializer_list<typename X::I> ps)
-{
-    for (auto &&p : ps)
-        p.apply(x);
-}
-
-} // Tools
 
 } // namespace Layouting

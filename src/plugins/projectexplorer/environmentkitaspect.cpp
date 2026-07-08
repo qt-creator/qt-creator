@@ -21,7 +21,6 @@
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
-#include <QHBoxLayout>
 #include <QPushButton>
 
 using namespace Utils;
@@ -76,13 +75,13 @@ public:
 private:
     void addToInnerLayout(Layouting::Layout &layout) override
     {
-        Layouting::Layout box(new QHBoxLayout);
+        Layouting::Row box;
         box.setContentsMargins(0, 0, 0, 0);
-        box.attachTo(m_mainWidget);
         if (m_vslangCheckbox)
             box.addItem(m_vslangCheckbox);
         box.addItems({m_buildEnvButton, m_runEnvButton});
         box.addItem(Layouting::Stretch(1));
+        box.attachTo(m_mainWidget);
         layout.addItem(m_mainWidget);
     }
 

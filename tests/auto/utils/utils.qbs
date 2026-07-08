@@ -24,6 +24,7 @@ Project {
         "guiutils/guiutils.qbs",
         "id/id.qbs",
         "indexedcontainerproxyconstiterator/indexedcontainerproxyconstiterator.qbs",
+        "layoutbuilder/layoutbuilder.qbs",
         "markdown/markdown.qbs",
         "mathutils/mathutils.qbs",
         "multicursor/multicursor.qbs",

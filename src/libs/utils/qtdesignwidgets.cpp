@@ -1776,7 +1776,7 @@ namespace QtDesignWidgets {
 
 Button::Button()
 {
-    ptr = new Implementation({}, QtcButton::MediumPrimary, nullptr);
+    creator = [] { return new Implementation({}, QtcButton::MediumPrimary, nullptr); };
 }
 
 Button::Button(std::initializer_list<I> ps)
@@ -1787,27 +1787,29 @@ Button::Button(std::initializer_list<I> ps)
 
 void Button::setText(const QString &text)
 {
-    Layouting::Tools::access(this)->setText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void Button::setIcon(const Icon &icon)
 {
-    Layouting::Tools::access(this)->setThemedPixmap(icon);
+    Layouting::Tools::modify(this, [icon](Implementation *w) { w->setThemedPixmap(icon); });
 }
 
 void Button::setRole(QtcButton::Role role)
 {
-    Layouting::Tools::access(this)->setRole(role);
+    Layouting::Tools::modify(this, [role](Implementation *w) { w->setRole(role); });
 }
 
 void Button::onClicked(QObject *guard, const std::function<void()> &func)
 {
-    QObject::connect(Layouting::Tools::access(this), &QtcButton::clicked, guard, func);
+    Layouting::Tools::modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QtcButton::clicked, guard, func);
+    });
 }
 
 IconButton::IconButton()
 {
-    ptr = new Implementation(nullptr);
+    creator = [] { return new Implementation(nullptr); };
 }
 
 IconButton::IconButton(std::initializer_list<I> ps)
@@ -1818,17 +1820,19 @@ IconButton::IconButton(std::initializer_list<I> ps)
 
 void IconButton::setIcon(const Icon &icon)
 {
-    Layouting::Tools::access(this)->setIcon(icon.icon());
+    Layouting::Tools::modify(this, [icon](Implementation *w) { w->setIcon(icon.icon()); });
 }
 
 void IconButton::onClicked(QObject *guard, const std::function<void()> &func)
 {
-    QObject::connect(Layouting::Tools::access(this), &QtcIconButton::clicked, guard, func);
+    Layouting::Tools::modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QtcIconButton::clicked, guard, func);
+    });
 }
 
 Switch::Switch()
 {
-    ptr = new Implementation({});
+    creator = [] { return new Implementation({}); };
 }
 
 Switch::Switch(std::initializer_list<I> ps)
@@ -1839,22 +1843,24 @@ Switch::Switch(std::initializer_list<I> ps)
 
 void Switch::setText(const QString &text)
 {
-    Layouting::Tools::access(this)->setText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void Switch::setChecked(bool checked)
 {
-    Layouting::Tools::access(this)->setChecked(checked);
+    Layouting::Tools::modify(this, [checked](Implementation *w) { w->setChecked(checked); });
 }
 
 void Switch::onClicked(QObject *guard, const std::function<void()> &func)
 {
-    QObject::connect(Layouting::Tools::access(this), &QtcSwitch::clicked, guard, func);
+    Layouting::Tools::modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QtcSwitch::clicked, guard, func);
+    });
 }
 
 CheckBox::CheckBox()
 {
-    ptr = new Implementation({});
+    creator = [] { return new Implementation({}); };
 }
 
 CheckBox::CheckBox(std::initializer_list<I> ps)
@@ -1865,22 +1871,24 @@ CheckBox::CheckBox(std::initializer_list<I> ps)
 
 void CheckBox::setText(const QString &text)
 {
-    Layouting::Tools::access(this)->setText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void CheckBox::setChecked(bool checked)
 {
-    Layouting::Tools::access(this)->setChecked(checked);
+    Layouting::Tools::modify(this, [checked](Implementation *w) { w->setChecked(checked); });
 }
 
 void CheckBox::onClicked(QObject *guard, const std::function<void()> &func)
 {
-    QObject::connect(Layouting::Tools::access(this), &QtcCheckBox::clicked, guard, func);
+    Layouting::Tools::modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QtcCheckBox::clicked, guard, func);
+    });
 }
 
 SpinBox::SpinBox()
 {
-    ptr = new Implementation();
+    creator = [] { return new Implementation(); };
 }
 
 SpinBox::SpinBox(std::initializer_list<I> ps)
@@ -1891,32 +1899,36 @@ SpinBox::SpinBox(std::initializer_list<I> ps)
 
 void SpinBox::setMinimum(int minimum)
 {
-    Layouting::Tools::access(this)->setMinimum(minimum);
+    Layouting::Tools::modify(this, [minimum](Implementation *w) { w->setMinimum(minimum); });
 }
 
 void SpinBox::setMaximum(int maximum)
 {
-    Layouting::Tools::access(this)->setMaximum(maximum);
+    Layouting::Tools::modify(this, [maximum](Implementation *w) { w->setMaximum(maximum); });
 }
 
 void SpinBox::setRange(int minimum, int maximum)
 {
-    Layouting::Tools::access(this)->setRange(minimum, maximum);
+    Layouting::Tools::modify(this, [minimum, maximum](Implementation *w) {
+        w->setRange(minimum, maximum);
+    });
 }
 
 void SpinBox::setValue(int value)
 {
-    Layouting::Tools::access(this)->setValue(value);
+    Layouting::Tools::modify(this, [value](Implementation *w) { w->setValue(value); });
 }
 
 void SpinBox::onValueChanged(QObject *guard, const std::function<void(int)> &func)
 {
-    QObject::connect(Layouting::Tools::access(this), &QtcSpinBox::valueChanged, guard, func);
+    Layouting::Tools::modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QtcSpinBox::valueChanged, guard, func);
+    });
 }
 
 ProgressBar::ProgressBar()
 {
-    ptr = new Implementation();
+    creator = [] { return new Implementation(); };
 }
 
 ProgressBar::ProgressBar(std::initializer_list<I> ps)
@@ -1927,42 +1939,46 @@ ProgressBar::ProgressBar(std::initializer_list<I> ps)
 
 void ProgressBar::setMinimum(int minimum)
 {
-    Layouting::Tools::access(this)->setMinimum(minimum);
+    Layouting::Tools::modify(this, [minimum](Implementation *w) { w->setMinimum(minimum); });
 }
 
 void ProgressBar::setMaximum(int maximum)
 {
-    Layouting::Tools::access(this)->setMaximum(maximum);
+    Layouting::Tools::modify(this, [maximum](Implementation *w) { w->setMaximum(maximum); });
 }
 
 void ProgressBar::setRange(int minimum, int maximum)
 {
-    Layouting::Tools::access(this)->setRange(minimum, maximum);
+    Layouting::Tools::modify(this, [minimum, maximum](Implementation *w) {
+        w->setRange(minimum, maximum);
+    });
 }
 
 void ProgressBar::setValue(int value)
 {
-    Layouting::Tools::access(this)->setValue(value);
+    Layouting::Tools::modify(this, [value](Implementation *w) { w->setValue(value); });
 }
 
 void ProgressBar::setFillColor(Theme::Color color)
 {
-    Layouting::Tools::access(this)->setFillColor(color);
+    Layouting::Tools::modify(this, [color](Implementation *w) { w->setFillColor(color); });
 }
 
 void ProgressBar::setBackgroundColor(Theme::Color color)
 {
-    Layouting::Tools::access(this)->setBackgroundColor(color);
+    Layouting::Tools::modify(this, [color](Implementation *w) { w->setBackgroundColor(color); });
 }
 
 void ProgressBar::onValueChanged(QObject *guard, const std::function<void(int)> &func)
 {
-    QObject::connect(Layouting::Tools::access(this), &QtcProgressBar::valueChanged, guard, func);
+    Layouting::Tools::modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QtcProgressBar::valueChanged, guard, func);
+    });
 }
 
 Label::Label()
 {
-    ptr = new Implementation("", QtcLabel::Primary, nullptr);
+    creator = [] { return new Implementation("", QtcLabel::Primary, nullptr); };
 }
 
 Label::Label(std::initializer_list<I> ps)
@@ -1973,17 +1989,17 @@ Label::Label(std::initializer_list<I> ps)
 
 void Label::setText(const QString &text)
 {
-    Layouting::Tools::access(this)->setText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void Label::setRole(QtcLabel::Role role)
 {
-    Layouting::Tools::access(this)->setRole(role);
+    Layouting::Tools::modify(this, [role](Implementation *w) { w->setRole(role); });
 }
 
 LineEdit::LineEdit()
 {
-    ptr = new Implementation();
+    creator = [] { return new Implementation(); };
 }
 
 LineEdit::LineEdit(std::initializer_list<I> ps)
@@ -1994,22 +2010,24 @@ LineEdit::LineEdit(std::initializer_list<I> ps)
 
 void LineEdit::setPlaceholderText(const QString &text)
 {
-    Layouting::Tools::access(this)->setPlaceholderText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setPlaceholderText(text); });
 }
 
 void LineEdit::setText(const QString &text)
 {
-    Layouting::Tools::access(this)->setText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void LineEdit::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
-    QObject::connect(Layouting::Tools::access(this), &QtcLineEdit::textChanged, guard, func);
+    Layouting::Tools::modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QtcLineEdit::textChanged, guard, func);
+    });
 }
 
 SearchBox::SearchBox()
 {
-    ptr = new Implementation();
+    creator = [] { return new Implementation(); };
 }
 
 SearchBox::SearchBox(std::initializer_list<I> ps)
@@ -2020,86 +2038,88 @@ SearchBox::SearchBox(std::initializer_list<I> ps)
 
 void SearchBox::setPlaceholderText(const QString &text)
 {
-    Layouting::Tools::access(this)->setPlaceholderText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setPlaceholderText(text); });
 }
 
 void SearchBox::setText(const QString &text)
 {
-    Layouting::Tools::access(this)->setText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void SearchBox::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
-    QObject::connect(Layouting::Tools::access(this), &QtcSearchBox::textChanged, guard, func);
+    Layouting::Tools::modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QtcSearchBox::textChanged, guard, func);
+    });
 }
 
 Rectangle::Rectangle(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     Layouting::Tools::apply(this, ps);
 }
 
 void Rectangle::setFillBrush(const QBrush &brush)
 {
-    Layouting::Tools::access(this)->setFillBrush(brush);
+    Layouting::Tools::modify(this, [brush](Implementation *w) { w->setFillBrush(brush); });
 }
 
 void Rectangle::setStrokePen(const QPen &pen)
 {
-    Layouting::Tools::access(this)->setStrokePen(pen);
+    Layouting::Tools::modify(this, [pen](Implementation *w) { w->setStrokePen(pen); });
 }
 
 void Rectangle::setRadius(int radius)
 {
-    Layouting::Tools::access(this)->setRadius(radius);
+    Layouting::Tools::modify(this, [radius](Implementation *w) { w->setRadius(radius); });
 }
 
 SeparatedItems::SeparatedItems(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     Layouting::Tools::apply(this, ps);
 }
 
 void SeparatedItems::setSeparatorColor(Theme::Color color)
 {
-    Layouting::Tools::access(this)->setSeparatorColor(color);
+    Layouting::Tools::modify(this, [color](Implementation *w) { w->setSeparatorColor(color); });
 }
 
 void SeparatedItems::setSeparatorInset(int inset)
 {
-    Layouting::Tools::access(this)->setSeparatorInset(inset);
+    Layouting::Tools::modify(this, [inset](Implementation *w) { w->setSeparatorInset(inset); });
 }
 
 Image::Image(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     Layouting::Tools::apply(this, ps);
 }
 
 void Image::setUrl(const QString &url)
 {
-    Layouting::Tools::access(this)->setUrl(url);
+    Layouting::Tools::modify(this, [url](Implementation *w) { w->setUrl(url); });
 }
 
 void Image::setRadius(int radius)
 {
-    Layouting::Tools::access(this)->setRadius(radius);
+    Layouting::Tools::modify(this, [radius](Implementation *w) { w->setRadius(radius); });
 }
 
 IconDisplay::IconDisplay(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     Layouting::Tools::apply(this, ps);
 }
 
 void IconDisplay::setIcon(const Utils::Icon &icon)
 {
-    Layouting::Tools::access(this)->setIcon(icon);
+    Layouting::Tools::modify(this, [icon](Implementation *w) { w->setIcon(icon); });
 }
 
 Badge::Badge()
 {
-    ptr = new Implementation();
+    creator = [] { return new Implementation(); };
 }
 
 Badge::Badge(std::initializer_list<I> ps)
@@ -2110,17 +2130,17 @@ Badge::Badge(std::initializer_list<I> ps)
 
 void Badge::setText(const QString &text)
 {
-    Layouting::Tools::access(this)->setText(text);
+    Layouting::Tools::modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void Badge::setInfoType(InfoLabelType infoType)
 {
-    Layouting::Tools::access(this)->setInfoType(infoType);
+    Layouting::Tools::modify(this, [infoType](Implementation *w) { w->setInfoType(infoType); });
 }
 
 void Badge::setRole(QtcBadge::Role role)
 {
-    Layouting::Tools::access(this)->setRole(role);
+    Layouting::Tools::modify(this, [role](Implementation *w) { w->setRole(role); });
 }
 
 } // namespace QtDesignWidgets

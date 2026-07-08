@@ -3,6 +3,8 @@
 
 #include "../luaengine.h"
 
+#include "inheritance.h"
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/imode.h>
@@ -45,8 +47,8 @@ void setupModeModule()
             if (idString.isEmpty())
                 throw sol::error("Mode.create: 'id' is required");
 
-            Layouting::Widget *widget = options.get<Layouting::Widget *>("widget");
-            if (!widget)
+            WidgetHandle *widgetHandle = options.get<WidgetHandle *>("widget");
+            if (!widgetHandle || !widgetHandle->widget)
                 throw sol::error("Mode.create: 'widget' (a Gui widget) is required");
 
             IMode *mode = new IMode; // ModeManager::addMode() is called in the ctor.
@@ -87,7 +89,7 @@ void setupModeModule()
 
             // Hand the widget over through a creator: IMode's destructor deletes
             // a creator-provided widget, so it is cleaned up with the mode.
-            QWidget *w = widget->emerge();
+            QWidget *w = widgetHandle->widget;
             mode->setWidgetCreator([w] { return w; });
 
             // Take the mode down (tab + registration) on plugin unload.

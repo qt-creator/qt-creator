@@ -11,17 +11,25 @@
 #include <solutions/spinner/spinner.h>
 
 #include <utils/aspects.h>
+#include <utils/completingtextedit.h>
+#include <utils/fancylineedit.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
+#include <utils/markdownbrowser.h>
 #include <utils/qtdesignwidgets.h>
 
 #include <QCompleter>
+#include <QLabel>
+#include <QListWidget>
+#include <QTextEdit>
 
 using namespace Layouting;
 using namespace Utils;
 using namespace std::string_view_literals;
 
 namespace Lua::Internal {
+
+using QtcTextEdit = Layouting::CompletingTextEdit;
 
 template<class T>
 static void processChildren(T *item, const sol::table &children)
@@ -33,9 +41,9 @@ static void processChildren(T *item, const sol::table &children)
                 item->addItem(*layout);
             else
                 item->addItem("ERROR");
-        } else if (child.is<Widget *>()) {
-            if (Widget *widget = child.get<Widget *>())
-                item->addItem(*widget);
+        } else if (child.is<WidgetHandle *>()) {
+            if (QWidget *widget = child.get<WidgetHandle *>()->widget)
+                item->addItem(widget);
             else
                 item->addItem("ERROR");
         } else if (child.is<BaseAspect>()) {
@@ -255,10 +263,8 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
 
     if constexpr (has_setCompleter<T>) {
         const auto completer = children.get<QCompleter *>("completer"sv);
-        if (completer) {
+        if (completer)
             item->setCompleter(completer);
-            completer->setParent(item->emerge());
-        }
     }
 
     if constexpr (has_setMinimumHeight<T>) {
@@ -460,12 +466,49 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
 }
 
 template<class T>
-std::unique_ptr<T> constructWidgetType(const sol::table &children, QObject *guard)
+static std::unique_ptr<Handle<T>> emergeHandle(const T &builder)
+{
+    auto handle = std::make_unique<Handle<T>>();
+    handle->widget = builder.emerge();
+    return handle;
+}
+
+static QWidget *checkedWidget(const WidgetHandle &handle)
+{
+    if (!handle.widget)
+        throw sol::error("Attempt to access a deleted widget");
+    return handle.widget;
+}
+
+template<class T>
+static typename T::Implementation *implementation(const Handle<T> &handle)
+{
+    return static_cast<typename T::Implementation *>(checkedWidget(handle));
+}
+
+template<class Builder, class... Args>
+static auto setter(void (Builder::*set)(Args...))
+{
+    return [set](const WidgetHandle &handle, Args... args) {
+        QWidget *widget = checkedWidget(handle);
+        Builder builder({});
+        (builder.*set)(args...);
+        builder.applyTo(widget);
+    };
+}
+
+template<class T>
+std::unique_ptr<Handle<T>> constructWidgetType(const sol::table &children, QObject *guard)
 {
     std::unique_ptr<T> item(new T({}));
     constructWidget(item, children);
     setProperties(item, children, guard);
-    return item;
+    std::unique_ptr<Handle<T>> handle = emergeHandle(*item);
+    if constexpr (has_setCompleter<T>) {
+        if (const auto completer = children.get<QCompleter *>("completer"sv))
+            completer->setParent(handle->widget);
+    }
+    return handle;
 }
 
 static std::unique_ptr<Tab> constructTabFromTable(const sol::table &children)
@@ -530,7 +573,8 @@ static std::unique_ptr<Span> constructSpanWithRow(int c, int r, const Layout &la
     return item;
 }
 
-static std::unique_ptr<TabWidget> constructTabWidget(const sol::table &children, QObject *guard)
+static std::unique_ptr<Handle<TabWidget>> constructTabWidget(
+    const sol::table &children, QObject *guard)
 {
     std::unique_ptr<TabWidget> item(new TabWidget({}));
     setProperties(item, children, guard);
@@ -539,10 +583,10 @@ static std::unique_ptr<TabWidget> constructTabWidget(const sol::table &children,
         if (child.is<Tab *>())
             addToTabWidget(item.get(), *child.get<Tab *>());
     }
-    return item;
+    return emergeHandle(*item);
 }
 
-static std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
+static std::unique_ptr<Handle<Splitter>> constructSplitter(const sol::table &children)
 {
     std::unique_ptr<Splitter> item(new Splitter({}));
     constructWidget(item, children);
@@ -563,8 +607,8 @@ static std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
         const auto &child = children[i];
         if (child.is<Layout *>()) {
             addToSplitter(item.get(), *child.get<Layout *>());
-        } else if (child.is<Widget *>()) {
-            addToSplitter(item.get(), *child.get<Widget *>());
+        } else if (child.is<WidgetHandle *>()) {
+            addToSplitter(item.get(), checkedWidget(*child.get<WidgetHandle *>()));
         } else {
             qWarning() << "Incompatible object added to Splitter: " << (int) child.get_type()
                        << " (expected Layout or Widget)";
@@ -578,13 +622,11 @@ static std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
             item->setStretchFactor(kv.first.as<int>() - 1, kv.second.as<int>());
         }
     }
-    return item;
+    return emergeHandle(*item);
 }
 
-template<class T>
-void showWidget(QObject *guard, T &component)
+static void showWidget(QObject *guard, QWidget *wdgt)
 {
-    QWidget *wdgt = component.emerge();
     if (!wdgt->parentWidget()) {
         wdgt->setAttribute(Qt::WA_DeleteOnClose, true);
         QObject::connect(guard, &QObject::destroyed, wdgt, &QObject::deleteLater);
@@ -611,9 +653,8 @@ void setupGuiModule()
 
         gui.new_usertype<Stretch>("Stretch", sol::call_constructor, sol::constructors<Stretch(int)>());
 
-        gui.new_usertype<Object>("Object", sol::no_constructor, "isValid", [](Object obj) {
-            return obj.product() != nullptr;
-        });
+        gui.new_usertype<Object>(
+            "Object", sol::no_constructor, "isValid", [](const Object &) { return true; });
 
         // Layouts
         gui.new_usertype<Layout>(
@@ -621,7 +662,7 @@ void setupGuiModule()
             sol::call_constructor,
             sol::factories(&construct<Layout>),
             "show",
-            [guard](Layout &l) { showWidget(guard, l); },
+            [guard](const Layout &l) { showWidget(guard, l.emerge()); },
             sol::base_classes,
             sol::bases<Object>());
 
@@ -659,87 +700,89 @@ void setupGuiModule()
             sol::bases<Layout, Object>());
 
         // Widgets
-        gui.new_usertype<PushButton>(
+        gui.new_usertype<Handle<PushButton>>(
             "PushButton",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<PushButton>(children, guard);
             }),
             "setText",
-            &PushButton::setText,
+            setter(&PushButton::setText),
             "setIconPath",
-            &PushButton::setIconPath,
+            setter(&PushButton::setIconPath),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        auto qtcButton = gui.new_usertype<Utils::QtDesignWidgets::Button>(
+        auto qtcButton = gui.new_usertype<Handle<Utils::QtDesignWidgets::Button>>(
             "QtcButton",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Utils::QtDesignWidgets::Button>(children, guard);
             }),
             "setText",
-            &Utils::QtDesignWidgets::Button::setText,
+            setter(&Utils::QtDesignWidgets::Button::setText),
             "setIcon",
-            &Utils::QtDesignWidgets::Button::setIcon,
+            setter(&Utils::QtDesignWidgets::Button::setIcon),
             "setRole",
-            &Utils::QtDesignWidgets::Button::setRole,
+            setter(&Utils::QtDesignWidgets::Button::setRole),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<Utils::QtDesignWidgets::Switch>(
+        gui.new_usertype<Handle<Utils::QtDesignWidgets::Switch>>(
             "QtcSwitch",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Utils::QtDesignWidgets::Switch>(children, guard);
             }),
             "setText",
-            &Utils::QtDesignWidgets::Switch::setText,
+            setter(&Utils::QtDesignWidgets::Switch::setText),
             "setChecked",
-            &Utils::QtDesignWidgets::Switch::setChecked,
+            setter(&Utils::QtDesignWidgets::Switch::setChecked),
             "onClicked",
-            &Utils::QtDesignWidgets::Switch::onClicked,
+            setter(&Utils::QtDesignWidgets::Switch::onClicked),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        auto qtcLabel = gui.new_usertype<Utils::QtDesignWidgets::Label>(
+        auto qtcLabel = gui.new_usertype<Handle<Utils::QtDesignWidgets::Label>>(
             "QtcLabel",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Utils::QtDesignWidgets::Label>(children, guard);
             }),
             "setText",
-            &Utils::QtDesignWidgets::Label::setText,
+            setter(&Utils::QtDesignWidgets::Label::setText),
             "setRole",
-            &Utils::QtDesignWidgets::Label::setRole,
+            setter(&Utils::QtDesignWidgets::Label::setRole),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<Utils::QtDesignWidgets::SearchBox>(
+        gui.new_usertype<Handle<Utils::QtDesignWidgets::SearchBox>>(
             "QtcSearchBox",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Utils::QtDesignWidgets::SearchBox>(children, guard);
             }),
             "setPlaceholderText",
-            &Utils::QtDesignWidgets::SearchBox::setPlaceholderText,
+            setter(&Utils::QtDesignWidgets::SearchBox::setPlaceholderText),
             "setText",
-            &Utils::QtDesignWidgets::SearchBox::setText,
+            setter(&Utils::QtDesignWidgets::SearchBox::setText),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<Label>(
+        gui.new_usertype<Handle<Label>>(
             "Label",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Label>(children, guard);
             }),
             "text",
-            sol::property(&Label::text, &Label::setText),
+            sol::property(
+                [](const Handle<Label> &h) { return implementation(h)->text(); },
+                setter(&Label::setText)),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<Layouting::MarkdownBrowser>(
+        gui.new_usertype<Handle<Layouting::MarkdownBrowser>>(
             "MarkdownBrowser",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -747,58 +790,68 @@ void setupGuiModule()
             }),
             "markdown",
             sol::property(
-                &Layouting::MarkdownBrowser::toMarkdown, &Layouting::MarkdownBrowser::setMarkdown),
+                [](const Handle<Layouting::MarkdownBrowser> &h) {
+                    return implementation(h)->toMarkdown();
+                },
+                setter(&Layouting::MarkdownBrowser::setMarkdown)),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<ListWidget>(
+        gui.new_usertype<Handle<ListWidget>>(
             "ListWidget",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<ListWidget>(children, guard);
             }),
             "setItems",
-            [](ListWidget &self, const sol::table &items) {
+            [](Handle<ListWidget> &self, const sol::table &items) {
                 QStringList list;
                 for (size_t i = 1; i <= items.size(); ++i)
                     list << items.get<QString>(i);
-                self.setItems(list);
+                setter(&ListWidget::setItems)(self, list);
             },
             "addItem",
-            &ListWidget::addItem,
+            setter(&ListWidget::addItem),
             "clear",
-            &ListWidget::clear,
+            setter(&ListWidget::clear),
             "currentRow",
-            &ListWidget::currentRow,
+            [](const Handle<ListWidget> &h) { return implementation(h)->currentRow(); },
             "setCurrentRow",
-            &ListWidget::setCurrentRow,
+            setter(&ListWidget::setCurrentRow),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<Widget>(
+        gui.new_usertype<WidgetHandle>(
             "Widget",
             sol::call_constructor,
-            sol::factories([guard](const sol::table &children) {
+            sol::factories([guard](const sol::table &children) -> std::unique_ptr<WidgetHandle> {
                 return constructWidgetType<Widget>(children, guard);
             }),
+            "isValid",
+            [](const WidgetHandle &h) { return !h.widget.isNull(); },
             "show",
-            [guard](Widget &w) { showWidget(guard, w); },
+            [guard](const WidgetHandle &h) { showWidget(guard, checkedWidget(h)); },
             "activateWindow",
-            &Widget::activateWindow,
+            [](const WidgetHandle &h) { checkedWidget(h)->activateWindow(); },
             "close",
-            &Widget::close,
+            [](const WidgetHandle &h) { return checkedWidget(h)->close(); },
             "visible",
-            sol::property(&Widget::isVisible, &Widget::setVisible),
+            sol::property(
+                [](const WidgetHandle &h) { return checkedWidget(h)->isVisible(); },
+                [](const WidgetHandle &h, bool visible) { checkedWidget(h)->setVisible(visible); }),
             "enabled",
-            sol::property(&Widget::isEnabled, &Widget::setEnabled),
+            sol::property(
+                [](const WidgetHandle &h) { return checkedWidget(h)->isEnabled(); },
+                [](const WidgetHandle &h, bool enabled) { checkedWidget(h)->setEnabled(enabled); }),
             "focus",
-            sol::property([](Widget *self) { return self->emerge()->hasFocus(); }),
+            sol::readonly_property(
+                [](const WidgetHandle &h) { return checkedWidget(h)->hasFocus(); }),
             "setFocus",
-            [](Widget *self) { self->emerge()->setFocus(); },
+            [](const WidgetHandle &h) { checkedWidget(h)->setFocus(); },
             "toolTip",
-            sol::property(&Widget::setToolTip),
-            sol::base_classes,
-            sol::bases<Object>());
+            sol::writeonly_property([](const WidgetHandle &h, const QString &toolTip) {
+                checkedWidget(h)->setToolTip(toolTip);
+            }));
 
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WidgetAttribute>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
@@ -811,144 +864,155 @@ void setupGuiModule()
         auto sizePolicy = gui.create_named("QSizePolicy");
         mirrorEnum(sizePolicy, QMetaEnum::fromType<QSizePolicy::Policy>());
 
-        gui.new_usertype<Stack>(
+        gui.new_usertype<Handle<Stack>>(
             "Stack",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Stack>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
         gui.new_usertype<Tab>(
             "Tab", sol::call_constructor, sol::factories(&constructTab, &constructTabFromTable));
 
-        gui.new_usertype<ScrollArea>(
+        gui.new_usertype<Handle<ScrollArea>>(
             "ScrollArea",
             sol::call_constructor,
             sol::factories(
-                [](const Layout &inner) {
-                    auto item = std::make_unique<ScrollArea>(inner);
-                    return item;
-                },
+                [](const Layout &inner) { return emergeHandle(ScrollArea(inner)); },
                 [guard](const sol::table &children) {
                     return constructWidgetType<ScrollArea>(children, guard);
                 }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<TextEdit>(
+        gui.new_usertype<Handle<TextEdit>>(
             "TextEdit",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<TextEdit>(children, guard);
             }),
             "markdown",
-            sol::property(&TextEdit::markdown),
+            sol::readonly_property(
+                [](const Handle<TextEdit> &h) { return implementation(h)->toMarkdown(); }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<Layouting::CompletingTextEdit>(
+        gui.new_usertype<Handle<QtcTextEdit>>(
             "QtcTextEdit",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
-                return constructWidgetType<Layouting::CompletingTextEdit>(children, guard);
+                return constructWidgetType<QtcTextEdit>(children, guard);
             }),
             "CompletionBehavior",
             gui.create_with(
                 "OnKeyPress", Utils::CompletingTextEdit::CompletionBehavior::OnKeyPress,
                 "OnTextChange", Utils::CompletingTextEdit::CompletionBehavior::OnTextChange),
             "markdown",
-            sol::property(&Layouting::CompletingTextEdit::markdown, &Layouting::CompletingTextEdit::setMarkdown),
+            sol::property(
+                [](const Handle<QtcTextEdit> &h) { return implementation(h)->toMarkdown(); },
+                setter(&QtcTextEdit::setMarkdown)),
             "text",
-            sol::property(&Layouting::CompletingTextEdit::text, &Layouting::CompletingTextEdit::setText),
+            sol::property(
+                [](const Handle<QtcTextEdit> &h) {
+                    return implementation(h)->toPlainText();
+                },
+                setter(&QtcTextEdit::setText)),
             "completionBehavior",
             sol::property(
-                &Layouting::CompletingTextEdit::completionBehavior,
-                &Layouting::CompletingTextEdit::setCompletionBehavior),
+                [](const Handle<QtcTextEdit> &h) {
+                    return implementation(h)->completionBehavior();
+                },
+                setter(&QtcTextEdit::setCompletionBehavior)),
             "placeHolderText",
-            sol::property(&Layouting::CompletingTextEdit::setPlaceHolderText),
+            sol::writeonly_property(
+                setter(&QtcTextEdit::setPlaceHolderText)),
             "rightSideIconPath",
-            sol::property(&Layouting::CompletingTextEdit::setRightSideIconPath),
+            sol::writeonly_property(
+                setter(&QtcTextEdit::setRightSideIconPath)),
             "completer",
             sol::property(
-                &Layouting::CompletingTextEdit::completer, &Layouting::CompletingTextEdit::setCompleter),
+                [](const Handle<QtcTextEdit> &h) { return implementation(h)->completer(); },
+                setter(&QtcTextEdit::setCompleter)),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<LineEdit>(
+        gui.new_usertype<Handle<LineEdit>>(
             "LineEdit",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<LineEdit>(children, guard);
             }),
             "text",
-            sol::property(&LineEdit::text, &LineEdit::setText),
+            sol::property(
+                [](const Handle<LineEdit> &h) { return implementation(h)->text(); },
+                setter(&LineEdit::setText)),
             "rightSideIconPath",
-            sol::property(&LineEdit::setRightSideIconPath),
+            sol::writeonly_property(setter(&LineEdit::setRightSideIconPath)),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<SpinBox>(
+        gui.new_usertype<Handle<SpinBox>>(
             "SpinBox",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<SpinBox>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
-        gui.new_usertype<Splitter>(
+            sol::bases<WidgetHandle>());
+        gui.new_usertype<Handle<Splitter>>(
             "Splitter",
             sol::call_constructor,
             sol::factories(&constructSplitter),
             sol::base_classes,
-            sol::bases<Widget, Object>());
-        gui.new_usertype<ToolBar>(
+            sol::bases<WidgetHandle>());
+        gui.new_usertype<Handle<ToolBar>>(
             "ToolBar",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<ToolBar>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
-        gui.new_usertype<ToolButton>(
+            sol::bases<WidgetHandle>());
+        gui.new_usertype<Handle<ToolButton>>(
             "ToolButton",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<ToolButton>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
-        gui.new_usertype<TabWidget>(
+            sol::bases<WidgetHandle>());
+        gui.new_usertype<Handle<TabWidget>>(
             "TabWidget",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructTabWidget(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<Group>(
+        gui.new_usertype<Handle<Group>>(
             "Group",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Group>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
-        gui.new_usertype<Spinner>(
+        gui.new_usertype<Handle<Spinner>>(
             "Spinner",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Spinner>(children, guard);
             }),
             "running",
-            sol::property(&Spinner::setRunning),
+            sol::writeonly_property(setter(&Spinner::setRunning)),
             "decorated",
-            sol::property(&Spinner::setDecorated),
+            sol::writeonly_property(setter(&Spinner::setDecorated)),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
         // An overlay spinner that centres itself on an existing widget and dims
         // it while running, unlike the inline Spinner above. Construct with
@@ -956,8 +1020,8 @@ void setupGuiModule()
         gui.new_usertype<SpinnerSolution::Spinner>(
             "SpinnerOverlay",
             sol::call_constructor,
-            sol::factories([](Widget *on) -> SpinnerSolution::Spinner * {
-                QWidget *target = on->emerge();
+            sol::factories([](WidgetHandle *on) -> SpinnerSolution::Spinner * {
+                QWidget *target = checkedWidget(*on);
                 auto *spinner = new SpinnerSolution::Spinner(
                     SpinnerSolution::SpinnerSize::Medium, target);
                 spinner->hide();
@@ -970,14 +1034,14 @@ void setupGuiModule()
                     self.setVisible(running);
                 }));
 
-        gui.new_usertype<QtDesignWidgets::IconDisplay>(
+        gui.new_usertype<Handle<QtDesignWidgets::IconDisplay>>(
             "IconDisplay",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<QtDesignWidgets::IconDisplay>(children, guard);
             }),
             sol::base_classes,
-            sol::bases<Widget, Object>());
+            sol::bases<WidgetHandle>());
 
         gui.new_usertype<Preview>(
             "Preview",
@@ -1005,10 +1069,10 @@ void setupGuiModule()
 } // namespace Lua::Internal
 
 template<typename T>
-concept IsObject = std::is_base_of_v<Object, T>;
+concept IsWidgetHandle = std::is_base_of_v<Lua::Internal::WidgetHandle, T>;
 
 template<typename TYPE, typename Handler>
-requires IsObject<TYPE>
+requires IsWidgetHandle<TYPE>
 sol::optional<TYPE *> sol_lua_check_get(
     sol::types<TYPE *>, lua_State *L, int index, Handler &&handler, sol::stack::record &tracking)
 {
@@ -1017,7 +1081,7 @@ sol::optional<TYPE *> sol_lua_check_get(
     if (!result) {
         return sol::nullopt;
     }
-    if (!(*result)->product())
+    if (!(*result)->widget)
         throw sol::error(std::string("Attempt to access a deleted ") + typeid(TYPE).name());
     return result;
 }

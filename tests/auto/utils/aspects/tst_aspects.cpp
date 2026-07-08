@@ -11,9 +11,13 @@
 #include <utils/store.h>
 
 #include <QAbstractButton>
+#include <QApplication>
+#include <QButtonGroup>
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QListWidget>
+#include <QPointer>
+#include <QRadioButton>
 #include <QSpinBox>
 #include <QTemporaryDir>
 #include <QTest>
@@ -55,6 +59,8 @@ private slots:
     void testVolatileFromMapKeepsAppliedValue();
     void testVolatileFromMapWithChecker();
     void testFilePathVolatileFromMapWithChecker();
+    void selectionAspectButtonGroupDiesWithWidget();
+    void aspectWidgetsAreCreatedPerProduct();
 };
 
 void tst_Aspects::initTestCase()
@@ -522,6 +528,39 @@ void tst_Aspects::testFilePathVolatileFromMapWithChecker()
 
     QCOMPARE(aspect.volatileValue(), QString("/imported"));
     QVERIFY(aspect.isDirty());
+}
+
+void tst_Aspects::selectionAspectButtonGroupDiesWithWidget()
+{
+    SelectionAspect aspect;
+    aspect.setDisplayStyle(SelectionAspect::DisplayStyle::RadioButtons);
+    aspect.addOption("a");
+    aspect.addOption("b");
+    Layouting::Form form;
+    aspect.addToLayout(form);
+    auto widget = std::unique_ptr<QWidget>(form.emerge());
+    auto button = widget->findChild<QRadioButton *>();
+    QVERIFY(button);
+    const QPointer<QButtonGroup> group = button->group();
+    QVERIFY(group);
+    widget.reset();
+    QVERIFY(group.isNull());
+}
+
+void tst_Aspects::aspectWidgetsAreCreatedPerProduct()
+{
+    IntegerAspect aspect;
+    const qsizetype before = QApplication::allWidgets().size();
+    const Layouting::Column column{aspect};
+    QCOMPARE(QApplication::allWidgets().size(), before);
+    const std::unique_ptr<QWidget> w1(column.emerge());
+    const std::unique_ptr<QWidget> w2(column.emerge());
+    QSpinBox *s1 = spinBox(w1);
+    QSpinBox *s2 = spinBox(w2);
+    QVERIFY(s1 && s2);
+    aspect.setValue(5);
+    QCOMPARE(s1->value(), 5);
+    QCOMPARE(s2->value(), 5);
 }
 
 QTEST_MAIN(tst_Aspects)

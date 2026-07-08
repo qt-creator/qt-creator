@@ -577,7 +577,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         bindTo(&m_versionsStack),
         Row { m_versionStart, m_versionEnd, noMargin },
         Row { m_localVersions, st, noMargin }
-    };
+    }.emerge();
     m_versionsStack->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
     Column {

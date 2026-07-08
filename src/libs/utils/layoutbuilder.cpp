@@ -22,6 +22,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPainter>
+#include <QPointer>
 #include <QListWidget>
 #include <QPushButton>
 #include <QScrollArea>
@@ -44,6 +45,8 @@
 #include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformtheme.h>
 #endif
+
+#include <memory>
 
 using namespace Layouting::Tools;
 
@@ -353,18 +356,60 @@ LayoutItem::LayoutItem(const QString &t)
 
 Object::Object(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
+}
+
+Build::Build(QObject *product)
+    : product(product)
+{}
+
+Build::~Build() = default;
+
+std::shared_ptr<Build> Object::newBuild(QObject *product) const
+{
+    return std::make_shared<Build>(product);
+}
+
+QObject *Object::materialize() const
+{
+    QTC_ASSERT(creator, return nullptr);
+    QObject *product = creator();
+    applyTo(product);
+    return product;
+}
+
+/*!
+    Applies the recorded operations to the existing \a product.
+*/
+void Object::applyTo(QObject *product) const
+{
+    const std::shared_ptr<Build> build = newBuild(product);
+    replay(*build);
+    finish(*build);
+}
+
+void Object::replay(Build &build) const
+{
+    for (const Op &op : ops)
+        op(build);
+}
+
+void Object::record(Op op)
+{
+    ops.push_back(std::move(op));
 }
 
 void Object::setObjectName(const QString &objectName)
 {
-    access(this)->setObjectName(objectName);
+    modify(this, [objectName](QObject *o) { o->setObjectName(objectName); });
 }
 
 void Object::onDestroyed(QObject *guard, const std::function<void()> &func)
 {
-    QObject::connect(access(this), &QObject::destroyed, guard, func);
+    modify(this, [guard, func](QObject *o) {
+        QObject::connect(o, &QObject::destroyed, guard, func);
+    });
 }
 
 static QWidget *widgetForItem(QLayoutItem *item)
@@ -438,9 +483,57 @@ static void addItemToFlowLayout(FlowLayout *layout, const LayoutItem &item)
  */
 
 // Layout
-Layout::Layout(Implementation *w)
+
+class LayoutBuild final : public Build
 {
-    ptr = w;
+public:
+    using Build::Build;
+
+    QLayout *layout() const { return static_cast<QLayout *>(product.data()); }
+    QFormLayout *asForm() const { return qobject_cast<QFormLayout *>(layout()); }
+    QGridLayout *asGrid() const { return qobject_cast<QGridLayout *>(layout()); }
+    QBoxLayout *asBox() const { return qobject_cast<QBoxLayout *>(layout()); }
+    FlowLayout *asFlow() const { return dynamic_cast<FlowLayout *>(layout()); }
+
+    void addItem(const LayoutItem &item);
+    void flush();
+
+    size_t popMark()
+    {
+        QTC_ASSERT(!marks.empty(), return pendingItems.size());
+        const size_t mark = marks.back();
+        marks.pop_back();
+        return mark;
+    }
+
+    std::vector<LayoutItem> pendingItems;
+    // Start indices into pendingItems for SpanAll and Align.
+    std::vector<size_t> marks;
+
+    // Grid-only
+    int currentGridColumn = 0;
+    int currentGridRow = 0;
+    bool useFormAlignment = false;
+};
+
+static void modifyLayout(Layout *layout, std::function<void(LayoutBuild &)> op)
+{
+    layout->record([op = std::move(op)](Build &build) { op(static_cast<LayoutBuild &>(build)); });
+}
+
+static void markPending(Layout *layout)
+{
+    modifyLayout(layout, [](LayoutBuild &b) { b.marks.push_back(b.pendingItems.size()); });
+}
+
+std::shared_ptr<Build> Layout::newBuild(QObject *product) const
+{
+    return std::make_shared<LayoutBuild>(product);
+}
+
+void Layout::finish(Build &build) const
+{
+    static_cast<LayoutBuild &>(build).flush();
 }
 
 /*!
@@ -451,9 +544,11 @@ Layout::Layout(Implementation *w)
 */
 void Layout::span(int cols, int rows)
 {
-    QTC_ASSERT(!pendingItems.empty(), return);
-    pendingItems.back().spanCols = cols;
-    pendingItems.back().spanRows = rows;
+    modifyLayout(this, [cols, rows](LayoutBuild &b) {
+        QTC_ASSERT(!b.pendingItems.empty(), return);
+        b.pendingItems.back().spanCols = cols;
+        b.pendingItems.back().spanRows = rows;
+    });
 }
 
 /*!
@@ -462,13 +557,15 @@ void Layout::span(int cols, int rows)
 */
 void Layout::align(Qt::Alignment alignment)
 {
-    QTC_ASSERT(!pendingItems.empty(), return);
-    pendingItems.back().alignment = alignment;
+    modifyLayout(this, [alignment](LayoutBuild &b) {
+        QTC_ASSERT(!b.pendingItems.empty(), return);
+        b.pendingItems.back().alignment = alignment;
+    });
 }
 
 void Layout::setAlignment(Qt::Alignment alignment)
 {
-    access(this)->setAlignment(alignment);
+    modify(this, [alignment](QLayout *l) { l->setAlignment(alignment); });
 }
 
 /*!
@@ -493,18 +590,20 @@ void Layout::setNormalMargins()
 
 void Layout::setContentsMargins(int left, int top, int right, int bottom)
 {
-    access(this)->setContentsMargins(left, top, right, bottom);
+    modify(this, [left, top, right, bottom](QLayout *l) {
+        l->setContentsMargins(left, top, right, bottom);
+    });
 }
 
 /*!
-    Attaches the constructed layout to the provided QWidget \a widget.
+    Builds the layout and sets it on \a widget.
 
-    This operation can only be performed once per LayoutBuilder instance.
+    Each call builds a new layout. Widgets and layouts that were added as
+    existing objects are not copied and can be placed into one product only.
  */
 void Layout::attachTo(QWidget *widget)
 {
-    flush();
-    widget->setLayout(access(this));
+    widget->setLayout(emergeLayout());
 }
 
 /*!
@@ -515,17 +614,47 @@ void Layout::addItem(I item)
     item.apply(this);
 }
 
-void Layout::addLayoutItem(const LayoutItem &item)
+void LayoutBuild::addItem(const LayoutItem &item)
 {
-    if (item.empty && skipEmptyItems)
-        return;
-
     if (QBoxLayout *lt = asBox())
         addItemToBoxLayout(lt, item);
     else if (FlowLayout *lt = asFlow())
         addItemToFlowLayout(lt, item);
     else
         pendingItems.push_back(item);
+}
+
+void Layout::addLayoutItem(const LayoutItem &item)
+{
+    if (item.empty && skipEmptyItems)
+        return;
+    modifyLayout(this, [item](LayoutBuild &b) { b.addItem(item); });
+}
+
+/*!
+    Adds the item returned by \a make, which is called each time the layout
+    is built. No item is added when \a make returns \c std::nullopt.
+ */
+void Layout::addLazyLayoutItem(std::function<std::optional<LayoutItem>()> make)
+{
+    modifyLayout(this, [make = std::move(make), skip = skipEmptyItems](LayoutBuild &b) {
+        const std::optional<LayoutItem> item = make();
+        if (item && !(item->empty && skip))
+            b.addItem(*item);
+    });
+}
+
+/*!
+    Calls \a fill with an empty layout each time this layout is built, and adds
+    the items that \a fill adds to it at this position.
+ */
+void Layout::addLazyItems(std::function<void(Layout &)> fill)
+{
+    modifyLayout(this, [fill = std::move(fill)](LayoutBuild &b) {
+        Layout items;
+        fill(items);
+        items.replay(b);
+    });
 }
 
 /*!
@@ -550,37 +679,58 @@ void Layout::addItems(std::initializer_list<I> items, bool addEmpty)
 void Layout::addRow(std::initializer_list<I> items)
 {
     for (const I &item : items)
-        item.apply(this);
+        addItem(item);
     flush();
 }
 
 void Layout::setSpacing(int spacing)
 {
-    access(this)->setSpacing(spacing);
+    modify(this, [spacing](QLayout *l) { l->setSpacing(spacing); });
 }
 
 void Layout::setColumnStretch(int column, int stretch)
 {
-    if (auto grid = qobject_cast<QGridLayout *>(access(this))) {
-        grid->setColumnStretch(column, stretch);
-    } else {
-        QTC_CHECK(false);
-    }
+    modifyLayout(this, [column, stretch](LayoutBuild &b) {
+        if (auto grid = b.asGrid()) {
+            grid->setColumnStretch(column, stretch);
+        } else {
+            QTC_CHECK(false);
+        }
+    });
 }
 
 void Layout::setRowStretch(int row, int stretch)
 {
-    if (auto grid = qobject_cast<QGridLayout *>(access(this))) {
-        grid->setRowStretch(row, stretch);
-    } else {
-        QTC_CHECK(false);
-    }
+    modifyLayout(this, [row, stretch](LayoutBuild &b) {
+        if (auto grid = b.asGrid()) {
+            grid->setRowStretch(row, stretch);
+        } else {
+            QTC_CHECK(false);
+        }
+    });
 }
+
+template<class T>
+class SingleUse
+{
+public:
+    explicit SingleUse(T *object) : m_object(object) {}
+
+    T *take() const
+    {
+        QTC_ASSERT(!*m_used, return nullptr);
+        *m_used = true;
+        return m_object;
+    }
+
+private:
+    QPointer<T> m_object;
+    std::shared_ptr<bool> m_used = std::make_shared<bool>(false);
+};
 
 void addToWidget(Widget *widget, const Layout &layout)
 {
-    layout.flush_();
-    access(widget)->setLayout(access(&layout));
+    modify(widget, [layout](QWidget *w) { w->setLayout(layout.emergeLayout()); });
 }
 
 void addToWidget(Widget *widget, const WidgetModifier &inner)
@@ -590,28 +740,29 @@ void addToWidget(Widget *widget, const WidgetModifier &inner)
 
 void addToLayout(Layout *layout, const Widget &inner)
 {
-    layout->addLayoutItem(access(&inner));
+    layout->addLazyLayoutItem([inner] { return LayoutItem(inner.emerge()); });
 }
 
 void addToLayout(Layout *layout, QWidget *inner)
 {
-    layout->addLayoutItem(inner);
+    layout->addLazyLayoutItem(
+        [once = SingleUse(inner)] { return LayoutItem(once.take()); });
 }
 
 void addToLayout(Layout *layout, QWidget &inner)
 {
-    layout->addLayoutItem(&inner);
+    addToLayout(layout, &inner);
 }
 
 void addToLayout(Layout *layout, QLayout *inner)
 {
-    layout->addLayoutItem(inner);
+    layout->addLazyLayoutItem(
+        [once = SingleUse(inner)] { return LayoutItem(once.take()); });
 }
 
 void addToLayout(Layout *layout, const Layout &inner)
 {
-    inner.flush_();
-    layout->addLayoutItem(access(&inner));
+    layout->addLazyLayoutItem([inner] { return LayoutItem(inner.emergeLayout()); });
 }
 
 void addToLayout(Layout *layout, const LayoutModifier &inner)
@@ -622,6 +773,11 @@ void addToLayout(Layout *layout, const LayoutModifier &inner)
 void addToLayout(Layout *layout, const QString &inner)
 {
     layout->addLayoutItem(inner);
+}
+
+void addToLayout(Layout *layout, const char *inner)
+{
+    layout->addLayoutItem(QString::fromUtf8(inner));
 }
 
 /*!
@@ -644,7 +800,7 @@ void empty(Layout *layout)
 */
 void hr(Layout *layout)
 {
-    layout->addLayoutItem(createHr());
+    layout->addLazyLayoutItem([] { return LayoutItem(createHr()); });
 }
 
 /*!
@@ -694,26 +850,6 @@ void normalMargin(Layout *layout)
     layout->setNormalMargins();
 }
 
-QFormLayout *Layout::asForm()
-{
-    return qobject_cast<QFormLayout *>(access(this));
-}
-
-QGridLayout *Layout::asGrid()
-{
-    return qobject_cast<QGridLayout *>(access(this));
-}
-
-QBoxLayout *Layout::asBox()
-{
-    return qobject_cast<QBoxLayout *>(access(this));
-}
-
-FlowLayout *Layout::asFlow()
-{
-    return dynamic_cast<FlowLayout *>(access(this));
-}
-
 /*!
     Commits all accumulated pending items into the underlying QLayout.
 
@@ -728,6 +864,11 @@ FlowLayout *Layout::asFlow()
     \sa Layout::attachTo(), Layout::emerge()
 */
 void Layout::flush()
+{
+    modifyLayout(this, [](LayoutBuild &b) { b.flush(); });
+}
+
+void LayoutBuild::flush()
 {
     if (pendingItems.empty())
         return;
@@ -836,9 +977,9 @@ void Layout::flush()
     QTC_CHECK(false); // The other layouts shouldn't use flush()
 }
 
-void Layout::flush_() const
+QLayout *Layout::emergeLayout() const
 {
-    const_cast<Layout *>(this)->flush();
+    return static_cast<QLayout *>(materialize());
 }
 
 /*!
@@ -847,7 +988,7 @@ void Layout::flush_() const
 */
 void withFormAlignment(Layout *layout)
 {
-    layout->useFormAlignment = true;
+    modifyLayout(layout, [](LayoutBuild &b) { b.useFormAlignment = true; });
 }
 
 /*!
@@ -866,12 +1007,12 @@ void withFormAlignment(Layout *layout)
 
 Flow::Flow()
 {
-    ptr = new FlowLayout;
+    creator = [] { return new FlowLayout; };
 }
 
 Flow::Flow(std::initializer_list<I> ps)
 {
-    ptr = new FlowLayout;
+    creator = [] { return new FlowLayout; };
     apply(this, ps);
     flush();
 }
@@ -888,12 +1029,12 @@ Flow::Flow(std::initializer_list<I> ps)
 
 Row::Row()
 {
-    ptr = new QHBoxLayout;
+    creator = [] { return new QHBoxLayout; };
 }
 
 Row::Row(std::initializer_list<I> ps)
 {
-    ptr = new QHBoxLayout;
+    creator = [] { return new QHBoxLayout; };
     apply(this, ps);
     flush();
 }
@@ -910,12 +1051,12 @@ Row::Row(std::initializer_list<I> ps)
 
 Column::Column()
 {
-    ptr = new QVBoxLayout;
+    creator = [] { return new QVBoxLayout; };
 }
 
 Column::Column(std::initializer_list<I> ps)
 {
-    ptr = new QVBoxLayout;
+    creator = [] { return new QVBoxLayout; };
     apply(this, ps);
     flush();
 }
@@ -938,12 +1079,12 @@ Column::Column(std::initializer_list<I> ps)
 
 Grid::Grid()
 {
-    ptr = new QGridLayout;
+    creator = [] { return new QGridLayout; };
 }
 
 Grid::Grid(std::initializer_list<I> ps)
 {
-    ptr = new QGridLayout;
+    creator = [] { return new QGridLayout; };
     apply(this, ps);
     flush();
 }
@@ -968,28 +1109,34 @@ Grid::Grid(std::initializer_list<I> ps)
 
 Form::Form()
 {
-    ptr = new QFormLayout;
+    creator = [] { return new QFormLayout; };
 }
 
 Form::Form(std::initializer_list<I> ps)
 {
-    auto lt = new QFormLayout;
-    ptr = lt;
-    lt->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    creator = [] {
+        auto lt = new QFormLayout;
+        lt->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        return lt;
+    };
     apply(this, ps);
     flush();
 }
 
 void Layout::setFieldGrowthPolicy(int policy)
 {
-    if (auto lt = asForm())
-        lt->setFieldGrowthPolicy(QFormLayout::FieldGrowthPolicy(policy));
+    modifyLayout(this, [policy](LayoutBuild &b) {
+        if (auto lt = b.asForm())
+            lt->setFieldGrowthPolicy(QFormLayout::FieldGrowthPolicy(policy));
+    });
 }
 
 void Layout::setStretch(int index, int stretch)
 {
-    if (auto lt = asBox())
-        lt->setStretch(index, stretch);
+    modifyLayout(this, [index, stretch](LayoutBuild &b) {
+        if (auto lt = b.asBox())
+            lt->setStretch(index, stretch);
+    });
 }
 
 /*!
@@ -999,13 +1146,15 @@ void Layout::setStretch(int index, int stretch)
     a QScrollArea or a QStackedWidget) without an explicit outer Widget builder.
     The caller takes ownership of the returned widget.
 
+    Widgets and layouts that were added as existing objects are not copied and
+    can be placed into one product only.
+
     \sa Layout::attachTo()
 */
 QWidget *Layout::emerge() const
 {
-    const_cast<Layout *>(this)->flush();
     QWidget *widget = new QWidget;
-    widget->setLayout(access(this));
+    widget->setLayout(emergeLayout());
     return widget;
 }
 
@@ -1020,28 +1169,23 @@ void Layout::show() const
 
 Widget::Widget(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
-}
-
-Widget::Widget(Implementation *w)
-{
-    ptr = w;
 }
 
 void Widget::setSize(int w, int h)
 {
-    access(this)->resize(w, h);
+    modify(this, [w, h](Implementation *widget) { widget->resize(w, h); });
 }
 
 void Widget::setFixedSize(const QSize &size)
 {
-    access(this)->setFixedSize(size);
+    modify(this, [size](Implementation *w) { w->setFixedSize(size); });
 }
 
 void Widget::setAutoFillBackground(bool on)
 {
-    access(this)->setAutoFillBackground(on);
+    modify(this, [on](Implementation *w) { w->setAutoFillBackground(on); });
 }
 
 /*!
@@ -1049,57 +1193,49 @@ void Widget::setAutoFillBackground(bool on)
 */
 void Widget::setLayout(const Layout &layout)
 {
-    access(this)->setLayout(access(&layout));
+    modify(this, [layout](Implementation *w) { w->setLayout(layout.emergeLayout()); });
 }
 
 void Widget::setWindowTitle(const QString &title)
 {
-    access(this)->setWindowTitle(title);
+    modify(this, [title](Implementation *w) { w->setWindowTitle(title); });
 }
 
 void Widget::setWindowFlags(Qt::WindowFlags flags)
 {
-    access(this)->setWindowFlags(flags);
+    modify(this, [flags](Implementation *w) { w->setWindowFlags(flags); });
 }
 
 void Widget::setWidgetAttribute(Qt::WidgetAttribute attr, bool on)
 {
-    access(this)->setAttribute(attr, on);
+    modify(this, [attr, on](Implementation *w) { w->setAttribute(attr, on); });
 }
 
 void Widget::setToolTip(const QString &title)
 {
-    access(this)->setToolTip(title);
+    modify(this, [title](Implementation *w) { w->setToolTip(title); });
 }
 
-void Widget::show()
+void Widget::show() const
 {
-    access(this)->show();
-}
-
-bool Widget::isVisible() const
-{
-    return access(this)->isVisible();
-}
-
-bool Widget::isEnabled() const
-{
-    return access(this)->isEnabled();
+    QWidget *w = emerge();
+    w->setAttribute(Qt::WA_DeleteOnClose, true);
+    w->show();
 }
 
 void Widget::setVisible(bool visible)
 {
-    access(this)-> setVisible(visible);
+    modify(this, [visible](Implementation *w) { w-> setVisible(visible); });
 }
 
 void Widget::setEnabled(bool enabled)
 {
-    access(this)->setEnabled(enabled);
+    modify(this, [enabled](Implementation *w) { w->setEnabled(enabled); });
 }
 
 void Widget::setVisibleController(const std::function<void (QObject *)> &controller)
 {
-    controller(access(this));
+    modify(this, [controller](Implementation *w) { controller(w); });
 }
 
 void Widget::setNoMargins(int)
@@ -1114,58 +1250,51 @@ void Widget::setNormalMargins(int)
 
 void Widget::setContentsMargins(int left, int top, int right, int bottom)
 {
-    access(this)->setContentsMargins(left, top, right, bottom);
+    modify(this, [left, top, right, bottom](Implementation *w) {
+        w->setContentsMargins(left, top, right, bottom);
+    });
 }
 
 void Widget::setCursor(Qt::CursorShape shape)
 {
-    access(this)->setCursor(shape);
+    modify(this, [shape](Implementation *w) { w->setCursor(shape); });
 }
 
 void Widget::setMinimumWidth(int minw)
 {
-    access(this)->setMinimumWidth(minw);
+    modify(this, [minw](Implementation *w) { w->setMinimumWidth(minw); });
 }
 
 void Widget::setMinimumHeight(int height)
 {
-    access(this)->setMinimumHeight(height);
+    modify(this, [height](Implementation *w) { w->setMinimumHeight(height); });
 }
 
 void Widget::setMaximumWidth(int maxWidth)
 {
-    access(this)->setMaximumWidth(maxWidth);
+    modify(this, [maxWidth](Implementation *w) { w->setMaximumWidth(maxWidth); });
 }
 
 void Widget::setMaximumHeight(int maxHeight)
 {
-    access(this)->setMaximumHeight(maxHeight);
+    modify(this, [maxHeight](Implementation *w) { w->setMaximumHeight(maxHeight); });
 }
 
 void Widget::setSizePolicy(const QSizePolicy &policy)
 {
-    access(this)->setSizePolicy(policy);
-}
-
-void Widget::activateWindow()
-{
-    access(this)->activateWindow();
-}
-
-void Widget::close()
-{
-    access(this)->close();
+    modify(this, [policy](Implementation *w) { w->setSizePolicy(policy); });
 }
 
 /*!
-    Returns the underlying QWidget.
+    Returns the widget this builder describes.
 
-    The caller does not take ownership. The widget is owned by the builder's
-    parent widget or layout.
+    Each call creates a new widget without a parent, and the caller takes
+    ownership of it. Widgets and layouts that were added as existing
+    objects are not copied and can be placed into one product only.
 */
 QWidget *Widget::emerge() const
 {
-    return access(this);
+    return static_cast<QWidget *>(materialize());
 }
 
 /*!
@@ -1180,44 +1309,42 @@ QWidget *Widget::emerge() const
 
 Label::Label(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 Label::Label(const QString &text)
 {
-    ptr = new Implementation;
-    setText(text);
-}
-
-QString Label::text() const
-{
-    return access(this)->text();
+    creator = [text] {
+        auto label = new Implementation;
+        label->setText(text);
+        return label;
+    };
 }
 
 void Label::setText(const QString &text)
 {
-    access(this)->setText(text);
+    modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void Label::setTextFormat(Qt::TextFormat format)
 {
-    access(this)->setTextFormat(format);
+    modify(this, [format](Implementation *w) { w->setTextFormat(format); });
 }
 
 void Label::setWordWrap(bool on)
 {
-    access(this)->setWordWrap(on);
+    modify(this, [on](Implementation *w) { w->setWordWrap(on); });
 }
 
 void Label::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {
-    access(this)->setTextInteractionFlags(flags);
+    modify(this, [flags](Implementation *w) { w->setTextInteractionFlags(flags); });
 }
 
 void Label::setOpenExternalLinks(bool on)
 {
-    access(this)->setOpenExternalLinks(on);
+    modify(this, [on](Implementation *w) { w->setOpenExternalLinks(on); });
 }
 
 /*!
@@ -1229,7 +1356,9 @@ void Label::setOpenExternalLinks(bool on)
 */
 void Label::onLinkHovered(QObject *guard, const std::function<void (const QString &)> &func)
 {
-    QObject::connect(access(this), &QLabel::linkHovered, guard, func);
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QLabel::linkHovered, guard, func);
+    });
 }
 
 /*!
@@ -1238,7 +1367,9 @@ void Label::onLinkHovered(QObject *guard, const std::function<void (const QStrin
 */
 void Label::onLinkActivated(QObject *guard, const std::function<void(const QString &)> &func)
 {
-    QObject::connect(access(this), &QLabel::linkActivated, guard, func);
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QLabel::linkActivated, guard, func);
+    });
 }
 
 /*!
@@ -1256,14 +1387,16 @@ void Label::onLinkActivated(QObject *guard, const std::function<void(const QStri
 
 Group::Group(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 void Group::setTitle(const QString &title)
 {
-    access(this)->setTitle(title);
-    access(this)->setObjectName(title);
+    modify(this, [title](Implementation *w) {
+        w->setTitle(title);
+        w->setObjectName(title);
+    });
 }
 
 /*!
@@ -1273,7 +1406,7 @@ void Group::setTitle(const QString &title)
 */
 void Group::setGroupChecker(const std::function<void (QObject *)> &checker)
 {
-    checker(access(this));
+    modify(this, [checker](Implementation *w) { checker(w); });
 }
 
 /*!
@@ -1288,13 +1421,13 @@ void Group::setGroupChecker(const std::function<void (QObject *)> &checker)
 
 SpinBox::SpinBox(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 void SpinBox::setValue(int val)
 {
-    access(this)->setValue(val);
+    modify(this, [val](Implementation *w) { w->setValue(val); });
 }
 
 /*!
@@ -1303,7 +1436,9 @@ void SpinBox::setValue(int val)
 */
 void SpinBox::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
-    QObject::connect(access(this), &QSpinBox::textChanged, guard, func);
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QSpinBox::textChanged, guard, func);
+    });
 }
 
 /*!
@@ -1320,28 +1455,23 @@ void SpinBox::onTextChanged(QObject *guard, const std::function<void(QString)> &
 
 TextEdit::TextEdit(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
-}
-
-QString TextEdit::markdown() const
-{
-    return access(this)->toMarkdown();
 }
 
 void TextEdit::setText(const QString &text)
 {
-    access(this)->setText(text);
+    modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void TextEdit::setMarkdown(const QString &markdown)
 {
-    access(this)->setMarkdown(markdown);
+    modify(this, [markdown](Implementation *w) { w->setMarkdown(markdown); });
 }
 
 void TextEdit::setReadOnly(bool on)
 {
-    access(this)->setReadOnly(on);
+    modify(this, [on](Implementation *w) { w->setReadOnly(on); });
 }
 
 /*!
@@ -1360,48 +1490,38 @@ void TextEdit::setReadOnly(bool on)
 
 CompletingTextEdit::CompletingTextEdit(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
-}
-
-QString CompletingTextEdit::markdown() const
-{
-    return access(this)->toMarkdown();
-}
-
-QString CompletingTextEdit::text() const
-{
-    return access(this)->toPlainText();
 }
 
 void CompletingTextEdit::setText(const QString &text)
 {
-    access(this)->setPlainText(text);
+    modify(this, [text](Implementation *w) { w->setPlainText(text); });
 }
 
 void CompletingTextEdit::setMarkdown(const QString &markdown)
 {
-    access(this)->setMarkdown(markdown);
+    modify(this, [markdown](Implementation *w) { w->setMarkdown(markdown); });
 }
 
 void CompletingTextEdit::setReadOnly(bool on)
 {
-    access(this)->setReadOnly(on);
+    modify(this, [on](Implementation *w) { w->setReadOnly(on); });
 }
 
 void CompletingTextEdit::setPlaceHolderText(const QString &text)
 {
-    access(this)->setPlaceholderText(text);
+    modify(this, [text](Implementation *w) { w->setPlaceholderText(text); });
 }
 
 void CompletingTextEdit::setRightSideIconPath(const Utils::FilePath &path)
 {
-    access(this)->setRightSideIconPath(path);
+    modify(this, [path](Implementation *w) { w->setRightSideIconPath(path); });
 }
 
 void CompletingTextEdit::setCompleter(QCompleter *completer)
 {
-    access(this)->setCompleter(completer);
+    modify(this, [completer](Implementation *w) { w->setCompleter(completer); });
 }
 
 /*!
@@ -1410,14 +1530,11 @@ void CompletingTextEdit::setCompleter(QCompleter *completer)
 */
 void CompletingTextEdit::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
-    QObject::connect(access(this), &Implementation::textChanged, guard, [func, this]() {
-        func(access(this)->toPlainText());
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &Implementation::textChanged, guard, [func, w] {
+            func(w->toPlainText());
+        });
     });
-}
-
-QCompleter *CompletingTextEdit::completer() const
-{
-    return access(this)->completer();
 }
 
 /*!
@@ -1427,11 +1544,11 @@ QCompleter *CompletingTextEdit::completer() const
 void CompletingTextEdit::onReturnPressed(
     QObject *guard, const std::function<void(Implementation &)> &func)
 {
-    QObject::connect(
-        access(this),
-        &Utils::CompletingTextEdit::returnPressed,
-        guard,
-        [func, self = access(this)]() { func(*self); });
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &Utils::CompletingTextEdit::returnPressed, guard, [func, w] {
+            func(*w);
+        });
+    });
 }
 
 /*!
@@ -1440,17 +1557,14 @@ void CompletingTextEdit::onReturnPressed(
 */
 void CompletingTextEdit::onRightSideIconClicked(QObject *guard, const std::function<void()> &func)
 {
-    QObject::connect(access(this), &Utils::CompletingTextEdit::rightSideIconClicked, guard, func);
-}
-
-Utils::CompletingTextEdit::CompletionBehavior CompletingTextEdit::completionBehavior() const
-{
-    return access(this)->completionBehavior();
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &Utils::CompletingTextEdit::rightSideIconClicked, guard, func);
+    });
 }
 
 void CompletingTextEdit::setCompletionBehavior(Utils::CompletingTextEdit::CompletionBehavior behavior)
 {
-    access(this)->setCompletionBehavior(behavior);
+    modify(this, [behavior](Implementation *w) { w->setCompletionBehavior(behavior); });
 }
 
 /*!
@@ -1465,34 +1579,35 @@ void CompletingTextEdit::setCompletionBehavior(Utils::CompletingTextEdit::Comple
 
 PushButton::PushButton(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 void PushButton::setText(const QString &text)
 {
-    access(this)->setText(text);
+    modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void PushButton::setIconPath(const Utils::FilePath &iconPath)
 {
-    if (!iconPath.exists()) {
-        access(this)->setIcon({});
-        return;
-    }
-
-    Utils::Icon icon{iconPath};
-    access(this)->setIcon(icon.icon());
+    modify(this, [iconPath](Implementation *w) {
+        if (!iconPath.exists()) {
+            w->setIcon({});
+            return;
+        }
+        Utils::Icon icon{iconPath};
+        w->setIcon(icon.icon());
+    });
 }
 
 void PushButton::setIconSize(const QSize &size)
 {
-    access(this)->setIconSize(size);
+    modify(this, [size](Implementation *w) { w->setIconSize(size); });
 }
 
 void PushButton::setFlat(bool flat)
 {
-    access(this)->setFlat(flat);
+    modify(this, [flat](Implementation *w) { w->setFlat(flat); });
 }
 
 /*!
@@ -1501,52 +1616,53 @@ void PushButton::setFlat(bool flat)
 */
 void PushButton::onClicked(QObject *guard, const std::function<void ()> &func)
 {
-    QObject::connect(access(this), &QAbstractButton::clicked, guard, func);
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QAbstractButton::clicked, guard, func);
+    });
 }
 
 ListWidget::ListWidget(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 void ListWidget::setItems(const QStringList &items)
 {
-    QListWidget *w = access(this);
-    w->clear();
-    w->addItems(items);
+    modify(this, [items](Implementation *w) {
+        w->clear();
+        w->addItems(items);
+    });
 }
 
 void ListWidget::addItem(const QString &item)
 {
-    access(this)->addItem(item);
+    modify(this, [item](Implementation *w) { w->addItem(item); });
 }
 
 void ListWidget::clear()
 {
-    access(this)->clear();
-}
-
-int ListWidget::currentRow() const
-{
-    return access(this)->currentRow();
+    modify(this, [](Implementation *w) { w->clear(); });
 }
 
 void ListWidget::setCurrentRow(int row)
 {
-    access(this)->setCurrentRow(row);
+    modify(this, [row](Implementation *w) { w->setCurrentRow(row); });
 }
 
 void ListWidget::onItemActivated(QObject *guard, const std::function<void(int)> &func)
 {
-    QListWidget *w = access(this);
-    QObject::connect(w, &QListWidget::itemActivated, guard,
-                     [w, func](QListWidgetItem *item) { func(w->row(item)); });
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QListWidget::itemActivated, guard,
+                         [w, func](QListWidgetItem *item) { func(w->row(item)); });
+    });
 }
 
 void ListWidget::onCurrentRowChanged(QObject *guard, const std::function<void(int)> &func)
 {
-    QObject::connect(access(this), &QListWidget::currentRowChanged, guard, func);
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &QListWidget::currentRowChanged, guard, func);
+    });
 }
 
 /*!
@@ -1568,39 +1684,44 @@ void ListWidget::onCurrentRowChanged(QObject *guard, const std::function<void(in
 // top-level widget. This can lead to the focus shifting away from the main application.
 Stack::Stack(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 void addToStack(Stack *stack, const Widget &inner)
 {
-    access(stack)->addWidget(inner.emerge());
+    modify(stack, [inner](QStackedWidget *w) { w->addWidget(inner.emerge()); });
 }
 
 void addToStack(Stack *stack, const Layout &inner)
 {
-    inner.flush_();
-    access(stack)->addWidget(inner.emerge());
+    modify(stack, [inner](QStackedWidget *w) { w->addWidget(inner.emerge()); });
 }
 
 void addToStack(Stack *stack, QWidget *inner)
 {
-    access(stack)->addWidget(inner);
+    modify(stack, [once = SingleUse(inner)](QStackedWidget *w) {
+        if (QWidget *inner = once.take())
+            w->addWidget(inner);
+    });
 }
 
 void addToScrollArea(ScrollArea *scrollArea, QWidget *inner)
 {
-    access(scrollArea)->setWidget(inner);
+    modify(scrollArea, [once = SingleUse(inner)](QScrollArea *w) {
+        if (QWidget *inner = once.take())
+            w->setWidget(inner);
+    });
 }
 
 void addToScrollArea(ScrollArea *scrollArea, const Layout &layout)
 {
-    access(scrollArea)->setWidget(layout.emerge());
+    modify(scrollArea, [layout](QScrollArea *w) { w->setWidget(layout.emerge()); });
 }
 
 void addToScrollArea(ScrollArea *scrollArea, const Widget &inner)
 {
-    access(scrollArea)->setWidget(inner.emerge());
+    modify(scrollArea, [inner](QScrollArea *w) { w->setWidget(inner.emerge()); });
 }
 
 /*!
@@ -1648,26 +1769,32 @@ public:
 
 ScrollArea::ScrollArea(std::initializer_list<I> items)
 {
-    ptr = new FixedScrollArea;
+    creator = [] {
+        auto scrollArea = new FixedScrollArea;
+        scrollArea->setWidgetResizable(true);
+        return scrollArea;
+    };
     apply(this, items);
-    access(this)->setWidgetResizable(true);
 }
 
 ScrollArea::ScrollArea(const Layout &inner)
 {
-    ptr = new FixedScrollArea;
-    access(this)->setWidget(inner.emerge());
-    access(this)->setWidgetResizable(true);
+    creator = [] {
+        auto scrollArea = new FixedScrollArea;
+        scrollArea->setWidgetResizable(true);
+        return scrollArea;
+    };
+    setLayout(inner);
 }
 
 void ScrollArea::setLayout(const Layout &inner)
 {
-    access(this)->setWidget(inner.emerge());
+    modify(this, [inner](Implementation *w) { w->setWidget(inner.emerge()); });
 }
 
 void ScrollArea::setFrameShape(QFrame::Shape shape)
 {
-    access(this)->setFrameShape(shape);
+    modify(this, [shape](Implementation *w) { w->setFrameShape(shape); });
 }
 
 /*!
@@ -1677,8 +1804,9 @@ void ScrollArea::setFrameShape(QFrame::Shape shape)
 */
 void ScrollArea::setFixSizeHintBug(bool fixBug)
 {
-    auto fixedScrollArea = static_cast<FixedScrollArea *>(access(this));
-    fixedScrollArea->setFixSizeHintBug(fixBug);
+    modify(this, [fixBug](Implementation *w) {
+        static_cast<FixedScrollArea *>(w)->setFixSizeHintBug(fixBug);
+    });
 }
 
 /*!
@@ -1696,40 +1824,45 @@ void ScrollArea::setFixSizeHintBug(bool fixBug)
 
 Splitter::Splitter(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
-    access(this)->setOrientation(Qt::Vertical);
+    creator = [] {
+        auto splitter = new Implementation;
+        splitter->setOrientation(Qt::Vertical);
+        return splitter;
+    };
     apply(this, ps);
 }
 
 void Splitter::setOrientation(Qt::Orientation orientation)
 {
-    access(this)->setOrientation(orientation);
+    modify(this, [orientation](Implementation *w) { w->setOrientation(orientation); });
 }
 
 void Splitter::setStretchFactor(int index, int stretch)
 {
-    access(this)->setStretchFactor(index, stretch);
+    modify(this, [index, stretch](Implementation *w) { w->setStretchFactor(index, stretch); });
 }
 
 void Splitter::setChildrenCollapsible(bool collapsible)
 {
-    access(this)->setChildrenCollapsible(collapsible);
+    modify(this, [collapsible](Implementation *w) { w->setChildrenCollapsible(collapsible); });
 }
 
 void addToSplitter(Splitter *splitter, QWidget *inner)
 {
-    access(splitter)->addWidget(inner);
+    modify(splitter, [once = SingleUse(inner)](QSplitter *w) {
+        if (QWidget *inner = once.take())
+            w->addWidget(inner);
+    });
 }
 
 void addToSplitter(Splitter *splitter, const Widget &inner)
 {
-    access(splitter)->addWidget(inner.emerge());
+    modify(splitter, [inner](QSplitter *w) { w->addWidget(inner.emerge()); });
 }
 
 void addToSplitter(Splitter *splitter, const Layout &inner)
 {
-    inner.flush_();
-    access(splitter)->addWidget(inner.emerge());
+    modify(splitter, [inner](QSplitter *w) { w->addWidget(inner.emerge()); });
 }
 
 /*!
@@ -1747,9 +1880,12 @@ void addToSplitter(Splitter *splitter, const Layout &inner)
 
 ToolBar::ToolBar(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] {
+        auto toolBar = new Implementation;
+        toolBar->setOrientation(Qt::Horizontal);
+        return toolBar;
+    };
     apply(this, ps);
-    access(this)->setOrientation(Qt::Horizontal);
 }
 
 /*!
@@ -1764,13 +1900,13 @@ ToolBar::ToolBar(std::initializer_list<I> ps)
 
 ToolButton::ToolButton(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 void ToolButton::setDefaultAction(QAction *action)
 {
-    access(this)->setDefaultAction(action);
+    modify(this, [action](Implementation *w) { w->setDefaultAction(action); });
 }
 
 /*!
@@ -1788,7 +1924,7 @@ void ToolButton::setDefaultAction(QAction *action)
 
 TabWidget::TabWidget(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
@@ -1799,7 +1935,7 @@ Tab::Tab(const QString &tabName, const Layout &inner)
 
 void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
 {
-    access(tabWidget)->addTab(tab.inner.emerge(), tab.tabName);
+    modify(tabWidget, [tab](QTabWidget *w) { w->addTab(tab.inner.emerge(), tab.tabName); });
 }
 
 /*!
@@ -1817,33 +1953,30 @@ void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
 
 MarkdownBrowser::MarkdownBrowser(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
-}
-
-QString MarkdownBrowser::toMarkdown() const
-{
-    return access(this)->toMarkdown();
 }
 
 void MarkdownBrowser::setMarkdown(const QString &markdown)
 {
-    access(this)->setMarkdown(markdown);
+    modify(this, [markdown](Implementation *w) { w->setMarkdown(markdown); });
 }
 
 void MarkdownBrowser::setBasePath(const Utils::FilePath &path)
 {
-    access(this)->setBasePath(path);
+    modify(this, [path](Implementation *w) { w->setBasePath(path); });
 }
 
 void MarkdownBrowser::setEnableCodeCopyButton(bool enable)
 {
-    access(this)->setEnableCodeCopyButton(enable);
+    modify(this, [enable](Implementation *w) { w->setEnableCodeCopyButton(enable); });
 }
 
 void MarkdownBrowser::setViewportMargins(int left, int top, int right, int bottom)
 {
-    access(this)->setMargins(QMargins(left, top, right, bottom));
+    modify(this, [left, top, right, bottom](Implementation *w) {
+        w->setMargins(QMargins(left, top, right, bottom));
+    });
 }
 
 /*!
@@ -1881,13 +2014,13 @@ void CanvasWidget::paintEvent(QPaintEvent *event)
 
 Canvas::Canvas(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 void Canvas::setPaintFunction(const CanvasWidget::PaintFunction &paintFunction)
 {
-    access(this)->setPaintFunction(paintFunction);
+    modify(this, [paintFunction](Implementation *w) { w->setPaintFunction(paintFunction); });
 }
 
 // Special Preview
@@ -1910,7 +2043,7 @@ Preview::Preview(std::initializer_list<I> ps)
 void Preview::show() const
 {
     auto widget = new PreviewWidget;
-    auto layout = access(this);
+    QLayout *layout = emergeLayout();
 
     auto quit = new QPushButton("Quit Preview", widget);
     QObject::connect(quit, &QAbstractButton::clicked, widget, &QObject::deleteLater);
@@ -2026,12 +2159,14 @@ Span::Span(int cols, int rows, const Layout::I &item)
 void addToLayout(Layout *layout, const Span &inner)
 {
     layout->addItem(inner.item);
-    if (layout->pendingItems.empty()) {
-        QTC_CHECK(inner.spanCols == 1 && inner.spanRows == 1);
-        return;
-    }
-    layout->pendingItems.back().spanCols = inner.spanCols;
-    layout->pendingItems.back().spanRows = inner.spanRows;
+    modifyLayout(layout, [cols = inner.spanCols, rows = inner.spanRows](LayoutBuild &b) {
+        if (b.pendingItems.empty()) {
+            QTC_CHECK(cols == 1 && rows == 1);
+            return;
+        }
+        b.pendingItems.back().spanCols = cols;
+        b.pendingItems.back().spanRows = rows;
+    });
 }
 
 /*!
@@ -2058,16 +2193,19 @@ SpanAll::SpanAll(int cols, int rows, const Layout::I &item)
 
 void addToLayout(Layout *layout, const SpanAll &inner)
 {
-    size_t nPreviousItems = layout->pendingItems.size();
+    markPending(layout);
     layout->addItem(inner.item);
-    if (layout->pendingItems.empty()) {
-        QTC_CHECK(inner.spanCols == 1 && inner.spanRows == 1);
-        return;
-    }
-    for (size_t i = nPreviousItems; i < layout->pendingItems.size(); ++i) {
-        layout->pendingItems.at(i).spanCols = inner.spanCols;
-        layout->pendingItems.at(i).spanRows = inner.spanRows;
-    }
+    modifyLayout(layout, [cols = inner.spanCols, rows = inner.spanRows](LayoutBuild &b) {
+        const size_t start = b.popMark();
+        if (b.pendingItems.empty()) {
+            QTC_CHECK(cols == 1 && rows == 1);
+            return;
+        }
+        for (size_t i = start; i < b.pendingItems.size(); ++i) {
+            b.pendingItems.at(i).spanCols = cols;
+            b.pendingItems.at(i).spanRows = rows;
+        }
+    });
 }
 
 /*!
@@ -2107,21 +2245,27 @@ Align::Align(Qt::Alignment alignment, const Layout::I &item)
 
 void addToLayout(Layout *layout, const Align &inner)
 {
-    auto nPreviousItems = layout->pendingItems.size();
+    markPending(layout);
     layout->addItem(inner.item);
-    if (layout->pendingItems.empty()) {
-        QTC_CHECK(inner.alignment == Qt::Alignment());
-        return;
-    }
-    for (auto i = nPreviousItems; i < layout->pendingItems.size(); ++i)
-        layout->pendingItems.at(i).alignment = inner.alignment;
+    modifyLayout(layout, [alignment = inner.alignment](LayoutBuild &b) {
+        const size_t start = b.popMark();
+        if (b.pendingItems.empty()) {
+            QTC_CHECK(alignment == Qt::Alignment());
+            return;
+        }
+        for (size_t i = start; i < b.pendingItems.size(); ++i)
+            b.pendingItems.at(i).alignment = alignment;
+    });
 }
 
 void addToLayout(Layout *layout, const GridCell &inner)
 {
     for (auto i : inner.items) {
         i.apply(layout);
-        layout->pendingItems.back().advancesCell = false;
+        modifyLayout(layout, [](LayoutBuild &b) {
+            if (!b.pendingItems.empty())
+                b.pendingItems.back().advancesCell = false;
+        });
     }
 }
 
@@ -2147,14 +2291,18 @@ LayoutModifier stretch(int index, int stretch)
 
 void addToLayout(Layout *layout, const Space &inner)
 {
-    if (auto lt = layout->asBox())
-        lt->addSpacing(inner.space);
+    modifyLayout(layout, [space = inner.space](LayoutBuild &b) {
+        if (auto lt = b.asBox())
+            lt->addSpacing(space);
+    });
 }
 
 void addToLayout(Layout *layout, const Stretch &inner)
 {
-    if (auto lt = layout->asBox())
-        lt->addStretch(inner.stretch);
+    modifyLayout(layout, [stretch = inner.stretch](LayoutBuild &b) {
+        if (auto lt = b.asBox())
+            lt->addStretch(stretch);
+    });
 }
 
 /*!
@@ -2178,7 +2326,7 @@ void tight(Layout *layout)
 */
 void ignoreDirtyHooks(Widget *widget)
 {
-    Utils::setIgnoreForDirtyHook(widget->emerge());
+    modify(widget, [](QWidget *w) { Utils::setIgnoreForDirtyHook(w); });
 }
 
 
@@ -2211,18 +2359,13 @@ public:
 
 LineEdit::LineEdit(std::initializer_list<I> ps)
 {
-    ptr = new LineEditImpl;
+    creator = [] { return new LineEditImpl; };
     apply(this, ps);
-}
-
-QString LineEdit::text() const
-{
-    return access(this)->text();
 }
 
 void LineEdit::setText(const QString &text)
 {
-    access(this)->setText(text);
+    modify(this, [text](Implementation *w) { w->setText(text); });
 }
 
 void LineEdit::setRightSideIconPath(const Utils::FilePath &path)
@@ -2230,19 +2373,21 @@ void LineEdit::setRightSideIconPath(const Utils::FilePath &path)
     if (!path.isEmpty()) {
         QIcon icon(path.toFSPathString());
         QTC_CHECK(!icon.isNull());
-        access(this)->setButtonIcon(Utils::FancyLineEdit::Right, icon);
-        access(this)->setButtonVisible(Utils::FancyLineEdit::Right, !icon.isNull());
+        modify(this, [icon](Implementation *w) {
+            w->setButtonIcon(Utils::FancyLineEdit::Right, icon);
+            w->setButtonVisible(Utils::FancyLineEdit::Right, !icon.isNull());
+        });
     }
 }
 
 void LineEdit::setPlaceholderText(const QString &text)
 {
-    access(this)->setPlaceholderText(text);
+    modify(this, [text](Implementation *w) { w->setPlaceholderText(text); });
 }
 
 void LineEdit::setCompleter(QCompleter *completer)
 {
-    access(this)->setSpecialCompleter(completer);
+    modify(this, [completer](Implementation *w) { w->setSpecialCompleter(completer); });
 }
 
 /*!
@@ -2252,11 +2397,10 @@ void LineEdit::setCompleter(QCompleter *completer)
 */
 void LineEdit::onReturnPressed(QObject *guard, const std::function<void(Implementation &)> &func)
 {
-    static_cast<LineEditImpl *>(access(this))->acceptReturnKeys = true;
-    QObject::connect(
-        access(this), &Utils::FancyLineEdit::returnPressed, guard, [func, self = access(this)]() {
-            func(*self);
-        });
+    modify(this, [guard, func](Implementation *w) {
+        static_cast<LineEditImpl *>(w)->acceptReturnKeys = true;
+        QObject::connect(w, &Utils::FancyLineEdit::returnPressed, guard, [func, w] { func(*w); });
+    });
 }
 
 /*!
@@ -2265,7 +2409,9 @@ void LineEdit::onReturnPressed(QObject *guard, const std::function<void(Implemen
 */
 void LineEdit::onRightSideIconClicked(QObject *guard, const std::function<void()> &func)
 {
-    QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, guard, func);
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &Utils::FancyLineEdit::rightButtonClicked, guard, func);
+    });
 }
 
 /*!
@@ -2274,7 +2420,9 @@ void LineEdit::onRightSideIconClicked(QObject *guard, const std::function<void()
 */
 void LineEdit::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
-    QObject::connect(access(this), &Utils::FancyLineEdit::textChanged, guard, func);
+    modify(this, [guard, func](Implementation *w) {
+        QObject::connect(w, &Utils::FancyLineEdit::textChanged, guard, func);
+    });
 }
 
 /*!
@@ -2290,19 +2438,21 @@ void LineEdit::onTextChanged(QObject *guard, const std::function<void(QString)> 
 
 Spinner::Spinner(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     apply(this, ps);
 }
 
 void Spinner::setRunning(bool running)
 {
     using State = SpinnerSolution::SpinnerState;
-    access(this)->setState(running ? State::Running : State::NotRunning);
+    modify(this, [running](Implementation *w) {
+        w->setState(running ? State::Running : State::NotRunning);
+    });
 }
 
 void Spinner::setDecorated(bool on)
 {
-    access(this)->setDecorated(on);
+    modify(this, [on](Implementation *w) { w->setDecorated(on); });
 }
 
 /*!
@@ -2330,13 +2480,16 @@ void destroyLayout(QLayout *layout)
 
 DialogButtonBox::DialogButtonBox(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    creator = [] { return new Implementation; };
     Layouting::Tools::apply(this, ps);
 }
 
 void DialogButtonBox::addButton(QDialogButtonBox::ButtonRole role, QAbstractButton *button)
 {
-    access(this)->addButton(button, role);
+    modify(this, [role, once = SingleUse(button)](Implementation *w) {
+        if (QAbstractButton *button = once.take())
+            w->addButton(button, role);
+    });
 }
 
 QString standardButtonText(QDialogButtonBox::StandardButton stdButton)

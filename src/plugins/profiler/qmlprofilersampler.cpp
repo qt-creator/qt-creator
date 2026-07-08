@@ -76,14 +76,15 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
         for (BoolAspect *aspect : std::as_const(featureAspects))
             features.addItem(*aspect);
 
-        QGroupBox *record = nullptr;
+        auto record = new QGroupBox(Tr::tr("Record"));
+        Column { features }.attachTo(record);
         Column column {
             connectToServer,
             Row { host, port, st },
             executable,
             arguments,
             workingDirectory,
-            Layouting::Group { bindTo(&record), title(Tr::tr("Record")), Column { features } },
+            record,
             noMargin,
         };
         const auto updateRecord = [this, record] { record->setEnabled(!optionsChosenElsewhere()); };

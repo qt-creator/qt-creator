@@ -41,7 +41,6 @@
 #include <QLayout>
 #include <QPushButton>
 #include <QLoggingCategory>
-#include <QVBoxLayout>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -1155,7 +1154,7 @@ private slots:
         WorkingDirectoryAspect workingDir;
         workingDir.setEnvironment(&envAspect);
 
-        Layouting::Layout layout(new QVBoxLayout);
+        Layouting::Column layout;
         workingDir.addToLayout(layout);
         layout.attachTo(parent);
 
@@ -1185,7 +1184,7 @@ private slots:
         WorkingDirectoryAspect workingDir;
         workingDir.setEnvironment(&envAspect);
 
-        Layouting::Layout layout(new QVBoxLayout);
+        Layouting::Column layout;
         workingDir.addToLayout(layout);
         layout.attachTo(parent);
         QVERIFY(parent->findChild<Utils::PathChooser *>());

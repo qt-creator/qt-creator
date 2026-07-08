@@ -303,7 +303,6 @@ public:
         using namespace Layouting;
         using namespace Utils::QtDesignWidgets;
 
-        QPushButton *removeButton = nullptr;
         QWidget *configWidget = nullptr;
         auto listView = aspect->createSubWidget<TreeView>();
         listView->header()->hide();
@@ -326,7 +325,9 @@ public:
             QTC_ASSERT(item, return);
             aspect->removeItem(item->aspect());
         };
-        QLayout *layout = nullptr;
+        auto configHolder = new QWidget;
+        auto layout = new QVBoxLayout(configHolder);
+        layout->setContentsMargins(0, 0, 0, 0);
 
         const bool beside = displayStyle == AspectList::DisplayStyle::ListViewWithDetailsBeside;
 
@@ -336,7 +337,6 @@ public:
                 onClicked(aspect, add),
             });
             buttons.addItem(PushButton {
-                bindTo(&removeButton),
                 text(Tr::tr("Remove")),
                 onClicked(aspect, removeCurrent),
             });
@@ -360,10 +360,7 @@ public:
                         listView,
                         buttonRow,
                     },
-                    Column {
-                        bindTo(&layout),
-                        noMargin,
-                    },
+                    configHolder,
                 }
             );
         } else {
@@ -372,8 +369,8 @@ public:
             parent.addItem(
                 Row {
                     Column {
-                        bindTo(&layout),
                         listView,
+                        configHolder,
                     },
                     buttonColumn,
                 }

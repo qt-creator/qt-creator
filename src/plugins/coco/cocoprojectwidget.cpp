@@ -40,11 +40,12 @@ CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *build
 
     m_configerrorLabel.setVisible(false);
     m_configerrorLabel.setIconType(InfoLabelType::Error);
-    Label docLink(
-        QString(
+    Label docLink{
+        text(QString(
             "<a href=\"https://doc.qt.io/coco/coveragescanner-command-line-arguments.html\">%1</a>")
-            .arg(Tr::tr("Documentation")));
-    docLink.setOpenExternalLinks(true);
+            .arg(Tr::tr("Documentation"))),
+        openExternalLinks(true)
+    };
     m_optionEdit.setDisplayStyle(StringAspect::TextEditDisplay);
     m_tweaksEdit.setDisplayStyle(StringAspect::TextEditDisplay);
     m_revertButton.setText(Tr::tr("Revert"));
