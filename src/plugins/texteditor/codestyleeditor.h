@@ -48,12 +48,6 @@ protected:
     // its visibility opposite to the editor area so that the remaining widgets
     // stay packed at the top when the editor area is hidden.
     QWidget *addExpandingFiller();
-    // Returns the trailing explanatory label, so callers that hide the preview
-    // can hide it too.
-    QWidget *setupPreview(SnippetEditorWidget *preview,
-                          Indenter *indenter,
-                          const Utils::FilePath &projectFile,
-                          ICodeStylePreferences *codeStyle);
 
 private:
     QVBoxLayout *m_layout = nullptr;

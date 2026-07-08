@@ -68,53 +68,6 @@ QWidget *CodeStyleEditor::addExpandingFiller()
     return filler;
 }
 
-QWidget *CodeStyleEditor::setupPreview(SnippetEditorWidget *preview, Indenter *indenter,
-                                       const FilePath &projectFile, ICodeStylePreferences *codeStyle)
-{
-    indenter->setOverriddenPreferences(codeStyle);
-    const FilePath fileName = !projectFile.isEmpty()
-        ? projectFile.pathAppended("snippet.cpp")
-        : Core::ICore::userResourcePath("snippet.cpp");
-    indenter->setFileName(fileName);
-    preview->textDocument()->setIndenter(indenter);
-
-    const auto updatePreview = [preview, codeStyle]() {
-        QTextDocument *doc = preview->document();
-
-        preview->textDocument()->indenter()->invalidateCache();
-
-        QTextBlock block = doc->firstBlock();
-        QTextCursor tc = preview->textCursor();
-        tc.beginEditBlock();
-        while (block.isValid()) {
-            preview->textDocument()
-                ->indenter()
-                ->indentBlock(block, QChar::Null, codeStyle->currentTabSettings());
-            block = block.next();
-        }
-        tc.endEditBlock();
-    };
-
-    connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged, this, updatePreview);
-    connect(codeStyle, &ICodeStylePreferences::currentValueChanged, this, updatePreview);
-    connect(codeStyle, &ICodeStylePreferences::currentPreferencesChanged, this, updatePreview);
-
-    updatePreview();
-
-    m_layout->addWidget(preview);
-
-    QLabel *label = new QLabel(
-        Tr::tr("Edit preview contents to see how the current settings "
-               "are applied to custom code snippets. Changes in the preview "
-               "do not affect the current settings."));
-    QFont font = label->font();
-    font.setItalic(true);
-    label->setFont(font);
-    label->setWordWrap(true);
-    m_layout->addWidget(label);
-    return label;
-}
-
 // The default per-project code style editor: a style selector above a live
 // preview. Changes apply immediately to the project's code style, so there is
 // no apply/cancel here.
