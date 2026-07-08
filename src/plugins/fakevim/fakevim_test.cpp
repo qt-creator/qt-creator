@@ -2766,6 +2766,19 @@ void FakeVimTester::test_vim_copy_paste()
     KEYS("<Esc>dd", "");
     data.setText("aaa bbb");
     KEYS("\"ayawA<C-r>a", "aaa bbbaaa ");
+
+    // Replacing a charwise visual selection with a yanked word via "p"/"P"
+    // must replace the whole selection, not drop its last character
+    // (QTCREATORBUG-26748). The cursor ends on the last pasted character.
+    data.setText("abc def");
+    KEYS("yiw" "w" "ve" "p", "abc ab" X "c");
+    data.setText("abc def");
+    KEYS("yiw" "w" "ve" "P", "abc ab" X "c");
+    data.setText("abc def");
+    KEYS("yw" "w" "ve" "P", "abc abc" X " ");
+    // also for a word in the middle of the line
+    data.setText("abc def ghi");
+    KEYS("yiw" "w" "ve" "p", "abc ab" X "c ghi");
 }
 
 void FakeVimTester::test_vim_undo_redo()
