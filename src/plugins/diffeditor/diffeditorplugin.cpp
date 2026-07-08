@@ -153,10 +153,10 @@ DiffFilesController::DiffFilesController(IDocument *document, const ReloadInputL
     setReloadRecipe(recipe);
 }
 
-static QList<ReloadInput> reloadInputHelper(IDocument *doc)
+static QList<ReloadInput> reloadInputHelper(IDocument *doc, bool onlyIfModified = true)
 {
     auto textDocument = qobject_cast<TextDocument *>(doc);
-    if (!textDocument || !textDocument->isModified())
+    if (!textDocument || (onlyIfModified && !textDocument->isModified()))
         return {};
 
     TextFileFormat format = textDocument->format();
@@ -178,9 +178,9 @@ static QList<ReloadInput> reloadInputHelper(IDocument *doc)
     return {reloadInput};
 }
 
-static QList<ReloadInput> reloadInputHelper(const FilePath &filePath)
+static QList<ReloadInput> reloadInputHelper(const FilePath &filePath, bool onlyIfModified = true)
 {
-    return reloadInputHelper(DocumentModel::documentForFilePath(filePath));
+    return reloadInputHelper(DocumentModel::documentForFilePath(filePath), onlyIfModified);
 }
 
 static QList<ReloadInput> openFilesReloadInputList()
@@ -198,7 +198,7 @@ static QList<ReloadInput> modifiedFilesReloadInputList(const FilePaths &filePath
 {
     QList<ReloadInput> result;
     for (const FilePath &filePath : filePaths)
-        result << reloadInputHelper(filePath);
+        result << reloadInputHelper(filePath, /*onlyIfModified=*/false);
     return result;
 }
 

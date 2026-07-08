@@ -1288,11 +1288,10 @@ void DocumentManager::checkForReload()
                                 const FilePaths paths = Utils::transform(docs, [](IDocument *doc) {
                                     return doc->filePath();
                                 });
-                                reloadConflictedDocuments(IDocument::FlagIgnore);
                                 diffService->diffModifiedFiles(paths);
                             }
                         },
-                        Tr::tr("Ignore external changes and diff all modified files"));
+                        Tr::tr("Diff all modified files against the version on disk"));
                 }
                 info.addCustomButton(
                     Tr::tr("Ignore All"),
