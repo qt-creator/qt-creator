@@ -116,6 +116,13 @@ void AcpChatController::connectToServer(const QString &serverId)
         fsCaps.readTextFile(true);
         fsCaps.writeTextFile(true);
         caps.fs(fsCaps);
+
+        SessionConfigOptionsCapabilities configOptionsCaps;
+        configOptionsCaps.boolean(BooleanConfigOptionCapabilities());
+        ClientSessionCapabilities sessionCaps;
+        sessionCaps.configOptions(configOptionsCaps);
+        caps.session(sessionCaps);
+
         initReq.clientCapabilities(caps);
 
         m_client->initialize(initReq);
@@ -369,7 +376,7 @@ void AcpChatController::authenticate(const QString &methodId)
     });
 }
 
-void AcpChatController::setConfigOption(const QString &configId, const QString &value)
+void AcpChatController::setConfigOption(const QString &configId, const QJsonValue &value)
 {
     if (m_sessionId.isEmpty() || !m_client)
         return;
@@ -377,7 +384,9 @@ void AcpChatController::setConfigOption(const QString &configId, const QString &
     SetSessionConfigOptionRequest req;
     req.sessionId(m_sessionId);
     req.configId(configId);
-    req.value(value);
+    req.additionalProperties(QStringLiteral("value"), value);
+    if (value.isBool())
+        req.additionalProperties(QStringLiteral("type"), QJsonValue(QStringLiteral("boolean")));
     m_client->setSessionConfigOption(req, [this](const QJsonObject &result, const std::optional<Error> &error) {
         if (error) {
             emit errorOccurred(Tr::tr("Failed to set config option: %1").arg(error->message()));

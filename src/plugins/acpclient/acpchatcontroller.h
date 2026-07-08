@@ -44,7 +44,7 @@ public:
                     const QList<TextContext> &textContexts = {});
     void cancelPrompt();
     void authenticate(const QString &methodId);
-    void setConfigOption(const QString &configId, const QString &value);
+    void setConfigOption(const QString &configId, const QJsonValue &value);
     void setSessionMode(const QString &modeId);
     void sendPermissionResponse(const QJsonValue &id, const QString &optionId);
     void sendPermissionCancelled(const QJsonValue &id);

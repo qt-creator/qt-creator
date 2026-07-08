@@ -706,11 +706,29 @@ void ChatPanel::showConfigMenu()
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->setToolTipsVisible(true);
     for (const SessionConfigOption &option : std::as_const(m_configOptions)) {
+        const QString id = option.id();
+        const bool isBoolean = option.additionalProperties().value("type").toString() == "boolean";
+
+        if (isBoolean) {
+            auto boolean = fromJson<SessionConfigBoolean>(QJsonValue(toJson(option)));
+            if (!boolean)
+                continue;
+
+            QAction *a = menu->addAction(option.name());
+            if (auto description = option.description())
+                a->setToolTip(*description);
+            a->setCheckable(true);
+            a->setChecked(boolean->currentValue());
+            connect(a, &QAction::toggled, this, [this, id](bool checked) {
+                emit configOptionChanged(id, QJsonValue(checked));
+            });
+            continue;
+        }
+
         auto select = fromJson<SessionConfigSelect>(QJsonValue(toJson(option)));
         if (!select)
             continue;
 
-        const QString id = option.id();
         const QString currentValue = select->currentValue();
 
         QMenu *sub = menu->addMenu(option.name());
@@ -723,7 +741,7 @@ void ChatPanel::showConfigMenu()
             a->setChecked(opt.value() == currentValue);
             const QString value = opt.value();
             connect(a, &QAction::triggered, this, [this, id, value] {
-                emit configOptionChanged(id, value);
+                emit configOptionChanged(id, QJsonValue(value));
             });
         };
 

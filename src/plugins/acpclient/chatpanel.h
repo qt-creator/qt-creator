@@ -95,7 +95,7 @@ public:
 signals:
     void sendRequested(const QString &text);
     void cancelRequested();
-    void configOptionChanged(const QString &configId, const QString &value);
+    void configOptionChanged(const QString &configId, const QJsonValue &value);
     void modeChanged(const QString &modeId);
     void permissionOptionSelected(const QJsonValue &id, const QString &optionId);
     void permissionCancelled(const QJsonValue &id);
