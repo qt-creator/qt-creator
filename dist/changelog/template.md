@@ -28,6 +28,8 @@ Changed
 
 Fixed
 
+### Agent Client Protocol (ACP)
+
 ### Model Context Protocol
 
 Help
@@ -122,6 +124,8 @@ Fixed
 
 ### QML
 
+### Python
+
 ### Debug Adapter Protocol
 
 Analyzer
@@ -181,6 +185,8 @@ Changed
 Fixed
 
 ### Qt Test
+
+### Qt Quick
 
 ### Boost
 
