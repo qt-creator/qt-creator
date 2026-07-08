@@ -4,6 +4,7 @@
 #include <utils/commandline.h>
 #include <utils/filestreamer.h>
 #include <utils/temporaryfile.h>
+#include <utils/textfileformat.h>
 #include <utils/unarchiver.h>
 
 #include <QCommandLineParser>
@@ -11,6 +12,7 @@
 #include <QDir>
 #include <QLoggingCategory>
 #include <QSocketNotifier>
+#include <QVersionNumber>
 
 #include <QtTaskTree/QConditional>
 #include <QtTaskTree/qprocesstask.h>
@@ -36,6 +38,8 @@ int main(int argc, char *argv[])
         QCommandLineOption("env", "Environment Variable values to set", "env"));
     commandLineParser.addOption(QCommandLineOption(
         "download", "The archive to download the command to run from.", "download"));
+    commandLineParser.addOption(QCommandLineOption(
+        "version", "The version of the archive, used to detect available updates.", "version"));
     commandLineParser
         .addPositionalArgument("executable", "The executable relative to the extracted archive root");
 
@@ -44,6 +48,8 @@ int main(int argc, char *argv[])
     const FilePath tempDir = FilePath::fromUserInput(QDir::tempPath());
     const FilePath archiveUrl = FilePath::fromUserInput(commandLineParser.value("download"));
     const FilePath extractedDir = tempDir / "qt-acp-dl" / archiveUrl.baseName();
+    const FilePath versionFile = extractedDir / "qtcreator-dlwrapper-version.txt";
+    const QString registryVersion = commandLineParser.value("version");
     CommandLine cmdLine{
         FilePath::fromUserInput(commandLineParser.positionalArguments().value(0)),
         commandLineParser.positionalArguments().mid(1)};
@@ -84,6 +90,18 @@ int main(int argc, char *argv[])
         return SetupResult::Continue;
     };
 
+    const auto onUnarchiverDone = [versionFile, registryVersion](const Unarchiver &unarchiver) {
+        if (!unarchiver.result())
+            return DoneResult::Error;
+
+        if (!registryVersion.isEmpty()) {
+            if (const auto result = versionFile.writeFileContents(registryVersion.toUtf8()); !result) {
+                qCWarning(dlWrapper) << "Failed to write version file:" << result.error();
+            }
+        }
+        return DoneResult::Success;
+    };
+
     const auto setupProcess = [&](QProcess &process) {
         CommandLine c = cmdLine;
         c.setExecutable(extractedDir / cmdLine.executable().toUrlishString());
@@ -115,14 +133,24 @@ int main(int argc, char *argv[])
             qCWarning(dlWrapper).noquote() << process.errorString();
     };
 
-    const auto notAlreadyDownloaded = [&extractedDir, &cmdLine] {
+    const auto notAlreadyDownloaded = [&extractedDir, &cmdLine, &versionFile, &registryVersion] {
         const FilePath executablePath = extractedDir.resolvePath(cmdLine.executable());
-        if (executablePath.isExecutableFile()) {
-            qCDebug(dlWrapper) << "Executable already exists at" << executablePath
-                               << ", skipping download and extraction.";
-            return false;
+        if (!executablePath.isExecutableFile())
+            return true;
+
+        if (!registryVersion.isEmpty()) {
+            TextFileFormat format;
+            format.setEncoding(TextEncoding::Utf8);
+            const TextFileFormat::ReadResult versionFileContents
+                = format.readFile(versionFile, TextEncoding::Utf8);
+            if (versionFileContents.code == TextFileFormat::ReadSuccess)
+                return versionFileContents.content != registryVersion;
+            return true;
         }
-        return true;
+
+        qCDebug(dlWrapper) << "Executable already exists at" << executablePath
+                           << ", skipping download and extraction.";
+        return false;
     };
 
     // clang-format off
@@ -130,7 +158,7 @@ int main(int argc, char *argv[])
         tempArchive,
         If (notAlreadyDownloaded) >> Then {
             FileStreamerTask(setupDownload),
-            UnarchiverTask(setupUnarchive),
+            UnarchiverTask(setupUnarchive, onUnarchiverDone),
         },
         QProcessTask(setupProcess, processDone),
         onGroupDone([&](DoneWith doneWith){

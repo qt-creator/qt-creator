@@ -394,8 +394,9 @@ public:
             const QString cmdLine
                 = (QStringList{binary.cmd()} + binary.args().value_or(QStringList{})).join(" ");
 
-            launchArguments.setValue(QString("--download %1 %2 %3")
+            launchArguments.setValue(QString("--download %1 --version %2 %3 %4")
                                          .arg(binary.archive())
+                                         .arg(selectedAgent.version())
                                          .arg(envChanges.join(" "))
                                          .arg(cmdLine));
         } else if (selectedAgent.distribution().npx()) {
