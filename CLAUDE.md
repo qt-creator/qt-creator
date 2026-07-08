@@ -18,6 +18,8 @@ Commit messages should follow this structure:
 When a commit addresses Coverity diagnostics, include the Coverity IDs in a
 Coverity-Id footer.
 
+Make sure to not change the Change-Id on the last line of a commit if you change its commit message.
+
 ## UI design rules
 
 - Use `Utils::creatorColor()` or `QPalette::color()` for `QColor`. No hard-coded colors, no alpha-blended text.
