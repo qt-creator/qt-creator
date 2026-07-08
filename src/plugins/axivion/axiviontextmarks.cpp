@@ -10,8 +10,10 @@
 #include "dashboard/dto.h"
 #include "pluginarserver.h"
 
+#include <texteditor/textdocument.h>
 #include <texteditor/textmark.h>
 
+#include <utils/differ.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -107,12 +109,65 @@ static TextMarkManager &textMarkManager()
     return manager;
 }
 
+// corrected (local) counterpart of an analysis-time line number
+struct CorrectedLine
+{
+    int line = 0;        // 1-based line in local source, 0 == no counterpart
+    bool modified = false;
+};
+
+// number of lines in a LineMode diff chunk, only very last line of a source may lack newline
+static int lineCount(const QString &chunk)
+{
+    if (chunk.isEmpty())
+        return 0;
+    int count = chunk.count('\n');
+    if (!chunk.endsWith('\n'))
+        ++count;
+    return count;
+}
+
+// Line-based diff between the analysis-time source and the local source
+// Maps every analysis-time line (1-based) to corresponding local line
+// including information whether that line was modified
+static QHash<int, CorrectedLine> computeLineMapping(const QByteArray &analysisSource,
+                                                    const QByteArray &localSource)
+{
+    // normalize line endings
+    const auto normalized = [](const QByteArray &source) {
+        return QString::fromUtf8(source).replace("\r\n", "\n").replace('\r', '\n');
+    };
+
+    Differ differ;
+    // unifiedDiff() keeps whole lines intact
+    const QList<Diff> diffs = differ.unifiedDiff(normalized(analysisSource),
+                                                 normalized(localSource));
+    QHash<int, CorrectedLine> mapping;
+    int analysisLine = 1;
+    int localLine = 1;
+    for (const Diff &diff : diffs) {
+        const int count = lineCount(diff.text);
+        switch (diff.command) {
+        case Diff::Equal: // present in both - a shift in position is just a move
+            for (int i = 0; i < count; ++i)
+                mapping.insert(analysisLine++, {localLine++, false});
+            break;
+        case Diff::Delete: // present at analysis time, gone locally - modified
+            for (int i = 0; i < count; ++i)
+                mapping.insert(analysisLine++, {localLine, true});
+            break;
+        case Diff::Insert: // new local lines without analysis counterpart
+            localLine += count;
+            break;
+        }
+    }
+    return mapping;
+}
+
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &filePath,
                          const std::optional<FilePath> &bauhausSuite,
                          const QByteArray &origSource)
 {
-    Q_UNUSED(origSource)
-
     if (fileView.lineMarkers.empty())
         return;
 
@@ -120,12 +175,49 @@ void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &fileP
     std::optional<Theme::Color> color = std::nullopt;
     if (settings().highlightMarks())
         color.emplace(Theme::Color(Theme::Bookmarks_TextMarkColor)); // FIXME!
+
+    // if analysis-time source is present, correct the marker locations against
+    // current local source, moving or dropping markers whose lines changed
+    std::optional<QHash<int, CorrectedLine>> mapping;
+    if (!origSource.isEmpty()) {
+        // prefer editor content over file on disk
+        std::optional<QByteArray> localSource;
+        if (const TextDocument *doc = TextDocument::textDocumentForFilePath(filePath))
+            localSource = doc->contents();
+        else if (const Result<QByteArray> local = filePath.fileContents())
+            localSource = *local;
+        // diff happens on main thread, so skip correction for large sources to avoid UI freezes
+        static constexpr qsizetype maxDiffSize = 2 * 1024 * 1024;
+        if (localSource && origSource.size() <= maxDiffSize
+                && localSource->size() <= maxDiffSize) {
+            mapping = computeLineMapping(origSource, *localSource);
+        }
+    }
+
     QHash<FilePath, QSet<AxivionTextMark *>> &marks = textMarkManager().marks(type);
     for (const Dto::LineMarkerDto &marker : std::as_const(fileView.lineMarkers)) {
-        // FIXME the line location can be wrong (even the whole issue could be wrong)
-        // depending on whether this line has been changed since the last axivion run and the
-        // current state of the file - some magic has to happen here
-        marks[filePath] << new AxivionTextMark(filePath, marker, color, bauhausSuite);
+        Dto::LineMarkerDto corrected = marker;
+        // startLine == 0 marks the whole file, no correction
+        if (mapping && marker.startLine > 0) {
+            const int endLine = marker.endLine == 0 ? marker.startLine : marker.endLine;
+            const CorrectedLine start = mapping->value(marker.startLine, {0, true});
+            const CorrectedLine end = mapping->value(endLine, {0, true});
+            // drop issue if any line inside analysis range was modified or has no local
+            // counterpart, or if lines were inserted within the range - violation may
+            // have been fixed; positional shift of the whole, otherwise unchanged range
+            // (edits above or below) is fine; a relocation of the range elsewhere counts
+            // as modification, as line diff cannot tell it apart from a delete plus insert
+            bool dropped = end.line - start.line != endLine - marker.startLine;
+            for (int line = marker.startLine; !dropped && line <= endLine; ++line) {
+                const CorrectedLine current = mapping->value(line, {0, true});
+                dropped = current.modified || current.line == 0;
+            }
+            if (dropped)
+                continue;
+            corrected.startLine = start.line;
+            corrected.endLine = marker.endLine == 0 ? 0 : end.line;
+        }
+        marks[filePath] << new AxivionTextMark(filePath, corrected, color, bauhausSuite);
     }
 }
 
