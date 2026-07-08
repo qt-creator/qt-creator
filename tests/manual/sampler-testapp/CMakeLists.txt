@@ -6,3 +6,5 @@ add_qtc_test(sampler-testapp
   DEPENDS Qt::Core Qt::Gui Qt::Qml Qt::Quick Qt::Quick3D
   SOURCES main.cpp
 )
+
+target_compile_definitions(sampler-testapp PRIVATE QT_QML_DEBUG)
