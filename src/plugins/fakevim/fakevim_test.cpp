@@ -1733,6 +1733,34 @@ void FakeVimTester::test_vim_block_selection_insert()
         "  XYZ" N
         "deXYZf" N
          );
+
+    // Block-inserting whitespace to indent several lines must keep the
+    // inserted indentation on every line, i.e. it must not be treated as
+    // strippable auto-indentation (QTCREATORBUG-24094).
+    data.setText("abc" N "def" N "ghi");
+    KEYS("<c-v>2jI  <esc>", X "  abc" N "  def" N "  ghi");
+
+    // also when the lines are already indented
+    data.setText("  abc" N "  def" N "  ghi");
+    KEYS("<c-v>2jI  <esc>", X "    abc" N "    def" N "    ghi");
+
+    // The same must hold for a tab. With 'noexpandtab' a real tab is
+    // inserted on every line ...
+    data.doCommand("set noexpandtab");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("<c-v>2jI<tab><esc>", X "\tabc" N "\tdef" N "\tghi");
+
+    // ... a literal tab character in the input stream behaves the same ...
+    data.setText("abc" N "def" N "ghi");
+    KEYS("<c-v>2jI\t<esc>", X "\tabc" N "\tdef" N "\tghi");
+
+    // ... and with 'expandtab' the equivalent spaces are used on every line.
+    data.doCommand("set expandtab");
+    data.doCommand("set tabstop=4");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("<c-v>2jI<tab><esc>", X "    abc" N "    def" N "    ghi");
+    data.doCommand("set noexpandtab");
+    data.doCommand("set tabstop=8");
 }
 
 void FakeVimTester::test_vim_delete_inner_paragraph()

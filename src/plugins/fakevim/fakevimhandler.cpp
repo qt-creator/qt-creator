@@ -2709,10 +2709,18 @@ void FakeVimHandler::Private::commitInsertState()
     for (int i = lastInsertion.size() - 1; i >= 0; --i) {
         const int pos = insertState.pos1 + i;
         const QChar c = characterAt(pos);
-        if (c == '<')
+        if (c == '<') {
             lastInsertion.replace(i, 1, "<LT>");
-        else if ((c == ' ' || c == '\t') && insertState.spaces.contains(pos))
-            lastInsertion.replace(i, 1, QLatin1String(c == ' ' ? "<SPACE>" : "<TAB>"));
+        } else if (c == ' ' && insertState.spaces.contains(pos)) {
+            lastInsertion.replace(i, 1, QLatin1String("<SPACE>"));
+        } else if (c == '\t' && insertState.spaces.contains(pos)) {
+            // Escape a user-typed tab as a literal (^V) insert so it survives
+            // the auto-indentation stripping below and, when replayed (e.g.
+            // for a block insert or the dot command), is inserted verbatim
+            // instead of re-triggering the editor's Tab handling
+            // (QTCREATORBUG-24094).
+            lastInsertion.replace(i, 1, QLatin1String("<C-v>\t"));
+        }
     }
 
     // Remove unnecessary backspaces.
@@ -5492,7 +5500,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
                 const int ts = s.tabStop();
                 const int col = logicalCursorColumn();
                 QString str = QString(ts - col % ts, ' ');
-                insertText(str);
+                insertInInsertMode(str);
             } else {
                 insertInInsertMode(input.raw());
             }
@@ -5529,9 +5537,13 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         if (data && data->hasText())
             insertInInsertMode(data->text());
     } else {
-        m_buffer->insertState.insertingSpaces = input.isKey(Key_Space);
+        // Treat inserted whitespace (space or tab) as user-typed so it is not
+        // stripped as auto-indentation, e.g. when block-inserting an indent
+        // (QTCREATORBUG-24094).
+        const QString toInsert = input.text();
+        m_buffer->insertState.insertingSpaces =
+            toInsert == QLatin1String(" ") || toInsert == QLatin1String("\t");
         if (!handleInsertInEditor(input)) {
-            const QString toInsert = input.text();
             if (toInsert.isEmpty())
                 return;
             insertInInsertMode(toInsert);
