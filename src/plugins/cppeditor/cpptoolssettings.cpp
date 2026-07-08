@@ -14,14 +14,11 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <texteditor/codestyleeditor.h>
-#include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
 #include <texteditor/tabsettings.h>
-#include <texteditor/codestylepool.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
@@ -45,30 +42,6 @@ CppCodeStylePreferences *cppCodeStyle()
         codeStyleForLanguage(Constants::CPP_SETTINGS_ID));
 }
 
-class CppCodeStyleEditor final : public CodeStyleEditor
-{
-public:
-    explicit CppCodeStyleEditor(CppCodeStylePreferences *codeStyle)
-        : m_selector{{}, this}
-        , m_widget{codeStyle}
-    {
-        m_selector.setCodeStyle(codeStyle);
-        addSelector(&m_selector);
-        m_widget.layout()->setContentsMargins(0, 0, 0, 0);
-        addEditorWidget(&m_widget);
-        // The widget edits the (page-local) style live; report changes so the
-        // hosting CodeStyleAspect can track dirtiness and defer the commit.
-        connect(codeStyle, &ICodeStylePreferences::currentValueChanged,
-                this, &CodeStyleEditor::changed);
-        connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged,
-                this, &CodeStyleEditor::changed);
-    }
-
-private:
-    CodeStyleSelectorWidget m_selector;
-    CppCodeStylePreferencesWidget m_widget;
-};
-
 class CppCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
 {
 public:
@@ -82,9 +55,14 @@ public:
         setPreviewText(QString::fromLatin1(Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
         setIndenterCreator([](QTextDocument *doc) { return createCppQtStyleIndenter(doc); });
         setCodeStyleCreator([] { return new CppCodeStylePreferences; });
-        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
-            return new CppCodeStyleEditor{static_cast<CppCodeStylePreferences *>(codeStyle)};
+        setValueEditorCreator([](ICodeStylePreferences *codeStyle) {
+            auto widget = new CppCodeStylePreferencesWidget(
+                static_cast<CppCodeStylePreferences *>(codeStyle));
+            widget->layout()->setContentsMargins(0, 0, 0, 0);
+            return widget;
         });
+        // The widget brings its own previews.
+        setValueEditorHasPreview(true);
 
         setGlobalCodeStyleId(idKey);
         setDefaultCodeStyleId("qt");
