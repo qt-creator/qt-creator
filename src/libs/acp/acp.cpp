@@ -1851,11 +1851,31 @@ QJsonObject toJson(const ListSessionsResponse &data)
     return obj;
 }
 
+template<>
+Utils::Result<SessionConfigBoolean> fromJson<SessionConfigBoolean>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for SessionConfigBoolean");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("currentValue"))
+        return Utils::ResultError("Missing required field: currentValue");
+    SessionConfigBoolean result;
+    result._currentValue = obj.value("currentValue").toBool();
+    return result;
+}
+
+QJsonObject toJson(const SessionConfigBoolean &data)
+{
+    QJsonObject obj{{"currentValue", data._currentValue}};
+    return obj;
+}
+
 QString toString(SessionConfigOptionCategory v)
 {
     switch(v) {
         case SessionConfigOptionCategory::mode: return "mode";
         case SessionConfigOptionCategory::model: return "model";
+        case SessionConfigOptionCategory::model_config: return "model_config";
         case SessionConfigOptionCategory::thought_level: return "thought_level";
     }
     return {};
@@ -1867,6 +1887,7 @@ Utils::Result<SessionConfigOptionCategory> fromJson<SessionConfigOptionCategory>
     const QString str = val.toString();
     if (str == "mode") return SessionConfigOptionCategory::mode;
     if (str == "model") return SessionConfigOptionCategory::model;
+    if (str == "model_config") return SessionConfigOptionCategory::model_config;
     if (str == "thought_level") return SessionConfigOptionCategory::thought_level;
     return Utils::ResultError("Invalid SessionConfigOptionCategory value: " + str);
 }
@@ -3099,6 +3120,80 @@ QJsonObject toJson(const DeleteSessionRequest &data)
 }
 
 template<>
+Utils::Result<BooleanConfigOptionCapabilities> fromJson<BooleanConfigOptionCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for BooleanConfigOptionCapabilities");
+    const QJsonObject obj = val.toObject();
+    BooleanConfigOptionCapabilities result;
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const BooleanConfigOptionCapabilities &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<SessionConfigOptionsCapabilities> fromJson<SessionConfigOptionsCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for SessionConfigOptionsCapabilities");
+    const QJsonObject obj = val.toObject();
+    SessionConfigOptionsCapabilities result;
+    if (obj.contains("boolean") && !obj["boolean"].isNull())
+        result._boolean = co_await fromJson<BooleanConfigOptionCapabilities>(obj["boolean"]);
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const SessionConfigOptionsCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._boolean.has_value())
+        obj.insert("boolean", toJson(*data._boolean));
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<ClientSessionCapabilities> fromJson<ClientSessionCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for ClientSessionCapabilities");
+    const QJsonObject obj = val.toObject();
+    ClientSessionCapabilities result;
+    if (obj.contains("configOptions") && !obj["configOptions"].isNull())
+        result._configOptions = co_await fromJson<SessionConfigOptionsCapabilities>(obj["configOptions"]);
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const ClientSessionCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._configOptions.has_value())
+        obj.insert("configOptions", toJson(*data._configOptions));
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
 Utils::Result<FileSystemCapabilities> fromJson<FileSystemCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -3139,6 +3234,8 @@ Utils::Result<ClientCapabilities> fromJson<ClientCapabilities>(const QJsonValue 
         result._fs = co_await fromJson<FileSystemCapabilities>(obj["fs"]);
     if (obj.contains("terminal"))
         result._terminal = obj.value("terminal").toBool();
+    if (obj.contains("session") && !obj["session"].isNull())
+        result._session = co_await fromJson<ClientSessionCapabilities>(obj["session"]);
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3153,6 +3250,8 @@ QJsonObject toJson(const ClientCapabilities &data)
         obj.insert("fs", toJson(*data._fs));
     if (data._terminal.has_value())
         obj.insert("terminal", *data._terminal);
+    if (data._session.has_value())
+        obj.insert("session", toJson(*data._session));
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     return obj;
@@ -3676,19 +3775,22 @@ Utils::Result<SetSessionConfigOptionRequest> fromJson<SetSessionConfigOptionRequ
         co_return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("configId"))
         co_return Utils::ResultError("Missing required field: configId");
-    if (!obj.contains("value"))
-        co_return Utils::ResultError("Missing required field: value");
     SetSessionConfigOptionRequest result;
     if (obj.contains("sessionId") && obj["sessionId"].isString())
         result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
     if (obj.contains("configId") && obj["configId"].isString())
         result._configId = co_await fromJson<SessionConfigId>(obj["configId"]);
-    if (obj.contains("value") && obj["value"].isString())
-        result._value = co_await fromJson<SessionConfigValueId>(obj["value"]);
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
+    {
+        const QSet<QString> knownKeys{"sessionId", "configId", "_meta"};
+        for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
+            if (!knownKeys.contains(it.key()))
+                result._additionalProperties.insert(it.key(), it.value());
+        }
+    }
     co_return result;
 }
 
@@ -3696,11 +3798,12 @@ QJsonObject toJson(const SetSessionConfigOptionRequest &data)
 {
     QJsonObject obj{
         {"sessionId", data._sessionId},
-        {"configId", data._configId},
-        {"value", data._value}
+        {"configId", data._configId}
     };
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
+    for (auto it = data._additionalProperties.constBegin(); it != data._additionalProperties.constEnd(); ++it)
+        obj.insert(it.key(), it.value());
     return obj;
 }
 
@@ -4119,6 +4222,32 @@ QJsonObject toJson(const ClientNotification &data)
     QJsonObject obj{{"method", data._method}};
     if (data._params.has_value())
         obj.insert("params", *data._params);
+    return obj;
+}
+
+template<>
+Utils::Result<CancelRequestNotification> fromJson<CancelRequestNotification>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for CancelRequestNotification");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("requestId"))
+        co_return Utils::ResultError("Missing required field: requestId");
+    CancelRequestNotification result;
+    if (obj.contains("requestId"))
+        result._requestId = co_await fromJson<RequestId>(obj["requestId"]);
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const CancelRequestNotification &data)
+{
+    QJsonObject obj{{"requestId", toJsonValue(data._requestId)}};
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
     return obj;
 }
 
