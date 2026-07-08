@@ -168,35 +168,39 @@ private:
     const FilePath m_filePath;
 };
 
+static QList<ReloadInput> reloadInputHelper(IDocument *doc)
+{
+    auto textDocument = qobject_cast<TextDocument *>(doc);
+    if (!textDocument || !textDocument->isModified())
+        return {};
+
+    TextFileFormat format = textDocument->format();
+
+    const FilePath filePath = textDocument->filePath();
+    const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.encoding());
+
+    const QString rightText = textDocument->plainText();
+
+    ReloadInput reloadInput;
+    reloadInput.text = {leftResult.content, rightText};
+    reloadInput.fileInfo = {DiffFileInfo(filePath.path(), Tr::tr("Saved")),
+                            DiffFileInfo(filePath.path(), Tr::tr("Modified"))};
+    reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
+    reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
+
+    if (leftResult.code == TextFileFormat::ReadIOError)
+        reloadInput.fileOperation = FileData::NewFile;
+    return {reloadInput};
+}
+
+static QList<ReloadInput> reloadInputHelper(const FilePath &filePath)
+{
+    return reloadInputHelper(DocumentModel::documentForFilePath(filePath));
+}
+
 QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
 {
-    QList<ReloadInput> result;
-
-    auto textDocument = qobject_cast<TextDocument *>(
-        DocumentModel::documentForFilePath(m_filePath));
-
-    if (textDocument && textDocument->isModified()) {
-        TextFileFormat format = textDocument->format();
-
-        const TextFileFormat::ReadResult leftResult = format.readFile(
-            m_filePath, format.encoding());
-
-        const QString rightText = textDocument->plainText();
-
-        ReloadInput reloadInput;
-        reloadInput.text = {leftResult.content, rightText};
-        reloadInput.fileInfo = {DiffFileInfo(m_filePath.path(), Tr::tr("Saved")),
-                                DiffFileInfo(m_filePath.path(), Tr::tr("Modified"))};
-        reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
-        reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
-
-        if (leftResult.code == TextFileFormat::ReadIOError)
-            reloadInput.fileOperation = FileData::NewFile;
-
-        result << reloadInput;
-    }
-
-    return result;
+    return reloadInputHelper(m_filePath);
 }
 
 /////////////////
@@ -213,35 +217,11 @@ protected:
 QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
 {
     QList<ReloadInput> result;
-
     const QList<IDocument *> openedDocuments = DocumentModel::openedDocuments();
-
     for (IDocument *doc : openedDocuments) {
         QTC_ASSERT(doc, continue);
-        auto textDocument = qobject_cast<TextDocument *>(doc);
-
-        if (textDocument && textDocument->isModified()) {
-            TextFileFormat format = textDocument->format();
-
-            const FilePath filePath = textDocument->filePath();
-            const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.encoding());
-
-            const QString rightText = textDocument->plainText();
-
-            ReloadInput reloadInput;
-            reloadInput.text = {leftResult.content, rightText};
-            reloadInput.fileInfo = {DiffFileInfo(filePath.path(), Tr::tr("Saved")),
-                                    DiffFileInfo(filePath.path(), Tr::tr("Modified"))};
-            reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
-            reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
-
-            if (leftResult.code == TextFileFormat::ReadIOError)
-                reloadInput.fileOperation = FileData::NewFile;
-
-            result << reloadInput;
-        }
+        result << reloadInputHelper(doc);
     }
-
     return result;
 }
 
@@ -264,33 +244,8 @@ private:
 QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 {
     QList<ReloadInput> result;
-
-    for (const FilePath &filePath : m_filePaths) {
-        auto textDocument = qobject_cast<TextDocument *>(
-            DocumentModel::documentForFilePath(filePath));
-
-        if (textDocument && textDocument->isModified()) {
-            TextFileFormat format = textDocument->format();
-
-            const FilePath filePath = textDocument->filePath();
-            const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.encoding());
-
-            const QString rightText = textDocument->plainText();
-
-            ReloadInput reloadInput;
-            reloadInput.text = {leftResult.content, rightText};
-            reloadInput.fileInfo = {DiffFileInfo(filePath.path(), Tr::tr("Saved")),
-                                    DiffFileInfo(filePath.path(), Tr::tr("Modified"))};
-            reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
-            reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
-
-            if (leftResult.code == TextFileFormat::ReadIOError)
-                reloadInput.fileOperation = FileData::NewFile;
-
-            result << reloadInput;
-        }
-    }
-
+    for (const FilePath &filePath : m_filePaths)
+        result << reloadInputHelper(filePath);
     return result;
 }
 
