@@ -698,8 +698,14 @@ func writeMain(out *bufio.Writer) {
 	out.Flush()
 }
 
-func watchDogLoop(channel chan bool) {
-	watchDogTimeOut := 60 * time.Second
+func watchDogLoop(channel chan bool, watchDogTimeOut time.Duration) {
+	if watchDogTimeOut <= 0 {
+		// Watchdog disabled. Drain the channel so senders do not block.
+		for range channel {
+		}
+		return
+	}
+
 	timer := time.NewTimer(watchDogTimeOut)
 
 	for {
@@ -718,12 +724,12 @@ func watchDogLoop(channel chan bool) {
 	}
 }
 
-func readMain(test bool) {
+func readMain(test bool, watchDogTimeOut time.Duration) {
 	commandChannel := make(chan command)
 	outputChannel := make(chan []byte)
 
 	watchDogChannel := make(chan bool)
-	go watchDogLoop(watchDogChannel)
+	go watchDogLoop(watchDogChannel, watchDogTimeOut)
 
 	watcher := NewWatcherHandler()
 	socketHandler := NewSocketForwardHandler()
@@ -796,6 +802,8 @@ func main() {
 	test := flag.Bool("test", false, "test instead of read from stdin")
 	write := flag.Bool("write", false, "write instead of read data")
 	deleteOnStart := flag.Bool("deleteOnStart", false, "delete cmdbridge directly on startup")
+	watchDogTimeout := flag.Int("watchdogTimeout", 60,
+		"watchdog timeout in seconds; 0 disables the watchdog")
 
 	flag.Parse()
 
@@ -814,6 +822,6 @@ func main() {
     if *write {
 		writeMain(bufio.NewWriter(os.Stdout))
 	} else {
-		readMain(*test)
+		readMain(*test, time.Duration(*watchDogTimeout)*time.Second)
 	}
 }

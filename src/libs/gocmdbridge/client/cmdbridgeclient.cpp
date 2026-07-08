@@ -5,6 +5,7 @@
 
 #include "cmdbridgetr.h"
 
+#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronizedvalue.h>
 
@@ -344,10 +345,16 @@ Result<> Client::start(bool deleteOnExit)
     QMetaObject::invokeMethod(
         d->process,
         [this, deleteOnExit]() -> Result<> {
+            QStringList args;
             if (deleteOnExit)
-                d->process->setCommand({d->remoteCmdBridgePath, {"-deleteOnStart"}});
-            else
-                d->process->setCommand({d->remoteCmdBridgePath, {}});
+                args << "-deleteOnStart";
+            // Allow overriding the server-side watchdog timeout for debugging.
+            // A value of 0 disables the watchdog entirely.
+            const QString watchdogTimeout
+                = Utils::qtcEnvironmentVariable("QTC_CMDBRIDGE_WATCHDOG_TIMEOUT");
+            if (!watchdogTimeout.isEmpty())
+                args << "-watchdogTimeout" << watchdogTimeout;
+            d->process->setCommand({d->remoteCmdBridgePath, args});
             d->process->setEnvironment(d->environment);
             d->process->setProcessMode(ProcessMode::Writer);
             d->process->setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
