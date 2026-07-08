@@ -82,6 +82,11 @@ QWidget *ICodeStylePreferencesFactory::createValueEditor(ICodeStylePreferences *
     return m_valueEditorCreator ? m_valueEditorCreator(codeStyle) : nullptr;
 }
 
+bool ICodeStylePreferencesFactory::valueEditorHasPreview() const
+{
+    return m_valueEditorHasPreview;
+}
+
 void ICodeStylePreferencesFactory::setDisplayName(const QString &displayName)
 {
     m_displayName = displayName;
@@ -115,6 +120,11 @@ void ICodeStylePreferencesFactory::setSettingsEditorCreator(const SettingsEditor
 void ICodeStylePreferencesFactory::setValueEditorCreator(const ValueEditorCreator &creator)
 {
     m_valueEditorCreator = creator;
+}
+
+void ICodeStylePreferencesFactory::setValueEditorHasPreview(bool hasPreview)
+{
+    m_valueEditorHasPreview = hasPreview;
 }
 
 void ICodeStylePreferencesFactory::setProjectEditorCreator(const ProjectEditorCreator &creator)

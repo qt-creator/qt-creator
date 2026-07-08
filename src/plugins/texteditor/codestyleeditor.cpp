@@ -227,8 +227,9 @@ CodeStyleAspect::CodeStyleAspect(ICodeStylePreferences *codeStyle, Id languageId
             selector->setCodeStyle(m_pageCodeStyle);
             Utils::installMarkSettingsDirtyTriggerRecursively(selector);
 
-            QWidget *preview = createCodeStylePreview(factory, {}, m_pageCodeStyle);
-            return Column { selector, valueEditor, preview };
+            if (factory->valueEditorHasPreview())
+                return Column { selector, valueEditor };
+            return Column { selector, valueEditor, createCodeStylePreview(factory, {}, m_pageCodeStyle) };
         }
 
         m_editor = factory->createSettingsEditor(m_pageCodeStyle);

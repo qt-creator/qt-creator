@@ -57,6 +57,9 @@ public:
     // hosting CodeStyleAspect. Returns nullptr for languages that instead
     // supply a full settings editor via setSettingsEditorCreator().
     QWidget *createValueEditor(ICodeStylePreferences *codeStyle) const;
+    // Whether the value editor already contains its own preview, so the hosting
+    // CodeStyleAspect should not add the standard one below it.
+    bool valueEditorHasPreview() const;
     CodeStyleEditor *createProjectEditor(const Utils::FilePath &projectFile,
                                          ICodeStylePreferences *codeStyle) const;
 
@@ -67,6 +70,7 @@ public:
     void setCodeStyleCreator(const CodeStyleCreator &creator);
     void setSettingsEditorCreator(const SettingsEditorCreator &creator);
     void setValueEditorCreator(const ValueEditorCreator &creator);
+    void setValueEditorHasPreview(bool hasPreview);
     void setProjectEditorCreator(const ProjectEditorCreator &creator);
 
     // Builds and owns the language's code style pool and its editable global
@@ -90,6 +94,7 @@ private:
     CodeStyleCreator m_codeStyleCreator;
     SettingsEditorCreator m_settingsEditorCreator;
     ValueEditorCreator m_valueEditorCreator;
+    bool m_valueEditorHasPreview = false;
     ProjectEditorCreator m_projectEditorCreator;
     std::function<void(CodeStylePool *)> m_builtInCodeStyles;
     QByteArray m_globalCodeStyleId;
