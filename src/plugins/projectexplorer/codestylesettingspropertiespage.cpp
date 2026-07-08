@@ -11,7 +11,6 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <texteditor/icodestylepreferencesfactory.h>
-#include <texteditor/codestyleeditor.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -34,7 +33,7 @@ public:
         for (ICodeStylePreferencesFactory *factory : codeStyleFactories()) {
             Utils::Id languageId = factory->languageId();
             ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
-            CodeStyleEditor *preview = factory->createProjectEditor(
+            QWidget *preview = factory->createProjectEditor(
                 project->projectFilePath(), codeStylePreferences);
             if (preview && preview->layout())
                 preview->layout()->setContentsMargins(QMargins());

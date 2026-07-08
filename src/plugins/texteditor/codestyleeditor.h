@@ -12,6 +12,7 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
+class QLabel;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
@@ -57,6 +58,23 @@ protected:
 private:
     QVBoxLayout *m_layout = nullptr;
 };
+
+// Creates a snippet preview editor bound to codeStyle: decorated with the
+// factory's snippet group, filled with its preview text, and re-indented live
+// by the factory's indenter as the style changes. Pass a project file for a
+// per-project preview, or an empty path for the global one.
+TEXTEDITOR_EXPORT SnippetEditorWidget *createCodeStylePreview(
+    const ICodeStylePreferencesFactory *factory,
+    const Utils::FilePath &projectFile,
+    ICodeStylePreferences *codeStyle,
+    QWidget *parent = nullptr);
+
+// The standard explanatory note shown beneath a code style preview.
+TEXTEDITOR_EXPORT QLabel *createCodeStylePreviewNote();
+
+// The "take effect immediately" hint, for the per-project code style pages
+// (which apply live). Global pages defer to Apply/OK and must not use it.
+TEXTEDITOR_EXPORT QWidget *createTakeEffectImmediatelyLabel();
 
 // Reusable settings-page container for editing an ICodeStylePreferences with
 // deferred apply/cancel. A page-local copy of the style is its volatile state;

@@ -115,7 +115,10 @@ QWidget *CodeStyleEditor::setupPreview(SnippetEditorWidget *preview, Indenter *i
     return label;
 }
 
-class CodeStyleProjectPreviewEditor final : public CodeStyleEditor
+// The default per-project code style editor: a style selector above a live
+// preview. Changes apply immediately to the project's code style, so there is
+// no apply/cancel here.
+class CodeStyleProjectPreviewEditor final : public QWidget
 {
 public:
     CodeStyleProjectPreviewEditor(
@@ -125,22 +128,22 @@ public:
         : m_selector{projectFile, this}
     {
         m_selector.setCodeStyle(codeStyle);
-        addSelector(&m_selector);
 
-        DisplaySettingsData displaySettings = m_preview.displaySettings();
-        displaySettings.m_visualizeWhitespace = true;
-        m_preview.setDisplaySettings(displaySettings);
-        SnippetProvider::decorateEditor(&m_preview, factory->snippetGroupId());
-        m_preview.setPlainText(factory->previewText());
-        setupPreview(&m_preview, factory->createIndenter(m_preview.document()), projectFile, codeStyle);
+        using namespace Layouting;
+        Column {
+            &m_selector,
+            createTakeEffectImmediatelyLabel(),
+            createCodeStylePreview(factory, projectFile, codeStyle),
+            createCodeStylePreviewNote(),
+            noMargin,
+        }.attachTo(this);
     }
 
 private:
     CodeStyleSelectorWidget m_selector;
-    SnippetEditorWidget m_preview;
 };
 
-CodeStyleEditor *ICodeStylePreferencesFactory::createProjectEditor(
+QWidget *ICodeStylePreferencesFactory::createProjectEditor(
     const FilePath &projectFile, ICodeStylePreferences *codeStyle) const
 {
     if (m_projectEditorCreator)
@@ -148,15 +151,12 @@ CodeStyleEditor *ICodeStylePreferencesFactory::createProjectEditor(
     return new CodeStyleProjectPreviewEditor{this, projectFile, codeStyle};
 }
 
-// Builds the live snippet preview shown below a code style editor: a decorated
-// snippet editor plus the explanatory label, in a column. The preview follows
-// codeStyle's current settings; the connections are owned by the preview so
-// they live exactly as long as it does.
-static QWidget *createCodeStylePreview(const ICodeStylePreferencesFactory *factory,
-                                       const FilePath &projectFile,
-                                       ICodeStylePreferences *codeStyle)
+SnippetEditorWidget *createCodeStylePreview(const ICodeStylePreferencesFactory *factory,
+                                            const FilePath &projectFile,
+                                            ICodeStylePreferences *codeStyle,
+                                            QWidget *parent)
 {
-    auto preview = new SnippetEditorWidget;
+    auto preview = new SnippetEditorWidget(parent);
     DisplaySettingsData displaySettings = preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     preview->setDisplaySettings(displaySettings);
@@ -194,6 +194,11 @@ static QWidget *createCodeStylePreview(const ICodeStylePreferencesFactory *facto
                      preview, updatePreview);
     updatePreview();
 
+    return preview;
+}
+
+QLabel *createCodeStylePreviewNote()
+{
     auto label = new QLabel(
         Tr::tr("Edit preview contents to see how the current settings "
                "are applied to custom code snippets. Changes in the preview "
@@ -202,9 +207,21 @@ static QWidget *createCodeStylePreview(const ICodeStylePreferencesFactory *facto
     font.setItalic(true);
     label->setFont(font);
     label->setWordWrap(true);
+    return label;
+}
 
-    using namespace Layouting;
-    return Column { preview, label, noMargin }.emerge();
+QWidget *createTakeEffectImmediatelyLabel()
+{
+    auto infoLabel = new InfoLabel(Tr::tr("All changes below take effect immediately."),
+                                   InfoLabelType::Information);
+    infoLabel->setFilled(true);
+    // Wrap in a plain container: InfoLabel uses its own contentsMargins to place
+    // its icon, so callers indent the container instead of the label itself.
+    auto container = new QWidget;
+    auto layout = new QVBoxLayout(container);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(infoLabel);
+    return container;
 }
 
 CodeStyleAspect::CodeStyleAspect(ICodeStylePreferences *codeStyle, Id languageId)
@@ -229,7 +246,12 @@ CodeStyleAspect::CodeStyleAspect(ICodeStylePreferences *codeStyle, Id languageId
 
             if (factory->valueEditorHasPreview())
                 return Column { selector, valueEditor };
-            return Column { selector, valueEditor, createCodeStylePreview(factory, {}, m_pageCodeStyle) };
+            return Column {
+                selector,
+                valueEditor,
+                createCodeStylePreview(factory, {}, m_pageCodeStyle),
+                createCodeStylePreviewNote(),
+            };
         }
 
         m_editor = factory->createSettingsEditor(m_pageCodeStyle);

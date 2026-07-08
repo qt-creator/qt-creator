@@ -39,7 +39,7 @@ public:
     using SettingsEditorCreator = std::function<CodeStyleEditor *(ICodeStylePreferences *)>;
     using ValueEditorCreator = std::function<QWidget *(ICodeStylePreferences *)>;
     using ProjectEditorCreator
-        = std::function<CodeStyleEditor *(const Utils::FilePath &, ICodeStylePreferences *)>;
+        = std::function<QWidget *(const Utils::FilePath &, ICodeStylePreferences *)>;
 
     explicit ICodeStylePreferencesFactory(Utils::Id languageId = {});
     virtual ~ICodeStylePreferencesFactory();
@@ -60,8 +60,8 @@ public:
     // Whether the value editor already contains its own preview, so the hosting
     // CodeStyleAspect should not add the standard one below it.
     bool valueEditorHasPreview() const;
-    CodeStyleEditor *createProjectEditor(const Utils::FilePath &projectFile,
-                                         ICodeStylePreferences *codeStyle) const;
+    QWidget *createProjectEditor(const Utils::FilePath &projectFile,
+                                 ICodeStylePreferences *codeStyle) const;
 
     void setDisplayName(const QString &displayName);
     void setSnippetGroupId(const QString &snippetGroupId);
