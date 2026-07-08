@@ -143,6 +143,44 @@ private:
     ICodeStylePreferences m_builtin;
 };
 
+const char VALUE_TEST_LANGUAGE_ID[] = "TextEditor.CodeStyleAspectTest.Value";
+
+// A value editor (the option C style): just the widgets editing the
+// preferences live. The hosting CodeStyleAspect builds the selector and preview
+// and owns the deferral and dirtiness, so the value editor has no
+// apply/cancel/isDirty of its own.
+class ValueTestCodeStyleWidget final : public QWidget
+{
+public:
+    explicit ValueTestCodeStyleWidget(ICodeStylePreferences *codeStyle)
+    {
+        m_tabSettings.setPreferences(codeStyle);
+        Layouting::Column{&m_tabSettings}.attachTo(this);
+    }
+
+private:
+    TabSettings m_tabSettings;
+};
+
+class ValueTestCodeStyleFactory final : public ICodeStylePreferencesFactory
+{
+public:
+    ValueTestCodeStyleFactory()
+        : ICodeStylePreferencesFactory(VALUE_TEST_LANGUAGE_ID)
+    {
+        setDisplayName(QString("Value Test"));
+        setIndenterCreator([](QTextDocument *doc) { return new PlainTextIndenter(doc); });
+        setCodeStyleCreator([] {
+            auto prefs = new ICodeStylePreferences;
+            prefs->setSettingsSuffix("ValueTestCodeStyle");
+            return prefs;
+        });
+        setValueEditorCreator([](ICodeStylePreferences *codeStyle) {
+            return new ValueTestCodeStyleWidget(codeStyle);
+        });
+    }
+};
+
 class CodeStyleAspectTest final : public QObject
 {
     Q_OBJECT
@@ -245,6 +283,40 @@ private slots:
         tabSize->setValue(13);
 
         QVERIFY(aspect.isDirty());
+        QCOMPARE(codeStyle.tabSettings().m_tabSize, 11);
+
+        aspect.apply();
+        QCOMPARE(codeStyle.tabSettings().m_tabSize, 13);
+        QVERIFY(!aspect.isDirty());
+
+        tabSize->setValue(17);
+        QVERIFY(aspect.isDirty());
+        aspect.cancel();
+        QVERIFY(!aspect.isDirty());
+        QCOMPARE(codeStyle.tabSettings().m_tabSize, 13);
+    }
+
+    // The option C path: the language supplies only a value editor, and the
+    // CodeStyleAspect builds the selector and preview around it. Behaves like
+    // the live-write editor: edits mark dirty, apply commits, cancel reverts.
+    void testValueEditor()
+    {
+        ValueTestCodeStyleFactory factory;
+        ICodeStylePreferences codeStyle;
+        codeStyle.setTabSettings(makeTabSettings(11, 7));
+
+        CodeStyleAspect aspect(&codeStyle, VALUE_TEST_LANGUAGE_ID);
+        QWidget host;
+        aspect.layouter()().attachTo(&host);
+
+        QVERIFY(!aspect.isDirty());
+
+        QSpinBox *tabSize = spinBoxWithValue(&host, 11);
+        QVERIFY(tabSize);
+        tabSize->setValue(13);
+
+        QVERIFY(aspect.isDirty());
+        // The edit went into the page-local copy, not the real style.
         QCOMPARE(codeStyle.tabSettings().m_tabSize, 11);
 
         aspect.apply();

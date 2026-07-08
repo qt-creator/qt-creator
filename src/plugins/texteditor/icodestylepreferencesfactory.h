@@ -15,6 +15,7 @@ QT_BEGIN_NAMESPACE
 template <typename Key, typename T>
 class QMap;
 class QTextDocument;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
@@ -36,6 +37,7 @@ public:
     using IndenterCreator = std::function<Indenter *(QTextDocument *)>;
     using CodeStyleCreator = std::function<ICodeStylePreferences *()>;
     using SettingsEditorCreator = std::function<CodeStyleEditor *(ICodeStylePreferences *)>;
+    using ValueEditorCreator = std::function<QWidget *(ICodeStylePreferences *)>;
     using ProjectEditorCreator
         = std::function<CodeStyleEditor *(const Utils::FilePath &, ICodeStylePreferences *)>;
 
@@ -50,6 +52,11 @@ public:
     Indenter *createIndenter(QTextDocument *doc) const;
     ICodeStylePreferences *createCodeStyle() const;
     CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const;
+    // The language's value editor: just the widgets that edit codeStyle's own
+    // settings, editing it live. The selector and preview are provided by the
+    // hosting CodeStyleAspect. Returns nullptr for languages that instead
+    // supply a full settings editor via setSettingsEditorCreator().
+    QWidget *createValueEditor(ICodeStylePreferences *codeStyle) const;
     CodeStyleEditor *createProjectEditor(const Utils::FilePath &projectFile,
                                          ICodeStylePreferences *codeStyle) const;
 
@@ -59,6 +66,7 @@ public:
     void setIndenterCreator(const IndenterCreator &creator);
     void setCodeStyleCreator(const CodeStyleCreator &creator);
     void setSettingsEditorCreator(const SettingsEditorCreator &creator);
+    void setValueEditorCreator(const ValueEditorCreator &creator);
     void setProjectEditorCreator(const ProjectEditorCreator &creator);
 
     // Builds and owns the language's code style pool and its editable global
@@ -81,6 +89,7 @@ private:
     IndenterCreator m_indenterCreator;
     CodeStyleCreator m_codeStyleCreator;
     SettingsEditorCreator m_settingsEditorCreator;
+    ValueEditorCreator m_valueEditorCreator;
     ProjectEditorCreator m_projectEditorCreator;
     std::function<void(CodeStylePool *)> m_builtInCodeStyles;
     QByteArray m_globalCodeStyleId;

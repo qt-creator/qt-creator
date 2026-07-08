@@ -148,36 +148,122 @@ CodeStyleEditor *ICodeStylePreferencesFactory::createProjectEditor(
     return new CodeStyleProjectPreviewEditor{this, projectFile, codeStyle};
 }
 
+// Builds the live snippet preview shown below a code style editor: a decorated
+// snippet editor plus the explanatory label, in a column. The preview follows
+// codeStyle's current settings; the connections are owned by the preview so
+// they live exactly as long as it does.
+static QWidget *createCodeStylePreview(const ICodeStylePreferencesFactory *factory,
+                                       const FilePath &projectFile,
+                                       ICodeStylePreferences *codeStyle)
+{
+    auto preview = new SnippetEditorWidget;
+    DisplaySettingsData displaySettings = preview->displaySettings();
+    displaySettings.m_visualizeWhitespace = true;
+    preview->setDisplaySettings(displaySettings);
+    SnippetProvider::decorateEditor(preview, factory->snippetGroupId());
+    preview->setPlainText(factory->previewText());
+
+    Indenter *indenter = factory->createIndenter(preview->document());
+    indenter->setOverriddenPreferences(codeStyle);
+    const FilePath fileName = !projectFile.isEmpty()
+        ? projectFile.pathAppended("snippet.cpp")
+        : Core::ICore::userResourcePath("snippet.cpp");
+    indenter->setFileName(fileName);
+    preview->textDocument()->setIndenter(indenter);
+
+    const auto updatePreview = [preview, codeStyle] {
+        QTextDocument *doc = preview->document();
+        preview->textDocument()->indenter()->invalidateCache();
+        QTextBlock block = doc->firstBlock();
+        QTextCursor tc = preview->textCursor();
+        tc.beginEditBlock();
+        while (block.isValid()) {
+            preview->textDocument()
+                ->indenter()
+                ->indentBlock(block, QChar::Null, codeStyle->currentTabSettings());
+            block = block.next();
+        }
+        tc.endEditBlock();
+    };
+
+    QObject::connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged,
+                     preview, updatePreview);
+    QObject::connect(codeStyle, &ICodeStylePreferences::currentValueChanged,
+                     preview, updatePreview);
+    QObject::connect(codeStyle, &ICodeStylePreferences::currentPreferencesChanged,
+                     preview, updatePreview);
+    updatePreview();
+
+    auto label = new QLabel(
+        Tr::tr("Edit preview contents to see how the current settings "
+               "are applied to custom code snippets. Changes in the preview "
+               "do not affect the current settings."));
+    QFont font = label->font();
+    font.setItalic(true);
+    label->setFont(font);
+    label->setWordWrap(true);
+
+    using namespace Layouting;
+    return Column { preview, label, noMargin }.emerge();
+}
+
 CodeStyleAspect::CodeStyleAspect(ICodeStylePreferences *codeStyle, Id languageId)
     : m_codeStyle(codeStyle)
     , m_languageId(languageId)
 {
     setLayouter([this] {
         ICodeStylePreferencesFactory *factory = codeStyleFactory(m_languageId);
-        if (!m_pagePool) {
-            // A transient, page-local pool holding editable copies of the real
-            // pool's styles, so that selecting, editing, adding and removing
-            // styles on the page is all deferred until apply().
-            m_pagePool = new CodeStylePool(factory);
-            m_pagePool->setTransient(true);
-
-            m_pageCodeStyle = factory->createCodeStyle();
-            m_pageCodeStyle->setDelegatingPool(m_pagePool);
-            // Share the real style's id so it cannot be picked as its own delegate.
-            m_pageCodeStyle->setId(m_codeStyle->id());
-            connect(m_pageCodeStyle, &ICodeStylePreferences::currentDelegateChanged, this, [this] {
-                if (!m_syncing)
-                    emit volatileValueChanged();
-            });
-        }
+        ensurePageCopy(factory);
         syncFromReal();
+
+        using namespace Layouting;
+
+        if (QWidget *valueEditor = factory->createValueEditor(m_pageCodeStyle)) {
+            // The language supplies only its value editor; the common selector
+            // and preview are built here. Edits go live into the page-local
+            // copy, and dirtiness/apply/cancel are handled by this aspect
+            // against the real style.
+            auto selector = new CodeStyleSelectorWidget({});
+            selector->setCodeStyle(m_pageCodeStyle);
+            Utils::installMarkSettingsDirtyTriggerRecursively(selector);
+
+            QWidget *preview = createCodeStylePreview(factory, {}, m_pageCodeStyle);
+            return Column { selector, valueEditor, preview };
+        }
 
         m_editor = factory->createSettingsEditor(m_pageCodeStyle);
         connect(m_editor, &CodeStyleEditor::changed, this, [this] { emit volatileValueChanged(); });
-
-        using namespace Layouting;
         return Column { m_editor.data() };
     });
+}
+
+void CodeStyleAspect::ensurePageCopy(ICodeStylePreferencesFactory *factory)
+{
+    if (m_pagePool)
+        return;
+
+    // A transient, page-local pool holding editable copies of the real pool's
+    // styles, so that selecting, editing, adding and removing styles on the
+    // page is all deferred until apply().
+    m_pagePool = new CodeStylePool(factory);
+    m_pagePool->setTransient(true);
+
+    m_pageCodeStyle = factory->createCodeStyle();
+    m_pageCodeStyle->setDelegatingPool(m_pagePool);
+    // Share the real style's id so it cannot be picked as its own delegate.
+    m_pageCodeStyle->setId(m_codeStyle->id());
+
+    // Any live edit through the value editor or the selector lands in the page
+    // copy; reflect it in this aspect's dirtiness. Guarded so the mirroring
+    // done by syncFromReal() does not count as a user edit.
+    const auto notify = [this] {
+        if (!m_syncing)
+            emit volatileValueChanged();
+    };
+    connect(m_pageCodeStyle, &ICodeStylePreferences::currentDelegateChanged, this, notify);
+    connect(m_pageCodeStyle, &ICodeStylePreferences::currentValueChanged, this, notify);
+    connect(m_pageCodeStyle, &ICodeStylePreferences::currentTabSettingsChanged, this, notify);
+    connect(m_pageCodeStyle, &ICodeStylePreferences::currentPreferencesChanged, this, notify);
 }
 
 CodeStyleAspect::~CodeStyleAspect()
@@ -204,7 +290,11 @@ ICodeStylePreferences *CodeStyleAspect::addPageCopy(ICodeStylePreferences *realS
 
 void CodeStyleAspect::apply()
 {
-    // Flush the editor's pending edits into the page-local copies.
+    // Nothing to commit until the page has been shown at least once.
+    if (!m_pageCodeStyle)
+        return;
+
+    // Flush the hosted editor's own pending edits.
     if (m_editor)
         m_editor->apply();
 
@@ -277,6 +367,8 @@ void CodeStyleAspect::apply()
 
 void CodeStyleAspect::cancel()
 {
+    if (!m_pageCodeStyle)
+        return;
     if (m_editor)
         m_editor->cancel();
     syncFromReal();
@@ -284,10 +376,10 @@ void CodeStyleAspect::cancel()
 
 bool CodeStyleAspect::isDirty() const
 {
-    // Guard on m_editor: until the page is shown the copy is not yet synced.
-    if (!m_editor)
+    // Guard on the page copy: until the page is shown it is not yet synced.
+    if (!m_pageCodeStyle)
         return false;
-    if (m_editor->isDirty())
+    if (m_editor && m_editor->isDirty())
         return true;
     if (m_codeStyle->value() != m_pageCodeStyle->value()
         || m_codeStyle->tabSettings() != m_pageCodeStyle->tabSettings()) {

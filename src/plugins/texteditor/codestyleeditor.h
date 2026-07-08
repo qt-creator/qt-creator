@@ -21,6 +21,7 @@ namespace TextEditor {
 class CodeStylePool;
 class CodeStyleSelectorWidget;
 class ICodeStylePreferences;
+class ICodeStylePreferencesFactory;
 class Indenter;
 class SnippetEditorWidget;
 
@@ -72,6 +73,7 @@ public:
     bool isDirty() const override;
 
 private:
+    void ensurePageCopy(ICodeStylePreferencesFactory *factory);
     void syncFromReal();
     bool poolsDiffer() const;
     ICodeStylePreferences *addPageCopy(ICodeStylePreferences *realStyle);
