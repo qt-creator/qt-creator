@@ -10,6 +10,14 @@ Whenever you modify a `CMakeLists.txt` file, also update the corresponding `.qbs
 
 Commit message titles must not exceed 72 characters, and commit message body lines must not exceed 80 characters.
 
+Commit messages should follow this structure:
+1. A short title summarizing the change
+2. A brief description of what was changed and why, if not clear from the title or code diff
+3. Detailed explanation only when necessary
+
+When a commit addresses Coverity diagnostics, include the Coverity IDs in a
+Coverity-Id footer.
+
 ## UI design rules
 
 - Use `Utils::creatorColor()` or `QPalette::color()` for `QColor`. No hard-coded colors, no alpha-blended text.
