@@ -2704,6 +2704,14 @@ void FakeVimTester::test_vim_copy_paste()
     data.setText("abc" N "def");
     KEYS("Vyp", "abc" N X "abc" N "def");
 
+    // Visual line mode covers the whole logical line regardless of the cursor
+    // column, so "Y" started mid-line still yanks the entire line and "d"
+    // deletes all of it (QTCREATORBUG-16713).
+    data.setText("abc def" N "ghi");
+    KEYS("wVYp", "abc def" N X "abc def" N "ghi");
+    data.setText("abc def" N "ghi");
+    KEYS("wVd", X "ghi");
+
     // cursor position after yank
     data.setText("ab" X "c" N "def");
     KEYS("Vjy", X "abc" N "def");
