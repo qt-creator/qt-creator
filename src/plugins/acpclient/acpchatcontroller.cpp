@@ -92,6 +92,8 @@ void AcpChatController::connectToServer(const QString &serverId)
 
     connect(m_permissionHandler, &AcpPermissionHandler::permissionRequested,
             this, &AcpChatController::permissionRequested);
+    connect(m_permissionHandler, &AcpPermissionHandler::permissionCancelledByAgent,
+            this, &AcpChatController::permissionCancelledByAgent);
 
     connect(m_client, &AcpClientObject::stateChanged,
             this, &AcpChatController::connectionStateChanged);

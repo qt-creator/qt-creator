@@ -25,6 +25,7 @@ AcpClientObject::AcpClientObject(AcpTransport *transport, QObject *parent)
     });
     connect(m_transport, &AcpTransport::finished, this, [this] {
         m_pendingRequests.clear();
+        m_pendingIncomingRequestIds.clear();
         setState(State::Disconnected);
     });
     connect(m_transport, &AcpTransport::errorOccurred, this, &AcpClientObject::errorOccurred);
@@ -103,8 +104,20 @@ void AcpClientObject::setSessionConfigOption(const SetSessionConfigOptionRequest
     sendRequest(QStringLiteral("session/set_config_option"), Acp::toJson(request), callback);
 }
 
+void AcpClientObject::cancelRequest(qint64 requestId)
+{
+    CancelRequestNotification notification;
+    notification.requestId(RequestId(static_cast<int>(requestId)));
+    sendNotification(QStringLiteral("$/cancel_request"), Acp::toJson(notification));
+}
+
 void AcpClientObject::sendResponse(const QJsonValue &id, const QJsonObject &result)
 {
+    if (!m_pendingIncomingRequestIds.removeOne(id)) {
+        qCWarning(logClient) << "Ignoring response for unknown or already completed request id:" << id;
+        return;
+    }
+
     QJsonObject message;
     message[QLatin1String("jsonrpc")] = QStringLiteral("2.0");
     message[QLatin1String("id")] = id;
@@ -116,6 +129,11 @@ void AcpClientObject::sendResponse(const QJsonValue &id, const QJsonObject &resu
 
 void AcpClientObject::sendErrorResponse(const QJsonValue &id, int code, const QString &message)
 {
+    if (!m_pendingIncomingRequestIds.removeOne(id)) {
+        qCWarning(logClient) << "Ignoring error response for unknown or already completed request id:" << id;
+        return;
+    }
+
     Acp::Error error;
     error.code(code);
     error.message(message);
@@ -161,6 +179,8 @@ void AcpClientObject::handleRequest(const QJsonValue &id, const QString &method,
 {
     qCDebug(logClient) << "Agent request:" << method;
 
+    m_pendingIncomingRequestIds.append(id);
+
     const QJsonValue paramsVal(params);
 
     auto dispatch = [&]<typename T>(auto signal) {
@@ -204,6 +224,19 @@ void AcpClientObject::handleNotification(const QString &method, const QJsonObjec
             emit sessionUpdate(notif->sessionId(), notif->update());
         else
             qCWarning(logClient) << "Invalid session notification:" << params;
+    } else if (method == QLatin1String("$/cancel_request")) {
+        auto notif = fromJson<CancelRequestNotification>(QJsonValue(params));
+        if (!notif) {
+            qCWarning(logClient) << "Invalid cancel request notification:" << params;
+            return;
+        }
+        const QJsonValue id = toJsonValue(notif->requestId());
+        if (m_pendingIncomingRequestIds.contains(id)) {
+            emit requestCancelled(id);
+            sendErrorResponse(id, ErrorCode::Request_cancelled, QStringLiteral("Request cancelled by agent"));
+        } else {
+            qCDebug(logClient) << "Cancel request for unknown or already completed id:" << id;
+        }
     } else {
         qCWarning(logClient) << "Unknown notification method:" << method;
     }

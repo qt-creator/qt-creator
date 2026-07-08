@@ -7,6 +7,8 @@
 
 #include <QHash>
 #include <QJsonValue>
+#include <QList>
+#include <QPair>
 #include <QScrollArea>
 
 QT_BEGIN_NAMESPACE
@@ -53,6 +55,7 @@ public:
 
     void addPermissionRequest(const QJsonValue &id,
                               const Acp::RequestPermissionRequest &request);
+    void cancelPermissionRequest(const QJsonValue &id);
 
     void addAuthenticationRequest(const QList<Acp::AuthMethod> &methods);
     void showAuthenticationError(const QString &error);
@@ -89,6 +92,7 @@ private:
     bool m_thoughtsVisible = true;
     ToolCallGroupWidget *m_currentToolCallGroup = nullptr;
     QHash<QString, ToolCallDetailWidget *> m_toolCallDetailWidgets;
+    QList<QPair<QJsonValue, ToolCallDetailWidget *>> m_pendingPermissionRequests;
     QHash<QString, ToolCallGroupWidget *> m_toolCallGroups; // toolCallId -> owning group
     AuthenticationWidget *m_currentAuthWidget = nullptr;
     QString m_agentIconUrl;

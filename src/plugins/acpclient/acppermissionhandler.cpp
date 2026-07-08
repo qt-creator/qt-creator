@@ -18,16 +18,28 @@ AcpPermissionHandler::AcpPermissionHandler(AcpClientObject *client, QObject *par
 {
     connect(client, &AcpClientObject::requestPermissionRequested,
             this, &AcpPermissionHandler::handleRequestPermission);
+    connect(client, &AcpClientObject::requestCancelled,
+            this, &AcpPermissionHandler::handleRequestCancelled);
 }
 
 void AcpPermissionHandler::handleRequestPermission(const QJsonValue &id, const RequestPermissionRequest &request)
 {
     qCDebug(logPermission) << "Permission request for tool call:" << request.toolCall().toolCallId();
+    m_pendingIds.append(id);
     emit permissionRequested(id, request);
+}
+
+void AcpPermissionHandler::handleRequestCancelled(const QJsonValue &id)
+{
+    if (!m_pendingIds.removeOne(id))
+        return;
+    qCDebug(logPermission) << "Permission request cancelled by agent:" << id;
+    emit permissionCancelledByAgent(id);
 }
 
 void AcpPermissionHandler::sendPermissionResponse(const QJsonValue &id, const QString &selectedOptionId)
 {
+    m_pendingIds.removeOne(id);
     RequestPermissionResponse response;
     SelectedPermissionOutcome sel;
     sel.optionId(selectedOptionId);
@@ -40,6 +52,7 @@ void AcpPermissionHandler::sendPermissionResponse(const QJsonValue &id, const QS
 
 void AcpPermissionHandler::sendPermissionCancelled(const QJsonValue &id)
 {
+    m_pendingIds.removeOne(id);
     RequestPermissionResponse response;
     RequestPermissionOutcome outcome;
     outcome._value = std::monostate{};

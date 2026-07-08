@@ -6,6 +6,8 @@
 #include <acp/acp.h>
 
 #include <QHash>
+#include <QJsonValue>
+#include <QList>
 #include <QObject>
 
 #include <functional>
@@ -49,6 +51,7 @@ public:
     void cancelSession(const Acp::CancelNotification &notification);
     void setSessionMode(const Acp::SetSessionModeRequest &request, ResponseCallback callback = {});
     void setSessionConfigOption(const Acp::SetSessionConfigOptionRequest &request, ResponseCallback callback = {});
+    void cancelRequest(qint64 requestId);
 
     // Respond to incoming agent requests (QJsonValue carries the raw JSON-RPC id)
     void sendResponse(const QJsonValue &id, const QJsonObject &result);
@@ -71,6 +74,9 @@ signals:
     void writeTextFileRequested(const QJsonValue &id, const Acp::WriteTextFileRequest &request);
     void requestPermissionRequested(const QJsonValue &id, const Acp::RequestPermissionRequest &request);
 
+    // Emitted when the agent cancels one of its own pending requests to the client.
+    void requestCancelled(const QJsonValue &id);
+
     void errorOccurred(const QString &message);
 
 private:
@@ -88,6 +94,7 @@ private:
     State m_state = State::Disconnected;
     qint64 m_nextId = 1;
     QHash<qint64, ResponseCallback> m_pendingRequests;
+    QList<QJsonValue> m_pendingIncomingRequestIds;
 };
 
 } // namespace AcpClient::Internal

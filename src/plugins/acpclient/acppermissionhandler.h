@@ -6,6 +6,7 @@
 #include <acp/acp.h>
 
 #include <QJsonValue>
+#include <QList>
 #include <QObject>
 
 namespace AcpClient::Internal {
@@ -24,11 +25,14 @@ public:
 
 signals:
     void permissionRequested(const QJsonValue &id, const Acp::RequestPermissionRequest &request);
+    void permissionCancelledByAgent(const QJsonValue &id);
 
 private:
     void handleRequestPermission(const QJsonValue &id, const Acp::RequestPermissionRequest &request);
+    void handleRequestCancelled(const QJsonValue &id);
 
     AcpClientObject *m_client;
+    QList<QJsonValue> m_pendingIds;
 };
 
 } // namespace AcpClient::Internal

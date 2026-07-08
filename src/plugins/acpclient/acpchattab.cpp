@@ -417,6 +417,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_controller, &AcpChatController::sendPermissionResponse);
     connect(m_chatPanel, &ChatPanel::permissionCancelled,
             m_controller, &AcpChatController::sendPermissionCancelled);
+    connect(m_controller, &AcpChatController::permissionCancelledByAgent,
+            m_chatPanel, &ChatPanel::cancelPermissionRequest);
 
     connect(m_controller, &AcpChatController::sessionSelectionRequired, this, [this] {
         m_chatPanel->clear();

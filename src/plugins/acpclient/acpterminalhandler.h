@@ -40,6 +40,7 @@ private:
     void handleWaitForExit(const QJsonValue &id, const Acp::WaitForTerminalExitRequest &request);
     void handleKill(const QJsonValue &id, const Acp::KillTerminalRequest &request);
     void handleRelease(const QJsonValue &id, const Acp::ReleaseTerminalRequest &request);
+    void handleRequestCancelled(const QJsonValue &id);
 
     void sendWaitResponse(const QJsonValue &id, const TerminalInfo &info);
 

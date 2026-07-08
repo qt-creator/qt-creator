@@ -77,6 +77,7 @@ signals:
     void authenticationRequired(const QList<Acp::AuthMethod> &methods);
     void authenticationFailed(const QString &error);
     void permissionRequested(const QJsonValue &id, const Acp::RequestPermissionRequest &request);
+    void permissionCancelledByAgent(const QJsonValue &id);
     void promptFinished();
     void errorOccurred(const QString &error);
 

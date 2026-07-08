@@ -903,6 +903,11 @@ void ChatPanel::addPermissionRequest(const QJsonValue &id,
             this, &ChatPanel::permissionCancelled, Qt::UniqueConnection);
 }
 
+void ChatPanel::cancelPermissionRequest(const QJsonValue &id)
+{
+    m_messageView->cancelPermissionRequest(id);
+}
+
 void ChatPanel::addAuthenticationRequest(const QList<Acp::AuthMethod> &methods)
 {
     m_messageView->addAuthenticationRequest(methods);

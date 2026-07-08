@@ -85,6 +85,7 @@ public:
     void finishAgentMessage();
     void addPermissionRequest(const QJsonValue &id,
                               const Acp::RequestPermissionRequest &request);
+    void cancelPermissionRequest(const QJsonValue &id);
 
     void addAuthenticationRequest(const QList<Acp::AuthMethod> &methods);
     void showAuthenticationError(const QString &error);

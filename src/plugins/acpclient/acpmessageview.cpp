@@ -1111,6 +1111,8 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
         options, Utils::equal(&PermissionOption::kind, PermissionOptionKind::reject_once));
     detail->addPermissionControls(options, /*addDenyFallback=*/!hasRejectOption);
 
+    m_pendingPermissionRequests.append({id, detail});
+
     connect(detail, &ToolCallDetailWidget::permissionOptionSelected, this,
             [this, id, detail, options](const QString &optionId) {
                 const auto it = std::find_if(options.begin(), options.end(),
@@ -1122,13 +1124,28 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
                                           || it->kind() == PermissionOptionKind::allow_always);
                 const QString name = it != options.end() ? it->name() : optionId;
                 detail->resolvePermission(name, accepted);
+                m_pendingPermissionRequests.removeIf(
+                    [&id](const auto &entry) { return entry.first == id; });
                 emit permissionOptionSelected(id, optionId);
             });
     connect(detail, &ToolCallDetailWidget::permissionCancelled, this,
             [this, id, detail] {
                 detail->resolvePermission(Tr::tr("Denied"), false);
+                m_pendingPermissionRequests.removeIf(
+                    [&id](const auto &entry) { return entry.first == id; });
                 emit permissionCancelled(id);
             });
+}
+
+void AcpMessageView::cancelPermissionRequest(const QJsonValue &id)
+{
+    const auto it = std::find_if(m_pendingPermissionRequests.begin(), m_pendingPermissionRequests.end(),
+                                  [&id](const auto &entry) { return entry.first == id; });
+    if (it == m_pendingPermissionRequests.end())
+        return;
+
+    it->second->resolvePermission(Tr::tr("Cancelled"), false);
+    m_pendingPermissionRequests.erase(it);
 }
 
 void AcpMessageView::addAuthenticationRequest(const QList<Acp::AuthMethod> &methods)

@@ -30,6 +30,8 @@ AcpTerminalHandler::AcpTerminalHandler(AcpClientObject *client, QObject *parent)
             this, &AcpTerminalHandler::handleKill);
     connect(client, &AcpClientObject::releaseTerminalRequested,
             this, &AcpTerminalHandler::handleRelease);
+    connect(client, &AcpClientObject::requestCancelled,
+            this, &AcpTerminalHandler::handleRequestCancelled);
 }
 
 AcpTerminalHandler::~AcpTerminalHandler()
@@ -177,6 +179,17 @@ void AcpTerminalHandler::handleRelease(const QJsonValue &id, const ReleaseTermin
 
     ReleaseTerminalResponse response;
     m_client->sendResponse(id, Acp::toJson(response));
+}
+
+void AcpTerminalHandler::handleRequestCancelled(const QJsonValue &id)
+{
+    for (auto it = m_terminals.begin(); it != m_terminals.end(); ++it) {
+        if (!it->waitingId.isUndefined() && !it->waitingId.isNull() && it->waitingId == id) {
+            qCDebug(logTerminal) << "Wait for terminal exit cancelled by agent:" << it.key();
+            it->waitingId = QJsonValue();
+            return;
+        }
+    }
 }
 
 void AcpTerminalHandler::sendWaitResponse(const QJsonValue &id, const TerminalInfo &info)
