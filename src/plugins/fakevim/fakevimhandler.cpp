@@ -7338,7 +7338,11 @@ void FakeVimHandler::Private::moveToNextWord(bool end, int count, bool simple, b
 {
     int repeat = count;
     while (repeat > 0 && !(forward ? atDocumentEnd() : atDocumentStart())) {
-        setPosition(position() + (forward ? 1 : -1));
+        // Move by one code point. movePosition() steps over a surrogate pair
+        // (e.g. an emoji) as a unit, so the position always advances; a raw
+        // "position() + 1" would land inside the pair and stall, spinning
+        // this loop forever (QTCREATORBUG-25873).
+        m_cursor.movePosition(forward ? Right : Left, KeepAnchor);
         moveToBoundary(simple, forward);
         if (atWordBoundary(end, simple) && (emptyLines || !atEmptyLine()) )
             --repeat;
