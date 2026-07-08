@@ -17,8 +17,8 @@
 
 namespace QmlProfiler::Internal {
 
-// Name of the CTF2 data stream class that marks a macOS sampler trace.
-inline constexpr QLatin1StringView samplerStreamName = QLatin1StringView("macos-sampler-stacks");
+// Name of the CTF2 data stream class that marks a call-stack sampler trace.
+inline constexpr QLatin1StringView samplerStreamName = QLatin1StringView("sampler-stacks");
 
 // In-memory representation of one sampling session: every thread's call stack
 // at every sampling tick, plus whether the thread was running at that moment.
