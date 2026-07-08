@@ -249,36 +249,6 @@ static ExecutableItem emulatorNameRecipe(const QString &serialNumber,
     return ProcessTask(onSetup, onDone);
 }
 
-static QString emulatorName(const QString &serialNumber)
-{
-    const QStringList args = adbSelector(serialNumber) << "emu" << "avd" << "name";
-    // Return only the first line, trimmed, so callers can use it directly;
-    // adb's "emu avd name" stdout ends with a trailing newline and an extra "OK" line.
-    return runAdbCommand(args).stdOut.section('\n', 0, 0).trimmed();
-}
-
-static QString getRunningAvdsSerialNumber(const QString &name)
-{
-    const QStringList lines = AndroidConfig::devicesCommandOutput();
-    for (const QString &line : lines) {
-        // skip the daemon logs
-        if (line.startsWith("* daemon"))
-            continue;
-
-        const QString serialNumber = line.left(line.indexOf('\t')).trimmed();
-        if (!serialNumber.startsWith("emulator"))
-            continue;
-
-        const QString avdName = emulatorName(serialNumber);
-        if (avdName.isEmpty())
-            continue; // Not an avd
-
-        if (avdName == name)
-            return serialNumber;
-    }
-    return {};
-}
-
 static FilePath avdFilePath()
 {
     QString avdEnvVar = qtcEnvironmentVariable("ANDROID_AVD_HOME");
@@ -392,7 +362,9 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     formLayout->addRow(Tr::tr("Device name:"), new QLabel(dev->displayName()));
     formLayout->addRow(Tr::tr("Device type:"), new QLabel(dev->deviceTypeName()));
 
-    QPointer<QLabel> serialNumberLabel = new QLabel;
+    const QString serialNumber = dev->serialNumber();
+    auto serialNumberLabel = new QLabel(serialNumber.isEmpty() ? Tr::tr("Unknown")
+                                                               : serialNumber);
     formLayout->addRow(Tr::tr("Serial number:"), serialNumberLabel);
 
     const QString abis = dev->supportedAbis().join(", ");
@@ -417,14 +389,15 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
         formLayout->addRow(Tr::tr("OpenGL status:"), new QLabel(openGlStatus));
     }
 
-    // See QTCREATORBUG-31912 why this needs to be delayed.
-    QTimer::singleShot(0, serialNumberLabel, [serialNumberLabel, dev] {
-        const QString serialNumber = dev->serialNumber(); // This executes a blocking process.
-        const QString printableSerialNumber = serialNumber.isEmpty() ? Tr::tr("Unknown")
-                                                                     : serialNumber;
-        if (serialNumberLabel)
-            serialNumberLabel->setText(printableSerialNumber);
-    });
+    // An emulator gets its serial once it is up, so refresh the label then.
+    connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, serialNumberLabel,
+            [serialNumberLabel, dev](Id updatedId) {
+                if (updatedId != dev->id())
+                    return;
+                const QString serialNumber = dev->serialNumber();
+                serialNumberLabel->setText(serialNumber.isEmpty() ? Tr::tr("Unknown")
+                                                                  : serialNumber);
+            });
 
     installMarkSettingsDirtyTriggerRecursively(this);
 }
@@ -642,13 +615,9 @@ bool AndroidDevice::canHandleDeployments() const
 
 QString AndroidDevice::serialNumber() const
 {
-    const QString serialNumber = extraData(Constants::AndroidSerialNumber).toString();
-    if (!serialNumber.isEmpty() || machineType() == Hardware)
-        return serialNumber;
-    const QString avdSerial = getRunningAvdsSerialNumber(avdName());
-    auto that = const_cast<AndroidDevice *>(this);
-    that->updateSerialNumber(avdSerial);
-    return avdSerial;
+    // Device events write the serial before announcing a state, so the
+    // cache is current; do not fall back to querying adb here.
+    return extraData(Constants::AndroidSerialNumber).toString();
 }
 
 QString AndroidDevice::avdName() const
