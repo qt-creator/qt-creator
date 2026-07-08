@@ -592,7 +592,8 @@ static void reloadDocument(IDocument *doc,
 static void reloadConflictedDocuments(IDocument::ReloadFlag reloadFlag)
 {
     const QList<IDocument *> list = DocumentManager::conflictedDocuments();
-    for (const QPointer<IDocument> &doc : list) {
+    const QList<QPointer<IDocument>> guardedList(list.cbegin(), list.cend());
+    for (const QPointer<IDocument> &doc : guardedList) {
         if (doc) // may have been deleted as a side effect of reloading another document
             reloadDocument(doc, reloadFlag);
     }
