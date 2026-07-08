@@ -53,6 +53,10 @@ static void initAppInfo()
     info.revision = Constants::IDE_REVISION_STR;
     info.revisionUrl = Constants::IDE_REVISION_URL;
     info.resources = resourcePath();
+    // qtprofiler and libexec tools (e.g. perfparser) are installed side by side
+    // (see IDE_LIBEXEC_PATH in src/tools/qtprofiler/CMakeLists.txt), so
+    // ICore::libexecPath() can just resolve relative to our own binary.
+    info.libexec = FilePath::fromUserInput(QApplication::applicationDirPath());
 #ifdef QTC_SHOW_BUILD_DATE
     const auto dateTime = QLatin1String(__DATE__ " " __TIME__);
     info.buildTime = QDateTime::fromString(dateTime, "MMM d yyyy hh:mm:ss");
