@@ -18,15 +18,13 @@ struct HueLookupTable {
 class TRACING_EXPORT TimelineModel::TimelineModelPrivate {
 public:
 
-    static const HueLookupTable hueTable;
     static const int DefaultRowHeight = 30;
 
     // BoxColorProperties
     static const int SelectionIdHueMultiplier = 25;
     static const int FractionHueMultiplier = 96;
     static const int FractionHueMininimum = 10;
-    static const int Saturation = 150;
-    static const int Lightness = 166;
+    static const int Saturation = 130;
 
     struct Range {
         Range() : start(-1), duration(-1), selectionId(-1), parent(-1), endIndex(-1) {}

@@ -6,6 +6,7 @@
 #include "timelinemodelaggregator.h"
 
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <list>
 
@@ -467,7 +468,8 @@ QRgb TimelineModel::colorByFraction(double fraction) const
 
 QRgb TimelineModel::colorByHue(int hue) const
 {
-    return TimelineModelPrivate::hueTable[hue];
+    static const HueLookupTable hueTable;
+    return hueTable[hue];
 }
 
 /*!
@@ -695,13 +697,13 @@ int TimelineModel::prevItemByTypeId(int requestedTypeId, qint64 time, int curren
 
 HueLookupTable::HueLookupTable()
 {
+    const Qt::ColorScheme scheme = Utils::creatorTheme()->colorScheme();
+    const int lightness = scheme == Qt::ColorScheme::Dark ? 115 : 175;
     for (int hue = 0; hue < 360; ++hue) {
         table[hue] = QColor::fromHsl(hue, TimelineModel::TimelineModelPrivate::Saturation,
-                                     TimelineModel::TimelineModelPrivate::Lightness).rgb();
+                                     lightness).rgb();
     }
 }
-
-const HueLookupTable TimelineModel::TimelineModelPrivate::hueTable;
 
 int TimelineModel::TimelineModelPrivate::nextItemById(std::function<bool(int)> matchesId,
                                                       qint64 time, int currentItem) const
