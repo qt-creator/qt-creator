@@ -9,6 +9,7 @@
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 
+#include <QGroupBox>
 #include <QPointer>
 #include <QPushButton>
 #include <QWidget>
@@ -58,9 +59,9 @@ private:
 
     Utils::TextDisplay m_configerrorLabel;
     Utils::BoolAspect m_coverageGroupBoxEnabled;
-    Layouting::Group m_coverageGroupbox{};
+    QGroupBox *m_coverageGroupbox = nullptr;
     Utils::StringAspect m_optionEdit;
-    Layouting::PushButton m_tweaksButton{};
+    QPushButton *m_tweaksButton = nullptr;
     Utils::TextDisplay m_tweaksDescriptionLabel;
     Utils::StringAspect m_tweaksEdit;
     Utils::StringAspect m_fileNameLabel;

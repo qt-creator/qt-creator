@@ -52,36 +52,38 @@ CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *build
     bold.setBold(true);
     m_saveButton.setFont(bold);
 
-    m_coverageGroupbox = {
-        groupChecker(m_coverageGroupBoxEnabled.groupChecker()),
-        Column {
-            Row {Tr::tr("CoverageScanner options:"), st, docLink },
-            m_optionEdit,
-            Row {
-                PushButton {
-                    text(Tr::tr("Exclude File...")),
-                    onClicked(this, [this] { onExcludeFileButtonClicked(); })
-                },
-                PushButton {
-                    text(Tr::tr("Exclude Directory...")),
-                    onClicked(this, [this] { onExcludeDirButtonClicked(); })
-                },
-                m_tweaksButton,
-                st
-            },
-            m_tweaksDescriptionLabel,
-            m_tweaksEdit,
-            Row { Tr::tr("These settings are stored in"), m_fileNameLabel, st },
-            Group {
-                title(Tr::tr("Changed Build Settings")),
-                Column { m_changesText }
-            }
-        }
-    };
-
     Column {
         m_configerrorLabel,
-        m_coverageGroupbox,
+        Group {
+            bindTo(&m_coverageGroupbox),
+            groupChecker(m_coverageGroupBoxEnabled.groupChecker()),
+            Column {
+                Row {Tr::tr("CoverageScanner options:"), st, docLink },
+                m_optionEdit,
+                Row {
+                    PushButton {
+                        text(Tr::tr("Exclude File...")),
+                        onClicked(this, [this] { onExcludeFileButtonClicked(); })
+                    },
+                    PushButton {
+                        text(Tr::tr("Exclude Directory...")),
+                        onClicked(this, [this] { onExcludeDirButtonClicked(); })
+                    },
+                    PushButton {
+                        bindTo(&m_tweaksButton),
+                        onClicked(this, [this] { onTweaksButtonClicked(); })
+                    },
+                    st
+                },
+                m_tweaksDescriptionLabel,
+                m_tweaksEdit,
+                Row { Tr::tr("These settings are stored in"), m_fileNameLabel, st },
+                Group {
+                    title(Tr::tr("Changed Build Settings")),
+                    Column { m_changesText }
+                }
+            }
+        },
         Row { m_messageLabel, st, &m_revertButton, &m_saveButton },
         st
     }.attachTo(this);
@@ -104,7 +106,6 @@ CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *build
 
     connect(&m_optionEdit, &StringAspect::changed, this, &CocoProjectWidget::onTextChanged);
     connect(&m_tweaksEdit, &StringAspect::changed, this, &CocoProjectWidget::onTextChanged);
-    m_tweaksButton.onClicked(this, [this] { onTweaksButtonClicked(); });
 
     connect(&m_revertButton, &QPushButton::clicked, this, &CocoProjectWidget::onRevertButtonClicked);
     connect(&m_saveButton, &QPushButton::clicked, this, &CocoProjectWidget::onSaveButtonClicked);
@@ -117,7 +118,7 @@ void CocoProjectWidget::reloadSettings()
 {
     m_buildSettings->read();
     m_coverageGroupBoxEnabled.setValue(m_buildSettings->validSettings(), Utils::BaseAspect::BeQuiet);
-    m_coverageGroupbox.setTitle(
+    m_coverageGroupbox->setTitle(
         Tr::tr("Enable code coverage for build configuration \"%1\"").arg(m_buildConfigurationName));
 
     m_optionEdit.setValue(m_buildSettings->options().join('\n'), Utils::BaseAspect::BeQuiet);
@@ -221,9 +222,9 @@ void CocoProjectWidget::writeSelectionDir(const QString &path)
 void CocoProjectWidget::setTweaksVisible(bool on)
 {
     if (on)
-        m_tweaksButton.setText(Tr::tr("Override <<"));
+        m_tweaksButton->setText(Tr::tr("Override <<"));
     else
-        m_tweaksButton.setText(Tr::tr("Override >>"));
+        m_tweaksButton->setText(Tr::tr("Override >>"));
 
     m_tweaksDescriptionLabel.setVisible(on);
     m_tweaksEdit.setVisible(on);
