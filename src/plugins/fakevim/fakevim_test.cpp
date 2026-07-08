@@ -3037,6 +3037,21 @@ void FakeVimTester::test_vim_code_autoindent()
     KEYS("3O 123<esc>", " 123" N "  123" N "   12" X "3" N "abc" N "def");
     INTEGRITY(false);
     data.doCommand("set smartindent");
+
+    // Leaving an auto-indented line to which no text was added clears the
+    // auto-indentation, matching Vim (QTCREATORBUG-15009).
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=4");
+    data.setText("    abc");
+    KEYS("o<esc>", "    abc" N X "");
+    KEYS(".", "    abc" N "" N X "");
+    KEYS("u", "    abc" N X "");
+    // Pressing <CR> also clears the line just left.
+    data.setText("    abc");
+    KEYS("o<cr>xyz<esc>", "    abc" N "" N "    xy" X "z");
+    // But indentation is kept once something is typed on the line.
+    data.setText("    abc");
+    KEYS("oX<esc>", "    abc" N "    " X "X");
 }
 
 void FakeVimTester::test_vim_code_folding()

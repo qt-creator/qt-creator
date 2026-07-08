@@ -2097,6 +2097,11 @@ public:
     // restore, just remove it again).
     QString m_replacedChars;
 
+    // Block number of a freshly auto-indented line that has not received any
+    // typed content yet. Leaving such a line untouched removes the automatic
+    // indentation again, matching Vim (QTCREATORBUG-15009). -1 means none.
+    int m_autoIndentBlock = -1;
+
     bool m_anchorPastEnd;
     bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
 
@@ -2186,7 +2191,9 @@ public:
     QString tabExpand(int len) const;
     Column indentation(const QString &line) const;
     void insertAutomaticIndentation(bool goingDown, bool forceAutoIndent = false);
-    // number of autoindented characters
+    // If the current line is a freshly auto-indented, still whitespace-only
+    // line, remove that automatic indentation again (QTCREATORBUG-15009).
+    void clearUntouchedAutoIndentation();
     void handleStartOfLine();
 
     // register handling
@@ -5341,6 +5348,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             g.subsubmode = NoSubSubMode;
             updateMiniBuffer();
         } else {
+            clearUntouchedAutoIndentation();
             finishInsertMode();
         }
     } else if (g.submode == CtrlRSubMode) {
@@ -5554,6 +5562,8 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
 
 void FakeVimHandler::Private::insertInInsertMode(const QString &text)
 {
+    // Typing on an auto-indented line keeps its indentation.
+    m_autoIndentBlock = -1;
     joinPreviousEditBlock();
     insertText(text);
     if (s.smartIndent() && isElectricCharacter(text.at(0))) {
@@ -8124,11 +8134,21 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
 void FakeVimHandler::Private::insertNewLine()
 {
     if (m_buffer->editBlockLevel <= 1 && s.passKeys()) {
+        // Leaving an untouched auto-indented line clears its indentation.
+        clearUntouchedAutoIndentation();
         QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, "\n");
-        if (passEventToEditor(event, m_cursor))
+        if (passEventToEditor(event, m_cursor)) {
+            // The editor may auto-indent the freshly opened line itself. Remember
+            // it so leaving it untouched removes that indentation (QTCREATORBUG-15009).
+            const QString text = block().text();
+            if (!text.isEmpty() && text.trimmed().isEmpty())
+                m_autoIndentBlock = block().blockNumber();
             return;
+        }
     }
 
+    // Leaving an untouched auto-indented line clears its indentation.
+    clearUntouchedAutoIndentation();
     insertText(QString("\n"));
     insertAutomaticIndentation(true);
 }
@@ -8901,6 +8921,29 @@ void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown, bool fo
         // FIXME: handle 'smartindent' and 'cindent'
         insertText(text);
     }
+
+    // Remember this as a freshly auto-indented line so that leaving it without
+    // typing anything removes the indentation again (QTCREATORBUG-15009).
+    if (block().text().trimmed().isEmpty())
+        m_autoIndentBlock = block().blockNumber();
+}
+
+void FakeVimHandler::Private::clearUntouchedAutoIndentation()
+{
+    const int pending = m_autoIndentBlock;
+    m_autoIndentBlock = -1;
+    // Only when we are still on that very line and nothing was typed on it.
+    if (pending < 0 || pending != block().blockNumber())
+        return;
+    const QString text = block().text();
+    if (text.isEmpty() || !text.trimmed().isEmpty())
+        return;
+    const int start = block().position();
+    joinPreviousEditBlock();
+    m_cursor.setPosition(start);
+    m_cursor.setPosition(start + text.size(), KeepAnchor);
+    m_cursor.removeSelectedText();
+    endEditBlock();
 }
 
 void FakeVimHandler::Private::handleStartOfLine()
