@@ -1525,6 +1525,27 @@ void FakeVimTester::test_vim_change_replace()
     KEYS("\"xCxyz<esc>", "xy" X "z" N "def");
     KEYS("\"xp", "xyzab" X "c" N "def");
     KEYS("2\"xp", "xyzabcabcab" X "c" N "def");
+
+    // In Replace mode <BS> restores the overwritten characters and moves left,
+    // rather than deleting them (QTCREATORBUG-12120).
+    data.setText(X "abcdef");
+    KEYS("RXY", "XY" X "cdef");   // overwrite 'a' and 'b'
+    KEYS("<bs>", "X" X "bcdef");  // restore 'b'
+    KEYS("<bs>", X "abcdef");     // restore 'a'
+    KEYS("<bs>", X "abcdef");     // nothing left to restore, cursor stays put
+
+    // Characters appended past the end of the line are removed again by <BS>,
+    // there is nothing to restore for them.
+    data.setText("ab" X "c");
+    KEYS("RXYZ", "abXYZ" X);      // overwrite 'c', then append 'Y' and 'Z'
+    KEYS("<bs>", "abXY" X);       // remove appended 'Z'
+    KEYS("<bs>", "abX" X);        // remove appended 'Y'
+    KEYS("<bs>", "ab" X "c");     // restore original 'c'
+
+    // In Replace mode <Del> removes the character under the cursor.
+    data.setText(X "abcdef");
+    KEYS("R<delete>", X "bcdef");
+    KEYS("<delete>", X "cdef");
 }
 
 void FakeVimTester::test_vim_block_selection()

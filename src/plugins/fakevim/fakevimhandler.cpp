@@ -2091,6 +2091,12 @@ public:
     int m_register;
     BlockInsertMode m_visualBlockInsert;
 
+    // Characters overwritten during the current Replace mode session, so that
+    // <BS> can restore them (QTCREATORBUG-12120). A newline sentinel marks a
+    // character that was appended past the end of the line (nothing to
+    // restore, just remove it again).
+    QString m_replacedChars;
+
     bool m_anchorPastEnd;
     bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
 
@@ -5168,22 +5174,62 @@ void FakeVimHandler::Private::handleReplaceMode(const Input &input)
         moveLeft(qMin(1, leftDist()));
         enterCommandMode();
         g.dotCommand.append(m_buffer->lastInsertion + "<ESC>");
+        m_replacedChars.clear();
     } else if (input.isKey(Key_Left)) {
         moveLeft();
+        m_replacedChars.clear();
     } else if (input.isKey(Key_Right)) {
         moveRight();
+        m_replacedChars.clear();
     } else if (input.isKey(Key_Up)) {
         moveUp();
+        m_replacedChars.clear();
     } else if (input.isKey(Key_Down)) {
         moveDown();
+        m_replacedChars.clear();
     } else if (input.isKey(Key_Insert)) {
         g.mode = InsertMode;
         q->modeChanged(isInsertMode());
     } else if (input.isControl('o')) {
         enterCommandMode(ReplaceMode);
-    } else {
+    } else if (input.isBackspace()) {
+        // Undo the last overwrite: move left, remove the typed character and,
+        // unless it was appended past the end of the line, restore the
+        // character that was there before.
+        joinPreviousEditBlock();
+        if (!m_replacedChars.isEmpty()) {
+            const QChar original = m_replacedChars.back();
+            m_replacedChars.chop(1);
+            moveLeft();
+            setAnchor();
+            moveRight();
+            removeText(currentRange());
+            if (original != QLatin1Char('\n')) {
+                setAnchor();
+                insertText(QString(original));
+                moveLeft();
+            }
+        } else {
+            moveLeft(qMin(1, leftDist()));
+        }
+        setTargetColumn();
+        endEditBlock();
+    } else if (input.isKey(Key_Delete)) {
+        // As in insert mode, <Del> removes the character under the cursor.
         joinPreviousEditBlock();
         if (!atEndOfLine()) {
+            setAnchor();
+            moveRight();
+            removeText(currentRange());
+        }
+        setTargetColumn();
+        endEditBlock();
+    } else {
+        joinPreviousEditBlock();
+        if (atEndOfLine()) {
+            m_replacedChars.append(QLatin1Char('\n'));
+        } else {
+            m_replacedChars.append(characterAtCursor());
             setAnchor();
             moveRight();
             removeText(currentRange());
@@ -8622,6 +8668,7 @@ bool FakeVimHandler::Private::hasThinCursor() const
 
 void FakeVimHandler::Private::enterReplaceMode()
 {
+    m_replacedChars.clear();
     enterInsertOrReplaceMode(ReplaceMode);
 }
 
