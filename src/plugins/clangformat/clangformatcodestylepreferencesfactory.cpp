@@ -629,32 +629,36 @@ private:
 
 // ClangFormatProjectEditor
 
-class ClangFormatProjectEditor final : public CodeStyleEditor
+class ClangFormatProjectEditor final : public QWidget
 {
 public:
-    ClangFormatProjectEditor(const FilePath &projectFile, ICodeStylePreferences *codeStyle)
+    ClangFormatProjectEditor(const ICodeStylePreferencesFactory *factory,
+                             const FilePath &projectFile,
+                             ICodeStylePreferences *codeStyle)
         : m_globalSettings{ProjectManager::projectWithProjectFile(projectFile, true), codeStyle, this}
         , m_selector{projectFile, this}
     {
-        addHeaderWidget(&m_globalSettings);
         m_selector.setCodeStyle(codeStyle);
-        addSelector(&m_selector);
+        QWidget *infoLabel = createTakeEffectImmediatelyLabel();
 
-        DisplaySettingsData displaySettings = m_preview.displaySettings();
-        displaySettings.m_visualizeWhitespace = true;
-        m_preview.setDisplaySettings(displaySettings);
-        SnippetProvider::decorateEditor(&m_preview, CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
-        m_preview.setPlainText(
-                    QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-        QWidget *previewLabel = setupPreview(
-            &m_preview,
-            new ClangFormatForwardingIndenter(m_preview.document()),
-            projectFile,
-            codeStyle);
-        QWidget *filler = addExpandingFiller();
+        SnippetEditorWidget *preview = createCodeStylePreview(factory, projectFile, codeStyle);
+        QWidget *previewNote = createCodeStylePreviewNote();
+        auto filler = new QWidget;
+        filler->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+        using namespace Layouting;
+        Column {
+            &m_globalSettings,
+            &m_selector,
+            infoLabel,
+            preview,
+            previewNote,
+            filler,
+            noMargin,
+        }.attachTo(this);
 
         const ClangFormatSettings::Mode currentMode = m_globalSettings.mode();
-        const auto updateSelectorVisibility = [this, previewLabel, filler] {
+        const auto updateSelectorVisibility = [this, infoLabel, preview, previewNote, filler] {
             // The selector and preview are relevant when ClangFormat is off (to
             // pick a built-in code style) or when "Use custom settings" lets the
             // user manage a ClangFormat style. They are hidden when ClangFormat
@@ -665,8 +669,9 @@ public:
                 m_globalSettings.mode() != ClangFormatSettings::Mode::Disable;
             const bool visible = !clangFormatActive || m_globalSettings.useCustomSettings();
             m_selector.setVisible(visible);
-            m_preview.setVisible(visible);
-            previewLabel->setVisible(visible);
+            infoLabel->setVisible(visible);
+            preview->setVisible(visible);
+            previewNote->setVisible(visible);
             filler->setVisible(!visible);
         };
         updateSelectorVisibility();
@@ -683,13 +688,9 @@ public:
         m_selector.onUseCustomSettingsChanged(m_globalSettings.useCustomSettings());
     }
 
-    void apply() final { m_globalSettings.apply(); }
-    void cancel() final { m_globalSettings.cancel(); }
-
 private:
     ClangFormatGlobalConfigWidget m_globalSettings;
     ClangFormatSelectorWidget m_selector;
-    SnippetEditorWidget m_preview;
 };
 
 // ClangFormatCodeStylePreferencesFactory
@@ -701,13 +702,15 @@ public:
         : ICodeStylePreferencesFactory(CppEditor::Constants::CPP_SETTINGS_ID)
     {
         setDisplayName(Tr::tr("C++"));
+        setSnippetGroupId(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID);
+        setPreviewText(QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
         setIndenterCreator([](QTextDocument *doc) { return new ClangFormatForwardingIndenter(doc); });
         setCodeStyleCreator([] { return new CppEditor::CppCodeStylePreferences; });
         setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
             return new ClangFormatSettingsEditor{codeStyle};
         });
-        setProjectEditorCreator([](const FilePath &projectFile, ICodeStylePreferences *codeStyle) {
-            return new ClangFormatProjectEditor{projectFile, codeStyle};
+        setProjectEditorCreator([this](const FilePath &projectFile, ICodeStylePreferences *codeStyle) {
+            return new ClangFormatProjectEditor{this, projectFile, codeStyle};
         });
     }
 };
