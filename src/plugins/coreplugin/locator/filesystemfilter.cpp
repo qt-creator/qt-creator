@@ -226,6 +226,19 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                 filterEntry.linkForEditor = Link(filterEntry.filePath,
                                                  link.target.line,
                                                  link.target.column);
+                filterEntry.acceptor = [file, line = link.target.line, column = link.target.column] {
+                    QMetaObject::invokeMethod(
+                        EditorManager::instance(),
+                        [file, line, column] {
+                            if (line > 0)
+                                EditorManager::openEditorAt(Link(file, line, column));
+                            else
+                                ICore::openFiles({file}, ICore::SwitchMode, {},
+                                                 /*openProjects=*/false);
+                        },
+                        Qt::QueuedConnection);
+                    return AcceptResult();
+                };
                 filterEntry.completer = [shortcutString, file] {
                     const QString value = shortcutString + ' '
                                           + file.absoluteFilePath().cleanPath().toUserOutput();
