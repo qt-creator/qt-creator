@@ -50,7 +50,7 @@ public:
                 [this](const Toolchain *tc) { return m_category.contains(tc->language()); });
             const Toolchains toolchainsForBuildDevice
                 = Utils::filtered(ltcList, [device](Toolchain *tc) {
-                      return tc->compilerCommand().isSameDevice(device->rootPath());
+                      return tc->isSameDevice(device->rootPath());
                   });
             const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
                 toolchainsForBuildDevice, ToolchainBundle::HandleMissing::CreateAndRegister);
@@ -244,7 +244,7 @@ void ToolchainKitAspectFactory::fix(Kit *k)
                      qPrintable(k->displayName()),
                      qPrintable(ToolchainManager::displayNameOfLanguageId(l)));
             ToolchainKitAspect::clearToolchain(k, l); // make sure to clear out no longer known tool chains
-        } else if (!dev || !dev->rootPath().isSameDevice(tc->compilerCommand())) {
+        } else if (!dev || !tc->isSameDevice(dev->rootPath())) {
             ToolchainKitAspect::clearToolchain(k, l);
         }
     }

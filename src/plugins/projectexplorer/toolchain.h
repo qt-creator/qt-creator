@@ -103,6 +103,7 @@ public:
     virtual Utils::WarningFlags warningFlags(const QStringList &cflags) const = 0;
     virtual Utils::FilePaths includedFiles(const QStringList &flags, const Utils::FilePath &directory) const;
     virtual QString sysRoot() const;
+    virtual bool isSameDevice(const Utils::FilePath &devicePath) const;
 
     QString explicitCodeModelTargetTriple() const;
     QString effectiveCodeModelTargetTriple() const;

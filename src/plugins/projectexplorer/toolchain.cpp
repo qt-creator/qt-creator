@@ -605,6 +605,11 @@ QString Toolchain::sysRoot() const
     return {};
 }
 
+bool Toolchain::isSameDevice(const Utils::FilePath &devicePath) const
+{
+    return compilerCommand().isSameDevice(devicePath);
+}
+
 QString Toolchain::explicitCodeModelTargetTriple() const
 {
     return d->m_explicitCodeModelTargetTriple;
