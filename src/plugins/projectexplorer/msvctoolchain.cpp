@@ -124,9 +124,9 @@ static QString platformName(MsvcToolchain::Platform t)
     return {};
 }
 
-static bool hostPrefersPlatform(MsvcToolchain::Platform platform)
+bool MsvcToolchain::archPrefersPlatform(OsArch arch, MsvcToolchain::Platform platform)
 {
-    switch (HostOsInfo::hostArchitecture()) {
+    switch (arch) {
     case Utils::OsArchAMD64:
         return platform == MsvcToolchain::amd64 || platform == MsvcToolchain::amd64_arm
                || platform == MsvcToolchain::amd64_x86 || platform == MsvcToolchain::amd64_arm64;
@@ -146,12 +146,12 @@ static bool hostPrefersPlatform(MsvcToolchain::Platform platform)
     }
 }
 
-static bool hostSupportsPlatform(MsvcToolchain::Platform platform)
+bool MsvcToolchain::archSupportsPlatform(OsArch arch, MsvcToolchain::Platform platform)
 {
-    if (hostPrefersPlatform(platform))
+    if (archPrefersPlatform(arch, platform))
         return true;
 
-    switch (HostOsInfo::hostArchitecture()) {
+    switch (arch) {
     // The x86 host toolchains are not the preferred toolchains on amd64 but they are still
     // supported by that host
     case Utils::OsArchAMD64:
@@ -1222,7 +1222,7 @@ void MsvcToolchain::fromMap(const Store &data)
 
 bool MsvcToolchain::hostPrefersToolchain() const
 {
-    return hostPrefersPlatform(platform());
+    return archPrefersPlatform(HostOsInfo::hostArchitecture(), platform());
 }
 
 bool static hasFlagEffectOnMacros(const QString &flag)
@@ -1376,6 +1376,11 @@ void MsvcToolchain::addToEnvironment(Utils::Environment &env) const
     prependPathEnvironmentVariable(env, m_lastEnvironment);
 }
 
+bool MsvcToolchain::isSameDevice(const Utils::FilePath &devicePath) const
+{
+    return m_vcvarsBat.isSameDevice(devicePath);
+}
+
 static FilePath wrappedMakeCommand(const FilePath &command)
 {
     const FilePath wrapperPath = FilePath::currentWorkingPath() / "msvc_make.bat";
@@ -1486,6 +1491,12 @@ void MsvcToolchain::resetVarsBat()
     m_vcvarsBat.clear();
     m_isValid.reset();
     m_varsBatArg.clear();
+}
+
+QString MsvcToolchain::platformName() const
+{
+    return ProjectExplorer::platformName(platform());
+
 }
 
 MsvcToolchain::Platform MsvcToolchain::platform() const
@@ -2262,10 +2273,11 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
                                                  MsvcToolchain::arm64_amd64};
 
     const QList<VisualStudioInstallation> studios = detectVisualStudio(deviceRoot);
+    const OsArch hostArch = HostOsInfo::hostArchitecture();
     for (const VisualStudioInstallation &i : studios) {
         for (MsvcToolchain::Platform platform : platforms) {
             const bool toolchainInstalled = vcVarsBatFor(i.vcVarsPath, platform, i.version).isFile();
-            if (hostSupportsPlatform(platform) && toolchainInstalled) {
+            if (toolchainInstalled && MsvcToolchain::archSupportsPlatform(hostArch, platform)) {
                 const QString displayName = generateDisplayName(
                     i.vsName, MsvcToolchain::VS, platform, detector.device, i.displayName);
                 results.append(

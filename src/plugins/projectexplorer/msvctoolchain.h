@@ -52,12 +52,14 @@ public:
 
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
+    bool isSameDevice(const Utils::FilePath &devicePath) const override;
 
     QString varsBatArg() const { return m_varsBatArg; }
     Utils::FilePath varsBat() const { return m_vcvarsBat; }
     void setupVarsBat(const Abi &abi, const Utils::FilePath &varsBat, const QString &varsBatArg);
     void resetVarsBat();
     Platform platform() const;
+    QString platformName() const;
 
     bool operator==(const Toolchain &) const override;
 
@@ -72,6 +74,8 @@ public:
 
     static std::optional<MsvcToolchain::Platform> preferredPlatform(
         Utils::OsArch host, Utils::OsArch target);
+    static bool archPrefersPlatform(Utils::OsArch host, MsvcToolchain::Platform platform);
+    static bool archSupportsPlatform(Utils::OsArch host, MsvcToolchain::Platform platform);
 
 protected:
     class WarningFlagAdder
