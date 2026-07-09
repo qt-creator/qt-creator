@@ -1026,6 +1026,34 @@ private:
     void updateDeviceFromUi() override {}
 };
 
+// Matches the naming scheme of qt installer provided Kits. The tokens below are
+// product names and architecture suffixes, deliberately not translated.
+static QString abiDisplayName(const Abi &abi)
+{
+    QString name;
+    switch (abi.osFlavor()) {
+    case Abi::WindowsMsvc2005Flavor: name = "MSVC2005"; break;
+    case Abi::WindowsMsvc2008Flavor: name = "MSVC2008"; break;
+    case Abi::WindowsMsvc2010Flavor: name = "MSVC2010"; break;
+    case Abi::WindowsMsvc2012Flavor: name = "MSVC2012"; break;
+    case Abi::WindowsMsvc2013Flavor: name = "MSVC2013"; break;
+    case Abi::WindowsMsvc2015Flavor: name = "MSVC2015"; break;
+    case Abi::WindowsMsvc2017Flavor: name = "MSVC2017"; break;
+    case Abi::WindowsMsvc2019Flavor: name = "MSVC2019"; break;
+    case Abi::WindowsMsvc2022Flavor: name = "MSVC2022"; break;
+    case Abi::WindowsMsvc2026Flavor: name = "MSVC2026"; break;
+    case Abi::WindowsMSysFlavor: name = "MinGW"; break;
+    default: break;
+    }
+
+    if (abi.architecture() == Abi::X86Architecture)
+        name += abi.wordWidth() == 32 ? " 32Bit" : " 64Bit";
+    else if (abi.architecture() == Abi::ArmArchitecture)
+        name += abi.wordWidth() == 32 ? " ARM" : " ARM64";
+
+    return name;
+}
+
 // Runs toolchain auto-detection for the device (MSVC, over SSH), registers the results and
 // creates a kit per detected target ABI. Qt detection is a later addition; until then the
 // kit comes up with the MSVC compiler and the device as build/run device, but no Qt.
@@ -1064,77 +1092,61 @@ static void detectAndRegisterToolchains(const WindowsDevice::Ptr &device)
     // Creates one kit per detected ABI, attaching the toolchain bundle and the device as
     // build/run device. Removes kits previously auto-detected for this device first, so
     // re-running does not accumulate duplicates.
-    const auto createKits = [device, found] {
-        const QString sourceId = device->id().toString();
-        const QList<Kit *> stale = Utils::filtered(KitManager::kits(), [&](Kit *k) {
-            return k->detectionSource().id == sourceId;
+    const QString sourceId = device->id().toString();
+    const QList<Kit *> stale = Utils::filtered(KitManager::kits(), [&](Kit *k) {
+        return k->detectionSource().id == sourceId;
+    });
+    for (Kit *k : stale)
+        KitManager::deregisterKit(k);
+
+    Toolchains filtered = found;
+    if (Result<OsArch> arch = device->osArch()) {
+        const std::optional<MsvcToolchain::Platform> preferredPlatform
+            = MsvcToolchain::preferredPlatform(*arch, *arch);
+        filtered = Utils::filtered(found, [preferredPlatform](Toolchain *tc) {
+            auto msvcTc = dynamic_cast<MsvcToolchain *>(tc);
+            return msvcTc ? msvcTc->platform() == preferredPlatform : false;
         });
-        for (Kit *k : stale)
-            KitManager::deregisterKit(k);
-
-        Toolchains filtered;
-        if (Utils::Result<OsArch> arch = device->osArch()) {
-            const std::optional<MsvcToolchain::Platform> preferredPlatform
-                = MsvcToolchain::preferredPlatform(*arch, *arch);
-            filtered = Utils::filtered(found, [preferredPlatform](Toolchain *tc) {
-                auto msvcTc = dynamic_cast<MsvcToolchain *>(tc);
-                return msvcTc ? msvcTc->platform() == preferredPlatform : false;
-            });
-        }
-        if (filtered.isEmpty())
-            filtered = found;
-
-        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-            filtered, ToolchainBundle::HandleMissing::CreateAndRegister);
-        // Several bundles can map to the same target ABI (e.g. the native amd64 toolset and the
-        // x86-hosted cross toolset both target x64). Create only one kit per target ABI to avoid
-        // kits with identical names.
-        QSet<QString> seenAbis;
-        int created = 0;
-        for (const ToolchainBundle &bundle : bundles) {
-            const QString abi = bundle.targetAbi().toString();
-            if (seenAbis.contains(abi))
-                continue;
-            seenAbis.insert(abi);
-            ++created;
-            KitManager::registerKit([device, bundle, sourceId](Kit *k) {
-                k->setDetectionSource({DetectionSource::FromSystem, sourceId});
-                k->setUnexpandedDisplayName(
-                    "%{Device:Name} (" + bundle.targetAbi().toString() + ")");
-                RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
-                RunDeviceKitAspect::setDevice(k, device);
-                BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
-                BuildDeviceKitAspect::setDevice(k, device);
-                k->setSticky(BuildDeviceKitAspect::id(), true);
-                k->setSticky(BuildDeviceTypeKitAspect::id(), true);
-                ToolchainKitAspect::setBundle(k, bundle);
-            });
-        }
-        qCDebug(windowsDeviceLog) << "Created" << created << "kit(s) for the device";
-    };
-
-    // The MSVC compilerCommand (cl.exe) is filled in asynchronously, after the vcvars
-    // environment capture. Create the kit only once every detected toolchain has resolved its
-    // compiler, so the kit gets a valid compiler instead of an empty one.
-    const auto ready = [found] {
-        return Utils::allOf(found, [](Toolchain *tc) {
-            return !tc->compilerCommand().isEmpty();
-        });
-    };
-    if (ready()) {
-        createKits();
-        return;
-    }
-    qCDebug(windowsDeviceLog) << "Awaiting MSVC environment before creating the kit";
-    const auto conn = std::make_shared<QMetaObject::Connection>();
-    *conn = QObject::connect(
-        ToolchainManager::instance(), &ToolchainManager::toolchainUpdated, device.get(),
-        [ready, createKits, conn](Toolchain *) {
-            if (ready()) {
-                QObject::disconnect(*conn);
-                createKits();
+        if (filtered.isEmpty()) { // no preferredPlatform found, fallback to one kit per ABI
+            QMap<QString, Toolchains> toolchainsForAbi;
+            for (auto tc : found) {
+                if (auto msvcTc = dynamic_cast<MsvcToolchain *>(tc);
+                    msvcTc && MsvcToolchain::archPrefersPlatform(*arch, msvcTc->platform())) {
+                    toolchainsForAbi[tc->targetAbi().toString()].prepend(tc);
+                } else {
+                    toolchainsForAbi[tc->targetAbi().toString()].append(tc);
+                }
             }
+            for (const Toolchains &tcs : toolchainsForAbi)
+                filtered.append(tcs.first());
+        }
+    }
+
+    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+        filtered, ToolchainBundle::HandleMissing::CreateAndRegister);
+    // Create at most one kit per ABI display name. abiDisplayName() differentiates
+    // by MSVC year and word width, but not by host/cross toolset, so two same-year
+    // toolsets targeting the same ABI (e.g. amd64 and x86_amd64) would otherwise
+    // produce colliding kit names. This is reachable when osArch() fails and no
+    // filtering happened above.
+    QSet<QString> seenAbis;
+    for (const ToolchainBundle &bundle : bundles) {
+        const QString abiName = abiDisplayName(bundle.targetAbi());
+        if (!Utils::insert(seenAbis, abiName))
+            continue;
+        KitManager::registerKit([device, bundle, sourceId, abiName](Kit *k) {
+            k->setDetectionSource({DetectionSource::FromSystem, sourceId});
+            k->setUnexpandedDisplayName("%{Device:Name} " + abiName);
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+            RunDeviceKitAspect::setDevice(k, device);
+            BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+            BuildDeviceKitAspect::setDevice(k, device);
+            k->setSticky(BuildDeviceKitAspect::id(), true);
+            k->setSticky(BuildDeviceTypeKitAspect::id(), true);
+            ToolchainKitAspect::setBundle(k, bundle);
         });
+    }
+    qCDebug(windowsDeviceLog) << "Created" << bundles.size() << "kit(s) for the device";
 }
 
 WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevicePtr &device)
