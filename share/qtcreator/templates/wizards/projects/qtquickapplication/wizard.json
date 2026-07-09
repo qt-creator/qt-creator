@@ -44,17 +44,6 @@
             "data":
             [
                 {
-                    "name": "UseVirtualKeyboard",
-                    "trDisplayName": "Use Qt Virtual Keyboard",
-                    "type": "CheckBox",
-                    "span": true,
-                    "persistenceKey": "QtQuick.UseVirtualKeyboard",
-                    "data":
-                    {
-                        "checked": "%{UseVirtualKeyboardByDefault}"
-                    }
-                },
-                {
                     "name": "MinimumSupportedQtVersion",
                     "trDisplayName": "Minimum required Qt version:",
                     "type": "ComboBox",
@@ -66,6 +55,29 @@
                             { "trKey": "Qt 6.10", "value": "6.10" }
                         ],
                         "index": 2
+                    }
+                },
+                {
+                    "name": "SupportFigma2QtContent",
+                    "trDisplayName": "Include support for Figma to Qt content",
+                    "trToolTip": "Adds CMake code that picks up content from Figma to Qt stored in the \"importedcontent\" directory.",
+                    "type": "CheckBox",
+                    "span": true,
+                    "persistenceKey": "QtQuick.SupportFigma2QtContent",
+                    "data":
+                    {
+                        "checked": true
+                    }
+                },
+                {
+                    "name": "UseVirtualKeyboard",
+                    "trDisplayName": "Use Qt Virtual Keyboard",
+                    "type": "CheckBox",
+                    "span": true,
+                    "persistenceKey": "QtQuick.UseVirtualKeyboard",
+                    "data":
+                    {
+                        "checked": "%{UseVirtualKeyboardByDefault}"
                     }
                 },
                 {

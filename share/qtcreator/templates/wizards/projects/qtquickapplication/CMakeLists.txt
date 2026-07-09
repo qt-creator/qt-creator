@@ -11,11 +11,13 @@ find_package(Qt6 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup(REQUIRES %{MinimumSupportedQtVersion})
 
+@if %{SupportFigma2QtContent}
 # Content of downloaded design from Figma to Qt or similar
 if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/importedcontent/CMakeLists.txt")
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/importedcontent)
 endif()
 
+@endif
 qt_add_executable(%{TargetName}
     %{MainCppFileName}
 )
