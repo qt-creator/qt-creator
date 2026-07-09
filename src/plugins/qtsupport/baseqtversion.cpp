@@ -45,12 +45,8 @@
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFileInfo>
 #include <QHash>
 #include <QLibraryInfo>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QUrl>
 #include <QVersionNumber>
@@ -93,28 +89,28 @@ public:
 
     FilePath sourcePath;
 
-    Utils::FilePath prefix;
+    FilePath prefix;
 
-    Utils::FilePath binPath;
-    Utils::FilePath libExecPath;
-    Utils::FilePath configurationPath;
-    Utils::FilePath dataPath;
+    FilePath binPath;
+    FilePath libExecPath;
+    FilePath configurationPath;
+    FilePath dataPath;
     FilePath archDataPath;
-    Utils::FilePath demosPath;
-    Utils::FilePath docsPath;
-    Utils::FilePath examplesPath;
-    // Utils::FilePath frameworkPath; // is derived from libraryPath
-    Utils::FilePath headerPath;
-    Utils::FilePath importsPath;
-    Utils::FilePath libraryPath;
-    Utils::FilePath pluginPath;
-    Utils::FilePath qmlPath;
-    Utils::FilePath translationsPath;
+    FilePath demosPath;
+    FilePath docsPath;
+    FilePath examplesPath;
+    // FilePath frameworkPath; // is derived from libraryPath
+    FilePath headerPath;
+    FilePath importsPath;
+    FilePath libraryPath;
+    FilePath pluginPath;
+    FilePath qmlPath;
+    FilePath translationsPath;
 
-    Utils::FilePath hostBinPath;
-    Utils::FilePath hostLibexecPath;
-    Utils::FilePath hostDataPath;
-    Utils::FilePath hostPrefixPath;
+    FilePath hostBinPath;
+    FilePath hostLibexecPath;
+    FilePath hostDataPath;
+    FilePath hostPrefixPath;
 
     QHash<ProKey, ProString> versionInfo;
     bool versionInfoUpToDate = false;
@@ -207,7 +203,7 @@ public:
     QtVersion::QmakeBuildConfigs m_defaultBuildConfig{QtVersion::DebugBuild | QtVersion::BuildAll};
     bool m_qmakeIsExecutable = true;
 
-    QSet<Utils::Id> m_overrideFeatures;
+    QSet<Id> m_overrideFeatures;
 
     FilePath m_mkspec;
     FilePath m_mkspecFullPath;
@@ -785,7 +781,7 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath)
                detectionSource};
     }
 
-    d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
+    d->m_overrideFeatures = Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
     d->m_qmakeCommand = FilePath::fromSettings(map.value(QTVERSIONQMAKEPATH));
 
     FilePath qmake = d->m_qmakeCommand;
@@ -835,7 +831,7 @@ Store QtVersion::toMap() const
     detectionSource().toMap(result);
 
     if (!d->m_overrideFeatures.isEmpty())
-        result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
+        result.insert(QTVERSION_OVERRIDE_FEATURES, Id::toStringList(d->m_overrideFeatures));
 
     result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toSettings());
 
@@ -1387,8 +1383,8 @@ Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand)
 
     QString error;
     if (!QtVersionPrivate::queryQMakeVariables(m_qmakeCommand, &data.versionInfo, &error)) {
-        return Utils::make_unexpected(Tr::tr("Cannot update Qt version information from %1: %2.")
-                                          .arg(m_qmakeCommand.displayName(), error));
+        return ResultError(Tr::tr("Cannot update Qt version information from %1: %2.")
+                           .arg(m_qmakeCommand.displayName(), error));
     }
 
     auto fileProperty = [&](const QByteArray &name) {
@@ -2306,8 +2302,7 @@ static Abi refineAbiFromBuildString(const QByteArray &buildString, const Abi &pr
     return Abi(arch, os, flavor, format, wordWidth);
 }
 
-static Abi scanQtBinaryForBuildStringAndRefineAbi(const FilePath &library,
-                                                   const Abi &probableAbi)
+static Abi scanQtBinaryForBuildStringAndRefineAbi(const FilePath &library, const Abi &probableAbi)
 {
     static QHash<FilePath, Abi> results;
 
