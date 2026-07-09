@@ -8,7 +8,7 @@ Whenever you modify a `CMakeLists.txt` file, also update the corresponding `.qbs
 
 ## Commit message rule
 
-Commit message titles must not exceed 72 characters, and commit message body lines must not exceed 80 characters.
+Commit message lines must not exceed 72 characters.
 
 Commit messages should follow this structure:
 1. A short title summarizing the change
