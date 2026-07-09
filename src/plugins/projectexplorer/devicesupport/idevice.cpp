@@ -30,7 +30,12 @@
 #include <utils/url.h>
 #include <utils/fsengine/fsengine.h>
 
+#include <utils/globaltasktree.h>
+
 #include <QCoreApplication>
+#include <QPlainTextEdit>
+#include <QPointer>
+#include <QPushButton>
 #include <QStandardPaths>
 
 #include <QDateTime>
@@ -353,7 +358,7 @@ FilePaths IDevice::toolSearchPaths() const
     return d->autoDetectionPaths();
 }
 
-Group IDevice::autoDetectDeviceToolsRecipe()
+Group IDevice::autoDetectDeviceToolsRecipe(std::function<void(const QString &)> logger)
 {
     struct Data
     {
@@ -361,6 +366,7 @@ Group IDevice::autoDetectDeviceToolsRecipe()
         FilePaths patterns;
         FilePath currentValue;
         FilePaths candidates = {};
+        QString label;
     };
 
     QList<Data> datas;
@@ -371,17 +377,19 @@ Group IDevice::autoDetectDeviceToolsRecipe()
 
         DeviceToolAspect *toolAspect = d->deviceToolAspects.value(factory->toolId());
         QTC_ASSERT(toolAspect, continue);
-        datas << Data{factory, patterns, toolAspect->expandedValue()};
+        datas << Data{factory, patterns, toolAspect->expandedValue(), {}, toolAspect->labelText()};
     }
 
     const ListIterator iterator(datas);
 
     std::weak_ptr<IDevice> weakDevice = shared_from_this();
 
-    const auto onSetupSearch = [weakDevice, iterator](Async<Data> &task) {
+    const auto onSetupSearch = [weakDevice, iterator, logger](Async<Data> &task) {
         std::shared_ptr<IDevice> device = weakDevice.lock();
         if (!device)
             return;
+        if (logger)
+            logger(Tr::tr("Searching for %1...").arg(iterator->label));
         const FilePaths detectionPaths = device->toolSearchPaths();
         const FilePath deviceRootPath = device->rootPath();
         const auto searchForTools = [deviceRootPath,
@@ -410,7 +418,7 @@ Group IDevice::autoDetectDeviceToolsRecipe()
         task.setConcurrentCallData(searchForTools, *iterator, device);
     };
 
-    const auto onSearchDone = [weakDevice, iterator](const Async<Data> &task) {
+    const auto onSearchDone = [weakDevice, iterator, logger](const Async<Data> &task) {
         std::shared_ptr<IDevice> device = weakDevice.lock();
         if (!device)
             return;
@@ -431,6 +439,13 @@ Group IDevice::autoDetectDeviceToolsRecipe()
         }();
 
         toolAspect->setValue(newValue);
+
+        if (logger) {
+            if (newValue.isEmpty())
+                logger(Tr::tr("  %1: not found").arg(data.label));
+            else
+                logger(Tr::tr("  %1: %2").arg(data.label, newValue.toUserOutput()));
+        }
     };
 
     // clang-format off
@@ -1186,6 +1201,45 @@ std::function<void(Layouting::Layout *)> IDevice::deviceToolsGui()
             }, br,
         });
     };
+}
+
+std::function<void(Layouting::Layout *)> IDevice::autoDetectGui()
+{
+    using namespace Layouting;
+    return [device = shared_from_this()](Layout *layout) {
+        auto button = new QPushButton(Tr::tr("Run Auto-Detection Now"));
+        auto logView = new QPlainTextEdit;
+        logView->setReadOnly(true);
+        logView->setMaximumHeight(120);
+        logView->setPlaceholderText(
+            Tr::tr("Press \"Run Auto-Detection Now\" to detect tools."));
+
+        QObject::connect(button, &QPushButton::clicked, button,
+            [device, button, lv = QPointer<QPlainTextEdit>(logView)] {
+                button->setEnabled(false);
+                if (lv)
+                    lv->clear();
+                const auto logger = [lv](const QString &msg) {
+                    if (lv)
+                        lv->appendPlainText(msg);
+                };
+                const auto onDone = [btn = QPointer<QWidget>(button), logger] {
+                    if (btn)
+                        btn->setEnabled(true);
+                    logger(Tr::tr("Done."));
+                };
+                device->runAutoDetect(logger, onDone);
+            });
+
+        layout->addItems({Row{button, st}, br, logView, br});
+    };
+}
+
+void IDevice::runAutoDetect(
+    const std::function<void(const QString &)> &logger,
+    const std::function<void()> &onDone)
+{
+    GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onDone);
 }
 
 FilePath IDevice::rootPath() const

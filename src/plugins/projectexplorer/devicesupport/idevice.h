@@ -253,6 +253,9 @@ public:
     QList<DeviceToolAspect *> deviceToolAspects(DeviceToolAspect::ToolTypes supportType) const;
 
     std::function<void(Layouting::Layout *)> deviceToolsGui();
+    std::function<void(Layouting::Layout *)> autoDetectGui();
+    virtual void runAutoDetect(const std::function<void(const QString &)> &logger,
+                               const std::function<void()> &onDone);
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;
@@ -302,7 +305,8 @@ public:
 
     Utils::FilePaths toolSearchPaths() const;
 
-    QtTaskTree::Group autoDetectDeviceToolsRecipe();
+    QtTaskTree::Group autoDetectDeviceToolsRecipe(
+        std::function<void(const QString &)> logger = {});
 
     void offerKitCreation();
 

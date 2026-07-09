@@ -232,17 +232,6 @@ public:
             Tr::tr("You will need at least one port for QML debugging."),
             InfoLabel::Warning);
 
-        auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
-
-        connect(autoDetectButton, &QPushButton::clicked, autoDetectButton, [device, autoDetectButton] {
-            autoDetectButton->setEnabled(false);
-            const auto onDone = [btn = QPointer<QWidget>(autoDetectButton)] {
-                if (btn)
-                    btn->setEnabled(true);
-            };
-            GlobalTaskTree::start(device->autoDetectDeviceToolsRecipe(), {}, onDone);
-        });
-
         using namespace Layouting;
         Form {
             Tr::tr("Machine type:"), Tr::tr("Physical Device"), br,
@@ -250,7 +239,7 @@ public:
             empty, m_portsWarningLabel, br,
             noMargin,
             device->deviceToolsGui(),
-            Row { autoDetectButton, st, },
+            device->autoDetectGui(),
         }.attachTo(this);
 
         connect(m_freePortsLineEdit, &QLineEdit::textChanged,

@@ -495,25 +495,6 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
 
     connect(&device->freePortsAspect, &PortListAspect::volatileValueChanged, this, updatePortWarningLabel);
 
-    auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
-
-    connect(autoDetectButton, &QPushButton::clicked, this, [linuxDevice, autoDetectButton] {
-        autoDetectButton->setEnabled(false);
-        linuxDevice->tryToConnect(
-            {linuxDevice.get(), [linuxDevice, autoDetectButton](const Result<> &res) {
-                 if (!res) {
-                     autoDetectButton->setEnabled(true);
-                     return;
-                 }
-
-                 linuxDevice->requestToolDetection(linuxDevice->toolSearchPaths());
-                 const auto onDone = [btn = QPointer<QWidget>(autoDetectButton)] {
-                     if (btn)
-                         btn->setEnabled(true);
-                 };
-                 GlobalTaskTree::start(linuxDevice->autoDetectDeviceToolsRecipe(), {}, onDone);
-             }});
-    });
 
     SshParametersAspectContainer &ssh = device->sshParametersAspectContainer();
     // clang-format off
@@ -530,7 +511,7 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         device->linkDevice, br,
         linuxDevice->mounts.labelText(), linuxDevice->mounts, br,
         device->deviceToolsGui(),
-        Row { autoDetectButton, st, },
+        device->autoDetectGui(),
     }.attachTo(this);
     // clang-format on
 
@@ -1636,6 +1617,26 @@ void LinuxDevice::tryToConnect(const Continuation<> &cont) const
         d->setupFileAccess(sshParameters(), cont);
     else
         cont(ResultOk);
+}
+
+void LinuxDevice::runAutoDetect(
+    const std::function<void(const QString &)> &logger,
+    const std::function<void()> &onDone)
+{
+    logger(Tr::tr("Connecting..."));
+    const std::weak_ptr<IDevice> weakSelf = shared_from_this();
+    tryToConnect(Continuation<>([weakSelf, logger, onDone](const Result<> &res) {
+        const IDevice::Ptr self = weakSelf.lock();
+        if (!self)
+            return;
+        if (!res) {
+            logger(Tr::tr("Connection failed: %1").arg(res.error()));
+            onDone();
+            return;
+        }
+        self->requestToolDetection(self->toolSearchPaths());
+        GlobalTaskTree::start(self->autoDetectDeviceToolsRecipe(logger), {}, onDone);
+    }));
 }
 
 void LinuxDevice::closeConnection(bool announce) const

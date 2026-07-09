@@ -78,6 +78,8 @@ public:
 
     bool isDisconnected() const;
     void tryToConnect(const Utils::Continuation<> &cont) const override;
+    void runAutoDetect(const std::function<void(const QString &)> &logger,
+                       const std::function<void()> &onDone) override;
     void closeConnection(bool announce) const;
 
     void attachToSharedConnection(Internal::SshConnectionHandle *sshConnectionHandle,
