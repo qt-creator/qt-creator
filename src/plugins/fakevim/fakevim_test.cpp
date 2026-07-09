@@ -3859,6 +3859,11 @@ void FakeVimTester::test_map()
     data.doCommand("noremap ` <Right>");
     KEYS("`", "a" X "bc def");
     data.doCommand("unmap `");
+    // and the '"' register prefix (QTCREATORBUG-11979)
+    data.setText("abc def");
+    data.doCommand("noremap \" <Right>");
+    KEYS("\"", "a" X "bc def");
+    data.doCommand("unmap \"");
 
     // Faithful to the report: the remap is read from a sourced vimrc file.
     QTemporaryFile rc;
