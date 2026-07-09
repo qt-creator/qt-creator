@@ -25,5 +25,6 @@ protected:
 };
 
 void setupQnxToolchain();
+void setupQnxDebuggerDetection(QObject *guard);
 
 } // Qnx::Internal

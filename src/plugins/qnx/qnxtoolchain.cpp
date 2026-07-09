@@ -8,13 +8,18 @@
 #include "qnxtr.h"
 #include "qnxutils.h"
 
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggeritemmanager.h>
+
 #include <projectexplorer/abiwidget.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QFormLayout>
 
@@ -220,6 +225,25 @@ void QnxToolchainConfigWidget::handleSdpPathChange()
     emit dirty();
 }
 
+// Resolve the SDP environment file on a device. Prefer the value of the
+// QnxSdpEnvFileToolAspect, but fall back to probing the well-known SDP install
+// locations on the device: that aspect is populated asynchronously and may not
+// be set yet while device tool detection runs.
+static FilePath qnxSdpEnvFile(const IDevice::ConstPtr &device)
+{
+    const FilePath fromAspect = device->deviceToolPath(Constants::QNX_SDPENVFILE_TOOL_ID);
+    if (!fromAspect.isEmpty())
+        return fromAspect;
+
+    for (const char *candidate : {"/opt/qnx710/qnxsdp-env.sh", "/opt/qnx800/qnxsdp-env.sh",
+                                  "/opt/qnx710/qnxsdp-env.bat", "/opt/qnx800/qnxsdp-env.bat"}) {
+        const FilePath f = device->rootPath().withNewPath(QLatin1String(candidate));
+        if (f.exists())
+            return f;
+    }
+    return {};
+}
+
 // Detect QNX toolchains from an SDP environment file (e.g. the one carried by a
 // build device via QnxSdpEnvFileToolAspect). Creates one QnxToolchain per target
 // ABI and language, skipping any that are already known.
@@ -291,11 +315,8 @@ public:
     {
         // Device-driven detection: build toolchains from the SDP environment
         // file carried by the (build) device via QnxSdpEnvFileToolAspect.
-        if (detector.device) {
-            const FilePath envFile =
-                detector.device->deviceToolPath(Constants::QNX_SDPENVFILE_TOOL_ID);
-            return autoDetectFromEnvFile(envFile, detector.alreadyKnown);
-        }
+        if (detector.device)
+            return autoDetectFromEnvFile(qnxSdpEnvFile(detector.device), detector.alreadyKnown);
 
         return autoDetectHelper(detector.alreadyKnown);
     }
@@ -310,6 +331,68 @@ public:
 void setupQnxToolchain()
 {
     static QnxToolchainFactory theQnxToolChainFactory;
+}
+
+// Register the QNX debuggers (nto*-gdb) shipped in the SDP referenced by a
+// device's QnxSdpEnvFileToolAspect, so device-driven kit creation can pick a
+// matching debugger for the QNX kits.
+static void detectQnxDebuggers(const IDevice::ConstPtr &device)
+{
+    const FilePath envFile = qnxSdpEnvFile(device);
+    if (envFile.isEmpty() || !envFile.exists())
+        return;
+
+    FilePath qnxHost;
+    // The nto gdbs need QNX_HOST/QNX_TARGET/QNX_CONFIGURATION set to run and to
+    // report the target ABIs; collect them from the sourced SDP environment.
+    EnvironmentItems qnxVars;
+    const EnvironmentItems qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(envFile);
+    for (const EnvironmentItem &item : qnxEnv) {
+        if (item.name == "QNX_HOST")
+            qnxHost = envFile.withNewPath(item.value).canonicalPath();
+        if (item.name == "QNX_HOST" || item.name == "QNX_TARGET"
+            || item.name == "QNX_CONFIGURATION" || item.name == "QNX_CONFIGURATION_EXCLUSIVE")
+            qnxVars.append(item);
+    }
+    if (qnxHost.isEmpty())
+        return;
+
+    const FilePath binDir = qnxHost.pathAppended("usr/bin");
+    QString pattern = "nto*-gdb";
+    if (binDir.osType() == OsTypeWindows)
+        pattern += ".exe";
+
+    Environment sysEnv = qnxHost.deviceEnvironment();
+    sysEnv.modify(qnxVars);
+    const FilePaths gdbs = binDir.dirEntries({{pattern}, DirFilterFlag::Files});
+    for (const FilePath &gdb : gdbs) {
+        const bool known = Utils::anyOf(Debugger::DebuggerItemManager::debuggers(),
+                                        [&gdb](const Debugger::DebuggerItem &di) {
+                                            return di.command() == gdb;
+                                        });
+        if (known)
+            continue;
+
+        Debugger::DebuggerItem item;
+        item.createId();
+        item.setCommand(gdb);
+        item.reinitializeFromFile(nullptr, &sysEnv);
+        item.setUnexpandedDisplayName(Tr::tr("QNX Debugger (%1)").arg(gdb.fileName()));
+        item.setDetectionSource({DetectionSource::Manual, gdb.toUrlishString()});
+        Debugger::DebuggerItemManager::registerDebugger(item);
+    }
+}
+
+void setupQnxDebuggerDetection(QObject *guard)
+{
+    QObject::connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested, guard,
+                     [](Id devId, const FilePaths &, quint64 token) {
+        const IDevice::Ptr device = DeviceManager::find(devId);
+        QTC_ASSERT(device, return);
+        device->registerToolDetectionTask(token);
+        detectQnxDebuggers(device);
+        device->deregisterToolDetectionTask(token);
+    });
 }
 
 } // Qnx::Internal

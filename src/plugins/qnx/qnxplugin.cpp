@@ -117,6 +117,7 @@ class QnxPlugin final : public ExtensionSystem::IPlugin
     {
         setupQnxDevice();
         setupQnxToolchain();
+        setupQnxDebuggerDetection(this);
         setupQnxQtVersion();
         setupQnxDeployment();
         setupQnxRunnning();
