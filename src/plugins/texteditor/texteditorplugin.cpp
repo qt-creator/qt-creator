@@ -456,7 +456,7 @@ void TextEditorPlugin::createEditorCommands()
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+V")))
         .addToContainer(M_EDIT, G_EDIT_COPYPASTE);
     TextActionBuilder(this, NO_FORMAT_PASTE)
-        .setText(Tr::tr("Paste Without Formatting"))
+        .setText(Tr::tr("Paste &Without Formatting"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Alt+Shift+V"), QString())
         .addToContainer(M_EDIT, G_EDIT_COPYPASTE);
 
