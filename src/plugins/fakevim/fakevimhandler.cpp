@@ -1784,6 +1784,8 @@ public:
     EventResult handleExMode(const Input &);
     EventResult handleSearchSubSubMode(const Input &);
     bool handleCommandSubSubMode(const Input &);
+    // vim-unimpaired emulation for the "[x" / "]x" bracket commands.
+    bool handleVimUnimpaired(bool close, const Input &input);
     void fixSelection(); // Fix selection according to current range, move and command modes.
     bool finishSearch();
     void finishMovement(const QString &dotCommandMovement = QString());
@@ -3964,33 +3966,39 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             }
         }
     } else if (g.subsubmode == OpenSquareSubSubMode || g.subsubmode == CloseSquareSubSubMode) {
-        int pos = position();
-        if (input.is('{') && g.subsubmode == OpenSquareSubSubMode)
-            searchBalanced(false, '{', '}');
-        else if (input.is('}') && g.subsubmode == CloseSquareSubSubMode)
-            searchBalanced(true, '}', '{');
-        else if (input.is('(') && g.subsubmode == OpenSquareSubSubMode)
-            searchBalanced(false, '(', ')');
-        else if (input.is(')') && g.subsubmode == CloseSquareSubSubMode)
-            searchBalanced(true, ')', '(');
-        else if (input.is('[') && g.subsubmode == OpenSquareSubSubMode)
-            bracketSearchBackward(&m_cursor, "^\\{", count());
-        else if (input.is('[') && g.subsubmode == CloseSquareSubSubMode)
-            bracketSearchForward(&m_cursor, "^\\}", count(), false);
-        else if (input.is(']') && g.subsubmode == OpenSquareSubSubMode)
-            bracketSearchBackward(&m_cursor, "^\\}", count());
-        else if (input.is(']') && g.subsubmode == CloseSquareSubSubMode)
-            bracketSearchForward(&m_cursor, "^\\{", count(), g.submode != NoSubMode);
-        else if (input.is('z'))
-            q->foldGoTo(g.subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
-        handled = pos != position();
-        if (handled) {
-            if (lineForPosition(pos) != lineForPosition(position()))
-                recordJump(pos);
-            finishMovement(QString("%1%2%3")
-                           .arg(count())
-                           .arg(g.subsubmode == OpenSquareSubSubMode ? '[' : ']')
-                           .arg(input.text()));
+        if (s.emulateVimUnimpaired()
+                && handleVimUnimpaired(g.subsubmode == CloseSquareSubSubMode, input)) {
+            g.subsubmode = NoSubSubMode;
+            handled = true;
+        } else {
+            int pos = position();
+            if (input.is('{') && g.subsubmode == OpenSquareSubSubMode)
+                searchBalanced(false, '{', '}');
+            else if (input.is('}') && g.subsubmode == CloseSquareSubSubMode)
+                searchBalanced(true, '}', '{');
+            else if (input.is('(') && g.subsubmode == OpenSquareSubSubMode)
+                searchBalanced(false, '(', ')');
+            else if (input.is(')') && g.subsubmode == CloseSquareSubSubMode)
+                searchBalanced(true, ')', '(');
+            else if (input.is('[') && g.subsubmode == OpenSquareSubSubMode)
+                bracketSearchBackward(&m_cursor, "^\\{", count());
+            else if (input.is('[') && g.subsubmode == CloseSquareSubSubMode)
+                bracketSearchForward(&m_cursor, "^\\}", count(), false);
+            else if (input.is(']') && g.subsubmode == OpenSquareSubSubMode)
+                bracketSearchBackward(&m_cursor, "^\\}", count());
+            else if (input.is(']') && g.subsubmode == CloseSquareSubSubMode)
+                bracketSearchForward(&m_cursor, "^\\{", count(), g.submode != NoSubMode);
+            else if (input.is('z'))
+                q->foldGoTo(g.subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
+            handled = pos != position();
+            if (handled) {
+                if (lineForPosition(pos) != lineForPosition(position()))
+                    recordJump(pos);
+                finishMovement(QString("%1%2%3")
+                               .arg(count())
+                               .arg(g.subsubmode == OpenSquareSubSubMode ? '[' : ']')
+                               .arg(input.text()));
+            }
         }
     } else if (g.subsubmode == SurroundWithFunctionSubSubMode) {
         if (input.isReturn()) {
@@ -4027,6 +4035,43 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         handled = false;
     }
     return handled;
+}
+
+bool FakeVimHandler::Private::handleVimUnimpaired(bool close, const Input &input)
+{
+    // A small subset of tpope's vim-unimpaired, entered via "[" / "]".
+    if (input.is(' ')) {
+        // "[<Space>" / "]<Space>": add [count] blank lines above/below,
+        // leaving the cursor on the current line.
+        const QTextBlock b = block();
+        pushUndoState(false);
+        beginEditBlock();
+        QTextCursor tc = m_cursor;
+        tc.setPosition(close ? b.position() + b.length() - 1 : b.position());
+        tc.insertText(QString(count(), QLatin1Char('\n')));
+        endEditBlock();
+        setTargetColumn();
+        return true;
+    }
+
+    if (input.is('e')) {
+        // "[e" / "]e": move the current line up/down by [count] lines,
+        // keeping the cursor on the moved line and in the same column.
+        const int line = cursorLine() + 1; // 1-based
+        const int lastLine = document()->blockCount();
+        const int target = close ? qMin(line + count(), lastLine)
+                                 : qMax(line - count() - 1, 0);
+        if ((close && target > line) || (!close && target < line - 1)) {
+            const int column = m_cursor.positionInBlock();
+            handleExCommand(QString("move %1").arg(target));
+            const QTextBlock b = block();
+            setPosition(b.position() + qMin(column, qMax(b.length() - 1, 0)));
+            setTargetColumn();
+        }
+        return true;
+    }
+
+    return false;
 }
 
 bool FakeVimHandler::Private::handleCount(const Input &input)

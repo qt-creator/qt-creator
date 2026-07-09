@@ -164,6 +164,7 @@ private slots:
     void test_vim_exchange_emulation();
     void test_vim_arg_text_obj_emulation();
     void test_vim_surround_emulation();
+    void test_vim_unimpaired_emulation();
 
     void test_macros();
 
@@ -4819,6 +4820,40 @@ void FakeVimTester::test_vim_surround_emulation()
     // Visual block mode
     data.setText("abc" N "def");
     KEYS("<C-v>ljSB", "{ab}c" N "{de}f");
+}
+
+void FakeVimTester::test_vim_unimpaired_emulation()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set unimpaired");
+
+    // ]<Space> / [<Space>: add blank lines below/above, cursor stays put.
+    data.setText("abc" N "d|ef" N "ghi");
+    KEYS("]<Space>", "abc" N "d|ef" N "" N "ghi");
+    KEYS("[<Space>", "abc" N "" N "d|ef" N "" N "ghi");
+
+    // With a count.
+    data.setText("a|bc" N "def");
+    KEYS("2]<Space>", "a|bc" N "" N "" N "def");
+    data.setText("abc" N "d|ef");
+    KEYS("2[<Space>", "abc" N "" N "" N "d|ef");
+
+    // ]e / [e: move the current line down/up.
+    data.setText("a|bc" N "def" N "ghi");
+    KEYS("]e", "def" N "a|bc" N "ghi");
+    KEYS("[e", "a|bc" N "def" N "ghi");
+
+    // Moving does not go past the first or last line.
+    data.setText("a|bc" N "def");
+    KEYS("[e", "a|bc" N "def");
+    data.setText("abc" N "d|ef");
+    KEYS("]e", "abc" N "d|ef");
+
+    // With a count.
+    data.setText("a|bc" N "def" N "ghi");
+    KEYS("2]e", "def" N "ghi" N "a|bc");
+    KEYS("2[e", "a|bc" N "def" N "ghi");
 }
 
 void FakeVimTester::test_macros()

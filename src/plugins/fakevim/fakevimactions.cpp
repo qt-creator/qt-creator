@@ -99,6 +99,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&emulateExchange, false, "exchange", {}, "vim-exchange");
     setup(&emulateArgTextObj, false, "argtextobj", {}, "argtextobj.vim");
     setup(&emulateSurround, false, "surround", {}, "vim-surround");
+    setup(&emulateVimUnimpaired, false, "unimpaired", {}, "vim-unimpaired");
 
     // Some polish
     useFakeVim.setDisplayName(Tr::tr("Use Vim-Style Editing"));
@@ -187,7 +188,8 @@ FakeVimSettings::FakeVimSettings()
                     emulateReplaceWithRegister,
                     emulateArgTextObj,
                     emulateExchange,
-                    emulateSurround
+                    emulateSurround,
+                    emulateVimUnimpaired
                 }
             },
 

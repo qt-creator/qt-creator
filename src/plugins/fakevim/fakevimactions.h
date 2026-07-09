@@ -152,6 +152,7 @@ public:
     FvBoolAspect emulateExchange;
     FvBoolAspect emulateArgTextObj;
     FvBoolAspect emulateSurround;
+    FvBoolAspect emulateVimUnimpaired;
 
     FvBoolAspect blinkingCursor;
     FvBoolAspect systemEncoding;
