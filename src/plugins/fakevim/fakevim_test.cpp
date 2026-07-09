@@ -3529,6 +3529,13 @@ void FakeVimTester::test_vim_ex_move()
     KEYS("Vj:m+2<cr>", "ghi" N "def" N X "abc" N "jkl");
     KEYS("u", X "def" N "abc" N "ghi" N "jkl");
 
+    // Moving the last line (which has no trailing newline) must not merge it
+    // with the target line.
+    data.setText("abc" N "def" N "gh|i");
+    COMMAND("m0", X "ghi" N "abc" N "def");
+    data.setText("abc" N "def" N "gh|i");
+    COMMAND("m1", "abc" N X "ghi" N "def");
+
     // move visual selection with indentation
     data.doCommand("set expandtab");
     data.doCommand("set shiftwidth=2");

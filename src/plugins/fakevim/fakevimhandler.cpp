@@ -6378,6 +6378,12 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
     QString text = selectText(cmd.range);
     removeText(currentRange());
 
+    // The last line has no trailing newline, so its linewise selection carries
+    // a leading newline instead; normalize to the usual "line\n" form so the
+    // text below can be reinserted at any block boundary.
+    if (text.startsWith(QLatin1Char('\n')))
+        text = text.mid(1) + QLatin1Char('\n');
+
     const bool insertAtEnd = targetLine == document()->blockCount();
     if (targetLine >= startLine)
         targetLine -= lines;
