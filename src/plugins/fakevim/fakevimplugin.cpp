@@ -48,6 +48,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
+#include <utils/environment.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -1268,6 +1269,10 @@ void FakeVimPlugin::maybeReadVimRc()
     if (fileName.isEmpty()) {
         fileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
             + QLatin1String(HostOsInfo::isWindowsHost() ? "/_vimrc" : "/.vimrc");
+    } else {
+        // path may contain environment variables such as $HOME or
+        // %USERPROFILE% (as advertised by the setting's placeholder text)
+        fileName = Environment::systemEnvironment().expandVariables(fileName);
     }
     //qDebug() << "READING VIMRC: " << fileName;
     // Read it into a temporary handler for effects modifying global state.
