@@ -341,6 +341,14 @@ void GitEditorWidget::refresh()
         config->handleArgumentsChanged();
 }
 
+void GitEditorWidget::restoreState(const QByteArray &state)
+{
+    Q_UNUSED(state)
+    // Do nothing. We always want to start at the top without any folding etc pp.
+    // That the Git editors for e.g. rebases share the same name doesn't mean that
+    // they should share editing state.
+}
+
 QWidget *GitEditorWidget::addFilterWidget()
 {
     if (!m_logFilterWidget)

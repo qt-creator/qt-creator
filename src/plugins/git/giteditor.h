@@ -32,6 +32,8 @@ public:
     bool caseSensitive() const;
     void refresh();
 
+    void restoreState(const QByteArray &state) override;
+
 signals:
     void toggleFilters(bool value);
 
