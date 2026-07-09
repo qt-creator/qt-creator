@@ -1645,6 +1645,15 @@ class Dumper(DumperBase):
                         % (self.process.GetExitStatus(),
                            toCString(self.process.GetExitDescription())))
         elif state != self.eventState and not skipEventReporting:
+            # A breakpoint whose condition evaluated to false (and other cases
+            # where the target is auto-continued) still broadcasts a 'stopped'
+            # event, but with the "restarted" flag set. Not honoring it made
+            # every false-condition hit look like a real stop, e.g. stealing the
+            # keyboard focus on each hit on macOS (QTCREATORBUG-34583). Skip such
+            # events and leave eventState unchanged so the eventual real stop is
+            # still reported.
+            if state == lldb.eStateStopped and lldb.SBProcess.GetRestartedFromEvent(event):
+                return
             self.eventState = state
             if state == lldb.eStateStopped:
                 stoppedThread = self.firstStoppedThread()
