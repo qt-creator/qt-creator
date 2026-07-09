@@ -5,7 +5,6 @@ QtcLibrary {
 
     Depends { name: "Qt"; submodules: ["gui", "network"] }
     Depends { name: "Utils" }
-    Depends { name: "Tracing" }
 
     files: [
         "baseenginedebugclient.cpp",

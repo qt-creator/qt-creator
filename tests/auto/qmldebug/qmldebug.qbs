@@ -30,8 +30,9 @@ Project {
         name: "QmlProfilerTraceClient autotest"
         Depends { name: "QmlDebug" }
         Depends { name: "Utils" }
-        Depends { name: "Tracing" }
+        Depends { name: "Tracing"; required: false }
         Depends { name: "Qt"; submodules: "network" }
+        condition: Tracing.present
         files: ["tst_qmlprofilertraceclient.cpp", "tst_qmlprofilertraceclient.h", "tests.qrc"]
     }
 }

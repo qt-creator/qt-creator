@@ -9,7 +9,7 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
     Depends { name: "Utils" }
-    Depends { name: "Tracing" }
+    Depends { name: "Tracing"; required: false }
     Depends { name: "QtTaskTree" }
 
     Depends { name: "Core" }
@@ -21,6 +21,8 @@ QtcPlugin {
     // perfsampler.cpp); building Profiler should build it too. Not required:
     // the "Perf Parser" project is Linux-only (see perfparser.qbs).
     Depends { name: "perfparser"; required: false }
+
+    condition: Tracing.present
 
     Group {
         name: "General"

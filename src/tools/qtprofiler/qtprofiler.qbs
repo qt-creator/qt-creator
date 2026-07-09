@@ -8,7 +8,9 @@ QtcTool {
     Depends { name: "Core" }
     Depends { name: "Profiler" }
     Depends { name: "CommonTraceFormat" }
-    Depends { name: "Tracing" }
+    Depends { name: "Tracing"; required: false }
+
+    condition: Tracing.present
 
     files: [
         "qtprofilerinit.cpp",

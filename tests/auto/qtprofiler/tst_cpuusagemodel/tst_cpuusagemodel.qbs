@@ -3,9 +3,10 @@ import qbs
 QtcAutotest {
     name: "QtProfiler CPU usage model autotest"
     Depends { name: "CommonTraceFormat" }
-    Depends { name: "Tracing" }
+    Depends { name: "Tracing"; required: false }
     Depends { name: "Utils" }
     Depends { name: "Qt.gui" }
+    condition: Tracing.present
     cpp.includePaths: base.concat([
         path + "/../../../../src/plugins/profiler",
         path + "/../../../../src/plugins",
