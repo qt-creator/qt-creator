@@ -51,20 +51,24 @@ private:
 class GitRebaseHighlighter : public TextEditor::SyntaxHighlighter
 {
 public:
-    explicit GitRebaseHighlighter(const QString &commentMarker, QTextDocument *parent = nullptr);
-    void highlightBlock(const QString &text) override;
-
-private:
     class RebaseAction
     {
     public:
+        QChar shortcut;
+        QString action;
         QRegularExpression exp;
         Format formatCategory;
-        RebaseAction(const QString &regexp, const Format formatCategory);
+        RebaseAction(QChar shortcut, const QString &action, Format formatCategory);
     };
+
+    explicit GitRebaseHighlighter(const QString &commentMarker, QTextDocument *parent = nullptr);
+    void highlightBlock(const QString &text) override;
+
+    static const QList<RebaseAction> &actions();
+
+private:
     const QString m_commentMarker;
     const QRegularExpression m_changeNumberPattern;
-    QList<RebaseAction> m_actions;
 };
 
 } // Git::Internal

@@ -18,16 +18,20 @@
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <utils/algorithm.h>
 #include <utils/ansiescapecodehandler.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
 
+#include <QKeyEvent>
 #include <QMenu>
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QToolBar>
+
+#include <algorithm>
 
 #define CHANGE_PATTERN "\\b[a-f0-9]{7,40}\\b"
 
@@ -236,6 +240,68 @@ void GitEditorWidget::init()
     else if (isRebaseEditor)
         textDocument()->resetSyntaxHighlighter(
             [commentMarker] { return new GitRebaseHighlighter(commentMarker); });
+}
+
+void GitEditorWidget::keyPressEvent(QKeyEvent *e)
+{
+    if (replaceRebaseAction(e))
+        return;
+    VcsBaseEditorWidget::keyPressEvent(e);
+}
+
+/*!
+    If the cursor is at the start of a rebase todo line, and the pressed key
+    is the shortcut of a rebase action, this replaces the action keyword or
+    shortcut that is already there with the one matching the pressed key.
+*/
+bool GitEditorWidget::replaceRebaseAction(QKeyEvent *e)
+{
+    if (textDocument()->id() != Git::Constants::GIT_REBASE_EDITOR_ID)
+        return false;
+    const QTextCursor cursor = textCursor();
+    if (cursor.hasSelection() || !cursor.atBlockStart() || e->text().size() != 1)
+        return false;
+
+    const QChar key = e->text().at(0);
+    const QList<GitRebaseHighlighter::RebaseAction> &actions = GitRebaseHighlighter::actions();
+    const auto pressedAction = std::find_if(
+        actions.begin(), actions.end(),
+        [key](const GitRebaseHighlighter::RebaseAction &action) {
+            return action.shortcut == key;
+        });
+    if (pressedAction == actions.end())
+        return false;
+
+    static const QRegularExpression firstTokenPattern("^\\S+");
+    const QRegularExpressionMatch firstTokenMatch = firstTokenPattern.match(cursor.block().text());
+    if (!firstTokenMatch.hasMatch())
+        return false;
+
+    const QString currentToken = firstTokenMatch.captured();
+    const bool currentTokenIsAction = Utils::anyOf(
+        actions, [&currentToken](const GitRebaseHighlighter::RebaseAction &action) {
+            return currentToken == action.action || currentToken == QString(action.shortcut);
+        });
+    if (!currentTokenIsAction)
+        return false;
+
+    // Insert the new action before removing the old token (rather than the
+    // other way round) so that undoing the replacement leaves the cursor at
+    // the start of the line: undo replays the insert last, and undoing an
+    // insert places the cursor at its insertion point.
+    const int blockPosition = cursor.block().position();
+    QTextCursor tokenCursor = cursor;
+    tokenCursor.beginEditBlock();
+    tokenCursor.setPosition(blockPosition);
+    tokenCursor.insertText(pressedAction->action);
+    tokenCursor.setPosition(blockPosition + pressedAction->action.size());
+    tokenCursor.setPosition(blockPosition + pressedAction->action.size() + currentToken.size(),
+                            QTextCursor::KeepAnchor);
+    tokenCursor.removeSelectedText();
+    tokenCursor.setPosition(blockPosition);
+    tokenCursor.endEditBlock();
+    setTextCursor(tokenCursor);
+    return true;
 }
 
 void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)

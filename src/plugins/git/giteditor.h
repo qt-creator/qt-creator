@@ -7,6 +7,8 @@
 
 #include <QRegularExpression>
 
+QT_FORWARD_DECLARE_CLASS(QKeyEvent)
+
 namespace Utils {
 class FancyLineEdit;
 class FilePath;
@@ -41,6 +43,8 @@ private:
     void applyDiffChunk(const VcsBase::DiffChunk& chunk, Core::PatchAction patchAction);
 
     void init() override;
+    void keyPressEvent(QKeyEvent *e) override;
+    bool replaceRebaseAction(QKeyEvent *e);
     void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk) override;
     void aboutToOpen(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath) override;
     QString changeUnderCursor(const QTextCursor &) const override;

@@ -75,9 +75,11 @@ void GitSubmitHighlighter::setCommentChar(const QString &commentMarker)
     rehighlight();
 }
 
-GitRebaseHighlighter::RebaseAction::RebaseAction(const QString &regexp,
+GitRebaseHighlighter::RebaseAction::RebaseAction(QChar shortcut, const QString &action,
                                                  const Format formatCategory)
-    : exp(regexp),
+    : shortcut(shortcut),
+      action(action),
+      exp("^(" + QRegularExpression::escape(QString(shortcut)) + '|' + action + ")\\b"),
       formatCategory(formatCategory)
 {
 }
@@ -116,19 +118,25 @@ GitRebaseHighlighter::GitRebaseHighlighter(const QString &commentMarker, QTextDo
     m_changeNumberPattern(CHANGE_PATTERN)
 {
     setTextFormatCategories(Format_Count, styleForFormat);
+}
 
-    m_actions << RebaseAction("^(p|pick)\\b", Format_Pick);
-    m_actions << RebaseAction("^(r|reword)\\b", Format_Reword);
-    m_actions << RebaseAction("^(e|edit)\\b", Format_Edit);
-    m_actions << RebaseAction("^(s|squash)\\b", Format_Squash);
-    m_actions << RebaseAction("^(f|fixup)\\b", Format_Fixup);
-    m_actions << RebaseAction("^(x|exec)\\b", Format_Exec);
-    m_actions << RebaseAction("^(b|break)\\b", Format_Break);
-    m_actions << RebaseAction("^(d|drop)\\b", Format_Drop);
-    m_actions << RebaseAction("^(l|label)\\b", Format_Label);
-    m_actions << RebaseAction("^(t|reset)\\b", Format_Reset);
-    m_actions << RebaseAction("^(m|merge)\\b", Format_Merge);
-    m_actions << RebaseAction("^(u|update-ref)\\b", Format_UpdateRef);
+const QList<GitRebaseHighlighter::RebaseAction> &GitRebaseHighlighter::actions()
+{
+    static const QList<RebaseAction> actions {
+        RebaseAction('p', "pick", Format_Pick),
+        RebaseAction('r', "reword", Format_Reword),
+        RebaseAction('e', "edit", Format_Edit),
+        RebaseAction('s', "squash", Format_Squash),
+        RebaseAction('f', "fixup", Format_Fixup),
+        RebaseAction('x', "exec", Format_Exec),
+        RebaseAction('b', "break", Format_Break),
+        RebaseAction('d', "drop", Format_Drop),
+        RebaseAction('l', "label", Format_Label),
+        RebaseAction('t', "reset", Format_Reset),
+        RebaseAction('m', "merge", Format_Merge),
+        RebaseAction('u', "update-ref", Format_UpdateRef),
+    };
+    return actions;
 }
 
 void GitRebaseHighlighter::highlightBlock(const QString &text)
@@ -141,7 +149,7 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
             setFormat(match.capturedStart(), match.capturedLength(), formatForCategory(Format_Change));
         }
     } else {
-        for (const RebaseAction &action : std::as_const(m_actions)) {
+        for (const RebaseAction &action : actions()) {
             const QRegularExpressionMatch match = action.exp.match(text);
             if (match.hasMatch()) {
                 const int len = match.capturedLength();
