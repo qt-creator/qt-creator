@@ -2666,10 +2666,13 @@ const WatchItem *WatchHandler::findCppLocalVariable(const QString &name) const
     QString iname = localsPrefix + name;
     if (const WatchItem *item = findItem(iname))
         return item;
-//    // Nope, try a 'local.this.m_foo'.
-//    iname.insert(localsPrefix.size(), "this.");
-//    if (const WatchData *wd = findData(iname))
-//        return wd;
+    // Nope, try 'local.this.m_foo', i.e. an unqualified member of the
+    // current object. This resolves it from the already-fetched model
+    // without a backend expression evaluation, so it also works with
+    // backends that cannot evaluate a bare member name (e.g. CDB).
+    iname.insert(localsPrefix.size(), "this.");
+    if (const WatchItem *item = findItem(iname))
+        return item;
     return nullptr;
 }
 
