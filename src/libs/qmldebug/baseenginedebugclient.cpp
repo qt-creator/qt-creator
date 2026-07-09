@@ -124,6 +124,7 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
     }
 
     bool capped = false;
+    ObjectReference result;
     while (!stack.isEmpty()) {
         if (!capped && stack.last().childrenLeft > 0 && ds.status() == QDataStream::Ok) {
             if (stack.size() >= MaxDecodedDepth) {
@@ -153,11 +154,13 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
             if (!capped)
                 readProperties(done.obj);
             if (stack.isEmpty())
-                o = std::move(done.obj);
+                result = std::move(done.obj);
             else
                 stack.last().obj.m_children.append(std::move(done.obj));
         }
     }
+    // Assign unconditionally so o is never left in its moved-from state.
+    o = std::move(result);
 }
 
 void BaseEngineDebugClient::decode(QDataStream &ds,
