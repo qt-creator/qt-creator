@@ -141,6 +141,7 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
         ssh.userName, st, br,
         ssh.useKeyFile, st, br,
         ssh.privateKeyFile, createKeyButton, br,
+        ssh.x11ForwardToDisplay, br,
         linuxDevice->autoConnectOnStartup, br,
         linuxDevice->sourceProfile, br,
         device->sshForwardDebugServerPort, br,
@@ -549,9 +550,11 @@ void SshProcessInterfacePrivate::start()
         = sshSettings().useConnectionSharing()
           && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
 
-    // TODO: Do we really need it for master process?
-    m_sshParameters.setX11DisplayName(
-        q->m_setup.m_extraData.value("Ssh.X11ForwardToDisplay").toString());
+    const auto x11Display = q->m_setup.m_extraData.constFind("Ssh.X11ForwardToDisplay");
+    if (x11Display != q->m_setup.m_extraData.cend())
+        m_sshParameters.setX11DisplayName(x11Display->toString());
+    else if (q->m_setup.m_terminalMode == Utils::TerminalMode::Off && !q->m_setup.m_ptyData)
+        m_sshParameters.setX11DisplayName({});
 
     if (useConnectionSharing) {
         m_connecting = true;

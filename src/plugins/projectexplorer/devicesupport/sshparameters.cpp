@@ -347,6 +347,7 @@ void SshParametersAspectContainer::setSshParameters(const SshParameters &params)
     timeout.setVolatileValue(params.timeout());
     useKeyFile.setVolatileValue(params.authenticationType() == SshParameters::AuthenticationTypeSpecificKey);
     hostKeyCheckingMode.setVolatileValue(params.hostKeyCheckingMode());
+    x11ForwardToDisplay.setVolatileValue(params.x11DisplayName());
 
     privateKeyFile.setEnabled(
         params.authenticationType() == SshParameters::AuthenticationTypeSpecificKey);
@@ -369,6 +370,7 @@ SshParameters SshParametersAspectContainer::sshParameters() const
         useKeyFile() ? SshParameters::AuthenticationTypeSpecificKey
                      : SshParameters::AuthenticationTypeAll);
     params.setHostKeyCheckingMode(hostKeyCheckingMode.value());
+    params.setX11DisplayName(x11ForwardToDisplay());
     return params;
 }
 
@@ -414,6 +416,12 @@ SshParametersAspectContainer::SshParametersAspectContainer(AspectContainer *cont
     timeout.setDefaultValue(10);
     timeout.setLabelText(Tr::tr("Timeout:"));
     timeout.setToolTip(Tr::tr("The device's SSH connection timeout."));
+
+    x11ForwardToDisplay.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+    x11ForwardToDisplay.setPlaceHolderText(Tr::tr("Disabled"));
+    x11ForwardToDisplay.setToolTip(Tr::tr("The local X11 display to forward to (e.g. :0). "
+                                           "Leave empty to disable X11 forwarding."));
+    x11ForwardToDisplay.setLabelText(Tr::tr("X11 display:"));
 }
 
 } // namespace ProjectExplorer

@@ -104,6 +104,7 @@ public:
     Utils::StringAspect host{this};
     Utils::IntegerAspect port{this};
     Utils::StringAspect userName{this};
+    Utils::StringAspect x11ForwardToDisplay{this};
 };
 
 #ifdef WITH_TESTS

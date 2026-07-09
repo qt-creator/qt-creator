@@ -134,6 +134,7 @@ const char AuthKey[] = "Authentication";
 const char KeyFileKey[] = "KeyFile";
 const char TimeoutKey[] = "Timeout";
 const char HostKeyCheckingKey[] = "HostKeyChecking";
+const char X11ForwardToDisplayKey[] = "X11ForwardToDisplay";
 
 const char SshForwardDebugServerPortKey[] = "SshForwardDebugServerPort";
 const char LinkDeviceKey[] = "LinkDevice";
@@ -1339,7 +1340,7 @@ void IDevice::fromMap(const Store &map)
     if (hostKeyCheckingMode < SshHostKeyCheckingNone || hostKeyCheckingMode > SshHostKeyCheckingAllowNoMatch)
         hostKeyCheckingMode = SshHostKeyCheckingNone;
     ssh.setHostKeyCheckingMode(hostKeyCheckingMode);
-
+    ssh.setX11DisplayName(map.value(X11ForwardToDisplayKey).toString());
 
     d->sshParametersAspectContainer.setSshParameters(ssh);
 }
@@ -1375,6 +1376,7 @@ void IDevice::toMap(Store &map) const
     map.insert(KeyFileKey, ssh.privateKeyFile().toSettings());
     map.insert(TimeoutKey, ssh.timeout());
     map.insert(HostKeyCheckingKey, ssh.hostKeyCheckingMode());
+    map.insert(X11ForwardToDisplayKey, ssh.x11DisplayName());
 }
 
 QString IDevice::displayName() const

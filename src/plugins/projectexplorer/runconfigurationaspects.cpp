@@ -1147,6 +1147,8 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
         CheckBoxPlacement::Left, Tr::tr("Use X11 forwarding:"), "RunConfiguration.UseX11Forwarding");
     setPlaceHolderText(hostX11Display());
     setLabelText("DISPLAY=");
+    setToolTip(Tr::tr("Overrides the X11 display set in the device settings, "
+                      "also when unchecked."));
 
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
 }
