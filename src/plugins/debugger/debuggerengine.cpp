@@ -572,46 +572,46 @@ public:
         static int contextCount = 0;
         m_context = Context(Id("Debugger.Engine.").withSuffix(++contextCount));
 
-        ActionManager::registerAction(&m_continueAction, Constants::CONTINUE, m_context);
-        ActionManager::registerAction(&m_exitAction, Constants::STOP, m_context);
-        ActionManager::registerAction(&m_interruptAction, Constants::INTERRUPT, m_context);
-        ActionManager::registerAction(&m_abortAction, Constants::ABORT, m_context);
-        ActionManager::registerAction(&m_stepOverAction, Constants::NEXT, m_context);
-        ActionManager::registerAction(&m_stepIntoAction, Constants::STEP, m_context);
-        ActionManager::registerAction(&m_stepOutAction, Constants::STEPOUT, m_context);
-        ActionManager::registerAction(&m_runToLineAction, Constants::RUNTOLINE, m_context);
-        ActionManager::registerAction(&m_runToSelectedFunctionAction, Constants::RUNTOSELECTEDFUNCTION, m_context);
-        ActionManager::registerAction(&m_jumpToLineAction, Constants::JUMPTOLINE, m_context);
-        ActionManager::registerAction(&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION, m_context);
-        ActionManager::registerAction(&m_detachAction, Constants::DETACH, m_context);
-        ActionManager::registerAction(&m_resetAction, Constants::RESET, m_context);
-        ActionManager::registerAction(&m_watchAction, Constants::WATCH, m_context);
-        ActionManager::registerAction(&m_operateByInstructionAction, Constants::OPERATE_BY_INSTRUCTION, m_context);
-        ActionManager::registerAction(&m_openMemoryEditorAction, Constants::OPEN_MEMORY_EDITOR, m_context);
-        ActionManager::registerAction(&m_frameUpAction, Constants::FRAME_UP, m_context);
-        ActionManager::registerAction(&m_frameDownAction, Constants::FRAME_DOWN, m_context);
+        m_engineActions = {
+            {&m_continueAction, Constants::CONTINUE},
+            {&m_exitAction, Constants::STOP},
+            {&m_interruptAction, Constants::INTERRUPT},
+            {&m_abortAction, Constants::ABORT},
+            {&m_stepOverAction, Constants::NEXT},
+            {&m_stepIntoAction, Constants::STEP},
+            {&m_stepOutAction, Constants::STEPOUT},
+            {&m_runToLineAction, Constants::RUNTOLINE},
+            {&m_runToSelectedFunctionAction, Constants::RUNTOSELECTEDFUNCTION},
+            {&m_jumpToLineAction, Constants::JUMPTOLINE},
+            {&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION},
+            {&m_detachAction, Constants::DETACH},
+            {&m_resetAction, Constants::RESET},
+            {&m_watchAction, Constants::WATCH},
+            {&m_operateByInstructionAction, Constants::OPERATE_BY_INSTRUCTION},
+            {&m_openMemoryEditorAction, Constants::OPEN_MEMORY_EDITOR},
+            {&m_frameUpAction, Constants::FRAME_UP},
+            {&m_frameDownAction, Constants::FRAME_DOWN},
+        };
+
+        registerActions();
+    }
+
+    // Registers the engine's actions with the global Core::ActionManager.
+    void registerActions()
+    {
+        for (const auto &[action, id] : m_engineActions)
+            ActionManager::registerAction(action, id, m_context);
+    }
+
+    void unregisterActions()
+    {
+        for (const auto &[action, id] : m_engineActions)
+            ActionManager::unregisterAction(action, id);
     }
 
     ~DebuggerEnginePrivate()
     {
-        ActionManager::unregisterAction(&m_continueAction, Constants::CONTINUE);
-        ActionManager::unregisterAction(&m_exitAction, Constants::STOP);
-        ActionManager::unregisterAction(&m_interruptAction, Constants::INTERRUPT);
-        ActionManager::unregisterAction(&m_abortAction, Constants::ABORT);
-        ActionManager::unregisterAction(&m_stepOverAction, Constants::NEXT);
-        ActionManager::unregisterAction(&m_stepIntoAction, Constants::STEP);
-        ActionManager::unregisterAction(&m_stepOutAction, Constants::STEPOUT);
-        ActionManager::unregisterAction(&m_runToLineAction, Constants::RUNTOLINE);
-        ActionManager::unregisterAction(&m_runToSelectedFunctionAction, Constants::RUNTOSELECTEDFUNCTION);
-        ActionManager::unregisterAction(&m_jumpToLineAction, Constants::JUMPTOLINE);
-        ActionManager::unregisterAction(&m_returnFromFunctionAction, Constants::RETURNFROMFUNCTION);
-        ActionManager::unregisterAction(&m_detachAction, Constants::DETACH);
-        ActionManager::unregisterAction(&m_resetAction, Constants::RESET);
-        ActionManager::unregisterAction(&m_watchAction, Constants::WATCH);
-        ActionManager::unregisterAction(&m_operateByInstructionAction, Constants::OPERATE_BY_INSTRUCTION);
-        ActionManager::unregisterAction(&m_openMemoryEditorAction, Constants::OPEN_MEMORY_EDITOR);
-        ActionManager::unregisterAction(&m_frameUpAction, Constants::FRAME_UP);
-        ActionManager::unregisterAction(&m_frameDownAction, Constants::FRAME_DOWN);
+        unregisterActions();
         destroyPerspective();
 
         delete m_threadLabel;
@@ -747,6 +747,7 @@ public:
 
     QList<QPointer<DebuggerEngine>> m_companionEngines;
     bool m_isPrimaryEngine = true;
+    QList<std::pair<QAction *, Id>> m_engineActions;
 
     // The current state.
     DebuggerState m_state = DebuggerNotReady;
