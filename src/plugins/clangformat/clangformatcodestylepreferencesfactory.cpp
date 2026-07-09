@@ -544,11 +544,18 @@ public:
         , m_selector{{}, this}
         , m_widget{{}, codeStyle, this}
     {
-        addHeaderWidget(&m_globalSettings);
         m_selector.setCodeStyle(codeStyle);
-        addSelector(&m_selector);
-        addEditorWidget(&m_widget);
-        QWidget *filler = addExpandingFiller();
+        auto filler = new QWidget;
+        filler->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+        using namespace Layouting;
+        Column {
+            &m_globalSettings,
+            &m_selector,
+            &m_widget,
+            filler,
+            noMargin,
+        }.attachTo(this);
 
         const ClangFormatSettings::Mode currentMode = m_globalSettings.mode();
         const auto updateSelectorVisibility = [this, filler] {
@@ -706,7 +713,7 @@ public:
         setPreviewText(QString::fromLatin1(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
         setIndenterCreator([](QTextDocument *doc) { return new ClangFormatForwardingIndenter(doc); });
         setCodeStyleCreator([] { return new CppEditor::CppCodeStylePreferences; });
-        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
+        setValueEditorCreator([](ICodeStylePreferences *codeStyle) {
             return new ClangFormatSettingsEditor{codeStyle};
         });
         setProjectEditorCreator([this](const FilePath &projectFile, ICodeStylePreferences *codeStyle) {

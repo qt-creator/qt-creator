@@ -71,12 +71,6 @@ ICodeStylePreferences *ICodeStylePreferencesFactory::createCodeStyle() const
     return m_codeStyleCreator ? m_codeStyleCreator() : nullptr;
 }
 
-CodeStyleEditor *ICodeStylePreferencesFactory::createSettingsEditor(
-    ICodeStylePreferences *codeStyle) const
-{
-    return m_settingsEditorCreator ? m_settingsEditorCreator(codeStyle) : nullptr;
-}
-
 QWidget *ICodeStylePreferencesFactory::createValueEditor(ICodeStylePreferences *codeStyle) const
 {
     return m_valueEditorCreator ? m_valueEditorCreator(codeStyle) : nullptr;
@@ -110,11 +104,6 @@ void ICodeStylePreferencesFactory::setIndenterCreator(const IndenterCreator &cre
 void ICodeStylePreferencesFactory::setCodeStyleCreator(const CodeStyleCreator &creator)
 {
     m_codeStyleCreator = creator;
-}
-
-void ICodeStylePreferencesFactory::setSettingsEditorCreator(const SettingsEditorCreator &creator)
-{
-    m_settingsEditorCreator = creator;
 }
 
 void ICodeStylePreferencesFactory::setValueEditorCreator(const ValueEditorCreator &creator)

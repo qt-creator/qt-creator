@@ -13,25 +13,28 @@
 
 QT_BEGIN_NAMESPACE
 class QLabel;
-class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
 
 namespace TextEditor {
 class CodeStylePool;
-class CodeStyleSelectorWidget;
 class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
-class Indenter;
 class SnippetEditorWidget;
 
+// Base for a self-managed code style value editor whose deferred state lives
+// outside the ICodeStylePreferences (e.g. ClangFormat's .clang-format files and
+// global settings). When a value editor derives from this, the hosting
+// CodeStyleAspect routes apply/cancel/isDirty to it and listens to changed(),
+// and leaves it to lay out its own selector and preview. Plain value editors
+// that only edit the preferences do not need it.
 class TEXTEDITOR_EXPORT CodeStyleEditor : public QWidget
 {
     Q_OBJECT
 
 public:
-    CodeStyleEditor();
+    using QWidget::QWidget;
 
     virtual void apply();
     virtual void cancel();
@@ -39,18 +42,6 @@ public:
 
 signals:
     void changed();
-
-protected:
-    void addHeaderWidget(QWidget *widget);
-    void addSelector(CodeStyleSelectorWidget *selector);
-    void addEditorWidget(QWidget *editor);
-    // Adds a vertically expanding empty widget at the end of the layout. Toggle
-    // its visibility opposite to the editor area so that the remaining widgets
-    // stay packed at the top when the editor area is hidden.
-    QWidget *addExpandingFiller();
-
-private:
-    QVBoxLayout *m_layout = nullptr;
 };
 
 // Creates a snippet preview editor bound to codeStyle: decorated with the

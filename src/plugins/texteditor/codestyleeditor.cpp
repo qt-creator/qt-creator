@@ -29,12 +29,6 @@ using namespace Utils;
 
 namespace TextEditor {
 
-CodeStyleEditor::CodeStyleEditor()
-{
-    m_layout = new QVBoxLayout{this};
-    m_layout->setContentsMargins(0, 0, 0, 0);
-}
-
 void CodeStyleEditor::apply() {}
 
 void CodeStyleEditor::cancel() {}
@@ -42,30 +36,6 @@ void CodeStyleEditor::cancel() {}
 bool CodeStyleEditor::isDirty() const
 {
     return false;
-}
-
-void CodeStyleEditor::addSelector(CodeStyleSelectorWidget *selector)
-{
-    m_layout->addWidget(selector);
-    Utils::installMarkSettingsDirtyTriggerRecursively(selector);
-}
-
-void CodeStyleEditor::addHeaderWidget(QWidget *widget)
-{
-    m_layout->insertWidget(0, widget);
-}
-
-void CodeStyleEditor::addEditorWidget(QWidget *editor)
-{
-    m_layout->addWidget(editor);
-}
-
-QWidget *CodeStyleEditor::addExpandingFiller()
-{
-    auto filler = new QWidget;
-    filler->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    m_layout->addWidget(filler);
-    return filler;
 }
 
 // The default per-project code style editor: a style selector above a live
@@ -188,28 +158,36 @@ CodeStyleAspect::CodeStyleAspect(ICodeStylePreferences *codeStyle, Id languageId
 
         using namespace Layouting;
 
-        if (QWidget *valueEditor = factory->createValueEditor(m_pageCodeStyle)) {
-            // The language supplies only its value editor; the common selector
-            // and preview are built here. Edits go live into the page-local
-            // copy, and dirtiness/apply/cancel are handled by this aspect
-            // against the real style.
-            auto selector = new CodeStyleSelectorWidget({});
-            selector->setCodeStyle(m_pageCodeStyle);
-            Utils::installMarkSettingsDirtyTriggerRecursively(selector);
+        QWidget *valueEditor = factory->createValueEditor(m_pageCodeStyle);
 
-            if (factory->valueEditorHasPreview())
-                return Column { selector, valueEditor };
-            return Column {
-                selector,
-                valueEditor,
-                createCodeStylePreview(factory, {}, m_pageCodeStyle),
-                createCodeStylePreviewNote(),
-            };
+        // A self-managed editor lays out its own selector and manages its own
+        // deferred apply/cancel (e.g. ClangFormat, whose settings live outside
+        // the preferences). Route its contract and show it as it is.
+        if (auto selfManaged = qobject_cast<CodeStyleEditor *>(valueEditor)) {
+            m_editor = selfManaged;
+            connect(m_editor, &CodeStyleEditor::changed,
+                    this, [this] { emit volatileValueChanged(); });
+            return Column { valueEditor };
         }
 
-        m_editor = factory->createSettingsEditor(m_pageCodeStyle);
-        connect(m_editor, &CodeStyleEditor::changed, this, [this] { emit volatileValueChanged(); });
-        return Column { m_editor.data() };
+        // A plain value editor edits the page-local copy live; build the common
+        // selector and preview around it and let this aspect own the deferral.
+        auto selector = new CodeStyleSelectorWidget({});
+        selector->setCodeStyle(m_pageCodeStyle);
+        Utils::installMarkSettingsDirtyTriggerRecursively(selector);
+
+        if (factory->valueEditorHasPreview())
+            return Column { selector, valueEditor };
+        return Column {
+            selector,
+            Row {
+                Column { valueEditor, st },
+                Column {
+                    createCodeStylePreview(factory, {}, m_pageCodeStyle),
+                    createCodeStylePreviewNote(),
+                },
+            },
+        };
     });
 }
 

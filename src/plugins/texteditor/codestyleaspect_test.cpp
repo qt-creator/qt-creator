@@ -34,9 +34,7 @@ public:
         connect(&m_tabSettings, &AspectContainer::volatileValueChanged,
                 this, &CodeStyleEditor::changed);
 
-        auto widget = new QWidget;
-        Layouting::Column{&m_tabSettings}.attachTo(widget);
-        addEditorWidget(widget);
+        Layouting::Column{&m_tabSettings}.attachTo(this);
     }
 
     void apply() final { m_tabSettings.apply(); }
@@ -60,7 +58,7 @@ public:
             prefs->setSettingsSuffix("TestCodeStyle");
             return prefs;
         });
-        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
+        setValueEditorCreator([](ICodeStylePreferences *codeStyle) {
             return new TestCodeStyleEditor(codeStyle);
         });
     }
@@ -82,9 +80,7 @@ public:
         connect(codeStyle, &ICodeStylePreferences::currentValueChanged,
                 this, &CodeStyleEditor::changed);
 
-        auto widget = new QWidget;
-        Layouting::Column{&m_tabSettings}.attachTo(widget);
-        addEditorWidget(widget);
+        Layouting::Column{&m_tabSettings}.attachTo(this);
     }
 
 private:
@@ -104,7 +100,7 @@ public:
             prefs->setSettingsSuffix("LiveTestCodeStyle");
             return prefs;
         });
-        setSettingsEditorCreator([](ICodeStylePreferences *codeStyle) {
+        setValueEditorCreator([](ICodeStylePreferences *codeStyle) {
             return new LiveTestCodeStyleEditor(codeStyle);
         });
     }

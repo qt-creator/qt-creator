@@ -21,7 +21,6 @@ QT_END_NAMESPACE
 namespace Utils { class FilePath; }
 
 namespace TextEditor {
-class CodeStyleEditor;
 class CodeStylePool;
 class ICodeStylePreferences;
 class Indenter;
@@ -36,7 +35,6 @@ class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory
 public:
     using IndenterCreator = std::function<Indenter *(QTextDocument *)>;
     using CodeStyleCreator = std::function<ICodeStylePreferences *()>;
-    using SettingsEditorCreator = std::function<CodeStyleEditor *(ICodeStylePreferences *)>;
     using ValueEditorCreator = std::function<QWidget *(ICodeStylePreferences *)>;
     using ProjectEditorCreator
         = std::function<QWidget *(const Utils::FilePath &, ICodeStylePreferences *)>;
@@ -51,11 +49,11 @@ public:
     QString previewText() const;
     Indenter *createIndenter(QTextDocument *doc) const;
     ICodeStylePreferences *createCodeStyle() const;
-    CodeStyleEditor *createSettingsEditor(ICodeStylePreferences *codeStyle) const;
-    // The language's value editor: just the widgets that edit codeStyle's own
-    // settings, editing it live. The selector and preview are provided by the
-    // hosting CodeStyleAspect. Returns nullptr for languages that instead
-    // supply a full settings editor via setSettingsEditorCreator().
+    // The language's value editor. Usually just the widgets that edit
+    // codeStyle's own settings live, with the hosting CodeStyleAspect providing
+    // the selector and preview and owning the deferral. A value editor that
+    // derives from CodeStyleEditor instead lays out its own selector and manages
+    // its own deferred apply/cancel (e.g. ClangFormat).
     QWidget *createValueEditor(ICodeStylePreferences *codeStyle) const;
     // Whether the value editor already contains its own preview, so the hosting
     // CodeStyleAspect should not add the standard one below it.
@@ -68,7 +66,6 @@ public:
     void setPreviewText(const QString &previewText);
     void setIndenterCreator(const IndenterCreator &creator);
     void setCodeStyleCreator(const CodeStyleCreator &creator);
-    void setSettingsEditorCreator(const SettingsEditorCreator &creator);
     void setValueEditorCreator(const ValueEditorCreator &creator);
     void setValueEditorHasPreview(bool hasPreview);
     void setProjectEditorCreator(const ProjectEditorCreator &creator);
@@ -92,7 +89,6 @@ private:
     QString m_previewText;
     IndenterCreator m_indenterCreator;
     CodeStyleCreator m_codeStyleCreator;
-    SettingsEditorCreator m_settingsEditorCreator;
     ValueEditorCreator m_valueEditorCreator;
     bool m_valueEditorHasPreview = false;
     ProjectEditorCreator m_projectEditorCreator;
