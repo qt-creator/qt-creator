@@ -67,4 +67,7 @@ private:
     friend class FileTransferPrivate;
 };
 
+PROJECTEXPLORER_EXPORT FileTransferInterface *createGenericFileTransferInterface(
+    const FileTransferSetupData &setup);
+
 } // namespace ProjectExplorer

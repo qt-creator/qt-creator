@@ -699,9 +699,7 @@ ProcessInterface *IDevice::createProcessInterface() const
 FileTransferInterface *IDevice::createFileTransferInterface(
         const FileTransferSetupData &setup) const
 {
-    Q_UNUSED(setup)
-    QTC_CHECK(false);
-    return nullptr;
+    return createGenericFileTransferInterface(setup);
 }
 
 Environment IDevice::systemEnvironment() const

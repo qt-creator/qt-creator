@@ -14,8 +14,6 @@
 #include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QtTaskTree/QSingleTaskTreeRunner>
-
 #include <utils/algorithm.h>
 
 #include <QDir>
@@ -348,106 +346,6 @@ private:
     FilePath m_rsync;
 };
 
-static void createDir(QPromise<Result<>> &promise, const FilePath &pathToCreate)
-{
-    const Result<> result = pathToCreate.ensureWritableDir();
-    promise.addResult(result);
-
-    if (!result)
-        promise.future().cancel();
-};
-
-static void copyFile(QPromise<Result<>> &promise, const FileToTransfer &file)
-{
-    const Result<> result = file.m_source.copyFile(file.m_target);
-    promise.addResult(result);
-
-    if (!result)
-        promise.future().cancel();
-};
-
-class GenericTransferImpl : public FileTransferInterface
-{
-    QSingleTaskTreeRunner m_taskTree;
-
-public:
-    GenericTransferImpl(const FileTransferSetupData &setup)
-        : FileTransferInterface(setup)
-    {}
-
-private:
-    void start() final
-    {
-        const QSet<FilePath> allParentDirs
-            = Utils::transform<QSet>(m_setup.m_files, [](const FileToTransfer &f) {
-                  return f.m_target.parentDir();
-              });
-
-        const ListIterator iteratorParentDirs(QList(allParentDirs.cbegin(), allParentDirs.cend()));
-
-        const auto onCreateDirSetup = [iteratorParentDirs](Async<Result<>> &async) {
-            async.setConcurrentCallData(createDir, *iteratorParentDirs);
-        };
-
-        const auto onCreateDirDone = [this,
-                                      iteratorParentDirs](const Async<Result<>> &async) {
-            const Result<> result = async.result();
-            if (result)
-                emit progress(
-                    Tr::tr("Created directory: \"%1\".").arg(iteratorParentDirs->toUserOutput())
-                    + "\n");
-            else
-                emit progress(result.error());
-        };
-
-        const ListIterator iterator(m_setup.m_files);
-        const Storage<int> counterStorage;
-
-        const auto onCopySetup = [iterator](Async<Result<>> &async) {
-            async.setConcurrentCallData(copyFile, *iterator);
-        };
-
-        const auto onCopyDone = [this, iterator, counterStorage](
-                                    const Async<Result<>> &async) {
-            const Result<> result = async.result();
-            int &counter = *counterStorage;
-            ++counter;
-
-            if (result) {
-                //: %1/%2 = progress in the form 4/15, %3 and %4 = source and target file paths
-                emit progress(Tr::tr("Copied %1/%2: \"%3\" -> \"%4\".\n")
-                                  .arg(counter)
-                                  .arg(m_setup.m_files.size())
-                                  .arg(iterator->m_source.toUserOutput())
-                                  .arg(iterator->m_target.toUserOutput()));
-            } else {
-                emit progress(result.error() + "\n");
-            }
-        };
-
-        const Group recipe {
-            For (iteratorParentDirs) >> Do {
-                parallelIdealThreadCountLimit,
-                AsyncTask<Result<>>(onCreateDirSetup, onCreateDirDone),
-            },
-            For (iterator) >> Do {
-                ParallelLimit(2),
-                counterStorage,
-                AsyncTask<Result<>>(onCopySetup, onCopyDone),
-            },
-        };
-
-        m_taskTree.start(recipe, {}, [this](DoneWith result) {
-            ProcessResultData resultData;
-            if (result != DoneWith::Success) {
-                resultData.m_exitCode = -1;
-                resultData.m_errorString = Tr::tr("Failed to deploy files.");
-            }
-            emit done(resultData);
-        });
-    }
-};
-
 FileTransferInterface *createRemoteLinuxFileTransferInterface
     (const LinuxDevice &device, const FileTransferSetupData &setup)
 {
@@ -459,7 +357,7 @@ FileTransferInterface *createRemoteLinuxFileTransferInterface
         return new RsyncTransferImpl(setup, device.shared_from_this());
     if (setup.m_method == FileTransferMethod::Sftp && isLocal /* not supported for remote src */)
         return new SftpTransferImpl(setup, device.shared_from_this());
-    return new GenericTransferImpl(setup);
+    return createGenericFileTransferInterface(setup);
 }
 
 } // namespace Remote::Internal

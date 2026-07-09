@@ -7,8 +7,11 @@
 #include "idevice.h"
 #include "../projectexplorertr.h"
 
+#include <utils/async.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <QProcess>
 
@@ -16,6 +19,101 @@ using namespace QtTaskTree;
 using namespace Utils;
 
 namespace ProjectExplorer {
+
+static void createDir(QPromise<Result<>> &promise, const FilePath &pathToCreate)
+{
+    const Result<> result = pathToCreate.ensureWritableDir();
+    promise.addResult(result);
+    if (!result)
+        promise.future().cancel();
+}
+
+static void copyFile(QPromise<Result<>> &promise, const FileToTransfer &file)
+{
+    const Result<> result = file.m_source.copyFile(file.m_target);
+    promise.addResult(result);
+    if (!result)
+        promise.future().cancel();
+}
+
+class GenericTransferImpl : public FileTransferInterface
+{
+    QSingleTaskTreeRunner m_taskTree;
+
+public:
+    GenericTransferImpl(const FileTransferSetupData &setup)
+        : FileTransferInterface(setup)
+    {}
+
+private:
+    void start() final
+    {
+        QSet<FilePath> allParentDirs;
+        for (const FileToTransfer &f : m_setup.m_files)
+            allParentDirs.insert(f.m_target.parentDir());
+        const ListIterator iteratorParentDirs(QList(allParentDirs.cbegin(), allParentDirs.cend()));
+
+        const auto onCreateDirSetup = [iteratorParentDirs](Async<Result<>> &async) {
+            async.setConcurrentCallData(createDir, *iteratorParentDirs);
+        };
+        const auto onCreateDirDone = [this, iteratorParentDirs](const Async<Result<>> &async) {
+            const Result<> result = async.result();
+            if (result)
+                emit progress(
+                    Tr::tr("Created directory: \"%1\".").arg(iteratorParentDirs->toUserOutput())
+                    + "\n");
+            else
+                emit progress(result.error() + "\n");
+        };
+
+        const ListIterator iterator(m_setup.m_files);
+        const Storage<int> counterStorage;
+
+        const auto onCopySetup = [iterator](Async<Result<>> &async) {
+            async.setConcurrentCallData(copyFile, *iterator);
+        };
+        const auto onCopyDone = [this, iterator, counterStorage](const Async<Result<>> &async) {
+            const Result<> result = async.result();
+            int &counter = *counterStorage;
+            ++counter;
+            if (result) {
+                emit progress(Tr::tr("Copied %1/%2: \"%3\" -> \"%4\".\n")
+                                  .arg(counter)
+                                  .arg(m_setup.m_files.size())
+                                  .arg(iterator->m_source.toUserOutput())
+                                  .arg(iterator->m_target.toUserOutput()));
+            } else {
+                emit progress(result.error() + "\n");
+            }
+        };
+
+        const Group recipe {
+            For (iteratorParentDirs) >> Do {
+                parallelIdealThreadCountLimit,
+                AsyncTask<Result<>>(onCreateDirSetup, onCreateDirDone),
+            },
+            For (iterator) >> Do {
+                ParallelLimit(2),
+                counterStorage,
+                AsyncTask<Result<>>(onCopySetup, onCopyDone),
+            },
+        };
+
+        m_taskTree.start(recipe, {}, [this](DoneWith result) {
+            ProcessResultData resultData;
+            if (result != DoneWith::Success) {
+                resultData.m_exitCode = -1;
+                resultData.m_errorString = Tr::tr("Failed to deploy files.");
+            }
+            emit done(resultData);
+        });
+    }
+};
+
+FileTransferInterface *createGenericFileTransferInterface(const FileTransferSetupData &setup)
+{
+    return new GenericTransferImpl(setup);
+}
 
 QString FileTransferSetupData::defaultRsyncFlags()
 {
