@@ -9,6 +9,7 @@
 #include "qnxutils.h"
 
 #include <projectexplorer/abiwidget.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 
@@ -219,6 +220,58 @@ void QnxToolchainConfigWidget::handleSdpPathChange()
     emit dirty();
 }
 
+// Detect QNX toolchains from an SDP environment file (e.g. the one carried by a
+// build device via QnxSdpEnvFileToolAspect). Creates one QnxToolchain per target
+// ABI and language, skipping any that are already known.
+static Toolchains autoDetectFromEnvFile(const FilePath &envFile,
+                                        const Toolchains &alreadyKnown)
+{
+    if (envFile.isEmpty() || !envFile.exists())
+        return {};
+
+    FilePath qnxHost;
+    FilePath qnxTarget;
+    const EnvironmentItems qnxEnv = QnxUtils::qnxEnvironmentFromEnvFile(envFile);
+    for (const EnvironmentItem &item : qnxEnv) {
+        if (item.name == "QNX_HOST")
+            qnxHost = envFile.withNewPath(item.value).canonicalPath();
+        else if (item.name == "QNX_TARGET")
+            qnxTarget = envFile.withNewPath(item.value).canonicalPath();
+    }
+
+    const FilePath qcc = qnxHost.pathAppended("usr/bin/qcc").withExecutableSuffix();
+    if (!qcc.exists())
+        return {};
+
+    const FilePath sdpPath = envFile.parentDir();
+
+    Toolchains result;
+    const QList<QnxTarget> targets = QnxUtils::findTargets(qnxTarget);
+    for (const QnxTarget &target : targets) {
+        for (const Id language : {Id(ProjectExplorer::Constants::C_LANGUAGE_ID),
+                                  Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)}) {
+            const bool known = Utils::anyOf(alreadyKnown, [&](Toolchain *tc) {
+                return tc->typeId() == Constants::QNX_TOOLCHAIN_ID
+                       && tc->language() == language
+                       && tc->targetAbi() == target.m_abi
+                       && tc->compilerCommand() == qcc;
+            });
+            if (known)
+                continue;
+
+            auto tc = new QnxToolchain;
+            tc->setLanguage(language);
+            tc->setTargetAbi(target.m_abi);
+            tc->setDisplayName(Tr::tr("QCC for %1").arg(target.shortDescription()));
+            tc->sdpPath.setValue(sdpPath);
+            tc->cpuDir.setValue(target.cpuDir());
+            tc->resetToolchain(qcc);
+            result.append(tc);
+        }
+    }
+    return result;
+}
+
 // QnxToolchainFactory
 
 class QnxToolchainFactory : public ToolchainFactory
@@ -236,12 +289,15 @@ public:
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final
     {
-        // FIXME: Support detecting toolchains on remote devices
-        if (detector.device)
-            return {};
+        // Device-driven detection: build toolchains from the SDP environment
+        // file carried by the (build) device via QnxSdpEnvFileToolAspect.
+        if (detector.device) {
+            const FilePath envFile =
+                detector.device->deviceToolPath(Constants::QNX_SDPENVFILE_TOOL_ID);
+            return autoDetectFromEnvFile(envFile, detector.alreadyKnown);
+        }
 
-        Toolchains tcs = autoDetectHelper(detector.alreadyKnown);
-        return tcs;
+        return autoDetectHelper(detector.alreadyKnown);
     }
 
     std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget(
