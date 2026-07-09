@@ -18,6 +18,12 @@ Commit messages should follow this structure:
 When a commit addresses Coverity diagnostics, include the Coverity IDs in a
 Coverity-Id footer.
 
+When a commit fixes a regression introduced by a specific earlier commit,
+reference that commit in an `Amends <full-sha>.` footer (full 40-character
+hash, trailing period). The `Amends` line must come before other footer
+fields (such as `Task-number` and `Change-Id`) and be separated from them by
+a blank line.
+
 Make sure to not change the Change-Id on the last line of a commit if you change its commit message.
 
 ## UI design rules
