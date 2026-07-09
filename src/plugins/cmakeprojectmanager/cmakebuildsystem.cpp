@@ -1984,6 +1984,11 @@ void CMakeBuildSystem::updateExtraData()
     const QVariant androidExtraLibs = value(Android::Constants::ANDROID_EXTRA_LIBS);
     const QVariant androidPackageSourceDir = value(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
 
+    // Read by the androiddeployqt settings generation for projects that set
+    // these as cache variables.
+    const QVariant qmlImportPath = value("QML_IMPORT_PATH");
+    const QVariant qmlRootPath = value("QML_ROOT_PATH");
+
     // Formerly the TARGETS_BUILD_PATH config value, patched onto every node.
     QStringList androidTargets;
     // Formerly the ANDROID_SO_LIBS_PATHS config value, patched onto every node.
@@ -2005,6 +2010,8 @@ void CMakeBuildSystem::updateExtraData()
         setExtraData(ct.title, Android::Constants::AndroidSoLibPath, androidSoLibPaths);
         setExtraData(ct.title, Android::Constants::AndroidExtraLibs, androidExtraLibs);
         setExtraData(ct.title, Android::Constants::AndroidPackageSourceDir, androidPackageSourceDir);
+        setExtraData(ct.title, "QML_IMPORT_PATH", qmlImportPath);
+        setExtraData(ct.title, "QML_ROOT_PATH", qmlRootPath);
 
         if (ct.artifact.isEmpty())
             continue;
