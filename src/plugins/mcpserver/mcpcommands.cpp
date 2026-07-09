@@ -14,6 +14,9 @@
 
 #include <mcp/server/toolregistry.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -701,9 +704,26 @@ bool McpCommands::reformatFile(const QString &path)
     return true;
 }
 
+static QString pluginStateName(ExtensionSystem::PluginSpec::State state)
+{
+    switch (state) {
+    case ExtensionSystem::PluginSpec::Invalid: return "invalid";
+    case ExtensionSystem::PluginSpec::Read: return "read";
+    case ExtensionSystem::PluginSpec::Resolved: return "resolved";
+    case ExtensionSystem::PluginSpec::Loaded: return "loaded";
+    case ExtensionSystem::PluginSpec::Initialized: return "initialized";
+    case ExtensionSystem::PluginSpec::Running: return "running";
+    case ExtensionSystem::PluginSpec::Stopped: return "stopped";
+    case ExtensionSystem::PluginSpec::Deleted: return "deleted";
+    }
+    return "unknown";
+}
+
 void McpCommands::registerCommands()
 {
     using namespace Mcp::Schema;
+    using ExtensionSystem::PluginManager;
+    using ExtensionSystem::PluginSpec;
 
     static McpCommands commands;
 
@@ -1696,6 +1716,104 @@ void McpCommands::registerCommands()
             const QString path = p.value("path").toString();
             bool ok = commands.reformatFile(path);
             return QJsonObject{{"success", ok}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_plugins")
+            .title("List the installed plugins")
+            .description("Lists all installed plugins together with their current run state and "
+                         "whether they can be loaded at runtime without a restart.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "plugins",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description", "The installed plugins"}})
+                    .addRequired("plugins")),
+        wrap([](const QJsonObject &) {
+            QJsonArray plugins;
+            for (PluginSpec *spec : PluginManager::plugins()) {
+                plugins.append(QJsonObject{
+                    {"name", spec->name()},
+                    {"version", spec->version()},
+                    {"state", pluginStateName(spec->state())},
+                    {"running", spec->state() == PluginSpec::Running},
+                    {"softLoadable", spec->isEffectivelySoftloadable()}});
+            }
+            return QJsonObject{{"plugins", plugins}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("load_plugin")
+            .title("Load a plugin at runtime")
+            .description("Soft-loads a plugin, and its soft-loadable dependencies, into the running "
+                         "Qt Creator without a restart. Only works for plugins marked as "
+                         "soft-loadable; there is no matching unload.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "name",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Name of the plugin to load, as reported by "
+                                            "list_plugins"}})
+                    .addRequired("name"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("state", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            const QString name = p.value("name").toString();
+            PluginSpec *spec = Utils::findOrDefault(PluginManager::plugins(), [&name](PluginSpec *s) {
+                return s->name().compare(name, Qt::CaseInsensitive) == 0;
+            });
+            if (!spec) {
+                return QJsonObject{
+                    {"success", false}, {"message", QString("No plugin named \"%1\".").arg(name)}};
+            }
+            if (spec->state() == PluginSpec::Running)
+                return QJsonObject{{"success", true}, {"state", pluginStateName(spec->state())}};
+            if (!spec->isEffectivelySoftloadable()) {
+                return QJsonObject{
+                    {"success", false},
+                    {"state", pluginStateName(spec->state())},
+                    {"message", QString("Plugin \"%1\" is not soft-loadable.").arg(name)}};
+            }
+            // A plugin is only loaded up to the Loaded state if it is effectively enabled, so
+            // enable it first. Unlike the About Plugins dialog, this deliberately does not
+            // persist the change via PluginManager::writeSettings(): loading a plugin from an
+            // MCP client exercises it in the running session without permanently rewriting the
+            // user's plugin configuration. Use save_plugin_settings to make it stick.
+            spec->setEnabledBySettings(true);
+            PluginManager::loadPluginsAtRuntime({spec});
+            return QJsonObject{
+                {"success", spec->state() == PluginSpec::Running},
+                {"state", pluginStateName(spec->state())}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("save_plugin_settings")
+            .title("Persist the enabled plugins")
+            .description("Writes the current enabled/disabled state of all plugins to disk so it "
+                         "survives a restart. Use after load_plugin to make a runtime-loaded "
+                         "plugin load again on the next start.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &) {
+            PluginManager::writeSettings();
+            return QJsonObject{{"success", true}};
         }));
 }
 
