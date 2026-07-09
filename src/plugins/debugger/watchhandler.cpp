@@ -309,7 +309,7 @@ class SeparatedView : public QTabWidget
 {
     Q_OBJECT
 public:
-    SeparatedView() : QTabWidget(PerspectivesView::mainWindow())
+    SeparatedView() : QTabWidget(PerspectivesView::instance()->mainWindow())
     {
         setTabsClosable(true);
         connect(this, &QTabWidget::tabCloseRequested, this, &SeparatedView::closeTab);

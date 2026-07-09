@@ -204,7 +204,7 @@ using namespace Utils;
 namespace ProjectExplorer {
 
 namespace Constants {
-const int  P_MODE_SESSION         = 85;
+const int  P_MODE_SESSION         = 83;
 
 // Actions
 const char LOADWORKSPACE[]        = "ProjectExplorer.LoadWorkspace";

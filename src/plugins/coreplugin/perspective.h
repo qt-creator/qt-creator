@@ -5,6 +5,8 @@
 
 #include "core_global.h"
 
+#include <utils/id.h>
+
 #include <QObject>
 
 #include <functional>
@@ -19,12 +21,16 @@ namespace Utils { class FancyMainWindow; }
 
 namespace Core {
 
+class PerspectivesView;
+
 class CORE_EXPORT Perspective : public QObject
 {
 public:
+    // A null view registers the perspective with the default (Debug) view.
     Perspective(const QString &id, const QString &name,
                 const QString &parentPerspectiveId = QString(),
-                const QString &settingId = QString());
+                const QString &settingId = QString(),
+                PerspectivesView *view = nullptr);
     ~Perspective();
 
     enum OperationType { SplitVertical, SplitHorizontal, AddToTab, Raise };
@@ -79,31 +85,44 @@ class CORE_EXPORT PerspectivesView : public QObject
     Q_OBJECT
 
 public:
+    // The default (Debug) view.
     static PerspectivesView *instance();
-
     static void ensureMainWindowExists();
+
+    // Creates an additional view, hosted in its own mode.
+    static PerspectivesView *createView(const QString &settingsGroup,
+                                        const Utils::Id &modeContext,
+                                        const QString &statusObjectName);
+
+    // Tears down a view created with createView(). Must be called before the
+    // hosting mode's widget is destroyed (see the Profiler mode).
+    static void destroyView(PerspectivesView *view);
+
+    // Shuts down all views.
     static void doShutdown();
 
-    static void showStatusMessage(const QString &message, int timeoutMS);
-    static void enableMainWindow(bool on);
-    static void showPermanentStatusMessage(const QString &message);
-    static void enterDebugMode();
-    static void leaveDebugMode();
+    void showStatusMessage(const QString &message, int timeoutMS);
+    void enableMainWindow(bool on);
+    void showPermanentStatusMessage(const QString &message);
+    void enter();
+    void leave();
 
-    static void addSubPerspectiveSwitcher(QWidget *widget);
-    static void addPerspectiveMenu(QMenu *menu);
+    void addSubPerspectiveSwitcher(QWidget *widget);
+    void addPerspectiveMenu(QMenu *menu);
 
-    static Perspective *currentPerspective();
+    Perspective *currentPerspective();
 
-    static Utils::FancyMainWindow *mainWindow();
-    static QWidget *centralWidgetStack();
+    Utils::FancyMainWindow *mainWindow();
+    QWidget *centralWidgetStack();
 
 signals:
     void perspectivesChanged();
-    void debugModeRequested();
+    void modeActivationRequested();
 
 private:
-    PerspectivesView();
+    PerspectivesView(const QString &settingsGroup,
+                     const Utils::Id &modeContext,
+                     const QString &statusObjectName);
     ~PerspectivesView() override;
 
     void savePersistentSettings() const;

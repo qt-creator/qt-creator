@@ -10713,5 +10713,14 @@
        id="path-distractionfree"
        style="fill:none;stroke:#000000"
        d="m 1856.5,569.5 v 13 m 7,-13 v 13" />
+    <g id="src/plugins/profiler/images/mode_profiler_mask">
+      <use x="0" y="0" xlink:href="#backgroundRect" transform="matrix(2.125,0,0,2.125,102,-552.5)" width="100%" height="100%" />
+      <g style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" transform="translate(1,1)">
+        <circle cx="84.5" cy="392.5" r="6.5" />
+        <path d="M84.5,386 V 383" />
+        <path d="M82,383 H 87" />
+        <path d="M84.5,392.5 L 88,389" />
+      </g>
+    </g>
   </g>
 </svg>

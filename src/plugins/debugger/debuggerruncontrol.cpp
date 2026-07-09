@@ -479,7 +479,7 @@ static ExecutableItem startEnginesRecipe(const Storage<DebuggerData> &storage)
                                 NormalMessageFormat);
         const QString message = Tr::tr("Starting debugger \"%1\" for ABI \"%2\"...")
                                 .arg(driver->debuggerName(), runParameters.toolChainAbi().toString());
-        PerspectivesView::showStatusMessage(message, 10000);
+        PerspectivesView::instance()->showStatusMessage(message, 10000);
         driver->showMessage(driver->startParameters(), LogDebug);
         driver->showMessage(DebuggerSettings::dump(), LogDebug);
 

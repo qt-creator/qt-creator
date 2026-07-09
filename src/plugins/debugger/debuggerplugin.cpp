@@ -455,7 +455,7 @@ public:
 
         auto editorAndFindWidget = new QWidget;
         editorAndFindWidget->setLayout(editorHolderLayout);
-        editorHolderLayout->addWidget(PerspectivesView::centralWidgetStack());
+        editorHolderLayout->addWidget(PerspectivesView::instance()->centralWidgetStack());
         editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
 
         auto documentAndRightPane = new MiniSplitter;
@@ -464,7 +464,7 @@ public:
         documentAndRightPane->setStretchFactor(0, 1);
         documentAndRightPane->setStretchFactor(1, 0);
 
-        auto centralEditorWidget = PerspectivesView::mainWindow()->centralWidget();
+        auto centralEditorWidget = PerspectivesView::instance()->mainWindow()->centralWidget();
         auto centralLayout = new QVBoxLayout(centralEditorWidget);
         centralEditorWidget->setLayout(centralLayout);
         centralLayout->setContentsMargins(0, 0, 0, 0);
@@ -475,7 +475,7 @@ public:
 
         // Right-side window with editor, output etc.
         auto mainWindowSplitter = new MiniSplitter;
-        mainWindowSplitter->addWidget(PerspectivesView::mainWindow());
+        mainWindowSplitter->addWidget(PerspectivesView::instance()->mainWindow());
         mainWindowSplitter->addWidget(new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter));
         auto outputPane = new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter);
         outputPane->setObjectName("DebuggerOutputPanePlaceHolder");
@@ -485,15 +485,15 @@ public:
         mainWindowSplitter->setOrientation(Qt::Vertical);
 
         // Navigation and right-side window.
-        setFocusProxy(PerspectivesView::centralWidgetStack());
+        setFocusProxy(PerspectivesView::instance()->centralWidgetStack());
         addWidget(new NavigationWidgetPlaceHolder(MODE_DEBUG, Side::Left));
         addWidget(mainWindowSplitter);
         setStretchFactor(0, 0);
         setStretchFactor(1, 1);
         setObjectName("DebugModeWidget");
 
-        PerspectivesView::addSubPerspectiveSwitcher(EngineManager::engineChooser());
-        PerspectivesView::addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
+        PerspectivesView::instance()->addSubPerspectiveSwitcher(EngineManager::engineChooser());
+        PerspectivesView::instance()->addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
 
         IContext::attach(this, Context(CC::C_EDITORMANAGER));
     }
@@ -512,9 +512,9 @@ public:
         setId(MODE_DEBUG);
 
         setWidgetCreator([] { return new DebugModeWidget; });
-        setMainWindow(PerspectivesView::mainWindow());
+        setMainWindow(PerspectivesView::instance()->mainWindow());
 
-        setMenu(&PerspectivesView::addPerspectiveMenu);
+        setMenu([](QMenu *menu) { PerspectivesView::instance()->addPerspectiveMenu(menu); });
     }
 };
 
@@ -1171,7 +1171,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         PerspectivesView::instance(),
         [] {
             if (ModeManager::currentModeId() == MODE_DEBUG)
-                PerspectivesView::leaveDebugMode();
+                PerspectivesView::instance()->leave();
         });
 
     connect(
@@ -1181,7 +1181,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
         [](Id mode, Id oldMode) {
             QTC_ASSERT(mode != oldMode, return);
             if (mode == MODE_DEBUG) {
-                PerspectivesView::enterDebugMode();
+                PerspectivesView::instance()->enter();
                 if (IEditor *editor = EditorManager::currentEditor())
                     editor->widget()->setFocus();
             }
@@ -1641,7 +1641,7 @@ void DebuggerPluginPrivate::reloadDebuggingHelpers()
     if (DebuggerEngine *engine = EngineManager::currentEngine())
         engine->reloadDebuggingHelpers();
     else
-        PerspectivesView::showStatusMessage(
+        PerspectivesView::instance()->showStatusMessage(
             Tr::tr("Reload debugging helpers skipped as no engine is running."), 5000);
 }
 
@@ -1982,7 +1982,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     connect(PerspectivesView::instance(), &PerspectivesView::perspectivesChanged,
             &m_engineManager, &EngineManager::updatePerspectives);
-    connect(PerspectivesView::instance(), &PerspectivesView::debugModeRequested,
+    connect(PerspectivesView::instance(), &PerspectivesView::modeActivationRequested,
             &m_engineManager, &EngineManager::activateDebugMode);
 }
 

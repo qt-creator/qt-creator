@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/profiler">
+        <file>images/mode_profiler_mask.png</file>
+        <file>images/mode_profiler_mask@2x.png</file>
+    </qresource>
+</RCC>

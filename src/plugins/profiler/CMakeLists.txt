@@ -53,6 +53,7 @@ set(QMLPROFILER_CPP_SOURCES
   memoryusagemodel.cpp memoryusagemodel.h
   pixmapcachemodel.cpp pixmapcachemodel.h
   qmlnote.cpp qmlnote.h
+  profilermode.cpp profilermode.h
   profilertr.h
   profiler_global.h
   qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
@@ -95,6 +96,7 @@ set(PERFPROFILER_CPP_SOURCES
   perfloaddialog.cpp perfloaddialog.h
   perfnativemixed.cpp perfnativemixed.h
   perfprofiler.qrc
+  profiler.qrc
   perfprofilerconstants.h
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
   perfprofilerflamegraphview.cpp perfprofilerflamegraphview.h

@@ -807,10 +807,10 @@ void CallgrindTool::setupRunControl(RunControl *runControl)
         const FilePath executable = m_runControl->commandLine().executable();
         m_runControl->postMessage(Tr::tr("Profiling %1").arg(executable.toUserOutput()),
                                 NormalMessageFormat);
-        PerspectivesView::showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
+        PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Starting Function Profiler..."));
     });
     connect(m_runControl, &RunControl::started, this, [] {
-        PerspectivesView::showPermanentStatusMessage(Tr::tr("Function Profiler running..."));
+        PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Function Profiler running..."));
     });
 
     connect(m_stopAction, &QAction::triggered, this, [this] { m_runControl->initiateStop(); });
@@ -873,7 +873,7 @@ static QString toOptionString(Option option)
 ExecutableItem CallgrindTool::optionRecipe(Option option) const
 {
     const auto onSetup = [this, option](Process &process) {
-        PerspectivesView::showPermanentStatusMessage(statusMessage(option));
+        PerspectivesView::instance()->showPermanentStatusMessage(statusMessage(option));
         const ProcessRunData runnable = m_runControl->runnable();
         const FilePath control = runnable.command.executable().withNewPath(CALLGRIND_CONTROL_BINARY);
         process.setCommand({control, {toOptionString(option), QString::number(m_pid)}});
@@ -885,20 +885,20 @@ ExecutableItem CallgrindTool::optionRecipe(Option option) const
     };
     const auto onDone = [option](const Process &process, DoneWith result) {
         if (result != DoneWith::Success) {
-            PerspectivesView::showPermanentStatusMessage(Tr::tr("An error occurred while trying to run %1: %2")
+            PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("An error occurred while trying to run %1: %2")
                                                      .arg(CALLGRIND_CONTROL_BINARY)
                                                      .arg(process.errorString()));
             return;
         }
         switch (option) {
         case Option::Pause:
-            PerspectivesView::showPermanentStatusMessage(Tr::tr("Callgrind paused."));
+            PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Callgrind paused."));
             break;
         case Option::UnPause:
-            PerspectivesView::showPermanentStatusMessage(Tr::tr("Callgrind unpaused."));
+            PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Callgrind unpaused."));
             break;
         case Option::Dump:
-            PerspectivesView::showPermanentStatusMessage(Tr::tr("Callgrind dumped profiling info."));
+            PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Callgrind dumped profiling info."));
             break;
         default:
             break;
@@ -916,7 +916,7 @@ ExecutableItem CallgrindTool::parseRecipe()
         if (hostOutputFile.isEmpty()) {
             TemporaryFile dataFile("callgrind.out");
             if (!dataFile.open()) {
-                PerspectivesView::showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
+                PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
                 return;
             }
             hostOutputFile = dataFile.filePath();
@@ -929,7 +929,7 @@ ExecutableItem CallgrindTool::parseRecipe()
 
     const auto onParserSetup = [storage](Async<ParseDataPtr> &async) {
         async.setConcurrentCallData(parseDataFile, *storage);
-        PerspectivesView::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
+        PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
     };
     const auto onParserDone = [this](const Async<ParseDataPtr> &async) {
         setParserData(async.result());
@@ -971,7 +971,7 @@ void CallgrindTool::unpause()
 void CallgrindTool::executeController(const Group &recipe)
 {
     if (m_controllerRunner.isRunning())
-        PerspectivesView::showPermanentStatusMessage(Tr::tr("Previous command has not yet finished."));
+        PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Previous command has not yet finished."));
     else
         m_controllerRunner.start(recipe);
 }
@@ -1030,7 +1030,7 @@ void CallgrindTool::engineFinished()
     if (data)
         showParserResults(data);
     else
-        PerspectivesView::showPermanentStatusMessage(Tr::tr("Profiling aborted."));
+        PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Profiling aborted."));
 
     setBusyCursor(false);
 }
@@ -1050,7 +1050,7 @@ void CallgrindTool::showParserResults(const ParseDataPtr &data)
     } else {
         msg = Tr::tr("Parsing failed.");
     }
-    PerspectivesView::showPermanentStatusMessage(msg);
+    PerspectivesView::instance()->showPermanentStatusMessage(msg);
 }
 
 void CallgrindTool::editorOpened(IEditor *editor)
@@ -1163,7 +1163,7 @@ void CallgrindTool::loadExternalLogFile()
         return;
     }
 
-    PerspectivesView::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
+    PerspectivesView::instance()->showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
     QCoreApplication::processEvents();
 
     setParserData(parseDataFile(filePath));

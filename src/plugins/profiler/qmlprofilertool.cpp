@@ -9,6 +9,7 @@
 #include "qmlprofilerattachdialog.h"
 #include "qmlprofilerclientmanager.h"
 #include "qmlprofilerconstants.h"
+#include "profilermode.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
@@ -93,7 +94,8 @@ public:
     QmlProfilerClientManager m_profilerConnections;
     QmlProfilerModelManager m_profilerModelManager;
 
-    Perspective m_perspective{Constants::QmlProfilerPerspectiveId, Tr::tr("QML Profiler")};
+    Perspective m_perspective{Constants::QmlProfilerPerspectiveId, Tr::tr("QML Profiler"),
+                              {}, {}, profilerView()};
     QmlProfilerDashboardView m_dashboardView{&m_profilerModelManager};
     QmlProfilerTraceView m_traceView{&m_profilerModelManager};
     QmlProfilerStatisticsView m_statisticsView{&m_profilerModelManager};
@@ -650,7 +652,7 @@ void QmlProfilerTool::showSaveDialog()
         if (!filePath.endsWith(zFile) && !filePath.endsWith(tFile))
             filePath = filePath.stringAppended(zFile);
         saveLastTraceFile(filePath);
-        PerspectivesView::enableMainWindow(false);
+        profilerView()->enableMainWindow(false);
         Core::ProgressManager::addTask(d->m_profilerModelManager.save(filePath.toUrlishString()),
                                        Tr::tr("Saving Trace Data"), TASK_SAVE,
                                        Core::ProgressManager::ShowInApplicationIcon);
@@ -661,7 +663,7 @@ void QmlProfilerTool::loadFile(const FilePath &filePath)
 {
     saveLastTraceFile(filePath);
     d->m_perspective.select();
-    PerspectivesView::enableMainWindow(false);
+    profilerView()->enableMainWindow(false);
     connect(&d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
             this, &QmlProfilerTool::setRecordedFeatures);
     d->m_profilerModelManager.populateFileFinder();
@@ -695,7 +697,7 @@ void QmlProfilerTool::onLoadSaveFinished()
 {
     disconnect(&d->m_profilerModelManager, &QmlProfilerModelManager::recordedFeaturesChanged,
                this, &QmlProfilerTool::setRecordedFeatures);
-    PerspectivesView::enableMainWindow(true);
+    profilerView()->enableMainWindow(true);
 }
 
 /*!

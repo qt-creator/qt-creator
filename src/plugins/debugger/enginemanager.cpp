@@ -534,7 +534,7 @@ void EngineManagerPrivate::updatePerspectives()
 {
     d->updateEngineChooserVisibility();
 
-    Perspective *current = PerspectivesView::currentPerspective();
+    Perspective *current = PerspectivesView::instance()->currentPerspective();
     if (!current) {
         return;
     }

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "ctfvisualizertool.h"
+#include "profilermode.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilertool.h"
@@ -48,6 +49,9 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        // Must exist before the tools construct their perspectives.
+        setupProfilerMode();
+
         Profiler::Internal::setupCtfVisualizerTool();
         setupQmlProfilerTool();
         setupQmlProfilerRunning();
@@ -97,6 +101,7 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
     ShutdownFlag aboutToShutdown() final
     {
         destroyPerfProfilerTool();
+        destroyProfilerMode();
         return SynchronousShutdown;
     }
 

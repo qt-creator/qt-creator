@@ -9,6 +9,7 @@
 #include "ctftimelinemodel.h"
 #include "ctftracemanager.h"
 #include "ctfvisualizerconstants.h"
+#include "profilermode.h"
 #include "profilertr.h"
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -66,7 +67,8 @@ private:
 
     Core::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
                                      QCoreApplication::translate("QtC::CtfVisualizer",
-                                                                 "Chrome Trace Format Visualizer")};
+                                                                 "Chrome Trace Format Visualizer"),
+                                     {}, {}, profilerView()};
 
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     QAction m_loadJson;

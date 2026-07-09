@@ -54,6 +54,7 @@ QtcPlugin {
             "memoryusagemodel.cpp", "memoryusagemodel.h",
             "pixmapcachemodel.cpp", "pixmapcachemodel.h",
             "qmlnote.cpp", "qmlnote.h",
+            "profilermode.cpp", "profilermode.h",
             "profilertr.h",
             "profiler_global.h",
             "qmlprofileranimationsmodel.h", "qmlprofileranimationsmodel.cpp",
@@ -115,6 +116,7 @@ QtcPlugin {
             "perftimelinemodelmanager.cpp", "perftimelinemodelmanager.h",
             "perftracepointdialog.cpp", "perftracepointdialog.h",
             "perfprofiler.qrc",
+            "profiler.qrc",
         ]
     }
 

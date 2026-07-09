@@ -658,7 +658,7 @@ void DebuggerToolTip::updateTooltip()
 
     if (state == PendingUnshown) {
         setState(PendingShown);
-        ToolTip::show(context.mousePosition, this, PerspectivesView::mainWindow());
+        ToolTip::show(context.mousePosition, this, PerspectivesView::instance()->mainWindow());
     }
 
     if (item && sameFrame) {

@@ -4,6 +4,7 @@
 #include "perfprofilertool.h"
 
 #include "perfprofilerconstants.h"
+#include "profilermode.h"
 #include "perfprofilerflamegraphmodel.h"
 #include "perfprofilerflamegraphview.h"
 #include "perfloaddialog.h"
@@ -66,7 +67,8 @@ class PerfProfilerToolPrivate
 public:
     Core::Perspective m_perspective{
         Constants::PerfProfilerPerspectiveId,
-        QCoreApplication::translate("QtC::PerfProfiler", "Performance Analyzer")
+        QCoreApplication::translate("QtC::PerfProfiler", "Performance Analyzer"),
+        {}, {}, profilerView()
     };
 
     QAction m_startAction;
