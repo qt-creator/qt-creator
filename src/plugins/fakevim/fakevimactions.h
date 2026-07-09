@@ -139,6 +139,7 @@ public:
     FvBoolAspect showMarks;
     FvBoolAspect passControlKey;
     FvBoolAspect passKeys;
+    FvBoolAspect commaPassesShortcuts;
     FvStringAspect clipboard;
     FvBoolAspect showCmd;
     FvIntegerAspect scrollOff;

@@ -63,6 +63,8 @@ FakeVimSettings::FakeVimSettings()
     setup(&showMarks,      false, "ShowMarks",      "sm",  Tr::tr("Show position of text marks"));
     setup(&passControlKey, false, "PassControlKey", "pck", Tr::tr("Pass control keys"));
     setup(&passKeys,       true,  "PassKeys",       "pk",  Tr::tr("Pass keys in insert mode"));
+    setup(&commaPassesShortcuts, false, "CommaPassesShortcuts", {},
+          Tr::tr("Use \",\" to pass shortcuts (instead of repeating f/t/F/T backwards)"));
 
     // Emulated Vsetting
     setup(&startOfLine,    true,  "StartOfLine",    "sol", Tr::tr("Start of line"));
@@ -152,6 +154,7 @@ FakeVimSettings::FakeVimSettings()
                 wrapScan,
                 showMarks,
                 passControlKey,
+                commaPassesShortcuts,
                 relativeNumber,
                 tildeOp
             }

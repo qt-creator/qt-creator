@@ -4060,11 +4060,13 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         else
             moveToFirstNonBlankOnLine();
         g.movetype = MoveExclusive;
-    } else if (0 && input.is(',')) {
-        // FIXME: fakevim uses ',' by itself, so it is incompatible
+    } else if (!s.commaPassesShortcuts() && input.is(',')) {
+        // Repeat the last f/F/t/T in the opposite direction. Only when ',' is
+        // not reserved for passing shortcuts (QTCREATORBUG-12115).
         g.subsubmode = FtSubSubMode;
-        // HACK: toggle 'f' <-> 'F', 't' <-> 'T'
-        //g.subsubdata = g.semicolonType ^ 32;
+        // Reverse direction by toggling the case: f <-> F, t <-> T.
+        const int c = g.semicolonType.asChar().unicode();
+        g.subsubdata = Input(QChar(c ? c ^ 0x20 : c));
         handleFfTt(g.semicolonKey, true);
         g.subsubmode = NoSubSubMode;
     } else if (input.is(';')) {
@@ -4464,7 +4466,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         enterExMode(QString("!"));
     } else if (input.is('"')) {
         g.submode = RegisterSubMode;
-    } else if (input.is(',')) {
+    } else if (s.commaPassesShortcuts() && input.is(',')) {
         passShortcuts(true);
     } else if (input.is('.')) {
         //qDebug() << "REPEATING" << quoteUnprintable(g.dotCommand) << count()

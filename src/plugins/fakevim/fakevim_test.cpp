@@ -995,6 +995,15 @@ void FakeVimTester::test_vim_fFtT()
     KEYS(";", "int main() { return" X " (x > 0) ? 0 : (x - 1); }");
     KEYS("3;", "int main() { return" X " (x > 0) ? 0 : (x - 1); }");
     KEYS("2;", "int main() { return (x > 0) ? 0 :" X " (x - 1); }");
+
+    // "," repeats the last f/F/t/T in the opposite direction
+    // (QTCREATORBUG-12115).
+    data.setText(X "a.b.c.d");
+    KEYS("f.", "a" X ".b.c.d");
+    KEYS(";",  "a.b" X ".c.d");
+    KEYS(";",  "a.b.c" X ".d");
+    KEYS(",",  "a.b" X ".c.d");
+    KEYS(",",  "a" X ".b.c.d");
 }
 
 void FakeVimTester::test_vim_transform_numbers()
