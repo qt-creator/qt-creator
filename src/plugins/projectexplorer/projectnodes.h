@@ -428,8 +428,6 @@ public:
     bool isProduct() const { return m_productType != ProductType::None; }
     ProductType productType() const { return m_productType; }
 
-    void setFallbackData(Utils::Id key, const QVariant &value);
-
 protected:
     void setProductType(ProductType type) { m_productType = type; }
 
@@ -438,7 +436,6 @@ protected:
 private:
     BuildSystem *buildSystem() const;
 
-    QHash<Utils::Id, QVariant> m_fallbackData; // Used in data(), unless overridden.
     ProductType m_productType = ProductType::None;
 };
 

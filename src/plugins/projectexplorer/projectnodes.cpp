@@ -1030,7 +1030,8 @@ ProjectNode *ProjectNode::projectNode(const Utils::FilePath &file) const
 
 QVariant ProjectNode::data(Utils::Id role) const
 {
-    return m_fallbackData.value(role);
+    Q_UNUSED(role)
+    return {};
 }
 
 bool ProjectNode::setData(Utils::Id role, const QVariant &value) const
@@ -1038,11 +1039,6 @@ bool ProjectNode::setData(Utils::Id role, const QVariant &value) const
     Q_UNUSED(role)
     Q_UNUSED(value)
     return false;
-}
-
-void ProjectNode::setFallbackData(Utils::Id key, const QVariant &value)
-{
-    m_fallbackData.insert(key, value);
 }
 
 BuildSystem *ProjectNode::buildSystem() const
