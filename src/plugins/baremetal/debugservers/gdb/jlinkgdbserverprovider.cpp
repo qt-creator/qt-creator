@@ -95,6 +95,10 @@ public:
 private:
     JLinkGdbServerProvider();
 
+    // The J-Link GDB server only honors an interrupt request when GDB drives
+    // it in target-async mode; otherwise the running target cannot be stopped.
+    bool useTargetAsync() const final { return true; }
+
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 

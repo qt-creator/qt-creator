@@ -161,6 +161,7 @@ Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp
     else
         rp.setRemoteChannel(channelPipe());
     rp.setUseContinueInsteadOfRun(true);
+    rp.setUseTargetAsync(useTargetAsync());
     rp.setUseExtendedRemote(useExtendedRemote());
     rp.setPeripheralDescriptionFile(m_peripheralDescriptionFile);
     return ResultOk;

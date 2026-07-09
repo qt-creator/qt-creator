@@ -46,6 +46,11 @@ public:
     virtual QSet<StartupMode> supportedStartupModes() const = 0;
 
 protected:
+    // Whether the GDB "target-async" mode is needed to interrupt the running
+    // inferior. Off by default; enabled per provider where the GDB server
+    // requires it (e.g. J-Link).
+    virtual bool useTargetAsync() const { return false; }
+
     explicit GdbServerProvider(const QString &id);
 
     void setStartupMode(StartupMode);
