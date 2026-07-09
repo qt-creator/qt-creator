@@ -395,16 +395,9 @@ void BuildSystem::setExtraData(const QString &buildKey, Utils::Id dataKey, const
 QVariant BuildSystem::extraData(const QString &buildKey, Utils::Id dataKey) const
 {
     const auto it = d->m_extraData.constFind(buildKey);
-    if (it != d->m_extraData.constEnd()) {
-        const auto dataIt = it->constFind(dataKey);
-        if (dataIt != it->constEnd())
-            return *dataIt;
-    }
-
-    // Fallback for data that is still served directly from the project tree node.
-    const ProjectNode *node = project()->findNodeForBuildKey(buildKey);
-    QTC_ASSERT(node, return {});
-    return node->data(dataKey);
+    if (it != d->m_extraData.constEnd())
+        return it->value(dataKey);
+    return {};
 }
 
 void BuildSystem::startNewBuildSystemOutput(const QString &message)
