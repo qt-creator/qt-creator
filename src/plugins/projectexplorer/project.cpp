@@ -2178,7 +2178,7 @@ private slots:
 
         const auto toolchain = ToolchainKitAspect::cxxToolchain(kit);
         QVERIFY(toolchain);
-        if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolchain *>(toolchain)) {
+        if (const auto msvcToolchain = dynamic_cast<MsvcToolchain *>(toolchain)) {
             while (!msvcToolchain->environmentInitialized()) {
                 QSignalSpy parsingFinishedSpy(ToolchainManager::instance(),
                                               &ToolchainManager::toolchainUpdated);

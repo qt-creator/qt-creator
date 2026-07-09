@@ -13,13 +13,13 @@
 
 #include <optional>
 
-namespace ProjectExplorer::Internal {
+namespace ProjectExplorer {
 
 // --------------------------------------------------------------------------
 // MsvcToolChain
 // --------------------------------------------------------------------------
 
-class MsvcToolchain : public Toolchain
+class PROJECTEXPLORER_EXPORT MsvcToolchain : public Toolchain
 {
 public:
     enum Type { WindowsSDK, VS };
@@ -157,4 +157,4 @@ private:
 void setupMsvcToolchain();
 void setupClangClToolchain();
 
-} // namespace ProjectExplorer::Internal
+} // namespace ProjectExplorer

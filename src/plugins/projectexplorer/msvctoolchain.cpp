@@ -57,7 +57,7 @@ static const char environModsKeyC[] = KEY_ROOT "environmentModifications";
 
 static Q_LOGGING_CATEGORY(Log, "qtc.projectexplorer.toolchain.msvc", QtWarningMsg);
 
-namespace ProjectExplorer::Internal {
+namespace ProjectExplorer {
 
 // --------------------------------------------------------------------------
 // Helpers:
@@ -374,21 +374,21 @@ static QList<VisualStudioInstallation> detectVisualStudio(const FilePath &root)
 static unsigned char wordWidthForPlatform(MsvcToolchain::Platform platform)
 {
     switch (platform) {
-    case ProjectExplorer::Internal::MsvcToolchain::x86:
-    case ProjectExplorer::Internal::MsvcToolchain::arm:
-    case ProjectExplorer::Internal::MsvcToolchain::x86_arm:
-    case ProjectExplorer::Internal::MsvcToolchain::amd64_arm:
-    case ProjectExplorer::Internal::MsvcToolchain::amd64_x86:
-    case ProjectExplorer::Internal::MsvcToolchain::arm64_x86:
+    case ProjectExplorer::MsvcToolchain::x86:
+    case ProjectExplorer::MsvcToolchain::arm:
+    case ProjectExplorer::MsvcToolchain::x86_arm:
+    case ProjectExplorer::MsvcToolchain::amd64_arm:
+    case ProjectExplorer::MsvcToolchain::amd64_x86:
+    case ProjectExplorer::MsvcToolchain::arm64_x86:
         return 32;
-    case ProjectExplorer::Internal::MsvcToolchain::amd64:
-    case ProjectExplorer::Internal::MsvcToolchain::x86_amd64:
-    case ProjectExplorer::Internal::MsvcToolchain::ia64:
-    case ProjectExplorer::Internal::MsvcToolchain::x86_ia64:
-    case ProjectExplorer::Internal::MsvcToolchain::amd64_arm64:
-    case ProjectExplorer::Internal::MsvcToolchain::x86_arm64:
-    case ProjectExplorer::Internal::MsvcToolchain::arm64:
-    case ProjectExplorer::Internal::MsvcToolchain::arm64_amd64:
+    case ProjectExplorer::MsvcToolchain::amd64:
+    case ProjectExplorer::MsvcToolchain::x86_amd64:
+    case ProjectExplorer::MsvcToolchain::ia64:
+    case ProjectExplorer::MsvcToolchain::x86_ia64:
+    case ProjectExplorer::MsvcToolchain::amd64_arm64:
+    case ProjectExplorer::MsvcToolchain::x86_arm64:
+    case ProjectExplorer::MsvcToolchain::arm64:
+    case ProjectExplorer::MsvcToolchain::arm64_amd64:
         return 64;
     }
 
@@ -398,22 +398,22 @@ static unsigned char wordWidthForPlatform(MsvcToolchain::Platform platform)
 static Abi::Architecture archForPlatform(MsvcToolchain::Platform platform)
 {
     switch (platform) {
-    case ProjectExplorer::Internal::MsvcToolchain::x86:
-    case ProjectExplorer::Internal::MsvcToolchain::amd64:
-    case ProjectExplorer::Internal::MsvcToolchain::x86_amd64:
-    case ProjectExplorer::Internal::MsvcToolchain::amd64_x86:
-    case ProjectExplorer::Internal::MsvcToolchain::arm64_x86:
-    case ProjectExplorer::Internal::MsvcToolchain::arm64_amd64:
+    case ProjectExplorer::MsvcToolchain::x86:
+    case ProjectExplorer::MsvcToolchain::amd64:
+    case ProjectExplorer::MsvcToolchain::x86_amd64:
+    case ProjectExplorer::MsvcToolchain::amd64_x86:
+    case ProjectExplorer::MsvcToolchain::arm64_x86:
+    case ProjectExplorer::MsvcToolchain::arm64_amd64:
         return Abi::X86Architecture;
-    case ProjectExplorer::Internal::MsvcToolchain::arm:
-    case ProjectExplorer::Internal::MsvcToolchain::x86_arm:
-    case ProjectExplorer::Internal::MsvcToolchain::amd64_arm:
-    case ProjectExplorer::Internal::MsvcToolchain::x86_arm64:
-    case ProjectExplorer::Internal::MsvcToolchain::amd64_arm64:
-    case ProjectExplorer::Internal::MsvcToolchain::arm64:
+    case ProjectExplorer::MsvcToolchain::arm:
+    case ProjectExplorer::MsvcToolchain::x86_arm:
+    case ProjectExplorer::MsvcToolchain::amd64_arm:
+    case ProjectExplorer::MsvcToolchain::x86_arm64:
+    case ProjectExplorer::MsvcToolchain::amd64_arm64:
+    case ProjectExplorer::MsvcToolchain::arm64:
         return Abi::ArmArchitecture;
-    case ProjectExplorer::Internal::MsvcToolchain::ia64:
-    case ProjectExplorer::Internal::MsvcToolchain::x86_ia64:
+    case ProjectExplorer::MsvcToolchain::ia64:
+    case ProjectExplorer::MsvcToolchain::x86_ia64:
         return Abi::ItaniumArchitecture;
     }
 
@@ -1979,7 +1979,8 @@ Macros ClangClToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
     Process cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
-    cpp.setCommand({compilerCommand(), {cxxflags, gccPredefinedMacrosOptions(language()), "-"}});
+    cpp.setCommand(
+        {compilerCommand(), {cxxflags, Internal::gccPredefinedMacrosOptions(language()), "-"}});
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess) {
         // Show the warning but still parse the output.
@@ -2466,6 +2467,6 @@ bool operator!=(const ClangClInfo &lhs, const ClangClInfo &rhs)
     return !(lhs == rhs);
 }
 
-} // namespace ProjectExplorer::Internal
+} // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::Internal::MsvcToolchain::Platform)
+Q_DECLARE_METATYPE(ProjectExplorer::MsvcToolchain::Platform)
