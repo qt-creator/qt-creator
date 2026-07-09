@@ -699,13 +699,21 @@ void KitManager::createKitsForBuildDevice(const IDevicePtr &dev)
     if (kits.empty())
         return;
 
-    // Consider only kits with maximum weight, as in restoreKits().
-    const int maxWeight = kits.front()->weight();
-    const auto firstWithNonMaxWeight = std::upper_bound(
-        kits.begin(), kits.end(), maxWeight, [](int weight, const std::unique_ptr<Kit> &kit) {
-            return kit->weight() < weight;
-        });
-    kits.erase(firstWithNonMaxWeight, kits.end());
+    // Keep, per run-device type, only the kit(s) of maximum weight. A build
+    // device that can target several platforms (e.g. a Linux host carrying both
+    // a native toolchain and a QNX cross-toolchain) then yields one kit per
+    // target platform, instead of only the single globally-heaviest kit (which
+    // would drop the lighter cross-compilation kit that has no Qt version yet).
+    QHash<Id, int> maxWeightPerRunDeviceType;
+    for (const std::unique_ptr<Kit> &kit : kits) {
+        const Id type = RunDeviceTypeKitAspect::deviceTypeId(kit.get());
+        maxWeightPerRunDeviceType[type] =
+            std::max(maxWeightPerRunDeviceType.value(type, 0), kit->weight());
+    }
+    Utils::erase(kits, [&maxWeightPerRunDeviceType](const std::unique_ptr<Kit> &kit) {
+        const Id type = RunDeviceTypeKitAspect::deviceTypeId(kit.get());
+        return kit->weight() < maxWeightPerRunDeviceType.value(type);
+    });
 
     for (const auto &kit : std::as_const(kits)) {
         // Do not create a kit that duplicates one already registered for this build device.
