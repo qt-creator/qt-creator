@@ -20,9 +20,11 @@
 #include <utils/ranges.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QHBoxLayout>
+#include <QPainter>
 #include <QRegularExpression>
 #include <QScrollBar>
 #include <QTextBrowser>
@@ -66,6 +68,40 @@ public:
                     bool inNextSplit = false) override;
 };
 
+// Draws a dividing line below level 1 and level 2 headings, unlike the generic MarkdownBrowser
+class MarkdownEditorPreviewWidget : public Utils::MarkdownBrowser
+{
+public:
+    using MarkdownBrowser::MarkdownBrowser;
+
+protected:
+    void paintEvent(QPaintEvent *event) override
+    {
+        MarkdownBrowser::paintEvent(event);
+
+        QPainter painter(viewport());
+        const QRectF visibleRect = viewport()->rect();
+        const QPointF offset(-horizontalScrollBar()->value(), -verticalScrollBar()->value());
+
+        QPen headingPen(Utils::creatorColor(Theme::TextColorDisabled).rgba());
+        headingPen.setWidth(1);
+        painter.setPen(headingPen);
+
+        for (QTextBlock blk = document()->begin(); blk.isValid(); blk = blk.next()) {
+            const int lvl = blk.blockFormat().headingLevel();
+            if (lvl == 1 || lvl == 2) {
+                const QRectF blkRect = document()->documentLayout()->blockBoundingRect(blk);
+                const QRectF viewRect = blkRect.translated(offset)
+                                            // Draw line slightly below the text
+                                            .adjusted(0, 0, 0, 2);
+
+                if (viewRect.intersects(visibleRect))
+                    painter.drawLine(viewRect.bottomLeft(), viewRect.bottomRight());
+            }
+        }
+    }
+};
+
 class MarkdownEditor : public IEditor
 {
     Q_OBJECT
@@ -85,7 +121,7 @@ public:
         m_splitter = new MiniSplitter;
 
         // preview
-        m_previewWidget = new Utils::MarkdownBrowser();
+        m_previewWidget = new MarkdownEditorPreviewWidget();
         m_previewWidget->setFrameShape(QFrame::NoFrame);
         connect(m_previewWidget, &QTextBrowser::anchorClicked, this, [this](const QUrl &link) {
             if (link.isLocalFile() || (link.scheme().isEmpty() && !link.path().isEmpty())) {
