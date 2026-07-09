@@ -141,7 +141,7 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
         return NoConfigurationError;
 
     ConfigurationErrors result = NoConfigurationError;
-    if (!debugger.isExecutableFile())
+    if (debugger.hasFileAccess() && !debugger.isExecutableFile())
         result |= DebuggerNotExecutable;
 
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
