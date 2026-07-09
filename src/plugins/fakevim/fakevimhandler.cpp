@@ -4186,10 +4186,12 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
     } else if (input.is('E')) {
         moveToNextWordEnd(count, true, true, false);
     } else if (input.isControl('e')) {
-        // FIXME: this should use the "scroll" option, and "count"
-        if (cursorLineOnScreen() == 0)
-            moveDown(1);
-        scrollDown(1);
+        // Scroll the view down, dragging the cursor along so it stays at least
+        // 'scrolloff' lines from the top instead of blocking the scroll there
+        // (QTCREATORBUG-34074).
+        scrollDown(count);
+        if (cursorLine() < lineOnTop())
+            moveDown(lineOnTop() - cursorLine());
     } else if (input.is('f')) {
         g.subsubmode = FtSubSubMode;
         g.movetype = MoveInclusive;
@@ -4750,10 +4752,11 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.is('Y') && isNoVisualMode())  {
         handleAs("%1yy");
     } else if (input.isControl('y')) {
-        // FIXME: this should use the "scroll" option, and "count"
-        if (cursorLineOnScreen() == linesOnScreen() - 1)
-            moveUp(1);
-        scrollUp(1);
+        // Scroll the view up, dragging the cursor along so it stays at least
+        // 'scrolloff' lines from the bottom (QTCREATORBUG-34074).
+        scrollUp(count());
+        if (cursorLine() > lineOnBottom())
+            moveUp(cursorLine() - lineOnBottom());
     } else if (input.is('y') && isVisualCharMode()) {
         g.rangemode = RangeCharMode;
         g.movetype = MoveInclusive;
