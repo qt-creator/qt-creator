@@ -5,10 +5,22 @@
 
 #include <tracing/timelinemodelaggregator.h>
 
+#include <utils/theme/theme.h>
+#include <utils/theme/theme_p.h>
+
 #include <QSignalSpy>
 #include <QtTest>
 
 using namespace QmlProfiler::Internal;
+
+// The timeline color helpers query Utils::creatorTheme(), which is null in a
+// bare unit test. Provide a minimal theme so colorByHue() does not dereference
+// a null theme.
+class DummyTheme : public Utils::Theme
+{
+public:
+    DummyTheme() : Utils::Theme(QLatin1String("dummy")) {}
+};
 
 // Three ticks at t=0, 100, 200 µs with two threads:
 //   t=0:   both running (usage 2)
@@ -36,6 +48,17 @@ class tst_CpuUsageModel : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase()
+    {
+        Utils::setCreatorTheme(new DummyTheme);
+    }
+
+    void cleanupTestCase()
+    {
+        delete Utils::creatorTheme();
+        Utils::setCreatorTheme(nullptr);
+    }
+
     void rowsAndCounts()
     {
         Timeline::TimelineModelAggregator aggregator;

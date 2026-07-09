@@ -7,7 +7,20 @@
 #include <tracing/timelinemodel_p.h>
 #include <tracing/timelinemodelaggregator.h>
 
+#include <utils/theme/theme.h>
+#include <utils/theme/theme_p.h>
+
 using namespace Timeline;
+
+// HueLookupTable queries Utils::creatorTheme()->colorScheme(), which is null in
+// a bare unit test. Provide a minimal theme so the color helpers do not
+// dereference a null theme. The default theme has no dark flag, so it reports
+// Qt::ColorScheme::Light.
+class DummyTheme : public Utils::Theme
+{
+public:
+    DummyTheme() : Utils::Theme(QLatin1String("dummy")) {}
+};
 
 static const int NumItems = 32;
 static const qint64 ItemDuration = 1 << 19;
@@ -36,6 +49,8 @@ public:
     tst_TimelineModel();
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
     void isEmpty();
     void modelId();
     void rowHeight();
@@ -95,6 +110,17 @@ void DummyModel::loadData()
 tst_TimelineModel::tst_TimelineModel() :
     DefaultRowHeight(TimelineModel::defaultRowHeight())
 {
+}
+
+void tst_TimelineModel::initTestCase()
+{
+    Utils::setCreatorTheme(new DummyTheme);
+}
+
+void tst_TimelineModel::cleanupTestCase()
+{
+    delete Utils::creatorTheme();
+    Utils::setCreatorTheme(nullptr);
 }
 
 void tst_TimelineModel::isEmpty()
@@ -367,21 +393,21 @@ void tst_TimelineModel::colorByHue()
 {
     TimelineModelAggregator aggregator;
     DummyModel dummy(&aggregator);
-    QCOMPARE(dummy.colorByHue(10), QColor::fromHsl(10, 150, 166).rgb());
-    QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 150, 166).rgb());
+    QCOMPARE(dummy.colorByHue(10), QColor::fromHsl(10, 130, 175).rgb());
+    QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, 130, 175).rgb());
 }
 
 void tst_TimelineModel::colorBySelectionId()
 {
     DummyModel dummy(&aggregator);
     dummy.loadData();
-    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(6 * 25, 150, 166).rgb());
+    QCOMPARE(dummy.colorBySelectionId(5), QColor::fromHsl(6 * 25, 130, 175).rgb());
 }
 
 void tst_TimelineModel::colorByFraction()
 {
     DummyModel dummy(&aggregator);
-    QCOMPARE(dummy.colorByFraction(0.5), QColor::fromHsl(0.5 * 96 + 10, 150, 166).rgb());
+    QCOMPARE(dummy.colorByFraction(0.5), QColor::fromHsl(0.5 * 96 + 10, 130, 175).rgb());
 }
 
 void tst_TimelineModel::insertStartEnd()
