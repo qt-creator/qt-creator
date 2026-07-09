@@ -32,6 +32,8 @@ public:
     QString userAtHost() const;
     QString userAtHostAndPort() const;
 
+    Utils::Result<Utils::OsArch> osArch() const;
+
     Utils::FilePath rootPath() const override;
 
     Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
@@ -58,7 +60,7 @@ public:
 #ifdef WITH_TESTS
 // Test-only entry point that runs the same MSVC toolchain auto-detection and kit
 // creation the device widget's "Run Auto-Detection Now" button triggers.
-void detectAndRegisterToolchainsForTest(const ProjectExplorer::IDevice::Ptr &device);
+void detectAndRegisterToolchainsForTest(const WindowsDevice::Ptr &device);
 #endif
 
 } // namespace Internal

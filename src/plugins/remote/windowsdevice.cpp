@@ -22,6 +22,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/msvctoolchain.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -804,6 +805,18 @@ static Result<> probeWindows(const SshParameters &ssh)
     return ResultOk;
 }
 
+Result<OsArch> detectWindowsArchitecture(const Environment &env)
+{
+    const QString archStr = env.value("PROCESSOR_ARCHITECTURE").toUpper();
+    if (archStr == "AMD64")
+        return OsArchAMD64;
+    if (archStr == "ARM64")
+        return OsArchArm64;
+    if (archStr == "X86")
+        return OsArchX86;
+    return ResultError(Tr::tr("Unsupported remote architecture \"%1\".").arg(archStr));
+}
+
 // Tries to bring up the fast Go CmdBridge on the device: copy the matching cmdbridge.exe to
 // the device's temp directory (via sftp) and start it. Returns the bridge file access on
 // success. Runs on a worker thread. (A base64-over-PowerShell-stdin push is far too slow for
@@ -817,19 +830,12 @@ static Result<DeviceFileAccessPtr> deployCmdBridge(const SshParameters &ssh,
 
     const Environment env = rootPath.deviceEnvironment();
 
-    const QString archStr = env.value("PROCESSOR_ARCHITECTURE").toUpper();
-    OsArch arch = OsArchUnknown;
-    if (archStr == "AMD64")
-        arch = OsArchAMD64;
-    else if (archStr == "ARM64")
-        arch = OsArchArm64;
-    else if (archStr == "X86")
-        arch = OsArchX86;
-    else
-        return ResultError(Tr::tr("Unsupported remote architecture \"%1\".").arg(archStr));
+    const Result<OsArch> arch = detectWindowsArchitecture(env);
+    if (!arch)
+        return ResultError(arch.error());
 
     const Result<FilePath> localBridge = CmdBridge::Client::getCmdBridgePath(
-        OsTypeWindows, arch, Core::ICore::libexecPath());
+        OsTypeWindows, *arch, Core::ICore::libexecPath());
     if (!localBridge)
         return ResultError(localBridge.error());
 
@@ -973,6 +979,15 @@ QString WindowsDevice::userAtHostAndPort() const
     return sshParameters().userAtHostAndPort();
 }
 
+Result<OsArch> WindowsDevice::osArch() const
+{
+    const DeviceFileAccessPtr access = fileAccess();
+    if (!access)
+        return ResultError(Tr::tr("No file access for device \"%1\".").arg(displayName()));
+    const Result<Environment> env = access->deviceEnvironment();
+    return env ? detectWindowsArchitecture(*env) : ResultError(env.error());
+}
+
 FilePath WindowsDevice::rootPath() const
 {
     return FilePath::fromParts(u"ssh", userAtHostAndPort(), u"/");
@@ -1014,7 +1029,7 @@ private:
 // Runs toolchain auto-detection for the device (MSVC, over SSH), registers the results and
 // creates a kit per detected target ABI. Qt detection is a later addition; until then the
 // kit comes up with the MSVC compiler and the device as build/run device, but no Qt.
-static void detectAndRegisterToolchains(const IDevice::Ptr &device)
+static void detectAndRegisterToolchains(const WindowsDevice::Ptr &device)
 {
     qCDebug(windowsDeviceLog) << "Starting toolchain detection for"
                               << device->rootPath().toUserOutput();
@@ -1057,8 +1072,20 @@ static void detectAndRegisterToolchains(const IDevice::Ptr &device)
         for (Kit *k : stale)
             KitManager::deregisterKit(k);
 
+        Toolchains filtered;
+        if (Utils::Result<OsArch> arch = device->osArch()) {
+            const std::optional<MsvcToolchain::Platform> preferredPlatform
+                = MsvcToolchain::preferredPlatform(*arch, *arch);
+            filtered = Utils::filtered(found, [preferredPlatform](Toolchain *tc) {
+                auto msvcTc = dynamic_cast<MsvcToolchain *>(tc);
+                return msvcTc ? msvcTc->platform() == preferredPlatform : false;
+            });
+        }
+        if (filtered.isEmpty())
+            filtered = found;
+
         const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-            found, ToolchainBundle::HandleMissing::CreateAndRegister);
+            filtered, ToolchainBundle::HandleMissing::CreateAndRegister);
         // Several bundles can map to the same target ABI (e.g. the native amd64 toolset and the
         // x86-hosted cross toolset both target x64). Create only one kit per target ABI to avoid
         // kits with identical names.
@@ -1194,7 +1221,7 @@ WindowsDeviceFactory::WindowsDeviceFactory()
 }
 
 #ifdef WITH_TESTS
-void detectAndRegisterToolchainsForTest(const IDevice::Ptr &device)
+void detectAndRegisterToolchainsForTest(const WindowsDevice::Ptr &device)
 {
     detectAndRegisterToolchains(device);
 }

@@ -70,6 +70,9 @@ public:
 
     using GenerateEnvResult = Utils::Result<Utils::EnvironmentItems>;
 
+    static std::optional<MsvcToolchain::Platform> preferredPlatform(
+        Utils::OsArch host, Utils::OsArch target);
+
 protected:
     class WarningFlagAdder
     {

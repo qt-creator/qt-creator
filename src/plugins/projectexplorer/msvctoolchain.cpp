@@ -169,6 +169,50 @@ static bool hostSupportsPlatform(MsvcToolchain::Platform platform)
     }
 }
 
+// Returns the MSVC toolset that runs on the given host architecture and produces binaries for the
+// given target architecture, i.e. the native host toolset for native builds and the matching
+// host-hosted cross toolset otherwise. Returns nullopt when MSVC ships no such toolset (e.g. an
+// Arm host targeting Itanium, or any Arm (32-bit) target other than from an x86/amd64 host).
+std::optional<MsvcToolchain::Platform> MsvcToolchain::preferredPlatform(OsArch host, OsArch target)
+{
+    switch (host) {
+    case OsArchX86:
+        switch (target) {
+        case OsArchX86:      return x86;
+        case OsArchAMD64:    return x86_amd64;
+        case OsArchArm:      return x86_arm;
+        case OsArchArm64:    return x86_arm64;
+        case OsArchItanium:  return x86_ia64;
+        default:             return std::nullopt;
+        }
+    case OsArchAMD64:
+        switch (target) {
+        case OsArchX86:      return amd64_x86;
+        case OsArchAMD64:    return amd64;
+        case OsArchArm:      return amd64_arm;
+        case OsArchArm64:    return amd64_arm64;
+        default:             return std::nullopt;
+        }
+    case OsArchArm64:
+        switch (target) {
+        case OsArchX86:      return arm64_x86;
+        case OsArchAMD64:    return arm64_amd64;
+        case OsArchArm64:    return arm64;
+        default:             return std::nullopt;
+        }
+    case OsArchArm:
+        if (target == OsArchArm)
+            return arm;
+        return std::nullopt;
+    case OsArchItanium:
+        if (target == OsArchItanium)
+            return ia64;
+        return std::nullopt;
+    default:
+        return std::nullopt;
+    }
+}
+
 struct VisualStudioInstallation
 {
     QString vsName;
