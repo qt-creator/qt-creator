@@ -546,6 +546,10 @@ QString androidNameForApiLevel(int x)
         return QLatin1String("Android 13.0 (\"Tiramisu\")");
     case 34:
         return QLatin1String("Android 14.0 (\"UpsideDownCake\")");
+    case 35:
+        return QLatin1String("Android 15.0 (\"VanillaIceCream\")");
+    case 36:
+        return QLatin1String("Android 16.0 (\"Baklava\")");
     default:
         return Tr::tr("Unknown Android version. API Level: %1").arg(x);
     }
