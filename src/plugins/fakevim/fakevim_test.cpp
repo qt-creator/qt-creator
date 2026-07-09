@@ -13,6 +13,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <QTemporaryFile>
 #include <QTest>
 #include <QTextEdit>
 #include <QTextDocument>
@@ -3838,6 +3839,27 @@ void FakeVimTester::test_map()
     KEYS("ijk", "a" X "b__c def" N "gh__i jkl");
     data.doCommand("iunmap jk");
     KEYS("ijk<ESC>", "aj" X "kb__c def" N "gh__i jkl");
+
+    // Remapping "'" and "`" (normally mark-jump prefixes) must be honored
+    // (QTCREATORBUG-31932).
+    data.setText("abc def");
+    data.doCommand("noremap ' <Right>");
+    KEYS("'", "a" X "bc def");
+    data.doCommand("unmap '");
+    data.setText("abc def");
+    data.doCommand("noremap ` <Right>");
+    KEYS("`", "a" X "bc def");
+    data.doCommand("unmap `");
+
+    // Faithful to the report: the remap is read from a sourced vimrc file.
+    QTemporaryFile rc;
+    QVERIFY(rc.open());
+    rc.write("noremap ' <Right>\n");
+    rc.flush();
+    data.setText("abc def");
+    data.doCommand("source " + rc.fileName());
+    KEYS("'", "a" X "bc def");
+    data.doCommand("unmap '");
 }
 
 void FakeVimTester::test_vim_command_cc()
