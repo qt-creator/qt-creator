@@ -7,6 +7,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 
+#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsindenter.h>
@@ -36,6 +37,7 @@ private slots:
     void test_qmlReindent();
     void test_qmlAutoIndentOnNewLine();
     void test_qmlAutoIndentWhileTyping();
+    void test_qmlSyntaxErrorDiagnostic();
 };
 
 void QmlJSToolsTest::test_basic()
@@ -232,6 +234,30 @@ void QmlJSToolsTest::test_qmlAutoIndentWhileTyping()
         "}\n"));
 
     Core::EditorManager::closeAllEditors(false);
+}
+
+void QmlJSToolsTest::test_qmlSyntaxErrorDiagnostic()
+{
+    // A malformed QML document (unclosed object) yields a parse diagnostic.
+    Document::MutablePtr broken = Document::create(Utils::FilePath::fromString("broken.qml"),
+                                                   Dialect::Qml);
+    broken->setSource("import QtQuick\nItem {\n");
+    broken->parse();
+    QVERIFY(!broken->diagnosticMessages().isEmpty());
+
+    // A stray identifier inside an object is also reported.
+    Document::MutablePtr strayToken = Document::create(Utils::FilePath::fromString("stray.qml"),
+                                                       Dialect::Qml);
+    strayToken->setSource("import QtQuick\nItem {\n    SyntaxError\n}\n");
+    strayToken->parse();
+    QVERIFY(!strayToken->diagnosticMessages().isEmpty());
+
+    // A well-formed document has none.
+    Document::MutablePtr valid = Document::create(Utils::FilePath::fromString("valid.qml"),
+                                                  Dialect::Qml);
+    valid->setSource("import QtQuick\nItem {\n}\n");
+    valid->parse();
+    QVERIFY(valid->diagnosticMessages().isEmpty());
 }
 
 QObject *createQmlJSToolsTest()
