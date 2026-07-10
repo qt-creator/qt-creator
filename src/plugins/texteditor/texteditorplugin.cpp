@@ -103,6 +103,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createFormatTextTest);
     addTestCreator(createTextDocumentTest);
     addTestCreator(createTextEditorTest);
+    addTestCreator(createCleanWhitespaceTest);
     addTestCreator(createSnippetParserTest);
     addTestCreator(createCodeStyleAspectTest);
 #endif

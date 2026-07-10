@@ -3,9 +3,11 @@
 
 #ifdef WITH_TESTS
 
+#include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
 
+#include <utils/filepath.h>
 #include <utils/multitextcursor.h>
 
 #include <QTest>
@@ -259,6 +261,103 @@ void TextEditorTest::testIndentUnindent()
 QObject *createTextEditorTest()
 {
     return new TextEditorTest;
+}
+
+// Regression test for QTCREATORBUG-24565.
+class CleanWhitespaceTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCleanWhitespace_data();
+    void testCleanWhitespace();
+};
+
+void CleanWhitespaceTest::testCleanWhitespace_data()
+{
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<QString>("ignoreFileTypes");
+    QTest::addColumn<bool>("skipTrailingWhitespace");
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expected");
+    QTest::addColumn<bool>("modified"); // whether cleaning is expected to change the document
+
+    const QString tabBlankTab = "\t \t";  // trailing whitespace, as in the Squish test
+    const QString tripleTab = "\t\t\t";   // whitespace-only line, as in the Squish test
+    const QString defaultIgnore = "*.md, *.MD, Makefile";
+
+    // A regular source file: trailing whitespace is stripped and the
+    // whitespace-only line is emptied (the QTCREATORBUG-24565 scenario).
+    QTest::newRow("regularFile")
+        << "main.cpp" << defaultIgnore << true
+        << ("foo" + tabBlankTab + "\n" + tripleTab + "\nbar\n")
+        << QString("foo\n\nbar\n") << true;
+
+    // A file matching the ignore list (*.md) keeps its trailing whitespace, but
+    // its indentation-only line is still cleaned: the ignore list only gates
+    // trailing-whitespace removal, not indentation cleaning. The Squish test only
+    // ever checked the trailing-whitespace half of this.
+    QTest::newRow("ignoredExtension")
+        << "notes.md" << defaultIgnore << true
+        << ("foo" + tabBlankTab + "\n" + tripleTab + "\nbar\n")
+        << ("foo" + tabBlankTab + "\n\nbar\n") << true;
+
+    // The ignore list also matches plain file names without an extension. With
+    // nothing left to clean, the document stays unmodified (Squish checked this
+    // via the editor's "*" modification marker).
+    QTest::newRow("ignoredName")
+        << "Makefile" << defaultIgnore << true
+        << ("foo" + tabBlankTab + "\n")
+        << ("foo" + tabBlankTab + "\n") << false;
+
+    // With "skip trailing whitespace" disabled, trailing whitespace is trimmed
+    // even for files on the ignore list (the counter-intuitive sense of the flag).
+    QTest::newRow("alwaysTrimOverridesIgnoreList")
+        << "notes.md" << defaultIgnore << false
+        << ("foo" + tabBlankTab + "\n")
+        << QString("foo\n") << true;
+}
+
+void CleanWhitespaceTest::testCleanWhitespace()
+{
+    QFETCH(QString, fileName);
+    QFETCH(QString, ignoreFileTypes);
+    QFETCH(bool, skipTrailingWhitespace);
+    QFETCH(QString, input);
+    QFETCH(QString, expected);
+    QFETCH(bool, modified);
+
+    TextDocument doc;
+    doc.setFilePath(Utils::FilePath::fromString(fileName));
+
+    StorageSettingsData settings;
+    settings.m_ignoreFileTypes = ignoreFileTypes;
+    settings.m_skipTrailingWhitespace = skipTrailingWhitespace;
+    settings.m_cleanWhitespace = true;
+    settings.m_inEntireDocument = true;
+    settings.m_cleanIndentation = true;
+    settings.m_addFinalNewLine = false;
+    doc.setStorageSettings(settings);
+
+    // Use a deterministic tab configuration instead of autodetection.
+    TabSettingsData tabSettings(TabSettingsData::TabsOnlyTabPolicy, 4, 4,
+                                TabSettingsData::ContinuationAlignWithSpaces);
+    tabSettings.m_autoDetect = false;
+    doc.setTabSettings(tabSettings);
+
+    doc.setPlainText(input);
+    doc.document()->setModified(false);
+
+    QTextCursor cursor(doc.document());
+    doc.cleanWhitespace(cursor);
+
+    QCOMPARE(doc.plainText(), expected);
+    QCOMPARE(doc.document()->isModified(), modified);
+}
+
+QObject *createCleanWhitespaceTest()
+{
+    return new CleanWhitespaceTest;
 }
 
 } // TextEditor::Internal
