@@ -12,6 +12,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
@@ -123,6 +124,7 @@ public:
         // preview
         m_previewWidget = new MarkdownEditorPreviewWidget();
         m_previewWidget->setFrameShape(QFrame::NoFrame);
+        Aggregation::aggregate({m_previewWidget, new BaseTextFind<QTextBrowser>(m_previewWidget)});
         connect(m_previewWidget, &QTextBrowser::anchorClicked, this, [this](const QUrl &link) {
             if (link.isLocalFile() || (link.scheme().isEmpty() && !link.path().isEmpty())) {
                 // absolute path or relative (to the document): open in Qt Creator
