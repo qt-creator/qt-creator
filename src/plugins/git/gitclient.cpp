@@ -2938,7 +2938,8 @@ Result<CommitData> GitClient::enrichCommitData(const FilePath &repoDirectory,
                                                const CommitData &commitDataIn)
 {
     // Get commit data as "hash<lf>author<lf>email<lf>message".
-    const QStringList arguments = {"log", "--max-count=1", "--pretty=format:%h\n%aN\n%aE\n%B", commit};
+    const QStringList arguments = {"log", "--max-count=1", "--no-show-signature",
+                                   "--pretty=format:%h\n%aN\n%aE\n%B", commit};
     const CommandResult result = vcsSynchronousExec(repoDirectory, arguments, RunFlag::NoOutput);
 
     if (result.result() != ProcessResult::FinishedWithSuccess) {
