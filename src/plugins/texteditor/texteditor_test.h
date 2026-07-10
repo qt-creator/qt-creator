@@ -9,6 +9,7 @@ namespace TextEditor::Internal {
 
 QObject *createTextEditorTest();
 QObject *createCleanWhitespaceTest();
+QObject *createSortLinesTest();
 QObject *createTextDocumentTest();
 QObject *createSnippetParserTest();
 QObject *createFormatTextTest();

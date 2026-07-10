@@ -6,6 +6,10 @@
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
+#include "texteditor.h"
+
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/filepath.h>
 #include <utils/multitextcursor.h>
@@ -358,6 +362,41 @@ void CleanWhitespaceTest::testCleanWhitespace()
 QObject *createCleanWhitespaceTest()
 {
     return new CleanWhitespaceTest;
+}
+
+class SortLinesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testSortLines();
+};
+
+void SortLinesTest::testSortLines()
+{
+    const QString input = "bbb\n\n aa\nAAA\naaa\n1A\n1a\naa\n!\n_\na";
+    const QString expected = "\n aa\n!\n1A\n1a\nAAA\n_\na\naa\naaa\nbbb";
+
+    QString title = "unsorted.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, input.toUtf8());
+    QVERIFY(editor);
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
+
+    editorWidget->selectAll();
+    editorWidget->sortLines();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), expected);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+QObject *createSortLinesTest()
+{
+    return new SortLinesTest;
 }
 
 } // TextEditor::Internal
