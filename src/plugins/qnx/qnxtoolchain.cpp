@@ -4,7 +4,6 @@
 #include "qnxtoolchain.h"
 
 #include "qnxconstants.h"
-#include "qnxsettingspage.h"
 #include "qnxtr.h"
 #include "qnxutils.h"
 
@@ -313,12 +312,12 @@ public:
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final
     {
-        // Device-driven detection: build toolchains from the SDP environment
-        // file carried by the (build) device via QnxSdpEnvFileToolAspect.
-        if (detector.device)
-            return autoDetectFromEnvFile(qnxSdpEnvFile(detector.device), detector.alreadyKnown);
-
-        return autoDetectHelper(detector.alreadyKnown);
+        // QNX toolchains are detected from the SDP environment file carried by
+        // the (build) device via QnxSdpEnvFileToolAspect. Without a device there
+        // is no SDP to look at.
+        if (!detector.device)
+            return {};
+        return autoDetectFromEnvFile(qnxSdpEnvFile(detector.device), detector.alreadyKnown);
     }
 
     std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget(

@@ -7,7 +7,6 @@
 #include "qnxdevice.h"
 #include "qnxqtversion.h"
 #include "qnxrunconfiguration.h"
-#include "qnxsettingspage.h"
 #include "qnxtoolchain.h"
 #include "qnxtr.h"
 
@@ -124,7 +123,6 @@ class QnxPlugin final : public ExtensionSystem::IPlugin
         setupQnxDebugging();
         setupQnxQmlProfiler();
         setupQnxSdpEnvFileToolAspect();
-        setupQnxSettingsPage(this);
     }
 
     void extensionsInitialized() final

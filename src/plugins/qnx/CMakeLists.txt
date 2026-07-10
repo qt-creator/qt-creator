@@ -12,7 +12,6 @@ add_qtc_plugin(Qnx
     qnxplugin.cpp
     qnxqtversion.cpp qnxqtversion.h
     qnxrunconfiguration.cpp qnxrunconfiguration.h
-    qnxsettingspage.cpp qnxsettingspage.h
     qnxtoolchain.cpp qnxtoolchain.h
     qnxtr.h
     qnxutils.cpp qnxutils.h
