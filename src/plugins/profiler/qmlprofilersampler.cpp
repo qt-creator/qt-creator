@@ -7,7 +7,6 @@
 #include "qmlprofilerconstants.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatemanager.h"
-#include "samplerrecipe.h"
 
 #include "profilertr.h"
 
@@ -100,6 +99,7 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
 Result<std::shared_ptr<RecordingSession>> QmlProfilerSamplerSettings::createSession() const
 {
     auto session = std::make_shared<RecordingSession>();
+    session->requestedFeatures = requestedFeatures();
     if (connectToServer()) {
         QUrl url;
         url.setScheme(urlTcpScheme());
@@ -178,17 +178,20 @@ static FilePath tempQtdPath()
     return FilePath::fromString(QDir(dir).filePath(name));
 }
 
-ExecutableItem QmlProfilerSampler::recordRecipe(const std::shared_ptr<RecordingSession> &session) const
+void QmlProfilerSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &session) const
 {
-    if (session->launchCommand) {
-        // Launch: capture on a freshly allocated local port and tell the target to
-        // open a matching QML debug server, blocking until we connect.
-        session->serverUrl = urlFromLocalHostAndFreePort();
-        const QString args = ProcessArgs::quoteArg(qmlDebugCommandLineArguments(
-            QmlProfilerServices, u"port:%1"_s.arg(session->serverUrl.port()), /*block*/ true));
-        session->launchCommand->prependArgs(args, CommandLine::Raw);
-    }
+    if (!session->launchCommand)
+        return;
+    // Launch: capture on a freshly allocated local port and tell the target to
+    // open a matching QML debug server, blocking until we connect.
+    session->serverUrl = urlFromLocalHostAndFreePort();
+    const QString args = ProcessArgs::quoteArg(qmlDebugCommandLineArguments(
+        QmlProfilerServices, u"port:%1"_s.arg(session->serverUrl.port()), /*block*/ true));
+    session->launchCommand->prependArgs(args, CommandLine::Raw);
+}
 
+ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<RecordingSession> &session) const
+{
     const auto onSetup = [this, session](QBarrier &barrier) {
         QBarrier *b = &barrier;
 
@@ -211,7 +214,7 @@ ExecutableItem QmlProfilerSampler::recordRecipe(const std::shared_ptr<RecordingS
         QObject::connect(m_stateManager.get(), &QmlProfilerStateManager::serverRecordingChanged,
                          b, [this, b, session](bool recording) {
             if (recording) {
-                session->started.store(true); // capture is live; the duration clock can start
+                session->markStarted(); // capture is live; the duration clock can start
                 return;
             }
             const FilePath out = tempQtdPath();
@@ -231,8 +234,11 @@ ExecutableItem QmlProfilerSampler::recordRecipe(const std::shared_ptr<RecordingS
         // Start from a clean slate so repeated recordings don't accumulate.
         m_modelManager->clearAll();
 
-        // Record exactly the features the user selected.
-        m_stateManager->setRequestedFeatures(m_settings->requestedFeatures());
+        // Record exactly the features requested on the session (set by
+        // createSession, or by a composite backend driving this capture); fall
+        // back to the backend's own settings if the session left it unset.
+        m_stateManager->setRequestedFeatures(
+            session->requestedFeatures ? session->requestedFeatures : m_settings->requestedFeatures());
 
         m_clientManager->setServer(session->serverUrl);
         m_clientManager->connectToServer();
@@ -257,7 +263,7 @@ ExecutableItem QmlProfilerSampler::recordRecipe(const std::shared_ptr<RecordingS
         m_clientManager->disconnectFromServer();
     };
 
-    return launchThenCapture(session, QBarrierTask(onSetup, onDone));
+    return QBarrierTask(onSetup, onDone);
 }
 
 } // namespace QmlProfiler::Internal

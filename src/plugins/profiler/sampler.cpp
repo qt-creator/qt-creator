@@ -4,14 +4,28 @@
 #include "sampler.h"
 
 #include "profilertr.h"
+#include "samplerrecipe.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
 using namespace Profiler;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace QmlProfiler::Internal {
+
+void Sampler::prepareLaunch(const std::shared_ptr<RecordingSession> &) const
+{
+    // Backends that must adjust the launch command before the process starts
+    // override this; most attach after start and need nothing here.
+}
+
+ExecutableItem Sampler::recordRecipe(const std::shared_ptr<RecordingSession> &session) const
+{
+    prepareLaunch(session);
+    return launchThenCapture(session, captureRecipe(session));
+}
 
 SamplerSettings::SamplerSettings()
 {

@@ -50,7 +50,8 @@ public:
 
     QString displayName() const override;
     bool isAvailable(QString *error = nullptr) const override;
-    QtTaskTree::ExecutableItem recordRecipe(
+    void prepareLaunch(const std::shared_ptr<RecordingSession> &session) const override;
+    QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const override;
 
     SamplerSettings *settings() const override;

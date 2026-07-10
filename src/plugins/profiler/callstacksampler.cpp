@@ -5,7 +5,6 @@
 
 #include "macsampler.h"
 #include "processpickerdialog.h"
-#include "samplerrecipe.h"
 
 #include "profilertr.h"
 
@@ -75,6 +74,7 @@ CallStackSamplerSettings::CallStackSamplerSettings()
 Result<std::shared_ptr<RecordingSession>> CallStackSamplerSettings::createSession() const
 {
     auto session = std::make_shared<RecordingSession>();
+    session->intervalUs = int(intervalUs());
     if (attach()) {
         if (m_pickedPid == 0)
             return ResultError(Tr::tr("Select a process to attach to."));
@@ -115,10 +115,11 @@ SamplerSettings *CallStackSampler::settings() const
     return m_settings.get();
 }
 
-ExecutableItem CallStackSampler::recordRecipe(const std::shared_ptr<RecordingSession> &session) const
+ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSession> &session) const
 {
-    // Read the cadence on the GUI thread; the sampling itself runs on a worker.
-    const int intervalUs = int(m_settings->intervalUs());
+    // The cadence comes from the session (set by createSession, or by a composite
+    // backend that drives this capture), so the sampling worker can read it.
+    const int intervalUs = session->intervalUs;
 
     const auto onSetup = [session, intervalUs](QThreadFunction<Result<FilePath>> &sampling) {
         // recordSampleTrace blocks until session->stop is set, so it runs on a
@@ -129,7 +130,7 @@ ExecutableItem CallStackSampler::recordRecipe(const std::shared_ptr<RecordingSes
             opts.pid = session->pid.load();
             opts.processName = session->processName;
             opts.intervalUs = intervalUs;
-            session->started.store(true); // capture is live; the duration clock can start
+            session->markStarted(); // capture is live; the duration clock can start
             return recordSampleTrace(opts, session->stop, &session->progress);
         });
     };
@@ -138,7 +139,7 @@ ExecutableItem CallStackSampler::recordRecipe(const std::shared_ptr<RecordingSes
         if (result != DoneWith::Cancel)
             session->result = sampling.result();
     };
-    return launchThenCapture(session, QThreadFunctionTask<Result<FilePath>>(onSetup, onDone));
+    return QThreadFunctionTask<Result<FilePath>>(onSetup, onDone);
 }
 
 } // namespace QmlProfiler::Internal

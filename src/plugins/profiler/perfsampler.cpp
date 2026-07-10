@@ -10,7 +10,6 @@
 #include "perfprofilertracemanager.h"
 #include "processpickerdialog.h"
 #include "profilertr.h"
-#include "samplerrecipe.h"
 #include "sampletrace.h"
 
 #include <utils/environment.h>
@@ -342,7 +341,7 @@ SamplerSettings *PerfSampler::settings() const
     return m_settings.get();
 }
 
-ExecutableItem PerfSampler::recordRecipe(const std::shared_ptr<RecordingSession> &session) const
+ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession> &session) const
 {
     const FilePath perfExe = Environment::systemEnvironment().searchInPath("perf");
     const FilePath parserExe = findPerfParser();
@@ -376,7 +375,7 @@ ExecutableItem PerfSampler::recordRecipe(const std::shared_ptr<RecordingSession>
                 parser->writeRaw(p->readAllRawStandardOutput());
         });
 
-        session->started.store(true); // perf is attached; the duration clock can start
+        session->markStarted(); // perf is attached; the duration clock can start
     };
     const auto onRecordDone = [session, parserProcessPtr](const Process &process, DoneWith result) {
         // Stopping recording calls process.stop(), which itself is reported as
@@ -440,11 +439,11 @@ ExecutableItem PerfSampler::recordRecipe(const std::shared_ptr<RecordingSession>
         session->result = dir;
     };
 
-    return launchThenCapture(session, Group {
+    return Group {
         parallel,
         ProcessTask(onRecordSetup, onRecordDone),
         ProcessTask(onParserSetup, onParserDone),
-    });
+    };
 }
 
 } // namespace QmlProfiler::Internal
