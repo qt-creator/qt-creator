@@ -156,6 +156,33 @@ Definitions definitionsForFileName(const FilePath &filePath)
     return definitions;
 }
 
+// The remembered choice must be stored under the same MIME type key that
+// definitionsForDocument() reads it back with. That is not always the
+// document's own MIME type: if the own type carries no definition but inherits
+// one from a parent (e.g. the disassembler's text/x-qtcreator-generic-asm,
+// whose definitions come from the parent text/x-asm), the read side keys the
+// choice by the parent. Walk the hierarchy the same way and return the name
+// that actually provides the definition, falling back to the own MIME type.
+static QString mimeTypeKeyForDefinition(const QString &documentMimeType,
+                                        const Definition &definition)
+{
+    QString result = documentMimeType;
+    const MimeType mimeType = Utils::mimeTypeForName(documentMimeType);
+    if (mimeType.isValid()) {
+        Utils::visitMimeParents(mimeType, [&](const MimeType &mt) -> bool {
+            const QStringList names = QStringList(mt.name()) + mt.aliases();
+            for (const QString &name : names) {
+                if (definitionsForMimeType(name).contains(definition)) {
+                    result = name;
+                    return false; // stop
+                }
+            }
+            return true; // continue
+        });
+    }
+    return result;
+}
+
 void rememberDefinitionForDocument(const Definition &definition,
                                    const TextEditor::TextDocument *document)
 {
@@ -183,7 +210,7 @@ void rememberDefinitionForDocument(const Definition &definition,
     } else if (!mimeType.isEmpty()) {
         const Key id(kDefinitionForMimeType);
         QMap<QString, QVariant> map = settings->value(id).toMap();
-        map.insert(mimeType, definition.name());
+        map.insert(mimeTypeKeyForDefinition(mimeType, definition), definition.name());
         settings->setValue(id, map);
     }
     settings->endGroup();
