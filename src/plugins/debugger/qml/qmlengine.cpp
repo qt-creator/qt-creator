@@ -239,6 +239,9 @@ QmlEngine::QmlEngine()
 {
     setObjectName("QmlEngine");
     setDebuggerName("QML");
+    // Processed by the QML inspector, which has dependencies to the qml js
+    // editor - makes life easier. FIXME: Except that there isn't any attached.
+    setToolTipHandling(ToolTipHandling::Always);
 
     QmlDebugConnection *connection = d->connection();
 
@@ -778,14 +781,6 @@ void QmlEngine::updateAll()
 void QmlEngine::requestModuleSymbols(const FilePath &moduleName)
 {
     Q_UNUSED(moduleName)
-}
-
-bool QmlEngine::canHandleToolTip(const DebuggerToolTipContext &) const
-{
-    // This is processed by QML inspector, which has dependencies to
-    // the qml js editor. Makes life easier.
-    // FIXME: Except that there isn't any attached.
-    return true;
 }
 
 void QmlEngine::assignValueInDebugger(WatchItem *item,

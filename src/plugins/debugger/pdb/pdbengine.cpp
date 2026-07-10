@@ -40,6 +40,7 @@ PdbEngine::PdbEngine()
 
     setObjectName("PdbEngine");
     setDebuggerName("PDB");
+    setToolTipHandling(ToolTipHandling::IfStoppedInferior);
 }
 
 void PdbEngine::executeDebuggerCommand(const QString &command)
@@ -342,11 +343,6 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
         syms.append(symbol);
     }
     showModuleSymbols(runParameters().inferior().command.executable().withNewPath(moduleName), syms);
-}
-
-bool PdbEngine::canHandleToolTip(const DebuggerToolTipContext &) const
-{
-    return state() == InferiorStopOk;
 }
 
 void PdbEngine::assignValueInDebugger(WatchItem *, const QString &expression, const QVariant &value)

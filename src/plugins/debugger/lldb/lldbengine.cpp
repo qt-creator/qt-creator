@@ -756,17 +756,6 @@ void LldbEngine::requestModuleSymbols(const FilePath &moduleName)
 }
 
 
-//////////////////////////////////////////////////////////////////////
-//
-// Tooltip specific stuff
-//
-//////////////////////////////////////////////////////////////////////
-
-bool LldbEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
-{
-   return state() == InferiorStopOk && context.isCppEditor;
-}
-
 void LldbEngine::updateAll()
 {
     DebuggerCommand cmd("fetchThreads");

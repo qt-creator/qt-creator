@@ -920,7 +920,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
             tooltip->context.mousePosition = point;
             m_tooltips.append(tooltip);
             tooltip->setState(PendingUnshown);
-            if (m_engine->canHandleToolTip(context)) {
+            if (m_engine->canHandleToolTip(context.isCppEditor)) {
                 m_engine->updateItem(context.iname);
             } else {
                 ToolTip::show(point, Tr::tr("Expression too complex"), editorWidget);

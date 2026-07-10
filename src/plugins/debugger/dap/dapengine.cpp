@@ -117,7 +117,9 @@ void VariablesHandler::startHandling()
 
 DapEngine::DapEngine()
     : m_variablesHandler(std::make_unique<VariablesHandler>(this))
-{}
+{
+    setToolTipHandling(ToolTipHandling::IfStoppedInferior);
+}
 
 void DapEngine::executeDebuggerCommand(const QString &/*command*/)
 {
@@ -527,11 +529,6 @@ void DapEngine::refreshSymbols(const GdbMi &symbols)
         syms.append(symbol);
     }
     showModuleSymbols(FilePath::fromUserInput(moduleName), syms);
-}
-
-bool DapEngine::canHandleToolTip(const DebuggerToolTipContext &) const
-{
-    return state() == InferiorStopOk;
 }
 
 void DapEngine::updateItem(const QString &iname)

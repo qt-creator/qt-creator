@@ -43,6 +43,15 @@ enum DebuggerCloseMode
     DetachAtClose
 };
 
+// Governs DebuggerEngine::canHandleToolTip(): whether an engine supports
+// showing a debugger tooltip at all, and under what condition.
+enum class ToolTipHandling
+{
+    Always,
+    IfStoppedInferior,
+    IfStoppedInferiorAndCppEditor, // default
+};
+
 enum DebuggerCapabilities
 {
     ReverseSteppingCapability         = 1 <<  0,

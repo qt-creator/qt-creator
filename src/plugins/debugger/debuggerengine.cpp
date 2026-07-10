@@ -832,6 +832,7 @@ public:
     QAction m_snapshotAction{Tr::tr("Take Snapshot of Process State")};
 
     DebuggerToolTipManager m_toolTipManager;
+    ToolTipHandling m_toolTipHandling = ToolTipHandling::IfStoppedInferiorAndCppEditor;
     Context m_context;
     bool m_isExamineModulesEnabled = false;
 };
@@ -2716,9 +2717,22 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
         updateMemoryViews();
 }
 
-bool DebuggerEngine::canHandleToolTip(const DebuggerToolTipContext &context) const
+bool DebuggerEngine::canHandleToolTip(bool isCppEditor) const
 {
-    return state() == InferiorStopOk && context.isCppEditor;
+    switch (d->m_toolTipHandling) {
+    case ToolTipHandling::Always:
+        return true;
+    case ToolTipHandling::IfStoppedInferior:
+        return state() == InferiorStopOk;
+    case ToolTipHandling::IfStoppedInferiorAndCppEditor:
+        return state() == InferiorStopOk && isCppEditor;
+    }
+    return false;
+}
+
+void DebuggerEngine::setToolTipHandling(ToolTipHandling handling)
+{
+    d->m_toolTipHandling = handling;
 }
 
 void DebuggerEngine::updateItem(const QString &iname)

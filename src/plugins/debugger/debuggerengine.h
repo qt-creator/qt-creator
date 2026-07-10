@@ -468,7 +468,7 @@ public:
         Silent = DebuggerCommand::Silent
     };
 
-    virtual bool canHandleToolTip(const DebuggerToolTipContext &) const;
+    bool canHandleToolTip(bool isCppEditor) const;
     virtual void expandItem(const QString &iname); // Called when item in tree gets expanded.
     virtual void reexpandItems(
         const QSet<QString> &inames); // Called when items in tree need to be reexpanded.
@@ -592,6 +592,7 @@ signals:
     void kickoffTerminalProcessRequested();
 
 protected:
+    void setToolTipHandling(ToolTipHandling handling);
     void setExamineModulesEnabled(bool on);
     PeripheralRegisterHandler *peripheralRegisterHandler() const;
     SourceFilesHandler *sourceFilesHandler() const;

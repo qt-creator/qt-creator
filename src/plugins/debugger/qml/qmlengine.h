@@ -54,8 +54,6 @@ private:
     void shutdownInferior() override;
     void shutdownEngine() override;
 
-    bool canHandleToolTip(const DebuggerToolTipContext &) const override;
-
     void continueInferior() override;
     void interruptInferior() override;
 
