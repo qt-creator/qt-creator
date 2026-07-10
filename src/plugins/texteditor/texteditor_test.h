@@ -12,6 +12,7 @@ QObject *createCleanWhitespaceTest();
 QObject *createSortLinesTest();
 QObject *createSelectAllTest();
 QObject *createRevertToSavedTest();
+QObject *createFindReplaceTest();
 QObject *createTextDocumentTest();
 QObject *createSnippetParserTest();
 QObject *createFormatTextTest();

@@ -10,6 +10,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/filepath.h>
@@ -509,6 +510,68 @@ void RevertToSavedTest::testRevertToSaved()
 QObject *createRevertToSavedTest()
 {
     return new RevertToSavedTest;
+}
+
+class FindReplaceTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testReplaceAll();
+    void testReplaceSelected();
+};
+
+static BaseTextEditor *openTextEditor(const QString &contents, QString title)
+{
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, contents.toUtf8());
+    return qobject_cast<BaseTextEditor *>(editor);
+}
+
+void FindReplaceTest::testReplaceAll()
+{
+    const QString content = "int window;\nWindow w;\nTriangleWindow tw;";
+    BaseTextEditor *editor = openTextEditor(content, "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // Case-insensitive by default, so every "window"/"Window" is replaced.
+    Core::BaseTextFind find(editorWidget);
+    const int count = find.replaceAll("window", "find", {});
+
+    QCOMPARE(count, 3);
+    QCOMPARE(editorWidget->textDocument()->plainText(),
+             QString("int find;\nfind w;\nTrianglefind tw;"));
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void FindReplaceTest::testReplaceSelected()
+{
+    const QString content = "int window;\nWindow w;\nTriangleWindow tw;";
+    BaseTextEditor *editor = openTextEditor(content, "find.txt");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // Select the "Window" on the second line and replace only that occurrence.
+    QTextCursor cursor(editorWidget->document());
+    cursor.setPosition(12);
+    cursor.setPosition(18, QTextCursor::KeepAnchor);
+    QCOMPARE(cursor.selectedText(), QString("Window"));
+    editorWidget->setTextCursor(cursor);
+
+    Core::BaseTextFind find(editorWidget);
+    find.replace("Window", "find", {});
+
+    QCOMPARE(editorWidget->textDocument()->plainText(),
+             QString("int window;\nfind w;\nTriangleWindow tw;"));
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+QObject *createFindReplaceTest()
+{
+    return new FindReplaceTest;
 }
 
 } // TextEditor::Internal
