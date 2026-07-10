@@ -18,12 +18,10 @@
 #include <QTimer>
 #include <QUrl>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 namespace ProjectExplorer {
 class Target;
-}
-
-namespace Utils {
-class Process;
 }
 
 namespace EffectComposer {
@@ -231,13 +229,7 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
-    void handleQsbProcessExit(
-        Utils::Process *qsbProcess,
-        const QString &shader,
-        bool preview,
-        int bakeCounter);
-
-    void copyProcessTargetToEffectDir(Utils::Process *qsbProcess);
+    void copyProcessTargetToEffectDir(const Utils::FilePath &outputFile);
 
     QString stripFileFromURL(const QString &urlString) const;
     QString getQmlEffectString();
@@ -275,7 +267,6 @@ private:
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
     bool m_liveUpdateMode = false;
-    int m_remainingQsbTargets = 0;
     QMap<int, QList<EffectError>> m_effectErrors;
     ShaderFeatures m_shaderFeatures;
     QStringList m_shaderVaryingVariables;
@@ -311,8 +302,10 @@ private:
     QList<QUrl> m_customPreviewImages;
     int m_currentBakeCounter = 0;
     bool m_advancedMode = false;
-    bool m_qsbFirstProcessIsDone = false;
-    int m_pendingSaveBakeCounter = -1;
+    // A save requests that the next completed bake copies its shaders into the effect dir.
+    bool m_pendingSave = false;
+
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

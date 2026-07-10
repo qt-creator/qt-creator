@@ -1240,7 +1240,7 @@ void EffectComposerModel::writeComposition(const QString &name)
 void EffectComposerModel::saveComposition(const QString &name)
 {
     writeComposition(name);
-    m_pendingSaveBakeCounter = m_currentBakeCounter + 1; // next bake counter
+    m_pendingSave = true;
     startRebakeTimer();
 }
 
@@ -1981,49 +1981,7 @@ QString EffectComposerModel::generateFragmentShader(bool includeUniforms)
     return s;
 }
 
-void EffectComposerModel::handleQsbProcessExit(
-    Utils::Process *qsbProcess, const QString &shader, bool preview, int bakeCounter)
-{
-    if (bakeCounter == m_currentBakeCounter) {
-        if (!m_qsbFirstProcessIsDone) {
-            m_qsbFirstProcessIsDone = true;
-            resetEffectError(ErrorShader, false);
-        }
-
-        --m_remainingQsbTargets;
-
-        const QString errStr = qsbProcess->errorString();
-        const QByteArray errStd = qsbProcess->readAllRawStandardError();
-        QString previewStr;
-        if (preview)
-            previewStr = QStringLiteral("preview");
-
-        if (!errStr.isEmpty() || !errStd.isEmpty()) {
-            const QString failMessage = "Failed to generate %3 QSB file for: %1\n%2";
-            QString error;
-            if (!errStr.isEmpty())
-                error = failMessage.arg(shader, errStr, previewStr);
-            if (!errStd.isEmpty())
-                error = failMessage.arg(shader, QString::fromUtf8(errStd), previewStr);
-            setEffectError(error, ErrorShader, false);
-        }
-
-        if (m_remainingQsbTargets <= 0) {
-            Q_EMIT shadersBaked();
-            setShadersUpToDate(true);
-            Q_EMIT effectErrorsChanged();
-
-            // TODO: Mark shaders as baked, required by export later
-        }
-    }
-
-    if (bakeCounter == m_pendingSaveBakeCounter && !preview)
-        copyProcessTargetToEffectDir(qsbProcess);
-
-    qsbProcess->deleteLater();
-}
-
-void EffectComposerModel::copyProcessTargetToEffectDir(Utils::Process *qsbProcess)
+void EffectComposerModel::copyProcessTargetToEffectDir(const Utils::FilePath &outputFile)
 {
     auto getShaderFormat = [](const Utils::FilePath &path) -> QString {
         static const QStringList acceptedFormats = {"frag.qsb", "vert.qsb"};
@@ -2035,17 +1993,6 @@ void EffectComposerModel::copyProcessTargetToEffectDir(Utils::Process *qsbProces
         return {};
     };
 
-    auto findOutputFileFromArgs = [](Utils::Process *qsbProcess) -> Utils::FilePath {
-        QStringList qsbProcessArgs = qsbProcess->commandLine().splitArguments();
-        int outputIndex = qsbProcessArgs.indexOf("-o", 0, Qt::CaseInsensitive);
-        if (outputIndex > 0) {
-            if (++outputIndex < qsbProcessArgs.size())
-                return Utils::FilePath::fromString(qsbProcessArgs.at(outputIndex));
-        }
-        return {};
-    };
-
-    const Utils::FilePath &outputFile = findOutputFileFromArgs(qsbProcess);
     const QString &shaderFormat = getShaderFormat(outputFile);
     const QString &effectName = currentComposition();
     const Utils::FilePath &effectsResDir
@@ -2216,42 +2163,76 @@ void EffectComposerModel::bakeShaders()
         return;
     }
 
-    m_remainingQsbTargets = 0;
-    const QStringList srcPaths = {m_vertexSourceFilename, m_fragmentSourceFilename};
-    const QStringList outPaths = {m_vertexShaderFilename, m_fragmentShaderFilename};
-    const QStringList outPrevPaths = {m_vertexShaderPreviewFilename, m_fragmentShaderPreviewFilename};
+    using namespace QtTaskTree;
 
-    auto runQsb = [this, srcPaths](
-                      const Utils::FilePath &qsbPath, const QStringList &outPaths, bool preview) {
-        for (int i = 0; i < 2; ++i) {
-            const auto workDir = Utils::FilePath::fromString(outPaths[i]);
-            // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
-            QStringList args = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
-            args << "-o" << outPaths[i] << srcPaths[i];
+    struct QsbTarget
+    {
+        Utils::FilePath qsbPath;
+        QString src;
+        QString outPath;
+        bool preview = false;
+    };
+    const QList<QsbTarget> targets {
+        {qsbPath,     m_vertexSourceFilename,   m_vertexShaderFilename,          false},
+        {qsbPath,     m_fragmentSourceFilename, m_fragmentShaderFilename,        false},
+        {qsbPrevPath, m_vertexSourceFilename,   m_vertexShaderPreviewFilename,   true},
+        {qsbPrevPath, m_fragmentSourceFilename, m_fragmentShaderPreviewFilename, true},
+    };
+    const ListIterator iterator(targets);
 
-            ++m_remainingQsbTargets;
-
-            auto qsbProcess = new Utils::Process(this);
-            connect(
-                qsbProcess,
-                &Utils::Process::done,
-                this,
-                std::bind(
-                    &EffectComposerModel::handleQsbProcessExit,
-                    this,
-                    qsbProcess,
-                    srcPaths[i],
-                    preview,
-                    std::move(m_currentBakeCounter)));
-            qsbProcess->setWorkingDirectory(workDir.absolutePath());
-            qsbProcess->setCommand({qsbPath, args});
-            qsbProcess->start();
-        }
+    const auto onSetup = [iterator](Utils::Process &process) {
+        const QsbTarget &target = *iterator;
+        // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
+        const QStringList args {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50",
+                                "--msl", "12", "-o", target.outPath, target.src};
+        process.setWorkingDirectory(Utils::FilePath::fromString(target.outPath).absolutePath());
+        process.setCommand({target.qsbPath, args});
+    };
+    const auto onDone = [this, iterator](const Utils::Process &process) {
+        const QsbTarget &target = *iterator;
+        const QString errStr = process.errorString();
+        const QByteArray errStd = process.rawStdErr();
+        if (errStr.isEmpty() && errStd.isEmpty())
+            return;
+        const QString previewStr = target.preview ? QStringLiteral("preview") : QString();
+        const QString failMessage = "Failed to generate %3 QSB file for: %1\n%2";
+        QString error;
+        if (!errStr.isEmpty())
+            error = failMessage.arg(target.src, errStr, previewStr);
+        if (!errStd.isEmpty())
+            error = failMessage.arg(target.src, QString::fromUtf8(errStd), previewStr);
+        setEffectError(error, ErrorShader, false);
     };
 
-    m_qsbFirstProcessIsDone = false;
-    runQsb(qsbPath, outPaths, false);
-    runQsb(qsbPrevPath, outPrevPaths, true);
+    const auto onTreeSetup = [this] { resetEffectError(ErrorShader, false); };
+
+    const auto onTreeDone = [this, targets] {
+        // A save requested that the shaders be copied into the effect dir once baked.
+        if (m_pendingSave) {
+            m_pendingSave = false;
+            for (const QsbTarget &target : targets) {
+                if (!target.preview)
+                    copyProcessTargetToEffectDir(Utils::FilePath::fromString(target.outPath));
+            }
+        }
+        Q_EMIT shadersBaked();
+        setShadersUpToDate(true); // Emits a change signal; see the note on the done handler below.
+        Q_EMIT effectErrorsChanged();
+        // TODO: Mark shaders as baked, required by export later
+    };
+
+    // The bakes run in parallel and are all allowed to finish so that every error is collected,
+    // regardless of whether a sibling bake failed. Starting a new bake automatically cancels a
+    // previous, still-running one.
+    // The done handler is passed to the runner (tree level) rather than placed inside the recipe:
+    // the runner detaches the finished tree before invoking it, so setShadersUpToDate()'s change
+    // signal may safely re-enter bakeShaders() without deleting the still-executing task tree.
+    const Group recipe = For (iterator) >> Do {
+        parallel,
+        finishAllAndSuccess,
+        Utils::ProcessTask(onSetup, onDone)
+    };
+    m_taskTreeRunner.start(recipe, onTreeSetup, onTreeDone);
 
     for (CompositionNode *node : std::as_const(m_nodes))
         node->updateAreUniformsInUse();
