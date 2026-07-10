@@ -80,6 +80,7 @@ struct ViewGroup
     QList<QDockWidget *> docks;         // List with original dock widgets order
     QDockWidget *detailsDock = nullptr; // Range details, docked to the right (not tabbed)
     bool stackVertically = false;
+    bool built = false;                 // Views created and docked lazily on first use
 };
 
 class WindowPrivate : public QObject
@@ -102,9 +103,10 @@ public:
     void onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber,
                               const QString &module = {}, quint64 offset = 0);
 
-    void addDocksForViews();
+    ViewGroup &groupFor(Format format);
+    void ensureGroupBuilt(Format format);
     void resetLayout(Format format);
-    void resetActiveLayout() { resetLayout(activeFormat); }
+    void resetActiveLayout();
     void setActiveFormat(Format format);
     void clearTrace();
     void doLoad(const Utils::FilePath &filePath);
@@ -458,44 +460,76 @@ milliseconds WindowPrivate::activeTraceDuration() const
     Q_UNREACHABLE_RETURN(milliseconds{0});
 }
 
-void WindowPrivate::addDocksForViews()
+ViewGroup &WindowPrivate::groupFor(Format format)
 {
-    QTC_ASSERT(qmlGroup.docks.isEmpty() && ctfGroup.docks.isEmpty()
-                   && samplerGroup.docks.isEmpty(),
-               return);
+    switch (format) {
+    case Format::Qml: return qmlGroup;
+    case Format::Ctf: return ctfGroup;
+    case Format::Sampler: return samplerGroup;
+    }
+    Q_UNREACHABLE_RETURN(qmlGroup);
+}
 
-    const auto buildGroup = [this](const QWidgetList &views, QWidget *details, ViewGroup &group) {
+// A format's views are created and docked the first time that format is shown,
+// not up front for every backend. This keeps a trace's tab context menu limited
+// to the views that actually apply to it, instead of listing every backend's
+// "CPU Usage", "Statistics", etc. (many of them duplicated).
+void WindowPrivate::ensureGroupBuilt(Format format)
+{
+    ViewGroup &group = groupFor(format);
+    if (group.built)
+        return;
+    group.built = true;
+
+    const auto buildGroup = [this](const QWidgetList &views, QWidget *details, ViewGroup &g) {
         for (QWidget *w : views)
-            group.docks.append(traceArea->addDockForWidget(w));
+            g.docks.append(traceArea->addDockForWidget(w));
         // The range details view lives next to the tabbed views, docked to the right.
         if (details)
-            group.detailsDock = traceArea->addDockForWidget(details);
+            g.detailsDock = traceArea->addDockForWidget(details);
     };
 
-    // views() populates the manager's range-details widget, so query it afterwards.
-    const QWidgetList qmlViews = qmlManager->views(traceArea);
-    buildGroup(qmlViews, qmlManager->rangeDetailsWidget(), qmlGroup);
-
-    const QWidgetList ctfViews = ctfManager->views(traceArea);
-    buildGroup(ctfViews, ctfManager->rangeDetailsWidget(), ctfGroup);
-
-    const QWidgetList samplerViews = samplerManager->views(traceArea);
-    buildGroup(samplerViews, samplerManager->rangeDetailsWidget(), samplerGroup);
-    // Stack Call Stacks below CPU Usage instead of tabbing them together.
-    samplerGroup.stackVertically = true;
+    // views() populates the manager's range-details widget, so it must run
+    // before rangeDetailsWidget() is queried. Take the views into a local first;
+    // the two calls cannot be arguments to the same call, as the evaluation order
+    // of function arguments is unspecified in C++.
+    switch (format) {
+    case Format::Qml: {
+        const QWidgetList views = qmlManager->views(traceArea);
+        buildGroup(views, qmlManager->rangeDetailsWidget(), qmlGroup);
+        break;
+    }
+    case Format::Ctf: {
+        const QWidgetList views = ctfManager->views(traceArea);
+        buildGroup(views, ctfManager->rangeDetailsWidget(), ctfGroup);
+        break;
+    }
+    case Format::Sampler: {
+        const QWidgetList views = samplerManager->views(traceArea);
+        buildGroup(views, samplerManager->rangeDetailsWidget(), samplerGroup);
+        // Stack Call Stacks below CPU Usage instead of tabbing them together.
+        samplerGroup.stackVertically = true;
+        break;
+    }
+    }
 }
 
 void WindowPrivate::resetLayout(Format format)
 {
-    const auto groupFor = [this](Format f) -> ViewGroup & {
-        switch (f) {
-        case Format::Qml: return qmlGroup;
-        case Format::Ctf: return ctfGroup;
-        case Format::Sampler: return samplerGroup;
-        }
-        Q_UNREACHABLE_RETURN(qmlGroup);
-    };
+    ensureGroupBuilt(format);
     ViewGroup &active = groupFor(format);
+
+    // Setting "managed_dockwidget" excludes a dock from FancyMainWindow's tab
+    // context menu (see FancyMainWindow::addDockActionsToMenu). We hide the other
+    // formats' docks and take them out of the menu so a trace only offers the
+    // views that apply to it.
+    const auto setInMenu = [](const ViewGroup &group, bool inMenu) {
+        const QVariant managed = inMenu ? QVariant() : QVariant("true");
+        for (QDockWidget *dw : group.docks)
+            dw->setProperty("managed_dockwidget", managed);
+        if (group.detailsDock)
+            group.detailsDock->setProperty("managed_dockwidget", managed);
+    };
 
     // Hide the docks belonging to the other formats.
     for (Format other : {Format::Qml, Format::Ctf, Format::Sampler}) {
@@ -506,7 +540,9 @@ void WindowPrivate::resetLayout(Format format)
             dw->setVisible(false);
         if (inactive.detailsDock)
             inactive.detailsDock->setVisible(false);
+        setInMenu(inactive, false);
     }
+    setInMenu(active, true);
 
     QDockWidget *firstDockWidget = nullptr;
     for (QDockWidget *dw : std::as_const(active.docks)) {
@@ -545,10 +581,21 @@ void WindowPrivate::resetLayout(Format format)
 
 void WindowPrivate::setActiveFormat(Format format)
 {
-    if (activeFormat == format)
+    // Re-lay out when the format changes, or when this format's views are shown
+    // for the first time (they are built lazily, so the initial layout of a
+    // format that happens to already be the active one still needs doing).
+    const bool firstShow = !groupFor(format).built;
+    if (activeFormat == format && !firstShow)
         return;
     activeFormat = format;
     resetLayout(format);
+}
+
+void WindowPrivate::resetActiveLayout()
+{
+    // Nothing to lay out until the first trace has built its views.
+    if (groupFor(activeFormat).built)
+        resetLayout(activeFormat);
 }
 
 void WindowPrivate::clearTrace()
@@ -654,8 +701,9 @@ Window::Window(QWidget *parent)
     toolBar->setIconSize(QSize(16, 16));
     addToolBar(toolBar);
 
-    d->addDocksForViews();
-    d->resetActiveLayout();
+    // Views are built lazily when the first trace of each format is shown, so
+    // there is nothing to lay out yet. The reset-layout action re-lays out
+    // whichever format is active once a trace has been loaded.
     connect(d->traceArea, &FancyMainWindow::resetLayout, d, &WindowPrivate::resetActiveLayout);
 
     auto splitter = new Core::MiniSplitter(Qt::Horizontal);
