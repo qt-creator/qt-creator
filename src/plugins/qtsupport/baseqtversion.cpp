@@ -2621,6 +2621,11 @@ QtVersion *QtVersionFactory::createQtVersionFromPrefix(
 QtVersionFactory::QtVersionFactory()
 {
     g_qtVersionFactories.append(this);
+
+    // If the Qt versions were already loaded, this factory is registered at runtime (e.g. by a
+    // soft-loaded plugin). Give the manager a chance to restore versions it had to defer.
+    if (QtVersionManager::isLoaded())
+        QtVersionManager::qtVersionFactoryAdded();
 }
 
 QtVersionFactory::~QtVersionFactory()

@@ -142,6 +142,7 @@ public:
 
     int m_idcount = 1;
     QList<Store> m_versionsWithUnknownType;
+    bool m_installerHasUnknownTypes = false;
     // managed by QtProjectManagerPlugin
     FileSystemWatcher *m_configFileWatcher = nullptr;
     QTimer m_fileWatcherTimer;
@@ -215,6 +216,26 @@ void QtVersionManager::initialized()
 {
     // Force creation. FIXME: Remove.
     qtVersionManagerImpl();
+}
+
+void QtVersionManager::qtVersionFactoryAdded()
+{
+    // A factory was registered after the versions were loaded (e.g. by a soft-loaded plugin). Try
+    // to restore Qt versions that could not be restored during loading for lack of a factory.
+    // This runs from the QtVersionFactory base-class constructor, before the derived class has set
+    // its supported type, and several factories may be added in one batch; defer the retry to the
+    // event loop so all newly registered factories are fully constructed first.
+    static bool scheduled = false;
+    if (scheduled)
+        return;
+    scheduled = true;
+    QMetaObject::invokeMethod(
+        &qtVersionManagerImpl(),
+        [] {
+            scheduled = false;
+            qtVersionManagerImpl().restoreVersionsWithUnknownType();
+        },
+        Qt::QueuedConnection);
 }
 
 void QtVersionManager::shutdown()
@@ -321,7 +342,7 @@ void QtVersionManagerImpl::restoreVersionsWithUnknownType()
     }
 
     // The versions provided by the installer were skipped for the same reason.
-    if (globalSettingsFileName().exists())
+    if (m_installerHasUnknownTypes)
         updateFromInstaller();
 
     if (!added.isEmpty())
@@ -361,6 +382,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
     }
 
     QStringList sdkVersions;
+    m_installerHasUnknownTypes = false;
 
     const QByteArray keyPrefix(QTVERSION_DATA_KEY);
     const Store::ConstIterator dcend = data.constEnd();
@@ -385,6 +407,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
         }
         if (!factory) {
             qCDebug(log, "Warning: Unable to find factory for type '%s'", qPrintable(type));
+            m_installerHasUnknownTypes = true;
             continue;
         }
         // First try to find a existing Qt version to update

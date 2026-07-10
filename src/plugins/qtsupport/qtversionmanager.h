@@ -40,7 +40,7 @@ public:
     static void updateDocumentation(const QtVersions &versions);
 
     // Restores the Qt versions that were skipped while loading because no factory claimed their
-    // type. Call this after registering a QtVersionFactory from a soft-loaded plugin.
+    // type. Registering a QtVersionFactory after loading triggers this automatically.
     static void restoreVersionsWithUnknownType();
 
     // True while such a version is waiting for its factory, so its id is neither in use nor free.
@@ -73,6 +73,10 @@ private:
 
     static void initialized();
     static void shutdown();
+
+    // Called when a QtVersionFactory is registered after the versions were loaded, so that Qt
+    // versions deferred for lack of a factory can be restored.
+    static void qtVersionFactoryAdded();
 
     enum class DocumentationSetting { HighestOnly, All, None };
 
