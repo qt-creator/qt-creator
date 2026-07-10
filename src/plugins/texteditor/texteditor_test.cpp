@@ -10,9 +10,11 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/filepath.h>
 #include <utils/multitextcursor.h>
+#include <utils/temporarydirectory.h>
 
 #include <QTest>
 #include <QTextCursor>
@@ -466,6 +468,47 @@ void SelectAllTest::testCursorAfterSelectAll()
 QObject *createSelectAllTest()
 {
     return new SelectAllTest;
+}
+
+class RevertToSavedTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testRevertToSaved();
+};
+
+void RevertToSavedTest::testRevertToSaved()
+{
+    Utils::TemporaryDirectory tempDir("qtc-revert-test");
+    QVERIFY(tempDir.isValid());
+    const Utils::FilePath file = tempDir.path().pathAppended("revert.txt");
+    const QString original = "line one\nline two\nline three";
+    QVERIFY(file.writeFileContents(original.toUtf8()).has_value());
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(file);
+    QVERIFY(editor);
+    auto document = qobject_cast<TextDocument *>(editor->document());
+    QVERIFY(document);
+    QVERIFY(!document->isModified()); // "Revert to Saved" is disabled while unmodified
+
+    QTextCursor cursor(document->document());
+    cursor.insertText("modified ");
+    QVERIFY(document->isModified());
+
+    // The non-interactive core of the "Revert to Saved" action.
+    const Utils::Result<> result = document->reload(Core::IDocument::FlagReload,
+                                                    Core::IDocument::TypeContents);
+    QVERIFY(result.has_value());
+    QVERIFY(!document->isModified());
+    QCOMPARE(document->plainText(), original);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+QObject *createRevertToSavedTest()
+{
+    return new RevertToSavedTest;
 }
 
 } // TextEditor::Internal
