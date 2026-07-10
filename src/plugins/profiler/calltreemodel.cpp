@@ -5,6 +5,9 @@
 
 #include "profilertr.h"
 
+#include <utils/theme/theme.h>
+
+#include <QBrush>
 #include <QHash>
 
 #include <algorithm>
@@ -112,6 +115,24 @@ QString CallTreeModel::symbol(const Node *node) const
     return m_data->labels.at(node->labelId).name;
 }
 
+bool CallTreeModel::isJsFrame(const Node *node) const
+{
+    if (!m_data || !node || node->labelId < 0 || node->labelId >= m_data->labels.size())
+        return false;
+    return m_data->labels.at(node->labelId).isJs();
+}
+
+bool CallTreeModel::hasJsFrames() const
+{
+    if (!m_data)
+        return false;
+    for (const SampleTraceData::Label &label : m_data->labels) {
+        if (label.isJs())
+            return true;
+    }
+    return false;
+}
+
 CallTreeModel::SourceLocation CallTreeModel::location(const Node *node) const
 {
     if (!m_data || !node || node->labelId < 0 || node->labelId >= m_data->labels.size())
@@ -169,6 +190,10 @@ QVariant CallTreeModel::data(const QModelIndex &index, int role) const
         return {};
     if (role == Qt::TextAlignmentRole && index.column() != SymbolColumn)
         return int(Qt::AlignRight | Qt::AlignVCenter);
+    // Tint QML/JS frames with the accent text colour so they stand out from the
+    // native C++ frames in a merged native-mixed trace.
+    if (role == Qt::ForegroundRole && isJsFrame(n))
+        return QBrush(Utils::creatorColor(Utils::Theme::Token_Text_Accent));
     if (role != Qt::DisplayRole)
         return {};
     switch (index.column()) {

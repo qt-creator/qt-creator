@@ -56,6 +56,14 @@ public:
     QModelIndex indexFor(const Node *node, int column = 0) const;
     QString symbol(const Node *node) const;
 
+    // Whether the node's frame is a QML/JS frame (spliced in from the QML
+    // profiler), so callers can colour it apart from native C++ frames.
+    bool isJsFrame(const Node *node) const;
+
+    // Whether the trace contains any QML/JS frames at all -- i.e. it is a merged
+    // native-mixed trace. Lets a view show its JS/C++ colour legend only then.
+    bool hasJsFrames() const;
+
     struct SourceLocation { QString file; int line = 0; QString module; quint64 offset = 0; };
     // The node's representative source location, or an empty file when the
     // frame has no debug info. Valid until the next rebuild, like node().

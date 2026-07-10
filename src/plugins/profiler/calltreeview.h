@@ -9,6 +9,7 @@
 QT_BEGIN_NAMESPACE
 class QTreeWidget;
 class QTreeWidgetItem;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace Utils { class TreeView; }
@@ -40,6 +41,7 @@ private:
     CallTreeModel *m_model = nullptr;
     Utils::TreeView *m_tree = nullptr;
     QTreeWidget *m_heaviest = nullptr;
+    QWidget *m_legend = nullptr;     // JS/C++ colour key, shown only for merged traces
     bool m_syncingSelection = false; // suppress pane rebuild during heaviest->tree sync
 };
 

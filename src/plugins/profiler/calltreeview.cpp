@@ -10,15 +10,56 @@
 #include <coreplugin/minisplitter.h>
 
 #include <utils/itemviews.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QAbstractItemView>
+#include <QBrush>
+#include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
 using namespace Profiler;
+using namespace Utils;
 
 namespace QmlProfiler::Internal {
+
+// A one-line colour key explaining the QML/JS vs C++ frame tint. Shown only for
+// merged native-mixed traces (see CallTreeModel::hasJsFrames).
+static QWidget *createLegend(QWidget *parent)
+{
+    auto legend = new QWidget(parent);
+    // A one-line key: keep it at its natural height so it never steals vertical
+    // space from the tree when the view is resized.
+    legend->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    auto layout = new QHBoxLayout(legend);
+    layout->setContentsMargins(StyleHelper::SpacingTokens::PaddingHM,
+                               StyleHelper::SpacingTokens::PaddingVXs,
+                               StyleHelper::SpacingTokens::PaddingHM,
+                               StyleHelper::SpacingTokens::PaddingVXs);
+    layout->setSpacing(StyleHelper::SpacingTokens::GapHS);
+
+    const auto addEntry = [&](Theme::Color color, const QString &text) {
+        auto swatch = new QLabel(legend);
+        swatch->setFixedSize(10, 10);
+        swatch->setAutoFillBackground(true);
+        QPalette pal = swatch->palette();
+        pal.setColor(QPalette::Window, creatorColor(color));
+        swatch->setPalette(pal);
+        auto label = new QLabel(text, legend);
+        label->setFont(StyleHelper::uiFont(StyleHelper::UiElementCaption));
+        layout->addWidget(swatch);
+        layout->addWidget(label);
+    };
+
+    addEntry(Theme::Token_Text_Accent, Tr::tr("QML / JS"));
+    layout->addSpacing(StyleHelper::SpacingTokens::GapHM);
+    addEntry(Theme::Token_Text_Default, Tr::tr("C++ (native)"));
+    layout->addStretch();
+    return legend;
+}
 
 CallTreeView::CallTreeView(CallTreeModel *model, QWidget *parent)
     : QWidget(parent)
@@ -50,8 +91,13 @@ CallTreeView::CallTreeView(CallTreeModel *model, QWidget *parent)
     splitter->setStretchFactor(0, 3);
     splitter->setStretchFactor(1, 1);
 
+    m_legend = createLegend(this);
+    m_legend->setVisible(m_model->hasJsFrames());
+
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    layout->addWidget(m_legend);
     layout->addWidget(splitter);
 
     connect(m_tree->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -62,7 +108,10 @@ CallTreeView::CallTreeView(CallTreeModel *model, QWidget *parent)
             this, [this](QTreeWidgetItem *cur, QTreeWidgetItem *) { onHeaviestCurrentChanged(cur); });
     connect(m_heaviest, &QTreeWidget::itemDoubleClicked,
             this, [this](QTreeWidgetItem *item, int) { onHeaviestDoubleClicked(item); });
-    connect(model, &QAbstractItemModel::modelReset, this, [this] { updateHeaviestStack(); });
+    connect(model, &QAbstractItemModel::modelReset, this, [this] {
+        m_legend->setVisible(m_model->hasJsFrames());
+        updateHeaviestStack();
+    });
 
     updateHeaviestStack();
 }
@@ -74,11 +123,15 @@ void CallTreeView::updateHeaviestStack()
     m_heaviest->clear();
     const CallTreeModel::Node *from = m_model->node(m_tree->currentIndex());
     const QList<const CallTreeModel::Node *> path = m_model->heaviestPath(from);
+    const QBrush jsBrush(Utils::creatorColor(Utils::Theme::Token_Text_Accent));
     for (const CallTreeModel::Node *node : path) {
         auto item = new QTreeWidgetItem(m_heaviest);
         item->setText(0, QString::number(node->weight));
         item->setTextAlignment(0, Qt::AlignRight | Qt::AlignVCenter);
         item->setText(1, m_model->symbol(node));
+        // Match the tree: QML/JS frames are tinted with the accent colour.
+        if (m_model->isJsFrame(node))
+            item->setForeground(1, jsBrush);
         item->setData(0, Qt::UserRole,
                       QVariant::fromValue(QPersistentModelIndex(m_model->indexFor(node))));
     }

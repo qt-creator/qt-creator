@@ -48,6 +48,16 @@ public:
         Label(QString n, QString f = {}, int l = 0, QString m = {}, quint64 o = 0)
             : name(std::move(n)), file(std::move(f)), line(l), module(std::move(m)), offset(o) {}
 
+        // A QML/JS frame spliced in from the QML profiler (see mergeQmlIntoSamples):
+        // it has no loaded image and a QML/JS source file. Native C++ frames always
+        // carry a module, so this cleanly tells the two apart for colouring.
+        bool isJs() const
+        {
+            return module.isEmpty()
+                   && (file.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive)
+                       || file.endsWith(QLatin1String(".js"), Qt::CaseInsensitive));
+        }
+
         friend bool operator==(const Label &, const Label &) = default;
     };
 
