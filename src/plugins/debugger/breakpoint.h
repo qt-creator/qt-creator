@@ -111,6 +111,7 @@ enum BreakpointPart
                |OneShotPart
 };
 Q_DECLARE_FLAGS(BreakpointParts, BreakpointPart)
+Q_DECLARE_OPERATORS_FOR_FLAGS(BreakpointParts)
 
 class DEBUGGER_EXPORT BreakpointParameters
 {

@@ -3,9 +3,15 @@
 
 #pragma once
 
+#include "debugger_global.h"
+
 #include <QFlags>
+#include <QMetaObject>
 
 namespace Debugger {
+
+Q_NAMESPACE_EXPORT(DEBUGGER_EXPORT)
+
 namespace Constants {
 
 // Debug mode
@@ -83,6 +89,20 @@ enum DebuggerCapabilities
     ResetInferiorCapability           = 1 << 26, //!< restart program while debugging
     BreakIndividualLocationsCapability= 1 << 27  //!< Allows to enable/disable individual location for multi-location bps
 };
+Q_ENUM_NS(DebuggerCapabilities)
+
+enum class DebuggerExtraCapability : unsigned
+{
+    Detach             = 1u << 0,
+    LibraryEvent       = 1u << 1,
+    RunCommandDeferral = 1u << 2,
+    SignalReceived     = 1u << 3,
+    SourceFiles        = 1u << 4,
+    Threads            = 1u << 5
+};
+Q_DECLARE_FLAGS(DebuggerExtraCapabilities, DebuggerExtraCapability)
+Q_DECLARE_OPERATORS_FOR_FLAGS(DebuggerExtraCapabilities)
+Q_FLAG_NS(DebuggerExtraCapabilities)
 
 enum LogChannel
 {

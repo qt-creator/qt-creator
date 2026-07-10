@@ -33,6 +33,7 @@ add_qtc_plugin(Debugger
     debuggercore.h
     debuggerdialogs.cpp debuggerdialogs.h
     debuggerengine.cpp debuggerengine.h
+    debuggerengineinterface.cpp debuggerengineinterface.h
     debuggericons.cpp debuggericons.h
     debuggerinternalconstants.h
     debuggeritem.cpp debuggeritem.h
