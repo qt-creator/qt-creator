@@ -30,11 +30,14 @@ QtcPlugin {
             "ctfloader.cpp", "ctfloader.h",
             "callstacksampler.cpp", "callstacksampler.h",
             "calltreemodel.cpp", "calltreemodel.h",
+            "combinedsampler.cpp", "combinedsampler.h",
+            "combinedtraceloader.cpp", "combinedtraceloader.h",
             "calltreeview.cpp", "calltreeview.h",
             "cpuusagemodel.cpp", "cpuusagemodel.h",
             "macsampler.cpp", "macsampler.h",
             "processpickerdialog.cpp", "processpickerdialog.h",
             "qmlprofilersampler.cpp", "qmlprofilersampler.h",
+            "samplemerge.cpp", "samplemerge.h",
             "sampler.cpp", "sampler.h",
             "samplerrecipe.cpp", "samplerrecipe.h",
             "samplerviewmanager.cpp", "samplerviewmanager.h",
@@ -88,7 +91,7 @@ QtcPlugin {
     }
 
     // Formerly the separate PerfProfiler plugin, folded in. See
-    // native-mixed-profiler-design.md.
+    // design-docs/native-mixed-profiler-design.md.
     Group {
         name: "Perf"
         files: [

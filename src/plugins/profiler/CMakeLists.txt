@@ -29,11 +29,14 @@ set(QMLPROFILER_CPP_SOURCES
   ctfloader.cpp ctfloader.h
   callstacksampler.cpp callstacksampler.h
   calltreemodel.cpp calltreemodel.h
+  combinedsampler.cpp combinedsampler.h
+  combinedtraceloader.cpp combinedtraceloader.h
   calltreeview.cpp calltreeview.h
   cpuusagemodel.cpp cpuusagemodel.h
   macsampler.cpp macsampler.h
   processpickerdialog.cpp processpickerdialog.h
   qmlprofilersampler.cpp qmlprofilersampler.h
+  samplemerge.cpp samplemerge.h
   sampler.cpp sampler.h
   samplerrecipe.cpp samplerrecipe.h
   samplerviewmanager.cpp samplerviewmanager.h
@@ -87,7 +90,7 @@ set(QMLPROFILER_CPP_SOURCES
 
 # Formerly the separate PerfProfiler plugin, folded in so the perf and QML
 # profilers share one tool/perspective/trace clock. Kept in the PerfProfiler
-# namespace; see native-mixed-profiler-design.md.
+# namespace; see design-docs/native-mixed-profiler-design.md.
 set(PERFPROFILER_CPP_SOURCES
   perfconfigeventsmodel.cpp perfconfigeventsmodel.h
   perfdatareader.cpp perfdatareader.h

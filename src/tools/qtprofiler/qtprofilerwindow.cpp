@@ -4,6 +4,8 @@
 #include "qtprofilerwindow.h"
 
 #include <profiler/callstacksampler.h>
+#include <profiler/combinedsampler.h>
+#include <profiler/combinedtraceloader.h>
 #include "mainsidebar.h"
 #include <profiler/perfsampler.h>
 #include "qtprofilerrpc.h"
@@ -52,6 +54,7 @@
 #include <QToolButton>
 #include <QUrl>
 
+#include <algorithm>
 #include <atomic>
 #include <iostream>
 #include <optional>
@@ -70,7 +73,9 @@ namespace QtProfiler {
 
 // A trace file format determines which manager and view set are used. Chrome
 // Trace Format and Common Trace Format both render through the CTF views.
-enum class Format { Qml, Ctf, Sampler };
+// Combined shows the QML profiler views and the sampler views together, for a
+// combined recording (native-mixed sampler trace + its source QML trace).
+enum class Format { Qml, Ctf, Sampler, Combined };
 
 // One set of dock widgets, plus its (untabbed) range-details dock. The views
 // are tabbed onto the first by default; when stackVertically is set they are
@@ -104,6 +109,7 @@ public:
                               const QString &module = {}, quint64 offset = 0);
 
     ViewGroup &groupFor(Format format);
+    QList<ViewGroup *> groupsFor(Format format);
     void ensureGroupBuilt(Format format);
     void resetLayout(Format format);
     void resetActiveLayout();
@@ -124,6 +130,7 @@ public:
     QmlProfilerPlainViewManager *qmlManager;
     CtfPlainViewManager *ctfManager;
     SamplerViewManager *samplerManager;
+    CombinedTraceLoader *combinedLoader; // Merges a combined bundle into one sampler trace.
     Format activeFormat = Format::Qml;
     QString lastLoadError;
     QLabel *traceDurationLabel = nullptr;
@@ -176,6 +183,10 @@ WindowPrivate::WindowPrivate(Window *window)
     backends.push_back(std::make_unique<CallStackSampler>());
     backends.push_back(std::make_unique<PerfSampler>());
     backends.push_back(std::make_unique<QmlProfilerSampler>());
+    // Records a native sampler and the QML profiler against one target at once,
+    // producing a bundle both are later merged from
+    // (see design-docs/native-mixed-profiler-design.md).
+    backends.push_back(std::make_unique<CombinedSampler>());
 
     for (const std::unique_ptr<Sampler> &backend : backends) {
         if (SamplerSettings *s = backend->settings())
@@ -200,16 +211,9 @@ WindowPrivate::WindowPrivate(Window *window)
     for (int index : offeredBackends)
         backendNames << backends[index]->displayName();
     welcomePage->setBackends(backendNames, 0);
+    // selectBackend() seeds any CLI --launch command into the chosen backend, so
+    // this also primes backend 0 for a straight-away start.
     selectBackend(0);
-
-    // A command line passed on the CLI (--launch) seeds the active backend's
-    // launch settings so it can be started straight away.
-    if (const FilePath exe = settings().recordExecutable(); sampler && !exe.isEmpty()) {
-        if (SamplerSettings *s = sampler->settings()) {
-            s->executable.setValue(exe);
-            s->arguments.setValue(settings().recordArguments());
-        }
-    }
 
     processingPoll = new QTimer(this);
     processingPoll->setInterval(50);
@@ -265,6 +269,17 @@ WindowPrivate::WindowPrivate(Window *window)
             this, &WindowPrivate::onLoadFinished);
     connect(samplerManager, &SamplerViewManager::gotoSourceLocation,
             this, &WindowPrivate::onGotoSourceLocation);
+
+    // A combined bundle is turned into one native-mixed sampler trace off the GUI
+    // thread; when it is ready, show it through the sampler views.
+    combinedLoader = new CombinedTraceLoader(this);
+    connect(combinedLoader, &CombinedTraceLoader::merged, this, [this](const FilePath &dir) {
+        // The QML views were already populated in doLoad; fill the sampler views
+        // with the merged native-mixed trace. The combined layout is already set.
+        setActiveFormat(Format::Combined);
+        samplerManager->load(dir);
+    });
+    connect(combinedLoader, &CombinedTraceLoader::failed, this, &WindowPrivate::onError);
 }
 
 void WindowPrivate::showOpenFileDialog()
@@ -297,6 +312,18 @@ void WindowPrivate::selectBackend(int index)
     if (index < 0 || index >= int(offeredBackends.size()))
         return;
     sampler = backends[offeredBackends[index]].get();
+
+    // A launch command passed on the CLI (--launch) seeds the selected backend so
+    // it can be started straight away -- and so --backend can precede or follow
+    // --launch. Only fill an empty executable; never clobber a GUI edit.
+    if (SamplerSettings *s = sampler->settings()) {
+        if (const FilePath exe = settings().recordExecutable();
+            !exe.isEmpty() && s->executable().isEmpty()) {
+            s->executable.setValue(exe);
+            s->arguments.setValue(settings().recordArguments());
+        }
+    }
+
     QWidget *config = nullptr;
     if (SamplerSettings *s = sampler->settings()) {
         config = new QWidget;
@@ -456,6 +483,8 @@ milliseconds WindowPrivate::activeTraceDuration() const
     case Format::Qml: return qmlManager->traceDuration();
     case Format::Ctf: return ctfManager->traceDuration();
     case Format::Sampler: return samplerManager->traceDuration();
+    case Format::Combined:
+        return qMax(qmlManager->traceDuration(), samplerManager->traceDuration());
     }
     Q_UNREACHABLE_RETURN(milliseconds{0});
 }
@@ -466,8 +495,22 @@ ViewGroup &WindowPrivate::groupFor(Format format)
     case Format::Qml: return qmlGroup;
     case Format::Ctf: return ctfGroup;
     case Format::Sampler: return samplerGroup;
+    case Format::Combined: break; // Combined spans several groups; use groupsFor().
     }
     Q_UNREACHABLE_RETURN(qmlGroup);
+}
+
+// Combined shows the QML and sampler views together; every other format maps to
+// a single group. All group-level operations iterate over this list.
+QList<ViewGroup *> WindowPrivate::groupsFor(Format format)
+{
+    switch (format) {
+    case Format::Qml: return {&qmlGroup};
+    case Format::Ctf: return {&ctfGroup};
+    case Format::Sampler: return {&samplerGroup};
+    case Format::Combined: return {&qmlGroup, &samplerGroup};
+    }
+    Q_UNREACHABLE_RETURN({});
 }
 
 // A format's views are created and docked the first time that format is shown,
@@ -476,6 +519,13 @@ ViewGroup &WindowPrivate::groupFor(Format format)
 // "CPU Usage", "Statistics", etc. (many of them duplicated).
 void WindowPrivate::ensureGroupBuilt(Format format)
 {
+    // Combined has no group of its own; build the groups it shows instead.
+    if (format == Format::Combined) {
+        ensureGroupBuilt(Format::Qml);
+        ensureGroupBuilt(Format::Sampler);
+        return;
+    }
+
     ViewGroup &group = groupFor(format);
     if (group.built)
         return;
@@ -511,13 +561,18 @@ void WindowPrivate::ensureGroupBuilt(Format format)
         samplerGroup.stackVertically = true;
         break;
     }
+    case Format::Combined:
+        break; // Handled above by building the QML and sampler groups.
     }
 }
 
 void WindowPrivate::resetLayout(Format format)
 {
     ensureGroupBuilt(format);
-    ViewGroup &active = groupFor(format);
+
+    // The groups shown for each format. Combined shows the QML and sampler views
+    // together (their view docks tabbed, their range-details tabbed on the right).
+    const QList<ViewGroup *> active = groupsFor(format);
 
     // Setting "managed_dockwidget" excludes a dock from FancyMainWindow's tab
     // context menu (see FancyMainWindow::addDockActionsToMenu). We hide the other
@@ -531,50 +586,67 @@ void WindowPrivate::resetLayout(Format format)
             group.detailsDock->setProperty("managed_dockwidget", managed);
     };
 
-    // Hide the docks belonging to the other formats.
-    for (Format other : {Format::Qml, Format::Ctf, Format::Sampler}) {
-        if (other == format)
-            continue;
-        ViewGroup &inactive = groupFor(other);
-        for (QDockWidget *dw : std::as_const(inactive.docks))
-            dw->setVisible(false);
-        if (inactive.detailsDock)
-            inactive.detailsDock->setVisible(false);
-        setInMenu(inactive, false);
+    // Hide the docks of every group that is not active, and keep only the active
+    // groups' docks in the tab context menu.
+    for (ViewGroup *group : {&qmlGroup, &ctfGroup, &samplerGroup}) {
+        const bool isActive = active.contains(group);
+        if (!isActive) {
+            for (QDockWidget *dw : std::as_const(group->docks))
+                dw->setVisible(false);
+            if (group->detailsDock)
+                group->detailsDock->setVisible(false);
+        }
+        setInMenu(*group, isActive);
     }
-    setInMenu(active, true);
+
+    // A single group may stack its views vertically (the sampler stacks Call
+    // Stacks below CPU Usage); when several groups are combined, tab everything.
+    const bool stackVertically = active.size() == 1 && active.first()->stackVertically;
 
     QDockWidget *firstDockWidget = nullptr;
-    for (QDockWidget *dw : std::as_const(active.docks)) {
-        dw->setVisible(true);
+    QDockWidget *firstDetailsDock = nullptr;
+    for (ViewGroup *group : std::as_const(active)) {
+        for (QDockWidget *dw : std::as_const(group->docks)) {
+            dw->setVisible(true);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-        dw->setDockLocation(Qt::TopDockWidgetArea);
+            dw->setDockLocation(Qt::TopDockWidgetArea);
 #endif
-        dw->setFloating(false);
-        if (!firstDockWidget)
-            firstDockWidget = dw;
+            dw->setFloating(false);
+            if (!firstDockWidget)
+                firstDockWidget = dw;
+        }
     }
     QTC_ASSERT(firstDockWidget, return);
 
     // Split the details off the first view before tabbing the others onto it.
     // QMainWindow::splitDockWidget() only splits when the anchor is not yet tabbed;
-    // doing this after tabifying would just add the details as another tab.
-    if (active.detailsDock) {
-        active.detailsDock->setVisible(true);
+    // doing this after tabifying would just add the details as another tab. When
+    // several groups are combined, their details docks are tabbed together.
+    for (ViewGroup *group : std::as_const(active)) {
+        if (!group->detailsDock)
+            continue;
+        group->detailsDock->setVisible(true);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-        active.detailsDock->setDockLocation(Qt::RightDockWidgetArea);
+        group->detailsDock->setDockLocation(Qt::RightDockWidgetArea);
 #endif
-        active.detailsDock->setFloating(false);
-        traceArea->splitDockWidget(firstDockWidget, active.detailsDock, Qt::Horizontal);
+        group->detailsDock->setFloating(false);
+        if (!firstDetailsDock) {
+            traceArea->splitDockWidget(firstDockWidget, group->detailsDock, Qt::Horizontal);
+            firstDetailsDock = group->detailsDock;
+        } else {
+            traceArea->tabifyDockWidget(firstDetailsDock, group->detailsDock);
+        }
     }
 
-    for (QDockWidget *dw : std::as_const(active.docks)) {
-        if (dw == firstDockWidget)
-            continue;
-        if (active.stackVertically)
-            traceArea->splitDockWidget(firstDockWidget, dw, Qt::Vertical);
-        else
-            traceArea->tabifyDockWidget(firstDockWidget, dw);
+    for (ViewGroup *group : std::as_const(active)) {
+        for (QDockWidget *dw : std::as_const(group->docks)) {
+            if (dw == firstDockWidget)
+                continue;
+            if (stackVertically)
+                traceArea->splitDockWidget(firstDockWidget, dw, Qt::Vertical);
+            else
+                traceArea->tabifyDockWidget(firstDockWidget, dw);
+        }
     }
     firstDockWidget->raise();
 }
@@ -584,7 +656,9 @@ void WindowPrivate::setActiveFormat(Format format)
     // Re-lay out when the format changes, or when this format's views are shown
     // for the first time (they are built lazily, so the initial layout of a
     // format that happens to already be the active one still needs doing).
-    const bool firstShow = !groupFor(format).built;
+    const QList<ViewGroup *> groups = groupsFor(format);
+    const bool firstShow = std::any_of(groups.cbegin(), groups.cend(),
+                                       [](const ViewGroup *g) { return !g->built; });
     if (activeFormat == format && !firstShow)
         return;
     activeFormat = format;
@@ -594,7 +668,10 @@ void WindowPrivate::setActiveFormat(Format format)
 void WindowPrivate::resetActiveLayout()
 {
     // Nothing to lay out until the first trace has built its views.
-    if (groupFor(activeFormat).built)
+    const QList<ViewGroup *> groups = groupsFor(activeFormat);
+    const bool built = std::all_of(groups.cbegin(), groups.cend(),
+                                   [](const ViewGroup *g) { return g->built; });
+    if (built)
         resetLayout(activeFormat);
 }
 
@@ -629,7 +706,16 @@ void WindowPrivate::doLoad(const FilePath &filePath)
     // a QML profiler trace.
     if (filePath.isDir() || filePath.fileName() == "metadata"_L1) {
         const FilePath dir = filePath.isDir() ? filePath : filePath.parentDir();
-        if (SamplerViewManager::isSamplerTrace(dir)) {
+        if (CombinedSampler::isCombinedTrace(dir)) {
+            // A combined bundle holds both a native sampler trace and a QML trace.
+            // Show the combined layout straight away (so there is no flash of the
+            // QML-only layout), populate the QML views from the bundle's .qtd, and
+            // merge the two into one native-mixed sampler trace for the sampler
+            // views (asynchronously; see the merged() handler).
+            setActiveFormat(Format::Combined);
+            qmlManager->loadTraceFile(dir / combinedQmlFileName);
+            combinedLoader->load(dir);
+        } else if (SamplerViewManager::isSamplerTrace(dir)) {
             setActiveFormat(Format::Sampler);
             samplerManager->load(dir);
         } else {
