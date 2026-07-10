@@ -1269,15 +1269,15 @@ void DocumentManager::checkForReload()
                 info.addCustomButton(
                     Tr::tr("Ignore"),
                     [document] { reloadDocument(document, IDocument::FlagIgnore); },
-                    Tr::tr("Discard external changes"));
+                    Tr::tr("Discard external changes."));
                 info.addCustomButton(
                     Tr::tr("Reload"),
                     [document] { reloadDocument(document, IDocument::FlagReload); },
-                    Tr::tr("Discard local changes"));
+                    Tr::tr("Discard local changes."));
                 info.addCustomButton(
                     Tr::tr("Close"),
                     [document] { EditorManager::closeDocuments({document}, false); },
-                    Tr::tr("Close this file and discard the contents"));
+                    Tr::tr("Close this file and discard the contents."));
                 if (DiffService::instance()) {
                     info.addCustomButton(
                         Tr::tr("Diff"),
@@ -1291,18 +1291,18 @@ void DocumentManager::checkForReload()
                                 diffService->diffModifiedFiles(paths);
                             }
                         },
-                        Tr::tr("Diff all modified files against the version on disk"));
+                        Tr::tr("Diff all changed files against the version on disk."));
                 }
                 info.addCustomButton(
                     Tr::tr("Ignore All"),
                     [] { reloadConflictedDocuments(IDocument::FlagIgnore); },
-                    Tr::tr("Discard all external changes"));
+                    Tr::tr("Discard all external changes."));
                 info.addCustomButton(
                     Tr::tr("Reload All"),
                     [] { reloadConflictedDocuments(IDocument::FlagReload); },
-                    Tr::tr("Discard all local changes"));
+                    Tr::tr("Discard all local changes."));
                 info.addCustomButton(Tr::tr("Save As..."), saveDocumentAs,
-                                     Tr::tr("Save the local file changes with another name"));
+                                     Tr::tr("Save the local file changes with another name."));
                 info.removeCancelButton();
                 infoBar->addInfo(info);
 
@@ -1319,10 +1319,10 @@ void DocumentManager::checkForReload()
 
                 InfoBarEntry info(reloadId, msg);
                 info.addCustomButton(Tr::tr("Save As..."), saveDocumentAs,
-                                     Tr::tr("Save the file contents with another name"));
+                                     Tr::tr("Save the file contents with another name."));
                 info.addCustomButton(Tr::tr("Close"), [document] {
                     EditorManager::closeDocuments({document}, false);
-                }, Tr::tr("Close this file and discard the contents"));
+                }, Tr::tr("Close this file and discard the contents."));
                 info.removeCancelButton();
                 infoBar->addInfo(info);
             }
