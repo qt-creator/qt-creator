@@ -156,7 +156,6 @@ public:
 
     ProjectImporter *projectImporter() const;
 
-    virtual DeploymentKnowledge deploymentKnowledge() const;
     bool hasMakeInstallEquivalent() const;
 
     void setup(const QList<BuildInfo> &infoList);

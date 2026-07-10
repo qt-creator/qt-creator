@@ -197,7 +197,7 @@ Project::RestoreResult QmakeProject::fromMap(const Store &map, QString *errorMes
     return RestoreResult::Ok;
 }
 
-DeploymentKnowledge QmakeProject::deploymentKnowledge() const
+DeploymentKnowledge QmakeBuildSystem::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Approximative; // E.g. QTCREATORBUG-21855
 }

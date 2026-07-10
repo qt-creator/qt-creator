@@ -471,16 +471,6 @@ FilePath CMakeProject::buildDirectoryToImport() const
     return m_buildDirToImport;
 }
 
-ProjectExplorer::DeploymentKnowledge CMakeProject::deploymentKnowledge() const
-{
-    return !files([](const ProjectExplorer::Node *n) {
-                return n->filePath().fileName() == "QtCreatorDeployment.txt";
-            })
-                   .isEmpty()
-               ? DeploymentKnowledge::Approximative
-               : DeploymentKnowledge::Bad;
-}
-
 #ifdef WITH_TESTS
 
 class TestPresetsInheritance final : public QObject

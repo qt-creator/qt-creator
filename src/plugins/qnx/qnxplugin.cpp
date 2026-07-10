@@ -21,6 +21,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -63,7 +64,7 @@ public:
 
         addInitialStep(Remote::Constants::MakeInstallStepId, [](BuildConfiguration *bc) {
             const Project * const prj = bc->project();
-            return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+            return bc->buildSystem()->deploymentKnowledge() == DeploymentKnowledge::Bad
                     && prj->hasMakeInstallEquivalent();
         });
         addInitialStep(ProjectExplorer::Constants::DEVICE_CHECK_STEP);

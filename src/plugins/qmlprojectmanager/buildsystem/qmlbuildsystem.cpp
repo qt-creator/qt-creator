@@ -578,6 +578,11 @@ void QmlBuildSystem::refreshFiles(const QSet<QString> & /*added*/, const QSet<QS
     updateDeploymentData();
 }
 
+DeploymentKnowledge QmlBuildSystem::deploymentKnowledge() const
+{
+    return DeploymentKnowledge::Perfect;
+}
+
 QVariant QmlBuildSystem::additionalData(Id id) const
 {
     if (id == Constants::customFileSelectorsData)

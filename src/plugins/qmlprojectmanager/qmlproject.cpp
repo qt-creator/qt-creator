@@ -177,11 +177,6 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
     return RestoreResult::Ok;
 }
 
-DeploymentKnowledge QmlProject::deploymentKnowledge() const
-{
-    return DeploymentKnowledge::Perfect;
-}
-
 bool QmlProject::isMCUs()
 {
     const QmlProjectManager::QmlBuildSystem *buildSystem

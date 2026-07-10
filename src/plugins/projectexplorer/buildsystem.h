@@ -122,6 +122,7 @@ public:
     ExtraCompiler *extraCompilerForSource(const Utils::FilePath &source) const;
     ExtraCompiler *extraCompilerForTarget(const Utils::FilePath &target) const;
 
+    virtual DeploymentKnowledge deploymentKnowledge() const;
     virtual MakeInstallCommand makeInstallCommand(const Utils::FilePath &installRoot) const;
 
     virtual Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const;

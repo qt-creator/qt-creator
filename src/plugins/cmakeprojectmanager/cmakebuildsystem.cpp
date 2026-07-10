@@ -2948,6 +2948,16 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         emit configurationChanged(config);
 }
 
+DeploymentKnowledge CMakeBuildSystem::deploymentKnowledge() const
+{
+    return !project()->files([](const Node *n) {
+                return n->filePath().fileName() == "QtCreatorDeployment.txt";
+            })
+                   .isEmpty()
+               ? DeploymentKnowledge::Approximative
+               : DeploymentKnowledge::Bad;
+}
+
 MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installRoot) const
 {
     MakeInstallCommand cmd;

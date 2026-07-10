@@ -43,7 +43,6 @@ public:
 
 private:
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
     RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) final;
 };
 
@@ -109,6 +108,8 @@ public:
     void testToolChain(ProjectExplorer::Toolchain *tc, const Utils::FilePath &path) const;
 
     QString deviceRoot() const;
+
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
 
     /// \internal
     QtSupport::ProFileReader *createProFileReader(const QmakeProFile *qmakeProFile);

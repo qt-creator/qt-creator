@@ -11,6 +11,7 @@
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
@@ -33,7 +34,7 @@ public:
         const auto needsMakeInstall = [](BuildConfiguration *bc)
         {
             const Project * const prj = bc->project();
-            return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+            return bc->buildSystem()->deploymentKnowledge() == DeploymentKnowledge::Bad
                    && prj->hasMakeInstallEquivalent();
         };
         setPostRestore([needsMakeInstall](DeployConfiguration *dc, const Utils::Store &map) {

@@ -46,6 +46,7 @@ public:
     QmlProject *qmlProject() const;
 
     QVariant additionalData(Utils::Id id) const override;
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
 
     enum class RefreshOptions {
         NoFileRefresh,

@@ -1328,11 +1328,6 @@ bool Project::configureAsExampleProjectImpl(Kit *kit)
     return false;
 }
 
-DeploymentKnowledge Project::deploymentKnowledge() const
-{
-    return DeploymentKnowledge::Bad;
-}
-
 bool Project::hasMakeInstallEquivalent() const
 {
     return d->m_hasMakeInstallEquivalent;

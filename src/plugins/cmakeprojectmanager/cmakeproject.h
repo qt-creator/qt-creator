@@ -42,7 +42,6 @@ public:
     static QString projectDisplayName(const Utils::FilePath &projectFilePath);
 
 private:
-    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
 
     Internal::PresetsData combinePresets(Internal::PresetsData &cmakePresetsData,
                                          Internal::PresetsData &cmakeUserPresetsData);

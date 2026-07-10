@@ -285,6 +285,11 @@ MakeInstallCommand BuildSystem::makeInstallCommand(const FilePath &installRoot) 
     return cmd;
 }
 
+DeploymentKnowledge BuildSystem::deploymentKnowledge() const
+{
+    return DeploymentKnowledge::Bad;
+}
+
 FilePaths BuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
     Q_UNUSED(sourceFile)

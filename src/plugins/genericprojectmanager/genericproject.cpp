@@ -93,6 +93,8 @@ public:
 
     void refresh(RefreshOptions options);
 
+    DeploymentKnowledge deploymentKnowledge() const final;
+
     bool saveRawFileList(const QStringList &rawFileList);
     bool saveRawList(const QStringList &rawList, const FilePath &filePath);
     void parse(RefreshOptions options);
@@ -214,7 +216,6 @@ public:
 
 private:
     RestoreResult fromMap(const Store &map, QString *errorMessage) final;
-    DeploymentKnowledge deploymentKnowledge() const final;
     bool configureAsExampleProjectImpl(Kit *kit) final;
 };
 
@@ -647,7 +648,7 @@ Project::RestoreResult GenericProject::fromMap(const Store &map, QString *errorM
     return RestoreResult::Ok;
 }
 
-DeploymentKnowledge GenericProject::deploymentKnowledge() const
+DeploymentKnowledge GenericBuildSystem::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Approximative;
 }

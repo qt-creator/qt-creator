@@ -132,6 +132,7 @@ public:
     Utils::CommandLine commandLineForTests(const QStringList &tests,
                                            const QStringList &options) const final;
 
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
     ProjectExplorer::MakeInstallCommand makeInstallCommand(
             const Utils::FilePath &installRoot) const final;
 

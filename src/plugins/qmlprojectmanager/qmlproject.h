@@ -30,8 +30,6 @@ protected:
     RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) override;
 
 private:
-    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
-
     void openStartupQmlFile();
 private slots:
     void parsingFinished(bool success);

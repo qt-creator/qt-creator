@@ -18,6 +18,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
@@ -111,7 +112,7 @@ public:
 
         addInitialStep(Remote::Constants::MakeInstallStepId, [](BuildConfiguration *bc) {
             const Project * const prj = bc->project();
-            return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+            return bc->buildSystem()->deploymentKnowledge() == DeploymentKnowledge::Bad
                    && prj->hasMakeInstallEquivalent();
         });
         addInitialStep(Remote::Constants::ConnectStepId);

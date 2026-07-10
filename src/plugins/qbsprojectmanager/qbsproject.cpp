@@ -340,7 +340,7 @@ bool QbsBuildSystem::canBuildFile(ProjectExplorer::FileNode *file) const
     return file->filePath().suffix() != "qbs";
 }
 
-ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const
+ProjectExplorer::DeploymentKnowledge QbsBuildSystem::deploymentKnowledge() const
 {
     return DeploymentKnowledge::Perfect;
 }

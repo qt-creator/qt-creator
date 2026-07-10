@@ -38,9 +38,6 @@ class QbsProject : public ProjectExplorer::Project
 
 public:
     explicit QbsProject(const Utils::FilePath &filename);
-
-private:
-    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
 };
 
 class QbsBuildSystem final : public ProjectExplorer::BuildSystem
@@ -69,6 +66,7 @@ public:
     bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
+    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
     void buildFile(ProjectExplorer::FileNode *file) final;
     bool canBuildFile(ProjectExplorer::FileNode *file) const final;
 
