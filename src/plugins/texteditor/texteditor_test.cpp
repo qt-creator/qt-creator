@@ -399,6 +399,75 @@ QObject *createSortLinesTest()
     return new SortLinesTest;
 }
 
+// Regression test for QTCREATORBUG-5757.
+class SelectAllTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCursorAfterSelectAll_data();
+    void testCursorAfterSelectAll();
+};
+
+void SelectAllTest::testCursorAfterSelectAll_data()
+{
+    QTest::addColumn<int>("key");
+    QTest::addColumn<int>("expected"); // 0 = at start, 1 = at end, 2 = only collapsed
+
+    QTest::newRow("Left collapses to start") << int(Qt::Key_Left) << 0;
+    QTest::newRow("Right collapses to end") << int(Qt::Key_Right) << 1;
+    QTest::newRow("Down stays at end") << int(Qt::Key_Down) << 1;
+    QTest::newRow("Up collapses") << int(Qt::Key_Up) << 2;
+}
+
+void SelectAllTest::testCursorAfterSelectAll()
+{
+    QFETCH(int, key);
+    QFETCH(int, expected);
+
+    const QString content = "first line\nsecond line\nthird line";
+    QString title = "select_all.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, content.toUtf8());
+    QVERIFY(editor);
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
+
+    const int size = editorWidget->textDocument()->plainText().length();
+
+    editorWidget->selectAll();
+    QTextCursor cursor = editorWidget->textCursor();
+    QVERIFY(cursor.hasSelection());
+    QCOMPARE(cursor.selectionStart(), 0);
+    QCOMPARE(cursor.selectionEnd(), size);
+    QCOMPARE(cursor.position(), size);
+
+    QTest::keyClick(editorWidget, Qt::Key(key));
+
+    cursor = editorWidget->textCursor();
+    QVERIFY(!cursor.hasSelection());
+    switch (expected) {
+    case 0:
+        QCOMPARE(cursor.position(), 0);
+        break;
+    case 1:
+        QCOMPARE(cursor.position(), size);
+        break;
+    case 2:
+        QCOMPARE(cursor.selectionStart(), cursor.selectionEnd());
+        break;
+    }
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+QObject *createSelectAllTest()
+{
+    return new SelectAllTest;
+}
+
 } // TextEditor::Internal
 
 #include "texteditor_test.moc"
