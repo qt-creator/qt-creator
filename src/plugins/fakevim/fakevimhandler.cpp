@@ -70,6 +70,7 @@ namespace Utils {
 using PlainTextEdit = QPlainTextEdit;
 }
 #else
+#include <utils/filepath.h>
 #include <utils/plaintextedit/plaintextedit.h>
 #endif
 #include <utils/hostosinfo.h>
@@ -362,8 +363,16 @@ struct SearchData
 
 static QString replaceTildeWithHome(QString str)
 {
-    str.replace("~", QDir::homePath());
+#ifdef FAKEVIM_STANDALONE
+    // Standalone FakeVim has no Utils::FilePath; expand only a leading "~".
+    // A tilde anywhere else (e.g. "/tmp/~foo") is a literal character.
+    if (str == "~" || str.startsWith("~/"))
+        str.replace(0, 1, QDir::homePath());
     return str;
+#else
+    // Reuse the canonical expansion, which also handles the "~user" form.
+    return Utils::FilePath::fromUserInput(str).toFSPathString();
+#endif
 }
 
 // If string begins with given prefix remove it with trailing spaces and return true.

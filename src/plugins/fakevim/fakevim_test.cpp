@@ -13,6 +13,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <QDir>
+#include <QFileInfo>
 #include <QTemporaryFile>
 #include <QTest>
 #include <QTextEdit>
@@ -3882,6 +3884,18 @@ void FakeVimTester::test_map()
     data.doCommand("source " + rc.fileName());
     KEYS("'", "a" X "bc def");
     data.doCommand("unmap '");
+
+    // A leading "~" in a :source path expands to the home directory
+    // (QTCREATORBUG-11161).
+    QTemporaryFile home(QDir::homePath() + "/qtc_fakevim_test_XXXXXX");
+    if (home.open()) {
+        home.write("noremap ' <Right>\n");
+        home.flush();
+        data.setText("abc def");
+        data.doCommand("source ~/" + QFileInfo(home.fileName()).fileName());
+        KEYS("'", "a" X "bc def");
+        data.doCommand("unmap '");
+    }
 }
 
 void FakeVimTester::test_vim_command_cc()
