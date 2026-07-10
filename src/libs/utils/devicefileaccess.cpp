@@ -44,6 +44,11 @@
 #include <qplatformdefs.h>
 #endif
 
+#ifdef Q_OS_UNIX
+#include <pwd.h>
+#include <unistd.h>
+#endif
+
 #include <algorithm>
 #include <array>
 #include <cstdio>
@@ -89,6 +94,14 @@ DeviceFileAccess::~DeviceFileAccess() = default;
 QString DeviceFileAccess::mapToDevicePath(const QString &hostPath) const
 {
     return hostPath;
+}
+
+// Home directory of \a user on the device (empty \a user means the current
+// user). Used to expand a leading "~" / "~user" in a device path.
+Result<QString> DeviceFileAccess::homeDirectory(const QString &user) const
+{
+    Q_UNUSED(user)
+    return ResultError(Tr::tr("Determining the home directory is not supported for this device."));
 }
 
 Result<bool> DeviceFileAccess::isExecutableFile(const FilePath &filePath) const
@@ -812,6 +825,28 @@ static QString localPathString(const FilePath &filePath)
         return result;
     }
     return filePath.path();
+}
+
+Result<QString> DesktopDeviceFileAccess::homeDirectory(const QString &user) const
+{
+    if (user.isEmpty())
+        return QDir::homePath();
+
+#ifdef Q_OS_UNIX
+    long bufSize = sysconf(_SC_GETPW_R_SIZE_MAX);
+    if (bufSize < 0)
+        bufSize = 16384;
+    QByteArray buffer(bufSize, Qt::Uninitialized);
+    passwd pwd;
+    passwd *result = nullptr;
+    if (getpwnam_r(user.toLocal8Bit().constData(), &pwd, buffer.data(), buffer.size(), &result) == 0
+            && result) {
+        return QString::fromLocal8Bit(pwd.pw_dir);
+    }
+#endif
+
+    // Unknown user, or a platform without "~user" support.
+    return ResultError(Tr::tr("Cannot determine the home directory of user \"%1\".").arg(user));
 }
 
 Result<bool> DesktopDeviceFileAccess::isExecutableFile(const FilePath &filePath) const
@@ -2097,6 +2132,27 @@ Result<Environment> UnixDeviceFileAccess::deviceEnvironment() const
         return ResultError(res.error());
     const QString out = QString::fromUtf8(*res);
     return Environment(out.split('\n', Qt::SkipEmptyParts), OsTypeLinux);
+}
+
+Result<QString> UnixDeviceFileAccess::homeDirectory(const QString &user) const
+{
+    // Guard against shell metacharacters, as the user name is passed to a
+    // remote shell for tilde expansion below.
+    static const QRegularExpression validUser("\\A[A-Za-z0-9_][A-Za-z0-9_.-]*\\z");
+    if (!user.isEmpty() && !validUser.match(user).hasMatch())
+        return ResultError(Tr::tr("Invalid user name \"%1\".").arg(user));
+
+    // Let the remote shell expand "~" / "~user". Invoking "sh -c" explicitly
+    // makes this work regardless of whether the transport already runs the
+    // command through a shell (e.g. ssh) or not (e.g. docker exec).
+    const Result<QByteArray> res = runInShell({"sh", {"-c", "echo ~" + user}, OsType::OsTypeLinux});
+    if (!res)
+        return ResultError(res.error());
+
+    const QString home = QString::fromUtf8(*res).trimmed();
+    if (home.isEmpty() || home.startsWith('~'))
+        return ResultError(Tr::tr("Cannot determine the home directory of \"~%1\".").arg(user));
+    return home;
 }
 
 } // namespace Utils

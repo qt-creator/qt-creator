@@ -85,6 +85,8 @@ protected:
     virtual Result<FilePath> createTempFile(const FilePath &filePath);
     virtual Result<FilePath> createTempDir(const FilePath &filePath);
 
+    virtual Result<QString> homeDirectory(const QString &user) const;
+
     virtual std::vector<Result<std::unique_ptr<FilePathWatcher>>> watch(const FilePaths &paths) const;
 
     virtual TextEncoding processStdOutEncoding(const FilePath &executable) const;
@@ -145,6 +147,7 @@ protected:
             const FileFilter &filter) const override;
 
     Result<Environment> deviceEnvironment() const override;
+    Result<QString> homeDirectory(const QString &user) const override;
 
     Result<QByteArray> fileContents(const FilePath &filePath,
                                           qint64 limit,
@@ -174,6 +177,8 @@ protected:
                                              const QByteArray &inputData = {}) const = 0;
     Result<QByteArray> runInShell(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
     Result<bool> runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
+
+    Result<QString> homeDirectory(const QString &user) const override;
 
     Result<bool> isExecutableFile(const FilePath &filePath) const override;
     Result<bool> isReadableFile(const FilePath &filePath) const override;

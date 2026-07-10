@@ -61,6 +61,11 @@ public:
     {
         return UnixDeviceFileAccess::createTempDir(filePath);
     }
+
+    Result<QString> homeDirectory(const QString &user) const
+    {
+        return UnixDeviceFileAccess::homeDirectory(user);
+    }
 };
 
 class tst_unixdevicefileaccess : public QObject
@@ -111,6 +116,25 @@ private slots:
         const FilePath tmpDir = *tmpDirResult;
         QVERIFY(tmpDir.isWritableDir());
         QVERIFY(tmpDir.removeRecursively());
+    }
+
+    void homeDirectory()
+    {
+        // "~" (empty user) resolves to the current user's home directory.
+        const Result<QString> home = m_dfa.homeDirectory({});
+        QVERIFY_RESULT(home);
+        QVERIFY(home->startsWith('/'));
+
+        const QString user = qEnvironmentVariable("USER", qEnvironmentVariable("LOGNAME"));
+        if (!user.isEmpty()) {
+            const Result<QString> userHome = m_dfa.homeDirectory(user);
+            QVERIFY_RESULT(userHome);
+            QVERIFY(userHome->startsWith('/'));
+        }
+
+        // Unknown users and names with shell metacharacters are rejected.
+        QVERIFY(!m_dfa.homeDirectory("no_such_user_qtc_test"));
+        QVERIFY(!m_dfa.homeDirectory("bad;name"));
     }
 
 private:

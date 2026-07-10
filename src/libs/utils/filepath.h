@@ -258,6 +258,7 @@ public:
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
     [[nodiscard]] FilePath withNewFileName(const QString &newFileName) const;
+    [[nodiscard]] Result<FilePath> withTildeExpanded() const;
     [[nodiscard]] FilePath chopped(int n) const;
 
     using IterateDirCallback

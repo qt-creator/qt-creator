@@ -65,6 +65,8 @@ private slots:
 
     void fromUserInput_data();
     void fromUserInput();
+    void fromUserInputTildeUser();
+    void withTildeExpanded();
 
     void toString_data();
     void toString();
@@ -1270,6 +1272,11 @@ void tst_filepath::fromUserInput_data()
     QTest::newRow("tilde") << D("~/", "", "", QDir::homePath());
     QTest::newRow("tilde-with-path") << D("~/foo", "", "", QDir::homePath() + "/foo");
     QTest::newRow("tilde-only") << D("~", "", "", QDir::homePath());
+    // A tilde not at the very start is a literal character.
+    QTest::newRow("tilde-mid-path") << D("/tmp/~foo", "", "", "/tmp/~foo");
+    // An unknown "~user" is left untouched.
+    QTest::newRow("tilde-unknown-user")
+        << D("~no_such_user_qtc_test", "", "", "~no_such_user_qtc_test");
 
     QTest::newRow("unc-incomplete") << D("//", "", "", "//");
     QTest::newRow("unc-incomplete-only-server") << D("//server", "unc", "server", "/");
@@ -1355,6 +1362,39 @@ void tst_filepath::fromUserInput_data()
     QTest::newRow("wsl-dollar-fwdslash")
         << D("//wsl$/distro/home/mtillmanns/test.txt",
              "unc", "wsl$", "/distro/home/mtillmanns/test.txt");
+}
+
+void tst_filepath::fromUserInputTildeUser()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("~user expansion is only supported on Unix");
+
+    const QString user = qEnvironmentVariable("USER", qEnvironmentVariable("LOGNAME"));
+    if (user.isEmpty())
+        QSKIP("Cannot determine the current user name");
+
+    // "~user" expands to that user's home directory, i.e. it becomes an
+    // absolute path and no longer starts with a tilde.
+    const FilePath expanded = FilePath::fromUserInput("~" + user);
+    QVERIFY(!expanded.isRelativePath());
+    QVERIFY(!expanded.path().startsWith('~'));
+    QCOMPARE(FilePath::fromUserInput("~" + user + "/sub"), expanded / "sub");
+}
+
+void tst_filepath::withTildeExpanded()
+{
+    // On a local path, expansion resolves against the local home directory.
+    const FilePath home = FilePath::fromString(QDir::homePath());
+
+    QCOMPARE(FilePath::fromString("~").withTildeExpanded().value(), home);
+    QCOMPARE(FilePath::fromString("~/foo").withTildeExpanded().value(), home / "foo");
+
+    // A path without a leading tilde is returned unchanged.
+    const FilePath plain = FilePath::fromString("/tmp/~foo");
+    QCOMPARE(plain.withTildeExpanded().value(), plain);
+
+    // An unknown user cannot be resolved.
+    QVERIFY(!FilePath::fromString("~no_such_user_qtc_test/x").withTildeExpanded());
 }
 
 void tst_filepath::fromUserInput()

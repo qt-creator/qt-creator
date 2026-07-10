@@ -2110,15 +2110,17 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
 /*!
     Constructs a FilePath from \a filePath
 
-    The path \a filePath is cleaned, and ~ is replaced by the home path.
+    The path \a filePath is cleaned, and a leading \c ~ or \c ~user is replaced
+    by the corresponding home directory on the local machine.
 */
 FilePath FilePath::fromUserInput(const QString &filePath)
 {
-    const QString expandedPath = filePath == "~" ? QDir::homePath()
-                                 : filePath.startsWith("~/")
-                                     ? (QDir::homePath() + "/" + filePath.mid(2))
-                                     : filePath;
-    return FilePath::fromString(doCleanPath(expandedPath));
+    const FilePath result = FilePath::fromString(doCleanPath(filePath));
+    if (result.path().startsWith('~')) {
+        if (const Result<FilePath> expanded = result.withTildeExpanded())
+            return *expanded;
+    }
+    return result;
 }
 
 /*!
@@ -2466,6 +2468,36 @@ FilePath FilePath::withNewPath(const QString &newPath) const
     FilePath res;
     res.setParts(scheme(), host(), newPath);
     return res;
+}
+
+/*!
+    Returns a copy of the file path with a leading \c ~ or \c ~user expanded to
+    the home directory on the path's own device.
+
+    Unlike fromUserInput(), which always resolves against the local machine,
+    this queries the device the path belongs to, so it works for remote paths
+    as well. For a path that does not start with a tilde the path is returned
+    unchanged.
+*/
+Result<FilePath> FilePath::withTildeExpanded() const
+{
+    const QString oldPath = path();
+    if (!oldPath.startsWith('~'))
+        return *this;
+
+    const int slash = oldPath.indexOf('/');
+    const QString user = oldPath.mid(1, slash < 0 ? -1 : slash - 1);
+    const QString tail = slash < 0 ? QString() : oldPath.mid(slash);
+
+    const Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+
+    const Result<QString> home = (*access)->homeDirectory(user);
+    if (!home)
+        return ResultError(home.error());
+
+    return withNewPath(*home + tail);
 }
 
 /*!
