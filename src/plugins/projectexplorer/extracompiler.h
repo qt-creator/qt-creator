@@ -102,7 +102,6 @@ protected:
         std::function<FileNameToContentsHash(Utils::Process *)> postRunner;
     };
     virtual Parameters parameters() const = 0;
-    virtual Tasks parseIssues(const QByteArray &stdErr);
 
 private:
     QtTaskTree::GroupItem taskItemImpl(const ContentProvider &provider) final;

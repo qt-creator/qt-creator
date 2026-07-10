@@ -75,32 +75,10 @@ private:
         return params;
     }
 
-    Tasks parseIssues(const QByteArray &processStderr) override;
-
     TemporaryDirectory m_tmpdir;
     QString m_header;
     QString m_impl;
 };
-
-Tasks QScxmlcGenerator::parseIssues(const QByteArray &processStderr)
-{
-    Tasks issues;
-    const QList<QByteArray> lines = processStderr.split('\n');
-    for (const QByteArray &line : lines) {
-        QByteArrayList tokens = line.split(':');
-
-        if (tokens.length() > 4) {
-            FilePath file = FilePath::fromUtf8(tokens[0]);
-            int line = tokens[1].toInt();
-            // int column = tokens[2].toInt(); <- nice, but not needed for now.
-            Task::TaskType type = tokens[3].trimmed() == "error" ?
-                        Task::Error : Task::Warning;
-            QString message = QString::fromUtf8(tokens.mid(4).join(':').trimmed());
-            issues.append(Task(type, message, file, line, TaskCategory));
-        }
-    }
-    return issues;
-}
 
 // QScxmlcGeneratorFactory
 

@@ -337,12 +337,6 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
     return AsyncTask<FileNameToContentsHash>(onSetup, onDone, CallDoneFlag::OnSuccess);
 }
 
-Tasks ProcessExtraCompiler::parseIssues(const QByteArray &stdErr)
-{
-    Q_UNUSED(stdErr)
-    return {};
-}
-
 void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise,
                                        const Parameters &params, const ContentProvider &provider,
                                        const Environment &env)
