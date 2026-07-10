@@ -380,6 +380,6 @@ private: ////////// General Interface //////////
     QtTaskTree::QSingleTaskTreeRunner m_signalOperationRunner;
 };
 
-DebuggerEngine *createGdbEngine();
+DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
 
 } // Debugger::Internal

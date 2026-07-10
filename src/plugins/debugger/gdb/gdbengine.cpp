@@ -3,7 +3,10 @@
 
 #include "gdbengine.h"
 
+#include "gdbimpl.h"
+
 #include <debugger/breakhandler.h>
+#include <debugger/genericdebuggerengine.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
@@ -5239,8 +5242,18 @@ QString GdbEngine::mainFunction() const
 // Factory
 //
 
-DebuggerEngine *createGdbEngine()
+DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp)
 {
+    if (DebuggerEngine::isUsingGenericDebugger()) {
+        const QString mainFunctionName = QLatin1String(
+            rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal() ? "qMain" : "main");
+        return new GenericDebuggerEngine("GDB (GdbImpl)",
+                                        new GdbImpl({rp.debugger(), rp.inferior(),
+                                                     ICore::resourcePath("debugger"),
+                                                     mainFunctionName,
+                                                     rp.isNativeMixedDebugging(),
+                                                     rp.isElfTarget()}));
+    }
     return new GdbEngine;
 }
 

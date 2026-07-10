@@ -100,6 +100,7 @@ QtcPlugin {
         prefix: "gdb/"
         files: [
             "gdbengine.cpp", "gdbengine.h",
+            "gdbimpl.cpp", "gdbimpl.h",
             "gdbsettings.cpp", "gdbsettings.h",
         ]
     }
