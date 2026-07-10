@@ -23,7 +23,9 @@
 #include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QList>
+#include <QObject>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QThread>
 #include <QTimer>
 #include <QUrl>
@@ -137,6 +139,24 @@ void requestStop(int)
 
 } // namespace
 
+// A C++ object invoked from QML/JS. When the sampler catches the GUI thread
+// inside crunch(), a merged native-mixed trace shows this C++ subtree grafted
+// beneath the JS frames that called it (onTriggered -> spinInQml -> crunch) --
+// the payoff of running the CPU sampler and the QML profiler together.
+class Backend : public QObject
+{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE quint64 crunch(int rounds)
+    {
+        volatile quint64 sink = 0;
+        for (int i = 0; i < rounds; ++i)
+            sink = mixBytes(sink + quint64(i));
+        return sink;
+    }
+};
+
 // A self-contained Qt Quick window with a never-ending animation. Loaded from
 // data so the test app needs no .qrc; the running animation keeps the GUI and
 // scene-graph render threads busy for the sampler to capture.
@@ -151,14 +171,19 @@ Window {
     color: "#202020"
     title: "sampler-testapp"
 
-    // Deliberately heavy JS triggered ~125x/second, so a sampler that catches
-    // the QML/JS engine sees spinInQml() on the stack often.
+    // Heavy JS on a short timer: frequent enough that the sampler often catches
+    // the GUI thread inside the engine, but the timer still returns to the event
+    // loop each tick so the QML debug connection stays responsive (a tight/interval
+    // 0 loop starves it, which wrecks the cross-clock alignment). For a reliable
+    // native-mixed splice, run the app with QV4_FORCE_INTERPRETER=1 so the hot JS
+    // is interpreted (recognisable QV4 frames) rather than JIT'd (anonymous).
     property real qmlAccumulator: 0
     function spinInQml() {
         var sum = 0;
-        for (var i = 1; i < 200000; ++i)
+        for (var i = 1; i < 150000; ++i)
             sum += Math.sqrt(i) * Math.sin(i);
-        qmlAccumulator = sum;
+        // Call into C++ so a merged trace shows a native subtree under this JS frame.
+        qmlAccumulator = sum + backend.crunch(250000);
     }
 
     Timer {
@@ -311,6 +336,8 @@ int main(int argc, char *argv[])
     });
 
     QQmlApplicationEngine engine;
+    Backend backend;
+    engine.rootContext()->setContextProperty("backend", &backend);
     if (scene == "3d")
         engine.loadData(QByteArray(qml3dSource), QUrl("qrc:/sampler-testapp/main3d.qml"));
     else
@@ -345,3 +372,5 @@ int main(int argc, char *argv[])
     std::fflush(stdout);
     return result;
 }
+
+#include "main.moc"

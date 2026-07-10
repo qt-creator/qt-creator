@@ -7,4 +7,3 @@ add_qtc_test(sampler-testapp
   DEFINES QT_QML_DEBUG
   SOURCES main.cpp
 )
-
