@@ -384,6 +384,8 @@ int TextEditorLayout::lineCount() const
 
 int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
 {
+    QTC_ASSERT(block.isValid(), return -1);
+
     // FIXME: The first line cache is not reset/recalculated on width change
     const int blockNumber = block.blockNumber();
     const int oldCacheSize = int(d->m_offsetCache.size());
