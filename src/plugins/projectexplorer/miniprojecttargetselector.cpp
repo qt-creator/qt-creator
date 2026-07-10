@@ -758,6 +758,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_filterLineEdit->setHistoryCompleter("TargetSelector.Filter", false, 10);
     m_filterLineEdit->setClearButtonEnabled(true);
     m_filterLineEdit->setPlaceholderText(Tr::tr("Filter run targets"));
+    m_filterLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
     m_listWidgets.resize(LAST);
     m_titleWidgets.resize(LAST);
@@ -975,7 +976,14 @@ void MiniProjectTargetSelector::doLayout()
     m_summaryLabel->move(0, summaryLabelY);
 
     const bool filterIsVisible = m_listWidgets[RUN]->theModel()->rowCount() > 1;
-    const int filterY = summaryLabelY + summaryLabelHeight;
+    // Reserve the platform-recommended gap around the filter line edit. Besides matching
+    // regular Qt layouts, this also leaves room for styles (e.g. macOS) that paint a
+    // native control frame that is slightly larger than the widget's own geometry.
+    const int filterVSpacing = filterIsVisible
+        ? style()->layoutSpacing(QSizePolicy::Label, m_filterLineEdit->sizePolicy().controlType(),
+                                  Qt::Vertical, nullptr, this)
+        : 0;
+    const int filterY = summaryLabelY + summaryLabelHeight + filterVSpacing;
     const int filterHeight = filterIsVisible ? m_filterLineEdit->sizeHint().height() : 0;
 
     m_filterLineEdit->move(0, filterY);
@@ -1005,10 +1013,10 @@ void MiniProjectTargetSelector::doLayout()
         // and at most half the height of the entire Qt Creator window.
         const int minHeight = alignedWithActionHeight;
         const int maxHeight = std::max(minHeight, Core::ICore::mainWindow()->height() / 2);
-        heightWithoutKitArea = summaryLabelHeight + filterHeight
+        heightWithoutKitArea = summaryLabelHeight + filterVSpacing + filterHeight + filterVSpacing
             + qBound(minHeight, maxItemCount * 30 + bottomMargin + titleWidgetsHeight, maxHeight);
 
-        int titleY = filterY + filterHeight;
+        int titleY = filterY + filterHeight + filterVSpacing;
         int listY = titleY + titleWidgetsHeight;
         int listHeight = heightWithoutKitArea + kitAreaHeight - bottomMargin - listY + 1;
 
