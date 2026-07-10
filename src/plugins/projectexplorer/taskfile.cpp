@@ -103,6 +103,47 @@ static QString unescape(const QString &input)
     return result;
 }
 
+std::optional<Task> parseTaskFileLine(const QByteArray &rawLine, const FilePath &parentDir)
+{
+    const QStringList chunks = parseRawLine(rawLine);
+    if (chunks.isEmpty())
+        return std::nullopt;
+
+    QString description;
+    QString file;
+    Task::TaskType type = Task::Unknown;
+    int line = -1;
+
+    if (chunks.size() == 1) {
+        description = chunks.at(0);
+    } else if (chunks.size() == 2) {
+        type = typeFrom(chunks.at(0));
+        description = chunks.at(1);
+    } else if (chunks.size() == 3) {
+        file = chunks.at(0);
+        type = typeFrom(chunks.at(1));
+        description = chunks.at(2);
+    } else if (chunks.size() >= 4) {
+        file = chunks.at(0);
+        bool ok;
+        line = chunks.at(1).toInt(&ok);
+        if (!ok)
+            line = -1;
+        type = typeFrom(chunks.at(2));
+        description = chunks.at(3);
+    }
+    if (!file.isEmpty()) {
+        file = QDir::fromNativeSeparators(file);
+        QFileInfo fi(file);
+        if (fi.isRelative())
+            file = parentDir.pathAppended(file).toUrlishString();
+    }
+    description = unescape(description);
+
+    return Task(type, description, FilePath::fromUserInput(file), line,
+                Constants::TASK_CATEGORY_TASKLIST_ID);
+}
+
 static bool parseTaskFile(QString *errorString, const FilePath &name)
 {
     QFile tf(name.toUrlishString());
@@ -114,47 +155,15 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
 
     const FilePath parentDir = name.parentDir();
     while (!tf.atEnd()) {
-        QStringList chunks = parseRawLine(tf.readLine());
-        if (chunks.isEmpty())
+        const std::optional<Task> task = parseTaskFileLine(tf.readLine(), parentDir);
+        if (!task)
             continue;
 
-        QString description;
-        QString file;
-        Task::TaskType type = Task::Unknown;
-        int line = -1;
-
-        if (chunks.size() == 1) {
-            description = chunks.at(0);
-        } else if (chunks.size() == 2) {
-            type = typeFrom(chunks.at(0));
-            description = chunks.at(1);
-        } else if (chunks.size() == 3) {
-            file = chunks.at(0);
-            type = typeFrom(chunks.at(1));
-            description = chunks.at(2);
-        } else if (chunks.size() >= 4) {
-            file = chunks.at(0);
-            bool ok;
-            line = chunks.at(1).toInt(&ok);
-            if (!ok)
-                line = -1;
-            type = typeFrom(chunks.at(2));
-            description = chunks.at(3);
-        }
-        if (!file.isEmpty()) {
-            file = QDir::fromNativeSeparators(file);
-            QFileInfo fi(file);
-            if (fi.isRelative())
-                file = parentDir.pathAppended(file).toUrlishString();
-        }
-        description = unescape(description);
-
-        if (description.trimmed().isEmpty()) {
+        if (task->description().trimmed().isEmpty()) {
             MessageManager::writeFlashing(Tr::tr("Ignoring invalid task (no text)."));
             continue;
         }
-        TaskHub::addTask(Task(type, description, FilePath::fromUserInput(file), line,
-                              Constants::TASK_CATEGORY_TASKLIST_ID));
+        TaskHub::addTask(*task);
     }
     return true;
 }

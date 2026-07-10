@@ -237,6 +237,8 @@ QtcPlugin {
             "jsonwizard/jsonwizard_test.h",
             "outputparser_test.cpp",
             "outputparser_test.h",
+            "taskhandling_test.cpp",
+            "taskhandling_test.h",
         ]
     }
 

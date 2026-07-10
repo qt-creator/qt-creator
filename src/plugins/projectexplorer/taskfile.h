@@ -3,11 +3,20 @@
 
 #pragma once
 
+#include "task.h"
 #include "taskhandlers.h"
 
 #include <coreplugin/idocument.h>
 
+#include <optional>
+
 namespace ProjectExplorer::Internal {
+
+// Parses one raw line of a .tasks file. Returns nullopt for comment and blank
+// lines; a returned task may still have an empty description, which the file
+// loader treats as invalid.
+std::optional<Task> parseTaskFileLine(const QByteArray &rawLine,
+                                      const Utils::FilePath &parentDir);
 
 class StopMonitoringHandler : public ITaskHandler
 {

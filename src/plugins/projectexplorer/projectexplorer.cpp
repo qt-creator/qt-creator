@@ -171,6 +171,7 @@
 #include "linuxiccparser.h"
 #include "msvcparser.h"
 #include "outputparser_test.h"
+#include "taskhandling_test.h"
 #include "toolchainsettingsaccessor.h"
 #include "userfileaccessor.h"
 #include "xcodebuildparser.h"
@@ -925,6 +926,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createRunWorkerConflictTest);
     addTestCreator(createSanitizerOutputParserTest);
     addTestCreator(createSessionTest);
+    addTestCreator(createTaskHandlingTest);
     addTestCreator(createToolchainSettingsTest);
     addTestCreator(createUserFileAccessorTest);
     addTestCreator(createXcodebuildParserTest);

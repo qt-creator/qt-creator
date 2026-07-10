@@ -208,6 +208,7 @@ extend_qtc_plugin(ProjectExplorer
   SOURCES
     jsonwizard/jsonwizard_test.cpp jsonwizard/jsonwizard_test.h
     outputparser_test.cpp outputparser_test.h
+    taskhandling_test.cpp taskhandling_test.h
 )
 
 file(GLOB_RECURSE test_resources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testdata/*)
