@@ -4,6 +4,7 @@ Project {
     name: "Debugger autotests"
     property path debuggerDir: project.ide_source_tree + "/src/plugins/debugger/"
     references: [
+        "backends.qbs",
         "disassembler.qbs",
         "dumpers.qbs",
         "gdb.qbs",

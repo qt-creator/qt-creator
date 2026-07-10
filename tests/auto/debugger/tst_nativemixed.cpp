@@ -2,15 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 // Autotest for native combined (C++ + QML in one engine) debugging. It
-// builds the qmlmix fixture, then drives a real gdb or lldb session through
+// builds the qmlmix inferior, then drives a real gdb or lldb session through
 // the Python bridge (nativemixed_driver.py) and checks the outcomes of
 // QML/C++ cross-stepping and the spliced mixed stack.
 //
 // The checks that need the qtdeclarative qt_v4AboutToCallNativeMethodHook
 // (QML->C++ step-in, C++->QML step-out, the C++-frame stack splice) only
 // work with Qt >= 6.12, so they are required only there and ignored on
-// older Qt. The fixture also needs the qmldbg_native plugin; the test skips
-// if the debugger or the fixture build is unavailable.
 
 #include <QDir>
 #include <QDirIterator>
@@ -41,7 +39,7 @@ private slots:
     void cleanupTestCase();
 
 private:
-    bool buildFixture();
+    bool buildInferior();
 
     Engine m_engine = GdbEngine;
     QString m_debuggerBinary;
@@ -50,10 +48,10 @@ private:
     int m_qtVersion = 0;
     const QString m_dumperDir = QString::fromLocal8Bit(DUMPERDIR);
     const QString m_driver = QString::fromLocal8Bit(NATIVEMIXED_DRIVER);
-    const QString m_fixtureSrc = QString::fromLocal8Bit(QMLMIX_SOURCE_DIR);
+    const QString m_inferiorSrc = QString::fromLocal8Bit(QMLMIX_SOURCE_DIR);
     QTemporaryDir m_buildDir;
     QString m_exe;
-    bool m_fixtureOk = false;
+    bool m_inferiorOk = false;
 };
 
 static int parseQtVersion(const QString &s)
@@ -97,16 +95,16 @@ void tst_NativeMixed::initTestCase()
     m_qtPrefix = runAndCapture(m_qmakeBinary, {"-query", "QT_INSTALL_PREFIX"}).trimmed();
     QVERIFY2(m_qtVersion != 0, "Could not determine the Qt version under test.");
 
-    m_fixtureOk = buildFixture();
+    m_inferiorOk = buildInferior();
 }
 
-bool tst_NativeMixed::buildFixture()
+bool tst_NativeMixed::buildInferior()
 {
     if (!m_buildDir.isValid())
         return false;
     const QString build = m_buildDir.path();
 
-    QStringList configure = {"-S", m_fixtureSrc, "-B", build,
+    QStringList configure = {"-S", m_inferiorSrc, "-B", build,
                              "-DCMAKE_BUILD_TYPE=Debug"};
     if (!m_qtPrefix.isEmpty())
         configure << ("-DCMAKE_PREFIX_PATH=" + m_qtPrefix);
@@ -114,7 +112,6 @@ bool tst_NativeMixed::buildFixture()
     const QString out = runAndCapture("cmake", {"--build", build});
     qCDebug(lcNativeMixed).noquote() << "cmake configure:\n" << cfg << "\ncmake build:\n" << out;
 
-    // The fixture target is qmlmixtest; find the produced executable.
     QDirIterator it(build, QDir::Files | QDir::Executable, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         const QFileInfo fi(it.next());
@@ -128,13 +125,13 @@ bool tst_NativeMixed::buildFixture()
 
 void tst_NativeMixed::nativeMixed()
 {
-    if (!m_fixtureOk)
-        QSKIP("Native combined fixture could not be built (Qt with QML "
+    if (!m_inferiorOk)
+        QSKIP("Native combined inferior could not be built (Qt with QML "
               "debugging and the qmldbg_native plugin is required).");
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert("QTC_NM_EXE", m_exe);
-    env.insert("QTC_NM_QMLDIR", m_fixtureSrc);
+    env.insert("QTC_NM_QMLDIR", m_inferiorSrc);
     env.insert("QTC_NM_ENGINE", m_engine == GdbEngine ? "gdb" : "lldb");
 
     QProcess dbg;
