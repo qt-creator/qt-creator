@@ -63,6 +63,7 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/environment.h>
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -1401,6 +1402,17 @@ void DebuggerEngine::start()
     setState(EngineSetupRequested);
     showMessage("CALL: SETUP ENGINE");
     setupEngine();
+}
+
+bool DebuggerEngine::isUsingGenericDebugger()
+{
+    static const bool result = [] {
+        const bool isSet = Utils::qtcEnvironmentVariableIsSet("QTC_USE_GENERIC_DEBUGGER");
+        if (isSet)
+            qWarning("QTC_USE_GENERIC_DEBUGGER is set: using GenericDebuggerEngine + GdbImpl instead of GdbEngine.");
+        return isSet;
+    }();
+    return result;
 }
 
 void DebuggerEngine::resetLocation()

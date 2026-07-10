@@ -51,6 +51,7 @@ QtcPlugin {
             "disassembleragent.cpp", "disassembleragent.h",
             "disassemblerlines.cpp", "disassemblerlines.h",
             "enginemanager.cpp", "enginemanager.h",
+            "genericdebuggerengine.cpp", "genericdebuggerengine.h",
             "imageviewer.cpp", "imageviewer.h",
             "loadcoredialog.cpp", "loadcoredialog.h",
             "localsandexpressionswindow.cpp", "localsandexpressionswindow.h",

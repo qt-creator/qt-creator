@@ -460,6 +460,8 @@ public:
 
     void start();
 
+    static bool isUsingGenericDebugger();
+
     enum {
         // Remove need to qualify each use.
         NeedsTemporaryStop = DebuggerCommand::NeedsTemporaryStop,
