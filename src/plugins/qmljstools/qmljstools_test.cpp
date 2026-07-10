@@ -136,6 +136,22 @@ void QmlJSToolsTest::test_qmlReindent_data()
 
     QTest::newRow("nested object and function")
         << stripLeadingWhitespace(expected) << expected;
+
+    // A nested object with a signal handler block, as in tst_qml_indent.
+    const QString handler =
+        "import QtQuick\n"
+        "Window {\n"
+        "    title: qsTr(\"Hello World\")\n"
+        "    MouseArea {\n"
+        "        anchors.fill: parent\n"
+        "        onClicked: {\n"
+        "            console.log(parent.title)\n"
+        "        }\n"
+        "    }\n"
+        "}\n";
+
+    QTest::newRow("nested object with signal handler")
+        << stripLeadingWhitespace(handler) << handler;
 }
 
 void QmlJSToolsTest::test_qmlReindent()
