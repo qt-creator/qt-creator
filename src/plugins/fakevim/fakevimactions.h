@@ -145,6 +145,7 @@ public:
     FvIntegerAspect scrollOff;
     FvBoolAspect relativeNumber;
     FvStringAspect formatOptions;
+    FvIntegerAspect textWidth;
 
     // Plugin emulation
     FvBoolAspect emulateVimCommentary;

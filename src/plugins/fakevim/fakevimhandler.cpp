@@ -161,6 +161,8 @@ enum SubMode
     InvertCaseSubMode,          // Used for g~
     DownCaseSubMode,            // Used for gu
     UpCaseSubMode,              // Used for gU
+    ReflowSubMode,              // Used for gq
+    ReflowKeepCursorSubMode,    // Used for gw
     WindowSubMode,              // Used for Ctrl-w
     YankSubMode,                // Used for y
     ZSubMode,                   // Used for z
@@ -1298,6 +1300,10 @@ QString dotCommandFromSubMode(SubMode submode)
         return QLatin1String("gu");
     if (submode == UpCaseSubMode)
         return QLatin1String("gU");
+    if (submode == ReflowSubMode)
+        return QLatin1String("gq");
+    if (submode == ReflowKeepCursorSubMode)
+        return QLatin1String("gw");
     if (submode == IndentSubMode)
         return QLatin1String("=");
     if (submode == ShiftRightSubMode)
@@ -1781,6 +1787,7 @@ public:
     bool handleRegisterSubMode(const Input &);
     bool handleShiftSubMode(const Input &);
     bool handleChangeCaseSubMode(const Input &);
+    bool handleReflowSubMode(const Input &);
     bool handleWindowSubMode(const Input &);
     bool handleZSubMode(const Input &);
     bool handleCapitalZSubMode(const Input &);
@@ -1994,6 +2001,10 @@ public:
     QTextCursor m_cursor;
     bool m_cursorNeedsUpdate;
 
+    // Cursor position (block, column) to restore after the "gw" reflow.
+    int m_reflowSavedLine = 0;
+    int m_reflowSavedColumn = 0;
+
     bool moveToPreviousParagraph(int count = 1) { return moveToNextParagraph(-count); }
     bool moveToNextParagraph(int count = 1);
     void moveToParagraphStartOrEnd(int direction = 1);
@@ -2052,6 +2063,8 @@ public:
             || g.submode == InvertCaseSubMode
             || g.submode == DownCaseSubMode
             || g.submode == UpCaseSubMode
+            || g.submode == ReflowSubMode
+            || g.submode == ReflowKeepCursorSubMode
             || g.submode == YankSubMode; }
 
     bool isVisualMode() const { return g.visualMode != NoVisualMode; }
@@ -2145,6 +2158,8 @@ public:
     void upCase(const Range &range);
 
     void downCase(const Range &range);
+
+    void reflowText(const Range &range);
 
     void replaceText(const Range &range, const QString &str);
 
@@ -3618,6 +3633,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         || g.submode == InvertCaseSubMode
         || g.submode == DownCaseSubMode
         || g.submode == UpCaseSubMode
+        || g.submode == ReflowSubMode
+        || g.submode == ReflowKeepCursorSubMode
         || g.submode == IndentSubMode
         || g.submode == ShiftLeftSubMode
         || g.submode == ShiftRightSubMode)
@@ -3716,6 +3733,21 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             shiftRegionRight(1);
         else if (g.submode == ShiftLeftSubMode)
             shiftRegionLeft(1);
+    } else if (g.submode == ReflowSubMode || g.submode == ReflowKeepCursorSubMode) {
+        const bool keepCursor = g.submode == ReflowKeepCursorSubMode;
+        pushUndoState(false);
+        beginEditBlock();
+        reflowText(currentRange());
+        endEditBlock();
+        if (keepCursor) {
+            // "gw" leaves the cursor where it was before the command.
+            const int line = qMin(m_reflowSavedLine, document()->blockCount() - 1);
+            const QTextBlock b = document()->findBlockByNumber(line);
+            setPosition(b.position() + qMin(m_reflowSavedColumn, qMax(b.length() - 1, 0)));
+            setTargetColumn();
+        } else if (g.movetype == MoveLineWise) {
+            handleStartOfLine();
+        }
     }
 
     if (!dotCommandMovement.isEmpty()) {
@@ -4451,6 +4483,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         || g.submode == DownCaseSubMode
         || g.submode == UpCaseSubMode) {
         handled = handleChangeCaseSubMode(input);
+    } else if (g.submode == ReflowSubMode || g.submode == ReflowKeepCursorSubMode) {
+        handled = handleReflowSubMode(input);
     }
 
     if (!handled && isOperatorPending())
@@ -4599,6 +4633,35 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             dotCommand = visualDotCommand() + QString::number(count()) + "gr";
             pasteText(true);
         } else {
+            setAnchor();
+        }
+    } else if (g.gflag && (input.is('q') || input.is('w'))) {
+        const bool keepCursor = input.is('w');
+        const QString op = keepCursor ? "gw" : "gq";
+        m_reflowSavedLine = m_cursor.blockNumber();
+        m_reflowSavedColumn = m_cursor.positionInBlock();
+        if (isVisualMode()) {
+            pushUndoState();
+            const int lines = qAbs(m_cursor.blockNumber() - blockAt(m_cursor.anchor()).blockNumber());
+            dotCommand = lines == 0 ? op + op.right(1) : op + QString("%1j").arg(lines);
+            leaveVisualMode();
+            g.movetype = MoveLineWise;
+            beginEditBlock();
+            reflowText(currentRange());
+            endEditBlock();
+            if (keepCursor) {
+                const int line = qMin(m_reflowSavedLine, document()->blockCount() - 1);
+                const QTextBlock b = document()->findBlockByNumber(line);
+                setPosition(b.position() + qMin(m_reflowSavedColumn, qMax(b.length() - 1, 0)));
+                setTargetColumn();
+            } else {
+                handleStartOfLine();
+            }
+            g.submode = NoSubMode;
+        } else {
+            g.movetype = MoveLineWise;
+            g.submode = keepCursor ? ReflowKeepCursorSubMode : ReflowSubMode;
+            pushUndoState();
             setAnchor();
         }
     } else if ((input.is('c') || input.is('d') || input.is('y')) && isNoVisualMode()) {
@@ -5120,6 +5183,25 @@ bool FakeVimHandler::Private::handleChangeCaseSubMode(const Input &input)
     setAnchor();
     setPosition(lastPositionInLine(cursorLine() + count()) + 1);
     finishMovement(QString("%1%2").arg(count()).arg(input.raw()));
+    g.submode = NoSubMode;
+
+    return true;
+}
+
+bool FakeVimHandler::Private::handleReflowSubMode(const Input &input)
+{
+    // "gqq"/"gqgq" and "gww"/"gwgw" reflow [count] lines from the current one.
+    const QChar op = g.submode == ReflowKeepCursorSubMode ? QLatin1Char('w') : QLatin1Char('q');
+    if (!input.is(op.toLatin1()))
+        return false;
+
+    g.movetype = MoveLineWise;
+    const int anc = firstPositionInLine(cursorLine() + 1);
+    moveDown(count() - 1);
+    const int pos = lastPositionInLine(cursorLine() + 1);
+    setAnchorAndPosition(anc, pos);
+    setDotCommand(QString("%1g%2%2").arg(count()).arg(op));
+    finishMovement();
     g.submode = NoSubMode;
 
     return true;
@@ -7885,6 +7967,71 @@ void FakeVimHandler::Private::invertCase(const Range &range)
             }
             return result;
     });
+}
+
+void FakeVimHandler::Private::reflowText(const Range &range)
+{
+    const int textWidth = s.textWidth() > 0 ? int(s.textWidth()) : 80;
+
+    const QTextBlock firstBlock = blockAt(qMin(range.beginPos, range.endPos));
+    const QTextBlock lastBlock = blockAt(qMax(range.beginPos, range.endPos));
+
+    QStringList lines;
+    for (QTextBlock b = firstBlock; b.isValid(); b = b.next()) {
+        lines.append(b.text());
+        if (b == lastBlock)
+            break;
+    }
+
+    // Rewrap paragraph by paragraph. Paragraphs are separated by blank lines,
+    // which are kept as-is. Each paragraph is reflowed to the text width using
+    // the indentation of its first line for every resulting line.
+    QStringList result;
+    for (int i = 0; i < lines.size(); ) {
+        if (lines.at(i).trimmed().isEmpty()) {
+            result.append(lines.at(i));
+            ++i;
+            continue;
+        }
+
+        const QString &firstLine = lines.at(i);
+        int indentSize = 0;
+        while (indentSize < firstLine.size() && firstLine.at(indentSize).isSpace())
+            ++indentSize;
+        const QString indent = firstLine.left(indentSize);
+
+        QStringList words;
+        for (; i < lines.size() && !lines.at(i).trimmed().isEmpty(); ++i)
+            words += lines.at(i).simplified().split(QLatin1Char(' '), Qt::SkipEmptyParts);
+
+        QString line = indent;
+        bool hasWord = false;
+        for (const QString &word : std::as_const(words)) {
+            if (!hasWord) {
+                line += word;
+                hasWord = true;
+            } else if (line.size() + 1 + word.size() <= textWidth) {
+                line += QLatin1Char(' ') + word;
+            } else {
+                // A single word longer than the text width still gets its own
+                // line rather than being split.
+                result.append(line);
+                line = indent + word;
+            }
+        }
+        if (hasWord)
+            result.append(line);
+    }
+
+    const int startPos = firstBlock.position();
+    const int endPos = lastBlock.position() + lastBlock.length() - 1;
+
+    QTextCursor tc = m_cursor;
+    tc.setPosition(startPos);
+    tc.setPosition(endPos, QTextCursor::KeepAnchor);
+    tc.insertText(result.join(QLatin1Char('\n')));
+
+    setPosition(startPos);
 }
 
 void FakeVimHandler::Private::toggleComment(const Range &range)

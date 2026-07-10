@@ -167,6 +167,7 @@ private slots:
     void test_vim_arg_text_obj_emulation();
     void test_vim_surround_emulation();
     void test_vim_unimpaired_emulation();
+    void test_vim_reflow();
 
     void test_macros();
 
@@ -4868,6 +4869,41 @@ void FakeVimTester::test_vim_unimpaired_emulation()
     data.setText("a|bc" N "def" N "ghi");
     KEYS("2]e", "def" N "ghi" N "a|bc");
     KEYS("2[e", "a|bc" N "def" N "ghi");
+}
+
+void FakeVimTester::test_vim_reflow()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set textwidth=10");
+
+    // gqq reflows the current line to the text width.
+    data.setText("one two three four five six");
+    KEYS("gqq", X "one two" N "three four" N "five six");
+
+    // The indentation of the first line is kept for every wrapped line.
+    data.setText("  alpha beta gamma delta");
+    KEYS("gqq", "  " X "alpha" N "  beta" N "  gamma" N "  delta");
+
+    // gq with a motion reflows the spanned lines as one paragraph.
+    data.setText("aaa bbb ccc" N "ddd");
+    KEYS("gqj", X "aaa bbb" N "ccc ddd");
+
+    // Blank lines separate paragraphs and are preserved.
+    data.setText("aaaa bbbb cccc" N "" N "dddd eeee ffff");
+    KEYS("VGgq", X "aaaa bbbb" N "cccc" N "" N "dddd eeee" N "ffff");
+
+    // A word longer than the text width still gets its own line.
+    data.setText("hi supercalifragilistic bye");
+    KEYS("gqq", X "hi" N "supercalifragilistic" N "bye");
+
+    // gw reflows like gq but keeps the cursor where it was (gq moves it to
+    // the start of the reflowed text).
+    data.setText("one |two three four five six");
+    KEYS("gww", "one |two" N "three four" N "five six");
+
+    data.setText("aaa |bbb ccc" N "ddd");
+    KEYS("gwj", "aaa |bbb" N "ccc ddd");
 }
 
 void FakeVimTester::test_macros()

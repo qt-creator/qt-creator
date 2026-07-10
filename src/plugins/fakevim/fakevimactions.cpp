@@ -86,6 +86,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&blinkingCursor, false, "BlinkingCursor", "bc",  Tr::tr("Blinking cursor"));
     setup(&systemEncoding, false, "SystemEncoding", {},    Tr::tr("Use system encoding for :source"));
     setup(&scrollOff,      0,     "ScrollOff",      "so",  Tr::tr("Scroll offset:"));
+    setup(&textWidth,      0,     "TextWidth",      "tw",  Tr::tr("Text width:"));
     setup(&backspace,      "indent,eol,start",
                                   "Backspace",      "bs",  Tr::tr("Backspace:"));
     setup(&isKeyword,      "@,48-57,_,192-255,a-z,A-Z",
