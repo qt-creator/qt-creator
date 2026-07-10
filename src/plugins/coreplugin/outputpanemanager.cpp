@@ -1032,10 +1032,8 @@ void OutputPaneManager::slotHide()
 
 void OutputPaneManager::ensurePageVisible(int idx)
 {
-    //int current = currentIndex();
-    //if (current != idx)
-    //    m_outputWidgetPane->setCurrentIndex(idx);
-    setCurrentIndex(idx);
+    if (currentIndex() != idx)
+        setCurrentIndex(idx);
 }
 
 void OutputPaneManager::showPage(int idx, int flags)
