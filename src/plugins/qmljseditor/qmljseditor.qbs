@@ -77,6 +77,13 @@ QtcPlugin {
         "quicktoolbar.h",
     ]
 
+    QtcTestFiles {
+        files: [
+            "qmljsindenter_test.cpp",
+            "qmljsindenter_test.h",
+        ]
+    }
+
     Export {
         Depends { name: "QmlJSTools" }
     }

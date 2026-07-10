@@ -35,3 +35,9 @@ add_qtc_plugin(QmlJSEditor
     quicktoolbar.cpp quicktoolbar.h
   EXPLICIT_MOC qmljseditor.h
 )
+
+extend_qtc_plugin(QmlJSEditor
+  CONDITION WITH_TESTS
+  SOURCES
+    qmljsindenter_test.cpp qmljsindenter_test.h
+)

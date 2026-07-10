@@ -8,6 +8,7 @@
 #include "qmljseditorsettings.h"
 #include "qmljseditortr.h"
 #include "qmljsfilecomponentrenamehandler.h"
+#include "qmljsindenter_test.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
 #include "qmllsclientsettings.h"
@@ -513,6 +514,10 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
         setupQmlJsOutline();
         setupQmlJSEditor();
         setupQmlJsEditingSettings();
+
+#ifdef WITH_TESTS
+        addTestCreator(createQmlJSIndenterTest);
+#endif
     }
 
     void extensionsInitialized() final
