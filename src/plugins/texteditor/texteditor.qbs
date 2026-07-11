@@ -89,6 +89,8 @@ Project {
             "icodestylepreferencesfactory.cpp",
             "icodestylepreferencesfactory.h",
             "indenter.h",
+            "inlinediffdecorator.cpp",
+            "inlinediffdecorator.h",
             "ioutlinewidget.h",
             "jsoneditor.cpp",
             "jsoneditor.h",
