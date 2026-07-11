@@ -67,6 +67,8 @@ DIFFEDITOR_EXPORT InlineDiffRenderModel mapChunkToRenderModel(
 // the differences between the baseline and the document contents inline. The
 // editor shares the text with sourceDocument, so edits show up immediately in
 // its regular editors as well, which stay free of diff decorations.
+// Returns nullptr if the document is too large for live diffing; callers
+// should fall back to a regular diff view then.
 DIFFEDITOR_EXPORT Core::IEditor *openInlineDiffEditor(
     const TextEditor::TextDocumentPtr &sourceDocument,
     const InlineDiffBaseline &baseline,

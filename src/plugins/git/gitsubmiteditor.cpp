@@ -189,8 +189,14 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
             unstagedFiles.push_back(fileName);
         }
     }
-    if (!unstagedFiles.empty() || !stagedFiles.empty())
+    if (unmergedFiles.empty() && stagedFiles.empty() && unstagedFiles.size() == 1) {
+        // a single unstaged file's changes are shown inline in its editor;
+        // staged changes compare the index against HEAD, which the inline
+        // view of the working tree cannot represent
+        gitClient().inlineDiffFile(m_workingDirectory, unstagedFiles.constFirst());
+    } else if (!unstagedFiles.empty() || !stagedFiles.empty()) {
         gitClient().diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
+    }
     if (!unmergedFiles.empty())
         gitClient().merge(m_workingDirectory, unmergedFiles);
 }

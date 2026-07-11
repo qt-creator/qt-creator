@@ -173,7 +173,12 @@ public:
         gitClient().log(topLevel, relativePath.toUrlishString(), true);
     }
     void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
-        gitClient().diffPath(topLevel, relativePath.toUrlishString());
+        // single files show their working tree changes inline, directories
+        // keep the classic multi file diff view
+        if (topLevel.resolvePath(relativePath).isFile())
+            gitClient().inlineDiffFile(topLevel, relativePath.toUrlishString());
+        else
+            gitClient().diffPath(topLevel, relativePath.toUrlishString());
     }
     void vcsFillFileActionMenu(QMenu *menu,
                                const Utils::FilePath &topLevel,
@@ -273,7 +278,6 @@ public:
     void discardCommit() override { cleanCommitMessageFile(); }
 
     void diffCurrentFile(GitClient::DiffMode diffMode);
-    void inlineDiffCurrentFile();
     void diffUnstagedCurrentFile() { diffCurrentFile(GitClient::Unstaged); }
     void diffStagedCurrentFile() { diffCurrentFile(GitClient::Staged); }
     void diffProjectDirectory(GitClient::DiffMode diffMode);
@@ -671,14 +675,6 @@ GitPluginPrivate::GitPluginPrivate()
                      Tr::tr("Diff Staged Changes in \"%1\""),
                      "Git.DiffStaged", context, true,
                      std::bind(&GitPluginPrivate::diffStagedCurrentFile, this));
-
-    createFileAction(currentFileMenu,
-                     //: Avoid translating "Diff"
-                     Tr::tr("Inline Diff of Current File"),
-                     //: Avoid translating "Diff"
-                     Tr::tr("Inline Diff of \"%1\""),
-                     "Git.InlineDiff", context, true,
-                     std::bind(&GitPluginPrivate::inlineDiffCurrentFile, this));
 
     createFileAction(currentFileMenu,
                      //: Avoid translating "Log"
@@ -1106,14 +1102,13 @@ void GitPluginPrivate::diffCurrentFile(GitClient::DiffMode diffMode)
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    gitClient().diffFile(state.currentFileTopLevel(), state.relativeCurrentFile(), diffMode);
-}
-
-void GitPluginPrivate::inlineDiffCurrentFile()
-{
-    const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return);
-    gitClient().inlineDiffFile(state.currentFileTopLevel(), state.relativeCurrentFile());
+    // Only the unstaged changes can be shown inline: the editable editor
+    // contents are the working tree, while the staged diff compares the
+    // index against HEAD.
+    if (diffMode == GitClient::Unstaged)
+        gitClient().inlineDiffFile(state.currentFileTopLevel(), state.relativeCurrentFile());
+    else
+        gitClient().diffFile(state.currentFileTopLevel(), state.relativeCurrentFile(), diffMode);
 }
 
 void GitPluginPrivate::diffProjectDirectory(GitClient::DiffMode diffMode)

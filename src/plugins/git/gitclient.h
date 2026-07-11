@@ -172,10 +172,10 @@ public:
     void diffIncoming(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName,
                   DiffMode diffMode = Unstaged) const;
-    // Opens the file in a text editor and shows the differences inline. The
-    // baseline is the index for Unstaged and HEAD for Staged.
-    void inlineDiffFile(const Utils::FilePath &workingDirectory, const QString &fileName,
-                        DiffMode diffMode = Unstaged);
+    // Opens the file in a text editor and shows the differences against the
+    // index inline. Falls back to diffFile() when the file cannot be shown
+    // in a text editor or is too large for live diffing.
+    void inlineDiffFile(const Utils::FilePath &workingDirectory, const QString &fileName);
     DiffEditor::InlineDiffBaseline indexBaseline(const Utils::FilePath &workingDirectory,
                                                  const QString &relativeFile);
     DiffEditor::InlineDiffBaseline revisionBaseline(const Utils::FilePath &workingDirectory,

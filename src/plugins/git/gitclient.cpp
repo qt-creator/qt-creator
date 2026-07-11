@@ -1295,25 +1295,25 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
     });
 }
 
-void GitClient::inlineDiffFile(const FilePath &workingDirectory, const QString &fileName,
-                               DiffMode diffMode)
+void GitClient::inlineDiffFile(const FilePath &workingDirectory, const QString &fileName)
 {
     const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
     QTC_ASSERT(!topLevel.isEmpty(), return);
     const FilePath filePath = workingDirectory.resolvePath(fileName);
     const QString relativeFile = filePath.relativeChildPath(topLevel).path();
-    IEditor *editor = EditorManager::openEditor(filePath);
-    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-    if (!textEditor || !textEditor->editorWidget())
-        return;
-    const DiffEditor::InlineDiffBaseline baseline = (diffMode == Staged)
-        ? revisionBaseline(topLevel, "HEAD", relativeFile)
-        : indexBaseline(topLevel, relativeFile);
-    const QString title = (diffMode == Staged)
-        ? Tr::tr("%1 (Unstaged vs HEAD)").arg(filePath.fileName())
-        : Tr::tr("%1 (Unstaged)").arg(filePath.fileName());
-    DiffEditor::openInlineDiffEditor(textEditor->editorWidget()->textDocumentPtr(), baseline,
-                                     title);
+
+    Core::IEditor *diffEditor = nullptr;
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::openEditor(filePath));
+    if (textEditor && textEditor->editorWidget()) {
+        diffEditor = DiffEditor::openInlineDiffEditor(
+            textEditor->editorWidget()->textDocumentPtr(),
+            indexBaseline(topLevel, relativeFile),
+            Tr::tr("%1 (Unstaged)").arg(filePath.fileName()));
+    }
+    // no text editor for the file (e.g. designer or binary files), or the
+    // file is too large for live diffing
+    if (!diffEditor)
+        diffFile(workingDirectory, fileName, Unstaged);
 }
 
 DiffEditor::InlineDiffBaseline GitClient::indexBaseline(const FilePath &workingDirectory,
@@ -1337,14 +1337,24 @@ DiffEditor::InlineDiffBaseline GitClient::revisionBaseline(const FilePath &worki
         gitClient().enqueueCommand(
             {workingDirectory,
              {"show", ref + ":" + relativeFile},
-             RunFlag::NoOutput,
+             RunFlag::NoOutput | RunFlag::ForceCLocale,
              {},
              gitClient().encoding(EncodingSource, sourceFile),
              [callback](const CommandResult &result) {
-                 if (result.result() == ProcessResult::FinishedWithSuccess)
+                 if (result.result() == ProcessResult::FinishedWithSuccess) {
                      callback(result.cleanedStdOut());
-                 else
-                     callback(Utils::ResultError(result.cleanedStdErr()));
+                     return;
+                 }
+                 // a file that does not exist in the baseline revision (e.g.
+                 // untracked, or newly added when comparing against HEAD) is
+                 // all additions, not an error
+                 const QString error = result.cleanedStdErr();
+                 if (error.contains("does not exist in")
+                     || error.contains("exists on disk, but not in")) {
+                     callback(QString());
+                 } else {
+                     callback(Utils::ResultError(error));
+                 }
              }});
     };
     return baseline;

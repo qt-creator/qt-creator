@@ -240,6 +240,9 @@ private:
 
 const char VIEW_MODE_SETTINGS_KEY[] = "DiffEditor/InlineDiffViewMode";
 
+// live diffing on every edit does not scale to arbitrarily large documents
+constexpr qsizetype maxInlineDiffTextSize = 8 * 1000 * 1000;
+
 class InlineDiffEditor final : public Core::IEditor
 {
 public:
@@ -275,6 +278,10 @@ public:
         connect(&m_updateTimer, &QTimer::timeout, this, &InlineDiffEditor::startUpdate);
         connect(source->document(), &QTextDocument::contentsChanged,
                 this, [this] { m_updateTimer.start(); });
+
+        // saving may change what the baseline refers to (e.g. a "diff against
+        // the saved file" baseline), so refresh it
+        connect(source.data(), &Core::IDocument::saved, this, [this] { fetchBaseline(); });
 
         // the inline diff editor is a companion of the source document; close
         // it once the document is closed
@@ -422,8 +429,8 @@ private:
         m_updateTimer.stop();
 
         const QString editorText = m_source->plainText();
-        constexpr qsizetype maxTextSize = 8 * 1000 * 1000;
-        if (m_baselineText->size() > maxTextSize || editorText.size() > maxTextSize) {
+        if (m_baselineText->size() > maxInlineDiffTextSize
+            || editorText.size() > maxInlineDiffTextSize) {
             applyModel({});
             return;
         }
@@ -490,6 +497,8 @@ Core::IEditor *openInlineDiffEditor(const TextDocumentPtr &sourceDocument,
 {
     QTC_ASSERT(sourceDocument, return nullptr);
     QTC_ASSERT(baseline.isValid(), return nullptr);
+    if (sourceDocument->document()->characterCount() > maxInlineDiffTextSize)
+        return nullptr; // too large for live diffing, let the caller fall back
     if (InlineDiffEditor *editor = editorRegistry().value(sourceDocument.data())) {
         editor->setBaseline(baseline, title);
         EditorManager::activateEditor(editor);
