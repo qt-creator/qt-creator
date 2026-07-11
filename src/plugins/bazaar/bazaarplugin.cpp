@@ -153,6 +153,39 @@ public:
     }
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
+    // Changes view
+    bool supportsChangesView() const final { return true; }
+    void requestRepositoryStatus(const Utils::FilePath &repository) final
+    {
+        m_client.requestStatus(repository,
+            [this, repository](const QList<VcsBaseClient::StatusItem> &items) {
+                using FileState = Core::VcsFileState;
+                VcsFileStatusList status;
+                for (const VcsBaseClient::StatusItem &item : items) {
+                    FileState state = FileState::Unknown;
+                    if (item.flags == Constants::FSTATUS_MODIFIED)
+                        state = FileState::Modified;
+                    else if (item.flags == Constants::FSTATUS_CREATED)
+                        state = FileState::Added;
+                    else if (item.flags == Constants::FSTATUS_DELETED)
+                        state = FileState::Deleted;
+                    else if (item.flags == Constants::FSTATUS_RENAMED)
+                        state = FileState::Renamed;
+                    else if (item.flags == Constants::FSTATUS_UNKNOWN)
+                        state = FileState::Untracked;
+                    else if (item.flags == "Conflict")
+                        state = FileState::Unmerged;
+                    if (state != FileState::Unknown)
+                        status.append({item.file, state, VcsFileStatus::Section::Changed});
+                }
+                setRepositoryStatus(repository, status);
+            });
+    }
+    void revertChangedFile(const Utils::FilePath &repository, const QString &relativePath) final
+    {
+        m_client.revertFile(repository, relativePath);
+    }
+
     ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
