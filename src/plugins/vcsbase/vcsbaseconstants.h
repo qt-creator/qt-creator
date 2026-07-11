@@ -18,6 +18,8 @@ inline constexpr char VCS_ID_SUBVERSION[] = "J.Subversion";
 inline constexpr char VCS_ID_PERFORCE[] = "P.Perforce";
 inline constexpr char VCS_ID_CVS[] = "Z.CVS";
 
+inline constexpr char VCS_CHANGES_VIEW_ID[] = "VcsBase.ChangesView";
+
 inline constexpr char VAR_VCS_NAME[] = "CurrentDocument:Project:VcsName";
 inline constexpr char VAR_VCS_TOPIC[] = "CurrentDocument:Project:VcsTopic";
 inline constexpr char VAR_VCS_TOPLEVELPATH[] = "CurrentDocument:Project:VcsTopLevelPath";

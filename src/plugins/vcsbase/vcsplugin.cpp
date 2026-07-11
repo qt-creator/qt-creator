@@ -8,6 +8,7 @@
 #include "vcsbaseconstants.h"
 #include "vcsbasesubmiteditor.h"
 #include "vcsbasetr.h"
+#include "vcschangesview.h"
 #include "vcsoutputwindow.h"
 #include "wizard/vcscommandpage.h"
 #include "wizard/vcsconfigurationpage.h"
@@ -78,6 +79,7 @@ public:
 
     VcsConfigurationPageFactory m_vcsConfigurationPageFactory;
     VcsCommandPageFactory m_vcsCommandPageFactory;
+    ChangesViewFactory m_changesViewFactory;
 };
 
 static VcsPlugin *m_instance = nullptr;
