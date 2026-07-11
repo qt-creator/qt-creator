@@ -148,6 +148,10 @@ public:
                         const QStringList &extraOptions = {});
     virtual void emitParsedStatus(const Utils::FilePath &repository,
                                   const QStringList &extraOptions = {});
+    // Runs the status command and passes the items parsed via parseStatusLine()
+    // to \a handler.
+    void requestStatus(const Utils::FilePath &repository,
+                       const std::function<void(const QList<StatusItem> &)> &handler);
     virtual void revertFile(const Utils::FilePath &workingDir,
                             const QString &file,
                             const QString &revision = {},

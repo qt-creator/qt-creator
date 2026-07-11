@@ -4,12 +4,14 @@
 #pragma once
 
 #include "vcsbase_global.h"
+#include "vcsfilestatus.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/iversioncontrol.h>
 
 #include <utils/processenums.h>
 
+#include <QHash>
 #include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
@@ -135,7 +137,33 @@ public:
     void commitFromEditor();
     virtual bool activateCommit() = 0;
 
+    // Support for the "Changes" navigation view.
+    virtual bool supportsChangesView() const;
+    virtual bool supportsStaging() const;
+
+    // Asynchronously refresh the status of \a repository. Implementations run their
+    // status command and call setRepositoryStatus() when done.
+    virtual void requestRepositoryStatus(const Utils::FilePath &repository);
+
+    // Last known (cached) status; empty until the first request finished.
+    VcsFileStatusList repositoryStatus(const Utils::FilePath &repository) const;
+
+    // File operations on files reported by repositoryStatus().
+    // The default implementation calls vcsDiff(), ignoring \a section.
+    virtual void diffChangedFile(const Utils::FilePath &repository,
+                                 const QString &relativePath,
+                                 VcsFileStatus::Section section);
+    virtual void revertChangedFile(const Utils::FilePath &repository,
+                                   const QString &relativePath);
+
+signals:
+    void repositoryStatusChanged(const Utils::FilePath &repository);
+
 protected:
+    // Stores the status cache for \a repository and emits repositoryStatusChanged()
+    // if it differs from the previously known status.
+    void setRepositoryStatus(const Utils::FilePath &repository, const VcsFileStatusList &status);
+
     // Prompt to save all files before commit:
     bool promptBeforeCommit();
 
@@ -179,6 +207,7 @@ private:
     Core::Context m_context;
     VcsBasePluginState m_state;
     int m_actionState = -1;
+    QHash<Utils::FilePath, VcsFileStatusList> m_repositoryStatus;
 };
 
 } // namespace VcsBase

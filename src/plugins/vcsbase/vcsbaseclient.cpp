@@ -466,6 +466,24 @@ void VcsBaseClient::emitParsedStatus(const FilePath &repository, const QStringLi
                     }});
 }
 
+void VcsBaseClient::requestStatus(const FilePath &repository,
+                                  const std::function<void(const QList<StatusItem> &)> &handler)
+{
+    const QStringList args(vcsCommandString(StatusCommand));
+    enqueueCommand({.workingDirectory = repository, .arguments = args,
+                    .flags = RunFlag::NoOutput,
+                    .commandHandler = [this, handler](const CommandResult &result) {
+                        QList<StatusItem> items;
+                        const QStringList lines = result.cleanedStdOut().split('\n');
+                        for (const QString &line : lines) {
+                            const StatusItem item = parseStatusLine(line);
+                            if (!item.flags.isEmpty() && !item.file.isEmpty())
+                                items.append(item);
+                        }
+                        handler(items);
+                    }});
+}
+
 QString VcsBaseClient::vcsCommandString(VcsCommandTag cmd) const
 {
     switch (cmd) {

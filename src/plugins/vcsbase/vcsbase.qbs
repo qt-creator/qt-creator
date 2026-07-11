@@ -58,6 +58,7 @@ QtcPlugin {
         "vcscommand.cpp",
         "vcscommand.h",
         "vcsenums.h",
+        "vcsfilestatus.h",
         "vcsoutputformatter.cpp",
         "vcsoutputformatter.h",
         "vcsoutputwindow.cpp",

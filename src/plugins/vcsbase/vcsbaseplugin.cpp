@@ -574,6 +574,50 @@ bool VersionControlBase::enableMenuAction(ActionState as, QAction *menuAction) c
     return true;
 }
 
+bool VersionControlBase::supportsChangesView() const
+{
+    return false;
+}
+
+bool VersionControlBase::supportsStaging() const
+{
+    return false;
+}
+
+void VersionControlBase::requestRepositoryStatus(const FilePath &repository)
+{
+    Q_UNUSED(repository)
+}
+
+VcsFileStatusList VersionControlBase::repositoryStatus(const FilePath &repository) const
+{
+    return m_repositoryStatus.value(repository);
+}
+
+void VersionControlBase::diffChangedFile(const FilePath &repository,
+                                         const QString &relativePath,
+                                         VcsFileStatus::Section section)
+{
+    Q_UNUSED(section)
+    vcsDiff(repository, Utils::FilePath::fromString(relativePath));
+}
+
+void VersionControlBase::revertChangedFile(const FilePath &repository, const QString &relativePath)
+{
+    Q_UNUSED(repository)
+    Q_UNUSED(relativePath)
+}
+
+void VersionControlBase::setRepositoryStatus(const FilePath &repository,
+                                             const VcsFileStatusList &status)
+{
+    auto it = m_repositoryStatus.find(repository);
+    if (it != m_repositoryStatus.end() && *it == status)
+        return;
+    m_repositoryStatus.insert(repository, status);
+    emit repositoryStatusChanged(repository);
+}
+
 QString VersionControlBase::commitDisplayName() const
 {
     //: Name of the "commit" action of the version control system
