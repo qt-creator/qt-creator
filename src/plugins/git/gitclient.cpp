@@ -26,6 +26,8 @@
 #include <QtTaskTree/QConditional>
 
 #include <texteditor/fontsettings.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/ansiescapecodehandler.h>
 #include <utils/async.h>
@@ -1291,6 +1293,61 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
                   [&args](IDocument *doc) {
         return new GitDiffEditorController(doc, {}, {}, args);
     });
+}
+
+void GitClient::inlineDiffFile(const FilePath &workingDirectory, const QString &fileName,
+                               DiffMode diffMode)
+{
+    const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
+    QTC_ASSERT(!topLevel.isEmpty(), return);
+    const FilePath filePath = workingDirectory.resolvePath(fileName);
+    const QString relativeFile = filePath.relativeChildPath(topLevel).path();
+    IEditor *editor = EditorManager::openEditor(filePath);
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    if (!textEditor || !textEditor->editorWidget())
+        return;
+    const DiffEditor::InlineDiffBaseline baseline = (diffMode == Staged)
+        ? revisionBaseline(topLevel, "HEAD", relativeFile)
+        : indexBaseline(topLevel, relativeFile);
+    const QString title = (diffMode == Staged)
+        ? Tr::tr("%1 (Unstaged vs HEAD)").arg(filePath.fileName())
+        : Tr::tr("%1 (Unstaged)").arg(filePath.fileName());
+    DiffEditor::openInlineDiffEditor(textEditor->editorWidget()->textDocumentPtr(), baseline,
+                                     title);
+}
+
+DiffEditor::InlineDiffBaseline GitClient::indexBaseline(const FilePath &workingDirectory,
+                                                        const QString &relativeFile)
+{
+    return revisionBaseline(workingDirectory, {}, relativeFile);
+}
+
+DiffEditor::InlineDiffBaseline GitClient::revisionBaseline(const FilePath &workingDirectory,
+                                                           const QString &ref,
+                                                           const QString &relativeFile)
+{
+    DiffEditor::InlineDiffBaseline baseline;
+    baseline.id = ref.isEmpty() ? QString("git-index") : QString("git-rev:" + ref);
+    baseline.displayName = ref.isEmpty() ? Tr::tr("Index") : ref;
+    baseline.contextDirectory = workingDirectory;
+    const FilePath sourceFile = workingDirectory.pathAppended(relativeFile);
+    // an empty ref denotes the index version, "git show :<file>"
+    baseline.fetchText = [workingDirectory, ref, relativeFile, sourceFile](
+                             const DiffEditor::InlineDiffBaseline::TextCallback &callback) {
+        gitClient().enqueueCommand(
+            {workingDirectory,
+             {"show", ref + ":" + relativeFile},
+             RunFlag::NoOutput,
+             {},
+             gitClient().encoding(EncodingSource, sourceFile),
+             [callback](const CommandResult &result) {
+                 if (result.result() == ProcessResult::FinishedWithSuccess)
+                     callback(result.cleanedStdOut());
+                 else
+                     callback(Utils::ResultError(result.cleanedStdErr()));
+             }});
+    };
+    return baseline;
 }
 
 void GitClient::diffBranch(const FilePath &workingDirectory, const QString &branchName) const

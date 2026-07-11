@@ -10,6 +10,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/iversioncontrol.h>
 
+#include <diffeditor/inlinediff.h>
+
 #include <texteditor/texteditorconstants.h>
 
 #include <vcsbase/vcsbaseclient.h>
@@ -170,6 +172,15 @@ public:
     void diffIncoming(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName,
                   DiffMode diffMode = Unstaged) const;
+    // Opens the file in a text editor and shows the differences inline. The
+    // baseline is the index for Unstaged and HEAD for Staged.
+    void inlineDiffFile(const Utils::FilePath &workingDirectory, const QString &fileName,
+                        DiffMode diffMode = Unstaged);
+    DiffEditor::InlineDiffBaseline indexBaseline(const Utils::FilePath &workingDirectory,
+                                                 const QString &relativeFile);
+    DiffEditor::InlineDiffBaseline revisionBaseline(const Utils::FilePath &workingDirectory,
+                                                    const QString &ref,
+                                                    const QString &relativeFile);
     void diffFiles(const Utils::FilePath &workingDirectory,
                    const QStringList &unstagedFileNames,
                    const QStringList &stagedFileNames) const;
