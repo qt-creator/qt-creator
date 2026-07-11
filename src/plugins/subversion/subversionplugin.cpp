@@ -178,6 +178,17 @@ public:
     // Changes view
     bool supportsChangesView() const final { return true; }
     void requestRepositoryStatus(const FilePath &repository) final;
+    FilePaths subRepositories(const FilePath &repository) final
+    {
+        const SubversionExternals externals = subversionExternals(repository);
+        FilePaths result;
+        for (const SubversionExternal &external : externals) {
+            const FilePath path = repository.pathAppended(external.directory);
+            if (path.isDir())
+                result.append(path);
+        }
+        return result;
+    }
     void revertChangedFile(const FilePath &repository, const QString &relativePath) final;
 
     bool supportsOperation(Operation operation) const final;
