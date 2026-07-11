@@ -106,6 +106,7 @@ public:
     // Changes view
     bool supportsChangesView() const final { return true; }
     void requestRepositoryStatus(const FilePath &repository) final;
+    Utils::FilePaths subRepositories(const FilePath &repository) final;
     void revertChangedFile(const FilePath &repository, const QString &relativePath) final
     {
         mercurialClient().revertFile(repository, relativePath);
@@ -715,6 +716,33 @@ void MercurialPluginPrivate::requestRepositoryStatus(const FilePath &repository)
             }
             setRepositoryStatus(repository, status);
         });
+}
+
+FilePaths MercurialPluginPrivate::subRepositories(const FilePath &repository)
+{
+    // .hgsub lines have the form "<localpath> = <source>". The source may
+    // carry a "[git]" or "[svn]" prefix for foreign subrepositories - that is
+    // irrelevant here, the Changes view resolves the version control per path.
+    const Result<QByteArray> contents = repository.pathAppended(".hgsub").fileContents();
+    if (!contents)
+        return {};
+    FilePaths result;
+    const QStringList lines = QString::fromUtf8(*contents).split('\n');
+    for (const QString &rawLine : lines) {
+        const QString line = rawLine.trimmed();
+        if (line.isEmpty() || line.startsWith('#'))
+            continue;
+        const int assign = line.indexOf('=');
+        if (assign <= 0)
+            continue;
+        const QString localPath = line.left(assign).trimmed();
+        if (localPath.isEmpty())
+            continue;
+        const FilePath subPath = repository.pathAppended(localPath);
+        if (subPath.isDir())
+            result.append(subPath);
+    }
+    return result;
 }
 
 bool MercurialPluginPrivate::vcsOpen(const FilePath &filePath)
