@@ -100,6 +100,43 @@ public:
         fossilClient().diff(topLevel, {relativePath.path()});
     }
 
+    // Changes view
+    bool supportsChangesView() const final { return true; }
+    void requestRepositoryStatus(const Utils::FilePath &repository) final
+    {
+        fossilClient().requestStatus(repository,
+            [this, repository](const QList<VcsBaseClient::StatusItem> &items) {
+                using FileState = Core::VcsFileState;
+                VcsFileStatusList status;
+                for (const VcsBaseClient::StatusItem &item : items) {
+                    FileState state = FileState::Unknown;
+                    if (item.flags == Constants::FSTATUS_EDITED
+                        || item.flags == Constants::FSTATUS_UPDATED_BY_MERGE
+                        || item.flags == Constants::FSTATUS_UPDATED_BY_INTEGRATE) {
+                        state = FileState::Modified;
+                    } else if (item.flags == Constants::FSTATUS_ADDED
+                               || item.flags == Constants::FSTATUS_ADDED_BY_MERGE
+                               || item.flags == Constants::FSTATUS_ADDED_BY_INTEGRATE) {
+                        state = FileState::Added;
+                    } else if (item.flags == Constants::FSTATUS_DELETED
+                               || item.flags == "Missing") {
+                        state = FileState::Deleted;
+                    } else if (item.flags == Constants::FSTATUS_RENAMED) {
+                        state = FileState::Renamed;
+                    } else if (item.flags == "Conflict") {
+                        state = FileState::Unmerged;
+                    }
+                    if (state != FileState::Unknown)
+                        status.append({item.file, state, VcsFileStatus::Section::Changed});
+                }
+                setRepositoryStatus(repository, status);
+            });
+    }
+    void revertChangedFile(const Utils::FilePath &repository, const QString &relativePath) final
+    {
+        fossilClient().revertFile(repository, relativePath);
+    }
+
     ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void updateActions(VersionControlBase::ActionState) override;
