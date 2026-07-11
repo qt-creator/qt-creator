@@ -175,6 +175,11 @@ public:
     void updateModificationInfos();
     void updateNextModificationInfo();
 
+    // Changes view
+    bool supportsChangesView() const final { return true; }
+    void requestRepositoryStatus(const FilePath &repository) final;
+    void revertChangedFile(const FilePath &repository, const QString &relativePath) final;
+
     bool supportsOperation(Operation operation) const final;
     bool vcsOpen(const FilePath &filePath) final;
     bool vcsAdd(const FilePath &filePath) final;
@@ -604,6 +609,19 @@ void SubversionPluginPrivate::revertCurrentFile()
     const auto revertResponse = runSvn(state.currentFileTopLevel(), args, RunFlag::ShowStdOut);
     if (revertResponse.result() == ProcessResult::FinishedWithSuccess)
         emit filesChanged({state.currentFile()});
+}
+
+void SubversionPluginPrivate::revertChangedFile(const FilePath &repository,
+                                                const QString &relativePath)
+{
+    FileChangeBlocker fcb(repository.pathAppended(relativePath));
+
+    CommandLine args{settings().binaryPath(), {"revert"}};
+    args << SubversionClient::escapeFile(relativePath);
+
+    const auto revertResponse = runSvn(repository, args, RunFlag::ShowStdOut);
+    if (revertResponse.result() == ProcessResult::FinishedWithSuccess)
+        emit filesChanged({repository.pathAppended(relativePath)});
 }
 
 void SubversionPluginPrivate::diffProjectDirectory()
@@ -1128,6 +1146,15 @@ void SubversionPluginPrivate::updateModificationInfos()
     updateNextModificationInfo();
 }
 
+void SubversionPluginPrivate::requestRepositoryStatus(const FilePath &repository)
+{
+    if (repository.isEmpty())
+        return;
+    if (!m_statusUpdateQueue.contains(repository))
+        m_statusUpdateQueue.append(repository);
+    updateNextModificationInfo();
+}
+
 void SubversionPluginPrivate::updateNextModificationInfo()
 {
     using FileState = Core::VcsFileState;
@@ -1136,7 +1163,8 @@ void SubversionPluginPrivate::updateNextModificationInfo()
         return;
 
     if (m_statusUpdateQueue.isEmpty()) {
-        m_timer.start();
+        if (VcsBase::Internal::commonSettings().vcsShowStatus())
+            m_timer.start();
         return;
     }
 
@@ -1145,11 +1173,9 @@ void SubversionPluginPrivate::updateNextModificationInfo()
     const auto command = [path, this](const CommandResult &result) {
         updateNextModificationInfo();
 
-        if (!m_monitoredPaths.contains(path))
-            return;
-
         const QStringList res = result.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
         FileStateHash modifiedFiles;
+        VcsFileStatusList fileStatus;
         for (const QString &line : res) {
             if (line.size() <= 8)
                 continue;
@@ -1168,10 +1194,18 @@ void SubversionPluginPrivate::updateNextModificationInfo()
                 QString relativePath = line.mid(7).trimmed();
                 relativePath.replace('\\', '/');
                 modifiedFiles.insert(relativePath, modification);
+                fileStatus.append({relativePath, modification, VcsFileStatus::Section::Changed});
             }
         }
 
-        VcsManager::updateModifiedFiles(path, modifiedFiles);
+        // Only feed the file decoration registry for monitored repositories while
+        // "Show VCS file status" is enabled; on-demand requests from the Changes
+        // view must not start decorating files when the setting is off.
+        if (m_monitoredPaths.contains(path)
+            && VcsBase::Internal::commonSettings().vcsShowStatus()) {
+            VcsManager::updateModifiedFiles(path, modifiedFiles);
+        }
+        setRepositoryStatus(path, fileStatus);
     };
     subversionClient().enqueueCommand({path, {"status"}, RunFlag::NoOutput, {}, {}, command});
 }
