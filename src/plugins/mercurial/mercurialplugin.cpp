@@ -102,6 +102,15 @@ public:
     void vcsDiff(const Utils::FilePath &topLevel, const Utils::FilePath &relativePath) final {
         mercurialClient().diff(topLevel, {relativePath.path()});
     }
+
+    // Changes view
+    bool supportsChangesView() const final { return true; }
+    void requestRepositoryStatus(const FilePath &repository) final;
+    void revertChangedFile(const FilePath &repository, const QString &relativePath) final
+    {
+        mercurialClient().revertFile(repository, relativePath);
+    }
+
     void vcsDescribe(const FilePath &source, const QString &id) final
     {
         mercurialClient().view(source, id);
@@ -683,6 +692,29 @@ bool MercurialPluginPrivate::supportsOperation(Operation operation) const
         break;
     }
     return supported;
+}
+
+void MercurialPluginPrivate::requestRepositoryStatus(const FilePath &repository)
+{
+    mercurialClient().requestStatus(repository,
+        [this, repository](const QList<VcsBaseClient::StatusItem> &items) {
+            using FileState = Core::VcsFileState;
+            VcsFileStatusList status;
+            for (const VcsBaseClient::StatusItem &item : items) {
+                FileState state = FileState::Unknown;
+                if (item.flags == "Modified")
+                    state = FileState::Modified;
+                else if (item.flags == "Added")
+                    state = FileState::Added;
+                else if (item.flags == "Removed" || item.flags == "Deleted")
+                    state = FileState::Deleted;
+                else if (item.flags == "Untracked")
+                    state = FileState::Untracked;
+                if (state != FileState::Unknown)
+                    status.append({item.file, state, VcsFileStatus::Section::Changed});
+            }
+            setRepositoryStatus(repository, status);
+        });
 }
 
 bool MercurialPluginPrivate::vcsOpen(const FilePath &filePath)
