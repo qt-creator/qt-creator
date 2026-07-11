@@ -594,6 +594,12 @@ void VersionControlBase::requestRepositoryStatus(const FilePath &repository)
     Q_UNUSED(repository)
 }
 
+Utils::FilePaths VersionControlBase::subRepositories(const Utils::FilePath &repository)
+{
+    Q_UNUSED(repository)
+    return {};
+}
+
 VcsFileStatusList VersionControlBase::repositoryStatus(const FilePath &repository) const
 {
     return m_repositoryStatus.value(repository);

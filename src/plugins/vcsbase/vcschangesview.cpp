@@ -119,12 +119,14 @@ private:
 class RepositoryItem final : public TreeItem
 {
 public:
-    RepositoryItem(VersionControlBase *vc, const FilePath &repository)
-        : m_vc(vc), m_repository(repository)
+    RepositoryItem(VersionControlBase *vc, const FilePath &repository,
+                   const FilePath &parentRepository = {})
+        : m_vc(vc), m_repository(repository), m_parentRepository(parentRepository)
     {}
 
     VersionControlBase *versionControl() const { return m_vc; }
     FilePath repository() const { return m_repository; }
+    bool isSubRepository() const { return !m_parentRepository.isEmpty(); }
     void setTopic(const QString &topic) { m_topic = topic; }
 
     QVariant data(int column, int role) const final
@@ -136,7 +138,10 @@ public:
             QString vcs = m_vc->displayName();
             if (!m_topic.isEmpty())
                 vcs += ": " + m_topic;
-            return QString("%1 [%2]").arg(m_repository.fileName(), vcs);
+            const QString name = isSubRepository()
+                ? m_repository.relativeChildPath(m_parentRepository).toUserOutput()
+                : m_repository.fileName();
+            return QString("%1 [%2]").arg(name, vcs);
         }
         case Qt::DecorationRole:
             return FileIconProvider::icon(m_repository);
@@ -149,6 +154,7 @@ public:
 private:
     VersionControlBase *m_vc = nullptr;
     FilePath m_repository;
+    FilePath m_parentRepository;
     QString m_topic;
 };
 
@@ -213,9 +219,13 @@ private:
     {
         VersionControlBase *vc = nullptr;
         FilePath repository;
+        FilePath parent; // Empty for top-level (project) repositories.
         friend bool operator==(const RepositoryEntry &, const RepositoryEntry &) = default;
     };
+    bool hasChanges(const RepositoryEntry &entry) const;
+
     QList<RepositoryEntry> m_repositories;
+    QHash<FilePath, FilePath> m_subToParent; // Sub-repository -> direct parent.
     QSet<VersionControlBase *> m_connectedVcs;
     QSet<FilePath> m_dirtyRepositories;
     QSet<QString> m_collapsedKeys;
@@ -364,10 +374,47 @@ void ChangesView::rebuildProjectTree()
     // tree already monitors all project directories.
     QList<RepositoryEntry> repositories;
     for (const Entry &entry : std::as_const(entries)) {
-        const RepositoryEntry repo{entry.vc, entry.repository};
+        const RepositoryEntry repo{entry.vc, entry.repository, {}};
         if (!repositories.contains(repo))
             repositories.append(repo);
     }
+
+    // Recursively collect sub-repositories (submodules, externals, ...). A
+    // sub-repository may use a different version control system than its
+    // parent, so each path is resolved independently. A repository that is
+    // also a project's top-level repository stays top-level.
+    QSet<FilePath> visited
+        = Utils::transform<QSet>(repositories,
+                                 [](const RepositoryEntry &entry) { return entry.repository; });
+    QHash<FilePath, int> depth;
+    m_subToParent.clear();
+    for (int i = 0; i < repositories.size(); ++i) {
+        const RepositoryEntry entry = repositories.at(i); // Copy: the list grows.
+        if (depth.value(entry.repository) >= 8)
+            continue;
+        const FilePaths subPaths = entry.vc->subRepositories(entry.repository);
+        for (const FilePath &subPath : subPaths) {
+            if (visited.contains(subPath))
+                continue;
+            visited.insert(subPath);
+            // Idempotent; for git this also monitors the sub-repository's own
+            // submodules, enabling recursive discovery.
+            VcsManager::monitorDirectory(subPath, true);
+            FilePath topLevel;
+            IVersionControl *vc = VcsManager::findVersionControlForDirectory(subPath, &topLevel);
+            const auto vcb = qobject_cast<VersionControlBase *>(vc);
+            // topLevel != subPath: an uninitialized sub-repository resolves to
+            // the containing repository.
+            if (!vcb || !vcb->supportsChangesView() || topLevel != subPath)
+                continue;
+            qCDebug(log) << "rebuildProjectTree: sub-repository" << subPath << "of"
+                         << entry.repository << "vc:" << vcb->displayName();
+            repositories.append({vcb, subPath, entry.repository});
+            m_subToParent.insert(subPath, entry.repository);
+            depth.insert(subPath, depth.value(entry.repository) + 1);
+        }
+    }
+
     for (const RepositoryEntry &old : std::as_const(m_repositories)) {
         if (!repositories.contains(old))
             m_dirtyRepositories.remove(old.repository);
@@ -438,7 +485,23 @@ void ChangesView::updateRepositoryItem(RepositoryItem *item)
         for (const VcsFileStatus &file : std::as_const(status))
             item->appendChild(new ChangedFileItem(vc, repository, file));
     }
-    if (item->childCount() == 0)
+
+    // Nested sub-repositories, shown only while they (or their own nested
+    // sub-repositories) have changes.
+    QList<RepositoryEntry> subs = Utils::filtered(m_repositories,
+        [&repository](const RepositoryEntry &entry) { return entry.parent == repository; });
+    Utils::sort(subs, [](const RepositoryEntry &a, const RepositoryEntry &b) {
+        return a.repository < b.repository;
+    });
+    for (const RepositoryEntry &sub : std::as_const(subs)) {
+        if (!hasChanges(sub))
+            continue;
+        auto subItem = new RepositoryItem(sub.vc, sub.repository, repository);
+        item->appendChild(subItem);
+        updateRepositoryItem(subItem);
+    }
+
+    if (item->childCount() == 0 && !item->isSubRepository())
         item->appendChild(new StaticTreeItem(Tr::tr("No changes")));
 
     item->setTopic(vc->vcsTopic(repository));
@@ -449,10 +512,34 @@ void ChangesView::updateRepositoryItem(RepositoryItem *item)
         m_treeView->expand(m_model->indexForItem(item));
 }
 
+bool ChangesView::hasChanges(const RepositoryEntry &entry) const
+{
+    if (!entry.vc->repositoryStatus(entry.repository).isEmpty())
+        return true;
+    return Utils::anyOf(m_repositories, [this, &entry](const RepositoryEntry &sub) {
+        return sub.parent == entry.repository && hasChanges(sub);
+    });
+}
+
 void ChangesView::repositoryStatusChanged(const FilePath &repository)
 {
+    // Update from the top-level ancestor: nested repository items exist only
+    // while they have changes, so the changed sub-repository may have no item
+    // yet, or its item may have to disappear.
+    FilePath root = repository;
+    QSet<FilePath> seen;
+    while (m_subToParent.contains(root) && !seen.contains(root)) {
+        seen.insert(root);
+        root = m_subToParent.value(root);
+    }
     forEachRepositoryItem([this](RepositoryItem *item) { updateRepositoryItem(item); },
-                          repository);
+                          root);
+    if (root != repository) {
+        // The path may additionally be listed as a top-level repository of
+        // another project.
+        forEachRepositoryItem([this](RepositoryItem *item) { updateRepositoryItem(item); },
+                              repository);
+    }
 }
 
 void ChangesView::repositoryChanged(const FilePath &repository)

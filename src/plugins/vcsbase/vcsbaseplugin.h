@@ -150,6 +150,12 @@ public:
     // status command and call setRepositoryStatus() when done.
     virtual void requestRepositoryStatus(const Utils::FilePath &repository);
 
+    // Absolute paths of sub-repositories (git submodules, svn externals, hg
+    // subrepositories) directly contained in \a repository. Entries may be
+    // uninitialized or use a different version control system; callers resolve
+    // each path via the VcsManager and must verify the result.
+    virtual Utils::FilePaths subRepositories(const Utils::FilePath &repository);
+
     // Last known (cached) status; empty until the first request finished.
     VcsFileStatusList repositoryStatus(const Utils::FilePath &repository) const;
 
