@@ -31,6 +31,8 @@
 #include <QString>
 #include <QTimer>
 
+#include <map>
+#include <memory>
 #include <optional>
 
 static Q_LOGGING_CATEGORY(findRepoLog, "qtc.vcs.find-repo", QtWarningMsg)
@@ -102,6 +104,8 @@ public:
     {
         m_repoChangedTimer.setInterval(1000);
         m_repoChangedTimer.setSingleShot(true);
+        m_unversionedRecheckTimer.setInterval(5000);
+        m_unversionedRecheckTimer.setSingleShot(true);
     }
 
     class VcsInfo {
@@ -149,6 +153,40 @@ public:
         }
     }
 
+    // Watches a directory without version control for a repository being
+    // created after the fact, e.g. "git init" for an already open project.
+    void watchUnversionedDirectory(const FilePath &path)
+    {
+        if (m_unversionedWatchers.count(path))
+            return;
+        Utils::Result<std::unique_ptr<FilePathWatcher>> watcher = path.watch();
+        if (!watcher) {
+            qCDebug(findRepoLog) << "Cannot watch unversioned directory" << path << ":"
+                                 << watcher.error();
+            return;
+        }
+        qCDebug(findRepoLog) << "Watching unversioned directory" << path;
+        QObject::connect(watcher->get(), &FilePathWatcher::pathChanged, VcsManager::instance(),
+                         [this] { m_unversionedRecheckTimer.start(); });
+        m_unversionedWatchers.emplace(path, std::move(*watcher));
+    }
+
+    void recheckUnversionedDirectories()
+    {
+        FilePaths paths;
+        for (const auto &watcher : m_unversionedWatchers)
+            paths.append(watcher.first);
+        for (const FilePath &path : std::as_const(paths)) {
+            resetCache(path);
+            if (!VcsManager::findVersionControlForDirectory(path))
+                continue;
+            qCDebug(findRepoLog) << "Version control appeared in" << path;
+            m_unversionedWatchers.erase(path);
+            VcsManager::monitorDirectory(path, true);
+            VcsManager::emitRepositoryChanged(path);
+        }
+    }
+
     QList<IVersionControl *> m_versionControlList;
     QMap<FilePath, VcsInfo> m_cachedMatches;
     IVersionControl *m_unconfiguredVcs = nullptr;
@@ -158,6 +196,8 @@ public:
     QSet<FilePath> m_repoChangedSet;
     QHash<FilePath, FileStateHash> m_fileStates;
     QTimer m_repoChangedTimer;
+    std::map<FilePath, std::unique_ptr<FilePathWatcher>> m_unversionedWatchers;
+    QTimer m_unversionedRecheckTimer;
 };
 
 static VcsManagerPrivate *d = nullptr;
@@ -170,6 +210,8 @@ VcsManager::VcsManager(QObject *parent) :
     d = new VcsManagerPrivate;
     connect(&d->m_repoChangedTimer, &QTimer::timeout,
             this, &VcsManager::delayedEmitRepositoryChanged);
+    connect(&d->m_unversionedRecheckTimer, &QTimer::timeout,
+            this, [] { d->recheckUnversionedDirectories(); });
 }
 
 // ---- VCSManager:
@@ -588,8 +630,16 @@ void VcsManager::clearVersionControlCache()
 void VcsManager::monitorDirectory(const Utils::FilePath &path, bool monitor)
 {
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(path);
-    if (!vc)
+    if (!vc) {
+        // No version control (yet): watch the directory to detect a repository
+        // created after the fact, e.g. "git init" for an open project.
+        if (monitor)
+            d->watchUnversionedDirectory(path);
+        else
+            d->m_unversionedWatchers.erase(path);
         return;
+    }
+    d->m_unversionedWatchers.erase(path);
 
     const Utils::FilePaths paths = vc->monitorDirectory(path, monitor);
     for (const FilePath &p : paths) {
