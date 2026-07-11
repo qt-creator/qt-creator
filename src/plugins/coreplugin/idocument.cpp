@@ -508,6 +508,21 @@ bool IDocument::isSaveAsAllowed() const
 }
 
 /*!
+    Returns whether saving the document requires choosing a file name via
+    "Save As" first.
+
+    The default implementation returns whether the document has no file path
+    yet. Documents that can save themselves without a file path of their own,
+    for example by delegating to another document, return \c false.
+
+    \sa save(), isSaveAsAllowed()
+*/
+bool IDocument::isSaveAsNeeded() const
+{
+    return filePath().isEmpty();
+}
+
+/*!
     Returns whether the document may be suspended.
 
     The EditorManager can automatically suspend editors and its corresponding

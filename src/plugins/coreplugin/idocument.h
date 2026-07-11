@@ -93,6 +93,7 @@ public:
     virtual bool shouldAutoSave() const;
     virtual bool isModified() const;
     virtual bool isSaveAsAllowed() const;
+    virtual bool isSaveAsNeeded() const;
     bool isSuspendAllowed() const;
     void setSuspendAllowed(bool value);
 

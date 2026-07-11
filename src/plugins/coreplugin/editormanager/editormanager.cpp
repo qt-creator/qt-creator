@@ -2179,9 +2179,10 @@ void EditorManagerPrivate::setupSaveActions(
     QAction *revertToSavedAction)
 {
     const bool hasFile = document && !document->filePath().isEmpty();
-    saveAction->setEnabled(document && (document->isModified() || !hasFile));
+    const bool canSave = document && (document->isModified() || document->isSaveAsNeeded());
+    saveAction->setEnabled(canSave);
     saveAsAction->setEnabled(document && document->isSaveAsAllowed());
-    saveWithoutFormattingAction->setEnabled(document && (document->isModified() || !hasFile));
+    saveWithoutFormattingAction->setEnabled(canSave);
     revertToSavedAction->setEnabled(hasFile);
 
     if (document && !document->displayName().isEmpty()) {
@@ -2658,7 +2659,7 @@ bool EditorManagerPrivate::saveDocument(IDocument *document, IDocument::SaveOpti
 
     document->checkPermissions();
 
-    if (document->filePath().isEmpty())
+    if (document->isSaveAsNeeded())
         return saveDocumentAs(document);
 
     if (document->isConflicted()) {
