@@ -613,6 +613,18 @@ void VersionControlBase::revertChangedFile(const FilePath &repository, const QSt
     Q_UNUSED(relativePath)
 }
 
+void VersionControlBase::stageFile(const FilePath &repository, const QString &relativePath)
+{
+    Q_UNUSED(repository)
+    Q_UNUSED(relativePath)
+}
+
+void VersionControlBase::unstageFile(const FilePath &repository, const QString &relativePath)
+{
+    Q_UNUSED(repository)
+    Q_UNUSED(relativePath)
+}
+
 void VersionControlBase::setRepositoryStatus(const FilePath &repository,
                                              const VcsFileStatusList &status)
 {

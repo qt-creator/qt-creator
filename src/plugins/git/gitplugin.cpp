@@ -194,6 +194,25 @@ public:
                              section == VcsFileStatus::Section::Staged ? GitClient::Staged
                                                                        : GitClient::Unstaged);
     }
+    void stageFile(const FilePath &repository, const QString &relativePath) final
+    {
+        gitClient().addFile(repository, relativePath);
+    }
+    void unstageFile(const FilePath &repository, const QString &relativePath) final
+    {
+        gitClient().reset(repository, relativePath);
+    }
+    void revertChangedFile(const FilePath &repository, const QString &relativePath) final
+    {
+        // Reverts only the working tree changes (revertStaging = false). The Changes
+        // view hides "Revert..." for rows in the Staged section; unstaging first is
+        // the natural flow there.
+        if (gitClient().synchronousCheckoutFiles(repository, {relativePath}, {}, nullptr,
+                                                 /*revertStaging=*/false)) {
+            VcsOutputWindow::appendMessage(
+                repository, Tr::tr("File \"%1\" reverted.\n").arg(relativePath));
+        }
+    }
     void updateRepositoryStatus(const FilePath &repository, const VcsFileStatusList &status)
     {
         setRepositoryStatus(repository, status);
@@ -263,8 +282,8 @@ public:
     void recoverDeletedFiles();
     void startRebase();
     void startChangeRelatedAction(const Id &id);
-    void stageFile();
-    void unstageFile();
+    void stageCurrentFile();
+    void unstageCurrentFile();
     void gitkForCurrentFile();
     void gitkForCurrentFolder();
     void gitGui();
@@ -680,11 +699,11 @@ GitPluginPrivate::GitPluginPrivate()
     currentFileMenu->addSeparator(context);
 
     createFileAction(currentFileMenu, Tr::tr("Stage File for Commit"), Tr::tr("Stage \"%1\" for Commit"),
-                     "Git.Stage", context, true, std::bind(&GitPluginPrivate::stageFile, this),
+                     "Git.Stage", context, true, std::bind(&GitPluginPrivate::stageCurrentFile, this),
                      QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+A") : Tr::tr("Alt+G,Alt+A")));
 
     createFileAction(currentFileMenu, Tr::tr("Unstage File from Commit"), Tr::tr("Unstage \"%1\" from Commit"),
-                     "Git.Unstage", context, true, std::bind(&GitPluginPrivate::unstageFile, this));
+                     "Git.Unstage", context, true, std::bind(&GitPluginPrivate::unstageCurrentFile, this));
 
     createFileAction(currentFileMenu, Tr::tr("Undo Unstaged Changes"), Tr::tr("Undo Unstaged Changes for \"%1\""),
                      "Git.UndoUnstaged", context,
@@ -1385,14 +1404,14 @@ void GitPluginPrivate::startChangeRelatedAction(const Id &id)
     }
 }
 
-void GitPluginPrivate::stageFile()
+void GitPluginPrivate::stageCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     gitClient().addFile(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void GitPluginPrivate::unstageFile()
+void GitPluginPrivate::unstageCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);

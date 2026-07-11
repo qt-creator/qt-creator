@@ -546,34 +546,68 @@ void ChangesView::openContextMenu(const QPoint &point)
     const FilePath relativePath = FilePath::fromString(status.relativePath);
     const FilePath absolutePath = item->absoluteFilePath();
     const bool untracked = status.state == VcsFileState::Untracked;
+    const bool unmerged = status.state == VcsFileState::Unmerged;
     const bool deleted = status.state == VcsFileState::Deleted;
+    const bool staged = status.section == Section::Staged;
 
     if (!deleted) {
         menu.addAction(Tr::tr("Open File"), this, [absolutePath] {
             EditorManager::openEditor(absolutePath);
         });
-        menu.addSeparator();
     }
-    if (!untracked)
-        vc->fillDefaultFileActionMenu(&menu, vc, repository, relativePath);
-    vc->vcsFillFileActionMenu(&menu, repository, relativePath, status.state);
-    if (!vc->supportsStaging()) {
-        if (untracked && vc->supportsOperation(IVersionControl::AddOperation)) {
-            menu.addAction(Tr::tr("Add"), this, [vc, absolutePath] {
-                vc->vcsAdd(absolutePath);
+    if (!untracked) {
+        menu.addAction(Tr::tr("Diff"), this, [vc, repository, status] {
+            vc->diffChangedFile(repository, status.relativePath, status.section);
+        });
+    }
+    menu.addSeparator();
+
+    if (vc->supportsStaging()) {
+        if (staged) {
+            menu.addAction(Tr::tr("Unstage"), this, [vc, repository, status] {
+                vc->unstageFile(repository, status.relativePath);
+            });
+        } else if (!untracked && !unmerged) {
+            // Untracked and unmerged files are handled by vcsFillFileActionMenu()
+            // below, which offers "Add"/"Stage" and "Mark Conflicts Resolved".
+            menu.addAction(Tr::tr("Stage"), this, [vc, repository, status] {
+                vc->stageFile(repository, status.relativePath);
             });
         }
-        if (!untracked) {
-            menu.addAction(Tr::tr("Revert..."), this, [this, vc, repository, status] {
-                const QMessageBox::StandardButton answer = QMessageBox::question(
-                    this, Tr::tr("Revert"),
-                    Tr::tr("Discard the changes to \"%1\"?").arg(status.relativePath),
-                    QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-                if (answer != QMessageBox::Yes)
-                    return;
-                vc->revertChangedFile(repository, status.relativePath);
+    } else if (untracked && vc->supportsOperation(IVersionControl::AddOperation)) {
+        menu.addAction(Tr::tr("Add"), this, [vc, absolutePath] {
+            vc->vcsAdd(absolutePath);
+        });
+    }
+    // Hidden for rows in the Staged section: revertChangedFile() only reverts the
+    // working tree changes, so unstaging first is the natural flow there.
+    if (!untracked && !staged) {
+        menu.addAction(Tr::tr("Revert..."), this, [this, vc, repository, status] {
+            const QMessageBox::StandardButton answer = QMessageBox::question(
+                this, Tr::tr("Revert"),
+                Tr::tr("Discard the changes to \"%1\"?").arg(status.relativePath),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (answer != QMessageBox::Yes)
+                return;
+            vc->revertChangedFile(repository, status.relativePath);
+        });
+    }
+    if (!untracked) {
+        menu.addAction(Tr::tr("Log"), this, [vc, repository, relativePath] {
+            vc->vcsLog(repository, relativePath);
+        });
+        if (!deleted && vc->supportsOperation(IVersionControl::AnnotateOperation)) {
+            menu.addAction(Tr::tr("Annotate"), this, [vc, absolutePath] {
+                vc->vcsAnnotate(absolutePath, 1);
             });
         }
+    }
+    // Untracked and unmerged files additionally get the state-specific actions of
+    // the version control (add to ignore file, merge tool, ...) - the
+    // staged/unstaged distinction is irrelevant for those states.
+    if (untracked || unmerged) {
+        menu.addSeparator();
+        vc->vcsFillFileActionMenu(&menu, repository, relativePath, status.state);
     }
 
     // Refresh after any action that may have altered the repository state.

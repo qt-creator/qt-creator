@@ -160,6 +160,9 @@ public:
                                  VcsFileStatus::Section section);
     virtual void revertChangedFile(const Utils::FilePath &repository,
                                    const QString &relativePath);
+    // Only called for version controls that return true from supportsStaging().
+    virtual void stageFile(const Utils::FilePath &repository, const QString &relativePath);
+    virtual void unstageFile(const Utils::FilePath &repository, const QString &relativePath);
 
 signals:
     void repositoryStatusChanged(const Utils::FilePath &repository);
