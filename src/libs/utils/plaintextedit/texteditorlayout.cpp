@@ -144,9 +144,13 @@ void TextEditorLayout::paintBlock(
     const QRectF &clipRect)
 {
     QPointF pos = offset;
-    for (auto &layoutItem : *d->layoutData(block.fragmentIndex()).layoutItems) {
-        layoutItem->paintItem(painter, pos, selections, clipRect);
-        pos.ry() += layoutItem->height();
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    const LayoutItems::iterator end = data.layoutItems->end();
+    for (auto it = data.layoutItems->begin(); it != end; ++it) {
+        // block relative selection offsets are meaningless for additional layout items
+        const bool isMainLayout = it == data.mainLayoutIterator;
+        (*it)->paintItem(painter, pos, isMainLayout ? selections : FormatRanges(), clipRect);
+        pos.ry() += (*it)->height();
     }
 }
 
@@ -162,6 +166,11 @@ QTextLayout *TextEditorLayout::blockLayout(const QTextBlock &block) const
                 std::unique_ptr<QTextLayout>(layout), MAIN_LAYOUT_CATEGORY));
     }
     return layout;
+}
+
+QTextLayout *TextEditorLayout::existingBlockLayout(const QTextBlock &block) const
+{
+    return d->layoutData(block.fragmentIndex()).mainLayout();
 }
 
 void TextEditorLayout::clearBlockLayout(QTextBlock &block) const
@@ -302,7 +311,49 @@ int TextEditorLayout::removeLayoutItems(const QTextBlock &block, const Id id)
     LayoutItems *layoutItems = d->layoutData(block.fragmentIndex()).layoutItems.get();
     const size_t removeCount = layoutItems->remove_if(
         [&id](const std::unique_ptr<LayoutItem> &item) { return item->category() == id; });
+    if (removeCount > 0)
+        d->resetOffsetCache(block.blockNumber());
     return int(removeCount);
+}
+
+int TextEditorLayout::removeAllLayoutItems(const Id id)
+{
+    size_t removeCount = 0;
+    for (LayoutData &data : d->m_layoutData) {
+        removeCount += data.layoutItems->remove_if(
+            [&id](const std::unique_ptr<LayoutItem> &item) { return item->category() == id; });
+    }
+    if (removeCount > 0)
+        d->m_offsetCache.clear();
+    return int(removeCount);
+}
+
+int TextEditorLayout::removeMainLayoutFormatsWithProperty(int propertyId)
+{
+    int removeCount = 0;
+    for (LayoutData &data : d->m_layoutData) {
+        QTextLayout *mainLayout = data.mainLayout();
+        if (!mainLayout)
+            continue;
+        FormatRanges formats = mainLayout->formats();
+        const auto removed = formats.removeIf([propertyId](const QTextLayout::FormatRange &range) {
+            return range.format.boolProperty(propertyId);
+        });
+        if (removed > 0) {
+            mainLayout->setFormats(formats);
+            removeCount += int(removed);
+        }
+    }
+    return removeCount;
+}
+
+bool TextEditorLayout::blockHasAdditionalLayouts(const QTextBlock &block) const
+{
+    const auto index = std::vector<LayoutData>::size_type(block.fragmentIndex());
+    if (index >= d->m_layoutData.size())
+        return false;
+    // the main layout is one of the items itself
+    return d->m_layoutData[index].layoutItems->size() > 1;
 }
 
 const QList<LayoutItem *> TextEditorLayout::layoutItems(const QTextBlock &block) const
@@ -470,6 +521,9 @@ int TextEditorLayout::offsetForLine(int line) const
     int value = offsetForBlock(block);
     const int blockStartLine = firstLineNumberOf(block);
     if (line > blockStartLine) {
+        // lines beyond the block's first line are lines of the main layout,
+        // which starts below the additional layout items
+        value += mainLayoutOffset(block);
         QTextLayout *layout = blockLayout(block);
         for (int i = 0; (i < line - blockStartLine) && (i < layout->lineCount()); ++i)
             value += layout->lineAt(i).naturalTextRect().height();
@@ -506,7 +560,8 @@ int TextEditorLayout::lineForOffset(int offset) const
     }
 
     if (blockLayoutValid(block.fragmentIndex())) {
-        int lineOffset = offsetForBlock(block);
+        // the main layout's lines start below the additional layout items
+        int lineOffset = offsetForBlock(block) + mainLayoutOffset(block);
         QTextLayout *layout = blockLayout(block);
         for (int line = 0, end = layout->lineCount(); line < end; ++line) {
             lineOffset += layout->lineAt(line).naturalTextRect().height();

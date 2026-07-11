@@ -482,14 +482,25 @@ void PlainTextDocumentLayout::setTextWidth(qreal newWidth)
     bool layoutChanged = false;
     for (QTextBlock block = document()->firstBlock(); block.isValid(); block = block.next()) {
         QTextLayout *tl = blockLayout(block);
-        if (tl->lineCount() == 0 || (tl->lineCount() == 1 && tl->lineAt(0).naturalTextWidth() < newWidth))
+        // additional layouts wrap independently of the main layout, so their
+        // blocks cannot be skipped based on the main layout alone
+        if (!blockHasAdditionalLayouts(block)
+            && (tl->lineCount() == 0
+                || (tl->lineCount() == 1 && tl->lineAt(0).naturalTextWidth() < newWidth))) {
             continue;
+        }
         layoutChanged = true;
         clearBlockLayout(block);
         setBlockLineCount(block, block.isVisible() ? 1 : 0);
     }
     if (layoutChanged)
         emit update();
+}
+
+bool PlainTextDocumentLayout::blockHasAdditionalLayouts(const QTextBlock &block) const
+{
+    Q_UNUSED(block)
+    return false;
 }
 
 void PlainTextDocumentLayout::relayout()
@@ -736,7 +747,7 @@ qreal PlainTextEditPrivate::verticalOffset(int topBlock, int topLine) const
         if (layout && topLine <= layout->lineCount()) {
             QTextLine line = layout->lineAt(topLine - 1);
             const QRectF lr = line.naturalTextRect();
-            offset = lr.bottom();
+            offset = lr.bottom() + editorLayout->mainLayoutOffset(currentBlock);
         }
     }
     if (topBlock == 0 && topLine == 0)
@@ -782,6 +793,9 @@ int PlainTextEditControl::hitTest(const QPointF &point, Qt::HitTestAccuracy ) co
     QTextLayout *layout = textEdit->editorLayout()->blockLayout(currentBlock);
     int off = 0;
     QPointF pos = point - offset;
+    // additional layout items render above the main layout, whose lines are
+    // positioned relative to the end of those items
+    pos.ry() -= textEdit->editorLayout()->mainLayoutOffset(currentBlock);
     for (int i = 0; i < layout->lineCount(); ++i) {
         QTextLine line = layout->lineAt(i);
         const QRectF lr = line.naturalTextRect();

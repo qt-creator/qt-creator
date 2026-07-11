@@ -5561,7 +5561,8 @@ QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
         return {};
     const QTextLine line = layout->lineAt(lineCount - 1);
     const QPointF contentOffset = q->contentOffset();
-    const qreal top = q->blockBoundingGeometry(block).translated(contentOffset).top();
+    const qreal top = q->blockBoundingGeometry(block).translated(contentOffset).top()
+                      + q->editorLayout()->mainLayoutOffset(block);
     return line.naturalTextRect().translated(contentOffset.x(), top).adjusted(0, 0, -1, -1);
 }
 
@@ -5946,7 +5947,8 @@ QRectF TextEditorWidgetPrivate::cursorBlockRect(const QTextDocument *doc,
         blockBoundingRect = q->blockBoundingGeometry(block).translated(q->contentOffset());
 
     QRectF cursorRect = line.rect();
-    cursorRect.moveTop(cursorRect.top() + blockBoundingRect.top());
+    cursorRect.moveTop(cursorRect.top() + blockBoundingRect.top()
+                       + q->editorLayout()->mainLayoutOffset(block));
     cursorRect.moveLeft(blockBoundingRect.left() + x);
     cursorRect.setWidth(w);
     return cursorRect;
@@ -6119,8 +6121,10 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
                 painter.setPen(cursorColor);
             else
                 painter.setPen(normalColor);
-            const QPointF top(x, blockData.boundingRect.top());
-            const QPointF bottom(x, blockData.boundingRect.top() + rect.height());
+            const qreal mainLayoutTop = blockData.boundingRect.top()
+                                        + q->editorLayout()->mainLayoutOffset(data.block);
+            const QPointF top(x, mainLayoutTop);
+            const QPointF bottom(x, mainLayoutTop + rect.height());
             const QLineF line(top, bottom);
             painter.drawLine(line);
         }
@@ -6493,8 +6497,10 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
                 d->addCursorsPosition(data, painter, blockData);
             }
             d->paintIndentDepth(data, painter, blockData);
-            d->paintAdditionalVisualWhitespaces(data, painter, blockData.boundingRect.top());
-            d->paintReplacement(data, painter, blockData.boundingRect.top());
+            // the main layout starts below potential additional layout items
+            const qreal mainLayoutTop = blockData.boundingRect.top() + mainLayoutOffset;
+            d->paintAdditionalVisualWhitespaces(data, painter, mainLayoutTop);
+            d->paintReplacement(data, painter, mainLayoutTop);
             d->updateLineAnnotation(data, blockData, painter);
         }
 
@@ -6857,7 +6863,9 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
 
     int size = data.lineSpacing - 1;
     int xoffset = 0;
-    int yoffset = blockBoundingRect.top();
+    // marks belong to the block's text, which starts below additional layout
+    // items like inline diff ghost rows
+    int yoffset = blockBoundingRect.top() + q->editorLayout()->mainLayoutOffset(data.block);
 
     painter.save();
     const QScopeGuard cleanup([&painter, size, yoffset, xoffset, overrideIcon] {
@@ -6946,8 +6954,12 @@ void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
     else
         boxWidth = foldBoxWidth();
 
+    // additional layout items rendered above the block do not belong to the
+    // foldable text
+    const int mainLayoutOffset = q->editorLayout()->mainLayoutOffset(data.block);
+
     if (hovered) {
-        int itop = qRound(blockBoundingRect.top());
+        int itop = qRound(blockBoundingRect.top()) + mainLayoutOffset;
         int ibottom = qRound(blockBoundingRect.bottom());
         QRect box = QRect(data.extraAreaWidth + 1, itop, boxWidth - 2, ibottom - itop);
         drawRectBox(&painter, box, data.palette);
@@ -6956,7 +6968,8 @@ void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
     if (drawBox) {
         bool expanded = nextBlock.isVisible();
         int size = boxWidth/4;
-        QRect box(data.extraAreaWidth + size, int(blockBoundingRect.top()) + size,
+        QRect box(data.extraAreaWidth + size,
+                  int(blockBoundingRect.top()) + mainLayoutOffset + size,
                   2 * (size) + 1, 2 * (size) + 1);
         drawFoldingMarker(&painter, data.palette, box, expanded, active, hovered);
     }
@@ -6974,7 +6987,11 @@ void TextEditorWidgetPrivate::paintRevisionMarker(QPainter &painter,
             painter.setPen(QPen(Qt::darkGreen, 2));
         else
             painter.setPen(QPen(Qt::red, 2));
-        painter.drawLine(data.extraAreaWidth - 1, int(blockBoundingRect.top()),
+        // the revision concerns the block's text, not additional layout
+        // items rendered above it
+        painter.drawLine(data.extraAreaWidth - 1,
+                         int(blockBoundingRect.top())
+                             + q->editorLayout()->mainLayoutOffset(data.block),
                          data.extraAreaWidth - 1, int(blockBoundingRect.bottom()) - 1);
         painter.restore();
     }

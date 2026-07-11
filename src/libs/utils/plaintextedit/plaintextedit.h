@@ -292,6 +292,9 @@ public:
     virtual QRectF replacementBlockBoundingRect(const QTextBlock &block) const;
     virtual int relativeLineSpacing() const;
     virtual int lineSpacing() const;
+    // whether the block carries additional layout items besides the main
+    // text layout, e.g. extra rows rendered above the block
+    virtual bool blockHasAdditionalLayouts(const QTextBlock &block) const;
     virtual bool moveCursor(
         QTextCursor &cursor,
         QTextCursor::MoveOperation operation,

@@ -99,6 +99,8 @@ public:
     void paintBackground(const QTextBlock &block, QPainter *p, const QPointF &pos,const QRectF &clip = {});
 
     QTextLayout *blockLayout(const QTextBlock &block) const override;
+    // like blockLayout(), but does not create a layout for the block
+    QTextLayout *existingBlockLayout(const QTextBlock &block) const;
     void clearBlockLayout(QTextBlock &block) const override;
     void clearBlockLayout(
         QTextBlock &start, QTextBlock &end, bool &blockVisibilityChanged) const override;
@@ -118,6 +120,14 @@ public:
     void appendAdditionalLayouts(
         const QTextBlock &block, const QList<QTextLayout *> &layouts, const Id id = {});
     int removeLayoutItems(const QTextBlock &block, const Id id = {});
+    int removeAllLayoutItems(const Id id);
+    // Removes format ranges whose format carries the given boolean property
+    // from all main block layouts, including layout data whose fragment index
+    // currently has no block (freed indexes are recycled, so per-block
+    // removal via stale anchors is not reliable). Returns the number of
+    // removed ranges.
+    int removeMainLayoutFormatsWithProperty(int propertyId);
+    bool blockHasAdditionalLayouts(const QTextBlock &block) const override;
 
     const QList<LayoutItem *> layoutItems(const QTextBlock &block) const;
     const QList<LayoutItem *> layoutItemsForCategory(const QTextBlock &block, const Id id) const;
