@@ -43,6 +43,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/action.h>
+#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -186,6 +187,11 @@ public:
     void requestRepositoryStatus(const FilePath &repository) final
     {
         gitClient().requestModificationUpdate(repository);
+    }
+    Utils::FilePaths subRepositories(const FilePath &repository) final
+    {
+        return Utils::filtered(gitClient().submodulePaths(repository),
+                               [](const FilePath &path) { return path.isDir(); });
     }
     void diffChangedFile(const FilePath &repository, const QString &relativePath,
                          VcsFileStatus::Section section) final

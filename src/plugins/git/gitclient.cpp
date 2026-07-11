@@ -989,7 +989,7 @@ FilePaths GitClient::monitorDirectory(const Utils::FilePath &path, bool monitor)
     }
 
     // Submodule management
-    const FilePaths subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
+    const FilePaths subPaths = submodulePaths(directory);
     for (const FilePath &subModule : subPaths) {
         result.append(subModule);
         if (monitor && !monitored)
@@ -1113,7 +1113,10 @@ void GitClient::updateNextModificationInfo()
         }
         updateRepositoryStatus(path, parsed.fileStatus);
     };
-    enqueueCommand({path, {"status", "-s", "--porcelain", "--ignore-submodules"},
+    // "=dirty" keeps content-dirty submodules out of the list (they appear as
+    // nested repositories in the Changes view), but shows moved submodule
+    // pointers, which are commit-relevant in this repository.
+    enqueueCommand({path, {"status", "-s", "--porcelain", "--ignore-submodules=dirty"},
                     RunFlag::NoOutput, {}, {}, command});
 }
 
@@ -2273,10 +2276,19 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
     if (!gitmodulesFileName.exists())
         return result;
 
-    static QMap<FilePath, SubmoduleDataMap> cachedSubmoduleData;
+    // Keyed on the .gitmodules timestamp, so submodules added or removed
+    // during the session are picked up.
+    struct CachedSubmoduleData
+    {
+        QDateTime timestamp;
+        SubmoduleDataMap map;
+    };
+    static QMap<FilePath, CachedSubmoduleData> cachedSubmoduleData;
 
-    if (cachedSubmoduleData.contains(workingDirectory))
-        return cachedSubmoduleData.value(workingDirectory);
+    const QDateTime timestamp = gitmodulesFileName.lastModified();
+    const auto it = cachedSubmoduleData.constFind(workingDirectory);
+    if (it != cachedSubmoduleData.constEnd() && it->timestamp == timestamp)
+        return it->map;
 
     const QStringList allConfigs = readConfigValue(workingDirectory, "-l").split('\n');
     const QString submoduleLineStart = "submodule.";
@@ -2323,9 +2335,14 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
             gitmodulesFile.endGroup();
         }
     }
-    cachedSubmoduleData.insert(workingDirectory, result);
+    cachedSubmoduleData.insert(workingDirectory, {timestamp, result});
 
     return result;
+}
+
+FilePaths GitClient::submodulePaths(const FilePath &workingDirectory) const
+{
+    return submoduleDataToAbsolutePath(submoduleList(workingDirectory), workingDirectory);
 }
 
 QByteArray GitClient::synchronousShow(const FilePath &workingDirectory, const QString &id,

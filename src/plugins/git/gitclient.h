@@ -270,6 +270,7 @@ public:
     QStringList synchronousSubmoduleStatus(const Utils::FilePath &workingDirectory,
                                            QString *errorMessage = nullptr) const;
     SubmoduleDataMap submoduleList(const Utils::FilePath &workingDirectory) const;
+    Utils::FilePaths submodulePaths(const Utils::FilePath &workingDirectory) const;
     QByteArray synchronousShow(const Utils::FilePath &workingDirectory, const QString &id,
                                VcsBase::RunFlags flags = VcsBase::RunFlag::None) const;
 
