@@ -87,9 +87,10 @@ static std::unique_ptr<QTextLayout> createGhostLayout(
     return layout;
 }
 
-InlineDiffDecorator::InlineDiffDecorator(TextEditorWidget *widget)
+InlineDiffDecorator::InlineDiffDecorator(TextEditorWidget *widget, DiffSide side)
     : QObject(widget)
     , m_widget(widget)
+    , m_side(side)
 {
     QTextDocument *doc = widget->document();
     m_lastBlockCount = doc->blockCount();
@@ -108,7 +109,7 @@ InlineDiffDecorator::InlineDiffDecorator(TextEditorWidget *widget)
     // ghost layouts hold a copy of the editor font, so rebuild them on zoom
     // and font or color scheme changes
     connect(widget->textDocument(), &TextDocument::fontSettingsChanged,
-            this, [this] { apply(m_ghosts, m_changes); });
+            this, [this] { apply(m_ghosts, m_changes, m_spacers); });
 }
 
 InlineDiffDecorator::~InlineDiffDecorator()
@@ -119,7 +120,8 @@ InlineDiffDecorator::~InlineDiffDecorator()
     // clear() explicitly; otherwise the decorations vanish with the widget.
 }
 
-void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<ChangedRange> &changes)
+void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<ChangedRange> &changes,
+                                const QList<Spacer> &spacers)
 {
     if (!m_widget)
         return;
@@ -128,6 +130,8 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
         m_ghosts = ghosts;
     if (&changes != &m_changes)
         m_changes = changes;
+    if (&spacers != &m_spacers)
+        m_spacers = spacers;
 
     TextEditorLayout *layout = m_widget->editorLayout();
     QTC_ASSERT(layout, return);
@@ -164,14 +168,39 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
                                              INLINE_DIFF_GHOST_CATEGORY);
     }
 
+    // empty rows that align this widget with the one showing the other side
+    // of the diff
+    const QBrush spacerBackground
+        = fontSettings.toTextCharFormat(C_LINE_NUMBER).background();
+    for (const Spacer &spacer : std::as_const(m_spacers)) {
+        if (spacer.lineCount <= 0 || spacer.anchorLine > doc->blockCount() + 1)
+            continue;
+        const bool afterLastBlock = spacer.anchorLine > doc->blockCount();
+        const QTextBlock block = afterLastBlock ? doc->lastBlock()
+                                                : doc->findBlockByNumber(spacer.anchorLine - 1);
+        QTC_ASSERT(block.isValid(), continue);
+
+        auto item = std::make_unique<Utils::EmptyLayoutItem>(
+            spacer.lineCount * layout->lineSpacing(), INLINE_DIFF_GHOST_CATEGORY);
+        item->setBackground(spacerBackground);
+        layout->ensureBlockLayout(block);
+        if (afterLastBlock)
+            layout->appendLayoutItem(block, std::move(item));
+        else
+            layout->prependLayoutItem(block, std::move(item));
+    }
+
     // full width line backgrounds are painted by TextEditorLayout::paintBackground
     // for main layout formats carrying FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID
+    const bool isBaseline = m_side == DiffSide::Baseline;
     QTextCharFormat addedLineFormat;
     addedLineFormat.setBackground(
-        fontSettings.toTextCharFormat(C_DIFF_DEST_LINE).background());
+        fontSettings.toTextCharFormat(isBaseline ? C_DIFF_SOURCE_LINE : C_DIFF_DEST_LINE)
+            .background());
     addedLineFormat.setProperty(FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID, true);
     addedLineFormat.setProperty(INLINE_DIFF_FORMAT_PROPERTY_ID, true);
-    const QTextCharFormat addedCharFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_CHAR);
+    const QTextCharFormat addedCharFormat
+        = fontSettings.toTextCharFormat(isBaseline ? C_DIFF_SOURCE_CHAR : C_DIFF_DEST_CHAR);
 
     for (const ChangedRange &range : std::as_const(m_changes)) {
         for (int line = range.startLine; line <= range.endLine; ++line) {
@@ -222,6 +251,7 @@ void InlineDiffDecorator::clear()
 {
     m_ghosts.clear();
     m_changes.clear();
+    m_spacers.clear();
     if (!m_widget)
         return;
     clearGhostItems();

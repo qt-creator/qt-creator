@@ -364,6 +364,7 @@ private slots:
     void testFilterPatch_data();
     void testFilterPatch();
     void testDiffDocuments();
+    void testInlineDiff();
 #endif // WITH_TESTS
 };
 
@@ -1562,6 +1563,145 @@ void DiffEditor::Internal::DiffEditorPlugin::testDiffDocuments()
     QVERIFY(diffDocument);
 
     EditorManager::closeDocuments({left->document(), right->document(), diffDocument}, false);
+}
+
+#include "inlinediff.h"
+
+#include <texteditor/inlinediffdecorator.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
+
+#include <utils/environment.h>
+#include <utils/plaintextedit/texteditorlayout.h>
+
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
+{
+    using namespace TextEditor;
+
+    // baseline vs editor: line 2 modified, line 3 removed, "five" added
+    const QString baselineText = "one\ntwo\nthree\nfour\n";
+    const QString editorText = "one\ntwo changed\nfour\nfive\n";
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiff.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    const QString diffTitle = "testInlineDiff.txt (Working Tree)";
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline, diffTitle);
+    QVERIFY(diffEditor);
+    QVERIFY(diffEditor != sourceEditor);
+    QCOMPARE(diffEditor->document()->displayName(), diffTitle);
+    // reopening reuses the existing inline diff editor
+    QCOMPARE(openInlineDiffEditor(sourceDocument, baseline, diffTitle), diffEditor);
+
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    // the inline diff editor shares the text with the source document
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+
+    // added/changed line highlights arrive asynchronously
+    QTRY_VERIFY(!diffWidget->extraSelections(inlineDiffSelectionKind()).isEmpty());
+
+    const auto ghostItemCount = [](TextEditorWidget *widget) {
+        int count = 0;
+        for (QTextBlock block = widget->document()->firstBlock(); block.isValid();
+             block = block.next()) {
+            count += widget->editorLayout()
+                         ->layoutItemsForCategory(block, inlineDiffGhostCategory())
+                         .size();
+        }
+        return count;
+    };
+    // one ghost row block for the modified "two" and the removed "three"
+    QTRY_COMPARE(ghostItemCount(diffWidget), 1);
+
+    // the ghost rows reserve additional height on their anchor block (line 2)
+    const QTextBlock anchorBlock = diffWidget->document()->findBlockByNumber(1);
+    QVERIFY(diffWidget->editorLayout()->additionalBlockHeight(anchorBlock, true) > 0);
+
+    // the source editor stays free of decorations
+    QCOMPARE(ghostItemCount(sourceWidget), 0);
+    QVERIFY(sourceWidget->extraSelections(inlineDiffSelectionKind()).isEmpty());
+
+    const QString grabPath = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_GRAB");
+    if (!grabPath.isEmpty())
+        diffWidget->grab().save(grabPath);
+
+    // the side by side view shows the baseline in an additional read only
+    // view, the editor side keeps only spacer rows instead of ghost text:
+    // one spacer aligning the shrunken first run ("two", "three" -> "two
+    // changed"), one baseline spacer aligning the added "five"
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    QCOMPARE(inlineDiffViewMode(diffEditor), InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> sideBySideWidgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(sideBySideWidgets.size(), 2);
+    TextEditorWidget *baselineWidget = sideBySideWidgets.first() == diffWidget
+                                           ? sideBySideWidgets.last()
+                                           : sideBySideWidgets.first();
+    QVERIFY(baselineWidget->isReadOnly());
+    QCOMPARE(baselineWidget->document()->toPlainText(), baselineText);
+    QTRY_COMPARE(ghostItemCount(baselineWidget), 1); // spacer for "five"
+    QCOMPARE(ghostItemCount(diffWidget), 1);         // spacer for "three"
+    QVERIFY(!baselineWidget->isHidden());
+
+    const QString sideGrabPath
+        = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_SIDE_GRAB");
+    if (!sideGrabPath.isEmpty()) {
+        diffEditor->widget()->resize(800, 300);
+        diffEditor->widget()->grab().save(sideGrabPath);
+    }
+
+    // switching back restores the inline decorations and hides the baseline
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    QTRY_COMPARE(ghostItemCount(diffWidget), 1);
+    QVERIFY(baselineWidget->isHidden());
+    QCOMPARE(ghostItemCount(baselineWidget), 0);
+
+    // editing the shared buffer recomputes the diff (debounced)
+    QTextCursor cursor(sourceWidget->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText("six\n");
+    QCOMPARE(diffWidget->document()->lastBlock().previous().text(), "six");
+    QTRY_VERIFY(Utils::anyOf(diffWidget->extraSelections(inlineDiffSelectionKind()),
+                             [](const QTextEdit::ExtraSelection &selection) {
+        return selection.cursor.selectedText().contains("six");
+    }));
+
+    // saving through the inline diff editor's document saves the source file
+    QVERIFY(diffEditor->document()->isModified());
+    QVERIFY(!diffEditor->document()->isSaveAsNeeded());
+    QVERIFY(EditorManager::saveDocument(diffEditor->document()));
+    QVERIFY(!sourceDocument->isModified());
+    QVERIFY(!diffEditor->document()->isModified());
+    QVERIFY(sourceFile.fileContents().value_or(QByteArray()).contains("six"));
+
+    // closing the source document also closes the inline diff editor
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
 }
 
 #endif // WITH_TESTS
