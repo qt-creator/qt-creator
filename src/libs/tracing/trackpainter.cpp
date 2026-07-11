@@ -241,10 +241,12 @@ void TrackPainter::paint(QCanvasPainter *painter)
 
         const TrackGeometry &g = m_geometry[i];
         p.save();
+        p.setRenderHint(QCanvasPainter::RenderHint::Antialiasing, false);
         p.translate(0.0f, float(top));
         if (g.hasBackground[0]) { p.setFillStyle(bg1); p.fill(g.background[0]); }
         if (g.hasBackground[1]) { p.setFillStyle(bg2); p.fill(g.background[1]); }
         if (g.hasGrid) { p.setFillStyle(divider); p.fill(g.grid); }
+        p.setRenderHint(QCanvasPainter::RenderHint::Antialiasing, true);
         for (const ColorPath &cp : g.fills) {
             p.setFillStyle(QColor::fromRgb(cp.color));
             p.fill(cp.path);
