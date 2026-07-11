@@ -189,6 +189,9 @@ public:
                              const QString &rightRef, const QString &rightFileName,
                              const QString &leftRef, const QString &leftFileName,
                              int line = -1);
+    // Shows the file's staged changes (index against HEAD) inline, with the
+    // index contents in a read only editor.
+    void inlineDiffStagedFile(const Utils::FilePath &workingDirectory, const QString &fileName);
     DiffEditor::InlineDiffBaseline indexBaseline(const Utils::FilePath &workingDirectory,
                                                  const QString &relativeFile);
     DiffEditor::InlineDiffBaseline revisionBaseline(const Utils::FilePath &workingDirectory,
@@ -442,6 +445,13 @@ private:
     void requestReload(const QString &documentId, const Utils::FilePath &source,
                        const QString &title, const Utils::FilePath &workingDirectory,
                        std::function<GitBaseDiffEditorController *(Core::IDocument *)> factory) const;
+
+    void openSnapshotInlineDiff(const Utils::FilePath &topLevel, const Utils::FilePath &filePath,
+                                const QString &showSpec, const QString &blameRev,
+                                const QString &snapshotFileName,
+                                const DiffEditor::InlineDiffBaseline &baseline,
+                                const QString &title, int line,
+                                const std::function<void()> &classicFallback);
 
     QString readOneLine(const Utils::FilePath &workingDirectory, const QStringList &arguments) const;
 

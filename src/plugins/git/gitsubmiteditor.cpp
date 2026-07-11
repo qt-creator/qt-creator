@@ -186,10 +186,13 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
         }
     }
     if (unmergedFiles.empty() && stagedFiles.empty() && unstagedFiles.size() == 1) {
-        // a single unstaged file's changes are shown inline in its editor;
-        // staged changes compare the index against HEAD, which the inline
-        // view of the working tree cannot represent
+        // a single unstaged file's changes are shown inline in its editor
         gitClient().inlineDiffFile(m_workingDirectory, unstagedFiles.constFirst());
+    } else if (unmergedFiles.empty() && unstagedFiles.empty() && stagedFiles.size() == 1) {
+        // a single staged file's changes (index against HEAD) are shown in a
+        // read only inline diff; staged renames expand to two file names and
+        // keep the classic view
+        gitClient().inlineDiffStagedFile(m_workingDirectory, stagedFiles.constFirst());
     } else if (!unstagedFiles.empty() || !stagedFiles.empty()) {
         gitClient().diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
     }

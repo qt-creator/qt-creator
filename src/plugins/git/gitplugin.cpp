@@ -1108,13 +1108,11 @@ void GitPluginPrivate::diffCurrentFile(GitClient::DiffMode diffMode)
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    // Only the unstaged changes can be shown inline: the editable editor
-    // contents are the working tree, while the staged diff compares the
-    // index against HEAD.
     if (diffMode == GitClient::Unstaged)
         gitClient().inlineDiffFile(state.currentFileTopLevel(), state.relativeCurrentFile());
     else
-        gitClient().diffFile(state.currentFileTopLevel(), state.relativeCurrentFile(), diffMode);
+        gitClient().inlineDiffStagedFile(state.currentFileTopLevel(),
+                                         state.relativeCurrentFile());
 }
 
 void GitPluginPrivate::diffProjectDirectory(GitClient::DiffMode diffMode)

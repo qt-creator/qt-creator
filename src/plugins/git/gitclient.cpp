@@ -1388,6 +1388,65 @@ static QString shortRefLabel(const QString &ref)
     return ref;
 }
 
+static QHash<QString, QPointer<Core::IEditor>> &snapshotDiffEditors()
+{
+    static QHash<QString, QPointer<Core::IEditor>> editors;
+    return editors;
+}
+
+void GitClient::openSnapshotInlineDiff(const FilePath &topLevel, const FilePath &filePath,
+                                       const QString &showSpec, const QString &blameRev,
+                                       const QString &snapshotFileName,
+                                       const DiffEditor::InlineDiffBaseline &baseline,
+                                       const QString &title, int line,
+                                       const std::function<void()> &classicFallback)
+{
+    // fetch the newer contents, then show them read only with the older
+    // revision as the baseline
+    enqueueCommand(
+        {topLevel,
+         {"show", showSpec},
+         RunFlag::NoOutput | RunFlag::ForceCLocale,
+         {},
+         encoding(EncodingSource, filePath),
+         [topLevel, filePath, showSpec, blameRev, snapshotFileName, baseline, title, line,
+          classicFallback](const CommandResult &result) {
+             if (result.result() != ProcessResult::FinishedWithSuccess) {
+                 VcsOutputWindow::appendError(topLevel, result.cleanedStdErr());
+                 return;
+             }
+             // the snapshot contents are fetched anew on every invocation,
+             // so replace a previously opened editor for the same diff
+             const QString editorKey = topLevel.toUrlishString() + '\n' + showSpec + '\n'
+                                       + baseline.id;
+             if (Core::IEditor *previous = snapshotDiffEditors().value(editorKey))
+                 EditorManager::closeEditors({previous}, false);
+
+             const TextEditor::TextDocumentPtr snapshot(new TextEditor::TextDocument);
+             snapshot->setMimeType(Utils::mimeTypeForFile(filePath).name());
+             snapshot->document()->setPlainText(result.cleanedStdOut());
+             snapshot->document()->setModified(false);
+
+             Core::IEditor *diffEditor = DiffEditor::openInlineDiffEditor(
+                 snapshot, baseline, title, /*readOnlySource=*/true);
+             if (!diffEditor) {
+                 classicFallback();
+                 return;
+             }
+             snapshotDiffEditors().insert(editorKey, diffEditor);
+             if (line > 0)
+                 diffEditor->gotoLine(line);
+             // annotate the snapshot side with the blame at its revision, so
+             // that the history can be followed from both sides
+             if (!blameRev.isEmpty()) {
+                 if (TextEditor::TextEditorWidget *widget
+                     = DiffEditor::inlineDiffEditorWidget(diffEditor)) {
+                     new BaselineBlame(widget, topLevel, blameRev, snapshotFileName, filePath);
+                 }
+             }
+         }});
+}
+
 void GitClient::inlineDiffRevisions(const FilePath &workingDirectory, const FilePath &filePath,
                                     const QString &rightRef, const QString &rightFileName,
                                     const QString &leftRef, const QString &leftFileName, int line)
@@ -1396,52 +1455,39 @@ void GitClient::inlineDiffRevisions(const FilePath &workingDirectory, const File
     QTC_ASSERT(!topLevel.isEmpty(), return);
     QTC_ASSERT(!rightRef.isEmpty() && !leftRef.isEmpty(), return);
 
-    // fetch the newer revision's contents, then show it read only with the
-    // older revision as the baseline
-    enqueueCommand(
-        {topLevel,
-         {"show", rightRef + ":" + rightFileName},
-         RunFlag::NoOutput | RunFlag::ForceCLocale,
-         {},
-         encoding(EncodingSource, filePath),
-         [this, topLevel, filePath, rightRef, rightFileName, leftRef, leftFileName,
-          line](const CommandResult &result) {
-             if (result.result() != ProcessResult::FinishedWithSuccess) {
-                 VcsOutputWindow::appendError(topLevel, result.cleanedStdErr());
-                 return;
-             }
-             const TextEditor::TextDocumentPtr snapshot(new TextEditor::TextDocument);
-             snapshot->setMimeType(Utils::mimeTypeForFile(filePath).name());
-             snapshot->document()->setPlainText(result.cleanedStdOut());
-             snapshot->document()->setModified(false);
+    const QString title = Tr::tr("%1 (%2 vs %3)").arg(
+        filePath.fileName(), shortRefLabel(rightRef), shortRefLabel(leftRef));
+    const auto classicFallback = [this, topLevel, filePath, rightRef, rightFileName, leftRef] {
+        const QString classicTitle = Tr::tr("Git Diff \"%1\" %2 vs %3")
+            .arg(rightFileName, shortRefLabel(rightRef), shortRefLabel(leftRef));
+        const QString documentId = gitDocumentId(".DiffRevs.", filePath)
+            + "." + leftRef + "." + rightRef;
+        requestReload(documentId, filePath, classicTitle, topLevel,
+                      [leftRef, rightRef, rightFileName](IDocument *doc) {
+            return new GitDiffEditorController(doc, leftRef, rightRef, {"--", rightFileName});
+        });
+    };
+    openSnapshotInlineDiff(topLevel, filePath, rightRef + ":" + rightFileName, rightRef,
+                           rightFileName, revisionBaseline(topLevel, leftRef, leftFileName),
+                           title, line, classicFallback);
+}
 
-             const QString title = Tr::tr("%1 (%2 vs %3)").arg(
-                 filePath.fileName(), shortRefLabel(rightRef), shortRefLabel(leftRef));
-             Core::IEditor *diffEditor = DiffEditor::openInlineDiffEditor(
-                 snapshot, revisionBaseline(topLevel, leftRef, leftFileName), title,
-                 /*readOnlySource=*/true);
-             if (!diffEditor) {
-                 // classic diff between the two revisions
-                 const QString classicTitle = Tr::tr("Git Diff \"%1\" %2 vs %3")
-                     .arg(rightFileName, shortRefLabel(rightRef), shortRefLabel(leftRef));
-                 const QString documentId = gitDocumentId(".DiffRevs.", filePath)
-                     + "." + leftRef + "." + rightRef;
-                 requestReload(documentId, filePath, classicTitle, topLevel,
-                               [leftRef, rightRef, rightFileName](IDocument *doc) {
-                     return new GitDiffEditorController(doc, leftRef, rightRef,
-                                                        {"--", rightFileName});
-                 });
-                 return;
-             }
-             if (line > 0)
-                 diffEditor->gotoLine(line);
-             // annotate the snapshot side with the blame at its revision, so
-             // that the history can be followed from both sides
-             if (TextEditor::TextEditorWidget *widget
-                 = DiffEditor::inlineDiffEditorWidget(diffEditor)) {
-                 new BaselineBlame(widget, topLevel, rightRef, rightFileName, filePath);
-             }
-         }});
+void GitClient::inlineDiffStagedFile(const FilePath &workingDirectory, const QString &fileName)
+{
+    const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
+    QTC_ASSERT(!topLevel.isEmpty(), return);
+    const FilePath filePath = workingDirectory.resolvePath(fileName);
+    const QString relativeFile = filePath.relativeChildPath(topLevel).path();
+
+    // the staged changes compare the index against HEAD; the index contents
+    // are shown in a read only snapshot
+    const QString title = Tr::tr("%1 (Staged)").arg(filePath.fileName());
+    const auto classicFallback = [this, workingDirectory, fileName] {
+        diffFile(workingDirectory, fileName, Staged);
+    };
+    openSnapshotInlineDiff(topLevel, filePath, ":" + relativeFile, /*blameRev=*/{},
+                           relativeFile, revisionBaseline(topLevel, "HEAD", relativeFile),
+                           title, -1, classicFallback);
 }
 
 DiffEditor::InlineDiffBaseline GitClient::revisionBaseline(const FilePath &workingDirectory,
