@@ -584,6 +584,11 @@ bool VersionControlBase::supportsStaging() const
     return false;
 }
 
+bool VersionControlBase::supportsAutomaticStatusUpdates() const
+{
+    return true;
+}
+
 void VersionControlBase::requestRepositoryStatus(const FilePath &repository)
 {
     Q_UNUSED(repository)

@@ -141,6 +141,11 @@ public:
     virtual bool supportsChangesView() const;
     virtual bool supportsStaging() const;
 
+    // Whether the status may be requested automatically, e.g. after saving a
+    // document or when the application is activated. Return false if requesting
+    // the status is expensive, e.g. requires network access.
+    virtual bool supportsAutomaticStatusUpdates() const;
+
     // Asynchronously refresh the status of \a repository. Implementations run their
     // status command and call setRepositoryStatus() when done.
     virtual void requestRepositoryStatus(const Utils::FilePath &repository);

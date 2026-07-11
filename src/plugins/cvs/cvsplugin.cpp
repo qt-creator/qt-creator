@@ -217,6 +217,8 @@ public:
 
     // Changes view
     bool supportsChangesView() const final { return true; }
+    // "cvs status" contacts the server:
+    bool supportsAutomaticStatusUpdates() const final { return false; }
     void requestRepositoryStatus(const FilePath &repository) final;
     void revertChangedFile(const FilePath &repository, const QString &relativePath) final;
 

@@ -9,6 +9,7 @@
 #include "vcsfilestatus.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
@@ -24,6 +25,7 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMessageBox>
@@ -195,6 +197,7 @@ private:
     void repositoryStatusChanged(const FilePath &repository);
     void repositoryChanged(const FilePath &repository);
     void requestRefresh(bool onlyDirty);
+    void requestAutomaticRefresh(const FilePath &changedFile = {});
     void activate(const QModelIndex &index);
     void openContextMenu(const QPoint &point);
     QString itemKey(TreeItem *item) const;
@@ -261,6 +264,16 @@ ChangesView::ChangesView()
             this, &ChangesView::rebuildProjectTree);
     connect(VcsManager::instance(), &VcsManager::repositoryChanged,
             this, &ChangesView::repositoryChanged);
+    connect(EditorManager::instance(), &EditorManager::saved,
+            this, [this](IDocument *document, IDocument::SaveOption option) {
+        if (option != IDocument::SaveOption::AutoSave)
+            requestAutomaticRefresh(document->filePath());
+    });
+    connect(qApp, &QApplication::applicationStateChanged,
+            this, [this](Qt::ApplicationState state) {
+        if (state == Qt::ApplicationActive)
+            requestAutomaticRefresh();
+    });
 
     rebuildProjectTree();
 }
@@ -327,6 +340,11 @@ void ChangesView::rebuildProjectTree()
     };
     QList<Entry> entries;
     for (Project *project : ProjectManager::projects()) {
+        // Ensure the project directory is monitored. This is idempotent, and
+        // for directories without version control it arms the detection of
+        // repositories created after the project was opened.
+        VcsManager::monitorDirectory(project->projectDirectory(), true);
+
         FilePath topLevel;
         IVersionControl *vc
             = VcsManager::findVersionControlForDirectory(project->projectDirectory(), &topLevel);
@@ -442,8 +460,19 @@ void ChangesView::repositoryChanged(const FilePath &repository)
     const bool listed = Utils::anyOf(m_repositories, [&repository](const RepositoryEntry &entry) {
         return entry.repository == repository;
     });
-    if (!listed)
+    if (!listed) {
+        // A repository may have appeared for a project that had no version
+        // control so far, e.g. "git init" after opening the project.
+        const bool affectsProject = Utils::anyOf(ProjectManager::projects(),
+            [&repository](Project *project) {
+                const FilePath dir = project->projectDirectory();
+                return dir == repository || dir.isChildOf(repository)
+                       || repository.isChildOf(dir);
+            });
+        if (affectsProject)
+            rebuildProjectTree();
         return;
+    }
     if (isVisible()) {
         for (const RepositoryEntry &entry : std::as_const(m_repositories)) {
             if (entry.repository == repository)
@@ -461,6 +490,20 @@ void ChangesView::requestRefresh(bool onlyDirty)
             entry.vc->requestRepositoryStatus(entry.repository);
     }
     m_dirtyRepositories.clear();
+}
+
+void ChangesView::requestAutomaticRefresh(const FilePath &changedFile)
+{
+    for (const RepositoryEntry &entry : std::as_const(m_repositories)) {
+        if (!entry.vc->supportsAutomaticStatusUpdates())
+            continue;
+        if (!changedFile.isEmpty() && !changedFile.isChildOf(entry.repository))
+            continue;
+        if (isVisible())
+            entry.vc->requestRepositoryStatus(entry.repository);
+        else
+            m_dirtyRepositories.insert(entry.repository);
+    }
 }
 
 void ChangesView::activate(const QModelIndex &index)
