@@ -1014,15 +1014,82 @@ void GitClient::updateModificationInfos()
     updateNextModificationInfo();
 }
 
-void GitClient::updateNextModificationInfo()
+void GitClient::requestModificationUpdate(const Utils::FilePath &repository)
+{
+    if (repository.isEmpty())
+        return;
+    if (!m_statusUpdateQueue.contains(repository))
+        m_statusUpdateQueue.append(repository);
+    updateNextModificationInfo();
+}
+
+ParsedRepoStatus parsePorcelainStatus(const QString &output)
 {
     using FileState = Core::VcsFileState;
+    using Section = VcsBase::VcsFileStatus::Section;
 
+    ParsedRepoStatus status;
+    const QStringList res = output.split("\n", Qt::SkipEmptyParts);
+    for (const QString &line : res) {
+        if (line.size() <= 3)
+            continue;
+
+        static const QHash<QChar, FileState> gitStates {
+                                                  {'M', FileState::Modified},
+                                                  {'?', FileState::Untracked},
+                                                  {'A', FileState::Added},
+                                                  {'R', FileState::Renamed},
+                                                  {'D', FileState::Deleted},
+                                                  {'U', FileState::Unmerged},
+                                                  };
+
+        const QChar x = line.at(0);
+        const QChar y = line.at(1);
+        const FileState modification = std::max(gitStates.value(x, FileState::Unknown),
+                                                gitStates.value(y, FileState::Unknown));
+
+        if (modification == FileState::Unknown)
+            continue;
+
+        const QString filePath = line.mid(3).trimmed();
+
+        // For renames ("R  old -> new") the file of interest is the new name.
+        QString target = filePath;
+        const int arrow = target.indexOf(" -> ");
+        if (arrow != -1)
+            target = target.mid(arrow + 4);
+        if (target.size() >= 2 && target.startsWith('"') && target.endsWith('"'))
+            target = target.mid(1, target.size() - 2);
+
+        if (modification == FileState::Renamed)
+            status.modifiedFiles.insert(target, modification);
+        else
+            status.modifiedFiles.insert(filePath, modification);
+
+        if (x == '?') {
+            status.fileStatus.append({target, FileState::Untracked, Section::Changed});
+        } else if (x == 'U' || y == 'U' || (x == y && (x == 'A' || x == 'D'))) {
+            status.fileStatus.append({target, FileState::Unmerged, Section::Conflicted});
+        } else {
+            const FileState stagedState = gitStates.value(x, FileState::Unknown);
+            if (x != ' ' && stagedState != FileState::Unknown)
+                status.fileStatus.append({target, stagedState, Section::Staged});
+            const FileState unstagedState = gitStates.value(y, FileState::Unknown);
+            if (y != ' ' && unstagedState != FileState::Unknown)
+                status.fileStatus.append({target, unstagedState, Section::Changed});
+        }
+    }
+    return status;
+}
+
+void GitClient::updateNextModificationInfo()
+{
     if (qApp->applicationState() != Qt::ApplicationActive)
         return;
 
     if (m_statusUpdateQueue.isEmpty()) {
-        m_timer.start();
+        if (VcsBase::Internal::commonSettings().vcsShowStatus())
+            m_timer.start();
         return;
     }
 
@@ -1031,37 +1098,16 @@ void GitClient::updateNextModificationInfo()
     const auto command = [path, this](const CommandResult &result) {
         updateNextModificationInfo();
 
-        if (!m_monitoredPaths.contains(path))
-            return;
+        const ParsedRepoStatus parsed = parsePorcelainStatus(result.cleanedStdOut());
 
-        const QStringList res = result.cleanedStdOut().split("\n", Qt::SkipEmptyParts);
-        FileStateHash modifiedFiles;
-        for (const QString &line : res) {
-            if (line.size() <= 3)
-                continue;
-
-            static const QHash<QChar, FileState> gitStates {
-                                                      {'M', FileState::Modified},
-                                                      {'?', FileState::Untracked},
-                                                      {'A', FileState::Added},
-                                                      {'R', FileState::Renamed},
-                                                      {'D', FileState::Deleted},
-                                                      {'U', FileState::Unmerged},
-                                                      };
-
-            const FileState modification = std::max(gitStates.value(line.at(0), FileState::Unknown),
-                                               gitStates.value(line.at(1), FileState::Unknown));
-
-            if (modification == FileState::Renamed) {
-                const QStringList files = splitRenamedFilePattern(line);
-                if (files.size() == 2)
-                    modifiedFiles.insert(files.at(1), modification);
-            } else if (modification != FileState::Unknown) {
-                modifiedFiles.insert(line.mid(3).trimmed(), modification);
-            }
+        // Only feed the file decoration registry for monitored repositories while
+        // "Show VCS file status" is enabled; on-demand requests from the Changes
+        // view must not start decorating files when the setting is off.
+        if (m_monitoredPaths.contains(path)
+            && VcsBase::Internal::commonSettings().vcsShowStatus()) {
+            VcsManager::updateModifiedFiles(path, parsed.modifiedFiles);
         }
-
-        VcsManager::updateModifiedFiles(path, modifiedFiles);
+        updateRepositoryStatus(path, parsed.fileStatus);
     };
     enqueueCommand({path, {"status", "-s", "--porcelain", "--ignore-submodules"},
                     RunFlag::NoOutput, {}, {}, command});

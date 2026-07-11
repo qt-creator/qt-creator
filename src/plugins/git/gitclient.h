@@ -13,6 +13,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <vcsbase/vcsbaseclient.h>
+#include <vcsbase/vcsfilestatus.h>
 
 #include <QQueue>
 #include <QStringList>
@@ -90,6 +91,17 @@ struct Author {
 
 enum class StatusResult { Changed, Unchanged, Failed };
 
+// Result of parsing "git status -s --porcelain" output.
+struct ParsedRepoStatus
+{
+    // File to collapsed max(X, Y) state, matching the VcsManager registry semantics.
+    QHash<QString, Core::VcsFileState> modifiedFiles;
+    // Per-file entries split into staged/unstaged/unmerged sections.
+    VcsBase::VcsFileStatusList fileStatus;
+};
+
+GITSHARED_EXPORT ParsedRepoStatus parsePorcelainStatus(const QString &output);
+
 class StatusResultData
 {
 public:
@@ -150,6 +162,7 @@ public:
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
     Utils::FilePaths monitorDirectory(const Utils::FilePath &path, bool monitor);
+    void requestModificationUpdate(const Utils::FilePath &repository);
 
     enum DiffMode { Unstaged, Staged };
     bool isConflictFree(const Utils::FilePath &workingDirectory, const Utils::FilePath &fileName,

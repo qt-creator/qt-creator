@@ -22,6 +22,8 @@ bool isCommitEditorOpen();
 
 void emitFilesChanged(const Utils::FilePaths &files);
 void emitRepositoryChanged(const Utils::FilePath &repository);
+void updateRepositoryStatus(const Utils::FilePath &repository,
+                            const VcsBase::VcsFileStatusList &status);
 void startRebaseFromCommit(const Utils::FilePath &workingDirectory, const QString &commit);
 void editCommitMessage(const Utils::FilePath &workingDirectory, const QString &commit);
 void manageRemotes();

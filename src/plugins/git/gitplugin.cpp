@@ -180,6 +180,25 @@ public:
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
 
+    // Changes view
+    bool supportsChangesView() const final { return true; }
+    bool supportsStaging() const final { return true; }
+    void requestRepositoryStatus(const FilePath &repository) final
+    {
+        gitClient().requestModificationUpdate(repository);
+    }
+    void diffChangedFile(const FilePath &repository, const QString &relativePath,
+                         VcsFileStatus::Section section) final
+    {
+        gitClient().diffFile(repository, relativePath,
+                             section == VcsFileStatus::Section::Staged ? GitClient::Staged
+                                                                       : GitClient::Unstaged);
+    }
+    void updateRepositoryStatus(const FilePath &repository, const VcsFileStatusList &status)
+    {
+        setRepositoryStatus(repository, status);
+    }
+
     ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void fillLinkContextMenu(QMenu *menu,
@@ -2290,6 +2309,11 @@ void emitFilesChanged(const FilePaths &files)
     emit dd->filesChanged(files);
 }
 
+void updateRepositoryStatus(const FilePath &repository, const VcsBase::VcsFileStatusList &status)
+{
+    dd->updateRepositoryStatus(repository, status);
+}
+
 void emitRepositoryChanged(const FilePath &repository)
 {
     qCDebug(status).nospace() << "emitRepositoryChanged(" << repository << ")";
@@ -2350,6 +2374,8 @@ class GitTest final : public QObject
 private slots:
     void testStatusParsing_data();
     void testStatusParsing();
+    void testChangesStatusParsing_data();
+    void testChangesStatusParsing();
     void testDiffFileResolving_data();
     void testDiffFileResolving();
     void testLogResolving();
@@ -2407,6 +2433,72 @@ void GitTest::testStatusParsing()
         QCOMPARE(data.files.size(), 1);
     else
         QCOMPARE(data.files.at(1).first, second);
+}
+
+void GitTest::testChangesStatusParsing_data()
+{
+    using FileState = Core::VcsFileState;
+    using Section = VcsFileStatus::Section;
+
+    QTest::addColumn<QString>("line");
+    QTest::addColumn<QString>("collapsedKey");
+    QTest::addColumn<int>("collapsedState");
+    QTest::addColumn<VcsFileStatusList>("entries");
+
+    const QString file = "main.cpp";
+
+    QTest::newRow("modified-unstaged")
+        << " M main.cpp" << file << int(FileState::Modified)
+        << VcsFileStatusList{{file, FileState::Modified, Section::Changed}};
+    QTest::newRow("modified-staged")
+        << "M  main.cpp" << file << int(FileState::Modified)
+        << VcsFileStatusList{{file, FileState::Modified, Section::Staged}};
+    QTest::newRow("modified-both")
+        << "MM main.cpp" << file << int(FileState::Modified)
+        << VcsFileStatusList{{file, FileState::Modified, Section::Staged},
+                             {file, FileState::Modified, Section::Changed}};
+    QTest::newRow("added-staged")
+        << "A  main.cpp" << file << int(FileState::Added)
+        << VcsFileStatusList{{file, FileState::Added, Section::Staged}};
+    QTest::newRow("added-then-modified")
+        << "AM main.cpp" << file << int(FileState::Modified)
+        << VcsFileStatusList{{file, FileState::Added, Section::Staged},
+                             {file, FileState::Modified, Section::Changed}};
+    QTest::newRow("deleted-unstaged")
+        << " D main.cpp" << file << int(FileState::Deleted)
+        << VcsFileStatusList{{file, FileState::Deleted, Section::Changed}};
+    QTest::newRow("deleted-staged")
+        << "D  main.cpp" << file << int(FileState::Deleted)
+        << VcsFileStatusList{{file, FileState::Deleted, Section::Staged}};
+    QTest::newRow("untracked")
+        << "?? main.cpp" << file << int(FileState::Untracked)
+        << VcsFileStatusList{{file, FileState::Untracked, Section::Changed}};
+    QTest::newRow("renamed-staged")
+        << "R  old.cpp -> new.cpp" << "new.cpp" << int(FileState::Renamed)
+        << VcsFileStatusList{{"new.cpp", FileState::Renamed, Section::Staged}};
+    QTest::newRow("unmerged-both-modified")
+        << "UU main.cpp" << file << int(FileState::Unmerged)
+        << VcsFileStatusList{{file, FileState::Unmerged, Section::Conflicted}};
+    QTest::newRow("unmerged-both-added")
+        << "AA main.cpp" << file << int(FileState::Added)
+        << VcsFileStatusList{{file, FileState::Unmerged, Section::Conflicted}};
+    QTest::newRow("unmerged-both-deleted")
+        << "DD main.cpp" << file << int(FileState::Deleted)
+        << VcsFileStatusList{{file, FileState::Unmerged, Section::Conflicted}};
+}
+
+void GitTest::testChangesStatusParsing()
+{
+    QFETCH(QString, line);
+    QFETCH(QString, collapsedKey);
+    QFETCH(int, collapsedState);
+    QFETCH(VcsFileStatusList, entries);
+
+    const ParsedRepoStatus status = parsePorcelainStatus(line + '\n');
+    QCOMPARE(status.modifiedFiles.size(), 1);
+    QVERIFY(status.modifiedFiles.contains(collapsedKey));
+    QCOMPARE(int(status.modifiedFiles.value(collapsedKey)), collapsedState);
+    QCOMPARE(status.fileStatus, entries);
 }
 
 void GitTest::testDiffFileResolving_data()
