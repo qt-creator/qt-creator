@@ -215,6 +215,11 @@ public:
 
     ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
+    // Changes view
+    bool supportsChangesView() const final { return true; }
+    void requestRepositoryStatus(const FilePath &repository) final;
+    void revertChangedFile(const FilePath &repository, const QString &relativePath) final;
+
     ///
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
 
@@ -670,6 +675,46 @@ void CvsPluginPrivate::revertCurrentFile()
                            {"update", "-C", state.relativeCurrentFile()}, RunFlag::ShowStdOut);
     if (revertRes.result() == ProcessResult::FinishedWithSuccess)
         emit filesChanged({state.currentFile()});
+}
+
+void CvsPluginPrivate::requestRepositoryStatus(const FilePath &repository)
+{
+    // The "Examining <subdir>" stderr output is needed to know the directory,
+    // so stdout/stderr channels are merged.
+    m_client->enqueueCommand(
+        {.workingDirectory = repository, .arguments = {"status"},
+         .flags = RunFlag::NoOutput | RunFlag::MergeOutputChannels,
+         .commandHandler = [this, repository](const CommandResult &result) {
+             using FileState = Core::VcsFileState;
+             VcsFileStatusList status;
+             const StateList statusOutput = parseStatusOutput({}, result.cleanedStdOut());
+             for (const CvsSubmitEditor::StateFilePair &pair : statusOutput) {
+                 FileState state = FileState::Unknown;
+                 switch (pair.first) {
+                 case CvsSubmitEditor::LocallyModified:
+                     state = FileState::Modified;
+                     break;
+                 case CvsSubmitEditor::LocallyAdded:
+                     state = FileState::Added;
+                     break;
+                 case CvsSubmitEditor::LocallyRemoved:
+                     state = FileState::Deleted;
+                     break;
+                 }
+                 if (state != FileState::Unknown)
+                     status.append({pair.second, state, VcsFileStatus::Section::Changed});
+             }
+             setRepositoryStatus(repository, status);
+         }});
+}
+
+void CvsPluginPrivate::revertChangedFile(const FilePath &repository, const QString &relativePath)
+{
+    FileChangeBlocker fcb(repository.pathAppended(relativePath));
+    const auto revertRes = runCvs(repository, {"update", "-C", relativePath},
+                                  RunFlag::ShowStdOut);
+    if (revertRes.result() == ProcessResult::FinishedWithSuccess)
+        emit filesChanged({repository.pathAppended(relativePath)});
 }
 
 void CvsPluginPrivate::diffProjectDirectory()
