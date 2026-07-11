@@ -21,6 +21,9 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <diffeditor/diffeditorconstants.h>
+#include <diffeditor/diffutils.h>
+
 #include <QtTaskTree/QConditional>
 
 #include <texteditor/fontsettings.h>
@@ -31,6 +34,7 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
+#include <utils/differ.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -1360,7 +1364,15 @@ void GitClient::inlineDiffFileAgainst(const FilePath &workingDirectory, const QS
     const QString relativeFile = filePath.relativeChildPath(topLevel).path();
     const QString baselineFile = refFileName.isEmpty() ? relativeFile : refFileName;
 
-    if (!openInlineDiff(filePath, revisionBaseline(topLevel, ref, baselineFile),
+    DiffEditor::InlineDiffBaseline baseline = revisionBaseline(topLevel, ref, baselineFile);
+    baseline.stageHunk = stageHunkCallback(topLevel, relativeFile);
+    baseline.fetchActionableLines =
+        [topLevel, relativeFile](
+            const QString &editorText,
+            const std::function<void(const DiffEditor::InlineDiffLineRanges &)> &callback) {
+            gitClient().fetchUnstagedLines(topLevel, relativeFile, editorText, callback);
+        };
+    if (!openInlineDiff(filePath, baseline,
                         Tr::tr("%1 (Unstaged vs %2)").arg(filePath.fileName(), ref),
                         line)) {
         // classic diff of the working tree file against the revision
@@ -1376,7 +1388,140 @@ void GitClient::inlineDiffFileAgainst(const FilePath &workingDirectory, const QS
 DiffEditor::InlineDiffBaseline GitClient::indexBaseline(const FilePath &workingDirectory,
                                                         const QString &relativeFile)
 {
-    return revisionBaseline(workingDirectory, {}, relativeFile);
+    DiffEditor::InlineDiffBaseline baseline = revisionBaseline(workingDirectory, {},
+                                                               relativeFile);
+    baseline.stageHunk = stageHunkCallback(workingDirectory, relativeFile);
+    return baseline;
+}
+
+// Working tree views can stage blocks of changes, independently of which
+// baseline they display.
+std::function<void(const DiffEditor::InlineDiffChunk &, const QString &)>
+GitClient::stageHunkCallback(const FilePath &workingDirectory, const QString &relativeFile)
+{
+    return [workingDirectory, relativeFile](const DiffEditor::InlineDiffChunk &hunk,
+                                            const QString &editorText) {
+        gitClient().stageHunk(workingDirectory, relativeFile, hunk, editorText);
+    };
+}
+
+static DiffEditor::InlineDiffRenderModel diffAgainstEditorText(const QString &baseText,
+                                                               const QString &editorText)
+{
+    Utils::Differ differ;
+    const QList<Utils::Diff> diffList
+        = Utils::Differ::cleanupSemantics(differ.diff(baseText, editorText));
+    QList<Utils::Diff> leftDiffList;
+    QList<Utils::Diff> rightDiffList;
+    Utils::Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
+    return DiffEditor::mapChunkToRenderModel(
+        DiffEditor::DiffUtils::calculateOriginalData(leftDiffList, rightDiffList),
+        baseText.endsWith('\n'), editorText.endsWith('\n'));
+}
+
+// Reports the editor lines of relativeFile that differ from the index, so
+// that working tree views displaying other baselines can restrict their hunk
+// actions to blocks that actually contain unstaged changes.
+void GitClient::fetchUnstagedLines(
+    const FilePath &workingDirectory, const QString &relativeFile, const QString &editorText,
+    const std::function<void(const DiffEditor::InlineDiffLineRanges &)> &callback)
+{
+    enqueueCommand(
+        {workingDirectory,
+         {"show", ":" + relativeFile},
+         RunFlag::NoOutput | RunFlag::ForceCLocale,
+         {},
+         encoding(EncodingSource, workingDirectory.resolvePath(relativeFile)),
+         [editorText, callback](const CommandResult &result) {
+             if (result.result() != ProcessResult::FinishedWithSuccess) {
+                 // not in the index (or unreadable): everything is unstaged
+                 callback({{1, int(editorText.count('\n')) + 1}});
+                 return;
+             }
+             QString indexText = result.cleanedStdOut();
+             indexText.replace("\r\n", "\n");
+             const DiffEditor::InlineDiffRenderModel model
+                 = diffAgainstEditorText(indexText, editorText);
+             DiffEditor::InlineDiffLineRanges ranges;
+             for (const DiffEditor::InlineDiffChunk &hunk : model.hunks) {
+                 ranges.append({hunk.editorStartLine,
+                                hunk.editorStartLine + qMax(hunk.editorLineCount, 1) - 1});
+             }
+             callback(ranges);
+         }});
+}
+
+void GitClient::stageHunk(const FilePath &workingDirectory, const QString &relativeFile,
+                          const DiffEditor::InlineDiffChunk &hunk, const QString &editorText)
+{
+    // Stage what the editor shows for the hunk's lines. The displayed
+    // baseline is not necessarily the index (e.g. diffs against HEAD), so
+    // fetch the index contents, diff them against the editor text, and apply
+    // the blocks overlapping the hunk as a zero context patch.
+    const int requestedStart = hunk.editorStartLine;
+    const int requestedEnd = hunk.editorStartLine + qMax(hunk.editorLineCount, 1) - 1;
+    enqueueCommand(
+        {workingDirectory,
+         {"show", ":" + relativeFile},
+         RunFlag::NoOutput | RunFlag::ForceCLocale,
+         {},
+         encoding(EncodingSource, workingDirectory.resolvePath(relativeFile)),
+         [this, workingDirectory, relativeFile, requestedStart, requestedEnd,
+          editorText](const CommandResult &result) {
+             if (result.result() != ProcessResult::FinishedWithSuccess) {
+                 VcsOutputWindow::appendError(workingDirectory, result.cleanedStdErr());
+                 return;
+             }
+             QString indexText = result.cleanedStdOut();
+             indexText.replace("\r\n", "\n");
+             const DiffEditor::InlineDiffRenderModel model
+                 = diffAgainstEditorText(indexText, editorText);
+
+             const QStringList editorLines = editorText.split('\n');
+             QString patchBody;
+             for (const DiffEditor::InlineDiffChunk &indexHunk : model.hunks) {
+                 const int start = indexHunk.editorStartLine;
+                 const int end = indexHunk.editorStartLine
+                                 + qMax(indexHunk.editorLineCount, 1) - 1;
+                 if (end < requestedStart || start > requestedEnd)
+                     continue;
+                 const int oldCount = int(indexHunk.baselineLines.size());
+                 const int newCount = indexHunk.editorLineCount;
+                 const int oldStart = oldCount == 0 ? indexHunk.baselineStartLine - 1
+                                                    : indexHunk.baselineStartLine;
+                 const int newStart = newCount == 0 ? indexHunk.editorStartLine - 1
+                                                    : indexHunk.editorStartLine;
+                 patchBody += QString("@@ -%1,%2 +%3,%4 @@\n").arg(oldStart).arg(oldCount)
+                                  .arg(newStart).arg(newCount);
+                 for (const QString &line : indexHunk.baselineLines)
+                     patchBody += '-' + line + '\n';
+                 for (int i = 0; i < newCount; ++i)
+                     patchBody += '+' + editorLines.value(indexHunk.editorStartLine - 1 + i)
+                                  + '\n';
+             }
+             if (patchBody.isEmpty()) {
+                 VcsOutputWindow::appendMessage(
+                     workingDirectory,
+                     Tr::tr("The selected block of \"%1\" contains no unstaged changes.")
+                         .arg(relativeFile));
+                 return;
+             }
+
+             const QString patch = "--- a/" + relativeFile + "\n+++ b/" + relativeFile + "\n"
+                                   + patchBody;
+             TemporaryPatchFile patchFile(patch);
+             QString errorMessage;
+             if (synchronousApplyPatch(workingDirectory,
+                                       patchFile.filePath().toUrlishString(),
+                                       &errorMessage, {"--cached", "--unidiff-zero"})) {
+                 VcsOutputWindow::appendMessage(
+                     workingDirectory,
+                     Tr::tr("Staged the selected block of \"%1\".").arg(relativeFile));
+                 VcsManager::emitRepositoryChanged(workingDirectory);
+             } else if (!errorMessage.isEmpty()) {
+                 VcsOutputWindow::appendError(workingDirectory, errorMessage);
+             }
+         }});
 }
 
 static QString shortRefLabel(const QString &ref)

@@ -13,6 +13,8 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
@@ -27,6 +29,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QAbstractButton>
 #include <QAction>
 #include <QMenu>
 #include <QPointer>
@@ -416,7 +419,13 @@ void DiffEditorPlugin::initialize()
 void DiffEditorPlugin::updateDiffCurrentFileAction()
 {
     auto textDocument = currentTextDocument();
-    const bool enabled = textDocument && textDocument->isModified();
+    // files under version control can always be diffed, others only have
+    // unsaved changes to show
+    const bool enabled = textDocument
+                         && (textDocument->isModified()
+                             || (!textDocument->filePath().isEmpty()
+                                 && Core::VcsManager::findVersionControlForDirectory(
+                                     textDocument->filePath().parentDir())));
     m_diffCurrentFileAction->setEnabled(enabled);
 }
 
@@ -438,6 +447,16 @@ void DiffEditorPlugin::diffCurrentFile()
     const FilePath filePath = textDocument->filePath();
     if (filePath.isEmpty())
         return;
+
+    // Files under version control get the VCS diff, e.g. git's inline diff
+    // against the index, which can also stage blocks of changes. Others are
+    // compared against their saved contents.
+    FilePath topLevel;
+    if (Core::IVersionControl *versionControl
+        = Core::VcsManager::findVersionControlForDirectory(filePath.parentDir(), &topLevel)) {
+        versionControl->vcsDiff(topLevel, filePath.relativeChildPath(topLevel));
+        return;
+    }
 
     // The inline diff editor requires a text editor for the document; custom
     // text based editors and too large documents get the classic diff view.
@@ -1631,6 +1650,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
     baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
         callback(baselineText);
     };
+    QString stagedEditorText;
+    baseline.stageHunk = [&stagedEditorText](const InlineDiffChunk &,
+                                              const QString &editorText) {
+        stagedEditorText = editorText;
+    };
 
     const QString diffTitle = "testInlineDiff.txt (Working Tree)";
     IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline, diffTitle);
@@ -1726,6 +1750,36 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
     QVERIFY(!sourceDocument->isModified());
     QVERIFY(!diffEditor->document()->isModified());
     QVERIFY(sourceFile.fileContents().value_or(QByteArray()).contains("six"));
+
+    // the hunk controls offer stage and revert buttons; staging hands the
+    // hunk's editor lines to the baseline
+    {
+        QList<QAbstractButton *> buttons;
+        QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
+                     buttons.size() >= 2));
+        const QPointer<QAbstractButton> stageButton = buttons.first();
+        stageButton->click(); // the stage button comes first
+        QTRY_VERIFY(!stagedEditorText.isEmpty());
+        QVERIFY(stagedEditorText.contains("two changed"));
+        // clicking tears down the controls and schedules a debounced
+        // recompute; wait for the stale buttons to go before reverting
+        QTRY_VERIFY(stageButton.isNull());
+    }
+
+    // reverting all hunks through the floating controls restores the baseline
+    for (int i = 0; i < 10 && sourceDocument->plainText() != baselineText; ++i) {
+        QList<QAbstractButton *> buttons;
+        QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
+                     !buttons.isEmpty()));
+        // every second button is a revert button
+        QVERIFY(buttons.size() % 2 == 0);
+        const QPointer<QAbstractButton> revertButton = buttons.at(1);
+        revertButton->click();
+        // wait for the debounced recompute to tear down the stale controls,
+        // so the next iteration picks up freshly rebuilt buttons
+        QTRY_VERIFY(revertButton.isNull());
+    }
+    QCOMPARE(sourceDocument->plainText(), baselineText);
 
     // closing the source document also closes the inline diff editor
     const QPointer<QWidget> diffWidgetGuard = diffWidget;

@@ -192,8 +192,20 @@ public:
     // Shows the file's staged changes (index against HEAD) inline, with the
     // index contents in a read only editor.
     void inlineDiffStagedFile(const Utils::FilePath &workingDirectory, const QString &fileName);
+    // Stages the editor's state of the hunk's lines to the index. The blocks
+    // to apply are derived from a diff against the index contents, so this
+    // works from any working tree view, regardless of its baseline.
+    void stageHunk(const Utils::FilePath &workingDirectory, const QString &relativeFile,
+                   const DiffEditor::InlineDiffChunk &hunk, const QString &editorText);
+    // Reports (asynchronously) the editor lines that differ from the index.
+    void fetchUnstagedLines(
+        const Utils::FilePath &workingDirectory, const QString &relativeFile,
+        const QString &editorText,
+        const std::function<void(const DiffEditor::InlineDiffLineRanges &)> &callback);
     DiffEditor::InlineDiffBaseline indexBaseline(const Utils::FilePath &workingDirectory,
                                                  const QString &relativeFile);
+    std::function<void(const DiffEditor::InlineDiffChunk &, const QString &)>
+    stageHunkCallback(const Utils::FilePath &workingDirectory, const QString &relativeFile);
     DiffEditor::InlineDiffBaseline revisionBaseline(const Utils::FilePath &workingDirectory,
                                                     const QString &ref,
                                                     const QString &relativeFile);

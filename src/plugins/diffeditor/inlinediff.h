@@ -19,6 +19,21 @@ namespace DiffEditor {
 
 class ChunkData;
 
+// 1-based, inclusive line ranges <first, last>
+using InlineDiffLineRanges = QList<QPair<int, int>>;
+
+// One block of changes: a range of editor lines paired with the baseline
+// lines it replaces.
+class DIFFEDITOR_EXPORT InlineDiffChunk
+{
+public:
+    int editorStartLine = 1;   // first changed line in the editor, or the
+                               // line a pure removal is shown above
+    int editorLineCount = 0;   // 0 for pure removals
+    int baselineStartLine = 1; // analogous for the baseline side
+    QStringList baselineLines; // empty for pure additions
+};
+
 // Describes what the editor contents are compared against, e.g. the git index
 // version or some other revision of the file.
 class DIFFEDITOR_EXPORT InlineDiffBaseline
@@ -39,6 +54,19 @@ public:
     // parent themselves to the widget; the view is recreated when the
     // editor is re-targeted to another baseline.
     std::function<void(TextEditor::TextEditorWidget *)> setupBaselineView;
+    // Optional: takes over the editor's state of the hunk's lines, e.g.
+    // staging them to the git index. editorText is the full current editor
+    // contents; implementations derive what to apply from it, so that
+    // staging works regardless of which baseline is displayed.
+    std::function<void(const InlineDiffChunk &hunk, const QString &editorText)> stageHunk;
+    // Optional: reports (asynchronously, on the main thread) which lines of
+    // the given editor contents the hunk actions would affect, e.g. the
+    // lines with unstaged changes. When set, the hunk controls are only
+    // shown for blocks overlapping these lines - without it, all blocks get
+    // controls, which fits baselines where every difference is actionable.
+    std::function<void(const QString &editorText,
+                       const std::function<void(const InlineDiffLineRanges &)> &callback)>
+        fetchActionableLines;
 };
 
 // The result of diffing the baseline against the editor contents, expressed
@@ -59,6 +87,8 @@ public:
     // baseline side, in baseline line numbers (side by side view only)
     QList<TextEditor::InlineDiffDecorator::ChangedRange> baselineChanges;
     QList<TextEditor::InlineDiffDecorator::Spacer> baselineSpacers;
+    // both sides paired, for per hunk actions
+    QList<InlineDiffChunk> hunks;
 };
 
 // exported for the autotest; the flags identify the phantom "line" after a

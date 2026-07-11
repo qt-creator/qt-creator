@@ -134,6 +134,16 @@ void tst_InlineDiff::modifyDeleteAdd()
     QCOMPARE(model.baselineSpacers.size(), 1);
     QCOMPARE(model.baselineSpacers.first().anchorLine, 5);
     QCOMPARE(model.baselineSpacers.first().lineCount, 1);
+
+    QCOMPARE(model.hunks.size(), 2);
+    QCOMPARE(model.hunks.first().editorStartLine, 2);
+    QCOMPARE(model.hunks.first().editorLineCount, 1);
+    QCOMPARE(model.hunks.first().baselineStartLine, 2);
+    QCOMPARE(model.hunks.first().baselineLines, (QStringList{"two", "three"}));
+    QCOMPARE(model.hunks.last().editorStartLine, 4);
+    QCOMPARE(model.hunks.last().editorLineCount, 1);
+    QCOMPARE(model.hunks.last().baselineStartLine, 5);
+    QVERIFY(model.hunks.last().baselineLines.isEmpty());
 }
 
 QTEST_GUILESS_MAIN(tst_InlineDiff)

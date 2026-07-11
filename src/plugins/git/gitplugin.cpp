@@ -64,6 +64,7 @@
 
 #include <nanotrace/nanotrace.h>
 
+#include <QAbstractButton>
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
@@ -2429,6 +2430,7 @@ private slots:
     void testLogResolving();
     void testGitRemote_data();
     void testGitRemote();
+    void testInlineDiffFile();
 };
 
 void GitTest::testStatusParsing_data()
@@ -2719,6 +2721,68 @@ void GitTest::testGitRemote()
     QCOMPARE(remote.host,     rt.m_host);
     QCOMPARE(remote.port,     rt.m_port);
     QCOMPARE(remote.path,     rt.m_path);
+}
+
+void GitTest::testInlineDiffFile()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    const FilePath file = repo / "file.txt";
+    QVERIFY(file.writeFileContents("one\ntwo\nthree\n"));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"commit", "-m", "initial"}));
+    QVERIFY(file.writeFileContents("one\ntwo changed\nthree\n"));
+
+    gitClient().inlineDiffFile(repo, "file.txt");
+    Core::IEditor *diffEditor = EditorManager::currentEditor();
+    QVERIFY(diffEditor);
+    QCOMPARE(diffEditor->document()->displayName(), QString("file.txt (Unstaged)"));
+    TextEditor::TextEditorWidget *diffWidget = DiffEditor::inlineDiffEditorWidget(diffEditor);
+    QVERIFY(diffWidget);
+
+    // the index baseline offers stage and revert buttons per hunk
+    QList<QAbstractButton *> buttons;
+    QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
+                 buttons.size() == 2));
+    QVERIFY(!buttons.first()->icon().isNull());
+    QVERIFY(!buttons.last()->icon().isNull());
+
+    // staging the hunk moves the change to the index and empties the diff
+    buttons.first()->click();
+    QTRY_VERIFY(diffWidget->findChildren<QAbstractButton *>().isEmpty());
+    QTRY_VERIFY(gitClient().vcsSynchronousExec(repo, {"diff", "--cached"})
+                    .cleanedStdOut().contains("+two changed"));
+
+    // staging also works from a diff against another revision: it applies
+    // the editor's state of the hunk's lines to the index
+    QTextCursor cursor(diffWidget->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText("four\n");
+    gitClient().inlineDiffFileAgainst(repo, "file.txt", "HEAD");
+    QTRY_COMPARE(EditorManager::currentEditor()->document()->displayName(),
+                 QString("file.txt (Unstaged vs HEAD)"));
+    // two hunks, but only the unstaged "four" gets buttons; the already
+    // staged "two changed" offers no actions
+    QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
+                 buttons.size() == 2));
+    buttons.first()->click(); // stage button of the unstaged hunk
+    QTRY_VERIFY(gitClient().vcsSynchronousExec(repo, {"diff", "--cached"})
+                    .cleanedStdOut().contains("+four"));
+    // afterwards nothing is unstaged, so no hunk offers actions anymore
+    QTRY_VERIFY(diffWidget->findChildren<QAbstractButton *>().isEmpty());
+
+    Core::IDocument *sourceDocument = Core::DocumentModel::documentForFilePath(file);
+    QVERIFY(sourceDocument);
+    QVERIFY(EditorManager::closeDocuments({sourceDocument}, false));
 }
 
 #endif
