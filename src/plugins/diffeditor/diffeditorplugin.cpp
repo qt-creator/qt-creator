@@ -431,38 +431,45 @@ void DiffEditorPlugin::updateDiffOpenFilesAction()
 
 void DiffEditorPlugin::diffCurrentFile()
 {
-    auto textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
-    if (!textEditor || !textEditor->editorWidget())
+    auto textDocument = currentTextDocument();
+    if (!textDocument)
         return;
-    const TextDocumentPtr document = textEditor->editorWidget()->textDocumentPtr();
 
-    const FilePath filePath = document->filePath();
+    const FilePath filePath = textDocument->filePath();
     if (filePath.isEmpty())
         return;
 
-    InlineDiffBaseline baseline;
-    baseline.id = "saved";
-    baseline.displayName = Tr::tr("Saved");
-    baseline.fetchText = [filePath, format = document->format()](
-                             const InlineDiffBaseline::TextCallback &callback) mutable {
-        const TextFileFormat::ReadResult result = format.readFile(filePath, format.encoding());
-        if (result.code == TextFileFormat::ReadSuccess)
-            callback(result.content);
-        else if (result.code == TextFileFormat::ReadIOError)
-            callback(QString()); // file not saved yet, everything is added
-        else
-            callback(Utils::ResultError(Tr::tr("Cannot read \"%1\".").arg(filePath.toUserOutput())));
-    };
-    // Documents too large for live diffing get the classic diff view, like
-    // the other entry points, instead of doing nothing.
-    if (openInlineDiffEditor(document, baseline,
-                             Tr::tr("%1 (Modified vs Saved)").arg(filePath.fileName()))) {
-        return;
+    // The inline diff editor requires a text editor for the document; custom
+    // text based editors and too large documents get the classic diff view.
+    IEditor *inlineEditor = nullptr;
+    auto textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+    if (textEditor && textEditor->editorWidget()
+        && textEditor->document() == textDocument) {
+        const TextDocumentPtr document = textEditor->editorWidget()->textDocumentPtr();
+        InlineDiffBaseline baseline;
+        baseline.id = "saved";
+        baseline.displayName = Tr::tr("Saved");
+        baseline.fetchText = [filePath, format = document->format()](
+                                 const InlineDiffBaseline::TextCallback &callback) mutable {
+            const TextFileFormat::ReadResult result = format.readFile(filePath,
+                                                                      format.encoding());
+            if (result.code == TextFileFormat::ReadSuccess)
+                callback(result.content);
+            else if (result.code == TextFileFormat::ReadIOError)
+                callback(QString()); // file not saved yet, everything is added
+            else
+                callback(Utils::ResultError(
+                    Tr::tr("Cannot read \"%1\".").arg(filePath.toUserOutput())));
+        };
+        inlineEditor = openInlineDiffEditor(
+            document, baseline, Tr::tr("%1 (Modified vs Saved)").arg(filePath.fileName()));
     }
-    const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".Diff.")
-            + filePath.toUrlishString();
-    const QString title = Tr::tr("Diff \"%1\"").arg(filePath.toUserOutput());
-    reload(documentId, title, [filePath] { return reloadInputHelper(filePath); });
+    if (!inlineEditor) {
+        const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".Diff.")
+                + filePath.toUrlishString();
+        const QString title = Tr::tr("Diff \"%1\"").arg(filePath.toUserOutput());
+        reload(documentId, title, [filePath] { return reloadInputHelper(filePath); });
+    }
 }
 
 void DiffEditorPlugin::diffOpenFiles()

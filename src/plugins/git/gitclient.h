@@ -176,6 +176,19 @@ public:
     // index inline. Falls back to diffFile() when the file cannot be shown
     // in a text editor or is too large for live diffing.
     void inlineDiffFile(const Utils::FilePath &workingDirectory, const QString &fileName);
+    // Like inlineDiffFile(), but compares against the given revision.
+    // refFileName is the file's path at that revision, if it differs.
+    void inlineDiffFileAgainst(const Utils::FilePath &workingDirectory, const QString &fileName,
+                               const QString &ref, const QString &refFileName = {},
+                               int line = -1);
+    // Shows the differences between two revisions of the file inline, with
+    // the newer revision in a read only editor. Used for following a file's
+    // history backwards via the blame tooltips' "Diff Against Previous".
+    void inlineDiffRevisions(const Utils::FilePath &workingDirectory,
+                             const Utils::FilePath &filePath,
+                             const QString &rightRef, const QString &rightFileName,
+                             const QString &leftRef, const QString &leftFileName,
+                             int line = -1);
     DiffEditor::InlineDiffBaseline indexBaseline(const Utils::FilePath &workingDirectory,
                                                  const QString &relativeFile);
     DiffEditor::InlineDiffBaseline revisionBaseline(const Utils::FilePath &workingDirectory,

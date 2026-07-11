@@ -247,7 +247,7 @@ class InlineDiffEditor final : public Core::IEditor
 {
 public:
     InlineDiffEditor(const TextDocumentPtr &source, const InlineDiffBaseline &baseline,
-                     const QString &title)
+                     const QString &title, bool readOnlySource)
         : m_source(source)
         , m_document(new InlineDiffDocument(source, title))
         , m_splitter(new QSplitter)
@@ -258,6 +258,10 @@ public:
 
         setContext(Core::Context("DiffEditor.InlineDiffEditor"));
         m_widget->setTextDocument(source);
+        if (readOnlySource) {
+            m_widget->setReadOnly(true);
+            m_widget->setupGenericHighlighter();
+        }
         m_splitter->setChildrenCollapsible(false);
         m_splitter->addWidget(m_widget);
         setWidget(m_splitter);
@@ -330,10 +334,21 @@ public:
         m_baseline = baseline;
         m_baselineText.reset();
         m_document->setPreferredDisplayName(title);
+        if (m_baselineWidget) {
+            // recreate the baseline view, it may carry baseline specific
+            // attachments like revision annotations
+            delete m_baselineWidget.data();
+            m_baselineDocument.reset();
+            if (m_viewMode == InlineDiffViewMode::SideBySide) {
+                ensureBaselineView();
+                m_baselineWidget->show();
+            }
+        }
         fetchBaseline();
     }
 
     InlineDiffViewMode viewMode() const { return m_viewMode; }
+    TextEditorWidget *editorWidget() const { return m_widget; }
 
     void setViewMode(InlineDiffViewMode mode)
     {
@@ -363,6 +378,9 @@ public:
     void gotoLine(int line, int column, bool centerLine) override
     {
         m_widget->gotoLine(line, column, centerLine);
+        // decorations arriving later insert rows above the line and push it
+        // away, so re-center once when the next diff result is applied
+        m_centerOnNextModel = centerLine;
     }
 
 private:
@@ -401,6 +419,8 @@ private:
                                                       InlineDiffDecorator::DiffSide::Baseline);
         m_splitter->insertWidget(0, m_baselineWidget);
         updateBaselineDocument();
+        if (m_baseline.setupBaselineView)
+            m_baseline.setupBaselineView(m_baselineWidget);
 
         // Both sides have the same pixel height thanks to the alignment
         // spacers, and the vertical scroll bars work on pixel offsets, so
@@ -451,6 +471,10 @@ private:
     {
         m_model = model;
         applyDecorations();
+        if (m_centerOnNextModel) {
+            m_centerOnNextModel = false;
+            m_widget->centerCursor();
+        }
     }
 
     void applyDecorations()
@@ -481,6 +505,7 @@ private:
     QPointer<QToolBar> m_toolBar;
     QAction *m_viewSwitcherAction = nullptr;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;
+    bool m_centerOnNextModel = false;
     InlineDiffBaseline m_baseline;
     std::optional<QString> m_baselineText;
     InlineDiffRenderModel m_model;
@@ -493,7 +518,8 @@ private:
 
 Core::IEditor *openInlineDiffEditor(const TextDocumentPtr &sourceDocument,
                                     const InlineDiffBaseline &baseline,
-                                    const QString &title)
+                                    const QString &title,
+                                    bool readOnlySource)
 {
     QTC_ASSERT(sourceDocument, return nullptr);
     QTC_ASSERT(baseline.isValid(), return nullptr);
@@ -504,7 +530,7 @@ Core::IEditor *openInlineDiffEditor(const TextDocumentPtr &sourceDocument,
         EditorManager::activateEditor(editor);
         return editor;
     }
-    auto editor = new InlineDiffEditor(sourceDocument, baseline, title);
+    auto editor = new InlineDiffEditor(sourceDocument, baseline, title, readOnlySource);
     EditorManager::addEditor(editor);
     return editor;
 }
@@ -515,6 +541,13 @@ static InlineDiffEditor *inlineDiffEditor(Core::IEditor *editor)
         if (candidate == editor)
             return candidate;
     }
+    return nullptr;
+}
+
+TextEditorWidget *inlineDiffEditorWidget(Core::IEditor *editor)
+{
+    if (InlineDiffEditor *diffEditor = inlineDiffEditor(editor))
+        return diffEditor->editorWidget();
     return nullptr;
 }
 

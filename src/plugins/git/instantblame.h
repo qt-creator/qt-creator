@@ -33,19 +33,55 @@ public:
     int line = -1;            ///< current line number in current file
     int originalLine = -1;    ///< original line number in the original file
     bool modified = false;    ///< line is locally modified (uncommitted)
+    QString viewRevision;     ///< revision shown in the blamed view, empty for the working tree
+    QString viewFileName;     ///< relative file path at viewRevision
 };
 
 class BlameMark : public TextEditor::TextMark
 {
 public:
     BlameMark(const Utils::FilePath &fileName, int lineNumber, const CommitInfo &info);
+    // for documents without a file path, e.g. the baseline view of the
+    // inline diff editor
+    BlameMark(TextEditor::TextDocument *document, int lineNumber, const CommitInfo &info);
     bool addToolTipContent(QLayout *target) const;
     QString toolTipText(const CommitInfo &info) const;
     void addOldLine(const QString &oldLine);
     void addNewLine(const QString &newLine);
 
 private:
+    void initialize();
+
     CommitInfo m_info;
+};
+
+// Shows blame annotations at a fixed revision for the line under the cursor
+// of an editor widget whose document contains that revision of the file, for
+// example the baseline view of the inline diff editor.
+class BaselineBlame : public QObject
+{
+    Q_OBJECT
+
+public:
+    BaselineBlame(TextEditor::TextEditorWidget *widget,
+                  const Utils::FilePath &topLevel,
+                  const QString &ref,
+                  const QString &relativeFile,
+                  const Utils::FilePath &workingFilePath);
+
+private:
+    void perform();
+
+    TextEditor::TextEditorWidget *m_widget = nullptr;
+    const Utils::FilePath m_topLevel;
+    const QString m_ref;
+    const QString m_relativeFile;
+    const Utils::FilePath m_workingFilePath;
+    Utils::TextEncoding m_encoding;
+    int m_lastLine = -1;
+    QTimer *m_cursorTimer = nullptr;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
+    std::unique_ptr<BlameMark> m_blameMark;
 };
 
 class InstantBlame : public QObject

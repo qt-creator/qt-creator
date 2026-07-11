@@ -10,6 +10,7 @@
 #include "gitplugin.h"
 #include "gittr.h"
 #include "gitutils.h"
+#include "instantblame.h"
 #include "mergetool.h"
 #include "temporarypatchfile.h"
 
@@ -1295,6 +1296,30 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
     });
 }
 
+// Opens filePath in a text editor and attaches the inline diff, going to
+// line, or keeping the file's cursor position. Returns nullptr if the file
+// cannot be shown in a text editor (e.g. designer or binary files) or is too
+// large for live diffing.
+static IEditor *openInlineDiff(const FilePath &filePath,
+                               const DiffEditor::InlineDiffBaseline &baseline,
+                               const QString &title,
+                               int line = -1)
+{
+    auto textEditor
+        = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::openEditor(filePath));
+    if (!textEditor || !textEditor->editorWidget())
+        return nullptr;
+    IEditor *diffEditor = DiffEditor::openInlineDiffEditor(
+        textEditor->editorWidget()->textDocumentPtr(), baseline, title);
+    if (diffEditor) {
+        if (line > 0)
+            diffEditor->gotoLine(line);
+        else
+            diffEditor->gotoLine(textEditor->currentLine(), textEditor->currentColumn());
+    }
+    return diffEditor;
+}
+
 void GitClient::inlineDiffFile(const FilePath &workingDirectory, const QString &fileName)
 {
     const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
@@ -1302,24 +1327,104 @@ void GitClient::inlineDiffFile(const FilePath &workingDirectory, const QString &
     const FilePath filePath = workingDirectory.resolvePath(fileName);
     const QString relativeFile = filePath.relativeChildPath(topLevel).path();
 
-    Core::IEditor *diffEditor = nullptr;
-    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::openEditor(filePath));
-    if (textEditor && textEditor->editorWidget()) {
-        diffEditor = DiffEditor::openInlineDiffEditor(
-            textEditor->editorWidget()->textDocumentPtr(),
-            indexBaseline(topLevel, relativeFile),
-            Tr::tr("%1 (Unstaged)").arg(filePath.fileName()));
-    }
-    // no text editor for the file (e.g. designer or binary files), or the
-    // file is too large for live diffing
-    if (!diffEditor)
+    if (!openInlineDiff(filePath, indexBaseline(topLevel, relativeFile),
+                        Tr::tr("%1 (Unstaged)").arg(filePath.fileName()))) {
         diffFile(workingDirectory, fileName, Unstaged);
+    }
+}
+
+void GitClient::inlineDiffFileAgainst(const FilePath &workingDirectory, const QString &fileName,
+                                      const QString &ref, const QString &refFileName, int line)
+{
+    const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
+    QTC_ASSERT(!topLevel.isEmpty(), return);
+    QTC_ASSERT(!ref.isEmpty(), return);
+    const FilePath filePath = workingDirectory.resolvePath(fileName);
+    const QString relativeFile = filePath.relativeChildPath(topLevel).path();
+    const QString baselineFile = refFileName.isEmpty() ? relativeFile : refFileName;
+
+    if (!openInlineDiff(filePath, revisionBaseline(topLevel, ref, baselineFile),
+                        Tr::tr("%1 (Unstaged vs %2)").arg(filePath.fileName(), ref),
+                        line)) {
+        // classic diff of the working tree file against the revision
+        const QString title = Tr::tr("Git Diff \"%1\" vs \"%2\"").arg(relativeFile, ref);
+        const QString documentId = gitDocumentId(".DiffFile.", filePath) + "." + ref;
+        requestReload(documentId, filePath, title, topLevel,
+                      [ref, relativeFile](IDocument *doc) {
+            return new GitDiffEditorController(doc, ref, {}, {"--", relativeFile});
+        });
+    }
 }
 
 DiffEditor::InlineDiffBaseline GitClient::indexBaseline(const FilePath &workingDirectory,
                                                         const QString &relativeFile)
 {
     return revisionBaseline(workingDirectory, {}, relativeFile);
+}
+
+static QString shortRefLabel(const QString &ref)
+{
+    // shorten full hashes, keep suffixes like "^" readable
+    static const QRegularExpression hashRe("^[0-9a-f]{40}");
+    if (hashRe.match(ref).hasMatch())
+        return ref.left(8) + ref.mid(40);
+    return ref;
+}
+
+void GitClient::inlineDiffRevisions(const FilePath &workingDirectory, const FilePath &filePath,
+                                    const QString &rightRef, const QString &rightFileName,
+                                    const QString &leftRef, const QString &leftFileName, int line)
+{
+    const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
+    QTC_ASSERT(!topLevel.isEmpty(), return);
+    QTC_ASSERT(!rightRef.isEmpty() && !leftRef.isEmpty(), return);
+
+    // fetch the newer revision's contents, then show it read only with the
+    // older revision as the baseline
+    enqueueCommand(
+        {topLevel,
+         {"show", rightRef + ":" + rightFileName},
+         RunFlag::NoOutput | RunFlag::ForceCLocale,
+         {},
+         encoding(EncodingSource, filePath),
+         [this, topLevel, filePath, rightRef, rightFileName, leftRef, leftFileName,
+          line](const CommandResult &result) {
+             if (result.result() != ProcessResult::FinishedWithSuccess) {
+                 VcsOutputWindow::appendError(topLevel, result.cleanedStdErr());
+                 return;
+             }
+             const TextEditor::TextDocumentPtr snapshot(new TextEditor::TextDocument);
+             snapshot->setMimeType(Utils::mimeTypeForFile(filePath).name());
+             snapshot->document()->setPlainText(result.cleanedStdOut());
+             snapshot->document()->setModified(false);
+
+             const QString title = Tr::tr("%1 (%2 vs %3)").arg(
+                 filePath.fileName(), shortRefLabel(rightRef), shortRefLabel(leftRef));
+             Core::IEditor *diffEditor = DiffEditor::openInlineDiffEditor(
+                 snapshot, revisionBaseline(topLevel, leftRef, leftFileName), title,
+                 /*readOnlySource=*/true);
+             if (!diffEditor) {
+                 // classic diff between the two revisions
+                 const QString classicTitle = Tr::tr("Git Diff \"%1\" %2 vs %3")
+                     .arg(rightFileName, shortRefLabel(rightRef), shortRefLabel(leftRef));
+                 const QString documentId = gitDocumentId(".DiffRevs.", filePath)
+                     + "." + leftRef + "." + rightRef;
+                 requestReload(documentId, filePath, classicTitle, topLevel,
+                               [leftRef, rightRef, rightFileName](IDocument *doc) {
+                     return new GitDiffEditorController(doc, leftRef, rightRef,
+                                                        {"--", rightFileName});
+                 });
+                 return;
+             }
+             if (line > 0)
+                 diffEditor->gotoLine(line);
+             // annotate the snapshot side with the blame at its revision, so
+             // that the history can be followed from both sides
+             if (TextEditor::TextEditorWidget *widget
+                 = DiffEditor::inlineDiffEditorWidget(diffEditor)) {
+                 new BaselineBlame(widget, topLevel, rightRef, rightFileName, filePath);
+             }
+         }});
 }
 
 DiffEditor::InlineDiffBaseline GitClient::revisionBaseline(const FilePath &workingDirectory,
@@ -1357,6 +1462,14 @@ DiffEditor::InlineDiffBaseline GitClient::revisionBaseline(const FilePath &worki
                  }
              }});
     };
+    if (!ref.isEmpty()) {
+        // let the read only baseline view annotate its lines with the blame
+        // at the baseline revision, so that history can be followed further
+        baseline.setupBaselineView = [workingDirectory, ref, relativeFile,
+                                      sourceFile](TextEditor::TextEditorWidget *widget) {
+            new BaselineBlame(widget, workingDirectory, ref, relativeFile, sourceFile);
+        };
+    }
     return baseline;
 }
 

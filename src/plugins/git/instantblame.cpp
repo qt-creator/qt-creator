@@ -10,6 +10,7 @@
 #include "gittr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -48,6 +49,21 @@ BlameMark::BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo 
                            {Tr::tr("Git Blame"), Constants::TEXT_MARK_CATEGORY_BLAME})
     , m_info(info)
 {
+    initialize();
+}
+
+BlameMark::BlameMark(TextEditor::TextDocument *document, int lineNumber, const CommitInfo &info)
+    : TextEditor::TextMark(document,
+                           lineNumber,
+                           {Tr::tr("Git Blame"), Constants::TEXT_MARK_CATEGORY_BLAME})
+    , m_info(info)
+{
+    initialize();
+}
+
+void BlameMark::initialize()
+{
+    const CommitInfo &info = m_info;
     QString text = info.shortAuthor + " " + info.authorDate.toString("yyyy-MM-dd");
     if (settings().instantBlameShowSubject())
         text += " • " + info.subject;
@@ -77,11 +93,15 @@ bool BlameMark::addToolTipContent(QLayout *target) const
             qCInfo(log) << "Link activated with target:" << link;
             const QString hash = (link == "blameParent") ? info.hash + "^" : info.hash;
 
-            if (link.startsWith("blame") || link == "revert" || link == "showFile") {
-                const VcsBasePluginState state = currentState();
-                QTC_ASSERT(state.hasTopLevel(), return);
-                const FilePath path = state.topLevel();
+            // The tooltip may be shown in editors whose document has no file
+            // path of its own (e.g. the inline diff editor), so derive the
+            // context from the blamed file instead of the current editor.
+            const FilePath topLevel
+                = Core::VcsManager::findTopLevelForDirectory(info.filePath.parentDir());
+            QTC_ASSERT(!topLevel.isEmpty(), return);
 
+            if (link.startsWith("blame") || link == "revert" || link == "showFile") {
+                const FilePath path = topLevel;
                 const QString originalFileName = info.originalFileName;
                 if (link.startsWith("blame")) {
                     qCInfo(log).nospace().noquote()
@@ -107,16 +127,39 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                     gitClient().openShowEditor(path, hash, fileName, GitClient::ShowEditor::Always,
                                                info.originalLine);
                 }
-            } else if (link == "logLine") {
-                const VcsBasePluginState state = currentState();
-                QTC_ASSERT(state.hasFile(), return);
+            } else if (link == "diffParent") {
+                qCInfo(log).nospace().noquote()
+                    << "Inline diff for: \"" << info.filePath << "\" against " << hash << "^";
 
+                if (info.viewRevision.isEmpty()) {
+                    if (info.modified) {
+                        // Uncommitted lines are compared against the index,
+                        // where staging them has a visible effect. The
+                        // editor keeps the cursor's line visible.
+                        gitClient().inlineDiffFile(topLevel, info.filePath.path());
+                    } else {
+                        // working tree against the line's previous version
+                        gitClient().inlineDiffFileAgainst(topLevel,
+                                                          info.filePath.path(),
+                                                          hash + "^", info.originalFileName,
+                                                          info.line);
+                    }
+                } else {
+                    // the blamed view shows a revision already: diff that
+                    // revision against the line's previous version
+                    gitClient().inlineDiffRevisions(topLevel, info.filePath,
+                                                    info.viewRevision, info.viewFileName,
+                                                    hash + "^", info.originalFileName,
+                                                    info.line);
+                }
+            } else if (link == "logLine") {
                 qCInfo(log).nospace().noquote()
                     << "Showing log for: \"" << info.filePath << "\" line:" << info.line;
 
+                const QString relativeFile = info.filePath.relativeChildPath(topLevel).path();
                 const QString lineArg
-                    = QString("-L %1,%1:%2").arg(info.line).arg(state.relativeCurrentFile());
-                gitClient().log(state.currentFileTopLevel(), {}, true, {lineArg, "--no-patch"});
+                    = QString("-L %1,%1:%2").arg(info.line).arg(relativeFile);
+                gitClient().log(topLevel, {}, true, {lineArg, "--no-patch"});
             } else {
                 qCInfo(log).nospace().noquote()
                     << "Showing commit: " << hash << " for " << info.filePath;
@@ -138,6 +181,7 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
         const QString showFile = Tr::tr("File at %1").arg(info.hash.left(8));
         const QString revert = Tr::tr("Revert %1").arg(info.hash.left(8));
         const QString logForLine = Tr::tr("Log for line %1").arg(info.line);
+        const QString diffParent = Tr::tr("Diff Against Parent");
         actions = QString(
                       "<table cellspacing=\"10\"><tr>"
                       "  <td><a href=\"blame\">%1</a></td>"
@@ -145,9 +189,20 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
                       "  <td><a href=\"showFile\">%3</a></td>"
                       "  <td><a href=\"revert\">%4</a></td>"
                       "  <td><a href=\"logLine\">%5</a></td>"
+                      "  <td><a href=\"diffParent\">%6</a></td>"
                       "</tr></table>"
                       "<p></p>")
-                      .arg(blameRevision, blameParent, showFile, revert, logForLine);
+                      .arg(blameRevision, blameParent, showFile, revert, logForLine,
+                           diffParent);
+    } else {
+        // uncommitted lines (changed or staged) can still be diffed against
+        // the last committed state
+        actions = QString(
+                      "<table cellspacing=\"10\"><tr>"
+                      "  <td><a href=\"diffParent\">%1</a></td>"
+                      "</tr></table>"
+                      "<p></p>")
+                      .arg(Tr::tr("Diff"));
     }
 
     const QString header = QString(
@@ -553,6 +608,94 @@ void InstantBlame::slotDocumentChanged()
     if (m_modified && !modified)
         scheduleInstantBlame();
     m_modified = modified;
+}
+
+BaselineBlame::BaselineBlame(TextEditorWidget *widget,
+                             const FilePath &topLevel,
+                             const QString &ref,
+                             const QString &relativeFile,
+                             const FilePath &workingFilePath)
+    : QObject(widget)
+    , m_widget(widget)
+    , m_topLevel(topLevel)
+    , m_ref(ref)
+    , m_relativeFile(relativeFile)
+    , m_workingFilePath(workingFilePath)
+    , m_encoding(gitClient().defaultCommitEncoding())
+{
+    m_cursorTimer = new QTimer(this);
+    m_cursorTimer->setSingleShot(true);
+    m_cursorTimer->setInterval(500);
+    connect(m_cursorTimer, &QTimer::timeout, this, &BaselineBlame::perform);
+    connect(widget, &PlainTextEdit::cursorPositionChanged,
+            this, [this] { m_cursorTimer->start(); });
+    m_cursorTimer->start();
+}
+
+void BaselineBlame::perform()
+{
+    const int line = m_widget->textCursor().blockNumber() + 1;
+    if (line >= m_widget->document()->blockCount()) {
+        m_lastLine = -1;
+        m_blameMark.reset();
+        return;
+    }
+    if (m_lastLine == line)
+        return;
+    m_lastLine = line;
+
+    const QString lineString = QString("%1,%1").arg(line);
+    QStringList options = {"blame", "-p"};
+    if (settings().instantBlameIgnoreSpaceChanges())
+        options.append("-w");
+    if (settings().instantBlameIgnoreLineMoves())
+        options.append("-M");
+    options.append({"-L", lineString, m_ref, "--", m_relativeFile});
+    qCDebug(log) << "Running git" << options.join(' ');
+
+    const Storage<CommitInfo> infoStorage;
+    const auto blameHandler = [this, line, infoStorage](const CommandResult &result) {
+        const QString output = result.cleanedStdOut();
+        if (result.result() != ProcessResult::FinishedWithSuccess || output.isEmpty()) {
+            m_blameMark.reset();
+            return;
+        }
+        *infoStorage = parseBlameOutput(output.split('\n'), m_workingFilePath, line, {});
+        infoStorage->viewRevision = m_ref;
+        infoStorage->viewFileName = m_relativeFile;
+        m_blameMark.reset(new BlameMark(m_widget->textDocument(), line, *infoStorage));
+    };
+    const TextEncoding encoding = m_encoding;
+    const FilePath topLevel = m_topLevel;
+    const auto onLogSetup = [infoStorage, topLevel, encoding](Process &process) -> SetupResult {
+        if (infoStorage->hash.isEmpty())
+            return SetupResult::StopWithSuccess;
+        const QString origLineString = QString("%1,%1").arg(infoStorage->originalLine);
+        const QString fileLineRange = "-L" + origLineString + ":" + infoStorage->originalFileName;
+        const QStringList logOptions = {"log", "-n 1", "-p", fileLineRange, infoStorage->hash};
+        gitClient().setupCommand(process, topLevel, logOptions);
+        process.setEncoding(encoding);
+        return SetupResult::Continue;
+    };
+    const auto onLogDone = [this](const Process &process) {
+        if (!m_blameMark)
+            return;
+        static const QRegularExpression re("^[-+][^-+].*");
+        const QStringList diffLines = process.cleanedStdOut().split("\n").filter(re);
+        for (const QString &diffLine : diffLines) {
+            if (diffLine.startsWith("-"))
+                m_blameMark->addOldLine(diffLine);
+            else if (diffLine.startsWith("+"))
+                m_blameMark->addNewLine(diffLine);
+        }
+    };
+
+    m_taskTreeRunner.start({
+        infoStorage,
+        gitClient().commandTask({m_topLevel, options, RunFlag::NoOutput, {}, m_encoding,
+                                 blameHandler}),
+        ProcessTask(onLogSetup, onLogDone, CallDoneFlag::OnSuccess)
+    });
 }
 
 } // Git::Internal

@@ -34,6 +34,11 @@ public:
     // Asynchronous provider for the baseline contents. The callback must be
     // invoked on the main thread with '\n' line endings.
     std::function<void(const TextCallback &)> fetchText;
+    // Optional: called for the read only baseline view of the side by side
+    // mode, e.g. to attach revision annotations. Attached objects should
+    // parent themselves to the widget; the view is recreated when the
+    // editor is re-targeted to another baseline.
+    std::function<void(TextEditor::TextEditorWidget *)> setupBaselineView;
 };
 
 // The result of diffing the baseline against the editor contents, expressed
@@ -67,12 +72,19 @@ DIFFEDITOR_EXPORT InlineDiffRenderModel mapChunkToRenderModel(
 // the differences between the baseline and the document contents inline. The
 // editor shares the text with sourceDocument, so edits show up immediately in
 // its regular editors as well, which stay free of diff decorations.
+// With readOnlySource set, the document is shown read only with a generic
+// highlighter, e.g. for revision snapshots that have no regular editors.
 // Returns nullptr if the document is too large for live diffing; callers
 // should fall back to a regular diff view then.
 DIFFEDITOR_EXPORT Core::IEditor *openInlineDiffEditor(
     const TextEditor::TextDocumentPtr &sourceDocument,
     const InlineDiffBaseline &baseline,
-    const QString &title);
+    const QString &title,
+    bool readOnlySource = false);
+
+// The text editor widget showing the document side of an inline diff editor,
+// e.g. for attaching revision annotations to a read only snapshot.
+DIFFEDITOR_EXPORT TextEditor::TextEditorWidget *inlineDiffEditorWidget(Core::IEditor *editor);
 
 enum class InlineDiffViewMode { Inline, SideBySide };
 

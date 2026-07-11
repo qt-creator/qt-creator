@@ -79,7 +79,11 @@ TextMark::TextMark(TextDocument *document, int lineNumber, TextMarkCategory cate
     , m_visible(true)
     , m_category(category)
 {
-    if (!m_fileName.isEmpty())
+    if (!document)
+        return;
+    if (m_fileName.isEmpty())
+        document->addMark(this); // documents without a file path are not registry tracked
+    else
         TextMarkRegistry::add(this, document);
 }
 
