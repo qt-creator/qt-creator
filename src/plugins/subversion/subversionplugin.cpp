@@ -1173,6 +1173,10 @@ void SubversionPluginPrivate::updateNextModificationInfo()
     const auto command = [path, this](const CommandResult &result) {
         updateNextModificationInfo();
 
+        // Do not overwrite the cached status on transient failures.
+        if (result.result() != ProcessResult::FinishedWithSuccess)
+            return;
+
         const QStringList res = result.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
         FileStateHash modifiedFiles;
         VcsFileStatusList fileStatus;

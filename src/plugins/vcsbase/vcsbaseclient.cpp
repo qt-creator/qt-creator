@@ -473,6 +473,9 @@ void VcsBaseClient::requestStatus(const FilePath &repository,
     enqueueCommand({.workingDirectory = repository, .arguments = args,
                     .flags = RunFlag::NoOutput,
                     .commandHandler = [this, handler](const CommandResult &result) {
+                        // Do not overwrite the cached status on transient failures.
+                        if (result.result() != ProcessResult::FinishedWithSuccess)
+                            return;
                         QList<StatusItem> items;
                         const QStringList lines = result.cleanedStdOut().split('\n');
                         for (const QString &line : lines) {

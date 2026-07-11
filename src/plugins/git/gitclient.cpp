@@ -1098,6 +1098,10 @@ void GitClient::updateNextModificationInfo()
     const auto command = [path, this](const CommandResult &result) {
         updateNextModificationInfo();
 
+        // Do not overwrite the cached status on transient failures.
+        if (result.result() != ProcessResult::FinishedWithSuccess)
+            return;
+
         const ParsedRepoStatus parsed = parsePorcelainStatus(result.cleanedStdOut());
 
         // Only feed the file decoration registry for monitored repositories while

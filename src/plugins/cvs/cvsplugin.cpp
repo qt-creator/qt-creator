@@ -687,6 +687,9 @@ void CvsPluginPrivate::requestRepositoryStatus(const FilePath &repository)
         {.workingDirectory = repository, .arguments = {"status"},
          .flags = RunFlag::NoOutput | RunFlag::MergeOutputChannels,
          .commandHandler = [this, repository](const CommandResult &result) {
+             // Do not overwrite the cached status on transient failures.
+             if (result.result() != ProcessResult::FinishedWithSuccess)
+                 return;
              using FileState = Core::VcsFileState;
              VcsFileStatusList status;
              const StateList statusOutput = parseStatusOutput({}, result.cleanedStdOut());
