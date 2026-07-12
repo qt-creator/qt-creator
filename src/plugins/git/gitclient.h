@@ -202,6 +202,11 @@ public:
         const Utils::FilePath &workingDirectory, const QString &relativeFile,
         const QString &editorText,
         const std::function<void(const DiffEditor::InlineDiffLineRanges &)> &callback);
+    void withIndexDiff(
+        const Utils::FilePath &workingDirectory, const QString &relativeFile,
+        const QString &editorText,
+        const std::function<void(const Utils::Result<DiffEditor::InlineDiffRenderModel> &,
+                                 const QString &indexText)> &handler);
     DiffEditor::InlineDiffBaseline indexBaseline(const Utils::FilePath &workingDirectory,
                                                  const QString &relativeFile);
     std::function<void(const DiffEditor::InlineDiffChunk &, const QString &)>

@@ -1419,12 +1419,12 @@ static DiffEditor::InlineDiffRenderModel diffAgainstEditorText(const QString &ba
         baseText.endsWith('\n'), editorText.endsWith('\n'));
 }
 
-// Reports the editor lines of relativeFile that differ from the index, so
-// that working tree views displaying other baselines can restrict their hunk
-// actions to blocks that actually contain unstaged changes.
-void GitClient::fetchUnstagedLines(
+// Fetches the index contents of relativeFile and reports the in-process diff
+// against editorText, together with the index text the diff is based on.
+void GitClient::withIndexDiff(
     const FilePath &workingDirectory, const QString &relativeFile, const QString &editorText,
-    const std::function<void(const DiffEditor::InlineDiffLineRanges &)> &callback)
+    const std::function<void(const Utils::Result<DiffEditor::InlineDiffRenderModel> &,
+                             const QString &indexText)> &handler)
 {
     enqueueCommand(
         {workingDirectory,
@@ -1432,23 +1432,40 @@ void GitClient::fetchUnstagedLines(
          RunFlag::NoOutput | RunFlag::ForceCLocale,
          {},
          encoding(EncodingSource, workingDirectory.resolvePath(relativeFile)),
-         [editorText, callback](const CommandResult &result) {
+         [editorText, handler](const CommandResult &result) {
              if (result.result() != ProcessResult::FinishedWithSuccess) {
-                 // not in the index (or unreadable): everything is unstaged
-                 callback({{1, int(editorText.count('\n')) + 1}});
+                 handler(Utils::ResultError(result.cleanedStdErr()), {});
                  return;
              }
              QString indexText = result.cleanedStdOut();
              indexText.replace("\r\n", "\n");
-             const DiffEditor::InlineDiffRenderModel model
-                 = diffAgainstEditorText(indexText, editorText);
-             DiffEditor::InlineDiffLineRanges ranges;
-             for (const DiffEditor::InlineDiffChunk &hunk : model.hunks) {
-                 ranges.append({hunk.editorStartLine,
-                                hunk.editorStartLine + qMax(hunk.editorLineCount, 1) - 1});
-             }
-             callback(ranges);
+             handler(diffAgainstEditorText(indexText, editorText), indexText);
          }});
+}
+
+// Reports the editor lines of relativeFile that differ from the index, so
+// that working tree views displaying other baselines can restrict their hunk
+// actions to blocks that actually contain unstaged changes.
+void GitClient::fetchUnstagedLines(
+    const FilePath &workingDirectory, const QString &relativeFile, const QString &editorText,
+    const std::function<void(const DiffEditor::InlineDiffLineRanges &)> &callback)
+{
+    withIndexDiff(workingDirectory, relativeFile, editorText,
+                  [editorText, callback](
+                      const Utils::Result<DiffEditor::InlineDiffRenderModel> &model,
+                      const QString &) {
+        if (!model) {
+            // not in the index (or unreadable): everything is unstaged
+            callback({{1, int(editorText.count('\n')) + 1}});
+            return;
+        }
+        DiffEditor::InlineDiffLineRanges ranges;
+        for (const DiffEditor::InlineDiffChunk &hunk : model->hunks) {
+            ranges.append({hunk.editorStartLine,
+                           hunk.editorStartLine + qMax(hunk.editorLineCount, 1) - 1});
+        }
+        callback(ranges);
+    });
 }
 
 void GitClient::stageHunk(const FilePath &workingDirectory, const QString &relativeFile,
@@ -1460,26 +1477,26 @@ void GitClient::stageHunk(const FilePath &workingDirectory, const QString &relat
     // the blocks overlapping the hunk as a zero context patch.
     const int requestedStart = hunk.editorStartLine;
     const int requestedEnd = hunk.editorStartLine + qMax(hunk.editorLineCount, 1) - 1;
-    enqueueCommand(
-        {workingDirectory,
-         {"show", ":" + relativeFile},
-         RunFlag::NoOutput | RunFlag::ForceCLocale,
-         {},
-         encoding(EncodingSource, workingDirectory.resolvePath(relativeFile)),
-         [this, workingDirectory, relativeFile, requestedStart, requestedEnd,
-          editorText](const CommandResult &result) {
-             if (result.result() != ProcessResult::FinishedWithSuccess) {
-                 VcsOutputWindow::appendError(workingDirectory, result.cleanedStdErr());
+    withIndexDiff(
+        workingDirectory, relativeFile, editorText,
+        [this, workingDirectory, relativeFile, requestedStart, requestedEnd, editorText](
+            const Utils::Result<DiffEditor::InlineDiffRenderModel> &model,
+            const QString &indexText) {
+             if (!model) {
+                 VcsOutputWindow::appendError(workingDirectory, model.error());
                  return;
              }
-             QString indexText = result.cleanedStdOut();
-             indexText.replace("\r\n", "\n");
-             const DiffEditor::InlineDiffRenderModel model
-                 = diffAgainstEditorText(indexText, editorText);
 
              const QStringList editorLines = editorText.split('\n');
+             const char noNewline[] = "\\ No newline at end of file\n";
+             // the number of the last real line of each side, for the "no
+             // newline at end of file" markers below
+             const int indexLastLine = model->baselineEndsWithNewline
+                                           ? -1 : int(indexText.count('\n')) + 1;
+             const int editorLastLine = model->editorEndsWithNewline
+                                            ? -1 : int(editorText.count('\n')) + 1;
              QString patchBody;
-             for (const DiffEditor::InlineDiffChunk &indexHunk : model.hunks) {
+             for (const DiffEditor::InlineDiffChunk &indexHunk : model->hunks) {
                  const int start = indexHunk.editorStartLine;
                  const int end = indexHunk.editorStartLine
                                  + qMax(indexHunk.editorLineCount, 1) - 1;
@@ -1495,9 +1512,13 @@ void GitClient::stageHunk(const FilePath &workingDirectory, const QString &relat
                                   .arg(newStart).arg(newCount);
                  for (const QString &line : indexHunk.baselineLines)
                      patchBody += '-' + line + '\n';
+                 if (oldCount > 0 && indexHunk.baselineStartLine + oldCount - 1 == indexLastLine)
+                     patchBody += noNewline;
                  for (int i = 0; i < newCount; ++i)
                      patchBody += '+' + editorLines.value(indexHunk.editorStartLine - 1 + i)
                                   + '\n';
+                 if (newCount > 0 && indexHunk.editorStartLine + newCount - 1 == editorLastLine)
+                     patchBody += noNewline;
              }
              if (patchBody.isEmpty()) {
                  VcsOutputWindow::appendMessage(
@@ -1510,18 +1531,25 @@ void GitClient::stageHunk(const FilePath &workingDirectory, const QString &relat
              const QString patch = "--- a/" + relativeFile + "\n+++ b/" + relativeFile + "\n"
                                    + patchBody;
              TemporaryPatchFile patchFile(patch);
-             QString errorMessage;
-             if (synchronousApplyPatch(workingDirectory,
-                                       patchFile.filePath().toUrlishString(),
-                                       &errorMessage, {"--cached", "--unidiff-zero"})) {
+             // no --whitespace=fix here: staging must put exactly the
+             // editor's contents into the index, not a cleaned up variant
+             // that would leave the block looking unstaged
+             const CommandResult applyResult = vcsSynchronousExec(
+                 workingDirectory,
+                 {"apply", "--cached", "--unidiff-zero", "--whitespace=nowarn",
+                  patchFile.filePath().toUrlishString()});
+             if (applyResult.result() == ProcessResult::FinishedWithSuccess) {
                  VcsOutputWindow::appendMessage(
                      workingDirectory,
                      Tr::tr("Staged the selected block of \"%1\".").arg(relativeFile));
                  VcsManager::emitRepositoryChanged(workingDirectory);
-             } else if (!errorMessage.isEmpty()) {
-                 VcsOutputWindow::appendError(workingDirectory, errorMessage);
+             } else {
+                 VcsOutputWindow::appendError(
+                     workingDirectory,
+                     Tr::tr("Cannot stage the selected block of \"%1\": %2")
+                         .arg(relativeFile, applyResult.cleanedStdErr()));
              }
-         }});
+         });
 }
 
 static QString shortRefLabel(const QString &ref)
@@ -1557,7 +1585,11 @@ void GitClient::openSnapshotInlineDiff(const FilePath &topLevel, const FilePath 
          [topLevel, filePath, showSpec, blameRev, snapshotFileName, baseline, title, line,
           classicFallback](const CommandResult &result) {
              if (result.result() != ProcessResult::FinishedWithSuccess) {
+                 // e.g. a staged deletion: the newer side does not exist, but
+                 // the classic diff view can still show the change
                  VcsOutputWindow::appendError(topLevel, result.cleanedStdErr());
+                 if (classicFallback)
+                     classicFallback();
                  return;
              }
              // the snapshot contents are fetched anew on every invocation,
@@ -1566,6 +1598,8 @@ void GitClient::openSnapshotInlineDiff(const FilePath &topLevel, const FilePath 
                                        + baseline.id;
              if (Core::IEditor *previous = snapshotDiffEditors().value(editorKey))
                  EditorManager::closeEditors({previous}, false);
+             // the registry outlives its editors; drop dead entries
+             snapshotDiffEditors().removeIf([](const auto &it) { return it.value().isNull(); });
 
              const TextEditor::TextDocumentPtr snapshot(new TextEditor::TextDocument);
              snapshot->setMimeType(Utils::mimeTypeForFile(filePath).name());

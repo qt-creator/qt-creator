@@ -31,6 +31,7 @@ public:
     Utils::FilePath topLevel; ///< repository top level path
     Utils::FilePath filePath; ///< absolute file path for current file
     QString originalFileName; ///< relative file path from project root for the original file
+    QString previousFileName; ///< relative file path in the parent commit, if it differs (renames)
     int line = -1;            ///< current line number in current file
     int originalLine = -1;    ///< original line number in the original file
     bool modified = false;    ///< line is locally modified (uncommitted)

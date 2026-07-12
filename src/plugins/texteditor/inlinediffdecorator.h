@@ -13,6 +13,7 @@
 #include <QPair>
 #include <QPointer>
 #include <QStringList>
+#include <QTextCursor>
 
 namespace TextEditor {
 
@@ -73,14 +74,20 @@ public:
     void clear();
 
 private:
+    bool eventFilter(QObject *object, QEvent *event) override;
     void clearGhostItems();
-    void stripChangedLineFormats();
+    int stripChangedLineFormats();
+    bool anchorsRecycled() const;
 
     QPointer<TextEditorWidget> m_widget;
     const DiffSide m_side;
     QList<GhostBlock> m_ghosts;
     QList<ChangedRange> m_changes;
     QList<Spacer> m_spacers;
+    // fragment indexes of the blocks carrying ghost or spacer items, with
+    // cursors tracking those blocks through edits: a mismatch means the
+    // index was recycled by an unrelated block
+    QList<QPair<QTextCursor, int>> m_itemAnchors;
     int m_lastBlockCount = 0;
 };
 

@@ -110,6 +110,11 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                 qCInfo(log).nospace().noquote()
                     << "Inline diff for: \"" << info.filePath << "\" against " << hash << "^";
 
+                // the parent side file name differs when the blamed commit
+                // renamed the file
+                const QString parentFileName = info.previousFileName.isEmpty()
+                                                   ? info.originalFileName
+                                                   : info.previousFileName;
                 if (info.viewRevision.isEmpty()) {
                     if (info.modified) {
                         // Uncommitted lines are compared against the index,
@@ -120,7 +125,7 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                         // working tree against the line's previous version
                         gitClient().inlineDiffFileAgainst(topLevel,
                                                           info.filePath.path(),
-                                                          hash + "^", info.originalFileName,
+                                                          hash + "^", parentFileName,
                                                           info.line);
                     }
                 } else {
@@ -128,7 +133,7 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                     // revision against the line's previous version
                     gitClient().inlineDiffRevisions(topLevel, info.filePath,
                                                     info.viewRevision, info.viewFileName,
-                                                    hash + "^", info.originalFileName,
+                                                    hash + "^", parentFileName,
                                                     info.line);
                 }
             } else if (link == "logLine") {
@@ -378,10 +383,19 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const FilePath &fil
     result.authorDate = QDateTime::fromSecsSinceEpoch(timeStamp);
     result.filePath = filePath;
     // blame.at(10) can be "boundary", "previous" or "filename"
-    if (blame.at(10).startsWith("filename"))
+    if (blame.at(10).startsWith("filename")) {
         result.originalFileName = blame.at(10).mid(9);
-    else
+    } else {
+        // "previous <hash> <filename>" carries the file name on the parent
+        // side, which differs when the blamed commit renamed the file
+        if (blame.at(10).startsWith("previous ")) {
+            const QString previous = blame.at(10).mid(9);
+            const int space = previous.indexOf(' ');
+            if (space > 0)
+                result.previousFileName = previous.mid(space + 1);
+        }
         result.originalFileName = blame.at(11).mid(9);
+    }
     result.line = line;
     if (firstLineParts.size() > 1)
         result.originalLine = firstLineParts.at(1).toInt();
@@ -420,6 +434,15 @@ void InstantBlame::scheduleInstantBlame()
         m_scheduleTimer->start(0);
 }
 
+// the empty block after a trailing newline is not a real line
+static bool isPhantomLine(const QTextDocument *document, int line)
+{
+    const int blockCount = document->blockCount();
+    if (line > blockCount)
+        return true;
+    return line == blockCount && blockCount > 1 && document->lastBlock().text().isEmpty();
+}
+
 void InstantBlame::perform()
 {
     const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
@@ -438,9 +461,8 @@ void InstantBlame::perform()
     const QTextCursor cursor = widget->textCursor();
     const QTextBlock block = cursor.block();
     const int line = block.blockNumber() + 1;
-    const int lines = widget->document()->blockCount();
 
-    if (line >= lines) {
+    if (isPhantomLine(widget->document(), line)) {
         m_lastVisitedEditorLine = -1;
         m_blameMark.reset();
         return;
@@ -619,6 +641,17 @@ BaselineBlame::BaselineBlame(TextEditorWidget *widget,
     , m_workingFilePath(workingFilePath)
     , m_encoding(gitClient().defaultCommitEncoding())
 {
+    // author names and subjects are encoded with the repository's commit
+    // encoding, not necessarily the default
+    gitClient().readConfigAsync(topLevel, {"config", "i18n.commitEncoding"},
+                                [guard = QPointer<BaselineBlame>(this)](
+                                    const CommandResult &result) {
+        if (!guard || result.result() != ProcessResult::FinishedWithSuccess)
+            return;
+        const QString codecName = result.cleanedStdOut().trimmed();
+        if (!codecName.isEmpty())
+            guard->m_encoding = codecName.toUtf8();
+    });
     m_cursorTimer = new QTimer(this);
     m_cursorTimer->setSingleShot(true);
     m_cursorTimer->setInterval(500);
@@ -630,8 +663,12 @@ BaselineBlame::BaselineBlame(TextEditorWidget *widget,
 
 void BaselineBlame::perform()
 {
+    if (!settings().instantBlame()) {
+        m_blameMark.reset();
+        return;
+    }
     const int line = m_widget->textCursor().blockNumber() + 1;
-    if (line >= m_widget->document()->blockCount()) {
+    if (isPhantomLine(m_widget->document(), line)) {
         m_lastLine = -1;
         m_blameMark.reset();
         return;

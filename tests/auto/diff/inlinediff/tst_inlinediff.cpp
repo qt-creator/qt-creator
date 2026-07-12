@@ -24,6 +24,8 @@ private slots:
     void pureAddition();
     void multiLineModification();
     void modifyDeleteAdd();
+    void newlineOnlyDifference();
+    void changeOnLastLineWithoutNewline();
 
 private:
     static InlineDiffRenderModel compute(const QString &baseline, const QString &editor);
@@ -31,7 +33,7 @@ private:
 
 InlineDiffRenderModel tst_InlineDiff::compute(const QString &baseline, const QString &editor)
 {
-    // mirrors InlineDiffController's diff pipeline
+    // mirrors the inline diff editor's diff pipeline
     Utils::Differ differ;
     const QList<Utils::Diff> diffList
         = Utils::Differ::cleanupSemantics(differ.diff(baseline, editor));
@@ -144,6 +146,31 @@ void tst_InlineDiff::modifyDeleteAdd()
     QCOMPARE(model.hunks.last().editorLineCount, 1);
     QCOMPARE(model.hunks.last().baselineStartLine, 5);
     QVERIFY(model.hunks.last().baselineLines.isEmpty());
+}
+
+void tst_InlineDiff::newlineOnlyDifference()
+{
+    // a difference only in the trailing newline has no visible line: it must
+    // not produce decorations, and especially no hunk offering actions
+    for (const auto &[baseline, editor] : std::initializer_list<std::pair<QString, QString>>{
+             {"a\nb\n", "a\nb"}, {"a\nb", "a\nb\n"}}) {
+        const InlineDiffRenderModel model = compute(baseline, editor);
+        QVERIFY(model.isEmpty());
+        QVERIFY(model.hunks.isEmpty());
+        QCOMPARE(model.baselineEndsWithNewline, baseline.endsWith('\n'));
+        QCOMPARE(model.editorEndsWithNewline, editor.endsWith('\n'));
+    }
+}
+
+void tst_InlineDiff::changeOnLastLineWithoutNewline()
+{
+    const InlineDiffRenderModel model = compute("a\nlast\n", "a\nlast changed");
+    QCOMPARE(model.hunks.size(), 1);
+    QCOMPARE(model.hunks.first().editorStartLine, 2);
+    QCOMPARE(model.hunks.first().editorLineCount, 1);
+    QCOMPARE(model.hunks.first().baselineLines, QStringList("last"));
+    QVERIFY(model.baselineEndsWithNewline);
+    QVERIFY(!model.editorEndsWithNewline);
 }
 
 QTEST_GUILESS_MAIN(tst_InlineDiff)

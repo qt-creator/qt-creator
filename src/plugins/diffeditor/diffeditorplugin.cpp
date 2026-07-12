@@ -448,12 +448,16 @@ void DiffEditorPlugin::diffCurrentFile()
     if (filePath.isEmpty())
         return;
 
-    // Files under version control get the VCS diff, e.g. git's inline diff
-    // against the index, which can also stage blocks of changes. Others are
-    // compared against their saved contents.
+    // Files tracked by version control get the VCS diff, e.g. git's inline
+    // diff against the index, which can also stage blocks of changes. Others
+    // (including untracked files inside a checkout) are compared against
+    // their saved contents.
     FilePath topLevel;
-    if (Core::IVersionControl *versionControl
-        = Core::VcsManager::findVersionControlForDirectory(filePath.parentDir(), &topLevel)) {
+    Core::IVersionControl *versionControl
+        = Core::VcsManager::findVersionControlForDirectory(filePath.parentDir(), &topLevel);
+    if (versionControl
+        && versionControl->managesFile(topLevel,
+                                       filePath.relativeChildPath(topLevel).path())) {
         versionControl->vcsDiff(topLevel, filePath.relativeChildPath(topLevel));
         return;
     }

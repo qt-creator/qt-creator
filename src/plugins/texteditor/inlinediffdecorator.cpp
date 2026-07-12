@@ -98,11 +98,13 @@ InlineDiffDecorator::InlineDiffDecorator(TextEditorWidget *widget, DiffSide side
             this, [this](int, int charsRemoved, int) {
         if (!m_widget)
             return;
-        // Ghost rows are keyed by their anchor block's fragment index, which can be
-        // recycled once blocks are removed. Drop all ghost rows in that case and
-        // wait for the next apply() instead of risking rows on unrelated blocks.
+        // Ghost rows are keyed by their anchor block's fragment index, which
+        // can be recycled once blocks are removed - also by edits that remove
+        // and insert blocks in one revision (e.g. moving lines). Drop all
+        // ghost rows in that case and wait for the next apply() instead of
+        // risking rows on unrelated blocks.
         const int blockCount = m_widget->document()->blockCount();
-        if (charsRemoved > 0 && blockCount < m_lastBlockCount)
+        if (charsRemoved > 0 && (blockCount < m_lastBlockCount || anchorsRecycled()))
             clearGhostItems();
         m_lastBlockCount = blockCount;
     });
@@ -110,6 +112,25 @@ InlineDiffDecorator::InlineDiffDecorator(TextEditorWidget *widget, DiffSide side
     // and font or color scheme changes
     connect(widget->textDocument(), &TextDocument::fontSettingsChanged,
             this, [this] { apply(m_ghosts, m_changes, m_spacers); });
+    // ... and when the font reaches the widget only later, which happens
+    // when the settings change while the widget is not visible
+    widget->installEventFilter(this);
+}
+
+bool InlineDiffDecorator::eventFilter(QObject *object, QEvent *event)
+{
+    if (m_widget && object == m_widget && event->type() == QEvent::FontChange)
+        apply(m_ghosts, m_changes, m_spacers);
+    return QObject::eventFilter(object, event);
+}
+
+bool InlineDiffDecorator::anchorsRecycled() const
+{
+    for (const QPair<QTextCursor, int> &anchor : m_itemAnchors) {
+        if (anchor.first.block().fragmentIndex() != anchor.second)
+            return true;
+    }
+    return false;
 }
 
 InlineDiffDecorator::~InlineDiffDecorator()
@@ -137,6 +158,7 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
     QTC_ASSERT(layout, return);
     layout->removeAllLayoutItems(INLINE_DIFF_GHOST_CATEGORY);
     stripChangedLineFormats();
+    m_itemAnchors.clear();
 
     QTextDocument *doc = m_widget->document();
     const FontSettingsData &fontSettings = m_widget->textDocument()->fontSettings();
@@ -166,6 +188,7 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
         else
             layout->prependAdditionalLayouts(block, {ghostLayout.release()},
                                              INLINE_DIFF_GHOST_CATEGORY);
+        m_itemAnchors.append({QTextCursor(block), block.fragmentIndex()});
     }
 
     // empty rows that align this widget with the one showing the other side
@@ -188,6 +211,7 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
             layout->appendLayoutItem(block, std::move(item));
         else
             layout->prependLayoutItem(block, std::move(item));
+        m_itemAnchors.append({QTextCursor(block), block.fragmentIndex()});
     }
 
     // full width line backgrounds are painted by TextEditorLayout::paintBackground
@@ -255,35 +279,30 @@ void InlineDiffDecorator::clear()
     if (!m_widget)
         return;
     clearGhostItems();
-    stripChangedLineFormats();
+    if (stripChangedLineFormats() > 0) {
+        if (TextEditorLayout *layout = m_widget->editorLayout())
+            layout->requestUpdate();
+    }
     m_widget->setExtraSelections(INLINE_DIFF_SELECTION_ID, {});
 }
 
-void InlineDiffDecorator::stripChangedLineFormats()
+int InlineDiffDecorator::stripChangedLineFormats()
 {
     if (!m_widget)
-        return;
+        return 0;
     TextEditorLayout *layout = m_widget->editorLayout();
     if (!layout)
-        return;
-    QTextDocument *doc = m_widget->document();
-    for (QTextBlock block = doc->firstBlock(); block.isValid(); block = block.next()) {
-        QTextLayout *blockLayout = layout->existingBlockLayout(block);
-        if (!blockLayout)
-            continue;
-        QList<QTextLayout::FormatRange> formats = blockLayout->formats();
-        const auto removed = formats.removeIf([](const QTextLayout::FormatRange &range) {
-            return range.format.boolProperty(INLINE_DIFF_FORMAT_PROPERTY_ID);
-        });
-        if (removed > 0)
-            blockLayout->setFormats(formats);
-    }
+        return 0;
+    // sweeps all layout data, including entries whose fragment index has no
+    // block at the moment - recycling such an index must not resurrect bands
+    return layout->removeMainLayoutFormatsWithProperty(INLINE_DIFF_FORMAT_PROPERTY_ID);
 }
 
 void InlineDiffDecorator::clearGhostItems()
 {
     if (!m_widget)
         return;
+    m_itemAnchors.clear();
     TextEditorLayout *layout = m_widget->editorLayout();
     if (!layout)
         return;

@@ -17,6 +17,7 @@
 
 #include <utils/async.h>
 #include <utils/differ.h>
+#include <utils/infobar.h>
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
@@ -30,6 +31,7 @@
 #include <QPainter>
 #include <QVBoxLayout>
 #include <QPointer>
+#include <QScopeGuard>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QTextDocument>
@@ -72,6 +74,8 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
                                             bool editorEndsWithNewline)
 {
     InlineDiffRenderModel model;
+    model.baselineEndsWithNewline = baselineEndsWithNewline;
+    model.editorEndsWithNewline = editorEndsWithNewline;
 
     // The "line" after a trailing newline is not a real line. It is the last
     // line of its side, so skip it when it ends up in a non-equal row, paired
@@ -102,6 +106,16 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
     const auto flushRun = [&] {
         if (runStartRightLine < 0)
             return;
+        if (runLeftCount == 0 && runRightCount == 0) {
+            // the run consisted of phantom rows only: there is nothing to
+            // show, and a hunk for it would offer unactionable buttons
+            pendingGhost = {};
+            pendingChange = {};
+            hasPendingChange = false;
+            runStartLeftLine = -1;
+            runStartRightLine = -1;
+            return;
+        }
         if (!pendingGhost.lines.isEmpty()) {
             pendingGhost.anchorLine = runStartRightLine;
             model.ghosts.append(pendingGhost);
@@ -255,8 +269,7 @@ public:
         : QObject(widget)
         , m_widget(widget)
     {
-        connect(m_widget->verticalScrollBar(), &QAbstractSlider::valueChanged,
-                this, [this] { reposition(); });
+        // updateRequest also fires on scrolling
         connect(m_widget, &PlainTextEdit::updateRequest, this, [this] { scheduleReposition(); });
         connect(m_widget->textDocument(), &TextDocument::fontSettingsChanged,
                 this, [this] { rebuild(); });
@@ -281,12 +294,19 @@ public:
 
     void clear()
     {
+        invalidate();
+        if (m_widget)
+            m_widget->setEditorTextMargin(kMarginId, Qt::LeftEdge, 0);
+    }
+
+    // Drops the rows but keeps the reserved band, e.g. while the hunks' line
+    // numbers are stale during an edit. The next setHunks() rebuilds.
+    void invalidate()
+    {
         m_hunks.clear();
         m_stage = {};
         m_revert = {};
         clearRows();
-        if (m_widget)
-            m_widget->setEditorTextMargin(kMarginId, Qt::LeftEdge, 0);
     }
 
 private:
@@ -548,8 +568,12 @@ public:
         m_updateTimer.setSingleShot(true);
         m_updateTimer.setInterval(500);
         connect(&m_updateTimer, &QTimer::timeout, this, &InlineDiffEditor::startUpdate);
-        connect(source->document(), &QTextDocument::contentsChanged,
-                this, [this] { m_updateTimer.start(); });
+        connect(source->document(), &QTextDocument::contentsChanged, this, [this] {
+            // the hunks' line numbers are stale until the diff is recomputed
+            if (m_hunkControls)
+                m_hunkControls->invalidate();
+            m_updateTimer.start();
+        });
 
         // saving may change what the baseline refers to (e.g. a "diff against
         // the saved file" baseline), so refresh it
@@ -583,10 +607,13 @@ public:
         });
 
         setBaseline(baseline, title);
-        setViewMode(InlineDiffViewMode(
-            Core::ICore::settings()
-                ->value(VIEW_MODE_SETTINGS_KEY, int(InlineDiffViewMode::Inline))
-                .toInt()));
+        const int storedViewMode = Core::ICore::settings()
+                                       ->value(VIEW_MODE_SETTINGS_KEY,
+                                               int(InlineDiffViewMode::Inline))
+                                       .toInt();
+        setViewMode(storedViewMode == int(InlineDiffViewMode::SideBySide)
+                        ? InlineDiffViewMode::SideBySide
+                        : InlineDiffViewMode::Inline);
     }
 
     ~InlineDiffEditor() override
@@ -636,6 +663,11 @@ public:
         m_viewSwitcherAction->setText(switchText);
         Core::ICore::settings()->setValue(VIEW_MODE_SETTINGS_KEY, int(mode));
         applyDecorations();
+        if (mode == InlineDiffViewMode::SideBySide && m_baselineWidget) {
+            // catch up on scrolling that happened while the mirror was off
+            m_baselineWidget->verticalScrollBar()->setValue(
+                m_widget->verticalScrollBar()->value());
+        }
     }
 
     Core::IDocument *document() const override { return m_document; }
@@ -659,6 +691,8 @@ private:
                               requestId](const Result<QString> &result) {
             if (!guard || guard->m_baselineRequestId != requestId)
                 return;
+            const Utils::Id infoId("DiffEditor.InlineDiff.BaselineError");
+            guard->m_document->infoBar()->removeInfo(infoId);
             if (result) {
                 QString text = *result;
                 text.replace("\r\n", "\n");
@@ -666,6 +700,12 @@ private:
                 guard->updateBaselineDocument();
                 guard->startUpdate();
             } else {
+                // an empty diff would wrongly suggest that there are no
+                // differences, so say why there is nothing to show
+                guard->m_document->infoBar()->addInfo(Utils::InfoBarEntry(
+                    infoId,
+                    Tr::tr("The diff baseline is not available: %1")
+                        .arg(result.error().trimmed())));
                 guard->m_baselineText.reset();
                 guard->updateBaselineDocument();
                 guard->applyModel({});
@@ -692,10 +732,15 @@ private:
 
         // Both sides have the same pixel height thanks to the alignment
         // spacers, and the vertical scroll bars work on pixel offsets, so
-        // mirroring the values keeps the views aligned.
-        const auto syncScrollBars = [](TextEditorWidget *from, TextEditorWidget *to) {
+        // mirroring the values keeps the views aligned. Only mirror while
+        // side by side: the hidden baseline view of the inline mode has a
+        // smaller range and would bounce back a clamped value.
+        const auto syncScrollBars = [this](TextEditorWidget *from, TextEditorWidget *to) {
             connect(from->verticalScrollBar(), &QAbstractSlider::valueChanged,
-                    to->verticalScrollBar(), &QAbstractSlider::setValue);
+                    to->verticalScrollBar(), [this, to](int value) {
+                if (m_viewMode == InlineDiffViewMode::SideBySide)
+                    to->verticalScrollBar()->setValue(value);
+            });
         };
         syncScrollBars(m_baselineWidget, m_widget);
         syncScrollBars(m_widget, m_baselineWidget);
@@ -803,21 +848,37 @@ private:
     {
         if (!m_hunkControls)
             return;
+        // both actions force a recompute, which rebuilds the controls even
+        // when the action itself did not change anything
         HunkControls::HunkAction stage;
         if (m_baseline.stageHunk) {
             stage = [this](const InlineDiffChunk &hunk) {
                 m_baseline.stageHunk(hunk, m_source->plainText());
+                m_updateTimer.start();
             };
         }
-        const auto revert = [this](const InlineDiffChunk &hunk) { revertHunk(hunk); };
+        const auto revert = [this](const InlineDiffChunk &hunk) {
+            revertHunk(hunk);
+            m_updateTimer.start();
+        };
         m_hunkControls->setHunks(hunks, stage, revert);
     }
 
     void revertHunk(const InlineDiffChunk &hunk)
     {
         QTextDocument *doc = m_source->document();
+        // hunks at the end of the file implicitly cover the trailing newline
+        // state, which has no visible line of its own
+        const bool touchesEnd = hunk.editorStartLine + qMax(hunk.editorLineCount, 1) - 1
+                                >= doc->blockCount();
         QString replacement = hunk.baselineLines.join('\n');
         QTextCursor cursor(doc);
+        cursor.beginEditBlock();
+        const QScopeGuard endEditBlock([&cursor, &doc, touchesEnd, this] {
+            if (touchesEnd)
+                alignTrailingNewline(doc);
+            cursor.endEditBlock();
+        });
         if (hunk.editorLineCount > 0) {
             const QTextBlock first = doc->findBlockByNumber(hunk.editorStartLine - 1);
             const QTextBlock last = doc->findBlockByNumber(hunk.editorStartLine - 1
@@ -851,6 +912,24 @@ private:
                 cursor.setPosition(block.position());
                 cursor.insertText(replacement + '\n');
             }
+        }
+    }
+
+    // makes reverts of hunks at the end of the file converge on the
+    // baseline's trailing newline state
+    void alignTrailingNewline(QTextDocument *doc)
+    {
+        const bool docEndsWithNewline = doc->blockCount() > 1
+                                        && doc->lastBlock().text().isEmpty();
+        if (docEndsWithNewline == m_model.baselineEndsWithNewline)
+            return;
+        QTextCursor cursor(doc);
+        cursor.movePosition(QTextCursor::End);
+        if (m_model.baselineEndsWithNewline) {
+            cursor.insertText("\n");
+        } else if (cursor.position() > 0) {
+            cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+            cursor.removeSelectedText();
         }
     }
 

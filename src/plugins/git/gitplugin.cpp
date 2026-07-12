@@ -2780,6 +2780,24 @@ void GitTest::testInlineDiffFile()
     // afterwards nothing is unstaged, so no hunk offers actions anymore
     QTRY_VERIFY(diffWidget->findChildren<QAbstractButton *>().isEmpty());
 
+    // staging a block that ends on a last line without trailing newline
+    // needs "no newline at end of file" markers in the patch
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText("five");
+    QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
+                 buttons.size() == 2));
+    buttons.first()->click();
+    QTRY_VERIFY(gitClient().vcsSynchronousExec(repo, {"diff", "--cached"})
+                    .cleanedStdOut().contains("+five"));
+    // ... also on the removal side, against index contents without newline
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText(" and more");
+    QTRY_VERIFY((buttons = diffWidget->findChildren<QAbstractButton *>(),
+                 buttons.size() == 2));
+    buttons.first()->click();
+    QTRY_VERIFY(gitClient().vcsSynchronousExec(repo, {"diff", "--cached"})
+                    .cleanedStdOut().contains("+five and more"));
+
     Core::IDocument *sourceDocument = Core::DocumentModel::documentForFilePath(file);
     QVERIFY(sourceDocument);
     QVERIFY(EditorManager::closeDocuments({sourceDocument}, false));

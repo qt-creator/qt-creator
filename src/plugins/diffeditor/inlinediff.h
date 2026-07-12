@@ -80,6 +80,12 @@ public:
         return ghosts.isEmpty() && changes.isEmpty() && baselineChanges.isEmpty();
     }
 
+    // trailing newline state of the compared texts; a difference in it has
+    // no visible line of its own (see the phantom row handling), but e.g.
+    // reverting a hunk at the end of the file has to take it into account
+    bool baselineEndsWithNewline = false;
+    bool editorEndsWithNewline = false;
+
     // editor side, in editor line numbers
     QList<TextEditor::InlineDiffDecorator::GhostBlock> ghosts; // inline view only
     QList<TextEditor::InlineDiffDecorator::ChangedRange> changes;
