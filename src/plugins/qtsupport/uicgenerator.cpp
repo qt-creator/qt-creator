@@ -35,6 +35,8 @@ public:
 private:
     Parameters parameters() const override
     {
+        QTC_ASSERT(targets().size() == 1, return {});
+
         Parameters params;
 
         Kit *kit = project()->activeKit();
@@ -42,17 +44,14 @@ private:
             kit = KitManager::defaultKit();
         if (QtVersion *version = QtKitAspect::qtVersion(kit))
             params.command = {version->uicFilePath(), {"-p"}};
-        params.postRunner = [targets = this->targets()](Process *process) {
+        params.postRunner = [target = targets().first()](Process *process) {
             FileNameToContentsHash result;
-
-            if (targets.size() != 1)
-                return result;
 
             // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
             // conversion below is to normalize both the encoding, and the line terminators.
             QByteArray content = process->readAllStandardOutput().toUtf8();
             content.prepend("#pragma once\n");
-            result[targets.first()] = content;
+            result[target] = content;
             return result;
         };
 
