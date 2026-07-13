@@ -21,6 +21,9 @@ namespace Core {
 namespace Internal {
 class DocumentManagerPrivate;
 class ICorePrivate;
+#ifdef WITH_TESTS
+class DocumentManagerTest;
+#endif
 }
 
 class CORE_EXPORT DocumentManager : public QObject
@@ -157,6 +160,9 @@ private:
 
     friend class Internal::DocumentManagerPrivate;
     friend class Internal::ICorePrivate;
+#ifdef WITH_TESTS
+    friend class Internal::DocumentManagerTest;
+#endif
 };
 
 class CORE_EXPORT FileChangeBlocker

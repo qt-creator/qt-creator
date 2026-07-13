@@ -305,6 +305,8 @@ add_qtc_plugin(Core
 extend_qtc_plugin(Core
   CONDITION WITH_TESTS
   SOURCES
+    documentmanager_test.cpp
+    documentmanager_test.h
     editormanager/editormanager_test.cpp
     locator/locator_test.cpp
     locator/locator_test.h

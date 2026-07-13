@@ -280,6 +280,8 @@ QtcPlugin {
 
     QtcTestFiles {
         files: [
+            "documentmanager_test.cpp",
+            "documentmanager_test.h",
             "editormanager/editormanager_test.cpp",
             "locator/locatorfiltertest.cpp",
             "locator/locatorfiltertest.h",
