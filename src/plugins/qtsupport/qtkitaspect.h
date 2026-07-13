@@ -29,4 +29,8 @@ public:
                        const QVersionNumber &max = QVersionNumber(INT_MAX, INT_MAX, INT_MAX));
 };
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createQtKitAspectTest(); }
+#endif
+
 } // namespace QtSupport

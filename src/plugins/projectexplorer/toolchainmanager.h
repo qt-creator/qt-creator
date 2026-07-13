@@ -49,6 +49,12 @@ public:
 
     static bool isLoaded();
 
+    static bool isToolchainWithUnknownType(Utils::Id id);
+#ifdef WITH_TESTS
+    static void deferToolchainForTest(Utils::Id id);
+    static void removeDeferredToolchainForTest(Utils::Id id);
+#endif
+
     static Toolchains registerToolchains(const Toolchains &toolchains);
     static void deregisterToolchains(const Toolchains &toolchains);
 
@@ -80,6 +86,9 @@ signals:
     void toolchainsDeregistered(const Toolchains &deregistered);
     // Toolchain was updated.
     void toolchainUpdated(ProjectExplorer::Toolchain *);
+    // An equal toolchain takes over from one about to be deregistered.
+    void toolchainReplaced(ProjectExplorer::Toolchain *old,
+                           ProjectExplorer::Toolchain *replacement);
     // Something changed.
     void toolchainsChanged();
     //
@@ -93,8 +102,11 @@ private:
 
     static void notifyAboutUpdate(Toolchain *);
 
+    static void toolchainFactoryAdded();
+
     friend class ProjectExplorerPlugin; // for constructor
     friend class Toolchain;
+    friend class ToolchainFactory;
 };
 
 namespace Internal {

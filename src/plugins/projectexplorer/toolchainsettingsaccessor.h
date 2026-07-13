@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <utils/id.h>
 #include <utils/settingsaccessor.h>
+#include <utils/store.h>
 
 #include <QList>
 
@@ -18,12 +20,23 @@ class ToolchainSettingsAccessor : public Utils::UpgradingSettingsAccessor
 public:
     ToolchainSettingsAccessor();
 
-    QList<Toolchain *> restoreToolchains() const;
+    QList<Toolchain *> restoreToolchains();
+    QList<Toolchain *> retryDeferredToolchains();
+    bool isDeferred(Utils::Id toolchainId) const;
+
+#ifdef WITH_TESTS
+    void deferForTest(Utils::Id toolchainId);
+    void removeDeferredForTest(Utils::Id toolchainId);
+#endif
 
     void saveToolchains(const QList<Toolchain *> &toolchains);
 
 private:
-    QList<Toolchain *> toolChains(const Utils::Store &data) const;
+    QList<Toolchain *> toolChains(const Utils::Store &data, QList<Utils::Store> &deferred) const;
+
+    // Raw data of stored toolchains whose factory is not registered yet, kept for a later retry.
+    QList<Utils::Store> m_deferredSdkToolchains;
+    QList<Utils::Store> m_deferredUserToolchains;
 };
 
 QObject *createToolchainSettingsTest();

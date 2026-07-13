@@ -269,12 +269,15 @@ void QtKitAspectFactory::fix(Kit *k)
         return QtKitAspect::setQtVersionId(k, -1);
 
     // Set a matching toolchain if we don't have one.
-    if (ToolchainKitAspect::cxxToolchain(k))
+    using ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+    if (ToolchainKitAspect::cxxToolchain(k)
+        || ToolchainManager::isToolchainWithUnknownType(
+            ToolchainKitAspect::toolchainId(k, CXX_LANGUAGE_ID))) {
         return;
+    }
 
     QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
         ToolchainBundle::HandleMissing::CreateAndRegister);
-    using ProjectExplorer::Constants::CXX_LANGUAGE_ID;
     bundles = Utils::filtered(bundles, [&](const ToolchainBundle &b) {
         if (!b.isCompletelyValid() || !b.factory()->languageCategory().contains(CXX_LANGUAGE_ID))
             return false;
@@ -615,3 +618,89 @@ QVariant QtKitAspectFactory::getInfo(const Kit *k, Id request, const QVariant &i
 }
 
 } // namespace QtSupport
+
+#ifdef WITH_TESTS
+
+#include <projectexplorer/devicesupport/devicemanager.h>
+
+#include <QScopeGuard>
+#include <QTemporaryDir>
+#include <QTest>
+
+namespace QtSupport::Internal {
+
+class QtKitAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testFixKeepsDeferredToolchain();
+};
+
+// The fix gives a kit with a Qt version but no C++ compiler a matching one from its build device.
+// A kit whose C++ toolchain waits for its plugin to be soft-loaded must keep the id instead.
+void QtKitAspectTest::testFixKeepsDeferredToolchain()
+{
+    using ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+
+    const IDeviceConstPtr desktop = DeviceManager::defaultDesktopDevice();
+    QVERIFY(desktop);
+    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+        ToolchainBundle::HandleMissing::CreateAndRegister);
+    const auto isHostCxxBundle = [&desktop](const ToolchainBundle &b) {
+        return b.isCompletelyValid() && b.factory()->languageCategory().contains(CXX_LANGUAGE_ID)
+               && Utils::allOf(b.toolchains(), [&desktop](const Toolchain *tc) {
+                      return desktop->rootPath().isSameDevice(tc->compilerCommand());
+                  });
+    };
+    const int hostBundle = Utils::indexOf(bundles, isHostCxxBundle);
+    if (hostBundle < 0)
+        QSKIP("No host C++ compiler that the fix could pick");
+
+    QTemporaryDir temp;
+    QVERIFY(temp.isValid());
+    const FilePath prefix = FilePath::fromString(temp.path());
+    QVERIFY((prefix / "modules").ensureWritableDir());
+    QVERIFY((prefix / "modules/Core.json")
+                .writeFileContents("{ \"module_name\": \"Core\", \"version\": \"6.13.0\" }"));
+    QString error;
+    QtVersion * const qt = QtVersionFactory::createQtVersionFromPrefix(prefix,
+                                                                      DetectionSource::Manual,
+                                                                      &error);
+    QVERIFY2(qt, qPrintable(error));
+    qt->setQtAbis({bundles.at(hostBundle).targetAbi()});
+    QtVersionManager::addVersion(qt);
+    const QScopeGuard removeQt([qt] { QtVersionManager::removeVersion(qt); });
+
+    const Id deferredId = Id::generate();
+    ToolchainManager::deferToolchainForTest(deferredId);
+    const QScopeGuard undefer([deferredId] {
+        ToolchainManager::removeDeferredToolchainForTest(deferredId);
+    });
+
+    Kit * const kit = KitManager::registerKit([&](Kit *k) {
+        k->setUnexpandedDisplayName("Deferred Toolchain Qt Kit");
+        BuildDeviceKitAspect::setDevice(k, desktop);
+        QtKitAspect::setQtVersion(k, qt);
+        Store toolchains;
+        toolchains.insert(Id(CXX_LANGUAGE_ID).toKey(), deferredId.toSetting());
+        k->setValue(ToolchainKitAspect::id(), variantFromStore(toolchains));
+    });
+    QVERIFY(kit);
+    const QScopeGuard deregisterKit([kit] { KitManager::deregisterKit(kit); });
+
+    kit->fix();
+    QCOMPARE(QtKitAspect::qtVersion(kit), qt);
+    QCOMPARE(ToolchainKitAspect::toolchainId(kit, CXX_LANGUAGE_ID), deferredId);
+}
+
+QObject *createQtKitAspectTest()
+{
+    return new QtKitAspectTest;
+}
+
+} // namespace QtSupport::Internal
+
+#include "qtkitaspect.moc"
+
+#endif // WITH_TESTS

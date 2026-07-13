@@ -20,7 +20,14 @@
 
 #include <nanotrace/nanotrace.h>
 
+#include <QLoggingCategory>
+
 #ifdef WITH_TESTS
+#include "kit.h"
+#include "kitmanager.h"
+#include "toolchainconfigwidget.h"
+#include "toolchainkitaspect.h"
+
 #include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTest>
@@ -29,6 +36,8 @@
 using namespace Utils;
 
 namespace ProjectExplorer {
+
+static Q_LOGGING_CATEGORY(tcLog, "qtc.projectexplorer.toolchains", QtWarningMsg)
 namespace Internal {
 
 // --------------------------------------------------------------------------
@@ -233,8 +242,80 @@ Toolchain *ToolchainManager::findToolchain(Id id)
 
 bool ToolchainManager::isLoaded()
 {
-    return d->m_loaded;
+    // May be called from a ToolchainFactory constructor before the manager itself exists.
+    return d && d->m_loaded;
 }
+
+static void registerRecoveredToolchains(const Toolchains &recovered)
+{
+    const Toolchains rejected = ToolchainManager::registerToolchains(recovered);
+
+    QList<std::pair<Toolchain *, Toolchain *>> replaced;
+    for (Toolchain * const tc : ToolchainManager::toolchains()) {
+        if (!tc->detectionSource().isAutoDetected() || recovered.contains(tc))
+            continue;
+        Toolchain * const replacement = Utils::findOrDefault(recovered, [&](const Toolchain *r) {
+            return !rejected.contains(r) && *r == *tc;
+        });
+        if (replacement)
+            replaced.append(std::make_pair(tc, replacement));
+    }
+    Toolchains redetected;
+    for (const auto &[tc, replacement] : std::as_const(replaced)) {
+        emit ToolchainManager::instance()->toolchainReplaced(tc, replacement);
+        redetected << tc;
+    }
+    ToolchainManager::deregisterToolchains(redetected);
+    qDeleteAll(rejected);
+}
+
+void ToolchainManager::toolchainFactoryAdded()
+{
+    // A factory was registered after the toolchains were loaded (e.g. by a soft-loaded plugin).
+    // This runs from the ToolchainFactory base-class constructor, before the derived class has set
+    // its supported type, and several factories may be added in one batch. Defer the retry to the
+    // event loop so all newly registered factories are fully constructed first.
+    static bool scheduled = false;
+    if (!isLoaded() || scheduled)
+        return;
+    scheduled = true;
+    QMetaObject::invokeMethod(
+        m_instance,
+        [] {
+            scheduled = false;
+            if (!d->m_accessor)
+                return;
+            const Toolchains recovered = d->m_accessor->retryDeferredToolchains();
+            if (!recovered.isEmpty()) {
+                qCInfo(tcLog) << "Restored" << recovered.size()
+                              << "previously unrestorable toolchain(s)"
+                              << "after a factory was registered";
+                registerRecoveredToolchains(recovered);
+            }
+        },
+        Qt::QueuedConnection);
+}
+
+bool ToolchainManager::isToolchainWithUnknownType(Id id)
+{
+    return d && d->m_accessor && d->m_accessor->isDeferred(id);
+}
+
+#ifdef WITH_TESTS
+// Makes isToolchainWithUnknownType() report id, as for a toolchain stored with a type
+// whose plugin is not loaded.
+void ToolchainManager::deferToolchainForTest(Id id)
+{
+    QTC_ASSERT(d && d->m_accessor, return);
+    d->m_accessor->deferForTest(id);
+}
+
+void ToolchainManager::removeDeferredToolchainForTest(Id id)
+{
+    QTC_ASSERT(d && d->m_accessor, return);
+    d->m_accessor->removeDeferredForTest(id);
+}
+#endif // WITH_TESTS
 
 void ToolchainManager::notifyAboutUpdate(Toolchain *tc)
 {
@@ -524,6 +605,127 @@ private slots:
         DeviceManager::setDeviceState(desktop->id(), state);
 
         QVERIFY(tc->isValid());
+        QCOMPARE(updates, 1);
+    }
+
+    void testRecoveredReplacesRedetected()
+    {
+        const auto validityTcs = [] {
+            return ToolchainManager::toolchains([](const Toolchain *tc) {
+                return tc->typeId() == "ProjectExplorer.ToolChain.ValidityTest";
+            });
+        };
+        const QScopeGuard cleanup([&] { ToolchainManager::deregisterToolchains(validityTcs()); });
+
+        Kit * const kit = KitManager::registerKit([](Kit *k) {
+            k->setUnexpandedDisplayName("Recovered Toolchain Kit");
+        });
+        QVERIFY(kit);
+        const QScopeGuard deregisterKit([kit] { KitManager::deregisterKit(kit); });
+
+        Kit * const redetectedKit = KitManager::registerKit([](Kit *k) {
+            k->setUnexpandedDisplayName("Redetected Toolchain Kit");
+        });
+        QVERIFY(redetectedKit);
+        const QScopeGuard deregisterRedetectedKit([redetectedKit] {
+            KitManager::deregisterKit(redetectedKit);
+        });
+
+        auto redetected = new ValidityTestToolchain;
+        redetected->setDetectionSource(DetectionSource::FromSystem);
+        QVERIFY(ToolchainManager::registerToolchains({redetected}).isEmpty());
+        ToolchainKitAspect::setToolchain(redetectedKit, redetected);
+
+        auto recovered = new ValidityTestToolchain;
+        recovered->setDetectionSource(DetectionSource::FromSystem);
+        ToolchainKitAspect::setToolchain(kit, recovered);
+        registerRecoveredToolchains({recovered});
+
+        const Id cxx = Constants::CXX_LANGUAGE_ID;
+        QCOMPARE(validityTcs(), Toolchains{recovered});
+        QCOMPARE(ToolchainKitAspect::toolchain(kit, cxx), recovered);
+        QCOMPARE(ToolchainKitAspect::toolchain(redetectedKit, cxx), recovered);
+    }
+
+    void testDeferredToolchainInKit()
+    {
+        class ValidityTestFactory final : public ToolchainFactory
+        {
+        public:
+            ValidityTestFactory()
+            {
+                setSupportedToolchainType("ProjectExplorer.ToolChain.ValidityTest");
+                setToolchainConstructor([] { return new ValidityTestToolchain; });
+            }
+            std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+                const ToolchainBundle &) const override
+            {
+                return nullptr;
+            }
+        };
+
+        const auto validityTcs = [] {
+            return ToolchainManager::toolchains([](const Toolchain *tc) {
+                return tc->typeId() == "ProjectExplorer.ToolChain.ValidityTest";
+            });
+        };
+        const QScopeGuard cleanup([&] { ToolchainManager::deregisterToolchains(validityTcs()); });
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath file = FilePath::fromString(dir.filePath("toolchains.xml"));
+        const std::unique_ptr<Toolchain> saved(new ValidityTestToolchain);
+        const std::unique_ptr<Toolchain> savedC(new ValidityTestToolchain);
+        savedC->setLanguage(Constants::C_LANGUAGE_ID);
+        {
+            ToolchainSettingsAccessor accessor;
+            accessor.setBaseFilePath(file);
+            accessor.saveToolchains({saved.get(), savedC.get()});
+        }
+        auto accessor = std::make_unique<ToolchainSettingsAccessor>();
+        accessor->setBaseFilePath(file);
+        qDeleteAll(accessor->restoreToolchains());
+        QVERIFY(accessor->isDeferred(saved->id()));
+        QVERIFY(accessor->isDeferred(savedC->id()));
+        std::swap(d->m_accessor, accessor);
+        const QScopeGuard restoreAccessor([&] { std::swap(d->m_accessor, accessor); });
+
+        const auto registerKit = [&](const QString &name, const DetectionSource &source) {
+            return KitManager::registerKit([&](Kit *k) {
+                k->setUnexpandedDisplayName(name);
+                k->setDetectionSource(source);
+                ToolchainKitAspect::setToolchain(k, saved.get());
+                ToolchainKitAspect::setToolchain(k, savedC.get());
+            });
+        };
+        Kit * const kit = registerKit("Deferred Toolchain Kit", {});
+        QVERIFY(kit);
+        const QScopeGuard deregisterKit([kit] { KitManager::deregisterKit(kit); });
+        Kit * const sdkKit = registerKit("Deferred Toolchain SDK Kit", DetectionSource::FromSdk);
+        QVERIFY(sdkKit);
+        const QScopeGuard deregisterSdkKit([sdkKit] { KitManager::deregisterKit(sdkKit); });
+        const Id cxx = Constants::CXX_LANGUAGE_ID;
+        const Id c = Constants::C_LANGUAGE_ID;
+        QCOMPARE(ToolchainKitAspect::toolchainId(kit, cxx), saved->id());
+        kit->setup();
+        kit->fix();
+        QCOMPARE(ToolchainKitAspect::toolchainId(kit, cxx), saved->id());
+        QCOMPARE(ToolchainKitAspect::toolchainId(kit, c), savedC->id());
+        QVERIFY(!ToolchainKitAspect::toolchain(kit, cxx));
+        sdkKit->setup();
+        QCOMPARE(ToolchainKitAspect::toolchainId(sdkKit, cxx), saved->id());
+        QCOMPARE(ToolchainKitAspect::toolchainId(sdkKit, c), savedC->id());
+        QVERIFY(sdkKit->isSticky(ToolchainKitAspect::id()));
+
+        int updates = 0;
+        QObject guard;
+        connect(KitManager::instance(), &KitManager::kitUpdated, &guard, [kit, &updates](Kit *k) {
+            if (k == kit)
+                ++updates;
+        });
+        const ValidityTestFactory factory;
+        QTRY_VERIFY(ToolchainKitAspect::toolchain(kit, cxx));
+        QCOMPARE(ToolchainKitAspect::toolchainId(kit, cxx), saved->id());
         QCOMPARE(updates, 1);
     }
 };

@@ -665,6 +665,7 @@ void Toolchain::setExplicitCodeModelTargetTriple(const QString &triple)
 ToolchainFactory::ToolchainFactory()
 {
     toolchainFactories().append(this);
+    ToolchainManager::toolchainFactoryAdded();
 }
 
 ToolchainFactory::~ToolchainFactory()

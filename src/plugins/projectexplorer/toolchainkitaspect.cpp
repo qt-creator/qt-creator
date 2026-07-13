@@ -177,7 +177,9 @@ private:
     void onKitsLoaded() override;
 
     void toolChainUpdated(Toolchain *tc);
+    void toolChainReplaced(Toolchain *old, Toolchain *replacement);
     void toolChainsDeregistered();
+    void toolChainsRegistered(const Toolchains &registered);
 
     std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
@@ -234,6 +236,9 @@ void ToolchainKitAspectFactory::fix(Kit *k)
             continue;
         Toolchain * const tc = ToolchainManager::findToolchain(tcId);
         if (!tc)  {
+            // A toolchain still waiting for its factory reappears once the plugin is soft-loaded.
+            if (ToolchainManager::isToolchainWithUnknownType(tcId))
+                continue;
             qWarning("Tool chain set up in kit \"%s\" for \"%s\" not found.",
                      qPrintable(k->displayName()),
                      qPrintable(ToolchainManager::displayNameOfLanguageId(l)));
@@ -309,8 +314,11 @@ static void setMissingToolchainsToHostAbi(Kit *k, const QList<Id> &languageBlack
 {
     LanguagesAndAbis abisByLanguage;
     for (const Id lang : ToolchainManager::allLanguages()) {
-        if (languageBlacklist.contains(lang) || ToolchainKitAspect::toolchain(k, lang))
+        const Id tcId = ToolchainKitAspect::toolchainId(k, lang);
+        if (languageBlacklist.contains(lang) || ToolchainKitAspect::toolchain(k, lang)
+            || ToolchainManager::isToolchainWithUnknownType(tcId)) {
             continue;
+        }
         abisByLanguage.emplaceBack(lang, Abi::hostAbi());
     }
     setToolchainsFromAbis(k, abisByLanguage);
@@ -335,7 +343,7 @@ static void setupForSdkKit(Kit *k)
         }
 
         const Id id = Id::fromSetting(i.value());
-        if (ToolchainManager::findToolchain(id))
+        if (ToolchainManager::findToolchain(id) || ToolchainManager::isToolchainWithUnknownType(id))
             continue;
 
         // No toolchain with this id exists. Check whether it's an ABI string.
@@ -470,6 +478,23 @@ void ToolchainKitAspectFactory::onKitsLoaded()
             this, &ToolchainKitAspectFactory::toolChainsDeregistered);
     connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
             this, &ToolchainKitAspectFactory::toolChainUpdated);
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainReplaced,
+            this, &ToolchainKitAspectFactory::toolChainReplaced);
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainsRegistered,
+            this, &ToolchainKitAspectFactory::toolChainsRegistered);
+}
+
+void ToolchainKitAspectFactory::toolChainsRegistered(const Toolchains &registered)
+{
+    // A kit may already refer to a toolchain that is restored late (see
+    // ToolchainManager::toolchainFactoryAdded()).
+    for (Kit *k : KitManager::kits()) {
+        const bool affected = Utils::anyOf(ToolchainManager::allLanguages(), [&](Id l) {
+            return registered.contains(ToolchainKitAspect::toolchain(k, l));
+        });
+        if (affected)
+            notifyAboutUpdate(k);
+    }
 }
 
 void ToolchainKitAspectFactory::toolChainUpdated(Toolchain *tc)
@@ -477,6 +502,14 @@ void ToolchainKitAspectFactory::toolChainUpdated(Toolchain *tc)
     for (Kit *k : KitManager::kits()) {
         if (ToolchainKitAspect::toolchain(k, tc->language()) == tc)
             notifyAboutUpdate(k);
+    }
+}
+
+void ToolchainKitAspectFactory::toolChainReplaced(Toolchain *old, Toolchain *replacement)
+{
+    for (Kit *k : KitManager::kits()) {
+        if (ToolchainKitAspect::toolchain(k, old->language()) == old)
+            ToolchainKitAspect::setToolchain(k, replacement);
     }
 }
 

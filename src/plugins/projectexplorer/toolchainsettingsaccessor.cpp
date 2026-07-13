@@ -212,17 +212,37 @@ ToolchainSettingsAccessor::ToolchainSettingsAccessor()
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
 }
 
-Toolchains ToolchainSettingsAccessor::restoreToolchains() const
+static void warnUnrestorable(const Store &tcMap)
+{
+    qWarning("Warning: Unable to restore compiler type '%s' for toolchain %s.",
+             qPrintable(ToolchainFactory::typeIdFromMap(tcMap).toString()),
+             qPrintable(ToolchainFactory::idFromMap(tcMap).toString()));
+}
+
+static bool containsId(const QList<Store> &tcMaps, Id id)
+{
+    return Utils::anyOf(tcMaps, [id](const Store &tcMap) {
+        return ToolchainFactory::idFromMap(tcMap) == id;
+    });
+}
+
+Toolchains ToolchainSettingsAccessor::restoreToolchains()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ToolChainSettingsAccessor::restoreToolChains");
     // read all tool chains from SDK
+    m_deferredSdkToolchains.clear();
     const Toolchains systemFileTcs = toolChains(
-        restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME)));
+        restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME)),
+        m_deferredSdkToolchains);
     for (Toolchain * const systemTc : systemFileTcs)
         systemTc->setDetectionSource(DetectionSource::FromSdk);
 
     // read all tool chains from user file.
-    const Toolchains userFileTcs = toolChains(restoreSettings());
+    QList<Store> deferredUserTcs;
+    const Toolchains userFileTcs = toolChains(restoreSettings(), deferredUserTcs);
+    m_deferredUserToolchains = Utils::filtered(deferredUserTcs, [this](const Store &tcMap) {
+        return !containsId(m_deferredSdkToolchains, ToolchainFactory::idFromMap(tcMap));
+    });
 
     // Autodetect: Pass autodetected toolchains from user file so the information can be reused:
     const Toolchains autodetectedUserFileTcs
@@ -271,6 +291,12 @@ void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains)
         data.insert(numberedKey(TOOLCHAIN_DATA_KEY, count), variantFromStore(tmp));
         ++count;
     }
+    // Keep the ones whose factory is not registered yet. The SDK ones come back from the
+    // installer file.
+    for (const Store &deferred : std::as_const(m_deferredUserToolchains)) {
+        data.insert(numberedKey(TOOLCHAIN_DATA_KEY, count), variantFromStore(deferred));
+        ++count;
+    }
     data.insert(TOOLCHAIN_COUNT_KEY, count);
 
     // Do not save default debuggers! Those are set by the SDK!
@@ -278,7 +304,7 @@ void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains)
     saveSettings(data);
 }
 
-Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
+Toolchains ToolchainSettingsAccessor::toolChains(const Store &data, QList<Store> &deferred) const
 {
     Toolchains result;
 
@@ -290,26 +316,81 @@ Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
 
         const Store tcMap = storeFromVariant(data.value(key));
 
-        bool restored = false;
         const Utils::Id tcType = ToolchainFactory::typeIdFromMap(tcMap);
-        if (tcType.isValid()) {
-            if (ToolchainFactory * const f = ToolchainFactory::factoryForType(tcType)) {
-                if (Toolchain *tc = f->restore(tcMap)) {
-                    result.append(tc);
-                    restored = true;
-                }
-            }
+        ToolchainFactory * const f = tcType.isValid() ? ToolchainFactory::factoryForType(tcType)
+                                                      : nullptr;
+        if (!f) {
+            // No factory (yet). Keep the raw data so a factory registered later (e.g. by a
+            // soft-loaded plugin) can restore it.
+            deferred.append(tcMap);
+            qCDebug(Log, "Deferring restore of toolchain of unknown compiler type '%s'.",
+                    qPrintable(tcType.toString()));
+        } else if (Toolchain *tc = f->restore(tcMap)) {
+            result.append(tc);
+        } else {
+            warnUnrestorable(tcMap);
         }
-        if (!restored)
-            qWarning("Warning: Unable to restore compiler type '%s' for tool chain %s.",
-                     qPrintable(tcType.toString()),
-                     qPrintable(ToolchainFactory::idFromMap(tcMap).toString()));
     }
 
     return result;
 }
 
+static Toolchains restoreDeferred(QList<Store> &tcMaps)
+{
+    Toolchains result;
+    for (auto it = tcMaps.begin(); it != tcMaps.end();) {
+        const Utils::Id tcType = ToolchainFactory::typeIdFromMap(*it);
+        ToolchainFactory * const f = tcType.isValid() ? ToolchainFactory::factoryForType(tcType)
+                                                      : nullptr;
+        if (!f) {
+            ++it;
+            continue;
+        }
+        if (Toolchain * const tc = f->restore(*it))
+            result.append(tc);
+        else
+            warnUnrestorable(*it);
+        it = tcMaps.erase(it);
+    }
+    return result;
+}
+
+Toolchains ToolchainSettingsAccessor::retryDeferredToolchains()
+{
+    const Toolchains sdkTcs = restoreDeferred(m_deferredSdkToolchains);
+    for (Toolchain * const tc : sdkTcs)
+        tc->setDetectionSource(DetectionSource::FromSdk);
+    return sdkTcs + restoreDeferred(m_deferredUserToolchains);
+}
+
+bool ToolchainSettingsAccessor::isDeferred(Id toolchainId) const
+{
+    const auto contains = [this](Id id) {
+        return containsId(m_deferredSdkToolchains, id) || containsId(m_deferredUserToolchains, id);
+    };
+    if (contains(toolchainId))
+        return true;
+    // Installer-written kits refer to toolchains as "<type>:<id>", see findToolchain().
+    const int pos = toolchainId.name().indexOf(':');
+    return pos >= 0 && contains(Id::fromName(toolchainId.name().mid(pos + 1)));
+}
+
 #ifdef WITH_TESTS
+
+void ToolchainSettingsAccessor::deferForTest(Id toolchainId)
+{
+    Store tcMap;
+    tcMap.insert("ProjectExplorer.ToolChain.Id",
+                 QString("ProjectExplorer.ToolChain.NoFactory:" + toolchainId.toString()));
+    m_deferredUserToolchains.append(tcMap);
+}
+
+void ToolchainSettingsAccessor::removeDeferredForTest(Id toolchainId)
+{
+    Utils::eraseOne(m_deferredUserToolchains, [toolchainId](const Store &tcMap) {
+        return ToolchainFactory::idFromMap(tcMap) == toolchainId;
+    });
+}
 
 const char TestTokenKey[] = "TestTokenKey";
 const char TestToolChainType[] = "TestToolChainType";
@@ -562,6 +643,61 @@ private slots:
         qDeleteAll(Utils::filtered(restored, [](const Toolchain *tc) {
             return tc->typeId() != TestToolChainType;
         }));
+    }
+
+    // A toolchain whose factory is not registered yet must survive a save and come back
+    // once the factory is there.
+    void testDeferredToolchain()
+    {
+        class TestToolchainFactory : ToolchainFactory
+        {
+        public:
+            TestToolchainFactory() {
+                setSupportedToolchainType(TestToolChainType);
+                setToolchainConstructor([] { return new TTC; });
+            }
+            std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+                const ToolchainBundle &) const override
+            {
+                return nullptr;
+            }
+        };
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath file = FilePath::fromString(dir.filePath("toolchains.xml"));
+        const auto hasId = [](const Toolchains &tcs, Id id) {
+            return Utils::contains(tcs, Utils::equal(&Toolchain::id, id));
+        };
+
+        auto deferred = new TTC("deferred");
+        {
+            ToolchainSettingsAccessor accessor;
+            accessor.setBaseFilePath(file);
+            accessor.saveToolchains({deferred});
+        }
+
+        {
+            ToolchainSettingsAccessor accessor;
+            accessor.setBaseFilePath(file);
+            const Toolchains restored = accessor.restoreToolchains();
+            QVERIFY(!hasId(restored, deferred->id()));
+            QVERIFY(accessor.isDeferred(deferred->id()));
+            accessor.saveToolchains({});
+            qDeleteAll(restored);
+        }
+
+        ToolchainSettingsAccessor accessor;
+        accessor.setBaseFilePath(file);
+        qDeleteAll(accessor.restoreToolchains());
+        QVERIFY(accessor.isDeferred(deferred->id()));
+        const QString longId = QLatin1String(TestToolChainType) + ':' + deferred->id().toString();
+        QVERIFY(accessor.isDeferred(Id::fromString(longId)));
+
+        TestToolchainFactory factory;
+        const Toolchains recovered = accessor.retryDeferredToolchains();
+        QVERIFY(hasId(recovered, deferred->id()));
+        QVERIFY(!accessor.isDeferred(deferred->id()));
     }
 
     void cleanupTestCase()
