@@ -4,6 +4,7 @@
 #include "helpplugin.h"
 
 #include "bookmarkmanager.h"
+#include "bookmarkmanager_test.h"
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
 #include "helpconstants.h"
@@ -651,6 +652,9 @@ private:
     void initialize() final
     {
         dd = new HelpPluginPrivate;
+#ifdef WITH_TESTS
+        addTestCreator(createBookmarkManagerTest);
+#endif
     }
 
     void extensionsInitialized() final

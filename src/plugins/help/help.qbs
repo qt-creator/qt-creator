@@ -51,6 +51,13 @@ QtcPlugin {
         ]
     }
 
+    QtcTestFiles {
+        files: [
+            "bookmarkmanager_test.cpp",
+            "bookmarkmanager_test.h",
+        ]
+    }
+
     Group {
         name: "WebEngine Sources"
         condition: Qt.webenginewidgets.present

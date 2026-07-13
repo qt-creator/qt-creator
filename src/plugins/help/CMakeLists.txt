@@ -25,6 +25,12 @@ add_qtc_plugin(Help
     xbelsupport.cpp xbelsupport.h
 )
 
+extend_qtc_plugin(Help
+  CONDITION WITH_TESTS
+  SOURCES
+    bookmarkmanager_test.cpp bookmarkmanager_test.h
+)
+
 set(HELPVIEWER_DEFAULT_BACKEND "litehtml" CACHE STRING "Sets default help viewer backend")
 set_property(CACHE HELPVIEWER_DEFAULT_BACKEND PROPERTY STRINGS "litehtml;qtwebengine;textbrowser")
 
