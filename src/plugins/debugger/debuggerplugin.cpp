@@ -2026,6 +2026,10 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
         if (!suggestion.contains('.'))
             suggestion.append(".txt");
         textEditor->textDocument()->setFallbackSaveAsFileName(suggestion);
+        // This is a scratch copy of view contents, not a real file. Mark it
+        // temporary so it is not offered in the "save modified files" prompt on
+        // build or close (QTCREATORBUG-33271).
+        textEditor->textDocument()->setTemporary(true);
     }
     QTC_ASSERT(editor, return);
 }
