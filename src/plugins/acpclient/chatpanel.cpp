@@ -18,6 +18,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/algorithm.h>
+#include <utils/dropsupport.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/plaintextedit/texteditorlayout.h>
@@ -33,7 +35,6 @@
 
 #include <QApplication>
 #include <QCheckBox>
-#include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QFileDialog>
 #include <QFrame>
@@ -42,7 +43,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QMimeData>
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
@@ -62,27 +62,11 @@ using namespace Utils::StyleHelper::SpacingTokens;
 
 namespace AcpClient::Internal {
 
-static QList<FilePath> localFilesFromMime(const QMimeData *mime)
-{
-    QList<FilePath> files;
-    if (!mime || !mime->hasUrls())
-        return files;
-    for (const QUrl &url : mime->urls()) {
-        if (url.isLocalFile())
-            files.append(FilePath::fromUserInput(url.toLocalFile()));
-    }
-    return files;
-}
-
 class InputContainerWidget : public QWidget
 {
 public:
     explicit InputContainerWidget(QWidget *parent = nullptr) : QWidget(parent)
-    {
-        setAcceptDrops(true);
-    }
-
-    std::function<void(const QList<FilePath> &)> onFilesDropped;
+    {}
 
 protected:
     void mousePressEvent(QMouseEvent *event) override
@@ -90,34 +74,6 @@ protected:
         if (QWidget *proxy = focusProxy())
             proxy->setFocus(Qt::MouseFocusReason);
         QWidget::mousePressEvent(event);
-    }
-
-    void dragEnterEvent(QDragEnterEvent *event) override
-    {
-        if (!localFilesFromMime(event->mimeData()).isEmpty())
-            event->acceptProposedAction();
-        else
-            QWidget::dragEnterEvent(event);
-    }
-
-    void dragMoveEvent(QDragMoveEvent *event) override
-    {
-        if (!localFilesFromMime(event->mimeData()).isEmpty())
-            event->acceptProposedAction();
-        else
-            QWidget::dragMoveEvent(event);
-    }
-
-    void dropEvent(QDropEvent *event) override
-    {
-        const QList<FilePath> files = localFilesFromMime(event->mimeData());
-        if (!files.isEmpty()) {
-            event->acceptProposedAction();
-            if (onFilesDropped)
-                onFilesDropped(files);
-            return;
-        }
-        QWidget::dropEvent(event);
     }
 
     void paintEvent(QPaintEvent *) override
@@ -509,7 +465,17 @@ ChatPanel::ChatPanel(QWidget *parent)
     inputOuterLayout->setSpacing(GapVXs);
 
     auto *inputContainer = new InputContainerWidget;
-    inputContainer->onFilesDropped = [this](const QList<FilePath> &files) { addContextFiles(files); };
+    auto *dropSupport = new DropSupport(inputContainer, [](QDropEvent *event, DropSupport *) {
+        // Always use the "copy" action for the drop, since we don't really want to move
+        // files even if the drag source would support it.
+        if (const auto *mimeData = qobject_cast<const DropMimeData *>(event->mimeData()))
+            const_cast<DropMimeData *>(mimeData)->setOverrideFileDropAction(Qt::CopyAction);
+        return true;
+    });
+    connect(dropSupport, &DropSupport::filesDropped, this,
+            [this](const QList<DropSupport::FileSpec> &files, const QPoint &) {
+        addContextFiles(Utils::transform(files, &DropSupport::FileSpec::filePath));
+    });
     auto *inputContainerLayout = new QVBoxLayout(inputContainer);
     inputContainerLayout->setContentsMargins(PaddingHM, PaddingVM, PaddingHM, PaddingVM);
     inputContainerLayout->setSpacing(GapVXs);
