@@ -3592,11 +3592,14 @@ public:
 void GdbEngine::changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data)
 {
     Q_UNUSED(agent)
-    DebuggerCommand cmd("-data-write-memory 0x" + QString::number(addr, 16) + " d 1", NeedsTemporaryStop);
-    for (unsigned char c : data)
-        cmd.function += ' ' + QString::number(uint(c));
-    cmd.callback = CB(handleVarAssign);
-    runCommand(cmd);
+    for (int i = 0; i < data.size(); ++i) {
+        DebuggerCommand cmd("-data-write-memory 0x" + QString::number(addr + i, 16)
+                            + " d 1 " + QString::number(uint(static_cast<unsigned char>(data.at(i)))),
+                            NeedsTemporaryStop);
+        if (i == data.size() - 1)
+            cmd.callback = CB(handleVarAssign);
+        runCommand(cmd);
+    }
 }
 
 void GdbEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
