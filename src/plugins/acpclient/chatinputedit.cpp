@@ -19,7 +19,9 @@
 
 #include <QAbstractItemModel>
 #include <QApplication>
+#include <QImage>
 #include <QKeyEvent>
+#include <QMimeData>
 #include <QTextBlock>
 #include <QTextLayout>
 
@@ -135,6 +137,27 @@ void ChatInputEdit::keyPressEvent(QKeyEvent *event)
     }
 
     TextEditorWidget::keyPressEvent(event);
+}
+
+bool ChatInputEdit::canInsertFromMimeData(const QMimeData *source) const
+{
+    if (source && source->hasImage())
+        return true;
+    return TextEditorWidget::canInsertFromMimeData(source);
+}
+
+void ChatInputEdit::insertFromMimeData(const QMimeData *source)
+{
+    // A pasted (or dropped) image is not inserted as text; it is emitted so the
+    // chat panel can attach it as image context for the next prompt.
+    if (source && source->hasImage()) {
+        const QImage image = qvariant_cast<QImage>(source->imageData());
+        if (!image.isNull()) {
+            emit imagePasted(image);
+            return;
+        }
+    }
+    TextEditorWidget::insertFromMimeData(source);
 }
 
 void ChatInputEdit::updateHeight()

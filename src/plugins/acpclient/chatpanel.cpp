@@ -22,6 +22,7 @@
 #include <utils/dropsupport.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/infolabel.h>
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/settingsdatabase.h>
 #include <utils/layoutbuilder.h>
@@ -34,6 +35,7 @@
 #include <texteditor/textdocument.h>
 
 #include <QApplication>
+#include <QBuffer>
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QFrame>
@@ -47,9 +49,12 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPixmap>
 #include <QPushButton>
+#include <QScreen>
 #include <QStringList>
 #include <QTextBlock>
+#include <QTimer>
 #include <QTextCursor>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -93,7 +98,7 @@ class ContextItem : public QWidget
     Q_OBJECT
 public:
     explicit ContextItem(const QString &text, const QIcon &icon, QWidget *parent = nullptr,
-                         bool withBorder = true)
+                         bool withBorder = true, int iconSize = 16)
         : QWidget(parent)
         , m_withBorder(withBorder)
     {
@@ -103,7 +108,9 @@ public:
 
         if (!icon.isNull()) {
             auto iconLabel = new QLabel;
-            iconLabel->setPixmap(icon.pixmap(16, 16));
+            // Render at the device pixel ratio so the preview stays crisp on
+            // high-DPI displays.
+            iconLabel->setPixmap(icon.pixmap(QSize(iconSize, iconSize), devicePixelRatioF()));
             layout->addWidget(iconLabel);
         }
 
@@ -120,11 +127,24 @@ public:
         setCursor(Qt::PointingHandCursor);
     }
 
+    // Enables a rich tooltip that shows the given image at (up to) its original
+    // resolution. The tooltip HTML is built lazily on first hover.
+    void setPreviewImage(const QImage &image) { m_previewImage = image; }
+
 signals:
     void removeRequested();
     void clicked();
 
 protected:
+    bool event(QEvent *e) override
+    {
+        if (e->type() == QEvent::ToolTip && !m_previewImage.isNull() && !m_previewBuilt) {
+            buildPreviewTooltip();
+            m_previewBuilt = true;
+        }
+        return QWidget::event(e);
+    }
+
     void mousePressEvent(QMouseEvent *event) override
     {
         // Emit queued: a handler may rebuild the context bar and delete this
@@ -146,7 +166,36 @@ protected:
     }
 
 private:
+    void buildPreviewTooltip()
+    {
+        // Show the image at its original resolution, but never larger than the
+        // available screen area so the tooltip stays usable.
+        QSize shown = m_previewImage.size();
+        if (QScreen *s = screen()) {
+            const QSize avail = s->availableSize() * 0.9;
+            if (shown.width() > avail.width() || shown.height() > avail.height())
+                shown.scale(avail, Qt::KeepAspectRatio);
+        }
+
+        QByteArray png;
+        QBuffer buffer(&png);
+        buffer.open(QIODevice::WriteOnly);
+        m_previewImage.save(&buffer, "PNG");
+
+        const QString html
+            = QStringLiteral("<p>%1 x %2</p><img src=\"data:image/png;base64,%3\" "
+                             "width=\"%4\" height=\"%5\">")
+                  .arg(m_previewImage.width())
+                  .arg(m_previewImage.height())
+                  .arg(QString::fromLatin1(png.toBase64()))
+                  .arg(shown.width())
+                  .arg(shown.height());
+        setToolTip(html);
+    }
+
     bool m_withBorder = true;
+    QImage m_previewImage;
+    bool m_previewBuilt = false;
 };
 
 // Plain text editor with the same font/color setup as the chat input.
@@ -612,11 +661,23 @@ ChatPanel::ChatPanel(QWidget *parent)
     connect(m_textContextEditor, &TextContextEditor::cancelled, this,
             [this] { hideTextContextEditor(); });
 
+    // Transient message shown above the input (e.g. when a paste is rejected).
+    m_inputInfoLabel = new InfoLabel({}, InfoLabel::Warning);
+    m_inputInfoLabel->setElideMode(Qt::ElideNone);
+    m_inputInfoLabel->setWordWrap(true);
+    m_inputInfoLabel->hide();
+    m_inputInfoTimer = new QTimer(this);
+    m_inputInfoTimer->setSingleShot(true);
+    connect(m_inputInfoTimer, &QTimer::timeout, m_inputInfoLabel, &QWidget::hide);
+
+    inputOuterLayout->addWidget(m_inputInfoLabel);
     inputOuterLayout->addWidget(m_textContextEditor);
     inputOuterLayout->addWidget(inputContainer);
     layout->addWidget(inputOuter);
 
     // --- Connections ---
+    connect(m_inputEdit, &ChatInputEdit::imagePasted, this, &ChatPanel::addImageContext);
+
     connect(m_inputEdit, &ChatInputEdit::sendRequested, this, [this] {
         const QString text = m_inputEdit->toPlainText().trimmed();
         if (!text.isEmpty()) {
@@ -932,6 +993,33 @@ void ChatPanel::addContextFiles(const QList<Utils::FilePath> &files)
         updateContextBar();
 }
 
+void ChatPanel::addImageContext(const QImage &image)
+{
+    if (image.isNull())
+        return;
+    if (!m_imagePasteSupported) {
+        showTransientInputMessage(Tr::tr("This agent does not support images."));
+        return;
+    }
+    m_imageContexts.append({Tr::tr("Image %1").arg(m_imageContexts.size() + 1), image});
+    updateContextBar();
+}
+
+void ChatPanel::showTransientInputMessage(const QString &text)
+{
+    m_inputInfoLabel->setText(text);
+    m_inputInfoLabel->show();
+    m_inputInfoTimer->start(4000);
+}
+
+void ChatPanel::clearImageContexts()
+{
+    if (m_imageContexts.isEmpty())
+        return;
+    m_imageContexts.clear();
+    updateContextBar();
+}
+
 void ChatPanel::updateContextBar()
 {
     while (QLayoutItem *item = m_contextBarLayout->takeAt(0)) {
@@ -981,6 +1069,25 @@ void ChatPanel::updateContextBar()
         });
         connect(item, &ContextItem::clicked, this, [this, i] {
             showTextContextEditor(i);
+        });
+        m_contextBarLayout->addWidget(item);
+    }
+
+    // Match the file/text chip icon size so image chips don't grow taller.
+    constexpr int imageIconSize = 16;
+    for (int i = 0; i < m_imageContexts.size(); ++i) {
+        const QImage &image = m_imageContexts.at(i).image;
+        // Keep a preview scaled for the highest DPI we might render at, so the
+        // chip's icon stays sharp; the icon downsamples from here as needed.
+        const QIcon icon(QPixmap::fromImage(image.scaled(
+            imageIconSize * 2, imageIconSize * 2,
+            Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+        auto *item = new ContextItem(m_imageContexts.at(i).name, icon, m_contextBar,
+                                     /*withBorder=*/true, imageIconSize);
+        item->setPreviewImage(image);
+        connect(item, &ContextItem::removeRequested, this, [this, i] {
+            m_imageContexts.removeAt(i);
+            QMetaObject::invokeMethod(this, [this] { updateContextBar(); }, Qt::QueuedConnection);
         });
         m_contextBarLayout->addWidget(item);
     }

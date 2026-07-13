@@ -23,6 +23,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <QBuffer>
+#include <QImage>
 #include <QLoggingCategory>
 
 static Q_LOGGING_CATEGORY(logController, "qtc.acpclient.controller", QtWarningMsg);
@@ -238,10 +240,20 @@ static bool supportsEmbeddedPromptResources(std::optional<Acp::AgentCapabilities
     return false;
 }
 
+static bool supportsImagePromptContent(std::optional<Acp::AgentCapabilities> agentCapabilities)
+{
+    if (!agentCapabilities)
+        return false;
+    if (auto promptCapabilities = agentCapabilities->promptCapabilities())
+        return promptCapabilities->image().value_or(false);
+    return false;
+}
+
 void AcpChatController::sendPrompt(const QString &text,
                                    const QList<Utils::FilePath> &additionalFiles,
                                    bool includeCurrentEditor,
-                                   const QList<TextContext> &textContexts)
+                                   const QList<TextContext> &textContexts,
+                                   const QList<ImageContext> &imageContexts)
 {
     using namespace TextEditor;
     if (text.isEmpty() || !m_client || m_sessionId.isEmpty())
@@ -338,6 +350,23 @@ void AcpChatController::sendPrompt(const QString &text,
         const QString uri = QStringLiteral("context://%1").arg(ctx.name);
         content << EmbeddedResource().resource(
             TextResourceContents().text(ctx.text).uri(uri));
+    }
+
+    // Images are only ever attached when the agent advertises image support
+    // (the chat panel blocks pasting otherwise), so send them as image blocks.
+    if (supportsImagePromptContent(m_agentCapabilities)) {
+        for (const ImageContext &imageContext : imageContexts) {
+            if (imageContext.image.isNull())
+                continue;
+
+            QByteArray bytes;
+            QBuffer buffer(&bytes);
+            buffer.open(QIODevice::WriteOnly);
+            imageContext.image.save(&buffer, "PNG");
+            content << ImageContent()
+                           .data(QString::fromLatin1(bytes.toBase64()))
+                           .mimeType(QStringLiteral("image/png"));
+        }
     }
 
     request.prompt(content);
@@ -551,6 +580,11 @@ bool AcpChatController::supportsSessionClose() const
         return false;
     const auto &sessionCaps = m_agentCapabilities->sessionCapabilities();
     return sessionCaps.has_value() && sessionCaps->close().has_value();
+}
+
+bool AcpChatController::supportsImagePrompt() const
+{
+    return supportsImagePromptContent(m_agentCapabilities);
 }
 
 void AcpChatController::closeSession()

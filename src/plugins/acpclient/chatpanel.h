@@ -7,11 +7,13 @@
 
 #include <utils/filepath.h>
 
+#include <QImage>
 #include <QJsonValue>
 #include <QList>
 #include <QWidget>
 
 namespace Utils {
+class InfoLabel;
 class QtcButton;
 class QtcComboBox;
 class QtcIconButton;
@@ -21,6 +23,7 @@ class QtcProgressBar;
 class QHBoxLayout;
 class QLayout;
 class QMenu;
+class QTimer;
 class QToolButton;
 
 namespace AcpClient::Internal {
@@ -37,6 +40,12 @@ struct TextContext
     QString name;
     QString text;
     TextContextScope scope = TextContextScope::Session;
+};
+
+struct ImageContext
+{
+    QString name;
+    QImage image;
 };
 
 class AcpMessageView;
@@ -61,6 +70,7 @@ public:
     void setPrompting(bool prompting);
     void setSendEnabled(bool enabled);
     void setCanCloseSession(bool canClose) { m_canCloseSession = canClose; }
+    void setImagePasteSupported(bool supported) { m_imagePasteSupported = supported; }
 
     void setConfigOptions(const QList<Acp::SessionConfigOption> &configOptions);
     void setSessionModes(const QList<Acp::SessionMode> &modes, const QString &currentModeId);
@@ -73,6 +83,8 @@ public:
     bool includeCurrentEditorContext() const { return m_includeCurrentEditorContext; }
     QList<Utils::FilePath> manualContextFiles() const { return m_manualContextFiles; }
     QList<TextContext> textContexts() const { return m_textContexts; }
+    QList<ImageContext> imageContexts() const { return m_imageContexts; }
+    void clearImageContexts();
 
     // Delegate to message view
     void addUserMessage(const QString &text);
@@ -130,9 +142,12 @@ private:
     bool m_includeCurrentEditorContext = true;
     QList<Utils::FilePath> m_manualContextFiles;
     QList<TextContext> m_textContexts;
+    QList<ImageContext> m_imageContexts;
 
     void updateContextBar();
     void addContextFiles(const QList<Utils::FilePath> &files);
+    void addImageContext(const QImage &image);
+    void showTransientInputMessage(const QString &text);
 
     QString m_agentId;
     QString m_sessionId;
@@ -150,6 +165,10 @@ private:
 
     bool m_prompting = false;
     bool m_canCloseSession = false;
+    bool m_imagePasteSupported = false;
+
+    Utils::InfoLabel *m_inputInfoLabel = nullptr;
+    QTimer *m_inputInfoTimer = nullptr;
 };
 
 } // namespace AcpClient::Internal

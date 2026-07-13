@@ -43,7 +43,8 @@ public:
     void loadSession(const QString &sessionId, const Utils::FilePath &workingDirectory);
     void sendPrompt(const QString &text, const QList<Utils::FilePath> &additionalFiles = {},
                     bool includeCurrentEditor = true,
-                    const QList<TextContext> &textContexts = {});
+                    const QList<TextContext> &textContexts = {},
+                    const QList<ImageContext> &imageContexts = {});
     void cancelPrompt();
     void authenticate(const QString &methodId);
     void setConfigOption(const QString &configId, const QJsonValue &value);
@@ -57,6 +58,7 @@ public:
     bool supportsSessionList() const;
     bool supportsSessionDelete() const;
     bool supportsSessionClose() const;
+    bool supportsImagePrompt() const;
     const QString &sessionId() const { return m_sessionId; }
     QString displayName() const;
     const QString &agentName() const { return m_agentName; }

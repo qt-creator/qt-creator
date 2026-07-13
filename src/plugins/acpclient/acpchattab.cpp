@@ -302,7 +302,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->setPrompting(true);
         m_controller->sendPrompt(
             text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
-            m_chatPanel->textContexts());
+            m_chatPanel->textContexts(), m_chatPanel->imageContexts());
+        m_chatPanel->clearImageContexts();
     });
     connect(m_chatPanel, &ChatPanel::cancelRequested, m_controller, &AcpChatController::cancelPrompt);
     connect(m_chatPanel, &ChatPanel::configOptionChanged,
@@ -326,12 +327,14 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_chatPanel->setPrompting(false);
             m_chatPanel->clearConfigOptions();
             m_chatPanel->setCanCloseSession(false);
+            m_chatPanel->setImagePasteSupported(false);
             emit titleChanged();
         }
     });
     connect(m_controller, &AcpChatController::agentInfoReceived, this,
             [this](const QString &, const QString &, const QString &iconUrl) {
         m_chatPanel->setAgentIcon(iconUrl);
+        m_chatPanel->setImagePasteSupported(m_controller->supportsImagePrompt());
         emit titleChanged();
     });
     connect(m_controller, &AcpChatController::authenticationRequired,
@@ -364,7 +367,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_chatPanel->setPrompting(true);
             m_controller->sendPrompt(
                 text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
-                m_chatPanel->textContexts());
+                m_chatPanel->textContexts(), m_chatPanel->imageContexts());
+            m_chatPanel->clearImageContexts();
         }
     });
     connect(m_controller, &AcpChatController::configOptionsReceived,
@@ -448,7 +452,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_chatPanel->setPrompting(true);
             m_controller->sendPrompt(
                 text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
-                m_chatPanel->textContexts());
+                m_chatPanel->textContexts(), m_chatPanel->imageContexts());
+            m_chatPanel->clearImageContexts();
         }
     });
 

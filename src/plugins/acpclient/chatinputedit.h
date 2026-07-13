@@ -7,6 +7,11 @@
 
 #include <texteditor/texteditor.h>
 
+QT_BEGIN_NAMESPACE
+class QImage;
+class QMimeData;
+QT_END_NAMESPACE
+
 namespace Utils { class HistoryCompleter; }
 
 namespace AcpClient::Internal {
@@ -22,9 +27,12 @@ public:
 
 signals:
     void sendRequested();
+    void imagePasted(const QImage &image);
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
+    bool canInsertFromMimeData(const QMimeData *source) const override;
+    void insertFromMimeData(const QMimeData *source) override;
     void setDisplaySettings(const TextEditor::DisplaySettingsData &settings) override;
     void setMarginSettings(const TextEditor::MarginSettingsData &settings) override;
     int extraAreaWidth(int * = nullptr) const override { return 0; }
