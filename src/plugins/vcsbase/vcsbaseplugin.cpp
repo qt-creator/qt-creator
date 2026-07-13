@@ -705,6 +705,10 @@ void VersionControlBase::createRepository(FilePath *repoDirectory)
         VcsOutputWindow::appendMessage(
             directory,
             Tr::tr("A version control repository has been created in %1.").arg(nativeDir));
+        // Re-evaluate the directory immediately so views depending on the
+        // version control (e.g. the Changes view) pick up the new repository
+        // without waiting for the unversioned-directory watcher to fire.
+        VcsManager::resetVersionControlForDirectory(directory);
     } else {
         VcsOutputWindow::appendError(
             directory,
