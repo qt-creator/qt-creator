@@ -3206,6 +3206,7 @@ typename))
             self.putValue(self.hexencode(value.data()), 'latin1')
             self.putNumChild(0)
             self.putType(typeid)
+            return
 
         if typename.endswith('[]'):
             # D arrays, gdc compiled.
@@ -3229,8 +3230,22 @@ typename))
             self.putNumChild(0)
             return
 
-        self.putExpandable()
-        self.putEmptyValue()
+        # Single-member wrapper (e.g. a "strong typedef" like struct FileId { int id; }):
+        # surface the inner scalar as the wrapper's value, but keep the struct
+        # expandable so the member itself stays visible. QTCREATORBUG-22565.
+        singleScalarMember = None
+        if self.useFancy and value.type.size() in (1, 2, 4, 8):
+            members = value.members(True)
+            if len(members) == 1 and self.type_code(members[0].typeid) in (
+                    TypeCode.Integral, TypeCode.Float, TypeCode.Enum):
+                singleScalarMember = members[0]
+
+        if singleScalarMember is not None:
+            self.putItem(singleScalarMember)  # inner scalar's value and encoding
+            self.putBetterType(typename)      # keep the wrapper's own type name
+        else:
+            self.putEmptyValue()
+        self.putExpandable()                  # keep expandable (overrides putItem's numchild)
         #self.warn('STRUCT GUTS: %s  ADDRESS: 0x%x ' % (value.name, value.address()))
         if self.wantQObjectNames():
             #with self.timer(self.currentIName):

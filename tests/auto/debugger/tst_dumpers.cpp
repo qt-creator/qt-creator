@@ -3059,15 +3059,15 @@ void tst_Dumpers::dumper_data()
               + Check("m8", "<4 items>", "@QMap<@QString, @QList<nsA::nsB::SomeType*>>")
               + CheckPairish("m8.0.key", "\"1\"", "@QString")
               + CheckPairish("m8.0.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
-              + CheckPairish("m8.0.value.0", "[0]", "", "nsA::nsB::SomeType")
+              + CheckPairish("m8.0.value.0", "[0]", "1", "nsA::nsB::SomeType")
               + CheckPairish("m8.0.value.0.a", "1", "int")
-              + CheckPairish("m8.0.value.1", "[1]", "", "nsA::nsB::SomeType")
+              + CheckPairish("m8.0.value.1", "[1]", "2", "nsA::nsB::SomeType")
               + CheckPairish("m8.0.value.1.a", "2", "int")
-              + CheckPairish("m8.0.value.2", "[2]", "", "nsA::nsB::SomeType")
+              + CheckPairish("m8.0.value.2", "[2]", "3", "nsA::nsB::SomeType")
               + CheckPairish("m8.0.value.2.a", "3", "int")
               + CheckPairish("m8.3.key", "\"foo\"", "@QString")
               + CheckPairish("m8.3.value", "<3 items>", "@QList<nsA::nsB::SomeType*>")
-              + CheckPairish("m8.3.value.2", "[2]", "", "nsA::nsB::SomeType")
+              + CheckPairish("m8.3.value.2", "[2]", "3", "nsA::nsB::SomeType")
               + CheckPairish("m8.3.value.2.a", "3", "int")
 
               + Check("x", "<3 items>", "@QList<nsA::nsB::SomeType*>");
@@ -6710,7 +6710,7 @@ void tst_Dumpers::dumper_data()
 
                     "&f, &f.x")
 
-               + Check("this", "", "Foo")
+               + Check("this", "143", "Foo")
                + Check("this.x", "143", "int");
 
     QTest::newRow("Union")
@@ -6720,6 +6720,27 @@ void tst_Dumpers::dumper_data()
                + Check("u", "", "U")
                + Check("u.a", AnyValue, "int")
                + Check("u.b", AnyValue, "int");
+
+    // Single-member wrapper: value shown directly without needing to expand.
+    QTest::newRow("SingleMemberWrapper")
+            << Data("struct FileId { int id; };\n"
+                    "struct Ratio { double value; };\n"
+                    "struct Base { int x; };\n"
+                    "struct Derived : Base {};\n",
+
+                    "FileId f;\n"
+                    "f.id = 42;\n"
+                    "Ratio r;\n"
+                    "r.value = 0.5;\n"
+                    "Derived d;\n"
+                    "d.x = 7;\n",
+
+                    "&f, &r, &d")
+
+               + Check("f", "42", "FileId")
+               + Check("r", "0.5", "Ratio")
+               + Check("d", "", "Derived")
+               + Check("d.@1.x", "7", "int");
 
 //    QTest::newRow("TypeFormats")
 //                  << Data(
