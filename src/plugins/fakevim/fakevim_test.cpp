@@ -168,6 +168,7 @@ private slots:
     void test_vim_surround_emulation();
     void test_vim_unimpaired_emulation();
     void test_vim_reflow();
+    void test_vim_open_line_with_fold();
 
     void test_macros();
 
@@ -4904,6 +4905,36 @@ void FakeVimTester::test_vim_reflow()
 
     data.setText("aaa |bbb ccc" N "ddd");
     KEYS("gwj", "aaa |bbb" N "ccc ddd");
+}
+
+void FakeVimTester::test_vim_open_line_with_fold()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set noautoindent");
+
+    // Realize the editor so the document layout runs against real geometry;
+    // otherwise folding does not affect the visual line numbering and the bug
+    // below cannot be reproduced.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    // Fold the inner "if" block through FakeVim (keeps the handler in sync),
+    // then move down onto "ccc;", which is now right below the folded region.
+    data.setText("{" N "if (x) {" N "|aaa;" N "bbb;" N "}" N "ccc;" N "}");
+    data.doKeys("zc");
+    data.doKeys("j");
+
+    // Wait until the layout has caught up with the fold: the hidden blocks
+    // pull the visual line number of "ccc;" (block 5) below its block number.
+    const QTextDocument *doc = data.editor()->document();
+    QTRY_VERIFY(doc->findBlockByNumber(5).firstLineNumber() < 5);
+    QVERIFY(!doc->findBlockByNumber(2).isVisible());
+
+    // "o" must insert the new line after "ccc;", not inside the folded region
+    // (QTCREATORBUG-24005).
+    KEYS("oz",
+         "{" N "if (x) {" N "aaa;" N "bbb;" N "}" N "ccc;" N "z" X N "}");
 }
 
 void FakeVimTester::test_macros()

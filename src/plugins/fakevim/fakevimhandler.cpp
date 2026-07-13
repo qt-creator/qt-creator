@@ -4762,7 +4762,14 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             else
                 moveUp();
         }
+        // firstPositionInLine()/lastPositionInLine() below expect a visual
+        // line number.
         const int line = lineNumber(block());
+        // Detecting an accidentally opened fold further down must use the
+        // (stable) block number, not the visual line number: the latter shifts
+        // when word wrapping adds display lines, which spuriously folded the
+        // enclosing block (QTCREATORBUG-24005).
+        const int startBlockNumber = block().blockNumber();
 
         beginEditBlock();
         enterInsertMode();
@@ -4783,7 +4790,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         // Close accidentally opened block.
         if (block().blockNumber() > 0) {
             moveUp();
-            if (line != lineNumber(block()))
+            if (startBlockNumber != block().blockNumber())
                 q->fold(1, true);
             moveDown();
         }
