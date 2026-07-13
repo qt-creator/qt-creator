@@ -29,8 +29,6 @@ ProcessExtraCompiler::Parameters PySideUicExtraCompiler::parameters() const
     // TODO: Any reason not to share this with UicGenerator?
     params.postRunner = [targets = this->targets()](Process *process) {
         FileNameToContentsHash result;
-        if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
-            return result;
 
         if (targets.size() != 1)
             return result;

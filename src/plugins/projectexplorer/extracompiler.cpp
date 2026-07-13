@@ -10,6 +10,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/messagemanager.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -373,6 +374,12 @@ void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise
 
     if (promise.isCanceled())
         return;
+
+    if (process.result() != ProcessResult::FinishedWithSuccess) {
+        MessageManager::writeFlashing(
+            process.exitMessage(Process::FailureMessageFormat::WithStdErr));
+        return;
+    }
 
     promise.addResult(params.postRunner(&process));
 }
