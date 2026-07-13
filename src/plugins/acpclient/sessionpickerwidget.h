@@ -43,6 +43,8 @@ public:
 
     void setResolved(const QString &title);
 
+    std::optional<NewSessionTarget> firstNewSessionTarget() const;
+
 signals:
     void sessionSelected(const QString &sessionId, const Utils::FilePath &cwd);
     void loadMoreRequested(const QString &cursor);
@@ -75,6 +77,7 @@ private:
     QPushButton *m_loadMoreButton = nullptr;
     Utils::FilePath m_currentProjectDir;
     QString m_nextCursor;
+    std::optional<NewSessionTarget> m_firstNewSessionTarget;
     bool m_resolved = false;
 };
 

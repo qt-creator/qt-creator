@@ -12,6 +12,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -34,6 +35,7 @@
 #include <QVBoxLayout>
 
 using namespace Acp;
+using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;
 
@@ -279,10 +281,15 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         if (m_activePicker) {
             QObject::disconnect(m_controller, &AcpChatController::sessionsListed,
                                 m_activePicker, nullptr);
+            const std::optional<SessionPickerWidget::NewSessionTarget> firstSessionTarget
+                = m_activePicker->firstNewSessionTarget();
             m_activePicker->deleteLater();
             m_pendingPrompt = text;
             const Project *project = ProjectManager::startupProject();
-            m_controller->createNewSession(project ? project->projectDirectory() : FilePath{});
+            const FilePath sessionPath = firstSessionTarget ? firstSessionTarget->cwd
+                                         : project          ? project->projectDirectory()
+                                                            : FilePath();
+            m_controller->createNewSession(sessionPath);
             return;
         }
         m_chatPanel->addUserMessage(text);
@@ -443,6 +450,14 @@ QString AcpChatTab::title() const
     return m_title;
 }
 
+static IDocument *currentNonTemporaryDocument()
+{
+    IDocument *currentDocument = EditorManager::currentDocument();
+    if (currentDocument && (currentDocument->filePath().isEmpty() || currentDocument->isTemporary()))
+        return nullptr;
+    return currentDocument;
+}
+
 void AcpChatTab::showSessionPicker()
 {
     auto *picker = m_chatPanel->addSessionPicker();
@@ -454,12 +469,26 @@ void AcpChatTab::showSessionPicker()
         picker->setCurrentProjectDir(startup->projectDirectory());
 
     QList<SessionPickerWidget::NewSessionTarget> targets;
+    IDocument *currentDocument = currentNonTemporaryDocument();
+    Project *projectForCurrentDocument = currentDocument ? ProjectManager::projectForFile(
+                                                               currentDocument->filePath())
+                                                         : nullptr;
+    if (currentDocument && !projectForCurrentDocument) {
+        SessionPickerWidget::NewSessionTarget t;
+        t.label = currentDocument->displayName();
+        t.cwd = currentDocument->filePath().parentDir();
+        t.tooltip = t.cwd.toUserOutput();
+        targets.append(t);
+    }
     for (const Project *p : ProjectManager::projects()) {
         SessionPickerWidget::NewSessionTarget t;
         t.label = p->displayName();
         t.cwd = p->projectDirectory();
         t.tooltip = p->projectDirectory().toUserOutput();
-        targets.append(t);
+        if (p == projectForCurrentDocument)
+            targets.prepend(t);
+        else
+            targets.append(t);
     }
     picker->setNewSessionTargets(targets);
 

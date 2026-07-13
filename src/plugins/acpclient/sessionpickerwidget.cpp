@@ -263,6 +263,10 @@ void SessionPickerWidget::setNewSessionTargets(const QList<NewSessionTarget> &ta
         delete item;
     }
 
+    m_firstNewSessionTarget.reset();
+    if (!targets.isEmpty())
+        m_firstNewSessionTarget = targets.first();
+
     const QIcon plusIcon = Utils::Icons::PLUS_TOOLBAR.icon();
     for (const NewSessionTarget &t : targets) {
         const QString label = Tr::tr("New Session for %1").arg(t.label);
@@ -419,6 +423,11 @@ void SessionPickerWidget::setResolved(const QString &)
 
     setEnabled(false);
     deleteLater();
+}
+
+std::optional<SessionPickerWidget::NewSessionTarget> SessionPickerWidget::firstNewSessionTarget() const
+{
+    return m_firstNewSessionTarget;
 }
 
 void SessionPickerWidget::addSessionItem(const SessionInfo &session)
