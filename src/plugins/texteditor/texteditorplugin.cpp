@@ -108,6 +108,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createSelectAllTest);
     addTestCreator(createRevertToSavedTest);
     addTestCreator(createFindReplaceTest);
+    addTestCreator(createSnippetTest);
     addTestCreator(createSnippetParserTest);
     addTestCreator(createCodeStyleAspectTest);
 #endif

@@ -7,6 +7,8 @@
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
+#include "snippets/snippet.h"
+#include "snippets/snippetparser.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -572,6 +574,52 @@ void FindReplaceTest::testReplaceSelected()
 QObject *createFindReplaceTest()
 {
     return new FindReplaceTest;
+}
+
+class SnippetTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testVariableMirroring();
+};
+
+void SnippetTest::testVariableMirroring()
+{
+    BaseTextEditor *editor = openTextEditor(QString(), "snippet.cpp");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // A class template snippet echoing the "class derived from QObject" snippet:
+    // the "name" variable occurs three times and must stay in sync, and a
+    // second "base" variable is reached by tabbing to the next placeholder.
+    const QString snippet = "class $name$ : public $base$ {\n"
+                            "    Q_OBJECT\n"
+                            "public:\n"
+                            "    $name$() {}\n"
+                            "    virtual ~$name$() {}\n"
+                            "};";
+    editorWidget->insertCodeSnippet(0, snippet, &Snippet::parse);
+
+    // The first variable is active; typing a value renames every occurrence.
+    QTest::keyClicks(editorWidget, "MyName");
+
+    // Tab jumps to the next placeholder ("base"); fill it too.
+    QTest::keyClick(editorWidget, Qt::Key_Tab);
+    QTest::keyClicks(editorWidget, "QObject");
+
+    const QString text = editorWidget->textDocument()->plainText();
+    QCOMPARE(text.count("MyName"), 3);
+    QVERIFY(text.contains("public QObject"));
+    QVERIFY(!text.contains("name")); // the "name" placeholder was filled everywhere
+    QVERIFY(!text.contains("base")); // the "base" placeholder was reached via Tab
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+QObject *createSnippetTest()
+{
+    return new SnippetTest;
 }
 
 } // TextEditor::Internal
