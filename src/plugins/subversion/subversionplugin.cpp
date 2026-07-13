@@ -611,15 +611,7 @@ void SubversionPluginPrivate::revertCurrentFile()
         return;
     }
 
-    FileChangeBlocker fcb(state.currentFile());
-
-    // revert
-    CommandLine args{settings().binaryPath(), {"revert"}};
-    args << SubversionClient::escapeFile(state.relativeCurrentFile());
-
-    const auto revertResponse = runSvn(state.currentFileTopLevel(), args, RunFlag::ShowStdOut);
-    if (revertResponse.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged({state.currentFile()});
+    revertChangedFile(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void SubversionPluginPrivate::revertChangedFile(const FilePath &repository,
@@ -630,9 +622,14 @@ void SubversionPluginPrivate::revertChangedFile(const FilePath &repository,
     CommandLine args{settings().binaryPath(), {"revert"}};
     args << SubversionClient::escapeFile(relativePath);
 
-    const auto revertResponse = runSvn(repository, args, RunFlag::ShowStdOut);
-    if (revertResponse.result() == ProcessResult::FinishedWithSuccess)
+    const auto result = runSvn(repository, args, RunFlag::ShowStdOut);
+    if (result.result() == ProcessResult::FinishedWithSuccess) {
         emit filesChanged({repository.pathAppended(relativePath)});
+    } else {
+        VcsOutputWindow::appendError(
+            repository,
+            Tr::tr("Cannot revert \"%1\": %2").arg(relativePath, result.exitMessage()));
+    }
 }
 
 void SubversionPluginPrivate::diffProjectDirectory()
