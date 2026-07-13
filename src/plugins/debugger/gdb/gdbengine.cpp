@@ -2941,7 +2941,10 @@ void GdbEngine::requestModuleSymbols(const FilePath &modulePath)
 void GdbEngine::requestModuleSections(const FilePath &moduleName)
 {
     // There seems to be no way to get the symbols from a single .so.
-    DebuggerCommand cmd("maint info section ALLOBJ", NeedsTemporaryStop);
+    // "-all-objects": the bare "ALLOBJ" keyword this used to send no
+    // longer exists in current gdb (confirmed against gdb 15.1: it's
+    // silently ignored as an unrecognized filter, yielding zero sections).
+    DebuggerCommand cmd("maint info sections -all-objects", NeedsTemporaryStop);
     cmd.callback = [this, moduleName](const DebuggerResponse &r) {
         handleShowModuleSections(r, moduleName);
     };
@@ -2951,35 +2954,45 @@ void GdbEngine::requestModuleSections(const FilePath &moduleName)
 void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
                                          const FilePath &moduleName)
 {
-    // ~"  Object file: /usr/lib/i386-linux-gnu/libffi.so.6\n"
-    // ~"    0xb44a6114->0xb44a6138 at 0x00000114: .note.gnu.build-id ALLOC LOAD READONLY DATA HAS_CONTENTS\n"
+    // "maint info sections -all-objects" (see requestModuleSections()'s own
+    // comment) prints one header line per loaded object - "Exec file:
+    // `PATH', file type FORMAT." for the executable itself, "Object file:
+    // `PATH', file type FORMAT." for every other one (shared libraries,
+    // split debug info, ...) - followed by that object's own section lines
+    // until the next header, e.g. (confirmed against a real gdb 15.1; the
+    // two old sample lines below - no header indent, no leading "[N]"
+    // index - are no longer what gdb actually emits):
+    //   [13]  0x555555555040->0x555555555167 at 0x00001040: .text ALLOC
+    //         LOAD READONLY CODE HAS_CONTENTS
     if (response.resultClass == ResultDone) {
+        static const QRegularExpression headerRe(
+            "^(?:Exec file|Object file): `(.*)', file type .*\\.$");
+        static const QRegularExpression sectionRe(
+            "^\\s*\\[\\d+\\]\\s+(0x[0-9A-Fa-f]+)->(0x[0-9A-Fa-f]+) at (0x[0-9A-Fa-f]+):\\s+(\\S+)(.*)$");
+
         const QStringList lines = response.consoleStreamOutput.split('\n');
-        const QString prefix = "  Object file: ";
-        const QString needle = prefix + moduleName.path();
         Sections sections;
         bool active = false;
         for (const QString &line : std::as_const(lines)) {
-            if (line.startsWith(prefix)) {
+            const QRegularExpressionMatch headerMatch = headerRe.match(line);
+            if (headerMatch.hasMatch()) {
                 if (active)
                     break;
-                if (line == needle)
-                    active = true;
-            } else {
-                if (active) {
-                    QStringList items = line.split(' ', Qt::SkipEmptyParts);
-                    QString fromTo = items.value(0, QString());
-                    const int pos = fromTo.indexOf('-');
-                    QTC_ASSERT(pos >= 0, continue);
-                    Section section;
-                    section.from = fromTo.left(pos);
-                    section.to = fromTo.mid(pos + 2);
-                    section.address = items.value(2, QString());
-                    section.name = items.value(3, QString());
-                    section.flags = items.value(4, QString());
-                    sections.append(section);
-                }
+                active = headerMatch.captured(1) == moduleName.path();
+                continue;
             }
+            if (!active)
+                continue;
+            const QRegularExpressionMatch sectionMatch = sectionRe.match(line);
+            if (!sectionMatch.hasMatch())
+                continue;
+            Section section;
+            section.from = sectionMatch.captured(1);
+            section.to = sectionMatch.captured(2);
+            section.address = sectionMatch.captured(3);
+            section.name = sectionMatch.captured(4);
+            section.flags = sectionMatch.captured(5).trimmed();
+            sections.append(section);
         }
         if (!sections.isEmpty())
             DebuggerEngine::showModuleSections(moduleName, sections);
