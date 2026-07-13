@@ -42,7 +42,7 @@ class DisassemblerBreakpointMarker : public TextMark
 {
 public:
     DisassemblerBreakpointMarker(const Breakpoint &bp, int lineNumber)
-        : TextMark({}, lineNumber, {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
+        : TextMark(Utils::FilePath(), lineNumber, {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
         , m_bp(bp)
     {
         setIcon(bp->icon());
