@@ -2927,8 +2927,11 @@ void GdbEngine::requestModuleSymbols(const FilePath &modulePath)
         return;
     FilePath filePath = tf.filePath();
     tf.close();
-    DebuggerCommand cmd("maint print msymbols \"" + filePath.path() + "\" "
-                         + modulePath.path(), NeedsTemporaryStop);
+    // "maint print msymbols" only accepts "[-objfile OBJFILE] [--] [OUTFILE]"
+    // in current gdb (confirmed against gdb 15.1) - the old positional
+    // "OUTFILE OBJFILE" form fails with "Junk at end of command".
+    DebuggerCommand cmd("maint print msymbols -objfile " + modulePath.path()
+                         + " -- \"" + filePath.path() + "\"", NeedsTemporaryStop);
     cmd.callback = [modulePath, filePath](const DebuggerResponse &r) {
         handleShowModuleSymbols(r, modulePath, filePath);
     };
