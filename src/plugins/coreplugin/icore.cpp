@@ -2577,6 +2577,7 @@ void ICorePrivate::changeLog()
     dialog = new LogDialog(ICore::dialogParent());
     auto showInExplorer = new QPushButton(FileUtils::msgGraphicalShellAction());
     auto textEdit = new Utils::MarkdownBrowser();
+    textEdit->setShowRulersForHeadings(true);
 
     Aggregation::aggregate({textEdit, new BaseTextFind(textEdit)});
 

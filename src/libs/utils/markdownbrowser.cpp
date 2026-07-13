@@ -620,6 +620,12 @@ void MarkdownBrowser::setEnableCodeCopyButton(bool enable)
     m_enableCodeCopyButton = enable;
 }
 
+void MarkdownBrowser::setShowRulersForHeadings(bool show)
+{
+    m_showRulersForHeadings = show;
+    viewport()->update();
+}
+
 void MarkdownBrowser::setAllowRemoteImages(bool allow)
 {
     static_cast<AnimatedDocument *>(document())->setAllowRemoteImages(allow);
@@ -894,6 +900,36 @@ void MarkdownBrowser::scrollContentsBy(int dx, int dy)
 {
     QTextBrowser::scrollContentsBy(dx, dy);
     updateCopyButtonPositions();
+}
+
+void MarkdownBrowser::paintEvent(QPaintEvent *event)
+{
+    QTextBrowser::paintEvent(event);
+
+    if (!m_showRulersForHeadings)
+        return;
+
+    // Draws a dividing line below level 1 and level 2 headings.
+    QPainter painter(viewport());
+    const QRectF visibleRect = viewport()->rect();
+    const QPointF offset(-horizontalScrollBar()->value(), -verticalScrollBar()->value());
+
+    QPen headingPen(Utils::creatorColor(Theme::TextColorDisabled).rgba());
+    headingPen.setWidth(1);
+    painter.setPen(headingPen);
+
+    for (QTextBlock blk = document()->begin(); blk.isValid(); blk = blk.next()) {
+        const int lvl = blk.blockFormat().headingLevel();
+        if (lvl == 1 || lvl == 2) {
+            const QRectF blkRect = document()->documentLayout()->blockBoundingRect(blk);
+            const QRectF viewRect = blkRect.translated(offset)
+                                        // Draw line slightly below the text
+                                        .adjusted(0, 0, 0, 2);
+
+            if (viewRect.intersects(visibleRect))
+                painter.drawLine(viewRect.bottomLeft(), viewRect.bottomRight());
+        }
+    }
 }
 
 QMimeData *MarkdownBrowser::createMimeDataFromSelection() const

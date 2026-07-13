@@ -17,6 +17,7 @@ QT_END_NAMESPACE
 QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
 class QNetworkRequest;
+class QPaintEvent;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -44,11 +45,13 @@ public:
 
     void setMargins(const QMargins &margins);
     void setEnableCodeCopyButton(bool enable);
+    void setShowRulersForHeadings(bool show);
 
 protected:
     void changeEvent(QEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     void scrollContentsBy(int dx, int dy) override;
+    void paintEvent(QPaintEvent *event) override;
 
     QMimeData *createMimeDataFromSelection() const override;
 
@@ -67,6 +70,7 @@ private:
     int currentButtonSize() const;
 
     bool m_enableCodeCopyButton = false;
+    bool m_showRulersForHeadings = false;
     QList<CodeBlockEntry> m_codeBlocks;
 };
 
