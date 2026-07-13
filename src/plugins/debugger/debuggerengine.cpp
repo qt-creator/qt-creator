@@ -2112,9 +2112,9 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     }
 }
 
-void DebuggerEngine::notifyDebuggerProcessFinished(const ProcessResultData &result,
-                                                   const QString &backendName)
+void DebuggerEngine::notifyDebuggerProcessFinished(const ProcessResultData &result)
 {
+    const QString backendName = debuggerName();
     showMessage(QString("%1 PROCESS FINISHED, status %2, exit code %3 (0x%4)")
                     .arg(backendName)
                     .arg(result.m_exitStatus)

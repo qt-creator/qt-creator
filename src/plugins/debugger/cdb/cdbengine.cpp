@@ -678,7 +678,7 @@ void CdbEngine::processDone()
                m_process.exitStatus(), m_process.exitCode());
     }
 
-    notifyDebuggerProcessFinished(m_process.resultData(), "CDB");
+    notifyDebuggerProcessFinished(m_process.resultData());
 }
 
 void CdbEngine::detachDebugger()

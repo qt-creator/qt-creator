@@ -4138,7 +4138,7 @@ void GdbEngine::handleGdbDone()
     if (m_commandTimer.isActive())
         m_commandTimer.stop();
 
-    notifyDebuggerProcessFinished(m_gdbProc.resultData(), "GDB");
+    notifyDebuggerProcessFinished(m_gdbProc.resultData());
 }
 
 void GdbEngine::abortDebuggerProcess()

@@ -672,8 +672,7 @@ public:
 protected:
     void setDebuggerName(const QString &name);
     void setDebuggerType(const QString &type);
-    void notifyDebuggerProcessFinished(const Utils::ProcessResultData &resultData,
-                                       const QString &backendName);
+    void notifyDebuggerProcessFinished(const Utils::ProcessResultData &resultData);
 
     virtual void setState(DebuggerState state, bool forced = false);
 

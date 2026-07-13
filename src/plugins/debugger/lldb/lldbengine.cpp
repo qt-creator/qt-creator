@@ -839,7 +839,7 @@ void LldbEngine::handleLldbDone()
     }
 
     if (m_lldbProc.error() == QProcess::UnknownError) {
-        notifyDebuggerProcessFinished(m_lldbProc.resultData(), "LLDB");
+        notifyDebuggerProcessFinished(m_lldbProc.resultData());
         return;
     }
 
