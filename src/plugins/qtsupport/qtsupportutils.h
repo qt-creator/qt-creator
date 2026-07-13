@@ -8,7 +8,10 @@ namespace Utils {
 class Environment;
 class FilePath;
 class FilePaths;
+class Process;
 }
+
+QT_FORWARD_DECLARE_CLASS(QByteArray)
 
 namespace QtSupport {
 namespace Internal {
@@ -20,5 +23,6 @@ Utils::FilePath qtChooserToQmakePath(const Utils::FilePath &qtChooser);
 } // namespace Internal
 
 QTSUPPORT_EXPORT QString filterForQmakeFileDialog();
+QTSUPPORT_EXPORT QByteArray uiHeaderFromUic(Utils::Process *process);
 
 } // namespace QtSupport

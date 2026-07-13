@@ -177,4 +177,11 @@ QString filterForQmakeFileDialog()
     return filter;
 }
 
+QByteArray uiHeaderFromUic(Process *process)
+{
+    // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
+    // conversion below is to normalize both the encoding, and the line terminators.
+    return "#pragma once\n" + process->readAllStandardOutput().toUtf8();
+}
+
 } // namespace QtSupport

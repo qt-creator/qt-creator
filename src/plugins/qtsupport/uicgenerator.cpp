@@ -5,6 +5,7 @@
 
 #include "baseqtversion.h"
 #include "qtkitaspect.h"
+#include "qtsupportutils.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/extracompiler.h>
@@ -45,14 +46,7 @@ private:
         if (QtVersion *version = QtKitAspect::qtVersion(kit))
             params.command = {version->uicFilePath(), {"-p"}};
         params.postRunner = [target = targets().first()](Process *process) {
-            FileNameToContentsHash result;
-
-            // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
-            // conversion below is to normalize both the encoding, and the line terminators.
-            QByteArray content = process->readAllStandardOutput().toUtf8();
-            content.prepend("#pragma once\n");
-            result[target] = content;
-            return result;
+            return FileNameToContentsHash{std::make_pair(target, uiHeaderFromUic(process))};
         };
 
         return params;
