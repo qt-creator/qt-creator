@@ -169,6 +169,7 @@ private slots:
     void test_vim_unimpaired_emulation();
     void test_vim_reflow();
     void test_vim_open_line_with_fold();
+    void test_vim_scroll_center_on_scroll();
 
     void test_macros();
 
@@ -4935,6 +4936,46 @@ void FakeVimTester::test_vim_open_line_with_fold()
     // (QTCREATORBUG-24005).
     KEYS("oz",
          "{" N "if (x) {" N "aaa;" N "bbb;" N "}" N "ccc;" N "z" X N "}");
+}
+
+void FakeVimTester::test_vim_scroll_center_on_scroll()
+{
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the viewport has a real size and actually scrolls.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+    // The bug only shows with the editor Center-cursor-on-scroll option enabled:
+    // FakeVim scrolling relied on ensureCursorVisible aligning the line to the
+    // top, but centering overrode that (QTCREATORBUG-15407, QTCREATORBUG-9516).
+    data.editor()->setCenterOnScroll(true);
+
+    QByteArray text;
+    for (int i = 1; i <= 200; ++i)
+        text += QByteArray("line ") + QByteArray::number(i) + '\n';
+    data.setText(text.constData());
+
+    const int visibleLines = data.editor()->viewport()->height()
+                             / data.editor()->fontMetrics().lineSpacing();
+    QVERIFY(visibleLines > 8);
+
+    // Returns how far below the top of the viewport the cursor line (100) sits
+    // after jumping to it and issuing the given z scroll command.
+    const auto cursorRow = [&](const QByteArray &keys) {
+        const QByteArray cmd = QByteArray("100G") + keys;
+        data.doKeys("gg");
+        data.doKeys(cmd.constData());
+        const int first = data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber();
+        return 99 - first; // line 100 is block 99 (0-based)
+    };
+
+    // zt puts the line at the top, zz centers it, zb puts it at the bottom.
+    // Without the fix, centering forced all three to the middle.
+    QVERIFY(cursorRow("zt") <= visibleLines / 4);
+    const int zzRow = cursorRow("zz");
+    QVERIFY(zzRow > visibleLines / 4 && zzRow < visibleLines * 3 / 4);
+    QVERIFY(cursorRow("zb") >= visibleLines * 3 / 4);
 }
 
 void FakeVimTester::test_macros()

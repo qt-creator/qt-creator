@@ -7687,6 +7687,27 @@ void FakeVimHandler::Private::scrollToLine(int line)
     if (line == m_firstVisibleLine)
         return;
 
+    // The cursor moves below rely on ensureCursorVisible() scrolling minimally
+    // to bring the target line to the top of the viewport. With "Center cursor
+    // on scroll" enabled it would center the line instead, throwing off zz/zt/
+    // zb and 'scrolloff' (QTCREATORBUG-15407, QTCREATORBUG-9516). Disable it for
+    // the duration of the scrolling.
+    // "Center cursor on scroll" only exists on the plain text editors, not on
+    // QTextEdit.
+    const auto setCenterOnScroll = [this](bool on) {
+        if (m_plaintextedit)
+            m_plaintextedit->setCenterOnScroll(on);
+        else if (m_qcPlainTextEdit)
+            m_qcPlainTextEdit->setCenterOnScroll(on);
+    };
+    bool wasCentering = false;
+    if (m_plaintextedit)
+        wasCentering = m_plaintextedit->centerOnScroll();
+    else if (m_qcPlainTextEdit)
+        wasCentering = m_qcPlainTextEdit->centerOnScroll();
+    if (wasCentering)
+        setCenterOnScroll(false);
+
     const QTextCursor tc = m_cursor;
 
     QTextCursor tc2 = tc;
@@ -7711,6 +7732,9 @@ void FakeVimHandler::Private::scrollToLine(int line)
     EDITOR(ensureCursorVisible());
 
     EDITOR(setTextCursor(tc));
+
+    if (wasCentering)
+        setCenterOnScroll(true);
 
     m_firstVisibleLine = line;
 }
