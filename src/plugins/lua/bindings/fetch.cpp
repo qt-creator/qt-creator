@@ -25,6 +25,7 @@
 #include <QMetaEnum>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QTimer>
 
 using namespace Utils;
 using namespace Core;
@@ -273,7 +274,12 @@ void setupFetchModule()
                                     const sol::main_function &callback,
                                     const sol::this_state &thisState) {
                 auto url = options.get<QString>("url"sv);
-                auto actualFetch = [guard, url, options, callback, thisState]() {
+                const int timeoutMs = options.get<std::optional<int>>("timeout"sv).value_or(0);
+                // Resolve the awaitable at most once, so neither a stuck request
+                // nor an unanswered permission prompt can hang the caller forever
+                // when a timeout is given.
+                auto done = std::make_shared<bool>(false);
+                auto actualFetch = [guard, url, options, callback, thisState, done, timeoutMs]() {
                     auto method = (options.get_or<QString>("method"sv, "GET")).toLower();
                     auto headers = options.get_or<sol::table>("headers"sv, {});
                     auto data = options.get_or<QString>("body"sv, {});
@@ -281,6 +287,8 @@ void setupFetchModule()
                         = options.get<std::optional<bool>>("convertToTable"sv).value_or(false);
 
                     QNetworkRequest request((QUrl(url)));
+                    if (timeoutMs > 0)
+                        request.setTransferTimeout(timeoutMs);
                     if (headers && !headers.empty()) {
                         for (const auto &[k, v] : headers)
                             request.setRawHeader(k.as<QString>().toUtf8(), v.as<QString>().toUtf8());
@@ -296,8 +304,12 @@ void setupFetchModule()
 
                     if (convertToTable) {
                         QObject::connect(
-                            reply, &QNetworkReply::finished, guard, [reply, thisState, callback]() {
+                            reply, &QNetworkReply::finished, guard,
+                            [reply, thisState, callback, done]() {
                                 reply->deleteLater();
+                                if (*done)
+                                    return;
+                                *done = true;
 
                                 if (reply->error() != QNetworkReply::NoError) {
                                     callback(
@@ -322,16 +334,39 @@ void setupFetchModule()
                             });
 
                     } else {
-                        QObject::connect(reply, &QNetworkReply::finished, guard, [reply, callback]() {
-                            // We don't want the network reply to be deleted by the manager, but
-                            // by the Lua GC
-                            reply->setParent(nullptr);
-                            callback(std::unique_ptr<QNetworkReply>(reply));
-                        });
+                        QObject::connect(
+                            reply, &QNetworkReply::finished, guard, [reply, callback, done]() {
+                                if (*done) {
+                                    reply->deleteLater();
+                                    return;
+                                }
+                                *done = true;
+                                // We don't want the network reply to be deleted by the manager, but
+                                // by the Lua GC
+                                reply->setParent(nullptr);
+                                callback(std::unique_ptr<QNetworkReply>(reply));
+                            });
                     }
                 };
 
-                checkPermission(url, actualFetch, [callback, pluginName]() {
+                // With a timeout, guarantee the awaitable resolves even if the
+                // permission prompt is never answered or the request never
+                // finishes (e.g. a headless/scripted run).
+                if (timeoutMs > 0) {
+                    QTimer::singleShot(timeoutMs, guard, [callback, done, timeoutMs, url]() {
+                        if (*done)
+                            return;
+                        *done = true;
+                        callback(QString("Fetch timed out after %1 ms: %2")
+                                     .arg(timeoutMs)
+                                     .arg(url));
+                    });
+                }
+
+                checkPermission(url, actualFetch, [callback, pluginName, done]() {
+                    if (*done)
+                        return;
+                    *done = true;
                     callback(
                         Tr::tr("Fetching is not allowed for the extension \"%1\". (You can edit "
                                "permissions in Preferences > Lua.)")

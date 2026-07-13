@@ -25,6 +25,7 @@ function Fetch.fetch_cb(options, callback) end
 ---@field headers? table The headers to send.
 ---@field body? string The body to send.
 ---@field convertToTable? boolean If true, the resulting data will expect JSON and converted it to a table.
+---@field timeout? integer Optional timeout in milliseconds. Bounds the whole fetch (including waiting for the network-access permission prompt); on expiry the result is an error string instead of hanging.
 local FetchOptions = {}
 
 return Fetch
