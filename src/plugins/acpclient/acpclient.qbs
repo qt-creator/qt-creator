@@ -1,65 +1,84 @@
 import qbs
+import qbs.FileInfo
 
-QtcPlugin {
-    name: "AcpClient"
+Project {
+    references: "testserver/acptestserver.qbs"
 
-    Depends { name: "Qt"; submodules: ["core", "widgets", "network"] }
-    Depends { name: "AcpLib" }
-    Depends { name: "Utils" }
-    Depends { name: "ExtensionSystem" }
-    Depends { name: "Core" }
-    Depends { name: "ProjectExplorer" }
-    Depends { name: "TextEditor" }
+    QtcPlugin {
+        name: "AcpClient"
 
-    files: [
-        "acpchatcontroller.cpp",
-        "acpchatcontroller.h",
-        "acpchattab.cpp",
-        "acpchattab.h",
-        "acpchatwidget.cpp",
-        "acpchatwidget.h",
-        "acpclientconstants.h",
-        "acpclientobject.cpp",
-        "acpclientobject.h",
-        "acpclientplugin.cpp",
-        "acpclienttr.h",
-        "acpfilesystemhandler.cpp",
-        "acpfilesystemhandler.h",
-        "acpinspector.cpp",
-        "acpinspector.h",
-        "acpmessageview.cpp",
-        "acpmessageview.h",
-        "acppermissionhandler.cpp",
-        "acppermissionhandler.h",
-        "acpsettings.cpp",
-        "acpsettings.h",
-        "acpstdiotransport.cpp",
-        "acpstdiotransport.h",
-        "acpterminalhandler.cpp",
-        "acpterminalhandler.h",
-        "acptransport.cpp",
-        "acptransport.h",
-        "chatinputcompletion.cpp",
-        "chatinputcompletion.h",
-        "chatinputedit.cpp",
-        "chatinputedit.h",
-        "chatpanel.cpp",
-        "chatpanel.h",
-        "collapsibleframe.cpp",
-        "collapsibleframe.h",
-        "sessionpickerwidget.cpp",
-        "sessionpickerwidget.h",
-        "toolcalldetailwidget.cpp",
-        "toolcalldetailwidget.h",
-    ]
+        Depends { name: "Qt"; submodules: ["core", "widgets", "network"] }
+        Depends { name: "AcpLib" }
+        Depends { name: "Utils" }
+        Depends { name: "ExtensionSystem" }
+        Depends { name: "Core" }
+        Depends { name: "ProjectExplorer" }
+        Depends { name: "TextEditor" }
 
-    Group {
-        name: "images"
-        prefix: "images/"
         files: [
-            "sparklebubble.png",
-            "sparklebubble@2x.png",
+            "acpchatcontroller.cpp",
+            "acpchatcontroller.h",
+            "acpchattab.cpp",
+            "acpchattab.h",
+            "acpchatwidget.cpp",
+            "acpchatwidget.h",
+            "acpclientconstants.h",
+            "acpclientobject.cpp",
+            "acpclientobject.h",
+            "acpclientplugin.cpp",
+            "acpclienttr.h",
+            "acpfilesystemhandler.cpp",
+            "acpfilesystemhandler.h",
+            "acpinspector.cpp",
+            "acpinspector.h",
+            "acpmessageview.cpp",
+            "acpmessageview.h",
+            "acppermissionhandler.cpp",
+            "acppermissionhandler.h",
+            "acpsettings.cpp",
+            "acpsettings.h",
+            "acpstdiotransport.cpp",
+            "acpstdiotransport.h",
+            "acpterminalhandler.cpp",
+            "acpterminalhandler.h",
+            "acptransport.cpp",
+            "acptransport.h",
+            "chatinputcompletion.cpp",
+            "chatinputcompletion.h",
+            "chatinputedit.cpp",
+            "chatinputedit.h",
+            "chatpanel.cpp",
+            "chatpanel.h",
+            "collapsibleframe.cpp",
+            "collapsibleframe.h",
+            "sessionpickerwidget.cpp",
+            "sessionpickerwidget.h",
+            "toolcalldetailwidget.cpp",
+            "toolcalldetailwidget.h",
         ]
-        fileTags: "qt.core.resource_data"
+
+        QtcTestFiles {
+            files: [
+                "acpclienttest.cpp",
+                "acpclienttest.h",
+            ]
+            cpp.defines: outer.concat([
+                'ACP_TESTSERVER_DIR="'
+                + FileInfo.joinPaths(project.buildDirectory,
+                                     FileInfo.relativePath(project.ide_source_tree,
+                                                           sourceDirectory),
+                                     "testserver") + '"'
+            ])
+        }
+
+        Group {
+            name: "images"
+            prefix: "images/"
+            files: [
+                "sparklebubble.png",
+                "sparklebubble@2x.png",
+            ]
+            fileTags: "qt.core.resource_data"
+        }
     }
 }

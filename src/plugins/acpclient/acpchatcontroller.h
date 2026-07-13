@@ -4,6 +4,7 @@
 #pragma once
 
 #include "acpclientobject.h"
+#include "acpsettings.h"
 #include "chatpanel.h"
 
 #include <acp/acp.h>
@@ -34,6 +35,7 @@ public:
     void showInspector();
 
     void connectToServer(const QString &serverId);
+    void connectToServer(const AcpSettings::ServerInfo &serverInfo);
     void disconnectFromServer();
 
     void createNewSession(const Utils::FilePath &workingDirectory = {});

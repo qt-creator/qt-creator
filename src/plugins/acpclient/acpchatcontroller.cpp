@@ -55,20 +55,28 @@ void AcpChatController::showInspector()
 
 void AcpChatController::connectToServer(const QString &serverId)
 {
-    disconnectFromServer();
-
-    if (serverId.isEmpty())
+    if (serverId.isEmpty()) {
+        disconnectFromServer();
         return;
+    }
 
     const QList<AcpSettings::ServerInfo> servers = AcpSettings::servers();
     const auto it = std::find_if(servers.begin(), servers.end(),
                                   [&serverId](const AcpSettings::ServerInfo &s) {
                                       return s.id == serverId;
                                   });
-    if (it == servers.end())
+    if (it == servers.end()) {
+        disconnectFromServer();
         return;
+    }
 
-    const AcpSettings::ServerInfo &serverInfo = *it;
+    connectToServer(*it);
+}
+
+void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInfo)
+{
+    disconnectFromServer();
+
     m_serverName = serverInfo.name;
     m_iconUrl = serverInfo.iconUrl;
 
@@ -367,7 +375,7 @@ void AcpChatController::authenticate(const QString &methodId)
         Q_UNUSED(result)
         if (error) {
             QString errorMsg = error->message();
-            if (const std::optional<QJsonValue> data = error->data(); data->isString()) {
+            if (const std::optional<QJsonValue> data = error->data(); data && data->isString()) {
                 if (auto dataString = data->toString(); !dataString.isEmpty())
                     errorMsg.append("\n" + dataString);
             }

@@ -7,6 +7,10 @@
 #include "acpinspector.h"
 #include "acpsettings.h"
 
+#ifdef WITH_TESTS
+#include "acpclienttest.h"
+#endif
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -49,6 +53,10 @@ public:
     void initialize() final
     {
         qCDebug(logPlugin) << "ACP Client plugin initializing...";
+
+#ifdef WITH_TESTS
+        addTestCreator(createAcpClientTest);
+#endif
 
         setupAcpSettings();
 

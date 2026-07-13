@@ -42,3 +42,14 @@ qtc_add_resources(AcpClient "images"
     images/sparklebubble.png
     images/sparklebubble@2x.png
 )
+
+extend_qtc_plugin(AcpClient
+  CONDITION WITH_TESTS
+  DEFINES "ACP_TESTSERVER_DIR=\"${CMAKE_CURRENT_BINARY_DIR}/testserver\""
+  SOURCES
+    acpclienttest.cpp acpclienttest.h
+)
+
+if(WITH_TESTS)
+  add_subdirectory(testserver)
+endif()
