@@ -3504,8 +3504,11 @@ void GdbEngine::handlePeripheralRegisterListValues(
         return;
 
     const QString output = response.consoleStreamOutput;
-    // Regexp to match for '0x50060800:\t0\n'.
-    static const QRegularExpression re("^(0x[0-9A-Fa-f]+):\\t(\\d+)\\n$");
+    // Regexp to match for '0x50060800:\t0\n', or '0x50060800 <symbol>:\t0\n'
+    // when the address happens to resolve to a known symbol (not expected
+    // for genuine peripheral/MMIO addresses, but possible, e.g. if one
+    // aliases a global variable).
+    static const QRegularExpression re("^(0x[0-9A-Fa-f]+)(?:\\s<[^>]*>)?:\\t(\\d+)\\n$");
     const QRegularExpressionMatch m = re.match(output);
     if (!m.hasMatch())
         return;
