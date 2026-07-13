@@ -17,6 +17,10 @@ public:
 
     virtual void updateDeviceFromUi() = 0;
 
+    // Reports editable state that is not backed by the device's aspects (which
+    // the device settings page already checks via IDevice::isDirty()).
+    virtual bool isDirty() const { return false; }
+
     IDevicePtr device() const { return m_device; }
 
 protected:

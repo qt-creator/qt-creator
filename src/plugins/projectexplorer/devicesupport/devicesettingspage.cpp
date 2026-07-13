@@ -117,6 +117,11 @@ public:
         emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {Qt::FontRole});
     }
 
+    bool isDirty() const
+    {
+        return !m_markedForDeletion.isEmpty() || !m_newDevices.isEmpty();
+    }
+
     bool isMarkedForDeletion(const Id &id) const { return m_markedForDeletion.contains(id); }
     bool isNewDevice(const Id &id) const { return m_newDevices.contains(id); }
 
@@ -147,6 +152,7 @@ public:
 private:
     void apply() final;
     void cancel() final;
+    bool isDirty() const final;
 
     void saveSettings();
 
@@ -207,6 +213,24 @@ void DeviceSettingsWidget::cancel()
         m_deviceManagerModel.device(i)->cancel();
 
     IOptionsPageWidget::cancel();
+}
+
+bool DeviceSettingsWidget::isDirty() const
+{
+    if (m_deviceProxyModel.isDirty())
+        return true;
+
+    for (int i = 0; i < m_deviceManagerModel.rowCount(); ++i) {
+        if (m_deviceManagerModel.device(i)->isDirty())
+            return true;
+    }
+
+    if (m_configWidget && m_configWidget->isDirty())
+        return true;
+
+    // The base default returns true (no aspect container / dirty checker here),
+    // so fall back to "clean" once the checks above have run.
+    return false;
 }
 
 DeviceSettingsWidget::DeviceSettingsWidget()

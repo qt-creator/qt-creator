@@ -7,6 +7,7 @@
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 #include "idevicefactory.h"
+#include "sshparameters.h"
 
 #include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
@@ -699,6 +700,25 @@ private slots:
         QCOMPARE(deviceRemovedSpy.count(), 2);
         //    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
         QCOMPARE(updatedSpy.count(), 2);
+    }
+
+    void testIsDirty()
+    {
+        TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
+
+        // A freshly created device has no pending (volatile) edits.
+        QVERIFY(!dev->isDirty());
+
+        // Editing an aspect that lives in the separate SSH parameters container
+        // must register as dirty, even though it is a nested aspect container.
+        StringAspect &host = dev->sshParametersAspectContainer().host;
+        const QString original = host.volatileValue();
+        host.setVolatileValue(original + "example.com");
+        QVERIFY(dev->isDirty());
+
+        // Reverting the edit clears the dirty state again.
+        host.setVolatileValue(original);
+        QVERIFY(!dev->isDirty());
     }
 };
 

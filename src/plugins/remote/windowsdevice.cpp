@@ -1026,10 +1026,8 @@ WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevice
 
     connect(createKeyButton, &QAbstractButton::clicked,
             this, &WindowsDeviceConfigurationWidget::createNewKey);
-    connect(&device->sshParametersAspectContainer(), &AspectContainer::volatileValueChanged,
-            this, &markSettingsDirty);
-
-    installMarkSettingsDirtyTriggerRecursively(this);
+    connect(device.get(), &AspectContainer::volatileValueChanged, this, &checkSettingsDirty);
+    connect(&ssh, &AspectContainer::volatileValueChanged, this, &checkSettingsDirty);
 }
 
 void WindowsDeviceConfigurationWidget::createNewKey()

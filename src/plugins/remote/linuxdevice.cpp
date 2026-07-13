@@ -520,11 +520,8 @@ LinuxDeviceConfigurationWidget::LinuxDeviceConfigurationWidget(
     connect(createKeyButton, &QAbstractButton::clicked,
             this, &LinuxDeviceConfigurationWidget::createNewKey);
 
-    connect(&device->sshParametersAspectContainer(), &AspectContainer::volatileValueChanged,
-            this, &markSettingsDirty);
-    connect(&linuxDevice->mounts, &FilePathListAspect::volatileValueChanged, this, checkSettingsDirty);
-
-    installMarkSettingsDirtyTriggerRecursively(this);
+    connect(device.get(), &AspectContainer::volatileValueChanged, this, &checkSettingsDirty);
+    connect(&ssh, &AspectContainer::volatileValueChanged, this, &checkSettingsDirty);
 }
 
 void LinuxDeviceConfigurationWidget::createNewKey()
