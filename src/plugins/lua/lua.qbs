@@ -40,6 +40,7 @@ QtcPlugin {
         files: [
             "action.cpp",
             "core.cpp",
+            "device.cpp",
             "fetch.cpp",
             "gui.cpp",
             "hook.cpp",
