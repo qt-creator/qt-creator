@@ -7,6 +7,7 @@ QtcProduct {
     targetName: QtcFunctions.qtLibraryName(qbs, name)
     type: ["dynamiclibrary", "pluginSpec"]
 
+    enforceInternalLinkage: true
     installDir: qtc.ide_plugin_path
     installTags: ["dynamiclibrary", "debuginfo_dll"]
     useGuiPchFile: true

@@ -6,6 +6,7 @@ QtcProduct {
     destinationDirectory: FileInfo.joinPaths(project.buildDirectory, qtc.ide_library_path)
     targetName: QtcFunctions.qtLibraryName(qbs, name)
 
+    enforceInternalLinkage: true
     installDir: qtc.ide_library_path
     installTags: type.concat("debuginfo_dll")
     useNonGuiPchFile: true

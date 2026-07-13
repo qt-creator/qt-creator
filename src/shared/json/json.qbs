@@ -4,6 +4,7 @@ QtcLibrary {
     name: "qtcjson"
     type: "staticlibrary"
 
+    enforceInternalLinkage: false
     hasCMakeProjectFile: false
     useQt: false
 

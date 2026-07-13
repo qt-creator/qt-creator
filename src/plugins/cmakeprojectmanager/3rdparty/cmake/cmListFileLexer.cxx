@@ -768,7 +768,7 @@ Modify cmListFileLexer.c:
 
 /* Setup the proper cmListFileLexer_yylex declaration.  */
 #define YY_EXTRA_TYPE cmListFileLexer*
-#define YY_DECL int cmListFileLexer_yylex (yyscan_t yyscanner, cmListFileLexer* lexer)
+#define YY_DECL static int cmListFileLexer_yylex (yyscan_t yyscanner, cmListFileLexer* lexer)
 
 #include "cmListFileLexer.h"
 

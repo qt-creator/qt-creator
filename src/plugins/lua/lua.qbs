@@ -12,6 +12,8 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
+    enforceInternalLinkage: false
+
     Properties {
         condition: qbs.toolchain.contains("mingw")
         cpp.optimization: "fast"

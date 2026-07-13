@@ -325,8 +325,10 @@ bool Id::operator==(const char *name) const
         return false;
 }
 
-// For debugging purposes
-QTCREATOR_UTILS_EXPORT const char *nameForId(quintptr id)
+// Do not remove, used by python code.
+// Extra declaration is there to suppress -Wmissing-prototypes.
+QTCREATOR_UTILS_EXPORT const char *nameForId(quintptr id);
+const char *nameForId(quintptr id)
 {
     QReadLocker lock(&s_cacheMutex);
     return stringFromId.value(id).str;

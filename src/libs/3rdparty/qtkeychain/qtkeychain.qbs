@@ -13,6 +13,7 @@ QtcLibrary {
 
     useNonGuiPchFile: false
     useGuiPchFile: false
+    enforceInternalLinkage: false
 
     Properties { cpp.defines: base.concat(["QTKEYCHAIN_LIBRARY"]) }
 

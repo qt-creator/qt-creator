@@ -32,6 +32,7 @@ Product {
             FileInfo.relativePath(FileInfo.joinPaths('/', qtc.ide_qbs_imports_path),
                                   FileInfo.joinPaths('/', qtc.ide_shared_sources_path)))
     property bool sanitizable: true
+    property bool enforceInternalLinkage: false
 
     Depends { name: "cpp" }
     Depends {
@@ -52,13 +53,17 @@ Product {
         var flags = [];
         if (qbs.toolchain.contains("gcc")) {
             flags.push("-Wno-missing-field-initializers");
-            if (qbs.toolchain.contains("clang")
-                    && !qbs.hostOS.contains("darwin")
-                    && Utilities.versionCompare(cpp.compilerVersion, "10") >= 0) {
+            if (qbs.toolchain.contains("clang")) {
+                if (enforceInternalLinkage)
+                    flags.push("-Wmissing-prototypes");
+                if (!qbs.hostOS.contains("darwin")
+                        && Utilities.versionCompare(cpp.compilerVersion, "10") >= 0) {
                 // Triggers a lot in Qt.
                 flags.push("-Wno-deprecated-copy", "-Wno-constant-logical-operand");
-            }
-            if (!qbs.toolchain.contains("clang")) {
+                }
+            } else {
+                if (enforceInternalLinkage)
+                    flags.push("-Wmissing-declarations");
                 flags.push("-Wno-noexcept-type");
                 if (Utilities.versionCompare(cpp.compilerVersion, "9") >= 0)
                     flags.push("-Wno-deprecated-copy", "-Wno-init-list-lifetime");
