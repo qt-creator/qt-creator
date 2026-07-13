@@ -29,6 +29,8 @@ private slots:
     void testCompletionMemberAccessOperator_data();
     void testCompletionMemberAccessOperator();
 
+    void testCompletionInclude();
+
     void testCompletionPrefixFirstQTCREATORBUG_8737();
     void testCompletionPrefixFirstQTCREATORBUG_9236();
 };

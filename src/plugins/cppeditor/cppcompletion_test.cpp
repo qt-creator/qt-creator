@@ -9,6 +9,7 @@
 #include "cpptoolstestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <projectexplorer/headerpath.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
@@ -85,7 +86,8 @@ public:
         m_succeededSoFar = true;
     }
 
-    QStringList getCompletions(bool *replaceAccessOperator = nullptr) const
+    QStringList getCompletions(bool *replaceAccessOperator = nullptr,
+                               const ProjectExplorer::HeaderPaths &headerPaths = {}) const
     {
         QStringList completions;
         LanguageFeatures languageFeatures = LanguageFeatures::defaultFeatures();
@@ -98,7 +100,7 @@ public:
                                              m_editorWidget,
                                              ExplicitlyInvoked,
                                              m_snapshot,
-                                             ProjectExplorer::HeaderPaths(),
+                                             headerPaths,
                                              languageFeatures));
         ai->prepareForAsyncUse();
         ai->recreateTextDocument();
@@ -2768,6 +2770,39 @@ void CompletionTest::testCompletionMemberAccessOperator()
 
     QCOMPARE(completions, expectedCompletions);
     QCOMPARE(replaceAccessOperator, expectedReplaceAccessOperator);
+}
+
+void CompletionTest::testCompletionInclude()
+{
+    // Header files and directories in the include paths are offered for
+    // completion of an "#include" directive; non-header files are not.
+    CppEditor::Tests::TemporaryDir includeDir;
+    QVERIFY(includeDir.isValid());
+    QVERIFY(!includeDir.createFile("alpha.h", "").isEmpty());
+    QVERIFY(!includeDir.createFile("beta", "").isEmpty()); // extensionless, like a std header
+    QVERIFY(!includeDir.createFile("gamma.txt", "").isEmpty());
+    QVERIFY(includeDir.filePath().pathAppended("sub").createDir());
+    QVERIFY(!includeDir.createFile("sub/delta.h", "").isEmpty());
+
+    const ProjectExplorer::HeaderPaths headerPaths{
+        ProjectExplorer::HeaderPath::makeUser(includeDir.filePath())};
+
+    {
+        CompletionTestCase test("#include <@\n");
+        QVERIFY(test.succeededSoFar());
+        const QStringList completions = test.getCompletions(nullptr, headerPaths);
+
+        QVERIFY(completions.contains("alpha.h"));
+        QVERIFY(completions.contains("beta"));
+        QVERIFY(!completions.contains("gamma.txt"));
+        QVERIFY(completions.contains("sub/"));
+    }
+
+    CompletionTestCase subTest("#include <@\n", "sub/");
+    QVERIFY(subTest.succeededSoFar());
+    const QStringList subCompletions = subTest.getCompletions(nullptr, headerPaths);
+    QVERIFY(subCompletions.contains("delta.h"));
+    QVERIFY(!subCompletions.contains("alpha.h"));
 }
 
 void CompletionTest::testCompletionMemberAccessOperator_data()
