@@ -2973,6 +2973,17 @@ void CompletionTest::testCompletionMemberAccessOperator_data()
         ) << _("sp.") << QStringList({"Ptr", "operator ->", "use_count"})
         << false
         << true;
+
+    // QTCREATORBUG-16188: a "." after a numeric literal is a floating point
+    // literal, not a member access, so nothing is completed and the access
+    // operator is not replaced.
+    QTest::newRow("no completion after floating point literal") << _(
+            "void f() {\n"
+            "@\n"
+            "}\n"
+        ) << _("2.") << QStringList()
+        << false
+        << false;
 }
 
 } // namespace CppEditor::Internal
