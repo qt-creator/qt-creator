@@ -121,16 +121,11 @@ void IDebugServerProvider::setEngineType(DebuggerEngineType engineType)
 
 bool IDebugServerProvider::operator==(const IDebugServerProvider &other) const
 {
-    if (this == &other)
-        return true;
-
-    const QString thisId = id().left(id().indexOf(':'));
-    const QString otherId = other.id().left(other.id().indexOf(':'));
-
-    // We ignore displayname
-    return thisId == otherId
-            && m_engineType == other.m_engineType
-            && m_channel == other.m_channel;
+    // Providers are identified by their unique id. Comparing only the type
+    // prefix (and ignoring the id and the display name) made a cloned
+    // provider compare equal to its origin, so it was rejected as a
+    // duplicate on registration and could not be added.
+    return id() == other.id();
 }
 
 IDebugServerProviderConfigWidget *IDebugServerProvider::configurationWidget() const
