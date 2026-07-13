@@ -2899,6 +2899,80 @@ void CompletionTest::testCompletionMemberAccessOperator_data()
              "CS<S *> v;\n"
              "@\n")
         << _("v[0].") << QStringList({"S", "m"}) << false << true;
+
+    // Cases previously exercised by the dropped Squish tst_memberoperator.
+
+    QTest::newRow("no_completion_after_primitive") << _(
+            "void f() { int argc;\n"
+            "@\n"
+            "}\n"
+        ) << _("argc.") << QStringList()
+        << false
+        << false;
+
+    QTest::newRow("no_completion_after_float") << _(
+            "void f() { float fl;\n"
+            "@\n"
+            "}\n"
+        ) << _("fl.") << QStringList()
+        << false
+        << false;
+
+    QTest::newRow("reference_no_replace_access_operator") << _(
+            "struct S { int m; };\n"
+            "void f() { S s; S &ref = s;\n"
+            "@\n"
+            "}\n"
+        ) << _("ref.") << QStringList({"S", "m"})
+        << false
+        << false;
+
+    QTest::newRow("auto_value_no_replace_access_operator") << _(
+            "struct S { int m; };\n"
+            "void f() { auto s = S();\n"
+            "@\n"
+            "}\n"
+        ) << _("s.") << QStringList({"S", "m"})
+        << false
+        << false;
+
+    QTest::newRow("auto_new_pointer_replace_access_operator") << _(
+            "struct S { int m; };\n"
+            "void f() { auto s = new S();\n"
+            "@\n"
+            "}\n"
+        ) << _("s.") << QStringList({"S", "m"})
+        << false
+        << true;
+
+    QTest::newRow("array_subscript_of_pointer_replace_access_operator") << _(
+            "struct S { int m; };\n"
+            "void f() { S *arr[5];\n"
+            "@\n"
+            "}\n"
+        ) << _("arr[2].") << QStringList({"S", "m"})
+        << false
+        << true;
+
+    QTest::newRow("smart_pointer_value_no_replace_access_operator") << _(
+            "struct S { int m; };\n"
+            "template <typename T> struct Ptr { T *operator->(); int use_count; };\n"
+            "void f() { Ptr<S> sp;\n"
+            "@\n"
+            "}\n"
+        ) << _("sp.") << QStringList({"Ptr", "operator ->", "use_count"})
+        << false
+        << false;
+
+    QTest::newRow("smart_pointer_pointer_replace_access_operator") << _(
+            "struct S { int m; };\n"
+            "template <typename T> struct Ptr { T *operator->(); int use_count; };\n"
+            "void f() { Ptr<S> *sp;\n"
+            "@\n"
+            "}\n"
+        ) << _("sp.") << QStringList({"Ptr", "operator ->", "use_count"})
+        << false
+        << true;
 }
 
 } // namespace CppEditor::Internal
