@@ -54,7 +54,7 @@ using namespace QtTaskTree;
 using namespace Utils;
 
 // Define logging category for the plugin
-Q_LOGGING_CATEGORY(mcpPlugin, "qtc.mcpserver.plugin", QtInfoMsg)
+static Q_LOGGING_CATEGORY(mcpPlugin, "qtc.mcpserver.plugin", QtInfoMsg)
 
 namespace Mcp::Internal {
 

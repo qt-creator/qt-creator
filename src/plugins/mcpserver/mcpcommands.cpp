@@ -47,7 +47,7 @@
 
 using namespace Utils;
 
-Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
+static Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
 
 namespace Mcp::Internal {
 
