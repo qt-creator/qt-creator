@@ -157,9 +157,9 @@ public:
 
     static void runWithTemporaryEditor(const Utils::FilePath &filePath,
                                        const std::function<void(IEditor *)> &callback);
-    static QAction *createDiffAgainstCurrentFileAction(
+    static QAction *createDiffAgainstCurrentEditorAction(
             QObject *parent, const std::function<Utils::FilePath ()> &filePath,
-            const std::function<IDocument *()> &leftDocument = {});
+            const std::function<IDocument *()> &leftDocumentCreator = {});
 
 public: // for tests
     static IDocument::ReloadSetting reloadSetting();

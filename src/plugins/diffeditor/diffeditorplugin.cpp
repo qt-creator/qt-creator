@@ -27,6 +27,7 @@
 
 #include <QAction>
 #include <QMenu>
+#include <QPointer>
 
 using namespace Core;
 using namespace TextEditor;
@@ -248,6 +249,19 @@ static QList<ReloadInput> documentsReloadInputList(
     return {reloadInput};
 }
 
+static QString textOfDocument(IDocument *document)
+{
+    if (auto *textDocument = qobject_cast<TextDocument *>(document))
+        return textDocument->plainText();
+    return QString::fromUtf8(document->contents());
+}
+
+static QString titleOfDocument(IDocument *document)
+{
+    return document->filePath().isEmpty() ? document->displayName()
+                                          : document->filePath().path();
+}
+
 /////////////////
 
 static TextDocument *currentTextDocument()
@@ -302,22 +316,23 @@ void DiffEditorServiceImpl::diffDocuments(IDocument *leftDocument, IDocument *ri
     if (!leftDocument || !rightDocument)
         return;
 
-    const auto textOf = [](IDocument *document) -> QString {
-        if (auto *textDocument = qobject_cast<TextDocument *>(document))
-            return textDocument->plainText();
-        return QString::fromUtf8(document->contents());
-    };
-    const auto titleOf = [](IDocument *document) -> QString {
-        return document->filePath().isEmpty() ? document->displayName()
-                                              : document->filePath().path();
-    };
-
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffDocuments");
-    const QString leftTitle = titleOf(leftDocument);
-    const QString leftText = textOf(leftDocument);
-    const QString rightTitle = titleOf(rightDocument);
-    const QString rightText = textOf(rightDocument);
-    reload(documentId, Tr::tr("Diff"), [leftTitle, leftText, rightTitle, rightText] {
+    const QPointer<IDocument> leftDoc(leftDocument);
+    const QPointer<IDocument> rightDoc(rightDocument);
+    // Snapshot at diff-creation time, used as a fallback once a document goes
+    // away - pressing reload afterwards must not touch a destroyed IDocument.
+    const QString leftInitialTitle = titleOfDocument(leftDocument);
+    const QString leftInitialText = textOfDocument(leftDocument);
+    const QString rightInitialTitle = titleOfDocument(rightDocument);
+    const QString rightInitialText = textOfDocument(rightDocument);
+
+    reload(documentId, Tr::tr("Diff"),
+           [leftDoc, leftInitialTitle, leftInitialText,
+            rightDoc, rightInitialTitle, rightInitialText] {
+        const QString leftTitle = leftDoc ? titleOfDocument(leftDoc) : leftInitialTitle;
+        const QString leftText = leftDoc ? textOfDocument(leftDoc) : leftInitialText;
+        const QString rightTitle = rightDoc ? titleOfDocument(rightDoc) : rightInitialTitle;
+        const QString rightText = rightDoc ? textOfDocument(rightDoc) : rightInitialText;
         return documentsReloadInputList(leftTitle, leftText, rightTitle, rightText);
     });
 }

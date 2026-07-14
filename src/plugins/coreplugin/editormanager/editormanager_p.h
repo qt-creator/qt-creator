@@ -236,6 +236,7 @@ private:
     static void addNativeDirAndOpenWithActions(
         QMenu *contextMenu,
         const Utils::FilePath &filePath,
+        DocumentModel::Entry *entry,
         IEditor *editor,
         EditorView *view = nullptr,
         EditorManager::ContextMenuFlags flags = EditorManager::DefaultContextMenu);

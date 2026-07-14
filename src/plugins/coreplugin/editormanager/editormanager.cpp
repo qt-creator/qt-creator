@@ -3205,30 +3205,32 @@ void EditorManagerPrivate::addPinEditorActions(QMenu *contextMenu, DocumentModel
     });
 }
 
-QAction *EditorManager::createDiffAgainstCurrentFileAction(
-    QObject *parent, const std::function<Utils::FilePath()> &filePath,
-    const std::function<IDocument *()> &leftDocument)
+QAction *EditorManager::createDiffAgainstCurrentEditorAction(
+    QObject *parent,
+    const std::function<Utils::FilePath()> &filePath,
+    const std::function<IDocument *()> &leftDocumentCreator)
 {
-    const auto diffAgainstCurrentFile = [filePath, leftDocument]() {
+    const auto diffAgainstCurrentFile = [filePath, leftDocumentCreator]() {
         IDocument *rightDocument = EditorManager::currentDocument();
         QTC_ASSERT(rightDocument, return);
         auto diffService = DiffService::instance();
         if (!diffService)
             return;
-        const FilePath leftFilePath = filePath();
-        const FilePath rightFilePath = rightDocument->filePath();
-        if (leftFilePath.isEmpty() || rightFilePath.isEmpty()) {
-            // A side has no file on disk (e.g. a "Copy to New Editor" scratch
-            // buffer), so diff the documents' in-memory contents instead of
-            // reading files. QTCREATORBUG-33271.
-            IDocument *left = leftDocument ? leftDocument() : nullptr;
-            if (left)
-                diffService->diffDocuments(left, rightDocument);
+        // Prefer diffing documents if available
+        IDocument *leftDocument = leftDocumentCreator ? leftDocumentCreator() : nullptr;
+        if (leftDocument) {
+            diffService->diffDocuments(leftDocument, rightDocument);
             return;
         }
+        // TODO We should compare the leftFilePath to the rightDocument instead of comparing
+        // the files on disk (rightDocument might have unsaved changes)
+        const FilePath leftFilePath = filePath();
+        const FilePath rightFilePath = rightDocument->filePath();
+        if (leftFilePath.isEmpty() || rightFilePath.isEmpty())
+            return;
         diffService->diffFiles(leftFilePath, rightFilePath);
     };
-    auto diffAction = new QAction(Tr::tr("Diff Against Current File"), parent);
+    auto diffAction = new QAction(Tr::tr("Diff Against Current Editor"), parent);
     diffAction->setEnabled(EditorManager::currentDocument());
     QObject::connect(diffAction, &QAction::triggered, parent, diffAgainstCurrentFile);
     return diffAction;
@@ -3237,12 +3239,18 @@ QAction *EditorManager::createDiffAgainstCurrentFileAction(
 void EditorManagerPrivate::addNativeDirAndOpenWithActions(
     QMenu *contextMenu,
     const FilePath &filePath,
+    DocumentModel::Entry *entry,
     IEditor *editor,
     EditorView *view,
     EditorManager::ContextMenuFlags flags)
 {
     QTC_ASSERT(contextMenu, return);
     bool enabled = !filePath.isEmpty();
+    // For example the Open Documents view does not pass an editor, so fall back to the entry's
+    // document which is the same as any open editor's - if the entry is not suspended.
+    QPointer<IDocument> contextDocument = editor                         ? editor->document()
+                                          : entry && !entry->isSuspended ? entry->document
+                                                                         : nullptr;
 
     // Open in Finder/Explorer
     addMenuAction(contextMenu, FileUtils::msgGraphicalShellAction(), enabled, d, [filePath] {
@@ -3265,10 +3273,12 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
     });
 
     if (!flags.testFlag(EditorManager::HideVersionControl)) {
-        // Diff Against Current File
-        contextMenu->addAction(EditorManager::createDiffAgainstCurrentFileAction(
-            d, [filePath] { return filePath; },
-            [editor] { return editor ? editor->document() : nullptr; }));
+        // Diff Against Current Editor
+        contextMenu->addAction(
+            EditorManager::createDiffAgainstCurrentEditorAction(
+                d,
+                [filePath] { return filePath; },
+                [contextDocument]() -> IDocument * { return contextDocument; }));
 
         // Version Control
         FilePath topLevel;
@@ -3348,7 +3358,8 @@ void EditorManagerPrivate::addContextMenuActions(
         EditorManagerPrivate::addPinEditorActions(contextMenu, entry);
         contextMenu->addSeparator();
     }
-    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, filePath, editor, view, flags);
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(
+        contextMenu, filePath, entry, editor, view, flags);
     emit m_instance->aboutToShowContextMenu(contextMenu, filePath, insertionPoints);
 }
 
