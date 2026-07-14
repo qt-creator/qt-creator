@@ -75,6 +75,7 @@ add_subdirectory(webassembly)
 
 # Level 6:
 add_subdirectory(debugger)
+add_subdirectory(harmonyos)
 add_subdirectory(coco)
 add_subdirectory(copilot)
 add_subdirectory(gitlab)

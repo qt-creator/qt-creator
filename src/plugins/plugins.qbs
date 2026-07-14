@@ -53,6 +53,7 @@ Project {
         "glsleditor/glsleditor.qbs",
         "gnprojectmanager/gnprojectmanager.qbs",
         "gradle/gradle.qbs",
+        "harmonyos/harmonyos.qbs",
         "helloworld/helloworld.qbs",
         "help/help.qbs",
         "imageviewer/imageviewer.qbs",
