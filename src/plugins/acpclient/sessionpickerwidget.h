@@ -46,6 +46,8 @@ public:
 
     void setResolved(const QString &title);
 
+    std::optional<NewSessionTarget> firstNewSessionTarget() const;
+
 signals:
     void sessionSelected(const QString &sessionId, const Utils::FilePath &cwd);
     void loadMoreRequested(const QString &cursor);

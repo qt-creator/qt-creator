@@ -686,18 +686,32 @@ void SearchResultWindow::readSettings()
 /*!
     \internal
 */
-void SearchResultWindow::writeSettings()
+Utils::Store SearchResultWindow::save() const
 {
-    Utils::QtcSettings *s = ICore::settings();
-    s->beginGroup(SETTINGSKEYSECTIONNAME);
-    s->setValueWithDefault(SETTINGSKEYEXPANDRESULTS,
-                           d->m_expandCollapseAction->isChecked(),
-                           SearchResultWindowPrivate::m_initiallyExpand);
-    s->setValueWithDefault(SETTINGSKEYRELATIVEPATHSRESULTS,
-                           d->m_relativePathsAction->isChecked(),
-                           SearchResultWindowPrivate::m_initiallyRelativePaths);
-    s->endGroup();
+    Utils::Store s;
+    if (d->m_expandCollapseAction->isChecked() != SearchResultWindowPrivate::m_initiallyExpand)
+        s.insert(SETTINGSKEYEXPANDRESULTS, d->m_expandCollapseAction->isChecked());
+    if (d->m_relativePathsAction->isChecked() != SearchResultWindowPrivate::m_initiallyRelativePaths)
+        s.insert(SETTINGSKEYRELATIVEPATHSRESULTS, d->m_relativePathsAction->isChecked());
+    return s;
 }
+
+/*!
+    \internal
+*/
+void SearchResultWindow::restore(const Utils::Store &s)
+{
+    d->m_expandCollapseAction->setChecked(
+        s.value(SETTINGSKEYEXPANDRESULTS, SearchResultWindowPrivate::m_initiallyExpand).toBool());
+    d->m_relativePathsAction->setChecked(
+        s.value(SETTINGSKEYRELATIVEPATHSRESULTS, SearchResultWindowPrivate::m_initiallyRelativePaths)
+            .toBool());
+}
+
+/*!
+    \internal
+*/
+void SearchResultWindow::writeSettings() {}
 
 /*!
     \internal

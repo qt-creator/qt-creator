@@ -124,11 +124,11 @@ Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setu
                        return ResultError(Tr::tr("Failed to open temporary script file.")));
 
             const QString shScript = QString("cd '%1'\n%2\nclear\n'%3' %4\nrm '%5'\n")
-                                         .arg(setupData.rawWorkingDirectory().nativePath())
-                                         .arg(env)
-                                         .arg(setupData.m_commandLine.executable().nativePath())
-                                         .arg(setupData.m_commandLine.arguments())
-                                         .arg(shFile.fileName());
+                                         .arg(setupData.rawWorkingDirectory().nativePath(),
+                                              env,
+                                              setupData.m_commandLine.executable().nativePath(),
+                                              setupData.m_commandLine.arguments(),
+                                              shFile.fileName());
 
             shFile.write(shScript.toUtf8());
             shFile.close();

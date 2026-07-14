@@ -8548,7 +8548,7 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
         if (!mark->isVisible() || !mark->color().has_value())
             continue;
         const QTextBlock &block = q->document()->findBlockByNumber(mark->lineNumber() - 1);
-        if (block.isVisible())
+        if (block.isValid() && block.isVisible())
             m_highlightScrollBarController->addHighlight(markToHighlight(mark, block));
     }
 }

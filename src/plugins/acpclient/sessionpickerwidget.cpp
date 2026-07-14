@@ -418,6 +418,12 @@ void SessionPickerWidget::setResolved(const QString &)
     deleteLater();
 }
 
+std::optional<SessionPickerWidget::NewSessionTarget> SessionPickerWidget::firstNewSessionTarget() const
+{
+    return m_newSessionTargets.isEmpty() ? std::nullopt
+                                         : std::make_optional(m_newSessionTargets.first());
+}
+
 void SessionPickerWidget::addSessionItem(const SessionInfo &session)
 {
     const QString title = session.title().value_or(session.sessionId());

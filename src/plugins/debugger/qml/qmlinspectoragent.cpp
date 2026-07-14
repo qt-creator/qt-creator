@@ -331,6 +331,18 @@ static void sortChildrenIfNecessary(WatchItem *propertiesWatch)
     }
 }
 
+static QString buildIName(const QString &parentIname, int debugId)
+{
+    if (parentIname.isEmpty())
+        return "inspect." + QString::number(debugId);
+    return parentIname + "." + QString::number(debugId);
+}
+
+static QString buildIName(const QString &parentIname, const QString &name)
+{
+    return parentIname + "." + name;
+}
+
 static bool insertChildren(WatchItem *parent, const QVariant &value)
 {
     switch (value.typeId()) {
@@ -338,6 +350,7 @@ static bool insertChildren(WatchItem *parent, const QVariant &value)
         const QVariantMap map = value.toMap();
         for (auto it = map.begin(), end = map.end(); it != end; ++it) {
             auto child = new WatchItem;
+            child->iname = buildIName(parent->iname, it.key());
             child->name = it.key();
             child->value = it.value().toString();
             child->type = QLatin1String(it.value().typeName());
@@ -353,6 +366,7 @@ static bool insertChildren(WatchItem *parent, const QVariant &value)
         for (int i = 0, end = list.size(); i != end; ++i) {
             auto child = new WatchItem;
             const QVariant &value = list.at(i);
+            child->iname = buildIName(parent->iname, QString::number(i));
             child->arrayIndex = i;
             child->value = value.toString();
             child->type = QLatin1String(value.typeName());
@@ -645,18 +659,6 @@ void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
 
         pending.append(obj.children());
     }
-}
-
-static QString buildIName(const QString &parentIname, int debugId)
-{
-    if (parentIname.isEmpty())
-        return "inspect." + QString::number(debugId);
-    return parentIname + "." + QString::number(debugId);
-}
-
-static QString buildIName(const QString &parentIname, const QString &name)
-{
-    return parentIname + "." + name;
 }
 
 void QmlInspectorAgent::addWatchData(const ObjectReference &obj,

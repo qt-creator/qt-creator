@@ -26,26 +26,14 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
                 set(VENDOR_MODE_OPTION "-mod=vendor")
             endif()
 
-            if ((${PLATFORM} STREQUAL "linux") AND NOT UPX_BIN STREQUAL "UPX_BIN-NOTFOUND")
-                add_custom_command(
-                    OUTPUT "${OUTPUT}"
-                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOARM=5 GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build ${VENDOR_MODE_OPTION} -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}.unpacked
-                    COMMAND ${UPX_BIN} -9 --force-overwrite -o ${OUTPUT} ${OUTPUT}.unpacked
-                    DEPENDS ${SOURCES}
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    COMMENT "Building ${TARGET_NAME}"
-                    VERBATIM
-                )
-            else()
-                add_custom_command(
-                    OUTPUT "${OUTPUT}"
-                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build ${VENDOR_MODE_OPTION} -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
-                    DEPENDS ${SOURCES}
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                    COMMENT "Building ${TARGET_NAME}"
-                    VERBATIM
-                )
-            endif()
+            add_custom_command(
+                OUTPUT "${OUTPUT}"
+                COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build ${VENDOR_MODE_OPTION} -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
+                DEPENDS ${SOURCES}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                COMMENT "Building ${TARGET_NAME}"
+                VERBATIM
+            )
 
             install(PROGRAMS ${OUTPUT} DESTINATION "${IDE_LIBEXEC_PATH}")
 
@@ -56,7 +44,6 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
 endfunction()
 
 find_program(GO_BIN go)
-find_program(UPX_BIN upx)
 
 if(NOT GO_BIN)
   message(FATAL_ERROR
