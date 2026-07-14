@@ -2373,6 +2373,22 @@ void WatchHandler::notifyUpdateFinished()
     emit m_model->updateFinished();
 }
 
+void WatchHandler::notifyUpdateAborted()
+{
+    // A watch update was started (notifyUpdateStarted), but its result was
+    // discarded before completion, for example by a token barrier from a
+    // step or thread operation. Rebalance the state without the item purge
+    // that notifyUpdateFinished() performs: the existing items were never
+    // refreshed, so keep them and just clear the outdated marks and mark
+    // the contents valid again. Emit updateFinished() so the view stops the
+    // progress indicator; otherwise the Locals/Expressions view stays greyed
+    // out with the spinner running forever. (QTCREATORBUG-33035)
+    m_model->forAllItems([](WatchItem *item) { item->outdated = false; });
+    m_model->m_contentsValid = true;
+    updateLocalsWindow();
+    emit m_model->updateFinished();
+}
+
 void WatchHandler::reexpandItems()
 {
     m_model->reexpandItems();

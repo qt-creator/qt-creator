@@ -92,6 +92,7 @@ public:
 
     void notifyUpdateStarted(const UpdateParameters &updateParameters = UpdateParameters());
     void notifyUpdateFinished();
+    void notifyUpdateAborted();
 
     void reexpandItems();
     void recordTypeInfo(const GdbMi &typeInfo);

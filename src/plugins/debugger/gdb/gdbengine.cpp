@@ -1003,6 +1003,14 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     if (response->token < m_oldestAcceptableToken && (cmd.flags & Discardable)) {
         //showMessage(_("### SKIPPING OLD RESULT") + response.toString());
+        // A discarded locals update still owes the watch handler the
+        // notifyUpdateFinished() that its notifyUpdateStarted() expects.
+        // Skipping handleFetchVariables() here would leave the Locals view
+        // greyed out with the progress indicator running. (QTCREATORBUG-33035)
+        if (cmd.flags & InUpdateLocals) {
+            m_inUpdateLocals = false;
+            watchHandler()->notifyUpdateAborted();
+        }
         return;
     }
 
