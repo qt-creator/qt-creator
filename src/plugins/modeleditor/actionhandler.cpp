@@ -219,15 +219,6 @@ void ActionHandler::onEditItem()
         editor->editSelectedItem();
 }
 
-std::function<void()> invokeOnCurrentModelEditor(void (ModelEditor::*function)())
-{
-    return [function] {
-        auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor());
-        if (editor)
-            (editor->*function)();
-    };
-}
-
 Core::Command *ActionHandler::registerCommand(
     const Utils::Id &id,
     void (ModelEditor::*function)(),
@@ -245,8 +236,12 @@ Core::Command *ActionHandler::registerCommand(
     Core::Command *command = Core::ActionManager::registerAction(action, id, context, /*scriptable=*/true);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(keySequence);
-    if (function)
-        connect(action, &QAction::triggered, this, invokeOnCurrentModelEditor(function));
+    if (function) {
+        connect(action, &QAction::triggered, this, [function] {
+            if (auto editor = qobject_cast<ModelEditor *>(Core::EditorManager::currentEditor()))
+                (editor->*function)();
+        });
+    }
     return command;
 }
 
