@@ -65,7 +65,7 @@ static bool isFlashActionDisabled()
     return disabled;
 }
 
-void registerFlashAction(QObject *parentForAction)
+static void registerFlashAction(QObject *parentForAction)
 {
     if (isFlashActionDisabled())
         return;

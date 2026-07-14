@@ -11,7 +11,7 @@ const QString responseField = "response";
 const QString requestField = "request";
 const QString versionField = "_version";
 
-void setVersionField(QJsonObject &obj)
+static void setVersionField(QJsonObject &obj)
 {
     obj[versionField] = qdbHostMessageVersion;
 }
