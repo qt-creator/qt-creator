@@ -14,8 +14,10 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <QApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QKeyEvent>
 #include <QTemporaryFile>
 #include <QTest>
 #include <QTextEdit>
@@ -172,6 +174,7 @@ private slots:
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
+    void test_vim_iso_level5_shift();
 
     void test_macros();
 
@@ -5003,6 +5006,36 @@ void FakeVimTester::test_vim_tab_with_zero_tabstop()
 
     // With tabstop treated as 1, Tab expands to a single space.
     QCOMPARE(text, QString(" abc"));
+}
+
+void FakeVimTester::test_vim_iso_level5_shift()
+{
+    // Route key events through the event filter (as in the real application)
+    // so the QKeyEvent code path under test is actually exercised, and let
+    // FakeVim insert the text itself instead of forwarding it to the editor.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    FvBoolAspect &passKeys = FakeVim::Internal::settings().passKeys;
+    const bool savedUseFakeVim = useFakeVim.value();
+    const bool savedPassKeys = passKeys.value();
+    useFakeVim.setValue(true);
+    passKeys.setValue(false);
+
+    TestData data;
+    setup(&data);
+    data.setText("a|bc");
+    data.doKeys("i"); // insert mode; also installs the event filter
+
+    // A layout modifier such as ISO_Level5_Shift has no Qt key code and reaches
+    // FakeVim as a key event whose text is a single null character. It must not
+    // be inserted into the document (QTCREATORBUG-26818).
+    QKeyEvent e(QEvent::KeyPress, Qt::Key_unknown, Qt::NoModifier, QString(QChar(0)));
+    QApplication::sendEvent(data.editor(), &e);
+    const QString text = data.editor()->toPlainText();
+
+    useFakeVim.setValue(savedUseFakeVim);
+    passKeys.setValue(savedPassKeys);
+
+    QCOMPARE(text, QString("abc"));
 }
 
 void FakeVimTester::test_macros()
