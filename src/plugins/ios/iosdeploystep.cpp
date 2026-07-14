@@ -94,7 +94,7 @@ private:
 
 using IosTransferTask = QCustomTask<IosTransfer>;
 
-GroupItem createDeviceCtlDeployTask(
+static GroupItem createDeviceCtlDeployTask(
     const IosDevice::ConstPtr &device,
     const FilePath &bundlePath,
     const std::function<void(int)> &progressHandler,
