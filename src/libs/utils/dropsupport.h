@@ -45,6 +45,8 @@ public:
     static bool isFileDrop(QDropEvent *event);
     static bool isValueDrop(QDropEvent *event);
 
+    static bool enforceCopyAction(QDropEvent *event, DropSupport *dropSupport);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 

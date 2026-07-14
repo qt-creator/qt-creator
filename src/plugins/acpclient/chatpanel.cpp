@@ -35,7 +35,6 @@
 
 #include <QApplication>
 #include <QCheckBox>
-#include <QDropEvent>
 #include <QFileDialog>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -465,13 +464,7 @@ ChatPanel::ChatPanel(QWidget *parent)
     inputOuterLayout->setSpacing(GapVXs);
 
     auto *inputContainer = new InputContainerWidget;
-    auto *dropSupport = new DropSupport(inputContainer, [](QDropEvent *event, DropSupport *) {
-        // Always use the "copy" action for the drop, since we don't really want to move
-        // files even if the drag source would support it.
-        if (const auto *mimeData = qobject_cast<const DropMimeData *>(event->mimeData()))
-            const_cast<DropMimeData *>(mimeData)->setOverrideFileDropAction(Qt::CopyAction);
-        return true;
-    });
+    auto *dropSupport = new DropSupport(inputContainer, &DropSupport::enforceCopyAction);
     connect(dropSupport, &DropSupport::filesDropped, this,
             [this](const QList<DropSupport::FileSpec> &files, const QPoint &) {
         addContextFiles(Utils::transform(files, &DropSupport::FileSpec::filePath));

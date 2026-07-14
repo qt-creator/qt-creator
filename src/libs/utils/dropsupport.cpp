@@ -15,6 +15,15 @@
 #include "fileutils_mac.h"
 #endif
 
+/*!
+    \class Utils::DropSupport
+    \inheaderfile utils/dropsupport.h
+    \inmodule QtCreator
+
+    \brief The DropSupport class makes it easy for a QWidget to accept drops without
+    subclassing QWidget and overriding methods.
+*/
+
 namespace Utils {
 
 static bool isFileDropMime(const QMimeData *data, QList<DropSupport::FileSpec> *files = nullptr)
@@ -73,6 +82,25 @@ bool DropSupport::isValueDrop(QDropEvent *event)
         return !internalData->values().isEmpty();
     }
     return false;
+}
+
+/*!
+    A DropFilterFunction that enforces the \c{Qt::CopyAction} on the drop, even
+    if the drag source would support the move action. Useful for drop targets
+    that just want to do something with e.g. the file path without actually
+    "taking over" the source.
+
+    When the DropSupport \a ds reports a drop \a event, it sets the override file drop action
+    of its MIME data to the copy action.
+
+    Returns \c true, meaning that it by default accepts the drop event.
+ */
+bool DropSupport::enforceCopyAction(QDropEvent *event, DropSupport *ds)
+{
+    Q_UNUSED(ds)
+    if (const auto *mimeData = qobject_cast<const DropMimeData *>(event->mimeData()))
+        const_cast<DropMimeData *>(mimeData)->setOverrideFileDropAction(Qt::CopyAction);
+    return true;
 }
 
 bool DropSupport::eventFilter(QObject *obj, QEvent *event)
