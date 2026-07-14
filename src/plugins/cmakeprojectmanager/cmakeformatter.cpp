@@ -252,7 +252,7 @@ void CMakeFormatterSettings::applyIfNecessary(IDocument *document, IDocument::Sa
     }
 }
 
-CMakeFormatterSettings &formatterSettings()
+static CMakeFormatterSettings &formatterSettings()
 {
     static CMakeFormatterSettings theSettings;
     return theSettings;

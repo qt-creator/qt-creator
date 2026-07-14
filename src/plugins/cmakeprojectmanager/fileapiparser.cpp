@@ -86,7 +86,7 @@ static QJsonDocument readJsonFile(const FilePath &filePath)
     return doc;
 }
 
-std::vector<int> indexList(const QJsonValue &v)
+static std::vector<int> indexList(const QJsonValue &v)
 {
     const QJsonArray &indexList = v.toArray();
     std::vector<int> result;
@@ -465,7 +465,7 @@ static std::vector<CMakeFileInfo> readCMakeFilesFile(const FilePath &cmakeFilesF
 
 // Codemodel file:
 
-std::vector<DirectoryInfo> extractDirectories(const QJsonArray &directories, QString &errorMessage)
+static std::vector<DirectoryInfo> extractDirectories(const QJsonArray &directories, QString &errorMessage)
 {
     if (directories.isEmpty()) {
         errorMessage = Tr::tr(

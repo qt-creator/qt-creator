@@ -328,7 +328,7 @@ static FilePaths findBuildFolders(const FilePath &path, const FilePath &pattern)
     return findBuildFolders(path, pattern.pathComponents());
 }
 
-QString escapeWildcards(const QString &input)
+static QString escapeWildcards(const QString &input)
 {
     static const QMap<QChar, QString> replacements
         = {{'*', "[*]"}, {'?', "[?]"}, {'[', "[[]"}, {']', "[]]"}};

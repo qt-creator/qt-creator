@@ -73,7 +73,7 @@ static FilePath defaultCMakeExecutable()
     return defaultTool ? defaultTool->cmakeExecutable() : FilePath();
 }
 
-const QList<CMakeTool *> toolsForBuildDevice(const Kit *k)
+static const QList<CMakeTool *> toolsForBuildDevice(const Kit *k)
 {
     if (const IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k)) {
         return Utils::filtered(
@@ -1573,13 +1573,13 @@ KitAspect *CMakeConfigurationKitAspectFactory::createKitAspect(Kit *k) const
 
 // Factory instances;
 
-CMakeKitAspectFactory &cmakeKitAspectFactory()
+static CMakeKitAspectFactory &cmakeKitAspectFactory()
 {
     static CMakeKitAspectFactory theCMakeKitAspectFactory;
     return theCMakeKitAspectFactory;
 }
 
-CMakeGeneratorKitAspectFactory &cmakeGeneratorKitAspectFactory()
+static CMakeGeneratorKitAspectFactory &cmakeGeneratorKitAspectFactory()
 {
     static CMakeGeneratorKitAspectFactory theCMakeGeneratorKitAspectFactory;
     return theCMakeGeneratorKitAspectFactory;

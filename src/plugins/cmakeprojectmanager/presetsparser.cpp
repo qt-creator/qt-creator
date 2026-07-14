@@ -15,7 +15,7 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-bool parseVersion(const QJsonValue &jsonValue, int &version)
+static bool parseVersion(const QJsonValue &jsonValue, int &version)
 {
     if (jsonValue.isUndefined())
         return false;
@@ -25,7 +25,7 @@ bool parseVersion(const QJsonValue &jsonValue, int &version)
     return version != invalidVersion;
 }
 
-bool parseCMakeMinimumRequired(const QJsonValue &jsonValue, QVersionNumber &versionNumber)
+static bool parseCMakeMinimumRequired(const QJsonValue &jsonValue, QVersionNumber &versionNumber)
 {
     if (jsonValue.isUndefined() || !jsonValue.isObject())
         return false;
@@ -38,7 +38,7 @@ bool parseCMakeMinimumRequired(const QJsonValue &jsonValue, QVersionNumber &vers
     return true;
 }
 
-std::optional<QStringList> parseInclude(const QJsonValue &jsonValue)
+static std::optional<QStringList> parseInclude(const QJsonValue &jsonValue)
 {
     std::optional<QStringList> includes;
 
@@ -150,7 +150,7 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
     return condition;
 }
 
-bool parseVendor(const QJsonValue &jsonValue, std::optional<QVariantMap> &vendorSettings)
+static bool parseVendor(const QJsonValue &jsonValue, std::optional<QVariantMap> &vendorSettings)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -205,7 +205,7 @@ static std::optional<PresetsDetails::Trace> parseTrace(const QJsonValue &jsonVal
     return trace;
 }
 
-bool parseConfigurePresets(const QJsonValue &jsonValue,
+static bool parseConfigurePresets(const QJsonValue &jsonValue,
                            QList<PresetsDetails::ConfigurePreset> &configurePresets,
                            const Utils::FilePath &fileDir)
 {
