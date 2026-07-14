@@ -1,11 +1,12 @@
 // Copyright (C) 2026 Jeff Heller
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "testresultsmanager.h"
+#include "mcptools.h"
 
 #include "autotestconstants.h"
 #include "testconfiguration.h"
 #include "testcodeparser.h"
+#include "testresultsmanager.h"
 #include "testrunner.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"
