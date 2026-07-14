@@ -26,6 +26,9 @@ Utils::FilePath hdcCommand(const Utils::FilePath &sdkRoot);
 // The sysroot of the native SDK.
 Utils::FilePath sysrootPath(const Utils::FilePath &sdkRoot);
 
+// The CMake toolchain file that Qt's qt.toolchain.cmake chain-loads for HarmonyOS.
+Utils::FilePath cmakeToolchainFile(const Utils::FilePath &sdkRoot);
+
 // Directory holding the hvigorw launcher, to be prepended to PATH for deployment.
 Utils::FilePath hvigorBinPath(const Utils::FilePath &sdkRoot);
 

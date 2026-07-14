@@ -52,6 +52,15 @@ FilePath lldbCommand(const FilePath &sdkRoot)
     return native.pathAppended("llvm/bin/lldb").withExecutableSuffix();
 }
 
+FilePath cmakeToolchainFile(const FilePath &sdkRoot)
+{
+    const FilePath native = nativeSdkPath(sdkRoot);
+    if (native.isEmpty())
+        return {};
+    const FilePath toolchainFile = native.pathAppended("build/cmake/ohos.toolchain.cmake");
+    return toolchainFile.exists() ? toolchainFile : FilePath();
+}
+
 FilePath hdcCommand(const FilePath &sdkRoot)
 {
     const FilePath native = nativeSdkPath(sdkRoot);

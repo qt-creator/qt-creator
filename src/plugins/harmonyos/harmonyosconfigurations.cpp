@@ -24,6 +24,9 @@
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitaspect.h>
 
+#include <cmakeprojectmanager/cmakeconfigitem.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
+
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -150,6 +153,7 @@ void updateAutomaticKitList()
     const QVariant debuggerId = findOrRegisterDebugger(
         Sdk::lldbCommand(settings().sdkLocation()));
     const FilePath sysroot = Sdk::sysrootPath(settings().sdkLocation());
+    const FilePath cmakeToolchainFile = Sdk::cmakeToolchainFile(settings().sdkLocation());
 
     QList<Kit *> unhandledKits = existingKits;
     for (const ToolchainBundle &bundle : bundles) {
@@ -159,7 +163,7 @@ void updateAutomaticKitList()
                 return qt == QtKitAspect::qtVersion(b) && matchKit(bundle, *b);
             });
 
-            const auto initializeKit = [&bundle, qt, debuggerId, sysroot](Kit *k) {
+            const auto initializeKit = [&bundle, qt, debuggerId, sysroot, cmakeToolchainFile](Kit *k) {
                 const auto source = qt->detectionSource().isAutoDetected()
                                         ? DetectionSource::FromSystem
                                         : DetectionSource::Manual;
@@ -170,6 +174,17 @@ void updateAutomaticKitList()
                 Debugger::DebuggerKitAspect::setDebugger(k, debuggerId);
                 if (!sysroot.isEmpty())
                     SysRootKitAspect::setSysRoot(k, sysroot);
+                {
+                    using namespace CMakeProjectManager;
+                    CMakeConfig config = CMakeConfigurationKitAspect::defaultConfiguration(k);
+                    // qt.toolchain.cmake chain-loads this; its built-in default path is not local.
+                    if (!cmakeToolchainFile.isEmpty()) {
+                        config.insert(CMakeConfigItem("QT_CHAINLOAD_TOOLCHAIN_FILE",
+                                                      CMakeConfigItem::FILEPATH,
+                                                      cmakeToolchainFile.path().toUtf8()));
+                    }
+                    CMakeConfigurationKitAspect::setConfiguration(k, config);
+                }
                 const auto desktopDevice = DeviceManager::defaultDesktopDevice();
                 QTC_ASSERT(desktopDevice, return);
                 BuildDeviceKitAspect::setDeviceId(k, desktopDevice->id());
