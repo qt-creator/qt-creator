@@ -989,7 +989,7 @@ void ClangModelManagerSupport::onGeneratedFileSupportRemoved(const FilePath &fil
     m_potentialShadowDocuments.remove(filePath);
 }
 
-void addFixItsActionsToMenu(QMenu *menu, const TextEditor::QuickFixOperations &fixItOperations)
+static void addFixItsActionsToMenu(QMenu *menu, const TextEditor::QuickFixOperations &fixItOperations)
 {
     for (const TextEditor::QuickFixOperation::Ptr &fixItOperation : fixItOperations) {
         QAction *action = menu->addAction(fixItOperation->description());

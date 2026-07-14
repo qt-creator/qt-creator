@@ -93,7 +93,7 @@ static int timeOutFromEnvironmentVariable()
     return intervalAsInt;
 }
 
-int timeOutInMs()
+static int timeOutInMs()
 {
     static int timeOut = timeOutFromEnvironmentVariable();
     return timeOut;
