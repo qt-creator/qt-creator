@@ -25,7 +25,7 @@ static Q_LOGGING_CATEGORY(androidTCLog, "qtc.android.toolchainmanagement", QtWar
 
 using ClangTargetsType = QHash<QString, Abi>;
 
-const ClangTargetsType &clangTargets()
+static const ClangTargetsType &clangTargets()
 {
     static const ClangTargetsType targets {
         {"arm-linux-androideabi",

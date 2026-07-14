@@ -284,7 +284,7 @@ static BaseHoverHandler &androidManifestHoverHandler()
 
 // Expands the word under the cursor (at 'pos') to include common XML/code separators
 // like '-' and '.', treating only specific punctuation and whitespace as breaks.
-QString expandKeyword(QTextCursor cursor, TextEditorWidget &editorWidget, int pos)
+static QString expandKeyword(QTextCursor cursor, TextEditorWidget &editorWidget, int pos)
 {
     TextDocument *document = editorWidget.textDocument();
     const QList<QChar> delimiters

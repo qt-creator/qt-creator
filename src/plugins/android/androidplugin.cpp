@@ -67,7 +67,7 @@ public:
     }
 };
 
-void setupAndroidDeployConfiguration()
+static void setupAndroidDeployConfiguration()
 {
     static AndroidDeployConfigurationFactory theAndroidDeployConfigurationFactory;
 }
