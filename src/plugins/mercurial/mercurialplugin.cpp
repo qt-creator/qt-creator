@@ -111,6 +111,15 @@ public:
     {
         mercurialClient().revertFile(repository, relativePath);
     }
+    bool commitFiles(const FilePath &repository, const QStringList &relativePaths,
+                     const QString &message) final
+    {
+        const QString messageFile = saveCommitMessage(message);
+        if (messageFile.isEmpty())
+            return false;
+        mercurialClient().commit(repository, relativePaths, messageFile, {});
+        return true;
+    }
 
     void vcsDescribe(const FilePath &source, const QString &id) final
     {
