@@ -54,6 +54,7 @@ public:
     static IDevice::Ptr find(Utils::Id id);
     static IDevice::Ptr defaultDevice(Utils::Id deviceType);
     static bool hasDevice(const QString &name);
+    static bool isUnrestored(Utils::Id id);
 
     static void addDevice(const IDevice::Ptr &device);
     static void removeDevice(Utils::Id id);
@@ -89,12 +90,15 @@ private:
                                        QHash<Utils::Id, Utils::Id> *defaultDevices,
                                        QList<Utils::Store> *unrestoredDevices = nullptr);
     static Utils::Store toMap();
+    static void deviceFactoryAdded();
+    static void restoreDevicesWithUnknownType();
 
     // For SettingsWidget.
     static IDevice::Ptr mutableDevice(Utils::Id id);
     static void setDefaultDevice(Utils::Id id);
 
     friend class Internal::DeviceManagerPrivate;
+    friend class IDeviceFactory;
     friend class ProjectExplorerPlugin;
     friend class ProjectExplorerPluginPrivate;
 };

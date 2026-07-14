@@ -3,6 +3,8 @@
 
 #include "idevicefactory.h"
 
+#include "devicemanager.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/algorithm.h>
 #include <utils/icon.h>
@@ -112,6 +114,7 @@ IDeviceFactory::IDeviceFactory(Utils::Id deviceType)
     : m_deviceType(deviceType)
 {
     g_deviceFactories.append(this);
+    DeviceManager::deviceFactoryAdded();
 }
 
 void IDeviceFactory::setIcon(const QIcon &icon)

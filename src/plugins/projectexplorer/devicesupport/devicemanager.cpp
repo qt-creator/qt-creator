@@ -38,6 +38,10 @@
 #include <memory>
 
 #ifdef WITH_TESTS
+#include "../kitmanager.h"
+#include "devicekitaspects.h"
+
+#include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTest>
 #endif
@@ -127,6 +131,34 @@ static FilePath systemSettingsFilePath(const QString &deviceFileRelativePath)
     return Core::ICore::installerResourcePath(deviceFileRelativePath);
 }
 
+// Applies the rules load() uses for the user and SDK devices to the entries no factory could
+// restore yet.
+static void mergeUnrestoredSdkDevices(QList<Store> &unrestored, QList<Store> sdkStores)
+{
+    const Key originKey = "Origin";
+    const Key versionKey = "Version";
+    const auto hasId = [](Id id) {
+        return [id](const Store &map) { return IDevice::idFromMap(map) == id; };
+    };
+    for (Store &sdkStore : sdkStores)
+        sdkStore.insert(originKey, IDevice::AddedBySdk);
+    // Make sure devices removed via the sdktool really disappear.
+    unrestored.removeIf([&](const Store &map) {
+        return map.value(originKey).toInt() == IDevice::AddedBySdk
+               && !Utils::anyOf(sdkStores, hasId(IDevice::idFromMap(map)));
+    });
+    for (const Store &sdkStore : std::as_const(sdkStores)) {
+        const auto user = std::find_if(unrestored.begin(), unrestored.end(),
+                                       hasId(IDevice::idFromMap(sdkStore)));
+        if (user == unrestored.end())
+            unrestored.append(sdkStore);
+        else if (user->value(versionKey, 0).toInt() < sdkStore.value(versionKey, 0).toInt())
+            *user = sdkStore;
+        else
+            user->insert(originKey, IDevice::AddedBySdk); // For pre-17 settings.
+    }
+}
+
 void DeviceManager::load()
 {
     QTC_ASSERT(!d->writer, return);
@@ -138,8 +170,11 @@ void DeviceManager::load()
     // read devices file from global settings path
     QHash<Id, Id> defaultDevices;
     QList<IDevice::Ptr> sdkDevices;
+    QList<Store> unrestoredSdkDevices;
     if (reader.load(systemSettingsFilePath("devices.xml")))
-        sdkDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)), &defaultDevices);
+        sdkDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)),
+                             &defaultDevices,
+                             &unrestoredSdkDevices);
     for (IDevice::Ptr &device : sdkDevices)
         device->setFromSdk();
     // read devices file from user settings path
@@ -148,6 +183,7 @@ void DeviceManager::load()
         userDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)),
                               &defaultDevices,
                               &d->unrestoredDevices);
+    mergeUnrestoredSdkDevices(d->unrestoredDevices, unrestoredSdkDevices);
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
     for (IDevice::Ptr device : std::as_const(userDevices)) {
@@ -195,14 +231,18 @@ void DeviceManager::load()
     emit s_instance->devicesLoaded();
 }
 
-static const IDeviceFactory *restoreFactory(const Store &map)
+static const IDeviceFactory *findRestoreFactory(const Store &map)
 {
     const Id deviceType = IDevice::typeFromMap(map);
-    IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
+    return Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
         [&map, deviceType](IDeviceFactory *factory) {
             return factory->canRestore(map) && factory->deviceType() == deviceType;
         });
+}
 
+static const IDeviceFactory *restoreFactory(const Store &map)
+{
+    const IDeviceFactory * const factory = findRestoreFactory(map);
     if (!factory)
         qWarning("Warning: No factory found for device '%s' of type '%s'.",
                  qPrintable(IDevice::idFromMap(map).toString()),
@@ -238,6 +278,84 @@ QList<IDevice::Ptr> DeviceManager::fromMap(
         devices << device;
     }
     return devices;
+}
+
+void DeviceManager::restoreDevicesWithUnknownType()
+{
+    QList<IDevice::Ptr> restored;
+    for (auto it = d->unrestoredDevices.begin(); it != d->unrestoredDevices.end(); ) {
+        // The plugin that brought the factory may have added this device by itself already.
+        if (d->indexForId(IDevice::idFromMap(*it)) >= 0) {
+            it = d->unrestoredDevices.erase(it);
+            continue;
+        }
+        const IDeviceFactory * const factory = findRestoreFactory(*it);
+        if (!factory) {
+            ++it;
+            continue;
+        }
+        const IDevice::Ptr device = factory->construct();
+        QTC_ASSERT(device, ++it; continue);
+        device->fromMap(*it);
+        restored << device;
+        it = d->unrestoredDevices.erase(it);
+    }
+    if (restored.isEmpty())
+        return;
+
+    // Make all of them findable before the first signal, so that listeners do not reassign
+    // kits or the saved default device to whichever of them comes first.
+    QStringList names = Utils::transform(d->devices, &IDevice::displayName);
+    for (const IDevice::Ptr &device : std::as_const(restored)) {
+        device->setDisplayName(Utils::makeUniquelyNumbered(device->displayName(), names));
+        names << device->displayName();
+        d->initDeviceState(device->id());
+    }
+    {
+        QMutexLocker locker(&d->mutex);
+        d->devices << restored;
+    }
+    for (const IDevice::Ptr &device : std::as_const(restored)) {
+        if (!defaultDevice(device->type()))
+            d->defaultDevices.insert(device->type(), device->id());
+    }
+    for (const IDevice::Ptr &device : std::as_const(restored)) {
+        emit s_instance->deviceAdded(device->id());
+        if (FSEngine::isAvailable())
+            FSEngine::addDevice(device->rootPath());
+    }
+    emit s_instance->updated();
+
+    for (const IDevice::Ptr &device : std::as_const(restored))
+        device->postLoad();
+}
+
+bool DeviceManager::isUnrestored(Id id)
+{
+    return id.isValid() && Utils::anyOf(d->unrestoredDevices, [id](const Store &map) {
+        return IDevice::idFromMap(map) == id;
+    });
+}
+
+void DeviceManager::deviceFactoryAdded()
+{
+    // A factory was registered after the devices were loaded (e.g. by a soft-loaded plugin).
+    // This runs from the IDeviceFactory base-class constructor, before the derived class has set
+    // its construction function, so defer the retry to the event loop.
+    if (!d || !d->writer || d->unrestoredDevices.isEmpty())
+        return;
+    static bool scheduled = false;
+    if (scheduled)
+        return;
+    scheduled = true;
+    QMetaObject::invokeMethod(
+        s_instance,
+        [] {
+            scheduled = false;
+            if (d)
+                restoreDevicesWithUnknownType();
+        },
+        Qt::QueuedConnection);
 }
 
 Store DeviceManager::toMap()
@@ -310,7 +428,7 @@ void DeviceManager::addDevice(const IDevice::Ptr &device)
 
     const int pos = d->indexForId(device->id());
 
-    if (!defaultDevice(device->type()))
+    if (!defaultDevice(device->type()) && !isUnrestored(d->defaultDevices.value(device->type())))
         d->defaultDevices.insert(device->type(), device->id());
 
     if (pos >= 0) {
@@ -644,9 +762,9 @@ namespace Internal {
 class TestDevice : public IDevice
 {
 public:
-    TestDevice()
+    explicit TestDevice(Id id = Id::generate())
     {
-        setupId(AutoDetected, Id::generate());
+        setupId(AutoDetected, id);
         setType(testTypeId());
         setMachineType(Hardware);
         setOsType(HostOsInfo::hostOs());
@@ -654,6 +772,13 @@ public:
     }
 
     static Id testTypeId() { return "TestType"; }
+
+    Store toStore() const
+    {
+        Store map;
+        toMap(map);
+        return map;
+    }
 
 private:
     IDeviceWidget *createWidget() override { return nullptr; }
@@ -800,6 +925,99 @@ private slots:
         QCOMPARE(deviceRemovedSpy.count(), 2);
         //    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
         QCOMPARE(updatedSpy.count(), 2);
+    }
+
+    void testRestoreWhenFactoryAppears()
+    {
+        QVERIFY(!IDeviceFactory::find(TestDevice::testTypeId()));
+        QVERIFY(!DeviceManager::defaultDevice(TestDevice::testTypeId()));
+        TestDevice first;
+        TestDevice saved;
+        TestDevice registeredMeanwhile;
+        const IDevice::Ptr unrelated(new TestDevice);
+        unrelated->setType("OtherTestType");
+        d->unrestoredDevices << first.toStore() << saved.toStore()
+                             << registeredMeanwhile.toStore();
+        d->defaultDevices.insert(TestDevice::testTypeId(), saved.id());
+        Kit * const kit = KitManager::registerKit([&saved](Kit *k) {
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, TestDevice::testTypeId());
+            RunDeviceKitAspect::setDeviceId(k, saved.id());
+        });
+        const QScopeGuard cleanup([&] {
+            const QList<Id> ids{first.id(), saved.id(), registeredMeanwhile.id(), unrelated->id()};
+            d->unrestoredDevices.removeIf(
+                [&ids](const Store &map) { return ids.contains(IDevice::idFromMap(map)); });
+            for (const Id id : ids) {
+                while (DeviceManager::find(id))
+                    DeviceManager::removeDevice(id);
+            }
+            if (kit)
+                KitManager::deregisterKit(kit);
+            d->defaultDevices.remove(TestDevice::testTypeId());
+        });
+        QVERIFY(kit);
+        const auto storedKitDevice = [kit] {
+            return Id::fromSetting(kit->value(RunDeviceKitAspect::id()));
+        };
+        DeviceManager::addDevice(unrelated);
+        QCOMPARE(storedKitDevice(), saved.id());
+
+        const TestDeviceFactory factory;
+        DeviceManager::addDevice(IDevice::Ptr(new TestDevice(registeredMeanwhile.id())));
+        QTRY_VERIFY(DeviceManager::find(first.id()) && DeviceManager::find(saved.id()));
+        QVERIFY(!DeviceManager::isUnrestored(first.id()));
+        QVERIFY(!DeviceManager::isUnrestored(saved.id()));
+        QVERIFY(!DeviceManager::isUnrestored(registeredMeanwhile.id()));
+        int registeredCount = 0;
+        for (int i = 0; i < DeviceManager::deviceCount(); ++i) {
+            if (DeviceManager::deviceAt(i)->id() == registeredMeanwhile.id())
+                ++registeredCount;
+        }
+        QCOMPARE(registeredCount, 1);
+        const IDevice::ConstPtr defaultDevice = DeviceManager::defaultDevice(
+            TestDevice::testTypeId());
+        QVERIFY(defaultDevice);
+        QCOMPARE(defaultDevice->id(), saved.id());
+        QCOMPARE(storedKitDevice(), saved.id());
+    }
+
+    void testMergeUnrestoredSdkDevices()
+    {
+        const auto withVersion = [](const TestDevice &device, int version) {
+            Store map = device.toStore();
+            map.insert("Version", version);
+            return map;
+        };
+        const auto fromSdk = [](Store map) {
+            map.insert("Origin", IDevice::AddedBySdk);
+            return map;
+        };
+        TestDevice userOnly;
+        TestDevice removedFromSdk;
+        TestDevice outdated;
+        TestDevice current;
+        TestDevice newInSdk;
+        QList<Store> unrestored{userOnly.toStore(),
+                                fromSdk(removedFromSdk.toStore()),
+                                withVersion(outdated, 1),
+                                withVersion(current, 2)};
+        mergeUnrestoredSdkDevices(unrestored,
+                                  {withVersion(outdated, 2),
+                                   withVersion(current, 1),
+                                   newInSdk.toStore()});
+
+        const auto entry = [&unrestored](const TestDevice &device) {
+            return Utils::findOrDefault(unrestored, [id = device.id()](const Store &map) {
+                return IDevice::idFromMap(map) == id;
+            });
+        };
+        QCOMPARE(unrestored.size(), 4);
+        QVERIFY(entry(removedFromSdk).isEmpty());
+        QCOMPARE(entry(userOnly).value("Origin").toInt(), int(IDevice::AutoDetected));
+        QCOMPARE(entry(outdated).value("Version").toInt(), 2);
+        QCOMPARE(entry(current).value("Version").toInt(), 2);
+        for (const TestDevice *device : {&outdated, &current, &newInSdk})
+            QCOMPARE(entry(*device).value("Origin").toInt(), int(IDevice::AddedBySdk));
     }
 
     void testIsDirty()

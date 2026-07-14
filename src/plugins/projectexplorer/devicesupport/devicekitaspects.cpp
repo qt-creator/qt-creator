@@ -224,6 +224,8 @@ private:
         QTC_ASSERT(DeviceManager::instance(), return);
         if (const IDevice::ConstPtr dev = DeviceAspect::device(k); dev && isCompatible(dev, k))
             return;
+        if (DeviceManager::isUnrestored(DeviceAspect::deviceId(k)))
+            return;
         DeviceAspect::setDeviceId(k, defaultValue(k));
     }
 
