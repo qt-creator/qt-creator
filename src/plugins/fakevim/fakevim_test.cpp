@@ -7,6 +7,7 @@
  */
 
 #include "fakevimhandler.h"
+#include "fakevimactions.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -170,6 +171,7 @@ private slots:
     void test_vim_reflow();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
+    void test_vim_tab_with_zero_tabstop();
 
     void test_macros();
 
@@ -4976,6 +4978,31 @@ void FakeVimTester::test_vim_scroll_center_on_scroll()
     const int zzRow = cursorRow("zz");
     QVERIFY(zzRow > visibleLines / 4 && zzRow < visibleLines * 3 / 4);
     QVERIFY(cursorRow("zb") >= visibleLines * 3 / 4);
+}
+
+void FakeVimTester::test_vim_tab_with_zero_tabstop()
+{
+    // A stray "tabstop=0" (e.g. from a hand-edited settings file) must not
+    // crash with a division by zero when Tab is pressed in insert mode
+    // (QTCREATORBUG-29376).
+    auto &ts = FakeVim::Internal::settings().tabStop;
+    auto &et = FakeVim::Internal::settings().expandTab;
+    const qint64 savedTs = ts.value();
+    const bool savedEt = et.value();
+    ts.setValue(0);
+    et.setValue(true);
+
+    TestData data;
+    setup(&data);
+    data.setText("|abc");
+    data.doKeys("i<tab>"); // must not crash
+    const QString text = data.editor()->toPlainText();
+
+    ts.setValue(savedTs);
+    et.setValue(savedEt);
+
+    // With tabstop treated as 1, Tab expands to a single space.
+    QCOMPARE(text, QString(" abc"));
 }
 
 void FakeVimTester::test_macros()

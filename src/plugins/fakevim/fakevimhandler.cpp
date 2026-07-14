@@ -1874,6 +1874,10 @@ public:
     int logicalCursorColumn() const; // as visible on screen
     int physicalToLogicalColumn(int physical, const QString &text) const;
     int logicalToPhysicalColumn(int logical, const QString &text) const;
+    // Effective tab stop, never below 1. Guards the column arithmetic below
+    // against a stray "tabstop=0" (e.g. from a hand-edited settings file)
+    // dividing by zero (QTCREATORBUG-29376).
+    int tabStop() const { return qMax(1, s.tabStop()); }
     int windowScrollOffset() const; // return scrolloffset but max half the current window height
     Column cursorColumn() const; // as visible on screen
     void updateFirstVisibleLine();
@@ -5626,7 +5630,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
                 const Column ind = indentation(data);
                 if (col.logical <= ind.logical && col.logical
                         && startsWithWhitespace(data, col.physical)) {
-                    const int ts = s.tabStop();
+                    const int ts = tabStop();
                     const int newl = col.logical - 1 - (col.logical - 1) % ts;
                     const QString prefix = tabExpand(newl);
                     setLineContents(line, prefix + data.mid(col.physical));
@@ -5653,7 +5657,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         if (q->tabPressedInInsertMode()) {
             m_buffer->insertState.insertingSpaces = true;
             if (s.expandTab()) {
-                const int ts = s.tabStop();
+                const int ts = tabStop();
                 const int col = logicalCursorColumn();
                 QString str = QString(ts - col % ts, ' ');
                 insertInInsertMode(str);
@@ -7623,7 +7627,7 @@ int FakeVimHandler::Private::physicalCursorColumn() const
 int FakeVimHandler::Private::physicalToLogicalColumn
     (const int physical, const QString &line) const
 {
-    const int ts = s.tabStop();
+    const int ts = tabStop();
     int p = 0;
     int logical = 0;
     while (p < physical) {
@@ -7644,7 +7648,7 @@ int FakeVimHandler::Private::physicalToLogicalColumn
 int FakeVimHandler::Private::logicalToPhysicalColumn
     (const int logical, const QString &line) const
 {
-    const int ts = s.tabStop();
+    const int ts = tabStop();
     int physical = 0;
     for (int l = 0; l < logical && physical < line.size(); ++physical) {
         QChar c = line.at(physical);
@@ -9118,7 +9122,7 @@ void FakeVimHandler::Private::jump(int distance)
 
 Column FakeVimHandler::Private::indentation(const QString &line) const
 {
-    int ts = s.tabStop();
+    int ts = tabStop();
     int physical = 0;
     int logical = 0;
     int n = line.size();
