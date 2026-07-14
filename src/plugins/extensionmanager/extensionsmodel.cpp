@@ -57,15 +57,6 @@ void ExtensionsModelPrivate::addUnlistedLocalPlugins()
     qCDebug(modelLog) << "Number of added local plugins:" << localPlugins.count();
 }
 
-QString joinedStringList(const QJsonValue &json)
-{
-    if (json.isArray()) {
-        const QStringList lines = json.toVariant().toStringList();
-        return lines.join("\n");
-    }
-    return json.toString();
-}
-
 QString descriptionWithLinks(const QString &description, const QString &url,
                              const QString &documentationUrl)
 {
