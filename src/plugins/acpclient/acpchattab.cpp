@@ -285,14 +285,14 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         if (m_activePicker) {
             QObject::disconnect(m_controller, &AcpChatController::sessionsListed,
                                 m_activePicker, nullptr);
-            const std::optional<SessionPickerWidget::NewSessionTarget> firstSessionTarget
+            const std::optional<FilePath> firstSessionTarget
                 = m_activePicker->firstNewSessionTarget();
             m_activePicker->deleteLater();
             m_activePicker = nullptr;
             m_sessionPending = true;
             m_pendingPrompt = text;
             const Project *project = ProjectManager::startupProject();
-            const FilePath sessionPath = firstSessionTarget ? firstSessionTarget->cwd
+            const FilePath sessionPath = firstSessionTarget ? *firstSessionTarget
                                          : project          ? project->projectDirectory()
                                                             : FilePath();
             m_controller->createNewSession(sessionPath);
@@ -517,27 +517,18 @@ void AcpChatTab::showSessionPicker()
     if (const Project *startup = ProjectManager::startupProject())
         picker->setCurrentProjectDir(startup->projectDirectory());
 
-    QList<SessionPickerWidget::NewSessionTarget> targets;
+    FilePaths targets;
     IDocument *currentDocument = currentNonTemporaryDocument();
     Project *projectForCurrentDocument = currentDocument ? ProjectManager::projectForFile(
                                                                currentDocument->filePath())
                                                          : nullptr;
-    if (currentDocument && !projectForCurrentDocument) {
-        SessionPickerWidget::NewSessionTarget t;
-        t.label = currentDocument->displayName();
-        t.cwd = currentDocument->filePath().parentDir();
-        t.tooltip = t.cwd.toUserOutput();
-        targets.append(t);
-    }
+    if (currentDocument && !projectForCurrentDocument)
+        targets.append(currentDocument->filePath().parentDir());
     for (const Project *p : ProjectManager::projects()) {
-        SessionPickerWidget::NewSessionTarget t;
-        t.label = p->displayName();
-        t.cwd = p->projectDirectory();
-        t.tooltip = p->projectDirectory().toUserOutput();
         if (p == projectForCurrentDocument)
-            targets.prepend(t);
+            targets.prepend(p->projectDirectory());
         else
-            targets.append(t);
+            targets.append(p->projectDirectory());
     }
     picker->setNewSessionTargets(targets);
     picker->setCanDeleteSessions(m_controller->supportsSessionDelete());

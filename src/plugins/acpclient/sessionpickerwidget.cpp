@@ -238,7 +238,7 @@ void SessionPickerWidget::removeSession(const QString &sessionId)
     updateEmptyState();
 }
 
-void SessionPickerWidget::setNewSessionTargets(const QList<NewSessionTarget> &targets)
+void SessionPickerWidget::setNewSessionTargets(const Utils::FilePaths &targets)
 {
     m_newSessionTargets = targets;
 
@@ -350,9 +350,9 @@ void SessionPickerWidget::ensureProjectGroups()
     if (!m_currentGroupKey.isEmpty())
         ensureGroup(m_currentGroupKey);
 
-    for (const NewSessionTarget &t : std::as_const(m_newSessionTargets)) {
-        if (!t.cwd.isEmpty())
-            ensureGroup(t.cwd.toUserOutput());
+    for (const Utils::FilePath &cwd : std::as_const(m_newSessionTargets)) {
+        if (!cwd.isEmpty())
+            ensureGroup(cwd.toUserOutput());
     }
 }
 
@@ -418,7 +418,7 @@ void SessionPickerWidget::setResolved(const QString &)
     deleteLater();
 }
 
-std::optional<SessionPickerWidget::NewSessionTarget> SessionPickerWidget::firstNewSessionTarget() const
+std::optional<Utils::FilePath> SessionPickerWidget::firstNewSessionTarget() const
 {
     return m_newSessionTargets.isEmpty() ? std::nullopt
                                          : std::make_optional(m_newSessionTargets.first());
