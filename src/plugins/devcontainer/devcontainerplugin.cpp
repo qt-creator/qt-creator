@@ -147,7 +147,7 @@ private:
     Guard m_projectTreeUpdateGuard;
 };
 
-Id instantiateInfoBarId(Project *project)
+static Id instantiateInfoBarId(Project *project)
 {
     return Id("DevContainer.Instantiate.InfoBar.")
         .withSuffix(project->projectDirectory().toUrlishString());

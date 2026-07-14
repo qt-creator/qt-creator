@@ -37,7 +37,7 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 
-Q_LOGGING_CATEGORY(devContainerDeviceLog, "qtc.devcontainer.device", QtWarningMsg)
+static Q_LOGGING_CATEGORY(devContainerDeviceLog, "qtc.devcontainer.device", QtWarningMsg)
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
