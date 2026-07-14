@@ -27,12 +27,12 @@ using namespace TextEditor;
 
 namespace Nim {
 
-bool isIdentifierChar(QChar c)
+static bool isIdentifierChar(QChar c)
 {
     return c.isLetterOrNumber() || c == QLatin1Char('_');
 }
 
-bool isActivationChar(QChar c)
+static bool isActivationChar(QChar c)
 {
     static const QSet<QChar> chars {QLatin1Char('.'), QLatin1Char('(')};
     return chars.contains(c);
