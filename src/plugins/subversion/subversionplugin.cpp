@@ -177,6 +177,16 @@ public:
 
     // Changes view
     bool supportsChangesView() const final { return true; }
+    bool commitFiles(const FilePath &repository, const QStringList &relativePaths,
+                     const QString &message) final
+    {
+        const QString messageFile = saveCommitMessage(message);
+        if (messageFile.isEmpty())
+            return false;
+        const bool ok = subversionClient().doCommit(repository, relativePaths, messageFile, {});
+        QFile::remove(messageFile);
+        return ok;
+    }
     void requestRepositoryStatus(const FilePath &repository) final;
     FilePaths subRepositories(const FilePath &repository) final
     {
