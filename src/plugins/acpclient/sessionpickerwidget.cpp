@@ -215,10 +215,11 @@ SessionPickerWidget::SessionPickerWidget(QWidget *parent)
     m_bodyLayout->addLayout(m_newSessionContainer);
 }
 
-void SessionPickerWidget::setCurrentProjectDir(const Utils::FilePath &dir)
+void SessionPickerWidget::setDefaultTarget(const QString &headerText, const Utils::FilePath &dir)
 {
-    m_currentProjectDir = dir;
-    m_currentGroupKey = dir.isEmpty() ? QString() : dir.toUserOutput();
+    m_defaultHeaderText = headerText;
+    m_defaultTargetDir = dir;
+    m_defaultGroupKey = dir.isEmpty() ? QString() : dir.toUserOutput();
 }
 
 void SessionPickerWidget::setCanDeleteSessions(bool canDelete)
@@ -272,7 +273,7 @@ void SessionPickerWidget::requestCustomDirectorySession()
         return;
 
     const Utils::FilePath dir = Utils::FileUtils::getExistingDirectory(
-        Tr::tr("Choose Working Directory"), m_currentProjectDir);
+        Tr::tr("Choose Working Directory"), m_defaultTargetDir);
     if (dir.isEmpty())
         return;
 
@@ -329,7 +330,7 @@ void SessionPickerWidget::clearGroups()
 
 void SessionPickerWidget::updateEmptyState()
 {
-    const bool hasCurrent = !m_currentGroupKey.isEmpty() && m_groups.contains(m_currentGroupKey);
+    const bool hasCurrent = !m_defaultGroupKey.isEmpty() && m_groups.contains(m_defaultGroupKey);
     const bool hasOthers = m_groups.size() > (hasCurrent ? 1 : 0);
     m_emptyLabel->setVisible(m_groups.isEmpty());
     m_bottomSeparator->setVisible(hasCurrent || hasOthers);
@@ -339,7 +340,7 @@ void SessionPickerWidget::updateEmptyState()
 void SessionPickerWidget::updateCollapseState()
 {
     for (auto it = m_groups.begin(); it != m_groups.end(); ++it) {
-        if (it.key() != m_currentGroupKey || m_currentGroupKey.isEmpty())
+        if (it.key() != m_defaultGroupKey || m_defaultGroupKey.isEmpty())
             it.value().frame->setCollapsed(true);
     }
 }
@@ -347,8 +348,8 @@ void SessionPickerWidget::updateCollapseState()
 void SessionPickerWidget::ensureProjectGroups()
 {
     // Current project first so it lands in the "current" container.
-    if (!m_currentGroupKey.isEmpty())
-        ensureGroup(m_currentGroupKey);
+    if (!m_defaultGroupKey.isEmpty())
+        ensureGroup(m_defaultGroupKey);
 
     for (const Utils::FilePath &cwd : std::as_const(m_newSessionTargets)) {
         if (!cwd.isEmpty())
@@ -362,17 +363,17 @@ SessionPickerWidget::Group &SessionPickerWidget::ensureGroup(const QString &cwd)
     if (it != m_groups.end())
         return it.value();
 
-    const bool isCurrent = !m_currentGroupKey.isEmpty() && cwd == m_currentGroupKey;
+    const bool isCurrent = !m_defaultGroupKey.isEmpty() && cwd == m_defaultGroupKey;
     QString headerText;
     if (isCurrent)
-        headerText = Tr::tr("Current Project (%1)").arg(cwd);
+        headerText = m_defaultHeaderText;
     else if (cwd.isEmpty())
         headerText = Tr::tr("(No Working Directory)");
     else
         headerText = cwd;
 
     Group group;
-    group.cwd = isCurrent ? m_currentProjectDir : Utils::FilePath::fromUserInput(cwd);
+    group.cwd = isCurrent ? m_defaultTargetDir : Utils::FilePath::fromUserInput(cwd);
     group.frame = new CollapsibleFrame(this);
     group.frame->setFrameShape(QFrame::NoFrame);
     group.frame->headerLayout()->addWidget(createGroupHeaderLabel(headerText, group.frame), 1);
@@ -418,10 +419,9 @@ void SessionPickerWidget::setResolved(const QString &)
     deleteLater();
 }
 
-std::optional<Utils::FilePath> SessionPickerWidget::firstNewSessionTarget() const
+Utils::FilePath SessionPickerWidget::defaultTarget() const
 {
-    return m_newSessionTargets.isEmpty() ? std::nullopt
-                                         : std::make_optional(m_newSessionTargets.first());
+    return m_defaultTargetDir;
 }
 
 void SessionPickerWidget::addSessionItem(const SessionInfo &session)

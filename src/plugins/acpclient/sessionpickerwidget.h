@@ -26,7 +26,7 @@ class SessionPickerWidget : public CollapsibleFrame
 public:
     explicit SessionPickerWidget(QWidget *parent = nullptr);
 
-    void setCurrentProjectDir(const Utils::FilePath &dir);
+    void setDefaultTarget(const QString &headerText, const Utils::FilePath &dir);
     void setNewSessionTargets(const Utils::FilePaths &targets);
 
     void setCanDeleteSessions(bool canDelete);
@@ -39,7 +39,7 @@ public:
 
     void setResolved(const QString &title);
 
-    std::optional<Utils::FilePath> firstNewSessionTarget() const;
+    Utils::FilePath defaultTarget() const;
 
 signals:
     void sessionSelected(const QString &sessionId, const Utils::FilePath &cwd);
@@ -72,12 +72,13 @@ private:
     QVBoxLayout *m_currentGroupContainer = nullptr;
     QVBoxLayout *m_otherGroupsContainer = nullptr;
     QHash<QString, Group> m_groups;
-    QString m_currentGroupKey;
+    Utils::FilePath m_defaultTargetDir;
+    QString m_defaultHeaderText;
+    QString m_defaultGroupKey;
     QFrame *m_bottomSeparator = nullptr;
     QFrame *m_middleSeparator = nullptr;
     QLabel *m_emptyLabel = nullptr;
     QPushButton *m_loadMoreButton = nullptr;
-    Utils::FilePath m_currentProjectDir;
     QString m_nextCursor;
     bool m_resolved = false;
 };

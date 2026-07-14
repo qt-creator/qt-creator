@@ -285,16 +285,15 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         if (m_activePicker) {
             QObject::disconnect(m_controller, &AcpChatController::sessionsListed,
                                 m_activePicker, nullptr);
-            const std::optional<FilePath> firstSessionTarget
-                = m_activePicker->firstNewSessionTarget();
+            const FilePath firstSessionTarget = m_activePicker->defaultTarget();
             m_activePicker->deleteLater();
             m_activePicker = nullptr;
             m_sessionPending = true;
             m_pendingPrompt = text;
             const Project *project = ProjectManager::startupProject();
-            const FilePath sessionPath = firstSessionTarget ? *firstSessionTarget
-                                         : project          ? project->projectDirectory()
-                                                            : FilePath();
+            const FilePath sessionPath = !firstSessionTarget.isEmpty() ? firstSessionTarget
+                                         : project                     ? project->projectDirectory()
+                                                                       : FilePath();
             m_controller->createNewSession(sessionPath);
             emit titleChanged();
             return;
@@ -514,22 +513,24 @@ void AcpChatTab::showSessionPicker()
     m_chatPanel->setSendEnabled(true);
     connect(picker, &QObject::destroyed, this, [this] { m_activePicker = nullptr; });
 
-    if (const Project *startup = ProjectManager::startupProject())
-        picker->setCurrentProjectDir(startup->projectDirectory());
 
     FilePaths targets;
     IDocument *currentDocument = currentNonTemporaryDocument();
     Project *projectForCurrentDocument = currentDocument ? ProjectManager::projectForFile(
                                                                currentDocument->filePath())
                                                          : nullptr;
-    if (currentDocument && !projectForCurrentDocument)
-        targets.append(currentDocument->filePath().parentDir());
-    for (const Project *p : ProjectManager::projects()) {
-        if (p == projectForCurrentDocument)
-            targets.prepend(p->projectDirectory());
-        else
-            targets.append(p->projectDirectory());
+    if (projectForCurrentDocument) {
+        const FilePath dir = projectForCurrentDocument->projectDirectory();
+        picker->setDefaultTarget(Tr::tr("Current Project (%1)").arg(dir.toUserOutput()), dir);
+    } else if (currentDocument) {
+        const FilePath dir = currentDocument->filePath().parentDir();
+        picker->setDefaultTarget(Tr::tr("Current Document (%1)").arg(dir.toUserOutput()), dir);
+    } else if (const Project *startup = ProjectManager::startupProject()) {
+        const FilePath dir = startup->projectDirectory();
+        picker->setDefaultTarget(Tr::tr("Startup Project (%1)").arg(dir.toUserOutput()), dir);
     }
+    for (const Project *p : ProjectManager::projects())
+        targets.append(p->projectDirectory());
     picker->setNewSessionTargets(targets);
     picker->setCanDeleteSessions(m_controller->supportsSessionDelete());
 
