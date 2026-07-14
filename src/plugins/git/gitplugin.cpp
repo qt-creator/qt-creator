@@ -49,6 +49,7 @@
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
+#include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -2440,6 +2441,7 @@ private slots:
     void testGitRemote_data();
     void testGitRemote();
     void testInlineDiffFile();
+    void testInlineDiffConflictedFile();
 };
 
 void GitTest::testStatusParsing_data()
@@ -2806,6 +2808,50 @@ void GitTest::testInlineDiffFile()
     buttons.first()->click();
     QTRY_VERIFY(gitClient().vcsSynchronousExec(repo, {"diff", "--cached"})
                     .cleanedStdOut().contains("+five and more"));
+
+    Core::IDocument *sourceDocument = Core::DocumentModel::documentForFilePath(file);
+    QVERIFY(sourceDocument);
+    QVERIFY(EditorManager::closeDocuments({sourceDocument}, false));
+}
+
+void GitTest::testInlineDiffConflictedFile()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    const FilePath file = repo / "file.txt";
+    QVERIFY(file.writeFileContents("base\n"));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"commit", "-m", "initial"}));
+    QVERIFY(runGit({"checkout", "-b", "side"}));
+    QVERIFY(file.writeFileContents("side\n"));
+    QVERIFY(runGit({"commit", "-am", "side"}));
+    QVERIFY(runGit({"checkout", "-"}));
+    QVERIFY(file.writeFileContents("local\n"));
+    QVERIFY(runGit({"commit", "-am", "local"}));
+    QVERIFY(!runGit({"merge", "side"})); // conflicts
+
+    // an unmerged path has no stage 0; the diff compares against "ours" and
+    // must not report an unavailable baseline
+    gitClient().inlineDiffFile(repo, "file.txt");
+    QTRY_COMPARE(EditorManager::currentEditor()->document()->displayName(),
+                 QString("file.txt (Unstaged)"));
+    Core::IEditor *diffEditor = EditorManager::currentEditor();
+    TextEditor::TextEditorWidget *diffWidget = DiffEditor::inlineDiffEditorWidget(diffEditor);
+    QVERIFY(diffWidget);
+    // the conflict markers differ from "ours", so a hunk with controls shows
+    // up once the baseline arrived and the diff is computed
+    QTRY_VERIFY(!diffWidget->findChildren<QAbstractButton *>().isEmpty());
+    QVERIFY(!diffEditor->document()->infoBar()->containsInfo(
+        Utils::Id("DiffEditor.InlineDiff.BaselineError")));
 
     Core::IDocument *sourceDocument = Core::DocumentModel::documentForFilePath(file);
     QVERIFY(sourceDocument);

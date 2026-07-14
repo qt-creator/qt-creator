@@ -1690,7 +1690,8 @@ DiffEditor::InlineDiffBaseline GitClient::revisionBaseline(const FilePath &worki
              RunFlag::NoOutput | RunFlag::ForceCLocale,
              {},
              gitClient().encoding(EncodingSource, sourceFile),
-             [callback](const CommandResult &result) {
+             [workingDirectory, ref, relativeFile, sourceFile,
+              callback](const CommandResult &result) {
                  if (result.result() == ProcessResult::FinishedWithSuccess) {
                      callback(result.cleanedStdOut());
                      return;
@@ -1702,9 +1703,27 @@ DiffEditor::InlineDiffBaseline GitClient::revisionBaseline(const FilePath &worki
                  if (error.contains("does not exist in")
                      || error.contains("exists on disk, but not in")) {
                      callback(QString());
-                 } else {
-                     callback(Utils::ResultError(error));
+                     return;
                  }
+                 // an unmerged path has no stage 0 in the index; compare
+                 // against "ours" (stage 2), which is what the working tree
+                 // is being resolved against
+                 if (ref.isEmpty() && error.contains("not at stage 0")) {
+                     gitClient().enqueueCommand(
+                         {workingDirectory,
+                          {"show", ":2:" + relativeFile},
+                          RunFlag::NoOutput | RunFlag::ForceCLocale,
+                          {},
+                          gitClient().encoding(EncodingSource, sourceFile),
+                          [callback](const CommandResult &oursResult) {
+                              if (oursResult.result() == ProcessResult::FinishedWithSuccess)
+                                  callback(oursResult.cleanedStdOut());
+                              else
+                                  callback(Utils::ResultError(oursResult.cleanedStdErr()));
+                          }});
+                     return;
+                 }
+                 callback(Utils::ResultError(error));
              }});
     };
     if (!ref.isEmpty()) {
