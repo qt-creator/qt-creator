@@ -63,7 +63,7 @@ private:
     void clearGroups();
     void updateCollapseState();
     void ensureProjectGroups();
-    Group &ensureGroup(const QString &cwd);
+    Group &ensureGroup(const Utils::FilePath &cwd);
 
     bool m_canDeleteSessions = false;
     QHash<QString, QWidget *> m_sessionItems;
@@ -71,10 +71,9 @@ private:
     QVBoxLayout *m_newSessionContainer = nullptr;
     QVBoxLayout *m_currentGroupContainer = nullptr;
     QVBoxLayout *m_otherGroupsContainer = nullptr;
-    QHash<QString, Group> m_groups;
+    QHash<Utils::FilePath, Group> m_groups;
     Utils::FilePath m_defaultTargetDir;
     QString m_defaultHeaderText;
-    QString m_defaultGroupKey;
     QFrame *m_bottomSeparator = nullptr;
     QFrame *m_middleSeparator = nullptr;
     QLabel *m_emptyLabel = nullptr;
