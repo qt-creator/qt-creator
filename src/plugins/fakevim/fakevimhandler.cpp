@@ -263,7 +263,7 @@ struct CursorPosition
     int column = -1; // Position on line.
 };
 
-QDebug operator<<(QDebug ts, const CursorPosition &pos)
+[[maybe_unused]] static QDebug operator<<(QDebug ts, const CursorPosition &pos)
 {
     return ts << "(line: " << pos.line << ", column: " << pos.column << ")";
 }
@@ -338,7 +338,7 @@ struct Column
     int logical; // Column on screen.
 };
 
-QDebug operator<<(QDebug ts, const Column &col)
+[[maybe_unused]] static QDebug operator<<(QDebug ts, const Column &col)
 {
     return ts << "(p: " << col.physical << ", l: " << col.logical << ")";
 }
@@ -352,7 +352,7 @@ struct Register
     RangeMode rangemode = RangeCharMode;
 };
 
-QDebug operator<<(QDebug ts, const Register &reg)
+[[maybe_unused]] static QDebug operator<<(QDebug ts, const Register &reg)
 {
     return ts << reg.contents;
 }
@@ -969,7 +969,7 @@ bool Range::isValid() const
     return beginPos >= 0 && endPos >= 0;
 }
 
-QDebug operator<<(QDebug ts, const Range &range)
+static QDebug operator<<(QDebug ts, const Range &range)
 {
     return ts << '[' << range.beginPos << ',' << range.endPos << ']';
 }
@@ -980,12 +980,12 @@ bool ExCommand::matches(const QString &min, const QString &full) const
     return cmd.startsWith(min) && full.startsWith(cmd);
 }
 
-QDebug operator<<(QDebug ts, const ExCommand &cmd)
+static QDebug operator<<(QDebug ts, const ExCommand &cmd)
 {
     return ts << cmd.cmd << ' ' << cmd.args << ' ' << cmd.range;
 }
 
-QString quoteUnprintable(const QString &ba)
+static QString quoteUnprintable(const QString &ba)
 {
     QString res;
     for (int i = 0, n = ba.size(); i != n; ++i) {
@@ -1277,7 +1277,7 @@ static SubMode changeDeleteYankModeFromInput(const Input &input)
     return NoSubMode;
 }
 
-QString dotCommandFromSubMode(SubMode submode)
+static QString dotCommandFromSubMode(SubMode submode)
 {
     if (submode == ChangeSubMode)
         return QLatin1String("c");
@@ -1315,7 +1315,7 @@ QString dotCommandFromSubMode(SubMode submode)
     return QString();
 }
 
-QDebug operator<<(QDebug ts, const Input &input) { return input.dump(ts); }
+[[maybe_unused]] static QDebug operator<<(QDebug ts, const Input &input) { return input.dump(ts); }
 
 class Inputs : public QVector<Input>
 {

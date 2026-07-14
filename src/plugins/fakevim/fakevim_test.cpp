@@ -47,9 +47,9 @@ using namespace TextEditor;
 
 namespace FakeVim::Internal {
 
-QString _(const char *c) { return QLatin1String(c); }
-QString _(const QByteArray &c) { return QLatin1String(c); }
-QString _(const QString &c) { return c; }
+static QString _(const char *c) { return QLatin1String(c); }
+static QString _(const QByteArray &c) { return QLatin1String(c); }
+static QString _(const QString &c) { return c; }
 
 class FakeVimTester final : public QObject
 {
