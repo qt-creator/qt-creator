@@ -108,7 +108,7 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
     }
 }
 
-void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
+static void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
 {
     for (const QMakeAssignment &qa : list)
         qCDebug(MakeFileParse::logging()) << "    " << qa.variable << qa.op << qa.value;
