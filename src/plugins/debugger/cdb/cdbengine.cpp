@@ -448,7 +448,6 @@ void CdbEngine::handleInitialSessionIdle()
     const QStringList commands = rp.commandsAfterConnect();
     for (const QString &command : commands)
         runCommand({command, NoFlags});
-    //operateByInstructionTriggered(operatesByInstruction());
     // QmlCppEngine expects the QML engine to be connected before any breakpoints are hit
     // (attemptBreakpointSynchronization() will be directly called then)
     if (rp.breakOnMain()) {

@@ -542,7 +542,7 @@ public:
     virtual bool companionPreventsActions() const;
 
     bool operatesByInstruction() const;
-    virtual void operateByInstructionTriggered(bool on); // FIXME: Remove.
+    void operateByInstructionTriggered(bool on);
 
     DebuggerState state() const;
     bool isDying() const;
