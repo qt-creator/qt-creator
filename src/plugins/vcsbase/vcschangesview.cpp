@@ -404,6 +404,21 @@ public:
     void notifySizeChanged(const QModelIndex &index) { emit sizeHintChanged(index); }
 };
 
+class ChangesDelegate : public QStyledItemDelegate
+{
+public:
+    explicit ChangesDelegate(QObject *parent = nullptr)
+        : QStyledItemDelegate(parent)
+    {
+    }
+
+    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const final
+    {
+        QStyledItemDelegate::initStyleOption(option, index);
+        option->palette.setColor(QPalette::HighlightedText, option->palette.color(QPalette::Text));
+    }
+};
+
 class ChangesView final : public QWidget
 {
 public:
@@ -476,6 +491,7 @@ ChangesView::ChangesView()
         requestRefresh(false);
     });
 
+    m_treeView->setItemDelegate(new ChangesDelegate(m_treeView));
     m_treeView->setHeaderHidden(true);
     m_treeView->setModel(m_model);
     m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
