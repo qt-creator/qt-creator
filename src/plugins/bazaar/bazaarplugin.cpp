@@ -155,6 +155,15 @@ public:
 
     // Changes view
     bool supportsChangesView() const final { return true; }
+    bool commitFiles(const Utils::FilePath &repository, const QStringList &relativePaths,
+                     const QString &message) final
+    {
+        const QString messageFile = saveCommitMessage(message);
+        if (messageFile.isEmpty())
+            return false;
+        m_client.commit(repository, relativePaths, messageFile, {});
+        return true;
+    }
     void requestRepositoryStatus(const Utils::FilePath &repository) final
     {
         m_client.requestStatus(repository,
