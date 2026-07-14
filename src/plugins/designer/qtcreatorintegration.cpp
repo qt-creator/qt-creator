@@ -68,7 +68,7 @@ using namespace Utils;
 
 namespace Designer::Internal {
 
-Q_LOGGING_CATEGORY(log, "qtc.designer", QtWarningMsg);
+static Q_LOGGING_CATEGORY(log, "qtc.designer", QtWarningMsg);
 
 static QString msgClassNotFound(const QString &uiClassName, const QList<Document::Ptr> &docList)
 {
@@ -223,7 +223,7 @@ static bool inherits(const Overview &o, const Class *klass, const QString &baseC
     return false;
 }
 
-QString fullyQualifiedName(const LookupContext &context, const Name *name, Scope *scope)
+static QString fullyQualifiedName(const LookupContext &context, const Name *name, Scope *scope)
 {
     if (!name || !scope)
         return QString();

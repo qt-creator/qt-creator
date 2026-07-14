@@ -110,12 +110,12 @@ private:
     Overview m_overview;
 };
 
-bool documentContainsFunctionDefinition(const Document::Ptr &document, const QString &function)
+static bool documentContainsFunctionDefinition(const Document::Ptr &document, const QString &function)
 {
     return DocumentContainsFunctionDefinition()(document->globalNamespace(), function);
 }
 
-bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
+static bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
                                                const QString &declaration)
 {
     return DocumentContainsDeclaration()(document->globalNamespace(), declaration);
