@@ -22,7 +22,7 @@ void QmlPreviewFileOnTargetFinder::setBuildConfiguration(ProjectExplorer::BuildC
     m_buildConfig = bc;
 }
 
-QString resourceNodePath(const ProjectExplorer::Node *node)
+static QString resourceNodePath(const ProjectExplorer::Node *node)
 {
     if (auto resourceNode = dynamic_cast<const ProjectExplorer::ResourceFileNode *>(node))
         return ":" + resourceNode->qrcPath();
