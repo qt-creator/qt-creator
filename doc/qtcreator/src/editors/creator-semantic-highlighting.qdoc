@@ -30,7 +30,7 @@
     \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} and select
     \uicontrol {Reset Remembered Definitions}.
 
-    \image {qtcreator-syntax-highlighter.png} {Generic Highlighter tab in Text Editor preferences}
+    \image {qtcreator-syntax-highlighter.webp} {Generic Highlighter tab in Text Editor preferences}
 
     \section2 Download definitions
 
@@ -43,18 +43,17 @@
 
     \section2 Ignore file patterns
 
-    To suppress the message for a particular file pattern, go to \preferences >
-    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} and add the
-    pattern to \uicontrol {Ignored file patterns}, separated by a comma.
+    To suppress the download prompt for particular files, go to \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} and add a
+    wildcard file pattern to \uicontrol {Skip update check for files
+    matching}, separated by a comma.
 
-    To ignore files according to their extension, add:
-    \c {\A(?:(?s:[^/\\]*\.<extension>))\z}
+    To turn off syntax highlighting entirely for particular files, add a
+    wildcard file pattern to \uicontrol {Skip syntax highlighting for files
+    matching} instead.
 
-    To ignore files according to their filename, add:
-    \c {\A(?:(?s:<string>[^/\\]*))\z}
-
-    For example:
-    \c {\A(?:[^/\\]*\.txt)\z,\A(?:LICENSE[^/\\]*)\z,\A(?:README)\z,\A(?:qmldir)\z}
+    For example, to skip text files, license files, and README files:
+    \c {*.txt, LICENSE*, README}
 
     \section2 Add your own definitions
 
@@ -64,7 +63,62 @@
     To apply the changes you make to the definition files, select
     \uicontrol {Reload Definitions}.
 
-    \sa {Edit code}{How to: Edit code}, {Editing code}
+    \sa {Edit code}{How to: Edit code}, {Editing code}, {Generic Highlighter}
+*/
+
+/*!
+    \page creator-preferences-text-editor-highlighter.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-editors
+
+    \title Generic Highlighter
+
+    \brief Manage generic syntax highlight definitions and choose which files
+    to exclude from highlighting.
+
+    \QC uses the \l {KSyntaxHighlighting} engine with Kate syntax definitions
+    to highlight code in files that do not have dedicated support, such as
+    Python or shell script files. To manage the highlight definitions that
+    this engine uses, select \preferences > \uicontrol {Text Editor} >
+    \uicontrol {Generic Highlighter}.
+
+    \image {qtcreator-syntax-highlighter.webp} {Generic Highlighter tab in Text Editor preferences}
+
+    The following table describes the preferences you can set.
+
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Download Definitions}
+        \li Download missing and update existing syntax definition files.
+    \row
+        \li \uicontrol {User Highlight Definition Files}
+        \li Set the folder where \QC looks for your own highlight definition
+            files, in addition to the downloaded ones.
+    \row
+        \li \uicontrol {Reload Definitions}
+        \li Reload definition files that were modified outside \QC.
+    \row
+        \li \uicontrol {Reset Remembered Definitions}
+        \li Reset the highlight definitions that \QC remembered for files
+            that can be associated with more than one definition. See
+            \l{Download highlight definitions}.
+    \row
+        \li \uicontrol {Skip update check for files matching}
+        \li List wildcard-aware file patterns, separated by commas, for which
+            \QC does not prompt you to download a missing highlight
+            definition.
+    \row
+        \li \uicontrol {Skip syntax highlighting for files matching}
+        \li List wildcard-aware file patterns, separated by commas, for which
+            \QC does not apply generic syntax highlighting at all.
+    \endtable
+
+    \sa {Configure editors}{How to: Configure editors}, {Configuring editors},
+    {Download highlight definitions}
 */
 
 /*!
