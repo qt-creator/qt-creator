@@ -101,6 +101,17 @@ Tasks CMakeProject::projectIssues(const Kit *k) const
     const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
     if (!presetItem.isNull() && !m_presetsData.havePresets)
         result << BuildSystemTask(Task::Error, "Kit is not suitable for CMake projects that don't use presets.");
+    else if (!presetItem.isNull() && m_presetsData.havePresets) {
+        const auto configurePresets = presetsData().configurePresets;
+        const QList<Id> configurePresetKitIds
+            = Utils::transform(configurePresets, [project = projectFilePath()](const auto &preset) {
+                  return CMakeConfigurationKitAspect::cmakePresetKitId(
+                      project.toSettings().toString(), preset.name);
+              });
+
+        if (!configurePresetKitIds.contains(k->id()))
+            result << BuildSystemTask(Task::Error, "Kit was created for a different CMake project.");
+    }
 
     result.append(m_issues);
     return result;

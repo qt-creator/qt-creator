@@ -460,7 +460,7 @@ void CMakeManager::reloadCMakePresets()
 
     const auto presetKitId = [project](const QString &presetName) {
         return CMakeConfigurationKitAspect::cmakePresetKitId(
-            project->projectFilePath().path(), presetName);
+            project->projectFilePath().toSettings().toString(), presetName);
     };
 
     const QSet<Id> oldPresets = Utils::transform<QSet>(

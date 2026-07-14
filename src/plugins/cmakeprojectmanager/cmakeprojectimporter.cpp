@@ -742,11 +742,7 @@ bool CMakeProjectImporter::filter(ProjectExplorer::Kit *k) const
     if (presetConfigItem.isNull())
         return false;
 
-    const QString presetName = presetConfigItem.expandedValue(k);
-    const auto configurePresets = m_project->presetsData().configurePresets;
-    return std::find_if(configurePresets.cbegin(), configurePresets.cend(),
-                        [&presetName](const auto &preset) { return presetName == preset.name; })
-           != configurePresets.cend();
+    return true;
 }
 
 static Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
@@ -1434,7 +1430,7 @@ void CMakeProjectImporter::createKitsFromPresets()
         }
 
         const Id kitId = CMakeConfigurationKitAspect::cmakePresetKitId(
-            projectFilePath().path(), data.cmakePreset);
+            projectFilePath().toSettings().toString(), data.cmakePreset);
 
         Kit *kit = KitManager::kit(kitId);
         if (!kit || !kit->isValid()) {
@@ -1444,7 +1440,8 @@ void CMakeProjectImporter::createKitsFromPresets()
 
                     kit->setValue(Constants::KIT_BUILDINFO_LIST, QVariant::fromValue(buildInfos));
                     applyDirectoryDataToKit(data, kit);
-                    kit->setDetectionSource({DetectionSource::Temporary, "CMakePresets"});
+                    kit->setDetectionSource(
+                        {DetectionSource::Temporary, Constants::CMAKE_KIT_DETECTION_SOURCE_ID});
 
                     kit->setup();
                     kit->fix();
