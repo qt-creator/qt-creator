@@ -117,7 +117,7 @@ inline void groupPerSubprojectAndSection(
     }
 }
 
-void makeTree(Utils::TreeItem *root,
+static void makeTree(Utils::TreeItem *root,
               const QMap<QString, std::vector<CancellableOption *>> &perSectioOptions)
 {
     std::for_each(perSectioOptions.constKeyValueBegin(),

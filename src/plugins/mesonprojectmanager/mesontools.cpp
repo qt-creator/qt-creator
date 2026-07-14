@@ -78,14 +78,14 @@ QStringList options_cat(const auto &...args)
     return result;
 }
 
-QStringList make_verbose(QStringList list, bool verbose)
+static QStringList make_verbose(QStringList list, bool verbose)
 {
     if (verbose)
         list.append("--verbose");
     return list;
 }
 
-QStringList make_quiet(QStringList list, bool quiet)
+static QStringList make_quiet(QStringList list, bool quiet)
 {
     if (quiet)
         list.append("--quiet");

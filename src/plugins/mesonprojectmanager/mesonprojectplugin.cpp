@@ -37,7 +37,7 @@ public:
     }
 };
 
-void setupMesonTools()
+static void setupMesonTools()
 {
     static MesonToolAspectFactory theMesonToolAspectFactory;
 }

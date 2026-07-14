@@ -306,7 +306,7 @@ static QString mesonBuildTypeDisplayName(MesonBuildType type)
     }
 }
 
-BuildInfo createBuildInfo(MesonBuildType type)
+static BuildInfo createBuildInfo(MesonBuildType type)
 {
     BuildInfo bInfo;
     bInfo.buildSystemName = MesonBuildSystem::name();

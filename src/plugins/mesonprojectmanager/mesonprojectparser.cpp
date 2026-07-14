@@ -575,7 +575,7 @@ RawProjectParts MesonProjectParser::buildProjectParts(
     return parts;
 }
 
-bool sourceGroupMatchesKit(const KitData &kit, const Target::SourceGroup &group)
+static bool sourceGroupMatchesKit(const KitData &kit, const Target::SourceGroup &group)
 {
     if (group.language == "c")
         return kit.cCompilerPath == group.compiler[0];
