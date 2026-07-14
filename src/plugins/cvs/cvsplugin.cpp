@@ -221,6 +221,17 @@ public:
     bool supportsAutomaticStatusUpdates() const final { return false; }
     void requestRepositoryStatus(const FilePath &repository) final;
     void revertChangedFile(const FilePath &repository, const QString &relativePath) final;
+    bool commitFiles(const FilePath &repository, const QStringList &relativePaths,
+                     const QString &message) final
+    {
+        const QString messageFile = saveCommitMessage(message);
+        if (messageFile.isEmpty())
+            return false;
+        const QStringList args = QStringList{"commit", "-F", messageFile} + relativePaths;
+        const CommandResult response = runCvs(repository, args, RunFlag::ShowStdOut, {}, 10);
+        QFile::remove(messageFile);
+        return response.result() == ProcessResult::FinishedWithSuccess;
+    }
 
     ///
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
