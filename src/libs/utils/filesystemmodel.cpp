@@ -3,6 +3,7 @@
 
 #include "filesystemmodel.h"
 
+#include "dropsupport.h"
 #include "filepathinfo.h"
 #include "fsengine/fileiconprovider.h"
 #include "utility.h"
@@ -698,7 +699,22 @@ Qt::ItemFlags FileSystemModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return Qt::NoItemFlags;
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+}
+
+QStringList FileSystemModel::mimeTypes() const
+{
+    return {u"text/uri-list"_s};
+}
+
+QMimeData *FileSystemModel::mimeData(const QModelIndexList &indexes) const
+{
+    auto *data = new DropMimeData;
+    for (const QModelIndex &index : indexes) {
+        if (index.column() == NameColumn)
+            data->addFile(filePath(index));
+    }
+    return data;
 }
 
 QVariant FileSystemModel::data(const QModelIndex &index, int role) const

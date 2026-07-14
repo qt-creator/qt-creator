@@ -9,6 +9,10 @@
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
 
+QT_BEGIN_NAMESPACE
+class QMimeData;
+QT_END_NAMESPACE
+
 #include <memory>
 
 namespace Utils {
@@ -60,6 +64,8 @@ public:
     bool canFetchMore(const QModelIndex &parent) const override;
     void fetchMore(const QModelIndex &parent) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+    QStringList mimeTypes() const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
 signals:
     void rootPathChanged(const Utils::FilePath &newPath);
