@@ -140,7 +140,7 @@ public:
     void attachTo(QWidget *);
 
     void addItem(I item);
-    void addItems(std::initializer_list<I> items);
+    void addItems(std::initializer_list<I> items, bool addEmpty = true);
     void addRow(std::initializer_list<I> items);
     void addLayoutItem(const LayoutItem &item);
 
@@ -162,6 +162,10 @@ public:
     bool useFormAlignment = false;
 
     std::vector<LayoutItem> pendingItems;
+
+    // While set, empty items (e.g. a null widget) are dropped instead of
+    // taking up a cell. Toggled by addItems() with addEmpty == false.
+    bool skipEmptyItems = false;
 };
 
 class QTCREATOR_UTILS_EXPORT Column : public Layout

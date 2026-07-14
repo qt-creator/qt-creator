@@ -516,6 +516,9 @@ void Layout::addItem(I item)
 
 void Layout::addLayoutItem(const LayoutItem &item)
 {
+    if (item.empty && skipEmptyItems)
+        return;
+
     if (QBoxLayout *lt = asBox())
         addItemToBoxLayout(lt, item);
     else if (FlowLayout *lt = asFlow())
@@ -527,10 +530,13 @@ void Layout::addLayoutItem(const LayoutItem &item)
 /*!
     Adds the layout items \a items as sub items.
  */
-void Layout::addItems(std::initializer_list<I> items)
+void Layout::addItems(std::initializer_list<I> items, bool addEmpty)
 {
+    const bool prevSkip = skipEmptyItems;
+    skipEmptyItems = !addEmpty;
     for (const I &item : items)
         item.apply(this);
+    skipEmptyItems = prevSkip;
 }
 
 /*!

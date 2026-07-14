@@ -16,10 +16,6 @@ namespace Utils {
 
 void EnvironmentChangesAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    auto label = createLabel();
-    if (label)
-        parent.addItem(label);
-
     auto changesLabel = new ElidingLabel();
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     changesLabel->setSizePolicy(sizePolicy);
@@ -31,18 +27,19 @@ void EnvironmentChangesAspect::addToLayoutImpl(Layouting::Layout &parent)
     updateChangesLabel();
     connect(this, &EnvironmentChangesAspect::volatileValueChanged, this, updateChangesLabel);
     registerSubWidget(changesLabel);
-    parent.addItem(changesLabel);
 
     QPushButton *changeButton = new QPushButton(Tr::tr("Change..."));
     changeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     registerSubWidget(changeButton);
-    parent.addItem(changeButton);
     connect(changeButton, &QPushButton::clicked, this, [changeButton, this]() {
         std::optional<EnvironmentChanges> changes
             = runEnvironmentItemsDialog(changeButton, volatileValue());
         if (changes)
             setVolatileValue(*changes);
     });
+
+    // createLabel() may return nullptr; addEmpty == false drops it then.
+    parent.addItems({createLabel(), changesLabel, changeButton}, /*addEmpty=*/false);
 }
 
 } // namespace Utils
