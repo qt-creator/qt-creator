@@ -3812,15 +3812,22 @@ void FakeVimHandler::Private::updateSelection()
 {
     QList<QTextEdit::ExtraSelection> selections = m_extraSelections;
     if (s.showMarks()) {
+        // Show only user-defined marks (a-z, A-Z). Vim does not paint the
+        // automatic positional marks (', `, ., <, >, ...) into the buffer;
+        // doing so highlighted positions the user never set and that kept
+        // moving while editing (QTCREATORBUG-7790).
+        const QPalette pal = EDITOR(palette());
         for (auto it = m_buffer->marks.cbegin(), end = m_buffer->marks.cend(); it != end; ++it) {
+            if (!it.key().isLetter())
+                continue;
             QTextEdit::ExtraSelection sel;
             sel.cursor = m_cursor;
             setCursorPosition(&sel.cursor, it.value().position(document()));
             sel.cursor.setPosition(sel.cursor.position(), MoveAnchor);
             sel.cursor.movePosition(Right, KeepAnchor);
             sel.format = m_cursor.blockCharFormat();
-            sel.format.setForeground(Qt::blue);
-            sel.format.setBackground(Qt::green);
+            sel.format.setForeground(pal.color(QPalette::Base));
+            sel.format.setBackground(pal.color(QPalette::Text));
             selections.append(sel);
         }
     }
