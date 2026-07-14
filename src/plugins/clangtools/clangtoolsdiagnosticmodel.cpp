@@ -73,7 +73,7 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(CppEditor::ClangToolType ty
     connectFileWatcher();
 }
 
-QDebug operator<<(QDebug debug, const Diagnostic &d)
+static QDebug operator<<(QDebug debug, const Diagnostic &d)
 {
     return debug << "name:" << d.name
                  << "category:" << d.category
