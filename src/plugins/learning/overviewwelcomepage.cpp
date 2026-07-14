@@ -51,7 +51,7 @@ using namespace Utils;
 using namespace Utils::StyleHelper;
 using namespace QtSupport;
 
-Q_LOGGING_CATEGORY(qtWelcomeOverviewLog, "qtc.welcomeoverview", QtWarningMsg)
+static Q_LOGGING_CATEGORY(qtWelcomeOverviewLog, "qtc.welcomeoverview", QtWarningMsg)
 
 namespace Learning::Internal {
 

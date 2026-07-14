@@ -44,7 +44,7 @@ using namespace Utils;
 
 const char THUMBNAIL_CACHE_IMAGE_FORMAT[] = "png";
 
-Q_LOGGING_CATEGORY(qtAcademyLog, "qtc.qtacademy", QtWarningMsg)
+static Q_LOGGING_CATEGORY(qtAcademyLog, "qtc.qtacademy", QtWarningMsg)
 
 namespace Learning::Internal {
 
