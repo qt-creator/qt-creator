@@ -57,7 +57,7 @@ bool LibrarySelectionAspect::guiToVolatileValue()
     return oldBuffer != m_volatileValue;
 }
 
-QVariantMap toVariantMap(const QMap<QString, QString> &map)
+static QVariantMap toVariantMap(const QMap<QString, QString> &map)
 {
     QVariantMap variant;
     for (auto it = map.begin(); it != map.end(); ++it)
