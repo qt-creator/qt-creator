@@ -1,0 +1,166 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-preferences-text-editor-display.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-editors
+
+    \title Display
+
+    \brief Set preferences for margins, text wrapping, and how code and text
+    are displayed in the text editor.
+
+    To set preferences for how \QC displays code and text in the editor,
+    select \preferences > \uicontrol {Text Editor} > \uicontrol Display.
+
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
+
+    \section1 Setting the margin
+
+    In the \uicontrol Margin group, you can turn on a vertical line that marks
+    a column in the editor, which is useful for keeping lines within a certain
+    length.
+
+    The following table describes the margin preferences you can set.
+
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Display right margin after column}
+        \li Show a vertical line after the specified column. The default is
+            column 80.
+    \row
+        \li \uicontrol {Tint whole margin area}
+        \li Shade the area beyond the margin. Available when
+            \uicontrol {Display right margin after column} is selected.
+    \row
+        \li \uicontrol {Use context-specific margin}
+        \li Use a different margin if one is available from the current
+            context, such as the column limit configured for the ClangFormat
+            plugin.
+    \row
+        \li \uicontrol {Editor content width}
+        \li Set the percentage of the editor window width used to display
+            text content. The default value, 100%, uses the whole width. At
+            50%, half of the editor width is used to display content, and the
+            remaining width is split between left and right margins to center
+            the content.
+    \endtable
+
+    \section1 Wrapping text
+
+    To wrap long lines to fit the width of the editor, select
+    \uicontrol {Enable text wrapping} in the \uicontrol Wrapping group. This
+    option is available only when \uicontrol {Line spacing} is set to 100% in
+    \uicontrol {Font & Colors} preferences.
+
+    \section1 Setting display preferences
+
+    The following table describes the preferences you can set in the
+    \uicontrol Display group.
+
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Display line numbers}
+        \li Show line numbers in the editor.
+    \row
+        \li \uicontrol {Display folding markers}
+        \li Show markers for folding and unfolding blocks of code.
+    \row
+        \li \uicontrol {Mark text changes}
+        \li Mark lines that you added or modified since the file was opened
+            or last saved.
+    \row
+        \li \uicontrol {Visualize whitespace}
+        \li Show tabs and spaces in the editor.
+    \row
+        \li \uicontrol {Center cursor on scroll}
+        \li Keep the cursor vertically centered while scrolling.
+    \row
+        \li \uicontrol {Auto-fold first comment}
+        \li Automatically fold the first comment block in a file, such as a
+            license header.
+    \row
+        \li \uicontrol {Highlight search results on the scrollbar}
+        \li Mark the locations of search results on the scrollbar.
+    \row
+        \li \uicontrol {Animate navigation within file}
+        \li Animate the view when you jump to a different location within the
+            same file.
+    \row
+        \li \uicontrol {Highlight selection}
+        \li Add a colored background and a scrollbar marker to other
+            occurrences of the currently selected text.
+    \row
+        \li \uicontrol {Highlight current line}
+        \li Highlight the line that contains the cursor.
+    \row
+        \li \uicontrol {Highlight blocks}
+        \li Highlight the code block enclosed by the braces nearest to the
+            cursor. See also \l{Highlight code blocks}.
+    \row
+        \li \uicontrol {Animate matching parentheses}
+        \li Animate the matching parenthesis, brace, or bracket when the
+            cursor is next to one of them.
+    \row
+        \li \uicontrol {Visualize indent}
+        \li Show vertical indent guides.
+    \row
+        \li \uicontrol {Highlight matching parentheses}
+        \li Highlight matching parentheses, braces, and brackets.
+    \row
+        \li \uicontrol {Always open links in another split}
+        \li Open links, such as links to symbol definitions, in another split
+            view instead of the current one.
+    \row
+        \li \uicontrol {Display file encoding}
+        \li Show the text encoding of the current file in the editor status
+            bar.
+    \row
+        \li \uicontrol {Display file line ending}
+        \li Show the line ending style of the current file in the editor
+            status bar.
+    \row
+        \li \uicontrol {Display tab settings}
+        \li Show the indentation settings of the current file in the editor
+            status bar.
+    \row
+        \li \uicontrol {Enable minimap}
+        \li Show a miniature, zoomed-out overview of the file next to the
+            scrollbar.
+    \endtable
+
+    \section1 Showing line annotations
+
+    Line annotations show additional information next to a line, such as the
+    results of \l{Analyzing code}{code analysis} or version control
+    information from \l{git blame}, in the editor.
+
+    To turn off line annotations, clear \uicontrol {Line Annotations} in the
+    \uicontrol {Line Annotations} group.
+
+    To select where to show the annotations, use \uicontrol {Line
+    Annotations}:
+
+    \list
+        \li \uicontrol {Next to editor content} shows annotations directly
+            after the code on the line.
+        \li \uicontrol {Next to right margin} shows annotations aligned with
+            the right margin, or after the code if the line is longer than
+            the margin.
+        \li \uicontrol {Aligned at right side} shows annotations aligned at
+            the right side of the editor. This is the default.
+        \li \uicontrol {Between lines} shows annotations on their own line,
+            between the lines of code.
+    \endlist
+
+    \sa {Configure editors}{How to: Configure editors}, {Configuring editors},
+    {Highlight code blocks}, {Analyzing code}, {git blame}
+*/

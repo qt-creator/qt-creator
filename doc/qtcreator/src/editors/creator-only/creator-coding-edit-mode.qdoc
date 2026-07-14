@@ -163,7 +163,7 @@
         \li \inlineimage {numbers/06.png} {6}
         \li Select commands to automatically indent the current selection and to
             change the indentation settings.
-        \li \l{Specifying tab preferences}
+        \li \l{Setting tab preferences}
 
     \endtable
 
