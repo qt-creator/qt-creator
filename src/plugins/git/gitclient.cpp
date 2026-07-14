@@ -1966,6 +1966,17 @@ bool GitClient::synchronousReset(const FilePath &workingDirectory,
     return true;
 }
 
+bool GitClient::synchronousCommit(const FilePath &workingDirectory, const QString &message)
+{
+    const CommandResult result = vcsSynchronousExec(
+        workingDirectory, QStringList{"commit", "-m", message}, RunFlag::ShowSuccessMessage);
+    if (result.result() == ProcessResult::FinishedWithSuccess)
+        return true;
+    VcsOutputWindow::appendError(workingDirectory,
+                                 Tr::tr("Cannot commit: %1").arg(result.cleanedStdErr()));
+    return false;
+}
+
 // Initialize repository
 bool GitClient::synchronousInit(const FilePath &workingDirectory)
 {

@@ -214,6 +214,12 @@ public:
     {
         gitClient().reset(repository, relativePath);
     }
+    bool commitFiles(const FilePath &repository, const QStringList &relativePaths,
+                     const QString &message) final
+    {
+        Q_UNUSED(relativePaths) // Git commits the staged index.
+        return gitClient().synchronousCommit(repository, message);
+    }
     void revertChangedFile(const FilePath &repository, const QString &relativePath) final
     {
         // Reverts only the working tree changes (revertStaging = false). The Changes

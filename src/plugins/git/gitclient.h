@@ -242,6 +242,7 @@ public:
                          const Utils::FilePath &to);
     bool synchronousReset(const Utils::FilePath &workingDirectory, const QStringList &files = {},
                           QString *errorMessage = nullptr);
+    bool synchronousCommit(const Utils::FilePath &workingDirectory, const QString &message);
     bool synchronousCleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
                               QStringList *files, QStringList *ignoredFiles, QString *errorMessage);
     bool synchronousApplyPatch(const Utils::FilePath &workingDirectory, const QString &file,
