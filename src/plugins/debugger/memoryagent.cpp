@@ -167,7 +167,7 @@ QList<MemoryMarkup> registerViewMarkup(quint64 a, const QString &regName)
     \sa Debugger::MemoryView,  Debugger::RegisterMemoryView
 */
 
-BinEditor::FactoryService *binEditorFactory()
+static BinEditor::FactoryService *binEditorFactory()
 {
     static auto theBinEditorFactory = ExtensionSystem::PluginManager::getObject<BinEditor::FactoryService>();
     return theBinEditorFactory;

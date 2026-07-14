@@ -194,7 +194,7 @@ void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
     usable = true;
 }
 
-QDebug operator<<(QDebug d, const  StackFrame &f)
+static QDebug operator<<(QDebug d, const  StackFrame &f)
 {
     QString res;
     QTextStream str(&res);

@@ -190,7 +190,7 @@ QString decodeItemHelper(const T &t)
     return QString::number(t);
 }
 
-QString decodeItemHelper(const double &t)
+static QString decodeItemHelper(const double &t)
 {
     return QString::number(t, 'g', 16);
 }

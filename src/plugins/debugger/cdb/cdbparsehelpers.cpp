@@ -320,7 +320,7 @@ QtCored4!QTextStreamPrivate::putString+0x34:
 // Parse a function header line: Match: 'nsp::foo+0x<offset> [<file> @ <line>]:'
 // or 'nsp::foo+0x<offset>:', 'nsp::foo [<file> @ <line>]:'
 // Do not use regexp here as it is hard for functions like operator+, operator[].
-bool parseCdbDisassemblerFunctionLine(const QString &l,
+static bool parseCdbDisassemblerFunctionLine(const QString &l,
                                       QString *currentFunction, quint64 *functionOffset,
                                       QString *sourceFile)
 {
@@ -360,7 +360,7 @@ bool parseCdbDisassemblerFunctionLine(const QString &l,
  * '  725078bb291 8bec            mov     ebp,esp
  * '<source_line>[ ]?<address> <raw data> <instruction> */
 
-bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint *sourceLine)
+static bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint *sourceLine)
 {
     *sourceLine = 0;
     if (line.size() < 6)

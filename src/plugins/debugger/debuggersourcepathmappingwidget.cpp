@@ -68,7 +68,7 @@ private:
 };
 
 // Qt's various build paths for unpatched versions.
-QStringList qtBuildPaths()
+static QStringList qtBuildPaths()
 {
     if (HostOsInfo::isWindowsHost()) {
         return {"Q:/qt5_workdir/w/s",

@@ -599,7 +599,7 @@ QString DebuggerToolTipContext::toolTip() const
             .arg(expression).arg(function).arg(scopeFromLine).arg(scopeToLine);
 }
 
-QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
+[[maybe_unused]] static QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 {
     QDebug nsp = d.nospace();
     nsp << c.fileName << '@' << c.line << ',' << c.column << " (" << c.position << ')'

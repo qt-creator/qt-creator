@@ -100,7 +100,7 @@ QDebug operator<<(QDebug d, DebuggerState state)
     return d << DebuggerEngine::stateName(state);
 }
 
-QDebug operator<<(QDebug str, const DebuggerRunParameters &rp)
+[[maybe_unused]] static QDebug operator<<(QDebug str, const DebuggerRunParameters &rp)
 {
     QDebug nospace = str.nospace();
     nospace << "executable=" << rp.inferior().command.executable()

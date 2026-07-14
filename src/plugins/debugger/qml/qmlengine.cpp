@@ -848,7 +848,7 @@ void QmlEngine::selectWatchData(const QString &iname)
         d->inspectorAgent.watchDataSelected(item->id);
 }
 
-bool compareConsoleItems(const ConsoleItem *a, const ConsoleItem *b)
+static bool compareConsoleItems(const ConsoleItem *a, const ConsoleItem *b)
 {
     if (a == nullptr)
         return true;

@@ -64,7 +64,7 @@ static void debugCppSymbolRecursion(QTextStream &str, const Overview &o,
     }
 }
 
-QDebug operator<<(QDebug d, const Symbol &s)
+[[maybe_unused]] static QDebug operator<<(QDebug d, const Symbol &s)
 {
     QString output;
     Overview o;
@@ -74,7 +74,7 @@ QDebug operator<<(QDebug d, const Symbol &s)
     return d;
 }
 
-QDebug operator<<(QDebug d, const Scope &scope)
+[[maybe_unused]] static QDebug operator<<(QDebug d, const Scope &scope)
 {
     QString output;
     Overview o;
