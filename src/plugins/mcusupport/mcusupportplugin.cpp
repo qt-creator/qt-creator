@@ -65,7 +65,7 @@ void printMessage(const QString &message, bool important)
         Core::MessageManager::writeSilently(displayMessage);
 }
 
-void updateMCUProjectTree(ProjectExplorer::Project *p)
+static void updateMCUProjectTree(ProjectExplorer::Project *p)
 {
     if (!p || !p->rootProjectNode())
         return;

@@ -213,7 +213,7 @@ static void expandTargetsAndPackages(Targets &targets, Packages &packages)
     McuSdkRepository{targets, packages}.expandVariablesAndWildcards();
 };
 
-void verifyIarToolchain(const McuToolchainPackagePtr &iarToolchainPackage)
+static void verifyIarToolchain(const McuToolchainPackagePtr &iarToolchainPackage)
 {
     Id iarId{BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID};
     Toolchain *iarToolchain{ProjectExplorer::ToolchainFactory::createToolchain(iarId)};
@@ -234,7 +234,7 @@ void verifyIarToolchain(const McuToolchainPackagePtr &iarToolchainPackage)
     QCOMPARE(iarToolchain->detectionSource().type, DetectionSource::Uninitialized);
 }
 
-void verifyArmGccToolchain(const McuToolchainPackagePtr &armGccPackage, const QStringList &versions)
+static void verifyArmGccToolchain(const McuToolchainPackagePtr &armGccPackage, const QStringList &versions)
 {
     //Fake register and fake detect compiler.
     Id armGccId{ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID};
@@ -257,7 +257,7 @@ void verifyArmGccToolchain(const McuToolchainPackagePtr &armGccPackage, const QS
     // QVERIFY(armToolchain != nullptr);
 }
 
-void verifyGccToolchain(const McuToolchainPackagePtr &gccPackage, const QStringList &versions)
+static void verifyGccToolchain(const McuToolchainPackagePtr &gccPackage, const QStringList &versions)
 {
     QVERIFY(gccPackage != nullptr);
     QCOMPARE(gccPackage->cmakeVariableName(), "");
@@ -268,7 +268,7 @@ void verifyGccToolchain(const McuToolchainPackagePtr &gccPackage, const QStringL
     QVERIFY(allOf(versions, [&](const QString &v) { return gccPackage->versions().contains(v); }));
 }
 
-void verifyMsvcToolchain(const McuToolchainPackagePtr &msvcPackage, const QStringList &versions)
+static void verifyMsvcToolchain(const McuToolchainPackagePtr &msvcPackage, const QStringList &versions)
 {
     QVERIFY(msvcPackage != nullptr);
     QCOMPARE(msvcPackage->cmakeVariableName(), "");
@@ -279,7 +279,7 @@ void verifyMsvcToolchain(const McuToolchainPackagePtr &msvcPackage, const QStrin
     QVERIFY(allOf(versions, [&](const QString &v) { return msvcPackage->versions().contains(v); }));
 }
 
-void verifyMingwToolchain(const McuToolchainPackagePtr &mingwPackage, const QStringList &versions)
+static void verifyMingwToolchain(const McuToolchainPackagePtr &mingwPackage, const QStringList &versions)
 {
     QVERIFY(mingwPackage != nullptr);
     QCOMPARE(mingwPackage->cmakeVariableName(), "");
@@ -290,7 +290,7 @@ void verifyMingwToolchain(const McuToolchainPackagePtr &mingwPackage, const QStr
     QVERIFY(allOf(versions, [&](const QString &v) { return mingwPackage->versions().contains(v); }));
 }
 
-void verifyTargetToolchains(const Targets &targets,
+static void verifyTargetToolchains(const Targets &targets,
                             const QString &toolchainFilePath,
                             const QString &toolchainFileDefaultPath,
                             const QString &compilerPath,
@@ -315,7 +315,7 @@ void verifyTargetToolchains(const Targets &targets,
     QCOMPARE(toolchainCompiler->versions(), versions);
 }
 
-void verifyBoardSdk(const McuPackagePtr &boardSdk,
+static void verifyBoardSdk(const McuPackagePtr &boardSdk,
                     const QString &cmakeVariable,
                     const QString &environmentVariable,
                     const QStringList &versions)
@@ -328,7 +328,7 @@ void verifyBoardSdk(const McuPackagePtr &boardSdk,
     QCOMPARE(boardSdk->versions(), versions);
 }
 
-void verifyFreeRtosPackage(const McuPackagePtr &freeRtos,
+static void verifyFreeRtosPackage(const McuPackagePtr &freeRtos,
                            const QString &envVar,
                            const FilePath &boardSdkDir,
                            const QString &freeRtosPath,
@@ -344,7 +344,7 @@ void verifyFreeRtosPackage(const McuPackagePtr &freeRtos,
     QVERIFY(freeRtos->path().toUserOutput().startsWith(boardSdkDir.cleanPath().toUserOutput()));
 }
 
-void verifyPackage(const McuPackagePtr &package,
+static void verifyPackage(const McuPackagePtr &package,
                    const QString &path,
                    const QString &defaultPath,
                    const Key &setting,
@@ -369,7 +369,7 @@ void verifyPackage(const McuPackagePtr &package,
 }
 
 // create fake files and folders for testing under the "testing_output_dir" folder
-bool createFakePath(const FilePath& path, const bool is_file = false)
+static bool createFakePath(const FilePath& path, const bool is_file = false)
 {
     if (path.exists())
         return true;

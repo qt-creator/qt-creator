@@ -18,14 +18,14 @@
 
 namespace McuSupport::Internal {
 
-bool isDesktopToolchain(McuToolchainPackage::ToolchainType type)
+static bool isDesktopToolchain(McuToolchainPackage::ToolchainType type)
 {
     return type == McuToolchainPackage::ToolchainType::MSVC
            || type == McuToolchainPackage::ToolchainType::GCC
            || type == McuToolchainPackage::ToolchainType::MinGW;
 }
 
-McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
+static McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
 {
     if (!versionDetection.xmlElement.isEmpty() && !versionDetection.xmlAttribute.isEmpty())
         return new McuPackageXmlVersionDetector{versionDetection.filePattern,
@@ -104,7 +104,7 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
     return {mcuTargets, packages};
 }
 
-QList<PackageDescription> aggregatePackageEntries(const McuTargetDescription &desc)
+static QList<PackageDescription> aggregatePackageEntries(const McuTargetDescription &desc)
 {
     QList<PackageDescription> result;
     result.append(desc.platform.entries);

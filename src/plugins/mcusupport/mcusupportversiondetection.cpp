@@ -14,7 +14,7 @@ using namespace Utils;
 
 namespace McuSupport::Internal {
 
-QString matchRegExp(const QString &text, const QString &regExp)
+static QString matchRegExp(const QString &text, const QString &regExp)
 {
     const QRegularExpression regularExpression(regExp);
     const QRegularExpressionMatch match = regularExpression.match(text);
