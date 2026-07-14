@@ -89,11 +89,10 @@ public:
     // editor side, in editor line numbers
     QList<TextEditor::InlineDiffDecorator::GhostBlock> ghosts; // inline view only
     QList<TextEditor::InlineDiffDecorator::ChangedRange> changes;
-    QList<TextEditor::InlineDiffDecorator::Spacer> editorSpacers; // side by side only
     // baseline side, in baseline line numbers (side by side view only)
     QList<TextEditor::InlineDiffDecorator::ChangedRange> baselineChanges;
-    QList<TextEditor::InlineDiffDecorator::Spacer> baselineSpacers;
-    // both sides paired, for per hunk actions
+    // both sides paired, drives the side by side row alignment and the per
+    // hunk actions
     QList<InlineDiffChunk> hunks;
 };
 

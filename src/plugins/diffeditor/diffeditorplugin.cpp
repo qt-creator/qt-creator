@@ -1619,6 +1619,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testDiffDocuments()
 
 #include "inlinediff.h"
 
+#include <texteditor/displaysettings.h>
 #include <texteditor/inlinediffdecorator.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -1630,9 +1631,12 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
 {
     using namespace TextEditor;
 
-    // baseline vs editor: line 2 modified, line 3 removed, "five" added
+    // baseline vs editor: line 2 modified, line 3 removed, a long line added.
+    // The added line is long enough to word wrap, which the side by side view
+    // has to account for when it aligns the two sides row by row.
     const QString baselineText = "one\ntwo\nthree\nfour\n";
-    const QString editorText = "one\ntwo changed\nfour\nfive\n";
+    const QString longAddedLine = QString("five ").repeated(60).trimmed();
+    const QString editorText = "one\ntwo changed\nfour\n" + longAddedLine + "\n";
 
     QTemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -1707,9 +1711,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
         diffWidget->grab().save(grabPath);
 
     // the side by side view shows the baseline in an additional read only
-    // view, the editor side keeps only spacer rows instead of ghost text:
-    // one spacer aligning the shrunken first run ("two", "three" -> "two
-    // changed"), one baseline spacer aligning the added "five"
+    // view and aligns the two sides row by row, so that mirrored pixel scroll
+    // bars keep them in sync even when a line word wraps on only one side
     setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
     QCOMPARE(inlineDiffViewMode(diffEditor), InlineDiffViewMode::SideBySide);
     const QList<TextEditorWidget *> sideBySideWidgets
@@ -1720,9 +1723,54 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
                                            : sideBySideWidgets.first();
     QVERIFY(baselineWidget->isReadOnly());
     QCOMPARE(baselineWidget->document()->toPlainText(), baselineText);
-    QTRY_COMPARE(ghostItemCount(baselineWidget), 1); // spacer for "five"
-    QCOMPARE(ghostItemCount(diffWidget), 1);         // spacer for "three"
     QVERIFY(!baselineWidget->isHidden());
+    // turn on word wrap and show the views at a width where the long added
+    // line actually wraps - the alignment has to account for that
+    for (TextEditorWidget *widget : {baselineWidget, diffWidget}) {
+        DisplaySettingsData settings = widget->displaySettings();
+        settings.m_textWrapping = true;
+        widget->setDisplaySettings(settings);
+    }
+    diffEditor->widget()->resize(600, 600);
+    diffEditor->widget()->show();
+    QCoreApplication::processEvents();
+
+    // Lay out all blocks so the alignment items measure real wrapped heights.
+    const auto layOut = [](TextEditorWidget *widget) {
+        TextEditorLayout *layout = widget->editorLayout();
+        for (QTextBlock block = widget->document()->firstBlock(); block.isValid();
+             block = block.next()) {
+            layout->ensureBlockLayout(block);
+        }
+    };
+    // pixel top of a line's text, including any spacer rows reserved above it
+    const auto textTop = [&layOut](TextEditorWidget *widget, int lineIndex) {
+        layOut(widget);
+        TextEditorLayout *layout = widget->editorLayout();
+        const QTextBlock block = widget->document()->findBlockByNumber(lineIndex);
+        return layout->offsetForBlock(block) + layout->mainLayoutOffset(block);
+    };
+    // the added line wraps on the editor side; the alignment has to reserve a
+    // matching multi line height on the baseline side
+    QVERIFY(longAddedLine.size() > 100);
+    const int lastLine = diffWidget->document()->blockCount() - 1;
+    const auto hasWrappedLine = [&layOut](TextEditorWidget *widget) {
+        layOut(widget);
+        for (QTextBlock b = widget->document()->firstBlock(); b.isValid(); b = b.next()) {
+            if (widget->editorLayout()->blockLineCount(b) > 1)
+                return true;
+        }
+        return false;
+    };
+    QTRY_VERIFY(hasWrappedLine(diffWidget));
+    // the trailing line follows the whole changed and wrapped region; it lines
+    // up on both sides only if every row above has the same height on each side
+    QCOMPARE(baselineWidget->document()->blockCount(),
+             diffWidget->document()->blockCount());
+    QTRY_COMPARE(textTop(baselineWidget, lastLine), textTop(diffWidget, lastLine));
+    // full per-row alignment makes both sides the same total pixel height
+    QCOMPARE(baselineWidget->editorLayout()->documentPixelHeight(),
+             diffWidget->editorLayout()->documentPixelHeight());
 
     const QString sideGrabPath
         = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_SIDE_GRAB");

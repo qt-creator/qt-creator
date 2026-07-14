@@ -13,8 +13,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/infobar.h>
@@ -27,9 +30,13 @@
 
 #include <utils/utilsicons.h>
 
+#include <QBrush>
 #include <QEvent>
 #include <QPainter>
+#include <QTextLayout>
 #include <QVBoxLayout>
+
+#include <tuple>
 #include <QPointer>
 #include <QScopeGuard>
 #include <QScrollBar>
@@ -132,14 +139,6 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
                                                         pendingGhost.charHighlights.at(i));
             }
             model.baselineChanges.append(baselineRange);
-        }
-        // align the side with fewer lines by an empty spacer after its lines
-        if (runRightCount > runLeftCount) {
-            model.baselineSpacers.append(
-                {runStartLeftLine + runLeftCount, runRightCount - runLeftCount});
-        } else if (runLeftCount > runRightCount) {
-            model.editorSpacers.append(
-                {runStartRightLine + runRightCount, runLeftCount - runRightCount});
         }
         InlineDiffChunk hunk;
         hunk.editorStartLine = runStartRightLine;
@@ -399,10 +398,11 @@ private:
                 const QTextBlock lastBlock = doc->findBlockByNumber(
                     qMin(row.hunk.editorStartLine + row.hunk.editorLineCount - 1,
                          doc->blockCount()) - 1);
-                bottom = m_widget
-                             ->cursorRect(QTextCursor(lastBlock.isValid() ? lastBlock
-                                                                          : firstBlock))
-                             .bottom();
+                // a cursor at the end of the block, so a word wrapped last line
+                // extends the range to its final visual line
+                QTextCursor endCursor(lastBlock.isValid() ? lastBlock : firstBlock);
+                endCursor.movePosition(QTextCursor::EndOfBlock);
+                bottom = m_widget->cursorRect(endCursor).bottom();
             } else {
                 // pure removal: the ghost or spacer rows above the anchor line
                 bottom = m_widget->cursorRect(QTextCursor(firstBlock)).top();
@@ -528,6 +528,267 @@ const char VIEW_MODE_SETTINGS_KEY[] = "DiffEditor/InlineDiffViewMode";
 
 // live diffing on every edit does not scale to arbitrarily large documents
 constexpr qsizetype maxInlineDiffTextSize = 8 * 1000 * 1000;
+
+// layout items the side by side aligner installs on both views
+const Utils::Id INLINE_DIFF_ALIGN_CATEGORY("DiffEditor.InlineDiff.Align");
+
+// An empty layout item whose height is computed on demand. Used to pad rows so
+// that the baseline and the editor view keep the same pixel height per row even
+// when lines word wrap differently on the two sides.
+class DynamicSpacerItem final : public Utils::LayoutItem
+{
+public:
+    DynamicSpacerItem(std::function<qreal()> heightFn, const Utils::Id &category,
+                      const QBrush &background = {})
+        : Utils::LayoutItem(category)
+        , m_heightFn(std::move(heightFn))
+        , m_background(background)
+    {}
+
+    qreal height() override { return m_heightFn ? qMax(0.0, m_heightFn()) : 0.0; }
+
+    void paintBackground(QPainter *p, const QPointF &pos, const QRectF &clip) override
+    {
+        const qreal h = height();
+        if (m_background.style() == Qt::NoBrush || h <= 0)
+            return;
+        QRectF rect(pos, QSizeF(0, h));
+        rect.setRight(clip.right());
+        p->fillRect(rect, m_background);
+    }
+
+private:
+    std::function<qreal()> m_heightFn;
+    QBrush m_background;
+};
+
+// The wrapped pixel height of a block's own text, excluding any additional
+// layout items (so measuring one view's rows from the other view's spacers
+// does not recurse). Blocks that are not laid out yet report a one line
+// estimate, matching how the editor sizes not-yet-laid-out blocks.
+static qreal naturalBlockHeight(const QPointer<TextEditorWidget> &widget, int line1)
+{
+    if (!widget)
+        return 0.0;
+    const QTextBlock block = widget->document()->findBlockByNumber(line1 - 1);
+    if (!block.isValid() || !block.isVisible())
+        return 0.0;
+    TextEditorLayout *layout = widget->editorLayout();
+    if (!layout)
+        return 0.0;
+    if (!layout->blockLayoutValid(block.fragmentIndex()))
+        return layout->lineSpacing();
+    const QTextLayout *tl = layout->existingBlockLayout(block);
+    if (!tl || tl->lineCount() == 0)
+        return layout->lineSpacing();
+    return tl->boundingRect().height();
+}
+
+// Keeps the read only baseline view and the editor view of the side by side
+// inline diff aligned row by row. Corresponding rows are padded to the taller
+// of the two so that both sides have the same pixel height, which lets the
+// mirrored pixel based scroll bars line the two views up regardless of word
+// wrapping or differing column widths. The pads measure the other side on
+// demand, so they follow resizes, splitter drags and font changes without
+// recomputation.
+class SideBySideAligner final : public QObject
+{
+public:
+    SideBySideAligner(TextEditorWidget *baseline, TextEditorWidget *editor, QObject *parent)
+        : QObject(parent)
+        , m_baseline(baseline)
+        , m_editor(editor)
+    {
+        const auto watch = [this](TextEditorWidget *changed, TextEditorWidget *other) {
+            if (TextEditorLayout *l = changed->editorLayout()) {
+                const QPointer<TextEditorWidget> otherPtr(other);
+                connect(l, &PlainTextDocumentLayout::documentSizeChanged, this,
+                        [this, otherPtr] { invalidate(otherPtr); });
+            }
+        };
+        watch(m_baseline, m_editor);
+        watch(m_editor, m_baseline);
+    }
+
+    // Deliberately do not clear the layout items here: the aligner is destroyed
+    // together with the views during editor teardown, when their layouts are
+    // already gone. The items are owned by the layouts and die with them; a
+    // recreated aligner clears any leftovers on its next install().
+    ~SideBySideAligner() override = default;
+
+    void update(const QList<InlineDiffChunk> &hunks)
+    {
+        m_matches.clear();
+        m_baselineInsertions.clear();
+        m_editorInsertions.clear();
+        if (!m_baseline || !m_editor)
+            return;
+
+        QList<InlineDiffChunk> sorted = hunks;
+        // Ties are real: a pure deletion contributes no editor lines, so two
+        // hunks can share an editor start line. Ordering by both keeps the walk
+        // below from pairing the baseline sides in an arbitrary order.
+        Utils::sort(sorted, [](const InlineDiffChunk &a, const InlineDiffChunk &b) {
+            return std::tie(a.editorStartLine, a.baselineStartLine)
+                   < std::tie(b.editorStartLine, b.baselineStartLine);
+        });
+
+        const int baselineLines = m_baseline->document()->blockCount();
+        const int editorLines = m_editor->document()->blockCount();
+        int bLine = 1;
+        int eLine = 1;
+        for (const InlineDiffChunk &hunk : std::as_const(sorted)) {
+            // 1:1 equal region up to the hunk. The two sides of that region are
+            // the same length by construction; if they ever are not, the loop
+            // below stops early and the rest of the region silently loses its
+            // pads, which shows up as the two views drifting apart.
+            QTC_CHECK(hunk.editorStartLine - eLine == hunk.baselineStartLine - bLine);
+            while (eLine < hunk.editorStartLine && bLine < hunk.baselineStartLine) {
+                m_matches.append({bLine, eLine});
+                ++bLine;
+                ++eLine;
+            }
+            bLine = hunk.baselineStartLine;
+            eLine = hunk.editorStartLine;
+
+            const int baseCount = int(hunk.baselineLines.size());
+            const int editCount = hunk.editorLineCount;
+            const int paired = qMin(baseCount, editCount);
+            for (int k = 0; k < paired; ++k)
+                m_matches.append({hunk.baselineStartLine + k, hunk.editorStartLine + k});
+            if (editCount > baseCount) {
+                const int anchor = hunk.baselineStartLine + baseCount;
+                for (int k = paired; k < editCount; ++k)
+                    m_baselineInsertions.append({anchor, hunk.editorStartLine + k});
+            } else if (baseCount > editCount) {
+                const int anchor = hunk.editorStartLine + editCount;
+                for (int k = paired; k < baseCount; ++k)
+                    m_editorInsertions.append({anchor, hunk.baselineStartLine + k});
+            }
+            bLine = hunk.baselineStartLine + baseCount;
+            eLine = hunk.editorStartLine + editCount;
+        }
+        // trailing 1:1 equal region
+        while (eLine <= editorLines && bLine <= baselineLines) {
+            m_matches.append({bLine, eLine});
+            ++bLine;
+            ++eLine;
+        }
+        install();
+    }
+
+    void clear()
+    {
+        m_matches.clear();
+        m_baselineInsertions.clear();
+        m_editorInsertions.clear();
+        clearItems(m_baseline);
+        clearItems(m_editor);
+        refresh(m_baseline);
+        refresh(m_editor);
+    }
+
+private:
+    void install()
+    {
+        clearItems(m_baseline);
+        clearItems(m_editor);
+        if (!m_baseline || !m_editor || !m_baseline->editorLayout() || !m_editor->editorLayout())
+            return;
+
+        const QBrush spacerBackground = m_editor->textDocument()->fontSettings()
+                                            .toTextCharFormat(C_LINE_NUMBER).background();
+
+        for (const QPair<int, int> &m : std::as_const(m_matches)) {
+            addMatchPad(m_baseline, m.first, m_editor, m.second);
+            addMatchPad(m_editor, m.second, m_baseline, m.first);
+        }
+        for (const QPair<int, int> &s : std::as_const(m_baselineInsertions))
+            addInsertion(m_baseline, s.first, m_editor, s.second, spacerBackground);
+        for (const QPair<int, int> &s : std::as_const(m_editorInsertions))
+            addInsertion(m_editor, s.first, m_baseline, s.second, spacerBackground);
+
+        refresh(m_baseline);
+        refresh(m_editor);
+    }
+
+    // pad the row of 'ownLine' so it matches the taller of the two paired rows
+    void addMatchPad(TextEditorWidget *own, int ownLine, TextEditorWidget *other, int otherLine)
+    {
+        const QTextBlock block = own->document()->findBlockByNumber(ownLine - 1);
+        if (!block.isValid())
+            return;
+        const QPointer<TextEditorWidget> ownPtr(own);
+        const QPointer<TextEditorWidget> otherPtr(other);
+        auto heightFn = [ownPtr, ownLine, otherPtr, otherLine] {
+            return naturalBlockHeight(otherPtr, otherLine) - naturalBlockHeight(ownPtr, ownLine);
+        };
+        own->editorLayout()->appendLayoutItem(
+            block, std::make_unique<DynamicSpacerItem>(heightFn, INLINE_DIFF_ALIGN_CATEGORY));
+    }
+
+    // reserve a spacer standing in for a line the other side has but this one
+    // does not, as tall as that line wraps on the other side
+    void addInsertion(TextEditorWidget *own, int anchorLine, TextEditorWidget *other,
+                      int otherLine, const QBrush &background)
+    {
+        QTextDocument *doc = own->document();
+        const bool afterLast = anchorLine > doc->blockCount();
+        const QTextBlock block = afterLast ? doc->lastBlock()
+                                           : doc->findBlockByNumber(anchorLine - 1);
+        if (!block.isValid())
+            return;
+        const QPointer<TextEditorWidget> otherPtr(other);
+        auto heightFn = [otherPtr, otherLine] { return naturalBlockHeight(otherPtr, otherLine); };
+        auto item = std::make_unique<DynamicSpacerItem>(heightFn, INLINE_DIFF_ALIGN_CATEGORY,
+                                                        background);
+        if (afterLast)
+            own->editorLayout()->appendLayoutItem(block, std::move(item));
+        else
+            own->editorLayout()->prependLayoutItem(block, std::move(item));
+    }
+
+    static void clearItems(TextEditorWidget *widget)
+    {
+        if (widget) {
+            if (TextEditorLayout *l = widget->editorLayout())
+                l->removeAllLayoutItems(INLINE_DIFF_ALIGN_CATEGORY);
+        }
+    }
+
+    void refresh(TextEditorWidget *widget)
+    {
+        if (!widget)
+            return;
+        if (TextEditorLayout *l = widget->editorLayout()) {
+            l->emitDocumentSizeChanged();
+            l->requestUpdate();
+        }
+    }
+
+    // one side's rows just changed height (resize, font change, edit); the
+    // other side's pads measure it, so drop its cached offsets and repaint
+    void invalidate(const QPointer<TextEditorWidget> &widget)
+    {
+        if (m_syncing || !widget)
+            return;
+        TextEditorLayout *l = widget->editorLayout();
+        if (!l)
+            return;
+        m_syncing = true;
+        l->resetBlockSize(widget->document()->firstBlock());
+        l->emitDocumentSizeChanged();
+        l->requestUpdate();
+        m_syncing = false;
+    }
+
+    QPointer<TextEditorWidget> m_baseline;
+    QPointer<TextEditorWidget> m_editor;
+    QList<QPair<int, int>> m_matches;            // (baselineLine, editorLine)
+    QList<QPair<int, int>> m_baselineInsertions; // (anchorBaselineLine, editorLine)
+    QList<QPair<int, int>> m_editorInsertions;   // (anchorEditorLine, baselineLine)
+    bool m_syncing = false;
+};
 
 class InlineDiffEditor final : public Core::IEditor
 {
@@ -730,11 +991,12 @@ private:
         if (m_baseline.setupBaselineView)
             m_baseline.setupBaselineView(m_baselineWidget);
 
-        // Both sides have the same pixel height thanks to the alignment
-        // spacers, and the vertical scroll bars work on pixel offsets, so
-        // mirroring the values keeps the views aligned. Only mirror while
-        // side by side: the hidden baseline view of the inline mode has a
-        // smaller range and would bounce back a clamped value.
+        // The aligner keeps both sides at the same pixel height per row, and
+        // the vertical scroll bars work on pixel offsets, so mirroring the
+        // values keeps the views aligned. Only mirror while side by side: the
+        // hidden baseline view of the inline mode has a smaller range and
+        // would bounce back a clamped value.
+        m_aligner = new SideBySideAligner(m_baselineWidget, m_widget, m_baselineWidget);
         const auto syncScrollBars = [this](TextEditorWidget *from, TextEditorWidget *to) {
             connect(from->verticalScrollBar(), &QAbstractSlider::valueChanged,
                     to->verticalScrollBar(), [this, to](int value) {
@@ -798,12 +1060,17 @@ private:
             m_decorator->apply(m_model.ghosts, m_model.changes);
             if (m_baselineDecorator)
                 m_baselineDecorator->clear();
+            if (m_aligner)
+                m_aligner->clear();
         } else {
-            m_decorator->apply({}, m_model.changes, m_model.editorSpacers);
+            // the per-row height alignment of the two views is handled by the
+            // aligner; the decorators only add the change highlights
+            m_decorator->apply({}, m_model.changes);
             if (m_baselineDecorator) {
-                m_baselineDecorator->apply({}, m_model.baselineChanges,
-                                           m_model.baselineSpacers);
+                m_baselineDecorator->apply({}, m_model.baselineChanges);
             }
+            if (m_aligner)
+                m_aligner->update(m_model.hunks);
         }
         updateHunkControls();
     }
@@ -941,6 +1208,7 @@ private:
     QPointer<HunkControls> m_hunkControls;
     QPointer<TextEditorWidget> m_baselineWidget;
     QPointer<InlineDiffDecorator> m_baselineDecorator;
+    QPointer<SideBySideAligner> m_aligner;
     TextDocumentPtr m_baselineDocument;
     QPointer<QToolBar> m_toolBar;
     QAction *m_viewSwitcherAction = nullptr;

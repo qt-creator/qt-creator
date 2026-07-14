@@ -124,18 +124,12 @@ void tst_InlineDiff::modifyDeleteAdd()
     QCOMPARE(model.changes.last().startLine, 4);
     QCOMPARE(model.changes.last().endLine, 4);
 
-    // side by side data: baseline lines 2-3 changed, the editor side needs a
-    // one line spacer for the shrunken first run (2 -> 1 lines), the baseline
-    // side needs one for the added "five"
+    // side by side data: baseline lines 2-3 changed. The row alignment of the
+    // two views is derived from the hunks below (the side by side aligner pads
+    // the shrunken first run and reserves a row for the added "five").
     QCOMPARE(model.baselineChanges.size(), 1);
     QCOMPARE(model.baselineChanges.first().startLine, 2);
     QCOMPARE(model.baselineChanges.first().endLine, 3);
-    QCOMPARE(model.editorSpacers.size(), 1);
-    QCOMPARE(model.editorSpacers.first().anchorLine, 3);
-    QCOMPARE(model.editorSpacers.first().lineCount, 1);
-    QCOMPARE(model.baselineSpacers.size(), 1);
-    QCOMPARE(model.baselineSpacers.first().anchorLine, 5);
-    QCOMPARE(model.baselineSpacers.first().lineCount, 1);
 
     QCOMPARE(model.hunks.size(), 2);
     QCOMPARE(model.hunks.first().editorStartLine, 2);

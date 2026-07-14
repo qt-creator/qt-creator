@@ -6988,12 +6988,16 @@ void TextEditorWidgetPrivate::paintRevisionMarker(QPainter &painter,
             painter.setPen(QPen(Qt::darkGreen, 2));
         else
             painter.setPen(QPen(Qt::red, 2));
-        // the revision concerns the block's text, not additional layout
-        // items rendered above it
+        // the revision concerns the block's text, not the additional layout
+        // items rendered above (mainLayoutOffset) or below it (spacers padding
+        // the block to align with a side by side counterpart)
+        TextEditorLayout *layout = q->editorLayout();
+        const int mainOffset = layout->mainLayoutOffset(data.block);
+        const int appended = layout->additionalBlockHeight(data.block, true) - mainOffset;
         painter.drawLine(data.extraAreaWidth - 1,
-                         int(blockBoundingRect.top())
-                             + q->editorLayout()->mainLayoutOffset(data.block),
-                         data.extraAreaWidth - 1, int(blockBoundingRect.bottom()) - 1);
+                         int(blockBoundingRect.top()) + mainOffset,
+                         data.extraAreaWidth - 1,
+                         int(blockBoundingRect.bottom()) - appended - 1);
         painter.restore();
     }
 }
