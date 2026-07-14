@@ -5,14 +5,12 @@
 // This is used in the debugger auto-tests.
 
 #include "watchutils.h"
-#include "watchdata.h"
 
 #include <QDebug>
 #include <QStringEncoder>
 #include <QStringDecoder>
 
 #include <string.h>
-#include <ctype.h>
 
 namespace Debugger::Internal{
 
@@ -139,13 +137,6 @@ bool isLeavableFunction(const QStringView funcName, const QStringView fileName)
     }
 
     return false;
-}
-
-bool isLetterOrNumber(int c)
-{
-    return (c >= 'a' && c <= 'z')
-        || (c >= 'A' && c <= 'Z')
-        || (c >= '0' && c <= '9');
 }
 
 bool hasLetterOrNumber(const QStringView exp)
