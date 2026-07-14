@@ -229,7 +229,7 @@ void CocoQMakeSettings::read()
     setEnabled(true);
 }
 
-QString configAssignment()
+static QString configAssignment()
 {
     static const QString assignment = QString("CONFIG+=") + Constants::PROFILE_NAME;
     return assignment;
