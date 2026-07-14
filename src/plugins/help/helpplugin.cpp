@@ -72,7 +72,7 @@
 using namespace Core;
 using namespace Utils;
 
-Q_LOGGING_CATEGORY(helpLog, "qtc.help", QtWarningMsg)
+static Q_LOGGING_CATEGORY(helpLog, "qtc.help", QtWarningMsg)
 
 namespace Help::Internal {
 
