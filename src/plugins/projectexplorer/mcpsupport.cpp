@@ -1246,7 +1246,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("debug")
+            .name("debug_project")
             .title("Start debugging")
             .description(
                 "Starts a debug session for the current startup project and returns immediately "
