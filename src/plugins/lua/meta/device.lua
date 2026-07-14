@@ -36,4 +36,12 @@ function Device.removeDevice(id) end
 ---@return DeviceKit[]|string
 function Device.detectTools(id) end
 
+---Checks whether a TCP connection to host:port succeeds within timeoutMs
+---(default 5000). Call `a.wait` on the returned value to get a boolean.
+---@param host string The host name or IP address.
+---@param port integer The TCP port.
+---@param timeoutMs? integer Connection timeout in milliseconds (default 5000).
+---@return boolean
+function Device.isReachable(host, port, timeoutMs) end
+
 return Device

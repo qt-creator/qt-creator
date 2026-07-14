@@ -17,6 +17,9 @@
 #include <utils/result.h>
 #include <utils/shutdownguard.h>
 
+#include <QTcpSocket>
+#include <QTimer>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 using namespace std::string_view_literals;
@@ -148,6 +151,27 @@ void setupDeviceModule()
             device->tryToConnect({Utils::shutdownGuard(), onConnected});
         };
         result["detectTools"] = wrap(result["detectTools_cb"]);
+
+        // Awaitable: true if a TCP connection to host:port succeeds within
+        // timeoutMs (default 5000), else false. Useful to wait for a freshly
+        // booted device to start accepting ssh.
+        result["isReachable_cb"] = [](const QString &host, int port, int timeoutMs,
+                                      const sol::main_function &callback) {
+            auto *sock = new QTcpSocket;
+            auto done = std::make_shared<bool>(false);
+            auto finish = [sock, callback, done](bool ok) {
+                if (*done)
+                    return;
+                *done = true;
+                callback(ok);
+                sock->deleteLater();
+            };
+            QObject::connect(sock, &QAbstractSocket::connected, sock, [finish] { finish(true); });
+            QObject::connect(sock, &QAbstractSocket::errorOccurred, sock, [finish] { finish(false); });
+            QTimer::singleShot(timeoutMs > 0 ? timeoutMs : 5000, sock, [finish] { finish(false); });
+            sock->connectToHost(host, quint16(port));
+        };
+        result["isReachable"] = wrap(result["isReachable_cb"]);
 
         return result;
     });
