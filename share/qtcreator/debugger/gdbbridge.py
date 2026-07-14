@@ -1467,7 +1467,7 @@ class Dumper(DumperBase):
                 self.prepare(args)
                 with TopLevelItem(self, expression):
                     self.putItem(val)
-                self.tpExpressions[key] = self.output
+                self.tpExpressions[key] = self.takeOutput()
             except Exception as e:
                 self.tpExpressions[key] = '"<N/A>"'
                 self.tpExpressionWarnings.append(str(e))
