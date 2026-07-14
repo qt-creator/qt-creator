@@ -26,6 +26,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QItemSelectionModel>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMessageBox>
@@ -250,6 +251,7 @@ ChangesView::ChangesView()
 
     m_treeView->setHeaderHidden(true);
     m_treeView->setModel(m_model);
+    m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_treeView, &QAbstractItemView::activated, this, &ChangesView::activate);
     connect(m_treeView, &QWidget::customContextMenuRequested,
@@ -623,83 +625,141 @@ void ChangesView::openContextMenu(const QPoint &point)
         return;
     }
 
-    const auto item = dynamic_cast<ChangedFileItem *>(m_model->itemForIndex(index));
-    if (!item)
+    if (!dynamic_cast<ChangedFileItem *>(m_model->itemForIndex(index)))
         return;
 
-    VersionControlBase *vc = item->versionControl();
-    const FilePath repository = item->repository();
-    const VcsFileStatus status = item->status();
-    const FilePath relativePath = FilePath::fromString(status.relativePath);
-    const FilePath absolutePath = item->absoluteFilePath();
-    const bool untracked = status.state == VcsFileState::Untracked;
-    const bool unmerged = status.state == VcsFileState::Unmerged;
-    const bool deleted = status.state == VcsFileState::Deleted;
-    const bool staged = status.section == Section::Staged;
+    // Right-clicking a row outside the current selection selects just that row;
+    // right-clicking inside the selection keeps it, so actions apply to every
+    // selected file.
+    QItemSelectionModel *selectionModel = m_treeView->selectionModel();
+    if (!selectionModel->isSelected(index)) {
+        selectionModel->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        m_treeView->setCurrentIndex(index);
+    }
 
-    if (!deleted) {
-        menu.addAction(Tr::tr("Open File"), this, [absolutePath] {
-            EditorManager::openEditor(absolutePath);
+    // Snapshot the selected files by value: an action may trigger an
+    // asynchronous status update that rebuilds the tree and invalidates the
+    // item pointers.
+    struct Target
+    {
+        VersionControlBase *vc = nullptr;
+        FilePath repository;
+        VcsFileStatus status;
+        FilePath absolutePath;
+    };
+    QList<Target> targets;
+    for (const QModelIndex &selected : selectionModel->selectedIndexes()) {
+        if (const auto item = dynamic_cast<ChangedFileItem *>(m_model->itemForIndex(selected)))
+            targets.append({item->versionControl(), item->repository(), item->status(),
+                            item->absoluteFilePath()});
+    }
+    if (targets.isEmpty())
+        return;
+
+    const bool single = targets.size() == 1;
+    const auto inState = [](VcsFileState state) {
+        return [state](const Target &t) { return t.status.state == state; };
+    };
+    const bool anyDeleted = Utils::anyOf(targets, inState(VcsFileState::Deleted));
+    const bool allUntracked = Utils::allOf(targets, inState(VcsFileState::Untracked));
+    const bool noneUntracked = !Utils::anyOf(targets, inState(VcsFileState::Untracked));
+    const bool noneUnmerged = !Utils::anyOf(targets, inState(VcsFileState::Unmerged));
+    const bool allStaged = Utils::allOf(targets,
+        [](const Target &t) { return t.status.section == Section::Staged; });
+    const bool noneStaged = !Utils::anyOf(targets,
+        [](const Target &t) { return t.status.section == Section::Staged; });
+    const bool allSupportStaging = Utils::allOf(targets,
+        [](const Target &t) { return t.vc->supportsStaging(); });
+    const bool allSupportAdd = Utils::allOf(targets, [](const Target &t) {
+        return t.vc->supportsOperation(IVersionControl::AddOperation);
+    });
+
+    if (!anyDeleted) {
+        menu.addAction(Tr::tr("Open File"), this, [targets] {
+            for (const Target &t : targets)
+                EditorManager::openEditor(t.absolutePath);
         });
     }
-    if (!untracked) {
-        menu.addAction(Tr::tr("Diff"), this, [vc, repository, status] {
-            vc->diffChangedFile(repository, status.relativePath, status.section);
+    // Diff, Log and Annotate inspect a single file.
+    if (single && !allUntracked) {
+        const Target t = targets.first();
+        menu.addAction(Tr::tr("Diff"), this, [t] {
+            t.vc->diffChangedFile(t.repository, t.status.relativePath, t.status.section);
         });
     }
     menu.addSeparator();
 
-    if (vc->supportsStaging()) {
-        if (staged) {
-            menu.addAction(Tr::tr("Unstage"), this, [vc, repository, status] {
-                vc->unstageFile(repository, status.relativePath);
+    if (allSupportStaging) {
+        if (allStaged) {
+            menu.addAction(Tr::tr("Unstage"), this, [targets] {
+                for (const Target &t : targets)
+                    t.vc->unstageFile(t.repository, t.status.relativePath);
             });
-        } else if (!untracked && !unmerged) {
+        } else if (noneStaged && noneUntracked && noneUnmerged) {
             // Untracked and unmerged files are handled by vcsFillFileActionMenu()
             // below, which offers "Add"/"Stage" and "Mark Conflicts Resolved".
-            menu.addAction(Tr::tr("Stage"), this, [vc, repository, status] {
-                vc->stageFile(repository, status.relativePath);
+            menu.addAction(Tr::tr("Stage"), this, [targets] {
+                for (const Target &t : targets)
+                    t.vc->stageFile(t.repository, t.status.relativePath);
             });
         }
-    } else if (untracked && vc->supportsOperation(IVersionControl::AddOperation)) {
-        menu.addAction(Tr::tr("Add"), this, [vc, absolutePath] {
-            vc->vcsAdd(absolutePath);
+    } else if (allUntracked && allSupportAdd) {
+        menu.addAction(Tr::tr("Add"), this, [targets] {
+            for (const Target &t : targets)
+                t.vc->vcsAdd(t.absolutePath);
         });
     }
     // Hidden for rows in the Staged section: revertChangedFile() only reverts the
     // working tree changes, so unstaging first is the natural flow there.
-    if (!untracked && !staged) {
-        menu.addAction(Tr::tr("Revert..."), this, [this, vc, repository, status] {
+    if (noneUntracked && noneStaged) {
+        menu.addAction(Tr::tr("Revert..."), this, [this, targets] {
+            const QString question = targets.size() == 1
+                ? Tr::tr("Discard the changes to \"%1\"?").arg(targets.first().status.relativePath)
+                : Tr::tr("Discard the changes to %n selected files?", nullptr, targets.size());
             const QMessageBox::StandardButton answer = QMessageBox::question(
-                this, Tr::tr("Revert"),
-                Tr::tr("Discard the changes to \"%1\"?").arg(status.relativePath),
+                this, Tr::tr("Revert"), question,
                 QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
             if (answer != QMessageBox::Yes)
                 return;
-            vc->revertChangedFile(repository, status.relativePath);
+            for (const Target &t : targets)
+                t.vc->revertChangedFile(t.repository, t.status.relativePath);
         });
     }
-    if (!untracked) {
-        menu.addAction(Tr::tr("Log"), this, [vc, repository, relativePath] {
-            vc->vcsLog(repository, relativePath);
-        });
-        if (!deleted && vc->supportsOperation(IVersionControl::AnnotateOperation)) {
-            menu.addAction(Tr::tr("Annotate"), this, [vc, absolutePath] {
-                vc->vcsAnnotate(absolutePath, 1);
+    if (single) {
+        const Target t = targets.first();
+        const FilePath relativePath = FilePath::fromString(t.status.relativePath);
+        if (t.status.state != VcsFileState::Untracked) {
+            menu.addAction(Tr::tr("Log"), this, [t, relativePath] {
+                t.vc->vcsLog(t.repository, relativePath);
             });
+            if (t.status.state != VcsFileState::Deleted
+                && t.vc->supportsOperation(IVersionControl::AnnotateOperation)) {
+                menu.addAction(Tr::tr("Annotate"), this, [t] {
+                    t.vc->vcsAnnotate(t.absolutePath, 1);
+                });
+            }
+        }
+        // Untracked and unmerged files additionally get the state-specific
+        // actions of the version control (add to ignore file, merge tool, ...) -
+        // the staged/unstaged distinction is irrelevant for those states.
+        if (t.status.state == VcsFileState::Untracked
+            || t.status.state == VcsFileState::Unmerged) {
+            menu.addSeparator();
+            t.vc->vcsFillFileActionMenu(&menu, t.repository, relativePath, t.status.state);
         }
     }
-    // Untracked and unmerged files additionally get the state-specific actions of
-    // the version control (add to ignore file, merge tool, ...) - the
-    // staged/unstaged distinction is irrelevant for those states.
-    if (untracked || unmerged) {
-        menu.addSeparator();
-        vc->vcsFillFileActionMenu(&menu, repository, relativePath, status.state);
-    }
 
-    // Refresh after any action that may have altered the repository state.
-    if (menu.exec(m_treeView->mapToGlobal(point)))
-        vc->requestRepositoryStatus(repository);
+    // Refresh the affected repositories after any action that may have altered
+    // their state.
+    if (menu.exec(m_treeView->mapToGlobal(point))) {
+        FilePaths refreshed;
+        for (const Target &t : targets) {
+            if (!refreshed.contains(t.repository)) {
+                refreshed.append(t.repository);
+                t.vc->requestRepositoryStatus(t.repository);
+            }
+        }
+    }
 }
 
 ChangesViewFactory::ChangesViewFactory()
