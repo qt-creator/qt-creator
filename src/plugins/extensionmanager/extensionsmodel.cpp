@@ -29,7 +29,7 @@ using namespace Utils;
 
 namespace ExtensionManager::Internal {
 
-Q_LOGGING_CATEGORY(modelLog, "qtc.extensionmanager.model", QtWarningMsg)
+static Q_LOGGING_CATEGORY(modelLog, "qtc.extensionmanager.model", QtWarningMsg)
 
 class ExtensionsModelPrivate
 {
@@ -57,7 +57,7 @@ void ExtensionsModelPrivate::addUnlistedLocalPlugins()
     qCDebug(modelLog) << "Number of added local plugins:" << localPlugins.count();
 }
 
-QString descriptionWithLinks(const QString &description, const QString &url,
+static QString descriptionWithLinks(const QString &description, const QString &url,
                              const QString &documentationUrl)
 {
     QStringList fragments;
@@ -234,7 +234,7 @@ static QString badgeText(const QModelIndex &index)
     return remoteVersion > localVersion ? Tr::tr("Updated") : QString();
 }
 
-ExtensionState extensionState(const QModelIndex &index)
+static ExtensionState extensionState(const QModelIndex &index)
 {
     if (index.data(RoleItemType) != ItemTypeExtension)
         return None;

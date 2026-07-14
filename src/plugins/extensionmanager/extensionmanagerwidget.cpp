@@ -63,7 +63,7 @@ using namespace Utils::StyleHelper;
 
 namespace ExtensionManager::Internal {
 
-Q_LOGGING_CATEGORY(widgetLog, "qtc.extensionmanager.widget", QtWarningMsg)
+[[maybe_unused]] static Q_LOGGING_CATEGORY(widgetLog, "qtc.extensionmanager.widget", QtWarningMsg)
 
 constexpr TextFormat contentTF
     {Theme::Token_Text_Default, UiElement::UiElementBody2};

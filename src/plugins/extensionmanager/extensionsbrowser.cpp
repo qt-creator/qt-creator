@@ -65,7 +65,7 @@ using namespace WelcomePageHelpers;
 
 namespace ExtensionManager::Internal {
 
-Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
+static Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 
 constexpr int gapSize = GapHXl;
 constexpr int itemWidth = 330;
