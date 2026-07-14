@@ -53,7 +53,10 @@ static QString typeToString(QtMsgType type)
 void LogCapture::messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     LogCapture &self = instance();
-    self.append(type, context, msg);
+    self.append(
+        typeToString(type),
+        QString::fromUtf8(context.category ? context.category : "default"),
+        msg);
 
     // Chain to the previously installed handler so existing routing keeps working.
     QtMessageHandler previous = nullptr;
@@ -65,13 +68,18 @@ void LogCapture::messageHandler(QtMsgType type, const QMessageLogContext &contex
         previous(type, context, msg);
 }
 
-void LogCapture::append(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+void LogCapture::recordMessage(const QString &category, const QString &type, const QString &message)
+{
+    append(type, category, message);
+}
+
+void LogCapture::append(const QString &type, const QString &category, const QString &message)
 {
     Entry entry;
     entry.timestamp = QDateTime::currentMSecsSinceEpoch();
-    entry.type = typeToString(type);
-    entry.category = QString::fromUtf8(context.category ? context.category : "default");
-    entry.message = msg;
+    entry.type = type;
+    entry.category = category;
+    entry.message = message;
 
     QMutexLocker locker(&m_mutex);
     entry.index = m_nextIndex++;
@@ -124,9 +132,11 @@ void registerLogTools()
             .title("Read application log output")
             .description(
                 "Returns recent log output captured from Qt Creator's qDebug()/qCInfo()/"
-                "qCWarning()/... stream, including Q_LOGGING_CATEGORY output. Read incrementally "
-                "by passing the 'cursor' returned by the previous call as 'sinceCursor'. Optionally "
-                "filter by a logging-category prefix, e.g. 'qtc.remotewindows'.")
+                "qCWarning()/... stream, including Q_LOGGING_CATEGORY output, as well as messages "
+                "written to the General Messages pane (under the 'general' category). Read "
+                "incrementally by passing the 'cursor' returned by the previous call as "
+                "'sinceCursor'. Optionally filter by a logging-category prefix, e.g. "
+                "'qtc.remotewindows' or 'general'.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}

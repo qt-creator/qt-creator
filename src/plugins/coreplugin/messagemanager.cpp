@@ -14,6 +14,7 @@
 #include <utils/utilsicons.h>
 
 #include <QFont>
+#include <QList>
 #include <QPointer>
 
 /*!
@@ -108,6 +109,29 @@ static MessageOutputWindow *messageOutputWindow()
     return theMessageOutputWindow.get();
 }
 
+static QList<std::pair<QPointer<QObject>, OutputObserver>> &observers()
+{
+    static QList<std::pair<QPointer<QObject>, OutputObserver>> theObservers;
+    return theObservers;
+}
+
+void addObserver(QObject *guard, const OutputObserver &observer)
+{
+    QTC_ASSERT(guard, return);
+    observers().append({guard, observer});
+}
+
+static void notifyObservers(const QString &text)
+{
+    QList<std::pair<QPointer<QObject>, OutputObserver>> &list = observers();
+    for (int i = list.size() - 1; i >= 0; --i) {
+        if (!list.at(i).first)
+            list.removeAt(i); // Drop observers whose guard has been destroyed.
+        else
+            list.at(i).second(text);
+    }
+}
+
 enum class Flag { Silent, Flash, Disrupt };
 
 static void showOutputPane(Flag flags)
@@ -132,6 +156,7 @@ static void writeImpl(const QString &text, Flag flags)
         QTC_ASSERT(messageOutputWindow(), return);
         showOutputPane(flags);
         messageOutputWindow()->append(text + '\n');
+        notifyObservers(text);
     });
 }
 

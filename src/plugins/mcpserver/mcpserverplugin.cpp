@@ -399,6 +399,9 @@ public:
         inspectAction.addOnTriggered([this] { inspector.show(); });
 
         LogCapture::instance().install();
+        MessageManager::addObserver(this, [](const QString &message) {
+            LogCapture::instance().recordMessage("general", "info", message);
+        });
 
         m_server.setInspector(&inspector);
         m_server.setInstructions(

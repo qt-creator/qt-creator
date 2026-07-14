@@ -41,6 +41,10 @@ public:
     // call has an effect.
     void install();
 
+    // Records a message that does not flow through the Qt message handler, such as
+    // output written to the General Messages pane via Core::MessageManager.
+    void recordMessage(const QString &category, const QString &type, const QString &message);
+
     // Returns entries with index >= sinceCursor that are still buffered, optionally
     // filtered by a logging-category prefix, limited to maxLines (most recent if the
     // range is larger than maxLines).
@@ -50,7 +54,7 @@ private:
     LogCapture() = default;
 
     static void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
-    void append(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+    void append(const QString &type, const QString &category, const QString &message);
 
     mutable QMutex m_mutex;
     QList<Entry> m_buffer;
