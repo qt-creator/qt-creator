@@ -203,9 +203,18 @@ public:
     void diffChangedFile(const FilePath &repository, const QString &relativePath,
                          VcsFileStatus::Section section) final
     {
-        gitClient().diffFile(repository, relativePath,
-                             section == VcsFileStatus::Section::Staged ? GitClient::Staged
-                                                                       : GitClient::Unstaged);
+        switch (section) {
+        case VcsFileStatus::Section::Staged:
+            gitClient().inlineDiffStagedFile(repository, relativePath);
+            break;
+        case VcsFileStatus::Section::Changed:
+            gitClient().inlineDiffFile(repository, relativePath);
+            break;
+        case VcsFileStatus::Section::Conflicted:
+            // conflict markers have no meaningful baseline to diff against
+            gitClient().diffFile(repository, relativePath, GitClient::Unstaged);
+            break;
+        }
     }
     void stageFile(const FilePath &repository, const QString &relativePath) final
     {

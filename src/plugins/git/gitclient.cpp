@@ -1348,8 +1348,11 @@ void GitClient::inlineDiffFile(const FilePath &workingDirectory, const QString &
     const FilePath filePath = workingDirectory.resolvePath(fileName);
     const QString relativeFile = filePath.relativeChildPath(topLevel).path();
 
-    if (!openInlineDiff(filePath, indexBaseline(topLevel, relativeFile),
-                        Tr::tr("%1 (Unstaged)").arg(filePath.fileName()))) {
+    // deleted files cannot be opened in an editor (and would report that);
+    // the classic diff view shows the deletion
+    if (!filePath.exists()
+        || !openInlineDiff(filePath, indexBaseline(topLevel, relativeFile),
+                           Tr::tr("%1 (Unstaged)").arg(filePath.fileName()))) {
         diffFile(workingDirectory, fileName, Unstaged);
     }
 }
