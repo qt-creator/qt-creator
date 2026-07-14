@@ -204,18 +204,12 @@ public:
     void diffChangedFile(const FilePath &repository, const QString &relativePath,
                          VcsFileStatus::Section section) final
     {
-        switch (section) {
-        case VcsFileStatus::Section::Staged:
+        // conflicted files work through the index baseline, too: it compares
+        // unmerged paths against "ours"
+        if (section == VcsFileStatus::Section::Staged)
             gitClient().inlineDiffStagedFile(repository, relativePath);
-            break;
-        case VcsFileStatus::Section::Changed:
+        else
             gitClient().inlineDiffFile(repository, relativePath);
-            break;
-        case VcsFileStatus::Section::Conflicted:
-            // conflict markers have no meaningful baseline to diff against
-            gitClient().diffFile(repository, relativePath, GitClient::Unstaged);
-            break;
-        }
     }
     void stageFile(const FilePath &repository, const QString &relativePath) final
     {
