@@ -55,9 +55,9 @@ def performTest(workingDir, projectName, availableConfigs):
         if not checkCompile():
             test.fatal("Compile had errors... Skipping current build config")
             continue
-        switchViewTo(ViewConstants.DEBUG)
+        switchViewTo(ViewConstants.PROFILER)
         selectFromCombo(":Analyzer Toolbar.AnalyzerManagerToolBox_QComboBox", "QML Profiler")
-        recordButton = waitForObject("{container=':DebugModeWidget.Toolbar_QDockWidget' "
+        recordButton = waitForObject("{container=':ProfilerModeWidget.Toolbar_QDockWidget' "
                                      "type='QToolButton' unnamed='1' visible='1' "
                                      "toolTip?='*able Profiling'}")
         if not test.verify(recordButton.checked, "Verifying recording is enabled."):
