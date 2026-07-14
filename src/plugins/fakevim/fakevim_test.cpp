@@ -15,6 +15,7 @@
 #include <texteditor/texteditor.h>
 
 #include <QApplication>
+#include <QFocusEvent>
 #include <QDir>
 #include <QFileInfo>
 #include <QKeyEvent>
@@ -171,6 +172,7 @@ private slots:
     void test_vim_surround_emulation();
     void test_vim_unimpaired_emulation();
     void test_vim_reflow();
+    void test_vim_visual_selection_focus_out();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
@@ -4876,6 +4878,32 @@ void FakeVimTester::test_vim_unimpaired_emulation()
     data.setText("a|bc" N "def" N "ghi");
     KEYS("2]e", "def" N "ghi" N "a|bc");
     KEYS("2[e", "a|bc" N "def" N "ghi");
+}
+
+void FakeVimTester::test_vim_visual_selection_focus_out()
+{
+    // Visual-char selection is inclusive of the character under the cursor.
+    // While the editor is focused FakeVim paints that character with a block
+    // cursor and keeps the text-cursor selection exclusive, but when focus
+    // leaves (e.g. when opening Advanced Find) the selection must be extended
+    // so external consumers get the whole text (QTCREATORBUG-22207).
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+
+    TestData data;
+    setup(&data);
+    data.editor()->show();
+    data.setText("test");
+    data.doKeys("ve"); // visual-select the whole word
+
+    QFocusEvent focusOut(QEvent::FocusOut);
+    QApplication::sendEvent(data.editor(), &focusOut);
+    const QString selected = data.editor()->textCursor().selectedText();
+
+    useFakeVim.setValue(savedUseFakeVim);
+
+    QCOMPARE(selected, QString("test"));
 }
 
 void FakeVimTester::test_vim_reflow()
