@@ -37,7 +37,7 @@ using namespace VcsBase;
 
 namespace Gerrit::Internal {
 
-QDebug operator<<(QDebug d, const GerritApproval &a)
+[[maybe_unused]] static QDebug operator<<(QDebug d, const GerritApproval &a)
 {
     d.nospace() << a.reviewer.fullName << ": " << a.approval << " ("
                 << a.type << ", " << a.description << ')';
@@ -45,20 +45,20 @@ QDebug operator<<(QDebug d, const GerritApproval &a)
 }
 
 // Sort approvals by type and reviewer
-bool gerritApprovalLessThan(const GerritApproval &a1, const GerritApproval &a2)
+static bool gerritApprovalLessThan(const GerritApproval &a1, const GerritApproval &a2)
 {
     const int compare = a1.type.compare(a2.type);
     return compare == 0 ? a1.reviewer.fullName.compare(a2.reviewer.fullName) < 0 : compare < 0;
 }
 
-QDebug operator<<(QDebug d, const GerritPatchSet &p)
+static QDebug operator<<(QDebug d, const GerritPatchSet &p)
 {
     d.nospace() << " Patch set: " << p.ref << ' ' << p.patchSetNumber
                 << ' ' << p.approvals;
     return d;
 }
 
-QDebug operator<<(QDebug d, const GerritChange &c)
+[[maybe_unused]] static QDebug operator<<(QDebug d, const GerritChange &c)
 {
     d.nospace() << c.fullTitle() << " by " << c.owner.email
                 << ' ' << c.lastUpdated << ' ' <<  c.currentPatchSet;
@@ -774,7 +774,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
     return row;
 }
 
-bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
+static bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
 {
     if (c1->depth != c2->depth)
         return c1->depth < c2->depth;
