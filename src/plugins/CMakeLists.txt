@@ -75,7 +75,6 @@ add_subdirectory(webassembly)
 
 # Level 6:
 add_subdirectory(debugger)
-add_subdirectory(harmonyos)
 add_subdirectory(coco)
 add_subdirectory(copilot)
 add_subdirectory(gitlab)
@@ -86,6 +85,7 @@ add_subdirectory(cmakeprojectmanager)
 
 # Level 7:
 add_subdirectory(android)
+add_subdirectory(harmonyos)
 add_subdirectory(autotest)
 add_subdirectory(axivion)
 add_subdirectory(baremetal)

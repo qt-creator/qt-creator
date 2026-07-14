@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "harmonyosconfigurations.h"
+#include "harmonyosdeploystep.h"
 #include "harmonyosdevice.h"
 #include "harmonyosqtversion.h"
 #include "harmonyossettings.h"
@@ -30,6 +31,9 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
         setupHarmonyOsDevice();
         setupHarmonyOsQtVersion();
         setupHarmonyOsToolchain();
+
+        setupHarmonyOsDeployConfiguration();
+        setupHarmonyOsDeployStep();
 
         connect(KitManager::instance(), &KitManager::kitsLoaded, this,
                 &HarmonyOsPlugin::kitsRestored, Qt::SingleShotConnection);

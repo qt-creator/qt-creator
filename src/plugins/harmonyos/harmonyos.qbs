@@ -7,6 +7,7 @@ QtcPlugin {
     Depends { name: "Qt.widgets" }
     Depends { name: "Utils" }
 
+    Depends { name: "CMakeProjectManager" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
@@ -16,6 +17,8 @@ QtcPlugin {
         "harmonyosconfigurations.cpp",
         "harmonyosconfigurations.h",
         "harmonyosconstants.h",
+        "harmonyosdeploystep.cpp",
+        "harmonyosdeploystep.h",
         "harmonyosdevice.cpp",
         "harmonyosdevice.h",
         "harmonyosplugin.cpp",

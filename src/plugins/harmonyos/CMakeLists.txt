@@ -1,8 +1,9 @@
 add_qtc_plugin(HarmonyOS
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core CMakeProjectManager Debugger ProjectExplorer QtSupport
   SOURCES
     harmonyosconfigurations.cpp harmonyosconfigurations.h
     harmonyosconstants.h
+    harmonyosdeploystep.cpp harmonyosdeploystep.h
     harmonyosdevice.cpp harmonyosdevice.h
     harmonyosplugin.cpp
     harmonyosqtversion.cpp harmonyosqtversion.h
