@@ -20,6 +20,9 @@ Utils::FilePath clangCompiler(const Utils::FilePath &sdkRoot, bool cxx);
 // The lldb debugger shipped in the native SDK.
 Utils::FilePath lldbCommand(const Utils::FilePath &sdkRoot);
 
+// The hdc device connector shipped in the SDK toolchains.
+Utils::FilePath hdcCommand(const Utils::FilePath &sdkRoot);
+
 // The sysroot of the native SDK.
 Utils::FilePath sysrootPath(const Utils::FilePath &sdkRoot);
 

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/id.h>
+
 namespace HarmonyOs::Constants {
 
 inline constexpr char HARMONYOS_SETTINGS_ID[] = "ZZ.HarmonyOS Configurations";
@@ -10,6 +12,8 @@ inline constexpr char HARMONYOS_TOOLCHAIN_TYPEID[] = "Qt4ProjectManager.ToolChai
 inline constexpr char HARMONYOS_QT_TYPE[] = "Qt4ProjectManager.QtVersion.HarmonyOS";
 
 inline constexpr char HARMONYOS_DEVICE_TYPE[] = "HarmonyOS.Device.Type";
+
+inline const Utils::Id HARMONYOS_SERIAL_NUMBER = "HarmonyOS.SerialNumber";
 
 // Kit
 inline constexpr char HARMONYOS_KIT_SDK[] = "HarmonyOS.SDK";

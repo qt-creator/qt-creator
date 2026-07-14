@@ -3,17 +3,23 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/desktopdevice.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace HarmonyOs::Internal {
 
-class HarmonyOsDevice final : public ProjectExplorer::DesktopDevice
+// A HarmonyOS target device. Like Android, it derives from IDevice rather than
+// DesktopDevice: it must not present itself as a local file handler, or it
+// would hijack local-path resolution (e.g. break CMake tool detection).
+class HarmonyOsDevice final : public ProjectExplorer::IDevice
 {
 public:
     static ProjectExplorer::IDevice::Ptr create();
 
-    Utils::Result<> handlesFile(const Utils::FilePath &filePath) const final;
+    ProjectExplorer::IDeviceWidget *createWidget() final;
+
+    QString serialNumber() const;
+    void setSerialNumber(const QString &serial);
 
 private:
     HarmonyOsDevice();

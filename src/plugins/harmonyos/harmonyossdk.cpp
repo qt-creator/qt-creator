@@ -52,6 +52,16 @@ FilePath lldbCommand(const FilePath &sdkRoot)
     return native.pathAppended("llvm/bin/lldb").withExecutableSuffix();
 }
 
+FilePath hdcCommand(const FilePath &sdkRoot)
+{
+    const FilePath native = nativeSdkPath(sdkRoot);
+    if (native.isEmpty())
+        return {};
+    // hdc lives in the "toolchains" folder next to the "native" folder.
+    const FilePath hdc = native.parentDir().pathAppended("toolchains/hdc").withExecutableSuffix();
+    return hdc.exists() ? hdc : FilePath();
+}
+
 FilePath sysrootPath(const FilePath &sdkRoot)
 {
     const FilePath native = nativeSdkPath(sdkRoot);
