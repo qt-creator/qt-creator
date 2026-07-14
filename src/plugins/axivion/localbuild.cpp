@@ -44,9 +44,9 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-Q_LOGGING_CATEGORY(sqlLog, "qtc.axivion.sql", QtWarningMsg)
-Q_LOGGING_CATEGORY(localDashLog, "qtc.axivion.localdashboard", QtWarningMsg)
-Q_LOGGING_CATEGORY(localBuildLog, "qtc.axivion.localbuild", QtWarningMsg)
+static Q_LOGGING_CATEGORY(sqlLog, "qtc.axivion.sql", QtWarningMsg)
+static Q_LOGGING_CATEGORY(localDashLog, "qtc.axivion.localdashboard", QtWarningMsg)
+static Q_LOGGING_CATEGORY(localBuildLog, "qtc.axivion.localbuild", QtWarningMsg)
 
 struct LocalDashboard
 {

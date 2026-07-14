@@ -36,7 +36,7 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-Q_LOGGING_CATEGORY(log, "qtc.axivion.pluginarserver", QtWarningMsg)
+static Q_LOGGING_CATEGORY(log, "qtc.axivion.pluginarserver", QtWarningMsg)
 
 class PluginArServer;
 

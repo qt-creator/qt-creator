@@ -37,7 +37,7 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-Q_LOGGING_CATEGORY(sfaLog, "qtc.axivion.sfa", QtWarningMsg)
+static Q_LOGGING_CATEGORY(sfaLog, "qtc.axivion.sfa", QtWarningMsg)
 
 class SingleFileDialog : public QDialog
 {

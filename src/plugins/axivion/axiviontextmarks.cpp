@@ -101,7 +101,7 @@ public:
     QHash<FilePath, QSet<AxivionTextMark *>> sfaMarks;
 };
 
-TextMarkManager &textMarkManager()
+static TextMarkManager &textMarkManager()
 {
     static TextMarkManager manager;
     return manager;

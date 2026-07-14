@@ -249,7 +249,7 @@ private:
     QList<PathMapping> m_pathMapping;
 };
 
-PathMappingSettings &pathMappingSettings()
+static PathMappingSettings &pathMappingSettings()
 {
     static PathMappingSettings thePathMapping;
     return thePathMapping;

@@ -384,7 +384,7 @@ std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key,
 
 // FIXME: extend to give some details?
 // FIXME: move when curl is no more in use?
-bool handleCertificateIssue(const Utils::Id &serverId)
+static bool handleCertificateIssue(const Utils::Id &serverId)
 {
     QTC_ASSERT(dd, return false);
     const QString serverHost = QUrl(settings().serverForId(serverId).dashboard).host();
