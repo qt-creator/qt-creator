@@ -170,6 +170,16 @@ public:
     virtual void stageFile(const Utils::FilePath &repository, const QString &relativePath);
     virtual void unstageFile(const Utils::FilePath &repository, const QString &relativePath);
 
+    // Commit \a relativePaths (relative to the repository top level) with
+    // \a message. For version controls with a staging area (see
+    // supportsStaging()), \a relativePaths is ignored and the staged index is
+    // committed instead; others commit exactly the given files. The default
+    // does nothing; version controls shown in the Changes view should implement
+    // it. Returns true if the commit was started successfully.
+    virtual bool commitFiles(const Utils::FilePath &repository,
+                             const QStringList &relativePaths,
+                             const QString &message);
+
 signals:
     void repositoryStatusChanged(const Utils::FilePath &repository);
 
@@ -177,6 +187,11 @@ protected:
     // Stores the status cache for \a repository and emits repositoryStatusChanged()
     // if it differs from the previously known status.
     void setRepositoryStatus(const Utils::FilePath &repository, const VcsFileStatusList &status);
+
+    // Writes \a message to a temporary file (not auto-removed) and returns its
+    // path, for use with commit commands that take a message file. The caller
+    // (or the invoked command) is responsible for removing it. Empty on failure.
+    static QString saveCommitMessage(const QString &message);
 
     // Prompt to save all files before commit:
     bool promptBeforeCommit();

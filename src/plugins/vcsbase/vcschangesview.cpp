@@ -20,18 +20,25 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
+#include <QAbstractTextDocumentLayout>
 #include <QAction>
 #include <QApplication>
 #include <QItemSelectionModel>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QPointer>
+#include <QStyledItemDelegate>
 #include <QToolButton>
 #include <QVBoxLayout>
+
+#include <algorithm>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -56,6 +63,21 @@ public:
     VcsFileStatus status() const { return m_status; }
     FilePath absoluteFilePath() const { return m_repository.pathAppended(m_status.relativePath); }
 
+    // A checkable item lets the user pick which files an inline commit includes
+    // (used by version controls without a staging area).
+    void setCheckable(bool checkable) { m_checkable = checkable; }
+    void setChecked(bool checked) { m_checked = checked; }
+    bool isCheckable() const { return m_checkable; }
+    bool isChecked() const { return m_checked; }
+
+    Qt::ItemFlags flags(int) const final
+    {
+        Qt::ItemFlags f = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        if (m_checkable)
+            f |= Qt::ItemIsUserCheckable;
+        return f;
+    }
+
     QVariant data(int column, int role) const final
     {
         if (column != 0)
@@ -67,6 +89,8 @@ public:
             return FileIconProvider::icon(absoluteFilePath());
         case Qt::ForegroundRole:
             return VcsManager::fileStateColor(m_status.state);
+        case Qt::CheckStateRole:
+            return m_checkable ? QVariant(m_checked ? Qt::Checked : Qt::Unchecked) : QVariant();
         case Qt::ToolTipRole:
             return QString(absoluteFilePath().toUserOutput() + '\n'
                            + VcsManager::fileStateDescription(m_status.state));
@@ -74,10 +98,21 @@ public:
         return {};
     }
 
+    bool setData(int column, const QVariant &value, int role) final
+    {
+        if (column == 0 && role == Qt::CheckStateRole && m_checkable) {
+            m_checked = value.toInt() == Qt::Checked;
+            return true;
+        }
+        return TreeItem::setData(column, value, role);
+    }
+
 private:
     VersionControlBase *m_vc = nullptr;
     FilePath m_repository;
     VcsFileStatus m_status;
+    bool m_checkable = false;
+    bool m_checked = true;
 };
 
 class SectionItem final : public TypedTreeItem<ChangedFileItem>
@@ -188,6 +223,187 @@ private:
     FilePath m_projectPath;
 };
 
+// Plain text edit that grows with its content up to a maximum number of lines,
+// after which it starts to scroll.
+class CommitMessageEdit final : public QPlainTextEdit
+{
+    Q_OBJECT
+
+public:
+    explicit CommitMessageEdit(QWidget *parent = nullptr)
+        : QPlainTextEdit(parent)
+    {
+        setPlaceholderText(Tr::tr("Message"));
+        setLineWrapMode(QPlainTextEdit::WidgetWidth);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setTabChangesFocus(true);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+        const auto notify = [this] {
+            updateGeometry();
+            emit sizeHintChanged();
+        };
+        connect(this, &QPlainTextEdit::textChanged, this, notify);
+        connect(document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
+                this, [notify](const QSizeF &) { notify(); });
+    }
+
+    QSize sizeHint() const final
+    {
+        return {QPlainTextEdit::sizeHint().width(), preferredHeight()};
+    }
+    // Zero minimum width so the editor can shrink and the commit button always
+    // fits, even in a narrow panel; only the height is constrained.
+    QSize minimumSizeHint() const final { return {0, preferredHeight()}; }
+
+signals:
+    void sizeHintChanged();
+
+private:
+    int preferredHeight() const
+    {
+        const int lines = std::clamp(document()->lineCount(), 1, maxLines);
+        const int frame = 2 * frameWidth();
+        const int docMargin = 2 * qRound(document()->documentMargin());
+        const QMargins cm = contentsMargins();
+        return lines * fontMetrics().lineSpacing() + docMargin + frame + cm.top() + cm.bottom();
+    }
+
+    static constexpr int maxLines = 10;
+};
+
+// A message input with a "Commit" button, embedded per repository in the tree.
+class CommitBar final : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit CommitBar(QWidget *parent = nullptr)
+        : QWidget(parent)
+    {
+        m_edit = new CommitMessageEdit(this);
+        m_commitButton = new QtcButton(Tr::tr("Commit"), QtcButton::SmallPrimary, this);
+        m_commitButton->setEnabled(false);
+        m_commitButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+        using namespace StyleHelper::SpacingTokens;
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(PaddingHM, PaddingVXs, PaddingHM, PaddingVXs);
+        layout->setSpacing(GapVXs);
+        layout->addWidget(m_edit);
+        layout->addWidget(m_commitButton);
+
+        connect(m_edit, &CommitMessageEdit::sizeHintChanged, this, [this] {
+            updateGeometry();
+            emit heightChanged();
+        });
+        connect(m_edit, &QPlainTextEdit::textChanged, this, [this] {
+            updateCommitButton();
+            emit draftChanged(m_edit->toPlainText());
+        });
+        connect(m_commitButton, &QAbstractButton::clicked, this, [this] {
+            emit commitRequested(m_edit->toPlainText());
+        });
+    }
+
+    // Height needed to stack the (already line-clamped) message editor above the
+    // commit button, used to size the hosting tree row. The layout's size hint
+    // expands each child to its minimum size hint, so it accounts for the
+    // button's real height (QtcButton reports it via minimumSizeHint()).
+    int preferredHeight() const { return layout()->sizeHint().height(); }
+
+    // Zero preferred width so the bar never widens the (ResizeToContents) tree
+    // column past the viewport; the editor just fills whatever width the cell
+    // offers and the commit button always stays visible.
+    QSize sizeHint() const final { return {0, preferredHeight()}; }
+    QSize minimumSizeHint() const final { return {0, preferredHeight()}; }
+
+    void setDraft(const QString &text)
+    {
+        if (m_edit->toPlainText() == text)
+            return;
+        QSignalBlocker blocker(m_edit);
+        m_edit->setPlainText(text);
+        updateCommitButton();
+    }
+
+    void setCanCommit(bool canCommit)
+    {
+        m_canCommit = canCommit;
+        updateCommitButton();
+    }
+
+protected:
+    void showEvent(QShowEvent *event) final
+    {
+        QWidget::showEvent(event);
+        // Recompute now that child widgets are polished and report their real
+        // size hints; the height set at construction is based on unpolished ones.
+        emit heightChanged();
+    }
+
+signals:
+    void heightChanged();
+    void draftChanged(const QString &text);
+    void commitRequested(const QString &message);
+
+private:
+    void updateCommitButton()
+    {
+        m_commitButton->setEnabled(m_canCommit && !m_edit->toPlainText().trimmed().isEmpty());
+    }
+
+    CommitMessageEdit *m_edit = nullptr;
+    QtcButton *m_commitButton = nullptr;
+    bool m_canCommit = false;
+};
+
+// Tree item hosting a CommitBar via QAbstractItemView::setIndexWidget(). Its row
+// height is driven by the bar through Qt::SizeHintRole.
+class CommitItem final : public TreeItem
+{
+public:
+    CommitItem(VersionControlBase *vc, const FilePath &repository)
+        : m_vc(vc), m_repository(repository)
+    {}
+
+    VersionControlBase *versionControl() const { return m_vc; }
+    FilePath repository() const { return m_repository; }
+
+    void setPreferredHeight(int height)
+    {
+        if (height > 0 && height != m_height) {
+            m_height = height;
+            update();
+        }
+    }
+
+    Qt::ItemFlags flags(int) const final { return Qt::ItemIsEnabled; }
+
+    QVariant data(int column, int role) const final
+    {
+        if (column == 0 && role == Qt::SizeHintRole && m_height > 0)
+            return QSize(0, m_height);
+        return {};
+    }
+
+private:
+    VersionControlBase *m_vc = nullptr;
+    FilePath m_repository;
+    int m_height = 0;
+};
+
+// Relays a CommitItem's size change to the view so its row gets re-laid out;
+// the row height itself comes from CommitItem's Qt::SizeHintRole.
+class CommitDelegate final : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    void notifySizeChanged(const QModelIndex &index) { emit sizeHintChanged(index); }
+};
+
 class ChangesView final : public QWidget
 {
 public:
@@ -201,6 +417,11 @@ protected:
 private:
     void rebuildProjectTree();
     void updateRepositoryItem(RepositoryItem *item);
+    void ensureCommitBar(CommitItem *item);
+    void commitRepository(VersionControlBase *vc, const FilePath &repository,
+                          const QString &message);
+    QStringList checkedFiles(VersionControlBase *vc, const FilePath &repository) const;
+    void fileCheckStateChanged(ChangedFileItem *item);
     void repositoryStatusChanged(const FilePath &repository);
     void repositoryChanged(const FilePath &repository);
     void requestRefresh(bool onlyDirty);
@@ -230,6 +451,12 @@ private:
     QSet<VersionControlBase *> m_connectedVcs;
     QSet<FilePath> m_dirtyRepositories;
     QSet<QString> m_collapsedKeys;
+    CommitDelegate *m_commitDelegate = nullptr;
+    QHash<FilePath, QString> m_commitDrafts;              // Unsent messages per repository.
+    QHash<FilePath, QPointer<CommitBar>> m_commitBars;   // Live commit bars per repository.
+    // Files (relative paths) the user unchecked per repository; anything else is
+    // considered checked. Only used by version controls without staging.
+    QHash<FilePath, QSet<QString>> m_uncheckedFiles;
 };
 
 ChangesView::ChangesView()
@@ -252,7 +479,19 @@ ChangesView::ChangesView()
     m_treeView->setHeaderHidden(true);
     m_treeView->setModel(m_model);
     m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    // NavigationTreeView defaults to uniform row heights, which ignores the
+    // per-row size hint the commit bar needs to grow.
+    m_treeView->setUniformRowHeights(false);
+    m_commitDelegate = new CommitDelegate(m_treeView);
+    m_treeView->setItemDelegate(m_commitDelegate);
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_model, &QAbstractItemModel::dataChanged, this,
+            [this](const QModelIndex &topLeft, const QModelIndex &, const QList<int> &roles) {
+        if (!roles.isEmpty() && !roles.contains(Qt::CheckStateRole))
+            return;
+        if (const auto item = dynamic_cast<ChangedFileItem *>(m_model->itemForIndex(topLeft)))
+            fileCheckStateChanged(item);
+    });
     connect(m_treeView, &QAbstractItemView::activated, this, &ChangesView::activate);
     connect(m_treeView, &QWidget::customContextMenuRequested,
             this, &ChangesView::openContextMenu);
@@ -435,6 +674,8 @@ void ChangesView::rebuildProjectTree()
     // Rebuild the tree. The project level is omitted if only one project is loaded.
     const QSet<Project *> projects
         = Utils::transform<QSet>(entries, [](const Entry &entry) { return entry.project; });
+    // clear() removes every row, so the view destroys the embedded commit bars.
+    m_commitBars.clear();
     m_model->clear();
     TreeItem *root = m_model->rootItem();
     if (projects.size() > 1) {
@@ -471,8 +712,50 @@ void ChangesView::updateRepositoryItem(RepositoryItem *item)
     };
     std::sort(status.begin(), status.end(), lessThan);
 
-    item->removeChildren();
-    if (vc->supportsStaging()) {
+    const bool staging = vc->supportsStaging();
+    const bool hasStaged = Utils::anyOf(status, [](const VcsFileStatus &file) {
+        return file.section == Section::Staged;
+    });
+    // A version control with a staging area commits its index; others commit the
+    // files the user checked, so the bar appears whenever there is anything to
+    // commit.
+    const bool wantCommitBar = staging ? hasStaged : !status.isEmpty();
+
+    // Drop remembered unchecks for files that are no longer reported.
+    if (!staging) {
+        QSet<QString> &unchecked = m_uncheckedFiles[repository];
+        if (!unchecked.isEmpty()) {
+            const QSet<QString> present = Utils::transform<QSet>(status,
+                [](const VcsFileStatus &f) { return f.relativePath; });
+            unchecked.intersect(present);
+        }
+    }
+
+    // Preserve an existing commit bar (kept as the first child) across in-place
+    // refreshes so the message being typed and the editor focus survive.
+    CommitItem *commitItem = item->childCount() > 0
+        ? dynamic_cast<CommitItem *>(item->childAt(0)) : nullptr;
+    if (wantCommitBar && !commitItem) {
+        commitItem = new CommitItem(vc, repository);
+        item->insertChild(0, commitItem);
+        ensureCommitBar(commitItem);
+    } else if (!wantCommitBar && commitItem) {
+        item->removeChildAt(0);
+        m_commitBars.remove(repository);
+        commitItem = nullptr;
+    }
+
+    // Rebuild every child except the preserved commit bar at index 0.
+    const int keep = commitItem ? 1 : 0;
+    while (item->childCount() > keep)
+        item->removeChildAt(keep);
+
+    if (commitItem) {
+        if (CommitBar *bar = m_commitBars.value(repository))
+            bar->setCanCommit(staging ? hasStaged : !checkedFiles(vc, repository).isEmpty());
+    }
+
+    if (staging) {
         for (const Section section : {Section::Conflicted, Section::Staged, Section::Changed}) {
             const VcsFileStatusList files = Utils::filtered(status,
                 [section](const VcsFileStatus &file) { return file.section == section; });
@@ -484,8 +767,15 @@ void ChangesView::updateRepositoryItem(RepositoryItem *item)
             item->appendChild(sectionItem);
         }
     } else {
-        for (const VcsFileStatus &file : std::as_const(status))
-            item->appendChild(new ChangedFileItem(vc, repository, file));
+        // Without a staging area, each file gets a checkbox so the user can pick
+        // what the inline commit includes.
+        const QSet<QString> unchecked = m_uncheckedFiles.value(repository);
+        for (const VcsFileStatus &file : std::as_const(status)) {
+            auto fileItem = new ChangedFileItem(vc, repository, file);
+            fileItem->setCheckable(true);
+            fileItem->setChecked(!unchecked.contains(file.relativePath));
+            item->appendChild(fileItem);
+        }
     }
 
     // Nested sub-repositories, shown only while they (or their own nested
@@ -503,7 +793,7 @@ void ChangesView::updateRepositoryItem(RepositoryItem *item)
         updateRepositoryItem(subItem);
     }
 
-    if (item->childCount() == 0 && !item->isSubRepository())
+    if (item->childCount() == keep && !item->isSubRepository())
         item->appendChild(new StaticTreeItem(Tr::tr("No changes")));
 
     item->setTopic(vc->vcsTopic(repository));
@@ -512,6 +802,79 @@ void ChangesView::updateRepositoryItem(RepositoryItem *item)
     const QString key = itemKey(item);
     if (!m_collapsedKeys.contains(key))
         m_treeView->expand(m_model->indexForItem(item));
+}
+
+void ChangesView::ensureCommitBar(CommitItem *item)
+{
+    VersionControlBase *vc = item->versionControl();
+    const FilePath repository = item->repository();
+
+    auto bar = new CommitBar;
+    bar->setDraft(m_commitDrafts.value(repository));
+    connect(bar, &CommitBar::draftChanged, this, [this, repository](const QString &text) {
+        if (text.isEmpty())
+            m_commitDrafts.remove(repository);
+        else
+            m_commitDrafts.insert(repository, text);
+    });
+    connect(bar, &CommitBar::commitRequested, this, [this, vc, repository](const QString &message) {
+        commitRepository(vc, repository, message);
+    });
+    connect(bar, &CommitBar::heightChanged, this, [this, item, bar] {
+        item->setPreferredHeight(bar->preferredHeight());
+        const QModelIndex index = m_model->indexForItem(item);
+        if (index.isValid())
+            m_commitDelegate->notifySizeChanged(index);
+    });
+
+    const QModelIndex index = m_model->indexForItem(item);
+    m_treeView->setIndexWidget(index, bar);
+    // Size the row to the bar right away; the row was laid out before the widget
+    // existed, so its height would otherwise stay at the default.
+    item->setPreferredHeight(bar->preferredHeight());
+    if (index.isValid())
+        m_commitDelegate->notifySizeChanged(index);
+    m_commitBars.insert(repository, bar);
+}
+
+QStringList ChangesView::checkedFiles(VersionControlBase *vc, const FilePath &repository) const
+{
+    const QSet<QString> unchecked = m_uncheckedFiles.value(repository);
+    QStringList files;
+    for (const VcsFileStatus &file : vc->repositoryStatus(repository)) {
+        if (!unchecked.contains(file.relativePath))
+            files.append(file.relativePath);
+    }
+    return files;
+}
+
+void ChangesView::fileCheckStateChanged(ChangedFileItem *item)
+{
+    const FilePath repository = item->repository();
+    QSet<QString> &unchecked = m_uncheckedFiles[repository];
+    if (item->isChecked())
+        unchecked.remove(item->status().relativePath);
+    else
+        unchecked.insert(item->status().relativePath);
+    if (CommitBar *bar = m_commitBars.value(repository))
+        bar->setCanCommit(!checkedFiles(item->versionControl(), repository).isEmpty());
+}
+
+void ChangesView::commitRepository(VersionControlBase *vc, const FilePath &repository,
+                                   const QString &message)
+{
+    if (message.trimmed().isEmpty())
+        return;
+    // Staging version controls (git) commit their index; others commit the
+    // files the user left checked.
+    const QStringList files = vc->supportsStaging() ? QStringList() : checkedFiles(vc, repository);
+    if (!vc->supportsStaging() && files.isEmpty())
+        return;
+    if (vc->commitFiles(repository, files, message)) {
+        m_commitDrafts.remove(repository);
+        m_uncheckedFiles.remove(repository);
+        vc->requestRepositoryStatus(repository);
+    }
 }
 
 bool ChangesView::hasChanges(const RepositoryEntry &entry) const
@@ -776,3 +1139,5 @@ NavigationView ChangesViewFactory::createWidget()
 }
 
 } // namespace VcsBase::Internal
+
+#include "vcschangesview.moc"

@@ -631,6 +631,28 @@ void VersionControlBase::unstageFile(const FilePath &repository, const QString &
     Q_UNUSED(relativePath)
 }
 
+bool VersionControlBase::commitFiles(const FilePath &repository,
+                                     const QStringList &relativePaths,
+                                     const QString &message)
+{
+    Q_UNUSED(repository)
+    Q_UNUSED(relativePaths)
+    Q_UNUSED(message)
+    return false;
+}
+
+QString VersionControlBase::saveCommitMessage(const QString &message)
+{
+    Utils::TempFileSaver saver;
+    saver.setAutoRemove(false);
+    saver.write(message.toUtf8());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError({}, res.error());
+        return {};
+    }
+    return saver.filePath().toUrlishString();
+}
+
 void VersionControlBase::setRepositoryStatus(const FilePath &repository,
                                              const VcsFileStatusList &status)
 {
