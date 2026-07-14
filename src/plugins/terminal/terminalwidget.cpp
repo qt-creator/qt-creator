@@ -20,6 +20,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -35,7 +36,6 @@
 #include <QGlyphRun>
 #include <QLoggingCategory>
 #include <QMenu>
-#include <QMimeData>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
@@ -63,6 +63,18 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     setupFont();
     setupColors();
     setupActions();
+
+    auto *dropSupport = new DropSupport(this, &DropSupport::enforceCopyAction);
+    connect(dropSupport,
+            &DropSupport::filesDropped,
+            this,
+            [this](const QList<DropSupport::FileSpec> &files, const QPoint &) {
+                const QStringList quotedPaths = Utils::transform(
+                    files, [](const DropSupport::FileSpec &file) {
+                        return QString("\"%1\"").arg(file.filePath.toUserOutput());
+                    });
+                writeToPty(quotedPaths.join(" ").toUtf8());
+            });
 
     auto baseUpdater = surfaceUpdater();
     setSurfaceUpdater([this, baseUpdater] {
@@ -565,25 +577,6 @@ void TerminalWidget::contextMenuRequested(const QPoint &pos)
 
     contextMenu->setAttribute(Qt::WA_DeleteOnClose);
     contextMenu->popup(mapToGlobal(pos));
-}
-
-void TerminalWidget::dragEnterEvent(QDragEnterEvent *event)
-{
-    if (event->mimeData()->hasUrls()) {
-        event->setDropAction(Qt::CopyAction);
-        event->accept();
-    }
-}
-
-void TerminalWidget::dropEvent(QDropEvent *event)
-{
-    QString urls = Utils::transform(event->mimeData()->urls(), [](const QUrl &url) {
-                       return QString("\"%1\"").arg(url.toDisplayString(QUrl::PreferLocalFile));
-                   }).join(" ");
-
-    writeToPty(urls.toUtf8());
-    event->setDropAction(Qt::CopyAction);
-    event->accept();
 }
 
 void TerminalWidget::showEvent(QShowEvent *event)

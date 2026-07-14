@@ -56,8 +56,6 @@ signals:
     void titleChanged();
 
 protected:
-    void dragEnterEvent(QDragEnterEvent *event) override;
-    void dropEvent(QDropEvent *event) override;
     void showEvent(QShowEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
     bool event(QEvent *event) override;
