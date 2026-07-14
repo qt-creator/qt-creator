@@ -11,11 +11,11 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(logTextFileFormat, "qtc.utils.textfileformat", QtWarningMsg)
+static Q_LOGGING_CATEGORY(logTextFileFormat, "qtc.utils.textfileformat", QtWarningMsg)
 
 namespace Utils {
 
-QDebug operator<<(QDebug d, const TextFileFormat &format)
+static QDebug operator<<(QDebug d, const TextFileFormat &format)
 {
     QDebug nsp = d.nospace();
     nsp << "TextFileFormat: " << format.encoding().fullDisplayName()
