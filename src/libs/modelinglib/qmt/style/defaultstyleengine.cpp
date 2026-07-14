@@ -62,12 +62,12 @@ public:
     ObjectVisuals m_objectVisuals;
 };
 
-size_t qHash(const ObjectStyleKey &styleKey)
+[[maybe_unused]] static size_t qHash(const ObjectStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_elementType) ^ qHash(styleKey.m_objectVisuals);
 }
 
-bool operator==(const ObjectStyleKey &lhs, const ObjectStyleKey &rhs)
+[[maybe_unused]] static bool operator==(const ObjectStyleKey &lhs, const ObjectStyleKey &rhs)
 {
     return lhs.m_elementType == rhs.m_elementType && lhs.m_objectVisuals == rhs.m_objectVisuals;
 }
@@ -88,12 +88,12 @@ public:
     bool m_withObject = false;
 };
 
-size_t qHash(const RelationStyleKey &styleKey)
+[[maybe_unused]] static size_t qHash(const RelationStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_elementType) ^ qHash(styleKey.m_relationVisuals);
 }
 
-bool operator==(const RelationStyleKey &lhs, const RelationStyleKey &rhs)
+[[maybe_unused]] static bool operator==(const RelationStyleKey &lhs, const RelationStyleKey &rhs)
 {
     return lhs.m_elementType == rhs.m_elementType
            && lhs.m_relationVisuals == rhs.m_relationVisuals
@@ -111,12 +111,12 @@ public:
     DAnnotation::VisualRole m_visualRole = DAnnotation::RoleNormal;
 };
 
-size_t qHash(const AnnotationStyleKey &styleKey)
+[[maybe_unused]] static size_t qHash(const AnnotationStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_visualRole);
 }
 
-bool operator==(const AnnotationStyleKey &lhs, const AnnotationStyleKey &rhs)
+[[maybe_unused]] static bool operator==(const AnnotationStyleKey &lhs, const AnnotationStyleKey &rhs)
 {
     return lhs.m_visualRole == rhs.m_visualRole;
 }
@@ -126,14 +126,14 @@ class BoundaryStyleKey
 {
 };
 
-size_t qHash(const BoundaryStyleKey &styleKey)
+[[maybe_unused]] static size_t qHash(const BoundaryStyleKey &styleKey)
 {
     Q_UNUSED(styleKey)
 
     return ::qHash(1);
 }
 
-bool operator==(const BoundaryStyleKey &lhs, const BoundaryStyleKey &rhs)
+[[maybe_unused]] static bool operator==(const BoundaryStyleKey &lhs, const BoundaryStyleKey &rhs)
 {
     Q_UNUSED(lhs)
     Q_UNUSED(rhs)
@@ -146,14 +146,14 @@ class SwimlaneStyleKey
 {
 };
 
-size_t qHash(const SwimlaneStyleKey &styleKey)
+[[maybe_unused]] static size_t qHash(const SwimlaneStyleKey &styleKey)
 {
     Q_UNUSED(styleKey)
 
     return ::qHash(1);
 }
 
-bool operator==(const SwimlaneStyleKey &lhs, const SwimlaneStyleKey &rhs)
+[[maybe_unused]] static bool operator==(const SwimlaneStyleKey &lhs, const SwimlaneStyleKey &rhs)
 {
     Q_UNUSED(lhs)
     Q_UNUSED(rhs)
