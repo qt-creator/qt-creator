@@ -503,12 +503,12 @@ bool DockerDevicePrivate::prepareForBuild(const Target *target)
            && ensureReachable(target->activeBuildConfiguration()->buildDirectory());
 }
 
-QString escapeMountPathUnix(const FilePath &fp)
+static QString escapeMountPathUnix(const FilePath &fp)
 {
     return fp.nativePath().replace('\"', "\"\"");
 }
 
-QString escapeMountPathWin(const FilePath &fp)
+static QString escapeMountPathWin(const FilePath &fp)
 {
     QString result = fp.nativePath().replace('\"', "\"\"").replace('\\', '/');
     if (result.size() >= 2 && result[1] == ':')
@@ -516,7 +516,7 @@ QString escapeMountPathWin(const FilePath &fp)
     return result;
 }
 
-QString escapeMountPath(const FilePath &fp)
+static QString escapeMountPath(const FilePath &fp)
 {
     if (HostOsInfo::isWindowsHost())
         return escapeMountPathWin(fp);
@@ -524,7 +524,7 @@ QString escapeMountPath(const FilePath &fp)
     return escapeMountPathUnix(fp);
 }
 
-QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
+static QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
 {
     QString escapedPath;
     QString escapedContainerPath;
@@ -539,7 +539,7 @@ QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
     return QStringList{"--mount", mountArg};
 }
 
-Result<> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
+static Result<> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
 {
     if (!mi.path.isLocal())
         return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));

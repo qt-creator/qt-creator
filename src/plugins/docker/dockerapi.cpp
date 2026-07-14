@@ -20,7 +20,7 @@
 
 #include <thread>
 
-Q_LOGGING_CATEGORY(dockerApiLog, "qtc.docker.api", QtWarningMsg);
+static Q_LOGGING_CATEGORY(dockerApiLog, "qtc.docker.api", QtWarningMsg);
 
 using namespace Utils;
 

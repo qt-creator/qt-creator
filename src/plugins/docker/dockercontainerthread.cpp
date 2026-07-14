@@ -11,7 +11,7 @@
 
 using namespace Utils;
 
-Q_LOGGING_CATEGORY(dockerThreadLog, "qtc.docker.device.thread", QtWarningMsg);
+static Q_LOGGING_CATEGORY(dockerThreadLog, "qtc.docker.device.thread", QtWarningMsg);
 
 namespace Docker::Internal {
 

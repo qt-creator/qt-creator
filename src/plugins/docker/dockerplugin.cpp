@@ -62,7 +62,7 @@ public:
     }
 };
 
-void setupDockerRunAndDebugSupport()
+static void setupDockerRunAndDebugSupport()
 {
     static DockerQmlToolingWorkerFactory qmlToolingWorkerFactory;
 }
