@@ -43,4 +43,9 @@ private:
 
 using UnarchiverTask = QtTaskTree::QCustomTask<Unarchiver>;
 
+// Decompress a single compressed stream held in memory (e.g. a gzipped log).
+// Uses libarchive's "raw" format with automatic filter detection, so gzip,
+// xz, bzip2, ... all work. Returns the uncompressed bytes or an error.
+QTCREATOR_UTILS_EXPORT Result<QByteArray> gzipDecompress(const QByteArray &compressed);
+
 } // namespace Utils

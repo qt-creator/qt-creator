@@ -17,6 +17,11 @@ function utils.waitms_cb(ms, callback) end
 ---@return QString Arbitrary UUID string.
 function utils.createUuid() end
 
+---Decompress a gzipped (or xz/bzip2/...) byte string.
+---@param data string The compressed bytes.
+---@return string data The decompressed bytes.
+function utils.gunzip(data) end
+
 ---Converts a given shortcut string into its native representation for the current platform.
 ---@param shortcut string The shortcut string (e.g., "Ctrl+Shift+A").
 ---@return QString The native representation of the shortcut.

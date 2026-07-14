@@ -16,6 +16,7 @@
 #include <utils/id.h>
 #include <utils/infobar.h>
 #include <utils/processinterface.h>
+#include <utils/unarchiver.h>
 
 #include <QCoreApplication>
 #include <QDesktopServices>
@@ -302,6 +303,16 @@ void setupUtilsModule()
             };
             utils["base64ToString"] = [](const char *data) {
                 return QString::fromUtf8(QByteArray::fromBase64(data));
+            };
+
+            // Decompress a gzipped (or xz/bzip2/...) byte string. std::string is
+            // used so binary bytes with embedded NULs survive the round trip.
+            utils["gunzip"] = [](const std::string &data) -> std::string {
+                const QByteArray in = QByteArray::fromRawData(data.data(), qsizetype(data.size()));
+                const Result<QByteArray> out = gzipDecompress(in);
+                if (!out)
+                    throw sol::error(out.error().toStdString());
+                return std::string(out->constData(), size_t(out->size()));
             };
 
             utils.new_enum<Icon::IconStyleOption>(

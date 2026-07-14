@@ -256,4 +256,37 @@ bool Unarchiver::isCanceled() const
     return m_async.isCanceled();
 }
 
+Result<QByteArray> gzipDecompress(const QByteArray &compressed)
+{
+    std::unique_ptr<struct archive, decltype(&readFree)> a(archive_read_new(), readFree);
+    if (!a)
+        return ResultError(QString("archive_read_new failed"));
+
+    if (archive_read_support_format_raw(a.get()) != ARCHIVE_OK
+        || archive_read_support_filter_all(a.get()) != ARCHIVE_OK) {
+        return ResultError(QString::fromUtf8(archive_error_string(a.get())));
+    }
+
+    if (archive_read_open_memory(a.get(), compressed.constData(), size_t(compressed.size()))
+        != ARCHIVE_OK) {
+        return ResultError(QString::fromUtf8(archive_error_string(a.get())));
+    }
+
+    struct archive_entry *entry = nullptr;
+    if (archive_read_next_header(a.get(), &entry) != ARCHIVE_OK)
+        return ResultError(QString::fromUtf8(archive_error_string(a.get())));
+
+    QByteArray out;
+    char buf[64 * 1024];
+    for (;;) {
+        const la_ssize_t n = archive_read_data(a.get(), buf, sizeof(buf));
+        if (n < 0)
+            return ResultError(QString::fromUtf8(archive_error_string(a.get())));
+        if (n == 0)
+            break;
+        out.append(buf, int(n));
+    }
+    return out;
+}
+
 } // namespace Utils
