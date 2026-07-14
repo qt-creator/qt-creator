@@ -686,7 +686,7 @@ QString WatchModel::removeNamespaces(QString str) const
     if (!settings().showStdNamespace())
         str.remove("std::");
     if (!settings().showQtNamespace()) {
-        const QString qtNamespace = m_engine->qtNamespace();
+        const QString qtNamespace = m_engine->detectedQtNamespace();
         if (!qtNamespace.isEmpty())
             str.remove(qtNamespace);
     }

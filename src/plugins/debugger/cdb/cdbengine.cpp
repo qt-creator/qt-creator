@@ -1045,7 +1045,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         cmd.arg("qobjectnames", s.showQObjectNames());
         cmd.arg("timestamps", s.logTimeStamps());
         cmd.arg("qtversion", runParameters().qtVersion());
-        cmd.arg("qtnamespace", runParameters().qtNamespace());
+        cmd.arg("qtnamespace", runParameters().configuredQtNamespace());
 
         StackFrame frame = stackHandler()->currentFrame();
         cmd.arg("context", frame.context);

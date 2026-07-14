@@ -2489,14 +2489,9 @@ void DebuggerEngine::reloadDebuggingHelpers()
 {
 }
 
-QString DebuggerEngine::qtNamespace() const
+QString DebuggerEngine::detectedQtNamespace() const
 {
     return d->m_qtNamespace;
-}
-
-void DebuggerEngine::setQtNamespace(const QString &ns)
-{
-    d->m_qtNamespace = ns;
 }
 
 void DebuggerEngine::createSnapshot()
@@ -2701,7 +2696,7 @@ void DebuggerEngine::updateLocalsView(const GdbMi &all)
 
     const GdbMi ns = all["qtnamespace"];
     if (ns.isValid()) {
-        setQtNamespace(ns.data());
+        d->m_qtNamespace = ns.data();
         showMessage("FOUND NAMESPACED QT: " + ns.data());
     }
 

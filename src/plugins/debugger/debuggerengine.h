@@ -244,7 +244,7 @@ public:
     int testCase() const { return m_testCase; }
 
     int qtVersion() const { return m_qtVersion; }
-    QString qtNamespace() const { return m_qtNamespace; };
+    QString configuredQtNamespace() const { return m_qtNamespace; }
 
     void setPeripheralDescriptionFile(const Utils::FilePath &path) { m_peripheralDescriptionFile = path; }
     Utils::FilePath peripheralDescriptionFile() const { return m_peripheralDescriptionFile; }
@@ -504,8 +504,7 @@ public:
     virtual bool hasCapability(unsigned cap) const = 0;
     virtual void debugLastCommand() {}
 
-    virtual QString qtNamespace() const;
-    void setQtNamespace(const QString &ns);
+    QString detectedQtNamespace() const;
 
     virtual void createSnapshot();
     virtual void updateAll();
