@@ -695,16 +695,16 @@ protected:
 
     virtual void continueInferior() {}
     virtual void interruptInferior() {}
-    void requestInterruptInferior();
 
     virtual void executeRunToLine(const Internal::ContextData &) {}
     virtual void executeRunToFunction(const QString &) {}
     virtual void executeJumpToLine(const Internal::ContextData &) {}
 
-    virtual void frameUp();
-    virtual void frameDown();
-
     virtual void doUpdateLocals(const UpdateParameters &params);
+
+    void requestInterruptInferior();
+    void frameUp();
+    void frameDown();
 
     bool usesTerminal() const;
     qint64 applicationPid() const;
