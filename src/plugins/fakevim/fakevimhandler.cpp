@@ -2645,6 +2645,12 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         return EventUnhandled;
     }
 
+    // Some layout modifiers (e.g. ISO_Level5_Shift) have no Qt key code and
+    // arrive with a single null character as text. Do not treat that as
+    // insertable input - it would insert a stray NUL (QTCREATORBUG-26818).
+    if (ev->text().size() == 1 && ev->text().at(0).isNull())
+        return EventUnhandled;
+
     if (g.passing) {
         passShortcuts(false);
         KEY_DEBUG("PASSING PLAIN KEY..." << ev->key() << ev->text());
