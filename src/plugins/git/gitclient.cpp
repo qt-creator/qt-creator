@@ -176,13 +176,6 @@ static void stage(DiffEditorController *diffController, const QString &patch, bo
 
 ///////////////////////////////
 
-static FilePaths submoduleDataToAbsolutePath(const SubmoduleDataMap &submodules,
-                                                   const FilePath &rootDir)
-{
-    return Utils::transform<FilePaths>(submodules, [&rootDir](const SubmoduleData &data)
-                                             { return rootDir.pathAppended(data.dir); });
-}
-
 class GitBaseDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
@@ -2342,7 +2335,10 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
 
 FilePaths GitClient::submodulePaths(const FilePath &workingDirectory) const
 {
-    return submoduleDataToAbsolutePath(submoduleList(workingDirectory), workingDirectory);
+    const SubmoduleDataMap submodules = submoduleList(workingDirectory);
+    return Utils::transform<FilePaths>(submodules,
+                                       [&workingDirectory](const SubmoduleData &data)
+                                       { return workingDirectory.pathAppended(data.dir); });
 }
 
 QByteArray GitClient::synchronousShow(const FilePath &workingDirectory, const QString &id,
