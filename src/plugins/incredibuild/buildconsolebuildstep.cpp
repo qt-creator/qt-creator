@@ -30,7 +30,7 @@ static QString normalizeWinVerArgument(QString winVer)
     return winVer.toUpper();
 }
 
-const QStringList &supportedWindowsVersions()
+static const QStringList &supportedWindowsVersions()
 {
     static QStringList list({QString(),
                              "Windows 7",
