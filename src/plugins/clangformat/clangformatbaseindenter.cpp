@@ -126,7 +126,7 @@ static clang::tooling::Replacements filteredReplacements(const QByteArray &buffe
     return filtered;
 }
 
-void trimRHSWhitespace(const QTextBlock &block)
+static void trimRHSWhitespace(const QTextBlock &block)
 {
     const QString initialText = block.text();
     if (!initialText.rbegin()->isSpace())
@@ -941,7 +941,7 @@ const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
     return d->styleForFile();
 }
 
-const llvm::Expected<clang::format::FormatStyle> getStyleFromProjectFolder(
+static const llvm::Expected<clang::format::FormatStyle> getStyleFromProjectFolder(
     const Utils::FilePath *fileName)
 {
 #if LLVM_VERSION_MAJOR >= 19

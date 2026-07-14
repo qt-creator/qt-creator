@@ -33,7 +33,7 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-clang::format::FormatStyle calculateQtcStyle()
+static clang::format::FormatStyle calculateQtcStyle()
 {
     clang::format::FormatStyle style = getLLVMStyle();
     style.Language = FormatStyle::LK_Cpp;
