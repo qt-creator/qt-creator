@@ -30,7 +30,7 @@ using namespace Utils;
 
 namespace ModelEditor::Internal {
 
-Q_LOGGING_CATEGORY(log, "qtc.modeleditor.modelindexer", QtWarningMsg)
+static Q_LOGGING_CATEGORY(log, "qtc.modeleditor.modelindexer", QtWarningMsg)
 
 class QueuedFile
 {
