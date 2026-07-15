@@ -66,6 +66,14 @@ inline constexpr char UseAndroidBuildTargetDir[] = "UseAndroidBuildTargetDir"; /
 inline constexpr char AndroidApk[] = "Android.APK"; // QStringList
 inline constexpr char AndroidManifest[] = "Android.Manifest"; // QStringList
 
+// Exposed to other plugins (e.g. AutoTest) via BuildSystem::extraData so they
+// can run a test through androidtestrunner without depending on this plugin.
+inline constexpr char AndroidPackage[] = "Android.Package"; // QString - built .apk path
+inline constexpr char AndroidBuildDirectory[] = "Android.BuildDirectory"; // QString
+inline constexpr char AndroidTestRunner[] = "Android.TestRunner"; // QString
+inline constexpr char AndroidAdb[] = "Android.Adb"; // QString
+inline constexpr char AndroidMakeCommand[] = "Android.MakeCommand"; // QString
+
 inline constexpr char AndroidNdkPlatform[] = "AndroidNdkPlatform"; //QString
 inline constexpr char NdkLocation[] = "NdkLocation"; // FileName
 inline constexpr char SdkLocation[] = "SdkLocation"; // FileName

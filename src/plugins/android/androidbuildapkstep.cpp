@@ -796,6 +796,36 @@ bool AndroidBuildApkStep::init()
 
     QStringList argumentsPasswordConcealed = arguments;
 
+    // Expose the pieces needed to run a test through androidtestrunner to other
+    // plugins (e.g. AutoTest) that must not depend on the Android plugin. The
+    // make command is captured here, before the signing options are appended,
+    // so it carries no passwords - androidtestrunner only needs it to succeed
+    // (the already-built package is installed via --apk), not to produce a
+    // signed package.
+    if (BuildSystem *bs = buildConfiguration()->buildSystem(); bs && !buildAAB()) {
+        const QString buildKey = buildConfiguration()->activeBuildKey();
+        // m_packagePath is unreliable (see QTCREATORBUG-22627): the gradle
+        // package name follows the android-build directory name, which carries
+        // a target suffix when UseAndroidBuildTargetDir is set. Derive the apk
+        // path from that name instead of the hard-coded one in packageSubPath().
+        const bool unsignedDebug = buildType() == BuildConfiguration::Debug && !m_signPackage;
+        const QString variant = unsignedDebug ? QString("debug")
+                                : m_signPackage ? QString("release-signed")
+                                                : QString("release-unsigned");
+        const QString subDir = unsignedDebug ? QString("debug") : QString("release");
+        const FilePath apk = outputDir / "build/outputs/apk" / subDir
+                             / (outputDir.fileName() + '-' + variant + ".apk");
+        bs->setExtraData(buildKey, Constants::AndroidPackage, apk.toUrlishString());
+        bs->setExtraData(buildKey, Constants::AndroidBuildDirectory, outputDir.toUrlishString());
+        bs->setExtraData(buildKey, Constants::AndroidTestRunner,
+                         version->hostBinPath().pathAppended("androidtestrunner")
+                             .withExecutableSuffix().toUrlishString());
+        bs->setExtraData(buildKey, Constants::AndroidAdb,
+                         AndroidConfig::adbToolPath().toUrlishString());
+        bs->setExtraData(buildKey, Constants::AndroidMakeCommand,
+                         CommandLine{command, arguments}.toUserOutput());
+    }
+
     if (m_signPackage) {
         arguments << "--sign" << m_keystorePath.path() << m_certificateAlias
                   << "--storepass" << m_keystorePasswd;
