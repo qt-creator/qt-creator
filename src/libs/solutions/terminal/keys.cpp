@@ -35,6 +35,7 @@ VTermKey qtKeyToVTerm(Qt::Key key, bool keypad)
     case Qt::Key_Return:
         return VTERM_KEY_ENTER;
     case Qt::Key_Tab:
+    case Qt::Key_Backtab:
         return VTERM_KEY_TAB;
     case Qt::Key_Backspace:
         return VTERM_KEY_BACKSPACE;
