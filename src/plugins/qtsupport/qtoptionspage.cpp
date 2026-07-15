@@ -75,7 +75,7 @@ static const QIcon &validVersionIcon()
     return theIcon;
 }
 
-QString nonUniqueDisplayNameWarning()
+static QString nonUniqueDisplayNameWarning()
 {
     return Tr::tr("Display Name is not unique.");
 }
@@ -86,7 +86,7 @@ struct UnsupportedAbisInfo
     QString message;
 };
 
-UnsupportedAbisInfo checkForUnsupportedAbis(const QtVersion *version)
+static UnsupportedAbisInfo checkForUnsupportedAbis(const QtVersion *version)
 {
     Abis missingToolchains;
     const Abis qtAbis = version->qtAbis();
