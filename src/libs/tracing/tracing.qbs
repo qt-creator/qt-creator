@@ -49,4 +49,8 @@ QtcLibrary {
     }
 
     cpp.defines: base.concat("TRACING_LIBRARY")
+
+    Export {
+        Depends { name: "Qt.canvaspainter" }
+    }
 }

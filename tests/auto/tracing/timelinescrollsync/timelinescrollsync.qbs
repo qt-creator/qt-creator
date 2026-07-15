@@ -4,7 +4,6 @@ QtcAutotest {
     name: "TimelineScrollSync autotest"
 
     Depends { name: "Tracing"; required: false }
-    Depends { name: "Qt.widgets" }
     Depends { name: "Qt.gui" }
 
     condition: Tracing.present
