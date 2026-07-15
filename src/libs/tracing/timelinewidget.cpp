@@ -120,6 +120,12 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     rangeAction->setCheckable(true);
     auto lockAction = toolbar->addAction(lockIcon, tr("View event information on mouseover"));
     lockAction->setCheckable(true);
+    toolbar->addSeparator();
+    auto softwareAction = toolbar->addAction(tr("SW"));
+    softwareAction->setCheckable(true);
+    softwareAction->setToolTip(
+        tr("Render the timeline with the software (QPainter) backend instead of "
+           "the hardware-accelerated (QCanvasPainter) one"));
 
     d->m_content->setLeftHeaderWidget(toolbar);
 
@@ -167,6 +173,17 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
             [lockAction](bool locked) {
         QSignalBlocker blocker(lockAction);
         lockAction->setChecked(!locked);
+    });
+
+    // Rendering-backend toggle: checked = software (QPainter).
+    softwareAction->setChecked(d->m_content->trackBackend() == TrackBackend::Software);
+    connect(softwareAction, &QAction::toggled, d->m_content, [this](bool checked) {
+        d->m_content->setTrackBackend(checked ? TrackBackend::Software : TrackBackend::Gpu);
+    });
+    connect(d->m_content, &TimelineContentWidget::trackBackendChanged, this,
+            [softwareAction](TrackBackend backend) {
+        QSignalBlocker blocker(softwareAction);
+        softwareAction->setChecked(backend == TrackBackend::Software);
     });
 
     connect(d->m_zoomSlider, &QSlider::valueChanged, this, [this](int value) {

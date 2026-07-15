@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <QApplication>
+#include <QImage>
 #include <QLabel>
+#include <QTimer>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -13,6 +15,7 @@
 #include <tracing/timeruler.h>
 #include <tracing/tracklabels.h>
 #include <tracing/trackpainter.h>
+#include <tracing/trackpainterraster.h>
 #include <tracing/timelinecontentwidget.h>
 #include <tracing/rangedetailswidget.h>
 
@@ -206,6 +209,39 @@ int main(int argc, char *argv[])
 
     painterWindow->show();
 
+    // TrackPainterRaster — the QPainter twin of TrackPainter, same inputs, so
+    // the two windows can be compared side by side for pixel identity.
+    auto rasterWindow = new QWidget;
+    rasterWindow->setWindowTitle("TrackPainterRaster (QPainter/software)");
+    rasterWindow->resize(700, 120);
+
+    auto rasterLayout = new QVBoxLayout(rasterWindow);
+    rasterLayout->setContentsMargins(0, 0, 0, 0);
+
+    auto rasterPainter = new Timeline::TrackPainterRaster(rasterWindow);
+    rasterPainter->setTracks({model});
+    rasterPainter->setNotes(notes);
+    rasterPainter->setRange(0, oneMs * 1000 / 3);
+    rasterLayout->addWidget(rasterPainter);
+    rasterLayout->addStretch();
+
+    QObject::connect(zoomControl, &Timeline::TimelineZoomControl::rangeChanged,
+                     rasterPainter, [rasterPainter](qint64 start, qint64 end) {
+                         rasterPainter->setRange(start, end);
+                     });
+
+    QObject::connect(rasterPainter, &Timeline::TrackPainterRaster::itemHovered,
+                     rasterPainter, [rasterPainter](int track, int index) {
+                         rasterPainter->setHoveredItem(track, index);
+                     });
+
+    QObject::connect(rasterPainter, &Timeline::TrackPainterRaster::itemClicked,
+                     rasterPainter, [rasterPainter](int track, int index) {
+                         rasterPainter->setSelectedItem(track, index);
+                     });
+
+    rasterWindow->show();
+
     // Composed TimelineContentWidget — full sidebar + ruler + track painters
     auto contentWindow = new QWidget;
     contentWindow->setWindowTitle("TimelineContentWidget (QPainter)");
@@ -226,6 +262,51 @@ int main(int argc, char *argv[])
                      &Timeline::TimelineContentWidget::setSelectionRangeMode);
 
     contentWindow->show();
+
+    // Headless helper for comparing backends: with QTC_TRACING_GRAB=<dir> set,
+    // grab both single-track windows (GPU via QRhiWidget::grabFramebuffer(),
+    // software via QWidget::grab()), write canvaspainter.png/rasterpainter.png
+    // /diff.png, print a per-pixel difference report and quit.
+    if (const QByteArray dirUtf8 = qgetenv("QTC_TRACING_GRAB"); !dirUtf8.isEmpty()) {
+        const QString dir = QString::fromLocal8Bit(dirUtf8);
+        QTimer::singleShot(1000, &app, [trackPainter, rasterPainter, dir, &app] {
+            const QImage canvas =
+                trackPainter->grabFramebuffer().convertToFormat(QImage::Format_ARGB32);
+            const QImage raster =
+                rasterPainter->grab().toImage().convertToFormat(QImage::Format_ARGB32);
+            canvas.save(dir + "/canvaspainter.png");
+            raster.save(dir + "/rasterpainter.png");
+
+            const int w = qMin(canvas.width(), raster.width());
+            const int h = qMin(canvas.height(), raster.height());
+            QImage diff(w, h, QImage::Format_ARGB32);
+            diff.fill(Qt::black);
+            qint64 differing = 0;
+            int maxDelta = 0;
+            for (int y = 0; y < h; ++y) {
+                for (int x = 0; x < w; ++x) {
+                    const QRgb a = canvas.pixel(x, y);
+                    const QRgb b = raster.pixel(x, y);
+                    const int dr = qAbs(qRed(a) - qRed(b));
+                    const int dg = qAbs(qGreen(a) - qGreen(b));
+                    const int db = qAbs(qBlue(a) - qBlue(b));
+                    const int d = qMax(dr, qMax(dg, db));
+                    maxDelta = qMax(maxDelta, d);
+                    if (d != 0) {
+                        ++differing;
+                        diff.setPixel(x, y, qRgb(qMin(255, d * 4), 0, 0));
+                    }
+                }
+            }
+            diff.save(dir + "/diff.png");
+            const double pct = w * h ? 100.0 * double(differing) / double(w * h) : 0.0;
+            qInfo().nospace() << "canvas " << canvas.size() << " raster " << raster.size()
+                              << " compared " << w << "x" << h
+                              << ": differing pixels " << differing << " (" << pct
+                              << "%), max channel delta " << maxDelta;
+            app.quit();
+        });
+    }
 
     return app.exec();
 }

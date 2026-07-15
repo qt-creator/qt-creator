@@ -4,6 +4,7 @@
 #pragma once
 
 #include "tracing_global.h"
+#include "trackpainterbase.h" // TrackBackend
 
 #include <QList>
 #include <QString>
@@ -31,6 +32,7 @@ class SelectionRangeOverlay;
 class TimeRuler;
 class TrackLabels;
 class TrackPainter;
+class TrackPainterRaster;
 
 class TRACING_EXPORT TimelineContentWidget : public QWidget
 {
@@ -71,16 +73,29 @@ public:
     bool selectionLocked() const;
     void setSelectionLocked(bool locked);
 
+    // Which backend currently renders the tracks, and switching it at runtime
+    // (recreates the track widget, since the two backends are different types).
+    TrackBackend trackBackend() const;
+    void setTrackBackend(TrackBackend backend);
+
 signals:
     void itemHovered(int modelIndex, int itemIndex);
     void selectionLockedChanged(bool locked);
     void selectionRangeModeChanged(bool active);
+    void trackBackendChanged(TrackBackend backend);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void resizeEvent(QResizeEvent *) override;
 
 private:
+    // Track rendering backends are created lazily and kept alive; switching only
+    // toggles which one is visible (recreating the QRhiWidget-based backend is
+    // unsafe). activateTrackView() shows the requested backend, wireTrackView()
+    // connects a newly created view's signals.
+    void activateTrackView(TrackBackend backend);
+    template<class T> void wireTrackView(T *view);
+
     void rebuildTracks();
     void updateNotes();
     void applyHorizontalPan(int dx);
@@ -110,7 +125,15 @@ private:
     SelectionRangeDetailsWidget *m_selectionDetails;
     RangeDetailsWidget *m_details; // Not owned; lives in a dockable view.
     TimelineNotesModel *m_notes = nullptr;
-    TrackPainter *m_tracksView = nullptr; // single widget rendering all tracks
+    // Backend-independent API of the single widget that renders all tracks, and
+    // that same object as a QWidget (for sizing/parenting). The concrete type is
+    // TrackPainter (QCanvasPainter) or TrackPainterRaster (QPainter).
+    TrackPainterBase *m_tracksView = nullptr;
+    QWidget *m_tracksWidget = nullptr;
+    // Both backends are kept alive once created; only visibility is toggled.
+    TrackPainter *m_gpuView = nullptr;
+    TrackPainterRaster *m_rasterView = nullptr;
+    QList<qint64> m_markers; // last ruler markers, re-applied when the view changes
     QList<TimelineModel *> m_trackModels; // visible models, parallel to track index
     QList<int> m_painterAggregatorMap; // m_painterAggregatorMap[trackIdx] = aggregator model index
 

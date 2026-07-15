@@ -15,7 +15,7 @@ QT_END_NAMESPACE
 namespace Timeline {
 
 class TimeRuler;
-class TrackPainter;
+class TrackPainterBase;
 class TrackLabels;
 class TimelineZoomControl;
 
@@ -26,7 +26,7 @@ public:
     explicit TimelineScrollSync(TimelineZoomControl *zoom, QObject *parent = nullptr);
 
     void registerRuler(TimeRuler *ruler);
-    void registerContent(TrackPainter *painter);
+    void registerContent(TrackPainterBase *painter);
     void registerLabels(TrackLabels *labels);
     void setVerticalScrollBar(QScrollBar *scrollBar);
 

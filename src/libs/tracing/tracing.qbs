@@ -14,6 +14,8 @@ QtcLibrary {
         "timelinecoordinates.h",
         "timelineformattime.cpp", "timelineformattime.h",
         "trackpainter.cpp", "trackpainter.h",
+        "trackpainterbase.cpp", "trackpainterbase.h",
+        "trackpainterraster.cpp", "trackpainterraster.h",
         "tracklabels.cpp", "tracklabels.h",
         "timeruler.cpp", "timeruler.h",
         "rangedetailswidget.cpp", "rangedetailswidget.h",

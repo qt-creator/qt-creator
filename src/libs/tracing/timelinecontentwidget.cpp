@@ -14,6 +14,7 @@
 #include "timeruler.h"
 #include "tracklabels.h"
 #include "trackpainter.h"
+#include "trackpainterraster.h"
 
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -98,9 +99,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     m_scrollArea->setFrameShape(QFrame::NoFrame);
     m_scrollArea->setWidget(m_trackContainer);
 
-    m_tracksView = new TrackPainter(m_scrollArea->viewport());
-    m_tracksView->resize(m_scrollArea->viewport()->size());
-    m_tracksView->raise();
+    activateTrackView(resolvedTrackBackend());
 
     m_overlay = new SelectionRangeOverlay(zoom, m_scrollArea->viewport());
     m_overlay->resize(m_scrollArea->viewport()->size());
@@ -130,28 +129,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
         frameTimeTimer->setInterval(500);
         connect(frameTimeTimer, &QTimer::timeout, this, &TimelineContentWidget::updateFrameTime);
         frameTimeTimer->start();
-        connect(m_tracksView, &TrackPainter::painted, this, &TimelineContentWidget::onFramePainted);
     }
-
-    // Drive the render widget's scroll offset from the scroll bar.
-    connect(m_scrollArea->verticalScrollBar(), &QScrollBar::valueChanged,
-            m_tracksView, &TrackPainter::setScrollOffset);
-
-    // Per-area interaction signals (one connection for the whole track area).
-    connect(m_tracksView, &TrackPainter::itemClicked,
-            this, &TimelineContentWidget::selectItem);
-    connect(m_tracksView, &TrackPainter::itemHovered,
-            this, &TimelineContentWidget::onItemHovered);
-    connect(m_tracksView, &TrackPainter::horizontalPan,
-            this, [this](int dx) { applyHorizontalPan(dx); });
-    connect(m_tracksView, &TrackPainter::verticalPan, this, [this](int dy) {
-        QScrollBar *vbar = m_scrollArea->verticalScrollBar();
-        vbar->setValue(vbar->value() - dy);
-    });
-    connect(m_tracksView, &TrackPainter::zoomRequested,
-            this, [this](double cursorX, int dy) { applyZoom(cursorX, dy); });
-
-    m_sync->registerContent(m_tracksView);
 
     connect(m_details, &RangeDetailsWidget::recenterOnItem, this, [this] {
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
@@ -306,6 +284,7 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
     connect(aggregator, &TimelineModelAggregator::notesChanged,
             this, &TimelineContentWidget::updateNotes);
     connect(m_ruler, &TimeRuler::markersChanged, this, [this](const QList<qint64> &markers) {
+        m_markers = markers;
         m_tracksView->setMarkers(markers);
     });
 
@@ -352,7 +331,7 @@ bool TimelineContentWidget::eventFilter(QObject *watched, QEvent *event)
 {
     if (watched == m_scrollArea->viewport() && event->type() == QEvent::Resize) {
         auto *re = static_cast<QResizeEvent *>(event);
-        m_tracksView->resize(re->size());
+        m_tracksWidget->resize(re->size());
         m_overlay->resize(re->size());
         updateContainerSize();
         positionFrameTimeLabel();
@@ -427,6 +406,92 @@ int TimelineContentWidget::painterToAggregator(int painterIdx) const
 int TimelineContentWidget::aggregatorToPainter(int aggIdx) const
 {
     return m_painterAggregatorMap.indexOf(aggIdx);
+}
+
+// Wire a freshly created track view (either backend). Both expose the same
+// signals, so the connections are made against the concrete type T - a common
+// QObject base is impossible because the two QWidget bases differ. Each view is
+// wired once, when it is first created; activateTrackView() only toggles which
+// one is visible.
+template<class T>
+void TimelineContentWidget::wireTrackView(T *view)
+{
+    // Drive the render widget's scroll offset from the scroll bar.
+    connect(m_scrollArea->verticalScrollBar(), &QScrollBar::valueChanged,
+            view, [view](int y) { view->setScrollOffset(y); });
+
+    // Per-area interaction signals (one connection for the whole track area).
+    connect(view, &T::itemClicked, this, &TimelineContentWidget::selectItem);
+    connect(view, &T::itemHovered, this, &TimelineContentWidget::onItemHovered);
+    connect(view, &T::horizontalPan, this, [this](int dx) { applyHorizontalPan(dx); });
+    connect(view, &T::verticalPan, this, [this](int dy) {
+        QScrollBar *vbar = m_scrollArea->verticalScrollBar();
+        vbar->setValue(vbar->value() - dy);
+    });
+    connect(view, &T::zoomRequested,
+            this, [this](double cursorX, int dy) { applyZoom(cursorX, dy); });
+
+    if (frameTimeLog().isDebugEnabled())
+        connect(view, &T::painted, this, &TimelineContentWidget::onFramePainted);
+
+    // Range + rangeChanged connection (kept for the view's whole lifetime, so a
+    // hidden view stays in sync and is current when shown again).
+    m_sync->registerContent(view);
+}
+
+// Make `backend` the active (visible) track view, creating it on first use.
+// Both backends are created lazily and then kept alive for the lifetime of the
+// content widget - only their visibility is toggled, never destroyed. Recreating
+// the QCanvasPainter (a QRhiWidget) tears down and rebuilds the window's RHI
+// (Metal) backingstore, which is fragile and crashes when switched repeatedly.
+void TimelineContentWidget::activateTrackView(TrackBackend backend)
+{
+    QWidget *viewport = m_scrollArea->viewport();
+    QWidget *previous = m_tracksWidget;
+
+    if (backend == TrackBackend::Software) {
+        if (!m_rasterView) {
+            m_rasterView = new TrackPainterRaster(viewport);
+            wireTrackView(m_rasterView);
+        }
+        m_tracksView = m_rasterView;
+        m_tracksWidget = m_rasterView;
+    } else {
+        if (!m_gpuView) {
+            m_gpuView = new TrackPainter(viewport);
+            wireTrackView(m_gpuView);
+        }
+        m_tracksView = m_gpuView;
+        m_tracksWidget = m_gpuView;
+    }
+
+    m_tracksWidget->resize(viewport->size());
+    m_tracksWidget->show();
+    if (previous && previous != m_tracksWidget)
+        previous->hide();
+    // Keep the selection-range overlay and frame-time label above the view.
+    if (m_overlay)
+        m_overlay->raise();
+    if (m_frameTimeLabel)
+        m_frameTimeLabel->raise();
+}
+
+TrackBackend TimelineContentWidget::trackBackend() const
+{
+    return m_tracksView ? m_tracksView->backend() : resolvedTrackBackend();
+}
+
+void TimelineContentWidget::setTrackBackend(TrackBackend backend)
+{
+    if (m_tracksView && m_tracksView->backend() == backend)
+        return;
+    setTrackBackendOverride(backend);
+    activateTrackView(backend);
+    // The newly shown view may be stale (models/notes/selection changed while it
+    // was hidden); repopulate it with the current state.
+    m_tracksView->setMarkers(m_markers);
+    rebuildTracks();
+    emit trackBackendChanged(trackBackend());
 }
 
 void TimelineContentWidget::rebuildTracks()
@@ -613,7 +678,7 @@ void TimelineContentWidget::applyHorizontalPan(int dx)
 {
     if (m_trackModels.isEmpty() || dx == 0)
         return;
-    const int viewW = m_tracksView->width();
+    const int viewW = m_tracksWidget->width();
     if (viewW <= 0)
         return;
     const qint64 rangeDuration = m_zoom->rangeEnd() - m_zoom->rangeStart();
@@ -667,7 +732,7 @@ void TimelineContentWidget::applyZoom(double cursorX, int dy)
 {
     if (m_trackModels.isEmpty())
         return;
-    const int viewW = m_tracksView->width();
+    const int viewW = m_tracksWidget->width();
     if (viewW <= 0)
         return;
 

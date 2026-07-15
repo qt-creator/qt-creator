@@ -5,7 +5,7 @@
 
 #include "timeruler.h"
 #include "tracklabels.h"
-#include "trackpainter.h"
+#include "trackpainterbase.h"
 #include "timelinezoomcontrol.h"
 
 #include <utils/qtcassert.h>
@@ -33,10 +33,13 @@ void TimelineScrollSync::registerRuler(TimeRuler *ruler)
     }
 }
 
-void TimelineScrollSync::registerContent(TrackPainter *painter)
+void TimelineScrollSync::registerContent(TrackPainterBase *painter)
 {
     painter->setRange(m_zoom->rangeStart(), m_zoom->rangeEnd());
-    connect(m_zoom, &TimelineZoomControl::rangeChanged, painter, &TrackPainter::setRange);
+    // TrackPainterBase is not a QObject; use its widget as the connection
+    // context so the lambda is disconnected when the track area is destroyed.
+    connect(m_zoom, &TimelineZoomControl::rangeChanged, painter->widget(),
+            [painter](qint64 start, qint64 end) { painter->setRange(start, end); });
 }
 
 void TimelineScrollSync::registerLabels(TrackLabels *labels)
