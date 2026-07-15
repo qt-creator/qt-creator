@@ -398,7 +398,7 @@ void MainWidget::endTagChange(ScxmlDocument::TagChange change, const ScxmlTag *t
     }
 }
 
-QString saveImageFileFilter()
+static QString saveImageFileFilter()
 {
     const auto imageFormats = QImageWriter::supportedImageFormats();
     const QByteArrayList supportedFormats = Utils::transform(imageFormats, [](const QByteArray &in)
