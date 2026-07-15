@@ -534,11 +534,6 @@ void LinuxDeviceConfigurationWidget::createNewKey()
     }
 }
 
-IDeviceWidget *createLinuxDeviceWidget(const IDevicePtr &device)
-{
-    return new LinuxDeviceConfigurationWidget(device);
-}
-
 // LinuxDevicePrivate
 
 class LinuxDeviceAccess final : public UnixDeviceFileAccess
@@ -1251,7 +1246,7 @@ LinuxDevice::~LinuxDevice()
 
 IDeviceWidget *LinuxDevice::createWidget()
 {
-    return createLinuxDeviceWidget(shared_from_this());
+    return new LinuxDeviceConfigurationWidget(shared_from_this());
 }
 
 DeviceTester *LinuxDevice::createDeviceTester()
