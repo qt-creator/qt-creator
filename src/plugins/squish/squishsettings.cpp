@@ -171,7 +171,7 @@ SquishServerSettings::SquishServerSettings()
 enum InfoMode {None, Applications, AutPaths, AttachableAuts, AutTimeout, AutPMTimeout,
       AutResponseTimeout, AnimatedCursor, ToolkitWrappers};
 
-InfoMode infoModeFromType(const QString &type)
+static InfoMode infoModeFromType(const QString &type)
 {
     if (type == "applications")
         return Applications;

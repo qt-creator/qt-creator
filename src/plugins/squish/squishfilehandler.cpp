@@ -440,7 +440,7 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
     SquishTools::instance()->recordTestCase(suitePath, testCaseName, conf);
 }
 
-void addAllEntriesRecursively(SquishTestTreeItem *item)
+static void addAllEntriesRecursively(SquishTestTreeItem *item)
 {
     const Utils::FilePaths entries = item->filePath().dirEntries(DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot);
     for (const Utils::FilePath &path : entries) {

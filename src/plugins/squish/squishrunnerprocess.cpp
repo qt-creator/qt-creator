@@ -10,7 +10,7 @@
 #include <QLoggingCategory>
 #include <QScopeGuard>
 
-Q_LOGGING_CATEGORY(runnerLOG, "qtc.squish.squishrunner", QtWarningMsg)
+static Q_LOGGING_CATEGORY(runnerLOG, "qtc.squish.squishrunner", QtWarningMsg)
 
 namespace Squish::Internal {
 

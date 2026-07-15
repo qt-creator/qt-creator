@@ -136,7 +136,7 @@ void SquishXmlOutputHandler::mergeResultFiles(const Utils::FilePaths &reportFile
     xmlWriter.writeEndDocument();
 }
 
-Result::Type resultFromString(const QString &type)
+static Result::Type resultFromString(const QString &type)
 {
     if (type == "DETAILED")
         return Result::Detail;
