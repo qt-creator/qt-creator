@@ -5,6 +5,7 @@
 #include "mcpservertr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -22,6 +23,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/filepathinfo.h>
@@ -31,6 +33,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/savefile.h>
 #include <utils/shutdownguard.h>
+#include <utils/storekey.h>
 
 #include <QApplication>
 #include <QFile>
@@ -1814,6 +1817,168 @@ void McpCommands::registerCommands()
         wrap([](const QJsonObject &) {
             PluginManager::writeSettings();
             return QJsonObject{{"success", true}};
+        }));
+
+    // Generic access to aspect-backed settings pages (the Preferences dialog).
+    const auto findOptionsPage = [](const QString &id) -> Core::IOptionsPage * {
+        for (Core::IOptionsPage *p : Core::IOptionsPage::allOptionsPages()) {
+            if (p->id().toString() == id)
+                return p;
+        }
+        return nullptr;
+    };
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_settings_pages")
+            .title("List aspect-backed settings pages")
+            .description(
+                "Lists Qt Creator preference pages whose settings are exposed as aspects, "
+                "so they can be read with get_settings and changed with set_setting. Pages "
+                "with hand-rolled widgets (no aspect container) are omitted. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}.addProperty("pages", QJsonObject{{"type", "array"}})),
+        wrap([](const QJsonObject &) {
+            QJsonArray pages;
+            for (Core::IOptionsPage *p : Core::IOptionsPage::allOptionsPages()) {
+                const std::optional<AspectContainer *> ac = p->aspects();
+                if (!ac || !*ac)
+                    continue;
+                pages.append(QJsonObject{
+                    {"id", p->id().toString()},
+                    {"displayName", p->displayName()},
+                    {"category", p->category().toString()},
+                    {"settingCount", int((*ac)->aspects().size())}});
+            }
+            return QJsonObject{{"pages", pages}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_settings")
+            .title("Read the settings of a settings page")
+            .description(
+                "Returns the individual settings (aspects) of a preference page: key, "
+                "label, current value and default value. Use the page id from "
+                "list_settings_pages. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "page",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Settings page id (see list_settings_pages)."}})
+                    .addRequired("page"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("page", QJsonObject{{"type", "string"}})
+                    .addProperty("settings", QJsonObject{{"type", "array"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})),
+        wrap([findOptionsPage](const QJsonObject &p) -> QJsonObject {
+            Core::IOptionsPage *page = findOptionsPage(p.value("page").toString());
+            if (!page)
+                return {{"reason", "page_not_found"},
+                        {"message", "No settings page with that id (see list_settings_pages)."}};
+            const std::optional<AspectContainer *> ac = page->aspects();
+            if (!ac || !*ac)
+                return {{"reason", "not_aspect_backed"},
+                        {"message", "This page does not expose aspect-based settings."}};
+            QJsonArray settings;
+            for (BaseAspect *a : (*ac)->aspects()) {
+                if (a->settingsKey().isEmpty())
+                    continue;
+                settings.append(QJsonObject{
+                    {"key", stringFromKey(a->settingsKey())},
+                    {"id", a->id().toString()},
+                    {"label", a->labelText()},
+                    {"value", QJsonValue::fromVariant(a->variantValue())},
+                    {"defaultValue", QJsonValue::fromVariant(a->defaultVariantValue())}});
+            }
+            return {{"page", page->displayName()},
+                    {"settings", settings},
+                    {"reason", "ok"},
+                    {"message", "ok"}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("set_setting")
+            .title("Change a setting on a settings page")
+            .description(
+                "Sets a single aspect-based setting to a new value and persists it. The "
+                "change takes effect immediately (the aspect emits its change signal), so "
+                "this is the programmatic equivalent of toggling the setting in the "
+                "Preferences dialog. Identify the setting by its 'key' (settingsKey from "
+                "get_settings); the value is coerced to the setting's current type.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "page",
+                        QJsonObject{{"type", "string"}, {"description", "Settings page id."}})
+                    .addProperty(
+                        "key",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "settingsKey of the setting (see get_settings)."}})
+                    .addProperty(
+                        "value",
+                        QJsonObject{
+                            {"description",
+                             "New value (bool/number/string), coerced to the setting's type."}})
+                    .addRequired("page")
+                    .addRequired("key")
+                    .addRequired("value"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("applied", QJsonObject{{"type", "boolean"}})
+                    .addProperty("key", QJsonObject{{"type", "string"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})),
+        wrap([findOptionsPage](const QJsonObject &p) -> QJsonObject {
+            Core::IOptionsPage *page = findOptionsPage(p.value("page").toString());
+            if (!page)
+                return {{"applied", false},
+                        {"reason", "page_not_found"},
+                        {"message", "No settings page with that id."}};
+            const std::optional<AspectContainer *> ac = page->aspects();
+            if (!ac || !*ac)
+                return {{"applied", false},
+                        {"reason", "not_aspect_backed"},
+                        {"message", "Page has no aspect-based settings."}};
+            const QString key = p.value("key").toString();
+            BaseAspect *target = nullptr;
+            for (BaseAspect *a : (*ac)->aspects()) {
+                if (stringFromKey(a->settingsKey()) == key) {
+                    target = a;
+                    break;
+                }
+            }
+            if (!target)
+                return {{"applied", false},
+                        {"reason", "key_not_found"},
+                        {"message", QString("No setting with key '%1' on this page.").arg(key)}};
+
+            QVariant newValue = p.value("value").toVariant();
+            const QVariant cur = target->variantValue();
+            if (cur.isValid() && newValue.metaType() != cur.metaType()) {
+                if (!newValue.convert(cur.metaType()))
+                    return {{"applied", false},
+                            {"reason", "type_mismatch"},
+                            {"message",
+                             QString("Value could not be coerced to the setting's type (%1).")
+                                 .arg(QString::fromUtf8(cur.typeName()))}};
+            }
+            target->setVariantValue(newValue);
+            (*ac)->writeSettings();
+            return {{"applied", true},
+                    {"key", key},
+                    {"value", QJsonValue::fromVariant(target->variantValue())},
+                    {"reason", "ok"},
+                    {"message", QString("Set '%1' on page '%2'.").arg(key, page->displayName())}};
         }));
 }
 
