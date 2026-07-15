@@ -178,6 +178,7 @@ private slots:
     void test_vim_fold_toggle_all();
     void test_vim_insert_indent();
     void test_vim_replace_char_newline();
+    void test_vim_backspace_option();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
@@ -4978,6 +4979,31 @@ void FakeVimTester::test_vim_replace_char_newline()
     data.doCommand("set nosmartindent");
     data.setText("    abc" X "def");
     KEYS("r<CR>", "    abc" N X "ef");
+}
+
+void FakeVimTester::test_vim_backspace_option()
+{
+    TestData data;
+    setup(&data);
+
+    // The default 'backspace' (indent,eol,start) lets <BS> in insert mode
+    // remove text that is already present.
+    data.setText("ab" X "cd");
+    KEYS("i<BS>", "a" X "cd");
+
+    // An empty 'backspace' is Vi compatible: <BS> cannot remove text that was
+    // not entered during the current insert.
+    data.doKeys("<ESC>");
+    data.doCommand("set bs=");
+    data.setText("ab" X "cd");
+    KEYS("i<BS>", "ab" X "cd");
+
+    // The numeric form bs=2 is equivalent to indent,eol,start and must not
+    // leave backspace unable to delete existing text (QTCREATORBUG-6640).
+    data.doKeys("<ESC>");
+    data.doCommand("set bs=2");
+    data.setText("ab" X "cd");
+    KEYS("i<BS>", "a" X "cd");
 }
 
 void FakeVimTester::test_vim_fold_toggle_all()
