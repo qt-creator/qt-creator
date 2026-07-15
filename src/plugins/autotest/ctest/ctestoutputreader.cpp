@@ -41,11 +41,39 @@ static ResultHooks::DirectParentHook directParentHook()
     };
 }
 
+// Only outcomes are addressed by test name (compact form) and show the name
+// alongside the ctest output when selected; other messages keep their own text.
+static ResultHooks::OutputStringHook outputStringHook(const QString &testCaseName)
+{
+    return [testCaseName](const TestResult &result, bool selected) -> QString {
+        switch (result.result()) {
+        case ResultType::Pass:
+        case ResultType::Fail:
+        case ResultType::Skip:
+        case ResultType::MessageFatal: // ctest reports ***Exception as fatal
+            if (!selected && !testCaseName.isEmpty())
+                return testCaseName;
+            if (testCaseName.isEmpty())
+                return result.description();
+            return testCaseName + '\n' + result.description();
+        case ResultType::Application:
+            return result.id();
+        default:
+            return selected ? result.description() : result.description().split('\n').first();
+        }
+    };
+}
+
 class CTestResult : public TestResult
 {
 public:
     CTestResult(const QString &id, const QString &project, const QString &testCaseName)
-        : TestResult(id, project, {{}, {}, findTestItemHook(testCaseName), directParentHook()})
+        : TestResult(id,
+                     project,
+                     {{},
+                      outputStringHook(testCaseName),
+                      findTestItemHook(testCaseName),
+                      directParentHook()})
     {}
 };
 

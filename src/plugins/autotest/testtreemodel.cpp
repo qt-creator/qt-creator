@@ -359,6 +359,14 @@ QList<ITestTreeItem *> TestTreeModel::testItemsByName(const QString &testName)
     for (TestTreeItem *frameworkRoot : frameworkRootNodes())
         result << Autotest::testItemsByName(frameworkRoot, testName);
 
+    // Also match test tools (e.g. CTest), which live under separate roots.
+    for (ITestTreeItem *toolRoot : testToolRootNodes()) {
+        toolRoot->forAllChildren([&result, &testName](ITestTreeItem *child) {
+            if (child && child->name() == testName)
+                result << child;
+        });
+    }
+
     return result;
 }
 

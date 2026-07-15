@@ -371,26 +371,15 @@ void registerMcpTools()
 
             const ToolInterface::TaskProgressNotify notify = *task;
 
-            // startRun resolves the test tree and kicks off the actual run.
-            // Called directly when the parser is idle, or deferred to
-            // parsingFinished/parsingFailed when a scan is in progress.
-            auto startRun = [scope, names, mode, state, notify]() {
+            // Launches an already-resolved run (resolution happens below).
+            auto startRun = [state, notify](ResolvedTestRun resolved) {
                 state->waitingForParser = false;
 
                 if (state->cancelRequested) {
+                    qDeleteAll(resolved.configs); // owned here
                     state->finished = true;
                     if (notify)
                         notify(Schema::TaskStatus::cancelled, "Cancelled", std::nullopt);
-                    return;
-                }
-
-                const Utils::Result<ResolvedTestRun> resolved =
-                    resolveTestRun(scope, names, mode);
-                if (!resolved) {
-                    state->resolveError = resolved.error();
-                    state->finished = true;
-                    if (notify)
-                        notify(Schema::TaskStatus::failed, "Error", std::nullopt);
                     return;
                 }
 
@@ -408,8 +397,8 @@ void registerMcpTools()
                             notify(Schema::TaskStatus::completed, "Tests finished", std::nullopt);
                     });
 
-                if (!resultsManager().runTests(resolved->mode, resolved->configs)) {
-                    qDeleteAll(resolved->configs);
+                if (!resultsManager().runTests(resolved.mode, resolved.configs)) {
+                    qDeleteAll(resolved.configs);
                     QObject::disconnect(*conn);
                     state->resolveError = "Failed to start test run (already in progress?)";
                     state->finished = true;
@@ -429,36 +418,38 @@ void registerMcpTools()
                 });
             };
 
-            // If the test-code parser is mid-scan or has a scan scheduled (e.g.
-            // after reconfigure+build triggered a 1-second delayed rescan), defer
-            // startRun until parsing is fully settled so every test class is
-            // visible in the tree. isParsingOrScheduled() covers both the actively
-            // parsing case and the "single-shot timer pending" case.
-            // Qt::QueuedConnection guarantees our callback is posted to the event
-            // loop after TestTreeModel::sweep() — which is connected to the same
-            // signals with QueuedConnection in the model constructor and was
-            // therefore connected first.
-            //
-            // isParsingOrScheduled() is read here — after startTask() — to
-            // eliminate the window where parsingFinished could fire between an
-            // earlier snapshot and the connection being installed, which would
-            // leave startRun permanently deferred.
-            //
-            // The connections are kept alive across multiple parsingFinished
-            // firings: a build can trigger a rapid succession of scans (initial
-            // file sweep → 1-second delayed rescan), so parsingFinished may fire
-            // while isParsingOrScheduled() is still true.  onParsingDone re-checks
-            // after each firing and only calls startRun() once the parser has
-            // fully converged.
+            // Re-resolve against the settled tree, then run or report the error.
+            auto resolveAndRun = [scope, names, mode, state, notify, startRun]() {
+                if (state->cancelRequested) {
+                    state->finished = true;
+                    if (notify)
+                        notify(Schema::TaskStatus::cancelled, "Cancelled", std::nullopt);
+                    return;
+                }
+                Utils::Result<ResolvedTestRun> resolved = resolveTestRun(scope, names, mode);
+                if (!resolved) {
+                    state->resolveError = resolved.error();
+                    state->finished = true;
+                    if (notify)
+                        notify(Schema::TaskStatus::failed, "Error", std::nullopt);
+                    return;
+                }
+                startRun(std::move(*resolved));
+            };
+
             TestTreeModel *model = TestTreeModel::instance();
-            if (model && model->parser()->isParsingOrScheduled()) {
+
+            // Wait for the parser to settle, then re-resolve and run. Queued so
+            // it runs after TestTreeModel::sweep(); re-checks each time since a
+            // build can trigger several scans.
+            auto deferUntilParsed = [model, resolveAndRun, state, notify]() {
                 state->waitingForParser = true;
                 qCDebug(mcpAutotest)
-                    << "run_tests: parser active or scan scheduled, deferring until parsingFinished";
+                    << "run_tests: deferring until the test parser finishes discovery";
                 TestCodeParser *parser = model->parser();
                 auto connFinished = std::make_shared<QMetaObject::Connection>();
                 auto connFailed = std::make_shared<QMetaObject::Connection>();
-                auto onParsingDone = [connFinished, connFailed, startRun, state, notify]() {
+                auto onParsingDone = [connFinished, connFailed, resolveAndRun, state, notify]() {
                     if (state->cancelRequested) {
                         QObject::disconnect(*connFinished);
                         QObject::disconnect(*connFailed);
@@ -468,9 +459,6 @@ void registerMcpTools()
                             notify(Schema::TaskStatus::cancelled, "Cancelled", std::nullopt);
                         return;
                     }
-                    // Re-check after each parsingFinished: a build can trigger a
-                    // rapid series of scans.  Stay deferred until isParsingOrScheduled()
-                    // is false so the full model is available before resolving tests.
                     TestTreeModel *liveModel = TestTreeModel::instance();
                     if (liveModel && liveModel->parser()->isParsingOrScheduled()) {
                         qCDebug(mcpAutotest)
@@ -478,11 +466,10 @@ void registerMcpTools()
                                "waiting for full convergence";
                         return; // connections stay installed
                     }
-                    // Disconnect both before startRun() to prevent double-dispatch if
-                    // the other signal fires in the same event-loop tick.
+                    // Disconnect before resolveAndRun() to avoid double-dispatch.
                     QObject::disconnect(*connFinished);
                     QObject::disconnect(*connFailed);
-                    startRun();
+                    resolveAndRun();
                 };
                 *connFinished = QObject::connect(
                     parser, &TestCodeParser::parsingFinished,
@@ -490,8 +477,24 @@ void registerMcpTools()
                 *connFailed = QObject::connect(
                     parser, &TestCodeParser::parsingFailed,
                     model, onParsingDone, Qt::QueuedConnection);
+            };
+
+            // Resolve and run. Don't block on the C++ parser: it can stay
+            // "scheduled" indefinitely on CTest-only projects (its scan is gated
+            // on the code model), which would hang run_tests. Only wait when
+            // nothing resolves yet and the parser is still scanning.
+            const bool parserBusy = model && model->parser()->isParsingOrScheduled();
+            Utils::Result<ResolvedTestRun> resolved = resolveTestRun(scope, names, mode);
+            if (resolved) {
+                startRun(std::move(*resolved));
+            } else if (parserBusy) {
+                deferUntilParsed();
             } else {
-                startRun();
+                // Not found, parser idle — final answer.
+                state->resolveError = resolved.error();
+                state->finished = true;
+                if (notify)
+                    notify(Schema::TaskStatus::failed, "Error", std::nullopt);
             }
 
             return ResultOk;
@@ -567,11 +570,29 @@ void registerMcpTools()
                           {"description",
                            "Outcome string: pass, fail, expected_fail, "
                            "unexpected_pass, skip, blacklisted_*, message_fatal."}}},
+             {"failure",
+              QJsonObject{{"type", "string"},
+                          {"description",
+                           "The failure assertion(s) — FAIL!/Actual/Expected/Loc — or the "
+                           "skip reason, extracted from the log. Present for failing or "
+                           "skipped tests; read this first, it is small and actionable."}}},
+             {"warnings",
+              QJsonObject{{"type", "string"},
+                          {"description",
+                           "Warning lines (QWARN/QCRITICAL) extracted from the log, plus "
+                           "any warn-level messages. Present only when the test emitted "
+                           "warnings. Small — no need to fetch the full log."}}},
              {"message",
               QJsonObject{{"type", "string"},
                           {"description",
-                           "Failure description for non-pass outcomes; empty for "
-                           "passing tests."}}},
+                           "Full test log (capped to the tail when very large — see "
+                           "'truncated'). Use 'failure' for the assertion; this is the "
+                           "surrounding context. Empty for a passing test with no output."}}},
+             {"truncated",
+              QJsonObject{{"type", "boolean"},
+                          {"description",
+                           "True if message/failure/messages text was capped; the full "
+                           "log is in Qt Creator's Test Results pane."}}},
              {"file", QJsonObject{{"type", "string"}}},
              {"line", QJsonObject{{"type", "integer"}, {"minimum", 1}}},
              {"duration_ms",
@@ -602,19 +623,18 @@ void registerMcpTools()
             .name("get_test_details")
             .title("Get per-test details from the most recent run")
             .description(
-                "Full details for the named tests from the most recent run "
-                "— status, failure message, file/line, duration, and the full log of "
-                "qDebug/qInfo/qWarning/qCritical/qFatal messages emitted during that "
-                "test function. Names typically come from the `failures` or "
-                "`tests_with_warnings` arrays returned by run_tests / "
-                "get_last_test_results, but any test name from the most recent run is "
-                "valid. Names that don't match any outcome appear in `not_found`."
+                "Per-test details for the named tests from the most recent run. By "
+                "default returns only the small, actionable fields — status, 'failure' "
+                "(the extracted assertion for a failing test), 'warnings' (any warning "
+                "lines), file/line, duration — so a build/test/fix loop never has to "
+                "wade through a huge log. Names typically come from run_tests / "
+                "get_last_test_results (`failures` / `tests_with_warnings`); unmatched "
+                "names appear in `not_found`."
                 "\n\n"
-                "The `messages` array is NEVER filtered by pass/fail status — every "
-                "outcome gets its full breadcrumb trail. An empty `messages[]` means "
-                "the test (and the production code it exercised) didn't emit anything, "
-                "which is normal. This tool is useful even for passing tests when you "
-                "want to verify qInfo preconditions or read sanity-check output.")
+                "Pass include:[\"log\"] for the full (tail-capped) output as `message`, "
+                "and include:[\"messages\"] for the qDebug/qInfo/... context array. "
+                "`truncated` is set when any text was capped; the full log is always in "
+                "Qt Creator's Test Results pane.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -624,6 +644,18 @@ void registerMcpTools()
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "string"}}},
                             {"description", "Test names to fetch details for."}})
+                    .addProperty(
+                        "include",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items",
+                             QJsonObject{{"type", "string"},
+                                         {"enum", QJsonArray{"log", "messages"}}}},
+                            {"description",
+                             "Optional heavy fields beyond the default "
+                             "status/failure/warnings: \"log\" adds the full (capped) "
+                             "output as 'message'; \"messages\" adds the context array. "
+                             "Omit to keep the response small."}})
                     .addRequired("names"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -641,7 +673,16 @@ void registerMcpTools()
             names.reserve(namesArr.size());
             for (const QJsonValue &v : namesArr)
                 names.append(v.toString());
-            return resultsManager().testDetails(names);
+            bool includeLog = false;
+            bool includeMessages = false;
+            for (const QJsonValue &v : p.value("include").toArray()) {
+                const QString c = v.toString();
+                if (c == QLatin1String("log"))
+                    includeLog = true;
+                else if (c == QLatin1String("messages"))
+                    includeMessages = true;
+            }
+            return resultsManager().testDetails(names, includeLog, includeMessages);
         }));
 
     // ---- list_tests (sync read-only) ----

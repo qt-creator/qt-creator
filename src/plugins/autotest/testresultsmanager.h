@@ -50,10 +50,13 @@ public:
     // the response tiny regardless of suite size.
     QJsonObject summary() const;
 
-    // Detailed view of specific tests by name. Returns full per-test info
-    // (status, message, file/line, duration, full messages array) for each
-    // matched name. Names that don't match any outcome appear in `not_found`.
-    QJsonObject testDetails(const QStringList &names) const;
+    // Detailed view of specific tests by name. Always returns the small,
+    // actionable fields (status, extracted failure/warnings, file/line,
+    // duration); the full log (message) and context messages array are only
+    // included when includeLog / includeMessages are set, so the default
+    // response stays tiny. Names with no matching outcome appear in `not_found`.
+    QJsonObject testDetails(const QStringList &names, bool includeLog,
+                            bool includeMessages) const;
 
 signals:
     void runFinished();

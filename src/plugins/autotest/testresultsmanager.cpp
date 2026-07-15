@@ -8,6 +8,7 @@
 #include <QJsonArray>
 #include <QLoggingCategory>
 #include <QSet>
+#include <QStringList>
 
 static Q_LOGGING_CATEGORY(mcpTestResults, "qtc.mcpserver.testresults", QtWarningMsg)
 
@@ -106,6 +107,53 @@ static bool isContextMessage(ResultType type)
     default:
         return false;
     }
+}
+
+// Pull lines matching any marker — and their indented continuation (the
+// Actual/Expected/Loc block a Qt Test FAIL! prints) — out of a test's full
+// output, so failures/warnings are available in a small field without grepping
+// the whole (possibly huge) log.
+static QString extractMarkedLines(const QString &full, const QStringList &markers)
+{
+    const QStringList lines = full.split('\n');
+    QStringList picked;
+    for (int i = 0; i < lines.size(); ++i) {
+        bool hit = false;
+        for (const QString &m : markers) {
+            if (lines.at(i).contains(m)) {
+                hit = true;
+                break;
+            }
+        }
+        if (!hit)
+            continue;
+        picked << lines.at(i);
+        while (i + 1 < lines.size()
+               && (lines.at(i + 1).startsWith(' ') || lines.at(i + 1).startsWith('\t'))) {
+            picked << lines.at(++i);
+        }
+    }
+    return picked.join('\n');
+}
+
+// Failure / skip / warning markers across frameworks: Qt Test, Google Test,
+// ctest. Skip markers are included because summary() lists skips alongside
+// failures, so their reason must be reachable in the same small field.
+// The markers are the exact prefixes the frameworks print, not just the bare
+// words: "ASSERT" alone would also match Qt Creator's "SOFT ASSERT [...]" and
+// "SKIP" any line that happens to contain it, both of which tests that go on
+// to pass do emit.
+static const QStringList &failureMarkers()
+{
+    static const QStringList m = {
+        "FAIL!", "XPASS", "ASSERT: ", "ASSERT failure in", "[  FAILED  ]", "SKIP   : ",
+        "***Failed", "***Skipped", "***Exception", "***Timeout", "***Not Run"};
+    return m;
+}
+static const QStringList &warningMarkers()
+{
+    static const QStringList m = {"QWARN", "QCRITICAL"};
+    return m;
 }
 
 TestResultsManager::TestResultsManager(QObject *parent)
@@ -396,12 +444,26 @@ QJsonObject TestResultsManager::summary() const
     return out;
 }
 
-QJsonObject TestResultsManager::testDetails(const QStringList &names) const
+QJsonObject TestResultsManager::testDetails(const QStringList &names, bool includeLog,
+                                            bool includeMessages) const
 {
-    auto messageObject = [](const TestResult &m) {
+    // Cap per-field text: a single verbose test (e.g. a CTest run dumping a
+    // schema) can be many KB and flood the caller's context. Keep the tail,
+    // where the FAIL/Totals summary sits for ctest/Qt Test, and flag it.
+    auto cappedText = [](const QString &s, bool *truncated) -> QString {
+        static constexpr int kMax = 8192;
+        if (s.size() <= kMax)
+            return s;
+        if (truncated)
+            *truncated = true;
+        return QStringLiteral("…[showing last %1 of %2 chars; full log in the Test "
+                              "Results pane]\n").arg(kMax).arg(s.size()) + s.right(kMax);
+    };
+
+    auto messageObject = [&cappedText](const TestResult &m, bool *truncated) {
         QJsonObject obj;
         obj.insert("level", resultTypeToString(m.result()));
-        obj.insert("text", m.description());
+        obj.insert("text", cappedText(m.description(), truncated));
         const Utils::FilePath f = m.fileName();
         if (!f.isEmpty())
             obj.insert("file", f.toUserOutput());
@@ -413,18 +475,43 @@ QJsonObject TestResultsManager::testDetails(const QStringList &names) const
     auto outcomeObject =
         [&](const TestResult &r, const QList<TestResult> &msgs) {
             QJsonObject obj;
+            bool truncated = false;
             obj.insert("name", r.outputString(false));
             obj.insert("status", resultTypeToString(r.result()));
-            obj.insert("message", r.description());
+
+            // Always surface the actionable bits — small and extracted — so a
+            // build/test/fix loop never needs the full log: the failure
+            // assertion(s) or skip reason, and any warning lines. Skip is here
+            // because summary() reports it alongside failures.
+            if (r.result() == ResultType::Fail || r.result() == ResultType::UnexpectedPass
+                || r.result() == ResultType::MessageFatal || r.result() == ResultType::Skip) {
+                const QString fail = extractMarkedLines(r.description(), failureMarkers());
+                if (!fail.isEmpty())
+                    obj.insert("failure", cappedText(fail, &truncated));
+            }
+            // A warning can reach us from the log scan and as a warn-level
+            // message. Drop only that overlap - a warning the test emitted
+            // repeatedly is reported as often as it happened.
+            QStringList warns = extractMarkedLines(r.description(), warningMarkers())
+                                    .split('\n', Qt::SkipEmptyParts);
+            const QSet<QString> fromLog(warns.cbegin(), warns.cend());
+            for (const TestResult &m : msgs) {
+                if (m.result() != ResultType::MessageWarn || m.description().isEmpty())
+                    continue;
+                for (const QString &line : m.description().split('\n', Qt::SkipEmptyParts)) {
+                    if (!fromLog.contains(line))
+                        warns << line;
+                }
+            }
+            if (!warns.isEmpty())
+                obj.insert("warnings", cappedText(warns.join('\n'), &truncated));
+
+            // Omit file/line when absent (CTest has neither) rather than null.
             const Utils::FilePath file = r.fileName();
             if (!file.isEmpty())
                 obj.insert("file", file.toUserOutput());
-            else
-                obj.insert("file", QJsonValue());
             if (r.line() > 0)
                 obj.insert("line", r.line());
-            else
-                obj.insert("line", QJsonValue());
             const std::optional<QString> dur = r.duration();
             if (dur.has_value()) {
                 bool ok = false;
@@ -432,12 +519,20 @@ QJsonObject TestResultsManager::testDetails(const QStringList &names) const
                 if (ok)
                     obj.insert("duration_ms", ms);
             }
-            // No cap here — caller asked for these specific tests by name, so
-            // give them the full message log.
-            QJsonArray msgArr;
-            for (const TestResult &m : msgs)
-                msgArr.append(messageObject(m));
-            obj.insert("messages", msgArr);
+
+            // Full log is opt-in: 'message' is the whole (capped) output,
+            // 'messages' the context array — kept out of the default response so
+            // the caller is never forced to receive a huge file.
+            if (includeLog)
+                obj.insert("message", cappedText(r.description(), &truncated));
+            if (includeMessages) {
+                QJsonArray msgArr;
+                for (const TestResult &m : msgs)
+                    msgArr.append(messageObject(m, &truncated));
+                obj.insert("messages", msgArr);
+            }
+            if (truncated)
+                obj.insert("truncated", true);
             return obj;
         };
 
