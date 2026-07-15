@@ -24,7 +24,19 @@ hash, trailing period). The `Amends` line must come before other footer
 fields (such as `Task-number` and `Change-Id`) and be separated from them by
 a blank line.
 
-Make sure to not change the Change-Id on the last line of a commit if you change its commit message.
+Never change the `Change-Id` trailer on the last line of a commit when you
+edit its message. The Change-Id identifies the Gerrit review; changing it
+orphans that review and opens a new one.
+
+This requires an active step, not just intent: the Gerrit `commit-msg` hook
+regenerates a fresh Change-Id whenever an amended message lacks one, so
+rewriting the message (e.g. `git commit --amend -F -`) silently changes it.
+Before amending, read the current trailer with
+
+    git log -1 --format=%b | grep -i change-id
+
+and re-append that exact `Change-Id:` line as the last line of the new
+message (after any `Amends`/`Task-number` footers).
 
 ## UI design rules
 
