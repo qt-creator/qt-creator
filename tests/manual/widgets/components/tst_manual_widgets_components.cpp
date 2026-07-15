@@ -47,7 +47,7 @@ static QWidget *badge(QtcBadge::Role role, InfoLabel::InfoType infoType, const Q
     return badge;
 }
 
-QWidget *widgets()
+static QWidget *widgets()
 {
     auto widget = new QWidget;
 

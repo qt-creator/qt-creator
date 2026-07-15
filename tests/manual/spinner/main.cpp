@@ -14,7 +14,7 @@
 
 using namespace SpinnerSolution;
 
-QGroupBox *createGroupBox(SpinnerSize size, QWidget *widget)
+static QGroupBox *createGroupBox(SpinnerSize size, QWidget *widget)
 {
     const QMetaEnum spinnerSize = QMetaEnum::fromType<SpinnerSize>();
     QGroupBox *groupBox = new QGroupBox(spinnerSize.valueToKey(int(size)));
@@ -50,7 +50,7 @@ QGroupBox *createGroupBox(SpinnerSize size, QWidget *widget)
     return groupBox;
 }
 
-QGroupBox *createColorsGroupBox()
+static QGroupBox *createColorsGroupBox()
 {
     QGroupBox *groupBox = new QGroupBox("Spinner::setColor(const QColor &color)");
     auto layout = new QHBoxLayout(groupBox);

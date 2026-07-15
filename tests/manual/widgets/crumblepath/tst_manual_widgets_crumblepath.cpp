@@ -14,7 +14,7 @@
 
 using namespace Utils;
 
-QWidget *crumblePathWithMenu()
+static QWidget *crumblePathWithMenu()
 {
     auto *cp = new CrumblePath;
     cp->pushElement("Ene", QVariant(1));
@@ -27,14 +27,14 @@ QWidget *crumblePathWithMenu()
     return cp;
 }
 
-QWidget *disabledCrumblePathWithMenu()
+static QWidget *disabledCrumblePathWithMenu()
 {
     QWidget *cp = crumblePathWithMenu();
     cp->setDisabled(true);
     return cp;
 }
 
-QWidget *growingCrumblePath()
+static QWidget *growingCrumblePath()
 {
     auto *cp = new CrumblePath;
     auto *timer = new QTimer(cp);
@@ -51,7 +51,7 @@ QWidget *growingCrumblePath()
     return cp;
 }
 
-QWidget *shrinkingCrumblePath()
+static QWidget *shrinkingCrumblePath()
 {
     auto *cp = new CrumblePath;
     for (const auto &title : {"Ene", "Mene", "Mopel", "Zicke", "Zacke"})
