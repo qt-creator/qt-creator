@@ -24,6 +24,10 @@ inline constexpr char KillAppStepId[] = "RemoteLinux.KillAppStep";
 inline constexpr char SshForwardPort[] = "RemoteLinux.SshForwardPort";
 inline constexpr char DisableSharing[] = "RemoteLinux.DisableSharing";
 
+// Process extra-data flag (bool): launch the process on the device's interactive desktop
+// session instead of the (invisible) SSH session, so a GUI application is actually visible.
+inline constexpr char RunInInteractiveSession[] = "RemoteLinux.RunInInteractiveSession";
+
 inline constexpr char RunConfigId[] = "RemoteLinuxRunConfiguration:";
 inline constexpr char CustomRunConfigId[] = "RemoteLinux.CustomRunConfig";
 

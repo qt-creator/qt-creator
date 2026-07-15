@@ -144,6 +144,10 @@ public:
                 m_envScript.removeFile();
                 m_envScript.clear();
             }
+            if (!m_runTempDir.isEmpty()) {
+                m_runTempDir.removeRecursively();
+                m_runTempDir.clear();
+            }
             emit done(result);
         });
     }
@@ -153,11 +157,15 @@ private:
     qint64 write(const QByteArray &data) final { return m_process.writeRaw(data); }
     void sendControlSignal(ControlSignal controlSignal) final;
     CommandLine fullLocalCommandLine();
+    QString buildInteractiveRunRemoteCommand();
 
     IDevice::ConstPtr m_device;
     // A PowerShell script written to the device's temp dir to apply the build environment
     // before running the command (see fullLocalCommandLine); removed when the process is done.
     FilePath m_envScript;
+    // A temp dir on the device holding the interactive-run orchestration script and its
+    // output/exit files (see buildInteractiveRunRemoteCommand); removed when done.
+    FilePath m_runTempDir;
     // Parented to this so it moves along when Process::waitForFinished() relocates the
     // interface to its blocking worker thread; otherwise nested blocking calls (e.g. a
     // device-rooted Process run via runBlocking) would never see the inner process's
@@ -232,6 +240,14 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine()
     const CommandLine remoteCommand = m_setup.m_commandLine;
     const QString args = remoteCommand.arguments();
 
+    QString remote;
+
+    // A GUI run must appear on the device's interactive desktop, not the (invisible) SSH
+    // session; WindowsRunWorkerFactory flags such processes. The launch is orchestrated by a
+    // staged script that starts the app in the interactive session and waits for it.
+    if (m_setup.m_extraData.value(Constants::RunInInteractiveSession).toBool())
+        remote = buildInteractiveRunRemoteCommand();
+
     // A process that carries an explicit environment (e.g. a build run with the kit's
     // build environment: MSVC vcvars putting INCLUDE/LIB in the env and the SDK bin on
     // PATH) needs that environment applied on the device, the way SshProcessInterface
@@ -243,10 +259,10 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine()
     // The streaming CmdBridge process (ProcessMode::Writer, binary protocol on stdin/stdout)
     // is excluded - a PowerShell wrapper would corrupt its byte stream; it keeps the plain
     // direct invocation below.
-    const bool injectEnvironment = m_setup.m_processMode != ProcessMode::Writer
+    const bool injectEnvironment = remote.isEmpty()
+                                   && m_setup.m_processMode != ProcessMode::Writer
                                    && !m_setup.m_environment.toStringList().isEmpty();
 
-    QString remote;
     if (injectEnvironment) {
         const Environment &env = m_setup.m_environment;
         QString script;
@@ -318,6 +334,190 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine()
         cmd.addArg(remote);
 
     return cmd;
+}
+
+// Builds the remote command for a GUI run: stages a PowerShell orchestrator on the device and
+// returns the "powershell -File <script>" invocation to run over SSH (in the invisible session 0).
+// Run in its default mode the script creates an interactive scheduled task (schtasks /it) that
+// re-invokes it in "app" mode inside the logged-on user's desktop session, where it applies the
+// run environment and starts the application (so its window is actually visible), waits for it,
+// and reports the exit code back. Returns an empty string on staging failure (caller falls back).
+QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
+{
+    const CommandLine remoteCommand = m_setup.m_commandLine;
+    const Environment &env = m_setup.m_environment;
+
+    QString envScript;
+    env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+        if (enabled && !key.trimmed().isEmpty() && !value.contains('\n')) {
+            envScript += "    [Environment]::SetEnvironmentVariable(" + psQuote(key) + ", "
+                         + psQuote(env.expandVariables(value)) + ")\n";
+        }
+    });
+
+    // Stage under C:\Users\Public: the application is launched by SYSTEM as the (possibly
+    // different) desktop user, not the SSH user, so both the script and its output/exit files
+    // must live where that user can read and write them.
+    const QString id = QUuid::createUuid().toString(QUuid::Id128);
+    const FilePath dir = m_device->rootPath().withNewPath("C:/Users/Public/qtc-run-" + id);
+    if (const Result<> res = dir.ensureWritableDir(); !res) {
+        qCWarning(windowsDeviceLog) << "Failed to create interactive-run dir"
+                                    << dir.toUserOutput() << ":" << res.error();
+        return {};
+    }
+
+    const FilePath scriptPath = dir / "run.ps1";
+    const QString self = scriptPath.nativePath();
+    const QString workingDir = m_setup.rawWorkingDirectory().isEmpty()
+            ? QString() : m_setup.rawWorkingDirectory().nativePath();
+
+    QString script;
+    script += "param([string]$Mode = 'run')\n";
+    script += "$ErrorActionPreference = 'SilentlyContinue'\n";
+    script += "$out = " + psQuote((dir / "out.txt").nativePath()) + "\n";
+    script += "$err = " + psQuote((dir / "err.txt").nativePath()) + "\n";
+    script += "$done = " + psQuote((dir / "exit.txt").nativePath()) + "\n";
+    script += "$started = " + psQuote((dir / "started.txt").nativePath()) + "\n";
+    script += "$exe = " + psQuote(remoteCommand.executable().nativePath()) + "\n";
+    script += "$tn = " + psQuote("qtc_run_" + id) + "\n";
+    script += "$self = " + psQuote(self) + "\n\n";
+
+    // "app" mode: runs inside the interactive session, applies the env and starts the app.
+    // The first thing it does is drop a "started" marker, so the orchestrator can tell that the
+    // task actually began running (as opposed to never launching, e.g. the target user is not
+    // logged on) without having to wait for the application to exit.
+    script += "if ($Mode -eq 'app') {\n";
+    script += "    Set-Content -Path $started -Value 1\n";
+    script += envScript;
+    script += "    $a = @{ FilePath = $exe; PassThru = $true; Wait = $true;\n";
+    script += "            RedirectStandardOutput = $out; RedirectStandardError = $err }\n";
+    if (!workingDir.isEmpty())
+        script += "    $a['WorkingDirectory'] = " + psQuote(workingDir) + "\n";
+    if (!remoteCommand.arguments().isEmpty())
+        script += "    $a['ArgumentList'] = " + psQuote(remoteCommand.arguments()) + "\n";
+    script += "    $code = 1\n";
+    script += "    try { $p = Start-Process @a; $code = $p.ExitCode }\n";
+    script += "    catch { Add-Content -Path $err -Value ('qtc: failed to start the application: '"
+              " + $_.Exception.Message) }\n";
+    script += "    Set-Content -Path $done -Value $code\n";
+    script += "    return\n";
+    script += "}\n\n";
+
+    // "sys" mode: runs as SYSTEM (via a scheduled task the run mode creates). Only SYSTEM may call
+    // WTSQueryUserToken, so this is where we cross from the invisible SSH session 0 onto the user's
+    // interactive desktop: resolve the desktop session (owner of explorer.exe - reliable on console
+    // or RDP, and even for a logged-on-but-disconnected session), grab that user's token, and
+    // CreateProcessAsUser the "app" mode into their session (winsta0\default) with their
+    // environment. Failures are written to $err so the run mode can report them.
+    script += "if ($Mode -eq 'sys') {\n";
+    script += "    Add-Type -Namespace Qtc -Name Native -MemberDefinition @'\n";
+    script += "[DllImport(\"wtsapi32.dll\", SetLastError=true)]\n";
+    script += "public static extern bool WTSQueryUserToken(uint SessionId, out IntPtr phToken);\n";
+    script += "[DllImport(\"wtsapi32.dll\", SetLastError=true)]\n";
+    script += "public static extern int WTSEnumerateSessions(IntPtr hServer, int reserved, int version, out IntPtr ppSessionInfo, out int count);\n";
+    script += "[DllImport(\"wtsapi32.dll\")]\n";
+    script += "public static extern void WTSFreeMemory(IntPtr p);\n";
+    script += "[StructLayout(LayoutKind.Sequential)]\n";
+    script += "public struct WTS_SESSION_INFO { public uint SessionId; public IntPtr pWinStationName; public int State; }\n";
+    script += "[DllImport(\"advapi32.dll\", SetLastError=true)]\n";
+    script += "public static extern bool DuplicateTokenEx(IntPtr h, uint access, IntPtr attr, int imp, int type, out IntPtr phNew);\n";
+    script += "[DllImport(\"userenv.dll\", SetLastError=true)]\n";
+    script += "public static extern bool CreateEnvironmentBlock(out IntPtr env, IntPtr hToken, bool inherit);\n";
+    script += "[StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]\n";
+    script += "public struct STARTUPINFO { public int cb; public string lpReserved; public string lpDesktop;\n";
+    script += "  public string lpTitle; public int dwX; public int dwY; public int dwXSize; public int dwYSize;\n";
+    script += "  public int dwXCountChars; public int dwYCountChars; public int dwFillAttribute; public int dwFlags;\n";
+    script += "  public short wShowWindow; public short cbReserved2; public IntPtr lpReserved2;\n";
+    script += "  public IntPtr hStdInput; public IntPtr hStdOutput; public IntPtr hStdError; }\n";
+    script += "[StructLayout(LayoutKind.Sequential)]\n";
+    script += "public struct PROCESS_INFORMATION { public IntPtr hProcess; public IntPtr hThread; public int dwPid; public int dwTid; }\n";
+    script += "[DllImport(\"advapi32.dll\", SetLastError=true, CharSet=CharSet.Unicode)]\n";
+    script += "public static extern bool CreateProcessAsUser(IntPtr hToken, string app, string cmd, IntPtr pa, IntPtr ta,\n";
+    script += "  bool inherit, uint flags, IntPtr env, string cwd, ref STARTUPINFO si, out PROCESS_INFORMATION pi);\n";
+    script += "'@\n";
+    // Target the ACTIVE interactive session deterministically - the one a user is currently
+    // looking at - rather than an arbitrary logged-on session (WTS_CONNECTSTATE_CLASS.WTSActive
+    // is 0). If nothing is active, there is no visible desktop to run on, so report that.
+    script += "    $sid = -1\n";
+    script += "    $pInfo = [IntPtr]::Zero; $count = 0\n";
+    script += "    if ([Qtc.Native]::WTSEnumerateSessions([IntPtr]::Zero, 0, 1, [ref]$pInfo, [ref]$count)) {\n";
+    script += "        $sz = [Runtime.InteropServices.Marshal]::SizeOf([type]'Qtc.Native+WTS_SESSION_INFO')\n";
+    script += "        for ($i = 0; $i -lt $count; $i++) {\n";
+    script += "            $e = [Runtime.InteropServices.Marshal]::PtrToStructure("
+              "[IntPtr]([int64]$pInfo + $i * $sz), [type]'Qtc.Native+WTS_SESSION_INFO')\n";
+    script += "            if ($e.State -eq 0) { $sid = [int]$e.SessionId; break }\n";
+    script += "        }\n";
+    script += "        [Qtc.Native]::WTSFreeMemory($pInfo)\n";
+    script += "    }\n";
+    script += "    if ($sid -lt 0) { Add-Content -Path $err -Value 'qtc: no active interactive "
+              "session on the device.'; return }\n";
+    script += "    $le = { [Runtime.InteropServices.Marshal]::GetLastWin32Error() }\n";
+    script += "    $tok = [IntPtr]::Zero\n";
+    script += "    if (-not [Qtc.Native]::WTSQueryUserToken([uint32]$sid, [ref]$tok)) "
+              "{ Add-Content -Path $err -Value ('qtc: WTSQueryUserToken failed err=' + (& $le)); return }\n";
+    script += "    $dup = [IntPtr]::Zero\n";
+    script += "    if (-not [Qtc.Native]::DuplicateTokenEx($tok, 0x02000000, [IntPtr]::Zero, 2, 1, [ref]$dup)) "
+              "{ Add-Content -Path $err -Value ('qtc: DuplicateTokenEx failed err=' + (& $le)); return }\n";
+    script += "    $envb = [IntPtr]::Zero\n";
+    script += "    [Qtc.Native]::CreateEnvironmentBlock([ref]$envb, $dup, $false) | Out-Null\n";
+    script += "    $si = New-Object 'Qtc.Native+STARTUPINFO'\n";
+    script += "    $si.cb = [Runtime.InteropServices.Marshal]::SizeOf($si)\n";
+    script += "    $si.lpDesktop = 'winsta0\\default'\n";
+    script += "    $pi = New-Object 'Qtc.Native+PROCESS_INFORMATION'\n";
+    // Use $PSHOME to locate powershell.exe (robust in the SYSTEM task, whose environment may lack
+    // SystemRoot); CreateProcessAsUser needs a full, valid application path.
+    script += "    $psexe = (Join-Path $PSHOME 'powershell.exe')\n";
+    script += "    $cmd = '\"' + $psexe + '\" -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"' "
+              "+ $self + '\" -Mode app'\n";
+    // CREATE_NO_WINDOW 0x08000000 | CREATE_UNICODE_ENVIRONMENT 0x00000400; cwd must be a valid dir.
+    script += "    $ok = [Qtc.Native]::CreateProcessAsUser($dup, $psexe, $cmd, [IntPtr]::Zero, [IntPtr]::Zero, "
+              "$false, 0x08000400, $envb, $PSHOME, [ref]$si, [ref]$pi)\n";
+    script += "    if (-not $ok) { Add-Content -Path $err -Value ('qtc: CreateProcessAsUser failed err=' + (& $le)) }\n";
+    script += "    return\n";
+    script += "}\n\n";
+
+    // Default ("run") mode: runs as the SSH user in the invisible session 0. It cannot reach the
+    // interactive desktop directly, so it elevates to SYSTEM via a scheduled task that runs the
+    // "sys" mode above. Reaching SYSTEM needs local-admin rights; without them, fail clearly.
+    script += "if (-not ([Security.Principal.WindowsPrincipal]"
+              "[Security.Principal.WindowsIdentity]::GetCurrent())"
+              ".IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {\n";
+    script += "    [Console]::Error.Write('qtc: showing a GUI run needs the device account to be a "
+              "local administrator.')\n";
+    script += "    exit 1\n";
+    script += "}\n";
+    script += "$tr = 'powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"'"
+              " + $self + '\" -Mode sys'\n";
+    script += "$create = schtasks /create /f /tn $tn /tr $tr /sc once /st 00:00 /ru SYSTEM 2>&1\n";
+    script += "schtasks /run /tn $tn 2>&1 | Out-Null\n";
+    // Wait for the app to actually begin (the "started" marker), but only briefly: if the launcher
+    // never gets that far report a diagnostic (including anything it wrote to $err) instead of
+    // hanging forever. Once it has started, wait as long as the application keeps running.
+    script += "$deadline = (Get-Date).AddSeconds(20)\n";
+    script += "while (-not (Test-Path $started) -and -not (Test-Path $done)"
+              " -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 300 }\n";
+    script += "if (-not (Test-Path $started) -and -not (Test-Path $done)) {\n";
+    script += "    schtasks /delete /f /tn $tn 2>&1 | Out-Null\n";
+    script += "    $msg = 'qtc: the GUI run did not start.'\n";
+    script += "    if (Test-Path $err) { $msg += ' ' + (Get-Content -Raw $err) }\n";
+    script += "    [Console]::Error.Write($msg)\n";
+    script += "    exit 1\n";
+    script += "}\n";
+    script += "while (-not (Test-Path $done)) { Start-Sleep -Milliseconds 300 }\n";
+    script += "schtasks /delete /f /tn $tn 2>&1 | Out-Null\n";
+    script += "if (Test-Path $out) { [Console]::Out.Write((Get-Content -Raw $out)) }\n";
+    script += "if (Test-Path $err) { [Console]::Error.Write((Get-Content -Raw $err)) }\n";
+    script += "exit [int](Get-Content $done)\n";
+
+    if (const Result<qint64> res = scriptPath.writeFileContents(script.toUtf8()); !res) {
+        qCWarning(windowsDeviceLog) << "Failed to write interactive-run script"
+                                    << scriptPath.toUserOutput() << ":" << res.error();
+        dir.removeRecursively();
+        return {};
+    }
+
+    m_runTempDir = dir;
+    return "powershell -NoProfile -ExecutionPolicy Bypass -File \"" + self + "\"";
 }
 
 // WindowsDeviceAccess
