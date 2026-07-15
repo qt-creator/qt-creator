@@ -32,7 +32,7 @@
 
 using namespace CPlusPlus;
 
-void printUsage()
+static void printUsage()
 {
     std::cout << "Usage: " << qPrintable(QFileInfo(QCoreApplication::arguments().at(0)).fileName())
               << " [-v] <file1> <file2> ...\n\n"

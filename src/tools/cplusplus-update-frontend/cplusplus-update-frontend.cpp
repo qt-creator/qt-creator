@@ -928,7 +928,7 @@ static QStringList collectFieldNames(ClassSpecifierAST *classAST, bool onlyToken
     return fields;
 }
 
-bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
+static bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
 {
     BackwardsScanner tokens(cursor, LanguageFeatures::defaultFeatures(), 10, QString(), false);
     Token prevToken = tokens.LA(1);
@@ -950,7 +950,7 @@ struct GenInfo
     bool remove = false;
 };
 
-void generateFirstToken(QTextStream &os, const QString &className, const QStringList &fields)
+static void generateFirstToken(QTextStream &os, const QString &className, const QStringList &fields)
 {
     os << "int " << className << "::firstToken() const" << Qt::endl << "{" << Qt::endl;
 
@@ -969,7 +969,7 @@ void generateFirstToken(QTextStream &os, const QString &className, const QString
     os << "}" << Qt::endl << Qt::endl;
 }
 
-void generateLastToken(QTextStream &os, const QString &className, const QStringList &fields)
+static void generateLastToken(QTextStream &os, const QString &className, const QStringList &fields)
 {
     os << "int " << className << "::lastToken() const" << Qt::endl << "{" << Qt::endl;
 
@@ -990,7 +990,7 @@ void generateLastToken(QTextStream &os, const QString &className, const QStringL
     os << "}" << Qt::endl << Qt::endl;
 }
 
-void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
+static void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
 {
     typedef QMap<QString, ClassSpecifierAST *> StringClassSpecifierASTMap;
     typedef StringClassSpecifierASTMap::ConstIterator StringClassSpecifierASTMapConstIt;
@@ -1164,8 +1164,8 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
     writeIfChanged(cpp_document.toPlainText(), fileName);
 }
 
-void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
-                          const QList<QByteArray> &classes)
+static void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
+                                 const QList<QByteArray> &classes)
 {
   QFileInfo fileASTVisitor_h(cplusplusDir, QLatin1String("ASTVisitor.h"));
   Q_ASSERT(fileASTVisitor_h.exists());
@@ -1248,8 +1248,8 @@ void generateASTVisitor_H(const Snapshot &, const QDir &cplusplusDir,
   closeBufferAndWriteIfChanged(buffer, fileASTVisitor_h.absoluteFilePath());
 }
 
-void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
-                          const QList<QByteArray> &classes)
+static void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
+                                 const QList<QByteArray> &classes)
 {
   QFileInfo fileASTMatcher_h(cplusplusDir, QLatin1String("ASTMatcher.h"));
   Q_ASSERT(fileASTMatcher_h.exists());
@@ -1284,7 +1284,7 @@ void generateASTMatcher_H(const Snapshot &, const QDir &cplusplusDir,
   closeBufferAndWriteIfChanged(buffer, fileASTMatcher_h.absoluteFilePath());
 }
 
-QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, const QString &dumpersFile)
+static QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, const QString &dumpersFile)
 {
     QStringList astDerivedClasses;
 
@@ -1419,7 +1419,7 @@ private:
     Overview oo;
 };
 
-void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const QStringList &astDerivedClasses)
+static void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const QStringList &astDerivedClasses)
 {
     QFileInfo fileASTFwd_h(cplusplusDir, QLatin1String("ASTfwd.h"));
     Q_ASSERT(fileASTFwd_h.exists());
@@ -1453,7 +1453,7 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
     writeIfChanged(document.toPlainText(), fileName);
 }
 
-void generateASTPatternBuilder_h(const QDir &cplusplusDir)
+static void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 {
     typedef QPair<QString, QString> StringPair;
 
@@ -1567,7 +1567,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     closeBufferAndWriteIfChanged(buffer, fileInfo.absoluteFilePath());
 }
 
-void printUsage()
+static void printUsage()
 {
     const QByteArray executable = QFileInfo(QCoreApplication::arguments().first()).fileName().toLatin1();
     std::cout << "Usage: " << executable.constData() << "\n"

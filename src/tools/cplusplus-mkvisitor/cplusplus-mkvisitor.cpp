@@ -404,7 +404,7 @@ protected:
     }
 };
 
-void printUsage()
+static void printUsage()
 {
     std::cout << "Usage: " << qPrintable(QFileInfo(QCoreApplication::arguments().at(0)).fileName())
               << " [-v] [path to AST.h]\n\n"

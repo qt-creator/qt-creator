@@ -46,7 +46,7 @@
 #  include <unistd.h>
 #endif
 
-bool tty_for_stdin()
+static bool tty_for_stdin()
 {
 #if defined(Q_OS_WIN)
     return _isatty(_fileno(stdin));

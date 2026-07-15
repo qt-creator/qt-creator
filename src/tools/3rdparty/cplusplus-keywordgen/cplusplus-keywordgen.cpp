@@ -204,7 +204,7 @@ static std::string option_function_name = "classify";
 std::stringstream input;
 std::stringstream output;
 
-std::string token_id(const std::string &id)
+static std::string token_id(const std::string &id)
 {
     std::string token = option_token_prefix;
 
@@ -218,7 +218,7 @@ std::string token_id(const std::string &id)
     return token;
 }
 
-bool starts_with(const std::string &line, const std::string &text)
+static bool starts_with(const std::string &line, const std::string &text)
 {
     if (text.length() <= line.length()) {
         return std::equal(line.begin(), line.begin() + text.size(), text.begin());
@@ -226,7 +226,7 @@ bool starts_with(const std::string &line, const std::string &text)
     return false;
 }
 
-void doit(State &state)
+static void doit(State &state)
 {
     static int depth{0};
     static int preCheckDepth{0};
@@ -277,7 +277,7 @@ void doit(State &state)
     --depth;
 }
 
-void gen_classify_n(State &start_state, size_t N)
+static void gen_classify_n(State &start_state, size_t N)
 {
     output << "static inline int " << option_function_name << N << "(const " << option_char_type
            << " *s";
@@ -294,7 +294,7 @@ void gen_classify_n(State &start_state, size_t N)
            << std::endl;
 }
 
-void gen_classify(const std::multimap<size_t, Rule> &keywords)
+static void gen_classify(const std::multimap<size_t, Rule> &keywords)
 {
     output << "int " << option_namespace_name << option_function_name << "(const "
            << option_char_type << " *s, int n";
@@ -322,7 +322,7 @@ void gen_classify(const std::multimap<size_t, Rule> &keywords)
            << std::endl;
 }
 
-void gen_enums(const std::multimap<size_t, Rule> &keywords)
+static void gen_enums(const std::multimap<size_t, Rule> &keywords)
 {
     output << "enum {" << std::endl;
     std::multimap<size_t, Rule>::const_iterator it = keywords.begin();
