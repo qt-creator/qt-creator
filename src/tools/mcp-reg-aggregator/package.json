@@ -4,20 +4,24 @@
   "description": "Aggregates the MCP server registry and uploads a condensed JSON to S3",
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "gen:types": "node scripts/gen-types.mjs",
+    "build": "npm run gen:types && tsc",
     "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
+    "dev": "npm run gen:types && tsx src/index.ts",
     "fetch": "npm run build && mkdir -p out/pages && node dist/index.js --output out/mcp-registry.json"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.600.0"
+    "@aws-sdk/client-s3": "^3.600.0",
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^24.0.0",
+    "json-schema-to-typescript": "^15.0.4",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   }
 }

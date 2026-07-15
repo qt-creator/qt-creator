@@ -9,6 +9,12 @@ on:
 jobs:
   aggregate-mcp-registry:
     runs-on: ubuntu-latest
+    # workflow_dispatch can be launched from any branch; skip unless master.
+    # (Scheduled runs already use the default branch only.)
+    if: github.ref == 'refs/heads/master'
+    # The "master" environment holds the secrets and is restricted to the
+    # master branch, so other branches can't access it.
+    environment: master
     permissions:
       contents: read
 
@@ -19,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
           cache-dependency-path: src/tools/mcp-reg-aggregator/package-lock.json
 
