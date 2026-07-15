@@ -4,6 +4,7 @@ QtcAutotest {
     name: "QtProfiler call tree model autotest"
     Depends { name: "CommonTraceFormat" }
     Depends { name: "Utils" }
+    cpp.defines: base.concat(["QMLPROFILER_STATIC_LIBRARY"])
     cpp.includePaths: base.concat([
         path + "/../../../../src/plugins/profiler",
         path + "/../../../../src/plugins",
