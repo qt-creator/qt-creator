@@ -27,7 +27,7 @@ const char emSdkVersionTSFileKey[] = "WebAssembly/emSdkVersionTimeStampFile";
 const char emSdkVersionTSKey[] = "WebAssembly/emSdkVersionTimeStamp";
 const char emSdkVersionKey[] = "WebAssembly/emSdkVersion1";
 
-const FilePath timeStampFile(const FilePath &sdkRoot)
+static const FilePath timeStampFile(const FilePath &sdkRoot)
 {
     return sdkRoot / Constants::WEBASSEMBLY_EMSDK_CONFIG_FILE;
 }
