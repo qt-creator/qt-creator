@@ -93,6 +93,26 @@ constexpr int kHoverAlpha = 50;         // alpha of the (unselected) hover highl
 constexpr int kEditorDocMargin = 2;     // rename editor document margin
 constexpr int kMaxExtensionLen = 6;     // keep extension visible when eliding if shorter
 
+// ===== Layout preference =====
+
+// Default follows the host: classic everywhere but macOS.
+static bool classicLayoutEnabled()
+{
+    QSettings settings;
+    settings.beginGroup(u"FileDialog"_s);
+    const bool enabled = settings.value(u"ClassicLayout"_s, !HostOsInfo::isMacHost()).toBool();
+    settings.endGroup();
+    return enabled;
+}
+
+static void setClassicLayoutEnabled(bool enabled)
+{
+    QSettings settings;
+    settings.beginGroup(u"FileDialog"_s);
+    settings.setValue(u"ClassicLayout"_s, enabled);
+    settings.endGroup();
+}
+
 // ===== FileFilterProxy =====
 
 class FileFilterProxy : public QSortFilterProxyModel
@@ -1574,9 +1594,15 @@ public:
     SidebarView *m_sidebarView = nullptr;
     QComboBox *m_pathCombo = nullptr;
     QComboBox *m_filterCombo = nullptr;
+    QLabel *m_filterLabel = nullptr;
+    QtcIconButton *m_gotoButton = nullptr;
     GoToFolderOverlay *m_gotoOverlay = nullptr;
+    // Two file-name fields: the classic one below the view, the compact
+    // macOS-style one centered above it. Only one shows; see fileNameEdit().
     QLabel *m_fileNameLabel = nullptr;
     FancyLineEdit *m_fileNameEdit = nullptr;
+    QLabel *m_saveAsLabel = nullptr;
+    FancyLineEdit *m_saveAsEdit = nullptr;
     FancyLineEdit *m_searchEdit = nullptr;
     SpinnerSolution::Spinner *m_spinner = nullptr;
     OverlayWidget *m_errorOverlay = nullptr;
@@ -1600,6 +1626,31 @@ public:
     // the move as a fresh history entry.
     bool m_navigatingHistory = false;
     bool m_showFullPaths = !HostOsInfo::isMacHost();
+    bool m_classicLayout = classicLayoutEnabled();
+    // Whether real name filters were set, as opposed to the synthetic "all files"
+    // entry the classic layout falls back to.
+    bool m_hasNameFilters = false;
+
+    FancyLineEdit *fileNameEdit() const { return m_classicLayout ? m_fileNameEdit : m_saveAsEdit; }
+
+    // Both layouts are laid out at once; switching is only a matter of visibility.
+    void updateLayoutVisibility()
+    {
+        const bool saveMode = m_acceptMode == QFileDialog::AcceptSave;
+        m_gotoButton->setVisible(!m_classicLayout);
+        m_fileNameLabel->setText(saveMode ? Tr::tr("Save As:") : Tr::tr("File name:"));
+        m_fileNameLabel->setVisible(m_classicLayout);
+        m_fileNameEdit->setVisible(m_classicLayout);
+        const bool compactSave = !m_classicLayout && saveMode;
+        m_saveAsLabel->setVisible(compactSave);
+        m_saveAsEdit->setVisible(compactSave);
+        if (m_classicLayout && m_filterCombo->count() == 0) {
+            const QString allFiles = QCoreApplication::translate("QFileDialog", "All files (*)");
+            m_filterCombo->addItem(allFiles, allFiles);
+        }
+        m_filterLabel->setVisible(m_classicLayout);
+        m_filterCombo->setVisible(m_classicLayout || m_hasNameFilters);
+    }
 
     bool acceptsAsSelection(bool isDir) const
     {
@@ -1679,13 +1730,18 @@ public:
         return {};
     }
 
-    // Save mode accepts whatever the user typed; open mode needs a valid selection
-    // (or, in Directory mode, a valid current directory).
+    // Save mode accepts whatever the user typed; open mode needs a valid
+    // selection, a valid current directory (Directory mode), or a typed name.
     void updateAcceptButtonState() const
     {
-        const bool enable = (m_acceptMode == QFileDialog::AcceptSave)
-                                ? !m_fileNameEdit->text().trimmed().isEmpty()
-                                : (!m_selectedFile.isEmpty() || !acceptableCurrentDir().isEmpty());
+        bool enable = false;
+        if (m_acceptMode == QFileDialog::AcceptSave) {
+            enable = !fileNameEdit()->text().trimmed().isEmpty();
+        } else {
+            enable = !m_selectedFile.isEmpty() || !acceptableCurrentDir().isEmpty()
+                     || (fileNameEdit()->isVisible()
+                         && !fileNameEdit()->text().trimmed().isEmpty());
+        }
         m_acceptButton->setEnabled(enable);
     }
 };
@@ -1782,9 +1838,26 @@ FileDialog::FileDialog(QWidget *parent)
     d->m_filterCombo = new QComboBox(this);
     d->m_filterCombo->setMinimumWidth(180);
 
-    auto handleOpen = [this] {
+    // Navigate into a typed directory, else accept a typed file (which, when
+    // saving, need not exist yet). Relative input resolves against m_currentDir.
+    auto acceptFileNameField = [this] {
+        const QString text = d->fileNameEdit()->text().trimmed();
+        if (text.isEmpty())
+            return;
+        FilePath path = FilePath::fromUserInput(text);
+        if (!path.isAbsolutePath())
+            path = d->m_currentDir.resolvePath(text);
+        if (path.isDir()) {
+            setDirectory(path);
+        } else if (path.exists() || d->m_acceptMode == QFileDialog::AcceptSave) {
+            d->m_selectedFile = path;
+            accept();
+        }
+    };
+
+    auto handleOpen = [this, acceptFileNameField] {
         if (d->m_acceptMode == QFileDialog::AcceptSave) {
-            const QString name = d->m_fileNameEdit->text().trimmed();
+            const QString name = d->fileNameEdit()->text().trimmed();
             if (name.isEmpty())
                 return;
             const FilePath path = FilePath::fromUserInput(name);
@@ -1792,6 +1865,9 @@ FileDialog::FileDialog(QWidget *parent)
             accept();
         } else if (!d->m_selectedFile.isEmpty()) {
             accept();
+        } else if (d->fileNameEdit()->isVisible()
+                   && !d->fileNameEdit()->text().trimmed().isEmpty()) {
+            acceptFileNameField();
         } else if (const FilePath dir = d->acceptableCurrentDir(); !dir.isEmpty()) {
             d->m_selectedFile = dir;
             accept();
@@ -2057,7 +2133,20 @@ FileDialog::FileDialog(QWidget *parent)
         d->rebuildPathCombo();
     });
 
+    QAction *classicLayoutAction = new QAction(Tr::tr("Use classic layout"), this);
+    classicLayoutAction->setCheckable(true);
+    classicLayoutAction->setChecked(d->m_classicLayout);
+    connect(classicLayoutAction, &QAction::toggled, this, [this](bool checked) {
+        setClassicLayoutEnabled(checked);
+        // Carry the current text over to the field the new layout will show.
+        const QString name = d->fileNameEdit()->text();
+        d->m_classicLayout = checked;
+        d->fileNameEdit()->setText(name);
+        d->updateLayoutVisibility();
+    });
+
     using namespace Layouting;
+
     // clang-format off
     Column {
         Row {
@@ -2081,6 +2170,7 @@ FileDialog::FileDialog(QWidget *parent)
                 onClicked(this, goToParent),
             },
             QtDesignWidgets::IconButton {
+                bindTo(&d->m_gotoButton),
                 icon(Icons::SLASH),
                 Layouting::toolTip(withShortcut(Tr::tr("Go to folder"), gotoShortcut)),
                 onClicked(this, [this] { d->m_gotoOverlay->popup(d->m_currentDir); }),
@@ -2096,6 +2186,8 @@ FileDialog::FileDialog(QWidget *parent)
                     menu.addAction(showHiddenAction);
                     menu.addAction(hideFilteredAction);
                     menu.addAction(showFullPathsAction);
+                    menu.addSeparator();
+                    menu.addAction(classicLayoutAction);
                     menu.exec(QCursor::pos());
                 }),
             },
@@ -2117,70 +2209,72 @@ FileDialog::FileDialog(QWidget *parent)
 
                 Row {
                     st,
-                    Label {
-                        bindTo(&d->m_fileNameLabel),
-                        text(Tr::tr("Save As:")),
-                    },
+                    Label { bindTo(&d->m_saveAsLabel), text(Tr::tr("Save As:")) },
                     LineEdit {
-                        bindTo(&d->m_fileNameEdit),
+                        bindTo(&d->m_saveAsEdit),
                         placeholderText(Tr::tr("File Name")),
-                        onReturnPressed(this, [this](auto &lineEdit) {
-                            if (lineEdit.text().isEmpty())
-                                return;
-                            const FilePath path = FilePath::fromUserInput(lineEdit.text());
-                            if (path.isDir()) {
-                                setDirectory(path);
-                            } else if (path.exists() || d->m_acceptMode == QFileDialog::AcceptSave) {
-                                // When saving, a not-yet-existing file name is a valid choice.
-                                d->m_selectedFile = path;
-                                accept();
-                            }
+                        onReturnPressed(this, [acceptFileNameField](auto &) {
+                            acceptFileNameField();
                         }),
                     },
                     st,
                 },
 
                 d->m_viewStack,
-                Column {
+                Grid {
+                    columnStretch(1, 1),
+                    Label { bindTo(&d->m_fileNameLabel), text(Tr::tr("File name:")) },
+                    LineEdit {
+                        bindTo(&d->m_fileNameEdit),
+                        placeholderText(Tr::tr("File Name")),
+                        onReturnPressed(this, [acceptFileNameField](auto &) {
+                            acceptFileNameField();
+                        }),
+                    },
+                    br,
+                    Label { bindTo(&d->m_filterLabel), text(Tr::tr("Files of type:")) },
                     d->m_filterCombo,
-                    Row {
-                        QtDesignWidgets::Button {
-                            text(Tr::tr("New Folder")),
-                            onClicked(this, createFolder),
-                            role(QtcButton::Role::MediumSecondary),
-                        },
-                        st,
-                        DialogButtonBox {
-                            dialogButton(QDialogButtonBox::ButtonRole::AcceptRole,
-                                QtDesignWidgets::Button {
-                                    bindTo(&d->m_acceptButton),
-                                    stdButtonText(QDialogButtonBox::StandardButton::Open),
-                                    enabled(false),
-                                    onClicked(this, handleOpen),
-                                    role(QtcButton::Role::MediumPrimary),
-                                }
-                            ),
-                            dialogButton(QDialogButtonBox::ButtonRole::RejectRole,
-                                QtDesignWidgets::Button {
-                                    stdButtonText(QDialogButtonBox::StandardButton::Cancel),
-                                    onClicked(this, [this] { reject(); }),
-                                    role(QtcButton::Role::MediumSecondary),
-                                }
-                            ),
-                        },
-                    }
+                    br,
+                },
+                Row {
+                    QtDesignWidgets::Button {
+                        text(Tr::tr("New Folder")),
+                        onClicked(this, createFolder),
+                        role(QtcButton::Role::MediumSecondary),
+                    },
+                    st,
+                    DialogButtonBox {
+                        dialogButton(QDialogButtonBox::ButtonRole::AcceptRole,
+                            QtDesignWidgets::Button {
+                                bindTo(&d->m_acceptButton),
+                                stdButtonText(QDialogButtonBox::StandardButton::Open),
+                                enabled(false),
+                                onClicked(this, handleOpen),
+                                role(QtcButton::Role::MediumPrimary),
+                            }
+                        ),
+                        dialogButton(QDialogButtonBox::ButtonRole::RejectRole,
+                            QtDesignWidgets::Button {
+                                stdButtonText(QDialogButtonBox::StandardButton::Cancel),
+                                onClicked(this, [this] { reject(); }),
+                                role(QtcButton::Role::MediumSecondary),
+                            }
+                        ),
+                    },
                 },
             }
         }
     }.attachTo(this);
     // clang-format on
 
-    const bool saveMode = d->m_acceptMode == QFileDialog::AcceptSave;
     d->m_fileNameEdit->setMinimumWidth(280);
-    d->m_fileNameEdit->setVisible(saveMode);
-    d->m_fileNameLabel->setVisible(saveMode);
+    d->m_saveAsEdit->setMinimumWidth(280);
+    d->updateLayoutVisibility();
 
     connect(d->m_fileNameEdit, &QLineEdit::textChanged, this, [this] {
+        d->updateAcceptButtonState();
+    });
+    connect(d->m_saveAsEdit, &QLineEdit::textChanged, this, [this] {
         d->updateAcceptButtonState();
     });
 
@@ -2464,8 +2558,6 @@ FileDialog::FileDialog(QWidget *parent)
     sp.setVerticalStretch(1);
     splitter->setSizePolicy(sp);
 
-    d->m_filterCombo->hide();
-
     setViewMode(FileDialog::ViewMode::List);
 
     auto onActivated = [this](const QModelIndex &proxyIndex) {
@@ -2510,6 +2602,11 @@ FileDialog::FileDialog(QWidget *parent)
                 const bool acceptable
                     = d->acceptsAsSelection(isDir) && d->m_proxy->acceptsContentRow(proxyIdx);
                 d->m_selectedFile = acceptable ? fp : FilePath();
+                // Reflect the pick in the file-name field when it is shown.
+                if (acceptable && d->fileNameEdit()->isVisible()) {
+                    QSignalBlocker blocker(d->fileNameEdit());
+                    d->fileNameEdit()->setText(fp.fileName());
+                }
                 d->updateAcceptButtonState();
             });
 
@@ -2570,7 +2667,7 @@ void FileDialog::setDirectory(const FilePath &path)
     } else {
         d->m_currentDir = path.parentDir();
         d->m_selectedFile = path;
-        d->m_fileNameEdit->setText(path.fileName());
+        d->fileNameEdit()->setText(path.fileName());
     }
 
     if (!d->m_navigatingHistory)
@@ -2618,8 +2715,8 @@ void FileDialog::setNameFilters(const QStringList &filters)
     if (!resolved.isEmpty())
         d->m_proxy->setSuffixes(parseSuffixes(resolved.first()));
 
-    const bool hasFilters = !resolved.isEmpty();
-    d->m_filterCombo->setVisible(hasFilters);
+    d->m_hasNameFilters = !resolved.isEmpty();
+    d->updateLayoutVisibility();
 }
 
 void FileDialog::setViewMode(ViewMode mode)
@@ -2650,8 +2747,7 @@ void FileDialog::setAcceptMode(QFileDialog::AcceptMode mode)
     d->m_acceptButton->setText(
         saveMode ? Layouting::standardButtonText(QDialogButtonBox::Save)
                  : Layouting::standardButtonText(QDialogButtonBox::Open));
-    d->m_fileNameEdit->setVisible(saveMode);
-    d->m_fileNameLabel->setVisible(saveMode);
+    d->updateLayoutVisibility();
     d->updateAcceptButtonState();
 }
 
@@ -2671,7 +2767,7 @@ QString FileDialog::selectedNameFilter() const
 FilePaths FileDialog::selectedFiles() const
 {
     if (d->m_acceptMode == QFileDialog::AcceptSave) {
-        const QString name = d->m_fileNameEdit->text().trimmed();
+        const QString name = d->fileNameEdit()->text().trimmed();
         if (name.isEmpty())
             return {};
         const FilePath path = FilePath::fromUserInput(name);
