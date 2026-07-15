@@ -72,7 +72,7 @@ public:
     }
 };
 
-void setupQnxDeployment()
+static void setupQnxDeployment()
 {
     static QnxDeployConfigurationFactory deployConfigFactory;
     static QnxDeployStepFactory directUploadDeployFactory{Remote::Constants::DirectUploadStepId,
@@ -103,7 +103,7 @@ public:
     }
 };
 
-void setupQnxSdpEnvFileToolAspect()
+static void setupQnxSdpEnvFileToolAspect()
 {
     static QnxSdpEnvFileToolAspectFactory theQnxSdpEnvFileToolAspectFactory;
 }

@@ -97,7 +97,7 @@ private:
     QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
-QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
+static QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
 {
     QList<DeployableFile> collected;
     FilePath localFile = deployable.localFilePath();
