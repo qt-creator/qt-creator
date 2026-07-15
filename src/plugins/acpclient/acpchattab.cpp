@@ -528,6 +528,9 @@ void AcpChatTab::showSessionPicker()
     } else if (const Project *startup = ProjectManager::startupProject()) {
         const FilePath dir = startup->projectDirectory();
         picker->setDefaultTarget(Tr::tr("Startup Project (%1)").arg(dir.toUserOutput()), dir);
+    } else {
+        const FilePath dir = FilePath::currentWorkingPath();
+        picker->setDefaultTarget(Tr::tr("Current Working Directory (%1)").arg(dir.toUserOutput()), dir);
     }
     for (const Project *p : ProjectManager::projects())
         targets.append(p->projectDirectory());
