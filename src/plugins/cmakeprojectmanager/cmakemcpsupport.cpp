@@ -3,7 +3,9 @@
 
 #include "cmakemcpsupport.h"
 #include "cmakebuildsystem.h"
+#include "cmakeproject.h"
 #include "cmakeprojectmanager.h"
+#include "presetsparser.h"
 
 #include <mcp/server/toolregistry.h>
 
@@ -148,6 +150,72 @@ void setupCMakeMcpSupport()
                          "call build afterward to wait for the reparse to complete "
                          "before running tests.")
                      .arg(project->displayName())}};
+        }));
+
+    using ToolAnnotations = Schema::ToolAnnotations;
+
+    // Resolves a project (by name, or the startup project) as a CMakeProject.
+    const auto resolveCMakeProject = [](const QString &projectName) -> CMakeProject * {
+        Project *project = nullptr;
+        if (projectName.isEmpty()) {
+            project = ProjectManager::startupProject();
+        } else {
+            for (Project *p : ProjectManager::projects()) {
+                if (p->displayName() == projectName) {
+                    project = p;
+                    break;
+                }
+            }
+        }
+        return qobject_cast<CMakeProject *>(project);
+    };
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_cmake_presets")
+            .title("List CMake presets of a project")
+            .description(
+                "Lists the presets defined in a project's CMakePresets.json - configure, "
+                "build and test presets - each with its type, name, display name and "
+                "hidden flag. If 'project' is omitted, uses the current startup project. "
+                "Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}.addProperty(
+                    "project",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Project name. Uses the startup project if omitted."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("havePresets", QJsonObject{{"type", "boolean"}})
+                    .addProperty("presets", QJsonObject{{"type", "array"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})),
+        wrap([resolveCMakeProject](const QJsonObject &params) -> QJsonObject {
+            CMakeProject *project = resolveCMakeProject(params.value("project").toString());
+            if (!project)
+                return {{"reason", "no_cmake_project"},
+                        {"message", "No CMake project (open one or pass 'project')."}};
+
+            const PresetsData data = project->presetsData();
+            QJsonArray presets;
+            const auto add = [&presets](const QString &type, const auto &list) {
+                for (const auto &p : list) {
+                    presets.append(QJsonObject{
+                        {"type", type},
+                        {"name", p.name},
+                        {"displayName", p.displayName.value_or(p.name)},
+                        {"hidden", p.hidden}});
+                }
+            };
+            add("configure", data.configurePresets);
+            add("build", data.buildPresets);
+            add("test", data.testPresets);
+            return {{"havePresets", data.havePresets},
+                    {"presets", presets},
+                    {"reason", "ok"},
+                    {"message", "ok"}};
         }));
 }
 
