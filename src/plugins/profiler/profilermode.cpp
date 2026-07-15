@@ -107,7 +107,7 @@ public:
     {
         setObjectName("ProfilerMode");
         setContext(Context(C_PROFILERMODE, Core::Constants::C_NAVIGATION_PANE));
-        setDisplayName(Tr::tr("Profiler"));
+        setDisplayName(Tr::tr("Profile"));
         const Icon flat({{":/profiler/images/mode_profiler_mask.png", Theme::IconsBaseColor}});
         setIcon(Icon::sideBarIcon(flat, flat));
         setPriority(P_MODE_PROFILER);
