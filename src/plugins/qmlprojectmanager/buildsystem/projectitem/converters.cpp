@@ -15,7 +15,7 @@ namespace QmlProjectManager::Converters {
 const static QStringList qmlFilesFilter{QStringLiteral("*.qml")};
 const static QStringList javaScriptFilesFilter{QStringLiteral("*.js"), QStringLiteral("*.ts")};
 
-const QStringList imageFilesFilter() {
+static const QStringList imageFilesFilter() {
     return imageFiles([](const QString& suffix) { return "*." + suffix; });
 }
 
@@ -232,8 +232,8 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
     return qmlProjectString;
 }
 
-QStringList qmlprojectsFromFilesNodes(const QJsonArray &fileGroups,
-                                      const Utils::FilePath &projectRootPath)
+static QStringList qmlprojectsFromFilesNodes(const QJsonArray &fileGroups,
+                                             const Utils::FilePath &projectRootPath)
 {
     QStringList qmlProjectFiles;
     for (const QJsonValue &fileGroup : fileGroups) {
@@ -260,7 +260,7 @@ QStringList qmlprojectsFromFilesNodes(const QJsonArray &fileGroups,
     return qmlProjectFiles;
 }
 
-QString moduleUriFromQmlProject(const QString &qmlProjectFilePath)
+static QString moduleUriFromQmlProject(const QString &qmlProjectFilePath)
 {
     QmlJS::SimpleReader simpleReader;
     const auto rootNode = simpleReader.readFile(qmlProjectFilePath);
@@ -283,7 +283,7 @@ QString moduleUriFromQmlProject(const QString &qmlProjectFilePath)
     return QString();
 }
 
-QJsonObject nodeToJsonObject(const QmlJS::SimpleReaderNode::Ptr &node)
+static QJsonObject nodeToJsonObject(const QmlJS::SimpleReaderNode::Ptr &node)
 {
     QJsonObject tObj;
     for (const QString &childPropName : node->propertyNames())
@@ -297,8 +297,8 @@ QJsonObject nodeToJsonObject(const QmlJS::SimpleReaderNode::Ptr &node)
 
 // Returns a list of qmlproject files in currentSearchPath which are valid modules,
 // with URIs matching the relative path from importPathBase.
-QStringList getModuleQmlProjectFiles(const Utils::FilePath &importPath,
-                                     const Utils::FilePath &projectRootPath)
+static QStringList getModuleQmlProjectFiles(const Utils::FilePath &importPath,
+                                            const Utils::FilePath &projectRootPath)
 {
     QStringList qmlProjectFiles;
 
@@ -332,8 +332,8 @@ QStringList getModuleQmlProjectFiles(const Utils::FilePath &importPath,
     return qmlProjectFiles;
 }
 
-QStringList qmlprojectsFromImportPaths(const QStringList &importPaths,
-                                       const Utils::FilePath &projectRootPath)
+static QStringList qmlprojectsFromImportPaths(const QStringList &importPaths,
+                                              const Utils::FilePath &projectRootPath)
 {
     return Utils::transform<QStringList>(importPaths, [&projectRootPath](const QString &importPath) {
         const auto importDir = projectRootPath / importPath;

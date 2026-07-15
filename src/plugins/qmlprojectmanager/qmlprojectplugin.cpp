@@ -134,7 +134,7 @@ bool checkIfEditorIsuiQml(IEditor *editor)
     return false;
 }
 
-const FilePath findQmlProject(const FilePath &folder)
+static const FilePath findQmlProject(const FilePath &folder)
 {
     const FilePaths files = folder.dirEntries({QStringList("*.qmlproject"), DirFilterFlag::Files});
     if (files.isEmpty())
@@ -143,7 +143,7 @@ const FilePath findQmlProject(const FilePath &folder)
     return files.constFirst();
 }
 
-const FilePath findQmlProjectUpwards(const FilePath &folder)
+static const FilePath findQmlProjectUpwards(const FilePath &folder)
 {
     FilePath projectFile;
     folder.searchHereAndInParents([&](const FilePath &dir) {
@@ -202,7 +202,7 @@ public:
     }
 };
 
-void setupExternalDesignStudio()
+static void setupExternalDesignStudio()
 {
     static ExternalDesignStudioFactory theExternalDesignStudioFactory;
 }

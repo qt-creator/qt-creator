@@ -392,7 +392,7 @@ NodePtr CMakeGenerator::findOrCreateNode(NodePtr &node, const Utils::FilePath &p
     return lastNode;
 }
 
-bool findFileWithGetter(const Utils::FilePath &file, const NodePtr &node, const FileGetter &getter)
+static bool findFileWithGetter(const Utils::FilePath &file, const NodePtr &node, const FileGetter &getter)
 {
     for (const auto &f : getter(node)) {
         if (f == file)

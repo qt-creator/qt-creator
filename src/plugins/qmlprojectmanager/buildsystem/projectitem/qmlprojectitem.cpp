@@ -22,7 +22,7 @@ namespace QmlProjectManager {
 
 //#define REWRITE_PROJECT_FILE_IN_JSON_FORMAT
 
-Q_LOGGING_CATEGORY(log, "QmlProjectManager.QmlProjectItem", QtCriticalMsg)
+static Q_LOGGING_CATEGORY(log, "QmlProjectManager.QmlProjectItem", QtCriticalMsg)
 
 QmlProjectItem::QmlProjectItem(const Utils::FilePath &filePath, const bool skipRewrite)
     : m_projectFile(filePath)

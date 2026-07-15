@@ -31,7 +31,7 @@ namespace QmlProjectManager::QmlProjectExporter {
     Returns a list of paths of the project resource files relative to the project root directory
     \param project The project to get the resource files from
 */
-QStringList getProjectResourceFilesPaths(const ProjectExplorer::Project *project)
+static QStringList getProjectResourceFilesPaths(const ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return {});
 

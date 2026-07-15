@@ -52,7 +52,7 @@ namespace {
 Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
 }
 
-void updateMcuBuildStep(BuildConfiguration *bc, bool mcuEnabled)
+static void updateMcuBuildStep(BuildConfiguration *bc, bool mcuEnabled)
 {
     if (auto plugin = findMcuSupportPlugin()) {
         QMetaObject::invokeMethod(plugin,
