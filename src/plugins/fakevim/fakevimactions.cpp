@@ -84,7 +84,6 @@ FakeVimSettings::FakeVimSettings()
     setup(&showCmd,        true,  "ShowCmd",        "sc",  Tr::tr("Show partial command"));
     setup(&relativeNumber, false, "RelativeNumber", "rnu", Tr::tr("Show line numbers relative to cursor"));
     setup(&blinkingCursor, false, "BlinkingCursor", "bc",  Tr::tr("Blinking cursor"));
-    setup(&systemEncoding, false, "SystemEncoding", {},    Tr::tr("Use system encoding for :source"));
     setup(&scrollOff,      0,     "ScrollOff",      "so",  Tr::tr("Scroll offset:"));
     setup(&textWidth,      0,     "TextWidth",      "tw",  Tr::tr("Text width:"));
     setup(&backspace,      "indent,eol,start",
@@ -143,10 +142,7 @@ FakeVimSettings::FakeVimSettings()
                 showCmd,
                 startOfLine,
                 passKeys,
-                blinkingCursor,
-                If (HostOsInfo::isWindowsHost()) >> Then {
-                    systemEncoding
-                }
+                blinkingCursor
             },
             Column {
                 incSearch,

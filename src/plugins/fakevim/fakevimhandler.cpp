@@ -52,6 +52,7 @@
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QScrollBar>
+#include <QStringConverter>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocumentFragment>
@@ -6986,8 +6987,13 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         } else if (!line.isEmpty() && !inFunction) {
             //qDebug() << "EXECUTING: " << line;
             ExCommand cmd;
-            QString commandLine = s.systemEncoding() ? QString::fromLocal8Bit(line)
-                                                     : QString::fromUtf8(line);
+            // Detect the encoding like Vim's 'fileencodings': prefer UTF-8 and
+            // fall back to the local 8-bit encoding for invalid byte sequences
+            // (QTCREATORBUG-8776).
+            QStringDecoder utf8(QStringDecoder::Utf8);
+            QString commandLine = utf8(line);
+            if (utf8.hasError())
+                commandLine = QString::fromLocal8Bit(line);
             while (parseExCommand(&commandLine, &cmd)) {
                 if (!handleExCommandHelper(cmd))
                     break;

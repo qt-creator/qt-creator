@@ -156,7 +156,6 @@ public:
     FvBoolAspect emulateVimUnimpaired;
 
     FvBoolAspect blinkingCursor;
-    FvBoolAspect systemEncoding;
 
 private:
     void setup(FvBaseAspect *aspect, const QVariant &value,

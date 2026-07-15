@@ -174,6 +174,7 @@ private slots:
     void test_vim_reflow();
     void test_vim_visual_selection_focus_out();
     void test_vim_tagstack();
+    void test_vim_source_utf8();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
@@ -4910,6 +4911,33 @@ void FakeVimTester::test_vim_tagstack()
     QCOMPARE(distance, -1);
     data.doCommand("tag");
     QCOMPARE(distance, 1);
+}
+
+void FakeVimTester::test_vim_source_utf8()
+{
+    TestData data;
+    setup(&data);
+
+    // A sourced vimrc is decoded as UTF-8 (QTCREATORBUG-8776). Map Z to insert
+    // U+00E9 (UTF-8 bytes 0xC3 0xA9); a wrong decoding would produce mojibake.
+    QByteArray vimrc = "nnoremap Z a";
+    vimrc += char(0xC3);
+    vimrc += char(0xA9);
+    vimrc += "<Esc>\n";
+    QTemporaryFile rc;
+    QVERIFY(rc.open());
+    rc.write(vimrc);
+    rc.flush();
+
+    data.setText("|abc");
+    data.doCommand("source " + rc.fileName());
+    data.doKeys("Z");
+
+    QString expected;
+    expected += QLatin1Char('a');
+    expected += QChar(0x00e9);
+    expected += QLatin1String("bc");
+    QCOMPARE(data.editor()->toPlainText(), expected);
 }
 
 void FakeVimTester::test_vim_visual_selection_focus_out()
