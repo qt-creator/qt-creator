@@ -175,6 +175,7 @@ private slots:
     void test_vim_visual_selection_focus_out();
     void test_vim_tagstack();
     void test_vim_source_utf8();
+    void test_vim_fold_toggle_all();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
@@ -4938,6 +4939,22 @@ void FakeVimTester::test_vim_source_utf8()
     expected += QChar(0x00e9);
     expected += QLatin1String("bc");
     QCOMPARE(data.editor()->toPlainText(), expected);
+}
+
+void FakeVimTester::test_vim_fold_toggle_all()
+{
+    TestData data;
+    setup(&data);
+    data.setText("abc");
+
+    // "zi" toggles folding for the whole document (QTCREATORBUG-11753). The
+    // fold effect needs a real folded document; here we only check the routing.
+    int toggles = 0;
+    data.handler->foldToggleAll.set([&] { ++toggles; });
+    data.doKeys("zi");
+    QCOMPARE(toggles, 1);
+    data.doKeys("zi");
+    QCOMPARE(toggles, 2);
 }
 
 void FakeVimTester::test_vim_visual_selection_focus_out()

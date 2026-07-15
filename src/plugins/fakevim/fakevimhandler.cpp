@@ -5279,6 +5279,11 @@ bool FakeVimHandler::Private::handleZSubMode(const Input &input)
         // Open/close all folds in document.
         foldMaybeClosed = input.is('M');
         q->foldAll(foldMaybeClosed);
+    } else if (input.is('i')) {
+        // Toggle folding for the whole document (open all if any fold is
+        // closed, otherwise close all) - like Vim's zi (QTCREATORBUG-11753).
+        foldMaybeClosed = true;
+        q->foldToggleAll();
     } else if (input.is('j') || input.is('k')) {
         q->foldGoTo(input.is('j') ? count() : -count(), false);
     } else {

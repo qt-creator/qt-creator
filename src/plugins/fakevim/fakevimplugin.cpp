@@ -1765,6 +1765,18 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         documentLayout->emitDocumentSizeChanged();
     });
 
+    handler->foldToggleAll.set([handler] {
+        const QTextDocument *document = handler->textCursor().document();
+        bool anyFolded = false;
+        for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next()) {
+            if (TextBlockUserData::isFolded(block)) {
+                anyFolded = true;
+                break;
+            }
+        }
+        handler->foldAll(!anyFolded); // open all if any fold is closed, else close all
+    });
+
     handler->fold.set([this, handler](int depth, bool dofold) { fold(handler, depth, dofold); });
 
     handler->foldGoTo.set([handler](int count, bool current) {

@@ -158,6 +158,7 @@ public:
     Callback<void(QTextCursor *cursor)> requestBlockSelection;
     Callback<void(bool *on)> requestHasBlockSelection;
     Callback<void(int depth)> foldToggle;
+    Callback<void()> foldToggleAll; // zi: open all folds if any is closed, else close all
     Callback<void(bool fold)> foldAll;
     Callback<void(int depth, bool dofold)> fold;
     Callback<void(int count, bool current)> foldGoTo;
