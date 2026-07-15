@@ -51,7 +51,7 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
     });
 }
 
-FilePath createFile(const QString &name)
+static FilePath createFile(const QString &name)
 {
     FilePath testFilePath = baseFilePath() / name;
     FilePath dummyFilePath = FilePath::fromString("ssh://" + SshTest::userAtHostAndPort() + "/dev/null");
