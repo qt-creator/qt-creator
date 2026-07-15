@@ -19,6 +19,7 @@
 #include "targethelper.h"
 
 #include <android/androidconstants.h>
+#include <harmonyos/harmonyosconstants.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/documentmanager.h>
@@ -2571,15 +2572,18 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
     QString emulator = cm.stringValueOf("CMAKE_CROSSCOMPILING_EMULATOR");
 
     QList<BuildTargetInfo> appTargetList;
-    const bool forAndroid = RunDeviceTypeKitAspect::deviceTypeId(kit())
-                            == Android::Constants::ANDROID_DEVICE_TYPE;
+    // Android and HarmonyOS build applications as module libraries, not executables.
+    const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(kit());
+    const bool moduleLibraryIsApp = deviceType == Android::Constants::ANDROID_DEVICE_TYPE
+                                    || deviceType == HarmonyOs::Constants::HARMONYOS_DEVICE_TYPE;
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (CMakeBuildSystem::filteredOutTarget(ct))
             continue;
 
         const FilePath projectFilePath = ct.sourceDirectory.cleanPath().pathAppended(
             Constants::CMAKE_LISTS_TXT);
-        if (ct.targetType == ExecutableType || (forAndroid && ct.targetType == DynamicLibraryType)) {
+        if (ct.targetType == ExecutableType
+            || (moduleLibraryIsApp && ct.targetType == DynamicLibraryType)) {
             const QString buildKey = ct.title;
 
             BuildTargetInfo bti;
