@@ -124,8 +124,12 @@ namespace SshTest {
 // override selected parameters (user, key file, host, port) without disturbing the default set.
 static QString testEnvVar(const QString &suffix, const QString &variant)
 {
-    const QString key = "QTC_SSH_TEST_" + (variant.isEmpty() ? QString() : variant + "_") + suffix;
-    return qtcEnvironmentVariable(key);
+    if (!variant.isEmpty()) {
+        const QString variantKey = "QTC_SSH_TEST_" + variant + "_" + suffix;
+        if (qtcEnvironmentVariableIsSet(variantKey))
+            return qtcEnvironmentVariable(variantKey);
+    }
+    return qtcEnvironmentVariable("QTC_SSH_TEST_" + suffix);
 }
 
 const QString getHostFromEnvironment(const QString &variant)
