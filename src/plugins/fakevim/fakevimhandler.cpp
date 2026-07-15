@@ -5024,7 +5024,7 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
         if (input.isReturn()) {
             beginEditBlock();
             replaceText(range, QString());
-            insertText(QString("\n"));
+            insertNewLine();
             endEditBlock();
         } else {
             replaceText(range, QString(count(), c));

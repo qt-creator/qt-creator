@@ -177,6 +177,7 @@ private slots:
     void test_vim_source_utf8();
     void test_vim_fold_toggle_all();
     void test_vim_insert_indent();
+    void test_vim_replace_char_newline();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
@@ -4956,6 +4957,27 @@ void FakeVimTester::test_vim_insert_indent()
     KEYS("<C-t>", "        |abc");
     KEYS("<C-d>", "|    abc");
     KEYS("<C-d>", "|abc");
+}
+
+void FakeVimTester::test_vim_replace_char_newline()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=4");
+
+    // r<CR> replaces the character with a line break; with 'autoindent' the
+    // new line is indented like a normal insert-mode Enter would be, instead
+    // of starting in the first column (QTCREATORBUG-21835).
+    data.setText("    abc" X "def");
+    KEYS("r<CR>", "    abc" N "    " X "ef");
+
+    // Without auto-/smart-indent the new line stays in the first column
+    // (plain Vim behavior).
+    data.doCommand("set noautoindent");
+    data.doCommand("set nosmartindent");
+    data.setText("    abc" X "def");
+    KEYS("r<CR>", "    abc" N X "ef");
 }
 
 void FakeVimTester::test_vim_fold_toggle_all()
