@@ -45,6 +45,7 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         addSupportedDeviceType(Constants::GenericMacOsType);
+        addSupportedDeviceType(Constants::GenericWindowsOsType);
         setSupportedRunConfigs(supportedRunConfigs());
         setExecutionType(Constants::ExecutionType);
     }

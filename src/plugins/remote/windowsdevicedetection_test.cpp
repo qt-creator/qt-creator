@@ -258,7 +258,9 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
                 "cmake_minimum_required(VERSION 3.16)\n"
                 "project(hello LANGUAGES CXX)\n"
                 "add_executable(hello main.cpp)\n").has_value());
-    QVERIFY((projectDir / "main.cpp").writeFileContents("int main() { return 0; }\n").has_value());
+    QVERIFY((projectDir / "main.cpp").writeFileContents(
+                "#include <cstdio>\n"
+                "int main() { printf(\"HELLO_FROM_DEVICE\\n\"); return 0; }\n").has_value());
 
     const Environment buildEnv = kit->buildEnvironment();
 
@@ -287,6 +289,20 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     QCOMPARE(build.result(), ProcessResult::FinishedWithSuccess);
 
     QVERIFY2((buildDir / "hello.exe").isExecutableFile(), "hello.exe was not produced.");
+
+    // Run the freshly built executable on the device. This exercises the launch-over-SSH path
+    // that the run worker relies on (the device's process interface plus the build environment):
+    // it proves stdout capture and exit-code propagation, not merely that the binary exists.
+    Process run;
+    run.setCommand({buildDir / "hello.exe", {}});
+    run.setWorkingDirectory(buildDir);
+    run.setEnvironment(buildEnv);
+    run.runBlocking(std::chrono::seconds(60));
+    if (run.result() != ProcessResult::FinishedWithSuccess)
+        qDebug().noquote() << "Run output:\n" << run.allOutput();
+    QCOMPARE(run.result(), ProcessResult::FinishedWithSuccess);
+    QVERIFY2(run.cleanedStdOut().contains("HELLO_FROM_DEVICE"),
+             "The executable's output was not captured from the device.");
 }
 
 } // namespace Remote::Internal

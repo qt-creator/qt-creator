@@ -56,8 +56,6 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc,
 
     workingDir.setEnvironment(&environment);
 
-    terminal.setVisible(HostOsInfo::isAnyUnixHost());
-
     connect(&useLibraryPath, &BaseAspect::changed,
             &environment, &EnvironmentAspect::environmentChanged);
     connect(&useVncDisplay, &BaseAspect::changed,
@@ -79,6 +77,15 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc,
         symbolFile.setValue(localExecutable);
 
         useLibraryPath.setEnabled(buildDevice == runDevice);
+
+        // The run device can be a native Windows machine; its runtime library search path is
+        // PATH (handled OS-aware by useLibraryPath), but the X11/VNC/run-as options and a remote
+        // terminal do not apply, so hide them for a Windows run device.
+        const bool isWindowsDevice = runDevice->osType() == OsTypeWindows;
+        x11Forwarding.setVisible(!isWindowsDevice);
+        useVncDisplay.setVisible(!isWindowsDevice);
+        runAs.setVisible(!isWindowsDevice);
+        terminal.setVisible(!isWindowsDevice && HostOsInfo::isAnyUnixHost());
     });
 
     environment.addModifier([this](Environment &env) {
@@ -101,6 +108,7 @@ public:
         setDecorateDisplayNames(true);
         addSupportedTargetDeviceType(Constants::GenericLinuxOsType);
         addSupportedTargetDeviceType(Constants::GenericMacOsType);
+        addSupportedTargetDeviceType(Constants::GenericWindowsOsType);
     }
 };
 
