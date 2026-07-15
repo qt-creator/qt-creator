@@ -72,6 +72,7 @@ public:
                       QTextCursor cursor = QTextCursor(),
                       const std::function<void()> &callback = {});
     void renameSymbolUnderCursor() override;
+    void inInlineRename(bool *active) override;
 
     bool selectBlockUp() override;
     bool selectBlockDown() override;

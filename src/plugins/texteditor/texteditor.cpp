@@ -10561,6 +10561,11 @@ void TextEditorWidget::inSnippetMode(bool *active)
     *active = d->m_snippetOverlay.isVisible();
 }
 
+void TextEditorWidget::inInlineRename(bool *active)
+{
+    *active = false;
+}
+
 QTextBlock TextEditorWidget::blockForVisibleRow(int row) const
 {
     const int count = rowCount();

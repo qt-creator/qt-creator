@@ -508,6 +508,9 @@ public:
     Utils::Result<> configureGenericHighlighter(const QString &definitionName);
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
+    // Used by FakeVim: true while the editor performs an inline rename that
+    // consumes key events itself (none in the base editor).
+    Q_INVOKABLE virtual void inInlineRename(bool *active);
 
     /*! Returns the document line number for the visible \a row.
      *

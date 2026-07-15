@@ -2671,6 +2671,16 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     if (inSnippetMode)
         return EventPassedToCore;
+
+    // Let an inline rename (e.g. "Rename Symbol Under Cursor") consume keys
+    // itself, so Esc/Enter finish it instead of being handled by Vim
+    // (QTCREATORBUG-20619).
+    bool inInlineRename = false;
+    QMetaObject::invokeMethod(editor(),
+        "inInlineRename", Q_ARG(bool *, &inInlineRename));
+
+    if (inInlineRename)
+        return EventPassedToCore;
 #endif
 
     // Fake "End of line"

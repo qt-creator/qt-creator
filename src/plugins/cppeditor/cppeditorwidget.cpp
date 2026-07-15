@@ -878,6 +878,11 @@ void CppEditorWidget::renameSymbolUnderCursor()
                                         std::move(renameSymbols));
 }
 
+void CppEditorWidget::inInlineRename(bool *active)
+{
+    *active = d->m_localRenaming.isActive();
+}
+
 void CppEditorWidget::updatePreprocessorButtonTooltip()
 {
     if (!d->m_preprocessorButton)
