@@ -35,7 +35,7 @@
 #include <QLibraryInfo>
 #include <QStringList>
 
-void printHelp(const Operation *op)
+static void printHelp(const Operation *op)
 {
     std::cout << Core::Constants::IDE_DISPLAY_NAME << " SDK setup tool." << std::endl;
 
@@ -45,13 +45,13 @@ void printHelp(const Operation *op)
     std::cout << std::endl;
 }
 
-const QString tabular(const std::unique_ptr<Operation> &o)
+static const QString tabular(const std::unique_ptr<Operation> &o)
 {
     const QString name = o->name();
     return name + QString(16 - name.size(), QChar::Space) + o->helpText();
 }
 
-void printHelp(const std::vector<std::unique_ptr<Operation>> &operations)
+static void printHelp(const std::vector<std::unique_ptr<Operation>> &operations)
 {
     std::cout << Core::Constants::IDE_DISPLAY_NAME << "SDK setup tool." << std::endl;
     std::cout << "Based on Qt " << qVersion() << std::endl;
@@ -77,8 +77,8 @@ void printHelp(const std::vector<std::unique_ptr<Operation>> &operations)
     std::cout << std::endl;
 }
 
-int parseArguments(const QStringList &args, Settings *s,
-                   const std::vector<std::unique_ptr<Operation>> &operations)
+static int parseArguments(const QStringList &args, Settings *s,
+                          const std::vector<std::unique_ptr<Operation>> &operations)
 {
     QStringList opArgs;
     int argCount = args.count();
