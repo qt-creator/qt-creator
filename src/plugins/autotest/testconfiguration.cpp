@@ -138,7 +138,7 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
                            || runMode == TestRunMode::DebugWithoutDeploy;
     if (debugMode)
         m_runConfig = new Internal::TestRunConfiguration(rc->buildConfiguration(), this);
-    else if (runsOnAndroid())
+    else if (runsOnAndroid(startupProject))
         setupAndroidRunner(buildConfig);
 }
 
@@ -283,7 +283,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     // launches it and collects the output - not applicable while debugging
     const bool debugMode = runMode == TestRunMode::Debug
                            || runMode == TestRunMode::DebugWithoutDeploy;
-    if (!debugMode && runsOnAndroid())
+    if (!debugMode && runsOnAndroid(startupProject))
         setupAndroidRunner(buildConfig);
 }
 
@@ -370,9 +370,9 @@ bool TestConfiguration::runsOnIosDevice() const
     return kit && RunDeviceTypeKitAspect::deviceTypeId(kit) == Ios::Constants::IOS_DEVICE_TYPE;
 }
 
-bool TestConfiguration::runsOnAndroid() const
+bool TestConfiguration::runsOnAndroid(const Project *project)
 {
-    const Kit *kit = project() ? project()->activeKit() : nullptr;
+    const Kit *kit = project ? project->activeKit() : nullptr;
     return kit && RunDeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE;
 }
 

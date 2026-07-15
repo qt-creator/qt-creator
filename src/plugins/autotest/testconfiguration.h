@@ -19,7 +19,10 @@ class Process;
 class ProcessRunData;
 }
 
-namespace ProjectExplorer { class BuildConfiguration; }
+namespace ProjectExplorer {
+class BuildConfiguration;
+class Project;
+}
 
 namespace Autotest {
 namespace Internal {
@@ -92,7 +95,7 @@ public:
     bool isDeduced() const { return m_deducedConfiguration; }
     QString runConfigDisplayName() const { return m_deducedConfiguration ? m_deducedFrom
                                                                          : displayName(); }
-    bool runsOnAndroid() const;
+    static bool runsOnAndroid(const ProjectExplorer::Project *project);
 
     // on Android: test is executed through the androidtestrunner tool
     // if set, testExecutable() returns that tool and testRunnerArguments() holds
