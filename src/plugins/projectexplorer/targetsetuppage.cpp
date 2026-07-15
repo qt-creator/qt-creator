@@ -168,9 +168,13 @@ TargetSetupPage::~TargetSetupPage()
 
 bool TargetSetupPage::isComplete() const
 {
-    return anyOf(d->widgets, [](const TargetSetupWidget *w) {
-        return w->isKitSelected();
-    });
+    if (anyOf(d->widgets, [](const TargetSetupWidget *w) { return w->isKitSelected(); }))
+        return true;
+
+    // Allow finishing without a selected kit when there is no usable kit to pick at all, so the
+    // project can still be created and configured with a kit later (e.g. the target device has
+    // no kit set up yet) instead of getting stuck on this page.
+    return !KitManager::kit([this](const Kit *k) { return d->isUsable(k); });
 }
 
 void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
