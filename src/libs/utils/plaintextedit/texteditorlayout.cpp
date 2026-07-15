@@ -27,6 +27,7 @@ struct LayoutData
     LayoutItems::iterator mainLayoutIterator = layoutItems->end();
     int lineCount = 1;
     bool layedOut = false;
+    bool editorHidden = false; // hidden in this widget's layout only
 
     QTextLayout *mainLayout() const
     {
@@ -74,9 +75,16 @@ public:
             m_offsetCache.resize(blockNumber + 1);
     }
 
+    int effectiveLineCount(int index)
+    {
+        const LayoutData &data = layoutData(index);
+        return data.editorHidden ? 0 : data.lineCount;
+    }
+
     std::vector<LayoutData> m_layoutData;
     std::vector<OffsetData> m_offsetCache;
     bool updatingFormats = false;
+    int m_editorHiddenCount = 0; // number of blocks hidden in this layout only
 };
 
 TextEditorLayout::TextEditorLayout(PlainTextDocumentLayout *docLayout)
@@ -184,12 +192,14 @@ void TextEditorLayout::clearBlockLayout(QTextBlock &start, QTextBlock &end, bool
 {
     for (QTextBlock block = start; block.isValid(); block = block.next()) {
         LayoutData &data = d->layoutData(block.fragmentIndex());
+        // the stored count, not the editor-hidden masked one: this tracks the
+        // document level visibility, independent of per-widget hiding
         if (block.isVisible()) {
-            if (blockLineCount(block) == 0) {
+            if (data.lineCount == 0) {
                 blockVisibilityChanged = true;
                 setBlockLineCount(block, 1);
             }
-        } else if (blockLineCount(block) > 0) {
+        } else if (data.lineCount > 0) {
             blockVisibilityChanged = true;
             setBlockLineCount(block, 0);
         }
@@ -409,7 +419,44 @@ void TextEditorLayout::documentChanged(int from, int charsRemoved, int charsAdde
 
 int TextEditorLayout::blockLineCount(const QTextBlock &block) const
 {
-    return d->layoutData(block.fragmentIndex()).lineCount;
+    return d->effectiveLineCount(block.fragmentIndex());
+}
+
+void TextEditorLayout::setBlockVisibleInEditor(const QTextBlock &block, bool visible)
+{
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    if (data.editorHidden == !visible)
+        return;
+    data.editorHidden = !visible;
+    d->m_editorHiddenCount += visible ? -1 : 1;
+    d->resetOffsetCache(block.blockNumber());
+}
+
+bool TextEditorLayout::isBlockVisibleInEditor(const QTextBlock &block) const
+{
+    return !d->layoutData(block.fragmentIndex()).editorHidden;
+}
+
+bool TextEditorLayout::hasEditorHiddenBlocks() const
+{
+    return d->m_editorHiddenCount > 0;
+}
+
+void TextEditorLayout::clearEditorHiddenBlocks()
+{
+    if (d->m_editorHiddenCount == 0)
+        return;
+    for (LayoutData &data : d->m_layoutData)
+        data.editorHidden = false;
+    d->m_editorHiddenCount = 0;
+    d->m_offsetCache.clear();
+}
+
+QRectF TextEditorLayout::blockBoundingRect(const QTextBlock &block) const
+{
+    if (!isBlockVisibleInEditor(block))
+        return {};
+    return PlainTextDocumentLayout::blockBoundingRect(block);
 }
 
 void TextEditorLayout::setBlockLineCount(QTextBlock &block, int lineCount) const
@@ -430,7 +477,8 @@ void TextEditorLayout::setBlockLayedOut(const QTextBlock &block) const
 int TextEditorLayout::lineCount() const
 {
     const QTextBlock block = document()->lastBlock();
-    return firstLineNumberOf(block) + (block.isVisible() ? blockLineCount(block) : 0);
+    return firstLineNumberOf(block)
+           + (block.isVisible() ? d->effectiveLineCount(block.fragmentIndex()) : 0);
 }
 
 int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
@@ -461,7 +509,7 @@ int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
         line = 0;
     } else { // found a valid cache entry add the
         currentBlock = document()->findBlockByNumber(lastValidCacheIndex);
-        line += d->layoutData(currentBlock.fragmentIndex()).lineCount;
+        line += d->effectiveLineCount(currentBlock.fragmentIndex());
         currentBlockNumber = lastValidCacheIndex + 1;
         currentBlock = currentBlock.next();
     }
@@ -471,7 +519,7 @@ int TextEditorLayout::firstLineNumberOf(const QTextBlock &block) const
         d->m_offsetCache[currentBlockNumber].firstLine = line;
         if (currentBlockNumber == blockNumber)
             break;
-        line += d->layoutData(currentBlock.fragmentIndex()).lineCount;
+        line += d->effectiveLineCount(currentBlock.fragmentIndex());
         currentBlock = currentBlock.next();
         ++currentBlockNumber;
     }
@@ -504,7 +552,7 @@ int TextEditorLayout::offsetForBlock(const QTextBlock &block) const
     while (block.isValid() && block != currrentBlock) {
         d->resizeOffsetCache(currentBlockNumber); // blockHeigt potentially resizes the cache
         d->m_offsetCache[currentBlockNumber].offset = offset;
-        if (currrentBlock.isVisible())
+        if (currrentBlock.isVisible() && isBlockVisibleInEditor(currrentBlock))
             offset += blockHeight(currrentBlock);
 
         currrentBlock = currrentBlock.next();
@@ -594,8 +642,13 @@ QTextBlock TextEditorLayout::findBlockByLineNumber(int lineNumber) const
 
     QTextBlock b = document()->findBlockByNumber(blockNumber);
     while (b.isValid()) {
-        if (firstLineNumberOf(b) + blockLineCount(b) - 1 >= lineNumber)
+        // A block hidden in this editor occupies no visual line, so it can
+        // never be the one a line number refers to - and its masked count of 0
+        // would otherwise match the line just before it.
+        if (isBlockVisibleInEditor(b)
+            && firstLineNumberOf(b) + blockLineCount(b) - 1 >= lineNumber) {
             return b;
+        }
         b = b.next();
     }
     return document()->lastBlock();
@@ -635,7 +688,8 @@ bool TextEditorLayout::moveCursorImpl(
         if (lineNumber >= layout->lineCount() || lineNumber == -1) {
             do {
                 block = down ? block.next() : block.previous();
-            } while (block.isValid() && !block.isVisible());
+            } while (block.isValid()
+                     && (!block.isVisible() || !isBlockVisibleInEditor(block)));
 
             if (!block.isValid()) {
                 if (mode == QTextCursor::KeepAnchor)

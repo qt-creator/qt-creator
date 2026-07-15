@@ -803,7 +803,10 @@ public:
     void addCursorsPosition(PaintEventData &data,
                            QPainter &painter,
                            const PaintEventBlockData &blockData) const;
-    static QTextBlock nextVisibleBlock(const QTextBlock &block);
+    // skips document-invisible blocks and blocks hidden in this widget's
+    // layout only (e.g. unchanged lines collapsed by the inline diff editor)
+    QTextBlock nextVisibleBlock(const QTextBlock &block) const;
+    bool isBlockVisibleInEditor(const QTextBlock &block) const;
     void scheduleCleanupAnnotationCache();
     void cleanupAnnotationCache();
 
@@ -6364,11 +6367,19 @@ void TextEditorWidgetPrivate::addCursorsPosition(PaintEventData &data,
     }
 }
 
-QTextBlock TextEditorWidgetPrivate::nextVisibleBlock(const QTextBlock &block)
+bool TextEditorWidgetPrivate::isBlockVisibleInEditor(const QTextBlock &block) const
+{
+    TextEditorLayout *layout = q->editorLayout();
+    return !layout || !layout->hasEditorHiddenBlocks() || layout->isBlockVisibleInEditor(block);
+}
+
+QTextBlock TextEditorWidgetPrivate::nextVisibleBlock(const QTextBlock &block) const
 {
     QTextBlock nextVisibleBlock = block.next();
-    while (nextVisibleBlock.isValid() && !nextVisibleBlock.isVisible())
+    while (nextVisibleBlock.isValid()
+           && (!nextVisibleBlock.isVisible() || !isBlockVisibleInEditor(nextVisibleBlock))) {
         nextVisibleBlock = nextVisibleBlock.next();
+    }
     return nextVisibleBlock;
 }
 
@@ -6417,6 +6428,10 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
     painter.setClipRect(data.eventRect);
 
     data.block = firstVisibleBlock();
+    // the block loop below only ever processes visible blocks; make sure it
+    // does not start on one hidden in this widget's layout (a collapsed line)
+    if (data.block.isValid() && !d->isBlockVisibleInEditor(data.block))
+        data.block = d->nextVisibleBlock(data.block);
     data.context = getPaintContext();
     const QTextCharFormat textFormat = textDocument()->fontSettings().toTextCharFormat(C_TEXT);
     data.context.palette.setBrush(QPalette::Text, textFormat.foreground());
@@ -6526,13 +6541,13 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 
         data.block = data.block.next();
 
-        if (!data.block.isVisible()) {
+        if (!data.block.isVisible() || !d->isBlockVisibleInEditor(data.block)) {
             if (data.block.blockNumber() == d->visibleFoldedBlockNumber) {
                 data.visibleCollapsedBlock = data.block;
                 data.visibleCollapsedBlockOffset = data.mainLayoutOffset;
             }
 
-            data.block = TextEditorWidgetPrivate::nextVisibleBlock(data.block);
+            data.block = d->nextVisibleBlock(data.block);
         }
     }
 
@@ -7100,6 +7115,10 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
     painter.fillRect(e->rect(), data.palette.color(QPalette::Window));
 
     data.block = firstVisibleBlock();
+    // skip a first block hidden in this widget's layout (a collapsed line), so
+    // no line number is painted for it (matches the text paint loop)
+    if (data.block.isValid() && !d->isBlockVisibleInEditor(data.block))
+        data.block = d->nextVisibleBlock(data.block);
     QPointF offset = contentOffset();
     QRectF boundingRect = blockBoundingRect(data.block).translated(offset);
 

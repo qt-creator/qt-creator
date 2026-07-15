@@ -137,6 +137,19 @@ public:
     int blockLineCount(const QTextBlock &block) const override;
     void setBlockLineCount(QTextBlock &block, int lineCount) const override;
 
+    // Per-widget "hidden" blocks: unlike QTextBlock::setVisible(), which is a
+    // document level flag shared by every view, this hides a block in this
+    // widget's layout only, so a document shared with other editors keeps
+    // showing it. A hidden block reports zero height and zero line count here
+    // and is skipped in this widget's paint, scroll and navigation. Used by
+    // the inline diff editor to collapse unchanged lines.
+    void setBlockVisibleInEditor(const QTextBlock &block, bool visible);
+    bool isBlockVisibleInEditor(const QTextBlock &block) const;
+    bool hasEditorHiddenBlocks() const;
+    void clearEditorHiddenBlocks();
+
+    QRectF blockBoundingRect(const QTextBlock &block) const override;
+
     int offsetForBlock(const QTextBlock &block) const;
     void setBlockLayedOut(const QTextBlock &block) const override;
     bool blockLayoutValid(int index) const;

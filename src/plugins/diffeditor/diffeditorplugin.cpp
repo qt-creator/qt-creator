@@ -370,6 +370,8 @@ private slots:
     void testFilterPatch();
     void testDiffDocuments();
     void testInlineDiff();
+    void testInlineDiffCollapse();
+    void testInlineDiffCollapseAddedLines();
 #endif // WITH_TESTS
 };
 
@@ -528,6 +530,7 @@ void DiffEditorPlugin::diffExternalFiles()
 #ifdef WITH_TESTS
 
 #include <QTest>
+#include <QToolBar>
 
 #include "diffutils.h"
 
@@ -1834,6 +1837,232 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
     QCOMPARE(sourceDocument->plainText(), baselineText);
 
     // closing the source document also closes the inline diff editor
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
+{
+    using namespace TextEditor;
+
+    // a single change surrounded by many unchanged lines, so the unchanged
+    // runs before and after it are long enough to collapse
+    QStringList baselineLines;
+    for (int i = 1; i <= 40; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    editorLines[19] = "line 20 changed"; // 1-based line 20
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffCollapse.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline,
+                                               "testInlineDiffCollapse.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+    diffEditor->widget()->show();
+
+    QTextDocument *doc = diffWidget->document();
+    TextEditorLayout *layout = diffWidget->editorLayout();
+    const auto visibleInEditor = [&](int line1) {
+        return layout->isBlockVisibleInEditor(doc->findBlockByNumber(line1 - 1));
+    };
+
+    // collapsing is on by default: the unchanged lines away from the change
+    // are hidden in the diff view's layout only
+    QTRY_VERIFY(!visibleInEditor(1));
+    QVERIFY(layout->hasEditorHiddenBlocks());
+    // three context lines are kept around the change on line 20
+    QVERIFY(!visibleInEditor(16));
+    QVERIFY(visibleInEditor(17));
+    QVERIFY(visibleInEditor(20));
+    QVERIFY(visibleInEditor(23));
+    QVERIFY(!visibleInEditor(24));
+    // the last line stays visible as an anchor below the trailing run
+    QVERIFY(visibleInEditor(doc->blockCount()));
+    // hiding lines shrinks the laid out line count and the pixel height
+    QVERIFY(layout->lineCount() < doc->blockCount());
+
+    // a clickable placeholder row is floated over each collapsed run
+    QTRY_COMPARE(diffWidget->viewport()
+                     ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
+
+    const QString grabPath = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_COLLAPSE_GRAB");
+    if (!grabPath.isEmpty()) {
+        QCoreApplication::processEvents();
+        diffWidget->grab().save(grabPath);
+    }
+
+    // the shared source editor is unaffected: it shows the full file
+    TextEditorLayout *sourceLayout = sourceWidget->editorLayout();
+    QVERIFY(!sourceLayout->hasEditorHiddenBlocks());
+    QVERIFY(sourceLayout->isBlockVisibleInEditor(
+        sourceWidget->document()->findBlockByNumber(0)));
+
+    // turning the toggle off through the toolbar expands the whole file again
+    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    QVERIFY(toolBar);
+    QAction *collapseAction = Utils::findOrDefault(toolBar->actions(),
+                                                   [](QAction *a) { return a->isCheckable(); });
+    QVERIFY(collapseAction);
+    QVERIFY(collapseAction->isChecked());
+    collapseAction->setChecked(false);
+    QTRY_VERIFY(!layout->hasEditorHiddenBlocks());
+    QVERIFY(visibleInEditor(1));
+    QCOMPARE(layout->lineCount(), doc->blockCount());
+
+    // and back on collapses again
+    collapseAction->setChecked(true);
+    QTRY_VERIFY(layout->hasEditorHiddenBlocks());
+    QVERIFY(!visibleInEditor(1));
+
+    // the side by side view collapses both sides at their corresponding lines
+    // and keeps them aligned row by row
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> sideWidgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(sideWidgets.size(), 2);
+    TextEditorWidget *baselineWidget = sideWidgets.first() == diffWidget ? sideWidgets.last()
+                                                                         : sideWidgets.first();
+    QVERIFY(baselineWidget->isReadOnly());
+    diffEditor->widget()->resize(1000, 600);
+    diffEditor->widget()->show();
+    QCoreApplication::processEvents();
+
+    QTRY_VERIFY(baselineWidget->editorLayout()->hasEditorHiddenBlocks());
+    QVERIFY(layout->hasEditorHiddenBlocks());
+    // a placeholder row on each side
+    QTRY_COMPARE(diffWidget->viewport()
+                     ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
+    QCOMPARE(baselineWidget->viewport()
+                 ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
+    // lay out all blocks so the pixel heights are real, then check both sides
+    // ended up the same total height (the aligner stays in sync across the
+    // collapsed runs)
+    const auto layOut = [](TextEditorWidget *widget) {
+        TextEditorLayout *l = widget->editorLayout();
+        for (QTextBlock block = widget->document()->firstBlock(); block.isValid();
+             block = block.next()) {
+            l->ensureBlockLayout(block);
+        }
+    };
+    layOut(diffWidget);
+    layOut(baselineWidget);
+    QTRY_COMPARE(baselineWidget->editorLayout()->documentPixelHeight(),
+                 diffWidget->editorLayout()->documentPixelHeight());
+
+    const QString sideGrabPath
+        = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_COLLAPSE_SIDE_GRAB");
+    if (!sideGrabPath.isEmpty()) {
+        QCoreApplication::processEvents();
+        diffEditor->widget()->grab().save(sideGrabPath);
+    }
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// A pure insertion diff ("only added lines"): the collapsible unchanged runs
+// have different lengths on the two sides (the insertion shifts one side), so
+// the side by side collapse must still hide them on both sides.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseAddedLines()
+{
+    using namespace TextEditor;
+
+    // baseline: 12 unchanged lines; editor: the same with 3 lines inserted
+    // after line 5. This is a pure insertion, so the two sides produce a
+    // different number of collapsible unchanged runs (the editor gets a run
+    // both above and below the added block, the shorter baseline only one).
+    // The collapse must still hide the unchanged lines on both sides, aligned.
+    QStringList baselineLines;
+    for (int i = 1; i <= 12; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    for (int i = 0; i < 3; ++i)
+        editorLines.insert(5, QString("added %1").arg(i + 1)); // after line 5
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffCollapseAddedLines.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline,
+                                               "testInlineDiffCollapseAddedLines.txt");
+    QVERIFY(diffEditor);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> sideWidgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(sideWidgets.size(), 2);
+    TextEditorWidget *baselineWidget = sideWidgets.first() == diffWidget ? sideWidgets.last()
+                                                                         : sideWidgets.first();
+    QVERIFY(baselineWidget->isReadOnly());
+    diffEditor->widget()->resize(1000, 600);
+    diffEditor->widget()->show();
+    QCoreApplication::processEvents();
+
+    // both sides collapse their unchanged runs (a placeholder above and below
+    // the inserted block on the editor side, matching runs on the baseline)
+    QTRY_VERIFY(diffWidget->editorLayout()->hasEditorHiddenBlocks());
+    QVERIFY(baselineWidget->editorLayout()->hasEditorHiddenBlocks());
+    QCOMPARE(diffWidget->viewport()
+                 ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
+    QCOMPARE(baselineWidget->viewport()
+                 ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
+
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
     QTRY_VERIFY(diffWidgetGuard.isNull());

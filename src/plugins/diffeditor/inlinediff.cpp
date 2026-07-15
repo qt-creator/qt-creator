@@ -31,7 +31,10 @@
 #include <utils/utilsicons.h>
 
 #include <QBrush>
+#include <QEnterEvent>
 #include <QEvent>
+#include <QLabel>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QTextLayout>
 #include <QVBoxLayout>
@@ -479,6 +482,441 @@ private:
     bool m_repositionScheduled = false;
 };
 
+// unchanged context lines kept visible on each side of a change; runs of
+// unchanged lines longer than a placeholder replaces are collapsed
+constexpr int kCollapseContextLines = 3;
+// do not collapse runs this short: a placeholder would not save any rows
+constexpr int kMinCollapsedLines = 2;
+
+// layout items reserving the placeholder rows in a view's own layout
+const Utils::Id INLINE_DIFF_COLLAPSE_CATEGORY("DiffEditor.InlineDiff.Collapse");
+
+// One side's changed regions as <1-based start line, line count>; a count of 0
+// is a pure insertion/removal that sits above startLine on this side.
+using ChangeIntervals = QList<QPair<int, int>>;
+
+// The 1-based line runs (inclusive) that can be collapsed on one side: the
+// unchanged lines outside the context around any change, with the last line
+// always kept visible so every run has a visible anchor line below it.
+static QList<QPair<int, int>> collapsibleRuns(const ChangeIntervals &changes,
+                                              int blockCount, int context)
+{
+    if (blockCount <= 0)
+        return {};
+    QList<bool> keep(blockCount + 2, false); // 1-based, guarded ends
+    const auto keepRange = [&](int from, int to) {
+        from = qMax(1, from - context);
+        to = qMin(blockCount, to + context);
+        for (int line = from; line <= to; ++line)
+            keep[line] = true;
+    };
+    for (const QPair<int, int> &change : changes) {
+        if (change.second > 0)
+            keepRange(change.first, change.first + change.second - 1);
+        else // a pure insertion/removal sits between startLine - 1 and startLine
+            keepRange(change.first - 1, change.first);
+    }
+
+    QList<QPair<int, int>> runs;
+    int line = 1;
+    while (line <= blockCount) {
+        if (keep[line]) {
+            ++line;
+            continue;
+        }
+        const int first = line;
+        while (line <= blockCount && !keep[line])
+            ++line;
+        int last = line - 1;
+        if (last == blockCount) // keep the last line as the anchor below the run
+            --last;
+        if (last >= first && (last - first + 1) >= kMinCollapsedLines)
+            runs.append({first, last});
+    }
+    return runs;
+}
+
+// the changed regions of one side of the diff, feeding collapsibleRuns
+static ChangeIntervals editorChanges(const InlineDiffRenderModel &model)
+{
+    ChangeIntervals result;
+    for (const InlineDiffChunk &hunk : model.hunks)
+        result.append({hunk.editorStartLine, hunk.editorLineCount});
+    return result;
+}
+
+// Maps an unchanged editor line to the corresponding baseline line. Outside the
+// hunks the two sides differ only by a constant offset that steps by each
+// passed hunk's (baseline - editor) line delta, so a run collapsed on the editor
+// side maps to the exact baseline lines to collapse alongside it. Feeding the
+// run's own (unchanged) lines keeps the two sides aligned even for pure
+// insertions or deletions, where the sides have different numbers of runs.
+static int editorLineToBaseline(const InlineDiffRenderModel &model, int editorLine)
+{
+    int baselineLine = editorLine;
+    for (const InlineDiffChunk &hunk : model.hunks) {
+        const int editorAnchor = hunk.editorStartLine + qMax(hunk.editorLineCount, 0);
+        if (editorAnchor > editorLine) // hunk is not entirely above the line
+            break;
+        const int baselineAnchor = hunk.baselineStartLine + int(hunk.baselineLines.size());
+        baselineLine = editorLine + (baselineAnchor - editorAnchor);
+    }
+    return baselineLine;
+}
+
+// A clickable, full width placeholder row shown in place of a collapsed run of
+// unchanged lines. Clicking it reveals the hidden lines.
+class CollapsedRow final : public QWidget
+{
+public:
+    CollapsedRow(QWidget *parent, int hiddenCount, const std::function<void()> &onClick)
+        : QWidget(parent)
+        , m_hiddenCount(hiddenCount)
+        , m_onClick(onClick)
+    {
+        setObjectName("InlineDiffCollapsedRow"); // found by the autotest
+        setCursor(Qt::PointingHandCursor);
+        setToolTip(Tr::tr("Show the hidden unchanged lines"));
+    }
+
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter painter(this);
+        painter.fillRect(rect(), Utils::creatorColor(m_hovered ? Utils::Theme::Token_Background_Subtle
+                                                               : Utils::Theme::Token_Background_Muted));
+        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Text_Muted));
+        painter.setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementCaption));
+        painter.drawText(rect(), Qt::AlignCenter,
+                         Tr::tr("Show %n hidden lines", nullptr, m_hiddenCount));
+    }
+
+    void enterEvent(QEnterEvent *) override { m_hovered = true; update(); }
+    void leaveEvent(QEvent *) override { m_hovered = false; update(); }
+    void mousePressEvent(QMouseEvent *event) override
+    {
+        if (event->button() == Qt::LeftButton && m_onClick)
+            m_onClick();
+    }
+
+private:
+    const int m_hiddenCount;
+    const std::function<void()> m_onClick;
+    bool m_hovered = false;
+};
+
+// Collapses runs of unchanged lines in the inline diff editor, hiding them in
+// each view's own layout only - the shared document and any regular editors
+// keep showing the full file - and floats a clickable placeholder row over
+// each collapsed run that reveals it again. In the side by side view both
+// sides are collapsed at their corresponding lines so the aligner keeps the
+// two views lined up row by row.
+class CollapseController final : public QObject
+{
+public:
+    explicit CollapseController(TextEditorWidget *editor)
+        : QObject(editor)
+        , m_editor(editor)
+    {
+        connectView(m_editor);
+        m_lastBlockCount = m_editor->document()->blockCount();
+        // like the decorator, drop the hidden state on edits that recycle the
+        // anchor blocks' fragment indexes, and wait for the next refresh()
+        connect(m_editor->document(), &QTextDocument::contentsChange, this,
+                [this](int, int charsRemoved, int) {
+            if (!m_editor)
+                return;
+            const int blockCount = m_editor->document()->blockCount();
+            if (charsRemoved > 0 && (blockCount < m_lastBlockCount || anchorsRecycled()))
+                clearState();
+            m_lastBlockCount = blockCount;
+        });
+    }
+
+    ~CollapseController() override
+    {
+        // Deliberately no cleanup: the destructor may run during the teardown
+        // of the widget, whose layout is already gone. The rows and the hidden
+        // state die with the widget.
+    }
+
+    // A new diff result or view mode: recompute the collapsed runs. baseline is
+    // the read only view to collapse alongside the editor in the side by side
+    // view, or nullptr in the inline view.
+    void update(const InlineDiffRenderModel &model, TextEditorWidget *baseline)
+    {
+        m_model = model;
+        if (baseline && baseline != m_baseline) {
+            m_baseline = baseline;
+            connectView(baseline);
+        }
+        m_baselineActive = baseline != nullptr;
+        refresh();
+    }
+
+    // the toolbar toggle
+    void setEnabled(bool enabled)
+    {
+        if (m_enabled == enabled)
+            return;
+        m_enabled = enabled;
+        refresh();
+    }
+
+    // recompute and apply the collapsed runs for the current model and state
+    void refresh()
+    {
+        clearState();
+        if (m_editor && m_enabled)
+            collapse();
+        relayout();
+    }
+
+private:
+    // one collapsed run's placeholder within a single view
+    class Placeholder
+    {
+    public:
+        QPointer<TextEditorWidget> view;
+        int hiddenCount = 0;
+        QTextCursor anchor;    // the visible line the placeholder is shown above
+        int anchorFragment = -1;
+        QPointer<QWidget> row;
+    };
+
+    // a collapsed run, paired across both views so revealing it expands both
+    class Unit
+    {
+    public:
+        int id = 0;
+        Placeholder editor;
+        Placeholder baseline; // its view is null in the inline view
+    };
+
+    void connectView(TextEditorWidget *view)
+    {
+        // updateRequest also fires on scrolling
+        connect(view, &PlainTextEdit::updateRequest, this, [this] { scheduleReposition(); });
+        connect(view->textDocument(), &TextDocument::fontSettingsChanged,
+                this, [this] { refresh(); });
+        view->viewport()->installEventFilter(this);
+    }
+
+    bool eventFilter(QObject *object, QEvent *event) override
+    {
+        if (event->type() == QEvent::Resize
+            && ((m_editor && object == m_editor->viewport())
+                || (m_baseline && object == m_baseline->viewport()))) {
+            reposition();
+        }
+        return QObject::eventFilter(object, event);
+    }
+
+    bool anchorsRecycled() const
+    {
+        for (const Unit &unit : m_units) {
+            if (unit.editor.anchor.block().fragmentIndex() != unit.editor.anchorFragment)
+                return true;
+            if (unit.baseline.view
+                && unit.baseline.anchor.block().fragmentIndex() != unit.baseline.anchorFragment) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void collapse()
+    {
+        // with nothing changed there is no focus to keep, so show the full
+        // file instead of collapsing it into a single placeholder
+        if (m_model.hunks.isEmpty())
+            return;
+        const QList<QPair<int, int>> editorRuns = collapsibleRuns(
+            editorChanges(m_model), m_editor->document()->blockCount(), kCollapseContextLines);
+
+        const bool collapseBaseline = m_baselineActive && m_baseline;
+        const int baselineBlockCount = collapseBaseline ? m_baseline->document()->blockCount() : 0;
+
+        for (const QPair<int, int> &run : editorRuns) {
+            Unit unit;
+            unit.id = ++m_nextUnitId;
+            if (collapseBaseline) {
+                // a collapsible run is unchanged text, so it maps line for line
+                // to the baseline; collapse those same lines there to keep the
+                // two sides aligned regardless of how the sides' run counts differ
+                const int first = editorLineToBaseline(m_model, run.first);
+                const int last = editorLineToBaseline(m_model, run.second);
+                if (first < 1 || last < first || last > baselineBlockCount)
+                    continue; // out of range: leave this run expanded on both sides
+                unit.baseline = makePlaceholder(m_baseline, {first, last}, unit.id);
+            }
+            unit.editor = makePlaceholder(m_editor, run, unit.id);
+            m_units.append(unit);
+        }
+        reposition();
+    }
+
+    Placeholder makePlaceholder(TextEditorWidget *view, const QPair<int, int> &range, int unitId)
+    {
+        Placeholder placeholder;
+        TextEditorLayout *layout = view->editorLayout();
+        QTC_ASSERT(layout, return placeholder);
+        QTextDocument *doc = view->document();
+        const QTextBlock anchor = doc->findBlockByNumber(range.second); // range.second + 1, 0-based
+        QTC_ASSERT(anchor.isValid(), return placeholder);
+        for (int line = range.first; line <= range.second; ++line) {
+            const QTextBlock block = doc->findBlockByNumber(line - 1);
+            if (block.isValid())
+                layout->setBlockVisibleInEditor(block, false);
+        }
+        auto item = std::make_unique<Utils::EmptyLayoutItem>(layout->lineSpacing(),
+                                                            INLINE_DIFF_COLLAPSE_CATEGORY);
+        item->setBackground(
+            view->textDocument()->fontSettings().toTextCharFormat(C_LINE_NUMBER).background());
+        layout->ensureBlockLayout(anchor);
+        layout->prependLayoutItem(anchor, std::move(item));
+
+        placeholder.view = view;
+        placeholder.hiddenCount = range.second - range.first + 1;
+        placeholder.anchor = QTextCursor(anchor);
+        placeholder.anchorFragment = anchor.fragmentIndex();
+        placeholder.row = new CollapsedRow(view->viewport(), placeholder.hiddenCount,
+                                           [this, unitId] { expandUnit(unitId); });
+        return placeholder;
+    }
+
+    void expandUnit(int unitId)
+    {
+        for (int i = 0; i < m_units.size(); ++i) {
+            if (m_units.at(i).id != unitId)
+                continue;
+            expandPlaceholder(m_units.at(i).editor);
+            expandPlaceholder(m_units.at(i).baseline);
+            m_units.removeAt(i);
+            break;
+        }
+        relayout();
+    }
+
+    static void expandPlaceholder(const Placeholder &placeholder)
+    {
+        TextEditorWidget *view = placeholder.view;
+        if (!view)
+            return;
+        TextEditorLayout *layout = view->editorLayout();
+        QTC_ASSERT(layout, return);
+        QTextDocument *doc = view->document();
+        const QTextBlock anchor = placeholder.anchor.block();
+        // the hidden lines are the block above the anchor and its predecessors,
+        // as many as were hidden
+        const int anchorNumber = anchor.isValid() ? anchor.blockNumber() : doc->blockCount();
+        for (int i = 1; i <= placeholder.hiddenCount; ++i) {
+            const QTextBlock block = doc->findBlockByNumber(anchorNumber - i);
+            if (block.isValid())
+                layout->setBlockVisibleInEditor(block, true);
+        }
+        if (anchor.isValid())
+            layout->removeLayoutItems(anchor, INLINE_DIFF_COLLAPSE_CATEGORY);
+        if (placeholder.row) {
+            placeholder.row->hide();
+            placeholder.row->deleteLater(); // the placeholder may be the caller
+        }
+    }
+
+    void clearState()
+    {
+        for (const Unit &unit : std::as_const(m_units)) {
+            if (unit.editor.row) {
+                unit.editor.row->hide();
+                unit.editor.row->deleteLater();
+            }
+            if (unit.baseline.row) {
+                unit.baseline.row->hide();
+                unit.baseline.row->deleteLater();
+            }
+        }
+        m_units.clear();
+        for (TextEditorWidget *view : {m_editor.data(), m_baseline.data()}) {
+            if (!view)
+                continue;
+            if (TextEditorLayout *layout = view->editorLayout()) {
+                layout->clearEditorHiddenBlocks();
+                layout->removeAllLayoutItems(INLINE_DIFF_COLLAPSE_CATEGORY);
+            }
+        }
+    }
+
+    void relayout()
+    {
+        for (TextEditorWidget *view : {m_editor.data(), m_baseline.data()}) {
+            if (!view)
+                continue;
+            if (TextEditorLayout *layout = view->editorLayout()) {
+                layout->emitDocumentSizeChanged();
+                layout->requestUpdate();
+            }
+        }
+    }
+
+    // updateRequest fires on every repaint, scroll, and incremental
+    // rehighlight; coalesce the repositions into one per event loop pass.
+    void scheduleReposition()
+    {
+        if (m_repositionScheduled)
+            return;
+        m_repositionScheduled = true;
+        QMetaObject::invokeMethod(this, [this] {
+            m_repositionScheduled = false;
+            reposition();
+        }, Qt::QueuedConnection);
+    }
+
+    void reposition()
+    {
+        for (const Unit &unit : std::as_const(m_units)) {
+            repositionPlaceholder(unit.editor);
+            repositionPlaceholder(unit.baseline);
+        }
+    }
+
+    static void repositionPlaceholder(const Placeholder &placeholder)
+    {
+        TextEditorWidget *view = placeholder.view;
+        if (!view || !placeholder.row)
+            return;
+        TextEditorLayout *layout = view->editorLayout();
+        if (!layout)
+            return;
+        const QTextBlock anchor = placeholder.anchor.block();
+        if (!anchor.isValid() || !anchor.isVisible()) {
+            placeholder.row->hide();
+            return;
+        }
+        // the placeholder is the topmost item prepended above the anchor
+        const int top = view->cursorRect(QTextCursor(anchor)).top()
+                        - layout->mainLayoutOffset(anchor);
+        const int height = layout->lineSpacing();
+        if (top + height < 0 || top > view->viewport()->height()) {
+            placeholder.row->hide();
+            return;
+        }
+        const int margin = int(view->document()->documentMargin());
+        placeholder.row->setGeometry(margin, top,
+                                     qMax(0, view->viewport()->width() - 2 * margin), height);
+        placeholder.row->show();
+    }
+
+    QPointer<TextEditorWidget> m_editor;
+    QPointer<TextEditorWidget> m_baseline;
+    QList<Unit> m_units;
+    InlineDiffRenderModel m_model;
+    bool m_enabled = true;
+    bool m_baselineActive = false; // side by side view: collapse the baseline too
+    int m_lastBlockCount = 0;
+    int m_nextUnitId = 0;
+    bool m_repositionScheduled = false;
+};
+
 // A thin document for the inline diff editor: it carries the diff title and
 // forwards the modified state and saving to the source document, whose text
 // buffer the inline diff editor shares.
@@ -525,6 +963,7 @@ private:
 };
 
 const char VIEW_MODE_SETTINGS_KEY[] = "DiffEditor/InlineDiffViewMode";
+const char COLLAPSE_SETTINGS_KEY[] = "DiffEditor/InlineDiffCollapseUnchanged";
 
 // live diffing on every edit does not scale to arbitrarily large documents
 constexpr qsizetype maxInlineDiffTextSize = 8 * 1000 * 1000;
@@ -575,6 +1014,10 @@ static qreal naturalBlockHeight(const QPointer<TextEditorWidget> &widget, int li
         return 0.0;
     TextEditorLayout *layout = widget->editorLayout();
     if (!layout)
+        return 0.0;
+    // a line collapsed by the inline diff has no height on its side, so the
+    // aligner must not pad the other side for it
+    if (!layout->isBlockVisibleInEditor(block))
         return 0.0;
     if (!layout->blockLayoutValid(block.fragmentIndex()))
         return layout->lineSpacing();
@@ -815,6 +1258,7 @@ public:
         m_splitter->addWidget(m_widget);
         setWidget(m_splitter);
         m_decorator = new InlineDiffDecorator(m_widget);
+        m_collapseController = new CollapseController(m_widget);
 
         m_toolBar = new QToolBar;
         // like the diff editor's view switcher, the icon shows the view that
@@ -824,6 +1268,21 @@ public:
             setViewMode(m_viewMode == InlineDiffViewMode::Inline
                             ? InlineDiffViewMode::SideBySide
                             : InlineDiffViewMode::Inline);
+        });
+
+        const bool collapse = Core::ICore::settings()
+                                  ->value(COLLAPSE_SETTINGS_KEY, true).toBool();
+        m_collapseAction = m_toolBar->addAction(Utils::Icons::COLLAPSE_TOOLBAR.icon(),
+                                                Tr::tr("Hide Unchanged Lines"));
+        m_collapseAction->setCheckable(true);
+        m_collapseAction->setChecked(collapse);
+        m_collapseAction->setToolTip(Tr::tr("Hide unchanged lines, keeping some context "
+                                            "around each change."));
+        m_collapseController->setEnabled(collapse);
+        connect(m_collapseAction, &QAction::toggled, this, [this](bool on) {
+            Core::ICore::settings()->setValue(COLLAPSE_SETTINGS_KEY, on);
+            if (m_collapseController)
+                m_collapseController->setEnabled(on);
         });
 
         m_updateTimer.setSingleShot(true);
@@ -1073,6 +1532,15 @@ private:
                 m_aligner->update(m_model.hunks);
         }
         updateHunkControls();
+        // the collapser runs last so its placeholder rows sit above any ghost
+        // rows the decorator prepended on the same anchor line; in the side by
+        // side view it also collapses the baseline so the aligner stays in sync
+        if (m_collapseController) {
+            TextEditorWidget *baseline = m_viewMode == InlineDiffViewMode::SideBySide
+                                             ? m_baselineWidget.data()
+                                             : nullptr;
+            m_collapseController->update(m_model, baseline);
+        }
     }
 
     static bool hunkIsActionable(const InlineDiffChunk &hunk, const InlineDiffLineRanges &ranges)
@@ -1205,6 +1673,7 @@ private:
     QPointer<QSplitter> m_splitter;
     QPointer<TextEditorWidget> m_widget;
     QPointer<InlineDiffDecorator> m_decorator;
+    QPointer<CollapseController> m_collapseController;
     QPointer<HunkControls> m_hunkControls;
     QPointer<TextEditorWidget> m_baselineWidget;
     QPointer<InlineDiffDecorator> m_baselineDecorator;
@@ -1212,6 +1681,7 @@ private:
     TextDocumentPtr m_baselineDocument;
     QPointer<QToolBar> m_toolBar;
     QAction *m_viewSwitcherAction = nullptr;
+    QAction *m_collapseAction = nullptr;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;
     bool m_centerOnNextModel = false;
     InlineDiffBaseline m_baseline;
