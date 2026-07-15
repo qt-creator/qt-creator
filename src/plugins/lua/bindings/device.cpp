@@ -51,7 +51,7 @@ void setupDeviceModule()
         // SSH parameters in `params` and adds it to the DeviceManager. Returns the
         // new device id.
         result["createDevice"] = [](const sol::table &params) -> QString {
-            const Id typeId = Id::fromString(params.get<QString>("type"));
+            const Id typeId = Id::fromString(params.get<QString>("type"sv));
             IDeviceFactory *factory = IDeviceFactory::find(typeId);
             if (!factory)
                 throw sol::error(QString("Unknown device type: " + typeId.toString()).toStdString());
@@ -64,24 +64,24 @@ void setupDeviceModule()
             if (!device->id().isValid())
                 device->setupId(IDevice::ManuallyAdded);
 
-            if (auto dn = params.get<std::optional<QString>>("displayName"); dn && !dn->isEmpty())
+            if (auto dn = params.get<std::optional<QString>>("displayName"sv); dn && !dn->isEmpty())
                 device->setDisplayName(*dn);
 
             SshParameters ssh = device->sshParameters();
-            if (auto v = params.get<std::optional<QString>>("host"))
+            if (auto v = params.get<std::optional<QString>>("host"sv))
                 ssh.setHost(*v);
-            if (auto v = params.get<std::optional<int>>("port"))
+            if (auto v = params.get<std::optional<int>>("port"sv))
                 ssh.setPort(*v);
-            if (auto v = params.get<std::optional<QString>>("userName"))
+            if (auto v = params.get<std::optional<QString>>("userName"sv))
                 ssh.setUserName(*v);
-            if (auto v = params.get<std::optional<QString>>("privateKeyFile"))
+            if (auto v = params.get<std::optional<QString>>("privateKeyFile"sv))
                 ssh.setPrivateKeyFile(FilePath::fromUserInput(*v));
-            if (auto v = params.get<std::optional<bool>>("useKeyFile"))
+            if (auto v = params.get<std::optional<bool>>("useKeyFile"sv))
                 ssh.setAuthenticationType(*v ? SshParameters::AuthenticationTypeSpecificKey
                                              : SshParameters::AuthenticationTypeAll);
-            if (auto v = params.get<std::optional<int>>("timeout"))
+            if (auto v = params.get<std::optional<int>>("timeout"sv))
                 ssh.setTimeout(*v);
-            if (auto v = params.get<std::optional<QString>>("hostKeyCheckingMode"))
+            if (auto v = params.get<std::optional<QString>>("hostKeyCheckingMode"sv))
                 ssh.setHostKeyCheckingMode(parseHostKeyCheckingMode(*v, ssh.hostKeyCheckingMode()));
 
             device->sshParametersAspectContainer().setSshParameters(ssh);
