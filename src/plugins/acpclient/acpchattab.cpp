@@ -438,6 +438,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
         showSessionPicker();
+        emit titleChanged();
     });
     connect(m_controller, &AcpChatController::sessionLoaded, this, [this](const QString &sessionId) {
         m_sessionPending = false;

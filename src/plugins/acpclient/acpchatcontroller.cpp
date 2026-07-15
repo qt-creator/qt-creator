@@ -602,6 +602,7 @@ void AcpChatController::closeSession()
             return;
         }
         m_sessionId.clear();
+        m_workingDirectory.clear();
         emit sessionClosed(sessionId);
         emit sessionSelectionRequired();
     });
