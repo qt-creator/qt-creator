@@ -30,6 +30,10 @@ public:
     static QStringView pathName(const QString &fileName); // Requires normalized path
     static QStringView fileName(const QString &fileName); // Requires normalized path
     static QString resolvePath(const QString &device, const QString &baseDir, const QString &fileName);
+    // Records whether a (non-local) device uses Windows path semantics, so isRelativePath() and
+    // resolvePath() treat its drive-letter/UNC paths as absolute. Without this a remote device is
+    // assumed to be Unix; the local host is detected automatically and needs no registration.
+    static void setDeviceOsIsWindows(const QString &device, bool isWindows);
     static QString shellQuoteUnix(const QString &arg);
     static QString shellQuoteWin(const QString &arg);
     static QString shellQuote(const QString &arg)

@@ -17,6 +17,7 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <proparser/ioutils.h>
 #include <proparser/qmakevfs.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -1267,6 +1268,20 @@ void QtVersionPrivate::updateMkspec()
     }
 }
 
+// Point the proparser at the device hosting qmake, so absolute paths (C:\... on Windows) are
+// resolved with device semantics instead of the host's. Uses the device prefix (path "/"), not
+// IDevice::rootPath(): the latter is the device's filesystem root, which for a Windows device is
+// the system drive (e.g. "C:"), and using it here would double the drive onto every
+// device-relative path (".../C:C:/..."). A local qmake leaves device_root empty.
+static void setupProparserDevice(QMakeGlobals &globals, const FilePath &qmakeCommand)
+{
+    if (qmakeCommand.isLocal())
+        return;
+    globals.device_root = qmakeCommand.withNewPath("/").toFSPathString();
+    QMakeInternal::IoUtils::setDeviceOsIsWindows(
+        globals.device_root, qmakeCommand.osType() == OsTypeWindows);
+}
+
 void QtVersion::ensureMkSpecParsed() const
 {
     if (d->m_mkspecReadUpToDate)
@@ -1282,8 +1297,7 @@ void QtVersion::ensureMkSpecParsed() const
     Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     option.environment = env.toProcessEnvironment();
-    if (!d->m_qmakeCommand.isLocal())
-        option.device_root = d->m_qmakeCommand.withNewPath("/").toFSPathString(); // Empty for host!
+    setupProparserDevice(option, d->m_qmakeCommand);
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
@@ -2356,11 +2370,12 @@ QtVersion *QtVersionFactory::createQtVersionFromQMakePath(
     QMakeVfs vfs;
     QMakeGlobals globals;
     globals.setProperties(versionInfo);
+    setupProparserDevice(globals, qmakePath);
     ProMessageHandler msgHandler(false);
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
     ProFileEvaluator evaluator(&globals, &parser, &vfs, &msgHandler);
-    evaluator.loadNamedSpec(mkspec.toFSPathString(), false);
+    evaluator.loadNamedSpec(mkspec.path(), false);
 
     const QList<QtVersionFactory *> factories = Utils::sorted(g_qtVersionFactories,
             [](const QtVersionFactory *l, const QtVersionFactory *r) {

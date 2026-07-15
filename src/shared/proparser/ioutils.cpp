@@ -3,8 +3,11 @@
 
 #include "ioutils.h"
 
+#include <utils/synchronizedvalue.h>
+
 #include <qdir.h>
 #include <qfile.h>
+#include <qhash.h>
 #include <qregularexpression.h>
 
 #ifdef Q_OS_WIN
@@ -70,15 +73,37 @@ IoUtils::FileType IoUtils::fileType(const QString &device, const QString &fileNa
 #endif
 }
 
+// Non-local devices whose paths use Windows semantics, keyed by device root (see
+// IoUtils::setDeviceOsIsWindows). Guarded because evaluation may run off the main thread; the
+// lock is only taken for remote devices, so the common local (empty-device) path stays lock-free.
+static Utils::SynchronizedValue<QHash<QString, bool>> &windowsDevices()
+{
+    static Utils::SynchronizedValue<QHash<QString, bool>> devices;
+    return devices;
+}
+
+void IoUtils::setDeviceOsIsWindows(const QString &device, bool isWindows)
+{
+    if (device.isEmpty())
+        return;
+    windowsDevices().write([&](QHash<QString, bool> &devices) {
+        devices.insert(device, isWindows);
+    });
+}
+
 static bool isWindows(const QString &device)
 {
-    if (!device.isEmpty())
-        return false;
+    if (device.isEmpty()) {
 #ifdef Q_OS_WIN
-    return true;
+        return true;
 #else
-    return false;
+        return false;
 #endif
+    }
+    // A remote device uses whatever OS was registered for it,
+    // an unregistered one is assumed Unix.
+    return windowsDevices().get(
+        [&device](const QHash<QString, bool> &devices) { return devices.value(device, false); });
 }
 
 bool IoUtils::isRelativePath(const QString &device, const QString &path)
