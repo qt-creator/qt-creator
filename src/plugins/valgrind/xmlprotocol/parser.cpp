@@ -56,7 +56,7 @@ struct XauxWhat
 
 enum class Tool { Unknown, Memcheck, Ptrcheck, Helgrind };
 
-const QHash<QString, Tool> &toolByName()
+static const QHash<QString, Tool> &toolByName()
 {
     static const QHash<QString, Tool> theHash {
         {"memcheck", Tool::Memcheck},

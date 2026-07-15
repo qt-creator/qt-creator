@@ -33,7 +33,7 @@ bool qCompare(int const &t1, MemcheckError const &t2,
     return qCompare(t1, int(t2), actual, expected, file, line);
 }
 
-bool qCompare(const QString &t1, char const *t2,
+static bool qCompare(const QString &t1, char const *t2,
               char const *actual, char const *expected, char const *file, int line)
 {
     return qCompare(t1, QString::fromLatin1(t2), actual, expected, file, line);
