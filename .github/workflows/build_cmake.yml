@@ -79,6 +79,11 @@ jobs:
         brew update
         brew install upx
 
+    - name: Install zig
+      uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2.2.1
+      with:
+        version: 0.16.0
+
     - name: Download Ninja and CMake
       shell: cmake -P {0}
       run: |
@@ -597,7 +602,6 @@ jobs:
             endforeach()
           endif()
         endforeach()
-
     - name: Build
       shell: cmake -P {0}
       run: |
@@ -709,6 +713,8 @@ jobs:
             --zip-infix=-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}
             --no-qbs
             --with-sdk-tool
+            --add-config=-DBUILD_CMDBRIDGE_C=ON
+            --add-config=-DCMDBRIDGE_USE_ZIG=ON
             ${WITH_CPACK}
           RESULT_VARIABLE result
           COMMAND_ECHO STDOUT
