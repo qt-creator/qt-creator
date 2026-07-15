@@ -176,6 +176,7 @@ private slots:
     void test_vim_tagstack();
     void test_vim_source_utf8();
     void test_vim_fold_toggle_all();
+    void test_vim_insert_indent();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
@@ -4939,6 +4940,22 @@ void FakeVimTester::test_vim_source_utf8()
     expected += QChar(0x00e9);
     expected += QLatin1String("bc");
     QCOMPARE(data.editor()->toPlainText(), expected);
+}
+
+void FakeVimTester::test_vim_insert_indent()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=4");
+
+    // In insert mode CTRL-T adds one shiftwidth of indent to the current line
+    // and CTRL-D removes one (QTCREATORBUG-11912).
+    data.setText("a|bc");
+    KEYS("i<C-t>", "    |abc");
+    KEYS("<C-t>", "        |abc");
+    KEYS("<C-d>", "|    abc");
+    KEYS("<C-d>", "|abc");
 }
 
 void FakeVimTester::test_vim_fold_toggle_all()

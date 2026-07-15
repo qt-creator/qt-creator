@@ -2747,12 +2747,19 @@ void FakeVimHandler::Private::commitInsertState()
     QString &lastInsertion = m_buffer->lastInsertion;
     BufferData::InsertState &insertState = m_buffer->insertState;
 
+    // An insert-mode command that shrinks the line (e.g. CTRL-D/CTRL-T
+    // re-indentation) can leave the recorded positions past the current end of
+    // the document; clamp them before reading the inserted text.
+    const int last = lastPositionInDocument();
+    const int pos1 = qBound(0, insertState.pos1, last);
+    const int pos2 = qBound(0, insertState.pos2, last);
+
     // Get raw inserted text.
-    lastInsertion = textAt(insertState.pos1, insertState.pos2);
+    lastInsertion = textAt(pos1, pos2);
 
     // Escape special characters and spaces inserted by user (not by auto-indentation).
     for (int i = lastInsertion.size() - 1; i >= 0; --i) {
-        const int pos = insertState.pos1 + i;
+        const int pos = pos1 + i;
         const QChar c = characterAt(pos);
         if (c == '<') {
             lastInsertion.replace(i, 1, "<LT>");
@@ -5686,6 +5693,11 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             }
             m_buffer->insertState.insertingSpaces = false;
         }
+    } else if (input.isControl('t')) {
+        // Add one level of indentation to the current line (Vim CTRL-T).
+        const int pos = firstPositionInLine(cursorLine() + 1);
+        setAnchorAndPosition(pos, pos);
+        shiftRegionRight(1);
     } else if (input.isControl('d')) {
         // remove one level of indentation from the current line
         const int shift = s.shiftWidth();
