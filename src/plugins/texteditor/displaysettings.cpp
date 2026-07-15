@@ -147,6 +147,13 @@ DisplaySettings::DisplaySettings()
     highlightSelection.setToolTip(Tr::tr("Adds a colored background and a marker to the "
                                          "scrollbar to occurrences of the selected text."));
 
+    markDiffChangeSigns.setSettingsKey("MarkDiffChangeSigns");
+    markDiffChangeSigns.setDefaultValue(false);
+    markDiffChangeSigns.setLabelText(Tr::tr("Mark diff changes with +/- &signs"));
+    markDiffChangeSigns.setToolTip(
+        Tr::tr("Shows \"+\" and \"-\" signs next to added and removed lines in the "
+               "inline diff, so the changes can be told apart without relying on color."));
+
     animateWithinFileTimeMax.setSettingsKey("AnimateWithinFileTimeMax");
     animateWithinFileTimeMax.setDefaultValue(333); // read only setting
 
@@ -261,6 +268,7 @@ public:
                             s.displayFileLineEnding,
                             s.displayTabSettings,
                             s.displayMinimap,
+                            s.markDiffChangeSigns,
                         }
                     }
                 },
@@ -310,6 +318,7 @@ DisplaySettingsData DisplaySettings::data() const
     d.m_minimalAnnotationContent = minimalAnnotationContent();
     d.m_highlightSelection = highlightSelection();
     d.m_displayMinimap = displayMinimap();
+    d.m_markDiffChangeSigns = markDiffChangeSigns();
 
     return d;
 }

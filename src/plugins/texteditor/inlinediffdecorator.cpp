@@ -167,11 +167,13 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
     const QTextCharFormat removedCharFormat
         = fontSettings.toTextCharFormat(C_DIFF_SOURCE_CHAR);
 
+    bool hasGhostRows = false;
     for (const GhostBlock &ghost : std::as_const(m_ghosts)) {
         // the model may refer to an older revision of the document, a fresh
         // model is applied once the diff of the current contents is finished
         if (ghost.lines.isEmpty() || ghost.anchorLine > doc->blockCount() + 1)
             continue;
+        hasGhostRows = true;
         const bool afterLastBlock = ghost.anchorLine > doc->blockCount();
         const QTextBlock block = afterLastBlock ? doc->lastBlock()
                                                 : doc->findBlockByNumber(ghost.anchorLine - 1);
@@ -267,6 +269,17 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
     }
     m_widget->setExtraSelections(INLINE_DIFF_SELECTION_ID, selections);
 
+    // publish the +/- gutter signs: changed real lines carry '+' on the editor
+    // side and '-' on the baseline side; removed lines rendered as ghost rows
+    // are marked '-' by the widget from the layout (hasGhostRows)
+    QHash<int, QChar> signs;
+    const QChar changedSign = isBaseline ? u'-' : u'+';
+    for (const ChangedRange &range : std::as_const(m_changes)) {
+        for (int line = range.startLine; line <= range.endLine; ++line)
+            signs.insert(line - 1, changedSign);
+    }
+    m_widget->setDiffChangeSigns(signs, hasGhostRows);
+
     layout->emitDocumentSizeChanged();
     layout->requestUpdate();
 }
@@ -284,6 +297,7 @@ void InlineDiffDecorator::clear()
             layout->requestUpdate();
     }
     m_widget->setExtraSelections(INLINE_DIFF_SELECTION_ID, {});
+    m_widget->setDiffChangeSigns({}, false);
 }
 
 int InlineDiffDecorator::stripChangedLineFormats()

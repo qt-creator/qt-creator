@@ -375,6 +375,11 @@ public:
     virtual void encourageApply();
 
     virtual void setDisplaySettings(const TextEditor::DisplaySettingsData &);
+    // Publishes the +/- diff signs for the extra area: blockSigns maps a
+    // 0-based block number of a changed (added/removed) line to its sign;
+    // hasRemovedRows tells the widget that removed lines are shown as ghost
+    // rows, which get a '-' derived from the layout. Used by InlineDiffDecorator.
+    void setDiffChangeSigns(const QHash<int, QChar> &blockSigns, bool hasRemovedRows);
     virtual void setMarginSettings(const TextEditor::MarginSettingsData &);
     void setBehaviorSettings(const TextEditor::BehaviorSettingsData &);
     void setTypingSettings(const TextEditor::TypingSettingsData &);

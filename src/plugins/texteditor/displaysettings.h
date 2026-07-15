@@ -47,6 +47,7 @@ public:
     bool m_scrollBarHighlights = true;
     bool m_animateNavigationWithinFile = false;
     bool m_highlightSelection = true;
+    bool m_markDiffChangeSigns = false;
     int m_animateWithinFileTimeMax = 333; // read only setting
     bool m_displayAnnotations = true;
     AnnotationAlignment m_annotationAlignment = AnnotationAlignment::RightSide;
@@ -86,6 +87,7 @@ public:
     Utils::BoolAspect scrollBarHighlights{this};
     Utils::BoolAspect animateNavigationWithinFile{this};
     Utils::BoolAspect highlightSelection{this};
+    Utils::BoolAspect markDiffChangeSigns{this};
     Utils::IntegerAspect animateWithinFileTimeMax{this};
     Utils::BoolAspect displayAnnotations{this};
     Utils::TypedSelectionAspect<AnnotationAlignment> annotationAlignment{this};
