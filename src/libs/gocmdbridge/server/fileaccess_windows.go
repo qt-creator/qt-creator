@@ -9,6 +9,23 @@ import (
 	"golang.org/x/sys/windows"
 )
 
+// systemDrives returns the available file-system drive roots ("C:/", "D:/", ...). It makes the
+// artificial device root browsable: Windows has no single "/" that lists the drives, so the find
+// of the root enumerates these instead of walking a directory.
+func systemDrives() []string {
+	mask, err := windows.GetLogicalDrives()
+	if err != nil {
+		return nil
+	}
+	var drives []string
+	for i := 0; i < 26; i++ {
+		if mask&(1<<uint(i)) != 0 {
+			drives = append(drives, string(rune('A'+i))+":/")
+		}
+	}
+	return drives
+}
+
 func isWritable(path string) bool {
 	return true
 }

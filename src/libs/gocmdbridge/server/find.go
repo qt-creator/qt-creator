@@ -69,6 +69,39 @@ func processFind(cmd command, out chan<- []byte) {
 
 	writer := NewChannelWriter(out)
 
+	// The device root has no real directory to walk on Windows (there is no single "/"); browsing
+	// it should list the drive roots (C:/, D:/, ...). systemDrives() is empty off Windows, where
+	// "/" is a normal directory, so this only affects Windows.
+	if dir := cmd.Find.Directory; dir == "" || dir == "/" || dir == "\\" {
+		if drives := systemDrives(); len(drives) > 0 {
+			wantDirs := cmd.Find.FileFilters == NoFilter || cmd.Find.FileFilters&Dirs != 0
+			for _, drive := range drives {
+				if ctx.Err() != nil {
+					break
+				}
+				if !wantDirs {
+					continue
+				}
+				result, err := cbor.Marshal(finddata{
+					Type:    "finddata",
+					Id:      cmd.Id,
+					Path:    drive,
+					Size:    0,
+					Mode:    fs.ModeDir | 0555,
+					IsDir:   true,
+					ModTime: time.Now(),
+				})
+				if err == nil {
+					writer.Write(result)
+				}
+			}
+			result, _ := cbor.Marshal(finddata{Type: "findend", Id: cmd.Id})
+			writer.Write(result)
+			writer.Flush()
+			return
+		}
+	}
+
 	fileSystem := os.DirFS(cmd.Find.Directory)
 
 	fs.WalkDir(fileSystem, ".", func(path string, dirEntry fs.DirEntry, err error) error {

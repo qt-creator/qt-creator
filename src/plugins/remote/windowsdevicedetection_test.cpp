@@ -87,6 +87,16 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     }
     QCOMPARE(device->deviceState(), IDevice::DeviceReadyToUse);
 
+    // Browsing the device root must list the drives (C:/, ...) so the root is navigable in the
+    // file dialogs; the Windows root has no single directory to walk, so the CmdBridge synthesizes
+    // the drive entries. (Regression guard for the "can't reach C: from the root" bug.)
+    const FilePaths rootEntries = deviceRoot.dirEntries(
+        FileFilter({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot));
+    const bool hasDrive = Utils::anyOf(rootEntries, [](const FilePath &p) {
+        return p.path().contains(':');
+    });
+    QVERIFY2(hasDrive, "The device root did not list any drives (e.g. C:/).");
+
     // Trigger the same detection the device widget's auto-detect button runs.
     detectAndRegisterToolchainsForTest(device);
 

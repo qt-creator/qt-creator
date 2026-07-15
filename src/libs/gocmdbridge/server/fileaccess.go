@@ -11,6 +11,9 @@ import (
 )
 
 
+// systemDrives has no meaning off Windows (the root "/" is a real, walkable directory).
+func systemDrives() []string { return nil }
+
 func isWritable(path string) bool {
 	return unix.Access(path, unix.W_OK) == nil
 }
