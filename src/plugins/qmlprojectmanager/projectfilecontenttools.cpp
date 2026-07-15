@@ -71,15 +71,6 @@ const QString qtVersion(const Utils::FilePath &projectFilePath)
     return defaultReturn;
 }
 
-bool isQt6Project(const Utils::FilePath &projectFilePath)
-{
-    const QString data = readFileContents(projectFilePath);
-    QRegularExpressionMatch match = qt6Regexp.match(data);
-    if (!match.hasMatch())
-        return false;
-    return match.captured(2).contains("true", Qt::CaseInsensitive);
-}
-
 const QString getMainQmlFile(const Utils::FilePath &projectFilePath)
 {
     const QString defaultReturn = "content/App.qml";
