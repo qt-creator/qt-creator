@@ -953,6 +953,10 @@
             from being done in the file if set to \c true. This setting
             defaults to \c false.
 
+        \li \c skipFormat keeps the file as is instead of running code formatters
+            on it after generating if it is set to \c true. This settings
+            defaults to \c false.
+
         \li \c condition generates the file if the condition
             returns \c true. This setting defaults to \c true. For more
             information, see \l{Using variables in wizards}.
