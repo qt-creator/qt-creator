@@ -2265,6 +2265,7 @@ public:
     bool handleExSubstituteCommand(const ExCommand &cmd);
     bool handleExTabNextCommand(const ExCommand &cmd);
     bool handleExTabPreviousCommand(const ExCommand &cmd);
+    bool handleExTagCommand(const ExCommand &cmd);
     bool handleExWriteCommand(const ExCommand &cmd);
     bool handleExEchoCommand(const ExCommand &cmd);
 
@@ -4852,7 +4853,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (g.gflag && input.is('T')) {
         handleExCommand("tabprevious");
     } else if (input.isControl('t')) {
-        handleExCommand("pop");
+        q->tagStackRequested(-count());
     } else if (!g.gflag && input.is('u') && !isVisualMode()) {
         dotCommand.clear();
         int repeat = count();
@@ -4943,7 +4944,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (atEndOfLine())
             moveLeft();
     } else if (input.isControl(Key_BracketRight)) {
-        handleExCommand("tag");
+        q->tagJumpRequested();
     } else if (handleMovement(input)) {
         // movement handled
         dotCommand.clear();
@@ -6225,6 +6226,25 @@ bool FakeVimHandler::Private::handleExTabPreviousCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::handleExTagCommand(const ExCommand &cmd)
+{
+    // :ta[g] with an argument follows a (new) symbol; bare :ta[g] moves forward
+    // on the tag stack. :po[p] moves back. CTRL-] and CTRL-T map to the first
+    // and last of these directly (QTCREATORBUG-11754).
+    if (cmd.matches("ta", "tag")) {
+        if (cmd.args.isEmpty())
+            q->tagStackRequested(count());
+        else
+            q->tagJumpRequested();
+        return true;
+    }
+    if (cmd.matches("po", "pop")) {
+        q->tagStackRequested(-count());
+        return true;
+    }
+    return false;
+}
+
 bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
 {
     QByteArray modes;
@@ -7052,6 +7072,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExSubstituteCommand(cmd)
         || handleExTabNextCommand(cmd)
         || handleExTabPreviousCommand(cmd)
+        || handleExTagCommand(cmd)
         || handleExWriteCommand(cmd)
         || handleExEchoCommand(cmd);
 }

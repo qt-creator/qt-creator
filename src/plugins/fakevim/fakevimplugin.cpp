@@ -451,6 +451,14 @@ public:
     ExCommandMap m_exCommandMap;
     ExCommandMap m_defaultExCommandMap;
 
+    // Vim-like tag stack for :tag/CTRL-] and :pop/CTRL-T (QTCREATORBUG-11754).
+    // m_tagStack holds the "from" location of each tag jump; m_tagIndex is the
+    // current level in it (m_tagStack.size() means we are at the newest jump).
+    void tagJump(FakeVimHandler *handler);
+    void tagStackMove(FakeVimHandler *handler, int distance);
+    QList<Utils::Link> m_tagStack;
+    int m_tagIndex = 0;
+
     UserCommandMap m_userCommandMap;
     UserCommandMap m_defaultUserCommandMap;
 
@@ -1099,8 +1107,8 @@ FakeVimPlugin::FakeVimPlugin()
     m_defaultExCommandMap[CppEditor::Constants::SWITCH_HEADER_SOURCE] = "^A$";
     m_defaultExCommandMap["Coreplugin.OutputPane.previtem"] = "^(cN(ext)?|cp(revious)?)!?( (.*))?$";
     m_defaultExCommandMap["Coreplugin.OutputPane.nextitem"] = "^cn(ext)?!?( (.*))?$";
-    m_defaultExCommandMap[TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR] = "^tag?$";
-    m_defaultExCommandMap[Core::Constants::GO_BACK] = "^pop?$";
+    // :tag/CTRL-] and :pop/CTRL-T are handled directly via a Vim-like tag
+    // stack (see handleExCommand), not through action mappings.
     m_defaultExCommandMap["QtCreator.Locate"] = "^e$";
 
     for (int i = 1; i < 10; ++i) {
@@ -1827,6 +1835,12 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
     handler->tabPreviousRequested.set([] { triggerAction(Core::Constants::GOTOPREVINHISTORY); });
 
+    handler->tagJumpRequested.set([this, handler] { tagJump(handler); });
+
+    handler->tagStackRequested.set([this, handler](int distance) {
+        tagStackMove(handler, distance);
+    });
+
     handler->completionRequested.set([tew] {
         if (tew)
             tew->invokeAssist(Completion, &theFakeVimCompletionAssistProvider);
@@ -2059,6 +2073,50 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
             }
         }
         *handled = false;
+    }
+}
+
+static Link currentEditorLink()
+{
+    if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
+        // currentColumn() is 1-based; gotoLine()/Link expect a 0-based column.
+        return Link(editor->document()->filePath(),
+                    editor->currentLine(), editor->currentColumn() - 1);
+    }
+    return {};
+}
+
+void FakeVimPlugin::tagJump(FakeVimHandler *handler)
+{
+    Q_UNUSED(handler)
+    // A new tag jump discards any entries we had moved back past, records the
+    // current location, and follows the symbol under the cursor.
+    while (m_tagStack.size() > m_tagIndex)
+        m_tagStack.removeLast();
+    m_tagStack.append(currentEditorLink());
+    m_tagIndex = m_tagStack.size();
+    triggerAction(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
+}
+
+void FakeVimPlugin::tagStackMove(FakeVimHandler *handler, int distance)
+{
+    if (distance < 0) {
+        // CTRL-T / :pop - go back towards where the tag jumps started.
+        if (m_tagIndex == 0) {
+            handler->showMessage(MessageError, Tr::tr("at bottom of tag stack"));
+            return;
+        }
+        m_tagIndex = qMax(0, m_tagIndex + distance);
+        EditorManager::openEditorAt(m_tagStack.at(m_tagIndex));
+    } else if (distance > 0) {
+        // bare :tag - re-follow towards the newest tag jump.
+        if (m_tagIndex >= m_tagStack.size()) {
+            handler->showMessage(MessageError, Tr::tr("at top of tag stack"));
+            return;
+        }
+        m_tagIndex = qMin(m_tagStack.size(), m_tagIndex + distance);
+        EditorManager::openEditorAt(m_tagStack.at(m_tagIndex - 1));
+        triggerAction(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     }
 }
 

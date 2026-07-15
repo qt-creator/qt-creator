@@ -166,6 +166,11 @@ public:
     Callback<void()> completionRequested;
     Callback<void()> tabPreviousRequested;
     Callback<void()> tabNextRequested;
+    // Vim tag stack (QTCREATORBUG-11754). tagJumpRequested: CTRL-] / :tag with
+    // an argument (push and follow). tagStackRequested: move by the signed
+    // count - CTRL-T / :pop go back (negative), bare :tag goes forward.
+    Callback<void()> tagJumpRequested;
+    Callback<void(int distance)> tagStackRequested;
     Callback<void(bool insertMode)> modeChanged;
     Callback<bool()> tabPressedInInsertMode;
     Callback<void(const QString &, const QString &, QString *)> processOutput;

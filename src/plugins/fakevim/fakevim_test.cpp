@@ -173,6 +173,7 @@ private slots:
     void test_vim_unimpaired_emulation();
     void test_vim_reflow();
     void test_vim_visual_selection_focus_out();
+    void test_vim_tagstack();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
@@ -4878,6 +4879,37 @@ void FakeVimTester::test_vim_unimpaired_emulation()
     data.setText("a|bc" N "def" N "ghi");
     KEYS("2]e", "def" N "ghi" N "a|bc");
     KEYS("2[e", "a|bc" N "def" N "ghi");
+}
+
+void FakeVimTester::test_vim_tagstack()
+{
+    TestData data;
+    setup(&data);
+    data.setText("one two three");
+
+    // Verify how tag-stack input is routed to the handler callbacks. The stack
+    // navigation itself needs a real file (openEditorAt) and is not exercised
+    // here (QTCREATORBUG-11754).
+    int jumps = 0;
+    int distance = 0;
+    data.handler->tagJumpRequested.set([&] { ++jumps; });
+    data.handler->tagStackRequested.set([&](int d) { distance = d; });
+
+    // CTRL-] and ":tag {name}" start a new jump.
+    data.doKeys("<C-]>");
+    QCOMPARE(jumps, 1);
+    data.doCommand("tag foo");
+    QCOMPARE(jumps, 2);
+
+    // CTRL-T / ":pop" go back, and a count repeats; bare ":tag" goes forward.
+    data.doKeys("<C-t>");
+    QCOMPARE(distance, -1);
+    data.doKeys("3<C-t>");
+    QCOMPARE(distance, -3);
+    data.doCommand("pop");
+    QCOMPARE(distance, -1);
+    data.doCommand("tag");
+    QCOMPARE(distance, 1);
 }
 
 void FakeVimTester::test_vim_visual_selection_focus_out()
