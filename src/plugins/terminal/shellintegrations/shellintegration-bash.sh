@@ -156,6 +156,12 @@ __vsc_update_cwd() {
 }
 
 __vsc_command_output_start() {
+	# Skip until the first real prompt: the DEBUG trap can fire for this
+	# script's own setup statements (e.g. the PROMPT_COMMAND capture below)
+	# before the shell is actually idle at a prompt for the first time.
+	if [[ -z "${__vsc_first_prompt-}" ]]; then
+		builtin return
+	fi
 	builtin printf '\e]633;C\a'
 	builtin printf '\e]633;E;%s;%s\a' "$(__vsc_escape_value "${__vsc_current_command}")" $__vsc_nonce
 }
@@ -198,12 +204,32 @@ __vsc_update_prompt() {
 __vsc_precmd() {
 	__vsc_command_complete "$__vsc_status"
 	__vsc_current_command=""
+	__vsc_first_prompt=1
 	__vsc_update_prompt
+}
+
+__vsc_is_prompt_command_entry() {
+	# PROMPT_COMMAND may be an array (bash 5.1+) with entries appended by other
+	# profile scripts (e.g. systemd's 80-systemd-osc-context.sh). Bash's DEBUG
+	# trap fires for each array entry as its own top-level command, so those
+	# entries (as well as our own __vsc_prompt_start/__vsc_prompt_end) must not
+	# be mistaken for a user-entered command, and must not consume the
+	# preexec slot that is meant for the next real command.
+	builtin local cmd="$1" __vsc_pc_entry
+	if [[ "$cmd" == __vsc_prompt* ]]; then
+		builtin return 0
+	fi
+	for __vsc_pc_entry in "${PROMPT_COMMAND[@]}"; do
+		if [[ -n "$__vsc_pc_entry" && "$cmd" == "$__vsc_pc_entry" ]]; then
+			builtin return 0
+		fi
+	done
+	builtin return 1
 }
 
 __vsc_preexec() {
 	__vsc_initialized=1
-	if [[ ! "$BASH_COMMAND" =~ ^__vsc_prompt* ]]; then
+	if ! __vsc_is_prompt_command_entry "$BASH_COMMAND"; then
 		# Use history if it's available to verify the command as BASH_COMMAND comes in with aliases
 		# resolved
 		if [ "$__vsc_history_verify" = "1" ]; then
@@ -232,7 +258,7 @@ else
 
 	if [[ -z "$__vsc_dbg_trap" ]]; then
 		__vsc_preexec_only() {
-			if [ "$__vsc_in_command_execution" = "0" ]; then
+			if [ "$__vsc_in_command_execution" = "0" ] && ! __vsc_is_prompt_command_entry "$BASH_COMMAND"; then
 				__vsc_in_command_execution="1"
 				__vsc_preexec
 			fi
@@ -240,10 +266,12 @@ else
 		trap '__vsc_preexec_only "$_"' DEBUG
 	elif [[ "$__vsc_dbg_trap" != '__vsc_preexec "$_"' && "$__vsc_dbg_trap" != '__vsc_preexec_all "$_"' ]]; then
 		__vsc_preexec_all() {
-			if [ "$__vsc_in_command_execution" = "0" ]; then
+			if [ "$__vsc_in_command_execution" = "0" ] && ! __vsc_is_prompt_command_entry "$BASH_COMMAND"; then
 				__vsc_in_command_execution="1"
 				builtin eval "${__vsc_dbg_trap}"
 				__vsc_preexec
+			elif [ "$__vsc_in_command_execution" = "0" ]; then
+				builtin eval "${__vsc_dbg_trap}"
 			fi
 		}
 		trap '__vsc_preexec_all "$_"' DEBUG
