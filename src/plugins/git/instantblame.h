@@ -35,8 +35,6 @@ public:
     int line = -1;            ///< current line number in current file
     int originalLine = -1;    ///< original line number in the original file
     bool modified = false;    ///< line is locally modified (uncommitted)
-    QString viewRevision;     ///< revision shown in the blamed view, empty for the working tree
-    QString viewFileName;     ///< relative file path at viewRevision
 };
 
 class BlameMark : public TextEditor::TextMark

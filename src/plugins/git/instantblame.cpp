@@ -115,24 +115,19 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                 const QString parentFileName = info.previousFileName.isEmpty()
                                                    ? info.originalFileName
                                                    : info.previousFileName;
-                if (info.viewRevision.isEmpty()) {
-                    if (info.modified) {
-                        // Uncommitted lines are compared against the index,
-                        // where staging them has a visible effect. The
-                        // editor keeps the cursor's line visible.
-                        gitClient().inlineDiffFile(topLevel, info.filePath.path());
-                    } else {
-                        // working tree against the line's previous version
-                        gitClient().inlineDiffFileAgainst(topLevel,
-                                                          info.filePath.path(),
-                                                          hash + "^", parentFileName,
-                                                          info.line);
-                    }
+                if (info.modified) {
+                    // Uncommitted lines are compared against the index, where
+                    // staging them has a visible effect. The editor keeps the
+                    // cursor's line visible.
+                    gitClient().inlineDiffFile(topLevel, info.filePath.path());
                 } else {
-                    // the blamed view shows a revision already: diff that
-                    // revision against the line's previous version
+                    // Show the change that last touched the line: the blamed
+                    // commit against its parent. This is the same regardless of
+                    // the view the tooltip is shown in (working tree, index, or
+                    // a revision), and following it repeatedly walks the line's
+                    // history one changing commit at a time.
                     gitClient().inlineDiffRevisions(topLevel, info.filePath,
-                                                    info.viewRevision, info.viewFileName,
+                                                    hash, info.originalFileName,
                                                     hash + "^", parentFileName,
                                                     info.line);
                 }
@@ -683,7 +678,10 @@ void BaselineBlame::perform()
         options.append("-w");
     if (settings().instantBlameIgnoreLineMoves())
         options.append("-M");
-    options.append({"-L", lineString, m_ref, "--", m_relativeFile});
+    options.append({"-L", lineString});
+    if (!m_ref.isEmpty()) // no revision blames the working tree
+        options.append(m_ref);
+    options.append({"--", m_relativeFile});
     qCDebug(log) << "Running git" << options.join(' ');
 
     const Storage<CommitInfo> infoStorage;
@@ -694,8 +692,6 @@ void BaselineBlame::perform()
             return;
         }
         *infoStorage = parseBlameOutput(output.split('\n'), m_workingFilePath, line, {});
-        infoStorage->viewRevision = m_ref;
-        infoStorage->viewFileName = m_relativeFile;
         infoStorage->topLevel = m_topLevel;
         m_blameMark.reset(new BlameMark(m_widget->textDocument(), line, *infoStorage));
     };

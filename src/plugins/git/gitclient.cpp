@@ -1333,6 +1333,18 @@ static IEditor *openInlineDiff(const FilePath &filePath,
     IEditor *diffEditor = DiffEditor::openInlineDiffEditor(
         textEditor->editorWidget()->textDocumentPtr(), baseline, title);
     if (diffEditor) {
+        // Instant blame does not attach to the inline diff editor (its widget
+        // is not the current text editor), so annotate the editable working
+        // file view directly, like the baseline view does. Reopening reuses
+        // the editor, so do not stack blame helpers on the same widget.
+        if (TextEditor::TextEditorWidget *widget = DiffEditor::inlineDiffEditorWidget(diffEditor);
+            widget && !widget->findChild<BaselineBlame *>()) {
+            const FilePath topLevel = VcsManager::findTopLevelForDirectory(filePath.parentDir());
+            if (!topLevel.isEmpty()) {
+                new BaselineBlame(widget, topLevel, /*ref=*/{},
+                                  filePath.relativeChildPath(topLevel).path(), filePath);
+            }
+        }
         if (line > 0)
             diffEditor->gotoLine(line);
         else
@@ -1618,13 +1630,12 @@ void GitClient::openSnapshotInlineDiff(const FilePath &topLevel, const FilePath 
              snapshotDiffEditors().insert(editorKey, diffEditor);
              if (line > 0)
                  diffEditor->gotoLine(line);
-             // annotate the snapshot side with the blame at its revision, so
-             // that the history can be followed from both sides
-             if (!blameRev.isEmpty()) {
-                 if (TextEditor::TextEditorWidget *widget
-                     = DiffEditor::inlineDiffEditorWidget(diffEditor)) {
-                     new BaselineBlame(widget, topLevel, blameRev, snapshotFileName, filePath);
-                 }
+             // annotate the snapshot side with the blame at its revision (or
+             // the working tree for the staged index snapshot, blameRev being
+             // empty), so that the history can be followed from both sides
+             if (TextEditor::TextEditorWidget *widget
+                 = DiffEditor::inlineDiffEditorWidget(diffEditor)) {
+                 new BaselineBlame(widget, topLevel, blameRev, snapshotFileName, filePath);
              }
          }});
 }
@@ -1726,14 +1737,15 @@ DiffEditor::InlineDiffBaseline GitClient::revisionBaseline(const FilePath &worki
                  callback(Utils::ResultError(error));
              }});
     };
-    if (!ref.isEmpty()) {
-        // let the read only baseline view annotate its lines with the blame
-        // at the baseline revision, so that history can be followed further
-        baseline.setupBaselineView = [workingDirectory, ref, relativeFile,
-                                      sourceFile](TextEditor::TextEditorWidget *widget) {
-            new BaselineBlame(widget, workingDirectory, ref, relativeFile, sourceFile);
-        };
-    }
+    // let the read only baseline view annotate its lines with the blame at
+    // the baseline revision, so that history can be followed further. The
+    // index (empty ref) has no revision of its own, so blame its committed
+    // state (HEAD), which matches the index unless there are staged changes.
+    const QString blameRef = ref.isEmpty() ? QString("HEAD") : ref;
+    baseline.setupBaselineView = [workingDirectory, blameRef, relativeFile,
+                                  sourceFile](TextEditor::TextEditorWidget *widget) {
+        new BaselineBlame(widget, workingDirectory, blameRef, relativeFile, sourceFile);
+    };
     return baseline;
 }
 
