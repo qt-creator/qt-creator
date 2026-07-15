@@ -3965,7 +3965,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
             const bool isSubProject = project && projectNode != project->rootProjectNode();
             const bool additionalCriteria = projectNode->isEnabled() && isSubProject && bs
                     && !bs->isParsing() && !BuildManager::isBuilding(project);
-            for (const auto [action, actionWidget] :
+            for (const auto &[action, actionWidget] :
             {std::pair{BuildAction::Build, m_buildSubProjectActionCtx},
                  std::pair{BuildAction::Clean, m_cleanSubProjectActionCtx},
                  std::pair{BuildAction::Rebuild, m_rebuildSubProjectActionCtx}}) {
