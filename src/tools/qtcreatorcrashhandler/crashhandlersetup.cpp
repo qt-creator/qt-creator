@@ -41,7 +41,7 @@ static const char *disableRestartOptionC = nullptr;
 static const char *crashHandlerPathC = nullptr;
 static void *signalHandlerStack = nullptr;
 
-extern "C" void signalHandler(int signal)
+static void signalHandler(int signal)
 {
 #ifdef Q_WS_X11
     // Kill window since it's frozen anyway.

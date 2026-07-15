@@ -31,7 +31,7 @@
 
 #include <iostream>
 
-Q_LOGGING_CATEGORY(log, "qtc.process_stub", QtWarningMsg);
+static Q_LOGGING_CATEGORY(log, "qtc.process_stub", QtWarningMsg);
 
 // Global variables
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
     return a.exec();
 }
 
-void sendMsg(const QByteArray &msg)
+static void sendMsg(const QByteArray &msg)
 {
     if (controlSocket.state() == QLocalSocket::ConnectedState) {
         controlSocket.write(msg);
@@ -151,37 +151,39 @@ void sendMsg(const QByteArray &msg)
     }
 }
 
-void sendPid(int inferiorPid)
+static void sendPid(int inferiorPid)
 {
     sendMsg(QString("pid %1\n").arg(inferiorPid).toUtf8());
 }
 
-void sendThreadId(int inferiorThreadPid)
+#ifdef Q_OS_WIN
+static void sendThreadId(int inferiorThreadPid)
 {
     sendMsg(QString("thread %1\n").arg(inferiorThreadPid).toUtf8());
 }
+#endif
 
 void sendSelfPid()
 {
     sendMsg(QString("spid %1\n").arg(QCoreApplication::applicationPid()).toUtf8());
 }
 
-void sendExit(int exitCode)
+static void sendExit(int exitCode)
 {
     sendMsg(QString("exit %1\n").arg(exitCode).toUtf8());
 }
 
-void sendCrash(int exitCode)
+static void sendCrash(int exitCode)
 {
     sendMsg(QString("crash %1\n").arg(exitCode).toUtf8());
 }
 
-void sendErrChDir()
+static void sendErrChDir()
 {
     sendMsg(QString("err:chdir %1\n").arg(errno).toUtf8());
 }
 
-void doExit(int exitCode)
+static void doExit(int exitCode)
 {
     if (waitingForExitKeyPress)
         exit(exitCode);
@@ -201,7 +203,7 @@ void doExit(int exitCode)
     }
 }
 
-void onInferiorFinished(int exitCode, QProcess::ExitStatus status)
+static void onInferiorFinished(int exitCode, QProcess::ExitStatus status)
 {
     qCInfo(log) << "Inferior finished";
 
@@ -214,13 +216,13 @@ void onInferiorFinished(int exitCode, QProcess::ExitStatus status)
     }
 }
 
-void onInferiorErrorOccurered(QProcess::ProcessError error)
+static void onInferiorErrorOccurered(QProcess::ProcessError error)
 {
     qCWarning(log) << "Inferior error: " << error << inferiorProcess.errorString();
 }
 
 #ifdef Q_OS_LINUX
-QString statusToString(int status)
+static QString statusToString(int status)
 {
     if (WIFEXITED(status))
         return QString("exit, status=%1").arg(WEXITSTATUS(status));
@@ -234,7 +236,7 @@ QString statusToString(int status)
     return QString("Unknown status");
 }
 
-bool waitFor(int signalToWaitFor)
+static bool waitFor(int signalToWaitFor)
 {
     int status = 0;
 
@@ -251,7 +253,7 @@ bool waitFor(int signalToWaitFor)
 }
 #endif
 
-void onInferiorStarted()
+static void onInferiorStarted()
 {
     inferiorId = inferiorProcess.processId();
     qCInfo(log) << "Inferior started ( pid:" << inferiorId << ")";
@@ -283,7 +285,7 @@ void onInferiorStarted()
 #endif
 }
 
-void setupUnixInferior()
+static void setupUnixInferior()
 {
 #ifdef Q_OS_UNIX
     if (debugMode) {
@@ -308,7 +310,7 @@ void setupUnixInferior()
 #endif
 }
 
-void setupWindowsInferior()
+static void setupWindowsInferior()
 {
 #ifdef Q_OS_WIN
     inferiorProcess.setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) {
@@ -319,7 +321,7 @@ void setupWindowsInferior()
 #endif
 }
 
-void setupPidPollTimer()
+static void setupPidPollTimer()
 {
 #ifdef Q_OS_DARWIN
     if (!debugMode)
@@ -432,7 +434,7 @@ std::optional<int> readEnvFile()
 }
 
 #ifndef Q_OS_WIN
-void forwardSignal(int signum)
+static void forwardSignal(int signum)
 {
     qCDebug(log) << "SIGTERM received, terminating inferior...";
     kill(inferiorId, signum);
@@ -540,7 +542,7 @@ void setupSharedPid()
 #endif
 }
 
-void onControlSocketConnected()
+static void onControlSocketConnected()
 {
     qCInfo(log) << "Connected to control socket";
 
@@ -571,7 +573,7 @@ void killInferior()
 #endif
 }
 
-void onControlSocketReadyRead()
+static void onControlSocketReadyRead()
 {
     //k = kill, i = interrupt, c = continue, s = shutdown
     const QByteArray data = controlSocket.readAll();
@@ -606,7 +608,7 @@ void onControlSocketReadyRead()
     }
 }
 
-void onControlSocketErrorOccurred(QLocalSocket::LocalSocketError socketError)
+static void onControlSocketErrorOccurred(QLocalSocket::LocalSocketError socketError)
 {
     qCWarning(log) << "Control socket error:" << socketError;
     doExit(1);
