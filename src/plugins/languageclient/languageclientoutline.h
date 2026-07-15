@@ -8,7 +8,7 @@
 #include <languageserverprotocol/lsptypes.h>
 #include <utils/treemodel.h>
 
-namespace TextEditor { class BaseTextEditor; }
+namespace TextEditor { class TextEditorWidget; }
 namespace Utils { class TreeViewComboBox; }
 
 namespace LanguageClient {
@@ -54,7 +54,7 @@ private:
     QList<LanguageServerProtocol::SymbolTag> m_tags;
 };
 
-Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor);
+Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::TextEditorWidget *editorWidget);
 
 void setupLanguageClientOutline();
 

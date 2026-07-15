@@ -2296,6 +2296,16 @@ TextEditorWidget *TextEditorWidget::fromEditor(const IEditor *editor)
     return nullptr;
 }
 
+QList<TextEditorWidget *> TextEditorWidget::textEditorWidgetsForDocument(TextDocument *document)
+{
+    QList<TextEditorWidget *> result;
+    for (IEditor *editor : DocumentModel::editorsForDocument(document)) {
+        if (TextEditorWidget *widget = fromEditor(editor))
+            result << widget;
+    }
+    return result;
+}
+
 void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemoved, int charsAdded)
 {
     updateSuggestion();

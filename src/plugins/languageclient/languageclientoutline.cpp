@@ -108,7 +108,7 @@ public:
 class LanguageClientOutlineWidget final : public TextEditor::IOutlineWidget
 {
 public:
-    LanguageClientOutlineWidget(Client *client, TextEditor::BaseTextEditor *editor);
+    LanguageClientOutlineWidget(Client *client, TextEditor::TextEditorWidget *editorWidget);
 
 private:
     QList<QAction *> filterMenuActions() const final;
@@ -126,7 +126,7 @@ private:
     void onItemActivated(const QModelIndex &index);
 
     QPointer<Client> m_client;
-    QPointer<TextEditor::BaseTextEditor> m_editor;
+    QPointer<TextEditor::TextEditorWidget> m_editorWidget;
     LanguageClientOutlineModel m_model;
     DragSortFilterProxyModel m_proxyModel;
     Utils::NavigationTreeView m_view;
@@ -137,12 +137,12 @@ private:
 };
 
 LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
-                                                         TextEditor::BaseTextEditor *editor)
+                                                         TextEditor::TextEditorWidget *editorWidget)
     : m_client(client)
-    , m_editor(editor)
+    , m_editorWidget(editorWidget)
     , m_model(client)
     , m_view(this)
-    , m_uri(m_client->hostPathToServerUri(editor->textDocument()->filePath()))
+    , m_uri(m_client->hostPathToServerUri(editorWidget->textDocument()->filePath()))
 {
     connect(client->documentSymbolCache(),
             &DocumentSymbolCache::gotSymbols,
@@ -160,7 +160,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     layout->setSpacing(0);
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(&m_view));
     setLayout(layout);
-    m_model.setFilePath(editor->textDocument()->filePath());
+    m_model.setFilePath(editorWidget->textDocument()->filePath());
     m_proxyModel.setSourceModel(&m_model);
     m_delegate.setDelimiter(" ");
     m_delegate.setAnnotationRole(LanguageClientOutlineItem::AnnotationRole);
@@ -173,7 +173,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     m_view.setItemDelegate(&m_delegate);
     connect(&m_view, &QAbstractItemView::activated,
             this, &LanguageClientOutlineWidget::onItemActivated);
-    connect(m_editor->editorWidget(), &TextEditor::TextEditorWidget::cursorPositionChanged,
+    connect(m_editorWidget, &TextEditor::TextEditorWidget::cursorPositionChanged,
             this, &LanguageClientOutlineWidget::updateSelectionInTree);
     setFocusProxy(&m_view);
 }
@@ -249,7 +249,7 @@ void LanguageClientOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex
         return;
     const Position &pos = item->pos();
     // line has to be 1 based, column 0 based!
-    m_editor->editorWidget()->gotoLine(pos.line() + 1, pos.character(), true, true);
+    m_editorWidget->gotoLine(pos.line() + 1, pos.character(), true, true);
 }
 
 static LanguageClientOutlineItem *itemForCursor(const LanguageClientOutlineModel &m_model,
@@ -269,9 +269,9 @@ static LanguageClientOutlineItem *itemForCursor(const LanguageClientOutlineModel
 
 void LanguageClientOutlineWidget::updateSelectionInTree()
 {
-    if (!m_sync || !m_editor)
+    if (!m_sync || !m_editorWidget)
         return;
-    const QTextCursor currentCursor = m_editor->editorWidget()->textCursor();
+    const QTextCursor currentCursor = m_editorWidget->textCursor();
     if (LanguageClientOutlineItem *item = itemForCursor(m_model, currentCursor)) {
         const QModelIndex index = m_proxyModel.mapFromSource(m_model.indexForItem(item));
         m_view.setCurrentIndex(index);
@@ -283,17 +283,17 @@ void LanguageClientOutlineWidget::updateSelectionInTree()
 
 void LanguageClientOutlineWidget::onItemActivated(const QModelIndex &index)
 {
-    if (!index.isValid() || !m_editor)
+    if (!index.isValid() || !m_editorWidget)
         return;
 
     updateTextCursor(index);
-    m_editor->widget()->setFocus();
+    m_editorWidget->setFocus();
 }
 
 class OutlineComboBox : public Utils::TreeViewComboBox
 {
 public:
-    OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor);
+    OutlineComboBox(Client *client, TextEditor::TextEditorWidget *editorWidget);
 
 private:
     void updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result);
@@ -310,18 +310,18 @@ private:
     Utils::AnnotatedItemDelegate m_delegate;
 };
 
-Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)
+Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::TextEditorWidget *editorWidget)
 {
-    if (client && client->supportsDocumentSymbols(editor->textDocument()))
-        return new OutlineComboBox(client, editor);
+    if (client && client->supportsDocumentSymbols(editorWidget->textDocument()))
+        return new OutlineComboBox(client, editorWidget);
     return nullptr;
 }
 
-OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)
+OutlineComboBox::OutlineComboBox(Client *client, TextEditor::TextEditorWidget *editorWidget)
     : m_model(client)
     , m_client(client)
-    , m_editorWidget(editor->editorWidget())
-    , m_uri(m_client->hostPathToServerUri(editor->document()->filePath()))
+    , m_editorWidget(editorWidget)
+    , m_uri(m_client->hostPathToServerUri(editorWidget->textDocument()->filePath()))
 {
     m_proxyModel.setSourceModel(&m_model);
     const bool sorted = LanguageClientSettings::outlineComboBoxIsSorted();
@@ -353,7 +353,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     connect(this, &QComboBox::activated, this, &OutlineComboBox::activateEntry);
     connect(sortAction, &QAction::toggled, this, &OutlineComboBox::setSorted);
 
-    documentUpdated(editor->textDocument());
+    documentUpdated(editorWidget->textDocument());
 }
 
 void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result)
@@ -468,11 +468,11 @@ public:
 
     TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) final
     {
-        auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-        QTC_ASSERT(textEditor, return nullptr);
-        if (Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument())) {
-            if (client->supportsDocumentSymbols(textEditor->textDocument()))
-                return new LanguageClientOutlineWidget(client, textEditor);
+        auto editorWidget = TextEditor::TextEditorWidget::fromEditor(editor);
+        QTC_ASSERT(editorWidget, return nullptr);
+        if (Client *client = LanguageClientManager::clientForDocument(editorWidget->textDocument())) {
+            if (client->supportsDocumentSymbols(editorWidget->textDocument()))
+                return new LanguageClientOutlineWidget(client, editorWidget);
         }
         return nullptr;
     }

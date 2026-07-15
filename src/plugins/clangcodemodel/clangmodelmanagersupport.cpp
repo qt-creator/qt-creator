@@ -426,7 +426,7 @@ void ClangModelManagerSupport::foldOrUnfoldComments(TextEditor::BaseTextEditor *
         return;
     if (doc->isFoldingIndentExternallyProvided()) {
         if (ClangdClient * const client = clientForFile(doc->filePath())) {
-            client->foldOrUnfoldCommentBlocks(editor, fold);
+            client->foldOrUnfoldCommentBlocks(editor->editorWidget(), fold);
             return;
         }
     }
@@ -444,7 +444,7 @@ void ClangModelManagerSupport::foldOrUnfoldInactiveRegions(
         return;
     if (doc->isFoldingIndentExternallyProvided()) {
         if (ClangdClient * const client = clientForFile(doc->filePath())) {
-            client->foldOrUnfoldInactiveRegions(editor, fold);
+            client->foldOrUnfoldInactiveRegions(editor->editorWidget(), fold);
             return;
         }
     }

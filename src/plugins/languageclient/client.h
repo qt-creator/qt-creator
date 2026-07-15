@@ -18,7 +18,6 @@ class Project;
 }
 
 namespace TextEditor {
-class BaseTextEditor;
 class IAssistProcessor;
 class TextDocument;
 class TextEditorWidget;
@@ -227,8 +226,8 @@ public:
     void setCompletionResultsLimit(int limit);
     int completionResultsLimit() const;
 
-    void foldOrUnfoldCommentBlocks(TextEditor::BaseTextEditor *editor, bool fold);
-    void foldOrUnfoldInactiveRegions(TextEditor::BaseTextEditor *editor, bool fold);
+    void foldOrUnfoldCommentBlocks(TextEditor::TextEditorWidget *widget, bool fold);
+    void foldOrUnfoldInactiveRegions(TextEditor::TextEditorWidget *widget, bool fold);
 
 signals:
     void initialized(const LanguageServerProtocol::ServerCapabilities &capabilities);

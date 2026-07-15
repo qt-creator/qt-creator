@@ -365,11 +365,11 @@ public:
     {
         m_model.clear();
 
-        BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
-        if (!editor)
+        TextEditorWidget *editorWidget = TextEditorWidget::currentTextEditorWidget();
+        if (!editorWidget)
             return;
 
-        IDocument *document = editor->document();
+        IDocument *document = editorWidget->textDocument();
 
         Client *client = LanguageClientManager::clientForFilePath(document->filePath());
         if (!client)
@@ -377,7 +377,7 @@ public:
 
         TextDocumentPositionParams params;
         params.setTextDocument(TextDocumentIdentifier(client->hostPathToServerUri(document->filePath())));
-        params.setPosition(Position(editor->editorWidget()->textCursor()));
+        params.setPosition(Position(editorWidget->textCursor()));
         sendRequest(client, params, document);
     }
 
@@ -541,13 +541,13 @@ class TypeHierarchyFactory final : public TypeHierarchyWidgetFactory
 {
     TypeHierarchyWidget *createWidget(IEditor *editor) final
     {
-        const auto textEditor = qobject_cast<BaseTextEditor *>(editor);
-        if (!textEditor)
+        const auto editorWidget = TextEditorWidget::fromEditor(editor);
+        if (!editorWidget)
             return nullptr;
 
-        Client *const client = LanguageClientManager::clientForFilePath(
-            textEditor->document()->filePath());
-        if (!client || !supportsTypeHierarchy(client, textEditor->document()))
+        IDocument *document = editorWidget->textDocument();
+        Client *const client = LanguageClientManager::clientForFilePath(document->filePath());
+        if (!client || !supportsTypeHierarchy(client, document))
             return nullptr;
 
         return new TypeHierarchy;

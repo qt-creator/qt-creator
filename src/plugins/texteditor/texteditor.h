@@ -650,6 +650,7 @@ public:
 
     static TextEditorWidget *currentTextEditorWidget();
     static TextEditorWidget *fromEditor(const Core::IEditor *editor);
+    static QList<TextEditorWidget *> textEditorWidgetsForDocument(TextDocument *document);
 
 protected:
     /*!

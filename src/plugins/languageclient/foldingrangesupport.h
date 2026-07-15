@@ -3,8 +3,8 @@
 #pragma once
 
 namespace TextEditor {
-class BaseTextEditor;
 class TextDocument;
+class TextEditorWidget;
 }
 
 namespace LanguageClient {
@@ -21,8 +21,8 @@ public:
     ~FoldingRangeSupport();
 
     void requestFoldingRanges(TextEditor::TextDocument *doc);
-    void foldOrUnfoldCommentBlocks(TextEditor::BaseTextEditor *editor, bool fold);
-    void foldOrUnfoldInactiveRegions(TextEditor::BaseTextEditor *editor, bool fold);
+    void foldOrUnfoldCommentBlocks(TextEditor::TextEditorWidget *widget, bool fold);
+    void foldOrUnfoldInactiveRegions(TextEditor::TextEditorWidget *widget, bool fold);
     void deactivate(TextEditor::TextDocument *doc);
     void refresh();
 

@@ -188,7 +188,7 @@ public:
             resetAssistProviders(document);
 
         // deactivateEditor modifies m_activeEditors, so copy it beforehand
-        const QSet<TextEditor::BaseTextEditor *> activeEditors = m_activeEditors;
+        const QSet<Core::IEditor *> activeEditors = m_activeEditors;
         for (auto activeEditor : activeEditors)
             q->deactivateEditor(activeEditor);
 
@@ -343,7 +343,7 @@ public:
     DiagnosticManager *m_diagnosticManager = nullptr;
     DocumentSymbolCache m_documentSymbolCache{q};
     HoverHandler m_hoverHandler{q};
-    QSet<TextEditor::BaseTextEditor *> m_activeEditors;
+    QSet<Core::IEditor *> m_activeEditors;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
     QPointer<BuildConfiguration> m_bc;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
@@ -1036,9 +1036,7 @@ void Client::activateEditor(Core::IEditor *editor)
     updateEditorToolBar(editor);
     if (editor == Core::EditorManager::currentEditor())
         TextEditor::IOutlineWidgetFactory::updateOutline();
-    if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
-        TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
-        QTC_ASSERT(widget, return);
+    if (TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::fromEditor(editor)) {
         widget->addHoverHandler(&d->m_hoverHandler);
         d->requestDocumentHighlights(widget);
         uint optionalActions = widget->optionalActions();
@@ -1050,14 +1048,14 @@ void Client::activateEditor(Core::IEditor *editor)
             optionalActions |= TextEditor::OptionalActions::FollowSymbolUnderCursor;
         if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolTypeDef))
             optionalActions |= TextEditor::OptionalActions::FollowTypeUnderCursor;
-        if (supportsCallHierarchy(this, textEditor->document()))
+        if (supportsCallHierarchy(this, widget->textDocument()))
             optionalActions |= TextEditor::OptionalActions::CallHierarchy;
-        if (supportsTypeHierarchy(this, textEditor->document()))
+        if (supportsTypeHierarchy(this, widget->textDocument()))
             optionalActions |= TextEditor::OptionalActions::TypeHierarchy;
         widget->setOptionalActions(optionalActions);
-        d->m_activeEditors.insert(textEditor);
-        connect(textEditor, &QObject::destroyed, this, [this, textEditor]() {
-            d->m_activeEditors.remove(textEditor);
+        d->m_activeEditors.insert(editor);
+        connect(editor, &QObject::destroyed, this, [this, editor]() {
+            d->m_activeEditors.remove(editor);
         });
     }
 }
@@ -1076,17 +1074,13 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
 
 void Client::deactivateEditor(Core::IEditor *editor)
 {
-    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-    if (!textEditor)
-        return;
-
-    d->m_activeEditors.remove(textEditor);
-
-    TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
-    QTC_ASSERT(widget, return);
-    widget->removeHoverHandler(&d->m_hoverHandler);
-    widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
-    widget->clearRefactorMarkers(id());
+    d->m_activeEditors.remove(editor);
+    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::fromEditor(editor);
+    if (widget) {
+        widget->removeHoverHandler(&d->m_hoverHandler);
+        widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
+        widget->clearRefactorMarkers(id());
+    }
     updateEditorToolBar(editor);
 }
 
@@ -1332,9 +1326,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 
     ++d->m_documentVersions[document->filePath()];
     using namespace TextEditor;
-    for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(document)) {
-        TextEditorWidget *widget = editor->editorWidget();
-        QTC_ASSERT(widget, continue);
+    for (TextEditorWidget *widget : TextEditorWidget::textEditorWidgetsForDocument(document)) {
         delete d->m_documentHighlightsTimer.take(widget);
         widget->clearRefactorMarkers(id());
     }
@@ -1876,14 +1868,14 @@ int Client::completionResultsLimit() const
     return d->m_completionResultsLimit;
 }
 
-void Client::foldOrUnfoldCommentBlocks(TextEditor::BaseTextEditor *editor, bool fold)
+void Client::foldOrUnfoldCommentBlocks(TextEditor::TextEditorWidget *widget, bool fold)
 {
-    d->m_foldingSupport.foldOrUnfoldCommentBlocks(editor, fold);
+    d->m_foldingSupport.foldOrUnfoldCommentBlocks(widget, fold);
 }
 
-void Client::foldOrUnfoldInactiveRegions(TextEditor::BaseTextEditor *editor, bool fold)
+void Client::foldOrUnfoldInactiveRegions(TextEditor::TextEditorWidget *widget, bool fold)
 {
-    d->m_foldingSupport.foldOrUnfoldInactiveRegions(editor, fold);
+    d->m_foldingSupport.foldOrUnfoldInactiveRegions(widget, fold);
 }
 
 const ServerCapabilities &Client::capabilities() const

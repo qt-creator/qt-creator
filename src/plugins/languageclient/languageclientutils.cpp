@@ -135,8 +135,8 @@ void updateCodeActionRefactoringMarker(Client *client,
     TextDocument* doc = TextDocument::textDocumentForFilePath(client->serverUriToHostPath(uri));
     if (!doc)
         return;
-    const QVector<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
-    if (editors.isEmpty())
+    const QList<TextEditorWidget *> editorWidgets = TextEditorWidget::textEditorWidgetsForDocument(doc);
+    if (editorWidgets.isEmpty())
         return;
 
     QHash<int, RefactorMarker> markersAtBlock;
@@ -195,10 +195,8 @@ void updateCodeActionRefactoringMarker(Client *client,
             addMarkerForCursor(action, diagnostic.range());
     }
     const RefactorMarkers markers = markersAtBlock.values();
-    for (BaseTextEditor *editor : editors) {
-        if (TextEditorWidget *editorWidget = editor->editorWidget())
-            editorWidget->setRefactorMarkers(markers, client->id());
-    }
+    for (TextEditorWidget *editorWidget : editorWidgets)
+        editorWidget->setRefactorMarkers(markers, client->id());
 }
 
 static const char clientExtrasName[] = "__qtcreator_client_extras__";
@@ -216,15 +214,12 @@ public:
 void updateEditorToolBar(Core::IEditor *editor)
 {
     static QString msgNoLanguageClientSelected = Tr::tr("No language client selected.");
-    auto *textEditor = qobject_cast<BaseTextEditor *>(editor);
-    if (!textEditor)
-        return;
-    TextEditorWidget *widget = textEditor->editorWidget();
+    TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
     if (!widget)
         return;
 
-    TextDocument *document = textEditor->textDocument();
-    Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument());
+    TextDocument *document = widget->textDocument();
+    Client *client = LanguageClientManager::clientForDocument(document);
     const QList<Client *> supportingClients
         = LanguageClientManager::clientsSupportingDocument(document, false);
 
@@ -301,7 +296,7 @@ void updateEditorToolBar(Core::IEditor *editor)
     }
 
     if (!extras->m_client) {
-        extras->m_outline = createOutlineComboBox(client, textEditor);
+        extras->m_outline = createOutlineComboBox(client, widget);
         if (extras->m_outline) {
             widget->setToolbarOutline(extras->m_outline);
             extras->m_client = client;
