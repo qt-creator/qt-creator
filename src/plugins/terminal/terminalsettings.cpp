@@ -29,7 +29,7 @@
 #include <QTemporaryFile>
 #include <QXmlStreamReader>
 
-Q_LOGGING_CATEGORY(schemeLog, "qtc.terminal.scheme", QtWarningMsg)
+static Q_LOGGING_CATEGORY(schemeLog, "qtc.terminal.scheme", QtWarningMsg)
 
 using namespace Utils;
 
@@ -67,7 +67,7 @@ static QString defaultShell()
     return Environment::systemEnvironment().searchInPath("sh").toUserOutput();
 }
 
-void setupColor(TerminalSettings *settings,
+static void setupColor(TerminalSettings *settings,
                 ColorAspect &color,
                 const QString &label,
                 const QColor &defaultColor,

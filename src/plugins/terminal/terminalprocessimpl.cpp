@@ -12,7 +12,7 @@
 #include <QLoggingCategory>
 #include <QTimer>
 
-Q_LOGGING_CATEGORY(terminalProcessLog, "qtc.terminal.stubprocess", QtDebugMsg)
+[[maybe_unused]] static Q_LOGGING_CATEGORY(terminalProcessLog, "qtc.terminal.stubprocess", QtDebugMsg)
 
 using namespace Utils;
 using namespace Utils::Terminal;

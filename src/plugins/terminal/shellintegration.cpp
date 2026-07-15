@@ -13,7 +13,7 @@
 #include <QDir>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(integrationLog, "qtc.terminal.shellintegration", QtWarningMsg)
+static Q_LOGGING_CATEGORY(integrationLog, "qtc.terminal.shellintegration", QtWarningMsg)
 
 using namespace Utils;
 

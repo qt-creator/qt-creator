@@ -15,7 +15,7 @@
 #include <QLoggingCategory>
 #include <QWindow>
 
-Q_LOGGING_CATEGORY(lcShortcutMap, "terminal.shortcutmap", QtWarningMsg)
+static Q_LOGGING_CATEGORY(lcShortcutMap, "terminal.shortcutmap", QtWarningMsg)
 
 namespace Terminal::Internal {
 
