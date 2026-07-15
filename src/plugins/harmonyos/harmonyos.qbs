@@ -24,6 +24,8 @@ QtcPlugin {
         "harmonyosplugin.cpp",
         "harmonyosqtversion.cpp",
         "harmonyosqtversion.h",
+        "harmonyosrunconfiguration.cpp",
+        "harmonyosrunconfiguration.h",
         "harmonyossdk.cpp",
         "harmonyossdk.h",
         "harmonyossettings.cpp",

@@ -7,6 +7,7 @@ add_qtc_plugin(HarmonyOS
     harmonyosdevice.cpp harmonyosdevice.h
     harmonyosplugin.cpp
     harmonyosqtversion.cpp harmonyosqtversion.h
+    harmonyosrunconfiguration.cpp harmonyosrunconfiguration.h
     harmonyossdk.cpp harmonyossdk.h
     harmonyossettings.cpp harmonyossettings.h
     harmonyostoolchain.cpp harmonyostoolchain.h

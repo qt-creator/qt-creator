@@ -18,6 +18,11 @@ inline const Utils::Id HARMONYOS_SERIAL_NUMBER = "HarmonyOS.SerialNumber";
 inline constexpr char HARMONYOS_DEPLOY_CONFIG_ID[] = "HarmonyOS.DeployConfiguration";
 inline constexpr char HARMONYOS_MAKE_HAP_STEP_ID[] = "HarmonyOS.MakeHapStep";
 inline constexpr char HARMONYOS_INSTALL_HAP_STEP_ID[] = "HarmonyOS.InstallHapStep";
+inline constexpr char HARMONYOS_RUNCONFIG_ID[] = "HarmonyOS.RunConfiguration";
+
+// The ability and module the Qt for HarmonyOS template generates; used to launch.
+inline constexpr char HARMONYOS_ABILITY_NAME[] = "QAbility";
+inline constexpr char HARMONYOS_MODULE_NAME[] = "entry";
 
 // Kit
 inline constexpr char HARMONYOS_KIT_SDK[] = "HarmonyOS.SDK";

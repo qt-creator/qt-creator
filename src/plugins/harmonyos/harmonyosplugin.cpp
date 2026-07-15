@@ -5,6 +5,7 @@
 #include "harmonyosdeploystep.h"
 #include "harmonyosdevice.h"
 #include "harmonyosqtversion.h"
+#include "harmonyosrunconfiguration.h"
 #include "harmonyossettings.h"
 #include "harmonyostoolchain.h"
 
@@ -34,6 +35,7 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
 
         setupHarmonyOsDeployConfiguration();
         setupHarmonyOsDeployStep();
+        setupHarmonyOsRunSupport();
 
         connect(KitManager::instance(), &KitManager::kitsLoaded, this,
                 &HarmonyOsPlugin::kitsRestored, Qt::SingleShotConnection);
