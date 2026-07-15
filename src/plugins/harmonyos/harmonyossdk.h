@@ -32,6 +32,9 @@ Utils::FilePath cmakeToolchainFile(const Utils::FilePath &sdkRoot);
 // Directory holding the hvigorw launcher, to be prepended to PATH for deployment.
 Utils::FilePath hvigorBinPath(const Utils::FilePath &sdkRoot);
 
+// The hvigorw launcher itself, which harmonydeployqt runs via QT_HARMONYOS_HVIGOR.
+Utils::FilePath hvigorCommand(const Utils::FilePath &sdkRoot);
+
 // Directory holding the bundled Node.js, which hvigor requires.
 Utils::FilePath nodeBinPath(const Utils::FilePath &sdkRoot);
 
@@ -41,7 +44,8 @@ Utils::FilePath devEcoSdkHome(const Utils::FilePath &sdkRoot);
 // A configured SDK root is valid when the native SDK and its clang compiler exist.
 bool isValidSdk(const Utils::FilePath &sdkRoot);
 
-// Sets NATIVE_OHOS_SDK and DEVECO_SDK_HOME and prepends hvigor and node to PATH.
+// Sets NATIVE_OHOS_SDK, DEVECO_SDK_HOME and QT_HARMONYOS_HVIGOR, and prepends
+// hvigor and node to PATH.
 void addToEnvironment(const Utils::FilePath &sdkRoot, Utils::Environment &env);
 
 // Best-effort location of an installed DevEco Studio SDK (Windows and macOS only).

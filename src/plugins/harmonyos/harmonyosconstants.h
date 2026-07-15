@@ -26,5 +26,16 @@ inline constexpr char harmonyOsConfigurationId[] = "HarmonyOSConfiguration";
 // Environment variables consumed by the ohos-clang mkspec and the deployment tools
 inline constexpr char NATIVE_OHOS_SDK_ENV_VAR[] = "NATIVE_OHOS_SDK";
 inline constexpr char DEVECO_SDK_HOME_ENV_VAR[] = "DEVECO_SDK_HOME";
+inline constexpr char HVIGOR_ENV_VAR[] = "QT_HARMONYOS_HVIGOR";
+
+// harmonydeployqt reads these to sign the .hap. The values come from the DevEco
+// signing configuration in the project's harmonyos-build/build-profile.json5.
+inline constexpr char SIGNING_CERT_PATH_ENV_VAR[] = "QT_HARMONYOS_SIGNING_CERT_PATH";
+inline constexpr char SIGNING_PROFILE_ENV_VAR[] = "QT_HARMONYOS_SIGNING_PROFILE";
+inline constexpr char SIGNING_STORE_FILE_ENV_VAR[] = "QT_HARMONYOS_SIGNING_STORE_FILE";
+inline constexpr char SIGNING_KEY_ALIAS_ENV_VAR[] = "QT_HARMONYOS_SIGNING_KEY_ALIAS";
+inline constexpr char SIGNING_KEY_PASSWORD_ENV_VAR[] = "QT_HARMONYOS_SIGNING_KEY_PASSWORD";
+inline constexpr char SIGNING_STORE_PASSWORD_ENV_VAR[] = "QT_HARMONYOS_SIGNING_STORE_PASSWORD";
+inline constexpr char SIGNING_ALG_ENV_VAR[] = "QT_HARMONYOS_SIGNING_ALG";
 
 } // namespace HarmonyOs::Constants

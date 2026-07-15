@@ -98,6 +98,17 @@ FilePath hvigorBinPath(const FilePath &sdkRoot)
     return {};
 }
 
+FilePath hvigorCommand(const FilePath &sdkRoot)
+{
+    const FilePath bin = hvigorBinPath(sdkRoot);
+    if (bin.isEmpty())
+        return {};
+    // harmonydeployqt runs the launcher directly, so hand it the platform variant.
+    const FilePath launcher = HostOsInfo::isWindowsHost() ? bin.pathAppended("hvigorw.bat")
+                                                          : bin.pathAppended("hvigorw");
+    return launcher.exists() ? launcher : FilePath();
+}
+
 FilePath nodeBinPath(const FilePath &sdkRoot)
 {
     if (sdkRoot.isEmpty())
@@ -139,6 +150,11 @@ void addToEnvironment(const FilePath &sdkRoot, Environment &env)
     const FilePath hvigor = hvigorBinPath(sdkRoot);
     if (!hvigor.isEmpty())
         env.prependOrSetPath(hvigor);
+
+    // harmonydeployqt does not search PATH for hvigor; it needs this env var.
+    const FilePath hvigorw = hvigorCommand(sdkRoot);
+    if (!hvigorw.isEmpty())
+        env.set(Constants::HVIGOR_ENV_VAR, hvigorw.toUserOutput());
 
     const FilePath node = nodeBinPath(sdkRoot);
     if (!node.isEmpty())
