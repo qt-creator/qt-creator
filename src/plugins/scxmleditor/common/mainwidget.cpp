@@ -59,51 +59,11 @@
 #include <utils/fileutils.h>
 #include <utils/icon.h>
 
-#include <iostream>
-
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::OutputPane;
 using namespace Utils;
 
 namespace ScxmlEditor::Common {
-
-void msgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    QString strOutput;
-    QString prefix;
-    switch (type) {
-    case QtDebugMsg:
-        prefix = "D";
-        break;
-    case QtWarningMsg:
-        prefix = "W";
-        break;
-    case QtCriticalMsg:
-        prefix = "C";
-        break;
-    case QtFatalMsg:
-        prefix = "F";
-        break;
-    default:
-        break;
-    }
-
-    strOutput = QString::fromLatin1("[%1] [%2]: (%3:%4): %5").arg(QDateTime::currentDateTime().toString("yyyy/MM/dd HH:mm:ss")).arg(prefix).arg(QLatin1String(context.file)).arg(context.line).arg(msg);
-    std::cerr << strOutput.toStdString() << std::endl;
-
-    QFile file(QString::fromLatin1("%1/sceditor_log.txt").arg(QCoreApplication::applicationDirPath()));
-    if (!file.open(QIODevice::Append | QIODevice::Text)) {
-        std::cerr << "cannot write file" << std::endl;
-        return;
-    }
-
-    QTextStream out(&file);
-    out << strOutput << "\n";
-    file.close();
-
-    if (type == QtFatalMsg)
-        abort();
-}
 
 static QIcon toolButtonIcon(ActionType actionType)
 {
