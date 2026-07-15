@@ -346,25 +346,6 @@ static void setupPidPollTimer()
 #endif
 }
 
-enum class Out { StdOut, StdErr };
-
-void writeToOut(const QByteArray &data, Out out)
-{
-#ifdef Q_OS_WIN
-    static const HANDLE outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    static const HANDLE errHandle = GetStdHandle(STD_ERROR_HANDLE);
-    WriteFile(out == Out::StdOut ? outHandle : errHandle,
-              data.constData(),
-              data.size(),
-              nullptr,
-              nullptr);
-#else
-    auto fp = out == Out::StdOut ? stdout : stderr;
-    ::fwrite(data.constData(), 1, data.size(), fp);
-    ::fflush(fp);
-#endif
-}
-
 void startProcess(const QString &executable, const QStringList &arguments, const QString &workingDir)
 {
     setupPidPollTimer();
