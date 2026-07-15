@@ -10,8 +10,8 @@ using namespace Utils;
 
 namespace SilverSearcher::Internal {
 
-SearchResultItem searchResult(const FilePath &fileName, const QString &matchingLine,
-                              int lineNumber, int matchStart, int matchLength)
+static SearchResultItem searchResult(const FilePath &fileName, const QString &matchingLine,
+                                     int lineNumber, int matchStart, int matchLength)
 {
     SearchResultItem result;
     result.setFilePath(fileName);
