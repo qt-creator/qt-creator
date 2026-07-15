@@ -145,6 +145,11 @@ class DisplaySettingsContainer final : public AspectContainer
 public:
     DisplaySettingsContainer()
     {
+        // Options pages must not auto-apply: registerAspect() propagates this
+        // container's mode onto the registered settings, and the settings
+        // dialog refuses to write back (and thus persist) a page whose aspects
+        // auto-apply. Without this the whole Display page was never saved.
+        setAutoApply(false);
         registerAspect(&displaySettings());
         registerAspect(&marginSettings());
         setLayouter([] {
