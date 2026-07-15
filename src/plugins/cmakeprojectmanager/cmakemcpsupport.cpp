@@ -3,19 +3,26 @@
 
 #include "cmakemcpsupport.h"
 #include "cmakebuildsystem.h"
+#include "cmakeconfigitem.h"
+#include "cmakekitaspect.h"
 #include "cmakeproject.h"
 #include "cmakeprojectmanager.h"
 #include "presetsparser.h"
 
+#include <mcp/server/mcpserver.h>
 #include <mcp/server/toolregistry.h>
 
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
 
 #include <utils/result.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTimer>
 
 using namespace ProjectExplorer;
 
@@ -24,6 +31,7 @@ namespace CMakeProjectManager::Internal {
 void setupCMakeMcpSupport()
 {
     namespace Schema = Mcp::Generated::Schema::_2025_11_25;
+    using Mcp::ToolInterface;
     using Mcp::ToolRegistry;
     using Tool = Schema::Tool;
     using CallToolRequestParams = Schema::CallToolRequestParams;
@@ -217,6 +225,171 @@ void setupCMakeMcpSupport()
                     {"reason", "ok"},
                     {"message", "ok"}};
         }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("use_cmake_preset")
+            .title("Configure a project using a CMake preset")
+            .description(
+                "Configures the project with the named CMake configure preset (from "
+                "CMakePresets.json), creating and activating a preset-based build "
+                "configuration. Preset-derived kits are created on demand; because that "
+                "runs asynchronous toolchain/Qt probes, this is a long-running task that "
+                "waits for the kit to appear (or times out). Use list_cmake_presets for "
+                "available names. If 'project' is omitted, uses the current startup "
+                "project.")
+            .annotations(Schema::ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "preset",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Name of the configure preset to use."}})
+                    .addProperty(
+                        "project",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Project name. Uses the startup project if omitted."}})
+                    .addRequired("preset"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("applied", QJsonObject{{"type", "boolean"}})
+                    .addProperty("kit", QJsonObject{{"type", "string"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})),
+        [resolveCMakeProject](
+            const CallToolRequestParams &params,
+            const ToolInterface &toolInterface) -> Utils::Result<> {
+            using namespace std::chrono_literals;
+            const QJsonObject args = params.argumentsAsObject();
+            const QString presetName = args.value("preset").toString();
+
+            CMakeProject *project = resolveCMakeProject(args.value("project").toString());
+            if (!project) {
+                toolInterface.finish(CallToolResult{}.isError(true).structuredContent(
+                    QJsonObject{{"applied", false},
+                                {"reason", "no_cmake_project"},
+                                {"message", "No CMake project (open one or pass 'project')."}}));
+                return Utils::ResultOk;
+            }
+
+            const auto findPresetKit = [presetName]() -> Kit * {
+                for (Kit *k : KitManager::kits()) {
+                    const CMakeConfigItem item
+                        = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+                    if (!item.isNull() && QString::fromUtf8(item.value) == presetName)
+                        return k;
+                }
+                return nullptr;
+            };
+            const auto applyKit = [project, presetName](Kit *kit) -> QJsonObject {
+                Target *target = project->target(kit);
+                if (!target)
+                    target = project->addTargetForKit(kit);
+                if (!target)
+                    return {{"applied", false},
+                            {"reason", "add_failed"},
+                            {"message",
+                             QString("Could not create a build configuration for preset '%1'.")
+                                 .arg(presetName)}};
+                project->setActiveTarget(target, SetActive::Cascade);
+                return {{"applied", true},
+                        {"kit", kit->displayName()},
+                        {"reason", "ok"},
+                        {"message",
+                         QString("Configured '%1' with preset '%2'.")
+                             .arg(project->displayName(), presetName)}};
+            };
+
+            // Fast path: the preset kit already exists.
+            if (Kit *k = findPresetKit()) {
+                const QJsonObject res = applyKit(k);
+                toolInterface.finish(CallToolResult{}
+                                         .isError(!res.value("applied").toBool())
+                                         .structuredContent(res));
+                return Utils::ResultOk;
+            }
+
+            // Slow path: createKitsFromPresets() runs asynchronous probes, so upgrade to
+            // a long-running task and poll until the kit appears or we time out.
+            struct State
+            {
+                bool finished = false;
+                QJsonObject result;
+            };
+            auto state = std::make_shared<State>();
+
+            const Utils::Result<ToolInterface::TaskProgressNotify> task = toolInterface.startTask(
+                500ms,
+                [state](Schema::Task t) {
+                    if (state->finished)
+                        Mcp::letTaskDieIn(t, 1min);
+                    const bool ok = state->result.value("applied").toBool();
+                    return t.status(
+                        !state->finished ? Schema::TaskStatus::working
+                        : ok             ? Schema::TaskStatus::completed
+                                         : Schema::TaskStatus::failed);
+                },
+                [state]() -> Utils::Result<CallToolResult> {
+                    return CallToolResult{}
+                        .isError(!state->result.value("applied").toBool())
+                        .structuredContent(state->result);
+                },
+                std::nullopt,
+                Mcp::progressToken(params));
+            if (!task) {
+                toolInterface.finish(CallToolResult{}.isError(true).addContent(
+                    Schema::TextContent{}.text(task.error())));
+                return Utils::ResultOk;
+            }
+            const ToolInterface::TaskProgressNotify notify = *task;
+
+            project->createKitsFromPresets();
+
+            auto *poll = new QTimer(project);
+            auto elapsed = std::make_shared<int>(0);
+            const int intervalMs = 500;
+            const int timeoutMs = 60000;
+            QObject::connect(poll, &QTimer::timeout, poll, [=]() {
+                if (state->finished) {
+                    poll->stop();
+                    poll->deleteLater();
+                    return;
+                }
+                const auto finish = [&](const QJsonObject &result) {
+                    state->result = result;
+                    state->finished = true;
+                    if (notify) {
+                        notify(
+                            result.value("applied").toBool() ? Schema::TaskStatus::completed
+                                                             : Schema::TaskStatus::failed,
+                            result.value("message").toString(),
+                            std::nullopt);
+                    }
+                    poll->stop();
+                    poll->deleteLater();
+                };
+                if (Kit *k = findPresetKit()) {
+                    finish(applyKit(k));
+                    return;
+                }
+                *elapsed += intervalMs;
+                if (*elapsed >= timeoutMs) {
+                    finish(QJsonObject{
+                        {"applied", false},
+                        {"reason", "timeout"},
+                        {"message",
+                         QString("Preset '%1' did not produce a usable kit within %2s. Check "
+                                 "the Issues pane for \"Cannot set up ... for CMake Preset\" "
+                                 "errors (the preset's toolchain or Qt could not be probed).")
+                             .arg(presetName)
+                             .arg(timeoutMs / 1000)}});
+                }
+            });
+            poll->start(intervalMs);
+            return Utils::ResultOk;
+        });
 }
 
 } // namespace CMakeProjectManager::Internal
