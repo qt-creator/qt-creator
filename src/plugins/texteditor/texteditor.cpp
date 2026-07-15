@@ -5941,6 +5941,12 @@ QRectF TextEditorWidgetPrivate::cursorBlockRect(const QTextDocument *doc,
         }
     } else {
         w = space; // in sync with QTextLine::draw()
+        // Past the end of the text there is no character to invert. Skip the
+        // selection highlight: it is slightly shorter than the filled cursor
+        // block, which would leave a notch at its bottom-right corner
+        // (QTCREATORBUG-29553).
+        if (doSelection)
+            *doSelection = false;
     }
 
     if (blockBoundingRect.isEmpty())
