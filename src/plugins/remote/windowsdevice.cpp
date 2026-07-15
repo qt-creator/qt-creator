@@ -11,6 +11,7 @@
 #include "windowsdevicetester.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <gocmdbridge/client/bridgedfileaccess.h>
 #include <gocmdbridge/client/cmdbridgeclient.h>
@@ -36,6 +37,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/guiutils.h>
+#include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/processinterface.h>
@@ -1026,6 +1028,11 @@ WindowsDevice::WindowsDevice()
     setFreePorts(PortList::fromString(QLatin1String("10000-10100")));
     offerKitCreation();
 
+    autoConnectOnStartup.setSettingsKey("AutoConnectOnStartup");
+    autoConnectOnStartup.setDefaultValue(true);
+    autoConnectOnStartup.setLabelText(Tr::tr("Auto-connect on startup"));
+    autoConnectOnStartup.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+
     SshParameters sshParams;
     sshParams.setTimeout(10);
     setDefaultSshParameters(sshParams);
@@ -1089,6 +1096,33 @@ void WindowsDevice::tryToConnect(const Continuation<> &cont) const
         d->setupFileAccess(cont);
 }
 
+void WindowsDevice::postLoad()
+{
+    // Connect on startup, as LinuxDevice does, so the device has file access from the start and
+    // shows up in the device-aware file dialogs (and anywhere else that lists browsable devices)
+    // without the user first opening its settings. setupFileAccess() installs the bootstrap file
+    // access synchronously, so hasFileAccess() is true right away.
+    if (!autoConnectOnStartup())
+        return;
+
+    tryToConnect({this, [this](const Result<> &res) {
+        if (res)
+            return;
+        // Do not keep retrying a device that is not reachable; turn auto-connect off and tell
+        // the user (they can re-enable it in the device settings).
+        const QString message = Tr::tr("Auto-connection to device \"%1\" failed. "
+                                       "Switching auto-connection off.").arg(displayName());
+        qCWarning(windowsDeviceLog).noquote() << message << res.error();
+        autoConnectOnStartup.setValue(false);
+        QTC_ASSERT(QThread::isMainThread(), return);
+        InfoBarEntry info(id().withPrefix("announce_"), message);
+        info.setTitle(Tr::tr("Establishing a Connection"));
+        info.setInfoType(InfoLabelType::Warning);
+        Core::ICore::popupInfoBar()->addInfo(info);
+        Core::MessageManager::writeSilently(message);
+    }});
+}
+
 // WindowsDeviceConfigurationWidget
 
 class WindowsDeviceConfigurationWidget final : public IDeviceWidget
@@ -1118,6 +1152,7 @@ WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevice
         ssh.userName, st, br,
         ssh.useKeyFile, st, br,
         ssh.privateKeyFile, createKeyButton, br,
+        windowsDevice->autoConnectOnStartup, br,
         device->deviceToolsGui(),
         device->autoDetectGui(),
     }.attachTo(this);

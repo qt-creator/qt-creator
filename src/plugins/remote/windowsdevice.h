@@ -8,6 +8,8 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <utils/aspects.h>
+
 namespace Remote {
 
 // A remote Windows machine reached over SSH. Unlike LinuxDevice, all file and
@@ -44,6 +46,12 @@ public:
     Utils::ProcessInterface *createProcessInterface() const override;
 
     void tryToConnect(const Utils::Continuation<> &cont) const override;
+
+    void postLoad() override;
+
+    // Connect the device on startup (see postLoad), so it has file access and shows up in
+    // device-aware file dialogs. On by default; auto-disabled after a failed auto-connect.
+    Utils::BoolAspect autoConnectOnStartup{this};
 
 protected:
     WindowsDevice();
