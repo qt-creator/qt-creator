@@ -348,7 +348,7 @@ void MultiTextCursor::insertText(const QString &text, bool selectNewText)
     m_cursorList.back().endEditBlock();
 }
 
-bool equalCursors(const QTextCursor &lhs, const QTextCursor &rhs)
+static bool equalCursors(const QTextCursor &lhs, const QTextCursor &rhs)
 {
     return lhs == rhs && lhs.anchor() == rhs.anchor()
            && lhs.verticalMovementX() == rhs.verticalMovementX();

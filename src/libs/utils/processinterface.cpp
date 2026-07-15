@@ -8,7 +8,7 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(wrappedProcessInterface, "qtc.wrappedprocessinterface", QtWarningMsg)
+static Q_LOGGING_CATEGORY(wrappedProcessInterface, "qtc.wrappedprocessinterface", QtWarningMsg)
 
 namespace Utils {
 

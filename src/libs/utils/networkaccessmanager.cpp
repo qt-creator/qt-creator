@@ -25,7 +25,7 @@ namespace Utils {
 
 static NetworkAccessManager *namInstance = nullptr;
 
-void cleanupNetworkAccessManager()
+static void cleanupNetworkAccessManager()
 {
     delete namInstance;
     namInstance = nullptr;

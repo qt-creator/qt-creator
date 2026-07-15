@@ -72,7 +72,7 @@ public:
 
 static SettingsDatabaseImpl *d;
 
-void ensureImpl()
+static void ensureImpl()
 {
     if (d)
         return;

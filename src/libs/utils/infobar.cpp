@@ -30,7 +30,7 @@ QSet<Id> InfoBar::globallySuppressed;
 QtcSettings *InfoBar::m_settings = nullptr;
 const int spacing = 6;
 
-Theme::Color foregroundThemeColor(InfoLabel::InfoType infoType)
+static Theme::Color foregroundThemeColor(InfoLabel::InfoType infoType)
 {
     switch (infoType) {
     case InfoLabel::Information:
@@ -47,7 +47,7 @@ Theme::Color foregroundThemeColor(InfoLabel::InfoType infoType)
     }
 }
 
-Theme::Color backgroundThemeColor(InfoLabel::InfoType infoType)
+static Theme::Color backgroundThemeColor(InfoLabel::InfoType infoType)
 {
     switch (infoType) {
     case InfoLabel::Information:

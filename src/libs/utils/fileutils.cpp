@@ -289,15 +289,16 @@ QString fetchQrc(const QString &fileName)
     return QString::fromUtf8(file.readAll());
 }
 
-FilePaths getFilePaths(const QString &caption,
-                       const FilePath &dir,
-                       const QString &filter,
-                       QString *selectedFilter,
-                       QFileDialog::Options options,
-                       const QStringList &supportedSchemes,
-                       const bool forceNonNativeDialog,
-                       QFileDialog::FileMode fileMode,
-                       QFileDialog::AcceptMode acceptMode)
+static FilePaths getFilePaths(
+    const QString &caption,
+    const FilePath &dir,
+    const QString &filter,
+    QString *selectedFilter,
+    QFileDialog::Options options,
+    const QStringList &supportedSchemes,
+    const bool forceNonNativeDialog,
+    QFileDialog::FileMode fileMode,
+    QFileDialog::AcceptMode acceptMode)
 {
 #ifdef QT_DEBUG
     const bool shiftPressed = QGuiApplication::queryKeyboardModifiers().testFlag(Qt::ShiftModifier);
@@ -339,7 +340,7 @@ FilePaths getFilePaths(const QString &caption,
     return {};
 }
 
-FilePath firstOrEmpty(const FilePaths &filePaths)
+static FilePath firstOrEmpty(const FilePaths &filePaths)
 {
     return filePaths.isEmpty() ? FilePath() : filePaths.first();
 }
@@ -448,7 +449,7 @@ FilePaths getOpenFilePaths(const QString &caption,
 
 #endif // QT_WIDGETS_LIB
 
-FilePathInfo::FileFlags fileInfoFlagsfromStatMode(const QString &hexString, int modeBase)
+static FilePathInfo::FileFlags fileInfoFlagsfromStatMode(const QString &hexString, int modeBase)
 {
     // Copied from stat.h
     enum st_mode {

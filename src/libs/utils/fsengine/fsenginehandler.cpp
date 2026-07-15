@@ -91,7 +91,7 @@ private:
 
 FilePathInfoCache g_filePathInfoCache;
 
-FilePathInfoCache::CachedData createCacheData(const FilePath &filePath) {
+static FilePathInfoCache::CachedData createCacheData(const FilePath &filePath) {
     FilePathInfoCache::CachedData data;
     data.filePathInfo = filePath.filePathInfo();
     data.timeout = QDateTime::currentDateTime().addSecs(60);

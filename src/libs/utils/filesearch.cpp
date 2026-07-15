@@ -17,7 +17,7 @@
 #include <QStack>
 #include <QTimer>
 
-Q_LOGGING_CATEGORY(searchLog, "qtc.utils.filesearch", QtWarningMsg)
+static Q_LOGGING_CATEGORY(searchLog, "qtc.utils.filesearch", QtWarningMsg)
 
 namespace Utils {
 

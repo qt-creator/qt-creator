@@ -38,7 +38,7 @@
 
 namespace Utils {
 
-Q_LOGGING_CATEGORY(fpLog, "qtc.filepath", QtWarningMsg);
+static Q_LOGGING_CATEGORY(fpLog, "qtc.filepath", QtWarningMsg);
 
 static QDir::Filters toQDir(DirFilterFlags f) { return QDir::Filters(f.toInt()); }
 [[maybe_unused]] static QDir::SortFlags toQDirSort(DirSortFlags f)
@@ -351,7 +351,7 @@ QString FilePath::encodedHost() const
     return result;
 }
 
-QString decodeHost(QString host)
+static QString decodeHost(QString host)
 {
     return host.replace("%25", "%").replace("%2f", "/");
 }
@@ -2820,7 +2820,7 @@ void FilePath::sort(FilePaths &files)
     });
 }
 
-void join(QString &left, const QString &right)
+static void join(QString &left, const QString &right)
 {
     QStringView r(right);
     if (r.startsWith('/'))

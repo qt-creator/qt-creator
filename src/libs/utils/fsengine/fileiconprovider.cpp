@@ -33,7 +33,7 @@
 
 using namespace Utils;
 
-Q_LOGGING_CATEGORY(fileIconProvider, "qtc.core.fileiconprovider", QtWarningMsg)
+static Q_LOGGING_CATEGORY(fileIconProvider, "qtc.core.fileiconprovider", QtWarningMsg)
 
 /*!
   \class Utils::FileIconProvider
@@ -211,7 +211,7 @@ QString FileIconProviderImplementation::type(const QFileInfo &fi) const
     return QFileIconProvider::type(fi);
 }
 
-FileIconProviderImplementation *instance()
+static FileIconProviderImplementation *instance()
 {
     static FileIconProviderImplementation theInstance;
     return &theInstance;

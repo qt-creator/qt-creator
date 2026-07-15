@@ -14,7 +14,7 @@
 #include <QThread>
 #include <QTimer>
 
-Q_LOGGING_CATEGORY(terminalInterfaceLog, "qtc.terminalinterface", QtWarningMsg)
+static Q_LOGGING_CATEGORY(terminalInterfaceLog, "qtc.terminalinterface", QtWarningMsg)
 
 namespace Utils {
 

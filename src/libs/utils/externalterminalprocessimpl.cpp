@@ -12,7 +12,7 @@
 #include <QTemporaryFile>
 #include <QVersionNumber>
 
-Q_LOGGING_CATEGORY(logTE, "terminal.externalprocess", QtWarningMsg)
+static Q_LOGGING_CATEGORY(logTE, "terminal.externalprocess", QtWarningMsg)
 
 namespace Utils {
 

@@ -292,7 +292,7 @@ static QString replaceNewLine(QString text)
 }
 
 // copied from QItemDelegate for drawDisplay
-QSizeF doTextLayout(QTextLayout *textLayout, int lineWidth)
+static QSizeF doTextLayout(QTextLayout *textLayout, int lineWidth)
 {
     qreal height = 0;
     qreal widthUsed = 0;

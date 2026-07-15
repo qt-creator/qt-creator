@@ -148,8 +148,8 @@ Icon::Icon(const FilePath &imageFileName)
 }
 
 using OptMasksAndColors = std::optional<MasksAndColors>;
-OptMasksAndColors highlightMasksAndColors(const MasksAndColors &defaultState,
-                                          const QList<IconMaskAndColor> &masks)
+static OptMasksAndColors highlightMasksAndColors(const MasksAndColors &defaultState,
+                                                 const QList<IconMaskAndColor> &masks)
 {
     MasksAndColors highlighted = defaultState;
     bool colorsReplaced = false;

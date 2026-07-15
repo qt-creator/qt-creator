@@ -391,7 +391,7 @@ QHash<QString, QVariant> Wizard::variables() const
     return result;
 }
 
-QString typeOf(const QVariant &v)
+static QString typeOf(const QVariant &v)
 {
     QString result;
     switch (v.typeId()) {
