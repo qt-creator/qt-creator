@@ -65,13 +65,8 @@ static Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputDa
     if (!inputData.isEmpty())
         p.setWriteData(inputData);
     p.runBlocking();
-    if (p.exitCode() != 0) {
-        return ResultError(
-            Tr::tr("Command \"%1\" failed with exit code %2: %3")
-                .arg(cmdLine.toUserOutput())
-                .arg(p.exitCode())
-                .arg(p.readAllStandardOutput().left(500)));
-    }
+    if (p.result() != ProcessResult::FinishedWithSuccess)
+        return ResultError(p.verboseExitMessage());
     return p.readAllStandardOutput().trimmed();
 }
 
