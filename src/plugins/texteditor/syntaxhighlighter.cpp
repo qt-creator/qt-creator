@@ -836,10 +836,18 @@ void SyntaxHighlighter::clearExtraFormats(const QTextBlock &block)
     if (block.layout() == nullptr || blockLength == 0)
         return;
 
+    const QList<QTextLayout::FormatRange> allFormats = block.layout()->formats();
     const QList<QTextLayout::FormatRange> formatsToApply
-        = Utils::filtered(block.layout()->formats(), [](const QTextLayout::FormatRange &r) {
+        = Utils::filtered(allFormats, [](const QTextLayout::FormatRange &r) {
               return !r.format.property(SemanticHighlight).toBool();
           });
+
+    // Nothing was cleared: skip re-setting identical formats and the
+    // markContentsDirty() below, which would otherwise force a relayout and
+    // repaint of the block for no visible change. The incremental highlighter
+    // clears every block between results, so most calls land here.
+    if (formatsToApply.size() == allFormats.size())
+        return;
 
     bool wasInReformatBlocks = d->inReformatBlocks;
     d->inReformatBlocks = true;
