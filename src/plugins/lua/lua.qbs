@@ -18,7 +18,6 @@ QtcPlugin {
     }
 
     files: [
-        // "generateqtbindings.cpp", // use this if you need to generate some code
         "lua_global.h",
         "luaengine.cpp",
         "luaengine.h",

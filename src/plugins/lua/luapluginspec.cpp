@@ -15,7 +15,7 @@
 #include <QLoggingCategory>
 #include <QTranslator>
 
-Q_LOGGING_CATEGORY(luaPluginSpecLog, "qtc.lua.pluginspec", QtWarningMsg)
+static Q_LOGGING_CATEGORY(luaPluginSpecLog, "qtc.lua.pluginspec", QtWarningMsg)
 
 using namespace ExtensionSystem;
 using namespace Utils;

@@ -38,7 +38,7 @@ void setNext(
     }
 };
 
-sol::protected_function_result run(sol::state &lua, QString statement, MacroExpander *expander)
+static sol::protected_function_result run(sol::state &lua, QString statement, MacroExpander *expander)
 {
     return runFunction(lua, statement, "Statement", [expander](sol::state &lua) {
         sol::global_table &t = lua.globals();
@@ -56,7 +56,7 @@ sol::protected_function_result run(sol::state &lua, QString statement, MacroExpa
     });
 }
 
-Result<QString> tryRun(const QString statement, MacroExpander *expander)
+static Result<QString> tryRun(const QString statement, MacroExpander *expander)
 {
     sol::state lua;
 

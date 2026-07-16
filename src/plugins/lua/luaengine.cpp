@@ -31,7 +31,7 @@ Utils::Result<> connectHooks(
 
 static Q_LOGGING_CATEGORY(logLuaEngine, "qtc.lua.engine", QtWarningMsg);
 
-QString luaToString(lua_State *state, int index)
+static QString luaToString(lua_State *state, int index)
 {
     size_t l;
     const char *s = luaL_tolstring(state, index, &l);
@@ -111,7 +111,7 @@ QObject *ScriptPluginSpec::setup(
     return guardObjectPtr;
 }
 
-void prepareLuaState(
+static void prepareLuaState(
     sol::state &lua,
     const QString &name,
     const std::function<void(sol::state &)> &customizeState,
@@ -440,7 +440,7 @@ sol::table toTable(const sol::state_view &lua, const QJsonDocument &doc)
 
 QJsonValue toJsonValue(const sol::object &object);
 
-QJsonValue toJsonValue(const sol::table &table)
+static QJsonValue toJsonValue(const sol::table &table)
 {
     if (table.get<std::optional<sol::object>>(1)) {
         // Is Array

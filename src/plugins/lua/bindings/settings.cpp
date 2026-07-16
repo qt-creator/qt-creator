@@ -57,7 +57,7 @@ public:
     std::unordered_map<std::string, sol::object> m_entries;
 };
 
-std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::main_table &options)
+static std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::main_table &options)
 {
     auto container = std::make_unique<LuaAspectContainer>();
 
@@ -97,7 +97,7 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::main_table 
     return container;
 }
 
-void baseAspectCreate(BaseAspect *aspect, const std::string &key, const sol::object &value)
+static void baseAspectCreate(BaseAspect *aspect, const std::string &key, const sol::object &value)
 {
     if (key == "settingsKey")
         aspect->setSettingsKey(keyFromString(value.as<QString>()));

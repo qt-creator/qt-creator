@@ -434,7 +434,7 @@ std::unique_ptr<T> constructWidgetType(const sol::table &children, QObject *guar
     return item;
 }
 
-std::unique_ptr<Tab> constructTabFromTable(const sol::table &children)
+static std::unique_ptr<Tab> constructTabFromTable(const sol::table &children)
 {
     if (children.size() != 2)
         throw sol::error("Tab must have exactly two children");
@@ -451,13 +451,13 @@ std::unique_ptr<Tab> constructTabFromTable(const sol::table &children)
     return item;
 }
 
-std::unique_ptr<Tab> constructTab(const QString &tabName, const Layout &layout)
+static std::unique_ptr<Tab> constructTab(const QString &tabName, const Layout &layout)
 {
     std::unique_ptr<Tab> item = std::make_unique<Tab>(tabName, layout);
     return item;
 }
 
-std::unique_ptr<Span> constructSpanFromTable(const sol::table &children)
+static std::unique_ptr<Span> constructSpanFromTable(const sol::table &children)
 {
     if (children.size() != 2 && children.size() != 3)
         throw sol::error("Span must have two or three children");
@@ -484,19 +484,19 @@ std::unique_ptr<Span> constructSpanFromTable(const sol::table &children)
     return item;
 }
 
-std::unique_ptr<Span> constructSpan(int c, const Layout &layout)
+static std::unique_ptr<Span> constructSpan(int c, const Layout &layout)
 {
     std::unique_ptr<Span> item = std::make_unique<Span>(c, layout);
     return item;
 }
 
-std::unique_ptr<Span> constructSpanWithRow(int c, int r, const Layout &layout)
+static std::unique_ptr<Span> constructSpanWithRow(int c, int r, const Layout &layout)
 {
     std::unique_ptr<Span> item = std::make_unique<Span>(c, r, layout);
     return item;
 }
 
-std::unique_ptr<TabWidget> constructTabWidget(const sol::table &children, QObject *guard)
+static std::unique_ptr<TabWidget> constructTabWidget(const sol::table &children, QObject *guard)
 {
     std::unique_ptr<TabWidget> item(new TabWidget({}));
     setProperties(item, children, guard);
@@ -508,7 +508,7 @@ std::unique_ptr<TabWidget> constructTabWidget(const sol::table &children, QObjec
     return item;
 }
 
-std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
+static std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
 {
     std::unique_ptr<Splitter> item(new Splitter({}));
     constructWidget(item, children);

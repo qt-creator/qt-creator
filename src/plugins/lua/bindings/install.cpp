@@ -35,7 +35,7 @@ using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
-Result<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
+static Result<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
 {
     const FilePath packageInfoPath = appDataPath / "package.json";
 
@@ -60,7 +60,7 @@ Result<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
     return doc;
 }
 
-Result<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, const QString &name)
+static Result<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, const QString &name)
 {
     auto packageDoc = getPackageInfo(appDataPath);
     if (!packageDoc)
@@ -78,7 +78,7 @@ Result<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, const Q
     return QJsonObject();
 }
 
-Result<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
+static Result<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
 {
     Result<QJsonDocument> doc = getPackageInfo(appDataPath);
     if (doc && doc->isObject())
@@ -88,7 +88,7 @@ Result<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
     return QJsonDocument(obj);
 }
 
-Result<> savePackageInfo(const FilePath &appDataPath, const QJsonDocument &doc)
+static Result<> savePackageInfo(const FilePath &appDataPath, const QJsonDocument &doc)
 {
     if (!appDataPath.ensureWritableDir())
         return make_unexpected(Tr::tr("Cannot create app data directory."));
@@ -108,7 +108,7 @@ struct InstallOptions
     QString version;
 };
 
-size_t qHash(const InstallOptions &item, size_t seed = 0)
+[[maybe_unused]] static size_t qHash(const InstallOptions &item, size_t seed = 0)
 {
     return qHash(item.url, seed) ^ qHash(item.name, seed) ^ qHash(item.version, seed);
 }
