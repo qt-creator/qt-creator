@@ -22,10 +22,10 @@ using namespace Utils;
 namespace TextEditor {
 
 const Id INLINE_DIFF_GHOST_CATEGORY("TextEditor.InlineDiff.Ghost");
-const Id INLINE_DIFF_SELECTION_ID("TextEditor.InlineDiff.Selection");
 
-// marks the full width line background formats this decorator added to the
-// main block layouts (FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID is UserProperty + 43)
+// marks the added/changed line and character highlight formats this decorator
+// added to the main block layouts, so stripChangedLineFormats() can sweep them
+// (FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID is UserProperty + 43)
 constexpr int INLINE_DIFF_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 44;
 
 // Deletion runs longer than this are elided to keep the ghost rows scannable.
@@ -36,9 +36,21 @@ Utils::Id inlineDiffGhostCategory()
     return INLINE_DIFF_GHOST_CATEGORY;
 }
 
-Utils::Id inlineDiffSelectionKind()
+QStringList inlineDiffChangedCharTexts(TextEditorWidget *widget)
 {
-    return INLINE_DIFF_SELECTION_ID;
+    QStringList texts;
+    if (!widget)
+        return texts;
+    TextEditorLayout *layout = widget->editorLayout();
+    if (!layout)
+        return texts;
+    for (QTextBlock block = widget->document()->firstBlock(); block.isValid();
+         block = block.next()) {
+        const QString text = block.text();
+        for (const QTextLayout::FormatRange &range : layout->blockSelectionHighlights(block))
+            texts << text.mid(range.start, range.length);
+    }
+    return texts;
 }
 
 static std::unique_ptr<QTextLayout> createGhostLayout(
@@ -158,6 +170,7 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
     QTC_ASSERT(layout, return);
     layout->removeAllLayoutItems(INLINE_DIFF_GHOST_CATEGORY);
     stripChangedLineFormats();
+    layout->clearSelectionHighlights();
     m_itemAnchors.clear();
 
     QTextDocument *doc = m_widget->document();
@@ -233,41 +246,48 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
             const QTextBlock block = doc->findBlockByNumber(line - 1);
             if (!block.isValid())
                 continue;
-            QTextLayout *blockLayout = layout->blockLayout(block);
             QTextLayout::FormatRange lineRange;
             lineRange.start = 0;
             lineRange.length = qMax(1, block.length());
             lineRange.format = addedLineFormat;
-            blockLayout->setFormats(blockLayout->formats() + QList{lineRange});
+            layout->addBlockEditorFormats(block, {lineRange});
         }
     }
 
-    // the character level highlights use extra selections, their cursors keep
-    // tracking the text while the user edits
-    QList<QTextEdit::ExtraSelection> selections;
+    // the character level highlights are applied as format ranges on the block
+    // layouts, the same lazy mechanism as the added line highlights above and
+    // the ghost rows. Using extra selections here instead would build a
+    // QTextCursor per highlight, and QTextCursor::setPosition forces a
+    // synchronous layout of the cursor's block - laying out (and shaping) every
+    // changed block of the whole document up front, even the off-screen ones,
+    // which stalls the UI on large diffs.
     for (const ChangedRange &range : std::as_const(m_changes)) {
         for (auto it = range.charHighlights.cbegin(); it != range.charHighlights.cend(); ++it) {
             const QTextBlock block = doc->findBlockByNumber(it.key() - 1);
             if (!block.isValid())
                 continue;
             const int maxLength = qMax(0, block.length() - 1);
+            QList<QTextLayout::FormatRange> charRanges;
             for (const QPair<int, int> &charRange : it.value()) {
                 if (charRange.first < 0 || charRange.second <= 0
                     || charRange.first >= maxLength) {
                     continue;
                 }
-                QTextEdit::ExtraSelection selection;
-                selection.cursor = QTextCursor(doc);
-                selection.cursor.setPosition(block.position() + charRange.first);
-                selection.cursor.setPosition(
-                    block.position() + qMin(charRange.first + charRange.second, maxLength),
-                    QTextCursor::KeepAnchor);
-                selection.format = addedCharFormat;
-                selections << selection;
+                QTextLayout::FormatRange formatRange;
+                formatRange.start = charRange.first;
+                formatRange.length = qMin(charRange.second, maxLength - charRange.first);
+                formatRange.format = addedCharFormat;
+                charRanges << formatRange;
             }
+            if (charRanges.isEmpty())
+                continue;
+            // drawn as selections (not format ranges) so the highlight fills
+            // the whole changed range continuously, including the whitespace
+            // between words even when a document format (e.g. a comment)
+            // overlaps it
+            layout->setBlockSelectionHighlights(block, charRanges);
         }
     }
-    m_widget->setExtraSelections(INLINE_DIFF_SELECTION_ID, selections);
 
     // publish the +/- gutter signs: changed real lines carry '+' on the editor
     // side and '-' on the baseline side; removed lines rendered as ghost rows
@@ -292,11 +312,10 @@ void InlineDiffDecorator::clear()
     if (!m_widget)
         return;
     clearGhostItems();
-    if (stripChangedLineFormats() > 0) {
-        if (TextEditorLayout *layout = m_widget->editorLayout())
-            layout->requestUpdate();
-    }
-    m_widget->setExtraSelections(INLINE_DIFF_SELECTION_ID, {});
+    TextEditorLayout *layout = m_widget->editorLayout();
+    const int cleared = stripChangedLineFormats() + (layout ? layout->clearSelectionHighlights() : 0);
+    if (cleared > 0 && layout)
+        layout->requestUpdate();
     m_widget->setDiffChangeSigns({}, false);
 }
 

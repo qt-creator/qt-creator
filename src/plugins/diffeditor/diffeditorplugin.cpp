@@ -1686,7 +1686,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
     diffEditor->widget()->resize(800, 600);
 
     // added/changed line highlights arrive asynchronously
-    QTRY_VERIFY(!diffWidget->extraSelections(inlineDiffSelectionKind()).isEmpty());
+    QTRY_VERIFY(!inlineDiffChangedCharTexts(diffWidget).isEmpty());
 
     const auto ghostItemCount = [](TextEditorWidget *widget) {
         int count = 0;
@@ -1707,7 +1707,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
 
     // the source editor stays free of decorations
     QCOMPARE(ghostItemCount(sourceWidget), 0);
-    QVERIFY(sourceWidget->extraSelections(inlineDiffSelectionKind()).isEmpty());
+    QVERIFY(inlineDiffChangedCharTexts(sourceWidget).isEmpty());
 
     const QString grabPath = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_GRAB");
     if (!grabPath.isEmpty())
@@ -1793,10 +1793,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
     cursor.movePosition(QTextCursor::End);
     cursor.insertText("six\n");
     QCOMPARE(diffWidget->document()->lastBlock().previous().text(), "six");
-    QTRY_VERIFY(Utils::anyOf(diffWidget->extraSelections(inlineDiffSelectionKind()),
-                             [](const QTextEdit::ExtraSelection &selection) {
-        return selection.cursor.selectedText().contains("six");
-    }));
+    QTRY_VERIFY(Utils::anyOf(inlineDiffChangedCharTexts(diffWidget),
+                             [](const QString &text) { return text.contains("six"); }));
 
     // saving through the inline diff editor's document saves the source file
     QVERIFY(diffEditor->document()->isModified());

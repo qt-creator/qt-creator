@@ -21,8 +21,9 @@ class TextEditorWidget;
 
 // category of the ghost row layout items in Utils::TextEditorLayout
 TEXTEDITOR_EXPORT Utils::Id inlineDiffGhostCategory();
-// extra selection kind used for the added/changed line highlights
-TEXTEDITOR_EXPORT Utils::Id inlineDiffSelectionKind();
+// the text covered by the character level change highlights the decorator
+// applied to the widget, in document order (for tests)
+TEXTEDITOR_EXPORT QStringList inlineDiffChangedCharTexts(TextEditorWidget *widget);
 
 // Displays one side of a diff on top of an editable TextEditorWidget: lines
 // removed from a baseline are rendered as read-only "ghost rows" between the
