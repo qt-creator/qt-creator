@@ -26,13 +26,13 @@ public:
     QString message;
 };
 
-void skipSpaces(QString::const_iterator &it)
+static void skipSpaces(QString::const_iterator &it)
 {
     while (it->isSpace())
         ++it;
 }
 
-QString join(const QList<QChar> &chars)
+static QString join(const QList<QChar> &chars)
 {
     QString result;
     const QList<QChar>::const_iterator begin = chars.begin();
@@ -49,7 +49,7 @@ QString join(const QList<QChar> &chars)
     return result;
 }
 
-bool checkChars(QString::const_iterator &it, const QList<QChar> &chars)
+static bool checkChars(QString::const_iterator &it, const QList<QChar> &chars)
 {
     if (*it == backSlash) {
         ++it;
@@ -60,13 +60,13 @@ bool checkChars(QString::const_iterator &it, const QList<QChar> &chars)
     return chars.contains(*it);
 }
 
-void skipToEndOfTabstop(QString::const_iterator &it, const QString::const_iterator &end)
+static void skipToEndOfTabstop(QString::const_iterator &it, const QString::const_iterator &end)
 {
     while (it < end && checkChars(it, {closeBrace}))
         ++it;
 }
 
-int parseTabstopIndex(QString::const_iterator &it)
+static int parseTabstopIndex(QString::const_iterator &it)
 {
     int result = 0;
     while (it->isDigit()) {
@@ -76,7 +76,7 @@ int parseTabstopIndex(QString::const_iterator &it)
     return result;
 }
 
-QString parseVariable(QString::const_iterator &it)
+static QString parseVariable(QString::const_iterator &it)
 {
     // TODO: implement replacing variable with data
     QString result;
@@ -88,7 +88,7 @@ QString parseVariable(QString::const_iterator &it)
     return result;
 }
 
-ParsedSnippet::Part parseTabstop(QString::const_iterator &it, const QString::const_iterator &end)
+static ParsedSnippet::Part parseTabstop(QString::const_iterator &it, const QString::const_iterator &end)
 {
     ParsedSnippet::Part result;
     if (*it != dollar)

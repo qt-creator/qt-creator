@@ -220,11 +220,12 @@ void SemanticTokenSupport::rehighlight()
         highlight(it.key(), true);
 }
 
-void addModifiers(int key,
-                  QHash<int, QTextCharFormat> *formatHash,
-                  TextStyles styles,
-                  QList<int> tokenModifiers,
-                  const TextEditor::FontSettingsData &fs)
+static void addModifiers(
+    int key,
+    QHash<int, QTextCharFormat> *formatHash,
+    TextStyles styles,
+    QList<int> tokenModifiers,
+    const TextEditor::FontSettingsData &fs)
 {
     if (tokenModifiers.isEmpty())
         return;

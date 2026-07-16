@@ -2413,7 +2413,7 @@ LanguageClientOutlineItem *Client::createOutlineItem(
     return new LanguageClientOutlineItem(this, symbol);
 }
 
-FilePath toHostPath(const FilePath serverDeviceTemplate, const FilePath localClientPath)
+static FilePath toHostPath(const FilePath serverDeviceTemplate, const FilePath localClientPath)
 {
     const FilePath onDevice = serverDeviceTemplate.withNewPath(localClientPath.path());
     return onDevice.localSource().value_or(onDevice);

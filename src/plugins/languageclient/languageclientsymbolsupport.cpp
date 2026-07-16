@@ -275,7 +275,7 @@ struct ItemData
     Utils::Text::Range range;
     QVariant userData;
 };
-bool operator==(const ItemData &id1, const ItemData &id2)
+[[maybe_unused]] static bool operator==(const ItemData &id1, const ItemData &id2)
 {
     return id1.range == id2.range && id1.userData == id2.userData;
 }
@@ -299,7 +299,7 @@ QStringList SymbolSupport::getFileContents(const FilePath &filePath)
     return fileContent.split("\n");
 }
 
-Utils::SearchResultItems generateSearchResultItems(
+static Utils::SearchResultItems generateSearchResultItems(
     const QMap<Utils::FilePath, QList<ItemData>> &rangesInDocument,
     Client *client,
     Core::SearchResult *search,
@@ -354,7 +354,7 @@ Utils::SearchResultItems generateSearchResultItems(
 }
 
 using ItemDataPerPath = QMap<Utils::FilePath, QList<ItemData>>;
-void filterFileAliases(ItemDataPerPath &itemDataPerPath)
+static void filterFileAliases(ItemDataPerPath &itemDataPerPath)
 {
     QSet<Utils::FilePath> canonicalPaths;
     for (auto it = itemDataPerPath.begin(); it != itemDataPerPath.end(); ) {
@@ -368,7 +368,7 @@ void filterFileAliases(ItemDataPerPath &itemDataPerPath)
     }
 }
 
-Utils::SearchResultItems generateSearchResultItems(
+static Utils::SearchResultItems generateSearchResultItems(
     const LanguageClientArray<Location> &locations, Client *client)
 {
     if (locations.isNull())
@@ -565,10 +565,8 @@ void SymbolSupport::requestRename(const TextDocumentPositionParams &positionPara
         search->popup();
 }
 
-Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
-                                              Client *client,
-                                              Core::SearchResult *search,
-                                              bool limitToProjects)
+static Utils::SearchResultItems generateReplaceItems(
+    const WorkspaceEdit &edits, Client *client, Core::SearchResult *search, bool limitToProjects)
 {
     Utils::SearchResultItems items;
     auto convertEdits = [](const QList<TextEdit> &edits) {

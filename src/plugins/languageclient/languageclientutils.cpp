@@ -40,7 +40,7 @@ using namespace Utils;
 
 namespace LanguageClient {
 
-ChangeSet::Range convertRange(const QTextDocument *doc, const Range &range)
+static ChangeSet::Range convertRange(const QTextDocument *doc, const Range &range)
 {
     int start = range.start().toPositionInDocument(doc);
     int end = range.end().toPositionInDocument(doc);
@@ -121,7 +121,7 @@ bool applyWorkspaceEdit(const Client *client, const WorkspaceEdit &edit)
     return result;
 }
 
-QTextCursor endOfLineCursor(const QTextCursor &cursor)
+static QTextCursor endOfLineCursor(const QTextCursor &cursor)
 {
     QTextCursor ret = cursor;
     ret.movePosition(QTextCursor::EndOfLine);

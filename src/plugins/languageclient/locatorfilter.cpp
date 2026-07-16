@@ -185,7 +185,7 @@ static LocatorFilterEntry entryForSymbolInfo(const SymbolInformation &info,
     return entry;
 }
 
-LocatorFilterEntries entriesForSymbolsInfo(const QList<SymbolInformation> &infoList,
+static LocatorFilterEntries entriesForSymbolsInfo(const QList<SymbolInformation> &infoList,
     const QRegularExpression &regexp, const DocumentUri::PathMapper &pathMapper)
 {
     QTC_ASSERT(pathMapper, return {});
@@ -197,7 +197,7 @@ LocatorFilterEntries entriesForSymbolsInfo(const QList<SymbolInformation> &infoL
     return entries;
 }
 
-LocatorFilterEntries entriesForDocSymbols(const QList<DocumentSymbol> &infoList,
+static LocatorFilterEntries entriesForDocSymbols(const QList<DocumentSymbol> &infoList,
     const QRegularExpression &regexp, const FilePath &filePath,
     const DocSymbolModifier &docSymbolModifier, const LocatorFilterEntry &parent = {})
 {

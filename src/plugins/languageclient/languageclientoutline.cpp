@@ -35,13 +35,14 @@ using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
-const QList<SymbolInformation> sortedSymbols(const QList<SymbolInformation> &symbols)
+static const QList<SymbolInformation> sortedSymbols(const QList<SymbolInformation> &symbols)
 {
     return Utils::sorted(symbols, [](const SymbolInformation &a, const SymbolInformation &b){
         return a.location().range().start() < b.location().range().start();
     });
 }
-const QList<DocumentSymbol> sortedSymbols(const QList<DocumentSymbol> &symbols)
+
+static const QList<DocumentSymbol> sortedSymbols(const QList<DocumentSymbol> &symbols)
 {
     return Utils::sorted(symbols, [](const DocumentSymbol &a, const DocumentSymbol &b){
         return a.range().start() < b.range().start();

@@ -53,7 +53,7 @@ void DocumentSymbolCache::requestSymbols(const DocumentUri &uri, Schedule schedu
     }
 }
 
-bool clientSupportsDocumentSymbols(const Client *client, const DocumentUri &uri)
+static bool clientSupportsDocumentSymbols(const Client *client, const DocumentUri &uri)
 {
     QTC_ASSERT(client, return false);
     const auto doc = TextEditor::TextDocument::textDocumentForFilePath(

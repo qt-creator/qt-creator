@@ -193,7 +193,7 @@ private:
     QSet<QString> &m_changedSettings;
 };
 
-QMap<Id, ClientType> &clientTypes()
+static QMap<Id, ClientType> &clientTypes()
 {
     static QMap<Id, ClientType> types;
     return types;
@@ -298,7 +298,7 @@ void LanguageClientSettingsPageWidget::applyCurrentSettings()
     }
 }
 
-BaseSettings *generateSettings(const Id &clientTypeId)
+static BaseSettings *generateSettings(const Id &clientTypeId)
 {
     if (auto generator = clientTypes().value(clientTypeId).generator) {
         auto settings = generator();

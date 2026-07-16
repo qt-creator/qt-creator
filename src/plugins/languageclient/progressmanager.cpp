@@ -69,7 +69,7 @@ bool ProgressManager::isProgressEndMessage(const LanguageServerProtocol::Progres
     return std::holds_alternative<WorkDoneProgressEnd>(params.value());
 }
 
-Utils::Id languageClientProgressId(const ProgressToken &token)
+static Utils::Id languageClientProgressId(const ProgressToken &token)
 {
     constexpr char k_LanguageClientProgressId[] = "LanguageClient.ProgressId.";
     auto toString = [](const ProgressToken &token) {
