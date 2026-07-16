@@ -2602,6 +2602,15 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     const Qt::KeyboardModifiers mods = ev->modifiers();
     KEY_DEBUG("SHORTCUT OVERRIDE" << key << "  PASSING: " << g.passing);
 
+    // If the user has mapped this key in the current mode, claim it so the
+    // mapping is applied instead of letting a Qt Creator shortcut (or the
+    // key's native meaning) take over (QTCREATORBUG-14413, QTCREATORBUG-20998).
+    if (!g.passing) {
+        const Input input(key, mods, ev->text());
+        if (input.isValid() && g.mappings.value(currentModeCode()).contains(input))
+            return true;
+    }
+
     if (key == Key_Escape) {
         if (g.subsubmode == SearchSubSubMode)
             return true;
