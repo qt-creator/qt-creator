@@ -138,7 +138,7 @@ QString NickNameEntry::nickNameOf(const QStandardItem *item)
     return item->data(NickNameRole).toString();
 }
 
-QDebug operator<<(QDebug d, const NickNameEntry &e)
+[[maybe_unused]] static QDebug operator<<(QDebug d, const NickNameEntry &e)
 {
     d.nospace() << "Name='" << e.name  << "' Mail='" << e.email
             << " Alias='" << e.aliasName << " AliasEmail='" << e.aliasEmail << "'\n";

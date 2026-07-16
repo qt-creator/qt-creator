@@ -34,7 +34,7 @@ using namespace Utils;
 using namespace ProjectExplorer;
 using namespace Core;
 
-Q_LOGGING_CATEGORY(copilotClientLog, "qtc.copilot.client", QtWarningMsg)
+static Q_LOGGING_CATEGORY(copilotClientLog, "qtc.copilot.client", QtWarningMsg)
 
 namespace Copilot::Internal {
 

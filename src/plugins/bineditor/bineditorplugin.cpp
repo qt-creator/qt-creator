@@ -2467,7 +2467,7 @@ public:
     }
 };
 
-void setupBinEditor()
+static void setupBinEditor()
 {
     static BinEditorFactory theBinEditorFactory;
 }

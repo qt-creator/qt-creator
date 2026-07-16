@@ -212,7 +212,7 @@ static Result<> getEditorLaunchData(const CommandForQtVersion &commandForQtVersi
     return ResultOk;
 }
 
-Result<> startEditorProcess(const LaunchData &data)
+static Result<> startEditorProcess(const LaunchData &data)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data.binary << data.arguments << data.workingDirectory;

@@ -10,7 +10,7 @@
 #include <QJsonDocument>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(remoteSpec, "qtc.extensionmanager.remotespec", QtWarningMsg)
+static Q_LOGGING_CATEGORY(remoteSpec, "qtc.extensionmanager.remotespec", QtWarningMsg)
 
 using namespace Utils;
 

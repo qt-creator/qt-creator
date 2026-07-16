@@ -75,10 +75,11 @@ static FilePath settingsFileName(const QString &path)
 }
 
 // prefer newer qts otherwise compare on id
-bool qtVersionNumberCompare(QtVersion *a, QtVersion *b)
+static bool qtVersionNumberCompare(QtVersion *a, QtVersion *b)
 {
     return a->qtVersion() > b->qtVersion() || (a->qtVersion() == b->qtVersion() && a->uniqueId() < b->uniqueId());
 }
+
 QVector<ExampleSetModel::ExtraExampleSet> ExampleSetModel::pluginRegisteredExampleSets()
 {
     return m_pluginRegisteredExampleSets;
@@ -147,7 +148,7 @@ void Internal::setupQtVersionManager(QObject *guard)
     s_guard = guard;
 }
 
-QtVersionManagerImpl &qtVersionManagerImpl()
+static QtVersionManagerImpl &qtVersionManagerImpl()
 {
     QTC_CHECK(s_guard);
     static auto theQtVersionManager = new QtVersionManagerImpl(s_guard);

@@ -84,7 +84,7 @@ std::optional<Utils::Icon> iconForToolKind(std::optional<ToolKind> kind)
     return std::nullopt;
 }
 
-Utils::Theme::Color toolCallBorderColor(ToolCallStatus status)
+static Utils::Theme::Color toolCallBorderColor(ToolCallStatus status)
 {
     switch (status) {
     case ToolCallStatus::pending:     return Utils::Theme::Token_Foreground_Muted;

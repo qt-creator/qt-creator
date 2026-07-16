@@ -29,7 +29,7 @@ static QStringList possibleQMakeCommands()
     return {"qmake*", "qtpaths*"};
 }
 
-QString qtVersionForQMake(const FilePath &qmakePath)
+static QString qtVersionForQMake(const FilePath &qmakePath)
 {
     if (qmakePath.isEmpty())
         return QString();

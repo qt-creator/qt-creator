@@ -129,7 +129,7 @@ bool State::equals(const State &rhs) const
             && currentProjectTopLevel == rhs.currentProjectTopLevel;
 }
 
-QDebug operator<<(QDebug in, const State &state)
+static QDebug operator<<(QDebug in, const State &state)
 {
     QDebug nospace = in.nospace();
     nospace << "State: ";

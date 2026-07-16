@@ -1377,7 +1377,7 @@ QVersionNumber QtVersion::qtVersion() const
     return QVersionNumber::fromString(qtVersionString());
 }
 
-Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand)
+static Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand)
 {
     QtVersionData data;
 

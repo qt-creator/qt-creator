@@ -776,7 +776,7 @@ static Result<> probeWindows(const SshParameters &ssh)
     return ResultOk;
 }
 
-Result<OsArch> detectWindowsArchitecture(const Environment &env)
+static Result<OsArch> detectWindowsArchitecture(const Environment &env)
 {
     const QString archStr = env.value("PROCESSOR_ARCHITECTURE").toUpper();
     if (archStr == "AMD64")

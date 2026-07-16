@@ -879,7 +879,7 @@ ClearCaseSubmitEditor *ClearCasePluginPrivate::openClearCaseSubmitEditor(const F
     return submitEditor;
 }
 
-QString fileStatusToText(FileStatus fileStatus)
+static QString fileStatusToText(FileStatus fileStatus)
 {
     switch (fileStatus.status)
     {
