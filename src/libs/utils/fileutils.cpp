@@ -56,7 +56,11 @@ FileSaverBase::~FileSaverBase() = default;
 
 Result<> FileSaverBase::finalize()
 {
-    QTC_ASSERT(m_file, return ResultError(ResultAssert));
+    if (!m_file) {
+        // The saver was never opened - e.g. a remote temporary file could not be created.
+        // m_result already carries the reason; return it instead of asserting.
+        return m_result ? ResultError(Tr::tr("File was not opened for writing.")) : m_result;
+    }
     m_file->close();
     setResult(m_file->error() == QFile::NoError);
     m_file.reset();
@@ -194,7 +198,7 @@ TempFileSaver::TempFileSaver(const FilePath &templ)
 TempFileSaver::~TempFileSaver()
 {
     m_file.reset();
-    if (m_autoRemove)
+    if (m_autoRemove && !m_filePath.isEmpty())
         m_filePath.removeFile();
 }
 
