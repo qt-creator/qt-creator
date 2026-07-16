@@ -312,26 +312,51 @@ void CdbEngine::setupEngine()
     }
     if (!cdbIs64Bit || cdbIsArm)
         m_wow64State = noWow64Stack;
-    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
-    if (!extensionFi.isFile()) {
-        handleSetupFailure(Tr::tr("Internal error: The extension %1 cannot be found.\n"
-                                  "If you have updated %2 via Maintenance Tool, you may "
-                                  "need to rerun the Tool and select \"Add or remove components\" "
-                                  "and then select the "
-                                  "Qt > Tools > Qt Creator CDB Debugger Support component.\n"
-                                  "If you build %2 from sources and want to use a CDB executable "
-                                  "with another bitness than your %2 build, "
-                                  "you will need to build a separate CDB extension with the "
-                                  "same bitness as the CDB you want to use.")
-                               .arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
-                                    QGuiApplication::applicationDisplayName()));
-        return;
+    // Locate the CDB helper extension (qtcreatorcdbext.dll), which must match cdb's architecture.
+    // For a local cdb it ships next to Qt Creator; for a remote Windows device it lives on the
+    // device, under the directory given by DebuggerRunParameters::cdbExtensionPath() (which holds
+    // the per-arch qtcreatorcdbext{,arm}{32,64} subdirectories).
+    const FilePath cdbCommand = sp.debugger().command.executable();
+    FilePath extensionDir;
+    if (cdbCommand.isLocal()) {
+        const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
+        if (!extensionFi.isFile()) {
+            handleSetupFailure(Tr::tr("Internal error: The extension %1 cannot be found.\n"
+                                      "If you have updated %2 via Maintenance Tool, you may "
+                                      "need to rerun the Tool and select \"Add or remove components\" "
+                                      "and then select the "
+                                      "Qt > Tools > Qt Creator CDB Debugger Support component.\n"
+                                      "If you build %2 from sources and want to use a CDB executable "
+                                      "with another bitness than your %2 build, "
+                                      "you will need to build a separate CDB extension with the "
+                                      "same bitness as the CDB you want to use.")
+                                   .arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
+                                        QGuiApplication::applicationDisplayName()));
+            return;
+        }
+        extensionDir = FilePath::fromString(extensionFi.absolutePath());
+        m_extensionFileName = extensionFi.fileName();
+    } else {
+        if (sp.cdbExtensionPath().isEmpty()) {
+            handleSetupFailure(Tr::tr("No CDB extension directory is configured for the device."));
+            return;
+        }
+        const QString archSubDir = QLatin1String(QT_CREATOR_CDB_EXT)
+                                   + QLatin1String(cdbIsArm ? "arm" : "")
+                                   + QLatin1String(cdbIs64Bit ? "64" : "32");
+        const FilePath dll = sp.cdbExtensionPath().pathAppended(archSubDir)
+                                 .pathAppended(QLatin1String(QT_CREATOR_CDB_EXT ".dll"));
+        if (!dll.isFile()) {
+            handleSetupFailure(Tr::tr("The CDB extension \"%1\" cannot be found on the device.")
+                                   .arg(dll.toUserOutput()));
+            return;
+        }
+        extensionDir = dll.parentDir();
+        m_extensionFileName = dll.fileName();
     }
 
     // Prepare command line.
     CommandLine debugger{sp.debugger().command};
-
-    m_extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode() == AttachToRemoteServer;
     if (isRemote) // Must be first
         debugger.addArgs({"-remote", sp.remoteChannel()});
@@ -386,10 +411,9 @@ void CdbEngine::setupEngine()
         return;
     }
 
-    const QString msg = QString("Launching %1\nusing %2 of %3.")
+    const QString msg = QString("Launching %1\nusing %2.")
                             .arg(debugger.toUserOutput(),
-                                 QDir::toNativeSeparators(extensionFi.absoluteFilePath()),
-                                 QLocale::system().toString(extensionFi.lastModified(), QLocale::ShortFormat));
+                                 extensionDir.pathAppended(m_extensionFileName).toUserOutput());
     showMessage(msg, LogMisc);
 
     m_autoBreakPointCorrection = false;
@@ -406,10 +430,14 @@ void CdbEngine::setupEngine()
         inferiorEnvironment.set(qtForceStderrLogging, "0");
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
-    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath());
-    const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
-    if (!oldCdbExtensionPath.isEmpty())
-        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath);
+    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC,
+                                     cdbCommand.isLocal() ? extensionDir.path()
+                                                          : extensionDir.nativePath());
+    if (cdbCommand.isLocal()) {
+        const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
+        if (!oldCdbExtensionPath.isEmpty())
+            inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath);
+    }
 
     if (!inferiorEnvironment.hasKey(Debugger::Constants::NO_DEBUG_HEAP)) {
         const QString value = s.enableHeapDebugging() ? "0" : "1";
