@@ -275,13 +275,19 @@ protected:
         const QColor bg = pal.color(QPalette::Window);
         p.setPen(fg);
 
-        // Draw relative line numbers.
-        QRectF boundingRect = m_documentLayout->blockBoundingRect(block);
-        QRect rect(0, m_editor->cursorRect(firstVisibleCursor).y(), width(), boundingRect.height());
-        bool hideLineNumbers = m_editor->lineNumbersVisible();
+        // Draw relative line numbers. Position each number at the block's
+        // actual location as laid out by the editor, so they stay aligned with
+        // lines of differing height (e.g. CJK glyphs) or that wrap
+        // (QTCREATORBUG-26802).
+        const QRect eventRect = event->rect();
+        const bool hideLineNumbers = m_editor->lineNumbersVisible();
         while (block.isValid()) {
             if (block.isVisible()) {
-                if (n != 0 && rect.intersects(event->rect())) {
+                QTextCursor blockCursor(m_editor->document());
+                blockCursor.setPosition(block.position());
+                const QRect cursorRect = m_editor->cursorRect(blockCursor);
+                const QRect rect(0, cursorRect.y(), width(), cursorRect.height());
+                if (n != 0 && rect.intersects(eventRect)) {
                     const int line = qAbs(n);
                     const QString number = QString::number(line);
                     if (hideLineNumbers)
@@ -290,8 +296,7 @@ protected:
                         p.drawText(rect, Qt::AlignRight, number);
                 }
 
-                rect.translate(0, boundingRect.height() * block.lineCount());
-                if (rect.y() > height())
+                if (cursorRect.y() > height())
                     break;
 
                 ++n;
