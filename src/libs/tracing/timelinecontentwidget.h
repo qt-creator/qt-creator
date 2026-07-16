@@ -121,8 +121,8 @@ private:
     QWidget *m_leftPanel = nullptr;
     QVBoxLayout *m_leftLayout = nullptr;
     QWidget *m_leftHeader = nullptr;
-    SelectionRangeOverlay *m_overlay;
-    SelectionRangeDetailsWidget *m_selectionDetails;
+    SelectionRangeOverlay *m_overlay = nullptr;
+    SelectionRangeDetailsWidget *m_selectionDetails = nullptr;
     RangeDetailsWidget *m_details; // Not owned; lives in a dockable view.
     TimelineNotesModel *m_notes = nullptr;
     // Backend-independent API of the single widget that renders all tracks, and
