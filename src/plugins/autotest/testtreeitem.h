@@ -67,6 +67,11 @@ public:
     virtual QList<ITestConfiguration *> getAllTestConfigurations() const { return {}; }
     virtual QList<ITestConfiguration *> getSelectedTestConfigurations() const { return {}; };
     virtual QList<ITestConfiguration *> getFailedTestConfigurations() const { return {}; }
+    // Configurations for an explicit set of items below this root. The default
+    // implementation creates one test configuration per item; a root that can
+    // run several of its items in one process merges them instead.
+    virtual QList<ITestConfiguration *> getTestConfigurationsForItems(
+        const QList<ITestTreeItem *> &items, TestRunMode mode) const;
 
     const QString name() const { return m_name; }
     void setName(const QString &name) { m_name = name; }

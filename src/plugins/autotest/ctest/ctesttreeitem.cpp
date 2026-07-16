@@ -65,6 +65,23 @@ ITestConfiguration *CTestTreeItem::testConfiguration() const
     return testConfigurationsFor({name()}).value(0);
 }
 
+QList<ITestConfiguration *> CTestTreeItem::getTestConfigurationsForItems(
+    const QList<ITestTreeItem *> &items, TestRunMode mode) const
+{
+    // Not testConfigurationsFor({}): an empty selection there means "run
+    // everything", which is not what an empty item list asks for. The default
+    // implementation returns nothing for it as well.
+    if (items.isEmpty())
+        return {};
+    if (mode != TestRunMode::Run && mode != TestRunMode::RunWithoutDeploy)
+        return {};
+    QStringList selected;
+    selected.reserve(items.size());
+    for (const ITestTreeItem *item : items)
+        selected.append(item->name());
+    return testConfigurationsFor(selected);
+}
+
 QVariant CTestTreeItem::data(int column, int role) const
 {
     if (role == Qt::CheckStateRole)

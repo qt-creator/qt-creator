@@ -16,6 +16,7 @@
 
 #include <projectexplorer/issuesmanager.h>
 
+#include <utils/qtcassert.h>
 #include <utils/result.h>
 
 #include <QJsonArray>
@@ -112,12 +113,25 @@ static Utils::Result<ResolvedTestRun> resolveTestRun(
                         "If you recently added or renamed these tests, call reconfigure "
                         "first to trigger a re-parse, then retry.")
                     .arg(notFound.join(", ")));
+        // Let each root turn its own items into configurations: the default is
+        // one per item, CTest merges them into a single ctest invocation.
+        // roots keeps the encounter order - iterating the hash would leave the
+        // order the tests run in undefined.
+        QList<ITestTreeItem *> roots;
+        QHash<ITestTreeItem *, QList<ITestTreeItem *>> itemsPerRoot;
         for (const QList<ITestTreeItem *> &items : itemsPerName) {
             for (ITestTreeItem *item : items) {
-                if (ITestConfiguration *cfg = item->asConfiguration(runMode))
-                    configs.append(cfg);
+                ITestTreeItem *root = item;
+                while (root && root->type() != ITestTreeItem::Root)
+                    root = static_cast<ITestTreeItem *>(root->parent());
+                QTC_ASSERT(root, continue);
+                if (!itemsPerRoot.contains(root))
+                    roots.append(root);
+                itemsPerRoot[root].append(item);
             }
         }
+        for (ITestTreeItem *root : roots)
+            configs.append(root->getTestConfigurationsForItems(itemsPerRoot.value(root), runMode));
     } else {
         return ResultError(QString("Unknown scope: %1 (expected all/selected/failed/named)").arg(s));
     }

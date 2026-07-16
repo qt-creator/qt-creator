@@ -142,6 +142,17 @@ ITestConfiguration *ITestTreeItem::asConfiguration(TestRunMode mode) const
     }
 }
 
+QList<ITestConfiguration *> ITestTreeItem::getTestConfigurationsForItems(
+    const QList<ITestTreeItem *> &items, TestRunMode mode) const
+{
+    QList<ITestConfiguration *> result;
+    for (ITestTreeItem *item : items) {
+        if (ITestConfiguration *config = item->asConfiguration(mode))
+            result.append(config);
+    }
+    return result;
+}
+
 /****************************** TestTreeItem ********************************************/
 
 TestTreeItem::TestTreeItem(ITestFramework *testFramework, const QString &name,

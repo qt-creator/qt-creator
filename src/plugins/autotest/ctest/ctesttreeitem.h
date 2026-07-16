@@ -15,6 +15,8 @@ public:
     QList<ITestConfiguration *> getAllTestConfigurations() const final;
     QList<ITestConfiguration *> getSelectedTestConfigurations() const final;
     QList<ITestConfiguration *> getFailedTestConfigurations() const final;
+    QList<ITestConfiguration *> getTestConfigurationsForItems(
+        const QList<ITestTreeItem *> &items, TestRunMode mode) const final;
     ITestConfiguration *testConfiguration() const final;
     bool canProvideTestConfiguration() const final { return true; }
 
