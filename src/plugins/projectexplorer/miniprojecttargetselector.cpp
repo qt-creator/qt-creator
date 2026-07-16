@@ -626,11 +626,6 @@ int SelectorView::padding()
 /////////
 // KitAreaWidget
 /////////
-void doLayout(KitAspect *aspect, Layouting::Layout &builder)
-{
-    aspect->addToLayout(builder);
-}
-
 class KitAreaWidget : public QWidget
 {
 public:
