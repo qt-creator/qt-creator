@@ -3352,8 +3352,6 @@ void FakeVimHandler::Private::commitCursor()
                 ++anc;
             else if (!tc.atBlockEnd())
                 ++pos;
-            // FIXME: After '$' command (i.e. m_visualTargetColumn == -1), end of selected lines
-            //        should be selected.
         } else if (isVisualLineMode()) {
             const int posLine = lineForPosition(pos);
             const int ancLine = lineForPosition(anc);
@@ -3385,7 +3383,7 @@ void FakeVimHandler::Private::commitCursor()
     updateCursorShape();
 
     if (isVisualBlockMode()) {
-        q->requestSetBlockSelection(tc);
+        q->requestSetBlockSelection(tc, m_visualTargetColumn == -1);
     } else  {
         q->requestDisableBlockSelection();
         if (editor())

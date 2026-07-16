@@ -1660,7 +1660,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             tew->setTextCursor(tew->textCursor());
     });
 
-    handler->requestSetBlockSelection.set([tew](const QTextCursor &cursor) {
+    handler->requestSetBlockSelection.set([tew](const QTextCursor &cursor, bool toEndOfLine) {
         if (tew) {
             const TabSettingsData &tabs = tew->textDocument()->tabSettings();
             MultiTextCursor mtc;
@@ -1671,11 +1671,15 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             const int pos = tabs.columnAt(cursor.block().text(), cursor.positionInBlock());
             while (block.isValid() && block != end) {
                 const int columns = tabs.columnCountForText(block.text());
-                if (columns >= anchor || columns >= pos) {
+                if (columns >= anchor || (!toEndOfLine && columns >= pos)) {
                     QTextCursor c(block);
                     c.setPosition(block.position() + tabs.positionAtColumn(block.text(), anchor));
-                    c.setPosition(block.position() + tabs.positionAtColumn(block.text(), pos),
-                                  QTextCursor::KeepAnchor);
+                    // After '$' the selection extends to the end of each line
+                    // rather than to a fixed column (QTCREATORBUG-22192).
+                    const int endPosition = toEndOfLine
+                            ? block.position() + block.length() - 1
+                            : block.position() + tabs.positionAtColumn(block.text(), pos);
+                    c.setPosition(endPosition, QTextCursor::KeepAnchor);
                     mtc.addCursor(c);
                 }
                 block = forwardSelection ? block.next() : block.previous();

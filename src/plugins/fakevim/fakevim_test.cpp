@@ -14,6 +14,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/multitextcursor.h>
+
 #include <QApplication>
 #include <QFocusEvent>
 #include <QDir>
@@ -177,6 +179,7 @@ private slots:
     void test_vim_source_utf8();
     void test_vim_fold_toggle_all();
     void test_vim_insert_indent();
+    void test_vim_block_selection_to_eol();
     void test_vim_replace_char_newline();
     void test_vim_backspace_option();
     void test_vim_open_line_with_fold();
@@ -4958,6 +4961,25 @@ void FakeVimTester::test_vim_insert_indent()
     KEYS("<C-t>", "        |abc");
     KEYS("<C-d>", "|    abc");
     KEYS("<C-d>", "|abc");
+}
+
+void FakeVimTester::test_vim_block_selection_to_eol()
+{
+    TestData data;
+    setup(&data);
+
+    // A block selection extended with '$' reaches the end of each (variable
+    // length) line, not a fixed column (QTCREATORBUG-22192).
+    data.setText("test line" N "  test line" N "abc" N "  test line" N "test line");
+    data.doKeys("gg^");
+    data.doKeys("<c-v>$4j");
+    const Utils::MultiTextCursor mtc = data.editor()->multiTextCursor();
+    QCOMPARE(mtc.cursors().size(), 5);
+    for (const QTextCursor &c : mtc) {
+        const QTextBlock b = c.document()->findBlock(c.selectionStart());
+        QCOMPARE(c.selectionStart() - b.position(), 0);
+        QCOMPARE(c.selectionEnd() - b.position(), int(b.length()) - 1);
+    }
 }
 
 void FakeVimTester::test_vim_replace_char_newline()

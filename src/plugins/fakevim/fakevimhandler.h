@@ -154,7 +154,7 @@ public:
     Callback<void()> findHideRequested;
     Callback<void(bool *handled, const ExCommand &cmd)> handleExCommandRequested;
     Callback<void()> requestDisableBlockSelection;
-    Callback<void(const QTextCursor &cursor)> requestSetBlockSelection;
+    Callback<void(const QTextCursor &cursor, bool toEndOfLine)> requestSetBlockSelection;
     Callback<void(QTextCursor *cursor)> requestBlockSelection;
     Callback<void(bool *on)> requestHasBlockSelection;
     Callback<void(int depth)> foldToggle;
