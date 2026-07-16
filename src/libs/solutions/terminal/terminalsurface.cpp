@@ -14,9 +14,9 @@
 
 namespace TerminalSolution {
 
-Q_LOGGING_CATEGORY(log, "qtc.terminal.surface", QtWarningMsg);
+static Q_LOGGING_CATEGORY(log, "qtc.terminal.surface", QtWarningMsg);
 
-QColor toQColor(const VTermColor &c)
+static QColor toQColor(const VTermColor &c)
 {
     return QColor(qRgb(c.rgb.red, c.rgb.green, c.rgb.blue));
 };

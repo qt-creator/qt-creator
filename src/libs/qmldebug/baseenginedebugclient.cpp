@@ -25,7 +25,7 @@ struct QmlObjectData {
     int contextId;
 };
 
-QDataStream &operator>>(QDataStream &ds, QmlObjectData &data)
+static QDataStream &operator>>(QDataStream &ds, QmlObjectData &data)
 {
     ds >> data.url >> data.lineNumber >> data.columnNumber >> data.idString
        >> data.objectName >> data.objectType >> data.objectId >> data.contextId;
@@ -42,7 +42,7 @@ struct QmlObjectProperty {
     bool hasNotifySignal;
 };
 
-QDataStream &operator>>(QDataStream &ds, QmlObjectProperty &data)
+static QDataStream &operator>>(QDataStream &ds, QmlObjectProperty &data)
 {
     int type;
     ds >> type >> data.name >> data.value >> data.valueTypeName

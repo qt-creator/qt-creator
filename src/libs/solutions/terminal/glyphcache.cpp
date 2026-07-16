@@ -7,7 +7,7 @@
 
 namespace TerminalSolution {
 
-size_t qHash(const GlyphCacheKey &key, size_t seed = 0)
+[[maybe_unused]] static size_t qHash(const GlyphCacheKey &key, size_t seed = 0)
 {
     return qHash(key.font, seed) ^ qHash(key.text, seed);
 }

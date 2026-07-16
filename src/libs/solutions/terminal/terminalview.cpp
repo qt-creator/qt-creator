@@ -28,9 +28,9 @@
 #include <QTextLayout>
 #include <QToolTip>
 
-Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
-Q_LOGGING_CATEGORY(selectionLog, "qtc.terminal.selection", QtWarningMsg)
-Q_LOGGING_CATEGORY(paintLog, "qtc.terminal.paint", QtWarningMsg)
+static Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
+static Q_LOGGING_CATEGORY(selectionLog, "qtc.terminal.selection", QtWarningMsg)
+static Q_LOGGING_CATEGORY(paintLog, "qtc.terminal.paint", QtWarningMsg)
 
 namespace TerminalSolution {
 

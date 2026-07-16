@@ -49,7 +49,7 @@ Result<EnumType> parseEnum(
     return defaultValue;
 }
 
-std::variant<QString, QStringList> parseStringOrList(
+static std::variant<QString, QStringList> parseStringOrList(
     const QJsonValue &value, const JsonStringToString &jsonStringToString)
 {
     if (value.isString())

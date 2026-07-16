@@ -119,12 +119,13 @@ bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<cons
 
 namespace Internal {
 
-bool operator==(const FullyQualifiedName &left, const FullyQualifiedName &right)
+[[maybe_unused]] static bool operator==(
+    const FullyQualifiedName &left, const FullyQualifiedName &right)
 {
     return compareFullyQualifiedName(left.fqn, right.fqn);
 }
 
-size_t qHash(const FullyQualifiedName &fullyQualifiedName)
+[[maybe_unused]] static size_t qHash(const FullyQualifiedName &fullyQualifiedName)
 {
     size_t h = 0;
     for (int i = 0; i < fullyQualifiedName.fqn.size(); ++i) {

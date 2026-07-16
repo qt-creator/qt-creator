@@ -27,7 +27,7 @@ static Registry &registry()
 
 } // namespace Internal
 
-ToolRegistry &toolRegistry()
+static ToolRegistry &toolRegistry()
 {
     static ToolRegistry registry;
     return registry;

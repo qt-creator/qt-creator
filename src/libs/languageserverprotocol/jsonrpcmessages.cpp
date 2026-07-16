@@ -18,7 +18,7 @@ using namespace Utils;
 
 namespace LanguageServerProtocol {
 
-Q_LOGGING_CATEGORY(timingLog, "qtc.languageserverprotocol.timing", QtWarningMsg)
+static Q_LOGGING_CATEGORY(timingLog, "qtc.languageserverprotocol.timing", QtWarningMsg)
 
 constexpr const char CancelRequest::methodName[];
 

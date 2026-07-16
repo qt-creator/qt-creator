@@ -26,7 +26,7 @@
 #include <QJsonValue>
 #include <QPluginLoader>
 
-Q_LOGGING_CATEGORY(pluginSpecLog, "qtc.extensionsystem.plugin", QtWarningMsg)
+static Q_LOGGING_CATEGORY(pluginSpecLog, "qtc.extensionsystem.plugin", QtWarningMsg)
 
 using namespace ExtensionSystem::Internal;
 using namespace Utils;

@@ -29,8 +29,8 @@ using QHttpServerResponse = MiniHttp::HttpResponse;
 using QHttpHeaders = MiniHttp::HttpHeaders;
 #endif
 
-Q_LOGGING_CATEGORY(mcpServerLog, "mcp.server", QtWarningMsg)
-Q_LOGGING_CATEGORY(mcpServerIOLog, "mcp.server.io", QtWarningMsg)
+static Q_LOGGING_CATEGORY(mcpServerLog, "mcp.server", QtWarningMsg)
+static Q_LOGGING_CATEGORY(mcpServerIOLog, "mcp.server.io", QtWarningMsg)
 
 using UniqueDeleteLaterTimer = std::unique_ptr<QTimer, QScopedPointerObjectDeleteLater<QTimer>>;
 

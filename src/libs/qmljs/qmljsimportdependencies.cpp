@@ -70,7 +70,7 @@ static bool languageIsCompatible(Dialect contextLanguage, Dialect importLanguage
     return false;
 }
 
-ImportKind::Enum toImportKind(ImportType::Enum type)
+static ImportKind::Enum toImportKind(ImportType::Enum type)
 {
     switch (type) {
     case ImportType::Invalid:

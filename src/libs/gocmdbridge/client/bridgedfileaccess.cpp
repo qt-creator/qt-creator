@@ -17,7 +17,7 @@
 #include <QLoggingCategory>
 #include <QTimer>
 
-Q_LOGGING_CATEGORY(faLog, "qtc.cmdbridge.fileaccess", QtWarningMsg);
+static Q_LOGGING_CATEGORY(faLog, "qtc.cmdbridge.fileaccess", QtWarningMsg);
 
 using namespace Utils;
 
@@ -57,7 +57,7 @@ static ResultError logError(const QString &message)
     return ResultError(message);
 }
 
-Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputData = {})
+static Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputData = {})
 {
     Process p;
     p.setCommand(cmdLine);
@@ -338,7 +338,7 @@ Result<bool> FileAccess::hasHardLinks(const FilePath &filePath) const
     }
 }
 
-FilePathInfo::FileFlags fileInfoFlagsfromStatMode(uint mode)
+static FilePathInfo::FileFlags fileInfoFlagsfromStatMode(uint mode)
 {
     // Copied from stat.h
     enum st_mode {

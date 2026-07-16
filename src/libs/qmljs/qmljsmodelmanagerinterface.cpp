@@ -1458,8 +1458,8 @@ void ModelManagerInterface::asyncReset()
     m_asyncResetTimer->start();
 }
 
-bool rescanExports(const QString &fileName, FindExportedCppTypes &finder,
-                   ModelManagerInterface::CppDataHash &newData)
+static bool rescanExports(const QString &fileName, FindExportedCppTypes &finder,
+                          ModelManagerInterface::CppDataHash &newData)
 {
     bool hasNewInfo = false;
 

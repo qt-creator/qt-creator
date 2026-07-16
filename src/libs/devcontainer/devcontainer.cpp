@@ -18,7 +18,7 @@
 #include <QCryptographicHash>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer", QtWarningMsg)
+static Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer", QtWarningMsg)
 
 using namespace Utils;
 using namespace QtTaskTree;
@@ -169,7 +169,7 @@ struct ContainerDetails
 };
 
 // QDebug stream operator for ContainerDetails
-QDebug operator<<(QDebug debug, const ContainerDetails &details)
+static QDebug operator<<(QDebug debug, const ContainerDetails &details)
 {
     QDebugStateSaver saver(debug);
     debug.nospace() << "ContainerDetails(Id: " << details.Id << ", Created: " << details.Created
@@ -235,7 +235,7 @@ struct ImageDetails
 };
 
 // QDebug stream operator for ImageDetails
-QDebug operator<<(QDebug debug, const ImageDetails &details)
+static QDebug operator<<(QDebug debug, const ImageDetails &details)
 {
     QDebugStateSaver saver(debug);
     debug.nospace() << "ImageDetails(Id: " << details.Id
@@ -325,7 +325,7 @@ static QStringList toAppPortArg(const QList<std::variant<int, QString>> &ports)
     return args;
 }
 
-QStringList createAppPortArgs(std::variant<int, QString, QList<std::variant<int, QString>>> appPort)
+static QStringList createAppPortArgs(std::variant<int, QString, QList<std::variant<int, QString>>> appPort)
 {
     return std::visit(
         overloaded{

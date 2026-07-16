@@ -59,7 +59,7 @@ Qt::Edge static edgeFromSideTabBarArea(SideBarLocation area)
     return Qt::LeftEdge;
 }
 
-int resizeHandleLayoutPosition(SideBarLocation area)
+static int resizeHandleLayoutPosition(SideBarLocation area)
 {
     switch (area) {
     case SideBarLocation::SideBarBottom:

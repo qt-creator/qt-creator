@@ -20,7 +20,7 @@
 #include <QThread>
 #include <QTimer>
 
-Q_LOGGING_CATEGORY(clientLog, "qtc.cmdbridge.client", QtWarningMsg)
+static Q_LOGGING_CATEGORY(clientLog, "qtc.cmdbridge.client", QtWarningMsg)
 
 #define ASSERT_TYPE(expectedtype) \
     if (map.value("Type").toString() != expectedtype) { \
@@ -76,7 +76,7 @@ struct ClientPrivate
     std::optional<Result<>> handleSocketResults(const QVariantMap &map);
 };
 
-QString decodeString(QCborStreamReader &reader)
+static QString decodeString(QCborStreamReader &reader)
 {
     QString result;
     auto r = reader.readString();
@@ -92,7 +92,7 @@ QString decodeString(QCborStreamReader &reader)
     return result;
 }
 
-QByteArray decodeByteArray(QCborStreamReader &reader)
+static QByteArray decodeByteArray(QCborStreamReader &reader)
 {
     QByteArray result;
     auto r = reader.readByteArray();
@@ -108,7 +108,7 @@ QByteArray decodeByteArray(QCborStreamReader &reader)
     return result;
 }
 
-QVariant simpleToVariant(QCborSimpleType s)
+static QVariant simpleToVariant(QCborSimpleType s)
 {
     switch (s) {
     case QCborSimpleType::False:
@@ -125,7 +125,7 @@ QVariant simpleToVariant(QCborSimpleType s)
 
 static QVariant readVariant(QCborStreamReader &reader);
 
-QVariant decodeArray(QCborStreamReader &reader)
+static QVariant decodeArray(QCborStreamReader &reader)
 {
     QVariantList result;
     reader.enterContainer();
