@@ -9,7 +9,7 @@
 
 #include <chrono>
 
-Q_LOGGING_CATEGORY(terminalSearchLog, "qtc.terminal.search", QtWarningMsg)
+static Q_LOGGING_CATEGORY(terminalSearchLog, "qtc.terminal.search", QtWarningMsg)
 
 using namespace Utils;
 
@@ -82,7 +82,7 @@ void TerminalSearch::updateHits()
     m_debounceTimer.start();
 }
 
-bool isSpace(char32_t a, char32_t b)
+static bool isSpace(char32_t a, char32_t b)
 {
     if (a == std::numeric_limits<char32_t>::max())
         return std::isspace(b);

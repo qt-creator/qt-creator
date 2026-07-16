@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(logBaseTextDocument, "qtc.core.basetextdocument", QtWarningMsg)
+static Q_LOGGING_CATEGORY(logBaseTextDocument, "qtc.core.basetextdocument", QtWarningMsg)
 
 /*!
     \class Core::BaseTextDocument

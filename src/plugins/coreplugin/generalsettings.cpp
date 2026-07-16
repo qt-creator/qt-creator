@@ -155,7 +155,7 @@ public:
     }
 };
 
-InfoLabel *createEnvVarInfoLabel()
+static InfoLabel *createEnvVarInfoLabel()
 {
     static const bool showDpiPolicy = StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
                                       != Qt::HighDpiScaleFactorRoundingPolicy::Unset;

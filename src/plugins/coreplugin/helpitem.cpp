@@ -13,7 +13,7 @@
 
 namespace Core {
 
-Q_LOGGING_CATEGORY(helpItemLog, "qtc.helpitem", QtWarningMsg)
+static Q_LOGGING_CATEGORY(helpItemLog, "qtc.helpitem", QtWarningMsg)
 
 Q_GLOBAL_STATIC(HelpItem::LinkNarrower, m_linkNarrower);
 

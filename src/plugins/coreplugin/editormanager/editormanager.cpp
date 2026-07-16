@@ -4039,12 +4039,12 @@ void EditorManager::goForwardInNavigationHistory()
     EditorManagerPrivate::updateActions();
 }
 
-EditorWindow *windowForEditorArea(EditorArea *area)
+static EditorWindow *windowForEditorArea(EditorArea *area)
 {
     return qobject_cast<EditorWindow *>(area->window());
 }
 
-QVector<EditorWindow *> editorWindows(const QList<EditorArea *> &areas)
+static QVector<EditorWindow *> editorWindows(const QList<EditorArea *> &areas)
 {
     QVector<EditorWindow *> result;
     for (EditorArea *area : areas)

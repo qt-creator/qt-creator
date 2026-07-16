@@ -26,7 +26,7 @@
 
 using namespace Utils;
 
-Q_LOGGING_CATEGORY(openEditorsLog, "qtc.core.openeditorswindow", QtWarningMsg);
+static Q_LOGGING_CATEGORY(openEditorsLog, "qtc.core.openeditorswindow", QtWarningMsg);
 
 namespace Core::Internal {
 

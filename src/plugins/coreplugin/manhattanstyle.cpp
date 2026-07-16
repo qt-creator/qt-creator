@@ -340,7 +340,7 @@ void ManhattanStyle::unpolish(QApplication *app)
     QProxyStyle::unpolish(app);
 }
 
-QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
+static QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
 {
     QColor color = creatorColor(lightColored ? Theme::PanelTextColorDark
                                              : Theme::PanelTextColorLight);

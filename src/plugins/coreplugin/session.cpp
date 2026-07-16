@@ -113,7 +113,7 @@ public:
 
 static SessionManagerPrivate *d = nullptr;
 
-SessionManager *sessionManager()
+static SessionManager *sessionManager()
 {
     static GuardedObject<SessionManager> theSessionManager;
     return theSessionManager.get();

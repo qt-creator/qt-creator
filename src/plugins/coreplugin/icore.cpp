@@ -103,7 +103,7 @@
 #include <malloc.h>
 #endif
 
-Q_LOGGING_CATEGORY(coreLog, "qtc.core", QtWarningMsg)
+static Q_LOGGING_CATEGORY(coreLog, "qtc.core", QtWarningMsg)
 
 /*!
     \namespace Core
@@ -978,7 +978,7 @@ void ICore::addPreCloseListener(const std::function<bool ()> &listener)
     d->m_preCloseListeners.append(listener);
 }
 
-QString uiConfigInformation()
+static QString uiConfigInformation()
 {
     QString info("UI configuration:\n\n");
     info.append(QString("Color: %1\n").arg(StyleHelper::requestedBaseColor().name()));

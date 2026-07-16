@@ -1403,7 +1403,7 @@ void DocumentManager::saveSettings()
     s->endGroup();
 }
 
-void restoreRecentFiles(const QVariantList &recentFiles, const QStringList &recentEditorIds)
+static void restoreRecentFiles(const QVariantList &recentFiles, const QStringList &recentEditorIds)
 {
     QList<DocumentManager::RecentFile> result;
 

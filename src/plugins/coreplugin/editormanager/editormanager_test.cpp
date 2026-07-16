@@ -63,7 +63,7 @@ public:
     }
 };
 
-QList<EditorView *> mainAreaViews()
+static QList<EditorView *> mainAreaViews()
 {
     EditorView *it = EMP::mainEditorArea()->findFirstView();
     QList<EditorView *> views;

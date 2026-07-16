@@ -46,7 +46,7 @@ static void addActivationInfo(Id activatedId, const ActivationInfo &activationIn
     s_activationsMap.insert(activatedId, activationInfo);
 }
 
-NavigationWidget *instance(Side side)
+static NavigationWidget *instance(Side side)
 {
     return side == Side::Left ? s_instanceLeft : s_instanceRight;
 }

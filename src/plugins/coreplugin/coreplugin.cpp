@@ -171,7 +171,7 @@ struct CoreArguments {
     bool presentationMode = false;
 };
 
-CoreArguments parseArguments(const QStringList &arguments)
+static CoreArguments parseArguments(const QStringList &arguments)
 {
     CoreArguments args;
     for (int i = 0; i < arguments.size(); ++i) {

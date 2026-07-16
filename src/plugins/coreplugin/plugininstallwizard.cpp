@@ -151,7 +151,7 @@ static Result<std::unique_ptr<PluginSpec>> checkPlugin(
 }
 
 // Async. Result is set if any issue was found.
-void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir, bool update)
+static void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir, bool update)
 {
     QList<PluginSpec *> plugins = pluginSpecsFromArchive(tempDir);
     if (plugins.isEmpty()) {
@@ -477,7 +477,7 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
     return true;
 }
 
-QString extensionId(PluginSpec *spec)
+static QString extensionId(PluginSpec *spec)
 {
     return spec->vendorId() + "." + spec->id();
 }

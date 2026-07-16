@@ -630,7 +630,7 @@ void ShortcutSettingsWidget::apply()
         item->m_cmd->setKeySequences(item->m_keys);
 }
 
-ShortcutItem *shortcutItem(QTreeWidgetItem *treeItem)
+static ShortcutItem *shortcutItem(QTreeWidgetItem *treeItem)
 {
     if (!treeItem)
         return nullptr;
