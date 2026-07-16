@@ -348,8 +348,6 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     CMakeProgressParser * const progressParser = new CMakeProgressParser(cbs->cmakeGenerator());
     connect(progressParser, &CMakeProgressParser::progress, this, &CMakeBuildStep::progress);
     formatter->addLineParser(progressParser);
-    cmakeOutputParser->setSourceDirectories(
-        {project()->projectDirectory(), buildConfiguration()->buildDirectory()});
     formatter->addLineParsers({new CMakeAutogenParser, cmakeOutputParser, new GnuMakeParser});
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
@@ -362,6 +360,10 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     for (Utils::OutputLineParser * const p : additionalParsers)
         p->setRedirectionDetector(progressParser);
     formatter->addLineParsers(additionalParsers);
+    // Both only reach parsers already registered with the formatter, so they
+    // have to come after every addLineParser() call above.
+    cmakeOutputParser->setSourceDirectories(
+        {project()->projectDirectory(), buildConfiguration()->buildDirectory()});
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     CMakeAbstractProcessStep::setupOutputFormatter(formatter);
 }

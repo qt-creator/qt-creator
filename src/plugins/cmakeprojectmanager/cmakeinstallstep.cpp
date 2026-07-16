@@ -53,9 +53,10 @@ private:
 void CMakeInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     CMakeOutputParser *cmakeOutputParser = new CMakeOutputParser;
+    formatter->addLineParsers({new CMakeAutogenParser, cmakeOutputParser});
+    // Only reaches the formatter once the parser is registered with it.
     cmakeOutputParser->setSourceDirectories(
         {project()->projectDirectory(), buildConfiguration()->buildDirectory()});
-    formatter->addLineParsers({new CMakeAutogenParser, cmakeOutputParser});
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     CMakeAbstractProcessStep::setupOutputFormatter(formatter);
 }

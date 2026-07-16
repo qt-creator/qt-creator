@@ -260,9 +260,10 @@ void FileApiReader::parse(bool forceCMakeRun,
 
             // Output parsers
             const auto parser = new CMakeOutputParser;
-            parser->setSourceDirectories({params.sourceDirectory, params.buildDirectory});
             outputFormatter->addLineParsers({new CMakeAutogenParser, parser});
             outputFormatter->addLineParsers(params.outputParsers());
+            // Only reaches the formatter once the parser is registered with it.
+            parser->setSourceDirectories({params.sourceDirectory, params.buildDirectory});
 
             // Copy cmake-helper directory
             const FilePath ideCMakeHelperDir = Core::ICore::resourcePath("cmake-helper");
