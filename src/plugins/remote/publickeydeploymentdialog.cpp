@@ -48,6 +48,11 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
     setMinimumDuration(0);
     setMaximum(1);
 
+    // The label text can contain a long error message
+    auto label = new QLabel(this);
+    label->setWordWrap(true);
+    setLabel(label);
+
     setLabelText(Tr::tr("Deploying..."));
     setValue(0);
     connect(this, &PublicKeyDeploymentDialog::canceled, this,
