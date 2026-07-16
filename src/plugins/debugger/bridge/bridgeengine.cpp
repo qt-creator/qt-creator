@@ -6,6 +6,7 @@
 #include <debugger/dap/dapclient.h>
 
 #include <debugger/breakhandler.h>
+#include <debugger/debuggeractions.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerprotocol.h>
@@ -17,6 +18,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/environment.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
@@ -27,6 +29,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QStringDecoder>
 
 #include <cstdlib>
 
@@ -110,76 +113,7 @@ private:
     }
 };
 
-BridgeVariablesHandler::BridgeVariablesHandler(BridgeEngine *engine)
-    : m_engine(engine)
-{}
-
-void BridgeVariablesHandler::addVariable(const QString &iname, int variablesReference)
-{
-    VariableItem varItem = {iname, variablesReference};
-    bool wasEmpty = m_queue.empty();
-    bool inserted = false;
-
-    for (auto i = m_queue.begin(); i != m_queue.end(); ++i) {
-        if (i->iname > iname) {
-            m_queue.insert(i, varItem);
-            inserted = true;
-            break;
-        }
-    }
-    if (!inserted)
-        m_queue.push_back(varItem);
-
-    if (wasEmpty)
-        startHandling();
-}
-
-void BridgeVariablesHandler::handleNext()
-{
-    if (m_queue.empty())
-        return;
-
-    m_queue.pop_front();
-    startHandling();
-}
-
-void BridgeVariablesHandler::startHandling()
-{
-    if (m_queue.empty())
-        return;
-
-    m_currentVarItem = m_queue.front();
-
-    WatchItem *watchItem = m_engine->watchHandler()->findItem(m_currentVarItem.iname);
-    int variablesReference = m_currentVarItem.variablesReference;
-
-    if (variablesReference == -1 && watchItem && watchItem->iname.startsWith("watch.")
-        && watchItem->iname.split('.').size() == 2) {
-        watchItem->removeChildren();
-        m_engine->dapClient()->evaluateVariable(watchItem->name,
-                                                m_engine->currentStackFrameId());
-        return;
-    }
-
-    if (variablesReference == -1) {
-        if (watchItem) {
-            variablesReference = watchItem->variablesReference;
-        } else {
-            handleNext();
-            return;
-        }
-    }
-
-    if (variablesReference == 0) {
-        handleNext();
-        return;
-    }
-
-    m_engine->dapClient()->variables(variablesReference);
-}
-
 BridgeEngine::BridgeEngine()
-    : m_variablesHandler(std::make_unique<BridgeVariablesHandler>(this))
 {
     setObjectName("BridgeEngine");
     setDebuggerName("Gdb");
@@ -367,14 +301,16 @@ void BridgeEngine::activateFrame(int frameIndex)
     gotoLocation(handler->currentFrame());
 
     m_currentStackFrameId = handler->currentFrame().debuggerId;
-    m_dapClient->scopes(m_currentStackFrameId);
+    updateLocals();
 }
 
 void BridgeEngine::selectThread(const Thread &thread)
 {
     m_currentThreadId = thread->id().toInt();
     threadsHandler()->setCurrentThread(thread);
-    updateLocals();
+    // Not just the locals: the frame id they are fetched for belongs to the
+    // thread we are leaving.
+    updateAll();
 }
 
 bool BridgeEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
@@ -614,33 +550,41 @@ void BridgeEngine::refreshSymbols(const GdbMi &symbols)
     showModuleSymbols(FilePath::fromUserInput(moduleName), syms);
 }
 
-void BridgeEngine::updateItem(const QString &iname)
-{
-    WatchItem *item = watchHandler()->findItem(iname);
-
-    if (item && m_variablesHandler->currentItem().iname != item->iname)
-        m_variablesHandler->addVariable(item->iname, item->variablesReference);
-}
-
-void BridgeEngine::reexpandItems(const QSet<QString> &inames)
-{
-    QSet<QString> expandedInames = inames;
-    const auto &watcherNames = watchHandler()->watcherNames();
-    for (auto it = watcherNames.begin(); it != watcherNames.end(); ++it)
-        expandedInames.insert(watchHandler()->watcherName(it.key()));
-
-    QStringList inamesVector = expandedInames.values();
-    inamesVector.sort();
-
-    for (const QString &iname : std::as_const(inamesVector)) {
-        if (iname.startsWith("local.") || iname.startsWith("watch."))
-            m_variablesHandler->addVariable(iname, -1);
-    }
-}
-
 void BridgeEngine::doUpdateLocals(const UpdateParameters &params)
 {
-    m_variablesHandler->addVariable(params.partialVariable, -1);
+    // Drive the real Qt dumpers over the native qtc/fetchVariables request.
+    // The response payload is the dumper's structured output, consumed by the
+    // shared updateLocalsView() - the same path GdbEngine uses. Lazy expansion
+    // and watchers ride along via WatchHandler's format/watcher requests
+    // (the 'expanded' set among them).
+    watchHandler()->notifyUpdateStarted(params);
+
+    DebuggerCommand cmd("fetchVariables");
+    watchHandler()->appendFormatRequests(&cmd);
+    watchHandler()->appendWatchersAndTooltipRequests(&cmd);
+
+    const DebuggerSettings &s = settings();
+    cmd.arg("passexceptions", qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE"));
+    cmd.arg("fancy", s.useDebuggingHelpers());
+    cmd.arg("allowinferiorcalls", s.allowInferiorCalls());
+    cmd.arg("autoderef", s.autoDerefPointers());
+    cmd.arg("dyntype", s.useDynamicType());
+    cmd.arg("qobjectnames", s.showQObjectNames());
+    cmd.arg("qtversion", runParameters().qtVersion());
+    cmd.arg("qtnamespace", runParameters().configuredQtNamespace());
+
+    const StackFrame frame = stackHandler()->currentFrame();
+    cmd.arg("context", frame.context);
+    cmd.arg("nativemixed", false);
+
+    cmd.arg("stringcutoff", s.maximalStringLength());
+    cmd.arg("displaystringlimit", s.displayStringLimit());
+
+    cmd.arg("resultvarname", QString());
+    cmd.arg("partialvar", params.partialVariable);
+    cmd.arg("frameid", m_currentStackFrameId);
+
+    m_dapClient->postRequest("qtc/fetchVariables", cmd.args.toObject());
 }
 
 QString BridgeEngine::errorMessage(QProcess::ProcessError error) const
@@ -710,9 +654,21 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
     const bool success = response.value("success").toBool();
 
     switch (type) {
-    case DapResponseType::Initialize:
+    case DapResponseType::Initialize: {
+        // setupDumpers() reports which types the dumpers know and which
+        // display formats they offer, in the same shape the loadDumpers reply
+        // had; without it the format menus lose the dumper-provided entries.
+        const QString dumpers = response.value("body").toObject()
+                                    .value("qtcDumpers").toString();
+        if (!dumpers.isEmpty()) {
+            QStringDecoder decoder(QStringDecoder::Utf8);
+            GdbMi reported;
+            reported.fromString('{' + dumpers + '}', decoder);
+            watchHandler()->addDumpers(reported["dumpers"]);
+        }
         handleDapInitialize();
         break;
+    }
     case DapResponseType::ConfigurationDone:
         showMessage("configurationDone", LogDebug);
         handleDapConfigurationDone();
@@ -724,14 +680,6 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
     case DapResponseType::StackTrace:
         handleStackTraceResponse(response);
         break;
-    case DapResponseType::Scopes:
-        handleScopesResponse(response);
-        break;
-    case DapResponseType::Variables: {
-        auto variables = response.value("body").toObject().value("variables").toArray();
-        refreshLocals(variables);
-        break;
-    }
     case DapResponseType::StepIn:
     case DapResponseType::StepOut:
     case DapResponseType::StepOver:
@@ -744,9 +692,6 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         break;
     case DapResponseType::DapThreads:
         handleThreadsResponse(response);
-        break;
-    case DapResponseType::Evaluate:
-        handleEvaluateResponse(response);
         break;
     case DapResponseType::Pause:
         // A refused pause must not leave the engine waiting in
@@ -769,7 +714,22 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         }
         break;
     default:
-        showMessage("UNKNOWN RESPONSE:" + command);
+        if (!success) {
+            // A failed request has no body, and handing that to the handlers
+            // below would wipe the view each one fills. The locals view has to
+            // be released even so, or it stays in its updating state - with
+            // stale, unexpandable items - until the next successful fetch.
+            if (command == "qtc/fetchVariables") {
+                showMessage("FETCHING VARIABLES FAILED: "
+                            + response.value("message").toString());
+                watchHandler()->notifyUpdateFinished();
+            }
+            break;
+        }
+        if (command == "qtc/fetchVariables")
+            handleFetchVariablesResponse(response);
+        else
+            showMessage("UNKNOWN RESPONSE:" + command);
     }
 
     if (!success) {
@@ -794,27 +754,7 @@ void BridgeEngine::handleStackTraceResponse(const QJsonObject &response)
     const uint frameId = stackHandler()->currentFrame().debuggerId;
     m_currentStackFrameId = frameId ? int(frameId)
                                     : stackFrames.first().toObject().value("id").toInt();
-    m_dapClient->scopes(m_currentStackFrameId);
-}
-
-void BridgeEngine::handleScopesResponse(const QJsonObject &response)
-{
-    if (!response.value("success").toBool())
-        return;
-
-    watchHandler()->resetValueCache();
-    watchHandler()->notifyUpdateStarted();
-
-    const QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
-    for (const QJsonValueConstRef &scope : scopes) {
-        const QString name = scope.toObject().value("name").toString();
-        if (name == "Registers")
-            continue;
-        m_variablesHandler->addVariable("", scope.toObject().value("variablesReference").toInt());
-    }
-
-    if (m_variablesHandler->queueSize() == 0)
-        watchHandler()->notifyUpdateFinished();
+    updateLocals();
 }
 
 void BridgeEngine::handleThreadsResponse(const QJsonObject &response)
@@ -839,22 +779,17 @@ void BridgeEngine::handleThreadsResponse(const QJsonObject &response)
     }
 }
 
-void BridgeEngine::handleEvaluateResponse(const QJsonObject &response)
+void BridgeEngine::handleFetchVariablesResponse(const QJsonObject &response)
 {
-    WatchItem *watchItem = watchHandler()->findItem(m_variablesHandler->currentItem().iname);
-    if (watchItem && response.value("body").toObject().contains("variablesReference")) {
-        watchItem->variablesReference
-            = response.value("body").toObject().value("variablesReference").toInt();
-        watchItem->value = response.value("body").toObject().value("result").toString();
-        watchItem->type = response.value("body").toObject().value("type").toString();
-        watchItem->wantsChildren = watchItem->variablesReference > 0;
-
-        watchItem->updateValueCache();
-        watchItem->update();
-
-        m_variablesHandler->addVariable(watchItem->iname, watchItem->variablesReference);
-    }
-    m_variablesHandler->handleNext();
+    // The body carries the dumper's structured output verbatim; parse it with
+    // the existing GdbMi reader and feed the shared updateLocalsView().
+    const QString payload = response.value("body").toObject().value("dumperResult").toString();
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi all;
+    all.fromString('{' + payload + '}', decoder);
+    updateLocalsView(all);
+    watchHandler()->notifyUpdateFinished();
+    updateToolTips();
 }
 
 void BridgeEngine::handleBreakpointResponse(const QJsonObject &response)
@@ -1008,44 +943,6 @@ void BridgeEngine::handleStoppedEvent(const QJsonObject &event)
     m_dapClient->threads();
 }
 
-void BridgeEngine::refreshLocals(const QJsonArray &variables)
-{
-    WatchItem *currentItem = watchHandler()->findItem(m_variablesHandler->currentItem().iname);
-    if (currentItem && currentItem->iname.startsWith("watch"))
-        currentItem->removeChildren();
-
-    for (const auto &variable : variables) {
-        WatchItem *item = new WatchItem;
-        const QString name = variable.toObject().value("name").toString();
-
-        item->iname = (currentItem ? currentItem->iname : "local") + "." + name;
-        item->name = name;
-        item->type = variable.toObject().value("type").toString();
-        item->value = variable.toObject().value("value").toString();
-        item->address = quint64(variable.toObject().value("address").toInteger());
-        item->variablesReference = variable.toObject().value("variablesReference").toInt();
-        item->wantsChildren = item->variablesReference > 0;
-
-        if (currentItem)
-            currentItem->appendChild(item);
-        else
-            watchHandler()->insertItem(item);
-    }
-
-    if (currentItem) {
-        QModelIndex idx = watchHandler()->model()->indexForItem(currentItem);
-        if (idx.isValid() && idx.data(LocalsExpandedRole).toBool()) {
-            emit watchHandler()->model()->inameIsExpanded(currentItem->iname);
-            emit watchHandler()->model()->itemIsExpanded(idx);
-        }
-    }
-
-    if (m_variablesHandler->queueSize() == 1 && currentItem == nullptr)
-        watchHandler()->notifyUpdateFinished();
-
-    m_variablesHandler->handleNext();
-}
-
 void BridgeEngine::refreshStack(const QJsonArray &stackFrames)
 {
     StackHandler *handler = stackHandler();
@@ -1080,13 +977,10 @@ void BridgeEngine::reloadFullStack()
 
 void BridgeEngine::updateAll()
 {
-    runCommand({"stackListFrames"});
-    updateLocals();
-}
-
-void BridgeEngine::updateLocals()
-{
-    m_dapClient->stackTrace(m_currentThreadId);
+    // Refresh the stack; its response chains into the base updateLocals(),
+    // which drives doUpdateLocals() -> qtc/fetchVariables.
+    if (m_currentThreadId != -1)
+        m_dapClient->stackTrace(m_currentThreadId);
 }
 
 bool BridgeEngine::hasCapability(unsigned cap) const

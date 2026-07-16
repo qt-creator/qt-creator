@@ -12,60 +12,28 @@
 #include <QSet>
 #include <QString>
 
-#include <list>
-#include <memory>
-
 namespace Debugger::Internal {
 
 // A debugger engine that speaks a DAP-shaped protocol to Qt Creator's own
 // Python bridge (gdbbridge.py) rather than to a foreign DAP adapter. It
 // deliberately duplicates the relevant parts of the dap/ DapEngine instead of
-// inheriting from it, so the experimental path (native, dumper-aware
-// breakpoints and variables) can diverge freely without perturbing the DAP
-// engine. The transport (dap/DapClient) is still reused.
+// inheriting from it, so the experimental path can diverge freely without
+// perturbing the DAP engine. The transport (dap/DapClient) is still reused.
+//
+// The control plane is DAP-shaped; variables use the native, dumper-aware
+// qtc/fetchVariables request (the real Qt dumpers, iname identity, reusing
+// updateLocalsView) rather than the DAP variablesReference model.
 
-class BridgeEngine;
 class DapClient;
 class DebuggerCommand;
 class GdbMi;
 enum class DapResponseType;
 enum class DapEventType;
 
-// Serializes the on-demand fetching of variable subtrees. Copied from the
-// DAP engine's VariablesHandler; will be replaced once the native iname-based
-// variable payload lands.
-class BridgeVariablesHandler
-{
-public:
-    BridgeVariablesHandler(BridgeEngine *engine);
-
-    struct VariableItem
-    {
-        QString iname;
-        int variablesReference;
-    };
-
-    void addVariable(const QString &iname, int variablesReference);
-    void handleNext();
-
-    VariableItem currentItem() const { return m_currentVarItem; }
-    int queueSize() const { return int(m_queue.size()); }
-
-private:
-    void startHandling();
-
-    BridgeEngine *m_engine;
-    std::list<VariableItem> m_queue;
-    VariableItem m_currentVarItem;
-};
-
 class BridgeEngine : public DebuggerEngine
 {
 public:
     BridgeEngine();
-
-    DapClient *dapClient() const { return m_dapClient; }
-    int currentStackFrameId() const { return m_currentStackFrameId; }
 
 private:
     void setupEngine() override;
@@ -100,12 +68,8 @@ private:
     void reloadSourceFiles() override {}
     void reloadFullStack() override;
 
-    void updateItem(const QString &iname) override;
-    void reexpandItems(const QSet<QString> &inames) override;
     void doUpdateLocals(const UpdateParameters &params) override;
-
     void updateAll() override;
-    void updateLocals() override;
 
     bool hasCapability(unsigned cap) const override;
 
@@ -113,7 +77,6 @@ private:
 
     void refreshLocation(const GdbMi &reportedLocation);
     void refreshStack(const QJsonArray &stackFrames);
-    void refreshLocals(const QJsonArray &variables);
     void refreshModules(const GdbMi &modules);
     void refreshState(const GdbMi &reportedState);
     void refreshSymbols(const GdbMi &symbols);
@@ -137,10 +100,9 @@ private:
 
     void handleResponse(DapResponseType type, const QJsonObject &response);
     void handleStackTraceResponse(const QJsonObject &response);
-    void handleScopesResponse(const QJsonObject &response);
     void handleThreadsResponse(const QJsonObject &response);
-    void handleEvaluateResponse(const QJsonObject &response);
     void handleBreakpointResponse(const QJsonObject &response);
+    void handleFetchVariablesResponse(const QJsonObject &response);
 
     void handleEvent(DapEventType type, const QJsonObject &event);
     void handleStoppedEvent(const QJsonObject &event);
@@ -153,10 +115,6 @@ private:
 
     int m_currentThreadId = -1;
     int m_currentStackFrameId = -1;
-
-    std::unique_ptr<BridgeVariablesHandler> m_variablesHandler;
-
-    friend class BridgeVariablesHandler;
 };
 
 DebuggerEngine *createBridgeEngine();

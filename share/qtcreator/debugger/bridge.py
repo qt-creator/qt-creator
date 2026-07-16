@@ -36,17 +36,15 @@ class DapServer():
         self.seq = 0
         self.running = False
         self.attachMode = False
+        self.dumperSetup = ''
 
         # Per-source list of gdb.Breakpoint objects we created, so setBreakpoints
         # can implement DAP's declarative whole-source replace.
         self.sourceBreakpoints = {}
         self.functionBreakpoints = []
 
-        # Rebuilt on every stop: maps a DAP frame id to a gdb.Frame, and a
-        # variablesReference to what it refers to.
+        # Rebuilt on every stop: maps a DAP frame id to a gdb.Frame.
         self.frameForId = {}
-        self.variableReferences = {}
-        self.nextVariablesReference = 1
 
         # Recorded by the gdb event handlers during a blocking execution
         # command, consumed right after it returns.
@@ -134,6 +132,16 @@ class DapServer():
             except gdb.error:
                 pass
 
+        # Register the Qt/stdlib type dumpers so qtc/fetchVariables produces
+        # Qt-aware output (the C++ engine no longer sends a separate
+        # loadDumpers command).
+        try:
+            # The return value lists the types the dumpers know and the display
+            # formats they offer; the C++ side needs it for the format menus.
+            self.dumperSetup = self.dumper.setupDumpers()
+        except Exception as error:
+            warn('setupDumpers failed: %s' % error)
+
         self.running = True
         while self.running:
             try:
@@ -148,7 +156,8 @@ class DapServer():
 
     def _dispatch(self, request):
         command = request.get('command', '')
-        handler = getattr(self, 'cmd_' + command, None)
+        # qtc/ extension requests map to cmd_qtc_<name> handlers.
+        handler = getattr(self, 'cmd_' + command.replace('/', '_'), None)
         if handler is None:
             self.sendResponse(request, success=False,
                               message='unhandled request: %s' % command)
@@ -225,6 +234,8 @@ class DapServer():
             'supportsFunctionBreakpoints': True,
             'supportsConditionalBreakpoints': True,
             'supportsEvaluateForHovers': True,
+            # What the dumpers registered, verbatim from setupDumpers().
+            'qtcDumpers': self.dumperSetup,
         })
         self.sendEvent('initialized')
 
@@ -400,23 +411,31 @@ class DapServer():
         self.sendResponse(request, body={'stackFrames': frames,
                                          'totalFrames': len(frames)})
 
-    def cmd_scopes(self, request):
-        frameId = request.get('arguments', {}).get('frameId', 0)
-        reference = self._makeReference(('locals', frameId))
-        self.sendResponse(request, body={'scopes': [
-            {'name': 'Locals', 'variablesReference': reference,
-             'expensive': False},
-        ]})
+    def cmd_qtc_fetchVariables(self, request):
+        # Native, dumper-aware variables: run the real Qt dumpers for the
+        # requested frame and return their structured output verbatim; the C++
+        # side parses it with GdbMi and feeds the shared updateLocalsView(). We
+        # capture the dumper's report rather than let it print to the
+        # (DAP-owned) stdout.
+        args = request.get('arguments', {})
 
-    def cmd_variables(self, request):
-        reference = request.get('arguments', {}).get('variablesReference', 0)
-        target = self.variableReferences.get(reference)
-        variables = []
-        if target is not None and target[0] == 'locals':
-            frame = self.frameForId.get(target[1])
-            if frame is not None and frame.is_valid():
-                variables = self._localsOfFrame(frame)
-        self.sendResponse(request, body={'variables': variables})
+        frame = self.frameForId.get(args.get('frameid'))
+        if frame is not None and frame.is_valid():
+            frame.select()
+
+        captured = {}
+        original = self.dumper.reportResult
+
+        def capture(result, unused):
+            captured['result'] = result
+
+        self.dumper.reportResult = capture
+        try:
+            self.dumper.fetchVariables(dict(args))
+        finally:
+            self.dumper.reportResult = original
+
+        self.sendResponse(request, body={'dumperResult': captured.get('result', '')})
 
     def cmd_evaluate(self, request):
         arguments = request.get('arguments', {})
@@ -437,40 +456,3 @@ class DapServer():
             if thread.global_num == threadId:
                 thread.switch()
                 return
-
-    def _makeReference(self, target):
-        reference = self.nextVariablesReference
-        self.nextVariablesReference += 1
-        self.variableReferences[reference] = target
-        return reference
-
-    def _localsOfFrame(self, frame):
-        # Flat locals via gdb's own value formatting. The Qt dumpers and lazy
-        # child expansion (variablesReference != 0) are a later step.
-        variables = []
-        try:
-            block = frame.block()
-        except RuntimeError:
-            return variables
-        seen = set()
-        while block is not None:
-            for symbol in block:
-                if not (symbol.is_variable or symbol.is_argument):
-                    continue
-                if symbol.name in seen:
-                    continue
-                seen.add(symbol.name)
-                try:
-                    value = symbol.value(frame)
-                    variables.append({
-                        'name': symbol.name,
-                        'value': str(value),
-                        'type': str(value.type),
-                        'variablesReference': 0,
-                    })
-                except gdb.error:
-                    pass
-            if block.function is not None:
-                break
-            block = block.superblock
-        return variables

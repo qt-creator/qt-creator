@@ -198,6 +198,15 @@ expansion, editability, display-format hints, address). Lazy expansion is a
 follow-up request naming the iname to expand. This is the current dumper output,
 keyed by iname; WatchHandler / WatchItem consume it directly.
 
+As built (qtc/fetchVariables): the C++ side reuses the shared updateLocalsView()
+- the same path GdbEngine uses - and drives the real Qt dumpers over the bridge.
+The dumper's structured output is carried in the response verbatim and parsed
+with the existing GdbMi reader; transcoding it to a pure JSON tree on the wire
+is a deferred cleanup that does not change the architecture (no
+variablesReference, iname identity, dumper-aware values). Lazy expansion and
+watchers ride along via WatchHandler's existing format/watcher requests (the
+'expanded' set among them).
+
 scopes may be retained as a thin DAP-shaped grouping if convenient, but the
 variable payload itself is native.
 
