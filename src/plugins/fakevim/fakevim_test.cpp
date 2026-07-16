@@ -180,6 +180,7 @@ private slots:
     void test_vim_fold_toggle_all();
     void test_vim_insert_indent();
     void test_vim_block_selection_to_eol();
+    void test_vim_insert_map_with_quotes();
     void test_vim_replace_char_newline();
     void test_vim_backspace_option();
     void test_vim_open_line_with_fold();
@@ -4980,6 +4981,30 @@ void FakeVimTester::test_vim_block_selection_to_eol()
         QCOMPARE(c.selectionStart() - b.position(), 0);
         QCOMPARE(c.selectionEnd() - b.position(), int(b.length()) - 1);
     }
+}
+
+void FakeVimTester::test_vim_insert_map_with_quotes()
+{
+    TestData data;
+    setup(&data);
+
+    // A mapping whose expansion contains '"' must not be truncated as if the
+    // quote started a comment (QTCREATORBUG-11617). Typing '"' inserts a pair
+    // and leaves the cursor between them.
+    data.doCommand("inoremap \" \"\"<esc>i");
+    data.setText("|");
+    KEYS("i\"", "\"" X "\"");
+    data.doKeys("<esc>");
+    data.doCommand("iunmap \"");
+
+    // Same mapping, read from a sourced vimrc.
+    QTemporaryFile rc;
+    QVERIFY(rc.open());
+    rc.write("inoremap \" \"\"<esc>i\n");
+    rc.flush();
+    data.setText("|");
+    data.doCommand("source " + rc.fileName());
+    KEYS("i\"", "\"" X "\"");
 }
 
 void FakeVimTester::test_vim_replace_char_newline()
