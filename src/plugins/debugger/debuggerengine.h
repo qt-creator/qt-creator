@@ -197,6 +197,11 @@ public:
     }
     Utils::ProcessRunData debugger() const { return m_debugger; }
 
+    // Directory of the qtcreatorcdbext.dll arch subdirs on a remote Windows device. Empty for
+    // local CDB, where the extension shipped next to Qt Creator is used instead.
+    void setCdbExtensionPath(const Utils::FilePath &path) { m_cdbExtensionPath = path; }
+    Utils::FilePath cdbExtensionPath() const { return m_cdbExtensionPath; }
+
     void setOverrideStartScript(const Utils::FilePath &script) { m_overrideStartScript = script; }
     Utils::FilePath overrideStartScript() const { return m_overrideStartScript; }
 
@@ -319,6 +324,7 @@ private:
     Utils::FilePath m_peripheralDescriptionFile; // Common debugger constant.
     Utils::FilePath m_uVisionProjectFilePath; // UVSC-specific debugger constant.
     Utils::FilePath m_uVisionOptionsFilePath; // UVSC-specific debugger constant.
+    Utils::FilePath m_cdbExtensionPath; // Directory holding the CDB extension on a remote device.
 
     Utils::FilePaths m_solibSearchPath;
     Utils::FilePaths m_additionalSearchDirectories;

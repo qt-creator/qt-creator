@@ -536,7 +536,7 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
             engines << createGdbEngine();
             break;
         case CdbEngineType:
-            if (!HostOsInfo::isWindowsHost())
+            if (rp.debugger().command.executable().osType() != OsTypeWindows)
                 return make_unexpected(Tr::tr("Unsupported CDB host system."));
             engines << createCdbEngine();
             break;
