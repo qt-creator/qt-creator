@@ -181,6 +181,7 @@ private slots:
     void test_vim_insert_indent();
     void test_vim_block_selection_to_eol();
     void test_vim_insert_map_with_quotes();
+    void test_vim_search_smartcase();
     void test_vim_replace_char_newline();
     void test_vim_backspace_option();
     void test_vim_open_line_with_fold();
@@ -5005,6 +5006,28 @@ void FakeVimTester::test_vim_insert_map_with_quotes()
     data.setText("|");
     data.doCommand("source " + rc.fileName());
     KEYS("i\"", "\"" X "\"");
+}
+
+void FakeVimTester::test_vim_search_smartcase()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set ignorecase");
+    data.doCommand("set smartcase");
+
+    // With 'smartcase', an uppercase letter in the pattern makes the search
+    // case-sensitive (so a lowercase match is skipped), while an all-lowercase
+    // pattern stays case-insensitive. I.e. smartcase refines ignorecase rather
+    // than the reverse (QTCREATORBUG-11758).
+    data.setText("|xxx foo xxx Foo xxx");
+    KEYS("/Foo<cr>", "xxx foo xxx " X "Foo xxx");
+    data.setText("|xxx foo xxx Foo xxx");
+    KEYS("/foo<cr>", "xxx " X "foo xxx Foo xxx");
+
+    // Without 'smartcase', 'ignorecase' alone is always case-insensitive.
+    data.doCommand("set nosmartcase");
+    data.setText("|xxx foo xxx Foo xxx");
+    KEYS("/Foo<cr>", "xxx " X "foo xxx Foo xxx");
 }
 
 void FakeVimTester::test_vim_replace_char_newline()
