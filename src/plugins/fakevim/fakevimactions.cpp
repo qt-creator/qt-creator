@@ -323,6 +323,31 @@ FakeVimSettings::FakeVimSettings()
                     }),
                 },
                 PushButton {
+                    text(Tr::tr("Copy to Text Editor")),
+                    onClicked(this, [this] {
+                        TabSettingsData ts = globalCodeStyle().tabSettings();
+                        ts.m_tabPolicy = expandTab.volatileValue()
+                                             ? TabSettingsData::SpacesOnlyTabPolicy
+                                             : TabSettingsData::TabsOnlyTabPolicy;
+                        ts.m_tabSize = int(tabStop.volatileValue());
+                        ts.m_indentSize = int(shiftWidth.volatileValue());
+                        globalTabSettings().setData(ts);
+                        globalTabSettings().apply();
+
+                        TypingSettingsData tds = globalTypingSettings().data();
+                        tds.m_autoIndent = smartIndent.volatileValue();
+                        if (smartTab.volatileValue()) {
+                            tds.m_smartBackspaceBehavior
+                                = TypingSettingsData::BackspaceFollowsPreviousIndents;
+                        } else if (tds.m_smartBackspaceBehavior
+                                   == TypingSettingsData::BackspaceFollowsPreviousIndents) {
+                            tds.m_smartBackspaceBehavior = TypingSettingsData::BackspaceUnindents;
+                        }
+                        globalTypingSettings().setData(tds);
+                        globalTypingSettings().apply();
+                    }),
+                },
+                PushButton {
                     text(Tr::tr("Set Qt Style")),
                     onClicked(this, [this] {
                         expandTab.setVolatileValue(true);
