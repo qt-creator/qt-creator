@@ -1356,6 +1356,11 @@ static void prependPathEnvironmentVariable(Utils::Environment &result, const Uti
     QSet<FilePath> resultPathSet = Utils::toSet(result.path());
     const FilePath vcInstallDir = FilePath::fromUserInput(env.value("VCINSTALLDIR"));
     for (const FilePath &path : env.path()) {
+        // Only same-OS paths belong in the target PATH. For a remote (device) MSVC toolchain the
+        // result env is the device's, while the previous env may be the local host one; prepending
+        // host paths there would both trip the osType check and corrupt PATH, so skip them.
+        if (path.osType() != result.osType())
+            continue;
         if (!path.isChildOf(vcInstallDir) && Utils::insert(resultPathSet, path))
             result.prependOrSetPath(path);
     }
