@@ -16,6 +16,7 @@ Project {
         "examples/examples.qbs",
         "extensionsystem/extensionsystem.qbs",
         "externaltool/externaltool.qbs",
+        "fakevim/fakevim.qbs",
         "filesearch/filesearch.qbs",
         "json/json.qbs",
         "languageserverprotocol/languageserverprotocol.qbs",

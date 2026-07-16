@@ -4311,7 +4311,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         // (QTCREATORBUG-34074).
         scrollDown(count);
         if (cursorLine() < lineOnTop())
-            moveDown(lineOnTop() - cursorLine());
+            moveDownVisually(lineOnTop() - cursorLine());
     } else if (input.is('f')) {
         g.subsubmode = FtSubSubMode;
         g.movetype = MoveInclusive;
@@ -4914,7 +4914,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         // 'scrolloff' lines from the bottom (QTCREATORBUG-34074).
         scrollUp(count());
         if (cursorLine() > lineOnBottom())
-            moveUp(cursorLine() - lineOnBottom());
+            moveUpVisually(cursorLine() - lineOnBottom());
     } else if (input.is('y') && isVisualCharMode()) {
         g.rangemode = RangeCharMode;
         g.movetype = MoveInclusive;
