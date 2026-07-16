@@ -192,6 +192,7 @@ public:
         breakIndentMinColumns = 20;
         breakIndentShift = 0;
         showBreakBeforeIndent = false;
+        cachedLineSpacing = -1;
     }
 
     PlainTextDocumentLayout *q;
@@ -210,6 +211,11 @@ public:
     bool blockDocumentSizeChanged;
     int cursorWidth;
     int textLayoutFlags;
+    // cache for lineSpacing(): recomputing the font metrics on every call is
+    // costly and shows up when many blocks are measured (e.g. the inline diff
+    // aligner sizing rows while scrolling)
+    QFont cachedLineSpacingFont;
+    int cachedLineSpacing;
 
     void layoutBlock(const QTextBlock &block);
     qreal blockWidth(const QTextBlock &block);
@@ -353,7 +359,12 @@ int PlainTextDocumentLayout::relativeLineSpacing() const
 
 int PlainTextDocumentLayout::lineSpacing() const
 {
-    return lineSpacing(document()->defaultFont());
+    const QFont font = document()->defaultFont();
+    if (d->cachedLineSpacing < 0 || d->cachedLineSpacingFont != font) {
+        d->cachedLineSpacing = lineSpacing(font);
+        d->cachedLineSpacingFont = font;
+    }
+    return d->cachedLineSpacing;
 }
 
 int PlainTextDocumentLayout::lineSpacing(const QFont &font)
