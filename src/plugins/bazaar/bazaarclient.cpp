@@ -130,10 +130,11 @@ bool BazaarClient::synchronousUncommit(const FilePath &workingDir,
 }
 
 void BazaarClient::commit(const FilePath &repositoryRoot, const QStringList &files,
-                          const QString &commitMessageFile, const QStringList &extraOptions)
+                          const FilePath &commitMessageFile, const QStringList &extraOptions)
 {
     VcsBaseClient::commit(repositoryRoot, files, commitMessageFile,
-                          QStringList(extraOptions) << QLatin1String("-F") << commitMessageFile);
+                          QStringList(extraOptions) << QLatin1String("-F")
+                                                    << commitMessageFile.path());
 }
 
 void BazaarClient::annotate(const Utils::FilePath &workingDir, const QString &file,

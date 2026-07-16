@@ -191,7 +191,7 @@ protected:
     // Writes \a message to a temporary file (not auto-removed) and returns its
     // path, for use with commit commands that take a message file. The caller
     // (or the invoked command) is responsible for removing it. Empty on failure.
-    static QString saveCommitMessage(const QString &message);
+    static Utils::FilePath saveCommitMessage(const QString &message);
 
     // Prompt to save all files before commit:
     bool promptBeforeCommit();

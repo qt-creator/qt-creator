@@ -166,7 +166,7 @@ public:
                         const QStringList &extraOptions = {});
     virtual void commit(const Utils::FilePath &repositoryRoot,
                         const QStringList &files,
-                        const QString &commitMessageFile,
+                        const Utils::FilePath &commitMessageFile,
                         const QStringList &extraOptions = {});
 
     virtual void view(const Utils::FilePath &source, const QString &id,

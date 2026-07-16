@@ -158,7 +158,7 @@ public:
     bool commitFiles(const Utils::FilePath &repository, const QStringList &relativePaths,
                      const QString &message) final
     {
-        const QString messageFile = saveCommitMessage(message);
+        const FilePath messageFile = saveCommitMessage(message);
         if (messageFile.isEmpty())
             return false;
         m_client.commit(repository, relativePaths, messageFile, {});
@@ -869,7 +869,7 @@ bool BazaarPluginPrivate::activateCommit()
         // Whether local commit or not
         if (commitWidget->isLocalOptionEnabled())
             extraOptions += QLatin1String("--local");
-        m_client.commit(m_submitRepository, files, editorDocument->filePath().path(), extraOptions);
+        m_client.commit(m_submitRepository, files, editorDocument->filePath(), extraOptions);
     }
     return true;
 }

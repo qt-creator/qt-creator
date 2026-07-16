@@ -63,7 +63,7 @@ public:
     bool synchronousMove(const Utils::FilePath &workingDir, const Utils::FilePath &from,
                          const Utils::FilePath &to, const QStringList &extraOptions = {}) final;
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
-                const QString &commitMessageFile, const QStringList &extraOptions = {}) final;
+                const Utils::FilePath &commitMessageFile, const QStringList &extraOptions = {}) final;
     void annotate(const Utils::FilePath &workingDir, const QString &file,
                   int lineNumber = -1, const QString &revision = {},
                   const QStringList &extraOptions = {}, int firstLine = -1) final;

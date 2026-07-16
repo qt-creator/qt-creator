@@ -52,7 +52,7 @@ SubversionClient::SubversionClient() : VcsBaseClient(&Internal::settings())
 
 bool SubversionClient::doCommit(const FilePath &repositoryRoot,
                                 const QStringList &files,
-                                const QString &commitMessageFile,
+                                const FilePath &commitMessageFile,
                                 const QStringList &extraOptions) const
 {
     CommandLine args{vcsBinary(repositoryRoot)};
@@ -63,7 +63,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
          << "--encoding"
          << "UTF-8"
          << "--file"
-         << commitMessageFile
+         << commitMessageFile.path()
          << escapeFiles(files);
     const CommandResult result = vcsSynchronousExec(repositoryRoot, args, RunFlag::ShowStdOut);
     return result.result() == ProcessResult::FinishedWithSuccess;
@@ -71,7 +71,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
 
 void SubversionClient::commit(const FilePath &repositoryRoot,
                               const QStringList &files,
-                              const QString &commitMessageFile,
+                              const FilePath &commitMessageFile,
                               const QStringList &extraOptions)
 {
     qCDebug(Log) << Q_FUNC_INFO << commitMessageFile << files;

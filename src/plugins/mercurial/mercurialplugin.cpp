@@ -113,7 +113,7 @@ public:
     bool commitFiles(const FilePath &repository, const QStringList &relativePaths,
                      const QString &message) final
     {
-        const QString messageFile = saveCommitMessage(message);
+        const FilePath messageFile = saveCommitMessage(message);
         if (messageFile.isEmpty())
             return false;
         mercurialClient().commit(repository, relativePaths, messageFile, {});
@@ -627,8 +627,7 @@ bool MercurialPluginPrivate::activateCommit()
         QStringList extraOptions;
         if (!commitEditor->committerInfo().isEmpty())
             extraOptions << QLatin1String("-u") << commitEditor->committerInfo();
-        mercurialClient().commit(m_submitRepository, files, editorFile->filePath().toUrlishString(),
-                                 extraOptions);
+        mercurialClient().commit(m_submitRepository, files, editorFile->filePath(), extraOptions);
     }
     return true;
 }

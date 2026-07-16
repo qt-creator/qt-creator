@@ -19,7 +19,7 @@ public:
                              const QString &revision = {},
                              const QStringList &extraOptions = {});
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
-                const QString &commitMessageFile, const QStringList &extraOptions = {}) override;
+                const Utils::FilePath &commitMessageFile, const QStringList &extraOptions = {}) override;
     void annotate(const Utils::FilePath &workingDir, const QString &file,
                   int lineNumber = -1, const QString &revision = {},
                   const QStringList &extraOptions = {}, int firstLine = -1) override;

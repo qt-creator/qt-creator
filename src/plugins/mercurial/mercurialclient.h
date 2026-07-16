@@ -33,7 +33,7 @@ public:
                   int lineNumber = -1, const QString &revision = {},
                   const QStringList &extraOptions = {}, int firstLine = -1) override;
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
-                const QString &commitMessageFile,
+                const Utils::FilePath &commitMessageFile,
                 const QStringList &extraOptions = QStringList()) override;
     void showDiffEditor(const Utils::FilePath &workingDir, const QStringList &files = {});
     void import(const Utils::FilePath &repositoryRoot, const QStringList &files,

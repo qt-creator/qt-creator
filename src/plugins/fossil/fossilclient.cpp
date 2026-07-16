@@ -613,10 +613,10 @@ bool FossilClient::synchronousMove(const FilePath &workingDir,
 }
 
 void FossilClient::commit(const FilePath &repositoryRoot, const QStringList &files,
-                          const QString &commitMessageFile, const QStringList &extraOptions)
+                          const FilePath &commitMessageFile, const QStringList &extraOptions)
 {
     VcsBaseClient::commit(repositoryRoot, files, commitMessageFile,
-                          QStringList(extraOptions) << "-M" << commitMessageFile);
+                          QStringList(extraOptions) << "-M" << commitMessageFile.path());
 }
 
 void FossilClient::annotate(const FilePath &workingDir, const QString &file, int lineNumber,

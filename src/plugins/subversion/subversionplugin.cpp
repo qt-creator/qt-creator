@@ -180,11 +180,11 @@ public:
     bool commitFiles(const FilePath &repository, const QStringList &relativePaths,
                      const QString &message) final
     {
-        const QString messageFile = saveCommitMessage(message);
+        const FilePath messageFile = saveCommitMessage(message);
         if (messageFile.isEmpty())
             return false;
         const bool ok = subversionClient().doCommit(repository, relativePaths, messageFile, {});
-        QFile::remove(messageFile);
+        QTC_CHECK_RESULT(messageFile.removeFile());
         return ok;
     }
     void requestRepositoryStatus(const FilePath &repository) final;
@@ -221,7 +221,7 @@ public:
 
     bool isVcsDirectory(const Utils::FilePath &fileName) const;
 
-    SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);
+    SubversionSubmitEditor *openSubversionSubmitEditor(const Utils::FilePath &fileName);
 
     // IVersionControl
     bool vcsAdd(const FilePath &workingDir, const QString &fileName);
@@ -283,7 +283,7 @@ private:
 
     const QStringList m_svnDirectories;
 
-    QString m_commitMessageFileName;
+    FilePath m_commitMessageFileName;
     FilePath m_commitRepository;
 
     Core::CommandLocator *m_commandLocator = nullptr;
@@ -314,7 +314,7 @@ SubversionPluginPrivate::~SubversionPluginPrivate()
 void SubversionPluginPrivate::cleanCommitMessageFile()
 {
     if (!m_commitMessageFileName.isEmpty()) {
-        QFile::remove(m_commitMessageFileName);
+        QTC_CHECK_RESULT(m_commitMessageFileName.removeFile());
         m_commitMessageFileName.clear();
         m_commitRepository.clear();
     }
@@ -503,10 +503,10 @@ bool SubversionPluginPrivate::activateCommit()
 
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile = editorDocument->filePath().toFileInfo();
-    const QFileInfo changeFile(m_commitMessageFileName);
-    if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
+    if (editorDocument->filePath().absoluteFilePath()
+        != m_commitMessageFileName.absoluteFilePath()) {
         return true; // Oops?!
+    }
 
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
@@ -537,9 +537,9 @@ void SubversionPluginPrivate::diffCommitFiles(const QStringList &files)
     subversionClient().showDiffEditor(m_commitRepository, files);
 }
 
-SubversionSubmitEditor *SubversionPluginPrivate::openSubversionSubmitEditor(const QString &fileName)
+SubversionSubmitEditor *SubversionPluginPrivate::openSubversionSubmitEditor(const FilePath &fileName)
 {
-    IEditor *editor = EditorManager::openEditor(FilePath::fromString(fileName),
+    IEditor *editor = EditorManager::openEditor(fileName,
                                                 Constants::SUBVERSION_COMMIT_EDITOR_ID);
     auto submitEditor = qobject_cast<SubversionSubmitEditor *>(editor);
     QTC_ASSERT(submitEditor, return nullptr);
@@ -717,7 +717,7 @@ void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStr
         VcsOutputWindow::appendError(m_commitRepository, res.error());
         return;
     }
-    m_commitMessageFileName = saver.filePath().toUrlishString();
+    m_commitMessageFileName = saver.filePath();
     // Create a submit editor and set file list
     SubversionSubmitEditor *editor = openSubversionSubmitEditor(m_commitMessageFileName);
     QTC_ASSERT(editor, return);

@@ -641,7 +641,7 @@ bool VersionControlBase::commitFiles(const FilePath &repository,
     return false;
 }
 
-QString VersionControlBase::saveCommitMessage(const QString &message)
+FilePath VersionControlBase::saveCommitMessage(const QString &message)
 {
     Utils::TempFileSaver saver;
     saver.setAutoRemove(false);
@@ -650,7 +650,7 @@ QString VersionControlBase::saveCommitMessage(const QString &message)
         VcsOutputWindow::appendError({}, res.error());
         return {};
     }
-    return saver.filePath().toUrlishString();
+    return saver.filePath();
 }
 
 void VersionControlBase::setRepositoryStatus(const FilePath &repository,

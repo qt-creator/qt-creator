@@ -222,11 +222,12 @@ void MercurialClient::annotate(const Utils::FilePath &workingDir, const QString 
 }
 
 void MercurialClient::commit(const FilePath &repositoryRoot, const QStringList &files,
-                             const QString &commitMessageFile,
+                             const FilePath &commitMessageFile,
                              const QStringList &extraOptions)
 {
     QStringList args(extraOptions);
-    args << QLatin1String("--noninteractive") << QLatin1String("-l") << commitMessageFile << QLatin1String("-A");
+    args << QLatin1String("--noninteractive") << QLatin1String("-l")
+         << commitMessageFile.path() << QLatin1String("-A");
     VcsBaseClient::commit(repositoryRoot, files, commitMessageFile, args);
 }
 

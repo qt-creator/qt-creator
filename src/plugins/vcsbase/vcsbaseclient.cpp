@@ -556,7 +556,7 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
 
 void VcsBaseClient::commit(const FilePath &repositoryRoot,
                            const QStringList &files,
-                           const QString &commitMessageFile,
+                           const FilePath &commitMessageFile,
                            const QStringList &extraOptions)
 {
     // Handling of commitMessageFile is a bit tricky :
@@ -572,8 +572,9 @@ void VcsBaseClient::commit(const FilePath &repositoryRoot,
     enqueueCommand({.workingDirectory = repositoryRoot, .arguments = args,
                     .flags = RunFlag::ShowStdOut,
                     .commandHandler = [commitMessageFile](const CommandResult &) {
-                        if (!commitMessageFile.isEmpty())
-                            QFile(commitMessageFile).remove();
+                        if (commitMessageFile.isEmpty())
+                            return;
+                        QTC_CHECK_RESULT(commitMessageFile.removeFile());
                     }});
 }
 

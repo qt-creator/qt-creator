@@ -104,7 +104,7 @@ public:
     bool commitFiles(const Utils::FilePath &repository, const QStringList &relativePaths,
                      const QString &message) final
     {
-        const QString messageFile = saveCommitMessage(message);
+        const FilePath messageFile = saveCommitMessage(message);
         if (messageFile.isEmpty())
             return false;
         fossilClient().commit(repository, relativePaths, messageFile, {});
@@ -783,7 +783,7 @@ bool FossilPluginPrivate::activateCommit()
         // Whether local commit or not
         if (commitWidget->isPrivateOptionEnabled())
             extraOptions += "--private";
-        fossilClient().commit(m_submitRepository, files, editorDocument->filePath().toUrlishString(), extraOptions);
+        fossilClient().commit(m_submitRepository, files, editorDocument->filePath(), extraOptions);
     }
     return true;
 }

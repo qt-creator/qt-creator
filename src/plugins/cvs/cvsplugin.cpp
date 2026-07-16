@@ -224,17 +224,18 @@ public:
     bool commitFiles(const FilePath &repository, const QStringList &relativePaths,
                      const QString &message) final
     {
-        const QString messageFile = saveCommitMessage(message);
+        const FilePath messageFile = saveCommitMessage(message);
         if (messageFile.isEmpty())
             return false;
-        const QStringList args = QStringList{"commit", "-F", messageFile} + relativePaths;
+        const QStringList args = QStringList{"commit", "-F", messageFile.path()}
+                                 + relativePaths;
         const CommandResult response = runCvs(repository, args, RunFlag::ShowStdOut, {}, 10);
-        QFile::remove(messageFile);
+        QTC_CHECK_RESULT(messageFile.removeFile());
         return response.result() == ProcessResult::FinishedWithSuccess;
     }
 
     ///
-    CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
+    CvsSubmitEditor *openCVSSubmitEditor(const Utils::FilePath &fileName);
 
     // IVersionControl
     bool vcsAdd(const FilePath &workingDir, const QString &fileName);
@@ -302,12 +303,12 @@ private:
                            bool *modified);
     QString findTopLevelForDirectoryI(const QString &directory) const;
     void startCommit(const Utils::FilePath &workingDir, const QString &file = {});
-    bool commit(const QString &messageFile, const QStringList &subVersionFileList);
+    bool commit(const Utils::FilePath &messageFile, const QStringList &subVersionFileList);
     void cleanCommitMessageFile();
 
     CvsClient *m_client = nullptr;
 
-    QString m_commitMessageFileName;
+    Utils::FilePath m_commitMessageFileName;
     FilePath m_commitRepository;
 
     Core::CommandLocator *m_commandLocator = nullptr;
@@ -414,7 +415,7 @@ CvsPluginPrivate::~CvsPluginPrivate()
 void CvsPluginPrivate::cleanCommitMessageFile()
 {
     if (!m_commitMessageFileName.isEmpty()) {
-        QFile::remove(m_commitMessageFileName);
+        QTC_CHECK_RESULT(m_commitMessageFileName.removeFile());
         m_commitMessageFileName.clear();
         m_commitRepository.clear();
     }
@@ -564,10 +565,10 @@ bool CvsPluginPrivate::activateCommit()
 
     // Submit editor closing. Make it write out the commit message
     // and retrieve files
-    const QFileInfo editorFile = editorDocument->filePath().toFileInfo();
-    const QFileInfo changeFile(m_commitMessageFileName);
-    if (editorFile.absoluteFilePath() != changeFile.absoluteFilePath())
+    if (editorDocument->filePath().absoluteFilePath()
+        != m_commitMessageFileName.absoluteFilePath()) {
         return true; // Oops?!
+    }
 
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
@@ -593,9 +594,9 @@ static void setDiffBaseDirectory(IEditor *editor, const FilePath &db)
         ve->setWorkingDirectory(db);
 }
 
-CvsSubmitEditor *CvsPluginPrivate::openCVSSubmitEditor(const QString &fileName)
+CvsSubmitEditor *CvsPluginPrivate::openCVSSubmitEditor(const FilePath &fileName)
 {
-    IEditor *editor = EditorManager::openEditor(FilePath::fromString(fileName), CVSCOMMITEDITOR_ID);
+    IEditor *editor = EditorManager::openEditor(fileName, CVSCOMMITEDITOR_ID);
     auto submitEditor = qobject_cast<CvsSubmitEditor*>(editor);
     QTC_ASSERT(submitEditor, return nullptr);
     connect(submitEditor, &VcsBaseSubmitEditor::diffSelectedFiles,
@@ -820,7 +821,7 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
         VcsOutputWindow::appendError(m_commitRepository, res.error());
         return;
     }
-    m_commitMessageFileName = saver.filePath().toUrlishString();
+    m_commitMessageFileName = saver.filePath();
     // Create a submit editor and set file list
     CvsSubmitEditor *editor = openCVSSubmitEditor(m_commitMessageFileName);
     setSubmitEditor(editor);
@@ -828,9 +829,9 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
     editor->setStateList(statusOutput);
 }
 
-bool CvsPluginPrivate::commit(const QString &messageFile, const QStringList &fileList)
+bool CvsPluginPrivate::commit(const FilePath &messageFile, const QStringList &fileList)
 {
-    const QStringList args{"commit", "-F", messageFile};
+    const QStringList args{"commit", "-F", messageFile.path()};
     const auto response = runCvs(m_commitRepository, args + fileList, RunFlag::ShowStdOut, {}, 10);
     return response.result() == ProcessResult::FinishedWithSuccess;
 }

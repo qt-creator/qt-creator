@@ -21,11 +21,11 @@ public:
 
     bool doCommit(const Utils::FilePath &repositoryRoot,
                   const QStringList &files,
-                  const QString &commitMessageFile,
+                  const Utils::FilePath &commitMessageFile,
                   const QStringList &extraOptions = {}) const;
     void commit(const Utils::FilePath &repositoryRoot,
                 const QStringList &files,
-                const QString &commitMessageFile,
+                const Utils::FilePath &commitMessageFile,
                 const QStringList &extraOptions = {}) override;
 
     void showDiffEditor(const Utils::FilePath &workingDirectory, const QStringList &files = {});
