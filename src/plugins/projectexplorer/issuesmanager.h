@@ -4,6 +4,7 @@
 
 #include "projectexplorer_export.h"
 
+#include <QDateTime>
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
@@ -44,6 +45,12 @@ public:
      * @return JSON object containing the filtered issues and summary
      */
     QJsonObject getCurrentIssues(const Utils::FilePath &path) const;
+
+    /**
+     * @brief Retrieves current build issues (compile/build-system tasks only)
+     * @return JSON object containing the build issues and summary
+     */
+    QJsonObject getBuildIssues() const;
 
     /**
      * @brief Retrieves the issues schema from resources
@@ -93,7 +100,9 @@ private:
      * @param filter filter function to select specific tasks
      * @return JSON object containing the filtered issues and summary
      */
-    QJsonObject getCurrentIssues(std::function<bool(const ProjectExplorer::Task &)> filter) const;
+    QJsonObject getCurrentIssues(
+        std::function<bool(const ProjectExplorer::Task &)> filter,
+        bool withBuildManagerFallback = false) const;
 
     /**
      * @brief Formats a task into a readable string
@@ -116,8 +125,14 @@ private:
 
     bool m_accessible = false;
 
+    struct TrackedTask
+    {
+        ProjectExplorer::Task task;
+        QDateTime fileLastModified;
+    };
+
     // Task tracking
-    QList<ProjectExplorer::Task> m_trackedTasks;
+    QList<TrackedTask> m_trackedTasks;
     QObject *m_taskWindow = nullptr;
     bool m_signalsConnected = false;
 };

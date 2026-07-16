@@ -176,6 +176,11 @@ void registerMcpTools()
     using CallToolResult = Schema::CallToolResult;
     using ToolExecution = Schema::ToolExecution;
 
+    // Constructed here, not where it is read: it only ever learns about a task
+    // from a TaskHub signal, so it has to be connected before the first build.
+    // Leaked on purpose: its destructor runs at exit(), on released memory.
+    static ProjectExplorer::IssuesManager &issuesManager = *new ProjectExplorer::IssuesManager;
+
     using SimplifiedCallback = std::function<QJsonObject(const QJsonObject &)>;
     const auto wrap = [](SimplifiedCallback &&callback) -> Server::ToolCallback {
         return [callback](
@@ -364,8 +369,7 @@ void registerMcpTools()
                     // test run failed. Saves the AI a separate list_issues
                     // call to find out WHY the build broke.
                     if (result.value("summary").toObject().value("build_failed").toBool()) {
-                        static ProjectExplorer::IssuesManager issuesManager;
-                        const QJsonObject issuesData = issuesManager.getCurrentIssues();
+                        const QJsonObject issuesData = issuesManager.getBuildIssues();
                         result.insert("build_issues", issuesData.value("issues"));
                     }
                     return CallToolResult{}.isError(false).structuredContent(result);

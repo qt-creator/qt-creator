@@ -138,7 +138,7 @@ static void runCMakeAndReportVerdict(
             return task.status(Schema::TaskStatus::working).statusMessage(label + "...");
         },
         [state, label, elapsed, &issuesManager]() -> Utils::Result<CallToolResult> {
-            const QJsonObject issuesData = issuesManager.getCurrentIssues();
+            const QJsonObject issuesData = issuesManager.getBuildIssues();
             const QJsonObject summary = issuesData.value("summary").toObject();
             const int errorCount = summary.value("errorCount").toInt();
             const int warningCount = summary.value("warningCount").toInt();
@@ -185,7 +185,8 @@ void registerMcpTools()
     using CallToolResult = Schema::CallToolResult;
     using ToolExecution = Schema::ToolExecution;
 
-    static IssuesManager issuesManager;
+    // Leaked on purpose: its destructor runs at exit(), on released memory.
+    static IssuesManager &issuesManager = *new IssuesManager;
 
     const auto verdictOutputSchema =
         Tool::OutputSchema{}

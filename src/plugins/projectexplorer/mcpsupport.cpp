@@ -983,8 +983,9 @@ void registerMcpTools()
         };
     };
 
-    // Persistent issues manager for all PE mcp tools
-    static ProjectExplorer::IssuesManager issuesManager;
+    // Persistent issues manager for all PE mcp tools.
+    // Leaked on purpose: its destructor runs at exit(), on released memory.
+    static ProjectExplorer::IssuesManager &issuesManager = *new ProjectExplorer::IssuesManager;
 
     // Slot guard for serializing concurrent build() tool calls.  Qt Creator's
     // BuildManager queues projects internally but emits a single
@@ -1369,7 +1370,7 @@ void registerMcpTools()
                             .isError(true);
                     }
 
-                    const QJsonObject issuesData = issuesManager.getCurrentIssues();
+                    const QJsonObject issuesData = issuesManager.getBuildIssues();
                     const QJsonObject issuesSummary = issuesData.value("summary").toObject();
                     const int errorCount = issuesSummary.value("errorCount").toInt();
                     const int warningCount = issuesSummary.value("warningCount").toInt();

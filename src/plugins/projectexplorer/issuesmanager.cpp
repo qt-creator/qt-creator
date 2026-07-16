@@ -4,6 +4,8 @@
 #include "issuesmanager.h"
 
 #include "buildmanager.h"
+#include "projectexplorerconstants.h"
+#include "projectexplorersettings.h"
 #include "task.h"
 #include "taskhub.h"
 
@@ -32,7 +34,7 @@ static constexpr const char s_issuesSchema[] = R"json(
   "required": ["issues", "summary", "status"],
   "properties": {
     "issues": {
-      "description": "Array of current issues/tasks tracked by Qt Creator",
+      "description": "Current issues. An issue no build will clear is dropped once its file changes.",
       "type": "array",
       "items": {
         "type": "object",
@@ -60,6 +62,10 @@ static constexpr const char s_issuesSchema[] = R"json(
           "id": {
             "description": "Internal task ID (if available)",
             "type": "integer"
+          },
+          "category": {
+            "description": "Category id, e.g. 'Task.Category.Compile'. Build ids clear per build.",
+            "type": "string"
           }
         }
       }
@@ -199,12 +205,12 @@ IssuesManager::IssuesManager(QObject *parent)
 
 QJsonObject IssuesManager::getCurrentIssues() const
 {
-    return getCurrentIssues([](const ProjectExplorer::Task &) { return true; });
+    return getCurrentIssues([](const ProjectExplorer::Task &) { return true; }, true);
 }
 
 QJsonObject IssuesManager::getCurrentIssues(const Utils::FilePath &path) const
 {
-    return getCurrentIssues(Utils::equal(&ProjectExplorer::Task::file, path));
+    return getCurrentIssues(Utils::equal(&ProjectExplorer::Task::file, path), false);
 }
 
 Mcp::Schema::Tool::OutputSchema IssuesManager::issuesSchema()
@@ -222,6 +228,11 @@ Mcp::Schema::Tool::OutputSchema IssuesManager::issuesSchema()
 
         QJsonObject obj = doc.object();
         Mcp::Schema::Tool::OutputSchema schema;
+        if (obj.contains("properties") && obj["properties"].isObject()) {
+            const QJsonObject props = obj["properties"].toObject();
+            for (auto it = props.constBegin(); it != props.constEnd(); ++it)
+                schema.addProperty(it.key(), it.value().toObject());
+        }
         if (obj.contains("required") && obj["required"].isArray()) {
             QStringList req;
             for (const QJsonValue &v : obj["required"].toArray())
@@ -257,8 +268,34 @@ bool IssuesManager::initializeAccess()
     return false;
 }
 
+// The categories a build produces.
+static bool isBuildTask(const ProjectExplorer::Task &task)
+{
+    return task.category() == Constants::TASK_CATEGORY_COMPILE
+           || task.category() == Constants::TASK_CATEGORY_BUILDSYSTEM;
+}
+
+// A task that is thrown away before the run that would replace it cannot go
+// stale. Build systems clear their own category on every reparse, but compile
+// tasks only go with the next build if the user left that on; otherwise they
+// accumulate and need the same modification check as anything else.
+static bool isClearedBeforeItIsRedone(const ProjectExplorer::Task &task)
+{
+    if (task.category() == Constants::TASK_CATEGORY_BUILDSYSTEM)
+        return true;
+    return task.category() == Constants::TASK_CATEGORY_COMPILE
+           && globalProjectExplorerSettings().clearIssuesOnRebuild();
+}
+
+QJsonObject IssuesManager::getBuildIssues() const
+{
+    // No fallback: that count includes Deployment.
+    return getCurrentIssues(isBuildTask);
+}
+
 QJsonObject IssuesManager::getCurrentIssues(
-    std::function<bool(const ProjectExplorer::Task &)> filter) const
+    std::function<bool(const ProjectExplorer::Task &)> filter,
+    bool withBuildManagerFallback) const
 {
     QJsonObject result;
 
@@ -288,9 +325,16 @@ QJsonObject IssuesManager::getCurrentIssues(
     int warningCount = 0;
     int otherCount = 0;
 
-    for (const ProjectExplorer::Task &task : m_trackedTasks) {
+    for (const TrackedTask &tracked : m_trackedTasks) {
+        const ProjectExplorer::Task &task = tracked.task;
         if (filter && !filter(task))
             continue; // Skip tasks that don't match the filter
+        if (!isClearedBeforeItIsRedone(task) && tracked.fileLastModified.isValid()
+            && task.file().lastModified() != tracked.fileLastModified) {
+            qCDebug(mcpIssues) << "IssuesManager: dropping outdated task for"
+                               << task.file().toUserOutput();
+            continue;
+        }
         ++taskCount;
         QJsonObject issueObj;
 
@@ -318,6 +362,7 @@ QJsonObject IssuesManager::getCurrentIssues(
             issueObj["line"] = task.line();
 
         issueObj["id"] = static_cast<int>(task.id());
+        issueObj["category"] = task.category().toString();
 
         issuesArray.append(issueObj);
     }
@@ -329,8 +374,11 @@ QJsonObject IssuesManager::getCurrentIssues(
     summary["warningCount"] = warningCount;
     summary["otherCount"] = otherCount;
 
-    // Add buildManagerErrorCount if no tasks tracked but BuildManager has data
-    if (m_trackedTasks.isEmpty() && ProjectExplorer::BuildManager::tasksAvailable())
+    // Global count, so it would misrepresent a scoped result. Nothing tracked
+    // at all is the only case it stands in for: once something is tracked, the
+    // count would report back exactly what the checks above left out.
+    if (withBuildManagerFallback && m_trackedTasks.isEmpty()
+        && ProjectExplorer::BuildManager::tasksAvailable())
         summary["buildManagerErrorCount"] = ProjectExplorer::BuildManager::getErrorTaskCount();
 
     // Build status object
@@ -380,13 +428,21 @@ void IssuesManager::connectSignals()
 void IssuesManager::onTaskAdded(const ProjectExplorer::Task &task)
 {
     qCDebug(mcpIssues) << "IssuesManager: Task added:" << task.description();
-    m_trackedTasks.append(task);
+    // Record the time for anything the check can ever apply to, not just for
+    // what it applies to now: clearIssuesOnRebuild can change in between, and
+    // without a time from when the task arrived there is nothing to compare.
+    // Skip the rest: a remote stat would block on device I/O.
+    const bool trackMtime = !task.file().isEmpty() && task.file().isLocal()
+                            && task.category() != Constants::TASK_CATEGORY_BUILDSYSTEM;
+    m_trackedTasks.append({task, trackMtime ? task.file().lastModified() : QDateTime()});
 }
 
 void IssuesManager::onTaskRemoved(const ProjectExplorer::Task &task)
 {
     qCDebug(mcpIssues) << "IssuesManager: Task removed:" << task.description();
-    m_trackedTasks.removeIf(Utils::equal(&ProjectExplorer::Task::id, task.id()));
+    m_trackedTasks.removeIf([&task](const TrackedTask &tracked) {
+        return tracked.task.id() == task.id();
+    });
 }
 
 void IssuesManager::onTasksCleared(const Utils::Id &category)
@@ -396,7 +452,9 @@ void IssuesManager::onTasksCleared(const Utils::Id &category)
         m_trackedTasks.clear();
         return;
     }
-    m_trackedTasks.removeIf(Utils::equal(&ProjectExplorer::Task::category, category));
+    m_trackedTasks.removeIf([&category](const TrackedTask &tracked) {
+        return tracked.task.category() == category;
+    });
 }
 
 void IssuesManager::onTasksChanged()
