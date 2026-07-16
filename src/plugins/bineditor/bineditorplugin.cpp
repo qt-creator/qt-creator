@@ -63,6 +63,10 @@
 
 #include <optional>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
@@ -2152,6 +2156,81 @@ private:
 };
 
 
+#ifdef WITH_TESTS
+
+// Builds a binary blob with `count` occurrences of `needle`, each preceded by
+// NUL padding, and records their offsets. Mimics QTCREATORBUG-21473, where a
+// binary file (an ELF with embedded GLSL shaders) was searched for "#version".
+static QByteArray makeHaystack(const QByteArray &needle, int count, QList<qint64> *offsets)
+{
+    QByteArray data;
+    for (int i = 0; i < count; ++i) {
+        data += QByteArray(40, '\0');
+        offsets->append(data.size());
+        data += needle + " 330\n";
+    }
+    data += QByteArray(40, '\0');
+    return data;
+}
+
+class BinEditorTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    // QTCREATORBUG-21473: searching a binary file crashed when searching past
+    // the last match. Verify the low-level find returns the expected offsets
+    // and, crucially, a plain "not found" (not a crash) beyond the last match.
+    void testFindPastLastMatch()
+    {
+        const QByteArray needle = "#version";
+        QList<qint64> offsets;
+        const QByteArray data = makeHaystack(needle, 3, &offsets);
+
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(data).has_value());
+        BinEditorWidget widget(document);
+
+        qint64 pos = 0;
+        for (qint64 expected : std::as_const(offsets)) {
+            const qint64 found = widget.find(needle, pos, {});
+            QCOMPARE(found, expected);
+            pos = found + 1;
+        }
+        // Searching beyond the last match must report "not found", not crash.
+        QCOMPARE(widget.find(needle, pos, {}), qint64(-1));
+        // A fresh search from the top still finds the first match.
+        QCOMPARE(widget.find(needle, 0, {}), offsets.first());
+    }
+
+    // Drive the find toolbar's "Find Next" (findStep) far more often than there
+    // are matches: it must keep wrapping around without crashing, which is the
+    // exact interaction reported in QTCREATORBUG-21473.
+    void testFindStepWrapsAround()
+    {
+        const QByteArray needle = "#version";
+        QList<qint64> offsets;
+        const QByteArray data = makeHaystack(needle, 3, &offsets);
+
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(data).has_value());
+        BinEditorWidget widget(document);
+        BinEditorFind finder(&widget);
+
+        int foundCount = 0;
+        for (int i = 0; i < 4 * offsets.size(); ++i) {
+            if (finder.findStep(QString::fromLatin1(needle), {}) == IFindSupport::Found)
+                ++foundCount;
+        }
+        // Every step resolves (data is fully in memory) and wraps around, so it
+        // keeps finding matches instead of getting stuck or crashing.
+        QCOMPARE(foundCount, 4 * offsets.size());
+    }
+};
+
+#endif // WITH_TESTS
+
+
 // BinEditorDocument
 
 BinEditorDocument::BinEditorDocument()
@@ -2409,6 +2488,10 @@ class BinEditorPlugin final : public ExtensionSystem::IPlugin
     {
         setupBinEditor();
         ExtensionSystem::PluginManager::addObject(&binEditorService());
+
+#ifdef WITH_TESTS
+        addTest<BinEditorTest>();
+#endif
     }
 };
 
