@@ -15,7 +15,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
-Q_LOGGING_CATEGORY(addCMakeOperationLog, "qtc.sdktool.operations.addcmake", QtWarningMsg)
+static Q_LOGGING_CATEGORY(addCMakeOperationLog, "qtc.sdktool.operations.addcmake", QtWarningMsg)
 
 // CMakeTools file stuff:
 const char COUNT[] = "CMakeTools.Count";

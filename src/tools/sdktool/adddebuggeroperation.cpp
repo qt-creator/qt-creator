@@ -18,7 +18,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
-Q_LOGGING_CATEGORY(addDebuggerOperationLog, "qtc.sdktool.operations.adddebugger", QtWarningMsg)
+static Q_LOGGING_CATEGORY(addDebuggerOperationLog, "qtc.sdktool.operations.adddebugger", QtWarningMsg)
 
 const char VERSION[] = "Version";
 const char COUNT[] = "DebuggerItem.Count";

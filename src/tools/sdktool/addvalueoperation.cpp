@@ -17,7 +17,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
-Q_LOGGING_CATEGORY(addvaluelog, "qtc.sdktool.operations.addvalue", QtWarningMsg)
+static Q_LOGGING_CATEGORY(addvaluelog, "qtc.sdktool.operations.addvalue", QtWarningMsg)
 
 namespace {
 constexpr auto SUCCESS = 0;

@@ -23,7 +23,7 @@
 #include <QTest>
 #endif
 
-Q_LOGGING_CATEGORY(addkitlog, "qtc.sdktool.operations.addkit", QtWarningMsg)
+static Q_LOGGING_CATEGORY(addkitlog, "qtc.sdktool.operations.addkit", QtWarningMsg)
 
 // Qt version file stuff:
 const char PREFIX[] = "Profile.";

@@ -21,7 +21,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
-Q_LOGGING_CATEGORY(rmdebuggerlog, "qtc.sdktool.operations.rmdebugger", QtWarningMsg)
+static Q_LOGGING_CATEGORY(rmdebuggerlog, "qtc.sdktool.operations.rmdebugger", QtWarningMsg)
 
 // Qt version file stuff:
 const char PREFIX[] = "DebuggerItem.";

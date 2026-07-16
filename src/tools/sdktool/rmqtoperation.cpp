@@ -18,7 +18,7 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(rmqtlog, "qtc.sdktool.operations.rmqt", QtWarningMsg)
+static Q_LOGGING_CATEGORY(rmqtlog, "qtc.sdktool.operations.rmqt", QtWarningMsg)
 
 // ToolChain file stuff:
 const char PREFIX[] = "QtVersion.";

@@ -17,7 +17,7 @@
 #include <QTest>
 #endif
 
-Q_LOGGING_CATEGORY(addAbiFlavorLog, "qtc.sdktool.operations.addabiflavor", QtWarningMsg)
+static Q_LOGGING_CATEGORY(addAbiFlavorLog, "qtc.sdktool.operations.addabiflavor", QtWarningMsg)
 
 #include <iostream>
 

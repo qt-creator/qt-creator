@@ -18,7 +18,7 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(rmcmakelog, "qtc.sdktool.operations.rmcmake", QtWarningMsg)
+static Q_LOGGING_CATEGORY(rmcmakelog, "qtc.sdktool.operations.rmcmake", QtWarningMsg)
 
 // CMake file stuff:
 const char COUNT[] = "CMakeTools.Count";

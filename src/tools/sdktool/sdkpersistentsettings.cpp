@@ -40,7 +40,7 @@
 #define QTC_CHECK(cond) if (Q_LIKELY(cond)) {} else { QTC_ASSERT_STRING(#cond); } do {} while (0)
 #define QTC_GUARD(cond) ((Q_LIKELY(cond)) ? true : (QTC_ASSERT_STRING(#cond), false))
 
-void writeAssertLocation(const char *msg)
+static void writeAssertLocation(const char *msg)
 {
     const QByteArray time = QTime::currentTime().toString(Qt::ISODateWithMs).toLatin1();
     static bool goBoom = qEnvironmentVariableIsSet("QTC_FATAL_ASSERTS");

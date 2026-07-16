@@ -11,7 +11,7 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(findvaluelog, "qtc.sdktool.operations.findvalue", QtWarningMsg)
+static Q_LOGGING_CATEGORY(findvaluelog, "qtc.sdktool.operations.findvalue", QtWarningMsg)
 
 QString FindValueOperation::name() const
 {

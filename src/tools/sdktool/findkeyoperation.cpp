@@ -11,7 +11,7 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(findkeylog, "qtc.sdktool.operations.findkey", QtWarningMsg)
+static Q_LOGGING_CATEGORY(findkeylog, "qtc.sdktool.operations.findkey", QtWarningMsg)
 
 
 QString FindKeyOperation::name() const

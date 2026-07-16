@@ -17,7 +17,7 @@
 #include <QTest>
 #endif
 
-Q_LOGGING_CATEGORY(addDeviceLog, "qtc.sdktool.operations.adddevice", QtWarningMsg)
+static Q_LOGGING_CATEGORY(addDeviceLog, "qtc.sdktool.operations.adddevice", QtWarningMsg)
 
 const char DEVICEMANAGER_ID[] = "DeviceManager";
 const char DEFAULT_DEVICES_ID[] = "DefaultDevices";

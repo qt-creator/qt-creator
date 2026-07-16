@@ -23,7 +23,7 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(rmkitlog, "qtc.sdktool.operations.rmkit", QtWarningMsg)
+static Q_LOGGING_CATEGORY(rmkitlog, "qtc.sdktool.operations.rmkit", QtWarningMsg)
 
 // Qt version file stuff:
 const char PREFIX[] = "Profile.";

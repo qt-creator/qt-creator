@@ -11,7 +11,7 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(getlog, "qtc.sdktool.operations.get", QtWarningMsg)
+static Q_LOGGING_CATEGORY(getlog, "qtc.sdktool.operations.get", QtWarningMsg)
 
 QString GetOperation::name() const
 {

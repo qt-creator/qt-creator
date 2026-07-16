@@ -16,7 +16,7 @@
 
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(rmdevicelog, "qtc.sdktool.operations.rmdevice", QtWarningMsg)
+static Q_LOGGING_CATEGORY(rmdevicelog, "qtc.sdktool.operations.rmdevice", QtWarningMsg)
 
 
 QString RmDeviceOperation::name() const

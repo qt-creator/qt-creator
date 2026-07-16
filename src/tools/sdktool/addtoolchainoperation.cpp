@@ -17,7 +17,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
-Q_LOGGING_CATEGORY(addtoolchainlog, "qtc.sdktool.operations.addtoolchain", QtWarningMsg)
+static Q_LOGGING_CATEGORY(addtoolchainlog, "qtc.sdktool.operations.addtoolchain", QtWarningMsg)
 
 // ToolChain file stuff:
 const char COUNT[] = "ToolChain.Count";

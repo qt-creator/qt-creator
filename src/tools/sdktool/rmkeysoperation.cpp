@@ -12,7 +12,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
-Q_LOGGING_CATEGORY(rmkeyslog, "qtc.sdktool.operations.rmkeys", QtWarningMsg)
+static Q_LOGGING_CATEGORY(rmkeyslog, "qtc.sdktool.operations.rmkeys", QtWarningMsg)
 
 QString RmKeysOperation::name() const
 {

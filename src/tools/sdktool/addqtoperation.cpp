@@ -19,7 +19,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
-Q_LOGGING_CATEGORY(log, "qtc.sdktool.operations.addqt", QtWarningMsg)
+static Q_LOGGING_CATEGORY(log, "qtc.sdktool.operations.addqt", QtWarningMsg)
 
 // Qt version file stuff:
 const char PREFIX[] = "QtVersion.";

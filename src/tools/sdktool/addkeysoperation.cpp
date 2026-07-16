@@ -12,7 +12,7 @@
 #include <QTest>
 #endif
 
-Q_LOGGING_CATEGORY(addkeyslog, "qtc.sdktool.operations.addkeys", QtWarningMsg)
+static Q_LOGGING_CATEGORY(addkeyslog, "qtc.sdktool.operations.addkeys", QtWarningMsg)
 
 QString AddKeysOperation::name() const
 {
