@@ -301,7 +301,7 @@ class SnippetParserTest final : public QObject
 {
     Q_OBJECT
 
-public slots:
+private slots:
     void testSnippetParsing_data();
     void testSnippetParsing();
 };
