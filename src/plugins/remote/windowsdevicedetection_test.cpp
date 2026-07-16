@@ -8,6 +8,10 @@
 
 #include "remotelinux_constants.h"
 
+#include <debugger/debuggerconstants.h>
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggerkitaspect.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
@@ -231,6 +235,24 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
         QVERIFY2(cmakeAttached, "No CMake tool was attached to the kit.");
     } else {
         qWarning("CMakeProjectManager not loaded; skipping the CMake attachment check.");
+    }
+
+    // The device's CDB (registered during auto-detection) must be attached to the kit by the
+    // debugger kit aspect: a debugger on the same device as the kit's build device is picked up
+    // automatically at kit creation. Guarded on the device actually having cdb.exe installed.
+    const Id debuggerAspectId = Debugger::DebuggerKitAspect::id();
+    if (aspectAvailable(debuggerAspectId)) {
+        const Debugger::DebuggerItem dbg = Debugger::DebuggerKitAspect::debugger(kit);
+        qDebug().noquote() << "  Debugger:"
+                           << (dbg.isValid() ? dbg.command().toUserOutput() : QString("<none>"))
+                           << "engine" << int(dbg.engineType());
+        QVERIFY2(dbg.isValid(), "No debugger was attached to the kit.");
+        QVERIFY2(dbg.engineType() == Debugger::CdbEngineType,
+                 "The attached debugger is not CDB.");
+        QVERIFY2(dbg.command().isSameDevice(deviceRoot),
+                 "The attached CDB is not located on the device.");
+    } else {
+        qWarning("Debugger plugin not loaded; skipping the CDB attachment check.");
     }
 
     // Build phase: configure and build a trivial CMake project on the device with the Ninja

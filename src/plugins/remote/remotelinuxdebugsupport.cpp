@@ -4,6 +4,7 @@
 #include "remotelinuxdebugsupport.h"
 
 #include "remotelinux_constants.h"
+#include "windowsdevice.h"
 
 #include <debugger/debuggerruncontrol.h>
 
@@ -45,6 +46,34 @@ public:
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         addSupportedDeviceType(Constants::GenericMacOsType);
+        addSupportedDeviceType(Constants::GenericWindowsOsType);
+        setSupportedRunConfigs(supportedRunConfigs());
+        setExecutionType(Constants::ExecutionType);
+    }
+};
+
+// Debugging on the native Windows device uses CDB running on the device (over SSH): cdb.exe
+// launches the inferior itself (StartInternal), so no debug channel is needed. The CDB helper
+// extension is taken from the device (see WindowsDevice::cdbExtensionDirectory).
+class WindowsDebugWorkerFactory final : public RunWorkerFactory
+{
+public:
+    WindowsDebugWorkerFactory()
+    {
+        setId("WindowsDebugWorkerFactory");
+        setRecipeProducer([](RunControl *runControl) {
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            rp.setStartMode(StartInternal);
+            rp.setUseTerminal(false);
+            if (const auto device
+                    = std::dynamic_pointer_cast<const WindowsDevice>(runControl->device())) {
+                const FilePath extDir = device->cdbExtensionDirectory();
+                if (!extDir.isEmpty())
+                    rp.setCdbExtensionPath(device->rootPath().withNewPath(extDir.path()));
+            }
+            return debuggerRecipe(runControl, rp);
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedDeviceType(Constants::GenericWindowsOsType);
         setSupportedRunConfigs(supportedRunConfigs());
         setExecutionType(Constants::ExecutionType);
@@ -120,6 +149,7 @@ void setupRemoteLinuxRunAndDebugSupport()
     static RemoteLinuxRunWorkerFactory runWorkerFactory;
     static RemoteLinuxDebugWorkerFactory debugWorkerFactory;
     static RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory;
+    static WindowsDebugWorkerFactory windowsDebugWorkerFactory;
 }
 
 } // Remote::Internal

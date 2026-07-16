@@ -53,6 +53,11 @@ public:
     // device-aware file dialogs. On by default; auto-disabled after a failed auto-connect.
     Utils::BoolAspect autoConnectOnStartup{this};
 
+    // Device directory that holds the CDB helper extension's per-arch subdirectories
+    // (qtcreatorcdbext{,arm}{32,64}), i.e. the "lib" directory of a Qt Creator installed on the
+    // device. Used for debugging the device's binaries with a remote cdb.exe; empty disables it.
+    Utils::FilePathAspect cdbExtensionDirectory{this};
+
 protected:
     WindowsDevice();
 

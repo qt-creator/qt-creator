@@ -13,6 +13,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <debugger/debuggerconstants.h>
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggerkitaspect.h>
+
 #include <gocmdbridge/client/bridgedfileaccess.h>
 #include <gocmdbridge/client/cmdbridgeclient.h>
 
@@ -39,6 +44,7 @@
 #include <utils/guiutils.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -1033,6 +1039,16 @@ WindowsDevice::WindowsDevice()
     autoConnectOnStartup.setLabelText(Tr::tr("Auto-connect on startup"));
     autoConnectOnStartup.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
+    cdbExtensionDirectory.setSettingsKey("CdbExtensionDirectory");
+    cdbExtensionDirectory.setExpectedKind(PathChooserKind::Directory);
+    cdbExtensionDirectory.setAllowPathFromDevice(true);
+    cdbExtensionDirectory.setBaseDirectory(rootPath());
+    cdbExtensionDirectory.setLabelText(Tr::tr("CDB extension directory:"));
+    cdbExtensionDirectory.setToolTip(
+        Tr::tr("Device directory holding the qtcreatorcdbext subdirectories, that is, the \"lib\" "
+               "directory of a Qt Creator installed on the device. Required to debug the device's "
+               "binaries with CDB."));
+
     SshParameters sshParams;
     sshParams.setTimeout(10);
     setDefaultSshParameters(sshParams);
@@ -1135,6 +1151,76 @@ private:
     void updateDeviceFromUi() override {}
 };
 
+// Locates cdb.exe (from the Windows SDK "Debugging Tools for Windows") on the device, preferring
+// the architecture matching the device but falling back to the others. Returns an empty path when
+// no cdb.exe is found.
+static FilePath findDeviceCdb(const WindowsDevice::Ptr &device)
+{
+    QStringList archDirs;
+    if (const Result<OsArch> arch = device->osArch()) {
+        switch (*arch) {
+        case OsArchArm64: archDirs << "arm64"; break;
+        case OsArchX86:   archDirs << "x86"; break;
+        default:          archDirs << "x64"; break;
+        }
+    }
+    for (const QString &fallback : {QString("x64"), QString("arm64"), QString("x86")}) {
+        if (!archDirs.contains(fallback))
+            archDirs << fallback;
+    }
+    const QStringList kitRoots = {
+        "C:/Program Files (x86)/Windows Kits/10/Debuggers",
+        "C:/Program Files/Windows Kits/10/Debuggers",
+    };
+    for (const QString &root : kitRoots) {
+        for (const QString &arch : std::as_const(archDirs)) {
+            const QString path = root + QLatin1Char('/') + arch + QLatin1String("/cdb.exe");
+            const FilePath cdb = device->rootPath().withNewPath(path);
+            if (cdb.isExecutableFile())
+                return cdb;
+        }
+    }
+    return {};
+}
+
+// Registers a CDB DebuggerItem for the device's cdb.exe (reused across kits and re-runs), so the
+// generic kit creation's debugger kit aspect attaches it to the device's MSVC kits. The aspect
+// selects a debugger by ABI (DebuggerItem::matchTarget), so the item is given the device's Windows
+// ABI; cdb.exe debugs any MSVC target, so only the architecture and word width need to match.
+// Does nothing when no cdb.exe is present on the device or it is already registered.
+static void registerDeviceCdb(const WindowsDevice::Ptr &device,
+                              const ProjectExplorer::ToolDetectionLogger &logger)
+{
+    const FilePath cdb = findDeviceCdb(device);
+    if (cdb.isEmpty())
+        return;
+    if (Debugger::DebuggerItemManager::findByCommand(cdb).isValid())
+        return;
+
+    Abi::Architecture arch = Abi::X86Architecture;
+    unsigned char width = 64;
+    if (const Result<OsArch> osArch = device->osArch()) {
+        switch (*osArch) {
+        case OsArchArm64: arch = Abi::ArmArchitecture; width = 64; break;
+        case OsArchX86:   arch = Abi::X86Architecture; width = 32; break;
+        default:          break;
+        }
+    }
+    // The MSVC flavor is not otherwise significant to the debugger ABI match; any non-MinGW
+    // Windows flavor matches the detected MSVC kits.
+    const Abi abi(arch, Abi::WindowsOS, Abi::WindowsMsvc2022Flavor, Abi::PEFormat, width);
+
+    Debugger::DebuggerItem item;
+    item.setCommand(cdb);
+    item.setEngineType(Debugger::CdbEngineType);
+    item.setAbis({abi});
+    item.setUnexpandedDisplayName(Tr::tr("CDB for %1").arg(device->displayName()));
+    item.setDetectionSource({DetectionSource::FromSystem, device->id().toString()});
+    Debugger::DebuggerItemManager::registerDebugger(item);
+    if (logger)
+        logger.logTopLevel(Tr::tr("Registered CDB debugger \"%1\".").arg(cdb.toUserOutput()));
+}
+
 WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevicePtr &device)
     : IDeviceWidget(device)
 {
@@ -1153,6 +1239,7 @@ WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevice
         ssh.useKeyFile, st, br,
         ssh.privateKeyFile, createKeyButton, br,
         windowsDevice->autoConnectOnStartup, br,
+        windowsDevice->cdbExtensionDirectory, br,
         device->deviceToolsGui(),
         device->autoDetectGui(),
     }.attachTo(this);
@@ -1192,6 +1279,10 @@ void WindowsDevice::runAutoDetect(
             onDone();
             return;
         }
+        // Register the device's CDB (if present) before kit creation so the debugger kit aspect
+        // attaches it: a debugger on the same device as the kit's build device is picked up
+        // automatically. Remote CDB is not covered by the generic debugger detection.
+        registerDeviceCdb(std::static_pointer_cast<WindowsDevice>(self), logger);
         self->requestToolDetection(self->toolSearchPaths(), logger);
         GlobalTaskTree::start(self->autoDetectDeviceToolsRecipe(logger), {}, onDone);
     }));
