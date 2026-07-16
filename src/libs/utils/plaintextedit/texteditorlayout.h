@@ -121,6 +121,24 @@ public:
         const QTextBlock &block, const QList<QTextLayout *> &layouts, const Id id = {});
     int removeLayoutItems(const QTextBlock &block, const Id id = {});
     int removeAllLayoutItems(const Id id);
+    // Adds format ranges shown on top of the block's document formats (e.g.
+    // the inline diff line highlights). They are kept separate from the
+    // document formats so a document change only re-merges them, and are
+    // removed again via removeMainLayoutFormatsWithProperty().
+    // Adds format ranges shown on top of the document's own. They are kept in a
+    // cache whose only eviction path is removeMainLayoutFormatsWithProperty(),
+    // so every range must carry a property the caller later sweeps by -
+    // anything else stays for the lifetime of this layout.
+    void addBlockEditorFormats(const QTextBlock &block, const FormatRanges &formats);
+
+    // Block relative highlight ranges drawn as selections on top of the block's
+    // text (e.g. the inline diff character highlights). A selection background
+    // fills the range continuously, so - unlike a format range - it keeps the
+    // whitespace inside the range highlighted even when an overlapping document
+    // format (e.g. a comment) covers it. Cleared via clearSelectionHighlights().
+    void setBlockSelectionHighlights(const QTextBlock &block, const FormatRanges &ranges);
+    FormatRanges blockSelectionHighlights(const QTextBlock &block) const;
+    int clearSelectionHighlights();
     // Removes format ranges whose format carries the given boolean property
     // from all main block layouts, including layout data whose fragment index
     // currently has no block (freed indexes are recycled, so per-block

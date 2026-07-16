@@ -10,7 +10,6 @@
 
 namespace Utils {
 
-static const int DOCUMENT_LAYOUT_FORMAT_PROPERTY_ID = QTextCharFormat::UserFormat + 0x100;
 const char MAIN_LAYOUT_CATEGORY[] = "TextEditorLayout.MainLayout";
 
 struct LayoutData
@@ -28,6 +27,17 @@ struct LayoutData
     int lineCount = 1;
     bool layedOut = false;
     bool editorHidden = false; // hidden in this widget's layout only
+    // format ranges added on top of the document's own formats (e.g. the
+    // inline diff line highlights), kept separately so a document change only
+    // has to re-concatenate them with the fresh document formats instead of
+    // tagging and filtering every format range on every change
+    FormatRanges editorFormats;
+    // block relative highlight ranges drawn as selections on top of the text
+    // (e.g. the inline diff character highlights). Unlike a format range, a
+    // selection background fills the whole range continuously, so it is not
+    // affected by an overlapping document format (e.g. a comment) that would
+    // otherwise leave the whitespace between words unhighlighted
+    FormatRanges selectionHighlights;
 
     QTextLayout *mainLayout() const
     {
@@ -153,11 +163,16 @@ void TextEditorLayout::paintBlock(
 {
     QPointF pos = offset;
     LayoutData &data = d->layoutData(block.fragmentIndex());
+    // the editor's own highlight selections (e.g. inline diff character
+    // highlights) are drawn below the caller's selections, so a real text
+    // selection (and other overlays like search results) still paints on top
+    const FormatRanges mainSelections
+        = data.selectionHighlights.isEmpty() ? selections : data.selectionHighlights + selections;
     const LayoutItems::iterator end = data.layoutItems->end();
     for (auto it = data.layoutItems->begin(); it != end; ++it) {
         // block relative selection offsets are meaningless for additional layout items
         const bool isMainLayout = it == data.mainLayoutIterator;
-        (*it)->paintItem(painter, pos, isMainLayout ? selections : FormatRanges(), clipRect);
+        (*it)->paintItem(painter, pos, isMainLayout ? mainSelections : FormatRanges(), clipRect);
         pos.ry() += (*it)->height();
     }
 }
@@ -338,17 +353,51 @@ int TextEditorLayout::removeAllLayoutItems(const Id id)
     return int(removeCount);
 }
 
+void TextEditorLayout::addBlockEditorFormats(const QTextBlock &block, const FormatRanges &formats)
+{
+    if (formats.isEmpty())
+        return;
+    LayoutData &data = d->layoutData(block.fragmentIndex());
+    data.editorFormats += formats;
+    // the document formats are re-merged on every document change, so rebuild
+    // the main layout from the same pieces here (creating it if needed)
+    blockLayout(block)->setFormats(data.editorFormats + block.layout()->formats());
+}
+
+void TextEditorLayout::setBlockSelectionHighlights(const QTextBlock &block, const FormatRanges &ranges)
+{
+    d->layoutData(block.fragmentIndex()).selectionHighlights = ranges;
+}
+
+FormatRanges TextEditorLayout::blockSelectionHighlights(const QTextBlock &block) const
+{
+    return d->layoutData(block.fragmentIndex()).selectionHighlights;
+}
+
+int TextEditorLayout::clearSelectionHighlights()
+{
+    int count = 0;
+    for (LayoutData &data : d->m_layoutData) {
+        count += int(data.selectionHighlights.size());
+        data.selectionHighlights.clear();
+    }
+    return count;
+}
+
 int TextEditorLayout::removeMainLayoutFormatsWithProperty(int propertyId)
 {
+    const auto hasProperty = [propertyId](const QTextLayout::FormatRange &range) {
+        return range.format.boolProperty(propertyId);
+    };
     int removeCount = 0;
     for (LayoutData &data : d->m_layoutData) {
+        // keep the cached editor formats in sync with the main layout
+        data.editorFormats.removeIf(hasProperty);
         QTextLayout *mainLayout = data.mainLayout();
         if (!mainLayout)
             continue;
         FormatRanges formats = mainLayout->formats();
-        const auto removed = formats.removeIf([propertyId](const QTextLayout::FormatRange &range) {
-            return range.format.boolProperty(propertyId);
-        });
+        const auto removed = formats.removeIf(hasProperty);
         if (removed > 0) {
             mainLayout->setFormats(formats);
             removeCount += int(removed);
@@ -397,18 +446,16 @@ void TextEditorLayout::documentChanged(int from, int charsRemoved, int charsAdde
 
     d->updatingFormats = true;
     while (block.isValid()) {
-        QList<QTextLayout::FormatRange> documentFormats = block.layout()->formats();
-        for (QTextLayout::FormatRange &range : documentFormats)
-            range.format.setProperty(DOCUMENT_LAYOUT_FORMAT_PROPERTY_ID, true);
-        if (QTextLayout *mainLayout = d->layoutData(block.fragmentIndex()).mainLayout()) {
-            QList<QTextLayout::FormatRange> editorFormats = Utils::filtered(
-                mainLayout->formats(), [](const QTextLayout::FormatRange &range) {
-                    return !range.format.property(DOCUMENT_LAYOUT_FORMAT_PROPERTY_ID).toBool();
-                });
-
-            mainLayout->setFormats(editorFormats + documentFormats);
-        } else if (!documentFormats.isEmpty()) {
-            blockLayout(block)->setFormats(documentFormats);
+        // the main layout shows the editor formats (e.g. inline diff
+        // highlights) on top of the document's own formats; the editor
+        // formats are kept in the layout data, so refreshing the document
+        // formats is just a concatenation - no per-range tagging or filtering
+        const FormatRanges documentFormats = block.layout()->formats();
+        LayoutData &data = d->layoutData(block.fragmentIndex());
+        if (QTextLayout *mainLayout = data.mainLayout()) {
+            mainLayout->setFormats(data.editorFormats + documentFormats);
+        } else if (!data.editorFormats.isEmpty() || !documentFormats.isEmpty()) {
+            blockLayout(block)->setFormats(data.editorFormats + documentFormats);
         }
         if (block == end)
             break;
