@@ -511,7 +511,8 @@ std::optional<ExecutableItem> QtKitAspectFactory::autoDetect(
         for (QtVersion *version : versions) {
             logCallback(Tr::tr("Found Qt version: %1.").arg(version->displayName()));
             QtVersionManager::addVersion(version);
-            QtKitAspect::setQtVersion(kit, version);
+            if (kit)
+                QtKitAspect::setQtVersion(kit, version);
         }
     };
 
