@@ -28,7 +28,7 @@ using namespace Utils;
 
 namespace Schema = Mcp::Schema;
 
-Q_LOGGING_CATEGORY(mcpAutotest, "qtc.autotest.mcptools", QtWarningMsg)
+static Q_LOGGING_CATEGORY(mcpAutotest, "qtc.autotest.mcptools", QtWarningMsg)
 
 namespace Autotest::Internal {
 

@@ -19,7 +19,7 @@ TestOutputReader *GTestConfiguration::createOutputReader(Process *app) const
     return new GTestOutputReader(app, buildDirectory(), projectFile());
 }
 
-QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
+static QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
 {
     static const QSet<QString> knownInterferingOptions { "--gtest_list_tests",
                                                          "--gtest_filter=",

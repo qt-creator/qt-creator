@@ -31,7 +31,7 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser", QtWarningMsg)
+static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser", QtWarningMsg)
 
 using namespace ProjectExplorer;
 

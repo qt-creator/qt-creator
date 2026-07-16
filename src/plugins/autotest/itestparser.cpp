@@ -56,10 +56,11 @@ QByteArray CppParser::getFileContent(const FilePath &filePath) const
     return fileContent;
 }
 
-bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
-                               const FilePath &filePath,
-                               const QString &cacheString,
-                               const std::function<bool(const FilePath &)> &checker)
+static bool precompiledHeaderContains(
+    const CPlusPlus::Snapshot &snapshot,
+    const FilePath &filePath,
+    const QString &cacheString,
+    const std::function<bool(const FilePath &)> &checker)
 {
     const QList<CppEditor::ProjectPart::ConstPtr> projectParts
         = CppEditor::CppModelManager::projectPart(filePath);

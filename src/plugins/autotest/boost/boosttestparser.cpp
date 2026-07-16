@@ -26,7 +26,7 @@ static const QStringList relevant = {
     QStringLiteral("BOOST_FIXTURE_TEST_CASE_TEMPLATE"),
 };
 
-bool isBoostTestMacro(const QString &macro)
+static bool isBoostTestMacro(const QString &macro)
 {
     return relevant.contains(macro);
 }

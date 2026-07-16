@@ -13,13 +13,13 @@ using namespace Utils;
 
 namespace Autotest::TestFrameworkManager {
 
-TestFrameworks &testFrameworks()
+static TestFrameworks &testFrameworks()
 {
     static TestFrameworks theFrameworks;
     return theFrameworks;
 }
 
-TestTools &testTools()
+static TestTools &testTools()
 {
     static TestTools theTools;
     return theTools;

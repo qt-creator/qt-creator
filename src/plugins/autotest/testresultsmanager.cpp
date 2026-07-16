@@ -9,7 +9,7 @@
 #include <QLoggingCategory>
 #include <QSet>
 
-Q_LOGGING_CATEGORY(mcpTestResults, "qtc.mcpserver.testresults", QtWarningMsg)
+static Q_LOGGING_CATEGORY(mcpTestResults, "qtc.mcpserver.testresults", QtWarningMsg)
 
 namespace Autotest::Internal {
 
