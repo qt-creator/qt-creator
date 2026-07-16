@@ -851,6 +851,10 @@ void ChatPanel::showConfigMenu()
     showTokenUsage->setChecked(m_showTokenUsage);
     connect(showTokenUsage, &QAction::toggled, this, &ChatPanel::setTokenUsageVisible);
 
+    QAction *clearHistory = menu->addAction(Tr::tr("Clear Chat Input History"));
+    clearHistory->setEnabled(m_inputEdit->hasHistory());
+    connect(clearHistory, &QAction::triggered, m_inputEdit, &ChatInputEdit::clearHistory);
+
     QAction *inspect = menu->addAction(Tr::tr("Inspect ACP Client..."));
     connect(inspect, &QAction::triggered, this, &ChatPanel::inspectRequested);
 

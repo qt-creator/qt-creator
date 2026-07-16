@@ -18,9 +18,11 @@
 #include <texteditor/textsuggestion.h>
 
 #include <QAbstractItemModel>
+#include <QAction>
 #include <QApplication>
 #include <QImage>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QMimeData>
 #include <QTextBlock>
 #include <QTextLayout>
@@ -74,6 +76,16 @@ void ChatInputEdit::setAvailableCommands(const QList<CommandInfo> &commands)
     m_completionProvider->setAvailableCommands(commands);
 }
 
+bool ChatInputEdit::hasHistory() const
+{
+    return m_history && m_history->hasHistory();
+}
+
+void ChatInputEdit::clearHistory()
+{
+    m_history->clearHistory();
+}
+
 void ChatInputEdit::setDisplaySettings(const DisplaySettingsData &settings)
 {
     DisplaySettingsData overridden = settings;
@@ -91,6 +103,17 @@ void ChatInputEdit::setMarginSettings(const MarginSettingsData &settings)
     overridden.m_showMargin = false;
     overridden.m_useIndenter = false;
     TextEditorWidget::setMarginSettings(overridden);
+}
+
+void ChatInputEdit::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu menu;
+    TextEditorWidget::appendStandardContextMenuActions(&menu);
+    menu.addSeparator();
+    QAction *clearHistoryAction = menu.addAction(Tr::tr("Clear History"));
+    clearHistoryAction->setEnabled(m_history->hasHistory());
+    connect(clearHistoryAction, &QAction::triggered, this, &ChatInputEdit::clearHistory);
+    menu.exec(event->globalPos());
 }
 
 void ChatInputEdit::keyPressEvent(QKeyEvent *event)

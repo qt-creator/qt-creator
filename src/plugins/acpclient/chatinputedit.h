@@ -24,6 +24,8 @@ public:
     explicit ChatInputEdit(QWidget *parent = nullptr);
 
     void setAvailableCommands(const QList<CommandInfo> &commands);
+    bool hasHistory() const;
+    void clearHistory();
 
 signals:
     void sendRequested();
@@ -36,6 +38,7 @@ protected:
     void setDisplaySettings(const TextEditor::DisplaySettingsData &settings) override;
     void setMarginSettings(const TextEditor::MarginSettingsData &settings) override;
     int extraAreaWidth(int * = nullptr) const override { return 0; }
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
     void updateHeight();
