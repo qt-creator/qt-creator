@@ -27,7 +27,7 @@ using namespace Utils;
 
 namespace CppEditor {
 
-Q_LOGGING_CATEGORY(LOG, "qtc.cppeditor.generatedcodemodelsupport", QtWarningMsg)
+static Q_LOGGING_CATEGORY(LOG, "qtc.cppeditor.generatedcodemodelsupport", QtWarningMsg)
 
 class QObjectCache
 {

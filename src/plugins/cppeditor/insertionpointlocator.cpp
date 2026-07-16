@@ -312,7 +312,7 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(const Translat
     return InsertionLocation(FilePath::fromString(fileName), prefix, suffix, line, column);
 }
 
-InsertionPointLocator::AccessSpec symbolsAccessSpec(Symbol *symbol)
+static InsertionPointLocator::AccessSpec symbolsAccessSpec(Symbol *symbol)
 {
     if (symbol->isPrivate())
         return InsertionPointLocator::Private;

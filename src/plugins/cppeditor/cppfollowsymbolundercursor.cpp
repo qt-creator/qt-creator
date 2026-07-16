@@ -47,7 +47,7 @@ struct Declarations
     Symbol *funcDecl = nullptr;
     Function *funcDef = nullptr;
 };
-Declarations declsFromCursor(const Document::Ptr &doc, const QTextCursor &cursor)
+static Declarations declsFromCursor(const Document::Ptr &doc, const QTextCursor &cursor)
 {
     Declarations decls;
     ASTPath astPathFinder(doc);

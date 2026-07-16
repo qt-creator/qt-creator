@@ -307,7 +307,7 @@ QString CppQuickFixSettings::replaceNamePlaceholders(
     return jsRes;
 }
 
-auto removeAndExtractTemplate(QString type)
+static auto removeAndExtractTemplate(QString type)
 {
     // maybe we have somethink like: myName::test<std::byte>::fancy<std::optional<int>>, then we want fancy
     QString realType;
@@ -344,7 +344,7 @@ auto removeAndExtractTemplate(QString type)
     return _{realType, templateParameter};
 }
 
-auto withoutNamespace(QString type)
+static auto withoutNamespace(QString type)
 {
     const auto namespaceIndex = type.lastIndexOf("::");
     if (namespaceIndex >= 0)

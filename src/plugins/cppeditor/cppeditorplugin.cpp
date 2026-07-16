@@ -209,7 +209,7 @@ private:
     CppEditorPluginPrivate *d = nullptr;
 };
 
-QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeType)
+static QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeType)
 {
     QTextDocument *document = new QTextDocument;
     document->setPlainText(code);

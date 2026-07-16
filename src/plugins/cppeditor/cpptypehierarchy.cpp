@@ -97,7 +97,7 @@ enum ItemRole {
     LinkRole
 };
 
-QStandardItem *itemForClass(const CppClass &cppClass)
+static QStandardItem *itemForClass(const CppClass &cppClass)
 {
     auto item = new QStandardItem;
     item->setFlags(item->flags() | Qt::ItemIsDragEnabled);
@@ -111,7 +111,7 @@ QStandardItem *itemForClass(const CppClass &cppClass)
     return item;
 }
 
-QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
+static QList<CppClass> sortClasses(const QList<CppClass> &cppClasses)
 {
     return sorted(cppClasses, [](const CppClass &c1, const CppClass &c2) -> bool {
         const QString key1 = c1.name + QLatin1String("::") + c1.qualifiedName;

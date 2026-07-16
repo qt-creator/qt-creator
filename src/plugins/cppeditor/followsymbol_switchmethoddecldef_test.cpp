@@ -93,7 +93,7 @@ template<> char *toString(const OverrideItem &data)
 }
 }
 
-QDebug &operator<<(QDebug &d, const OverrideItem &data)
+[[maybe_unused]] static QDebug &operator<<(QDebug &d, const OverrideItem &data)
 {
     d << data.toByteArray();
     return d;
@@ -170,7 +170,7 @@ private:
     CppEditorWidget *m_editorWidget;
 };
 
-QList<TestDocumentPtr> singleDocument(const QByteArray &source)
+static QList<TestDocumentPtr> singleDocument(const QByteArray &source)
 {
     return {CppTestDocument::create(source, "file.cpp")};
 }

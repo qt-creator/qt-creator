@@ -662,7 +662,7 @@ void CppModelManager::checkForUnusedSymbol(SearchResult *search,
     d->m_findReferences->checkUnused(search, link, symbol, context, callback);
 }
 
-int argumentPositionOf(const AST *last, const CallAST *callAst)
+static int argumentPositionOf(const AST *last, const CallAST *callAst)
 {
     if (!callAst || !callAst->expression_list)
         return false;
