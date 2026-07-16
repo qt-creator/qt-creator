@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
                 }
             }
             diff.save(dir + "/diff.png");
-            const double pct = w * h ? 100.0 * double(differing) / double(w * h) : 0.0;
+            const double pct = w && h ? 100.0 * double(differing) / double(w * h) : 0.0;
             qInfo().nospace() << "canvas " << canvas.size() << " raster " << raster.size()
                               << " compared " << w << "x" << h
                               << ": differing pixels " << differing << " (" << pct
