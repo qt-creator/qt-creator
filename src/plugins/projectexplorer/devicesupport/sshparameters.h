@@ -60,6 +60,11 @@ public:
     SshHostKeyCheckingMode hostKeyCheckingMode() const { return m_hostKeyCheckingMode; }
     void setHostKeyCheckingMode(SshHostKeyCheckingMode mode) { m_hostKeyCheckingMode = mode; }
 
+    // ssh ProxyJump spec ("[user@]host[:port]") to reach the target through
+    // another host ("Access via"). Empty means a direct connection.
+    QString proxyJump() const { return m_proxyJump; }
+    void setProxyJump(const QString &spec) { m_proxyJump = spec; }
+
 private:
     Utils::FilePath m_privateKeyFile;
     QString m_x11DisplayName;
@@ -70,6 +75,7 @@ private:
     QString m_host;
     quint16 m_port = 22;
     QString m_userName;
+    QString m_proxyJump;
 };
 
 class PROJECTEXPLORER_EXPORT SshParametersAspectContainer : public Utils::AspectContainer

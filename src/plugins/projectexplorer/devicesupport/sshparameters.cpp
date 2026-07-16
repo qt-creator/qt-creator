@@ -73,6 +73,10 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     if (useTimeout)
         args << "-o" << "ConnectTimeout=" + QString::number(m_timeout);
 
+    // Reach the target through another host ("Access via"): let ssh jump.
+    if (!m_proxyJump.isEmpty())
+        args << "-J" << m_proxyJump;
+
     return args;
 }
 
@@ -113,7 +117,8 @@ bool operator==(const SshParameters &p1, const SshParameters &p2)
             && p1.m_privateKeyFile == p2.m_privateKeyFile
             && p1.m_hostKeyCheckingMode == p2.m_hostKeyCheckingMode
             && p1.m_x11DisplayName == p2.m_x11DisplayName
-            && p1.m_timeout == p2.m_timeout;
+            && p1.m_timeout == p2.m_timeout
+            && p1.m_proxyJump == p2.m_proxyJump;
 }
 
 #ifdef WITH_TESTS

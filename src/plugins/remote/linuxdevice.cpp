@@ -1608,12 +1608,37 @@ bool LinuxDevice::isDisconnected() const
     return state == IDevice::DeviceDisconnected || state == IDevice::DeviceStateUnknown;
 }
 
+// "Access via": if the device connects through another device (linkDevice),
+// build the ssh ProxyJump spec "[user@]host[:port]" for that host, so the
+// shared master connection reaches the target through it. Empty = direct.
+static QString proxyJumpSpec(const IDevice *device)
+{
+    const QString linkId = device->linkDevice.value();
+    if (linkId.isEmpty() || linkId == "direct")
+        return {};
+    const IDevice::ConstPtr link = DeviceManager::find(Id::fromString(linkId));
+    if (!link)
+        return {};
+    const SshParameters p = link->sshParameters();
+    if (p.host().isEmpty())
+        return {};
+    QString spec = p.host();
+    if (!p.userName().isEmpty())
+        spec = p.userName() + '@' + spec;
+    if (p.port() != 22)
+        spec += ':' + QString::number(p.port());
+    return spec;
+}
+
 void LinuxDevice::tryToConnect(const Continuation<> &cont) const
 {
-    if (isDisconnected())
-        d->setupFileAccess(sshParameters(), cont);
-    else
+    if (isDisconnected()) {
+        SshParameters params = sshParameters();
+        params.setProxyJump(proxyJumpSpec(this));
+        d->setupFileAccess(params, cont);
+    } else {
         cont(ResultOk);
+    }
 }
 
 void LinuxDevice::runAutoDetect(
