@@ -319,6 +319,10 @@ class WindowsDeviceAccess final : public DeviceFileAccess
 public:
     explicit WindowsDeviceAccess(const SshParameters &ssh) : m_ssh(ssh) {}
 
+    // Public wrapper around the (protected) deviceEnvironment(), so the CmdBridge deploy can query
+    // the environment via a throwaway access without the device exposing this slow access publicly.
+    Result<Environment> queryEnvironment() const { return deviceEnvironment(); }
+
 protected:
     Result<bool> isExecutableFile(const FilePath &filePath) const override;
     Result<bool> isReadableFile(const FilePath &filePath) const override;
@@ -880,7 +884,13 @@ static Result<DeviceFileAccessPtr> deployCmdBridge(const SshParameters &ssh,
     if (qtcEnvironmentVariableIsSet("QTC_DISABLE_CMDBRIDGE"))
         return ResultError(QString("CmdBridge disabled via QTC_DISABLE_CMDBRIDGE."));
 
-    const Environment env = rootPath.deviceEnvironment();
+    // Query the device environment through a local (per-command) access rather than the device's
+    // own file access, so setupFileAccess() need not expose that slow access publicly while the
+    // device is still being probed - see the note there.
+    const Result<Environment> envResult = WindowsDeviceAccess(ssh).queryEnvironment();
+    if (!envResult)
+        return ResultError(envResult.error());
+    const Environment env = *envResult;
 
     const Result<OsArch> arch = detectWindowsArchitecture(env);
     if (!arch)
@@ -955,9 +965,11 @@ void WindowsDevicePrivate::setupFileAccess(const Continuation<> &cont)
                return);
 
     q->setIsTesting(true);
-    // Bootstrap with the slow (per-command) access so that deploying the CmdBridge binary
-    // via writeFileContents works; it is replaced by the bridge on success below.
-    q->setFileAccess(std::make_shared<WindowsDeviceAccess>(q->sshParameters()));
+    // Do NOT expose a file access yet: the device is not confirmed reachable. Setting the slow
+    // per-command access here would make an unreachable device look connected, so startup
+    // validation (toolchains, Qt, kits) would hang on repeated 10s SSH timeouts. The public file
+    // access is set only once probing/deploy on the worker thread below has finished (in the
+    // continuation), so a down device stays without access and is skipped quickly.
 
     const SshParameters ssh = q->sshParameters();
     const FilePath rootPath = q->rootPath();
