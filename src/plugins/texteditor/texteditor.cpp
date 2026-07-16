@@ -907,6 +907,7 @@ public:
     void openLinkUnderCursor(bool openInNextSplit);
     void openTypeUnderCursor(bool openInNextSplit);
     qreal charWidth() const;
+    qreal tabStopDistance() const;
 
     std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int pos);
     void forceUpdateScrollbarSize();
@@ -2059,7 +2060,7 @@ void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &
     auto cursor = q->textCursor();
     cursor.setPosition(suggestion->currentPosition());
     QTextOption option = suggestion->replacementDocument()->defaultTextOption();
-    option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);
+    option.setTabStopDistance(tabStopDistance());
     suggestion->replacementDocument()->setDefaultTextOption(option);
     auto options = suggestion->replacementDocument()->defaultTextOption();
     m_suggestionBlock = cursor.block();
@@ -4146,6 +4147,13 @@ qreal TextEditorWidgetPrivate::charWidth() const
 {
     return QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'));
 }
+
+qreal TextEditorWidgetPrivate::tabStopDistance() const
+{
+    const int tabSize = qMax(1, m_document->tabSettings().m_tabSize);
+    return QFontMetricsF(q->font()).horizontalAdvance(QString(tabSize, QLatin1Char(' ')));
+}
+
 class CarrierWidget : public QWidget
 {
 public:
@@ -10613,7 +10621,7 @@ void TextEditorWidgetPrivate::updateTabStops()
     // Although the tab stop is stored as qreal the API from PlainTextEdit only allows it
     // to be set as an int. A work around is to access directly the QTextOption.
     QTextOption option = q->document()->defaultTextOption();
-    option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);
+    option.setTabStopDistance(tabStopDistance());
     q->document()->setDefaultTextOption(option);
     if (TextSuggestion *suggestion = TextBlockUserData::suggestion(m_suggestionBlock)) {
         QTextOption option = suggestion->replacementDocument()->defaultTextOption();
