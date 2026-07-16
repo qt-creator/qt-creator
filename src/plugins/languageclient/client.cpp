@@ -1365,17 +1365,6 @@ void Client::setAutoRequestCodeActions(bool enabled)
     d->m_autoRequestCodeActions = enabled;
 }
 
-TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation &info)
-{
-    if (!info.isValid())
-        return {};
-    const Position &start = info.location().range().start();
-    return TextEditor::HighlightingResult(start.line() + 1,
-                                          start.character() + 1,
-                                          info.name().size(),
-                                          info.kind());
-}
-
 void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 {
     if (d->m_runningFindLinkRequest.isValid())

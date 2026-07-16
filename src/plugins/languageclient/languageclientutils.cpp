@@ -40,14 +40,6 @@ using namespace Utils;
 
 namespace LanguageClient {
 
-QTextCursor rangeToTextCursor(const Range &range, QTextDocument *doc)
-{
-    QTextCursor cursor(doc);
-    cursor.setPosition(range.end().toPositionInDocument(doc));
-    cursor.setPosition(range.start().toPositionInDocument(doc), QTextCursor::KeepAnchor);
-    return cursor;
-}
-
 ChangeSet::Range convertRange(const QTextDocument *doc, const Range &range)
 {
     int start = range.start().toPositionInDocument(doc);
