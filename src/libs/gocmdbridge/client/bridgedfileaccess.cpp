@@ -618,7 +618,7 @@ Result<QByteArray> FileAccess::fileContents(const FilePath &filePath,
         return data;
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return logError(Tr::tr("The file \"%1\" does not exist.").arg(str(filePath)));
+            return ResultError(Tr::tr("The file \"%1\" does not exist.").arg(str(filePath)));
         return logError(Tr::tr("Could not read file \"%1\": %2").arg(str(filePath), str(e)));
     } catch (const std::exception &e) {
         return logError(Tr::tr("Could not read file \"%1\": %2").arg(str(filePath), str(e)));
