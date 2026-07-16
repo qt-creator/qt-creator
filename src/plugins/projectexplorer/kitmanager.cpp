@@ -190,8 +190,7 @@ void KitManager::restoreKits()
     connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, instance(), [](Id deviceId) {
         const QString sourcePrefix = deviceKitDetectionSourceId(deviceId, {});
         const QList<Kit *> obsolete = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
-            return k->detectionSource().isAutoDetected()
-                   && k->detectionSource().id.startsWith(sourcePrefix);
+            return k->detectionSource().id.startsWith(sourcePrefix);
         });
         if (!obsolete.isEmpty())
             deregisterKits(obsolete);
@@ -445,7 +444,7 @@ void KitManager::createKitsFromToolchains(
             // the device and ABI so a re-detection recognizes and reuses the existing kit
             // instead of creating a duplicate.
             kit->setDetectionSource(
-                {DetectionSource::FromSystem, deviceKitDetectionSourceId(dev->id(), abiString)});
+                {DetectionSource::Manual, deviceKitDetectionSourceId(dev->id(), abiString)});
         } else {
             kit->setDetectionSource(DetectionSource::Manual);
         }
@@ -722,11 +721,11 @@ void KitManager::createKitsForBuildDevice(const IDevicePtr &dev)
         // re-detection recognizes the existing kit by that id and skips it instead of
         // adding another identical copy.
         const QString sourceId = kit->detectionSource().id;
-        const bool alreadyExists = !sourceId.isEmpty()
-            && Utils::anyOf(KitManager::kits(), [&sourceId](const Kit *existing) {
-                   return existing->detectionSource().isAutoDetected()
-                          && existing->detectionSource().id == sourceId;
-               });
+        const bool alreadyExists
+            = !sourceId.isEmpty()
+              && Utils::anyOf(KitManager::kits(), [&sourceId](const Kit *existing) {
+                     return existing->detectionSource().id == sourceId;
+                 });
         if (alreadyExists)
             continue;
 
