@@ -15,11 +15,11 @@
 // just to get rid of a single function.
 #ifdef Q_OS_WIN
 #include <windows.h>
-void doSleep(int msec) { ::Sleep(msec); }
+static void doSleep(int msec) { ::Sleep(msec); }
 #else
 #include <time.h>
 #include <unistd.h>
-void doSleep(int msec)
+static void doSleep(int msec)
 {
     struct timespec ts = {msec / 1000, (msec % 1000) * 1000000};
     ::nanosleep(&ts, nullptr);

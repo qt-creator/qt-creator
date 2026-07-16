@@ -13,7 +13,7 @@
 #include <QPair>
 #include <QRegularExpression>
 
-Q_LOGGING_CATEGORY(prowriterLog, "qtc.prowriter", QtWarningMsg)
+static Q_LOGGING_CATEGORY(prowriterLog, "qtc.prowriter", QtWarningMsg)
 
 using namespace QmakeProjectManager::Internal;
 

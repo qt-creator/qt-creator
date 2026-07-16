@@ -16,7 +16,7 @@ using namespace Valgrind::Fake;
 QTextStream qerr(stderr);
 QTextStream qout(stdout);
 
-void usage(QTextStream& stream)
+static void usage(QTextStream& stream)
 {
     stream << "valgrind-fake OPTIONS" << '\n';
     stream << '\n';
