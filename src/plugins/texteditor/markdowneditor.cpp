@@ -67,7 +67,7 @@ public:
                     bool inNextSplit = false) override;
 };
 
-class MarkdownEditor : public IEditor
+class MarkdownEditor : public BaseTextEditor
 {
     Q_OBJECT
 public:
@@ -285,8 +285,6 @@ public:
         });
     }
 
-    ~MarkdownEditor() override { delete widget(); }
-
     void triggerEmphasis()
     {
         triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
@@ -356,21 +354,11 @@ public:
         m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, rightAction);
     }
 
-    QWidget *toolBar() override { return m_textEditorWidget->toolBarWidget(); }
-
-    IDocument *document() const override { return m_document.data(); }
-    TextEditorWidget *textEditorWidget() const { return m_textEditorWidget; }
-    int currentLine() const override { return textEditorWidget()->textCursor().blockNumber() + 1; };
-    int currentColumn() const override
-    {
-        QTextCursor cursor = textEditorWidget()->textCursor();
-        return cursor.position() - cursor.block().position() + 1;
-    }
     void gotoLine(int line, int column, bool centerLine) override
     {
         if (!m_toggleEditorVisible->isChecked())
             m_toggleEditorVisible->toggle();
-        textEditorWidget()->gotoLine(line, column, centerLine);
+        m_textEditorWidget->gotoLine(line, column, centerLine);
     }
 
     bool eventFilter(QObject *obj, QEvent *ev) override
