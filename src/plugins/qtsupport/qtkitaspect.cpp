@@ -33,6 +33,8 @@
 #include <QHBoxLayout>
 #include <QJsonValue>
 
+#include <memory>
+
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
@@ -468,20 +470,23 @@ std::optional<ExecutableItem> QtKitAspectFactory::autoDetect(
                 const auto handleQmake =
                     [&detectionSource, &foundQtVersions, &promise](const FilePath &qmake) {
                         QString error;
-                        QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(
-                            qmake, detectionSource, &error);
+                        // Owns the version until it is handed to the promise (and from there
+                        // to the QtVersionManager); duplicates and invalid ones are freed here.
+                        std::unique_ptr<QtVersion> qtVersion(
+                            QtVersionFactory::createQtVersionFromQMakePath(
+                                qmake, detectionSource, &error));
 
                         if (qtVersion && qtVersion->isValid()) {
                             // Trigger loading the version data
                             const Utils::FilePath binPath = qtVersion->binPath();
 
                             const bool alreadyFound
-                                = Utils::anyOf(foundQtVersions, [qtVersion](QtVersion *other) {
+                                = Utils::anyOf(foundQtVersions, [&](QtVersion *other) {
                                       return qtVersion->mkspecPath() == other->mkspecPath();
                                   });
                             if (!alreadyFound) {
-                                foundQtVersions.append(qtVersion);
-                                promise.addResult(qtVersion);
+                                foundQtVersions.append(qtVersion.get());
+                                promise.addResult(qtVersion.release());
                             }
                         }
                         return IterationPolicy::Continue;
