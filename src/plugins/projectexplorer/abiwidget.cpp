@@ -55,7 +55,7 @@ public:
 // AbiWidget
 // --------------------------------------------------------------------------
 
-bool pairLessThan(const QPair<QString, int> &lhs, const QPair<QString, int> &rhs)
+static bool pairLessThan(const QPair<QString, int> &lhs, const QPair<QString, int> &rhs)
 {
     if (lhs.first == "unknown")
         return false;

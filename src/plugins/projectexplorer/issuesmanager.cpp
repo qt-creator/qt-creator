@@ -21,7 +21,7 @@
 #include <QMetaMethod>
 #include <QMetaObject>
 
-Q_LOGGING_CATEGORY(mcpIssues, "qtc.mcpserver.issues", QtWarningMsg)
+static Q_LOGGING_CATEGORY(mcpIssues, "qtc.mcpserver.issues", QtWarningMsg)
 
 static constexpr const char s_issuesSchema[] = R"json(
 {

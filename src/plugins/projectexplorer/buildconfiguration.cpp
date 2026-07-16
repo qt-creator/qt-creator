@@ -63,7 +63,7 @@ const char ACTIVE_RC_KEY[] = "ProjectExplorer.Target.ActiveRunConfiguration";
 const char RC_KEY_PREFIX[] = "ProjectExplorer.Target.RunConfiguration.";
 const char RC_COUNT_KEY[] = "ProjectExplorer.Target.RunConfigurationCount";
 
-Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig", QtWarningMsg)
+static Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig", QtWarningMsg)
 
 namespace ProjectExplorer {
 namespace Internal {

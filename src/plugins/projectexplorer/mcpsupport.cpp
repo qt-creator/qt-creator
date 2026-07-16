@@ -58,7 +58,7 @@
 
 using namespace Utils;
 
-Q_LOGGING_CATEGORY(mcpDevices, "qtc.projectexplorer.mcp", QtWarningMsg)
+static Q_LOGGING_CATEGORY(mcpDevices, "qtc.projectexplorer.mcp", QtWarningMsg)
 
 namespace ProjectExplorer::Internal {
 

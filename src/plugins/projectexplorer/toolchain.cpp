@@ -35,7 +35,7 @@ const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2"; // For Qt
 const char CODE_MODEL_TRIPLE_KEY[] = "ExplicitCodeModelTargetTriple";
 const char MANUALLY_PROVIDED_CXX_KEY[] = "ManuallyProvidedCxxPath";
 
-QList<ToolchainFactory *> &toolchainFactories()
+static QList<ToolchainFactory *> &toolchainFactories()
 {
     static QList<ToolchainFactory *> theToolchainFactories;
     return theToolchainFactories;
@@ -85,7 +85,7 @@ public:
 
 // Deprecated used from QtCreator <= 4.2
 
-Id fromLanguageV1(int language)
+static Id fromLanguageV1(int language)
 {
     switch (language)
     {

@@ -223,7 +223,7 @@ struct VisualStudioInstallation
     QString displayName;
 };
 
-QDebug operator<<(QDebug d, const VisualStudioInstallation &i)
+[[maybe_unused]] static QDebug operator<<(QDebug d, const VisualStudioInstallation &i)
 {
     QDebugStateSaver saver(d);
     d.noquote();

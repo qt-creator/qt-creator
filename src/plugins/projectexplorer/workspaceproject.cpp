@@ -40,8 +40,8 @@ using namespace Core;
 
 namespace ProjectExplorer {
 
-Q_LOGGING_CATEGORY(wsbs, "qtc.projectexplorer.workspace.buildsystem", QtWarningMsg);
-Q_LOGGING_CATEGORY(wsp, "qtc.projectexplorer.workspace.project", QtWarningMsg);
+static Q_LOGGING_CATEGORY(wsbs, "qtc.projectexplorer.workspace.buildsystem", QtWarningMsg);
+static Q_LOGGING_CATEGORY(wsp, "qtc.projectexplorer.workspace.project", QtWarningMsg);
 
 const QLatin1StringView FOLDER_MIMETYPE{"inode/directory"};
 const QLatin1StringView WORKSPACE_MIMETYPE{"text/x-workspace-project"};
@@ -53,7 +53,7 @@ const QLatin1StringView TARGETS_KEY{"targets"};
 const char EXCLUDE_ACTION_ID[] = "ProjectExplorer.ExcludeFromWorkspace";
 const char RESCAN_ACTION_ID[] = "ProjectExplorer.RescanWorkspace";
 
-const Result<QJsonObject> projectDefinition(const FilePath &path)
+static const Result<QJsonObject> projectDefinition(const FilePath &path)
 {
     if (auto fileContents = path.fileContents())
         return QJsonDocument::fromJson(*fileContents).object();
