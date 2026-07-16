@@ -8,12 +8,15 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/globaltasktree.h>
 #include <utils/id.h>
+#include <utils/qtcprocess.h>
 #include <utils/result.h>
 #include <utils/shutdownguard.h>
 
@@ -177,6 +180,63 @@ void setupDeviceModule()
             sock->connectToHost(host, quint16(port));
         };
         result["isReachable"] = wrap(result["isReachable_cb"]);
+
+        // Appends the given public key to the device's ~/.ssh/authorized_keys
+        // over ssh (the "deploy public key" operation), so subsequent key-based
+        // connections work. Runs ssh with BatchMode=no and the IDE's askpass
+        // helper (SshParameters::setupSshEnvironment), so a password prompt may
+        // appear when key auth is not yet set up. Awaitable: resolves to true on
+        // success, or an error string on failure.
+        result["deployPublicKey_cb"] = [](const QString &id, const QString &publicKeyFile,
+                                          const sol::main_function &callback) {
+            IDevice::ConstPtr device = DeviceManager::find(Id::fromString(id));
+            if (!device) {
+                callback(QString("No such device: %1").arg(id));
+                return;
+            }
+            const Result<QByteArray> publicKey = FilePath::fromUserInput(publicKeyFile).fileContents();
+            if (!publicKey) {
+                callback(QString("Public key error: %1").arg(publicKey.error()));
+                return;
+            }
+
+            // Append the key only if that exact line is not already present, so
+            // repeated deployments do not pile up duplicate authorized_keys lines.
+            const QString key = QString::fromLocal8Bit(*publicKey).trimmed();
+            const QString command
+                = "mkdir -p ~/.ssh && chmod 0700 ~/.ssh"
+                  " && touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys"
+                  " && { grep -qxF '" + key + "' ~/.ssh/authorized_keys"
+                  " || echo '" + key + "' >> ~/.ssh/authorized_keys; }";
+
+            const SshParameters params = device->sshParameters();
+            const QString hostKeyChecking = params.hostKeyCheckingMode() == SshHostKeyCheckingStrict
+                                                ? QLatin1String("yes")
+                                                : QLatin1String("no");
+            CommandLine cmd{sshSettings().sshFilePath()};
+            QStringList args{"-q", "-o", "StrictHostKeyChecking=" + hostKeyChecking,
+                             "-o", "Port=" + QString::number(params.port())};
+            if (!params.userName().isEmpty())
+                args << "-o" << "User=" + params.userName();
+            args << "-o" << "BatchMode=no" << params.host();
+            cmd.addArgs(args);
+            QString execCommandString("exec /bin/sh -c");
+            ProcessArgs::addArg(&execCommandString, command, OsType::OsTypeLinux);
+            cmd.addArg(execCommandString);
+
+            auto process = new Process;
+            process->setCommand(cmd);
+            SshParameters::setupSshEnvironment(process);
+            QObject::connect(process, &Process::done, process, [process, callback] {
+                if (process->result() == ProcessResult::FinishedWithSuccess)
+                    callback(true);
+                else
+                    callback(process->exitMessage(Process::FailureMessageFormat::WithStdErr));
+                process->deleteLater();
+            });
+            process->start();
+        };
+        result["deployPublicKey"] = wrap(result["deployPublicKey_cb"]);
 
         return result;
     });

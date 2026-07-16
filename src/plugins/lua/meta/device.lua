@@ -45,4 +45,14 @@ function Device.detectTools(id) end
 ---@return boolean
 function Device.isReachable(host, port, timeoutMs) end
 
+---Appends the given public key file to the device's ~/.ssh/authorized_keys
+---over ssh, so subsequent key-based connections work. Runs ssh with the IDE's
+---askpass helper, so a password prompt may appear when key auth is not yet set
+---up. Call `a.wait` on the returned value: true on success, or an error string
+---on failure.
+---@param id string The device id.
+---@param publicKeyFile string Path to the public key (.pub) file.
+---@return boolean|string
+function Device.deployPublicKey(id, publicKeyFile) end
+
 return Device
