@@ -3,6 +3,7 @@
 
 #include "debuggerruncontrol.h"
 
+#include "bridge/bridgeengine.h"
 #include "cdb/cdbengine.h"
 #include "console/console.h"
 #include "dap/dapengine.h"
@@ -549,7 +550,12 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
     if (rp.isCppDebugging()) {
         switch (rp.cppEngineType()) {
         case GdbEngineType:
-            engines << createGdbEngine();
+            // Experimental opt-in: route gdb debugging through the DAP-shaped
+            // BridgeEngine instead, for testing it against a real gdb kit.
+            if (qtcEnvironmentVariableIsSet("QTC_DEBUGGER_USE_BRIDGE"))
+                engines << createBridgeEngine();
+            else
+                engines << createGdbEngine();
             break;
         case CdbEngineType:
             if (rp.debugger().command.executable().osType() != OsTypeWindows)
@@ -564,6 +570,9 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
             break;
         case LldbDapEngineType:
             engines << createDapEngine(ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE);
+            break;
+        case BridgeEngineType:
+            engines << createBridgeEngine();
             break;
         case UvscEngineType:
             engines << createUvscEngine();

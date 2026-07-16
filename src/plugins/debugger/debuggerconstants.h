@@ -112,7 +112,8 @@ enum DebuggerEngineType
     LldbEngineType    = 0x100,
     GdbDapEngineType  = 0x200,
     LldbDapEngineType = 0x400,
-    UvscEngineType    = 0x1000
+    UvscEngineType    = 0x1000,
+    BridgeEngineType  = 0x2000
 };
 
 enum DebuggerLanguage

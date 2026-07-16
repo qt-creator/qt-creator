@@ -117,6 +117,14 @@ QtcPlugin {
     }
 
     Group {
+        name: "bridge"
+        prefix: "bridge/"
+        files: [
+            "bridgeengine.cpp", "bridgeengine.h",
+        ]
+    }
+
+    Group {
         name: "dap"
         prefix: "dap/"
         files: [

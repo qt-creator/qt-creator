@@ -23,6 +23,7 @@ set(resource_files
   debugger/cdbbridge.py
   debugger/cdbext.pyi
   debugger/creatortypes.py
+  debugger/bridge.py
   debugger/dumper.py
   debugger/gdbbridge.py
   debugger/gdbtracepoint.py

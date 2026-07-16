@@ -1679,6 +1679,12 @@ class Dumper(DumperBase):
     def reportResult(self, result, args):
         print('result={token="%s",%s}' % (args.get("token", 0), result))
 
+    def runDapServer(self):
+        # Entry point for the experimental BridgeEngine: hand control to the
+        # DAP-shaped server, which owns stdio from here on. See bridge.py.
+        from bridge import DapServer
+        DapServer(self).run()
+
     def profile2(self, args):
         import timeit
         print(timeit.repeat('theDumper.fetchVariables(%s)' % args,

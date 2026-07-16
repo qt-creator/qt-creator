@@ -412,6 +412,8 @@ QString DebuggerItem::engineTypeName() const
         return QLatin1String("LLDB DAP");
     case UvscEngineType:
         return QLatin1String("UVSC");
+    case BridgeEngineType:
+        return QLatin1String("GDB Bridge");
     default:
         return QString();
     }
