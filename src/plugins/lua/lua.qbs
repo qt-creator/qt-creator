@@ -28,7 +28,6 @@ QtcPlugin {
         "luaqttypes.cpp",
         "luaqttypes.h",
         "luatr.h",
-        "luauibindings.cpp",
         "wizards/wizards.qrc",
     ]
 

@@ -65,8 +65,6 @@ if(TARGET Lua)
         scripts/inspect.lua
     )
 
-    set_source_files_properties(luauibindings.cpp PROPERTY SKIP_AUTOMOC ON PROPERTY SKIP_AUTOGEN ON)
-
     if (MSVC)
         # Prevent fatal error C1128
         target_compile_options(Lua PRIVATE /bigobj)
