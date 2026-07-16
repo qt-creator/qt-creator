@@ -51,7 +51,7 @@ public:
     }
 };
 
-PlainTextEditorFactory &plainTextEditorFactory()
+static PlainTextEditorFactory &plainTextEditorFactory()
 {
     static PlainTextEditorFactory thePlainTextEditorFactory;
     return thePlainTextEditorFactory;

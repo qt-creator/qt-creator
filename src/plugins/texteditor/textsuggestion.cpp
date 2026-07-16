@@ -106,7 +106,7 @@ CyclicSuggestion::CyclicSuggestion(
     , m_currentSuggestion(currentSuggestion)
 {}
 
-bool operator==(const TextSuggestion::Data &lhs, const TextSuggestion::Data &rhs)
+[[maybe_unused]] static bool operator==(const TextSuggestion::Data &lhs, const TextSuggestion::Data &rhs)
 {
     return lhs.text == rhs.text && lhs.range == rhs.range && lhs.position == rhs.position;
 }

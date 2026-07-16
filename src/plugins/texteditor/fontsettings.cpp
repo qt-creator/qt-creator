@@ -133,7 +133,7 @@ bool FontSettingsData::equals(const FontSettingsData &f) const
             && m_scheme == f.m_scheme;
 }
 
-size_t qHash(const TextStyle &textStyle)
+[[maybe_unused]] static size_t qHash(const TextStyle &textStyle)
 {
     return ::qHash(quint8(textStyle));
 }
@@ -189,12 +189,12 @@ QTextCharFormat FontSettingsData::toTextCharFormat(TextStyle category) const
     return tf;
 }
 
-size_t qHash(TextStyles textStyles)
+[[maybe_unused]] static size_t qHash(TextStyles textStyles)
 {
     return ::qHash(reinterpret_cast<quint64&>(textStyles));
 }
 
-bool operator==(const TextStyles &first, const TextStyles &second)
+[[maybe_unused]] static bool operator==(const TextStyles &first, const TextStyles &second)
 {
     return first.mainStyle == second.mainStyle
         && first.mixinStyles == second.mixinStyles;

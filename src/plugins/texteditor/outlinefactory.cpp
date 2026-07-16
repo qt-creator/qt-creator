@@ -43,7 +43,7 @@ signals:
     void updateOutline();
 };
 
-OutlineFactory &outlineFactory()
+static OutlineFactory &outlineFactory()
 {
     static OutlineFactory theOutlineFactory;
     return theOutlineFactory;

@@ -15,7 +15,7 @@
 
 #include <cmath>
 
-Q_LOGGING_CATEGORY(Log, "qtc.editor.syntaxhighlighter", QtWarningMsg)
+static Q_LOGGING_CATEGORY(Log, "qtc.editor.syntaxhighlighter", QtWarningMsg)
 
 namespace TextEditor {
 

@@ -214,7 +214,7 @@ void FindInFiles::setBaseDirectory(const FilePath &directory)
 
 static FindInFiles *s_instance;
 
-FindInFiles &findInFiles()
+static FindInFiles &findInFiles()
 {
     return *s_instance;
 }

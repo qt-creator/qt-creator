@@ -64,7 +64,7 @@ void GenerigHighlighterTests::initTestCase()
 
 using FormatRanges = QList<QTextLayout::FormatRange>;
 
-QTextCharFormat toFormat(const TextStyle &style)
+static QTextCharFormat toFormat(const TextStyle &style)
 {
     const static FontSettingsData fontSettings = globalFontSettings().data();
     auto format = fontSettings.toTextCharFormat(style);
@@ -157,7 +157,8 @@ void GenerigHighlighterTests::testHighlight_data()
     // clang-format on
 }
 
-void compareFormats(const QTextLayout::FormatRange &actual, const QTextLayout::FormatRange &expected)
+static void compareFormats(
+    const QTextLayout::FormatRange &actual, const QTextLayout::FormatRange &expected)
 {
     QCOMPARE(actual.start, expected.start);
     QCOMPARE(actual.length, expected.length);

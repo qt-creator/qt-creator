@@ -30,7 +30,7 @@ namespace TextEditor {
 
 static Q_LOGGING_CATEGORY(highlighterLog, "qtc.editor.highlighter", QtWarningMsg)
 
-TextStyle categoryForTextStyle(int style)
+static TextStyle categoryForTextStyle(int style)
 {
     switch (style) {
     case KSyntaxHighlighting::Theme::Normal: return C_TEXT;

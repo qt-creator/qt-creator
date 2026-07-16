@@ -1785,7 +1785,7 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc,
     painter->restore();
 }
 
-Q_LOGGING_CATEGORY(printLog, "qtc.editor.print", QtWarningMsg)
+static Q_LOGGING_CATEGORY(printLog, "qtc.editor.print", QtWarningMsg)
 
 void TextEditorWidgetPrivate::print(QPrinter *printer)
 {
@@ -5683,7 +5683,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         scheduleCleanupAnnotationCache();
 }
 
-QColor blendRightMarginColor(const FontSettingsData &settings, bool areaColor)
+static QColor blendRightMarginColor(const FontSettingsData &settings, bool areaColor)
 {
     const QColor baseColor = settings.toTextCharFormat(C_TEXT).background().color();
     const QColor col = (baseColor.value() > 128) ? Qt::black : Qt::white;
@@ -8452,7 +8452,7 @@ void TextEditorWidgetPrivate::slotFoldChanged(const int blockNumber, bool folded
         m_foldedBlockCache.remove(blockNumber);
 }
 
-Highlight::Priority textMarkPrioToScrollBarPrio(const TextMark::Priority &prio)
+static Highlight::Priority textMarkPrioToScrollBarPrio(const TextMark::Priority &prio)
 {
     switch (prio) {
     case TextMark::LowPriority:

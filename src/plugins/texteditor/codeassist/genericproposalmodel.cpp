@@ -18,7 +18,7 @@
 using namespace TextEditor;
 
 QT_BEGIN_NAMESPACE
-size_t qHash(const AssistProposalItem &item)
+[[maybe_unused]] static size_t qHash(const AssistProposalItem &item)
 {
     return qHash(item.text());
 }
