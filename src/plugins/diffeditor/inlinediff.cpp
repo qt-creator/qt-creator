@@ -1018,15 +1018,45 @@ private:
     QBrush m_background;
 };
 
+// A block of one of the two views, kept by a pad so that measuring it does not
+// have to look it up again. A QTextBlock names a node in the document's block
+// map, and an edit frees that node - setPlainText() reallocates the map to its
+// initial size, so the index can even end up past its end. An unchanged
+// revision is what proves the node is still the block it was; once the document
+// has changed the pad resolves the line number again, as it did before, until
+// the next diff installs fresh pads.
+class CapturedBlock
+{
+public:
+    CapturedBlock(const QTextDocument *document, int line)
+        : m_block(document->findBlockByNumber(line - 1))
+        , m_line(line)
+        , m_revision(document->revision())
+    {}
+
+    QTextBlock resolve(const QTextDocument *document) const
+    {
+        if (document->revision() == m_revision)
+            return m_block;
+        return document->findBlockByNumber(m_line - 1);
+    }
+
+private:
+    QTextBlock m_block;
+    int m_line = 0;
+    int m_revision = -1;
+};
+
 // The wrapped pixel height of a block's own text, excluding any additional
 // layout items (so measuring one view's rows from the other view's spacers
 // does not recurse). Blocks that are not laid out yet report a one line
 // estimate, matching how the editor sizes not-yet-laid-out blocks.
-static qreal naturalBlockHeight(const QPointer<TextEditorWidget> &widget, int line1)
+static qreal naturalBlockHeight(const QPointer<TextEditorWidget> &widget,
+                                const CapturedBlock &captured)
 {
     if (!widget)
         return 0.0;
-    const QTextBlock block = widget->document()->findBlockByNumber(line1 - 1);
+    const QTextBlock block = captured.resolve(widget->document());
     if (!block.isValid() || !block.isVisible())
         return 0.0;
     TextEditorLayout *layout = widget->editorLayout();
@@ -1178,10 +1208,12 @@ private:
         const QTextBlock block = own->document()->findBlockByNumber(ownLine - 1);
         if (!block.isValid())
             return;
+        const CapturedBlock ownBlock(own->document(), ownLine);
+        const CapturedBlock otherBlock(other->document(), otherLine);
         const QPointer<TextEditorWidget> ownPtr(own);
         const QPointer<TextEditorWidget> otherPtr(other);
-        auto heightFn = [ownPtr, ownLine, otherPtr, otherLine] {
-            return naturalBlockHeight(otherPtr, otherLine) - naturalBlockHeight(ownPtr, ownLine);
+        auto heightFn = [ownPtr, ownBlock, otherPtr, otherBlock] {
+            return naturalBlockHeight(otherPtr, otherBlock) - naturalBlockHeight(ownPtr, ownBlock);
         };
         own->editorLayout()->appendLayoutItem(
             block, std::make_unique<DynamicSpacerItem>(heightFn, INLINE_DIFF_ALIGN_CATEGORY));
@@ -1198,8 +1230,9 @@ private:
                                            : doc->findBlockByNumber(anchorLine - 1);
         if (!block.isValid())
             return;
+        const CapturedBlock otherBlock(other->document(), otherLine);
         const QPointer<TextEditorWidget> otherPtr(other);
-        auto heightFn = [otherPtr, otherLine] { return naturalBlockHeight(otherPtr, otherLine); };
+        auto heightFn = [otherPtr, otherBlock] { return naturalBlockHeight(otherPtr, otherBlock); };
         auto item = std::make_unique<DynamicSpacerItem>(heightFn, INLINE_DIFF_ALIGN_CATEGORY,
                                                         background);
         if (afterLast)
