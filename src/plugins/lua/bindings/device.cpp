@@ -87,6 +87,11 @@ void setupDeviceModule()
             device->sshParametersAspectContainer().setSshParameters(ssh);
             device->sshParametersAspectContainer().apply();
 
+            // "Access via": route this device's connection through another device
+            // (its id), e.g. reach a QNX target that only the build host can see.
+            if (auto v = params.get<std::optional<QString>>("linkDevice"sv); v && !v->isEmpty())
+                device->linkDevice.setValue(*v);
+
             DeviceManager::addDevice(device);
             return device->id().toString();
         };

@@ -11,6 +11,7 @@ local Device = {}
 ---@field useKeyFile? boolean If true, authenticate with the given private key only.
 ---@field timeout? integer Connection timeout in seconds.
 ---@field hostKeyCheckingMode? string One of "none", "strict", "allowNoMatch".
+---@field linkDevice? string Id of the device to connect through ("Access via").
 local DeviceParams = {}
 
 ---@class DeviceKit
