@@ -5,9 +5,9 @@
 
 #include <utils/filepath.h>
 
-namespace Dto { class FileViewDto; }
-
 namespace Axivion::Internal {
+
+namespace Dto { class FileViewDto; }
 
 enum class LineMarkerType { Dashboard, SFA };
 
