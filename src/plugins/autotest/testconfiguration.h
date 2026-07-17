@@ -93,6 +93,8 @@ public:
 
     virtual QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const = 0;
 
+    bool runsOnIosDevice() const;
+
 private:
     QStringList m_testCases;
     Utils::FilePath m_projectFile;

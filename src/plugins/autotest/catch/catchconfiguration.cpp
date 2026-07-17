@@ -75,6 +75,11 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
     QStringList arguments;
     if (testCaseCount())
         arguments << "\"" + testCases().join("\", \"") + "\"";
+
+    // temporary workaround - options end up in devicectl and fail - QTCREATORBUG-34802
+    if (runsOnIosDevice())
+        return arguments;
+
     arguments << "--reporter" << "xml" << "--durations" << "yes";
 
     if (testSettings().processArgs()) {

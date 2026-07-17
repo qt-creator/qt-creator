@@ -27,14 +27,18 @@ static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
 
 TestOutputReader *QtTestConfiguration::createOutputReader(Process *app) const
 {
-    const QtTestOutputReader::OutputMode mode = theQtTestFramework().useXMLOutput()
-            ? QtTestOutputReader::XML
-            : QtTestOutputReader::PlainText;
+    const QtTestOutputReader::OutputMode mode
+            = theQtTestFramework().useXMLOutput() && !runsOnIosDevice()
+            ? QtTestOutputReader::XML : QtTestOutputReader::PlainText;
     return new QtTestOutputReader(app, buildDirectory(), projectFile(), mode, TestType::QtTest);
 }
 
 QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
+    // temporary workaround - options end up in devicectl and fail - QTCREATORBUG-34802
+    if (runsOnIosDevice())
+        return testCases().isEmpty() ? QStringList{} : quoteIfNeeded(testCases(), isDebugRunMode());
+
     QStringList arguments;
     if (testSettings().processArgs()) {
         arguments.append(QTestUtils::filterInterfering(

@@ -6,6 +6,8 @@
 #include "itestframework.h"
 #include "testrunconfiguration.h"
 
+#include "../ios/iosconstants.h" // soft dependency
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -309,6 +311,14 @@ void TestConfiguration::setInternalTargets(const QSet<QString> &targets)
 void TestConfiguration::setOriginalRunConfiguration(RunConfiguration *runConfig)
 {
     m_origRunConfig = runConfig;
+}
+
+bool TestConfiguration::runsOnIosDevice() const
+{
+    Project *currentProject = project();
+    const auto kit = currentProject ? currentProject->activeKit() : nullptr;
+
+    return kit && RunDeviceTypeKitAspect::deviceTypeId(kit) == Ios::Constants::IOS_DEVICE_TYPE;
 }
 
 bool DebuggableTestConfiguration::isDebugRunMode() const

@@ -532,6 +532,8 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg, Ou
         // messages should have additional \n at the end (exception debug - we may get buffered)
         if (message.endsWith('\n'))
             message.chop(1);
+        // iOS returns messages with \r\n
+        message.replace("\r\n", "\n");
 
         for (const auto &line : message.split('\n')) {
             if (format == OutputFormat::StdOutFormat)
