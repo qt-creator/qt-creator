@@ -109,7 +109,7 @@ void QtTestParserTest::testQtTestOutputParser()
             "random output",
             "PASS   : MyTest::someTest()",
             "XPASS: irrelevant",
-            "PASS   : MyTest::anotherTest()\n"};
+            "PASS   : MyTest::anotherTest()"};
     const FilePath theFile = FilePath::fromString(HostOsInfo::isWindowsHost()
         ? QString("C:/dev/tests/tst_mytest.cpp") : QString("/home/me/tests/tst_mytest.cpp"));
     const Tasks expectedTasks{
