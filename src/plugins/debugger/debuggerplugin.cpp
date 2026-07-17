@@ -558,6 +558,7 @@ public:
         setFilePattern({"gdbserver"});
         setLabelText(Tr::tr("GDB server executable:"));
         setToolTip(Tr::tr("The GDB server executable to use on the device."));
+        setDisplayName(Tr::tr("GDB server"));
     }
 };
 

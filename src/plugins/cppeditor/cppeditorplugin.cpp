@@ -158,6 +158,7 @@ public:
         setToolType(DeviceToolAspect::SourceTool);
         setFilePattern({"clangd"});
         setLabelText(Tr::tr("Clangd executable:"));
+        setDisplayName(Tr::tr("Clangd"));
         setChecker([](const DeviceConstRef &, const FilePath &candidate) {
             return checkClangdVersion(candidate);
         });

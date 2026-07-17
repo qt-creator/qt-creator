@@ -90,6 +90,7 @@ public:
                         "/opt/qnx710/qnxsdp-env.sh", "/opt/qnx710/qnxsdp-env.bat"});
         setLabelText(Tr::tr("QNX sdpenv.sh:"));
         setToolTip(Tr::tr("QNX Software Development Platform environment file."));
+        setDisplayName(Tr::tr("QNX sdpenv.sh"));
         setChecker([](const DeviceConstRef &device, const FilePath &candidate) -> Result<> {
             IDevice::ConstPtr dev = device.lock();
             QTC_ASSERT(dev, return ResultError(ResultAssert));

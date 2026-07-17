@@ -34,6 +34,7 @@ public:
         setToolType(DeviceToolAspect::BuildTool);
         setFilePattern({"meson"});
         setLabelText(Tr::tr("Meson executable:"));
+        setDisplayName(Tr::tr("Meson"));
     }
 };
 

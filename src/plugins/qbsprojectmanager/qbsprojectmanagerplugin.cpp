@@ -51,6 +51,7 @@ public:
         setToolType(DeviceToolAspect::BuildTool);
         setFilePattern({"qbs"});
         setLabelText(Tr::tr("Qbs executable:"));
+        setDisplayName(Tr::tr("Qbs"));
     }
 };
 

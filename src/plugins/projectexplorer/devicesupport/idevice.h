@@ -93,12 +93,15 @@ public:
 
     Utils::Id toolId() const;
     ToolTypes toolType() const;
+    QString toolDisplayName() const;
 
     void setToolId(const Utils::Id toolId);
     void setToolType(ToolTypes toolType);
+    void setToolDisplayName(const QString &displayName);
 
 public:
     Utils::Id m_toolId;
+    QString m_toolName;
     ToolTypes m_toolType = AllTools;
 };
 
@@ -120,6 +123,7 @@ protected:
     void setFilePattern(const QStringList &filePattern);
     void setLabelText(const QString &labelText);
     void setToolTip(const QString &toolTip);
+    void setDisplayName(const QString &displayName);
     void setVariablePrefix(const QByteArray &variablePrefix);
     void setChecker(const Checker &checker);
     void setToolType(DeviceToolAspect::ToolTypes toolType);
@@ -127,6 +131,7 @@ protected:
     Utils::Id m_toolId;
     QString m_labelText;
     QString m_toolTip;
+    QString m_displayName;
     QStringList m_filePattern;
     QByteArray m_variablePrefix;
     Checker m_checker;

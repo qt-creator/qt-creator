@@ -40,6 +40,7 @@ public:
         setToolType(ProjectExplorer::DeviceToolAspect::BuildTool);
         setFilePattern({"rsync"});
         setLabelText(Tr::tr("Rsync executable:"));
+        setDisplayName(Tr::tr("Rsync"));
     }
 };
 

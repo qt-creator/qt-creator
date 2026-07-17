@@ -485,6 +485,7 @@ public:
         setToolType(DeviceToolAspect::BuildTool);
         setFilePattern({"ssh"});
         setLabelText(Tr::tr("SSH executable:"));
+        setDisplayName(Tr::tr("SSH"));
     }
 };
 
@@ -497,6 +498,7 @@ public:
         setToolType(DeviceToolAspect::BuildTool);
         setFilePattern({"ninja"});
         setLabelText(Tr::tr("Ninja executable:"));
+        setDisplayName(Tr::tr("Ninja"));
     }
 };
 

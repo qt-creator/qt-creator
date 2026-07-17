@@ -39,6 +39,7 @@ public:
         setFilePattern({"qml"});
         setLabelText(Tr::tr("QML runtime executable:"));
         setToolTip(Tr::tr("The QML runtime executable to use on the device."));
+        setDisplayName(Tr::tr("QML runtime"));
     }
 };
 

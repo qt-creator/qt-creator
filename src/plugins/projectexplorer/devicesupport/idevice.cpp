@@ -256,10 +256,26 @@ void DeviceToolAspect::setToolType(ToolTypes toolType)
     m_toolType = toolType;
 }
 
+/*!
+    Sets the \a displayName of the tool to use for the detection log.
+*/
+void DeviceToolAspect::setToolDisplayName(const QString &displayName)
+{
+    m_toolName = displayName;
+}
+
 void DeviceToolAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     FilePathAspect::addToLayoutImpl(parent);
     parent.flush();
+}
+
+/*!
+    Returns the display name of the tool to use for the detection log.
+*/
+QString DeviceToolAspect::toolDisplayName() const
+{
+    return m_toolName;
 }
 
 // DeviceToolFactory
@@ -284,6 +300,14 @@ Id DeviceToolAspectFactory::toolId() const
 QStringList DeviceToolAspectFactory::filePattern() const
 {
     return m_filePattern;
+}
+
+/*!
+    Sets the \a displayName of the tool to use for the detection log.
+*/
+void DeviceToolAspectFactory::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
 }
 
 Result<> DeviceToolAspectFactory::check(const DeviceConstRef &device, const FilePath &candidate) const
@@ -377,7 +401,9 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
 
         DeviceToolAspect *toolAspect = d->deviceToolAspects.value(factory->toolId());
         QTC_ASSERT(toolAspect, continue);
-        datas << Data{factory, patterns, toolAspect->expandedValue(), {}, toolAspect->labelText()};
+        QTC_CHECK(!toolAspect->toolDisplayName().isEmpty());
+        datas << Data{
+            factory, patterns, toolAspect->expandedValue(), {}, toolAspect->toolDisplayName()};
     }
 
     const ListIterator iterator(datas);
@@ -465,6 +491,7 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect(const DeviceConstRef &de
     toolAspect->setSettingsKey(m_toolId.name());
     toolAspect->setLabelText(m_labelText);
     toolAspect->setToolTip(m_toolTip);
+    toolAspect->setToolDisplayName(m_displayName);
     toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
     toolAspect->setHistoryCompleter(m_toolId.name());
     toolAspect->setValidationFunction(
