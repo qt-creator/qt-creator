@@ -344,12 +344,12 @@ Result<Environment> IDevice::getUnixEnvironment(const FilePath &scriptToSource) 
     return Utils::getUnixEnvironment(filePath("env"), osType(), scriptToSource);
 }
 
-void IDevice::requestToolDetection(const FilePaths &searchPaths)
+void IDevice::requestToolDetection(const FilePaths &searchPaths, const ToolDetectionLogger &logger)
 {
     const quint64 token = kitCreationEnabled() ? ++d->toolDetectionToken : 0;
     d->toolDetectionTaskCount = 0;
     registerToolDetectionTask(token);
-    emit DeviceManager::instance()->toolDetectionRequested(id(), searchPaths, token);
+    emit DeviceManager::instance()->toolDetectionRequested(id(), searchPaths, token, logger);
     deregisterToolDetectionTask(token);
 }
 

@@ -8,6 +8,7 @@
 #include "examplesparser.h"
 #include "gettingstartedwelcomepage.h"
 #include "qtsupportconstants.h"
+#include "qtsupporttr.h"
 #include "qtsupportutils.h"
 #include "qtversionfactory.h"
 
@@ -121,7 +122,9 @@ public:
     bool restoreQtVersions();
     void findSystemQt(const IDeviceConstPtr &device);
     void addQtVersionsFromFilePaths(const FilePaths &filePaths);
-    void handleDeviceToolDetectionRequest(Id deviceId, const FilePaths &searchPaths, quint64 token);
+    void handleDeviceToolDetectionRequest(
+        Id deviceId, const FilePaths &searchPaths, quint64 token,
+        const ToolDetectionLogger &logger);
     void saveQtVersions();
 
     void updateDocumentation(const QtVersions &added,
@@ -498,17 +501,27 @@ void QtVersionManagerImpl::addQtVersionsFromFilePaths(const FilePaths &filePaths
 }
 
 void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
-    Id deviceId, const FilePaths &searchPaths, quint64 token)
+    Id deviceId, const FilePaths &searchPaths, quint64 token, const ToolDetectionLogger &logger)
 {
     const IDevicePtr dev = DeviceManager::find(deviceId);
     QTC_ASSERT(dev, return);
 
     dev->registerToolDetectionTask(token);
+    if (logger)
+        logger.logTopLevel(Tr::tr("Searching for Qt versions..."));
     const VersionMap qtVersions = m_versions;
     addQtVersionsFromFilePaths(findQtsInPaths(searchPaths));
     if (qtVersions != m_versions) {
+        if (logger) {
+            for (auto it = m_versions.cbegin(); it != m_versions.cend(); ++it) {
+                if (!qtVersions.contains(it.key()))
+                    logger.logItem(Tr::tr("Found Qt version: %1").arg(it.value()->displayName()));
+            }
+        }
         saveQtVersions();
         emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());
+    } else if (logger) {
+        logger.logItem(Tr::tr("No new Qt versions found."));
     }
     dev->deregisterToolDetectionTask(token);
 }

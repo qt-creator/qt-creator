@@ -109,7 +109,8 @@ public:
 
     void updateDebugger(const DebuggerItem &item);
 
-    void detectDebuggers(const IDeviceConstPtr &device, const FilePaths &searchPaths);
+    void detectDebuggers(const IDeviceConstPtr &device, const FilePaths &searchPaths,
+                         const ToolDetectionLogger &logger = {});
     void restoreDebuggers();
     void saveDebuggers();
 
@@ -117,12 +118,12 @@ public:
     void deregisterDebugger(const QVariant &id);
 
     void readDebuggers(const FilePath &fileName, bool isSdk);
-    void autoDetectCdbDebuggers();
+    void autoDetectCdbDebuggers(const ToolDetectionLogger &logger = {});
     void autoDetectGdbOrLldbDebuggers(
         const FilePaths &searchPaths,
         const DetectionSource &detectionSource,
-        QString *logMessage = nullptr);
-    void autoDetectUvscDebuggers();
+        const ToolDetectionLogger &logger = {});
+    void autoDetectUvscDebuggers(const ToolDetectionLogger &logger = {});
     int cloneRow(int row) override;
     QString uniqueDisplayName(const QString &base);
 
@@ -154,11 +155,12 @@ DebuggerModel::DebuggerModel()
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &DebuggerModel::saveDebuggers);
     connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested, this,
-            [this](Id devId, const FilePaths &searchPaths, quint64 token) {
+            [this](Id devId, const FilePaths &searchPaths, quint64 token,
+                   const ToolDetectionLogger &logger) {
         const IDevicePtr dev = DeviceManager::find(devId);
         QTC_ASSERT(dev, return);
         dev->registerToolDetectionTask(token);
-        detectDebuggers(dev, searchPaths);
+        detectDebuggers(dev, searchPaths, logger);
         dev->deregisterToolDetectionTask(token);
     });
 }
@@ -190,8 +192,11 @@ void DebuggerModel::updateDebugger(const DebuggerItem &ditem)
 }
 
 
-void DebuggerModel::autoDetectCdbDebuggers()
+void DebuggerModel::autoDetectCdbDebuggers(const ToolDetectionLogger &logger)
 {
+    if (logger)
+        logger.logTopLevel(Tr::tr("Searching for CDB..."));
+
     FilePaths cdbs;
 
     const QStringList programDirs = {qtcEnvironmentVariable("ProgramFiles"),
@@ -262,6 +267,8 @@ void DebuggerModel::autoDetectCdbDebuggers()
         item.setUnexpandedDisplayName(
             uniqueDisplayName(Tr::tr("Auto-detected CDB at \"%1\"").arg(cdb.toUserOutput())));
         appendItem(item);
+        if (logger)
+            logger.logItem(Tr::tr("Found: \"%1\".").arg(cdb.toUserOutput()));
     }
 }
 
@@ -298,7 +305,8 @@ static Utils::FilePaths searchGdbPathsFromRegistry()
 }
 
 void DebuggerModel::autoDetectGdbOrLldbDebuggers(
-    const FilePaths &searchPaths, const DetectionSource &detectionSource, QString *logMessage)
+    const FilePaths &searchPaths, const DetectionSource &detectionSource,
+    const ToolDetectionLogger &logger)
 {
     QStringList filters
         = {"gdb-i686-pc-mingw32",
@@ -355,7 +363,8 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
     for (const FilePath &path : std::as_const(paths))
         suspects.append(path.dirEntries(Utils::FileFilter{filters, Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
 
-    QStringList logMessages{Tr::tr("Searching debuggers...")};
+    if (logger)
+        logger.logTopLevel(Tr::tr("Searching for GDB and LLDB..."));
     for (const FilePath &command : std::as_const(suspects)) {
         int existingRow = -1;
         for (int i = 0; i < itemCount(); ++i) {
@@ -398,9 +407,11 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
                     },
                     detectionSource);
                 appendItem(dapItem);
-                logMessages.append(
-                    Tr::tr("Added a surrogate GDB DAP item for existing entry \"%1\".")
-                        .arg(command.toUserOutput()));
+                if (logger) {
+                    logger.logItem(
+                        Tr::tr("Added a surrogate GDB DAP item for existing entry \"%1\".")
+                            .arg(command.toUserOutput()));
+                }
             }
             continue;
         }
@@ -408,12 +419,14 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
         const Result<DebuggerItem> item
             = makeAutoDetectedDebuggerItem(command, detectionSource);
         if (!item) {
-            logMessages.append(item.error());
+            if (logger)
+                logger.logItem(item.error());
             continue;
         }
 
         appendItem(*item);
-        logMessages.append(Tr::tr("Found: \"%1\".").arg(command.toUserOutput()));
+        if (logger)
+            logger.logItem(Tr::tr("Found: \"%1\".").arg(command.toUserOutput()));
         if (nativeDapDebuggersEnabled()) {
             if (item->engineType() != GdbEngineType)
                 continue;
@@ -433,18 +446,21 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
                 },
                 detectionSource);
             appendItem(dapItem);
-            logMessages.append(
-                Tr::tr("Added a surrogate GDB DAP item for \"%1\".").arg(command.toUserOutput()));
+            if (logger) {
+                logger.logItem(
+                    Tr::tr("Added a surrogate GDB DAP item for \"%1\".").arg(command.toUserOutput()));
+            }
         }
     }
-    if (logMessage)
-        *logMessage = logMessages.join('\n');
 }
 
-void DebuggerModel::autoDetectUvscDebuggers()
+void DebuggerModel::autoDetectUvscDebuggers(const ToolDetectionLogger &logger)
 {
     if (!HostOsInfo::isWindowsHost())
         return;
+
+    if (logger)
+        logger.logTopLevel(Tr::tr("Searching for uVision..."));
 
     // Registry token for the "KEIL uVision" instance.
     static const char kRegistryToken[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\" \
@@ -478,6 +494,8 @@ void DebuggerModel::autoDetectUvscDebuggers()
         item.setUnexpandedDisplayName(uniqueDisplayName(
             Tr::tr("Auto-detected uVision at \"%1\"").arg(uVision.toUserOutput())));
         appendItem(item);
+        if (logger)
+            logger.logItem(Tr::tr("Found: \"%1\".").arg(uVision.toUserOutput()));
     }
 }
 
@@ -576,16 +594,18 @@ void DebuggerModel::restoreDebuggers()
         detectDebuggers(desktopDevice, desktopDevice->systemEnvironment().path());
 }
 
-void DebuggerModel::detectDebuggers(const IDeviceConstPtr &device, const FilePaths &searchPaths)
+void DebuggerModel::detectDebuggers(
+    const IDeviceConstPtr &device, const FilePaths &searchPaths,
+    const ToolDetectionLogger &logger)
 {
     QTC_ASSERT(device, return);
     const bool isDesktopDevice = device->id() == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
     const DetectionSource detectionSource = isDesktopDevice ? DetectionSource::FromSystem
                                                             : DetectionSource::Manual;
-    autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource);
+    autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logger);
     if (isDesktopDevice) {
-        autoDetectCdbDebuggers();
-        autoDetectUvscDebuggers();
+        autoDetectCdbDebuggers(logger);
+        autoDetectUvscDebuggers(logger);
     }
 }
 

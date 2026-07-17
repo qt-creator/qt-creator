@@ -580,16 +580,27 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
 }
 
 void CMakeToolManager::handleDeviceToolDetectionRequest(
-    Utils::Id devId, const FilePaths &searchPaths, quint64 token)
+    Utils::Id devId, const FilePaths &searchPaths, quint64 token,
+    const ProjectExplorer::ToolDetectionLogger &logger)
 {
     const IDevicePtr dev = DeviceManager::find(devId);
     QTC_ASSERT(dev, return);
     dev->registerToolDetectionTask(token);
+    if (logger)
+        logger.logTopLevel(Tr::tr("Searching for CMake..."));
     auto detected = autoDetectCMakeTools(searchPaths, dev->rootPath());
+    bool foundNew = false;
     for (auto &&tool : detected) {
-        if (!CMakeToolManager::findByCommand(tool->cmakeExecutable()))
+        if (!CMakeToolManager::findByCommand(tool->cmakeExecutable())) {
+            foundNew = true;
+            if (logger)
+                logger.logItem(
+                    Tr::tr("Found CMake: %1").arg(tool->cmakeExecutable().toUserOutput()));
             CMakeToolManager::registerCMakeTool(std::move(tool));
+        }
     }
+    if (logger && !foundNew)
+        logger.logItem(Tr::tr("No new CMake found."));
     dev->deregisterToolDetectionTask(token);
 }
 

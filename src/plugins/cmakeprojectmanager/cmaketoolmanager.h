@@ -7,6 +7,7 @@
 
 #include "cmaketool.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
 
 #include <utils/filepath.h>
@@ -72,7 +73,9 @@ signals:
 private:
     static void saveCMakeTools();
     static void ensureDefaultCMakeToolIsValid();
-    void handleDeviceToolDetectionRequest(Utils::Id devId, const Utils::FilePaths &searchPaths, quint64 token);
+    void handleDeviceToolDetectionRequest(
+        Utils::Id devId, const Utils::FilePaths &searchPaths, quint64 token,
+        const ProjectExplorer::ToolDetectionLogger &logger);
 };
 
 namespace Internal { void setupCMakeToolManager(QObject *guard); }

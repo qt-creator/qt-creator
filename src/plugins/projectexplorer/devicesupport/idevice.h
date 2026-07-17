@@ -326,7 +326,8 @@ public:
 
     void offerKitCreation();
 
-    void requestToolDetection(const Utils::FilePaths &searchPaths);
+    void requestToolDetection(const Utils::FilePaths &searchPaths,
+                               const ToolDetectionLogger &logger = {});
     void registerToolDetectionTask(quint64 token);
     void deregisterToolDetectionTask(quint64 token);
 

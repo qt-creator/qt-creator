@@ -58,7 +58,8 @@ signals:
     void deviceUpdated(Utils::Id id);
     void updated(); // Emitted for all of the above.
 
-    void toolDetectionRequested(Utils::Id id, const Utils::FilePaths &searchPaths, quint64 token);
+    void toolDetectionRequested(Utils::Id id, const Utils::FilePaths &searchPaths, quint64 token,
+                                 const ToolDetectionLogger &logger);
 
     void devicesLoaded(); // Emitted once load() is done
 

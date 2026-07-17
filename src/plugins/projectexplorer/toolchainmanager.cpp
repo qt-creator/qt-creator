@@ -113,10 +113,13 @@ void ToolchainManager::restoreToolchains()
     emit m_instance->toolchainsLoaded();
 
     connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
-            m_instance, [](Id devId, const FilePaths &searchPaths, quint64 token) {
+            m_instance, [](Id devId, const FilePaths &searchPaths, quint64 token,
+                           const ToolDetectionLogger &logger) {
         const IDevice::Ptr device = DeviceManager::find(devId);
         QTC_ASSERT(device, return);
         device->registerToolDetectionTask(token);
+        if (logger)
+            logger.logTopLevel(Tr::tr("Searching for toolchains..."));
         ToolchainDetector detector(m_instance->toolchains(), device, searchPaths);
         Toolchains toRegister;
         for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
@@ -126,6 +129,12 @@ void ToolchainManager::restoreToolchains()
                     tc->setDetectionSource(DetectionSource::Manual);
                 }
             }
+        }
+        if (logger) {
+            if (toRegister.isEmpty())
+                logger.logItem(Tr::tr("No new toolchains found."));
+            for (const Toolchain *tc : std::as_const(toRegister))
+                logger.logItem(Tr::tr("Found toolchain: %1").arg(tc->displayName()));
         }
         registerToolchains(toRegister);
         device->deregisterToolDetectionTask(token);
