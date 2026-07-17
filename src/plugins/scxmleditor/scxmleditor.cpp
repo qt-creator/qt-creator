@@ -1,12 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "scxmltexteditor.h"
+#include "scxmleditor.h"
 
 #include "mainwidget.h"
 #include "scxmleditorconstants.h"
 #include "scxmleditordocument.h"
 #include "scxmleditortr.h"
+#include "scxmltexteditor.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
