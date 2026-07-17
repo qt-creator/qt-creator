@@ -1642,17 +1642,19 @@ void LinuxDevice::tryToConnect(const Continuation<> &cont) const
 }
 
 void LinuxDevice::runAutoDetect(
-    const std::function<void(const QString &)> &logger,
+    const ToolDetectionLogger &logger,
     const std::function<void()> &onDone)
 {
-    logger(Tr::tr("Connecting..."));
+    if (logger)
+        logger.logTopLevel(Tr::tr("Connecting..."));
     const std::weak_ptr<IDevice> weakSelf = shared_from_this();
     tryToConnect(Continuation<>([weakSelf, logger, onDone](const Result<> &res) {
         const IDevice::Ptr self = weakSelf.lock();
         if (!self)
             return;
         if (!res) {
-            logger(Tr::tr("Connection failed: %1").arg(res.error()));
+            if (logger)
+                logger.logTopLevel(Tr::tr("Connection failed: %1").arg(res.error()));
             onDone();
             return;
         }

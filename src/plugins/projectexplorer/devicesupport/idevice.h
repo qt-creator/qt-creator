@@ -44,6 +44,23 @@ namespace Layouting { class Layout; }
 
 namespace ProjectExplorer {
 
+class PROJECTEXPLORER_EXPORT ToolDetectionLogger
+{
+public:
+    ToolDetectionLogger() = default;
+    ToolDetectionLogger(const std::function<void(const QString &)> &logger)
+        : m_logger(logger)
+    {}
+
+    void logTopLevel(const QString &message) const { m_logger(message); }
+    void logItem(const QString &message) const { m_logger("  " + message); }
+
+    operator bool() const { return bool(m_logger); }
+
+private:
+    std::function<void(const QString &)> m_logger;
+};
+
 class DeviceConstRef;
 class FileTransferInterface;
 class FileTransferSetupData;
@@ -254,7 +271,7 @@ public:
 
     std::function<void(Layouting::Layout *)> deviceToolsGui();
     std::function<void(Layouting::Layout *)> autoDetectGui();
-    virtual void runAutoDetect(const std::function<void(const QString &)> &logger,
+    virtual void runAutoDetect(const ToolDetectionLogger &logger,
                                const std::function<void()> &onDone);
 
     void setExtraData(Utils::Id kind, const QVariant &data);
@@ -305,8 +322,7 @@ public:
 
     Utils::FilePaths toolSearchPaths() const;
 
-    QtTaskTree::Group autoDetectDeviceToolsRecipe(
-        std::function<void(const QString &)> logger = {});
+    QtTaskTree::Group autoDetectDeviceToolsRecipe(ToolDetectionLogger logger = {});
 
     void offerKitCreation();
 

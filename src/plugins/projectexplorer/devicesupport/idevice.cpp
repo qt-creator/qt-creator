@@ -358,7 +358,7 @@ FilePaths IDevice::toolSearchPaths() const
     return d->autoDetectionPaths();
 }
 
-Group IDevice::autoDetectDeviceToolsRecipe(std::function<void(const QString &)> logger)
+Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
 {
     struct Data
     {
@@ -389,7 +389,7 @@ Group IDevice::autoDetectDeviceToolsRecipe(std::function<void(const QString &)> 
         if (!device)
             return;
         if (logger)
-            logger(Tr::tr("Searching for %1...").arg(iterator->label));
+            logger.logTopLevel(Tr::tr("Searching for %1...").arg(iterator->label));
         const FilePaths detectionPaths = device->toolSearchPaths();
         const FilePath deviceRootPath = device->rootPath();
         const auto searchForTools = [deviceRootPath,
@@ -441,10 +441,13 @@ Group IDevice::autoDetectDeviceToolsRecipe(std::function<void(const QString &)> 
         toolAspect->setValue(newValue);
 
         if (logger) {
-            if (newValue.isEmpty())
-                logger(Tr::tr("  %1: not found").arg(data.label));
-            else
-                logger(Tr::tr("  %1: %2").arg(data.label, newValue.toUserOutput()));
+            if (newValue.isEmpty()) {
+                //: %1 = tool name
+                logger.logItem(Tr::tr("%1: not found").arg(data.label));
+            } else {
+                //: %1 = tool name, %2 = tool path
+                logger.logItem(Tr::tr("%1: %2").arg(data.label, newValue.toUserOutput()));
+            }
         }
     };
 
@@ -1219,14 +1222,14 @@ std::function<void(Layouting::Layout *)> IDevice::autoDetectGui()
                 button->setEnabled(false);
                 if (lv)
                     lv->clear();
-                const auto logger = [lv](const QString &msg) {
+                const ToolDetectionLogger logger([lv](const QString &msg) {
                     if (lv)
                         lv->appendPlainText(msg);
-                };
+                });
                 const auto onDone = [btn = QPointer<QWidget>(button), logger] {
                     if (btn)
                         btn->setEnabled(true);
-                    logger(Tr::tr("Done."));
+                    logger.logTopLevel(Tr::tr("Done."));
                 };
                 device->runAutoDetect(logger, onDone);
             });
@@ -1236,7 +1239,7 @@ std::function<void(Layouting::Layout *)> IDevice::autoDetectGui()
 }
 
 void IDevice::runAutoDetect(
-    const std::function<void(const QString &)> &logger,
+    const ToolDetectionLogger &logger,
     const std::function<void()> &onDone)
 {
     GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onDone);
