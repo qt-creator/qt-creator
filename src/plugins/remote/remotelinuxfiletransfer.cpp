@@ -1,15 +1,14 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "linuxdevice.h"
+#include "remotelinuxfiletransfer.h"
 
-#include "remotelinux_constants.h"
+#include "linuxdevice.h"
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/filetransferinterface.h>
-#include <projectexplorer/devicesupport/processlist.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -18,8 +17,6 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <utils/async.h>
-#include <utils/processinfo.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

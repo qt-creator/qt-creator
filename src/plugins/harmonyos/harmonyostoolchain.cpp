@@ -29,7 +29,7 @@ using ClangTargetsType = QHash<QString, Abi>;
 // Maps the LLVM target triples that the ohos-clang mkspec passes via "--target" to the ABIs
 // that Qt for HarmonyOS reports. The OpenHarmony flavor makes these match strictly against a
 // HarmonyOS Qt version's ABI (see ProjectExplorer::Abi::isCompatibleWith).
-const ClangTargetsType &clangTargets()
+static const ClangTargetsType &clangTargets()
 {
     static const ClangTargetsType targets {
         {"aarch64-linux-ohos",
