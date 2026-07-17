@@ -168,6 +168,8 @@ QtcLibrary {
         "guard.cpp",
         "guard.h",
         "guardedcallback.h",
+        "guitest.cpp",
+        "guitest.h",
         "guiutils.cpp",
         "guiutils.h",
         "historycompleter.cpp",

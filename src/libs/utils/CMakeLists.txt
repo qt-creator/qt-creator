@@ -77,6 +77,7 @@ add_qtc_library(Utils
     groupedmodel.cpp groupedmodel.h
     guard.cpp guard.h
     guardedcallback.h
+    guitest.cpp guitest.h
     guiutils.cpp guiutils.h
     historycompleter.cpp historycompleter.h
     hostosinfo.cpp hostosinfo.h
