@@ -86,6 +86,7 @@ QtcPlugin {
         "fileapireader.cpp",
         "fileapireader.h",
         "mcptools.cpp",
+        "mcptools.h",
         "presetsparser.cpp",
         "presetsparser.h",
         "presetsmacros.cpp",
@@ -95,7 +96,7 @@ QtcPlugin {
         "targethelper.cpp",
         "targethelper.h",
         "testpresetshelper.cpp",
-        "testpresetshelper.h"
+        "testpresetshelper.h",
     ]
 
     Group {

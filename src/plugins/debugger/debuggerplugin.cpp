@@ -19,6 +19,7 @@
 #include "enginemanager.h"
 #include "loadcoredialog.h"
 #include "logwindow.h"
+#include "mcpsupport.h"
 #include "remotedebuggerconfiguration.h"
 #include "remotedebuggerdebugsupport.h"
 #include "shared/coredumputils.h"
@@ -1955,8 +1956,6 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
     }
     runScheduled();
 }
-
-void registerMcpTools();
 
 void DebuggerPluginPrivate::extensionsInitialized()
 {

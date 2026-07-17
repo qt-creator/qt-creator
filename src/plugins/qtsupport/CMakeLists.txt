@@ -3,7 +3,7 @@ add_qtc_plugin(QtSupport
   PUBLIC_DEPENDS ProParser
   PLUGIN_DEPENDS Core ProjectExplorer ResourceEditor
   SOURCES
-    mcpsupport.cpp
+    mcpsupport.cpp mcpsupport.h
     baseqtversion.cpp baseqtversion.h
     codegenerator.cpp codegenerator.h
     codegensettings.cpp codegensettings.h

@@ -86,7 +86,7 @@ QtcPlugin {
             "lldparser.cpp", "lldparser.h",
             "linuxiccparser.cpp", "linuxiccparser.h",
             "makestep.cpp", "makestep.h",
-            "mcpsupport.cpp",
+            "mcpsupport.cpp", "mcpsupport.h",
             "miniprojecttargetselector.cpp", "miniprojecttargetselector.h",
             "msvcparser.cpp", "msvcparser.h",
             "msvctoolchain.cpp", "msvctoolchain.h",

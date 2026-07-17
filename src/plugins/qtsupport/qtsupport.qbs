@@ -62,6 +62,7 @@ QtcPlugin {
         "externaleditors.cpp",
         "externaleditors.h",
         "mcpsupport.cpp",
+        "mcpsupport.h",
         "qtabiextractor.cpp",
         "qtabiextractor.h",
         "qtbuildaspects.cpp",

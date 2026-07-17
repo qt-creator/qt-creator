@@ -17,26 +17,22 @@
 #include "cmakeprojectimporter.h"
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectnodes.h"
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
+#include "mcptools.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
 #include <texteditor/snippets/snippetprovider.h>
 
-#include <utils/action.h>
 #include <utils/mimeconstants.h>
 #include <utils/fsengine/fileiconprovider.h>
 
@@ -48,8 +44,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
-
-void registerMcpTools();
 
 class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 {

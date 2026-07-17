@@ -199,7 +199,7 @@ extend_qtc_plugin(ProjectExplorer
 )
 
 extend_qtc_plugin(ProjectExplorer
-  SOURCES mcpsupport.cpp issuesmanager.cpp issuesmanager.h
+  SOURCES mcpsupport.cpp mcpsupport.h issuesmanager.cpp issuesmanager.h
   DEPENDS McpServerLib
 )
 

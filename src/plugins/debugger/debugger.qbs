@@ -56,7 +56,7 @@ QtcPlugin {
             "localsandexpressionswindow.cpp", "localsandexpressionswindow.h",
             "logwindow.cpp", "logwindow.h",
             "memoryagent.cpp", "memoryagent.h",
-            "mcpsupport.cpp",
+            "mcpsupport.cpp", "mcpsupport.h",
             "moduleshandler.cpp", "moduleshandler.h",
             "outputcollector.cpp", "outputcollector.h",
             "peripheralregisterhandler.cpp", "peripheralregisterhandler.h",

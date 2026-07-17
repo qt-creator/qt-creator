@@ -105,7 +105,7 @@ extend_qtc_plugin(Debugger
 )
 
 extend_qtc_plugin(Debugger
-  SOURCES mcpsupport.cpp
+  SOURCES mcpsupport.cpp mcpsupport.h
   DEPENDS McpServerLib
 )
 

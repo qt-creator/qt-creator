@@ -46,6 +46,7 @@
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 #include "ldparser.h"
+#include "mcpsupport.h"
 #include "miniprojecttargetselector.h"
 #include "msvctoolchain.h"
 #include "outputparsers.h"
@@ -2304,10 +2305,6 @@ void ProjectExplorerPluginPrivate::closeAllProjects()
 
     ModeManager::activateMode(Core::Constants::MODE_WELCOME);
 }
-
-namespace Internal {
-void registerMcpTools();
-} // namespace Internal
 
 void ProjectExplorerPlugin::extensionsInitialized()
 {

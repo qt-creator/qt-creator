@@ -4,6 +4,7 @@
 #include "codegenerator.h"
 #include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
+#include "mcpsupport.h"
 #include "profilereader.h"
 #include "qscxmlcgenerator.h"
 #include "qtkitaspect.h"
@@ -177,8 +178,6 @@ static void askAboutQtInstallation()
         InfoBarEntry::ButtonAction::Hide);
     infoBar->addInfo(info);
 }
-
-void registerMcpTools();
 
 void QtSupportPlugin::extensionsInitialized()
 {

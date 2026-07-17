@@ -4,6 +4,7 @@
 #include "breakhandler.h"
 #include "debuggerengine.h"
 #include "enginemanager.h"
+#include "mcpsupport.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
