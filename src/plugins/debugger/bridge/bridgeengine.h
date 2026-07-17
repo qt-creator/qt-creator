@@ -5,9 +5,11 @@
 
 #include <debugger/debuggerengine.h>
 
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLoggingCategory>
+#include <QPointer>
 #include <QProcess>
 #include <QSet>
 #include <QString>
@@ -26,7 +28,9 @@ namespace Debugger::Internal {
 
 class DapClient;
 class DebuggerCommand;
+class DisassemblerAgent;
 class GdbMi;
+class MemoryAgent;
 enum class DapResponseType;
 enum class DapEventType;
 
@@ -65,11 +69,16 @@ private:
     void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
     void reloadModules() override;
+    void reloadRegisters() override;
     void reloadSourceFiles() override {}
     void reloadFullStack() override;
 
     void doUpdateLocals(const UpdateParameters &params) override;
     void updateAll() override;
+
+    void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) override;
+    void changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data) override;
+    void fetchDisassembler(DisassemblerAgent *agent) override;
 
     bool hasCapability(unsigned cap) const override;
 
@@ -102,6 +111,10 @@ private:
     void handleUpdateBreakpointResponse(const QJsonObject &response);
     void handleRemoveBreakpointResponse(const QJsonObject &response);
     void handleFetchVariablesResponse(const QJsonObject &response);
+    void handleFetchRegistersResponse(const QJsonObject &response);
+    void handleReadMemoryResponse(const QJsonObject &response);
+    void handleWriteMemoryResponse(const QJsonObject &response);
+    void handleDisassembleResponse(const QJsonObject &response);
 
     void handleEvent(DapEventType type, const QJsonObject &event);
     void handleStoppedEvent(const QJsonObject &event);
@@ -114,6 +127,14 @@ private:
 
     int m_currentThreadId = -1;
     int m_currentStackFrameId = -1;
+
+    // Correlates async qtc/readMemory responses back to the requesting agent.
+    QHash<int, QPointer<MemoryAgent>> m_memoryAgents;
+    int m_nextMemoryToken = 0;
+
+    // Correlates async qtc/disassemble responses back to the requesting agent.
+    QHash<int, QPointer<DisassemblerAgent>> m_disassemblerAgents;
+    int m_nextDisassemblerToken = 0;
 };
 
 DebuggerEngine *createBridgeEngine();

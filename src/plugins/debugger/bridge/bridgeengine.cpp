@@ -11,7 +11,11 @@
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggertr.h>
+#include <debugger/disassembleragent.h>
+#include <debugger/disassemblerlines.h>
+#include <debugger/memoryagent.h>
 #include <debugger/moduleshandler.h>
+#include <debugger/registerhandler.h>
 #include <debugger/stackhandler.h>
 #include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
@@ -80,6 +84,7 @@ public:
             m_proc.writeRaw(data);
     }
     void kill() override { m_proc.kill(); }
+    void interrupt() override { m_proc.interrupt(); }
     QByteArray readAllStandardOutput() override { return m_proc.readAllStandardOutput().toUtf8(); }
     QString readAllStandardError() override { return m_proc.readAllStandardError(); }
     int exitCode() const override { return m_proc.exitCode(); }
@@ -223,7 +228,11 @@ void BridgeEngine::shutdownEngine()
 
 void BridgeEngine::interruptInferior()
 {
-    m_dapClient->sendPause();
+    // The bridge server is synchronous - while the inferior runs it is blocked
+    // in gdb.execute() and cannot service a DAP 'pause' request. Interrupt gdb
+    // with a signal instead (as interactive Ctrl-C does); gdb stops the
+    // inferior and the resulting 'stopped' event drives the transition.
+    m_dapClient->dataProvider()->interrupt();
 }
 
 void BridgeEngine::executeStepIn(bool)
@@ -261,31 +270,39 @@ void BridgeEngine::continueInferior()
 
 void BridgeEngine::executeRunToLine(const ContextData &data)
 {
-    // Add one-shot breakpoint
-    BreakpointParameters bp;
-    bp.oneShot = true;
+    // Temporary breakpoint at the location, then continue until it is hit.
+    // Same response-then-execute shape as continueInferior().
+    notifyInferiorRunRequested();
+    QJsonObject args;
     if (data.address) {
-        bp.type = BreakpointByAddress;
-        bp.address = data.address;
+        args.insert("address", QString("0x%1").arg(data.address, 0, 16));
     } else {
-        bp.type = BreakpointByFileAndLine;
-        bp.fileName = data.fileName;
-        bp.textPosition = data.textPosition;
+        args.insert("file", data.fileName.path());
+        args.insert("line", data.textPosition.line);
     }
-
-    BreakpointManager::createBreakpointForEngine(bp, this);
+    m_dapClient->postRequest("qtc/runToLine", args);
 }
 
 void BridgeEngine::executeRunToFunction(const QString &functionName)
 {
-    Q_UNUSED(functionName)
-    QTC_CHECK("FIXME:  BridgeEngine::runToFunctionExec()" && false);
+    // Temporary breakpoint at the function, then continue until it is hit.
+    // Same response-then-execute shape as continueInferior().
+    notifyInferiorRunRequested();
+    m_dapClient->postRequest("qtc/runToFunction", QJsonObject{{"function", functionName}});
 }
 
 void BridgeEngine::executeJumpToLine(const ContextData &data)
 {
-    Q_UNUSED(data)
-    QTC_CHECK("FIXME:  BridgeEngine::jumpToLineExec()" && false);
+    // Move the execution point without resuming (Qt Creator semantics): the
+    // bridge sets $pc to the target; we stay stopped and refresh the views.
+    QJsonObject args;
+    if (data.address)
+        args.insert("address", QString("0x%1").arg(data.address, 0, 16));
+    else {
+        args.insert("file", data.fileName.path());
+        args.insert("line", data.textPosition.line);
+    }
+    m_dapClient->postRequest("qtc/jumpToLine", args);
 }
 
 void BridgeEngine::activateFrame(int frameIndex)
@@ -313,12 +330,13 @@ void BridgeEngine::selectThread(const Thread &thread)
 
 bool BridgeEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
+    if (bp.isWatchpoint() || bp.type == BreakpointByFunction || bp.type == BreakpointByAddress)
+        return true;
     const auto mimeType = Utils::mimeTypeForFile(bp.fileName);
     return mimeType.matchesName(Utils::Constants::C_HEADER_MIMETYPE)
            || mimeType.matchesName(Utils::Constants::C_SOURCE_MIMETYPE)
            || mimeType.matchesName(Utils::Constants::CPP_HEADER_MIMETYPE)
-           || mimeType.matchesName(Utils::Constants::CPP_SOURCE_MIMETYPE)
-           || bp.type == BreakpointByFunction;
+           || mimeType.matchesName(Utils::Constants::CPP_SOURCE_MIMETYPE);
 }
 
 void BridgeEngine::insertBreakpoint(const Breakpoint &bp)
@@ -607,11 +625,17 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
                     .arg(response.value("message").toString()));
         }
         break;
-    default:
-        if (!success) {
-            // A failed request has no body worth reading, but the model must
-            // not be left waiting for an answer: a breakpoint that stays in its
-            // change-proceeding state cannot even be removed afterwards.
+    default: {
+        // Run control reacts to a failure itself; the other handlers consume a
+        // response body, and handing them an empty one would wipe the view each
+        // fills.
+        const bool isRunControl = command == "qtc/runToFunction"
+                                  || command == "qtc/runToLine"
+                                  || command == "qtc/jumpToLine";
+        if (!success && !isRunControl) {
+            // The model must not be left waiting for an answer either: a
+            // breakpoint that stays in its change-proceeding state cannot even
+            // be removed afterwards.
             const Breakpoint bp = breakHandler()->findBreakpointByModelId(
                 response.value("body").toObject().value("modelid").toInt());
             if (bp) {
@@ -622,7 +646,12 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
                 else if (command == "qtc/removeBreakpoint")
                     notifyBreakpointRemoveFailed(bp);
             }
-            // The locals view has to be released even so, or it stays in its
+            // A token-correlated request has an agent waiting for it; drop the
+            // entry, or the map grows for every failure.
+            const int token = response.value("body").toObject().value("token").toInt();
+            m_memoryAgents.remove(token);
+            m_disassemblerAgents.remove(token);
+            // And the locals view has to be released, or it stays in its
             // updating state - with stale, unexpandable items - until the next
             // successful fetch.
             if (command == "qtc/fetchVariables") {
@@ -634,6 +663,20 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         }
         if (command == "qtc/fetchVariables")
             handleFetchVariablesResponse(response);
+        else if (command == "qtc/fetchRegisters")
+            handleFetchRegistersResponse(response);
+        else if (command == "qtc/readMemory")
+            handleReadMemoryResponse(response);
+        else if (command == "qtc/writeMemory")
+            handleWriteMemoryResponse(response);
+        else if (command == "qtc/disassemble")
+            handleDisassembleResponse(response);
+        else if (command == "qtc/runToFunction" || command == "qtc/runToLine")
+            success ? notifyInferiorRunOk() : notifyInferiorRunFailed();
+        else if (command == "qtc/jumpToLine") {
+            if (success) // Stayed stopped; refresh stack/locals for the new $pc.
+                updateAll();
+        }
         else if (command == "qtc/insertBreakpoint")
             handleInsertBreakpointResponse(response);
         else if (command == "qtc/updateBreakpoint")
@@ -642,6 +685,8 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
             handleRemoveBreakpointResponse(response);
         else
             showMessage("UNKNOWN RESPONSE:" + command);
+        break;
+    }
     }
 
     if (!success) {
@@ -702,6 +747,110 @@ void BridgeEngine::handleFetchVariablesResponse(const QJsonObject &response)
     updateLocalsView(all);
     watchHandler()->notifyUpdateFinished();
     updateToolTips();
+}
+
+void BridgeEngine::reloadRegisters()
+{
+    if (!isRegistersWindowVisible())
+        return;
+
+    if (state() != InferiorStopOk && state() != InferiorUnrunnable)
+        return;
+
+    QJsonObject args;
+    args.insert("frameId", m_currentStackFrameId);
+    m_dapClient->postRequest("qtc/fetchRegisters", args);
+}
+
+void BridgeEngine::handleFetchRegistersResponse(const QJsonObject &response)
+{
+    RegisterHandler *handler = registerHandler();
+    const QJsonArray registers = response.value("body").toObject().value("registers").toArray();
+    for (const QJsonValue &item : registers) {
+        const QJsonObject obj = item.toObject();
+        Register reg;
+        reg.name = obj.value("name").toString();
+        reg.size = obj.value("size").toInt();
+        const QString value = obj.value("value").toString();
+        if (value.startsWith("0x"))
+            reg.value.fromString(value, HexadecimalFormat);
+        handler->updateRegister(reg);
+    }
+    handler->commitUpdates();
+}
+
+void BridgeEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length)
+{
+    // Async read; the response is correlated back to the agent via the token.
+    const int token = m_nextMemoryToken++;
+    m_memoryAgents.insert(token, agent);
+
+    QJsonObject args;
+    args.insert("token", token);
+    args.insert("address", QString("0x%1").arg(addr, 0, 16));
+    args.insert("length", int(length));
+    m_dapClient->postRequest("qtc/readMemory", args);
+}
+
+void BridgeEngine::changeMemory(MemoryAgent *agent, quint64 addr, const QByteArray &data)
+{
+    Q_UNUSED(agent)
+    QJsonObject args;
+    args.insert("address", QString("0x%1").arg(addr, 0, 16));
+    args.insert("data", QString::fromLatin1(data.toBase64()));
+    m_dapClient->postRequest("qtc/writeMemory", args);
+}
+
+void BridgeEngine::handleReadMemoryResponse(const QJsonObject &response)
+{
+    const QJsonObject body = response.value("body").toObject();
+    const QPointer<MemoryAgent> agent = m_memoryAgents.take(body.value("token").toInt());
+    if (!agent)
+        return;
+    const quint64 address = body.value("address").toString().toULongLong(nullptr, 0);
+    const QByteArray data = QByteArray::fromBase64(body.value("data").toString().toLatin1());
+    agent->addData(address, data);
+}
+
+void BridgeEngine::handleWriteMemoryResponse(const QJsonObject &response)
+{
+    // Values elsewhere may have changed; refresh the views (as the var-assign
+    // path does in GdbEngine).
+    if (response.value("success").toBool())
+        updateAll();
+}
+
+void BridgeEngine::fetchDisassembler(DisassemblerAgent *agent)
+{
+    const int token = m_nextDisassemblerToken++;
+    m_disassemblerAgents.insert(token, agent);
+
+    QJsonObject args;
+    args.insert("token", token);
+    args.insert("address", QString("0x%1").arg(agent->address(), 0, 16));
+    m_dapClient->postRequest("qtc/disassemble", args);
+}
+
+void BridgeEngine::handleDisassembleResponse(const QJsonObject &response)
+{
+    const QJsonObject body = response.value("body").toObject();
+    const QPointer<DisassemblerAgent> agent
+        = m_disassemblerAgents.take(body.value("token").toInt());
+    if (!agent)
+        return;
+
+    DisassemblerLines lines;
+    for (const QJsonValue &item : body.value("lines").toArray()) {
+        const QJsonObject obj = item.toObject();
+        DisassemblerLine line;
+        line.address = obj.value("address").toString().toULongLong(nullptr, 0);
+        line.function = obj.value("function").toString();
+        line.offset = obj.value("offset").toInt();
+        line.bytes = obj.value("bytes").toString();
+        line.data = obj.value("data").toString();
+        lines.appendLine(line);
+    }
+    agent->setContents(lines);
 }
 
 static GdbMi parseBkpt(const QJsonObject &body)
@@ -850,12 +999,17 @@ void BridgeEngine::updateAll()
     // which drives doUpdateLocals() -> qtc/fetchVariables.
     if (m_currentThreadId != -1)
         m_dapClient->stackTrace(m_currentThreadId);
+
+    reloadRegisters();
 }
 
 bool BridgeEngine::hasCapability(unsigned cap) const
 {
     return cap & (ReloadModuleCapability | BreakConditionCapability | ShowModuleSymbolsCapability
-                  | RunToLineCapability | AddWatcherCapability);
+                  | RunToLineCapability | AddWatcherCapability | RegisterCapability
+                  | ShowMemoryCapability | DisassemblerCapability
+                  | OperateByInstructionCapability | JumpToLineCapability
+                  | WatchpointByAddressCapability | WatchpointByExpressionCapability);
 }
 
 void BridgeEngine::claimInitialBreakpoints()

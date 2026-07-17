@@ -22,6 +22,7 @@ public:
     virtual bool isRunning() const = 0;
     virtual void writeRaw(const QByteArray &input) = 0;
     virtual void kill() = 0;
+    virtual void interrupt() {} // Interrupt the running inferior (async-signal).
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QString readAllStandardError() = 0;
     virtual int exitCode() const = 0;
