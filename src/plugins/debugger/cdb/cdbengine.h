@@ -14,6 +14,8 @@
 
 #include <QElapsedTimer>
 
+namespace Core { class IOptionsPage; }
+
 namespace Debugger::Internal {
 
 class CdbEngine : public CppDebuggerEngine
@@ -210,5 +212,8 @@ private:
     mutable CPlusPlus::Snapshot m_codeModelSnapshot;
     mutable QStringDecoder m_cdbOutputDecoder;
 };
+
+DebuggerEngine *createCdbEngine();
+void addCdbOptionPages(QList<Core::IOptionsPage*> *opts);
 
 } // Debugger::Internal

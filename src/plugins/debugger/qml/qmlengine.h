@@ -107,4 +107,6 @@ private:
     QmlEnginePrivate *d;
 };
 
+DebuggerEngine *createQmlEngine();
+
 } // Debugger::Internal

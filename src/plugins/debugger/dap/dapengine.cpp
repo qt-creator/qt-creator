@@ -1046,7 +1046,7 @@ void DapEngine::connectDataGeneratorSignals()
     connect(m_dapClient, &DapClient::eventReady, this, &DapEngine::handleEvent);
 }
 
-DebuggerEngine *createDapEngine(Utils::Id runMode)
+DebuggerEngine *createDapEngine(Id runMode)
 {
     if (runMode == ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE)
         return new CMakeDapEngine;

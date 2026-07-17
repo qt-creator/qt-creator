@@ -94,4 +94,6 @@ private:
     std::unique_ptr<UvscClient> m_client;
 };
 
+DebuggerEngine *createUvscEngine();
+
 } // Debugger::Internal

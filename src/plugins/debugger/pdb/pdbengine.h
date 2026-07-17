@@ -88,4 +88,6 @@ private:
     Utils::FilePath m_interpreter;
 };
 
+DebuggerEngine *createPdbEngine();
+
 } // Debugger::Internal

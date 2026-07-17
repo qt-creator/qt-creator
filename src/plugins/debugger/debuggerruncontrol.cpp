@@ -3,13 +3,20 @@
 
 #include "debuggerruncontrol.h"
 
+#include "cdb/cdbengine.h"
 #include "console/console.h"
+#include "dap/dapengine.h"
 #include "debuggeractions.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerkitaspect.h"
 #include "debuggertr.h"
 #include "enginemanager.h"
+#include "gdb/gdbengine.h"
+#include "lldb/lldbengine.h"
+#include "pdb/pdbengine.h"
+#include "qml/qmlengine.h"
+#include "uvsc/uvscengine.h"
 
 #include <coreplugin/perspective.h>
 
@@ -44,14 +51,6 @@ enum { debug = 0 };
 
 namespace Debugger {
 namespace Internal {
-
-DebuggerEngine *createCdbEngine();
-DebuggerEngine *createGdbEngine();
-DebuggerEngine *createPdbEngine();
-DebuggerEngine *createQmlEngine();
-DebuggerEngine *createLldbEngine();
-DebuggerEngine *createUvscEngine();
-DebuggerEngine *createDapEngine(Id runMode = ProjectExplorer::Constants::NO_RUN_MODE);
 
 static QString noEngineMessage()
 {

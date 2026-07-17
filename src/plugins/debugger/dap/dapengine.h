@@ -154,4 +154,6 @@ protected:
     }
 };
 
+DebuggerEngine *createDapEngine(Utils::Id runMode);
+
 } // Debugger::Internal

@@ -375,4 +375,6 @@ private: ////////// General Interface //////////
     QtTaskTree::QSingleTaskTreeRunner m_signalOperationRunner;
 };
 
+DebuggerEngine *createGdbEngine();
+
 } // Debugger::Internal

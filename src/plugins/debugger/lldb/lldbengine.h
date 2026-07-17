@@ -120,6 +120,8 @@ private:
     DebuggerCommandSequence m_onStop;
 };
 
+DebuggerEngine *createLldbEngine();
+
 } // Debugger::Internal
 
 #endif // DEBUGGER_LLDBENGINE

@@ -1,30 +1,31 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "breakhandler.h"
+#include "cdb/cdbengine.h"
+#include "console/console.h"
 #include "debuggeractions.h"
-#include "debuggerinternalconstants.h"
 #include "debuggercore.h"
 #include "debuggerdialogs.h"
 #include "debuggerengine.h"
 #include "debuggericons.h"
+#include "debuggerinternalconstants.h"
 #include "debuggeritemmanager.h"
+#include "debuggerkitaspect.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
-#include "debuggerkitaspect.h"
 #include "debuggertest.h"
 #include "debuggertr.h"
-#include "breakhandler.h"
 #include "enginemanager.h"
+#include "loadcoredialog.h"
 #include "logwindow.h"
 #include "remotedebuggerconfiguration.h"
 #include "remotedebuggerdebugsupport.h"
-#include "stackframe.h"
-#include "unstartedappwatcherdialog.h"
-#include "loadcoredialog.h"
-#include "sourceutils.h"
 #include "shared/coredumputils.h"
 #include "shared/hostutils.h"
-#include "console/console.h"
+#include "sourceutils.h"
+#include "stackframe.h"
+#include "unstartedappwatcherdialog.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -338,8 +339,6 @@ namespace Debugger::Internal {
 const char MENU_GROUP_GENERAL[]              = "Debugger.Group.General";
 const char MENU_GROUP_SPECIAL[]              = "Debugger.Group.Special";
 const char MENU_GROUP_START_QML[]            = "Debugger.Group.Start.Qml";
-
-void addCdbOptionPages(QList<IOptionsPage*> *opts);
 
 static QIcon startIcon(bool toolBarStyle)
 {
