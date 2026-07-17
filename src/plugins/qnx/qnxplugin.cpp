@@ -86,8 +86,8 @@ public:
     {
         setToolId(Constants::QNX_SDPENVFILE_TOOL_ID);
         setToolType(DeviceToolAspect::BuildTool);
-        setFilePattern({"/opt/qnx710/qnxsdp-env.sh", "/opt/qnx710/qnxsdp-env.bat",
-                        "/opt/qnx800/qnxsdp-env.sh", "/opt/qnx800/qnxsdp-env.bat"});
+        setFilePattern({"/opt/qnx800/qnxsdp-env.sh", "/opt/qnx800/qnxsdp-env.bat",
+                        "/opt/qnx710/qnxsdp-env.sh", "/opt/qnx710/qnxsdp-env.bat"});
         setLabelText(Tr::tr("QNX sdpenv.sh:"));
         setToolTip(Tr::tr("QNX Software Development Platform environment file."));
         setChecker([](const DeviceConstRef &device, const FilePath &candidate) -> Result<> {

@@ -226,16 +226,16 @@ void QnxToolchainConfigWidget::handleSdpPathChange()
 
 // Resolve the SDP environment file on a device. Prefer the value of the
 // QnxSdpEnvFileToolAspect, but fall back to probing the well-known SDP install
-// locations on the device: that aspect is populated asynchronously and may not
-// be set yet while device tool detection runs.
+// locations on the device (newer SDP first): that aspect is populated
+// asynchronously and may not be set yet while device tool detection runs.
 static FilePath qnxSdpEnvFile(const IDevice::ConstPtr &device)
 {
     const FilePath fromAspect = device->deviceToolPath(Constants::QNX_SDPENVFILE_TOOL_ID);
     if (!fromAspect.isEmpty())
         return fromAspect;
 
-    for (const char *candidate : {"/opt/qnx710/qnxsdp-env.sh", "/opt/qnx800/qnxsdp-env.sh",
-                                  "/opt/qnx710/qnxsdp-env.bat", "/opt/qnx800/qnxsdp-env.bat"}) {
+    for (const char *candidate : {"/opt/qnx800/qnxsdp-env.sh", "/opt/qnx710/qnxsdp-env.sh",
+                                  "/opt/qnx800/qnxsdp-env.bat", "/opt/qnx710/qnxsdp-env.bat"}) {
         const FilePath f = device->rootPath().withNewPath(QLatin1String(candidate));
         if (f.exists())
             return f;
