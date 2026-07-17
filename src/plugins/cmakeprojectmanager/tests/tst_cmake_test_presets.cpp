@@ -22,10 +22,6 @@ using namespace CMakeProjectManager::Internal::CMakePresets::Macros;
 using namespace CMakePresets::Macros;
 using namespace Utils;
 
-namespace CMakeProjectManager::Internal {
-std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonValue);
-}
-
 class TestPresetsTests : public QObject
 {
     Q_OBJECT

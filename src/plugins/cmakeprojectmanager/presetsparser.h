@@ -259,4 +259,6 @@ public:
     const PresetsData &presetsData() const;
 };
 
+std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonValue);
+
 } // CMakeProjectManager::Internal

@@ -1,119 +1,132 @@
-import qbs 1.0
+Project {
+    QtcPlugin {
+        name: "CMakeProjectManager"
 
-QtcPlugin {
-    name: "CMakeProjectManager"
+        Depends { name: "Qt.widgets" }
+        Depends { name: "McpServerLib" }
+        Depends { name: "Utils" }
 
-    Depends { name: "Qt.widgets" }
-    Depends { name: "McpServerLib" }
-    Depends { name: "Utils" }
+        Depends { name: "Core" }
+        Depends { name: "CppEditor" }
+        Depends { name: "Debugger" }
+        Depends { name: "ProjectExplorer" }
+        Depends { name: "TextEditor" }
+        Depends { name: "QtSupport" }
 
-    Depends { name: "Core" }
-    Depends { name: "CppEditor" }
-    Depends { name: "Debugger" }
-    Depends { name: "ProjectExplorer" }
-    Depends { name: "TextEditor" }
-    Depends { name: "QtSupport" }
-
-    files: [
-        "builddirparameters.cpp",
-        "builddirparameters.h",
-        "cmake_global.h",
-        "cmakeabstractprocessstep.cpp",
-        "cmakeabstractprocessstep.h",
-        "cmakeautogenparser.cpp",
-        "cmakeautogenparser.h",
-        "cmakebuildconfiguration.cpp",
-        "cmakebuildconfiguration.h",
-        "cmakebuildstep.cpp",
-        "cmakebuildstep.h",
-        "cmakebuildsystem.cpp",
-        "cmakebuildsystem.h",
-        "cmakebuildtarget.h",
-        "cmakeconfigitem.cpp",
-        "cmakeconfigitem.h",
-        "cmakeeditor.cpp",
-        "cmakeeditor.h",
-        "cmakefilecompletionassist.cpp",
-        "cmakefilecompletionassist.h",
-        "cmakeformatter.cpp",
-        "cmakeformatter.h",
-        "cmakeinstallstep.cpp",
-        "cmakeinstallstep.h",
-        "cmakekitaspect.h",
-        "cmakekitaspect.cpp",
-        "cmakelocatorfilter.cpp",
-        "cmakelocatorfilter.h",
-        "cmakemcpsupport.cpp",
-        "cmakemcpsupport.h",
-        "cmakeoutputparser.cpp",
-        "cmakeoutputparser.h",
-        "cmakeproject.cpp",
-        "cmakeproject.h",
-        "cmakeproject.qrc",
-        "cmakeprojectimporter.cpp",
-        "cmakeprojectimporter.h",
-        "cmakeprojectconstants.h",
-        "cmakeprojectmanager.cpp",
-        "cmakeprojectmanager.h",
-        "cmakeprojectmanagertr.h",
-        "cmakeprojectnodes.cpp",
-        "cmakeprojectnodes.h",
-        "cmakeprojectplugin.cpp",
-        "cmaketool.cpp",
-        "cmaketool.h",
-        "cmaketoolmanager.cpp",
-        "cmaketoolmanager.h",
-        "cmaketoolsettingsaccessor.cpp",
-        "cmaketoolsettingsaccessor.h",
-        "cmakeutils.cpp",
-        "cmakeutils.h",
-        "cmakesettingspage.h",
-        "cmakesettingspage.cpp",
-        "cmakeindenter.h",
-        "cmakeindenter.cpp",
-        "cmakeautocompleter.h",
-        "cmakeautocompleter.cpp",
-        "cmakespecificsettings.h",
-        "cmakespecificsettings.cpp",
-        "configmodel.cpp",
-        "configmodel.h",
-        "configmodelitemdelegate.cpp",
-        "configmodelitemdelegate.h",
-        "fileapidataextractor.cpp",
-        "fileapidataextractor.h",
-        "fileapiparser.cpp",
-        "fileapiparser.h",
-        "fileapireader.cpp",
-        "fileapireader.h",
-        "mcptools.cpp",
-        "mcptools.h",
-        "presetsparser.cpp",
-        "presetsparser.h",
-        "presetsmacros.cpp",
-        "presetsmacros.h",
-        "projecttreehelper.cpp",
-        "projecttreehelper.h",
-        "targethelper.cpp",
-        "targethelper.h",
-        "testpresetshelper.cpp",
-        "testpresetshelper.h",
-    ]
-
-    Group {
-        name: "3rdparty"
-        cpp.includePaths: base.concat("3rdparty/cmake")
-
-        prefix: "3rdparty/"
         files: [
-            "cmake/cmListFileCache.cxx",
-            "cmake/cmListFileCache.h",
-            "cmake/cmListFileLexer.cxx",
-            "cmake/cmListFileLexer.h",
-            "cmake/cmStandardLexer.h",
-            "rstparser/rstparser.cc",
-            "rstparser/rstparser.h"
+            "builddirparameters.cpp",
+            "builddirparameters.h",
+            "cmake_global.h",
+            "cmakeabstractprocessstep.cpp",
+            "cmakeabstractprocessstep.h",
+            "cmakeautogenparser.cpp",
+            "cmakeautogenparser.h",
+            "cmakebuildconfiguration.cpp",
+            "cmakebuildconfiguration.h",
+            "cmakebuildstep.cpp",
+            "cmakebuildstep.h",
+            "cmakebuildsystem.cpp",
+            "cmakebuildsystem.h",
+            "cmakebuildtarget.h",
+            "cmakeconfigitem.cpp",
+            "cmakeconfigitem.h",
+            "cmakeeditor.cpp",
+            "cmakeeditor.h",
+            "cmakefilecompletionassist.cpp",
+            "cmakefilecompletionassist.h",
+            "cmakeformatter.cpp",
+            "cmakeformatter.h",
+            "cmakeinstallstep.cpp",
+            "cmakeinstallstep.h",
+            "cmakekitaspect.h",
+            "cmakekitaspect.cpp",
+            "cmakelocatorfilter.cpp",
+            "cmakelocatorfilter.h",
+            "cmakemcpsupport.cpp",
+            "cmakemcpsupport.h",
+            "cmakeoutputparser.cpp",
+            "cmakeoutputparser.h",
+            "cmakeproject.cpp",
+            "cmakeproject.h",
+            "cmakeproject.qrc",
+            "cmakeprojectimporter.cpp",
+            "cmakeprojectimporter.h",
+            "cmakeprojectconstants.h",
+            "cmakeprojectmanager.cpp",
+            "cmakeprojectmanager.h",
+            "cmakeprojectmanagertr.h",
+            "cmakeprojectnodes.cpp",
+            "cmakeprojectnodes.h",
+            "cmakeprojectplugin.cpp",
+            "cmaketool.cpp",
+            "cmaketool.h",
+            "cmaketoolmanager.cpp",
+            "cmaketoolmanager.h",
+            "cmaketoolsettingsaccessor.cpp",
+            "cmaketoolsettingsaccessor.h",
+            "cmakeutils.cpp",
+            "cmakeutils.h",
+            "cmakesettingspage.h",
+            "cmakesettingspage.cpp",
+            "cmakeindenter.h",
+            "cmakeindenter.cpp",
+            "cmakeautocompleter.h",
+            "cmakeautocompleter.cpp",
+            "cmakespecificsettings.h",
+            "cmakespecificsettings.cpp",
+            "configmodel.cpp",
+            "configmodel.h",
+            "configmodelitemdelegate.cpp",
+            "configmodelitemdelegate.h",
+            "fileapidataextractor.cpp",
+            "fileapidataextractor.h",
+            "fileapiparser.cpp",
+            "fileapiparser.h",
+            "fileapireader.cpp",
+            "fileapireader.h",
+            "mcptools.cpp",
+            "mcptools.h",
+            "presetsparser.cpp",
+            "presetsparser.h",
+            "presetsmacros.cpp",
+            "presetsmacros.h",
+            "projecttreehelper.cpp",
+            "projecttreehelper.h",
+            "targethelper.cpp",
+            "targethelper.h",
+            "testpresetshelper.cpp",
+            "testpresetshelper.h",
         ]
+
+        Group {
+            name: "3rdparty"
+            cpp.includePaths: base.concat("3rdparty/cmake")
+
+            prefix: "3rdparty/"
+            files: [
+                "cmake/cmListFileCache.cxx",
+                "cmake/cmListFileCache.h",
+                "cmake/cmListFileLexer.cxx",
+                "cmake/cmListFileLexer.h",
+                "cmake/cmStandardLexer.h",
+                "rstparser/rstparser.cc",
+                "rstparser/rstparser.h"
+            ]
+        }
+
+        QtcTestResources { files: "testcases/**/*" }
     }
 
-    QtcTestResources { files: "testcases/**/*" }
+    QtcAutotest {
+        name: "CMake presets test"
+        Depends { name: "CMakeProjectManager" }
+        Depends { name: "ProjectExplorer" }
+        Depends { name: "Utils" }
+        files: [
+            "presetsparser.cpp",
+            "presetsmacros.cpp",
+            "testpresetshelper.cpp",
+            "tests/tst_cmake_test_presets.cpp",
+        ]
+    }
 }
