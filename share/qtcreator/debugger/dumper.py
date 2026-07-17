@@ -226,6 +226,7 @@ class DumperBase():
         self.currentIName = None
         self.currentValue = None
         self.currentType = None
+        self.currentFormatsType = None
         self.currentNumChild = None
         self.currentMaxNumChild = None
         self.currentPrintsAddress = True
@@ -405,9 +406,11 @@ class DumperBase():
         item.savedIName = self.currentIName
         item.savedValue = self.currentValue
         item.savedType = self.currentType
+        item.savedFormatsType = self.currentFormatsType
         self.currentIName = item.iname
         self.currentValue = ReportItem()
         self.currentType = ReportItem()
+        self.currentFormatsType = None
 
     def exitSubItem(self, item, exType, exValue, exTraceBack):
         #self.warn('CURRENT VALUE: %s: %s %s' %
@@ -423,6 +426,12 @@ class DumperBase():
                     typename = self.currentType.value
                     if typename and typename != self.currentChildType:
                         self.putField('type', typename)
+                # For a typedef dumped via its underlying type, report the
+                # underlying type so the GUI can offer that type's display
+                # formats (which are keyed by the base type). See
+                # QTCREATORBUG-7186.
+                if self.currentFormatsType and self.currentFormatsType != self.currentType.value:
+                    self.putField('formatstype', self.currentFormatsType)
                 if self.currentValue.value is None:
                     self.put('value="",encoding="notaccessible",numchild="0",')
                 else:
@@ -465,6 +474,7 @@ class DumperBase():
         self.currentIName = item.savedIName
         self.currentValue = item.savedValue
         self.currentType = item.savedType
+        self.currentFormatsType = item.savedFormatsType
         return True
 
     def stripForFormat(self, typename):
@@ -3129,7 +3139,16 @@ typename))
 
         if typecode == TypeCode.Typedef:
             #self.warn('TYPEDEF VALUE: %s' % value.stringify())
-            self.putItem(value.detypedef())
+            underlying = value.detypedef()
+            self.putItem(underlying)
+            # Remember the immediate underlying type (as displayed, i.e. after
+            # any normalization the base dumper applied) so the GUI can offer
+            # its display formats for this typedef (QTCREATORBUG-7186). Captured
+            # before putBetterType() restores the typedef name. For chained
+            # typedefs the outermost assignment wins, giving the type the user's
+            # typedef directly aliases (e.g. MyStr -> std::string, not the
+            # deeper std::__cxx11::basic_string).
+            self.currentFormatsType = self.currentType.value
             self.putBetterType(typename)
             return
 

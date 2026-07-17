@@ -482,6 +482,14 @@ struct TypeDef : Type
     }
 };
 
+// Expected value of the "formatstype" field (the underlying type reported for
+// a typedef, so its display formats are offered). See QTCREATORBUG-7186.
+struct FormatType
+{
+    explicit FormatType(const QString &type) : type(type) {}
+    QString type;
+};
+
 struct RequiredMessage
 {
     RequiredMessage() {}
@@ -621,10 +629,19 @@ struct Check
         return *this;
     }
 
+    Check &operator%(const FormatType &ft)
+    {
+        expectedFormatType = Type(ft.type);
+        checkFormatType = true;
+        return *this;
+    }
+
     QString iname;
     Name expectedName;
     Value expectedValue;
     Type expectedType;
+    mutable Type expectedFormatType;
+    mutable bool checkFormatType = false;
 
     mutable int enginesForCheck = AllEngines;
     mutable VersionBase debuggerVersionForCheck;
@@ -2115,6 +2132,15 @@ void tst_Dumpers::dumper()
             }
             return false;
         }
+        if (check.checkFormatType && m_debuggerEngine != CdbEngine
+                && !check.expectedFormatType.matches(item->formatType, context)) {
+            if (single) {
+                qCDebug(lcDumpers) << "INAME              : " << iname;
+                qCDebug(lcDumpers) << "FORMATTYPE ACTUAL  : " << item->formatType;
+                qCDebug(lcDumpers) << "FORMATTYPE EXPECTED: " << check.expectedFormatType.type;
+            }
+            return false;
+        }
         return true;
     };
 
@@ -2300,6 +2326,26 @@ void tst_Dumpers::dumper_data()
                + Check("ba1.15", "[15]", "1", "bool")
                + Check("ba1.16", "[16]", "0", "bool")
                + Check("ba1.17", "[17]", "1", "bool");
+
+
+    QTest::newRow("Typedef")
+            << Data("#include <QString>\n"
+                    "#include <string>\n",
+
+                    "typedef QString MyString;\n"
+                    "MyString mystr = \"hello\";\n"
+                    "std::string plain = \"world\";",
+
+                    "&mystr, &plain")
+
+               + CoreProfile()
+
+               // A typedef of a type that has display formats still displays
+               // as the alias, but reports the underlying type in formatstype
+               // so the GUI offers that type's formats (QTCREATORBUG-7186).
+               + Check("mystr", "\"hello\"", TypeDef("@QString", "MyString"))
+                    % FormatType("@QString")
+               + Check("plain", "\"world\"", "std::string");
 
 
     QTest::newRow("QByteArray")

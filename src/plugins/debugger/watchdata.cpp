@@ -291,6 +291,10 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
     if (mi.isValid())
         type = mi.data();
 
+    mi = input["formatstype"];
+    if (mi.isValid())
+        formatType = mi.data();
+
     editvalue = input["editvalue"].data();
     editformat = input["editformat"].data();
     editencoding = DebuggerEncoding(input["editencoding"].data());

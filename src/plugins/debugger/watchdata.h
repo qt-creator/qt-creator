@@ -65,6 +65,7 @@ public:
     QString         color;                 // ARGB hex "aarrggbb" for an inline swatch, or empty
     DebuggerEncoding editencoding;         // Encoding of displayed value
     QString         type;                  // Type for further processing
+    QString         formatType;            // Type to look up display formats under (underlying type for typedefs); empty means use 'type'
     quint64         address = 0;           // Displayed address of the actual object
     quint64         origaddr = 0;          // Address of the pointer referencing this item (gdb auto-deref)
     uint            size = 0;              // Size
