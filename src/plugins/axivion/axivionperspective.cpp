@@ -2029,10 +2029,12 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
     Link link;
     if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
         link.targetFilePath = FilePath::fromUserInput(path);
-    FilePath targetFilePath = mappedPathForLink(link);
-    if (targetFilePath.isEmpty())
-        targetFilePath = requestPathMapping(link, m_issueDetails.projectName());
-    link.targetFilePath = targetFilePath;
+    if (!m_issueDetails.projectName().isEmpty()) { // no project name -> SFA, absolute path
+        FilePath targetFilePath = mappedPathForLink(link);
+        if (targetFilePath.isEmpty())
+            targetFilePath = requestPathMapping(link, m_issueDetails.projectName());
+        link.targetFilePath = targetFilePath;
+    }
     if (const QString line = query.queryItemValue("line"); !line.isEmpty())
         link.target.line = line.toInt();
     // column entry is wrong - so, ignore it
