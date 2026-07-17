@@ -502,8 +502,15 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
         }
     }
 
-    if (m_debugIdToIname.contains(parentId)) {
-        QString parentIname = m_debugIdToIname.value(parentId);
+    // Only attach a child once its parent WatchItem actually exists; a parent
+    // merely named in m_debugIdToIname is deferred and re-fetched below like an
+    // unknown one, avoiding insertItem's parent assert. QTCREATORBUG-34790.
+    const auto parentIt = m_debugIdToIname.constFind(parentId);
+    const QString parentIname = parentIt != m_debugIdToIname.constEnd() ? *parentIt : QString();
+    const bool parentPresent = parentId == WatchItem::InvalidId
+                               || (parentIt != m_debugIdToIname.constEnd()
+                                   && handler->findItem(parentIname) != nullptr);
+    if (parentPresent) {
         if (parentId != WatchItem::InvalidId && !handler->isExpandedIName(parentIname)
                 && !m_fetchDataIds.contains(parentId)) {
             const WatchItem *parentItem = handler->findItem(parentIname);
