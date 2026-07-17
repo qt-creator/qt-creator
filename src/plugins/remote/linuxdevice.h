@@ -35,6 +35,10 @@ private:
 
 } // Internal
 
+// ssh ProxyJump spec "[user@]host[:port]" for a device's "Access via" link
+// device, so ssh reaches the target through it. Empty for a direct connection.
+QString proxyJumpSpec(const ProjectExplorer::IDevice *device);
+
 using KillCommandForPathFunction = std::function<QString(const Utils::FilePath &)>;
 
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice

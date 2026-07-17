@@ -898,53 +898,7 @@ SshProcessInterfacePrivate::SshProcessInterfacePrivate(SshProcessInterface *sshI
 void SshProcessInterfacePrivate::start()
 {
     m_sshParameters = m_device->sshParameters();
-
-    const Id linkDeviceId = Id::fromSetting(m_device->linkDevice.value());
-    if (const IDevice::ConstPtr linkDevice = DeviceManager::find(linkDeviceId)) {
-        CommandLine cmd{linkDevice->filePath("ssh")};
-        if (!m_sshParameters.userName().isEmpty()) {
-            cmd.addArg("-l");
-            cmd.addArg(m_sshParameters.userName());
-        }
-        cmd.addArg(m_sshParameters.host());
-
-        const bool useTerminal = q->m_setup.m_terminalMode != Utils::TerminalMode::Off
-                                 || q->m_setup.m_ptyData;
-        if (useTerminal)
-            cmd.addArg("-tt");
-
-        const CommandLine full = q->m_setup.m_commandLine;
-        if (!full.isEmpty()) { // Empty is ok in case of opening a terminal.
-            CommandLine inner;
-            const QString wd = q->m_setup.rawWorkingDirectory().path();
-            if (!wd.isEmpty())
-                inner.addCommandLineWithAnd({"cd", {wd}});
-            if (!useTerminal) {
-                const QString pidArg = QString("%1\\$\\$%1").arg(QString::fromLatin1(s_pidMarker));
-                inner.addCommandLineWithAnd({"echo", pidArg, CommandLine::Raw});
-            }
-            inner.addCommandLineWithAnd(full);
-            cmd.addCommandLineAsSingleArg(inner);
-        }
-
-        const auto forwardPort = q->m_setup.m_extraData.value(Constants::SshForwardPort).toString();
-        if (!forwardPort.isEmpty()) {
-            cmd.addArg("-L");
-            cmd.addArg(QString("%1:localhost:%1").arg(forwardPort));
-        }
-
-        m_process.setProcessMode(q->m_setup.m_processMode);
-        m_process.setTerminalMode(q->m_setup.m_terminalMode);
-        m_process.setPtyData(q->m_setup.m_ptyData);
-        m_process.setReaperTimeout(q->m_setup.m_reaperTimeout);
-        m_process.setWriteData(q->m_setup.m_writeData);
-        m_process.setCreateConsoleOnWindows(q->m_setup.m_createConsoleOnWindows);
-        m_process.setExtraData(q->m_setup.m_extraData);
-
-        m_process.setCommand(cmd);
-        m_process.start();
-        return;
-    }
+    m_sshParameters.setProxyJump(proxyJumpSpec(m_device.get()));
 
     auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
     QTC_ASSERT(linuxDevice, handleDone(); return);
@@ -1608,10 +1562,7 @@ bool LinuxDevice::isDisconnected() const
     return state == IDevice::DeviceDisconnected || state == IDevice::DeviceStateUnknown;
 }
 
-// "Access via": if the device connects through another device (linkDevice),
-// build the ssh ProxyJump spec "[user@]host[:port]" for that host, so the
-// shared master connection reaches the target through it. Empty = direct.
-static QString proxyJumpSpec(const IDevice *device)
+QString proxyJumpSpec(const IDevice *device)
 {
     const QString linkId = device->linkDevice.value();
     if (linkId.isEmpty() || linkId == "direct")

@@ -119,6 +119,8 @@ private:
     void start() final
     {
         m_sshParameters = displayless(m_device.sshParameters());
+        if (const IDevice::ConstPtr dev = m_device.lock())
+            m_sshParameters.setProxyJump(proxyJumpSpec(dev.get()));
         const Id linkDeviceId = m_device.linkDeviceId();
         const auto linkDevice = DeviceManager::find(linkDeviceId);
         const bool useConnectionSharing = !linkDevice && sshSettings().useConnectionSharing();
@@ -181,12 +183,7 @@ public:
 private:
     void startImpl() final
     {
-        FilePath sftpBinary = sshSettings().sftpFilePath();
-
-        // This is a hack. We only test the last hop here.
-        const Id linkDeviceId = device().linkDeviceId();
-        if (const auto linkDevice = DeviceManager::find(linkDeviceId))
-            sftpBinary = linkDevice->filePath(sftpBinary.fileName()).searchInPath();
+        const FilePath sftpBinary = sshSettings().sftpFilePath();
 
         if (!sftpBinary.exists()) {
             startFailed(Tr::tr("\"sftp\" binary \"%1\" does not exist.")
