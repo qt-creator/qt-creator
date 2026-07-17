@@ -11,27 +11,33 @@
 #include "qmljsquickfixassist.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <texteditor/texteditor.h>
 
+#include <utils/guitest.h>
 #include <utils/temporarydirectory.h>
 
 #include <QElapsedTimer>
+#include <QLineEdit>
 #include <QTest>
 #include <QTextCursor>
+
+#include <functional>
 
 using namespace Core;
 using namespace Utils;
 
 namespace QmlJSEditor::Internal {
 
-// In-process ports of the Squish system tests suite_QMLS/tst_QMLS05..07, which
-// applied the QML "Refactoring" quick-fixes (Split Initializer, Wrap Component
-// in Loader, Add a Comment to Suppress This Message) from the editor's context
-// menu and checked the resulting text. Here we open a QML editor, wait for its
-// semantic info, put the cursor at the relevant position, then collect and
-// apply the quick-fix through the real code (findQmlJSQuickFixes ->
-// QmlJSQuickFixOperation::perform()) and compare the document text.
+// In-process ports of the Squish system tests suite_QMLS/tst_QMLS04..07, which
+// applied the QML "Refactoring" quick-fixes (Move Component into Separate File,
+// Split Initializer, Wrap Component in Loader, Add a Comment to Suppress This
+// Message) from the editor's context menu and checked the resulting text. Here
+// we open a QML editor, wait for its semantic info, put the cursor at the
+// relevant position, then collect and apply the quick-fix through the real code
+// (findQmlJSQuickFixes -> QmlJSQuickFixOperation::perform()) and compare the
+// document text.
 
 static bool waitForSemanticInfo(QmlJSEditorWidget *widget, int timeoutMs = 10000)
 {
@@ -53,8 +59,11 @@ class QmlJSQuickFixTest final : public QObject
 private:
     // Opens a QML editor for the given source, waits for its semantic info,
     // places the cursor at cursorPos, then applies the quick-fix whose
-    // description equals opDescription. Returns the resulting document text.
-    QString applyQuickFix(const QString &source, int cursorPos, const QString &opDescription);
+    // description equals opDescription. If beforePerform is set it is called
+    // right before performing the operation (used to arm dialog interaction).
+    // Returns the resulting document text.
+    QString applyQuickFix(const QString &source, int cursorPos, const QString &opDescription,
+                          const std::function<void()> &beforePerform = {});
 
 private slots:
     void cleanup();
@@ -62,6 +71,7 @@ private slots:
     void testWrapInLoader();
     void testSuppressMessage_data();
     void testSuppressMessage();
+    void testMoveComponentIntoSeparateFile();
 
 private:
     TemporaryDirectory *m_tempDir = nullptr;
@@ -69,7 +79,8 @@ private:
 };
 
 QString QmlJSQuickFixTest::applyQuickFix(const QString &source, int cursorPos,
-                                         const QString &opDescription)
+                                         const QString &opDescription,
+                                         const std::function<void()> &beforePerform)
 {
     m_tempDir = new TemporaryDirectory("qtc-qmljs-quickfix-XXXXXX");
     const FilePath filePath = m_tempDir->filePath("Test.qml");
@@ -102,6 +113,8 @@ QString QmlJSQuickFixTest::applyQuickFix(const QString &source, int cursorPos,
     const TextEditor::QuickFixOperations operations = findQmlJSQuickFixes(&interface);
     for (const TextEditor::QuickFixOperation::Ptr &operation : operations) {
         if (operation->description() == opDescription) {
+            if (beforePerform)
+                beforePerform();
             operation->perform();
             return widget->textDocument()->plainText();
         }
@@ -172,6 +185,67 @@ void QmlJSQuickFixTest::testWrapInLoader()
         "\n"
         "}\n";
     QCOMPARE(result, expected);
+}
+
+// In-process port of suite_QMLS/tst_QMLS04: the "Move Component into Separate
+// File" refactoring pops a modal ComponentNameDialog. We drive it with the
+// Utils::GuiTest helpers (name the component, accept), then check the source was
+// rewritten and a new component file written next to it. This case was
+// previously Squish-only because of the modal dialog.
+void QmlJSQuickFixTest::testMoveComponentIntoSeparateFile()
+{
+    // The refactoring ends with a second modal, the prompt to add the new file
+    // to version control, which nothing here would drive.
+    if (VcsManager::findVersionControlForDirectory(TemporaryDirectory::masterDirectoryFilePath()))
+        QSKIP("The temporary directory is under version control");
+
+    const QString source =
+        "import QtQuick\n"
+        "Item {\n"
+        "    TextEdit {\n"
+        "        id: textEdit\n"
+        "        text: \"Enter something\"\n"
+        "        anchors.top: parent.top\n"
+        "        anchors.horizontalCenter: parent.horizontalCenter\n"
+        "        anchors.topMargin: 20\n"
+        "    }\n"
+        "}\n";
+    // Cursor on the inner "TextEdit" type name.
+    const int cursorPos = source.indexOf("TextEdit {") + 2;
+
+    GuiTest::DialogHandled handled;
+    const QString result = applyQuickFix(source, cursorPos,
+                                         "Move Component into Separate File", [&] {
+        handled = GuiTest::onNextDialog([](QWidget *dialog) {
+            auto edit = qobject_cast<QLineEdit *>(
+                GuiTest::findWidget(GuiTest::byObjectName("componentNameEdit"), dialog));
+            QVERIFY(edit);
+            edit->setText("MyComponent");
+            QWidget *ok = GuiTest::findWidget(GuiTest::byButtonText("OK"), dialog);
+            QVERIFY(ok);
+            GuiTest::click(ok);
+        });
+    });
+
+    QVERIFY2(!result.isEmpty(), qPrintable(m_errorString));
+    QVERIFY(handled && *handled);
+    // The source now instantiates MyComponent, keeps the properties the dialog
+    // checks by default, and the moved binding is gone.
+    QVERIFY(result.contains("MyComponent {"));
+    QVERIFY(result.contains("id: textEdit"));
+    QVERIFY(result.contains("anchors.top: parent.top"));
+    QVERIFY(result.contains("anchors.horizontalCenter: parent.horizontalCenter"));
+    QVERIFY(result.contains("anchors.topMargin: 20"));
+    QVERIFY(!result.contains("Enter something"));
+
+    // A new component file was written next to the source.
+    const FilePath newFile = m_tempDir->filePath("MyComponent.qml");
+    QVERIFY(newFile.exists());
+    const Result<QByteArray> contents = newFile.fileContents();
+    QVERIFY(contents.has_value());
+    const QString newContent = QString::fromUtf8(*contents);
+    QVERIFY(newContent.contains("text: \"Enter something\""));
+    QVERIFY(!newContent.contains("anchors."));
 }
 
 void QmlJSQuickFixTest::testSuppressMessage_data()
