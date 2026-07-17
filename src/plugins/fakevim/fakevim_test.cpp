@@ -190,6 +190,7 @@ private slots:
     void test_vim_tab_with_zero_tabstop();
     void test_vim_timeout_options();
     void test_vim_selection_for_shortcut();
+    void test_vim_jumplist_across_files();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5328,6 +5329,27 @@ void FakeVimTester::test_vim_selection_for_shortcut()
     QCOMPARE(data.editor()->textCursor().selectedText(), QString("abc"));
 
     useFakeVim.setValue(savedUseFakeVim);
+}
+
+void FakeVimTester::test_vim_jumplist_across_files()
+{
+    TestData data;
+    setup(&data);
+    data.setText("abc" N "def" N "ghi");
+
+    int distance = 0;
+    data.handler->navigateHistoryRequested.set([&](int d) { distance += d; });
+
+    // Once the buffer-local jump list is exhausted, CTRL-O falls back to the
+    // global navigation history so it can cross files (QTCREATORBUG-12114).
+    // A large count outruns any local jumps.
+    data.doKeys("100<c-o>");
+    QVERIFY(distance < 0);
+
+    // CTRL-I likewise continues forward through the global history.
+    distance = 0;
+    data.doKeys("100<c-i>");
+    QVERIFY(distance > 0);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()

@@ -1862,6 +1862,15 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         tagStackMove(handler, distance);
     });
 
+    handler->navigateHistoryRequested.set([](int distance) {
+        for (int i = 0, n = qAbs(distance); i < n; ++i) {
+            if (distance < 0)
+                EditorManager::goBackInNavigationHistory();
+            else
+                EditorManager::goForwardInNavigationHistory();
+        }
+    });
+
     handler->completionRequested.set([tew] {
         if (tew)
             tew->invokeAssist(Completion, &theFakeVimCompletionAssistProvider);

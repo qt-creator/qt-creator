@@ -172,6 +172,10 @@ public:
     // count - CTRL-T / :pop go back (negative), bare :tag goes forward.
     Callback<void()> tagJumpRequested;
     Callback<void(int distance)> tagStackRequested;
+    // Move in Qt Creator's global navigation history when the buffer-local
+    // jump list is exhausted, so CTRL-O / CTRL-I cross files. Negative distance
+    // goes back, positive forward (QTCREATORBUG-12114).
+    Callback<void(int distance)> navigateHistoryRequested;
     Callback<void(bool insertMode)> modeChanged;
     Callback<bool()> tabPressedInInsertMode;
     Callback<void(const QString &, const QString &, QString *)> processOutput;

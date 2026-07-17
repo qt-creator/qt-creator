@@ -9223,6 +9223,14 @@ void FakeVimHandler::Private::jump(int distance)
         from.pop();
     }
     setTargetColumn();
+
+    // The buffer-local jump list ends at the position where this file was
+    // entered; continue in Qt Creator's global navigation history so a jump
+    // that crossed files (e.g. Follow Symbol Under Cursor) can be undone with
+    // CTRL-O and redone with CTRL-I (QTCREATORBUG-12114).
+    const int remaining = qAbs(distance) - len;
+    if (remaining > 0)
+        q->navigateHistoryRequested(distance > 0 ? remaining : -remaining);
 }
 
 Column FakeVimHandler::Private::indentation(const QString &line) const
