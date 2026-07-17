@@ -122,6 +122,9 @@ void QmakeProjectManagerPlugin::initialize()
         } else if (!qtFromKit->isValid()) {
             result.append(
                 Project::createTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
+        } else if (!qtFromKit->qmakeFilePath().fileName().contains("qmake")) {
+            result.append(Project::createTask(Task::TaskType::Error,
+                                              Tr::tr("qmake not found for Qt version.")));
         }
         if (!ToolchainKitAspect::cxxToolchain(k)) {
             result.append(
