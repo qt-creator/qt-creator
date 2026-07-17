@@ -10001,6 +10001,9 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
             return true;
         }
         KEY_DEBUG("NO SHORTCUT OVERRIDE" << kev->key());
+        // Make the visual selection inclusive before a Qt Creator shortcut
+        // (e.g. Advanced Find) reads it synchronously (QTCREATORBUG-27442).
+        d->fixExternalCursor(false);
         return true;
     }
 

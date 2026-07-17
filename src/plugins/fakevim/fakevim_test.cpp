@@ -189,6 +189,7 @@ private slots:
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
     void test_vim_timeout_options();
+    void test_vim_selection_for_shortcut();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5294,6 +5295,39 @@ void FakeVimTester::test_vim_timeout_options()
 
     timeout.setValue(savedTimeout);
     timeoutlen.setValue(savedLen);
+}
+
+void FakeVimTester::test_vim_selection_for_shortcut()
+{
+    // The bug only shows while the editor is focused, so route the event
+    // through the filter as the application does.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+
+    TestData data;
+    setup(&data);
+    data.editor()->setFocus();
+    if (!data.editor()->hasFocus()) {
+        useFakeVim.setValue(savedUseFakeVim);
+        QSKIP("Editor did not get keyboard focus");
+    }
+
+    data.setText("|abc def");
+    data.doKeys("viw");
+    // While focused the selection is one character short of the inclusive
+    // Vim selection (the last char is under the block cursor).
+    QCOMPARE(data.editor()->textCursor().selectedText(), QString("ab"));
+
+    // A pass-through shortcut (Ctrl+Shift+F is Advanced Find) makes it
+    // inclusive so the shortcut action sees the whole word
+    // (QTCREATORBUG-27442).
+    QKeyEvent ev(QEvent::ShortcutOverride, Qt::Key_F,
+                 Qt::ControlModifier | Qt::ShiftModifier, QString());
+    data.handler->eventFilter(data.editor(), &ev);
+    QCOMPARE(data.editor()->textCursor().selectedText(), QString("abc"));
+
+    useFakeVim.setValue(savedUseFakeVim);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()
