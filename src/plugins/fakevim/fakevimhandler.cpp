@@ -1240,6 +1240,8 @@ private:
 
 // mapping to <Nop> (do nothing)
 static const Input Nop(-1, Qt::KeyboardModifiers(-1), QString());
+// mapping to <PASS> (hand the key to Qt Creator) (QTCREATORBUG-14413)
+static const Input Pass(-2, Qt::KeyboardModifiers(-1), QString());
 
 static SubMode letterCaseModeFromInput(const Input &input)
 {
@@ -1350,6 +1352,9 @@ static Input parseVimKeyName(const QString &keyName)
 
     if (len == 1 && keys.at(0).toUpper() == "NOP")
         return Nop;
+
+    if (len == 1 && keys.at(0).toUpper() == "PASS")
+        return Pass;
 
     Qt::KeyboardModifiers mods = NoModifier;
     for (int i = 0; i < len - 1; ++i) {
@@ -2078,6 +2083,9 @@ public:
     bool isVisualLineMode() const { return g.visualMode == VisualLineMode; }
     bool isVisualBlockMode() const { return g.visualMode == VisualBlockMode; }
     char currentModeCode() const;
+    // True if the key is mapped to <PASS> in the current mode, i.e. should be
+    // handed to Qt Creator instead of handled by FakeVim (QTCREATORBUG-14413).
+    bool isPassthroughKey(const Input &input) const;
     void updateEditor();
 
     void selectTextObject(bool simple, bool inner);
@@ -2604,11 +2612,12 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
 
     // If the user has mapped this key in the current mode, claim it so the
     // mapping is applied instead of letting a Qt Creator shortcut (or the
-    // key's native meaning) take over (QTCREATORBUG-14413, QTCREATORBUG-20998).
+    // key's native meaning) take over (QTCREATORBUG-20998). A key mapped to
+    // <PASS> is the exception: leave it for Qt Creator (QTCREATORBUG-14413).
     if (!g.passing) {
         const Input input(key, mods, ev->text());
         if (input.isValid() && g.mappings.value(currentModeCode()).contains(input))
-            return true;
+            return !isPassthroughKey(input);
     }
 
     if (key == Key_Escape) {
@@ -2717,6 +2726,12 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     const Input input(key, mods, ev->text());
     if (!input.isValid())
         return EventUnhandled;
+
+    // A <PASS>-mapped key reaching here (no Qt Creator shortcut consumed it) is
+    // handed to the editor unchanged rather than run through FakeVim
+    // (QTCREATORBUG-14413).
+    if (isPassthroughKey(input))
+        return EventPassedToCore;
 
     enterFakeVim();
     EventResult result = handleKey(input);
@@ -8917,6 +8932,18 @@ void FakeVimHandler::Private::onFixCursorTimeout()
 {
     if (editor())
         fixExternalCursorPosition(editor()->hasFocus() && !isCommandLineMode());
+}
+
+bool FakeVimHandler::Private::isPassthroughKey(const Input &input) const
+{
+    const auto modeIt = g.mappings.constFind(currentModeCode());
+    if (modeIt == g.mappings.constEnd())
+        return false;
+    const auto it = modeIt->constFind(input);
+    if (it == modeIt->constEnd())
+        return false;
+    const Inputs &rhs = it->value();
+    return rhs.size() == 1 && rhs.first() == Pass;
 }
 
 char FakeVimHandler::Private::currentModeCode() const
