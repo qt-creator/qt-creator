@@ -16,6 +16,8 @@
 #include <QString>
 #include <QTextCharFormat>
 
+#include <vector>
+
 QT_BEGIN_NAMESPACE
 class QFont;
 QT_END_NAMESPACE
@@ -134,5 +136,9 @@ private:
 TEXTEDITOR_EXPORT FontSettings &globalFontSettings();
 
 void setupFontSettings(const FontSettingsData::FormatDescriptions &fd);
+
+class FormatDescription;
+using FormatDescriptions = std::vector<FormatDescription>;
+namespace Internal { FormatDescriptions initialFormats(); }
 
 } // namespace TextEditor

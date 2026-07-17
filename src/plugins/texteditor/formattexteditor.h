@@ -20,4 +20,6 @@ TEXTEDITOR_EXPORT void formatEditorAsync(TextEditorWidget *editor, const TextEdi
                        int startPos = -1, int endPos = 0);
 TEXTEDITOR_EXPORT void updateEditorText(Utils::PlainTextEdit *editor, const QString &text);
 
+namespace Internal { QObject *createFormatTextTest(); }
+
 } // namespace TextEditor

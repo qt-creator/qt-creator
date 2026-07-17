@@ -796,8 +796,6 @@ void FontSettingsAspect::cancel()
         refreshColorSchemeList();
 }
 
-FormatDescriptions initialFormats(); // defined in fontsettings.cpp
-
 class FontSettingsPageContainer final : public AspectContainer
 {
 public:

@@ -218,4 +218,6 @@ signals:
     void parenthesesChanged(const QTextBlock block);
 };
 
+namespace Internal { QObject *createTextDocumentTest(); }
+
 } // namespace TextEditor

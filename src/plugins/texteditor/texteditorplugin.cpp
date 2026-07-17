@@ -37,7 +37,10 @@
 #ifdef WITH_TESTS
 #include "codeassist/codeassist_test.h"
 #include "codestyleaspect_test.h"
+#include "formattexteditor.h"
 #include "highlighter_test.h"
+#include "snippets/snippet.h"
+#include "textdocumentlayout.h"
 #endif
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -310,7 +313,7 @@ void TextEditorPlugin::createStandardContextMenu()
     contextMenu->appendGroup(Constants::G_BOM);
 
     const auto add = [contextMenu](const Id &id, const Id &group) {
-        Command *cmd = ActionManager::command(id);
+        Core::Command *cmd = ActionManager::command(id);
         if (cmd)
             contextMenu->addAction(cmd, group);
     };
@@ -342,13 +345,13 @@ void TextEditorPlugin::createEditorCommands()
 {
     using namespace Core::Constants;
     // Add shortcut for invoking automatic completion
-    Command *command = nullptr;
+    Core::Command *command = nullptr;
     TextActionBuilder(this, Constants::COMPLETE_THIS)
         .setText(Tr::tr("Trigger Completion"))
         .bindCommand(&command)
         .setDefaultKeySequence(Tr::tr("Meta+Space"), Tr::tr("Ctrl+Space"));
 
-    connect(command, &Command::keySequenceChanged, [command] {
+    connect(command, &Core::Command::keySequenceChanged, [command] {
         FancyLineEdit::setCompletionShortcut(command->keySequence());
     });
     FancyLineEdit::setCompletionShortcut(command->keySequence());

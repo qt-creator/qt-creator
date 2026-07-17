@@ -14,8 +14,5 @@ QObject *createSelectAllTest();
 QObject *createRevertToSavedTest();
 QObject *createFindReplaceTest();
 QObject *createSnippetTest();
-QObject *createTextDocumentTest();
-QObject *createSnippetParserTest();
-QObject *createFormatTextTest();
 
 } // TextEditor::Internal

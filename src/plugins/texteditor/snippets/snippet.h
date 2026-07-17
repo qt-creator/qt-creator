@@ -58,4 +58,6 @@ private:
     QString m_complement;
 };
 
+namespace Internal { QObject *createSnippetParserTest(); }
+
 } // TextEditor

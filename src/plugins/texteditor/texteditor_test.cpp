@@ -3,6 +3,8 @@
 
 #ifdef WITH_TESTS
 
+#include "texteditor_test.h"
+
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
