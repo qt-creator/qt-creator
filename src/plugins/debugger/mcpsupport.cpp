@@ -3,6 +3,7 @@
 
 #include "breakhandler.h"
 #include "debuggerengine.h"
+#include "debuggerruncontrol.h"
 #include "enginemanager.h"
 #include "mcpsupport.h"
 #include "stackhandler.h"
@@ -12,16 +13,22 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <mcp/server/toolregistry.h>
 
+#include <utils/commandline.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
+#include <utils/processinterface.h>
 #include <utils/result.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QPointer>
 #include <QString>
 #include <QStringList>
@@ -105,6 +112,45 @@ static Result<QString> startDebug()
     ProjectExplorer::ProjectExplorerPlugin::runStartupProject(
         ProjectExplorer::Constants::DEBUG_RUN_MODE);
     return QString("Debug session start requested for the startup project.");
+}
+
+static Result<QString> startDebugExecutable(const QJsonObject &args)
+{
+    const FilePath executable = FilePath::fromUserInput(args.value("executable").toString());
+    if (!executable.exists())
+        return ResultError(QString("Executable not found: %1").arg(executable.toUserOutput()));
+
+    const QString kitId = args.value("kit").toString();
+    ProjectExplorer::Kit *kit = kitId.isEmpty()
+                                    ? ProjectExplorer::KitManager::defaultKit()
+                                    : ProjectExplorer::KitManager::kit(Id::fromString(kitId));
+    if (!kit) {
+        return ResultError(kitId.isEmpty() ? QString("No default kit available.")
+                                           : QString("No kit with id \"%1\".").arg(kitId));
+    }
+
+    QStringList arguments;
+    for (const QJsonValue &v : args.value("arguments").toArray())
+        arguments << v.toString();
+
+    const Utils::Id runMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    auto runControl = new ProjectExplorer::RunControl(runMode);
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    ProcessRunData inferior;
+    inferior.command = CommandLine(executable, arguments);
+    const QString workingDir = args.value("working_directory").toString();
+    inferior.workingDirectory = workingDir.isEmpty() ? executable.parentDir()
+                                                     : FilePath::fromUserInput(workingDir);
+    rp.setInferior(inferior);
+    rp.setStartMode(StartExternal);
+    // Native combined C++/QML debugging additionally needs QML debugging on; with
+    // QTC_DEBUGGER_NATIVE_MIXED set this makes isNativeMixedDebugging() true.
+    rp.setQmlDebugging(args.value("qml_debugging").toBool(false));
+    rp.setDisplayName(QString("External: %1").arg(executable.fileName()));
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
+    runControl->start();
+    return QString("Debug session start requested for %1.").arg(executable.toUserOutput());
 }
 
 static QString stopDebug()
@@ -1340,17 +1386,58 @@ void registerMcpTools()
             .name("start_debug")
             .title("Start debugging")
             .description(
-                "Starts a debug session for the current startup project using its active "
-                "run configuration and kit. Returns once the launch has been requested; poll "
-                "debugger_get_status for the session state. Does not build first - use the "
-                "build tool beforehand if the project may be out of date.")
+                "Starts a debug session and returns once the launch has been requested; poll "
+                "debugger_get_status for the session state. With no arguments, debugs the "
+                "current startup project using its active run configuration and kit (does not "
+                "build first - use the build tool beforehand if it may be out of date). If "
+                "\"executable\" is given, debugs that executable directly (no project or build "
+                "needed) with an optional kit, arguments, working directory and QML debugging.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "executable",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to an executable to debug directly. If omitted, "
+                             "the startup project is used."}})
+                    .addProperty(
+                        "kit",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Kit id to use (defaults to the default kit). Only used with "
+                             "\"executable\"."}})
+                    .addProperty(
+                        "arguments",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "string"}}},
+                            {"description", "Command-line arguments for the executable."}})
+                    .addProperty(
+                        "working_directory",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Working directory (defaults to the executable's directory)."}})
+                    .addProperty(
+                        "qml_debugging",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"default", false},
+                            {"description",
+                             "Enable QML debugging. With QTC_DEBUGGER_NATIVE_MIXED set this "
+                             "activates native combined C++/QML debugging."}}))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("message", QJsonObject{{"type", "string"}})
                     .addRequired("message")),
-        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
-            const auto result = startDebug();
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const Utils::Result<QString> result = args.value("executable").toString().isEmpty()
+                                                      ? startDebug()
+                                                      : startDebugExecutable(args);
             if (!result)
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
