@@ -2667,8 +2667,11 @@ void DebuggerEngine::raiseWatchersWindow()
 
         if (auto dock = qobject_cast<QDockWidget *>(d->m_watchersWindow->parentWidget())) {
             if (QAction *act = dock->toggleViewAction()) {
-                if (!act->isChecked())
-                    QTimer::singleShot(1, act, [act] { act->trigger(); });
+                QTimer::singleShot(1, act, [act, dock] {
+                    if (!act->isChecked())
+                        act->trigger();
+                    FancyMainWindow::setDockCollapsed(dock, false);
+                });
                 dock->raise();
             }
         }
