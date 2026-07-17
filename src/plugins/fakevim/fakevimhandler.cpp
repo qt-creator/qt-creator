@@ -2120,7 +2120,6 @@ public:
     QPlainTextEdit *m_plaintextedit;
     Utils::PlainTextEdit *m_qcPlainTextEdit;
     bool hasValidEditor();
-    bool m_wasReadOnly; // saves read-only state of document
 
     bool m_inFakeVim; // true if currently processing a key press or a command
 
@@ -2766,7 +2765,6 @@ void FakeVimHandler::Private::setupWidget()
     enterFakeVim();
 
     leaveCurrentMode();
-    m_wasReadOnly = EDITOR(isReadOnly());
 
     updateEditor();
 
@@ -2900,7 +2898,6 @@ void FakeVimHandler::Private::setTabSize(int tabSize)
 void FakeVimHandler::Private::restoreWidget(int tabSize)
 {
     //EDITOR(removeEventFilter(q));
-    //EDITOR(setReadOnly(m_wasReadOnly));
     setTabSize(tabSize);
     g.visualMode = NoVisualMode;
     // Force "ordinary" cursor.
@@ -4478,7 +4475,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
     // Process input for a sub-mode.
     if (input.isEscape()) {
         handled = handleEscape();
-    } else if (m_wasReadOnly) {
+    } else if (EDITOR(isReadOnly())) {
+        // Queried live, not cached: a document can become writable later (e.g.
+        // reloaded with another encoding), and FakeVim must handle keys again
+        // (QTCREATORBUG-24237).
         return EventUnhandled;
     } else if (g.subsubmode != NoSubSubMode) {
         handled = handleCommandSubSubMode(input);

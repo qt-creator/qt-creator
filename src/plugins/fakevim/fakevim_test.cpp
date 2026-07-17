@@ -122,6 +122,7 @@ private slots:
 //private slots:
 //    // functional tests
     void test_vim_indentation();
+    void test_vim_readonly();
 
     // command mode
     void test_vim_command_oO();
@@ -514,6 +515,25 @@ void FakeVimTester::test_vim_indentation()
     QCOMPARE(data.handler->tabExpand(7), _("       "));
     QCOMPARE(data.handler->tabExpand(8), _("\t"));
     QCOMPARE(data.handler->tabExpand(9), _("\t "));
+}
+
+void FakeVimTester::test_vim_readonly()
+{
+    TestData data;
+    setup(&data);
+
+    // On a read-only editor, normal-mode commands must not modify the text.
+    data.setText("abc def");
+    data.editor()->setReadOnly(true);
+    KEYS("x", "abc def");
+    KEYS("dd", "abc def");
+
+    // The read-only state is evaluated live, not cached at setup: once the
+    // editor becomes writable again (e.g. after a document reload triggered by
+    // switching the encoding), FakeVim handles keys as usual again
+    // (QTCREATORBUG-24237).
+    data.editor()->setReadOnly(false);
+    KEYS("x", X "bc def");
 }
 
 void FakeVimTester::test_vim_movement()
