@@ -188,6 +188,7 @@ private slots:
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
     void test_vim_tab_with_zero_tabstop();
+    void test_vim_timeout_options();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5266,6 +5267,33 @@ void FakeVimTester::test_vim_tab_with_zero_tabstop()
 
     // With tabstop treated as 1, Tab expands to a single space.
     QCOMPARE(text, QString(" abc"));
+}
+
+void FakeVimTester::test_vim_timeout_options()
+{
+    // The mapping timeout is configurable via the Vim "timeout"/"timeoutlen"
+    // options, so an ambiguous prefix (e.g. a mapping starting with "g") need
+    // not stall for a full second (QTCREATORBUG-29162).
+    auto &timeout = FakeVim::Internal::settings().timeout;
+    auto &timeoutlen = FakeVim::Internal::settings().timeoutlen;
+    const bool savedTimeout = timeout.value();
+    const qint64 savedLen = timeoutlen.value();
+
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set timeoutlen=250");
+    QCOMPARE(timeoutlen.value(), qint64(250));
+    data.doCommand("set tm=400"); // short name
+    QCOMPARE(timeoutlen.value(), qint64(400));
+
+    data.doCommand("set notimeout");
+    QCOMPARE(timeout.value(), false);
+    data.doCommand("set timeout");
+    QCOMPARE(timeout.value(), true);
+
+    timeout.setValue(savedTimeout);
+    timeoutlen.setValue(savedLen);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()

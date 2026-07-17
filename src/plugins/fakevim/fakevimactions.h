@@ -147,6 +147,10 @@ public:
     FvStringAspect formatOptions;
     FvIntegerAspect textWidth;
 
+    // Time out on a mapping while waiting for the rest of a mapped sequence.
+    FvBoolAspect timeout;
+    FvIntegerAspect timeoutlen;
+
     // Plugin emulation
     FvBoolAspect emulateVimCommentary;
     FvBoolAspect emulateReplaceWithRegister;

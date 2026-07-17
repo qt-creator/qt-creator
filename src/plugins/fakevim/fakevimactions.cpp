@@ -86,6 +86,8 @@ FakeVimSettings::FakeVimSettings()
     setup(&blinkingCursor, false, "BlinkingCursor", "bc",  Tr::tr("Blinking cursor"));
     setup(&scrollOff,      0,     "ScrollOff",      "so",  Tr::tr("Scroll offset:"));
     setup(&textWidth,      0,     "TextWidth",      "tw",  Tr::tr("Text width:"));
+    setup(&timeout,        true,  "Timeout",        "to",  Tr::tr("Use timeout for mappings"));
+    setup(&timeoutlen,     1000,  "TimeoutLen",     "tm",  Tr::tr("Mapping timeout:"));
     setup(&backspace,      "indent,eol,start",
                                   "Backspace",      "bs",  Tr::tr("Backspace:"));
     setup(&isKeyword,      "@,48-57,_,192-255,a-z,A-Z",
@@ -118,6 +120,9 @@ FakeVimSettings::FakeVimSettings()
 
 #ifndef FAKEVIM_STANDALONE
     tabStop.setRange(1, 99);
+    timeoutlen.setRange(0, 10000);
+    timeoutlen.setToolTip(Tr::tr("Time in milliseconds to wait for the rest of a "
+        "mapped key sequence (Vim timeoutlen option)."));
     backspace.setDisplayStyle(FvStringAspect::LineEditDisplay);
     isKeyword.setDisplayStyle(FvStringAspect::LineEditDisplay);
 
@@ -154,11 +159,12 @@ FakeVimSettings::FakeVimSettings()
                 passControlKey,
                 commaPassesShortcuts,
                 relativeNumber,
-                tildeOp
+                tildeOp,
+                timeout
             }
         };
 
-        Row ints { shiftWidth, tabStop, scrollOff, st };
+        Row ints { shiftWidth, tabStop, scrollOff, timeoutlen, st };
 
         Column strings {
             backspace,

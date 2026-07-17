@@ -3129,8 +3129,12 @@ void FakeVimHandler::Private::waitForMapping()
     for (const Input &input : g.currentMap.currentInputs())
         g.currentCommand.append(input.toString());
 
-    // wait for user to press any key or trigger complete mapping after interval
-    m_inputTimer.start();
+    // Wait for the user to press another key. With 'timeout' set, complete the
+    // mapping automatically after 'timeoutlen' milliseconds; without it, wait
+    // indefinitely for the next key (as Vim does for 'notimeout')
+    // (QTCREATORBUG-29162).
+    if (s.timeout())
+        m_inputTimer.start(qMax(0, int(s.timeoutlen())));
 }
 
 EventResult FakeVimHandler::Private::stopWaitForMapping(bool hasInput)
