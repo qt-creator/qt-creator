@@ -557,6 +557,7 @@ public:
             if (row < sourceRow)
                 ++sourceRow;
             infos.erase(infos.begin() + sourceRow);
+            endMoveRows();
             validateOrder();
             return true;
         }
