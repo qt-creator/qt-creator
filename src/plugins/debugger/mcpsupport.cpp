@@ -12,6 +12,9 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <mcp/server/toolregistry.h>
 
 #include <utils/id.h>
@@ -89,6 +92,17 @@ static QString breakpointTypeToString(BreakpointType type)
     case BreakpointAtJavaScriptThrow:  return "jsThrow";
     default:                           return "unknown";
     }
+}
+
+static Result<QString> startDebug()
+{
+    const Result<> canRun = ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
+        ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    if (!canRun)
+        return ResultError(canRun.error());
+    ProjectExplorer::ProjectExplorerPlugin::runStartupProject(
+        ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    return QString("Debug session start requested for the startup project.");
 }
 
 static QString stopDebug()
@@ -1265,6 +1279,27 @@ void registerMcpTools()
                         CallToolResult{}.isError(false).structuredContent(*result));
             });
             return ResultOk;
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("start_debug")
+            .title("Start debugging")
+            .description(
+                "Starts a debug session for the current startup project using its active "
+                "run configuration and kit. Returns once the launch has been requested; poll "
+                "debugger_get_status for the session state. Does not build first - use the "
+                "build tool beforehand if the project may be out of date.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addRequired("message")),
+        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
+            const auto result = startDebug();
+            if (!result)
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
         });
 
     ToolRegistry::registerTool(
