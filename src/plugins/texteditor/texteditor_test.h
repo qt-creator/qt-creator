@@ -21,5 +21,6 @@ QObject *createPrintTest();
 QObject *createFollowSymbolTest();
 QObject *createScopeEndAnnotationsTest();
 QObject *createDoubleClickSelectsInParenthesesTest();
+QObject *createReadOnlyFilesTest();
 
 } // TextEditor::Internal

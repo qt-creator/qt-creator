@@ -122,6 +122,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createPrintTest);
     addTestCreator(createFollowSymbolTest);
     addTestCreator(createScopeEndAnnotationsTest);
+    addTestCreator(createReadOnlyFilesTest);
     addTestCreator(createSnippetParserTest);
     addTestCreator(createCodeStyleAspectTest);
     addTestCreator(createColorSchemeTest);

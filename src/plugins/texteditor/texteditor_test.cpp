@@ -23,6 +23,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -39,6 +40,8 @@
 
 #include <utils/aggregate.h>
 #include <utils/filepath.h>
+#include <utils/guitest.h>
+#include <utils/id.h>
 #include <utils/infobar.h>
 #include <utils/multitextcursor.h>
 #include <utils/plaintextedit/texteditorlayout.h>
@@ -51,6 +54,7 @@
 #include <QApplication>
 #include <QDialog>
 #include <QDropEvent>
+#include <QFile>
 #include <QHelpEvent>
 #include <QImage>
 #include <QLabel>
@@ -4549,6 +4553,126 @@ void DoubleClickSelectsInParenthesesTest::testDoubleClick()
 QObject *createDoubleClickSelectsInParenthesesTest()
 {
     return new DoubleClickSelectsInParenthesesTest;
+}
+
+class ReadOnlyFilesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void init()
+    {
+        m_bannersWereSuppressed = Utils::InfoBar::allSuppressed();
+        Utils::InfoBar::suppressAll(false);
+    }
+    void cleanup() { Utils::InfoBar::suppressAll(m_bannersWereSuppressed); }
+
+    void testReadOnlyWarningInfoBar();
+    void testNoWarningForWritableFile();
+    void testMakeWritableViaReadOnlyDialog();
+
+private:
+    bool m_bannersWereSuppressed = false;
+};
+
+static const char makeWritableWarning[] = "Core.EditorManager.MakeWritable";
+
+void ReadOnlyFilesTest::testReadOnlyWarningInfoBar()
+{
+    using namespace Utils;
+
+    TemporaryDirectory tempDir("qtc-readonly-warn-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const FilePath filePath = tempDir.filePath("readonly.txt");
+    QVERIFY(filePath.writeFileContents("line1\n"));
+    QVERIFY(filePath.setPermissions(QFile::ReadOwner));
+    const auto restoreWritable = qScopeGuard([filePath] {
+        filePath.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+    });
+    if (filePath.isWritableFile())
+        QSKIP("Permission bits are not enforced here, running as root?");
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(filePath);
+    QVERIFY(editor);
+    const auto closeEditor = qScopeGuard([editor] {
+        Core::EditorManager::closeEditors({editor}, false);
+    });
+    Core::IDocument *document = editor->document();
+    QVERIFY(document->isFileReadOnly());
+
+    const Id warningId(makeWritableWarning);
+    // No warning until the read-only document is actually modified.
+    QVERIFY(!document->infoBar()->containsInfo(warningId));
+
+    auto textEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(textEditor);
+    QTextCursor cursor = textEditor->editorWidget()->textCursor();
+    cursor.insertText("x");
+    QVERIFY(document->isModified());
+    QVERIFY(document->infoBar()->containsInfo(warningId));
+}
+
+void ReadOnlyFilesTest::testNoWarningForWritableFile()
+{
+    using namespace Utils;
+
+    TemporaryDirectory tempDir("qtc-writable-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const FilePath filePath = tempDir.filePath("writable.txt");
+    QVERIFY(filePath.writeFileContents("line1\n"));
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(filePath);
+    QVERIFY(editor);
+    const auto closeEditor = qScopeGuard([editor] {
+        Core::EditorManager::closeEditors({editor}, false);
+    });
+    Core::IDocument *document = editor->document();
+    QVERIFY(!document->isFileReadOnly());
+
+    auto textEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(textEditor);
+    QTextCursor cursor = textEditor->editorWidget()->textCursor();
+    cursor.insertText("x");
+    QVERIFY(document->isModified());
+    QVERIFY(!document->infoBar()->containsInfo(Id(makeWritableWarning)));
+}
+
+void ReadOnlyFilesTest::testMakeWritableViaReadOnlyDialog()
+{
+    using namespace Utils;
+
+    TemporaryDirectory tempDir("qtc-readonly-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const FilePath filePath = tempDir.filePath("readonly.txt");
+    QVERIFY(filePath.writeFileContents("read only\n"));
+    QVERIFY(filePath.setPermissions(QFile::ReadOwner));
+    const auto restoreWritable = qScopeGuard([filePath] {
+        filePath.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+    });
+    if (filePath.isWritableFile())
+        QSKIP("Permission bits are not enforced here, running as root?");
+
+    Core::ReadOnlyFilesDialog dialog(filePath, nullptr);
+
+    const GuiTest::DialogHandled handled = GuiTest::onNextDialog([](QWidget *d) {
+        if (QWidget *button = GuiTest::findWidget(
+                GuiTest::byType("QAbstractButton") && GuiTest::byButtonText("Change Permission"), d)) {
+            GuiTest::click(button);
+        } else {
+            qobject_cast<QDialog *>(d)->reject(); // unblock exec() so we fail, not hang
+        }
+    });
+
+    const int result = dialog.exec();
+
+    QVERIFY(*handled);
+    QCOMPARE(result, int(Core::ReadOnlyFilesDialog::RO_MakeWritable));
+    QVERIFY(filePath.isWritableFile());
+}
+
+QObject *createReadOnlyFilesTest()
+{
+    return new ReadOnlyFilesTest;
 }
 
 } // TextEditor::Internal
