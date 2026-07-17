@@ -12,9 +12,6 @@ namespace CPlusPlus::CppModelManagerBase {
 CPLUSPLUS_EXPORT bool trySetExtraDiagnostics
     (const Utils::FilePath &filePath, const QString &, const QList<Document::DiagnosticMessage> &);
 
-CPLUSPLUS_EXPORT bool setSetExtraDiagnostics
-    (const Utils::FilePath &, const QString &, const QList<Document::DiagnosticMessage> &);
-
 CPLUSPLUS_EXPORT bool hasSnapshots();
 
 CPLUSPLUS_EXPORT CPlusPlus::Snapshot snapshot();

@@ -24,13 +24,6 @@ bool trySetExtraDiagnostics(const FilePath &filePath, const QString &kind,
     return setExtraDiagnosticsCallback(filePath, kind, diagnostics);
 }
 
-bool setExtraDiagnostics(const FilePath &filePath, const QString &kind,
-                         const QList<Document::DiagnosticMessage> &diagnostics)
-{
-    QTC_ASSERT(setExtraDiagnosticsCallback, return false);
-    return setExtraDiagnosticsCallback(filePath, kind, diagnostics);
-}
-
 Snapshot snapshot()
 {
     QTC_ASSERT(snapshotCallback, return {});
