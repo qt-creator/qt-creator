@@ -325,6 +325,20 @@ void CleanWhitespaceTest::testCleanWhitespace_data()
         << "notes.md" << defaultIgnore << false
         << ("foo" + tabBlankTab + "\n")
         << QString("foo\n") << true;
+
+    // With a Tabs-Only policy, a tab-indented code line must keep its tab and
+    // must not be rewritten to spaces (QTCREATORBUG-33670).
+    QTest::newRow("tabIndentIsKept")
+        << "main.cpp" << defaultIgnore << true
+        << QString("if (x)\n\tfoo();\n")
+        << QString("if (x)\n\tfoo();\n") << false;
+
+    // Nested tab indentation stays as tabs, not tab-plus-spaces
+    // (QTCREATORBUG-33670).
+    QTest::newRow("nestedTabIndentIsKept")
+        << "main.cpp" << defaultIgnore << true
+        << QString("if (x)\n\tif (y)\n\t\tfoo();\n")
+        << QString("if (x)\n\tif (y)\n\t\tfoo();\n") << false;
 }
 
 void CleanWhitespaceTest::testCleanWhitespace()

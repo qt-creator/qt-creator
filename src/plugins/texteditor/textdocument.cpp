@@ -961,6 +961,14 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
                 cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
                 cursor.removeSelectedText();
             } else {
+                // Under a Tabs-Only policy a leading indent made up solely of
+                // tabs is already canonical; leave it untouched instead of
+                // rewriting it to spaces (QTCREATORBUG-33670).
+                const QString leading = blockText.left(firstNonSpace);
+                if (currentTabSettings.m_tabPolicy == TabSettingsData::TabsOnlyTabPolicy
+                    && !leading.contains(QLatin1Char(' '))) {
+                    continue;
+                }
                 int column = currentTabSettings.columnAt(blockText, firstNonSpace);
                 cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace);
                 cursor.insertText(currentTabSettings.indentationString(0, column, column - indent));
