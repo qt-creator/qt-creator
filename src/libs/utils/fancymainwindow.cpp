@@ -783,6 +783,13 @@ QList<QDockWidget *> FancyMainWindow::docksInArea(Qt::DockWidgetArea area) const
     });
 }
 
+void FancyMainWindow::setDockCollapsed(QDockWidget *dockWidget, bool collapsed)
+{
+    auto dock = qobject_cast<DockWidget *>(dockWidget);
+    QTC_ASSERT(dock, return);
+    dock->setCollapsed(collapsed);
+}
+
 bool FancyMainWindow::isCentralWidgetShown() const
 {
     return d->m_showCentralWidget.isChecked();

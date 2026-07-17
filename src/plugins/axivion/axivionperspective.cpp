@@ -31,17 +31,18 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
+#include <utils/fancymainwindow.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
-#include <utils/qtcassert.h>
-#include <utils/basetreeview.h>
-#include <utils/utilsicons.h>
 #include <utils/overlaywidget.h>
+#include <utils/qtcassert.h>
 #include <utils/shutdownguard.h>
 #include <utils/treemodel.h>
+#include <utils/utilsicons.h>
 
 #include <QButtonGroup>
 #include <QClipboard>
@@ -1855,8 +1856,10 @@ AxivionPerspective::AxivionPerspective()
             QTC_ASSERT(cmd, return);
             if (cmd->action() && !cmd->action()->isChecked())
                 cmd->action()->trigger();
-            if (auto dw = qobject_cast<QDockWidget *>(m_issuesWidget.parentWidget()))
+            if (auto dw = qobject_cast<QDockWidget *>(m_issuesWidget.parentWidget())) {
                 dw->raise();
+                FancyMainWindow::setDockCollapsed(dw, false);
+            }
         }, Qt::QueuedConnection);
         setAboutToActivateCallback({}); // reset, as this should only happen on first show
     });
@@ -2074,8 +2077,10 @@ void AxivionPerspective::openConsoleWith(const QString &console)
     QTC_ASSERT(cmd, return);
     if (cmd->action() && !cmd->action()->isChecked())
         cmd->action()->trigger();
-    if (auto dockWidget = qobject_cast<QDockWidget *>(m_consoleWidget.parentWidget()))
+    if (auto dockWidget = qobject_cast<QDockWidget *>(m_consoleWidget.parentWidget())) {
         dockWidget->raise();
+        FancyMainWindow::setDockCollapsed(dockWidget, false);
+    }
 }
 
 void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
@@ -2095,7 +2100,10 @@ void AxivionPerspective::showProgressWidget()
     QTC_ASSERT(cmd, return);
     if (cmd->action() && !cmd->action()->isChecked())
         cmd->action()->trigger();
-    // TODO can we ensure the progress widget is uncollapsed?
+    if (auto dockWidget = qobject_cast<QDockWidget *>(m_progressWidget.parentWidget())) {
+        dockWidget->raise();
+        FancyMainWindow::setDockCollapsed(dockWidget, false);
+    }
 }
 
 void AxivionPerspective::requestFocusForIssuesTable()

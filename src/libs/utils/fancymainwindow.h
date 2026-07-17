@@ -28,6 +28,8 @@ public:
     const QList<QDockWidget *> dockWidgets() const;
     QList<QDockWidget *> docksInArea(Qt::DockWidgetArea area) const;
 
+    static void setDockCollapsed(QDockWidget *dockWidget, bool collapsed);
+
     void setTrackingEnabled(bool enabled);
 
     void saveSettings(QtcSettings *settings) const;
