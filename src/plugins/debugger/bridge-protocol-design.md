@@ -172,6 +172,15 @@ first-class children in the response, not something to reconstruct. Async
 changes (pending bp binds on shared-library load, adapter relocates/removes)
 arrive as a qtc/breakpointChanged event keyed by the same id.
 
+As built: the C++ side serializes parameters with the shared addToCommand() and
+correlates responses by the stable modelid (never file:line). The bridge
+returns the breakpoint in the MI 'bkpt' shape (with a sub-location list), which
+the C++ side feeds to the shared updateFromGdbOutput()/handleBkpt() - the same
+path GdbEngine uses. Verified end-to-end against real gdb (insert -> resolved
+bkpt -> stop at breakpoint). Still to do: qtc/enableSubBreakpoint, the async
+qtc/breakpointChanged event, and demangling the location function name (gdb's
+Python BreakpointLocation.function returns the mangled name).
+
 Parity items carried natively (no DAP equivalent, and no reason to omit them):
 
 - multiple locations per breakpoint with per-location enable;

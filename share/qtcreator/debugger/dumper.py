@@ -1172,7 +1172,9 @@ class DumperBase():
         if isinstance(value, list):
             return '[' + ','.join([self.resultToMi(k)
                                    for k in value]) + ']'
-        return '"%s"' % value
+        # Escape what the C++ GdbMi reader would otherwise misread: a Windows
+        # path is the common case ("C:\\Users" -> \\U).
+        return '"%s"' % str(value).replace('\\', '\\\\').replace('"', '\\"')
 
     def variablesToMi(self, value, prefix):
         if isinstance(value, bool):

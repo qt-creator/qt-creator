@@ -31,8 +31,6 @@
 #include <QJsonObject>
 #include <QStringDecoder>
 
-#include <cstdlib>
-
 using namespace Core;
 using namespace Utils;
 
@@ -323,112 +321,28 @@ bool BridgeEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
            || bp.type == BreakpointByFunction;
 }
 
-static void setBreakpointParameters(QJsonObject &bp, const QString &condition, int ignoreCount)
-{
-    if (!condition.isEmpty())
-        bp["condition"] = condition;
-    if (ignoreCount > 0)
-        bp["hitCondition"] = QString::number(ignoreCount);
-}
-
-static QJsonObject createBreakpoint(const BreakpointParameters &params)
-{
-    if (params.fileName.isEmpty())
-        return QJsonObject();
-
-    QJsonObject bp;
-    bp["line"] = params.textPosition.line;
-    setBreakpointParameters(bp, params.condition, params.ignoreCount);
-    return bp;
-}
-
-static QJsonObject createFunctionBreakpoint(const BreakpointParameters &params)
-{
-    if (params.functionName.isEmpty())
-        return QJsonObject();
-
-    QJsonObject bp;
-    bp["name"] = params.functionName;
-    setBreakpointParameters(bp, params.condition, params.ignoreCount);
-    return bp;
-}
-
 void BridgeEngine::insertBreakpoint(const Breakpoint &bp)
 {
+    // Native incremental insert: serialize the requested parameters with the
+    // shared addToCommand() and let the bridge create one gdb breakpoint.
+    // Correlation back is by the stable modelid, not file:line.
     QTC_ASSERT(bp, return);
     QTC_CHECK(bp->state() == BreakpointInsertionRequested);
     notifyBreakpointInsertProceeding(bp);
 
-    BreakpointParameters parameters = bp->requestedParameters();
-    if (!parameters.enabled) { // hack for disabling breakpoints
-        parameters.pending = false;
-        bp->setParameters(parameters);
-        notifyBreakpointInsertOk(bp);
-        return;
-    }
-
-    if (parameters.type == BreakpointByFunction
-        && m_dapClient->capabilities().supportsFunctionBreakpoints) {
-        dapInsertFunctionBreakpoint(bp);
-        return;
-    }
-
-    dapInsertBreakpoint(bp);
-}
-
-void BridgeEngine::dapInsertFunctionBreakpoint(const Breakpoint &bp)
-{
-    Q_UNUSED(bp)
-    QJsonArray breakpoints;
-    for (const auto &breakpoint : breakHandler()->breakpoints()) {
-        const BreakpointParameters &bpParams = breakpoint->requestedParameters();
-        QJsonObject jsonBp = createFunctionBreakpoint(bpParams);
-        if (!jsonBp.isEmpty() && bpParams.type == BreakpointByFunction && bpParams.enabled)
-            breakpoints.append(jsonBp);
-    }
-
-    m_dapClient->setFunctionBreakpoints(breakpoints);
-}
-
-void BridgeEngine::dapInsertBreakpoint(const Breakpoint &bp)
-{
-    const BreakpointParameters &params = bp->requestedParameters();
-
-    QJsonArray breakpoints;
-    for (const auto &breakpoint : breakHandler()->breakpoints()) {
-        const BreakpointParameters &bpParams = breakpoint->requestedParameters();
-        QJsonObject jsonBp = createBreakpoint(bpParams);
-        if (!jsonBp.isEmpty() && params.fileName.path() == bpParams.fileName.path()
-            && bpParams.enabled) {
-            breakpoints.append(jsonBp);
-        }
-    }
-
-    m_dapClient->setBreakpoints(breakpoints, params.fileName);
+    DebuggerCommand cmd("insertBreakpoint");
+    bp->addToCommand(runParameters().buildDirectory(), &cmd);
+    m_dapClient->postRequest("qtc/insertBreakpoint", cmd.args.toObject());
 }
 
 void BridgeEngine::updateBreakpoint(const Breakpoint &bp)
 {
-    BreakpointParameters parameters = bp->requestedParameters();
+    QTC_ASSERT(bp, return);
     notifyBreakpointChangeProceeding(bp);
 
-    auto updateBp = [this, bp](void (BridgeEngine::*insert)(const Breakpoint &),
-                               void (BridgeEngine::*remove)(const Breakpoint &)) {
-        if (bp->isEnabled())
-            (this->*remove)(bp);
-        else
-            (this->*insert)(bp);
-    };
-
-    if (parameters.enabled != bp->isEnabled()) {
-        if (parameters.type == BreakpointByFunction) {
-            updateBp(&BridgeEngine::dapInsertFunctionBreakpoint,
-                     &BridgeEngine::dapRemoveFunctionBreakpoint);
-            return;
-        }
-
-        updateBp(&BridgeEngine::dapInsertBreakpoint, &BridgeEngine::dapRemoveBreakpoint);
-    }
+    DebuggerCommand cmd("updateBreakpoint");
+    bp->addToCommand(runParameters().buildDirectory(), &cmd);
+    m_dapClient->postRequest("qtc/updateBreakpoint", cmd.args.toObject());
 }
 
 void BridgeEngine::removeBreakpoint(const Breakpoint &bp)
@@ -437,45 +351,29 @@ void BridgeEngine::removeBreakpoint(const Breakpoint &bp)
     QTC_CHECK(bp->state() == BreakpointRemoveRequested);
     notifyBreakpointRemoveProceeding(bp);
 
-    dapRemoveBreakpoint(bp);
+    DebuggerCommand cmd("removeBreakpoint");
+    cmd.arg("modelid", bp->modelId());
+    cmd.arg("id", bp->responseId());
+    m_dapClient->postRequest("qtc/removeBreakpoint", cmd.args.toObject());
 }
 
-void BridgeEngine::dapRemoveBreakpoint(const Breakpoint &bp)
+void BridgeEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
 {
-    const BreakpointParameters &params = bp->requestedParameters();
-
-    QJsonArray breakpoints;
-    for (const auto &breakpoint : breakHandler()->breakpoints()) {
-        const BreakpointParameters &bpParams = breakpoint->requestedParameters();
-        if (breakpoint->responseId() != bp->responseId() && params.fileName == bpParams.fileName
-            && bpParams.enabled) {
-            QJsonObject jsonBp = createBreakpoint(bpParams);
-            breakpoints.append(jsonBp);
+    // Mirrors GdbEngine::handleBkpt: populate the primary breakpoint and any
+    // sub-locations from the MI 'bkpt' shape via the shared updateFromGdbOutput.
+    const GdbMi locations = bkpt["locations"];
+    if (locations.isValid()) {
+        for (const GdbMi &location : locations) {
+            const QString subnr = location["number"].data();
+            SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subnr);
+            QTC_ASSERT(sub, return);
+            sub->params.updateFromGdbOutput(location, runParameters());
+            sub->params.type = bp->type();
         }
     }
 
-    if (params.type == BreakpointByFunction
-        && m_dapClient->capabilities().supportsFunctionBreakpoints) {
-        dapRemoveFunctionBreakpoint(bp);
-        return;
-    }
-
-    m_dapClient->setBreakpoints(breakpoints, params.fileName);
-}
-
-void BridgeEngine::dapRemoveFunctionBreakpoint(const Breakpoint &bp)
-{
-    QJsonArray breakpoints;
-    for (const auto &breakpoint : breakHandler()->breakpoints()) {
-        const BreakpointParameters &bpParams = breakpoint->requestedParameters();
-        if (breakpoint->responseId() != bp->responseId() && bpParams.type == BreakpointByFunction
-            && bpParams.enabled) {
-            QJsonObject jsonBp = createFunctionBreakpoint(bpParams);
-            breakpoints.append(jsonBp);
-        }
-    }
-
-    m_dapClient->setFunctionBreakpoints(breakpoints);
+    bp->setResponseId(bkpt["number"].data());
+    bp->updateFromGdbOutput(bkpt, runParameters());
 }
 
 void BridgeEngine::loadSymbols(const Utils::FilePath & /*moduleName*/)
@@ -699,10 +597,6 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         if (!success)
             notifyInferiorStopFailed();
         break;
-    case DapResponseType::SetFunctionBreakpoints:
-    case DapResponseType::SetBreakpoints:
-        handleBreakpointResponse(response);
-        break;
     case DapResponseType::Launch:
         if (!success) {
             notifyEngineRunFailed();
@@ -715,10 +609,22 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         break;
     default:
         if (!success) {
-            // A failed request has no body, and handing that to the handlers
-            // below would wipe the view each one fills. The locals view has to
-            // be released even so, or it stays in its updating state - with
-            // stale, unexpandable items - until the next successful fetch.
+            // A failed request has no body worth reading, but the model must
+            // not be left waiting for an answer: a breakpoint that stays in its
+            // change-proceeding state cannot even be removed afterwards.
+            const Breakpoint bp = breakHandler()->findBreakpointByModelId(
+                response.value("body").toObject().value("modelid").toInt());
+            if (bp) {
+                if (command == "qtc/insertBreakpoint")
+                    notifyBreakpointInsertFailed(bp);
+                else if (command == "qtc/updateBreakpoint")
+                    notifyBreakpointChangeFailed(bp);
+                else if (command == "qtc/removeBreakpoint")
+                    notifyBreakpointRemoveFailed(bp);
+            }
+            // The locals view has to be released even so, or it stays in its
+            // updating state - with stale, unexpandable items - until the next
+            // successful fetch.
             if (command == "qtc/fetchVariables") {
                 showMessage("FETCHING VARIABLES FAILED: "
                             + response.value("message").toString());
@@ -728,6 +634,12 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         }
         if (command == "qtc/fetchVariables")
             handleFetchVariablesResponse(response);
+        else if (command == "qtc/insertBreakpoint")
+            handleInsertBreakpointResponse(response);
+        else if (command == "qtc/updateBreakpoint")
+            handleUpdateBreakpointResponse(response);
+        else if (command == "qtc/removeBreakpoint")
+            handleRemoveBreakpointResponse(response);
         else
             showMessage("UNKNOWN RESPONSE:" + command);
     }
@@ -792,91 +704,48 @@ void BridgeEngine::handleFetchVariablesResponse(const QJsonObject &response)
     updateToolTips();
 }
 
-void BridgeEngine::handleBreakpointResponse(const QJsonObject &response)
+static GdbMi parseBkpt(const QJsonObject &body)
+{
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi bkpt;
+    bkpt.fromString(body.value("bkpt").toString(), decoder);
+    return bkpt;
+}
+
+void BridgeEngine::handleInsertBreakpointResponse(const QJsonObject &response)
 {
     const QJsonObject body = response.value("body").toObject();
-    const QJsonArray breakpoints = body.value("breakpoints").toArray();
+    const Breakpoint bp = breakHandler()->findBreakpointByModelId(body.value("modelid").toInt());
+    if (!bp)
+        return;
 
-    QHash<QString, QJsonObject> map;
-    for (const QJsonValueConstRef &jsonbp : breakpoints) {
-        QJsonObject breakpoint = jsonbp.toObject();
-        QString fileName = breakpoint.value("source").toObject().value("path").toString();
-        int line = breakpoint.value("line").toInt();
-
-        map.insert(fileName + ":" + QString::number(line), breakpoint);
+    if (body.value("bkpt").toString().isEmpty()) {
+        notifyBreakpointInsertFailed(bp);
+        return;
     }
 
-    const Breakpoints bps = breakHandler()->breakpoints();
-    for (const Breakpoint &bp : bps) {
-        BreakpointParameters parameters = bp->requestedParameters();
-        QString mapKey = parameters.fileName.toUrlishString() + ":"
-                         + QString::number(parameters.textPosition.line);
-        if (map.find(mapKey) != map.end()) {
-            if (bp->state() == BreakpointRemoveProceeding) {
-                notifyBreakpointRemoveFailed(bp);
-            } else if (bp->state() == BreakpointInsertionProceeding
-                       && !map.value(mapKey).value("verified").toBool()) {
-                notifyBreakpointInsertFailed(bp);
-            } else if (bp->state() == BreakpointInsertionProceeding) {
-                parameters.pending = false;
-                bp->setParameters(parameters);
-                notifyBreakpointInsertOk(bp);
-                if (parameters.oneShot)
-                    continueInferior();
-            }
-            if (!bp.isNull())
-                bp->setResponseId(QString::number(map.value(mapKey).value("id").toInt()));
-            map.remove(mapKey);
-        } else {
-            if (bp->state() == BreakpointRemoveProceeding)
-                notifyBreakpointRemoveOk(bp);
-        }
+    handleBkpt(parseBkpt(body), bp);
+    notifyBreakpointInsertOk(bp);
+}
 
-        if (!bp.isNull() && bp->state() == BreakpointUpdateProceeding) {
-            BreakpointParameters parameters = bp->requestedParameters();
-            if (parameters.enabled != bp->isEnabled()) {
-                parameters.pending = false;
-                bp->setParameters(parameters);
-                notifyBreakpointChangeOk(bp);
-                continue;
-            }
-        }
-    }
+void BridgeEngine::handleUpdateBreakpointResponse(const QJsonObject &response)
+{
+    const QJsonObject body = response.value("body").toObject();
+    const Breakpoint bp = breakHandler()->findBreakpointByModelId(body.value("modelid").toInt());
+    if (!bp)
+        return;
 
-    for (const Breakpoint &bp : breakHandler()->breakpoints()) {
-        if (bp->state() == BreakpointInsertionProceeding) {
-            if (!bp->isEnabled())
-                continue;
+    if (!body.value("bkpt").toString().isEmpty())
+        handleBkpt(parseBkpt(body), bp);
+    notifyBreakpointChangeOk(bp);
+}
 
-            FilePath path = bp->requestedParameters().fileName;
-            int line = bp->requestedParameters().textPosition.line;
-
-            QJsonObject jsonBreakpoint;
-            QString key;
-            for (auto it = map.cbegin(); it != map.cend(); ++it) {
-                const QJsonObject breakpoint = *it;
-                if (path == bp->requestedParameters().fileName
-                    && std::abs(breakpoint.value("line").toInt() - line)
-                           < std::abs(jsonBreakpoint.value("line").toInt() - line)) {
-                    jsonBreakpoint = breakpoint;
-                    key = it.key();
-                }
-            }
-
-            if (!jsonBreakpoint.isEmpty() && jsonBreakpoint.value("verified").toBool()) {
-                BreakpointParameters parameters = bp->requestedParameters();
-                parameters.pending = false;
-                parameters.textPosition.line = jsonBreakpoint.value("line").toInt();
-                parameters.textPosition.column = jsonBreakpoint.value("column").toInt();
-                bp->setParameters(parameters);
-                bp->setResponseId(QString::number(jsonBreakpoint.value("id").toInt()));
-                notifyBreakpointInsertOk(bp);
-                if (parameters.oneShot)
-                    continueInferior();
-                map.remove(key);
-            }
-        }
-    }
+void BridgeEngine::handleRemoveBreakpointResponse(const QJsonObject &response)
+{
+    const QJsonObject body = response.value("body").toObject();
+    const Breakpoint bp = breakHandler()->findBreakpointByModelId(body.value("modelid").toInt());
+    if (bp)
+        notifyBreakpointRemoveOk(bp);
 }
 
 void BridgeEngine::handleEvent(DapEventType type, const QJsonObject &event)

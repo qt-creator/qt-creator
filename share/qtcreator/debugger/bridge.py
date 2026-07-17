@@ -19,6 +19,7 @@
 import json
 import os
 import sys
+import types
 
 import gdb
 
@@ -38,10 +39,10 @@ class DapServer():
         self.attachMode = False
         self.dumperSetup = ''
 
-        # Per-source list of gdb.Breakpoint objects we created, so setBreakpoints
-        # can implement DAP's declarative whole-source replace.
-        self.sourceBreakpoints = {}
-        self.functionBreakpoints = []
+        # Native qtc/ breakpoints: gdb.Breakpoint by its (stringified) number,
+        # and the arguments each was created for.
+        self.breakpointById = {}
+        self.breakpointArgsById = {}
 
         # Rebuilt on every stop: maps a DAP frame id to a gdb.Frame.
         self.frameForId = {}
@@ -109,6 +110,14 @@ class DapServer():
         }
         if message is not None:
             response['message'] = message
+        if body is None:
+            # A failure carries no payload of its own, but the modelid still has
+            # to travel back: it is how the C++ side finds the breakpoint a
+            # failed request belonged to. Harmless for other requests, which do
+            # not send one.
+            modelid = request.get('arguments', {}).get('modelid')
+            if modelid is not None:
+                body = {'modelid': modelid}
         if body is not None:
             response['body'] = body
         self._send(response)
@@ -126,7 +135,8 @@ class DapServer():
     def run(self):
         # Keep gdb quiet and non-interactive; this loop owns stdio.
         for command in ['set pagination off', 'set confirm off',
-                        'set width 0', 'set height 0']:
+                        'set width 0', 'set height 0',
+                        'set breakpoint pending on']:
             try:
                 gdb.execute(command, to_string=True)
             except gdb.error:
@@ -209,11 +219,19 @@ class DapServer():
         hitBreakpointIds = []
         event = self.lastStopEvent
         if event is not None and hasattr(event, 'breakpoints'):
-            reason = 'breakpoint'
             for bp in event.breakpoints:
-                hitBreakpointIds.append(bp.number)
+                # A temporary breakpoint is deleted the moment it is hit, and
+                # reading it then raises, so there is no id to report for it.
+                try:
+                    hitBreakpointIds.append(bp.number)
+                except RuntimeError:
+                    pass
+            if hitBreakpointIds:
+                reason = 'breakpoint'
         elif event is not None and hasattr(event, 'stop_signal'):
             reason = 'exception'
+
+        self._dropDeadBreakpoints()
 
         thread = gdb.selected_thread()
         threadId = thread.global_num if thread is not None else 0
@@ -318,58 +336,194 @@ class DapServer():
     # Breakpoint requests
     #######################################################################
 
-    def cmd_setBreakpoints(self, request):
-        arguments = request.get('arguments', {})
-        source = arguments.get('source', {}).get('path', '')
-        wanted = arguments.get('breakpoints', [])
+    # Native, incremental, tree-shaped breakpoints. Each request maps 1:1 to
+    # Creator's insert/update/remove and returns the breakpoint in the MI
+    # 'bkpt' shape (plus sub-location list), which the C++ side feeds to the
+    # shared updateFromGdbOutput()/handleBkpt() logic.
+    # Correlation is by the stable modelid echoed back, never by file:line.
 
-        for bp in self.sourceBreakpoints.pop(source, []):
+    # BreakpointType enum values shared with breakpoint.h.
+    BP_BY_FILE_AND_LINE = 1
+    BP_BY_FUNCTION = 2
+    BP_BY_ADDRESS = 3
+    BP_WATCH_ADDRESS = 10
+    BP_WATCH_EXPRESSION = 11
+
+    def _createGdbBreakpoint(self, args):
+        bptype = args.get('type', self.BP_BY_FILE_AND_LINE)
+        temporary = bool(args.get('oneshot'))
+        if bptype == self.BP_BY_FUNCTION:
+            bp = gdb.Breakpoint(function=args.get('function', ''),
+                                temporary=temporary)
+        elif bptype == self.BP_BY_ADDRESS:
+            bp = gdb.Breakpoint('*0x%x' % args.get('address', 0), gdb.BP_BREAKPOINT,
+                                temporary=temporary)
+        elif bptype in (self.BP_WATCH_ADDRESS, self.BP_WATCH_EXPRESSION):
+            expr = args.get('expression') or ('*0x%x' % args.get('address', 0))
+            bp = gdb.Breakpoint(expr, gdb.BP_WATCHPOINT)
+        else:
+            # Keyword form, so a source path containing spaces still resolves.
+            bp = gdb.Breakpoint(source=args.get('file', ''),
+                                line=int(args.get('line', 0)),
+                                temporary=temporary)
+
+        condition = args.get('condition', '')
+        if condition:
+            bp.condition = self.dumper.hexdecode(condition)
+        ignore = args.get('ignorecount', 0)
+        if ignore:
+            bp.ignore_count = int(ignore)
+        if not args.get('enabled', True):
+            bp.enabled = False
+        return bp
+
+    def _fillLocationDict(self, target, location):
+        if location.address is not None:
+            target['addr'] = '0x%x' % location.address
+        if location.function:
+            target['func'] = location.function
+        source = location.source
+        if source:
+            target['file'] = source[0]
+            target['line'] = source[1]
+        if location.fullname:
+            target['fullname'] = location.fullname
+
+    def _dropDeadBreakpoints(self):
+        # gdb deletes a temporary breakpoint as it is hit. Keeping the object
+        # would hold it alive with every access raising, so let it go.
+        for key, bp in list(self.breakpointById.items()):
+            if not bp.is_valid():
+                del self.breakpointById[key]
+                self.breakpointArgsById.pop(key, None)
+
+    def _functionAt(self, pc):
+        # gdb.Breakpoint.locations knows the function; without it (gdb < 13) the
+        # block at the address does.
+        try:
+            block = gdb.block_for_pc(int(pc))
+        except (gdb.error, RuntimeError):
+            return None
+        while block is not None:
+            if block.function is not None:
+                return block.function.name
+            block = block.superblock
+        return None
+
+    def _decodedLocations(self, bp):
+        # A stand-in for gdb.Breakpoint.locations on gdb < 13: ask gdb to
+        # resolve the breakpoint's own location string.
+        if not bp.location:
+            return []
+        try:
+            sals = gdb.decode_line(bp.location)[1] or []
+        except gdb.error:
+            return []
+        decoded = []
+        for sal in sals:
+            source = None
+            if sal.symtab is not None:
+                source = (sal.symtab.filename, sal.line)
+            decoded.append(types.SimpleNamespace(
+                address=int(sal.pc), function=self._functionAt(sal.pc), source=source,
+                fullname=sal.symtab.fullname() if sal.symtab is not None else None,
+                enabled=bp.enabled))
+        return decoded
+
+    def _breakpointToMi(self, bp):
+        result = {
+            'number': bp.number,
+            'enabled': 'y' if bp.enabled else 'n',
+            'disp': 'del' if bp.temporary else 'keep',
+            'type': 'breakpoint',
+        }
+        if bp.condition:
+            result['cond'] = bp.condition
+        try:
+            locations = list(bp.locations)
+        except AttributeError:
+            # gdb.Breakpoint.locations arrived in gdb 13. Without it, resolve
+            # the requested location instead of reporting every breakpoint as
+            # pending.
+            locations = self._decodedLocations(bp)
+        except Exception:
+            locations = []
+        if len(locations) == 1:
+            self._fillLocationDict(result, locations[0])
+        elif len(locations) > 1:
+            result['addr'] = '<MULTIPLE>'
+            subs = []
+            for index, location in enumerate(locations, start=1):
+                sub = {'number': '%d.%d' % (bp.number, index),
+                       'enabled': 'y' if location.enabled else 'n'}
+                self._fillLocationDict(sub, location)
+                subs.append(sub)
+            result['locations'] = subs
+        else:
+            result['pending'] = bp.location or ''
+        return self.dumper.resultToMi(result)
+
+    def cmd_qtc_insertBreakpoint(self, request):
+        args = request.get('arguments', {})
+        body = {'modelid': args.get('modelid')}
+        try:
+            bp = self._createGdbBreakpoint(args)
+            self.breakpointById[str(bp.number)] = bp
+            self.breakpointArgsById[str(bp.number)] = args
+            body['bkpt'] = self._breakpointToMi(bp)
+        except Exception as error:
+            warn('insertBreakpoint failed: %s' % error)
+            body['bkpt'] = ''
+            body['error'] = str(error)
+        self.sendResponse(request, body=body)
+
+    def cmd_qtc_updateBreakpoint(self, request):
+        args = request.get('arguments', {})
+        key = str(args.get('id'))
+        bp = self.breakpointById.get(key)
+        if bp is None:
+            self.sendResponse(request, success=False, message='no such breakpoint')
+            return
+
+        # gdb changes a condition, an ignore count and the enabled state in
+        # place, but it cannot move a breakpoint: for that it has to be
+        # recreated, or we would acknowledge a move that never happened.
+        if self._locationOf(args) != self._locationOf(self.breakpointArgsById.get(key, {})):
+            try:
+                bp.delete()
+            except (gdb.error, RuntimeError):
+                pass
+            self.breakpointById.pop(key, None)
+            self.breakpointArgsById.pop(key, None)
+            # The insert reply carries the new breakpoint in the same shape,
+            # and the C++ side feeds both through the same handler.
+            self.cmd_qtc_insertBreakpoint(request)
+            return
+
+        bp.condition = self.dumper.hexdecode(args.get('condition', '')) \
+            if args.get('condition') else ''
+        bp.enabled = bool(args.get('enabled', True))
+        bp.ignore_count = int(args.get('ignorecount', 0))
+        self.breakpointArgsById[key] = args
+        self.sendResponse(request, body={'modelid': args.get('modelid'),
+                                         'bkpt': self._breakpointToMi(bp)})
+
+    @staticmethod
+    def _locationOf(args):
+        return (args.get('type'), args.get('file'), args.get('line'),
+                args.get('function'), args.get('address'), args.get('expression'))
+
+    def cmd_qtc_removeBreakpoint(self, request):
+        args = request.get('arguments', {})
+        key = str(args.get('id'))
+        self.breakpointArgsById.pop(key, None)
+        bp = self.breakpointById.pop(key, None)
+        if bp is not None:
             try:
                 bp.delete()
             except gdb.error:
                 pass
-
-        created = []
-        result = []
-        for item in wanted:
-            line = item.get('line', 0)
-            try:
-                bp = gdb.Breakpoint('%s:%d' % (source, line), gdb.BP_BREAKPOINT)
-                condition = item.get('condition')
-                if condition:
-                    bp.condition = condition
-                created.append(bp)
-                result.append({'id': bp.number, 'verified': True, 'line': line})
-            except gdb.error as error:
-                result.append({'verified': False, 'line': line,
-                               'message': str(error)})
-        self.sourceBreakpoints[source] = created
-        self.sendResponse(request, body={'breakpoints': result})
-
-    def cmd_setFunctionBreakpoints(self, request):
-        arguments = request.get('arguments', {})
-        wanted = arguments.get('breakpoints', [])
-
-        for bp in self.functionBreakpoints:
-            try:
-                bp.delete()
-            except gdb.error:
-                pass
-
-        self.functionBreakpoints = []
-        result = []
-        for item in wanted:
-            name = item.get('name', '')
-            try:
-                bp = gdb.Breakpoint(name, gdb.BP_BREAKPOINT)
-                condition = item.get('condition')
-                if condition:
-                    bp.condition = condition
-                self.functionBreakpoints.append(bp)
-                result.append({'id': bp.number, 'verified': True})
-            except gdb.error as error:
-                result.append({'verified': False, 'message': str(error)})
-        self.sendResponse(request, body={'breakpoints': result})
+        self.sendResponse(request, body={'modelid': args.get('modelid')})
 
     #######################################################################
     # Inspection requests
