@@ -946,6 +946,12 @@ void ChangesView::repositoryChanged(const FilePath &repository)
             if (entry.repository == repository)
                 entry.vc->requestRepositoryStatus(repository);
         }
+        forEachRepositoryItem([&repository](RepositoryItem *item) {
+            if (item->repository() == repository) {
+                item->setTopic(item->versionControl()->vcsTopic(repository));
+                item->update();
+            }
+        });
     } else {
         m_dirtyRepositories.insert(repository);
     }
