@@ -24,7 +24,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include <memory>
 
 namespace Utils::Internal {
 

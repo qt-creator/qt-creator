@@ -10,8 +10,6 @@
 #include <QList>
 #include <QString>
 
-#include <memory>
-#include <optional>
 
 namespace CommonTraceFormat {
 

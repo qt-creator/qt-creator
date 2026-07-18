@@ -5,7 +5,6 @@
 
 #include "algorithm.h"
 #include "smallstringfwd.h"
-#include "smallstringiterator.h"
 
 #include <QString>
 

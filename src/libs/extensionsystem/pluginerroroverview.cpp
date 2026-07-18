@@ -8,7 +8,6 @@
 #include "pluginmanager.h"
 #include "pluginspec.h"
 
-#include <utils/algorithm.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 

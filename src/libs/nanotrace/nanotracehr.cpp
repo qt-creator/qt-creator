@@ -3,7 +3,6 @@
 
 #include "nanotracehr.h"
 
-#include <utils/smallstringio.h>
 
 #include <QCoreApplication>
 #include <QImage>
@@ -11,7 +10,6 @@
 
 #include <fstream>
 #include <iomanip>
-#include <limits>
 #include <thread>
 
 #ifdef Q_OS_UNIX

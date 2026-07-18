@@ -7,7 +7,6 @@
 
 #include "id.h"
 #include "infobar.h"
-#include "store.h"
 
 #include <QHash>
 #include <QObject>

@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "utils_global.h"
 
 #include <QtTaskTree/qtasktree.h>
 

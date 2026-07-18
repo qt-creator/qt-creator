@@ -5,7 +5,7 @@
 
 #include "utils_global.h"
 
-#include "infobar.h"
+#include "store.h"
 
 QT_BEGIN_NAMESPACE
 class QWidget;

@@ -8,7 +8,6 @@
 #include "trackpainterbase.h"
 #include "timelinezoomcontrol.h"
 
-#include <utils/qtcassert.h>
 
 #include <QEvent>
 #include <QScrollBar>

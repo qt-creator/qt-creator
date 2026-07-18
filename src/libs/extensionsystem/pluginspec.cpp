@@ -11,7 +11,6 @@
 #include <utils/appinfo.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QCoreApplication>

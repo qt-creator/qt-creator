@@ -10,7 +10,6 @@
 #include <QTimer>
 
 #include <functional>
-#include <memory>
 
 namespace Utils {
 

@@ -5,8 +5,12 @@
 
 #include "utils_global.h"
 
+#include "environmentfwd.h"
 #include "hostosinfo.h"
-#include "namevalueitem.h"
+
+#include <QMap>
+
+#include <utility>
 
 namespace Utils {
 

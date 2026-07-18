@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "nanotraceglobals.h"
-#include "nanotracehrfwd.h"
 
 namespace NanotraceHR {
 

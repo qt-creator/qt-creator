@@ -5,7 +5,7 @@
 
 #include <QPointer>
 
-#include <memory.h>
+#include <memory>
 #include <type_traits>
 
 namespace Utils {

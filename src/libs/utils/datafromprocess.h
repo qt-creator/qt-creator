@@ -3,6 +3,7 @@
 
 #pragma once
 
+
 #include "algorithm.h"
 #include "commandline.h"
 #include "environment.h"
@@ -16,11 +17,13 @@
 #include <QHash>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QStringList>
 #include <QThread>
 
 #include <chrono>
 #include <functional>
 #include <optional>
+#include <tuple>
 #include <utility>
 
 namespace Utils {

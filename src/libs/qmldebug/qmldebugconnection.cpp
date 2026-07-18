@@ -7,7 +7,6 @@
 #include "qmldebugtr.h"
 #include "qpacketprotocol.h"
 
-#include <utils/temporaryfile.h>
 
 #include <QLocalServer>
 #include <QLocalSocket>

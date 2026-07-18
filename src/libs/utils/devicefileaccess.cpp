@@ -51,7 +51,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cstdio>
 
 namespace Utils {
 

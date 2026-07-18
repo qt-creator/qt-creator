@@ -5,7 +5,6 @@
 #include "glyphcache.h"
 #include "terminalsurface.h"
 
-#include <vterm.h>
 
 #include <QApplication>
 #include <QCache>

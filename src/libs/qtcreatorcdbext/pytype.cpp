@@ -19,6 +19,7 @@
 #endif
 
 #include <regex>
+#include <unordered_map>
 
 constexpr bool debugPyType = false;
 constexpr bool debuggingTypeEnabled() { return debugPyType || debugPyCdbextModule; }

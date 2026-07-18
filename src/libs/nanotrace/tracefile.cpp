@@ -3,7 +3,6 @@
 
 #include "tracefile.h"
 
-#include "nanotracehr.h"
 
 namespace NanotraceHR {
 

@@ -5,6 +5,8 @@
 #include "bineditortr.h"
 #include "markup.h"
 
+#include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>

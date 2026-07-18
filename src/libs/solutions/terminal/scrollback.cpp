@@ -6,7 +6,6 @@
 
 #include <cassert>
 #include <cstring>
-#include <future>
 
 namespace TerminalSolution {
 

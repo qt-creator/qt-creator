@@ -4,6 +4,7 @@
 #include <languageserverprotocol/basemessage.h>
 #include <languageserverprotocol/jsonobject.h>
 #include <languageserverprotocol/jsonrpcmessages.h>
+#include <languageserverprotocol/lsptypes.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/textcodec.h>

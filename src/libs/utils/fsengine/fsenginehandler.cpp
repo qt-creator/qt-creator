@@ -4,7 +4,6 @@
 #include "fsenginehandler.h"
 
 #include "diriterator.h"
-#include "expected.h"
 #include "fileiteratordevicesappender.h"
 #include "filepathinfocache.h"
 #include "fixedlistfsengine.h"

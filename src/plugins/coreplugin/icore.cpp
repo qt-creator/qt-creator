@@ -50,6 +50,8 @@
 #include "versiondialog.h"
 #include "windowsupport.h"
 
+#include <aggregation/aggregate.h>
+
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
 

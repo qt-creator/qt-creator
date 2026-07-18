@@ -19,6 +19,8 @@
 #include "searchresultwindow.h"
 #include "textfindconstants.h"
 
+#include <aggregation/aggregate.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>

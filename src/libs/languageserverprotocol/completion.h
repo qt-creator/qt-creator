@@ -4,7 +4,7 @@
 #pragma once
 
 #include "jsonrpcmessages.h"
-#include "languagefeatures.h"
+#include "lsptypes.h"
 
 namespace LanguageServerProtocol {
 

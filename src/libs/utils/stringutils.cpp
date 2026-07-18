@@ -5,8 +5,6 @@
 
 #include "filepath.h"
 #include "qtcassert.h"
-#include "stylehelper.h"
-#include "theme/theme.h"
 #include "utilstr.h"
 
 #ifdef QT_WIDGETS_LIB

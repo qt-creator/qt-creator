@@ -3,7 +3,6 @@
 
 #include "substitute.h"
 
-#include "devcontainertr.h"
 
 #include <QRegularExpression>
 

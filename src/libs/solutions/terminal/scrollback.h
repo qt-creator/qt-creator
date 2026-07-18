@@ -7,7 +7,6 @@
 #include <vterm.h>
 
 #include <deque>
-#include <future>
 #include <memory>
 
 #include <QFont>

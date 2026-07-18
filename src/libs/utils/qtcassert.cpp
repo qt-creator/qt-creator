@@ -9,8 +9,6 @@
 #include <QTime>
 
 #if defined(Q_OS_UNIX)
-#include <stdio.h>
-#include <signal.h>
 #include <execinfo.h>
 #elif defined(_MSC_VER)
 #ifdef QTCREATOR_PCH_H

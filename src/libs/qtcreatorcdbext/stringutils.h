@@ -6,7 +6,6 @@
 #include <string>
 #include <sstream>
 #include <map>
-#include <functional>
 
 void trimFront(std::string &s); // Strip blanks off front
 void trimBack(std::string &s);  // Strip blanks off back

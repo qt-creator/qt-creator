@@ -6,6 +6,8 @@
 #include "languageserverprotocol_global.h"
 #include "lsputils.h"
 
+#include <utils/algorithm.h>
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QJsonObject>

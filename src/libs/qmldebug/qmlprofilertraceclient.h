@@ -6,9 +6,8 @@
 #include "qmldebug_global.h"
 
 #include "qmldebugclient.h"
-#include "qmleventlocation.h"
-#include "qmlprofilereventtypes.h"
-#include "qmltypedevent.h"
+#include "qmlevent.h"
+#include "qmleventtype.h"
 
 #include <QStack>
 #include <QStringList>

@@ -4,7 +4,6 @@
 #include "hostosinfo.h"
 
 #include "filepath.h"
-#include "utilstr.h"
 
 #include <QDir>
 #include <QtProcessorDetection>

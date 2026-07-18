@@ -5,11 +5,10 @@
 
 #include "extensionsystem_global.h"
 
-#include <aggregation/aggregate.h>
 #include <utils/filepath.h>
-#include <utils/qtcsettings.h>
 
 #include <QObject>
+#include <QReadWriteLock>
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE

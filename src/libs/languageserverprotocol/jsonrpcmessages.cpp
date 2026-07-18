@@ -3,11 +3,8 @@
 
 #include "jsonrpcmessages.h"
 
-#include "initializemessages.h"
 #include "languageserverprotocoltr.h"
-#include "lsputils.h"
 
-#include <utils/qtcassert.h>
 #include <utils/textcodec.h>
 
 #include <QCoreApplication>

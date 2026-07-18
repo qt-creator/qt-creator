@@ -4,7 +4,6 @@
 #include "fileinprojectfinder.h"
 
 #include "algorithm.h"
-#include "fileutils.h"
 #include "qrcparser.h"
 #include "qtcassert.h"
 

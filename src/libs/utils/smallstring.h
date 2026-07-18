@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "utils_global.h"
 
 #include "smallstringliteral.h"
 #include "smallstringiterator.h"
@@ -14,13 +13,14 @@
 #include <QLocale>
 #include <QString>
 #include <QStringEncoder>
+#include <QStringView>
 
 #include <algorithm>
+#include <charconv>
 #include <initializer_list>
 #include <numeric>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 
 #ifdef UNIT_TESTS
 #define unittest_public public

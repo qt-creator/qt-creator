@@ -3,7 +3,6 @@
 
 #include "qmldebugclient.h"
 #include "qmldebugconnection.h"
-#include "qpacketprotocol.h"
 
 #include <qdebug.h>
 #include <qstringlist.h>

@@ -11,7 +11,6 @@
 #include <QTextLayout>
 #include <QTimer>
 
-#include <chrono>
 #include <functional>
 #include <memory>
 #include <optional>

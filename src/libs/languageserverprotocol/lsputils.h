@@ -5,14 +5,12 @@
 
 #include "languageserverprotocol_global.h"
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLoggingCategory>
 
-#include <optional>
 #include <variant>
 
 namespace LanguageServerProtocol {

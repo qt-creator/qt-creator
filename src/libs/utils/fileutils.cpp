@@ -11,7 +11,6 @@
 #include "utilstr.h"
 
 #include "fsengine/fileiconprovider.h"
-#include "fsengine/fsengine.h"
 
 #include <QDataStream>
 #include <QDateTime>
@@ -22,7 +21,6 @@
 #include <QTextStream>
 #include <QXmlStreamWriter>
 
-#include <qplatformdefs.h>
 
 #ifdef QT_GUI_LIB
 #include "guiutils.h"

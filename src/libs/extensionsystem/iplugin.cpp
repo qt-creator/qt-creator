@@ -5,7 +5,6 @@
 
 #include "pluginmanager_p.h"
 
-#include <utils/algorithm.h>
 
 /*!
     \class ExtensionSystem::IPlugin

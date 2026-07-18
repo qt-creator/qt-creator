@@ -3,7 +3,7 @@
 
 #include "fileiconprovider.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>

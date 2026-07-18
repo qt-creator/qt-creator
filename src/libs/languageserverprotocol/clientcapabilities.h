@@ -5,7 +5,6 @@
 
 #include "jsonkeys.h"
 #include "lsptypes.h"
-#include "semantictokens.h"
 
 namespace LanguageServerProtocol {
 

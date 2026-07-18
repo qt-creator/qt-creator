@@ -6,7 +6,6 @@
 #include "globalfilechangeblocker.h"
 #include "filepath.h"
 
-#include <chrono>
 
 #include <QDateTime>
 #include <QFileSystemWatcher>

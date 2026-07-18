@@ -13,6 +13,7 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/namevalueitem.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;

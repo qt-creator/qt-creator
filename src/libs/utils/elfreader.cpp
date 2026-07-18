@@ -3,7 +3,6 @@
 
 #include "elfreader.h"
 
-#include "expected.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 

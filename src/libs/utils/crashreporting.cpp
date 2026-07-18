@@ -3,12 +3,6 @@
 
 #include "crashreporting.h"
 
-#include "appinfo.h"
-#include "aspects.h"
-#include "environment.h"
-#include "infobar.h"
-#include "layoutbuilder.h"
-#include "qtcsettings.h"
 #include "utilstr.h"
 
 #include <QDesktopServices>

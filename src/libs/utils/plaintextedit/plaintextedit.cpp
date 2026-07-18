@@ -19,7 +19,6 @@
 #include <QStyle>
 #include <QTextBlock>
 
-#include <memory.h>
 
 namespace Utils {
 

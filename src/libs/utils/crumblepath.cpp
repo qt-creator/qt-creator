@@ -17,7 +17,6 @@
 #include <QStyleOptionButton>
 #include <QStylePainter>
 
-#include <algorithm>
 
 namespace Utils {
 

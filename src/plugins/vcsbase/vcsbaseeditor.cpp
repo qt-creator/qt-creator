@@ -11,6 +11,8 @@
 #include "vcscommand.h"
 #include "vcsoutputwindow.h"
 
+#include <aggregation/aggregate.h>
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>

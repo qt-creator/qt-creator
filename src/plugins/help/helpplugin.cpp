@@ -20,6 +20,8 @@
 #include "searchtaskhandler.h"
 #include "topicchooser.h"
 
+#include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>

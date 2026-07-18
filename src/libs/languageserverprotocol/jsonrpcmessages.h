@@ -5,7 +5,6 @@
 
 #include "basemessage.h"
 #include "jsonkeys.h"
-#include "lsptypes.h"
 
 #include <utils/qtcassert.h>
 

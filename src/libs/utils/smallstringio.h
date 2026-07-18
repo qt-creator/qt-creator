@@ -8,9 +8,7 @@
 #include <QDataStream>
 #include <QDebug>
 
-#include <iterator>
 #include <ostream>
-#include <sstream>
 
 namespace Utils {
 
