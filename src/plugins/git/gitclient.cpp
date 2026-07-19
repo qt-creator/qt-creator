@@ -4138,7 +4138,10 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
                                    const FilePath &path, ShowEditor showSetting, int line)
 {
     const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
-    const QString relativePath = path.relativeChildPath(topLevel).path();
+    const QString relativePath = path.isRelativePath()
+                                     ? path.path()
+                                     : path.relativeChildPath(topLevel).path();
+
     const QByteArray content = synchronousShow(topLevel, ref + ":" + relativePath);
     if (showSetting == ShowEditor::OnlyIfDifferent) {
         if (content.isEmpty())
