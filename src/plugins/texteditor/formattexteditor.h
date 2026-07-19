@@ -7,8 +7,6 @@
 
 #include "command.h"
 
-#include <utils/filepath.h>
-
 namespace Utils { class PlainTextEdit; }
 
 namespace TextEditor {

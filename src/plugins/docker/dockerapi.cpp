@@ -18,8 +18,6 @@
 #include <QJsonValue>
 #include <QLoggingCategory>
 
-#include <thread>
-
 static Q_LOGGING_CATEGORY(dockerApiLog, "qtc.docker.api", QtWarningMsg);
 
 using namespace Utils;

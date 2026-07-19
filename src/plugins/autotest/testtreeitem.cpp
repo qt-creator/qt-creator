@@ -9,7 +9,7 @@
 #include "itestparser.h"
 #include "testconfiguration.h"
 
-#include <texteditor/texteditor.h>
+#include <utils/link.h>
 #include <utils/utilsicons.h>
 
 #include <QIcon>

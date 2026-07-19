@@ -5,15 +5,14 @@
 #define ACTIONEDITOR_H
 
 #include <bindingeditor/actioneditordialog.h>
-#include <qmldesignercorelib_global.h>
 #include <modelnode.h>
 #include <signalhandlerproperty.h>
 
 #include <utils/uniqueobjectptr.h>
 
-#include <QtQml>
 #include <QObject>
 #include <QPointer>
+#include <qqml.h>
 
 namespace QmlDesigner {
 

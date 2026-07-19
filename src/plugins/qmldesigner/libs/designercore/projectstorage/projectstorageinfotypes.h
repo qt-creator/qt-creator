@@ -4,16 +4,15 @@
 #pragma once
 
 #include "projectstorageids.h"
+#include "sourcepathids.h"
 
 #include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
-#include <utils/utility.h>
 
 #include <QVarLengthArray>
 
 #include <array>
 #include <tuple>
-#include <variant>
 #include <vector>
 
 namespace QmlDesigner {

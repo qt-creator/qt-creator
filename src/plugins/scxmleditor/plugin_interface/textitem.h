@@ -4,6 +4,8 @@
 #pragma once
 
 #include "baseitem.h"
+#include "mytypes.h"
+
 #include <QFocusEvent>
 #include <QGraphicsTextItem>
 #include <QKeyEvent>

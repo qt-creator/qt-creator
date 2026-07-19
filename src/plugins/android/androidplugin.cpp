@@ -7,7 +7,6 @@
 #include "androiddebugsupport.h"
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
-#include "androidmanifesteditor.h"
 #include "androidpackageinstallationstep.h"
 #include "androidqmltoolingsupport.h"
 #include "androidqtversion.h"
@@ -30,15 +29,9 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
 
 #include <qtsupport/qtversionmanager.h>
 
@@ -49,7 +42,6 @@
 #include <QTimer>
 
 using namespace ProjectExplorer;
-using namespace ProjectExplorer::Constants;
 
 const char kSetupAndroidSetting[] = "ConfigureAndroid";
 

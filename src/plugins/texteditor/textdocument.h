@@ -4,14 +4,12 @@
 #pragma once
 
 #include "texteditor_global.h"
-#include "blockrange.h"
 #include "formatter.h"
 #include "indenter.h"
 
 #include <coreplugin/textdocument.h>
 
 #include <utils/id.h>
-#include <utils/link.h>
 #include <utils/multitextcursor.h>
 
 #include <QList>

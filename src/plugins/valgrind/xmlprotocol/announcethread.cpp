@@ -7,8 +7,6 @@
 #include <QSharedData>
 #include <QList>
 
-#include <algorithm>
-
 namespace Valgrind::XmlProtocol {
 
 class AnnounceThread::Private : public QSharedData

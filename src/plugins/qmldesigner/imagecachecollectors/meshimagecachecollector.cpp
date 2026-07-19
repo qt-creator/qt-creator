@@ -7,6 +7,7 @@
 #include <utils/smallstring.h>
 #include <qtsupport/qtkitaspect.h>
 
+#include <QDir>
 #include <QTemporaryFile>
 
 namespace QmlDesigner {

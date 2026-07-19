@@ -4,8 +4,6 @@
 
 #include "androidsdkpackage.h"
 
-#include <utils/filepath.h>
-
 #include <QObject>
 
 #include <memory>

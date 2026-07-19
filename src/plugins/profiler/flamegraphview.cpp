@@ -3,7 +3,7 @@
 
 #include "flamegraphview.h"
 #include "profilertr.h"
-#include "qmlprofilerconstants.h"
+#include "qmlprofilermodelmanager.h"
 #include "qmlprofilertool.h"
 
 #include <tracing/flamegraphwidget.h>

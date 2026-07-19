@@ -11,7 +11,6 @@
 
 #include <utils/qtcassert.h>
 #include <utils/shutdownguard.h>
-#include <utils/utilsicons.h>
 
 #include <QFont>
 #include <QList>

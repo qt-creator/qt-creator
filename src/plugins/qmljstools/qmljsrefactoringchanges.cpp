@@ -3,15 +3,12 @@
 
 #include "qmljsrefactoringchanges.h"
 
-#include "qmljsqtstylecodeformatter.h"
-#include "qmljsmodelmanager.h"
-#include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/tabsettings.h>
 #include <projectexplorer/editorconfiguration.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 using namespace QmlJS;
 

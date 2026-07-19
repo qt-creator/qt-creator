@@ -19,7 +19,6 @@
 #include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/navigationtreeview.h>
-#include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/treemodel.h>

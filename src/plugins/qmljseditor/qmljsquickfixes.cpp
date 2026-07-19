@@ -7,8 +7,6 @@
 #include "qmljsquickfixassist.h"
 #include "qmljswrapinloader.h"
 
-#include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginmanager.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 #include <texteditor/codeassist/assistinterface.h>

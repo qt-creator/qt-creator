@@ -9,9 +9,9 @@
 #include "classviewutils.h"
 
 #include <coreplugin/find/itemviewfind.h>
-#include <cplusplus/Icons.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QDebug>
 #include <QElapsedTimer>

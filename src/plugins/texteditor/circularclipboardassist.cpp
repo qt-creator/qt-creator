@@ -10,7 +10,6 @@
 #include "texteditor.h"
 #include "circularclipboard.h"
 
-#include <coreplugin/coreconstants.h>
 
 #include <utils/icon.h>
 

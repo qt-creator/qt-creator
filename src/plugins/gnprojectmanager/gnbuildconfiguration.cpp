@@ -21,9 +21,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectconfiguration.h>
-#include <projectexplorer/projectexplorer.h>
 
-#include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>

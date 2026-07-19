@@ -6,9 +6,11 @@
 #include "../projectstorage/projectstoragefwd.h"
 #include "qmldesignercorelib_exports.h"
 
-#include <utils/smallstringview.h>
-#include <utils/span.h>
+#include <QByteArray>
+#include <QByteArrayView>
+#include <QList>
 
+#include <memory>
 #include <shared_mutex>
 
 namespace QmlDesigner {

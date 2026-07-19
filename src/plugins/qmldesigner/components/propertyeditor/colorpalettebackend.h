@@ -13,7 +13,6 @@
 #include <QPixmap>
 
 #include "designersettings.h"
-#include <qmldesignerplugin.h>
 #include <coreplugin/icore.h>
 
 namespace QmlDesigner {

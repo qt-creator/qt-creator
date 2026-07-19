@@ -9,7 +9,6 @@
 #include "mesonprojectnodes.h"
 #include "mesontools.h"
 
-#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/rawprojectpart.h>
 

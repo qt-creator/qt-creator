@@ -22,10 +22,8 @@
 
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
-#include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
-#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stringutils.h>

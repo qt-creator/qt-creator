@@ -24,7 +24,6 @@
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/stylehelper.h>
 
 #include <QLoggingCategory>
 

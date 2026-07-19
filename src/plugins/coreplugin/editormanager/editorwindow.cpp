@@ -11,7 +11,6 @@
 #include "../locator/locatormanager.h"
 #include "../minisplitter.h"
 
-#include <aggregation/aggregate.h>
 #include <utils/qtcassert.h>
 
 #include <QStatusBar>

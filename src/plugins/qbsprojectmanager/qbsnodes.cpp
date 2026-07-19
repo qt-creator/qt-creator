@@ -5,7 +5,6 @@
 
 #include "qbsnodetreebuilder.h"
 #include "qbsproject.h"
-#include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagerplugin.h"
 #include "qbssession.h"
 

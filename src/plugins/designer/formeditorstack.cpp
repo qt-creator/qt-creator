@@ -12,7 +12,6 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/imode.h>
 
 #include <utils/qtcassert.h>
 

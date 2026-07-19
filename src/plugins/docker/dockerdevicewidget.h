@@ -3,15 +3,10 @@
 
 #pragma once
 
-#include "dockerdevice.h"
-
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
-
-#include <utils/pathchooser.h>
-#include <utils/pathlisteditor.h>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

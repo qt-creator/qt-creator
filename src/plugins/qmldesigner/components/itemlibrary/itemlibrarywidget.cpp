@@ -3,27 +3,22 @@
 
 #include "itemlibrarywidget.h"
 
-#include "itemlibraryconstants.h"
 #include "itemlibraryiconimageprovider.h"
 #include "itemlibraryimport.h"
 #include "itemlibrarytracing.h"
 
 #include <theme.h>
 
-#include <designeractionmanager.h>
-#include <designermcumanager.h>
 #include <documentmanager.h>
 #include <itemlibraryaddimportmodel.h>
 #include <itemlibraryentry.h>
 #include <itemlibraryimageprovider.h>
-#include <modelnodeoperations.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <itemlibraryinfo.h>
 #endif
 #include <itemlibrarymodel.h>
 #include <model.h>
 #include <modelutils.h>
-#include <rewritingexception.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -32,16 +27,12 @@
 
 #include <qmldesigner/settings/designersettings.h>
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 
 #include <QApplication>

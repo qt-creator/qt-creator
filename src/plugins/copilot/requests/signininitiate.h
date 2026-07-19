@@ -9,7 +9,6 @@
 #pragma once
 
 #include <languageserverprotocol/jsonrpcmessages.h>
-#include <languageserverprotocol/lsptypes.h>
 
 namespace Copilot {
 

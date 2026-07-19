@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "core_global.h"
-
 #include <utils/aspects.h>
 
 namespace Core::Internal {

@@ -7,7 +7,6 @@
 #include "qmldesignertr.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
-#include <qmljstools/qmljstoolsconstants.h>
 
 namespace QmlDesigner::Internal {
 

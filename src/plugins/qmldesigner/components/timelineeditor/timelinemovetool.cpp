@@ -3,12 +3,11 @@
 
 #include "timelinemovetool.h"
 
+#include "abstractview.h"
 #include "timelinegraphicsscene.h"
 #include "timelinemovableabstractitem.h"
 #include "timelinepropertyitem.h"
-#include "timelineview.h"
 
-#include <exception.h>
 
 #include <QApplication>
 #include <QGraphicsScene>

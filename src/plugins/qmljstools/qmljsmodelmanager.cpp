@@ -27,16 +27,8 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <qmljs/qmljsbind.h>
-#include <qmljs/qmljsfindexportedcpptypes.h>
-#include <qmljs/qmljsplugindumper.h>
-
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
-
 #include <texteditor/textdocument.h>
 
-#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
@@ -46,8 +38,6 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QSet>
-
-#include <queue>
 
 using namespace Utils;
 using namespace Core;

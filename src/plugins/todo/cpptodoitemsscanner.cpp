@@ -4,13 +4,10 @@
 
 #include "cpptodoitemsscanner.h"
 
+#include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectinfo.h>
 
-#include <projectexplorer/project.h>
-
 #include <cplusplus/TranslationUnit.h>
-
-#include <utils/algorithm.h>
 
 #include <cctype>
 

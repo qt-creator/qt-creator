@@ -20,7 +20,6 @@
 #include <utils/fancylineedit.h>
 #include <utils/filepath.h>
 #include <utils/pathchooser.h>
-#include <utils/processinterface.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>

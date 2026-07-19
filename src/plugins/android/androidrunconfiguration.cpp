@@ -13,13 +13,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitaspect.h>
-
-#include <utils/detailswidget.h>
-#include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 

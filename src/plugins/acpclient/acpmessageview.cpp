@@ -16,7 +16,6 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/elidinglabel.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/markdownbrowser.h>

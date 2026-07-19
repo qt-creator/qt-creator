@@ -4,7 +4,6 @@
 #include "timelineactions.h"
 
 #include "timelineutils.h"
-#include "timelineview.h"
 
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>

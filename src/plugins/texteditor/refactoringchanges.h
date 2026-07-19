@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "indenter.h"
-
 #include <texteditor/texteditor_global.h>
 
 #include <utils/changeset.h>

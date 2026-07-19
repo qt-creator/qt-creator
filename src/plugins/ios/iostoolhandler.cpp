@@ -10,11 +10,10 @@
 
 #include <coreplugin/icore.h>
 
-#include <debugger/debuggerconstants.h>
-
 #include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <utils/async.h>
+#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>

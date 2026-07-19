@@ -8,7 +8,6 @@
 #include <designermcumanager.h>
 #include <utils/algorithm.h>
 
-#include <qmldesigner/qmldesignerplugin.h>
 
 #include <QDebug>
 #include <QVariant>

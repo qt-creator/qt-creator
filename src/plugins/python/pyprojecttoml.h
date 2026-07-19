@@ -4,7 +4,14 @@
 #pragma once
 
 #include <3rdparty/toml11/toml.hpp>
-#include <projectexplorer/buildsystem.h>
+
+#include <utils/expected.h>
+#include <utils/result.h>
+
+#include <QList>
+#include <QString>
+
+namespace Utils { class FilePath; }
 
 namespace Python::Internal {
 

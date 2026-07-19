@@ -3,7 +3,6 @@
 
 #include "javaparser.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 
 #include <QRegularExpression>

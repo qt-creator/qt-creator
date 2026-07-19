@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/minisplitter.h>
 
 #include <designdocument.h>
 #include <modelnode.h>

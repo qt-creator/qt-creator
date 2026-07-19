@@ -7,8 +7,6 @@
 #include <QFileInfo>
 #include <QDebug>
 
-#include <cmath>
-
 namespace QmlDesigner {
 
 // Ktx images currently support only image metadata

@@ -7,7 +7,6 @@
 #include "shaderfeatures.h"
 
 #include <utils/filepath.h>
-#include <utils/uniqueobjectptr.h>
 
 #include <QAbstractListModel>
 #include <QColor>

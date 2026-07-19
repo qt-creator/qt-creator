@@ -11,7 +11,6 @@
 #include "androidutils.h"
 
 #include <debugger/debuggerkitaspect.h>
-#include <debugger/debuggerrunconfigurationaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -26,7 +25,6 @@
 
 #include <QtTaskTree/QBarrier>
 
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 

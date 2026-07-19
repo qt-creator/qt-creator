@@ -9,7 +9,6 @@
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
-#include "qmlprojectwizardpage.h"
 #include "projectfilecontenttools.h"
 #include "qmlprojectexporter/cmakegenerator.h"
 #include "qmlprojectexporter/pythongenerator.h"
@@ -26,7 +25,6 @@
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>

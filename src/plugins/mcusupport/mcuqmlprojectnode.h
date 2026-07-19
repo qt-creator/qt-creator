@@ -4,12 +4,8 @@
 #pragma once
 
 #include "mcuqmlprojectnode.h"
-#include "mcusupport_global.h"
-#include "mcusupportplugin.h"
 
 #include <utils/filepath.h>
-#include <utils/osspecificaspects.h>
-#include <utils/qtcprocess.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -20,8 +16,6 @@
 #include <QObject>
 #include <QProcess>
 #include <QRegularExpression>
-
-#include <memory>
 
 namespace McuSupport::Internal {
 

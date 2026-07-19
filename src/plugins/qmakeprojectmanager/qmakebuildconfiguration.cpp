@@ -17,7 +17,6 @@
 #include <android/androidconstants.h>
 
 #include <coreplugin/documentmanager.h>
-#include <coreplugin/icore.h>
 
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
@@ -36,7 +35,6 @@
 
 #include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <utils/qtcprocess.h>
 #include <utils/mimeconstants.h>
@@ -45,8 +43,6 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QLoggingCategory>
-
-#include <limits>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;

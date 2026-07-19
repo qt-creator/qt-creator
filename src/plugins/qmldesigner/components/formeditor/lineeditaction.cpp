@@ -3,6 +3,7 @@
 
 #include "lineeditaction.h"
 #include "formeditortracing.h"
+#include "theme.h"
 
 #include <QLineEdit>
 #include <QIntValidator>

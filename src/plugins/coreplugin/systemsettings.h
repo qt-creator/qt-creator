@@ -10,7 +10,6 @@
 
 #include <utils/aspects.h>
 #include <utils/environmentchangesaspect.h>
-#include <utils/environment.h>
 #include <utils/terminalcommand.h>
 
 namespace Core::Internal {

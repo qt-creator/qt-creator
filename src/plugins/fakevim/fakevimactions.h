@@ -11,7 +11,7 @@ namespace Utils { class FilePath {}; }
 
 #else
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 #endif
 

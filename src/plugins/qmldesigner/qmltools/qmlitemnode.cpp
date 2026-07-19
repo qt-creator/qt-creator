@@ -6,19 +6,14 @@
 #include "nodehints.h"
 #include "nodeproperty.h"
 #include "variantproperty.h"
-#include "bindingproperty.h"
 #include "qmlanchors.h"
 
 #include <abstractview.h>
-#include <designeralgorithm.h>
 #include <generatedcomponentutils.h>
 #include <model.h>
 
-#include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/span.h>
 
 #include <QUrl>
 #include <QPlainTextEdit>

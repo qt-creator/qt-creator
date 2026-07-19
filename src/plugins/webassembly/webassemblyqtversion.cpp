@@ -6,20 +6,12 @@
 #include "webassemblyconstants.h"
 #include "webassemblytr.h"
 
-#include <coreplugin/featureprovider.h>
 #include <coreplugin/icore.h>
-
-#include <projectexplorer/abi.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <remote/remotelinux_constants.h>
-
 #include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QVersionNumber>

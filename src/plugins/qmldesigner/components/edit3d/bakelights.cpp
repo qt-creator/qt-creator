@@ -12,7 +12,6 @@
 #include <indentingtexteditormodifier.h>
 #include <modelnode.h>
 #include <modelutils.h>
-#include <nodeabstractproperty.h>
 #include <nodeinstanceview.h>
 #include <nodemetainfo.h>
 #include <rewriterview.h>
@@ -26,10 +25,8 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #endif
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
-#include <utils/qtcassert.h>
 
 #include <QEvent>
 #include <QQmlContext>

@@ -21,7 +21,6 @@
 #include <texteditor/fontsettings.h>
 #include <utils/async.h>
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QTextDocument>

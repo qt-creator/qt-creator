@@ -5,7 +5,6 @@
 
 #include "helptr.h"
 
-#include <coreplugin/coreconstants.h>
 #include <utils/stringutils.h>
 
 #include <QAbstractItemModel>

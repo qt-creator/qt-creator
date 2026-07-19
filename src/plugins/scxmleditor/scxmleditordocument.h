@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
 #include <texteditor/textdocument.h>
 
 #include <QPointer>

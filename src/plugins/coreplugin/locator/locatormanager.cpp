@@ -9,9 +9,7 @@
 #include "../icore.h"
 
 #include <aggregation/aggregate.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QApplication>
 

@@ -10,7 +10,6 @@
 #include <nodemetainfo.h>
 #include <qmldesignertr.h>
 #include <rewriterview.h>
-#include <rewritingexception.h>
 #include <type_traits>
 #include <variantproperty.h>
 

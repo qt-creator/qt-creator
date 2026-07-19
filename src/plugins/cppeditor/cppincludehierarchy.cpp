@@ -12,6 +12,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -21,7 +22,6 @@
 
 #include <utils/delegates.h>
 #include <utils/dropsupport.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>

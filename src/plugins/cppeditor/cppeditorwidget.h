@@ -5,7 +5,6 @@
 
 #include "cppeditor_global.h"
 
-#include <texteditor/blockrange.h>
 #include <texteditor/codeassist/assistenums.h>
 #include <texteditor/texteditor.h>
 

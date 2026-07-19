@@ -5,8 +5,6 @@
 
 #include "consoleedit.h"
 
-#include <coreplugin/coreconstants.h>
-
 #include <utils/utilsicons.h>
 #include <utils/theme/theme.h>
 

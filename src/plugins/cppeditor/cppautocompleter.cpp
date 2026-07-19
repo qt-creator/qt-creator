@@ -12,7 +12,6 @@
 
 #ifdef WITH_TESTS
 #include "cppeditorconstants.h"
-#include "cppeditorwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/icodestylepreferences.h>

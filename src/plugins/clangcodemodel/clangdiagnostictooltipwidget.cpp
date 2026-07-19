@@ -9,8 +9,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <cppeditor/cppeditorconstants.h>
-
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 

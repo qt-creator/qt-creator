@@ -5,7 +5,6 @@
 
 #include "../coreplugintr.h"
 
-#include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
 #include <QTreeView>

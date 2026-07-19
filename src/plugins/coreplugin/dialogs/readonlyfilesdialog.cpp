@@ -11,8 +11,6 @@
 #include "../messagemanager.h"
 #include "../vcsmanager.h"
 
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>

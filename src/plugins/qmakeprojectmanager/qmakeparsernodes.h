@@ -7,8 +7,6 @@
 #include "proparser/prowriter.h"
 #include "proparser/profileevaluator.h"
 
-#include <coreplugin/idocument.h>
-
 #include <cppeditor/generatedcodemodelsupport.h>
 
 #include <projectexplorer/projectnodes.h>

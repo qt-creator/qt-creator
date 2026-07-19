@@ -29,9 +29,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/LookupContext.h>

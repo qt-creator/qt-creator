@@ -10,7 +10,6 @@
 #include <utils/environment.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
-#include <utils/stringutils.h>
 #include <utils/treemodel.h>
 
 #include <QApplication>

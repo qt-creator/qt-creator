@@ -9,8 +9,6 @@
 #include "qmljsquickfix.h"
 #include "qmllsclientsettings.h"
 
-#include <coreplugin/icore.h>
-
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientquickfix.h>
@@ -24,9 +22,6 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <qmljs/qmljsicons.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
-
-#include <utils/mimeconstants.h>
 
 #include <QLoggingCategory>
 #include <QMetaEnum>

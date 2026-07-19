@@ -14,7 +14,6 @@
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>

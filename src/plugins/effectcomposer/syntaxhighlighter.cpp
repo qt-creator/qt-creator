@@ -5,10 +5,9 @@
 
 #include "syntaxhighlighterdata.h"
 
-#include <texteditor/fontsettings.h>
-
 #include <glsl/glslparser.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QTextCharFormat>
 

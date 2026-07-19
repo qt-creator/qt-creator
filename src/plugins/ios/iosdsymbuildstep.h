@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/buildstep.h>
 
 namespace Ios::Internal {
 

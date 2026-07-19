@@ -9,7 +9,6 @@
 #include <QPainter>
 
 #include <utils/stylehelper.h>
-#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QCursor>

@@ -6,7 +6,6 @@
 #include "projectexplorer_export.h"
 
 #include <utils/basetreeview.h>
-#include <utils/itemviews.h>
 
 namespace Utils { class Link; }
 

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <extensionsystem/iplugin.h>
-
 #include <QFile>
 #include <QPair>
 #include <QStringList>

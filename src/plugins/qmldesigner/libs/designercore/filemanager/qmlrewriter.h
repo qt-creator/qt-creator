@@ -6,7 +6,7 @@
 #include "textmodifier.h"
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmljsutils.h>
+#include <utils/span.h>
 
 #include <QStack>
 #include <QString>

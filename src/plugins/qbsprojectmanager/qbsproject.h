@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qbsprofilemanager.h"
-
 #include "qbsnodes.h"
 
 #include <projectexplorer/extracompiler.h>

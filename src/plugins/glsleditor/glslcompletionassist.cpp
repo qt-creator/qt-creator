@@ -8,21 +8,19 @@
 #include <glsl/glslparser.h>
 #include <glsl/glslsemantic.h>
 #include <glsl/glslsymbols.h>
-#include <glsl/glslastdump.h>
-
-#include <coreplugin/idocument.h>
 
 #include <texteditor/completionsettings.h>
 #include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/Icons.h>
 
 #include <utils/icon.h>
+#include <utils/utilsicons.h>
 
 #include <QIcon>
 

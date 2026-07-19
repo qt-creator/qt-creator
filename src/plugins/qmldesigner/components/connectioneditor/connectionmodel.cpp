@@ -4,15 +4,16 @@
 #include "connectionmodel.h"
 #include "connectioneditorlogging.h"
 #include "connectionview.h"
+#include "nodemetainfo.h"
 
 #include <modelutils.h>
 #include <nodelistproperty.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
+#include <qmlitemnode.h>
 #include <rewritertransaction.h>
 #include <rewriterview.h>
 #include <scripteditorevaluator.h>
 #include <scripteditorutils.h>
+#include <signalhandlerproperty.h>
 #include <variantproperty.h>
 
 #include <QMessageBox>

@@ -8,7 +8,6 @@
 #include "settings.h"
 
 #include <projectexplorer/project.h>
-#include <coreplugin/editormanager/ieditor.h>
 
 #include <QHash>
 #include <QList>

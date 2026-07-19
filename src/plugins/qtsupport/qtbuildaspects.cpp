@@ -9,7 +9,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildpropertiessettings.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitmanager.h>
 
 #include <utils/infolabel.h>

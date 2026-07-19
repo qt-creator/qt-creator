@@ -6,7 +6,6 @@
 #include "../clangformatbaseindenter.h"
 
 #include <texteditor/tabsettings.h>
-#include <utils/fileutils.h>
 
 #include <QTest>
 #include <QTextCursor>

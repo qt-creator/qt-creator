@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "subversioneditor.h"
-#include "subversionplugin.h"
 
 #include "annotationhighlighter.h"
-#include "subversionconstants.h"
 #include "subversiontr.h"
 
 #include <utils/qtcassert.h>

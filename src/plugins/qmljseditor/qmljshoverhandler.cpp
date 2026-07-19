@@ -9,12 +9,8 @@
 #include "qmllsclientsettings.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpitem.h>
 #include <coreplugin/helpmanager.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <languageclient/languageclientmanager.h>
 

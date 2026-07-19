@@ -7,8 +7,6 @@
 
 #include "client.h"
 
-#include <languageserverprotocol/lsptypes.h>
-#include <languageserverprotocol/lsputils.h>
 #include <languageserverprotocol/workspace.h>
 
 #include <QtTaskTree/QTaskTree>

@@ -8,9 +8,6 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <vcsbase/vcsbaseclientsettings.h>
-#include <vcsbase/vcsbaseconstants.h>
-
 using namespace Core;
 
 namespace Fossil::Internal {

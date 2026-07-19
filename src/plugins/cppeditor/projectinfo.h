@@ -10,7 +10,6 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/rawprojectpart.h>
-#include <projectexplorer/toolchain.h>
 
 #include <utils/filepath.h>
 

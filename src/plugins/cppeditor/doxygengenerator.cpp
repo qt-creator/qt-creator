@@ -7,7 +7,6 @@
 #include <cplusplus/SimpleLexer.h>
 
 #include <utils/textutils.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -15,8 +14,6 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
-
-#include <limits>
 
 using namespace CPlusPlus;
 

@@ -4,8 +4,6 @@
 
 #include "ninjaparser.h"
 
-#include <utils/fileutils.h>
-
 namespace GNProjectManager::Internal {
 
 std::optional<int> NinjaParser::extractProgress(const QString &line)

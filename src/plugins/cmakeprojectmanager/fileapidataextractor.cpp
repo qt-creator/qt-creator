@@ -9,8 +9,7 @@
 #include "fileapiparser.h"
 #include "projecttreehelper.h"
 
-#include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/projectinfo.h>
+#include <cppeditor/cppprojectfile.h>
 
 #include <projectexplorer/projecttree.h>
 

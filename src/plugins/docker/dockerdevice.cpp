@@ -72,7 +72,6 @@
 #include <optional>
 
 #ifdef Q_OS_UNIX
-#include <sys/types.h>
 #include <unistd.h>
 #endif
 

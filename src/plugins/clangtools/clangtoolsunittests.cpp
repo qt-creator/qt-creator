@@ -4,18 +4,14 @@
 #include "clangtoolsunittests.h"
 
 #include "clangtool.h"
-#include "clangtoolsdiagnostic.h"
 #include "clangtoolssettings.h"
 
 #include <coreplugin/icore.h>
 
 #include <cppeditor/clangdiagnosticconfig.h>
-#include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cpptoolstestcase.h>
 
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
@@ -23,7 +19,6 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 
 #include <QSignalSpy>
 #include <QTest>

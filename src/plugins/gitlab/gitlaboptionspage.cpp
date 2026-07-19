@@ -8,7 +8,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>

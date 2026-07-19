@@ -15,7 +15,6 @@
 #include "qmt/project/project.h"
 
 #include <utils/id.h>
-#include <utils/fileutils.h>
 
 using namespace Utils;
 

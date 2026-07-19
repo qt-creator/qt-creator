@@ -14,12 +14,14 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/dropsupport.h>
 #include <utils/icon.h>
+#include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>

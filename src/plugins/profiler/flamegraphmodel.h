@@ -4,9 +4,7 @@
 #pragma once
 
 #include <qmldebug/qmlevent.h>
-#include <qmldebug/qmleventlocation.h>
 #include <qmldebug/qmleventtype.h>
-#include <qmldebug/qmlprofilereventtypes.h>
 
 #include <QAbstractItemModel>
 #include <QSet>

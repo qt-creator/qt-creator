@@ -5,8 +5,6 @@
 
 #include "modificationfile.h"
 
-#include <utils/fileutils.h>
-
 #include <QString>
 #include <QStringList>
 

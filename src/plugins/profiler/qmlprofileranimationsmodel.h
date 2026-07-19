@@ -5,9 +5,6 @@
 
 #include "qmlprofilertimelinemodel.h"
 
-#include <qmldebug/qmleventlocation.h>
-#include <qmldebug/qmlprofilereventtypes.h>
-
 namespace Profiler::Internal {
 
 class QmlProfilerModelManager;

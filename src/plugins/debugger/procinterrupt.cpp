@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "procinterrupt.h"
-#include "debuggerconstants.h"
 
 #include <QDir>
 #include <QGuiApplication>
@@ -143,7 +142,6 @@ GDB 32bit | Api             | Api             | NA              | Win32         
 
 #else // Q_OS_WIN
 
-#include <sys/types.h>
 #include <signal.h>
 #include <errno.h>
 #include <string.h>

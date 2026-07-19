@@ -7,7 +7,6 @@
 #include "coreplugintr.h"
 
 #include <utils/macroexpander.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QJSEngine>

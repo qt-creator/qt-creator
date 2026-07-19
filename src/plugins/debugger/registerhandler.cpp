@@ -6,7 +6,6 @@
 #include "debuggerengine.h"
 
 #include "memoryagent.h"
-#include "debuggeractions.h"
 #include "debuggerdialogs.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
@@ -17,6 +16,7 @@
 
 #include <QDebug>
 #include <QItemDelegate>
+#include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
 

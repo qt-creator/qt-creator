@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <vcsbase/wizard/vcsjsextension.h>
-
 #include <QStringList>
 #include <QMap>
 #include <QObject>

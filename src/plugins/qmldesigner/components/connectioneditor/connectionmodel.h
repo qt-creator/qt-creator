@@ -4,7 +4,6 @@
 #pragma once
 
 #include <scripteditorbackend.h>
-#include <studioquickwidget.h>
 
 #include <QStandardItemModel>
 

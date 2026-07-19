@@ -10,17 +10,13 @@
 #include "gnprojectmanagertr.h"
 #include "gntools.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/toolchain.h>
 
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitaspect.h>
 
 #include <utils/qtcassert.h>
 

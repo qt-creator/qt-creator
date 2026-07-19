@@ -28,7 +28,6 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/qtcassert.h>
 #include <utils/settingsdatabase.h>
 #include <utils/utilsicons.h>

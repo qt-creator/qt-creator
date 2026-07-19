@@ -5,8 +5,6 @@
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
 
-#include <utils/qtcassert.h>
-
 namespace Profiler::Internal {
 
 PerfTimelineModelManager::PerfTimelineModelManager()

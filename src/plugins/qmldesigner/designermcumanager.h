@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/icore.h>
 
 #include "qmldesignercomponents_global.h"
 

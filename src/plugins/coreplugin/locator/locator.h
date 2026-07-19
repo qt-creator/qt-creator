@@ -6,7 +6,6 @@
 #include "ilocatorfilter.h"
 #include "../actionmanager/command.h"
 
-#include <extensionsystem/iplugin.h>
 #include <utils/aspects.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>

@@ -21,6 +21,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreicons.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>

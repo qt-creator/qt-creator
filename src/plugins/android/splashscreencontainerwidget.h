@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
-
 #include <QList>
 #include <QStackedWidget>
+
+#include <utils/filepath.h>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;

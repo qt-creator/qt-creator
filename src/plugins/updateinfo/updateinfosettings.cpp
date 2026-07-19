@@ -11,6 +11,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/guiutils.h>
+#include <utils/progressindicator.h>
 #include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>

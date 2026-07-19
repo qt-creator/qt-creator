@@ -8,10 +8,8 @@
 
 #include <projectexplorer/baseprojectwizarddialog.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runconfiguration.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>

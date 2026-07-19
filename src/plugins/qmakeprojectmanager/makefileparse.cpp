@@ -3,8 +3,6 @@
 
 #include "makefileparse.h"
 
-#include <qtsupport/qtversionmanager.h>
-
 #include <utils/qtcprocess.h>
 
 #include <QDebug>
@@ -376,7 +374,6 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
 
 #ifdef WITH_TESTS
 
-#include <projectexplorer/outputparser_test.h>
 
 #include <QTest>
 

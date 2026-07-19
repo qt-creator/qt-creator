@@ -5,7 +5,6 @@
 
 #include <abstractproperty.h>
 #include <bindingproperty.h>
-#include <designmodewidget.h>
 #include <imageutils.h>
 #include <materialbrowserview.h>
 #include <qmldesignerplugin.h>
@@ -15,6 +14,8 @@
 #include <utils3d.h>
 
 #include <utils/qtcassert.h>
+
+#include <QStack>
 
 namespace QmlDesigner {
 

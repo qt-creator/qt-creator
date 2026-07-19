@@ -8,7 +8,6 @@
 #include "navigatorview.h"
 #include "previewtooltip.h"
 
-#include <qmath.h>
 
 #include <modelnode.h>
 
@@ -16,7 +15,6 @@
 #include <theme.h>
 
 #include <utils/icon.h>
-#include <utils/utilsicons.h>
 
 #include <qproxystyle.h>
 #include <QEvent>

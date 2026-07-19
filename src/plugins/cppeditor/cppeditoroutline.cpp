@@ -7,11 +7,8 @@
 #include "cppeditordocument.h"
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
-#include "cppmodelmanager.h"
 #include "cppoutlinemodel.h"
-#include "cpptoolssettings.h"
 
-#include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
 #include <coreplugin/editormanager/editormanager.h>

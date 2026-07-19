@@ -3,19 +3,15 @@
 
 #include "qmlmainfileaspect.h"
 
-#include "qmlproject.h"
+#include "buildsystem/qmlbuildsystem.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
-
-#include <qmljstools/qmljstoolsconstants.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>

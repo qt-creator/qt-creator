@@ -14,7 +14,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/aspects.h>
-#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

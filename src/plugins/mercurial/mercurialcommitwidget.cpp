@@ -9,7 +9,6 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <utils/completingtextedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 

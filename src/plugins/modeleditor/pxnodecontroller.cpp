@@ -24,7 +24,6 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QMenu>

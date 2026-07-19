@@ -7,8 +7,6 @@
 #include "cpplocatordata.h"
 #include "cppworkingcopy.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>

@@ -3,13 +3,10 @@
 
 #pragma once
 
-#include "annotation.h"
 #include "editorproxy.h"
-#include "modelnode.h"
 
 #include <QObject>
 #include <QPointer>
-#include <QtQml>
 
 
 namespace QmlDesigner {

@@ -7,8 +7,6 @@
 
 #include <auxiliarydataproperties.h>
 #include <designmodewidget.h>
-#include <nodeinstanceview.h>
-#include <nodelistproperty.h>
 #include <qmldesignerplugin.h>
 #include <utils3d.h>
 

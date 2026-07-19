@@ -4,7 +4,6 @@
 #pragma once
 
 #include <QtWidgets/qwidget.h>
-#include <QtGui/qpixmap.h>
 
 #include <memory>
 

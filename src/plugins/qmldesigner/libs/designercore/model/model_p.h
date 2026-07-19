@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
-
 #include <tracing/qmldesignertracing.h>
 
 #include "abstractview.h"
@@ -14,6 +12,7 @@
 #include "modelnode.h"
 
 #include <nodemetainfo.h>
+#include <projectstorageobserver.h>
 
 #include <utils/uniqueobjectptr.h>
 
@@ -23,9 +22,6 @@
 #include <QSet>
 #include <QUrl>
 #include <QVector3D>
-
-#include <algorithm>
-#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;

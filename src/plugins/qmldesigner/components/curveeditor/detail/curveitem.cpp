@@ -11,7 +11,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <sstream>
 
 namespace QmlDesigner {
 

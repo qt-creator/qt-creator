@@ -13,18 +13,14 @@
 #include "iostr.h"
 
 #include <debugger/debuggerconstants.h>
-#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/toolchain.h>
 
-#include <utils/fileutils.h>
+#include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
@@ -46,9 +42,7 @@
 
 #include <memory>
 
-#include <fcntl.h>
 #ifdef Q_OS_UNIX
-#include <unistd.h>
 #else
 #include <io.h>
 #endif

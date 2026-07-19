@@ -45,6 +45,7 @@
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
 
+#include <QDir>
 #include <QHash>
 #include <QLibraryInfo>
 #include <QRegularExpression>

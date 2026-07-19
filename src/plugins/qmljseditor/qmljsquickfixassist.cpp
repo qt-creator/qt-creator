@@ -3,7 +3,6 @@
 
 #include "qmljsquickfixassist.h"
 #include "qmljseditor.h"
-#include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
 
 //temp
@@ -11,8 +10,6 @@
 
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>
-
-#include <utils/algorithm.h>
 
 using namespace QmlJSTools;
 using namespace TextEditor;

@@ -23,7 +23,6 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/patternvalidator.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QFutureWatcher>

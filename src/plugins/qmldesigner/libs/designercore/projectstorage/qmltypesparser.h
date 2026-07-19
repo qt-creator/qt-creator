@@ -5,7 +5,6 @@
 
 #include "projectstoragefwd.h"
 #include "qmltypesparserinterface.h"
-#include "sourcepathstorage/nonlockingmutex.h"
 
 #include <qmldesignercorelib_exports.h>
 

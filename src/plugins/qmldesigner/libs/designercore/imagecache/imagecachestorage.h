@@ -3,13 +3,10 @@
 
 #include "imagecachestorageinterface.h"
 
-#include <createtablesqlstatementbuilder.h>
 
 #include <sqliteblob.h>
-#include <sqlitereadstatement.h>
 #include <sqlitetable.h>
 #include <sqlitetransaction.h>
-#include <sqlitewritestatement.h>
 
 #include <QBuffer>
 #include <QIcon>

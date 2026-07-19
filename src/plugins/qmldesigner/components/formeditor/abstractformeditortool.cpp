@@ -6,6 +6,7 @@
 #include "formeditorscene.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
+#include "layeritem.h"
 #include "modelnodecontextmenu.h"
 #include "qmldesignerconstants.h"
 

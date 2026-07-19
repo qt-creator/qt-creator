@@ -31,7 +31,6 @@
 #include <utils/id.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
-#include <utils/savefile.h>
 #include <utils/shutdownguard.h>
 #include <utils/storekey.h>
 

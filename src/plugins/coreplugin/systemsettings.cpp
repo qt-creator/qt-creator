@@ -11,7 +11,6 @@
 #include "icore.h"
 #include "vcsmanager.h"
 
-#include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/crashreporting.h>
@@ -21,12 +20,10 @@
 #include <utils/globalfilechangeblocker.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/terminalcommand.h>
-#include <utils/treemodel.h>
 
 #include <QApplication>
 #include <QComboBox>

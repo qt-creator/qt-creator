@@ -11,7 +11,6 @@
 #include <projectexplorer/treescanner.h>
 
 #include <utils/async.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/mimeutils.h>
 
 #include <QCryptographicHash>

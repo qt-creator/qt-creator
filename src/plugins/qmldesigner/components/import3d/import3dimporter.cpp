@@ -12,10 +12,8 @@
 #include "puppetstarter.h"
 #include "rewritertransaction.h"
 #include "rewriterview.h"
-#include "rewritingexception.h"
 #include "viewmanager.h"
 
-#include <modelutils.h>
 #include <utils3d.h>
 
 #ifndef QDS_USE_PROJECTSTORAGE

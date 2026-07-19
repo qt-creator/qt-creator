@@ -14,15 +14,12 @@
 #include "mergetool.h"
 #include "temporarypatchfile.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/generatedfile.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-
-#include <diffeditor/diffeditorconstants.h>
 
 #include <QtTaskTree/QConditional>
 
@@ -31,7 +28,6 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/ansiescapecodehandler.h>
-#include <utils/async.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>

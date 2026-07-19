@@ -3,7 +3,6 @@
 
 #include "peripheralregisterhandler.h"
 
-#include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggertr.h"
 #include "registerhandler.h"

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace Ios::Internal {
 
 void setupIosFactories();

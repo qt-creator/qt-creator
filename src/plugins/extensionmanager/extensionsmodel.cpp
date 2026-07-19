@@ -9,10 +9,6 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-
-#include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginview.h>
 #include <extensionsystem/pluginmanager.h>
@@ -24,7 +20,6 @@
 #include <QVersionNumber>
 
 using namespace ExtensionSystem;
-using namespace Core;
 using namespace Utils;
 
 namespace ExtensionManager::Internal {

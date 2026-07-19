@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "codeassistant.h"
+
+#include "assistinterface.h"
+#include "assistproposaliteminterface.h"
 #include "completionassistprovider.h"
 #include "iassistprocessor.h"
 #include "iassistproposal.h"
 #include "iassistproposalmodel.h"
 #include "iassistproposalwidget.h"
-#include "assistinterface.h"
-#include "assistproposalitem.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/completionsettings.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

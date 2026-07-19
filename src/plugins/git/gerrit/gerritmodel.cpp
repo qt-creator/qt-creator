@@ -12,10 +12,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/dialogtask.h>
-#include <utils/environment.h>
-#include <utils/globaltasktree.h>
 #include <utils/qtcprocess.h>
-#include <utils/processinterface.h>
 
 #include <QApplication>
 #include <QDebug>

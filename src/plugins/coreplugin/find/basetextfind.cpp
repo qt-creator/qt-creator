@@ -6,7 +6,6 @@
 #include "searchresulthighlighter.h"
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 #include <utils/filesearch.h>
 
 #include <QPointer>

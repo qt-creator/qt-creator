@@ -8,6 +8,7 @@
 #include "nimproject.h"
 #include "nimtr.h"
 
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>

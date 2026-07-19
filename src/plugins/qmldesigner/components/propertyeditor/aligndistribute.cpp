@@ -3,21 +3,22 @@
 
 #include "aligndistribute.h"
 
+#include "abstractview.h"
 #include "propertyeditortracing.h"
+#include "qmlitemnode.h"
+#include "selectioncontext.h"
 
 #include <nodeabstractproperty.h>
-#include <qmldesignerplugin.h>
 #include <qmlmodelnodeproxy.h>
 
 #include <auxiliarydataproperties.h>
 #include <modelnode.h>
 #include <variantproperty.h>
 
-#include <coreplugin/icore.h>
-
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/qtcassert.h>
+#include <utils/storekey.h>
 
 #include <cmath>
 

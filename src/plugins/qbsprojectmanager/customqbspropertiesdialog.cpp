@@ -6,7 +6,6 @@
 #include "qbsprofilemanager.h"
 #include "qbsprojectmanagertr.h"
 
-#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 

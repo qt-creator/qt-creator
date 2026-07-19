@@ -6,7 +6,6 @@
 #include "idevicefactory.h"
 #include "../projectexplorertr.h"
 
-#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>

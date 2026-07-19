@@ -3,6 +3,7 @@
 
 #include "testeditormark.h"
 
+#include "autotestconstants.h"
 #include "autotesttr.h"
 #include "testresultspane.h"
 

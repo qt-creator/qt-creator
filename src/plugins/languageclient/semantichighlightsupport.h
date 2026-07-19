@@ -5,10 +5,9 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/servercapabilities.h>
-#include <texteditor/semantichighlighter.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <QSet>
 #include <QTextCharFormat>

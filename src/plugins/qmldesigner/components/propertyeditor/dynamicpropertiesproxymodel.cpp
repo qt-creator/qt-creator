@@ -28,13 +28,13 @@
 #include "bindingproperty.h"
 #include "propertyeditortracing.h"
 #include "propertyeditorvalue.h"
+#include "qmlobjectnode.h"
+#include "signalhandlerproperty.h"
 
 #include <scripteditorutils.h>
 #include <dynamicpropertiesmodel.h>
 
 #include <abstractproperty.h>
-#include <bindingeditor.h>
-#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlstate.h>
 #include <variantproperty.h>
@@ -42,6 +42,7 @@
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>
 
+#include <QQmlEngine>
 #include <QScopeGuard>
 
 namespace QmlDesigner {

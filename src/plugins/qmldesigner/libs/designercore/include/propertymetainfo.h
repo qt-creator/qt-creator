@@ -3,18 +3,15 @@
 
 #pragma once
 
+#include "projectstorageinfotypes.h"
 #include <qmldesignercorelib_global.h>
 
 #include <projectstorage/projectstoragefwd.h>
-#include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
-
-#include <utils/smallstring.h>
 
 #include <QString>
 
 #include <memory>
-#include <optional>
 #include <vector>
 
 namespace QmlDesigner {

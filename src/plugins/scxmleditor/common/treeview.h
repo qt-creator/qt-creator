@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "scxmltypes.h"
-
 #include <QTreeView>
 
 QT_FORWARD_DECLARE_CLASS(QEvent)

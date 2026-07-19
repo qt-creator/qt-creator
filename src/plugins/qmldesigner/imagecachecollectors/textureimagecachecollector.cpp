@@ -5,7 +5,6 @@
 
 #include <qmldesignerutils/asset.h>
 #include <qmldesignerutils/hdrimage.h>
-#include <utils/smallstring.h>
 #include <utils/stylehelper.h>
 
 namespace QmlDesigner {

@@ -23,7 +23,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QDebug>

@@ -4,7 +4,6 @@
 #include "qnxanalyzesupport.h"
 
 #include "qnxconstants.h"
-#include "qnxtr.h"
 #include "slog2inforunner.h"
 
 #include <projectexplorer/projectexplorerconstants.h>

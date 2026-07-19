@@ -3,16 +3,17 @@
 
 #include "materialbrowsermodel.h"
 
-#include "designmodewidget.h"
 #include "materialbrowserview.h"
-#include "qmldesignerplugin.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 #include "qmltimelinekeyframegroup.h"
 
-#include <utils3d.h>
-
 #include <utils/qtcassert.h>
+
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QStack>
 
 namespace QmlDesigner {
 

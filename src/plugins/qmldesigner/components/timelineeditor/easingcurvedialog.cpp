@@ -22,7 +22,6 @@
 
 #include <abstractview.h>
 #include <bindingproperty.h>
-#include <rewritingexception.h>
 #include <theme.h>
 #include <utils/qtcassert.h>
 

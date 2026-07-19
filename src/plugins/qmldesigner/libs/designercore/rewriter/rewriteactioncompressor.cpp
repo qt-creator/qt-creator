@@ -6,7 +6,7 @@
 #include <QSet>
 
 #include "modelnode.h"
-#include "nodelistproperty.h"
+#include "nodeabstractproperty.h"
 #include "qmltextgenerator.h"
 
 using namespace QmlDesigner;

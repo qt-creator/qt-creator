@@ -6,7 +6,6 @@
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
-#include <languageclient/languageclienttr.h>
 
 #include <lua/bindings/inheritance.h>
 #include <lua/luaengine.h>

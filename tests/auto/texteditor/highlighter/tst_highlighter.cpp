@@ -5,6 +5,7 @@
 #define WITH_TESTS
 #endif
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/syntaxhighlighter.h>
 

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
-
 #include <QWidget>
 #include <QStringList>
 #include <QTreeView>

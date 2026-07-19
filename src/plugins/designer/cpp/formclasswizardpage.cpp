@@ -7,8 +7,6 @@
 #include "newclasswidget.h"
 #include "../designertr.h"
 
-#include <coreplugin/icore.h>
-#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <projectexplorer/projecttree.h>
 #include <utils/mimeutils.h>

@@ -6,7 +6,7 @@
 
 #include "todoitemsscanner.h"
 
-#include <cppeditor/cppmodelmanager.h>
+#include <cplusplus/CppDocument.h>
 
 namespace Todo {
 namespace Internal {

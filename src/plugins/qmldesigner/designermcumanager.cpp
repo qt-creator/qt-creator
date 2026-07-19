@@ -2,15 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "designermcumanager.h"
-#include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
-#include "designersettings.h"
 #include "designdocument.h"
 
+#include <coreplugin/icore.h>
 #include <qmljs/qmljssimplereader.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
-
-#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 

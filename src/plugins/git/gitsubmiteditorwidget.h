@@ -6,7 +6,6 @@
 #include "commitdata.h"
 
 #include <coreplugin/iversioncontrol.h>
-#include <texteditor/syntaxhighlighter.h>
 #include <vcsbase/submiteditorwidget.h>
 #include <utils/filepath.h>
 

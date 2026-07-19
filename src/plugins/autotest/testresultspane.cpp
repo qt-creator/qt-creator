@@ -13,10 +13,9 @@
 #include "testresultmodel.h"
 #include "testrunner.h"
 #include "testsettings.h"
-#include "testtreemodel.h"
+#include "testtreeitem.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
@@ -24,13 +23,11 @@
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/session.h>
 
-#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/proxyaction.h>

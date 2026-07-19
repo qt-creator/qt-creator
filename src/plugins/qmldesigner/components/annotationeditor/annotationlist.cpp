@@ -6,7 +6,6 @@
 #include <QPainter>
 #include <QItemSelectionModel>
 
-#include <variant>
 
 namespace QmlDesigner {
 

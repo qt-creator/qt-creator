@@ -4,8 +4,6 @@
 #include "symbolnameitemdelegate.h"
 #include "objectsmaptreeitem.h"
 
-#include <utils/treemodel.h>
-
 using namespace Utils;
 
 namespace Squish::Internal {

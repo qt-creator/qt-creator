@@ -6,7 +6,6 @@
 #include <languageserverprotocol/servercapabilities.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljstools/qmljssemanticinfo.h>
-#include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 
 #include <QObject>

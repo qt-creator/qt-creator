@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
 #include "abstractview.h"
 #include "documentmessage.h"
 #include "rewritertransaction.h"

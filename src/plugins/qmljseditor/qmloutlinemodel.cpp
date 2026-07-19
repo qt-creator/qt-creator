@@ -14,9 +14,7 @@
 #include <qmljstools/qmljsrefactoringchanges.h>
 
 #include <utils/qtcassert.h>
-#include <utils/dropsupport.h>
 
-#include <coreplugin/icore.h>
 #include <QDebug>
 #include <QTime>
 #include <QMimeData>

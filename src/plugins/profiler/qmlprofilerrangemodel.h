@@ -6,7 +6,6 @@
 #include "qmlprofilertimelinemodel.h"
 #include "qmlprofilerconstants.h"
 
-#include <qmldebug/qmleventlocation.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
 #include <QColor>

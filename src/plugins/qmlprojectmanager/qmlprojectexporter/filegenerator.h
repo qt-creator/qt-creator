@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <projectexplorer/taskhub.h>
+#include <projectexplorer/task.h>
+
 #include <utils/id.h>
+
+#include <QAction>
 
 namespace QmlProjectManager {
 

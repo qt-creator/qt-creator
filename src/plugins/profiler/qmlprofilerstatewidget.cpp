@@ -5,7 +5,6 @@
 #include "qmlprofilerstatewidget.h"
 
 #include <utils/qtcassert.h>
-#include <utils/theme/theme.h>
 
 #include <QPainter>
 #include <QVBoxLayout>

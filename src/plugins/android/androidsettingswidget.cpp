@@ -17,6 +17,8 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <qtsupport/qtversionmanager.h>
+
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
@@ -27,7 +29,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stylehelper.h>
 #include <utils/summarywidget.h>

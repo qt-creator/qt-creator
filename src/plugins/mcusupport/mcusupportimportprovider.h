@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "mcusupport_global.h"
-#include "mcusupportplugin.h"
 
 #include <utils/filepath.h>
 #include <utils/synchronizedvalue.h>

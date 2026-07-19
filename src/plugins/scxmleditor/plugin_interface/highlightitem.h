@@ -4,6 +4,7 @@
 #pragma once
 
 #include "baseitem.h"
+#include "mytypes.h"
 
 #include <QBrush>
 #include <QGraphicsObject>

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <utils/smallstringfwd.h>
-
 namespace QmlDesigner {
 
 class NonLockingMutex;

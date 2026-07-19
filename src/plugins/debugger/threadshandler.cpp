@@ -3,7 +3,6 @@
 
 #include "threadshandler.h"
 
-#include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggericons.h"
@@ -11,7 +10,6 @@
 #include "debuggertr.h"
 #include "watchutils.h"
 
-#include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
 

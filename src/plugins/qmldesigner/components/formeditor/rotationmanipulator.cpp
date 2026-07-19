@@ -6,6 +6,7 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 #include "formeditortracing.h"
+#include "layeritem.h"
 
 #include <enumeration.h>
 #include <mathutils.h>

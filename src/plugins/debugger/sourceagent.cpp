@@ -18,7 +18,6 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

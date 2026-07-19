@@ -8,11 +8,9 @@
 #include "gnprojectnodes.h"
 #include "gntarget.h"
 
-#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/rawprojectpart.h>
-
-#include <utils/processinterface.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 

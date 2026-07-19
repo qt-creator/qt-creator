@@ -9,18 +9,14 @@
 #include "gittr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/fileutils.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <utils/async.h>
-#include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <vcsbase/submitfilemodel.h>
-#include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QApplication>

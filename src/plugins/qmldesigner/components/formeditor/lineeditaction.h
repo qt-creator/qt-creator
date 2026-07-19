@@ -4,7 +4,6 @@
 
 #include <QWidgetAction>
 
-#include <theme.h>
 
 namespace QmlDesigner {
 

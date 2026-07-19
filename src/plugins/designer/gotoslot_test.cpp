@@ -6,7 +6,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/systemsettings.h>
 
-#include <cppeditor/builtineditordocumentprocessor.h>
+#include <cppeditor/builtineditordocumentparser.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/editordocumenthandle.h>
@@ -14,7 +14,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
-#include <utils/fileutils.h>
+#include <texteditor/texteditor.h>
 
 #include <QDesignerFormEditorInterface>
 #include <QDesignerIntegrationInterface>

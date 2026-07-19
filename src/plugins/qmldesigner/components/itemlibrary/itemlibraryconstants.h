@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QStringView>
+
 namespace QmlDesigner {
 
 inline constexpr QStringView priorityImports[] = {u"QtQuick.Controls",

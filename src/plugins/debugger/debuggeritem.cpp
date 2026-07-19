@@ -6,8 +6,6 @@
 #include "debuggerprotocol.h"
 #include "debuggertr.h"
 
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/abi.h>
 #include <projectexplorer/kitaspect.h>
 

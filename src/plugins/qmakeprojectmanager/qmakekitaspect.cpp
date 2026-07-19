@@ -7,14 +7,11 @@
 #include "qmakeprojectmanagertr.h"
 
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
-#include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/algorithm.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>

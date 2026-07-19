@@ -7,7 +7,6 @@
 #include "bazaartr.h"
 #include "constants.h"
 
-#include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <utils/elfreader.h>
-#include <utils/treemodel.h>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;

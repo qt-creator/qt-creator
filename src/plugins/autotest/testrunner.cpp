@@ -6,6 +6,7 @@
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "autotesttr.h"
+#include "testconfiguration.h"
 #include "testoutputreader.h"
 #include "testprojectsettings.h"
 #include "testresultspane.h"
@@ -17,7 +18,6 @@
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <debugger/debuggerkitaspect.h>
-#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
@@ -26,6 +26,7 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projectmanager.h>

@@ -9,11 +9,8 @@
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/templateengine.h>
 

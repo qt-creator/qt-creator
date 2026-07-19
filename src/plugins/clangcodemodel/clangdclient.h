@@ -7,6 +7,7 @@
 #include <cppeditor/clangdsettings.h>
 #include <cppeditor/cursorineditor.h>
 #include <languageclient/client.h>
+#include <texteditor/semantichighlighter.h>
 #include <utils/link.h>
 #include <utils/searchresultitem.h>
 

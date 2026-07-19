@@ -10,7 +10,6 @@
 #include <QObject>
 #include <QtTaskTree/QTaskTree>
 
-#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 

@@ -7,7 +7,6 @@
 #include <componenttextmodifier.h>
 #include <coreplugin/icontext.h>
 #include <model.h>
-#include <projectstorage/projectstoragefwd.h>
 #include <rewriterview.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <subcomponentmanager.h>

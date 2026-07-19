@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <qglobal.h>
+#include <QtTypes>
 
 #ifdef __cplusplus
 extern "C" {

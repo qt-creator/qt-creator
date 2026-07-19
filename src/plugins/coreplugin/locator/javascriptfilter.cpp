@@ -5,10 +5,7 @@
 
 #include "../coreplugintr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
-#include <utils/async.h>
 
 #include <QClipboard>
 #include <QGuiApplication>

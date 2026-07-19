@@ -8,7 +8,6 @@
 #include "projectstorageinfotypes.h"
 
 #include <nanotrace/nanotracehr.h>
-#include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
 #include <utils/utility.h>
 

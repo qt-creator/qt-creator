@@ -10,9 +10,7 @@
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
-#include <utils/overlaywidget.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>

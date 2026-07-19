@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <cppeditor/clangdiagnosticconfig.h>
 #include <cppeditor/clangdiagnosticconfigidaspect.h>
 
 #include <projectexplorer/project.h>

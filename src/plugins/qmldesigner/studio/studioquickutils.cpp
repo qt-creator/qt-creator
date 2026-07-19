@@ -3,8 +3,8 @@
 
 #include "studioquickutils.h"
 
-#include <coreplugin/icore.h>
 #include <QScreen>
+#include <qqml.h>
 
 namespace QmlDesigner {
 

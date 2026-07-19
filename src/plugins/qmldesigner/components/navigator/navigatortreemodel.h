@@ -6,8 +6,6 @@
 #include "navigatormodelinterface.h"
 
 #include <modelnode.h>
-#include <nodemetainfo.h>
-#include <utils/uniqueobjectptr.h>
 
 #include <QAbstractItemModel>
 #include <QPointer>

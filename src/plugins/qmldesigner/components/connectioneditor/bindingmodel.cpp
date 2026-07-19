@@ -10,7 +10,6 @@
 #include <scripteditorutils.h>
 #include <bindingproperty.h>
 #include <nodemetainfo.h>
-#include <nodeproperty.h>
 #include <rewritertransaction.h>
 #include <rewritingexception.h>
 #include <variantproperty.h>

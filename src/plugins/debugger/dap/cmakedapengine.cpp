@@ -6,7 +6,6 @@
 #include "dapclient.h"
 
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/perspective.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>

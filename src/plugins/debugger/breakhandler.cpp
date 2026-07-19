@@ -13,10 +13,8 @@
 #include "enginemanager.h"
 #include "simplifytype.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/session.h>
 
 #include <projectexplorer/project.h>

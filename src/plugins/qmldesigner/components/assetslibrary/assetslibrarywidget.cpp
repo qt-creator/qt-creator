@@ -11,10 +11,7 @@
 #include <asynchronousimagecache.h>
 #include <createtexture.h>
 #include <designeractionmanager.h>
-#include <designermcumanager.h>
-#include <designerpaths.h>
 #include <designmodewidget.h>
-#include <hdrimage.h>
 #include <import.h>
 #include <modelnodeoperations.h>
 #include <nodemetainfo.h>

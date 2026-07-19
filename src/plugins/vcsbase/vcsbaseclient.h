@@ -10,7 +10,6 @@
 #include <QtTaskTree/QSequentialTaskTreeRunner>
 
 #include <utils/id.h>
-#include <utils/processenums.h>
 #include <utils/textcodec.h>
 
 #include <QStringList>

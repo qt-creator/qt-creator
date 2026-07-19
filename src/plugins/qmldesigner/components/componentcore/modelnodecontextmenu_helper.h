@@ -9,7 +9,6 @@
 
 #include <bindingproperty.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/icore.h>
 #include <modelutils.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>

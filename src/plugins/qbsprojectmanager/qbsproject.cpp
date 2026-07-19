@@ -9,6 +9,7 @@
 #include "qbsnodes.h"
 #include "qbsnodetreebuilder.h"
 #include "qbspmlogging.h"
+#include "qbsprofilemanager.h"
 #include "qbsproject.h"
 #include "qbsprojectimporter.h"
 #include "qbsprojectmanagerconstants.h"

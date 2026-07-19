@@ -3,7 +3,6 @@
 
 #include "executableinfo.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <utils/datafromprocess.h>

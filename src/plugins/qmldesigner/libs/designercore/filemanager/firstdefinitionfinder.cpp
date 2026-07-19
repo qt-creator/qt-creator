@@ -4,7 +4,6 @@
 #include "firstdefinitionfinder.h"
 
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/parser/qmljsengine_p.h>
 
 #include <QDebug>
 

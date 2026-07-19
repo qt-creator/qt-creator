@@ -5,7 +5,6 @@
 #include "eventlistdelegate.h"
 #include "eventlistview.h"
 #include "filterlinewidget.h"
-#include "nodelistview.h"
 #include "eventlistutils.h"
 
 #include <QHeaderView>

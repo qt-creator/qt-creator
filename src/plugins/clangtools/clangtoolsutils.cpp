@@ -11,8 +11,6 @@
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cpptoolsreuse.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>

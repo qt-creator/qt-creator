@@ -9,14 +9,12 @@
 #include "project/nimproject.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/ioutputparser.h>
-#include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
-#include <utils/qtcprocess.h>
+#include <utils/commandline.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>

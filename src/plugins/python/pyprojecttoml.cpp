@@ -6,6 +6,8 @@
 
 #include <3rdparty/toml11/toml.hpp>
 
+#include <utils/filepath.h>
+
 #include <QString>
 #include <QStringList>
 

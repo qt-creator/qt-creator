@@ -10,7 +10,6 @@
 #include "../coreplugintr.h"
 #include "../icontext.h"
 
-#include <utils/hostosinfo.h>
 #include <utils/stringutils.h>
 
 #include <QAction>

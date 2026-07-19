@@ -3,7 +3,7 @@
 
 #include "typehierarchybuilder.h"
 
-#include <cplusplus/FindUsages.h>
+#include <cplusplus/LookupContext.h>
 
 #include <utils/algorithm.h>
 

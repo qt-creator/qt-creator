@@ -6,13 +6,11 @@
 #include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakespecificsettings.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <ios/iosconstants.h>
 
@@ -20,7 +18,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/task.h>
@@ -36,7 +33,6 @@
 #include <utils/commandline.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
-#include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>

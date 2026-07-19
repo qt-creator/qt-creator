@@ -13,10 +13,10 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
-#include <utils/textcodec.h>
 
 #include <QDialogButtonBox>
 #include <QLabel>

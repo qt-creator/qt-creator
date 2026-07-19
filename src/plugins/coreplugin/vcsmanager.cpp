@@ -14,7 +14,6 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>

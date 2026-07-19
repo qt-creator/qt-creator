@@ -7,6 +7,7 @@
 #include "languageclientmanager.h"
 
 #include <texteditor/fontsettings.h>
+#include <texteditor/semantichighlighter.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/syntaxhighlighter.h>

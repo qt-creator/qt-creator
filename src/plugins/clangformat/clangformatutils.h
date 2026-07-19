@@ -6,7 +6,6 @@
 #include "clangformatsettings.h"
 
 #include <utils/filepath.h>
-#include <utils/id.h>
 
 #include <clang/Format/Format.h>
 

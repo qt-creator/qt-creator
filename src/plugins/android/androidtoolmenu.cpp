@@ -31,6 +31,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/fileutils.h>
 #include <utils/globaltasktree.h>
 #include <utils/qtcprocess.h>
 

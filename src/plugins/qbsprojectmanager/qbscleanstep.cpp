@@ -4,6 +4,7 @@
 #include "qbscleanstep.h"
 
 #include "qbsbuildconfiguration.h"
+#include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 #include "qbsrequest.h"

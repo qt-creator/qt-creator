@@ -33,7 +33,6 @@
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
-#include <cplusplus/Symbols.h>
 #include <cplusplus/TypeOfExpression.h>
 
 #include <cppeditor/cppeditorconstants.h>
@@ -51,8 +50,6 @@
 #include <projectexplorer/taskhub.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
-
-#include <remote/remotelinux_constants.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>

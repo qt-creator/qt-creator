@@ -3,8 +3,6 @@
 
 #include "gdbserverprovider.h"
 
-#include <baremetal/baremetaldebugsupport.h>
-#include <baremetal/baremetaldevice.h>
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
@@ -13,9 +11,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <utils/environment.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
 

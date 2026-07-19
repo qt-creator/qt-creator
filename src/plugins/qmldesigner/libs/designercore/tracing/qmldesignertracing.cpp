@@ -3,9 +3,7 @@
 
 #include "qmldesignertracing.h"
 
-#include <nanotrace/tracefile.h>
 
-#include <sqlitebasestatement.h>
 
 namespace QmlDesigner {
 

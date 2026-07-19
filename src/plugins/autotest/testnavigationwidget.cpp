@@ -17,7 +17,6 @@
 #include "testtreeview.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/inavigationwidgetfactory.h>
@@ -28,7 +27,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/link.h>
-#include <utils/navigationtreeview.h>
 #include <utils/progressindicator.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>

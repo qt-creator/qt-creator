@@ -25,7 +25,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildsystem.h>
@@ -39,18 +38,16 @@
 #include <texteditor/basefilefind.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/codeassist/assistproposalitem.h>
-#include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/commentssettings.h>
 #include <texteditor/completionsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/textdocumentlayout.h>
 #include <cplusplus/ASTPath.h>
-#include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
 
 #include <utils/infobar.h>
@@ -58,11 +55,11 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/textutils.h>
-#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QApplication>
 #include <QElapsedTimer>
+#include <QMainWindow>
 #include <QMenu>
 #include <QPointer>
 #include <QTextEdit>

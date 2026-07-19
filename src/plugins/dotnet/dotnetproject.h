@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <projectexplorer/workspaceproject.h>
-
 namespace Dotnet::Internal {
 
 void setupDotnetProject();

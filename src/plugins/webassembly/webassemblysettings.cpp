@@ -19,7 +19,6 @@
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/utilsicons.h>
 
 #include <QDir>
 #include <QGroupBox>

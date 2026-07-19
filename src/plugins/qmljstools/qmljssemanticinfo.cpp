@@ -6,7 +6,6 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/qmljsscopechain.h>
-#include <qmljs/parser/qmljsengine_p.h>
 
 #include <QDebug>
 

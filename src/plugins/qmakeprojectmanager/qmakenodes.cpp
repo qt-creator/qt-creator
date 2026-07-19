@@ -15,7 +15,6 @@
 
 #include <resourceeditor/resourcenode.h>
 
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <android/androidconstants.h>

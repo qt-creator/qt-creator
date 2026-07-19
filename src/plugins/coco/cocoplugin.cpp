@@ -8,19 +8,13 @@
 #include "cocotr.h"
 #include "globalsettings.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectpanelfactory.h>
-#include <projectexplorer/target.h>
-
-#include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 
 #include <QDialog>

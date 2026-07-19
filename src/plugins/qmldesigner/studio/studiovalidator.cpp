@@ -3,7 +3,7 @@
 
 #include "studiovalidator.h"
 
-#include <coreplugin/icore.h>
+#include <qqml.h>
 
 namespace QmlDesigner {
 

@@ -3,9 +3,7 @@
 
 #include "itemlibrarytracing.h"
 
-#include <tracing/qmldesignertracing.h>
 
-#include <sqlitebasestatement.h>
 
 namespace QmlDesigner::ItemLibraryTracing {
 using namespace NanotraceHR::Literals;

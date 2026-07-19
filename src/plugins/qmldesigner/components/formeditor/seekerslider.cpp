@@ -4,7 +4,6 @@
 #include "seekerslider.h"
 #include "formeditortracing.h"
 
-#include <utils/icon.h>
 #include <utils/stylehelper.h>
 
 #include <QMouseEvent>

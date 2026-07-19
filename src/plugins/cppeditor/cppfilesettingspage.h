@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/aspects.h>
 
 namespace ExtensionSystem { class IPlugin; }

@@ -20,7 +20,6 @@
 #include <designeractionmanager.h>
 #include <designersettings.h>
 #include <designmodewidget.h>
-#include <import.h>
 #include <itemlibraryentry.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
@@ -34,13 +33,11 @@
 #include <utils3d.h>
 #include <variantproperty.h>
 
-#include <qmlprojectmanager/qmlproject.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
-#include <utils/widgets.h>
 
 #include <QMimeData>
 #include <QMessageBox>

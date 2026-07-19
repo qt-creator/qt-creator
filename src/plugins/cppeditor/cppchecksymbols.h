@@ -4,10 +4,11 @@
 #pragma once
 
 #include "cppeditor_global.h"
-#include "cppsemanticinfo.h"
 #include "semantichighlighter.h"
 
 #include <cplusplus/TypeOfExpression.h>
+
+#include <texteditor/semantichighlighter.h>
 
 #include <QFuture>
 #include <QSet>

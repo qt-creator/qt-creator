@@ -11,9 +11,7 @@
 #include "treeitem.h"
 #include "curveeditorutils.h"
 
-#include <theme.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 
 #include <QAction>
 #include <QMenu>

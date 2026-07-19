@@ -6,6 +6,8 @@
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cppmodelmanager.h"
+#include "indexitem.h"
+#include "searchsymbols.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
@@ -20,7 +22,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
-#include <utils/qtcassert.h>
 
 #include <QButtonGroup>
 #include <QGridLayout>

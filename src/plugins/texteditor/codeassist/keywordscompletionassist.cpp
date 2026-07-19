@@ -3,13 +3,11 @@
 
 #include "keywordscompletionassist.h"
 
-#include <coreplugin/coreconstants.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/completionsettings.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
 
 #include <QDir>

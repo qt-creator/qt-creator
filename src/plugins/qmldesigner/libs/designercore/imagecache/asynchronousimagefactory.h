@@ -10,11 +10,6 @@
 
 #include <utils/smallstring.h>
 
-#include <condition_variable>
-#include <deque>
-#include <mutex>
-#include <optional>
-#include <thread>
 
 namespace QmlDesigner {
 

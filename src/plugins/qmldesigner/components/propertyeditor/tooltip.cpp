@@ -8,7 +8,6 @@
 #include <qquickwindow.h>
 #include <qquickitem.h>
 #include <QtQuick/QQuickRenderControl>
-#include <QtWidgets/qtwidgetsglobal.h>
 #include <qtooltip.h>
 
 using QmlDesigner::PropertyEditorTracing::category;

@@ -6,7 +6,6 @@
 #include <designer/cpp/formclasswizardparameters.h>
 
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/icore.h>
 #include <cppeditor/abstracteditorsupport.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <projectexplorer/projecttree.h>

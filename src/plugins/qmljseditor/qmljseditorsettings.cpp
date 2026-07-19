@@ -4,26 +4,19 @@
 #include "qmljseditorsettings.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditortr.h"
-#include "qmllsclient.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <languageclient/languageclientinterface.h>
-#include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projecttree.h>
 
 #include <qmljs/qmljscheck.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
-
-#include <qmljstools/qmljstoolsconstants.h>
 
 #include <qtsupport/qtsupportconstants.h>
 
@@ -51,7 +44,6 @@
 #include <QTextStream>
 #include <QTreeView>
 
-#include <nanotrace/nanotrace.h>
 
 using namespace QmlJSEditor::Internal;
 using namespace QtSupport;

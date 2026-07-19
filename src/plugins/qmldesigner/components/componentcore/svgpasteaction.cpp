@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "svgpasteaction.h"
+#include "nodeabstractproperty.h"
+#include "qmlitemnode.h"
 
 #include <itemlibraryentry.h>
-#include <nodeabstractproperty.h>
 #include <variantproperty.h>
 
 #include <private/qlocale_tools_p.h>

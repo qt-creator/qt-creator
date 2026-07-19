@@ -6,17 +6,9 @@
 #include "iosconstants.h"
 #include "iostr.h"
 
-#include <utils/environment.h>
-#include <utils/hostosinfo.h>
-
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
-#include <qtsupport/qtversionmanager.h>
-
-#include <projectexplorer/kit.h>
-#include <projectexplorer/projectexplorer.h>
 
 using namespace ProjectExplorer;
 

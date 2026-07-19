@@ -4,11 +4,9 @@
 #include "mesonprojectnodes.h"
 
 #include "mesonbuildconfiguration.h"
-#include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

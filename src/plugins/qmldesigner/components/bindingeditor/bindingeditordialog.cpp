@@ -5,12 +5,8 @@
 
 #include "bindingeditordialog.h"
 
-#include <texteditor/texteditor.h>
 
-#include <qmldesigner/qmldesignerplugin.h>
 #include <qmljseditor/qmljseditor.h>
-#include <qmljseditor/qmljseditordocument.h>
-#include <texteditor/textdocument.h>
 
 #include <QCheckBox>
 #include <QComboBox>

@@ -9,7 +9,6 @@
 #include "crumblebar.h"
 
 #include <texteditor/textdocument.h>
-#include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
 #include <theme.h>
 
@@ -27,7 +26,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -37,9 +35,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <qmlprojectmanager/qmlproject.h>
 
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
 #include <QActionGroup>
@@ -51,7 +47,6 @@
 #include <QToolBar>
 
 #include <advanceddockingsystem/dockareawidget.h>
-#include <advanceddockingsystem/docksplitter.h>
 #include <advanceddockingsystem/dockwidgettab.h>
 #include <advanceddockingsystem/iconprovider.h>
 

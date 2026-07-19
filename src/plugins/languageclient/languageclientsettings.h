@@ -6,8 +6,6 @@
 #include "languageclient_global.h"
 #include "mimetypesaspect.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <utils/layoutbuilder.h>
 
 #include <QAbstractItemModel>

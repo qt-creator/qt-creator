@@ -3,8 +3,6 @@
 
 #include "deployablefile.h"
 
-#include <utils/fileutils.h>
-
 #include <QHash>
 
 using namespace Utils;

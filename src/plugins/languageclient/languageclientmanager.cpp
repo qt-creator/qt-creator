@@ -9,14 +9,10 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/navigationwidget.h>
 
 #include <extensionsystem/pluginmanager.h>
-
-#include <languageserverprotocol/messages.h>
-#include <languageserverprotocol/progresssupport.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -29,9 +25,7 @@
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
-#include <utils/theme/theme.h>
 #include <utils/shutdownguard.h>
-#include <utils/utilsicons.h>
 
 #include <QTimer>
 

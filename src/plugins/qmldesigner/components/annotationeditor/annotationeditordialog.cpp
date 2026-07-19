@@ -9,8 +9,6 @@
 #include "defaultannotations.h"
 #include "annotationeditorwidget.h"
 
-#include <timelineicons.h>
-#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QMessageBox>

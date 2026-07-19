@@ -6,23 +6,11 @@
 #include "itemlibrarywidget.h"
 
 #include <asynchronousimagecache.h>
-#include <bindingproperty.h>
-#include <componentcore_constants.h>
-#include <coreplugin/icore.h>
 #include <customnotifications.h>
 #include <import.h>
 #include <metainfo.h>
-#include <nodelistproperty.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
-#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-#include <qmlitemnode.h>
 #include <rewriterview.h>
-#include <sqlitedatabase.h>
-#include <utils/algorithm.h>
 
 namespace QmlDesigner {
 

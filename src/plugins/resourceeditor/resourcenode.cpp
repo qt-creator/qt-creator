@@ -8,8 +8,6 @@
 
 #include <coreplugin/documentmanager.h>
 
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>

@@ -38,7 +38,6 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 

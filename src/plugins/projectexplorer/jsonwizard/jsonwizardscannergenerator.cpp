@@ -7,11 +7,9 @@
 #include "../projectmanager.h"
 #include "../projectexplorertr.h"
 
-#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
 
 #include <QRegularExpression>
 #include <QVariant>

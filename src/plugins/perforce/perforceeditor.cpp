@@ -7,7 +7,6 @@
 #include "perforceplugin.h"
 #include "perforcetr.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/diffandloghighlighter.h>
 

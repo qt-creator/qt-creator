@@ -13,12 +13,6 @@
 
 #include <modelfwd.h>
 #include <sourcepathids.h>
-#include <sqlitetransaction.h>
-
-#include <tracing/qmldesignertracing.h>
-
-#include <algorithm>
-#include <utility>
 
 namespace QmlDesigner {
 

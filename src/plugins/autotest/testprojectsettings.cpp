@@ -11,7 +11,6 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-#include <utils/algorithm.h>
 
 #include <QLoggingCategory>
 

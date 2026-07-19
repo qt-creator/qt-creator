@@ -16,13 +16,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
-#include <texteditor/textdocument.h>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/shutdownguard.h>
 
 #include <QDebug>
 #include <QStringList>

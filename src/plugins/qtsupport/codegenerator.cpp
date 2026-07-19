@@ -5,8 +5,6 @@
 
 #include "codegensettings.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/codegeneration.h>
 #include <utils/qtcassert.h>
 

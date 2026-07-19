@@ -14,17 +14,14 @@
 #include <languageserverprotocol/languagefeatures.h>
 
 #include <texteditor/ioutlinewidget.h>
-#include <texteditor/outlinefactory.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/delegates.h>
 #include <utils/dropsupport.h>
-#include <utils/itemviews.h>
 #include <utils/navigationtreeview.h>
 #include <utils/treemodel.h>
 #include <utils/treeviewcombobox.h>
-#include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QBoxLayout>

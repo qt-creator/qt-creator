@@ -5,8 +5,6 @@
 #include "serialterminalconstants.h"
 #include "serialterminaltr.h"
 
-#include <utils/outputformatter.h>
-
 namespace SerialTerminal::Internal {
 
 SerialControl::SerialControl(const Settings &settings, QObject *parent) :

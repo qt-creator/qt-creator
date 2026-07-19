@@ -3,8 +3,7 @@
 
 #include "qmltimeline.h"
 #include "abstractview.h"
-#include "bindingproperty.h"
-#include "qmlitemnode.h"
+#include "qmlobjectnode.h"
 #include "qmltimelinekeyframegroup.h"
 
 #include <auxiliarydataproperties.h>

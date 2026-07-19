@@ -5,7 +5,6 @@
 #include "scxmleditorconstants.h"
 #include "scxmleditortr.h"
 #include "scxmltag.h"
-#include "scxmltagutils.h"
 
 #include <QCoreApplication>
 #include <QDebug>

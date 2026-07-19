@@ -10,7 +10,6 @@
 #include "cppquickfix.h"
 
 #include <cplusplus/Overview.h>
-#include <utils/textcodec.h>
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"

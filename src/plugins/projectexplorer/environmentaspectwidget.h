@@ -6,7 +6,6 @@
 #include "projectexplorer_export.h"
 
 #include "environmentaspect.h"
-#include "runconfiguration.h"
 
 #include <utils/environment.h>
 #include <utils/guard.h>

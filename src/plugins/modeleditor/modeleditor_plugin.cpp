@@ -12,13 +12,6 @@
 #include <qmt/infrastructure/uid.h>
 #include <qmt/model/mdiagram.h>
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/basefilewizard.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
 
 #include <QAction>

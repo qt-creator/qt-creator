@@ -11,7 +11,6 @@
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslink.h>
-#include <qmljstools/qmljsmodelmanager.h>
 
 #include <coreplugin/icore.h>
 

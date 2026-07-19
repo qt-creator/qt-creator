@@ -11,7 +11,6 @@
 #include <coreplugin/coreicons.h>
 
 #include <utils/icon.h>
-#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QStyle>

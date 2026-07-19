@@ -9,6 +9,7 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 #include "formeditortracing.h"
+#include "layeritem.h"
 #include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"

@@ -3,9 +3,7 @@
 
 #include "projectstoragetracing.h"
 
-#include <tracing/qmldesignertracing.h>
 
-#include <sqlitebasestatement.h>
 
 namespace QmlDesigner::ProjectStorageTracing {
 using namespace NanotraceHR::Literals;

@@ -4,8 +4,6 @@
 #include "richtexteditorproxy.h"
 #include "richtexteditor.h"
 
-#include <qmldesignerplugin.h>
-#include <qmldesignerconstants.h>
 
 #include <coreplugin/icore.h>
 

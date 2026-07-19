@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
 
 #include "projectstoragetypes.h"
 
@@ -18,7 +17,6 @@
 #include <QVariant>
 
 #include <exception>
-#include <variant>
 
 namespace QmlDesigner {
 class ModulesStorage;

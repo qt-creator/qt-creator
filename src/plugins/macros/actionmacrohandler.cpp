@@ -7,11 +7,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-
-#include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
 

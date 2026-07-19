@@ -21,10 +21,8 @@
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 
 #include <coreplugin/icore.h>
 

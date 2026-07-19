@@ -9,6 +9,8 @@
 #include <qmlprojectmanager/buildsystem/projectitem/qmlprojectitem.h>
 
 #include <utils/algorithm.h>
+#include <utils/namevalueitem.h>
+
 namespace {
 
 constexpr QLatin1String localTestDataDir{UNITTEST_DIR "/qmlprojectmanager/data"};

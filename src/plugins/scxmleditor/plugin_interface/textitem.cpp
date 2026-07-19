@@ -9,7 +9,6 @@
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QTextOption>
-#include <qmath.h>
 
 using namespace ScxmlEditor::PluginInterface;
 

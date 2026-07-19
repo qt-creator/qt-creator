@@ -3,7 +3,6 @@
 
 #include "componentsplugin.h"
 
-#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 

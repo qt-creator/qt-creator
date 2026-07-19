@@ -3,7 +3,6 @@
 #pragma once
 
 #include <utils/widgets.h>
-#include <seekerslider.h>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;

@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "mytypes.h"
 #include "scxmltag.h"
 
 #include <QGraphicsItem>

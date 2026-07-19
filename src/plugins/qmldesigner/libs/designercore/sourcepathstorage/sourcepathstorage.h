@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include <qmldesignercorelib_exports.h>
+
 #include "sourcepathcachetypes.h"
-#include "sourcepathexceptions.h"
 
 #include <sourcepathids.h>
 

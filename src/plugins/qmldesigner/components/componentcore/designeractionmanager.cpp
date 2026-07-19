@@ -16,6 +16,7 @@
 #include "qmldesignerconstants.h"
 #include "qmleditormenu.h"
 #include "rewritingexception.h"
+#include "signalhandlerproperty.h"
 #include <bindingproperty.h>
 #include <customnotifications.h>
 #include <nodehints.h>
@@ -28,7 +29,6 @@
 
 #include <formeditortoolbutton.h>
 
-#include <actioneditor.h>
 #include <documentmanager.h>
 #include <modelutils.h>
 #include <viewmanager.h>
@@ -39,11 +39,10 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
-#include <qmlprojectmanager/qmlproject.h>
 #include <utils/algorithm.h>
+#include <utils/environment.h>
+#include <utils/icon.h>
 #include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
 
 #include <QGraphicsLinearLayout>
 #include <QHBoxLayout>

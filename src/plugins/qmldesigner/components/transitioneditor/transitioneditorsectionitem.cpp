@@ -5,20 +5,14 @@
 #include "transitioneditorgraphicsscene.h"
 #include "transitioneditorpropertyitem.h"
 
-#include "timelineactions.h"
 #include "timelineconstants.h"
-#include "timelineicons.h"
 #include "timelinepropertyitem.h"
-#include "timelineutils.h"
 
 #include <abstractview.h>
 #include <bindingproperty.h>
 #include <modelutils.h>
 #include <variantproperty.h>
-#include <qmltimeline.h>
-#include <qmltimelinekeyframegroup.h>
 
-#include <rewritingexception.h>
 
 #include <theme.h>
 
@@ -38,7 +32,6 @@
 
 #include <QDebug>
 
-#include <cmath>
 #include <limits>
 
 namespace QmlDesigner {

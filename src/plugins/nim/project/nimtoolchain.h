@@ -4,7 +4,6 @@
 #pragma once
 
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/headerpath.h>
 
 namespace Nim {
 

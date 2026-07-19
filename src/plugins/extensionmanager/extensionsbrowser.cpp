@@ -9,18 +9,9 @@
 #include "extensionmanagertr.h"
 #include "extensionsmodel.h"
 
-#ifdef WITH_TESTS
-#include "extensionmanager_test.h"
-#endif // WITH_TESTS
-
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/welcomepagehelper.h>
 
-#include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginspec.h>
-#include <extensionsystem/pluginview.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <solutions/spinner/spinner.h>

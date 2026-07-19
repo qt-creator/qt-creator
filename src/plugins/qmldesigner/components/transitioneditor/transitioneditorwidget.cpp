@@ -14,18 +14,13 @@
 #include <timelineeditor/timelineicons.h>
 
 #include <auxiliarydataproperties.h>
-#include <bindingproperty.h>
-#include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
 
 #include <qmldesignerplugin.h>
-#include <qmlstate.h>
-#include <qmltimeline.h>
 
 #include <coreplugin/icore.h>
 
 #include <theme.h>
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QApplication>

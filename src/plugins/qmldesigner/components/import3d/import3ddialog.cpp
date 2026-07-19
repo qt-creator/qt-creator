@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "import3ddialog.h"
+#include "qmldesignercoreconstants.h"
 #include "ui_import3ddialog.h"
 
 #include "import3dcanvas.h"
 #include "import3dconnectionmanager.h"
 
-#include <designeractionmanager.h>
-#include <designericons.h>
 #include <model.h>
 #include <modelutils.h>
 #include <nodeinstanceview.h>

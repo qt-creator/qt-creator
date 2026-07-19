@@ -11,16 +11,11 @@
 
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
-#include <exception.h>
-#include <modelnodecontextmenu_helper.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <rewritertransaction.h>
 #include <variantproperty.h>
-#include <viewmanager.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <qmlobjectnode.h>
@@ -30,7 +25,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>
 

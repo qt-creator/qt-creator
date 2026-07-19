@@ -5,7 +5,6 @@
 
 #include "imagecacheauxiliarydata.h"
 
-#include <utils/smallstring.h>
 
 #include <QImage>
 

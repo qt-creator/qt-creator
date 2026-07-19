@@ -5,24 +5,17 @@
 
 #include "abstractview.h"
 #include "timelineconstants.h"
-#include "timelineicons.h"
 #include "transitioneditorgraphicsscene.h"
 
-#include <bindingproperty.h>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
 #include <rewritertransaction.h>
-#include <rewritingexception.h>
 #include <theme.h>
 #include <variantproperty.h>
-#include <qmlobjectnode.h>
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
 
 #include <coreplugin/icore.h>
 
@@ -34,7 +27,6 @@
 #include <QMenu>
 #include <QPainter>
 
-#include <algorithm>
 
 namespace QmlDesigner {
 

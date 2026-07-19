@@ -32,9 +32,6 @@
 #include <coreplugin/icore.h>
 #include <cppeditor/cpplocatordata.h>
 #include <cppeditor/indexitem.h>
-#include <cppeditor/searchsymbols.h>
-#include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
 
 #include <QMenu>
 #include <QMessageBox>

@@ -8,7 +8,6 @@
 
 #include <texteditor/fontsettings.h>
 
-#include <utils/completingtextedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 

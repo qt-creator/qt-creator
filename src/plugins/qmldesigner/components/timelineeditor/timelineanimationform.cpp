@@ -2,12 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "timelineanimationform.h"
+#include "nodeabstractproperty.h"
 
 #include <abstractview.h>
-#include <bindingproperty.h>
-#include <exception>
-#include <nodelistproperty.h>
-#include <nodemetainfo.h>
 #include <rewritertransaction.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
@@ -15,7 +12,6 @@
 #include <qmlobjectnode.h>
 #include <dialogutils.h>
 
-#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>

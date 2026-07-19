@@ -12,7 +12,6 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
-#include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
 

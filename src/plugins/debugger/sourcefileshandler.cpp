@@ -3,7 +3,6 @@
 
 #include "sourcefileshandler.h"
 
-#include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggertr.h"

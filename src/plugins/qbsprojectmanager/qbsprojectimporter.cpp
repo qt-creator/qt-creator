@@ -13,7 +13,6 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchain.h>

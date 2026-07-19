@@ -13,7 +13,6 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginview.h>
 
-#include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 

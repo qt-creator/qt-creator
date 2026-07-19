@@ -3,8 +3,6 @@
 
 #include "serializer.h"
 
-#include <utils/stringutils.h>
-
 using namespace ScxmlEditor::PluginInterface;
 
 Serializer::Serializer()

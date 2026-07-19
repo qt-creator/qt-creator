@@ -4,13 +4,9 @@
 #include "clangtoolspreconfiguredsessiontests.h"
 
 #include "clangtool.h"
-#include "clangtoolsdiagnostic.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
-
-#include <cppeditor/compileroptionsbuilder.h>
-#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>

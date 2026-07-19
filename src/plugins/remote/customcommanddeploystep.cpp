@@ -9,7 +9,6 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/qtcprocess.h>
 

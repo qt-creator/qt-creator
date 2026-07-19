@@ -26,6 +26,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLoggingCategory>
+#include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>

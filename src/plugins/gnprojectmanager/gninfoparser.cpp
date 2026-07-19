@@ -6,6 +6,8 @@
 
 #include "gnutils.h"
 
+#include <utils/algorithm.h>
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>

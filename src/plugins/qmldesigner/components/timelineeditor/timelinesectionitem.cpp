@@ -7,7 +7,6 @@
 #include "timelineactions.h"
 #include "timelineconstants.h"
 #include "timelinegraphicsscene.h"
-#include "timelineicons.h"
 #include "timelinepropertyitem.h"
 #include "timelinetoolbutton.h"
 #include "timelineutils.h"
@@ -16,7 +15,6 @@
 #include <qmltimelinekeyframegroup.h>
 
 #include <modelutils.h>
-#include <rewritingexception.h>
 
 #include <theme.h>
 

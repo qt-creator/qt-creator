@@ -7,7 +7,6 @@
 #include "gnbuildconfiguration.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

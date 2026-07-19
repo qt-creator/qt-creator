@@ -4,8 +4,7 @@
 #pragma once
 
 #include "texteditor_global.h"
-
-#include "fontsettings.h"
+#include "textstyles.h"
 
 #include <QHash>
 #include <QFuture>

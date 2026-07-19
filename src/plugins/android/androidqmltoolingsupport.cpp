@@ -7,7 +7,6 @@
 #include "androidrunner.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;

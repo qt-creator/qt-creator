@@ -7,7 +7,6 @@
 #include "../icore.h"
 #include "../textdocument.h"
 
-#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/itemviews.h>
 

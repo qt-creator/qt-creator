@@ -6,8 +6,6 @@
 #include "devicesupport/idevicefactory.h"
 #include "projectexplorerconstants.h"
 
-#include <utils/algorithm.h>
-
 using namespace Utils;
 
 namespace ProjectExplorer {

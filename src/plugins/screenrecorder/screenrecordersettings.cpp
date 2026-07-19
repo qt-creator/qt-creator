@@ -8,12 +8,10 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
-#include <utils/utilsicons.h>
 
 #include <QDesktopServices>
 #include <QGuiApplication>

@@ -6,7 +6,6 @@
 #include "dockersettings.h"
 
 #include <utils/filepath.h>
-#include <utils/guard.h>
 #include <utils/id.h>
 #include <utils/result.h>
 #include <utils/synchronizedvalue.h>

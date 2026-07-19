@@ -4,14 +4,8 @@
 #include "clangformatfile.h"
 #include "clangformatutils.h"
 
-#include <cppeditor/cppcodestylesettings.h>
-
-#include <projectexplorer/project.h>
-
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
-
-#include <utils/qtcassert.h>
 
 #include <fstream>
 

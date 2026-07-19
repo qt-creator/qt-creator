@@ -46,10 +46,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/diffservice.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/externaltoolmanager.h>
-#include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -58,9 +55,7 @@
 #include <utils/async.h>
 #include <utils/fancylineedit.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcassert.h>
 #include <utils/textutils.h>
-#include <utils/utilsicons.h>
 
 #include <QMenu>
 

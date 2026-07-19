@@ -9,15 +9,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
-#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>

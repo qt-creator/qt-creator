@@ -2,25 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nodehints.h"
+
+#include "abstractview.h"
 #include "model.h"
 
 #include "metainfo.h"
-#include <enumeration.h>
 #include <itemlibraryentry.h>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
 #include <propertyparser.h>
-#include <rewriterview.h>
 
 #include <QDebug>
 
-#include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljs/qmljsvalueowner.h>
-#include <languageutils/fakemetaobject.h>
-
-#include <utils/qtcassert.h>
 
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <itemlibraryinfo.h>

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "msvctoolchain.h"
+#include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
 #include "abiwidget.h"
@@ -26,7 +27,6 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/shutdownguard.h>
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
 

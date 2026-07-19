@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <projectexplorer/workspaceproject.h>
-
 namespace Ant::Internal {
 
 void setupAntProject();

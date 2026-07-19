@@ -5,7 +5,6 @@
 
 #include <QSet>
 
-#include <utils/qtcassert.h>
 
 using namespace QmlJS;
 using namespace TextEditor;

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <qmltimeline.h>
+#include <modelnode.h>
 
 #include <QWidget>
 

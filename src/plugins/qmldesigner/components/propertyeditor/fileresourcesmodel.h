@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <qmlitemnode.h>
-
 #include <QDir>
 #include <QObject>
 #include <QStringList>
 #include <QUrl>
-#include <QtQml>
+
+#include <qqml.h>
 
 class FileResourcesItem
 {

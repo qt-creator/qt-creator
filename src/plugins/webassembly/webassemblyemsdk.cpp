@@ -6,8 +6,6 @@
 
 #include "webassemblyconstants.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>

@@ -5,10 +5,7 @@
 #include "edit3dview.h"
 #include "edit3dwidget.h"
 
-#include <bindingproperty.h>
 #include <nodemetainfo.h>
-#include <nodelistproperty.h>
-#include <variantproperty.h>
 
 #include <utils/qtcassert.h>
 

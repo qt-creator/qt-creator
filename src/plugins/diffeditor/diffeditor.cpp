@@ -12,7 +12,6 @@
 #include "unifieddiffeditorwidget.h"
 
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -28,7 +27,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/ansiescapecodehandler.h>
-#include <utils/fileutils.h>
 #include <utils/guard.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>

@@ -3,10 +3,7 @@
 
 #pragma once
 
-#include "checkstatus.h"
-
-#include <languageserverprotocol/jsonrpcmessages.h>
-#include <languageserverprotocol/lsptypes.h>
+#include <languageserverprotocol/jsonobject.h>
 
 namespace Copilot {
 

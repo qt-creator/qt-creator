@@ -12,6 +12,7 @@
 
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/infobar.h>
 #include <utils/tooltip/tooltip.h>

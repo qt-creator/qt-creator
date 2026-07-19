@@ -3,11 +3,6 @@
 
 #include "headerpathfilter.h"
 
-#ifndef UNIT_TESTS
-#include <coreplugin/icore.h>
-#endif
-
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QRegularExpression>

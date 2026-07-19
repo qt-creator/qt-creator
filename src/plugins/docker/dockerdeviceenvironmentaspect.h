@@ -5,7 +5,6 @@
 
 #include "docker_global.h"
 
-#include <projectexplorer/environmentaspect.h>
 #include <utils/environmentchangesaspect.h>
 
 namespace Docker {

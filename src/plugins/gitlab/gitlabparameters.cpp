@@ -3,8 +3,6 @@
 
 #include "gitlabparameters.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcsettings.h>

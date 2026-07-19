@@ -7,12 +7,12 @@
 #include "qbsprojectmanagertr.h"
 #include "qbssession.h"
 
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <projectexplorer/projecttree.h>
 

@@ -14,9 +14,6 @@
 
 #include <texteditor/textdocument.h>
 
-#include <utils/algorithm.h>
-#include <utils/qtcsettings.h>
-
 #include <QGridLayout>
 
 using namespace TextEditor;

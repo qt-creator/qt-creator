@@ -8,9 +8,10 @@
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainconfigwidget.h>
+
+#include <qtsupport/qtversionmanager.h>
 
 #include <utils/environment.h>
 

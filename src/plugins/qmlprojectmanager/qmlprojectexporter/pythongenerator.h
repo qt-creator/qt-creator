@@ -3,7 +3,6 @@
 #pragma once
 
 #include "filegenerator.h"
-#include <utils/filepath.h>
 
 namespace QmlProjectManager {
 

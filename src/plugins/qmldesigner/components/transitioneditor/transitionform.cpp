@@ -2,15 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "transitionform.h"
+#include "nodeabstractproperty.h"
 #include "timelineform.h"
 #include "ui_transitionform.h"
 
 #include <abstractview.h>
-#include <bindingproperty.h>
 #include <dialogutils.h>
-#include <exception>
 #include <functional.h>
-#include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmlitemnode.h>
 #include <rewritertransaction.h>

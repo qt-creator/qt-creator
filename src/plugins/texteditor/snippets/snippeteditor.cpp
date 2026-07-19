@@ -4,9 +4,7 @@
 #include "snippeteditor.h"
 
 #include <texteditor/textdocument.h>
-#include <texteditor/displaysettings.h>
 #include <texteditor/texteditorconstants.h>
-#include <utils/qtcassert.h>
 
 #include <QFocusEvent>
 

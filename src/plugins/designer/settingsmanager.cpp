@@ -5,8 +5,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/qtcassert.h>
-
 using namespace Utils;
 
 namespace Designer::Internal {

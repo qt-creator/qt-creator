@@ -16,6 +16,7 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>

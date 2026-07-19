@@ -9,8 +9,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
-#include <utils/tooltip/tooltip.h>
 
 using namespace LanguageServerProtocol;
 

@@ -54,10 +54,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/vcsmanager.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -77,10 +75,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
-#include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/clangutils.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
@@ -92,6 +87,7 @@
 #include <QAction>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QFutureWatcher>
 #include <QMenu>
 #include <QStringList>
 

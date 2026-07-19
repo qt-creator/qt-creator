@@ -4,13 +4,12 @@
 #include "propertychangesmodel.h"
 
 #include "stateseditorview.h"
-#include <qmlmodelnodeproxy.h>
 
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QWidget>
-#include <QtQml>
+#include <qqml.h>
 
 enum {
     debug = false

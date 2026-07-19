@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "uvscfunctions.h"
+#include "uvscdatatypes.h"
 
 #include <debugger/debuggerprotocol.h>
 

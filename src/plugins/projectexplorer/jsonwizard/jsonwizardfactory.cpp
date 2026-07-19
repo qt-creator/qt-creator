@@ -10,7 +10,6 @@
 #include "../projectexplorertr.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/messagemanager.h>

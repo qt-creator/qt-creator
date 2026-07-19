@@ -10,7 +10,6 @@
 #include "selectableitem.h"
 #include "treeitem.h"
 
-#include <string>
 #include <QGraphicsObject>
 
 namespace QmlDesigner {

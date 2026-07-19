@@ -5,10 +5,8 @@
 
 #include "commontypecache.h"
 #include "projectstorageerrornotifierinterface.h"
-#include "projectstorageexceptions.h"
 #include "projectstorageinterface.h"
 #include "projectstoragetypes.h"
-#include "sourcepathstorage/storagecache.h"
 
 #include "projectstoragetracing.h"
 
@@ -17,14 +15,9 @@
 #include <sqlitetable.h>
 #include <sqlitetransaction.h>
 
-#include <utils/algorithm.h>
-#include <utils/set_algorithm.h>
 
-#include <algorithm>
-#include <functional>
 #include <optional>
 #include <tuple>
-#include <type_traits>
 #include <utility>
 
 namespace QmlDesigner {

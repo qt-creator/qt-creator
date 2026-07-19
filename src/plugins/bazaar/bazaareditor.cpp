@@ -7,8 +7,6 @@
 #include "bazaartr.h"
 #include "constants.h"
 
-#include <utils/qtcassert.h>
-
 #include <QString>
 #include <QTextCursor>
 

@@ -5,7 +5,6 @@
 
 #include "testsettings.h"
 
-#include <utils/aspects.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

@@ -8,7 +8,6 @@
 #include "metainfo.h"
 #include <enumeration.h>
 #include <projectstorage/projectstorage.h>
-#include <propertyparser.h>
 #include <rewriterview.h>
 
 #include <QDebug>

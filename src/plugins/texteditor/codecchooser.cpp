@@ -3,8 +3,6 @@
 
 #include "codecchooser.h"
 
-#include <utils/algorithm.h>
-
 using namespace Utils;
 
 namespace TextEditor {

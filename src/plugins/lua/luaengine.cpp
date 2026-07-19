@@ -9,7 +9,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/lua.h>
 #include <utils/stringutils.h>

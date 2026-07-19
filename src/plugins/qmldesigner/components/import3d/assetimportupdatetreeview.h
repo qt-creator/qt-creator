@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "assetimportupdatetreeitem.h"
-
 #include <utils/itemviews.h>
 
 namespace QmlDesigner::Internal {

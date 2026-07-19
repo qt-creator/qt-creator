@@ -5,18 +5,15 @@
 
 #include "compilationdatabaseutils.h"
 
-#include <coreplugin/icore.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
-#include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 
 #include <QTest>

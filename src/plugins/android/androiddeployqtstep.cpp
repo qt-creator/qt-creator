@@ -12,7 +12,6 @@
 #include "androidutils.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -30,12 +29,9 @@
 
 #include <QtTaskTree/QConditional>
 
-#include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/dialogtask.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

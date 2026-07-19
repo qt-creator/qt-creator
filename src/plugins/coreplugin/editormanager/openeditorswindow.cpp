@@ -11,17 +11,15 @@
 #include "../idocument.h"
 
 #include <utils/algorithm.h>
-#include <utils/basetreeview.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/treemodel.h>
-#include <utils/utilsicons.h>
 
 #include <QFocusEvent>
 #include <QHeaderView>
 #include <QLoggingCategory>
 #include <QScrollBar>
+#include <QTreeView>
 #include <QVBoxLayout>
 
 using namespace Utils;

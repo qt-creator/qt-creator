@@ -7,7 +7,6 @@
 
 #include <projectexplorer/environmentkitaspect.h>
 
-#include <utils/port.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 

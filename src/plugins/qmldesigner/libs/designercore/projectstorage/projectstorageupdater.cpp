@@ -15,7 +15,6 @@
 #include "typeannotationreader.h"
 
 #include <functional.h>
-#include <sqlitedatabase.h>
 #include <utils/algorithm.h>
 #include <utils/set_algorithm.h>
 
@@ -26,7 +25,6 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <functional>
 
 namespace QmlDesigner {
 using NanotraceHR::keyValue;

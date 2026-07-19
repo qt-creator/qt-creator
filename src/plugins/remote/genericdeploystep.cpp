@@ -15,10 +15,8 @@
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>

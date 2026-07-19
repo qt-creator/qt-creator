@@ -4,14 +4,12 @@
 #pragma once
 
 #include "directorypathcompressor.h"
-#include "filesystem.h"
+#include "filestatuscache.h"
 #include "projectstoragepathwatcherinterface.h"
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
 #include "projectstoragetracing.h"
 #include "projectstoragetriggerupdateinterface.h"
-
-#include <sourcepathstorage/storagecache.h>
 
 #include <utils/algorithm.h>
 #include <utils/set_algorithm.h>

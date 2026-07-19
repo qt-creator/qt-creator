@@ -13,13 +13,9 @@
 #include <model.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectmanager.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmldesignerutils/version.h>
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QIODevice>
@@ -27,6 +23,7 @@
 #include <QMetaProperty>
 #include <QMimeData>
 #include <QVariant>
+#include <qqml.h>
 
 namespace QmlDesigner {
 

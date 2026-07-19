@@ -6,13 +6,11 @@
 #include "texteditortr.h"
 #include "ioutlinewidget.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <utils/qtcassert.h>
 #include <utils/store.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>

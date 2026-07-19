@@ -10,24 +10,15 @@
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
-#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
 
 #include <QtTaskTree/QBarrier>
 
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
-
 #include "propertycontainer.h"
 
 #include <projectstorage/projectstorageinfotypes.h>

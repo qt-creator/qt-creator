@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gradientpresetlistmodel.h"
-#include "gradientpresetitem.h"
 #include "propertyeditortracing.h"
 
 #include <QHash>
 #include <QByteArray>
 #include <QDebug>
+#include <qqml.h>
 
 using QmlDesigner::PropertyEditorTracing::category;
 

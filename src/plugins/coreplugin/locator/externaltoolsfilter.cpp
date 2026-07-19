@@ -9,8 +9,6 @@
 #include "../externaltoolmanager.h"
 #include "../icore.h"
 
-#include <utils/qtcassert.h>
-
 using namespace QtTaskTree;
 
 namespace Core::Internal {

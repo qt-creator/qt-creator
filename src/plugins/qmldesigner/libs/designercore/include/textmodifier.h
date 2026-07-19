@@ -12,7 +12,6 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
-#include <optional>
 
 namespace TextEditor { class TabSettingsData; }
 

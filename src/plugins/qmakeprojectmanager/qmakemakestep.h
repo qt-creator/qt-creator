@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include "qmakeprojectmanager_global.h"
-
-#include <projectexplorer/makestep.h>
+#include <projectexplorer/buildstep.h>
 
 namespace QmakeProjectManager::Internal {
 

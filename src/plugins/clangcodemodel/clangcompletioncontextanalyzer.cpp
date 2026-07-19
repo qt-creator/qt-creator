@@ -4,13 +4,10 @@
 #include "clangcompletioncontextanalyzer.h"
 
 #include "clangactivationsequencecontextprocessor.h"
-#include "clangactivationsequenceprocessor.h"
 
-#include <texteditor/codeassist/assistinterface.h>
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/SimpleLexer.h>
 
 #include <utils/qtcassert.h>
 

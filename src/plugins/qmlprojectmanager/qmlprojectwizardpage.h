@@ -6,7 +6,6 @@
 #include <projectexplorer/jsonwizard/jsonwizardgeneratorfactory.h>
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 #include <projectexplorer/jsonwizard/jsonfieldpage.h>
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

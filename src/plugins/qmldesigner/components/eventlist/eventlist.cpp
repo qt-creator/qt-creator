@@ -5,7 +5,6 @@
 #include "eventlistview.h"
 #include "nodelistview.h"
 
-#include "bindingproperty.h"
 #include "projectexplorer/project.h"
 #include "projectexplorer/projectmanager.h"
 #include "qmldesignerplugin.h"

@@ -5,12 +5,10 @@
 
 #include "model.h"
 #include "modelnode.h"
-#include "qmldesignercorelib_global.h"
 #include "widgetregistration.h"
 
 #include <commondefines.h>
 
-#include <utils/span.h>
 #include <utils/uniqueobjectptr.h>
 
 #include <QAction>

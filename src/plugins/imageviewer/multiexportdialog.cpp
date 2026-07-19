@@ -7,7 +7,6 @@
 #include "imageview.h" // ExportData
 #include "imageviewertr.h"
 
-#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 
 #include <utils/pathchooser.h>

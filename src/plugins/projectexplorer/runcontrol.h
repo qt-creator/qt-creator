@@ -12,7 +12,6 @@
 #include <utils/environment.h>
 #include <utils/outputformatter.h>
 #include <utils/processhandle.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QHash>

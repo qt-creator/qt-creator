@@ -8,7 +8,6 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QGuiApplication>

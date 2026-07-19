@@ -12,13 +12,9 @@
 #include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/initializemessages.h>
 
-#include <projectexplorer/project.h>
-
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
-
-#include <utils/utilsicons.h>
 
 #include <QGuiApplication>
 #include <QTextEdit>

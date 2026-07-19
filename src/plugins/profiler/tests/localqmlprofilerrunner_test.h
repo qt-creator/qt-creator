@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <profiler/qmlprofilermodelmanager.h>
+#include <QObject>
 
 namespace Profiler::Internal {
 

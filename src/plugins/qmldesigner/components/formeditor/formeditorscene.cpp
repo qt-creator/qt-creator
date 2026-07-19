@@ -6,6 +6,7 @@
 #include "formeditortracing.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
+#include "layeritem.h"
 
 #include <designeralgorithm.h>
 #include <designersettings.h>

@@ -21,11 +21,9 @@
 #include <coreplugin/progressmanager/processprogress.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/globaltasktree.h>
 #include <utils/qtcprocess.h>
-#include <utils/processinterface.h>
 
 #include <vcsbase/vcsoutputwindow.h>
 

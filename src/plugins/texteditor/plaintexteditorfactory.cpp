@@ -10,9 +10,6 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <utils/infobar.h>
-#include <utils/qtcassert.h>
-
 namespace TextEditor {
 
 class PlainTextEditorWidget final : public TextEditorWidget

@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmakeprojectmanager_global.h"
 #include "qmakeparsernodes.h"
 #include "qmakenodes.h"
 #include "qmakeproject.h"

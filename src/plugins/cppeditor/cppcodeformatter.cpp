@@ -4,7 +4,6 @@
 #include "cppcodeformatter.h"
 
 #include <texteditor/textdocumentlayout.h>
-#include <cplusplus/Lexer.h>
 
 #include <utils/qtcassert.h>
 

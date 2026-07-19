@@ -5,19 +5,12 @@
 #include "fileresourcesmodel.h"
 #include "propertyeditortracing.h"
 
-#include <cmakeprojectmanager/cmakekitaspect.h>
 #include <designermcumanager.h>
-#include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
-#include <utils/algorithm.h>
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
 

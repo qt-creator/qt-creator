@@ -11,13 +11,10 @@
 #include "gitlabtr.h"
 #include "resultparser.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
-
-#include <git/gitplugin.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>

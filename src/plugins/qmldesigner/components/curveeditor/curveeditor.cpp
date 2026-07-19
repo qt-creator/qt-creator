@@ -4,7 +4,6 @@
 #include "curveeditor.h"
 #include "curveeditormodel.h"
 #include "curveeditortoolbar.h"
-#include "detail/curveitem.h"
 #include "detail/graphicsview.h"
 #include "detail/treeview.h"
 

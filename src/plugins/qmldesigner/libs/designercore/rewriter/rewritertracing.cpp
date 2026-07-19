@@ -3,9 +3,7 @@
 
 #include "rewritertracing.h"
 
-#include <tracing/qmldesignertracing.h>
 
-#include <sqlitebasestatement.h>
 
 namespace QmlDesigner::RewriterTracing {
 

@@ -6,7 +6,6 @@
 #include "cppeditortr.h"
 #include "cppfilesettingspage.h"
 
-#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/templateengine.h>
 

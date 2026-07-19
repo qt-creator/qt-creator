@@ -3,14 +3,11 @@
 
 #pragma once
 
-#include <modelfwd.h>
-#include <nodemetainfo.h>
+#include "propertymetainfo.h"
 
-#include <qmljs/qmljssimplereader.h>
+#include <utils/smallstring.h>
 
-#include <optional>
 #include <variant>
-#include <vector>
 
 namespace QmlDesigner {
 

@@ -4,7 +4,6 @@
 #include "qmlengineutils.h"
 
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <debugger/console/console.h>
 #include <qmldebug/qdebugmessageclient.h>
 

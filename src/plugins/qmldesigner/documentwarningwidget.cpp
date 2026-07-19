@@ -3,7 +3,6 @@
 
 #include "documentwarningwidget.h"
 
-#include <qmldesignerplugin.h>
 
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>

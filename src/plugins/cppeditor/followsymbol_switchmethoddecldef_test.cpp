@@ -26,7 +26,6 @@
 #include <coreplugin/idocument.h>
 
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 
 #include <QDebug>
 #include <QDir>

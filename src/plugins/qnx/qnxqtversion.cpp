@@ -7,9 +7,6 @@
 #include "qnxtr.h"
 #include "qnxutils.h"
 
-#include <coreplugin/featureprovider.h>
-#include <proparser/profileevaluator.h>
-
 #include <qtsupport/qtconfigwidget.h>
 #include <qtsupport/qtsupportconstants.h>
 

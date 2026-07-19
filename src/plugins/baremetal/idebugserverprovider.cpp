@@ -9,7 +9,6 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QFormLayout>

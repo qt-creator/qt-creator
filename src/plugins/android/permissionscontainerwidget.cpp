@@ -8,8 +8,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/fileutils.h>
-
 #include <QAbstractListModel>
 #include <QApplication>
 #include <QCheckBox>
@@ -25,7 +23,6 @@
 #include <QListView>
 #include <QListWidget>
 #include <QPushButton>
-
 
 using namespace Utils;
 

@@ -14,9 +14,7 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 
-#include <debugger/debuggerconstants.h>
 #include <debugger/debuggericons.h>
 
 #include <texteditor/textmark.h>
@@ -25,7 +23,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
-#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QDateTime>

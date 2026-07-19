@@ -15,15 +15,11 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
-
-#include <texteditor/texteditor.h>
-
 #include <extensionsystem/iplugin.h>
-
-#include <utils/utilsicons.h>
+#include <texteditor/texteditor.h>
+#include <utils/icon.h>
 
 #include <QAction>
 #include <QLoggingCategory>

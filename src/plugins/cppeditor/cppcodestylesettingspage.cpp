@@ -15,9 +15,8 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <cplusplus/Overview.h>
-#include <cplusplus/pp.h>
-
-#include <extensionsystem/pluginmanager.h>
+#include <cplusplus/PreprocessorEnvironment.h>
+#include <cplusplus/pp-engine.h>
 
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/displaysettings.h>
@@ -29,7 +28,6 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QGroupBox>

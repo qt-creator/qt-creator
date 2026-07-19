@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <utils/stringutils.h>
-
 #include <QObject>
 #include <QSet>
 

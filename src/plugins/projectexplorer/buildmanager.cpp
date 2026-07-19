@@ -33,7 +33,6 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
-#include <utils/outputformatter.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>

@@ -7,7 +7,6 @@
 
 #include "modelresourcemanagementfwd.h"
 
-#include <bindingproperty.h>
 #include <modelnode.h>
 
 namespace QmlDesigner {

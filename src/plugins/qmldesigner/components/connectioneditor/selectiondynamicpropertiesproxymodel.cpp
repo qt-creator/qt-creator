@@ -25,7 +25,6 @@
 
 #include "selectiondynamicpropertiesproxymodel.h"
 
-#include <dynamicpropertiesmodel.h>
 #include <connectionview.h>
 
 namespace QmlDesigner {

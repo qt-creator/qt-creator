@@ -10,7 +10,6 @@
 #include "pythontr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 
 #include <debugger/debuggerruncontrol.h>
 
@@ -22,7 +21,6 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/aspects.h>
-#include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 
 #include <QUrl>

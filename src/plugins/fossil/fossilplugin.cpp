@@ -26,7 +26,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <utils/action.h>
 #include <utils/commandline.h>

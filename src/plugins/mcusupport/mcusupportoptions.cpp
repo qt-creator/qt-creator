@@ -14,12 +14,8 @@
 #include "mcutarget.h"
 #include "settingshandler.h"
 
-#include <cmakeprojectmanager/cmakekitaspect.h>
-#include <cmakeprojectmanager/cmaketoolmanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-#include <debugger/debuggerkitaspect.h>
-#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>

@@ -16,7 +16,6 @@
 
 #include <solutions/spinner/spinner.h>
 
-#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtdesignwidgets.h>
@@ -25,6 +24,7 @@
 #include <QApplication>
 #include <QCryptographicHash>
 #include <QDesktopServices>
+#include <QFileInfo>
 #include <QGridLayout>
 #include <QImageWriter>
 #include <QJsonArray>

@@ -17,8 +17,6 @@
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 
-#include <aggregation/aggregate.h>
-
 #include <QDebug>
 #include <QPointer>
 #include <QStackedWidget>

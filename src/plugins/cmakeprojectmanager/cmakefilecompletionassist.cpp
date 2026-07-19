@@ -22,7 +22,10 @@
 #include <projectexplorer/target.h>
 
 #include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/assistproposalitem.h>
+#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/snippets/snippetassistcollector.h>
 
 #include <utils/async.h>
 #include <utils/fsengine/fileiconprovider.h>

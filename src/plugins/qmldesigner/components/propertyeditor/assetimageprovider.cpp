@@ -5,11 +5,8 @@
 
 #include "propertyeditortracing.h"
 
-#include <asset.h>
 #include <imagecache/imagecacheimageresponse.h>
 
-#include <projectexplorer/target.h>
-#include <qmldesignerutils/hdrimage.h>
 #include <utils/stylehelper.h>
 
 #include <QMetaObject>

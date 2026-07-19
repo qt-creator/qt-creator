@@ -8,10 +8,7 @@
 #include "annotation.h"
 #include "annotationeditordialog.h"
 
-#include "qmlmodelnodeproxy.h"
 
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
 
 #include <coreplugin/icore.h>
 

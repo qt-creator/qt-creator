@@ -4,8 +4,8 @@
 #include "propertyparser.h"
 
 #include <enumeration.h>
-#include <modelnode.h>
 
+#include <QColor>
 #include <QUrl>
 #include <QVector3D>
 #include <QVector2D>

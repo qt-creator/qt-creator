@@ -10,7 +10,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <QtTaskTree/QTaskTree>

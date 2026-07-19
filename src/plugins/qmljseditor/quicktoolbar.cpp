@@ -20,7 +20,6 @@
 #include <qmljs/qmljsutils.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/tabsettings.h>
 #include <coreplugin/icore.h>
 
 #include <QDebug>

@@ -5,7 +5,6 @@
 
 #include "imagecachestorage.h"
 
-#include <thread>
 
 namespace QmlDesigner {
 

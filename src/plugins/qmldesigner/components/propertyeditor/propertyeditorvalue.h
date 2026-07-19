@@ -11,7 +11,7 @@
 
 #include <QObject>
 #include <QQmlPropertyMap>
-#include <QtQml>
+#include <qqml.h>
 
 namespace QmlDesigner {
 

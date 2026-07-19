@@ -27,9 +27,6 @@
 
 #include <qmldebug/qmlevent.h>
 #include <qmldebug/qmleventtype.h>
-#include <qmldebug/qmlprofilereventtypes.h>
-
-#include <utils/qtcassert.h>
 
 #include <QHash>
 #include <QStack>

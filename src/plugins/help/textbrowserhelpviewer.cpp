@@ -10,7 +10,6 @@
 #include <coreplugin/find/findplugin.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QContextMenuEvent>

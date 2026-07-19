@@ -5,8 +5,7 @@
 
 #include <projectexplorer/abi.h>
 
-#include <utils/environment.h>
-#include <utils/qtcassert.h>
+#include <utils/environmentfwd.h>
 #include <utils/filepath.h>
 
 namespace Qnx::Internal {

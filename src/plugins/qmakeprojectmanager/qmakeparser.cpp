@@ -4,7 +4,6 @@
 #include "qmakeparser.h"
 
 #include <projectexplorer/task.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildmanager.h>
 
 using namespace ProjectExplorer;

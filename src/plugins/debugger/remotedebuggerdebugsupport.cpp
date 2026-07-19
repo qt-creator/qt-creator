@@ -9,7 +9,6 @@
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/qtcprocess.h>

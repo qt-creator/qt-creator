@@ -15,7 +15,6 @@
 #include <QVariant>
 
 #include <functional>
-#include <optional>
 #include <utility>
 #include <variant>
 

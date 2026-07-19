@@ -37,7 +37,6 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
-#include <utils/fileutils.h>
 #include <utils/searchresultitem.h>
 #include <utils/textutils.h>
 

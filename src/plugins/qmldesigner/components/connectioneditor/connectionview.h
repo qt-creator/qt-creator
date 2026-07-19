@@ -4,9 +4,7 @@
 #pragma once
 
 #include <abstractview.h>
-#include <qmlitemnode.h>
 
-#include <utils/uniqueobjectptr.h>
 
 #include <QPointer>
 

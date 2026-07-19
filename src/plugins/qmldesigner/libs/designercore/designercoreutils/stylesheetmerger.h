@@ -3,7 +3,6 @@
 #ifndef STYLESHEETMERGER_H
 #define STYLESHEETMERGER_H
 
-#include "qmldesignercorelib_global.h"
 
 #include "utils/filepath.h"
 

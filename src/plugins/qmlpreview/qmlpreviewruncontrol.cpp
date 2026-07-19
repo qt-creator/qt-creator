@@ -8,6 +8,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/target.h>
 

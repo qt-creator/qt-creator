@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <qmldesignercorelib_global.h>
 
 #include <commondefines.h>
 #include <customnotificationpackage.h>
@@ -13,16 +12,13 @@
 #include <module.h>
 #include <projectstorage/projectstoragefwd.h>
 #include <projectstorage/projectstorageinfotypes.h>
-#include <projectstorage/projectstorageobserver.h>
 #include <projectstorageids.h>
-#include <utils/uniqueobjectptr.h>
 
 #include <QMimeData>
 #include <QObject>
 #include <QPair>
 #include <QVarLengthArray>
 
-#include <variant>
 
 QT_BEGIN_NAMESPACE
 class QPixmap;

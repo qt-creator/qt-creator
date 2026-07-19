@@ -5,7 +5,7 @@
 
 #include "../include/qmldesignercorelib_global.h"
 
-#include "projectstorageids.h"
+#include "sourcepathids.h"
 
 #include <sqliteexception.h>
 

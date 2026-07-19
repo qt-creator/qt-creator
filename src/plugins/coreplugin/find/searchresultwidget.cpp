@@ -6,13 +6,10 @@
 #include "searchresulttreeview.h"
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
-#include "searchresulttreeitemroles.h"
 
 #include "findplugin.h"
 #include "itemviewfind.h"
 #include "../coreplugintr.h"
-
-#include <aggregation/aggregate.h>
 
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>

@@ -19,7 +19,6 @@
 #include <qmlitemnode.h>
 
 #include <utils/algorithm.h>
-#include <utils/smallstringio.h>
 
 namespace   {
 const QString lineBreak = QStringLiteral("<br>");

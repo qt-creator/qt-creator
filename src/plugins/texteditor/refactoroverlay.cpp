@@ -5,7 +5,6 @@
 #include "textdocumentlayout.h"
 #include "texteditor.h"
 
-#include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 
 #include <QPainter>

@@ -18,10 +18,7 @@
 #include "presetsparser.h"
 
 #include <android/androidconstants.h>
-#include <docker/dockerconstants.h>
 #include <ios/iosconstants.h>
-#include <qnx/qnxconstants.h>
-#include <webassembly/webassemblyconstants.h>
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/itemviewfind.h>

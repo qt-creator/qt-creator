@@ -17,11 +17,9 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
-#include <utils/detailswidget.h>
 #include <utils/fileutils.h>
 #include <utils/groupedmodel.h>
 #include <utils/guiutils.h>
-#include <utils/guard.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>

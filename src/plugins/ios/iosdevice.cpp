@@ -18,9 +18,10 @@
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/environmentkitaspect.h>
 
-#include <utils/co_result.h>
+#include <utils/algorithm.h>
 #include <utils/devicefileaccess.h>
 #include <utils/guiutils.h>
+#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
@@ -50,8 +51,6 @@
 #endif
 
 #endif
-
-#include <exception>
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;

@@ -5,9 +5,7 @@
 
 #include "imagecachecollectorinterface.h"
 #include "imagecachestorage.h"
-#include "timestampprovider.h"
-
-#include <thread>
+#include "timestampproviderinterface.h"
 
 namespace QmlDesigner {
 

@@ -5,12 +5,8 @@
 
 #include <debugger/debuggerengine.h>
 
-#include <utils/qtcprocess.h>
-
 #include <QLoggingCategory>
 #include <QVariant>
-
-#include <queue>
 
 namespace Debugger::Internal {
 

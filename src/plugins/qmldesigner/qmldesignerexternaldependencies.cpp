@@ -5,7 +5,7 @@
 
 #include "qmldesignerplugin.h"
 
-#include <edit3d/edit3dviewconfig.h>
+#include <coreplugin/icore.h>
 #include <itemlibraryimport.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectmanager.h>
@@ -15,10 +15,9 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 #include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
-
-#include <coreplugin/icore.h>
-
 #include <utils/hostosinfo.h>
+
+#include <QMainWindow>
 
 namespace QmlDesigner {
 

@@ -62,7 +62,6 @@
 
 #include <algorithm>
 #include <climits>
-#include <ctype.h>
 #include <functional>
 #include <optional>
 

@@ -6,7 +6,6 @@
 #include "effectcodeeditorwidget.h"
 
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
 #include <utils/uniqueobjectptr.h>
 
 namespace EffectComposer {

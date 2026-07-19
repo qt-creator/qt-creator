@@ -9,12 +9,10 @@
 #include <projectstorageerrornotifiermock.h>
 #include <projectstorageobservermock.h>
 
-#include <modelnode.h>
 #include <projectstorage/projectstorage.h>
+#include <projectstorage/projectstorageexceptions.h>
 #include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
-#include <sqlitereadstatement.h>
-#include <sqlitewritestatement.h>
 
 #include <random>
 

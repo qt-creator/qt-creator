@@ -8,8 +8,6 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <texteditor/texteditor.h>
-
 namespace CppEditor {
 class SymbolFinder;
 class VirtualFunctionAssistProvider;

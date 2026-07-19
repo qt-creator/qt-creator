@@ -4,7 +4,6 @@
 #include "propertycomponentgenerator.h"
 
 #include <utils/algorithm.h>
-#include <utils/environment.h>
 #include <utils/set_algorithm.h>
 
 #include <model.h>

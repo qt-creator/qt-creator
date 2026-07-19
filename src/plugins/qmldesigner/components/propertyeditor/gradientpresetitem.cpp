@@ -4,7 +4,6 @@
 #include "gradientpresetitem.h"
 #include "propertyeditortracing.h"
 
-#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
 #include <QDebug>

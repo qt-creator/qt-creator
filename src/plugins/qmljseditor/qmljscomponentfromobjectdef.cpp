@@ -7,7 +7,6 @@
 #include "qmljsquickfixassist.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
@@ -22,8 +21,6 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-
-#include <utils/fileutils.h>
 
 #include <QCoreApplication>
 #include <QDir>

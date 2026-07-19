@@ -8,14 +8,10 @@
 #include "coreplugintr.h"
 #include "icore.h"
 
-#include <utils/algorithm.h>
-#include <utils/appinfo.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -23,6 +19,7 @@
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QMainWindow>
 #include <QPushButton>
 
 namespace Core::Internal {

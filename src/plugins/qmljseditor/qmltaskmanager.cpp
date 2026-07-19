@@ -6,16 +6,12 @@
 #include "qmllsclientsettings.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljscontext.h>
-#include <qmljs/qmljsconstants.h>
 #include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljstools/qmljsmodelmanager.h>

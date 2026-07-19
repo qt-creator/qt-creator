@@ -11,8 +11,6 @@
 
 #include <projectexplorer/projectmanager.h>
 
-#include <texteditor/fontsettings.h>
-
 #include <utils/layoutbuilder.h>
 #include <utils/listmodel.h>
 #include <utils/qtcassert.h>

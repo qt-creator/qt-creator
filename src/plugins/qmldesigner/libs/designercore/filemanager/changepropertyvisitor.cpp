@@ -6,6 +6,7 @@
 #include <signalhandlerproperty.h>
 
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsutils.h>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

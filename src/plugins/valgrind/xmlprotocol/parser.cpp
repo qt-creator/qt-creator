@@ -13,7 +13,6 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/async.h>
-#include <utils/expected.h>
 #include <utils/qtcassert.h>
 
 #include <QAbstractSocket>

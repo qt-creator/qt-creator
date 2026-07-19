@@ -3,7 +3,6 @@
 
 #include "moduleshandler.h"
 
-#include "debuggeractions.h"
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
@@ -13,7 +12,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/listmodel.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDebug>

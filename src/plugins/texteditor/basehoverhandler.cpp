@@ -4,7 +4,6 @@
 #include "basehoverhandler.h"
 #include "texteditor.h"
 
-#include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QScopeGuard>

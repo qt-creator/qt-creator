@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "catchresult.h"
+
 #include "catchtreeitem.h"
 
+#include "../autotestconstants.h"
 #include "../testframeworkmanager.h"
 
 #include <utils/id.h>

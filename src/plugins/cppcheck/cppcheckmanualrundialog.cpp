@@ -6,9 +6,8 @@
 #include "cppchecksettings.h"
 #include "cppchecktr.h"
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/selectablefilesmodel.h>
-
-#include <cppeditor/projectinfo.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>

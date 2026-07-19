@@ -7,9 +7,6 @@
 #include "projectexplorer_export.h"
 #include "task.h"
 
-#include <coreplugin/featureprovider.h>
-
-#include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/store.h>
 

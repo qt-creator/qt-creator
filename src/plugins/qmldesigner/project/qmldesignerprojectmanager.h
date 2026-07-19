@@ -4,7 +4,6 @@
 #pragma once
 
 #include "modelfwd.h"
-#include <projectstoragefwd.h>
 #include <qmldesigner_global.h>
 
 #include <QList>

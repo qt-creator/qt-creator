@@ -4,7 +4,6 @@
 #include "../luaengine.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/textdocument.h>
 
 using namespace Utils;
 

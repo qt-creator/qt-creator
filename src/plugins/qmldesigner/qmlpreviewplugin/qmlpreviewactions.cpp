@@ -5,10 +5,7 @@
 #include "qmlpreviewactions.h"
 
 #include <designeractionmanager.h>
-#include <designersettings.h>
 #include <zoomaction.h>
-
-#include <utils/utilsicons.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/projectexplorer.h>
@@ -18,6 +15,8 @@
 #include <projectexplorer/target.h>
 
 #include <android/androidconstants.h>
+
+#include <utils/icon.h>
 
 #include <QLabel>
 #include <QComboBox>

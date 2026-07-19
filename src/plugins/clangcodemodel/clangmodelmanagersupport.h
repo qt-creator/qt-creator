@@ -10,7 +10,6 @@
 
 #include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
-#include <utils/id.h>
 
 #include <QHash>
 #include <QObject>

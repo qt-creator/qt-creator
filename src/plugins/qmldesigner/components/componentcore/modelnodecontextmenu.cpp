@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modelnodecontextmenu.h"
-#include "modelnodecontextmenu_helper.h"
 #include "designeractionmanager.h"
 #include <qmldesignerplugin.h>
 #include "qmleditormenu.h"

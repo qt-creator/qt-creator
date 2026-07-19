@@ -3,14 +3,12 @@
 
 #include "cppincludehierarchy_test.h"
 
-#include "cppeditorwidget.h"
 #include "cppincludehierarchy.h"
 #include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditor.h>
-#include <utils/fileutils.h>
 
 #include <QByteArray>
 #include <QList>

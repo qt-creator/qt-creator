@@ -6,7 +6,6 @@
 #include "texteditor_global.h"
 
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/textdocumentlayout.h>
 
 #include <QObject>
 #include <QTextLayout>

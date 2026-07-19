@@ -11,7 +11,6 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
 

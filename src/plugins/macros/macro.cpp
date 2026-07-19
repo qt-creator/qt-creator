@@ -4,7 +4,6 @@
 #include "macro.h"
 #include "macroevent.h"
 
-#include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
 

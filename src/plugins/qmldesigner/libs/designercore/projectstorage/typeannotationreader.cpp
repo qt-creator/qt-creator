@@ -8,7 +8,6 @@
 #include <designercoretr.h>
 
 #include <qmldesignerutils/stringutils.h>
-#include <utils/algorithm.h>
 
 #include <QDebug>
 #include <QFileInfo>

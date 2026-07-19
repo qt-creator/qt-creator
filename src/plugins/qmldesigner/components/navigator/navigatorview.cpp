@@ -17,17 +17,13 @@
 #include <modelutils.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
-#include <nodeproperty.h>
 #include <qmldesignerconstants.h>
-#include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
-#include <rewritingexception.h>
 #include <theme.h>
 #include <variantproperty.h>
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -35,7 +31,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
-#include <utils/utilsicons.h>
 #include <utils/stylehelper.h>
 
 #include <QHeaderView>

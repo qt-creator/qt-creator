@@ -12,7 +12,6 @@
 
 #include <utils3d.h>
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QActionGroup>

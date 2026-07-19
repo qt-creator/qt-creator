@@ -6,8 +6,6 @@
 #include "imageview.h" // ExportData
 #include "imageviewertr.h"
 
-#include <coreplugin/coreicons.h>
-
 #include <utils/pathchooser.h>
 
 #include <QDialogButtonBox>

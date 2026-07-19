@@ -3,13 +3,11 @@
 
 #pragma once
 
-#include "projectstorageids.h"
 #include "projectstoragetracing.h"
+#include "sourcepathids.h"
 
 #include <QDir>
 #include <QTimer>
-
-#include <utils/algorithm.h>
 
 #include <functional>
 

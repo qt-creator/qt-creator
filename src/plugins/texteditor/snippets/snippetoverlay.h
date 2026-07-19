@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "snippet.h"
 #include "texteditor/texteditoroverlay.h"
 
 #include <QTextEdit>

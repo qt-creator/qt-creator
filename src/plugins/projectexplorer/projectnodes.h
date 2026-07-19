@@ -8,7 +8,6 @@
 #include <QIcon>
 #include <QStringList>
 
-#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsfilestate.h>
 
 #include <utils/filepath.h>
@@ -16,7 +15,6 @@
 
 #include <functional>
 #include <optional>
-#include <utility>
 #include <variant>
 
 namespace Utils { class MimeType; }

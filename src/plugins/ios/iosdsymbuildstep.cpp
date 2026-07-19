@@ -8,21 +8,16 @@
 #include "iosrunconfiguration.h"
 #include "iostr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
+#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtparser.h>
-
-#include <utils/qtcprocess.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 

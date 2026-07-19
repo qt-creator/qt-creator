@@ -18,15 +18,12 @@
 #include <modelnodepositionstorage.h>
 #include <modulesstorage/modulesstorage.h>
 #include <nodemetainfo.h>
-#include <nodeproperty.h>
-#include <projectstorage/projectstorage.h>
 #include <rewritingexception.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
 
 #include <qmldesignerutils/stringutils.h>
 
-#include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljssimplereader.h>
 

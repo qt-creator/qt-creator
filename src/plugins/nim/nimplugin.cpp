@@ -22,9 +22,7 @@
 
 #include <debugger/debuggerruncontrol.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <texteditor/snippets/snippetprovider.h>

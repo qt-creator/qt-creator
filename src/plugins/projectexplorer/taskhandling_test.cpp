@@ -7,7 +7,6 @@
 
 #include "task.h"
 #include "taskfile.h"
-#include "taskhub.h"
 #include "taskmodel.h"
 
 #include <utils/id.h>

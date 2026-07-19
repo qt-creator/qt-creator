@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QtQml>
 
 #include "editorproxy.h"
 

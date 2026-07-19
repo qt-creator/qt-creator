@@ -7,7 +7,6 @@
 #include "task.h"
 #include "taskhub.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>

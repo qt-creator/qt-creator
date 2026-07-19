@@ -8,16 +8,12 @@
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 
-#include <coreplugin/icore.h>
-
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/ExpressionUnderCursor.h>
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/ResolveExpression.h>
-
-#include <cppeditor/cppeditorconstants.h>
 
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>

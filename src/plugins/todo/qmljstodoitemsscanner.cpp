@@ -4,9 +4,8 @@
 
 #include "qmljstodoitemsscanner.h"
 
-#include <projectexplorer/project.h>
-
 #include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/stringutils.h>
 

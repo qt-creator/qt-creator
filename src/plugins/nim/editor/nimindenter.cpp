@@ -5,7 +5,6 @@
 
 #include "../tools/nimlexer.h"
 
-#include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/tabsettings.h>
 

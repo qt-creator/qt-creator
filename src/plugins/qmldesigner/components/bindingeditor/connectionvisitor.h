@@ -4,7 +4,6 @@
 #ifndef CONNECTIONVISITOR_H
 #define CONNECTIONVISITOR_H
 
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 

@@ -15,8 +15,6 @@
 #include <coreplugin/mcp/mcpmanager.h>
 #include <coreplugin/messagemanager.h>
 
-#include <debugger/debuggerconstants.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <mcp/server/toolregistry.h>

@@ -5,7 +5,6 @@
 
 #include "qtsupporttr.h"
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/taskhub.h>
 
 #include <QCoreApplication>

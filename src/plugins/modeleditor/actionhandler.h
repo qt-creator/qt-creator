@@ -8,8 +8,6 @@
 #include <QIcon>
 #include <QObject>
 
-#include <functional>
-
 QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE

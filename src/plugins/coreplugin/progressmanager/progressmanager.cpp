@@ -13,11 +13,8 @@
 #include "../icore.h"
 #include "../statusbarmanager.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mathutils.h>

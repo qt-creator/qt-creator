@@ -8,7 +8,6 @@
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
-#include <utils/widgets.h>
 
 #include <QDesktopServices>
 #include <QMessageBox>

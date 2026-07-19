@@ -13,7 +13,6 @@
 #include <coreplugin/minisplitter.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
-#include <tracing/timelineformattime.h>
 
 #include <QApplication>
 #include <QClipboard>

@@ -9,7 +9,6 @@
 #include <debugger/debuggerprotocol.h>
 #include <debugger/disassemblerlines.h>
 #include <debugger/shared/hostutils.h>
-#include <debugger/threaddata.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -17,8 +16,6 @@
 #include <QDir>
 #include <QTextStream>
 #include <QDebug>
-
-#include <cctype>
 
 enum { debugDisAsm = 0 };
 

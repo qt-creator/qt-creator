@@ -18,7 +18,6 @@
 
 #include <QtTaskTree/QBarrier>
 
-#include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 

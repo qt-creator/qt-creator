@@ -19,11 +19,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
-#include <cppeditor/cppeditorconstants.h>
-
 #include <extensionsystem/iplugin.h>
-
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>

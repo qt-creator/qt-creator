@@ -26,12 +26,11 @@
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/textutils.h>
 #include <utils/tooltip/tooltip.h>
-
-#include <functional>
 
 using namespace Core;
 using namespace ProjectExplorer;

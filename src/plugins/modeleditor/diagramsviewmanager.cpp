@@ -5,8 +5,6 @@
 
 #include "modeleditor.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 

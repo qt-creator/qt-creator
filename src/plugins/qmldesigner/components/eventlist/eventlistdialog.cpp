@@ -6,8 +6,9 @@
 #include "eventlistview.h"
 #include "filterlinewidget.h"
 #include "nodelistview.h"
-#include "qmldesignerplugin.h"
 #include "eventlistutils.h"
+#include "plaintexteditmodifier.h"
+#include "rewriterview.h"
 #include "utils/utilsicons.h"
 
 #include <QHBoxLayout>

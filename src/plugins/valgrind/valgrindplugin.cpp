@@ -6,9 +6,6 @@
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorer.h>

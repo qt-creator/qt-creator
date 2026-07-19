@@ -7,8 +7,8 @@
 
 #include <projectexplorer/project.h>
 
-#include <utils/fileutils.h>
-
+#include <QDir>
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 

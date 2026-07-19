@@ -5,18 +5,15 @@
 
 #include "connectionvisitor.h"
 
-#include <texteditor/texteditor.h>
-
-#include <qmldesigner/qmldesignerplugin.h>
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditordocument.h>
-#include <texteditor/textdocument.h>
 
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QHBoxLayout>
 #include <QComboBox>
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QMetaEnum>
 #include <QPlainTextEdit>
+#include <QPushButton>
 
 static Q_LOGGING_CATEGORY(ceLog, "qtc.qmldesigner.connectioneditor", QtWarningMsg)
 

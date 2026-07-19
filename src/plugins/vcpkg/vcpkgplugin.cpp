@@ -9,7 +9,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 

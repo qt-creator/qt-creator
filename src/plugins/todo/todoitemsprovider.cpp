@@ -10,6 +10,8 @@
 #include "todoitemsmodel.h"
 #include "todoitemsscanner.h"
 
+#include <cppeditor/cppmodelmanager.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
@@ -17,6 +19,8 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+
+#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
 

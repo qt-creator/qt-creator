@@ -9,7 +9,6 @@
 
 #include <utils/aspects.h>
 #include <utils/environmentchangesaspect.h>
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QUuid>

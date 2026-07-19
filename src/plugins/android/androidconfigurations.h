@@ -6,18 +6,17 @@
 
 #include "androidsdkpackage.h"
 
-#include <projectexplorer/toolchain.h>
-
-#include <qtsupport/qtversionmanager.h>
-
-#include <QtTaskTree/QTaskTree>
+#include <projectexplorer/abi.h>
 
 #include <utils/filepath.h>
+#include <utils/hostosinfo.h>
 
 #include <QStringList>
 #include <QVersionNumber>
+#include <QtTaskTree/QTaskTree>
 
 namespace ProjectExplorer { class Abi; }
+namespace QtSupport { class QtVersion; }
 
 namespace Android::Internal {
 

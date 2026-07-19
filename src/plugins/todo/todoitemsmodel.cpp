@@ -8,7 +8,6 @@
 #include "todotr.h"
 
 #include <utils/algorithm.h>
-#include <utils/theme/theme.h>
 
 #include <QIcon>
 

@@ -4,7 +4,6 @@
 #include "debugviewwidget.h"
 
 
-#include <qmldesignerplugin.h>
 #include <designersettings.h>
 
 namespace QmlDesigner {

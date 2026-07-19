@@ -6,7 +6,6 @@
 #include "commonvcssettings.h"
 #include "nicknamedialog.h"
 #include "vcsbaseconstants.h"
-#include "vcsbasesubmiteditor.h"
 #include "vcsbasetr.h"
 #include "vcschangesview.h"
 #include "vcsoutputwindow.h"
@@ -15,13 +14,10 @@
 #include "wizard/vcsjsextension.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 

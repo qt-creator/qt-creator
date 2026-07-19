@@ -5,14 +5,13 @@
 #define BINDINGEDITOR_H
 
 #include <bindingeditor/bindingeditordialog.h>
-#include <qmldesignercorelib_global.h>
 #include <modelnode.h>
 
 #include <utils/uniqueobjectptr.h>
 
-#include <QtQml>
 #include <QObject>
 #include <QPointer>
+#include <qqml.h>
 
 namespace QmlDesigner {
 

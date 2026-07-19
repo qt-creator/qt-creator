@@ -9,7 +9,6 @@
 #include <QtTaskTree/QTaskTree>
 
 #include <utils/mathutils.h>
-#include <utils/qtcassert.h>
 
 #include <QFutureWatcher>
 #include <QPointer>

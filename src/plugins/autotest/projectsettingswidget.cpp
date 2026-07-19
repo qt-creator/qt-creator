@@ -3,7 +3,6 @@
 
 #include "projectsettingswidget.h"
 
-#include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "autotesttr.h"
 #include "testcodeparser.h"

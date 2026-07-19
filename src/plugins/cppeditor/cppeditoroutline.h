@@ -7,8 +7,6 @@
 
 #include <QObject>
 
-#include <memory>
-
 QT_BEGIN_NAMESPACE
 class QAction;
 class QSortFilterProxyModel;

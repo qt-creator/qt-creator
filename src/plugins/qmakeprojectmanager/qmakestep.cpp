@@ -29,11 +29,8 @@
 #include <projectexplorer/toolchainkitaspect.h>
 
 #include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
 
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtversionmanager.h>
-#include <qtsupport/qtsupportconstants.h>
 
 #include <ios/iosconstants.h>
 
@@ -41,7 +38,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
-#include <utils/utilsicons.h>
 
 #include <QDir>
 #include <QLabel>

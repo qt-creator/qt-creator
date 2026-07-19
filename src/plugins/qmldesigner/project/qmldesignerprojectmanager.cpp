@@ -3,6 +3,8 @@
 
 #include "qmldesignerprojectmanager.h"
 #include "projectstorageerrornotifier.h"
+#include "sourcepathcache.h"
+#include "sourcepathstorage.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -13,15 +15,12 @@
 #include <projectstorage/filestatuscache.h>
 #include <projectstorage/filesystem.h>
 #include <projectstorage/projectstorage.h>
-#include <projectstorage/projectstoragepathwatcher.h>
 #include <projectstorage/projectstorageupdater.h>
 #include <projectstorage/qmldocumentparser.h>
 #include <projectstorage/qmltypesparser.h>
-#include <qmlprojectmanager/qmlproject.h>
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
-#include <sourcepathstorage/nonlockingmutex.h>
-#include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 
 #include <asynchronousexplicitimagecache.h>
@@ -44,7 +43,6 @@
 #include <QQmlEngine>
 #include <QStandardPaths>
 
-#include <sourcelocation.h>
 
 using namespace std::chrono;
 using namespace std::chrono_literals;

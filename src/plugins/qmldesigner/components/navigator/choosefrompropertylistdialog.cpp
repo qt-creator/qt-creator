@@ -7,7 +7,6 @@
 #include "ui_choosefrompropertylistdialog.h"
 
 #include <nodemetainfo.h>
-#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 

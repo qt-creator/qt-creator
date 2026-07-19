@@ -7,8 +7,6 @@
 #include <QString>
 #include <QTextStream>
 
-#include <algorithm>
-
 using namespace Valgrind;
 using namespace Valgrind::XmlProtocol;
 

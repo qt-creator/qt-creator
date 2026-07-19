@@ -6,17 +6,11 @@
 #include "formeditorscene.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
-#include "itemutilfunctions.h"
 #include "formeditoritem.h"
-
-#include "resizehandleitem.h"
 
 #include "nodemetainfo.h"
 #include "qmlitemnode.h"
 #include <designeractionmanager.h>
-#include <qmldesignerplugin.h>
-
-#include <abstractaction.h>
 
 #include <utils/icon.h>
 

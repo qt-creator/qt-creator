@@ -7,8 +7,8 @@
 #include "classviewmanager.h"
 #include "classviewutils.h"
 
-#include <cplusplus/Icons.h>
 #include <utils/dropsupport.h>
+#include <utils/utilsicons.h>
 
 namespace ClassView::Internal {
 

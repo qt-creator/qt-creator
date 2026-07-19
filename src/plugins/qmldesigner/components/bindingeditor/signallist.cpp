@@ -3,9 +3,9 @@
 
 #include "signallist.h"
 
+#include "abstractview.h"
 #include "signallistdelegate.h"
 
-#include <qmldesignerplugin.h>
 #include <qmldesignertr.h>
 
 #include <coreplugin/icore.h>
@@ -13,7 +13,6 @@
 #include <variantproperty.h>
 #include <bindingproperty.h>
 #include <signalhandlerproperty.h>
-#include <qmldesignerconstants.h>
 #include <qmlitemnode.h>
 #include <nodeabstractproperty.h>
 

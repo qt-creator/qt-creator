@@ -4,13 +4,6 @@
 #include "formwindoweditor.h"
 #include "formwindowfile.h"
 #include "designerconstants.h"
-#include "resourcehandler.h"
-
-#include <coreplugin/coreconstants.h>
-#include <texteditor/textdocument.h>
-
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 
 namespace Designer {
 

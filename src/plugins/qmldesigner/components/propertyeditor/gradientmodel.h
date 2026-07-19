@@ -7,8 +7,7 @@
 
 #include <QAbstractListModel>
 #include <QColor>
-#include <QtQml>
-#include <enumeration.h>
+#include <qqml.h>
 
 class ShapeGradientPropertyData;
 

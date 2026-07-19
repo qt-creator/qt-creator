@@ -36,7 +36,7 @@
 #include <utils/dialogtask.h>
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
-#include <utils/utilsicons.h>
+#include <utils/icon.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>

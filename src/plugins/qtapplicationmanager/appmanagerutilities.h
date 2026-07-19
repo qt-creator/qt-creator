@@ -5,7 +5,6 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/project.h>
 
 namespace AppManager::Internal {
 

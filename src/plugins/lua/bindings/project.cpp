@@ -12,7 +12,6 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <utils/commandline.h>
 #include <utils/processinterface.h>
 
 using namespace ProjectExplorer;

@@ -8,7 +8,6 @@
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
 #include "projectexplorerconstants.h"
-#include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "runcontrol.h"
 #include "target.h"

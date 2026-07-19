@@ -8,7 +8,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcolorbutton.h>
 #include <utils/theme/theme.h>
-#include <utils/utilsicons.h>
 
 #include <QAbstractListModel>
 #include <QApplication>

@@ -8,7 +8,6 @@
 #include <QJsonObject>
 #include <QObject>
 
-#include "nodeinstanceglobal.h"
 #include "qmldesignercorelib_global.h"
 
 namespace QmlDesigner {

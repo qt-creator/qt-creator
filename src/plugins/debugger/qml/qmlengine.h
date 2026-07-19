@@ -5,8 +5,7 @@
 
 #include <debugger/debuggerengine.h>
 
-#include <qmldebug/qdebugmessageclient.h>
-#include <qmljs/qmljsdocument.h>
+#include <qmldebug/qmldebugclient.h>
 
 namespace Debugger::Internal {
 

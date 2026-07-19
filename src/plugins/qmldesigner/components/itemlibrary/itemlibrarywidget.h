@@ -11,7 +11,6 @@
 #include <studioquickwidget.h>
 
 #include <previewtooltip/previewtooltipbackend.h>
-#include <utils/dropsupport.h>
 #include <utils/fancylineedit.h>
 #include <utils/uniqueobjectptr.h>
 

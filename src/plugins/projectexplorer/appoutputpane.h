@@ -3,12 +3,10 @@
 
 #pragma once
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/ioutputpane.h>
 
+#include <utils/aspects.h>
 #include <utils/outputformat.h>
-#include <utils/theme/theme.h>
 
 #include <QPointer>
 

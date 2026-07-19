@@ -4,7 +4,6 @@
 #pragma once
 
 #include <abstractcustomtool.h>
-#include "selectionindicator.h"
 
 #include <QHash>
 #include <QPointer>

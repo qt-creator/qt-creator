@@ -20,6 +20,7 @@
 
 #include <utils/algorithm.h>
 
+#include <QDir>
 #include <QLoggingCategory>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testconfiguration", QtWarningMsg)

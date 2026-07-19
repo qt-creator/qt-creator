@@ -9,7 +9,6 @@
 #include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/progressmanager/progressmanager.h>

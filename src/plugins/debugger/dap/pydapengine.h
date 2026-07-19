@@ -5,6 +5,8 @@
 
 #include "dapengine.h"
 
+#include <utils/qtcprocess.h>
+
 namespace Debugger::Internal {
 
 class PyDapEngine : public DapEngine

@@ -9,8 +9,6 @@
 #include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
 
-#include <aggregation/aggregate.h>
-
 using namespace Utils;
 
 namespace Core {

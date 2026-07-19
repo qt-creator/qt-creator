@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
 #include <utils/aspects.h>
 
 namespace Valgrind::Internal {

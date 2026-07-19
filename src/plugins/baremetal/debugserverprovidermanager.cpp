@@ -6,8 +6,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>

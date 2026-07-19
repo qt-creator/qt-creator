@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "mytypes.h"
 #include "warningitem.h"
 
 namespace ScxmlEditor {

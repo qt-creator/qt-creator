@@ -12,7 +12,6 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/project.h>

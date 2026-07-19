@@ -5,9 +5,6 @@
 
 #include "lua_global.h"
 
-#include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginspec.h>
-
 #include <utils/filepath.h>
 #include <utils/lua.h>
 

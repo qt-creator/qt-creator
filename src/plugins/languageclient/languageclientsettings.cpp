@@ -9,6 +9,7 @@
 #include "languageclientmanager.h"
 #include "languageclienttr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -22,10 +23,8 @@
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
-#include <utils/delegates.h>
 #include <utils/fancylineedit.h>
 #include <utils/guiutils.h>
-#include <utils/jsontreeitem.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
@@ -42,12 +41,14 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHeaderView>
+#include <QItemSelectionModel>
 #include <QJsonDocument>
 #include <QLabel>
 #include <QMenu>
 #include <QMimeData>
 #include <QPushButton>
 #include <QSortFilterProxyModel>
+#include <QStyledItemDelegate>
 #include <QToolButton>
 #include <QTreeView>
 #include <QTreeWidget>

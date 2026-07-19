@@ -5,6 +5,8 @@
 
 #include "cppchecktr.h"
 
+#include <projectexplorer/detailederrorview.h>
+
 #include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/link.h>

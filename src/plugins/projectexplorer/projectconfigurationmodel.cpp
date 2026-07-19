@@ -4,8 +4,6 @@
 #include "projectconfigurationmodel.h"
 
 #include "projectconfiguration.h"
-#include "projectexplorertr.h"
-#include "runconfiguration.h"
 
 #include <utils/stringutils.h>
 

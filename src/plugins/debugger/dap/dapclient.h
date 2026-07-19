@@ -3,11 +3,12 @@
 
 #pragma once
 
-#include <debugger/debuggerengine.h>
+#include <utils/commandline.h>
+#include <utils/processenums.h>
 
-#include <utils/qtcprocess.h>
-
+#include <QJsonObject>
 #include <QLoggingCategory>
+#include <QProcess>
 
 namespace Debugger::Internal {
 

@@ -5,7 +5,6 @@
 
 #include "modelnode.h"
 #include "nodeabstractproperty.h"
-#include "qmldesignercorelib_global.h"
 
 #include <QList>
 

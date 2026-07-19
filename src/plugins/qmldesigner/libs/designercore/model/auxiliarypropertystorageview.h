@@ -3,7 +3,6 @@
 
 #include <abstractview.h>
 
-#include <memory.h>
 
 namespace QmlDesigner {
 class QMLDESIGNERCORE_EXPORT AuxiliaryPropertyStorageView final : public AbstractView

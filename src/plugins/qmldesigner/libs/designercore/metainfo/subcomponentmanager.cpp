@@ -8,20 +8,15 @@
 #include <externaldependenciesinterface.h>
 #include <invalidmetainfoexception.h>
 #include <model.h>
-#include <qmldesignercoreconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QDirIterator>
 #include <QMessageBox>
 #include <QUrl>
 
-#include <qmljs/qmljslink.h>
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/parser/qmljsengine_p.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 
 enum { debug = false };
 

@@ -13,6 +13,8 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/processprogress.h>
 
+#include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
@@ -21,7 +23,6 @@
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 

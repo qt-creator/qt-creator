@@ -8,7 +8,6 @@
 #include "timelineitem.h"
 #include "timelinemovableabstractitem.h"
 #include "timelinemovetool.h"
-#include "timelineplaceholder.h"
 #include "timelinepropertyitem.h"
 #include "timelinesectionitem.h"
 #include "timelinetoolbar.h"
@@ -16,17 +15,10 @@
 #include "timelinewidget.h"
 
 #include <auxiliarydataproperties.h>
-#include <designdocumentview.h>
-#include <exception.h>
 #include <rewritertransaction.h>
-#include <rewriterview.h>
-#include <viewmanager.h>
-#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-#include <qmlobjectnode.h>
 #include <qmltimelinekeyframegroup.h>
 
-#include <bindingproperty.h>
 
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
@@ -35,7 +27,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <utils/hostosinfo.h>
 
 #include <QApplication>
 #include <QComboBox>

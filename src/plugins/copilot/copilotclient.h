@@ -5,7 +5,6 @@
 
 #include "requests/checkstatus.h"
 #include "requests/getcompletions.h"
-#include "requests/seteditorinfo.h"
 #include "requests/signinconfirm.h"
 #include "requests/signininitiate.h"
 #include "requests/signout.h"

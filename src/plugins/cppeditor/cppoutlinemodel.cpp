@@ -4,11 +4,11 @@
 #include "cppoutlinemodel.h"
 
 #include <cplusplus/Icons.h>
-#include <cplusplus/Literals.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Scope.h>
 #include <cplusplus/Symbols.h>
 
+#include <utils/dropsupport.h>
 #include <utils/link.h>
 #include <utils/theme/theme.h>
 

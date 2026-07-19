@@ -4,11 +4,9 @@
 #include "edit3dmaterialsaction.h"
 
 #include <bindingproperty.h>
-#include <designmodewidget.h>
 #include <model.h>
 #include <modelnode.h>
 #include <modelutils.h>
-#include <qmldesignerplugin.h>
 #include <qmleditormenu.h>
 #include <utils3d.h>
 #include <variantproperty.h>

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/toolchain.h>
 
 #include <utils/filepath.h>
 

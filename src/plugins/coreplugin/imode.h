@@ -11,7 +11,6 @@
 #include <QMenu>
 
 #include <functional>
-#include <memory.h>
 
 namespace Utils {
 class FancyMainWindow;

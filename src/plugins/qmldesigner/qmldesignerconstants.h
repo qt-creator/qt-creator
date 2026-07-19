@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <qmldesignercoreconstants.h>
 
 namespace QmlDesigner::Constants {
 

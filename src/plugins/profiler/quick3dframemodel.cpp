@@ -26,7 +26,6 @@
 #include "quick3dframemodel.h"
 
 #include "profilertr.h"
-#include "qmlprofilerconstants.h"
 #include "qmlprofilermodelmanager.h"
 #include "quick3dmodel.h"
 

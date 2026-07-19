@@ -6,14 +6,10 @@
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 
-#include <cppeditor/cpptoolssettings.h>
-
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
 
-using namespace CppEditor;
 using namespace Utils;
 
 namespace TextEditor {

@@ -10,7 +10,6 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
 

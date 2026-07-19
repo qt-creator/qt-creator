@@ -20,7 +20,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
-#include <utils/utilsicons.h>
 
 #include <QHeaderView>
 

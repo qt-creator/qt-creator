@@ -9,7 +9,6 @@
 #include <QList>
 #include <QString>
 
-#include "qmldesignercorelib_global.h"
 
 QT_BEGIN_NAMESPACE
 class QDeclarativeContext;

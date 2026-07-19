@@ -24,7 +24,6 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/globaltasktree.h>
 #include <utils/mimeutils.h>

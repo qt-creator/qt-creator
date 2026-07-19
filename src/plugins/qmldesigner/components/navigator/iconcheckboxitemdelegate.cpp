@@ -3,7 +3,6 @@
 
 #include "iconcheckboxitemdelegate.h"
 
-#include <qmath.h>
 
 #include "navigatortracing.h"
 #include "navigatortreemodel.h"
@@ -12,9 +11,7 @@
 
 #include <theme.h>
 
-#include <utils/qtcassert.h>
 
-#include <qproxystyle.h>
 #include <QLineEdit>
 #include <QMouseEvent>
 #include <QPainter>

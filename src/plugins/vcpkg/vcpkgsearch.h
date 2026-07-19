@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/aspects.h>
-
+#include <QStringList>
 #include <QUrl>
+
+QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace Vcpkg::Internal::Search {
 

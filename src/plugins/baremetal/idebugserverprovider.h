@@ -5,8 +5,6 @@
 
 #include <debugger/debuggerconstants.h>
 
-#include <projectexplorer/abi.h>
-
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>

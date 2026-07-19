@@ -10,7 +10,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcsettings.h>
 
 using namespace TextEditor;
 using namespace Utils;

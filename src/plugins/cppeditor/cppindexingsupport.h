@@ -7,8 +7,6 @@
 
 #include "cppmodelmanager.h"
 
-#include <utils/futuresynchronizer.h>
-
 #include <QFuture>
 
 #include <functional>

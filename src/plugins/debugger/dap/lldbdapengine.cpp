@@ -6,16 +6,15 @@
 #include "dapclient.h"
 
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/perspective.h>
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggersourcepathmappingwidget.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
+#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projecttree.h>
 

@@ -21,7 +21,6 @@
 
 #include <designermcumanager.h>
 #include <theme.h>
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 
 #include <QApplication>

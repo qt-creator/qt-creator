@@ -11,8 +11,6 @@
 #include <componentcore/componentcore_constants.h>
 #include <coreplugin/icore.h>
 #include <designeractionmanager.h>
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 #include <qmldesignerplugin.h>
 
 namespace QmlDesigner {

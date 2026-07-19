@@ -10,14 +10,13 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/commandline.h>
 
 #include <QFormLayout>
 #include <QLineEdit>

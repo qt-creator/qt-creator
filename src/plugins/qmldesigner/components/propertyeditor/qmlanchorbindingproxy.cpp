@@ -6,8 +6,6 @@
 #include "propertyeditortracing.h"
 
 #include <abstractview.h>
-#include <exception.h>
-#include <modelnodeoperations.h>
 #include <modelnodeutils.h>
 #include <nodeabstractproperty.h>
 #include <qmlanchors.h>
@@ -16,7 +14,7 @@
 #include <variantproperty.h>
 
 #include <QDebug>
-#include <QtQml>
+#include <qqml.h>
 
 namespace QmlDesigner {
 

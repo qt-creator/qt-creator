@@ -5,7 +5,6 @@
 
 #include "designersettings.h"
 #include "edit3dview.h"
-#include "edit3dviewconfig.h"
 
 #include <coreplugin/icore.h>
 

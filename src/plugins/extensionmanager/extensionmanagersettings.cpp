@@ -6,7 +6,6 @@
 #include "extensionmanagerconstants.h"
 #include "extensionmanagertr.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/plugininstallwizard.h>

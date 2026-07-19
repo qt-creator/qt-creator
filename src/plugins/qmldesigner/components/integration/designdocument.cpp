@@ -4,10 +4,9 @@
 #include "designdocument.h"
 #include "designdocumentview.h"
 #include "documentmanager.h"
-#include "qmldesignerconstants.h"
+#include "qmlitemnode.h"
 #include "qmlvisualnode.h"
 
-#include <auxiliarydataproperties.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <metainfo.h>
 #endif
@@ -16,7 +15,6 @@
 #include <nodelistproperty.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
-#include <rewritingexception.h>
 #include <svgpasteaction.h>
 #include <timelineactions.h>
 #include <utils3d.h>
@@ -35,9 +33,6 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 

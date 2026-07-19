@@ -14,7 +14,6 @@
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>

@@ -4,10 +4,8 @@
 #pragma once
 
 #include <cctype>
-#include <cstdint>
 #include <cstring>
 #include <string>
-#include <vector>
 
 namespace Nim {
 

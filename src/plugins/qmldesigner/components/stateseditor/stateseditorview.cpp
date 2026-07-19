@@ -9,8 +9,6 @@
 #include <QDebug>
 #include <QRegularExpression>
 #include <QMessageBox>
-#include <cmath>
-#include <memory>
 
 #include <nodemetainfo.h>
 
@@ -22,7 +20,6 @@
 #include <rewritingexception.h>
 #include <variantproperty.h>
 
-#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <qmlstate.h>
@@ -35,8 +32,6 @@
 #include <QRegularExpression>
 #include <QScopeGuard>
 
-#include <cmath>
-#include <memory>
 
 namespace QmlDesigner {
 

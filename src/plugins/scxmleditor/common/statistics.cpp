@@ -5,7 +5,6 @@
 #include "scxmleditortr.h"
 #include "scxmltag.h"
 #include "statistics.h"
-#include "warningmodel.h"
 
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>

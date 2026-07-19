@@ -5,11 +5,7 @@
 #include "mainwidget.h"
 #include "scxmleditorconstants.h"
 
-#include <qtsupport/qtkitaspect.h>
-
-#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
-#include <utils/qtcassert.h>
 
 #include <QFileInfo>
 #include <QGuiApplication>

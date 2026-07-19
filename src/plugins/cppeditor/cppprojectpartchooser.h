@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "cpptoolsreuse.h"
 #include "projectpart.h"
 
 #include <functional>

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fakevimactions.h"
-#include "fakevimhandler.h"
 #include "fakevimtr.h"
 
 // Please do not add any direct dependencies to other Qt Creator code  here.
@@ -11,6 +10,7 @@
 // allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
 
 #ifndef FAKEVIM_STANDALONE
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/codestylepool.h>
@@ -19,7 +19,6 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 

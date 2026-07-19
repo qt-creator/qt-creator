@@ -8,7 +8,6 @@
 #include "../debuggertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/manhattanstyle.h>
 #include <qtsupport/baseqtversion.h>
 
 #include <utils/hostosinfo.h>

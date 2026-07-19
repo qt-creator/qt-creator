@@ -7,7 +7,6 @@
 #include "fossiltr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>

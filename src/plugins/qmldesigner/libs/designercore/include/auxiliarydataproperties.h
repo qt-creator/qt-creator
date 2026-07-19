@@ -8,8 +8,6 @@
 #include <QColor>
 #include <QVariant>
 
-#include <type_traits>
-#include <variant>
 
 namespace QmlDesigner {
 

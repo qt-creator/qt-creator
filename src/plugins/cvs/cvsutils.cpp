@@ -3,8 +3,6 @@
 
 #include "cvsutils.h"
 
-#include <utils/stringutils.h>
-
 #include <QRegularExpression>
 #include <QStringList>
 

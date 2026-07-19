@@ -5,9 +5,6 @@
 #include "cppchecktool.h"
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
-
-#include <coreplugin/messagemanager.h>
 
 using namespace Utils;
 

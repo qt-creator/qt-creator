@@ -33,7 +33,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
-#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>

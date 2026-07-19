@@ -3,11 +3,8 @@
 
 #include "makefileparser.h"
 
-#include "autotoolsprojectmanagertr.h"
-
-#include <utils/qtcprocess.h>
+#include <utils/commandline.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <QDir>
 #include <QFile>

@@ -11,7 +11,6 @@
 #include "qmt/project_controller/projectcontroller.h"
 
 #include <coreplugin/icore.h>
-#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 
 #include <QLabel>

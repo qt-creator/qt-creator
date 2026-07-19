@@ -6,8 +6,6 @@
 #include "cpastertr.h"
 #include "fileshareprotocolsettingspage.h"
 
-#include <coreplugin/messagemanager.h>
-
 #include <utils/fileutils.h>
 
 #include <QXmlStreamReader>

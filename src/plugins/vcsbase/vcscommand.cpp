@@ -6,7 +6,6 @@
 #include "vcsbaseplugin.h"
 #include "vcsoutputwindow.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>

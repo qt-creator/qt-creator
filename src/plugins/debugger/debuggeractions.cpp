@@ -8,11 +8,7 @@
 #include "debuggertr.h"
 #include "gdb/gdbsettings.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QGuiApplication>

@@ -20,8 +20,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -30,6 +28,7 @@
 #include <texteditor/fontsettings.h>
 
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/textutils.h>
 #include <utils/theme/theme.h>
 
 #include <QFutureWatcher>

@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/idocument.h>
-
+#include <utils/filepath.h>
 #include <utils/textfileformat.h>
 
 #include <QAbstractItemModel>

@@ -15,14 +15,11 @@
 #include "pythontr.h"
 #include "pythonutils.h"
 
-#include <coreplugin/editormanager/documentmodel.h>
-
 #include <languageclient/languageclientmanager.h>
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -30,7 +27,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>

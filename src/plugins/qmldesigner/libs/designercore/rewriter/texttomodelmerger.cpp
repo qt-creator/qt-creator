@@ -9,8 +9,6 @@
 #include "documentmessage.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
-#include "filemanager/qmlrefactoring.h"
-#include "itemlibraryinfo.h"
 #include "metainfo.h"
 #include "modelnodepositionstorage.h"
 #include "modelutils.h"
@@ -20,15 +18,18 @@
 #include "rewritertracing.h"
 #include "rewriterview.h"
 #include "signalhandlerproperty.h"
+#include "textmodifier.h"
 #include "variantproperty.h"
-#include <astcheck/astcheck.h>
 
 #include <externaldependenciesinterface.h>
 #include <import.h>
 #include <modelutils.h>
 #include <projectstorage/modulescanner.h>
 #include <qmldesignerutils/stringutils.h>
-#include <rewritingexception.h>
+
+#ifdef QDS_USE_PROJECTSTORAGE
+#include <astcheck/astcheck.h>
+#endif
 
 #include <enumeration.h>
 
@@ -53,7 +54,6 @@
 #include <QScopeGuard>
 #include <QSet>
 
-#include <memory>
 #include <tuple>
 
 using namespace LanguageUtils;

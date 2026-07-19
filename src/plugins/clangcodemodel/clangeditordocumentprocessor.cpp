@@ -6,29 +6,17 @@
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
-#include <cppeditor/builtincursorinfo.h>
 #include <cppeditor/builtineditordocumentparser.h>
-#include <cppeditor/clangdiagnosticconfigsmodel.h>
-#include <cppeditor/compileroptionsbuilder.h>
-#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cpptoolsreuse.h>
-#include <cppeditor/cppworkingcopy.h>
 #include <cppeditor/editordocumenthandle.h>
 
 #include <languageclient/languageclientmanager.h>
 
 #include <projectexplorer/projectmanager.h>
 
-#include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorconstants.h>
-
-#include <cplusplus/CppDocument.h>
 
 #include <utils/algorithm.h>
-#include <utils/textutils.h>
-#include <utils/qtcassert.h>
 
 #include <QTextBlock>
 #include <QWidget>

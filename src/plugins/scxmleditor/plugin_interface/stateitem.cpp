@@ -18,7 +18,6 @@
 #include "transitionitem.h"
 #include "utilsprovider.h"
 
-#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QBrush>

@@ -3,7 +3,6 @@
 #pragma once
 
 #include <algorithm>
-#include <iosfwd>
 #include <memory>
 #include <string>
 #include <utility>

@@ -11,6 +11,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
@@ -25,7 +26,6 @@
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcsettings.h>
 #include <utils/shutdownguard.h>
 
 #include <QCheckBox>

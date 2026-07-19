@@ -12,8 +12,6 @@
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 
-#include <nanotrace/nanotrace.h>
-
 #include <QApplication>
 #include <QDebug>
 #include <QMainWindow>

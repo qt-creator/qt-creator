@@ -3,7 +3,6 @@
 
 #include "sourcepathstoragetracing.h"
 
-#include <sqlitebasestatement.h>
 
 namespace QmlDesigner::SourcePathStorageTracing {
 using namespace NanotraceHR::Literals;

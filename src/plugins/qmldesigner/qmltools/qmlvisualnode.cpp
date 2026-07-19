@@ -6,8 +6,6 @@
 #include "itemlibraryentry.h"
 #include "nodehints.h"
 #include "nodelistproperty.h"
-#include "qmlanchors.h"
-#include "qmlchangeset.h"
 #include "variantproperty.h"
 
 #include <externaldependenciesinterface.h>
@@ -15,6 +13,7 @@
 #include "plaintexteditmodifier.h"
 #include "rewriterview.h"
 #include "modelmerger.h"
+#include "qmlitemnode.h"
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>

@@ -15,7 +15,6 @@
 #include <utils/globaltasktree.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 #include <QDateTime>
 #include <QXmlStreamReader>

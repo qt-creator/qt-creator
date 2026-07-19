@@ -7,14 +7,12 @@
 #include "utils.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/QParallelTaskTreeRunner>
 
 #include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/guardedcallback.h>
 #include <utils/infobar.h>
 #include <utils/networkaccessmanager.h>

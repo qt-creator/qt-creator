@@ -11,10 +11,8 @@
 #include <widgethost.h>
 #include <designer/cpp/formclasswizardpage.h>
 
-#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cppsemanticinfo.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppworkingcopy.h>
 #include <cppeditor/insertionpointlocator.h>
@@ -39,7 +37,6 @@
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>

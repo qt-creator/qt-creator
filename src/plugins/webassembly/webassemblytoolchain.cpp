@@ -12,7 +12,6 @@
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmacro.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 #include <projectexplorer/toolchainmanager.h>
 
@@ -22,7 +21,6 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 
 #include <QVersionNumber>
 

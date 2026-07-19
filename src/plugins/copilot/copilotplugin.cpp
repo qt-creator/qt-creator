@@ -8,7 +8,6 @@
 #include "copilottr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/statusbarmanager.h>
 
 #include <extensionsystem/iplugin.h>

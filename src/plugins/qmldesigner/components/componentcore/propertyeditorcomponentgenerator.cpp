@@ -5,9 +5,6 @@
 
 #include <qmldesignertr.h>
 
-#include <utils/environment.h>
-#include <utils/span.h>
-
 #include <modelnode.h>
 
 namespace QmlDesigner {

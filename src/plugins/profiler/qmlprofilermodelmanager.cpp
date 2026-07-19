@@ -7,7 +7,6 @@
 #include "qmlprofilernotesmodel.h"
 #include "qmlprofilertracefile.h"
 
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <tracing/tracestashfile.h>
 #include <utils/qtcassert.h>
 

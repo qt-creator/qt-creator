@@ -31,7 +31,6 @@
 #include <texteditor/fontsettings.h>
 
 #include <utils/algorithm.h>
-#include <utils/checkablemessagebox.h>
 #include <utils/completingtextedit.h>
 #include <utils/fileutils.h>
 #include <utils/icon.h>

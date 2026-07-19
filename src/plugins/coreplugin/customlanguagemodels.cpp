@@ -10,12 +10,8 @@
 #include <utils/algorithm.h>
 #include <utils/aspectlist.h>
 #include <utils/aspects.h>
-#include <utils/guiutils.h>
-#include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
-#include <utils/macroexpander.h>
 #include <utils/shutdownguard.h>
-#include <utils/treemodel.h>
 
 #include <QHeaderView>
 #include <QLayout>

@@ -7,6 +7,8 @@
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 
+#include <texteditor/fontsettings.h>
+
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>

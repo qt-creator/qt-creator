@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmlchangeset.h"
 #include "qmlmodelnodefacade.h"
 
 namespace QmlDesigner {

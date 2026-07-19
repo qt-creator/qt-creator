@@ -5,7 +5,6 @@
 
 #include "zephyrconstants.h"
 #include "zephyrsettings.h"
-#include "zephyrtr.h"
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerruncontrol.h>

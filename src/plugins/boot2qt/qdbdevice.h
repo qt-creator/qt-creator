@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <projectexplorer/kit.h>
 #include <remote/linuxdevice.h>
 
 namespace Qdb::Internal {

@@ -5,7 +5,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>

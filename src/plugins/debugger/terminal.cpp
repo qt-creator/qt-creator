@@ -5,16 +5,7 @@
 
 #include "debuggertr.h"
 
-#include <coreplugin/icore.h>
-
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runconfigurationaspects.h>
-
 #include <utils/environment.h>
-#include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
-#include <utils/processinterface.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QIODevice>
@@ -34,8 +25,6 @@
 #   include <sys/stat.h>
 #endif
 
-using namespace Core;
-using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Debugger::Internal {

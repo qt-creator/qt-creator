@@ -5,7 +5,6 @@
 #include "killappstep.h"
 #include "linuxdevice.h"
 #include "macdevice.h"
-#include "remotelinux_constants.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxdeploysupport.h"

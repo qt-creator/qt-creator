@@ -7,7 +7,6 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljslink.h>
-#include <qmljs/qmljsutils.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

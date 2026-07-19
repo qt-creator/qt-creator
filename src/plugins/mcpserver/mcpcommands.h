@@ -4,8 +4,6 @@
 
 #include <mcp/server/mcpserver.h>
 
-#include <utils/result.h>
-
 #include <QObject>
 #include <QStringList>
 

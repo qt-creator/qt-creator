@@ -29,10 +29,7 @@
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
-#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
-
-#include <aggregation/aggregate.h>
 
 #include <abstractobjectinspector.h>
 #include <QDesignerActionEditorInterface>

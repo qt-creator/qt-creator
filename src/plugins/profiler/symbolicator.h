@@ -3,12 +3,14 @@
 
 #pragma once
 
+#include <QtGlobal>
+
+#ifdef Q_OS_MACOS
+
 #include "sampletrace.h"
 
 #include <QHash>
 #include <QString>
-
-#ifdef Q_OS_MACOS
 
 #include <mach/mach.h>
 #include <mach/mach_vm.h>

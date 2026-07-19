@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <profiler/qmlprofilerattachdialog.h>
-
 #include <QObject>
 
 namespace Profiler::Internal {

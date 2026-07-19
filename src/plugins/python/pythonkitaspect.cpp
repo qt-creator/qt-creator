@@ -12,11 +12,7 @@
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
 
-#include <utils/algorithm.h>
-#include <utils/async.h>
-#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcprocess.h>
 
 #include <QComboBox>
 #include <QSortFilterProxyModel>

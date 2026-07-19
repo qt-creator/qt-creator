@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "../include/qmldesignercorelib_exports.h"
 
 #include <bindingproperty.h>
 

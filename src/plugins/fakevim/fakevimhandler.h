@@ -7,7 +7,6 @@
 #include <QTextEdit>
 
 #include <functional>
-#include <vector>
 
 namespace FakeVim::Internal {
 

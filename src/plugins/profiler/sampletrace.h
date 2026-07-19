@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "profiler_global.h"
-
 #include <utils/filepath.h>
 #include <utils/result.h>
 

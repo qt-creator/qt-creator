@@ -5,7 +5,6 @@
 
 #include <sqlite/sqliteids.h>
 
-#include <utils/span.h>
 
 #include <QVarLengthArray>
 

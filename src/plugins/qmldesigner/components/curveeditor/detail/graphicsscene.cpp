@@ -7,8 +7,6 @@
 #include "graphicsview.h"
 #include "handleitem.h"
 
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
 
 #include <QGraphicsSceneMouseEvent>
 

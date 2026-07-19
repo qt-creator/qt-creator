@@ -19,9 +19,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
-#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractItemView>

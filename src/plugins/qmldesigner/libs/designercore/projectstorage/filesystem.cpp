@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filesystem.h"
-#include "projectstorage.h"
-#include "projectstorageids.h"
-#include "sourcepathstorage/sourcepathcache.h"
-#include "sqlitedatabase.h"
+#include "filestatus.h"
+#include "sourcepathcache.h"
 
 #include <utils/algorithm.h>
 

@@ -5,8 +5,6 @@
 
 #include "xmlproperty.h"
 
-#include <memory>
-
 namespace BareMetal::Gen::Xml {
 
 // Project

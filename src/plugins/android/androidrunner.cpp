@@ -18,10 +18,7 @@
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitaspect.h>
-
 #include <utils/url.h>
-#include <utils/utilsicons.h>
 
 #include <QHostAddress>
 #include <QLoggingCategory>

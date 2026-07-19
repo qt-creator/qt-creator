@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
 #include "cppindexingsupport.h"
 #include "indexitem.h"
 

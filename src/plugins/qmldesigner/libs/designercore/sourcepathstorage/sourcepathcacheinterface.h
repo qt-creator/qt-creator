@@ -4,8 +4,9 @@
 #pragma once
 
 #include "sourcepath.h"
-#include "sourcepathcachetypes.h"
 #include "sourcepathview.h"
+
+#include <sourcepathids.h>
 
 namespace QmlDesigner {
 

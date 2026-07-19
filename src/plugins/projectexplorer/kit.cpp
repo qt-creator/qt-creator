@@ -22,7 +22,6 @@
 #include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 

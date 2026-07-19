@@ -11,7 +11,6 @@
 #include "nimtexteditorwidget.h"
 
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditorconstants.h>
 
 using namespace TextEditor;
 using namespace Utils;

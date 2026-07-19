@@ -7,8 +7,6 @@
 #include "chart.h"
 #include "idataprovider.h"
 
-#include <coreplugin/session.h>
-
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runcontrol.h>
 

@@ -10,25 +10,20 @@
 #include "cppeditortr.h"
 #include "cppqtstyleindenter.h"
 
-#include <coreplugin/icore.h>
-
-#include <extensionsystem/pluginmanager.h>
-
+#include <texteditor/codestyleeditor.h>
+#include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/codestylepool.h>
-#include <texteditor/completionsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/indenter.h>
 #include <texteditor/tabsettings.h>
 
 #include <utils/mimeconstants.h>
-#include <utils/qtcassert.h>
 #include <utils/shutdownguard.h>
 
 #include <QLayout>
 
 static const char idKey[] = "CppGlobal";
 
-using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 

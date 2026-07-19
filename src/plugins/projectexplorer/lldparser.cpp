@@ -3,10 +3,7 @@
 
 #include "lldparser.h"
 
-#include "projectexplorerconstants.h"
 #include "task.h"
-
-#include <utils/fileutils.h>
 
 #include <QStringList>
 

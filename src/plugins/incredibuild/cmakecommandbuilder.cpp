@@ -8,9 +8,9 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 
-#include <utils/qtcprocess.h>
-
 #include <cmakeprojectmanager/cmakeprojectconstants.h> // Compile-time only
+
+#include <utils/commandline.h>
 
 #include <QRegularExpression>
 #include <QStandardPaths>

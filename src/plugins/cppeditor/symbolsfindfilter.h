@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "searchsymbols.h"
+#include "cppindexingsupport.h"
 
 #include <coreplugin/find/ifindfilter.h>
 #include <coreplugin/find/searchresultwindow.h>

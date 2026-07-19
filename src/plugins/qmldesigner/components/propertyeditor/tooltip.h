@@ -4,9 +4,8 @@
 #ifndef TOOLTIP_H
 #define TOOLTIP_H
 
-#include <QtQml>
-
 #include <QtCore/qobject.h>
+#include <qqml.h>
 
 QT_BEGIN_NAMESPACE
 class QPointF;

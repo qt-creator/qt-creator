@@ -13,7 +13,6 @@
 #include <QHash>
 
 #include <algorithm>
-#include <utils/algorithm.h>
 
 using namespace TextEditor;
 

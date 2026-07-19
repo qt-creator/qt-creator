@@ -4,19 +4,12 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 #include "formeditortracing.h"
-
-#include <auxiliarydataproperties.h>
-#include <bindingproperty.h>
-#include <qmldesignertr.h>
-#include <variantproperty.h>
+#include "layeritem.h"
 
 #include <modelnode.h>
 #include <nodehints.h>
 #include <nodemetainfo.h>
 
-#include <theme.h>
-
-#include <utils/algorithm.h>
 #include <utils/theme/theme.h>
 #include <utils/qtcassert.h>
 

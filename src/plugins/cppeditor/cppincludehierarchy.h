@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
+#include <utils/filepath.h>
 #include <utils/treemodel.h>
 
 #include <QSet>

@@ -4,13 +4,10 @@
 
 #include "assigneventdialog.h"
 #include "connectsignaldialog.h"
-#include "eventlistactions.h"
 #include "eventlistdialog.h"
 #include "nodelistproperty.h"
-#include "nodeproperty.h"
+#include "nodemetainfo.h"
 #include "variantproperty.h"
-#include <coreplugin/icore.h>
-#include <componentcore/componentcore_constants.h>
 
 #include <QPushButton>
 #include <QStandardItemModel>

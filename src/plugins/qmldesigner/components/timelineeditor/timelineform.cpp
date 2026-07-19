@@ -5,14 +5,10 @@
 
 #include <abstractview.h>
 #include <bindingproperty.h>
-#include <exception>
-#include <nodelistproperty.h>
-#include <nodemetainfo.h>
 #include <rewritertransaction.h>
 #include <variantproperty.h>
 #include <dialogutils.h>
 
-#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>

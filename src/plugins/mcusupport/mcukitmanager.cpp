@@ -19,8 +19,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <debugger/debuggeritem.h>
-#include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -33,7 +31,6 @@
 
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>

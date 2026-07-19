@@ -8,7 +8,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/appinfo.h>
 
 #include <QJsonDocument>

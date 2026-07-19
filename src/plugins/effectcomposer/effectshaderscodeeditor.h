@@ -6,9 +6,7 @@
 #include "effectcodeeditorwidget.h"
 #include "shadereditordata.h"
 
-#include <texteditor/texteditor.h>
 
-#include <utils/uniqueobjectptr.h>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 QT_FORWARD_DECLARE_CLASS(QStackedWidget)

@@ -10,11 +10,10 @@
 
 #include <tracing/timelinetracemanager.h>
 
-#include <utils/fileinprojectfinder.h>
-
 #include <functional>
 
 namespace ProjectExplorer { class BuildConfiguration; }
+namespace Utils { class FilePath; }
 
 namespace Profiler::Internal {
 

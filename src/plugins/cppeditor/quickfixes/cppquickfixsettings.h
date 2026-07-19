@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/useglobalaspect.h>
 

@@ -5,7 +5,6 @@
 
 #include "abi.h"
 #include "toolchain.h"
-#include "toolchainconfigwidget.h"
 
 #include <QFutureWatcher>
 

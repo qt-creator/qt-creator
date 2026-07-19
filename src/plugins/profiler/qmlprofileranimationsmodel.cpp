@@ -5,7 +5,6 @@
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
 
-#include <utils/qtcassert.h>
 #include <tracing/timelineformattime.h>
 
 #include <QCoreApplication>

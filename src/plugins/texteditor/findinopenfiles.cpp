@@ -11,7 +11,6 @@
 #include <coreplugin/editormanager/documentmodel.h>
 
 #include <utils/shutdownguard.h>
-#include <utils/qtcsettings.h>
 
 using namespace Utils;
 

@@ -13,7 +13,6 @@
 
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
-#include <utils/textcodec.h>
 
 #include <QByteArrayView>
 #include <QChar>

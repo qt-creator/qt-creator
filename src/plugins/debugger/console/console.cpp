@@ -8,7 +8,6 @@
 #include "consoleitemdelegate.h"
 #include "../debuggertr.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
 

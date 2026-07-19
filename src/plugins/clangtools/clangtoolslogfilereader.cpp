@@ -7,7 +7,6 @@
 
 #include <QDir>
 
-#include <utils/fileutils.h>
 #include <utils/textutils.h>
 
 #include <yaml-cpp/yaml.h>

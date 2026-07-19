@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <qglobal.h>
-
 #include "cmakeabstractprocessstep.h"
 #include <utils/treemodel.h>
 

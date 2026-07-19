@@ -11,8 +11,6 @@
 
 #include <QPointer>
 
-#include <functional>
-
 namespace LanguageClient { class Client; }
 
 namespace ClangCodeModel::Internal {

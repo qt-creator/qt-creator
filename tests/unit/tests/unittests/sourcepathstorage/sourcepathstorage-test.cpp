@@ -3,6 +3,7 @@
 
 #include "../utils/googletest.h"
 
+#include <sourcepathstorage/sourcepathexceptions.h>
 #include <sourcepathstorage/sourcepathstorage.h>
 
 namespace {

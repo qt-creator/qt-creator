@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "scxmleditor_global.h"
 #include <texteditor/texteditor.h>
 
 namespace ScxmlEditor {

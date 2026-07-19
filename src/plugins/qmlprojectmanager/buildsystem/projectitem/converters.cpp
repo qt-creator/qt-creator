@@ -6,9 +6,13 @@
 #include "../../qmlprojectconstants.h"
 #include "../../qmlprojectexporter/filetypes.h"
 
+#include <qmljs/qmljssimplereader.h>
+
 #include <QDir>
 #include <QDirIterator>
+#include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 
 namespace QmlProjectManager::Converters {
 

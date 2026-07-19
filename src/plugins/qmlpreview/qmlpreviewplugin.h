@@ -8,9 +8,8 @@
 
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/runcontrol.h>
-#include <qmljs/qmljsdialect.h>
-#include <qmldebug/quickeventreplayclient.h>
-
+#include <qmldebug/qmlevent.h>
+#include <qmldebug/qmleventtype.h>
 
 namespace Core { class IEditor; }
 

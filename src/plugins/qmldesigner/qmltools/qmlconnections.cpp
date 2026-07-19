@@ -5,7 +5,6 @@
 
 #include <abstractview.h>
 #include <bindingproperty.h>
-#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 

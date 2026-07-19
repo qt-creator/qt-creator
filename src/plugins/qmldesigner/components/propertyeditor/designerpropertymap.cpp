@@ -5,6 +5,8 @@
 
 #include "propertyeditortracing.h"
 
+#include <qqml.h>
+
 namespace QmlDesigner {
 
 using PropertyEditorTracing::category;

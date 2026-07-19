@@ -13,7 +13,6 @@
 #include <utils/qtcassert.h>
 
 #include <texteditor/icodestylepreferencesfactory.h>
-#include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 
 #include <QTextDocument>

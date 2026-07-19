@@ -18,9 +18,6 @@
 #include "../cppeditorwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/idocument.h>
-#include <projectexplorer/kitmanager.h>
-#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <QtTest>

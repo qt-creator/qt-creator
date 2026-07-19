@@ -25,7 +25,6 @@
 
 #include <ios/iosconstants.h>
 
-#include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>

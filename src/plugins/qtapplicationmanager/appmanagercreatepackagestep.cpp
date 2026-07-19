@@ -7,7 +7,6 @@
 
 #include "appmanagerconstants.h"
 #include "appmanagerstringaspect.h"
-#include "appmanagertargetinformation.h"
 #include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
@@ -16,11 +15,8 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/processparameters.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

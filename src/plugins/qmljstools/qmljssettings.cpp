@@ -14,8 +14,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <cplusplus/Overview.h>
-
 #include <qmljseditor/qmljseditorconstants.h>
 
 #include <projectexplorer/editorconfiguration.h>

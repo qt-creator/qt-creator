@@ -16,7 +16,6 @@
 #include <QDebug>
 #include <QPair>
 
-#include <algorithm>
 #include <utility>
 
 using namespace CPlusPlus;

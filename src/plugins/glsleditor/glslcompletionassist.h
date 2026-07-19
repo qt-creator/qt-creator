@@ -6,7 +6,6 @@
 #include "glsleditor.h"
 
 #include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/codeassist/asyncprocessor.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
 

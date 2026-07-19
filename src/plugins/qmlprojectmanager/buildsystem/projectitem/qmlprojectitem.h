@@ -5,7 +5,7 @@
 
 #include "filefilteritems.h"
 
-#include <utils/environment.h>
+#include <utils/environmentfwd.h>
 
 #include <QJsonObject>
 #include <QObject>

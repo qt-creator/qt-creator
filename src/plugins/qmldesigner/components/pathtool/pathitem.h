@@ -7,7 +7,6 @@
 #include <QWeakPointer>
 #include <QMap>
 #include <QVariant>
-#include <qmldesignercorelib_global.h>
 
 #include "cubicsegment.h"
 #include "pathselectionmanipulator.h"

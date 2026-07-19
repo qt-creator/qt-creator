@@ -12,7 +12,6 @@
 #include "errors_json.h"
 #include "gcc_desktop_json.h"
 #include "ghs_rh850_d1m1a_baremetal_json.h"
-#include "ghs_tviic2d6m_baremetal_json.h"
 #include "iar_mimxrt1064_evk_freertos_json.h"
 #include "iar_stm32f469i_discovery_baremetal_json.h"
 #include "mingw_desktop_json.h"
@@ -39,10 +38,8 @@
 #include <gmock/gmock-actions.h>
 #include <gmock/gmock.h>
 
-#include <projectexplorer/customtoolchain.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -56,9 +53,7 @@
 #include <QJsonDocument>
 #include <QTest>
 
-#include <algorithm>
 #include <tuple>
-#include <type_traits>
 
 namespace McuSupport::Internal::Test {
 

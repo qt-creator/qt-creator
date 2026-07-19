@@ -8,7 +8,6 @@
 
 #include <QAbstractTableModel>
 #include <QWidget>
-#include <qglobal.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;

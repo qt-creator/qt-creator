@@ -22,8 +22,6 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 
-#include <utils/qtcassert.h>
-
 #include <QFileInfo>
 
 // TODO implement removing include dependencies that are not longer used

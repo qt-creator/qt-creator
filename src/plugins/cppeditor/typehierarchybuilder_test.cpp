@@ -3,14 +3,12 @@
 
 #include "typehierarchybuilder_test.h"
 
-#include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 #include "typehierarchybuilder.h"
 
 #include <cplusplus/Overview.h>
 #include <cplusplus/SymbolVisitor.h>
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QTest>

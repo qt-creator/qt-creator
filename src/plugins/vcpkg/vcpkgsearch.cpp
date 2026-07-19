@@ -16,12 +16,12 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fancylineedit.h>
-#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <coreplugin/icore.h>
 
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonDocument>

@@ -4,10 +4,9 @@
 #ifndef ALIGNDISTRIBUTE_H
 #define ALIGNDISTRIBUTE_H
 
-#include <QtQml>
-
-#include <selectioncontext.h>
-#include <qmlitemnode.h>
+#include "qmlobjectnode.h"
+#include <modelnode.h>
+#include <qqml.h>
 
 namespace QmlDesigner {
 

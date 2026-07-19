@@ -4,7 +4,6 @@
 #include "qtparser.h"
 
 #include <projectexplorer/task.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QFileInfo>
 

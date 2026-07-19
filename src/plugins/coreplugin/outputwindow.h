@@ -6,7 +6,6 @@
 #include "core_global.h"
 #include "icontext.h"
 
-#include <utils/filesearch.h>
 #include <utils/outputformat.h>
 #include <utils/storekey.h>
 

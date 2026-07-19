@@ -9,14 +9,10 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
-#include <coreplugin/editormanager/ieditor.h>
-
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/LookupItem.h>
 #include <cplusplus/Overview.h>
 
-#include <cppeditor/abstracteditorsupport.h>
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cppmodelmanager.h>
 

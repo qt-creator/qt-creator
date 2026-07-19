@@ -14,8 +14,6 @@ class QRectF;
 class QTransform;
 QT_END_NAMESPACE
 
-#include <vector>
-
 namespace QmlDesigner {
 
 double scaleX(const QTransform &transform);

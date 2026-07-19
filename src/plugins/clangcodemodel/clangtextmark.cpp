@@ -4,7 +4,6 @@
 #include "clangtextmark.h"
 
 #include "clangcodemodeltr.h"
-#include "clangconstants.h"
 #include "clangdclient.h"
 #include "clangdiagnostictooltipwidget.h"
 #include "clangutils.h"

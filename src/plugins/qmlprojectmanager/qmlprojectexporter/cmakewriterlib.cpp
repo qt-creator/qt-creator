@@ -5,8 +5,6 @@
 
 #include "qmlprojectmanager/buildsystem/qmlbuildsystem.h"
 
-#include <coreplugin/icore.h>
-
 namespace QmlProjectManager {
 
 namespace QmlProjectExporter {

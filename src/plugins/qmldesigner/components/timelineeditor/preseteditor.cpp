@@ -5,7 +5,6 @@
 
 #include "canvas.h"
 #include "easingcurve.h"
-#include "timelineicons.h"
 
 #include <QAbstractButton>
 #include <QApplication>

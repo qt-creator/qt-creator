@@ -9,7 +9,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/plaintextedit/plaintextedit.h>
 #include <utils/stringutils.h>
@@ -22,8 +21,6 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QTextCharFormat>
-
-#include <cmath>
 
 using namespace Utils;
 

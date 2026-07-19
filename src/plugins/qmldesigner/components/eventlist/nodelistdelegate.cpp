@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "nodelistdelegate.h"
 #include "eventlist.h"
-#include "eventlistview.h"
 #include "nodelistview.h"
 #include "qnamespace.h"
 #include "shortcutwidget.h"

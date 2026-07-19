@@ -7,9 +7,6 @@
 
 #include "appmanagertr.h"
 
-#include <utils/algorithm.h>
-#include <utils/layoutbuilder.h>
-
 #include <QFileInfo>
 #include <QLayout>
 #include <QPushButton>

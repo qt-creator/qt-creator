@@ -9,18 +9,15 @@
 #include <languageclient/languageclientsettings.h>
 #include <languageserverprotocol/lsptypes.h>
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectmanager.h>
 
-#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textsuggestion.h>
 
-#include <utils/checkablemessagebox.h>
 #include <utils/filepath.h>
-#include <utils/passworddialog.h>
 
 #include <QGuiApplication>
 #include <QInputDialog>

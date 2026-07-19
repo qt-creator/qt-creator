@@ -23,7 +23,6 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/typingsettings.h>
 
-#include <utils/algorithm.h>
 
 #include <QDebug>
 

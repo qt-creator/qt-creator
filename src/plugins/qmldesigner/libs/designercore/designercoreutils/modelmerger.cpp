@@ -12,7 +12,6 @@
 #include "variantproperty.h"
 #include "rewritertransaction.h"
 #include "signalhandlerproperty.h"
-#include <rewritingexception.h>
 
 #include <QUrl>
 

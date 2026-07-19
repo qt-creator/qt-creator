@@ -6,7 +6,6 @@
 #include "checkstatus.h"
 
 #include <languageserverprotocol/jsonrpcmessages.h>
-#include <languageserverprotocol/lsptypes.h>
 
 namespace Copilot {
 

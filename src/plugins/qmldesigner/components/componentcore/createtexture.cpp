@@ -9,13 +9,11 @@
 #include <documentmanager.h>
 #include <modelnode.h>
 #include <modelnodeoperations.h>
-#include <modelutils.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 #include <qmldesignertr.h>
 #include <qmlobjectnode.h>
-#include <uniquename.h>
 #include <utils3d.h>
 #include <variantproperty.h>
 

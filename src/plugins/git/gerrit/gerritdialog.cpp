@@ -17,8 +17,6 @@
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
-#include <utils/qtcassert.h>
-#include <utils/theme/theme.h>
 
 #include <QApplication>
 #include <QCompleter>

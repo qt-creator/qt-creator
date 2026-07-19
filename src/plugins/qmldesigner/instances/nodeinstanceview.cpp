@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "nodeinstanceview.h"
+#include "changeauxiliarycommand.h"
 
 #include <abstractproperty.h>
 #include <bindingproperty.h>
 #include <captureddatacommand.h>
-#include <changeauxiliarycommand.h>
 #include <changebindingscommand.h>
 #include <changefileurlcommand.h>
 #include <changeidscommand.h>
@@ -36,7 +36,6 @@
 #include <puppettocreatorcommand.h>
 #include <qml3dnode.h>
 #include <qmlchangeset.h>
-#include <qmldesignerconstants.h>
 #include <qmldesignertr.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
@@ -56,7 +55,6 @@
 #include <view3dactioncommand.h>
 
 #include <auxiliarydataproperties.h>
-#include <designersettings.h>
 #include <externaldependenciesinterface.h>
 #include <model.h>
 #include <modelutils.h>
@@ -65,18 +63,16 @@
 #include <qmlitemnode.h>
 #include <rewriterview.h>
 
-#include <projectstorage/projectstorage.h>
 
 #include <hdrimage.h>
 #include <utils/smallstringview.h>
 
 #include <coreplugin/messagemanager.h>
 
-#include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
-#include <qmlprojectmanager/qmlproject.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>

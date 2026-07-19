@@ -8,7 +8,6 @@
 
 #include <utils/aspects.h>
 #include <utils/filepath.h>
-#include <utils/qtcsettings.h>
 #include <utils/store.h>
 
 #include <QTextBlock>

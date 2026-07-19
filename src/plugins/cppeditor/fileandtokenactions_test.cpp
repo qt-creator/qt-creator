@@ -13,8 +13,6 @@
 #include "quickfixes/cppinsertvirtualmethods.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/typehierarchy.h>

@@ -12,7 +12,6 @@
 #include <QVector3D>
 #include <QWidget>
 
-#include <memory>
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QMenu)

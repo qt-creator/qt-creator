@@ -5,7 +5,6 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
-#include "cpptoolsreuse.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

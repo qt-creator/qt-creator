@@ -15,7 +15,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QMessageBox>

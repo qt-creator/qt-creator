@@ -17,7 +17,6 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/projectmanager.h>
@@ -27,7 +26,6 @@
 
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/declarationcomments.h>
-#include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/SimpleLexer.h>
 

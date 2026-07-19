@@ -3,11 +3,12 @@
 
 #pragma once
 
-#include <QObject>
+#include "abstractview.h"
 #include <modelnode.h>
-#include <nodeinstanceview.h>
-#include <QRectF>
 #include <qmlitemnode.h>
+
+#include <QObject>
+#include <QRectF>
 
 namespace QmlDesigner {
 

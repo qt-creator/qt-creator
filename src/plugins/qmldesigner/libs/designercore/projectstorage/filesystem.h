@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include "filestatuscache.h"
 #include "filesysteminterface.h"
-#include "sourcepathstorage/nonlockingmutex.h"
 
 #include <modelfwd.h>
 

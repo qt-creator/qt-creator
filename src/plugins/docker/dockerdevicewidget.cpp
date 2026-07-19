@@ -7,16 +7,10 @@
 #include "dockerdevice.h"
 #include "dockertr.h"
 
-#include <cppeditor/cppeditorconstants.h>
-
 #include <projectexplorer/kitaspect.h>
 
-#include <utils/algorithm.h>
-#include <utils/clangutils.h>
 #include <utils/commandline.h>
-#include <utils/environment.h>
 #include <utils/guiutils.h>
-#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>

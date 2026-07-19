@@ -9,8 +9,6 @@
 #include "webassemblytoolchain.h"
 #include "webassemblytr.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/desktopdevice.h>

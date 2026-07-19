@@ -5,7 +5,6 @@
 
 #include "texteditor_global.h"
 
-#include <utils/store.h>
 #include <utils/aspects.h>
 #include <utils/textcodec.h>
 

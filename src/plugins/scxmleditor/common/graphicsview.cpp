@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "baseitem.h"
-#include "connectableitem.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
 #include "sceneutils.h"

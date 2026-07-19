@@ -5,8 +5,6 @@
 #include "endpuppetcommand.h"
 #include "nodeinstanceserverproxy.h"
 #include "nodeinstanceview.h"
-#include "nanotracecommand.h"
-#include "nanotrace/nanotrace.h"
 
 #include <QLocalSocket>
 #include <QTimer>

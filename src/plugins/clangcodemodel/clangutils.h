@@ -4,7 +4,6 @@
 #pragma once
 
 #include "cppeditor/compilationdb.h"
-#include <cplusplus/Icons.h>
 
 #include <cppeditor/projectinfo.h>
 #include <cppeditor/compileroptionsbuilder.h>

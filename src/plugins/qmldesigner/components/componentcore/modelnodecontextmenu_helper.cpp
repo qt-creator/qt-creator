@@ -3,12 +3,9 @@
 
 #include "modelnodecontextmenu_helper.h"
 
-#include <bindingproperty.h>
 #include <modelutils.h>
 #include <modelnode.h>
 #include <nodemetainfo.h>
-#include <nodeproperty.h>
-#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 

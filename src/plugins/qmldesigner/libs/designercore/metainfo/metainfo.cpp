@@ -6,7 +6,6 @@
 #include "itemlibraryinfo.h"
 #include "iwidgetplugin.h"
 #include "metainforeader.h"
-#include "modelnode.h"
 
 #include <designercoretr.h>
 #include <externaldependenciesinterface.h>

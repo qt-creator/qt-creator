@@ -4,15 +4,14 @@
 #pragma once
 
 #include <bindingeditor/signallistdialog.h>
-#include <qmldesignercorelib_global.h>
 #include <modelnode.h>
 #include <qmlconnections.h>
 
 #include <utils/uniqueobjectptr.h>
 
-#include <QtQml>
 #include <QObject>
 #include <QPointer>
+#include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 
 namespace QmlDesigner {

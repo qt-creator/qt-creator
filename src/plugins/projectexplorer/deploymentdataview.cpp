@@ -9,7 +9,6 @@
 #include "projectexplorertr.h"
 #include "target.h"
 
-#include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
 #include <QAbstractTableModel>

@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <utils/algorithm.h>
-#include <utils/filepath.h>
-
 #include <QDir>
 #include <QVariant>
 

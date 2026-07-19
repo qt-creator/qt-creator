@@ -12,8 +12,6 @@
 
 #include <QPointer>
 
-#include <optional>
-#include <variant>
 #include <vector>
 
 namespace QmlDesigner {

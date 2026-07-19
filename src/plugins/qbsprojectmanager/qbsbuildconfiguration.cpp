@@ -4,6 +4,7 @@
 #include "qbsbuildconfiguration.h"
 
 #include "qbsbuildstep.h"
+#include "qbsprofilemanager.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"

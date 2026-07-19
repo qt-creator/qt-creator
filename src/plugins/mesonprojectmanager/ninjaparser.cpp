@@ -3,8 +3,6 @@
 
 #include "ninjaparser.h"
 
-#include <utils/fileutils.h>
-
 namespace MesonProjectManager::Internal {
 
 NinjaParser::NinjaParser() {}

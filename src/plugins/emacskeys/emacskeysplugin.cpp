@@ -14,7 +14,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <utils/qtcassert.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>

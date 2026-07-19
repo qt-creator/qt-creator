@@ -9,7 +9,7 @@
 #include <utils/appinfo.h>
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QCoreApplication>
 #include <QDir>

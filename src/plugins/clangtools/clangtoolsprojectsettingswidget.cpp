@@ -10,8 +10,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <cppeditor/clangdiagnosticconfigsmodel.h>
-
 #include <projectexplorer/projectpanelfactory.h>
 
 #include <utils/layoutbuilder.h>

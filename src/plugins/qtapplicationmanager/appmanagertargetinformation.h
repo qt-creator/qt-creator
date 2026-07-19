@@ -5,8 +5,7 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/runcontrol.h>
+#include <utils/filepath.h>
 
 namespace ProjectExplorer { class BuildConfiguration; }
 

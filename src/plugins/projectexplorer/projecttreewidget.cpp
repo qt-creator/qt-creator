@@ -21,7 +21,6 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <utils/algorithm.h>
 #include <utils/navigationtreeview.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
@@ -37,8 +36,6 @@
 #include <QStyledItemDelegate>
 #include <QToolButton>
 #include <QVBoxLayout>
-
-#include <memory>
 
 using namespace Core;
 using namespace ProjectExplorer;

@@ -13,9 +13,9 @@
 #include <cmakeprojectmanager/cmakebuildconfiguration.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
-#include <qmakeprojectmanager/qmakebuildinfo.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakestep.h>
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>

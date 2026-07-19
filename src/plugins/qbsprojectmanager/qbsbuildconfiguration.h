@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qbsproject.h"
-
 #include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/qtbuildaspects.h>

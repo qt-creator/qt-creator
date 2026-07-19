@@ -22,8 +22,8 @@
 #include <debugger/sourcefileshandler.h>
 #include <debugger/sourceutils.h>
 #include <debugger/stackhandler.h>
-#include <debugger/terminal.h>
 #include <debugger/threadshandler.h>
+#include <debugger/watchutils.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/perspective.h>

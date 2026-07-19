@@ -14,7 +14,6 @@
 #include "qmljshighlighter.h"
 #include "qmljshoverhandler.h"
 #include "qmljsquickfixassist.h"
-#include "qmllsclientsettings.h"
 #include "qmloutlinemodel.h"
 #include "quicktoolbar.h"
 
@@ -45,17 +44,16 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <texteditor/textdocument.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/tabsettings.h>
-#include <texteditor/texteditorconstants.h>
-#include <texteditor/syntaxhighlighter.h>
-#include <texteditor/refactoroverlay.h>
-#include <texteditor/codeassist/iassistprocessor.h>
-#include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/colorpreviewhoverhandler.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/refactoroverlay.h>
 #include <texteditor/snippets/snippetprovider.h>
+#include <texteditor/syntaxhighlighter.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditorconstants.h>
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>

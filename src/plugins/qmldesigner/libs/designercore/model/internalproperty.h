@@ -10,7 +10,6 @@
 #include <QVariant>
 
 #include <memory>
-#include <type_traits>
 
 namespace QmlDesigner {
 

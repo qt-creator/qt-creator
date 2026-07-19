@@ -5,7 +5,6 @@
 #include "qmldesignerplugin.h"
 
 #include <auxiliarydataproperties.h>
-#include <bindingproperty.h>
 #include <modelutils.h>
 #include <modelnode.h>
 #include <nodelistproperty.h>
@@ -30,7 +29,6 @@
 #include <projectexplorer/projecttree.h>
 
 #include <qmakeprojectmanager/qmakenodes.h>
-#include <qmakeprojectmanager/qmakeproject.h>
 
 #include <QMessageBox>
 

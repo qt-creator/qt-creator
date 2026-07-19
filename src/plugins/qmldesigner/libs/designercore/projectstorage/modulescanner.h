@@ -3,12 +3,10 @@
 
 #pragma once
 
-#include <qmldesignercorelib_global.h>
 
 #include <externaldependenciesinterface.h>
 #include <import.h>
 
-#include <optional>
 
 namespace QmlDesigner {
 

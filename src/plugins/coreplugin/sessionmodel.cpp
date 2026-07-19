@@ -8,7 +8,6 @@
 #include "sessiondialog.h"
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
 #include <QCoreApplication>

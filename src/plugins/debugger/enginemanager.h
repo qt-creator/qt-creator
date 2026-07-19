@@ -5,8 +5,7 @@
 
 #include "debugger_global.h"
 
-#include <utils/treemodel.h>
-
+#include <QAbstractItemModel>
 #include <QPointer>
 
 namespace Debugger::Internal {

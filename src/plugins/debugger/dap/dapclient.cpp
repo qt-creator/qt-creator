@@ -10,7 +10,6 @@
 #include <QJsonDocument>
 #include <QLoggingCategory>
 
-using namespace Core;
 using namespace Utils;
 
 namespace Debugger::Internal {

@@ -5,7 +5,9 @@
 
 #include "imacrohandler.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+
+#include <utils/id.h>
 
 #include <QSet>
 

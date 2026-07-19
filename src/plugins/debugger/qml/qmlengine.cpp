@@ -11,13 +11,11 @@
 #include <debugger/breakhandler.h>
 #include <debugger/console/console.h>
 #include <debugger/debuggeractions.h>
-#include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
 #include <debugger/sourcefileshandler.h>
 #include <debugger/stackhandler.h>
-#include <debugger/threaddata.h>
 #include <debugger/watchhandler.h>
 #include <debugger/watchwindow.h>
 
@@ -25,7 +23,6 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
@@ -37,10 +34,8 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/basetreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/treemodel.h>
 #include <utils/url.h>
 
 #include <QDebug>
@@ -53,8 +48,6 @@
 #include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QTimer>
-
-#include <memory.h>
 
 #define DEBUG_QML 0
 #if DEBUG_QML

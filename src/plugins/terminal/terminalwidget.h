@@ -6,15 +6,12 @@
 #include "shellintegration.h"
 #include "shortcutmap.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/terminal/searchableterminal.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
-#include <utils/link.h>
 #include <utils/qtcprocess.h>
 #include <utils/terminalhooks.h>
 

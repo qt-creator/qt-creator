@@ -53,7 +53,6 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
-#include <utils/qtcassert.h>
 
 #include <QTextDocument>
 #include <QMenu>

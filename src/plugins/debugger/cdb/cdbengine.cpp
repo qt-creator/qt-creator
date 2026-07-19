@@ -20,13 +20,11 @@
 #include <debugger/enginemanager.h>
 #include <debugger/memoryagent.h>
 #include <debugger/moduleshandler.h>
-#include <debugger/procinterrupt.h>
 #include <debugger/registerhandler.h>
 #include <debugger/shared/cdbsymbolpathlisteditor.h>
 #include <debugger/shared/hostutils.h>
 #include <debugger/sourceutils.h>
 #include <debugger/stackhandler.h>
-#include <debugger/terminal.h>
 #include <debugger/threadshandler.h>
 #include <debugger/watchhandler.h>
 

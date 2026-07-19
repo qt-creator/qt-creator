@@ -19,8 +19,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/runconfiguration.h>
 
 using namespace ProjectExplorer;
 

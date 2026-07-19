@@ -5,7 +5,6 @@
 
 #include "modelresourcemanagementinterface.h"
 
-#include <bindingproperty.h>
 #include <modelnode.h>
 
 namespace QmlDesigner {

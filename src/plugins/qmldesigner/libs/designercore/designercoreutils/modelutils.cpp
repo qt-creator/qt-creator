@@ -6,13 +6,15 @@
 #include <abstractview.h>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
-#include <sourcepathstorage/sourcepathcache.h>
+
+#ifdef QDS_USE_PROJECTSTORAGE
+#include <sourcepathcache.h>
+#endif
 
 #include <astcheck/astutils.h>
 
 #include <utils/expected.h>
-#include <utils/ranges.h>
-#include <utils/result.h>
+#include <utils/qtcassert.h>
 
 #include <algorithm>
 #include <array>

@@ -5,7 +5,6 @@
 
 #include "exception.h"
 
-#include <qmldesignercorelib_global.h>
 
 #include <QUrl>
 #include <QCoreApplication>

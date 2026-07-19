@@ -3,13 +3,11 @@
 
 #pragma once
 
-#include <QJsonObject>
-#include <QString>
+#include <QtGlobal>
 
-#include <utils/environment.h>
-#include <qmljs/qmljssimplereader.h>
+QT_FORWARD_DECLARE_CLASS(QJsonObject)
 
-#include <QJsonArray>
+namespace Utils { class FilePath; }
 
 namespace QmlProjectManager::Converters {
 

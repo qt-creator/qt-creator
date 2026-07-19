@@ -5,7 +5,6 @@
 #include "gitlabquery.h"
 #include "resultparser.h"
 
-#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>

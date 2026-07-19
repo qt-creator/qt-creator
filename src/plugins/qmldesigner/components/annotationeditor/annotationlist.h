@@ -14,7 +14,6 @@
 #include <QListView>
 #include <QStyledItemDelegate>
 
-#include <tuple>
 #include <vector>
 
 

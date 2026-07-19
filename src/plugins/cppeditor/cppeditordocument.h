@@ -8,6 +8,7 @@
 
 #include <cplusplus/CppDocument.h>
 
+#include <texteditor/blockrange.h>
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/textdocument.h>
 

@@ -13,15 +13,11 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/documentmodel.h>
 
-#include <qmldebug/qmldebugconstants.h>
 #include <qmldebug/qmlenginedebugclient.h>
 #include <qmldebug/qmltoolsclient.h>
 
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -30,7 +26,6 @@
 #include <QRegularExpression>
 
 using namespace QmlDebug;
-using namespace QmlDebug::Constants;
 using namespace Utils;
 
 namespace Debugger::Internal {

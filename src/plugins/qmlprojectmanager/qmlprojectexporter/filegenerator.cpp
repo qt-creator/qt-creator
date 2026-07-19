@@ -7,11 +7,12 @@
 #include "../qmlprojectconstants.h"
 #include "../qmlprojectmanagertr.h"
 
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/buildconfiguration.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/taskhub.h>
 
 #include <QMenu>
 

@@ -5,7 +5,6 @@
 
 #include <exception.h>
 #include <rewriterview.h>
-#include <basetexteditmodifier.h>
 #include <modelmerger.h>
 
 #include "designdocument.h"

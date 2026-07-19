@@ -3,9 +3,7 @@
 
 #include "propertyeditortracing.h"
 
-#include <tracing/qmldesignertracing.h>
 
-#include <sqlitebasestatement.h>
 
 namespace QmlDesigner::PropertyEditorTracing {
 using namespace NanotraceHR::Literals;

@@ -9,21 +9,17 @@
 #include <designeractionmanager.h>
 #include <modelnodecontextmenu_helper.h>
 #include <viewmanager.h>
-#include <zoomaction.h>
 #include <qmldesignerplugin.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
 using namespace Utils;

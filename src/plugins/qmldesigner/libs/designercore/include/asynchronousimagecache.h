@@ -10,12 +10,6 @@
 #include <imagecache/taskqueue.h>
 #include <qmldesignercorelib_exports.h>
 
-#include <condition_variable>
-#include <deque>
-#include <functional>
-#include <mutex>
-#include <optional>
-#include <thread>
 
 namespace QmlDesigner {
 

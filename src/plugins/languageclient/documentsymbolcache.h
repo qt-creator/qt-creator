@@ -14,8 +14,6 @@
 #include <QSet>
 #include <QTimer>
 
-#include <optional>
-
 namespace LanguageClient {
 
 class Client;

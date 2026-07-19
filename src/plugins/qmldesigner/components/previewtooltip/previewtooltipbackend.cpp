@@ -5,7 +5,6 @@
 
 #include "previewimagetooltip.h"
 
-#include <coreplugin/icore.h>
 #include <asynchronousimagecache.h>
 
 #include <QApplication>

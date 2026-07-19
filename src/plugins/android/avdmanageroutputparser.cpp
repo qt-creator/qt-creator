@@ -5,8 +5,6 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
 #include <QRegularExpression>

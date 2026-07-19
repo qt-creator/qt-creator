@@ -6,8 +6,6 @@
 #include "itemlibrarymodel.h"
 #include "itemlibrarytracing.h"
 
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QVariant>

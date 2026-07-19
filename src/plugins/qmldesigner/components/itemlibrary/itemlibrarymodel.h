@@ -4,7 +4,6 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <QtQml/qqml.h>
 #include <import.h>
 
 QT_FORWARD_DECLARE_CLASS(QMimeData)

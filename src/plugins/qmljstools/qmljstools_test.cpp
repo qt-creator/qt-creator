@@ -9,9 +9,9 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljslink.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsvalueowner.h>
 #include <qmljstools/qmljsindenter.h>
-#include <qmljstools/qmljsmodelmanager.h>
 
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditor.h>

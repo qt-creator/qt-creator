@@ -2,27 +2,20 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "transitioneditortoolbar.h"
+#include "abstractview.h"
 #include "transitioneditorgraphicsscene.h"
 
 #include "transitioneditorconstants.h"
 
-#include "timelineicons.h"
-
-#include "timelineview.h"
 #include "timelinewidget.h"
 
-#include <designeractionmanager.h>
-#include <nodelistproperty.h>
 #include <theme.h>
 #include <variantproperty.h>
-#include <qmlstate.h>
-#include <qmltimeline.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/stylehelper.h>
 
 #include <QApplication>
@@ -32,7 +25,6 @@
 #include <QResizeEvent>
 #include <QSlider>
 
-#include <cmath>
 
 namespace QmlDesigner {
 

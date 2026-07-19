@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "autotestconstants.h"
 #include "testresult.h"
 
 #include <QObject>

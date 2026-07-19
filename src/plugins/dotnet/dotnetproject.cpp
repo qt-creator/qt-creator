@@ -4,8 +4,10 @@
 #include "dotnetproject.h"
 
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/workspaceproject.h>
 
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QTextEdit>
 #include <QVBoxLayout>
 

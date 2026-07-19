@@ -5,7 +5,6 @@
 
 #include "keyframe.h"
 
-#include <array>
 #include <vector>
 
 QT_FORWARD_DECLARE_CLASS(QEasingCurve);

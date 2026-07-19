@@ -7,8 +7,6 @@
 #include "cpptoolsreuse.h"
 #include "symbolfinder.h"
 
-#include <coreplugin/icore.h>
-
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Symbol.h>

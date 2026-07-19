@@ -27,8 +27,6 @@
 
 #include "profilertr.h"
 
-#include <coreplugin/minisplitter.h>
-
 #include <QHeaderView>
 #include <QVBoxLayout>
 #include <QHBoxLayout>

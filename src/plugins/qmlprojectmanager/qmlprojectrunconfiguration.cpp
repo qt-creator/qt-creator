@@ -8,7 +8,6 @@
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
 
-#include <coreplugin/icore.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -28,7 +27,6 @@
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>

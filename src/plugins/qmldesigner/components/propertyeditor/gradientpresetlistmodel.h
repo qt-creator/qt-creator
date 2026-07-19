@@ -3,11 +3,10 @@
 
 #pragma once
 
+#include "gradientpresetitem.h"
+
 #include <QObject>
 #include <QAbstractListModel>
-#include <QtQml/qqml.h>
-
-class GradientPresetItem;
 
 class GradientPresetListModel : public QAbstractListModel
 {

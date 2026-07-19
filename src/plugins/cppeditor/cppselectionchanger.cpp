@@ -11,6 +11,8 @@
 #include <QTextBlock>
 #include <QTextDocument>
 
+#include <cplusplus/ASTPath.h>
+
 using namespace CPlusPlus;
 using namespace Utils::Text;
 

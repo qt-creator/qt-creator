@@ -6,7 +6,6 @@
 #include <formeditorscene.h>
 #include <formeditorview.h>
 #include <formeditorwidget.h>
-#include <itemutilfunctions.h>
 #include <formeditoritem.h>
 
 #include "pathitem.h"

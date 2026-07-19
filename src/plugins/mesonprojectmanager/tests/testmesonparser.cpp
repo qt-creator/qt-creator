@@ -3,15 +3,10 @@
 
 #include "../mesonoutputparser.h"
 
-#include <utils/fileinprojectfinder.h>
-#include <utils/theme/theme.h>
-#include <utils/theme/theme_p.h>
 
 #include <QDir>
 #include <QTemporaryDir>
 #include <QTest>
-
-#include <iostream>
 
 using namespace MesonProjectManager::Internal;
 

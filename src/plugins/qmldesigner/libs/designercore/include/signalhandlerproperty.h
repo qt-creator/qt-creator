@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
 #include "abstractproperty.h"
 
 namespace QmlDesigner {

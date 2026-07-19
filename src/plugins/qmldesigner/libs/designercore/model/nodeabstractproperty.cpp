@@ -10,7 +10,6 @@
 
 #include <nodemetainfo.h>
 
-#include <utils/smallstringio.h>
 
 namespace QmlDesigner {
 

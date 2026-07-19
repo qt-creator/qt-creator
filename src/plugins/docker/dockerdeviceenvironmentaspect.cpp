@@ -5,18 +5,11 @@
 
 #include "dockertr.h"
 
-#include <coreplugin/icore.h>
-
-#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/kitmanager.h>
 
-#include <utils/algorithm.h>
-#include <utils/devicefileaccess.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
 
 #include <QMessageBox>
 #include <QPushButton>

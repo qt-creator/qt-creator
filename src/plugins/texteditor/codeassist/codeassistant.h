@@ -6,7 +6,6 @@
 #include "assistenums.h"
 #include "completionsettings.h"
 
-#include <texteditor/texteditor_global.h>
 
 #include <QObject>
 

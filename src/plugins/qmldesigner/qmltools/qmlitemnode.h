@@ -7,7 +7,6 @@
 #include "qmlobjectnode.h"
 #include "qmlstate.h"
 #include "qmlvisualnode.h"
-#include "qmlconnections.h"
 
 #include <QStringList>
 #include <QRectF>

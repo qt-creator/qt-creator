@@ -8,7 +8,6 @@
 #include "zephyrtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 

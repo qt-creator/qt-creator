@@ -23,7 +23,6 @@
 #include "qmt/model_controller/mreferences.h"
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/project/project.h"
-#include "qmt/stereotype/stereotypecontroller.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -36,7 +35,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <utils/fileutils.h>
 
 #include <QTimer>
 #include <QAction>

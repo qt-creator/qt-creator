@@ -20,7 +20,6 @@
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QComboBox>

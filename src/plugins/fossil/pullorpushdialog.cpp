@@ -8,7 +8,6 @@
 
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>

@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QColorDialog>
 #include <QDebug>
+#include <QMainWindow>
 #include <QPainter>
 #include <QPainterPath>
 #include <QScreen>

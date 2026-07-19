@@ -7,7 +7,6 @@
 #include "resourcenode.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -23,7 +22,6 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/action.h>
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 

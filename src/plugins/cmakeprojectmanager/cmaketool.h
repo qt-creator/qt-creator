@@ -7,8 +7,6 @@
 
 #include <projectexplorer/kitaspect.h>
 
-#include <texteditor/codeassist/keywordscompletionassist.h>
-
 #include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/store.h>

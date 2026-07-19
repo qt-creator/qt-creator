@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "macsampler.h"
-#include "sampletrace.h"
-#include "symbolicator.h"
 
 #include "profilertr.h"
 
@@ -13,7 +11,11 @@
 #include <QStandardPaths>
 #include <QVarLengthArray>
 
+#ifdef Q_OS_MACOS
+#include "sampletrace.h"
+#include "symbolicator.h"
 #include <vector>
+#endif
 
 using namespace Profiler;
 using namespace Utils;

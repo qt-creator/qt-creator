@@ -15,7 +15,6 @@
 #include <cplusplus/Overview.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
-#include <utils/codegeneration.h>
 #include <utils/layoutbuilder.h>
 #include <utils/treemodel.h>
 #include <utils/treeviewcombobox.h>

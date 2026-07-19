@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "projectpart.h"
 #include "projectinfo.h"
 
 #include <cplusplus/CppDocument.h>

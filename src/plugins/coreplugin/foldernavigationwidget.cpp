@@ -33,7 +33,6 @@
 #include <utils/widgets.h>
 
 #include <utils/filesystemmodel.h>
-#include <utils/filepathinfo.h>
 
 #include <QAction>
 #include <QApplication>

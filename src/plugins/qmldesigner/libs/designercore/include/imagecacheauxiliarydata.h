@@ -4,7 +4,6 @@
 #pragma once
 
 #include <nanotrace/nanotracehr.h>
-#include <utils/span.h>
 
 #include <QImage>
 #include <QSize>

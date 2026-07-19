@@ -5,7 +5,6 @@
 
 #include "projectstoragepathwatchertypes.h"
 
-#include <utils/smallstringvector.h>
 
 namespace QmlDesigner {
 

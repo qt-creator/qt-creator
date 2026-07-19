@@ -18,15 +18,8 @@
 #include <cppeditor/editordocumenthandle.h>
 #include <cppeditor/projectpart.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <texteditor/texteditor.h>
 
-#include <cplusplus/SimpleLexer.h>
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFile>

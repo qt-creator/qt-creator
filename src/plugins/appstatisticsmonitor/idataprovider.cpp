@@ -3,7 +3,7 @@
 
 #include "idataprovider.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/result.h>
 

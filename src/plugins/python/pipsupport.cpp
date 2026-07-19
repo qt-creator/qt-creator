@@ -9,9 +9,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/processprogress.h>
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
 
 #include <QtTaskTree/QTaskTree>
 

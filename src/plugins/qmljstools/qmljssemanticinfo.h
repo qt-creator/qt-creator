@@ -8,7 +8,6 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsstaticanalysismessage.h>
-#include <qmljs/parser/qmljsengine_p.h>
 
 #include <QTextCursor>
 

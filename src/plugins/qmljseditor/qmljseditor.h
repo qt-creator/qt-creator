@@ -6,11 +6,9 @@
 #include "qmljseditor_global.h"
 
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/qmljsscanner.h>
 #include <qmljstools/qmljssemanticinfo.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/quickfix.h>
-#include <texteditor/texteditorconstants.h>
 #include <utils/uncommentselection.h>
 
 #include <QModelIndex>

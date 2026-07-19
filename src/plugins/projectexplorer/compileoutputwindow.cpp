@@ -20,7 +20,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/behaviorsettings.h>
 
-#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/proxyaction.h>

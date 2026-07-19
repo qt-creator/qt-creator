@@ -9,12 +9,10 @@
 
 #include "converters.h"
 
-#include "../../qmlproject.h"
 #include "../../qmlprojectconstants.h"
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
-#include <qmljs/qmljssimplereader.h>
+#include <utils/namevalueitem.h>
 
 #include <QJsonArray>
 

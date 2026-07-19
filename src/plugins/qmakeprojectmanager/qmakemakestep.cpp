@@ -14,6 +14,7 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/makestep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -21,9 +22,6 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/xcodebuildparser.h>
-
-#include <utils/qtcprocess.h>
-#include <utils/variablechooser.h>
 
 #include <QDir>
 #include <QFileInfo>

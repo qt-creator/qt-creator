@@ -6,7 +6,6 @@
 #include "texteditor_global.h"
 
 #include <utils/aspects.h>
-#include <utils/store.h>
 
 namespace TextEditor {
 

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectstorage/projectstoragetypes.h>
+#include "projectstorageinfotypes.h"
 #include <projectstorageids.h>
 
 #include <utils/smallstringview.h>

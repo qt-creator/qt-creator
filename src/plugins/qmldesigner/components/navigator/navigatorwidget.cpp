@@ -10,7 +10,6 @@
 #include <designersettings.h>
 #include <theme.h>
 #include <qmldesignerconstants.h>
-#include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 
 #include <QAbstractItemModel>
@@ -22,9 +21,6 @@
 #include <QToolButton>
 
 #include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
 
 using namespace Core;
 

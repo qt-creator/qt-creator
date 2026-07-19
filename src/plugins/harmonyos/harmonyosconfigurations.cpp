@@ -4,7 +4,6 @@
 #include "harmonyosconfigurations.h"
 
 #include "harmonyosconstants.h"
-#include "harmonyosqtversion.h"
 #include "harmonyossdk.h"
 #include "harmonyossettings.h"
 #include "harmonyostoolchain.h"

@@ -17,6 +17,7 @@
 #include "registerhandler.h"
 #include "simplifytype.h"
 #include "sourceutils.h"
+
 #include "watchdelegatewidgets.h"
 #include "watchutils.h"
 
@@ -29,6 +30,7 @@
 #include <cplusplus/CppDocument.h>
 
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <cppeditor/cppmodelmanager.h>
@@ -68,8 +70,6 @@
 #include <cmath>
 #include <cstring>
 #include <sstream>
-
-#include <ctype.h>
 
 using namespace CPlusPlus;
 using namespace Core;

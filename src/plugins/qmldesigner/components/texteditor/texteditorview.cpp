@@ -12,7 +12,6 @@
 #include <model.h>
 #include <modelnode.h>
 #include <nodeabstractproperty.h>
-#include <nodelistproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
@@ -20,17 +19,11 @@
 #include <rewriterview.h>
 #include <texteditorstatusbar.h>
 #include <texteditorview.h>
-#include <theme.h>
-#include <zoomaction.h>
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
 
 #include <qmljseditor/qmljseditordocument.h>
 
@@ -39,7 +32,6 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorconstants.h>
 
 #include <utils/changeset.h>
 #include <utils/fileutils.h>

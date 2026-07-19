@@ -6,6 +6,7 @@
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/hostosinfo.h>
+#include <utils/namevalueitem.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
 

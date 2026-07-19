@@ -5,7 +5,6 @@
 
 #include "cppeditor_global.h"
 
-#include <cplusplus/ASTPath.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
 

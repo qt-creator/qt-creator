@@ -8,7 +8,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/algorithm.h>
 #include <utils/genericconstants.h>
 #include <utils/layoutbuilder.h>
 

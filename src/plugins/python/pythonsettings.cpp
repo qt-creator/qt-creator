@@ -30,7 +30,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
-#include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>

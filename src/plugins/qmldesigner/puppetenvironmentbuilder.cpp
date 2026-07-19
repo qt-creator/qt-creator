@@ -16,9 +16,7 @@
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtversions.h>
 #include <utils/algorithm.h>
-#include <utils/expected.h>
 #include <utils/hostosinfo.h>
 
 #include <QLibraryInfo>

@@ -10,7 +10,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
-#include <projectexplorer/runconfigurationaspects.h>
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
 

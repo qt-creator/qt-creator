@@ -3,7 +3,6 @@
 
 #include "iconcontainerwidget.h"
 #include "splashscreencontainerwidget.h"
-#include "androidtoolmenu.h"
 #include "androidtr.h"
 #include "androidmanifestutils.h"
 

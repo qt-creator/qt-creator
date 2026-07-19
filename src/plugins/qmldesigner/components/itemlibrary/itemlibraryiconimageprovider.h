@@ -3,17 +3,10 @@
 
 #pragma once
 
-#include <nodeinstanceview.h>
-#include <rewriterview.h>
 
 #include <asynchronousimagecache.h>
-#include <coreplugin/icore.h>
-#include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
-#include <imagecache/timestampprovider.h>
-#include <imagecachecollectors/imagecachecollector.h>
 
-#include <sqlitedatabase.h>
 
 #include <QQuickAsyncImageProvider>
 

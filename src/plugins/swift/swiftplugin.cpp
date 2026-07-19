@@ -7,12 +7,9 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/processprogress.h>
 #include <extensionsystem/iplugin.h>
 #include <languageclient/languageclientmanager.h>
 #include <utils/environment.h>
-#include <utils/globaltasktree.h>
 #include <utils/qtcprocess.h>
 
 using namespace Core;

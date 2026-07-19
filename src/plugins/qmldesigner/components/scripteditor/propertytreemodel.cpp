@@ -4,19 +4,10 @@
 #include "propertytreemodel.h"
 #include "connectionview.h"
 
-#include <bindingproperty.h>
-#include <designeralgorithm.h>
-#include <exception.h>
 #include <functional.h>
 #include <modelutils.h>
-#include <nodeabstractproperty.h>
-#include <nodelistproperty.h>
 #include <nodemetainfo.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
 #include <rewritertransaction.h>
-#include <rewriterview.h>
-#include <signalhandlerproperty.h>
 #include <variantproperty.h>
 
 #include <utils/algorithm.h>

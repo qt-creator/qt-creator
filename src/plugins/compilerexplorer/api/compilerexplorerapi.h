@@ -3,7 +3,3 @@
 
 #pragma once
 
-#include "compile.h"
-#include "compiler.h"
-#include "language.h"
-#include "library.h"

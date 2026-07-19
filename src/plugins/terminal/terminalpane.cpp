@@ -11,7 +11,6 @@
 #include "terminalwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
@@ -19,7 +18,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
 #include <utils/terminalhooks.h>

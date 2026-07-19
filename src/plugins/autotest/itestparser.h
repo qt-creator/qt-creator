@@ -7,7 +7,6 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cppeditor/cppworkingcopy.h>
-#include <qmljs/qmljsdocument.h>
 
 #include <optional>
 

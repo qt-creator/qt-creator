@@ -17,7 +17,6 @@
 #include <utils/algorithm.h>
 #include <utils/changeset.h>
 #include <utils/textutils.h>
-#include <utils/fileutils.h>
 
 #include <QDebug>
 #include <QDir>

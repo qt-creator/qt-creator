@@ -11,7 +11,6 @@
 #include "annotation.h"
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 

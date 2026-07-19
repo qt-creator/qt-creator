@@ -3,10 +3,7 @@
 
 #include "actionhandler.h"
 #include "actionprovider.h"
-#include "finalstateitem.h"
 #include "graphicsscene.h"
-#include "initialstateitem.h"
-#include "parallelitem.h"
 #include "sceneutils.h"
 #include "scxmleditorconstants.h"
 #include "scxmleditortr.h"
@@ -20,7 +17,6 @@
 #include "warningitem.h"
 
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <QAction>
 #include <QGuiApplication>

@@ -53,8 +53,6 @@
 #include <QFileDialog>
 #include <QHash>
 
-#include <queue>
-
 #ifdef WITH_TESTS
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/temporarydirectory.h>

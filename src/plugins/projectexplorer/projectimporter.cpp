@@ -17,9 +17,9 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>

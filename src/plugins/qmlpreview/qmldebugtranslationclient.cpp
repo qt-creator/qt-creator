@@ -6,8 +6,6 @@
 
 #include <QUrl>
 
-#include <private/qqmldebugtranslationprotocol_p.h>
-
 namespace QmlPreview {
 
 QmlDebugTranslationClient::QmlDebugTranslationClient(QmlDebug::QmlDebugConnection *connection) :

@@ -16,7 +16,6 @@
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
-#include <utils/environment.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

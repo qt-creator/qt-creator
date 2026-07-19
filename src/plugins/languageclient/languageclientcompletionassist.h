@@ -13,7 +13,6 @@
 #include <QPointer>
 #include <QScopedPointer>
 
-#include <functional>
 #include <optional>
 
 namespace TextEditor {

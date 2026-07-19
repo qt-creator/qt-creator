@@ -6,20 +6,19 @@
 #include "signallist.h"
 #include "signallistdelegate.h"
 
-#include <qmldesignerplugin.h>
 #include <qmldesignertr.h>
 
 #include <theme.h>
 #include <utils/fancylineedit.h>
 #include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
 
-#include <QStandardItemModel>
-#include <QPainter>
-#include <QTableView>
 #include <QHeaderView>
-#include <QVBoxLayout>
+#include <QLabel>
+#include <QPainter>
 #include <QSortFilterProxyModel>
+#include <QStandardItemModel>
+#include <QTableView>
+#include <QVBoxLayout>
 
 #include <memory>
 

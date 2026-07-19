@@ -7,13 +7,10 @@
 
 #include "ilocatorfilter.h"
 
-#include <extensionsystem/iplugin.h>
-
 #include <QPointer>
 #include <QTimer>
 #include <QWidget>
 
-#include <functional>
 #include <optional>
 
 QT_BEGIN_NAMESPACE

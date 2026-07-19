@@ -9,9 +9,6 @@
 #include "../projectexplorertr.h"
 #include "../projectmanager.h"
 
-#include <coreplugin/featureprovider.h>
-
-#include <utils/algorithm.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>

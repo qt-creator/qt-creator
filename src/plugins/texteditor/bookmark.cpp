@@ -4,7 +4,6 @@
 #include "bookmark.h"
 
 #include "bookmarkmanager.h"
-#include "texteditor_global.h"
 #include "texteditortr.h"
 
 #include <utils/utilsicons.h>

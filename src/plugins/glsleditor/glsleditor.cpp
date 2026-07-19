@@ -10,22 +10,18 @@
 #include "glslhighlighter.h"
 #include "glslindenter.h"
 
-#include <glsl/glslastdump.h>
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
 #include <glsl/glslengine.h>
 #include <glsl/glslsemantic.h>
 #include <glsl/glslsymbols.h>
 
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
 #include <cplusplus/SimpleLexer.h>
 
-#include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
 #include <texteditor/fontsettings.h>

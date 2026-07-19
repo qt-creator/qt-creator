@@ -6,19 +6,15 @@
 #include "constants.h"
 #include "fossiltr.h"
 
-#include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
 #include <utils/processenums.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
 #include <QSyntaxHighlighter>
 

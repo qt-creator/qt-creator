@@ -8,7 +8,6 @@
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
 
-#include <utils/smallstringio.h>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

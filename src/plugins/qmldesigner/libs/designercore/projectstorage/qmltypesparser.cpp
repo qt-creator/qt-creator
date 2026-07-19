@@ -3,12 +3,8 @@
 
 #include "qmltypesparser.h"
 
-#include "projectstorage.h"
-#include "projectstoragetracing.h"
 
-#include <sqlitedatabase.h>
 
-#include <utils/span.h>
 
 #ifdef QDS_BUILD_QMLPARSER
 #include <private/qqmldomtop_p.h>
@@ -17,8 +13,6 @@
 
 #include <QDateTime>
 
-#include <algorithm>
-#include <tuple>
 
 namespace QmlDesigner {
 

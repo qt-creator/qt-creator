@@ -6,8 +6,6 @@
 #include <cppcheck/cppcheckdiagnostic.h>
 #include <cppcheck/cppcheckdiagnosticmanager.h>
 
-#include <projectexplorer/detailederrorview.h>
-
 #include <utils/treemodel.h>
 
 namespace Cppcheck::Internal {

@@ -21,7 +21,6 @@
 #include <projectexplorer/task.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 

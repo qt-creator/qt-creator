@@ -25,7 +25,6 @@
 
 #include <cppeditor/compilationdb.h>
 #include <cppeditor/cppcodemodelsettings.h>
-#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpprefactoringchanges.h>
@@ -42,13 +41,15 @@
 #include <languageclient/languageclientutils.h>
 #include <languageclient/progressmanager.h>
 #include <languageserverprotocol/clientcapabilities.h>
+#include <languageserverprotocol/diagnostics.h>
 #include <languageserverprotocol/progresssupport.h>
+#include <languageserverprotocol/textsynchronization.h>
+#include <languageserverprotocol/workspace.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>
@@ -70,7 +71,6 @@
 #include <QPointer>
 #include <QRegularExpression>
 
-#include <cmath>
 #include <optional>
 #include <unordered_map>
 #include <utility>

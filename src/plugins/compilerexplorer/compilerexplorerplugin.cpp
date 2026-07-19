@@ -9,9 +9,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-
-#include <cppeditor/cppeditorconstants.h>
 
 #include <extensionsystem/iplugin.h>
 

@@ -3,7 +3,6 @@
 #include "navigation2d.h"
 #include <utils/hostosinfo.h>
 #include <designersettings.h>
-#include <qmldesignerplugin.h>
 
 #include <QGestureEvent>
 #include <QScrollBar>

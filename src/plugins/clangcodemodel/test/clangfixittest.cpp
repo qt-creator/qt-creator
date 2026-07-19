@@ -7,8 +7,6 @@
 
 #include <cppeditor/cpptoolstestcase.h>
 
-#include <utils/changeset.h>
-
 #include <QScopedPointer>
 #include <QTest>
 

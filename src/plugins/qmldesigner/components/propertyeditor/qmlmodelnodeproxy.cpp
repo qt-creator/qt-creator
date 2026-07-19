@@ -14,7 +14,7 @@
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
-#include <QtQml>
+#include <QJSEngine>
 
 namespace QmlDesigner {
 

@@ -6,16 +6,13 @@
 #include "cpppointerdeclarationformatter.h"
 #include "cpptoolstestcase.h"
 
-#include <coreplugin/coreconstants.h>
-
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/plaintexteditorfactory.h>
 
-#include <utils/fileutils.h>
-
 #include <cplusplus/Overview.h>
-#include <cplusplus/pp.h>
+#include <cplusplus/PreprocessorEnvironment.h>
+#include <cplusplus/pp-engine.h>
 
 #include <QDebug>
 #include <QDir>

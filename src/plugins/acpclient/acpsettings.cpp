@@ -10,20 +10,17 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/appinfo.h>
 #include <utils/aspectlist.h>
 #include <utils/aspects.h>
 #include <utils/environmentchangesaspect.h>
 #include <utils/async.h>
-#include <utils/co_result.h>
 #include <utils/environmentdialog.h>
 #include <utils/filestreamer.h>
 #include <utils/globaltasktree.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
-#include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
 #include <utils/theme/theme.h>

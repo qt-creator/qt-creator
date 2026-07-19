@@ -11,7 +11,6 @@
 #include "todooutputpane.h"
 #include "todotr.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 

@@ -15,15 +15,11 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QMenu>
 

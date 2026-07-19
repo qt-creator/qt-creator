@@ -4,7 +4,6 @@
 #include "basetexteditmodifier.h"
 #include "qmljseditor/qmljseditor.h"
 
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
 
 #include <qmljstools/qmljsindenter.h>

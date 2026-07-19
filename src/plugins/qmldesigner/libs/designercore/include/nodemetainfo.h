@@ -4,10 +4,7 @@
 #pragma once
 
 #include "propertymetainfo.h"
-#include "qmldesignercorelib_global.h"
 
-#include <projectstorage/projectstorageinterface.h>
-#include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
 #include <tracing/qmldesignertracing.h>
 

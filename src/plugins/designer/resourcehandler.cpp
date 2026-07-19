@@ -12,8 +12,6 @@
 
 #include <resourceeditor/resourcenode.h>
 
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormWindowInterface>

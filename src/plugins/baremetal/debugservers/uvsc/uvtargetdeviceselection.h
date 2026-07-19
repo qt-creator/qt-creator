@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <utils/basetreeview.h>
 #include <utils/treemodel.h>
 #include <utils/store.h>
+#include <utils/itemviews.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

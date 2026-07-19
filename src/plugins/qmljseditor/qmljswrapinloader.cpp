@@ -5,13 +5,9 @@
 #include "qmljsquickfixassist.h"
 #include "qmljswrapinloader.h"
 
-#include <coreplugin/idocument.h>
-
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsutils.h>
-#include <qmljs/qmljsbind.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 
 #include <QDebug>

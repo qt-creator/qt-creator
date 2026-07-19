@@ -9,7 +9,6 @@
 #include "edit3dtoolbarmenu.h"
 #include "edit3dview.h"
 
-#include <auxiliarydataproperties.h>
 #include <designeractionmanager.h>
 #include <designdocument.h>
 #include <designericons.h>
@@ -25,7 +24,6 @@
 #include <qmldesignerplugin.h>
 #include <qmleditormenu.h>
 #include <qmlvisualnode.h>
-#include <seekerslider.h>
 #include <toolbox.h>
 #include <viewmanager.h>
 #include <utils3d.h>
@@ -39,7 +37,6 @@
 #include <qmldesignerutils/asset.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
 #include <QActionGroup>
 #include <QApplication>

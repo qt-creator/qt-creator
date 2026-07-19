@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <texteditor/command.h>
 
 #include <utils/aspects.h>
@@ -17,7 +15,6 @@
 #include <QStringList>
 #include <QVersionNumber>
 
-#include <memory>
 
 namespace Core {
 class IDocument;

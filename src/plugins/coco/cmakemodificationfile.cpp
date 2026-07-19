@@ -5,10 +5,6 @@
 
 #include "cocopluginconstants.h"
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/buildconfiguration.h>
-
 namespace Coco::Internal {
 
 using namespace ProjectExplorer;

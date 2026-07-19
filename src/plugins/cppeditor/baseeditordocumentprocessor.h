@@ -12,6 +12,7 @@
 
 #include <coreplugin/helpitem.h>
 
+#include <texteditor/blockrange.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditor.h>
@@ -21,8 +22,6 @@
 
 #include <QTextEdit>
 #include <QVariant>
-
-#include <functional>
 
 QT_BEGIN_NAMESPACE
 template <typename T>

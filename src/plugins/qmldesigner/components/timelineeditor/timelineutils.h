@@ -3,10 +3,8 @@
 
 #pragma once
 
-#include <istream>
-#include <utils/icon.h>
-#include <vector>
 #include <QDataStream>
+#include <QIcon>
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QEvent)

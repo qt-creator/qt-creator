@@ -4,6 +4,7 @@
 #include "addarraymembervisitor.h"
 
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsutils.h>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

@@ -17,12 +17,11 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
-#include <cctype>
+#include <QDir>
 
 using namespace Utils;
 

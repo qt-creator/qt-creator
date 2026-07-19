@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/icontext.h>
-
 #include <utils/filepath.h>
 
 #include <QtQuickWidgets/QQuickWidget>

@@ -9,11 +9,11 @@
 #include <functional.h>
 #include <indentingtexteditormodifier.h>
 #include <modelnodeoperations.h>
-#include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <selectioncontext.h>
+#include <signalhandlerproperty.h>
 
 #include <QMessageBox>
 #include <QRegularExpression>

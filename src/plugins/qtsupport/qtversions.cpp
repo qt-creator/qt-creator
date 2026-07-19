@@ -13,11 +13,8 @@
 
 #include <remote/remotelinux_constants.h>
 
-#include <coreplugin/featureprovider.h>
 
 #include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 
 namespace QtSupport::Internal {
 

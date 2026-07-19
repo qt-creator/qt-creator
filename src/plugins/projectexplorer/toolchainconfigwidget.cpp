@@ -8,8 +8,8 @@
 #include "projectexplorertr.h"
 #include "toolchainmanager.h"
 
+#include <utils/commandline.h>
 #include <utils/detailswidget.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>

@@ -3,6 +3,7 @@
 
 #include "projectstorage.h"
 
+#include "projectstorageexceptions.h"
 #include "projectstoragetracing.h"
 
 #include <predicate.h>

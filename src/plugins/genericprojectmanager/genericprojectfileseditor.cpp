@@ -5,8 +5,6 @@
 #include "genericprojectconstants.h"
 #include "genericprojectmanagertr.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 

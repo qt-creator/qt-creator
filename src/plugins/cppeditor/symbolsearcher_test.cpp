@@ -6,8 +6,6 @@
 #include "cppindexingsupport.h"
 #include "cpptoolstestcase.h"
 
-#include <coreplugin/find/searchresultwindow.h>
-
 #include <utils/async.h>
 
 #include <QTest>

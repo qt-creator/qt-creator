@@ -16,7 +16,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/span.h>
 
 #include <QWidget>
 

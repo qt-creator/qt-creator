@@ -9,10 +9,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/jsonwizard/jsonwizard.h>
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

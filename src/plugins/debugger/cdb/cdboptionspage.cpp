@@ -3,7 +3,6 @@
 
 #include "cdboptionspage.h"
 
-#include <debugger/commonoptionspage.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>

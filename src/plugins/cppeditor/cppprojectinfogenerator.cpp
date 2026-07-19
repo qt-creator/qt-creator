@@ -6,8 +6,6 @@
 #include "cppeditortr.h"
 #include "cppprojectfilecategorizer.h"
 
-#include <projectexplorer/headerpath.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 
 #include <QPromise>

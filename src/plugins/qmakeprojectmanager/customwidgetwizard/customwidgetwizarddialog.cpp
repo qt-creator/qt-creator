@@ -9,9 +9,6 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
-
 namespace QmakeProjectManager::Internal {
 
 enum { IntroPageId = 0};

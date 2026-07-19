@@ -15,7 +15,6 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>

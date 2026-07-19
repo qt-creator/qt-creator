@@ -5,9 +5,6 @@
 #include "todoitemsscanner.h"
 #include "lineparser.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/project.h>
-
 namespace Todo {
 namespace Internal {
 

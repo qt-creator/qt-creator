@@ -7,7 +7,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/helpmanager.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 
 #include <utils/layoutbuilder.h>

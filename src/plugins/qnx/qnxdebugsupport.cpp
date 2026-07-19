@@ -26,7 +26,6 @@
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>

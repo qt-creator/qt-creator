@@ -16,7 +16,6 @@
 #include <languageclient/semantichighlightsupport.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <texteditor/blockrange.h>
-#include <texteditor/texteditor.h>
 #include <texteditor/textstyles.h>
 
 #include <QtConcurrentMap>

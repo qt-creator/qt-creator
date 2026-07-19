@@ -15,6 +15,7 @@
 
 namespace QmlDesigner {
 
+class LayerItem;
 class ModelNodeChangeSet;
 class Model;
 

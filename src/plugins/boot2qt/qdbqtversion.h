@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <qtsupport/qtversionfactory.h>
-
 namespace Qdb::Internal {
 
 void setupQdbQtVersion();

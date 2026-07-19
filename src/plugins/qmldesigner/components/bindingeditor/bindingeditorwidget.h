@@ -9,7 +9,6 @@
 #include <qmljseditor/qmljssemantichighlighter.h>
 #include <qmljseditor/qmljseditor.h>
 
-#include <QtQml>
 #include <QWidget>
 #include <QDialog>
 

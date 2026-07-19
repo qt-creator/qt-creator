@@ -3,7 +3,6 @@
 
 #include "processparameters.h"
 
-#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>

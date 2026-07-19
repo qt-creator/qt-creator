@@ -8,11 +8,9 @@
 #include "incredibuildtr.h"
 #include "makecommandbuilder.h"
 
-#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
 
-#include <utils/environment.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>

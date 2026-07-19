@@ -5,7 +5,6 @@
 
 #include "extensionsmodel.h"
 
-#include <utils/fileutils.h>
 
 #include <QTest>
 

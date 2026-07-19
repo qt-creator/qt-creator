@@ -8,7 +8,6 @@
 #include <designercoretr.h>
 #include <invalidmetainfoexception.h>
 
-#include <utils/algorithm.h>
 
 #include <QString>
 #include <QFileInfo>

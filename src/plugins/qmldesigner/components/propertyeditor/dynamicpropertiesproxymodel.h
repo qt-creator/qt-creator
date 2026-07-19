@@ -27,12 +27,9 @@
 
 #include "propertyeditorvalue.h"
 
-#include <abstractview.h>
-#include <qmlitemnode.h>
 
 #include <QAbstractListModel>
 #include <QColor>
-#include <QtQml>
 
 namespace QmlDesigner {
 

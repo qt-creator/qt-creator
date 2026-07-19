@@ -5,8 +5,6 @@
 
 #include "../qmldesigner_global.h"
 
-#include <QtQml/qqml.h>
-
 #include <QLocale>
 #include <QRect>
 

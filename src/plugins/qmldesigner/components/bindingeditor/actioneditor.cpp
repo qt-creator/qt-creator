@@ -2,16 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "actioneditor.h"
+#include "abstractview.h"
+#include "nodemetainfo.h"
+#include "qmlitemnode.h"
+#include "rewriterview.h"
 
-#include <qmldesignerplugin.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <bindingeditor/actioneditordialog.h>
-
-#include <qmlmodelnodeproxy.h>
-#include <nodeabstractproperty.h>
-#include <nodelistproperty.h>
-#include <propertyeditorvalue.h>
 
 #include <bindingproperty.h>
 #include <variantproperty.h>

@@ -3,8 +3,6 @@
 
 #include "callgrindhelper.h"
 
-#include <cstdlib>
-
 #include <QColor>
 #include <QMap>
 #include <QRandomGenerator>

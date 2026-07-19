@@ -11,7 +11,6 @@
 #include <bindingproperty.h>
 #include <easingcurve.h>
 #include <nodeabstractproperty.h>
-#include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 #include <qmlstate.h>

@@ -5,7 +5,7 @@
 
 #include "vcsbase_global.h"
 
-#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsfilestate.h>
 
 #include <utils/filepath.h>
 

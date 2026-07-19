@@ -7,7 +7,6 @@
 #include "model.h"
 #include "model_p.h"
 
-#include <utils/smallstringio.h>
 
 namespace QmlDesigner {
 

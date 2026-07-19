@@ -20,9 +20,7 @@
 #include <texteditor/textindenter.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QDebug>

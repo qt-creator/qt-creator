@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include <utils/basetreeview.h>
 #include <utils/treemodel.h>
 #include <utils/store.h>
+
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;

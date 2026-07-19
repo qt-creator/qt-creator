@@ -3,10 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/inavigationwidgetfactory.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-
-#include <utils/itemviews.h>
 #include <utils/filepath.h>
 
 #include <QAbstractItemModel>

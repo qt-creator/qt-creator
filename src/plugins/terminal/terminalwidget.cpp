@@ -6,8 +6,6 @@
 #include "terminalsettings.h"
 #include "terminaltr.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -22,10 +20,8 @@
 #include <utils/async.h>
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
-#include <utils/proxyaction.h>
 #include <utils/stringutils.h>
 
 #include <QApplication>

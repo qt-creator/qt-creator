@@ -13,7 +13,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <cppeditor/cpptoolstestcase.h>
-#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectmanager.h>

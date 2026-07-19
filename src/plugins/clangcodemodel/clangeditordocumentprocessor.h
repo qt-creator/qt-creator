@@ -5,8 +5,6 @@
 
 #include <cppeditor/builtineditordocumentprocessor.h>
 
-#include <utils/id.h>
-
 namespace ClangCodeModel::Internal {
 
 class ClangEditorDocumentProcessor : public CppEditor::BuiltinEditorDocumentProcessor

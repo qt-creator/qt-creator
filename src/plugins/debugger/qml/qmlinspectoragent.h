@@ -9,7 +9,6 @@
 #include <QTimer>
 
 #include <coreplugin/icontext.h>
-#include <debugger/debuggerconstants.h>
 #include <debugger/watchdata.h>
 #include <qmldebug/qmlenginedebugclient.h>
 

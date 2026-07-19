@@ -7,9 +7,8 @@
 #include "formeditorwidget.h"
 #include "navigation2d.h"
 
-#include <theme.h>
-
 #include <utils/hostosinfo.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QCoreApplication>

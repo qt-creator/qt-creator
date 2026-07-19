@@ -10,8 +10,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <languageserverprotocol/jsonkeys.h>
-
 #include <texteditor/texteditor.h>
 
 #include <utils/jsontreeitem.h>

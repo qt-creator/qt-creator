@@ -10,7 +10,6 @@
 #include <theme.h>
 
 #include <coreplugin/icore.h>
-#include <utils/algorithm.h>
 #include <utils/stylehelper.h>
 
 #include <QHeaderView>

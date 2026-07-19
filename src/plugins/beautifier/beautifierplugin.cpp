@@ -12,12 +12,11 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -26,9 +25,7 @@
 #include <projectexplorer/projecttree.h>
 
 #include <texteditor/formattexteditor.h>
-#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
 

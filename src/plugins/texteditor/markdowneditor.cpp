@@ -10,7 +10,6 @@
 #include <aggregation/aggregate.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
@@ -18,7 +17,6 @@
 
 #include <utils/action.h>
 #include <utils/markdownbrowser.h>
-#include <utils/ranges.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -32,6 +30,7 @@
 #include <QToolButton>
 
 #include <optional>
+#include <ranges>
 
 using namespace Core;
 using namespace Utils;

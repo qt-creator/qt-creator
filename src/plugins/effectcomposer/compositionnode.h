@@ -6,7 +6,6 @@
 #include "effectcomposeruniformsmodel.h"
 #include "shadereditordata.h"
 
-#include <utils/uniqueobjectptr.h>
 
 #include <memory>
 

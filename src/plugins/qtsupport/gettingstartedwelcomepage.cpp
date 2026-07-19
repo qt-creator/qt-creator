@@ -16,11 +16,9 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/welcomepagehelper.h>
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -28,7 +26,6 @@
 #include <utils/qtdesignwidgets.h>
 #include <utils/shutdownguard.h>
 #include <utils/stylehelper.h>
-#include <utils/theme/theme.h>
 #include <utils/winutils.h>
 
 #include <qapplicationstatic.h>

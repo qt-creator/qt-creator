@@ -3,10 +3,6 @@
 
 #include "qdslandingpagetheme.h"
 
-#include "qmlprojectplugin.h"
-
-#include <coreplugin/icore.h>
-
 #include <QQmlEngine>
 #include <QQmlComponent>
 

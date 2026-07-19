@@ -13,8 +13,6 @@
 #include <QList>
 #include <QPair>
 
-#include <limits>
-
 #include <cplusplus/TypePrettyPrinter.h>
 
 #ifdef WITH_TESTS

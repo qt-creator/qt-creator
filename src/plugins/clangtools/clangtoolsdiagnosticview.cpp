@@ -30,6 +30,7 @@
 #include <QPainter>
 #include <QSet>
 #include <QStyledItemDelegate>
+#include <QTextBlock>
 
 #include <set>
 

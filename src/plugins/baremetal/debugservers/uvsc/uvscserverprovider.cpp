@@ -8,8 +8,6 @@
 #include "uvtargetdeviceviewer.h"
 #include "uvtargetdriverviewer.h"
 
-#include <baremetal/baremetaldebugsupport.h>
-#include <baremetal/baremetaldevice.h>
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
 
@@ -17,14 +15,13 @@
 #include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
 
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QRegularExpressionValidator>
 

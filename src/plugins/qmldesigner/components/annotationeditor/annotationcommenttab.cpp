@@ -8,8 +8,8 @@
 
 #include <qmldesignerplugin.h>
 #include <richtexteditor/richtexteditor.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <qmlprojectmanager/qmlproject.h>
 #include <utils/qtcassert.h>
 
 #include <QCryptographicHash>

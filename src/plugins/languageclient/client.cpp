@@ -37,6 +37,7 @@
 #include <languageserverprotocol/progresssupport.h>
 #include <languageserverprotocol/servercapabilities.h>
 #include <languageserverprotocol/shutdownmessages.h>
+#include <languageserverprotocol/textsynchronization.h>
 #include <languageserverprotocol/workspace.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -44,7 +45,9 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/ioutlinewidget.h>
+#include <texteditor/semantichighlighter.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>

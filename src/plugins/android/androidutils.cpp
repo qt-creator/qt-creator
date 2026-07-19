@@ -12,7 +12,6 @@
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -21,6 +20,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -29,7 +29,6 @@
 #include <QtTaskTree/QConditional>
 #include <QtTaskTree/QTcpSocketWrapper>
 
-#include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>

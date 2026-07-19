@@ -8,8 +8,6 @@
 #include "qmloutlinemodel.h"
 
 #include <coreplugin/find/itemviewfind.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <texteditor/ioutlinewidget.h>

@@ -3,7 +3,6 @@
 
 #include "shortcutmanager.h"
 
-#include <designersettings.h>
 
 #include <designmodewidget.h>
 #include <viewmanager.h>
@@ -19,19 +18,16 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/modemanager.h>
-#include <qmljseditor/qmljseditorconstants.h>
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
-#include <qmljs/qmljsreformatter.h>
 
 #include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"

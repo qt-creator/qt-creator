@@ -20,7 +20,6 @@
 #include <qmldesignertr.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
-#include <sourcepathcache.h>
 #include <variantproperty.h>
 
 #include <theme.h>
@@ -31,7 +30,6 @@
 #include <qmljs/qmljssimplereader.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/smallstring.h>
 #include <utils/utility.h>
 #include <utils/widgets.h>
@@ -42,7 +40,9 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFileInfo>
+#include <QQmlContext>
 #include <QQuickItem>
 #include <QVector2D>
 #include <QVector3D>

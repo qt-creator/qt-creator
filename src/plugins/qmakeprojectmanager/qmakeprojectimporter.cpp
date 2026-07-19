@@ -8,7 +8,6 @@
 #include "qmakebuildinfo.h"
 #include "qmakekitaspect.h"
 #include "qmakeproject.h"
-#include "qmakeprojectmanagertr.h"
 #include "qmakestep.h"
 
 #include <projectexplorer/buildinfo.h>
@@ -19,9 +18,7 @@
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>

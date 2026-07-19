@@ -5,10 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <debugger/commonoptionspage.h>
 #include <debugger/debuggeractions.h>
-#include <debugger/debuggerconstants.h>
-#include <debugger/debuggercore.h>
 #include <debugger/debuggericons.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggertr.h>

@@ -11,8 +11,6 @@
 #include "../icontext.h"
 #include "../idocument.h"
 
-#include <utils/qtcassert.h>
-
 #include <QApplication>
 #include <QVBoxLayout>
 

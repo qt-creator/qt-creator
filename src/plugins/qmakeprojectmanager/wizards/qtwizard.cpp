@@ -13,7 +13,6 @@
 #include <cppeditor/cpptoolsreuse.h>
 
 #include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/targetsetuppage.h>

@@ -9,10 +9,7 @@
 
 #include <baremetal/baremetalconstants.h>
 #include <baremetal/baremetaltr.h>
-#include <baremetal/baremetaldebugsupport.h>
 #include <baremetal/debugserverprovidermanager.h>
-
-#include <utils/qtcassert.h>
 
 #include <QComboBox>
 #include <QFileInfo>

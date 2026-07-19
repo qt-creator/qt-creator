@@ -3,6 +3,8 @@
 
 #include "snippetoverlay.h"
 
+#include "snippetparser.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

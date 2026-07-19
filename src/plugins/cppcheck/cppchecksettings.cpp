@@ -11,11 +11,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
-#include <utils/variablechooser.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 using namespace Utils;
 

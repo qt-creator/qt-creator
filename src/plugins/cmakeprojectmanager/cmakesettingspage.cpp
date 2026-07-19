@@ -16,9 +16,7 @@
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/algorithm.h>
 #include <utils/detailswidget.h>
-#include <utils/environment.h>
 #include <utils/groupedmodel.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>

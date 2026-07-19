@@ -4,7 +4,6 @@
 #include "profilehighlighter.h"
 #include "profilecompletionassist.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QTextDocument>

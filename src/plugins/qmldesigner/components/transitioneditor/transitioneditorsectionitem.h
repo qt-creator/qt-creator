@@ -9,7 +9,6 @@
 #include <timelineeditor/timelinemovableabstractitem.h>
 
 #include <modelnode.h>
-#include <qmltimeline.h>
 
 QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QPainter)

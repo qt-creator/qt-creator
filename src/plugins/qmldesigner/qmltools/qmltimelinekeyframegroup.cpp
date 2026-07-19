@@ -4,7 +4,7 @@
 #include "qmltimelinekeyframegroup.h"
 #include "abstractview.h"
 #include "bindingproperty.h"
-#include "qmlitemnode.h"
+#include "qmltimeline.h"
 
 #include <auxiliarydataproperties.h>
 #include <nodelistproperty.h>

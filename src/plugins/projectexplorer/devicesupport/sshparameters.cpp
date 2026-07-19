@@ -14,8 +14,6 @@
 
 #include <QDebug>
 
-#include <memory>
-
 using namespace Utils;
 
 namespace ProjectExplorer {

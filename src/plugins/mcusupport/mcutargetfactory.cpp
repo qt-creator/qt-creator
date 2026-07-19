@@ -11,9 +11,6 @@
 #include "mcutargetdescription.h"
 #include "mcutargetfactory.h"
 
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
-
 #include <QVersionNumber>
 
 namespace McuSupport::Internal {

@@ -16,7 +16,6 @@
 #include <utils/async.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/globaltasktree.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
@@ -29,7 +28,6 @@
 #include <utils/terminalcommand.h>
 #include <utils/terminalhooks.h>
 #include <utils/url.h>
-#include <utils/utilsicons.h>
 #include <utils/winutils.h>
 
 #include <QCoreApplication>

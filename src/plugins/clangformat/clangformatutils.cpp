@@ -18,7 +18,6 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/fileutils.h>
-#include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>

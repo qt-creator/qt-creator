@@ -3,10 +3,13 @@
 
 #include "uvscclient.h"
 
+#include "uvscdatatypes.h"
+#include "uvscfunctions.h"
 #include "uvscutils.h"
 #include "../debuggertr.h"
 
 #include <qapplicationstatic.h>
+#include <QLibrary>
 #include <QMutexLocker>
 
 #include <memory>

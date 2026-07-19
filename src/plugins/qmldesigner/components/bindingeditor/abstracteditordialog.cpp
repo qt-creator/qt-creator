@@ -7,7 +7,6 @@
 #include <texteditor/texteditor.h>
 #include <qmldesigner/qmldesignerplugin.h>
 #include <qmljseditor/qmljseditor.h>
-#include <qmljseditor/qmljseditordocument.h>
 
 #include <QDialogButtonBox>
 #include <QHBoxLayout>

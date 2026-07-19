@@ -3,9 +3,7 @@
 
 #pragma once
 
-#include "projectstorageids.h"
-
-#include <utils/smallstringview.h>
+#include "sourcepathids.h"
 
 namespace QmlDesigner {
 

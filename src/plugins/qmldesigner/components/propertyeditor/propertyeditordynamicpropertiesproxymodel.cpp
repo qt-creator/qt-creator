@@ -27,7 +27,6 @@
 
 #include "propertyeditortracing.h"
 
-#include <dynamicpropertiesmodel.h>
 
 #include <propertyeditorview.h>
 

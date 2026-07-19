@@ -10,7 +10,6 @@
 #include "diagnosticconfigswidget.h"
 #include "executableinfo.h"
 
-#include <coreplugin/icore.h>
 #include <cppeditor/clangdiagnosticconfig.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/clangdiagnosticconfigswidget.h>

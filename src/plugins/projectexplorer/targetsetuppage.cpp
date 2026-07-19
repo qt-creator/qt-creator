@@ -20,12 +20,12 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QDir>
 #include <QFileInfo>
 #include <QHash>
 #include <QLabel>

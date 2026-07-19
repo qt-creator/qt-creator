@@ -11,8 +11,6 @@
 #include <QSet>
 #include <QTimer>
 
-#include <optional>
-
 namespace ProjectExplorer {
 
 class Node;

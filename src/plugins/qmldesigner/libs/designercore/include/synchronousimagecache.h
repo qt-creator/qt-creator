@@ -11,10 +11,7 @@
 #include <QIcon>
 #include <QImage>
 
-#include <condition_variable>
 #include <functional>
-#include <mutex>
-#include <thread>
 
 namespace QmlDesigner {
 

@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/ieditor.h>
 #include <vcsbase/vcsbaseclient.h>
 
 namespace VcsBase { class VcsBaseDiffEditorController; }

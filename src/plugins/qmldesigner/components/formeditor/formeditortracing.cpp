@@ -3,9 +3,7 @@
 
 #include "formeditortracing.h"
 
-#include <tracing/qmldesignertracing.h>
 
-#include <sqlitebasestatement.h>
 
 namespace QmlDesigner::FormEditorTracing {
 using namespace NanotraceHR::Literals;

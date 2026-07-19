@@ -3,7 +3,6 @@
 
 #include "assetslibrarymodel.h"
 
-#include <modelnodeoperations.h>
 #include <qmldesignerplugin.h>
 #include <qmldesignertr.h>
 #include <uniquename.h>

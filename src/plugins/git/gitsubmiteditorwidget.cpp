@@ -9,9 +9,7 @@
 #include "gittr.h"
 #include "logchangedialog.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/fileutils.h>
 
 #include <utils/completingtextedit.h>
 #include <utils/filepath.h>

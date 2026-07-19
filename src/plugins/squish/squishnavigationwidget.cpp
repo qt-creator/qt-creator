@@ -17,7 +17,6 @@
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/qtcassert.h>
 

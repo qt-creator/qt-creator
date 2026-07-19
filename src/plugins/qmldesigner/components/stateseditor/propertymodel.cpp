@@ -7,15 +7,14 @@
 #include "abstractview.h"
 #include "bindingproperty.h"
 #include "nodemetainfo.h"
+#include "qmlchangeset.h"
 #include "variantproperty.h"
-
-#include <qmlmodelnodeproxy.h>
 
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QWidget>
-#include <QtQml>
+#include <qqml.h>
 
 enum {
     debug = false

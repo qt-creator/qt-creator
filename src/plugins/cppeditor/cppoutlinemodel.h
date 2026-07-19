@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <utils/dropsupport.h>
 #include <utils/textutils.h>
 #include <utils/treemodel.h>
 

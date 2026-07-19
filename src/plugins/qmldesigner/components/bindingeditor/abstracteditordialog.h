@@ -4,7 +4,7 @@
 #ifndef ABSTRACTEDITORDIALOG_H
 #define ABSTRACTEDITORDIALOG_H
 
-#include <qmldesignercorelib_global.h>
+#include "nodeinstanceglobal.h"
 
 #include <texteditor/texteditor.h>
 #include <bindingeditor/bindingeditorwidget.h>

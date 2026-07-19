@@ -3,7 +3,7 @@
 
 #include "snippetprovider.h"
 
-#include <utils/algorithm.h>
+#include <QList>
 
 using namespace TextEditor;
 

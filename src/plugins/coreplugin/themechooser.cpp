@@ -9,7 +9,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/theme/theme.h>
-#include <utils/theme/theme_p.h>
 
 #include <QAbstractListModel>
 #include <QComboBox>

@@ -4,7 +4,6 @@
 #include "qtoutputformatter.h"
 
 #include "qtkitaspect.h"
-#include "qtsupportconstants.h"
 #include "qttestparser.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -13,7 +12,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <utils/algorithm.h>
 #include <utils/ansiescapecodehandler.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
@@ -26,8 +24,6 @@
 #include <QRegularExpression>
 #include <QTextCursor>
 #include <QUrl>
-
-#include <tuple>
 
 using namespace ProjectExplorer;
 using namespace Utils;

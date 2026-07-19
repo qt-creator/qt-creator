@@ -3,7 +3,6 @@
 
 #include "plaintexteditmodifier.h"
 
-#include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/changeset.h>
 

@@ -6,8 +6,6 @@
 #include "mcusupport_global.h"
 #include "settingshandler.h"
 
-#include <utils/environmentfwd.h>
-
 #include <QCoreApplication>
 #include <QVersionNumber>
 

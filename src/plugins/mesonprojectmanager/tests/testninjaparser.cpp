@@ -9,8 +9,6 @@
 #include <QTemporaryDir>
 #include <QTest>
 
-#include <iostream>
-
 using namespace MesonProjectManager::Internal;
 
 struct TestData

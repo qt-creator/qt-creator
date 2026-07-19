@@ -11,7 +11,6 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
 #include <utils/synchronizedvalue.h>
 
 #include <qapplicationstatic.h>

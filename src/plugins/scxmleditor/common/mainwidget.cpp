@@ -23,7 +23,6 @@
 #include "stateview.h"
 #include "statisticsdialog.h"
 #include "structure.h"
-#include "undocommands.h"
 #include "warning.h"
 #include "warningprovider.h"
 
@@ -50,6 +49,7 @@
 #include <QProgressDialog>
 #include <QStackedWidget>
 #include <QStandardPaths>
+#include <QUndoStack>
 #include <QXmlStreamWriter>
 
 #include <coreplugin/icore.h>

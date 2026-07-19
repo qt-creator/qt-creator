@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <QGraphicsObject>
+#include <anchorline.h>
 
-#include <qmlanchors.h>
+#include <QGraphicsObject>
 
 namespace QmlDesigner {
 

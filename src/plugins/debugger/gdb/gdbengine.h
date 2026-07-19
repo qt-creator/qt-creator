@@ -9,8 +9,6 @@
 #include <debugger/registerhandler.h>
 #include <debugger/peripheralregisterhandler.h>
 #include <debugger/watchhandler.h>
-#include <debugger/watchutils.h>
-#include <debugger/debuggeritem.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/outputcollector.h>
 

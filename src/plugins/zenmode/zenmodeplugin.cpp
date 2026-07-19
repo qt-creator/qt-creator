@@ -21,6 +21,7 @@
 #include <utils/theme/theme.h>
 
 #include <QAction>
+#include <QMainWindow>
 #include <QMenuBar>
 #include <QToolButton>
 

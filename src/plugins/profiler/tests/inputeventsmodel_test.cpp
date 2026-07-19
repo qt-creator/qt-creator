@@ -4,7 +4,6 @@
 #include "inputeventsmodel_test.h"
 #include "../profilertr.h"
 
-#include <tracing/timelinemodel_p.h>
 #include <tracing/timelineformattime.h>
 
 #include <QTest>

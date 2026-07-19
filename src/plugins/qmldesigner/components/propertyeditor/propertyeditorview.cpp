@@ -19,22 +19,21 @@
 #include <qmltimeline.h>
 
 #include <rewritingexception.h>
+#include <signalhandlerproperty.h>
 #include <variantproperty.h>
 
 #include <bindingproperty.h>
 
 #include <nodeabstractproperty.h>
-#include <sourcepathstorage/sourcepathcache.h>
+#include <sourcepathcacheinterface.h>
 
 #include <theme.h>
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>
-#include <utils3d.h>
 
 #include <QApplication>
 #include <QCoreApplication>

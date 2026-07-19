@@ -10,7 +10,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <utils/qtcsettings.h>
 #include <utils/shutdownguard.h>
 
 #include <QPointer>

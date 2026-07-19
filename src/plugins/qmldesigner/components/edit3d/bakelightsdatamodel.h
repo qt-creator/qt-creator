@@ -3,7 +3,6 @@
 #pragma once
 
 #include "modelnode.h"
-#include "qmldesignercorelib_global.h"
 
 #include <QAbstractListModel>
 #include <QObject>

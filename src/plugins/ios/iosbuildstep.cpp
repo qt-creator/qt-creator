@@ -14,7 +14,6 @@
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -22,7 +21,6 @@
 
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 #include <QGridLayout>
 #include <QLabel>

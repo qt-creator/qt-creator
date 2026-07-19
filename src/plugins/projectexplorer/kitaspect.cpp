@@ -10,7 +10,6 @@
 #include "projectexplorertr.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>

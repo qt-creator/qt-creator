@@ -8,7 +8,6 @@
 #include "mcutarget.h"
 #include "mcutargetdescription.h"
 
-#include <utils/fileutils.h>
 #include <QVersionNumber>
 
 namespace McuSupport::Internal::Legacy {

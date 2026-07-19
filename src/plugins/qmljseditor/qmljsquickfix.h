@@ -4,8 +4,6 @@
 #pragma once
 
 #include <texteditor/quickfix.h>
-#include <qmljs/parser/qmljsastfwd_p.h>
-#include <qmljs/qmljsdocument.h>
 #include <qmljstools/qmljsrefactoringchanges.h>
 #include <qmljstools/qmljssemanticinfo.h>
 

@@ -20,8 +20,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
@@ -30,7 +28,6 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qmljs/qmljsdocument.h>
@@ -38,8 +35,6 @@
 
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>

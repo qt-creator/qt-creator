@@ -6,10 +6,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <texteditor/basefilefind.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -24,7 +22,6 @@
 #include <qmljs/qmljscontext.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljstools/qmljsmodelmanager.h>
 
 #include <QDebug>
 #include <QFuture>

@@ -8,14 +8,9 @@
 #include "storagecacheentry.h"
 #include "storagecachefwd.h"
 
-#include <sourcepathids.h>
-
-#include <utils/algorithm.h>
 #include <utils/set_algorithm.h>
-#include <utils/smallstringfwd.h>
 
 #include <algorithm>
-#include <optional>
 #include <shared_mutex>
 #include <vector>
 

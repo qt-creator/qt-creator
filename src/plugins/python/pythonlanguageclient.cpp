@@ -14,11 +14,9 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
-#include <languageserverprotocol/textsynchronization.h>
 #include <languageserverprotocol/workspace.h>
 
 #include <projectexplorer/buildconfiguration.h>

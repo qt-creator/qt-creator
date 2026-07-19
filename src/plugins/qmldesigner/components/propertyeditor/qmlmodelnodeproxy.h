@@ -4,8 +4,7 @@
 #pragma once
 
 #include "propertyeditorvalue.h"
-
-#include <qmlitemnode.h>
+#include "qmlobjectnode.h"
 
 #include <QObject>
 

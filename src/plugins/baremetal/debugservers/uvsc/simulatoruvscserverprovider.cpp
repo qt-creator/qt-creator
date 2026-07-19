@@ -7,11 +7,8 @@
 #include "uvprojectwriter.h"
 
 #include <baremetal/baremetalconstants.h>
-#include <baremetal/baremetaldebugsupport.h>
 #include <baremetal/baremetaltr.h>
 #include <baremetal/debugserverprovidermanager.h>
-
-#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QFormLayout>

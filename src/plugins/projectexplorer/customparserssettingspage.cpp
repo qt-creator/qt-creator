@@ -8,11 +8,9 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 
-#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/guiutils.h>
 #include <utils/itemviews.h>
-#include <utils/qtcassert.h>
 
 #include <QAbstractTableModel>
 #include <QHeaderView>

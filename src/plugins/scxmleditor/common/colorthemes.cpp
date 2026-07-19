@@ -13,7 +13,6 @@
 
 #include <utils/icon.h>
 #include <utils/qtcsettings.h>
-#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 

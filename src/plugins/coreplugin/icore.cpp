@@ -61,7 +61,6 @@
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/fsengine/fsengine.h>
 #include <utils/guiutils.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
@@ -72,7 +71,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
-#include <utils/terminalcommand.h>
 #include <utils/theme/theme.h>
 #include <utils/touchbar/touchbar.h>
 #include <utils/utilsicons.h>
@@ -216,6 +214,7 @@ static Q_LOGGING_CATEGORY(coreLog, "qtc.core", QtWarningMsg)
 #include "iwizardfactory.h"
 #include "documentmanager.h"
 
+#include <utils/appmainwindow.h>
 #include <utils/hostosinfo.h>
 
 #include <QCoreApplication>

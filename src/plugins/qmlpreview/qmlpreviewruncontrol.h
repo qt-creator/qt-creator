@@ -5,8 +5,6 @@
 
 #include "qmlpreviewplugin.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
 namespace QmlPreview {

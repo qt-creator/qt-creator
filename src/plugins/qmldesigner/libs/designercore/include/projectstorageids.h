@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "sourcepathids.h"
+#include "sqliteids.h"
 
 namespace QmlDesigner {
 

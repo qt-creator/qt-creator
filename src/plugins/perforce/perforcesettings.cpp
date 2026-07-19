@@ -21,6 +21,8 @@
 #include <QPushButton>
 #include <QStringList>
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 using namespace Utils;
 
 namespace Perforce::Internal {

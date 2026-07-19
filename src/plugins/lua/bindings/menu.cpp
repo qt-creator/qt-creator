@@ -6,7 +6,6 @@
 #include "utils.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/modemanager.h>
 
 using namespace Utils;
 using namespace Core;

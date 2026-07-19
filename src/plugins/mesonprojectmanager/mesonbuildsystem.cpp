@@ -20,7 +20,6 @@
 #include <projectexplorer/toolchain.h>
 
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitaspect.h>
 
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>

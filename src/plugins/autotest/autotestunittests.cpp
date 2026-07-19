@@ -8,14 +8,10 @@
 
 #include "qtest/qttestframework.h"
 
-#include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/projectinfo.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
@@ -29,7 +25,6 @@
 #include <QTest>
 
 using namespace Core;
-using namespace ExtensionSystem;
 using namespace ProjectExplorer;
 using namespace Utils;
 

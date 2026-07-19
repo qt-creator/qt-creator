@@ -13,7 +13,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitmanager.h>
@@ -24,11 +23,8 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
-#include <utils/expected.h>
-#include <utils/infobar.h>
 #include <utils/mimeconstants.h>
 #include <utils/predicates.h>
 #include <utils/qtcassert.h>

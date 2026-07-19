@@ -5,14 +5,11 @@
 
 #include "buildsystem.h"
 #include "project.h"
-#include "projectexplorerconstants.h"
 #include "target.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>

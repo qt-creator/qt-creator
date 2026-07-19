@@ -19,8 +19,6 @@
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
 
 #include <gocmdbridge/client/bridgedfileaccess.h>
 
@@ -32,7 +30,6 @@
 #include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/globaltasktree.h>
-#include <utils/port.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

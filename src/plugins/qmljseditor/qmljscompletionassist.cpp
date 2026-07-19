@@ -7,8 +7,6 @@
 #include "qmljsreuse.h"
 #include "qmlexpressionundercursor.h"
 
-#include <coreplugin/idocument.h>
-
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>

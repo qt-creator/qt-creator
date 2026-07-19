@@ -12,7 +12,6 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcsettings.h>
 
 #include <QHBoxLayout>
 #include <QLabel>

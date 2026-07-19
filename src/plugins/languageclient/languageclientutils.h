@@ -6,7 +6,6 @@
 #include "languageclient_global.h"
 
 #include <languageserverprotocol/languagefeatures.h>
-#include <languageserverprotocol/workspace.h>
 
 #include <texteditor/refactoroverlay.h>
 #include <utils/changeset.h>

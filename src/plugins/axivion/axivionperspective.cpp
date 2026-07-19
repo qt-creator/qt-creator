@@ -23,7 +23,6 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
-#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 

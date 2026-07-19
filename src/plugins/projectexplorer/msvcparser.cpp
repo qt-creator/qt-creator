@@ -5,7 +5,6 @@
 #include "buildmanager.h"
 
 #include <utils/qtcassert.h>
-#include <utils/fileutils.h>
 
 #ifdef WITH_TESTS
 #include "outputparser_test.h"

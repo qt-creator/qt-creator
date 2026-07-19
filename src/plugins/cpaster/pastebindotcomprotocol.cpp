@@ -4,7 +4,6 @@
 #include "pastebindotcomprotocol.h"
 
 #include <utils/networkaccessmanager.h>
-#include <utils/qtcassert.h>
 
 #include <QtTaskTree/QNetworkReplyWrapper>
 

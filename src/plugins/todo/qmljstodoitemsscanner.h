@@ -6,8 +6,9 @@
 
 #include "todoitemsscanner.h"
 
+#include <qmljs/qmljsdocument.h>
+
 #include <utils/filepath.h>
-#include <qmljs/qmljsmodelmanagerinterface.h>
 
 namespace Todo {
 namespace Internal {

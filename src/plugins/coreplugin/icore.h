@@ -7,7 +7,6 @@
 #include "icontext.h"
 
 #include <extensionsystem/pluginspec.h>
-#include <utils/appmainwindow.h>
 #include <utils/filepath.h>
 #include <utils/qtcsettings.h>
 

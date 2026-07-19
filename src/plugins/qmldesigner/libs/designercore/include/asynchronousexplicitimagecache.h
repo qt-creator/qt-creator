@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include "asynchronousimagecacheinterface.h"
-
+#include "imagecacheauxiliarydata.h"
 #include <imagecache/taskqueue.h>
 #include <qmldesignercorelib_exports.h>
 
@@ -12,7 +11,6 @@
 #include <deque>
 #include <functional>
 #include <mutex>
-#include <optional>
 #include <thread>
 
 namespace QmlDesigner {

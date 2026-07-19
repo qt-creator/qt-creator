@@ -4,20 +4,10 @@
 #include "generatedcodemodelsupport.h"
 #include "cppmodelmanager.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/idocument.h>
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/extracompiler.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
 
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
 

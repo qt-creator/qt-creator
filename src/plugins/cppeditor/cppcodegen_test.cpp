@@ -6,7 +6,6 @@
 #include "cpptoolstestcase.h"
 #include "insertionpointlocator.h"
 
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
-
 namespace Android::Internal {
 
 void setupAndroidRunConfiguration();

@@ -7,7 +7,6 @@
 #include "suggest/nimsuggest.h"
 
 #include <texteditor/textdocument.h>
-#include <texteditor/codeassist/assistinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 

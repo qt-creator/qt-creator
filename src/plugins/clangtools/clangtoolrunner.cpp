@@ -3,18 +3,11 @@
 
 #include "clangtoolrunner.h"
 
-#include "clangtoolscompilationdb.h"
 #include "clangtoolslogfilereader.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 
-#include <coreplugin/icore.h>
-
-#include <cppeditor/clangdiagnosticconfigsmodel.h>
-#include <cppeditor/compileroptionsbuilder.h>
-#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppprojectfile.h>
-#include <cppeditor/cpptoolsreuse.h>
 
 #include <utils/async.h>
 #include <utils/qtcprocess.h>

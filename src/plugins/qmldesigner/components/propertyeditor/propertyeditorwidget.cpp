@@ -5,8 +5,6 @@
 
 #include "propertyeditortracing.h"
 
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 

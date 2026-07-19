@@ -16,7 +16,6 @@
 #include <modelutils.h>
 #include <rewriterview.h>
 
-#include <qmldesignerutils/stringutils.h>
 #include <utils/algorithm.h>
 
 namespace QmlDesigner {

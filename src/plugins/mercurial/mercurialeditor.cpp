@@ -8,7 +8,6 @@
 #include "mercurialclient.h"
 #include "mercurialtr.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <vcsbase/diffandloghighlighter.h>
 
 #include <QString>

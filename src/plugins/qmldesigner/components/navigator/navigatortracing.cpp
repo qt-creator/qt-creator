@@ -3,9 +3,7 @@
 
 #include "navigatortracing.h"
 
-#include <tracing/qmldesignertracing.h>
 
-#include <sqlitebasestatement.h>
 
 namespace QmlDesigner::NavigatorTracing {
 using namespace NanotraceHR::Literals;

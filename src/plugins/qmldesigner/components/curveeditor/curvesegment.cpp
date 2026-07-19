@@ -7,7 +7,6 @@
 #include <utils/qtcassert.h>
 #include <QEasingCurve>
 #include <QPainterPath>
-#include <qmath.h>
 
 #include <assert.h>
 

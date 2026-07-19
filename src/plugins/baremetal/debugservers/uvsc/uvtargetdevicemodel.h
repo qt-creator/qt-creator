@@ -5,7 +5,6 @@
 
 #include "uvtargetdeviceselection.h"
 
-#include <utils/basetreeview.h>
 #include <utils/filepath.h>
 #include <utils/treemodel.h>
 

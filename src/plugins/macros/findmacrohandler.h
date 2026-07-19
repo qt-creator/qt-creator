@@ -5,8 +5,6 @@
 
 #include "imacrohandler.h"
 
-#include <coreplugin/find/textfindconstants.h>
-
 #include <utils/filesearch.h>
 
 namespace Core { class IEditor; }

@@ -9,7 +9,6 @@
 
 #include <utils/icon.h>
 #include <utils/qtdesignwidgets.h>
-#include <utils/utilsicons.h>
 
 namespace AcpClient::Internal {
 

@@ -13,7 +13,6 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 
-#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/temporarydirectory.h>

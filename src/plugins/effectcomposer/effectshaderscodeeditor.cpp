@@ -29,6 +29,8 @@
 #include <QJsonDocument>
 #include <QJsonValue>
 #include <QPlainTextEdit>
+#include <QQmlContext>
+#include <QQmlEngine>
 #include <QSettings>
 #include <QSplitter>
 #include <QStackedWidget>

@@ -18,8 +18,6 @@
 
 #include <texteditor/texteditor.h>
 
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>

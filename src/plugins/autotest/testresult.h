@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "autotestconstants.h"
-
 #include <utils/filepath.h>
 
 #include <QColor>

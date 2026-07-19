@@ -6,7 +6,6 @@
 
 #include "api/library.h"
 
-#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/store.h>
 

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "baseitem.h"
+#include "mytypes.h"
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsSceneHoverEvent)
 QT_FORWARD_DECLARE_CLASS(QGraphicsSceneMouseEvent)

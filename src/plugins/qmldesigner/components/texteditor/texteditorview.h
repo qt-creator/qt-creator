@@ -5,7 +5,6 @@
 #include <abstractview.h>
 #include <qmldesignercomponents_global.h>
 
-#include <coreplugin/icontext.h>
 
 namespace TextEditor { class BaseTextEditor; }
 

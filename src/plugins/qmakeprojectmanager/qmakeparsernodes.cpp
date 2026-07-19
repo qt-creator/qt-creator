@@ -17,8 +17,6 @@
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
 
 #include <qtsupport/profilereader.h>
 
@@ -30,7 +28,6 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/filesystemwatcher.h>
-#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>

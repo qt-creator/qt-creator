@@ -7,7 +7,6 @@
 #include "androidtr.h"
 #include "androidutils.h"
 
-#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/buildconfiguration.h>

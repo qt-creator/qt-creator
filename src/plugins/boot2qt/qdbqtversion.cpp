@@ -3,11 +3,11 @@
 
 #include "qdbqtversion.h"
 
-#include "qdbconstants.h"
 #include "qdbtr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
 
 namespace Qdb::Internal {
 

@@ -11,7 +11,6 @@
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
 #include <QComboBox>
 #include <QCoreApplication>

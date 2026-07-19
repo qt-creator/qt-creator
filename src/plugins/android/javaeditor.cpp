@@ -5,11 +5,8 @@
 #include "androidconstants.h"
 #include "androidtr.h"
 
-#include <coreplugin/editormanager/ieditorfactory.h>
-
 #include <texteditor/codeassist/keywordscompletionassist.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textindenter.h>
 

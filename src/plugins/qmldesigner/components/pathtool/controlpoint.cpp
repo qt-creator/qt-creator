@@ -7,7 +7,6 @@
 
 #include <variantproperty.h>
 
-#include <rewritertransaction.h>
 
 namespace QmlDesigner {
 

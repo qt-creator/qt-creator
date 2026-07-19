@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <utils/store.h>
-
 #include <QObject>
 
 namespace Utils {
 class FilePath;
 class FilePaths;
+class Key;
 } // namespace Utils
 
 namespace McuSupport::Internal {

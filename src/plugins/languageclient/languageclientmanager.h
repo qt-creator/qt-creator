@@ -11,10 +11,6 @@
 #include <utils/algorithm.h>
 #include <utils/id.h>
 
-#include <languageserverprotocol/diagnostics.h>
-#include <languageserverprotocol/languagefeatures.h>
-#include <languageserverprotocol/textsynchronization.h>
-
 namespace Core {
 class IEditor;
 class IDocument;

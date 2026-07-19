@@ -6,11 +6,9 @@
 
 #include <timelineeditor/timelinegraphicsscene.h>
 
-#include <qmltimeline.h>
 
 #include <QGraphicsScene>
 
-#include <memory>
 
 QT_FORWARD_DECLARE_CLASS(QGraphicsLinearLayout)
 QT_FORWARD_DECLARE_CLASS(QComboBox)

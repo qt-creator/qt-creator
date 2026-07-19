@@ -17,7 +17,6 @@
 #include "textindenter.h"
 #include "typingsettings.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -25,9 +24,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/environment.h>
 #include <utils/guard.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>

@@ -22,10 +22,8 @@
 #include <createinstancescommand.h>
 #include <createscenecommand.h>
 #include <debugoutputcommand.h>
-#include <endpuppetcommand.h>
 #include <informationchangedcommand.h>
 #include <inputeventcommand.h>
-#include <nanotracecommand.h>
 #include <pixmapchangedcommand.h>
 #include <puppettocreatorcommand.h>
 #include <removeinstancescommand.h>
@@ -33,26 +31,17 @@
 #include <removesharedmemorycommand.h>
 #include <reparentinstancescommand.h>
 #include <statepreviewimagechangedcommand.h>
-#include <synchronizecommand.h>
 #include <tokencommand.h>
 #include <update3dviewstatecommand.h>
 #include <valueschangedcommand.h>
 #include <view3dactioncommand.h>
 #include <requestmodelnodepreviewimagecommand.h>
 
-#include <import.h>
 #include <nodeinstanceview.h>
 #include <rewriterview.h>
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
 #include <nanotrace/nanotrace.h>
-#include <projectexplorer/kit.h>
-#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
 
 #include <QCoreApplication>
 #include <QDir>

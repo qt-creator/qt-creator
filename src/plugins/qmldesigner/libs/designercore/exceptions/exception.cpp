@@ -4,11 +4,8 @@
 #include "exception.h"
 
 #ifdef Q_OS_LINUX
-#include <execinfo.h>
-#include <cxxabi.h>
 #endif
 
-#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 

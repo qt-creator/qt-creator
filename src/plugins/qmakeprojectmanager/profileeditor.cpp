@@ -10,8 +10,6 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>

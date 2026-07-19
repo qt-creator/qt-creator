@@ -7,7 +7,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/perspective.h>
 
 #include <debugger/debuggertr.h>
 
@@ -15,7 +14,6 @@
 #include <utils/mimeutils.h>
 #include <utils/temporarydirectory.h>
 
-#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projecttree.h>
 

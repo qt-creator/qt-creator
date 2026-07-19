@@ -8,13 +8,12 @@
 #include "clangformattr.h"
 #include "clangformatutils.h"
 
-#include <cppeditor/cppcodestylesettingspage.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/codestyleselectorwidget.h>
-#include <utils/fileutils.h>
 #include <utils/guiutils.h>
+#include <texteditor/icodestylepreferences.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>

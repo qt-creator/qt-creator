@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "chart.h"
-
 #include "idataprovider.h"
 
 #include <coreplugin/inavigationwidgetfactory.h>

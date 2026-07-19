@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "qmlprofilermodelmanager.h"
-
 #include <QAbstractItemModel>
 #include <QWidget>
 

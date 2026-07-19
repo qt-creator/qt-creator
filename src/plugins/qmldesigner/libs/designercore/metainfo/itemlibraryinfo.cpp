@@ -4,7 +4,6 @@
 #include "../include/itemlibraryinfo.h"
 
 #include <invalidmetainfoexception.h>
-#include <propertycontainer.h>
 
 namespace QmlDesigner {
 

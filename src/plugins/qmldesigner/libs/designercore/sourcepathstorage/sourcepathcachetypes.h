@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "projectstorageids.h"
+#include "sourcepathids.h"
 #include "storagecacheentry.h"
 
 #include <utils/smallstring.h>

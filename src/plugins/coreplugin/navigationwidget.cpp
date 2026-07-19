@@ -12,12 +12,8 @@
 #include "modemanager.h"
 #include "navigationsubwidget.h"
 
-#include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
-#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-
-#include <aggregation/aggregate.h>
 
 #include <QAction>
 #include <QCoreApplication>

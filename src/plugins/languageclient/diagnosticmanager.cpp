@@ -5,19 +5,16 @@
 
 #include "client.h"
 #include "languageclientmanager.h"
-#include "languageclienttr.h"
 
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/documentmodel.h>
 
-#include <projectexplorer/project.h>
 #include <projectexplorer/taskhub.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
-#include <texteditor/textstyles.h>
 
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>

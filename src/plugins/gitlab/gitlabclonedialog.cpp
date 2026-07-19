@@ -10,20 +10,15 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <git/gitclient.h>
-
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/commandline.h>
-#include <utils/environment.h>
 #include <utils/fancylineedit.h>
 #include <utils/filepath.h>
 #include <utils/infolabel.h>
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <vcsbase/vcsbaseplugin.h>

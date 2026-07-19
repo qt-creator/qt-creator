@@ -9,7 +9,6 @@
 
 #include <QWidgetAction>
 
-#include <functional>
 #include <memory>
 
 namespace QmlDesigner {

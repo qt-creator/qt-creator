@@ -6,7 +6,6 @@
 #include "cvstr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icore.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>

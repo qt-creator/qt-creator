@@ -3,7 +3,6 @@
 
 #include "itestframework.h"
 
-#include "autotestconstants.h"
 #include "itestparser.h"
 #include "testtreeitem.h"
 #include "testtreemodel.h"

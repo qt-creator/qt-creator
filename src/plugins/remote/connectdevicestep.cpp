@@ -9,11 +9,7 @@
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/devicesupport/devicekitaspects.h>
-#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
-
-#include <utils/async.h>
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;

@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectstorageerrornotifier.h"
+#include "sourcepath.h"
+#include "sourcepathcache.h"
 
 #include <qmldesigner/qmldesignertr.h>
 
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
 
 #include <modulesstorage/modulesstorage.h>
-#include <sourcepathstorage/sourcepathcache.h>
 
 namespace QmlDesigner {
 

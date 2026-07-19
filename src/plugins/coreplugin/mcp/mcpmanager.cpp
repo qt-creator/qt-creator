@@ -14,9 +14,9 @@
 #include <utils/algorithm.h>
 #include <utils/aspectlist.h>
 #include <utils/aspects.h>
+#include <utils/co_result.h>
 #include <utils/environmentchangesaspect.h>
 #include <utils/async.h>
-#include <utils/globaltasktree.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/shutdownguard.h>
@@ -42,6 +42,7 @@
 #include <QVBoxLayout>
 
 #include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 
 using namespace Utils;
 

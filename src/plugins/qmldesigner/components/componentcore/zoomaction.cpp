@@ -5,7 +5,6 @@
 #include "formeditorwidget.h"
 #include <algorithm>
 #include <iterator>
-#include <utility>
 
 #include <utils/stylehelper.h>
 
@@ -14,7 +13,6 @@
 #include <QToolBar>
 
 #include <cmath>
-#include <ranges>
 
 namespace QmlDesigner {
 

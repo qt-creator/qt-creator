@@ -17,9 +17,9 @@
 #include <texteditor/textmark.h>
 
 #include <utils/filepath.h>
+#include <utils/icon.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
-#include <utils/utilsicons.h>
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>

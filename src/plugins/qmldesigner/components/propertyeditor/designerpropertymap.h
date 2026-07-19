@@ -4,8 +4,6 @@
 #pragma once
 
 #include <QQmlPropertyMap>
-#include <QtQml>
-#include "propertyeditorvalue.h"
 
 namespace QmlDesigner {
 

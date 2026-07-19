@@ -5,7 +5,6 @@
 
 #include "addimagesdialog.h"
 #include "addsignalhandlerdialog.h"
-#include "componentcore_constants.h"
 #include "createtexture.h"
 #include "findimplementation.h"
 #include "layoutingridlayout.h"
@@ -27,7 +26,6 @@
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
-#include <nodeproperty.h>
 #include <qmlanchors.h>
 #include <qmlitemnode.h>
 #include <rewritertransaction.h>
@@ -62,7 +60,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

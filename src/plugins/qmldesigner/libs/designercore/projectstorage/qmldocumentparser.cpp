@@ -4,12 +4,7 @@
 
 #include "qmldocumentparser.h"
 
-#include "projectstorage.h"
-#include "projectstorageexceptions.h"
-#include "projectstoragetracing.h"
 
-#include <sourcepathstorage/sourcepathcache.h>
-#include <sqlitedatabase.h>
 
 
 #ifdef QDS_BUILD_QMLPARSER
@@ -19,7 +14,6 @@
 #include <QDateTime>
 #include <QVarLengthArray>
 
-#include <filesystem>
 
 namespace QmlDesigner {
 

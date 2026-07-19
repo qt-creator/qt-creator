@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "snippetassistcollector.h"
+
+#include "../codeassist/assistproposaliteminterface.h"
 #include "snippetscollection.h"
 
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/codeassist/assistproposalitem.h>
 
 using namespace TextEditor;
 using namespace Internal;

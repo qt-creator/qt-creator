@@ -24,8 +24,6 @@
 #include <rewritertransaction.h>
 #include <variantproperty.h>
 #include <viewmanager.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 #include <qmlobjectnode.h>

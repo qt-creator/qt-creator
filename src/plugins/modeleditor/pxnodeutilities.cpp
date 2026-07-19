@@ -12,7 +12,6 @@
 #include <cplusplus/CppDocument.h>
 
 #include <projectexplorer/projectnodes.h>
-#include <utils/qtcassert.h>
 
 #include <QList>
 #include <QPair>

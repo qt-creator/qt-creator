@@ -6,9 +6,9 @@
 #include "projectexplorer/target.h"
 #include "qmlproject.h"
 #include "qmlprojectmanagertr.h"
-#include "utils/fileutils.h"
 #include "utils/templateengine.h"
 
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/projectmanager.h>
 
 namespace QmlProjectManager {

@@ -7,7 +7,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/settingsaccessor.h>
 #include <utils/settingsaccessor.h>

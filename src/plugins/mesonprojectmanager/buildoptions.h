@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <utils/filepath.h>
-
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>

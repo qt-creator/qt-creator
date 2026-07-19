@@ -5,7 +5,6 @@
 
 #ifndef QDS_USE_PROJECTSTORAGE
 
-#  include "qmldesignercorelib_global.h"
 
 #  include <QStringList>
 #  include <QSharedPointer>

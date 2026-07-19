@@ -6,6 +6,8 @@
 #include "quick3dmodel.h"
 #include <tracing/timelineformattime.h>
 
+#include <QUrl>
+
 using namespace QmlDebug;
 namespace Profiler::Internal {
 

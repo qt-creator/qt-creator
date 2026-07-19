@@ -18,7 +18,6 @@
 #include <designersettings.h>
 #include <designmodewidget.h>
 #include <metainfo.h>
-#include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
 #include <nodeinstanceview.h>
@@ -36,14 +35,10 @@
 #include <qmldesignerutils/asset.h>
 
 #include <projectexplorer/target.h>
-#include <projectexplorer/kit.h>
 
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
 
 #include <QMenu>
 #include <QToolButton>

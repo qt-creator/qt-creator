@@ -12,7 +12,6 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -28,8 +27,8 @@
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
 #include <utils/qtcassert.h>
-#include <utils/tooltip/tooltip.h>
 #include <utils/stringutils.h>
+#include <utils/tooltip/tooltip.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 

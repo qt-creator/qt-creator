@@ -5,7 +5,6 @@
 
 #include "cpptoolsreuse.h"
 
-#include <cppeditor/cppeditorconstants.h>
 
 #include <cplusplus/Token.h>
 

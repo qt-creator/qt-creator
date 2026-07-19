@@ -14,7 +14,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 
 #include <cplusplus/CppDocument.h>
 

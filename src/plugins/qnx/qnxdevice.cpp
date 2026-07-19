@@ -15,8 +15,6 @@
 #include <remote/remotelinux_constants.h>
 #include <remote/sshdevicewizard.h>
 
-#include <utils/qtcassert.h>
-
 using namespace ProjectExplorer;
 using namespace Remote;
 using namespace Utils;

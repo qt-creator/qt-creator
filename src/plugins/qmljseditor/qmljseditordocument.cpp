@@ -20,15 +20,13 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsindenter.h>
-#include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 
+#include <texteditor/refactoringchanges.h>
 
-#include <utils/fileutils.h>
 #include <utils/infobar.h>
-
-#include <languageclient/languageclientmanager.h>
 
 #include <QDebug>
 #include <QLoggingCategory>

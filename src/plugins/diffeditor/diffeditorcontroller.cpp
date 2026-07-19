@@ -9,7 +9,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
-#include <utils/ansiescapecodehandler.h>
 #include <utils/qtcassert.h>
 
 using namespace Core;

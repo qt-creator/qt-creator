@@ -15,7 +15,6 @@
 #include <QStringList>
 #include <QTextCursor>
 
-#include <functional>
 
 namespace CPlusPlus {
 class ClassOrNamespace;
