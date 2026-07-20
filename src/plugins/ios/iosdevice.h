@@ -9,8 +9,6 @@
 
 #include <QtTaskTree/QMappedTaskTreeRunner>
 
-#include <QMessageBox>
-#include <QPointer>
 #include <QTimer>
 #include <QVersionNumber>
 
@@ -96,7 +94,6 @@ private:
     QtTaskTree::QMappedTaskTreeRunner<QString> m_updatesRunner; // deviceid->task
     QTimer m_userModeDevicesTimer;
     QStringList m_userModeDeviceIds;
-    QPointer<QMessageBox> m_devModeDialog;
     std::optional<QVersionNumber> m_deviceCtlVersion;
 };
 

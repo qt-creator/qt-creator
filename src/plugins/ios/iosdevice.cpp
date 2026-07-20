@@ -22,6 +22,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/guiutils.h>
 #include <utils/environment.h>
+#include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
@@ -34,7 +35,6 @@
 
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QMessageBox>
 
 #ifdef Q_OS_MACOS
 #include <IOKit/IOKitLib.h>
@@ -928,33 +928,32 @@ void IosDeviceManager::deviceInfo(const QString &uid,
             bool shouldIgnore = newDev->m_ignoreDevice;
             newDev->m_ignoreDevice = true;
             if (devStatus == vOff) {
-                if (!m_devModeDialog && !shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
-                    m_devModeDialog = new QMessageBox(Core::ICore::dialogParent());
-                    m_devModeDialog->setText(
-                        Tr::tr("An iOS device in user mode has been detected."));
-                    m_devModeDialog->setInformativeText(
-                        Tr::tr("Do you want to see how to set it up for development?"));
-                    m_devModeDialog->setStandardButtons(QMessageBox::NoAll | QMessageBox::No
-                                                        | QMessageBox::Yes);
-                    m_devModeDialog->setDefaultButton(QMessageBox::Yes);
-                    m_devModeDialog->setAttribute(Qt::WA_DeleteOnClose);
-                    connect(m_devModeDialog, &QDialog::finished, this, [](int result) {
-                        switch (result) {
-                        case QMessageBox::Yes:
-                            Core::HelpManager::showHelpUrl(
-                                "qthelp://org.qt-project.qtcreator/doc/"
-                                "creator-how-to-connect-ios-devices.html");
-                            break;
-                        case QMessageBox::No:
-                            break;
-                        case QMessageBox::NoAll:
-                            IosConfigurations::setIgnoreAllDevices(true);
-                            break;
-                        default:
-                            break;
-                        }
-                    });
-                    m_devModeDialog->show();
+                if (!shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
+                    Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
+                    const Utils::Id id("Ios.DevModeDetected");
+                    if (infoBar->canInfoBeAdded(id)) {
+                        Utils::InfoBarEntry entry(
+                            id,
+                            Tr::tr("An iOS device in user mode has been detected. "
+                                   "Do you want to see how to set it up for development?"));
+                        entry.setTitle(Tr::tr("iOS Device Detected"));
+                        entry.setInfoType(InfoLabelType::Information);
+                        entry.addCustomButton(
+                            Tr::tr("Set Up Device"),
+                            [] {
+                                Core::HelpManager::showHelpUrl(
+                                    "qthelp://org.qt-project.qtcreator/doc/"
+                                    "creator-how-to-connect-ios-devices.html");
+                            },
+                            {},
+                            Utils::InfoBarEntry::ButtonAction::Hide);
+                        entry.addCustomButton(
+                            Utils::msgDoNotShowAgain(),
+                            [] { IosConfigurations::setIgnoreAllDevices(true); },
+                            {},
+                            Utils::InfoBarEntry::ButtonAction::Hide);
+                        infoBar->addInfo(entry);
+                    }
                 }
             }
             if (!m_userModeDeviceIds.contains(uid))
