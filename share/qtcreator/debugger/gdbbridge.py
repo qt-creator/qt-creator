@@ -1319,13 +1319,19 @@ class Dumper(DumperBase):
                                 if dereftype.name == needle:
                                     addr = int(value)
                                     res = None
-                                    for pat in pats:
-                                        try:
-                                            expr = pat.format(ns, addr)
-                                            res = str(gdb.parse_and_eval(expr))
-                                            break
-                                        except Exception:
-                                            continue
+                                    oldElements = gdb.parameter('print elements')
+                                    gdb.execute('set print elements unlimited')
+                                    try:
+                                        for pat in pats:
+                                            try:
+                                                expr = pat.format(ns, addr)
+                                                res = str(gdb.parse_and_eval(expr))
+                                                break
+                                            except Exception:
+                                                continue
+                                    finally:
+                                        gdb.execute('set print elements %s' % (
+                                            'unlimited' if oldElements is None else oldElements))
 
                                     if res is None:
                                         done = True
