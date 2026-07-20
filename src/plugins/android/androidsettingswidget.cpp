@@ -420,7 +420,7 @@ static bool androidQtVersionsInstalledButNoKits()
 void AndroidSettingsWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event)
-    if (androidQtVersionsInstalledButNoKits())
+    if (AndroidConfig::sdkFullyConfigured() && androidQtVersionsInstalledButNoKits())
         markSettingsDirty();
     if (!m_isInitialReloadDone) {
         validateJdk();

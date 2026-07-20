@@ -23,5 +23,56 @@
     To set global preferences, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Documentation Comments}.
 
-    \sa {Building and running projects}
+    \sa {Building and running projects}, {Documentation Comments}
+*/
+
+/*!
+    \page creator-preferences-text-editor-documentation-comments.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-editors
+
+    \title Documentation Comments
+
+    \brief Set preferences for generating Doxygen-style documentation
+    comments in the text editor.
+
+    To set global preferences for documentation comments, select
+    \preferences > \uicontrol {Text Editor} > \uicontrol {Documentation
+    Comments}.
+
+    \image {qtcreator-preferences-text-editor-documentation-comments.webp} {Documentation Comments in Text Editor Preferences}
+
+    To override the global preferences for a particular project, see
+    \l {Document code}.
+
+    The following table describes the preferences you can set.
+
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Enable Doxygen blocks}
+        \li Automatically create a Doxygen comment when you press \key Enter
+            after typing \c{/**}, \c{/*!}, \c{//!}, or \c{///}.
+    \row
+        \li \uicontrol {Generate brief description}
+        \li Add a \c brief command with an initial description for the
+            documented declaration. Available when \uicontrol {Enable
+            Doxygen blocks} is selected.
+    \row
+        \li \uicontrol {Add leading asterisks}
+        \li Add leading asterisks when you continue a C, C++, or Java
+            documentation comment (\c{/*}, \c{/*!}, or \c{/**}) on a new
+            line.
+    \row
+        \li \uicontrol {Doxygen command prefix}
+        \li Select whether to prefix Doxygen commands with \c @ or \c
+            {\\}. Doxygen allows both. Select \uicontrol Automatic to use
+            \c @ if the surrounding comment starts with \c{/**} or \c{///},
+            and \c {\\} if it starts with \c{/*!} or \c{//!}.
+    \endtable
+
+    \sa {Document code}, {Configure editors}{How to: Configure editors}
 */

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -9,21 +9,21 @@
 
     \title Behavior
 
-    \brief Set preferences for indentation, typing, and file encoding in the
-    text editor.
+    \brief Set preferences for indentation, typing, saving, file encoding,
+    and mouse and keyboard behavior in the text editor.
 
-    To specify indentation preferences for text files that do not have C++ or
+    To set indentation preferences for text files that do not have C++ or
     QML code (such as Python code files), select \preferences >
     \uicontrol {Text Editor} > \uicontrol Behavior.
 
     \image {qtcreator-preferences-texteditor-behavior-indentation.webp} {Behavior tab in Text Editor preferences}
 
-    You can specify how to interpret the \key Tab and \key Backspace key
+    You can set how to interpret the \key Tab and \key Backspace key
     presses and how to align continuation lines.
 
-    \section1 Specifying tab preferences
+    \section1 Setting tab preferences
 
-    You can specify tab preferences at the following levels:
+    You can set tab preferences at the following levels:
 
     \list
         \li For all C++ files
@@ -34,15 +34,15 @@
         \li For other text files in a project
     \endlist
 
-    \section2 Specifying tabs and indentation
+    \section2 Setting tabs and indentation
 
-    You can specify tab policy and tab size in the
+    You can set tab policy and tab size in the
     \uicontrol {Tabs and Indentation} group. In the \uicontrol {Default Tab policy}
     field, select whether to use only spaces or only tabs for indentation,
     or to use a mixture of them.
 
     By default, the tab length in code editor is 8 spaces and the indent size is
-    4 spaces. You can specify the tab length and indent size separately for each
+    4 spaces. You can set the tab length and indent size separately for each
     project and for different types of files.
 
     You can have continuation lines aligned with the previous line. In the
@@ -71,7 +71,7 @@
             style preferences.
     \row
         \li \uicontrol {Backspace indentation}
-        \li Specify how the indentation is decreased when you select
+        \li set how the indentation is decreased when you select
             \uicontrol Backspace:
             \list
                 \li To go back one space at a time, select \uicontrol None.
@@ -82,7 +82,7 @@
             \endlist
     \row
         \li \uicontrol {Tab key performs auto-indent}
-        \li Specify when the \key Tab key automatically indents text:
+        \li set when the \key Tab key automatically indents text:
             \list
                 \li To always indent text, select \uicontrol Always.
                 \li To only indent text when the cursor is located within leading
@@ -96,7 +96,7 @@
             line comment definition when commenting out a selection.
     \row
         \li \uicontrol {Preferred comment position}
-        \li Specify the position of single line comments when you comment out a
+        \li Set the position of single line comments when you comment out a
             selection:
             \list
                 \li To let the highlight definition for the file determine the
@@ -108,6 +108,123 @@
                 \li To place single line comments at the end of the line, select
                     \uicontrol {At Line Start}.
             \endlist
+    \endtable
+
+    \section1 Cleaning up whitespace upon saving
+
+    To automatically clean up whitespace each time you save a file, select
+    \preferences > \uicontrol {Text Editor} > \uicontrol Behavior, and go to
+    \uicontrol {Cleanups Upon Saving}.
+
+    The following table describes the cleanup preferences you can set.
+
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Clean whitespace}
+        \li Remove trailing whitespace upon saving.
+    \row
+        \li \uicontrol {In entire document}
+        \li Clean whitespace in the entire document instead of only in the
+            parts that you changed. Available when \uicontrol {Clean whitespace}
+            is selected.
+    \row
+        \li \uicontrol {Clean indentation}
+        \li Correct leading whitespace according to the tab settings.
+            Available when \uicontrol {Clean whitespace} is selected.
+    \row
+        \li \uicontrol {Skip clean whitespace for file types}
+        \li List wildcard-aware file patterns, separated by commas or
+            semicolons, for which trailing whitespace is not trimmed. By
+            default, \c {*.md, *.MD, Makefile} are skipped. Available when
+            \uicontrol {Clean whitespace} is selected.
+    \row
+        \li \uicontrol {Ensure newline at end of file}
+        \li Always write a newline character at the end of the file.
+    \endtable
+
+    \section1 Setting file encoding preferences
+
+    To set the default text encoding, byte order mark (BOM), and line ending
+    style used when creating or saving files, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Behavior, and go to
+    \uicontrol {File Encodings}.
+
+    The following table describes the file encoding preferences you can set.
+
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Default encoding}
+        \li Select the text encoding to use for new files and for files whose
+            encoding cannot be detected automatically.
+    \row
+        \li \uicontrol {UTF-8 BOM}
+        \li Set how to handle UTF-8 byte order marks:
+            \list
+                \li \uicontrol {Add If Encoding Is UTF-8} always adds a BOM
+                    when saving a file in UTF-8 encoding. This does not work
+                    if the encoding is \uicontrol System, because the text
+                    editor does not know what encoding that actually is.
+                \li \uicontrol {Keep If Already Present} saves the file with a
+                    BOM if it already had one when it was loaded.
+                \li \uicontrol {Always Delete} never writes a UTF-8 BOM,
+                    possibly deleting a pre-existing one.
+            \endlist
+            UTF-8 BOMs are uncommon and are treated incorrectly by some
+            editors, so it usually makes little sense to add one. This
+            setting does not affect the use of UTF-16 and UTF-32 BOMs.
+    \row
+        \li \uicontrol {Default line endings}
+        \li Select \uicontrol {Unix (LF)} or \uicontrol {Windows (CRLF)} as
+            the default line ending style for new files.
+    \endtable
+
+    \section1 Setting mouse and keyboard preferences
+
+    To set preferences for using the mouse and keyboard in the text editor,
+    select \preferences > \uicontrol {Text Editor} > \uicontrol Behavior, and
+    go to \uicontrol {Mouse and Keyboard}.
+
+    The following table describes the mouse and keyboard preferences you can
+    set.
+
+    \table
+    \header
+        \li Preference
+        \li Description
+    \row
+        \li \uicontrol {Hide mouse cursor while typing}
+        \li Hide the mouse cursor while you type. Not available on \macos.
+    \row
+        \li \uicontrol {Enable mouse navigation}
+        \li Use the mouse to navigate in the editor, for example, to follow
+            links with \key {Ctrl+click} (or \key {Cmd+click} on \macos).
+    \row
+        \li \uicontrol {Enable scroll wheel zooming}
+        \li Zoom the text in the editor by holding \key Ctrl while rotating
+            the mouse wheel.
+    \row
+        \li \uicontrol {Enable built-in camel case navigation}
+        \li Move within camelCase and snake_case names one hump or word part
+            at a time when using cursor navigation and selection.
+    \row
+        \li \uicontrol {Enable smart selection changing}
+        \li Make \uicontrol {Select Block Up} and \uicontrol {Select Block
+            Down} provide smarter selections.
+    \row
+        \li \uicontrol {Show help tooltips using keyboard shortcut (Alt)}
+        \li Show context-sensitive help or type information as a tooltip when
+            you press \key Alt.
+    \row
+        \li \uicontrol {Show help tooltips using the mouse}
+        \li Select \uicontrol {On Mouseover} to show context-sensitive help or
+            type information on mouseover, or \uicontrol {On Shift+Mouseover}
+            to show it only when you press \key Shift while hovering.
     \endtable
 
     \sa {Configure editors}{How to: Configure editors}, {Find preferences},
