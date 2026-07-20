@@ -1058,7 +1058,7 @@ class TextDisplayPrivate
 {
 public:
     QString m_message;
-    InfoLabel::InfoType m_type;
+    InfoLabel::InfoType m_type = InfoLabel::None;
     bool m_wordWrap = true;
     QPointer<InfoLabel> m_label;
 };
@@ -3398,11 +3398,10 @@ void IntegersAspect::addToLayoutImpl(Layouting::Layout &parent)
     Constructs a text display with the parent \a container. The display shows
     \a message and an icon representing the type \a type.
  */
-TextDisplay::TextDisplay(AspectContainer *container, const QString &message, InfoLabel::InfoType type)
+TextDisplay::TextDisplay(AspectContainer *container, const QString &message)
     : BaseAspect(container), d(new Internal::TextDisplayPrivate)
 {
     d->m_message = message;
-    d->m_type = type;
 }
 
 /*!
