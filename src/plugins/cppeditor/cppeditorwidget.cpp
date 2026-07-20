@@ -781,7 +781,7 @@ void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &
         static const Id infoId("cppeditor.renameWarning");
         InfoBarEntry info(infoId, warning);
         info.setTitle(Tr::tr("Renamed Symbol Will Be Overwritten"));
-        info.setInfoType(InfoLabel::Warning);
+        info.setInfoType(InfoLabelType::Warning);
         if (ec) {
             info.addCustomButton(
                 CppEditor::Tr::tr("Open \"%1\"").arg(ec->source().fileName()),

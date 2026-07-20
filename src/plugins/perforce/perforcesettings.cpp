@@ -81,7 +81,7 @@ PerforceSettings::PerforceSettings()
     setLayouter([this] {
         using namespace Layouting;
 
-        auto errorLabel = new InfoLabel({}, InfoLabel::None);
+        auto errorLabel = new InfoLabel({}, InfoLabelType::None);
         errorLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
         errorLabel->setFilled(true);
         auto testButton = new QPushButton(Tr::tr("Test"));
@@ -92,21 +92,21 @@ PerforceSettings::PerforceSettings()
             checker->setUseOverideCursor(true);
             QObject::connect(checker, &PerforceChecker::failed, errorLabel,
                     [errorLabel, testButton, checker](const QString &t) {
-                errorLabel->setType(InfoLabel::Error);
+                errorLabel->setType(InfoLabelType::Error);
                 errorLabel->setText(t);
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });
             QObject::connect(checker, &PerforceChecker::succeeded, errorLabel,
                     [errorLabel, testButton, checker](const FilePath &repo) {
-                errorLabel->setType(InfoLabel::Ok);
+                errorLabel->setType(InfoLabelType::Ok);
                 errorLabel->setText(Tr::tr("Test succeeded (%1).")
                                         .arg(repo.toUserOutput()));
                 testButton->setEnabled(true);
                 checker->deleteLater();
             });
 
-            errorLabel->setType(InfoLabel::Information);
+            errorLabel->setType(InfoLabelType::Information);
             errorLabel->setText(Tr::tr("Testing..."));
 
             const FilePath p4Bin = p4BinaryPath.expandedVolatileValue();

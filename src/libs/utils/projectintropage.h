@@ -56,7 +56,7 @@ public:
 
 signals:
     void activated();
-    void statusMessageChanged(InfoLabel::InfoType type, const QString &message);
+    void statusMessageChanged(InfoLabelType type, const QString &message);
 
 public slots:
     void setFilePath(const FilePath &path);
@@ -71,7 +71,7 @@ private:
     void onCurrentProjectIndexChanged(int index);
 
     bool validate();
-    void displayStatusMessage(InfoLabel::InfoType t, const QString &);
+    void displayStatusMessage(InfoLabelType t, const QString &);
     void hideStatusLabel();
 
     class ProjectIntroPagePrivate *d;

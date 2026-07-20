@@ -53,7 +53,7 @@ private:
     void readSelectionDir();
     void writeSelectionDir(const QString &path);
     void setTweaksVisible(bool on);
-    void setMessageLabel(const Utils::InfoLabel::InfoType type, const QString &text);
+    void setMessageLabel(const Utils::InfoLabelType type, const QString &text);
     void clearMessageLabel();
 
     Utils::TextDisplay m_configerrorLabel;

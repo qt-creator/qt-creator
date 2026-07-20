@@ -203,7 +203,7 @@ void FrameworksAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     m_frameworksWarn = new InfoLabel;
     m_frameworksWarn->setElideMode(Qt::ElideNone);
-    m_frameworksWarn->setType(InfoLabel::Warning);
+    m_frameworksWarn->setType(InfoLabelType::Warning);
     if (!showWarning())
         m_frameworksWarn->setVisible(false);
 

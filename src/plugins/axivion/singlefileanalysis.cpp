@@ -62,7 +62,7 @@ public:
                 "No active project. "
                 "Referring to %1 will fail.")
                 .arg("<code>%{ActiveProject:...}</code>"),
-            InfoLabel::Warning,
+            InfoLabelType::Warning,
             this);
         warning->setElideMode(Qt::ElideNone); // ensure HTML stuff is taken into account
         if (!ProjectManager::projects().isEmpty())

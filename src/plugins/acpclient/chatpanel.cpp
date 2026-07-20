@@ -662,7 +662,7 @@ ChatPanel::ChatPanel(QWidget *parent)
             [this] { hideTextContextEditor(); });
 
     // Transient message shown above the input (e.g. when a paste is rejected).
-    m_inputInfoLabel = new InfoLabel({}, InfoLabel::Warning);
+    m_inputInfoLabel = new InfoLabel({}, InfoLabelType::Warning);
     m_inputInfoLabel->setElideMode(Qt::ElideNone);
     m_inputInfoLabel->setWordWrap(true);
     m_inputInfoLabel->hide();

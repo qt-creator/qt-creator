@@ -58,7 +58,7 @@ public:
 
     void initializeVersionControls();
     void setProjectUiVisible(bool visible);
-    void setStatus(const QString &text, Utils::InfoLabel::InfoType type);
+    void setStatus(const QString &text, Utils::InfoLabelType type);
     void setStatusVisible(bool visible);
 
 signals:

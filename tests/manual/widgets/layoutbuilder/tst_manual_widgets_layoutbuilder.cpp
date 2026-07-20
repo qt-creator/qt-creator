@@ -230,12 +230,12 @@ int main(int argc, char *argv[])
             },
             "QtcBadge:",
             Row {
-                Utils::QtDesignWidgets::Badge { text("OK"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabel::Ok)},
-                Utils::QtDesignWidgets::Badge { text("!"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabel::Warning) },
-                Utils::QtDesignWidgets::Badge { text("Bad"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabel::Error) },
-                Utils::QtDesignWidgets::Badge { text("OK"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabel::Ok)},
-                Utils::QtDesignWidgets::Badge { text("!"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabel::Warning) },
-                Utils::QtDesignWidgets::Badge { text("Bad"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabel::Error) },
+                Utils::QtDesignWidgets::Badge { text("OK"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabelType::Ok)},
+                Utils::QtDesignWidgets::Badge { text("!"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabelType::Warning) },
+                Utils::QtDesignWidgets::Badge { text("Bad"), role(Utils::QtcBadge::NumberPrimary), infoType(InfoLabelType::Error) },
+                Utils::QtDesignWidgets::Badge { text("OK"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabelType::Ok)},
+                Utils::QtDesignWidgets::Badge { text("!"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabelType::Warning) },
+                Utils::QtDesignWidgets::Badge { text("Bad"), role(Utils::QtcBadge::NumberSecondary), infoType(InfoLabelType::Error) },
                 st,
             },
             Row {

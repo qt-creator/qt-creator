@@ -67,7 +67,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     auto markupMounts = [dockerDevice, pathListLabel] {
         const bool isEmpty = dockerDevice->mounts.volatileValue().isEmpty();
-        pathListLabel->setType(isEmpty ? InfoLabel::Warning : InfoLabel::None);
+        pathListLabel->setType(isEmpty ? InfoLabelType::Warning : InfoLabelType::None);
     };
     markupMounts();
 

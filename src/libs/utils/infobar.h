@@ -97,16 +97,16 @@ public:
     void setDetailsWidgetCreator(const DetailsWidgetCreator &creator);
     DetailsWidgetCreator detailsWidgetCreator() const;
 
-    void setInfoType(InfoLabel::InfoType infoType);
-    InfoLabel::InfoType infoType() const;
+    void setInfoType(InfoLabelType infoType);
+    InfoLabelType infoType() const;
 
-    static const Icon &icon(InfoLabel::InfoType infoType);
+    static const Icon &icon(InfoLabelType infoType);
 
 private:
     Id m_id;
     QString m_infoText;
     QString m_title;
-    InfoLabel::InfoType m_infoType = InfoLabel::None;
+    InfoLabelType m_infoType = InfoLabelType::None;
     QList<Button> m_buttons;
     QString m_cancelButtonText;
     CallBack m_cancelButtonCallBack;

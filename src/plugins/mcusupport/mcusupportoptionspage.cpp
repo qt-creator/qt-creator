@@ -205,7 +205,7 @@ void McuSupportOptionsWidget::updateStatus()
         m_kitCreationGroupBox->setVisible(ready);
         m_mcuTargetsInfoLabel->setVisible(valid && m_options.sdkRepository.mcuTargets.isEmpty());
         if (m_mcuTargetsInfoLabel->isVisible()) {
-            m_mcuTargetsInfoLabel->setType(Utils::InfoLabel::NotOk);
+            m_mcuTargetsInfoLabel->setType(Utils::InfoLabelType::NotOk);
             const Utils::FilePath sdkPath = m_options.qtForMCUsSdkPackage->basePath();
             QString deprecationMessage;
             if (checkDeprecatedSdkError(sdkPath, deprecationMessage))
@@ -233,8 +233,8 @@ void McuSupportOptionsWidget::updateStatus()
             m_kitCreationPushButton->setEnabled(!hasMatchingKits);
             m_kitUpdatePushButton->setEnabled(hasUpgradeableKits);
 
-            m_kitCreationInfoLabel->setType(!hasMatchingKits ? Utils::InfoLabel::Information
-                                                             : Utils::InfoLabel::Ok);
+            m_kitCreationInfoLabel->setType(!hasMatchingKits ? Utils::InfoLabelType::Information
+                                                             : Utils::InfoLabelType::Ok);
 
             m_kitCreationInfoLabel->setText(
                 hasMatchingKits
@@ -242,7 +242,7 @@ void McuSupportOptionsWidget::updateStatus()
                 : hasUpgradeableKits ? Tr::tr("Kits for a different SDK version exist.")
                                      : Tr::tr("A kit for the selected target can be created."));
         } else {
-            m_kitCreationInfoLabel->setType(Utils::InfoLabel::NotOk);
+            m_kitCreationInfoLabel->setType(Utils::InfoLabelType::NotOk);
             m_kitCreationInfoLabel->setText(Tr::tr("Provide the package paths to create a kit "
                                             "for your target."));
         }
@@ -255,7 +255,7 @@ void McuSupportOptionsWidget::updateStatus()
     {
         m_statusInfoLabel->setVisible(!cMakeAvailable);
         if (m_statusInfoLabel->isVisible()) {
-            m_statusInfoLabel->setType(Utils::InfoLabel::NotOk);
+            m_statusInfoLabel->setType(Utils::InfoLabelType::NotOk);
             m_statusInfoLabel->setText(Tr::tr("No CMake tool was detected. Add a CMake tool in the "
                                        "<a href=\"cmake\">CMake options</a> and select Apply."));
         }

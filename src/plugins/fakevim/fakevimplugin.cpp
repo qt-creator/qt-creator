@@ -507,7 +507,7 @@ public:
     CommandMappings m_mappings;
     QGroupBox m_commandBox;
     FancyLineEdit m_commandEdit;
-    InfoLabel m_infoLabel{Tr::tr("Invalid regular expression."), InfoLabel::Error};
+    InfoLabel m_infoLabel{Tr::tr("Invalid regular expression."), InfoLabelType::Error};
 
     ExCommandMap m_originalMap; // for dirty handling
 };

@@ -45,7 +45,7 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(const FilePath &projectFile, QW
 
     m_readonlyLabel = new InfoLabel(
         Tr::tr("The selected configuration is read-only. Copy the configuration for editing."),
-        Utils::InfoLabel::Warning);
+        Utils::InfoLabelType::Warning);
     m_readonlyLabel->setVisible(false);
 
     using namespace Layouting;

@@ -618,7 +618,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_runLayout = new QVBoxLayout(runWidget);
     m_runLayout->setContentsMargins(0, 0, 0, 0);
     m_runLayout->setSpacing(5);
-    m_disabledText = new InfoLabel({}, InfoLabel::Warning);
+    m_disabledText = new InfoLabel({}, InfoLabelType::Warning);
     m_runLayout->addWidget(m_disabledText);
 
     initForActiveBuildConfig();

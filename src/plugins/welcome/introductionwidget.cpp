@@ -430,7 +430,7 @@ void askUserAboutIntroduction()
                     "To take the tour later, select Help > UI Tour."),
              InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("Take a UI Tour?"));
-    info.setInfoType(InfoLabel::Information);
+    info.setInfoType(InfoLabelType::Information);
     info.addCustomButton(
         Tr::tr("Take UI Tour"),
         [] { runUiTour(); },

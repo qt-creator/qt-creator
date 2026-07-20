@@ -75,7 +75,7 @@ static void askUserAboutEmSdkSetup()
                              "To do it later, select Edit > Preferences > Devices > WebAssembly."),
                       InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("Set up WebAssembly?"));
-    info.setInfoType(InfoLabel::Information);
+    info.setInfoType(InfoLabelType::Information);
     info.addCustomButton(
         Tr::tr("Setup Emscripten SDK"),
         [] { QTimer::singleShot(0, []() { ICore::showSettings(Constants::SETTINGS_ID); }); },

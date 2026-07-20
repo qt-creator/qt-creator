@@ -1430,7 +1430,7 @@ void LinuxDevicePrivate::announceConnectionAttempt()
     QTC_ASSERT(QThread::isMainThread(), return);
     InfoBarEntry info(announceId(), message);
     info.setTitle(Tr::tr("Establishing a Connection"));
-    info.setInfoType(InfoLabel::Warning);
+    info.setInfoType(InfoLabelType::Warning);
     Core::ICore::popupInfoBar()->addInfo(info);
     Core::MessageManager::writeSilently(message);
 }
@@ -1443,11 +1443,11 @@ void LinuxDevicePrivate::unannounceConnectionAttempt()
     QString message =
         Tr::tr("Connection attempt to device \"%1\" finished.").arg(q->displayName()) + "\n";
 
-    InfoLabel::InfoType infoType = InfoLabel::Ok;
+    InfoLabelType infoType = InfoLabelType::Ok;
     switch (q->deviceState()) {
         case IDevice::DeviceDisconnected:
             message += Tr::tr("Connection could not be established.");
-            infoType = InfoLabel::Error;
+            infoType = InfoLabelType::Error;
             break;
         case IDevice::DeviceReadyToUse:
             message += Tr::tr("Connection in fast mode established.");
@@ -1457,7 +1457,7 @@ void LinuxDevicePrivate::unannounceConnectionAttempt()
             break;
         case IDevice::DeviceStateUnknown:
             QTC_CHECK(false);
-            infoType = InfoLabel::Error;
+            infoType = InfoLabelType::Error;
             break;
     };
     DEBUG(message);
@@ -1481,7 +1481,7 @@ void LinuxDevicePrivate::announceConnectionLoss()
     const Id id = announceId();
     InfoBarEntry info(id, message);
     info.setTitle(Tr::tr("Connection Lost"));
-    info.setInfoType(InfoLabel::Warning);
+    info.setInfoType(InfoLabelType::Warning);
     InfoBar *infoBar = Core::ICore::popupInfoBar();
     infoBar->addInfo(info);
     QTimer::singleShot(5000, infoBar, [id, infoBar] { infoBar->removeInfo(id); });
@@ -1703,7 +1703,7 @@ void LinuxDevice::postLoad()
         QTC_ASSERT(QThread::isMainThread(), return);
         InfoBarEntry info(d->announceId(), message);
         info.setTitle(Tr::tr("Establishing a Connection"));
-        info.setInfoType(InfoLabel::Warning);
+        info.setInfoType(InfoLabelType::Warning);
         Core::ICore::popupInfoBar()->addInfo(info);
         Core::MessageManager::writeSilently(message);
     }});

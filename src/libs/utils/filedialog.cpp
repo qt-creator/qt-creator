@@ -2296,7 +2296,7 @@ FileDialog::FileDialog(QWidget *parent)
     // Overlay shown on top of the file views when the current directory cannot
     // be listed. It reports the error from the file system model.
     d->m_errorOverlay = new OverlayWidget(d->m_viewStack);
-    d->m_errorLabel = new InfoLabel({}, InfoLabel::Error);
+    d->m_errorLabel = new InfoLabel({}, InfoLabelType::Error);
     d->m_errorLabel->setAlignment(Qt::AlignCenter);
     Layouting::Grid {
         Layouting::GridCell({Layouting::Align(Qt::AlignCenter, d->m_errorLabel)}),

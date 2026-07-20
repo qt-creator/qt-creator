@@ -38,7 +38,7 @@ static QWidget *comboBox(QtcComboBox::Role role)
     return comboBox;
 }
 
-static QWidget *badge(QtcBadge::Role role, InfoLabel::InfoType infoType, const QString &text)
+static QWidget *badge(QtcBadge::Role role, InfoLabelType infoType, const QString &text)
 {
     auto badge = new QtcBadge;
     badge->setRole(role);
@@ -137,12 +137,12 @@ static QWidget *widgets()
         Group {
             title("Badge"),
             Row {
-                badge(QtcBadge::NumberPrimary, InfoLabel::Ok, "OK"),
-                badge(QtcBadge::NumberPrimary, InfoLabel::Warning, "!"),
-                badge(QtcBadge::NumberPrimary, InfoLabel::Error, "Bad"),
-                badge(QtcBadge::NumberSecondary, InfoLabel::Ok, "OK"),
-                badge(QtcBadge::NumberSecondary, InfoLabel::Warning, "!"),
-                badge(QtcBadge::NumberSecondary, InfoLabel::Error, "Bad"),
+                badge(QtcBadge::NumberPrimary, InfoLabelType::Ok, "OK"),
+                badge(QtcBadge::NumberPrimary, InfoLabelType::Warning, "!"),
+                badge(QtcBadge::NumberPrimary, InfoLabelType::Error, "Bad"),
+                badge(QtcBadge::NumberSecondary, InfoLabelType::Ok, "OK"),
+                badge(QtcBadge::NumberSecondary, InfoLabelType::Warning, "!"),
+                badge(QtcBadge::NumberSecondary, InfoLabelType::Error, "Bad"),
                 st,
             },
         },

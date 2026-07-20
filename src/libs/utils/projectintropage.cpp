@@ -194,7 +194,7 @@ bool ProjectIntroPage::validate()
     // Validate and display status
     if (!d->m_pathChooser->isValid()) {
         if (const QString msg = d->m_pathChooser->errorMessage(); !msg.isEmpty())
-            displayStatusMessage(InfoLabel::Error, msg);
+            displayStatusMessage(InfoLabelType::Error, msg);
         return false;
     }
 
@@ -206,7 +206,7 @@ bool ProjectIntroPage::validate()
             const QVariant currentProjectsId = wizard()->property("NodeProjectId");
             if (currentProjectsId.isValid()
                     && !supportedProjectTypes.contains(currentProjectsId.toString())) {
-                displayStatusMessage(InfoLabel::Error, Tr::tr("Chosen project wizard does not "
+                displayStatusMessage(InfoLabelType::Error, Tr::tr("Chosen project wizard does not "
                                                               "support the build system."));
                 return false;
             }
@@ -216,10 +216,10 @@ bool ProjectIntroPage::validate()
     // Name valid?
     switch (d->m_nameLineEdit->state()) {
     case FancyLineEdit::Invalid:
-        displayStatusMessage(InfoLabel::Error, d->m_nameLineEdit->errorMessage());
+        displayStatusMessage(InfoLabelType::Error, d->m_nameLineEdit->errorMessage());
         return false;
     case FancyLineEdit::DisplayingPlaceholderText:
-        displayStatusMessage(InfoLabel::Error, Tr::tr("Name is empty."));
+        displayStatusMessage(InfoLabelType::Error, Tr::tr("Name is empty."));
         return false;
     case FancyLineEdit::Valid:
         break;
@@ -231,7 +231,7 @@ bool ProjectIntroPage::validate()
 
     if (!projectDir.exists()) { // All happy
         if (!d->m_pathChooser->filePath().exists()) {
-            displayStatusMessage(InfoLabel::Information, Tr::tr("Directory \"%1\" will be created.")
+            displayStatusMessage(InfoLabelType::Information, Tr::tr("Directory \"%1\" will be created.")
                                  .arg(d->m_pathChooser->filePath().toUserOutput()));
         } else {
             hideStatusLabel();
@@ -240,11 +240,11 @@ bool ProjectIntroPage::validate()
     }
 
     if (projectDir.isDir()) {
-        displayStatusMessage(InfoLabel::Warning, Tr::tr("The project already exists."));
+        displayStatusMessage(InfoLabelType::Warning, Tr::tr("The project already exists."));
         return true;
     }
     // Not a directory, but something else, likely causing directory creation to fail
-    displayStatusMessage(InfoLabel::Error, Tr::tr("A file with that name already exists."));
+    displayStatusMessage(InfoLabelType::Error, Tr::tr("A file with that name already exists."));
     return false;
 }
 
@@ -362,7 +362,7 @@ Result<> ProjectIntroPage::validateProjectName(const QString &name)
     return ResultOk;
 }
 
-void ProjectIntroPage::displayStatusMessage(InfoLabel::InfoType t, const QString &s)
+void ProjectIntroPage::displayStatusMessage(InfoLabelType t, const QString &s)
 {
     d->m_stateLabel->setType(t);
     d->m_stateLabel->setText(s);
@@ -372,7 +372,7 @@ void ProjectIntroPage::displayStatusMessage(InfoLabel::InfoType t, const QString
 
 void ProjectIntroPage::hideStatusLabel()
 {
-    displayStatusMessage(InfoLabel::None, {});
+    displayStatusMessage(InfoLabelType::None, {});
 }
 
 bool ProjectIntroPage::useAsDefaultPath() const

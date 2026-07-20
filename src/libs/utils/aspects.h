@@ -1055,7 +1055,7 @@ public:
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
-    void setIconType(InfoLabel::InfoType t);
+    void setIconType(InfoLabelType t);
     void setText(const QString &message);
     void setWordWrap(bool on);
 

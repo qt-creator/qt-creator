@@ -47,7 +47,7 @@ void setLegalNoticeVisible(bool visible)
 
     InfoBarEntry info(kEnableExternalRepo, text, InfoBarEntry::GlobalSuppression::Disabled);
     info.setTitle(Tr::tr("Use %1 Extensions?").arg(QGuiApplication::applicationDisplayName()));
-    info.setInfoType(InfoLabel::Information);
+    info.setInfoType(InfoLabelType::Information);
     info.addCustomButton(
         Tr::tr("Use"),
         [] { Internal::setUseExternalRepo(true); },

@@ -267,7 +267,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         });
     }
 
-    m_warningMessageLabel = new InfoLabel({}, InfoLabel::Warning);
+    m_warningMessageLabel = new InfoLabel({}, InfoLabelType::Warning);
     m_warningMessageLabel->setVisible(false);
 
     m_configurationStates = new QTabBar(this);

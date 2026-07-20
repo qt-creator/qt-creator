@@ -127,10 +127,10 @@ void GitLabCloneDialog::updateUi()
     m_cloneButton->setEnabled(pathValid && directoryValid);
     if (!pathValid) {
         m_infoLabel->setText(m_pathChooser->errorMessage());
-        m_infoLabel->setType(InfoLabel::Error);
+        m_infoLabel->setType(InfoLabelType::Error);
     } else if (!directoryValid) {
         m_infoLabel->setText(m_directoryLE->errorMessage());
-        m_infoLabel->setType(InfoLabel::Error);
+        m_infoLabel->setType(InfoLabelType::Error);
     }
     m_infoLabel->setVisible(!pathValid || !directoryValid);
 }

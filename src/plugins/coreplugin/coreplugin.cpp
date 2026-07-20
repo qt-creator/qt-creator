@@ -286,7 +286,7 @@ static void warnAboutCrashReporting(InfoBar *infoBar)
             .arg(QGuiApplication::applicationDisplayName()),
         Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("Crash Reporting"));
-    info.setInfoType(InfoLabel::Information);
+    info.setInfoType(InfoLabelType::Information);
     info.addCustomButton(Tr::tr("Enable Crash Reporting..."), [infoBar] {
         infoBar->removeInfo(kCrashReportingInfoBarEntry);
         auto dialog = new QDialog(ICore::dialogParent());

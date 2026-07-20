@@ -84,7 +84,7 @@ public:
         });
 
         m_info = new InfoLabel;
-        m_info->setType(InfoLabel::Error);
+        m_info->setType(InfoLabelType::Error);
         m_info->setVisible(false);
 
         Layouting::Column { label, chooser, m_info }.attachTo(this);
@@ -193,7 +193,7 @@ public:
         connect(m_cancelButton, &QPushButton::clicked, this, [this] {
             m_taskTreeRunner.reset();
             m_cancelButton->setVisible(false);
-            m_label->setType(InfoLabel::Information);
+            m_label->setType(InfoLabelType::Information);
             m_label->setText(Tr::tr("Canceled."));
         });
         m_output = new QTextEdit;
@@ -215,11 +215,11 @@ public:
             Result<std::unique_ptr<PluginSpec>> spec
                 = checkPlugin(readCppPluginSpec(m_data->sourcePath), m_data->prepareForUpdate);
             if (!spec) {
-                m_label->setType(InfoLabel::Error);
+                m_label->setType(InfoLabelType::Error);
                 m_label->setText(spec.error());
                 return;
             }
-            m_label->setType(InfoLabel::Ok);
+            m_label->setType(InfoLabelType::Ok);
             m_label->setText(Tr::tr("Archive is OK."));
             m_data->pluginSpec.swap(*spec);
             m_isComplete = true;
@@ -239,7 +239,7 @@ public:
 
         m_data->extractedPath = FilePath::fromString(m_tempDir->path());
         m_label->setText(Tr::tr("Checking archive..."));
-        m_label->setType(InfoLabel::None);
+        m_label->setType(InfoLabelType::None);
 
         m_output->clear();
 
@@ -254,12 +254,12 @@ public:
 
         const auto onUnarchiverDone = [this](const Unarchiver &unarchiver) {
             if (unarchiver.result()) {
-                m_label->setType(InfoLabel::Ok);
+                m_label->setType(InfoLabelType::Ok);
                 m_label->setText(Tr::tr("Archive extracted successfully."));
                 return DoneResult::Success;
             }
 
-            m_label->setType(InfoLabel::Error);
+            m_label->setType(InfoLabelType::Error);
             m_label->setText(
                 Tr::tr("There was an error while unarchiving: %1").arg(unarchiver.result().error()));
             return DoneResult::Error;
@@ -276,10 +276,10 @@ public:
         const auto onCheckerDone = [this](const Async<CheckResult> &async) {
             Result<PluginSpec *> result = async.result();
             if (!result) {
-                m_label->setType(InfoLabel::Error);
+                m_label->setType(InfoLabelType::Error);
                 m_label->setText(result.error());
             } else {
-                m_label->setType(InfoLabel::Ok);
+                m_label->setType(InfoLabelType::Ok);
                 m_label->setText(Tr::tr("Archive is OK."));
                 m_data->pluginSpec.reset(*result);
                 m_isComplete = true;

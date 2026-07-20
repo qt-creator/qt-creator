@@ -317,7 +317,7 @@ void ClangFormatConfigWidget::initEditor()
     if (TextEditorWidget *editor = editorWidget())
         editor->setMinimapVisible(false);
 
-    m_clangFileIsCorrectText = new InfoLabel("", InfoLabel::Ok);
+    m_clangFileIsCorrectText = new InfoLabel("", InfoLabelType::Ok);
     m_clangFileIsCorrectText->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     m_clangFileIsCorrectText->hide();
 
@@ -343,7 +343,7 @@ void ClangFormatConfigWidget::initEditor()
         }
         m_clangFileIsCorrectText->show();
         m_clangFileIsCorrectText->setText(Tr::tr("Warning:") + " " + success.error());
-        m_clangFileIsCorrectText->setType(InfoLabel::Warning);
+        m_clangFileIsCorrectText->setType(InfoLabelType::Warning);
     });
 
     QShortcut *completionSC = new QShortcut(QKeySequence("Ctrl+Space"), this);

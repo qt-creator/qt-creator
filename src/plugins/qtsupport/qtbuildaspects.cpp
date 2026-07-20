@@ -34,7 +34,7 @@ QmlDebuggingAspect::QmlDebuggingAspect(BuildConfiguration *buildConfig)
 void QmlDebuggingAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     SelectionAspect::addToLayoutImpl(parent);
-    Utils::InfoLabel *warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
+    Utils::InfoLabel *warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabelType::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     parent.addRow({Layouting::empty, warningLabel});
     const auto changeHandler = [self = QPointer<QmlDebuggingAspect>(this), warningLabel] {
@@ -77,7 +77,7 @@ QtQuickCompilerAspect::QtQuickCompilerAspect(BuildConfiguration *buildConfig)
 void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     SelectionAspect::addToLayoutImpl(parent);
-    const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
+    const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabelType::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     warningLabel->setVisible(false);
     parent.addRow({Layouting::empty, warningLabel});

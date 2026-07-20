@@ -846,7 +846,7 @@ public:
 
         const QString fail
             = settings->displayType() + QString{": "} + Tr::tr("The process failed to start.");
-        auto errorLabel = new InfoLabel(fail, InfoLabel::Error, this);
+        auto errorLabel = new InfoLabel(fail, InfoLabelType::Error, this);
         errorLabel->setVisible(false);
 
         m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

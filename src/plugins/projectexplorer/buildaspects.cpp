@@ -132,12 +132,12 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
     FilePathAspect::addToLayoutImpl(parent);
     d->genericProblemSpacer = new QLabel;
     d->specialProblemSpacer = new QLabel;
-    d->genericProblemLabel = new InfoLabel({}, InfoLabel::Warning);
+    d->genericProblemLabel = new InfoLabel({}, InfoLabelType::Warning);
     d->genericProblemLabel->setElideMode(Qt::ElideNone);
     connect(d->genericProblemLabel, &QLabel::linkActivated, this, [] {
         Core::ICore::showSettings(Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
     });
-    d->specialProblemLabel = new InfoLabel({}, InfoLabel::Warning);
+    d->specialProblemLabel = new InfoLabel({}, InfoLabelType::Warning);
     d->specialProblemLabel->setElideMode(Qt::ElideNone);
     parent.addItems({Layouting::br, d->genericProblemSpacer, d->genericProblemLabel.data()});
     parent.addItems({Layouting::br, d->specialProblemSpacer, d->specialProblemLabel.data()});

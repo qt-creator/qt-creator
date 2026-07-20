@@ -39,7 +39,7 @@ void SummaryWidget::setPointValid(int key, bool valid, const QString errorText)
         return;
     RowData &data = m_validationData[key];
     data.m_valid = valid;
-    data.m_infoLabel->setType(valid ? InfoLabel::Ok : InfoLabel::NotOk);
+    data.m_infoLabel->setType(valid ? InfoLabelType::Ok : InfoLabelType::NotOk);
     data.m_infoLabel->setText(valid || errorText.isEmpty() ? data.m_validText : errorText);
     updateUi();
 }

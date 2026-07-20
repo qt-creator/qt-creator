@@ -156,13 +156,13 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
 
     setMinimumWidth(ProgressManagerPrivate::infoMinWidth());
 
-    const InfoLabel::InfoType infoType = [&info] {
+    const InfoLabelType infoType = [&info] {
         const QString envString = qtcEnvironmentVariable("QTC_DEBUG_POPUPNOTIFICATION_TYPE", {});
         if (!envString.isEmpty()) {
             bool ok = false;
             const int i = envString.toUInt(&ok);
-            if (ok && i <= int(InfoLabel::None))
-                return InfoLabel::InfoType(i);
+            if (ok && i <= int(InfoLabelType::None))
+                return InfoLabelType(i);
         }
         return info.infoType();
     }();

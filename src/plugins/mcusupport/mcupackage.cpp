@@ -211,18 +211,18 @@ bool McuPackage::isValidStatus() const
 void McuPackage::updateStatusUi()
 {
     if (isOptionalAndEmpty()) {
-        m_infoLabel->setType(InfoLabel::Ok);
+        m_infoLabel->setType(InfoLabelType::Ok);
     } else {
         switch (m_status) {
         case Status::ValidPackage:
-            m_infoLabel->setType(InfoLabel::Ok);
+            m_infoLabel->setType(InfoLabelType::Ok);
             break;
         case Status::ValidPackageMismatchedVersion:
         case Status::ValidPackageVersionNotDetected:
-            m_infoLabel->setType(InfoLabel::Warning);
+            m_infoLabel->setType(InfoLabelType::Warning);
             break;
         default:
-                m_infoLabel->setType(InfoLabel::NotOk);
+                m_infoLabel->setType(InfoLabelType::NotOk);
             break;
         }
     }

@@ -68,7 +68,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
 
             m_noServerLabel = new InfoLabel(
                 Tr::tr("No ACP servers configured. Add a server in the settings to get started."),
-                InfoLabel::Information);
+                InfoLabelType::Information);
             m_noServerLabel->setElideMode(Qt::ElideNone);
             m_noServerLabel->setWordWrap(true);
             noServerLayout->addWidget(m_noServerLabel);
@@ -110,7 +110,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_serverButtonsLayout->setSpacing(6);
             connectLayout->addLayout(m_serverButtonsLayout);
 
-            m_connectionErrorLabel = new InfoLabel({}, InfoLabel::Error);
+            m_connectionErrorLabel = new InfoLabel({}, InfoLabelType::Error);
             m_connectionErrorLabel->setFilled(true);
             m_connectionErrorLabel->setElideMode(Qt::ElideNone);
             m_connectionErrorLabel->setWordWrap(true);
@@ -178,7 +178,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_authDescriptionLabel->hide();
         authLayout->addWidget(m_authDescriptionLabel);
 
-        m_authErrorLabel = new InfoLabel({}, InfoLabel::Error);
+        m_authErrorLabel = new InfoLabel({}, InfoLabelType::Error);
         m_authErrorLabel->setFilled(true);
         m_authErrorLabel->setElideMode(Qt::ElideNone);
         m_authErrorLabel->setWordWrap(true);

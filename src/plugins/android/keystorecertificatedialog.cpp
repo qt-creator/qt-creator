@@ -118,7 +118,7 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate()
     m_keystoreRetypePassLineEdit->setEchoMode(QLineEdit::Password);
 
     m_infoLabel = new InfoLabel;
-    m_infoLabel->setType(InfoLabel::Error);
+    m_infoLabel->setType(InfoLabelType::Error);
     m_infoLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     m_infoLabel->hide();
 

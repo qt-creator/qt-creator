@@ -1186,18 +1186,18 @@ constexpr StyleHelper::TextFormat badgeTfSecondary {
     .drawTextFlags = badgeTfPrimary.drawTextFlags,
 };
 
-static Theme::Color colorForInfoType(InfoLabel::InfoType infoType)
+static Theme::Color colorForInfoType(InfoLabelType infoType)
 {
     switch (infoType) {
-    case Utils::InfoLabel::Information:
+    case Utils::InfoLabelType::Information:
         return Theme::Token_Notification_Neutral_Muted;
-    case Utils::InfoLabel::Warning:
+    case Utils::InfoLabelType::Warning:
         return Theme::Token_Notification_Alert_Muted;
-    case Utils::InfoLabel::Error:
-    case Utils::InfoLabel::NotOk:
+    case Utils::InfoLabelType::Error:
+    case Utils::InfoLabelType::NotOk:
         return Theme::Token_Notification_Danger_Muted;
-    case Utils::InfoLabel::Ok:
-    case Utils::InfoLabel::None:
+    case Utils::InfoLabelType::Ok:
+    case Utils::InfoLabelType::None:
     default:
         return Theme::Token_Notification_Success_Muted;
     }
@@ -1232,12 +1232,12 @@ void QtcBadge::setText(const QString &text)
     update();
 }
 
-InfoLabel::InfoType QtcBadge::infoType() const
+InfoLabelType QtcBadge::infoType() const
 {
     return m_infoType;
 }
 
-void QtcBadge::setInfoType(InfoLabel::InfoType newInfoType)
+void QtcBadge::setInfoType(InfoLabelType newInfoType)
 {
     m_infoType = newInfoType;
     update();
@@ -1526,7 +1526,7 @@ void Badge::setText(const QString &text)
     Layouting::Tools::access(this)->setText(text);
 }
 
-void Badge::setInfoType(InfoLabel::InfoType infoType)
+void Badge::setInfoType(InfoLabelType infoType)
 {
     Layouting::Tools::access(this)->setInfoType(infoType);
 }

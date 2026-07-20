@@ -120,9 +120,9 @@ IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConf
 
     m_signEntityLabel = new QLabel(container);
 
-    m_infoLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Information, container);
+    m_infoLabel = new Utils::InfoLabel({}, Utils::InfoLabelType::Information, container);
 
-    m_warningLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Warning, container);
+    m_warningLabel = new Utils::InfoLabel({}, Utils::InfoLabelType::Warning, container);
 
     m_signEntityLabel->setText(Tr::tr("Development team:"));
 

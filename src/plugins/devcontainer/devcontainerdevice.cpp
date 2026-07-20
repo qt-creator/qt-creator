@@ -167,7 +167,7 @@ void Device::onConfigChanged()
 
     InfoBar *infoBar = Core::ICore::popupInfoBar();
     entry.setTitle(Tr::tr("The Development Container Configuration Changed"));
-    entry.setInfoType(InfoLabel::Information);
+    entry.setInfoType(InfoLabelType::Information);
 
     entry.addCustomButton(
         Tr::tr("Rebuild"),

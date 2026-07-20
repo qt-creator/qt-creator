@@ -103,7 +103,7 @@ static void requestRestart()
     if (infoBar->canInfoBeAdded(kRestartSetting)) {
         Utils::InfoBarEntry info(kRestartSetting, msgPluginChangesRequireRestart());
         info.setTitle(Tr::tr("Restart Required"));
-        info.setInfoType(InfoLabel::Information);
+        info.setInfoType(InfoLabelType::Information);
         info.addCustomButton(
             ICore::msgRestartNow(), [] { ICore::restart(); }, {}, InfoBarEntry::ButtonAction::Hide);
         infoBar->addInfo(info);
@@ -474,13 +474,13 @@ private:
             return;
 
         if (spec->hasError()) {
-            m_label->setType(InfoLabel::Error);
+            m_label->setType(InfoLabelType::Error);
             m_label->setText(Tr::tr("Error"));
         } else if (spec->state() == PluginSpec::Running) {
-            m_label->setType(InfoLabel::Ok);
+            m_label->setType(InfoLabelType::Ok);
             m_label->setText(Tr::tr("Loaded"));
         } else {
-            m_label->setType(InfoLabel::NotOk);
+            m_label->setType(InfoLabelType::NotOk);
             m_label->setText(Tr::tr("Not loaded"));
         }
         m_label->setAdditionalToolTip(spec->errorString());

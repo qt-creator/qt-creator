@@ -195,7 +195,7 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
 
     const auto [remoteHost, projectName, port] = GitLabProjectSettings::remotePartsFromRemote(remote);
     if (remoteHost != server.host) { // port check as well
-        m_infoLabel.setType(InfoLabel::NotOk);
+        m_infoLabel.setType(InfoLabelType::NotOk);
         m_infoLabel.setText(Tr::tr("Remote host does not match chosen GitLab configuration."));
         m_infoLabel.setVisible(true);
         return;
@@ -225,17 +225,17 @@ void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
 {
     bool linkable = false;
     if (!project.error.message.isEmpty()) {
-        m_infoLabel.setType(InfoLabel::Error);
+        m_infoLabel.setType(InfoLabelType::Error);
         m_infoLabel.setText(Tr::tr("Check settings for misconfiguration.")
                              + " (" + project.error.message + ')');
     } else {
         if (project.accessLevel != -1) {
-            m_infoLabel.setType(InfoLabel::Ok);
+            m_infoLabel.setType(InfoLabelType::Ok);
             m_infoLabel.setText(Tr::tr("Accessible (%1).")
                                  .arg(accessLevelString(project.accessLevel)));
             linkable = true;
         } else {
-            m_infoLabel.setType(InfoLabel::Warning);
+            m_infoLabel.setType(InfoLabelType::Warning);
             m_infoLabel.setText(Tr::tr("Read only access."));
         }
     }
@@ -312,7 +312,7 @@ void GitLabProjectSettingsWidget::updateEnabledStates()
             m_infoLabel.setText(Tr::tr("Not a git repository."));
         else
             m_infoLabel.setText(Tr::tr("Local git repository without remotes."));
-        m_infoLabel.setType(InfoLabel::None);
+        m_infoLabel.setType(InfoLabelType::None);
         m_infoLabel.setVisible(true);
     }
 }

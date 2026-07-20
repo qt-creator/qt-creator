@@ -78,7 +78,7 @@ WebAssemblySettings::WebAssemblySettings()
         m_statusIsEmsdkDir = new InfoLabel(Tr::tr("The chosen directory is an emsdk location."));
         m_statusSdkInstalled = new InfoLabel(Tr::tr("An SDK is installed."));
         m_statusSdkActivated = new InfoLabel(Tr::tr("An SDK is activated."));
-        m_statusSdkInvalid = new InfoLabel({}, InfoLabel::Error);
+        m_statusSdkInvalid = new InfoLabel({}, InfoLabelType::Error);
         m_statusSdkInvalid->setWordWrap(true);
         m_statusSdkInvalid->setElideMode(Qt::ElideNone);
 
@@ -95,7 +95,7 @@ WebAssemblySettings::WebAssemblySettings()
             Tr::tr("Note: %1 supports Qt %2 for WebAssembly and higher. "
                    "Your installed lower Qt version(s) are not supported.")
                 .arg(Core::ICore::versionString(), minimumSupportedQtVersion),
-            InfoLabel::Warning);
+            InfoLabelType::Warning);
         m_qtVersionDisplay->setElideMode(Qt::ElideNone);
         m_qtVersionDisplay->setWordWrap(true);
 
@@ -176,7 +176,7 @@ void WebAssemblySettings::updateStatus()
         const QVersionNumber sdkVersion = *version;
         const QVersionNumber minVersion = minimumSupportedEmSdkVersion();
         const bool versionTooLow = sdkVersion < minVersion;
-        m_emSdkVersionDisplay->setType(versionTooLow ? InfoLabel::NotOk : InfoLabel::Ok);
+        m_emSdkVersionDisplay->setType(versionTooLow ? InfoLabelType::NotOk : InfoLabelType::Ok);
         auto bold = [](const QString &text) { return QString("<b>" + text + "</b>"); };
         m_emSdkVersionDisplay->setText(
             versionTooLow ? Tr::tr("The activated version %1 is not supported by %2. "
@@ -190,11 +190,11 @@ void WebAssemblySettings::updateStatus()
     } else {
         const EmsdkError error = emsdkError(newEmSdk);
         const bool isEmsdkDir = error != EmsdkErrorNoDir && error != EmsdkErrorNoEmsdkDir;
-        m_statusIsEmsdkDir->setType(isEmsdkDir ? InfoLabel::Ok : InfoLabel::NotOk);
+        m_statusIsEmsdkDir->setType(isEmsdkDir ? InfoLabelType::Ok : InfoLabelType::NotOk);
         const bool sdkInstalled = isEmsdkDir && error != EmsdkErrorNoSdkInstalled;
-        m_statusSdkInstalled->setType(sdkInstalled ? InfoLabel::Ok : InfoLabel::NotOk);
+        m_statusSdkInstalled->setType(sdkInstalled ? InfoLabelType::Ok : InfoLabelType::NotOk);
         const bool sdkActivated = sdkInstalled && error != EmsdkErrorNoSdkActivated;
-        m_statusSdkActivated->setType(sdkActivated ? InfoLabel::Ok : InfoLabel::NotOk);
+        m_statusSdkActivated->setType(sdkActivated ? InfoLabelType::Ok : InfoLabelType::NotOk);
         m_emSdkEnvDisplay->clear();
     }
 

@@ -229,7 +229,7 @@ void DevContainerPlugin::onProjectAdded(Project *project)
                 InfoBarEntry::GlobalSuppression::Enabled);
 
             entry.setTitle(Tr::tr("Configure the development container?"));
-            entry.setInfoType(InfoLabel::Information);
+            entry.setInfoType(InfoLabelType::Information);
             entry.addCustomButton(
                 Tr::tr("Yes"),
                 [this, project, instanceConfig = instanceConfigs.first(), infoBarId, infoBar] {
@@ -277,7 +277,7 @@ void DevContainerPlugin::onProjectAdded(Project *project)
         std::shared_ptr<InstanceConfig> selectedConfig = std::make_shared<InstanceConfig>(instanceConfigs.first());
 
         entry.setTitle(Tr::tr("Configure the development container?"));
-        entry.setInfoType(InfoLabel::Information);
+        entry.setInfoType(InfoLabelType::Information);
         entry.setComboInfo(comboInfos, [selectedConfig](const InfoBarEntry::ComboInfo &comboInfo) {
             *selectedConfig = comboInfo.data.value<InstanceConfig>();
         });

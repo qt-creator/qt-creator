@@ -55,7 +55,7 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     m_currentProjectLabel = new Utils::InfoLabel(
         Tr::tr("Please note that the current project includes a .clang-format file, which will be "
                "used for code indenting and formatting."),
-        Utils::InfoLabel::Warning);
+        Utils::InfoLabelType::Warning);
     m_currentProjectLabel->setWordWrap(true);
 
     using namespace Layouting;

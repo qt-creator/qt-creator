@@ -275,8 +275,8 @@ public:
 
     QSize minimumSizeHint() const override;
 
-    InfoLabel::InfoType infoType() const;
-    void setInfoType(InfoLabel::InfoType infoType);
+    InfoLabelType infoType() const;
+    void setInfoType(InfoLabelType infoType);
 
     QString text() const;
     void setText(const QString &text);
@@ -288,7 +288,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    InfoLabel::InfoType m_infoType{InfoLabel::Ok};
+    InfoLabelType m_infoType{InfoLabelType::Ok};
     Role m_role{NumberPrimary};
     QString m_text;
 };
@@ -429,7 +429,7 @@ public:
     Badge(std::initializer_list<I> ps);
 
     void setText(const QString &text);
-    void setInfoType(InfoLabel::InfoType infoType);
+    void setInfoType(InfoLabelType infoType);
     void setRole(QtcBadge::Role role);
 };
 

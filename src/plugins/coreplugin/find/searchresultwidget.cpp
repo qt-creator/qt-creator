@@ -102,7 +102,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     messageLayout->setContentsMargins(2, 2, 2, 2);
     m_messageWidget->setLayout(messageLayout);
     m_messageLabel = new InfoLabel;
-    m_messageLabel->setType(InfoLabel::Error);
+    m_messageLabel->setType(InfoLabelType::Error);
     m_messageLabel->setFilled(true);
     messageLayout->addWidget(m_messageLabel);
     layout->addWidget(m_messageWidget);

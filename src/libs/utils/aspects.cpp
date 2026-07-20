@@ -1064,7 +1064,7 @@ class TextDisplayPrivate
 {
 public:
     QString m_message;
-    InfoLabel::InfoType m_type = InfoLabel::None;
+    InfoLabelType m_type = InfoLabelType::None;
     bool m_wordWrap = true;
     QPointer<InfoLabel> m_label;
 };
@@ -3443,7 +3443,7 @@ void TextDisplay::addToLayoutImpl(Layout &parent)
     Sets \a t as the information label type for the visual representation
     of this aspect.
  */
-void TextDisplay::setIconType(InfoLabel::InfoType t)
+void TextDisplay::setIconType(InfoLabelType t)
 {
     d->m_type = t;
     if (d->m_label)

@@ -343,7 +343,7 @@ void setupInstallModule()
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 
-                    entry.setInfoType(InfoLabel::Warning);
+                    entry.setInfoType(InfoLabelType::Warning);
 
                     entry.addCustomButton(
                         Tr::tr("Install"),

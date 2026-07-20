@@ -9,24 +9,24 @@
 
 namespace Utils {
 
+enum class InfoLabelType {
+    Information,
+    Warning,
+    Error,
+    Ok,
+    NotOk,
+    None
+};
+
 class QTCREATOR_UTILS_EXPORT InfoLabel : public ElidingLabel
 {
 public:
-    enum InfoType {
-        Information,
-        Warning,
-        Error,
-        Ok,
-        NotOk,
-        None
-    };
-
     explicit InfoLabel(QWidget *parent);
-    explicit InfoLabel(const QString &text = {}, InfoType type = Information,
+    explicit InfoLabel(const QString &text = {}, InfoLabelType type = InfoLabelType::Information,
                        QWidget *parent = nullptr);
 
-    InfoType type() const;
-    void setType(InfoType type);
+    InfoLabelType type() const;
+    void setType(InfoLabelType type);
     bool filled() const;
     void setFilled(bool filled);
     QSize minimumSizeHint() const override;
@@ -35,7 +35,7 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    InfoType m_type = Information;
+    InfoLabelType m_type = InfoLabelType::Information;
     bool m_filled = false;
 };
 

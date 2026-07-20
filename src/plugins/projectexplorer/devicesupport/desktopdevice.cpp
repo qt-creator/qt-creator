@@ -231,7 +231,7 @@ public:
         m_freePortsLineEdit = new QLineEdit;
         m_portsWarningLabel = new InfoLabel(
             Tr::tr("You will need at least one port for QML debugging."),
-            InfoLabel::Warning);
+            InfoLabelType::Warning);
 
         using namespace Layouting;
         Form {

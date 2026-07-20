@@ -548,7 +548,7 @@ public:
         m_bodyLayout->addWidget(m_descriptionLabel);
 
         // Error label
-        m_errorLabel = new Utils::InfoLabel({}, Utils::InfoLabel::Error, this);
+        m_errorLabel = new Utils::InfoLabel({}, Utils::InfoLabelType::Error, this);
         m_errorLabel->setFilled(true);
         m_errorLabel->setElideMode(Qt::ElideNone);
         m_errorLabel->setWordWrap(true);
@@ -1195,7 +1195,7 @@ void AcpMessageView::addErrorMessage(const QString &text)
 
     auto *label = new Utils::InfoLabel(
         QStringLiteral("<b>Error:</b> %1").arg(text.toHtmlEscaped()),
-        Utils::InfoLabel::Error,
+        Utils::InfoLabelType::Error,
         widget);
     label->setFilled(true);
     label->setElideMode(Qt::ElideNone);

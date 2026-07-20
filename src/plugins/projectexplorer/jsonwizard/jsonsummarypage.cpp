@@ -305,7 +305,7 @@ node->filePath().toUrlishString() : QString());
         if (!subProjectFolder.isChildOf(parentFolder)) {
             setStatus(Tr::tr("Subproject \"%1\" outside of \"%2\".")
                       .arg(subProjectFolder.toUserOutput()).arg(parentFolder.toUserOutput()),
-                      InfoLabel::Warning);
+                      InfoLabelType::Warning);
             setStatusVisible(true);
         }
     }

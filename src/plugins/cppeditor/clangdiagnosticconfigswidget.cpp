@@ -341,7 +341,7 @@ void ClangDiagnosticConfigsWidget::sync()
     m_clangBaseChecks->setEnabled(!config.isReadOnly());
 
     if (config.isReadOnly()) {
-        m_infoLabel->setType(InfoLabel::Information);
+        m_infoLabel->setType(InfoLabelType::Information);
         m_infoLabel->setText(Tr::tr("Copy this configuration to customize it."));
         m_infoLabel->setFilled(false);
     }
@@ -367,11 +367,11 @@ void ClangDiagnosticConfigsWidget::setDiagnosticOptions(const QString &options)
 void ClangDiagnosticConfigsWidget::updateValidityWidgets(const QString &errorMessage)
 {
     if (errorMessage.isEmpty()) {
-        m_infoLabel->setType(InfoLabel::Information);
+        m_infoLabel->setType(InfoLabelType::Information);
         m_infoLabel->setText(Tr::tr("Configuration passes sanity checks."));
         m_infoLabel->setFilled(false);
     } else {
-        m_infoLabel->setType(InfoLabel::Error);
+        m_infoLabel->setType(InfoLabelType::Error);
         m_infoLabel->setText(errorMessage);
         m_infoLabel->setFilled(true);
     }

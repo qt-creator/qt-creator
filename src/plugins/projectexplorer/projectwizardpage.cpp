@@ -612,7 +612,7 @@ void ProjectWizardPage::setProjectUiVisible(bool visible)
     m_projectComboBox->setVisible(visible);
 }
 
-void ProjectWizardPage::setStatus(const QString &text, InfoLabel::InfoType type)
+void ProjectWizardPage::setStatus(const QString &text, InfoLabelType type)
 {
     m_infoLabel->setText(text);
     m_infoLabel->setType(type);

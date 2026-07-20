@@ -249,13 +249,13 @@ public:
             templateCmdInfo->setWordWrap(true);
             templateCmdInfo->setElideMode(Qt::ElideNone);
             templateCmdInfo->setToolTip(Tr::tr("The command that will spawn the ACP server."));
-            templateCmdInfo->setType(InfoLabel::Information);
+            templateCmdInfo->setType(InfoLabelType::Information);
             templateCmdInfo->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
             InfoLabel *cmdNotFoundLabel = new InfoLabel();
             cmdNotFoundLabel->setWordWrap(true);
             cmdNotFoundLabel->setElideMode(Qt::ElideNone);
-            cmdNotFoundLabel->setType(InfoLabel::Error);
+            cmdNotFoundLabel->setType(InfoLabelType::Error);
             cmdNotFoundLabel->setTextFormat(Qt::RichText);
             cmdNotFoundLabel->setOpenExternalLinks(true);
             cmdNotFoundLabel->setTextInteractionFlags(

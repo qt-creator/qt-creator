@@ -108,7 +108,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
     m_vcpkgHomepage->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
     m_infoLabel = new InfoLabel(Tr::tr("This package is already a project dependency."),
-                                InfoLabel::Information);
+                                InfoLabelType::Information);
     m_infoLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

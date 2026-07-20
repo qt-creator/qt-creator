@@ -150,7 +150,7 @@ AvdDialog::AvdDialog()
     m_deviceDefinitionComboBox = new QComboBox;
 
     m_warningText = new InfoLabel;
-    m_warningText->setType(InfoLabel::Warning);
+    m_warningText->setType(InfoLabelType::Warning);
     m_warningText->setElideMode(Qt::ElideRight);
 
     m_deviceDefinitionTypeComboBox = new QComboBox;

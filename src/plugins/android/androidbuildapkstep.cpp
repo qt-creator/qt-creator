@@ -255,7 +255,7 @@ private:
     QLabel *inputContextlabel = new QLabel(this);
     QLineEdit *inputEdit = new QLineEdit(this);
     InfoLabel *warningLabel
-        = new InfoLabel(::Android::Tr::tr("Incorrect password."), InfoLabel::Warning, this);
+        = new InfoLabel(::Android::Tr::tr("Incorrect password."), InfoLabelType::Warning, this);
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                                        this);
 };
@@ -390,7 +390,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
             m_step, &AndroidBuildApkStep::setAddDebugger);
 
     m_signingDebugWarningLabel = new InfoLabel(Tr::tr("Signing a debug package"),
-                                               InfoLabel::Warning);
+                                               InfoLabelType::Warning);
     m_signingDebugWarningLabel->hide();
     m_signingDebugWarningLabel->setSizePolicy(QSizePolicy::MinimumExpanding,
                                               QSizePolicy::Preferred);
@@ -427,7 +427,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
                                        "Configure a Qt version in Projects > Manage Kits.")
                                     .arg(m_step->kit()->displayName());
         Core::MessageManager::writeFlashing(message);
-        auto errorLabel = new InfoLabel(message, InfoLabel::Error, this);
+        auto errorLabel = new InfoLabel(message, InfoLabelType::Error, this);
         errorLabel->setWordWrap(true);
         Column { errorLabel, noMargin }.attachTo(this);
         return;

@@ -88,7 +88,7 @@ FossilCommitWidget::FossilCommitWidget() : m_commitPanel(new QWidget)
     m_invalidBranchLabel = new InfoLabel;
     m_invalidBranchLabel->setMinimumSize(QSize(50, 20));
     m_invalidBranchLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-    m_invalidBranchLabel->setType(InfoLabel::Error);
+    m_invalidBranchLabel->setType(InfoLabelType::Error);
 
     m_isPrivateCheckBox = new QCheckBox(Tr::tr("Private"));
     m_isPrivateCheckBox->setToolTip("<html>" + Tr::tr("Create a private check-in that is never synced. "

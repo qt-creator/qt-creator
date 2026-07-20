@@ -14,26 +14,26 @@ namespace Utils {
 constexpr int iconSize = 16;
 
 InfoLabel::InfoLabel(QWidget *parent)
-    : InfoLabel({}, Information, parent)
+    : InfoLabel({}, InfoLabelType::Information, parent)
 {
 }
 
-InfoLabel::InfoLabel(const QString &text, InfoType type, QWidget *parent)
+InfoLabel::InfoLabel(const QString &text, InfoLabelType type, QWidget *parent)
     : ElidingLabel(text, parent)
 {
     setTextInteractionFlags(Qt::TextSelectableByMouse | textInteractionFlags());
     setType(type);
 }
 
-InfoLabel::InfoType InfoLabel::type() const
+InfoLabelType InfoLabel::type() const
 {
     return m_type;
 }
 
-void InfoLabel::setType(InfoType type)
+void InfoLabel::setType(InfoLabelType type)
 {
     m_type = type;
-    setContentsMargins(m_type == None ? 0 : iconSize + 2, 0, 0, 0);
+    setContentsMargins(m_type == InfoLabelType::None ? 0 : iconSize + 2, 0, 0, 0);
     update();
 }
 
@@ -54,44 +54,44 @@ QSize InfoLabel::minimumSizeHint() const
     return baseHint;
 }
 
-static Theme::Color fillColorForType(InfoLabel::InfoType type)
+static Theme::Color fillColorForType(InfoLabelType type)
 {
     using namespace Utils;
     switch (type) {
-    case InfoLabel::Warning:
+    case InfoLabelType::Warning:
         return Theme::IconsWarningColor;
-    case InfoLabel::Ok:
+    case InfoLabelType::Ok:
         return Theme::IconsRunColor;
-    case InfoLabel::Error:
-    case InfoLabel::NotOk:
+    case InfoLabelType::Error:
+    case InfoLabelType::NotOk:
         return Theme::IconsErrorColor;
-    case InfoLabel::Information:
+    case InfoLabelType::Information:
     default:
         return Theme::IconsInfoColor;
     }
 }
 
-static const QIcon &iconForType(InfoLabel::InfoType type)
+static const QIcon &iconForType(InfoLabelType type)
 {
     using namespace Utils;
     switch (type) {
-    case InfoLabel::Information: {
+    case InfoLabelType::Information: {
         static const QIcon icon = Icons::INFO.icon();
         return icon;
     }
-    case InfoLabel::Warning: {
+    case InfoLabelType::Warning: {
         static const QIcon icon = Icons::WARNING.icon();
         return icon;
     }
-    case InfoLabel::Error: {
+    case InfoLabelType::Error: {
         static const QIcon icon = Icons::CRITICAL.icon();
         return icon;
     }
-    case InfoLabel::Ok: {
+    case InfoLabelType::Ok: {
         static const QIcon icon = Icons::OK.icon();
         return icon;
     }
-    case InfoLabel::NotOk: {
+    case InfoLabelType::NotOk: {
         static const QIcon icon = Icons::BROKEN.icon();
         return icon;
     }
@@ -104,7 +104,7 @@ static const QIcon &iconForType(InfoLabel::InfoType type)
 
 void InfoLabel::paintEvent(QPaintEvent *event)
 {
-    if (m_type == None)
+    if (m_type == InfoLabelType::None)
         return ElidingLabel::paintEvent(event);
 
     const bool centerIconVertically = wordWrap() || elideMode() == Qt::ElideNone;

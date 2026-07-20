@@ -231,7 +231,7 @@ void PyDapEngine::setupEngine()
                  Tr::tr("Install the debugpy package to turn on Python debugging support."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
         info.setTitle(Tr::tr("Python Debugging Is Not Available"));
-        info.setInfoType(InfoLabel::Warning);
+        info.setInfoType(InfoLabelType::Warning);
         info.addCustomButton(
             Tr::tr("Install debugpy"),
             [this] {

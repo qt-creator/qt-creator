@@ -173,7 +173,7 @@ ClangdSettings &ClangdSettings::instance()
 static Layouting::Layout clangdSettingsLayout(ClangdSettings *s)
 {
     auto *versionWarning = new InfoLabel;
-    versionWarning->setType(InfoLabel::Warning);
+    versionWarning->setType(InfoLabelType::Warning);
     versionWarning->setVisible(false);
     const auto updateWarning = [s, versionWarning] {
         const FilePath path = s->clangdPath();

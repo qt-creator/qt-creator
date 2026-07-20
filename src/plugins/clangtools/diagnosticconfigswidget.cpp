@@ -72,7 +72,7 @@ public:
 
         auto invalidExecutableLabel = new InfoLabel;
         invalidExecutableLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-        invalidExecutableLabel->setType(InfoLabel::Warning);
+        invalidExecutableLabel->setType(InfoLabelType::Warning);
         invalidExecutableLabel->setElideMode(Qt::ElideNone);
         invalidExecutableLabel->setText(Tr::tr("Could not query the supported checks from the "
             "clang-tidy executable.\nSet a valid executable first."));
@@ -150,7 +150,7 @@ public:
         auto invalidExecutablePage = new QWidget;
 
         auto invalidExecutableLabel = new InfoLabel;
-        invalidExecutableLabel->setType(InfoLabel::Warning);
+        invalidExecutableLabel->setType(InfoLabelType::Warning);
         invalidExecutableLabel->setElideMode(Qt::ElideNone);
         invalidExecutableLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
         invalidExecutableLabel->setText(Tr::tr("Could not query the supported checks from the "

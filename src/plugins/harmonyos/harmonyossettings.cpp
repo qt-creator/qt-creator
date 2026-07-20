@@ -75,18 +75,18 @@ HarmonyOsSettings::HarmonyOsSettings()
         const auto updateStatus = [this, status] {
             const FilePath sdkRoot = sdkLocation.pathChooser()->filePath();
             if (sdkRoot.isEmpty()) {
-                status->setType(InfoLabel::None);
+                status->setType(InfoLabelType::None);
                 status->setText({});
                 return;
             }
             if (Sdk::isValidSdk(sdkRoot)) {
-                status->setType(InfoLabel::Ok);
+                status->setType(InfoLabelType::Ok);
                 const bool hasHvigor = !Sdk::hvigorBinPath(sdkRoot).isEmpty();
                 status->setText(hasHvigor
                     ? Tr::tr("A HarmonyOS SDK with the hvigor build tool was found.")
                     : Tr::tr("A HarmonyOS SDK was found, but the hvigor build tool is missing."));
             } else {
-                status->setType(InfoLabel::NotOk);
+                status->setType(InfoLabelType::NotOk);
                 status->setText(Tr::tr("No HarmonyOS native SDK was found in this directory."));
             }
         };
@@ -95,7 +95,7 @@ HarmonyOsSettings::HarmonyOsSettings()
         connect(autodetectButton, &QPushButton::clicked, this, [this, status, updateStatus] {
             const FilePath detected = Sdk::detectDevEcoSdk();
             if (detected.isEmpty()) {
-                status->setType(InfoLabel::Warning);
+                status->setType(InfoLabelType::Warning);
                 status->setText(Tr::tr("Could not find an installed DevEco Studio SDK."));
                 return;
             }

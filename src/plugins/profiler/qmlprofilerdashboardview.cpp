@@ -521,11 +521,11 @@ void QmlProfilerDashboardView::updateValues()
     d->gauge->setValue(75);
     d->gauge->setUnit("%");
 
-    d->framesOnTargetBadge->setInfoType(Utils::InfoLabel::Ok);
+    d->framesOnTargetBadge->setInfoType(Utils::InfoLabelType::Ok);
     d->framesOnTargetBadge->setText("114");
-    d->framesNearTargetBadge->setInfoType(Utils::InfoLabel::Warning);
+    d->framesNearTargetBadge->setInfoType(Utils::InfoLabelType::Warning);
     d->framesNearTargetBadge->setText("12");
-    d->framesFailedBadge->setInfoType(Utils::InfoLabel::NotOk);
+    d->framesFailedBadge->setInfoType(Utils::InfoLabelType::NotOk);
     d->framesFailedBadge->setText("4");
 
     d->overallRating->setScore(ScoreWidget::Good, 95);

@@ -177,8 +177,8 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->license->setText(spec->license());
     d->dependencies->addItems(Utils::transform<QList>(spec->dependencies(),
                                                       &PluginDependency::toString));
-    d->softLoadable->setType(spec->isSoftLoadable() ? Utils::InfoLabel::Ok
-                                                    : Utils::InfoLabel::NotOk);
+    d->softLoadable->setType(spec->isSoftLoadable() ? Utils::InfoLabelType::Ok
+                                                    : Utils::InfoLabelType::NotOk);
 }
 
 void PluginDetailsView::showModal(QWidget *parent, PluginSpec *spec)

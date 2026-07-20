@@ -148,7 +148,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
                         "To do this later, select Edit > Preferences > SDKs > Android."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
         info.setTitle(Tr::tr("Configure Android Options?"));
-        info.setInfoType(Utils::InfoLabel::Information);
+        info.setInfoType(Utils::InfoLabelType::Information);
         info.addCustomButton(
             Tr::tr("Configure Android"),
             [this] {

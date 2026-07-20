@@ -120,8 +120,8 @@ class InfoBarWidget : public QFrame
 public:
     InfoBarWidget()
         : m_progressIndicator(new ProgressIndicator(ProgressIndicatorSize::Small))
-        , m_info(new InfoLabel({}, InfoLabel::Information))
-        , m_error(new InfoLabel({}, InfoLabel::Warning))
+        , m_info(new InfoLabel({}, InfoLabelType::Information))
+        , m_error(new InfoLabel({}, InfoLabelType::Warning))
         , m_diagStats(new QLabel)
     {
         m_info->setElideMode(Qt::ElideNone);
@@ -152,7 +152,7 @@ public:
     {
         const bool showProgress = type == ProgressIcon;
         m_progressIndicator->setVisible(showProgress);
-        m_info->setType(showProgress ? InfoLabel::None : InfoLabel::Information);
+        m_info->setType(showProgress ? InfoLabelType::None : InfoLabelType::Information);
     }
     QString infoText() const { return m_info->text(); }
     void setInfoText(const QString &text)
@@ -173,7 +173,7 @@ public:
     {
         m_error->setVisible(!text.isEmpty());
         m_error->setText(text);
-        m_error->setType(type == Warning ? InfoLabel::Warning : InfoLabel::Error);
+        m_error->setType(type == Warning ? InfoLabelType::Warning : InfoLabelType::Error);
         disconnect(m_error, &QLabel::linkActivated, this, nullptr);
         if (linkAction)
             connect(m_error, &QLabel::linkActivated, this, linkAction);

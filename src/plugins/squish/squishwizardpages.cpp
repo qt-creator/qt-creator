@@ -76,7 +76,7 @@ SquishToolkitsPage::SquishToolkitsPage()
                                         "installation path inside "
                                         "Preferences... > Squish > General to use "
                                         "this wizard."),
-                                        InfoLabel::Error, this);
+                                        InfoLabelType::Error, this);
     m_errorLabel->setVisible(false);
     layout->addWidget(m_errorLabel);
 
