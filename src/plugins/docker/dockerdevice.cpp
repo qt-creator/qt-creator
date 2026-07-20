@@ -30,6 +30,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>

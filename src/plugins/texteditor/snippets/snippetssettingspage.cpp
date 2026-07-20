@@ -16,6 +16,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/aspects.h>
+#include <utils/guiutils.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 

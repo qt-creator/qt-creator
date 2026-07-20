@@ -6,6 +6,7 @@
 #include "algorithm.h"
 #include "commandline.h"
 #include "environment.h"
+#include "guiutils.h"
 #include "hostosinfo.h"
 #include "layoutbuilder.h"
 #include "qtcsettings.h"

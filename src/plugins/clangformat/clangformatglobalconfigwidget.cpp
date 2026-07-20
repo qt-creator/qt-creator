@@ -14,6 +14,7 @@
 #include <texteditor/codestylepool.h>
 #include <texteditor/codestyleselectorwidget.h>
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>

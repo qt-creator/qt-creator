@@ -8,6 +8,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 

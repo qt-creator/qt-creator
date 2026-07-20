@@ -50,6 +50,7 @@
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/fancylineedit.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>

@@ -11,6 +11,7 @@
 #include <debugger/shared/cdbsymbolpathlisteditor.h>
 
 #include <utils/aspects.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>

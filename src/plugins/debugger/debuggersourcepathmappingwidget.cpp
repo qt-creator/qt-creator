@@ -8,6 +8,7 @@
 #include "debuggertr.h"
 
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>

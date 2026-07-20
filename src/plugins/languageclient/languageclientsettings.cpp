@@ -24,6 +24,7 @@
 #include <utils/algorithm.h>
 #include <utils/delegates.h>
 #include <utils/fancylineedit.h>
+#include <utils/guiutils.h>
 #include <utils/jsontreeitem.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>

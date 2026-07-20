@@ -32,6 +32,7 @@
 #include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/listmodel.h>
 #include <utils/pathchooser.h>

@@ -7,6 +7,7 @@
 #include "ioptionspage.h"
 
 #include <utils/algorithm.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -190,9 +191,7 @@ bool IOptionsPageWidget::isDirty() const
 void IOptionsPageWidgetPrivate::setAspects(AspectContainer *aspects)
 {
     m_aspects = aspects;
-    connect(m_aspects, &AspectContainer::volatileValueChanged, [] {
-        checkSettingsDirty();
-    });
+    connect(m_aspects, &AspectContainer::volatileValueChanged, &checkSettingsDirty);
 }
 
 /*!

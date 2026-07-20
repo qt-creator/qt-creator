@@ -15,6 +15,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/guard.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/treemodel.h>
 

@@ -57,6 +57,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
+#include <utils/guiutils.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>

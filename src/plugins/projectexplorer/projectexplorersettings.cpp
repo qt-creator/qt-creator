@@ -15,6 +15,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/environmentdialog.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>

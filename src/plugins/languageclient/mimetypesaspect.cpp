@@ -8,6 +8,7 @@
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 

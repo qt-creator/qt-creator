@@ -17,6 +17,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
+#include <utils/guiutils.h>
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>

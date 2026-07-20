@@ -17,6 +17,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/dialogtask.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>

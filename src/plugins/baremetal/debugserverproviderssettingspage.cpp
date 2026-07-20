@@ -15,6 +15,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 

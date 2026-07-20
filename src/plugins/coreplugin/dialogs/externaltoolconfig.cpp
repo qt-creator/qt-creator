@@ -14,6 +14,7 @@
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
 #include <utils/fancylineedit.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>

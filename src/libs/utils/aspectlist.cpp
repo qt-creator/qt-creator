@@ -8,6 +8,7 @@
 #include "layoutbuilder.h"
 #include "qtcassert.h"
 #include "qtdesignwidgets.h"
+#include "store.h"
 #include "treemodel.h"
 #include "utilsicons.h"
 #include "utilstr.h"

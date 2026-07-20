@@ -24,9 +24,10 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class CommandLine;
+class FancyLineEdit;
 class FilePath;
 class PathChooser;
-class FancyLineEdit;
+class QtcSettings;
 } // namespace Utils
 
 namespace Core { class IDocument; }

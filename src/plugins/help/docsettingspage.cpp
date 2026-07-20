@@ -13,6 +13,7 @@
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QAbstractListModel>

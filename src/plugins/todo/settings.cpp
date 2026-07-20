@@ -15,6 +15,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcsettings.h>
 #include <utils/theme/theme.h>

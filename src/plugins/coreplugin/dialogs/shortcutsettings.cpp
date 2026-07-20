@@ -13,6 +13,7 @@
 #include "../icore.h"
 
 #include <utils/algorithm.h>
+#include <utils/guiutils.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -672,7 +673,7 @@ void ShortcutSettingsWidget::setupShortcutBox(ShortcutItem *scitem)
         connect(input.get(), &ShortcutInput::changed, this, updateAddButton);
         input->setKeySequence(key);
         // do not merge with preceding connect, first setKeySequence() should not mark dirty
-        connect(input.get(), &ShortcutInput::changed, this, [] { markSettingsDirty(); });
+        connect(input.get(), &ShortcutInput::changed, this, &markSettingsDirty);
         m_shortcutInputs.push_back(std::move(input));
     };
     const auto addButtonToLayout = [this, updateAddButton] {

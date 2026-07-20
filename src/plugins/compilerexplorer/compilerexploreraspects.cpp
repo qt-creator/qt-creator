@@ -8,6 +8,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
+#include <utils/store.h>
 
 #include <QComboBox>
 #include <QCompleter>

@@ -30,6 +30,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/fileutils.h>
 #include <utils/guard.h>
+#include <utils/guiutils.h>
 #include <utils/globaltasktree.h>
 #include <utils/port.h>
 #include <utils/processinterface.h>

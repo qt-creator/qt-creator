@@ -4,16 +4,14 @@
 #pragma once
 
 #include "filepath.h"
-#include "guiutils.h"
 #include "id.h"
 #include "infolabel.h"
 #include "pathchooser.h"
-#include "store.h"
 
-#include <QAbstractSpinBox>
-#include <QComboBox>
 #include <QFontComboBox>
+#include <QMap>
 #include <QUndoCommand>
+#include <QVariant>
 
 #include <functional>
 #include <memory>
@@ -21,7 +19,9 @@
 
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
+class QAbstractSpinBox;
 class QAction;
+class QComboBox;
 class QSettings;
 class QUndoStack;
 class QStandardItem;
@@ -36,7 +36,10 @@ namespace Utils {
 class AspectContainer;
 class BoolAspect;
 class CheckableDecider;
+class Key;
 class MacroExpander;
+
+using Store = QMap<Key, QVariant>; // TODO: storefwd.h? utils_fwd.h?
 
 namespace Internal {
 class AspectContainerPrivate;
@@ -271,7 +274,7 @@ protected:
         registerSubWidget(w);
         if constexpr (std::is_base_of_v<QComboBox, Widget>
                       || std::is_base_of_v<QAbstractSpinBox, Widget>) {
-            setWheelScrollingWithoutFocusBlocked(w);
+            improveWheelScrolling(w);
         }
         return w;
     }
@@ -296,6 +299,7 @@ private:
     friend class Internal::CheckableAspectImplementation;
     friend class AspectContainer;
     void setContainer(AspectContainer *container);
+    void improveWheelScrolling(QWidget *widget);
 
     std::unique_ptr<Internal::BaseAspectPrivate> d;
 };

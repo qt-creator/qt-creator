@@ -35,6 +35,7 @@
 #include <utils/globaltasktree.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/portlist.h>
 #include <utils/processinterface.h>

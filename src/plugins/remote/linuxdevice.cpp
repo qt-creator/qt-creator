@@ -32,6 +32,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/globaltasktree.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>

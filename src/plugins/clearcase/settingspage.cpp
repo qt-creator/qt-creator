@@ -7,10 +7,10 @@
 #include "clearcaseplugin.h"
 #include "clearcasesettings.h"
 #include "clearcasetr.h"
-
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <utils/environment.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>

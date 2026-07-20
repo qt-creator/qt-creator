@@ -37,6 +37,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/guard.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>

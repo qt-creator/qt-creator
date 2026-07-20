@@ -16,6 +16,7 @@
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 #include <utils/wizard.h>

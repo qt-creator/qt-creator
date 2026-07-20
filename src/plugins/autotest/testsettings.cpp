@@ -14,6 +14,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/algorithm.h>
+#include <utils/guiutils.h>
 #include <utils/id.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>

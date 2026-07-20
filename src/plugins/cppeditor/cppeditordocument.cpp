@@ -34,6 +34,7 @@
 #include <texteditor/storagesettings.h>
 #include <texteditor/textdocumentlayout.h>
 
+#include <utils/guiutils.h>
 #include <utils/infobar.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>

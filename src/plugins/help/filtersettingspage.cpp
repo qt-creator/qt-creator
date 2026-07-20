@@ -7,6 +7,7 @@
 #include "localhelpmanager.h"
 
 #include <coreplugin/coreconstants.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QHelpFilterEngine>

@@ -11,6 +11,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>

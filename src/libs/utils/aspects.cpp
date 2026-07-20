@@ -21,6 +21,7 @@
 #include "qtcsettings.h"
 #include "qtdesignwidgets.h"
 #include "stylehelper.h"
+#include "store.h"
 #include "treemodel.h"
 #include "utilsicons.h"
 #include "utilstr.h"
@@ -680,6 +681,11 @@ void BaseAspect::registerSubWidget(QWidget *widget) const
 void BaseAspect::setContainer(AspectContainer *container)
 {
     d->setContainer(container);
+}
+
+void BaseAspect::improveWheelScrolling(QWidget *widget)
+{
+    setWheelScrollingWithoutFocusBlocked(widget);
 }
 
 void BaseAspect::saveToMap(Store &data, const QVariant &value,

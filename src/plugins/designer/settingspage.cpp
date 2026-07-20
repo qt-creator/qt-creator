@@ -9,6 +9,7 @@
 
 #include <coreplugin/icontext.h>
 
+#include <utils/guiutils.h>
 #include <utils/stringutils.h>
 
 #include <QDesignerOptionsPageInterface>

@@ -18,6 +18,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/globaltasktree.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>

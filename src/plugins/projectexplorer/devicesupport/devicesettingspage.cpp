@@ -20,6 +20,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>

@@ -10,6 +10,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 
