@@ -124,7 +124,7 @@ public:
                      IosToolHandler::OpStatus status);
     void gotServerPorts(Port gdbPort, Port qmlPort);
     void gotInferiorPid(qint64 pid);
-    void deviceInfo(const QString &deviceId, const IosToolHandler::Dict &info);
+    void deviceInfo(const QString &deviceId, const IosToolHandler::Info &info);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
     void toolExited(int code);
@@ -289,7 +289,7 @@ void IosToolHandlerPrivate::gotInferiorPid(qint64 pid)
 }
 
 void IosToolHandlerPrivate::deviceInfo(const QString &deviceId,
-                                       const Ios::IosToolHandler::Dict &info)
+                                       const Ios::IosToolHandler::Info &info)
 {
     emit q->deviceInfo(q, deviceId, info);
 }
@@ -453,7 +453,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                 stack.last().info.insert(p.key, p.value);
                 break;
             case ParserState::DeviceInfo:
-                deviceInfo(m_deviceId, p.info);
+                deviceInfo(m_deviceId, IosToolHandler::Info::fromMap(p.info));
                 break;
             case ParserState::Exit:
                 break;

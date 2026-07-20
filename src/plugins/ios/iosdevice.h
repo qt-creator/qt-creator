@@ -3,12 +3,15 @@
 
 #pragma once
 
-#include "iostoolhandler.h"
+#include "deviceinfo.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QtTaskTree/QMappedTaskTreeRunner>
 
+#include <QObject>
+#include <QString>
+#include <QStringList>
 #include <QTimer>
 #include <QVersionNumber>
 
@@ -16,15 +19,14 @@
 #include <optional>
 
 namespace Ios {
-class IosConfigurations;
 
 namespace Internal {
+class IosConfigurations;
 class IosDeviceManager;
 
 class IosDevice final : public ProjectExplorer::IDevice
 {
 public:
-    using Dict = QMap<QString, QString>;
     using ConstPtr = std::shared_ptr<const IosDevice>;
     using Ptr = std::shared_ptr<IosDevice>;
 
@@ -33,12 +35,8 @@ public:
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
-    QString deviceName() const;
     QString uniqueDeviceID() const;
-    QString uniqueInternalDeviceId() const;
-    QString osVersion() const;
-    QString productType() const;
-    QString cpuArchitecture() const;
+    const IosDeviceInfo &iosDeviceInformation() const;
     Handler handler() const;
 
     static QString name();
@@ -62,7 +60,7 @@ private:
     enum CtorHelper {};
     IosDevice(CtorHelper);
 
-    Dict m_extraInfo;
+    IosDeviceInfo m_extraInfo;
     Handler m_handler = Handler::IosTool;
     bool m_ignoreDevice = false;
 };
@@ -70,9 +68,6 @@ private:
 class IosDeviceManager : public QObject
 {
 public:
-    using TranslationMap = QHash<QString, QString>;
-
-    static TranslationMap translationMap();
     static IosDeviceManager *instance();
 
     void updateAvailableDevices(const QStringList &devices);
@@ -82,7 +77,7 @@ public:
     void updateInfo(const QString &devId);
     void deviceInfo(const QString &deviceId,
                     IosDevice::Handler handler,
-                    const Ios::IosToolHandler::Dict &info);
+                    const IosDeviceInfo &info);
     void monitorAvailableDevices();
 
     static bool isDeviceCtlOutputSupported();

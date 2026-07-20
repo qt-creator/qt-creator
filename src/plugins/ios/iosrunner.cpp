@@ -134,7 +134,7 @@ static GroupItem findApp(RunControl *runControl, const Storage<AppInfo> &appInfo
                              "info",
                              "apps",
                              "--device",
-                             appInfo->device->uniqueInternalDeviceId(),
+                             appInfo->device->iosDeviceInformation().uniqueDeviceId,
                              "--quiet",
                              "--json-output",
                              "-"}});
@@ -169,7 +169,7 @@ static GroupItem findProcess(RunControl *runControl, const Storage<AppInfo> &app
               "info",
               "processes",
               "--device",
-              appInfo->device->uniqueInternalDeviceId(),
+              appInfo->device->iosDeviceInformation().uniqueDeviceId,
               "--quiet",
               "--json-output",
               "-",
@@ -200,7 +200,7 @@ static GroupItem killProcess(const Storage<AppInfo> &appInfo)
                              "process",
                              "signal",
                              "--device",
-                             appInfo->device->uniqueInternalDeviceId(),
+                             appInfo->device->iosDeviceInformation().uniqueDeviceId,
                              "--quiet",
                              "--json-output",
                              "-",
@@ -227,7 +227,7 @@ static Group deviceCtlKicker(const QStoredBarrier &barrier, RunControl *runContr
                                           "process",
                                           "launch",
                                           "--device",
-                                          appInfo->device->uniqueInternalDeviceId(),
+                                          appInfo->device->iosDeviceInformation().uniqueDeviceId,
                                           "--quiet",
                                           "--json-output",
                                           tempFileStorage->filePath().path()})
@@ -348,7 +348,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
                              "process",
                              "launch",
                              "--device",
-                             appInfo->device->uniqueInternalDeviceId(),
+                             appInfo->device->iosDeviceInformation().uniqueDeviceId,
                              "--quiet",
                              "--json-output",
                              "-",
@@ -385,7 +385,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
               "info",
               "processes",
               "--device",
-              appInfo->device->uniqueInternalDeviceId(),
+              appInfo->device->iosDeviceInformation().uniqueDeviceId,
               "--quiet",
               "--json-output",
               "-",
@@ -411,7 +411,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
                              "process",
                              "signal",
                              "--device",
-                             appInfo->device->uniqueInternalDeviceId(),
+                             appInfo->device->iosDeviceInformation().uniqueDeviceId,
                              "--quiet",
                              "--json-output",
                              "-",
@@ -677,9 +677,10 @@ static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = 
 
 static Result<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
 {
-    const QString osVersion = dev->osVersion();
-    const QString productType = dev->productType();
-    const QString cpuArchitecture = dev->cpuArchitecture();
+    const IosDeviceInfo info = dev->iosDeviceInformation();
+    const QString osVersion = info.osVersion;
+    const QString productType = info.productType;
+    const QString cpuArchitecture = info.cpuArchitecture;
     const FilePath home = FilePath::fromString(QDir::homePath());
     const FilePaths symbolsPathCandidates
         = {home / "Library/Developer/Xcode/iOS DeviceSupport" / (productType + " " + osVersion)
@@ -792,7 +793,7 @@ static Group debugRecipe(RunControl *runControl)
         if (dev->handler() == IosDevice::Handler::DeviceCtl) {
             QTC_CHECK(IosDeviceManager::isDeviceCtlDebugSupported());
             rp.setStartMode(AttachToIosDevice);
-            rp.setDeviceUuid(dev->uniqueInternalDeviceId());
+            rp.setDeviceUuid(dev->iosDeviceInformation().uniqueDeviceId);
         } else {
             rp.setStartMode(AttachToRemoteProcess);
         }

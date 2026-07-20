@@ -59,8 +59,7 @@ Result<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput)
     return resultValue;
 }
 
-Result<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
-                                                     const QString &deviceUsbId)
+Result<IosDeviceInfo> parseDeviceInfo(const QByteArray &rawOutput, const QString &deviceUsbId)
 {
     const Result<QJsonValue> result = parseDevicectlResult(rawOutput);
     if (!result)
@@ -71,19 +70,18 @@ Result<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
         const QString udid = device["hardwareProperties"]["udid"].toString();
         // USB identifiers don't have dashes, but iOS device udids can. Remove.
         if (QString(udid).remove('-') == deviceUsbId) {
-            // fill in the map that we use for the iostool data
-            QMap<QString, QString> info;
-            info[kDeviceName] = device["deviceProperties"]["name"].toString();
-            info[kDeveloperStatus] = QLatin1String(
-                device["deviceProperties"]["developerModeStatus"] == "enabled" ? vDevelopment
-                                                                               : vOff);
-            info[kDeviceConnected] = vYes; // that's the assumption
-            info[kOsVersion] = QLatin1String("%1 (%2)")
-                                   .arg(device["deviceProperties"]["osVersionNumber"].toString(),
-                                        device["deviceProperties"]["osBuildUpdate"].toString());
-            info[kProductType] = device["hardwareProperties"]["productType"].toString();
-            info[kCpuArchitecture] = device["hardwareProperties"]["cpuType"]["name"].toString();
-            info[kUniqueDeviceId] = udid;
+            IosDeviceInfo info;
+            info.deviceName = device["deviceProperties"]["name"].toString();
+            info.developmentStatus = device["deviceProperties"]["developerModeStatus"] == "enabled"
+                                          ? IosDeviceInfo::DevelopmentStatus::Enabled
+                                          : IosDeviceInfo::DevelopmentStatus::Disabled;
+            info.deviceConnected = true; // that's the assumption
+            info.osVersion = QLatin1String("%1 (%2)")
+                                  .arg(device["deviceProperties"]["osVersionNumber"].toString(),
+                                       device["deviceProperties"]["osBuildUpdate"].toString());
+            info.productType = device["hardwareProperties"]["productType"].toString();
+            info.cpuArchitecture = device["hardwareProperties"]["cpuType"]["name"].toString();
+            info.uniqueDeviceId = udid;
             return info;
         }
     }

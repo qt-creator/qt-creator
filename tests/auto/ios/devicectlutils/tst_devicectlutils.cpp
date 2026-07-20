@@ -176,7 +176,7 @@ void tst_Devicectlutils::parseDeviceInfo_data()
     QTest::addColumn<QByteArray>("data");
     QTest::addColumn<QString>("usbId");
     QTest::addColumn<QString>("error");
-    QTest::addColumn<QMap<QString, QString>>("info");
+    QTest::addColumn<IosDeviceInfo>("info");
 
     const QByteArray data(R"raw(
 {
@@ -292,27 +292,26 @@ void tst_Devicectlutils::parseDeviceInfo_data()
 
     QTest::addRow("handled device")
         << data << QString("000000000000000000000000") << QString()
-        << QMap<QString, QString>({{"cpuArchitecture", "arm64e"},
-                                   {"developerStatus", "Development"},
-                                   {"deviceConnected", "YES"},
-                                   {"deviceName", "Some iOS device"},
-                                   {"osVersion", "17.3 (21D50)"},
-                                   {"productType", "iPad11,2"},
-                                   {"uniqueDeviceId", "00000000-0000000000000000"}});
+        << IosDeviceInfo{.deviceName = "Some iOS device",
+                         .developmentStatus = IosDeviceInfo::DevelopmentStatus::Enabled,
+                         .deviceConnected = true,
+                         .osVersion = "17.3 (21D50)",
+                         .productType = "iPad11,2",
+                         .cpuArchitecture = "arm64e",
+                         .uniqueDeviceId = "00000000-0000000000000000"};
     QTest::addRow("unhandled device")
         << data << QString("000000000000000000000001")
-        << QString("Device is not handled by devicectl") << QMap<QString, QString>({});
+        << QString("Device is not handled by devicectl") << IosDeviceInfo{};
 }
 
 void tst_Devicectlutils::parseDeviceInfo()
 {
-    using InfoMap = QMap<QString, QString>;
     QFETCH(QByteArray, data);
     QFETCH(QString, usbId);
     QFETCH(QString, error);
-    QFETCH(InfoMap, info);
+    QFETCH(IosDeviceInfo, info);
 
-    const Utils::Result<InfoMap> result = Ios::Internal::parseDeviceInfo(data, usbId);
+    const Utils::Result<IosDeviceInfo> result = Ios::Internal::parseDeviceInfo(data, usbId);
     if (error.isEmpty()) {
         QVERIFY(result);
         QCOMPARE(*result, info);

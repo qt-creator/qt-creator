@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "deviceinfo.h"
+
 #include <utils/result.h>
 
 #include <QJsonValue>
@@ -15,20 +17,11 @@ class FilePath;
 namespace Ios::Internal {
 
 inline constexpr char kDeviceName[] = "deviceName";
-inline constexpr char kDeveloperStatus[] = "developerStatus";
-inline constexpr char kDeviceConnected[] = "deviceConnected";
-inline constexpr char kOsVersion[] = "osVersion";
-inline constexpr char kProductType[] = "productType";
-inline constexpr char kCpuArchitecture[] = "cpuArchitecture";
-inline constexpr char kUniqueDeviceId[] = "uniqueDeviceId";
-inline constexpr char vOff[] = "*off*";
-inline constexpr char vDevelopment[] = "Development";
-inline constexpr char vYes[] = "YES";
 
 Utils::Result<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput);
 Utils::Result<> checkDevicectlResult(const QByteArray &rawOutput);
-Utils::Result<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput,
-                                                            const QString &deviceUsbId);
+Utils::Result<IosDeviceInfo> parseDeviceInfo(const QByteArray &rawOutput,
+                                              const QString &deviceUsbId);
 Utils::Result<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier);
 Utils::Result<qint64> parseProcessIdentifier(const QByteArray &rawOutput);
 Utils::Result<qint64> parseLaunchResult(const QByteArray &rawOutput);

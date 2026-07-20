@@ -17,6 +17,8 @@ QtcPlugin {
     files: [
         "devicectlutils.cpp",
         "devicectlutils.h",
+        "deviceinfo.cpp",
+        "deviceinfo.h",
         "ios.qrc",
         "iosbuildconfiguration.cpp",
         "iosbuildconfiguration.h",

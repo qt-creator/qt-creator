@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "deviceinfo.h"
 #include "iossimulator.h"
 
 #include <utils/filepath.h>
@@ -11,7 +12,6 @@
 #include <QtTaskTree/QTaskTree>
 
 #include <QObject>
-#include <QMap>
 #include <QString>
 #include <QStringList>
 
@@ -25,7 +25,7 @@ class IosToolHandler : public QObject
 {
     Q_OBJECT
 public:
-    using Dict = QMap<QString,QString>;
+    using Info = Internal::IosDeviceInfo;
     enum RunKind {
         NormalRun,
         DebugRun
@@ -59,7 +59,7 @@ signals:
     void gotServerPorts(Utils::Port gdbPort, Utils::Port qmlPort);
     void gotInferiorPid(qint64 pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
-                    const Ios::IosToolHandler::Dict &info);
+                    const Ios::IosToolHandler::Info &info);
     void appOutput(const QString &output);
     void message(const QString &msg);
     void errorMsg(const QString &msg);

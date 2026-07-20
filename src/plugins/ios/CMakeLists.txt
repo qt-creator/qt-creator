@@ -4,6 +4,7 @@ add_qtc_plugin(Ios
   SOURCES
     devicectlutils.cpp
     devicectlutils.h
+    deviceinfo.cpp deviceinfo.h
     ios.qrc
     iosbuildconfiguration.cpp iosbuildconfiguration.h
     iosbuildstep.cpp iosbuildstep.h

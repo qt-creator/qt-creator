@@ -111,7 +111,7 @@ static GroupItem createDeviceCtlDeployTask(
                              "install",
                              "app",
                              "--device",
-                             device->uniqueInternalDeviceId(),
+                             device->iosDeviceInformation().uniqueDeviceId,
                              "--quiet",
                              "--json-output",
                              "-",
@@ -304,7 +304,7 @@ bool IosDeployStep::checkProvisioningProfile()
         return true;
 
     const QStringList deviceIds = provisionPlist.value("ProvisionedDevices").toStringList();
-    const QString targetId = device->uniqueInternalDeviceId();
+    const QString targetId = device->iosDeviceInformation().uniqueDeviceId;
     for (const QString &deviceId : deviceIds) {
         if (deviceId == targetId)
             return true;
