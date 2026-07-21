@@ -878,12 +878,11 @@ void IosDeviceManager::deviceInfo(const QString &uid,
         newDev->setFileAccess(
             std::make_shared<IosFileAccess>(newDev->iosDeviceInformation().uniqueDeviceId));
         DeviceManager::setDeviceState(newDev->id(), IDevice::DeviceReadyToUse);
-        m_userModeDeviceIds.removeOne(uid);
     } else {
         DeviceManager::setDeviceState(newDev->id(), IDevice::DeviceConnected);
-        bool shouldIgnore = newDev->m_ignoreDevice;
-        newDev->m_ignoreDevice = true;
-        if (!shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
+        if (!newDev->m_ignoreDevice && !IosConfigurations::ignoreAllDevices()
+            && IosConfigurations::isAnyProjectConfiguredForIosDevice()) {
+            newDev->m_ignoreDevice = true;
             Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
             const Utils::Id id("Ios.DevModeDetected");
             if (infoBar->canInfoBeAdded(id)) {
@@ -915,8 +914,6 @@ void IosDeviceManager::deviceInfo(const QString &uid,
                 infoBar->addInfo(entry);
             }
         }
-        if (!m_userModeDeviceIds.contains(uid))
-            m_userModeDeviceIds.append(uid);
         m_userModeDevicesTimer.start();
     }
 }
@@ -1110,8 +1107,12 @@ IosDeviceManager::IosDeviceManager(QObject *parent) :
 
 void IosDeviceManager::updateUserModeDevices()
 {
-    for (const QString &uid : std::as_const(m_userModeDeviceIds))
-        updateInfo(uid);
+    DeviceManager::forEachDevice([this](const IDevice::ConstPtr &dev) {
+        if (dev->type() == Constants::IOS_DEVICE_TYPE
+            && dev->deviceState() == IDevice::DeviceConnected) {
+            updateInfo(static_cast<const IosDevice *>(dev.get())->uniqueDeviceID());
+        }
+    });
 }
 
 IosDeviceManager *IosDeviceManager::instance()

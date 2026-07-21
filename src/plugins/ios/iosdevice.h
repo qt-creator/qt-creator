@@ -88,7 +88,6 @@ private:
     IosDeviceManager(QObject *parent = nullptr);
     QtTaskTree::QMappedTaskTreeRunner<QString> m_updatesRunner; // deviceid->task
     QTimer m_userModeDevicesTimer;
-    QStringList m_userModeDeviceIds;
     std::optional<QVersionNumber> m_deviceCtlVersion;
 };
 

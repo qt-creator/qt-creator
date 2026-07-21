@@ -12,17 +12,20 @@
 
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/toolchainmanager.h>
-#include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/sysrootkitaspect.h>
-#include <projectexplorer/toolchainkitaspect.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainconfigwidget.h>
+#include <projectexplorer/toolchainkitaspect.h>
+#include <projectexplorer/toolchainmanager.h>
 
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggeritem.h>
@@ -392,6 +395,16 @@ void IosConfigurations::kitsRestored()
     IosConfigurations::updateAutomaticKitList();
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             IosConfigurations::instance(), &IosConfigurations::updateAutomaticKitList);
+}
+
+bool IosConfigurations::isAnyProjectConfiguredForIosDevice()
+{
+    return Utils::anyOf(ProjectManager::projects(), [](Project *project) {
+        return Utils::anyOf(project->targets(), [](Target *target) {
+            return RunDeviceTypeKitAspect::deviceTypeId(target->kit())
+                   == Constants::IOS_DEVICE_TYPE;
+        });
+    });
 }
 
 bool IosConfigurations::ignoreAllDevices()

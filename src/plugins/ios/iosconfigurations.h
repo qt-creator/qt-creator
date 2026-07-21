@@ -77,6 +77,7 @@ public:
     static void initialize();
     static bool ignoreAllDevices();
     static void setIgnoreAllDevices(bool ignoreDevices);
+    static bool isAnyProjectConfiguredForIosDevice();
     static Utils::FilePath developerPath();
     static QVersionNumber xcodeVersion();
     static Utils::FilePath lldbPath();
