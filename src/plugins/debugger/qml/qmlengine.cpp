@@ -239,6 +239,7 @@ QmlEngine::QmlEngine()
 {
     setObjectName("QmlEngine");
     setDebuggerName("QML");
+    setRunParametersValidationEnabled(false);
     // Processed by the QML inspector, which has dependencies to the qml js
     // editor - makes life easier. FIXME: Except that there isn't any attached.
     setToolTipHandling(ToolTipHandling::Always);

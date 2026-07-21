@@ -41,6 +41,7 @@ PdbEngine::PdbEngine()
     setObjectName("PdbEngine");
     setDebuggerName("PDB");
     setToolTipHandling(ToolTipHandling::IfStoppedInferior);
+    setRunParametersValidationEnabled(false);
 }
 
 void PdbEngine::executeDebuggerCommand(const QString &command)

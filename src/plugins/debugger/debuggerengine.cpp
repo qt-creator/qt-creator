@@ -835,6 +835,7 @@ public:
     ToolTipHandling m_toolTipHandling = ToolTipHandling::IfStoppedInferiorAndCppEditor;
     Context m_context;
     bool m_isExamineModulesEnabled = false;
+    bool m_runParametersValidationEnabled = true;
 };
 
 void adaptDebuggerFontSize(QWidget *widget)
@@ -2733,6 +2734,11 @@ void DebuggerEngine::setToolTipHandling(ToolTipHandling handling)
     d->m_toolTipHandling = handling;
 }
 
+void DebuggerEngine::setRunParametersValidationEnabled(bool enabled)
+{
+    d->m_runParametersValidationEnabled = enabled;
+}
+
 void DebuggerEngine::updateItem(const QString &iname)
 {
     WatchHandler *handler = watchHandler();
@@ -3077,10 +3083,11 @@ void DebuggerEngine::showModuleSections(const FilePath &moduleName, const Sectio
     createNewDock(w);
 }
 
-// CppDebuggerEngine
-
-void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
+void DebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
+    if (!d->m_runParametersValidationEnabled)
+        return;
+
     static const Key warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
 
     const bool warnOnRelease = settings().warnOnReleaseBuilds()
@@ -3249,6 +3256,8 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                + '\n' + detailedWarning);
     }
 }
+
+// CppDebuggerEngine
 
 Result<> CppDebuggerEngine::initDebugHelper(
     const QString &bridgeBaseName,

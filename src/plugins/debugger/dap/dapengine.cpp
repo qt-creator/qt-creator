@@ -119,6 +119,7 @@ DapEngine::DapEngine()
     : m_variablesHandler(std::make_unique<VariablesHandler>(this))
 {
     setToolTipHandling(ToolTipHandling::IfStoppedInferior);
+    setRunParametersValidationEnabled(false);
 }
 
 void DapEngine::executeDebuggerCommand(const QString &/*command*/)

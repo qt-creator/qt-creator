@@ -590,6 +590,7 @@ signals:
     void kickoffTerminalProcessRequested();
 
 protected:
+    void setRunParametersValidationEnabled(bool enabled);
     void setToolTipHandling(ToolTipHandling handling);
     void setExamineModulesEnabled(bool on);
     PeripheralRegisterHandler *peripheralRegisterHandler() const;
@@ -728,7 +729,7 @@ protected:
     QList<DebuggerEngine *> companionEngines() const;
 
 private:
-    virtual void validateRunParameters(DebuggerRunParameters &) {}
+    void validateRunParameters(DebuggerRunParameters &rp);
     virtual void abortDebuggerProcess() {} // second attempt
     virtual void reloadDebuggingHelpers();
 
@@ -757,7 +758,6 @@ protected:
         const ImportResponse &callback = {});
 
 private:
-    void validateRunParameters(DebuggerRunParameters &rp) override;
     Utils::Result<Utils::FilePath> copyDebuggerHelpers();
     Utils::Result<> pipeInDebuggerHelpers(
         const QString &bridgeModuleName,
