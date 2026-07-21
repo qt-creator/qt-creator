@@ -42,7 +42,7 @@ struct CoreInfo
                                                const Utils::FilePath &coreFile);
 };
 
-class GdbEngine final : public CppDebuggerEngine
+class GdbEngine final : public DebuggerEngine
 {
 public:
     GdbEngine();

@@ -9,7 +9,7 @@
 
 namespace Debugger::Internal {
 
-class UvscEngine final : public CppDebuggerEngine
+class UvscEngine final : public DebuggerEngine
 {
 public:
     explicit UvscEngine();

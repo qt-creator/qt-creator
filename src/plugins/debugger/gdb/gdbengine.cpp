@@ -1062,7 +1062,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
 
 void GdbEngine::setState(DebuggerState state, bool forced)
 {
-    CppDebuggerEngine::setState(state, forced);
+    DebuggerEngine::setState(state, forced);
     if (state == DebuggerFinished) {
         m_rerunPending = false;
         m_commandForToken.clear();
@@ -3832,7 +3832,7 @@ static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParamete
     // Do not overwrite user settings.
     SourcePathMap rc = sp.sourcePathMap();
     for (auto it = in.constBegin(), end = in.constEnd(); it != end; ++it) {
-        // Entries that start with parenthesis are handled in CppDebuggerEngine::validateRunParameters
+        // Entries that start with parenthesis are handled in DebuggerEngine::validateRunParameters
         if (!it.key().startsWith('('))
             rc.insert(it.key(), sp.macroExpander()->expand(it.value()));
     }

@@ -836,6 +836,7 @@ public:
     Context m_context;
     bool m_isExamineModulesEnabled = false;
     bool m_runParametersValidationEnabled = true;
+    std::unique_ptr<TemporaryFilePath> m_remoteDebuggerHelperDir;
 };
 
 void adaptDebuggerFontSize(QWidget *widget)
@@ -3257,9 +3258,7 @@ void DebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
     }
 }
 
-// CppDebuggerEngine
-
-Result<> CppDebuggerEngine::initDebugHelper(
+Result<> DebuggerEngine::initDebugHelper(
     const QString &bridgeBaseName,
     const SetupDumper &setupDumper,
     const RunPythonCommand &runPythonCommand,
@@ -3281,7 +3280,7 @@ Result<> CppDebuggerEngine::initDebugHelper(
     return ResultOk;
 }
 
-Result<FilePath> CppDebuggerEngine::copyDebuggerHelpers()
+Result<FilePath> DebuggerEngine::copyDebuggerHelpers()
 {
     const FilePath debuggerExecutable = runParameters().debugger().command.executable();
 
@@ -3297,12 +3296,12 @@ Result<FilePath> CppDebuggerEngine::copyDebuggerHelpers()
     if (!copyResult)
         return ResultError(copyResult.error());
 
-    m_remoteDebuggerHelperDir = std::move(*remoteDir);
+    d->m_remoteDebuggerHelperDir = std::move(*remoteDir);
 
-    return m_remoteDebuggerHelperDir->filePath();
+    return d->m_remoteDebuggerHelperDir->filePath();
 }
 
-Result<> CppDebuggerEngine::pipeInDebuggerHelpers(
+Result<> DebuggerEngine::pipeInDebuggerHelpers(
     const QString &bridgeModuleName,
     const RunPythonCommand &runPythonCommand,
     const ImportResponse &callback)

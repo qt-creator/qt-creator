@@ -18,7 +18,7 @@ namespace Core { class IOptionsPage; }
 
 namespace Debugger::Internal {
 
-class CdbEngine : public CppDebuggerEngine
+class CdbEngine : public DebuggerEngine
 {
     Q_OBJECT
 

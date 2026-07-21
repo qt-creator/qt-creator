@@ -24,7 +24,7 @@ namespace Debugger::Internal {
  * using its Python interface.
  */
 
-class LldbEngine : public CppDebuggerEngine
+class LldbEngine : public DebuggerEngine
 {
     Q_OBJECT
 

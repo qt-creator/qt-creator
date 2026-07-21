@@ -728,25 +728,6 @@ protected:
     ProjectExplorer::IDeviceConstPtr device() const;
     QList<DebuggerEngine *> companionEngines() const;
 
-private:
-    void validateRunParameters(DebuggerRunParameters &rp);
-    virtual void abortDebuggerProcess() {} // second attempt
-    virtual void reloadDebuggingHelpers();
-
-    friend class DebuggerPluginPrivate;
-    friend class DebuggerEnginePrivate;
-    friend class LocationMark;
-    friend class PeripheralRegisterHandler;
-    DebuggerEnginePrivate *d;
-};
-
-class CppDebuggerEngine : public DebuggerEngine
-{
-public:
-    CppDebuggerEngine() {}
-    ~CppDebuggerEngine() override {}
-
-protected:
     using SetupDumper = std::function<void(const Utils::FilePath &)>;
     using RunPythonCommand = std::function<void(DebuggerCommand)>;
     using ImportResponse = std::function<void(const DebuggerResponse &)>;
@@ -758,14 +739,21 @@ protected:
         const ImportResponse &callback = {});
 
 private:
+    void validateRunParameters(DebuggerRunParameters &rp);
+    virtual void abortDebuggerProcess() {} // second attempt
+    virtual void reloadDebuggingHelpers();
+
     Utils::Result<Utils::FilePath> copyDebuggerHelpers();
     Utils::Result<> pipeInDebuggerHelpers(
         const QString &bridgeModuleName,
         const RunPythonCommand &runPythonCommand,
         const ImportResponse &callback);
 
-private:
-    std::unique_ptr<Utils::TemporaryFilePath> m_remoteDebuggerHelperDir;
+    friend class DebuggerPluginPrivate;
+    friend class DebuggerEnginePrivate;
+    friend class LocationMark;
+    friend class PeripheralRegisterHandler;
+    DebuggerEnginePrivate *d;
 };
 
 class LocationMark : public TextEditor::TextMark
