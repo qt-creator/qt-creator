@@ -4,12 +4,21 @@
 # this function switches the MainWindow of creator to the specified view
 def switchViewTo(view):
     # make sure that no tooltip is shown, so move the mouse away and wait until all disappear
-    mouseMove(waitForObject(':Qt Creator_Core::Internal::MainWindow'), -20, -20)
+    mainWindow = waitForObject(':Qt Creator_Core::Internal::MainWindow')
+    mouseMove(mainWindow, -20, -20)
     waitFor("not QToolTip.isVisible()", 15000)
     if view < ViewConstants.FIRST_AVAILABLE or view > ViewConstants.LAST_AVAILABLE:
         return
-    mouseClick(waitForObject("{name='ModeSelector' type='Core::Internal::FancyTabBar' visible='1' "
-                             "window=':Qt Creator_Core::Internal::MainWindow'}"), 20, 20 + 52 * view, 0, Qt.LeftButton)
+
+    tabBar = waitForObject("{name='ModeSelector' type='Core::Internal::FancyTabBar'}")
+    fm = tabBar.fontMetrics()
+    tabHeight = 40 + fm.height()
+    barHeight = tabBar.height
+    tabCount = ViewConstants.LAST_AVAILABLE + 1 # we start counting at 0
+    if tabHeight * tabCount > barHeight:
+        tabHeight = barHeight / tabCount
+
+    mouseClick(tabBar, 20, 20 + tabHeight * view, 0, Qt.LeftButton)
 
 def __kitIsActivated__(kit):
     return not ("<h3>Click to enable target, click again to make active</h3>" in str(kit.toolTip)
