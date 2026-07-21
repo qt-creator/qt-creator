@@ -191,6 +191,7 @@ private slots:
     void test_vim_timeout_options();
     void test_vim_selection_for_shortcut();
     void test_vim_jumplist_across_files();
+    void test_vim_control_modifier();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5350,6 +5351,20 @@ void FakeVimTester::test_vim_jumplist_across_files()
     distance = 0;
     data.doKeys("100<c-i>");
     QVERIFY(distance > 0);
+}
+
+void FakeVimTester::test_vim_control_modifier()
+{
+    // A key with the Control modifier (and no Alt) must not be taken as the
+    // plain letter command; such keys are left for a Qt Creator shortcut
+    // (QTCREATORBUG-14369). Ctrl-Shift-X must not act like "X" (delete the
+    // character before the cursor).
+    TestData data;
+    setup(&data);
+    data.setText("ab|c");
+    KEYS("<C-S-X>", "ab|c"); // no-op
+    KEYS("<C-X>", "ab|c");   // no-op
+    KEYS("X", "a|c");        // plain X deletes the character before the cursor
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()
