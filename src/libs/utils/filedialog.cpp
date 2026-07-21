@@ -53,6 +53,7 @@
 #include <QProgressDialog>
 #include <QPromise>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QSplitter>
@@ -125,9 +126,13 @@ public:
         setDynamicSortFilter(true);
     }
 
-    void setSuffixes(const QStringList &suffixes)
+    void setPatterns(const QStringList &globs)
     {
-        m_suffixes = suffixes;
+        m_patterns.clear();
+        for (const QString &glob : globs) {
+            m_patterns << QRegularExpression::fromWildcard(
+                glob, Qt::CaseInsensitive, QRegularExpression::NonPathWildcardConversion);
+        }
         invalidate();
     }
 
@@ -210,12 +215,11 @@ public:
         return mime;
     }
 
-    static bool filterMatches(const QStringList &suffixes, const FilePath &fp)
+    static bool filterMatches(const QList<QRegularExpression> &patterns, const FilePath &fp)
     {
-        const auto fn = fp.fileName();
-        return Utils::anyOf(suffixes, [s = fp.suffix(), fn](const QString &suffix) {
-            const bool hasDot = suffix.contains('.');
-            return (hasDot && fn == suffix) || (!hasDot && s == suffix);
+        const QString fn = fp.fileName();
+        return Utils::anyOf(patterns, [&fn](const QRegularExpression &re) {
+            return re.match(fn).hasMatch();
         });
     }
 
@@ -227,7 +231,7 @@ public:
         // Fast path: with no name filter and not in directory mode nothing is
         // ever rejected, so don't fetch any roles. flags() calls this for every
         // row during layout, so this matters a lot for large result lists.
-        if (!m_directoriesOnly && m_suffixes.isEmpty())
+        if (!m_directoriesOnly && m_patterns.isEmpty())
             return true;
         const auto flags = sourceIdx.data(FileSystemModel::FileFlagsRole)
                                .value<FilePathInfo::FileFlags>();
@@ -237,7 +241,7 @@ public:
         if (isDir)
             return true;
         const auto fp = sourceIdx.data(FileSystemModel::FilePathRole).value<FilePath>();
-        return filterMatches(m_suffixes, fp);
+        return filterMatches(m_patterns, fp);
     }
 
 protected:
@@ -246,9 +250,9 @@ protected:
         const QModelIndex idx = sourceModel()->index(row, 0, parent);
         const auto flags = idx.data(FileSystemModel::FileFlagsRole)
                                .value<FilePathInfo::FileFlags>();
-        if (m_hideFiltered && (flags & FilePathInfo::FileType) && !m_suffixes.isEmpty()) {
+        if (m_hideFiltered && (flags & FilePathInfo::FileType) && !m_patterns.isEmpty()) {
             const auto fp = idx.data(FileSystemModel::FilePathRole).value<FilePath>();
-            if (!filterMatches(m_suffixes, fp))
+            if (!filterMatches(m_patterns, fp))
                 return false;
         }
         if (m_showHidden)
@@ -266,7 +270,7 @@ protected:
     }
 
 private:
-    QStringList m_suffixes;
+    QList<QRegularExpression> m_patterns;
     bool m_showHidden = false;
     bool m_hideFiltered = !HostOsInfo::isMacHost();
     bool m_directoriesOnly = false;
@@ -720,23 +724,20 @@ static bool looksLikeMimeType(const QString &filter)
     return filter.contains('/') && !filter.contains('(');
 }
 
-static QStringList parseSuffixes(const QString &filter)
+static QStringList parsePatterns(const QString &filter)
 {
     const int open = filter.indexOf('(');
     const int close = filter.lastIndexOf(')');
     if (open < 0 || close <= open)
         return {};
     const QString glob = filter.mid(open + 1, close - open - 1);
-    QStringList suffixes;
+    QStringList patterns;
     for (const QString &part : glob.split(' ', Qt::SkipEmptyParts)) {
         if (part == u"*" || part == u"*.*")
-            return {};
-        if (part.startsWith(u"*."))
-            suffixes << part.mid(2).toLower();
-        else
-            suffixes << part;
+            return {}; // "All files": no filtering.
+        patterns << part;
     }
-    return suffixes;
+    return patterns;
 }
 
 // ===== Sidebar =====
@@ -2623,7 +2624,7 @@ FileDialog::FileDialog(QWidget *parent)
             this,
             [this](int) {
                 const QString filter = d->m_filterCombo->currentData().toString();
-                d->m_proxy->setSuffixes(parseSuffixes(filter));
+                d->m_proxy->setPatterns(parsePatterns(filter));
             });
 
     connect(d->m_sidebarView, &QAbstractItemView::clicked, this, [this](const QModelIndex &idx) {
@@ -2713,7 +2714,7 @@ void FileDialog::setNameFilters(const QStringList &filters)
     for (const QString &f : std::as_const(resolved))
         d->m_filterCombo->addItem(f, f);
     if (!resolved.isEmpty())
-        d->m_proxy->setSuffixes(parseSuffixes(resolved.first()));
+        d->m_proxy->setPatterns(parsePatterns(resolved.first()));
 
     d->m_hasNameFilters = !resolved.isEmpty();
     d->updateLayoutVisibility();
