@@ -23,6 +23,7 @@ struct IosDeviceInfo
 
     QString deviceName;
     DevelopmentStatus developmentStatus = DevelopmentStatus::Unknown;
+    std::optional<bool> isPaired; // not set by iostool / iOS < 17
     bool deviceConnected = false;
     QString osVersion;
     QString productType;

@@ -887,11 +887,15 @@ void IosDeviceManager::deviceInfo(const QString &uid,
             Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
             const Utils::Id id("Ios.DevModeDetected");
             if (infoBar->canInfoBeAdded(id)) {
-                Utils::InfoBarEntry entry(
-                    id,
-                    Tr::tr(
-                        "An iOS device in user mode has been detected. "
-                        "Do you want to see how to set it up for development?"));
+                const QString text
+                    = info.isPaired.value_or(true)
+                          ? Tr::tr(
+                                "An iOS device in user mode has been detected. "
+                                "Do you want to see how to set it up for development?")
+                          : Tr::tr(
+                                "An unpaired iOS device has been detected. "
+                                "Do you want to see how to set it up for development?");
+                Utils::InfoBarEntry entry(id, text);
                 entry.setTitle(Tr::tr("iOS Device Detected"));
                 entry.setInfoType(InfoLabelType::Information);
                 entry.addCustomButton(

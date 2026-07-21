@@ -83,6 +83,9 @@ Result<IosDeviceInfo> parseDeviceInfo(const QByteArray &rawOutput, const QString
             IosDeviceInfo info;
             info.deviceName = device["deviceProperties"]["name"].toString();
             info.developmentStatus = devStatus(device["deviceProperties"]["developerModeStatus"]);
+            const QJsonValue pairingState = device["connectionProperties"]["pairingState"];
+            if (pairingState.isString())
+                info.isPaired = pairingState == "paired";
             info.deviceConnected = true; // that's the assumption
             info.osVersion = QLatin1String("%1 (%2)")
                                   .arg(device["deviceProperties"]["osVersionNumber"].toString(),

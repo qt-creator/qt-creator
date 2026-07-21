@@ -9,6 +9,7 @@
 #include <QHash>
 
 inline constexpr char kDeveloperStatus[] = "developerStatus";
+inline constexpr char kIsPaired[] = "isPaired";
 inline constexpr char kDeviceConnected[] = "deviceConnected";
 inline constexpr char kOsVersion[] = "osVersion";
 inline constexpr char kProductType[] = "productType";
@@ -33,6 +34,8 @@ IosDeviceInfo IosDeviceInfo::fromMap(const QMap<QString, QString> &map)
         info.developmentStatus = DevelopmentStatus::Disabled;
     else
         info.developmentStatus = DevelopmentStatus::Unknown;
+    if (map.contains(kIsPaired))
+        info.isPaired = map.value(kIsPaired) == vYes;
     info.deviceConnected = map.value(kDeviceConnected) == QLatin1String(vYes);
     info.osVersion = map.value(kOsVersion);
     info.productType = map.value(kProductType);
@@ -56,6 +59,8 @@ QMap<QString, QString> IosDeviceInfo::toMap() const
         map[kDeveloperStatus] = QLatin1String(vUnknown);
         break;
     }
+    if (isPaired.has_value())
+        map[kIsPaired] = QLatin1String(*isPaired ? vYes : vNo);
     map[kDeviceConnected] = QLatin1String(deviceConnected ? vYes : vNo);
     map[kOsVersion] = osVersion;
     map[kProductType] = productType;
@@ -90,13 +95,15 @@ ProjectExplorer::IDevice::DeviceInfo IosDeviceInfo::toDeviceInfo() const
         developmentStatusText = Tr::tr("unknown");
         break;
     }
+    const auto boolString = [](bool v) { return v ? Tr::tr("yes") : Tr::tr("no"); };
 
     IDevice::DeviceInfo result;
     result.append(IDevice::DeviceInfoItem(Tr::tr("Device name"), translate(deviceName)));
     result.append(IDevice::DeviceInfoItem(Tr::tr("OS version"), translate(osVersion)));
     result.append(IDevice::DeviceInfoItem(Tr::tr("Product type"), translate(productType)));
-    result.append(
-        IDevice::DeviceInfoItem(Tr::tr("Connected"), deviceConnected ? Tr::tr("yes") : Tr::tr("no")));
+    result.append(IDevice::DeviceInfoItem(Tr::tr("Connected"), boolString(deviceConnected)));
+    if (isPaired)
+        result.append(IDevice::DeviceInfoItem(Tr::tr("Paired"), boolString(*isPaired)));
     result.append(IDevice::DeviceInfoItem(Tr::tr("Developer status"), developmentStatusText));
     return result;
 }

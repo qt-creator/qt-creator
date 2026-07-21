@@ -218,7 +218,7 @@ void tst_Devicectlutils::parseDeviceInfo_data()
           "authenticationType" : "manualPairing",
           "isMobileDeviceOnly" : false,
           "lastConnectionDate" : "2024-01-29T08:49:25.179Z",
-          "pairingState" : "paired",
+          %1
           "potentialHostnames" : [
             "00000000-0000000000000000.coredevice.local",
             "00000000-0000-0000-0000-000000000000.coredevice.local"
@@ -231,7 +231,7 @@ void tst_Devicectlutils::parseDeviceInfo_data()
           "bootedFromSnapshot" : true,
           "bootedSnapshotName" : "com.apple.os.update-0000",
           "ddiServicesAvailable" : false,
-          %1
+          %2
           "hasInternalOSBuild" : false,
           "name" : "Some iOS device",
           "osBuildUpdate" : "21D50",
@@ -289,45 +289,61 @@ void tst_Devicectlutils::parseDeviceInfo_data()
     ]
   }
 })raw");
+    const QString paired = R"raw("pairingState" : "paired",)raw";
+    const QString unpaired = R"raw("pairingState" : "unpaired",)raw";
     const QString developmentEnabled = R"raw("developerModeStatus" : "enabled",)raw";
     const QString developmentDisabled = R"raw("developerModeStatus" : "disabled",)raw";
     const QString developmentUnknown;
 
-    QTest::addRow("dev enabled") << data.arg(developmentEnabled).toUtf8()
+    QTest::addRow("dev enabled") << data.arg(paired, developmentEnabled).toUtf8()
                                  << QString("000000000000000000000000") << QString()
                                  << IosDeviceInfo{
                                         .deviceName = "Some iOS device",
                                         .developmentStatus
                                         = IosDeviceInfo::DevelopmentStatus::Enabled,
+                                        .isPaired = true,
                                         .deviceConnected = true,
                                         .osVersion = "17.3 (21D50)",
                                         .productType = "iPad11,2",
                                         .cpuArchitecture = "arm64e",
                                         .uniqueDeviceId = "00000000-0000000000000000"};
-    QTest::addRow("dev disabled") << data.arg(developmentDisabled).toUtf8()
+    QTest::addRow("dev disabled") << data.arg(paired, developmentDisabled).toUtf8()
                                   << QString("000000000000000000000000") << QString()
                                   << IosDeviceInfo{
                                          .deviceName = "Some iOS device",
                                          .developmentStatus
                                          = IosDeviceInfo::DevelopmentStatus::Disabled,
+                                         .isPaired = true,
                                          .deviceConnected = true,
                                          .osVersion = "17.3 (21D50)",
                                          .productType = "iPad11,2",
                                          .cpuArchitecture = "arm64e",
                                          .uniqueDeviceId = "00000000-0000000000000000"};
-    QTest::addRow("dev unknown") << data.arg(developmentUnknown).toUtf8()
-                                << QString("000000000000000000000000") << QString()
-                                << IosDeviceInfo{
-                                       .deviceName = "Some iOS device",
-                                       .developmentStatus
-                                       = IosDeviceInfo::DevelopmentStatus::Unknown,
-                                       .deviceConnected = true,
-                                       .osVersion = "17.3 (21D50)",
-                                       .productType = "iPad11,2",
-                                       .cpuArchitecture = "arm64e",
-                                       .uniqueDeviceId = "00000000-0000000000000000"};
+    QTest::addRow("dev unknown") << data.arg(paired, developmentUnknown).toUtf8()
+                                 << QString("000000000000000000000000") << QString()
+                                 << IosDeviceInfo{
+                                        .deviceName = "Some iOS device",
+                                        .developmentStatus
+                                        = IosDeviceInfo::DevelopmentStatus::Unknown,
+                                        .isPaired = true,
+                                        .deviceConnected = true,
+                                        .osVersion = "17.3 (21D50)",
+                                        .productType = "iPad11,2",
+                                        .cpuArchitecture = "arm64e",
+                                        .uniqueDeviceId = "00000000-0000000000000000"};
+    QTest::addRow("unpaired") << data.arg(unpaired, developmentUnknown).toUtf8()
+                              << QString("000000000000000000000000") << QString()
+                              << IosDeviceInfo{
+                                     .deviceName = "Some iOS device",
+                                     .developmentStatus = IosDeviceInfo::DevelopmentStatus::Unknown,
+                                     .isPaired = false,
+                                     .deviceConnected = true,
+                                     .osVersion = "17.3 (21D50)",
+                                     .productType = "iPad11,2",
+                                     .cpuArchitecture = "arm64e",
+                                     .uniqueDeviceId = "00000000-0000000000000000"};
     QTest::addRow("unhandled device")
-        << data.arg(developmentUnknown).toUtf8() << QString("000000000000000000000001")
+        << data.arg(unpaired, developmentUnknown).toUtf8() << QString("000000000000000000000001")
         << QString("Device is not handled by devicectl") << IosDeviceInfo{};
 }
 
