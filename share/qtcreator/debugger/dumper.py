@@ -246,7 +246,16 @@ class DumperBase():
             if self.qtversion == 0:
                 self.qtversion = None
         if self.qtnamespace is None:
-            self.qtnamespace = args.get('qtnamespace', None)
+            ns = args.get('qtnamespace', None)
+            # The rest of the dumper assumes a Qt namespace string carries its
+            # trailing "::" (e.g. "qtns::"; qtNamespace() is concatenated
+            # directly onto type names). The configured value comes from the
+            # mkspec QT_NAMESPACE, which is the bare name ("qtns"), so add the
+            # "::" here or namespaced Qt types are never recognized and fall
+            # back to slow, raw struct dumping. QTCREATORBUG-33211
+            if ns and not ns.endswith('::'):
+                ns += '::'
+            self.qtnamespace = ns
 
         #self.warn('NAMESPACE: "%s"' % self.qtNamespace())
         #self.warn('EXPANDED INAMES: %s' % self.expandedINames)
