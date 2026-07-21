@@ -234,6 +234,7 @@ public:
 
     bool isCppDebugging() const;
     bool isNativeMixedDebugging() const;
+    bool isElfTarget() const;
 
     const Utils::MacroExpander *macroExpander() const { return m_macroExpander; }
 

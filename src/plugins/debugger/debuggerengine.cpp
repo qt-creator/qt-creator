@@ -389,6 +389,17 @@ bool DebuggerRunParameters::isNativeMixedDebugging() const
     return m_nativeMixedEnabled && isCppDebugging() && m_isQmlDebugging;
 }
 
+bool DebuggerRunParameters::isElfTarget() const
+{
+    if (m_toolChainAbi.binaryFormat() == Abi::ElfFormat)
+        return true;
+    if (m_inferior.command.isEmpty())
+        return false;
+    return Utils::anyOf(Abi::abisOfBinary(m_inferior.command.executable()), [](const Abi &abi) {
+        return abi.binaryFormat() == Abi::ElfFormat;
+    });
+}
+
 FilePaths DebuggerRunParameters::findQmlFile(const QUrl &url, bool *success) const
 {
     return m_qmlFileFinder.findFile(url, success);
