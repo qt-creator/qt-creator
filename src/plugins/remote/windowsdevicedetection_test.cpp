@@ -4,12 +4,14 @@
 #include "windowsdevicedetection_test.h"
 
 #include "windowsdevice.h"
+#include "remotelinux_constants.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/msvctoolchain.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -52,7 +54,13 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     }
 
     // Build the device and register it so device-rooted process/file routing resolves to it.
-    const WindowsDevice::Ptr device = WindowsDevice::create();
+    auto windowsDeviceFactory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
+              return f->deviceType() == Constants::GenericWindowsOsType;
+          });
+    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
+    const IDevicePtr device = windowsDeviceFactory->construct();
+    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
     device->sshParametersAspectContainer().setSshParameters(params);
     DeviceManager::addDevice(device);
 
@@ -61,9 +69,10 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     const FilePath deviceRoot = device->rootPath();
 
     // Remove everything this test registers, even when an assertion fails midway.
+    // Auto-created kits carry a "<deviceId>/<abi>" detection source id.
     const QScopeGuard cleanup([&] {
         for (Kit *k : KitManager::kits()) {
-            if (k->detectionSource().id == sourceId)
+            if (k->detectionSource().id.startsWith(sourceId))
                 KitManager::deregisterKit(k);
         }
         const Toolchains deviceToolchains = Utils::filtered(
@@ -98,8 +107,14 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     });
     QVERIFY2(hasDrive, "The device root did not list any drives (e.g. C:/).");
 
-    // Trigger the same detection the device widget's auto-detect button runs.
-    detectAndRegisterToolchainsForTest(device);
+    // Trigger the same auto-detection the device settings page runs. The completion
+    // callback only covers the device tools recipe; toolchain and kit registration
+    // continue asynchronously and are polled for below.
+    bool detectionDone = false;
+    const ToolDetectionLogger logger([](const QString &msg) { qDebug().noquote() << msg; });
+    device->runAutoDetect(logger, [&detectionDone] { detectionDone = true; });
+    QVERIFY2(waitFor([&] { return detectionDone; }, 180 * 1000),
+             "Auto-detection did not finish.");
 
     // Toolchains are registered synchronously; the MSVC compiler command and the kit are
     // filled in asynchronously once the vcvars environment capture completes.
@@ -113,7 +128,7 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
 
     const auto deviceKits = [&] {
         return Utils::filtered(KitManager::kits(), [&](Kit *k) {
-            return k->detectionSource().id == sourceId;
+            return k->detectionSource().id.startsWith(sourceId);
         });
     };
     QVERIFY2(waitFor([&] { return !deviceKits().isEmpty(); }, 180 * 1000),
@@ -122,7 +137,11 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     // Exactly one kit, with C and C++ compilers resolved to executables on the device.
     const QList<Kit *> kits = deviceKits();
     const auto compilerPath = [](Toolchain *tc) {
-        return tc ? tc->compilerCommand().toUserOutput() : QString("<none>");
+        if (!tc)
+            return QString("<none>");
+        if (MsvcToolchain *msvcTc = dynamic_cast<MsvcToolchain *>(tc))
+            return msvcTc->varsBat().toUserOutput();
+        return tc->compilerCommand().toUserOutput();
     };
     for (const Kit *k : kits) {
         qDebug().noquote() << "Kit:" << k->displayName()
@@ -136,11 +155,18 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     Toolchain *cxxTc = ToolchainKitAspect::cxxToolchain(kit);
     QVERIFY2(cTc, "Kit has no C toolchain.");
     QVERIFY2(cxxTc, "Kit has no C++ toolchain.");
-    QVERIFY2(!cTc->compilerCommand().isEmpty(), "C compiler command is empty.");
-    QVERIFY2(!cxxTc->compilerCommand().isEmpty(), "C++ compiler command is empty.");
-    QVERIFY2(cTc->compilerCommand().isSameDevice(deviceRoot),
+    if (MsvcToolchain *msvcTc = dynamic_cast<MsvcToolchain *>(cTc))
+        QVERIFY2(!msvcTc->varsBat().isEmpty(), "MSVC toolchain has no vcvars.bat.");
+    else
+        QVERIFY2(!cTc->compilerCommand().isEmpty(), "C compiler command is empty.");
+    if (MsvcToolchain *msvcxxTc = dynamic_cast<MsvcToolchain *>(cxxTc))
+        QVERIFY2(!msvcxxTc->varsBat().isEmpty(), "MSVC toolchain has no vcvars.bat.");
+    else
+        QVERIFY2(!cxxTc->compilerCommand().isEmpty(), "C++ compiler command is empty.");
+
+    QVERIFY2(cTc->isSameDevice(deviceRoot),
              "C compiler is not located on the device.");
-    QVERIFY2(cxxTc->compilerCommand().isSameDevice(deviceRoot),
+    QVERIFY2(cxxTc->isSameDevice(deviceRoot),
              "C++ compiler is not located on the device.");
 
     // Qt and CMake are attached asynchronously after the kit appears, each by the owning plugin's

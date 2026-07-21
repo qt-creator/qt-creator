@@ -192,6 +192,14 @@ public:
         });
     }
 
+    void updateAutoDetectPlaceholders()
+    {
+        if (osType == OsTypeWindows)
+            autoDetectQtInstallation.setPlaceHolderText(Tr::tr("Leave empty to search in C:\\Qt"));
+        else
+            autoDetectQtInstallation.setPlaceHolderText(Tr::tr("Leave empty to search in $HOME/Qt"));
+    }
+
     FilePaths autoDetectionPaths() const;
 
     IDevice *q;
@@ -492,7 +500,7 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect(const DeviceConstRef &de
     toolAspect->setLabelText(m_labelText);
     toolAspect->setToolTip(m_toolTip);
     toolAspect->setToolDisplayName(m_displayName);
-    toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
+    toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in PATH"));
     toolAspect->setHistoryCompleter(m_toolId.name());
     toolAspect->setValidationFunction(
         [device, checker = m_checker](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
@@ -780,6 +788,7 @@ void IDevice::setDisplayType(const QString &type)
 void IDevice::setOsType(OsType osType)
 {
     d->osType = osType;
+    d->updateAutoDetectPlaceholders();
 }
 
 void IDevice::setFileAccess(DeviceFileAccessPtr fileAccess, bool announce)
@@ -1449,8 +1458,10 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
 
     if (autoDetectInQtInstallation.volatileValue()) {
         QString qtPath = autoDetectQtInstallation.volatileValue();
-        if (qtPath.isEmpty())
-            qtPath = q->systemEnvironment().value("HOME") + "/Qt";
+        if (qtPath.isEmpty()) {
+            qtPath = q->isWindowsDevice() ? QString("C:/Qt")
+                                          : q->systemEnvironment().value("HOME") + "/Qt";
+        }
 
         using VersionAndPath = QPair<QVersionNumber, FilePath>;
         QList<VersionAndPath> qtBinPaths;

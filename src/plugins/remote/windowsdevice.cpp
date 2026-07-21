@@ -933,6 +933,7 @@ WindowsDevice::WindowsDevice()
     setType(Constants::GenericWindowsOsType);
     setMachineType(IDevice::Hardware);
     setFreePorts(PortList::fromString(QLatin1String("10000-10100")));
+    offerKitCreation();
 
     SshParameters sshParams;
     sshParams.setTimeout(10);
@@ -1001,227 +1002,6 @@ private:
     void updateDeviceFromUi() override {}
 };
 
-// Matches the naming scheme of qt installer provided Kits. The tokens below are
-// product names and architecture suffixes, deliberately not translated.
-static QString abiDisplayName(const Abi &abi)
-{
-    QString name;
-    switch (abi.osFlavor()) {
-    case Abi::WindowsMsvc2005Flavor: name = "MSVC2005"; break;
-    case Abi::WindowsMsvc2008Flavor: name = "MSVC2008"; break;
-    case Abi::WindowsMsvc2010Flavor: name = "MSVC2010"; break;
-    case Abi::WindowsMsvc2012Flavor: name = "MSVC2012"; break;
-    case Abi::WindowsMsvc2013Flavor: name = "MSVC2013"; break;
-    case Abi::WindowsMsvc2015Flavor: name = "MSVC2015"; break;
-    case Abi::WindowsMsvc2017Flavor: name = "MSVC2017"; break;
-    case Abi::WindowsMsvc2019Flavor: name = "MSVC2019"; break;
-    case Abi::WindowsMsvc2022Flavor: name = "MSVC2022"; break;
-    case Abi::WindowsMsvc2026Flavor: name = "MSVC2026"; break;
-    case Abi::WindowsMSysFlavor: name = "MinGW"; break;
-    default: break;
-    }
-
-    if (abi.architecture() == Abi::X86Architecture)
-        name += abi.wordWidth() == 32 ? " 32Bit" : " 64Bit";
-    else if (abi.architecture() == Abi::ArmArchitecture)
-        name += abi.wordWidth() == 32 ? " ARM" : " ARM64";
-
-    return name;
-}
-
-// Finds the bin directory of the highest-version MSVC Qt installed under C:\Qt on the device that
-// matches the given target ABI (x64 vs arm64), or an empty path if none is present. The scan is
-// bounded to C:\Qt\<version>\<kit>\bin and uses the (bridge-backed) device file access.
-static FilePath findMsvcQtBinDir(const IDevice::Ptr &device, const Abi &abi)
-{
-    const FilePath qtRoot = device->rootPath().withNewPath("C:/Qt");
-    if (!qtRoot.isDir())
-        return {};
-
-    const bool wantArm = abi.architecture() == Abi::ArmArchitecture;
-    const auto subDirs = [](const FilePath &p) {
-        return p.dirEntries(FileFilter({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot));
-    };
-
-    FilePath best;
-    QVersionNumber bestVersion;
-    for (const FilePath &versionDir : subDirs(qtRoot)) {
-        const QVersionNumber version = QVersionNumber::fromString(versionDir.fileName());
-        if (!best.isEmpty() && version <= bestVersion)
-            continue;
-        for (const FilePath &kitDir : subDirs(versionDir)) {
-            const QString name = kitDir.fileName().toLower();
-            if (!name.contains("msvc") || name.contains("arm64") != wantArm)
-                continue;
-            if ((kitDir / "bin" / "qmake.exe").isExecutableFile()) {
-                best = kitDir / "bin";
-                bestVersion = version;
-                break;
-            }
-        }
-    }
-    return best;
-}
-
-// Finds the bin directory of the CMake bundled with Qt under C:\Qt\Tools on the device, or an
-// empty path if none is present. The CMake kit aspect searches the given directories (not their
-// subdirectories), so the exact bin directory is returned.
-static FilePath findDeviceCMakeBinDir(const IDevice::Ptr &device)
-{
-    const FilePath toolsRoot = device->rootPath().withNewPath("C:/Qt/Tools");
-    if (!toolsRoot.isDir())
-        return {};
-    const FilePaths toolDirs = toolsRoot.dirEntries(
-        FileFilter({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot));
-    for (const FilePath &toolDir : toolDirs) {
-        if (!toolDir.fileName().toLower().contains("cmake"))
-            continue;
-        if ((toolDir / "bin" / "cmake.exe").isExecutableFile())
-            return toolDir / "bin";
-    }
-    return {};
-}
-
-// Attaches device tools (Qt, CMake) to the kit through the generic kit-aspect auto-detection,
-// running each requested aspect (matched by its stable id) over its own device search paths. This
-// keeps the tool creation inside the owning plugin (reached polymorphically via KitAspectFactory),
-// so RemoteLinux needs no dependency on QtSupport or CMakeProjectManager. Only the requested
-// aspects are run - running every aspect would re-trigger MSVC detection and overwrite the bundle
-// just set on the kit. Previously detected tools for this device are removed first, so re-running
-// auto-detection does not accumulate duplicates.
-static void detectAndAttachKitTools(const IDevice::Ptr &device, Kit *kit,
-                                    const QList<QPair<QString, FilePaths>> &aspectSearchPaths)
-{
-    using namespace QtTaskTree;
-    const DetectionSource source{DetectionSource::FromSystem, device->id().toString()};
-    const auto log = [](const QString &msg) { qCDebug(windowsDeviceLog).noquote() << msg; };
-
-    GroupItems items;
-    for (const auto &[aspectId, searchPaths] : aspectSearchPaths) {
-        if (searchPaths.isEmpty())
-            continue;
-        KitAspectFactory *factory = Utils::findOrDefault(
-            KitAspectFactory::kitAspectFactories(),
-            [&aspectId](KitAspectFactory *f) { return f->id().toString() == aspectId; });
-        if (!factory)
-            continue;
-        qCDebug(windowsDeviceLog) << "Detecting" << aspectId << "for the kit in"
-                                  << Utils::transform(searchPaths, &FilePath::toUserOutput);
-        if (const std::optional<ExecutableItem> remove = factory->removeAutoDetected(source.id, log))
-            items.append({*remove});
-        if (const std::optional<ExecutableItem> detect
-                = factory->autoDetect(kit, searchPaths, source, log)) {
-            items.append({*detect});
-        }
-    }
-    if (!items.isEmpty())
-        GlobalTaskTree::start(Group{sequential, items});
-}
-
-// Runs toolchain auto-detection for the device (MSVC, over SSH), registers the results and
-// creates a kit per detected target ABI, attaching a matching device Qt when one is installed.
-static void detectAndRegisterToolchains(const WindowsDevice::Ptr &device)
-{
-    qCDebug(windowsDeviceLog) << "Starting toolchain detection for"
-                              << device->rootPath().toUserOutput();
-    // Run detection on the main thread. MSVC toolchains create an internal QFutureWatcher for
-    // their (async) vcvars environment capture; that watcher must have the main-thread affinity
-    // to deliver its results, so the toolchains must not be created on a worker thread. The
-    // blocking part here is vswhere over SSH, which is brief.
-    ToolchainDetector detector(ToolchainManager::toolchains(), device, {device->rootPath()});
-    Toolchains found;
-    for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
-        for (Toolchain *tc : factory->autoDetect(detector)) {
-            if (tc->isValid())
-                found.append(tc);
-            else
-                delete tc;
-        }
-    }
-    if (found.isEmpty()) {
-        qCDebug(windowsDeviceLog) << "No toolchains detected";
-        return;
-    }
-
-    // Register only the newly created toolchains; re-runs reuse existing (already registered)
-    // ones via detector.alreadyKnown.
-    const Toolchains toRegister = Utils::filtered(found, [](Toolchain *tc) {
-        return !ToolchainManager::toolchains().contains(tc);
-    });
-    ToolchainManager::registerToolchains(toRegister);
-    qCDebug(windowsDeviceLog) << "Detected" << found.size() << "toolchain(s),"
-                              << toRegister.size() << "new";
-
-    // Creates one kit per detected ABI, attaching the toolchain bundle and the device as
-    // build/run device. Removes kits previously auto-detected for this device first, so
-    // re-running does not accumulate duplicates.
-    const QString sourceId = device->id().toString();
-    const QList<Kit *> stale = Utils::filtered(KitManager::kits(), [&](Kit *k) {
-        return k->detectionSource().id == sourceId;
-    });
-    for (Kit *k : stale)
-        KitManager::deregisterKit(k);
-
-    Toolchains filtered = found;
-    if (Result<OsArch> arch = device->osArch()) {
-        const std::optional<MsvcToolchain::Platform> preferredPlatform
-            = MsvcToolchain::preferredPlatform(*arch, *arch);
-        filtered = Utils::filtered(found, [preferredPlatform](Toolchain *tc) {
-            auto msvcTc = dynamic_cast<MsvcToolchain *>(tc);
-            return msvcTc ? msvcTc->platform() == preferredPlatform : false;
-        });
-        if (filtered.isEmpty()) { // no preferredPlatform found, fallback to one kit per ABI
-            QMap<QString, Toolchains> toolchainsForAbi;
-            for (auto tc : found) {
-                if (auto msvcTc = dynamic_cast<MsvcToolchain *>(tc);
-                    msvcTc && MsvcToolchain::archPrefersPlatform(*arch, msvcTc->platform())) {
-                    toolchainsForAbi[tc->targetAbi().toString()].prepend(tc);
-                } else {
-                    toolchainsForAbi[tc->targetAbi().toString()].append(tc);
-                }
-            }
-            for (const Toolchains &tcs : toolchainsForAbi)
-                filtered.append(tcs.first());
-        }
-    }
-
-    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-        filtered, ToolchainBundle::HandleMissing::CreateAndRegister);
-    // Create at most one kit per ABI display name. abiDisplayName() differentiates
-    // by MSVC year and word width, but not by host/cross toolset, so two same-year
-    // toolsets targeting the same ABI (e.g. amd64 and x86_amd64) would otherwise
-    // produce colliding kit names. This is reachable when osArch() fails and no
-    // filtering happened above.
-    QSet<QString> seenAbis;
-    for (const ToolchainBundle &bundle : bundles) {
-        const QString abiName = abiDisplayName(bundle.targetAbi());
-        if (!Utils::insert(seenAbis, abiName))
-            continue;
-        Kit *kit = KitManager::registerKit([device, bundle, sourceId, abiName](Kit *k) {
-            k->setDetectionSource({DetectionSource::FromSystem, sourceId});
-            k->setUnexpandedDisplayName("%{Device:Name} " + abiName);
-            RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
-            RunDeviceKitAspect::setDevice(k, device);
-            BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
-            BuildDeviceKitAspect::setDevice(k, device);
-            k->setSticky(BuildDeviceKitAspect::id(), true);
-            k->setSticky(BuildDeviceTypeKitAspect::id(), true);
-            ToolchainKitAspect::setBundle(k, bundle);
-        });
-        // Attach the matching device Qt and CMake if installed (asynchronous, may complete
-        // after the kit appears). The kit is usable without them; missing Qt only shows a
-        // "no Qt" warning. Each is an empty path -> skipped when not found.
-        const FilePath qtBinDir = findMsvcQtBinDir(device, bundle.targetAbi());
-        const FilePath cmakeBinDir = findDeviceCMakeBinDir(device);
-        detectAndAttachKitTools(device, kit, {
-            {"QtSupport.QtInformation", qtBinDir.isEmpty() ? FilePaths{} : FilePaths{qtBinDir}},
-            {"CMakeProjectManager.CMakeKitInformation",
-             cmakeBinDir.isEmpty() ? FilePaths{} : FilePaths{cmakeBinDir}},
-        });
-    }
-    qCDebug(windowsDeviceLog) << "Created" << bundles.size() << "kit(s) for the device";
-}
-
 WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevicePtr &device)
     : IDeviceWidget(device)
 {
@@ -1229,21 +1009,6 @@ WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevice
     QTC_ASSERT(windowsDevice, return);
 
     auto createKeyButton = new QPushButton(Tr::tr("Create New..."));
-    auto autoDetectButton = new QPushButton(Tr::tr("Run Auto-Detection Now"));
-
-    connect(autoDetectButton, &QPushButton::clicked, this, [windowsDevice, autoDetectButton] {
-        autoDetectButton->setEnabled(false);
-        windowsDevice->tryToConnect(
-            {windowsDevice.get(),
-             [windowsDevice, autoDetectButton = QPointer<QWidget>(autoDetectButton)](
-                 const Result<> &res) {
-                 if (autoDetectButton)
-                     autoDetectButton->setEnabled(true);
-                 if (res)
-                     detectAndRegisterToolchains(windowsDevice);
-             }});
-    });
-
     SshParametersAspectContainer &ssh = device->sshParametersAspectContainer();
 
     using namespace Layouting;
@@ -1254,7 +1019,8 @@ WindowsDeviceConfigurationWidget::WindowsDeviceConfigurationWidget(const IDevice
         ssh.userName, st, br,
         ssh.useKeyFile, st, br,
         ssh.privateKeyFile, createKeyButton, br,
-        Row { autoDetectButton, st },
+        device->deviceToolsGui(),
+        device->autoDetectGui(),
     }.attachTo(this);
     // clang-format on
 
@@ -1276,6 +1042,27 @@ void WindowsDeviceConfigurationWidget::createNewKey()
 IDeviceWidget *WindowsDevice::createWidget()
 {
     return new WindowsDeviceConfigurationWidget(shared_from_this());
+}
+
+void WindowsDevice::runAutoDetect(
+    const ProjectExplorer::ToolDetectionLogger &logger, const std::function<void()> &onDone)
+{
+    if (logger)
+        logger.logTopLevel(Tr::tr("Connecting..."));
+    const std::weak_ptr<IDevice> weakSelf = shared_from_this();
+    tryToConnect(Continuation<>([weakSelf, logger, onDone](const Result<> &res) {
+        const IDevice::Ptr self = weakSelf.lock();
+        if (!self)
+            return;
+        if (!res) {
+            if (logger)
+                logger.logTopLevel(Tr::tr("Connection failed: %1").arg(res.error()));
+            onDone();
+            return;
+        }
+        self->requestToolDetection(self->toolSearchPaths(), logger);
+        GlobalTaskTree::start(self->autoDetectDeviceToolsRecipe(logger), {}, onDone);
+    }));
 }
 
 DeviceTester *WindowsDevice::createDeviceTester()
@@ -1304,13 +1091,6 @@ WindowsDeviceFactory::WindowsDeviceFactory()
     });
     setExecutionTypeId(Constants::ExecutionType);
 }
-
-#ifdef WITH_TESTS
-void detectAndRegisterToolchainsForTest(const WindowsDevice::Ptr &device)
-{
-    detectAndRegisterToolchains(device);
-}
-#endif
 
 } // namespace Internal
 } // namespace Remote

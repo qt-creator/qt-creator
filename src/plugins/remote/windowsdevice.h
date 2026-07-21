@@ -25,6 +25,9 @@ public:
     static Ptr create() { return Ptr(new WindowsDevice); }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
+    void runAutoDetect(
+        const ProjectExplorer::ToolDetectionLogger &logger,
+        const std::function<void()> &onDone) override;
 
     bool hasDeviceTester() const override { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() override;
@@ -56,12 +59,6 @@ class WindowsDeviceFactory final : public ProjectExplorer::IDeviceFactory
 public:
     WindowsDeviceFactory();
 };
-
-#ifdef WITH_TESTS
-// Test-only entry point that runs the same MSVC toolchain auto-detection and kit
-// creation the device widget's "Run Auto-Detection Now" button triggers.
-void detectAndRegisterToolchainsForTest(const WindowsDevice::Ptr &device);
-#endif
 
 } // namespace Internal
 } // namespace Remote
