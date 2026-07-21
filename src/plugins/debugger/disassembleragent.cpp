@@ -265,9 +265,39 @@ void DisassemblerAgent::setMimeType(const QString &mt)
        d->configureMimeType();
 }
 
-void DisassemblerAgent::setContents(const DisassemblerLines &contents)
+// A pathological disassembly - e.g. accidentally requested for a frame without
+// symbols so that it ends up spanning a whole module - can contain millions of
+// lines. Materializing that as a single plain-text string plus a text document
+// uses huge amounts of memory. Keep only a bounded window around the current
+// instruction. See QTCREATORBUG-9786.
+const int MaxDisassemblyLines = 50000;
+
+static DisassemblerLines cappedDisassembly(const DisassemblerLines &all, quint64 address)
+{
+    const int total = all.size();
+    if (total <= MaxDisassemblyLines)
+        return all;
+
+    const int centerLine = all.lineForAddress(address); // 1-based, 0 if unknown
+    const int center = centerLine > 0 ? centerLine - 1 : 0;
+    int from = qMax(0, center - MaxDisassemblyLines / 2);
+    const int to = qMin(total, from + MaxDisassemblyLines);
+    from = qMax(0, to - MaxDisassemblyLines);
+
+    DisassemblerLines capped;
+    if (from > 0)
+        capped.appendComment(Tr::tr("<%1 preceding lines not shown, disassembly truncated>").arg(from));
+    for (int i = from; i < to; ++i)
+        capped.appendLine(all.at(i));
+    if (to < total)
+        capped.appendComment(Tr::tr("<%1 following lines not shown, disassembly truncated>").arg(total - to));
+    return capped;
+}
+
+void DisassemblerAgent::setContents(const DisassemblerLines &rawContents)
 {
     QTC_ASSERT(d, return);
+    const DisassemblerLines contents = cappedDisassembly(rawContents, d->location.address());
     if (contents.size()) {
         const quint64 startAddress = contents.startAddress();
         const quint64 endAddress = contents.endAddress();
