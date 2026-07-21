@@ -609,19 +609,14 @@ public:
     IosDeviceInfoWidget(const IDevice::Ptr &device)
         : IDeviceWidget(device)
     {
-        const auto iosDevice = std::static_pointer_cast<IosDevice>(device);
+        const IDevice::DeviceInfo info = device->deviceInformation();
         using namespace Layouting;
-        // clang-format off
-        const IosDeviceInfo info = iosDevice->iosDeviceInformation();
-        Form {
-            Tr::tr("Device name:"), info.deviceName, br,
-            Tr::tr("Identifier:"), info.uniqueDeviceId, br,
-            Tr::tr("Product type:"), info.productType, br,
-            Tr::tr("CPU Architecture:"), info.cpuArchitecture, br,
-            Tr::tr("OS Version:"), info.osVersion, br,
-            noMargin
-        }.attachTo(this);
-        // clang-format on
+        Form form{noMargin};
+        for (const IDevice::DeviceInfoItem &item : info) {
+            //: %1 = label of device property like "Device name" or "Product type"
+            form.addRow({Tr::tr("%1:").arg(item.key), item.value});
+        }
+        form.attachTo(this);
 
         installMarkSettingsDirtyTriggerRecursively(this);
     }

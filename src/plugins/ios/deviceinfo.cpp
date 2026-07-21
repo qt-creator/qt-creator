@@ -98,13 +98,14 @@ ProjectExplorer::IDevice::DeviceInfo IosDeviceInfo::toDeviceInfo() const
     const auto boolString = [](bool v) { return v ? Tr::tr("yes") : Tr::tr("no"); };
 
     IDevice::DeviceInfo result;
-    result.append(IDevice::DeviceInfoItem(Tr::tr("Device name"), translate(deviceName)));
-    result.append(IDevice::DeviceInfoItem(Tr::tr("OS version"), translate(osVersion)));
-    result.append(IDevice::DeviceInfoItem(Tr::tr("Product type"), translate(productType)));
-    result.append(IDevice::DeviceInfoItem(Tr::tr("Connected"), boolString(deviceConnected)));
+    result.append({Tr::tr("Device name"), translate(deviceName)});
+    result.append({Tr::tr("Identifier"), uniqueDeviceId});
+    result.append({Tr::tr("Product type"), translate(productType)});
+    result.append({Tr::tr("OS version"), translate(osVersion)});
+    result.append({Tr::tr("CPU architecture"), cpuArchitecture});
     if (isPaired)
-        result.append(IDevice::DeviceInfoItem(Tr::tr("Paired"), boolString(*isPaired)));
-    result.append(IDevice::DeviceInfoItem(Tr::tr("Developer status"), developmentStatusText));
+        result.append({Tr::tr("Paired"), boolString(*isPaired)});
+    result.append({Tr::tr("Developer status"), developmentStatusText});
     return result;
 }
 
