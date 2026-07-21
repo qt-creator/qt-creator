@@ -2173,6 +2173,30 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps()
             if (i > 0)
                 cbs->setStepEnabled(false);
         }
+
+        // Apply vendor extension settings (Qt Creator-specific make step settings)
+        if (buildPresets[i].vendor) {
+            const auto &vendor = *buildPresets[i].vendor;
+
+            if (vendor.contains("useStaging"))
+                cbs->useStaging.setValue(vendor.value("useStaging").toBool());
+
+            if (vendor.contains("stagingDir")) {
+                QString dir = vendor.value("stagingDir").toString();
+                if (!dir.isEmpty()) {
+                    CMakePresets::Macros::expand(
+                        buildPresets[i], cbs->environment(), project->projectDirectory(), dir);
+                    cbs->stagingDir.setValue(dir);
+                }
+            }
+
+            if (vendor.contains("iOSAutomaticProvisioningUpdates"))
+                cbs->useiOSAutomaticProvisioningUpdates.setValue(
+                    vendor.value("iOSAutomaticProvisioningUpdates").toBool());
+
+            if (vendor.contains("clearSystemEnvironment"))
+                cbs->setUseClearEnvironment(vendor.value("clearSystemEnvironment").toBool());
+        }
     }
 }
 

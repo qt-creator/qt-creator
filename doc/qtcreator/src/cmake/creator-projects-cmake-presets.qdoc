@@ -403,6 +403,42 @@
     }
     \endcode
 
+    \section1 Build presets
+
+    The following table summarizes the available build presets.
+
+    \table
+    \header
+        \li Preset
+        \li Description
+    \row
+        \li \c {useStaging}
+        \li Enables staging for installation, which copies build artifacts
+            to a separate staging directory before installation.
+    \row
+        \li \c {stagingDir}
+        \li Path to the staging directory used when \c useStaging is enabled.
+    \row
+        \li \c {iOSAutomaticProvisioningUpdates}
+        \li Automatically updates iOS provisioning profiles during the build.
+    \row
+        \li \c {clearSystemEnvironment}
+        \li Clears system environment variables before running the build step.
+    \endtable
+
+    An example of \QC build preset vendor presets:
+
+    \code [json]
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "useStaging": true,
+        "stagingDir": "${sourceDir}/staging",
+        "iOSAutomaticProvisioningUpdates": true,
+        "clearSystemEnvironment": false
+      }
+    }
+    \endcode
+
     \section1 Compiler presets
 
     The following table summarizes the available presets.
