@@ -216,7 +216,10 @@ private: ////////// General Interface //////////
 
     void reloadModulesInternal();
     void handleModulesList(const DebuggerResponse &response);
-    void handleShowModuleSections(const DebuggerResponse &response, const Utils::FilePath &moduleName);
+    void requestModuleSectionsWithKeyword(const Utils::FilePath &moduleName,
+                                          bool useLegacyAllObjKeyword);
+    void handleShowModuleSections(const DebuggerResponse &response, const Utils::FilePath &moduleName,
+                                  bool isRetryWithLegacyKeyword);
 
     //
     // Snapshot specific stuff

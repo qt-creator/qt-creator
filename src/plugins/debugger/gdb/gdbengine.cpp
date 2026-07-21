@@ -1264,6 +1264,19 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         }
         // Only show the message. Ramp-down will be triggered by -thread-group-exited.
         showStatusMessage(msg);
+        // A deferred NeedsTemporaryStop/NeedsFullStop command never runs
+        // now - fail it instead of leaving it queued forever.
+        if (!m_onStop.isEmpty()) {
+            DebuggerCommandSequence seq = m_onStop;
+            m_onStop = DebuggerCommandSequence();
+            for (const DebuggerCommand &cmd : seq.commands()) {
+                if (cmd.callback) {
+                    DebuggerResponse response;
+                    response.resultClass = ResultFail;
+                    cmd.callback(response);
+                }
+            }
+        }
         return;
     }
 
@@ -2960,45 +2973,67 @@ void GdbEngine::requestModuleSymbols(const FilePath &modulePath)
 
 void GdbEngine::requestModuleSections(const FilePath &moduleName)
 {
+    requestModuleSectionsWithKeyword(moduleName, false);
+}
+
+void GdbEngine::requestModuleSectionsWithKeyword(const FilePath &moduleName,
+                                                  bool useLegacyAllObjKeyword)
+{
     // There seems to be no way to get the symbols from a single .so.
-    // "-all-objects": the bare "ALLOBJ" keyword this used to send no
-    // longer exists in current gdb (confirmed against gdb 15.1: it's
-    // silently ignored as an unrecognized filter, yielding zero sections).
-    DebuggerCommand cmd("maint info sections -all-objects", NeedsTemporaryStop);
-    cmd.callback = [this, moduleName](const DebuggerResponse &r) {
-        handleShowModuleSections(r, moduleName);
+    // gdb silently ignores whichever of "-all-objects"/legacy "ALLOBJ" it
+    // doesn't recognize - retry with the other one on failure.
+    DebuggerCommand cmd;
+    if (useLegacyAllObjKeyword)
+        cmd = DebuggerCommand("maint info sections ALLOBJ", NeedsTemporaryStop);
+    else
+        cmd = DebuggerCommand("maint info sections -all-objects", NeedsTemporaryStop);
+    cmd.callback = [this, moduleName, useLegacyAllObjKeyword](const DebuggerResponse &r) {
+        handleShowModuleSections(r, moduleName, useLegacyAllObjKeyword);
     };
     runCommand(cmd);
 }
 
 void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
-                                         const FilePath &moduleName)
+                                         const FilePath &moduleName,
+                                         bool isRetryWithLegacyKeyword)
 {
-    // "maint info sections -all-objects" (see requestModuleSections()'s own
-    // comment) prints one header line per loaded object - "Exec file:
-    // `PATH', file type FORMAT." for the executable itself, "Object file:
-    // `PATH', file type FORMAT." for every other one (shared libraries,
-    // split debug info, ...) - followed by that object's own section lines
-    // until the next header, e.g. (confirmed against a real gdb 15.1; the
-    // two old sample lines below - no header indent, no leading "[N]"
-    // index - are no longer what gdb actually emits):
+    // One header line per loaded object, then its section lines until the
+    // next header. Older gdb omits the "[N]" index and splits the header
+    // across two lines instead of one, e.g.:
     //   [13]  0x555555555040->0x555555555167 at 0x00001040: .text ALLOC
     //         LOAD READONLY CODE HAS_CONTENTS
     if (response.resultClass == ResultDone) {
         static const QRegularExpression headerRe(
             "^(?:Exec file|Object file): `(.*)', file type .*\\.$");
+        static const QRegularExpression bareHeaderRe("^(?:Exec file|Object file):$");
+        static const QRegularExpression headerContinuationRe("^\\s*`(.*)', file type .*\\.$");
         static const QRegularExpression sectionRe(
-            "^\\s*\\[\\d+\\]\\s+(0x[0-9A-Fa-f]+)->(0x[0-9A-Fa-f]+) at (0x[0-9A-Fa-f]+):\\s+(\\S+)(.*)$");
+            "^\\s*(?:\\[\\d+\\]\\s+)?(0x[0-9A-Fa-f]+)->(0x[0-9A-Fa-f]+) at (0x[0-9A-Fa-f]+):\\s+(\\S+)(.*)$");
 
         const QStringList lines = response.consoleStreamOutput.split('\n');
         Sections sections;
         bool active = false;
-        for (const QString &line : std::as_const(lines)) {
-            const QRegularExpressionMatch headerMatch = headerRe.match(line);
-            if (headerMatch.hasMatch()) {
+        bool moduleFound = false;
+        for (int i = 0; i < lines.size(); ++i) {
+            const QString &line = lines.at(i);
+            QString headerPath;
+            bool isHeader = false;
+            if (const QRegularExpressionMatch headerMatch = headerRe.match(line); headerMatch.hasMatch()) {
+                headerPath = headerMatch.captured(1);
+                isHeader = true;
+            } else if (bareHeaderRe.match(line).hasMatch() && i + 1 < lines.size()) {
+                if (const QRegularExpressionMatch continuationMatch
+                        = headerContinuationRe.match(lines.at(i + 1)); continuationMatch.hasMatch()) {
+                    headerPath = continuationMatch.captured(1);
+                    isHeader = true;
+                    ++i; // consume the continuation line too
+                }
+            }
+            if (isHeader) {
                 if (active)
                     break;
-                active = headerMatch.captured(1) == moduleName.path();
+                active = headerPath == moduleName.path();
+                moduleFound = moduleFound || active;
                 continue;
             }
             if (!active)
@@ -3013,6 +3048,12 @@ void GdbEngine::handleShowModuleSections(const DebuggerResponse &response,
             section.name = sectionMatch.captured(4);
             section.flags = sectionMatch.captured(5).trimmed();
             sections.append(section);
+        }
+        // A module header is never followed by zero sections - retry with
+        // the other keyword once before giving up.
+        if (moduleFound && sections.isEmpty() && !isRetryWithLegacyKeyword) {
+            requestModuleSectionsWithKeyword(moduleName, /*useLegacyAllObjKeyword=*/true);
+            return;
         }
         if (!sections.isEmpty())
             DebuggerEngine::showModuleSections(moduleName, sections);
