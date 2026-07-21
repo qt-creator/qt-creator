@@ -32,6 +32,7 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QLabel>
 #include <QMenu>
 #include <QTimer>
 #include <QToolButton>

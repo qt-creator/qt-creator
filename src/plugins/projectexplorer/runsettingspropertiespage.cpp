@@ -18,6 +18,7 @@
 
 #include <utils/guard.h>
 #include <utils/guiutils.h>
+#include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>

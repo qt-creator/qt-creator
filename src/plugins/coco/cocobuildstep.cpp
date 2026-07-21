@@ -15,6 +15,7 @@
 #include <QtTaskTree/QTaskTree>
 #include <utils/layoutbuilder.h>
 
+#include <QLabel>
 #include <QPushButton>
 
 namespace Coco::Internal {

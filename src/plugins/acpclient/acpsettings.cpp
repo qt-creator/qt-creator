@@ -23,6 +23,7 @@
 #include <utils/networkaccessmanager.h>
 #include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
+#include <utils/infolabel.h>
 #include <utils/theme/theme.h>
 
 #include <QCryptographicHash>

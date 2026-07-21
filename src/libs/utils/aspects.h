@@ -5,7 +5,6 @@
 
 #include "filepath.h"
 #include "id.h"
-#include "infolabel.h"
 #include "pathchooser.h"
 
 #include <QFontComboBox>
@@ -22,6 +21,7 @@ class QAbstractButton;
 class QAbstractSpinBox;
 class QAction;
 class QComboBox;
+class QLabel;
 class QSettings;
 class QUndoStack;
 class QStandardItem;
@@ -38,6 +38,8 @@ class BoolAspect;
 class CheckableDecider;
 class Key;
 class MacroExpander;
+
+enum class InfoLabelType;
 
 using Store = QMap<Key, QVariant>; // TODO: storefwd.h? utils_fwd.h?
 
@@ -1055,7 +1057,7 @@ public:
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
-    void setIconType(InfoLabelType t);
+    void setIconType(const InfoLabelType &t);
     void setText(const QString &message);
     void setWordWrap(bool on);
 

@@ -15,6 +15,7 @@
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QHash>
+#include <QLabel>
 #include <QPointer>
 #include <QPushButton>
 

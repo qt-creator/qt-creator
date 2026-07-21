@@ -32,6 +32,7 @@
 #include <QAbstractListModel>
 #include <QHBoxLayout>
 #include <QJsonValue>
+#include <QLabel>
 
 #include <memory>
 

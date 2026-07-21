@@ -10,6 +10,7 @@
 #include "fancylineedit.h"
 #include "guard.h"
 #include "guiutils.h"
+#include "infolabel.h"
 #include "layoutbuilder.h"
 #include "macroexpander.h"
 #include "passworddialog.h"
@@ -3439,7 +3440,7 @@ void TextDisplay::addToLayoutImpl(Layout &parent)
     Sets \a t as the information label type for the visual representation
     of this aspect.
  */
-void TextDisplay::setIconType(InfoLabelType t)
+void TextDisplay::setIconType(const InfoLabelType &t)
 {
     d->m_type = t;
     if (d->m_label)

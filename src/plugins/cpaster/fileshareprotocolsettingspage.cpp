@@ -9,6 +9,8 @@
 #include <utils/layoutbuilder.h>
 #include <utils/temporarydirectory.h>
 
+#include <QLabel>
+
 using namespace Utils;
 
 namespace CodePaster {

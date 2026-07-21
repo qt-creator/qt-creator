@@ -32,6 +32,7 @@
 #include <utils/fsengine/fsengine.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathlisteditor.h>

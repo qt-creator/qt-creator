@@ -15,6 +15,7 @@
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
+#include <QLabel>
 
 using namespace std::placeholders;
 

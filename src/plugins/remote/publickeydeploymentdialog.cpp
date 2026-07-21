@@ -19,6 +19,7 @@
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
+#include <QLabel>
 #include <QProcess>
 #include <QProgressDialog>
 

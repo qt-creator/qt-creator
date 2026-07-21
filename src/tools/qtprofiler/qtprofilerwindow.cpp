@@ -44,6 +44,7 @@
 #include <QDir>
 #include <QDockWidget>
 #include <QEventLoop>
+#include <QLabel>
 #include <QMessageBox>
 #include <QPointer>
 #include <QSplitter>

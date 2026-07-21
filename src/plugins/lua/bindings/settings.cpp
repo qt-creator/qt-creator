@@ -7,11 +7,11 @@
 #include <utils/aspectlist.h>
 #include <utils/aspects.h>
 #include <utils/environment.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-
 #include <coreplugin/secretaspect.h>
 
 using namespace Utils;

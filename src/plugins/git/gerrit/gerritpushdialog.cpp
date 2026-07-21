@@ -19,6 +19,7 @@
 #include <QCheckBox>
 #include <QDateTime>
 #include <QDialogButtonBox>
+#include <QLabel>
 #include <QPushButton>
 #include <QRegularExpressionValidator>
 #include <QVersionNumber>

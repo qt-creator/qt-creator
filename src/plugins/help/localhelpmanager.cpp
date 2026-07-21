@@ -26,6 +26,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
 #include <utils/stringutils.h>

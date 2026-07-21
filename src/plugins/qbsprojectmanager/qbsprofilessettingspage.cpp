@@ -22,6 +22,7 @@
 #include <QHeaderView>
 #include <QTreeView>
 #include <QWidget>
+#include <QLabel>
 
 using namespace ProjectExplorer;
 

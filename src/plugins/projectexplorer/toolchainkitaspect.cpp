@@ -24,6 +24,7 @@
 #include <QGridLayout>
 #include <QJsonValue>
 #include <QJsonObject>
+#include <QLabel>
 
 using namespace Utils;
 

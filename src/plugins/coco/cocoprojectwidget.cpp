@@ -20,6 +20,7 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
 
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <QFileDialog>

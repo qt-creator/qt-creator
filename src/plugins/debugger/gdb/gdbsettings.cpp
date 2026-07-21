@@ -12,6 +12,8 @@
 
 #include <utils/layoutbuilder.h>
 
+#include <QLabel>
+
 using namespace Core;
 using namespace Utils;
 

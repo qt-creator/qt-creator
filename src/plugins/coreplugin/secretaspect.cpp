@@ -19,6 +19,7 @@
 #include <utils/utilsicons.h>
 
 #include <QIcon>
+#include <QLabel>
 #include <QPointer>
 
 using namespace QKeychain;

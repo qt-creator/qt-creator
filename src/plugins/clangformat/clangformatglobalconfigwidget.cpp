@@ -14,6 +14,7 @@
 #include <texteditor/codestyleselectorwidget.h>
 #include <utils/guiutils.h>
 #include <texteditor/icodestylepreferences.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>

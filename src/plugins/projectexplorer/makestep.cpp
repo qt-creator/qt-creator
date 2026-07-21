@@ -20,6 +20,7 @@
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>

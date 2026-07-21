@@ -23,6 +23,7 @@
 
 #include <QComboBox>
 #include <QHBoxLayout>
+#include <QLabel>
 
 #include <tuple>
 

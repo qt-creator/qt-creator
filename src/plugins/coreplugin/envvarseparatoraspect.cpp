@@ -5,6 +5,7 @@
 
 #include "coreplugintr.h"
 
+#include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>

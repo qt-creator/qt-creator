@@ -5,6 +5,7 @@
 
 #include "algorithm.h"
 #include "commandline.h"
+#include "elidinglabel.h"
 #include "environment.h"
 #include "guiutils.h"
 #include "hostosinfo.h"

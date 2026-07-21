@@ -44,6 +44,7 @@
 #include <QRegularExpression>
 #include <QTreeView>
 #include <QCheckBox>
+#include <QLabel>
 
 using namespace Core;
 using namespace ProjectExplorer;

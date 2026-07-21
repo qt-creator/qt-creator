@@ -29,6 +29,7 @@
 #include <QStyledItemDelegate>
 #include <QTableView>
 #include <QTreeView>
+#include <QLabel>
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"

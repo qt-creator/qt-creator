@@ -17,6 +17,7 @@
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>
 #include <utils/guiutils.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <QChar>

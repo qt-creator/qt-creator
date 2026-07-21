@@ -16,6 +16,7 @@
 #include <utils/layoutbuilder.h>
 
 #include <QGuiApplication>
+#include <QLabel>
 
 using namespace Core;
 using namespace Debugger::Constants;

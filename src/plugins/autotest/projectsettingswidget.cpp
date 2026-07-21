@@ -16,6 +16,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QLabel>
 #include <QPushButton>
 #include <QTimer>
 #include <QTreeWidget>

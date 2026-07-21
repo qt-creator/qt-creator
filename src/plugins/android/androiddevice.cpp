@@ -41,6 +41,7 @@
 #include <QFileSystemWatcher>
 #include <QFormLayout>
 #include <QInputDialog>
+#include <QLabel>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>

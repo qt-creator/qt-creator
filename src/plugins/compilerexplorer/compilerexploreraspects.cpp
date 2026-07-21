@@ -6,6 +6,7 @@
 
 #include "api/library.h"
 
+#include <utils/elidinglabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/store.h>
 

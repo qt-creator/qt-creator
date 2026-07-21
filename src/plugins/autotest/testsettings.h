@@ -7,6 +7,8 @@
 
 #include <QTreeWidget>
 
+namespace Utils { class InfoLabel; }
+
 namespace Autotest::Internal {
 
 enum class RunAfterBuildMode

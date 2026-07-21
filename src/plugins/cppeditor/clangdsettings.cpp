@@ -26,6 +26,7 @@
 
 #include <utils/clangutils.h>
 #include <utils/guiutils.h>
+#include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
