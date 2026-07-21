@@ -748,6 +748,7 @@ private:
     FormatterSelectionWidget *m_formatterSelectionWidget = nullptr;
     QmlJSCodeStylePreferences *m_preferences = nullptr;
     QJsonDocument m_fallbackJson;
+    bool m_updatingFromModel = false;
 };
 
 QmlFormatSettingsWidget::QmlFormatSettingsWidget(QWidget *parent, FormatterSelectionWidget *selection)
@@ -856,6 +857,10 @@ void QmlFormatSettingsWidget::setPreferences(QmlJSCodeStylePreferences *preferen
     if (m_preferences) {
         setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
         connect(m_preferences, &QmlJSCodeStylePreferences::currentValueChanged, this, [this] {
+            // ignore changes triggered by us - model would reset while cell editor still open
+            // detaching it from view
+            if (m_updatingFromModel)
+                return;
             setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
         });
         connect(m_preferences, &QmlJSCodeStylePreferences::currentPreferencesChanged,
@@ -879,7 +884,9 @@ void QmlFormatSettingsWidget::slotSettingsChanged()
     QmlJSCodeStyleSettings settings = m_preferences ? m_preferences->currentCodeStyleSettings()
                                                     : QmlJSCodeStyleSettings::currentGlobalCodeStyle();
     settings.qmlformatIniContent = m_optionsModel->writeGlobalQmlFormatIniFile();
+    m_updatingFromModel = true;
     emit settingsChanged(settings);
+    m_updatingFromModel = false;
 }
 
 void QmlFormatSettingsWidget::initVersion()
