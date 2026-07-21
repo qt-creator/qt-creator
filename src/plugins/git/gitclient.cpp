@@ -81,6 +81,10 @@ const char decorateOption[] = "--decorate";
 const char allBranchesOption[] = "--all";
 static const char gitIgnoreFile[] = ".gitignore";
 
+static const char gitGuiEncoding[] = "gui.encoding";
+static const char gitLogOutputEncoding[] = "i18n.logOutputEncoding";
+static const char gitCommitEncoding[] = "i18n.commitEncoding";
+
 using namespace Core;
 using namespace DiffEditor;
 using namespace QtTaskTree;
@@ -417,6 +421,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     struct ReloadStorage {
         bool postProcessDescription = false;
 
+        TextEncoding encoding;
         QString header;
         QString body;
         QString branches;
@@ -444,8 +449,22 @@ ShowController::ShowController(IDocument *document, const QString &id)
         setDescription(desc);
     };
 
-    const auto onDescriptionSetup = [this, id](Process &process) {
-        process.setEncoding(gitClient().encoding(GitClient::EncodingCommit, workingDirectory()));
+    const auto onEncodingSetup = [this](Process &process) {
+        setupCommand(process, {"config", gitCommitEncoding});
+        setDescription(Tr::tr("Waiting for data..."));
+    };
+    const auto onEncodingDone = [storage](const Process &process) {
+        ReloadStorage *data = storage.activeStorage();
+        const QString codecName = process.cleanedStdOut();
+        if (codecName.isEmpty())
+            data->encoding = gitClient().defaultCommitEncoding();
+        else
+            data->encoding = TextEncoding(codecName.toUtf8());
+        return DoneResult::Success;
+    };
+
+    const auto onDescriptionSetup = [this, storage, id](Process &process) {
+        process.setEncoding(storage.activeStorage()->encoding);
         const ColorNames colors = GitClient::colorNames();
 
         const QString showFormat = QStringLiteral(
@@ -458,7 +477,6 @@ ShowController::ShowController(IDocument *document, const QString &id)
                                           colors.date, colors.subject);
         setupCommand(process, {"show", "-s", colorOption, showFormat, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
-        setDescription(Tr::tr("Waiting for data..."));
     };
     const auto onDescriptionDone = [this, storage, updateDescription](const Process &process) {
         ReloadStorage *data = storage.activeStorage();
@@ -615,6 +633,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         continueOnError,
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toUrlishString()); }),
         Group {
+            ProcessTask(onEncodingSetup, onEncodingDone),
             Group {
                 parallel,
                 ProcessTask(onDescriptionSetup, onDescriptionDone, CallDoneFlag::OnSuccess),
@@ -1134,11 +1153,11 @@ TextEncoding GitClient::encoding(GitClient::EncodingType encodingType, const Fil
 
     switch (encodingType) {
     case EncodingSource:
-        return source.isFile() ? VcsBaseEditor::getEncoding(source) : encoding(source, "gui.encoding");
+        return source.isFile() ? VcsBaseEditor::getEncoding(source) : encoding(source, gitGuiEncoding);
     case EncodingLogOutput:
-        return encoding(source, "i18n.logOutputEncoding");
+        return encoding(source, gitLogOutputEncoding);
     case EncodingCommit:
-        return encoding(source, "i18n.commitEncoding");
+        return encoding(source, gitCommitEncoding);
     default:
         return {};
     }
