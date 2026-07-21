@@ -235,8 +235,16 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
         }
     } else if (queryId == m_engineQueryId) {
         m_engineQueryId = 0;
-        QList<EngineReference> engines = qvariant_cast<QList<EngineReference> >(value);
-        QTC_ASSERT(!engines.isEmpty(), return);
+        const QList<EngineReference> engines = qvariant_cast<QList<EngineReference> >(value);
+        if (engines.isEmpty()) {
+            // No QML engine has registered yet. This is a legitimate transient,
+            // not an error (OBJECT_CREATED for the initial scene can even arrive
+            // first, see newObject()), and the engine may be created much later,
+            // e.g. only once the user triggers some code path. Keep retrying;
+            // reloadEngines() stops on its own once the connection drops.
+            QTimer::singleShot(100, this, [this] { reloadEngines(); });
+            return;
+        }
         m_engines = engines;
         queryEngineContext();
     } else {
