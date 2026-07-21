@@ -25,6 +25,7 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1460,6 +1461,22 @@ static Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand)
     return data;
 }
 
+// A qmake query is a blocking process call (dataForQMake), invoked synchronously via
+// QtVersionPrivate::data() from many property getters. For a remote qmake on a device
+// that is known to be disconnected this would freeze the GUI for the whole process
+// timeout without any chance of success. Skip it in that case; the query is retried on
+// the next access once the device is reachable again. Mirrors the DeviceDisconnected
+// guard in IDevice::getUnixEnvironment().
+static bool qmakeQueryable(const FilePath &qmake)
+{
+    if (qmake.isLocal())
+        return true;
+    const IDevice::ConstPtr device = DeviceManager::deviceForPath(qmake);
+    if (!device)
+        return false;
+    return device->deviceState() != IDevice::DeviceDisconnected || device->isTesting();
+}
+
 QtVersionData &QtVersionPrivate::data()
 {
     // Shared placeholder returned while the qmake query keeps failing (see below). It is
@@ -1478,6 +1495,12 @@ QtVersionData &QtVersionPrivate::data()
         // the absence of a result instead, so result() is never called on an empty future.
         if (!m_dataFuture.isRunning() && m_dataFuture.resultCount() == 0)
             updateVersionInfoNow();
+
+        // Nothing to wait for: updateVersionInfoNow() declined to start a query because
+        // the qmake's device is not reachable. Do not block; return the read-only
+        // placeholder and leave m_data unset so the query is retried on the next access.
+        if (!m_dataFuture.isRunning() && m_dataFuture.resultCount() == 0)
+            return emptyData;
 
         if (m_dataFuture.isRunning())
             m_dataFuture.waitForFinished();
@@ -1506,6 +1529,10 @@ QtVersionData &QtVersionPrivate::data()
 void QtVersionPrivate::updateVersionInfoNow()
 {
     if (m_data || m_dataFuture.isRunning())
+        return;
+
+    // Do not start a (blocking) qmake query for a device that is not reachable.
+    if (!qmakeQueryable(m_qmakeCommand))
         return;
 
     // extract data from qmake executable
