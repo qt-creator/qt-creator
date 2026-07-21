@@ -1453,6 +1453,8 @@ void GdbEngine::handleStop2(const GdbMi &data)
             // stopping debugging.
             if (name == stopSignal(rp.toolChainAbi()) || rp.expectedSignals().contains(name)) {
                 showMessage(name + " CONSIDERED HARMLESS. CONTINUING.");
+                if (!name.isEmpty() && !meaning.isEmpty())
+                    reasontr = msgStoppedBySignal(meaning, name);
             } else if (m_isQnxGdb && name == "0" && meaning == "Signal 0") {
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");
             } else {
