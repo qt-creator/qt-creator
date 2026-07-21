@@ -178,7 +178,7 @@ void tst_Devicectlutils::parseDeviceInfo_data()
     QTest::addColumn<QString>("error");
     QTest::addColumn<IosDeviceInfo>("info");
 
-    const QByteArray data(R"raw(
+    const QString data(R"raw(
 {
   "info" : {
     "arguments" : [
@@ -231,7 +231,7 @@ void tst_Devicectlutils::parseDeviceInfo_data()
           "bootedFromSnapshot" : true,
           "bootedSnapshotName" : "com.apple.os.update-0000",
           "ddiServicesAvailable" : false,
-          "developerModeStatus" : "enabled",
+          %1
           "hasInternalOSBuild" : false,
           "name" : "Some iOS device",
           "osBuildUpdate" : "21D50",
@@ -289,18 +289,45 @@ void tst_Devicectlutils::parseDeviceInfo_data()
     ]
   }
 })raw");
+    const QString developmentEnabled = R"raw("developerModeStatus" : "enabled",)raw";
+    const QString developmentDisabled = R"raw("developerModeStatus" : "disabled",)raw";
+    const QString developmentUnknown;
 
-    QTest::addRow("handled device")
-        << data << QString("000000000000000000000000") << QString()
-        << IosDeviceInfo{.deviceName = "Some iOS device",
-                         .developmentStatus = IosDeviceInfo::DevelopmentStatus::Enabled,
-                         .deviceConnected = true,
-                         .osVersion = "17.3 (21D50)",
-                         .productType = "iPad11,2",
-                         .cpuArchitecture = "arm64e",
-                         .uniqueDeviceId = "00000000-0000000000000000"};
+    QTest::addRow("dev enabled") << data.arg(developmentEnabled).toUtf8()
+                                 << QString("000000000000000000000000") << QString()
+                                 << IosDeviceInfo{
+                                        .deviceName = "Some iOS device",
+                                        .developmentStatus
+                                        = IosDeviceInfo::DevelopmentStatus::Enabled,
+                                        .deviceConnected = true,
+                                        .osVersion = "17.3 (21D50)",
+                                        .productType = "iPad11,2",
+                                        .cpuArchitecture = "arm64e",
+                                        .uniqueDeviceId = "00000000-0000000000000000"};
+    QTest::addRow("dev disabled") << data.arg(developmentDisabled).toUtf8()
+                                  << QString("000000000000000000000000") << QString()
+                                  << IosDeviceInfo{
+                                         .deviceName = "Some iOS device",
+                                         .developmentStatus
+                                         = IosDeviceInfo::DevelopmentStatus::Disabled,
+                                         .deviceConnected = true,
+                                         .osVersion = "17.3 (21D50)",
+                                         .productType = "iPad11,2",
+                                         .cpuArchitecture = "arm64e",
+                                         .uniqueDeviceId = "00000000-0000000000000000"};
+    QTest::addRow("dev unknown") << data.arg(developmentUnknown).toUtf8()
+                                << QString("000000000000000000000000") << QString()
+                                << IosDeviceInfo{
+                                       .deviceName = "Some iOS device",
+                                       .developmentStatus
+                                       = IosDeviceInfo::DevelopmentStatus::Unknown,
+                                       .deviceConnected = true,
+                                       .osVersion = "17.3 (21D50)",
+                                       .productType = "iPad11,2",
+                                       .cpuArchitecture = "arm64e",
+                                       .uniqueDeviceId = "00000000-0000000000000000"};
     QTest::addRow("unhandled device")
-        << data << QString("000000000000000000000001")
+        << data.arg(developmentUnknown).toUtf8() << QString("000000000000000000000001")
         << QString("Device is not handled by devicectl") << IosDeviceInfo{};
 }
 

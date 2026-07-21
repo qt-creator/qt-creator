@@ -59,6 +59,16 @@ Result<QJsonValue> parseDevicectlResult(const QByteArray &rawOutput)
     return resultValue;
 }
 
+static IosDeviceInfo::DevelopmentStatus devStatus(const QJsonValue &value)
+{
+    if (value.isString()) {
+        if (value == "enabled")
+            return IosDeviceInfo::DevelopmentStatus::Enabled;
+        return IosDeviceInfo::DevelopmentStatus::Disabled;
+    }
+    return IosDeviceInfo::DevelopmentStatus::Unknown;
+}
+
 Result<IosDeviceInfo> parseDeviceInfo(const QByteArray &rawOutput, const QString &deviceUsbId)
 {
     const Result<QJsonValue> result = parseDevicectlResult(rawOutput);
@@ -72,9 +82,7 @@ Result<IosDeviceInfo> parseDeviceInfo(const QByteArray &rawOutput, const QString
         if (QString(udid).remove('-') == deviceUsbId) {
             IosDeviceInfo info;
             info.deviceName = device["deviceProperties"]["name"].toString();
-            info.developmentStatus = device["deviceProperties"]["developerModeStatus"] == "enabled"
-                                          ? IosDeviceInfo::DevelopmentStatus::Enabled
-                                          : IosDeviceInfo::DevelopmentStatus::Disabled;
+            info.developmentStatus = devStatus(device["deviceProperties"]["developerModeStatus"]);
             info.deviceConnected = true; // that's the assumption
             info.osVersion = QLatin1String("%1 (%2)")
                                   .arg(device["deviceProperties"]["osVersionNumber"].toString(),

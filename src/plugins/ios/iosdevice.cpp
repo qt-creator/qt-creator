@@ -883,33 +883,32 @@ void IosDeviceManager::deviceInfo(const QString &uid,
         DeviceManager::setDeviceState(newDev->id(), IDevice::DeviceConnected);
         bool shouldIgnore = newDev->m_ignoreDevice;
         newDev->m_ignoreDevice = true;
-        if (info.developmentStatus == IosDeviceInfo::DevelopmentStatus::Disabled) {
-            if (!shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
-                Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
-                const Utils::Id id("Ios.DevModeDetected");
-                if (infoBar->canInfoBeAdded(id)) {
-                    Utils::InfoBarEntry entry(
-                        id,
-                        Tr::tr("An iOS device in user mode has been detected. "
-                               "Do you want to see how to set it up for development?"));
-                    entry.setTitle(Tr::tr("iOS Device Detected"));
-                    entry.setInfoType(InfoLabelType::Information);
-                    entry.addCustomButton(
-                        Tr::tr("Set Up Device"),
-                        [] {
-                            Core::HelpManager::showHelpUrl(
-                                "qthelp://org.qt-project.qtcreator/doc/"
-                                "creator-how-to-connect-ios-devices.html");
-                        },
-                        {},
-                        Utils::InfoBarEntry::ButtonAction::Hide);
-                    entry.addCustomButton(
-                        Utils::msgDoNotShowAgain(),
-                        [] { IosConfigurations::setIgnoreAllDevices(true); },
-                        {},
-                        Utils::InfoBarEntry::ButtonAction::Hide);
-                    infoBar->addInfo(entry);
-                }
+        if (!shouldIgnore && !IosConfigurations::ignoreAllDevices()) {
+            Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
+            const Utils::Id id("Ios.DevModeDetected");
+            if (infoBar->canInfoBeAdded(id)) {
+                Utils::InfoBarEntry entry(
+                    id,
+                    Tr::tr(
+                        "An iOS device in user mode has been detected. "
+                        "Do you want to see how to set it up for development?"));
+                entry.setTitle(Tr::tr("iOS Device Detected"));
+                entry.setInfoType(InfoLabelType::Information);
+                entry.addCustomButton(
+                    Tr::tr("Set Up Device"),
+                    [] {
+                        Core::HelpManager::showHelpUrl(
+                            "qthelp://org.qt-project.qtcreator/doc/"
+                            "creator-how-to-connect-ios-devices.html");
+                    },
+                    {},
+                    Utils::InfoBarEntry::ButtonAction::Hide);
+                entry.addCustomButton(
+                    Utils::msgDoNotShowAgain(),
+                    [] { IosConfigurations::setIgnoreAllDevices(true); },
+                    {},
+                    Utils::InfoBarEntry::ButtonAction::Hide);
+                infoBar->addInfo(entry);
             }
         }
         if (!m_userModeDeviceIds.contains(uid))
