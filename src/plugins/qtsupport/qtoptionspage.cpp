@@ -43,7 +43,9 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSet>
 #include <QTextBrowser>
+#include <QTimer>
 #include <QTreeView>
 
 #include <memory>
@@ -143,6 +145,21 @@ QVariant qtVersionData(const QtVersion *version, int column, int role, bool hasN
 
     if (role == FilePathRole)
         return version->qmakeFilePath().toVariant();
+
+    if (!version->isVersionInfoAvailable()) {
+        // The qmake query is still running in the background (e.g. on a slow remote
+        // device). Render a lightweight placeholder without calling the blocking getters;
+        // the row is refreshed once the information arrives (see refreshLoadingRows()).
+        if (role == Qt::DisplayRole) {
+            if (column == 0)
+                return Tr::tr("%1 (reading information...)").arg(version->unexpandedDisplayName());
+            if (column == 1)
+                return version->qmakeFilePath().toUserOutput();
+        }
+        if (role == KitAspect::IdRole)
+            return version->uniqueId();
+        return {};
+    }
 
     if (role == Qt::DisplayRole) {
         if (column == 0)
@@ -299,6 +316,8 @@ private:
     std::pair<bool, QString> checkAlreadyExists(const FilePath &qtVersion);
 
     void updateQtVersions(const QList<int> &, const QList<int> &, const QList<int> &);
+    void scheduleVersionInfoUpdates();
+    void refreshLoadingRows();
     void addQtDir();
     void redetect();
     void editPath();
@@ -328,6 +347,11 @@ private:
     bool m_applyingVersions = false;
     QtVersionModel m_model;
     GroupedView m_groupedView{m_model};
+
+    // Rows whose qmake query is still running; polled so the row is refreshed once its
+    // version information becomes available instead of blocking the GUI on open.
+    QSet<int> m_pendingInfoIds;
+    QTimer m_infoPollTimer;
 
     DeviceComboBox m_deviceComboBox;
     DetailsWidget m_versionInfoWidget;
@@ -459,6 +483,10 @@ QtSettingsPageWidget::QtSettingsPageWidget()
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtSettingsPageWidget::updateQtVersions);
+
+    m_infoPollTimer.setInterval(250);
+    connect(&m_infoPollTimer, &QTimer::timeout,
+            this, &QtSettingsPageWidget::refreshLoadingRows);
     connect(ProjectExplorer::ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
             this, &QtSettingsPageWidget::toolChainsUpdated);
 
@@ -681,6 +709,47 @@ void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const Q
     }
 
     m_model.notifyAllRowsChanged();
+
+    scheduleVersionInfoUpdates();
+}
+
+void QtSettingsPageWidget::scheduleVersionInfoUpdates()
+{
+    m_pendingInfoIds.clear();
+    for (int row = 0; row < m_model.itemCount(); ++row) {
+        QtVersion *v = m_model.item(row).version();
+        if (!v)
+            continue;
+        v->ensureVersionInfoUpdated();
+        if (!v->isVersionInfoAvailable())
+            m_pendingInfoIds.insert(v->uniqueId());
+    }
+    if (m_pendingInfoIds.isEmpty())
+        m_infoPollTimer.stop();
+    else if (!m_infoPollTimer.isActive())
+        m_infoPollTimer.start();
+}
+
+void QtSettingsPageWidget::refreshLoadingRows()
+{
+    const int currentRow = m_groupedView.currentRow();
+    bool currentRefreshed = false;
+    for (int row = 0; row < m_model.itemCount(); ++row) {
+        QtVersion *v = m_model.item(row).version();
+        if (!v)
+            continue;
+        const int id = v->uniqueId();
+        if (m_pendingInfoIds.contains(id) && v->isVersionInfoAvailable()) {
+            m_pendingInfoIds.remove(id);
+            m_model.notifyRowChanged(row);
+            if (row == currentRow)
+                currentRefreshed = true;
+        }
+    }
+    if (currentRefreshed)
+        updateDescriptionLabel();
+    if (m_pendingInfoIds.isEmpty())
+        m_infoPollTimer.stop();
 }
 
 QtSettingsPageWidget::~QtSettingsPageWidget()
@@ -829,6 +898,18 @@ void QtSettingsPageWidget::updateDescriptionLabel()
 {
     const int row = m_groupedView.currentRow();
     const QtVersion *version = row >= 0 ? m_model.item(row).version() : nullptr;
+
+    if (version && !version->isVersionInfoAvailable()) {
+        // The qmake query is still running; do not block on validInformation(). The panel
+        // is refreshed once the information arrives (see refreshLoadingRows()).
+        m_errorLabel.setVisible(false);
+        m_infoWidget.setSummaryText(Tr::tr("Reading Qt version information..."));
+        m_infoBrowser.clear();
+        m_versionInfoWidget.setVisible(false);
+        m_infoWidget.setVisible(true);
+        return;
+    }
+
     const ValidityInfo info = validInformation(version);
     if (info.message.isEmpty()) {
         m_errorLabel.setVisible(false);

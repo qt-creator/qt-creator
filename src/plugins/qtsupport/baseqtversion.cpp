@@ -167,6 +167,8 @@ public:
 
     QtVersionData &data();
     void updateVersionInfoNow();
+    bool isVersionInfoAvailable() const;
+    void refreshVersionInfo();
 
     FilePath findHostBinary(HostBinaries binary) const;
     void updateMkspec();
@@ -200,6 +202,7 @@ public:
     std::optional<Abis> m_qtAbis;
     std::optional<QtVersionData> m_data;
     QFuture<Result<QtVersionData>> m_dataFuture;
+    bool m_versionInfoFailed = false; // qmake query failed; do not auto-requery on access
 
     bool m_mkspecUpToDate = false;
     bool m_mkspecReadUpToDate = false;
@@ -851,6 +854,21 @@ bool QtVersion::isValid() const
            && !d->m_mkspecFullPath.isEmpty() && d->m_qmakeIsExecutable;
 }
 
+bool QtVersion::isVersionInfoAvailable() const
+{
+    return d->isVersionInfoAvailable();
+}
+
+void QtVersion::ensureVersionInfoUpdated()
+{
+    d->updateVersionInfoNow();
+}
+
+void QtVersion::refreshVersionInfo()
+{
+    d->refreshVersionInfo();
+}
+
 QtVersion::Predicate QtVersion::isValidPredicate(const QtVersion::Predicate &predicate)
 {
     if (predicate)
@@ -1493,12 +1511,12 @@ QtVersionData &QtVersionPrivate::data()
         // A default-constructed QFuture reports isFinished() == true but holds no result,
         // which is the state left behind by the failure reset below. Key the (re-)query on
         // the absence of a result instead, so result() is never called on an empty future.
-        if (!m_dataFuture.isRunning() && m_dataFuture.resultCount() == 0)
+        if (!m_dataFuture.isRunning() && m_dataFuture.resultCount() == 0 && !m_versionInfoFailed)
             updateVersionInfoNow();
 
-        // Nothing to wait for: updateVersionInfoNow() declined to start a query because
-        // the qmake's device is not reachable. Do not block; return the read-only
-        // placeholder and leave m_data unset so the query is retried on the next access.
+        // Nothing to wait for: either updateVersionInfoNow() declined to start a query
+        // because the qmake's device is not reachable, or a previous query failed and is
+        // remembered (see below). Do not block; return the read-only placeholder.
         if (!m_dataFuture.isRunning() && m_dataFuture.resultCount() == 0)
             return emptyData;
 
@@ -1510,14 +1528,13 @@ QtVersionData &QtVersionPrivate::data()
         if (!data.has_value()) {
             Core::MessageManager::writeFlashing(data.error());
 
-            // Do not cache the failure. Querying a remote qmake can fail transiently -
-            // most commonly because the device is not connected yet - and permanently
-            // caching an empty result would leave the Qt without version and ABI
-            // information forever. That in turn prevents it from being recognized (e.g.
-            // as a macOS Qt) and paired into an auto-created kit, even after the device
-            // becomes reachable. Reset the future and leave m_data unset so the next
-            // access retries the query; once it succeeds the result is cached normally.
+            // Remember the failure rather than caching an empty result: passive accesses
+            // then render the version as invalid without re-running the (possibly slow,
+            // GUI-blocking) query on every access. This is not a permanent empty cache -
+            // refreshVersionInfo() clears the marker to retry, e.g. when the device
+            // reconnects or on an explicit refresh, after which a success is cached.
             m_dataFuture = {};
+            m_versionInfoFailed = true;
         } else {
             m_data = *data;
         }
@@ -1528,7 +1545,7 @@ QtVersionData &QtVersionPrivate::data()
 
 void QtVersionPrivate::updateVersionInfoNow()
 {
-    if (m_data || m_dataFuture.isRunning())
+    if (m_data || m_dataFuture.isRunning() || m_versionInfoFailed)
         return;
 
     // Do not start a (blocking) qmake query for a device that is not reachable.
@@ -1537,6 +1554,35 @@ void QtVersionPrivate::updateVersionInfoNow()
 
     // extract data from qmake executable
     m_dataFuture = Utils::asyncRun([qmake = m_qmakeCommand] { return dataForQMake(qmake); });
+}
+
+bool QtVersionPrivate::isVersionInfoAvailable() const
+{
+    // True when a call to data() will return without blocking on a qmake query:
+    // the info is cached, a previous query already finished (its result is still to be
+    // consumed) or failed and is remembered, or the device is not reachable so data()
+    // returns the placeholder immediately.
+    if (m_data || m_versionInfoFailed)
+        return true;
+    if (m_dataFuture.isRunning())
+        return false;
+    if (m_dataFuture.resultCount() > 0)
+        return true;
+    return !qmakeQueryable(m_qmakeCommand);
+}
+
+void QtVersionPrivate::refreshVersionInfo()
+{
+    m_data.reset();
+    m_qtAbis.reset();
+    m_versionInfoFailed = false;
+    m_dataFuture = {};
+    // The mkspec cache is derived from the (previously empty) placeholder data and is
+    // latched via m_mkspecUpToDate; drop it too, so a successful re-query is picked up
+    // instead of leaving isValid() stuck on the empty mkspec path.
+    m_mkspecUpToDate = false;
+    m_mkspecReadUpToDate = false;
+    updateVersionInfoNow();
 }
 
 QHash<ProKey,ProString> QtVersionPrivate::versionInfo()

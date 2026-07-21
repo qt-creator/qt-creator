@@ -70,6 +70,15 @@ public:
     virtual Utils::Store toMap() const;
     virtual bool isValid() const;
     static Predicate isValidPredicate(const Predicate &predicate = {});
+
+    // Non-blocking: true when reading the version getters (isValid(), qtAbis(), ...)
+    // will not block on a qmake query. See QtVersionPrivate::data().
+    bool isVersionInfoAvailable() const;
+    // Ensures the qmake query runs in the background; returns immediately.
+    void ensureVersionInfoUpdated();
+    // Drops cached info (including a remembered query failure) and re-queries in the
+    // background. Used to retry, e.g. when the version's device reconnects.
+    void refreshVersionInfo();
     virtual QString invalidReason() const;
     virtual QStringList warningReason() const;
 

@@ -126,6 +126,7 @@ public:
     void handleDeviceToolDetectionRequest(
         Id deviceId, const FilePaths &searchPaths, quint64 token,
         const ToolDetectionLogger &logger);
+    void handleDeviceUpdated(Id deviceId);
     void saveQtVersions();
 
     void updateDocumentation(const QtVersions &added,
@@ -197,6 +198,8 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
 
     connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
             this, &QtVersionManagerImpl::handleDeviceToolDetectionRequest);
+    connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
+            this, &QtVersionManagerImpl::handleDeviceUpdated);
 }
 
 bool QtVersionManager::isLoaded()
@@ -532,6 +535,26 @@ void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
         dev->deregisterToolDetectionTask(token);
     };
     Utils::onFinished(future, this, cont);
+}
+
+void QtVersionManagerImpl::handleDeviceUpdated(Id deviceId)
+{
+    // A device changed, e.g. reconnected. Retry versions on it whose qmake query
+    // previously failed, so they can heal (get ABIs, be recognized, auto-paired into a
+    // kit) without depending on the Qt Versions options page being open. Leave versions
+    // still loading or already valid untouched.
+    QList<int> changed;
+    for (QtVersion *version : std::as_const(m_versions)) {
+        const IDeviceConstPtr dev = DeviceManager::deviceForPath(version->qmakeFilePath());
+        if (!dev || dev->id() != deviceId)
+            continue;
+        if (version->isVersionInfoAvailable() && !version->isValid()) {
+            version->refreshVersionInfo();
+            changed.append(version->uniqueId());
+        }
+    }
+    if (!changed.isEmpty())
+        emit QtVersionManager::instance()->qtVersionsChanged({}, {}, changed);
 }
 
 void QtVersionManager::addVersion(QtVersion *version)
