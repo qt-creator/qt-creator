@@ -463,12 +463,10 @@ void EngineManagerPrivate::activateEngineItem(EngineItem *engineItem)
 
     Context newContext;
     if (m_currentItem) {
-        if (DebuggerEngine *engine = m_currentItem->m_engine) {
-            newContext.add(engine->languageContext());
+        if (DebuggerEngine *engine = m_currentItem->m_engine)
             newContext.add(engine->debuggerContext());
-        } else {
+        else
             newContext.add(Context(Constants::C_DEBUGGER_NOTRUNNING));
-        }
     }
 
     ICore::updateAdditionalContexts(m_currentAdditionalContext, newContext);

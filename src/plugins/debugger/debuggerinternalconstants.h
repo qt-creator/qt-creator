@@ -34,8 +34,6 @@ inline constexpr char DEBUGGER_COMMON_SETTINGS_ID[]      = "A.Debugger.General";
 inline constexpr char DEBUGGER_SETTINGS_CATEGORY[]       = "O.Debugger";
 
 // Contexts
-inline constexpr char C_CPPDEBUGGER[]                    = "Gdb Debugger";
-inline constexpr char C_QMLDEBUGGER[]                    = "Qml/JavaScript Debugger";
 inline constexpr char C_DEBUGGER_NOTRUNNING[]            = "Debugger.NotRunning";
 
 inline constexpr char PRESET_PERSPECTIVE_ID[]            = "Debugger.Perspective.Preset";

@@ -89,7 +89,6 @@ private:
     bool hasCapability(unsigned) const override;
 
     void doUpdateLocals(const UpdateParameters &params) override;
-    Core::Context languageContext() const override;
 
     void closeConnection();
     void startProcess();

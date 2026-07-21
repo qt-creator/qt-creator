@@ -948,11 +948,6 @@ void QmlEngine::doUpdateLocals(const UpdateParameters &params)
     d->updateLocals(params.qmlFocusOnFrame);
 }
 
-Core::Context QmlEngine::languageContext() const
-{
-    return Core::Context(Constants::C_QMLDEBUGGER);
-}
-
 void QmlEngine::disconnected()
 {
     if (isDying())

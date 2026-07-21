@@ -511,7 +511,6 @@ public:
     virtual void updateLocals();
 
     Core::Context debuggerContext() const;
-    virtual Core::Context languageContext() const { return {}; }
     QString displayName() const;
 
     virtual bool acceptsBreakpoint(const BreakpointParameters &bp) const = 0;
@@ -745,8 +744,6 @@ class CppDebuggerEngine : public DebuggerEngine
 public:
     CppDebuggerEngine() {}
     ~CppDebuggerEngine() override {}
-
-    Core::Context languageContext() const override;
 
 protected:
     using SetupDumper = std::function<void(const Utils::FilePath &)>;

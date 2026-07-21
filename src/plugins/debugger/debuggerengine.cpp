@@ -3079,11 +3079,6 @@ void DebuggerEngine::showModuleSections(const FilePath &moduleName, const Sectio
 
 // CppDebuggerEngine
 
-Context CppDebuggerEngine::languageContext() const
-{
-    return Context(Constants::C_CPPDEBUGGER);
-}
-
 void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
     static const Key warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
