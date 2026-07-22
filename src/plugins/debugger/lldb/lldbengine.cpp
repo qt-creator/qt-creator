@@ -468,12 +468,37 @@ void LldbEngine::handleResponse(const QString &response)
             handleSignalReceived(item);
         else if (name == "bridgemessage")
             showMessage(item["msg"].data(), item["channel"].toInt());
-        else if (name == "tracepointhit") {
-            QString message = fromHex(item["message"].data());
-            showMessage(message);
-            emit postMessageRequested(message, NormalMessageFormat, true);
-        }
+        else if (name == "tracepointhit")
+            handleTracepointHit(item);
     }
+}
+
+void LldbEngine::handleTracepointHit(const GdbMi &item)
+{
+    QMap<QString, QString> values;
+    for (const GdbMi &capture : item["expressions"]) {
+        values.insert(fromHex(capture["expr"].data()),
+                      decodeData(capture["value"].data(), capture["valueencoded"].data()));
+    }
+
+    // Substitute each "{expr}" placeholder in a single pass so a decoded
+    // value that happens to contain braces is not substituted again.
+    const QString templ = fromHex(item["message"].data());
+    static const QRegularExpression re("\\{([^}]+)\\}");
+    QString message;
+    qsizetype pos = 0;
+    QRegularExpressionMatchIterator it = re.globalMatch(templ);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+        message += templ.mid(pos, match.capturedStart() - pos);
+        const auto value = values.constFind(match.captured(1));
+        message += value != values.constEnd() ? *value : match.captured(0);
+        pos = match.capturedEnd();
+    }
+    message += templ.mid(pos);
+
+    showMessage(message);
+    emit postMessageRequested(message, NormalMessageFormat, true);
 }
 
 void LldbEngine::executeRunToLine(const ContextData &data)

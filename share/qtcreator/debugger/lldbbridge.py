@@ -1863,10 +1863,41 @@ class Dumper(DumperBase):
         if result is False:
             d.reportState("continueafternextstop")
         if tracepoint:
-            d.report(f'tracepointhit={{message="{d.hexencode(message)}"}}')
+            d.reportBreakpointUpdate(bp_loc.GetBreakpoint())
+            captures = d.tracepointCaptures(message, frame)
+            d.report(f'tracepointhit={{message="{d.hexencode(message)}",'
+                     f'expressions=[{captures}]}}')
             d.reportState("continueafternextstop")
 
         return True
+
+    def tracepointCaptures(self, message, frame):
+        # Report each "{expr}" as a raw value/encoding pair. The engine
+        # side substitutes it into the message and decodes it via
+        # decodeData() (DebuggerEncoding), the same path GdbEngine uses -
+        # so there is a single source of truth for all the encodings.
+        self.setVariableFetchingOptions({'fancy': 1, 'autoderef': 1})
+        captures = []
+        for expr in re.findall(r'\{([^}]+)\}', message):
+            value, encoding = '', 'notaccessible'
+            native = frame.EvaluateExpression(expr)
+            if native.GetError().Success():
+                try:
+                    # Read currentValue inside the "with" block, before
+                    # __exit__ resets it - takeOutput() would return the
+                    # raw tuple text instead of just the value.
+                    with TopLevelItem(self, expr):
+                        self.putItem(self.fromNativeValue(native))
+                        result = self.currentValue
+                    self.takeOutput()  # discard the tuple text this generated
+                    if result.value is not None:
+                        value = str(result.value)
+                        encoding = result.encoding if result.encoding else ''
+                except Exception:
+                    value, encoding = '', 'notaccessible'
+            captures.append('{expr="%s",value="%s",valueencoded="%s"}'
+                            % (self.hexencode(expr), value, encoding))
+        return ','.join(captures)
 
     def insertBreakpoint(self, args):
         bpType = args['type']
