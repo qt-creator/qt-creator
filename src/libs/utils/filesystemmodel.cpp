@@ -182,6 +182,7 @@ public:
     QModelIndex indexForNode(FileSystemNode *node, int column = 0) const;
     void triggerFetch(FileSystemNode *node);
     void removeNodeFromIndex(FileSystemNode *node);
+    bool setData(const QModelIndex &index, const QVariant &value, int role, bool doRename);
     void applyChildrenDiff(
         FileSystemNode *node,
         const QModelIndex &parentIndex,
@@ -814,6 +815,23 @@ QModelIndex FileSystemModel::index(const FilePath &path) const
 
 bool FileSystemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    return d->setData(index, value, role, /*doRename=*/true);
+}
+
+/*!
+    Updates the \a role data for \a index to \a value but does not actually perform the rename
+    like setData() would do.
+
+    \sa setData()
+*/
+bool FileSystemModel::informAboutRename(const QModelIndex &index, const QVariant &value, int role)
+{
+    return d->setData(index, value, role, /*doRename=*/false);
+}
+
+bool FileSystemModelPrivate::setData(
+    const QModelIndex &index, const QVariant &value, int role, bool doRename)
+{
     if (role != Qt::EditRole || !index.isValid())
         return false;
     FileSystemNode *node = static_cast<FileSystemNode *>(index.internalPointer());
@@ -821,28 +839,28 @@ bool FileSystemModel::setData(const QModelIndex &index, const QVariant &value, i
     if (newName.isEmpty() || newName == node->m_path.fileName())
         return false;
     const FilePath newPath = node->m_path.parentDir().pathAppended(newName);
-    if (!node->m_path.renameFile(newPath))
+    if (doRename && !node->m_path.renameFile(newPath))
         return false;
 
-    d->m_nodeIndex.remove(node->m_path);
-    d->m_dirWatchers.erase(node->m_path);
+    m_nodeIndex.remove(node->m_path);
+    m_dirWatchers.erase(node->m_path);
 
     // Renaming a directory invalidates every descendant's path. Drop the
     // fetched subtree (de-indexing and unwatching each node) so it is
     // re-fetched lazily under the new path.
     if (!node->m_children.isEmpty()) {
-        beginRemoveRows(index, 0, static_cast<int>(node->m_children.size()) - 1);
+        m_q->beginRemoveRows(index, 0, static_cast<int>(node->m_children.size()) - 1);
         for (FileSystemNode *child : std::as_const(node->m_children))
-            d->removeNodeFromIndex(child);
+            removeNodeFromIndex(child);
         qDeleteAll(node->m_children);
         node->m_children.clear();
-        endRemoveRows();
+        m_q->endRemoveRows();
     }
     node->m_state = FileSystemNode::State::NotFetched;
 
     node->m_path = newPath;
-    d->m_nodeIndex[newPath] = node;
-    emit dataChanged(index, index);
+    m_nodeIndex[newPath] = node;
+    emit m_q->dataChanged(index, index);
     return true;
 }
 

@@ -190,10 +190,13 @@ bool FolderNavigationModel::setData(const QModelIndex &index, const QVariant &va
     if (beforeFilePath == afterFilePath)
         return false;
     const bool isFile = !isDir(index);
-    const bool success = FileSystemModel::setData(index, value, role);
-    if (success && isFile) {
-        DocumentManager::renamedFile(beforeFilePath, afterFilePath);
-        emit m_instance->fileRenamed(beforeFilePath, afterFilePath);
+    const HandleIncludeGuards handleGuards = isFile ? HandleIncludeGuards::Yes
+                                                    : HandleIncludeGuards::No;
+    const bool success = Core::FileUtils::renameFile(beforeFilePath, afterFilePath, handleGuards);
+    if (success) {
+        informAboutRename(index, value, role);
+        if (isFile)
+            emit m_instance->fileRenamed(beforeFilePath, afterFilePath);
     }
     return success;
 }

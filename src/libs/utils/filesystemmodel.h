@@ -67,6 +67,8 @@ public:
     QStringList mimeTypes() const override;
     QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
+    bool informAboutRename(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+
 signals:
     void rootPathChanged(const Utils::FilePath &newPath);
     void directoryLoaded(const Utils::FilePath &path);
