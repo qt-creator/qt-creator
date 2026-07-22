@@ -190,6 +190,8 @@ void LldbEngine::setupEngine()
     Environment environment = runParameters().debugger().environment;
     environment.set("QT_CREATOR_LLDB_PROCESS", "1");
     environment.set("PYTHONUNBUFFERED", "1"); // avoid flushing problem on macOS
+    // Unreachable debuginfod server hangs CreateTarget() indefinitely.
+    environment.unset("DEBUGINFOD_URLS");
     const bool ndkPythonEnvTweaked = DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
 
     if (!ndkPythonEnvTweaked && lldbCmd.osType() == OsTypeLinux) {
