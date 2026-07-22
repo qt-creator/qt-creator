@@ -192,6 +192,7 @@ private slots:
     void test_vim_selection_for_shortcut();
     void test_vim_jumplist_across_files();
     void test_vim_control_modifier();
+    void test_vim_tabstop_distance();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5365,6 +5366,28 @@ void FakeVimTester::test_vim_control_modifier()
     KEYS("<C-S-X>", "ab|c"); // no-op
     KEYS("<C-X>", "ab|c");   // no-op
     KEYS("X", "a|c");        // plain X deletes the character before the cursor
+}
+
+void FakeVimTester::test_vim_tabstop_distance()
+{
+    // FakeVim renders a tab as tabstop space-widths, so that tab-, space- and
+    // autoindent-indented lines line up (QTCREATORBUG-10367).
+    auto &tabStop = FakeVim::Internal::settings().tabStop;
+    const qint64 savedTabStop = tabStop.value();
+
+    TestData data;
+    setup(&data);
+    const int spaceWidth = data.editor()->fontMetrics().horizontalAdvance(' ');
+
+    tabStop.setValue(4);
+    data.handler->setupWidget(); // re-applies the visual tab width
+    QCOMPARE(int(data.editor()->tabStopDistance()), spaceWidth * 4);
+
+    tabStop.setValue(8);
+    data.handler->setupWidget();
+    QCOMPARE(int(data.editor()->tabStopDistance()), spaceWidth * 8);
+
+    tabStop.setValue(savedTabStop);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()
