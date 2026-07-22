@@ -93,11 +93,11 @@ public:
 
     void setup();
     void once();
+
+private:
     void scheduleInstantBlame();
     void stop();
     void perform();
-
-private:
     bool refreshWorkingDirectory(const Utils::FilePath &workingDirectory);
     void slotDocumentChanged();
 
