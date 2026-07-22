@@ -2323,6 +2323,15 @@ class Dumper(DumperBase):
         result += ',contents="%s"' % self.hexencode(contents)
         self.reportResult(result, args)
 
+    def writeMemory(self, args):
+        address = args['address']
+        data = bytes.fromhex(args['data'])
+        error = lldb.SBError()
+        self.process.WriteMemory(address, data, error)
+        result = 'address="%s",' % address
+        result += self.describeError(error)
+        self.reportResult(result, args)
+
     def findValueByExpression(self, exp):
         # FIXME: Top level-only for now.
         frame = self.currentFrame()
