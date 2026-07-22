@@ -83,6 +83,8 @@ public:
     {
         QTC_ASSERT(actionId.isValid(), return);
         ActionManager::registerAction(contextAction(), actionId, context, scriptable);
+        if (m_enforceTextHeuristicRole)
+            ActionManager::command(actionId)->action()->setMenuRole(QAction::TextHeuristicRole);
     }
 
     Action *contextAction()
@@ -112,6 +114,7 @@ public:
     Id actionId;
     Context context{Constants::C_GLOBAL};
     bool scriptable = false;
+    bool m_enforceTextHeuristicRole = false;
 
 private:
     QObject *m_parent = nullptr;
@@ -358,6 +361,12 @@ Command *ActionBuilder::command() const
 QAction *ActionBuilder::commandAction() const
 {
     return d->command->action();
+}
+
+ActionBuilder &ActionBuilder::enforceTextHeuristicRole()
+{
+    d->m_enforceTextHeuristicRole = true;
+    return *this;
 }
 
 Action *ActionBuilder::contextAction() const

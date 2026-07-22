@@ -99,6 +99,7 @@ public:
     QAction *commandAction() const;
     Utils::Action *contextAction() const;
 
+    ActionBuilder &enforceTextHeuristicRole(); // avoid
 private:
     class ActionBuilderPrivate *d = nullptr;
 };

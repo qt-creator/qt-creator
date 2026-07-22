@@ -1896,6 +1896,10 @@ void ICorePrivate::registerDefaultActions()
     redoAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_UNDOREDO);
     redoAction.setEnabled(false);
 
+    // Override role to TextHeuristicRole for CUT/COPY/PASTE/SELECTALL .
+    // Usually we override TextHeuristicRole to NoRole (see Command and QTCREATORBUG-13101).
+    // But then these actions don't work in QFileDialog, see QTCREATORBUG-31352
+
     // Cut Action
     ActionBuilder cutAction(this, Constants::CUT);
     cutAction.setText(Tr::tr("Cu&t"));
@@ -1903,6 +1907,7 @@ void ICorePrivate::registerDefaultActions()
     cutAction.setDefaultKeySequence(QKeySequence::Cut);
     cutAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
     cutAction.setEnabled(false);
+    cutAction.enforceTextHeuristicRole();
 
     // Copy Action
     ActionBuilder copyAction(this, Constants::COPY);
@@ -1911,6 +1916,7 @@ void ICorePrivate::registerDefaultActions()
     copyAction.setDefaultKeySequence(QKeySequence::Copy);
     copyAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
     copyAction.setEnabled(false);
+    copyAction.enforceTextHeuristicRole();
 
     // Paste Action
     ActionBuilder pasteAction(this, Constants::PASTE);
@@ -1919,6 +1925,7 @@ void ICorePrivate::registerDefaultActions()
     pasteAction.setDefaultKeySequence(QKeySequence::Paste);
     pasteAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
     pasteAction.setEnabled(false);
+    pasteAction.enforceTextHeuristicRole();
 
     // Select All
     ActionBuilder selectAllAction(this, Constants::SELECTALL);
@@ -1927,6 +1934,7 @@ void ICorePrivate::registerDefaultActions()
     selectAllAction.setDefaultKeySequence(QKeySequence::SelectAll);
     selectAllAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_SELECTALL);
     selectAllAction.setEnabled(false);
+    selectAllAction.enforceTextHeuristicRole();
 
     // Goto Action
     ActionBuilder gotoLineAction(this, Constants::GOTO);
