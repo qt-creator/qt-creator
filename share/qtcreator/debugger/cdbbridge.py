@@ -186,12 +186,38 @@ class Dumper(DumperBase):
             # the DumperBase. Declare those types as structs prevents a lookup to a
             # none existing type
             if not nativeType.name().startswith('__fptr()') and not nativeType.name().startswith('<gentype '):
-                targetName = nativeType.targetName().strip()
-                self.type_name_cache[typeid] = nativeType.name()
+                name = nativeType.name()
+                self.type_name_cache[typeid] = name
                 self.type_code_cache[typeid] = code
-                self.type_target_cache[typeid] = self.typeid_for_string(targetName)
                 if nativeType.resolved():
                     self.type_size_cache[typeid] = nativeType.bitsize() // 8
+                if '][' in name:
+                    # cdb fails to look up inner array type names for multidimensional arrays
+                    # derive and cache name, code, target, and size for each inner dimension
+                    # from the resolved parent instead of performing native lookup
+                    currentId = typeid
+                    currentName = name
+                    currentSize = self.type_size_cache.get(typeid, None)
+                    while currentName.endswith(']') and '[' in currentName:
+                        try:
+                            (prefix, suffix, count) = self.splitArrayType(currentName)
+                        except Exception:
+                            break
+                        innerName = (prefix + suffix).strip()
+                        innerId = self.typeid_for_string(innerName)
+                        self.type_target_cache[currentId] = innerId
+                        self.type_name_cache[innerId] = innerName
+                        if innerName.endswith(']'):
+                            self.type_code_cache[innerId] = TypeCode.Array
+                        if currentSize is not None and count:
+                            currentSize //= count
+                            self.type_size_cache[innerId] = currentSize
+                        else:
+                            currentSize = None
+                        currentId = innerId
+                        currentName = innerName
+                else:
+                    self.type_target_cache[typeid] = self.typeid_for_string(nativeType.targetName().strip())
                 return typeid
 
             code = TypeCode.Struct
