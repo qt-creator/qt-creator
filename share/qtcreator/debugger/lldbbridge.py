@@ -1987,6 +1987,18 @@ class Dumper(DumperBase):
                             % (self.hexencode(expr), value, encoding))
         return ','.join(captures)
 
+    def hasSourceMap(self):
+        try:
+            s = self.debugger.GetSetting("target.source-map")
+            if s and s.IsValid() and s.GetSize() > 0:
+                return True
+        except Exception:
+            pass
+        res = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(
+            "settings show target.source-map", res)
+        return "->" in (res.GetOutput() or "")
+
     def insertBreakpoint(self, args):
         bpType = args['type']
         if bpType == BreakpointType.BreakpointByFileAndLine:
@@ -2000,6 +2012,16 @@ class Dumper(DumperBase):
         if bpType == BreakpointType.BreakpointByFileAndLine:
             bp = self.target.BreakpointCreateByLocation(
                 str(args['file']), int(args['line']))
+            # A target.source-map entry whose target covers the source dir makes
+            # lldb reverse-map the full-path breakpoint to the mapped (source)
+            # path, which no longer matches the debug info, so it resolves to
+            # nothing. Only then fall back to matching by file name (as the GDB
+            # engine does, see GdbEngine::breakLocation), keeping full-path
+            # precision whenever it resolves. QTCREATORBUG-33433
+            if bp.GetNumLocations() == 0 and self.hasSourceMap():
+                self.target.BreakpointDelete(bp.GetID())
+                fileName = lldb.SBFileSpec(str(args['file'])).GetFilename()
+                bp = self.target.BreakpointCreateByLocation(fileName, int(args['line']))
         elif bpType == BreakpointType.BreakpointByFunction:
             bp = self.target.BreakpointCreateByName(args['function'])
         elif bpType == BreakpointType.BreakpointByAddress:
