@@ -1840,6 +1840,9 @@ class Dumper(DumperBase):
             # error.desc == 'process is not alive'.
             bp = self.target.WatchAddress(args['address'], 4, False, True, error)
             extra = self.describeError(error)
+        elif bpType == BreakpointType.BreakpointAtFork:
+            # No native "catch fork" in lldb - break on the libc entry point.
+            bp = self.target.BreakpointCreateByName('fork')
         elif bpType == BreakpointType.WatchpointAtExpression:
             # FIXME: Top level-only for now.
             try:
