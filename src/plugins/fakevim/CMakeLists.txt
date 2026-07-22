@@ -11,5 +11,5 @@ add_qtc_plugin(FakeVim
 
 extend_qtc_plugin(FakeVim
   CONDITION WITH_TESTS
-  SOURCES fakevim_test.cpp
+  SOURCES fakevim_test.cpp fakevim_test.h
 )

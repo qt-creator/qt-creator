@@ -28,6 +28,7 @@ extend_qtc_plugin(DevContainerPlugin
   DEFINES TESTDATA="${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}/devcontainer_testdata"
   SOURCES
     devcontainer_test.cpp
+    devcontainer_test.h
 )
 
 qtc_copy_to_builddir(copy_devcontainerplugin_testdata

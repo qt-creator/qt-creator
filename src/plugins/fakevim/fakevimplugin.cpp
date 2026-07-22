@@ -90,6 +90,10 @@
 
 #include <functional>
 
+#ifdef WITH_TESTS
+#include "fakevim_test.h"
+#endif
+
 using namespace TextEditor;
 using namespace Core;
 using namespace Utils;
@@ -1101,8 +1105,6 @@ static void setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
 //    QCOMPARE(EDITOR(toPlainText()), lines);
     (*handler)->handleCommand("set iskeyword=@,48-57,_,192-255,a-z,A-Z");
 }
-
-QObject *createFakeVimTester( void (*setupTest)(QString *, FakeVimHandler **, QWidget **) ); // in fakevim_test.cpp
 #endif
 
 FakeVimPlugin::FakeVimPlugin()

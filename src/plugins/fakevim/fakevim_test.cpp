@@ -6,6 +6,8 @@
  * All test are based on Vim behaviour.
  */
 
+#include "fakevim_test.h"
+
 #include "fakevimhandler.h"
 #include "fakevimactions.h"
 
@@ -218,8 +220,6 @@ private:
     struct TestData;
     void setup(TestData *data);
 };
-
-using SetupTestCallback =  void (*)(QString *, FakeVimHandler **, QWidget **);
 
 static SetupTestCallback setupTest = nullptr;
 

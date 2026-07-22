@@ -37,16 +37,16 @@
 #include <QMessageBox>
 #include <QTimer>
 
+#ifdef WITH_TESTS
+#include "devcontainer_test.h"
+#endif
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace DevContainer::Internal {
 
 const Icon DEVCONTAINER_ICON({{":/devcontainer/images/container.png", Theme::IconsBaseColor}});
-
-#ifdef WITH_TESTS
-QObject *createDevcontainerTest();
-#endif
 
 class DevContainerDeviceFactory final : public IDeviceFactory
 {

@@ -25,6 +25,6 @@ QtcPlugin {
     ]
 
     QtcTestFiles {
-        files: ["fakevim_test.cpp"]
+        files: ["fakevim_test.cpp", "fakevim_test.h"]
     }
 }

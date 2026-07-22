@@ -28,6 +28,7 @@ QtcPlugin {
     QtcTestFiles {
         files: [
             "devcontainer_test.cpp",
+            "devcontainer_test.h",
         ]
         cpp.defines: outer.concat('TESTDATA="' + FileInfo.joinPaths(qbs.installRoot,
             qbs.installPrefix, qtc.ide_data_path, "devcontainer_testdata") + '"')
