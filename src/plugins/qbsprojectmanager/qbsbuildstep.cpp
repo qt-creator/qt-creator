@@ -493,7 +493,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
     defaultInstallDirCheckBox->setText(QbsProjectManager::Tr::tr("Use default location"));
 
     installDirChooser = new PathChooser(this);
-    installDirChooser->setExpectedKind(PathChooser::Directory);
+    installDirChooser->setExpectedKind(PathChooserKind::Directory);
 
     using namespace Layouting;
     Form {

@@ -1569,7 +1569,7 @@ public:
     QString m_prompDialogTitle;
     QStringList m_commandVersionArguments;
     Key m_historyCompleterKey;
-    PathChooser::Kind m_expectedKind = PathChooser::File;
+    PathChooserKind m_expectedKind = PathChooserKind::File;
     Environment m_environment;
     QPointer<PathChooser> m_pathChooserDisplay;
     Lazy<FilePath> m_baseDirectory;
@@ -1901,7 +1901,7 @@ void FilePathAspect::setValueAlternatives(const FilePaths &candidates)
 
   \sa Utils::PathChooser::setExpectedKind()
 */
-void FilePathAspect::setExpectedKind(const PathChooser::Kind expectedKind)
+void FilePathAspect::setExpectedKind(const PathChooserKind expectedKind)
 {
     if (d->m_expectedKind != expectedKind) {
         d->m_expectedKind = expectedKind;

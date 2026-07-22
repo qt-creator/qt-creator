@@ -65,7 +65,7 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
     const FilePath rootPath = FilePath::fromString(root);
 
     cmd.setSettingsKey("QmlProject.Mcu.ProcessStep.Command");
-    cmd.setExpectedKind(PathChooser::Command);
+    cmd.setExpectedKind(PathChooserKind::Command);
     cmd.setLabelText(Tr::tr("Command:"));
     cmd.setValue(rootPath.pathAppended("/bin/qmlprojectexporter"));
 
@@ -84,7 +84,7 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
     updateIncludeDirArgs();
 
     outDir.setSettingsKey("QmlProject.Mcu.ProcessStep.BuildDirectory");
-    outDir.setExpectedKind(PathChooser::Directory);
+    outDir.setExpectedKind(PathChooserKind::Directory);
     outDir.setLabelText(Tr::tr("Build directory:"));
     outDir.setPlaceHolderText(m_tmpDir.path());
 

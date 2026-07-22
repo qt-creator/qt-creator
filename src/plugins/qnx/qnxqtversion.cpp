@@ -39,7 +39,7 @@ public:
         auto sdpPathChooser(new PathChooser);
         layout->addWidget(sdpPathChooser);
 
-        sdpPathChooser->setExpectedKind(PathChooser::ExistingDirectory);
+        sdpPathChooser->setExpectedKind(PathChooserKind::ExistingDirectory);
         sdpPathChooser->setHistoryCompleter("Qnx.Sdp.History");
         sdpPathChooser->setFilePath(version->sdpPath());
 

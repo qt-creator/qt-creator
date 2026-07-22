@@ -229,7 +229,7 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
     m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
 
     m_executableFileChooser = new Utils::PathChooser;
-    m_executableFileChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_executableFileChooser->setExpectedKind(Utils::PathChooserKind::ExistingCommand);
     m_executableFileChooser->setCommandVersionArguments({"--version"});
     if (HostOsInfo::hostOs() == OsTypeWindows) {
         m_executableFileChooser->setPromptDialogFilter(Tr::tr("JLink GDB Server (JLinkGDBServerCL.exe)"));

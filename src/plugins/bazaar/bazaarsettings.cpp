@@ -27,7 +27,7 @@ BazaarSettings::BazaarSettings()
     setAutoApply(false);
     setSettingsGroup(Constants::BAZAAR);
 
-    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setExpectedKind(PathChooserKind::ExistingCommand);
     binaryPath.setDefaultValue(Constants::BAZAARDEFAULT);
     binaryPath.setDisplayName(Tr::tr("Bazaar Command"));
     binaryPath.setHistoryCompleter("Bazaar.Command.History");

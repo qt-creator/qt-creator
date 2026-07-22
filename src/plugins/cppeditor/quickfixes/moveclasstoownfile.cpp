@@ -139,8 +139,8 @@ private:
             connect(&m_headerOnlyCheckBox, &QCheckBox::toggled,
                     this, [this](bool checked) { m_sourcePathChooser.setEnabled(!checked); });
 
-            m_headerPathChooser.setExpectedKind(PathChooser::SaveFile);
-            m_sourcePathChooser.setExpectedKind(PathChooser::SaveFile);
+            m_headerPathChooser.setExpectedKind(PathChooserKind::SaveFile);
+            m_sourcePathChooser.setExpectedKind(PathChooserKind::SaveFile);
             m_headerPathChooser.setFilePath(defaultHeaderFilePath);
             m_sourcePathChooser.setFilePath(defaultSourceFilePath);
             connect(&m_headerPathChooser, &PathChooser::textChanged,

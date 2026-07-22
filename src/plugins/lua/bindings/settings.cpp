@@ -209,7 +209,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
             QTC_CHECK_RESULT(res);
         });
     else if (key == "expectedKind")
-        aspect->setExpectedKind((PathChooser::Kind) value.as<int>());
+        aspect->setExpectedKind((PathChooserKind) value.as<int>());
     else if (key == "environment")
         aspect->setEnvironment(value.as<Environment>());
     else if (key == "baseFileName")
@@ -725,13 +725,13 @@ void setupSettingsModule()
             "Right", CheckBoxPlacement::Right
         );
         settings["Kind"] = lua.create_table_with(
-            "ExistingDirectory", PathChooser::Kind::ExistingDirectory,
-            "Directory", PathChooser::Kind::Directory,
-            "File", PathChooser::Kind::File,
-            "SaveFile", PathChooser::Kind::SaveFile,
-            "ExistingCommand", PathChooser::Kind::ExistingCommand,
-            "Command", PathChooser::Kind::Command,
-            "Any", PathChooser::Kind::Any
+            "ExistingDirectory", PathChooserKind::ExistingDirectory,
+            "Directory", PathChooserKind::Directory,
+            "File", PathChooserKind::File,
+            "SaveFile", PathChooserKind::SaveFile,
+            "ExistingCommand", PathChooserKind::ExistingCommand,
+            "Command", PathChooserKind::Command,
+            "Any", PathChooserKind::Any
         );
         settings["LabelPlacement"] = lua.create_table_with(
             "AtCheckBox", BoolAspect::LabelPlacement::AtCheckBox,

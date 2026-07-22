@@ -139,7 +139,7 @@ QWidget *FindInFiles::createConfigWidget()
         QLabel *dirLabel = new QLabel(Tr::tr("Director&y:"));
         gridLayout->addWidget(dirLabel, row, 0, Qt::AlignRight);
         m_directory = new PathChooser;
-        m_directory->setExpectedKind(PathChooser::ExistingDirectory);
+        m_directory->setExpectedKind(PathChooserKind::ExistingDirectory);
         m_directory->setPromptDialogTitle(Tr::tr("Directory to Search"));
         connect(m_directory.data(), &PathChooser::textChanged, this,
                 [this] { setSearchDir(m_directory->filePath()); });

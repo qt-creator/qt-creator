@@ -237,7 +237,7 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
     m_hostWidget = new HostWidget;
     m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
     m_toolsIniChooser = new PathChooser;
-    m_toolsIniChooser->setExpectedKind(PathChooser::File);
+    m_toolsIniChooser->setExpectedKind(PathChooserKind::File);
     m_toolsIniChooser->setPromptDialogFilter("tools.ini");
     m_toolsIniChooser->setPromptDialogTitle(Tr::tr("Choose Keil Toolset Configuration File"));
     m_mainLayout->addRow(Tr::tr("Tools file path:"), m_toolsIniChooser);

@@ -224,7 +224,7 @@ ToolsSettingsWidget::ToolsSettingsWidget()
     m_name.setDisplayStyle(StringAspect::LineEditDisplay);
     m_name.setLabelText(Tr::tr("Name:"));
 
-    m_executable.setExpectedKind(PathChooser::ExistingCommand);
+    m_executable.setExpectedKind(PathChooserKind::ExistingCommand);
     m_executable.setHistoryCompleter("Meson.Command.History");
     m_executable.setLabelText(Tr::tr("Path:"));
 

@@ -88,7 +88,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(std::optional<QPoint> pos, 
 
     auto pathLayout = new QHBoxLayout;
     m_pathChooser = new Utils::PathChooser(this);
-    m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_pathChooser->setExpectedKind(Utils::PathChooserKind::ExistingCommand);
     m_pathChooser->setHistoryCompleter("LocalExecutable", true);
     m_pathChooser->setMinimumWidth(400);
 

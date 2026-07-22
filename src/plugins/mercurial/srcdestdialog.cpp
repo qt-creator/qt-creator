@@ -37,7 +37,7 @@ SrcDestDialog::SrcDestDialog(const VcsBasePluginState &state, Direction dir, QWi
 
     m_localPathChooser = new Utils::PathChooser;
     m_localPathChooser->setEnabled(false);
-    m_localPathChooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_localPathChooser->setExpectedKind(PathChooserKind::ExistingDirectory);
     m_localPathChooser->setHistoryCompleter("Hg.SourceDir.History");
 
     m_urlLineEdit = new QLineEdit;

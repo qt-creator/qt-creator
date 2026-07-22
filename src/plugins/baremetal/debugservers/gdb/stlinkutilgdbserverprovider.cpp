@@ -212,7 +212,7 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
     m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
 
     m_executableFileChooser = new Utils::PathChooser;
-    m_executableFileChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_executableFileChooser->setExpectedKind(Utils::PathChooserKind::ExistingCommand);
     m_mainLayout->addRow(Tr::tr("Executable file:"), m_executableFileChooser);
 
     m_verboseLevelSpinBox = new QSpinBox;

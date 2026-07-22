@@ -77,7 +77,7 @@ public:
         label->setWordWrap(true);
 
         auto chooser = new PathChooser;
-        chooser->setExpectedKind(PathChooser::Any);
+        chooser->setExpectedKind(PathChooserKind::Any);
         connect(chooser, &PathChooser::textChanged, this, [this, chooser] {
             m_data->sourcePath = chooser->filePath();
             updateWarnings();

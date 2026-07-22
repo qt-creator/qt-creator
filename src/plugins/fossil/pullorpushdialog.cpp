@@ -29,7 +29,7 @@ PullOrPushDialog::PullOrPushDialog(FossilCommand command, QWidget *parent)
 
     m_localPathChooser = new Utils::PathChooser;
     m_localPathChooser->setEnabled(false);
-    m_localPathChooser->setExpectedKind(Utils::PathChooser::File);
+    m_localPathChooser->setExpectedKind(Utils::PathChooserKind::File);
     m_localPathChooser->setPromptDialogFilter(Tr::tr(Constants::FOSSIL_FILE_FILTER));
 
     m_urlButton = new QRadioButton(Tr::tr("Specify URL:"));

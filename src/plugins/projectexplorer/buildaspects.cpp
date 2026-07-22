@@ -45,7 +45,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
 {
     setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
     setLabelText(Tr::tr("Build directory:"));
-    setExpectedKind(Utils::PathChooser::Directory);
+    setExpectedKind(Utils::PathChooserKind::Directory);
 
     setValidationFunction([this](QString text) -> FancyLineEdit::AsyncValidationFuture {
         const FilePath fixedDir = fixupDir(FilePath::fromUserInput(text));

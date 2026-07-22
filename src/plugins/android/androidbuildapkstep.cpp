@@ -349,7 +349,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     // Application Signature Group
 
     auto keystoreLocationChooser = new PathChooser;
-    keystoreLocationChooser->setExpectedKind(PathChooser::File);
+    keystoreLocationChooser->setExpectedKind(PathChooserKind::File);
     keystoreLocationChooser->lineEdit()->setReadOnly(true);
     keystoreLocationChooser->setFilePath(m_step->keystorePath());
     keystoreLocationChooser->setInitialBrowsePathBackup(FileUtils::homePath());

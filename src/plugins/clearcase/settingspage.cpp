@@ -52,7 +52,7 @@ SettingsPageWidget::SettingsPageWidget()
 {
     commandPathChooser = new PathChooser;
     commandPathChooser->setPromptDialogTitle(Tr::tr("ClearCase Command"));
-    commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
+    commandPathChooser->setExpectedKind(PathChooserKind::ExistingCommand);
     commandPathChooser->setHistoryCompleter("ClearCase.Command.History");
 
     graphicalDiffRadioButton = new QRadioButton(Tr::tr("&Graphical (single file only)"));

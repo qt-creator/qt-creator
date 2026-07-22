@@ -25,7 +25,7 @@ public:
     SysRootKitAspectImpl(Kit *k, const KitAspectFactory *factory) : KitAspect(k, factory)
     {
         m_chooser = createSubWidget<PathChooser>();
-        m_chooser->setExpectedKind(PathChooser::ExistingDirectory);
+        m_chooser->setExpectedKind(PathChooserKind::ExistingDirectory);
         m_chooser->setHistoryCompleter("PE.SysRoot.History");
         m_chooser->setFilePath(SysRootKitAspect::sysRoot(k));
         connect(m_chooser, &PathChooser::textChanged,

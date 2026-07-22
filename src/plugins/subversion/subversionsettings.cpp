@@ -29,7 +29,7 @@ SubversionSettings::SubversionSettings()
     setAutoApply(false);
     setSettingsGroup("Subversion");
 
-    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setExpectedKind(PathChooserKind::ExistingCommand);
     binaryPath.setHistoryCompleter("Subversion.Command.History");
     binaryPath.setDefaultValue("svn" QTC_HOST_EXE_SUFFIX);
     binaryPath.setDisplayName(Tr::tr("Subversion Command"));

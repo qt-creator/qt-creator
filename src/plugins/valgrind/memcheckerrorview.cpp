@@ -218,7 +218,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     if (!defaultSuppFile.exists() && defaultSuppFile.ensureExistingFile())
         m_cleanupIfCanceled = true;
 
-    m_fileChooser->setExpectedKind(PathChooser::File);
+    m_fileChooser->setExpectedKind(PathChooserKind::File);
     m_fileChooser->setHistoryCompleter("Valgrind.Suppression.History");
     m_fileChooser->setPath(defaultSuppFile.fileName());
     m_fileChooser->setPromptDialogFilter("*.supp");

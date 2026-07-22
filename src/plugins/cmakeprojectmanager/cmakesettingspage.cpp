@@ -359,7 +359,7 @@ public:
         m_displayName.setDisplayStyle(StringAspect::LineEditDisplay);
         m_displayName.setLabelText(Tr::tr("Name:"));
 
-        m_binary.setExpectedKind(PathChooser::ExistingCommand);
+        m_binary.setExpectedKind(PathChooserKind::ExistingCommand);
         m_binary.setHistoryCompleter("Cmake.Command.History");
         m_binary.setCommandVersionArguments({"--version"});
         m_binary.setAllowPathFromDevice(true);
@@ -368,7 +368,7 @@ public:
         m_version.setDisplayStyle(StringAspect::LabelDisplay);
         m_version.setLabelText(Tr::tr("Version:"));
 
-        m_qchFile.setExpectedKind(PathChooser::File);
+        m_qchFile.setExpectedKind(PathChooserKind::File);
         m_qchFile.setHistoryCompleter("Cmake.qchFile.History");
         m_qchFile.setPromptDialogFilter("*.qch");
         m_qchFile.setPromptDialogTitle(Tr::tr("CMake .qch File"));

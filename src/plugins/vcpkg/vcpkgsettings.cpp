@@ -36,7 +36,7 @@ VcpkgSettings::VcpkgSettings()
     setAutoApply(false);
 
     vcpkgRoot.setSettingsKey("VcpkgRoot");
-    vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);
+    vcpkgRoot.setExpectedKind(PathChooserKind::ExistingDirectory);
     FilePath defaultPath = FilePath::fromUserInput(
         qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
 

@@ -187,7 +187,7 @@ CppFileSettings::CppFileSettings()
         "These paths are used in addition to current directory on Switch Header/Source."));
 
     licenseTemplatePath.setSettingsKey("LicenseTemplate");
-    licenseTemplatePath.setExpectedKind(PathChooser::File);
+    licenseTemplatePath.setExpectedKind(PathChooserKind::File);
     licenseTemplatePath.setHistoryCompleter("Cpp.LicenseTemplate.History");
     licenseTemplatePath.setLabelText(Tr::tr("License &template:"));
 

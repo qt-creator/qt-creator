@@ -46,14 +46,14 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
     m_pysideProject.setSettingsKey("Python.PySideProjectTool");
     m_pysideProject.setLabelText(Tr::tr("PySide project tool:"));
     m_pysideProject.setToolTip(Tr::tr("Enter location of PySide project tool."));
-    m_pysideProject.setExpectedKind(PathChooser::Command);
+    m_pysideProject.setExpectedKind(PathChooserKind::Command);
     m_pysideProject.setHistoryCompleter("Python.PySideProjectTool.History");
     m_pysideProject.setReadOnly(true);
 
     m_pysideUic.setSettingsKey("Python.PySideUic");
     m_pysideUic.setLabelText(Tr::tr("PySide uic tool:"));
     m_pysideUic.setToolTip(Tr::tr("Enter location of PySide uic tool."));
-    m_pysideUic.setExpectedKind(PathChooser::Command);
+    m_pysideUic.setExpectedKind(PathChooserKind::Command);
     m_pysideUic.setHistoryCompleter("Python.PySideUic.History");
     m_pysideUic.setReadOnly(true);
 

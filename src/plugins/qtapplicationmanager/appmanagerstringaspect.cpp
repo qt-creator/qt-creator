@@ -72,7 +72,7 @@ AppManagerControllerAspect::AppManagerControllerAspect(Utils::AspectContainer *c
     : FilePathAspect(container)
 {
     setSettingsKey("ApplicationManagerPlugin.AppControllerPath");
-    setExpectedKind(Utils::PathChooser::ExistingCommand);
+    setExpectedKind(Utils::PathChooserKind::ExistingCommand);
     setLabelText(Tr::tr("Controller:"));
 }
 
@@ -80,7 +80,7 @@ AppManagerPackagerAspect::AppManagerPackagerAspect(Utils::AspectContainer *conta
     : FilePathAspect(container)
 {
     setSettingsKey("ApplicationManagerPlugin.AppPackagerPath");
-    setExpectedKind(Utils::PathChooser::ExistingCommand);
+    setExpectedKind(Utils::PathChooserKind::ExistingCommand);
     setLabelText(Tr::tr("Packager:"));
 }
 

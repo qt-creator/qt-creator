@@ -35,7 +35,7 @@ struct PackageDescription
     VersionDetection versionDetection = {};
     bool optional = false;
     bool shouldAddToSystemPath = false;
-    Utils::PathChooser::Kind type = Utils::PathChooser::Kind::Any;
+    Utils::PathChooserKind type = Utils::PathChooserKind::Any;
 }; //struct PackageDescription
 
 struct McuTargetDescription

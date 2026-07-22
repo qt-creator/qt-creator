@@ -35,7 +35,7 @@ HarmonyOsSettings::HarmonyOsSettings()
     setAutoApply(false);
 
     sdkLocation.setSettingsKey("SdkLocation");
-    sdkLocation.setExpectedKind(PathChooser::ExistingDirectory);
+    sdkLocation.setExpectedKind(PathChooserKind::ExistingDirectory);
     sdkLocation.setLabelText(Tr::tr("HarmonyOS SDK location:"));
 
     automaticKitCreation.setSettingsKey("AutomaticKitCreation");

@@ -64,7 +64,7 @@ StartRemoteDialog::StartRemoteDialog()
         return kit->isValid() && device && !device->sshParameters().host().isEmpty();
     });
     m_executable = new PathChooser(this);
-    m_executable->setExpectedKind(PathChooser::ExistingCommand);
+    m_executable->setExpectedKind(PathChooserKind::ExistingCommand);
     m_arguments = new FancyLineEdit(this);
     m_arguments->setClearButtonEnabled(true);
     m_arguments->setMinimumWidth(500);

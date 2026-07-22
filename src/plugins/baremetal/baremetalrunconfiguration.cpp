@@ -52,7 +52,7 @@ public:
         executable.setPlaceHolderText(Tr::tr("Unknown"));
         executable.setReadOnly(false);
         executable.setHistoryCompleter("BareMetal.CustomRunConfig.History");
-        executable.setExpectedKind(PathChooser::Any);
+        executable.setExpectedKind(PathChooserKind::Any);
 
         setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(
             Tr::tr("Custom Executable"), kit()));

@@ -135,7 +135,7 @@ ClangToolsSettings::ClangToolsSettings()
     clangTidyExecutable.setLabelText(Tr::tr("Clang-Tidy:"));
     clangTidyExecutable.setDefaultPathValue(
         shippedTidy.isEmpty() ? FilePath(Constants::CLANG_TIDY_EXECUTABLE_NAME) : shippedTidy);
-    clangTidyExecutable.setExpectedKind(PathChooser::ExistingCommand);
+    clangTidyExecutable.setExpectedKind(PathChooserKind::ExistingCommand);
     clangTidyExecutable.setPromptDialogTitle(Tr::tr("Clang-Tidy Executable"));
     clangTidyExecutable.setHistoryCompleter(Key("ClangTools.ClangTidyExecutable.History"));
     clangTidyExecutable.setCommandVersionArguments({"--version"});
@@ -145,7 +145,7 @@ ClangToolsSettings::ClangToolsSettings()
     clazyStandaloneExecutable.setLabelText(Tr::tr("Clazy-Standalone:"));
     clazyStandaloneExecutable.setDefaultPathValue(
         shippedClazy.isEmpty() ? FilePath(Constants::CLAZY_STANDALONE_EXECUTABLE_NAME) : shippedClazy);
-    clazyStandaloneExecutable.setExpectedKind(PathChooser::ExistingCommand);
+    clazyStandaloneExecutable.setExpectedKind(PathChooserKind::ExistingCommand);
     clazyStandaloneExecutable.setPromptDialogTitle(Tr::tr("Clazy Executable"));
     clazyStandaloneExecutable.setHistoryCompleter(Key("ClangTools.ClazyStandaloneExecutable.History"));
     clazyStandaloneExecutable.setCommandVersionArguments({"--version"});

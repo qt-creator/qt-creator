@@ -246,7 +246,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
     stagingDir.setSettingsKey(STAGING_DIR_KEY);
     stagingDir.setDefaultValue(QString("%{BuildConfig:BuildDirectory:FilePath}/")
                                        + ProjectExplorer::Constants::PROJECT_QTC_DIR + "/staging");
-    stagingDir.setExpectedKind(PathChooser::Kind::Directory);
+    stagingDir.setExpectedKind(PathChooserKind::Directory);
 
     Kit *kit = this->kit();
     if (CMakeBuildConfiguration::isIos(kit) && CMakeGeneratorKitAspect::generator(kit) == "Xcode") {

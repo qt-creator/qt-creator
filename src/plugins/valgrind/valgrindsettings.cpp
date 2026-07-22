@@ -214,7 +214,7 @@ ValgrindSettings::ValgrindSettings(bool global)
 
     valgrindExecutable.setSettingsKey(base + "ValgrindExecutable");
     valgrindExecutable.setDefaultValue("valgrind");
-    valgrindExecutable.setExpectedKind(PathChooser::Command);
+    valgrindExecutable.setExpectedKind(PathChooserKind::Command);
     valgrindExecutable.setHistoryCompleter("Valgrind.Command.History");
     valgrindExecutable.setDisplayName(Tr::tr("Valgrind Command"));
     valgrindExecutable.setLabelText(Tr::tr("Valgrind executable:"));
@@ -283,7 +283,7 @@ ValgrindSettings::ValgrindSettings(bool global)
     kcachegrindExecutable.setSettingsKey(base + "KCachegrindExecutable");
     kcachegrindExecutable.setDefaultValue("kcachegrind");
     kcachegrindExecutable.setLabelText(Tr::tr("KCachegrind executable:"));
-    kcachegrindExecutable.setExpectedKind(Utils::PathChooser::Command);
+    kcachegrindExecutable.setExpectedKind(Utils::PathChooserKind::Command);
     kcachegrindExecutable.setDisplayName(Tr::tr("KCachegrind Command"));
 
     callgrindArguments.setSettingsKey(base + "Callgrind.Arguments");

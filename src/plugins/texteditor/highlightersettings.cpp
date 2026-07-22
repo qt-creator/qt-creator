@@ -30,7 +30,7 @@ HighlighterSettings::HighlighterSettings()
     setSettingsGroup(QString("Text") + Constants::HIGHLIGHTER_SETTINGS_CATEGORY);
 
     definitionFilesPath.setSettingsKey("UserDefinitionFilesPath");
-    definitionFilesPath.setExpectedKind(PathChooser::ExistingDirectory);
+    definitionFilesPath.setExpectedKind(PathChooserKind::ExistingDirectory);
     definitionFilesPath.setHistoryCompleter("TextEditor.Highlighter.History");
     const FilePath path = Core::ICore::userResourcePath("generic-highlighter");
     if (path.exists() || path.ensureWritableDir())

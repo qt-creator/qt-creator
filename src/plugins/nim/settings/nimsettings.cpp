@@ -37,7 +37,7 @@ NimSettings::NimSettings()
     });
 
     nimSuggestPath.setSettingsKey("Command");
-    nimSuggestPath.setExpectedKind(PathChooser::ExistingCommand);
+    nimSuggestPath.setExpectedKind(PathChooserKind::ExistingCommand);
     nimSuggestPath.setLabelText(Tr::tr("Path:"));
 
     readSettings();

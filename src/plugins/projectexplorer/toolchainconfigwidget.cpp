@@ -164,7 +164,7 @@ void ToolchainConfigWidget::setupCompilerPathChoosers()
                 : Tr::tr("%1 compiler path").arg(
                                        ToolchainManager::displayNameOfLanguageId(tc.language()));
         const auto commandChooser = new PathChooser(this);
-        commandChooser->setExpectedKind(PathChooser::ExistingCommand);
+        commandChooser->setExpectedKind(PathChooserKind::ExistingCommand);
         commandChooser->setHistoryCompleter("PE.ToolChainCommand.History");
         commandChooser->setAllowPathFromDevice(true);
         commandChooser->setFilePath(tc.compilerCommand());

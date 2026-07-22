@@ -78,7 +78,7 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     conanFile.setValue(conanFilePath(project(), project()->projectDirectory() / "conanfile.txt"));
     conanFile.setLabelText(Tr::tr("Conan file:"));
     conanFile.setToolTip(Tr::tr("Enter location of conanfile.txt or conanfile.py."));
-    conanFile.setExpectedKind(PathChooser::File);
+    conanFile.setExpectedKind(PathChooserKind::File);
 
     additionalArguments.setSettingsKey("ConanPackageManager.InstallStep.AdditionalArguments");
     additionalArguments.setLabelText(Tr::tr("Additional arguments:"));

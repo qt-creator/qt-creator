@@ -1061,7 +1061,7 @@ void QtSettingsPageWidget::linkWithQt()
         Tr::tr("Choose the Qt installation directory, or a directory that contains \"%1\".")
             .arg(settingsFile("").toUserOutput()));
     auto pathInput = new PathChooser;
-    pathInput->setExpectedKind(PathChooser::ExistingDirectory);
+    pathInput->setExpectedKind(PathChooserKind::ExistingDirectory);
     pathInput->setBaseDirectory(FilePath::fromString(QCoreApplication::applicationDirPath()));
     pathInput->setPromptDialogTitle(title);
     pathInput->setMacroExpander(nullptr);

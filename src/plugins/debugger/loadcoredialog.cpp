@@ -46,14 +46,14 @@ public:
 
         coreFile.setSettingsKey("LastLocalCoreFile");
         coreFile.setHistoryCompleter("Debugger.CoreFile.History");
-        coreFile.setExpectedKind(PathChooser::File);
+        coreFile.setExpectedKind(PathChooserKind::File);
         coreFile.setPromptDialogTitle(Tr::tr("Select Core File"));
         coreFile.setAllowPathFromDevice(true);
         coreFile.setLabelText(Tr::tr("Core file:"));
 
         symbolFile.setSettingsKey("LastExternalExecutableFile");
         symbolFile.setHistoryCompleter("Executable");
-        symbolFile.setExpectedKind(PathChooser::File);
+        symbolFile.setExpectedKind(PathChooserKind::File);
         symbolFile.setPromptDialogTitle(Tr::tr("Select Executable or Symbol File"));
         symbolFile.setAllowPathFromDevice(true);
         symbolFile.setLabelText(Tr::tr("&Executable or symbol file:"));
@@ -64,13 +64,13 @@ public:
 
         overrideStartScript.setSettingsKey("LastExternalStartScript");
         overrideStartScript.setHistoryCompleter("Debugger.StartupScript.History");
-        overrideStartScript.setExpectedKind(PathChooser::File);
+        overrideStartScript.setExpectedKind(PathChooserKind::File);
         overrideStartScript.setPromptDialogTitle(Tr::tr("Select Startup Script"));
         overrideStartScript.setLabelText(Tr::tr("Override &start script:"));
 
         sysRoot.setSettingsKey("LastSysRoot");
         sysRoot.setHistoryCompleter("Debugger.SysRoot.History");
-        sysRoot.setExpectedKind(PathChooser::Directory);
+        sysRoot.setExpectedKind(PathChooserKind::Directory);
         sysRoot.setPromptDialogTitle(Tr::tr("Select SysRoot Directory"));
         sysRoot.setToolTip(Tr::tr("This option can be used to override the kit's SysRoot setting"));
         sysRoot.setLabelText(Tr::tr("Override S&ysRoot:"));

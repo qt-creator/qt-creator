@@ -80,7 +80,7 @@ CopilotSettings::CopilotSettings()
 
     const FilePath distFromVim = findOrDefault(searchDirs, &FilePath::exists);
 
-    nodeJsPath.setExpectedKind(PathChooser::ExistingCommand);
+    nodeJsPath.setExpectedKind(PathChooserKind::ExistingCommand);
     nodeJsPath.setDefaultPathValue(nodeFromPath);
     nodeJsPath.setSettingsKey("Copilot.NodeJsPath");
     nodeJsPath.setLabelText(Tr::tr("Node.js path:"));
@@ -91,7 +91,7 @@ CopilotSettings::CopilotSettings()
                                  "for installation instructions.")
                               .arg("https://nodejs.org/en/download/"));
 
-    distPath.setExpectedKind(PathChooser::File);
+    distPath.setExpectedKind(PathChooserKind::File);
     distPath.setDefaultPathValue(distFromVim);
     distPath.setSettingsKey("Copilot.DistPath");
     //: %1 is the filename of the copilot language server

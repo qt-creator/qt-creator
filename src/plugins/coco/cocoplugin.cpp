@@ -60,7 +60,7 @@ public:
 
             PathChooser csmesChoser;
             csmesChoser.setHistoryCompleter("Coco.CSMes.history", true);
-            csmesChoser.setExpectedKind(PathChooser::File);
+            csmesChoser.setExpectedKind(PathChooserKind::File);
             csmesChoser.setInitialBrowsePathBackup(PathChooser::homePath());
             csmesChoser.setPromptDialogFilter(Tr::tr("Coco instrumentation files (*.csmes)"));
             csmesChoser.setPromptDialogTitle(Tr::tr("Select a Squish Coco Instrumentation File"));

@@ -237,7 +237,7 @@ ClangdSettings::ClangdSettings()
     useClangd.setLabelText(Tr::tr("Use clangd"));
 
     clangdPath.setSettingsKey(clangdPathKey());
-    clangdPath.setExpectedKind(PathChooser::ExistingCommand);
+    clangdPath.setExpectedKind(PathChooserKind::ExistingCommand);
     clangdPath.setAllowPathFromDevice(true);
     clangdPath.setCommandVersionArguments({"--version"});
 

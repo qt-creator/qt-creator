@@ -53,7 +53,7 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     m_repositoryCB->addItems({project.sshUrl, project.httpUrl});
     form->addRow(Tr::tr("Repository"), m_repositoryCB);
     m_pathChooser = new PathChooser(this);
-    m_pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_pathChooser->setExpectedKind(PathChooserKind::ExistingDirectory);
     form->addRow(Tr::tr("Path"), m_pathChooser);
     m_directoryLE = new FancyLineEdit(this);
     m_directoryLE->setValidationFunction([this](const QString &text) -> Result<> {

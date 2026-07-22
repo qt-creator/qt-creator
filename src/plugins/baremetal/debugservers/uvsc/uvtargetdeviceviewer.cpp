@@ -65,7 +65,7 @@ DeviceSelectorDetailsPanel::DeviceSelectorDetailsPanel(DeviceSelection &selectio
     m_algorithmView = new DeviceSelectionAlgorithmView(m_selection);
     layout->addRow(Tr::tr("Flash algorithm:"), m_algorithmView);
     m_peripheralDescriptionFileChooser = new Utils::PathChooser(this);
-    m_peripheralDescriptionFileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_peripheralDescriptionFileChooser->setExpectedKind(Utils::PathChooserKind::File);
     m_peripheralDescriptionFileChooser->setPromptDialogFilter(
                 Tr::tr("Peripheral description files (*.svd)"));
     m_peripheralDescriptionFileChooser->setPromptDialogTitle(

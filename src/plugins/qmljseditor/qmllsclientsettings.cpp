@@ -220,7 +220,7 @@ QmllsClientSettings::QmllsClientSettings()
     enableCMakeBuilds.setDefaultValue(true);
 
     executable.setSettingsKey(executableKey);
-    executable.setExpectedKind(Utils::PathChooser::File);
+    executable.setExpectedKind(Utils::PathChooserKind::File);
     executable.setHistoryCompleter("Qmlls.Executable.History");
 
     extraArguments.setLabelText(Tr::tr("Extra arguments:"));

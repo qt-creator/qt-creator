@@ -200,7 +200,7 @@ void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
     if (QTC_GUARD(macroExpander()))
         m_chooser->setMacroExpander(macroExpander());
     m_chooser->setHistoryCompleter(settingsKey());
-    m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_chooser->setExpectedKind(Utils::PathChooserKind::ExistingDirectory);
     m_chooser->setPromptDialogTitle(Tr::tr("Select Working Directory"));
     m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
     m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
@@ -596,7 +596,7 @@ void ExecutableAspect::setHistoryCompleter(const Key &historyCompleterKey)
 
    \sa Utils::PathChooser::setExpectedKind()
 */
-void ExecutableAspect::setExpectedKind(const PathChooser::Kind expectedKind)
+void ExecutableAspect::setExpectedKind(const PathChooserKind expectedKind)
 {
     m_executable.setExpectedKind(expectedKind);
     if (m_alternativeExecutable)
@@ -605,7 +605,7 @@ void ExecutableAspect::setExpectedKind(const PathChooser::Kind expectedKind)
 
 /*!
    Sets the environment in which paths will be searched when the expected kind
-   of paths is chosen as PathChooser::Command or PathChooser::ExistingCommand
+   of paths is chosen as PathChooserKind::Command or PathChooserKind::ExistingCommand
    to \a env.
 */
 void ExecutableAspect::setEnvironment(const Environment &env)

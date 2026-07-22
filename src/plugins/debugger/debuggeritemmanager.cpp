@@ -821,7 +821,7 @@ class DebuggerSettingsPageWidget : public IOptionsPageWidget
 public:
     DebuggerSettingsPageWidget()
     {
-        m_binaryChooser.setExpectedKind(PathChooser::ExistingCommand);
+        m_binaryChooser.setExpectedKind(PathChooserKind::ExistingCommand);
         m_binaryChooser.setMinimumWidth(400);
         m_binaryChooser.setHistoryCompleter("DebuggerPaths");
         m_binaryChooser.setValidationFunction(
@@ -845,7 +845,7 @@ public:
             });
         m_binaryChooser.setAllowPathFromDevice(true);
 
-        m_workingDirectoryChooser.setExpectedKind(PathChooser::Directory);
+        m_workingDirectoryChooser.setExpectedKind(PathChooserKind::Directory);
         m_workingDirectoryChooser.setMinimumWidth(400);
         m_workingDirectoryChooser.setHistoryCompleter("DebuggerPaths");
 
@@ -1006,7 +1006,7 @@ void DebuggerSettingsPageWidget::load(const DebuggerItem &item)
     m_binaryChooser.setReadOnly(item.detectionSource().isAutoDetected());
     m_binaryChooser.setFilePath(item.command());
     m_binaryChooser.setExpectedKind(
-        item.isGeneric() ? PathChooser::Any : PathChooser::ExistingCommand);
+        item.isGeneric() ? PathChooserKind::Any : PathChooserKind::ExistingCommand);
 
     m_workingDirectoryChooser.setReadOnly(item.detectionSource().isAutoDetected());
     m_workingDirectoryChooser.setFilePath(item.workingDirectory());

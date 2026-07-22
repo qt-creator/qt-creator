@@ -43,7 +43,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const McuPackageVersionDetector *versionDetector,
                        const bool optional,
                        const bool addToSystemPath,
-                       const Utils::PathChooser::Kind &valueType,
+                       const Utils::PathChooserKind &valueType,
                        const bool allowNewerVersionKey)
     : settingsHandler(settingsHandler)
     , m_label(label)

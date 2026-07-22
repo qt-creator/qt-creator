@@ -89,7 +89,7 @@ public:
         formatEntireFileFallback.setToolTip(Tr::tr("For action Format Selected Text"));
 
         specificConfigFile.setSettingsKey("specificConfigFile");
-        specificConfigFile.setExpectedKind(Utils::PathChooser::File);
+        specificConfigFile.setExpectedKind(Utils::PathChooserKind::File);
         specificConfigFile.setPromptDialogFilter(Tr::tr("Uncrustify file (*.cfg)"));
 
         documentationFilePath = Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)

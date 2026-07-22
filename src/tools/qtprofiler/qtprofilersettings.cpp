@@ -12,14 +12,14 @@ QtProfilerSettings::QtProfilerSettings()
     setSettingsGroup("QtProfiler");
 
     lastTraceFile.setSettingsKey("LastTraceFile");
-    lastTraceFile.setExpectedKind(Utils::PathChooser::File);
+    lastTraceFile.setExpectedKind(Utils::PathChooserKind::File);
     lastTraceFile.setDefaultValue(QDir::homePath());
 
     windowGeometry.setSettingsKey("WindowGeometry");
 
     // recordExecutable/recordArguments are transient (no settings key): they only
     // carry a --launch command line into the active backend at startup.
-    recordExecutable.setExpectedKind(Utils::PathChooser::Command);
+    recordExecutable.setExpectedKind(Utils::PathChooserKind::Command);
 
     exitOnError.setDefaultValue(false);
 

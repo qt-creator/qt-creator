@@ -91,7 +91,7 @@ CustomLanguageModel::CustomLanguageModel()
     executable.setSettingsKey("Executable");
     executable.setDisplayName(Tr::tr("Executable"));
     executable.setLabelText(Tr::tr("Executable:"));
-    executable.setExpectedKind(PathChooser::ExistingCommand);
+    executable.setExpectedKind(PathChooserKind::ExistingCommand);
 
     arguments.setSettingsKey("Arguments");
     arguments.setDisplayName(Tr::tr("Arguments"));

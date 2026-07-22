@@ -24,13 +24,13 @@ ZephyrSettings::ZephyrSettings()
 
     westFilePath.setSettingsKey("WestFilePath");
     westFilePath.setLabelText(Tr::tr("west executable:"));
-    westFilePath.setExpectedKind(PathChooser::ExistingCommand);
+    westFilePath.setExpectedKind(PathChooserKind::ExistingCommand);
     westFilePath.setDefaultPathValue(FilePath::fromUserInput("west"));
     westFilePath.setPlaceHolderText(Tr::tr("west"));
 
     workspaceDir.setSettingsKey("WorkspaceDir");
     workspaceDir.setLabelText(Tr::tr("Workspace directory:"));
-    workspaceDir.setExpectedKind(PathChooser::ExistingDirectory);
+    workspaceDir.setExpectedKind(PathChooserKind::ExistingDirectory);
     workspaceDir.setPlaceHolderText(Tr::tr("Directory containing .west/"));
     const FilePath zephyrBase =
         FilePath::fromUserInput(qtcEnvironmentVariable("ZEPHYR_BASE"));
@@ -39,7 +39,7 @@ ZephyrSettings::ZephyrSettings()
 
     qmlProjectExporterFilePath.setSettingsKey("QmlProjectExporterFilePath");
     qmlProjectExporterFilePath.setLabelText(Tr::tr("qmlprojectexporter:"));
-    qmlProjectExporterFilePath.setExpectedKind(PathChooser::ExistingCommand);
+    qmlProjectExporterFilePath.setExpectedKind(PathChooserKind::ExistingCommand);
     qmlProjectExporterFilePath.setPlaceHolderText(Tr::tr("optional, for Qt for MCUs projects"));
 
     setLayouter([this] {

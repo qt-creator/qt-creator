@@ -32,7 +32,7 @@ SamplerSettings::SamplerSettings()
     setAutoApply(true);
 
     executable.setSettingsKey("Executable");
-    executable.setExpectedKind(PathChooser::Command);
+    executable.setExpectedKind(PathChooserKind::Command);
     executable.setLabelText(Tr::tr("Executable:"));
 
     arguments.setSettingsKey("Arguments");
@@ -40,7 +40,7 @@ SamplerSettings::SamplerSettings()
     arguments.setLabelText(Tr::tr("Arguments:"));
 
     workingDirectory.setSettingsKey("WorkingDirectory");
-    workingDirectory.setExpectedKind(PathChooser::ExistingDirectory);
+    workingDirectory.setExpectedKind(PathChooserKind::ExistingDirectory);
     workingDirectory.setLabelText(Tr::tr("Working directory:"));
 }
 

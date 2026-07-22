@@ -701,8 +701,8 @@ void NonInternalLibraryDetailsController::handleLibraryTypeChange()
     libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(libraryPlatformFilter());
     const bool isMacOs = libraryPlatformType() == OsTypeMac;
     const bool isWindows = libraryPlatformType() == OsTypeWindows;
-    libraryDetailsWidget()->libraryPathChooser->setExpectedKind(isMacOs ? PathChooser::Any
-                                                                        : PathChooser::File);
+    libraryDetailsWidget()->libraryPathChooser->setExpectedKind(isMacOs ? PathChooserKind::Any
+                                                                        : PathChooserKind::File);
     setMacLibraryRadiosVisible(!isMacOs);
     setLinkageRadiosVisible(isWindows);
     setRemoveSuffixVisible(isWindows);

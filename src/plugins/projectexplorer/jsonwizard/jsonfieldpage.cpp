@@ -765,19 +765,19 @@ Result<> PathChooserField::parseData(const QVariant &data)
 
     QString kindStr = consumeValue(tmp, "kind", "existingDirectory").toString();
     if (kindStr == "existingDirectory") {
-        m_kind = PathChooser::ExistingDirectory;
+        m_kind = PathChooserKind::ExistingDirectory;
     } else if (kindStr == "directory") {
-        m_kind = PathChooser::Directory;
+        m_kind = PathChooserKind::Directory;
     } else if (kindStr == "file") {
-        m_kind = PathChooser::File;
+        m_kind = PathChooserKind::File;
     } else if (kindStr == "saveFile") {
-        m_kind = PathChooser::SaveFile;
+        m_kind = PathChooserKind::SaveFile;
     } else if (kindStr == "existingCommand") {
-        m_kind = PathChooser::ExistingCommand;
+        m_kind = PathChooserKind::ExistingCommand;
     } else if (kindStr == "command") {
-        m_kind = PathChooser::Command;
+        m_kind = PathChooserKind::Command;
     } else if (kindStr == "any") {
-        m_kind = PathChooser::Any;
+        m_kind = PathChooserKind::Any;
     } else {
         return ResultError(
             Tr::tr("kind \"%1\" is not one of the supported \"existingDirectory\", "

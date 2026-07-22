@@ -274,7 +274,7 @@ AxivionSettings::AxivionSettings()
     highlightMarks.setDefaultValue(false);
 
     axivionSuitePath.setSettingsKey("SuitePath");
-    axivionSuitePath.setExpectedKind(PathChooser::ExistingDirectory);
+    axivionSuitePath.setExpectedKind(PathChooserKind::ExistingDirectory);
     axivionSuitePath.setAllowPathFromDevice(false);
     axivionSuitePath.setLabelText(Tr::tr("Axivion Suite path:"));
 
@@ -282,31 +282,31 @@ AxivionSettings::AxivionSettings()
     saveOpenFiles.setLabelText(Tr::tr("Save all open files before starting an analysis"));
 
     bauhausPython.setSettingsKey("BauhausPython");
-    bauhausPython.setExpectedKind(PathChooser::ExistingCommand);
+    bauhausPython.setExpectedKind(PathChooserKind::ExistingCommand);
     bauhausPython.setAllowPathFromDevice(false);
     bauhausPython.setLabelText("BAUHAUS_PYTHON:");
     bauhausPython.setToolTip(Tr::tr("Path to python executable.\nSet it to overwrite global "
                                     "environment or if Axivion fails to find python in PATH."));
 
     javaHome.setSettingsKey("JavaHome");
-    javaHome.setExpectedKind(PathChooser::ExistingDirectory);
+    javaHome.setExpectedKind(PathChooserKind::ExistingDirectory);
     javaHome.setAllowPathFromDevice(false);
     javaHome.setLabelText("JAVA_HOME:");
     javaHome.setToolTip(Tr::tr("Set it to overwrite global environment or if Axivion fails to "
                                "find java in PATH."));
 
     lastLocalBuildCommand.setSettingsKey("LastLocalBuildCmd"); // used outside settings
-    lastLocalBuildCommand.setExpectedKind(PathChooser::Any);
+    lastLocalBuildCommand.setExpectedKind(PathChooserKind::Any);
     lastLocalBuildCommand.setAllowPathFromDevice(false);
     lastLocalBuildCommand.setHistoryCompleter("LocalBuildHistory");
 
     lastBauhausConfig.setSettingsKey("LastBauhausConfig"); // used outside settings
-    lastBauhausConfig.setExpectedKind(PathChooser::ExistingDirectory);
+    lastBauhausConfig.setExpectedKind(PathChooserKind::ExistingDirectory);
     lastBauhausConfig.setAllowPathFromDevice(false);
     lastBauhausConfig.setHistoryCompleter("Axivion.SFABauhausConfig");
 
     lastSfaCommand.setSettingsKey("LastSfaCmd"); // used outside settings
-    lastSfaCommand.setExpectedKind(PathChooser::Any);
+    lastSfaCommand.setExpectedKind(PathChooserKind::Any);
     lastSfaCommand.setAllowPathFromDevice(false);
     lastSfaCommand.setHistoryCompleter("Axivion.SFACommand");
 
@@ -615,7 +615,7 @@ public:
         m_analysisPath.setShowToolTipOnLabel(true);
 
         m_localPath.setLabelText(Tr::tr("Local path:"));
-        m_localPath.setExpectedKind(PathChooser::ExistingDirectory);
+        m_localPath.setExpectedKind(PathChooserKind::ExistingDirectory);
         m_localPath.setAllowPathFromDevice(false);
         m_localPath.setToolTip(Tr::tr("Local directory path corresponding to the analysis path."));
         m_localPath.setShowToolTipOnLabel(true);

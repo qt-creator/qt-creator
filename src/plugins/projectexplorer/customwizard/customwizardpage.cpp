@@ -211,17 +211,17 @@ QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
     auto pathChooser = new PathChooser;
     const QString expectedKind = field.controlAttributes.value(QLatin1String("expectedkind")).toLower();
     if (expectedKind == QLatin1String("existingdirectory"))
-        pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
+        pathChooser->setExpectedKind(PathChooserKind::ExistingDirectory);
     else if (expectedKind == QLatin1String("directory"))
-        pathChooser->setExpectedKind(PathChooser::Directory);
+        pathChooser->setExpectedKind(PathChooserKind::Directory);
     else if (expectedKind == QLatin1String("file"))
-        pathChooser->setExpectedKind(PathChooser::File);
+        pathChooser->setExpectedKind(PathChooserKind::File);
     else if (expectedKind == QLatin1String("existingcommand"))
-        pathChooser->setExpectedKind(PathChooser::ExistingCommand);
+        pathChooser->setExpectedKind(PathChooserKind::ExistingCommand);
     else if (expectedKind == QLatin1String("command"))
-        pathChooser->setExpectedKind(PathChooser::Command);
+        pathChooser->setExpectedKind(PathChooserKind::Command);
     else if (expectedKind == QLatin1String("any"))
-        pathChooser->setExpectedKind(PathChooser::Any);
+        pathChooser->setExpectedKind(PathChooserKind::Any);
     pathChooser->setHistoryCompleter(keyFromString("PE.Custom." + m_parameters->id.name()
                                      + '.' + field.name));
 

@@ -219,7 +219,7 @@ public:
     {
         m_qmlProjectFile.setSettingsKey("Zephyr.WestExportStep.QmlProjectFile");
         m_qmlProjectFile.setLabelText(Tr::tr("QML project file:"));
-        m_qmlProjectFile.setExpectedKind(PathChooser::File);
+        m_qmlProjectFile.setExpectedKind(PathChooserKind::File);
         m_qmlProjectFile.setPromptDialogFilter("*.qmlproject");
 
         // Auto-detect a single .qmlproject at project root on first creation.

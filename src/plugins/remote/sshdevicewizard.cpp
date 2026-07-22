@@ -104,7 +104,7 @@ public:
             "Otherwise, please deploy the public key for the private key "
             "with which to connect in the future.\n"
             "If you do not have a private key yet, you can also create one here.");
-        m_keyFileChooser.setExpectedKind(PathChooser::File);
+        m_keyFileChooser.setExpectedKind(PathChooserKind::File);
         m_keyFileChooser.setHistoryCompleter("Ssh.KeyFile.History");
         m_keyFileChooser.setPromptDialogTitle(Tr::tr("Choose a Private Key File"));
         auto const deployButton = new QPushButton(Tr::tr("Deploy Public Key"), this);

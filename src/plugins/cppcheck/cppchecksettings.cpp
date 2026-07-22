@@ -30,7 +30,7 @@ CppcheckSettings::CppcheckSettings()
     setAutoApply(false);
 
     binary.setSettingsKey("binary");
-    binary.setExpectedKind(PathChooser::ExistingCommand);
+    binary.setExpectedKind(PathChooserKind::ExistingCommand);
     binary.setCommandVersionArguments({"--version"});
     binary.setLabelText(Tr::tr("Binary:"));
     if (HostOsInfo::isAnyUnixHost()) {

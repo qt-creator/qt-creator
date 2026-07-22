@@ -42,7 +42,7 @@ SquishSettings::SquishSettings()
 
     squishPath.setSettingsKey("SquishPath");
     squishPath.setLabelText(Tr::tr("Squish path:"));
-    squishPath.setExpectedKind(PathChooser::ExistingDirectory);
+    squishPath.setExpectedKind(PathChooserKind::ExistingDirectory);
     squishPath.setPlaceHolderText(Tr::tr("Path to Squish installation"));
     squishPath.setValidationFunction(
         [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
@@ -64,7 +64,7 @@ SquishSettings::SquishSettings()
 
     licensePath.setSettingsKey("LicensePath");
     licensePath.setLabelText(Tr::tr("License path:"));
-    licensePath.setExpectedKind(PathChooser::ExistingDirectory);
+    licensePath.setExpectedKind(PathChooserKind::ExistingDirectory);
 
     local.setSettingsKey("Local");
     local.setLabel(Tr::tr("Local Server"));

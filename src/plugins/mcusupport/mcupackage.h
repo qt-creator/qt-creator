@@ -40,8 +40,8 @@ public:
                const McuPackageVersionDetector *versionDetector = nullptr,
                const bool addToPath = false,
                const bool optional = false,
-               const Utils::PathChooser::Kind &valueType
-               = Utils::PathChooser::Kind::ExistingDirectory,
+               const Utils::PathChooserKind &valueType
+               = Utils::PathChooserKind::ExistingDirectory,
                const bool allowNewerVersionKey = false);
 
     ~McuPackage() override = default;
@@ -101,7 +101,7 @@ private:
     const QString m_downloadUrl;
     const bool m_optional;
     const bool m_addToSystemPath;
-    const Utils::PathChooser::Kind m_valueType;
+    const Utils::PathChooserKind m_valueType;
 
     Status m_status = Status::InvalidPath;
 }; // class McuPackage

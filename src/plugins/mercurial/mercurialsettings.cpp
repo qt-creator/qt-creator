@@ -27,7 +27,7 @@ MercurialSettings::MercurialSettings()
     setAutoApply(false);
     setSettingsGroup("Mercurial");
 
-    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setExpectedKind(PathChooserKind::ExistingCommand);
     binaryPath.setDefaultValue(Constants::MERCURIALDEFAULT);
     binaryPath.setDisplayName(Tr::tr("Mercurial Command"));
     binaryPath.setHistoryCompleter("Mercurial.Command.History");

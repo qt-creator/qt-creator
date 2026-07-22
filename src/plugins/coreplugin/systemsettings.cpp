@@ -158,7 +158,7 @@ SystemSettings::SystemSettings()
 
     patchCommand.setSettingsKey("General/PatchCommand");
     patchCommand.setDefaultValue("patch");
-    patchCommand.setExpectedKind(PathChooser::ExistingCommand);
+    patchCommand.setExpectedKind(PathChooserKind::ExistingCommand);
     patchCommand.setHistoryCompleter("General.PatchCommand.History");
     patchCommand.setLabelText(Tr::tr("Patch command:"));
     patchCommand.setToolTip(Tr::tr("Command used for reverting diff chunks."));

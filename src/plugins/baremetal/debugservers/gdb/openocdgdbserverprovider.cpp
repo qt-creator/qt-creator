@@ -204,16 +204,16 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
     m_mainLayout->addRow(Tr::tr("Host:"), m_hostWidget);
 
     m_executableFileChooser = new Utils::PathChooser;
-    m_executableFileChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_executableFileChooser->setExpectedKind(Utils::PathChooserKind::ExistingCommand);
     m_executableFileChooser->setCommandVersionArguments({"--version"});
     m_mainLayout->addRow(Tr::tr("Executable file:"), m_executableFileChooser);
 
     m_rootScriptsDirChooser = new Utils::PathChooser;
-    m_rootScriptsDirChooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_rootScriptsDirChooser->setExpectedKind(Utils::PathChooserKind::Directory);
     m_mainLayout->addRow(Tr::tr("Root scripts directory:"), m_rootScriptsDirChooser);
 
     m_configurationFileChooser = new Utils::PathChooser;
-    m_configurationFileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_configurationFileChooser->setExpectedKind(Utils::PathChooserKind::File);
     m_configurationFileChooser->setPromptDialogFilter("*.cfg");
     m_mainLayout->addRow(Tr::tr("Configuration file:"), m_configurationFileChooser);
 

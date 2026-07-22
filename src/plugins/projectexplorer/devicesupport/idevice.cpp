@@ -164,7 +164,7 @@ public:
         autoDetectQtInstallation.setSettingsKey("AutoDetectQtInstallation");
         autoDetectQtInstallation.setHistoryCompleter("QtInstallation");
         autoDetectQtInstallation.setPlaceHolderText("Leave empty to search in $HOME/Qt");
-        autoDetectQtInstallation.setExpectedKind(PathChooser::ExistingDirectory);
+        autoDetectQtInstallation.setExpectedKind(PathChooserKind::ExistingDirectory);
         autoDetectQtInstallation.setEnabler(&autoDetectInQtInstallation);
 
         autoDetectInDirectories.setSettingsKey("AutoDetectInDirectories");
@@ -514,7 +514,7 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect(const DeviceConstRef &de
         });
 
     toolAspect->setAllowPathFromDevice(true);
-    toolAspect->setExpectedKind(PathChooser::ExistingCommand);
+    toolAspect->setExpectedKind(PathChooserKind::ExistingCommand);
     toolAspect->setBaseDirectory(device.lock()->rootPath());
     toolAspect->setToolType(m_toolType);
     return toolAspect;

@@ -28,7 +28,7 @@ ProcessStep::ProcessStep(BuildStepList *bsl, Id id)
 {
     m_command.setSettingsKey(PROCESS_COMMAND_KEY);
     m_command.setLabelText(Tr::tr("Command:"));
-    m_command.setExpectedKind(PathChooser::Command);
+    m_command.setExpectedKind(PathChooserKind::Command);
     m_command.setHistoryCompleter("PE.ProcessStepCommand.History");
 
     m_arguments.setSettingsKey(PROCESS_ARGUMENTS_KEY);
@@ -38,12 +38,12 @@ ProcessStep::ProcessStep(BuildStepList *bsl, Id id)
     m_workingDirectory.setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
     m_workingDirectory.setValue(QString(Constants::DEFAULT_WORKING_DIR));
     m_workingDirectory.setLabelText(Tr::tr("Working directory:"));
-    m_workingDirectory.setExpectedKind(PathChooser::Directory);
+    m_workingDirectory.setExpectedKind(PathChooserKind::Directory);
 
     m_workingDirRelativeBasePath.setSettingsKey(PROCESS_WORKINGDIRECTORYRELATIVEBASE_KEY);
     m_workingDirRelativeBasePath.setValue(QString());
     m_workingDirRelativeBasePath.setVisible(false);
-    m_workingDirRelativeBasePath.setExpectedKind(PathChooser::Directory);
+    m_workingDirRelativeBasePath.setExpectedKind(PathChooserKind::Directory);
 
     setWorkingDirectoryProvider([this] {
         const FilePath workingDir = m_workingDirectory();

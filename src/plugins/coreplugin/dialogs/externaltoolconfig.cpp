@@ -590,7 +590,7 @@ ExternalToolConfig::ExternalToolConfig()
         scrollArea
     }.attachTo(this);
 
-    m_executable->setExpectedKind(PathChooser::ExistingCommand);
+    m_executable->setExpectedKind(PathChooserKind::ExistingCommand);
     scrollArea->viewport()->setAutoFillBackground(false);
     scrollAreaWidgetContents->setAutoFillBackground(false);
     m_toolTree->setModel(&m_model);

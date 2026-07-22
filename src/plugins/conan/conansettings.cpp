@@ -21,7 +21,7 @@ ConanSettings::ConanSettings()
     setAutoApply(false);
 
     conanFilePath.setSettingsKey("ConanFilePath");
-    conanFilePath.setExpectedKind(PathChooser::ExistingCommand);
+    conanFilePath.setExpectedKind(PathChooserKind::ExistingCommand);
     conanFilePath.setDefaultValue(HostOsInfo::withExecutableSuffix("conan"));
 
     readSettings();

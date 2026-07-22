@@ -80,7 +80,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
 
     d->m_pathChooser = new Utils::PathChooser(frame);
     d->m_pathChooser->setObjectName("baseFolder"); // used by Squish
-    d->m_pathChooser->setExpectedKind(PathChooser::Directory);
+    d->m_pathChooser->setExpectedKind(PathChooserKind::Directory);
     d->m_pathChooser->setAllowPathFromDevice(true);
 
     d->m_projectsDirectoryCheckBox = new QCheckBox(Tr::tr("Use as default project location"));

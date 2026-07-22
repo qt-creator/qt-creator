@@ -35,7 +35,7 @@ GitSettings::GitSettings()
 
     binaryPath.setLabelText(Tr::tr("Git command:"));
     binaryPath.setDefaultValue("git");
-    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setExpectedKind(PathChooserKind::ExistingCommand);
     binaryPath.setHistoryCompleter("Git.Command.History");
 
     pullRebase.setSettingsKey("PullRebase");
@@ -96,7 +96,7 @@ GitSettings::GitSettings()
     logDiff.setToolTip(Tr::tr("Note that huge amount of commits might take some time."));
 
     repositoryBrowserCmd.setSettingsKey("RepositoryBrowserCmd");
-    repositoryBrowserCmd.setExpectedKind(PathChooser::ExistingCommand);
+    repositoryBrowserCmd.setExpectedKind(PathChooserKind::ExistingCommand);
     repositoryBrowserCmd.setHistoryCompleter("Git.RepoCommand.History");
     repositoryBrowserCmd.setDisplayName(Tr::tr("Git Repository Browser Command"));
     repositoryBrowserCmd.setLabelText(Tr::tr("Command:"));

@@ -209,7 +209,7 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     configWidget.setLayout(layout);
     PathChooser *commandEdit = new PathChooser;
-    commandEdit->setExpectedKind(PathChooser::ExistingCommand);
+    commandEdit->setExpectedKind(PathChooserKind::ExistingCommand);
     commandEdit->lineEdit()->setText(m_command);
     FancyLineEdit *argumentsEdit = new FancyLineEdit;
     argumentsEdit->setText(m_arguments);

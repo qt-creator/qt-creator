@@ -102,7 +102,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     profileXml.setSettingsKey("IncrediBuild.BuildConsole.ProfileXml");
     profileXml.setLabelText("Profile.xml:");
-    profileXml.setExpectedKind(PathChooser::Kind::File);
+    profileXml.setExpectedKind(PathChooserKind::File);
     profileXml.setBaseDirectory(PathChooser::homePath());
     profileXml.setHistoryCompleter("IncrediBuild.BuildConsole.ProfileXml.History");
     profileXml.setToolTip(Tr::tr("Defines how Automatic "
@@ -155,7 +155,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     monFile.setSettingsKey("IncrediBuild.BuildConsole.MonFile");
     monFile.setLabelText(Tr::tr("Save IncrediBuild monitor file:"));
-    monFile.setExpectedKind(PathChooser::Kind::Any);
+    monFile.setExpectedKind(PathChooserKind::Any);
     monFile.setBaseDirectory(PathChooser::homePath());
     monFile.setHistoryCompleter("IncrediBuild.BuildConsole.MonFile.History");
     monFile.setToolTip(Tr::tr("Writes a copy of the build progress file (.ib_mon) to the specified "
@@ -169,7 +169,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     logFile.setSettingsKey("IncrediBuild.BuildConsole.LogFile");
     logFile.setLabelText(Tr::tr("Output Log file:"));
-    logFile.setExpectedKind(PathChooser::Kind::SaveFile);
+    logFile.setExpectedKind(PathChooserKind::SaveFile);
     logFile.setBaseDirectory(PathChooser::homePath());
     logFile.setHistoryCompleter("IncrediBuild.BuildConsole.LogFile.History");
     logFile.setToolTip(Tr::tr("Writes build output to a file."));

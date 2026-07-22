@@ -148,7 +148,7 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     setAutoApply(false);
 
     command.setSettingsKey("command");
-    command.setExpectedKind(PathChooser::ExistingCommand);
+    command.setExpectedKind(PathChooserKind::ExistingCommand);
     command.setCommandVersionArguments({"--version"});
     command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("ClangFormat"));
     command.setValidatePlaceHolder(true);

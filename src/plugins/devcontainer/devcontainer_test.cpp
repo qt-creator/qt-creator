@@ -19,7 +19,6 @@
 #include <utils/infobar.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
-
 #include <coreplugin/icore.h>
 
 #include <QTest>

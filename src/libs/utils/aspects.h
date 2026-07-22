@@ -819,7 +819,7 @@ public:
     void setAllowPathFromDevice(bool allowPathFromDevice);
     void setValidatePlaceHolder(bool validatePlaceHolder);
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
-    void setExpectedKind(const PathChooser::Kind expectedKind);
+    void setExpectedKind(const PathChooserKind expectedKind);
     void setEnvironment(const Environment &env);
     void setBaseDirectory(const Lazy<FilePath> &baseDirectory);
     void setInitialBrowsePathBackup(const FilePath &initialBrowsePathBackup);

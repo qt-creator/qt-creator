@@ -74,11 +74,11 @@ public:
 
         auto sourceLabel = new QLabel(Tr::tr("Project source directory:"), this);
         m_projectSource = new PathChooser(this);
-        m_projectSource->setExpectedKind(PathChooser::ExistingDirectory);
+        m_projectSource->setExpectedKind(PathChooserKind::ExistingDirectory);
 
         auto binaryLabel = new QLabel(Tr::tr("Local executable:"), this);
         m_localExecutable = new PathChooser(this);
-        m_localExecutable->setExpectedKind(PathChooser::File);
+        m_localExecutable->setExpectedKind(PathChooserKind::File);
 
         auto formLayout = new QFormLayout;
         formLayout->addRow(sourceLabel, m_projectSource);

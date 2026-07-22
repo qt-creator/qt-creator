@@ -82,7 +82,7 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
         if (!m_configPath) {
             m_configPath = new Utils::PathChooser(m_topWidget);
             m_configPath->setPromptDialogTitle(Tr::tr("Select Custom Configuration Folder"));
-            m_configPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+            m_configPath->setExpectedKind(Utils::PathChooserKind::ExistingDirectory);
             m_configPath->setInitialBrowsePathBackup(project->fileName().absolutePath());
             addRow(Tr::tr("Config path:"), m_configPath, "configpath");
             connect(m_configPath, &Utils::PathChooser::textChanged,
@@ -113,7 +113,7 @@ void ExtPropertiesMView::visitMObjectBehind(const qmt::MObject *object)
     if (!m_filelinkPathChooser) {
         m_filelinkPathChooser = new Utils::PathChooser(m_topWidget);
         m_filelinkPathChooser->setPromptDialogTitle((Tr::tr("Select File Target")));
-        m_filelinkPathChooser->setExpectedKind(Utils::PathChooser::File);
+        m_filelinkPathChooser->setExpectedKind(Utils::PathChooserKind::File);
         m_filelinkPathChooser->setInitialBrowsePathBackup(project->fileName().absolutePath());
         addRow(Tr::tr("Linked file:"), m_filelinkPathChooser, "filelink");
         connect(m_filelinkPathChooser, &Utils::PathChooser::textChanged,
@@ -147,7 +147,7 @@ void ExtPropertiesMView::visitDObjectBefore(const qmt::DObject *object)
     if (!m_imagePathChooser) {
         m_imagePathChooser = new Utils::PathChooser(m_topWidget);
         m_imagePathChooser->setPromptDialogTitle(Tr::tr("Select Image File"));
-        m_imagePathChooser->setExpectedKind(Utils::PathChooser::File);
+        m_imagePathChooser->setExpectedKind(Utils::PathChooserKind::File);
         m_imagePathChooser->setPromptDialogFilter(imageNameFilterString());
         m_imagePathChooser->setInitialBrowsePathBackup(project->fileName().absolutePath());
         addRow(Tr::tr("Image:"), m_imagePathChooser, "imagepath");

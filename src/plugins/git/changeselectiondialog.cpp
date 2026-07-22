@@ -66,7 +66,7 @@ ChangeSelectionDialog::ChangeSelectionDialog(const FilePath &workingDirectory, I
     m_showButton = new QPushButton(Tr::tr("&Show"));
     m_showButton->setObjectName("showButton");
 
-    m_workingDirectoryChooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_workingDirectoryChooser->setExpectedKind(PathChooserKind::ExistingDirectory);
     m_workingDirectoryChooser->setPromptDialogTitle(Tr::tr("Select Git Directory"));
     m_workingDirectoryChooser->setFilePath(workingDirectory);
 

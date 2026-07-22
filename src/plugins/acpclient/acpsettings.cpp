@@ -226,7 +226,7 @@ public:
         launchCommand.setLabelText(Tr::tr("Executable:"));
         launchCommand.setSettingsKey("launchCommand");
         launchCommand.setToolTip(Tr::tr("The executable to launch the ACP server process."));
-        launchCommand.setExpectedKind(PathChooser::ExistingCommand);
+        launchCommand.setExpectedKind(PathChooserKind::ExistingCommand);
 
         launchArguments.setLabelText(Tr::tr("Arguments:"));
         launchArguments.setSettingsKey("launchArguments");

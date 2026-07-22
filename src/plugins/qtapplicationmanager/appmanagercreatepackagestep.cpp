@@ -45,11 +45,11 @@ public:
 
         sourceDirectory.setSettingsKey(SETTINGSPREFIX "SourceDirectory");
         sourceDirectory.setLabelText(Tr::tr("Source directory:"));
-        sourceDirectory.setExpectedKind(Utils::PathChooser::ExistingDirectory);
+        sourceDirectory.setExpectedKind(Utils::PathChooserKind::ExistingDirectory);
 
         packageFile.setSettingsKey(SETTINGSPREFIX "FileName");
         packageFile.setLabelText(Tr::tr("Package file:"));
-        packageFile.setExpectedKind(Utils::PathChooser::SaveFile);
+        packageFile.setExpectedKind(Utils::PathChooserKind::SaveFile);
     }
 
     bool init() final

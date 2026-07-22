@@ -27,7 +27,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(BuildConfigur
     executable.setSettingsKey("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
     executable.setReadOnly(false);
     executable.setHistoryCompleter("Qt.CustomExecutable.History");
-    executable.setExpectedKind(PathChooser::ExistingCommand);
+    executable.setExpectedKind(PathChooserKind::ExistingCommand);
     executable.setEnvironment(environment.environment());
 
     workingDir.setEnvironment(&environment);

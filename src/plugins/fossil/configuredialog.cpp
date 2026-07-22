@@ -51,7 +51,7 @@ ConfigureDialog::ConfigureDialog(QWidget *parent) : QDialog(parent),
         Tr::tr("Existing user to become an author of changes made to the repository."));
 
     d->m_sslIdentityFilePathChooser = new Utils::PathChooser;
-    d->m_sslIdentityFilePathChooser->setExpectedKind(Utils::PathChooser::File);
+    d->m_sslIdentityFilePathChooser->setExpectedKind(Utils::PathChooserKind::File);
     d->m_sslIdentityFilePathChooser->setPromptDialogTitle(Tr::tr("SSL/TLS Identity Key"));
     d->m_sslIdentityFilePathChooser->setToolTip(
         Tr::tr("SSL/TLS client identity key to use if requested by the server."));

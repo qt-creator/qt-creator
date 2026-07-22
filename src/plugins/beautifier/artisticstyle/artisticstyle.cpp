@@ -73,7 +73,7 @@ public:
         useSpecificConfigFile.setLabelText(Tr::tr("Use specific config file:"));
 
         specificConfigFile.setSettingsKey("specificConfigFile");
-        specificConfigFile.setExpectedKind(PathChooser::File);
+        specificConfigFile.setExpectedKind(PathChooserKind::File);
         specificConfigFile.setPromptDialogFilter(Tr::tr("AStyle (*.astylerc)"));
 
         useHomeFile.setSettingsKey("useHomeFile");

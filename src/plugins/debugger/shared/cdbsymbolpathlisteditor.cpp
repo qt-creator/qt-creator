@@ -54,7 +54,7 @@ CacheDirectoryDialog::CacheDirectoryDialog(QWidget *parent) :
     setModal(true);
 
     auto formLayout = new QFormLayout;
-    m_chooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_chooser->setExpectedKind(PathChooserKind::ExistingDirectory);
     m_chooser->setHistoryCompleter("Debugger.CdbCacheDir.History");
     m_chooser->setMinimumWidth(400);
     formLayout->addRow(Tr::tr("Path:"), m_chooser);

@@ -49,7 +49,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     const QStringList versionArgs{"-version"};
 
     ffmpegTool.setSettingsKey("FFmpegTool");
-    ffmpegTool.setExpectedKind(PathChooser::ExistingCommand);
+    ffmpegTool.setExpectedKind(PathChooserKind::ExistingCommand);
     ffmpegTool.setCommandVersionArguments(versionArgs);
     const FilePath ffmpegDefault
         = Environment::systemEnvironment().searchInPath(Constants::FFMPEG_COMMAND,
@@ -58,7 +58,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     ffmpegTool.setLabelText(Tr::tr("ffmpeg tool:"));
 
     ffprobeTool.setSettingsKey("FFprobeTool");
-    ffprobeTool.setExpectedKind(PathChooser::ExistingCommand);
+    ffprobeTool.setExpectedKind(PathChooserKind::ExistingCommand);
     ffprobeTool.setCommandVersionArguments(versionArgs);
     const FilePath ffprobeDefault
         = Environment::systemEnvironment().searchInPath(Constants::FFPROBE_COMMAND,
@@ -132,18 +132,18 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     animatedImagesAsEndlessLoop.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
     lastOpenDirectory.setSettingsKey("LastOpenDir");
-    lastOpenDirectory.setExpectedKind(PathChooser::ExistingDirectory);
+    lastOpenDirectory.setExpectedKind(PathChooserKind::ExistingDirectory);
     lastOpenDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     exportLastDirectory.setSettingsKey("ExportLastDir");
-    exportLastDirectory.setExpectedKind(PathChooser::ExistingDirectory);
+    exportLastDirectory.setExpectedKind(PathChooserKind::ExistingDirectory);
     exportLastDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     exportLastFormat.setSettingsKey("ExportLastFormat");
     exportLastFormat.setDefaultValue("WebP");
 
     lastSaveImageDirectory.setSettingsKey("LastSaveImageDir");
-    lastSaveImageDirectory.setExpectedKind(PathChooser::ExistingDirectory);
+    lastSaveImageDirectory.setExpectedKind(PathChooserKind::ExistingDirectory);
     lastSaveImageDirectory.setDefaultValue(FileUtils::homePath().toUrlishString());
 
     recordFrameRate.setSettingsKey("RecordFrameRate");

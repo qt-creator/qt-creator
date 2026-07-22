@@ -34,13 +34,13 @@ public:
 
         auto sshChooser = new Utils::PathChooser;
         sshChooser->setFilePath(s.ssh);
-        sshChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        sshChooser->setExpectedKind(Utils::PathChooserKind::ExistingCommand);
         sshChooser->setCommandVersionArguments({"-V"});
         sshChooser->setHistoryCompleter("Git.SshCommand.History");
 
         auto curlChooser = new Utils::PathChooser;
         curlChooser->setFilePath(s.curl);
-        curlChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        curlChooser->setExpectedKind(Utils::PathChooserKind::ExistingCommand);
         curlChooser->setCommandVersionArguments({"-V"});
 
         auto portSpinBox = new QSpinBox(this);

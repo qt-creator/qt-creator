@@ -155,7 +155,7 @@ TerminalCommandAspect::TerminalCommandAspect(AspectContainer *parentContainer)
     terminalEmulator.setSettingsKey(kTerminalCommandKey);
     terminalEmulator.setToolTip(Tr::tr("The terminal emulator to use for opening a terminal."));
     terminalEmulator.setLabelText(Tr::tr("Command:"));
-    terminalEmulator.setExpectedKind(PathChooser::ExistingCommand);
+    terminalEmulator.setExpectedKind(PathChooserKind::ExistingCommand);
     terminalEmulator.setDefaultPathValue(TerminalCommand::defaultTerminalEmulator().command);
 
     terminalOpenArgs.setSettingsKey(kTerminalOpenOptionsKey);

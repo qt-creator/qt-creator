@@ -58,7 +58,7 @@ WebAssemblySettings::WebAssemblySettings()
     setAutoApply(false);
 
     emSdk.setSettingsKey("EmSdk");
-    emSdk.setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    emSdk.setExpectedKind(Utils::PathChooserKind::ExistingDirectory);
     emSdk.setDefaultValue(QDir::homePath());
 
     connect(this, &Utils::AspectContainer::applied, &registerToolChains);

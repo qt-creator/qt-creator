@@ -267,11 +267,11 @@ EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
     m_mainLayout->addRow(Tr::tr("Host:"), m_gdbHostWidget);
 
     m_executableFileChooser = new PathChooser;
-    m_executableFileChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_executableFileChooser->setExpectedKind(Utils::PathChooserKind::ExistingCommand);
     m_mainLayout->addRow(Tr::tr("Executable file:"), m_executableFileChooser);
 
     m_scriptFileChooser = new Utils::PathChooser;
-    m_scriptFileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_scriptFileChooser->setExpectedKind(Utils::PathChooserKind::File);
     m_scriptFileChooser->setPromptDialogFilter("*.script");
     m_mainLayout->addRow(Tr::tr("Script file:"), m_scriptFileChooser);
 

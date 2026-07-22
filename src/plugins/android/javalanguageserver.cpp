@@ -71,7 +71,7 @@ JLSSettings::JLSSettings()
     executable.setLabelText(Tr::tr("Java:"));
 
     languageServer.setSettingsKey("languageServer");
-    languageServer.setExpectedKind(PathChooser::File);
+    languageServer.setExpectedKind(PathChooserKind::File);
     languageServer.setLabelText(Tr::tr("Java Language Server:"));
     languageServer.setPlaceHolderText(Tr::tr("Path to equinox launcher jar"));
     languageServer.setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");

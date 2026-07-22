@@ -41,21 +41,21 @@ CommonVcsSettings::CommonVcsSettings()
     setSettingsGroup("VCS");
 
     nickNameMailMap.setSettingsKey("NickNameMailMap");
-    nickNameMailMap.setExpectedKind(PathChooser::File);
+    nickNameMailMap.setExpectedKind(PathChooserKind::File);
     nickNameMailMap.setHistoryCompleter("Vcs.NickMap.History");
     nickNameMailMap.setLabelText(Tr::tr("User/&alias configuration file:"));
     nickNameMailMap.setToolTip(Tr::tr("A file listing nicknames in a 4-column mailmap format:\n"
         "'name <email> alias <email>'."));
 
     nickNameFieldListFile.setSettingsKey("NickNameFieldListFile");
-    nickNameFieldListFile.setExpectedKind(PathChooser::File);
+    nickNameFieldListFile.setExpectedKind(PathChooserKind::File);
     nickNameFieldListFile.setHistoryCompleter("Vcs.NickFields.History");
     nickNameFieldListFile.setLabelText(Tr::tr("User &fields configuration file:"));
     nickNameFieldListFile.setToolTip(Tr::tr("A simple file containing lines with field names like "
         "\"Reviewed-By:\" which will be added below the submit editor."));
 
     submitMessageCheckScript.setSettingsKey("SubmitMessageCheckScript");
-    submitMessageCheckScript.setExpectedKind(PathChooser::ExistingCommand);
+    submitMessageCheckScript.setExpectedKind(PathChooserKind::ExistingCommand);
     submitMessageCheckScript.setHistoryCompleter("Vcs.MessageCheckScript.History");
     submitMessageCheckScript.setLabelText(Tr::tr("Submit message &check script:"));
     submitMessageCheckScript.setToolTip(Tr::tr("An executable which is called with the submit message "
@@ -63,7 +63,7 @@ CommonVcsSettings::CommonVcsSettings()
         "on standard error to indicate failure."));
 
     sshPasswordPrompt.setSettingsKey("SshPasswordPrompt");
-    sshPasswordPrompt.setExpectedKind(PathChooser::ExistingCommand);
+    sshPasswordPrompt.setExpectedKind(PathChooserKind::ExistingCommand);
     sshPasswordPrompt.setHistoryCompleter("Vcs.SshPrompt.History");
     sshPasswordPrompt.setDefaultValue(sshPasswordPromptDefault());
     sshPasswordPrompt.setLabelText(Tr::tr("&SSH prompt command:"));

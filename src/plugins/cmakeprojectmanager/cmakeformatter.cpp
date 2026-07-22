@@ -49,7 +49,7 @@ public:
 
         command.setSettingsKey("autoFormatCommand");
         command.setDefaultValue("cmake-format");
-        command.setExpectedKind(PathChooser::ExistingCommand);
+        command.setExpectedKind(PathChooserKind::ExistingCommand);
 
         autoFormatOnSave.setSettingsKey("autoFormatOnSave");
         autoFormatOnSave.setLabelText(Tr::tr("Enable auto format on file save"));

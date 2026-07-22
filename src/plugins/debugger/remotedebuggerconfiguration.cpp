@@ -42,7 +42,7 @@ RemoteDebuggerConfiguration::RemoteDebuggerConfiguration(BuildConfiguration *bc,
     executable.setHistoryCompleter("RemoteDebugger.Executable.History");
     executable.setPlaceHolderText(
         Tr::tr("Script or command that will set up the gdb server connection."));
-    executable.setExpectedKind(PathChooser::Command);
+    executable.setExpectedKind(PathChooserKind::Command);
 
     arguments.setSettingsKey("RemoteDebugger.Arguments");
 

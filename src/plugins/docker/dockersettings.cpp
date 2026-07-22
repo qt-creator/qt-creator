@@ -44,7 +44,7 @@ ContainerToolSettings::ContainerToolSettings(
 
     const QString toolName = scheme.at(0).toUpper() + scheme.mid(1);
 
-    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setExpectedKind(PathChooserKind::ExistingCommand);
     binaryPath.setDefaultValue(
         FilePath::fromString(scheme).searchInPath(additionalBinaryPaths).toUserOutput());
     binaryPath.setDisplayName(Tr::tr("%1 CLI").arg(displayType));

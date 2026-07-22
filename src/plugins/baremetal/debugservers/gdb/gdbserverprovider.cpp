@@ -200,7 +200,7 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(GdbServerProvider *
     m_mainLayout->addRow(Tr::tr("Startup mode:"), m_startupModeComboBox);
 
     m_peripheralDescriptionFileChooser = new PathChooser(this);
-    m_peripheralDescriptionFileChooser->setExpectedKind(PathChooser::File);
+    m_peripheralDescriptionFileChooser->setExpectedKind(PathChooserKind::File);
     m_peripheralDescriptionFileChooser->setPromptDialogFilter(
                 Tr::tr("Peripheral description files (*.svd)"));
     m_peripheralDescriptionFileChooser->setPromptDialogTitle(

@@ -48,7 +48,7 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
     useProjectDirectory.setDisplayStyle(BoolAspect::DisplayStyle::RadionButton);
     useProjectDirectory.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
-    projectsDirectory.setExpectedKind(PathChooser::ExistingDirectory);
+    projectsDirectory.setExpectedKind(PathChooserKind::ExistingDirectory);
 
     closeSourceFilesWithProject.setSettingsKey("CloseFilesWithProject");
     closeSourceFilesWithProject.setDefaultValue(true);

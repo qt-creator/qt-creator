@@ -1142,7 +1142,7 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d->m_pathLabel = new QLabel;
     d->m_pathChooser = new PathChooser;
     d->m_pathChooser->setObjectName("fullPathChooser"); // used by Squish
-    d->m_pathChooser->setExpectedKind(PathChooser::Directory);
+    d->m_pathChooser->setExpectedKind(PathChooserKind::Directory);
 
     d->m_nameLabel->setText(Tr::tr("File name:"));
     d->m_pathLabel->setText(Tr::tr("Path:"));

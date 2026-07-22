@@ -154,7 +154,7 @@ MultiExportDialog::MultiExportDialog(QWidget *parent)
     auto formLayout = new QFormLayout(this);
 
     m_pathChooser->setMinimumWidth(screen()->availableGeometry().width() / 5);
-    m_pathChooser->setExpectedKind(Utils::PathChooser::SaveFile);
+    m_pathChooser->setExpectedKind(Utils::PathChooserKind::SaveFile);
     m_pathChooser->setPromptDialogFilter(ExportDialog::imageNameFilterString());
     const QString pathChooserToolTip =
         Tr::tr("Enter a file name containing place holders %1 "

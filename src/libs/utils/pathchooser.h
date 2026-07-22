@@ -14,6 +14,7 @@ class QLineEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
+Q_NAMESPACE_EXPORT(QTCREATOR_UTILS_EXPORT)
 
 class CommandLine;
 class Environment;
@@ -21,6 +22,17 @@ class FilePath;
 class FilePaths;
 class MacroExpander;
 class PathChooserPrivate;
+
+enum class PathChooserKind {
+    ExistingDirectory,
+    Directory, // A directory, doesn't need to exist
+    File, // An existing file
+    SaveFile, // A file that does not need to exist
+    ExistingCommand, // A command that must exist at the time of selection
+    Command, // A command that may or may not exist at the time of selection (e.g. result of a build)
+    Any
+};
+Q_ENUM_NS(PathChooserKind)
 
 class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
 {
@@ -33,20 +45,9 @@ public:
     explicit PathChooser(QWidget *parent = nullptr);
     ~PathChooser() override;
 
-    enum Kind {
-        ExistingDirectory,
-        Directory, // A directory, doesn't need to exist
-        File, // An existing file
-        SaveFile, // A file that does not need to exist
-        ExistingCommand, // A command that must exist at the time of selection
-        Command, // A command that may or may not exist at the time of selection (e.g. result of a build)
-        Any
-    };
-    Q_ENUM(Kind)
-
     // Default is <ExistingDirectory>
-    void setExpectedKind(Kind expected);
-    Kind expectedKind() const;
+    void setExpectedKind(PathChooserKind expected);
+    PathChooserKind expectedKind() const;
 
     void setPromptDialogTitle(const QString &title);
     QString promptDialogTitle() const;
@@ -69,7 +70,7 @@ public:
         const MacroExpander *macroExpander,
         const FilePath &baseDirectory,
         const Environment &env,
-        Kind expectedKind = Any);
+        PathChooserKind expectedKind = PathChooserKind::Any);
 
     FilePath baseDirectory() const;
     void setBaseDirectory(const Lazy<FilePath> &base);

@@ -267,7 +267,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
     treeHLayout->addLayout(buttonLayout);
 
     // Edit part
-    m_targetChooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_targetChooser->setExpectedKind(PathChooserKind::ExistingDirectory);
     m_targetChooser->setHistoryCompleter("Debugger.MappingTarget.History");
     connect(m_sourceLineEdit, &QLineEdit::textChanged,
             this, &DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged);

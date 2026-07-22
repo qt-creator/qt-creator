@@ -177,7 +177,7 @@ QnxToolchainConfigWidget::QnxToolchainConfigWidget(const ToolchainBundle &bundle
     , m_sdpPath(new PathChooser)
     , m_abiWidget(new AbiWidget)
 {
-    m_sdpPath->setExpectedKind(PathChooser::ExistingDirectory);
+    m_sdpPath->setExpectedKind(PathChooserKind::ExistingDirectory);
     m_sdpPath->setHistoryCompleter("Qnx.Sdp.History");
     m_sdpPath->setFilePath(bundle.get<QnxToolchain>(&QnxToolchain::sdpPath)());
     m_sdpPath->setEnabled(!bundle.detectionSource().isAutoDetected());

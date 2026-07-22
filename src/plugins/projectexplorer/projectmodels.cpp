@@ -751,7 +751,7 @@ public:
             layout->addLayout(targetDirLayout);
             targetDirLayout->addWidget(new QLabel(Tr::tr("Target directory:"), this));
             m_targetDirChooser = new PathChooser(this);
-            m_targetDirChooser->setExpectedKind(PathChooser::ExistingDirectory);
+            m_targetDirChooser->setExpectedKind(PathChooserKind::ExistingDirectory);
             m_targetDirChooser->setFilePath(defaultTargetDir);
             connect(m_targetDirChooser, &PathChooser::validChanged, this, [this](bool valid) {
                 m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);

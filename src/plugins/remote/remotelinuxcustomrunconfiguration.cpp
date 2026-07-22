@@ -47,7 +47,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(BuildConfig
     executable.setLabelText(Tr::tr("Remote executable:"));
     executable.setReadOnly(false);
     executable.setHistoryCompleter("RemoteLinux.CustomExecutable.History");
-    executable.setExpectedKind(PathChooser::Any);
+    executable.setExpectedKind(PathChooserKind::Any);
 
     symbolFile.setSettingsKey("RemoteLinux.CustomRunConfig.LocalExecutable");
     symbolFile.setLabelText(Tr::tr("Local executable:"));

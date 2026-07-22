@@ -63,7 +63,7 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    m_localPathChooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_localPathChooser->setExpectedKind(Utils::PathChooserKind::Directory);
     if (m_mode == PullMode) {
         setWindowTitle(Tr::tr("Pull Source"));
         m_useExistingDirCheckBox->setVisible(false);

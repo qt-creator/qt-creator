@@ -126,7 +126,7 @@ QbsSettings::QbsSettings()
     setAutoApply(false);
 
     qbsExecutableFilePath.setSettingsKey(QBS_EXE_KEY);
-    qbsExecutableFilePath.setExpectedKind(PathChooser::ExistingCommand);
+    qbsExecutableFilePath.setExpectedKind(PathChooserKind::ExistingCommand);
     qbsExecutableFilePath.setDefaultPathValue(defaultQbsExecutableFilePath());
     qbsExecutableFilePath.setLabelText(Tr::tr("Path to qbs executable:"));
 

@@ -861,7 +861,7 @@ void LanguageClientSettings::setOutlineComboBoxSorted(bool sorted)
 StdIOSettings::StdIOSettings()
 {
     executable.setSettingsKey("executable");
-    executable.setExpectedKind(PathChooser::ExistingCommand);
+    executable.setExpectedKind(PathChooserKind::ExistingCommand);
     executable.setLabelText(Tr::tr("Executable:"));
 
     arguments.setSettingsKey("arguments");

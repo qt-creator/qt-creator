@@ -107,7 +107,7 @@ static FilePath copyToAlternativeLocation(const FilePath &proFile,
     auto txt = new QLabel(Tr::tr("&Location:"));
     auto chooser = new PathChooser;
     txt->setBuddy(chooser);
-    chooser->setExpectedKind(PathChooser::ExistingDirectory);
+    chooser->setExpectedKind(PathChooserKind::ExistingDirectory);
     chooser->setHistoryCompleter("Qt.WritableExamplesDir.History");
     const FilePath defaultRootDirectory = DocumentManager::projectsDirectory();
     QtcSettings *settings = ICore::settings();

@@ -198,7 +198,7 @@ private:
         out << "PathChooser{path:" << m_path.toUrlishString()
             << "; base:" << m_basePath
             << "; historyId:" << m_historyId
-            << "; kind:" << (int)Utils::PathChooser::ExistingDirectory
+            << "; kind:" << (int)Utils::PathChooserKind::ExistingDirectory
             << "}";
         return result;
     }
@@ -206,7 +206,7 @@ private:
     Utils::FilePath m_path;
     Utils::FilePath m_basePath;
     QString m_historyId;
-    Utils::PathChooser::Kind m_kind = Utils::PathChooser::ExistingDirectory;
+    Utils::PathChooserKind m_kind = Utils::PathChooserKind::ExistingDirectory;
 };
 
 class PROJECTEXPLORER_EXPORT CheckBoxField : public JsonFieldPage::Field

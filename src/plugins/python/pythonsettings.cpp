@@ -148,7 +148,7 @@ class InterpreterDetailsWidget : public QWidget
 public:
     InterpreterDetailsWidget()
     {
-        m_executable.setExpectedKind(PathChooser::ExistingCommand);
+        m_executable.setExpectedKind(PathChooserKind::ExistingCommand);
         m_executable.setAllowPathFromDevice(true);
 
         connect(&m_name, &QLineEdit::textChanged, this, &InterpreterDetailsWidget::changed);
@@ -930,7 +930,7 @@ void PythonSettings::createVirtualEnvironmentInteractive(
     layout->addRow(Tr::tr("Python interpreter:"), interpreters);
     auto pathChooser = new PathChooser();
     pathChooser->setInitialBrowsePathBackup(startDirectory);
-    pathChooser->setExpectedKind(PathChooser::Directory);
+    pathChooser->setExpectedKind(PathChooserKind::Directory);
     pathChooser->setPromptDialogTitle(Tr::tr("New Python Virtual Environment Directory"));
     layout->addRow(Tr::tr("Virtual environment directory:"), pathChooser);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);

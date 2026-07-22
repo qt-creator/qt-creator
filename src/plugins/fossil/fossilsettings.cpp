@@ -28,14 +28,14 @@ FossilSettings::FossilSettings()
     setAutoApply(false);
     setSettingsGroup(Constants::FOSSIL);
 
-    binaryPath.setExpectedKind(PathChooser::ExistingCommand);
+    binaryPath.setExpectedKind(PathChooserKind::ExistingCommand);
     binaryPath.setDefaultValue(Constants::FOSSILDEFAULT);
     binaryPath.setDisplayName(Tr::tr("Fossil Command"));
     binaryPath.setHistoryCompleter("Fossil.Command.History");
     binaryPath.setLabelText(Tr::tr("Command:"));
 
     defaultRepoPath.setSettingsKey("defaultRepoPath");
-    defaultRepoPath.setExpectedKind(PathChooser::Directory);
+    defaultRepoPath.setExpectedKind(PathChooserKind::Directory);
     defaultRepoPath.setDisplayName(Tr::tr("Fossil Repositories"));
     defaultRepoPath.setLabelText(Tr::tr("Default path:"));
     defaultRepoPath.setToolTip(Tr::tr("Directory to store local repositories by default."));
@@ -45,7 +45,7 @@ FossilSettings::FossilSettings()
     userName.setToolTip(Tr::tr("Existing user to become an author of changes made to the repository."));
 
     sslIdentityFile.setSettingsKey("sslIdentityFile");
-    sslIdentityFile.setExpectedKind(PathChooser::File);
+    sslIdentityFile.setExpectedKind(PathChooserKind::File);
     sslIdentityFile.setDisplayName(Tr::tr("SSL/TLS Identity Key"));
     sslIdentityFile.setLabelText(Tr::tr("SSL/TLS identity:"));
     sslIdentityFile.setToolTip(Tr::tr("SSL/TLS client identity key to use if requested by the server."));

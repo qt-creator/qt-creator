@@ -135,7 +135,7 @@ void TargetSetupWidget::addBuildInfos(const QList<BuildInfo> &infos, bool isImpo
         store.checkbox->setAttribute(Qt::WA_LayoutUsesWidgetRect);
 
         store.pathChooser = new PathChooser();
-        store.pathChooser->setExpectedKind(PathChooser::Directory);
+        store.pathChooser->setExpectedKind(PathChooserKind::Directory);
         if (!info.showBuildDirConfigWidget)
             store.pathChooser->setVisible(false);
         store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");

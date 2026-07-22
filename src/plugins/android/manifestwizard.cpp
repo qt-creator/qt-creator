@@ -152,7 +152,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_layout->addRow(m_label);
 
     m_androidPackageSourceDir = new PathChooser(this);
-    m_androidPackageSourceDir->setExpectedKind(PathChooser::Directory);
+    m_androidPackageSourceDir->setExpectedKind(PathChooserKind::Directory);
     m_layout->addRow(m_androidPackageSourceDir);
 
     m_sourceDirectoryWarning =

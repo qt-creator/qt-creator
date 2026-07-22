@@ -209,7 +209,7 @@ StartApplicationDialog::StartApplicationDialog()
         Tr::tr("For example, %1").arg("/dev/ttyS0, COM1, 127.0.0.1:1234"));
 
     localExecutablePathChooser = new PathChooser(this);
-    localExecutablePathChooser->setExpectedKind(PathChooser::File);
+    localExecutablePathChooser->setExpectedKind(PathChooserKind::File);
     localExecutablePathChooser->setPromptDialogTitle(Tr::tr("Select Executable"));
     localExecutablePathChooser->setHistoryCompleter("LocalExecutable");
 
@@ -218,7 +218,7 @@ StartApplicationDialog::StartApplicationDialog()
     arguments->setHistoryCompleter("CommandlineArguments");
 
     workingDirectory = new PathChooser(this);
-    workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
+    workingDirectory->setExpectedKind(PathChooserKind::ExistingDirectory);
     workingDirectory->setPromptDialogTitle(Tr::tr("Select Working Directory"));
     workingDirectory->setHistoryCompleter("WorkingDirectory");
 
@@ -230,7 +230,7 @@ StartApplicationDialog::StartApplicationDialog()
     useTargetExtendedRemoteCheckBox = new QCheckBox(this);
 
     sysRootPathChooser = new PathChooser(this);
-    sysRootPathChooser->setExpectedKind(PathChooser::Directory);
+    sysRootPathChooser->setExpectedKind(PathChooserKind::Directory);
     sysRootPathChooser->setHistoryCompleter("Debugger.SysRoot.History");
     sysRootPathChooser->setPromptDialogTitle(Tr::tr("Select SysRoot Directory"));
     sysRootPathChooser->setToolTip(Tr::tr(

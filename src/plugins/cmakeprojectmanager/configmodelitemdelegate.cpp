@@ -32,10 +32,10 @@ QWidget *ConfigModelItemDelegate::createEditor(QWidget *parent, const QStyleOpti
             edit->setBaseDirectory(m_base);
             edit->setAutoFillBackground(true);
             if (data.type == ConfigModel::DataItem::FILE) {
-                edit->setExpectedKind(PathChooser::File);
+                edit->setExpectedKind(PathChooserKind::File);
                 edit->setPromptDialogTitle(Tr::tr("Select a file for %1").arg(data.key));
             } else {
-                edit->setExpectedKind(PathChooser::Directory);
+                edit->setExpectedKind(PathChooserKind::Directory);
                 edit->setPromptDialogTitle(Tr::tr("Select a directory for %1").arg(data.key));
             }
             return edit;

@@ -90,7 +90,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
             this, &MakeInstallStep::updateCommandFromAspect);
 
     m_installRoot.setSettingsKey("RemoteLinux.MakeInstall.InstallRoot");
-    m_installRoot.setExpectedKind(PathChooser::Directory);
+    m_installRoot.setExpectedKind(PathChooserKind::Directory);
     m_installRoot.setLabelText(Tr::tr("Install root:"));
     m_installRoot.setValue(rootPath);
     connect(&m_installRoot, &BaseAspect::changed,

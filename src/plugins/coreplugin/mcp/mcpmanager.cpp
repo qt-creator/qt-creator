@@ -662,7 +662,7 @@ public:
             Tr::tr(
                 "The command to launch the MCP server process. Only used for standard IO "
                 "connection type."));
-        launchCommand.setExpectedKind(PathChooser::ExistingCommand);
+        launchCommand.setExpectedKind(PathChooserKind::ExistingCommand);
 
         launchArguments.setLabelText(Tr::tr("Arguments:"));
         launchArguments.setSettingsKey("launchArguments");

@@ -126,7 +126,7 @@ void CommandBuilderAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     if (!d->makePathChooser) {
         d->makePathChooser = new PathChooser;
-        d->makePathChooser->setExpectedKind(PathChooser::Kind::ExistingCommand);
+        d->makePathChooser->setExpectedKind(PathChooserKind::ExistingCommand);
         d->makePathChooser->setBaseDirectory(PathChooser::homePath());
         d->makePathChooser->setHistoryCompleter("IncrediBuild.BuildConsole.MakeCommand.History");
         connect(d->makePathChooser, &PathChooser::rawPathChanged, this, [this] {

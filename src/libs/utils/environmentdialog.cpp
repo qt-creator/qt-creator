@@ -84,7 +84,7 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     m_fileCheckBox->setToolTip(fileHelpText);
     connect(m_fileCheckBox, &QCheckBox::toggled, m_scriptChooser, &PathChooser::setEnabled);
 
-    m_scriptChooser->setExpectedKind(PathChooser::File);
+    m_scriptChooser->setExpectedKind(PathChooserKind::File);
     m_scriptChooser->setEnabled(false);
 
     m_scriptCheckBox->setText(Tr::tr("File is a shell script"));

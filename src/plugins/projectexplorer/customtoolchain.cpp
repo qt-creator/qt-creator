@@ -435,7 +435,7 @@ CustomToolchainConfigWidget::CustomToolchainConfigWidget(const ToolchainBundle &
     m_headerPaths->setToolTip(Tr::tr("Each line adds a global header lookup path."));
     m_cxx11Flags->setToolTip(Tr::tr("Comma-separated list of flags that turn on C++11 support."));
     m_mkspecs->setToolTip(Tr::tr("Comma-separated list of mkspecs."));
-    m_makeCommand->setExpectedKind(PathChooser::ExistingCommand);
+    m_makeCommand->setExpectedKind(PathChooserKind::ExistingCommand);
     m_makeCommand->setHistoryCompleter("PE.MakeCommand.History");
     m_mainLayout->addRow(Tr::tr("&Make path:"), m_makeCommand);
     m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);

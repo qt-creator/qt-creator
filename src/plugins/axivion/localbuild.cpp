@@ -364,7 +364,7 @@ class LocalBuildDialog : public QDialog
 public:
     LocalBuildDialog(const QString &projectName)
     {
-        bauhausSuite.setExpectedKind(PathChooser::ExistingDirectory);
+        bauhausSuite.setExpectedKind(PathChooserKind::ExistingDirectory);
         bauhausSuite.setAllowPathFromDevice(false);
         if (!s_localBuildInstance.lastBauhausBase().isEmpty())
             bauhausSuite.setValue(s_localBuildInstance.lastBauhausBase());

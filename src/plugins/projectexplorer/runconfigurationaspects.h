@@ -207,7 +207,7 @@ public:
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const Utils::Key &historyCompleterKey);
-    void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
+    void setExpectedKind(const Utils::PathChooserKind expectedKind);
     void setEnvironment(const Utils::Environment &env);
     void setReadOnly(bool readOnly);
 

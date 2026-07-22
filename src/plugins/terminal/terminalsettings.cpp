@@ -471,7 +471,7 @@ TerminalSettings::TerminalSettings()
 
     shell.setSettingsKey("ShellPath");
     shell.setLabelText(Tr::tr("Shell path:"));
-    shell.setExpectedKind(PathChooser::ExistingCommand);
+    shell.setExpectedKind(PathChooserKind::ExistingCommand);
     shell.setHistoryCompleter("Terminal.Shell.History");
     shell.setToolTip(Tr::tr("The shell executable to be started."));
     shell.setDefaultValue(defaultShell());

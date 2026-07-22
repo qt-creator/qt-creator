@@ -158,7 +158,7 @@ GitLabOptionsWidget::GitLabOptionsWidget()
     auto defaultLabel = new QLabel(Tr::tr("Default:"), this);
     m_defaultGitLabServer = new QComboBox(this);
     m_curl.setLabelText(Tr::tr("curl:"));
-    m_curl.setExpectedKind(PathChooser::ExistingCommand);
+    m_curl.setExpectedKind(PathChooserKind::ExistingCommand);
 
     m_gitLabServerWidget = new GitLabServerWidget(GitLabServerWidget::Display, this);
 

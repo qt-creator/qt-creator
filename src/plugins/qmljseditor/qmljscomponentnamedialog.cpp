@@ -130,7 +130,7 @@ bool ComponentNameDialog::go(QString *proposedName,
     if (proposedName->isEmpty())
         *proposedName = QLatin1String("MyComponent");
     d.m_componentNameEdit->setText(*proposedName);
-    d.m_pathEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    d.m_pathEdit->setExpectedKind(Utils::PathChooserKind::ExistingDirectory);
     d.m_pathEdit->setHistoryCompleter("QmlJs.Component.History");
     d.m_pathEdit->setPath(*proposedPath);
     d.m_label->setText(Tr::tr("Property assignments for %1:").arg(oldFileName));

@@ -40,7 +40,7 @@ QString findMacOSAppByBundleId(const QString &appName);
 */
 
 /*!
-    \enum Utils::PathChooser::Kind
+    \enum Utils::PathChooserKind
     \inmodule QtCreator
 
     The Kind enum describes the kind of path a PathChooser considers valid.
@@ -192,7 +192,7 @@ public:
     QHBoxLayout *m_hLayout = nullptr;
     FancyLineEdit *m_lineEdit = nullptr;
 
-    PathChooser::Kind m_acceptingKind = PathChooser::ExistingDirectory;
+    PathChooserKind m_acceptingKind = PathChooserKind::ExistingDirectory;
     QString m_dialogTitleOverride;
     QString m_dialogFilter;
     FilePath m_initialBrowsePathOverride;
@@ -343,7 +343,7 @@ FilePath PathChooser::expandPath(
     const MacroExpander *macroExpander,
     const FilePath &baseDirectory,
     const Environment &environment,
-    Kind expectedKind)
+    PathChooserKind expectedKind)
 {
     if (input.isEmpty())
         return {};
@@ -363,8 +363,8 @@ FilePath PathChooser::expandPath(
         return path;
 
     switch (expectedKind) {
-    case PathChooser::Command:
-    case PathChooser::ExistingCommand: {
+    case PathChooserKind::Command:
+    case PathChooserKind::ExistingCommand: {
         const FilePath expanded = path.searchInDirectories(env.mappedPath(path) << baseDirectory);
 
         if constexpr (HostOsInfo::isMacHost()) {
@@ -376,12 +376,12 @@ FilePath PathChooser::expandPath(
         }
         return expanded.isEmpty() ? path : expanded;
     }
-    case PathChooser::Any:
+    case PathChooserKind::Any:
         break;
-    case PathChooser::Directory:
-    case PathChooser::ExistingDirectory:
-    case PathChooser::File:
-    case PathChooser::SaveFile:
+    case PathChooserKind::Directory:
+    case PathChooserKind::ExistingDirectory:
+    case PathChooserKind::File:
+    case PathChooserKind::SaveFile:
         if (!baseDirectory.isEmpty()) {
             FilePath fp = baseDirectory.resolvePath(path.path()).absoluteFilePath();
             // FIXME bad hotfix for manually editing PathChooser (invalid paths, jumping cursor)
@@ -468,16 +468,16 @@ void PathChooser::slotBrowse(bool remote)
     // Prompt for a file/dir
     FilePath newPath;
     switch (d->m_acceptingKind) {
-    case PathChooser::Directory:
-    case PathChooser::ExistingDirectory:
+    case PathChooserKind::Directory:
+    case PathChooserKind::ExistingDirectory:
         newPath = FileUtils::getExistingDirectory(makeDialogTitle(Tr::tr("Choose Directory")),
                                                   predefined,
                                                   {},
                                                   d->m_allowPathFromDevice,
                                                   remote);
         break;
-    case PathChooser::ExistingCommand:
-    case PathChooser::Command:
+    case PathChooserKind::ExistingCommand:
+    case PathChooserKind::Command:
         newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose Executable")),
                                              predefined,
                                              d->m_dialogFilter,
@@ -487,7 +487,7 @@ void PathChooser::slotBrowse(bool remote)
                                              remote);
         newPath = appBundleExpandedPath(newPath);
         break;
-    case PathChooser::File: // fall through
+    case PathChooserKind::File: // fall through
         newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
@@ -497,7 +497,7 @@ void PathChooser::slotBrowse(bool remote)
                                              remote);
         newPath = appBundleExpandedPath(newPath);
         break;
-    case PathChooser::SaveFile:
+    case PathChooserKind::SaveFile:
         newPath = FileUtils::getSaveFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
@@ -505,7 +505,7 @@ void PathChooser::slotBrowse(bool remote)
                                              {},
                                              remote);
         break;
-    case PathChooser::Any: {
+    case PathChooserKind::Any: {
         newPath = FileUtils::getOpenFilePath(makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
@@ -603,14 +603,14 @@ void PathChooser::setToolTip(const QString &toolTip)
     d->m_lineEdit->setToolTip(toolTip);
 }
 
-static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, PathChooser::Kind kind)
+static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, PathChooserKind kind)
 {
     if (filePath.isEmpty())
         return ResultError(Tr::tr("The path must not be empty."));
 
     // Check if existing
     switch (kind) {
-    case PathChooser::ExistingDirectory:
+    case PathChooserKind::ExistingDirectory:
         if (!filePath.exists()) {
             return ResultError(
                 Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
@@ -620,7 +620,7 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, Path
                 Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput()));
         }
         break;
-    case PathChooser::File:
+    case PathChooserKind::File:
         if (!filePath.exists()) {
             return ResultError(
                 Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
@@ -630,7 +630,7 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, Path
                 Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput()));
         }
         break;
-    case PathChooser::SaveFile:
+    case PathChooserKind::SaveFile:
         if (!filePath.parentDir().exists()) {
             return ResultError(
                 Tr::tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput()));
@@ -640,7 +640,7 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, Path
                 Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput()));
         }
         break;
-    case PathChooser::ExistingCommand:
+    case PathChooserKind::ExistingCommand:
         if (!filePath.exists()) {
             return ResultError(
                 Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
@@ -650,7 +650,7 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, Path
                 Tr::tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput()));
         }
         break;
-    case PathChooser::Directory:
+    case PathChooserKind::Directory:
         if (filePath.exists() && !filePath.isDir()) {
             return ResultError(
                 Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput()));
@@ -661,7 +661,7 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, Path
             return ResultError(Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput()));
         }
         break;
-    case PathChooser::Command:
+    case PathChooserKind::Command:
         if (filePath.exists() && !filePath.isExecutableFile()) {
             return ResultError(Tr::tr("Cannot execute \"%1\".").arg(filePath.toUserOutput()));
         }
@@ -722,10 +722,10 @@ FilePath PathChooser::homePath()
     Sets the kind of path the PathChooser will consider valid to select
     to \a expected.
 
-    \sa Utils::PathChooser::Kind, expectedKind()
+    \sa Utils::PathChooserKind, expectedKind()
 */
 
-void PathChooser::setExpectedKind(Kind expected)
+void PathChooser::setExpectedKind(PathChooserKind expected)
 {
     if (d->m_acceptingKind == expected)
         return;
@@ -736,10 +736,10 @@ void PathChooser::setExpectedKind(Kind expected)
 /*!
     Returns the kind of path the PathChooser considers valid to select.
 
-    \sa Utils::PathChooser::Kind, setExpectedKind()
+    \sa Utils::PathChooserKind, setExpectedKind()
 */
 
-PathChooser::Kind PathChooser::expectedKind() const
+PathChooserKind PathChooser::expectedKind() const
 {
     return d->m_acceptingKind;
 }

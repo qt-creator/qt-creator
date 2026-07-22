@@ -61,7 +61,7 @@ McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &settingsHandler
                        nullptr,                                         // versionDetector
                        false,                                           // optional
                        false,                                           // addToPath
-                       Utils::PathChooser::Kind::ExistingDirectory,     // valueType
+                       Utils::PathChooserKind::ExistingDirectory,     // valueType
                        true)};                                          // useNewestVersionKey
 }
 
@@ -639,12 +639,12 @@ static VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
     };
 }
 
-using PathChooserKind = Utils::PathChooser::Kind; // trick lupdate, QTBUG-140636
+using PathChooserKind = Utils::PathChooserKind; // trick lupdate, QTBUG-140636
 static PathChooserKind parseLineEditType(const QJsonValue &type)
 {
     //Utility function to handle the different kinds of PathChooser
     //Default is ExistingDirectory, see pathchooser.h for more options
-    const auto defaultValue = Utils::PathChooser::Kind::ExistingDirectory;
+    const auto defaultValue = Utils::PathChooserKind::ExistingDirectory;
     if (type.isUndefined()) {
         //No "type" entry in the json file, this is not an error
         return defaultValue;
@@ -661,9 +661,9 @@ static PathChooserKind parseLineEditType(const QJsonValue &type)
         return defaultValue;
 
     } else if (typeString.compare("file", Qt::CaseInsensitive) == 0) {
-        return Utils::PathChooser::File;
+        return Utils::PathChooserKind::File;
     } else if (typeString.compare("path", Qt::CaseInsensitive) == 0) {
-        return Utils::PathChooser::ExistingDirectory;
+        return Utils::PathChooserKind::ExistingDirectory;
     } else {
         printMessage(::McuSupport::Tr::tr(
                          "Parsing error: the type entry \"%2\" in JSON kit files is not supported, "

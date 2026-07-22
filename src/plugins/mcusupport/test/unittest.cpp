@@ -191,7 +191,7 @@ const PackageDescription
                             VersionDetection{},
                             false,
                             false,
-                            Utils::PathChooser::Kind::ExistingDirectory};
+                            Utils::PathChooserKind::ExistingDirectory};
 
 const McuTargetDescription::Platform platformDescription{id,
                                                          "",
@@ -389,8 +389,8 @@ static bool createFakePath(const FilePath& path, const bool is_file = false)
 
 McuSupportTest::McuSupportTest()
     : targetFactory{settingsMockPtr}
-    , compilerDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_DIR_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooser::Kind::ExistingDirectory}
-    , toochainFileDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_FILE_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooser::Kind::ExistingDirectory }
+    , compilerDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_DIR_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooserKind::ExistingDirectory}
+    , toochainFileDescription{.label=armGccLabel, .envVar=armGccEnvVar, .cmakeVar=TOOLCHAIN_FILE_CMAKE_VARIABLE, .description=armGccLabel, .setting=armGccDirectorySetting, .type=Utils::PathChooserKind::ExistingDirectory }
     , targetDescription {
         "autotest-sourceFile",
         "2.0.1",
@@ -746,7 +746,7 @@ void McuSupportTest::test_createTargets()
                                           .defaultPath = freeRtosPath,
                                           .detectionPaths = {freeRtosDetectionPath},
                                           .shouldAddToSystemPath = true,
-                                          .type = Utils::PathChooser::Kind::ExistingDirectory};
+                                          .type = Utils::PathChooserKind::ExistingDirectory};
     targetDescription.toolchain.id = armGcc;
 
     auto [targets, packages]{targetFactory.createTargets(targetDescription, sdkPackagePtr)};
@@ -797,7 +797,7 @@ void McuSupportTest::test_createPackages()
                                           .defaultPath = freeRtosPath,
                                           .detectionPaths = {freeRtosDetectionPath},
                                           .shouldAddToSystemPath = true,
-                                          .type = Utils::PathChooser::Kind::ExistingDirectory};
+                                          .type = Utils::PathChooserKind::ExistingDirectory};
 
     const auto packages{targetFactory.createPackages(targetDescription)};
     QVERIFY(!packages.empty());
@@ -844,7 +844,7 @@ void McuSupportTest::test_useFallbackPathForToolchainWhenPathFromSettingsIsNotAv
                                            VersionDetection{},
                                            false,
                                            false,
-                                           Utils::PathChooser::Kind::ExistingDirectory};
+                                           Utils::PathChooserKind::ExistingDirectory};
     McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};
 
     EXPECT_CALL(*settingsMockPtr, getPath(Key{armGccDirectorySetting}, _, FilePath{fallbackDir}))
@@ -869,7 +869,7 @@ void McuSupportTest::test_usePathFromSettingsForToolchainPath()
                                            VersionDetection{},
                                            false,
                                            false,
-                                           Utils::PathChooser::Kind::ExistingDirectory};
+                                           Utils::PathChooserKind::ExistingDirectory};
     McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};
 
     EXPECT_CALL(*settingsMockPtr, getPath(Key{armGccDirectorySetting}, _, FilePath{empty}))
@@ -1847,12 +1847,12 @@ void McuSupportTest::test_expectedValueType()
 {
     const auto targetDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
 
-    QCOMPARE(targetDescription.toolchain.file.type, Utils::PathChooser::Kind::File);
-    QCOMPARE(targetDescription.toolchain.compiler.type, Utils::PathChooser::Kind::ExistingDirectory);
-    QCOMPARE(targetDescription.boardSdk.type, Utils::PathChooser::Kind::ExistingDirectory);
-    QCOMPARE(targetDescription.freeRTOS.package.type, Utils::PathChooser::Kind::ExistingDirectory);
+    QCOMPARE(targetDescription.toolchain.file.type, Utils::PathChooserKind::File);
+    QCOMPARE(targetDescription.toolchain.compiler.type, Utils::PathChooserKind::ExistingDirectory);
+    QCOMPARE(targetDescription.boardSdk.type, Utils::PathChooserKind::ExistingDirectory);
+    QCOMPARE(targetDescription.freeRTOS.package.type, Utils::PathChooserKind::ExistingDirectory);
     QCOMPARE(targetDescription.platform.entries[0].type,
-             Utils::PathChooser::Kind::ExistingDirectory);
+             Utils::PathChooserKind::ExistingDirectory);
 }
 
 } // namespace McuSupport::Internal::Test

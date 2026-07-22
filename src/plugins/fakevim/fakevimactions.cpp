@@ -141,7 +141,7 @@ FakeVimSettings::FakeVimSettings()
 
     const QString vimrcDefault = QLatin1String(HostOsInfo::isAnyUnixHost()
                 ? "$HOME/.vimrc" : "%USERPROFILE%\\_vimrc");
-    vimRcPath.setExpectedKind(PathChooser::File);
+    vimRcPath.setExpectedKind(PathChooserKind::File);
     vimRcPath.setToolTip(Tr::tr("Keep empty to use the default path, i.e. "
                "%USERPROFILE%\\_vimrc on Windows, ~/.vimrc otherwise."));
     vimRcPath.setPlaceHolderText(Tr::tr("Default: %1").arg(vimrcDefault));
