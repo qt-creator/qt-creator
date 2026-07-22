@@ -4406,13 +4406,14 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
     const QString relativePath = path.isRelativePath()
                                      ? path.path()
                                      : path.relativeChildPath(topLevel).path();
+    const FilePath fullPath = topLevel.pathAppended(relativePath);
 
     const QByteArray content = synchronousShow(topLevel, ref + ":" + relativePath);
     if (showSetting == ShowEditor::OnlyIfDifferent) {
         if (content.isEmpty())
             return nullptr;
         QByteArray fileContent;
-        if (TextFileFormat::readFileUtf8(path, {}, &fileContent)) {
+        if (TextFileFormat::readFileUtf8(fullPath, {}, &fileContent)) {
             if (fileContent == content)
                 return nullptr; // open the file for read/write
         }
@@ -4422,9 +4423,12 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
     QString title = Tr::tr("Git Show %1:%2").arg(ref, relativePath);
     IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
                                                             EditorManager::DoNotSwitchToDesignMode);
+    editor->document()->setProperty("GitReference", ref);
+    editor->document()->setProperty("GitRepository", topLevel.path());
     editor->document()->setTemporary(true);
     editor->gotoLine(line);
-    VcsBase::setSource(editor->document(), path);
+    VcsBase::setSource(editor->document(), fullPath);
+    repeatInstantBlame();
     return editor;
 }
 

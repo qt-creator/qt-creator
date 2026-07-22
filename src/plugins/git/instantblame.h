@@ -40,9 +40,6 @@ public:
 class BlameMark : public TextEditor::TextMark
 {
 public:
-    BlameMark(const Utils::FilePath &fileName, int lineNumber, const CommitInfo &info);
-    // for documents without a file path, e.g. the baseline view of the
-    // inline diff editor
     BlameMark(TextEditor::TextDocument *document, int lineNumber, const CommitInfo &info);
     bool addToolTipContent(QLayout *target) const final;
     QString toolTipText(const CommitInfo &info) const;
@@ -92,6 +89,7 @@ public:
     InstantBlame();
 
     void setup();
+    void repeat();
     void once();
 
 private:

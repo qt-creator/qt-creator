@@ -2778,6 +2778,11 @@ void cherryPickCommits(const QString &branch)
     dd->cherryPickCommits(branch);
 }
 
+void repeatInstantBlame()
+{
+    dd->m_instantBlame.repeat();
+}
+
 } // Git::Internal
 
 #include "gitplugin.moc"

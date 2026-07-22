@@ -33,5 +33,6 @@ void updateCurrentBranch();
 void updateBranches(const Utils::FilePath &repository);
 void gerritPush(const Utils::FilePath &topLevel);
 void cherryPickCommits(const QString &branch);
+void repeatInstantBlame();
 
 } // Git::Internal
