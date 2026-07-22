@@ -21,7 +21,8 @@ CostView::CostView(QWidget *parent)
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setUniformRowHeights(true);
-    setAutoScroll(false);
+    // Keep auto-scroll enabled (the default) so keyboard navigation scrolls the
+    // current item into view. QTCREATORBUG-10055.
     setSortingEnabled(true);
     setRootIsDecorated(false);
 }
