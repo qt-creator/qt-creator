@@ -23,6 +23,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
@@ -588,20 +589,27 @@ void CMakeToolManager::handleDeviceToolDetectionRequest(
     dev->registerToolDetectionTask(token);
     if (logger)
         logger.logTopLevel(Tr::tr("Searching for CMake..."));
-    auto detected = autoDetectCMakeTools(searchPaths, dev->rootPath());
-    bool foundNew = false;
-    for (auto &&tool : detected) {
-        if (!CMakeToolManager::findByCommand(tool->cmakeExecutable())) {
-            foundNew = true;
-            if (logger)
-                logger.logItem(
-                    Tr::tr("Found CMake: %1").arg(tool->cmakeExecutable().toUserOutput()));
-            CMakeToolManager::registerCMakeTool(std::move(tool));
+    const auto future = Utils::asyncRun(autoDetectCMakeTools, searchPaths, dev->rootPath());
+    const auto cont = [devId, token, logger](auto &&future) {
+        const IDevicePtr dev = DeviceManager::find(devId);
+        if (!dev)
+            return;
+        auto detected = future.takeResult();
+        bool foundNew = false;
+        for (auto &&tool : detected) {
+            if (!CMakeToolManager::findByCommand(tool->cmakeExecutable())) {
+                foundNew = true;
+                if (logger)
+                    logger.logItem(
+                        Tr::tr("Found CMake: %1").arg(tool->cmakeExecutable().toUserOutput()));
+                CMakeToolManager::registerCMakeTool(std::move(tool));
+            }
         }
-    }
-    if (logger && !foundNew)
-        logger.logItem(Tr::tr("No new CMake found."));
-    dev->deregisterToolDetectionTask(token);
+        if (logger && !foundNew)
+            logger.logItem(Tr::tr("No new CMake found."));
+        dev->deregisterToolDetectionTask(token);
+    };
+    Utils::onFinished(future, this, cont);
 }
 
 void Internal::setupCMakeToolManager(QObject *guard)
