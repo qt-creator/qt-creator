@@ -2029,6 +2029,10 @@ void DebuggerEngine::notifyEngineIll()
     startDying();
     switch (state()) {
         case InferiorRunRequested:
+            // Not yet confirmed running - interrupting now can kill the
+            // inferior instead of pausing it. Nothing safe to try but shut down.
+            d->doShutdownEngine();
+            break;
         case InferiorRunOk:
             // The engine does not look overly ill right now, so attempt to
             // properly interrupt at least once. If that fails, we are on the
@@ -2376,7 +2380,8 @@ void DebuggerEngine::quitDebugger()
 
 void DebuggerEngine::requestInterruptInferior()
 {
-    QTC_ASSERT(state() == InferiorRunOk, qDebug() << this << state());
+    // Bail out rather than interrupt a not-yet-confirmed-running inferior.
+    QTC_ASSERT(state() == InferiorRunOk, return);
     setState(InferiorStopRequested);
     showMessage("CALL: INTERRUPT INFERIOR");
     showMessage(Tr::tr("Attempting to interrupt."), StatusBar);
