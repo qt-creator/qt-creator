@@ -31,9 +31,7 @@ static QString instancesLockFilename(const QString &appSessionId)
 static const char s_uiWatchDog[] = "QTC_UI_WATCHDOG";
 
 QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char **argv)
-    : QApplication(argc, argv),
-      firstPeer(-1),
-      pidPeer(0)
+    : QApplication(argc, argv)
 {
     if (qEnvironmentVariableIsSet(s_uiWatchDog)) {
         auto watchDog = new UiWatchdog(UiWatchdogWorker::OptionNone, this);
@@ -47,7 +45,7 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
 
     // This shared memory holds a zero-terminated array of active (or crashed) instances
     instances = new QSharedMemory(appSessionId, this);
-    actWin = 0;
+    actWin = nullptr;
     block = false;
 
     // First instance creates the shared memory, later instances attach to it
@@ -57,7 +55,7 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
             qWarning() << "Failed to initialize instances shared memory: "
                        << instances->errorString();
             delete instances;
-            instances = 0;
+            instances = nullptr;
             return;
         }
     }

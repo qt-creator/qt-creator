@@ -17,7 +17,7 @@ class QtSingleApplication : public QApplication
 
 public:
     QtSingleApplication(const QString &id, int &argc, char **argv);
-    ~QtSingleApplication();
+    ~QtSingleApplication() override;
 
     bool isRunning(qint64 pid = -1);
 
@@ -38,10 +38,10 @@ Q_SIGNALS:
 private:
     QString instancesFileName(const QString &appId);
 
-    qint64 firstPeer;
-    QSharedMemory *instances;
-    QtLocalPeer *pidPeer;
-    QWidget *actWin;
+    qint64 firstPeer = -1;
+    QSharedMemory *instances = nullptr;
+    QtLocalPeer *pidPeer = nullptr;
+    QWidget *actWin = nullptr;
     QString appId;
     bool block;
 };
