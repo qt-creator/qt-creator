@@ -2227,6 +2227,7 @@ class Dumper(DumperBase):
 
     def executeRunToLocation(self, args):
         self.reportToken(args)
+        frame = self.currentFrame()
         addr = args.get('address', 0)
         if addr:
             # Does not seem to hit anything on Linux:
@@ -2237,18 +2238,46 @@ class Dumper(DumperBase):
                 self.target.BreakpointDelete(bp.GetID())
                 self.reportResult(self.describeStatus('No target location found.')
                                   + self.describeLocation(frame), args)
+                self.reportState('inferiorrunfailed')
                 return
             bp.SetOneShot(True)
             self.reportResult('', args)
             self.process.Continue()
         else:
-            frame = self.currentFrame()
             file = args['file']
             line = int(args['line'])
             error = self.currentThread().StepOverUntil(frame, lldb.SBFileSpec(file), line)
-            self.reportResult(self.describeError(error), args)
-            self.reportState('running')
-            self.reportState('stopped')
+            if error.Success():
+                self.reportResult('', args)
+                self.reportState('running')
+                self.reportState('stopped')
+            else:
+                # Target line is outside the current function - fall back
+                # to a one-shot breakpoint, like the address branch above.
+                bp = self.target.BreakpointCreateByLocation(str(file), line)
+                if bp.GetNumLocations() == 0:
+                    self.target.BreakpointDelete(bp.GetID())
+                    self.reportResult(self.describeStatus('No target location found.')
+                                      + self.describeLocation(frame), args)
+                    self.reportState('inferiorrunfailed')
+                    return
+                bp.SetOneShot(True)
+                self.reportResult('', args)
+                self.process.Continue()
+
+    def executeRunToFunction(self, args):
+        self.reportToken(args)
+        frame = self.currentFrame()
+        bp = self.target.BreakpointCreateByName(str(args['function']))
+        if bp.GetNumLocations() == 0:
+            self.target.BreakpointDelete(bp.GetID())
+            self.reportResult(self.describeStatus('No target location found.')
+                              + self.describeLocation(frame), args)
+            self.reportState('inferiorrunfailed')
+            return
+        bp.SetOneShot(True)
+        self.reportResult('', args)
+        self.process.Continue()
 
     def executeJumpToLocation(self, args):
         self.reportToken(args)
