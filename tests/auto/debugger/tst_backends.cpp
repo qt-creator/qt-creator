@@ -2992,7 +2992,25 @@ void tst_backends::testThreadsCapability()
     threadsRequest.requestId = 13;
     engine->refresh(threadsRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Threads)), s_timeout);
-    QVERIFY(responses.value(int(RefreshKind::Threads)).toString().contains("thread"));
+    const GdbMi threadsData = responses.value(int(RefreshKind::Threads));
+    const GdbMi threads = threadsData["threads"];
+    QVERIFY2(threads.childCount() > 0, qPrintable(threadsData.toString()));
+
+    // A thread is identified by a small ordinal and the main thread is 1, but
+    // where it sits in the list is up to the backend. Its raw OS thread id
+    // stays in the target id, which each backend spells its own way.
+    GdbMi mainThread;
+    for (const GdbMi &thread : threads) {
+        if (thread["id"].data() == "1") {
+            mainThread = thread;
+            break;
+        }
+    }
+    QVERIFY2(mainThread.isValid(), qPrintable(threadsData.toString()));
+    QCOMPARE(threadsData["current-thread-id"].data(), QString("1"));
+    const QString targetId = mainThread["target-id"].data();
+    QVERIFY2(!targetId.isEmpty() && targetId != mainThread["id"].data(),
+             qPrintable(threadsData.toString()));
 }
 
 void tst_backends::testTracePointCapability()

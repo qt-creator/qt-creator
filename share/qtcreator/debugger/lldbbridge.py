@@ -1293,7 +1293,10 @@ class Dumper(DumperBase):
             else:
                 state = 'unknown'
             reason = thread.GetStopReason()
-            result += '{id="%d"' % thread.GetThreadID()
+            # The index id is a 1-based ordinal with the main thread at 1,
+            # unlike the raw OS thread id, which stays in the target id.
+            result += '{id="%d"' % thread.GetIndexID()
+            result += ',target-id="Thread 0x%x"' % thread.GetThreadID()
             result += ',index="%s"' % i
             result += ',details="%s"' % toCString(thread.GetQueueName())
             result += ',stop-reason="%s"' % self.stopReason(thread.GetStopReason())
@@ -1310,7 +1313,7 @@ class Dumper(DumperBase):
             result += ',file="%s"' % fileNameAsString(frame.line_entry.file)
             result += '}},'
 
-        result += '],current-thread-id="%s"' % self.currentThread().id
+        result += '],current-thread-id="%d"' % self.currentThread().GetIndexID()
         self.reportResult(result, args)
 
     def firstUsableFrame(self, thread):
@@ -1337,7 +1340,7 @@ class Dumper(DumperBase):
         limit = args.get('stacklimit', -1)
         (n, isLimited) = (limit, True) if limit > 0 else (thread.GetNumFrames(), False)
         self.currentCallContext = None
-        result = 'stack={current-thread="%d"' % thread.GetThreadID()
+        result = 'stack={current-thread="%d"' % thread.GetIndexID()
         result += ',frames=['
 
         ii = 0
@@ -1897,7 +1900,6 @@ class Dumper(DumperBase):
         result += ',hitcount="%d"' % bp.GetHitCount()
         if bp.IsValid():
             if isinstance(bp, lldb.SBBreakpoint):
-                result += ',threadid="%d"' % bp.GetThreadID()
                 result += ',oneshot="%d"' % (1 if bp.IsOneShot() else 0)
         cond = bp.GetCondition()
         result += ',condition="%s"' % self.hexencode("" if cond is None else cond)
@@ -2365,7 +2367,7 @@ class Dumper(DumperBase):
             return False
         bp = self.target.BreakpointCreateByAddress(addr)
         self.internalBreakpointIds.add(bp.GetID())
-        bp.SetThreadID(thread.GetThreadID())
+        bp.SetThreadIndex(thread.GetIndexID())
         self.process.Continue()
         landed = self.waitForNativeStop()
         self.target.BreakpointDelete(bp.GetID())
@@ -2535,7 +2537,7 @@ class Dumper(DumperBase):
 
     def selectThread(self, args):
         self.reportToken(args)
-        self.process.SetSelectedThreadByID(int(args['id']))
+        self.process.SetSelectedThreadByIndexID(int(args['id']))
         self.reportResult('', args)
 
     def fetchFullBacktrace(self, args):
