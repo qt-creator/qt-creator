@@ -1860,17 +1860,19 @@ class Dumper(DumperBase):
             bp.SetIgnoreCount(int(args['ignorecount']))
             bp.SetCondition(self.hexdecode(args['condition']))
             bp.SetEnabled(bool(args['enabled']))
-            extra_args_dict = {
-                'tracepoint': bool(args['tracepoint']),
-                'message': self.hexdecode(args['message']),
-                'command': self.hexdecode(args['command'])
-            }
-            extra_args = lldb.SBStructuredData()
-            extra_args.SetFromJSON(json.dumps(extra_args_dict))
-            res = bp.SetScriptCallbackFunction('lldb.theDumper.breakpointCallback', extra_args)
             if isinstance(bp, lldb.SBBreakpoint):
+                # SBWatchpoint has neither of these.
+                extra_args_dict = {
+                    'tracepoint': bool(args['tracepoint']),
+                    'message': self.hexdecode(args['message']),
+                    'command': self.hexdecode(args['command'])
+                }
+                extra_args = lldb.SBStructuredData()
+                extra_args.SetFromJSON(json.dumps(extra_args_dict))
+                bp.SetScriptCallbackFunction('lldb.theDumper.breakpointCallback', extra_args)
                 bp.SetOneShot(bool(args['oneshot']))
-        self.reportResult(self.describeBreakpoint(bp) + extra, args)
+        # extra needs its own separating comma before it.
+        self.reportResult(self.describeBreakpoint(bp) + (',' + extra if extra else ''), args)
 
     def changeBreakpoint(self, args):
         lldbId = int(args['lldbid'])
