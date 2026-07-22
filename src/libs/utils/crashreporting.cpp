@@ -14,6 +14,8 @@
 #include <QToolButton>
 
 #ifdef ENABLE_SENTRY
+#include "appinfo.h"
+
 #include <QLoggingCategory>
 #include <QSysInfo>
 
