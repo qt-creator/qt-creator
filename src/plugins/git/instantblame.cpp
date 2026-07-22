@@ -305,12 +305,7 @@ void InstantBlame::setup()
             return; // Skip in version control editors like log or blame
         }
 
-        const FilePath workingDirectory = currentState().currentFileTopLevel();
-        if (!refreshWorkingDirectory(workingDirectory)) {
-            qCDebug(log).nospace().noquote() << "Cannot refresh working directory: '"
-                                             << workingDirectory << "'";
-            return;
-        }
+        refreshWorkingDirectory();
 
         qCInfo(log) << "Adding blame cursor connection";
         m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged, this,
@@ -419,9 +414,7 @@ void InstantBlame::once()
         connect(widget, &PlainTextEdit::cursorPositionChanged,
             this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
 
-        const FilePath workingDirectory = currentState().topLevel();
-        if (!refreshWorkingDirectory(workingDirectory))
-            return;
+        refreshWorkingDirectory();
     }
 
     scheduleInstantBlame();
@@ -470,8 +463,6 @@ void InstantBlame::perform()
     m_lastVisitedEditorLine = line;
 
     const FilePath filePath = widget->textDocument()->filePath();
-    const FilePath workingDirectory = filePath.parentDir();
-    const FilePath topLevel = currentState().topLevel();
     const QString lineString = QString("%1,%1").arg(line);
 
     QStringList options = {"blame", "-p"};
@@ -498,7 +489,7 @@ void InstantBlame::perform()
         m_blameMark.reset(new BlameMark(filePath, line, *infoStorage));
     };
     const TextEncoding encoding = m_encoding;
-    const auto onLogSetup = [infoStorage, topLevel, encoding](Process &process) -> SetupResult {
+    const auto onLogSetup = [this, infoStorage, encoding](Process &process) -> SetupResult {
         if (infoStorage->hash.isEmpty() || infoStorage->modified)
             return SetupResult::StopWithSuccess;
         // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`
@@ -506,7 +497,7 @@ void InstantBlame::perform()
         const QString fileLineRange = "-L" + origLineString + ":" + infoStorage->originalFileName;
         const QStringList logOptions = {"log", "-n 1", "-p", fileLineRange, infoStorage->hash};
         qCDebug(log) << "Running git" << logOptions.join(' ');
-        gitClient().setupCommand(process, topLevel, logOptions);
+        gitClient().setupCommand(process, m_workingDirectory, logOptions);
         process.setEncoding(encoding);
         return SetupResult::Continue;
     };
@@ -531,7 +522,7 @@ void InstantBlame::perform()
 
     m_taskTreeRunner.start({
         infoStorage,
-        gitClient().commandTask({workingDirectory, options, RunFlag::NoOutput, {}, m_encoding,
+        gitClient().commandTask({m_workingDirectory, options, RunFlag::NoOutput, {}, m_encoding,
                                  blameHandler}),
         ProcessTask(onLogSetup, onLogDone, CallDoneFlag::OnSuccess)
     });
@@ -547,13 +538,15 @@ void InstantBlame::stop()
     disconnect(m_documentChangedConn);
 }
 
-bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
+void InstantBlame::refreshWorkingDirectory()
 {
+    const FilePath workingDirectory = currentState().currentFileTopLevel();
+
     if (workingDirectory.isEmpty())
-        return false;
+        return;
 
     if (m_workingDirectory == workingDirectory)
-        return true;
+        return;
 
     qCInfo(log) << "Setting new working directory:" << workingDirectory;
     m_workingDirectory = workingDirectory;
@@ -591,8 +584,6 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
     };
     gitClient().readConfigAsync(workingDirectory, {"var", "GIT_AUTHOR_IDENT"},
                                 authorHandler);
-
-    return true;
 }
 
 void InstantBlame::slotDocumentChanged()

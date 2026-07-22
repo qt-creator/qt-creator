@@ -98,7 +98,7 @@ private:
     void scheduleInstantBlame();
     void stop();
     void perform();
-    bool refreshWorkingDirectory(const Utils::FilePath &workingDirectory);
+    void refreshWorkingDirectory();
     void slotDocumentChanged();
 
     Utils::FilePath m_workingDirectory;
