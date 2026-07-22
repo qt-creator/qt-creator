@@ -20,6 +20,7 @@
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
@@ -509,21 +510,28 @@ void QtVersionManagerImpl::handleDeviceToolDetectionRequest(
     dev->registerToolDetectionTask(token);
     if (logger)
         logger.logTopLevel(Tr::tr("Searching for Qt versions..."));
-    const VersionMap qtVersions = m_versions;
-    addQtVersionsFromFilePaths(findQtsInPaths(searchPaths));
-    if (qtVersions != m_versions) {
-        if (logger) {
-            for (auto it = m_versions.cbegin(); it != m_versions.cend(); ++it) {
-                if (!qtVersions.contains(it.key()))
-                    logger.logItem(Tr::tr("Found Qt version: %1").arg(it.value()->displayName()));
+    const QFuture<FilePaths> future = Utils::asyncRun(findQtsInPaths, searchPaths);
+    const auto cont = [this, deviceId, token, logger](const QFuture<FilePaths> &f) {
+        const IDevicePtr dev = DeviceManager::find(deviceId);
+        if (!dev)
+            return;
+        const VersionMap qtVersions = m_versions;
+        addQtVersionsFromFilePaths(f.result());
+        if (qtVersions != m_versions) {
+            if (logger) {
+                for (auto it = m_versions.cbegin(); it != m_versions.cend(); ++it) {
+                    if (!qtVersions.contains(it.key()))
+                        logger.logItem(Tr::tr("Found Qt version: %1").arg(it.value()->displayName()));
+                }
             }
+            saveQtVersions();
+            emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());
+        } else if (logger) {
+            logger.logItem(Tr::tr("No new Qt versions found."));
         }
-        saveQtVersions();
-        emit QtVersionManager::instance()->qtVersionsChanged(m_versions.keys());
-    } else if (logger) {
-        logger.logItem(Tr::tr("No new Qt versions found."));
-    }
-    dev->deregisterToolDetectionTask(token);
+        dev->deregisterToolDetectionTask(token);
+    };
+    Utils::onFinished(future, this, cont);
 }
 
 void QtVersionManager::addVersion(QtVersion *version)
