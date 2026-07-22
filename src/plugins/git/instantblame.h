@@ -44,7 +44,7 @@ public:
     // for documents without a file path, e.g. the baseline view of the
     // inline diff editor
     BlameMark(TextEditor::TextDocument *document, int lineNumber, const CommitInfo &info);
-    bool addToolTipContent(QLayout *target) const;
+    bool addToolTipContent(QLayout *target) const final;
     QString toolTipText(const CommitInfo &info) const;
     void addOldLine(const QString &oldLine);
     void addNewLine(const QString &newLine);
