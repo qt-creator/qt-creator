@@ -162,6 +162,7 @@ public:
 
     FvBoolAspect blinkingCursor;
     FvIntegerAspect cursorFlashTime;
+    FvBoolAspect commandLineInEditor;
 
 private:
     void setup(FvBaseAspect *aspect, const QVariant &value,

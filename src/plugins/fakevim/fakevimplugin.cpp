@@ -147,10 +147,16 @@ public:
             m_edit->setFocus();
         } else {
             if (contents.isEmpty()) {
-                if (m_lastMessageLevel == MessageMode)
+                if (m_alwaysVisible) {
+                    m_hideTimer.stop();
+                    m_label->clear();
+                    m_label->setStyleSheet(QString());
+                    show();
+                } else if (m_lastMessageLevel == MessageMode) {
                     hide();
-                else
+                } else {
                     m_hideTimer.start();
+                }
             } else {
                 m_hideTimer.stop();
                 show();
@@ -201,6 +207,10 @@ public:
         return currentWidget() == m_edit ? QSize(maximumWidth(), size.height()) : size;
     }
 
+    // When set, the buffer stays shown (empty) instead of hiding while idle,
+    // for the reserved in-editor command line (QTCREATORBUG-21005).
+    void setAlwaysVisible(bool v) { m_alwaysVisible = v; }
+
 signals:
     void edited(const QString &text, int cursorPos, int anchorPos);
 
@@ -219,6 +229,7 @@ private:
     QObject *m_eventFilter = nullptr;
     QTimer m_hideTimer;
     int m_lastMessageLevel = MessageMode;
+    bool m_alwaysVisible = false;
 };
 
 class RelativeNumbersColumn : public QWidget
@@ -476,6 +487,14 @@ public:
     UserCommandMap m_defaultUserCommandMap;
 
     MiniBuffer *m_miniBuffer = nullptr;
+    // Optional command line shown at the bottom of the editor instead of the
+    // status bar (QTCREATORBUG-21005). Child of the editor, so QPointer.
+    void updateEditorCommandLinePlacement();
+    void attachEditorMiniBuffer(FakeVimHandler *handler, TextEditorWidget *tew);
+    void positionEditorMiniBuffer();
+    void releaseEditorMiniBuffer();
+    QPointer<MiniBuffer> m_editorMiniBuffer;
+    QPointer<TextEditorWidget> m_miniBufferEditor;
 
     QString m_lastHighlight;
 
@@ -1181,6 +1200,8 @@ void FakeVimPlugin::initialize()
             this, &FakeVimPlugin::editorOpened);
     connect(EditorManager::instance(), &EditorManager::currentEditorAboutToChange,
             this, &FakeVimPlugin::currentEditorAboutToChange);
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, [this] { updateEditorCommandLinePlacement(); });
 
     connect(DocumentManager::instance(), &DocumentManager::allDocumentsRenamed,
             this, &FakeVimPlugin::allDocumentsRenamed);
@@ -1200,6 +1221,8 @@ void FakeVimPlugin::initialize()
             this, [this, &s] { setCursorBlinking(s.blinkingCursor()); });
     connect(&s.cursorFlashTime, &FvIntegerAspect::changed,
             this, [this, &s] { setCursorBlinking(s.blinkingCursor()); });
+    connect(&s.commandLineInEditor, &FvBoolAspect::changed, this,
+            [this] { updateEditorCommandLinePlacement(); });
 
     // Delayed operations.
     connect(this, &FakeVimPlugin::delayedQuitRequested,
@@ -1962,6 +1985,7 @@ void FakeVimPlugin::setUseFakeVim(bool on)
     setUseFakeVimInternal(on);
     setShowRelativeLineNumbers(settings().relativeNumber());
     setCursorBlinking(settings().blinkingCursor());
+    updateEditorCommandLinePlacement();
 }
 
 void FakeVimPlugin::setUseFakeVimInternal(bool on)
@@ -2211,7 +2235,90 @@ void FakeVimPlugin::showCommandBuffer(FakeVimHandler *handler, const QString &co
 {
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
     QTC_ASSERT(m_miniBuffer, return);
+
+    if (settings().commandLineInEditor() && settings().useFakeVim()) {
+        if (!m_miniBufferEditor)
+            updateEditorCommandLinePlacement();
+        // Placement (which editor hosts the command line) is owned by
+        // updateEditorCommandLinePlacement(); here we only update its content,
+        // and only for the editor that currently hosts it. Buffers reported by
+        // a non-current editor (e.g. one just left via Ctrl-W) are ignored, so
+        // they cannot pull the command line back to the wrong split.
+        auto tew = qobject_cast<TextEditorWidget *>(handler ? handler->widget() : nullptr);
+        if (tew && tew == m_miniBufferEditor && m_editorMiniBuffer) {
+            m_editorMiniBuffer->setContents(contents, cursorPos, anchorPos, messageLevel, handler);
+            positionEditorMiniBuffer();
+        }
+        // Keep the status-bar buffer out of the way.
+        m_miniBuffer->setContents(QString(), -1, -1, MessageMode, nullptr);
+        return;
+    }
+
+    releaseEditorMiniBuffer();
     m_miniBuffer->setContents(contents, cursorPos, anchorPos, messageLevel, handler);
+}
+
+void FakeVimPlugin::updateEditorCommandLinePlacement()
+{
+    // Keep the in-editor command line on the current editor, so it follows
+    // split switches immediately instead of only on the next keystroke
+    // (QTCREATORBUG-21005).
+    if (!settings().commandLineInEditor() || !settings().useFakeVim()) {
+        releaseEditorMiniBuffer();
+        return;
+    }
+    IEditor *editor = EditorManager::currentEditor();
+    auto tew = TextEditorWidget::fromEditor(editor);
+    FakeVimHandler *handler = editor ? m_editorToHandler.value(editor).handler : nullptr;
+    if (tew && handler)
+        attachEditorMiniBuffer(handler, tew);
+    else
+        releaseEditorMiniBuffer();
+}
+
+void FakeVimPlugin::attachEditorMiniBuffer(FakeVimHandler *handler, TextEditorWidget *tew)
+{
+    if (!m_editorMiniBuffer) {
+        m_editorMiniBuffer = new MiniBuffer;
+        m_editorMiniBuffer->setAlwaysVisible(true);
+    }
+    if (m_miniBufferEditor != tew) {
+        releaseEditorMiniBuffer();
+        m_editorMiniBuffer->setParent(tew);
+        connect(tew, &TextEditorWidget::resized, this,
+                [this] { positionEditorMiniBuffer(); });
+        m_miniBufferEditor = tew;
+    }
+    m_editorMiniBuffer->setFont(tew->textDocument()->fontSettings().font());
+    // Show an (empty) command line right away; also wires the handler as the
+    // event filter for command-line editing.
+    m_editorMiniBuffer->setContents(QString(), -1, -1, MessageMode, handler);
+    positionEditorMiniBuffer();
+}
+
+void FakeVimPlugin::positionEditorMiniBuffer()
+{
+    if (!m_editorMiniBuffer || !m_miniBufferEditor)
+        return;
+    // Reserve a strip at the editor bottom so the command line never covers
+    // text; place the widget into it (QTCREATORBUG-21005).
+    const int h = m_miniBufferEditor->fontMetrics().height() + 4;
+    m_miniBufferEditor->setEditorTextMargin("FakeVim.CommandLine", Qt::BottomEdge, h);
+    const QRect vp = m_miniBufferEditor->viewport()->geometry();
+    m_editorMiniBuffer->setGeometry(vp.x(), vp.y() + vp.height(), vp.width(), h);
+    m_editorMiniBuffer->raise();
+    m_editorMiniBuffer->show();
+}
+
+void FakeVimPlugin::releaseEditorMiniBuffer()
+{
+    if (!m_miniBufferEditor)
+        return;
+    disconnect(m_miniBufferEditor, &TextEditorWidget::resized, this, nullptr);
+    m_miniBufferEditor->setEditorTextMargin("FakeVim.CommandLine", Qt::BottomEdge, 0);
+    m_miniBufferEditor = nullptr;
+    if (m_editorMiniBuffer)
+        m_editorMiniBuffer->hide();
 }
 
 int FakeVimPlugin::currentFile() const

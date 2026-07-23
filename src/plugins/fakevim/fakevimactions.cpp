@@ -86,6 +86,8 @@ FakeVimSettings::FakeVimSettings()
     setup(&relativeNumber, false, "RelativeNumber", "rnu", Tr::tr("Show line numbers relative to cursor"));
     setup(&blinkingCursor, false, "BlinkingCursor", "bc",  Tr::tr("Blinking cursor"));
     setup(&cursorFlashTime, 0,    "CursorFlashTime", {},   Tr::tr("Cursor blink rate:"));
+    setup(&commandLineInEditor, false, "CommandLineInEditor", {},
+          Tr::tr("Command line in the editor"));
     setup(&scrollOff,      0,     "ScrollOff",      "so",  Tr::tr("Scroll offset:"));
     setup(&textWidth,      0,     "TextWidth",      "tw",  Tr::tr("Text width:"));
     setup(&timeout,        true,  "Timeout",        "to",  Tr::tr("Use timeout for mappings"));
@@ -165,6 +167,7 @@ FakeVimSettings::FakeVimSettings()
                 passControlKey,
                 commaPassesShortcuts,
                 relativeNumber,
+                commandLineInEditor,
                 tildeOp,
                 timeout
             }
