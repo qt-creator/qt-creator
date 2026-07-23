@@ -373,9 +373,26 @@ void ModeManagerPrivate::saveSettings()
 
 void ModeManager::addMode(IMode *mode)
 {
-    QTC_ASSERT(d->m_startingUp, return);
     QTC_ASSERT(mode, return);
     d->m_modes.append(mode);
+    if (d->m_startingUp)
+        return;
+
+    // The initial batch of modes has already been laid out, so a mode added at
+    // runtime (e.g. by a Lua script plugin loaded after startup) must build its
+    // tab now. But IMode's constructor calls addMode() before the caller has
+    // set the id/widget/..., so defer the tab creation to the next event-loop
+    // turn, by which time the mode is fully configured. removeMode() undoes it.
+    const QPointer<IMode> guarded(mode);
+    QMetaObject::invokeMethod(
+        ICore::instance(),
+        [guarded] {
+            QTC_ASSERT(guarded, return);
+            const int index = d->m_modes.indexOf(guarded);
+            QTC_ASSERT(index >= 0, return);
+            d->appendMode(guarded, index);
+        },
+        Qt::QueuedConnection);
 }
 
 void ModeManagerPrivate::appendMode(IMode *mode, int originalIndex)

@@ -58,6 +58,7 @@ void setupLocalSocketModule();
 void setupMacroModule();
 void setupMenuModule();
 void setupMessageManagerModule();
+void setupModeModule();
 void setupProcessModule();
 void setupProjectModule();
 void setupQtModule();
@@ -320,6 +321,7 @@ public:
         setupMacroModule();
         setupMenuModule();
         setupMessageManagerModule();
+        setupModeModule();
         setupProcessModule();
         setupProjectModule();
         setupQtModule();

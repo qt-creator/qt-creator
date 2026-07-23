@@ -51,6 +51,7 @@ QtcPlugin {
             "macro.cpp",
             "menu.cpp",
             "messagemanager.cpp",
+            "mode.cpp",
             "project.cpp",
             "qt.cpp",
             "qtcprocess.cpp",
