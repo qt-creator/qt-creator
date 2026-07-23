@@ -1635,12 +1635,17 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             return;
 
         TabSettingsData tabSettings;
-        tabSettings.m_indentSize = settings().shiftWidth();
-        tabSettings.m_tabSize = settings().tabStop();
-        tabSettings.m_tabPolicy = settings().expandTab()
-                ? TabSettingsData::SpacesOnlyTabPolicy : TabSettingsData::TabsOnlyTabPolicy;
-        tabSettings.m_continuationAlignBehavior =
-                tew->textDocument()->tabSettings().m_continuationAlignBehavior;
+        if (settings().useEditorTabSettings()) {
+            // Follow the editor's (project) tab settings (QTCREATORBUG-14273).
+            tabSettings = tew->textDocument()->tabSettings();
+        } else {
+            tabSettings.m_indentSize = settings().shiftWidth();
+            tabSettings.m_tabSize = settings().tabStop();
+            tabSettings.m_tabPolicy = settings().expandTab()
+                    ? TabSettingsData::SpacesOnlyTabPolicy : TabSettingsData::TabsOnlyTabPolicy;
+            tabSettings.m_continuationAlignBehavior =
+                    tew->textDocument()->tabSettings().m_continuationAlignBehavior;
+        }
 
         QTextDocument *doc = tew->document();
         QTextBlock startBlock = doc->findBlockByNumber(beginBlock);
@@ -1661,6 +1666,15 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             }
             block = block.next();
         }
+    });
+
+    handler->tabSettingsRequested.set([tew](int *tabSize, int *indentSize, bool *spacesForTabs) {
+        if (!tew)
+            return;
+        const TabSettingsData ts = tew->textDocument()->tabSettings();
+        *tabSize = ts.m_tabSize;
+        *indentSize = ts.m_indentSize;
+        *spacesForTabs = ts.m_tabPolicy == TabSettingsData::SpacesOnlyTabPolicy;
     });
 
     handler->checkForElectricCharacter.set([tew](bool *result, QChar c) {

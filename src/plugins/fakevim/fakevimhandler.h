@@ -146,6 +146,9 @@ public:
     Callback<void(bool *moved, bool *forward, QTextCursor *cursor)> moveToMatchingParenthesis;
     Callback<void(bool *result, QChar c)> checkForElectricCharacter;
     Callback<void(int beginLine, int endLine, QChar typedChar)> indentRegion;
+    // Fills the editor tab/indent settings; used when useEditorTabSettings is
+    // on so FakeVim follows the (project) editor settings (QTCREATORBUG-14273).
+    Callback<void(int *tabSize, int *indentSize, bool *spacesForTabs)> tabSettingsRequested;
     Callback<void(const QString &needle, bool forward)> simpleCompletionRequested;
     Callback<void(const QString &key, int count)> windowCommandRequested;
     Callback<void(bool reverse)> findRequested;

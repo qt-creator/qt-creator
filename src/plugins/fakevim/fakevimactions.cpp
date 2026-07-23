@@ -74,6 +74,8 @@ FakeVimSettings::FakeVimSettings()
     setup(&expandTab,      false, "ExpandTab",      "et",  Tr::tr("Expand tabulators"));
     setup(&autoIndent,     false, "AutoIndent",     "ai",  Tr::tr("Automatic indentation"));
     setup(&smartIndent,    false, "SmartIndent",    "si",  Tr::tr("Smart indentation"));
+    setup(&useEditorTabSettings, false, "UseEditorTabSettings", {},
+          Tr::tr("Use the editor's tabulator and indentation settings"));
     setup(&incSearch,      true,  "IncSearch",      "is",  Tr::tr("Incremental search"));
     setup(&useCoreSearch,  false, "UseCoreSearch",  "ucs", Tr::tr("Use search dialog"));
     setup(&smartCase,      false, "SmartCase",      "scs", Tr::tr("Use smartcase"));
@@ -146,6 +148,7 @@ FakeVimSettings::FakeVimSettings()
                 smartIndent,
                 expandTab,
                 smartTab,
+                useEditorTabSettings,
                 hlSearch,
                 showCmd,
                 startOfLine,

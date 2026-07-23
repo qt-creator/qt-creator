@@ -1879,10 +1879,50 @@ public:
     int logicalCursorColumn() const; // as visible on screen
     int physicalToLogicalColumn(int physical, const QString &text) const;
     int logicalToPhysicalColumn(int logical, const QString &text) const;
+    // Fetches the editor tab/indent settings when useEditorTabSettings is on
+    // and a handler for them is wired (QTCREATORBUG-14273).
+    bool editorTabSettings(int *tabSize, int *indentSize, bool *spacesForTabs) const
+    {
+        if (!s.useEditorTabSettings())
+            return false;
+        int ts = -1;
+        int is = -1;
+        bool spaces = true;
+        q->tabSettingsRequested(&ts, &is, &spaces);
+        if (ts <= 0) // no editor settings available (e.g. standalone)
+            return false;
+        if (tabSize)
+            *tabSize = ts;
+        if (indentSize)
+            *indentSize = is;
+        if (spacesForTabs)
+            *spacesForTabs = spaces;
+        return true;
+    }
     // Effective tab stop, never below 1. Guards the column arithmetic below
     // against a stray "tabstop=0" (e.g. from a hand-edited settings file)
     // dividing by zero (QTCREATORBUG-29376).
-    int tabStop() const { return qMax(1, s.tabStop()); }
+    int tabStop() const
+    {
+        int ts;
+        if (editorTabSettings(&ts, nullptr, nullptr))
+            return qMax(1, ts);
+        return qMax(1, s.tabStop());
+    }
+    int shiftWidth() const
+    {
+        int sw;
+        if (editorTabSettings(nullptr, &sw, nullptr))
+            return sw;
+        return s.shiftWidth();
+    }
+    bool expandTab() const
+    {
+        bool et;
+        if (editorTabSettings(nullptr, nullptr, &et))
+            return et;
+        return s.expandTab();
+    }
     int windowScrollOffset() const; // return scrolloffset but max half the current window height
     Column cursorColumn() const; // as visible on screen
     void updateFirstVisibleLine();
@@ -2883,7 +2923,7 @@ void FakeVimHandler::Private::ensureCursorVisible()
 
 void FakeVimHandler::Private::updateEditor()
 {
-    setTabSize(s.tabStop());
+    setTabSize(tabStop());
     setupCharClass();
 }
 
@@ -5728,7 +5768,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isKey(Key_Tab)) {
         if (q->tabPressedInInsertMode()) {
             m_buffer->insertState.insertingSpaces = true;
-            if (s.expandTab()) {
+            if (expandTab()) {
                 const int ts = tabStop();
                 const int col = logicalCursorColumn();
                 QString str = QString(ts - col % ts, ' ');
@@ -5745,8 +5785,8 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         shiftRegionRight(1);
     } else if (input.isControl('d')) {
         // remove one level of indentation from the current line
-        const int shift = s.shiftWidth();
-        const int tab = s.tabStop();
+        const int shift = shiftWidth();
+        const int tab = tabStop();
         int line = cursorLine() + 1;
         int pos = firstPositionInLine(line);
         QString text = lineContents(line);
@@ -7393,7 +7433,7 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     if (s.startOfLine())
         targetPos = firstPositionInLine(beginLine);
 
-    const int sw = s.shiftWidth();
+    const int sw = shiftWidth();
     g.movetype = MoveLineWise;
     beginEditBlock();
     QTextBlock block = document()->findBlockByLineNumber(beginLine - 1);
@@ -9269,8 +9309,8 @@ Column FakeVimHandler::Private::indentation(const QString &line) const
 
 QString FakeVimHandler::Private::tabExpand(int n) const
 {
-    int ts = s.tabStop();
-    if (s.expandTab() || ts < 1)
+    int ts = tabStop();
+    if (expandTab() || ts < 1)
         return QString(n, ' ');
     return QString(n / ts, '\t')
          + QString(n % ts, ' ');

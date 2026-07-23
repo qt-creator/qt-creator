@@ -116,6 +116,7 @@ public:
     FvBoolAspect expandTab;
     FvBoolAspect autoIndent;
     FvBoolAspect smartIndent;
+    FvBoolAspect useEditorTabSettings;
 
     FvBoolAspect incSearch;
     FvBoolAspect useCoreSearch;

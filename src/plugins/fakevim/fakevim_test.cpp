@@ -199,6 +199,7 @@ private slots:
     void test_vim_goto_definition();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
+    void test_vim_use_editor_tab_settings();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5478,6 +5479,47 @@ void FakeVimTester::test_vim_dot_after_visual_paste()
     KEYS("yy", "AAA" N "BBB" N "CCC" N "DDD");
     KEYS("2GVp", "AAA" N "AAA" N "CCC" N "DDD");
     KEYS("3G.", "AAA" N "AAA" N "DDD");
+}
+
+void FakeVimTester::test_vim_use_editor_tab_settings()
+{
+    // With useEditorTabSettings on, indentation follows the editor tab
+    // settings (delivered through tabSettingsRequested) instead of the FakeVim
+    // ones (QTCREATORBUG-14273).
+    auto &sw = FakeVim::Internal::settings().shiftWidth;
+    auto &et = FakeVim::Internal::settings().expandTab;
+    auto &useEditor = FakeVim::Internal::settings().useEditorTabSettings;
+    const qint64 savedSw = sw.value();
+    const bool savedEt = et.value();
+    const bool savedUseEditor = useEditor.value();
+
+    // FakeVim own settings: 8 wide, real tabs.
+    sw.setValue(8);
+    et.setValue(false);
+
+    TestData data;
+    setup(&data);
+    // Editor settings served to the handler: 2 wide, spaces.
+    data.handler->tabSettingsRequested.set(
+        [](int *tabSize, int *indentSize, bool *spacesForTabs) {
+            *tabSize = 2;
+            *indentSize = 2;
+            *spacesForTabs = true;
+        });
+
+    // Off: uses the FakeVim settings (one tab).
+    useEditor.setValue(false);
+    data.setText("a|bc");
+    KEYS(">>", "\t|abc");
+
+    // On: follows the editor (two spaces).
+    useEditor.setValue(true);
+    data.setText("a|bc");
+    KEYS(">>", "  |abc");
+
+    sw.setValue(savedSw);
+    et.setValue(savedEt);
+    useEditor.setValue(savedUseEditor);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()
