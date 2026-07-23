@@ -46,6 +46,21 @@ TestTreeItem *QuickTestParseResult::createTestTreeItem() const
     return item;
 }
 
+static FilePaths activeBuildDirectories()
+{
+    FilePaths builddirs;
+    if (const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject()) {
+        for (const ProjectExplorer::Target *target : project->targets()) {
+            for (const ProjectExplorer::BuildConfiguration *bc : target->buildConfigurations()) {
+                FilePath builddir = bc->buildDirectory();
+                if (!builddir.isEmpty())
+                    builddirs.append(bc->buildDirectory());
+            }
+        }
+    }
+    return builddirs;
+}
+
 static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
                                 const CPlusPlus::Snapshot &snapshot)
 {
@@ -166,9 +181,12 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
     ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), paths, qmlJsMM,
         false /*emitDocumentChanges*/, false /*onlyTheLib*/, true /*forceRescan*/ );
 
+    const FilePaths builds = activeBuildDirectories();
     srcDir.iterateDirectory(
-        [&dirs](const FilePath &p) {
-            dirs.append(p.canonicalPath());
+        [&dirs, builds](const FilePath &p) {
+            // skip build dirs (might be insource)
+            if (!Utils::anyOf(builds, [p](const FilePath &f) { return f == p || p.isChildOf(f); }))
+                dirs.append(p.canonicalPath());
             return IterationPolicy::Continue;
         },
         FileFilter{{}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot, DirIteratorFlag::Subdirectories});
@@ -317,26 +335,9 @@ void QuickTestParser::handleDirectoryChanged(const FilePath &directory)
 
 void QuickTestParser::doUpdateWatchPaths(const FilePaths &directories)
 {
-    FilePaths builddirs;
-    if (const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject()) {
-        for (const ProjectExplorer::Target *target : project->targets()) {
-            for (const ProjectExplorer::BuildConfiguration *bc : target->buildConfigurations()) {
-                FilePath builddir = bc->buildDirectory();
-                if (!builddir.isEmpty())
-                    builddirs.append(bc->buildDirectory());
-            }
-        }
-    }
-
     for (const FilePath &dir : directories) {
         if (m_directoryWatcher.watchesDirectory(dir))
             continue;
-        // do not watch any build dir or any of the content
-        if (Utils::anyOf(builddirs, [dir](const FilePath &builddir) {
-                return dir.isChildOf(builddir);
-            })) {
-            continue;
-        }
         m_directoryWatcher.addDirectory(dir, FileSystemWatcher::WatchAllChanges);
         m_watchedFiles[dir] = qmlFilesWithMTime(dir);
     }
