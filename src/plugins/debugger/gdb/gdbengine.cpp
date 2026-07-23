@@ -361,6 +361,16 @@ void GdbEngine::handleResponse(const QString &buff)
             if (data.startsWith("Reading symbols from ")) {
                 showStatusMessage(Tr::tr("Reading %1...").arg(data.mid(21)), 1000);
                 progressPing();
+            } else if (data.startsWith("Downloading") && data.contains("separate debug info")) {
+                // gdb announces a debuginfod download with a single line, then fetches
+                // silently. A slow download produces no further output and would trip the
+                // command watchdog with a misleading "GDB Not Responding" dialog. Remember
+                // that a download is in progress so commandTimeout() can explain the real
+                // cause; the flag is cleared once gdb produces output again (see
+                // readGdbStandardOutput()).
+                m_debuginfodDownloadInProgress = true;
+                showStatusMessage(data.trimmed(), 5000);
+                progressPing();
             } else if (data.startsWith("[New ") || data.startsWith("[Thread ")) {
                 if (data.endsWith('\n'))
                     data.chop(1);
@@ -688,6 +698,9 @@ void GdbEngine::readDebuggeeOutput(const QByteArray &ba)
 void GdbEngine::readGdbStandardOutput()
 {
     m_commandTimer.start(); // Restart timer.
+    // Output on stdout means gdb is answering again, so any debuginfod download that
+    // was blocking a command has concluded.
+    m_debuginfodDownloadInProgress = false;
 
     int newstart = 0;
     int scan = m_inbuffer.size();
@@ -871,13 +884,24 @@ void GdbEngine::commandTimeout()
                       "COMMANDS STILL IN PROGRESS: ") + commands.join(", "));
         int timeOut = m_commandTimer.interval();
         m_commandTimeoutPending = true;
-        const QString msg = Tr::tr("The gdb process has not responded "
-            "to a command within %n seconds. This could mean it is stuck "
-            "in an endless loop or taking longer than expected to perform "
-            "the operation.\nYou can choose between waiting "
-            "longer or aborting debugging.", nullptr, timeOut / 1000);
+        // A debuginfod download that stalled (e.g. a slow or unreachable server) also
+        // ends up here, but "not responding" misrepresents it. Explain the actual cause.
+        const QString title = m_debuginfodDownloadInProgress
+            ? Tr::tr("Downloading Debug Information")
+            : Tr::tr("GDB Not Responding");
+        const QString msg = m_debuginfodDownloadInProgress
+            ? Tr::tr("GDB is downloading debug information (via debuginfod), which can "
+                "take a long time on a slow connection, and none has arrived for the "
+                "last %n seconds. This may also mean the debuginfod server is "
+                "unreachable.\nYou can keep waiting or stop debugging.", nullptr,
+                timeOut / 1000)
+            : Tr::tr("The gdb process has not responded "
+                "to a command within %n seconds. This could mean it is stuck "
+                "in an endless loop or taking longer than expected to perform "
+                "the operation.\nYou can choose between waiting "
+                "longer or aborting debugging.", nullptr, timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
-            Tr::tr("GDB Not Responding"), msg,
+            title, msg,
             QMessageBox::Ok | QMessageBox::Cancel);
         mb->button(QMessageBox::Cancel)->setText(Tr::tr("Give GDB More Time"));
         mb->button(QMessageBox::Ok)->setText(Tr::tr("Stop Debugging"));
