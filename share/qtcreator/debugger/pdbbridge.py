@@ -1464,13 +1464,17 @@ class QtcInternalDumper():
         frame_lineno = self.stack[-1 - frameNr]
         frame = frame_lineno[0]
 
+        # frame.f_locals is rebuilt fresh on every access, so it never
+        # sees assignValueInDebugger()'s writes into self.curframe_locals.
+        locals_dict = self.curframe_locals if frameNr == 0 else frame.f_locals
+
         self.output += 'data={'
-        for var in frame.f_locals.keys():
+        for var in locals_dict.keys():
             if var in ('__file__', '__name__', '__package__', '__spec__',
                        '__doc__', '__loader__', '__cached__', '__the_dumper__',
                        '__annotations__', 'QtcInternalBreakpoint', 'QtcInternalDumper'):
                 continue
-            value = frame.f_locals[var]
+            value = locals_dict[var]
             # this applies only for anonymous arguments
             # e.g. def dummy(var, (width, height), var2) would create an anonymous local var
             # named '.1' for (width, height) as this is the second argument
@@ -1487,7 +1491,7 @@ class QtcInternalDumper():
             self.putField('iname', iname)
             self.putField('wname', escapedExp)
             try:
-                res = eval(exp, {}, frame.f_locals)
+                res = eval(exp, {}, locals_dict)
                 self.putValue(res)
             except Exception:
                 self.putValue('<unavailable>')
@@ -1742,8 +1746,15 @@ class QtcInternalDumper():
     def listSymbols(self, args):
         moduleName = args['module']
         module = sys.modules.get(moduleName, None)
-        self.put("symbols={module='%s',symbols='%s'}"
-                 % (module, dir(module) if module else []))
+        self.put('symbols={')
+        self.putField('module', moduleName)
+        self.put('symbols=[')
+        if module:
+            for name in dir(module):
+                self.put('{')
+                self.putName(name)
+                self.put('}')
+        self.put(']}')
         self.flushOutput()
 
     def assignValue(self, args):
@@ -1771,6 +1782,7 @@ class QtcInternalDumper():
                 result += 'file="%s",' % filename
                 result += 'line="%s",' % lineno
                 result += 'level="%s",' % level
+                result += 'function="%s",' % frame.f_code.co_name
                 result += '}'
         except KeyboardInterrupt:
             pass
