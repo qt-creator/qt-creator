@@ -91,6 +91,7 @@ private:
     void readLldbStandardError();
 
     void handleStateNotification(const GdbMi &item);
+    void handleSignalReceived(const GdbMi &item);
     void handleLocationNotification(const GdbMi &location);
     void handleOutputNotification(const GdbMi &output);
     void handleInterpreterBreakpointModified(const GdbMi &item);

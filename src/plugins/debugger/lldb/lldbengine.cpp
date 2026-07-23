@@ -464,6 +464,8 @@ void LldbEngine::handleResponse(const QString &response)
             notifyInferiorPid(item.toProcessHandle());
         else if (name == "breakpointmodified")
             handleInterpreterBreakpointModified(item);
+        else if (name == "signal-received")
+            handleSignalReceived(item);
         else if (name == "bridgemessage")
             showMessage(item["msg"].data(), item["channel"].toInt());
         else if (name == "tracepointhit") {
@@ -915,6 +917,24 @@ void LldbEngine::readLldbStandardOutput()
             continue;
         }
         break;
+    }
+}
+
+void LldbEngine::handleSignalReceived(const GdbMi &item)
+{
+    const QString name = item["name"].data();
+    const QString meaning = item["meaning"].data();
+    showMessage("HANDLING SIGNAL " + (name.isEmpty() ? meaning : name));
+    if (name.isEmpty()) {
+        // Exception stop without a Unix signal number (e.g. EXC_BAD_ACCESS on
+        // macOS); "meaning" carries the description.
+        if (settings().useMessageBoxForSignals())
+            showStoppedByExceptionMessageBox(meaning);
+        showStatusMessage(meaning.isEmpty() ? msgStopped() : meaning);
+    } else {
+        if (settings().useMessageBoxForSignals())
+            showStoppedBySignalMessageBox(meaning, name);
+        showStatusMessage(msgStoppedBySignal(meaning, name));
     }
 }
 

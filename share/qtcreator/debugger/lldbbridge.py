@@ -1197,6 +1197,34 @@ class Dumper(DumperBase):
                 return thread
         return None
 
+    def reportSignalStop(self, thread):
+        # A spontaneous stop caused by a signal or exception (e.g. SIGSEGV on a
+        # bad pointer access) is otherwise only visible as a bare "Stopped".
+        # Surface the signal to the engine like GdbEngine does so the user gets
+        # a status message and, optionally, a dialog. QTCREATORBUG-11049.
+        reason = thread.GetStopReason()
+        if reason != lldb.eStopReasonSignal and reason != lldb.eStopReasonException:
+            return
+        name = ''
+        if reason == lldb.eStopReasonSignal and thread.GetStopReasonDataCount() > 0:
+            signo = thread.GetStopReasonDataAtIndex(0)
+            try:
+                name = self.process.GetUnixSignals().GetSignalAsCString(signo) or ''
+            except Exception:
+                name = ''
+        # Debugger-control signals used to interrupt/step the inferior are
+        # expected and must not be reported as a crash.
+        if name in ('SIGINT', 'SIGSTOP', 'SIGCONT', 'SIGTRAP'):
+            return
+        meaning = thread.GetStopDescription(1024) or ''
+        # LLDB prefixes the description with "signal <NAME>: "; drop it so the
+        # signal name is not repeated in the assembled status message.
+        prefix = 'signal %s: ' % name
+        if name and meaning.startswith(prefix):
+            meaning = meaning[len(prefix):]
+        self.report('signal-received={name="%s",meaning="%s"}'
+                    % (toCString(name), toCString(meaning)))
+
     def fetchThreads(self, args):
         result = 'threads=['
         for i in range(0, self.process.GetNumThreads()):
@@ -1699,6 +1727,8 @@ class Dumper(DumperBase):
                     self.isInterrupting_ = False
                     self.reportState("inferiorstopok")
                 else:
+                    if stoppedThread is not None:
+                        self.reportSignalStop(stoppedThread)
                     self.reportState("stopped")
                     if self.firstStop_:
                         self.firstStop_ = False
