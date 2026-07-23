@@ -11,6 +11,7 @@
 #include <QFrame>
 #include <QPointer>
 #include <QString>
+#include <QStringList>
 
 #include <initializer_list>
 #include <vector>
@@ -37,6 +38,7 @@ class QPushButton;
 class QScrollArea;
 class QSize;
 class QSizePolicy;
+class QListWidget;
 class QSpinBox;
 class QSplitter;
 class QStackedWidget;
@@ -395,6 +397,23 @@ public:
     void setText(const QString &);
     void setMarkdown(const QString &);
     void setReadOnly(bool);
+};
+
+class QTCREATOR_UTILS_EXPORT ListWidget : public Widget
+{
+public:
+    using Implementation = QListWidget;
+    using I = Building::BuilderItem<ListWidget>;
+
+    ListWidget(std::initializer_list<I> ps);
+
+    void setItems(const QStringList &items);
+    void addItem(const QString &item);
+    void clear();
+    int currentRow() const;
+    void setCurrentRow(int row);
+    void onItemActivated(QObject *guard, const std::function<void(int)> &);
+    void onCurrentRowChanged(QObject *guard, const std::function<void(int)> &);
 };
 
 class QTCREATOR_UTILS_EXPORT CompletingTextEdit : public Widget

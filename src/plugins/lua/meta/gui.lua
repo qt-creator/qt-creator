@@ -670,4 +670,36 @@ gui.stretch = {}
 ---Adds a stretchable space to the layout.
 ---@param factor integer The factor by which the space should stretch.
 function gui.Stretch(factor) end
+
+---@class ListWidget : Widget
+local listWidget = {}
+
+---@class (exact) ListWidgetOptions : BaseWidgetOptions
+---@field items? string[] The initial items of the list.
+---@field onItemActivated? function Called when an item is activated (double-click/Enter), with the 0-based row.
+---@field onCurrentRowChanged? function Called when the current row changes, with the 0-based row (-1 if none).
+gui.listWidgetOptions = {}
+
+---A simple selectable list of strings.
+---@param options ListWidgetOptions
+---@return ListWidget
+function gui.ListWidget(options) end
+
+---Replaces all items with the given strings.
+---@param items string[]
+function listWidget:setItems(items) end
+
+---Appends a single item.
+---@param item string
+function listWidget:addItem(item) end
+
+---Removes all items.
+function listWidget:clear() end
+
+---@return integer row The current row, or -1 if none is selected.
+function listWidget:currentRow() end
+
+---@param row integer The row to select.
+function listWidget:setCurrentRow(row) end
+
 return gui

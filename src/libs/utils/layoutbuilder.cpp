@@ -22,6 +22,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPainter>
+#include <QListWidget>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -1496,6 +1497,51 @@ void PushButton::setFlat(bool flat)
 void PushButton::onClicked(QObject *guard, const std::function<void ()> &func)
 {
     QObject::connect(access(this), &QAbstractButton::clicked, guard, func);
+}
+
+ListWidget::ListWidget(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void ListWidget::setItems(const QStringList &items)
+{
+    QListWidget *w = access(this);
+    w->clear();
+    w->addItems(items);
+}
+
+void ListWidget::addItem(const QString &item)
+{
+    access(this)->addItem(item);
+}
+
+void ListWidget::clear()
+{
+    access(this)->clear();
+}
+
+int ListWidget::currentRow() const
+{
+    return access(this)->currentRow();
+}
+
+void ListWidget::setCurrentRow(int row)
+{
+    access(this)->setCurrentRow(row);
+}
+
+void ListWidget::onItemActivated(QObject *guard, const std::function<void(int)> &func)
+{
+    QListWidget *w = access(this);
+    QObject::connect(w, &QListWidget::itemActivated, guard,
+                     [w, func](QListWidgetItem *item) { func(w->row(item)); });
+}
+
+void ListWidget::onCurrentRowChanged(QObject *guard, const std::function<void(int)> &func)
+{
+    QObject::connect(access(this), &QListWidget::currentRowChanged, guard, func);
 }
 
 /*!

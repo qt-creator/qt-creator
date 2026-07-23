@@ -151,6 +151,9 @@ CREATE_HAS_FUNC(setDefaultAction, nullptr);
 CREATE_HAS_FUNC_NAMED(setRole, setRoleButton, QtcButton::Role());
 CREATE_HAS_FUNC_NAMED(setRole, setRoleLabel, QtcLabel::Role());
 CREATE_HAS_FUNC(setCompletionBehavior, Utils::CompletingTextEdit::CompletionBehavior());
+CREATE_HAS_FUNC(setItems, QStringList());
+CREATE_HAS_FUNC(onItemActivated, nullptr, nullptr);
+CREATE_HAS_FUNC(onCurrentRowChanged, nullptr, nullptr);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -362,6 +365,35 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                     auto res = void_safe_call(f);
                     QTC_CHECK_RESULT(res);
                 });
+        }
+    }
+    if constexpr (has_setItems<T>) {
+        const auto items = children.get<sol::optional<sol::table>>("items"sv);
+        if (items) {
+            QStringList list;
+            for (size_t i = 1; i <= items->size(); ++i)
+                list << items->get<QString>(i);
+            item->setItems(list);
+        }
+    }
+    if constexpr (has_onItemActivated<T>) {
+        sol::optional<sol::main_function> onItemActivated
+            = children.get<sol::optional<sol::main_function>>("onItemActivated"sv);
+        if (onItemActivated) {
+            item->onItemActivated(guard, [f = *onItemActivated](int row) {
+                auto res = void_safe_call(f, row);
+                QTC_CHECK_RESULT(res);
+            });
+        }
+    }
+    if constexpr (has_onCurrentRowChanged<T>) {
+        sol::optional<sol::main_function> onCurrentRowChanged
+            = children.get<sol::optional<sol::main_function>>("onCurrentRowChanged"sv);
+        if (onCurrentRowChanged) {
+            item->onCurrentRowChanged(guard, [f = *onCurrentRowChanged](int row) {
+                auto res = void_safe_call(f, row);
+                QTC_CHECK_RESULT(res);
+            });
         }
     }
     if constexpr (has_setText<T>) {
@@ -714,6 +746,30 @@ void setupGuiModule()
             "markdown",
             sol::property(
                 &Layouting::MarkdownBrowser::toMarkdown, &Layouting::MarkdownBrowser::setMarkdown),
+            sol::base_classes,
+            sol::bases<Widget, Object>());
+
+        gui.new_usertype<ListWidget>(
+            "ListWidget",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<ListWidget>(children, guard);
+            }),
+            "setItems",
+            [](ListWidget &self, const sol::table &items) {
+                QStringList list;
+                for (size_t i = 1; i <= items.size(); ++i)
+                    list << items.get<QString>(i);
+                self.setItems(list);
+            },
+            "addItem",
+            &ListWidget::addItem,
+            "clear",
+            &ListWidget::clear,
+            "currentRow",
+            &ListWidget::currentRow,
+            "setCurrentRow",
+            &ListWidget::setCurrentRow,
             sol::base_classes,
             sol::bases<Widget, Object>());
 
