@@ -419,8 +419,9 @@ void KitManager::createKitsFromToolchains(
 
     const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
         ToolchainBundle::HandleMissing::CreateAndRegister);
+    const FilePath deviceRootPath = dev ? dev->rootPath() : FilePath();
     for (const ToolchainBundle &bundle : bundles) {
-        if (dev && !dev->rootPath().isSameDevice(bundle.get(&Toolchain::compilerCommand)))
+        if (dev && !bundle.get(&Toolchain::isSameDevice, deviceRootPath))
             continue;
         auto &bestBundle
             = uniqueToolchains[bundle.targetAbi()][bundle.factory()->languageCategory()];
