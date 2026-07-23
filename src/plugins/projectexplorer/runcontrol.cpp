@@ -877,8 +877,12 @@ bool RunControl::showPromptToStopDialog(const QString &title,
         buttonTexts[QMessageBox::Cancel] = cancelButtonText;
 
     CheckableDecider decider;
-    if (prompt)
-        decider = CheckableDecider(prompt);
+    if (prompt) {
+        decider = CheckableDecider(
+            [prompt] { return *prompt; }, /*should it ask?*/
+            [prompt] { *prompt = false; } /*update after user clicked Do Not Ask Again*/
+        );
+    }
 
     auto selected = CheckableMessageBox::question(title,
                                                   text,
