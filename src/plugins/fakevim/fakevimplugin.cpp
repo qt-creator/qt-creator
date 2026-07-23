@@ -1198,6 +1198,8 @@ void FakeVimPlugin::initialize()
             this, [this, &s] { setShowRelativeLineNumbers(s.relativeNumber()); });
     connect(&s.blinkingCursor, &FvBoolAspect::changed,
             this, [this, &s] { setCursorBlinking(s.blinkingCursor()); });
+    connect(&s.cursorFlashTime, &FvIntegerAspect::changed,
+            this, [this, &s] { setCursorBlinking(s.blinkingCursor()); });
 
     // Delayed operations.
     connect(this, &FakeVimPlugin::delayedQuitRequested,
@@ -1985,7 +1987,10 @@ void FakeVimPlugin::setCursorBlinking(bool on)
         m_savedCursorFlashTime = QGuiApplication::styleHints()->cursorFlashTime();
 
     const bool blink = on || !settings().useFakeVim();
-    QGuiApplication::styleHints()->setCursorFlashTime(blink ? m_savedCursorFlashTime : 0);
+    int flashTime = m_savedCursorFlashTime;
+    if (on && settings().useFakeVim() && settings().cursorFlashTime() > 0)
+        flashTime = settings().cursorFlashTime();
+    QGuiApplication::styleHints()->setCursorFlashTime(blink ? flashTime : 0);
 }
 
 void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, const ExCommand &cmd)

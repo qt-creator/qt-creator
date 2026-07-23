@@ -83,6 +83,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&showCmd,        true,  "ShowCmd",        "sc",  Tr::tr("Show partial command"));
     setup(&relativeNumber, false, "RelativeNumber", "rnu", Tr::tr("Show line numbers relative to cursor"));
     setup(&blinkingCursor, false, "BlinkingCursor", "bc",  Tr::tr("Blinking cursor"));
+    setup(&cursorFlashTime, 0,    "CursorFlashTime", {},   Tr::tr("Cursor blink rate:"));
     setup(&scrollOff,      0,     "ScrollOff",      "so",  Tr::tr("Scroll offset:"));
     setup(&textWidth,      0,     "TextWidth",      "tw",  Tr::tr("Text width:"));
     setup(&timeout,        true,  "Timeout",        "to",  Tr::tr("Use timeout for mappings"));
@@ -122,6 +123,9 @@ FakeVimSettings::FakeVimSettings()
     timeoutlen.setRange(0, 10000);
     timeoutlen.setToolTip(Tr::tr("Time in milliseconds to wait for the rest of a "
         "mapped key sequence (Vim timeoutlen option)."));
+    cursorFlashTime.setRange(0, 5000);
+    cursorFlashTime.setToolTip(Tr::tr("Blink period of the text cursor in milliseconds. "
+        "0 uses the system default. Only used while the cursor is blinking."));
     backspace.setDisplayStyle(FvStringAspect::LineEditDisplay);
     isKeyword.setDisplayStyle(FvStringAspect::LineEditDisplay);
 
@@ -163,7 +167,7 @@ FakeVimSettings::FakeVimSettings()
             }
         };
 
-        Row ints { shiftWidth, tabStop, scrollOff, timeoutlen, st };
+        Row ints { shiftWidth, tabStop, scrollOff, timeoutlen, cursorFlashTime, st };
 
         Column strings {
             backspace,

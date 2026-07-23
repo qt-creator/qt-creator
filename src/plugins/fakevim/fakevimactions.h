@@ -160,6 +160,7 @@ public:
     FvBoolAspect emulateVimUnimpaired;
 
     FvBoolAspect blinkingCursor;
+    FvIntegerAspect cursorFlashTime;
 
 private:
     void setup(FvBaseAspect *aspect, const QVariant &value,
