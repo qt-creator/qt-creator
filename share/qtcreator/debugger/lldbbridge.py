@@ -108,6 +108,8 @@ class Dumper(DumperBase):
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.interpreterBreakpointResolvers = []
+        # Internal (not user-visible) breakpoint ids - see handleBreakpointEvent().
+        self.internalBreakpointIds = set()
 
         self.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())
 
@@ -991,6 +993,7 @@ class Dumper(DumperBase):
         if self.nativeMixed:
             self.interpreterEventBreakpoint = \
                 self.target.BreakpointCreateByName('qt_qmlDebugMessageAvailable')
+            self.internalBreakpointIds.add(self.interpreterEventBreakpoint.GetID())
 
         state = 1 if self.target.IsValid() else 0
         self.reportResult('success="%s",msg="%s",exe="%s"'
@@ -1432,6 +1435,15 @@ class Dumper(DumperBase):
     def reportResult(self, result, args):
         self.report('result={token="%s",%s}' % (args.get("token", 0), result))
 
+    def reportInterpreterResult(self, resdict, args):
+        # Overrides DumperBase's plain print() to use report()'s "@" framing.
+        self.report('interpreterresult=%s,token="%s"'
+                    % (self.resultToMi(resdict), args.get('token', -1)))
+
+    def reportInterpreterAsync(self, resdict, asyncclass):
+        self.report('interpreterasync=%s,asyncclass="%s"'
+                    % (self.resultToMi(resdict), asyncclass))
+
     def reportToken(self, args):
         if "token" in args:
             # Unusual syntax intended, to support the double-click in left
@@ -1631,7 +1643,7 @@ class Dumper(DumperBase):
         # handle only the resolved locations for now..
         if eventType & lldb.eBreakpointEventTypeLocationsResolved:
             bp = lldb.SBBreakpoint.GetBreakpointFromEvent(event)
-            if bp is not None:
+            if bp is not None and bp.GetID() not in self.internalBreakpointIds:
                 self.reportBreakpointUpdate(bp)
 
     def wantAutoContinue(self, frame):
@@ -2052,6 +2064,7 @@ class Dumper(DumperBase):
         if getattr(self, 'nativeCallHookBreakpoint', None) is None:
             self.nativeCallHookBreakpoint = \
                 self.target.BreakpointCreateByName('qt_v4AboutToCallNativeMethodHook')
+            self.internalBreakpointIds.add(self.nativeCallHookBreakpoint.GetID())
         self.parseAndEvaluate('qt_v4NativeCallHookEnabled = 1')
 
     def disarmNativeCallStepIn(self):
@@ -2440,6 +2453,7 @@ class Dumper(DumperBase):
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         bp = self.target.BreakpointCreateByName('qt_qmlDebugConnectorOpen')
         bp.SetOneShot(True)
+        self.internalBreakpointIds.add(bp.GetID())
         self.interpreterBreakpointResolvers.append(
             lambda: self.resolvePendingInterpreterBreakpoint(args))
 
