@@ -4,10 +4,14 @@
 #include <QObject>
 #include <QList>
 #include <QTest>
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QTextBlock>
 
+#include <memory>
+
 #include <cppeditor/cppcodeformatter.h>
+#include <cppeditor/cppqtstyleindenter.h>
 using namespace CppEditor;
 
 class tst_CodeFormatter: public QObject
@@ -33,6 +37,7 @@ private Q_SLOTS:
     void preprocessorContinuation();
     void cStyleComments();
     void cppStyleComments();
+    void commentReindentFollowsOwnerLine();
     void expressionContinuation1();
     void expressionContinuation2();
     void assignContinuation1();
@@ -604,6 +609,38 @@ void tst_CodeFormatter::cppStyleComments()
          << Line("// ba")
          ;
     checkIndent(data);
+}
+
+// QTCREATORBUG-33585: reindenting a selection (Ctrl+I) must shift a doc
+// comment's body/closing lines by the same delta as its opening line, not
+// just leave them where they were.
+void tst_CodeFormatter::commentReindentFollowsOwnerLine()
+{
+    const QString text =
+            "void f()\n"
+            "{\n"
+            "        /*!\n"
+            "         * \\brief something\n"
+            "         */\n"
+            "        int x;\n"
+            "}\n";
+
+    QTextDocument document(text);
+    std::unique_ptr<TextEditor::Indenter> indenter(createCppQtStyleIndenter(&document));
+    CppCodeStylePreferences prefs;
+    indenter->setCodeStylePreferences(&prefs);
+
+    QTextCursor cursor(&document);
+    cursor.movePosition(QTextCursor::Start);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+
+    indenter->indent(cursor, QChar::Null, TextEditor::TabSettingsData());
+
+    const QStringList lines = document.toPlainText().split(QLatin1Char('\n'));
+    QCOMPARE(lines.at(2), QString("    /*!"));
+    QCOMPARE(lines.at(3), QString("     * \\brief something"));
+    QCOMPARE(lines.at(4), QString("     */"));
+    QCOMPARE(lines.at(5), QString("    int x;"));
 }
 
 void tst_CodeFormatter::expressionContinuation1()

@@ -129,12 +129,22 @@ void CppQtStyleIndenter::indent(const QTextCursor &cursor,
 
         QTextCursor tc = cursor;
         tc.beginEditBlock();
+        int commentDelta = 0;
         do {
             if (!codeFormatter.isInRawStringLiteral(block)) {
-                int indent;
-                int padding;
-                codeFormatter.indentFor(block, &indent, &padding);
-                tabSettings.indentLine(block, indent + padding, padding);
+                if (codeFormatter.isInCommentContinuation(block)) {
+                    // Comment body/closing lines keep their relative indentation;
+                    // shift them by the same delta as the comment's opening line.
+                    tabSettings.reindentLine(block, commentDelta);
+                } else {
+                    const int previousIndentation = tabSettings.indentationColumn(block.text());
+                    int indent;
+                    int padding;
+                    codeFormatter.indentFor(block, &indent, &padding);
+                    tabSettings.indentLine(block, indent + padding, padding);
+                    const int currentIndentation = tabSettings.indentationColumn(block.text());
+                    commentDelta = currentIndentation - previousIndentation;
+                }
             }
             codeFormatter.updateLineStateChange(block);
             block = block.next();

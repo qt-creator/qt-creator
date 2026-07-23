@@ -35,6 +35,7 @@ public:
     void updateLineStateChange(const QTextBlock &block);
 
     bool isInRawStringLiteral(const QTextBlock &block) const;
+    bool isInCommentContinuation(const QTextBlock &block) const;
     void indentFor(const QTextBlock &block, int *indent, int *padding);
     void indentForNewLineAfter(const QTextBlock &block, int *indent, int *padding);
 
