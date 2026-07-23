@@ -505,6 +505,16 @@ struct Watcher : DumperOptions
     {}
 };
 
+// Instructs the (LLDB) test harness to overwrite the memory of the local
+// named by 'exp' with 'hexData' before the variables are fetched. Used to
+// exercise the writeMemory bridge command.
+struct MemWrite : DumperOptions
+{
+    MemWrite(const QString &exp, const QString &hexData)
+        : DumperOptions(QString("\"memwrite\":{\"exp\":\"%1\",\"data\":\"%2\"}").arg(exp, hexData))
+    {}
+};
+
 enum AdditionalCriteria
 {
     NeedsInferiorCall = 0x1,
@@ -7777,6 +7787,16 @@ void tst_Dumpers::dumper_data()
                + Check("format", "\"abc\"", "char *")
                + Check("i", "1", "int")
                + Check("f", FloatValue("2"), "double");
+
+
+    // Overwrite the local 'x' via the writeMemory bridge command and check
+    // that the fetched value reflects the write (little-endian 42). LLDB only,
+    // as only the LLDB harness performs the memory write.
+    QTest::newRow("WriteMemory")
+            << Data("", "int x = 1;", "&x")
+               + LldbEngine
+               + MemWrite("x", "2a000000")
+               + Check("x", "42", "int");
 
 
     QString inheritanceData =

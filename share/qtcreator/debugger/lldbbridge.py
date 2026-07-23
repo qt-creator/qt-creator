@@ -2492,6 +2492,10 @@ class Tester(Dumper):
                             self.process.SetSelectedThread(stoppedThread)
                             self.fakeAddress_ = frame.GetPC()
                             self.fakeLAddress_ = frame.GetPCAddress()
+                            if 'memwrite' in args:
+                                mw = args['memwrite']
+                                address = frame.FindVariable(mw['exp']).GetLoadAddress()
+                                self.writeMemory({'address': address, 'data': mw['data']})
                             self.fetchVariables(args)
                             #self.describeLocation(frame)
                             self.report('@NS@%s@' % self.qtNamespace())
