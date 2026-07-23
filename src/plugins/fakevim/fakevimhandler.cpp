@@ -10027,6 +10027,14 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         // Make the visual selection inclusive before a Qt Creator shortcut
         // (e.g. Advanced Find) reads it synchronously (QTCREATORBUG-27442).
         d->fixExternalCursor(false);
+        // Accept plain text-input keys so they arrive as key presses instead of
+        // being eaten by the shortcut machinery. Needed for layouts that reach
+        // characters through layout modifiers (QTCREATORBUG-24904); mirrors the
+        // editor's own handling (QTCREATORBUG-22854).
+        const Qt::KeyboardModifiers mods = kev->modifiers();
+        kev->setAccepted((mods == Qt::NoModifier || mods == Qt::ShiftModifier
+                          || mods == Qt::KeypadModifier)
+                         && kev->key() < Qt::Key_Escape);
         return true;
     }
 

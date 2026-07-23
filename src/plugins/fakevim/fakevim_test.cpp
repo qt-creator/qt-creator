@@ -190,6 +190,7 @@ private slots:
     void test_vim_tab_with_zero_tabstop();
     void test_vim_timeout_options();
     void test_vim_selection_for_shortcut();
+    void test_vim_shortcut_override_text_key();
     void test_vim_jumplist_across_files();
     void test_vim_control_modifier();
     void test_vim_tabstop_distance();
@@ -5332,6 +5333,39 @@ void FakeVimTester::test_vim_selection_for_shortcut()
                  Qt::ControlModifier | Qt::ShiftModifier, QString());
     data.handler->eventFilter(data.editor(), &ev);
     QCOMPARE(data.editor()->textCursor().selectedText(), QString("abc"));
+
+    useFakeVim.setValue(savedUseFakeVim);
+}
+
+void FakeVimTester::test_vim_shortcut_override_text_key()
+{
+    // Route the ShortcutOverride through the filter as the application does.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+
+    TestData data;
+    setup(&data);
+    data.editor()->setFocus();
+    if (!data.editor()->hasFocus()) {
+        useFakeVim.setValue(savedUseFakeVim);
+        QSKIP("Editor did not get keyboard focus");
+    }
+    data.setText("|abc");
+
+    // A plain text key must be claimed as input (accepted) so it is delivered
+    // as a key press rather than eaten by the shortcut machinery; this is what
+    // lets layout-modifier characters through (QTCREATORBUG-24904).
+    QKeyEvent textKey(QEvent::ShortcutOverride, Qt::Key_X, Qt::NoModifier, QString("x"));
+    textKey.setAccepted(false);
+    data.handler->eventFilter(data.editor(), &textKey);
+    QVERIFY(textKey.isAccepted());
+
+    // A function key is a genuine shortcut and must be left unaccepted.
+    QKeyEvent functionKey(QEvent::ShortcutOverride, Qt::Key_F5, Qt::NoModifier, QString());
+    functionKey.setAccepted(false);
+    data.handler->eventFilter(data.editor(), &functionKey);
+    QVERIFY(!functionKey.isAccepted());
 
     useFakeVim.setValue(savedUseFakeVim);
 }
