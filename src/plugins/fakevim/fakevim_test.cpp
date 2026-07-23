@@ -195,6 +195,7 @@ private slots:
     void test_vim_tabstop_distance();
     void test_vim_goto_definition();
     void test_vim_ex_plugin_command_moves_cursor();
+    void test_vim_dot_after_visual_paste();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5423,6 +5424,26 @@ void FakeVimTester::test_vim_ex_plugin_command_moves_cursor()
         });
     data.doKeys(":foo<CR>");
     QCOMPARE(data.position(), target);
+}
+
+void FakeVimTester::test_vim_dot_after_visual_paste()
+{
+    TestData data;
+    setup(&data);
+
+    // QTCREATORBUG-18298: as in Vim, redo of a paste over a visual selection
+    // only repeats the deletion of the (re-selected) region; the put text is
+    // not recorded, so "." leaves nothing behind.
+    data.setText("(bl|ubb)" N "(abc)" N "(xyz)");
+    KEYS("yi(", "(blubb)" N "(abc)" N "(xyz)");
+    KEYS("2G0lvi(p", "(blubb)" N "(blubb)" N "(xyz)");
+    KEYS("3G0l.", "(blubb)" N "(blubb)" N "()");
+
+    // Same for a line-wise selection.
+    data.setText("|AAA" N "BBB" N "CCC" N "DDD");
+    KEYS("yy", "AAA" N "BBB" N "CCC" N "DDD");
+    KEYS("2GVp", "AAA" N "AAA" N "CCC" N "DDD");
+    KEYS("3G.", "AAA" N "AAA" N "DDD");
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()

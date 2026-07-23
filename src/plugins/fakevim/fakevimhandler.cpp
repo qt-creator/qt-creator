@@ -4861,7 +4861,14 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.isControl('o')) {
         jump(-count());
     } else if (input.is('p') || input.is('P') || input.isShift(Qt::Key_Insert)) {
-        dotCommand = QString("\"%1%2%3").arg(QChar(m_register)).arg(count()).arg(input.asChar());
+        if (isVisualMode()) {
+            // Vim's redo for a paste over a visual selection records only the
+            // deletion of the selection, not the put text, so "." deletes the
+            // re-selected region without inserting anything (QTCREATORBUG-18298).
+            dotCommand = visualDotCommand() + "d";
+        } else {
+            dotCommand = QString("\"%1%2%3").arg(QChar(m_register)).arg(count()).arg(input.asChar());
+        }
 
         pasteText(!input.is('P'));
         setTargetColumn();
