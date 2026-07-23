@@ -77,13 +77,7 @@ bool BlameMark::addToolTipContent(QLayout *target) const
         textLabel, &QLabel::linkActivated, textLabel, [info = m_info](const QString &link) {
             qCInfo(log) << "Link activated with target:" << link;
             const QString hash = (link == "blameParent") ? info.hash + "^" : info.hash;
-
-            // The tooltip may be shown in editors whose document has no file
-            // path of its own (e.g. the inline diff editor), so derive the
-            // context from the blamed file instead of the current editor.
-            const FilePath topLevel
-                = Core::VcsManager::findTopLevelForDirectory(info.filePath.parentDir());
-            QTC_ASSERT(!topLevel.isEmpty(), return);
+            const FilePath topLevel = info.topLevel;
 
             if (link.startsWith("blame") || link == "revert" || link == "showFile") {
                 const FilePath path = topLevel;
@@ -490,6 +484,7 @@ void InstantBlame::perform()
             return;
         }
         *infoStorage = parseBlameOutput(output.split('\n'), filePath, line, m_author);
+        infoStorage->topLevel = m_workingDirectory;
         m_blameMark.reset(new BlameMark(doc.get(), line, *infoStorage));
     };
     const TextEncoding encoding = m_encoding;
@@ -664,6 +659,7 @@ void BaselineBlame::perform()
         *infoStorage = parseBlameOutput(output.split('\n'), m_workingFilePath, line, {});
         infoStorage->viewRevision = m_ref;
         infoStorage->viewFileName = m_relativeFile;
+        infoStorage->topLevel = m_topLevel;
         m_blameMark.reset(new BlameMark(m_widget->textDocument(), line, *infoStorage));
     };
     const TextEncoding encoding = m_encoding;
