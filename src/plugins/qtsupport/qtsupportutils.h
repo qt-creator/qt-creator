@@ -4,6 +4,8 @@
 
 #include "qtsupport_global.h"
 
+#include <utils/osspecificaspects.h>
+
 namespace Utils {
 class Environment;
 class FilePath;
@@ -22,7 +24,7 @@ bool isQtChooser(const Utils::FilePath &filePath);
 Utils::FilePath qtChooserToQmakePath(const Utils::FilePath &qtChooser);
 } // namespace Internal
 
-QTSUPPORT_EXPORT QString filterForQmakeFileDialog();
+QTSUPPORT_EXPORT QString filterForQmakeFileDialog(Utils::OsType osType);
 QTSUPPORT_EXPORT QByteArray uiHeaderFromUic(Utils::Process *process);
 
 } // namespace QtSupport

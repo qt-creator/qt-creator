@@ -697,7 +697,7 @@ void QtSettingsPageWidget::addQtDir()
     FilePath qtVersion = FileUtils::getOpenFilePath(
         Tr::tr("Select a qmake Executable"),
         initialDir,
-        filterForQmakeFileDialog(),
+        filterForQmakeFileDialog(initialDir.osType()),
         nullptr,
         QFileDialog::DontResolveSymlinks,
         true);
@@ -768,7 +768,7 @@ void QtSettingsPageWidget::editPath()
     FilePath qtVersion = FileUtils::getOpenFilePath(
         Tr::tr("Select a qmake Executable"),
         current->qmakeFilePath().absolutePath(),
-        filterForQmakeFileDialog(),
+        filterForQmakeFileDialog(current->qmakeFilePath().osType()),
         nullptr,
         QFileDialog::DontResolveSymlinks);
     if (qtVersion.isEmpty())

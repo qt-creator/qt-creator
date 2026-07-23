@@ -17,7 +17,7 @@ using namespace std::chrono_literals;
 namespace QtSupport {
 namespace Internal {
 
-static QStringList possibleQMakeCommands()
+static QStringList possibleQMakeCommands(OsType osType)
 {
     // On Windows it is always "qmake.exe"
     // On Unix some distributions renamed qmake with a postfix to avoid clashes
@@ -26,6 +26,8 @@ static QStringList possibleQMakeCommands()
     // Qt 6 CMake built targets, such as Android, are dependent on the host installation
     // and use a script wrapper around the host qmake executable
     // Remote build configurations (e.g. Windows host + Linux target) must be taken into account too
+    if (osType == OsTypeWindows)
+        return QStringList{"qmake.exe", "qtpaths.exe", "qmake.bat", "qtpaths.bat"};
     return {"qmake*", "qtpaths*"};
 }
 
@@ -79,7 +81,8 @@ static FilePaths findQmakesInDir(const FilePath &dir)
     FilePaths qmakes;
     std::set<FilePath> canonicalQmakes;
     const FilePaths candidates = dir.dirEntries(
-        {possibleQMakeCommands(), DirFilterFlag::Files}, DirSortFlag::Name | DirSortFlag::Reversed);
+        {possibleQMakeCommands(dir.osType()), DirFilterFlag::Files},
+        DirSortFlag::Name | DirSortFlag::Reversed);
 
     const auto probablyMatchesExistingQmake = [&](const FilePath &qmake) {
         // This deals with symlinks.
@@ -160,10 +163,10 @@ FilePath qtChooserToQmakePath(const Utils::FilePath &qtChooser)
 
 } // namespace Internal
 
-QString filterForQmakeFileDialog()
+QString filterForQmakeFileDialog(OsType osType)
 {
     QString filter = QLatin1String("qmake (");
-    const QStringList commands = Internal::possibleQMakeCommands();
+    const QStringList commands = Internal::possibleQMakeCommands(osType);
     for (int i = 0; i < commands.size(); ++i) {
         if (i)
             filter += QLatin1Char(' ');
