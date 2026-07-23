@@ -294,7 +294,7 @@ def handleSaveAsDialog(fileNameWithPath):
     try:
         qcFileDialog = "{type='Utils::FileDialog' unnamed='1' visible='1'}"
         waitForObject(qcFileDialog, 5000)
-        saveAsLabel = "{type='QLabel' text='Save As:' unnamed='1'}"
+        saveAsLabel = "{type='QLabel' text='Save As:' unnamed='1' visible='1'}"
         fnLineEdit = ("{type='Utils::FancyLineEdit' unnamed='1' window=%s leftWidget=%s}"
                       % (qcFileDialog, saveAsLabel))
         fileNameLE = waitForObject(fnLineEdit)
