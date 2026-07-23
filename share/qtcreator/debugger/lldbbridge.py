@@ -1045,6 +1045,21 @@ class Dumper(DumperBase):
                 self.reportState('enginerunandinferiorstopok')
 
         elif (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
+              or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess) \
+                and not self.platform_:
+            # Plain "target remote"-equivalent: no platform/lldb-server
+            # abstraction, just the raw gdb remote protocol gdbserver speaks.
+            url = "connect://" + self.remoteChannel_
+            self.process = self.target.ConnectRemote(
+                self.debugger.GetListener(), url, "gdb-remote", error)
+            if not error.Success():
+                self.report(self.describeError(error))
+                self.reportState('enginerunfailed')
+                return
+            self.report('pid="%s"' % self.process.GetProcessID())
+            self.reportState('enginerunandinferiorstopok')
+
+        elif (self.startMode_ == DebuggerStartMode.AttachToRemoteServer
               or self.startMode_ == DebuggerStartMode.AttachToRemoteProcess):
             if self.platform_ == 'remote-ios':
                 self.process = self.target.ConnectRemote(
