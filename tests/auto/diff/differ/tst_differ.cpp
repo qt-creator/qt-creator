@@ -56,6 +56,8 @@ private Q_SLOTS:
     void cleanupSemantics();
     void cleanupSemanticsLossless_data();
     void cleanupSemanticsLossless();
+    void diffBetweenEqualitiesRepeatedSubstrings_data();
+    void diffBetweenEqualitiesRepeatedSubstrings();
 };
 
 
@@ -771,6 +773,72 @@ void tst_Differ::cleanupSemanticsLossless()
 
     QList<Diff> result = Differ::cleanupSemanticsLossless(input);
     QCOMPARE(result, expected);
+}
+
+// QTCREATORBUG-33879: a repeated substring across several lines of a
+// delete/insert block (e.g. "bar" in "foo=bar" / "bar=foo") must not get
+// matched across the line boundary; each line pair should be highlighted
+// independently.
+void tst_Differ::diffBetweenEqualitiesRepeatedSubstrings_data()
+{
+    QTest::addColumn<QString>("leftText");
+    QTest::addColumn<QString>("rightText");
+    QTest::addColumn<QList<Diff> >("expectedLeft");
+    QTest::addColumn<QList<Diff> >("expectedRight");
+
+    QTest::newRow("all lines change, substrings repeat across lines")
+            << QString("foo=bar\nbar=foo\nfoobar=barfoo")
+            << QString("foo=foo\nbar=bar\nfoobar=foobar")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, QString("foo="))
+                << Diff(Diff::Delete, QString("bar"))
+                << Diff(Diff::Equal, QString("\nbar="))
+                << Diff(Diff::Delete, QString("foo"))
+                << Diff(Diff::Equal, QString("\nfoobar="))
+                << Diff(Diff::Delete, QString("barfoo")))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, QString("foo="))
+                << Diff(Diff::Insert, QString("foo"))
+                << Diff(Diff::Equal, QString("\nbar="))
+                << Diff(Diff::Insert, QString("bar"))
+                << Diff(Diff::Equal, QString("\nfoobar="))
+                << Diff(Diff::Insert, QString("foobar")));
+
+    QTest::newRow("one line changes to a unique word")
+            << QString("foo=bar\nbar=foo\nfoobar=barfoo")
+            << QString("foo=foo\nbar=baz\nfoobar=foobar")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, QString("foo="))
+                << Diff(Diff::Delete, QString("bar"))
+                << Diff(Diff::Equal, QString("\nbar="))
+                << Diff(Diff::Delete, QString("foo"))
+                << Diff(Diff::Equal, QString("\nfoobar="))
+                << Diff(Diff::Delete, QString("barfoo")))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, QString("foo="))
+                << Diff(Diff::Insert, QString("foo"))
+                << Diff(Diff::Equal, QString("\nbar="))
+                << Diff(Diff::Insert, QString("baz"))
+                << Diff(Diff::Equal, QString("\nfoobar="))
+                << Diff(Diff::Insert, QString("foobar")));
+}
+
+void tst_Differ::diffBetweenEqualitiesRepeatedSubstrings()
+{
+    QFETCH(QString, leftText);
+    QFETCH(QString, rightText);
+    QFETCH(QList<Diff>, expectedLeft);
+    QFETCH(QList<Diff>, expectedRight);
+
+    const QList<Diff> leftInput = {Diff(Diff::Delete, leftText)};
+    const QList<Diff> rightInput = {Diff(Diff::Insert, rightText)};
+
+    QList<Diff> leftOutput;
+    QList<Diff> rightOutput;
+    Differ::diffBetweenEqualities(leftInput, rightInput, &leftOutput, &rightOutput);
+
+    QCOMPARE(leftOutput, expectedLeft);
+    QCOMPARE(rightOutput, expectedRight);
 }
 
 QTEST_GUILESS_MAIN(tst_Differ)

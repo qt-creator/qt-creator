@@ -854,16 +854,44 @@ void Differ::diffBetweenEqualities(const QList<Diff> &leftInput,
 
             if (previousLeftDiff.command == Diff::Delete
                     && previousRightDiff.command == Diff::Insert) {
-                Differ differ;
-                differ.setDiffMode(Differ::CharMode);
-                const QList<Diff> commonOutput = cleanupSemantics(
-                            differ.diff(previousLeftDiff.text, previousRightDiff.text));
-
                 QList<Diff> outputLeftDiffList;
                 QList<Diff> outputRightDiffList;
 
-                Differ::splitDiffList(commonOutput, &outputLeftDiffList,
-                                      &outputRightDiffList);
+                // If both sides split into the same number of (more than one) lines,
+                // diff each corresponding line pair separately instead of the whole
+                // block at once. Otherwise, a character sequence that is repeated
+                // across several of the lines (e.g. "bar" in "foo=bar"/"bar=foo") can
+                // get matched across the line boundary, misattributing the character
+                // highlighting to the wrong line or to the line separator itself.
+                const QStringList leftLines = previousLeftDiff.text.split(QLatin1Char('\n'));
+                const QStringList rightLines = previousRightDiff.text.split(QLatin1Char('\n'));
+                if (leftLines.size() > 1 && leftLines.size() == rightLines.size()) {
+                    for (int k = 0; k < leftLines.size(); ++k) {
+                        if (k > 0) {
+                            QList<Diff> newLineLeft = {Diff(Diff::Equal, QString(QLatin1Char('\n')))};
+                            QList<Diff> newLineRight = {Diff(Diff::Equal, QString(QLatin1Char('\n')))};
+                            appendWithEqualitiesSquashed(newLineLeft, newLineRight,
+                                                         &outputLeftDiffList, &outputRightDiffList);
+                        }
+                        Differ lineDiffer;
+                        lineDiffer.setDiffMode(Differ::CharMode);
+                        const QList<Diff> lineOutput = cleanupSemantics(
+                                    lineDiffer.diff(leftLines.at(k), rightLines.at(k)));
+                        QList<Diff> lineLeftDiffList;
+                        QList<Diff> lineRightDiffList;
+                        Differ::splitDiffList(lineOutput, &lineLeftDiffList, &lineRightDiffList);
+                        appendWithEqualitiesSquashed(lineLeftDiffList, lineRightDiffList,
+                                                     &outputLeftDiffList, &outputRightDiffList);
+                    }
+                } else {
+                    Differ differ;
+                    differ.setDiffMode(Differ::CharMode);
+                    const QList<Diff> commonOutput = cleanupSemantics(
+                                differ.diff(previousLeftDiff.text, previousRightDiff.text));
+
+                    Differ::splitDiffList(commonOutput, &outputLeftDiffList,
+                                          &outputRightDiffList);
+                }
 
                 appendWithEqualitiesSquashed(outputLeftDiffList,
                                              outputRightDiffList,
