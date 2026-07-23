@@ -21,6 +21,12 @@ public:
     Q_INVOKABLE QString qtCreatorIdeVersion() const;
     Q_INVOKABLE QString qtCreatorSettingsPath() const;
 
+    // Compares two Major.Minor.Patch version strings. Returns a negative value,
+    // zero, or a positive value if version1 is less than, equal to, or greater
+    // than version2. Use this instead of JavaScript's string/number comparison,
+    // which gets e.g. "6.9" vs "6.10" wrong.
+    Q_INVOKABLE int versionCompare(const QString &version1, const QString &version2) const;
+
     // File name conversions:
     Q_INVOKABLE QString toNativeSeparators(const QString &in) const;
     Q_INVOKABLE QString fromNativeSeparators(const QString &in) const;

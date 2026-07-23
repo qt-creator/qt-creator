@@ -47,11 +47,11 @@
         },
         {
             "key": "HasQSPSetup",
-            "value": "%{JS: value('MinimumSupportedQtVersion') > '6.2' }"
+            "value": "%{JS: Util.versionCompare(value('MinimumSupportedQtVersion'), '6.2') > 0 }"
         },
         {
             "key": "UsesAutoResourcePrefix",
-            "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' }"
+            "value": "%{JS: Util.versionCompare(value('MinimumSupportedQtVersion'), '6.4') > 0 }"
         }
     ],
 
