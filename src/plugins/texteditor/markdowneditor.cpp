@@ -71,9 +71,20 @@ class MarkdownEditor : public BaseTextEditor
     Q_OBJECT
 public:
     MarkdownEditor()
-        : m_document(new TextDocument(MARKDOWNVIEWER_ID))
+        : MarkdownEditor(TextDocumentPtr(new TextDocument(MARKDOWNVIEWER_ID)))
     {
         m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
+        connect(
+            m_document.data(),
+            &TextDocument::mimeTypeChanged,
+            m_document.data(),
+            &TextDocument::changed);
+    }
+
+    explicit MarkdownEditor(const TextDocumentPtr &doc)
+        : m_document(doc)
+    {
+        setDuplicateSupported(true);
 
         QtcSettings *s = ICore::settings();
         const bool textEditorRight
@@ -191,25 +202,6 @@ public:
         m_togglePreviewVisibleAction = m_textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right, m_togglePreviewVisible);
         setWidgetOrder(textEditorRight);
 
-        connect(m_document.data(),
-                &TextDocument::mimeTypeChanged,
-                m_document.data(),
-                &TextDocument::changed);
-
-        const auto updatePreview = [this] {
-            // save scroll positions
-            const QPoint positions = m_previewRestoreScrollPosition
-                                         ? *m_previewRestoreScrollPosition
-                                         : QPoint(m_previewWidget->horizontalScrollBar()->value(),
-                                                  m_previewWidget->verticalScrollBar()->value());
-            m_previewRestoreScrollPosition.reset();
-
-            m_previewWidget->setMarkdown(m_document->plainText());
-
-            m_previewWidget->horizontalScrollBar()->setValue(positions.x());
-            m_previewWidget->verticalScrollBar()->setValue(positions.y());
-        };
-
         const auto viewToggled =
             [this](QWidget *view, bool visible, QWidget *otherView, QToolButton *otherButton) {
                 if (view->isVisible() == visible)
@@ -247,17 +239,18 @@ public:
                         button->setVisible(visible);
                     saveViewSettings();
                 });
-        connect(m_togglePreviewVisible,
-                &QToolButton::toggled,
-                this,
-                [this, viewToggled, updatePreview, saveViewSettings](bool visible) {
-                    viewToggled(m_previewWidget, visible, m_textEditorWidget, m_toggleEditorVisible);
-                    if (visible && m_performDelayedUpdate) {
-                        m_performDelayedUpdate = false;
-                        updatePreview();
-                    }
-                    saveViewSettings();
-                });
+        connect(
+            m_togglePreviewVisible,
+            &QToolButton::toggled,
+            this,
+            [this, viewToggled, saveViewSettings](bool visible) {
+                viewToggled(m_previewWidget, visible, m_textEditorWidget, m_toggleEditorVisible);
+                if (visible && m_performDelayedUpdate) {
+                    m_performDelayedUpdate = false;
+                    updatePreviewNow();
+                }
+                saveViewSettings();
+            });
 
         connect(m_swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
             const bool textEditorRight = isTextEditorRight();
@@ -272,16 +265,44 @@ public:
         // TODO directly update when we build with Qt 6.5.2
         m_previewTimer.setInterval(500);
         m_previewTimer.setSingleShot(true);
-        connect(&m_previewTimer, &QTimer::timeout, this, [this, updatePreview] {
-            if (m_togglePreviewVisible->isChecked())
-                updatePreview();
-            else
-                m_performDelayedUpdate = true;
-        });
+        connect(&m_previewTimer, &QTimer::timeout, this, &MarkdownEditor::updatePreview);
 
         connect(m_document->document(), &QTextDocument::contentsChanged, &m_previewTimer, [this] {
             m_previewTimer.start();
         });
+    }
+
+    BaseTextEditor *duplicate() override
+    {
+        auto other = new MarkdownEditor(m_document);
+        other->restoreState(saveState());
+        other->updatePreview();
+        emit editorDuplicated(other);
+        return other;
+    }
+
+    void updatePreview()
+    {
+        if (m_togglePreviewVisible->isChecked())
+            updatePreviewNow();
+        else
+            m_performDelayedUpdate = true;
+    }
+
+    void updatePreviewNow()
+    {
+        // save scroll positions
+        const QPoint positions = m_previewRestoreScrollPosition
+                                     ? *m_previewRestoreScrollPosition
+                                     : QPoint(
+                                           m_previewWidget->horizontalScrollBar()->value(),
+                                           m_previewWidget->verticalScrollBar()->value());
+        m_previewRestoreScrollPosition.reset();
+
+        m_previewWidget->setMarkdown(m_document->plainText());
+
+        m_previewWidget->horizontalScrollBar()->setValue(positions.x());
+        m_previewWidget->verticalScrollBar()->setValue(positions.y());
     }
 
     void triggerEmphasis()
@@ -415,8 +436,10 @@ public:
         setWidgetOrder(textEditorRight);
         m_splitter->restoreState(splitterState);
         m_togglePreviewVisible->setChecked(previewShown);
+        m_previewWidget->setVisible(m_togglePreviewVisible->isChecked());
         // ensure at least one is shown
         m_toggleEditorVisible->setChecked(textEditorShown || !previewShown);
+        m_textEditorWidget->setVisible(m_toggleEditorVisible->isChecked());
     }
 
 private:
