@@ -39,6 +39,7 @@
 #include <QMessageBox>
 #include <QMetaProperty>
 #include <QPluginLoader>
+#include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QSysInfo>
@@ -632,6 +633,9 @@ static QStringList subList(const QStringList &in, const QString &key)
 
     \a socket is passed for disconnecting the peer when the operation is done (for example,
     document is closed) for supporting the \c -block flag.
+
+    If plugin initialization is not done yet, the arguments are processed after
+    initializationDone() is emitted instead, preserving the order of calls.
 */
 
 void PluginManager::remoteArguments(const QString &serializedArgument, QObject *socket)
@@ -640,6 +644,14 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
         return;
     if (serializedArgument.isEmpty())
         return;
+    if (!isInitializationDone()) {
+        connect(instance(), &PluginManager::initializationDone, instance(),
+                [serializedArgument, socket = QPointer<QObject>(socket)] {
+                    PluginManager::remoteArguments(serializedArgument, socket);
+                },
+                Qt::SingleShotConnection);
+        return;
+    }
     QStringList serializedArguments = serializedArgument.split(QLatin1Char('|'));
     const QStringList pwdValue = subList(serializedArguments, QLatin1String(pwdKeywordC));
     const QString workingDirectory = pwdValue.isEmpty() ? QString() : pwdValue.first();

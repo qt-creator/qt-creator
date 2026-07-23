@@ -576,12 +576,6 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
                                    const QString &workingDirectory,
                                    const QStringList &args)
 {
-    if (!ExtensionSystem::PluginManager::isInitializationDone()) {
-        connect(ExtensionSystem::PluginManager::instance(),
-                &ExtensionSystem::PluginManager::initializationDone, this,
-                [this, workingDirectory, args] { remoteCommand({}, workingDirectory, args); });
-        return nullptr;
-    }
     const FilePaths filePaths = Utils::transform(args, FilePath::fromUserInput);
     IDocument *res = ICore::openFiles(
         filePaths,
