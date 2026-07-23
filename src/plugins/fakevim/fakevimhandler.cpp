@@ -4726,6 +4726,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             pushUndoState();
             setAnchor();
         }
+    } else if (g.gflag && input.is('d')) {
+        // gd: go to definition of the symbol under the cursor.
+        q->tagJumpRequested();
     } else if ((input.is('c') || input.is('d') || input.is('y')) && isNoVisualMode()) {
         setAnchor();
         g.opcount = g.mvcount;

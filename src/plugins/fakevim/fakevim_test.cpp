@@ -193,6 +193,7 @@ private slots:
     void test_vim_jumplist_across_files();
     void test_vim_control_modifier();
     void test_vim_tabstop_distance();
+    void test_vim_goto_definition();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5388,6 +5389,19 @@ void FakeVimTester::test_vim_tabstop_distance()
     QCOMPARE(int(data.editor()->tabStopDistance()), spaceWidth * 8);
 
     tabStop.setValue(savedTabStop);
+}
+
+void FakeVimTester::test_vim_goto_definition()
+{
+    // "gd" requests Follow Symbol natively, without an ex-command mapping
+    // (QTCREATORBUG-27191).
+    TestData data;
+    setup(&data);
+    data.setText("abc" N "d|ef");
+    bool requested = false;
+    data.handler->tagJumpRequested.set([&] { requested = true; });
+    data.doKeys("gd");
+    QVERIFY(requested);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()
