@@ -24,7 +24,6 @@
 #include <QFont>
 #include <QLabel>
 #include <QTextBlock>
-#include <QVBoxLayout>
 
 using namespace Utils;
 
@@ -139,13 +138,11 @@ QWidget *createTakeEffectImmediatelyLabel()
     auto infoLabel = new InfoLabel(Tr::tr("All changes below take effect immediately."),
                                    InfoLabelType::Information);
     infoLabel->setFilled(true);
-    // Wrap in a plain container: InfoLabel uses its own contentsMargins to place
-    // its icon, so callers indent the container instead of the label itself.
-    auto container = new QWidget;
-    auto layout = new QVBoxLayout(container);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(infoLabel);
-    return container;
+
+    // Wrap in a plain container so callers indent the container, not the label
+    // itself (InfoLabel uses its own contentsMargins to place its icon).
+    using namespace Layouting;
+    return Column { infoLabel, noMargin }.emerge();
 }
 
 CodeStyleAspect::CodeStyleAspect(ICodeStylePreferences *codeStyle, Id languageId)
