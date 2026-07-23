@@ -1319,7 +1319,10 @@ void TransitionItem::updateZValue()
 
 qreal TransitionItem::textWidth() const
 {
-    return m_eventTagItem->boundingRect().width() + m_condTagItem->boundingRect().width();
+    // The condition tag wraps beneath the event tag (both centered horizontally
+    // on the same point), so the horizontal extent is the wider of the two, not
+    // their sum.
+    return qMax(m_eventTagItem->boundingRect().width(), m_condTagItem->boundingRect().width());
 }
 
 QRectF TransitionItem::wholeBoundingRect() const
