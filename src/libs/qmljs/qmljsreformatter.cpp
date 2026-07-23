@@ -1039,7 +1039,10 @@ protected:
             out("...");
             break;
         }
-        out(ast->identifierToken);
+        if (ast->bindingTarget)
+            accept(ast->bindingTarget);
+        else
+            out(ast->identifierToken);
         if (ast->initializer) {
             if (ast->isVariableDeclaration() || ast->type == PatternElement::Binding)
                 out(" = ");
