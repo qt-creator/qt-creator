@@ -26,6 +26,7 @@ Project {
         "stringutils/stringutils.qbs",
         "synchronizedvalue/synchronizedvalue.qbs",
         "templateengine/templateengine.qbs",
+        "terminalinterface/terminalinterface.qbs",
         "text/text.qbs",
         "treemodel/treemodel.qbs",
         "unarchiver/unarchiver.qbs",
