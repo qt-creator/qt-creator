@@ -406,6 +406,11 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 {
     RawProjectParts rpps;
 
+    // Build a target ID -> TargetDetails lookup for INTERFACE library dependency resolution
+    QHash<QString, const TargetDetails *> targetById;
+    for (const TargetDetails &td : input.targetDetails)
+        targetById.insert(td.id, &td);
+
     static const QMap<QString, QString> headerMimeTypeForLanguage
         = {{"C", Utils::Constants::C_HEADER_MIMETYPE},
            {"CXX", Utils::Constants::CPP_HEADER_MIMETYPE},
@@ -589,6 +594,91 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             const bool isExecutable = t.type == "EXECUTABLE";
             rpp.setBuildTargetType(isExecutable ? BuildTargetType::Executable
                                                 : BuildTargetType::Library);
+
+            rpps.append(rpp);
+        }
+
+        // Handle INTERFACE libraries with sources but no compileGroups (old-style syntax).
+        // These need their own RawProjectPart so the C++ code model has parse context for
+        // their header files. Include paths come from FILE_SET base directories and are
+        // collected recursively from dependencies. Only include paths are propagated;
+        // headers stay in their own target's project part.
+        if (t.type == "INTERFACE_LIBRARY" && t.compileGroups.empty() && !t.sources.empty()) {
+            FilePaths headerFiles;
+            HeaderPaths includePaths;
+            QSet<FilePath> seenIncludeDirs;
+
+            // Add FILE_SET base directories from this target
+            for (const FileSetInfo &fs : std::as_const(t.fileSets)) {
+                if (fs.type == "HEADERS") {
+                    for (const QString &baseDir : fs.baseDirectories) {
+                        const FilePath resolved = sourceDirectory.resolvePath(baseDir);
+                        if (!seenIncludeDirs.contains(resolved)) {
+                            seenIncludeDirs.insert(resolved);
+                            includePaths.append(HeaderPath::makeUser(resolved));
+                        }
+                    }
+                }
+            }
+
+            // Recursively collect FILE_SET base directories from dependencies
+            QSet<QString> depVisited;
+            auto collectDepIncludePaths = [&](auto &&self, const QString &depId) -> void {
+                if (depVisited.contains(depId))
+                    return;
+                depVisited.insert(depId);
+                const TargetDetails *depTarget = targetById.value(depId);
+                if (!depTarget)
+                    return;
+
+                for (const FileSetInfo &fs : std::as_const(depTarget->fileSets)) {
+                    if (fs.type == "HEADERS") {
+                        for (const QString &baseDir : fs.baseDirectories) {
+                            const FilePath resolved = sourceDirectory.resolvePath(baseDir);
+                            if (!seenIncludeDirs.contains(resolved)) {
+                                seenIncludeDirs.insert(resolved);
+                                includePaths.append(HeaderPath::makeUser(resolved));
+                            }
+                        }
+                    }
+                }
+
+                for (const DependencyInfo &dep : std::as_const(depTarget->interfaceLinkLibraries))
+                    self(self, dep.targetId);
+            };
+
+            for (const DependencyInfo &dep : std::as_const(t.interfaceLinkLibraries))
+                collectDepIncludePaths(collectDepIncludePaths, dep.targetId);
+
+            // Collect headers from this target only
+            for (const SourceInfo &si : std::as_const(t.sources)) {
+                if (si.isGenerated)
+                    continue;
+                const auto kind = CppEditor::ProjectFile::classify(si.path);
+                if (CppEditor::ProjectFile::isHeader(kind)
+                    && (CppEditor::ProjectFile::isCxx(kind) || CppEditor::ProjectFile::isC(kind)
+                        || kind == CppEditor::ProjectFile::AmbiguousHeader)) {
+                    headerFiles.append(sourceDirectory.resolvePath(si.path));
+                }
+            }
+
+            if (headerFiles.isEmpty() || includePaths.isEmpty())
+                continue;
+
+            RawProjectPart rpp;
+            rpp.setProjectFileLocation(t.sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT));
+            rpp.setBuildSystemTarget(t.name);
+            rpp.setDisplayName(t.name + "_INTERFACE");
+            rpp.setHeaderPaths(includePaths);
+            rpp.setFiles(headerFiles);
+
+            rpp.setMimeTypeGetter([](const FilePath &path) -> QString {
+                if (CppEditor::ProjectFile::isAmbiguousHeader(path))
+                    return Utils::Constants::CPP_HEADER_MIMETYPE;
+                return Utils::mimeTypeForFile(path).name();
+            });
+
+            rpp.setBuildTargetType(BuildTargetType::Library);
             rpps.append(rpp);
         }
     }
