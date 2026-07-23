@@ -664,4 +664,33 @@ void FileSystemAccessTest::testFileStreamerManager()
     QCOMPARE(*remoteRemoteData, data);
 }
 
+void AccessViaTest::testConnectionOptions()
+{
+    const FilePath ssh = FilePath::fromString("/usr/bin/ssh");
+
+    SshParameters params;
+    params.setHost("target");
+
+    // A direct connection must not emit "-J".
+    QVERIFY(!params.connectionOptions(ssh).contains("-J"));
+
+    params.setProxyJump("qt@buildvm");
+    const QStringList options = params.connectionOptions(ssh);
+    const int index = options.indexOf("-J");
+    QVERIFY(index >= 0);
+    QCOMPARE(options.value(index + 1), QString("qt@buildvm"));
+}
+
+void AccessViaTest::testEquality()
+{
+    SshParameters direct;
+    direct.setHost("target");
+
+    SshParameters viaJump = direct;
+    QVERIFY(direct == viaJump);
+
+    viaJump.setProxyJump("qt@buildvm");
+    QVERIFY(!(direct == viaJump));
+}
+
 } // Remote::Internal

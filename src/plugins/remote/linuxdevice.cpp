@@ -1571,15 +1571,10 @@ QString proxyJumpSpec(const IDevice *device)
     const IDevice::ConstPtr link = DeviceManager::find(Id::fromString(linkId));
     if (!link)
         return {};
-    const SshParameters p = link->sshParameters();
-    if (p.host().isEmpty())
+    const SshParameters params = link->sshParameters();
+    if (params.host().isEmpty())
         return {};
-    QString spec = p.host();
-    if (!p.userName().isEmpty())
-        spec = p.userName() + '@' + spec;
-    if (p.port() != 22)
-        spec += ':' + QString::number(p.port());
-    return spec;
+    return params.userAtHostAndPort();
 }
 
 void LinuxDevice::tryToConnect(const Continuation<> &cont) const

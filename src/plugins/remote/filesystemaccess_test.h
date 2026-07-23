@@ -52,4 +52,13 @@ private:
     Utils::FilePath m_remoteRemoteDestDir;
 };
 
+class AccessViaTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testConnectionOptions();
+    void testEquality();
+};
+
 } // Remote::Internal

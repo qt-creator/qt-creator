@@ -76,6 +76,7 @@ public:
         setupKillAppStep();
 
 #ifdef WITH_TESTS
+        addTest<AccessViaTest>();
         addTest<FileSystemAccessTest>();
         addTest<WindowsDeviceDetectionTest>();
 #endif
