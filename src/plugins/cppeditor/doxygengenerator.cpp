@@ -29,7 +29,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor,
                                    const Utils::FilePath &documentFilePath)
 {
     const QChar &c = cursor.document()->characterAt(cursor.position());
-    if (!c.isLetter() && c != QLatin1Char('_') && c != QLatin1Char('['))
+    if (!c.isLetter() && c != QLatin1Char('_') && c != QLatin1Char('[') && c != QLatin1Char('~'))
         return QString();
 
     // Try to find what would be the declaration we are interested in.

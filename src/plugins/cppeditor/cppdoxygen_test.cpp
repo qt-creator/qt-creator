@@ -359,6 +359,19 @@ void DoxygenTest::testBasic_data()
           "template<typename T> class C {\n"
           "};\n") << int(CommandPrefix::Auto);
 
+    QTest::newRow("destructor") << _(
+          "class C {\n"
+          "    /**|\n"
+          "    ~C();\n"
+          "};\n"
+        ) << _(
+          "class C {\n"
+          "    /**\n"
+          "     * @brief ~C\n"
+          "     */\n"
+          "    ~C();\n"
+          "};\n") << int(CommandPrefix::Auto);
+
     QTest::newRow("continuation_after_text_in_first_line") << _(
         "bool preventFolding;\n"
         "/*! leading comment|\n"
