@@ -2527,7 +2527,7 @@ typename))
             self.putField('plotelided', n)  # FIXME: Act on that in frontend
             n = maxNumChild
         if self.currentItemFormat() == DisplayFormat.ArrayPlot and innerType.isSimpleType():
-            enc = innerType.simpleEncoding()
+            enc = self.type_encoding_cache.get(innerType.typeid, None)
             if enc:
                 self.putField('editencoding', enc)
                 self.putDisplay('plotdata:separate',
