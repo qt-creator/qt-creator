@@ -171,7 +171,7 @@ public:
     {
     public:
         void setup(TextDocumentLayout *layout);
-        void reset();
+        void reset(const QTextBlock &firstBlock = {});
         void process(QTextBlock block);
         void finalize();
 

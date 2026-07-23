@@ -896,10 +896,18 @@ void TextDocumentLayout::FoldValidator::setup(TextDocumentLayout *layout)
     m_layout = layout;
 }
 
-void TextDocumentLayout::FoldValidator::reset()
+void TextDocumentLayout::FoldValidator::reset(const QTextBlock &firstBlock)
 {
     m_insideFold = 0;
     m_requestDocUpdate = false;
+    // Re-highlighting may resume in the middle of a folded region (e.g. after an
+    // edit inside a fold, such as the on-save whitespace cleanup). The block
+    // preceding firstBlock is then still hidden. Seed m_insideFold from it so
+    // that process() keeps the still-hidden blocks hidden instead of treating
+    // m_insideFold == 0 as "not inside any fold" and revealing them.
+    const QTextBlock previous = firstBlock.previous();
+    if (previous.isValid() && !previous.isVisible())
+        m_insideFold = TextBlockUserData::foldingIndent(previous);
 }
 
 void TextDocumentLayout::FoldValidator::process(QTextBlock block)

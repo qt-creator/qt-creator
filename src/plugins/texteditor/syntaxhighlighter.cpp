@@ -226,8 +226,6 @@ void SyntaxHighlighterPrivate::reformatBlocks()
     syntaxInfoUpToDate = false;
     rehighlightPending = false;
 
-    foldValidator.reset();
-
     bool forceHighlightOfNextBlock = false;
     qCDebug(Log) << "continue reformat blocks start block:" << highlightStartBlock
                  << "end block:" << highlightEndBlock << "blockCount:" << doc->blockCount();
@@ -235,6 +233,8 @@ void SyntaxHighlighterPrivate::reformatBlocks()
     QTC_ASSERT(block.isValid(), block = doc->firstBlock());
     QTextBlock endBlock = doc->findBlockByNumber(highlightEndBlock);
     QTC_ASSERT(endBlock.isValid(), endBlock = doc->lastBlock());
+
+    foldValidator.reset(block);
 
     while (block.isValid()) {
         highlightStartBlock = block.blockNumber();
