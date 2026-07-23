@@ -7146,6 +7146,12 @@ bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
     q->handleExCommandRequested(&handled, cmd);
     //qDebug() << "HANDLER REQUEST: " << cmd.cmd << handled;
     if (handled && hasValidEditor()) {
+        // The command ran while m_inFakeVim was set, so a cursor move it made
+        // did not flag onCursorPositionChanged; force pullCursor to re-read it.
+        // Visual mode keeps the pre-existing gated behavior: there commitCursor()
+        // has extended the selection for display, which must not be pulled back.
+        if (isNoVisualMode())
+            m_cursorNeedsUpdate = true;
         pullCursor();
         if (m_cursor.position() != pos)
             recordJump(pos);

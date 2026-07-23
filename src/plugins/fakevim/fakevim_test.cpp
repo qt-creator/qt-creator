@@ -194,6 +194,7 @@ private slots:
     void test_vim_control_modifier();
     void test_vim_tabstop_distance();
     void test_vim_goto_definition();
+    void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5402,6 +5403,26 @@ void FakeVimTester::test_vim_goto_definition()
     data.handler->tagJumpRequested.set([&] { requested = true; });
     data.doKeys("gd");
     QVERIFY(requested);
+}
+
+void FakeVimTester::test_vim_ex_plugin_command_moves_cursor()
+{
+    // An Ex command mapped to a Qt Creator action that moves the cursor
+    // synchronously must keep that new position; FakeVim must not revert it
+    // to where the cursor was before the command (QTCREATORBUG-27191).
+    TestData data;
+    setup(&data);
+    data.setText("|abc" N "def" N "ghi");
+    const int target = data.text().indexOf('g');
+    data.handler->handleExCommandRequested.set(
+        [&](bool *handled, const ExCommand &) {
+            QTextCursor tc = data.editor()->textCursor();
+            tc.setPosition(target);
+            data.editor()->setTextCursor(tc);
+            *handled = true;
+        });
+    data.doKeys(":foo<CR>");
+    QCOMPARE(data.position(), target);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()
