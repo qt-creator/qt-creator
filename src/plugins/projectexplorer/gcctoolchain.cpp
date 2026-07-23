@@ -1483,6 +1483,8 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
         searchPaths = detector.device->systemEnvironment().mappedPath(rootPath);
 
     if (os == OsTypeWindows) {
+        if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+            return {}; // REMOVE ME disable remote detection for now since it is slow
         searchPaths << gnuSearchPathsFromRegistry();
         searchPaths << atmelSearchPathsFromRegistry();
         searchPaths << renesasRl78SearchPathsFromRegistry();
