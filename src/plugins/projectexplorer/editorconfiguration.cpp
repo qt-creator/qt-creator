@@ -208,10 +208,20 @@ void EditorConfiguration::configureEditor(Core::IEditor *editor) const
 {
     TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
     if (widget) {
-        widget->textDocument()->setCodeStyle(codeStyle(widget->languageSettingsId()));
+        TextDocument *document = widget->textDocument();
+        document->setCodeStyle(codeStyle(widget->languageSettingsId()));
         if (!useGlobalSettings()) {
-            widget->textDocument()->setEncoding(d->m_textEncoding);
+            // On session restore, editors are reopened before the project has
+            // finished loading, so a file may have been decoded with the global
+            // default encoding instead of the project's. Re-read unmodified,
+            // undecodable files now.
+            const bool reloadWithProjectEncoding = document->hasDecodingError()
+                    && !document->isModified()
+                    && document->encoding() != d->m_textEncoding;
+            document->setEncoding(d->m_textEncoding);
             switchSettings(widget);
+            if (reloadWithProjectEncoding)
+                document->reload(d->m_textEncoding);
         }
     }
 }
