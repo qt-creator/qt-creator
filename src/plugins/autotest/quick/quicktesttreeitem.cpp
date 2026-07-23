@@ -14,6 +14,7 @@
 
 #include <utils/qtcassert.h>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Autotest::Internal {
@@ -109,7 +110,7 @@ bool QuickTestTreeItem::canProvideDebugConfiguration() const
 
 ITestConfiguration *QuickTestTreeItem::testConfiguration() const
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
 
     QuickTestConfiguration *config = nullptr;
@@ -148,7 +149,7 @@ static QList<ITestConfiguration *> testConfigurationsFor(
         const TestTreeItem *rootNode, const std::function<bool(TestTreeItem *)> &predicate)
 {
     QTC_ASSERT(rootNode, return {});
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project || rootNode->type() != TestTreeItem::Root)
         return {};
 
@@ -172,7 +173,7 @@ static QList<ITestConfiguration *> testConfigurationsFor(
             if (it == configurationForProFiles.end()) {
                 auto tc = new QuickTestConfiguration(treeItem->framework());
                 tc->setProjectFile(treeItem->proFile());
-                tc->setProject(ProjectExplorer::ProjectManager::startupProject());
+                tc->setProject(ProjectManager::startupProject());
                 tc->setInternalTargets(internalTargets(treeItem->proFile()));
                 it = configurationForProFiles.insert(treeItem->proFile(), tc);
             }
@@ -207,7 +208,7 @@ QList<ITestConfiguration *> QuickTestTreeItem::getAllTestConfigurations() const
 {
     QList<ITestConfiguration *> result;
 
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
@@ -368,22 +369,29 @@ bool QuickTestTreeItem::isGroupable() const
 
 QSet<QString> internalTargets(const FilePath &proFile)
 {
+    auto macroIsSet = [](const QByteArray &key, const Macros &macros) {
+        return Utils::anyOf(macros, [key](const Macro &m) {
+            return m.type == MacroType::Define
+                    && m.key == key;
+        });
+    };
+
     QSet<QString> result;
     const auto projectInfo =
-        CppEditor::CppModelManager::projectInfo(ProjectExplorer::ProjectManager::startupProject());
+        CppEditor::CppModelManager::projectInfo(ProjectManager::startupProject());
     if (!projectInfo)
         return {};
     for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts()) {
-        if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
+        const bool targetTypeOk = projectPart->buildTargetType == BuildTargetType::Executable
+                || (macroIsSet("ANDROID", projectPart->toolchainMacros)
+                    && projectPart->buildTargetType == BuildTargetType::Library);
+
+        if (!targetTypeOk)
             continue;
         if (projectPart->projectFile != proFile)
             continue;
-        if (Utils::anyOf(projectPart->projectMacros, [](const ProjectExplorer::Macro &macro){
-            return macro.type == ProjectExplorer::MacroType::Define &&
-                       macro.key == "QUICK_TEST_SOURCE_DIR";
-            })) {
+        if (macroIsSet("QUICK_TEST_SOURCE_DIR", projectPart->projectMacros))
             result.insert(projectPart->buildSystemTarget);
-        }
     }
     return result;
 }
