@@ -1835,7 +1835,9 @@ class Dumper(DumperBase):
     def createBreakpointAtMain(self):
         # On Android main() lives in a shared object rather than the executable,
         # so do not restrict the breakpoint to the executable's module.
-        return self.target.BreakpointCreateByName('main')
+        bp = self.target.BreakpointCreateByName('main')
+        self.internalBreakpointIds.add(bp.GetID())
+        return bp
 
     def breakpointCallback(self, frame, bp_loc, extra_args, internal_dict):
         command_str = extra_args.GetValueForKey('command').GetStringValue(65536)
@@ -2169,6 +2171,7 @@ class Dumper(DumperBase):
         if addr == 0:
             return False
         bp = self.target.BreakpointCreateByAddress(addr)
+        self.internalBreakpointIds.add(bp.GetID())
         bp.SetThreadID(thread.GetThreadID())
         self.process.Continue()
         landed = self.waitForNativeStop()
@@ -2229,6 +2232,7 @@ class Dumper(DumperBase):
             # Does not seem to hit anything on Linux:
             # self.currentThread().RunToAddress(addr)
             bp = self.target.BreakpointCreateByAddress(addr)
+            self.internalBreakpointIds.add(bp.GetID())
             if bp.GetNumLocations() == 0:
                 self.target.BreakpointDelete(bp.GetID())
                 self.reportResult(self.describeStatus('No target location found.')
@@ -2258,6 +2262,7 @@ class Dumper(DumperBase):
         else:
             bp = self.target.BreakpointCreateByLocation(
                 str(args['file']), int(args['line']))
+        self.internalBreakpointIds.add(bp.GetID())
         if bp.GetNumLocations() == 0:
             self.target.BreakpointDelete(bp.GetID())
             status = 'No target location found.'
