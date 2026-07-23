@@ -37,6 +37,8 @@
 #include "openeditorsview.h"
 #include "openeditorswindow.h"
 
+#include <aggregation/aggregate.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
@@ -48,9 +50,11 @@
 #include <utils/link.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
+#include <utils/plaintextedit/plaintextedit.h>
 #include <utils/qtcassert.h>
 #include <utils/searchresultitem.h>
 #include <utils/stringutils.h>
+#include <utils/textutils.h>
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
@@ -3688,9 +3692,18 @@ void EditorManager::openEditorAtSearchResult(const SearchResultItem &item,
         openEditor(FilePath::fromUserInput(item.lineText()), editorId, flags, newEditor);
         return;
     }
-    const Text::Position position = item.mainRange().begin;
-    openEditorAt({FilePath::fromUserInput(path.first()), position.line, position.column},
-                 editorId, flags, newEditor);
+    const Text::Range range = item.mainRange();
+    IEditor *editor = openEditorAt(
+        {FilePath::fromUserInput(path.first()), range.begin.line, range.begin.column},
+        editorId, flags, newEditor);
+    // Select the match, so it stands out instead of leaving just a caret at its start.
+    if (editor) {
+        if (auto textEdit = Aggregation::query<Utils::PlainTextEdit>(editor->widget())) {
+            const QTextCursor cursor = range.toTextCursor(textEdit->document());
+            if (cursor.hasSelection())
+                textEdit->setTextCursor(cursor);
+        }
+    }
 }
 
 /*!
