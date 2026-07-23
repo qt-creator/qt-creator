@@ -1487,6 +1487,14 @@ void DebuggerEngine::abortDebugger()
     if (!d->m_isDying) {
         // Be friendly the first time. This will change targetState().
         showMessage("ABORTING DEBUGGER. FIRST TIME.");
+        // Make the escalation discoverable: the friendly shutdown may take a
+        // while (or hang), and activating the action again kills harder. Say
+        // so in the status bar and on the action itself. QTCREATORBUG-11954.
+        showStatusMessage(Tr::tr("Shutting down debugger. Abort again to "
+                                 "forcefully terminate it."));
+        d->m_abortAction.setText(Tr::tr("Abort Debugging (Force Kill)"));
+        d->m_abortAction.setToolTip(Tr::tr("Forcefully terminates the debugger, "
+            "which is still shutting down."));
         quitDebugger();
     } else {
         // We already tried. Try harder.
@@ -2207,6 +2215,12 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
 
     if (state == DebuggerFinished) {
         d->setBusyCursor(false);
+
+        // Undo the escalation hint from the friendly abort (see abortDebugger()).
+        // updateState() cannot do this: it is a no-op once m_isDying is set.
+        d->m_abortAction.setText(Tr::tr("Abort Debugging"));
+        d->m_abortAction.setToolTip(
+            Tr::tr("Aborts debugging and resets the debugger to the initial state."));
 
         // Give up ownership on claimed breakpoints.
         d->m_breakHandler.releaseAllBreakpoints();
