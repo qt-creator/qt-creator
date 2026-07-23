@@ -230,7 +230,7 @@ def qdump_Array(d, value):
     t = cleanDType(value.type)[7:]
     d.putType('%s[%d]' % (t, n))
     if t == 'char':
-        d.putValue(encodeCharArray(p, 100), 'local8bit')
+        d.putCharArrayHelper(p, n, d.createType('char'), 'utf8')
     else:
         d.putEmptyValue()
         d.putNumChild(n)
