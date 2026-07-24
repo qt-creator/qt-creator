@@ -280,6 +280,7 @@ private slots:
     void test_vim_timeout_options();
     void test_vim_selection_for_shortcut();
     void test_vim_shortcut_override_text_key();
+    void test_vim_shortcut_override_cmd_v();
     void test_vim_jumplist_across_files();
     void test_vim_control_modifier();
     void test_vim_tabstop_distance();
@@ -14850,6 +14851,37 @@ void FakeVimTester::test_vim_shortcut_override_text_key()
     functionKey.setAccepted(false);
     data.handler->eventFilter(data.editor(), &functionKey);
     QVERIFY(!functionKey.isAccepted());
+
+    useFakeVim.setValue(savedUseFakeVim);
+}
+
+void FakeVimTester::test_vim_shortcut_override_cmd_v()
+{
+    if (!Utils::HostOsInfo::isMacHost())
+        QSKIP("Cmd-V is the paste shortcut on macOS only");
+
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+
+    TestData data;
+    setup(&data);
+    data.editor()->setFocus();
+    if (!data.editor()->hasFocus()) {
+        useFakeVim.setValue(savedUseFakeVim);
+        QSKIP("Editor did not get keyboard focus");
+    }
+    data.setText("|abc");
+
+    QKeyEvent cmdV(QEvent::ShortcutOverride, Qt::Key_V, Qt::ControlModifier, QString());
+    cmdV.setAccepted(false);
+    data.handler->eventFilter(data.editor(), &cmdV);
+    QVERIFY(!cmdV.isAccepted());
+
+    data.doKeys(":");
+    cmdV.setAccepted(false);
+    data.handler->eventFilter(data.editor(), &cmdV);
+    QVERIFY(cmdV.isAccepted());
 
     useFakeVim.setValue(savedUseFakeVim);
 }

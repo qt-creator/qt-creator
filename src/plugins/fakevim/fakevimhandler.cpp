@@ -5954,6 +5954,11 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
         return true;
     }
 
+    // Cmd-V pastes into the command line, ahead of Qt Creator's Paste shortcut.
+    if (Utils::HostOsInfo::isMacHost() && key == Key_V && mods == Qt::ControlModifier
+            && (g.mode == ExMode || g.subsubmode == SearchSubSubMode))
+        return true;
+
     // Let other shortcuts trigger.
     return false;
 }
@@ -6433,7 +6438,12 @@ bool FakeVimHandler::Private::handleCommandBufferPaste(const Input &input)
     }
 
     const bool inCommandLine = g.subsubmode == SearchSubSubMode || g.mode == ExMode;
-    if (inCommandLine && input.isControl('v')) {
+    // Ctrl-V everywhere, plus Cmd-V on macOS (which arrives as ControlModifier
+    // there and is not caught by isControl()).
+    const bool pasteShortcut = input.isControl('v')
+        || (Utils::HostOsInfo::isMacHost() && input.key() == Qt::Key_V
+            && input.modifiers() == Qt::ControlModifier);
+    if (inCommandLine && pasteShortcut) {
         // OS-style paste of the clipboard into the command line, in addition to
         // the Vim way with Ctrl-R (QTCREATORBUG-23785). Only the first line is
         // used, since the command line is single-line.
