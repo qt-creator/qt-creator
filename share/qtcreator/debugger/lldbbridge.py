@@ -990,6 +990,9 @@ class Dumper(DumperBase):
         broadcaster.AddListener(listener, lldb.SBTarget.eBroadcastBitBreakpointChanged)
         listener.StartListeningForEvents(
             broadcaster, lldb.SBTarget.eBroadcastBitBreakpointChanged)
+        moduleBits = lldb.SBTarget.eBroadcastBitModulesLoaded | lldb.SBTarget.eBroadcastBitModulesUnloaded
+        broadcaster.AddListener(listener, moduleBits)
+        listener.StartListeningForEvents(broadcaster, moduleBits)
 
         if self.nativeMixed:
             self.interpreterEventBreakpoint = \
@@ -1455,6 +1458,14 @@ class Dumper(DumperBase):
     def reportBreakpointUpdate(self, bp):
         self.report('breakpointmodified={%s}' % self.describeBreakpoint(bp))
 
+    def reportBreakpointHit(self, args):
+        thread = self.currentThread()
+        if thread is not None and thread.GetStopReason() == lldb.eStopReasonBreakpoint:
+            bp = self.target.FindBreakpointByID(thread.GetStopReasonDataAtIndex(0))
+            if bp.IsValid():
+                self.reportBreakpointUpdate(bp)
+        self.reportResult('', args)
+
     def readRawMemory(self, address, size):
         if size == 0:
             return bytes()
@@ -1620,6 +1631,10 @@ class Dumper(DumperBase):
             error = self.process.Stop()
             self.reportResult(self.describeError(error), args)
 
+    def markPendingInterrupt(self, args):
+        self.isInterrupting_ = True
+        self.reportResult('', args)
+
     def detachInferior(self, args):
         if self.process is None:
             self.reportResult('status="No process to detach from."', args)
@@ -1634,6 +1649,21 @@ class Dumper(DumperBase):
             # Can fail when attaching to GDBserver.
             error = self.process.Continue()
             self.reportResult(self.describeError(error), args)
+
+    def resetInferior(self, args):
+        if self.process is not None:
+            self.process.Kill()
+        launchInfo = lldb.SBLaunchInfo(self.processArgs_)
+        launchInfo.SetWorkingDirectory(self.workingDirectory_)
+        launchInfo.SetEnvironmentEntries(self.environment_, False)
+        error = lldb.SBError()
+        self.process = self.target.Launch(launchInfo, error)
+        if not error.Success():
+            self.report(self.describeError(error))
+            self.reportState('inferiorrunfailed')
+            return
+        self.report('pid="%s"' % self.process.GetProcessID())
+        self.reportState('running')
 
     def quitDebugger(self, args):
         self.reportState("inferiorshutdownrequested")
@@ -1672,9 +1702,25 @@ class Dumper(DumperBase):
             return True
         return False
 
+    def handleTargetEvent(self, event):
+        eventType = event.GetType()
+        if eventType & lldb.SBTarget.eBroadcastBitModulesLoaded:
+            action = 'library-loaded'
+        elif eventType & lldb.SBTarget.eBroadcastBitModulesUnloaded:
+            action = 'library-unloaded'
+        else:
+            return
+        for i in range(lldb.SBTarget.GetNumModulesFromEvent(event)):
+            module = lldb.SBTarget.GetModuleAtIndexFromEvent(i, event)
+            name = toCString(str(module.GetFileSpec()))
+            self.report('%s={target-name="%s",host-name="%s"}' % (action, name, name))
+
     def handleEvent(self, event):
         if lldb.SBBreakpoint.EventIsBreakpointEvent(event):
             self.handleBreakpointEvent(event)
+            return
+        if lldb.SBTarget.EventIsTargetEvent(event):
+            self.handleTargetEvent(event)
             return
         if not lldb.SBProcess.EventIsProcessEvent(event):
             self.warn("UNEXPECTED event (%s)" % event.GetType())
@@ -2054,6 +2100,50 @@ class Dumper(DumperBase):
         result += ']}'
         self.reportResult(result, args)
 
+    def fetchSourceFiles(self, args):
+        seen = set()
+        result = 'files=['
+        for i in range(self.target.GetNumModules()):
+            module = self.target.GetModuleAtIndex(i)
+            for j in range(module.GetNumCompileUnits()):
+                fileSpec = module.GetCompileUnitAtIndex(j).GetFileSpec()
+                fullname = fileSpec.fullpath
+                if not fullname or fullname in seen:
+                    continue
+                seen.add(fullname)
+                result += '{file="%s"' % toCString(fileSpec.basename)
+                result += ',fullname="%s"},' % toCString(fullname)
+        result += ']'
+        self.reportResult(result, args)
+
+    def fetchSections(self, args):
+        moduleName = args['module']
+        module = None
+        for i in range(self.target.GetNumModules()):
+            candidate = self.target.GetModuleAtIndex(i)
+            if candidate.file.fullpath == moduleName:
+                module = candidate
+                break
+        if module is None:
+            self.reportResult('sections=[]', args)
+            return
+
+        entries = []
+
+        def collect(section):
+            if section.GetNumSubSections() > 0:
+                for j in range(section.GetNumSubSections()):
+                    collect(section.GetSubSectionAtIndex(j))
+                return
+            addr = section.GetLoadAddress(self.target)
+            size = section.GetByteSize()
+            entries.append('{from="0x%x",to="0x%x",address="0x%x",name="%s",flags=""}'
+                           % (addr, addr + size, addr, toCString(section.name)))
+
+        for i in range(module.GetNumSections()):
+            collect(module.GetSectionAtIndex(i))
+        self.reportResult('sections=[' + ','.join(entries) + ']', args)
+
     def executeNext(self, args):
         if self.atQmlStop():
             self.sendInterpreterRequest('stepover', args)
@@ -2264,6 +2354,11 @@ class Dumper(DumperBase):
         else:
             self.currentThread().StepOut()
         self.reportResult('', args)
+
+    def executeReturn(self, args):
+        self.reportToken(args)
+        error = self.currentThread().ReturnFromFrame(self.currentFrame(), lldb.SBValue())
+        self.reportResult(self.describeError(error), args)
 
     def executeRunToLocation(self, args):
         self.reportToken(args)

@@ -56,6 +56,7 @@ add_qtc_plugin(Debugger
     imageviewer.cpp imageviewer.h
     enginemanager.cpp enginemanager.h
     lldb/lldbengine.cpp lldb/lldbengine.h
+    lldb/lldbimpl.cpp lldb/lldbimpl.h
     loadcoredialog.cpp loadcoredialog.h
     localsandexpressionswindow.cpp localsandexpressionswindow.h
     logwindow.cpp logwindow.h

@@ -123,7 +123,7 @@ private:
     DebuggerCommandSequence m_onStop;
 };
 
-DebuggerEngine *createLldbEngine();
+DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
 
 } // Debugger::Internal
 

@@ -109,7 +109,8 @@ QtcPlugin {
         name: "lldb"
         prefix: "lldb/"
         files: [
-            "lldbengine.cpp", "lldbengine.h"
+            "lldbengine.cpp", "lldbengine.h",
+            "lldbimpl.cpp", "lldbimpl.h",
         ]
     }
 

@@ -57,7 +57,7 @@ DebuggerEngine *createCdbEngine();
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine();
-DebuggerEngine *createLldbEngine();
+DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createUvscEngine();
 DebuggerEngine *createDapEngine(Id runMode = ProjectExplorer::Constants::NO_RUN_MODE);
 
@@ -575,7 +575,7 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
             engines << createCdbEngine();
             break;
         case LldbEngineType:
-            engines << createLldbEngine();
+            engines << createLldbEngine(rp);
             break;
         case GdbDapEngineType:
             engines << createDapEngine(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);

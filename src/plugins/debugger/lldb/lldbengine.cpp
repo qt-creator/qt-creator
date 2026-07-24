@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "lldbengine.h"
+#include "lldbimpl.h"
 
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
@@ -13,6 +14,7 @@
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
 #include <debugger/disassemblerlines.h>
+#include <debugger/genericdebuggerengine.h>
 #include <debugger/moduleshandler.h>
 #include <debugger/registerhandler.h>
 #include <debugger/sourceutils.h>
@@ -1230,8 +1232,14 @@ bool LldbEngine::hasCapability(unsigned cap) const
     return false;
 }
 
-DebuggerEngine *createLldbEngine()
+DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp)
 {
+    if (DebuggerEngine::isUsingGenericDebugger()) {
+        return new GenericDebuggerEngine("LLDB (LldbImpl)",
+                                         new LldbImpl({rp.debugger(), rp.inferior(),
+                                                       ICore::resourcePath("debugger"),
+                                                       rp.isNativeMixedDebugging()}));
+    }
     return new LldbEngine;
 }
 
