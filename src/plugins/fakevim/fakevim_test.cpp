@@ -202,6 +202,7 @@ private slots:
     void test_vim_dot_after_visual_paste();
     void test_vim_use_editor_tab_settings();
     void test_vim_command_line_paste();
+    void test_vim_tab_out();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5535,6 +5536,25 @@ void FakeVimTester::test_vim_command_line_paste()
     // Paste the search term into the / command line, then run the search.
     data.doKeys("/<c-v><CR>");
     QCOMPARE(data.cursor().blockNumber(), 2);
+}
+
+void FakeVimTester::test_vim_tab_out()
+{
+    // With tabOut set, TAB in insert mode jumps over the next listed closing
+    // character instead of inserting a tab (QTCREATORBUG-27441).
+    auto &tabOut = FakeVim::Internal::settings().tabOut;
+    const QString saved = tabOut.value();
+    tabOut.setValue(")]}");
+
+    TestData data;
+    setup(&data);
+    data.setText("foo(|)");
+    KEYS("i<tab>", "foo()|");
+    // Repeated tabs jump over successive closers.
+    data.setText("(|))");
+    KEYS("i<tab><tab>", "())|");
+
+    tabOut.setValue(saved);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()

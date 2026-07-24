@@ -96,6 +96,9 @@ FakeVimSettings::FakeVimSettings()
                                   "Backspace",      "bs",  Tr::tr("Backspace:"));
     setup(&isKeyword,      "@,48-57,_,192-255,a-z,A-Z",
                                   "IsKeyword",      "isk", Tr::tr("Keyword characters:"));
+    setup(&tabOut,         {},    "TabOut",         {},    Tr::tr("Tab jumps over:"));
+    tabOut.setToolTip(Tr::tr("Characters that Tab moves the cursor past in insert mode "
+        "instead of indenting, for example )]}\">'. Leave empty to disable."));
     setup(&clipboard,      {},    "Clipboard",      "cb",  "");
     setup(&formatOptions,  {},    "formatoptions",  "fo",  "");
 
@@ -132,6 +135,7 @@ FakeVimSettings::FakeVimSettings()
         "0 uses the system default. Only used while the cursor is blinking."));
     backspace.setDisplayStyle(FvStringAspect::LineEditDisplay);
     isKeyword.setDisplayStyle(FvStringAspect::LineEditDisplay);
+    tabOut.setDisplayStyle(FvStringAspect::LineEditDisplay);
 
     const QString vimrcDefault = QLatin1String(HostOsInfo::isAnyUnixHost()
                 ? "$HOME/.vimrc" : "%USERPROFILE%\\_vimrc");
@@ -178,6 +182,7 @@ FakeVimSettings::FakeVimSettings()
         Column strings {
             backspace,
             isKeyword,
+            tabOut,
             Row {readVimRc, vimRcPath}
         };
 

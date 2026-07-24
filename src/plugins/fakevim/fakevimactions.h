@@ -136,6 +136,9 @@ public:
     // @,48-57,_,192-255
     FvStringAspect isKeyword;
 
+    // Characters that TAB jumps over in insert mode instead of indenting.
+    FvStringAspect tabOut;
+
     // other actions
     FvBoolAspect showMarks;
     FvBoolAspect passControlKey;

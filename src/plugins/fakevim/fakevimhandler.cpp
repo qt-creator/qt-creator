@@ -5781,7 +5781,15 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         movePageUp();
     } else if (input.isKey(Key_Tab)) {
-        if (q->tabPressedInInsertMode()) {
+        const QString tabOut = s.tabOut();
+        const int pos = position();
+        if (!tabOut.isEmpty() && pos < lastPositionInDocument()
+                && tabOut.contains(document()->characterAt(pos))) {
+            // Tab jumps over the next closing character instead of inserting a
+            // tab (QTCREATORBUG-27441).
+            setPosition(pos + 1);
+            setTargetColumn();
+        } else if (q->tabPressedInInsertMode()) {
             m_buffer->insertState.insertingSpaces = true;
             if (expandTab()) {
                 const int ts = tabStop();
