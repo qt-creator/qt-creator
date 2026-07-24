@@ -3008,8 +3008,23 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
 
 bool FakeVimHandler::Private::handleCommandBufferPaste(const Input &input)
 {
-    if (input.isControl('r')
-        && (g.subsubmode == SearchSubSubMode || g.mode == ExMode)) {
+    const bool inCommandLine = g.subsubmode == SearchSubSubMode || g.mode == ExMode;
+    if (inCommandLine && input.isControl('v')) {
+        // OS-style paste of the clipboard into the command line, in addition to
+        // the Vim way with Ctrl-R (QTCREATORBUG-23785). Only the first line is
+        // used, since the command line is single-line.
+        CommandBuffer &buffer = (g.subsubmode == SearchSubSubMode)
+            ? g.searchBuffer : g.commandBuffer;
+        QString text = QApplication::clipboard()->text();
+        const int newline = text.indexOf('\n');
+        if (newline != -1)
+            text.truncate(newline);
+        text.remove('\r');
+        buffer.insertText(text);
+        updateMiniBuffer();
+        return true;
+    }
+    if (input.isControl('r') && inCommandLine) {
         g.minibufferData = input;
         return true;
     }

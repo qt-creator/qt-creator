@@ -17,6 +17,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/multitextcursor.h>
+#include <utils/stringutils.h>
 
 #include <QApplication>
 #include <QFocusEvent>
@@ -200,6 +201,7 @@ private slots:
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
     void test_vim_use_editor_tab_settings();
+    void test_vim_command_line_paste();
     void test_vim_iso_level5_shift();
 
     void test_macros();
@@ -5520,6 +5522,19 @@ void FakeVimTester::test_vim_use_editor_tab_settings()
     sw.setValue(savedSw);
     et.setValue(savedEt);
     useEditor.setValue(savedUseEditor);
+}
+
+void FakeVimTester::test_vim_command_line_paste()
+{
+    // Ctrl-V pastes the clipboard into the command line, OS style, in addition
+    // to the Vim way with Ctrl-R (QTCREATORBUG-23785).
+    TestData data;
+    setup(&data);
+    data.setText("|abc" N "def" N "ghi");
+    Utils::setClipboardAndSelection("ghi");
+    // Paste the search term into the / command line, then run the search.
+    data.doKeys("/<c-v><CR>");
+    QCOMPARE(data.cursor().blockNumber(), 2);
 }
 
 void FakeVimTester::test_vim_iso_level5_shift()
