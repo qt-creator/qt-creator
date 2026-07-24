@@ -1170,6 +1170,14 @@ public:
     void setLayouter(const std::function<Layouting::Layout()> &layouter);
     std::function<Layouting::Layout()> layouter() const;
 
+#ifdef WITH_TESTS
+    // Registry of all live AspectContainer instances, for settings
+    // introspection from tests and tooling (e.g. the MCP server). Lets a walker
+    // reach per-instance containers - run/build configs, kits, devices - that
+    // are not exposed as Core::IOptionsPages.
+    static const QList<AspectContainer *> &registeredContainers();
+#endif
+
 signals:
     void applied();
     void fromMapFinished();

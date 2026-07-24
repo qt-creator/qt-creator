@@ -18,6 +18,11 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
+
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -1827,6 +1832,41 @@ void McpCommands::registerCommands()
         return nullptr;
     };
 
+    // Resolve a settings "page" id to a live AspectContainer from three sources:
+    // an aspect-backed IOptionsPage; the "activeRunConfiguration" anchor (the
+    // active project's active run config, whose aspects include e.g. "Run in
+    // terminal" and are not reachable as an IOptionsPage); or, in test builds,
+    // any registered AspectContainer addressed by its id().
+    struct ResolvedSettings
+    {
+        AspectContainer *container = nullptr;
+        QString name;
+        QString reason;
+    };
+    const auto resolveContainer = [findOptionsPage](const QString &id) -> ResolvedSettings {
+        if (Core::IOptionsPage *page = findOptionsPage(id)) {
+            const std::optional<AspectContainer *> ac = page->aspects();
+            if (ac && *ac)
+                return {*ac, page->displayName(), "ok"};
+            return {nullptr, {}, "not_aspect_backed"};
+        }
+        if (id == "activeRunConfiguration") {
+            using namespace ProjectExplorer;
+            if (Project *pr = ProjectManager::startupProject())
+                if (Target *t = pr->activeTarget())
+                    if (RunConfiguration *rc = t->activeRunConfiguration())
+                        return {rc, QString("Active run configuration"), "ok"};
+            return {nullptr, {}, "no_active_run_config"};
+        }
+#ifdef WITH_TESTS
+        for (AspectContainer *c : AspectContainer::registeredContainers()) {
+            if (!c->id().toString().isEmpty() && c->id().toString() == id)
+                return {c, id, "ok"};
+        }
+#endif
+        return {nullptr, {}, "page_not_found"};
+    };
+
     ToolRegistry::registerTool(
         Tool{}
             .name("list_settings_pages")
@@ -1849,6 +1889,20 @@ void McpCommands::registerCommands()
                     {"displayName", p->displayName()},
                     {"category", p->category().toString()},
                     {"settingCount", int((*ac)->aspects().size())}});
+            }
+            // Per-instance anchor: the active run configuration's aspects (e.g.
+            // "Run in terminal"), which are an AspectContainer but not an
+            // IOptionsPage. Addressable as page id "activeRunConfiguration".
+            {
+                using namespace ProjectExplorer;
+                if (Project *pr = ProjectManager::startupProject())
+                    if (Target *t = pr->activeTarget())
+                        if (RunConfiguration *rc = t->activeRunConfiguration())
+                            pages.append(QJsonObject{
+                                {"id", "activeRunConfiguration"},
+                                {"displayName", "Active run configuration"},
+                                {"category", "ProjectExplorer"},
+                                {"settingCount", int(rc->aspects().size())}});
             }
             return QJsonObject{{"pages", pages}};
         }));
@@ -1876,17 +1930,14 @@ void McpCommands::registerCommands()
                     .addProperty("settings", QJsonObject{{"type", "array"}})
                     .addProperty("reason", QJsonObject{{"type", "string"}})
                     .addProperty("message", QJsonObject{{"type", "string"}})),
-        wrap([findOptionsPage](const QJsonObject &p) -> QJsonObject {
-            Core::IOptionsPage *page = findOptionsPage(p.value("page").toString());
-            if (!page)
-                return {{"reason", "page_not_found"},
-                        {"message", "No settings page with that id (see list_settings_pages)."}};
-            const std::optional<AspectContainer *> ac = page->aspects();
-            if (!ac || !*ac)
-                return {{"reason", "not_aspect_backed"},
-                        {"message", "This page does not expose aspect-based settings."}};
+        wrap([resolveContainer](const QJsonObject &p) -> QJsonObject {
+            const ResolvedSettings r = resolveContainer(p.value("page").toString());
+            if (!r.container)
+                return {{"reason", r.reason},
+                        {"message", "No aspect-backed settings for that page id (see "
+                                    "list_settings_pages; try \"activeRunConfiguration\")."}};
             QJsonArray settings;
-            for (BaseAspect *a : (*ac)->aspects()) {
+            for (BaseAspect *a : r.container->aspects()) {
                 if (a->settingsKey().isEmpty())
                     continue;
                 settings.append(QJsonObject{
@@ -1896,7 +1947,7 @@ void McpCommands::registerCommands()
                     {"value", QJsonValue::fromVariant(a->variantValue())},
                     {"defaultValue", QJsonValue::fromVariant(a->defaultVariantValue())}});
             }
-            return {{"page", page->displayName()},
+            return {{"page", r.name},
                     {"settings", settings},
                     {"reason", "ok"},
                     {"message", "ok"}};
@@ -1937,20 +1988,16 @@ void McpCommands::registerCommands()
                     .addProperty("key", QJsonObject{{"type", "string"}})
                     .addProperty("reason", QJsonObject{{"type", "string"}})
                     .addProperty("message", QJsonObject{{"type", "string"}})),
-        wrap([findOptionsPage](const QJsonObject &p) -> QJsonObject {
-            Core::IOptionsPage *page = findOptionsPage(p.value("page").toString());
-            if (!page)
+        wrap([resolveContainer](const QJsonObject &p) -> QJsonObject {
+            const ResolvedSettings r = resolveContainer(p.value("page").toString());
+            if (!r.container)
                 return {{"applied", false},
-                        {"reason", "page_not_found"},
-                        {"message", "No settings page with that id."}};
-            const std::optional<AspectContainer *> ac = page->aspects();
-            if (!ac || !*ac)
-                return {{"applied", false},
-                        {"reason", "not_aspect_backed"},
-                        {"message", "Page has no aspect-based settings."}};
+                        {"reason", r.reason},
+                        {"message", "No aspect-backed settings for that page id (see "
+                                    "list_settings_pages; try \"activeRunConfiguration\")."}};
             const QString key = p.value("key").toString();
             BaseAspect *target = nullptr;
-            for (BaseAspect *a : (*ac)->aspects()) {
+            for (BaseAspect *a : r.container->aspects()) {
                 if (stringFromKey(a->settingsKey()) == key) {
                     target = a;
                     break;
@@ -1972,12 +2019,12 @@ void McpCommands::registerCommands()
                                  .arg(QString::fromUtf8(cur.typeName()))}};
             }
             target->setVariantValue(newValue);
-            (*ac)->writeSettings();
+            r.container->writeSettings();
             return {{"applied", true},
                     {"key", key},
                     {"value", QJsonValue::fromVariant(target->variantValue())},
                     {"reason", "ok"},
-                    {"message", QString("Set '%1' on page '%2'.").arg(key, page->displayName())}};
+                    {"message", QString("Set '%1' on page '%2'.").arg(key, r.name)}};
         }));
 }
 

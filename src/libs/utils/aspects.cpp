@@ -3484,16 +3484,36 @@ public:
     std::function<Layouting::Layout()> m_layouter;
 };
 
+#ifdef WITH_TESTS
+static QList<AspectContainer *> &aspectContainerRegistry()
+{
+    static QList<AspectContainer *> registry;
+    return registry;
+}
+
+const QList<AspectContainer *> &AspectContainer::registeredContainers()
+{
+    return aspectContainerRegistry();
+}
+#endif
+
 AspectContainer::AspectContainer(AspectContainer *parentContainer)
     : BaseAspect(parentContainer)
     , d(new Internal::AspectContainerPrivate)
-{}
+{
+#ifdef WITH_TESTS
+    aspectContainerRegistry().append(this);
+#endif
+}
 
 /*!
     \internal
 */
 AspectContainer::~AspectContainer()
 {
+#ifdef WITH_TESTS
+    aspectContainerRegistry().removeOne(this);
+#endif
     qDeleteAll(d->m_ownedItems);
 }
 
