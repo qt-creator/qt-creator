@@ -10,6 +10,7 @@
 #include <QImage>
 #include <QJsonValue>
 #include <QList>
+#include <QPointer>
 #include <QWidget>
 
 namespace Utils {
@@ -60,16 +61,18 @@ class ChatPanel : public QWidget
 
 public:
     explicit ChatPanel(QWidget *parent = nullptr);
+    ~ChatPanel() override;
 
     AcpMessageView *messageView() const { return m_messageView; }
     ChatInputEdit *inputEdit() const { return m_inputEdit; }
+    QWidget *toolBarWidget() const { return m_toolBarWidget; }
 
     void setAgentIcon(const QString &iconUrl = {});
     void setAgentId(const QString &agentId);
     void setSessionId(const QString &sessionId);
     void setPrompting(bool prompting);
     void setSendEnabled(bool enabled);
-    void setCanCloseSession(bool canClose) { m_canCloseSession = canClose; }
+    void setCanCloseSession(bool canClose);
     void setImagePasteSupported(bool supported) { m_imagePasteSupported = supported; }
 
     void setConfigOptions(const QList<Acp::SessionConfigOption> &configOptions);
@@ -126,6 +129,10 @@ private:
     QString m_currentModeId;
     void updateModeButton();
 
+    // Widget shown in AcpChatWidget's tool bar while this panel's tab is active.
+    QPointer<QWidget> m_toolBarWidget;
+    QToolButton *m_switchSessionButton = nullptr;
+
     // Message area
     AcpMessageView *m_messageView;
 
@@ -164,7 +171,6 @@ private:
     void hideTextContextEditor();
 
     bool m_prompting = false;
-    bool m_canCloseSession = false;
     bool m_imagePasteSupported = false;
 
     Utils::InfoLabel *m_inputInfoLabel = nullptr;

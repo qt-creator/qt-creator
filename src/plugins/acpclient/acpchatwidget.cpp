@@ -63,6 +63,9 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
     });
     toolBarLayout->addWidget(m_closeChatButton);
 
+    m_toolBarWidgetStack = new QStackedWidget(toolBar);
+    toolBarLayout->addWidget(m_toolBarWidgetStack);
+
     toolBarLayout->addStretch();
 
     auto *closeButton = new QToolButton(toolBar);
@@ -116,6 +119,8 @@ void AcpChatWidget::setCurrentIndex(int index)
         m_tabBar->setCurrentIndex(index);
     if (index != m_switcher->currentIndex())
         m_switcher->setCurrentIndex(index);
+    if (index != m_toolBarWidgetStack->currentIndex())
+        m_toolBarWidgetStack->setCurrentIndex(index);
 }
 
 void AcpChatWidget::setInspector(AcpInspector *inspector)
@@ -137,6 +142,8 @@ void AcpChatWidget::closeTab(int index)
     m_stack->removeWidget(w);
     m_tabBar->removeTab(index);
     m_switcher->removeItem(index);
+    // Only detaches it from display; the owning ChatPanel deletes it.
+    m_toolBarWidgetStack->removeWidget(m_toolBarWidgetStack->widget(index));
     m_blockIndexChanges = false;
     setCurrentIndex(m_stack->currentIndex());
     delete w;
@@ -165,6 +172,7 @@ AcpChatTab *AcpChatWidget::addNewTab()
     const int index = m_stack->addWidget(tab);
     m_tabBar->insertTab(index, tab->title());
     m_switcher->insertItem(index, tab->title());
+    m_toolBarWidgetStack->insertWidget(index, tab->toolBarWidget());
     m_blockIndexChanges = false;
     setCurrentIndex(index);
 

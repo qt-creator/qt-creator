@@ -501,6 +501,11 @@ QString AcpChatTab::title() const
     return m_controller->displayName();
 }
 
+QWidget *AcpChatTab::toolBarWidget() const
+{
+    return m_chatPanel->toolBarWidget();
+}
+
 static IDocument *currentNonTemporaryDocument()
 {
     IDocument *currentDocument = EditorManager::currentDocument();

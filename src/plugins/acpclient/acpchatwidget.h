@@ -45,6 +45,8 @@ private:
     QTabBar *m_tabBar = nullptr;
     QComboBox *m_switcher = nullptr;
     QStackedWidget *m_stack = nullptr;
+    QStackedWidget *m_toolBarWidgetStack = nullptr; // kept in sync with m_stack
+
     AcpInspector *m_inspector = nullptr;
     bool m_blockIndexChanges = false;
 };

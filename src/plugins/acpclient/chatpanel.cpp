@@ -492,6 +492,20 @@ ChatPanel::ChatPanel(QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
+    // --- Tool bar widget ---
+    m_toolBarWidget = new QWidget;
+    auto *toolBarWidgetLayout = new QHBoxLayout(m_toolBarWidget);
+    toolBarWidgetLayout->setContentsMargins(0, 0, 0, 0);
+    toolBarWidgetLayout->setSpacing(GapHS);
+
+    m_switchSessionButton = new QToolButton;
+    m_switchSessionButton->setText(Tr::tr("Switch Session"));
+    m_switchSessionButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_switchSessionButton->hide();
+    connect(m_switchSessionButton, &QAbstractButton::clicked,
+            this, &ChatPanel::closeSessionRequested);
+    toolBarWidgetLayout->addWidget(m_switchSessionButton);
+
     // --- Message view ---
     m_messageView = new AcpMessageView;
     m_messageView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -702,6 +716,11 @@ ChatPanel::ChatPanel(QWidget *parent)
     updateContextBar();
 }
 
+ChatPanel::~ChatPanel()
+{
+    delete m_toolBarWidget;
+}
+
 void ChatPanel::setAgentIcon(const QString &iconUrl)
 {
     m_messageView->setAgentIconUrl(iconUrl);
@@ -718,6 +737,11 @@ void ChatPanel::setPrompting(bool prompting)
 void ChatPanel::setSendEnabled(bool enabled)
 {
     m_sendButton->setEnabled(enabled);
+}
+
+void ChatPanel::setCanCloseSession(bool canClose)
+{
+    m_switchSessionButton->setVisible(canClose);
 }
 
 void ChatPanel::showConfigMenu()
@@ -789,11 +813,6 @@ void ChatPanel::showConfigMenu()
 
     QAction *inspect = menu->addAction(Tr::tr("Inspect ACP Client..."));
     connect(inspect, &QAction::triggered, this, &ChatPanel::inspectRequested);
-
-    if (m_canCloseSession) {
-        QAction *closeSession = menu->addAction(Tr::tr("Close Session"));
-        connect(closeSession, &QAction::triggered, this, &ChatPanel::closeSessionRequested);
-    }
 
     menu->popup(QCursor::pos());
 }
