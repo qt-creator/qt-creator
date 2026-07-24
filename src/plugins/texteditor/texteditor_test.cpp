@@ -9,6 +9,7 @@
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
+#include "marginsettings.h"
 #include "snippets/snippet.h"
 #include "snippets/snippetparser.h"
 
@@ -506,6 +507,83 @@ void SelectAllTest::testCursorAfterSelectAll()
 QObject *createSelectAllTest()
 {
     return new SelectAllTest;
+}
+
+// Regression test for QTCREATORBUG-31149: reflowing a comment must not pull
+// adjacent code lines into the paragraph.
+class RewrapParagraphTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testRewrapParagraph_data();
+    void testRewrapParagraph();
+};
+
+void RewrapParagraphTest::testRewrapParagraph_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<int>("cursorBlock");
+    QTest::addColumn<QString>("expected");
+
+    // A short single-line comment surrounded by code stays untouched; the
+    // code lines must not be merged into it.
+    QTest::newRow("singleLineCommentAmongCode")
+        << "int a = 1;\n// hello world\nint b = 2;" << 1
+        << "int a = 1;\n// hello world\nint b = 2;";
+
+    // Consecutive "//" comment lines reflow together, but the surrounding
+    // code is left alone.
+    QTest::newRow("multiLineCommentAmongCode")
+        << "int a = 1;\n// alpha beta\n// gamma delta\nint b = 2;" << 1
+        << "int a = 1;\n// alpha beta gamma delta\nint b = 2;";
+
+    // Plain-text paragraphs are still bounded by blank lines only.
+    QTest::newRow("plainTextParagraph")
+        << "one two\nthree four\n\nnext" << 0
+        << "one two three four\n\nnext";
+
+    // Doxygen "///" comments keep their leader when reflowed.
+    QTest::newRow("doxygenComment")
+        << "/// alpha beta\n/// gamma delta\n" << 0
+        << "/// alpha beta gamma delta\n";
+}
+
+void RewrapParagraphTest::testRewrapParagraph()
+{
+    QFETCH(QString, input);
+    QFETCH(int, cursorBlock);
+    QFETCH(QString, expected);
+
+    QString title = "rewrap.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, input.toUtf8());
+    QVERIFY(editor);
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
+
+    MarginSettingsData margin = editorWidget->marginSettings();
+    margin.m_marginColumn = 80;
+    editorWidget->setMarginSettings(margin);
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.movePosition(QTextCursor::Start);
+    for (int i = 0; i < cursorBlock; ++i)
+        cursor.movePosition(QTextCursor::NextBlock);
+    editorWidget->setTextCursor(cursor);
+
+    editorWidget->rewrapParagraph();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), expected);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+QObject *createRewrapParagraphTest()
+{
+    return new RewrapParagraphTest;
 }
 
 class RevertToSavedTest final : public QObject

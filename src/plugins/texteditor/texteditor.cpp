@@ -9433,14 +9433,31 @@ void TextEditorWidget::rewrapParagraph()
     QTextCursor cursor = textCursor();
     cursor.beginEditBlock();
 
+    // A single-line ("//") comment forms a paragraph on its own: it must not
+    // be merged with adjacent code lines, which are not part of the comment
+    // (QTCREATORBUG-31149).
+    static const QRegularExpression lineCommentLeader("^\\s*//+[/!]*");
+    const auto commentLeader = [](const QString &text) {
+        return lineCommentLeader.match(text).captured(0);
+    };
+    const bool inLineComment = !commentLeader(cursor.block().text()).isEmpty();
+
+    // Blank lines end a plain-text paragraph; a comment paragraph also ends
+    // where the run of "//" comment lines does.
+    const auto isParagraphBoundary = [&](const QString &text) {
+        if (inLineComment)
+            return commentLeader(text).isEmpty();
+        return !text.contains(anyLettersOrNumbers);
+    };
+
     // Find start of paragraph.
 
     while (cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor)) {
         QTextBlock block = cursor.block();
         QString text = block.text();
 
-        // If this block is empty, move marker back to previous and terminate.
-        if (!text.contains(anyLettersOrNumbers)) {
+        // If this block ends the paragraph, move marker back and terminate.
+        if (isParagraphBoundary(text)) {
             cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
             break;
         }
@@ -9479,13 +9496,21 @@ void TextEditorWidget::rewrapParagraph()
          }
     }
 
+    // A lone "//" comment line has no following comment line to derive the
+    // common prefix from; take it from the comment leader itself, so the
+    // leader is preserved instead of being reflowed away.
+    if (commonPrefix.isEmpty() && inLineComment) {
+        static const QRegularExpression leaderWithSpace("^\\s*//+[/!]*\\s?");
+        commonPrefix = leaderWithSpace.match(cursor.block().text()).captured(0);
+    }
+
     // Find end of paragraph.
     static const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
     QTC_CHECK(immovableDoxygenCommand.isValid());
     while (cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)) {
         QString text = cursor.block().text();
 
-        if (!text.contains(anyLettersOrNumbers) || immovableDoxygenCommand.match(text).hasMatch())
+        if (isParagraphBoundary(text) || immovableDoxygenCommand.match(text).hasMatch())
             break;
     }
 
