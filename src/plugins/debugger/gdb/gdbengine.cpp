@@ -2522,10 +2522,9 @@ void GdbEngine::handleTracepointHit(const GdbMi &data)
                    QString key = miCap.data();
                    const GdbMi &expression = data["expressions"][key.toLatin1().data()];
                    if (expression.isValid()) {
-                       QString s = expression.toString();
-                       // remove '<key>='
-                       s = s.right(s.size() - key.size() - 1);
-                       message.replace(cap.start, cap.end - cap.start, s);
+                       const QString value = decodeData(expression["value"].data(),
+                                                        expression["valueencoded"].data());
+                       message.replace(cap.start, cap.end - cap.start, value);
                    } else {
                        QTC_CHECK(false);
                    }
