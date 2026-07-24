@@ -117,7 +117,10 @@ QtcPlugin {
     Group {
         name: "pdb"
         prefix: "pdb/"
-        files: ["pdbengine.cpp", "pdbengine.h"]
+        files: [
+            "pdbengine.cpp", "pdbengine.h",
+            "pdbimpl.cpp", "pdbimpl.h",
+        ]
     }
 
     Group {

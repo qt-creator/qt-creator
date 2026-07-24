@@ -64,6 +64,7 @@ add_qtc_plugin(Debugger
     moduleshandler.cpp moduleshandler.h
     outputcollector.cpp outputcollector.h
     pdb/pdbengine.cpp pdb/pdbengine.h
+    pdb/pdbimpl.cpp pdb/pdbimpl.h
     peripheralregisterhandler.cpp peripheralregisterhandler.h
     procinterrupt.cpp procinterrupt.h
     remotedebuggerconfiguration.cpp remotedebuggerconfiguration.h

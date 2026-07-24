@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "pdbengine.h"
+#include "pdbimpl.h"
 
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
+#include <debugger/genericdebuggerengine.h>
 #include <debugger/moduleshandler.h>
 #include <debugger/procinterrupt.h>
 #include <debugger/registerhandler.h>
@@ -570,8 +572,25 @@ bool PdbEngine::hasCapability(unsigned cap) const
               | ShowModuleSymbolsCapability);
 }
 
-DebuggerEngine *createPdbEngine()
+DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp)
 {
+    if (DebuggerEngine::isUsingGenericDebugger()) {
+        ProcessRunData scriptRunData = rp.inferior();
+        QStringList arguments = scriptRunData.command.splitArguments();
+        if (!arguments.isEmpty() && arguments.constFirst() == "-u")
+            arguments.removeFirst();
+        if (!arguments.isEmpty())
+            arguments.removeFirst();
+        scriptRunData.command = CommandLine(rp.mainScript(), arguments);
+
+        ProcessRunData debuggerRunData;
+        debuggerRunData.command = CommandLine(rp.interpreter());
+        debuggerRunData.environment = rp.debugger().environment;
+
+        return new GenericDebuggerEngine("PDB (PdbImpl)",
+                                         new PdbImpl({debuggerRunData, scriptRunData,
+                                                      ICore::resourcePath("debugger")}));
+    }
     return new PdbEngine;
 }
 

@@ -8,6 +8,8 @@
 
 #include <QVariant>
 
+namespace Debugger { class DebuggerRunParameters; }
+
 namespace Debugger::Internal {
 
 class DebuggerCommand;
@@ -88,6 +90,6 @@ private:
     Utils::FilePath m_interpreter;
 };
 
-DebuggerEngine *createPdbEngine();
+DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp);
 
 } // Debugger::Internal

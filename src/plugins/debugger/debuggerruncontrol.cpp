@@ -55,7 +55,7 @@ namespace Internal {
 
 DebuggerEngine *createCdbEngine();
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
-DebuggerEngine *createPdbEngine();
+DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createUvscEngine();
@@ -599,7 +599,7 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
     }
 
     if (rp.isPythonDebugging())
-        engines << createPdbEngine();
+        engines << createPdbEngine(rp);
 
     // In native combined debugging the C++ engine drives QML as well, so
     // the separate QML engine must not be created; it would otherwise own

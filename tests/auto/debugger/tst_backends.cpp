@@ -5,6 +5,7 @@
 
 #include "gdb/gdbimpl.h"
 #include "lldb/lldbimpl.h"
+#include "pdb/pdbimpl.h"
 
 #include <utils/algorithm.h>
 #include <utils/elfreader.h>
@@ -71,6 +72,7 @@ static const char s_qtDeclarativeDebugInfoMissing[] =
 enum class Backend {
     Gdb,
     Lldb,
+    Pdb,
 };
 Q_DECLARE_METATYPE(Backend)
 
@@ -96,6 +98,8 @@ struct InferiorTestData
     QString recursionDepthVariable;
     int multiLocationBreakpointLine = 0;
     int spinBodyLine = 0;
+    // A line the backend is expected to refuse a breakpoint on, e.g. a comment.
+    int unbreakableLine = 0;
     QString localMarker;
     QString functionMarker;
     QString expandableLocal;
@@ -164,7 +168,7 @@ static FilePath lldbPathForTest()
     return versionProcess.cleanedStdOut().section('\n', 0, 0);
 }
 
-[[maybe_unused]] static FilePath findPythonOnPath()
+static FilePath findPythonOnPath()
 {
     static const QStringList candidates = {
         "python3", "python3.exe", "python", "python.exe",
@@ -227,6 +231,8 @@ static QString backendName(Backend backend)
         return "gdb";
     case Backend::Lldb:
         return "lldb";
+    case Backend::Pdb:
+        return "pdb";
     }
     return {};
 }
@@ -246,6 +252,8 @@ static QString printCommand(Backend backend, const QString &expression)
         return "print " + expression;
     case Backend::Lldb:
         return "expr " + expression;
+    case Backend::Pdb:
+        return expression;
     }
     return {};
 }
@@ -345,7 +353,7 @@ static bool canInterruptRunningInferior(Backend backend)
 {
     if (!HostOsInfo::isWindowsHost())
         return true;
-    static const QList<Backend> uninterruptibleOnWindows = {};
+    static const QList<Backend> uninterruptibleOnWindows = {Backend::Pdb};
     return !uninterruptibleOnWindows.contains(backend);
 }
 
@@ -516,6 +524,8 @@ private slots:
     void reportsBreakpointModifiedEvents();
     void reportsAlienBreakpoints_data() { addBackendRows(); }
     void reportsAlienBreakpoints();
+    void reportsRefusedBreakpointLocation_data() { addBackendRows(); }
+    void reportsRefusedBreakpointLocation();
     void togglesBreakpointEnabledInPlace_data() { addBackendRows(); }
     void togglesBreakpointEnabledInPlace();
     void attachesToRunningProcess_data() { addBackendRows(); }
@@ -691,6 +701,15 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .nativeMixedDebugging = nativeMixed}));
+    case Backend::Pdb:
+        return std::make_unique<DebuggerBackend>(std::make_unique<PdbImpl>(PdbImplStartData{
+            .debuggerRunData = debuggerRunDataOverride.value_or(
+                ProcessRunData{{m_backendData[backend].path, {}}, {},
+                               Environment::systemEnvironment()}),
+            .inferiorStartData = inferiorRunDataOverride.value_or(
+                ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                               Environment::systemEnvironment()}),
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
     }
     return nullptr;
 }
@@ -712,6 +731,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
                                               Environment::systemEnvironment()},
             .inferiorStartData = inferiorStartData,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
+    case Backend::Pdb:
+        break;
     }
     return nullptr;
 }
@@ -756,9 +777,19 @@ void tst_backends::initTestCase()
         }
     }
 
+    const QString envPython = qtcEnvironmentVariable("QTC_PYTHON_PATH_FOR_TEST");
+    const FilePath pythonPath = envPython.isEmpty()
+        ? findPythonOnPath()
+        : FilePath::fromUserInput(envPython);
+    QString pythonVersionLine;
+    if (pythonPath.isExecutableFile()) {
+        m_backendData[Backend::Pdb].path = pythonPath;
+        pythonVersionLine = versionLine(pythonPath);
+    }
+
     if (m_backendData.isEmpty())
-        QSKIP("No supported debugger backend found - set "
-              "QTC_GDB_PATH_FOR_TEST to override.");
+        QSKIP("No supported debugger backend found - set QTC_GDB_PATH_FOR_TEST or "
+              "QTC_PYTHON_PATH_FOR_TEST to override.");
 
     const QString envGdbserver = qtcEnvironmentVariable("QTC_GDBSERVER_PATH_FOR_TEST");
     m_gdbserverPath = envGdbserver.isEmpty() ? FilePath::fromString("gdbserver").searchInPath()
@@ -803,7 +834,10 @@ void tst_backends::initTestCase()
         }
         probeFailures.append(path.toUserOutput() + " - " + probe.exitMessage());
     }
-    if (!compiler.isExecutableFile()) {
+    // Only the compiled backends need an inferior built from source; pdb brings its own.
+    const bool needsCompiler = m_backendData.contains(Backend::Gdb)
+                            || m_backendData.contains(Backend::Lldb);
+    if (needsCompiler && !compiler.isExecutableFile()) {
         QSKIP(qPrintable(probeFailures.isEmpty()
                              ? QString("No C++ compiler (g++/clang++) found to build the "
                                        "test inferior.")
@@ -925,41 +959,46 @@ void tst_backends::initTestCase()
     file.write(inferiorLines.join('\n').toUtf8());
     file.close();
 
-    QStringList compileArgs = {"-g", "-O0"};
-    if (HostOsInfo::isLinuxHost())
-        compileArgs << "-no-pie";
-    compileArgs << "-o" << cppInferiorData.executable.nativePath()
-                << cppInferiorData.source.nativePath();
-    if (HostOsInfo::isLinuxHost())
-        compileArgs << "-ldl";
-    Process compile;
-    compile.setCommand({compiler, compileArgs});
-    QElapsedTimer compileTimer;
-    compileTimer.start();
-    compile.runBlocking(s_compileTimeout);
-    QVERIFY2(compile.result() == ProcessResult::FinishedWithSuccess,
-             qPrintable(compileFailure("compiling the test inferior",
-                                       compile, compileTimer.elapsed())));
+    if (needsCompiler) {
+        QStringList compileArgs = {"-g", "-O0"};
+        if (HostOsInfo::isLinuxHost())
+            compileArgs << "-no-pie";
+        compileArgs << "-o" << cppInferiorData.executable.nativePath()
+                    << cppInferiorData.source.nativePath();
+        if (HostOsInfo::isLinuxHost())
+            compileArgs << "-ldl";
+        Process compile;
+        compile.setCommand({compiler, compileArgs});
+        QElapsedTimer compileTimer;
+        compileTimer.start();
+        compile.runBlocking(s_compileTimeout);
+        QVERIFY2(compile.result() == ProcessResult::FinishedWithSuccess,
+                 qPrintable(compileFailure("compiling the test inferior",
+                                           compile, compileTimer.elapsed())));
+    }
 
-    const FilePath inferiorLibSource = FilePath::fromString(m_tempDir.path()) / "inferiorlib.cpp";
-    QFile libFile(inferiorLibSource.toFSPathString());
-    QVERIFY(libFile.open(QIODevice::WriteOnly | QIODevice::Text));
-    libFile.write(QByteArrayLiteral("extern \"C\" int inferiorLibFunc() { return 0; }\n"));
-    libFile.close();
+    if (compiler.isExecutableFile()) {
+        const FilePath inferiorLibSource = FilePath::fromString(m_tempDir.path())
+                                          / "inferiorlib.cpp";
+        QFile libFile(inferiorLibSource.toFSPathString());
+        QVERIFY(libFile.open(QIODevice::WriteOnly | QIODevice::Text));
+        libFile.write(QByteArrayLiteral("extern \"C\" int inferiorLibFunc() { return 0; }\n"));
+        libFile.close();
 
-    QStringList compileLibArgs = {"-shared"};
-    if (!HostOsInfo::isWindowsHost())
-        compileLibArgs << "-fPIC";
-    compileLibArgs << "-g" << "-O0" << "-o" << m_inferiorLib.nativePath()
-                   << inferiorLibSource.nativePath();
-    Process compileLib;
-    compileLib.setCommand({compiler, compileLibArgs});
-    QElapsedTimer compileLibTimer;
-    compileLibTimer.start();
-    compileLib.runBlocking(s_compileTimeout);
-    QVERIFY2(compileLib.result() == ProcessResult::FinishedWithSuccess,
-             qPrintable(compileFailure("compiling the inferior library",
-                                       compileLib, compileLibTimer.elapsed())));
+        QStringList compileLibArgs = {"-shared"};
+        if (!HostOsInfo::isWindowsHost())
+            compileLibArgs << "-fPIC";
+        compileLibArgs << "-g" << "-O0" << "-o" << m_inferiorLib.nativePath()
+                       << inferiorLibSource.nativePath();
+        Process compileLib;
+        compileLib.setCommand({compiler, compileLibArgs});
+        QElapsedTimer compileLibTimer;
+        compileLibTimer.start();
+        compileLib.runBlocking(s_compileTimeout);
+        QVERIFY2(compileLib.result() == ProcessResult::FinishedWithSuccess,
+                 qPrintable(compileFailure("compiling the inferior library",
+                                           compileLib, compileLibTimer.elapsed())));
+    }
 
     if (m_backendData.contains(Backend::Gdb)) {
         m_backendData[Backend::Gdb].inferiorData = cppInferiorData;
@@ -980,6 +1019,80 @@ void tst_backends::initTestCase()
         m_backendData[Backend::Lldb].inferiorData.moduleListMarker = "libc";
         m_backendData[Backend::Lldb].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
     }
+
+    if (!m_backendData.contains(Backend::Pdb))
+        return;
+
+    InferiorTestData pdbInferiorData;
+    pdbInferiorData.source = pdbInferiorData.executable =
+        FilePath::fromString(m_tempDir.path()) / "inferior.py";
+    const QStringList pdbInferiorLines = {
+        "globalValue = 41",
+        "keepSpinning = True",
+        "",
+        "",
+        "def bump(localValue):",
+        "    global globalValue",
+        "    globalValue = localValue  # first breakpoint line",
+        "    print(\"value=%d\" % globalValue)",
+        "",
+        "",
+        "def spin():",
+        "    while keepSpinning:",
+        "        pass  # spin body line",
+        "",
+        "",
+        "def recurse(depth):",
+        "    if depth <= 0:",
+        "        return 0  # deep breakpoint line",
+        "    return 1 + recurse(depth - 1)",
+        "",
+        "",
+        "# a comment, pdb refuses a breakpoint here: unbreakable line",
+        "def main():",
+        "    bump(globalValue + 1)",
+        "    print(\"after bump\")",
+        "    recurse(40)",
+        "    spin()  # second breakpoint line",
+        "",
+        "",
+        "if __name__ == \"__main__\":",
+        "    main()",
+        "",
+    };
+    for (int i = 0; i < pdbInferiorLines.size(); ++i) {
+        if (pdbInferiorLines.at(i).contains("first breakpoint line"))
+            pdbInferiorData.breakpointLine = i + 1;
+        if (pdbInferiorLines.at(i).contains("second breakpoint line"))
+            pdbInferiorData.secondBreakpointLine = i + 1;
+        if (pdbInferiorLines.at(i).contains("deep breakpoint line"))
+            pdbInferiorData.deepRecursionBreakpointLine = i + 1;
+        if (pdbInferiorLines.at(i).contains("spin body line"))
+            pdbInferiorData.spinBodyLine = i + 1;
+        if (pdbInferiorLines.at(i).contains("unbreakable line"))
+            pdbInferiorData.unbreakableLine = i + 1;
+    }
+    QVERIFY(pdbInferiorData.breakpointLine > 0);
+    pdbInferiorData.localMarker = "localValue";
+    pdbInferiorData.functionMarker = "bump";
+    pdbInferiorData.recursionDepthVariable = "depth";
+    QVERIFY(pdbInferiorData.secondBreakpointLine > 0);
+    QVERIFY(pdbInferiorData.deepRecursionBreakpointLine > 0);
+    QVERIFY(pdbInferiorData.spinBodyLine > 0);
+    QVERIFY(pdbInferiorData.unbreakableLine > 0);
+
+    QFile pdbFile(pdbInferiorData.source.toFSPathString());
+    QVERIFY(pdbFile.open(QIODevice::WriteOnly | QIODevice::Text));
+    pdbFile.write(pdbInferiorLines.join('\n').toUtf8());
+    pdbFile.close();
+
+    pdbInferiorData.enableToggleWireMarker = "disable";
+    m_backendData[Backend::Pdb].inferiorData = pdbInferiorData;
+    m_backendData[Backend::Pdb].inferiorData.answersRedundantContinue = true;
+    m_backendData[Backend::Pdb].inferiorData.falseLiteral = "False";
+    m_backendData[Backend::Pdb].inferiorData.versionLine = pythonVersionLine;
+    m_backendData[Backend::Pdb].inferiorData.moduleListMarker = "sys";
+    m_backendData[Backend::Pdb].inferiorData.moduleSymbolsPath = FilePath::fromString("__main__");
 }
 
 void tst_backends::cleanupTestCase()
@@ -1940,11 +2053,16 @@ void tst_backends::testResetInferiorCapability()
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     debuggerBackend->clearEvents();
+    debuggerBackend->clearInferiorResults();
     debuggerBackend->execute({ExecutionCommand::ResetInferior});
 
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunRequested));
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunOk));
+    // The restarted inferior has stopped again, so an exit report for the one we replaced
+    // would have arrived by now. A backend that swaps processes must not emit one.
+    QVERIFY2(debuggerBackend->inferiorResults().isEmpty(),
+             "restarting the inferior was reported as the inferior exiting");
 }
 
 void tst_backends::testReturnFromFunctionCapability()
@@ -2704,6 +2822,9 @@ void tst_backends::stepsContinuesAndInterrupts()
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Continue});
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk), s_timeout);
+
+    if (backend == Backend::Pdb && HostOsInfo::isWindowsHost())
+        QSKIP("Interrupting a running inferior is not supported by pdb on Windows.");
 
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Interrupt});
@@ -4807,6 +4928,49 @@ void tst_backends::reportsAlienBreakpoints()
                               "deleting that breakpoint natively was never reported", s_timeout);
     QCOMPARE(alienEvents.constFirst().first, BreakpointOp::Remove);
     QCOMPARE(alienEvents.constFirst().second["number"].data(), number);
+}
+
+void tst_backends::reportsRefusedBreakpointLocation()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.unbreakableLine == 0)
+        QSKIP("inferior declares no line the backend is expected to refuse");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, std::pair<bool, GdbMi>> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &data) {
+        if (op == BreakpointOp::Insert)
+            results[requestId] = {ok, data};
+    });
+
+    BreakpointChangeRequest refused;
+    refused.op = BreakpointOp::Insert;
+    refused.requestId = 330;
+    refused.params.type = BreakpointByFileAndLine;
+    refused.params.fileName = testData.source;
+    refused.params.textPosition.line = testData.unbreakableLine;
+    refused.params.enabled = true;
+    engine->changeBreakpoint(refused);
+    QTRY_VERIFY2_WITH_TIMEOUT(results.contains(330),
+                              "a refused breakpoint location was never answered", s_timeout);
+    QVERIFY2(!results.value(330).first, "a refused location was reported as inserted");
+
+    // The answer to the next insertion must not be mistaken for the refused one's.
+    BreakpointChangeRequest accepted = refused;
+    accepted.requestId = 331;
+    accepted.params.textPosition.line = testData.secondBreakpointLine;
+    engine->changeBreakpoint(accepted);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(331), s_timeout);
+    QVERIFY2(results.value(331).first, "insert after a refused location failed");
+    const GdbMi data = results.value(331).second;
+    QVERIFY(data.childCount() > 0);
+    QCOMPARE(data.childAt(0)["line"].toInt(), testData.secondBreakpointLine);
 }
 
 void tst_backends::togglesBreakpointEnabledInPlace()

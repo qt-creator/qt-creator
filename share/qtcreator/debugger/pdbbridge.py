@@ -1276,6 +1276,7 @@ class QtcInternalDumper():
             try:
                 self._previous_sigint_handler = \
                     signal.signal(signal.SIGINT, self.sigint_handler)
+                self.report('state="running"')
             except ValueError:
                 # ValueError happens when do_continue() is invoked from
                 # a non-main thread in which case we just continue without
@@ -1741,6 +1742,11 @@ class QtcInternalDumper():
 
     def warn(self, msg):
         self.putField('warning', msg)
+
+    def breakpointFence(self, args):
+        # Answers a command issued right after a "break", so that the caller can tell a
+        # location pdb silently refused from one whose answer is still on its way.
+        self.report('breakpointfence={token="%s"}' % args.get('token', 0))
 
     def listModules(self, args):
         self.put('modules=[')
