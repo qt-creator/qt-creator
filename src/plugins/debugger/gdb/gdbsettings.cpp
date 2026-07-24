@@ -123,7 +123,7 @@ GdbSettings::GdbSettings()
         "prepend the block with \"python\" on a separate line, and append "
         "\"end\" on a separate line.</p>"
         "<p>To execute arbitrary Python scripts, "
-        "use <i>python execfile('/path/to/script.py')</i>.</p>");
+        "use <i>source /path/to/script.py</i>.</p>");
 
     gdbStartupCommands.setSettingsKey(debugModeGroup, "GdbStartupCommands");
     gdbStartupCommands.setDisplayStyle(StringAspect::TextEditDisplay);
