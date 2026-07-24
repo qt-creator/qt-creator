@@ -14,9 +14,7 @@
 #include <QModelIndex>
 #include <QTimer>
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-QT_END_NAMESPACE
+namespace Utils { class TreeViewComboBox; }
 
 namespace QmlJS { class ModelManagerInterface; }
 
@@ -110,7 +108,7 @@ private:
     QTimer m_updateUsesTimer; // to wait for multiple text cursor position changes
     QTimer m_updateOutlineIndexTimer;
     QTimer m_contextPaneTimer;
-    QComboBox *m_outlineCombo = nullptr;
+    Utils::TreeViewComboBox *m_outlineCombo = nullptr;
     QModelIndex m_outlineModelIndex;
     QmlJS::ModelManagerInterface *m_modelManager = nullptr;
 

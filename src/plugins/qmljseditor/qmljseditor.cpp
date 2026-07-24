@@ -62,6 +62,7 @@
 #include <utils/delegates.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
+#include <utils/treeviewcombobox.h>
 #include <utils/uncommentselection.h>
 
 #include <languageclient/languageclientmanager.h>
@@ -292,11 +293,7 @@ void QmlJSEditorWidget::updateOutlineIndexNow()
 
     if (comboIndex.isValid()) {
         QSignalBlocker blocker(m_outlineCombo);
-
-        // There is no direct way to select a non-root item
-        m_outlineCombo->setRootModelIndex(comboIndex.parent());
-        m_outlineCombo->setCurrentIndex(comboIndex.row());
-        m_outlineCombo->setRootModelIndex(QModelIndex());
+        m_outlineCombo->setCurrentIndex(comboIndex);
     }
 }
 
@@ -530,21 +527,17 @@ QString QmlJSEditorWidget::wordUnderCursor() const
 
 void QmlJSEditorWidget::createToolBar()
 {
-    m_outlineCombo = new QComboBox;
+    m_outlineCombo = new Utils::TreeViewComboBox;
     m_outlineCombo->setMinimumContentsLength(22);
     m_outlineCombo->setModel(qmlJsEditorDocument()->outlineModel());
-
-    auto treeView = new QTreeView;
 
     auto itemDelegate = new Utils::AnnotatedItemDelegate(this);
     itemDelegate->setDelimiter(QLatin1String(" "));
     itemDelegate->setAnnotationRole(Internal::QmlOutlineModel::AnnotationRole);
-    treeView->setItemDelegateForColumn(0, itemDelegate);
 
-    treeView->header()->hide();
+    QTreeView *treeView = m_outlineCombo->view();
+    treeView->setItemDelegateForColumn(0, itemDelegate);
     treeView->setItemsExpandable(false);
-    treeView->setRootIsDecorated(false);
-    m_outlineCombo->setView(treeView);
     treeView->expandAll();
 
     //m_outlineCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
@@ -557,7 +550,7 @@ void QmlJSEditorWidget::createToolBar()
     connect(m_outlineCombo, &QComboBox::activated,
             this, &QmlJSEditorWidget::jumpToOutlineElement);
     connect(qmlJsEditorDocument()->outlineModel(), &Internal::QmlOutlineModel::updated,
-            static_cast<QTreeView *>(m_outlineCombo->view()), &QTreeView::expandAll);
+            m_outlineCombo->view(), &QTreeView::expandAll);
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, QOverload<>::of(&QTimer::start));
