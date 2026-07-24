@@ -38,6 +38,42 @@ DisplaySettings::DisplaySettings()
     textWrapping.setDefaultValue(false);
     textWrapping.setLabelText(Tr::tr("Enable text &wrapping"));
 
+    breakindent.setSettingsKey("BreakIndent");
+    breakindent.setDefaultValue(false);
+    breakindent.setLabelText(Tr::tr("Indent wrapped lines"));
+    breakindent.setToolTip(Tr::tr("Aligns the continuation of a wrapped line with the "
+                                  "indentation of the line (vim's \"breakindent\")."));
+
+    breakindentMin.setSettingsKey("BreakIndentMin");
+    breakindentMin.setDefaultValue(20);
+    breakindentMin.setRange(0, 200);
+    breakindentMin.setLabelText(Tr::tr("Minimum text width:"));
+    breakindentMin.setToolTip(Tr::tr("Columns of text kept after the indent of a wrapped "
+                                     "line (vim's \"breakindentopt=min\")."));
+
+    breakindentShift.setSettingsKey("BreakIndentShift");
+    breakindentShift.setDefaultValue(0);
+    breakindentShift.setRange(-200, 200);
+    breakindentShift.setLabelText(Tr::tr("Extra indent:"));
+    breakindentShift.setToolTip(Tr::tr("Columns added to (or, if negative, removed from) the "
+                                       "indent of a wrapped line (vim's "
+                                       "\"breakindentopt=shift\")."));
+
+    showBreak.setSettingsKey("ShowBreak");
+    showBreak.setDisplayStyle(StringAspect::LineEditDisplay);
+    showBreak.setPlaceHolderText(Tr::tr("Wrapped line marker"));
+    showBreak.setToolTip(Tr::tr("Text shown at the beginning of a wrapped line "
+                                "(vim's \"showbreak\"). Applies whether or not "
+                                "wrapped lines are indented."));
+
+    breakindentSbr.setSettingsKey("BreakIndentSbr");
+    breakindentSbr.setDefaultValue(false);
+    breakindentSbr.setLabelText(Tr::tr("Show marker before the indent"));
+    breakindentSbr.setToolTip(Tr::tr("Draws the wrapped line marker before the indent of the "
+                                     "wrapped line instead of in front of its text (vim's "
+                                     "\"breakindentopt=sbr\"). Has no visible effect unless "
+                                     "\"Indent wrapped lines\" is also enabled."));
+
     visualizeWhitespace.setSettingsKey("VisualizeWhitespace");
     visualizeWhitespace.setDefaultValue(false);
     visualizeWhitespace.setLabelText(Tr::tr("&Visualize whitespace"));
@@ -132,6 +168,9 @@ DisplaySettings::DisplaySettings()
     displayMinimap.setLabelText(Tr::tr("Enable minimap"));
 
     readSettings();
+
+    breakindentMin.setEnabler(&breakindent);
+    breakindentShift.setEnabler(&breakindent);
 }
 
 void DisplaySettings::apply()
@@ -185,7 +224,10 @@ public:
                     title(Tr::tr("Wrapping")),
                     Column {
                         s.textWrapping,
-                        Row { label, st }
+                        Row { label, st },
+                        Row { s.breakindent, s.breakindentMin, s.breakindentShift, st },
+                        Row { s.showBreak, st },
+                        s.breakindentSbr
                     }
                 },
                 Group {
@@ -235,6 +277,11 @@ DisplaySettingsData DisplaySettings::data() const
 
     d.m_displayLineNumbers = displayLineNumbers();
     d.m_textWrapping = textWrapping();
+    d.m_breakindent = breakindent();
+    d.m_breakindentMin = breakindentMin();
+    d.m_breakindentShift = breakindentShift();
+    d.m_showBreak = showBreak();
+    d.m_breakindentSbr = breakindentSbr();
     d.m_visualizeWhitespace = visualizeWhitespace();
     d.m_visualizeIndent = visualizeIndent();
     d.m_displayFoldingMarkers = displayFoldingMarkers();

@@ -280,6 +280,18 @@ public:
 
     void requestUpdate();
 
+    // Indent wrapped display lines to the leading whitespace of their block
+    // (vim's 'breakindent'). minColumns keeps at least that many columns of
+    // text after the indent; shift adds that many columns on top.
+    void setBreakIndent(bool enabled, int minColumns, int shift);
+
+    // Marker drawn at the start of each wrapped display line (vim's
+    // 'showbreak'). beforeIndent draws it before the break indent instead of
+    // right in front of the text (vim's 'breakindentopt=sbr').
+    void setShowBreak(const QString &showBreak, bool beforeIndent);
+    QString showBreak() const;
+    bool showBreakBeforeIndent() const;
+
     virtual QTextLayout *blockLayout(const QTextBlock &block) const;
     virtual void clearBlockLayout(QTextBlock &block) const;
     virtual int blockLineCount(const QTextBlock &block) const;

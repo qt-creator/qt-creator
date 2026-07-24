@@ -188,12 +188,21 @@ public:
         blockUpdate = blockDocumentSizeChanged = false;
         cursorWidth = 1;
         textLayoutFlags = 0;
+        breakIndentEnabled = false;
+        breakIndentMinColumns = 20;
+        breakIndentShift = 0;
+        showBreakBeforeIndent = false;
     }
 
     PlainTextDocumentLayout *q;
 
     qreal width;
     qreal maximumWidth;
+    bool breakIndentEnabled;
+    int breakIndentMinColumns;
+    int breakIndentShift;
+    QString showBreak;
+    bool showBreakBeforeIndent; // vim's 'breakindentopt=sbr'
     int maximumWidthBlockNumber;
     int blockCount;
     PlainTextEditPrivate *mainViewPrivate;
@@ -516,6 +525,37 @@ qreal PlainTextDocumentLayout::textWidth() const
     return d->width;
 }
 
+void PlainTextDocumentLayout::setBreakIndent(bool enabled, int minColumns, int shift)
+{
+    if (d->breakIndentEnabled == enabled && d->breakIndentMinColumns == minColumns
+        && d->breakIndentShift == shift) {
+        return;
+    }
+    d->breakIndentEnabled = enabled;
+    d->breakIndentMinColumns = minColumns;
+    d->breakIndentShift = shift;
+    d->relayout();
+}
+
+void PlainTextDocumentLayout::setShowBreak(const QString &showBreak, bool beforeIndent)
+{
+    if (d->showBreak == showBreak && d->showBreakBeforeIndent == beforeIndent)
+        return;
+    d->showBreak = showBreak;
+    d->showBreakBeforeIndent = beforeIndent;
+    d->relayout();
+}
+
+QString PlainTextDocumentLayout::showBreak() const
+{
+    return d->showBreak;
+}
+
+bool PlainTextDocumentLayout::showBreakBeforeIndent() const
+{
+    return d->showBreakBeforeIndent;
+}
+
 void PlainTextDocumentLayoutPrivate::relayout()
 {
     QTextBlock block = q->document()->firstBlock();
@@ -616,17 +656,45 @@ void PlainTextDocumentLayout::layoutBlock(const QTextBlock &block)
         availableWidth = qreal(INT_MAX); // similar to text edit with pageSize.width == 0
     }
     availableWidth -= 2*margin + extraMargin;
+    qreal breakIndent = 0;
+    int lineInBlock = 0;
     while (1) {
         QTextLine line = tl->createLine();
         if (!line.isValid())
             break;
         line.setLeadingIncluded(true);
-        line.setLineWidth(availableWidth);
-        line.setPosition(QPointF(margin, height));
+        if (lineInBlock == 0) {
+            line.setLineWidth(availableWidth);
+            line.setPosition(QPointF(margin, height));
+            if (d->breakIndentEnabled || !d->showBreak.isEmpty()) {
+                const QFontMetricsF fm(block.charFormat().font());
+                const qreal spaceWidth = fm.horizontalAdvance(' ');
+                if (d->breakIndentEnabled) {
+                    const QString text = block.text();
+                    int ws = 0;
+                    while (ws < text.size() && (text.at(ws) == ' ' || text.at(ws) == '\t'))
+                        ++ws;
+                    // cursorToX() returns an x coordinate that already includes the
+                    // line's position set above, so subtract margin back out.
+                    breakIndent = line.cursorToX(ws) - margin + d->breakIndentShift * spaceWidth;
+                }
+                // Reserve room for the wrapped-line marker (vim's 'showbreak').
+                breakIndent += fm.horizontalAdvance(d->showBreak);
+                // Keep at least breakIndentMinColumns of text after the indent.
+                const qreal maxIndent = availableWidth - d->breakIndentMinColumns * spaceWidth;
+                breakIndent = qBound(qreal(0), breakIndent, qMax(qreal(0), maxIndent));
+            }
+        } else {
+            line.setLineWidth(availableWidth - breakIndent);
+            line.setPosition(QPointF(margin + breakIndent, height));
+        }
         height += line.height();
         if (line.leading() < 0)
             height += qCeil(line.leading());
-        blockMaximumWidth = qMax(blockMaximumWidth, line.naturalTextWidth() + 2*margin);
+        blockMaximumWidth = qMax(blockMaximumWidth,
+                                 line.naturalTextWidth() + 2 * margin
+                                     + (lineInBlock == 0 ? 0 : breakIndent));
+        ++lineInBlock;
     }
     tl->endLayout();
 
@@ -2109,6 +2177,20 @@ void PlainTextEdit::paintEvent(QPaintEvent *e)
             }
 
             layout->draw(&painter, offset, selections, er);
+
+            const QString showBreak = d->editorLayout->showBreak();
+            if (!showBreak.isEmpty() && layout->lineCount() > 1) {
+                painter.setFont(block.charFormat().font());
+                const qreal sbrWidth = painter.fontMetrics().horizontalAdvance(showBreak);
+                const qreal blockLeft = offset.x() + document()->documentMargin();
+                const bool beforeIndent = d->editorLayout->showBreakBeforeIndent();
+                for (int i = 1; i < layout->lineCount(); ++i) {
+                    const QTextLine line = layout->lineAt(i);
+                    const qreal x = beforeIndent ? blockLeft
+                                                 : offset.x() + line.x() - sbrWidth;
+                    painter.drawText(QPointF(x, offset.y() + line.y() + line.ascent()), showBreak);
+                }
+            }
 
             if ((drawCursor && !drawCursorAsBlock)
                 || (editable && context.cursorPosition < -1

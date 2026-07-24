@@ -24,6 +24,11 @@ public:
 
     bool m_displayLineNumbers = true;
     bool m_textWrapping = false;
+    bool m_breakindent = false;
+    int m_breakindentMin = 20;
+    int m_breakindentShift = 0;
+    QString m_showBreak;
+    bool m_breakindentSbr = false;
     bool m_visualizeWhitespace = false;
     bool m_visualizeIndent = true;
     bool m_displayFoldingMarkers = true;
@@ -58,6 +63,11 @@ public:
 
     Utils::BoolAspect displayLineNumbers{this};
     Utils::BoolAspect textWrapping{this};
+    Utils::BoolAspect breakindent{this};
+    Utils::IntegerAspect breakindentMin{this};
+    Utils::IntegerAspect breakindentShift{this};
+    Utils::StringAspect showBreak{this};
+    Utils::BoolAspect breakindentSbr{this};
     Utils::BoolAspect visualizeWhitespace{this};
     Utils::BoolAspect visualizeIndent{this};
     Utils::BoolAspect displayFoldingMarkers{this};

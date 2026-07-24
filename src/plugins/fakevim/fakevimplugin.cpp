@@ -2117,6 +2117,12 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         } else if (cmd.args == "noic" || cmd.args == "noignorecase") {
             // :set noic
             setActionChecked(Core::Constants::CASE_SENSITIVE, true);
+        } else if (cmd.args == "breakindent" || cmd.args == "bri") {
+            // :set breakindent
+            TextEditor::displaySettings().breakindent.setValue(true);
+        } else if (cmd.args == "nobreakindent" || cmd.args == "nobri") {
+            // :set nobreakindent
+            TextEditor::displaySettings().breakindent.setValue(false);
         }
         *handled = false; // Let the handler see it as well.
     } else if (cmd.matches("n", "next")) {
