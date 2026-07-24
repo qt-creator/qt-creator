@@ -11,6 +11,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSet>
 
 using namespace ProjectExplorer;
 namespace PEConstants = ProjectExplorer::Constants;
@@ -170,13 +171,25 @@ void generateCompilationDB(
     }
     compileCommandsFile.write("[");
 
-    bool skipHeaders = purpose == CompilationDbPurpose::CodeModel;
+    QSet<QString> targetsWithSourceFiles;
+    if (purpose == CompilationDbPurpose::CodeModel) {
+        for (const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
+            QTC_ASSERT(projectInfo, continue);
+            for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
+                QTC_ASSERT(projectPart, continue);
+                if (Utils::contains(projectPart->files, &ProjectFile::isSource))
+                    targetsWithSourceFiles.insert(projectPart->buildSystemTarget);
+            }
+        }
+    }
+
     bool hasEntries = false;
     const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
     const auto writeEntries = [&] {
         for (const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
             QTC_ASSERT(projectInfo, continue);
             for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
+                std::optional<bool> targetHasSources;
                 QTC_ASSERT(projectPart, continue);
                 QStringList args;
                 const CompilerOptionsBuilder optionsBuilder = getOptionsBuilder(*projectPart);
@@ -190,8 +203,14 @@ void generateCompilationDB(
                 for (const ProjectFile &projFile : projectPart->files) {
                     if (promise.isCanceled())
                         return;
-                    if (skipHeaders && projFile.isHeader())
-                        continue;
+                    if (purpose == CompilationDbPurpose::CodeModel && projFile.isHeader()) {
+                        if (!targetHasSources) {
+                            targetHasSources = targetsWithSourceFiles.contains(
+                                projectPart->buildSystemTarget);
+                        }
+                        if (*targetHasSources)
+                            continue;
+                    }
                     const QJsonObject json = createFileObject(
                         baseDir,
                         args,
@@ -210,11 +229,6 @@ void generateCompilationDB(
         }
     };
     writeEntries();
-    if (!hasEntries) {
-        skipHeaders = false;
-        writeEntries();
-    }
-
     compileCommandsFile.write("]");
     compileCommandsFile.close();
     promise.addResult(FilePath::fromUserInput(compileCommandsFile.fileName()));
