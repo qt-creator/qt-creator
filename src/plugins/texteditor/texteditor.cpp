@@ -2149,13 +2149,6 @@ QString TextEditorWidget::msgTextTooLarge(quint64 size)
            arg(size >> 20);
 }
 
-void TextEditorWidget::insertPlainText(const QString &text)
-{
-    MultiTextCursor cursor = d->m_cursors;
-    cursor.insertText(text);
-    setMultiTextCursor(cursor);
-}
-
 QString TextEditorWidget::selectedText() const
 {
     return d->m_cursors.selectedText();
@@ -10295,7 +10288,7 @@ void TextEditorWidget::remove(int length)
 
 void BaseTextEditor::insert(const QString &string)
 {
-    editorWidget()->insertPlainText(string);
+    editorWidget()->multiTextCursor().insertText(string);
 }
 
 void BaseTextEditor::replace(int length, const QString &string)

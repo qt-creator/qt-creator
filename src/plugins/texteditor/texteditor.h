@@ -173,7 +173,7 @@ public:
 
     /*! Removes \a length characters to the right of the cursor. */
     void remove(int length);
-    /*! Inserts the given string to the right of the cursor. */
+    /*! Removes the current selected text and inserts the given string to the right of the cursor. */
     void insert(const QString &string);
     /*! Replaces \a length characters to the right of the cursor with the given string. */
     void replace(int length, const QString &string);
@@ -307,8 +307,6 @@ public:
     static QMimeData *duplicateMimeData(const QMimeData *source);
 
     static QString msgTextTooLarge(quint64 size);
-
-    void insertPlainText(const QString &text);
 
     QWidget *extraArea() const;
     virtual int extraAreaWidth(int *markWidthPtr = nullptr) const;
