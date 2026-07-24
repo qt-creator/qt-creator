@@ -75,9 +75,9 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
             m_formatOnSave,
             customMargins(20, 0, 0, 0)
         },
-        m_useCustomSettingsCheckBox,
         m_projectHasClangFormat,
         m_currentProjectLabel,
+        m_useCustomSettingsCheckBox,
         noMargin
     }.attachTo(m_clangFormatOptions);
 
