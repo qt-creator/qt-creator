@@ -361,6 +361,14 @@ protected:
         return spell == "defined";
     }
 
+    bool isTokenHasInclude() const
+    {
+        if ((*_lex)->isNot(T_IDENTIFIER))
+            return false;
+        const ByteArrayRef spell = tokenSpell();
+        return spell == "__has_include" || spell == "__has_include_next";
+    }
+
     const char *tokenPosition() const
     {
         return source.constData() + (*_lex)->byteOffset;
@@ -402,7 +410,8 @@ protected:
         } else if (isTokenDefined()) {
             ++(*_lex);
             if ((*_lex)->is(T_IDENTIFIER)) {
-                _value.set_long(macroDefinition(tokenSpell(),
+                _value.set_long(isTokenHasInclude()
+                                || macroDefinition(tokenSpell(),
                                                 (*_lex)->byteOffset,
                                                 (*_lex)->utf16charOffset,
                                                 (*_lex)->lineno, env, client)
@@ -411,7 +420,8 @@ protected:
             } else if ((*_lex)->is(T_LPAREN)) {
                 ++(*_lex);
                 if ((*_lex)->is(T_IDENTIFIER)) {
-                    _value.set_long(macroDefinition(tokenSpell(),
+                    _value.set_long(isTokenHasInclude()
+                                    || macroDefinition(tokenSpell(),
                                                     (*_lex)->byteOffset,
                                                     (*_lex)->utf16charOffset,
                                                     (*_lex)->lineno,
@@ -422,6 +432,8 @@ protected:
                         ++(*_lex);
                 }
             }
+        } else if (isTokenHasInclude()) {
+            process_has_include();
         } else if ((*_lex)->is(T_IDENTIFIER)) {
             _value.set_long(0);
             ++(*_lex);
@@ -446,6 +458,48 @@ protected:
             if ((*_lex)->is(T_RPAREN))
                 ++(*_lex);
         }
+    }
+
+    // evaluates __has_include(<header>) / __has_include("header") and __has_include_next variant
+    void process_has_include()
+    {
+        const bool includeNext = tokenSpell().length() == 18;
+        ++(*_lex); // consume __has_include / __has_include_next
+        _value.set_long(0);
+
+        if ((*_lex)->isNot(T_LPAREN))
+            return;
+        ++(*_lex); // consume '('
+
+        const char *argBegin = tokenPosition();
+        const char *argEnd = argBegin;
+        while ((*_lex)->isNot(T_RPAREN) && (*_lex)->isNot(T_EOF_SYMBOL)) {
+            argEnd = tokenPosition() + tokenLength();
+            ++(*_lex);
+        }
+        if ((*_lex)->is(T_RPAREN))
+            ++(*_lex); // consume ')'
+
+        if (!client)
+            return;
+
+        const QByteArray arg = QByteArray(argBegin, int(argEnd - argBegin)).trimmed();
+        if (arg.size() < 3)
+            return;
+
+        Client::IncludeType mode;
+        if (includeNext)
+            mode = Client::IncludeNext;
+        else if (arg.front() == '<')
+            mode = Client::IncludeGlobal;
+        else if (arg.front() == '"')
+            mode = Client::IncludeLocal;
+        else
+            return;
+
+        const QByteArray header = arg.mid(1, arg.size() - 2).trimmed();
+        if (client->resolveIncludeExists(FilePath::fromString(QString::fromUtf8(header)), mode))
+            _value.set_long(1);
     }
 
     Value process_expression_with_operator_precedence(const Value &lhs, int minPrecedence)
@@ -823,7 +877,10 @@ void Preprocessor::handleDefined(PPToken *tk)
 
     QByteArray result(1, '0');
     const ByteArrayRef macroName = idToken.asByteArrayRef();
-    if (macroDefinition(macroName,
+    if (macroName == "__has_include" || macroName == "__has_include_next") {
+        // do not report them as unknown
+        result[0] = '1';
+    } else if (macroDefinition(macroName,
                         idToken.byteOffset + m_state.m_bytesOffsetRef,
                         idToken.utf16charOffset + m_state.m_utf16charsOffsetRef,
                         idToken.lineno, m_env, m_client)) {

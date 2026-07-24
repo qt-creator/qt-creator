@@ -191,6 +191,16 @@ public:
 #endif
     }
 
+    bool resolveIncludeExists(const Utils::FilePath &includedFileName, IncludeType mode) override
+    {
+        QString resolved;
+        if (mode == IncludeLocal)
+            resolved = resolveLocally(m_env->currentFile, includedFileName.path());
+        else
+            resolved = resolveGlobally(includedFileName.path());
+        return !resolved.isEmpty();
+    }
+
     QString resolveLocally(const QString &currentFileName,
                            const QString &includedFileName) const
     {
@@ -349,6 +359,7 @@ private slots:
     void defined();
     void defined_data();
     void defined_usage();
+    void has_include();
     void empty_macro_args();
     void macro_args_count();
     void macro_args_offsets();
@@ -1203,6 +1214,39 @@ void tst_Preprocessor::defined_usage()
     QCOMPARE(definitionsResolvedFromLines["X"], QList<int>() << 3 << 7 << 17 << 19);
     QCOMPARE(definitionsResolvedFromLines["Y"], QList<int>() << 5 << 9 << 19);
     QCOMPARE(client.unresolvedDefines(), QSet<QByteArray>() << "ABSENT" << "ABSENT2" << "ABSENT3");
+}
+
+void tst_Preprocessor::has_include()
+{
+    QByteArray output;
+    Environment env;
+    MockClient client(&env, &output);
+    client.setIncludePaths({QLatin1String(SRCDIR) + "/data/include-data/global"});
+    Preprocessor pp(&client, &env);
+
+    // run with current file in "local" data directory - quoted includes are resolved relative to it
+    const QString currentFile =
+            QLatin1String(SRCDIR) + "/data/include-data/local/has_include_test.cpp";
+    const QByteArray source =
+            "#if __has_include(<global.h>)\n"
+            "#define HAS_GLOBAL\n"
+            "#endif\n"
+            "#if __has_include(\"header.h\")\n"
+            "#define HAS_LOCAL\n"
+            "#endif\n"
+            "#if !__has_include(<no_such_header_xyz.h>)\n"
+            "#define NO_MISSING\n"
+            "#endif\n"
+            "#if defined(__has_include)\n"
+            "#define HAS_OPERATOR\n"
+            "#endif\n";
+    pp.run(Utils::FilePath::fromString(currentFile), source, false, true);
+
+    const QList<QByteArray> expected =
+            QList<QByteArray>() << "HAS_GLOBAL" << "HAS_LOCAL" << "NO_MISSING" << "HAS_OPERATOR";
+    QCOMPARE(client.definedMacros(), expected);
+    // __has_include must not be reported as an unresolved macro
+    QVERIFY(!client.unresolvedDefines().contains("__has_include"));
 }
 
 void tst_Preprocessor::dont_eagerly_expand_data()

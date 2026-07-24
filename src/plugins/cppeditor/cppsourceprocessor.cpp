@@ -391,6 +391,15 @@ void CppSourceProcessor::stopSkippingBlocks(int utf16charsOffset)
         m_currentDoc->stopSkippingBlocks(utf16charsOffset);
 }
 
+bool CppSourceProcessor::resolveIncludeExists(const FilePath &filePath, IncludeType type)
+{
+    if (filePath.isEmpty())
+        return false;
+
+    const FilePath absoluteFilePath = resolveFile(filePath, type);
+    return !absoluteFilePath.isEmpty() && !absoluteFilePath.isDir();
+}
+
 void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, IncludeType type,
                                       const FilePaths &initialIncludes)
 {

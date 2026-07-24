@@ -74,6 +74,11 @@ public:
   virtual void sourceNeeded(int line, const Utils::FilePath &fileName, IncludeType mode,
                             const Utils::FilePaths &initialIncludes = {}) = 0;
 
+  /// returns whether \a fileName resolves to an existing file, using the same
+  /// header search as \c sourceNeeded but without reading or processing it
+  virtual bool resolveIncludeExists(const Utils::FilePath & /*fileName*/, IncludeType /*mode*/)
+  { return false; }
+
   static inline bool isInjectedFile(const Utils::FilePath &filePath)
   {
       const QStringView path = filePath.pathView();

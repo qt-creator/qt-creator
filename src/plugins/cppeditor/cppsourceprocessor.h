@@ -82,6 +82,7 @@ private:
     void stopSkippingBlocks(int utf16charsOffset) override;
     void sourceNeeded(int line, const Utils::FilePath &filePath, IncludeType type,
                       const Utils::FilePaths &initialIncludes) override;
+    bool resolveIncludeExists(const Utils::FilePath &filePath, IncludeType type) override;
 
 private:
     CPlusPlus::Snapshot m_snapshot;
