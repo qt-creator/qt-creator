@@ -11423,10 +11423,34 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
              return pattern.match(commonPrefix).hasMatch();
          };
 
+         // A quote that is closed on the line or followed by text opens a string
+         // or character literal, which is content even where consecutive lines
+         // start with one. Otherwise it is a comment leader, as in Vim script
+         // or Visual Basic. An apostrophe inside a word or an escaped quote
+         // does not close anything. A quote that opens a new quotation is not
+         // a closing one either.
+         const auto closesOnLine = [](const QString &line, qsizetype pos) {
+             const QChar quote = line.at(pos);
+             for (qsizetype j = line.indexOf(quote, pos + 1); j != -1;
+                  j = line.indexOf(quote, j + 1)) {
+                 const bool escaped = line.at(j - 1) == '\\';
+                 const bool before = line.at(j - 1).isLetterOrNumber();
+                 const bool after = j + 1 < line.size() && line.at(j + 1).isLetterOrNumber();
+                 if (escaped || (before && after))
+                     continue;
+                 if (after)
+                     return false;
+                 return true;
+             }
+             return false;
+         };
          for (int i = 0; i < maxLength; ++i) {
              const QChar ch = text.at(i);
+             const bool opensLiteral = (ch == '"' || ch == '\'')
+                     && (closesOnLine(text, i) || closesOnLine(nText, i)
+                         || (i + 1 < text.size() && !text.at(i + 1).isSpace()));
 
-             if (ch != nText[i] || ch.isLetterOrNumber()
+             if (ch != nText[i] || ch.isLetterOrNumber() || opensLiteral
                      || ((ch == '@' || ch == '\\' ) && hasDoxygenPrefix())) {
                  break;
              }

@@ -2514,6 +2514,50 @@ void RewrapParagraphTest::testRewrapParagraph_data()
            "aaaaaaaaa\n  *     bbbbbbbbb\n" << 0
         << "  * aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa "
            "aaaaaaaaa\n  * bbbbbbbbb\n";
+
+    // Lines that start with the same string literal keep their quotes.
+    QTest::newRow("quotesPreserved")
+        << "static constexpr auto enumNames[] = {\n\n"
+           "    \"EditClear\"_L1,\n    \"EditCopy\"_L1,\n    \"EditCut\"_L1,\n\n};" << 2
+        << "static constexpr auto enumNames[] = {\n\n"
+           "    \"EditClear\"_L1, \"EditCopy\"_L1, \"EditCut\"_L1,\n\n};";
+
+    // Quoted text in a comment keeps both the leader and the quotes.
+    QTest::newRow("quotesInComment")
+        << "// 'alpha' beta\n// 'gamma' delta\n" << 0
+        << "// 'alpha' beta 'gamma' delta\n";
+
+    // A leader that is not a C++ comment is still kept.
+    QTest::newRow("otherLeaderKept")
+        << "-- alpha beta\n-- gamma delta\n" << 0
+        << "-- alpha beta gamma delta\n";
+
+    // A quote followed by whitespace is a leader, as in Vim script.
+    QTest::newRow("quoteLeaderKept")
+        << "\" alpha beta\n\" gamma delta\n" << 0
+        << "\" alpha beta gamma delta\n";
+
+    // An apostrophe inside the text does not turn the leader into a literal.
+    QTest::newRow("quoteLeaderWithApostrophe")
+        << "' it's alpha\n' gamma it's delta\n" << 0
+        << "' it's alpha gamma it's delta\n";
+
+    // A quoted word in the comment does not close the leader.
+    QTest::newRow("quoteLeaderWithQuotedWord")
+        << "\" use \"foo\" here\n\" more text\n" << 0
+        << "\" use \"foo\" here more text\n";
+
+    // Literals that start with whitespace are not leaders.
+    QTest::newRow("literalsWithSpace")
+        << "const char *help =\n\n"
+           "    \" -a  enable a\\n\"\n    \" -b  enable b\\n\";\n" << 2
+        << "const char *help =\n\n"
+           "    \" -a enable a\\n\" \" -b enable b\\n\";\n";
+
+    // Plain indentation is kept.
+    QTest::newRow("indentationKept")
+        << "    alpha beta\n    gamma delta\n" << 0
+        << "    alpha beta gamma delta\n";
 }
 
 void RewrapParagraphTest::testRewrapParagraph()
