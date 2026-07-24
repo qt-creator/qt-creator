@@ -163,8 +163,8 @@ public:
     /*! Returns the amount of visible lines (in characters) in the editor */
     int rowCount() const;
 
-    /*! Returns the position at \a posOp in characters from the beginning of the document */
-    int position(TextPositionOperation posOp = CurrentPosition, int at = -1) const;
+    /*! Returns the position of the current main text cursor */
+    int position() const;
 
     /*! Converts the \a pos in characters from beginning of document to \a line and \a column */
     void convertPosition(int pos, int *line, int *column) const;
@@ -210,8 +210,7 @@ public:
     QByteArray saveState() const;
     virtual void restoreState(const QByteArray &state);
     void gotoLine(int line, int column = 0, bool centerLine = true, bool animate = false);
-    int position(TextPositionOperation posOp = CurrentPosition,
-         int at = -1) const;
+    int position() const;
     QTextCursor textCursorAt(int position) const;
     Utils::Text::Position lineColumn() const;
     void convertPosition(int pos, int *line, int *column) const;

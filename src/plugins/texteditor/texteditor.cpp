@@ -3660,35 +3660,9 @@ void TextEditorWidget::gotoLine(int line, int column, bool centerLine, bool anim
     d->saveCurrentCursorPositionForNavigation();
 }
 
-int TextEditorWidget::position(TextPositionOperation posOp, int at) const
+int TextEditorWidget::position() const
 {
-    QTextCursor tc = textCursor();
-
-    if (at != -1)
-        tc.setPosition(at);
-
-    if (posOp == CurrentPosition)
-        return tc.position();
-
-    switch (posOp) {
-    case EndOfLinePosition:
-        editorLayout()->moveCursor(tc, QTextCursor::EndOfLine);
-        return tc.position();
-    case StartOfLinePosition:
-        editorLayout()->moveCursor(tc, QTextCursor::StartOfLine);
-        return tc.position();
-    case AnchorPosition:
-        if (tc.hasSelection())
-            return tc.anchor();
-        break;
-    case EndOfDocPosition:
-        tc.movePosition(QTextCursor::End);
-        return tc.position();
-    default:
-        break;
-    }
-
-    return -1;
+    return textCursor().position();
 }
 
 QTextCursor TextEditorWidget::textCursorAt(int position) const
@@ -10292,9 +10266,9 @@ int BaseTextEditor::rowCount() const
     return editorWidget()->rowCount();
 }
 
-int BaseTextEditor::position(TextPositionOperation posOp, int at) const
+int BaseTextEditor::position() const
 {
-    return editorWidget()->position(posOp, at);
+    return editorWidget()->position();
 }
 
 void BaseTextEditor::convertPosition(int pos, int *line, int *column) const

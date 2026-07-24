@@ -12,16 +12,3 @@
 #else
 #  define TEXTEDITOR_EXPORT Q_DECL_IMPORT
 #endif
-
-namespace TextEditor {
-
-enum TextPositionOperation
-{
-    CurrentPosition = 1,
-    EndOfLinePosition = 2,
-    StartOfLinePosition = 3,
-    AnchorPosition = 4,
-    EndOfDocPosition = 5
-};
-
-} // namespace TextEditor
