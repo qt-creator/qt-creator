@@ -3,7 +3,7 @@
 
 #include "qmlprofilerattachdialog_test.h"
 
-#include "qmlprofilerattachdialog.h"
+#include "../qmlprofilerattachdialog.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
