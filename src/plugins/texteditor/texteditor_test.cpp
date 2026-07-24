@@ -289,6 +289,7 @@ void CleanWhitespaceTest::testCleanWhitespace_data()
     QTest::addColumn<QString>("fileName");
     QTest::addColumn<QString>("ignoreFileTypes");
     QTest::addColumn<bool>("skipTrailingWhitespace");
+    QTest::addColumn<int>("tabPolicy");
     QTest::addColumn<QString>("input");
     QTest::addColumn<QString>("expected");
     QTest::addColumn<bool>("modified"); // whether cleaning is expected to change the document
@@ -296,49 +297,66 @@ void CleanWhitespaceTest::testCleanWhitespace_data()
     const QString tabBlankTab = "\t \t";  // trailing whitespace, as in the Squish test
     const QString tripleTab = "\t\t\t";   // whitespace-only line, as in the Squish test
     const QString defaultIgnore = "*.md, *.MD, Makefile";
+    const int tabsOnly = TabSettingsData::TabsOnlyTabPolicy;
+    const int spacesOnly = TabSettingsData::SpacesOnlyTabPolicy;
 
     // A regular source file: trailing whitespace is stripped and the
     // whitespace-only line is emptied (the QTCREATORBUG-24565 scenario).
     QTest::newRow("regularFile")
-        << "main.cpp" << defaultIgnore << true
+        << "main.cpp" << defaultIgnore << true << tabsOnly
         << ("foo" + tabBlankTab + "\n" + tripleTab + "\nbar\n")
         << QString("foo\n\nbar\n") << true;
 
-    // A file matching the ignore list (*.md) keeps its trailing whitespace, but
-    // its indentation-only line is still cleaned: the ignore list only gates
-    // trailing-whitespace removal, not indentation cleaning. The Squish test only
-    // ever checked the trailing-whitespace half of this.
+    // A file matching the ignore list is left completely untouched: neither
+    // trailing whitespace nor indentation (here the whitespace-only line) is
+    // cleaned. "Skip clean whitespace for file types" skips all whitespace
+    // cleanup, not just trailing (QTCREATORBUG-32894).
     QTest::newRow("ignoredExtension")
-        << "notes.md" << defaultIgnore << true
+        << "notes.md" << defaultIgnore << true << tabsOnly
         << ("foo" + tabBlankTab + "\n" + tripleTab + "\nbar\n")
-        << ("foo" + tabBlankTab + "\n\nbar\n") << true;
+        << ("foo" + tabBlankTab + "\n" + tripleTab + "\nbar\n") << false;
 
     // The ignore list also matches plain file names without an extension. With
     // nothing left to clean, the document stays unmodified (Squish checked this
     // via the editor's "*" modification marker).
     QTest::newRow("ignoredName")
-        << "Makefile" << defaultIgnore << true
+        << "Makefile" << defaultIgnore << true << tabsOnly
         << ("foo" + tabBlankTab + "\n")
         << ("foo" + tabBlankTab + "\n") << false;
+
+    // A Makefile (on the ignore list) keeps its mandatory tab indentation even
+    // under a Spaces-Only policy that would otherwise rewrite it to spaces
+    // (QTCREATORBUG-32894).
+    QTest::newRow("makefileTabIndentIsKept")
+        << "Makefile" << defaultIgnore << true << spacesOnly
+        << QString("all:\n\tgcc foo.c\n")
+        << QString("all:\n\tgcc foo.c\n") << false;
+
+    // A regular file under a Spaces-Only policy: tab indentation IS rewritten to
+    // spaces (the counterpart to the Makefile case above).
+    QTest::newRow("regularFileTabIndentConverted")
+        << "main.cpp" << defaultIgnore << true << spacesOnly
+        << QString("void f()\n{\n\tint x;\n}\n")
+        << QString("void f()\n{\n    int x;\n}\n") << true;
 
     // With "skip trailing whitespace" disabled, trailing whitespace is trimmed
     // even for files on the ignore list (the counter-intuitive sense of the flag).
     QTest::newRow("alwaysTrimOverridesIgnoreList")
-        << "notes.md" << defaultIgnore << false
+        << "notes.md" << defaultIgnore << false << tabsOnly
         << ("foo" + tabBlankTab + "\n")
         << QString("foo\n") << true;
 
     // With a Tabs-Only policy, a tab-indented code line must keep its tab and
     // must not be rewritten to spaces (QTCREATORBUG-33670).
     QTest::newRow("tabIndentIsKept")
-        << "main.cpp" << defaultIgnore << true
+        << "main.cpp" << defaultIgnore << true << tabsOnly
         << QString("if (x)\n\tfoo();\n")
         << QString("if (x)\n\tfoo();\n") << false;
 
     // Nested tab indentation stays as tabs, not tab-plus-spaces
     // (QTCREATORBUG-33670).
     QTest::newRow("nestedTabIndentIsKept")
-        << "main.cpp" << defaultIgnore << true
+        << "main.cpp" << defaultIgnore << true << tabsOnly
         << QString("if (x)\n\tif (y)\n\t\tfoo();\n")
         << QString("if (x)\n\tif (y)\n\t\tfoo();\n") << false;
 }
@@ -348,6 +366,7 @@ void CleanWhitespaceTest::testCleanWhitespace()
     QFETCH(QString, fileName);
     QFETCH(QString, ignoreFileTypes);
     QFETCH(bool, skipTrailingWhitespace);
+    QFETCH(int, tabPolicy);
     QFETCH(QString, input);
     QFETCH(QString, expected);
     QFETCH(bool, modified);
@@ -365,7 +384,7 @@ void CleanWhitespaceTest::testCleanWhitespace()
     doc.setStorageSettings(settings);
 
     // Use a deterministic tab configuration instead of autodetection.
-    TabSettingsData tabSettings(TabSettingsData::TabsOnlyTabPolicy, 4, 4,
+    TabSettingsData tabSettings(TabSettingsData::TabPolicy(tabPolicy), 4, 4,
                                 TabSettingsData::ContinuationAlignWithSpaces);
     tabSettings.m_autoDetect = false;
     doc.setTabSettings(tabSettings);

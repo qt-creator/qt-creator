@@ -942,15 +942,21 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
     const IndentationForBlock &indentations
         = d->m_indenter->indentationForBlocks(blocks, currentTabSettings);
 
-    const bool cleanTrailingWhitespace = d->m_storageSettings.removeTrailingWhitespace(filePath().fileName());
+    // "Skip clean whitespace for file types" exempts matching files (e.g.
+    // Makefile) from all whitespace cleanup - both trailing-whitespace removal
+    // and indentation rewriting. The latter matters for Makefiles, whose tab
+    // indentation must be preserved (QTCREATORBUG-32894).
+    const bool cleanFileWhitespace
+        = d->m_storageSettings.removeTrailingWhitespace(filePath().fileName());
     for (const QTextBlock &block : std::as_const(blocks)) {
         QString blockText = block.text();
 
-        if (cleanTrailingWhitespace)
+        if (cleanFileWhitespace)
             removeTrailingWhitespace(block);
 
         const int indent = indentations[block.blockNumber()];
-        if (cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
+        if (cleanFileWhitespace && cleanIndentation
+                && !currentTabSettings.isIndentationClean(block, indent)) {
             cursor.setPosition(block.position());
             const int firstNonSpace = TabSettingsData::firstNonSpace(blockText);
             if (firstNonSpace == blockText.size()) {

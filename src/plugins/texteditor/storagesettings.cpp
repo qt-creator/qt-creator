@@ -62,7 +62,8 @@ StorageSettings::StorageSettings()
     skipTrailingWhitespace.setDefaultValue(true);
     skipTrailingWhitespace.setEnabled(false);
     skipTrailingWhitespace.setLabelText(Tr::tr("Skip clean whitespace for file types:"));
-    skipTrailingWhitespace.setToolTip(Tr::tr("For the file patterns listed, do not trim trailing whitespace."));
+    skipTrailingWhitespace.setToolTip(Tr::tr("For the file patterns listed, do not clean whitespace: "
+                                             "neither trailing whitespace nor indentation."));
 
     ignoreFileTypes.setSettingsKey("ignoreFileTypes");
     ignoreFileTypes.setDefaultValue("*.md, *.MD, Makefile");
