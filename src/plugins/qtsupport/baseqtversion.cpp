@@ -1838,9 +1838,10 @@ bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary,
         // This is required to make non-static qmakes work on windows where every tool chain
         // tries to be incompatible with any other.
         const Abis abiList = Abi::abisOfBinary(binary);
-        const Toolchains tcList = ToolchainManager::toolchains([&abiList](const Toolchain *t) {
-            return abiList.contains(t->targetAbi());
-        });
+        const Toolchains tcList = ToolchainManager::toolchains(
+            [&abiList, &binary](const Toolchain *t) {
+                return abiList.contains(t->targetAbi()) && t->isSameDevice(binary);
+            });
         for (Toolchain *tc : tcList) {
             Environment realEnv = env;
             tc->addToEnvironment(realEnv);
