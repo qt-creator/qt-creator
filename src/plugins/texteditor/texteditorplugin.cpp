@@ -287,20 +287,15 @@ void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettingsData &tabSet
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
     if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
-        const int pos = editor->position();
-        int anchor = editor->position(AnchorPosition);
-        if (anchor < 0) // no selection
-            anchor = pos;
-        int selectionLength = pos - anchor;
-        const bool selectionInTextDirection = selectionLength >= 0;
-        if (!selectionInTextDirection)
-            selectionLength = -selectionLength;
-        const int start = qMin(pos, anchor);
-        editor->setCursorPosition(start);
-        editor->replace(selectionLength, text);
-        const int replacementEnd = editor->position();
-        editor->setCursorPosition(selectionInTextDirection ? start : replacementEnd);
-        editor->select(selectionInTextDirection ? replacementEnd : start);
+        QTextCursor tc = editor->textCursor();
+        const int pos = tc.position();
+        const int anchor = tc.anchor();
+        const bool selectionInTextDirection = pos >= anchor;
+        tc.insertText(text);
+        const int newPos = tc.position();
+        tc.setPosition(selectionInTextDirection ? anchor : newPos);
+        tc.setPosition(selectionInTextDirection ? newPos : pos, QTextCursor::KeepAnchor);
+        editor->setTextCursor(tc);
     }
 }
 
