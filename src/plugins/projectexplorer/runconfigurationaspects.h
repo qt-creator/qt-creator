@@ -37,6 +37,10 @@ public:
 
     bool isUserSet() const;
 
+    // Used by MCP, mirroring what toggling the check box does.
+    QVariant variantValue() const override;
+    void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override;
+
     struct Data : BaseAspect::Data
     {
         bool useTerminal;

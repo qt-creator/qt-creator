@@ -140,6 +140,24 @@ void TerminalAspect::setUseTerminalHint(bool hint)
     calculateUseTerminal();
 }
 
+QVariant TerminalAspect::variantValue() const
+{
+    return m_useTerminal;
+}
+
+void TerminalAspect::setVariantValue(const QVariant &value, Announcement howToAnnounce)
+{
+    const bool useTerminal = value.toBool();
+    if (m_userSet && m_useTerminal == useTerminal)
+        return;
+    m_userSet = true;
+    m_useTerminal = useTerminal;
+    if (m_checkBox)
+        m_checkBox->setChecked(m_useTerminal);
+    if (howToAnnounce == DoEmit)
+        emit changed();
+}
+
 /*!
     Returns whether the user set the value.
 */
