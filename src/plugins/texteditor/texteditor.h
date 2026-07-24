@@ -164,23 +164,23 @@ public:
     int rowCount() const;
 
     /*! Returns the position at \a posOp in characters from the beginning of the document */
-    virtual int position(TextPositionOperation posOp = CurrentPosition, int at = -1) const;
+    int position(TextPositionOperation posOp = CurrentPosition, int at = -1) const;
 
     /*! Converts the \a pos in characters from beginning of document to \a line and \a column */
-    virtual void convertPosition(int pos, int *line, int *column) const;
+    void convertPosition(int pos, int *line, int *column) const;
 
-    virtual QString selectedText() const;
+    QString selectedText() const;
 
     /*! Removes \a length characters to the right of the cursor. */
-    virtual void remove(int length);
+    void remove(int length);
     /*! Inserts the given string to the right of the cursor. */
-    virtual void insert(const QString &string);
+    void insert(const QString &string);
     /*! Replaces \a length characters to the right of the cursor with the given string. */
-    virtual void replace(int length, const QString &string);
+    void replace(int length, const QString &string);
     /*! Sets current cursor position to \a pos. */
-    virtual void setCursorPosition(int pos);
+    void setCursorPosition(int pos);
     /*! Selects text between current cursor position and \a toPos. */
-    virtual void select(int toPos);
+    void select(int toPos);
 
 private:
     friend class TextEditorFactory;
