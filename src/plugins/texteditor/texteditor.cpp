@@ -10274,8 +10274,7 @@ int BaseTextEditor::currentLine() const
 
 int BaseTextEditor::currentColumn() const
 {
-    QTextCursor cursor = editorWidget()->textCursor();
-    return cursor.position() - cursor.block().position() + 1;
+    return editorWidget()->textCursor().positionInBlock() + 1;
 }
 
 void BaseTextEditor::gotoLine(int line, int column, bool centerLine)
