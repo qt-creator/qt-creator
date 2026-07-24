@@ -44,7 +44,7 @@ static QColor extractAnsiForeground(const QString &str)
             if (code == 38 && i + 1 < parts.size()) {
                 bool subOk;
                 uint subCode = parts.at(i + 1).toUInt(&subOk);
-                if (subOk && subCode == 2 && i + 4 <= parts.size()) {
+                if (subOk && subCode == 2 && i + 4 < parts.size()) {
                     return QColor(
                         parts.at(i + 2).toUInt(),
                         parts.at(i + 3).toUInt(),
