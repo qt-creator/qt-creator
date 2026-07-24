@@ -775,6 +775,11 @@ QSet<Id> Kit::availableFeatures() const
     return features;
 }
 
+QSet<Id> Kit::missingFeatures(const QSet<Id> &features) const
+{
+    return features - availableFeatures();
+}
+
 bool Kit::hasFeatures(const QSet<Id> &features) const
 {
     return availableFeatures().contains(features);

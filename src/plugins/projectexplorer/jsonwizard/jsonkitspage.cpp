@@ -33,21 +33,25 @@ void JsonKitsPage::initializePage()
 
     const Id platform = Id::fromString(wiz->stringValue(QLatin1String("Platform")));
     const QSet<Id> preferred
-            = evaluate(m_preferredFeatures, wiz->value(QLatin1String("PreferredFeatures")), wiz);
-    const QSet<Id> required = evaluate(m_requiredFeatures,
-                                       wiz->value(QLatin1String("RequiredFeatures")),
-                                       wiz);
+        = evaluate(m_preferredFeatures, wiz->value(QLatin1String("PreferredFeatures")), wiz);
+    const QSet<Id> required
+        = evaluate(m_requiredFeatures, wiz->value(QLatin1String("RequiredFeatures")), wiz);
 
     const FilePath projectFilePath = wiz->expander()->expand(
         Utils::FilePath::fromString(unexpandedProjectPath()));
     setTasksGenerator([required, preferred, platform, projectFilePath](const Kit *k) -> Tasks {
-        if (!k->hasFeatures(required))
-            return {CompileTask(Task::Error, Tr::tr("At least one required feature is not present."))};
+        if (const QSet<Id> missing = k->missingFeatures(required); !missing.isEmpty())
+            return {CompileTask(
+                Task::Error,
+                Tr::tr("At least one required feature is not present: %1.")
+                    .arg(Id::toStringList(missing).join(", ")))};
         if (platform.isValid() && !k->supportedPlatforms().contains(platform))
             return {CompileTask(Task::Unknown, Tr::tr("Platform is not supported."))};
-        if (!k->hasFeatures(preferred))
-            return {
-                CompileTask(Task::Unknown, Tr::tr("At least one preferred feature is not present."))};
+        if (const QSet<Id> missing = k->missingFeatures(preferred); !missing.isEmpty())
+            return {CompileTask(
+                Task::Unknown,
+                Tr::tr("At least one preferred feature is not present: %1.")
+                    .arg(Id::toStringList(missing).join(", ")))};
         if (const Task t = Project::checkBuildDevice(k, projectFilePath); !t.isNull())
             return {t};
         if (const auto issuesGenerator = ProjectManager::getIssuesGenerator(projectFilePath))

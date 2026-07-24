@@ -138,6 +138,7 @@ public:
 
     QSet<Utils::Id> supportedPlatforms() const;
     QSet<Utils::Id> availableFeatures() const;
+    QSet<Utils::Id> missingFeatures(const QSet<Utils::Id> &features) const;
     bool hasFeatures(const QSet<Utils::Id> &features) const;
     Utils::MacroExpander *macroExpander() const;
 
