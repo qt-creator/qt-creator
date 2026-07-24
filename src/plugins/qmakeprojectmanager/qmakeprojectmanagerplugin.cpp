@@ -242,17 +242,14 @@ void QmakeProjectManagerPluginPrivate::addLibraryImpl(const FilePath &filePath, 
     if (!editor)
         return;
 
-    const int endOfDoc = editor->position(EndOfDocPosition);
-    editor->setCursorPosition(endOfDoc);
     QString snippet = wizard.snippet();
 
-    // add extra \n in case the last line is not empty
-    int line, column;
-    editor->convertPosition(endOfDoc, &line, &column);
-    if (!editor->textAt(endOfDoc - column, column).simplified().isEmpty())
+    QTextCursor tc = editor->textCursor();
+    tc.movePosition(QTextCursor::End);
+    if (!tc.atBlockStart()) // add extra \n in case the last line is not empty
         snippet = QLatin1Char('\n') + snippet;
-
-    editor->insert(snippet);
+    tc.insertText(snippet);
+    editor->setTextCursor(tc);
 }
 
 void QmakeProjectManagerPluginPrivate::runQMake()
