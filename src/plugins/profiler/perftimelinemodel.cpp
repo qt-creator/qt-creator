@@ -79,7 +79,7 @@ Timeline::RowLabels PerfTimelineModel::labels() const
     return result;
 }
 
-QString prettyPrintTraceData(const QVariant &data)
+static QString prettyPrintTraceData(const QVariant &data)
 {
     switch (data.typeId()) {
     case QMetaType::ULongLong:
@@ -97,7 +97,7 @@ QString prettyPrintTraceData(const QVariant &data)
     }
 }
 
-QString prettyPrintMemory(qint64 amount)
+static QString prettyPrintMemory(qint64 amount)
 {
     const qint64 absAmount = qAbs(amount);
 

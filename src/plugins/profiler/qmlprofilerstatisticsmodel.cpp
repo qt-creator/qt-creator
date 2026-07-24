@@ -19,7 +19,7 @@ using namespace QmlDebug;
 
 namespace Profiler::Internal {
 
-QString nameForType(RangeType typeNumber)
+static QString nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
     case Painting: return Tr::tr("Painting");
@@ -493,13 +493,7 @@ QmlProfilerStatisticsRelativesModel::QmlProfilerStatisticsRelativesModel(
             this, &QmlProfilerStatisticsRelativesModel::typeDetailsChanged);
 }
 
-bool operator<(const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &a,
-               const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &b)
-{
-    return a.typeIndex < b.typeIndex;
-}
-
-bool operator<(const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &a,
+static bool operator<(const QmlProfilerStatisticsRelativesModel::QmlStatisticsRelativesData &a,
                int typeIndex)
 {
     return a.typeIndex < typeIndex;

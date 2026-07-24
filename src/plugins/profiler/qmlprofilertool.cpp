@@ -742,7 +742,7 @@ void QmlProfilerTool::clientsDisconnected()
     }
 }
 
-void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enabledFeatures)
+static void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enabledFeatures)
 {
     QAction *action =
             menu->addAction(Tr::tr(QmlProfilerModelManager::featureName(feature)));
