@@ -7,12 +7,15 @@
 #include "coreplugintr.h"
 
 #include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QJSEngine>
-#include <QMutexLocker>
 #include <QRecursiveMutex>
+#include <QThread>
+#include <QTimer>
 
+#include <chrono>
 #include <unordered_map>
 
 using ExtensionMap = std::unordered_map<QString, Core::JsExpander::ObjectFactory>;
@@ -23,6 +26,77 @@ static Core::JsExpander *globalExpander = nullptr;
 namespace Core {
 namespace Internal {
 
+// Guards QJSEngine::evaluate() calls against never-ending scripts. watch() must be called right
+// before evaluate() and unwatch() right after it returns. Calls may nest (e.g. a JS extension
+// object implicitly triggering another %{JS:...} macro expansion), so only the outermost watch()/
+// unwatch() pair actually starts/stops the guard. If the evaluate() call doesn't
+// finish within evalTimeout, the engine is interrupted. The watchdog thread is started on demand
+// by the first watch() call.
+class JsEngineWatchdog : public QThread
+{
+public:
+    JsEngineWatchdog()
+    {
+        setObjectName("JsEngineWatchdog");
+        m_evalTimer.setSingleShot(true);
+        m_evalTimer.setInterval(s_evalTimeout);
+        connect(&m_evalTimer, &QTimer::timeout, &m_evalTimer, [this] {
+            if (m_engine)
+                m_engine->setInterrupted(true);
+        });
+        m_evalTimer.moveToThread(this);
+    }
+
+    ~JsEngineWatchdog() override
+    {
+        quit();
+        wait();
+    }
+
+    void watch(QJSEngine *engine)
+    {
+        if (m_depth++ > 0)
+            return; // Nested call, the outer guard is already running.
+        // Un-interrupt the engine from a previous timeout. Only done for the outermost call, so
+        // that this can't undo an interruption of an evaluate() this call is nested in.
+        engine->setInterrupted(false);
+        if (!isRunning())
+            start();
+        // use timer for thread-affinity, since JsEngineWatchdog itself "lives" in the main thread
+        QMetaObject::invokeMethod(
+            &m_evalTimer, [this, engine] { startWatching(engine); }, Qt::QueuedConnection);
+    }
+
+    void unwatch()
+    {
+        QTC_ASSERT(m_depth > 0, return); // unwatch() without a matching watch()
+        if (--m_depth > 0)
+            return; // Still inside an outer evaluate() call.
+        // use timer for thread-affinity, since JsEngineWatchdog itself "lives" in the main thread
+        QMetaObject::invokeMethod(&m_evalTimer, [this] { stopWatching(); }, Qt::QueuedConnection);
+    }
+
+private:
+    // The following two run in the watchdog thread.
+    void startWatching(QJSEngine *engine)
+    {
+        m_engine = engine;
+        m_evalTimer.start();
+    }
+
+    void stopWatching()
+    {
+        m_evalTimer.stop();
+        m_engine = nullptr;
+    }
+
+    static constexpr std::chrono::milliseconds s_evalTimeout{200};
+
+    int m_depth = 0;
+    QTimer m_evalTimer;
+    QJSEngine *m_engine = nullptr;
+};
+
 class JsExpanderPrivate {
 public:
     QJSEngine m_engine;
@@ -30,6 +104,7 @@ public:
     // evaluated from many threads (e.g. async project/code model updates).
     // Serialize all engine access; recursive to allow nested %{JS:...}.
     QRecursiveMutex m_mutex;
+    JsEngineWatchdog m_watchdog;
 };
 
 } // namespace Internal
@@ -51,7 +126,9 @@ void JsExpander::registerObject(const QString &name, QObject *obj)
 QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
 {
     QMutexLocker locker(&d->m_mutex);
+    d->m_watchdog.watch(&d->m_engine);
     QJSValue value = d->m_engine.evaluate(expression);
+    d->m_watchdog.unwatch();
     if (value.isError()) {
         const QString msg = Tr::tr("Error in \"%1\": %2").arg(expression, value.toString());
         if (errorMessage)
