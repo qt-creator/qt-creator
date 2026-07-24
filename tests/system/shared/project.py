@@ -260,7 +260,9 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
             path = os.path.abspath(path)
         path = os.path.join(path, projectName)
         expectedFiles = [path]
-        expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, projectFile]))
+        filenames = ["main.cpp", cpp_file, h_file, ui_file, projectFile]
+        filenames.sort()
+        expectedFiles.extend(filenames)
     __createProjectHandleLastPage__(expectedFiles, addToVersionControl)
 
     waitForProjectParsing()
@@ -296,7 +298,9 @@ def createProject_Qt_Console(path, projectName, checks = True, buildSystem = Non
         cpp_file = "main.cpp"
         projectFile = __getProjectFileName__(projectName, buildSystem)
         expectedFiles = [path]
-        expectedFiles.extend(__sortFilenamesOSDependent__([cpp_file, projectFile]))
+        filenames = [cpp_file, projectFile]
+        filenames.sort()
+        expectedFiles.extend(filenames)
     __createProjectHandleLastPage__(expectedFiles)
 
     waitForProjectParsing()
@@ -612,13 +616,6 @@ def copyFilesToDir(files, targetDir):
         shutil.copyfile(filepath, dst)
         result.append(dst)
     return result
-
-def __sortFilenamesOSDependent__(filenames):
-    if platform.system() in ('Windows', 'Microsoft', 'Darwin'):
-        filenames.sort(key=str.lower)
-    else:
-        filenames.sort()
-    return filenames
 
 def __iterateChildren__(model, parent, nestingLevel=0):
     children = []
