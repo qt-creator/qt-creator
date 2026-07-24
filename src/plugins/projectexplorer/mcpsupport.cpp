@@ -1310,6 +1310,18 @@ void registerMcpTools()
                 QJsonObject{
                     {"type", "string"},
                     {"description", "Collected output from the run (present on success)"}})
+            .addProperty(
+                "exitCode",
+                QJsonObject{
+                    {"type", "integer"},
+                    {"description",
+                     "Process exit code, when the run produced one. Absent if it crashed or "
+                     "terminated abnormally (e.g. a failing terminal launch)."}})
+            .addProperty(
+                "succeeded",
+                QJsonObject{
+                    {"type", "boolean"},
+                    {"description", "True if the run finished with exit code 0."}})
             .addProperty("issues", issuesField);
     }();
 
@@ -1333,6 +1345,7 @@ void registerMcpTools()
                 bool finished = false;
                 QJsonObject failureIssues;
                 QPointer<RunControl> rc;
+                std::optional<int> exitCode;
             };
             auto state = std::make_shared<State>();
 
@@ -1357,8 +1370,11 @@ void registerMcpTools()
                     if (!state->failureIssues.isEmpty())
                         return CallToolResult{}.isError(true).structuredContent(
                             QJsonObject{{"issues", state->failureIssues}});
-                    return CallToolResult{}.isError(false).structuredContent(
-                        QJsonObject{{"output", state->output.join('\n')}});
+                    QJsonObject out{{"output", state->output.join('\n')}};
+                    if (state->exitCode)
+                        out["exitCode"] = *state->exitCode;
+                    out["succeeded"] = state->exitCode.has_value() && *state->exitCode == 0;
+                    return CallToolResult{}.isError(false).structuredContent(out);
                 },
                 [state]() {
                     if (state->rc)
@@ -1381,7 +1397,7 @@ void registerMcpTools()
                 ProjectExplorerPlugin::instance(),
                 &ProjectExplorerPlugin::runControlStarted,
                 ProjectExplorerPlugin::instance(),
-                [state, notify, rcStartedConn, runMode, finishedMessage](RunControl *rc) {
+                [state, notify, rcStartedConn, runMode](RunControl *rc) {
                     if (rc->runMode() != runMode)
                         return;
                     QObject::disconnect(*rcStartedConn);
@@ -1398,16 +1414,31 @@ void registerMcpTools()
                             if (notify)
                                 notify(Schema::TaskStatus::working, trimmed, std::nullopt);
                         });
-                    QObject::connect(
-                        rc,
-                        &RunControl::stopped,
-                        rc,
-                        [state, notify, finishedMessage]() {
-                            state->finished = true;
-                            if (notify)
-                                notify(Schema::TaskStatus::completed, finishedMessage, std::nullopt);
-                        },
-                        Qt::SingleShotConnection);
+                });
+
+            // Complete on stop even if the run never reached started(): a run
+            // that fails during startup (e.g. a broken terminal whose stub never
+            // connects) goes straight to stopped without emitting started(), so
+            // runControlStarted never fires. runControlStoped fires on stop
+            // regardless, so it is the reliable completion signal.
+            auto rcStoppedConn = std::make_shared<QMetaObject::Connection>();
+            *rcStoppedConn = QObject::connect(
+                ProjectExplorerPlugin::instance(),
+                &ProjectExplorerPlugin::runControlStoped,
+                ProjectExplorerPlugin::instance(),
+                [state, notify, rcStartedConn, rcStoppedConn, runMode, finishedMessage](
+                    RunControl *rc) {
+                    if (state->finished || rc->runMode() != runMode)
+                        return;
+                    if (state->rc && state->rc != rc)
+                        return;
+                    QObject::disconnect(*rcStartedConn);
+                    QObject::disconnect(*rcStoppedConn);
+                    state->rc = rc;
+                    state->finished = true;
+                    state->exitCode = rc->lastExitCode();
+                    if (notify)
+                        notify(Schema::TaskStatus::completed, finishedMessage, std::nullopt);
                 });
 
             QObject::connect(
@@ -1444,7 +1475,9 @@ void registerMcpTools()
             .description(
                 "Runs the current startup project and waits for it to finish. "
                 "Progress messages from the application are streamed during execution. "
-                "On success, returns the full output. "
+                "On success, returns the full output plus the run outcome: exitCode (absent "
+                "if the process crashed or the terminal launch failed) and succeeded (exit "
+                "code 0). "
                 "On build failure, returns isError=true with structured content in the same "
                 "format as list_issues (issues array + summary). "
                 "Returns an error if there is no startup project, no active build configuration, "
