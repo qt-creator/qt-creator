@@ -75,6 +75,7 @@ const char patchOption[] = "--patch";
 const char graphOption[] = "--graph";
 const char decorateOption[] = "--decorate";
 const char allBranchesOption[] = "--all";
+const char followOption[] = "--follow";
 static const char gitIgnoreFile[] = ".gitignore";
 
 static const char gitGuiEncoding[] = "gui.encoding";
@@ -742,7 +743,7 @@ public:
 
         if (fileRelated) {
             QAction *followButton = addToggleButton(
-                        "--follow", Tr::tr("Follow"),
+                        followOption, Tr::tr("Follow"),
                         Tr::tr("Show log also for previous names of the file."));
             mapSetting(followButton, &settings().followRenames);
         }
@@ -1569,9 +1570,13 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
         editor->setHighlightingEnabled(false);
     }
 
-    // remove "all branches" option when "log for line" is requested as they conflict
-    if (Utils::anyOf(arguments, [](const QString &arg) { return arg.startsWith("-L "); }))
+    // remove conflicting "all branches" and "follow" options when "log for line" is requested
+    const bool isLogForLine =
+        Utils::anyOf(arguments, [](const QString &arg) { return arg.startsWith("-L "); });
+    if (isLogForLine) {
         arguments.removeAll(allBranchesOption);
+        arguments.removeAll(followOption);
+    }
 
     if (!arguments.contains(graphOption) && !arguments.contains(patchOption))
         arguments << normalLogArguments();
@@ -1591,7 +1596,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     if (!editor->caseSensitive())
         arguments << "-i";
 
-    if (!fileName.isEmpty())
+    if (!fileName.isEmpty() && !isLogForLine)
         arguments << "--" << fileName;
 
     executeInEditor(workingDir, arguments, editor);

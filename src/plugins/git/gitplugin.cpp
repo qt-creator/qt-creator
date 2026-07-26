@@ -1200,7 +1200,7 @@ void GitPluginPrivate::logSelection()
     lines.append("--no-patch");
 
     qCDebug(log) << "logSelection" << lines;
-    gitClient().log(state.currentFileTopLevel(), {}, true, lines);
+    gitClient().log(state.currentFileTopLevel(), state.relativeCurrentFile(), true, lines);
 }
 
 void GitPluginPrivate::blameFile()
