@@ -614,6 +614,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     };
 
     const auto onDiffSetup = [this, id](Process &process) {
+        process.setEncoding(VcsBaseEditor::getEncoding(workingDirectory(), {}));
         setupCommand(process, addConfigurationArguments(
                                   {"show", "--format=format:", // omit header, already generated
                                    noColorOption, decorateOption, id}));
