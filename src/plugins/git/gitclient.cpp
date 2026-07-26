@@ -65,17 +65,17 @@
 #include <QTimer>
 #include <QToolBar>
 
-const char HEAD[] = "HEAD";
-const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
-const char BRANCHES_PREFIX[] = "Branches: ";
-const char stashNamePrefix[] = "stash@{";
-const char noColorOption[] = "--no-color";
-const char colorOption[] = "--color=always";
-const char patchOption[] = "--patch";
-const char graphOption[] = "--graph";
-const char decorateOption[] = "--decorate";
-const char allBranchesOption[] = "--all";
-const char followOption[] = "--follow";
+static const char HEAD[] = "HEAD";
+static const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
+static const char BRANCHES_PREFIX[] = "Branches: ";
+static const char stashNamePrefix[] = "stash@{";
+static const char noColorOption[] = "--no-color";
+static const char colorOption[] = "--color=always";
+static const char patchOption[] = "--patch";
+static const char graphOption[] = "--graph";
+static const char decorateOption[] = "--decorate";
+static const char allBranchesOption[] = "--all";
+static const char followOption[] = "--follow";
 static const char gitIgnoreFile[] = ".gitignore";
 
 static const char gitGuiEncoding[] = "gui.encoding";
