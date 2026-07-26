@@ -162,8 +162,6 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     const int fileIndex = m_data.fileIndexForBlockNumber(blockNumber);
     const int chunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber);
 
-    const ChunkData chunkData = m_controller.chunkData(fileIndex, chunkIndex);
-
     QList<int> leftSelection, rightSelection;
 
     for (int i = startBlockNumber; i <= endBlockNumber; ++i) {
