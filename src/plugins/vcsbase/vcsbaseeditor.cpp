@@ -1290,10 +1290,15 @@ static TextEncoding findFileCodec(const FilePath &source)
 // Find the codec by checking the projects (root dir of project file)
 static TextEncoding findProjectEncoding(const FilePath &dirPath)
 {
-    // Try to find a project under which file tree the file is.
+    // Try to find a project under whose file tree dirPath is located. A plain
+    // equality check would only match when dirPath is exactly the project root,
+    // missing files in subdirectories and repositories whose working directory
+    // differs from the project directory.
     const auto projects = ProjectExplorer::ProjectManager::projects();
-    const auto *p
-        = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
+    const auto *p = findOrDefault(projects, [&dirPath](const ProjectExplorer::Project *p) {
+        const FilePath projectDir = p->projectDirectory();
+        return dirPath == projectDir || dirPath.isChildOf(projectDir);
+    });
     return p ? p->editorConfiguration()->textEncoding() : TextEncoding();
 }
 
