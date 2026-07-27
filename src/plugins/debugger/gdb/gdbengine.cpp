@@ -1834,8 +1834,6 @@ bool GdbEngine::hasCapability(unsigned cap) const
                   | WatchWidgetsCapability
                   | CatchCapability
                   | RunToLineCapability
-                  | MemoryAddressCapability
-                  | AdditionalQmlStackCapability
                   | ResetInferiorCapability
                   | SnapshotCapability
                   | ReverseSteppingCapability);
