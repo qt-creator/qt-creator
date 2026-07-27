@@ -5056,6 +5056,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             moveLeft();
     } else if (input.isControl(Key_BracketRight)) {
         q->tagJumpRequested();
+    } else if (input.is('K')) {
+        q->contextHelpRequested();
     } else if (handleMovement(input)) {
         // movement handled
         dotCommand.clear();

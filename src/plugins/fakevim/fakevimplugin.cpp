@@ -1907,6 +1907,11 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         tagStackMove(handler, distance);
     });
 
+    handler->contextHelpRequested.set([] {
+        // Help::Constants::CONTEXT_HELP, by id to avoid a Help-plugin dependency.
+        triggerAction("Help.Context");
+    });
+
     handler->navigateHistoryRequested.set([](int distance) {
         for (int i = 0, n = qAbs(distance); i < n; ++i) {
             if (distance < 0)

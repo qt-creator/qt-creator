@@ -199,6 +199,7 @@ private slots:
     void test_vim_control_modifier();
     void test_vim_tabstop_distance();
     void test_vim_goto_definition();
+    void test_vim_context_help();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
     void test_vim_use_editor_tab_settings();
@@ -5481,6 +5482,18 @@ void FakeVimTester::test_vim_goto_definition()
     bool requested = false;
     data.handler->tagJumpRequested.set([&] { requested = true; });
     data.doKeys("gd");
+    QVERIFY(requested);
+}
+
+void FakeVimTester::test_vim_context_help()
+{
+    // K requests context help for the symbol under the cursor (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    data.setText("ab|c");
+    bool requested = false;
+    data.handler->contextHelpRequested.set([&] { requested = true; });
+    data.doKeys("K");
     QVERIFY(requested);
 }
 
