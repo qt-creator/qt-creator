@@ -16,7 +16,10 @@
 #include <cplusplus/TypePrettyPrinter.h>
 
 #ifdef WITH_TESTS
+#include "cpptoolsreuse.h"
+#include <utils/textutils.h>
 #include <QTest>
+#include <QTextDocument>
 #endif // WITH_TESTS
 
 using namespace CPlusPlus;
@@ -349,6 +352,18 @@ void FunctionUtilsTest::testVirtualFunctions_data()
             << (VirtualityList() << Virtuality::NotVirtual << Virtuality::Virtual
                 << Virtuality::Virtual)
             << (QList<int>() << -1 << 1 << 1);
+}
+
+void FunctionUtilsTest::testSymbolOccurrencesEmptyName()
+{
+    // QTCREATORBUG-30086: an empty symbol name (as can happen transiently
+    // during a rename) must not spin forever in symbolOccurrencesInText().
+    QTextDocument doc;
+    doc.setPlainText("value = value + value;");
+    const QString text = doc.toPlainText();
+    const QList<Utils::Text::Range> ranges
+        = symbolOccurrencesInText(doc, QStringView(text), 0, QString());
+    QVERIFY(ranges.isEmpty());
 }
 
 } // namespace CppEditor::Internal

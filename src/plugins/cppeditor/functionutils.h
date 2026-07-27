@@ -41,6 +41,7 @@ class FunctionUtilsTest : public QObject
 private slots:
     void testVirtualFunctions();
     void testVirtualFunctions_data();
+    void testSymbolOccurrencesEmptyName();
 };
 #endif // WITH_TESTS
 
