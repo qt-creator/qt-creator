@@ -2228,6 +2228,58 @@ private slots:
         // keeps finding matches instead of getting stuck or crashing.
         QCOMPARE(foundCount, 4 * offsets.size());
     }
+
+    // QTCREATORBUG-12996: Find in a debugger memory view (a lazily backed
+    // region, not a preloaded file) flooded the debugger with repeated
+    // -data-read-memory calls. Drive the same fetch API the MemoryAgent uses
+    // and verify each memory block is fetched at most once.
+    void testFindDoesNotRefetchMemory()
+    {
+        const int blockSize = 4096;
+        const qint64 blocks = 1024; // 4 MB region, spanning several SearchStrides.
+        const qint64 size = qint64(blockSize) * blocks;
+
+        // The "device memory": needle placed in the last block, so a forward
+        // search must scan the whole region.
+        const QByteArray needle = "NEEDLE";
+        QByteArray mem(size, '\0');
+        const qint64 needlePos = size - blockSize + 100;
+        mem.replace(needlePos, needle.size(), needle);
+
+        auto document = std::make_shared<BinEditorDocument>();
+        document->setSizes(0, size, blockSize);
+
+        // Mimic the debugger: on a fetch request, count it per address and
+        // deliver the block synchronously.
+        QMap<quint64, int> fetchCount;
+        document->m_fetchDataHandler = [&](quint64 addr) {
+            ++fetchCount[addr];
+            document->addData(addr, mem.mid(qint64(addr), blockSize));
+        };
+
+        BinEditorWidget widget(document);
+        BinEditorFind finder(&widget);
+
+        // Drive "Find Next" until the needle is found (crossing several
+        // strides), the same way the find toolbar re-invokes on NotYetFound.
+        int steps = 0;
+        IFindSupport::Result r = IFindSupport::NotYetFound;
+        while (r == IFindSupport::NotYetFound && steps < 1000) {
+            r = finder.findStep(QString::fromLatin1(needle), {});
+            ++steps;
+        }
+        QCOMPARE(r, IFindSupport::Found);
+
+        // Re-search over now-cached data a few times: must not re-fetch.
+        for (int i = 0; i < 5; ++i)
+            widget.find(needle, 0, {});
+
+        QVERIFY(!fetchCount.isEmpty()); // The region really was lazily backed.
+        int maxFetches = 0;
+        for (int c : std::as_const(fetchCount))
+            maxFetches = qMax(maxFetches, c);
+        QCOMPARE(maxFetches, 1); // No block fetched twice: no flood.
+    }
 };
 
 #endif // WITH_TESTS
