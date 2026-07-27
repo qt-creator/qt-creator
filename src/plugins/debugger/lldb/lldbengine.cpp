@@ -89,8 +89,19 @@ LldbEngine::LldbEngine()
 
 void LldbEngine::executeDebuggerCommand(const QString &command)
 {
+    // Unlike gdb, needs its own callback: gdb's MI console-stream output
+    // reaches handleResponse() regardless of any callback, but lldbbridge.py
+    // only reports this command's result via its own reply.
     DebuggerCommand cmd("executeDebuggerCommand");
     cmd.arg("command", command);
+    cmd.callback = [this](const DebuggerResponse &response) {
+        const QString output = response.data["output"].data();
+        if (!output.isEmpty())
+            showMessage(output, LogOutput);
+        const QString error = response.data["error"].data();
+        if (!error.isEmpty())
+            showMessage(error, LogError);
+    };
     runCommand(cmd);
 }
 

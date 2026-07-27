@@ -2372,7 +2372,12 @@ class Dumper(DumperBase):
     def executeDebuggerCommand(self, args):
         self.reportToken(args)
         command = args['command']
-        self.runDebuggerCommand(command)
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(command, result)
+        if result.Succeeded():
+            self.reportResult('output="%s"' % toCString(result.GetOutput()), args)
+        else:
+            self.reportResult('error="%s"' % toCString(result.GetError()), args)
 
     def executeRoundtrip(self, args):
         self.reportResult('', args)
