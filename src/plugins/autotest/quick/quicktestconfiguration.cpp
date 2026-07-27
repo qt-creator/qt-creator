@@ -30,7 +30,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
 {
     // temporary workaround - options end up in devicectl and fail - QTCREATORBUG-34802
     if (runsOnIosDevice())
-        return testCases().isEmpty() ? QStringList{} : testCases();
+        return testCases().isEmpty() ? QStringList{} : QTestUtils::quoteIfNeeded(testCases(), isDebugRunMode());
 
     QStringList arguments;
     if (testSettings().processArgs()) {
@@ -46,7 +46,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
         arguments << "-o" << "-,txt";
 
     if (!testCases().isEmpty())
-        arguments << testCases();
+        arguments << QTestUtils::quoteIfNeeded(testCases(), isDebugRunMode());
 
     const QString &metricsOption = QtTestFramework::metricsTypeToOption(MetricsType(qtSettings.metrics()));
     if (!metricsOption.isEmpty())

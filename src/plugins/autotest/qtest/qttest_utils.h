@@ -32,6 +32,8 @@ QMultiHash<Utils::FilePath, Utils::FilePath> alternativeFiles(ITestFramework *fr
 QStringList filterInterfering(const QStringList &provided, QStringList *omitted, bool isQuickTest);
 Utils::Environment prepareBasicEnvironment(const Utils::Environment &env);
 
+QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode);
+
 } // namespace QTestUtils
 } // namespace Internal
 } // namespace Autotest

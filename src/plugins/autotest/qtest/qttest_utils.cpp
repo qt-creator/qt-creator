@@ -166,4 +166,14 @@ Environment prepareBasicEnvironment(const Environment &env)
     return result;
 }
 
+QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
+{
+    if (debugMode)
+        return testCases;
+
+    return Utils::transform(testCases, [](const QString &testCase){
+        return testCase.contains(' ') ? '"' + testCase + '"' : testCase;
+    });
+}
+
 } // namespace Autotest::Internal::QTestUtils

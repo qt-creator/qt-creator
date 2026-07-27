@@ -15,16 +15,6 @@ using namespace Utils;
 
 namespace Autotest::Internal {
 
-static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
-{
-    if (debugMode)
-        return testCases;
-
-    return Utils::transform(testCases, [](const QString &testCase){
-        return testCase.contains(' ') ? '"' + testCase + '"' : testCase;
-    });
-}
-
 TestOutputReader *QtTestConfiguration::createOutputReader(Process *app) const
 {
     const QtTestOutputReader::OutputMode mode
@@ -37,7 +27,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
 {
     // temporary workaround - options end up in devicectl and fail - QTCREATORBUG-34802
     if (runsOnIosDevice())
-        return testCases().isEmpty() ? QStringList{} : quoteIfNeeded(testCases(), isDebugRunMode());
+        return testCases().isEmpty() ? QStringList{} : QTestUtils::quoteIfNeeded(testCases(), isDebugRunMode());
 
     QStringList arguments;
     if (testSettings().processArgs()) {
@@ -52,7 +42,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
         arguments << "-o" << "-,txt";
 
     if (!testCases().isEmpty())
-        arguments << quoteIfNeeded(testCases(), isDebugRunMode());
+        arguments << QTestUtils::quoteIfNeeded(testCases(), isDebugRunMode());
 
     const QString metricsOption = QtTestFramework::metricsTypeToOption(MetricsType(qtSettings.metrics()));
     if (!metricsOption.isEmpty())
