@@ -199,11 +199,30 @@ static ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const
         process->setTerminalMode(TerminalMode::Debug);
         process->setRunData(stub);
 
+        auto started = std::make_shared<bool>(false);
         QObject::connect(process, &Process::started, process,
-                         [runParameters = &runParameters, process, barrier = barrier.activeStorage()] {
+                         [runParameters = &runParameters, process, barrier = barrier.activeStorage(),
+                          started] {
+            *started = true;
             runParameters->setApplicationPid(process->processId());
             runParameters->setApplicationMainThreadId(process->applicationMainThreadId());
             barrier->advance();
+        });
+
+        // A terminal that fails to start (e.g. a broken terminal emulator that
+        // never provides a pty) emits done without a preceding started. Report
+        // the error and fail the barrier so the launch aborts cleanly instead
+        // of hanging at "Launching Debugger". QTCREATORBUG-13208.
+        QObject::connect(process, &Process::done, process,
+                         [process, barrier = barrier.activeStorage(),
+                          runControl = storage->runControl, started] {
+            if (*started)
+                return;
+            const QString error = process->errorString();
+            runControl->postMessage(
+                error.isEmpty() ? Tr::tr("The terminal process failed to start.") : error,
+                ErrorMessageFormat);
+            barrier->stopWithResult(DoneResult::Error);
         });
 
         EnginesDriver *driver = &storage->enginesDriver;
