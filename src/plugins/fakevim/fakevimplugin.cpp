@@ -2209,10 +2209,24 @@ void FakeVimPlugin::handleDelayedQuit(bool forced, IEditor *editor)
 {
     // This tries to simulate vim behaviour. But the models of vim and
     // Qt Creator core do not match well...
-    if (EditorManager::hasSplitter())
+    if (EditorManager::hasSplitter()) {
+        // Removing the split does not ask about unsaved changes. Like vim,
+        // refuse to drop the last view of a modified document unless forced
+        // (:q!), so the changes are not silently left behind
+        // (QTCREATORBUG-32757). The no-splitter branch already prompts.
+        IDocument *doc = editor ? editor->document() : nullptr;
+        if (!forced && doc && doc->isModified()
+                && DocumentModel::editorsForDocument(doc).size() <= 1) {
+            if (FakeVimHandler *handler = m_editorToHandler.value(editor).handler) {
+                handler->showMessage(MessageError,
+                    Tr::tr("No write since last change (add ! to override)"));
+            }
+            return;
+        }
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
-    else
+    } else {
         EditorManager::closeEditors({editor}, !forced);
+    }
 }
 
 void FakeVimPlugin::handleDelayedQuitAll(bool forced)
