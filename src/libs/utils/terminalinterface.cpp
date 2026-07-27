@@ -150,8 +150,7 @@ void TerminalInterface::onNewStubConnection()
 
     connect(d->stubSocket, &QIODevice::readyRead, this, &TerminalInterface::onStubReadyRead);
 
-    if (HostOsInfo::isAnyUnixHost())
-        connect(d->stubSocket, &QLocalSocket::disconnected, this, &TerminalInterface::onStubExited);
+    connect(d->stubSocket, &QLocalSocket::disconnected, this, &TerminalInterface::onStubExited);
 }
 
 void TerminalInterface::onStubExited()
