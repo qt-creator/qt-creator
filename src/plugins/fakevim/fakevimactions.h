@@ -117,6 +117,7 @@ public:
     FvBoolAspect autoIndent;
     FvBoolAspect smartIndent;
     FvBoolAspect useEditorTabSettings;
+    FvBoolAspect matchBracketsLikeVim;
 
     FvBoolAspect incSearch;
     FvBoolAspect useCoreSearch;

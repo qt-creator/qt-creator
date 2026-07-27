@@ -164,6 +164,7 @@ private slots:
     void test_vim_command_yyp();
     void test_vim_command_y_dollar();
     void test_vim_command_percent();
+    void test_vim_percent_like_vim();
 
     void test_vim_visual_d();
     void test_vim_Visual_d();
@@ -4494,6 +4495,30 @@ void FakeVimTester::test_vim_command_percent()
         "    " X "if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
         "}" N
     );
+}
+
+void FakeVimTester::test_vim_percent_like_vim()
+{
+    // With matchBracketsLikeVim, % matches brackets purely textually, ignoring
+    // syntax, as in real Vim.
+    auto &opt = FakeVim::Internal::settings().matchBracketsLikeVim;
+    const bool saved = opt.value();
+    opt.setValue(true);
+
+    TestData data;
+    setup(&data);
+
+    // Nested brackets: % on the first ( matches the outer ) and back.
+    data.setText("|(a(b)c)");
+    KEYS("%", "(a(b)c|)");
+    KEYS("%", "|(a(b)c)");
+
+    // A bracket inside a string is counted (Vim is not syntax-aware), so % on
+    // the opening ( jumps to the ) between the quotes, not the one after them.
+    data.setText("|( \")\" )");
+    KEYS("%", "( \"|)\" )");
+
+    opt.setValue(saved);
 }
 
 void FakeVimTester::test_vim_command_Yp()

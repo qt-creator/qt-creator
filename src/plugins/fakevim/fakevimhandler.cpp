@@ -1956,6 +1956,7 @@ public:
     void moveToTargetColumn();
     void setTargetColumn();
     void moveToMatchingParanthesis();
+    int vimMatchingParenthesis(int pos) const; // textual match, -1 if none
     void moveToBoundary(bool simple, bool forward = true);
     void moveToNextBoundary(bool end, int count, bool simple, bool forward);
     void moveToNextBoundaryStart(int count, bool simple, bool forward = true);
@@ -7757,6 +7758,18 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
     if (tc.atBlockEnd())
         tc = m_cursor;
 
+    if (s.matchBracketsLikeVim()) {
+        // Purely textual matching, ignoring syntax (strings, comments), as in
+        // Vim (QTCREATORBUG-24172 follow-up); the default uses the editor's
+        // syntax-aware matcher below.
+        const int match = vimMatchingParenthesis(tc.position());
+        if (match >= 0) {
+            setAnchorAndPosition(anc, match);
+            setTargetColumn();
+        }
+        return;
+    }
+
     q->moveToMatchingParenthesis(&moved, &forward, &tc);
     if (moved) {
         if (forward)
@@ -7764,6 +7777,38 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
         setAnchorAndPosition(anc, tc.position());
         setTargetColumn();
     }
+}
+
+int FakeVimHandler::Private::vimMatchingParenthesis(int pos) const
+{
+    static const QString openers("([{");
+    static const QString closers(")]}");
+    const QChar ch = characterAt(pos);
+    const int open = openers.indexOf(ch);
+    const int close = closers.indexOf(ch);
+    if (open >= 0) {
+        const QChar closer = closers.at(open);
+        const int last = lastPositionInDocument();
+        int depth = 1;
+        for (int i = pos + 1; i <= last; ++i) {
+            const QChar c = characterAt(i);
+            if (c == ch)
+                ++depth;
+            else if (c == closer && --depth == 0)
+                return i;
+        }
+    } else if (close >= 0) {
+        const QChar opener = openers.at(close);
+        int depth = 1;
+        for (int i = pos - 1; i >= 0; --i) {
+            const QChar c = characterAt(i);
+            if (c == ch)
+                ++depth;
+            else if (c == opener && --depth == 0)
+                return i;
+        }
+    }
+    return -1;
 }
 
 int FakeVimHandler::Private::cursorLineOnScreen() const
