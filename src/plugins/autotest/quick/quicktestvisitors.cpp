@@ -4,6 +4,7 @@
 #include "quicktestvisitors.h"
 
 #include <cplusplus/Overview.h>
+#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljslink.h>
@@ -40,7 +41,10 @@ static bool isDerivedFromTestCase(QmlJS::AST::UiQualifiedId *id, const QmlJS::Do
 {
     if (!id)
         return false;
-    QmlJS::Link link(snapshot, QmlJS::ViewerContext(), QmlJS::LibraryInfo());
+    QmlJS::ModelManagerInterface *mm = QmlJS::ModelManagerInterface::instance();
+    QmlJS::Link link(snapshot,
+                     mm->defaultVContext(doc->language(), doc),
+                     mm->builtins(doc));
     const QmlJS::ContextPtr context = link();
 
     const QmlJS::ObjectValue *value = context->lookupType(doc.data(), id);
