@@ -2324,6 +2324,21 @@ void FakeVimTester::test_vim_search()
     KEYS("N", "abc" N X "def" N "ghi");
     KEYS("N", X "abc" N "def" N "ghi");
 
+    // Operator with a search motion, e.g. d/ (QTCREATORBUG-24172). This must
+    // also work with the core search dialog enabled, which cannot carry out
+    // the pending operator, so the operator uses the built-in search instead.
+    data.setText("|abc def ghi");
+    KEYS("d/ghi<CR>", "|ghi");
+    {
+        auto &useCoreSearch = FakeVim::Internal::settings().useCoreSearch;
+        const bool saved = useCoreSearch.value();
+        useCoreSearch.setValue(true);
+        data.setText("|abc def ghi");
+        KEYS("d/ghi<CR>", "|ghi");
+        useCoreSearch.setValue(saved);
+    }
+    data.setText("abc" N "def" N "ghi");
+
     // return to search-start position on escape or not found
     KEYS("/def<ESC>", X "abc" N "def" N "ghi");
     KEYS("/x", X "abc" N "def" N "ghi");

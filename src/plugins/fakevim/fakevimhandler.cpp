@@ -4275,7 +4275,9 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         g.subsubmode = NoSubSubMode;
     } else if (input.is('/') || input.is('?')) {
         g.lastSearchForward = input.is('/');
-        if (s.useCoreSearch()) {
+        // The core search dialog cannot carry out a pending operator (d/, c/,
+        // y/, ...), so use the built-in search for those (QTCREATORBUG-24172).
+        if (s.useCoreSearch() && g.submode == NoSubMode) {
             // re-use the core dialog.
             g.findPending = true;
             m_findStartPosition = position();
