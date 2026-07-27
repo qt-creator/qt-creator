@@ -346,13 +346,20 @@ void PdbEngine::refreshSymbols(const GdbMi &symbols)
     showModuleSymbols(runParameters().inferior().command.executable().withNewPath(moduleName), syms);
 }
 
-void PdbEngine::assignValueInDebugger(WatchItem *, const QString &expression, const QVariant &value)
+void PdbEngine::assignValueInDebugger(WatchItem *item, const QString &expression, const QVariant &value)
 {
     //DebuggerCommand cmd("assignValue");
     //cmd.arg("expression", expression);
     //cmd.arg("value", value.toString());
     //runCommand(cmd);
-    postDirectCommand("global " + expression + ';' + expression + "=" + value.toString());
+    // "global" would shadow a real local with an unrelated module-level
+    // variable of the same name - only needed for an actual global.
+    QString command;
+    if (item->isLocal())
+        command = expression + '=' + value.toString();
+    else
+        command = "global " + expression + ';' + expression + '=' + value.toString();
+    postDirectCommand(command);
     updateLocals();
 }
 
