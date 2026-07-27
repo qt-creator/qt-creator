@@ -676,11 +676,7 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
     postProcessDocument(true);
     updateCopyButtonPositions();
 
-    QTimer::singleShot(0, this, [sb, scrollValue] { sb->setValue(scrollValue); });
-
-    // Reset cursor to start of the document, so that "show" does not
-    // scroll to the end of the document.
-    setTextCursor(QTextCursor(document()));
+    sb->setValue(scrollValue);
 }
 
 QString MarkdownBrowser::toMarkdown() const
@@ -847,6 +843,18 @@ void MarkdownBrowser::changeEvent(QEvent *event)
         QTimer::singleShot(0, this, &MarkdownBrowser::updateCopyButtonPositions);
     }
     QTextBrowser::changeEvent(event);
+}
+
+void MarkdownBrowser::showEvent(QShowEvent *event)
+{
+    // QTextEdit::showEvent scrolls to the cursor (or a pending scrollToAnchor
+    // target) on the first time it is shown. Preserve the scroll position
+    // that was set up before instead.
+    const int h = horizontalScrollBar()->value();
+    const int v = verticalScrollBar()->value();
+    QTextBrowser::showEvent(event);
+    horizontalScrollBar()->setValue(h);
+    verticalScrollBar()->setValue(v);
 }
 
 int MarkdownBrowser::currentButtonSize() const

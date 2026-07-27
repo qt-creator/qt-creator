@@ -18,6 +18,7 @@ QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
 class QNetworkRequest;
 class QPaintEvent;
+class QShowEvent;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -49,6 +50,7 @@ public:
 
 protected:
     void changeEvent(QEvent *event) override;
+    void showEvent(QShowEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
     void scrollContentsBy(int dx, int dy) override;
     void paintEvent(QPaintEvent *event) override;
