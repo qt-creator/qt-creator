@@ -90,6 +90,10 @@ static QSet<QString> theTemporaryWatchers; // Used for 'watched widgets'.
 static int theWatcherCount = 0;
 static QHash<QString, int> theTypeFormats;
 static QHash<QString, int> theIndividualFormats;
+// Temporary per-item format overrides, e.g. to fetch a full (untruncated)
+// string value for "Copy Value to Clipboard". Not persisted, and take
+// precedence over theIndividualFormats. See WatchModel::copyItemValueToClipboard.
+static QHash<QString, int> theTransientFormats;
 static int theUnprintableBase = -1;
 
 const char INameProperty[] = "INameProperty";
@@ -477,6 +481,9 @@ public:
     void setTypeFormat(const QString &type, int format);
     void setIndividualFormat(const QString &iname, int format);
 
+    void copyItemValueToClipboard(const WatchItem *item);
+    bool completeValueCopy(const WatchItem *item);
+
     QString removeNamespaces(QString str) const;
 
     bool contextMenuEvent(const ItemViewEvent &ev);
@@ -576,6 +583,7 @@ public:
     QPointer<SeparatedView> m_separatedView; // Parented to DebuggerMainWindow; may be destroyed first.
 
     QSet<QString> m_expandedINames;
+    QSet<QString> m_valueCopyINames; // Awaiting a full-value fetch for clipboard copy.
     QHash<QString, int> m_maxArrayCount;
     QTimer m_localsWindowsTimer;
 
@@ -701,10 +709,31 @@ static QString quoteUnprintable(const QString &str)
 
 static int itemFormat(const WatchItem *item)
 {
+    const int transientFormat = theTransientFormats.value(item->iname, AutomaticFormat);
+    if (transientFormat != AutomaticFormat)
+        return transientFormat;
     const int individualFormat = theIndividualFormats.value(item->iname, AutomaticFormat);
     if (individualFormat != AutomaticFormat)
         return individualFormat;
     return theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
+}
+
+// Decodes the full, untruncated string carried in an item's editvalue (as
+// produced by a "separate" display format), or an empty string if the item
+// does not carry decodable string data.
+static QString decodeStringEditValue(const WatchItem *item)
+{
+    const QString &format = item->editformat;
+    const QByteArray ba = QByteArray::fromHex(item->editvalue.toUtf8());
+    if (format == DisplayLatin1String)
+        return QString::fromLatin1(ba.constData(), ba.size());
+    if (format == DisplayUtf8String)
+        return QString::fromUtf8(ba.constData(), ba.size());
+    if (format == DisplayUtf16String)
+        return QString::fromUtf16(reinterpret_cast<const char16_t *>(ba.constData()), ba.size() / 2);
+    if (format == DisplayUcs4String)
+        return QString::fromUcs4(reinterpret_cast<const char32_t *>(ba.constData()), ba.size() / 4);
+    return {};
 }
 
 static QString formattedValue(const WatchItem *item)
@@ -1831,7 +1860,7 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               item,
               [this, name = item ? item->iname : QString()] {
                   if (auto item = findItem(name))
-                      setClipboardAndSelection(item->value);
+                      copyItemValueToClipboard(item);
               });
 
     //    addAction(menu, Tr::tr("Copy Selected Rows to Clipboard"),
@@ -2196,6 +2225,8 @@ WatchHandler::~WatchHandler()
 void WatchHandler::cleanup()
 {
     m_model->m_expandedINames.clear();
+    m_model->m_valueCopyINames.clear();
+    theTransientFormats.clear();
     theWatcherNames.remove(QString());
     for (const QString &exp : std::as_const(theTemporaryWatchers))
         theWatcherNames.remove(exp);
@@ -2261,7 +2292,8 @@ bool WatchHandler::insertItem(WatchItem *item)
 
     item->update();
 
-    m_model->showEditValue(item);
+    if (!m_model->completeValueCopy(item))
+        m_model->showEditValue(item);
     item->forAllChildren([this](WatchItem *sub) { m_model->showEditValue(sub); });
 
     return !found;
@@ -2493,6 +2525,53 @@ template <class T> void readOne(const char *p, QString *res, int size)
     res->setNum(r);
 }
 
+// Rebuilds an item's display value with the full (untruncated) string content,
+// preserving any address prefix and the surrounding quotes.
+static QString rebuildWithFullString(const WatchItem *item, const QString &full)
+{
+    const int openQuote = item->value.indexOf('"');
+    if (openQuote < 0)
+        return full;
+    return item->value.left(openQuote + 1) + full + '"';
+}
+
+void WatchModel::copyItemValueToClipboard(const WatchItem *item)
+{
+    // Full value already available (e.g. the item is shown in a separate window)?
+    const QString full = decodeStringEditValue(item);
+    if (!full.isEmpty()) {
+        setClipboardAndSelection(rebuildWithFullString(item, full));
+        return;
+    }
+
+    // A truncated string value needs a debugger round-trip to fetch the full
+    // content. Request it via a transient "separate" format and copy once the
+    // reply arrives (see completeValueCopy). valuelen is the true length, or
+    // negative if cut at an unknown size.
+    const bool truncated = item->valuelen < 0 || item->valuelen > settings().displayStringLimit();
+    if (truncated) {
+        theTransientFormats[item->iname] = SeparateUtf8StringFormat;
+        m_valueCopyINames.insert(item->iname);
+        m_engine->updateLocals();
+        return;
+    }
+
+    setClipboardAndSelection(item->value);
+}
+
+bool WatchModel::completeValueCopy(const WatchItem *item)
+{
+    if (!m_valueCopyINames.remove(item->iname))
+        return false;
+    theTransientFormats.remove(item->iname);
+    const QString full = decodeStringEditValue(item);
+    setClipboardAndSelection(full.isEmpty() ? item->value : rebuildWithFullString(item, full));
+    // Refresh once more so the transient format no longer applies. Deferred to
+    // avoid re-entering the engine while it is still processing this reply.
+    QMetaObject::invokeMethod(m_engine, [this] { m_engine->updateLocals(); }, Qt::QueuedConnection);
+    return true;
+}
+
 void WatchModel::showEditValue(const WatchItem *item)
 {
     const QString &format = item->editformat;
@@ -2553,17 +2632,7 @@ void WatchModel::showEditValue(const WatchItem *item)
             || format == DisplayUtf16String
             || format == DisplayUcs4String) {
          // String data.
-        QByteArray ba = QByteArray::fromHex(item->editvalue.toUtf8());
-        QString str;
-        if (format == DisplayLatin1String)
-            str = QString::fromLatin1(ba.constData(), ba.size());
-        else if (format == DisplayUtf8String)
-            str = QString::fromUtf8(ba.constData(), ba.size());
-        else if (format == DisplayUtf16String)
-            str = QString::fromUtf16(reinterpret_cast<const char16_t *>(ba.constData()), ba.size() / 2);
-        else if (format == DisplayUcs4String)
-            str = QString::fromUcs4(reinterpret_cast<const char32_t *>(ba.constData()), ba.size() / 4);
-        m_separatedView->prepareObject<TextEdit>(item)->setPlainText(str);
+        m_separatedView->prepareObject<TextEdit>(item)->setPlainText(decodeStringEditValue(item));
     } else if (format == DisplayPlotData) {
         // Plots
         std::vector<double> data;
@@ -2768,9 +2837,12 @@ QString WatchHandler::typeFormatRequests() const
 
 QString WatchHandler::individualFormatRequests() const
 {
+    QHash<QString, int> merged = theIndividualFormats;
+    for (auto it = theTransientFormats.cbegin(), end = theTransientFormats.cend(); it != end; ++it)
+        merged.insert(it.key(), it.value());
     QString res;
-    if (!theIndividualFormats.isEmpty()) {
-        for (auto it = theIndividualFormats.cbegin(), end = theIndividualFormats.cend(); it != end; ++it) {
+    if (!merged.isEmpty()) {
+        for (auto it = merged.cbegin(), end = merged.cend(); it != end; ++it) {
             const int format = it.value();
             if (format != AutomaticFormat) {
                 res.append(it.key());
@@ -2802,6 +2874,11 @@ void WatchHandler::appendFormatRequests(DebuggerCommand *cmd) const
 
     QJsonObject formats;
     for (auto it = theIndividualFormats.cbegin(), end = theIndividualFormats.cend(); it != end; ++it) {
+        const int format = it.value();
+        if (format != AutomaticFormat)
+            formats.insert(it.key(), format);
+    }
+    for (auto it = theTransientFormats.cbegin(), end = theTransientFormats.cend(); it != end; ++it) {
         const int format = it.value();
         if (format != AutomaticFormat)
             formats.insert(it.key(), format);
