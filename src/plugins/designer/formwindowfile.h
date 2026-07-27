@@ -48,6 +48,10 @@ public:
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
     void updateIsModified();
 
+signals:
+    // see comment in FormEditorData::createEditor()
+    void formWindowContentsSet();
+
 protected:
     Utils::Result<> saveImpl(const Utils::FilePath &filePath, SaveOption option) override;
 

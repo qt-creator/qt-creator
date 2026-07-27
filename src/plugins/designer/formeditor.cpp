@@ -791,7 +791,20 @@ IEditor *FormEditorData::createEditor()
     auto widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
 
-    m_editorWidget->add(widgetHost, formWindowEditor);
+    // Defer embedding the form into Qt Creator's own widget hierarchy until
+    // its contents have actually been parsed and built (open()/setContents(),
+    // which EditorManager always calls synchronously before the editor
+    // becomes current, see FormWindowFile::formWindowContentsSet()). Doing
+    // so only once the form's widget tree -- including any menu bar -- has
+    // already been built while still not embedded avoids a Qt/KDE-Plasma
+    // (Wayland) bug: constructing a QMenuBar that already resolves to Qt
+    // Creator's own top-level window can clobber the real menu bar's
+    // global-menu registration, permanently blanking it.
+    // See QTBUG-148580
+    connect(formWindowEditor->formWindowFile(), &FormWindowFile::formWindowContentsSet,
+            this, [this, widgetHost, formWindowEditor] {
+                m_editorWidget->add(widgetHost, formWindowEditor);
+            }, Qt::SingleShotConnection);
 
     if (formWindowEditor) {
         Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),

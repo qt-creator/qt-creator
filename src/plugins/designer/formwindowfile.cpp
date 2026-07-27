@@ -16,6 +16,7 @@
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowManagerInterface>
 #include <QDesignerFormEditorInterface>
+#include <QScopeGuard>
 #include <QTextDocument>
 #include <QUndoStack>
 
@@ -47,6 +48,12 @@ Result<> FormWindowFile::open(const FilePath &filePath, const FilePath &realFile
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowFile::open" << filePath.toUserOutput();
+
+    // Trigger actually adding the form window's widget to the editor, which
+    // is delayed in FormEditorData::createEditor via this signal.
+    // See the comment in FormEditorData::createEditor for details.
+    // Do it whether an error occurred or not.
+    const QScopeGuard emitContentsSet([this] { emit formWindowContentsSet(); });
 
     QDesignerFormWindowInterface *form = formWindow();
     QTC_ASSERT(form, return ResultError(ResultAssert));
@@ -115,6 +122,9 @@ Result<> FormWindowFile::setContents(const QByteArray &contents)
         qDebug() << Q_FUNC_INFO << contents.size();
 
     document()->clear();
+
+    // See the comment on the same guard in open().
+    const QScopeGuard emitContentsSet([this] { emit formWindowContentsSet(); });
 
     QTC_ASSERT(m_formWindow, return ResultError(ResultAssert));
 
