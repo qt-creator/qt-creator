@@ -42,6 +42,7 @@
 #include <utils/aggregate.h>
 #include <utils/filepath.h>
 #include <utils/guitest.h>
+#include <utils/hostosinfo.h>
 #include <utils/id.h>
 #include <utils/infobar.h>
 #include <utils/multitextcursor.h>
@@ -3239,6 +3240,7 @@ class SnippetTest final : public QObject
 
 private slots:
     void testVariableMirroring();
+    void testVariableMirrorDeletion();
 };
 
 void SnippetTest::testVariableMirroring()
@@ -3270,6 +3272,42 @@ void SnippetTest::testVariableMirroring()
     QVERIFY(text.contains("public QObject"));
     QVERIFY(!text.contains("name")); // the "name" placeholder was filled everywhere
     QVERIFY(!text.contains("base")); // the "base" placeholder was reached via Tab
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+// Regression test for QTCREATORBUG-28165: deleting a selection inside a
+// mirrored snippet field must not append text to the other mirrors.
+void SnippetTest::testVariableMirrorDeletion()
+{
+    if (Utils::HostOsInfo::isMacHost()) {
+        QSKIP("Shift+Delete is not a deletion on macOS, and only a Delete or Backspace press "
+              "with a modifier reaches the snippet update.");
+    }
+
+    BaseTextEditor *editor = openTextEditor(QString(), "snippet_del.cpp");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // Q_PROPERTY-shaped layout: the "name" variable is mirrored four times.
+    const QString snippet = "int $name$ READ $name$ WRITE set$name$ NOTIFY $name$Changed";
+    editorWidget->insertCodeSnippet(0, snippet, &Snippet::parse);
+    QTest::keyClicks(editorWidget, "number");
+
+    const QString filled = editorWidget->textDocument()->plainText();
+    QCOMPARE(filled, QString("int number READ number WRITE setnumber NOTIFY numberChanged"));
+
+    // Delete "umb" inside one mirror. The selection stays within a snippet
+    // field, so the other mirrors are updated and must not get text appended.
+    const int start = filled.indexOf("setnumber") + int(QString("setn").size());
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(start);
+    cursor.setPosition(start + int(QString("umb").size()), QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+    QTest::keyClick(editorWidget, Qt::Key_Delete, Qt::ShiftModifier);
+
+    const QString text = editorWidget->textDocument()->plainText();
+    QCOMPARE(text, QString("int ner READ ner WRITE setner NOTIFY nerChanged"));
 
     Core::EditorManager::closeEditors({editor}, false);
 }
