@@ -1290,14 +1290,30 @@ static TextEncoding findFileCodec(const FilePath &source)
 // Find the codec by checking the projects (root dir of project file)
 static TextEncoding findProjectEncoding(const FilePath &dirPath)
 {
-    // Try to find a project under whose file tree dirPath is located. A plain
-    // equality check would only match when dirPath is exactly the project root,
-    // missing files in subdirectories and repositories whose working directory
-    // differs from the project directory.
+    // Find the project dirPath relates to. A plain equality check would only
+    // match when dirPath is exactly the project root, missing both files in
+    // subdirectories (dirPath below the project) and repository directories
+    // that host the project in a subdirectory (dirPath above the project, as
+    // happens for "git show", which runs at the repository top level).
     const auto projects = ProjectExplorer::ProjectManager::projects();
-    const auto *p = findOrDefault(projects, [&dirPath](const ProjectExplorer::Project *p) {
+
+    // Prefer the most specific project whose file tree contains dirPath.
+    const ProjectExplorer::Project *containing = nullptr;
+    for (const ProjectExplorer::Project *p : projects) {
         const FilePath projectDir = p->projectDirectory();
-        return dirPath == projectDir || dirPath.isChildOf(projectDir);
+        if (dirPath != projectDir && !dirPath.isChildOf(projectDir))
+            continue;
+        if (!containing
+            || containing->projectDirectory().path().size() < projectDir.path().size()) {
+            containing = p;
+        }
+    }
+    if (containing)
+        return containing->editorConfiguration()->textEncoding();
+
+    // Otherwise accept a project located below dirPath (repository hosting it).
+    const auto *p = findOrDefault(projects, [&dirPath](const ProjectExplorer::Project *p) {
+        return p->projectDirectory().isChildOf(dirPath);
     });
     return p ? p->editorConfiguration()->textEncoding() : TextEncoding();
 }
