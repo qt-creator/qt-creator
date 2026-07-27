@@ -185,7 +185,9 @@ public:
 
         m_process = new Process(this);
         m_process->setWorkingDirectory(buildDir);
-        m_process->setEnvironment(bs->buildConfiguration()->environment());
+        Environment processEnv = bs->buildConfiguration()->environment();
+        processEnv.setFallback("CLICOLOR_FORCE", "1");
+        m_process->setEnvironment(processEnv);
         m_process->setCommand(cmd);
 
         prepareRun(buildDir);
