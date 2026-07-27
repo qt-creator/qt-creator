@@ -19,6 +19,22 @@ using namespace CPlusPlus;
 
 namespace CppEditor::Internal {
 
+// Descend through nested declarators to the parameter name. For a plain
+// parameter the core declarator is the DeclaratorId directly; for a function
+// pointer like "void (*fn)(int)" the name sits inside a nested declarator
+// "(*fn)" (QTCREATORBUG-25578).
+static NameAST *parameterNameAST(DeclaratorAST *declarator)
+{
+    while (declarator && declarator->core_declarator) {
+        CoreDeclaratorAST * const core = declarator->core_declarator;
+        if (DeclaratorIdAST * const declId = core->asDeclaratorId())
+            return declId->name;
+        NestedDeclaratorAST * const nested = core->asNestedDeclarator();
+        declarator = nested ? nested->declarator : nullptr;
+    }
+    return nullptr;
+}
+
 DoxygenGenerator::DoxygenGenerator() = default;
 
 QString DoxygenGenerator::generate(QTextCursor cursor,
@@ -138,16 +154,13 @@ QString DoxygenGenerator::generate(QTextCursor cursor, DeclarationAST *decl)
                      it;
                      it = it->next) {
                     ParameterDeclarationAST *paramDecl = it->value;
-                    if (paramDecl->declarator
-                            && paramDecl->declarator->core_declarator
-                            && paramDecl->declarator->core_declarator->asDeclaratorId()
-                            && paramDecl->declarator->core_declarator->asDeclaratorId()->name) {
-                        DeclaratorIdAST *paramId =
-                                paramDecl->declarator->core_declarator->asDeclaratorId();
+                    NameAST * const paramName = paramDecl->declarator
+                            ? parameterNameAST(paramDecl->declarator) : nullptr;
+                    if (paramName && paramName->name) {
                         writeContinuation(&comment);
                         writeCommand(&comment,
                                      ParamCommand,
-                                     m_printer.prettyName(paramId->name->name));
+                                     m_printer.prettyName(paramName->name));
                     }
                 }
             }

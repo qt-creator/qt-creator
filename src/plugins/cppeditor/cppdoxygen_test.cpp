@@ -425,6 +425,19 @@ void DoxygenTest::testBasic_data()
         " * cont\n"
         " */\n"
         "int a;\n") << int(CommandPrefix::Auto);
+
+    QTest::newRow("functionPointerParameter") << _(
+        "bool preventFolding;\n"
+        "/**|\n"
+        "void GenerateOutputFile(void (*LogFunction)(const QString &));\n"
+        ) << _(
+        "bool preventFolding;\n"
+        "/**\n"
+        " * @brief GenerateOutputFile\n"
+        " * @param LogFunction\n"
+        " */\n"
+        "void GenerateOutputFile(void (*LogFunction)(const QString &));\n")
+        << int(CommandPrefix::Auto);
 }
 
 void DoxygenTest::testBasic()
