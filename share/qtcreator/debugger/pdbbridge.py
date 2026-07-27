@@ -867,6 +867,15 @@ class QtcInternalDumper():
         fileName = self.canonic(frame.f_code.co_filename)
         self.report('location={file="%s",line="%s"}' % (fileName, lineNumber))
 
+        # Reset so a later, unrelated stop doesn't re-report a stale hit.
+        currentbp = getattr(self, 'currentbp', -1)
+        if currentbp > 0:
+            self.currentbp = -1
+            bp = QtcInternalBreakpoint.bpbynumber[currentbp]
+            if bp:  # None once a one-shot tbreak deletes itself on hit
+                self.report('breakpointmodified={number="%d",times="%d"}'
+                            % (currentbp, bp.hits))
+
         while True:
             try:
                 # keyboard interrupts allow for an easy way to cancel
