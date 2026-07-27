@@ -285,7 +285,8 @@ bool Document::parse_helper(int startToken)
         break;
     case QmlJSGrammar::T_FEED_JS_SCRIPT:
     case QmlJSGrammar::T_FEED_JS_MODULE: {
-        _parsedCorrectly = parser.parseProgram();
+        _parsedCorrectly = startToken == QmlJSGrammar::T_FEED_JS_MODULE ? parser.parseModule()
+                                                                        : parser.parseProgram();
         const QList<SourceLocation> locations = directives.locations();
         for (const auto &d : locations) {
             _jsdirectives << d;
@@ -311,6 +312,11 @@ bool Document::parse()
 {
     if (isQmlDocument())
         return parseQml();
+
+    // A ".mjs" file is always an ECMAScript module, so top-level import/export
+    // are valid and must be parsed in module mode (QTCREATORBUG-27738).
+    if (fileName().suffix() == QLatin1String("mjs"))
+        return parse_helper(QmlJSGrammar::T_FEED_JS_MODULE);
 
     return parseJavaScript();
 }

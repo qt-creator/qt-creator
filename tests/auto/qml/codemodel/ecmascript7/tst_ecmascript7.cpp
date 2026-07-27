@@ -102,6 +102,8 @@ private slots:
     void initTestCase();
     void test_data();
     void test();
+    void test_mjsModule_data();
+    void test_mjsModule();
 
 private:
     QFileInfoList m_files;
@@ -185,6 +187,41 @@ void tst_Ecmascript::test()
 
     QCOMPARE(semanticInfo.semanticMessages.length(), nExpectedSemanticMessages);
     QCOMPARE(semanticInfo.staticAnalysisMessages.length(), nExpectedStaticMessages);
+}
+
+void tst_Ecmascript::test_mjsModule_data()
+{
+    QTest::addColumn<QString>("source");
+
+    QTest::newRow("export/import")
+        << QString("export const answer = 42;\n"
+                   "import { foo } from \"./foo.mjs\";\n");
+    QTest::newRow("export *")
+        << QString("export * from \"./mod.mjs\";\n");
+    QTest::newRow("export default function")
+        << QString("export default function() {}\n");
+    QTest::newRow("import default + named")
+        << QString("import fn, { x } from \"./mod.mjs\";\n");
+    QTest::newRow("import namespace")
+        << QString("import * as mod from \"./mod.mjs\";\n");
+    QTest::newRow("import renamed")
+        << QString("import { x as y } from \"./mod.mjs\";\n");
+}
+
+void tst_Ecmascript::test_mjsModule()
+{
+    // QTCREATORBUG-27738: a .mjs file is an ES module, so top-level
+    // export/import must parse without syntax errors.
+    QFETCH(QString, source);
+
+    Document::MutablePtr doc = Document::create(
+        Utils::FilePath::fromString("test.mjs"), Dialect::JavaScript);
+    doc->setSource(source);
+    const bool ok = doc->parse();
+    for (const DiagnosticMessage &m : doc->diagnosticMessages())
+        qDebug() << m.message;
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QVERIFY(ok);
 }
 
 QTEST_GUILESS_MAIN(tst_Ecmascript)
