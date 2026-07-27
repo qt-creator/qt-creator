@@ -1200,7 +1200,6 @@ bool LldbEngine::hasCapability(unsigned cap) const
         | AddWatcherCapability
         | ShowModuleSymbolsCapability
         | ShowModuleSectionsCapability
-        | CatchCapability
         | OperateByInstructionCapability
         | RunToLineCapability
         | WatchComplexExpressionsCapability

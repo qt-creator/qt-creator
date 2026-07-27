@@ -75,14 +75,13 @@ enum DebuggerCapabilities
     WatchpointByAddressCapability     = 1 << 18,
     WatchpointByExpressionCapability  = 1 << 19,
     ShowModuleSymbolsCapability       = 1 << 20,
-    CatchCapability                   = 1 << 21, //!< fork, vfork, syscall
-    OperateByInstructionCapability    = 1 << 22,
-    RunToLineCapability               = 1 << 23,
-    ShowModuleSectionsCapability      = 1 << 24,
-    WatchComplexExpressionsCapability = 1 << 25, // Used to filter out challenges for cdb.
-    AdditionalQmlStackCapability      = 1 << 26, //!< C++ debugger engine is able to retrieve QML stack as well.
-    ResetInferiorCapability           = 1 << 27, //!< restart program while debugging
-    BreakIndividualLocationsCapability= 1 << 28  //!< Allows to enable/disable individual location for multi-location bps
+    OperateByInstructionCapability    = 1 << 21,
+    RunToLineCapability               = 1 << 22,
+    ShowModuleSectionsCapability      = 1 << 23,
+    WatchComplexExpressionsCapability = 1 << 24, // Used to filter out challenges for cdb.
+    AdditionalQmlStackCapability      = 1 << 25, //!< C++ debugger engine is able to retrieve QML stack as well.
+    ResetInferiorCapability           = 1 << 26, //!< restart program while debugging
+    BreakIndividualLocationsCapability= 1 << 27  //!< Allows to enable/disable individual location for multi-location bps
 };
 
 enum LogChannel

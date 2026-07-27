@@ -1831,7 +1831,6 @@ bool GdbEngine::hasCapability(unsigned cap) const
                   | WatchpointByExpressionCapability
                   | AddWatcherWhileRunningCapability
                   | WatchWidgetsCapability
-                  | CatchCapability
                   | RunToLineCapability
                   | ResetInferiorCapability
                   | SnapshotCapability
