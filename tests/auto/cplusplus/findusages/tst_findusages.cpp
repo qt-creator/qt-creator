@@ -120,6 +120,7 @@ private Q_SLOTS:
     void writableRefs();
     void mocInvokables();
     void virtualOverride();
+    void anonymousStructMembers_QTCREATORBUG26613();
 };
 
 void tst_FindUsages::dump(const QList<Usage> &usages) const
@@ -2488,6 +2489,66 @@ struct Derived : public Base { void foo() override; };
     QCOMPARE(find.usages().size(), 1);
     QCOMPARE(find.usages().at(0).tags,
              (Usage::Tags{Usage::Tag::Declaration, Usage::Tag::Override}));
+}
+
+void tst_FindUsages::anonymousStructMembers_QTCREATORBUG26613()
+{
+    const QByteArray src = "\n"
+                           "typedef struct {\n"
+                           "    int len;\n"
+                           "} s1_t;\n"
+                           "typedef struct {\n"
+                           "    int len;\n"
+                           "} s2_t;\n"
+                           "void f(s1_t *a, s2_t *b)\n"
+                           "{\n"
+                           "    a->len = 1;\n"
+                           "    b->len = 2;\n"
+                           "}\n";
+    Document::Ptr doc = Document::create("anonymousStructMembers");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    QList<Symbol *> lenMembers;
+    for (int i = 0; i < doc->globalSymbolCount(); ++i) {
+        Class *klass = doc->globalSymbolAt(i)->asClass();
+        if (!klass)
+            continue;
+        for (int j = 0; j < klass->memberCount(); ++j) {
+            Symbol *m = klass->memberAt(j);
+            if (m->name() && m->name()->identifier()
+                    && qstrcmp(m->name()->identifier()->chars(), "len") == 0) {
+                lenMembers << m;
+            }
+        }
+    }
+    QCOMPARE(lenMembers.size(), 2);
+
+    // Finding usages of one struct's member must not turn up the other's.
+    FindUsages findFirst(src, doc, snapshot, true);
+    findFirst(lenMembers.at(0));
+    QCOMPARE(findFirst.usages().size(), 2);
+    QCOMPARE(findFirst.usages().at(0).line, 2);
+    QCOMPARE(findFirst.usages().at(0).col, 8);
+    QCOMPARE(findFirst.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findFirst.usages().at(1).line, 9);
+    QCOMPARE(findFirst.usages().at(1).col, 7);
+    QCOMPARE(findFirst.usages().at(1).tags, Usage::Tag::Write);
+
+    FindUsages findSecond(src, doc, snapshot, true);
+    findSecond(lenMembers.at(1));
+    QCOMPARE(findSecond.usages().size(), 2);
+    QCOMPARE(findSecond.usages().at(0).line, 5);
+    QCOMPARE(findSecond.usages().at(0).col, 8);
+    QCOMPARE(findSecond.usages().at(0).tags, Usage::Tag::Declaration);
+    QCOMPARE(findSecond.usages().at(1).line, 10);
+    QCOMPARE(findSecond.usages().at(1).col, 7);
+    QCOMPARE(findSecond.usages().at(1).tags, Usage::Tag::Write);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)
