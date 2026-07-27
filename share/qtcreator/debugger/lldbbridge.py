@@ -1934,10 +1934,10 @@ class Dumper(DumperBase):
             # No native "catch fork" in lldb - break on the libc entry point.
             bp = self.target.BreakpointCreateByName('fork')
         elif bpType == BreakpointType.WatchpointAtExpression:
-            # FIXME: Top level-only for now.
+            # FindVariable() misses globals/statics - use EvaluateExpression().
             try:
                 frame = self.currentFrame()
-                value = frame.FindVariable(args['expression'])
+                value = frame.EvaluateExpression(args['expression'])
                 error = lldb.SBError()
                 bp = self.target.WatchAddress(value.GetLoadAddress(),
                                               value.GetByteSize(), False, True, error)
