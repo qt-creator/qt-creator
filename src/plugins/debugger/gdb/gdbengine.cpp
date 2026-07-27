@@ -1812,7 +1812,6 @@ bool GdbEngine::hasCapability(unsigned cap) const
                | ShowModuleSectionsCapability
                | OperateByInstructionCapability
                | WatchComplexExpressionsCapability
-               | MemoryAddressCapability
                | AdditionalQmlStackCapability)) {
         return true;
     }

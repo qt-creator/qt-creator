@@ -1204,7 +1204,6 @@ bool LldbEngine::hasCapability(unsigned cap) const
         | OperateByInstructionCapability
         | RunToLineCapability
         | WatchComplexExpressionsCapability
-        | MemoryAddressCapability
         | AdditionalQmlStackCapability))
         return true;
 

@@ -705,7 +705,6 @@ bool CdbEngine::hasCapability(unsigned cap) const
                   | CreateFullBacktraceCapability
                   | OperateByInstructionCapability
                   | RunToLineCapability
-                  | MemoryAddressCapability
                   | AdditionalQmlStackCapability);
 }
 
