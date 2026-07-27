@@ -2286,6 +2286,7 @@ class Dumper(DumperBase):
                 # Target line is outside the current function - fall back
                 # to a one-shot breakpoint, like the address branch above.
                 bp = self.target.BreakpointCreateByLocation(str(file), line)
+                self.internalBreakpointIds.add(bp.GetID())
                 if bp.GetNumLocations() == 0:
                     self.target.BreakpointDelete(bp.GetID())
                     self.reportResult(self.describeStatus('No target location found.')
@@ -2300,6 +2301,7 @@ class Dumper(DumperBase):
         self.reportToken(args)
         frame = self.currentFrame()
         bp = self.target.BreakpointCreateByName(str(args['function']))
+        self.internalBreakpointIds.add(bp.GetID())
         if bp.GetNumLocations() == 0:
             self.target.BreakpointDelete(bp.GetID())
             self.reportResult(self.describeStatus('No target location found.')
