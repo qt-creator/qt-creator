@@ -308,7 +308,7 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
                             entry.extraInfo = path.shortNativePath();
 
                             if (target.targetType != UtilityType || path == projectPath
-                                || path.isChildOf(projectPath))
+                                || path.isChildOf(projectPath.parentDir()))
                                 targetOfInterest = true;
                         } else {
                             entry.extraInfo = projectPath.shortNativePath();

@@ -72,6 +72,22 @@ namespace Core {
 // TODO: The other possible startegy would be to just store the newly reported data
 //       and do the actual deduplication only when new results are reachable from 1st index
 //       (i.e. skip the intermediate deduplication).
+struct CacheKey
+{
+    Utils::Link link;
+    QString displayName;
+
+    bool operator==(const CacheKey &other) const
+    {
+        return link == other.link && displayName == other.displayName;
+    }
+};
+
+struct CacheKeyHash
+{
+    size_t operator()(const CacheKey &k) const { return qHashMulti(0, k.link, k.displayName); }
+};
+
 class ResultsDeduplicator
 {
     enum class State {
@@ -100,7 +116,7 @@ class ResultsDeduplicator
                 if (state == State::Canceled)
                     return {};
                 const auto &link = entry.linkForEditor;
-                if (!link || m_cache.emplace(*link).second)
+                if (!link || m_cache.emplace(CacheKey{*link, entry.displayName}).second)
                     results.append(entry);
             }
             if (state == State::Canceled)
@@ -112,7 +128,7 @@ class ResultsDeduplicator
         LocatorFilterEntries entries() const { return m_data; }
     private:
         LocatorFilterEntries m_data;
-        std::unordered_set<Link> m_cache;
+        std::unordered_set<CacheKey, CacheKeyHash> m_cache;
     };
 
 public:
