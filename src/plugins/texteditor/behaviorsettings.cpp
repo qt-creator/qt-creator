@@ -139,6 +139,12 @@ class BehaviorPage final : public AspectContainer
 public:
     BehaviorPage()
     {
+        // Options pages must not auto-apply: registerAspect() propagates this
+        // container's mode onto the registered settings, and the settings
+        // dialog refuses to write back (and thus persist) a page whose aspects
+        // auto-apply. Without this the Apply button stayed disabled and changes
+        // (for example the default file encoding) were never saved.
+        setAutoApply(false);
         registerAspect(&globalTabSettings());
         registerAspect(&globalTypingSettings());
         registerAspect(&globalStorageSettings());
