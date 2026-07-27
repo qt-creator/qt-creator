@@ -200,6 +200,7 @@ private slots:
     void test_vim_tabstop_distance();
     void test_vim_goto_definition();
     void test_vim_context_help();
+    void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
     void test_vim_use_editor_tab_settings();
@@ -5495,6 +5496,21 @@ void FakeVimTester::test_vim_context_help()
     data.handler->contextHelpRequested.set([&] { requested = true; });
     data.doKeys("K");
     QVERIFY(requested);
+}
+
+void FakeVimTester::test_vim_file_info()
+{
+    // CTRL-G reports file position and status, like Vim (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    data.setText("one" N "two" N "three" N "four");
+    data.doKeys("2G");
+    data.doKeys("<c-g>");
+    QVERIFY2(message.contains("line 2 of 4"), qPrintable(message));
+    QVERIFY2(message.contains("--50%--"), qPrintable(message));
 }
 
 void FakeVimTester::test_vim_ex_plugin_command_moves_cursor()

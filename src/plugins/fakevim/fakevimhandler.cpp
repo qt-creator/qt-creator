@@ -4832,6 +4832,22 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         moveDown(linesOnScreen() / 2);
         handleStartOfLine();
         scrollToLine(cursorLine() - sline);
+    } else if (input.isControl('g')) {
+        // CTRL-G: show file name, position and status, like Vim.
+        const int lines = linesInDocument();
+        const int line = cursorLine() + 1;
+        const int physCol = physicalCursorColumn() + 1;
+        const int logCol = logicalCursorColumn() + 1;
+        const QString col = physCol == logCol
+            ? Tr::tr("col %1").arg(physCol)
+            : Tr::tr("col %1-%2").arg(physCol).arg(logCol);
+        QString msg = m_currentFileName.isEmpty()
+            ? QString("[No Name]") : '"' + m_currentFileName + '"';
+        if (document()->isModified())
+            msg += Tr::tr(" [Modified]");
+        msg += Tr::tr(" line %1 of %2 --%3%-- %4")
+            .arg(line).arg(lines).arg(line * 100 / lines).arg(col);
+        showMessage(MessageInfo, msg);
     } else if (!g.gflag && input.is('g')) {
         g.gflag = true;
     } else if (!isVisualMode() && (input.is('i') || input.isKey(Key_Insert))) {
