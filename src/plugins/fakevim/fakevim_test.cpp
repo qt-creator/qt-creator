@@ -203,6 +203,7 @@ private slots:
     void test_vim_alternate_file();
     void test_vim_tag_text_object();
     void test_vim_script_echo_expression();
+    void test_vim_script_variables();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5580,6 +5581,47 @@ void FakeVimTester::test_vim_script_echo_expression()
     QCOMPARE(echo("0 ? \"y\" : \"n\""), QLatin1String("n"));
     QCOMPARE(echo("\"a\" \"b\""), QLatin1String("a b"));       // multiple arguments
     QCOMPARE(echo("'it''s'"), QLatin1String("it's"));          // single-quote escape
+}
+
+void FakeVimTester::test_vim_script_variables()
+{
+    // ":let"/":unlet" and variable references (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("let g:x = 1 + 2");
+    QCOMPARE(echo("g:x"), QLatin1String("3"));
+    QCOMPARE(echo("x"), QLatin1String("3"));          // g: is the same as unscoped
+
+    data.doCommand("let x = 10");                     // unscoped writes global
+    QCOMPARE(echo("g:x"), QLatin1String("10"));
+
+    data.doCommand("let g:x += 5");
+    QCOMPARE(echo("g:x"), QLatin1String("15"));
+
+    data.doCommand("let s = \"foo\"");
+    data.doCommand("let s .= \"bar\"");
+    QCOMPARE(echo("s"), QLatin1String("foobar"));
+
+    data.doCommand("let b:local = 7");
+    QCOMPARE(echo("b:local * 2"), QLatin1String("14"));
+
+    QCOMPARE(echo("v:true"), QLatin1String("1"));
+    QCOMPARE(echo("v:false"), QLatin1String("0"));
+
+    // Undefined variable is reported as an error.
+    QCOMPARE(echo("nosuchvar"), QLatin1String("Undefined variable: nosuchvar"));
+
+    data.doCommand("unlet g:x");
+    QCOMPARE(echo("x"), QLatin1String("Undefined variable: x"));
 }
 
 void FakeVimTester::test_vim_file_info()

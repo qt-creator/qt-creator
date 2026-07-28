@@ -2241,6 +2241,9 @@ public:
 
     QString m_currentFileName;
 
+    // Vimscript variables, keyed by scoped name ("g:" canonicalized away).
+    QHash<QString, VimValue> m_variables;
+
     int m_findStartPosition;
 
     int anchor() const { return m_cursor.anchor(); }
@@ -2378,6 +2381,11 @@ public:
     // Vimscript expression evaluation (QTCREATORBUG-34817).
     friend class VimExpr;
     bool evaluateExpression(const QString &expr, VimValue *result, QString *error);
+    bool variableValue(const QString &name, VimValue *result);
+    void setVariable(const QString &name, const VimValue &value);
+    bool unsetVariable(const QString &name);
+    bool handleExLetCommand(const ExCommand &cmd);
+    bool handleExUnletCommand(const ExCommand &cmd);
 
     void setTabSize(int tabSize);
     void setupCharClass();
@@ -7451,8 +7459,38 @@ private:
             return parseEnvVar();
         if (c.isDigit() || (c == '.' && at(1).isDigit()))
             return parseNumber();
+        if (c.isLetter() || c == '_')
+            return parseVariable();
 
         setError(Tr::tr("Invalid expression: %1").arg(m_in.mid(m_pos)));
+        return {};
+    }
+
+    // A variable name, optionally with a scope prefix like "g:".
+    QString parseName()
+    {
+        const int start = m_pos;
+        while (cur().isLetterOrNumber() || cur() == '_')
+            ++m_pos;
+        QString name = m_in.mid(start, m_pos - start);
+        static const QString scopes = "gbwtslav";
+        if (name.size() == 1 && scopes.contains(name.at(0)) && cur() == ':') {
+            ++m_pos;
+            const int s2 = m_pos;
+            while (cur().isLetterOrNumber() || cur() == '_')
+                ++m_pos;
+            name += ':' + m_in.mid(s2, m_pos - s2);
+        }
+        return name;
+    }
+
+    VimValue parseVariable()
+    {
+        const QString name = parseName();
+        VimValue v;
+        if (m_h->variableValue(name, &v))
+            return v;
+        setError(Tr::tr("Undefined variable: %1").arg(name));
         return {};
     }
 
@@ -7577,6 +7615,108 @@ bool FakeVimHandler::Private::evaluateExpression(const QString &expr,
     return true;
 }
 
+// "g:" is the same scope as an unscoped name, so canonicalize it away.
+static QString normalizedVarName(const QString &name)
+{
+    return name.startsWith("g:") ? name.mid(2) : name;
+}
+
+bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *result)
+{
+    if (name == "v:true") { *result = VimValue(qlonglong(1)); return true; }
+    if (name == "v:false" || name == "v:null" || name == "v:none") {
+        *result = VimValue(qlonglong(0));
+        return true;
+    }
+    const auto it = m_variables.constFind(normalizedVarName(name));
+    if (it == m_variables.constEnd())
+        return false;
+    *result = *it;
+    return true;
+}
+
+void FakeVimHandler::Private::setVariable(const QString &name, const VimValue &value)
+{
+    m_variables.insert(normalizedVarName(name), value);
+}
+
+bool FakeVimHandler::Private::unsetVariable(const QString &name)
+{
+    return m_variables.remove(normalizedVarName(name)) > 0;
+}
+
+bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
+{
+    // :let {var} = {expr} and compound forms (+= -= *= /= %= .=).
+    if (cmd.cmd != "let")
+        return false;
+
+    static const QRegularExpression re(
+        "^\\s*([@&$]?[A-Za-z_][A-Za-z0-9_:]*)\\s*([-+*/%.]?=)\\s*(.*)$");
+    const QRegularExpressionMatch m = re.match(cmd.args);
+    if (!m.hasMatch()) {
+        showMessage(MessageError, Tr::tr("Invalid :let expression: %1").arg(cmd.args));
+        return true;
+    }
+
+    const QString name = m.captured(1);
+    const QString op = m.captured(2);
+    const QString rhs = m.captured(3);
+
+    if (name.startsWith('&') || name.startsWith('@') || name.startsWith('$')) {
+        // Options, registers and environment variables come in a later step.
+        notImplementedYet();
+        return true;
+    }
+
+    VimValue value;
+    QString error;
+    if (!evaluateExpression(rhs, &value, &error)) {
+        showMessage(MessageError, error);
+        return true;
+    }
+
+    if (op != "=") {
+        VimValue old;
+        if (!variableValue(name, &old)) {
+            showMessage(MessageError, Tr::tr("Undefined variable: %1").arg(name));
+            return true;
+        }
+        const QChar o = op.at(0);
+        if (o == '.') {
+            value = VimValue(old.toString() + value.toString());
+        } else if (old.type() == VimValue::Float || value.type() == VimValue::Float) {
+            const double a = old.toFloat(), b = value.toFloat();
+            value = VimValue(o == '+' ? a + b : o == '-' ? a - b : o == '*' ? a * b
+                             : b != 0 ? a / b : 0.0);
+        } else {
+            const qlonglong a = old.toNumber(), b = value.toNumber();
+            value = VimValue(o == '+' ? a + b : o == '-' ? a - b : o == '*' ? a * b
+                             : o == '%' ? (b != 0 ? a % b : 0)
+                             : (b != 0 ? a / b : 0));
+        }
+    }
+
+    setVariable(name, value);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExUnletCommand(const ExCommand &cmd)
+{
+    // :unlet[!] {var} ...
+    if (cmd.cmd != "unlet")
+        return false;
+
+    const QStringList names = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    for (const QString &name : names) {
+        if (!unsetVariable(name) && !cmd.hasBang) {
+            showMessage(MessageError, Tr::tr("Undefined variable: %1").arg(name));
+            return true;
+        }
+    }
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 {
     // :echo / :echomsg evaluate their arguments, joining results with a space.
@@ -7650,6 +7790,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExChangeCommand(cmd)
         || handleExMoveCommand(cmd)
         || handleExJoinCommand(cmd)
+        || handleExLetCommand(cmd)
+        || handleExUnletCommand(cmd)
         || handleExMapCommand(cmd)
         || handleExMultiRepeatCommand(cmd)
         || handleExNohlsearchCommand(cmd)
