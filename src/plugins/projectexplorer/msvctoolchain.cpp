@@ -6,6 +6,7 @@
 #include "toolchainmanager.h"
 
 #include "abiwidget.h"
+#include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "gcctoolchain.h"
 #include "msvcparser.h"
@@ -955,27 +956,60 @@ static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> 
 
 void MsvcToolchain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
 {
-    connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt, this, [this] {
-        const GenerateEnvResult &result = m_envModWatcher.result();
-        if (!result) {
-            QString errorMessage = result.error();
-            if (!errorMessage.isEmpty()) {
-                Task::TaskType severity;
-                if (m_environmentModifications.isEmpty()) {
-                    severity = Task::Error;
-                } else {
-                    severity = Task::Warning;
-                    errorMessage.prepend(
-                        Tr::tr("Falling back to use the cached environment for \"%1\" after:")
-                                .arg(displayName()) + '\n');
-                }
-                TaskHub::addTask<CompileTask>(severity, errorMessage);
-            }
-        } else {
-            updateEnvironmentModifications(*result);
-        }
-    });
     m_envModWatcher.setFuture(future);
+}
+
+void MsvcToolchain::handleEnvModResult()
+{
+    const GenerateEnvResult &result = m_envModWatcher.result();
+    if (!result) {
+        QString errorMessage = result.error();
+        if (!errorMessage.isEmpty()) {
+            Task::TaskType severity;
+            if (m_environmentModifications.isEmpty()) {
+                severity = Task::Error;
+            } else {
+                severity = Task::Warning;
+                errorMessage.prepend(
+                    Tr::tr("Falling back to use the cached environment for \"%1\" after:")
+                            .arg(displayName()) + '\n');
+            }
+            TaskHub::addTask<CompileTask>(severity, errorMessage);
+        }
+        // If the capture failed because the device is unreachable, retry on connect.
+        if (!m_vcvarsBat.isLocal() && !m_vcvarsBat.hasFileAccess())
+            rescanWhenDeviceReady();
+    } else {
+        updateEnvironmentModifications(*result);
+    }
+}
+
+// The device hosting m_vcvarsBat is currently unreachable (e.g. not connected yet at
+// startup). Retry once the DeviceManager reports the device as updated and file access
+// works again: re-run the vcvars environment capture if it never succeeded, or only
+// re-probe the compiler if just the compiler probe failed.
+void MsvcToolchain::rescanWhenDeviceReady()
+{
+    if (m_deviceReadyConnection)
+        return; // Already waiting for the device.
+
+    m_deviceReadyConnection = connect(
+        DeviceManager::instance(), &DeviceManager::deviceUpdated, this, [this](Utils::Id id) {
+            const IDevice::ConstPtr device = DeviceManager::find(id);
+            if (!device || !isSameDevice(device->rootPath()) || !m_vcvarsBat.hasFileAccess())
+                return;
+            disconnect(m_deviceReadyConnection);
+            m_deviceReadyConnection = {};
+            if (m_environmentModifications.isEmpty()) {
+                // The environment capture failed while the device was offline. Re-run it;
+                // on success updateEnvironmentModifications() re-probes the compiler.
+                initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
+                                                  m_vcvarsBat, m_varsBatArg));
+            } else if (compilerCommand().isEmpty()) {
+                rescanForCompiler();
+                toolChainUpdated();
+            }
+        });
 }
 
 bool MsvcToolchain::canShareBundleImpl(const Toolchain &other) const
@@ -1040,6 +1074,8 @@ MsvcToolchain::MsvcToolchain(Utils::Id typeId)
 {
     setDisplayName("Microsoft Visual C++ Compiler");
     setTypeDisplayName(Tr::tr("MSVC"));
+    connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt,
+            this, &MsvcToolchain::handleEnvModResult);
     addToAvailableMsvcToolchains(this);
     setTargetAbiKey(KEY_ROOT "SupportedAbi");
     setVersionFlagsAndParser({}, [](const QString &, const QString &stdErr) -> QVersionNumber {
@@ -1212,6 +1248,9 @@ void MsvcToolchain::fromMap(const Store &data)
         rescanForCompiler();
         initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
                                           m_vcvarsBat, m_varsBatArg));
+    } else {
+        // Device offline at startup: retry the probe once it is connected.
+        rescanWhenDeviceReady();
     }
 
     if (m_vcvarsBat.isEmpty() || !targetAbi().isValid()) {
@@ -1451,6 +1490,12 @@ void MsvcToolchain::rescanForCompiler()
                   } while (dir.cdUp() && !dir.isRoot());
                   return false;
               }));
+        return;
+    }
+
+    // Device offline: we cannot probe it now; retry once it is connected.
+    if (!vcvars.hasFileAccess()) {
+        rescanWhenDeviceReady();
         return;
     }
 

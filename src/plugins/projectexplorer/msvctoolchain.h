@@ -110,10 +110,13 @@ protected:
 
 private:
     void updateEnvironmentModifications(Utils::EnvironmentItems modifications);
+    void handleEnvModResult();
     void rescanForCompiler();
+    void rescanWhenDeviceReady();
 
     mutable Utils::EnvironmentItems m_environmentModifications;
     mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
+    QMetaObject::Connection m_deviceReadyConnection;
 
     mutable Utils::Environment m_lastEnvironment;   // Last checked 'incoming' environment.
     mutable Utils::Environment m_resultEnvironment; // Resulting environment for VC
