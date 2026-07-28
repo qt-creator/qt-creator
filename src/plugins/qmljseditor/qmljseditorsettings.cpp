@@ -28,21 +28,13 @@
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
-#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcsettings.h>
 #include <utils/treemodel.h>
-#include <utils/variablechooser.h>
 
-#include <QCheckBox>
-#include <QComboBox>
 #include <QGroupBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QLoggingCategory>
 #include <QMenu>
 #include <QPushButton>
-#include <QTextStream>
 #include <QTreeView>
 
 
@@ -89,19 +81,7 @@ static QList<int> defaultDisabledMessagesNonQuickUi()
     return disabledForNonQuickUi;
 }
 
-QVariant DisabledMessagesAspect::fromSettingsValue(const QVariant &savedValue) const
-{
-    QStringList list = savedValue.value<QStringList>();
-    QList<int> result =  Utils::transform<QList<int>>(list, [](const QString &s) { return s.toInt(); });
-    return QVariant::fromValue(result);
-}
-
-QVariant DisabledMessagesAspect::toSettingsValue(const QVariant &valueToSave) const
-{
-    QList<int> list = valueToSave.value<QList<int>>();
-    QStringList result = Utils::transform<QStringList>(list, [](int i) { return QString::number(i); });
-    return QVariant::fromValue(result);
-}
+static void openQtVersionsOptions();
 
 QmlJsEditingSettings::QmlJsEditingSettings()
 {
@@ -136,18 +116,83 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     useCustomAnalyzer.setSettingsKey(group, CUSTOM_ANALYZER);
     useCustomAnalyzer.setLabelText(Tr::tr("Use customized static analyzer"));
 
-    disabledMessages.setSettingsKey(group, DISABLED_MESSAGES);
-    disabledMessages.setDefaultValue(defaultDisabledMessages());
-
-    disabledMessagesForNonQuickUi.setSettingsKey(group, DISABLED_MESSAGES_NONQUICKUI);
-    disabledMessagesForNonQuickUi.setDefaultValue(defaultDisabledMessagesNonQuickUi());
-
     qdsCommand.setSettingsKey(group, QDS_COMMAND);
     qdsCommand.setPlaceHolderText(defaultQdsCommand().toUserOutput());
     qdsCommand.setLabelText(Tr::tr("Command:"));
     qdsCommand.setVisible(false);
 
+    setLayouter([this] {
+        using namespace Layouting;
+        // clang-format off
+        Column column {
+            Group {
+                title(Tr::tr("Formatting")),
+                Column {
+                    autoFormatOnSave,
+                    autoFormatOnlyCurrentProject,
+                },
+            },
+            Group {
+                title(Tr::tr("Qt Quick Toolbars")),
+                Column {
+                    pinContextPane,
+                    enableContextPane
+                },
+            },
+            Group {
+                visibleOn(&qdsCommand),
+                title(Tr::tr("Qt Design Studio")),
+                Column {
+                    Label {
+                        wordWrap(true),
+                        text(Tr::tr("Set the path to the Qt Design Studio application to enable "
+                                    "the \"Open in Qt Design Studio\" feature. If you have Qt "
+                                    "Design Studio installed alongside Qt Creator with the Qt "
+                                    "Online Installer, it is used as the default. Use "
+                                    "<a href=\"linkwithqt\">\"Link with Qt\"</a> to link an "
+                                    "offline installation of Qt Creator to a Qt Online Installer.")),
+                        onLinkActivated(this, [](const QString &) { openQtVersionsOptions(); })
+                    },
+                    Form {
+                        qdsCommand, br
+                    },
+                    qdsInstall,
+                },
+            },
+            Group {
+                title(Tr::tr("Features")),
+                Column {
+                    foldAuxData,
+                    Row { uiQmlOpenMode, st }
+                },
+            },
+            Group {
+                title(Tr::tr("QML Language Server")),
+                Row {
+                    PushButton {
+                        text(Tr::tr("Open Language Server preferences...")),
+                        onClicked(this, [] { Core::ICore::showSettings(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PAGE); })
+                    },
+                    st
+                },
+            },
+            Group {
+                title(Tr::tr("Static Analyzer")),
+                Column {
+                    useCustomAnalyzer,
+                    analyzerMessages
+                },
+            },
+            st,
+        };
+        // clang-format on
+
+        return column;
+    });
+
     readSettings();
+
+    analyzerMessages.setEnabler(&useCustomAnalyzer);
 }
 
 FilePath QmlJsEditingSettings::defaultQdsCommand() const
@@ -223,202 +268,171 @@ static UpdateInfo::Service *updateInfoService()
     return ExtensionSystem::PluginManager::getObject<UpdateInfo::Service>();
 }
 
-class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
+static QStringList disabledMessagesToStringList(const QList<int> &list)
 {
-public:
-    QmlJsEditingSettingsPageWidget()
-    {
-        QmlJsEditingSettings &s = settings();
+    return Utils::transform<QStringList>(list, [](int i) { return QString::number(i); });
+}
 
-        analyzerMessageModel.setHeader(
-            {Tr::tr("Enabled"), Tr::tr("Only for Qt Quick UI"), Tr::tr("Message")});
-        analyzerMessagesView = new QTreeView;
-        analyzerMessagesView->setModel(&analyzerMessageModel);
-        analyzerMessagesView->setEnabled(s.useCustomAnalyzer());
-        QObject::connect(&s.useCustomAnalyzer, &BoolAspect::volatileValueChanged, this, [this, &s] {
-            analyzerMessagesView->setEnabled(s.useCustomAnalyzer.volatileValue());
-        });
-        analyzerMessagesView->setToolTip(
-            "<html>"
-            + Tr::tr("Enabled checks can be disabled for non Qt Quick UI"
-                     " files, but disabled checks cannot get explicitly"
-                     " enabled for non Qt Quick UI files."));
-        analyzerMessagesView->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(analyzerMessagesView, &QTreeView::customContextMenuRequested,
-                this, &QmlJsEditingSettingsPageWidget::showContextMenu);
+static QList<int> disabledMessagesFromStringList(const QStringList &list)
+{
+    return Utils::transform<QList<int>>(list, [](const QString &s) { return s.toInt(); });
+}
 
-        using namespace Layouting;
-        QWidget *installQdsRow = nullptr;
-        QPushButton *installQdsButton = nullptr;
-        // clang-format off
-        QWidget *formattingGroup = nullptr;
-        QWidget *qdsGroup = nullptr;
-        Column {
-            Group {
-                bindTo(&formattingGroup),
-                title(Tr::tr("Formatting")),
-                Column {
-                    s.autoFormatOnSave,
-                    s.autoFormatOnlyCurrentProject,
-                },
-            },
-            Group {
-                title(Tr::tr("Qt Quick Toolbars")),
-                Column {
-                    s.pinContextPane,
-                    s.enableContextPane
-                },
-            },
-            Group {
-                bindTo(&qdsGroup),
-                title(Tr::tr("Qt Design Studio")),
-                Column {
-                    Label {
-                        wordWrap(true),
-                        text(Tr::tr("Set the path to the Qt Design Studio application to enable "
-                                    "the \"Open in Qt Design Studio\" feature. If you have Qt "
-                                    "Design Studio installed alongside Qt Creator with the Qt "
-                                    "Online Installer, it is used as the default. Use "
-                                    "<a href=\"linkwithqt\">\"Link with Qt\"</a> to link an "
-                                    "offline installation of Qt Creator to a Qt Online Installer.")),
-                        onLinkActivated(this, [](const QString &) { openQtVersionsOptions(); })
-                    },
-                    Form {
-                        s.qdsCommand, br
-                    },
-                    Widget {
-                        bindTo(&installQdsRow),
-                        Row {
-                            st,
-                            PushButton {
-                                bindTo(&installQdsButton),
-                                text(Tr::tr("Install Qt Design Studio"))
-                            }
-                        }
-                    }
-                }
-            },
-            Group {
-                title(Tr::tr("Features")),
-                Column {
-                    s.foldAuxData,
-                    Row { s.uiQmlOpenMode, st }
-                },
-            },
-            Group {
-                title(Tr::tr("QML Language Server")),
-                Row {
-                    PushButton {
-                        ignoreDirtyHooks,
-                        text(Tr::tr("Open Language Server preferences...")),
-                        onClicked(this, [] { Core::ICore::showSettings(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PAGE); })
-                    },
-                    st
-                },
-            },
-            Group {
-                title(Tr::tr("Static Analyzer")),
-                Column {
-                    s.useCustomAnalyzer,
-                    analyzerMessagesView
-                },
-            },
-            st,
-        }.attachTo(this);
-        // clang-format on
-
-        qdsGroup->setVisible(s.qdsCommand.isVisible());
-        const auto updateQdsSettings = [installQdsRow] {
-            QmlJsEditingSettings &s = settings();
-            const QString placeholder = s.defaultQdsCommand().toUserOutput();
-            s.qdsCommand.setPlaceHolderText(placeholder);
-            s.qdsCommand.pathChooser()->setPlaceholderText(placeholder);
-            installQdsRow->setVisible(s.defaultQdsCommand().isEmpty() && updateInfoService());
-        };
-        updateQdsSettings();
-        connect(installQdsButton, &QPushButton::clicked, this, [updateQdsSettings] {
-            UpdateInfo::Service *updater = updateInfoService();
-            QTC_ASSERT(updater, return);
-            if (updater->installPackages("^qt[.].*qtdesignstudio.*$")) {
-                updateQdsSettings();
-                emit settings().qdsCommand.changed();
-            }
-        });
-
-        VariableChooser::addSupportForChildWidgets(formattingGroup,
-                                      MacroExpanderProvider(globalMacroExpander()));
-
-        populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
-
-        installMarkSettingsDirtyTriggerRecursively(this);
-        connect(&analyzerMessageModel, &QAbstractItemModel::dataChanged, this, markSettingsDirty);
+static void populateMessageModel(QTreeView *view, const QList<int> &disabled,
+                                 const QList<int> &disabledForNonQuickUi)
+{
+    using namespace QmlJS::StaticAnalysis;
+    auto model = static_cast<TreeModel<AnalyzerMessageItem> *>(view->model());
+    model->clear();
+    TreeItem *root = model->rootItem();
+    const QList<Type> knownMessages = Utils::sorted(Message::allMessageTypes());
+    for (Type msgType : knownMessages) {
+        const QString msg = Message::prototypeForMessageType(msgType).message;
+        auto item = new AnalyzerMessageItem(msgType, msg);
+        item->setData(0, !disabled.contains(msgType), Qt::CheckStateRole);
+        item->setData(1, disabledForNonQuickUi.contains(msgType), Qt::CheckStateRole);
+        root->appendChild(item);
     }
+    for (int column = 0; column < 3; ++column)
+        view->resizeColumnToContents(column);
+}
 
-    void apply() final
-    {
-        QmlJsEditingSettings &s = settings();
-        s.apply();
-        QList<int> disabled;
-        QList<int> disabledForNonQuickUi;
+static void extractMessageModel(QTreeView *view, QList<int> &disabled,
+                                QList<int> &disabledForNonQuickUi)
+{
+    auto model = static_cast<TreeModel<AnalyzerMessageItem> *>(view->model());
+    model->forAllItems([&disabled, &disabledForNonQuickUi](AnalyzerMessageItem *item) {
+        if (item->data(0, Qt::CheckStateRole) == Qt::Unchecked)
+            disabled.append(item->messageNumber());
+        if (item->data(1, Qt::CheckStateRole) == Qt::Checked)
+            disabledForNonQuickUi.append(item->messageNumber());
+    });
+}
 
-        analyzerMessageModel.forAllItems(
-            [&disabled, &disabledForNonQuickUi](AnalyzerMessageItem *item){
-            if (item->data(0, Qt::CheckStateRole) == Qt::Unchecked)
-                disabled.append(item->messageNumber());
-            if (item->data(1, Qt::CheckStateRole) == Qt::Checked)
-                disabledForNonQuickUi.append(item->messageNumber());
-        });
-        s.disabledMessages.setValue(disabled);
-        s.disabledMessagesForNonQuickUi.setValue(disabledForNonQuickUi);
-        s.writeSettings();
-        Core::IOptionsPageWidget::apply();
-    }
+AnalyzerMessagesAspect::AnalyzerMessagesAspect(AspectContainer *container)
+    : BaseAspect(container)
+{}
 
-    void cancel() final
-    {
-        QmlJsEditingSettings &s = settings();
-        s.cancel();
-        analyzerMessageModel.clear();
-        populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
-        analyzerMessagesView->setEnabled(s.useCustomAnalyzer());
-        Core::IOptionsPageWidget::cancel();
-    }
+void AnalyzerMessagesAspect::apply()
+{
+    if (!m_view)
+        return;
+    m_disabled.clear();
+    m_disabledForNonQuickUi.clear();
+    extractMessageModel(m_view, m_disabled, m_disabledForNonQuickUi);
+}
 
-private:
-    void populateAnalyzerMessages(const QList<int> &disabled, const QList<int> &disabledForNonQuickUi)
-    {
-        using namespace QmlJS::StaticAnalysis;
-        const QList<Type> knownMessages = Utils::sorted(Message::allMessageTypes());
-        auto root = analyzerMessageModel.rootItem();
-        for (auto msgType : knownMessages) {
-            const QString msg = Message::prototypeForMessageType(msgType).message;
-            auto item = new AnalyzerMessageItem(msgType, msg);
-            item->setData(0, !disabled.contains(msgType), Qt::CheckStateRole);
-            item->setData(1, disabledForNonQuickUi.contains(msgType), Qt::CheckStateRole);
-            root->appendChild(item);
-        }
+void AnalyzerMessagesAspect::cancel()
+{
+    if (m_view)
+        populateModel();
+}
 
-        for (int column = 0; column < 3; ++column)
-            analyzerMessagesView->resizeColumnToContents(column);
-    }
+bool AnalyzerMessagesAspect::isDirty() const
+{
+    if (!m_view)
+        return false;
+    QList<int> disabled;
+    QList<int> disabledForNonQuickUi;
+    extractMessageModel(m_view, disabled, disabledForNonQuickUi);
+    return Utils::sorted(disabled) != Utils::sorted(m_disabled)
+           || Utils::sorted(disabledForNonQuickUi) != Utils::sorted(m_disabledForNonQuickUi);
+}
 
-    void showContextMenu(const QPoint &position)
-    {
+void AnalyzerMessagesAspect::readSettings()
+{
+    QtcSettings &s = Utils::userSettings();
+    s.beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
+    m_disabled = disabledMessagesFromStringList(
+        s.value(DISABLED_MESSAGES, disabledMessagesToStringList(defaultDisabledMessages()))
+            .toStringList());
+    m_disabledForNonQuickUi = disabledMessagesFromStringList(
+        s.value(DISABLED_MESSAGES_NONQUICKUI,
+                disabledMessagesToStringList(defaultDisabledMessagesNonQuickUi()))
+            .toStringList());
+    s.endGroup();
+    if (m_view)
+        populateModel();
+}
+
+void AnalyzerMessagesAspect::writeSettings() const
+{
+    QtcSettings &s = Utils::userSettings();
+    s.beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
+    s.setValue(DISABLED_MESSAGES, disabledMessagesToStringList(m_disabled));
+    s.setValue(DISABLED_MESSAGES_NONQUICKUI, disabledMessagesToStringList(m_disabledForNonQuickUi));
+    s.endGroup();
+}
+
+void AnalyzerMessagesAspect::populateModel()
+{
+    populateMessageModel(m_view, m_disabled, m_disabledForNonQuickUi);
+}
+
+void AnalyzerMessagesAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    m_view = createSubWidget<QTreeView>();
+    auto model = new TreeModel<AnalyzerMessageItem>(m_view);
+    model->setHeader({Tr::tr("Enabled"), Tr::tr("Only for Qt Quick UI"), Tr::tr("Message")});
+    m_view->setModel(model);
+    m_view->setToolTip(
+        "<html>"
+        + Tr::tr("Enabled checks can be disabled for non Qt Quick UI"
+                 " files, but disabled checks cannot get explicitly"
+                 " enabled for non Qt Quick UI files."));
+    m_view->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    populateModel();
+
+    connect(model, &QAbstractItemModel::dataChanged, this, &checkSettingsDirty);
+
+    connect(m_view, &QTreeView::customContextMenuRequested, this, [this](const QPoint &pos) {
         QMenu menu;
-        QAction *reset = new QAction(Tr::tr("Reset to Default"), &menu);
-        menu.addAction(reset);
-        connect(reset, &QAction::triggered, this, [this](){
-            analyzerMessageModel.clear();
-            populateAnalyzerMessages(defaultDisabledMessages(),
-                                     defaultDisabledMessagesNonQuickUi());
-            markSettingsDirty();
+        QAction *reset = menu.addAction(Tr::tr("Reset to Default"));
+        connect(reset, &QAction::triggered, this, [this] {
+            populateMessageModel(m_view, defaultDisabledMessages(),
+                                 defaultDisabledMessagesNonQuickUi());
+            checkSettingsDirty();
         });
-        menu.exec(analyzerMessagesView->mapToGlobal(position));
-    }
+        menu.exec(m_view->mapToGlobal(pos));
+    });
 
-    QTreeView *analyzerMessagesView;
-    Utils::TreeModel<AnalyzerMessageItem> analyzerMessageModel;
-};
+    parent.addItem(m_view);
+}
+
+QdsInstallAspect::QdsInstallAspect(AspectContainer *container)
+    : BaseAspect(container)
+{}
+
+void QdsInstallAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    using namespace Layouting;
+    auto button = new QPushButton(Tr::tr("Install Qt Design Studio"));
+    QWidget *row = Row { st, button, noMargin }.emerge();
+
+    const auto update = [row] {
+        QmlJsEditingSettings &s = settings();
+        const QString placeholder = s.defaultQdsCommand().toUserOutput();
+        s.qdsCommand.setPlaceHolderText(placeholder);
+        if (PathChooser *chooser = s.qdsCommand.pathChooser())
+            chooser->setPlaceholderText(placeholder);
+        row->setVisible(s.defaultQdsCommand().isEmpty() && updateInfoService());
+    };
+    // Do not show the not-yet-parented row; it would briefly pop up as a window.
+    if (!settings().defaultQdsCommand().isEmpty() || !updateInfoService())
+        row->setVisible(false);
+
+    connect(button, &QPushButton::clicked, this, [update] {
+        UpdateInfo::Service *updater = updateInfoService();
+        QTC_ASSERT(updater, return);
+        if (updater->installPackages("^qt[.].*qtdesignstudio.*$")) {
+            update();
+            emit settings().qdsCommand.changed();
+        }
+    });
+
+    parent.addItem(row);
+}
 
 class QmlJsEditingSettingsPage : public Core::IOptionsPage
 {
@@ -428,7 +442,6 @@ public:
         setId(SETTINGS_PAGE);
         setDisplayName(::QmlJSEditor::Tr::tr("QML/JS Editing"));
         setCategory(Constants::SETTINGS_CATEGORY_QML);
-        setWidgetCreator([] { return new QmlJsEditingSettingsPageWidget; });
         setSettingsProvider([] { return &settings(); });
     }
 };

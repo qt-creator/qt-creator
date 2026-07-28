@@ -6,15 +6,47 @@
 #include <utils/aspects.h>
 #include <utils/filepath.h>
 
+#include <QPointer>
+
+QT_BEGIN_NAMESPACE
+class QTreeView;
+QT_END_NAMESPACE
+
 namespace QmlJSEditor::Internal {
 
-class DisabledMessagesAspect : public Utils::IntegersAspect
+// Custom static analyzer message selection, edited through a two-column
+// checkable tree. Persisted under the legacy DISABLED_MESSAGES /
+// DISABLED_MESSAGES_NONQUICKUI keys, which QmlJS::Check reads directly.
+class AnalyzerMessagesAspect final : public Utils::BaseAspect
 {
 public:
-    using Utils::IntegersAspect::IntegersAspect;
+    AnalyzerMessagesAspect(Utils::AspectContainer *container = nullptr);
 
-    QVariant fromSettingsValue(const QVariant &savedValue) const override;
-    QVariant toSettingsValue(const QVariant &valueToSave) const override;
+    void apply() final;
+    void cancel() final;
+    bool isDirty() const final;
+    void readSettings() final;
+    void writeSettings() const final;
+
+    void addToLayoutImpl(Layouting::Layout &parent) final;
+
+private:
+    void populateModel();
+
+    QList<int> m_disabled;
+    QList<int> m_disabledForNonQuickUi;
+    QPointer<QTreeView> m_view = nullptr;
+};
+
+// UI-only aspect (nothing persisted): hosts the "Install Qt Design Studio"
+// button and keeps the qdsCommand placeholder in sync. All behavior lives in
+// addToLayoutImpl.
+class QdsInstallAspect final : public Utils::BaseAspect
+{
+public:
+    QdsInstallAspect(Utils::AspectContainer *container = nullptr);
+
+    void addToLayoutImpl(Layouting::Layout &parent) final;
 };
 
 class QmlJsEditingSettings final : public Utils::AspectContainer
@@ -31,9 +63,9 @@ public:
     Utils::BoolAspect foldAuxData{this};
     Utils::BoolAspect useCustomAnalyzer{this};
     Utils::SelectionAspect uiQmlOpenMode{this};
-    DisabledMessagesAspect disabledMessages{this};
-    DisabledMessagesAspect disabledMessagesForNonQuickUi{this};
+    AnalyzerMessagesAspect analyzerMessages{this};
     Utils::FilePathAspect qdsCommand{this};
+    QdsInstallAspect qdsInstall{this};
 };
 
 QmlJsEditingSettings &settings();
