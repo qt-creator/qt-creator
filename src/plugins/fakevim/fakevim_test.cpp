@@ -217,6 +217,7 @@ private slots:
     void test_vim_script_functions();
     void test_vim_script_string_builtins();
     void test_vim_script_collection_builtins();
+    void test_vim_script_map_filter();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6147,6 +6148,38 @@ void FakeVimTester::test_vim_script_collection_builtins()
     data.doCommand("call add(g:b, 3)");
     QCOMPARE(echo("g:a"), QLatin1String("[1, 2]"));
     QCOMPARE(echo("g:b"), QLatin1String("[1, 2, 3]"));
+}
+
+void FakeVimTester::test_vim_script_map_filter()
+{
+    // map() and filter() evaluate an expression per element with v:val/v:key
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("map([1, 2, 3], \"v:val * 2\")"), QLatin1String("[2, 4, 6]"));
+    QCOMPARE(echo("filter([1, 2, 3, 4], \"v:val % 2 == 0\")"), QLatin1String("[2, 4]"));
+    QCOMPARE(echo("map([1, 2, 3], \"v:key\")"), QLatin1String("[0, 1, 2]"));
+
+    // On a dictionary, v:key is the key.
+    QCOMPARE(echo("map({\"a\": 1, \"b\": 2}, \"v:val + 10\")"),
+             QLatin1String("{'a': 11, 'b': 12}"));
+    QCOMPARE(echo("filter({\"a\": 1, \"b\": 2, \"c\": 3}, \"v:val >= 2\")"),
+             QLatin1String("{'b': 2, 'c': 3}"));
+
+    // The list is mutated in place and v:val does not leak afterwards.
+    data.doCommand("let g:l = [1, 2, 3]");
+    data.doCommand("call map(g:l, \"v:val + 1\")");
+    QCOMPARE(echo("g:l"), QLatin1String("[2, 3, 4]"));
+    QCOMPARE(echo("exists('v:val')"), QLatin1String("0"));
 }
 
 void FakeVimTester::test_vim_file_info()
