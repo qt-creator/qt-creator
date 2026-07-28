@@ -2381,6 +2381,7 @@ public:
     QHash<QString, UserFunction> m_userFunctions;
     struct AutoCommand { QString event; QString pattern; QString command; };
     QList<AutoCommand> m_autoCommands;
+    QHash<QString, QString> m_userCommands; // :command Name -> replacement text
     bool m_inAutocmd = false; // guard against autocommands triggering autocommands
     QString m_fileType; // matched by FileType autocommands
     QList<QHash<QString, VimValue>> m_localScopes;
@@ -2566,6 +2567,8 @@ public:
     bool handleExSilentCommand(const ExCommand &cmd);
     bool handleExAutocmdCommand(const ExCommand &cmd);
     bool handleExDoAutocmdCommand(const ExCommand &cmd);
+    bool handleExCommandDefCommand(const ExCommand &cmd);
+    bool handleExUserCommand(const ExCommand &cmd);
     bool handleExSetFileTypeCommand(const ExCommand &cmd);
     void setFileType(const QString &type);
     void triggerAutocmd(const QString &event);
@@ -9201,6 +9204,74 @@ bool FakeVimHandler::Private::handleExDoAutocmdCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::handleExCommandDefCommand(const ExCommand &cmd)
+{
+    // :command[!] [-attributes] {Name} {replacement}   (define a user command)
+    // :comclear                                         (remove all)
+    // :delcommand {Name}                                (remove one)
+    if (cmd.cmd == "comclear") {
+        m_userCommands.clear();
+        return true;
+    }
+    if (cmd.cmd == "delcommand" || cmd.cmd == "delc") {
+        m_userCommands.remove(cmd.args.trimmed());
+        return true;
+    }
+    if (cmd.cmd != "command" && cmd.cmd != "com")
+        return false;
+
+    QString rest = cmd.args.trimmed();
+    // Skip leading attribute tokens (-nargs=, -range, -bang, ...).
+    while (rest.startsWith('-')) {
+        const int sp = rest.indexOf(QRegularExpression("\\s"));
+        if (sp < 0) {
+            rest.clear();
+            break;
+        }
+        rest = rest.mid(sp + 1).trimmed();
+    }
+    const int sp = rest.indexOf(QRegularExpression("\\s"));
+    if (sp < 0)
+        return true; // ":command" with no replacement: listing, treated as no-op
+    m_userCommands.insert(rest.left(sp), rest.mid(sp + 1).trimmed());
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExUserCommand(const ExCommand &cmd)
+{
+    const auto it = m_userCommands.constFind(cmd.cmd);
+    if (it == m_userCommands.constEnd())
+        return false;
+
+    // Expand the replacement's <...> tokens from the invocation.
+    const QString args = cmd.args;
+    QStringList fargs;
+    const QStringList words = args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    for (const QString &w : words)
+        fargs.append('"' + QString(w).replace('\\', "\\\\").replace('"', "\\\"") + '"');
+    const int l1 = cmd.range.isValid() ? lineForPosition(cmd.range.beginPos) : cursorLine() + 1;
+    const int l2 = cmd.range.isValid() ? lineForPosition(cmd.range.endPos) : cursorLine() + 1;
+
+    QString line = *it;
+    line.replace("<q-args>", '"' + QString(args).replace('\\', "\\\\").replace('"', "\\\"") + '"');
+    line.replace("<f-args>", fargs.join(", "));
+    line.replace("<args>", args);
+    line.replace("<bang>", cmd.hasBang ? "!" : QString());
+    line.replace("<count>", QString::number(cmd.count));
+    line.replace("<line1>", QString::number(l1));
+    line.replace("<line2>", QString::number(l2));
+    line.replace("<lt>", "<");
+
+    ExCommand sub;
+    while (parseExCommand(&line, &sub)) {
+        if (!handleExCommandHelper(sub)) {
+            showMessage(MessageError, Tr::tr("Not an editor command: %1").arg(sub.cmd));
+            break;
+        }
+    }
+    return true;
+}
+
 void FakeVimHandler::Private::triggerAutocmd(const QString &event)
 {
     if (m_autoCommands.isEmpty() || m_inAutocmd)
@@ -9695,6 +9766,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExSilentCommand(cmd)
         || handleExAutocmdCommand(cmd)
         || handleExDoAutocmdCommand(cmd)
+        || handleExCommandDefCommand(cmd)
         || handleExSetFileTypeCommand(cmd)
         || handleExLetCommand(cmd)
         || handleExUnletCommand(cmd)
@@ -9715,7 +9787,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExTabPreviousCommand(cmd)
         || handleExTagCommand(cmd)
         || handleExWriteCommand(cmd)
-        || handleExEchoCommand(cmd);
+        || handleExEchoCommand(cmd)
+        || handleExUserCommand(cmd);
 }
 
 bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)

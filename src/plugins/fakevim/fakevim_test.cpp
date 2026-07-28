@@ -228,6 +228,7 @@ private slots:
     void test_vim_script_funcref();
     void test_vim_script_autocmd();
     void test_vim_script_dict_dot();
+    void test_vim_script_command();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6607,6 +6608,58 @@ void FakeVimTester::test_vim_script_dict_dot()
     data.doCommand("let g:n = {\"sub\": {}}");
     data.doCommand("let g:n.sub.x = 9");
     QCOMPARE(echo("g:n"), QLatin1String("{'sub': {'x': 9}}"));
+}
+
+void FakeVimTester::test_vim_script_command()
+{
+    // ":command" user-defined commands and their <...> argument tokens.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("command Hello let g:greeted = 1");
+    data.doCommand("Hello");
+    QCOMPARE(echo("g:greeted"), QLatin1String("1"));
+
+    // <args> and <q-args>.
+    data.doCommand("command SetX let g:x = <args>");
+    data.doCommand("SetX 42");
+    QCOMPARE(echo("g:x"), QLatin1String("42"));
+    data.doCommand("command Say let g:said = <q-args>");
+    data.doCommand("Say hi there");
+    QCOMPARE(echo("g:said"), QLatin1String("hi there"));
+
+    // <bang>.
+    data.doCommand("command Bang let g:bang = \"<bang>\"");
+    data.doCommand("Bang!");
+    QCOMPARE(echo("\"[\" . g:bang . \"]\""), QLatin1String("[!]"));
+    data.doCommand("Bang");
+    QCOMPARE(echo("\"[\" . g:bang . \"]\""), QLatin1String("[]"));
+
+    // Attributes are accepted (and ignored).
+    data.doCommand("command -nargs=1 Double let g:dbl = <args> * 2");
+    data.doCommand("Double 21");
+    QCOMPARE(echo("g:dbl"), QLatin1String("42"));
+
+    // <f-args> for passing to a function.
+    data.doCommand("function Store(a, b) | let g:pair = a:a . \",\" . a:b | endfunction");
+    data.doCommand("command Pair call Store(<f-args>)");
+    data.doCommand("Pair x y");
+    QCOMPARE(echo("g:pair"), QLatin1String("x,y"));
+
+    // :delcommand removes it (so it no longer runs).
+    data.doCommand("command Temp let g:temp = 1");
+    data.doCommand("delcommand Temp");
+    data.doCommand("let g:temp = 0");
+    data.doCommand("Temp");
+    QCOMPARE(echo("g:temp"), QLatin1String("0"));
 }
 
 void FakeVimTester::test_vim_file_info()
