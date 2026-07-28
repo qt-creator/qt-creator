@@ -1323,10 +1323,14 @@ class Inputs : public QVector<Input>
 public:
     Inputs() = default;
 
-    explicit Inputs(const QString &str, bool noremap = true, bool silent = false)
-        : m_noremap(noremap), m_silent(silent)
+    explicit Inputs(const QString &str, bool noremap = true, bool silent = false,
+                    bool expression = false)
+        : m_noremap(noremap), m_silent(silent), m_expression(expression)
     {
-        parseFrom(str);
+        if (expression)
+            m_expr = str; // evaluated on use; not parsed as keys (:map <expr>)
+        else
+            parseFrom(str);
         squeeze();
     }
 
@@ -1334,11 +1338,19 @@ public:
 
     bool silent() const { return m_silent; }
 
+    bool isExpression() const { return m_expression; }
+    QString expression() const { return m_expr; }
+
+    // An <expr> mapping holds no parsed keys but is still a real mapping.
+    bool isEmpty() const { return m_expression ? false : QVector<Input>::isEmpty(); }
+
 private:
     void parseFrom(const QString &str);
 
     bool m_noremap = true;
     bool m_silent = false;
+    bool m_expression = false;
+    QString m_expr;
 };
 
 static Input parseVimKeyName(const QString &keyName)
@@ -3201,7 +3213,19 @@ bool FakeVimHandler::Private::expandCompleteMapping()
     const Inputs &inputs = g.currentMap.inputs();
     int usedInputs = g.currentMap.mapLength();
     prependInputs(g.currentMap.currentInputs().mid(usedInputs));
-    prependMapping(inputs);
+    if (inputs.isExpression()) {
+        // ":map <expr>": the right-hand side is an expression whose string
+        // result is used as the typed keys (QTCREATORBUG-34817).
+        VimValue value;
+        QString error, keys;
+        if (evaluateExpression(inputs.expression(), &value, &error))
+            keys = value.toString();
+        else
+            showMessage(MessageError, error);
+        prependMapping(Inputs(keys, inputs.noremap(), inputs.silent()));
+    } else {
+        prependMapping(inputs);
+    }
     g.currentMap.reset();
 
     return true;
@@ -6527,6 +6551,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     QString args = cmd0.args;
     bool silent = false;
     bool unique = false;
+    bool expression = false;
     forever {
         if (eatString("<silent>", &args)) {
             silent = true;
@@ -6541,8 +6566,8 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
             notImplementedYet();
             continue;
         } else if (eatString("<expr>", &args)) {
-            notImplementedYet();
-            return true;
+            expression = true;
+            continue;
         }
         break;
     }
@@ -6565,7 +6590,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
             break;
         case Map: Q_FALLTHROUGH();
         case Noremap: {
-            const Inputs inputs(rhs, type == Noremap, silent);
+            const Inputs inputs(rhs, type == Noremap, silent, expression);
             for (char c : std::as_const(modes))
                 MappingsIterator(&g.mappings, c).setInputs(key, inputs, unique);
             break;

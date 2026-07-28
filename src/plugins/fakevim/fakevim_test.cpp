@@ -206,6 +206,7 @@ private slots:
     void test_vim_script_variables();
     void test_vim_script_options_registers();
     void test_vim_script_builtins();
+    void test_vim_script_expr_mapping();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5707,6 +5708,27 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("strlen(getline(3))"), QLatin1String("5"));
     data.doCommand("call setline(1, \"ONE\")");
     QCOMPARE(echo("getline(1)"), QLatin1String("ONE"));
+}
+
+void FakeVimTester::test_vim_script_expr_mapping()
+{
+    // ":inoremap <expr>" evaluates its right-hand side on each use
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+
+    data.doCommand("inoremap <expr> zz \"ab\" . \"cd\"");
+    data.setText("");
+    KEYS("izz<ESC>", "abc" X "d");
+
+    // The expression is evaluated at trigger time, so it can change.
+    data.doCommand("inoremap <expr> qq g:x");
+    data.doCommand("let g:x = \"A\"");
+    data.setText("");
+    KEYS("iqq<ESC>", X "A");
+    data.doCommand("let g:x = \"BB\"");
+    data.setText("");
+    KEYS("iqq<ESC>", "B" X "B");
 }
 
 void FakeVimTester::test_vim_file_info()
