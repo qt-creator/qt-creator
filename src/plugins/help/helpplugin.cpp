@@ -599,7 +599,7 @@ void HelpPluginPrivate::slotSystemInformation()
                                    "your system to bug reports:"));
     intro->setWordWrap(true);
     layout->addWidget(intro);
-    const QString text = "{noformat}\n" + ICore::systemInformation() + "\n{noformat}";
+    const QString text = "```\n" + ICore::systemInformation() + "\n```";
     auto info = new QPlainTextEdit;
     QFont font = info->font();
     font.setFamily("Courier");
