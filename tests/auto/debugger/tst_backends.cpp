@@ -343,6 +343,8 @@ struct InferiorTestData
     // full: Cdb's limit is not configured, Pdb and Qml have no such symbol.
     QString longTextSymbol;
     QString applicationOutputMarker;
+    // Set only where the inferior's stderr reaches us apart from its stdout.
+    QString applicationErrorMarker;
     // What the inferior passes to OutputDebugString, where it can.
     QString debugStringMarker;
     QString environmentReportPrefix;
@@ -2284,6 +2286,8 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void reportsApplicationOutputWithoutAStartupShell_data() { addBackendRows(); }
+    void reportsApplicationOutputWithoutAStartupShell();
     void reportsTheDebugStringOutput_data() { addBackendRows(); }
     void reportsTheDebugStringOutput();
     void reportsThatTheCppRuntimeTookTheInferior_data() { addBackendRows(); }
@@ -4212,6 +4216,8 @@ void tst_backends::initTestCase()
         "#ifdef _WIN32",
         "    OutputDebugStringA(\"OutputDebugString marker\\n\");",
         "#endif",
+        "    fprintf(stderr, \"stderr after bump\\n\");",
+        "    printf(\"argc=%d\\n\", argc);",
         "    printf(\"after bump\\n\");",
         "    fflush(stdout);",
         "    if (argc > 1 && strcmp(argv[1], \"vfork\") == 0)",
@@ -4419,6 +4425,7 @@ void tst_backends::initTestCase()
         m_backendData[Backend::Gdb].inferiorData.longTextSymbol = "longText";
         m_backendData[Backend::Gdb].inferiorData.marksUninitializedVariables = true;
         m_backendData[Backend::Gdb].inferiorData.versionLine = gdbVersionLine;
+        m_backendData[Backend::Gdb].inferiorData.applicationErrorMarker = "stderr after bump";
         m_backendData[Backend::Gdb].inferiorData.moduleListMarker = "libc";
         m_backendData[Backend::Gdb].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
         m_backendData[Backend::Gdb].inferiorData.alienBreakpointCommand = "break spin";
@@ -8701,11 +8708,15 @@ void tst_backends::reportsApplicationOutput()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     QStringList applicationOutput;
+    QStringList applicationErrors;
     QStringList otherChannels;
     connect(engine, &DebuggerEngineInterface::message, this,
-            [&applicationOutput, &otherChannels](const QString &text, int channel, int) {
+            [&applicationOutput, &applicationErrors, &otherChannels](const QString &text,
+                                                                      int channel, int) {
         if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
             applicationOutput.append(text);
+        else if (channel == Debugger::AppError)
+            applicationErrors.append(text);
         else
             otherChannels.append(text);
     });
@@ -8722,6 +8733,52 @@ void tst_backends::reportsApplicationOutput()
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
                               s_timeout);
+
+    const QString errorMarker = inferiorTestData(backend).applicationErrorMarker;
+    if (errorMarker.isEmpty())
+        return;
+    QTRY_VERIFY2_WITH_TIMEOUT(applicationErrors.join('\n').contains(errorMarker),
+                              qPrintable(QString("the debuggee's stderr never arrived on the "
+                                                 "error channel - looked for \"%1\", the "
+                                                 "application channel saw:\n  %2")
+                                             .arg(errorMarker,
+                                                  applicationOutput.join("\n  ").left(600))),
+                              s_timeout);
+}
+
+// The redirect that splits stderr off needs gdb's startup shell. Without it
+// the inferior would get the redirect as arguments.
+void tst_backends::reportsApplicationOutputWithoutAStartupShell()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Gdb)
+        QSKIP("Only gdb starts the inferior through a shell.");
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend
+        = createEngineWithUserCommands(backend, {}, {"set startup-with-shell off"});
+    QVERIFY(debuggerBackend);
+
+    QStringList applicationOutput;
+    connect(debuggerBackend->engine(), &DebuggerEngineInterface::message, this,
+            [&applicationOutput](const QString &text, int channel, int) {
+        if (channel == Debugger::AppOutput || channel == Debugger::AppStuff
+                || channel == Debugger::AppError) {
+            applicationOutput.append(text);
+        }
+    });
+    debuggerBackend->engine()->start();
+
+    const QString marker = inferiorTestData(backend).applicationOutputMarker;
+    QTRY_VERIFY2_WITH_TIMEOUT(applicationOutput.join('\n').contains(marker),
+                              qPrintable("the debuggee's output never arrived - saw: "
+                                         + applicationOutput.join(' ').right(300)), s_timeout);
+    const QString output = applicationOutput.join('\n');
+    QVERIFY2(output.contains("argc=1\n"), qPrintable("the debuggee got arguments: " + output));
+    QVERIFY2(output.contains(inferiorTestData(backend).applicationErrorMarker),
+             qPrintable("the debuggee's stderr went missing: " + output));
 }
 
 void tst_backends::reportsTheDebugStringOutput()

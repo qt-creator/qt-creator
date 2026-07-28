@@ -252,8 +252,30 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
             }
             if (!inferiorRunData.workingDirectory.isEmpty())
                 runCommand({"cd " + inferiorRunData.workingDirectory.path()});
-            if (!inferiorRunData.command.arguments().isEmpty())
-                runCommand({"-exec-arguments " + inferiorRunData.command.arguments()});
+            const QString arguments = inferiorRunData.command.arguments();
+            const QString errorChannel = usesOutputCollector()
+                    ? m_outputCollector.errorServerName() : QString();
+            if (errorChannel.isEmpty()) {
+                if (!arguments.isEmpty())
+                    runCommand({"-exec-arguments " + arguments});
+            } else {
+                // Route the inferior's stderr to a separate channel so it can be shown
+                // with error formatting (QTCREATORBUG-14675). Only gdb's startup shell
+                // applies the redirection, without it the inferior would get it as
+                // arguments.
+                runCommand({"-gdb-show startup-with-shell",
+                            [this, arguments, errorChannel](const DebuggerResponse &response) {
+                    QString allArguments = arguments;
+                    if (response.resultClass == ResultDone
+                            && response.data["value"].data() == "on") {
+                        if (!allArguments.isEmpty())
+                            allArguments += ' ';
+                        allArguments += "2> " + GdbMi::quoteCString(errorChannel);
+                    }
+                    if (!allArguments.isEmpty())
+                        runCommand({"-exec-arguments " + allArguments});
+                }});
+            }
 
             runCommand({"-file-exec-and-symbols "
                         + quotedPath(inferiorRunData.command.executable().nativePath()),
@@ -432,6 +454,10 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         if (isTerminateMessage(text))
             m_sawTerminateMessage = true;
         emit message(text, AppStuff);
+    });
+    connect(&m_outputCollector, &OutputCollector::errorByteDelivery,
+            this, [this](const QByteArray &ba) {
+        emit message(m_errorDecoder.decode(ba), AppError);
     });
 }
 

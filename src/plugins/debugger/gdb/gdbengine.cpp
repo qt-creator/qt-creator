@@ -148,7 +148,9 @@ GdbEngine::GdbEngine()
 
     // Output
     connect(&m_outputCollector, &OutputCollector::byteDelivery,
-            this, &GdbEngine::readDebuggeeOutput);
+            this, &GdbEngine::readDebuggeeStdOut);
+    connect(&m_outputCollector, &OutputCollector::errorByteDelivery,
+            this, &GdbEngine::readDebuggeeStdErr);
 }
 
 GdbEngine::~GdbEngine()
@@ -708,15 +710,25 @@ void GdbEngine::readGdbStandardError()
     qWarning() << "Unexpected GDB stderr:" << err;
 }
 
-void GdbEngine::readDebuggeeOutput(const QByteArray &ba)
+void GdbEngine::readDebuggeeStdOut(const QByteArray &ba)
 {
-    const QString msg = m_gdbOutputDecoder.decode(ba);
+    // This is the primary output channel. When stderr has no separate channel
+    // (see OutputCollector, e.g. on Windows) it also carries the inferior's
+    // stderr merged in.
+    const QString msg = m_inferiorOutputDecoder.decode(ba);
     if (isTerminateMessage(msg))
         m_sawTerminateMessage = true;
     if (msg.startsWith("&\"") && isMostlyHarmlessMessage(QStringView{msg}.mid(2, msg.size() - 4)))
         showMessage("Mostly harmless terminal warning suppressed.", LogWarning);
     else
         showMessage(msg, AppStuff);
+}
+
+void GdbEngine::readDebuggeeStdErr(const QByteArray &ba)
+{
+    // The inferior's stderr arrives on its own channel (see setExecArguments), so
+    // it can be shown with error formatting, matching a non-debug run.
+    showMessage(m_inferiorErrorDecoder.decode(ba), AppError);
 }
 
 void GdbEngine::readGdbStandardOutput()
@@ -4286,11 +4298,30 @@ void GdbEngine::setEnvironmentVariables()
 void GdbEngine::setExecArguments(const DebuggerRunParameters &rp)
 {
     const QStringList args = rp.inferior().command.splitArguments();
-    if (args.isEmpty())
-        return;
-
     const QStringList miArgs = Utils::transform<QStringList>(args, &GdbMi::quoteCString);
-    runCommand({"-exec-arguments " + miArgs.join(' ')});
+    const auto setArguments = [this](const QStringList &arguments) {
+        if (!arguments.isEmpty())
+            runCommand({"-exec-arguments " + arguments.join(' ')});
+    };
+
+    const QString errChannel = usesOutputCollector() ? m_outputCollector.errorServerName()
+                                                     : QString();
+    if (errChannel.isEmpty()) {
+        setArguments(miArgs);
+        return;
+    }
+
+    // Route the inferior's stderr to a separate channel so it can be shown
+    // with error formatting (QTCREATORBUG-14675). stdout stays on the --tty
+    // channel. Only gdb's startup shell applies the redirection, without it
+    // the inferior would get it as arguments.
+    runCommand({"-gdb-show startup-with-shell",
+                [miArgs, errChannel, setArguments](const DebuggerResponse &response) {
+        QStringList arguments = miArgs;
+        if (response.resultClass == ResultDone && response.data["value"].data() == "on")
+            arguments += "2> " + GdbMi::quoteCString(errChannel);
+        setArguments(arguments);
+    }});
 }
 
 void GdbEngine::reloadDebuggingHelpers()

@@ -23,10 +23,15 @@ public:
     bool listen();
     void shutdown();
     QString serverName() const;
+    // Separate channel for the inferior's stderr, so it can be shown with error
+    // formatting (QTCREATORBUG-14675). Empty when no such channel is available
+    // (currently Windows), in which case stderr stays merged with stdout.
+    QString errorServerName() const;
     QString errorString() const;
 
 signals:
     void byteDelivery(const QByteArray &data);
+    void errorByteDelivery(const QByteArray &data);
 
 private:
     void bytesAvailable();
@@ -36,10 +41,15 @@ private:
     QLocalSocket *m_socket = nullptr;
 #else
     void closeFileDescriptors();
+    void errorBytesAvailable();
     QString m_serverPath;
     int m_serverFd = -1;  // Master side of the pseudo terminal, read by us.
     int m_slaveFd = -1;   // Kept open only to hold the pseudo terminal alive.
     QSocketNotifier *m_serverNotifier = nullptr;
+    QString m_errorServerPath;
+    int m_errorFd = -1;       // Same for the inferior's stderr.
+    int m_errorSlaveFd = -1;
+    QSocketNotifier *m_errorNotifier = nullptr;
     QString m_errorString;
 #endif
 };

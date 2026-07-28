@@ -94,9 +94,11 @@ private: ////////// General Interface //////////
     void handleGdbDone();
     void readGdbStandardOutput();
     void readGdbStandardError();
-    void readDebuggeeOutput(const QByteArray &ba);
+    void readDebuggeeStdOut(const QByteArray &ba);
+    void readDebuggeeStdErr(const QByteArray &ba);
 
     QStringDecoder m_inferiorOutputDecoder{Utils::TextEncoding::encodingForLocale().name()};
+    QStringDecoder m_inferiorErrorDecoder{Utils::TextEncoding::encodingForLocale().name()};
     QStringDecoder m_gdbOutputDecoder{Utils::TextEncoding::encodingForLocale().name()};
 
     QString m_inbuffer;

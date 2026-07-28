@@ -207,6 +207,7 @@ private:
     bool m_interpreterBreakpointsPending = false;
     bool m_interpreterHookStop = false;
     QStringDecoder m_outputDecoder{"UTF-8"};
+    QStringDecoder m_errorDecoder{"UTF-8"};
     QHash<int, DebuggerCommand> m_commandForToken;
     bool m_engineSetupReported = false;
     // Whether the debugger process going away is the shutdown this was asked
