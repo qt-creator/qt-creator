@@ -223,6 +223,7 @@ private slots:
     void test_vim_script_expr_register();
     void test_vim_script_operators();
     void test_vim_script_unpacking();
+    void test_vim_script_slicing();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6380,6 +6381,33 @@ void FakeVimTester::test_vim_script_unpacking()
     data.doCommand("let g:r = [] | for [k, v] in items({\"a\": 1, \"b\": 2}) | "
                    "call add(g:r, k . \"=\" . v) | endfor");
     QCOMPARE(echo("g:r"), QLatin1String("['a=1', 'b=2']"));
+}
+
+void FakeVimTester::test_vim_script_slicing()
+{
+    // Inclusive slices "x[a:b]" on lists and strings (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("[0, 1, 2, 3, 4][1:3]"), QLatin1String("[1, 2, 3]")); // inclusive
+    QCOMPARE(echo("[0, 1, 2, 3][2:]"), QLatin1String("[2, 3]"));
+    QCOMPARE(echo("[0, 1, 2, 3][:1]"), QLatin1String("[0, 1]"));
+    QCOMPARE(echo("[0, 1, 2, 3, 4][-2:]"), QLatin1String("[3, 4]"));  // from end
+    QCOMPARE(echo("\"hello\"[1:3]"), QLatin1String("ell"));
+    QCOMPARE(echo("\"hello\"[2:]"), QLatin1String("llo"));
+    QCOMPARE(echo("\"hello\"[:1]"), QLatin1String("he"));
+    QCOMPARE(echo("\"hello\"[-2:]"), QLatin1String("lo"));
+    QCOMPARE(echo("[1, 2, 3][3:5]"), QLatin1String("[]"));            // out of range
+    // A ":" inside a subscript from a ternary is still an index, not a slice.
+    QCOMPARE(echo("[10, 20, 30][1 > 0 ? 2 : 0]"), QLatin1String("30"));
 }
 
 void FakeVimTester::test_vim_file_info()

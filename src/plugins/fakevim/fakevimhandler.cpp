@@ -7663,17 +7663,60 @@ private:
     VimValue exprPostfix()
     {
         VimValue v = exprAtom();
-        while (m_ok && cur() == '[') { // subscript, e.g. list[i] or str[i]
+        while (m_ok && cur() == '[') { // subscript v[i] or slice v[a:b]
             ++m_pos;
-            const VimValue index = parseExpr();
             skipBlanks();
-            if (!eatOp("]")) {
-                setError(Tr::tr("Missing ']' in subscript"));
-                return {};
+            const bool haveStart = cur() != ':';
+            const VimValue start = haveStart ? parseExpr() : VimValue();
+            skipBlanks();
+            if (cur() == ':') { // slice
+                ++m_pos;
+                skipBlanks();
+                const bool haveEnd = cur() != ']';
+                const VimValue end = haveEnd ? parseExpr() : VimValue();
+                skipBlanks();
+                if (!eatOp("]")) {
+                    setError(Tr::tr("Missing ']' in slice"));
+                    return {};
+                }
+                v = slice(v, haveStart, start, haveEnd, end);
+            } else {
+                if (!eatOp("]")) {
+                    setError(Tr::tr("Missing ']' in subscript"));
+                    return {};
+                }
+                v = subscript(v, start);
             }
-            v = subscript(v, index);
         }
         return v;
+    }
+
+    // Vim slices are inclusive of both ends; a missing start is 0, a missing
+    // end is the last element, and negative indices count from the end.
+    VimValue slice(const VimValue &v, bool haveStart, const VimValue &startVal,
+                   bool haveEnd, const VimValue &endVal)
+    {
+        const bool isList = v.isList();
+        if (!isList && v.isDict()) {
+            setError(Tr::tr("Cannot slice a dictionary"));
+            return {};
+        }
+        const int n = isList ? v.listData()->size() : v.toString().size();
+        int a = haveStart ? int(startVal.toNumber()) : 0;
+        int b = haveEnd ? int(endVal.toNumber()) : n - 1;
+        if (a < 0)
+            a += n;
+        if (b < 0)
+            b += n;
+        a = qMax(a, 0);
+        b = qMin(b, n - 1);
+        if (isList) {
+            QList<VimValue> out;
+            for (int i = a; i <= b; ++i)
+                out.append(v.listData()->at(i));
+            return VimValue::list(out);
+        }
+        return VimValue(a <= b ? v.toString().mid(a, b - a + 1) : QString());
     }
 
     VimValue subscript(const VimValue &v, const VimValue &index)
