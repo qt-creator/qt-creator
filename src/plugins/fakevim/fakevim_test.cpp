@@ -205,6 +205,7 @@ private slots:
     void test_vim_script_echo_expression();
     void test_vim_script_variables();
     void test_vim_script_options_registers();
+    void test_vim_script_builtins();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5658,6 +5659,54 @@ void FakeVimTester::test_vim_script_options_registers()
     data.doCommand("let $FVTEST = \"xyz\"");
     QCOMPARE(echo("$FVTEST"), QLatin1String("xyz"));
     QCOMPARE(echo("\"v=\" . $FVTEST"), QLatin1String("v=xyz"));
+}
+
+void FakeVimTester::test_vim_script_builtins()
+{
+    // Builtin function calls in expressions (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("strlen(\"hello\")"), QLatin1String("5"));
+    QCOMPARE(echo("len(\"abc\")"), QLatin1String("3"));
+    QCOMPARE(echo("toupper(\"aB\")"), QLatin1String("AB"));
+    QCOMPARE(echo("tolower(\"aB\")"), QLatin1String("ab"));
+    QCOMPARE(echo("str2nr(\"42\")"), QLatin1String("42"));
+    QCOMPARE(echo("str2nr(\"ff\", 16)"), QLatin1String("255"));
+    QCOMPARE(echo("abs(-7)"), QLatin1String("7"));
+    QCOMPARE(echo("empty(\"\")"), QLatin1String("1"));
+    QCOMPARE(echo("empty(\"x\")"), QLatin1String("0"));
+    QCOMPARE(echo("string(\"foo\")"), QLatin1String("'foo'"));
+    QCOMPARE(echo("string(12)"), QLatin1String("12"));
+    QCOMPARE(echo("has(\"gui_running\")"), QLatin1String("0"));
+
+    // Nested calls and expressions as arguments.
+    QCOMPARE(echo("strlen(toupper(\"ab\")) + 1"), QLatin1String("3"));
+
+    // exists() for variables, options and environment.
+    data.doCommand("let g:defined = 1");
+    QCOMPARE(echo("exists(\"g:defined\")"), QLatin1String("1"));
+    QCOMPARE(echo("exists(\"g:undefined\")"), QLatin1String("0"));
+    QCOMPARE(echo("exists(\"&sw\")"), QLatin1String("1"));
+    QCOMPARE(echo("exists(\"&nosuchopt\")"), QLatin1String("0"));
+
+    // Buffer-backed builtins.
+    data.setText("one" N "two" N "three");
+    QCOMPARE(echo("line(\"$\")"), QLatin1String("3"));
+    QCOMPARE(echo("line(\".\")"), QLatin1String("1"));
+    QCOMPARE(echo("col(\".\")"), QLatin1String("1"));
+    QCOMPARE(echo("getline(2)"), QLatin1String("two"));
+    QCOMPARE(echo("strlen(getline(3))"), QLatin1String("5"));
+    data.doCommand("call setline(1, \"ONE\")");
+    QCOMPARE(echo("getline(1)"), QLatin1String("ONE"));
 }
 
 void FakeVimTester::test_vim_file_info()

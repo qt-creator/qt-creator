@@ -2386,8 +2386,11 @@ public:
     bool unsetVariable(const QString &name);
     bool optionValue(const QString &name, VimValue *result);
     bool setOption(const QString &name, const VimValue &value);
+    bool callFunction(const QString &name, const QList<VimValue> &args,
+                      VimValue *result, QString *error);
     bool handleExLetCommand(const ExCommand &cmd);
     bool handleExUnletCommand(const ExCommand &cmd);
+    bool handleExCallCommand(const ExCommand &cmd);
 
     void setTabSize(int tabSize);
     void setupCharClass();
@@ -7493,11 +7496,44 @@ private:
     VimValue parseVariable()
     {
         const QString name = parseName();
+        if (cur() == '(') // a function call: name immediately followed by "("
+            return parseCall(name);
         VimValue v;
         if (m_h->variableValue(name, &v))
             return v;
         setError(Tr::tr("Undefined variable: %1").arg(name));
         return {};
+    }
+
+    VimValue parseCall(const QString &name)
+    {
+        ++m_pos; // '('
+        QList<VimValue> args;
+        skipBlanks();
+        if (cur() != ')') {
+            while (m_ok) {
+                args.append(parseExpr());
+                skipBlanks();
+                if (cur() == ',') {
+                    ++m_pos;
+                    continue;
+                }
+                break;
+            }
+        }
+        if (!m_ok)
+            return {};
+        if (!eatOp(")")) {
+            setError(Tr::tr("Missing ')' in call to %1()").arg(name));
+            return {};
+        }
+        VimValue result;
+        QString error;
+        if (!m_h->callFunction(name, args, &result, &error)) {
+            setError(error);
+            return {};
+        }
+        return result;
     }
 
     VimValue parseNumber()
@@ -7792,6 +7828,80 @@ bool FakeVimHandler::Private::setOption(const QString &name, const VimValue &val
     return true;
 }
 
+bool FakeVimHandler::Private::handleExCallCommand(const ExCommand &cmd)
+{
+    // :call {func}({args}) - evaluate a function call for its side effects.
+    if (cmd.cmd != "call")
+        return false;
+    VimValue result;
+    QString error;
+    if (!evaluateExpression(cmd.args, &result, &error))
+        showMessage(MessageError, error);
+    return true;
+}
+
+bool FakeVimHandler::Private::callFunction(const QString &name,
+    const QList<VimValue> &args, VimValue *result, QString *error)
+{
+    const auto arg = [&](int i) { return i < args.size() ? args.at(i) : VimValue(); };
+
+    if (name == "strlen" || name == "len") {
+        *result = VimValue(qlonglong(arg(0).toString().size()));
+    } else if (name == "toupper") {
+        *result = VimValue(arg(0).toString().toUpper());
+    } else if (name == "tolower") {
+        *result = VimValue(arg(0).toString().toLower());
+    } else if (name == "str2nr") {
+        const int base = args.size() > 1 ? int(arg(1).toNumber()) : 10;
+        *result = VimValue(qlonglong(arg(0).toString().trimmed().toLongLong(nullptr, base)));
+    } else if (name == "abs") {
+        *result = arg(0).type() == VimValue::Float ? VimValue(qAbs(arg(0).toFloat()))
+                                                    : VimValue(qAbs(arg(0).toNumber()));
+    } else if (name == "empty") {
+        const VimValue v = arg(0);
+        const bool e = v.isString() ? v.toString().isEmpty() : v.toNumber() == 0;
+        *result = VimValue(qlonglong(e ? 1 : 0));
+    } else if (name == "string") {
+        const VimValue v = arg(0);
+        *result = v.isString()
+            ? VimValue('\'' + QString(v.toString()).replace('\'', "''") + '\'')
+            : VimValue(v.toString());
+    } else if (name == "has") {
+        *result = VimValue(qlonglong(0)); // no feature is reported as present yet
+    } else if (name == "exists") {
+        const QString a = arg(0).toString();
+        bool ex;
+        if (a.startsWith('&'))
+            ex = s.item(Utils::keyFromString(optionNameFromLet(a))) != nullptr;
+        else if (a.startsWith('$'))
+            ex = qEnvironmentVariableIsSet(a.mid(1).toLatin1().constData());
+        else {
+            VimValue tmp;
+            ex = variableValue(a, &tmp);
+        }
+        *result = VimValue(qlonglong(ex ? 1 : 0));
+    } else if (name == "line") {
+        const QString a = arg(0).toString();
+        *result = VimValue(qlonglong(a == "$" ? linesInDocument()
+                                    : a == "." ? cursorLine() + 1 : 0));
+    } else if (name == "col") {
+        const QString a = arg(0).toString();
+        *result = VimValue(qlonglong(a == "." ? physicalCursorColumn() + 1
+                           : a == "$" ? lineContents(cursorLine() + 1).size() + 1 : 0));
+    } else if (name == "getline") {
+        const QString a = arg(0).toString();
+        const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
+        *result = VimValue(lineContents(ln));
+    } else if (name == "setline") {
+        setLineContents(int(arg(0).toNumber()), arg(1).toString());
+        *result = VimValue(qlonglong(0));
+    } else {
+        *error = Tr::tr("Unknown function: %1").arg(name);
+        return false;
+    }
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExUnletCommand(const ExCommand &cmd)
 {
     // :unlet[!] {var} ...
@@ -7883,6 +7993,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExJoinCommand(cmd)
         || handleExLetCommand(cmd)
         || handleExUnletCommand(cmd)
+        || handleExCallCommand(cmd)
         || handleExMapCommand(cmd)
         || handleExMultiRepeatCommand(cmd)
         || handleExNohlsearchCommand(cmd)
