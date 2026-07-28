@@ -1734,13 +1734,13 @@ struct MappingState {
     bool editBlock = false;
 };
 
-// A Vimscript value. Scalars (Number/Float/String) plus List; Dictionaries
-// are left for a later step (QTCREATORBUG-34817). Lists are held by a shared
-// pointer, so copies share one list as in Vim.
+// A Vimscript value: scalars (Number/Float/String), List and Dictionary
+// (QTCREATORBUG-34817). Lists and dictionaries are held by a shared pointer,
+// so copies share one container as in Vim.
 class VimValue
 {
 public:
-    enum Type { Number, Float, String, List };
+    enum Type { Number, Float, String, List, Dict };
 
     VimValue() = default;
     explicit VimValue(qlonglong n) : m_type(Number), m_number(n) {}
@@ -1755,10 +1755,20 @@ public:
         return v;
     }
 
+    static VimValue dict(const QMap<QString, VimValue> &items = {})
+    {
+        VimValue v;
+        v.m_type = Dict;
+        v.m_dict = std::make_shared<QMap<QString, VimValue>>(items);
+        return v;
+    }
+
     Type type() const { return m_type; }
     bool isString() const { return m_type == String; }
     bool isList() const { return m_type == List; }
+    bool isDict() const { return m_type == Dict; }
     QList<VimValue> *listData() const { return m_list.get(); }
+    QMap<QString, VimValue> *dictData() const { return m_dict.get(); }
 
     qlonglong toNumber() const
     {
@@ -1771,7 +1781,9 @@ public:
             const QRegularExpressionMatch m = re.match(m_string);
             return m.hasMatch() ? m.captured(1).toLongLong() : 0;
         }
-        case List: return 0;
+        case List:
+        case Dict:
+            return 0;
         }
         return 0;
     }
@@ -1787,6 +1799,8 @@ public:
             return m_float != 0;
         if (m_type == List)
             return m_list && !m_list->isEmpty();
+        if (m_type == Dict)
+            return m_dict && !m_dict->isEmpty();
         return toNumber() != 0;
     }
 
@@ -1796,7 +1810,8 @@ public:
         case Number: return QString::number(m_number);
         case Float:  return QString::number(m_float, 'g', 6);
         case String: return m_string;
-        case List:   return repr(*this);
+        case List:
+        case Dict:   return repr(*this);
         }
         return QString();
     }
@@ -1819,6 +1834,16 @@ private:
             }
             return '[' + parts.join(", ") + ']';
         }
+        case Dict: {
+            QStringList parts;
+            if (v.m_dict) {
+                for (auto it = v.m_dict->cbegin(), end = v.m_dict->cend(); it != end; ++it) {
+                    parts.append('\'' + QString(it.key()).replace('\'', "''")
+                                 + "': " + repr(it.value()));
+                }
+            }
+            return '{' + parts.join(", ") + '}';
+        }
         }
         return QString();
     }
@@ -1828,6 +1853,7 @@ private:
     double m_float = 0;
     QString m_string;
     std::shared_ptr<QList<VimValue>> m_list;
+    std::shared_ptr<QMap<QString, VimValue>> m_dict;
 };
 
 // Recursive-descent evaluator for Vimscript expressions; defined below.
@@ -7563,7 +7589,16 @@ private:
                 i += s.size();
             return (i >= 0 && i < s.size()) ? VimValue(QString(s.at(i))) : VimValue(QString());
         }
-        setError(Tr::tr("Can only index a list or string"));
+        if (v.isDict()) {
+            const QString key = index.toString();
+            QMap<QString, VimValue> *d = v.dictData();
+            if (!d->contains(key)) {
+                setError(Tr::tr("Key not present in dictionary: %1").arg(key));
+                return {};
+            }
+            return d->value(key);
+        }
+        setError(Tr::tr("Can only index a list, dictionary or string"));
         return {};
     }
 
@@ -7585,6 +7620,8 @@ private:
             return parseSingleQuoted();
         if (c == '[')
             return parseListLiteral();
+        if (c == '{')
+            return parseDictLiteral();
         if (c == '$')
             return parseEnvVar();
         if (c == '&')
@@ -7769,6 +7806,37 @@ private:
             return {};
         }
         return VimValue::list(items);
+    }
+
+    VimValue parseDictLiteral()
+    {
+        ++m_pos; // '{'
+        QMap<QString, VimValue> items;
+        skipBlanks();
+        while (m_ok && cur() != '}') {
+            const VimValue key = parseExpr();
+            skipBlanks();
+            if (!eatOp(":")) {
+                setError(Tr::tr("Missing ':' in dictionary"));
+                return {};
+            }
+            const VimValue value = parseExpr();
+            if (!m_ok)
+                return {};
+            items.insert(key.toString(), value);
+            skipBlanks();
+            if (cur() != ',')
+                break;
+            ++m_pos; // ','
+            skipBlanks(); // a trailing comma before '}' is allowed
+        }
+        if (!m_ok)
+            return {};
+        if (!eatOp("}")) {
+            setError(Tr::tr("Missing '}' in dictionary"));
+            return {};
+        }
+        return VimValue::dict(items);
     }
 
     VimValue parseOption()
@@ -7995,8 +8063,10 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     if (name == "strlen") {
         *result = VimValue(qlonglong(arg(0).toString().size()));
     } else if (name == "len") {
-        *result = VimValue(qlonglong(arg(0).isList() ? arg(0).listData()->size()
-                                                     : arg(0).toString().size()));
+        const VimValue v = arg(0);
+        *result = VimValue(qlonglong(v.isList() ? v.listData()->size()
+                                     : v.isDict() ? v.dictData()->size()
+                                     : v.toString().size()));
     } else if (name == "add") {
         if (!arg(0).isList()) {
             *error = Tr::tr("add() requires a list");
@@ -8011,8 +8081,50 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             if (i < 0)
                 i += l->size();
             *result = (i >= 0 && i < l->size()) ? l->at(i) : arg(2);
+        } else if (arg(0).isDict()) {
+            QMap<QString, VimValue> *d = arg(0).dictData();
+            const QString key = arg(1).toString();
+            *result = d->contains(key) ? d->value(key) : arg(2);
         } else {
             *result = arg(2);
+        }
+    } else if (name == "has_key") {
+        *result = VimValue(qlonglong(arg(0).isDict()
+                           && arg(0).dictData()->contains(arg(1).toString()) ? 1 : 0));
+    } else if (name == "keys") {
+        QList<VimValue> items;
+        if (arg(0).isDict()) {
+            const QList<QString> keys = arg(0).dictData()->keys();
+            for (const QString &k : keys)
+                items.append(VimValue(k));
+        }
+        *result = VimValue::list(items);
+    } else if (name == "values") {
+        QList<VimValue> items;
+        if (arg(0).isDict())
+            items = arg(0).dictData()->values();
+        *result = VimValue::list(items);
+    } else if (name == "items") {
+        QList<VimValue> items;
+        if (arg(0).isDict()) {
+            QMap<QString, VimValue> *d = arg(0).dictData();
+            for (auto it = d->cbegin(), end = d->cend(); it != end; ++it)
+                items.append(VimValue::list({VimValue(it.key()), it.value()}));
+        }
+        *result = VimValue::list(items);
+    } else if (name == "remove") {
+        if (arg(0).isDict()) {
+            QMap<QString, VimValue> *d = arg(0).dictData();
+            const QString key = arg(1).toString();
+            *result = d->contains(key) ? d->take(key) : VimValue();
+        } else if (arg(0).isList()) {
+            QList<VimValue> *l = arg(0).listData();
+            int i = int(arg(1).toNumber());
+            if (i < 0)
+                i += l->size();
+            *result = (i >= 0 && i < l->size()) ? l->takeAt(i) : VimValue();
+        } else {
+            *result = VimValue();
         }
     } else if (name == "range") {
         const int a = int(arg(0).toNumber());
@@ -8045,6 +8157,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             e = v.toString().isEmpty();
         else if (v.isList())
             e = v.listData()->isEmpty();
+        else if (v.isDict())
+            e = v.dictData()->isEmpty();
         else
             e = v.toNumber() == 0;
         *result = VimValue(qlonglong(e ? 1 : 0));

@@ -212,6 +212,7 @@ private slots:
     void test_vim_script_while();
     void test_vim_script_lists();
     void test_vim_script_for();
+    void test_vim_script_dicts();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5934,6 +5935,43 @@ void FakeVimTester::test_vim_script_for()
     file.flush();
     data.doCommand(QLatin1String("source ") + file.fileName());
     QCOMPARE(echo("g:out"), QLatin1String("['a', 'b', 'c']"));
+}
+
+void FakeVimTester::test_vim_script_dicts()
+{
+    // Dictionary values: literals, indexing and dict builtins
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // Keys are sorted in the repr, matching Vim's string().
+    QCOMPARE(echo("{\"b\": 1, \"a\": 2}"), QLatin1String("{'a': 2, 'b': 1}"));
+    QCOMPARE(echo("{\"x\": 10}[\"x\"]"), QLatin1String("10"));
+    QCOMPARE(echo("len({\"a\": 1, \"b\": 2})"), QLatin1String("2"));
+    QCOMPARE(echo("empty({})"), QLatin1String("1"));
+    QCOMPARE(echo("has_key({\"a\": 1}, \"a\")"), QLatin1String("1"));
+    QCOMPARE(echo("has_key({\"a\": 1}, \"z\")"), QLatin1String("0"));
+    QCOMPARE(echo("keys({\"b\": 1, \"a\": 2})"), QLatin1String("['a', 'b']"));
+    QCOMPARE(echo("values({\"b\": 1, \"a\": 2})"), QLatin1String("[2, 1]"));
+    QCOMPARE(echo("get({\"a\": 1}, \"z\", -1)"), QLatin1String("-1"));
+    QCOMPARE(echo("items({\"a\": 1})"), QLatin1String("[['a', 1]]"));
+
+    // Nested containers.
+    QCOMPARE(echo("{\"list\": [1, 2]}[\"list\"][1]"), QLatin1String("2"));
+
+    // A dictionary is shared: remove() through a variable is observable.
+    data.doCommand("let g:d = {\"a\": 1, \"b\": 2}");
+    data.doCommand("call remove(g:d, \"a\")");
+    QCOMPARE(echo("g:d"), QLatin1String("{'b': 2}"));
+    QCOMPARE(echo("has_key(g:d, \"a\")"), QLatin1String("0"));
 }
 
 void FakeVimTester::test_vim_file_info()
