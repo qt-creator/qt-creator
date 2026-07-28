@@ -1734,20 +1734,31 @@ struct MappingState {
     bool editBlock = false;
 };
 
-// A Vimscript value. Only scalar types for now (see QTCREATORBUG-34817);
-// Lists and Dictionaries are left for a later step.
+// A Vimscript value. Scalars (Number/Float/String) plus List; Dictionaries
+// are left for a later step (QTCREATORBUG-34817). Lists are held by a shared
+// pointer, so copies share one list as in Vim.
 class VimValue
 {
 public:
-    enum Type { Number, Float, String };
+    enum Type { Number, Float, String, List };
 
     VimValue() = default;
     explicit VimValue(qlonglong n) : m_type(Number), m_number(n) {}
     explicit VimValue(double f) : m_type(Float), m_float(f) {}
     explicit VimValue(const QString &s) : m_type(String), m_string(s) {}
 
+    static VimValue list(const QList<VimValue> &items = {})
+    {
+        VimValue v;
+        v.m_type = List;
+        v.m_list = std::make_shared<QList<VimValue>>(items);
+        return v;
+    }
+
     Type type() const { return m_type; }
     bool isString() const { return m_type == String; }
+    bool isList() const { return m_type == List; }
+    QList<VimValue> *listData() const { return m_list.get(); }
 
     qlonglong toNumber() const
     {
@@ -1760,6 +1771,7 @@ public:
             const QRegularExpressionMatch m = re.match(m_string);
             return m.hasMatch() ? m.captured(1).toLongLong() : 0;
         }
+        case List: return 0;
         }
         return 0;
     }
@@ -1769,7 +1781,14 @@ public:
         return m_type == Float ? m_float : double(toNumber());
     }
 
-    bool toBool() const { return m_type == Float ? m_float != 0 : toNumber() != 0; }
+    bool toBool() const
+    {
+        if (m_type == Float)
+            return m_float != 0;
+        if (m_type == List)
+            return m_list && !m_list->isEmpty();
+        return toNumber() != 0;
+    }
 
     QString toString() const
     {
@@ -1777,15 +1796,38 @@ public:
         case Number: return QString::number(m_number);
         case Float:  return QString::number(m_float, 'g', 6);
         case String: return m_string;
+        case List:   return repr(*this);
         }
         return QString();
     }
 
+    // Vim's string() / repr form: like toString() but strings are quoted.
+    QString reprString() const { return repr(*this); }
+
 private:
+    static QString repr(const VimValue &v)
+    {
+        switch (v.m_type) {
+        case Number: return QString::number(v.m_number);
+        case Float:  return QString::number(v.m_float, 'g', 6);
+        case String: return '\'' + QString(v.m_string).replace('\'', "''") + '\'';
+        case List: {
+            QStringList parts;
+            if (v.m_list) {
+                for (const VimValue &e : *v.m_list)
+                    parts.append(repr(e));
+            }
+            return '[' + parts.join(", ") + ']';
+        }
+        }
+        return QString();
+    }
+
     Type m_type = Number;
     qlonglong m_number = 0;
     double m_float = 0;
     QString m_string;
+    std::shared_ptr<QList<VimValue>> m_list;
 };
 
 // Recursive-descent evaluator for Vimscript expressions; defined below.
@@ -7480,7 +7522,47 @@ private:
             return v.type() == VimValue::Float ? VimValue(-v.toFloat())
                                                : VimValue(-v.toNumber());
         }
-        return exprAtom();
+        return exprPostfix();
+    }
+
+    VimValue exprPostfix()
+    {
+        VimValue v = exprAtom();
+        while (m_ok && cur() == '[') { // subscript, e.g. list[i] or str[i]
+            ++m_pos;
+            const VimValue index = parseExpr();
+            skipBlanks();
+            if (!eatOp("]")) {
+                setError(Tr::tr("Missing ']' in subscript"));
+                return {};
+            }
+            v = subscript(v, index);
+        }
+        return v;
+    }
+
+    VimValue subscript(const VimValue &v, const VimValue &index)
+    {
+        int i = int(index.toNumber());
+        if (v.isList()) {
+            QList<VimValue> *l = v.listData();
+            const int n = l->size();
+            if (i < 0)
+                i += n;
+            if (i < 0 || i >= n) {
+                setError(Tr::tr("List index out of range: %1").arg(index.toNumber()));
+                return {};
+            }
+            return l->at(i);
+        }
+        if (v.isString()) {
+            const QString s = v.toString();
+            if (i < 0)
+                i += s.size();
+            return (i >= 0 && i < s.size()) ? VimValue(QString(s.at(i))) : VimValue(QString());
+        }
+        setError(Tr::tr("Can only index a list or string"));
+        return {};
     }
 
     VimValue exprAtom()
@@ -7499,6 +7581,8 @@ private:
             return parseDoubleQuoted();
         if (c == '\'')
             return parseSingleQuoted();
+        if (c == '[')
+            return parseListLiteral();
         if (c == '$')
             return parseEnvVar();
         if (c == '&')
@@ -7661,6 +7745,28 @@ private:
             ++m_pos;
         const QString name = m_in.mid(start, m_pos - start);
         return VimValue(qEnvironmentVariable(name.toLatin1().constData()));
+    }
+
+    VimValue parseListLiteral()
+    {
+        ++m_pos; // '['
+        QList<VimValue> items;
+        skipBlanks();
+        while (m_ok && cur() != ']') {
+            items.append(parseExpr());
+            skipBlanks();
+            if (cur() != ',')
+                break;
+            ++m_pos; // ','
+            skipBlanks(); // a trailing comma before ']' is allowed
+        }
+        if (!m_ok)
+            return {};
+        if (!eatOp("]")) {
+            setError(Tr::tr("Missing ']' in list"));
+            return {};
+        }
+        return VimValue::list(items);
     }
 
     VimValue parseOption()
@@ -7884,8 +7990,42 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
 {
     const auto arg = [&](int i) { return i < args.size() ? args.at(i) : VimValue(); };
 
-    if (name == "strlen" || name == "len") {
+    if (name == "strlen") {
         *result = VimValue(qlonglong(arg(0).toString().size()));
+    } else if (name == "len") {
+        *result = VimValue(qlonglong(arg(0).isList() ? arg(0).listData()->size()
+                                                     : arg(0).toString().size()));
+    } else if (name == "add") {
+        if (!arg(0).isList()) {
+            *error = Tr::tr("add() requires a list");
+            return false;
+        }
+        arg(0).listData()->append(arg(1));
+        *result = arg(0);
+    } else if (name == "get") {
+        if (arg(0).isList()) {
+            QList<VimValue> *l = arg(0).listData();
+            int i = int(arg(1).toNumber());
+            if (i < 0)
+                i += l->size();
+            *result = (i >= 0 && i < l->size()) ? l->at(i) : arg(2);
+        } else {
+            *result = arg(2);
+        }
+    } else if (name == "range") {
+        const int a = int(arg(0).toNumber());
+        const bool haveMax = args.size() > 1;
+        const int lo = haveMax ? a : 0;
+        const int hi = haveMax ? int(arg(1).toNumber()) : a - 1;
+        const int step = args.size() > 2 ? int(arg(2).toNumber()) : 1;
+        QList<VimValue> items;
+        if (step > 0)
+            for (int v = lo; v <= hi; v += step)
+                items.append(VimValue(qlonglong(v)));
+        else if (step < 0)
+            for (int v = lo; v >= hi; v += step)
+                items.append(VimValue(qlonglong(v)));
+        *result = VimValue::list(items);
     } else if (name == "toupper") {
         *result = VimValue(arg(0).toString().toUpper());
     } else if (name == "tolower") {
@@ -7898,13 +8038,16 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                                                     : VimValue(qAbs(arg(0).toNumber()));
     } else if (name == "empty") {
         const VimValue v = arg(0);
-        const bool e = v.isString() ? v.toString().isEmpty() : v.toNumber() == 0;
+        bool e;
+        if (v.isString())
+            e = v.toString().isEmpty();
+        else if (v.isList())
+            e = v.listData()->isEmpty();
+        else
+            e = v.toNumber() == 0;
         *result = VimValue(qlonglong(e ? 1 : 0));
     } else if (name == "string") {
-        const VimValue v = arg(0);
-        *result = v.isString()
-            ? VimValue('\'' + QString(v.toString()).replace('\'', "''") + '\'')
-            : VimValue(v.toString());
+        *result = VimValue(arg(0).reprString());
     } else if (name == "has") {
         *result = VimValue(qlonglong(0)); // no feature is reported as present yet
     } else if (name == "exists") {

@@ -210,6 +210,7 @@ private slots:
     void test_vim_script_execute();
     void test_vim_script_if();
     void test_vim_script_while();
+    void test_vim_script_lists();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5855,6 +5856,43 @@ void FakeVimTester::test_vim_script_while()
     file.flush();
     data.doCommand(QLatin1String("source ") + file.fileName());
     QCOMPARE(echo("g:p"), QLatin1String("24"));
+}
+
+void FakeVimTester::test_vim_script_lists()
+{
+    // List values: literals, indexing and list builtins (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("[1, 2, 3]"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("[1, \"a\", [2, 3]]"), QLatin1String("[1, 'a', [2, 3]]"));
+    QCOMPARE(echo("[10, 20, 30][1]"), QLatin1String("20"));
+    QCOMPARE(echo("[10, 20, 30][-1]"), QLatin1String("30"));    // negative index
+    QCOMPARE(echo("len([1, 2, 3, 4])"), QLatin1String("4"));
+    QCOMPARE(echo("empty([])"), QLatin1String("1"));
+    QCOMPARE(echo("empty([0])"), QLatin1String("0"));
+    QCOMPARE(echo("get([1, 2], 5, -1)"), QLatin1String("-1"));  // default
+    QCOMPARE(echo("range(3)"), QLatin1String("[0, 1, 2]"));
+    QCOMPARE(echo("range(2, 5)"), QLatin1String("[2, 3, 4, 5]"));
+    QCOMPARE(echo("range(0, 6, 2)"), QLatin1String("[0, 2, 4, 6]"));
+    QCOMPARE(echo("string([1, \"x\"])"), QLatin1String("[1, 'x']"));
+
+    // String indexing.
+    QCOMPARE(echo("\"hello\"[1]"), QLatin1String("e"));
+
+    // add() mutates the shared list and can be observed through a variable.
+    data.doCommand("let g:l = [1, 2]");
+    data.doCommand("call add(g:l, 3)");
+    QCOMPARE(echo("g:l"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("g:l[2]"), QLatin1String("3"));
 }
 
 void FakeVimTester::test_vim_file_info()
