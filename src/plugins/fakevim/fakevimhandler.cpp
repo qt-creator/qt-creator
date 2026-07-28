@@ -191,7 +191,8 @@ enum SubSubMode
     SearchSubSubMode,               // Used for /, ?
     SurroundSubSubMode,             // Used for cs, ds, ys
     SurroundWithFunctionSubSubMode, // Used for ys{motion}f
-    CtrlVUnicodeSubSubMode          // Used for Ctrl-v based unicode input
+    CtrlVUnicodeSubSubMode,         // Used for Ctrl-v based unicode input
+    ExpressionSubSubMode            // Used for the "=" expression register (CTRL-R =)
 };
 
 enum VisualMode
@@ -4169,6 +4170,12 @@ void FakeVimHandler::Private::updateMiniBuffer()
             cursorPos = g.searchBuffer.cursorPos() + 1;
             anchorPos = g.searchBuffer.anchorPos() + 1;
         }
+    } else if (g.subsubmode == ExpressionSubSubMode) {
+        msg = g.commandBuffer.display();
+        if (g.mapStates.isEmpty()) {
+            cursorPos = g.commandBuffer.cursorPos() + 1;
+            anchorPos = g.commandBuffer.anchorPos() + 1;
+        }
     } else if (g.mode == ExMode) {
         msg = g.commandBuffer.display();
         if (g.mapStates.isEmpty()) {
@@ -5850,6 +5857,35 @@ void FakeVimHandler::Private::finishInsertMode()
 
 void FakeVimHandler::Private::handleInsertMode(const Input &input)
 {
+    if (g.subsubmode == ExpressionSubSubMode) {
+        // CTRL-R = : collect an expression, then insert its value on Return.
+        if (input.isEscape()) {
+            g.commandBuffer.clear();
+            g.subsubmode = NoSubSubMode;
+            updateMiniBuffer();
+        } else if (input.isReturn()) {
+            const QString expr = g.commandBuffer.contents();
+            g.commandBuffer.clear();
+            g.subsubmode = NoSubSubMode;
+            VimValue value;
+            QString error;
+            if (evaluateExpression(expr, &value, &error))
+                m_cursor.insertText(value.toString());
+            else
+                showMessage(MessageError, error);
+            updateMiniBuffer();
+        } else if (input.isBackspace()) {
+            if (g.commandBuffer.isEmpty())
+                g.subsubmode = NoSubSubMode;
+            else
+                g.commandBuffer.deleteChar();
+            updateMiniBuffer();
+        } else if (g.commandBuffer.handleInput(input)) {
+            updateMiniBuffer();
+        }
+        return;
+    }
+
     if (input.isEscape()) {
         if (g.submode == CtrlRSubMode || g.submode == CtrlVSubMode) {
             g.submode = NoSubMode;
@@ -5860,8 +5896,17 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             finishInsertMode();
         }
     } else if (g.submode == CtrlRSubMode) {
-        m_cursor.insertText(registerContents(input.asChar().unicode()));
-        g.submode = NoSubMode;
+        if (input.is('=')) {
+            // Enter the "=" expression register prompt.
+            g.submode = NoSubMode;
+            g.subsubmode = ExpressionSubSubMode;
+            g.commandBuffer.clear();
+            g.commandBuffer.setPrompt('=');
+            updateMiniBuffer();
+        } else {
+            m_cursor.insertText(registerContents(input.asChar().unicode()));
+            g.submode = NoSubMode;
+        }
     } else if (g.submode == CtrlVSubMode) {
         if (g.subsubmode == NoSubSubMode) {
             g.subsubmode = CtrlVUnicodeSubSubMode;

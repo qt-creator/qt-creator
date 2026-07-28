@@ -220,6 +220,7 @@ private slots:
     void test_vim_script_map_filter();
     void test_vim_script_try_catch();
     void test_vim_script_more_builtins();
+    void test_vim_script_expr_register();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6282,6 +6283,37 @@ void FakeVimTester::test_vim_script_more_builtins()
     QCOMPARE(echo("matchstr(\"foobar\", \"o\\\\+\")"), QLatin1String("oo"));
     QCOMPARE(echo("match(\"foobar\", \"bar\")"), QLatin1String("3"));
     QCOMPARE(echo("match(\"foobar\", \"xyz\")"), QLatin1String("-1"));
+}
+
+void FakeVimTester::test_vim_script_expr_register()
+{
+    // The "=" expression register in insert mode: CTRL-R = {expr} <CR>
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+
+    data.setText("");
+    data.doKeys("i<c-r>=1 + 2<CR>");
+    data.doKeys("<ESC>");
+    QCOMPARE(data.text(), QByteArray("3"));
+
+    // A builtin call.
+    data.setText("");
+    data.doKeys("i<c-r>=toupper(\"ab\")<CR>");
+    data.doKeys("<ESC>");
+    QCOMPARE(data.text(), QByteArray("AB"));
+
+    // A variable, inserted amid existing text.
+    data.doCommand("let g:who = \"Bob\"");
+    data.setText("hi " X "!");
+    data.doKeys("i<c-r>=g:who<CR>");
+    data.doKeys("<ESC>");
+    QCOMPARE(data.text(), QByteArray("hi Bob!"));
+
+    // Escape cancels the prompt without inserting.
+    data.setText("");
+    data.doKeys("ix<c-r>=1 + 2<ESC><ESC>");
+    QCOMPARE(data.text(), QByteArray("x"));
 }
 
 void FakeVimTester::test_vim_file_info()
