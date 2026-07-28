@@ -218,6 +218,7 @@ private slots:
     void test_vim_script_string_builtins();
     void test_vim_script_collection_builtins();
     void test_vim_script_map_filter();
+    void test_vim_script_try_catch();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6180,6 +6181,57 @@ void FakeVimTester::test_vim_script_map_filter()
     data.doCommand("call map(g:l, \"v:val + 1\")");
     QCOMPARE(echo("g:l"), QLatin1String("[2, 3, 4]"));
     QCOMPARE(echo("exists('v:val')"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_script_try_catch()
+{
+    // :try/:catch/:finally/:endtry and :throw (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // A thrown value is caught and exposed as v:exception.
+    data.doCommand("let g:c = \"none\" | try | throw \"boom\" | "
+                   "catch | let g:c = v:exception | endtry");
+    QCOMPARE(echo("g:c"), QLatin1String("boom"));
+
+    // No exception: the catch body does not run.
+    data.doCommand("let g:c = \"ok\" | try | let g:x = 1 | "
+                   "catch | let g:c = \"caught\" | endtry");
+    QCOMPARE(echo("g:c"), QLatin1String("ok"));
+
+    // :finally always runs, with and without an exception.
+    data.doCommand("let g:f = 0 | try | throw \"e\" | catch | finally | "
+                   "let g:f = 1 | endtry");
+    QCOMPARE(echo("g:f"), QLatin1String("1"));
+    data.doCommand("let g:f = 0 | try | let g:x = 1 | finally | "
+                   "let g:f = 2 | endtry");
+    QCOMPARE(echo("g:f"), QLatin1String("2"));
+
+    // A pattern selects the matching :catch clause.
+    data.doCommand("let g:c = \"?\" | try | throw \"E42: bad\" | "
+                   "catch /E13/ | let g:c = \"wrong\" | "
+                   "catch /E42/ | let g:c = \"right\" | endtry");
+    QCOMPARE(echo("g:c"), QLatin1String("right"));
+
+    // An exception thrown in a function propagates to the caller's :try.
+    data.doCommand("function Boom() | throw \"frombody\" | endfunction");
+    data.doCommand("let g:c = \"?\" | try | call Boom() | "
+                   "catch | let g:c = v:exception | endtry");
+    QCOMPARE(echo("g:c"), QLatin1String("frombody"));
+
+    // :throw inside a loop unwinds it and is caught outside.
+    data.doCommand("let g:n = 0 | try | for i in range(1, 10) | "
+                   "let g:n += 1 | if i == 3 | throw \"stop\" | endif | endfor | "
+                   "catch | endtry");
+    QCOMPARE(echo("g:n"), QLatin1String("3"));
 }
 
 void FakeVimTester::test_vim_file_info()

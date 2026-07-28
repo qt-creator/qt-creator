@@ -2331,6 +2331,8 @@ public:
     QList<QHash<QString, VimValue>> m_localScopes;
     bool m_returning = false;
     VimValue m_returnValue;
+    bool m_throwing = false; // an exception raised by :throw is in flight
+    QString m_exception;
 
     int m_findStartPosition;
 
@@ -2495,7 +2497,12 @@ public:
                    const QString &condition);
     void execFor(const QList<ExCommand> &cmds, int &index, bool active,
                  const QString &spec);
+    void execTry(const QList<ExCommand> &cmds, int &index, bool active);
     bool evalCondition(const QString &expr);
+    bool interpreterInterrupted() const
+    {
+        return m_loopSignal != NoSignal || m_returning || m_throwing;
+    }
     enum LoopSignal { NoSignal, BreakSignal, ContinueSignal };
     LoopSignal m_loopSignal = NoSignal;
 
@@ -8604,7 +8611,8 @@ static bool isFunctionEnd(const QString &cmd)
 static bool isBlockTerminator(const QString &cmd)
 {
     return cmd == "endif" || cmd == "else" || cmd == "elseif"
-        || cmd == "endwhile" || cmd == "endfor" || isFunctionEnd(cmd);
+        || cmd == "endwhile" || cmd == "endfor" || isFunctionEnd(cmd)
+        || cmd == "catch" || cmd == "finally" || cmd == "endtry";
 }
 
 void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
@@ -8621,6 +8629,21 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         } else if (c.cmd == "for") {
             ++index;
             execFor(cmds, index, active, c.args);
+        } else if (c.cmd == "try") {
+            ++index;
+            execTry(cmds, index, active);
+        } else if (c.cmd == "throw") {
+            if (active) {
+                VimValue v;
+                QString error;
+                if (evaluateExpression(exprText(c), &v, &error)) {
+                    m_throwing = true;
+                    m_exception = v.toString();
+                } else {
+                    showMessage(MessageError, error);
+                }
+            }
+            ++index;
         } else if (isFunctionStart(c.cmd)) {
             ++index;
             collectFunction(cmds, index, active, c);
@@ -8648,8 +8671,8 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
             }
             ++index;
         }
-        if (m_loopSignal != NoSignal || m_returning)
-            return; // a :break/:continue/:return stops the current sequence
+        if (interpreterInterrupted())
+            return; // :break/:continue/:return/:throw stops the current sequence
     }
 }
 
@@ -8660,7 +8683,7 @@ void FakeVimHandler::Private::execIf(const QList<ExCommand> &cmds,
     // executing the first one whose guard holds (only while "active").
     bool anyTaken = active && condition;
     execSequence(cmds, index, anyTaken);
-    while (index < cmds.size() && m_loopSignal == NoSignal && !m_returning) {
+    while (index < cmds.size() && !interpreterInterrupted()) {
         const ExCommand c = cmds.at(index);
         if (c.cmd == "endif") {
             ++index;
@@ -8700,8 +8723,8 @@ void FakeVimHandler::Private::execWhile(const QList<ExCommand> &cmds,
         while (evalCondition(condition)) {
             int i = bodyStart;
             execSequence(cmds, i, true);
-            if (m_returning)
-                break; // :return unwinds the whole function
+            if (m_returning || m_throwing)
+                break; // :return/:throw unwinds past the loop
             if (m_loopSignal == BreakSignal) {
                 m_loopSignal = NoSignal;
                 break;
@@ -8748,8 +8771,8 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
                 setVariable(var, item);
                 int i = bodyStart;
                 execSequence(cmds, i, true);
-                if (m_returning)
-                    break; // :return unwinds the whole function
+                if (m_returning || m_throwing)
+                    break; // :return/:throw unwinds past the loop
                 if (m_loopSignal == BreakSignal) {
                     m_loopSignal = NoSignal;
                     break;
@@ -8764,15 +8787,95 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
         ++index;
 }
 
+void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
+    int &index, bool active)
+{
+    // Snapshot of a pending interrupt (throw/return/break) so it can be carried
+    // across the :catch/:finally clauses and re-raised afterwards.
+    struct Pending {
+        bool thrown = false;
+        QString exception;
+        bool returning = false;
+        VimValue returnValue;
+        LoopSignal signal = NoSignal;
+        bool empty() const { return !thrown && !returning && signal == NoSignal; }
+    };
+    const auto capture = [this]() {
+        Pending p{m_throwing, m_exception, m_returning, m_returnValue, m_loopSignal};
+        m_throwing = false;
+        m_returning = false;
+        m_loopSignal = NoSignal;
+        return p;
+    };
+    const auto catchMatches = [](const QString &args, const QString &ex) {
+        QString pat = args.trimmed();
+        if (pat.isEmpty())
+            return true;
+        if (pat.size() >= 2 && pat.startsWith('/') && pat.endsWith('/'))
+            pat = pat.mid(1, pat.size() - 2);
+        return vimPatternToQtPattern(pat).match(ex).hasMatch();
+    };
+
+    execSequence(cmds, index, active); // the :try body
+    Pending pending = capture();
+    bool handled = !pending.thrown;
+    execSequence(cmds, index, false); // skip the rest of the body to the clauses
+
+    while (index < cmds.size() && cmds.at(index).cmd == "catch") {
+        const ExCommand c = cmds.at(index);
+        ++index;
+        const bool match = active && pending.thrown && !handled
+                           && catchMatches(c.args, pending.exception);
+        if (match)
+            setVariable("v:exception", VimValue(pending.exception));
+        execSequence(cmds, index, match);
+        if (match)
+            handled = true;
+        if (interpreterInterrupted()) { // the catch body interrupted
+            pending = capture();
+            handled = !pending.thrown;
+            execSequence(cmds, index, false);
+        }
+    }
+
+    if (index < cmds.size() && cmds.at(index).cmd == "finally") {
+        ++index;
+        execSequence(cmds, index, active);
+        if (interpreterInterrupted()) { // :finally replaces any pending interrupt
+            pending = capture();
+            handled = !pending.thrown;
+            execSequence(cmds, index, false);
+        }
+    }
+
+    if (index < cmds.size() && cmds.at(index).cmd == "endtry")
+        ++index;
+
+    // Re-raise whatever survived unhandled.
+    if (pending.thrown && !handled) {
+        m_throwing = true;
+        m_exception = pending.exception;
+    } else if (pending.returning) {
+        m_returning = true;
+        m_returnValue = pending.returnValue;
+    } else if (pending.signal != NoSignal) {
+        m_loopSignal = pending.signal;
+    }
+}
+
 void FakeVimHandler::Private::runExCommands(const QList<ExCommand> &cmds)
 {
     m_loopSignal = NoSignal;
     m_returning = false;
+    m_throwing = false;
     int index = 0;
     while (index < cmds.size()) {
         execSequence(cmds, index, true);
-        m_loopSignal = NoSignal; // a :break/:continue/:return outside a loop or
-        m_returning = false;     // function is ignored
+        if (m_throwing)
+            showMessage(MessageError, Tr::tr("Uncaught exception: %1").arg(m_exception));
+        m_loopSignal = NoSignal; // a :break/:continue/:return/:throw outside a
+        m_returning = false;     // loop, function or :try is ignored here
+        m_throwing = false;
         if (index < cmds.size()) {
             // A block terminator with no matching opener.
             showMessage(MessageError,
