@@ -2454,6 +2454,8 @@ public:
     void execIf(const QList<ExCommand> &cmds, int &index, bool active, bool condition);
     void execWhile(const QList<ExCommand> &cmds, int &index, bool active,
                    const QString &condition);
+    void execFor(const QList<ExCommand> &cmds, int &index, bool active,
+                 const QString &spec);
     bool evalCondition(const QString &expr);
     enum LoopSignal { NoSignal, BreakSignal, ContinueSignal };
     LoopSignal m_loopSignal = NoSignal;
@@ -8186,6 +8188,9 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         } else if (c.cmd == "while") {
             ++index;
             execWhile(cmds, index, active, exprText(c));
+        } else if (c.cmd == "for") {
+            ++index;
+            execFor(cmds, index, active, c.args);
         } else if (c.cmd == "break" || c.cmd == "continue") {
             if (active)
                 m_loopSignal = c.cmd == "break" ? BreakSignal : ContinueSignal;
@@ -8266,6 +8271,49 @@ void FakeVimHandler::Private::execWhile(const QList<ExCommand> &cmds,
 
     index = endIndex;
     if (index < cmds.size() && cmds.at(index).cmd == "endwhile")
+        ++index;
+}
+
+void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
+    int &index, bool active, const QString &spec)
+{
+    // spec is "{var} in {listexpr}". Bind {var} to each list element in turn.
+    const int bodyStart = index;
+    int scan = bodyStart;
+    execSequence(cmds, scan, false);
+    const int endIndex = scan;
+
+    if (active) {
+        static const QRegularExpression re(
+            "^\\s*([@&$]?[A-Za-z_][A-Za-z0-9_:]*)\\s+in\\s+(.*)$");
+        const QRegularExpressionMatch m = re.match(spec);
+        VimValue listValue;
+        QString error;
+        if (!m.hasMatch()) {
+            showMessage(MessageError, Tr::tr("Invalid :for: %1").arg(spec));
+        } else if (!evaluateExpression(m.captured(2), &listValue, &error)) {
+            showMessage(MessageError, error);
+        } else if (!listValue.isList()) {
+            showMessage(MessageError, Tr::tr(":for requires a list"));
+        } else {
+            const QString var = m.captured(1);
+            // Iterate a copy so mutating the list in the body is well-defined.
+            const QList<VimValue> items = *listValue.listData();
+            for (const VimValue &item : items) {
+                setVariable(var, item);
+                int i = bodyStart;
+                execSequence(cmds, i, true);
+                if (m_loopSignal == BreakSignal) {
+                    m_loopSignal = NoSignal;
+                    break;
+                }
+                m_loopSignal = NoSignal; // :continue just ends this iteration
+            }
+        }
+    }
+
+    index = endIndex;
+    if (index < cmds.size() && cmds.at(index).cmd == "endfor")
         ++index;
 }
 

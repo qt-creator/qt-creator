@@ -211,6 +211,7 @@ private slots:
     void test_vim_script_if();
     void test_vim_script_while();
     void test_vim_script_lists();
+    void test_vim_script_for();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5893,6 +5894,46 @@ void FakeVimTester::test_vim_script_lists()
     data.doCommand("call add(g:l, 3)");
     QCOMPARE(echo("g:l"), QLatin1String("[1, 2, 3]"));
     QCOMPARE(echo("g:l[2]"), QLatin1String("3"));
+}
+
+void FakeVimTester::test_vim_script_for()
+{
+    // ":for x in list ... :endfor" (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // Sum a literal list.
+    data.doCommand("let g:sum = 0 | for x in [1, 2, 3, 4] | let g:sum += x | endfor");
+    QCOMPARE(echo("g:sum"), QLatin1String("10"));
+
+    // Iterate range() with :break.
+    data.doCommand("let g:sum = 0 | for i in range(1, 100) | "
+                   "if i > 5 | break | endif | let g:sum += i | endfor");
+    QCOMPARE(echo("g:sum"), QLatin1String("15"));
+
+    // :continue skips elements.
+    data.doCommand("let g:s = 0 | for i in range(1, 6) | "
+                   "if i % 2 | continue | endif | let g:s += i | endfor");
+    QCOMPARE(echo("g:s"), QLatin1String("12"));
+
+    // Build a list, then multi-line :for from a sourced file.
+    QTemporaryFile file;
+    QVERIFY(file.open());
+    file.write("let g:out = []\n"
+               "for w in [\"a\", \"b\", \"c\"]\n"
+               "  call add(g:out, w)\n"
+               "endfor\n");
+    file.flush();
+    data.doCommand(QLatin1String("source ") + file.fileName());
+    QCOMPARE(echo("g:out"), QLatin1String("['a', 'b', 'c']"));
 }
 
 void FakeVimTester::test_vim_file_info()
