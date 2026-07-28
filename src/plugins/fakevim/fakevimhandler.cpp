@@ -12753,6 +12753,11 @@ void FakeVimHandler::showMessage(MessageLevel level, const QString &msg)
     d->showMessage(level, msg);
 }
 
+void FakeVimHandler::triggerAutocmd(const QString &event)
+{
+    d->triggerAutocmd(event);
+}
+
 QWidget *FakeVimHandler::widget()
 {
     return d->editor();

@@ -105,6 +105,10 @@ public:
 
     void showMessage(MessageLevel level, const QString &msg);
 
+    // Fire the autocommands registered for an event (e.g. from the plugin's
+    // save path so BufWritePre/BufWritePost run on a real save).
+    void triggerAutocmd(const QString &event);
+
     // This executes an "ex" style command taking context
     // information from the current widget.
     void handleCommand(const QString &cmd);

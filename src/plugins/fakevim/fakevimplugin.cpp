@@ -2079,8 +2079,10 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         IEditor *editor = editorFromHandler();
         const QString fileName = handler->currentFileName();
         if (editor && editor->document()->filePath().toUrlishString() == fileName) {
+            handler->triggerAutocmd("BufWritePre");
             saved = EditorManager::saveDocument(editor->document());
             if (saved) {
+                handler->triggerAutocmd("BufWritePost");
                 QFile file3(fileName);
                 if (file3.open(QIODevice::ReadOnly)) {
                     const QByteArray ba = file3.readAll();
