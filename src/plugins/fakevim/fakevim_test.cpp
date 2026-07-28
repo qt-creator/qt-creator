@@ -201,6 +201,7 @@ private slots:
     void test_vim_goto_definition();
     void test_vim_context_help();
     void test_vim_alternate_file();
+    void test_vim_tag_text_object();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5509,6 +5510,40 @@ void FakeVimTester::test_vim_alternate_file()
     data.handler->alternateFileRequested.set([&] { requested = true; });
     data.doKeys("<c-^>");
     QVERIFY(requested);
+}
+
+void FakeVimTester::test_vim_tag_text_object()
+{
+    TestData data;
+    setup(&data);
+
+    // "it"/"at" on inline tags (QTCREATORBUG-34817).
+    data.setText("<a>fo" X "o</a>");
+    KEYS("dit", "<a>" X "</a>");
+
+    data.setText("x<a>fo" X "o</a>y");
+    KEYS("dat", "x" X "y");
+
+    // The cursor may sit on the opening tag.
+    data.setText("<" X "a>foo</a>");
+    KEYS("dit", "<a>" X "</a>");
+
+    // Nested tags: innermost by default, count selects the outer level.
+    data.setText("<a><b>" X "x</b></a>");
+    KEYS("dit", "<a><b>" X "</b></a>");
+
+    data.setText("<a><b>" X "x</b></a>");
+    KEYS("2dit", "<a>" X "</a>");
+
+    data.setText("<a><b>" X "x</b></a>");
+    KEYS("dat", "<a>" X "</a>");
+
+    // Attributes (with ">"-containing values) and self-closing siblings.
+    data.setText("<a title=\"1>2\">y" X "o</a>");
+    KEYS("dit", "<a title=\"1>2\">" X "</a>");
+
+    data.setText("<a>f" X "<br/>g</a>");
+    KEYS("dit", "<a>" X "</a>");
 }
 
 void FakeVimTester::test_vim_file_info()

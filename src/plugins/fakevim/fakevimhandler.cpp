@@ -2138,6 +2138,7 @@ public:
     bool selectBlockTextObject(bool inner, QChar left, QChar right);
     bool selectQuotedStringTextObject(bool inner, const QString &quote);
     bool selectArgumentTextObject(bool inner);
+    bool selectTagTextObject(bool inner);
 
     void commitInsertState();
     void invalidateInsertState();
@@ -4090,6 +4091,8 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             handled = selectQuotedStringTextObject(g.subsubdata.is('i'), input.asChar());
         else if (input.is('a') && s.emulateArgTextObj())
             handled = selectArgumentTextObject(g.subsubdata.is('i'));
+        else if (input.is('t'))
+            handled = selectTagTextObject(g.subsubdata.is('i'));
         else
             handled = false;
         g.subsubmode = NoSubSubMode;
@@ -9918,6 +9921,70 @@ bool FakeVimHandler::Private::selectArgumentTextObject(bool inner)
     g.movetype = MoveExclusive;
 
     setAnchorAndPosition(tcStart.position(), tcEnd.position());
+    return true;
+}
+
+bool FakeVimHandler::Private::selectTagTextObject(bool inner)
+{
+    // "it"/"at": select the content of, or the whole of, the innermost XML/HTML
+    // tag pair around the cursor. A count selects further-out enclosing pairs.
+    const QString text = document()->toPlainText();
+    const int pos = position();
+
+    // Opening, closing or self-closing tag; attribute values may contain ">".
+    static const QRegularExpression tagRe(
+        "<(/?)([a-zA-Z][-\\w:.]*)(?:\"[^\"]*\"|'[^']*'|[^'\">])*?(/?)>");
+
+    struct Tag { int openStart; int openEnd; int closeStart; int closeEnd; };
+    QList<Tag> enclosing;
+
+    struct Open { QString name; int start; int end; };
+    QList<Open> stack;
+
+    QRegularExpressionMatchIterator it = tagRe.globalMatch(text);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        if (!m.captured(3).isEmpty()) // self-closing, opens no scope
+            continue;
+        const int start = m.capturedStart();
+        const int end = m.capturedEnd();
+        if (m.captured(1).isEmpty()) {
+            stack.append({m.captured(2), start, end});
+            continue;
+        }
+        // Closing tag: pair it with the nearest matching open, dropping any
+        // unclosed tags opened in between.
+        for (int i = stack.size() - 1; i >= 0; --i) {
+            if (stack.at(i).name != m.captured(2))
+                continue;
+            const Open open = stack.at(i);
+            while (stack.size() > i)
+                stack.removeLast();
+            if (open.start <= pos && pos < end)
+                enclosing.append({open.start, open.end, start, end});
+            break;
+        }
+    }
+
+    if (enclosing.isEmpty())
+        return false;
+
+    // Innermost first.
+    std::sort(enclosing.begin(), enclosing.end(),
+              [](const Tag &a, const Tag &b) { return a.openStart > b.openStart; });
+    const int level = count() - 1;
+    if (level >= enclosing.size())
+        return false;
+    const Tag &tag = enclosing.at(level);
+
+    int p1 = inner ? tag.openEnd : tag.openStart;
+    int p2 = inner ? tag.closeStart : tag.closeEnd;
+
+    g.movetype = MoveExclusive;
+    if (isVisualMode())
+        --p2;
+    setAnchorAndPosition(p1, p2);
+
     return true;
 }
 
