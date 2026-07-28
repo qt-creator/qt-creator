@@ -9,6 +9,7 @@
 #include "guiutils.h"
 #include "hostosinfo.h"
 #include "icon.h"
+#include "infolabel.h"
 #include "layoutbuilder.h"
 #include "pathchooser.h"
 #include "qtcassert.h"
@@ -1122,11 +1123,12 @@ public:
     FileWizardPagePrivate() = default;
     bool m_complete = false;
 
-    QLabel *m_defaultSuffixLabel;
-    QLabel *m_nameLabel;
-    FileNameValidatingLineEdit *m_nameLineEdit;
-    QLabel *m_pathLabel;
-    PathChooser *m_pathChooser;
+    QPointer<QLabel> m_defaultSuffixLabel = nullptr;
+    QLabel *m_nameLabel = nullptr;
+    FileNameValidatingLineEdit *m_nameLineEdit = nullptr;
+    QLabel *m_pathLabel = nullptr;
+    PathChooser *m_pathChooser = nullptr;
+    InfoLabel *m_stateLabel = nullptr;
 };
 
 FileWizardPage::FileWizardPage(QWidget *parent) :
@@ -1147,12 +1149,19 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d->m_nameLabel->setText(Tr::tr("File name:"));
     d->m_pathLabel->setText(Tr::tr("Path:"));
 
+    d->m_stateLabel = new InfoLabel(this);
+    d->m_stateLabel->setObjectName("stateLabel");
+    d->m_stateLabel->setFilled(true);
+    d->m_stateLabel->setType(InfoLabelType::Error);
+    d->m_stateLabel->setVisible(false);
+
     using namespace Layouting;
 
     Form {
-        empty, d->m_defaultSuffixLabel, br,
+        empty, d->m_defaultSuffixLabel.get(), br,
         d->m_nameLabel, d->m_nameLineEdit, br,
-        d->m_pathLabel, d->m_pathChooser
+        d->m_pathLabel, d->m_pathChooser, br,
+        d->m_stateLabel
     }.attachTo(this);
 
     connect(d->m_pathChooser, &PathChooser::validChanged,
@@ -1235,13 +1244,18 @@ void FileWizardPage::setPathLabel(const QString &label)
 void FileWizardPage::setDefaultSuffix(const QString &suffix)
 {
     if (suffix.isEmpty()) {
-        const auto layout = qobject_cast<QFormLayout *>(this->layout());
-        if (layout->rowCount() == 3)
-            layout->removeRow(0);
+        if (d->m_defaultSuffixLabel) {
+            const auto layout = qobject_cast<QFormLayout *>(this->layout());
+            if (QTC_GUARD(layout)) {
+                layout->removeRow(d->m_defaultSuffixLabel.get());
+            }
+        }
     } else {
-        d->m_defaultSuffixLabel->setText(
-            Tr::tr("The default suffix if you do not explicitly specify a file extension is \".%1\".")
-                .arg(suffix));
+        if (QTC_GUARD(d->m_defaultSuffixLabel)) {
+            d->m_defaultSuffixLabel->setText(
+                Tr::tr("The default suffix if you do not explicitly specify a file extension is \".%1\".")
+                    .arg(suffix));
+        }
     }
 }
 
@@ -1257,6 +1271,16 @@ void FileWizardPage::setForceFirstCapitalLetterForFileName(bool b)
 
 void FileWizardPage::slotValidChanged()
 {
+    if (!d->m_pathChooser->isValid()) {
+        d->m_stateLabel->setVisible(true);
+        d->m_stateLabel->setText(d->m_pathChooser->errorMessage());
+    } else if (!d->m_nameLineEdit->isValid()) {
+        d->m_stateLabel->setVisible(true);
+        d->m_stateLabel->setText(d->m_nameLineEdit->errorMessage());
+    } else {
+        d->m_stateLabel->setVisible(false);
+    }
+
     const bool newComplete = d->m_pathChooser->isValid() && d->m_nameLineEdit->isValid();
     if (newComplete != d->m_complete) {
         d->m_complete = newComplete;
