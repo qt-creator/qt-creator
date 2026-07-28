@@ -1722,6 +1722,63 @@ struct MappingState {
     bool editBlock = false;
 };
 
+// A Vimscript value. Only scalar types for now (see QTCREATORBUG-34817);
+// Lists and Dictionaries are left for a later step.
+class VimValue
+{
+public:
+    enum Type { Number, Float, String };
+
+    VimValue() = default;
+    explicit VimValue(qlonglong n) : m_type(Number), m_number(n) {}
+    explicit VimValue(double f) : m_type(Float), m_float(f) {}
+    explicit VimValue(const QString &s) : m_type(String), m_string(s) {}
+
+    Type type() const { return m_type; }
+    bool isString() const { return m_type == String; }
+
+    qlonglong toNumber() const
+    {
+        switch (m_type) {
+        case Number: return m_number;
+        case Float:  return qlonglong(m_float);
+        case String: {
+            // Vim uses the leading (optionally signed) decimal digits, 0 else.
+            static const QRegularExpression re("^\\s*(-?\\d+)");
+            const QRegularExpressionMatch m = re.match(m_string);
+            return m.hasMatch() ? m.captured(1).toLongLong() : 0;
+        }
+        }
+        return 0;
+    }
+
+    double toFloat() const
+    {
+        return m_type == Float ? m_float : double(toNumber());
+    }
+
+    bool toBool() const { return m_type == Float ? m_float != 0 : toNumber() != 0; }
+
+    QString toString() const
+    {
+        switch (m_type) {
+        case Number: return QString::number(m_number);
+        case Float:  return QString::number(m_float, 'g', 6);
+        case String: return m_string;
+        }
+        return QString();
+    }
+
+private:
+    Type m_type = Number;
+    qlonglong m_number = 0;
+    double m_float = 0;
+    QString m_string;
+};
+
+// Recursive-descent evaluator for Vimscript expressions; defined below.
+class VimExpr;
+
 class FakeVimHandler::Private : public QObject
 {
 public:
@@ -2317,6 +2374,10 @@ public:
     bool handleExTagCommand(const ExCommand &cmd);
     bool handleExWriteCommand(const ExCommand &cmd);
     bool handleExEchoCommand(const ExCommand &cmd);
+
+    // Vimscript expression evaluation (QTCREATORBUG-34817).
+    friend class VimExpr;
+    bool evaluateExpression(const QString &expr, VimValue *result, QString *error);
 
     void setTabSize(int tabSize);
     void setupCharClass();
@@ -6180,6 +6241,12 @@ bool FakeVimHandler::Private::parseExCommand(QString *line, ExCommand *cmd)
             ++i; // skip escaped character
         } else if (close.isNull()) {
             if (c == '|') {
+                // "||" is the logical-or operator (e.g. in :echo/:if), not a
+                // command separator; only a single "|" splits commands.
+                if (i + 1 < line->size() && line->at(i + 1) == '|') {
+                    ++i;
+                    continue;
+                }
                 // split on |
                 break;
             } else if (c == '/') {
@@ -7160,12 +7227,376 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     return true;
 }
 
+// Recursive-descent evaluator for a subset of Vimscript expressions. The
+// grammar levels follow ":help expression-syntax" (ternary, ||, &&, compare,
+// +/-/., */ /%, unary, atom). Only scalar values are handled for now; more
+// atoms (variables, options, registers, function calls) are added in later
+// steps (QTCREATORBUG-34817).
+class VimExpr
+{
+public:
+    VimExpr(FakeVimHandler::Private *h, const QString &input)
+        : m_h(h), m_in(input)
+    {}
+
+    VimValue parseExpr() { return exprTernary(); }
+
+    void skipBlanks()
+    {
+        while (m_pos < m_in.size() && (m_in.at(m_pos) == ' ' || m_in.at(m_pos) == '\t'))
+            ++m_pos;
+    }
+
+    bool atEnd() { skipBlanks(); return m_pos >= m_in.size(); }
+    bool ok() const { return m_ok; }
+    QString error() const { return m_error; }
+    void setTrailingError() { setError(Tr::tr("Trailing characters: %1").arg(m_in.mid(m_pos))); }
+
+private:
+    QChar cur() const { return m_pos < m_in.size() ? m_in.at(m_pos) : QChar(); }
+    QChar at(int o) const { return m_pos + o < m_in.size() ? m_in.at(m_pos + o) : QChar(); }
+    void setError(const QString &msg) { if (m_ok) { m_ok = false; m_error = msg; } }
+
+    bool eatOp(const char *op)
+    {
+        skipBlanks();
+        const int n = int(qstrlen(op));
+        for (int i = 0; i < n; ++i) {
+            if (at(i) != QLatin1Char(op[i]))
+                return false;
+        }
+        m_pos += n;
+        return true;
+    }
+
+    VimValue exprTernary()
+    {
+        VimValue cond = exprOr();
+        skipBlanks();
+        if (m_ok && cur() == '?') {
+            ++m_pos;
+            VimValue a = exprTernary();
+            skipBlanks();
+            if (!eatOp(":")) {
+                setError(Tr::tr("Missing ':' in ternary expression"));
+                return {};
+            }
+            VimValue b = exprTernary();
+            return cond.toBool() ? a : b;
+        }
+        return cond;
+    }
+
+    VimValue exprOr()
+    {
+        VimValue e = exprAnd();
+        while (m_ok && eatOp("||")) {
+            VimValue r = exprAnd();
+            e = VimValue(qlonglong(e.toBool() || r.toBool()));
+        }
+        return e;
+    }
+
+    VimValue exprAnd()
+    {
+        VimValue e = exprCompare();
+        while (m_ok && eatOp("&&")) {
+            VimValue r = exprCompare();
+            e = VimValue(qlonglong(e.toBool() && r.toBool()));
+        }
+        return e;
+    }
+
+    VimValue exprCompare()
+    {
+        VimValue lhs = exprAdd();
+        if (!m_ok)
+            return lhs;
+        skipBlanks();
+        const QChar c = cur();
+        if (c != '=' && c != '!' && c != '<' && c != '>')
+            return lhs;
+
+        QString op;
+        if (eatOp("==")) op = "==";
+        else if (eatOp("!=")) op = "!=";
+        else if (eatOp("<=")) op = "<=";
+        else if (eatOp(">=")) op = ">=";
+        else if (eatOp("<")) op = "<";
+        else if (eatOp(">")) op = ">";
+        else return lhs;
+
+        // Optional case-forcing suffix, only when glued (no leading blank).
+        bool caseSensitive = true;
+        if (cur() == '#')
+            ++m_pos;
+        else if (cur() == '?') {
+            caseSensitive = false;
+            ++m_pos;
+        }
+
+        VimValue rhs = exprAdd();
+        if (!m_ok)
+            return {};
+        return VimValue(qlonglong(compare(lhs, op, rhs, caseSensitive)));
+    }
+
+    static bool compare(const VimValue &l, const QString &op, const VimValue &r, bool cs)
+    {
+        int c;
+        if (l.isString() && r.isString()) {
+            c = QString::compare(l.toString(), r.toString(),
+                                 cs ? Qt::CaseSensitive : Qt::CaseInsensitive);
+        } else if (l.type() == VimValue::Float || r.type() == VimValue::Float) {
+            const double a = l.toFloat(), b = r.toFloat();
+            c = a < b ? -1 : a > b ? 1 : 0;
+        } else {
+            const qlonglong a = l.toNumber(), b = r.toNumber();
+            c = a < b ? -1 : a > b ? 1 : 0;
+        }
+        if (op == "==") return c == 0;
+        if (op == "!=") return c != 0;
+        if (op == "<")  return c < 0;
+        if (op == "<=") return c <= 0;
+        if (op == ">")  return c > 0;
+        return c >= 0; // ">="
+    }
+
+    VimValue exprAdd()
+    {
+        VimValue e = exprMul();
+        while (m_ok) {
+            skipBlanks();
+            const QChar c = cur();
+            if (c == '+' || c == '-') {
+                ++m_pos;
+                VimValue r = exprMul();
+                if (e.type() == VimValue::Float || r.type() == VimValue::Float)
+                    e = VimValue(c == '+' ? e.toFloat() + r.toFloat() : e.toFloat() - r.toFloat());
+                else
+                    e = VimValue(c == '+' ? e.toNumber() + r.toNumber() : e.toNumber() - r.toNumber());
+            } else if (c == '.' && at(1) != QChar() && !at(1).isDigit()) {
+                ++m_pos;
+                if (cur() == '.') // accept both "." and ".." concatenation
+                    ++m_pos;
+                VimValue r = exprMul();
+                e = VimValue(e.toString() + r.toString());
+            } else {
+                break;
+            }
+        }
+        return e;
+    }
+
+    VimValue exprMul()
+    {
+        VimValue e = exprUnary();
+        while (m_ok) {
+            skipBlanks();
+            const QChar c = cur();
+            if (c != '*' && c != '/' && c != '%')
+                break;
+            ++m_pos;
+            VimValue r = exprUnary();
+            if (c != '%' && (e.type() == VimValue::Float || r.type() == VimValue::Float)) {
+                const double b = r.toFloat();
+                e = VimValue(c == '*' ? e.toFloat() * b : (b != 0 ? e.toFloat() / b : 0.0));
+            } else {
+                const qlonglong b = r.toNumber();
+                if (c == '*')
+                    e = VimValue(e.toNumber() * b);
+                else
+                    e = VimValue(b != 0 ? (c == '/' ? e.toNumber() / b : e.toNumber() % b) : 0);
+            }
+        }
+        return e;
+    }
+
+    VimValue exprUnary()
+    {
+        skipBlanks();
+        const QChar c = cur();
+        if (c == '!') {
+            ++m_pos;
+            return VimValue(qlonglong(!exprUnary().toBool()));
+        }
+        if (c == '-' || c == '+') {
+            ++m_pos;
+            VimValue v = exprUnary();
+            if (c == '+')
+                return v;
+            return v.type() == VimValue::Float ? VimValue(-v.toFloat())
+                                               : VimValue(-v.toNumber());
+        }
+        return exprAtom();
+    }
+
+    VimValue exprAtom()
+    {
+        skipBlanks();
+        const QChar c = cur();
+        if (c == '(') {
+            ++m_pos;
+            VimValue v = parseExpr();
+            skipBlanks();
+            if (!eatOp(")"))
+                setError(Tr::tr("Missing ')' in expression"));
+            return v;
+        }
+        if (c == '"')
+            return parseDoubleQuoted();
+        if (c == '\'')
+            return parseSingleQuoted();
+        if (c == '$')
+            return parseEnvVar();
+        if (c.isDigit() || (c == '.' && at(1).isDigit()))
+            return parseNumber();
+
+        setError(Tr::tr("Invalid expression: %1").arg(m_in.mid(m_pos)));
+        return {};
+    }
+
+    VimValue parseNumber()
+    {
+        const int start = m_pos;
+        if (cur() == '0' && (at(1) == 'x' || at(1) == 'X')) {
+            m_pos += 2;
+            while (isHex(cur()))
+                ++m_pos;
+            return VimValue(qlonglong(m_in.mid(start, m_pos - start).toLongLong(nullptr, 16)));
+        }
+        while (cur().isDigit())
+            ++m_pos;
+        bool isFloat = false;
+        if (cur() == '.' && at(1).isDigit()) {
+            isFloat = true;
+            ++m_pos;
+            while (cur().isDigit())
+                ++m_pos;
+        }
+        if (cur() == 'e' || cur() == 'E') {
+            isFloat = true;
+            ++m_pos;
+            if (cur() == '+' || cur() == '-')
+                ++m_pos;
+            while (cur().isDigit())
+                ++m_pos;
+        }
+        const QString num = m_in.mid(start, m_pos - start);
+        return isFloat ? VimValue(num.toDouble()) : VimValue(qlonglong(num.toLongLong()));
+    }
+
+    VimValue parseDoubleQuoted()
+    {
+        ++m_pos; // opening quote
+        QString s;
+        while (m_pos < m_in.size() && cur() != '"') {
+            QChar ch = cur();
+            if (ch == '\\' && m_pos + 1 < m_in.size()) {
+                ++m_pos;
+                const QChar e = cur();
+                if (e == 'n') s += '\n';
+                else if (e == 't') s += '\t';
+                else if (e == 'r') s += '\r';
+                else if (e == 'e') s += QChar(27);
+                else if (e == '\\') s += '\\';
+                else if (e == '"') s += '"';
+                else s += e;
+                ++m_pos;
+            } else {
+                s += ch;
+                ++m_pos;
+            }
+        }
+        if (!eatOp("\""))
+            setError(Tr::tr("Missing '\"' in string"));
+        return VimValue(s);
+    }
+
+    VimValue parseSingleQuoted()
+    {
+        ++m_pos; // opening quote
+        QString s;
+        while (m_pos < m_in.size()) {
+            if (cur() == '\'') {
+                if (at(1) == '\'') { // '' is a literal single quote
+                    s += '\'';
+                    m_pos += 2;
+                    continue;
+                }
+                ++m_pos;
+                return VimValue(s);
+            }
+            s += cur();
+            ++m_pos;
+        }
+        setError(Tr::tr("Missing \"'\" in string"));
+        return VimValue(s);
+    }
+
+    VimValue parseEnvVar()
+    {
+        ++m_pos; // '$'
+        const int start = m_pos;
+        while (cur().isLetterOrNumber() || cur() == '_')
+            ++m_pos;
+        const QString name = m_in.mid(start, m_pos - start);
+        return VimValue(qEnvironmentVariable(name.toLatin1().constData()));
+    }
+
+    static bool isHex(QChar c)
+    {
+        return c.isDigit() || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+    }
+
+    [[maybe_unused]] FakeVimHandler::Private *m_h; // used by later steps
+    const QString m_in;
+    int m_pos = 0;
+    bool m_ok = true;
+    QString m_error;
+};
+
+bool FakeVimHandler::Private::evaluateExpression(const QString &expr,
+    VimValue *result, QString *error)
+{
+    VimExpr e(this, expr);
+    if (e.atEnd()) {
+        if (error)
+            *error = Tr::tr("Empty expression");
+        return false;
+    }
+    const VimValue v = e.parseExpr();
+    if (e.ok() && !e.atEnd())
+        e.setTrailingError();
+    if (!e.ok()) {
+        if (error)
+            *error = e.error();
+        return false;
+    }
+    *result = v;
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 {
-    // :echo
-    if (cmd.cmd != "echo")
+    // :echo / :echomsg evaluate their arguments, joining results with a space.
+    if (cmd.cmd != "echo" && cmd.cmd != "echom" && cmd.cmd != "echomsg")
         return false;
-    showMessage(MessageInfo, cmd.args);
+
+    // :echo takes no "bang"; a leading "!" stripped by parseExCommand is the
+    // unary-not operator and belongs to the expression.
+    const QString source = (cmd.hasBang ? QString('!') : QString()) + cmd.args;
+    VimExpr e(this, source);
+    QStringList parts;
+    while (!e.atEnd()) {
+        const VimValue v = e.parseExpr();
+        if (!e.ok()) {
+            showMessage(MessageError, e.error());
+            return true;
+        }
+        parts.append(v.toString());
+    }
+    showMessage(MessageInfo, parts.join(' '));
     return true;
 }
 

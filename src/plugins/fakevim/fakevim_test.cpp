@@ -202,6 +202,7 @@ private slots:
     void test_vim_context_help();
     void test_vim_alternate_file();
     void test_vim_tag_text_object();
+    void test_vim_script_echo_expression();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5544,6 +5545,41 @@ void FakeVimTester::test_vim_tag_text_object()
 
     data.setText("<a>f" X "<br/>g</a>");
     KEYS("dit", "<a>" X "</a>");
+}
+
+void FakeVimTester::test_vim_script_echo_expression()
+{
+    // ":echo" evaluates a Vimscript expression (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("1 + 2"), QLatin1String("3"));
+    QCOMPARE(echo("2 * 3 + 1"), QLatin1String("7"));
+    QCOMPARE(echo("(1 + 2) * 3"), QLatin1String("9"));
+    QCOMPARE(echo("10 % 3"), QLatin1String("1"));
+    QCOMPARE(echo("7 / 2"), QLatin1String("3"));               // integer division
+    QCOMPARE(echo("-5 + 2"), QLatin1String("-3"));
+    QCOMPARE(echo("\"ab\" . \"cd\""), QLatin1String("abcd"));  // concatenation
+    QCOMPARE(echo("\"3\" + 4"), QLatin1String("7"));           // string to number
+    QCOMPARE(echo("3 > 2"), QLatin1String("1"));               // comparison -> 1/0
+    QCOMPARE(echo("3 < 2"), QLatin1String("0"));
+    QCOMPARE(echo("\"a\" == \"a\""), QLatin1String("1"));
+    QCOMPARE(echo("1 && 0"), QLatin1String("0"));
+    QCOMPARE(echo("1 || 0"), QLatin1String("1"));
+    QCOMPARE(echo("!0"), QLatin1String("1"));
+    QCOMPARE(echo("1 ? \"y\" : \"n\""), QLatin1String("y"));
+    QCOMPARE(echo("0 ? \"y\" : \"n\""), QLatin1String("n"));
+    QCOMPARE(echo("\"a\" \"b\""), QLatin1String("a b"));       // multiple arguments
+    QCOMPARE(echo("'it''s'"), QLatin1String("it's"));          // single-quote escape
 }
 
 void FakeVimTester::test_vim_file_info()
