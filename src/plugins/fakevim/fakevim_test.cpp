@@ -209,6 +209,7 @@ private slots:
     void test_vim_script_expr_mapping();
     void test_vim_script_execute();
     void test_vim_script_if();
+    void test_vim_script_while();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5808,6 +5809,52 @@ void FakeVimTester::test_vim_script_if()
     file.flush();
     data.doCommand(QLatin1String("source ") + file.fileName());
     QCOMPARE(echo("g:size"), QLatin1String("medium"));
+}
+
+void FakeVimTester::test_vim_script_while()
+{
+    // ":while/:endwhile" with :break and :continue (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("let g:i = 0 | let g:sum = 0 | while g:i < 5 | "
+                   "let g:sum += g:i | let g:i += 1 | endwhile");
+    QCOMPARE(echo("g:sum"), QLatin1String("10"));
+
+    // A false condition runs the body zero times.
+    data.doCommand("let g:z = 5 | while 0 | let g:z = 99 | endwhile");
+    QCOMPARE(echo("g:z"), QLatin1String("5"));
+
+    // :break leaves the loop.
+    data.doCommand("let g:i = 0 | while 1 | let g:i += 1 | "
+                   "if g:i >= 3 | break | endif | endwhile");
+    QCOMPARE(echo("g:i"), QLatin1String("3"));
+
+    // :continue skips the rest of the body (sum of even values in 1..6).
+    data.doCommand("let g:i = 0 | let g:s = 0 | while g:i < 6 | let g:i += 1 | "
+                   "if g:i % 2 | continue | endif | let g:s += g:i | endwhile");
+    QCOMPARE(echo("g:s"), QLatin1String("12"));
+
+    // Multi-line loop from a sourced file: 4! = 24.
+    QTemporaryFile file;
+    QVERIFY(file.open());
+    file.write("let g:p = 1\n"
+               "let g:k = 1\n"
+               "while g:k <= 4\n"
+               "  let g:p = g:p * g:k\n"
+               "  let g:k += 1\n"
+               "endwhile\n");
+    file.flush();
+    data.doCommand(QLatin1String("source ") + file.fileName());
+    QCOMPARE(echo("g:p"), QLatin1String("24"));
 }
 
 void FakeVimTester::test_vim_file_info()

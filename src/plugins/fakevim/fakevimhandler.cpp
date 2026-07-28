@@ -2410,7 +2410,11 @@ public:
     void runExCommands(const QList<ExCommand> &cmds);
     void execSequence(const QList<ExCommand> &cmds, int &index, bool active);
     void execIf(const QList<ExCommand> &cmds, int &index, bool active, bool condition);
+    void execWhile(const QList<ExCommand> &cmds, int &index, bool active,
+                   const QString &condition);
     bool evalCondition(const QString &expr);
+    enum LoopSignal { NoSignal, BreakSignal, ContinueSignal };
+    LoopSignal m_loopSignal = NoSignal;
 
     void setTabSize(int tabSize);
     void setupCharClass();
@@ -8036,6 +8040,13 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         if (c.cmd == "if") {
             ++index;
             execIf(cmds, index, active, active && evalCondition(exprText(c)));
+        } else if (c.cmd == "while") {
+            ++index;
+            execWhile(cmds, index, active, exprText(c));
+        } else if (c.cmd == "break" || c.cmd == "continue") {
+            if (active)
+                m_loopSignal = c.cmd == "break" ? BreakSignal : ContinueSignal;
+            ++index;
         } else if (isBlockTerminator(c.cmd)) {
             return; // belongs to the enclosing construct
         } else {
@@ -8046,6 +8057,8 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
             }
             ++index;
         }
+        if (m_loopSignal != NoSignal)
+            return; // a :break/:continue stops the current sequence
     }
 }
 
@@ -8056,7 +8069,7 @@ void FakeVimHandler::Private::execIf(const QList<ExCommand> &cmds,
     // executing the first one whose guard holds (only while "active").
     bool anyTaken = active && condition;
     execSequence(cmds, index, anyTaken);
-    while (index < cmds.size()) {
+    while (index < cmds.size() && m_loopSignal == NoSignal) {
         const ExCommand c = cmds.at(index);
         if (c.cmd == "endif") {
             ++index;
@@ -8078,11 +8091,48 @@ void FakeVimHandler::Private::execIf(const QList<ExCommand> &cmds,
     }
 }
 
+void FakeVimHandler::Private::execWhile(const QList<ExCommand> &cmds,
+    int &index, bool active, const QString &condition)
+{
+    // "index" is positioned just after the :while. Locate the matching
+    // :endwhile by skipping the body once, then run the body while the
+    // condition holds.
+    const int bodyStart = index;
+    int scan = bodyStart;
+    execSequence(cmds, scan, false);
+    const int endIndex = scan;
+
+    if (active) {
+        // Guard against a runaway loop freezing the editor.
+        const int loopLimit = 1000000;
+        int iterations = 0;
+        while (evalCondition(condition)) {
+            int i = bodyStart;
+            execSequence(cmds, i, true);
+            if (m_loopSignal == BreakSignal) {
+                m_loopSignal = NoSignal;
+                break;
+            }
+            m_loopSignal = NoSignal; // a :continue just ends this iteration
+            if (++iterations > loopLimit) {
+                showMessage(MessageError, Tr::tr("Loop iteration limit exceeded"));
+                break;
+            }
+        }
+    }
+
+    index = endIndex;
+    if (index < cmds.size() && cmds.at(index).cmd == "endwhile")
+        ++index;
+}
+
 void FakeVimHandler::Private::runExCommands(const QList<ExCommand> &cmds)
 {
+    m_loopSignal = NoSignal;
     int index = 0;
     while (index < cmds.size()) {
         execSequence(cmds, index, true);
+        m_loopSignal = NoSignal; // a :break/:continue outside a loop is ignored
         if (index < cmds.size()) {
             // A block terminator with no matching opener.
             showMessage(MessageError,
