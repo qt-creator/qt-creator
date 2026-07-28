@@ -10,6 +10,7 @@
 
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>

@@ -133,6 +133,7 @@
 #include <utils/stringutils.h>
 #include <utils/terminalhooks.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
 

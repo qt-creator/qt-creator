@@ -18,6 +18,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>

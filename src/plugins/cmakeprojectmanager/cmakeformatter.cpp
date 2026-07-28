@@ -29,6 +29,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
+#include <utils/pathchooser.h>
 
 #include <QMenu>
 

@@ -9,6 +9,7 @@
 
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 #include <vcsbase/vcsbaseconstants.h>
 

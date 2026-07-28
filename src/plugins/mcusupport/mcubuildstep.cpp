@@ -27,6 +27,7 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/aspects.h>
+#include <utils/pathchooser.h>
 
 #include <QMessageBox>
 #include <QTemporaryDir>

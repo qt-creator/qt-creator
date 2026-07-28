@@ -15,6 +15,7 @@
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/shutdownguard.h>
 #include <utils/utilsicons.h>

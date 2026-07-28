@@ -12,6 +12,7 @@
 #include <utils/fileutils.h>
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 #include <QDesktopServices>
 #include <QGuiApplication>

@@ -32,6 +32,7 @@
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;

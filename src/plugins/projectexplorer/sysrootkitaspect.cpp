@@ -14,6 +14,7 @@
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
+#include <utils/pathchooser.h>
 
 using namespace Utils;
 

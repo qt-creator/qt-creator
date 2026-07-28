@@ -23,6 +23,7 @@
 #include <utils/environment.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>

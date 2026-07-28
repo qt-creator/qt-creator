@@ -8,6 +8,8 @@
 #include "runconfigurationaspects.h"
 #include "target.h"
 
+#include <utils/pathchooser.h>
+
 using namespace Utils;
 
 namespace ProjectExplorer {

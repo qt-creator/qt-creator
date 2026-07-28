@@ -12,6 +12,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 #include <QProcess>
 #include <QRegularExpression>

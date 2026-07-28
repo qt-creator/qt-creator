@@ -11,6 +11,7 @@
 #include <utils/aspects.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <vcsbase/vcsbaseconstants.h>

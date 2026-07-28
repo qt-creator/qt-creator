@@ -9,6 +9,7 @@
 #include <utils/environment.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>

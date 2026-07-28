@@ -7,6 +7,7 @@
 #include "task.h"
 
 #include <utils/aspects.h>
+#include <utils/commandline.h>
 #include <utils/macroexpander.h>
 
 #include <functional>

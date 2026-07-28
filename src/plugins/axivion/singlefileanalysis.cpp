@@ -30,6 +30,7 @@
 #include <utils/filepath.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 
 #include <QDialog>

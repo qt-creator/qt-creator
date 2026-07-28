@@ -18,6 +18,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
+#include <utils/pathchooser.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 

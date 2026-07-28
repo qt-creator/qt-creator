@@ -14,6 +14,8 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
+#include <utils/pathchooser.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 

@@ -12,6 +12,7 @@
 
 #include <utils/aspects.h>
 #include <utils/outputformatter.h>
+#include <utils/pathchooser.h>
 
 using namespace Utils;
 

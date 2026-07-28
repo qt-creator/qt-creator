@@ -38,6 +38,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 #include <QListWidget>
 #include <QRandomGenerator>

@@ -26,6 +26,7 @@
 
 #include <utils/mimeconstants.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcsettings.h>
 #include <utils/unarchiver.h>
 #include <utils/widgets.h>

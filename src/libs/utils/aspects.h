@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include "fancylineedit.h"
 #include "filepath.h"
 #include "id.h"
-#include "pathchooser.h"
 
 #include <QFontComboBox>
 #include <QMap>
@@ -38,8 +38,10 @@ class BoolAspect;
 class CheckableDecider;
 class Key;
 class MacroExpander;
+class PathChooser;
 
 enum class InfoLabelType;
+enum class PathChooserKind;
 
 using Store = QMap<Key, QVariant>; // TODO: storefwd.h? utils_fwd.h?
 
@@ -819,7 +821,7 @@ public:
     void setAllowPathFromDevice(bool allowPathFromDevice);
     void setValidatePlaceHolder(bool validatePlaceHolder);
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
-    void setExpectedKind(const PathChooserKind expectedKind);
+    void setExpectedKind(const PathChooserKind &expectedKind);
     void setEnvironment(const Environment &env);
     void setBaseDirectory(const Lazy<FilePath> &baseDirectory);
     void setInitialBrowsePathBackup(const FilePath &initialBrowsePathBackup);

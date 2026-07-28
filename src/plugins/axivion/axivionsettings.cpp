@@ -19,6 +19,7 @@
 #include <utils/guiutils.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>

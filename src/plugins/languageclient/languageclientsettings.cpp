@@ -28,6 +28,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
+#include <utils/pathchooser.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>

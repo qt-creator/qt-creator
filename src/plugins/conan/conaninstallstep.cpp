@@ -20,6 +20,8 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
+#include <utils/pathchooser.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 

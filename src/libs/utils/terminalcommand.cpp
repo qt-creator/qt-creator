@@ -10,6 +10,7 @@
 #include "guiutils.h"
 #include "hostosinfo.h"
 #include "layoutbuilder.h"
+#include "pathchooser.h"
 #include "qtcsettings.h"
 #include "utilstr.h"
 

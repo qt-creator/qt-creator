@@ -3,6 +3,8 @@
 
 #include "qtprofilersettings.h"
 
+#include <utils/pathchooser.h>
+
 #include <QDir>
 
 namespace QtProfiler {

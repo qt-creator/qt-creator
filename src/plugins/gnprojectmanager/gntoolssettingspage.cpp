@@ -17,6 +17,7 @@
 #include <utils/groupedmodel.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>

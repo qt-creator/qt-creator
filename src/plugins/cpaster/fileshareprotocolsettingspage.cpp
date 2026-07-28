@@ -7,6 +7,7 @@
 #include "cpasterconstants.h"
 
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
 
 #include <QLabel>

@@ -16,6 +16,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/treemodel.h>
 #include <utils/treeviewcombobox.h>
 

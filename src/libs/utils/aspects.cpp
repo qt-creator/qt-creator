@@ -1901,7 +1901,7 @@ void FilePathAspect::setValueAlternatives(const FilePaths &candidates)
 
   \sa Utils::PathChooser::setExpectedKind()
 */
-void FilePathAspect::setExpectedKind(const PathChooserKind expectedKind)
+void FilePathAspect::setExpectedKind(const PathChooserKind &expectedKind)
 {
     if (d->m_expectedKind != expectedKind) {
         d->m_expectedKind = expectedKind;

@@ -25,6 +25,7 @@
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
+#include <utils/pathchooser.h>
 #include <utils/terminalhooks.h>
 
 #include <QDesktopServices>

@@ -8,6 +8,7 @@
 
 #include <utils/aspects.h>
 #include <utils/filestreamer.h>
+#include <utils/pathchooser.h>
 
 using namespace QtTaskTree;
 using namespace Utils;

@@ -9,6 +9,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 using namespace Utils;
 

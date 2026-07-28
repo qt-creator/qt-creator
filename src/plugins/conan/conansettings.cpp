@@ -4,6 +4,7 @@
 #include "conansettings.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/pathchooser.h>
 
 using namespace Utils;
 

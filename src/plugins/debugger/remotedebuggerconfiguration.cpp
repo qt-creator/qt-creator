@@ -9,6 +9,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
+#include <utils/pathchooser.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 

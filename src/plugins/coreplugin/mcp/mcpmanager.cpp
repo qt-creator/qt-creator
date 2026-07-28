@@ -14,11 +14,12 @@
 #include <utils/algorithm.h>
 #include <utils/aspectlist.h>
 #include <utils/aspects.h>
+#include <utils/async.h>
 #include <utils/co_result.h>
 #include <utils/environmentchangesaspect.h>
-#include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/pathchooser.h>
 #include <utils/shutdownguard.h>
 #include <utils/theme/theme.h>
 

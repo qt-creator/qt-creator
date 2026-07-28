@@ -30,6 +30,7 @@
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 
 #include <QDesktopServices>

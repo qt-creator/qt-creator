@@ -14,6 +14,7 @@
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>

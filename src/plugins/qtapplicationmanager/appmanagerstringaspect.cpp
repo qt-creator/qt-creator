@@ -7,6 +7,8 @@
 
 #include "appmanagertr.h"
 
+#include <utils/pathchooser.h>
+
 #include <QFileInfo>
 #include <QLayout>
 #include <QPushButton>

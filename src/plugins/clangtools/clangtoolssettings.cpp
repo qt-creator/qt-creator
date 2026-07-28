@@ -20,6 +20,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/store.h>
 

@@ -11,6 +11,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/pathchooser.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

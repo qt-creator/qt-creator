@@ -14,6 +14,7 @@
 #include <utils/fileutils.h>
 #include <utils/genericconstants.h>
 #include <utils/mimeutils.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 
 #include <QFile>

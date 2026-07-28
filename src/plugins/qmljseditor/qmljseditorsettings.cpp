@@ -29,6 +29,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcsettings.h>
 #include <utils/treemodel.h>
 #include <utils/variablechooser.h>
