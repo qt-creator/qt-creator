@@ -11,6 +11,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/find/textfindconstants.h>
+#include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/messagemanager.h>
@@ -106,6 +107,12 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
                 [this](const FilePath &currentDir) {
                     m_cwd = currentDir;
                     emit cwdChanged(m_cwd);
+                    // Keep an auto-synchronizing File System view in sync with
+                    // the focused terminal's directory (QTCREATORBUG-28936).
+                    // Focus sits on the view's viewport, so check the focus chain.
+                    const QWidget *fw = QApplication::focusWidget();
+                    if (fw && (fw == this || isAncestorOf(fw)))
+                        Core::FolderNavigationWidgetFactory::requestSyncWithFilePath(m_cwd);
                 });
     });
 
@@ -552,6 +559,8 @@ void TerminalWidget::focusInEvent(QFocusEvent *event)
 {
     TerminalView::focusInEvent(event);
     updateCopyState();
+    if (!m_cwd.isEmpty())
+        Core::FolderNavigationWidgetFactory::requestSyncWithFilePath(m_cwd);
 }
 
 void TerminalWidget::contextMenuRequested(const QPoint &pos)

@@ -65,9 +65,16 @@ public:
 
     static const Utils::FilePath &fallbackSyncFilePath();
 
+    // Actively synchronize auto-synchronizing File System views with the given
+    // path (e.g. the current terminal directory). Unlike the fallback path,
+    // this takes effect immediately regardless of the current editor.
+    static void requestSyncWithFilePath(const Utils::FilePath &filePath);
+
 signals:
     void rootDirectoryAdded(const RootDirectory &directory, bool isProjectDirectory);
     void rootDirectoryRemoved(const QString &id);
+
+    void syncWithFilePathRequested(const Utils::FilePath &filePath);
 
     void fileRenamed(const Utils::FilePath &before, const Utils::FilePath &after);
     void aboutToRemoveFile(const Utils::FilePath &filePath);

@@ -803,6 +803,11 @@ NavigationView FolderNavigationWidgetFactory::createWidget()
             &FolderNavigationWidgetFactory::rootDirectoryRemoved,
             fnw,
             &FolderNavigationWidget::removeRootDirectory);
+    connect(this, &FolderNavigationWidgetFactory::syncWithFilePathRequested,
+            fnw, [fnw](const FilePath &filePath) {
+                if (fnw->autoSynchronization())
+                    fnw->syncWithFilePath(filePath);
+            });
     if (!EditorManager::currentDocument() && !m_fallbackSyncFilePath.isEmpty())
         fnw->syncWithFilePath(m_fallbackSyncFilePath);
 
@@ -892,6 +897,12 @@ void FolderNavigationWidgetFactory::removeRootDirectory(const QString &id)
 void FolderNavigationWidgetFactory::setFallbackSyncFilePath(const FilePath &filePath)
 {
     m_fallbackSyncFilePath = filePath;
+}
+
+void FolderNavigationWidgetFactory::requestSyncWithFilePath(const FilePath &filePath)
+{
+    if (m_instance)
+        emit m_instance->syncWithFilePathRequested(filePath);
 }
 
 int FolderNavigationWidgetFactory::rootIndex(const QString &id)
