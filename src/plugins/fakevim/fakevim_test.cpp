@@ -200,6 +200,7 @@ private slots:
     void test_vim_tabstop_distance();
     void test_vim_goto_definition();
     void test_vim_context_help();
+    void test_vim_alternate_file();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5495,6 +5496,18 @@ void FakeVimTester::test_vim_context_help()
     bool requested = false;
     data.handler->contextHelpRequested.set([&] { requested = true; });
     data.doKeys("K");
+    QVERIFY(requested);
+}
+
+void FakeVimTester::test_vim_alternate_file()
+{
+    // CTRL-^ edits the alternate file (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    data.setText("ab|c");
+    bool requested = false;
+    data.handler->alternateFileRequested.set([&] { requested = true; });
+    data.doKeys("<c-^>");
     QVERIFY(requested);
 }
 

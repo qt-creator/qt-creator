@@ -499,6 +499,9 @@ public:
     QString m_lastHighlight;
 
     int m_savedCursorFlashTime = 0;
+
+    // Vim alternate file ("#"): the editor left when the current one changed.
+    QPointer<IEditor> m_alternateFileEditor;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -1912,6 +1915,11 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         triggerAction("Help.Context");
     });
 
+    handler->alternateFileRequested.set([this] {
+        if (m_alternateFileEditor)
+            EditorManager::activateEditor(m_alternateFileEditor);
+    });
+
     handler->navigateHistoryRequested.set([](int distance) {
         for (int i = 0, n = qAbs(distance); i < n; ++i) {
             if (distance < 0)
@@ -1955,12 +1963,16 @@ void FakeVimPlugin::editorAboutToClose(IEditor *editor)
 {
     //qDebug() << "CLOSING: " << editor << editor->widget();
     m_editorToHandler.remove(editor);
+    if (m_alternateFileEditor == editor)
+        m_alternateFileEditor.clear();
 }
 
 void FakeVimPlugin::currentEditorAboutToChange(IEditor *editor)
 {
     if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler)
         handler->enterCommandMode();
+    if (editor)
+        m_alternateFileEditor = editor;
 }
 
 void FakeVimPlugin::allDocumentsRenamed(const FilePath &oldPath, const FilePath &newPath)

@@ -5074,6 +5074,11 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         q->tagJumpRequested();
     } else if (input.is('K')) {
         q->contextHelpRequested();
+    } else if (input.key() == Key_AsciiCircum
+               && input.modifiers().testFlag(Utils::HostOsInfo::controlModifier())) {
+        // CTRL-^: edit the alternate file. Key_AsciiCircum is the caret key
+        // whatever the layout, so Shift needs no special handling.
+        q->alternateFileRequested();
     } else if (handleMovement(input)) {
         // movement handled
         dotCommand.clear();
