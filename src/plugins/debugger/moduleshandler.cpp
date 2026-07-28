@@ -145,6 +145,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
     const bool canReload = engine->hasCapability(ReloadModuleCapability);
     const bool canLoadSymbols = engine->hasCapability(ReloadModuleSymbolsCapability);
     const bool canShowSymbols = engine->hasCapability(ShowModuleSymbolsCapability);
+    const bool canShowSections = engine->hasCapability(ShowModuleSectionsCapability);
     const bool moduleNameValid = !module.moduleName.isEmpty();
     const QString moduleName = module.moduleName;
     const FilePath modulePath = module.modulePath;
@@ -198,7 +199,7 @@ bool ModulesModel::contextMenuEvent(const ItemViewEvent &ev)
 
     addAction(this, menu, Tr::tr("Show Sections in File \"%1\"").arg(moduleName),
               Tr::tr("Show Sections"),
-              canShowSymbols && moduleNameValid,
+              canShowSections && moduleNameValid,
               [this, modulePath] { engine->requestModuleSections(modulePath); });
 
     addStandardActions(ev.view(), menu);
