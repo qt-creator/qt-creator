@@ -13,7 +13,7 @@ import re
 import struct
 import tempfile
 
-from dumper import DumperBase, Children, TopLevelItem
+from dumper import DumperBase, Children, SubItem, TopLevelItem
 from utils import TypeCode
 from gdbtracepoint import *
 
@@ -585,6 +585,58 @@ class Dumper(DumperBase):
         return align
 
 
+    def enclosingClassName(self):
+        # The qualified class name of the current frame's method, or None if
+        # the frame is not inside a class method.
+        try:
+            frame = gdb.selected_frame()
+        except Exception:
+            return None
+        func = frame.function()
+        if func is None:
+            return None
+        base = func.name.split('(')[0]
+        if '::' not in base:
+            return None
+        return base.rsplit('::', 1)[0]
+
+    def handleStatics(self):
+        # Present the enclosing class's static data members under a '[statics]'
+        # node, mirroring the LLDB bridge. Only this one class is inspected per
+        # stop, and member values are read only when the node is expanded, so
+        # this stays cheap (unlike enumerating all static symbols).
+        cls = self.enclosingClassName()
+        if cls is None:
+            return
+        try:
+            classType = gdb.lookup_type(cls)
+            fields = classType.fields()
+        except Exception:
+            return
+        # Static data members carry no 'bitpos'.
+        fieldNames = [f.name for f in fields
+                      if not hasattr(f, 'bitpos')
+                      and not getattr(f, 'is_base_class', False) and f.name]
+        if not fieldNames:
+            return
+
+        with TopLevelItem(self, 'local.[statics]'):
+            self.putField('iname', 'local.[statics]')
+            self.putField('name', '[statics]')
+            self.putEmptyValue()
+            self.putExpandable()
+            if self.isExpanded():
+                with Children(self):
+                    for i, fieldName in enumerate(fieldNames):
+                        try:
+                            nativeValue = gdb.parse_and_eval(cls + '::' + fieldName)
+                        except Exception:
+                            continue
+                        with SubItem(self, i):
+                            self.putField('name', cls + '::' + fieldName)
+                            self.putField('iname', self.currentIName)
+                            self.putItem(self.fromNativeValue(nativeValue))
+
     def listLocals(self, partialVar):
         frame = gdb.selected_frame()
 
@@ -699,6 +751,14 @@ class Dumper(DumperBase):
         partialVar = args.get('partialvar', '')
         isPartial = bool(partialVar)
         partialName = partialVar.split('.')[1].split('@')[0] if isPartial else None
+
+        # Static data members of the enclosing class, so they are visible even
+        # in a static method where there is no 'this'. QTCREATORBUG-14133.
+        if not isPartial or partialName == '[statics]':
+            try:
+                self.handleStatics()
+            except Exception:
+                pass
 
         variables = self.listLocals(partialName)
         #self.warn('VARIABLES: %s' % variables)
