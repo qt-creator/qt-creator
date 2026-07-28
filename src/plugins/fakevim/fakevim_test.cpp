@@ -215,6 +215,7 @@ private slots:
     void test_vim_script_dicts();
     void test_vim_script_indexed_let();
     void test_vim_script_functions();
+    void test_vim_script_string_builtins();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6075,6 +6076,44 @@ void FakeVimTester::test_vim_script_functions()
     data.doCommand("call Push(7)");
     data.doCommand("call Push(8)");
     QCOMPARE(echo("g:acc"), QLatin1String("[7, 8]"));
+}
+
+void FakeVimTester::test_vim_script_string_builtins()
+{
+    // String builtins: split, join, stridx, strpart, substitute, printf
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("split(\"a b  c\")"), QLatin1String("['a', 'b', 'c']"));
+    QCOMPARE(echo("split(\"a,b,c\", \",\")"), QLatin1String("['a', 'b', 'c']"));
+    QCOMPARE(echo("join([\"a\", \"b\", \"c\"], \"-\")"), QLatin1String("a-b-c"));
+    QCOMPARE(echo("join([1, 2, 3])"), QLatin1String("1 2 3"));
+    QCOMPARE(echo("stridx(\"hello\", \"ll\")"), QLatin1String("2"));
+    QCOMPARE(echo("stridx(\"hello\", \"z\")"), QLatin1String("-1"));
+    QCOMPARE(echo("strpart(\"hello\", 1, 3)"), QLatin1String("ell"));
+
+    // substitute: first match and global, with a backreference.
+    QCOMPARE(echo("substitute(\"foo\", \"o\", \"0\", \"\")"), QLatin1String("f0o"));
+    QCOMPARE(echo("substitute(\"foo\", \"o\", \"0\", \"g\")"), QLatin1String("f00"));
+    QCOMPARE(echo("substitute(\"ab\", \"\\\\(.\\\\)\\\\(.\\\\)\", \"\\\\2\\\\1\", \"\")"),
+             QLatin1String("ba"));
+
+    // printf: width, zero-fill, left align, hex and strings.
+    QCOMPARE(echo("printf(\"%d-%d\", 1, 2)"), QLatin1String("1-2"));
+    QCOMPARE(echo("printf(\"%05d\", 42)"), QLatin1String("00042"));
+    QCOMPARE(echo("printf(\"%-4d|\", 7)"), QLatin1String("7   |"));
+    QCOMPARE(echo("printf(\"%x\", 255)"), QLatin1String("ff"));
+    QCOMPARE(echo("printf(\"[%s]\", \"hi\")"), QLatin1String("[hi]"));
+    QCOMPARE(echo("printf(\"%.2f\", 3.14159)"), QLatin1String("3.14"));
 }
 
 void FakeVimTester::test_vim_file_info()

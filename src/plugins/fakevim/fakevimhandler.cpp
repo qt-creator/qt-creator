@@ -8140,6 +8140,66 @@ bool FakeVimHandler::Private::handleExCallCommand(const ExCommand &cmd)
     return true;
 }
 
+// A subset of Vim's printf(): the conversions d i x X o c f s and %%, with the
+// "-" and "0" flags, a field width and a precision (for f and s).
+static QString vimPrintf(const QList<VimValue> &args)
+{
+    const QString fmt = args.isEmpty() ? QString() : args.at(0).toString();
+    QString out;
+    int ai = 1;
+    for (int i = 0; i < fmt.size(); ++i) {
+        if (fmt.at(i) != '%') {
+            out += fmt.at(i);
+            continue;
+        }
+        int j = i + 1;
+        bool left = false;
+        bool zero = false;
+        for (; j < fmt.size() && QString("-+ 0#").contains(fmt.at(j)); ++j) {
+            left = left || fmt.at(j) == '-';
+            zero = zero || fmt.at(j) == '0';
+        }
+        int width = 0;
+        for (; j < fmt.size() && fmt.at(j).isDigit(); ++j)
+            width = width * 10 + fmt.at(j).digitValue();
+        int prec = -1;
+        if (j < fmt.size() && fmt.at(j) == '.') {
+            prec = 0;
+            for (++j; j < fmt.size() && fmt.at(j).isDigit(); ++j)
+                prec = prec * 10 + fmt.at(j).digitValue();
+        }
+        if (j >= fmt.size())
+            break;
+        const QChar conv = fmt.at(j);
+        i = j;
+        if (conv == '%') {
+            out += '%';
+            continue;
+        }
+        const VimValue a = ai < args.size() ? args.at(ai++) : VimValue();
+        QString piece;
+        switch (conv.unicode()) {
+        case 'd': case 'i': piece = QString::number(a.toNumber()); break;
+        case 'x': piece = QString::number(a.toNumber(), 16); break;
+        case 'X': piece = QString::number(a.toNumber(), 16).toUpper(); break;
+        case 'o': piece = QString::number(a.toNumber(), 8); break;
+        case 'c': piece = QString(QChar(uint(a.toNumber()))); break;
+        case 'f': piece = QString::number(a.toFloat(), 'f', prec < 0 ? 6 : prec); break;
+        case 's': piece = prec >= 0 ? a.toString().left(prec) : a.toString(); break;
+        default: piece = QString(conv); break;
+        }
+        if (piece.size() < width) {
+            const int fill = width - piece.size();
+            if (left)
+                piece += QString(fill, ' ');
+            else
+                piece.prepend(QString(fill, zero ? '0' : ' '));
+        }
+        out += piece;
+    }
+    return out;
+}
+
 bool FakeVimHandler::Private::callFunction(const QString &name,
     const QList<VimValue> &args, VimValue *result, QString *error)
 {
@@ -8232,6 +8292,60 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "str2nr") {
         const int base = args.size() > 1 ? int(arg(1).toNumber()) : 10;
         *result = VimValue(qlonglong(arg(0).toString().trimmed().toLongLong(nullptr, base)));
+    } else if (name == "stridx") {
+        const int start = args.size() > 2 ? int(arg(2).toNumber()) : 0;
+        *result = VimValue(qlonglong(arg(0).toString().indexOf(arg(1).toString(), start)));
+    } else if (name == "strpart") {
+        const QString str = arg(0).toString();
+        *result = args.size() > 2 ? VimValue(str.mid(int(arg(1).toNumber()), int(arg(2).toNumber())))
+                                  : VimValue(str.mid(int(arg(1).toNumber())));
+    } else if (name == "split") {
+        const QRegularExpression sep(args.size() > 1 ? arg(1).toString() : QString("\\s+"));
+        const QStringList parts = arg(0).toString().split(sep, Qt::SkipEmptyParts);
+        QList<VimValue> items;
+        for (const QString &p : parts)
+            items.append(VimValue(p));
+        *result = VimValue::list(items);
+    } else if (name == "join") {
+        const QString sep = args.size() > 1 ? arg(1).toString() : QString(" ");
+        QStringList parts;
+        if (arg(0).isList()) {
+            for (const VimValue &e : *arg(0).listData())
+                parts.append(e.toString());
+        }
+        *result = VimValue(parts.join(sep));
+    } else if (name == "substitute") {
+        // Vim patterns via the same translation as search/:s. "\0"/"&" is the
+        // whole match and "\1".."\9" the groups; a "g" flag replaces all.
+        const QRegularExpression re = vimPatternToQtPattern(arg(1).toString());
+        const QString str = arg(0).toString();
+        const QString tmpl = arg(2).toString();
+        const bool global = args.size() > 3 && arg(3).toString().contains('g');
+        QString out;
+        int last = 0;
+        QRegularExpressionMatchIterator it = re.globalMatch(str);
+        while (it.hasNext()) {
+            const QRegularExpressionMatch mm = it.next();
+            out += str.mid(last, mm.capturedStart() - last);
+            for (int k = 0; k < tmpl.size(); ++k) {
+                const QChar ch = tmpl.at(k);
+                if (ch == '\\' && k + 1 < tmpl.size()) {
+                    const QChar n = tmpl.at(++k);
+                    out += n.isDigit() ? mm.captured(n.digitValue()) : QString(n);
+                } else if (ch == '&') {
+                    out += mm.captured(0);
+                } else {
+                    out += ch;
+                }
+            }
+            last = mm.capturedEnd();
+            if (!global)
+                break;
+        }
+        out += str.mid(last);
+        *result = VimValue(out);
+    } else if (name == "printf") {
+        *result = VimValue(vimPrintf(args));
     } else if (name == "abs") {
         *result = arg(0).type() == VimValue::Float ? VimValue(qAbs(arg(0).toFloat()))
                                                     : VimValue(qAbs(arg(0).toNumber()));
