@@ -224,6 +224,7 @@ private slots:
     void test_vim_script_operators();
     void test_vim_script_unpacking();
     void test_vim_script_slicing();
+    void test_vim_script_ex_commands();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6408,6 +6409,53 @@ void FakeVimTester::test_vim_script_slicing()
     QCOMPARE(echo("[1, 2, 3][3:5]"), QLatin1String("[]"));            // out of range
     // A ":" inside a subscript from a ternary is still an index, not a slice.
     QCOMPARE(echo("[10, 20, 30][1 > 0 ? 2 : 0]"), QLatin1String("30"));
+}
+
+void FakeVimTester::test_vim_script_ex_commands()
+{
+    // :finish, :silent[!], :echoerr, :echon (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    // :echoerr / :echon produce their evaluated argument.
+    message.clear();
+    data.doCommand("echoerr \"oops \" . 42");
+    QCOMPARE(message, QLatin1String("oops 42"));
+    message.clear();
+    data.doCommand("echon 1 + 1");
+    QCOMPARE(message, QLatin1String("2"));
+
+    // :finish stops running the rest of a sourced file.
+    source("let g:before = 1\nfinish\nlet g:after = 1\n");
+    QCOMPARE(echo("g:before"), QLatin1String("1"));
+    QCOMPARE(echo("exists('g:after')"), QLatin1String("0"));
+
+    // :silent runs the command but suppresses its messages.
+    data.doCommand("silent let g:s = 42");
+    QCOMPARE(echo("g:s"), QLatin1String("42"));
+    message.clear();
+    data.doCommand("silent echomsg \"quiet\"");
+    QVERIFY(message != QLatin1String("quiet"));
+
+    // :silent! also swallows errors.
+    message.clear();
+    data.doCommand("silent! call NoSuchFunction()");
+    QVERIFY(!message.contains(QLatin1String("NoSuchFunction")));
 }
 
 void FakeVimTester::test_vim_file_info()

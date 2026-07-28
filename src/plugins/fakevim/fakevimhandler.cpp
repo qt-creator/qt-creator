@@ -2334,6 +2334,9 @@ public:
     VimValue m_returnValue;
     bool m_throwing = false; // an exception raised by :throw is in flight
     QString m_exception;
+    bool m_finishing = false; // :finish - stop running the current command list
+    int m_messageSilence = 0; // >0 while inside :silent
+    bool m_silenceErrors = false; // :silent! also suppresses errors
 
     int m_findStartPosition;
 
@@ -2502,8 +2505,9 @@ public:
     bool evalCondition(const QString &expr);
     bool interpreterInterrupted() const
     {
-        return m_loopSignal != NoSignal || m_returning || m_throwing;
+        return m_loopSignal != NoSignal || m_returning || m_throwing || m_finishing;
     }
+    bool handleExSilentCommand(const ExCommand &cmd);
     enum LoopSignal { NoSignal, BreakSignal, ContinueSignal };
     LoopSignal m_loopSignal = NoSignal;
 
@@ -4237,6 +4241,9 @@ void FakeVimHandler::Private::updateMiniBuffer()
 void FakeVimHandler::Private::showMessage(MessageLevel level, const QString &msg)
 {
     //qDebug() << "MSG: " << msg;
+    // ":silent" suppresses ordinary messages; ":silent!" also suppresses errors.
+    if (m_messageSilence > 0 && (level != MessageError || m_silenceErrors))
+        return;
     g.currentMessage = msg;
     g.currentMessageLevel = level;
 }
@@ -8772,8 +8779,10 @@ static QString exprText(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 {
-    // :echo / :echomsg evaluate their arguments, joining results with a space.
-    if (cmd.cmd != "echo" && cmd.cmd != "echom" && cmd.cmd != "echomsg")
+    // :echo / :echomsg / :echon evaluate their arguments, joining with a space;
+    // :echoerr shows the result as an error.
+    if (cmd.cmd != "echo" && cmd.cmd != "echom" && cmd.cmd != "echomsg"
+        && cmd.cmd != "echon" && cmd.cmd != "echoerr" && cmd.cmd != "echoe")
         return false;
 
     VimExpr e(this, exprText(cmd));
@@ -8786,7 +8795,29 @@ bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
         }
         parts.append(v.toString());
     }
-    showMessage(MessageInfo, parts.join(' '));
+    const bool isError = cmd.cmd == "echoerr" || cmd.cmd == "echoe";
+    showMessage(isError ? MessageError : MessageInfo, parts.join(' '));
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExSilentCommand(const ExCommand &cmd)
+{
+    // :silent[!] {command} - run the command with messages (and, with "!",
+    // errors) suppressed.
+    if (cmd.cmd != "silent" && cmd.cmd != "sil")
+        return false;
+
+    ++m_messageSilence;
+    const bool savedSilenceErrors = m_silenceErrors;
+    m_silenceErrors = m_silenceErrors || cmd.hasBang;
+
+    QString line = cmd.args;
+    ExCommand sub;
+    while (parseExCommand(&line, &sub))
+        handleExCommandHelper(sub);
+
+    --m_messageSilence;
+    m_silenceErrors = savedSilenceErrors;
     return true;
 }
 
@@ -8893,6 +8924,10 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         } else if (c.cmd == "break" || c.cmd == "continue") {
             if (active)
                 m_loopSignal = c.cmd == "break" ? BreakSignal : ContinueSignal;
+            ++index;
+        } else if (c.cmd == "finish") {
+            if (active)
+                m_finishing = true;
             ++index;
         } else if (isBlockTerminator(c.cmd)) {
             return; // belongs to the enclosing construct
@@ -9115,14 +9150,19 @@ void FakeVimHandler::Private::runExCommands(const QList<ExCommand> &cmds)
     m_loopSignal = NoSignal;
     m_returning = false;
     m_throwing = false;
+    m_finishing = false;
     int index = 0;
     while (index < cmds.size()) {
         execSequence(cmds, index, true);
         if (m_throwing)
             showMessage(MessageError, Tr::tr("Uncaught exception: %1").arg(m_exception));
+        const bool finish = m_finishing;
         m_loopSignal = NoSignal; // a :break/:continue/:return/:throw outside a
         m_returning = false;     // loop, function or :try is ignored here
         m_throwing = false;
+        m_finishing = false;
+        if (finish)
+            break; // :finish stops running the rest of the command list
         if (index < cmds.size()) {
             // A block terminator with no matching opener.
             showMessage(MessageError,
@@ -9248,6 +9288,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExChangeCommand(cmd)
         || handleExMoveCommand(cmd)
         || handleExJoinCommand(cmd)
+        || handleExSilentCommand(cmd)
         || handleExLetCommand(cmd)
         || handleExUnletCommand(cmd)
         || handleExCallCommand(cmd)
