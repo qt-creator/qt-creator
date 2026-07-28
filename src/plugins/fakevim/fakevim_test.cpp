@@ -204,6 +204,7 @@ private slots:
     void test_vim_tag_text_object();
     void test_vim_script_echo_expression();
     void test_vim_script_variables();
+    void test_vim_script_options_registers();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5622,6 +5623,41 @@ void FakeVimTester::test_vim_script_variables()
 
     data.doCommand("unlet g:x");
     QCOMPARE(echo("x"), QLatin1String("Undefined variable: x"));
+}
+
+void FakeVimTester::test_vim_script_options_registers()
+{
+    // "&option", "@register" and "$env" in expressions and :let
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // Options: write via long name, read via short name and vice versa.
+    data.doCommand("let &shiftwidth = 4");
+    QCOMPARE(echo("&sw"), QLatin1String("4"));
+    data.doCommand("let &sw += 3");
+    QCOMPARE(echo("&shiftwidth"), QLatin1String("7"));
+    data.doCommand("let &expandtab = 1");
+    QCOMPARE(echo("&et"), QLatin1String("1"));
+
+    // Registers.
+    data.doCommand("let @a = \"hello\"");
+    QCOMPARE(echo("@a"), QLatin1String("hello"));
+    data.doCommand("let @a .= \" world\"");
+    QCOMPARE(echo("@a"), QLatin1String("hello world"));
+
+    // Environment variables.
+    data.doCommand("let $FVTEST = \"xyz\"");
+    QCOMPARE(echo("$FVTEST"), QLatin1String("xyz"));
+    QCOMPARE(echo("\"v=\" . $FVTEST"), QLatin1String("v=xyz"));
 }
 
 void FakeVimTester::test_vim_file_info()

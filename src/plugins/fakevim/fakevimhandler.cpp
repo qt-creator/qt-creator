@@ -2384,6 +2384,8 @@ public:
     bool variableValue(const QString &name, VimValue *result);
     void setVariable(const QString &name, const VimValue &value);
     bool unsetVariable(const QString &name);
+    bool optionValue(const QString &name, VimValue *result);
+    bool setOption(const QString &name, const VimValue &value);
     bool handleExLetCommand(const ExCommand &cmd);
     bool handleExUnletCommand(const ExCommand &cmd);
 
@@ -7457,6 +7459,10 @@ private:
             return parseSingleQuoted();
         if (c == '$')
             return parseEnvVar();
+        if (c == '&')
+            return parseOption();
+        if (c == '@')
+            return parseRegister();
         if (c.isDigit() || (c == '.' && at(1).isDigit()))
             return parseNumber();
         if (c.isLetter() || c == '_')
@@ -7582,6 +7588,34 @@ private:
         return VimValue(qEnvironmentVariable(name.toLatin1().constData()));
     }
 
+    VimValue parseOption()
+    {
+        ++m_pos; // '&'
+        if ((cur() == 'g' || cur() == 'l') && at(1) == ':') // &g:opt / &l:opt
+            m_pos += 2;
+        const int start = m_pos;
+        while (cur().isLetter())
+            ++m_pos;
+        const QString name = m_in.mid(start, m_pos - start);
+        VimValue v;
+        if (m_h->optionValue(name, &v))
+            return v;
+        setError(Tr::tr("Unknown option: %1").arg(name));
+        return {};
+    }
+
+    VimValue parseRegister()
+    {
+        ++m_pos; // '@'
+        if (m_pos >= m_in.size()) {
+            setError(Tr::tr("Missing register name"));
+            return {};
+        }
+        const QChar reg = cur();
+        ++m_pos;
+        return VimValue(m_h->registerContents(reg.unicode()));
+    }
+
     static bool isHex(QChar c)
     {
         return c.isDigit() || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
@@ -7645,9 +7679,34 @@ bool FakeVimHandler::Private::unsetVariable(const QString &name)
     return m_variables.remove(normalizedVarName(name)) > 0;
 }
 
+// Apply a compound assignment operator (the char before '=' in += etc.).
+static VimValue applyCompound(const VimValue &a, QChar op, const VimValue &b)
+{
+    if (op == '.')
+        return VimValue(a.toString() + b.toString());
+    if (a.type() == VimValue::Float || b.type() == VimValue::Float) {
+        const double x = a.toFloat(), y = b.toFloat();
+        return VimValue(op == '+' ? x + y : op == '-' ? x - y : op == '*' ? x * y
+                        : y != 0 ? x / y : 0.0);
+    }
+    const qlonglong x = a.toNumber(), y = b.toNumber();
+    return VimValue(op == '+' ? x + y : op == '-' ? x - y : op == '*' ? x * y
+                    : op == '%' ? (y != 0 ? x % y : 0) : (y != 0 ? x / y : 0));
+}
+
+// Option name from a ":let &[g:|l:]opt" left-hand side (drops "&" and scope).
+static QString optionNameFromLet(const QString &lhs)
+{
+    QString name = lhs.mid(1);
+    if (name.startsWith("g:") || name.startsWith("l:"))
+        name = name.mid(2);
+    return name;
+}
+
 bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
 {
-    // :let {var} = {expr} and compound forms (+= -= *= /= %= .=).
+    // :let {lhs} = {expr} with compound forms (+= -= *= /= %= .=). {lhs} is a
+    // variable, an option (&opt), a register (@r) or an environment variable.
     if (cmd.cmd != "let")
         return false;
 
@@ -7661,43 +7720,75 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
 
     const QString name = m.captured(1);
     const QString op = m.captured(2);
-    const QString rhs = m.captured(3);
-
-    if (name.startsWith('&') || name.startsWith('@') || name.startsWith('$')) {
-        // Options, registers and environment variables come in a later step.
-        notImplementedYet();
-        return true;
-    }
 
     VimValue value;
     QString error;
-    if (!evaluateExpression(rhs, &value, &error)) {
+    if (!evaluateExpression(m.captured(3), &value, &error)) {
         showMessage(MessageError, error);
         return true;
     }
 
+    const QChar kind = name.at(0);
     if (op != "=") {
         VimValue old;
-        if (!variableValue(name, &old)) {
+        bool haveOld = false;
+        if (kind == '&')
+            haveOld = optionValue(optionNameFromLet(name), &old);
+        else if (kind == '@')
+            old = VimValue(registerContents(name.at(1).unicode())), haveOld = true;
+        else if (kind == '$')
+            old = VimValue(qEnvironmentVariable(name.mid(1).toLatin1())), haveOld = true;
+        else
+            haveOld = variableValue(name, &old);
+        if (!haveOld) {
             showMessage(MessageError, Tr::tr("Undefined variable: %1").arg(name));
             return true;
         }
-        const QChar o = op.at(0);
-        if (o == '.') {
-            value = VimValue(old.toString() + value.toString());
-        } else if (old.type() == VimValue::Float || value.type() == VimValue::Float) {
-            const double a = old.toFloat(), b = value.toFloat();
-            value = VimValue(o == '+' ? a + b : o == '-' ? a - b : o == '*' ? a * b
-                             : b != 0 ? a / b : 0.0);
-        } else {
-            const qlonglong a = old.toNumber(), b = value.toNumber();
-            value = VimValue(o == '+' ? a + b : o == '-' ? a - b : o == '*' ? a * b
-                             : o == '%' ? (b != 0 ? a % b : 0)
-                             : (b != 0 ? a / b : 0));
-        }
+        value = applyCompound(old, op.at(0), value);
     }
 
-    setVariable(name, value);
+    if (kind == '&') {
+        if (!setOption(optionNameFromLet(name), value))
+            showMessage(MessageError, Tr::tr("Unknown option: %1").arg(optionNameFromLet(name)));
+    } else if (kind == '@') {
+        setRegister(name.at(1).unicode(), value.toString(), RangeCharMode);
+    } else if (kind == '$') {
+        qputenv(name.mid(1).toLatin1().constData(), value.toString().toLocal8Bit());
+    } else {
+        setVariable(name, value);
+    }
+    return true;
+}
+
+bool FakeVimHandler::Private::optionValue(const QString &name, VimValue *result)
+{
+    FvBaseAspect *act = s.item(Utils::keyFromString(name));
+    if (!act)
+        return false;
+    const QVariant v = act->variantValue();
+    if (v.typeId() == QMetaType::Bool)
+        *result = VimValue(qlonglong(v.toBool() ? 1 : 0));
+    else if (v.typeId() == QMetaType::Int || v.typeId() == QMetaType::LongLong)
+        *result = VimValue(qlonglong(v.toLongLong()));
+    else
+        *result = VimValue(v.toString());
+    return true;
+}
+
+bool FakeVimHandler::Private::setOption(const QString &name, const VimValue &value)
+{
+    FvBaseAspect *act = s.item(Utils::keyFromString(name));
+    if (!act)
+        return false;
+    const QVariant v = act->variantValue();
+    if (v.typeId() == QMetaType::Bool)
+        act->setVariantValue(value.toBool());
+    else if (v.typeId() == QMetaType::Int || v.typeId() == QMetaType::LongLong)
+        act->setVariantValue(value.toNumber());
+    else
+        act->setVariantValue(value.toString());
+    updateEditor();
+    updateHighlights();
     return true;
 }
 
