@@ -3635,6 +3635,11 @@ void GdbEngine::assignValueInDebugger(WatchItem *item,
     runCommand(cmd);
 }
 
+void GdbEngine::watchPoint(const QPoint &pnt)
+{
+    runCommand(watchPointCommand(pnt));
+}
+
 class MemoryAgentCookie
 {
 public:

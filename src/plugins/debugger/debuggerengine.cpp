@@ -2424,20 +2424,24 @@ void DebuggerEngine::selectWatchData(const QString &)
 {
 }
 
-void DebuggerEngine::watchPoint(const QPoint &/*pnt*/)
+void DebuggerEngine::watchPoint(const QPoint &)
 {
-    // DebuggerCommand cmd("watchPoint", NeedsFullStop);
-    // cmd.arg("x", pnt.x());
-    // cmd.arg("y", pnt.y());
-    // cmd.callback = [this](const DebuggerResponse &response) {
-    //     qulonglong addr = response.data["selected"].toAddress();
-    //     if (addr == 0)
-    //         showMessage(Tr::tr("Could not find a widget."), StatusBar);
-    //     // Add the watcher entry nevertheless, as that's the place where
-    //     // the user expects visual feedback.
-    //     watchHandler()->watchExpression(response.data["expr"].data(), QString(), true);
-    // };
-    // runCommand(cmd);
+}
+
+DebuggerCommand DebuggerEngine::watchPointCommand(const QPoint &pnt)
+{
+    DebuggerCommand cmd("watchPoint", NeedsFullStop);
+    cmd.arg("x", pnt.x());
+    cmd.arg("y", pnt.y());
+    cmd.callback = [this](const DebuggerResponse &response) {
+        qulonglong addr = response.data["selected"].toAddress();
+        if (addr == 0)
+            showMessage(Tr::tr("Could not find a widget."), StatusBar);
+        // Add the watcher entry nevertheless, as that's the place where
+        // the user expects visual feedback.
+        watchHandler()->watchExpression(response.data["expr"].data(), QString(), true);
+    };
+    return cmd;
 }
 
 void DebuggerEngine::fetchDisassembler(DisassemblerAgent *)

@@ -597,6 +597,8 @@ protected:
     PeripheralRegisterHandler *peripheralRegisterHandler() const;
     SourceFilesHandler *sourceFilesHandler() const;
 
+    DebuggerCommand watchPointCommand(const QPoint &pnt);
+
     void progressPing();
 
     void notifyEngineSetupOk();

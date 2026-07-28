@@ -64,6 +64,7 @@ private:
     void enableSubBreakpoint(const SubBreakpoint &sbp, bool on) override;
 
     void assignValueInDebugger(WatchItem *item, const QString &expr, const QVariant &value) override;
+    void watchPoint(const QPoint &pnt) override;
     void executeDebuggerCommand(const QString &command) override;
 
     void loadSymbols(const Utils::FilePath &moduleName) override;

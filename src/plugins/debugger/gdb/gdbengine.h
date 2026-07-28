@@ -283,6 +283,7 @@ private: ////////// General Interface //////////
     void reloadLocals();
     void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value) final;
+    void watchPoint(const QPoint &pnt) final;
 
     void fetchMemory(MemoryAgent *agent, quint64 addr, quint64 length) final;
     void fetchMemoryHelper(const MemoryAgentCookie &cookie);

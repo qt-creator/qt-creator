@@ -814,6 +814,11 @@ void LldbEngine::assignValueInDebugger(WatchItem *item,
     runCommand(cmd);
 }
 
+void LldbEngine::watchPoint(const QPoint &pnt)
+{
+    runCommand(watchPointCommand(pnt));
+}
+
 void LldbEngine::doUpdateLocals(const UpdateParameters &params)
 {
     watchHandler()->notifyUpdateStarted(params);
