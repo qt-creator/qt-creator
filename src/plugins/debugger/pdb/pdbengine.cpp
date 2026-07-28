@@ -464,6 +464,10 @@ void PdbEngine::handleOutput2(const QString &data)
             refreshSymbols(item);
         } else if (line.startsWith("location={")) {
             refreshLocation(item);
+        } else if (line.startsWith("breakpointmodified={")) {
+            const Breakpoint bp = breakHandler()->findBreakpointByResponseId(item["number"].data());
+            QTC_ASSERT(bp, continue);
+            bp->setHitCount(item["times"].toInt());
         } else if (line.startsWith("state=")) {
             refreshState(item);
         } else if (line.startsWith("Breakpoint")) {
