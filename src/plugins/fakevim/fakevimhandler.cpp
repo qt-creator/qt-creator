@@ -8285,6 +8285,57 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             for (int v = lo; v >= hi; v += step)
                 items.append(VimValue(qlonglong(v)));
         *result = VimValue::list(items);
+    } else if (name == "sort") {
+        if (arg(0).isList()) {
+            QList<VimValue> *l = arg(0).listData();
+            const QString how = args.size() > 1 ? arg(1).toString() : QString();
+            if (how == "n" || how == "N") {
+                std::sort(l->begin(), l->end(), [](const VimValue &a, const VimValue &b) {
+                    return a.toNumber() < b.toNumber();
+                });
+            } else {
+                const Qt::CaseSensitivity cs = how == "i" ? Qt::CaseInsensitive
+                                                          : Qt::CaseSensitive;
+                std::sort(l->begin(), l->end(), [cs](const VimValue &a, const VimValue &b) {
+                    return QString::compare(a.toString(), b.toString(), cs) < 0;
+                });
+            }
+        }
+        *result = arg(0);
+    } else if (name == "reverse") {
+        if (arg(0).isList()) {
+            QList<VimValue> *l = arg(0).listData();
+            std::reverse(l->begin(), l->end());
+        }
+        *result = arg(0);
+    } else if (name == "copy") {
+        const VimValue v = arg(0);
+        *result = v.isList() ? VimValue::list(*v.listData())
+                : v.isDict() ? VimValue::dict(*v.dictData()) : v;
+    } else if (name == "type") {
+        int t = 0;
+        switch (arg(0).type()) {
+        case VimValue::Number: t = 0; break;
+        case VimValue::String: t = 1; break;
+        case VimValue::List:   t = 3; break;
+        case VimValue::Dict:   t = 4; break;
+        case VimValue::Float:  t = 5; break;
+        }
+        *result = VimValue(qlonglong(t));
+    } else if (name == "max" || name == "min") {
+        const bool isMax = name == "max";
+        if (arg(0).isList() && !arg(0).listData()->isEmpty()) {
+            const QList<VimValue> &l = *arg(0).listData();
+            qlonglong acc = l.at(0).toNumber();
+            for (const VimValue &e : l) {
+                const qlonglong n = e.toNumber();
+                if (isMax ? n > acc : n < acc)
+                    acc = n;
+            }
+            *result = VimValue(acc);
+        } else {
+            *result = VimValue(qlonglong(0));
+        }
     } else if (name == "toupper") {
         *result = VimValue(arg(0).toString().toUpper());
     } else if (name == "tolower") {

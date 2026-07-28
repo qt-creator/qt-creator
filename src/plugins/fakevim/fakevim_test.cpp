@@ -216,6 +216,7 @@ private slots:
     void test_vim_script_indexed_let();
     void test_vim_script_functions();
     void test_vim_script_string_builtins();
+    void test_vim_script_collection_builtins();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6114,6 +6115,38 @@ void FakeVimTester::test_vim_script_string_builtins()
     QCOMPARE(echo("printf(\"%x\", 255)"), QLatin1String("ff"));
     QCOMPARE(echo("printf(\"[%s]\", \"hi\")"), QLatin1String("[hi]"));
     QCOMPARE(echo("printf(\"%.2f\", 3.14159)"), QLatin1String("3.14"));
+}
+
+void FakeVimTester::test_vim_script_collection_builtins()
+{
+    // sort, reverse, copy, type, max, min (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("sort([3, 1, 2], \"n\")"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("sort([\"b\", \"a\", \"c\"])"), QLatin1String("['a', 'b', 'c']"));
+    QCOMPARE(echo("reverse([1, 2, 3])"), QLatin1String("[3, 2, 1]"));
+    QCOMPARE(echo("max([3, 7, 2])"), QLatin1String("7"));
+    QCOMPARE(echo("min([3, 7, 2])"), QLatin1String("2"));
+    QCOMPARE(echo("type(1)"), QLatin1String("0"));
+    QCOMPARE(echo("type(\"x\")"), QLatin1String("1"));
+    QCOMPARE(echo("type([])"), QLatin1String("3"));
+    QCOMPARE(echo("type({})"), QLatin1String("4"));
+
+    // copy() makes an independent list: mutating the copy leaves the original.
+    data.doCommand("let g:a = [1, 2]");
+    data.doCommand("let g:b = copy(g:a)");
+    data.doCommand("call add(g:b, 3)");
+    QCOMPARE(echo("g:a"), QLatin1String("[1, 2]"));
+    QCOMPARE(echo("g:b"), QLatin1String("[1, 2, 3]"));
 }
 
 void FakeVimTester::test_vim_file_info()
