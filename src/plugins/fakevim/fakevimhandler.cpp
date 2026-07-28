@@ -2405,6 +2405,13 @@ public:
     bool handleExCallCommand(const ExCommand &cmd);
     bool handleExExecuteCommand(const ExCommand &cmd);
 
+    // Vimscript control flow: interpret a sequence of ex-commands honoring
+    // :if/:elseif/:else/:endif (QTCREATORBUG-34817).
+    void runExCommands(const QList<ExCommand> &cmds);
+    void execSequence(const QList<ExCommand> &cmds, int &index, bool active);
+    void execIf(const QList<ExCommand> &cmds, int &index, bool active, bool condition);
+    bool evalCondition(const QString &expr);
+
     void setTabSize(int tabSize);
     void setupCharClass();
     int charClass(QChar c, bool simple) const;
@@ -7222,6 +7229,9 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         return true;
     }
 
+    // Collect all executable command units first, then interpret them in one
+    // pass so control-flow blocks (:if/...) can span several lines.
+    QList<ExCommand> cmds;
     bool inFunction = false;
     QByteArray line;
     while (!file.atEnd() || !line.isEmpty()) {
@@ -7245,7 +7255,6 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         } else if (inFunction && line.startsWith("endfunction")) {
             inFunction = false;
         } else if (!line.isEmpty() && !inFunction) {
-            //qDebug() << "EXECUTING: " << line;
             ExCommand cmd;
             // Detect the encoding like Vim's 'fileencodings': prefer UTF-8 and
             // fall back to the local 8-bit encoding for invalid byte sequences
@@ -7254,15 +7263,15 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
             QString commandLine = utf8(line);
             if (utf8.hasError())
                 commandLine = QString::fromLocal8Bit(line);
-            while (parseExCommand(&commandLine, &cmd)) {
-                if (!handleExCommandHelper(cmd))
-                    break;
-            }
+            while (parseExCommand(&commandLine, &cmd))
+                cmds.append(cmd);
         }
 
         line = nextline;
     }
     file.close();
+
+    runExCommands(cmds);
     return true;
 }
 
@@ -8001,6 +8010,88 @@ bool FakeVimHandler::Private::handleExExecuteCommand(const ExCommand &cmd)
     return true;
 }
 
+bool FakeVimHandler::Private::evalCondition(const QString &expr)
+{
+    VimValue v;
+    QString error;
+    if (!evaluateExpression(expr, &v, &error)) {
+        showMessage(MessageError, error);
+        return false;
+    }
+    return v.toBool();
+}
+
+// Command names that end a control-flow block; handled by the enclosing level.
+static bool isBlockTerminator(const QString &cmd)
+{
+    return cmd == "endif" || cmd == "else" || cmd == "elseif"
+        || cmd == "endwhile" || cmd == "endfor";
+}
+
+void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
+    int &index, bool active)
+{
+    while (index < cmds.size()) {
+        const ExCommand c = cmds.at(index);
+        if (c.cmd == "if") {
+            ++index;
+            execIf(cmds, index, active, active && evalCondition(exprText(c)));
+        } else if (isBlockTerminator(c.cmd)) {
+            return; // belongs to the enclosing construct
+        } else {
+            if (active) {
+                ExCommand cmd = c;
+                if (!handleExCommandHelper(cmd))
+                    showMessage(MessageError, Tr::tr("Not an editor command: %1").arg(c.cmd));
+            }
+            ++index;
+        }
+    }
+}
+
+void FakeVimHandler::Private::execIf(const QList<ExCommand> &cmds,
+    int &index, bool active, bool condition)
+{
+    // "index" is positioned just after the :if. Run branches until :endif,
+    // executing the first one whose guard holds (only while "active").
+    bool anyTaken = active && condition;
+    execSequence(cmds, index, anyTaken);
+    while (index < cmds.size()) {
+        const ExCommand c = cmds.at(index);
+        if (c.cmd == "endif") {
+            ++index;
+            return;
+        }
+        if (c.cmd == "elseif") {
+            ++index;
+            const bool take = active && !anyTaken && evalCondition(exprText(c));
+            anyTaken = anyTaken || take;
+            execSequence(cmds, index, take);
+        } else if (c.cmd == "else") {
+            ++index;
+            const bool take = active && !anyTaken;
+            anyTaken = anyTaken || take;
+            execSequence(cmds, index, take);
+        } else {
+            return; // missing :endif; leave the terminator to the caller
+        }
+    }
+}
+
+void FakeVimHandler::Private::runExCommands(const QList<ExCommand> &cmds)
+{
+    int index = 0;
+    while (index < cmds.size()) {
+        execSequence(cmds, index, true);
+        if (index < cmds.size()) {
+            // A block terminator with no matching opener.
+            showMessage(MessageError,
+                        Tr::tr("%1 without matching :if").arg(cmds.at(index).cmd));
+            ++index;
+        }
+    }
+}
+
 void FakeVimHandler::Private::handleExCommand(const QString &line0)
 {
     QString line = line0; // Make sure we have a copy to prevent aliasing.
@@ -8018,15 +8109,11 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     enterCommandMode(g.returnToMode);
 
     beginLargeEditBlock();
+    QList<ExCommand> cmds;
     ExCommand cmd;
-    QString lastCommand = line;
-    while (parseExCommand(&line, &cmd)) {
-        if (!handleExCommandHelper(cmd)) {
-            showMessage(MessageError, Tr::tr("Not an editor command: %1").arg(lastCommand));
-            break;
-        }
-        lastCommand = line;
-    }
+    while (parseExCommand(&line, &cmd))
+        cmds.append(cmd);
+    runExCommands(cmds);
 
     // if the last command closed the editor, we would crash here (:vs and then :on)
     if (!hasValidEditor())

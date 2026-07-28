@@ -208,6 +208,7 @@ private slots:
     void test_vim_script_builtins();
     void test_vim_script_expr_mapping();
     void test_vim_script_execute();
+    void test_vim_script_if();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5759,6 +5760,54 @@ void FakeVimTester::test_vim_script_execute()
     message.clear();
     data.doCommand("execute \"echo \" . string(21 * 2)");
     QCOMPARE(message, QLatin1String("42"));
+}
+
+void FakeVimTester::test_vim_script_if()
+{
+    // ":if/:elseif/:else/:endif" control flow (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // Interactive bar-separated form.
+    data.doCommand("if 1 | let g:a = 10 | else | let g:a = 20 | endif");
+    QCOMPARE(echo("g:a"), QLatin1String("10"));
+    data.doCommand("if 0 | let g:a = 10 | else | let g:a = 20 | endif");
+    QCOMPARE(echo("g:a"), QLatin1String("20"));
+
+    // elseif chain.
+    data.doCommand("if 0 | let g:b = 1 | elseif 1 | let g:b = 2 | else | let g:b = 3 | endif");
+    QCOMPARE(echo("g:b"), QLatin1String("2"));
+
+    // Nesting.
+    data.doCommand("if 1 | if 0 | let g:c = 1 | else | let g:c = 2 | endif | endif");
+    QCOMPARE(echo("g:c"), QLatin1String("2"));
+
+    // A skipped branch has no side effects.
+    data.doCommand("if 0 | let g:d = 99 | endif");
+    QCOMPARE(echo("g:d"), QLatin1String("Undefined variable: g:d"));
+
+    // Multi-line block from a sourced file.
+    QTemporaryFile file;
+    QVERIFY(file.open());
+    file.write("let g:n = 3\n"
+               "if g:n > 5\n"
+               "  let g:size = \"big\"\n"
+               "elseif g:n > 1\n"
+               "  let g:size = \"medium\"\n"
+               "else\n"
+               "  let g:size = \"small\"\n"
+               "endif\n");
+    file.flush();
+    data.doCommand(QLatin1String("source ") + file.fileName());
+    QCOMPARE(echo("g:size"), QLatin1String("medium"));
 }
 
 void FakeVimTester::test_vim_file_info()
