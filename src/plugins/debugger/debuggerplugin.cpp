@@ -1575,7 +1575,6 @@ void DebuggerPluginPrivate::updatePresetState()
     const bool canDeref = actionsEnabled && currentEngine->hasCapability(AutoDerefPointersCapability);
     DebuggerSettings &s = settings();
     s.autoDerefPointers.setEnabled(canDeref);
-    s.autoDerefPointers.setEnabled(true);
     s.expandStack.setEnabled(actionsEnabled);
 
     m_startAndDebugApplicationAction.setEnabled(true);

@@ -1906,7 +1906,6 @@ void DebuggerEnginePrivate::updateState()
     const bool actionsEnabled = m_engine->debuggerActionsEnabled();
     const bool canDeref = actionsEnabled && m_engine->hasCapability(AutoDerefPointersCapability);
     settings().autoDerefPointers.setEnabled(canDeref);
-    settings().autoDerefPointers.setEnabled(true);
     settings().expandStack.setEnabled(actionsEnabled);
 
     const bool notbusy = state == InferiorStopOk
