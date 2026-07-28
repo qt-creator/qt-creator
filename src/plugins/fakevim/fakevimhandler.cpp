@@ -2379,6 +2379,8 @@ public:
     // call.
     struct UserFunction { QStringList params; QList<ExCommand> body; };
     QHash<QString, UserFunction> m_userFunctions;
+    struct AutoCommand { QString event; QString pattern; QString command; };
+    QList<AutoCommand> m_autoCommands;
     QList<QHash<QString, VimValue>> m_localScopes;
     bool m_returning = false;
     VimValue m_returnValue;
@@ -2560,6 +2562,9 @@ public:
         return m_loopSignal != NoSignal || m_returning || m_throwing || m_finishing;
     }
     bool handleExSilentCommand(const ExCommand &cmd);
+    bool handleExAutocmdCommand(const ExCommand &cmd);
+    bool handleExDoAutocmdCommand(const ExCommand &cmd);
+    void triggerAutocmd(const QString &event);
     enum LoopSignal { NoSignal, BreakSignal, ContinueSignal };
     LoopSignal m_loopSignal = NoSignal;
 
@@ -7099,6 +7104,8 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
     if (cmd.cmd != "w" && cmd.cmd != "x" && cmd.cmd != "wq")
         return false;
 
+    triggerAutocmd("BufWritePre");
+
     int beginLine = lineForPosition(cmd.range.beginPos);
     int endLine = lineForPosition(cmd.range.endPos);
     const bool noArgs = (beginLine == -1);
@@ -7150,6 +7157,7 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
         showMessage(MessageError, Tr::tr
             ("Cannot open file \"%1\" for reading").arg(fileName));
     }
+    triggerAutocmd("BufWritePost");
     return true;
 }
 
@@ -9056,6 +9064,96 @@ bool FakeVimHandler::Private::handleExSilentCommand(const ExCommand &cmd)
     return true;
 }
 
+static bool isAutocmdEvent(const QString &word)
+{
+    static const QSet<QString> events = {
+        "bufnewfile", "bufreadpre", "bufread", "bufreadpost", "bufenter",
+        "bufleave", "bufwinenter", "bufwritepre", "bufwritepost", "bufwritecmd",
+        "filetype", "insertenter", "insertleave", "insertchange", "textchanged",
+        "cursormoved", "vimenter", "winenter", "user"
+    };
+    return events.contains(word.toLower());
+}
+
+static bool autocmdPatternMatches(const QString &pattern, const QString &fileName)
+{
+    const QStringList patterns = pattern.split(',', Qt::SkipEmptyParts);
+    for (const QString &p : patterns) {
+        if (p == "*")
+            return true;
+        QString re = QRegularExpression::escape(p);
+        re.replace("\\*", ".*").replace("\\?", ".");
+        const QRegularExpression rx('^' + re + '$');
+        if (rx.match(fileName).hasMatch())
+            return true;
+        if (!p.contains('/') && rx.match(fileName.section('/', -1)).hasMatch())
+            return true;
+    }
+    return false;
+}
+
+bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
+{
+    // :autocmd [group] {event} {pattern} {command} - register a command; a bare
+    // :autocmd! clears all registered autocommands.
+    if (cmd.cmd != "autocmd" && cmd.cmd != "au")
+        return false;
+
+    QStringList tokens = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    if (tokens.isEmpty()) {
+        if (cmd.hasBang)
+            m_autoCommands.clear();
+        return true;
+    }
+    // Skip a leading augroup name if the first token is not an event.
+    if (!isAutocmdEvent(tokens.first()))
+        tokens.removeFirst();
+    if (tokens.size() < 3)
+        return true; // nothing to register
+
+    AutoCommand ac;
+    ac.event = tokens.takeFirst();
+    ac.pattern = tokens.takeFirst();
+    ac.command = tokens.join(' ');
+    m_autoCommands.append(ac);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExDoAutocmdCommand(const ExCommand &cmd)
+{
+    // :doautocmd {event} - fire the matching autocommands now.
+    if (cmd.cmd != "doautocmd" && cmd.cmd != "doau")
+        return false;
+
+    const QStringList tokens = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    for (const QString &t : tokens) {
+        if (isAutocmdEvent(t)) {
+            triggerAutocmd(t);
+            return true;
+        }
+    }
+    if (!tokens.isEmpty())
+        triggerAutocmd(tokens.first());
+    return true;
+}
+
+void FakeVimHandler::Private::triggerAutocmd(const QString &event)
+{
+    const QString fileName = m_currentFileName;
+    // Copy: a fired command might register or clear autocommands.
+    const QList<AutoCommand> commands = m_autoCommands;
+    for (const AutoCommand &ac : commands) {
+        if (ac.event.compare(event, Qt::CaseInsensitive) != 0)
+            continue;
+        if (!autocmdPatternMatches(ac.pattern, fileName))
+            continue;
+        QString line = ac.command;
+        ExCommand sub;
+        while (parseExCommand(&line, &sub))
+            handleExCommandHelper(sub);
+    }
+}
+
 bool FakeVimHandler::Private::handleExExecuteCommand(const ExCommand &cmd)
 {
     // :execute {expr}... - evaluate the arguments, join with a space and run
@@ -9524,6 +9622,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExMoveCommand(cmd)
         || handleExJoinCommand(cmd)
         || handleExSilentCommand(cmd)
+        || handleExAutocmdCommand(cmd)
+        || handleExDoAutocmdCommand(cmd)
         || handleExLetCommand(cmd)
         || handleExUnletCommand(cmd)
         || handleExCallCommand(cmd)

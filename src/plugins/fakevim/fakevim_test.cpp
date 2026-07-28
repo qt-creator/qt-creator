@@ -226,6 +226,7 @@ private slots:
     void test_vim_script_slicing();
     void test_vim_script_ex_commands();
     void test_vim_script_funcref();
+    void test_vim_script_autocmd();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6502,6 +6503,52 @@ void FakeVimTester::test_vim_script_funcref()
     QCOMPARE(echo("filter([1, 2, 3, 4], {i, v -> v % 2 == 0})"), QLatin1String("[2, 4]"));
     QCOMPARE(echo("sort([3, 1, 2], {a, b -> a - b})"), QLatin1String("[1, 2, 3]"));
     QCOMPARE(echo("sort([1, 2, 3], {a, b -> b - a})"), QLatin1String("[3, 2, 1]"));
+}
+
+void FakeVimTester::test_vim_script_autocmd()
+{
+    // :autocmd registration, :doautocmd, pattern matching and firing on :w.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // :doautocmd fires a registered command.
+    data.doCommand("let g:hit = 0");
+    data.doCommand("autocmd BufWritePre * let g:hit = 1");
+    data.doCommand("doautocmd BufWritePre");
+    QCOMPARE(echo("g:hit"), QLatin1String("1"));
+
+    // The file pattern selects which autocommands run.
+    data.handler->setCurrentFileName("example.txt");
+    data.doCommand("autocmd BufReadPost *.txt let g:txt = 1");
+    data.doCommand("autocmd BufReadPost *.cpp let g:cpp = 1");
+    data.doCommand("doautocmd BufReadPost");
+    QCOMPARE(echo("g:txt"), QLatin1String("1"));
+    QCOMPARE(echo("exists('g:cpp')"), QLatin1String("0"));
+
+    // :w fires BufWritePre and BufWritePost.
+    data.doCommand("let g:pre = 0 | let g:post = 0");
+    data.doCommand("autocmd BufWritePre * let g:pre = 1");
+    data.doCommand("autocmd BufWritePost * let g:post = 1");
+    QTemporaryFile wf;
+    QVERIFY(wf.open());
+    const QString writePath = wf.fileName();
+    data.doCommand(QLatin1String("w! ") + writePath);
+    QCOMPARE(echo("g:pre"), QLatin1String("1"));
+    QCOMPARE(echo("g:post"), QLatin1String("1"));
+
+    // :autocmd! removes all autocommands.
+    data.doCommand("autocmd!");
+    data.doCommand("let g:hit = 0");
+    data.doCommand("doautocmd BufWritePre");
+    QCOMPARE(echo("g:hit"), QLatin1String("0"));
 }
 
 void FakeVimTester::test_vim_file_info()
