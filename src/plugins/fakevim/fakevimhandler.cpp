@@ -8397,6 +8397,65 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         if (!ok)
             return false;
         *result = arg(0);
+    } else if (name == "extend") {
+        if (arg(0).isList() && arg(1).isList()) {
+            arg(0).listData()->append(*arg(1).listData());
+        } else if (arg(0).isDict() && arg(1).isDict()) {
+            const QMap<QString, VimValue> *src = arg(1).dictData();
+            for (auto it = src->cbegin(), end = src->cend(); it != end; ++it)
+                arg(0).dictData()->insert(it.key(), it.value());
+        }
+        *result = arg(0);
+    } else if (name == "index" || name == "count") {
+        const auto equalValues = [](const VimValue &a, const VimValue &b) {
+            return a.isString() && b.isString() ? a.toString() == b.toString()
+                                                : a.toNumber() == b.toNumber();
+        };
+        qlonglong n = name == "index" ? -1 : 0;
+        if (arg(0).isList()) {
+            const QList<VimValue> &l = *arg(0).listData();
+            if (name == "index") {
+                for (int i = qMax(0, args.size() > 2 ? int(arg(2).toNumber()) : 0);
+                     i < l.size(); ++i) {
+                    if (equalValues(l.at(i), arg(1))) { n = i; break; }
+                }
+            } else {
+                for (const VimValue &e : l)
+                    n += equalValues(e, arg(1)) ? 1 : 0;
+            }
+        }
+        *result = VimValue(n);
+    } else if (name == "insert") {
+        if (arg(0).isList()) {
+            QList<VimValue> *l = arg(0).listData();
+            const int idx = args.size() > 2 ? int(arg(2).toNumber()) : 0;
+            l->insert(qBound(0, idx, l->size()), arg(1));
+        }
+        *result = arg(0);
+    } else if (name == "repeat") {
+        const int n = int(arg(1).toNumber());
+        if (arg(0).isList()) {
+            QList<VimValue> out;
+            for (int i = 0; i < n; ++i)
+                out.append(*arg(0).listData());
+            *result = VimValue::list(out);
+        } else {
+            *result = VimValue(arg(0).toString().repeated(qMax(0, n)));
+        }
+    } else if (name == "trim") {
+        *result = VimValue(arg(0).toString().trimmed());
+    } else if (name == "nr2char") {
+        *result = VimValue(QString(QChar(uint(arg(0).toNumber()))));
+    } else if (name == "char2nr") {
+        const QString str = arg(0).toString();
+        *result = VimValue(qlonglong(str.isEmpty() ? 0 : str.at(0).unicode()));
+    } else if (name == "matchstr" || name == "match") {
+        const QRegularExpressionMatch mm =
+            vimPatternToQtPattern(arg(1).toString()).match(arg(0).toString());
+        if (name == "matchstr")
+            *result = VimValue(mm.hasMatch() ? mm.captured(0) : QString());
+        else
+            *result = VimValue(qlonglong(mm.hasMatch() ? mm.capturedStart() : -1));
     } else if (name == "toupper") {
         *result = VimValue(arg(0).toString().toUpper());
     } else if (name == "tolower") {

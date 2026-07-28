@@ -219,6 +219,7 @@ private slots:
     void test_vim_script_collection_builtins();
     void test_vim_script_map_filter();
     void test_vim_script_try_catch();
+    void test_vim_script_more_builtins();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6249,6 +6250,38 @@ void FakeVimTester::test_vim_script_try_catch()
                    "let g:n += 1 | if i == 3 | throw \"stop\" | endif | endfor | "
                    "catch | endtry");
     QCOMPARE(echo("g:n"), QLatin1String("3"));
+}
+
+void FakeVimTester::test_vim_script_more_builtins()
+{
+    // extend, index, count, insert, repeat, trim, nr2char, char2nr, matchstr,
+    // match (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("extend([1, 2], [3, 4])"), QLatin1String("[1, 2, 3, 4]"));
+    QCOMPARE(echo("extend({\"a\": 1}, {\"b\": 2})"), QLatin1String("{'a': 1, 'b': 2}"));
+    QCOMPARE(echo("index([10, 20, 30], 20)"), QLatin1String("1"));
+    QCOMPARE(echo("index([10, 20], 99)"), QLatin1String("-1"));
+    QCOMPARE(echo("count([1, 2, 1, 1], 1)"), QLatin1String("3"));
+    QCOMPARE(echo("insert([2, 3], 1)"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("insert([1, 3], 2, 1)"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("repeat(\"ab\", 3)"), QLatin1String("ababab"));
+    QCOMPARE(echo("repeat([0], 3)"), QLatin1String("[0, 0, 0]"));
+    QCOMPARE(echo("trim(\"  hi  \")"), QLatin1String("hi"));
+    QCOMPARE(echo("nr2char(65)"), QLatin1String("A"));
+    QCOMPARE(echo("char2nr(\"A\")"), QLatin1String("65"));
+    QCOMPARE(echo("matchstr(\"foobar\", \"o\\\\+\")"), QLatin1String("oo"));
+    QCOMPARE(echo("match(\"foobar\", \"bar\")"), QLatin1String("3"));
+    QCOMPARE(echo("match(\"foobar\", \"xyz\")"), QLatin1String("-1"));
 }
 
 void FakeVimTester::test_vim_file_info()
