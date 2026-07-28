@@ -3526,10 +3526,6 @@ Cela ne peut être annulé.</translation>
         <source>Remove from Content Library</source>
         <translation>Supprimer de la bibliothèque de contenus</translation>
     </message>
-    <message>
-        <source>Import bundle</source>
-        <translation>Importer un bundle</translation>
-    </message>
 </context>
 <context>
     <name>ContentLibraryMaterial</name>
@@ -9665,14 +9661,6 @@ ajouter un composant en surbrillance.</translation>
         <source>Add to Content Library</source>
         <translation>Ajouter à la bibliothèque de contenus</translation>
     </message>
-    <message>
-        <source>Import Material</source>
-        <translation>Importer un matériau</translation>
-    </message>
-    <message>
-        <source>Export Material</source>
-        <translation>Exporter un matériau</translation>
-    </message>
 </context>
 <context>
     <name>MaterialSection</name>
@@ -11235,32 +11223,6 @@ ajouter un composant en surbrillance.</translation>
     </message>
 </context>
 <context>
-    <name>PerfKallsyms</name>
-    <message>
-        <source>Invalid address: %1</source>
-        <translation>Adresse invalide&#xa0;: %1</translation>
-    </message>
-    <message>
-        <source>Mapping is empty.</source>
-        <translation>Le mappage est vide.</translation>
-    </message>
-</context>
-<context>
-    <name>PerfUnwind</name>
-    <message>
-        <source>Could not find ELF file for %1. This can break stack unwinding and lead to missing symbols.</source>
-        <translation>Impossible de trouver le fichier ELF pour %1. Cela peut stopper le déroulement de la pile et mener à des symboles manquants.</translation>
-    </message>
-    <message>
-        <source>Failed to parse kernel symbol mapping file &quot;%1&quot;: %2</source>
-        <translation>Échec du traitement du fichier de correspondance des symboles du noyau &quot;%1&quot;: %2</translation>
-    </message>
-    <message>
-        <source>Time order violation of MMAP event across buffer flush detected. Event time is %1, max time during last buffer flush was %2. This potentially breaks the data analysis.</source>
-        <translation>Violation d&apos;ordre des événements MMAP entre les vidages de tampons détectée. Le moment de l&apos;événement est: %1, temps maximum depuis le dernier vidage: %2. Cela peut interrompre l&apos;analyse des données.</translation>
-    </message>
-</context>
-<context>
     <name>PerspectiveCameraSection</name>
     <message>
         <source>Perspective Camera</source>
@@ -11510,7 +11472,7 @@ ajouter un composant en surbrillance.</translation>
     <name>PluginManager</name>
     <message>
         <source>Failed Plugins</source>
-        <translation>Greffons en échec</translation>
+        <translation>Extensions en échec</translation>
     </message>
 </context>
 <context>
@@ -13217,14 +13179,6 @@ est en cours.</translation>
     <message>
         <source>Add to Content Library</source>
         <translation>Ajouter à la bibliothèque de contenus</translation>
-    </message>
-    <message>
-        <source>Import Bundle</source>
-        <translation>Importer un bundle</translation>
-    </message>
-    <message>
-        <source>Export Bundle</source>
-        <translation>Exporter un bundle</translation>
     </message>
     <message>
         <source>3D view is only supported in Qt6 qmlprojects.</source>
@@ -15132,14 +15086,6 @@ Les composants verrouillés ne peuvent être ni modifiés ni sélectionnés.</tr
         <translation>Créer un composant</translation>
     </message>
     <message>
-        <source>Import Bundle</source>
-        <translation>Importer bundle</translation>
-    </message>
-    <message>
-        <source>Export Bundle</source>
-        <translation>Exporter bundle</translation>
-    </message>
-    <message>
         <source>Reimport 3D Asset</source>
         <translation>Réimporter la ressource 3D</translation>
     </message>
@@ -15893,6 +15839,10 @@ Les composants verrouillés ne peuvent être ni modifiés ni sélectionnés.</tr
         <source>Insert Command</source>
         <translatorcomment>Tooltip</translatorcomment>
         <translation>Insère une commande</translation>
+    </message>
+    <message>
+        <source>Configuration Options</source>
+        <translation>Options de configuration</translation>
     </message>
     <message>
         <source>Send</source>
@@ -18740,7 +18690,7 @@ Voir la documentation de Google Test pour plus d&apos;informations sur les filtr
     </message>
     <message>
         <source>Test Results</source>
-        <translation>Résultats des tests</translation>
+        <translation>Tests</translation>
     </message>
     <message>
         <source>Show Durations</source>
@@ -19116,7 +19066,7 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
     </message>
     <message>
         <source>Selects the test frameworks to be handled by the AutoTest plugin.</source>
-        <translation>Sélectionne le cadriciel de test devant être géré par le greffon AutoTest.</translation>
+        <translation>Sélectionne le cadriciel de tests devant être géré par l&apos;extension AutoTest.</translation>
     </message>
     <message>
         <source>Framework</source>
@@ -19152,7 +19102,7 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
     </message>
     <message>
         <source>Enable or disable test frameworks to be handled by the AutoTest plugin.</source>
-        <translation>Active ou désactive les cadriciels de test devant être gérés par le greffon AutoTest.</translation>
+        <translation>Active ou désactive les cadriciels de test devant être gérés par l&apos;extension AutoTest.</translation>
     </message>
     <message>
         <source>Enable or disable grouping of test cases by folder.</source>
@@ -19164,7 +19114,7 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
     </message>
     <message>
         <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
-        <translation>Vous ne pouvez pas utiliser le greffon AutoTest sans avoir au minimum un cadriciel de test.</translation>
+        <translation>Vous ne pouvez pas utiliser l&apos;extension AutoTest sans avoir au minimum un cadriciel de test.</translation>
     </message>
     <message>
         <source>Mixing test frameworks and test tools.</source>
@@ -23110,6 +23060,108 @@ Assurez-vous que la variable CMAKE_BUILD_TYPE contient le champ «&#xa0;Build ty
     </message>
 </context>
 <context>
+    <name>QtC::ClangFormat</name>
+    <message>
+        <source>Import Code Format</source>
+        <translation>Importer une mise en forme de code</translation>
+    </message>
+    <message>
+        <source>ClangFormat (*clang-format*);;All files (*)</source>
+        <translation>ClangFormat (*clang-format*);;Tous les fichiers (*)</translation>
+    </message>
+    <message>
+        <source>Import Code Style</source>
+        <translatorcomment>Titre d&apos;une petite fenêtre pour renseigner le nom du nouveau style de code</translatorcomment>
+        <translation>Importation du style de code</translation>
+    </message>
+    <message>
+        <source>Enter a name for the imported code style:</source>
+        <translation>Insérez un nom pour le style de code importé&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Cannot import code style from &quot;%1&quot;.</source>
+        <translation>Impossible d&apos;importer le style de code à partir de «&#xa0;%1&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Export Code Format</source>
+        <translation>Exporter une mise en forme de code</translation>
+    </message>
+    <message>
+        <source>C++</source>
+        <translation>C++</translation>
+    </message>
+    <message>
+        <source>Current ClangFormat version: %1.</source>
+        <translation>Version actuelle de ClangFormat&#xa0;: %1.</translation>
+    </message>
+    <message>
+        <source>Warning:</source>
+        <translation>Avertissement&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Files greater than this will not be indented by ClangFormat.
+The built-in code indenter will handle indentation.</source>
+        <translation>Les fichiers d&apos;une taille supérieure ne seront pas indentés par ClangFormat.
+L&apos;indentation sera prise en charge par l&apos;indenteur de code intégré.</translation>
+    </message>
+    <message>
+        <source>Formatting mode:</source>
+        <translation>Mode de mise en forme&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Ignore files greater than:</source>
+        <translation>Ignorer les fichiers plus grands que&#xa0;:</translation>
+    </message>
+    <message>
+        <source>Format while typing</source>
+        <translation>Mise en forme au fur et à mesure de la frappe</translation>
+    </message>
+    <message>
+        <source>Format edited code on file save</source>
+        <translation>Mise en forme du code édité à l&apos;enregistrement</translation>
+    </message>
+    <message>
+        <source>Use custom settings</source>
+        <translation>Utiliser des paramètres personnalisés</translation>
+    </message>
+    <message>
+        <source>Use global settings</source>
+        <translation>Utiliser les paramètres globaux</translation>
+    </message>
+    <message>
+        <source>Please note that the current project includes a .clang-format file, which will be used for code indenting and formatting.</source>
+        <translation>Veuillez noter que le projet actuel dispose d&apos;un fichier .clang-format qui sera utilisé pour l&apos;indentation et la mise en forme du code.</translation>
+    </message>
+    <message>
+        <source>ClangFormat Settings</source>
+        <translation>Paramètres de ClangFormat</translation>
+    </message>
+    <message>
+        <source>Indenting only</source>
+        <translation>Indentation seule</translation>
+    </message>
+    <message>
+        <source>Full formatting</source>
+        <translation>Mise en forme complète</translation>
+    </message>
+    <message>
+        <source>Use built-in indenter</source>
+        <translation>Utiliser l&apos;indenteur intégré</translation>
+    </message>
+    <message>
+        <source>The current project has its own .clang-format file which can be overridden by the settings below.</source>
+        <translation>Le projet actuel dispose de son propre fichier .clang-format qui peut être remplacé par les paramètres ci-dessous.</translation>
+    </message>
+    <message>
+        <source>When this option is enabled, ClangFormat will use a user-specified configuration from the widget below, instead of the project .clang-format file. You can customize the formatting options for your code by adjusting the settings in the widget. Note that any changes made there will only affect the current configuration, and will not modify the project .clang-format file.</source>
+        <translation>Lorsque cette option est activée, ClangFormat utilisera la configuration spécifiée par l&apos;utilisateur dans le widget ci-dessous et non le fichier .clang-format du projet. Vous pouvez personnaliser les options de mise en forme de votre code en ajustant les paramètres dans le widget. Notez que ces changements n&apos;affecteront que la configuration actuelle et ne modifieront pas le fichier .clang-format du projet.</translation>
+    </message>
+    <message>
+        <source>Open Used .clang-format Configuration File</source>
+        <translation>Ouvrir le fichier de configuration .clang-format utilisé</translation>
+    </message>
+</context>
+<context>
     <name>QtC::ClangTools</name>
     <message>
         <source>Files to Analyze</source>
@@ -25101,7 +25153,7 @@ Le code a été copié dans votre presse-papiers.</translation>
     <message>
         <source>Select path to %2 in Copilot Neovim plugin. See %1 for installation instructions.</source>
         <extracomment>%1 is the URL to copilot.vim getting started, %2 is the filename of the copilot language server</extracomment>
-        <translation>Sélectionnez le chemin vers %2 du greffon Copilot Neovim. Consultez les instructions d&apos;installation à l&apos;adresse %1.</translation>
+        <translation>Sélectionnez le chemin vers %2 du module Copilot Neovim. Consultez les instructions d&apos;installation à l&apos;adresse %1.</translation>
     </message>
     <message>
         <source>Auto Request</source>
@@ -25160,9 +25212,9 @@ Le code a été copié dans votre presse-papiers.</translation>
 
 Otherwise you need to specify the path to the %2 file from the Copilot neovim plugin.</source>
         <comment>Markdown text for the copilot instruction label</comment>
-        <translation>Le greffon Copilot nécessite node.js et le greffon Copilot Neovim. Si vous installez le greffon Neovim comme indiqué à l&apos;adresse %1, le greffon trouvera le fichier %3 automatiquement.
+        <translation>L&apos;extension Copilot nécessite node.js et le module Copilot Neovim. Si vous installez le module Neovim comme indiqué à l&apos;adresse %1, l&apos;extension trouvera le fichier %3 automatiquement.
 
-Sinon, vous devez spécifier le chemin vers le fichier %2 du greffon Copilot Neovim.</translation>
+Sinon, vous devez spécifier le chemin vers le fichier %2 du module Copilot Neovim.</translation>
     </message>
     <message>
         <source>Note</source>
@@ -26176,7 +26228,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>About &amp;Plugins...</source>
-        <translation>À propos des &amp;greffons…</translation>
+        <translation>À propos des &amp;extensions…</translation>
     </message>
     <message>
         <source>General Messages</source>
@@ -26426,7 +26478,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Out&amp;put</source>
-        <translation>&amp;Sortie</translation>
+        <translation>&amp;Sorties</translation>
     </message>
     <message>
         <source>Ctrl+Shift+9</source>
@@ -26458,19 +26510,19 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Install Plugin...</source>
-        <translation>Installer un greffon…</translation>
+        <translation>Installer une extension…</translation>
     </message>
     <message>
         <source>Installed Plugins</source>
-        <translation>Greffons installés</translation>
+        <translation>Extensions installées</translation>
     </message>
     <message>
         <source>Plugin changes will take effect after restart.</source>
-        <translation>Les modifications apportées au greffon prendront effet après le redémarrage.</translation>
+        <translation>Les modifications apportées à l&apos;extension prendront effet après le redémarrage.</translation>
     </message>
     <message>
         <source>Plugin Errors of %1</source>
-        <translation>Erreurs du greffon %1</translation>
+        <translation>Erreurs de l&apos;extension %1</translation>
     </message>
     <message>
         <source>Processes</source>
@@ -26667,7 +26719,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Find Next (Selected)</source>
-        <translation>Trouvez le suivant (sélectionné)</translation>
+        <translation>Trouver le suivant (sélectionné)</translation>
     </message>
     <message>
         <source>Ctrl+F3</source>
@@ -26775,7 +26827,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Search Results</source>
-        <translation>Résultat de la recherche</translation>
+        <translation>Recherche</translation>
     </message>
     <message>
         <source>Locator</source>
@@ -27640,7 +27692,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>A directory under version control was detected that is supported by the %1 plugin.</source>
-        <translation>Un répertoire sous contrôle de version géré par le greffon %1 a été détecté.</translation>
+        <translation>Un répertoire sous contrôle de version géré par l&apos;extension %1 a été détecté.</translation>
     </message>
     <message>
         <source>Version Control Detected</source>
@@ -27652,7 +27704,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>The directory &quot;%1&quot; seems to be under version control that can be handled by the disabled %2 plugin.</source>
-        <translation>Le répertoire «&#xa0;%1&#xa0;» semble être sous contrôle de version et peut être géré par le greffon désactivé %2.</translation>
+        <translation>Le répertoire «&#xa0;%1&#xa0;» semble être sous contrôle de version et peut être géré par l&apos;extension désactivée %2.</translation>
     </message>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
@@ -28306,7 +28358,7 @@ Souhaitez-vous les importer maintenant&#xa0;?</translation>
     </message>
     <message>
         <source>The plugin %1 requires you to accept the following terms and conditions:</source>
-        <translation>Le greffon %1 nécessite que vous acceptiez les termes et conditions&#xa0;:</translation>
+        <translation>L&apos;extension %1 nécessite que vous acceptiez les termes et conditions&#xa0;:</translation>
     </message>
     <message>
         <source>Copy Expanded Value</source>
@@ -28757,7 +28809,7 @@ Double-cliquez pour modifier l’élément.</translation>
     </message>
     <message>
         <source>Choose source location. This can be a plugin library file or a zip file.</source>
-        <translation>Sélectionner l’emplacement de la source. Il peut s’agir d’un fichier de bibliothèque de greffons ou d’un fichier zip.</translation>
+        <translation>Sélectionner l’emplacement de la source. Il peut s’agir d’un fichier de bibliothèque d&apos;extensions ou d’un fichier zip.</translation>
     </message>
     <message>
         <source>File does not exist.</source>
@@ -28765,27 +28817,27 @@ Double-cliquez pour modifier l’élément.</translation>
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation>Aucun greffon n&apos;a été trouvé.</translation>
+        <translation>Aucune extension n&apos;a été trouvée.</translation>
     </message>
     <message>
         <source>More than one plugin found.</source>
-        <translation>Plus d&apos;un greffon trouvé.</translation>
+        <translation>Plusieurs extensions trouvées.</translation>
     </message>
     <message>
         <source>Plugin failed to resolve dependencies:</source>
-        <translation>La résolution des dépendances pour le greffon a échoué&#xa0;:</translation>
+        <translation>La résolution des dépendances pour l&apos;extension a échoué&#xa0;:</translation>
     </message>
     <message>
         <source>Plugin is already installed.</source>
-        <translation>Le greffon est déjà installé.</translation>
+        <translation>L&apos;extension est déjà installée.</translation>
     </message>
     <message>
         <source>A plugin with ID &quot;%1&quot; is already installed.</source>
-        <translation>Un greffon ayant l&apos;identifiant «&#xa0;%1&#xa0;» est déjà installé.</translation>
+        <translation>Une extension ayant l&apos;identifiant «&#xa0;%1&#xa0;» est déjà installée.</translation>
     </message>
     <message>
         <source>No plugin with ID &quot;%1&quot; is installed.</source>
-        <translation>Aucun greffon ayant l&apos;identifiant «&#xa0;%1&#xa0;» n&apos;est installé.</translation>
+        <translation>Aucune extension ayant l&apos;identifiant «&#xa0;%1&#xa0;» n&apos;est installée.</translation>
     </message>
     <message>
         <source>Check Archive</source>
@@ -28797,7 +28849,7 @@ Double-cliquez pour modifier l’élément.</translation>
     </message>
     <message>
         <source>Load plugin immediately</source>
-        <translation>Charger le greffon immédiatement</translation>
+        <translation>Charger l&apos;extension immédiatement</translation>
     </message>
     <message>
         <source>%1 will be installed into %2.</source>
@@ -28853,7 +28905,7 @@ Double-cliquez pour modifier l’élément.</translation>
     </message>
     <message>
         <source>Install Plugin</source>
-        <translation>Installer le greffon</translation>
+        <translation>Installer une extension</translation>
     </message>
     <message>
         <source>Copying plugin files...</source>
@@ -28867,7 +28919,7 @@ Double-cliquez pour modifier l’élément.</translation>
     </message>
     <message>
         <source>Failed to Copy Plugin Files</source>
-        <translation>Échec de la copie des fichiers de greffon</translation>
+        <translation>Échec de la copie des fichiers de l&apos;extension</translation>
     </message>
     <message>
         <source>unnamed</source>
@@ -32679,10 +32731,6 @@ par défaut de l’utilisateur au démarrage du débogueur.</translation>
         <translation>Utiliser le désassemblage avec le style Intel</translation>
     </message>
     <message>
-        <source>&lt;p&gt;To execute simple Python commands, prefix them with &quot;python&quot;.&lt;/p&gt;&lt;p&gt;To execute sequences of Python commands spanning multiple lines prepend the block with &quot;python&quot; on a separate line, and append &quot;end&quot; on a separate line.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Pour exécuter de simples commandes Python, préfixez les avec «&#xa0;python&#xa0;».&lt;/p&gt;&lt;p&gt;Pour exécuter des séquences de commandes Python sur plusieurs lignes, débutez le bloc avec «&#xa0;python&#xa0;» sur une ligne distincte et terminer avec «&#xa0;end&#xa0;» sur une ligne distincte.&lt;/p&gt;&lt;p&gt;Pour exécuter n’importe quel script Python, utilisez &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;</translation>
-    </message>
-    <message>
         <source>The options below give access to advanced&lt;br&gt;or experimental functions of GDB.&lt;p&gt;Enabling them may negatively impact&lt;br&gt;your debugging experience.</source>
         <translation>Les options ci-dessous permettent d’accéder&lt;br&gt;à des fonctions avancées ou expérimentales de GDB.&lt;p&gt;Leur activation peut avoir un impact négatif&lt;br&gt;sur votre expérience de débogage.</translation>
     </message>
@@ -32709,6 +32757,10 @@ par défaut de l’utilisateur au démarrage du débogueur.</translation>
     <message>
         <source>Use asynchronous mode to control the debugged process</source>
         <translation>Utiliser le mode asynchrone pour contrôler le processus débogué</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;To execute simple Python commands, prefix them with &quot;python&quot;.&lt;/p&gt;&lt;p&gt;To execute sequences of Python commands spanning multiple lines prepend the block with &quot;python&quot; on a separate line, and append &quot;end&quot; on a separate line.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;source /path/to/script.py&lt;/i&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Pour exécuter de simples commandes Python, préfixez les avec «&#xa0;python&#xa0;».&lt;/p&gt;&lt;p&gt;Pour exécuter des séquences de commandes Python sur plusieurs lignes, débutez le bloc avec «&#xa0;python&#xa0;» sur une ligne distincte et terminer avec «&#xa0;end&#xa0;» sur une ligne distincte.&lt;/p&gt;&lt;p&gt;Pour exécuter n’importe quel script Python, utilisez &lt;i&gt;source /chemin/vers/script.py&lt;/i&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Use debug info daemon</source>
@@ -33526,7 +33578,7 @@ Veuillez sélectionner un débogueur 64 bits dans les paramètres du kit pour ce
 You may be asked to share the contents of this log when reporting bugs related to debugger operation. In this case, make sure your submission does not contain data you do not want to or you are not allowed to share.
 
 </source>
-        <translation>Remarque : ce journal contient des informations éventuellement confidentielles sur votre machine, des variables d’environnement, des données en mémoire des processus que vous déboguez, et bien d’autres choses encore. Il n’est jamais transféré sur Internet par %1, et n’est stocké sur le disque que si vous utilisez manuellement l’option correspondante du menu contextuel, ou par des mécanismes qui ne sont pas sous le contrôle du greffon de débogage de %1, par exemple dans les fichiers d’échange, ou d’autres greffons que vous pourriez utiliser.
+        <translation>Remarque&#xa0;: ce journal contient des informations éventuellement confidentielles sur votre machine, des variables d’environnement, des données en mémoire des processus que vous déboguez, et bien d’autres choses encore. Il n’est jamais transféré sur Internet par %1, et n’est stocké sur le disque que si vous utilisez manuellement l’option correspondante du menu contextuel, ou par des mécanismes qui ne sont pas sous le contrôle de l&apos;extension de débogage de %1, par exemple dans les fichiers d’échange, ou d’autres extensions que vous pourriez utiliser.
 Il peut vous être demandé de partager le contenu de ce journal lorsque vous signalez des bogues liés au fonctionnement du débogueur. Dans ce cas, assurez-vous que votre soumission ne contient pas de données que vous ne voulez pas ou que vous n’êtes pas autorisé à partager.
 
 </translation>
@@ -34279,7 +34331,7 @@ L’examen des symboles et la définition de points d’arrêt par nom de fichie
     </message>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
-        <translation>Le contenu de la mémoire ne peut pas être affiché car aucun greffon de visualisation de données binaires n’a pu être chargé.</translation>
+        <translation>Le contenu de la mémoire ne peut pas être affiché car aucune extension de visualisation de données binaires n’a pu être chargé.</translation>
     </message>
     <message>
         <source>No application output received in time</source>
@@ -34456,7 +34508,7 @@ Voulez-vous réessayer&#xa0;?</translation>
     </message>
     <message>
         <source>QML Debugger Console</source>
-        <translation>Console du débogueur QML</translation>
+        <translation>Débogueur QML</translation>
     </message>
     <message>
         <source>Can only evaluate during a debug session.</source>
@@ -36126,7 +36178,7 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
     </message>
     <message>
         <source>About Qt Widgets Designer Plugins...</source>
-        <translation>À propos des greffons de Qt Widgets Designer…</translation>
+        <translation>À propos des extensions de Qt&#xa0;Widgets&#xa0;Designer…</translation>
     </message>
     <message>
         <source>Signals &amp;&amp; Slots Editor</source>
@@ -37753,11 +37805,11 @@ Vous pouvez gérer l&apos;utilisation des extensions dans Préférences &gt; Ext
     <name>QtC::ExtensionSystem</name>
     <message>
         <source>Name:</source>
-        <translation>Nom :</translation>
+        <translation>Nom&#xa0;:</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation>Version :</translation>
+        <translation>Version&#xa0;:</translation>
     </message>
     <message>
         <source>Vendor Id:</source>
@@ -37773,28 +37825,28 @@ Vous pouvez gérer l&apos;utilisation des extensions dans Préférences &gt; Ext
     </message>
     <message>
         <source>Location:</source>
-        <translation>Emplacement :</translation>
+        <translation>Emplacement&#xa0;:</translation>
     </message>
     <message>
         <source>Description:</source>
-        <translation>Description :</translation>
+        <translation>Description&#xa0;:</translation>
     </message>
     <message>
         <source>Copyright:</source>
         <translatorcomment>Droit d&apos;auteur ?</translatorcomment>
-        <translation>Copyright :</translation>
+        <translation>Copyright&#xa0;:</translation>
     </message>
     <message>
         <source>License:</source>
-        <translation>Licence :</translation>
+        <translation>Licence&#xa0;:</translation>
     </message>
     <message>
         <source>Dependencies:</source>
-        <translation>Dépendances :</translation>
+        <translation>Dépendances&#xa0;:</translation>
     </message>
     <message>
         <source>Loadable without restart:</source>
-        <translation>Pouvant être chargé sans redémarrage</translation>
+        <translation>Pouvant être chargée sans redémarrage&#xa0;:</translation>
     </message>
     <message>
         <source>None</source>
@@ -37812,11 +37864,11 @@ Vous pouvez gérer l&apos;utilisation des extensions dans Préférences &gt; Ext
     </message>
     <message>
         <source>Plugin Details of %1</source>
-        <translation>Détails du greffon %1</translation>
+        <translation>Détails de l&apos;extension %1</translation>
     </message>
     <message>
         <source>Group:</source>
-        <translation>Groupe :</translation>
+        <translation>Groupe&#xa0;:</translation>
     </message>
     <message>
         <source>Id:</source>
@@ -37825,19 +37877,19 @@ Vous pouvez gérer l&apos;utilisation des extensions dans Préférences &gt; Ext
     <message>
         <source>Compatibility version:</source>
         <translatorcomment>cf libs/extensionsystem/plugindetailsview.ui et PluginSpecPrivate::provides() : version minimum compatible</translatorcomment>
-        <translation>Version compatible :</translation>
+        <translation>Version compatible&#xa0;:</translation>
     </message>
     <message>
         <source>URL:</source>
-        <translation>URL :</translation>
+        <translation>URL&#xa0;:</translation>
     </message>
     <message>
         <source>Platforms:</source>
-        <translation>Plateformes :</translation>
+        <translation>Plateformes&#xa0;:</translation>
     </message>
     <message>
         <source>State:</source>
-        <translation>État :</translation>
+        <translation>État&#xa0;:</translation>
     </message>
     <message>
         <source>Description file found, but error on read.</source>
@@ -37857,19 +37909,19 @@ Vous pouvez gérer l&apos;utilisation des extensions dans Préférences &gt; Ext
     </message>
     <message>
         <source>Plugin&apos;s initialization function succeeded.</source>
-        <translation>La fonction d’initialisation du greffon a réussi.</translation>
+        <translation>La fonction d’initialisation de l&apos;extension a réussi.</translation>
     </message>
     <message>
         <source>Plugin successfully loaded and running.</source>
-        <translation>Le greffon a été chargé avec succès et fonctionne.</translation>
+        <translation>L&apos;extension a été chargée avec succès et fonctionne.</translation>
     </message>
     <message>
         <source>Plugin was shut down.</source>
-        <translation>Le greffon a été fermé.</translation>
+        <translation>L&apos;extension a été fermée.</translation>
     </message>
     <message>
         <source>Plugin ended its life cycle and was deleted.</source>
-        <translation>Le greffon a terminé son cycle de vie et a été supprimé.</translation>
+        <translation>L&apos;extension a terminé son cycle de vie et a été supprimée.</translation>
     </message>
     <message>
         <source>Error message:</source>
@@ -37877,47 +37929,47 @@ Vous pouvez gérer l&apos;utilisation des extensions dans Préférences &gt; Ext
     </message>
     <message>
         <source>deprecated</source>
-        <translation>déprécié</translation>
+        <translation>dépréciée</translation>
     </message>
     <message>
         <source>experimental</source>
-        <translation>expérimental</translation>
+        <translation>expérimentale</translation>
     </message>
     <message>
         <source>Path: %1
 Plugin is not available on this platform.</source>
-        <translation>Chemin : %1
-Le greffon n’est pas disponible sur cette plateforme.</translation>
+        <translation>Chemin&#xa0;: %1
+L&apos;extension n’est pas disponible sur cette plateforme.</translation>
     </message>
     <message>
         <source>Path: %1
 Plugin is enabled as dependency of an enabled plugin.</source>
-        <translation>Chemin : %1
-Le greffon est activé en tant que dépendance d’un greffon activé.</translation>
+        <translation>Chemin&#xa0;: %1
+L&apos;extension est activée en tant que dépendance d’une extension active.</translation>
     </message>
     <message>
         <source>Path: %1
 Plugin is enabled by command line argument.</source>
-        <translation>Chemin : %1
-Le greffon est activé par un argument de ligne de commande.</translation>
+        <translation>Chemin&#xa0;: %1
+L&apos;extension est activée par un argument de ligne de commande.</translation>
     </message>
     <message>
         <source>Path: %1
 Plugin is disabled by command line argument.</source>
-        <translation>Chemin : %1
-Le greffon est désactivé par un argument de ligne de commande.</translation>
+        <translation>Chemin&#xa0;: %1
+L&apos;extension est désactivée par un argument de ligne de commande.</translation>
     </message>
     <message>
         <source>Path: %1</source>
-        <translation>Chemin : %1</translation>
+        <translation>Chemin&#xa0;: %1</translation>
     </message>
     <message>
         <source>Plugin is not available on this platform.</source>
-        <translation>Le greffon n’est pas disponible sur cette plateforme.</translation>
+        <translation>L&apos;extension n’est pas disponible sur cette plateforme.</translation>
     </message>
     <message>
         <source>Plugin is required.</source>
-        <translation>Le greffon est nécessaire.</translation>
+        <translation>L&apos;extension est nécessaire.</translation>
     </message>
     <message>
         <source>Load on startup</source>
@@ -37933,11 +37985,11 @@ Le greffon est désactivé par un argument de ligne de commande.</translation>
     </message>
     <message>
         <source>Vendor</source>
-        <translation>Vendeur</translation>
+        <translation>Distributeur</translation>
     </message>
     <message>
         <source>Enabling Plugins</source>
-        <translation>Activation des greffons</translation>
+        <translation>Activation des extensions</translation>
     </message>
     <message>
         <source>Enabling
@@ -37947,13 +37999,13 @@ will also enable the following plugins:
 %2</source>
         <translation>Activer
 %1
-activera également les greffons suivants :
+activera également les extensions suivantes&#xa0;:
 
 %2</translation>
     </message>
     <message>
         <source>Disabling Plugins</source>
-        <translation>Désactivation des greffons</translation>
+        <translation>Désactivation des extensions</translation>
     </message>
     <message>
         <source>Disabling
@@ -37963,13 +38015,13 @@ will also disable the following plugins:
 %2</source>
         <translation>Désactiver
 %1
-désactivera également les greffons suivants :
+désactivera également les extensions suivantes&#xa0;:
 
 %2</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation>Charge</translation>
+        <translation>Chargée au démarrage</translation>
     </message>
     <message>
         <source>Invalid</source>
@@ -37985,11 +38037,11 @@ désactivera également les greffons suivants :
     </message>
     <message>
         <source>Loaded</source>
-        <translation>Chargé</translation>
+        <translation>Chargée</translation>
     </message>
     <message>
         <source>Initialized</source>
-        <translation>Initialisé</translation>
+        <translation>Initialisée</translation>
     </message>
     <message>
         <source>Running</source>
@@ -37997,19 +38049,19 @@ désactivera également les greffons suivants :
     </message>
     <message>
         <source>Stopped</source>
-        <translation>Arrêté</translation>
+        <translation>Arrêtée</translation>
     </message>
     <message>
         <source>Deleted</source>
-        <translation>Supprimé</translation>
+        <translation>Supprimée</translation>
     </message>
     <message>
         <source>Multiple versions of the same plugin have been found.</source>
-        <translation>Plusieurs versions du même greffon ont été trouvées.</translation>
+        <translation>Plusieurs versions de la même extension ont été trouvées.</translation>
     </message>
     <message>
         <source>Circular dependency detected:</source>
-        <translation>Dépendance circulaire détectée :</translation>
+        <translation>Dépendance circulaire détectée&#xa0;:</translation>
     </message>
     <message>
         <source>%1 (%2) depends on</source>
@@ -38022,32 +38074,32 @@ désactivera également les greffons suivants :
     <message>
         <source>Cannot load plugin because dependency failed to load: %1 (%2)
 Reason: %3</source>
-        <translation>Impossible de charger le greffon car la dépendance n’a pas pu être chargée : %1 (%2)
-Raison : %3</translation>
+        <translation>Impossible de charger l&apos;extension car la dépendance n’a pas pu être chargée&#xa0;: %1 (%2)
+Raison&#xa0;: %3</translation>
     </message>
     <message>
         <source>%1 &gt; About Plugins</source>
-        <translation>%1 &gt; À propos des greffons</translation>
+        <translation>%1 &gt; À propos des extensions</translation>
     </message>
     <message>
         <source>Help &gt; About Plugins</source>
-        <translation>Aide &gt; À propos des greffons</translation>
+        <translation>Aide &gt; À propos des extensions</translation>
     </message>
     <message>
         <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.</source>
-        <translation>Si vous désactivez temporairement %1, les greffons suivants qui en dépendent seront également désactivés : %2.</translation>
+        <translation>Si vous désactivez temporairement %1, les extensions suivantes qui en dépendent seront également désactivées&#xa0;: %2.</translation>
     </message>
     <message>
         <source>Disable plugins permanently in %1.</source>
-        <translation>Désactiver les greffons de façon permanente dans %1.</translation>
+        <translation>Désactiver les extensions de façon permanente dans %1.</translation>
     </message>
     <message>
         <source>The last time you started %1, it seems to have closed because of a problem with the &quot;%2&quot; plugin. Temporarily disable the plugin?</source>
-        <translation>La dernière fois que vous avez lancé %1, il semble qu’il se soit fermé en raison d’un problème avec le greffon «&#xa0;%2&#xa0;». Désactiver temporairement le greffon&#xa0;?</translation>
+        <translation>La dernière fois que vous avez lancé %1, il semble qu’il se soit fermé en raison d’un problème avec l&apos;extension «&#xa0;%2&#xa0;». Désactiver temporairement l&apos;extension&#xa0;?</translation>
     </message>
     <message>
         <source>Disable Plugin</source>
-        <translation>Désactiver le greffon</translation>
+        <translation>Désactiver l&apos;extension</translation>
     </message>
     <message>
         <source>Terms and Conditions</source>
@@ -38063,7 +38115,7 @@ Raison : %3</translation>
     </message>
     <message>
         <source>The plugin %1 requires you to accept the following terms and conditions:</source>
-        <translation>Le greffon %1 nécessite que vous acceptiez les termes et conditions&#xa0;:</translation>
+        <translation>L&apos;extension %1 nécessite que vous acceptiez les termes et conditions&#xa0;:</translation>
     </message>
     <message>
         <source>You did not accept the terms and conditions</source>
@@ -38072,12 +38124,12 @@ Raison : %3</translation>
     <message>
         <source>Cannot load plugin because dependency failed to load: %1(%2)
 Reason: %3</source>
-        <translation>Impossible de charger le greffon car une des dépendances n’a pas pu être chargé : %1(%2)
-Raison : %3</translation>
+        <translation>Impossible de charger l&apos;extension car l&apos;une de ses dépendances n’a pas pu être chargée&#xa0;: %1(%2)
+Raison&#xa0;: %3</translation>
     </message>
     <message>
         <source>Plugin not found.</source>
-        <translation>Greffon non trouvé.</translation>
+        <translation>Extension non trouvée.</translation>
     </message>
     <message>
         <source>It does not exist.</source>
@@ -38085,15 +38137,15 @@ Raison : %3</translation>
     </message>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
-        <translation>Le greffon «&#xa0;%1&#xa0;» est spécifié deux fois pour les tests.</translation>
+        <translation>L&apos;extension «&#xa0;%1&#xa0;» est spécifiée deux fois pour les tests.</translation>
     </message>
     <message>
         <source>The plugin &quot;%1&quot; does not exist.</source>
-        <translation>Le greffon «&#xa0;%1&#xa0;» n’existe pas.</translation>
+        <translation>L&apos;extension «&#xa0;%1&#xa0;» n’existe pas.</translation>
     </message>
     <message>
         <source>The plugin &quot;%1&quot; is not tested.</source>
-        <translation>Le greffon «&#xa0;%1&#xa0;» n’est pas testé.</translation>
+        <translation>L&apos;extension «&#xa0;%1&#xa0;» n’est pas testée.</translation>
     </message>
     <message>
         <source>Unknown option %1</source>
@@ -38113,7 +38165,7 @@ Raison : %3</translation>
     </message>
     <message>
         <source>Initializing the plugin failed because state != Loaded</source>
-        <translation>L’initialisation du greffon a échoué car l’état actuel est différent de «&#xa0;Chargé&#xa0;»</translation>
+        <translation>L’initialisation de l&apos;extension a échoué car l’état actuel est différent de «&#xa0;Chargée&#xa0;»</translation>
     </message>
     <message>
         <source>Cannot perform extensionsInitialized because state != Initialized</source>
@@ -38157,11 +38209,11 @@ Raison : %3</translation>
     </message>
     <message>
         <source>Plugin meta data not found</source>
-        <translation>Les métadonnées du greffon n’ont pas été trouvées</translation>
+        <translation>Les métadonnées de l&apos;extension n’ont pas été trouvées</translation>
     </message>
     <message>
         <source>Plugin id &quot;%1&quot; must be lowercase</source>
-        <translation>L&apos;identifiant du greffon «&#xa0;%1&#xa0;» doit être en minuscules</translation>
+        <translation>L&apos;identifiant de l&apos;extension «&#xa0;%1&#xa0;» doit être en minuscules</translation>
     </message>
     <message>
         <source>Terms and conditions: %1</source>
@@ -38189,19 +38241,27 @@ Raison : %3</translation>
     </message>
     <message>
         <source>Could not resolve the dependency on plugin &quot;%1(%2)&quot;</source>
-        <translation>Impossible de résoudre les dépendances du greffon «&#xa0;%1 (%2)&#xa0;»</translation>
+        <translation>Impossible de résoudre les dépendances de l&apos;extension «&#xa0;%1 (%2)&#xa0;»</translation>
     </message>
     <message>
         <source>Plugin is not valid (does not derive from IPlugin)</source>
-        <translation>Le greffon n’est pas valide (il n’est pas une sous-classe de IPlugin)</translation>
+        <translation>L&apos;extension n’est pas valide (il n’est pas une sous-classe de IPlugin)</translation>
     </message>
     <message>
         <source>Internal error: have no plugin instance to initialize</source>
-        <translation>Erreur interne : pas d’instance du greffon à initialiser</translation>
+        <translation>Erreur interne&#xa0;: aucune instance de l&apos;extension à initialiser</translation>
     </message>
     <message>
         <source>Plugin initialization failed: %1</source>
-        <translation>L’initialisation du greffon a échoué : %1</translation>
+        <translation>L’initialisation de l&apos;extension a échoué&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Plugin initialization threw an exception: %1</source>
+        <translation>L’initialisation de l&apos;extension a déclenché une exception&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Plugin initialization threw an unknown exception</source>
+        <translation>L’initialisation de l&apos;extension a déclenché une exception inconnue</translation>
     </message>
     <message>
         <source>Internal error: have no plugin instance to perform extensionsInitialized</source>
@@ -38213,7 +38273,7 @@ Raison : %3</translation>
     </message>
     <message>
         <source>Cannot remove system plugins.</source>
-        <translation>Impossible de supprimer les greffons système.</translation>
+        <translation>Impossible de supprimer les extensions système.</translation>
     </message>
     <message>
         <source>Could not determine root folder.</source>
@@ -38233,7 +38293,7 @@ Raison : %3</translation>
     </message>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
-        <translation>Les chemins suivant contiennent des erreurs et ne peuvent être chargés :</translation>
+        <translation>Les extensions suivantes contiennent des erreurs et ne peuvent être chargées&#xa0;:</translation>
     </message>
     <message>
         <source>Details:</source>
@@ -44689,7 +44749,7 @@ Voir la documentation spécifique au serveur de langage pour la liste des param�
     </message>
     <message>
         <source>Failed to load plugin %1: %2</source>
-        <translation>Échec de chargement du greffon %1&#xa0;: %2</translation>
+        <translation>Échec lors du chargement de l&apos;extension %1&#xa0;: %2</translation>
     </message>
     <message>
         <source>Run script &quot;%1&quot;</source>
@@ -46440,6 +46500,29 @@ Utile si le répertoire de compilation est corrompu ou lors d’une recompilatio
     </message>
 </context>
 <context>
+    <name>QtC::PerfParser</name>
+    <message>
+        <source>Invalid address: %1</source>
+        <translation>Adresse invalide&#xa0;: %1</translation>
+    </message>
+    <message>
+        <source>Mapping is empty.</source>
+        <translation>Le mappage est vide.</translation>
+    </message>
+    <message>
+        <source>Could not find ELF file for %1. This can break stack unwinding and lead to missing symbols.</source>
+        <translation>Impossible de trouver le fichier ELF pour %1. Cela peut stopper le déroulement de la pile et mener à des symboles manquants.</translation>
+    </message>
+    <message>
+        <source>Failed to parse kernel symbol mapping file &quot;%1&quot;: %2</source>
+        <translation>Échec du traitement du fichier de correspondance des symboles du noyau «&#xa0;%1&#xa0;»&#xa0;: %2</translation>
+    </message>
+    <message>
+        <source>Time order violation of MMAP event across buffer flush detected. Event time is %1, max time during last buffer flush was %2. This potentially breaks the data analysis.</source>
+        <translation>Violation d&apos;ordre des événements MMAP entre les vidages de tampons détectée. Le moment de l&apos;événement est&#xa0;: %1, temps maximum depuis le dernier vidage&#xa0;: %2. Cela peut interrompre l&apos;analyse des données.</translation>
+    </message>
+</context>
+<context>
     <name>QtC::PerfProfiler</name>
     <message>
         <source>Samples</source>
@@ -47865,7 +47948,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Compile Output</source>
-        <translation>Sortie de compilation</translation>
+        <translation>Compilation</translation>
     </message>
     <message>
         <source>Files in Current Project</source>
@@ -48623,11 +48706,11 @@ Souhaitez-vous les ignorer&#xa0;?</translation>
     </message>
     <message>
         <source>Enable %1 Plugin</source>
-        <translation>Activer le greffon %1</translation>
+        <translation>Activer l&apos;extension %1</translation>
     </message>
     <message>
         <source>The plugin &quot;%1&quot; is required to open projects of type &quot;%2&quot; Do you want to enable it now?</source>
-        <translation>Le greffon «&#xa0;%1&#xa0;» est nécessaire pour ouvrir les projets de type «&#xa0;%2&#xa0;». Souhaitez-vous l&apos;activer maintenant&#xa0;?</translation>
+        <translation>L&apos;extension «&#xa0;%1&#xa0;» est nécessaire pour ouvrir les projets de type «&#xa0;%2&#xa0;». Souhaitez-vous l&apos;activer maintenant&#xa0;?</translation>
     </message>
     <message>
         <source>File where current session is saved.</source>
@@ -48713,11 +48796,11 @@ Souhaitez-vous les ignorer&#xa0;?</translation>
     </message>
     <message>
         <source>Cannot open project &quot;%1&quot;: Plugin is not loaded.</source>
-        <translation>Impossible d&apos;ouvrir le projet «&#xa0;%1&#xa0;»&#xa0;: le greffon n&apos;est pas chargé.</translation>
+        <translation>Impossible d&apos;ouvrir le projet «&#xa0;%1&#xa0;»&#xa0;: l&apos;extension n&apos;est pas chargée.</translation>
     </message>
     <message>
         <source>Failed opening project &quot;%1&quot;: No plugin can open project type &quot;%2&quot;.</source>
-        <translation>Échec de l’ouverture du projet «&#xa0;%1&#xa0;» : aucun greffon ne peut ouvrir le type de projet «&#xa0;%2&#xa0;».</translation>
+        <translation>Échec de l’ouverture du projet «&#xa0;%1&#xa0;» : aucune extension ne peut ouvrir le type de projet «&#xa0;%2&#xa0;».</translation>
     </message>
     <message>
         <source>Ignore All Errors?</source>
@@ -49478,7 +49561,7 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Creates a custom Qt Creator plugin.</source>
-        <translation>Crée un greffon personnalisé pour Qt Creator.</translation>
+        <translation>Crée une extension personnalisée pour Qt Creator.</translation>
     </message>
     <message>
         <source>Non-Qt Project</source>
@@ -49494,15 +49577,15 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Plugin name:</source>
-        <translation>Nom du greffon :</translation>
+        <translation>Nom de l&apos;extension&#xa0;:</translation>
     </message>
     <message>
         <source>Vendor name:</source>
-        <translation>Nom du vendeur :</translation>
+        <translation>Nom du vendeur&#xa0;:</translation>
     </message>
     <message>
         <source>Copyright:</source>
-        <translation>Copyright :</translation>
+        <translation>Copyright&#xa0;:</translation>
     </message>
     <message>
         <source>License:</source>
@@ -49518,7 +49601,7 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
-        <translation>Génère un projet fondé sur qmake sans aucun fichier. Cela vous permet de créer une application sans aucune classe par défaut.</translation>
+        <translation>Crée un projet fondé sur qmake sans aucun fichier. Cela vous permet de créer une application sans aucune classe par défaut.</translation>
     </message>
     <message>
         <source>Empty qmake Project</source>
@@ -49586,11 +49669,11 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Qt Plugin</source>
-        <translation>Greffon Qt</translation>
+        <translation>Extension Qt</translation>
     </message>
     <message>
         <source>Class name:</source>
-        <translation>Nom de la classe :</translation>
+        <translation>Nom de la classe&#xa0;:</translation>
     </message>
     <message>
         <source>QAccessiblePlugin</source>
@@ -49706,7 +49789,7 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Creates a C++ plugin to load Qt Quick extensions dynamically into applications using the QQmlEngine class.</source>
-        <translation>Crée un greffon C++ pour charger les extensions Qt Quick dynamiquement dans les applications en utilisant la classe QQmlEngine.</translation>
+        <translation>Crée un greffon C++ pour charger les extensions Qt&#xa0;Quick dynamiquement dans les applications en utilisant la classe QQmlEngine.</translation>
     </message>
     <message>
         <source>Binary</source>
@@ -49726,7 +49809,7 @@ Display name of the clean build step list. Used as part of the labels in the pro
     </message>
     <message>
         <source>Qt Creator C++ Plugin</source>
-        <translation>Greffon Qt&#xa0;Creator&#xa0;C++</translation>
+        <translation>Extension Qt&#xa0;Creator&#xa0;C++</translation>
     </message>
     <message>
         <source>You must tell Qt Creator which test framework is used inside the project.
@@ -49760,7 +49843,7 @@ Vous ne devez pas mélanger plusieurs cadriciels de tests dans un même projet.<
         <source>Creates a project containing a single main.cpp file with a stub implementation and no graphical UI.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Génère un projet contenant un seul fichier main.cpp avec un début d&apos;implémentation sans interface graphique.
+        <translation>Crée un projet contenant un seul fichier main.cpp avec un début d&apos;implémentation sans interface graphique.
 
 Présélectionne un Qt optimisé pour le bureau pour compiler l&apos;application, si disponible.</translation>
     </message>
@@ -49770,7 +49853,7 @@ Présélectionne un Qt optimisé pour le bureau pour compiler l&apos;application
     </message>
     <message>
         <source>Creates a Qt for Python application that includes a Qt Widgets Designer-based widget (ui file). Requires .ui to Python conversion.</source>
-        <translation>Génère une application Qt pour Python qui inclût un widget basé sur Qt Widgets Designer (fichier ui). Nécessite une conversion de .ui vers Python.</translation>
+        <translation>Crée une application Qt pour Python qui inclût un widget basé sur Qt&#xa0;Widgets&#xa0;Designer (fichier ui). Nécessite une conversion de .ui vers Python.</translation>
     </message>
     <message>
         <source>Create a project that you can open in Qt Design Studio</source>
@@ -49784,13 +49867,13 @@ Présélectionne un Qt optimisé pour le bureau pour compiler l&apos;application
         <source>Creates a Qt Quick UI project for previewing and prototyping designs.
 
 To develop a full application, create a Qt Quick Application project instead.</source>
-        <translation>Génère un projet Qt Quick UI pour prévisualiser et protyper des designs.
+        <translation>Crée un projet Qt&#xa0;Quick&#xa0;UI pour prévisualiser et protyper des designs.
 
-Pour développer une application complête, créer un projet Qt Quick Application à la place.</translation>
+Pour développer une application complête, créer un projet Qt&#xa0;Quick&#xa0;Application à la place.</translation>
     </message>
     <message>
         <source>Creates a C++ library. You can create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Génère une bibliotèque C++. Vous pouvez créez&#xa0;: &lt;ul&gt;&lt;li&gt;une bibliothèque C++ partagée à utiliser avec &lt;tt&gt;QPluginLoader&lt;/tt&gt; et son runtime (Plug-ins)&lt;/li&gt;&lt;li&gt;une bibliothèque C++ partagée ou statique à utiliser dans un autre projet au moment de l&apos;édition de liens&lt;/li&gt;&lt;/ul&gt;</translation>
+        <translation>Crée une bibliotèque C++. Vous pouvez créez&#xa0;: &lt;ul&gt;&lt;li&gt;une bibliothèque C++ partagée à utiliser avec &lt;tt&gt;QPluginLoader&lt;/tt&gt; et son runtime (Plug-ins)&lt;/li&gt;&lt;li&gt;une bibliothèque C++ partagée ou statique à utiliser dans un autre projet au moment de l&apos;édition de liens&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
         <source>0.1.0</source>
@@ -49882,7 +49965,7 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
     </message>
     <message>
         <source>Creates a Nim application with Nimble.</source>
-        <translation>Génère une application Nim avec Nimble.</translation>
+        <translation>Crée une application Nim avec Nimble.</translation>
     </message>
     <message>
         <source>Nimble Application</source>
@@ -49890,7 +49973,7 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
     </message>
     <message>
         <source>Creates a simple C++ application with no dependencies.</source>
-        <translation>Génère une simple application C++ avec aucune dépendance.</translation>
+        <translation>Crée une simple application C++ avec aucune dépendance.</translation>
     </message>
     <message>
         <source>Plain C++ Application</source>
@@ -49963,14 +50046,6 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
     <message>
         <source>Catch2 version:</source>
         <translation>Version de Catch2&#xa0;:</translation>
-    </message>
-    <message>
-        <source>Qt6 and higher</source>
-        <translation>Qt6 ou supérieur</translation>
-    </message>
-    <message>
-        <source>Qt5 and higher</source>
-        <translation>Qt5 ou supérieur</translation>
     </message>
     <message>
         <source>Qt code compatibility:</source>
@@ -50160,7 +50235,7 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
     </message>
     <message>
         <source>Creates a simple Nim application.</source>
-        <translation>Génère une application Nim simple.</translation>
+        <translation>Crée une application Nim simple.</translation>
     </message>
     <message>
         <source>Nim Application</source>
@@ -50196,7 +50271,7 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
     </message>
     <message>
         <source>Creates a simple C application with no dependencies.</source>
-        <translation>Génère une simple application en C sans aucune dépendance.</translation>
+        <translation>Crée une simple application en C sans aucune dépendance.</translation>
     </message>
     <message>
         <source>Plain C Application</source>
@@ -50220,7 +50295,7 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
     </message>
     <message>
         <source>Creates a Qt for Python application that contains an empty window.</source>
-        <translation>Génère une application Qt pour Python qui contient une fenêtre vide.</translation>
+        <translation>Crée une application Qt pour Python qui contient une fenêtre vide.</translation>
     </message>
     <message>
         <source>Empty Window</source>
@@ -50232,7 +50307,7 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
     </message>
     <message>
         <source>Creates a Qt Quick application that contains an empty window.</source>
-        <translation>Génère une application Qt Quick qui contient une fenêtre vide.</translation>
+        <translation>Crée une application Qt&#xa0;Quick qui contient une fenêtre vide.</translation>
     </message>
     <message>
         <source>Qt Quick Application - Empty</source>
@@ -50240,7 +50315,7 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
     </message>
     <message>
         <source>Creates a Qt for Python application that contains only the main code for a QApplication.</source>
-        <translation>Génère une application Qt pour Python qui ne contient que le code principal d’une QApplication.</translation>
+        <translation>Crée une application Qt pour Python qui ne contient que le code principal d’une QApplication.</translation>
     </message>
     <message>
         <source>Empty Application</source>
@@ -50295,8 +50370,36 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
         <translation>Générer le code d’installation</translation>
     </message>
     <message>
+        <source>Creates a vertex shader in Vulkan-compatible GLSL. Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines to be rendered.
+Use this when targeting Qt6 or later.</source>
+        <translation>Crée un vertex shader GLSL compatible avec Vulkan. Les vertex shaders transforment les positions, les normales et les coordonnées de textures des triangles, des points et des lignes à afficher.
+Utilisez ceci avec Qt&#xa0;6 ou supérieur.</translation>
+    </message>
+    <message>
+        <source>Vertex Shader (Vulkan-compatible)</source>
+        <translation>Vertex shader (compatible Vulkan)</translation>
+    </message>
+    <message>
+        <source>Creates a fragment shader in Vulkan-compatible GLSL. Fragment shaders generate the final pixel colors for triangles, points and lines to be rendered.
+Use this when targeting Qt6 or later.</source>
+        <translation>Crée un fragment shader GLSL compatible Vulkan. Les fragment shaders génèrent la couleur finale des pixels des triangles, des points et des lignes à afficher.
+Utilisez ceci avec Qt 6 ou supérieur.</translation>
+    </message>
+    <message>
+        <source>Fragment Shader (Vulkan-compatible)</source>
+        <translation>Fragment shader (compatible Vulkan)</translation>
+    </message>
+    <message>
         <source>Generate initialization and cleanup code</source>
         <translation>Génère le code d’initialisation et de nettoyage</translation>
+    </message>
+    <message>
+        <source>Qt 6 and higher</source>
+        <translation>Qt&#xa0;6 ou supérieur</translation>
+    </message>
+    <message>
+        <source>Qt 5 and higher</source>
+        <translation>Qt&#xa0;5 ou supérieur</translation>
     </message>
     <message>
         <source>CMake with Qt 5 Compatibility</source>
@@ -50420,7 +50523,7 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
         <source>Creates a Qt Quick application that contains an empty window.
 
 Use this &quot;compat&quot; version if you want to use other build systems than CMake or Qt versions lower than 6.</source>
-        <translation>Génère une application Qt Quick qui contient une fenêtre vide.
+        <translation>Crée une application Qt&#xa0;Quick qui contient une fenêtre vide.
 
 Utilisez cette version «&#xa0;de compatibilité&#xa0;» si vous souhaitez utiliser un autre système de construction que CMake ou une version de Qt inférieure à 6.</translation>
     </message>
@@ -50432,18 +50535,13 @@ Utilisez cette version «&#xa0;de compatibilité&#xa0;» si vous souhaitez utili
         <source>Creates a widget-based Qt application that contains a Qt Widgets Designer-based main window and C++ source and header files to implement the application logic.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Génère une application basée sur les widgets qui contient une fenêtre principale basée sur Qt Widgets Designer et un ensemble de fichiers d&apos;entêtes et de sources C++ pour implémenter la logique de l&apos;application.
+        <translation>Crée une application basée sur les widgets qui contient une fenêtre principale basée sur Qt&#xa0;Widgets&#xa0;Designer et un ensemble de fichiers d&apos;entêtes et de sources C++ pour implémenter la logique de l&apos;application.
 
 Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si disponible.</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Qt Test.</source>
         <translation>Cet assistant crée un projet simple de tests unitaires utilisant Qt&#xa0;Test.</translation>
-    </message>
-    <message>
-        <source>CMake for Qt5 and Qt 6</source>
-        <translatorcomment>Espace volontaire?</translatorcomment>
-        <translation>CMake pour Qt5 et Qt6</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Qt Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
@@ -50551,7 +50649,7 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
     </message>
     <message>
         <source>Creates new Python class file.</source>
-        <translation>Génère un nouveau fichier de classe Python.</translation>
+        <translation>Crée un nouveau fichier de classe Python.</translation>
     </message>
     <message>
         <source>Python</source>
@@ -50600,6 +50698,10 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
     <message>
         <source>Catch2 Test Project</source>
         <translation>Projet de tests Catch2</translation>
+    </message>
+    <message>
+        <source>CMake for Qt 5 and Qt 6</source>
+        <translation>CMake pour Qt&#xa0;5 ou Qt&#xa0;6</translation>
     </message>
     <message>
         <source>Python Class</source>
@@ -50687,7 +50789,7 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
     </message>
     <message>
         <source>Creates an empty Python script file using UTF-8 charset.</source>
-        <translation>Génère un fichier script Python vide en utilisant le jeu de caractères UTF-8.</translation>
+        <translation>Crée un fichier script Python vide en utilisant le jeu de caractères UTF-8.</translation>
     </message>
     <message>
         <source>Python File</source>
@@ -50707,7 +50809,7 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
     </message>
     <message>
         <source>Creates a scratch buffer using a temporary file.</source>
-        <translation>Génère un brouillon en utilisant un fichier temporaire.</translation>
+        <translation>Crée un brouillon en utilisant un fichier temporaire.</translation>
     </message>
     <message>
         <source>Scratch Buffer</source>
@@ -50871,11 +50973,11 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
     </message>
     <message>
         <source>This wizard creates a custom Qt Creator plugin.</source>
-        <translation>Cet assistant crée un greffon pour Qt Creator personnalisé.</translation>
+        <translation>Cet assistant génère une extension personnalisée pour Qt&#xa0;Creator.</translation>
     </message>
     <message>
         <source>Specify details about your custom Qt Creator plugin.</source>
-        <translation>Indiquer les détails de votre greffon pour Qt Creator personnalisé.</translation>
+        <translation>Indiquer les détails de votre extension personnalisée pour Qt Creator.</translation>
     </message>
     <message>
         <source>MyCompany</source>
@@ -50891,7 +50993,7 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
     </message>
     <message>
         <source>Put a short description of your plugin here</source>
-        <translation>Indiquer ici une courte description de votre greffon</translation>
+        <translation>Indiquer ici une courte description de votre extension</translation>
     </message>
     <message>
         <source>URL:</source>
@@ -50899,7 +51001,7 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
     </message>
     <message>
         <source>Qt Quick 2 Extension Plugin</source>
-        <translation>Greffon d’extension Qt Quick 2</translation>
+        <translation>Greffon d’extension Qt&#xa0;Quick&#xa0;2</translation>
     </message>
     <message>
         <source>Qt Creator build:</source>
@@ -51696,7 +51798,7 @@ Note&#xa0;: les sorties existantes ne seront pas modifiées.</translation>
     </message>
     <message>
         <source>Application Output</source>
-        <translation>Sortie de l’application</translation>
+        <translation>Application</translation>
     </message>
     <message>
         <source>Application Output Window</source>
@@ -53374,7 +53476,7 @@ au projet «&#xa0;%2&#xa0;».</translation>
     </message>
     <message>
         <source>The plugins loaded.</source>
-        <translation>Les greffons chargés.</translation>
+        <translation>Les extensions chargées.</translation>
     </message>
     <message>
         <source>&quot;kind&quot; value &quot;%1&quot; is not &quot;class&quot; (deprecated), &quot;file&quot; or &quot;project&quot;.</source>
@@ -54566,7 +54668,7 @@ Choisissez un chemin différent.</translation>
     </message>
     <message>
         <source>Plugins:</source>
-        <translation>Greffons :</translation>
+        <translation>Extensions&#xa0;:</translation>
     </message>
     <message>
         <source>Use Python Language Server</source>
@@ -54944,10 +55046,6 @@ Vous avez rarement besoin de ceci.</translation>
     <message>
         <source>Fatal Qbs error: %1</source>
         <translation>Erreur Qbs fatale : %1</translation>
-    </message>
-    <message>
-        <source>Failed</source>
-        <translation>Échec</translation>
     </message>
     <message>
         <source>Could not write project file &quot;%1&quot;: %2</source>
@@ -55523,15 +55621,15 @@ Vous avez rarement besoin de ceci.</translation>
     </message>
     <message>
         <source>Plugin class &amp;name:</source>
-        <translation>&amp;Nom de la classe du greffon :</translation>
+        <translation>&amp;Nom de la classe de l&apos;extension&#xa0;:</translation>
     </message>
     <message>
         <source>Plugin &amp;header file:</source>
-        <translation>Fichier d’&amp;en-tête du greffon :</translation>
+        <translation>Fichier d’&amp;en-tête de l&apos;extension&#xa0;:</translation>
     </message>
     <message>
         <source>Plugin sou&amp;rce file:</source>
-        <translation>Fichier sou&amp;rce du greffon :</translation>
+        <translation>Fichier sou&amp;rce de l&apos;extension&#xa0;:</translation>
     </message>
     <message>
         <source>Icon file:</source>
@@ -55587,7 +55685,7 @@ Vous avez rarement besoin de ceci.</translation>
     </message>
     <message>
         <source>Specify the properties of the plugin library and the collection class.</source>
-        <translation>Spécifiez les propriétés de la bibliothèque du greffon et la classe de collection.</translation>
+        <translation>Spécifiez les propriétés de la bibliothèque des extensions et la classe de collection.</translation>
     </message>
     <message>
         <source>Collection class:</source>
@@ -55603,7 +55701,7 @@ Vous avez rarement besoin de ceci.</translation>
     </message>
     <message>
         <source>Plugin name:</source>
-        <translation>Nom du greffon :</translation>
+        <translation>Nom de l&apos;extension&#xa0;:</translation>
     </message>
     <message>
         <source>Resource file:</source>
@@ -55652,7 +55750,7 @@ Vous avez rarement besoin de ceci.</translation>
     </message>
     <message>
         <source>Plugin Details</source>
-        <translation>Détails du greffon</translation>
+        <translation>Détails de l&apos;extension</translation>
     </message>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
@@ -55977,10 +56075,6 @@ Ajoute la bibliothèque et les chemins d’inclusion dans le fichier .pro.</tran
         <translation>Fichiers générés</translation>
     </message>
     <message>
-        <source>Failed</source>
-        <translation>Échec</translation>
-    </message>
-    <message>
         <source>Could not write project file %1: %2</source>
         <translation>Impossible d&apos;écrire le fichier de projet %1&#xa0;: %2</translation>
     </message>
@@ -56236,42 +56330,6 @@ Ajoute la bibliothèque et les chemins d’inclusion dans le fichier .pro.</tran
     <message>
         <source>Target Directory</source>
         <translation>Répertoire cible</translation>
-    </message>
-    <message>
-        <source>Component Exists</source>
-        <translation>Le composant existe déjà</translation>
-    </message>
-    <message>
-        <source>A component with the same name &apos;%1&apos; already exists in the project, are you sure you want to overwrite it?</source>
-        <translation>Un composant avec le nom «&#xa0;%1&#xa0;» existe déjà dans le projet. Voulez-vous vraiment l&apos;écraser&#xa0;?</translation>
-    </message>
-    <message>
-        <source>Import Component</source>
-        <translation>Importation d&apos;un composant</translation>
-    </message>
-    <message>
-        <source>Qt Design Studio Bundle Files</source>
-        <translation>Fichiers de bundle Qt&#xa0;Design&#xa0;Studio</translation>
-    </message>
-    <message>
-        <source>Qt Design Studio Bundle Files (*.%1)</source>
-        <translation>Fichiers de bundle de Qt&#xa0;Design&#xa0;Studio (*.%1)</translation>
-    </message>
-    <message>
-        <source>Export Material</source>
-        <translation>Exportation d&apos;un matériau</translation>
-    </message>
-    <message>
-        <source>Unsupported Bundle File</source>
-        <translation>Fichier de bundle non pris en charge</translation>
-    </message>
-    <message>
-        <source>The chosen bundle was created with an incompatible version of Qt Design Studio.</source>
-        <translation>Le bundle sélectionné a été créé avec une version incompatible de Qt&#xa0;Design&#xa0;Studio.</translation>
-    </message>
-    <message>
-        <source>Export Component</source>
-        <translation>Exportation d&apos;un composant</translation>
     </message>
     <message>
         <source>Failed to Add Texture</source>
@@ -58023,7 +58081,7 @@ Veuillez compiler l’application qmldump à partir de la page d’options à pr
     </message>
     <message>
         <source>Dumped plugins successfully.</source>
-        <translation>Création d’un dump des greffons avec succès.</translation>
+        <translation>Création d’un dump des extensions avec succès.</translation>
     </message>
     <message>
         <source>Read typeinfo files successfully.</source>
@@ -59652,7 +59710,7 @@ Qt&#xa0;Design&#xa0;Studio n&apos;est pas configuré. Configurez-le dans Préfé
     </message>
     <message>
         <source>Reads translations from MultiLanguage plugin.</source>
-        <translation>Lit les traductions à partir du greffon MultiLanguage.</translation>
+        <translation>Lit les traductions à partir de l&apos;extension MultiLanguage.</translation>
     </message>
     <message>
         <source>Project File Generated</source>
@@ -60303,7 +60361,7 @@ Voulez-vous vraiment continuer&#xa0;?</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s plugins.</source>
-        <translation>L’emplacement de l’installation des fichiers de greffons de la version actuelle de Qt.</translation>
+        <translation>L’emplacement de l’installation des fichiers des extensions de la version actuelle de Qt.</translation>
     </message>
     <message>
         <source>The installation location of the current Qt version&apos;s QML files.</source>
@@ -64801,7 +64859,7 @@ Une valeur inférieure à 100 % peut entraîner un chevauchement et un mauvais a
     </message>
     <message>
         <source>&amp;Rewrap Paragraph</source>
-        <translation>&amp;Réadapter les retour à la ligne du paragraphe</translation>
+        <translation>&amp;Réadapter les retours à la ligne du paragraphe</translation>
     </message>
     <message>
         <source>Meta+E, R</source>
@@ -64837,7 +64895,7 @@ Une valeur inférieure à 100 % peut entraîner un chevauchement et un mauvais a
     </message>
     <message>
         <source>Toggle Comment &amp;Selection</source>
-        <translation>Activer/désactiver la &amp;sélection de commentaires</translation>
+        <translation>Commenter/décommenter la &amp;sélection</translation>
     </message>
     <message>
         <source>Copy &amp;Line</source>
@@ -65133,7 +65191,7 @@ Une valeur inférieure à 100 % peut entraîner un chevauchement et un mauvais a
     </message>
     <message>
         <source>Uppercase Selection</source>
-        <translation>Mettre en majuscule la sélection</translation>
+        <translation>Mettre la sélection en majuscule</translation>
     </message>
     <message>
         <source>Alt+Shift+U</source>
@@ -65145,7 +65203,7 @@ Une valeur inférieure à 100 % peut entraîner un chevauchement et un mauvais a
     </message>
     <message>
         <source>Lowercase Selection</source>
-        <translation>Mettre en minuscule la sélection</translation>
+        <translation>Mettre la sélection en minuscule</translation>
     </message>
     <message>
         <source>Alt+U</source>
@@ -66842,7 +66900,7 @@ Notez que les BOM UTF-8 sont peu courants et traités de manière incorrecte par
     </message>
     <message>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
-        <translation>Si possible, utilisez une marge différente. Par exemple, la marge ColumnLimit du greffon ClangFormat.</translation>
+        <translation>Si possible, utilisez une marge différente. Par exemple, la marge ColumnLimit de l&apos;extension ClangFormat.</translation>
     </message>
     <message>
         <source>Editor content width:</source>
@@ -67690,7 +67748,7 @@ Les données de la trace sont perdues.</translation>
     </message>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
-        <translation>Impossible de déterminer l’emplacement de l’outil de maintenance. Veuillez vérifier votre installation si vous n’avez pas activé ce greffon manuellement.</translation>
+        <translation>Impossible de déterminer l’emplacement de l’outil de maintenance. Veuillez vérifier votre installation si vous n’avez pas activé cette extension manuellement.</translation>
     </message>
     <message>
         <source>The maintenance tool at &quot;%1&quot; is not an executable. Check your installation.</source>
@@ -68899,14 +68957,6 @@ Les lignes débutant avec «&#xa0;##&#xa0;» seront traitées comme commentaires
     <message>
         <source>Remote error output was: %1</source>
         <translation>La sortie d&apos;erreur distante était&#xa0;: %1</translation>
-    </message>
-    <message>
-        <source>Copied</source>
-        <translation>Copié</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation>Copier</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -76787,7 +76837,7 @@ Voulez-vous vraiment le supprimer&#xa0;?</translation>
     <name>WidgetPluginManager</name>
     <message>
         <source>File &quot;%1&quot; is not a Qt Quick Designer plugin.</source>
-        <translation>Le fichier «&#xa0;%1&#xa0;» n&apos;est pas un greffon Qt&#xa0;Quick&#xa0;Designer.</translation>
+        <translation>Le fichier «&#xa0;%1&#xa0;» n&apos;est pas une extension Qt&#xa0;Quick&#xa0;Designer.</translation>
     </message>
 </context>
 <context>
