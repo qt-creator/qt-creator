@@ -70,6 +70,7 @@ private: ////////// General Interface //////////
 
     void loadInitScript();
     void setEnvironmentVariables();
+    void setExecArguments(const DebuggerRunParameters &rp);
 
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.

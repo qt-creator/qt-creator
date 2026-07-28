@@ -4169,6 +4169,18 @@ void GdbEngine::setEnvironmentVariables()
     }
 }
 
+void GdbEngine::setExecArguments(const DebuggerRunParameters &rp)
+{
+    const QStringList args = rp.inferior().command.splitArguments();
+    if (args.isEmpty())
+        return;
+
+    const QStringList miArgs = Utils::transform<QStringList>(args, [](const QString &arg) {
+        return "\"" + GdbMi::escapeCString(arg) + "\"";
+    });
+    runCommand({"-exec-arguments " + miArgs.join(' ')});
+}
+
 void GdbEngine::reloadDebuggingHelpers()
 {
     runCommand({"reloadDumpers"});
@@ -4457,15 +4469,12 @@ void GdbEngine::setupInferior()
 
         //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
         //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
-        const QString args = rp.inferior().command.arguments();
 
     //    if (!remoteArch.isEmpty())
     //        postCommand("set architecture " + remoteArch);
 
-        if (!args.isEmpty())
-            runCommand({"-exec-arguments " + args});
-
         setEnvironmentVariables();
+        setExecArguments(rp);
 
         // This has to be issued before 'target remote'. On pre-7.0 the
         // command is not present and will result in ' No symbol table is
@@ -4552,12 +4561,9 @@ void GdbEngine::setupInferior()
     } else if (isPlainEngine()) {
 
         setEnvironmentVariables();
+        setExecArguments(rp);
         if (!rp.inferior().workingDirectory.isEmpty())
             runCommand({"cd " + rp.inferior().workingDirectory.path()});
-        if (!rp.inferior().command.arguments().isEmpty()) {
-            QString args = rp.inferior().command.arguments();
-            runCommand({"-exec-arguments " + args});
-        }
 
         QString executable = rp.inferior().command.executable().path();
         runCommand({"-file-exec-and-symbols \"" + executable + '"',
