@@ -8,6 +8,7 @@
 #include "formeditor.h"
 #include "formtemplatewizardpage.h"
 #include "qtdesignerformclasscodegenerator.h"
+#include "designersettings.h"
 #include "settingspage.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -121,6 +122,8 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
     Result<> initialize(const QStringList &arguments) final
     {
         d = new FormEditorPluginPrivate;
+
+        setupDesignerSettingsPage();
 
         IWizardFactory::registerFactoryCreator([]() -> IWizardFactory * {
             IWizardFactory *wizard = new FormClassWizard;

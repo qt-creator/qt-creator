@@ -46,6 +46,7 @@ QtcPlugin {
             "README.txt",
             "codemodelhelpers.cpp", "codemodelhelpers.h",
             "designer_export.h",
+            "designersettings.cpp", "designersettings.h",
             "designerconstants.h",
             "designerplugin.cpp",
             "designertr.h",

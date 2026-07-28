@@ -14,7 +14,10 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
+#include "designersettings.h"
+
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
 
 #include <QDesignerFormEditorInterface>
 #include <QDesignerIntegrationInterface>
@@ -124,10 +127,16 @@ static bool documentContainsMemberFunctionDeclaration(const Document::Ptr &docum
 class GoToSlotTestCase : public CppEditor::Tests::TestCase
 {
 public:
-    GoToSlotTestCase(const FilePaths &files)
+    GoToSlotTestCase(const FilePaths &files, bool pointerToMember, const QString &expectedConnect)
     {
         QVERIFY(succeededSoFar());
         QCOMPARE(files.size(), 3);
+
+        const bool savedPmf = designerSettings().generatePointerToMemberConnections.value();
+        designerSettings().generatePointerToMemberConnections.setValue(pointerToMember);
+        const QScopeGuard restorePmf([savedPmf] {
+            designerSettings().generatePointerToMemberConnections.setValue(savedPmf);
+        });
 
         QList<TextEditor::BaseTextEditor *> editors;
         for (const FilePath &file : files) {
@@ -180,8 +189,18 @@ public:
         const Document::Ptr hDocument = hDocumentParser->document();
         QVERIFY(checkDiagsnosticMessages(hDocument));
 
-        QVERIFY(documentContainsFunctionDefinition(cppDocument, "Form::on_pushButton_clicked"));
-        QVERIFY(documentContainsMemberFunctionDeclaration(hDocument, "Form::on_pushButton_clicked"));
+        const QString cppText = editors.at(0)->textDocument()->plainText();
+        if (pointerToMember) {
+            // New default: camelCase slot + explicit pointer-to-member connect().
+            QVERIFY(documentContainsFunctionDefinition(cppDocument, "Form::onPushButtonClicked"));
+            QVERIFY(documentContainsMemberFunctionDeclaration(hDocument, "Form::onPushButtonClicked"));
+            QVERIFY2(cppText.contains(expectedConnect), qPrintable(cppText));
+        } else {
+            // Legacy behavior: on_...() slot connected via connectSlotsByName().
+            QVERIFY(documentContainsFunctionDefinition(cppDocument, "Form::on_pushButton_clicked"));
+            QVERIFY(documentContainsMemberFunctionDeclaration(hDocument, "Form::on_pushButton_clicked"));
+            QVERIFY(!cppText.contains("connect("));
+        }
     }
 
     static bool checkDiagsnosticMessages(const Document::Ptr &document)
@@ -233,12 +252,22 @@ void GoToSlotTest::test_gotoslot()
     } systemSettingsMgr;
 
     QFETCH(FilePaths, files);
-    (GoToSlotTestCase(files));
+    QFETCH(bool, pointerToMember);
+    QFETCH(QString, expectedConnect);
+    (GoToSlotTestCase(files, pointerToMember, expectedConnect));
 }
 
 void GoToSlotTest::test_gotoslot_data()
 {
     QTest::addColumn<FilePaths>("files");
+    QTest::addColumn<bool>("pointerToMember");
+    QTest::addColumn<QString>("expectedConnect");
+
+    // The access prefix of the generated connect() is taken from the setupUi() call.
+    const auto connectVia = [](const QString &prefix) {
+        return QString("connect(%1pushButton, &QPushButton::clicked, "
+                       "this, &Form::onPushButtonClicked);").arg(prefix);
+    };
 
     const auto dataDir = [](const QString &subdir) {
         return FilePath::fromUserInput(SRCDIR "/../../../tests/designer/" + subdir);
@@ -246,10 +275,18 @@ void GoToSlotTest::test_gotoslot_data()
 
     FilePath testDataDirWithoutProject = dataDir("gotoslot_withoutProject");
     QVERIFY(testDataDirWithoutProject.exists());
-    QTest::newRow("withoutProject")
-        << FilePaths({testDataDirWithoutProject / "form.cpp",
-                      testDataDirWithoutProject / "form.h",
-                      testDataDirWithoutProject / "form.ui"});
+    const FilePaths withoutProjectFiles({testDataDirWithoutProject / "form.cpp",
+                                         testDataDirWithoutProject / "form.h",
+                                         testDataDirWithoutProject / "form.ui"});
+    QTest::newRow("withoutProject") << withoutProjectFiles << true << connectVia("ui->");
+    QTest::newRow("withoutProject_legacy") << withoutProjectFiles << false << QString();
+
+    const FilePath testDataDirMemberUi = dataDir("gotoslot_m_ui");
+    QVERIFY(testDataDirMemberUi.exists());
+    QTest::newRow("memberPrefixedUi")
+        << FilePaths({testDataDirMemberUi / "form.cpp", testDataDirMemberUi / "form.h",
+                      testDataDirWithoutProject / "form.ui"}) // reuse
+        << true << connectVia("m_ui->");
 
     // Finding the right class for inserting definitions/declarations is based on
     // finding a class with a member whose type is the class from the "ui_xxx.h" header.
@@ -262,19 +299,21 @@ void GoToSlotTest::test_gotoslot_data()
     QVERIFY(testDataDir.exists());
     QTest::newRow("insertIntoCorrectClass_pointer")
         << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
-                      testDataDirWithoutProject / "form.ui"}); // reuse
+                      testDataDirWithoutProject / "form.ui"}) // reuse
+        << true << connectVia("ui->");
 
     testDataDir = dataDir("gotoslot_insertIntoCorrectClass_non-pointer");
     QVERIFY(testDataDir.exists());
     QTest::newRow("insertIntoCorrectClass_non-pointer")
         << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
-                        testDataDirWithoutProject / "form.ui"}); // reuse
+                        testDataDirWithoutProject / "form.ui"}) // reuse
+        << true << connectVia("ui.");
 
     testDataDir = dataDir("gotoslot_insertIntoCorrectClass_pointer_ns_using");
     QVERIFY(testDataDir.exists());
     QTest::newRow("insertIntoCorrectClass_pointer_ns_using")
         << FilePaths({testDataDir / "form.cpp", testDataDir / "form.h",
-                      testDataDir / "form.ui"});
+                      testDataDir / "form.ui"}) << true << connectVia("ui->");
 }
 
 QObject *createGoToSlotTest()

@@ -33,6 +33,7 @@ add_qtc_plugin(Designer
   PLUGIN_TEST_DEPENDS CppEditor
   SOURCES
     codemodelhelpers.cpp codemodelhelpers.h
+    designersettings.cpp designersettings.h
     cpp/formclasswizard.cpp cpp/formclasswizard.h
     cpp/formclasswizarddialog.cpp cpp/formclasswizarddialog.h
     cpp/formclasswizardpage.cpp cpp/formclasswizardpage.h

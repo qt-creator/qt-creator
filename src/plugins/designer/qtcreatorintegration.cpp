@@ -4,6 +4,7 @@
 #include "qtcreatorintegration.h"
 
 #include "designerconstants.h"
+#include "designersettings.h"
 #include "designertr.h"
 #include "formeditor.h"
 #include "formwindoweditor.h"
@@ -527,6 +528,100 @@ static Document::Ptr getParsedDocument(const FilePath &filePath,
 // Goto slot invoked by the designer context menu. Either navigates
 // to an existing slot function or create a new one.
 
+// Camel-case slot name for a pointer-to-member connection, e.g.
+// ("pushButton", "clicked()") -> "onPushButtonClicked".
+static QString pointerToMemberSlotBaseName(const QString &objectName, const QString &signalSignature)
+{
+    const auto ucFirst = [](const QString &s) {
+        return s.isEmpty() ? s : s.left(1).toUpper() + s.mid(1);
+    };
+    const QString signalName = signalSignature.left(signalSignature.indexOf('('));
+    return "on" + ucFirst(objectName) + ucFirst(signalName);
+}
+
+// The C++ class of a managed widget as known to the form, e.g. "QPushButton",
+// needed for the "&Class::signal" part of a function-pointer connection.
+static QString widgetClassName(QDesignerFormWindowInterface *fwi, const QString &objectName)
+{
+    QWidget *container = fwi ? fwi->mainContainer() : nullptr;
+    if (!container)
+        return {};
+    if (container->objectName() == objectName)
+        return QString::fromUtf8(container->metaObject()->className());
+    if (const QObject *w = container->findChild<QObject *>(objectName))
+        return QString::fromUtf8(w->metaObject()->className());
+    return {};
+}
+
+// Insert an explicit pointer-to-member connect() into the constructor that calls
+// setupUi(). The widget-access prefix ("ui->", "ui.", "") is taken from the
+// existing setupUi() call, which sidesteps having to resolve the ui member.
+static bool insertPointerToMemberConnection(const Snapshot &snapshot, const Class *cl,
+                                const QString &className, const QString &objectName,
+                                const QString &widgetClass, const QString &signalName,
+                                const QString &slotBaseName)
+{
+    if (widgetClass.isEmpty())
+        return false;
+
+    // Find a constructor with a definition that calls setupUi().
+    const Overview overview;
+    CppEditor::SymbolFinder symbolFinder;
+    for (int i = 0, count = cl->memberCount(); i < count; ++i) {
+        const Declaration *decl = cl->memberAt(i)->asDeclaration();
+        Function *ctor = decl ? decl->type()->asFunctionType() : cl->memberAt(i)->asFunction();
+        if (!ctor || overview.prettyName(ctor->name()) != className)
+            continue;
+        const Function *def = symbolFinder.findMatchingDefinition(ctor, snapshot, true);
+        if (!def)
+            def = ctor; // possibly an inline definition
+        const FilePath ctorFile = FilePath::fromString(QString::fromUtf8(def->fileName()));
+        BaseTextEditor *editor = editorAt(ctorFile, def->line(), def->column());
+        if (!editor)
+            continue;
+
+        QTextDocument *doc = editor->textDocument()->document();
+        const QString text = doc->toPlainText();
+        const int ctorPos = Utils::Text::positionInText(doc, def->line(), def->column());
+        const int setupUiPos = text.indexOf("setupUi", ctorPos);
+        if (setupUiPos == -1)
+            continue;
+
+        // Extract the access prefix of the setupUi() call ("ui->", "ui.", "").
+        int p = setupUiPos;
+        while (p > 0) {
+            const QChar c = text.at(p - 1);
+            if (c.isLetterOrNumber() || c == '_' || c == '.' || c == '>' || c == '-')
+                --p;
+            else
+                break;
+        }
+        const QString prefix = text.mid(p, setupUiPos - p);
+
+        const int semiPos = text.indexOf(';', setupUiPos);
+        if (semiPos == -1)
+            continue;
+
+        // Indentation of the setupUi() line.
+        const int lineStart = text.lastIndexOf('\n', setupUiPos) + 1;
+        int ind = lineStart;
+        while (ind < text.size() && (text.at(ind) == ' ' || text.at(ind) == '\t'))
+            ++ind;
+        const QString indent = text.mid(lineStart, ind - lineStart);
+
+        const QString connectStatement
+            = '\n' + indent
+              + QString("connect(%1%2, &%3::%4, this, &%5::%6);")
+                    .arg(prefix, objectName, widgetClass, signalName, className, slotBaseName);
+
+        QTextCursor tc = editor->textCursor();
+        tc.setPosition(semiPos + 1);
+        tc.insertText(connectStatement);
+        return true;
+    }
+    return false;
+}
+
 bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                                           const QString &signalSignature,
                                           const QStringList &parameterNames,
@@ -618,8 +713,21 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     if (!cl)
         return false;
 
-    const QString functionName = "on_" + objectName + '_' + signalSignature;
+    const int signalParenIdx = signalSignature.indexOf('(');
+    const QString signalName = signalSignature.left(signalParenIdx);
+    const QString signalParams = signalSignature.mid(signalParenIdx);
+
+    // Fall back to the legacy on_...() name (connected via connectSlotsByName())
+    // if we cannot determine the widget's class for the "&Class::signal" part.
+    // Note: a genuinely overloaded signal would need a manual qOverload<>().
+    const QString widgetClass = widgetClassName(fwi, objectName);
+    const bool usePmf = designerSettings().generatePointerToMemberConnections()
+                        && !widgetClass.isEmpty();
+    const QString slotBaseName = usePmf ? pointerToMemberSlotBaseName(objectName, signalSignature)
+                                        : "on_" + objectName + '_' + signalName;
+    const QString functionName = slotBaseName + signalParams;
     const QString functionNameWithParameterNames = addParameterNames(functionName, parameterNames);
+    const bool slotDidNotExist = !findDeclaration(cl, functionName);
 
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << "Found " << uiClass << declDoc->filePath() << " checking " << functionName  << functionNameWithParameterNames;
@@ -687,6 +795,12 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         const int openPos = file->document()->toPlainText().indexOf('}', indentationPos) - 1;
         int line, column;
         Utils::Text::convertPosition(file->document(), openPos, &line, &column);
+
+        if (usePmf && slotDidNotExist) {
+            insertPointerToMemberConnection(docTable, cl, className, objectName,
+                                            widgetClass, signalName, slotBaseName);
+        }
+
         Core::EditorManager::openEditorAt({location.filePath(), line, column});
         return true;
     }
