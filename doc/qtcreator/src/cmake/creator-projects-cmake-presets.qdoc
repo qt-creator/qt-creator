@@ -385,6 +385,16 @@
         \li On Windows, uses junction points for CMake configure, build, and
             install operations.
         \li \l{Use junction points on Windows}
+    \row
+        \li \c {runDevice}
+        \li Specifies the run device for the kit created from the preset.
+            Overrides the automatic device selection based on \c CMAKE_SYSROOT.
+            Can be a device type identifier (string) to use the default device
+            of that type, or an object with \c {type} and additional settings.
+            When using the object form, if no matching device exists, a new
+            device is added to the device list. Valid device type identifiers
+            are the strings returned by \c IDevice::type().
+        \li \l {addDev}
     \endtable
 
     An example of CMake configuration presets:
@@ -402,6 +412,83 @@
       }
     }
     \endcode
+
+    To force a specific run device for a preset-based kit:
+
+    \code [json]
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "runDevice": "GenericLinuxOsType"
+      }
+    }
+    \endcode
+
+    Or to disambiguate among multiple devices of the same type:
+
+    \code [json]
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "runDevice": {
+          "type": "GenericLinuxOsType",
+          "name": "my-raspberry-pi"
+        }
+      }
+    }
+    \endcode
+
+    The object form also supports specifying full device settings, which are
+    used to create a device if no matching device exists:
+
+    \code [json]
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "runDevice": {
+          "type": "GenericLinuxOsType",
+          "id": "MyRemoteDevice",
+          "name": "my-raspberry-pi",
+          "host": "192.168.1.100",
+          "uname": "pi",
+          "keyFile": "/home/user/.ssh/id_rsa",
+          "sshPort": 22,
+          "authentication": 1,
+          "timeout": 5,
+          "freePortsSpec": "8000-9000"
+        }
+      }
+    }
+    \endcode
+
+    \QC looks for an existing device first by \c {id}, then by \c {name}. Only
+    when neither matches does it add a new device, which then persists across
+    sessions. Edit or remove it in \preferences > \uicontrol Devices >
+    \uicontrol Devices, like any other device.
+
+    The following options are supported in the object form. They correspond to
+    the SDK Tool \c {addDev} options of the same name, except where noted; for a
+    complete reference, see \l {addDev}.
+
+    \table
+    \header \li Option \li Description
+    \row \li \c {type} \li Device type identifier (required). Corresponds to
+        \c {--osType}, not to \c {--type}.
+    \row \li \c {id} \li Unique ID for the device. If not set, \QC generates one
+        from the project and preset names.
+    \row \li \c {name} \li Display name for the device. Falls back to a
+        generated name if not set.
+    \row \li \c {host} \li Host name or IP address of the device.
+    \row \li \c {uname} \li Username to access the device.
+    \row \li \c {keyFile} \li Path to the user's private key file for SSH
+        authentication.
+    \row \li \c {sshPort} \li Port number for SSH connections (default: 22).
+    \row \li \c {authentication} \li Authentication method: 0 for all methods,
+        1 for SSH key pair.
+    \row \li \c {timeout} \li Timeout for reusing the SSH connection in seconds
+        (default: 5).
+    \row \li \c {machineType} \li Machine type: 0 for hardware, 1 for an
+        emulator (default: 0). Corresponds to \c {--type}.
+    \row \li \c {freePortsSpec} \li Free ports specification string (for
+        example, "8000-9000"). Corresponds to \c {--freePorts}.
+    \endtable
 
     \section1 Build presets
 

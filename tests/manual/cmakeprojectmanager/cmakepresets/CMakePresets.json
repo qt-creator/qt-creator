@@ -23,6 +23,19 @@
       },
       "vendor": {
         "qt.io/QtCreator/1.0": {
+          "runDevice": {
+            "type": "GenericLinuxOsType",
+            "id": "CMakePresetsManualTestDevice",
+            "name": "cmakepresets-test-device",
+            "host": "192.168.1.100",
+            "uname": "pi",
+            "keyFile": "$env{HOME}/.ssh/id_rsa",
+            "sshPort": 22,
+            "authentication": 1,
+            "timeout": 7,
+            "machineType": 1,
+            "freePortsSpec": "8000-9000"
+          },
           "runEnvironment": {
             "HOME_VARIABLE_WITH_HEART": "$env{HOME}/❤️"
           },
@@ -50,6 +63,7 @@
       },
       "vendor": {
         "qt.io/QtCreator/1.0": {
+          "runDevice": "GenericLinuxOsType",
           "runEnvironment": {
             "HOME_VARIABLE_WITH_HEART": "$env{HOME}/❤️"
           },

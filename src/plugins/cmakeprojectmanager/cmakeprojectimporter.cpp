@@ -23,7 +23,10 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitmanager.h>
@@ -1290,6 +1293,166 @@ static void applyRunEnvironmentToKit(
     EnvironmentKitAspect::setRunEnvChanges(kit, changes);
 }
 
+struct RunDeviceResult
+{
+    Id deviceTypeId;
+    Id deviceId;
+};
+
+static Id findDeviceByDisplayName(Id deviceTypeId, const QString &displayName)
+{
+    Id result;
+    DeviceManager::forEachDevice([&](const IDeviceConstPtr &dev) {
+        if (!result.isValid() && dev->type() == deviceTypeId && dev->displayName() == displayName)
+            result = dev->id();
+    });
+    return result;
+}
+
+static RunDeviceResult findOrRegisterRunDevice(
+    const PresetMacroExpander &expander, const QString &projectName)
+{
+    RunDeviceResult result;
+    const PresetsDetails::ConfigurePreset &preset = expander.preset;
+
+    if (!preset.vendor || !preset.vendor->contains("runDevice"))
+        return result;
+
+    const QVariant runDeviceValue = preset.vendor->value("runDevice");
+    const bool isStringForm = runDeviceValue.typeId() == QMetaType::QString;
+    if (!isStringForm && runDeviceValue.typeId() != QMetaType::QVariantMap) {
+        qCWarning(cmInputLog) << "Expected a string or an object for runDevice in CMake preset "
+                                 "vendor data";
+        return result;
+    }
+
+    const Store deviceStore = isStringForm ? Store()
+                                           : storeFromMap(expander.expand(runDeviceValue.toMap()));
+
+    const QString typeStr = isStringForm ? expander.expand(runDeviceValue.toString())
+                                         : deviceStore.value("type").toString();
+    if (typeStr.isEmpty()) {
+        if (!isStringForm)
+            qCWarning(cmInputLog) << "Missing 'type' for runDevice in CMake preset vendor data";
+        return result;
+    }
+
+    IDeviceFactory *const factory = IDeviceFactory::find(Id::fromString(typeStr));
+    if (!factory) {
+        qCWarning(cmInputLog) << "Unknown run device type in CMake preset vendor data:" << typeStr;
+        return result;
+    }
+    result.deviceTypeId = factory->deviceType();
+
+    // The string form only names a type, so it cannot describe a device to create.
+    if (isStringForm) {
+        if (const IDevice::ConstPtr device = DeviceManager::defaultDevice(result.deviceTypeId)) {
+            result.deviceId = device->id();
+            qCDebug(cmInputLog) << "Using default run device" << result.deviceId
+                                << device->displayName();
+        } else {
+            qCDebug(cmInputLog) << "No existing device for run device type" << typeStr;
+        }
+        return result;
+    }
+
+    const QString presetDisplayName = preset.displayName.value_or(preset.name);
+    const QString generatedIdSuffix = projectName + "-" + presetDisplayName;
+    const QString providedId = deviceStore.value("id").toString();
+    const Id deviceId = providedId.isEmpty()
+                            ? Id(Constants::CMAKE_RUN_DEVICE_ID).withSuffix(generatedIdSuffix)
+                            : Id::fromString(providedId);
+
+    const QString providedName = deviceStore.value("name").toString();
+    //: %1=project name, %2=CMake preset name, %3=device type display name
+    const QString displayName
+        = providedName.isEmpty()
+              ? Tr::tr("%1: %2 (%3)").arg(projectName, presetDisplayName, factory->displayName())
+              : providedName;
+
+    // Reuse a device that an earlier import created, or that the user set up by hand, so that
+    // manual edits to it are not silently discarded.
+    const IDevice::ConstPtr deviceById = DeviceManager::find(deviceId);
+    if (deviceById && deviceById->type() == result.deviceTypeId) {
+        result.deviceId = deviceById->id();
+        qCDebug(cmInputLog) << "Found existing run device by ID" << result.deviceId
+                            << deviceById->displayName();
+        return result;
+    }
+    if (deviceById) {
+        qCWarning(cmInputLog) << "Device" << deviceId << "exists, but is not of type" << typeStr;
+        return result;
+    }
+    result.deviceId = findDeviceByDisplayName(result.deviceTypeId, displayName);
+    if (result.deviceId.isValid()) {
+        qCDebug(cmInputLog) << "Found existing run device by name" << result.deviceId
+                            << displayName;
+        return result;
+    }
+
+    const IDevice::Ptr device = factory->construct();
+    if (!device) {
+        qCWarning(cmInputLog) << "Cannot construct device of type" << typeStr;
+        return result;
+    }
+
+    result.deviceId = deviceId;
+    device->setupId(IDevice::ManuallyAdded, deviceId);
+    device->setDisplayName(displayName);
+
+    // Common to most remote devices. The keys follow the sdktool addDev options.
+    SshParameters ssh;
+    ssh.setHost(deviceStore.value("host").toString());
+    ssh.setPort(deviceStore.value("sshPort", 22).toInt());
+    ssh.setUserName(deviceStore.value("uname").toString());
+
+    const int authType = deviceStore.value("authentication", 0).toInt();
+    ssh.setAuthenticationType(
+        authType == SshParameters::AuthenticationTypeSpecificKey
+            ? SshParameters::AuthenticationTypeSpecificKey
+            : SshParameters::AuthenticationTypeAll);
+
+    const QString keyFile = deviceStore.value("keyFile").toString();
+    if (!keyFile.isEmpty())
+        ssh.setPrivateKeyFile(FilePath::fromUserInput(keyFile));
+
+    ssh.setTimeout(deviceStore.value("timeout", 5).toInt());
+
+    device->setDefaultSshParameters(ssh);
+
+    const int machineType = deviceStore.value("machineType", IDevice::Hardware).toInt();
+    if (machineType == IDevice::Hardware || machineType == IDevice::Emulator)
+        device->setMachineType(static_cast<IDevice::MachineType>(machineType));
+    else
+        qCWarning(cmInputLog) << "Invalid machineType for runDevice:" << machineType;
+
+    const QString freePortsSpec = deviceStore.value("freePortsSpec").toString();
+    if (!freePortsSpec.isEmpty())
+        device->freePortsAspect.setPortList(Utils::PortList::fromString(freePortsSpec));
+
+    qCDebug(cmInputLog) << "Created run device" << result.deviceId << device->displayName()
+                        << "for CMake preset" << preset.name;
+
+    DeviceManager::addDevice(device);
+    return result;
+}
+
+static void applyRunDeviceToKit(
+    const PresetMacroExpander &expander, const QString &projectName, Kit *kit)
+{
+    const RunDeviceResult result = findOrRegisterRunDevice(expander, projectName);
+    if (!result.deviceTypeId.isValid())
+        return;
+
+    RunDeviceTypeKitAspect::setDeviceTypeId(kit, result.deviceTypeId);
+
+    if (const IDevice::ConstPtr device = DeviceManager::find(result.deviceId)) {
+        RunDeviceKitAspect::setDeviceId(kit, device->id());
+        qCDebug(cmInputLog) << "Run device set to" << device->displayName() << "for kit"
+                            << kit->displayName();
+    }
+}
+
 void CMakeProjectImporter::createKitsFromPresets()
 {
     m_presetsTempDir
@@ -1452,6 +1615,10 @@ void CMakeProjectImporter::createKitsFromPresets()
                 },
                 kitId);
             applyRunEnvironmentToKit(configurePreset, kit, projectDirectory());
+            applyRunDeviceToKit(
+                PresetMacroExpander(configurePreset, env, projectDirectory()),
+                m_project->displayName(),
+                kit);
 
             if (!vendorToolchains.isEmpty()) {
                 for (Toolchain *tc : vendorToolchains)

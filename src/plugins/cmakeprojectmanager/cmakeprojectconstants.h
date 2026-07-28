@@ -81,4 +81,6 @@ inline constexpr char KIT_BUILDINFO_LIST[] = "CMakeProjectManager.BuildInfoList"
 inline constexpr char PRESETS_KITS_PROGRESS[] = "CMakeProjectManager.Presets.Kits.Progress";
 inline constexpr char CMAKE_KIT_DETECTION_SOURCE_ID[] = "CMakePresets";
 
+inline constexpr char CMAKE_RUN_DEVICE_ID[] = "CMakeRunDevice";
+
 } // namespace CMakeProjectManager::Constants
