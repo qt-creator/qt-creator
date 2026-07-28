@@ -1735,13 +1735,15 @@ struct MappingState {
     bool editBlock = false;
 };
 
-// A Vimscript value: scalars (Number/Float/String), List and Dictionary
-// (QTCREATORBUG-34817). Lists and dictionaries are held by a shared pointer,
-// so copies share one container as in Vim.
+struct VimFunc;
+
+// A Vimscript value: scalars (Number/Float/String), List, Dictionary and
+// Funcref/lambda. Containers and funcs are held by a shared pointer, so copies
+// share one instance as in Vim.
 class VimValue
 {
 public:
-    enum Type { Number, Float, String, List, Dict };
+    enum Type { Number, Float, String, List, Dict, Func };
 
     VimValue() = default;
     explicit VimValue(qlonglong n) : m_type(Number), m_number(n) {}
@@ -1764,12 +1766,20 @@ public:
         return v;
     }
 
+    // A named function reference; defined out-of-line (needs VimFunc).
+    static VimValue func(const QString &name);
+    // A lambda with captured (closure) scope; defined out-of-line.
+    static VimValue lambda(const QStringList &params, const QString &body,
+                           const QHash<QString, VimValue> &captured);
+
     Type type() const { return m_type; }
     bool isString() const { return m_type == String; }
     bool isList() const { return m_type == List; }
     bool isDict() const { return m_type == Dict; }
+    bool isFunc() const { return m_type == Func; }
     QList<VimValue> *listData() const { return m_list.get(); }
     QMap<QString, VimValue> *dictData() const { return m_dict.get(); }
+    VimFunc *funcData() const { return m_func.get(); }
 
     qlonglong toNumber() const
     {
@@ -1784,6 +1794,7 @@ public:
         }
         case List:
         case Dict:
+        case Func:
             return 0;
         }
         return 0;
@@ -1812,7 +1823,8 @@ public:
         case Float:  return QString::number(m_float, 'g', 6);
         case String: return m_string;
         case List:
-        case Dict:   return repr(*this);
+        case Dict:
+        case Func:   return repr(*this);
         }
         return QString();
     }
@@ -1845,6 +1857,8 @@ private:
             }
             return '{' + parts.join(", ") + '}';
         }
+        case Func:
+            return v.m_string; // precomputed display form, e.g. function('Foo')
         }
         return QString();
     }
@@ -1853,9 +1867,45 @@ private:
     qlonglong m_number = 0;
     double m_float = 0;
     QString m_string;
+    std::shared_ptr<VimFunc> m_func;
     std::shared_ptr<QList<VimValue>> m_list;
     std::shared_ptr<QMap<QString, VimValue>> m_dict;
 };
+
+// A function reference: either a named function or a lambda with a captured
+// (closure) scope.
+struct VimFunc
+{
+    QString name;
+    QStringList params;
+    QString body;
+    QHash<QString, VimValue> captured;
+    bool isLambda = false;
+};
+
+VimValue VimValue::func(const QString &name)
+{
+    VimValue v;
+    v.m_type = Func;
+    v.m_func = std::make_shared<VimFunc>();
+    v.m_func->name = name;
+    v.m_string = "function('" + name + "')";
+    return v;
+}
+
+VimValue VimValue::lambda(const QStringList &params, const QString &body,
+                          const QHash<QString, VimValue> &captured)
+{
+    VimValue v;
+    v.m_type = Func;
+    v.m_func = std::make_shared<VimFunc>();
+    v.m_func->isLambda = true;
+    v.m_func->params = params;
+    v.m_func->body = body;
+    v.m_func->captured = captured;
+    v.m_string = "function('<lambda>')";
+    return v;
+}
 
 // Recursive-descent evaluator for Vimscript expressions; defined below.
 class VimExpr;
@@ -2486,6 +2536,8 @@ public:
     bool setOption(const QString &name, const VimValue &value);
     bool callFunction(const QString &name, const QList<VimValue> &args,
                       VimValue *result, QString *error);
+    bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
+                        VimValue *result, QString *error);
     bool handleExLetCommand(const ExCommand &cmd);
     bool letAssignIndexed(const QString &args);
     bool handleExUnletCommand(const ExCommand &cmd);
@@ -7670,32 +7722,77 @@ private:
     VimValue exprPostfix()
     {
         VimValue v = exprAtom();
-        while (m_ok && cur() == '[') { // subscript v[i] or slice v[a:b]
-            ++m_pos;
-            skipBlanks();
-            const bool haveStart = cur() != ':';
-            const VimValue start = haveStart ? parseExpr() : VimValue();
-            skipBlanks();
-            if (cur() == ':') { // slice
+        while (m_ok) {
+            if (cur() == '[') { // subscript v[i] or slice v[a:b]
                 ++m_pos;
                 skipBlanks();
-                const bool haveEnd = cur() != ']';
-                const VimValue end = haveEnd ? parseExpr() : VimValue();
+                const bool haveStart = cur() != ':';
+                const VimValue start = haveStart ? parseExpr() : VimValue();
                 skipBlanks();
-                if (!eatOp("]")) {
-                    setError(Tr::tr("Missing ']' in slice"));
-                    return {};
+                if (cur() == ':') { // slice
+                    ++m_pos;
+                    skipBlanks();
+                    const bool haveEnd = cur() != ']';
+                    const VimValue end = haveEnd ? parseExpr() : VimValue();
+                    skipBlanks();
+                    if (!eatOp("]")) {
+                        setError(Tr::tr("Missing ']' in slice"));
+                        return {};
+                    }
+                    v = slice(v, haveStart, start, haveEnd, end);
+                } else {
+                    if (!eatOp("]")) {
+                        setError(Tr::tr("Missing ']' in subscript"));
+                        return {};
+                    }
+                    v = subscript(v, start);
                 }
-                v = slice(v, haveStart, start, haveEnd, end);
+            } else if (cur() == '-' && at(1) == '>') { // method call v->f(...)
+                m_pos += 2;
+                v = parseMethodCall(v);
             } else {
-                if (!eatOp("]")) {
-                    setError(Tr::tr("Missing ']' in subscript"));
-                    return {};
-                }
-                v = subscript(v, start);
+                break;
             }
         }
         return v;
+    }
+
+    // "v->f(args)" is sugar for "f(v, args)".
+    VimValue parseMethodCall(const VimValue &piped)
+    {
+        skipBlanks();
+        const QString name = parseName();
+        if (!eatOp("(")) {
+            setError(Tr::tr("Missing '(' in method call"));
+            return {};
+        }
+        QList<VimValue> args;
+        args.append(piped);
+        skipBlanks();
+        if (cur() != ')') {
+            while (m_ok) {
+                args.append(parseExpr());
+                skipBlanks();
+                if (cur() == ',') {
+                    ++m_pos;
+                    continue;
+                }
+                break;
+            }
+        }
+        if (!m_ok)
+            return {};
+        if (!eatOp(")")) {
+            setError(Tr::tr("Missing ')' in method call"));
+            return {};
+        }
+        VimValue result;
+        QString error;
+        if (!m_h->callFunction(name, args, &result, &error)) {
+            setError(error);
+            return {};
+        }
+        return result;
     }
 
     // Vim slices are inclusive of both ends; a missing start is 0, a missing
@@ -7778,7 +7875,7 @@ private:
         if (c == '[')
             return parseListLiteral();
         if (c == '{')
-            return parseDictLiteral();
+            return parseBraceExpr();
         if (c == '$')
             return parseEnvVar();
         if (c == '&')
@@ -7978,6 +8075,85 @@ private:
             return {};
         }
         return VimValue::list(items);
+    }
+
+    // "{" starts either a lambda "{args -> expr}" or a dictionary. Look ahead
+    // past an optional comma-separated identifier list for "->" to decide.
+    VimValue parseBraceExpr()
+    {
+        int p = m_pos + 1;
+        while (p < m_in.size()) {
+            const QChar ch = m_in.at(p);
+            if (ch == ' ' || ch == '\t' || ch == ',' || ch == '_'
+                || ch.isLetterOrNumber()) {
+                ++p;
+            } else {
+                break;
+            }
+        }
+        if (p + 1 < m_in.size() && m_in.at(p) == '-' && m_in.at(p + 1) == '>')
+            return parseLambda();
+        return parseDictLiteral();
+    }
+
+    int findMatchingBrace(int from) const
+    {
+        int depth = 0;
+        for (int p = from; p < m_in.size(); ++p) {
+            const QChar ch = m_in.at(p);
+            if (ch == '"' || ch == '\'') {
+                const QChar quote = ch;
+                for (++p; p < m_in.size() && m_in.at(p) != quote; ++p) {
+                    if (quote == '"' && m_in.at(p) == '\\')
+                        ++p;
+                }
+            } else if (ch == '{' || ch == '[' || ch == '(') {
+                ++depth;
+            } else if (ch == ')' || ch == ']') {
+                --depth;
+            } else if (ch == '}') {
+                if (depth == 0)
+                    return p;
+                --depth;
+            }
+        }
+        return -1;
+    }
+
+    VimValue parseLambda()
+    {
+        ++m_pos; // '{'
+        QStringList params;
+        skipBlanks();
+        while (cur().isLetter() || cur() == '_') {
+            const int s = m_pos;
+            while (cur().isLetterOrNumber() || cur() == '_')
+                ++m_pos;
+            params.append(m_in.mid(s, m_pos - s));
+            skipBlanks();
+            if (cur() == ',') {
+                ++m_pos;
+                skipBlanks();
+            }
+        }
+        if (!eatOp("->")) {
+            setError(Tr::tr("Missing '->' in lambda"));
+            return {};
+        }
+        skipBlanks();
+        const int bodyStart = m_pos;
+        const int bodyEnd = findMatchingBrace(bodyStart);
+        if (bodyEnd < 0) {
+            setError(Tr::tr("Missing '}' in lambda"));
+            return {};
+        }
+        const QString body = m_in.mid(bodyStart, bodyEnd - bodyStart).trimmed();
+        m_pos = bodyEnd + 1;
+        // Capture the enclosing local scope for the closure.
+        QHash<QString, VimValue> captured;
+        if (!m_h->m_localScopes.isEmpty())
+            captured = m_h->m_localScopes.last();
+        return VimValue::lambda(params, body, captured);
     }
 
     VimValue parseDictLiteral()
@@ -8505,6 +8681,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         switch (arg(0).type()) {
         case VimValue::Number: t = 0; break;
         case VimValue::String: t = 1; break;
+        case VimValue::Func:   t = 2; break;
         case VimValue::List:   t = 3; break;
         case VimValue::Dict:   t = 4; break;
         case VimValue::Float:  t = 5; break;
@@ -8744,13 +8921,52 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "setline") {
         setLineContents(int(arg(0).toNumber()), arg(1).toString());
         *result = VimValue(qlonglong(0));
+    } else if (name == "function" || name == "funcref") {
+        *result = VimValue::func(arg(0).toString());
+    } else if (name == "call") {
+        const QList<VimValue> callArgs = arg(1).isList() ? *arg(1).listData()
+                                                         : QList<VimValue>();
+        return invokeCallable(arg(0), callArgs, result, error);
     } else if (m_userFunctions.contains(name)) {
         *result = callUserFunction(m_userFunctions.value(name), args);
     } else {
+        // A variable may hold a funcref or lambda; call it.
+        VimValue v;
+        if (variableValue(name, &v) && v.isFunc())
+            return invokeCallable(v, args, result, error);
         *error = Tr::tr("Unknown function: %1").arg(name);
         return false;
     }
     return true;
+}
+
+bool FakeVimHandler::Private::invokeCallable(const VimValue &callable,
+    const QList<VimValue> &args, VimValue *result, QString *error)
+{
+    if (!callable.isFunc()) {
+        *error = Tr::tr("Not a function");
+        return false;
+    }
+    const VimFunc *fn = callable.funcData();
+    if (!fn->isLambda)
+        return callFunction(fn->name, args, result, error);
+
+    // A lambda: bind parameters (and the closure scope) in a fresh frame and
+    // evaluate the body expression.
+    QHash<QString, VimValue> frame = fn->captured;
+    for (int i = 0; i < fn->params.size(); ++i)
+        frame.insert(fn->params.at(i), i < args.size() ? args.at(i) : VimValue());
+
+    const LoopSignal savedSignal = m_loopSignal;
+    const bool savedReturning = m_returning;
+    const VimValue savedReturnValue = m_returnValue;
+    m_localScopes.append(frame);
+    const bool ok = evaluateExpression(fn->body, result, error);
+    m_localScopes.removeLast();
+    m_loopSignal = savedSignal;
+    m_returning = savedReturning;
+    m_returnValue = savedReturnValue;
+    return ok;
 }
 
 bool FakeVimHandler::Private::handleExUnletCommand(const ExCommand &cmd)

@@ -225,6 +225,7 @@ private slots:
     void test_vim_script_unpacking();
     void test_vim_script_slicing();
     void test_vim_script_ex_commands();
+    void test_vim_script_funcref();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6456,6 +6457,53 @@ void FakeVimTester::test_vim_script_ex_commands()
     message.clear();
     data.doCommand("silent! call NoSuchFunction()");
     QVERIFY(!message.contains(QLatin1String("NoSuchFunction")));
+}
+
+void FakeVimTester::test_vim_script_funcref()
+{
+    // Funcrefs, lambdas, function()/call(), the -> method syntax and closures.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    // Lambdas stored in variables and called.
+    data.doCommand("let g:Double = {x -> x * 2}");
+    QCOMPARE(echo("g:Double(21)"), QLatin1String("42"));
+    data.doCommand("let g:Add = {a, b -> a + b}");
+    QCOMPARE(echo("g:Add(3, 4)"), QLatin1String("7"));
+
+    // function() to a builtin, and call().
+    data.doCommand("let g:L = function(\"strlen\")");
+    QCOMPARE(echo("g:L(\"hello\")"), QLatin1String("5"));
+    QCOMPARE(echo("call(function(\"strlen\"), [\"abcd\"])"), QLatin1String("4"));
+    QCOMPARE(echo("call(g:Add, [10, 20])"), QLatin1String("30"));
+
+    // Method syntax: v->f(args) is f(v, args).
+    QCOMPARE(echo("\"abc\"->strlen()"), QLatin1String("3"));
+    QCOMPARE(echo("[3, 1, 2]->sort()"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("21->g:Double()"), QLatin1String("42"));
+
+    // string() of a named funcref.
+    QCOMPARE(echo("string(function(\"Foo\"))"), QLatin1String("function('Foo')"));
+
+    // Closures capture the defining scope.
+    source("function MkAdder(n)\n  return {x -> x + a:n}\nendfunction\n");
+    data.doCommand("let g:Add5 = MkAdder(5)");
+    QCOMPARE(echo("g:Add5(10)"), QLatin1String("15"));
 }
 
 void FakeVimTester::test_vim_file_info()
