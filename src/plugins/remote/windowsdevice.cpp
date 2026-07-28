@@ -1042,7 +1042,8 @@ Result<OsArch> WindowsDevice::osArch() const
 
 FilePath WindowsDevice::rootPath() const
 {
-    return FilePath::fromParts(u"ssh", userAtHostAndPort(), u"/");
+    const QString systemDrive = systemEnvironment().value_or("SystemDrive", "C:");
+    return FilePath::fromParts(u"ssh", userAtHostAndPort(), systemDrive);
 }
 
 Result<> WindowsDevice::handlesFile(const FilePath &filePath) const
