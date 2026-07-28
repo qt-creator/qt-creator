@@ -8900,6 +8900,9 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
         const QString params = m.captured(2).trimmed();
         if (!params.isEmpty())
             fn.params = params.split(QRegularExpression("\\s*,\\s*"));
+        // "..." only marks the function as variadic; extra arguments are bound
+        // to a:1, a:2, ... and a:000 at call time.
+        fn.params.removeAll("...");
     }
 
     while (index < cmds.size() && !isFunctionEnd(cmds.at(index).cmd)) {
@@ -8924,7 +8927,15 @@ VimValue FakeVimHandler::Private::callUserFunction(const UserFunction &fn,
     QHash<QString, VimValue> frame;
     for (int i = 0; i < fn.params.size(); ++i)
         frame.insert("a:" + fn.params.at(i), i < args.size() ? args.at(i) : VimValue());
+    // Extra (variadic) arguments: a:0 counts them, a:1.. name them and a:000
+    // is the list of them.
     frame.insert("a:0", VimValue(qlonglong(qMax(0, args.size() - fn.params.size()))));
+    QList<VimValue> varargs;
+    for (int i = fn.params.size(); i < args.size(); ++i) {
+        varargs.append(args.at(i));
+        frame.insert("a:" + QString::number(i - fn.params.size() + 1), args.at(i));
+    }
+    frame.insert("a:000", VimValue::list(varargs));
 
     const LoopSignal savedSignal = m_loopSignal;
     const bool savedReturning = m_returning;

@@ -6079,6 +6079,23 @@ void FakeVimTester::test_vim_script_functions()
     data.doCommand("call Push(7)");
     data.doCommand("call Push(8)");
     QCOMPARE(echo("g:acc"), QLatin1String("[7, 8]"));
+
+    // Variadic functions: a:0 counts extras, a:1.. name them, a:000 is the list.
+    data.doCommand("function Count(...) | return a:0 | endfunction");
+    QCOMPARE(echo("Count(1, 2, 3)"), QLatin1String("3"));
+    data.doCommand("function First(...) | return a:1 | endfunction");
+    QCOMPARE(echo("First(9, 8)"), QLatin1String("9"));
+    source("function Total(...)\n"
+           "  let l:s = 0\n"
+           "  for x in a:000\n"
+           "    let l:s += x\n"
+           "  endfor\n"
+           "  return l:s\n"
+           "endfunction\n");
+    QCOMPARE(echo("Total(1, 2, 3, 4)"), QLatin1String("10"));
+    // Named parameters followed by "...".
+    data.doCommand("function Tag(name, ...) | return a:name . \":\" . a:0 | endfunction");
+    QCOMPARE(echo("Tag(\"x\", 1, 2)"), QLatin1String("x:2"));
 }
 
 void FakeVimTester::test_vim_script_string_builtins()
