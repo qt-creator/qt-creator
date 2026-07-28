@@ -174,7 +174,7 @@ public:
     // count - CTRL-T / :pop go back (negative), bare :tag goes forward.
     Callback<void()> tagJumpRequested;
     Callback<void(int distance)> tagStackRequested;
-    // K: look up the symbol under the cursor (QTCREATORBUG-34817).
+    // K: look up the symbol under the cursor.
     Callback<void()> contextHelpRequested;
     // CTRL-^: edit the alternate file, the previously active one.
     Callback<void()> alternateFileRequested;

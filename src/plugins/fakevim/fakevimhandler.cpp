@@ -2376,7 +2376,7 @@ public:
     // g: and unscoped-at-global-level canonicalized to the bare name).
     QHash<QString, VimValue> m_variables;
     // User functions and the local (a:/l:) scope stack, one frame per active
-    // call (QTCREATORBUG-34817).
+    // call.
     struct UserFunction { QStringList params; QList<ExCommand> body; };
     QHash<QString, UserFunction> m_userFunctions;
     QList<QHash<QString, VimValue>> m_localScopes;
@@ -2522,7 +2522,7 @@ public:
     bool handleExWriteCommand(const ExCommand &cmd);
     bool handleExEchoCommand(const ExCommand &cmd);
 
-    // Vimscript expression evaluation (QTCREATORBUG-34817).
+    // Vimscript expression evaluation.
     friend class VimExpr;
     bool evaluateExpression(const QString &expr, VimValue *result, QString *error);
     bool variableValue(const QString &name, VimValue *result);
@@ -2545,7 +2545,7 @@ public:
     bool handleExExecuteCommand(const ExCommand &cmd);
 
     // Vimscript control flow: interpret a sequence of ex-commands honoring
-    // :if/:elseif/:else/:endif (QTCREATORBUG-34817).
+    // :if/:elseif/:else/:endif.
     void runExCommands(const QList<ExCommand> &cmds);
     void execSequence(const QList<ExCommand> &cmds, int &index, bool active);
     void execIf(const QList<ExCommand> &cmds, int &index, bool active, bool condition);
@@ -3374,7 +3374,7 @@ bool FakeVimHandler::Private::expandCompleteMapping()
     prependInputs(g.currentMap.currentInputs().mid(usedInputs));
     if (inputs.isExpression()) {
         // ":map <expr>": the right-hand side is an expression whose string
-        // result is used as the typed keys (QTCREATORBUG-34817).
+        // result is used as the typed keys.
         VimValue value;
         QString error, keys;
         if (evaluateExpression(inputs.expression(), &value, &error))
@@ -7471,7 +7471,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 // grammar levels follow ":help expression-syntax" (ternary, ||, &&, compare,
 // +/-/., */ /%, unary, atom). Only scalar values are handled for now; more
 // atoms (variables, options, registers, function calls) are added in later
-// steps (QTCREATORBUG-34817).
+// steps.
 class VimExpr
 {
 public:

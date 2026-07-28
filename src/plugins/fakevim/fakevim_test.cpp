@@ -5514,7 +5514,7 @@ void FakeVimTester::test_vim_goto_definition()
 
 void FakeVimTester::test_vim_context_help()
 {
-    // K requests context help for the symbol under the cursor (QTCREATORBUG-34817).
+    // K requests context help for the symbol under the cursor.
     TestData data;
     setup(&data);
     data.setText("ab|c");
@@ -5526,7 +5526,7 @@ void FakeVimTester::test_vim_context_help()
 
 void FakeVimTester::test_vim_alternate_file()
 {
-    // CTRL-^ edits the alternate file (QTCREATORBUG-34817).
+    // CTRL-^ edits the alternate file.
     TestData data;
     setup(&data);
     data.setText("ab|c");
@@ -5541,7 +5541,7 @@ void FakeVimTester::test_vim_tag_text_object()
     TestData data;
     setup(&data);
 
-    // "it"/"at" on inline tags (QTCREATORBUG-34817).
+    // "it"/"at" on inline tags.
     data.setText("<a>fo" X "o</a>");
     KEYS("dit", "<a>" X "</a>");
 
@@ -5572,7 +5572,7 @@ void FakeVimTester::test_vim_tag_text_object()
 
 void FakeVimTester::test_vim_script_echo_expression()
 {
-    // ":echo" evaluates a Vimscript expression (QTCREATORBUG-34817).
+    // ":echo" evaluates a Vimscript expression.
     TestData data;
     setup(&data);
     QString message;
@@ -5607,7 +5607,7 @@ void FakeVimTester::test_vim_script_echo_expression()
 
 void FakeVimTester::test_vim_script_variables()
 {
-    // ":let"/":unlet" and variable references (QTCREATORBUG-34817).
+    // ":let"/":unlet" and variable references.
     TestData data;
     setup(&data);
     QString message;
@@ -5649,7 +5649,6 @@ void FakeVimTester::test_vim_script_variables()
 void FakeVimTester::test_vim_script_options_registers()
 {
     // "&option", "@register" and "$env" in expressions and :let
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
     QString message;
@@ -5683,7 +5682,7 @@ void FakeVimTester::test_vim_script_options_registers()
 
 void FakeVimTester::test_vim_script_builtins()
 {
-    // Builtin function calls in expressions (QTCREATORBUG-34817).
+    // Builtin function calls in expressions.
     TestData data;
     setup(&data);
     QString message;
@@ -5732,7 +5731,6 @@ void FakeVimTester::test_vim_script_builtins()
 void FakeVimTester::test_vim_script_expr_mapping()
 {
     // ":inoremap <expr>" evaluates its right-hand side on each use
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
 
@@ -5753,7 +5751,6 @@ void FakeVimTester::test_vim_script_expr_mapping()
 void FakeVimTester::test_vim_script_execute()
 {
     // ":execute" builds a command from expressions and runs it
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
     QString message;
@@ -5781,7 +5778,7 @@ void FakeVimTester::test_vim_script_execute()
 
 void FakeVimTester::test_vim_script_if()
 {
-    // ":if/:elseif/:else/:endif" control flow (QTCREATORBUG-34817).
+    // ":if/:elseif/:else/:endif" control flow.
     TestData data;
     setup(&data);
     QString message;
@@ -5829,7 +5826,7 @@ void FakeVimTester::test_vim_script_if()
 
 void FakeVimTester::test_vim_script_while()
 {
-    // ":while/:endwhile" with :break and :continue (QTCREATORBUG-34817).
+    // ":while/:endwhile" with :break and :continue.
     TestData data;
     setup(&data);
     QString message;
@@ -5875,7 +5872,7 @@ void FakeVimTester::test_vim_script_while()
 
 void FakeVimTester::test_vim_script_lists()
 {
-    // List values: literals, indexing and list builtins (QTCREATORBUG-34817).
+    // List values: literals, indexing and list builtins.
     TestData data;
     setup(&data);
     QString message;
@@ -5912,7 +5909,7 @@ void FakeVimTester::test_vim_script_lists()
 
 void FakeVimTester::test_vim_script_for()
 {
-    // ":for x in list ... :endfor" (QTCREATORBUG-34817).
+    // ":for x in list ... :endfor".
     TestData data;
     setup(&data);
     QString message;
@@ -5953,7 +5950,6 @@ void FakeVimTester::test_vim_script_for()
 void FakeVimTester::test_vim_script_dicts()
 {
     // Dictionary values: literals, indexing and dict builtins
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
     QString message;
@@ -5990,7 +5986,6 @@ void FakeVimTester::test_vim_script_dicts()
 void FakeVimTester::test_vim_script_indexed_let()
 {
     // ":let container[index] = value" for lists and dictionaries
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
     QString message;
@@ -6033,7 +6028,6 @@ void FakeVimTester::test_vim_script_indexed_let()
 void FakeVimTester::test_vim_script_functions()
 {
     // User functions: :function/:endfunction, :call, :return, a:/l: scopes
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
     QString message;
@@ -6108,7 +6102,6 @@ void FakeVimTester::test_vim_script_functions()
 void FakeVimTester::test_vim_script_string_builtins()
 {
     // String builtins: split, join, stridx, strpart, substitute, printf
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
     QString message;
@@ -6145,7 +6138,7 @@ void FakeVimTester::test_vim_script_string_builtins()
 
 void FakeVimTester::test_vim_script_collection_builtins()
 {
-    // sort, reverse, copy, type, max, min (QTCREATORBUG-34817).
+    // sort, reverse, copy, type, max, min.
     TestData data;
     setup(&data);
     QString message;
@@ -6178,7 +6171,6 @@ void FakeVimTester::test_vim_script_collection_builtins()
 void FakeVimTester::test_vim_script_map_filter()
 {
     // map() and filter() evaluate an expression per element with v:val/v:key
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
     QString message;
@@ -6209,7 +6201,7 @@ void FakeVimTester::test_vim_script_map_filter()
 
 void FakeVimTester::test_vim_script_try_catch()
 {
-    // :try/:catch/:finally/:endtry and :throw (QTCREATORBUG-34817).
+    // :try/:catch/:finally/:endtry and :throw.
     TestData data;
     setup(&data);
     QString message;
@@ -6261,7 +6253,7 @@ void FakeVimTester::test_vim_script_try_catch()
 void FakeVimTester::test_vim_script_more_builtins()
 {
     // extend, index, count, insert, repeat, trim, nr2char, char2nr, matchstr,
-    // match (QTCREATORBUG-34817).
+    // match.
     TestData data;
     setup(&data);
     QString message;
@@ -6293,7 +6285,6 @@ void FakeVimTester::test_vim_script_more_builtins()
 void FakeVimTester::test_vim_script_expr_register()
 {
     // The "=" expression register in insert mode: CTRL-R = {expr} <CR>
-    // (QTCREATORBUG-34817).
     TestData data;
     setup(&data);
 
@@ -6324,7 +6315,7 @@ void FakeVimTester::test_vim_script_expr_register()
 void FakeVimTester::test_vim_script_operators()
 {
     // =~ / !~ regex match, is / isnot identity, more number literals and
-    // v:version (QTCREATORBUG-34817).
+    // v:version.
     TestData data;
     setup(&data);
     QString message;
@@ -6357,7 +6348,7 @@ void FakeVimTester::test_vim_script_operators()
 
 void FakeVimTester::test_vim_script_unpacking()
 {
-    // :let [a, b] = list and :for [k, v] in list (QTCREATORBUG-34817).
+    // :let [a, b] = list and :for [k, v] in list.
     TestData data;
     setup(&data);
     QString message;
@@ -6387,7 +6378,7 @@ void FakeVimTester::test_vim_script_unpacking()
 
 void FakeVimTester::test_vim_script_slicing()
 {
-    // Inclusive slices "x[a:b]" on lists and strings (QTCREATORBUG-34817).
+    // Inclusive slices "x[a:b]" on lists and strings.
     TestData data;
     setup(&data);
     QString message;
@@ -6414,7 +6405,7 @@ void FakeVimTester::test_vim_script_slicing()
 
 void FakeVimTester::test_vim_script_ex_commands()
 {
-    // :finish, :silent[!], :echoerr, :echon (QTCREATORBUG-34817).
+    // :finish, :silent[!], :echoerr, :echon.
     TestData data;
     setup(&data);
     QString message;
@@ -6508,7 +6499,7 @@ void FakeVimTester::test_vim_script_funcref()
 
 void FakeVimTester::test_vim_file_info()
 {
-    // CTRL-G reports file position and status, like Vim (QTCREATORBUG-34817).
+    // CTRL-G reports file position and status, like Vim.
     TestData data;
     setup(&data);
     QString message;
