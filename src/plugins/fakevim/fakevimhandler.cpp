@@ -2321,8 +2321,16 @@ public:
 
     QString m_currentFileName;
 
-    // Vimscript variables, keyed by scoped name ("g:" canonicalized away).
+    // Vimscript global variables (b:/w:/t:/s:/v: kept with their prefix,
+    // g: and unscoped-at-global-level canonicalized to the bare name).
     QHash<QString, VimValue> m_variables;
+    // User functions and the local (a:/l:) scope stack, one frame per active
+    // call (QTCREATORBUG-34817).
+    struct UserFunction { QStringList params; QList<ExCommand> body; };
+    QHash<QString, UserFunction> m_userFunctions;
+    QList<QHash<QString, VimValue>> m_localScopes;
+    bool m_returning = false;
+    VimValue m_returnValue;
 
     int m_findStartPosition;
 
@@ -2464,6 +2472,10 @@ public:
     bool variableValue(const QString &name, VimValue *result);
     void setVariable(const QString &name, const VimValue &value);
     bool unsetVariable(const QString &name);
+    QHash<QString, VimValue> *variableStore(const QString &name, QString *key);
+    void collectFunction(const QList<ExCommand> &cmds, int &index, bool active,
+                         const ExCommand &header);
+    VimValue callUserFunction(const UserFunction &fn, const QList<VimValue> &args);
     bool optionValue(const QString &name, VimValue *result);
     bool setOption(const QString &name, const VimValue &value);
     bool callFunction(const QString &name, const QList<VimValue> &args,
@@ -7305,9 +7317,8 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     }
 
     // Collect all executable command units first, then interpret them in one
-    // pass so control-flow blocks (:if/...) can span several lines.
+    // pass so control-flow and function blocks can span several lines.
     QList<ExCommand> cmds;
-    bool inFunction = false;
     QByteArray line;
     while (!file.atEnd() || !line.isEmpty()) {
         QByteArray nextline = !file.atEnd() ? file.readLine() : QByteArray();
@@ -7324,12 +7335,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
             continue;
         }
 
-        if (line.startsWith("function")) {
-            //qDebug() << "IGNORING FUNCTION" << line;
-            inFunction = true;
-        } else if (inFunction && line.startsWith("endfunction")) {
-            inFunction = false;
-        } else if (!line.isEmpty() && !inFunction) {
+        if (!line.isEmpty()) {
             ExCommand cmd;
             // Detect the encoding like Vim's 'fileencodings': prefer UTF-8 and
             // fall back to the local 8-bit encoding for invalid byte sequences
@@ -7901,10 +7907,33 @@ bool FakeVimHandler::Private::evaluateExpression(const QString &expr,
     return true;
 }
 
-// "g:" is the same scope as an unscoped name, so canonicalize it away.
-static QString normalizedVarName(const QString &name)
+// Pick the storage map for a variable and its key in that map, taking the
+// active function scope into account. Inside a function, "l:x" and an
+// unscoped "x" are function-local and "a:x" holds an argument; "g:x" and an
+// unscoped name at the top level are global; other scopes (b:/w:/t:/s:/v:)
+// live in the global map keyed with their prefix.
+QHash<QString, VimValue> *FakeVimHandler::Private::variableStore(const QString &name,
+    QString *key)
 {
-    return name.startsWith("g:") ? name.mid(2) : name;
+    const bool inFunction = !m_localScopes.isEmpty();
+    if (name.startsWith("g:")) {
+        *key = name.mid(2);
+        return &m_variables;
+    }
+    if (name.startsWith("a:")) {
+        *key = name;
+        return inFunction ? &m_localScopes.last() : &m_variables;
+    }
+    if (name.startsWith("l:")) {
+        *key = name.mid(2);
+        return inFunction ? &m_localScopes.last() : &m_variables;
+    }
+    if (name.size() > 1 && name.at(1) == ':') { // b:/w:/t:/s:/v:/...
+        *key = name;
+        return &m_variables;
+    }
+    *key = name;
+    return inFunction ? &m_localScopes.last() : &m_variables;
 }
 
 bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *result)
@@ -7914,8 +7943,10 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
         *result = VimValue(qlonglong(0));
         return true;
     }
-    const auto it = m_variables.constFind(normalizedVarName(name));
-    if (it == m_variables.constEnd())
+    QString key;
+    QHash<QString, VimValue> *store = variableStore(name, &key);
+    const auto it = store->constFind(key);
+    if (it == store->constEnd())
         return false;
     *result = *it;
     return true;
@@ -7923,12 +7954,14 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
 
 void FakeVimHandler::Private::setVariable(const QString &name, const VimValue &value)
 {
-    m_variables.insert(normalizedVarName(name), value);
+    QString key;
+    variableStore(name, &key)->insert(key, value);
 }
 
 bool FakeVimHandler::Private::unsetVariable(const QString &name)
 {
-    return m_variables.remove(normalizedVarName(name)) > 0;
+    QString key;
+    return variableStore(name, &key)->remove(key) > 0;
 }
 
 // Apply a compound assignment operator (the char before '=' in += etc.).
@@ -8245,6 +8278,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "setline") {
         setLineContents(int(arg(0).toNumber()), arg(1).toString());
         *result = VimValue(qlonglong(0));
+    } else if (m_userFunctions.contains(name)) {
+        *result = callUserFunction(m_userFunctions.value(name), args);
     } else {
         *error = Tr::tr("Unknown function: %1").arg(name);
         return false;
@@ -8337,10 +8372,20 @@ bool FakeVimHandler::Private::evalCondition(const QString &expr)
 }
 
 // Command names that end a control-flow block; handled by the enclosing level.
+static bool isFunctionStart(const QString &cmd)
+{
+    return cmd == "function" || cmd == "func" || cmd == "fun" || cmd == "fu";
+}
+
+static bool isFunctionEnd(const QString &cmd)
+{
+    return cmd == "endfunction" || cmd == "endfunc";
+}
+
 static bool isBlockTerminator(const QString &cmd)
 {
     return cmd == "endif" || cmd == "else" || cmd == "elseif"
-        || cmd == "endwhile" || cmd == "endfor";
+        || cmd == "endwhile" || cmd == "endfor" || isFunctionEnd(cmd);
 }
 
 void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
@@ -8357,6 +8402,19 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         } else if (c.cmd == "for") {
             ++index;
             execFor(cmds, index, active, c.args);
+        } else if (isFunctionStart(c.cmd)) {
+            ++index;
+            collectFunction(cmds, index, active, c);
+        } else if (c.cmd == "return") {
+            if (active) {
+                VimValue v;
+                QString error;
+                if (!c.args.isEmpty() && !evaluateExpression(exprText(c), &v, &error))
+                    showMessage(MessageError, error);
+                m_returnValue = v;
+                m_returning = true;
+            }
+            ++index;
         } else if (c.cmd == "break" || c.cmd == "continue") {
             if (active)
                 m_loopSignal = c.cmd == "break" ? BreakSignal : ContinueSignal;
@@ -8371,8 +8429,8 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
             }
             ++index;
         }
-        if (m_loopSignal != NoSignal)
-            return; // a :break/:continue stops the current sequence
+        if (m_loopSignal != NoSignal || m_returning)
+            return; // a :break/:continue/:return stops the current sequence
     }
 }
 
@@ -8383,7 +8441,7 @@ void FakeVimHandler::Private::execIf(const QList<ExCommand> &cmds,
     // executing the first one whose guard holds (only while "active").
     bool anyTaken = active && condition;
     execSequence(cmds, index, anyTaken);
-    while (index < cmds.size() && m_loopSignal == NoSignal) {
+    while (index < cmds.size() && m_loopSignal == NoSignal && !m_returning) {
         const ExCommand c = cmds.at(index);
         if (c.cmd == "endif") {
             ++index;
@@ -8423,6 +8481,8 @@ void FakeVimHandler::Private::execWhile(const QList<ExCommand> &cmds,
         while (evalCondition(condition)) {
             int i = bodyStart;
             execSequence(cmds, i, true);
+            if (m_returning)
+                break; // :return unwinds the whole function
             if (m_loopSignal == BreakSignal) {
                 m_loopSignal = NoSignal;
                 break;
@@ -8469,6 +8529,8 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
                 setVariable(var, item);
                 int i = bodyStart;
                 execSequence(cmds, i, true);
+                if (m_returning)
+                    break; // :return unwinds the whole function
                 if (m_loopSignal == BreakSignal) {
                     m_loopSignal = NoSignal;
                     break;
@@ -8486,10 +8548,12 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
 void FakeVimHandler::Private::runExCommands(const QList<ExCommand> &cmds)
 {
     m_loopSignal = NoSignal;
+    m_returning = false;
     int index = 0;
     while (index < cmds.size()) {
         execSequence(cmds, index, true);
-        m_loopSignal = NoSignal; // a :break/:continue outside a loop is ignored
+        m_loopSignal = NoSignal; // a :break/:continue/:return outside a loop or
+        m_returning = false;     // function is ignored
         if (index < cmds.size()) {
             // A block terminator with no matching opener.
             showMessage(MessageError,
@@ -8497,6 +8561,65 @@ void FakeVimHandler::Private::runExCommands(const QList<ExCommand> &cmds)
             ++index;
         }
     }
+}
+
+void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
+    int &index, bool active, const ExCommand &header)
+{
+    // header.args is "Name(arg1, arg2, ...)". Gather the body up to the
+    // matching :endfunction (functions do not nest in Vim).
+    UserFunction fn;
+    static const QRegularExpression re(
+        "^\\s*([A-Za-z_][A-Za-z0-9_:#]*)\\s*\\(([^)]*)\\)");
+    const QRegularExpressionMatch m = re.match(header.args);
+    QString name;
+    if (m.hasMatch()) {
+        name = m.captured(1);
+        const QString params = m.captured(2).trimmed();
+        if (!params.isEmpty())
+            fn.params = params.split(QRegularExpression("\\s*,\\s*"));
+    }
+
+    while (index < cmds.size() && !isFunctionEnd(cmds.at(index).cmd)) {
+        fn.body.append(cmds.at(index));
+        ++index;
+    }
+    if (index < cmds.size())
+        ++index; // consume :endfunction
+
+    if (active && !name.isEmpty())
+        m_userFunctions.insert(name, fn);
+    else if (active)
+        showMessage(MessageError, Tr::tr("Invalid function definition: %1").arg(header.args));
+}
+
+VimValue FakeVimHandler::Private::callUserFunction(const UserFunction &fn,
+    const QList<VimValue> &args)
+{
+    // Bind arguments into a fresh local scope, run the body and return the
+    // value from :return (or 0). Loop/return state is saved so nested and
+    // recursive calls are independent.
+    QHash<QString, VimValue> frame;
+    for (int i = 0; i < fn.params.size(); ++i)
+        frame.insert("a:" + fn.params.at(i), i < args.size() ? args.at(i) : VimValue());
+    frame.insert("a:0", VimValue(qlonglong(qMax(0, args.size() - fn.params.size()))));
+
+    const LoopSignal savedSignal = m_loopSignal;
+    const bool savedReturning = m_returning;
+    const VimValue savedReturnValue = m_returnValue;
+    m_loopSignal = NoSignal;
+    m_returning = false;
+
+    m_localScopes.append(frame);
+    int index = 0;
+    execSequence(fn.body, index, true);
+    m_localScopes.removeLast();
+
+    const VimValue result = m_returning ? m_returnValue : VimValue();
+    m_loopSignal = savedSignal;
+    m_returning = savedReturning;
+    m_returnValue = savedReturnValue;
+    return result;
 }
 
 void FakeVimHandler::Private::handleExCommand(const QString &line0)

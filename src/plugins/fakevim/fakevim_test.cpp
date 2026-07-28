@@ -214,6 +214,7 @@ private slots:
     void test_vim_script_for();
     void test_vim_script_dicts();
     void test_vim_script_indexed_let();
+    void test_vim_script_functions();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6016,6 +6017,64 @@ void FakeVimTester::test_vim_script_indexed_let()
     data.doCommand("let g:m = {} | for i in range(1, 3) | "
                    "let g:m[string(i)] = i * i | endfor");
     QCOMPARE(echo("g:m"), QLatin1String("{'1': 1, '2': 4, '3': 9}"));
+}
+
+void FakeVimTester::test_vim_script_functions()
+{
+    // User functions: :function/:endfunction, :call, :return, a:/l: scopes
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    // One-line definition (bar form), arguments and :return.
+    data.doCommand("function Add(a, b) | return a:a + a:b | endfunction");
+    QCOMPARE(echo("Add(2, 3)"), QLatin1String("5"));
+
+    // l: locals; they do not leak to the global scope.
+    data.doCommand("function Inc(n) | let l:r = a:n + 1 | return l:r | endfunction");
+    QCOMPARE(echo("Inc(9)"), QLatin1String("10"));
+    QCOMPARE(echo("exists('r')"), QLatin1String("0"));
+
+    // Recursion.
+    source("function Fact(n)\n"
+           "  if a:n <= 1\n"
+           "    return 1\n"
+           "  endif\n"
+           "  return a:n * Fact(a:n - 1)\n"
+           "endfunction\n");
+    QCOMPARE(echo("Fact(5)"), QLatin1String("120"));
+
+    // A loop and :return inside a function.
+    source("function Sum(list)\n"
+           "  let l:s = 0\n"
+           "  for x in a:list\n"
+           "    let l:s += x\n"
+           "  endfor\n"
+           "  return l:s\n"
+           "endfunction\n");
+    QCOMPARE(echo("Sum([1, 2, 3, 4])"), QLatin1String("10"));
+
+    // :call a user function for its side effects, reaching a global.
+    data.doCommand("function Push(x) | call add(g:acc, a:x) | endfunction");
+    data.doCommand("let g:acc = []");
+    data.doCommand("call Push(7)");
+    data.doCommand("call Push(8)");
+    QCOMPARE(echo("g:acc"), QLatin1String("[7, 8]"));
 }
 
 void FakeVimTester::test_vim_file_info()
