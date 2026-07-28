@@ -143,6 +143,12 @@ QString BeautifierTool::msgFormatLines()
     return Tr::tr("Format &Line(s)");
 }
 
+QString BeautifierTool::msgFormatChangedLines()
+{
+    //: Menu entry
+    return Tr::tr("Format Chan&ged Lines");
+}
+
 QString BeautifierTool::msgDisableFormattingSelectedText()
 {
     //: Menu entry

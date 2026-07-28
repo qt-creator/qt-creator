@@ -14,10 +14,13 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <texteditor/formattexteditor.h>
 #include <texteditor/textdocument.h>
@@ -27,6 +30,8 @@
 #include <utils/fileutils.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcprocess.h>
+#include <utils/result.h>
 
 #include <QAction>
 #include <QButtonGroup>
@@ -35,6 +40,7 @@
 #include <QGroupBox>
 #include <QMenu>
 #include <QRadioButton>
+#include <QRegularExpression>
 #include <QTextBlock>
 #include <QVersionNumber>
 #include <QXmlStreamWriter>
@@ -345,6 +351,12 @@ public:
             .addToContainer(menuId)
             .addOnTriggered(this, &ClangFormat::formatLines);
 
+        Core::ActionBuilder(this, "ClangFormat.FormatChangedLines")
+            .setText(msgFormatChangedLines())
+            .bindContextAction(&m_formatChangedLines)
+            .addToContainer(menuId)
+            .addOnTriggered(this, &ClangFormat::formatChangedLines);
+
         Core::ActionBuilder(this, "ClangFormat.FormatAtCursor")
             .setText(msgFormatAtCursor())
             .bindContextAction(&m_formatRange)
@@ -369,6 +381,7 @@ public:
         const bool enabled = editor && settings().isApplicable(editor->document());
         m_formatFile->setEnabled(enabled);
         m_formatRange->setEnabled(enabled);
+        m_formatChangedLines->setEnabled(enabled);
     }
 
     TextEditor::Command textCommand() const final;
@@ -383,11 +396,13 @@ private:
     void formatAtPosition(const int pos, const int length);
     void formatAtCursor();
     void formatLines();
+    void formatChangedLines();
     void disableFormattingSelectedText();
     TextEditor::Command textCommand(int offset, int length) const;
 
     QAction *m_formatFile = nullptr;
     QAction *m_formatLines = nullptr;
+    QAction *m_formatChangedLines = nullptr;
     QAction *m_formatRange = nullptr;
     QAction *m_disableFormattingSelectedText = nullptr;
 };
@@ -459,6 +474,82 @@ void ClangFormat::formatLines()
 
     auto cmd = textCommand();
     cmd.addOption(QString("-lines=%1:%2").arg(QString::number(lineStart)).arg(QString::number(lineEnd)));
+    formatCurrentFile(cmd);
+}
+
+// Returns the 1-based [start, end] line ranges of the on-disk file that differ
+// from the last committed version, obtained via "git diff". The list is empty
+// if nothing has changed. A file unknown to Git counts as changed as a whole.
+static Result<QList<std::pair<int, int>>> gitChangedLineRanges(const FilePath &filePath,
+                                                               int lineCount)
+{
+    FilePath topLevel;
+    const Core::IVersionControl *vc
+        = Core::VcsManager::findVersionControlForDirectory(filePath.parentDir(), &topLevel);
+    if (!vc || vc->id() != "G.Git")
+        return ResultError(
+            Tr::tr("\"%1\" is not in a Git repository.").arg(filePath.toUserOutput()));
+
+    if (!vc->managesFile(topLevel, filePath.relativeChildPath(topLevel).path()))
+        return QList<std::pair<int, int>>{{1, lineCount}};
+
+    const FilePath git = filePath.withNewPath("git").searchInPath();
+    if (git.isEmpty())
+        return ResultError(Tr::tr("Cannot find the git executable."));
+
+    // The output is parsed, so external diff drivers and textconv filters must not
+    // change its format or line numbers.
+    Utils::Process process;
+    process.setCommand({git, {"diff", "-U0", "--no-color", "--no-ext-diff", "--no-textconv",
+                              "HEAD", "--", filePath.path()}});
+    process.setWorkingDirectory(topLevel);
+    process.runBlocking();
+    if (process.result() != ProcessResult::FinishedWithSuccess)
+        return ResultError(process.verboseExitMessage());
+
+    // A hunk header looks like "@@ -12,3 +14,2 @@ ...", the "+14,2" part gives
+    // the affected lines in the new file (start line and line count, the count
+    // defaulting to 1 when omitted).
+    static const QRegularExpression hunk("^@@ -\\d+(?:,\\d+)? \\+(\\d+)(?:,(\\d+))? @@");
+    QList<std::pair<int, int>> ranges;
+    const QStringList lines = process.cleanedStdOut().split('\n');
+    for (const QString &line : lines) {
+        const QRegularExpressionMatch match = hunk.match(line);
+        if (!match.hasMatch())
+            continue;
+        const int start = match.captured(1).toInt();
+        const int count = match.captured(2).isEmpty() ? 1 : match.captured(2).toInt();
+        if (count == 0) // Pure deletion, no line in the new file to format.
+            continue;
+        ranges.append({start, start + count - 1});
+    }
+    return ranges;
+}
+
+void ClangFormat::formatChangedLines()
+{
+    const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+    if (!widget || !isApplicable(widget->textDocument()))
+        return;
+
+    // The line numbers come from the file on disk, clang-format gets the buffer.
+    TextDocument *document = widget->textDocument();
+    if (document->isModified() && !Core::DocumentManager::saveDocument(document))
+        return;
+
+    const int lineCount = widget->document()->blockCount();
+    const Result<QList<std::pair<int, int>>> ranges
+        = gitChangedLineRanges(document->filePath(), lineCount);
+    if (!ranges) {
+        showError(ranges.error());
+        return;
+    }
+    if (ranges->isEmpty())
+        return;
+
+    auto cmd = textCommand();
+    for (const std::pair<int, int> &range : *ranges)
+        cmd.addOption(QString("-lines=%1:%2").arg(range.first).arg(range.second));
     formatCurrentFile(cmd);
 }
 
