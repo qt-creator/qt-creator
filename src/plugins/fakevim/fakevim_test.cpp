@@ -227,6 +227,7 @@ private slots:
     void test_vim_script_ex_commands();
     void test_vim_script_funcref();
     void test_vim_script_autocmd();
+    void test_vim_script_dict_dot();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6568,6 +6569,44 @@ void FakeVimTester::test_vim_script_autocmd()
     data.doCommand("let g:hit = 0");
     data.doCommand("doautocmd BufWritePre");
     QCOMPARE(echo("g:hit"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_script_dict_dot()
+{
+    // "d.key" dictionary access, and "." still concatenating for non-dicts.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // Read access, including chained.
+    QCOMPARE(echo("{\"a\": 1, \"b\": 2}.b"), QLatin1String("2"));
+    data.doCommand("let g:d = {\"x\": {\"y\": 5}}");
+    QCOMPARE(echo("g:d.x.y"), QLatin1String("5"));
+    QCOMPARE(echo("g:d.x.y + 1"), QLatin1String("6"));
+
+    // "." is still concatenation for strings, with or without surrounding space.
+    QCOMPARE(echo("\"a\" . \"b\""), QLatin1String("ab"));
+    QCOMPARE(echo("\"a\".\"b\""), QLatin1String("ab"));
+    data.doCommand("let g:s = \"x\"");
+    QCOMPARE(echo("g:s.\"y\""), QLatin1String("xy"));
+
+    // Write via ":let d.key = v", with compound and nested forms.
+    data.doCommand("let g:m = {}");
+    data.doCommand("let g:m.a = 1");
+    data.doCommand("let g:m.b = 2");
+    QCOMPARE(echo("g:m"), QLatin1String("{'a': 1, 'b': 2}"));
+    data.doCommand("let g:m.a += 5");
+    QCOMPARE(echo("g:m.a"), QLatin1String("6"));
+    data.doCommand("let g:n = {\"sub\": {}}");
+    data.doCommand("let g:n.sub.x = 9");
+    QCOMPARE(echo("g:n"), QLatin1String("{'sub': {'x': 9}}"));
 }
 
 void FakeVimTester::test_vim_file_info()

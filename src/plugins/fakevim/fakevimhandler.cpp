@@ -7771,6 +7771,15 @@ private:
             } else if (cur() == '-' && at(1) == '>') { // method call v->f(...)
                 m_pos += 2;
                 v = parseMethodCall(v);
+            } else if (cur() == '.' && at(1) != '.' && v.isDict()
+                       && (at(1).isLetter() || at(1) == '_')) {
+                // "d.key" dictionary access: only when v is a dictionary, so a
+                // "." after a string/number stays the concatenation operator.
+                ++m_pos;
+                const int keyStart = m_pos;
+                while (cur().isLetterOrNumber() || cur() == '_')
+                    ++m_pos;
+                v = subscript(v, VimValue(m_in.mid(keyStart, m_pos - keyStart)));
             } else {
                 break;
             }
@@ -8433,9 +8442,11 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
 
 bool FakeVimHandler::Private::letAssignIndexed(const QString &args)
 {
-    // :let {var}[index]... = {expr}, assigning into a list or dictionary.
+    // :let {var}[index]... = {expr} or :let {var}.key = {expr}, assigning into
+    // a list or dictionary.
     static const QRegularExpression re(
-        "^\\s*([A-Za-z_][A-Za-z0-9_:]*(?:\\[[^\\]]*\\])+)\\s*([-+*/%.]?=)\\s*(.*)$");
+        "^\\s*([A-Za-z_][A-Za-z0-9_:]*"
+        "(?:\\[[^\\]]*\\]|\\.[A-Za-z_][A-Za-z0-9_]*)+)\\s*([-+*/%.]?=)\\s*(.*)$");
     const QRegularExpressionMatch m = re.match(args);
     if (!m.hasMatch())
         return false;
@@ -8450,15 +8461,40 @@ bool FakeVimHandler::Private::letAssignIndexed(const QString &args)
         return true;
     }
 
-    // The target container is everything up to the last "[...]"; evaluating it
-    // yields the (shared) list or dictionary to assign into.
-    const int lb = lhs.lastIndexOf('[');
-    const int rb = lhs.lastIndexOf(']');
+    // Find the last top-level subscript/key segment; the part before it is the
+    // (shared) container to assign into.
+    int segStart = -1;
+    bool bracket = false;
+    int depth = 0;
+    for (int i = 0; i < lhs.size(); ++i) {
+        const QChar ch = lhs.at(i);
+        if (ch == '[') {
+            if (depth == 0) {
+                segStart = i;
+                bracket = true;
+            }
+            ++depth;
+        } else if (ch == ']') {
+            --depth;
+        } else if (ch == '.' && depth == 0) {
+            segStart = i;
+            bracket = false;
+        }
+    }
+
     VimValue container, index;
-    if (!evaluateExpression(lhs.left(lb), &container, &error)
-        || !evaluateExpression(lhs.mid(lb + 1, rb - lb - 1), &index, &error)) {
+    if (!evaluateExpression(lhs.left(segStart), &container, &error)) {
         showMessage(MessageError, error);
         return true;
+    }
+    if (bracket) {
+        if (!evaluateExpression(lhs.mid(segStart + 1, lhs.size() - segStart - 2),
+                                &index, &error)) {
+            showMessage(MessageError, error);
+            return true;
+        }
+    } else {
+        index = VimValue(lhs.mid(segStart + 1)); // ".key" -> string key
     }
 
     if (container.isList()) {
