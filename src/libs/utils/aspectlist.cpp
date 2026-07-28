@@ -328,44 +328,70 @@ public:
         };
         QLayout *layout = nullptr;
 
-        Column buttonColumn {
-            PushButton {
+        const bool beside = displayStyle == AspectList::DisplayStyle::ListViewWithDetailsBeside;
+
+        const auto addButtons = [&](Layout &buttons) {
+            buttons.addItem(PushButton {
                 text(Tr::tr("Add")),
                 onClicked(aspect, add),
-            },
-            PushButton {
+            });
+            buttons.addItem(PushButton {
                 bindTo(&removeButton),
                 text(Tr::tr("Remove")),
                 onClicked(aspect, removeCurrent),
-            },
-        };
-        for (const ExtraButton &eb : std::as_const(extraButtons)) {
-            buttonColumn.addItem(PushButton {
-                text(eb.text),
-                onClicked(aspect, eb.callback),
             });
-        }
-        buttonColumn.addItem(st);
+            for (const ExtraButton &eb : std::as_const(extraButtons)) {
+                buttons.addItem(PushButton {
+                    text(eb.text),
+                    onClicked(aspect, eb.callback),
+                });
+            }
+            buttons.addItem(st);
+        };
 
         // clang-format off
-        parent.addItem(
-            Row {
-                Column {
-                    bindTo(&layout),
-                    listView,
-                },
-                buttonColumn,
-            }
-        );
+        if (beside) {
+            listView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+            Row buttonRow { noMargin };
+            addButtons(buttonRow);
+            parent.addItem(
+                Row {
+                    Column {
+                        listView,
+                        buttonRow,
+                    },
+                    Column {
+                        bindTo(&layout),
+                        noMargin,
+                    },
+                }
+            );
+        } else {
+            Column buttonColumn;
+            addButtons(buttonColumn);
+            parent.addItem(
+                Row {
+                    Column {
+                        bindTo(&layout),
+                        listView,
+                    },
+                    buttonColumn,
+                }
+            );
+        }
         // clang-format on
 
         const auto onCurrentChanged =
-            [listView, layout, configWidget, this](const QModelIndex &current) mutable {
+            [listView, layout, configWidget, beside, this](const QModelIndex &current) mutable {
                 QWidget *newConfigWidget = nullptr;
                 if (current.isValid()) {
                     const AspectListModelItem *item = model.itemForIndex(current);
                     QTC_ASSERT(item, return);
                     newConfigWidget = new QWidget();
+                    if (beside) {
+                        newConfigWidget->setSizePolicy(QSizePolicy::Expanding,
+                                                       QSizePolicy::Preferred);
+                    }
 
                     if (auto container = dynamic_cast<AspectContainer *>(item->aspect().get()))
                         container->layouter()().attachTo(newConfigWidget);
@@ -398,7 +424,7 @@ public:
     {
         if (displayStyle == AspectList::DisplayStyle::InlineList)
             addToLayoutImplInlineList(parent, aspect);
-        else if (displayStyle == AspectList::DisplayStyle::ListViewWithDetails)
+        else
             addToLayoutImplListView(parent, aspect);
     }
 };

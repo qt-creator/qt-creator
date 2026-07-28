@@ -13,24 +13,20 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projecttree.h>
 
+#include <utils/aspectlist.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcsettings.h>
 
-#include <QBoxLayout>
 #include <QCheckBox>
-#include <QGroupBox>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QListWidget>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QRadioButton>
 #include <QRegularExpression>
 #include <QSettings>
-#include <QSpacerItem>
 #include <QSpinBox>
-#include <QtDebug>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -655,63 +651,426 @@ void LineCountSpinBox::updateFields()
     m_unitLabel->setEnabled(enabled);
 }
 
-class CppQuickFixSettingsWidget : public Core::IOptionsPageWidget
+// Signed line count edited through a LineCountSpinBox (checkbox + spin box).
+class LineCountAspect final : public TypedAspect<int>
 {
-    Q_OBJECT
-
-    enum CustomDataRoles {
-        Types = Qt::UserRole,
-        Comparison,
-        Assignment,
-        ReturnExpression,
-        ReturnType,
-    };
-
 public:
-    CppQuickFixSettingsWidget();
+    using TypedAspect::TypedAspect;
 
-    void loadSettings(CppQuickFixSettings *settings);
-    void saveSettings(CppQuickFixSettings *settings);
+protected:
+    void addToLayoutImpl(Layouting::Layout &parent) override
+    {
+        m_spinBox = createSubWidget<LineCountSpinBox>();
+        m_spinBox->setCount(volatileValue());
+        connect(m_spinBox, &LineCountSpinBox::changed, this, [this] { handleGuiChanged(); });
+        parent.addItem(m_spinBox.data());
+    }
 
-signals:
-    void settingsChanged();
+    void volatileValueToGui() override
+    {
+        if (m_spinBox)
+            m_spinBox->setCount(m_volatileValue);
+    }
+
+    bool guiToVolatileValue() override
+    {
+        if (!m_spinBox)
+            return false;
+        const int newValue = m_spinBox->count();
+        const bool changed = newValue != m_volatileValue;
+        m_volatileValue = newValue;
+        return changed;
+    }
 
 private:
-    void apply() final;
-    void currentCustomItemChanged(QListWidgetItem *newItem, QListWidgetItem *oldItem);
-
-    bool m_isLoadingSettings = false;
-    const QRegularExpression m_typeSplitter;
-
-    LineCountSpinBox *m_lines_getterOutsideClass;
-    LineCountSpinBox *m_lines_getterInCppFile;
-    LineCountSpinBox *m_lines_setterOutsideClass;
-    LineCountSpinBox *m_lines_setterInCppFile;
-    QLineEdit *m_lineEdit_setterParameter;
-    QCheckBox *m_checkBox_setterSlots;
-    QCheckBox *m_checkBox_signalWithNewValue;
-    QLineEdit *m_lineEdit_getterName;
-    QLineEdit *m_lineEdit_resetName;
-    QLineEdit *m_lineEdit_getterAttribute;
-    QLineEdit *m_lineEdit_setterName;
-    QLineEdit *m_lineEdit_signalName;
-    QLineEdit *m_lineEdit_memberVariableName;
-    QLineEdit *m_lineEdit_nameFromMemberVariable;
-    QRadioButton *m_radioButton_generateMissingNamespace;
-    QRadioButton *m_radioButton_addUsingnamespace;
-    QRadioButton *m_radioButton_rewriteTypes;
-    QCheckBox *m_useAutoCheckBox;
-    QGroupBox *m_groupBox_customTemplate;
-    QLineEdit *m_lineEdit_customTemplateTypes;
-    QLineEdit *m_lineEdit_customTemplateComparison;
-    QLineEdit *m_lineEdit_customTemplateAssignment;
-    QLineEdit *m_lineEdit_customTemplateReturnExpression;
-    QLineEdit *m_lineEdit_customTemplateReturnType;
-    QListWidget *m_listWidget_customTemplates;
-    QPushButton *m_pushButton_removeCustomTemplate;
-    QListWidget *m_valueTypes;
-    QCheckBox *m_returnByConstRefCheckBox;
+    QPointer<LineCountSpinBox> m_spinBox;
 };
+
+// One entry of the "Custom Getter Setter Templates" master/detail list.
+class CustomTemplateAspect final : public AspectContainer
+{
+public:
+    CustomTemplateAspect()
+    {
+        types.setToolTip(Tr::tr("Separate the types by comma."));
+        types.setLabelText(Tr::tr("Types:"));
+        comparison.setLabelText(Tr::tr("Comparison:"));
+        assignment.setLabelText(Tr::tr("Assignment:"));
+        returnExpression.setLabelText(Tr::tr("Return expression:"));
+        returnType.setLabelText(Tr::tr("Return type:"));
+        for (StringAspect *a : {&types, &comparison, &assignment, &returnExpression, &returnType})
+            a->setDisplayStyle(StringAspect::LineEditDisplay);
+
+        using namespace Layouting;
+        setLayouter([this] {
+            return Form {
+                types, br,
+                comparison, br,
+                assignment, br,
+                returnExpression, br,
+                returnType, br,
+                Label {
+                    wordWrap(true),
+                    text(Tr::tr("Use <new> and <cur> to access the parameter and current value. "
+                                "Use <type> to access the type and <T> for the template "
+                                "parameter.")),
+                }, br,
+            };
+        });
+    }
+
+    void setTemplate(const CppQuickFixSettings::CustomTemplate &t)
+    {
+        types.setValue(t.types.join(", "));
+        comparison.setValue(t.equalComparison);
+        assignment.setValue(t.assignment);
+        returnExpression.setValue(t.returnExpression);
+        returnType.setValue(t.returnType);
+    }
+
+    CppQuickFixSettings::CustomTemplate toTemplate() const
+    {
+        static const QRegularExpression splitter("\\s*,\\s*");
+        CppQuickFixSettings::CustomTemplate t;
+        t.types = types.volatileValue().split(splitter, Qt::SkipEmptyParts);
+        t.equalComparison = comparison.volatileValue();
+        t.assignment = assignment.volatileValue();
+        t.returnExpression = returnExpression.volatileValue();
+        t.returnType = returnType.volatileValue();
+        return t;
+    }
+
+    StringAspect types{this};
+    StringAspect comparison{this};
+    StringAspect assignment{this};
+    StringAspect returnExpression{this};
+    StringAspect returnType{this};
+};
+
+// Editor for CppQuickFixSettings, shared by the global options page and the
+// per-project panel. CppQuickFixSettings stays the persistence format.
+class CppQuickFixSettingsAspects final : public AspectContainer
+{
+public:
+    CppQuickFixSettingsAspects();
+
+    void loadFrom(const CppQuickFixSettings &s);
+    void saveTo(CppQuickFixSettings &s) const;
+
+    void apply() override;
+
+    std::function<void()> committer;
+
+    LineCountAspect getterOutsideClass{this};
+    LineCountAspect getterInCppFile{this};
+    LineCountAspect setterOutsideClass{this};
+    LineCountAspect setterInCppFile{this};
+
+    StringAspect getterAttributes{this};
+    StringAspect getterName{this};
+    StringAspect setterName{this};
+    StringAspect setterParameter{this};
+    StringAspect resetName{this};
+    StringAspect signalName{this};
+    StringAspect memberVariableName{this};
+    StringAspect nameFromMemberVariable{this};
+
+    BoolAspect setterAsSlot{this};
+    BoolAspect signalWithNewValue{this};
+    BoolAspect useAuto{this};
+    BoolAspect returnByConstRef{this};
+
+    SelectionAspect namespaceHandling{this};
+
+    StringListAspect valueTypes{this};
+    AspectList customTemplates{this};
+};
+
+CppQuickFixSettingsAspects::CppQuickFixSettingsAspects()
+{
+    setAutoApply(false);
+
+    const CppQuickFixSettings def;
+    const QString toolTip1 = "<html><body>"
+        + Tr::tr("A JavaScript expression acting as the return value of a function with two "
+                 "parameters <b>name</b> and <b>memberName</b>, where"
+                 "<ul><li><b>name</b> is the \"semantic name\" as it would be used for a Qt "
+                 "property</li>"
+                 "<li><b>memberName</b> is the name of the member variable.</li></ul>")
+        + "</body></html>";
+    const QString toolTip2 = "<html><body>"
+        + Tr::tr("A JavaScript expression acting as the return value of a function with a "
+                 "parameter <b>name</b>, which is the \"semantic name\" as it would be used for a "
+                 "Qt property.")
+        + "</body></html>";
+
+    getterAttributes.setDisplayStyle(StringAspect::LineEditDisplay);
+    getterAttributes.setLabelText(Tr::tr("Getter attributes:"));
+    getterAttributes.setPlaceHolderText(Tr::tr("For example, [[nodiscard]]"));
+
+    const auto setupJsField = [](StringAspect &a, const QString &label, const QString &placeholder,
+                                 const QString &toolTip) {
+        a.setDisplayStyle(StringAspect::LineEditDisplay);
+        a.setLabelText(label);
+        if (!placeholder.isEmpty())
+            a.setPlaceHolderText(placeholder);
+        a.setToolTip(toolTip);
+    };
+    setupJsField(getterName, Tr::tr("Getter name:"), def.getterNameTemplate, toolTip1);
+    setupJsField(setterName, Tr::tr("Setter name:"), def.setterNameTemplate, toolTip1);
+    setupJsField(setterParameter, Tr::tr("Setter parameter name:"), def.setterParameterNameTemplate,
+                 toolTip1);
+    setupJsField(resetName, Tr::tr("Reset name:"), def.resetNameTemplate, toolTip1);
+    setupJsField(signalName, Tr::tr("Signal name:"), def.signalNameTemplate, toolTip1);
+    setupJsField(memberVariableName, Tr::tr("Member variable name:"),
+                 def.memberVariableNameTemplate, toolTip2);
+    setupJsField(nameFromMemberVariable, Tr::tr("Name from member variable:"), {},
+                 Tr::tr("How to get from the member variable to the semantic name.\n"
+                        "This is the reverse of the operation above.\n"
+                        "Leave empty to apply heuristics."));
+
+    setterAsSlot.setLabelText(Tr::tr("Setters should be slots"));
+    signalWithNewValue.setLabelText(Tr::tr("Generate signals with the new value as parameter"));
+    useAuto.setLabelText(Tr::tr("Use type \"auto\" when creating new variables"));
+    useAuto.setToolTip(Tr::tr("Declares new variables with the type \"auto\". When "
+                              "unchecked, the \"Assign to Local Variable\" quick fix "
+                              "tries to derive the type of the expression. This might "
+                              "fail for more complex types."));
+    returnByConstRef.setLabelText(Tr::tr("Return non-value types by const reference"));
+
+    namespaceHandling.setDisplayStyle(SelectionAspect::DisplayStyle::RadioButtons);
+    namespaceHandling.addOption(Tr::tr("Generate missing namespaces"));
+    namespaceHandling.addOption(Tr::tr("Add \"using namespace ...\""));
+    namespaceHandling.addOption(Tr::tr("Rewrite types to match the existing namespaces"));
+
+    valueTypes.setDisplayStyle(StringListAspect::DisplayStyle::ListView);
+    valueTypes.setUiAllowAdding(true);
+    valueTypes.setUiAllowRemoving(true);
+    valueTypes.setUiAllowEditing(true);
+    valueTypes.setToolTip(
+        Tr::tr("Normally arguments get passed by const reference. If the Type is one of the "
+               "following ones, the argument gets passed by value. Namespaces and template "
+               "arguments are removed. The real Type must contain the given Type. For example, "
+               "\"int\" matches \"int32_t\" but not \"vector<int>\". \"vector\" matches "
+               "\"std::pmr::vector<int>\" but not \"std::optional<vector<int>>\""));
+
+    customTemplates.setCreateItemFunction([] {
+        auto item = std::make_shared<CustomTemplateAspect>();
+        item->types.setValue("<type>");
+        return item;
+    });
+    customTemplates.setDisplayStyle(AspectList::DisplayStyle::ListViewWithDetailsBeside);
+    customTemplates.listViewDataCallback = [](CustomTemplateAspect *aspect, int role) -> QVariant {
+        if (role == Qt::DisplayRole)
+            return aspect->types.volatileValue();
+        return {};
+    };
+
+    setLayouter([this] {
+        using namespace Layouting;
+
+        const auto ulLabel = [](const QString &text) {
+            QLabel *label = new QLabel(text);
+            QFont font = label->font();
+            font.setUnderline(true);
+            label->setFont(font);
+            return label;
+        };
+
+        auto functionLocationsGrid = new QWidget;
+        Grid {
+            empty, ulLabel(Tr::tr("Generate Setters")), ulLabel(Tr::tr("Generate Getters")), br,
+            Tr::tr("Inside class:"), Tr::tr("Default"), Tr::tr("Default"), br,
+            Tr::tr("Outside class:"), setterOutsideClass, getterOutsideClass, br,
+            Tr::tr("In .cpp file:"), setterInCppFile, getterInCppFile, br,
+            noMargin,
+        }.attachTo(functionLocationsGrid);
+        if (QGridLayout *gl = qobject_cast<QGridLayout *>(functionLocationsGrid->layout()))
+            gl->setHorizontalSpacing(48);
+
+        const auto makeResultField = [] {
+            auto field = new QLineEdit;
+            field->setReadOnly(true);
+            return field;
+        };
+        QLineEdit * const getterResult = makeResultField();
+        QLineEdit * const setterResult = makeResultField();
+        QLineEdit * const setterParameterResult = makeResultField();
+        QLineEdit * const resetResult = makeResultField();
+        QLineEdit * const signalResult = makeResultField();
+        QLineEdit * const memberResult = makeResultField();
+        QLineEdit * const nameFromMemberResult = makeResultField();
+        auto jsTestInput = new QLineEdit;
+        jsTestInput->setText("myValue");
+        jsTestInput->setToolTip(
+            Tr::tr("The content of the <b>name</b> parameter in the fields above, that is, the "
+                   "\"semantic name\" without any prefix or suffix."));
+        auto jsTestButton = new QPushButton(Tr::tr("Test"));
+        auto hideJsTestButton = new QPushButton(Tr::tr("Hide Test Results"));
+
+        const auto runTests = [=, this] {
+            const QString memberName = CppQuickFixSettings::replaceNamePlaceholders(
+                memberVariableName.volatileValue(), jsTestInput->text(), {});
+            memberResult->show();
+            memberResult->setText(memberName);
+            const QList<std::pair<StringAspect *, QLineEdit *>> nameFields = {
+                {&getterName, getterResult},
+                {&setterName, setterResult},
+                {&setterParameter, setterParameterResult},
+                {&resetName, resetResult},
+                {&signalName, signalResult}};
+            for (const auto &[aspect, resultField] : nameFields) {
+                resultField->show();
+                resultField->setText(CppQuickFixSettings::replaceNamePlaceholders(
+                    aspect->volatileValue(), jsTestInput->text(), memberName));
+            }
+            nameFromMemberResult->show();
+            nameFromMemberResult->setText(CppQuickFixSettings::memberBaseName(
+                memberResult->text(), nameFromMemberVariable.volatileValue()));
+        };
+        const auto hideResults = [=] {
+            for (QLineEdit *field : {getterResult, setterResult, setterParameterResult, resetResult,
+                                     signalResult, memberResult, nameFromMemberResult}) {
+                field->hide();
+            }
+        };
+        connect(jsTestButton, &QPushButton::clicked, this, runTests);
+        connect(hideJsTestButton, &QPushButton::clicked, this, hideResults);
+        hideResults();
+
+        return Column {
+            Group {
+                title(Tr::tr("Generated Function Locations")),
+                Row { functionLocationsGrid, st },
+            },
+            Group {
+                title(Tr::tr("Getter Setter Generation Properties")),
+                Form {
+                    getterAttributes, br,
+                    getterName, getterResult, br,
+                    setterName, setterResult, br,
+                    setterParameter, setterParameterResult, br,
+                    setterAsSlot, br,
+                    resetName, resetResult, br,
+                    signalName, signalResult, br,
+                    signalWithNewValue, br,
+                    memberVariableName, memberResult, br,
+                    nameFromMemberVariable, nameFromMemberResult, br,
+                    Tr::tr("Test with example name:"), jsTestInput, jsTestButton, hideJsTestButton,
+                        st, br,
+                },
+            },
+            Group {
+                title(Tr::tr("Missing Namespace Handling")),
+                Column { namespaceHandling },
+            },
+            useAuto,
+            Group {
+                title(Tr::tr("Custom Getter Setter Templates")),
+                Column { customTemplates },
+            },
+            Group {
+                title(Tr::tr("Value Types")),
+                Column { valueTypes },
+            },
+            returnByConstRef,
+        };
+    });
+}
+
+void CppQuickFixSettingsAspects::apply()
+{
+    AspectContainer::apply();
+    if (committer)
+        committer();
+}
+
+// The spin box cannot show 0 and would read it back as -1.
+static int guiLineCount(int count)
+{
+    return count != 0 ? count : -1;
+}
+
+void CppQuickFixSettingsAspects::loadFrom(const CppQuickFixSettings &s)
+{
+    getterOutsideClass.setValue(guiLineCount(s.getterOutsideClassFrom));
+    getterInCppFile.setValue(guiLineCount(s.getterInCppFileFrom));
+    setterOutsideClass.setValue(guiLineCount(s.setterOutsideClassFrom));
+    setterInCppFile.setValue(guiLineCount(s.setterInCppFileFrom));
+    getterAttributes.setValue(s.getterAttributes);
+    getterName.setValue(s.getterNameTemplate);
+    setterName.setValue(s.setterNameTemplate);
+    setterParameter.setValue(s.setterParameterNameTemplate);
+    resetName.setValue(s.resetNameTemplate);
+    signalName.setValue(s.signalNameTemplate);
+    memberVariableName.setValue(s.memberVariableNameTemplate);
+    nameFromMemberVariable.setValue(s.nameFromMemberVariableTemplate);
+    setterAsSlot.setValue(s.setterAsSlot);
+    signalWithNewValue.setValue(s.signalWithNewValue);
+    useAuto.setValue(s.useAuto);
+    returnByConstRef.setValue(s.returnByConstRef);
+    namespaceHandling.setValue(int(s.cppFileNamespaceHandling));
+    valueTypes.setValue(s.valueTypes);
+
+    customTemplates.clear();
+    for (const CppQuickFixSettings::CustomTemplate &t : s.customTemplates) {
+        auto item = std::static_pointer_cast<CustomTemplateAspect>(
+            customTemplates.createAndAddItem());
+        item->setTemplate(t);
+    }
+    customTemplates.apply(); // commit the loaded list as the clean baseline
+}
+
+void CppQuickFixSettingsAspects::saveTo(CppQuickFixSettings &s) const
+{
+    s.getterOutsideClassFrom = getterOutsideClass.volatileValue();
+    s.getterInCppFileFrom = getterInCppFile.volatileValue();
+    s.setterOutsideClassFrom = setterOutsideClass.volatileValue();
+    s.setterInCppFileFrom = setterInCppFile.volatileValue();
+    s.getterAttributes = getterAttributes.volatileValue();
+    s.getterNameTemplate = getterName.volatileValue();
+    s.setterNameTemplate = setterName.volatileValue();
+    s.setterParameterNameTemplate = setterParameter.volatileValue();
+    s.resetNameTemplate = resetName.volatileValue();
+    s.signalNameTemplate = signalName.volatileValue();
+    s.memberVariableNameTemplate = memberVariableName.volatileValue();
+    s.nameFromMemberVariableTemplate = nameFromMemberVariable.volatileValue();
+    s.setterAsSlot = setterAsSlot.volatileValue();
+    s.signalWithNewValue = signalWithNewValue.volatileValue();
+    s.useAuto = useAuto.volatileValue();
+    s.returnByConstRef = returnByConstRef.volatileValue();
+    s.cppFileNamespaceHandling
+        = CppQuickFixSettings::MissingNamespaceHandling(namespaceHandling.volatileValue());
+    s.valueTypes = valueTypes.volatileValue();
+    s.valueTypes.removeAll(QString());
+
+    s.customTemplates.clear();
+    for (const std::shared_ptr<BaseAspect> &item : customTemplates.volatileItems()) {
+        const CppQuickFixSettings::CustomTemplate t
+            = static_cast<CustomTemplateAspect *>(item.get())->toTemplate();
+        // Same filter as loadSettingsFrom(), which would drop these on the next load.
+        if (t.types.isEmpty()
+            || (t.assignment.isEmpty() && t.returnType.isEmpty() && t.equalComparison.isEmpty())) {
+            continue;
+        }
+        s.customTemplates.push_back(t);
+    }
+}
+
+static CppQuickFixSettingsAspects &globalCppQuickFixSettingsAspects()
+{
+    static CppQuickFixSettingsAspects theAspects;
+    static const bool initialized = [] {
+        theAspects.loadFrom(*globalCppQuickFixSettings());
+        theAspects.committer = [] {
+            theAspects.saveTo(*globalCppQuickFixSettings());
+            globalCppQuickFixSettings()->saveAsGlobalSettings();
+        };
+        return true;
+    }();
+    Q_UNUSED(initialized)
+    return theAspects;
+}
 
 class CppQuickFixProjectSettingsWidget : public QWidget
 {
@@ -722,10 +1081,13 @@ private:
     void currentItemChanged(bool useGlobal);
     void buttonCustomClicked();
 
-    CppQuickFixSettingsWidget *m_settingsWidget;
-    CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr m_projectSettings;
+    void reload();
 
+    QWidget *m_aspectsWidget;
+    CppQuickFixSettingsAspects *m_aspects;
+    CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr m_projectSettings;
     QPushButton *m_pushButton;
+    bool m_ignoreChanges = false;
 };
 
 CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *project)
@@ -733,16 +1095,17 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
     m_projectSettings = cppQuickFixProjectSettings(project);
 
     m_pushButton = new QPushButton(this);
-    m_settingsWidget = new CppQuickFixSettingsWidget;
-    m_settingsWidget->loadSettings(m_projectSettings->getSettings());
-    if (QLayout *l = m_settingsWidget->layout())
-        l->setContentsMargins(0, 0, 0, 0);
+    m_aspectsWidget = new QWidget;
+    m_aspects = new CppQuickFixSettingsAspects;
+    m_aspects->setParent(this);
+    reload();
 
     using namespace Layouting;
+    Column { *m_aspects, noMargin }.attachTo(m_aspectsWidget);
     Column {
         m_projectSettings->useGlobalSettings,
         Row { m_pushButton, st },
-        m_settingsWidget,
+        m_aspectsWidget,
         noMargin,
     }.attachTo(this);
 
@@ -754,12 +1117,22 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *proj
 
     connect(m_pushButton, &QAbstractButton::clicked,
             this, &CppQuickFixProjectSettingsWidget::buttonCustomClicked);
-    connect(m_settingsWidget, &CppQuickFixSettingsWidget::settingsChanged, this,
-            [this] {
-                m_settingsWidget->saveSettings(m_projectSettings->getSettings());
-                if (!m_projectSettings->useGlobalSettings())
-                    m_projectSettings->saveOwnSettings();
-            });
+    connect(m_aspects, &AspectContainer::volatileValueChanged, this, [this] {
+        if (m_ignoreChanges || m_projectSettings->useGlobalSettings())
+            return;
+        m_aspects->saveTo(*m_projectSettings->getSettings());
+        m_projectSettings->saveOwnSettings();
+        m_ignoreChanges = true;
+        m_aspects->customTemplates.apply(); // saved: make the list clean
+        m_ignoreChanges = false;
+    });
+}
+
+void CppQuickFixProjectSettingsWidget::reload()
+{
+    m_ignoreChanges = true;
+    m_aspects->loadFrom(*m_projectSettings->getSettings());
+    m_ignoreChanges = false;
 }
 
 void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobal)
@@ -781,8 +1154,8 @@ void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobal)
         // otherwise you change the comboBox and exit and have no custom settings:
         m_projectSettings->saveOwnSettings();
     }
-    m_settingsWidget->loadSettings(m_projectSettings->getSettings());
-    m_settingsWidget->setEnabled(!useGlobal);
+    reload();
+    m_aspectsWidget->setEnabled(!useGlobal);
 }
 
 void CppQuickFixProjectSettingsWidget::buttonCustomClicked()
@@ -794,469 +1167,7 @@ void CppQuickFixProjectSettingsWidget::buttonCustomClicked()
     } else /*Custom*/ {
         m_projectSettings->resetOwnSettingsToGlobal();
         m_projectSettings->saveOwnSettings();
-        m_settingsWidget->loadSettings(m_projectSettings->getSettings());
-    }
-}
-
-CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
-    : m_typeSplitter("\\s*,\\s*")
-{
-    m_lines_getterOutsideClass = new LineCountSpinBox;
-    m_lines_getterInCppFile = new LineCountSpinBox;
-    m_lines_setterOutsideClass = new LineCountSpinBox;
-    m_lines_setterInCppFile = new LineCountSpinBox;
-    auto functionLocationsGrid = new QWidget;
-    auto ulLabel = [] (const QString &text) {
-        QLabel *label = new QLabel(text);
-        QFont font = label->font();
-        font.setUnderline(true);
-        label->setFont(font);
-        return label;
-    };
-
-    const QString description1 = Tr::tr(
-        "A JavaScript expression acting as the return value of a function with two parameters "
-        "<b>name</b> and <b>memberName</b>, where"
-        "<ul><li><b>name</b> is the \"semantic name\" as it would be used for a Qt property</li>"
-        "<li><b>memberName</b> is the name of the member variable.</li></ul>");
-    const QString toolTip1 = QString("<html><body>%1</body></html>").arg(description1);
-    const QString description2 = Tr::tr(
-        "A JavaScript expression acting as the return value of a function with a parameter "
-        "<b>name</b>, which is the \"semantic name\" as it would be used for a Qt property.");
-    const QString toolTip2 = QString("<html><body>%1</body></html>").arg(description2);
-    CppQuickFixSettings defaultSettings;
-
-    const auto makeJsField = [] {
-        const auto field = new QLineEdit;
-        QSizePolicy sp = field->sizePolicy();
-        sp.setHorizontalStretch(1);
-        field->setSizePolicy(sp);
-        return field;
-    };
-    m_lineEdit_getterAttribute = new QLineEdit;
-    m_lineEdit_getterAttribute->setPlaceholderText(Tr::tr("For example, [[nodiscard]]"));
-    m_lineEdit_getterName = makeJsField();
-    m_lineEdit_getterName->setPlaceholderText(defaultSettings.getterNameTemplate);
-    m_lineEdit_getterName->setToolTip(toolTip1);
-    m_lineEdit_setterName = makeJsField();
-    m_lineEdit_setterName->setPlaceholderText(defaultSettings.setterNameTemplate);
-    m_lineEdit_setterName->setToolTip(toolTip1);
-    m_lineEdit_setterParameter = makeJsField();
-    m_lineEdit_setterParameter->setPlaceholderText(defaultSettings.setterParameterNameTemplate);
-    m_lineEdit_setterParameter->setToolTip(toolTip1);
-    m_checkBox_setterSlots = new QCheckBox(Tr::tr("Setters should be slots"));
-    m_lineEdit_resetName = makeJsField();
-    m_lineEdit_resetName->setPlaceholderText(defaultSettings.resetNameTemplate);
-    m_lineEdit_resetName->setToolTip(toolTip1);
-    m_lineEdit_signalName = makeJsField();
-    m_lineEdit_signalName->setPlaceholderText(defaultSettings.signalNameTemplate);
-    m_lineEdit_signalName->setToolTip(toolTip1);
-    m_checkBox_signalWithNewValue = new QCheckBox(
-                Tr::tr("Generate signals with the new value as parameter"));
-    m_lineEdit_memberVariableName = makeJsField();
-    m_lineEdit_memberVariableName->setPlaceholderText(defaultSettings.memberVariableNameTemplate);
-    m_lineEdit_memberVariableName->setToolTip(toolTip2);
-    m_lineEdit_nameFromMemberVariable = makeJsField();
-    m_lineEdit_nameFromMemberVariable->setToolTip(
-        Tr::tr(
-            "How to get from the member variable to the semantic name.\n"
-            "This is the reverse of the operation above.\n"
-            "Leave empty to apply heuristics."));
-
-    const auto jsTestButton = new QPushButton(Tr::tr("Test"));
-    const auto hideJsTestResultsButton = new QPushButton(Tr::tr("Hide Test Results"));
-    const auto jsTestInputField = new QLineEdit;
-    jsTestInputField->setToolTip(
-        Tr::tr(
-            "The content of the <b>name</b> parameter in the fields above, that is, the "
-            "\"semantic name\" without any prefix or suffix."));
-    jsTestInputField->setText("myValue");
-    const auto makeResultField = [] {
-        const auto resultField = new QLineEdit;
-        resultField->setReadOnly(true);
-        return resultField;
-    };
-    QLineEdit * const getterTestResultField = makeResultField();
-    QLineEdit * const setterTestResultField = makeResultField();
-    QLineEdit * const setterParameterTestResultField = makeResultField();
-    QLineEdit * const resetterTestResultField = makeResultField();
-    QLineEdit * const signalTestResultField = makeResultField();
-    QLineEdit * const memberTestResultField = makeResultField();
-    QLineEdit * const nameFromMemberTestResultField = makeResultField();
-    const auto runTests = [=, this] {
-        const QString memberName = CppQuickFixSettings::replaceNamePlaceholders(
-            m_lineEdit_memberVariableName->text(), jsTestInputField->text(), {});
-        memberTestResultField->show();
-        memberTestResultField->setText(memberName);
-        for (const auto &[codeField, resultField] :
-             {std::make_pair(m_lineEdit_getterName, getterTestResultField),
-              std::make_pair(m_lineEdit_setterName, setterTestResultField),
-              std::make_pair(m_lineEdit_setterParameter, setterParameterTestResultField),
-              std::make_pair(m_lineEdit_resetName, resetterTestResultField),
-              std::make_pair(m_lineEdit_signalName, signalTestResultField),}) {
-            resultField->show();
-            resultField->setText(
-                CppQuickFixSettings::replaceNamePlaceholders(
-                    codeField->text(), jsTestInputField->text(), memberName));
-        }
-        nameFromMemberTestResultField->show();
-        nameFromMemberTestResultField->setText(
-            CppQuickFixSettings::memberBaseName(
-                memberTestResultField->text(), m_lineEdit_nameFromMemberVariable->text()));
-    };
-    const auto hideResultFields = [=] {
-        getterTestResultField->hide();
-        setterTestResultField->hide();
-        setterParameterTestResultField->hide();
-        resetterTestResultField->hide();
-        signalTestResultField->hide();
-        memberTestResultField->hide();
-        nameFromMemberTestResultField->hide();
-    };
-    connect(jsTestButton, &QPushButton::clicked, runTests);
-    connect(hideJsTestResultsButton, &QPushButton::clicked, hideResultFields);
-    hideResultFields();
-
-    m_radioButton_generateMissingNamespace = new QRadioButton(Tr::tr("Generate missing namespaces"));
-    m_radioButton_addUsingnamespace = new QRadioButton(Tr::tr("Add \"using namespace ...\""));
-    m_radioButton_rewriteTypes = new QRadioButton(
-                Tr::tr("Rewrite types to match the existing namespaces"));
-
-    m_useAutoCheckBox = new QCheckBox(this);
-    m_useAutoCheckBox->setToolTip(Tr::tr("Declares new variables with the type \"auto\". When "
-                                         "unchecked, the \"Assign to Local Variable\" quick fix "
-                                         "tries to derive the type of the expression. This might "
-                                         "fail for more complex types."));
-    m_useAutoCheckBox->setText(Tr::tr("Use type \"auto\" when creating new variables"));
-
-    m_groupBox_customTemplate = new QGroupBox(Tr::tr("Template"));
-    m_groupBox_customTemplate->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-    m_groupBox_customTemplate->setEnabled(false);
-    m_listWidget_customTemplates = new QListWidget;
-    m_listWidget_customTemplates->setMaximumWidth(200);
-    m_listWidget_customTemplates->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-    m_lineEdit_customTemplateTypes = new QLineEdit;
-    m_lineEdit_customTemplateTypes->setToolTip(Tr::tr("Separate the types by comma."));
-    m_lineEdit_customTemplateComparison = new QLineEdit;
-    m_lineEdit_customTemplateAssignment = new QLineEdit;
-    m_lineEdit_customTemplateReturnExpression = new QLineEdit;
-    m_lineEdit_customTemplateReturnType = new QLineEdit;
-    auto customTemplateLabel = new QLabel(Tr::tr("Use <new> and <cur> to access the parameter and "
-                                                 "current value. Use <type> to access the type and <T> "
-                                                 "for the template parameter."));
-    customTemplateLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    customTemplateLabel->setWordWrap(true);
-
-    auto pushButton_addCustomTemplate = new QPushButton;
-    pushButton_addCustomTemplate->setText(Tr::tr("Add"));
-    m_pushButton_removeCustomTemplate = new QPushButton(Tr::tr("Remove"));
-    m_pushButton_removeCustomTemplate->setEnabled(false);
-
-    m_valueTypes = new QListWidget(this);
-    m_valueTypes->setToolTip(Tr::tr("Normally arguments get passed by const reference. If the Type is "
-                                    "one of the following ones, the argument gets passed by value. "
-                                    "Namespaces and template arguments are removed. The real Type must "
-                                    "contain the given Type. For example, \"int\" matches \"int32_t\" "
-                                    "but not \"vector<int>\". \"vector\" matches "
-                                    "\"std::pmr::vector<int>\" but not "
-                                    "\"std::optional<vector<int>>\""));
-    auto pushButton_addValueType = new QPushButton(Tr::tr("Add"));
-    auto pushButton_removeValueType = new QPushButton(Tr::tr("Remove"));
-
-    m_returnByConstRefCheckBox = new QCheckBox(Tr::tr("Return non-value types by const reference"));
-    m_returnByConstRefCheckBox->setChecked(false);
-
-    connect(m_listWidget_customTemplates, &QListWidget::currentItemChanged,
-            this, &CppQuickFixSettingsWidget::currentCustomItemChanged);
-
-    connect(pushButton_addValueType, &QPushButton::clicked, this, [this] {
-        auto item = new QListWidgetItem("<type>", m_valueTypes);
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled
-                       | Qt::ItemNeverHasChildren);
-        m_valueTypes->scrollToItem(item);
-        item->setSelected(true);
-    });
-    connect(pushButton_addCustomTemplate, &QPushButton::clicked, this, [this] {
-        auto item = new QListWidgetItem("<type>", m_listWidget_customTemplates);
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
-        m_listWidget_customTemplates->scrollToItem(item);
-        m_listWidget_customTemplates->setCurrentItem(item);
-        m_lineEdit_customTemplateTypes->setText("<type>");
-    });
-    connect(m_pushButton_removeCustomTemplate, &QPushButton::clicked, this, [this] {
-        delete m_listWidget_customTemplates->currentItem();
-        Utils::markSettingsDirty();
-    });
-    connect(pushButton_removeValueType, &QPushButton::clicked, this, [this] {
-        delete m_valueTypes->currentItem();
-        Utils::markSettingsDirty();
-    });
-
-    setEnabled(false);
-
-    using namespace Layouting;
-
-    // clang-format off
-    Grid {
-        empty, ulLabel(Tr::tr("Generate Setters")), ulLabel(Tr::tr("Generate Getters")), br,
-        Tr::tr("Inside class:"), Tr::tr("Default"), Tr::tr("Default"), br,
-        Tr::tr("Outside class:"), m_lines_setterOutsideClass, m_lines_getterOutsideClass, br,
-        Tr::tr("In .cpp file:"), m_lines_setterInCppFile, m_lines_getterInCppFile, br,
-        noMargin,
-    }.attachTo(functionLocationsGrid);
-
-    if (QGridLayout *gl = qobject_cast<QGridLayout*>(functionLocationsGrid->layout()))
-        gl->setHorizontalSpacing(48);
-
-    Form {
-        Tr::tr("Types:"), m_lineEdit_customTemplateTypes, br,
-        Tr::tr("Comparison:"), m_lineEdit_customTemplateComparison, br,
-        Tr::tr("Assignment:"), m_lineEdit_customTemplateAssignment, br,
-        Tr::tr("Return expression:"), m_lineEdit_customTemplateReturnExpression, br,
-        Tr::tr("Return type:"), m_lineEdit_customTemplateReturnType, br,
-        customTemplateLabel, br,
-    }.attachTo(m_groupBox_customTemplate);
-
-    Column {
-        Group {
-            title(Tr::tr("Generated Function Locations")),
-            Row { functionLocationsGrid, st, },
-        },
-        Group {
-            title(Tr::tr("Getter Setter Generation Properties")),
-            Form {
-                Tr::tr("Getter attributes:"), m_lineEdit_getterAttribute, br,
-                Tr::tr("Getter name:"), m_lineEdit_getterName, getterTestResultField, br,
-                Tr::tr("Setter name:"), m_lineEdit_setterName, setterTestResultField, br,
-                Tr::tr("Setter parameter name:"), m_lineEdit_setterParameter, setterParameterTestResultField, br,
-                m_checkBox_setterSlots, br,
-                Tr::tr("Reset name:"), m_lineEdit_resetName, resetterTestResultField, br,
-                Tr::tr("Signal name:"), m_lineEdit_signalName, signalTestResultField, br,
-                m_checkBox_signalWithNewValue, br,
-                Tr::tr("Member variable name:"), m_lineEdit_memberVariableName, memberTestResultField, br,
-                Tr::tr("Name from member variable:"), m_lineEdit_nameFromMemberVariable, nameFromMemberTestResultField, br,
-                Tr::tr("Test with example name:"), jsTestInputField, jsTestButton, hideJsTestResultsButton, st, br,
-            },
-        },
-        Group {
-            title(Tr::tr("Missing Namespace Handling")),
-            Form {
-                m_radioButton_generateMissingNamespace, br,
-                m_radioButton_addUsingnamespace, br,
-                m_radioButton_rewriteTypes, br,
-            },
-        },
-        m_useAutoCheckBox,
-        Group {
-            title(Tr::tr("Custom Getter Setter Templates")),
-            Row {
-                Column {
-                    m_listWidget_customTemplates,
-                    Row { pushButton_addCustomTemplate, m_pushButton_removeCustomTemplate, },
-                },
-                m_groupBox_customTemplate,
-            },
-        },
-        Group {
-            title(Tr::tr("Value Types")),
-            Row {
-                m_valueTypes,
-                Column { pushButton_addValueType, pushButton_removeValueType, st, },
-            },
-        },
-        m_returnByConstRefCheckBox,
-    }.attachTo(this);
-    // clang-format on
-
-    // connect controls to settingsChanged signal
-    auto then = [this] {
-        if (!m_isLoadingSettings)
-            emit settingsChanged();
-    };
-
-    connect(m_lines_setterOutsideClass, &LineCountSpinBox::changed, then);
-    connect(m_lines_setterInCppFile, &LineCountSpinBox::changed, then);
-    connect(m_lines_getterOutsideClass, &LineCountSpinBox::changed, then);
-    connect(m_lines_getterInCppFile, &LineCountSpinBox::changed, then);
-    connect(m_checkBox_setterSlots, &QCheckBox::clicked, then);
-    connect(m_checkBox_signalWithNewValue, &QCheckBox::clicked, then);
-    connect(pushButton_addCustomTemplate, &QPushButton::clicked, then);
-    connect(m_pushButton_removeCustomTemplate, &QPushButton::clicked, then);
-    connect(pushButton_addValueType, &QPushButton::clicked, then);
-    connect(pushButton_removeValueType, &QPushButton::clicked, then);
-    connect(m_useAutoCheckBox, &QCheckBox::clicked, then);
-    connect(m_valueTypes, &QListWidget::itemChanged, then);
-    connect(m_returnByConstRefCheckBox, &QCheckBox::clicked, then);
-    connect(m_lineEdit_customTemplateAssignment, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_customTemplateComparison, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_customTemplateReturnExpression, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_customTemplateReturnType, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_customTemplateTypes, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_getterAttribute, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_getterName, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_memberVariableName, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_nameFromMemberVariable, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_resetName, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_setterName, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_setterParameter, &QLineEdit::textEdited, then);
-    connect(m_lineEdit_signalName, &QLineEdit::textEdited, then);
-    connect(m_radioButton_addUsingnamespace, &QRadioButton::clicked, then);
-    connect(m_radioButton_generateMissingNamespace, &QRadioButton::clicked, then);
-    connect(m_radioButton_rewriteTypes, &QRadioButton::clicked, then);
-
-    loadSettings(globalCppQuickFixSettings());
-
-    Utils::installMarkSettingsDirtyTriggerRecursively(this);
-}
-
-void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
-{
-    m_isLoadingSettings = true;
-    m_lines_getterOutsideClass->setCount(settings->getterOutsideClassFrom);
-    m_lines_getterInCppFile->setCount(settings->getterInCppFileFrom);
-    m_lines_setterOutsideClass->setCount(settings->setterOutsideClassFrom);
-    m_lines_setterInCppFile->setCount(settings->setterInCppFileFrom);
-    m_lineEdit_getterAttribute->setText(settings->getterAttributes);
-    m_lineEdit_getterName->setText(settings->getterNameTemplate);
-    m_lineEdit_setterName->setText(settings->setterNameTemplate);
-    m_lineEdit_setterParameter->setText(settings->setterParameterNameTemplate);
-    switch (settings->cppFileNamespaceHandling) {
-    case CppQuickFixSettings::MissingNamespaceHandling::RewriteType:
-        m_radioButton_rewriteTypes->setChecked(true);
-        break;
-    case CppQuickFixSettings::MissingNamespaceHandling::CreateMissing:
-        m_radioButton_generateMissingNamespace->setChecked(true);
-        break;
-    case CppQuickFixSettings::MissingNamespaceHandling::AddUsingDirective:
-        m_radioButton_addUsingnamespace->setChecked(true);
-        break;
-    }
-    m_lineEdit_resetName->setText(settings->resetNameTemplate);
-    m_lineEdit_signalName->setText(settings->signalNameTemplate);
-    m_lineEdit_memberVariableName->setText(settings->memberVariableNameTemplate);
-    m_lineEdit_nameFromMemberVariable->setText(settings->nameFromMemberVariableTemplate);
-    m_checkBox_setterSlots->setChecked(settings->setterAsSlot);
-    m_checkBox_signalWithNewValue->setChecked(settings->signalWithNewValue);
-    m_useAutoCheckBox->setChecked(settings->useAuto);
-    m_valueTypes->clear();
-    for (const auto &valueType : std::as_const(settings->valueTypes)) {
-        auto item = new QListWidgetItem(valueType, m_valueTypes);
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled
-                       | Qt::ItemNeverHasChildren);
-    }
-    connect(m_valueTypes, &QListWidget::itemChanged, this, Utils::markSettingsDirty);
-    m_returnByConstRefCheckBox->setChecked(settings->returnByConstRef);
-    m_listWidget_customTemplates->clear();
-    for (const auto &customTemplate : settings->customTemplates) {
-        auto item = new QListWidgetItem(customTemplate.types.join(", "),
-                                        m_listWidget_customTemplates);
-        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemNeverHasChildren);
-        item->setData(CustomDataRoles::Types, customTemplate.types.join(", "));
-        item->setData(CustomDataRoles::Comparison, customTemplate.equalComparison);
-        item->setData(CustomDataRoles::Assignment, customTemplate.assignment);
-        item->setData(CustomDataRoles::ReturnType, customTemplate.returnType);
-        item->setData(CustomDataRoles::ReturnExpression, customTemplate.returnExpression);
-    }
-    if (m_listWidget_customTemplates->count() > 0) {
-        m_listWidget_customTemplates->setCurrentItem(m_listWidget_customTemplates->item(0));
-    }
-    this->setEnabled(true);
-    m_isLoadingSettings = false;
-}
-
-void CppQuickFixSettingsWidget::saveSettings(CppQuickFixSettings *settings)
-{
-    // first write the current selected custom template back to the model
-    if (m_listWidget_customTemplates->currentItem() != nullptr) {
-        auto item = m_listWidget_customTemplates->currentItem();
-        auto list = m_lineEdit_customTemplateTypes->text().split(m_typeSplitter, Qt::SkipEmptyParts);
-        item->setData(CustomDataRoles::Types, list);
-        item->setData(CustomDataRoles::Comparison, m_lineEdit_customTemplateComparison->text());
-        item->setData(CustomDataRoles::Assignment, m_lineEdit_customTemplateAssignment->text());
-        item->setData(CustomDataRoles::ReturnType, m_lineEdit_customTemplateReturnType->text());
-        item->setData(CustomDataRoles::ReturnExpression,
-                      m_lineEdit_customTemplateReturnExpression->text());
-    }
-    settings->getterOutsideClassFrom = m_lines_getterOutsideClass->count();
-    settings->getterInCppFileFrom = m_lines_getterInCppFile->count();
-    settings->setterOutsideClassFrom = m_lines_setterOutsideClass->count();
-    settings->setterInCppFileFrom = m_lines_setterInCppFile->count();
-    settings->setterParameterNameTemplate = m_lineEdit_setterParameter->text();
-    settings->setterAsSlot = m_checkBox_setterSlots->isChecked();
-    settings->signalWithNewValue = m_checkBox_signalWithNewValue->isChecked();
-    settings->getterAttributes = m_lineEdit_getterAttribute->text();
-    settings->getterNameTemplate = m_lineEdit_getterName->text();
-    settings->setterNameTemplate = m_lineEdit_setterName->text();
-    settings->resetNameTemplate = m_lineEdit_resetName->text();
-    settings->signalNameTemplate = m_lineEdit_signalName->text();
-    settings->memberVariableNameTemplate = m_lineEdit_memberVariableName->text();
-    settings->nameFromMemberVariableTemplate = m_lineEdit_nameFromMemberVariable->text();
-    if (m_radioButton_rewriteTypes->isChecked()) {
-        settings->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::RewriteType;
-    } else if (m_radioButton_addUsingnamespace->isChecked()) {
-        settings->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::AddUsingDirective;
-    } else if (m_radioButton_generateMissingNamespace->isChecked()) {
-        settings->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::CreateMissing;
-    }
-    settings->useAuto = m_useAutoCheckBox->isChecked();
-    settings->valueTypes.clear();
-    for (int i = 0; i < m_valueTypes->count(); ++i) {
-        settings->valueTypes << m_valueTypes->item(i)->text();
-    }
-    settings->returnByConstRef = m_returnByConstRefCheckBox->isChecked();
-    settings->customTemplates.clear();
-    for (int i = 0; i < m_listWidget_customTemplates->count(); ++i) {
-        auto item = m_listWidget_customTemplates->item(i);
-        CppQuickFixSettings::CustomTemplate t;
-        t.types = item->data(CustomDataRoles::Types).toStringList();
-        t.equalComparison = item->data(CustomDataRoles::Comparison).toString();
-        t.assignment = item->data(CustomDataRoles::Assignment).toString();
-        t.returnExpression = item->data(CustomDataRoles::ReturnExpression).toString();
-        t.returnType = item->data(CustomDataRoles::ReturnType).toString();
-        settings->customTemplates.push_back(t);
-    }
-}
-
-void CppQuickFixSettingsWidget::apply()
-{
-    const auto s = globalCppQuickFixSettings();
-    saveSettings(s);
-    s->saveAsGlobalSettings();
-}
-
-void CppQuickFixSettingsWidget::currentCustomItemChanged(QListWidgetItem *newItem,
-                                                         QListWidgetItem *oldItem)
-{
-    if (oldItem) {
-        auto list = m_lineEdit_customTemplateTypes->text().split(m_typeSplitter, Qt::SkipEmptyParts);
-        oldItem->setData(CustomDataRoles::Types, list);
-        oldItem->setData(Qt::DisplayRole, list.join(", "));
-        oldItem->setData(CustomDataRoles::Comparison, m_lineEdit_customTemplateComparison->text());
-        oldItem->setData(CustomDataRoles::Assignment, m_lineEdit_customTemplateAssignment->text());
-        oldItem->setData(CustomDataRoles::ReturnType, m_lineEdit_customTemplateReturnType->text());
-        oldItem->setData(CustomDataRoles::ReturnExpression,
-                         m_lineEdit_customTemplateReturnExpression->text());
-    }
-    m_pushButton_removeCustomTemplate->setEnabled(newItem != nullptr);
-    m_groupBox_customTemplate->setEnabled(newItem != nullptr);
-    if (newItem) {
-        m_lineEdit_customTemplateTypes->setText(
-            newItem->data(CustomDataRoles::Types).toStringList().join(", "));
-        m_lineEdit_customTemplateComparison->setText(
-            newItem->data(CustomDataRoles::Comparison).toString());
-        m_lineEdit_customTemplateAssignment->setText(
-            newItem->data(CustomDataRoles::Assignment).toString());
-        m_lineEdit_customTemplateReturnType->setText(
-            newItem->data(CustomDataRoles::ReturnType).toString());
-        m_lineEdit_customTemplateReturnExpression->setText(
-            newItem->data(CustomDataRoles::ReturnExpression).toString());
-    } else {
-        m_lineEdit_customTemplateTypes->setText("");
-        m_lineEdit_customTemplateComparison->setText("");
-        m_lineEdit_customTemplateAssignment->setText("");
-        m_lineEdit_customTemplateReturnType->setText("");
-        m_lineEdit_customTemplateReturnExpression->setText("");
+        reload();
     }
 }
 
@@ -1289,7 +1200,7 @@ public:
         setId(Constants::QUICK_FIX_SETTINGS_ID);
         setDisplayName(Tr::tr(Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
         setCategory(Constants::CPP_SETTINGS_CATEGORY);
-        setWidgetCreator([] { return new CppQuickFixSettingsWidget; });
+        setSettingsProvider([] { return &globalCppQuickFixSettingsAspects(); });
     }
 };
 

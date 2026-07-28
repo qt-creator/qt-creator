@@ -63,7 +63,7 @@ public:
     void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override;
     QVariant volatileVariantValue() const override { return {}; } // ??
 
-    enum class DisplayStyle { InlineList, ListViewWithDetails };
+    enum class DisplayStyle { InlineList, ListViewWithDetails, ListViewWithDetailsBeside };
     void setDisplayStyle(DisplayStyle displayStyle);
 
     void addExtraButton(const QString &text, std::function<void()> callback);
