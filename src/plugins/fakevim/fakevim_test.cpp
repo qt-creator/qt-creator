@@ -6495,6 +6495,13 @@ void FakeVimTester::test_vim_script_funcref()
     source("function MkAdder(n)\n  return {x -> x + a:n}\nendfunction\n");
     data.doCommand("let g:Add5 = MkAdder(5)");
     QCOMPARE(echo("g:Add5(10)"), QLatin1String("15"));
+
+    // map()/filter()/sort() accept a lambda: f(key, val) for map/filter and
+    // f(a, b) for the sort comparator.
+    QCOMPARE(echo("map([1, 2, 3], {i, v -> v * 10})"), QLatin1String("[10, 20, 30]"));
+    QCOMPARE(echo("filter([1, 2, 3, 4], {i, v -> v % 2 == 0})"), QLatin1String("[2, 4]"));
+    QCOMPARE(echo("sort([3, 1, 2], {a, b -> a - b})"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("sort([1, 2, 3], {a, b -> b - a})"), QLatin1String("[3, 2, 1]"));
 }
 
 void FakeVimTester::test_vim_file_info()

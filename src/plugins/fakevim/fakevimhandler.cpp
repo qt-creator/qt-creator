@@ -8652,17 +8652,31 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "sort") {
         if (arg(0).isList()) {
             QList<VimValue> *l = arg(0).listData();
-            const QString how = args.size() > 1 ? arg(1).toString() : QString();
-            if (how == "n" || how == "N") {
-                std::sort(l->begin(), l->end(), [](const VimValue &a, const VimValue &b) {
-                    return a.toNumber() < b.toNumber();
+            if (args.size() > 1 && arg(1).isFunc()) {
+                // A Funcref/lambda comparator: f(a, b) < 0 means a sorts first.
+                const VimValue cmp = arg(1);
+                std::stable_sort(l->begin(), l->end(),
+                                 [&](const VimValue &a, const VimValue &b) {
+                    VimValue r;
+                    QString e;
+                    invokeCallable(cmp, {a, b}, &r, &e);
+                    return r.toNumber() < 0;
                 });
             } else {
-                const Qt::CaseSensitivity cs = how == "i" ? Qt::CaseInsensitive
-                                                          : Qt::CaseSensitive;
-                std::sort(l->begin(), l->end(), [cs](const VimValue &a, const VimValue &b) {
-                    return QString::compare(a.toString(), b.toString(), cs) < 0;
-                });
+                const QString how = args.size() > 1 ? arg(1).toString() : QString();
+                if (how == "n" || how == "N") {
+                    std::stable_sort(l->begin(), l->end(),
+                                     [](const VimValue &a, const VimValue &b) {
+                        return a.toNumber() < b.toNumber();
+                    });
+                } else {
+                    const Qt::CaseSensitivity cs = how == "i" ? Qt::CaseInsensitive
+                                                              : Qt::CaseSensitive;
+                    std::stable_sort(l->begin(), l->end(),
+                                     [cs](const VimValue &a, const VimValue &b) {
+                        return QString::compare(a.toString(), b.toString(), cs) < 0;
+                    });
+                }
             }
         }
         *result = arg(0);
@@ -8702,23 +8716,30 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = VimValue(qlonglong(0));
         }
     } else if (name == "map" || name == "filter") {
-        // The second argument is an expression evaluated for each element with
-        // v:val (the value) and v:key (index or key) set. map() replaces each
-        // element with the result; filter() keeps the elements it is true for.
+        // The second argument is either an expression evaluated per element
+        // with v:val/v:key set, or a Funcref/lambda called as f(key, val).
+        // map() replaces each element; filter() keeps the ones it is true for.
         const bool isMap = name == "map";
-        const QString expr = arg(1).toString();
+        const VimValue callable = arg(1);
+        const bool useFunc = callable.isFunc();
+        const QString expr = callable.toString();
         VimValue savedVal, savedKey;
         const bool hadVal = variableValue("v:val", &savedVal);
         const bool hadKey = variableValue("v:key", &savedKey);
         bool ok = true;
+        const auto apply = [&](const VimValue &key, const VimValue &val, VimValue *out) {
+            if (useFunc)
+                return invokeCallable(callable, {key, val}, out, error);
+            setVariable("v:key", key);
+            setVariable("v:val", val);
+            return evaluateExpression(expr, out, error);
+        };
         if (arg(0).isList()) {
             QList<VimValue> *l = arg(0).listData();
             QList<VimValue> kept;
             for (int i = 0; i < l->size() && ok; ++i) {
-                setVariable("v:key", VimValue(qlonglong(i)));
-                setVariable("v:val", l->at(i));
                 VimValue r;
-                if (!evaluateExpression(expr, &r, error))
+                if (!apply(VimValue(qlonglong(i)), l->at(i), &r))
                     ok = false;
                 else if (isMap)
                     (*l)[i] = r;
@@ -8733,10 +8754,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             for (const QString &k : keys) {
                 if (!ok)
                     break;
-                setVariable("v:key", VimValue(k));
-                setVariable("v:val", d->value(k));
                 VimValue r;
-                if (!evaluateExpression(expr, &r, error))
+                if (!apply(VimValue(k), d->value(k), &r))
                     ok = false;
                 else if (isMap)
                     d->insert(k, r);
