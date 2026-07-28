@@ -2858,38 +2858,6 @@ void CdbEngine::handleExpression(const DebuggerResponse &response, const Breakpo
         doContinueInferior();
 }
 
-void CdbEngine::handleWidgetAt(const DebuggerResponse &response)
-{
-    bool success = false;
-    QString message;
-    do {
-        if (response.resultClass != ResultDone) {
-            message = response.data["msg"].data();
-            break;
-        }
-        // Should be "namespace::QWidget:0x555"
-        QString watchExp = response.data.data();
-        const int sepPos = watchExp.lastIndexOf(':');
-        if (sepPos == -1) {
-            message = QString("Invalid output: %1").arg(watchExp);
-            break;
-        }
-        // 0x000 -> nothing found
-        if (!watchExp.mid(sepPos + 1).toULongLong(nullptr, 0)) {
-            message = QString("No widget could be found at %1, %2.").arg(m_watchPointX).arg(m_watchPointY);
-            break;
-        }
-        // Turn into watch expression: "*(namespace::QWidget*)0x555"
-        watchExp.replace(sepPos, 1, "*)");
-        watchExp.insert(0, "*(");
-        watchHandler()->watchExpression(watchExp);
-        success = true;
-    } while (false);
-    if (!success)
-        showMessage(message, LogWarning);
-    m_watchPointX = m_watchPointY = 0;
-}
-
 static void formatCdbBreakPointResponse(int modelId, const QString &responseId, const BreakpointParameters &r, QTextStream &str)
 {
     str << "Obtained breakpoint " << modelId << " (#" << responseId << ')';

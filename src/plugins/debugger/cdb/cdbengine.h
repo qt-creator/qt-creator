@@ -157,7 +157,6 @@ private:
     void handleExpandLocals(const DebuggerResponse &response);
     void handleRegistersExt(const DebuggerResponse &response);
     void handleModules(const DebuggerResponse &response);
-    void handleWidgetAt(const DebuggerResponse &response);
     void handleBreakPoints(const DebuggerResponse &response);
     void handleAdditionalQmlStack(const DebuggerResponse &response);
     void setupScripting(const DebuggerResponse &response);
