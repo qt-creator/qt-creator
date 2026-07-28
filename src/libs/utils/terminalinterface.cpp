@@ -218,20 +218,23 @@ Result<> TerminalInterface::startStubServer()
 
     // We need to put the socket in a private directory, as some systems simply do not
     // check the file permissions of sockets.
+    // keep file / dir names short as a socket on macOS needs to fit into sockaddr_un::sun_path
+    // which is limited to 104 incl terminating null
+    const QString socketDir = d->tempDir.filePath("s");
     if (!QDir(d->tempDir.path())
-             .mkdir("socket")) { //  QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner
-        return ResultError(msgCannotCreateTempDir(d->tempDir.filePath("socket"),
-                                                      QString::fromLocal8Bit(strerror(errno))));
+             .mkdir("s")) { //  QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner
+        return ResultError(msgCannotCreateTempDir(socketDir,
+                                                  QString::fromLocal8Bit(strerror(errno))));
     }
 
-    if (!QFile::setPermissions(d->tempDir.filePath("socket"),
+    if (!QFile::setPermissions(socketDir,
                                QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner)) {
         return ResultError(Tr::tr("Cannot set permissions on temporary directory \"%1\": %2")
-                                   .arg(d->tempDir.filePath("socket"))
+                                   .arg(socketDir)
                                    .arg(QString::fromLocal8Bit(strerror(errno))));
     }
 
-    const QString socketPath = d->tempDir.filePath("socket/stub-socket");
+    const QString socketPath = socketDir + "/t";
     if (!d->stubServer.listen(socketPath)) {
         return ResultError(
             Tr::tr("Cannot create socket \"%1\": %2").arg(socketPath, d->stubServer.errorString()));
