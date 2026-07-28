@@ -45,6 +45,7 @@
 
 #include <QDateTime>
 #include <QLoggingCategory>
+#include <QMutex>
 #include <QProcess>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -943,6 +944,8 @@ public:
     void setupFileAccess(const Continuation<> &cont);
 
     WindowsDevice *q = nullptr;
+    QMutex m_systemDriveMutex;
+    std::optional<QString> m_systemDrive;
 };
 
 void WindowsDevicePrivate::setupFileAccess(const Continuation<> &cont)
@@ -1042,8 +1045,15 @@ Result<OsArch> WindowsDevice::osArch() const
 
 FilePath WindowsDevice::rootPath() const
 {
-    const QString systemDrive = systemEnvironment().value_or("SystemDrive", "C:");
-    return FilePath::fromParts(u"ssh", userAtHostAndPort(), systemDrive);
+    QMutexLocker locker(&d->m_systemDriveMutex);
+    if (!d->m_systemDrive) {
+        if (const Result<Environment> env = systemEnvironmentWithError()) {
+            d->m_systemDrive = env->value_or("SystemDrive", "C:/");
+            if (!d->m_systemDrive->endsWith('/'))
+                d->m_systemDrive->append('/');
+        }
+    }
+    return FilePath::fromParts(u"ssh", userAtHostAndPort(), d->m_systemDrive.value_or("C:/"));
 }
 
 Result<> WindowsDevice::handlesFile(const FilePath &filePath) const
