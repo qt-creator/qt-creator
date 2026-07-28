@@ -221,6 +221,8 @@ private slots:
     void test_vim_script_try_catch();
     void test_vim_script_more_builtins();
     void test_vim_script_expr_register();
+    void test_vim_script_operators();
+    void test_vim_script_unpacking();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6314,6 +6316,70 @@ void FakeVimTester::test_vim_script_expr_register()
     data.setText("");
     data.doKeys("ix<c-r>=1 + 2<ESC><ESC>");
     QCOMPARE(data.text(), QByteArray("x"));
+}
+
+void FakeVimTester::test_vim_script_operators()
+{
+    // =~ / !~ regex match, is / isnot identity, more number literals and
+    // v:version (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("\"foobar\" =~ \"o\\\\+\""), QLatin1String("1"));
+    QCOMPARE(echo("\"abc\" =~ \"x\""), QLatin1String("0"));
+    QCOMPARE(echo("\"abc\" !~ \"x\""), QLatin1String("1"));
+    QCOMPARE(echo("1 is 1"), QLatin1String("1"));
+    QCOMPARE(echo("1 isnot 2"), QLatin1String("1"));
+
+    // Identity of containers is by reference.
+    data.doCommand("let g:a = [1, 2] | let g:b = g:a | let g:c = copy(g:a)");
+    QCOMPARE(echo("g:a is g:b"), QLatin1String("1"));
+    QCOMPARE(echo("g:a is g:c"), QLatin1String("0"));
+    QCOMPARE(echo("g:a isnot g:c"), QLatin1String("1"));
+
+    // Number literals and v:version.
+    QCOMPARE(echo("0b101"), QLatin1String("5"));
+    QCOMPARE(echo("0o17"), QLatin1String("15"));
+    QCOMPARE(echo("0xff"), QLatin1String("255"));
+    QCOMPARE(echo("v:version >= 800"), QLatin1String("1"));
+}
+
+void FakeVimTester::test_vim_script_unpacking()
+{
+    // :let [a, b] = list and :for [k, v] in list (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("let [g:a, g:b] = [1, 2]");
+    QCOMPARE(echo("g:a"), QLatin1String("1"));
+    QCOMPARE(echo("g:b"), QLatin1String("2"));
+
+    // Extra items are ignored; missing ones default to 0.
+    data.doCommand("let [g:p, g:q] = [10, 20, 30]");
+    QCOMPARE(echo("g:p"), QLatin1String("10"));
+    data.doCommand("let [g:m, g:n] = [7]");
+    QCOMPARE(echo("g:n"), QLatin1String("0"));
+
+    // :for unpacking, e.g. over items().
+    data.doCommand("let g:r = [] | for [k, v] in items({\"a\": 1, \"b\": 2}) | "
+                   "call add(g:r, k . \"=\" . v) | endfor");
+    QCOMPARE(echo("g:r"), QLatin1String("['a=1', 'b=2']"));
 }
 
 void FakeVimTester::test_vim_file_info()

@@ -7488,15 +7488,63 @@ private:
         return e;
     }
 
+    // A word at the current position with a trailing word boundary (used for
+    // the "is"/"isnot" operators). Does not skip blanks or advance.
+    bool peekWord(const char *w) const
+    {
+        const int n = int(qstrlen(w));
+        for (int i = 0; i < n; ++i) {
+            if (at(i) != QLatin1Char(w[i]))
+                return false;
+        }
+        const QChar after = at(n);
+        return !(after.isLetterOrNumber() || after == '_');
+    }
+
+    static bool identity(const VimValue &a, const VimValue &b)
+    {
+        if (a.isList() && b.isList())
+            return a.listData() == b.listData();
+        if (a.isDict() && b.isDict())
+            return a.dictData() == b.dictData();
+        if (a.isList() || b.isList() || a.isDict() || b.isDict())
+            return false;
+        return compare(a, "==", b, true); // scalars: identity is equality
+    }
+
     VimValue exprCompare()
     {
         VimValue lhs = exprAdd();
         if (!m_ok)
             return lhs;
         skipBlanks();
+
+        // "is" / "isnot" identity operators.
+        if (peekWord("isnot") || peekWord("is")) {
+            const bool negate = peekWord("isnot");
+            m_pos += negate ? 5 : 2;
+            const VimValue rhs = exprAdd();
+            if (!m_ok)
+                return {};
+            return VimValue(qlonglong(identity(lhs, rhs) != negate ? 1 : 0));
+        }
+
         const QChar c = cur();
         if (c != '=' && c != '!' && c != '<' && c != '>')
             return lhs;
+
+        // "=~" / "!~" regular expression match.
+        if (eatOp("=~") || eatOp("!~")) {
+            const bool negate = m_in.at(m_pos - 1) == '~' && m_in.at(m_pos - 2) == '!';
+            if (cur() == '#' || cur() == '?') // accept a case suffix
+                ++m_pos;
+            const VimValue rhs = exprAdd();
+            if (!m_ok)
+                return {};
+            const bool matched =
+                vimPatternToQtPattern(rhs.toString()).match(lhs.toString()).hasMatch();
+            return VimValue(qlonglong(matched != negate ? 1 : 0));
+        }
 
         QString op;
         if (eatOp("==")) op = "==";
@@ -7764,7 +7812,22 @@ private:
             m_pos += 2;
             while (isHex(cur()))
                 ++m_pos;
-            return VimValue(qlonglong(m_in.mid(start, m_pos - start).toLongLong(nullptr, 16)));
+            return VimValue(qlonglong(m_in.mid(start + 2, m_pos - start - 2)
+                                          .toLongLong(nullptr, 16)));
+        }
+        if (cur() == '0' && (at(1) == 'b' || at(1) == 'B')) {
+            m_pos += 2;
+            while (cur() == '0' || cur() == '1')
+                ++m_pos;
+            return VimValue(qlonglong(m_in.mid(start + 2, m_pos - start - 2)
+                                          .toLongLong(nullptr, 2)));
+        }
+        if (cur() == '0' && (at(1) == 'o' || at(1) == 'O')) {
+            m_pos += 2;
+            while (cur() >= '0' && cur() <= '7')
+                ++m_pos;
+            return VimValue(qlonglong(m_in.mid(start + 2, m_pos - start - 2)
+                                          .toLongLong(nullptr, 8)));
         }
         while (cur().isDigit())
             ++m_pos;
@@ -7995,6 +8058,7 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
         *result = VimValue(qlonglong(0));
         return true;
     }
+    if (name == "v:version") { *result = VimValue(qlonglong(900)); return true; }
     QString key;
     QHash<QString, VimValue> *store = variableStore(name, &key);
     const auto it = store->constFind(key);
@@ -8046,6 +8110,28 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
     // variable, an option (&opt), a register (@r) or an environment variable.
     if (cmd.cmd != "let")
         return false;
+
+    // :let [a, b, ...] = listexpr - unpack a list into several variables.
+    if (cmd.args.trimmed().startsWith('[')) {
+        static const QRegularExpression unpackRe("^\\s*\\[([^\\]]*)\\]\\s*=\\s*(.*)$");
+        const QRegularExpressionMatch um = unpackRe.match(cmd.args);
+        VimValue list;
+        QString error;
+        if (!um.hasMatch()) {
+            showMessage(MessageError, Tr::tr("Invalid :let expression: %1").arg(cmd.args));
+        } else if (!evaluateExpression(um.captured(2), &list, &error)) {
+            showMessage(MessageError, error);
+        } else if (!list.isList()) {
+            showMessage(MessageError, Tr::tr(":let with [...] requires a list"));
+        } else {
+            const QStringList names =
+                um.captured(1).split(QRegularExpression("\\s*,\\s*"), Qt::SkipEmptyParts);
+            const QList<VimValue> &items = *list.listData();
+            for (int i = 0; i < names.size(); ++i)
+                setVariable(names.at(i), i < items.size() ? items.at(i) : VimValue());
+        }
+        return true;
+    }
 
     static const QRegularExpression re(
         "^\\s*([@&$]?[A-Za-z_][A-Za-z0-9_:]*)\\s*([-+*/%.]?=)\\s*(.*)$");
@@ -8856,8 +8942,9 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
     const int endIndex = scan;
 
     if (active) {
+        // The loop variable is a name or, for unpacking, "[a, b, ...]".
         static const QRegularExpression re(
-            "^\\s*([@&$]?[A-Za-z_][A-Za-z0-9_:]*)\\s+in\\s+(.*)$");
+            "^\\s*(\\[[^\\]]*\\]|[@&$]?[A-Za-z_][A-Za-z0-9_:]*)\\s+in\\s+(.*)$");
         const QRegularExpressionMatch m = re.match(spec);
         VimValue listValue;
         QString error;
@@ -8869,10 +8956,23 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
             showMessage(MessageError, Tr::tr(":for requires a list"));
         } else {
             const QString var = m.captured(1);
+            QStringList unpackNames;
+            if (var.startsWith('[')) {
+                unpackNames = var.mid(1, var.indexOf(']') - 1)
+                                  .split(QRegularExpression("\\s*,\\s*"), Qt::SkipEmptyParts);
+            }
             // Iterate a copy so mutating the list in the body is well-defined.
             const QList<VimValue> items = *listValue.listData();
             for (const VimValue &item : items) {
-                setVariable(var, item);
+                if (unpackNames.isEmpty()) {
+                    setVariable(var, item);
+                } else {
+                    const QList<VimValue> parts =
+                        item.isList() ? *item.listData() : QList<VimValue>();
+                    for (int j = 0; j < unpackNames.size(); ++j)
+                        setVariable(unpackNames.at(j),
+                                    j < parts.size() ? parts.at(j) : VimValue());
+                }
                 int i = bodyStart;
                 execSequence(cmds, i, true);
                 if (m_returning || m_throwing)
