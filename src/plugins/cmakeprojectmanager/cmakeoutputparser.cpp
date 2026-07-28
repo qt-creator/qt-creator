@@ -207,6 +207,9 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
             m_callStackDetected = true;
             return {Status::InProgress};
         }
+        // Declining the line makes us stop being the parser in progress, and only that parser
+        // gets its tasks emitted once the output ends. Hand over what we have collected.
+        flush();
         return Status::NotHandled;
     }
     case LINE_LOCATION:
@@ -401,7 +404,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
     QTest::newRow("cmake error2")
             << QString::fromLatin1("CMake Error: Error required internal CMake variable not set, cmake may be not be built correctly.\n"
                                    "Missing variable is:\n"
-                                   "CMAKE_MAKE_PROGRAM\n\n") // FIXME: Test does not pass without extra newline
+                                   "CMAKE_MAKE_PROGRAM\n")
             << OutputParserTester::STDERR
             << QStringList() << QStringList{"Missing variable is:", "CMAKE_MAKE_PROGRAM"}
             << (Tasks()
