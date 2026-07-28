@@ -2381,6 +2381,8 @@ public:
     QHash<QString, UserFunction> m_userFunctions;
     struct AutoCommand { QString event; QString pattern; QString command; };
     QList<AutoCommand> m_autoCommands;
+    bool m_inAutocmd = false; // guard against autocommands triggering autocommands
+    QString m_fileType; // matched by FileType autocommands
     QList<QHash<QString, VimValue>> m_localScopes;
     bool m_returning = false;
     VimValue m_returnValue;
@@ -2564,6 +2566,8 @@ public:
     bool handleExSilentCommand(const ExCommand &cmd);
     bool handleExAutocmdCommand(const ExCommand &cmd);
     bool handleExDoAutocmdCommand(const ExCommand &cmd);
+    bool handleExSetFileTypeCommand(const ExCommand &cmd);
+    void setFileType(const QString &type);
     void triggerAutocmd(const QString &event);
     enum LoopSignal { NoSignal, BreakSignal, ContinueSignal };
     LoopSignal m_loopSignal = NoSignal;
@@ -3074,6 +3078,8 @@ void FakeVimHandler::Private::commitInsertState()
     // re-indentation) can leave the recorded positions past the current end of
     // the document; clamp them before reading the inserted text.
     const int last = lastPositionInDocument();
+    if (last < 0)
+        return; // empty document: nothing was inserted
     const int pos1 = qBound(0, insertState.pos1, last);
     const int pos2 = qBound(0, insertState.pos2, last);
 
@@ -5917,6 +5923,7 @@ void FakeVimHandler::Private::finishInsertMode()
 
     setTargetColumn();
     enterCommandMode();
+    triggerAutocmd("InsertLeave");
 }
 
 void FakeVimHandler::Private::handleInsertMode(const Input &input)
@@ -6864,6 +6871,12 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         return false;
 
     clearMessage();
+
+    // "filetype"/"ft" is not a stored option; it drives FileType autocommands.
+    if (cmd.args.startsWith("filetype=") || cmd.args.startsWith("ft=")) {
+        setFileType(cmd.args.section('=', 1));
+        return true;
+    }
 
     if (cmd.args.contains('=')) {
         // Non-boolean config to set.
@@ -9119,6 +9132,21 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
     return true;
 }
 
+void FakeVimHandler::Private::setFileType(const QString &type)
+{
+    m_fileType = type;
+    triggerAutocmd("FileType");
+}
+
+bool FakeVimHandler::Private::handleExSetFileTypeCommand(const ExCommand &cmd)
+{
+    // :setf[iletype] {name}
+    if (cmd.cmd != "setf" && cmd.cmd != "setfiletype")
+        return false;
+    setFileType(cmd.args.trimmed());
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExDoAutocmdCommand(const ExCommand &cmd)
 {
     // :doautocmd {event} - fire the matching autocommands now.
@@ -9139,19 +9167,26 @@ bool FakeVimHandler::Private::handleExDoAutocmdCommand(const ExCommand &cmd)
 
 void FakeVimHandler::Private::triggerAutocmd(const QString &event)
 {
-    const QString fileName = m_currentFileName;
+    if (m_autoCommands.isEmpty() || m_inAutocmd)
+        return; // do not fire autocommands from within an autocommand
+
+    // FileType patterns match the filetype; other events match the file name.
+    const QString target = event.compare("FileType", Qt::CaseInsensitive) == 0
+                               ? m_fileType : m_currentFileName;
     // Copy: a fired command might register or clear autocommands.
     const QList<AutoCommand> commands = m_autoCommands;
+    m_inAutocmd = true;
     for (const AutoCommand &ac : commands) {
         if (ac.event.compare(event, Qt::CaseInsensitive) != 0)
             continue;
-        if (!autocmdPatternMatches(ac.pattern, fileName))
+        if (!autocmdPatternMatches(ac.pattern, target))
             continue;
         QString line = ac.command;
         ExCommand sub;
         while (parseExCommand(&line, &sub))
             handleExCommandHelper(sub);
     }
+    m_inAutocmd = false;
 }
 
 bool FakeVimHandler::Private::handleExExecuteCommand(const ExCommand &cmd)
@@ -9624,6 +9659,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExSilentCommand(cmd)
         || handleExAutocmdCommand(cmd)
         || handleExDoAutocmdCommand(cmd)
+        || handleExSetFileTypeCommand(cmd)
         || handleExLetCommand(cmd)
         || handleExUnletCommand(cmd)
         || handleExCallCommand(cmd)
@@ -11662,6 +11698,7 @@ void FakeVimHandler::Private::enterInsertOrReplaceMode(Mode mode)
     }
 
     q->modeChanged(isInsertMode());
+    triggerAutocmd("InsertEnter");
 }
 
 void FakeVimHandler::Private::enterVisualInsertMode(QChar command)

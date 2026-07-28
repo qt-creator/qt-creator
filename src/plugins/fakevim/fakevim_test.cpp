@@ -6544,6 +6544,25 @@ void FakeVimTester::test_vim_script_autocmd()
     QCOMPARE(echo("g:pre"), QLatin1String("1"));
     QCOMPARE(echo("g:post"), QLatin1String("1"));
 
+    // InsertEnter / InsertLeave fire on the mode transitions.
+    data.doCommand("let g:ie = 0 | let g:il = 0");
+    data.doCommand("autocmd InsertEnter * let g:ie = 1");
+    data.doCommand("autocmd InsertLeave * let g:il = 1");
+    data.setText("");
+    data.doKeys("i");
+    data.doKeys("<ESC>");
+    QCOMPARE(echo("g:ie"), QLatin1String("1"));
+    QCOMPARE(echo("g:il"), QLatin1String("1"));
+
+    // FileType matches the filetype (set via :set ft= or :setf), not the name.
+    data.doCommand("autocmd FileType python let g:py = 1");
+    data.doCommand("autocmd FileType c let g:onlyc = 1");
+    data.doCommand("set filetype=python");
+    QCOMPARE(echo("g:py"), QLatin1String("1"));
+    QCOMPARE(echo("exists('g:onlyc')"), QLatin1String("0"));
+    data.doCommand("setf c");
+    QCOMPARE(echo("g:onlyc"), QLatin1String("1"));
+
     // :autocmd! removes all autocommands.
     data.doCommand("autocmd!");
     data.doCommand("let g:hit = 0");
