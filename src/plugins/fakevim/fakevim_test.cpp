@@ -207,6 +207,7 @@ private slots:
     void test_vim_script_options_registers();
     void test_vim_script_builtins();
     void test_vim_script_expr_mapping();
+    void test_vim_script_execute();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5729,6 +5730,35 @@ void FakeVimTester::test_vim_script_expr_mapping()
     data.doCommand("let g:x = \"BB\"");
     data.setText("");
     KEYS("iqq<ESC>", "B" X "B");
+}
+
+void FakeVimTester::test_vim_script_execute()
+{
+    // ":execute" builds a command from expressions and runs it
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("execute \"let g:x = 40 + 2\"");
+    QCOMPARE(echo("g:x"), QLatin1String("42"));
+
+    // Several expressions are joined with a space before running.
+    data.doCommand("let g:cmd = \"let\"");
+    data.doCommand("execute g:cmd \"g:y = 7\"");
+    QCOMPARE(echo("g:y"), QLatin1String("7"));
+
+    // :execute can run a command that produces output.
+    message.clear();
+    data.doCommand("execute \"echo \" . string(21 * 2)");
+    QCOMPARE(message, QLatin1String("42"));
 }
 
 void FakeVimTester::test_vim_file_info()

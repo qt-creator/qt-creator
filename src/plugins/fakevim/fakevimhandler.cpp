@@ -2403,6 +2403,7 @@ public:
     bool handleExLetCommand(const ExCommand &cmd);
     bool handleExUnletCommand(const ExCommand &cmd);
     bool handleExCallCommand(const ExCommand &cmd);
+    bool handleExExecuteCommand(const ExCommand &cmd);
 
     void setTabSize(int tabSize);
     void setupCharClass();
@@ -7943,16 +7944,21 @@ bool FakeVimHandler::Private::handleExUnletCommand(const ExCommand &cmd)
     return true;
 }
 
+// The expression text of an ex-command whose argument is a Vimscript
+// expression. These commands take no "bang", so a leading "!" stripped by
+// parseExCommand is really the unary-not operator and must be restored.
+static QString exprText(const ExCommand &cmd)
+{
+    return (cmd.hasBang ? QString('!') : QString()) + cmd.args;
+}
+
 bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 {
     // :echo / :echomsg evaluate their arguments, joining results with a space.
     if (cmd.cmd != "echo" && cmd.cmd != "echom" && cmd.cmd != "echomsg")
         return false;
 
-    // :echo takes no "bang"; a leading "!" stripped by parseExCommand is the
-    // unary-not operator and belongs to the expression.
-    const QString source = (cmd.hasBang ? QString('!') : QString()) + cmd.args;
-    VimExpr e(this, source);
+    VimExpr e(this, exprText(cmd));
     QStringList parts;
     while (!e.atEnd()) {
         const VimValue v = e.parseExpr();
@@ -7963,6 +7969,35 @@ bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
         parts.append(v.toString());
     }
     showMessage(MessageInfo, parts.join(' '));
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExExecuteCommand(const ExCommand &cmd)
+{
+    // :execute {expr}... - evaluate the arguments, join with a space and run
+    // the result as an ex command line.
+    if (cmd.cmd != "exe" && cmd.cmd != "execute")
+        return false;
+
+    VimExpr e(this, exprText(cmd));
+    QStringList parts;
+    while (!e.atEnd()) {
+        const VimValue v = e.parseExpr();
+        if (!e.ok()) {
+            showMessage(MessageError, e.error());
+            return true;
+        }
+        parts.append(v.toString());
+    }
+
+    QString line = parts.join(' ');
+    ExCommand sub;
+    while (parseExCommand(&line, &sub)) {
+        if (!handleExCommandHelper(sub)) {
+            showMessage(MessageError, Tr::tr("Not an editor command: %1").arg(sub.cmd));
+            break;
+        }
+    }
     return true;
 }
 
@@ -8019,6 +8054,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExLetCommand(cmd)
         || handleExUnletCommand(cmd)
         || handleExCallCommand(cmd)
+        || handleExExecuteCommand(cmd)
         || handleExMapCommand(cmd)
         || handleExMultiRepeatCommand(cmd)
         || handleExNohlsearchCommand(cmd)
