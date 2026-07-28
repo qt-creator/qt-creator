@@ -22,6 +22,8 @@ QtcPlugin {
         "keyworddialog.h",
         "lineparser.cpp",
         "lineparser.h",
+        "projectfiletodoitemsscanner.cpp",
+        "projectfiletodoitemsscanner.h",
         "qmljstodoitemsscanner.cpp",
         "qmljstodoitemsscanner.h",
         "settings.cpp",

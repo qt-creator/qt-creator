@@ -6,6 +6,7 @@
 
 #include "constants.h"
 #include "cpptodoitemsscanner.h"
+#include "projectfiletodoitemsscanner.h"
 #include "qmljstodoitemsscanner.h"
 #include "todoitemsmodel.h"
 #include "todoitemsscanner.h"
@@ -94,6 +95,8 @@ void TodoItemsProvider::createScanners()
 
     if (QmlJS::ModelManagerInterface::instance())
         m_scanners << new QmlJsTodoItemsScanner(m_settings.keywords, this);
+
+    m_scanners << new ProjectFileTodoItemsScanner(m_settings.keywords, this);
 
     for (TodoItemsScanner *scanner : std::as_const(m_scanners)) {
         connect(scanner, &TodoItemsScanner::itemsFetched, this,
