@@ -213,6 +213,7 @@ private slots:
     void test_vim_script_lists();
     void test_vim_script_for();
     void test_vim_script_dicts();
+    void test_vim_script_indexed_let();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5972,6 +5973,49 @@ void FakeVimTester::test_vim_script_dicts()
     data.doCommand("call remove(g:d, \"a\")");
     QCOMPARE(echo("g:d"), QLatin1String("{'b': 2}"));
     QCOMPARE(echo("has_key(g:d, \"a\")"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_script_indexed_let()
+{
+    // ":let container[index] = value" for lists and dictionaries
+    // (QTCREATORBUG-34817).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // List element assignment, negative index and compound form.
+    data.doCommand("let g:l = [1, 2, 3]");
+    data.doCommand("let g:l[1] = 99");
+    QCOMPARE(echo("g:l"), QLatin1String("[1, 99, 3]"));
+    data.doCommand("let g:l[-1] = 0");
+    QCOMPARE(echo("g:l"), QLatin1String("[1, 99, 0]"));
+    data.doCommand("let g:l[0] += 10");
+    QCOMPARE(echo("g:l"), QLatin1String("[11, 99, 0]"));
+
+    // Dictionary: create keys, then a compound update.
+    data.doCommand("let g:d = {}");
+    data.doCommand("let g:d[\"a\"] = 1");
+    data.doCommand("let g:d[\"b\"] = 2");
+    QCOMPARE(echo("g:d"), QLatin1String("{'a': 1, 'b': 2}"));
+    data.doCommand("let g:d[\"a\"] += 5");
+    QCOMPARE(echo("g:d[\"a\"]"), QLatin1String("6"));
+
+    // Nested container assignment.
+    data.doCommand("let g:n = {\"xs\": [0, 0]}");
+    data.doCommand("let g:n[\"xs\"][1] = 7");
+    QCOMPARE(echo("g:n"), QLatin1String("{'xs': [0, 7]}"));
+
+    // Build a dictionary in a loop.
+    data.doCommand("let g:m = {} | for i in range(1, 3) | "
+                   "let g:m[string(i)] = i * i | endfor");
+    QCOMPARE(echo("g:m"), QLatin1String("{'1': 1, '2': 4, '3': 9}"));
 }
 
 void FakeVimTester::test_vim_file_info()

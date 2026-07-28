@@ -2469,6 +2469,7 @@ public:
     bool callFunction(const QString &name, const QList<VimValue> &args,
                       VimValue *result, QString *error);
     bool handleExLetCommand(const ExCommand &cmd);
+    bool letAssignIndexed(const QString &args);
     bool handleExUnletCommand(const ExCommand &cmd);
     bool handleExCallCommand(const ExCommand &cmd);
     bool handleExExecuteCommand(const ExCommand &cmd);
@@ -7965,7 +7966,8 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
         "^\\s*([@&$]?[A-Za-z_][A-Za-z0-9_:]*)\\s*([-+*/%.]?=)\\s*(.*)$");
     const QRegularExpressionMatch m = re.match(cmd.args);
     if (!m.hasMatch()) {
-        showMessage(MessageError, Tr::tr("Invalid :let expression: %1").arg(cmd.args));
+        if (!letAssignIndexed(cmd.args))
+            showMessage(MessageError, Tr::tr("Invalid :let expression: %1").arg(cmd.args));
         return true;
     }
 
@@ -8007,6 +8009,56 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
         qputenv(name.mid(1).toLatin1().constData(), value.toString().toLocal8Bit());
     } else {
         setVariable(name, value);
+    }
+    return true;
+}
+
+bool FakeVimHandler::Private::letAssignIndexed(const QString &args)
+{
+    // :let {var}[index]... = {expr}, assigning into a list or dictionary.
+    static const QRegularExpression re(
+        "^\\s*([A-Za-z_][A-Za-z0-9_:]*(?:\\[[^\\]]*\\])+)\\s*([-+*/%.]?=)\\s*(.*)$");
+    const QRegularExpressionMatch m = re.match(args);
+    if (!m.hasMatch())
+        return false;
+
+    const QString lhs = m.captured(1);
+    const QString op = m.captured(2);
+
+    VimValue value;
+    QString error;
+    if (!evaluateExpression(m.captured(3), &value, &error)) {
+        showMessage(MessageError, error);
+        return true;
+    }
+
+    // The target container is everything up to the last "[...]"; evaluating it
+    // yields the (shared) list or dictionary to assign into.
+    const int lb = lhs.lastIndexOf('[');
+    const int rb = lhs.lastIndexOf(']');
+    VimValue container, index;
+    if (!evaluateExpression(lhs.left(lb), &container, &error)
+        || !evaluateExpression(lhs.mid(lb + 1, rb - lb - 1), &index, &error)) {
+        showMessage(MessageError, error);
+        return true;
+    }
+
+    if (container.isList()) {
+        QList<VimValue> *l = container.listData();
+        int i = int(index.toNumber());
+        if (i < 0)
+            i += l->size();
+        if (i < 0 || i >= l->size()) {
+            showMessage(MessageError, Tr::tr("List index out of range: %1").arg(index.toNumber()));
+            return true;
+        }
+        (*l)[i] = op == "=" ? value : applyCompound(l->at(i), op.at(0), value);
+    } else if (container.isDict()) {
+        QMap<QString, VimValue> *d = container.dictData();
+        const QString key = index.toString();
+        d->insert(key, op == "=" ? value : applyCompound(d->value(key), op.at(0), value));
+    } else {
+        showMessage(MessageError, Tr::tr("Can only index a list or dictionary"));
     }
     return true;
 }
