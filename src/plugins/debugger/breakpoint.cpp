@@ -285,6 +285,8 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Debugger
             // Handled on caller side.
         } else if (child.hasName("func")) {
             functionName = child.data();
+        } else if (child.hasName("module")) {
+            module = child.data();
         } else if (child.hasName("addr")) {
             // <MULTIPLE> happens in constructors, inline functions, and
             // at other places like 'foreach' lines. In this case there are
