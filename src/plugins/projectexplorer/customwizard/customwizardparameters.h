@@ -13,10 +13,12 @@
 QT_BEGIN_NAMESPACE
 class QIODevice;
 class QDebug;
-class QJSEngine;
 QT_END_NAMESPACE
 
-namespace Utils { class TemporaryFile; }
+namespace Utils {
+class TemporaryFile;
+namespace TemplateEngine { class JsEngine; }
+} // namespace Utils
 
 namespace ProjectExplorer::Internal {
 
@@ -55,7 +57,8 @@ public:
     static bool validateRules(const QList<CustomWizardValidationRule> &rules,
                               const QMap<QString, QString> &replacementMap,
                               QString *errorMessage);
-    bool validate(QJSEngine &, const QMap<QString, QString> &replacementMap) const;
+    bool validate(Utils::TemplateEngine::JsEngine &,
+                  const QMap<QString, QString> &replacementMap) const;
     QString condition;
     QString message;
 };

@@ -1,5 +1,5 @@
 add_qtc_library(Utils
-  DEPENDS Qt::Qml Qt::Sql Qt::Xml Spinner QtCLibArchive
+  DEPENDS Qt::Sql Qt::Xml Spinner QtCLibArchive quickjs
   PUBLIC_DEPENDS
     Qt::Concurrent
     Qt::Core

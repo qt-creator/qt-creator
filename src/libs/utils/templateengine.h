@@ -7,19 +7,34 @@
 
 #include "result.h"
 
-QT_BEGIN_NAMESPACE
-class QJSEngine;
-QT_END_NAMESPACE
+#include <memory>
 
 namespace Utils { class MacroExpander; }
 
 namespace Utils::TemplateEngine {
 
+// Opaque, movable holder for the embedded JavaScript engine's state. Reuse one
+// instance across several evaluateBooleanJavaScriptExpression() calls.
+class QTCREATOR_UTILS_EXPORT JsEngine
+{
+public:
+    JsEngine();
+    ~JsEngine();
+    JsEngine(JsEngine &&) noexcept;
+    JsEngine &operator=(JsEngine &&) noexcept;
+
+    class Private;
+    Private *d() const { return m_d.get(); }
+
+private:
+    std::unique_ptr<Private> m_d;
+};
+
 QTCREATOR_UTILS_EXPORT Result<QString> preprocessText(const QString &input);
 
 QTCREATOR_UTILS_EXPORT Result<QString> processText(MacroExpander *expander, const QString &input);
 
-QTCREATOR_UTILS_EXPORT Result<bool> evaluateBooleanJavaScriptExpression(QJSEngine &engine,
+QTCREATOR_UTILS_EXPORT Result<bool> evaluateBooleanJavaScriptExpression(JsEngine &engine,
                                                                         const QString &expression);
 
 } // namespace Utils::TemplateEngine

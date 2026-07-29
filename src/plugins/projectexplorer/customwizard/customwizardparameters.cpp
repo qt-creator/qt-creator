@@ -23,7 +23,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QIcon>
-#include <QJSEngine>
 #include <QTime>
 #include <QXmlStreamAttribute>
 #include <QXmlStreamReader>
@@ -155,17 +154,19 @@ bool CustomWizardValidationRule::validateRules(const QList<CustomWizardValidatio
     errorMessage->clear();
     if (rules.isEmpty())
         return true;
-    QJSEngine engine;
-    for (const CustomWizardValidationRule &rule : rules)
-    if (!rule.validate(engine, replacementMap)) {
-        *errorMessage = rule.message;
-        CustomWizardContext::replaceFields(replacementMap, errorMessage);
-        return false;
+    JsEngine engine;
+    for (const CustomWizardValidationRule &rule : rules) {
+        if (!rule.validate(engine, replacementMap)) {
+            *errorMessage = rule.message;
+            CustomWizardContext::replaceFields(replacementMap, errorMessage);
+            return false;
+        }
     }
     return true;
 }
 
-bool CustomWizardValidationRule::validate(QJSEngine &engine, const QMap<QString, QString> &replacementMap) const
+bool CustomWizardValidationRule::validate(JsEngine &engine,
+                                          const QMap<QString, QString> &replacementMap) const
 {
     // Apply parameters and evaluate using JavaScript
     QString cond = condition;

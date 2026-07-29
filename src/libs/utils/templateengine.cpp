@@ -6,11 +6,31 @@
 #include "macroexpander.h"
 #include "qtcassert.h"
 
-#include <QJSEngine>
+#include <quickjs.h>
+
 #include <QRegularExpression>
 #include <QStack>
 
 namespace Utils {
+
+namespace TemplateEngine {
+
+class JsEngine::Private
+{
+public:
+    Private() : rt(JS_NewRuntime()), ctx(JS_NewContext(rt)) { QTC_CHECK(rt && ctx); }
+    ~Private() { JS_FreeContext(ctx); JS_FreeRuntime(rt); }
+
+    JSRuntime *rt = nullptr;
+    JSContext *ctx = nullptr;
+};
+
+JsEngine::JsEngine() : m_d(std::make_unique<Private>()) {}
+JsEngine::~JsEngine() = default;
+JsEngine::JsEngine(JsEngine &&) noexcept = default;
+JsEngine &JsEngine::operator=(JsEngine &&) noexcept = default;
+
+} // namespace TemplateEngine
 
 namespace Internal {
 
@@ -59,7 +79,7 @@ private:
     mutable QRegularExpression m_endifPattern;
 
     QStack<PreprocessStackEntry> m_sectionStack;
-    QJSEngine m_scriptEngine;
+    TemplateEngine::JsEngine m_scriptEngine;
 };
 
 PreprocessContext::PreprocessContext() :
@@ -247,27 +267,43 @@ Result<QString> TemplateEngine::processText(MacroExpander *expander, const QStri
     return result;
 }
 
-Result<bool> TemplateEngine::evaluateBooleanJavaScriptExpression(QJSEngine &engine,
+Result<bool> TemplateEngine::evaluateBooleanJavaScriptExpression(TemplateEngine::JsEngine &engine,
                                                                  const QString &expression)
 {
-    const QJSValue value = engine.evaluate(expression);
-    if (value.isError()) {
-        return ResultError(QString::fromLatin1("Error in \"%1\": %2")
-                .arg(expression, value.toString()));
-    }
+    JSContext *ctx = engine.d()->ctx;
+    const QByteArray utf8 = expression.toUtf8();
+    const JSValue value = JS_Eval(ctx, utf8.constData(), utf8.size(),
+                                  "<expression>", JS_EVAL_TYPE_GLOBAL);
 
     // Try to convert to bool, be that an int or whatever.
-    if (value.isBool())
-        return value.toBool();
+    Result<bool> result;
+    if (JS_IsException(value)) {
+        const JSValue exception = JS_GetException(ctx);
+        const char *message = JS_ToCString(ctx, exception);
+        result = ResultError(QString::fromLatin1("Error in \"%1\": %2")
+                                 .arg(expression, QString::fromUtf8(message)));
+        JS_FreeCString(ctx, message);
+        JS_FreeValue(ctx, exception);
+    } else if (JS_IsBool(value)) {
+        result = JS_ToBool(ctx, value) != 0;
+    } else if (JS_IsNumber(value)) {
+        double number = 0;
+        JS_ToFloat64(ctx, &number, value);
+        result = !qFuzzyCompare(number, 0);
+    } else if (JS_IsString(value)) {
+        size_t length = 0;
+        const char *string = JS_ToCStringLen(ctx, &length, value);
+        result = length != 0;
+        JS_FreeCString(ctx, string);
+    } else {
+        const char *string = JS_ToCString(ctx, value);
+        result = ResultError(QString::fromLatin1("Cannot convert result of \"%1\" (\"%2\") to bool.")
+                                 .arg(expression, QString::fromUtf8(string)));
+        JS_FreeCString(ctx, string);
+    }
 
-    if (value.isNumber())
-        return !qFuzzyCompare(value.toNumber(), 0);
-
-    if (value.isString())
-        return !value.toString().isEmpty();
-
-    return ResultError(QString::fromLatin1("Cannot convert result of \"%1\" (\"%2\"to bool.")
-            .arg(expression, value.toString()));
+    JS_FreeValue(ctx, value);
+    return result;
 }
 
 } // namespace Utils
