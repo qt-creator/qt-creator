@@ -772,7 +772,12 @@ void SshProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
     QTC_ASSERT(controlSignal != ControlSignal::CloseWriteChannel, return);
     const qint64 pid = processId();
-    QTC_ASSERT(pid, return); // TODO: try sending a signal based on process name
+    // No (remote) pid: the process never started, e.g. the connection was
+    // canceled while still being established. There is nothing to signal, so
+    // return quietly instead of soft-asserting on this expected case.
+    // TODO: try sending a signal based on process name.
+    if (pid == 0)
+        return;
     const QString args = QString::fromLatin1("-%1 -%2")
             .arg(controlSignalToInt(controlSignal)).arg(pid);
     const CommandLine command{"kill", args, CommandLine::Raw};
