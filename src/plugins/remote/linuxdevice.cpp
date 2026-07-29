@@ -709,7 +709,9 @@ void SshProcessInterface::emitStarted(qint64 processId)
 
 void SshProcessInterface::killIfRunning()
 {
-    if (d->m_killed || d->m_process.state() != ProcessState::Running || d->m_processId == 0)
+    // Even without a remote pid (m_processId == 0) the local ssh client may be
+    // running and stuck (e.g. connecting to an unreachable host); kill it too.
+    if (d->m_killed || d->m_process.state() != ProcessState::Running)
         return;
     sendControlSignal(ControlSignal::Kill);
     d->m_killed = true;
@@ -754,6 +756,15 @@ void SshProcessInterface::sendControlSignal(ControlSignal controlSignal)
         d->m_process.closeWriteChannel();
         return;
     }
+    // Canceled while still waiting for the shared master connection (e.g. the
+    // host is unreachable): the local process never started, so there is
+    // nothing to signal. Abort the wait and report done, otherwise the process
+    // would never reach NotRunning and the caller's waitForFinished()/restart
+    // would soft-assert.
+    if (d->m_connecting) {
+        d->handleDisconnected({});
+        return;
+    }
     if (d->m_process.usesTerminal() || d->m_process.ptyData().has_value()) {
         switch (controlSignal) {
         case ControlSignal::Terminate: d->m_process.terminate();      break;
@@ -772,12 +783,21 @@ void SshProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
     QTC_ASSERT(controlSignal != ControlSignal::CloseWriteChannel, return);
     const qint64 pid = processId();
-    // No (remote) pid: the process never started, e.g. the connection was
-    // canceled while still being established. There is nothing to signal, so
-    // return quietly instead of soft-asserting on this expected case.
-    // TODO: try sending a signal based on process name.
-    if (pid == 0)
+    if (pid == 0) {
+        // No remote pid was reported yet, but doStart() has already launched the
+        // local ssh client (m_process), which may be hung establishing the
+        // connection (e.g. to an unreachable host). There is no remote process to
+        // signal, so terminate/kill that local ssh client instead; otherwise it
+        // never finishes, the process never reaches NotRunning, and a later
+        // restart / waitForFinished() soft-asserts. Interrupt has no remote
+        // target here.
+        // TODO: try sending a signal based on process name.
+        if (controlSignal == ControlSignal::Terminate)
+            d->m_process.terminate();
+        else if (controlSignal == ControlSignal::Kill)
+            d->m_process.kill();
         return;
+    }
     const QString args = QString::fromLatin1("-%1 -%2")
             .arg(controlSignalToInt(controlSignal)).arg(pid);
     const CommandLine command{"kill", args, CommandLine::Raw};
