@@ -230,6 +230,7 @@ private slots:
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim_script_positions();
+    void test_vim_script_operatorfunc();
     void test_vim9_basics();
     void test_vim9_def();
     void test_vim9_lambda();
@@ -5770,6 +5771,94 @@ void FakeVimTester::test_vim_script_positions()
     data.doCommand("call setpos(\"'b\", [0, 1, 3, 0])");
     QCOMPARE(echo("line(\"'b\")"), QLatin1String("1"));
     QCOMPARE(echo("col(\"'b\")"), QLatin1String("3"));
+}
+
+void FakeVimTester::test_vim_script_operatorfunc()
+{
+    // "g@{motion}" calls &operatorfunc with "char"/"line"/"block" after
+    // setting the '[ and '] marks to the region.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    // Record how the function was called, without touching the buffer.
+    source("function Record(kind)\n"
+           "  let g:kind = a:kind\n"
+           "  let g:from = [line(\"'[\"), col(\"'[\")]\n"
+           "  let g:to = [line(\"']\"), col(\"']\")]\n"
+           "endfunction\n");
+    data.doCommand("set operatorfunc=Record");
+
+    data.setText("one two three" N "second line");
+
+    // Charwise: "g@w" covers "one " exclusively, so '] is on the space.
+    data.doKeys("gg0g@w");
+    QCOMPARE(echo("g:kind"), QLatin1String("char"));
+    QCOMPARE(echo("g:from"), QLatin1String("[1, 1]"));
+    QCOMPARE(echo("g:to"), QLatin1String("[1, 4]"));
+
+    // Linewise: "g@j" spans both lines whole.
+    data.doKeys("gg0g@j");
+    QCOMPARE(echo("g:kind"), QLatin1String("line"));
+    QCOMPARE(echo("g:from"), QLatin1String("[1, 1]"));
+    QCOMPARE(echo("g:to"), QLatin1String("[2, 11]"));
+
+    // A text object as the motion.
+    data.doKeys("gg0wg@iw");
+    QCOMPARE(echo("g:kind"), QLatin1String("char"));
+    QCOMPARE(echo("g:from"), QLatin1String("[1, 5]"));
+    QCOMPARE(echo("g:to"), QLatin1String("[1, 7]"));
+
+    // Visual mode passes "char"/"line" for the selection.
+    data.doKeys("gg0vll<Esc>");
+    data.doKeys("gg0vllg@");
+    QCOMPARE(echo("g:kind"), QLatin1String("char"));
+    QCOMPARE(echo("g:from"), QLatin1String("[1, 1]"));
+    QCOMPARE(echo("g:to"), QLatin1String("[1, 3]"));
+
+    data.doKeys("ggVjg@");
+    QCOMPARE(echo("g:kind"), QLatin1String("line"));
+    QCOMPARE(echo("g:from"), QLatin1String("[1, 1]"));
+    QCOMPARE(echo("g:to"), QLatin1String("[2, 11]"));
+
+    // An operatorfunc that edits the buffer, the usual real-world case.
+    source("function Upper(kind)\n"
+           "  let l:n = line(\"'[\")\n"
+           "  call setline(l:n, toupper(getline(l:n)))\n"
+           "endfunction\n");
+    data.doCommand("set operatorfunc=Upper");
+    data.setText("hello" N "world");
+    data.doKeys("gg0g@j");
+    QCOMPARE(data.text(), QByteArray("HELLO" N "world"));
+
+    // "." repeats the operator together with its motion.
+    data.doCommand("function Bump(kind) | let g:calls += 1 | endfunction");
+    data.doCommand("set operatorfunc=Bump");
+    data.doCommand("let g:calls = 0");
+    data.setText("aa bb cc");
+    data.doKeys("gg0g@w");
+    QCOMPARE(echo("g:calls"), QLatin1String("1"));
+    data.doKeys(".");
+    QCOMPARE(echo("g:calls"), QLatin1String("2"));
+
+    // An empty 'operatorfunc' reports an error instead of crashing.
+    data.doCommand("set operatorfunc=");
+    data.doKeys("gg0g@w");
+    QVERIFY(message.contains("operatorfunc"));
 }
 
 void FakeVimTester::test_vim_script_expr_mapping()

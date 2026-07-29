@@ -104,6 +104,7 @@ FakeVimSettings::FakeVimSettings()
         "instead of indenting, for example )]}\">'. Leave empty to disable."));
     setup(&clipboard,      {},    "Clipboard",      "cb",  "");
     setup(&formatOptions,  {},    "formatoptions",  "fo",  "");
+    setup(&operatorFunc,   {},    "OperatorFunc",   "opfunc", "");
 
     // Emulated plugins
     setup(&emulateVimCommentary, false, "commentary", {}, "vim-commentary");

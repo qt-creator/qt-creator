@@ -163,6 +163,7 @@ enum SubMode
     UpCaseSubMode,              // Used for gU
     ReflowSubMode,              // Used for gq
     ReflowKeepCursorSubMode,    // Used for gw
+    OperatorFuncSubMode,        // Used for g@
     WindowSubMode,              // Used for Ctrl-w
     YankSubMode,                // Used for y
     ZSubMode,                   // Used for z
@@ -1307,6 +1308,8 @@ static QString dotCommandFromSubMode(SubMode submode)
         return QLatin1String("gq");
     if (submode == ReflowKeepCursorSubMode)
         return QLatin1String("gw");
+    if (submode == OperatorFuncSubMode)
+        return QLatin1String("g@");
     if (submode == IndentSubMode)
         return QLatin1String("=");
     if (submode == ShiftRightSubMode)
@@ -2303,6 +2306,7 @@ public:
             || g.submode == UpCaseSubMode
             || g.submode == ReflowSubMode
             || g.submode == ReflowKeepCursorSubMode
+            || g.submode == OperatorFuncSubMode
             || g.submode == YankSubMode; }
 
     bool isVisualMode() const { return g.visualMode != NoVisualMode; }
@@ -2420,6 +2424,8 @@ public:
     void invertCase(const Range &range);
 
     void toggleComment(const Range &range);
+
+    void callOperatorFunc(const Range &range);
 
     void exchangeRange(const Range &range);
 
@@ -4026,6 +4032,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         || g.submode == UpCaseSubMode
         || g.submode == ReflowSubMode
         || g.submode == ReflowKeepCursorSubMode
+        || g.submode == OperatorFuncSubMode
         || g.submode == IndentSubMode
         || g.submode == ShiftLeftSubMode
         || g.submode == ShiftRightSubMode)
@@ -4062,6 +4069,11 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         // movement yet here, so we return early.
         // The next character entered will be used by the SurroundSubSubMode.
         return;
+    } else if (g.submode == OperatorFuncSubMode) {
+        pushUndoState(false);
+        beginEditBlock();
+        callOperatorFunc(currentRange());
+        endEditBlock();
     } else if (g.submode == ExchangeSubMode) {
         exchangeRange(currentRange());
     } else if (g.submode == ReplaceWithRegisterSubMode && s.emulateReplaceWithRegister()) {
@@ -5356,6 +5368,31 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         } else {
             const QString movementCommand = QString("%1l%1l").arg(count());
             handleAs("g" + input.toString() + movementCommand);
+        }
+    } else if (g.gflag && input.is('@')) {
+        // g@{motion}: hand the moved-over region to the 'operatorfunc'.
+        if (isVisualMode()) {
+            const bool blockwise = isVisualBlockMode();
+            g.rangemode = blockwise ? RangeBlockMode
+                        : isVisualLineMode() ? RangeLineMode : RangeCharMode;
+            g.movetype = isVisualLineMode() ? MoveLineWise : MoveInclusive;
+            dotCommand = visualDotCommand() + "g@";
+            leaveVisualMode();
+            // Normalize exactly like the operator-pending path, so the region
+            // ends one past its last character in both.
+            fixSelection();
+            pushUndoState(false);
+            beginEditBlock();
+            callOperatorFunc(currentRange());
+            endEditBlock();
+            g.submode = NoSubMode;
+        } else {
+            g.opcount = g.mvcount;
+            g.mvcount = 0;
+            g.rangemode = RangeCharMode;
+            g.movetype = MoveExclusive;
+            g.submode = OperatorFuncSubMode;
+            setAnchor();
         }
     } else if (input.is('@')) {
         g.submode = MacroExecuteSubMode;
@@ -11394,6 +11431,45 @@ void FakeVimHandler::Private::reflowText(const Range &range)
     tc.insertText(result.join(QLatin1Char('\n')));
 
     setPosition(startPos);
+}
+
+// g@: hand the region over to the function named by 'operatorfunc'. Vim sets
+// the '[ and '] marks to the first and last character of the region and passes
+// "char", "line" or "block" so the function knows how to read them.
+void FakeVimHandler::Private::callOperatorFunc(const Range &range)
+{
+    const QString func = s.operatorFunc();
+    if (func.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E774: 'operatorfunc' is empty"));
+        return;
+    }
+
+    QString kind = "char";
+    int first = range.beginPos;
+    int last = qMax(range.beginPos, range.endPos - 1);
+    if (range.rangemode == RangeBlockMode || range.rangemode == RangeBlockAndTailMode) {
+        kind = "block";
+    } else if (range.rangemode == RangeLineMode
+               || range.rangemode == RangeLineModeExclusive) {
+        kind = "line";
+        // Linewise ranges keep positions inside the first and last line, while
+        // the marks name the whole lines.
+        first = blockAt(range.beginPos).position();
+        const QTextBlock lastBlock = blockAt(range.endPos);
+        last = lastBlock.position() + qMax(0, lastBlock.length() - 2);
+    }
+
+    setMark('[', CursorPosition(document(), first));
+    setMark(']', CursorPosition(document(), last));
+
+    // Vim leaves the cursor at the start of the region before the call.
+    setPosition(first);
+    setTargetColumn();
+
+    VimValue result;
+    QString error;
+    if (!callFunction(func, {VimValue(kind)}, &result, &error))
+        showMessage(MessageError, error);
 }
 
 void FakeVimHandler::Private::toggleComment(const Range &range)

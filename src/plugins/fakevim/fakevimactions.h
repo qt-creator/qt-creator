@@ -152,6 +152,9 @@ public:
     FvStringAspect formatOptions;
     FvIntegerAspect textWidth;
 
+    // Name of the function "g@" calls; set from a script, no UI.
+    FvStringAspect operatorFunc;
+
     // Time out on a mapping while waiting for the rest of a mapped sequence.
     FvBoolAspect timeout;
     FvIntegerAspect timeoutlen;
