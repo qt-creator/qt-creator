@@ -15,6 +15,7 @@
 
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QSet>
 #include <QVariant>
 #include <QVBoxLayout>
 
@@ -224,13 +225,28 @@ void NavigationWidget::onDataUpdate(std::shared_ptr<QStandardItem> result)
 
     fetchExpandedItems(result.get(), treeModel->invisibleRootItem());
 
+    // Do not re-expand top-level projects the user collapsed; only new ones.
+    QSet<SymbolInformation> collapsedTopLevels;
+    const int previousCount = treeModel->rowCount();
+    for (int i = 0; i < previousCount; ++i) {
+        const QModelIndex index = treeModel->index(i, 0);
+        if (!treeView->isExpanded(index)) {
+            collapsedTopLevels.insert(
+                Internal::symbolInformationFromItem(treeModel->itemFromIndex(index)));
+        }
+    }
+
     treeModel->moveRootToTarget(result.get());
 
-    // expand top level projects
     QModelIndex sessionIndex;
     const int toplevelCount = treeModel->rowCount(sessionIndex);
-    for (int i = 0; i < toplevelCount; ++i)
-        treeView->expand(treeModel->index(i, 0, sessionIndex));
+    for (int i = 0; i < toplevelCount; ++i) {
+        const QModelIndex index = treeModel->index(i, 0, sessionIndex);
+        if (!collapsedTopLevels.contains(
+                Internal::symbolInformationFromItem(treeModel->itemFromIndex(index)))) {
+            treeView->expand(index);
+        }
+    }
 
     if (!treeView->currentIndex().isValid() && toplevelCount > 0)
         treeView->setCurrentIndex(treeModel->index(0, 0, sessionIndex));
