@@ -230,6 +230,7 @@ private slots:
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim9_basics();
+    void test_vim9_def();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6715,6 +6716,57 @@ void FakeVimTester::test_vim9_basics()
     source("let g:legacy = \"x\" . \"y\"\n"
            "\" let g:legacy = \"z\"\n");
     QCOMPARE(echo("g:legacy"), QLatin1String("xy"));
+}
+
+void FakeVimTester::test_vim9_def()
+{
+    // Vim9 ":def" functions: typed signature, bare-name args, default args,
+    // local var/for, and calling them.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    source("vim9script\n"
+           "def Add(a: number, b: number): number\n"
+           "  return a + b\n"
+           "enddef\n"
+           "def Greet(name: string): string\n"
+           "  return \"Hello, \" .. name\n"
+           "enddef\n"
+           "def WithDefault(x = 5): number\n"
+           "  return x * 2\n"
+           "enddef\n"
+           "def Total(l: list<number>): number\n"
+           "  var t = 0\n"
+           "  for n in l\n"
+           "    t += n\n"
+           "  endfor\n"
+           "  return t\n"
+           "enddef\n"
+           "g:sum = Add(3, 4)\n"
+           "g:greet = Greet(\"Bob\")\n"
+           "g:d1 = WithDefault()\n"
+           "g:d2 = WithDefault(10)\n"
+           "g:total = Total([1, 2, 3, 4])\n");
+    QCOMPARE(echo("g:sum"), QLatin1String("7"));
+    QCOMPARE(echo("g:greet"), QLatin1String("Hello, Bob"));
+    QCOMPARE(echo("g:d1"), QLatin1String("10"));
+    QCOMPARE(echo("g:d2"), QLatin1String("20"));
+    QCOMPARE(echo("g:total"), QLatin1String("10"));
 }
 
 void FakeVimTester::test_vim_file_info()

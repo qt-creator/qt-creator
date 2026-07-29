@@ -2377,7 +2377,12 @@ public:
     QHash<QString, VimValue> m_variables;
     // User functions and the local (a:/l:) scope stack, one frame per active
     // call.
-    struct UserFunction { QStringList params; QList<ExCommand> body; };
+    struct UserFunction {
+        QStringList params;
+        QStringList defaults; // parallel to params; "" if no default value
+        QList<ExCommand> body;
+        bool vim9 = false; // a :def function (bare-name args, Vim9 semantics)
+    };
     QHash<QString, UserFunction> m_userFunctions;
     struct AutoCommand { QString event; QString pattern; QString command; };
     QList<AutoCommand> m_autoCommands;
@@ -9424,12 +9429,13 @@ bool FakeVimHandler::Private::evalCondition(const QString &expr)
 // Command names that end a control-flow block; handled by the enclosing level.
 static bool isFunctionStart(const QString &cmd)
 {
-    return cmd == "function" || cmd == "func" || cmd == "fun" || cmd == "fu";
+    return cmd == "function" || cmd == "func" || cmd == "fun" || cmd == "fu"
+        || cmd == "def";
 }
 
 static bool isFunctionEnd(const QString &cmd)
 {
-    return cmd == "endfunction" || cmd == "endfunc";
+    return cmd == "endfunction" || cmd == "endfunc" || cmd == "enddef";
 }
 
 static bool isBlockTerminator(const QString &cmd)
@@ -9738,6 +9744,7 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
     // header.args is "Name(arg1, arg2, ...)". Gather the body up to the
     // matching :endfunction (functions do not nest in Vim).
     UserFunction fn;
+    fn.vim9 = header.cmd == "def"; // :def uses bare-name args and Vim9 syntax
     static const QRegularExpression re(
         "^\\s*([A-Za-z_][A-Za-z0-9_:#]*)\\s*\\(([^)]*)\\)");
     const QRegularExpressionMatch m = re.match(header.args);
@@ -9745,11 +9752,26 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
     if (m.hasMatch()) {
         name = m.captured(1);
         const QString params = m.captured(2).trimmed();
-        if (!params.isEmpty())
-            fn.params = params.split(QRegularExpression("\\s*,\\s*"));
-        // "..." only marks the function as variadic; extra arguments are bound
-        // to a:1, a:2, ... and a:000 at call time.
-        fn.params.removeAll("...");
+        const QStringList rawParams = params.isEmpty()
+            ? QStringList() : params.split(QRegularExpression("\\s*,\\s*"));
+        for (QString p : rawParams) {
+            p = p.trimmed();
+            if (p == "..." || p.startsWith("...")) // variadic marker
+                continue;
+            // A ":def" param can carry a ": type" and a "= default"; keep only
+            // the name and (optional) default expression.
+            QString def;
+            const int eq = p.indexOf('=');
+            if (eq >= 0) {
+                def = p.mid(eq + 1).trimmed();
+                p = p.left(eq).trimmed();
+            }
+            const int colon = p.indexOf(':');
+            if (colon >= 0)
+                p = p.left(colon).trimmed();
+            fn.params.append(p);
+            fn.defaults.append(def);
+        }
     }
 
     while (index < cmds.size() && !isFunctionEnd(cmds.at(index).cmd)) {
@@ -9771,9 +9793,17 @@ VimValue FakeVimHandler::Private::callUserFunction(const UserFunction &fn,
     // Bind arguments into a fresh local scope, run the body and return the
     // value from :return (or 0). Loop/return state is saved so nested and
     // recursive calls are independent.
+    // :def binds parameters by bare name; legacy :function uses "a:name".
+    const QString prefix = fn.vim9 ? QString() : QString("a:");
     QHash<QString, VimValue> frame;
-    for (int i = 0; i < fn.params.size(); ++i)
-        frame.insert("a:" + fn.params.at(i), i < args.size() ? args.at(i) : VimValue());
+    for (int i = 0; i < fn.params.size(); ++i) {
+        VimValue v;
+        if (i < args.size())
+            v = args.at(i);
+        else if (!fn.defaults.at(i).isEmpty())
+            evaluateExpression(fn.defaults.at(i), &v, nullptr);
+        frame.insert(prefix + fn.params.at(i), v);
+    }
     // Extra (variadic) arguments: a:0 counts them, a:1.. name them and a:000
     // is the list of them.
     frame.insert("a:0", VimValue(qlonglong(qMax(0, args.size() - fn.params.size()))));
@@ -9787,8 +9817,10 @@ VimValue FakeVimHandler::Private::callUserFunction(const UserFunction &fn,
     const LoopSignal savedSignal = m_loopSignal;
     const bool savedReturning = m_returning;
     const VimValue savedReturnValue = m_returnValue;
+    const bool savedVim9 = m_vim9;
     m_loopSignal = NoSignal;
     m_returning = false;
+    m_vim9 = fn.vim9; // Vim9 expression semantics inside a :def body
 
     m_localScopes.append(frame);
     int index = 0;
@@ -9799,6 +9831,7 @@ VimValue FakeVimHandler::Private::callUserFunction(const UserFunction &fn,
     m_loopSignal = savedSignal;
     m_returning = savedReturning;
     m_returnValue = savedReturnValue;
+    m_vim9 = savedVim9;
     return result;
 }
 
