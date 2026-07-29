@@ -1097,6 +1097,11 @@ void Widget::setEnabled(bool enabled)
     access(this)->setEnabled(enabled);
 }
 
+void Widget::setVisibleController(const std::function<void (QObject *)> &controller)
+{
+    controller(access(this));
+}
+
 void Widget::setNoMargins(int)
 {
     setContentsMargins(0, 0, 0, 0);

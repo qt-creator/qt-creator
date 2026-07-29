@@ -419,6 +419,26 @@ void BaseAspect::setEnabler(BoolAspect *checker)
     update();
 }
 
+/*!
+    Returns a controller that ties the visibility of \a target (a QWidget,
+    typically a Layouting group) to the visibility of this aspect. Intended
+    for use with Layouting's \c visibleOn(), mirroring \l groupChecker().
+*/
+std::function<void(QObject *)> BaseAspect::visibleController()
+{
+    return [this](QObject *target) {
+        auto widget = qobject_cast<QWidget *>(target);
+        QTC_ASSERT(widget, return);
+        // Only hide here: showing a not-yet-parented widget makes it pop up
+        // as a top-level window. Later changes arrive once it is parented.
+        if (!isVisible())
+            widget->setVisible(false);
+        connect(this, &BaseAspect::visibleChanged, widget, [this, widget] {
+            widget->setVisible(isVisible());
+        });
+    };
+}
+
 bool BaseAspect::isReadOnly() const
 {
     return d->m_readOnly;

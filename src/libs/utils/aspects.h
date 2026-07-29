@@ -99,6 +99,10 @@ public:
     bool isVisible() const;
     void setVisible(bool visible);
 
+    // Returns a controller that makes a target widget follow this aspect's
+    // visibility (for Layouting's visibleOn()). See also groupChecker().
+    std::function<void(QObject *)> visibleController();
+
     bool isAutoApply() const;
     virtual void setAutoApply(bool on);
 

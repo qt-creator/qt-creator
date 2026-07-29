@@ -313,6 +313,7 @@ public:
     void setWindowFlags(Qt::WindowFlags);
     void setWidgetAttribute(Qt::WidgetAttribute, bool on);
     void setToolTip(const QString &);
+    void setVisibleController(const std::function<void(QObject *)> &);
     void setNoMargins(int = 0);
     void setNormalMargins(int = 0);
     void setContentsMargins(int left, int top, int right, int bottom);
@@ -725,6 +726,8 @@ inline constexpr auto fieldGrowthPolicy = Building::setter(
     [](auto &x, auto &&...a) { x.setFieldGrowthPolicy(a...); });
 inline constexpr auto groupChecker = Building::setter(
     [](auto &x, auto &&...a) { x.setGroupChecker(a...); });
+inline constexpr auto visibleOn = Building::setter(
+    [](auto &x, auto *aspect) { x.setVisibleController(aspect->visibleController()); });
 inline constexpr auto icon = Building::setter([](auto &x, auto &&...a) { x.setIcon(a...); });
 inline constexpr auto objectName = Building::setter(
     [](auto &x, auto &&...a) { x.setObjectName(a...); });
