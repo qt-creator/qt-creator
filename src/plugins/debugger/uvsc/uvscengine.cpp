@@ -188,7 +188,6 @@ bool UvscEngine::hasCapability(unsigned cap) const
     return cap & (DisassemblerCapability
                   | RegisterCapability
                   | AddWatcherCapability
-                  | WatchWidgetsCapability
                   | CreateFullBacktraceCapability
                   | OperateByInstructionCapability
                   | ShowMemoryCapability);

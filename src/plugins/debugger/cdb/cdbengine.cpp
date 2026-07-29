@@ -205,7 +205,6 @@ void CdbEngine::init()
     m_lastOperateByInstruction = true; // Default CDB setting.
     m_hasDebuggee = false;
     m_sourceStepInto = false;
-    m_watchPointX = m_watchPointY = 0;
     m_autoBreakPointCorrection = false;
     m_wow64State = wow64Uninitialized;
 
@@ -696,7 +695,6 @@ bool CdbEngine::hasCapability(unsigned cap) const
                   | WatchpointByAddressCapability
                   | JumpToLineCapability
                   | AddWatcherCapability
-                  | WatchWidgetsCapability
                   | ReloadModuleCapability
                   | BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
                   | BreakConditionCapability|TracePointCapability
@@ -3015,16 +3013,6 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
     else
         str << QString("%1 breakpoint(s) pending...\n").arg(m_pendingBreakpointMap.size());
     showMessage(message, LogMisc);
-}
-
-void CdbEngine::watchPoint(const QPoint &p)
-{
-    m_watchPointX = p.x();
-    m_watchPointY = p.y();
-    DebuggerCommand cmd("widgetat", ExtensionCommand);
-    // Keep 2 separate .arg(), since we pass ints there.
-    cmd.args = QString("%1 %2").arg(p.x()).arg(p.y());
-    runCommand(cmd);
 }
 
 } // namespace Debugger::Internal

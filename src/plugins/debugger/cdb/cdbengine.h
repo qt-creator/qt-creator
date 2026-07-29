@@ -34,7 +34,6 @@ public:
     void shutdownEngine() override;
     void detachDebugger() override;
     bool hasCapability(unsigned cap) const override;
-    void watchPoint(const QPoint &) override;
     void setRegisterValue(const QString &name, const QString &value) override;
 
     void executeStepOver(bool byInstruction) override;
@@ -198,8 +197,6 @@ private:
     QString m_extensionFileName;
     QString m_extensionMessageBuffer;
     bool m_sourceStepInto = false;
-    int m_watchPointX = 0;
-    int m_watchPointY = 0;
     QSet<Breakpoint> m_pendingBreakpointMap;
     bool m_autoBreakPointCorrection = false;
     QMultiHash<QString, quint64> m_symbolAddressCache;
