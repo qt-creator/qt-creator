@@ -189,7 +189,8 @@ static Layouting::Layout clangdSettingsLayout(ClangdSettings *s)
             versionWarning->setText(res.error());
     };
     s->clangdPath.addOnChanged(versionWarning, updateWarning);
-    updateWarning();
+    // avoid popping up before getting parented
+    QMetaObject::invokeMethod(s, [updateWarning]{ updateWarning(); }, Qt::QueuedConnection);
 
     using namespace Layouting;
     // clang-format off
