@@ -298,8 +298,11 @@ public:
                 launchArguments.setVisible(isCustom);
                 environment.setVisible(isCustom);
             };
-            updateVisible();
-            updateCmdInfo();
+            // avoid popping up before getting parented
+            QMetaObject::invokeMethod(this, [updateVisible, updateCmdInfo]{
+                updateVisible();
+                updateCmdInfo();
+            }, Qt::QueuedConnection);
             connect(
                 &registryBrowser,
                 &AcpRegistryBrowser::volatileValueChanged,
