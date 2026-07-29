@@ -234,6 +234,7 @@ private slots:
     void test_vim9_lambda();
     void test_vim9_continuation();
     void test_vim9_interpolation();
+    void test_vim_heredoc();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6884,6 +6885,47 @@ void FakeVimTester::test_vim9_interpolation()
     QCOMPARE(echo("$\"{g:who} is {1 + 40 + 1}\""), QLatin1String("Bob is 42"));
     QCOMPARE(echo("$\"tab\\tend\""), QLatin1String("tab\tend"));
     QCOMPARE(echo("$'plain'"), QLatin1String("plain"));
+}
+
+void FakeVimTester::test_vim_heredoc()
+{
+    // "let VAR =<< [trim] MARKER" gathers lines into a list of strings.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    source("let g:plain =<< END\n"
+           "one\n"
+           "two\n"
+           "END\n"
+           "let g:trimmed =<< trim END\n"
+           "    alpha\n"
+           "    beta\n"
+           "    END\n");
+    QCOMPARE(echo("g:plain"), QLatin1String("['one', 'two']"));
+    QCOMPARE(echo("g:trimmed"), QLatin1String("['alpha', 'beta']"));
+
+    source("vim9script\n"
+           "var lines =<< trim END\n"
+           "  first\n"
+           "  second\n"
+           "END\n"
+           "g:v9 = lines\n");
+    QCOMPARE(echo("g:v9"), QLatin1String("['first', 'second']"));
 }
 
 void FakeVimTester::test_vim_file_info()

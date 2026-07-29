@@ -7597,8 +7597,8 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         line.clear();
     };
     int depth = 0; // running bracket balance of the accumulated line (Vim9)
-    for (const QString &raw : rawLines) {
-        const QString next = raw.trimmed();
+    for (int i = 0; i < rawLines.size(); ++i) {
+        const QString next = rawLines.at(i).trimmed();
         if (next.startsWith(commentChar))
             continue; // full-line comment (also dropped inside a continuation)
         if (next == "vim9script" || next.startsWith("vim9script "))
@@ -7606,6 +7606,38 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         if (next.startsWith('\\')) { // explicit continuation
             line += next.mid(1);
             depth += vim9BracketDelta(next.mid(1));
+            continue;
+        }
+        // Heredoc: "let VAR =<< [trim] MARKER" gathers the following lines up to
+        // MARKER into a list of strings. Only at statement start, not mid-line.
+        const int hd = line.isEmpty() ? next.indexOf("=<<") : -1;
+        if (hd >= 0) {
+            QStringList opts = next.mid(hd + 3).split(' ', Qt::SkipEmptyParts);
+            const bool trim = opts.removeAll("trim") > 0;
+            opts.removeAll("eval"); // interpolation flag not honored yet
+            const QString marker = opts.isEmpty() ? QString() : opts.constLast();
+            QStringList body;
+            while (++i < rawLines.size() && rawLines.at(i).trimmed() != marker)
+                body.append(rawLines.at(i));
+            if (trim && !body.isEmpty()) {
+                const QString &first = body.first();
+                int indent = 0;
+                while (indent < first.size()
+                       && (first.at(indent) == ' ' || first.at(indent) == '\t'))
+                    ++indent;
+                for (QString &b : body) {
+                    int k = 0;
+                    while (k < indent && k < b.size()
+                           && (b.at(k) == ' ' || b.at(k) == '\t'))
+                        ++k;
+                    b = b.mid(k);
+                }
+            }
+            QStringList items;
+            for (const QString &b : std::as_const(body))
+                items.append('\'' + QString(b).replace('\'', "''") + '\'');
+            line = next.left(hd) + "= [" + items.join(", ") + ']';
+            flush();
             continue;
         }
         // Vim9 implicit continuation: unclosed brackets, or an operator at the
