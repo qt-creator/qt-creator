@@ -1,4 +1,5 @@
 add_subdirectory(cplusplus)
+add_subdirectory(quickjs)
 add_subdirectory(syntax-highlighting)
 add_subdirectory(libvterm)
 if(NOT EMSCRIPTEN)

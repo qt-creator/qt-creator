@@ -36,6 +36,7 @@ Project {
         "3rdparty/libvterm/vterm.qbs",
         "3rdparty/lua/lua.qbs",
         "3rdparty/qtkeychain/qtkeychain.qbs",
+        "3rdparty/quickjs/quickjs.qbs",
         "3rdparty/sol2/sol2.qbs",
         "3rdparty/syntax-highlighting/syntax-highlighting.qbs",
         "3rdparty/ui_watchdog/uiwatchdog.qbs",
