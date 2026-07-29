@@ -842,7 +842,8 @@ public:
         connect(m_view, &QAbstractItemView::doubleClicked, this, &QDialog::accept);
 
         m_log = new QTextBrowser;
-        m_log->setVisible(dockerDeviceLog().isDebugEnabled());
+        if (!dockerDeviceLog().isDebugEnabled())
+            m_log->setVisible(false);
 
         const QString fail
             = settings->displayType() + QString{": "} + Tr::tr("The process failed to start.");
