@@ -134,7 +134,8 @@ public:
         m_lineSpacingWarningLabel->setToolTip(
                     Tr::tr("A line spacing value other than 100% disables text wrapping.\n"
                            "A value less than 100% can result in overlapping and misaligned graphics."));
-        m_lineSpacingWarningLabel->setVisible(m_value.relativeLineSpacing() != 100);
+        if (m_value.relativeLineSpacing() == 100)
+            m_lineSpacingWarningLabel->setVisible(false);
 
         m_fontComboBox = createSubWidget<QFontComboBox>();
         m_fontComboBox->setCurrentFont(m_value.family());

@@ -205,7 +205,13 @@ public:
                 displaySettings().textWrapping.setEnabled(normalLineSpacing);
                 label->setVisible(!normalLineSpacing);
             };
-            updateWrapping();
+            // do not use updateWrapping() before label got parented
+            if (globalFontSettings().lineSpacing() != 100) {
+                displaySettings().textWrapping.setVolatileValue(false);
+                displaySettings().textWrapping.setEnabled(false);
+            } else {
+                label->setVisible(false);
+            }
             connect(&globalFontSettings(), &FontSettings::changed,
                     label, updateWrapping);
             connect(label, &QLabel::linkActivated, [] {
