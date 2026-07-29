@@ -18,6 +18,7 @@
 
 #include <QtTaskTree/QBarrier>
 
+#include <utils/aspects.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 
@@ -28,12 +29,21 @@ using namespace Utils;
 
 namespace Qdb::Internal {
 
+static bool launchWithoutStopping(const RunControl *runControl)
+{
+    const auto data = runControl->aspectData(Id{Constants::LaunchWithoutStoppingAspectId});
+    return data && static_cast<const BoolAspect::Data *>(data)->value;
+}
+
 static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
                                             QmlDebugServicesPreset qmlServices,
                                             const ProcessSetupConfig &config = {})
 {
     const auto modifier = [runControl, qmlServices](Process &process) {
         CommandLine cmd{runControl->device()->filePath(Constants::AppcontrollerFilepath)};
+
+        if (launchWithoutStopping(runControl))
+            cmd.addArg("--launch");
 
         int lowerPort = 0;
         int upperPort = 0;
@@ -97,6 +107,8 @@ public:
                 const CommandLine remoteCommand = runControl->commandLine();
                 const FilePath remoteExe = remoteCommand.executable();
                 CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
+                if (launchWithoutStopping(runControl))
+                    cmd.addArg("--launch");
                 cmd.addArg(remoteExe.nativePath());
                 cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
                 process.setCommand(cmd);

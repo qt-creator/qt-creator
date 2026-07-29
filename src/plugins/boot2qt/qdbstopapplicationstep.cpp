@@ -6,9 +6,12 @@
 #include "qdbconstants.h"
 #include "qdbtr.h"
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
 
 #include <remote/abstractremotelinuxdeploystep.h>
 
@@ -30,11 +33,31 @@ public:
     {
         setWidgetExpandedByDefault(false);
 
-        setInternalInitializer([this] { return isDeploymentPossible(); });
+        setInternalInitializer([this] {
+            m_keepRunningApplication = keepRunningApplication();
+            return isDeploymentPossible();
+        });
     }
 
     GroupItem deployRecipe() final;
+
+private:
+    bool keepRunningApplication() const;
+
+    bool m_keepRunningApplication = false;
 };
+
+bool QdbStopApplicationStep::keepRunningApplication() const
+{
+    const RunConfiguration *rc = BuildManager::runConfigurationForDeploy();
+    if (!rc)
+        rc = buildConfiguration()->activeRunConfiguration();
+    if (!rc)
+        return false;
+    const auto aspect = qobject_cast<BoolAspect *>(
+        rc->aspect(Id{Constants::LaunchWithoutStoppingAspectId}));
+    return aspect && aspect->value();
+}
 
 GroupItem QdbStopApplicationStep::deployRecipe()
 {
@@ -45,6 +68,10 @@ GroupItem QdbStopApplicationStep::deployRecipe()
             return SetupResult::StopWithError;
         }
         QTC_CHECK(device);
+        if (m_keepRunningApplication) {
+            addProgressMessage(Tr::tr("Keeping the running application."));
+            return SetupResult::StopWithSuccess;
+        }
         process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
         process.setWorkingDirectory("/usr/bin");
         Process *proc = &process;

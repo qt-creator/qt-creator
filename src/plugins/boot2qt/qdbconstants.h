@@ -14,4 +14,6 @@ inline constexpr char QdbMakeDefaultAppStepId[] = "Qdb.MakeDefaultAppStep";
 inline constexpr char QdbHardwareDevicePrefix[] = "QdbHardwareDevice";
 inline constexpr char AppcontrollerFilepath[] = "/usr/bin/appcontroller";
 
+inline constexpr char LaunchWithoutStoppingAspectId[] = "QdbRunConfig.LaunchWithoutStopping";
+
 } // namespace Qdb::Constants

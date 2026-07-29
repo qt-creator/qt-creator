@@ -50,6 +50,14 @@ public:
 
         workingDir.setEnvironment(&environment);
 
+        launchWithoutStopping.setSettingsKey("QdbRunConfig.LaunchWithoutStopping");
+        launchWithoutStopping.setId(Constants::LaunchWithoutStoppingAspectId);
+        launchWithoutStopping.setLabel(Tr::tr("Do not stop already running applications"),
+                                       BoolAspect::LabelPlacement::AtCheckBox);
+        launchWithoutStopping.setToolTip(
+            Tr::tr("Starts the application without stopping any application that is already "
+                   "running on the device, for example a Wayland compositor."));
+
         fullCommand.setLabelText(Tr::tr("Full command line:"));
 
         setUpdater([this] {
@@ -67,12 +75,15 @@ public:
             CommandLine plain{executable(), arguments(), CommandLine::Raw};
             CommandLine cmd;
             cmd.setExecutable(plain.executable().withNewPath(Constants::AppcontrollerFilepath));
+            if (launchWithoutStopping())
+                cmd.addArg("--launch");
             cmd.addCommandLineAsArgs(plain);
             fullCommand.setValue(cmd.toUserOutput());
         };
 
         arguments.addOnChanged(this, updateFullCommand);
         executable.addOnChanged(this, updateFullCommand);
+        launchWithoutStopping.addOnChanged(this, updateFullCommand);
         updateFullCommand();
     }
 
@@ -92,6 +103,7 @@ private:
     Remote::RemoteLinuxEnvironmentAspect environment{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDir{this};
+    BoolAspect launchWithoutStopping{this};
     StringAspect fullCommand{this};
 };
 
