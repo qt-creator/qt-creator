@@ -6696,6 +6696,21 @@ void FakeVimTester::test_vim9_basics()
     QCOMPARE(echo("g:f"), QLatin1String("0"));     // false literal
     QCOMPARE(echo("g:keep"), QLatin1String("5"));  // "#" line was a comment
 
+    // var/const declarations and plain assignment (no :let).
+    source("vim9script\n"
+           "var x = 10\n"
+           "const y = 32\n"
+           "g:sum = x + y\n"
+           "var s = \"a\"\n"
+           "s ..= \"bc\"\n"
+           "g:s = s\n"
+           "var n: number = 7\n"
+           "g:typed = n\n"
+           "g:sum += 100\n");
+    QCOMPARE(echo("g:sum"), QLatin1String("142"));
+    QCOMPARE(echo("g:s"), QLatin1String("abc"));
+    QCOMPARE(echo("g:typed"), QLatin1String("7"));
+
     // A legacy (non-vim9) sourced file still uses "\"" comments and "." concat.
     source("let g:legacy = \"x\" . \"y\"\n"
            "\" let g:legacy = \"z\"\n");

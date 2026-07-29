@@ -7439,6 +7439,61 @@ bool FakeVimHandler::Private::handleExGotoCommand(const ExCommand &cmd)
     return true;
 }
 
+// Rewrite a Vim9 statement into the equivalent legacy ex-command the
+// interpreter already understands: "var/const/final x = e" and a plain
+// "x = e" become ":let", and a bare "Foo(...)" call becomes ":call".
+static QString vim9Statement(const QString &line)
+{
+    const auto fixConcatAssign = [](QString s) {
+        return s.replace("..=", ".="); // Vim9 string concat-assign
+    };
+
+    // Declarations: strip the keyword, an optional ": type" and default-init.
+    static const QRegularExpression declRe("^(?:var|const|final)\\s+(.+)$");
+    const QRegularExpressionMatch decl = declRe.match(line);
+    if (decl.hasMatch()) {
+        QString rest = decl.captured(1).trimmed();
+        if (rest.startsWith('[')) // destructuring: var [a, b] = ...
+            return "let " + fixConcatAssign(rest);
+        static const QRegularExpression nameRe(
+            "^([A-Za-z_][A-Za-z0-9_]*)\\s*(?::\\s*([^=]+?))?\\s*(=\\s*.*)?$");
+        const QRegularExpressionMatch nm = nameRe.match(rest);
+        if (!nm.hasMatch())
+            return "let " + fixConcatAssign(rest);
+        const QString name = nm.captured(1);
+        if (!nm.captured(3).isEmpty())
+            return "let " + name + " " + fixConcatAssign(nm.captured(3));
+        const QString type = nm.captured(2).trimmed(); // no initializer -> default
+        const QString def = type.startsWith("string") ? QStringLiteral("''")
+                          : type.startsWith("list") ? QStringLiteral("[]")
+                          : type.startsWith("dict") ? QStringLiteral("{}")
+                          : QStringLiteral("0");
+        return "let " + name + " = " + def;
+    }
+
+    // Plain assignment: lvalue [op]= rhs (no ":let").
+    static const QRegularExpression assignRe(
+        "^([@&$]?[A-Za-z_][A-Za-z0-9_:]*(?:\\[[^\\]]*\\]|\\.[A-Za-z_][A-Za-z0-9_]*)*)"
+        "\\s*((?:\\.\\.|[-+*/%])?=)\\s*(.+)$");
+    const QRegularExpressionMatch as = assignRe.match(line);
+    if (as.hasMatch()) {
+        QString op = as.captured(2);
+        if (op == "..=")
+            op = ".=";
+        return "let " + as.captured(1) + " " + op + " " + as.captured(3);
+    }
+
+    // Bare call: a capitalized/scoped/method name applied to "(".
+    static const QRegularExpression callRe(
+        "^([A-Za-z_][A-Za-z0-9_:#]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)\\s*\\(.*$");
+    if (callRe.match(line).hasMatch()
+        && (line.at(0).isUpper() || line.contains('.') || line.contains('#'))) {
+        return "call " + line;
+    }
+
+    return line;
+}
+
 bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 {
     // :source
@@ -7483,7 +7538,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         if (line.isEmpty())
             return;
         ExCommand c;
-        QString cl = line;
+        QString cl = fileVim9 ? vim9Statement(line) : line;
         while (parseExCommand(&cl, &c))
             cmds.append(c);
         line.clear();
