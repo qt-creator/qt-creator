@@ -54,6 +54,7 @@
 #include <QTranslator>
 #include <QtVersion>
 
+#include <functional>
 #include <optional>
 
 using namespace ExtensionSystem;
@@ -389,18 +390,55 @@ struct Options
 
 static Options parseCommandLine(int argc, char *argv[])
 {
-    Options options;
-    // Used to tell the plugin manager that it should ignore these command line arguments
-    options.appOptions.insert(SETTINGS_OPTION, true);
-    options.appOptions.insert(INSTALL_SETTINGS_OPTION, true);
-    options.appOptions.insert(PLUGINPATH_OPTION, true);
-    options.appOptions.insert(LANGUAGE_OPTION, true);
-    options.appOptions.insert(USER_LIBRARY_PATH_OPTION, true);
-    options.appOptions.insert(TRACE_ON_WARNING_OPTION, true);
-    options.appOptions.insert(TEMPORARY_CLEAN_SETTINGS1, false);
-    options.appOptions.insert(TEMPORARY_CLEAN_SETTINGS2, false);
-    options.appOptions.insert(NO_BANNERS_OPTION, false);
-    options.appOptions.insert(CLIENTID_OPTION, true);
+    Options result;
+
+    enum Flag { None, HasParameter, HandledByPluginManager };
+
+    struct OptionHandler
+    {
+        QFlags<Flag> flags;
+        std::function<void(const QString &parameter)> handle;
+    };
+    QMap<QString, OptionHandler> options;
+    options.insert(SETTINGS_OPTION, {HasParameter, [&result](const QString &parameter) {
+        result.settingsPath = QDir::fromNativeSeparators(parameter);
+    }});
+    options.insert(INSTALL_SETTINGS_OPTION, {HasParameter, [&result](const QString &parameter) {
+        result.installSettingsPath = QDir::fromNativeSeparators(parameter);
+    }});
+    options.insert(PLUGINPATH_OPTION, {HasParameter, [&result](const QString &parameter) {
+        result.customPluginPaths += QDir::fromNativeSeparators(parameter);
+    }});
+    options.insert(LANGUAGE_OPTION, {HasParameter, [&result](const QString &parameter) {
+        result.uiLanguage = parameter;
+    }});
+    options.insert(USER_LIBRARY_PATH_OPTION, {HasParameter, [&result](const QString &parameter) {
+        result.userLibraryPath = parameter;
+    }});
+    options.insert(TRACE_ON_WARNING_OPTION, {HasParameter, [&result](const QString &parameter) {
+        result.traceOnWarningPatterns << parameter;
+    }});
+    options.insert(TEMPORARY_CLEAN_SETTINGS1, {None, [&result](const QString &) {
+        result.wantsCleanSettings = true;
+    }});
+    options.insert(TEMPORARY_CLEAN_SETTINGS2, {None, [&result](const QString &) {
+        result.wantsCleanSettings = true;
+    }});
+    options.insert(NO_BANNERS_OPTION, {None, [&result](const QString &) {
+        result.wantsNoBanners = true;
+    }});
+    options.insert(CLIENTID_OPTION, {HasParameter, [&result](const QString &parameter) {
+        result.singleAppIdPostfix = parameter;
+    }});
+    options.insert(STYLE_OPTION, {HandledByPluginManager, [&result](const QString &) {
+        result.hasStyleOption = true;
+    }});
+    options.insert(TEST_OPTION, {HandledByPluginManager, [&result](const QString &) {
+        result.hasTestOption = true;
+    }});
+    options.insert(QML_LITE_DESIGNER_OPTION, {HandledByPluginManager, [&result](const QString &) {
+        result.singleAppIdPostfix = QML_LITE_DESIGNER_OPTION;
+    }});
 
     auto it = argv;
     const auto end = argv + argc;
@@ -409,52 +447,30 @@ static Options parseCommandLine(int argc, char *argv[])
         const bool hasNext = it + 1 != end;
         const auto nextArg = hasNext ? QString::fromLocal8Bit(*(it + 1)) : QString();
 
-        if (arg == SETTINGS_OPTION && hasNext) {
-            ++it;
-            options.settingsPath = QDir::fromNativeSeparators(nextArg);
-            options.preAppArguments << arg << nextArg;
-        } else if (arg == INSTALL_SETTINGS_OPTION && hasNext) {
-            ++it;
-            options.installSettingsPath = QDir::fromNativeSeparators(nextArg);
-            options.preAppArguments << arg << nextArg;
-        } else if (arg == PLUGINPATH_OPTION && hasNext) {
-            ++it;
-            options.customPluginPaths += QDir::fromNativeSeparators(nextArg);
-            options.preAppArguments << arg << nextArg;
-        } else if (arg == LANGUAGE_OPTION && hasNext) {
-            ++it;
-            options.uiLanguage = nextArg;
-            options.preAppArguments << arg << nextArg;
-        } else if (arg == USER_LIBRARY_PATH_OPTION && hasNext) {
-            ++it;
-            options.userLibraryPath = nextArg;
-            options.preAppArguments << arg << nextArg;
-        } else if (arg == TRACE_ON_WARNING_OPTION && hasNext) {
-            ++it;
-            options.traceOnWarningPatterns << nextArg;
-            options.preAppArguments << arg << nextArg;
-        } else if (arg == TEMPORARY_CLEAN_SETTINGS1 || arg == TEMPORARY_CLEAN_SETTINGS2) {
-            options.wantsCleanSettings = true;
-            options.preAppArguments << arg;
-        } else if (arg == NO_BANNERS_OPTION) {
-            options.wantsNoBanners = true;
-            options.preAppArguments << arg;
-        } else if (arg == CLIENTID_OPTION && hasNext) {
-            ++it;
-            options.singleAppIdPostfix = nextArg;
-            options.preAppArguments << arg << nextArg;
-        } else {
-            if (arg == STYLE_OPTION)
-                options.hasStyleOption = true;
-            if (arg == TEST_OPTION)
-                options.hasTestOption = true;
-            if (arg == QML_LITE_DESIGNER_OPTION)
-                options.singleAppIdPostfix = QML_LITE_DESIGNER_OPTION;
+        const auto handlerIt = options.constFind(arg);
+        if (handlerIt != options.constEnd()) {
+            const bool handledByPluginManager = handlerIt->flags.testFlag(HandledByPluginManager);
+            const bool expectsParameter = handlerIt->flags.testFlag(HasParameter);
+            if (!handledByPluginManager) {
+                // tell the plugin manager to ignore it:
+                result.appOptions.insert(arg, expectsParameter);
+                result.preAppArguments << arg;
+                if (expectsParameter)
+                    result.preAppArguments << nextArg;
+            }
+            if (expectsParameter) {
+                if (hasNext)
+                    ++it;
+                else
+                    break; // we've reached the end prematurely
+            }
+            // handle
+            handlerIt->handle(nextArg);
         }
         ++it;
     }
 
-    return options;
+    return result;
 }
 
 class Restarter
