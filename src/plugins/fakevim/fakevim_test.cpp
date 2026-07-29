@@ -233,6 +233,7 @@ private slots:
     void test_vim9_def();
     void test_vim9_lambda();
     void test_vim9_continuation();
+    void test_vim9_interpolation();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6858,6 +6859,31 @@ void FakeVimTester::test_vim9_continuation()
     QCOMPARE(echo("g:s"), QLatin1String("xyz"));
     QCOMPARE(echo("g:n"), QLatin1String("6"));
     QCOMPARE(echo("g:pf"), QLatin1String("10-20"));
+}
+
+void FakeVimTester::test_vim9_interpolation()
+{
+    // String interpolation $"...{expr}..." / $'...{expr}...'; "{{"/"}}" are
+    // literal braces; double quotes also honor backslash escapes.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("let g:who = \"Bob\"");
+    QCOMPARE(echo("$\"Hi {g:who}!\""), QLatin1String("Hi Bob!"));
+    QCOMPARE(echo("$'sum={1 + 2}'"), QLatin1String("sum=3"));
+    QCOMPARE(echo("$'{{x}}'"), QLatin1String("{x}"));
+    QCOMPARE(echo("$\"a{{b}}c\""), QLatin1String("a{b}c"));
+    QCOMPARE(echo("$\"{g:who} is {1 + 40 + 1}\""), QLatin1String("Bob is 42"));
+    QCOMPARE(echo("$\"tab\\tend\""), QLatin1String("tab\tend"));
+    QCOMPARE(echo("$'plain'"), QLatin1String("plain"));
 }
 
 void FakeVimTester::test_vim_file_info()

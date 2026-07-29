@@ -8054,6 +8054,8 @@ private:
             return parseListLiteral();
         if (c == '{')
             return parseBraceExpr();
+        if (c == '$' && (at(1) == '\'' || at(1) == '"'))
+            return parseInterpolatedString();
         if (c == '$')
             return parseEnvVar();
         if (c == '&')
@@ -8237,6 +8239,65 @@ private:
             ++m_pos;
         const QString name = m_in.mid(start, m_pos - start);
         return VimValue(qEnvironmentVariable(name.toLatin1().constData()));
+    }
+
+    // Interpolated string $'...{expr}...' / $"...{expr}..."; "{{"/"}}" are
+    // literal braces, and $"..." also honors backslash escapes.
+    VimValue parseInterpolatedString()
+    {
+        ++m_pos; // '$'
+        const QChar quote = cur();
+        const bool doubleQuoted = quote == '"';
+        ++m_pos; // opening quote
+        QString out;
+        while (m_pos < m_in.size() && cur() != quote) {
+            const QChar ch = cur();
+            if (ch == '{') {
+                if (at(1) == '{') { // literal "{"
+                    out += '{';
+                    m_pos += 2;
+                    continue;
+                }
+                ++m_pos;
+                const VimValue v = exprTernary();
+                skipBlanks();
+                if (!m_ok)
+                    return {};
+                if (cur() != '}') {
+                    setError(Tr::tr("Missing '}' in interpolation"));
+                    return {};
+                }
+                ++m_pos;
+                out += v.toString();
+                continue;
+            }
+            if (ch == '}' && at(1) == '}') { // literal "}"
+                out += '}';
+                m_pos += 2;
+                continue;
+            }
+            if (doubleQuoted && ch == '\\' && m_pos + 1 < m_in.size()) {
+                ++m_pos;
+                const QChar e = cur();
+                out += e == 'n' ? '\n' : e == 't' ? '\t' : e == 'r' ? '\r'
+                     : e == 'e' ? QChar(27) : e;
+                ++m_pos;
+                continue;
+            }
+            if (!doubleQuoted && ch == '\'' && at(1) == '\'') { // '' -> '
+                out += '\'';
+                m_pos += 2;
+                continue;
+            }
+            out += ch;
+            ++m_pos;
+        }
+        if (cur() != quote) {
+            setError(Tr::tr("Missing quote in interpolated string"));
+            return {};
+        }
+        ++m_pos; // closing quote
+        return VimValue(out);
     }
 
     VimValue parseListLiteral()
