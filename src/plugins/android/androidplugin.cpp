@@ -7,6 +7,7 @@
 #include "androiddebugsupport.h"
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
+#include "androidlogcatcrashparser.h"
 #include "androidpackageinstallationstep.h"
 #include "androidqmltoolingsupport.h"
 #include "androidqtversion.h"
@@ -91,6 +92,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         setupAndroidRunWorker();
         setupAndroidDebugWorker();
         setupAndroidQmlToolingSupport();
+        setupAndroidLogcatCrashParser();
 
         setupJavaEditor();
         setupAndroidToolsMenu();
@@ -105,6 +107,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createAndroidSdkManagerOutputParserTest);
         addTestCreator(createAndroidQtVersionTest);
         addTestCreator(createAndroidConfigurationsTest);
+        addTestCreator(createAndroidLogcatCrashParserTest);
 #endif
     }
 

@@ -13,6 +13,7 @@ add_qtc_plugin(Android
     androiddevice.cpp androiddevice.h
     androiddeviceinfo.cpp androiddeviceinfo.h
     androidlogcat.cpp androidlogcat.h
+    androidlogcatcrashparser.cpp androidlogcatcrashparser.h
     androidmanifesteditor.cpp androidmanifesteditor.h
     androidmanifestutils.cpp androidmanifestutils.h
     androidpackageinstallationstep.cpp androidpackageinstallationstep.h

@@ -32,6 +32,8 @@ QtcPlugin {
         "androiddeviceinfo.h",
         "androidlogcat.cpp",
         "androidlogcat.h",
+        "androidlogcatcrashparser.cpp",
+        "androidlogcatcrashparser.h",
         "androidmanifesteditor.cpp",
         "androidmanifesteditor.h",
         "androidmanifestutils.cpp",
