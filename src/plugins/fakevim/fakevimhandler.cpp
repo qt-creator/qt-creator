@@ -2384,6 +2384,7 @@ public:
     QHash<QString, QString> m_userCommands; // :command Name -> replacement text
     bool m_inAutocmd = false; // guard against autocommands triggering autocommands
     QString m_fileType; // matched by FileType autocommands
+    bool m_vim9 = false; // Vim9-script semantics are active
     QList<QHash<QString, VimValue>> m_localScopes;
     bool m_returning = false;
     VimValue m_returnValue;
@@ -7451,43 +7452,61 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         return true;
     }
 
+    // Detect the encoding like Vim's 'fileencodings': prefer UTF-8 and fall
+    // back to the local 8-bit encoding for invalid byte sequences
+    // (QTCREATORBUG-8776).
+    const QByteArray data = file.readAll();
+    file.close();
+    QStringDecoder utf8(QStringDecoder::Utf8);
+    QString text = utf8(data);
+    if (utf8.hasError())
+        text = QString::fromLocal8Bit(data);
+    const QStringList rawLines = text.split('\n');
+
+    // A leading "vim9script" command selects Vim9 syntax for the whole file:
+    // "#" line comments (not "\"") and Vim9 expression semantics.
+    bool fileVim9 = false;
+    for (const QString &raw : rawLines) {
+        const QString t = raw.trimmed();
+        if (t.isEmpty() || t.startsWith('"'))
+            continue;
+        fileVim9 = t == "vim9script" || t.startsWith("vim9script ");
+        break;
+    }
+    const QChar commentChar = fileVim9 ? '#' : '"';
+
     // Collect all executable command units first, then interpret them in one
     // pass so control-flow and function blocks can span several lines.
     QList<ExCommand> cmds;
-    QByteArray line;
-    while (!file.atEnd() || !line.isEmpty()) {
-        QByteArray nextline = !file.atEnd() ? file.readLine() : QByteArray();
-
-        nextline = nextline.trimmed();
-
-        // remove full line comment. for being precise, check :help comment in vim.
-        if (nextline.startsWith('"'))
+    QString line;
+    const auto flush = [&] {
+        if (line.isEmpty())
+            return;
+        ExCommand c;
+        QString cl = line;
+        while (parseExCommand(&cl, &c))
+            cmds.append(c);
+        line.clear();
+    };
+    for (const QString &raw : rawLines) {
+        const QString next = raw.trimmed();
+        if (next.startsWith(commentChar))
             continue;
-
-        // multi-line command?
-        if (nextline.startsWith('\\')) {
-            line += nextline.mid(1);
+        if (next == "vim9script" || next.startsWith("vim9script "))
+            continue; // the mode marker itself is not a command to run
+        if (next.startsWith('\\')) { // line continuation
+            line += next.mid(1);
             continue;
         }
-
-        if (!line.isEmpty()) {
-            ExCommand cmd;
-            // Detect the encoding like Vim's 'fileencodings': prefer UTF-8 and
-            // fall back to the local 8-bit encoding for invalid byte sequences
-            // (QTCREATORBUG-8776).
-            QStringDecoder utf8(QStringDecoder::Utf8);
-            QString commandLine = utf8(line);
-            if (utf8.hasError())
-                commandLine = QString::fromLocal8Bit(line);
-            while (parseExCommand(&commandLine, &cmd))
-                cmds.append(cmd);
-        }
-
-        line = nextline;
+        flush();
+        line = next;
     }
-    file.close();
+    flush();
 
+    const bool savedVim9 = m_vim9;
+    m_vim9 = fileVim9;
     runExCommands(cmds);
+    m_vim9 = savedVim9;
     return true;
 }
 
@@ -7502,6 +7521,8 @@ public:
     VimExpr(FakeVimHandler::Private *h, const QString &input)
         : m_h(h), m_in(input)
     {}
+
+    bool vim9() const { return m_h->m_vim9; }
 
     VimValue parseExpr() { return exprTernary(); }
 
@@ -7687,9 +7708,12 @@ private:
                     e = VimValue(c == '+' ? e.toFloat() + r.toFloat() : e.toFloat() - r.toFloat());
                 else
                     e = VimValue(c == '+' ? e.toNumber() + r.toNumber() : e.toNumber() - r.toNumber());
-            } else if (c == '.' && at(1) != QChar() && !at(1).isDigit()) {
+            } else if (c == '.'
+                       && (vim9() ? at(1) == '.'
+                                  : (at(1) != QChar() && !at(1).isDigit()))) {
+                // In Vim9 only ".." concatenates; a single "." is member access.
                 ++m_pos;
-                if (cur() == '.') // accept both "." and ".." concatenation
+                if (cur() == '.')
                     ++m_pos;
                 VimValue r = exprMul();
                 e = VimValue(e.toString() + r.toString());
@@ -7947,6 +7971,12 @@ private:
         const QString name = parseName();
         if (cur() == '(') // a function call: name immediately followed by "("
             return parseCall(name);
+        if (vim9()) { // Vim9 boolean/null literals
+            if (name == "true")
+                return VimValue(qlonglong(1));
+            if (name == "false" || name == "null")
+                return VimValue(qlonglong(0));
+        }
         VimValue v;
         if (m_h->variableValue(name, &v))
             return v;

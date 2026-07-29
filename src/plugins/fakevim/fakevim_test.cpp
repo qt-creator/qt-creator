@@ -229,6 +229,7 @@ private slots:
     void test_vim_script_autocmd();
     void test_vim_script_dict_dot();
     void test_vim_script_command();
+    void test_vim9_basics();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6660,6 +6661,45 @@ void FakeVimTester::test_vim_script_command()
     data.doCommand("let g:temp = 0");
     data.doCommand("Temp");
     QCOMPARE(echo("g:temp"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim9_basics()
+{
+    // Vim9-script mode basics: "#" comments, ".." concat, true/false literals.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    source("vim9script\n"
+           "# a hash-comment line\n"
+           "let g:cat = \"a\" .. \"b\"\n"
+           "let g:t = true\n"
+           "let g:f = false\n"
+           "let g:keep = 5\n"
+           "# let g:keep = 99\n");
+    QCOMPARE(echo("g:cat"), QLatin1String("ab")); // ".." concatenates
+    QCOMPARE(echo("g:t"), QLatin1String("1"));     // true literal
+    QCOMPARE(echo("g:f"), QLatin1String("0"));     // false literal
+    QCOMPARE(echo("g:keep"), QLatin1String("5"));  // "#" line was a comment
+
+    // A legacy (non-vim9) sourced file still uses "\"" comments and "." concat.
+    source("let g:legacy = \"x\" . \"y\"\n"
+           "\" let g:legacy = \"z\"\n");
+    QCOMPARE(echo("g:legacy"), QLatin1String("xy"));
 }
 
 void FakeVimTester::test_vim_file_info()
