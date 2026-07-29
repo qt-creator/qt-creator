@@ -7499,6 +7499,54 @@ static QString vim9Statement(const QString &line)
     return line;
 }
 
+// Net bracket balance of a Vim9 line (skipping strings and a "#" comment),
+// used to decide implicit line continuation.
+static int vim9BracketDelta(const QString &s)
+{
+    int depth = 0;
+    for (int i = 0; i < s.size(); ++i) {
+        const QChar ch = s.at(i);
+        if (ch == '"' || ch == '\'') {
+            const QChar quote = ch;
+            for (++i; i < s.size() && s.at(i) != quote; ++i) {
+                if (quote == '"' && s.at(i) == '\\')
+                    ++i;
+            }
+        } else if (ch == '#') {
+            break; // rest of the line is a comment
+        } else if (ch == '(' || ch == '[' || ch == '{') {
+            ++depth;
+        } else if (ch == ')' || ch == ']' || ch == '}') {
+            --depth;
+        }
+    }
+    return depth;
+}
+
+// A continuation line begins with a binary operator (Vim9 operator-first style).
+static bool vim9StartsContinuation(const QString &s)
+{
+    if (s.startsWith("..") || s.startsWith("->") || s.startsWith("&&")
+        || s.startsWith("||"))
+        return true;
+    if (s.isEmpty())
+        return false;
+    const QChar c = s.at(0);
+    return c == '+' || c == '*' || c == '/' || c == '%' || c == '?' || c == ':'
+        || c == '.' || c == ')' || c == ']' || c == '}';
+}
+
+// A line whose last token is clearly a binary operator continues onto the next.
+static bool vim9EndsOpen(const QString &s)
+{
+    if (s.endsWith("..") || s.endsWith("&&") || s.endsWith("||") || s.endsWith("->"))
+        return true;
+    if (s.isEmpty())
+        return false;
+    const QChar c = s.at(s.size() - 1);
+    return c == '+' || c == '*' || c == '/' || c == '%' || c == ',';
+}
+
 bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 {
     // :source
@@ -7548,18 +7596,29 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
             cmds.append(c);
         line.clear();
     };
+    int depth = 0; // running bracket balance of the accumulated line (Vim9)
     for (const QString &raw : rawLines) {
         const QString next = raw.trimmed();
         if (next.startsWith(commentChar))
-            continue;
+            continue; // full-line comment (also dropped inside a continuation)
         if (next == "vim9script" || next.startsWith("vim9script "))
             continue; // the mode marker itself is not a command to run
-        if (next.startsWith('\\')) { // line continuation
+        if (next.startsWith('\\')) { // explicit continuation
             line += next.mid(1);
+            depth += vim9BracketDelta(next.mid(1));
+            continue;
+        }
+        // Vim9 implicit continuation: unclosed brackets, or an operator at the
+        // end of the previous line or the start of this one.
+        if (fileVim9 && !line.isEmpty()
+            && (depth > 0 || vim9EndsOpen(line) || vim9StartsContinuation(next))) {
+            line += ' ' + next;
+            depth += vim9BracketDelta(next);
             continue;
         }
         flush();
         line = next;
+        depth = fileVim9 ? vim9BracketDelta(next) : 0;
     }
     flush();
 

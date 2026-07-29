@@ -232,6 +232,7 @@ private slots:
     void test_vim9_basics();
     void test_vim9_def();
     void test_vim9_lambda();
+    void test_vim9_continuation();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6805,6 +6806,58 @@ void FakeVimTester::test_vim9_lambda()
     QCOMPARE(echo("g:c"), QLatin1String("10"));
     QCOMPARE(echo("g:m"), QLatin1String("[10, 20, 30]"));
     QCOMPARE(echo("g:s"), QLatin1String("[1, 2, 3]"));
+}
+
+void FakeVimTester::test_vim9_continuation()
+{
+    // Vim9 implicit line continuation: unclosed brackets and leading/trailing
+    // operators.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    source("vim9script\n"
+           "var l = [\n"
+           "  1,\n"
+           "  2,\n"
+           "  3,\n"
+           "]\n"
+           "g:l = l\n"
+           "var d = {\n"
+           "  'a': 1,\n"
+           "  'b': 2,\n"
+           "}\n"
+           "g:d = d\n"
+           "var s = \"x\"\n"
+           "      .. \"y\"\n"
+           "      .. \"z\"\n"
+           "g:s = s\n"
+           "var n = 1 +\n"
+           "        2 +\n"
+           "        3\n"
+           "g:n = n\n"
+           "g:pf = printf(\"%d-%d\",\n"
+           "              10,\n"
+           "              20)\n");
+    QCOMPARE(echo("g:l"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("g:d"), QLatin1String("{'a': 1, 'b': 2}"));
+    QCOMPARE(echo("g:s"), QLatin1String("xyz"));
+    QCOMPARE(echo("g:n"), QLatin1String("6"));
+    QCOMPARE(echo("g:pf"), QLatin1String("10-20"));
 }
 
 void FakeVimTester::test_vim_file_info()
