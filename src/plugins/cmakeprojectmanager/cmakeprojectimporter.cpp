@@ -1706,24 +1706,54 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     DirectoryData *data = static_cast<DirectoryData *>(directoryData);
 
     const FilePath cmakeExecutable = CMakeKitAspect::cmakeExecutable(k);
-    if (cmakeExecutable.isEmpty() || cmakeExecutable != data->cmakeBinary)
+    if (cmakeExecutable.isEmpty()) {
+        qCDebug(cmInputLog) << "Kit" << k->displayName()
+                            << "does not match: no cmake tool set.";
         return false;
+    }
+    if (!cmakeExecutable.isSameFile(data->cmakeBinary)) {
+        qCDebug(cmInputLog) << "Kit" << k->displayName()
+                            << "cmake mismatch:" << cmakeExecutable.toUserOutput()
+                            << "!=" << data->cmakeBinary.toUserOutput();
+        return false;
+    }
 
-    if (CMakeGeneratorKitAspect::generator(k) != data->generator
-            || CMakeGeneratorKitAspect::platform(k) != data->platform
-            || CMakeGeneratorKitAspect::toolset(k) != data->toolset)
+    const QString kitGen = CMakeGeneratorKitAspect::generator(k);
+    const QString kitPlat = CMakeGeneratorKitAspect::platform(k);
+    const QString kitToolset = CMakeGeneratorKitAspect::toolset(k);
+    if (kitGen != data->generator) {
+        qCDebug(cmInputLog) << "Kit" << k->displayName()
+                            << "generator mismatch:" << kitGen << "!=" << data->generator;
         return false;
+    }
+    if (kitPlat != data->platform) {
+        qCDebug(cmInputLog) << "Kit" << k->displayName()
+                            << "platform mismatch:" << kitPlat << "!=" << data->platform;
+        return false;
+    }
+    if (kitToolset != data->toolset) {
+        qCDebug(cmInputLog) << "Kit" << k->displayName()
+                            << "toolset mismatch:" << kitToolset << "!=" << data->toolset;
+        return false;
+    }
 
     const FilePath kitSysroot = SysRootKitAspect::sysRoot(k);
     if (kitSysroot != data->sysroot
         && (data->osxSysroot != "iphoneos" || !kitSysroot.contains("/iPhoneOS.platform/"))
         && (data->osxSysroot != "iphonesimulator"
             || !kitSysroot.contains("/iPhoneSimulator.platform/"))) {
+        qCDebug(cmInputLog) << "Kit" << k->displayName()
+                            << "sysroot mismatch:" << kitSysroot.toUserOutput()
+                            << "!=" << data->sysroot;
         return false;
     }
 
-    if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId())
+    if (data->qt.qt && QtSupport::QtKitAspect::qtVersionId(k) != data->qt.qt->uniqueId()) {
+        qCDebug(cmInputLog) << "Kit" << k->displayName()
+                            << "Qt versionId mismatch:" << QtSupport::QtKitAspect::qtVersionId(k)
+                            << "!=" << data->qt.qt->uniqueId();
         return false;
+    }
 
     const bool compilersMatch = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
@@ -1733,14 +1763,20 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
                 continue;
             Toolchain *tc = ToolchainKitAspect::toolchain(k, tcd.language);
             if ((!tc || !tc->matchesCompilerCommand(tcd.compilerPath))) {
+                qCDebug(cmInputLog)
+                    << "Kit" << k->displayName() << "compiler mismatch for" << tcd.language
+                    << "expected:" << tcd.compilerPath.toUserOutput()
+                    << "kit has:" << (tc ? tc->compilerCommand().toUserOutput() : "(none)");
                 return false;
             }
         }
         return true;
     }();
 
-    if (!compilersMatch)
+    if (!compilersMatch) {
+        qCDebug(cmInputLog) << "Kit" << k->displayName() << "does not match: compiler mismatch.";
         return false;
+    }
 
     qCDebug(cmInputLog) << k->displayName()
                         << "matches directoryData for" << data->buildDirectory.toUserOutput();
