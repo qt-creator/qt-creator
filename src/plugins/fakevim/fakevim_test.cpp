@@ -235,6 +235,7 @@ private slots:
     void test_vim9_continuation();
     void test_vim9_interpolation();
     void test_vim_heredoc();
+    void test_vim9_import_export();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6926,6 +6927,45 @@ void FakeVimTester::test_vim_heredoc()
            "END\n"
            "g:v9 = lines\n");
     QCOMPARE(echo("g:v9"), QLatin1String("['first', 'second']"));
+}
+
+void FakeVimTester::test_vim9_import_export()
+{
+    // Vim9 "export def/var" + "import 'file' [as Name]"; exported names are
+    // bound as a dict on the alias, resolved relative to the importing
+    // script's own directory.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QTemporaryFile module(QDir::tempPath() + "/fakevim_module_XXXXXX.vim");
+    QVERIFY(module.open());
+    module.write("vim9script\n"
+                 "export var greeting = \"hi\"\n"
+                 "export def Add(x: number, y: number): number\n"
+                 "  return x + y\n"
+                 "enddef\n");
+    module.flush();
+    const QString moduleBase = QFileInfo(module.fileName()).fileName();
+
+    QTemporaryFile main(QDir::tempPath() + "/fakevim_main_XXXXXX.vim");
+    QVERIFY(main.open());
+    main.write(("vim9script\n"
+                "import '" + moduleBase + "' as mod\n"
+                "g:greeting = mod.greeting\n"
+                "g:sum = mod.Add(3, 4)\n").toUtf8());
+    main.flush();
+    data.doCommand(QLatin1String("source ") + main.fileName());
+
+    QCOMPARE(echo("g:greeting"), QLatin1String("hi"));
+    QCOMPARE(echo("g:sum"), QLatin1String("7"));
 }
 
 void FakeVimTester::test_vim_file_info()

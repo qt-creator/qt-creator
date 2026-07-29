@@ -2390,6 +2390,10 @@ public:
     bool m_inAutocmd = false; // guard against autocommands triggering autocommands
     QString m_fileType; // matched by FileType autocommands
     bool m_vim9 = false; // Vim9-script semantics are active
+    // Vim9 ":export"ed names of a sourced script, keyed by canonical file
+    // path; built by handleExSourceCommand, consumed by handleExImportCommand.
+    QHash<QString, QMap<QString, VimValue>> m_moduleExports;
+    QStringList m_scriptDirStack; // directories of scripts currently sourcing
     QList<QHash<QString, VimValue>> m_localScopes;
     bool m_returning = false;
     VimValue m_returnValue;
@@ -2526,6 +2530,7 @@ public:
     bool handleExSortCommand(const ExCommand &cmd);
     bool handleExShiftCommand(const ExCommand &cmd);
     bool handleExSourceCommand(const ExCommand &cmd);
+    bool handleExImportCommand(const ExCommand &cmd);
     bool handleExSubstituteCommand(const ExCommand &cmd);
     bool handleExTabNextCommand(const ExCommand &cmd);
     bool handleExTabPreviousCommand(const ExCommand &cmd);
@@ -7559,6 +7564,8 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
         return true;
     }
+    const QFileInfo fileInfo(fileName);
+    const QString canonicalPath = fileInfo.canonicalFilePath();
 
     // Detect the encoding like Vim's 'fileencodings': prefer UTF-8 and fall
     // back to the local 8-bit encoding for invalid byte sequences
@@ -7597,8 +7604,9 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         line.clear();
     };
     int depth = 0; // running bracket balance of the accumulated line (Vim9)
+    QStringList exportedNames; // Vim9 ":export"ed def/var names of this script
     for (int i = 0; i < rawLines.size(); ++i) {
-        const QString next = rawLines.at(i).trimmed();
+        QString next = rawLines.at(i).trimmed();
         if (next.startsWith(commentChar))
             continue; // full-line comment (also dropped inside a continuation)
         if (next == "vim9script" || next.startsWith("vim9script "))
@@ -7607,6 +7615,18 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
             line += next.mid(1);
             depth += vim9BracketDelta(next.mid(1));
             continue;
+        }
+        // Vim9 "export def/var/const/final NAME ...": strip the keyword and
+        // remember NAME so it can be handed to an importing script later.
+        // "export" only ever starts a fresh top-level statement, so this
+        // does not need to check whether the previous statement was flushed.
+        if (fileVim9 && next.startsWith("export ")) {
+            static const QRegularExpression exportNameRe(
+                "^(?:def|var|const|final)\\s+([A-Za-z_][A-Za-z0-9_]*)");
+            const QRegularExpressionMatch em = exportNameRe.match(next.mid(7));
+            if (em.hasMatch())
+                exportedNames.append(em.captured(1));
+            next = next.mid(7);
         }
         // Heredoc: "let VAR =<< [trim] MARKER" gathers the following lines up to
         // MARKER into a list of strings. Only at statement start, not mid-line.
@@ -7656,8 +7676,73 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 
     const bool savedVim9 = m_vim9;
     m_vim9 = fileVim9;
+    m_scriptDirStack.append(fileInfo.canonicalPath());
     runExCommands(cmds);
+    m_scriptDirStack.removeLast();
     m_vim9 = savedVim9;
+
+    if (fileVim9 && !exportedNames.isEmpty() && !canonicalPath.isEmpty()) {
+        QMap<QString, VimValue> exports;
+        for (const QString &name : std::as_const(exportedNames)) {
+            if (m_userFunctions.contains(name))
+                exports.insert(name, VimValue::func(name));
+            else {
+                VimValue v;
+                if (variableValue(name, &v))
+                    exports.insert(name, v);
+            }
+        }
+        m_moduleExports.insert(canonicalPath, exports);
+    }
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExImportCommand(const ExCommand &cmd)
+{
+    // :import ["autoload"] 'file' [as Name]  -- Vim9 module import. Sources
+    // the file once (if not already imported) and binds its exported names
+    // as a dict under Name, defaulting to the file's base name. "autoload"
+    // is accepted but imports eagerly; lazy loading is not modeled.
+    if (cmd.cmd != "import")
+        return false;
+
+    QString args = cmd.args.trimmed();
+    if (args.startsWith("autoload "))
+        args = args.mid(9).trimmed();
+    if (args.isEmpty() || (args.at(0) != '\'' && args.at(0) != '"')) {
+        showMessage(MessageError, Tr::tr("Missing file name in :import"));
+        return true;
+    }
+    const QChar quote = args.at(0);
+    const int end = args.indexOf(quote, 1);
+    if (end < 0) {
+        showMessage(MessageError, Tr::tr("Missing closing quote in :import"));
+        return true;
+    }
+    const QString path = args.mid(1, end - 1);
+    const QString rest = args.mid(end + 1).trimmed();
+    const QString alias = rest.startsWith("as ")
+        ? rest.mid(3).trimmed() : QFileInfo(path).completeBaseName();
+
+    QString resolved = replaceTildeWithHome(path);
+    QFileInfo fi(resolved);
+    if (fi.isRelative() && !m_scriptDirStack.isEmpty())
+        fi.setFile(m_scriptDirStack.last() + '/' + resolved);
+    const QString canonicalPath = fi.canonicalFilePath();
+    if (canonicalPath.isEmpty()) {
+        showMessage(MessageError, Tr::tr("Cannot open file %1").arg(path));
+        return true;
+    }
+
+    if (!m_moduleExports.contains(canonicalPath)) {
+        ExCommand src;
+        src.cmd = "source";
+        src.args = canonicalPath;
+        handleExSourceCommand(src);
+    }
+
+    QMap<QString, VimValue> exports = m_moduleExports.value(canonicalPath);
+    setVariable(alias, VimValue::dict(exports));
     return true;
 }
 
@@ -7958,11 +8043,46 @@ private:
                 while (cur().isLetterOrNumber() || cur() == '_')
                     ++m_pos;
                 v = subscript(v, VimValue(m_in.mid(keyStart, m_pos - keyStart)));
+            } else if (cur() == '(' && v.isFunc()) {
+                // Calling a funcref value obtained above, e.g. "list[0](x)" or
+                // "ns.Func(x)" (module import namespace access).
+                v = parseFuncrefCall(v);
             } else {
                 break;
             }
         }
         return v;
+    }
+
+    VimValue parseFuncrefCall(const VimValue &callable)
+    {
+        ++m_pos; // '('
+        QList<VimValue> args;
+        skipBlanks();
+        if (cur() != ')') {
+            while (m_ok) {
+                args.append(parseExpr());
+                skipBlanks();
+                if (cur() == ',') {
+                    ++m_pos;
+                    continue;
+                }
+                break;
+            }
+        }
+        if (!m_ok)
+            return {};
+        if (!eatOp(")")) {
+            setError(Tr::tr("Missing ')' in call"));
+            return {};
+        }
+        VimValue result;
+        QString error;
+        if (!m_h->invokeCallable(callable, args, &result, &error)) {
+            setError(error);
+            return {};
+        }
+        return result;
     }
 
     // "v->f(args)" is sugar for "f(v, args)".
@@ -10146,6 +10266,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExShiftCommand(cmd)
         || handleExSortCommand(cmd)
         || handleExSourceCommand(cmd)
+        || handleExImportCommand(cmd)
         || handleExSubstituteCommand(cmd)
         || handleExTabNextCommand(cmd)
         || handleExTabPreviousCommand(cmd)
