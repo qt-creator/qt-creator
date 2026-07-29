@@ -2552,6 +2552,7 @@ public:
     bool setOption(const QString &name, const VimValue &value);
     bool callFunction(const QString &name, const QList<VimValue> &args,
                       VimValue *result, QString *error);
+    CursorPosition lineColArg(const QString &spec) const;
     bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
                         VimValue *result, QString *error);
     bool handleExLetCommand(const ExCommand &cmd);
@@ -9080,6 +9081,22 @@ static QString vimPrintf(const QList<VimValue> &args)
     return out;
 }
 
+// Resolve a line()/col()/getpos() position argument: "." is the cursor, "$"
+// the last line and "'m" a mark. Both fields are 0-based; the callers add 1.
+CursorPosition FakeVimHandler::Private::lineColArg(const QString &spec) const
+{
+    if (spec == "." || spec == "v")
+        return CursorPosition(m_cursor);
+    if (spec == "$")
+        return CursorPosition(linesInDocument() - 1, 0);
+    if (spec.size() == 2 && spec.at(0) == '\'') {
+        const Mark m = mark(spec.at(1));
+        if (m.isValid())
+            return m.position(document());
+    }
+    return CursorPosition(-1, -1); // unknown: line()/col() report 0
+}
+
 bool FakeVimHandler::Private::callFunction(const QString &name,
     const QList<VimValue> &args, VimValue *result, QString *error)
 {
@@ -9442,13 +9459,40 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         }
         *result = VimValue(qlonglong(ex ? 1 : 0));
     } else if (name == "line") {
-        const QString a = arg(0).toString();
-        *result = VimValue(qlonglong(a == "$" ? linesInDocument()
-                                    : a == "." ? cursorLine() + 1 : 0));
+        *result = VimValue(qlonglong(lineColArg(arg(0).toString()).line + 1));
     } else if (name == "col") {
         const QString a = arg(0).toString();
-        *result = VimValue(qlonglong(a == "." ? physicalCursorColumn() + 1
-                           : a == "$" ? lineContents(cursorLine() + 1).size() + 1 : 0));
+        if (a == "$")
+            *result = VimValue(qlonglong(lineContents(cursorLine() + 1).size() + 1));
+        else
+            *result = VimValue(qlonglong(lineColArg(a).column + 1));
+    } else if (name == "getpos" || name == "getcurpos") {
+        // [bufnum, lnum, col, off]; bufnum is 0 for the current buffer.
+        const CursorPosition pos = lineColArg(name == "getcurpos"
+                                              ? QString(".") : arg(0).toString());
+        *result = VimValue::list({VimValue(qlonglong(0)),
+                                  VimValue(qlonglong(pos.line + 1)),
+                                  VimValue(qlonglong(pos.column + 1)),
+                                  VimValue(qlonglong(0))});
+    } else if (name == "setpos") {
+        // setpos({expr}, [bufnum, lnum, col, off]); only the current buffer.
+        const QList<VimValue> *l = arg(1).isList() ? arg(1).listData() : nullptr;
+        if (!l || l->size() < 3) {
+            *error = Tr::tr("setpos() expects a list of at least three numbers");
+            return false;
+        }
+        const CursorPosition pos(int(l->at(1).toNumber()) - 1,
+                                 int(l->at(2).toNumber()) - 1);
+        const QString a = arg(0).toString();
+        if (a == ".") {
+            setCursorPosition(pos);
+        } else if (a.size() == 2 && a.at(0) == '\'') {
+            setMark(a.at(1), pos);
+        } else {
+            *error = Tr::tr("Invalid position: %1").arg(a);
+            return false;
+        }
+        *result = VimValue(qlonglong(0));
     } else if (name == "getline") {
         const QString a = arg(0).toString();
         const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());

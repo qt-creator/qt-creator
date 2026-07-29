@@ -229,6 +229,7 @@ private slots:
     void test_vim_script_autocmd();
     void test_vim_script_dict_dot();
     void test_vim_script_command();
+    void test_vim_script_positions();
     void test_vim9_basics();
     void test_vim9_def();
     void test_vim9_lambda();
@@ -5736,6 +5737,39 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("strlen(getline(3))"), QLatin1String("5"));
     data.doCommand("call setline(1, \"ONE\")");
     QCOMPARE(echo("getline(1)"), QLatin1String("ONE"));
+}
+
+void FakeVimTester::test_vim_script_positions()
+{
+    // line()/col() accept marks, plus getpos()/getcurpos()/setpos().
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.setText("one" N "two" N "three");
+    // Set mark a on line 2, column 2, then come back to the start.
+    data.doKeys("jlma");
+    data.doKeys("gg0");
+
+    QCOMPARE(echo("line(\"'a\")"), QLatin1String("2"));
+    QCOMPARE(echo("col(\"'a\")"), QLatin1String("2"));
+    QCOMPARE(echo("line(\"'z\")"), QLatin1String("0")); // unset mark
+    QCOMPARE(echo("getpos(\"'a\")"), QLatin1String("[0, 2, 2, 0]"));
+    QCOMPARE(echo("getcurpos()"), QLatin1String("[0, 1, 1, 0]"));
+
+    // setpos() moves the cursor and defines marks.
+    data.doCommand("call setpos(\".\", [0, 3, 2, 0])");
+    QCOMPARE(echo("getpos(\".\")"), QLatin1String("[0, 3, 2, 0]"));
+    data.doCommand("call setpos(\"'b\", [0, 1, 3, 0])");
+    QCOMPARE(echo("line(\"'b\")"), QLatin1String("1"));
+    QCOMPARE(echo("col(\"'b\")"), QLatin1String("3"));
 }
 
 void FakeVimTester::test_vim_script_expr_mapping()
