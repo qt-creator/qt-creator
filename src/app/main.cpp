@@ -55,7 +55,6 @@
 #include <QtVersion>
 
 #include <optional>
-#include <vector>
 
 using namespace ExtensionSystem;
 using namespace Utils;
@@ -371,15 +370,15 @@ static void loadFonts()
 
 struct Options
 {
+    QMap<QString, bool> appOptions;
     QString settingsPath;
     QString installSettingsPath;
     QStringList customPluginPaths;
     QString uiLanguage;
     QString singleAppIdPostfix;
-    // list of arguments that were handled and not passed to the application or plugin manager
+    // List of arguments that the plugin manager ignores since they must be handled beforehand,
+    // but that were present and must be passed when restarting Qt Creator
     QStringList preAppArguments;
-    // list of arguments to be passed to the application or plugin manager
-    std::vector<char *> appArguments;
     std::optional<QString> userLibraryPath;
     QStringList traceOnWarningPatterns;
     bool hasTestOption = false;
@@ -391,6 +390,18 @@ struct Options
 static Options parseCommandLine(int argc, char *argv[])
 {
     Options options;
+    // Used to tell the plugin manager that it should ignore these command line arguments
+    options.appOptions.insert(SETTINGS_OPTION, true);
+    options.appOptions.insert(INSTALL_SETTINGS_OPTION, true);
+    options.appOptions.insert(PLUGINPATH_OPTION, true);
+    options.appOptions.insert(LANGUAGE_OPTION, true);
+    options.appOptions.insert(USER_LIBRARY_PATH_OPTION, true);
+    options.appOptions.insert(TRACE_ON_WARNING_OPTION, true);
+    options.appOptions.insert(TEMPORARY_CLEAN_SETTINGS1, false);
+    options.appOptions.insert(TEMPORARY_CLEAN_SETTINGS2, false);
+    options.appOptions.insert(NO_BANNERS_OPTION, false);
+    options.appOptions.insert(CLIENTID_OPTION, true);
+
     auto it = argv;
     const auto end = argv + argc;
     while (it != end) {
@@ -421,6 +432,7 @@ static Options parseCommandLine(int argc, char *argv[])
         } else if (arg == TRACE_ON_WARNING_OPTION && hasNext) {
             ++it;
             options.traceOnWarningPatterns << nextArg;
+            options.preAppArguments << arg << nextArg;
         } else if (arg == TEMPORARY_CLEAN_SETTINGS1 || arg == TEMPORARY_CLEAN_SETTINGS2) {
             options.wantsCleanSettings = true;
             options.preAppArguments << arg;
@@ -431,14 +443,13 @@ static Options parseCommandLine(int argc, char *argv[])
             ++it;
             options.singleAppIdPostfix = nextArg;
             options.preAppArguments << arg << nextArg;
-        } else { // arguments that are still passed on to the application
+        } else {
             if (arg == STYLE_OPTION)
                 options.hasStyleOption = true;
             if (arg == TEST_OPTION)
                 options.hasTestOption = true;
             if (arg == QML_LITE_DESIGNER_OPTION)
                 options.singleAppIdPostfix = QML_LITE_DESIGNER_OPTION;
-            options.appArguments.push_back(*it);
         }
         ++it;
     }
@@ -577,9 +588,16 @@ int main(int argc, char **argv)
 
     FSEngine fileSystemEngine;
 
-    // Manually determine various command line options
-    // We can't use the regular way of the plugin manager,
-    // because settings can change the way plugin manager behaves
+    // Manually determine various command line options beforehand.
+    // We can't use the regular way of the plugin manager, because settings can change the way
+    // plugin manager behaves, and some options must be handled before the QApplication is
+    // constructed.
+    // All still need to be passed to the QApplication, because on macOS, AppKit interprets all
+    // command line arguments (as passed to the process) and if that is an odd number and the last
+    // one "looks like a file", that get passed to the application as an "openFile" request.
+    // Qt has a workaround for that, which suppresses this if that argument is also present in
+    // QApplication::arguments(), see application:openFiles: in qcocoaapplicationdelegate.mm
+    // We later tell the plugin manager about the options that it should ignore.
     Options options = parseCommandLine(argc, argv);
     applicationDirPath(argv[0]);
 
@@ -734,15 +752,13 @@ int main(int argc, char **argv)
 
     SharedTools::QtSingleApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-    int numberOfArguments = static_cast<int>(options.appArguments.size());
-
     // create a custom Qt message handler that shows messages in a bare bones UI
     // if creation of the QGuiApplication fails.
     auto handler = std::make_unique<ShowInGuiHandler>();
     const QString singleAppId = QString(Core::Constants::IDE_DISPLAY_NAME)
                                 + options.singleAppIdPostfix;
     std::unique_ptr<SharedTools::QtSingleApplication> appPtr(
-        SharedTools::createApplication(singleAppId, numberOfArguments, options.appArguments.data()));
+        SharedTools::createApplication(singleAppId, argc, argv));
     handler.reset();
     SharedTools::QtSingleApplication &app = *appPtr;
     QCoreApplication::setApplicationName(Core::Constants::IDE_CASED_ID);
@@ -906,7 +922,7 @@ int main(int argc, char **argv)
 
     QMap<QString, QString> foundAppOptions;
     if (pluginArguments.size() > 1) {
-        QMap<QString, bool> appOptions;
+        QMap<QString, bool> appOptions = options.appOptions;
         appOptions.insert(QLatin1String(HELP_OPTION1), false);
         appOptions.insert(QLatin1String(HELP_OPTION2), false);
         appOptions.insert(QLatin1String(HELP_OPTION3), false);
