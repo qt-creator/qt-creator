@@ -357,7 +357,7 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, int preferredPosition
     }
 
     int index = factoryIndex(factoryId);
-    if (index >= 0) {
+    if (index >= 0 && !d->m_subWidgets.isEmpty()) {
         bool preferredIndexValid = 0 <= preferredPosition && preferredPosition < d->m_subWidgets.count();
         const int activationIndex = preferredIndexValid ? preferredPosition : 0;
         Internal::NavigationSubWidget *subWidget = d->m_subWidgets.at(activationIndex);
