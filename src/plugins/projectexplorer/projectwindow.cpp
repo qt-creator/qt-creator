@@ -710,10 +710,9 @@ class TargetSetupPageWrapper final : public QWidget
 public:
     explicit TargetSetupPageWrapper(Project *project)
         : m_project(project)
+        , m_configureButton(Tr::tr("Configure Project"), QtcButton::MediumPrimary)
     {
         setWindowTitle(Tr::tr("Configure Project"));
-
-        m_configureButton.setText(Tr::tr("&Configure Project"));
 
         auto hbox = new QHBoxLayout;
         hbox->addStretch();
@@ -785,7 +784,7 @@ private:
 
     QPointer<Project> m_project;
     QPointer<TargetSetupPage >m_targetSetupPage;
-    QPushButton m_configureButton;
+    QtcButton m_configureButton;
     QDialogButtonBox m_buttonBox;
 };
 
