@@ -63,6 +63,8 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
     }.attachTo(this);
     // clang-format on
 
+    m_documents = QList<QPointer<IDocument>>(items.cbegin(), items.cend());
+
     for (IDocument *document : items) {
         QString visibleName;
         FilePath directory;
@@ -158,7 +160,10 @@ void SaveItemsDialog::collectItemsToSave()
     m_itemsToSave.clear();
     const QList<QTreeWidgetItem *> items = m_treeWidget->selectedItems();
     for (const QTreeWidgetItem *item : items) {
-        m_itemsToSave.append(item->data(0, Qt::UserRole).value<IDocument*>());
+        auto *document = item->data(0, Qt::UserRole).value<IDocument*>();
+        // document might have been closed (and deleted) elsewhere while this modal dialog was open
+        if (m_documents.contains(document))
+            m_itemsToSave.append(document);
     }
     accept();
 }
@@ -168,7 +173,9 @@ void SaveItemsDialog::collectFilesToDiff()
     m_filesToDiff.clear();
     const QList<QTreeWidgetItem *> items = m_treeWidget->selectedItems();
     for (const QTreeWidgetItem *item : items) {
-        if (auto doc = item->data(0, Qt::UserRole).value<IDocument*>())
+        auto *doc = item->data(0, Qt::UserRole).value<IDocument*>();
+        // document might have been closed (and deleted) elsewhere while this modal dialog was open
+        if (doc && m_documents.contains(doc))
             m_filesToDiff.append(doc->filePath());
     }
     reject();
