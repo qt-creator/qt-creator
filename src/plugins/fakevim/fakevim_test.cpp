@@ -231,6 +231,7 @@ private slots:
     void test_vim_script_command();
     void test_vim9_basics();
     void test_vim9_def();
+    void test_vim9_lambda();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -6767,6 +6768,43 @@ void FakeVimTester::test_vim9_def()
     QCOMPARE(echo("g:d1"), QLatin1String("10"));
     QCOMPARE(echo("g:d2"), QLatin1String("20"));
     QCOMPARE(echo("g:total"), QLatin1String("10"));
+}
+
+void FakeVimTester::test_vim9_lambda()
+{
+    // Vim9 "(args) => expr" lambdas, including as arguments to map/sort.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    source("vim9script\n"
+           "var Double = (x) => x * 2\n"
+           "g:a = Double(21)\n"
+           "var Add = (a, b) => a + b\n"
+           "g:b = Add(3, 4)\n"
+           "var Inc = (x: number) => x + 1\n"
+           "g:c = Inc(9)\n"
+           "g:m = map([1, 2, 3], (i, v) => v * 10)\n"
+           "g:s = sort([3, 1, 2], (a, b) => a - b)\n");
+    QCOMPARE(echo("g:a"), QLatin1String("42"));
+    QCOMPARE(echo("g:b"), QLatin1String("7"));
+    QCOMPARE(echo("g:c"), QLatin1String("10"));
+    QCOMPARE(echo("g:m"), QLatin1String("[10, 20, 30]"));
+    QCOMPARE(echo("g:s"), QLatin1String("[1, 2, 3]"));
 }
 
 void FakeVimTester::test_vim_file_info()

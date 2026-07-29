@@ -7978,6 +7978,8 @@ private:
         skipBlanks();
         const QChar c = cur();
         if (c == '(') {
+            if (vim9() && looksLikeVim9Lambda())
+                return parseVim9Lambda();
             ++m_pos;
             VimValue v = parseExpr();
             skipBlanks();
@@ -8241,6 +8243,98 @@ private:
             }
         }
         return -1;
+    }
+
+    // Position just past a balanced expression starting at "from", stopping at
+    // a top-level ",", ")", "]" or "}".
+    int scanExpressionEnd(int from) const
+    {
+        int depth = 0;
+        for (int p = from; p < m_in.size(); ++p) {
+            const QChar ch = m_in.at(p);
+            if (ch == '"' || ch == '\'') {
+                const QChar quote = ch;
+                for (++p; p < m_in.size() && m_in.at(p) != quote; ++p) {
+                    if (quote == '"' && m_in.at(p) == '\\')
+                        ++p;
+                }
+            } else if (ch == '(' || ch == '[' || ch == '{') {
+                ++depth;
+            } else if (ch == ')' || ch == ']' || ch == '}') {
+                if (depth == 0)
+                    return p;
+                --depth;
+            } else if (ch == ',' && depth == 0) {
+                return p;
+            }
+        }
+        return m_in.size();
+    }
+
+    // Is the "(" at the cursor the start of a Vim9 lambda "(args) => expr"?
+    bool looksLikeVim9Lambda() const
+    {
+        int depth = 0;
+        int p = m_pos;
+        for (; p < m_in.size(); ++p) {
+            const QChar ch = m_in.at(p);
+            if (ch == '"' || ch == '\'') {
+                const QChar quote = ch;
+                for (++p; p < m_in.size() && m_in.at(p) != quote; ++p) {
+                    if (quote == '"' && m_in.at(p) == '\\')
+                        ++p;
+                }
+            } else if (ch == '(') {
+                ++depth;
+            } else if (ch == ')') {
+                if (--depth == 0) {
+                    ++p;
+                    break;
+                }
+            }
+        }
+        while (p < m_in.size() && (m_in.at(p) == ' ' || m_in.at(p) == '\t'))
+            ++p;
+        return p + 1 < m_in.size() && m_in.at(p) == '=' && m_in.at(p + 1) == '>';
+    }
+
+    VimValue parseVim9Lambda()
+    {
+        ++m_pos; // '('
+        QStringList params;
+        skipBlanks();
+        while (m_ok && cur() != ')') {
+            const int s = m_pos;
+            while (cur().isLetterOrNumber() || cur() == '_')
+                ++m_pos;
+            params.append(m_in.mid(s, m_pos - s));
+            skipBlanks();
+            if (cur() == ':') { // skip a ": type" annotation
+                ++m_pos;
+                while (m_pos < m_in.size() && cur() != ',' && cur() != ')')
+                    ++m_pos;
+            }
+            skipBlanks();
+            if (cur() == ',') {
+                ++m_pos;
+                skipBlanks();
+            }
+        }
+        eatOp(")");
+        skipBlanks();
+        if (!eatOp("=>")) {
+            setError(Tr::tr("Missing '=>' in lambda"));
+            return {};
+        }
+        skipBlanks();
+        const int bodyStart = m_pos;
+        const int bodyEnd = scanExpressionEnd(bodyStart);
+        const QString body = m_in.mid(bodyStart, bodyEnd - bodyStart).trimmed();
+        m_pos = bodyEnd;
+        QHash<QString, VimValue> captured;
+        if (!m_h->m_localScopes.isEmpty())
+            captured = m_h->m_localScopes.last();
+        return VimValue::lambda(params, body, captured);
     }
 
     VimValue parseLambda()
