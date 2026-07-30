@@ -8,6 +8,7 @@
 #include "texteditortr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/icore.h>
@@ -38,6 +39,7 @@ namespace TextEditor::Internal {
 
 const char MARKDOWNVIEWER_ID[] = "Editors.MarkdownViewer";
 const char MARKDOWNVIEWER_TEXT_CONTEXT[] = "Editors.MarkdownViewer.Text";
+const char MARKDOWNVIEWER_PREVIEW_CONTEXT[] = "Editors.MarkdownViewer.Preview";
 const char MARKDOWNVIEWER_MIME_TYPE[] = "text/markdown";
 const char MARKDOWNVIEWER_TEXTEDITOR_RIGHT[] = "Markdown.TextEditorRight";
 const char MARKDOWNVIEWER_SHOW_EDITOR[] = "Markdown.ShowEditor";
@@ -100,6 +102,7 @@ public:
         m_previewWidget->setFrameShape(QFrame::NoFrame);
         m_previewWidget->setShowRulersForHeadings(true);
         Aggregation::aggregate({m_previewWidget, new BaseTextFind<QTextBrowser>(m_previewWidget)});
+        IContext::attach(m_previewWidget, Context(MARKDOWNVIEWER_PREVIEW_CONTEXT));
         connect(m_previewWidget, &QTextBrowser::anchorClicked, this, [this](const QUrl &link) {
             if (link.isLocalFile() || (link.scheme().isEmpty() && !link.path().isEmpty())) {
                 // absolute path or relative (to the document): open in Qt Creator
@@ -356,6 +359,10 @@ public:
     void togglePreview() { m_togglePreviewVisible->toggle(); }
     void swapViews() { m_swapViews->click(); }
 
+    void increasePreviewZoom() { m_previewWidget->increaseZoom(); }
+    void decreasePreviewZoom() { m_previewWidget->decreaseZoom(); }
+    void resetPreviewZoom() { m_previewWidget->resetZoom(); }
+
     bool isTextEditorRight() const { return m_splitter->widget(0) == m_previewWidget; }
 
     void setWidgetOrder(bool textEditorRight)
@@ -523,6 +530,9 @@ private:
     Action m_toggleEditorAction;
     Action m_togglePreviewAction;
     Action m_swapAction;
+    Action m_previewZoomInAction;
+    Action m_previewZoomOutAction;
+    Action m_previewZoomResetAction;
 };
 
 MarkdownEditorFactory::MarkdownEditorFactory()
@@ -533,6 +543,7 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     setEditorCreator([] { return new MarkdownEditor; });
 
     const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
+    const auto previewContext = Context(MARKDOWNVIEWER_PREVIEW_CONTEXT);
     const auto context = Context(MARKDOWNVIEWER_ID);
 
     ActionBuilder(nullptr, EMPHASIS_ACTION)
@@ -603,6 +614,33 @@ MarkdownEditorFactory::MarkdownEditorFactory()
             auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
             if (editor)
                 editor->swapViews();
+        });
+
+    ActionBuilder(nullptr, Core::Constants::ZOOM_IN)
+        .adopt(&m_previewZoomInAction)
+        .setContext(previewContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->increasePreviewZoom();
+        });
+
+    ActionBuilder(nullptr, Core::Constants::ZOOM_OUT)
+        .adopt(&m_previewZoomOutAction)
+        .setContext(previewContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->decreasePreviewZoom();
+        });
+
+    ActionBuilder(nullptr, Core::Constants::ZOOM_RESET)
+        .adopt(&m_previewZoomResetAction)
+        .setContext(previewContext)
+        .addOnTriggered(EditorManager::instance(), [] {
+            auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+            if (editor)
+                editor->resetPreviewZoom();
         });
 }
 

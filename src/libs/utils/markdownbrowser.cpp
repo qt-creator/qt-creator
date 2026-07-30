@@ -656,8 +656,7 @@ void MarkdownBrowser::wheelEvent(QWheelEvent *event)
     else if (step < 0 && step > -1)
         step = -1;
     setScale((scale() * 100 + int(step)) / 100);
-    FadingIndicator::showText(
-        this, Tr::tr("Zoom: %1%").arg(int(scale() * 100)), FadingIndicator::SmallText);
+    showZoomIndicator();
 }
 
 void MarkdownBrowser::setScale(qreal scale)
@@ -673,6 +672,33 @@ void MarkdownBrowser::setScale(qreal scale)
 qreal MarkdownBrowser::scale() const
 {
     return m_scale;
+}
+
+void MarkdownBrowser::increaseZoom()
+{
+    const int prev = qRound(scale() * 100);
+    setScale((prev + 10 - prev % 10) / 100.0);
+    showZoomIndicator();
+}
+
+void MarkdownBrowser::decreaseZoom()
+{
+    const int prev = qRound(scale() * 100);
+    const int delta = prev % 10;
+    setScale((prev - (delta == 0 ? 10 : delta)) / 100.0);
+    showZoomIndicator();
+}
+
+void MarkdownBrowser::resetZoom()
+{
+    setScale(1);
+    showZoomIndicator();
+}
+
+void MarkdownBrowser::showZoomIndicator()
+{
+    FadingIndicator::showText(
+        this, Tr::tr("Zoom: %1%").arg(int(scale() * 100)), FadingIndicator::SmallText);
 }
 
 void MarkdownBrowser::setAllowRemoteImages(bool allow)

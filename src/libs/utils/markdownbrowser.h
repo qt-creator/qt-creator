@@ -43,6 +43,9 @@ public:
     void setMaximumCacheSize(qsizetype maxSize);
     void setScale(qreal scale);
     qreal scale() const;
+    void increaseZoom();
+    void decreaseZoom();
+    void resetZoom();
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -64,6 +67,7 @@ protected:
     QMimeData *createMimeDataFromSelection() const override;
 
 private:
+    void showZoomIndicator();
     void handleAnchorClicked(const QUrl &link);
     void postProcessDocument(bool firstTime);
     void highlightCodeBlock(const QString &language, QTextBlock &block);
