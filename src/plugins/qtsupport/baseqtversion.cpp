@@ -1465,8 +1465,8 @@ static Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand)
 // QtVersionPrivate::data() from many property getters. For a remote qmake on a device
 // that is known to be disconnected this would freeze the GUI for the whole process
 // timeout without any chance of success. Skip it in that case; the query is retried on
-// the next access once the device is reachable again. Mirrors the DeviceDisconnected
-// guard in IDevice::getUnixEnvironment().
+// the next access once the device is reachable again. Mirrors the guard in
+// IDevice::getUnixEnvironment().
 static bool qmakeQueryable(const FilePath &qmake)
 {
     if (qmake.isLocal())
@@ -1474,7 +1474,7 @@ static bool qmakeQueryable(const FilePath &qmake)
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(qmake);
     if (!device)
         return false;
-    return device->deviceState() != IDevice::DeviceDisconnected || device->isTesting();
+    return device->isUp() || device->isTesting();
 }
 
 QtVersionData &QtVersionPrivate::data()

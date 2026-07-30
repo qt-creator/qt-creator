@@ -905,7 +905,7 @@ void SshProcessInterfacePrivate::start()
 
     auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
     QTC_ASSERT(linuxDevice, handleDone(); return);
-    if (linuxDevice->isDisconnected() && !linuxDevice->isTesting())
+    if (!linuxDevice->isUp() && !linuxDevice->isTesting())
         return handleDone();
     const bool useConnectionSharing
         = sshSettings().useConnectionSharing()
@@ -1559,12 +1559,6 @@ QString LinuxDevice::deviceStateToString() const
     return IDevice::deviceStateToString();
 }
 
-bool LinuxDevice::isDisconnected() const
-{
-    const auto state = deviceState();
-    return state == IDevice::DeviceDisconnected || state == IDevice::DeviceStateUnknown;
-}
-
 QString proxyJumpSpec(const IDevice *device)
 {
     const QString linkId = device->linkDevice.value();
@@ -1581,7 +1575,7 @@ QString proxyJumpSpec(const IDevice *device)
 
 void LinuxDevice::tryToConnect(const Continuation<> &cont) const
 {
-    if (isDisconnected()) {
+    if (!isUp()) {
         SshParameters params = sshParameters();
         params.setProxyJump(proxyJumpSpec(this));
         d->setupFileAccess(params, cont);

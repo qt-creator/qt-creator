@@ -236,6 +236,11 @@ public:
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;
     void setDeviceState(const DeviceState state);
+    // True when the device is known to be reachable, i.e. either ready to use or connected.
+    // Returns false for an explicitly disconnected device and for one in an as-yet-undetermined
+    // state. Operations that would block on a (possibly unreachable) device should skip unless
+    // this holds.
+    bool isUp() const;
     virtual QString deviceStateToString() const;
     virtual QPixmap deviceStateIcon() const;
 

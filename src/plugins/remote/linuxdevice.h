@@ -80,7 +80,6 @@ public:
 
     QString deviceStateToString() const override;
 
-    bool isDisconnected() const;
     void tryToConnect(const Utils::Continuation<> &cont) const override;
     void runAutoDetect(const ProjectExplorer::ToolDetectionLogger &logger,
                        const std::function<void()> &onDone) override;

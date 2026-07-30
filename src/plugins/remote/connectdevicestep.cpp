@@ -63,7 +63,7 @@ GroupItem ConnectDeviceStep::deployRecipe()
 {
     const auto setup = [this](DeviceAndResult &task) {
         auto device = std::dynamic_pointer_cast<const LinuxDevice>(deviceConfiguration());
-        if (!device->isDisconnected())
+        if (device->isUp())
             return SetupResult::StopWithSuccess;
 
         task.device = device;
