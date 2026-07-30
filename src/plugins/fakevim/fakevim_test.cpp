@@ -7362,6 +7362,20 @@ void FakeVimTester::test_vim_script_search_cursor()
     QCOMPARE(echo("search('beta', 'W', 0, 0, function('SkipSecond'))"),
              QLatin1String("4"));
 
+    // The two-step walk a plugin uses to find the end of a block of lines that
+    // share a property: forward past everything having it, then back to the
+    // last thing that had it.
+    data.setText("int a = 1;" N "// c1" N "// c2" N "int b = 2;");
+    data.doCommand("function IsC() | return getline('.') =~ '^\\s*//' | endfunction");
+    data.doCommand("function NotC() | return getline('.') !~ '^\\s*//' | endfunction");
+    data.doCommand("call cursor(2, 4)");
+    QCOMPARE(echo("search('\\v%(\\S+)|%(^\\s*$)', 'W', 0, 200, function('IsC'))"),
+             QLatin1String("4"));
+    QCOMPARE(echo("[line('.'), col('.')]"), QLatin1String("[4, 1]"));
+    QCOMPARE(echo("search('\\S', 'beW', 0, 200, function('NotC'))"), QLatin1String("3"));
+    QCOMPARE(echo("[line('.'), col('.')]"), QLatin1String("[3, 5]"));
+
+    data.setText("alpha" N "beta" N "gamma" N "beta" N "delta");
     // "w" wraps and "W" does not, whatever 'wrapscan' says.
     data.doCommand("call cursor(5, 1)");
     QCOMPARE(echo("search('alpha', 'w')"), QLatin1String("1"));
