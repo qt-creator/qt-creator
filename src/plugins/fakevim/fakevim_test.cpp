@@ -7310,7 +7310,6 @@ void FakeVimTester::test_vim_map_cmd()
     data.doCommand("onoremap zs <Cmd>call Sel()<CR>");
     data.setText("aaa" N "bbb" N "ccc" N "ddd");
     data.doKeys("dzs");
-    QEXPECT_FAIL("", "selection placed in steps is off by a line", Continue);
     QCOMPARE(data.text(), QByteArray("aaa" N "ddd"));
 
     data.doCommand("ounmap zv");

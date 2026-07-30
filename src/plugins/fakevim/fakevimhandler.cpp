@@ -10148,6 +10148,12 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = VimValue(qlonglong(-1));
         } else {
             setCursorPosition(CursorPosition(line - 1, qMax(0, column - 1)));
+            // Moving the cursor keeps the anchor, which is what extends a
+            // selection while one is being made. Without one this is a plain
+            // move and the anchor has to come along, or it would still mark
+            // wherever the cursor happened to be before.
+            if (!isVisualMode())
+                setAnchor();
             setTargetColumn();
             *result = VimValue(qlonglong(0));
         }
