@@ -14,6 +14,7 @@ class IncludeHierarchyTest : public QObject
 private slots:
     void test_data();
     void test();
+    void testNotOpenIncludedFile();
 };
 
 } // namespace CppEditor::Internal::Tests

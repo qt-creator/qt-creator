@@ -199,9 +199,11 @@ void CppIncludeHierarchyItem::fetchMore()
 
     setChildrenChecked();
     if (m_subTree == InIncludes) {
+        // Prefer the open editor's (possibly unsaved) snapshot, but fall back to
+        // the global one so this also works when the inspected file - e.g. a
+        // header reached via a #include - is not open in an editor.
         auto processor = CppModelManager::cppEditorDocumentProcessor(editorFilePath);
-        QTC_ASSERT(processor, return);
-        const Snapshot snapshot = processor->snapshot();
+        const Snapshot snapshot = processor ? processor->snapshot() : globalSnapshot();
         const FileAndLines includes = findIncludes(filePath(), snapshot);
         for (const FileAndLine &include : includes) {
             const FileAndLines subIncludes = findIncludes(include.file, snapshot);
@@ -410,10 +412,27 @@ void CppIncludeHierarchyWidget::perform()
         return;
 
     const Utils::FilePath documentPath = m_editor->textDocument()->filePath();
-    m_model.buildHierarchy(documentPath);
 
-    m_inspectedFile->setText(m_editor->textDocument()->displayName());
-    m_inspectedFile->setLink(Utils::Link(documentPath));
+    // If the cursor is on a #include line, inspect the included file, so that
+    // invoking this on a #include shows which files include that header.
+    FilePath inspectedPath = documentPath;
+    if (const Document::Ptr doc = CppModelManager::snapshot().document(documentPath)) {
+        const int line = m_editor->currentLine();
+        for (const Document::Include &include : doc->resolvedIncludes()) {
+            if (include.line() == line && !include.resolvedFileName().isEmpty()) {
+                inspectedPath = include.resolvedFileName();
+                break;
+            }
+        }
+    }
+
+    m_model.buildHierarchy(inspectedPath);
+
+    if (inspectedPath == documentPath)
+        m_inspectedFile->setText(m_editor->textDocument()->displayName());
+    else
+        m_inspectedFile->setText(inspectedPath.fileName());
+    m_inspectedFile->setLink(Link(inspectedPath));
 
     // expand "Includes" and "Included by"
     m_treeView->expand(m_model.index(0, 0));

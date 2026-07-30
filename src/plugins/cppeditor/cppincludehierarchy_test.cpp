@@ -51,7 +51,8 @@ class IncludeHierarchyTestCase : public CppEditor::Tests::TestCase
 {
 public:
     IncludeHierarchyTestCase(const QList<QByteArray> &sourceList,
-                             const QString &expectedHierarchy)
+                             const QString &expectedHierarchy,
+                             const QString &inspectedFileName = {})
     {
         QVERIFY(succeededSoFar());
 
@@ -80,7 +81,10 @@ public:
 
         // Test model
         CppIncludeHierarchyModel model;
-        model.buildHierarchy(editor->document()->filePath());
+        const Utils::FilePath inspected = inspectedFileName.isEmpty()
+                ? editor->document()->filePath()
+                : temporaryDir.filePath() / inspectedFileName;
+        model.buildHierarchy(inspected);
         const QString actualHierarchy = toString(model);
         QCOMPARE(actualHierarchy, expectedHierarchy);
     }
@@ -160,6 +164,24 @@ void IncludeHierarchyTest::test()
     QFETCH(QString, expectedHierarchy);
 
     IncludeHierarchyTestCase(documents, expectedHierarchy);
+}
+
+void IncludeHierarchyTest::testNotOpenIncludedFile()
+{
+    // Inspect a header that is included (here by the open file1.h) but is not
+    // itself open in an editor. Its "Includes" branch must still be populated,
+    // not left empty (QTCREATORBUG-2311).
+    IncludeHierarchyTestCase(
+        QList<QByteArray>()
+            << QByteArray("#include \"file2.h\"\n")  // file1.h (open)
+            << QByteArray("#include \"file3.h\"\n")  // file2.h (inspected, not open)
+            << QByteArray(),                         // file3.h
+        QString::fromLatin1(
+            "Includes\n"
+            "  file3.h\n"
+            "Included by\n"
+            "  file1.h\n"),
+        QString::fromLatin1("file2.h"));
 }
 
 } // namespace CppEditor::Internal::Tests
