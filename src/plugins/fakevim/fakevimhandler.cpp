@@ -2305,6 +2305,8 @@ public:
 
     void onInputTimeout();
     void onFixCursorTimeout();
+    void onAutocmdTimeout();
+    void queueChangeAutocmds(bool textChanged, bool cursorMoved);
 
     bool isCommandLineMode() const { return g.mode == ExMode || g.subsubmode == SearchSubSubMode; }
     bool isInsertMode() const { return g.mode == InsertMode || g.mode == ReplaceMode; }
@@ -2634,6 +2636,12 @@ public:
 
     QTimer m_fixCursorTimer;
     QTimer m_inputTimer;
+    // TextChanged and CursorMoved are reported while the document or the cursor
+    // is still being changed, so their rules run from a zero timer: a run of
+    // changes then fires once, and a rule may edit the buffer safely.
+    QTimer m_autocmdTimer;
+    bool m_pendingTextChanged = false;
+    bool m_pendingCursorMoved = false;
 
     void miniBufferTextEdited(const QString &text, int cursorPos, int anchorPos);
 
@@ -2836,6 +2844,7 @@ void FakeVimHandler::Private::init()
     m_ctrlVBase = 0;
 
     initSingleShotTimer(&m_fixCursorTimer, 0, this, &FakeVimHandler::Private::onFixCursorTimeout);
+    initSingleShotTimer(&m_autocmdTimer, 0, this, &FakeVimHandler::Private::onAutocmdTimeout);
     initSingleShotTimer(&m_inputTimer, 1000, this, &FakeVimHandler::Private::onInputTimeout);
 
     pullOrCreateBufferData();
@@ -12648,6 +12657,9 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
 
     if (!m_highlighted.isEmpty())
         q->highlightMatches(m_highlighted);
+
+    if (charsAdded > 0 || charsRemoved > 0)
+        queueChangeAutocmds(true, false);
 }
 
 void FakeVimHandler::Private::onCursorPositionChanged()
@@ -12660,6 +12672,8 @@ void FakeVimHandler::Private::onCursorPositionChanged()
         // making operations on text outside FakeVim mode.
         setThinCursor(g.mode == InsertMode || editorCursor().hasSelection());
     }
+
+    queueChangeAutocmds(false, true);
 }
 
 void FakeVimHandler::Private::onUndoCommandAdded()
@@ -12697,6 +12711,31 @@ void FakeVimHandler::Private::onFixCursorTimeout()
 {
     if (editor())
         fixExternalCursorPosition(editor()->hasFocus() && !isCommandLineMode());
+}
+
+void FakeVimHandler::Private::queueChangeAutocmds(bool textChanged, bool cursorMoved)
+{
+    if (g.autoCommands.isEmpty())
+        return; // do not run a timer per keystroke for nothing
+    m_pendingTextChanged = m_pendingTextChanged || textChanged;
+    m_pendingCursorMoved = m_pendingCursorMoved || cursorMoved;
+    m_autocmdTimer.start();
+}
+
+void FakeVimHandler::Private::onAutocmdTimeout()
+{
+    const bool textChanged = m_pendingTextChanged;
+    const bool cursorMoved = m_pendingCursorMoved;
+    m_pendingTextChanged = false;
+    m_pendingCursorMoved = false;
+
+    // Vim reports insert mode through TextChangedI and CursorMovedI instead.
+    if (isInsertMode())
+        return;
+    if (textChanged)
+        triggerAutocmd("TextChanged");
+    if (cursorMoved)
+        triggerAutocmd("CursorMoved");
 }
 
 bool FakeVimHandler::Private::isPassthroughKey(const Input &input) const

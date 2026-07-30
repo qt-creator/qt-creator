@@ -502,6 +502,7 @@ public:
 
     // Vim alternate file ("#"): the editor left when the current one changed.
     QPointer<IEditor> m_alternateFileEditor;
+    bool m_didVimEnter = false; // VimEnter is fired once per session
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -1206,8 +1207,10 @@ void FakeVimPlugin::initialize()
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, [this](IEditor *editor) {
         updateEditorCommandLinePlacement();
-        if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler)
+        if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
+            handler->triggerAutocmd("WinEnter");
             handler->triggerAutocmd("BufEnter");
+        }
     });
 
     connect(DocumentManager::instance(), &DocumentManager::allDocumentsRenamed,
@@ -2010,6 +2013,14 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     // Last, so that what the file says about itself wins over both.
     handler->processModelines();
     handler->triggerAutocmd("BufEnter");
+    handler->triggerAutocmd("BufWinEnter");
+
+    // Vim fires VimEnter once, after the startup is complete. There is no
+    // comparable moment here, so use the first buffer FakeVim gets to work on.
+    if (!m_didVimEnter) {
+        m_didVimEnter = true;
+        handler->triggerAutocmd("VimEnter");
+    }
 
     // pop up the bar
     if (settings().useFakeVim()) {

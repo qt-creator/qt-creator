@@ -246,6 +246,7 @@ private slots:
     void test_vim_commentstring();
     void test_vim_filetype_detection();
     void test_vim_modeline();
+    void test_vim_change_autocmds();
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
@@ -7200,6 +7201,60 @@ void FakeVimTester::test_vim_script_expand()
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
 }
 
+void FakeVimTester::test_vim_change_autocmds()
+{
+    // TextChanged and CursorMoved run from a timer, so let it fire.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto settle = [] { QTest::qWait(20); };
+
+    data.doCommand("autocmd!");
+    data.doCommand("let g:tc = 0");
+    data.doCommand("let g:cm = 0");
+    data.doCommand("autocmd TextChanged * let g:tc += 1");
+    data.doCommand("autocmd CursorMoved * let g:cm += 1");
+
+    data.setText("abc" N "def" N "ghi");
+    settle();
+    data.doCommand("let g:tc = 0");
+    data.doCommand("let g:cm = 0");
+
+    // A motion reports CursorMoved but leaves the text alone.
+    data.doKeys("j");
+    settle();
+    QCOMPARE(echo("g:tc"), QLatin1String("0"));
+    QVERIFY(echo("g:cm").toInt() > 0);
+
+    // A change in normal mode reports TextChanged.
+    data.doCommand("let g:tc = 0");
+    data.doKeys("x");
+    settle();
+    QVERIFY(echo("g:tc").toInt() > 0);
+
+    // Several changes in a row are reported once, since the timer coalesces.
+    data.doCommand("let g:tc = 0");
+    data.doKeys("xxx");
+    settle();
+    QCOMPARE(echo("g:tc"), QLatin1String("1"));
+
+    // Insert mode has its own events in Vim, so it is not reported here.
+    data.doCommand("let g:tc = 0");
+    data.doKeys("ihello");
+    settle();
+    QCOMPARE(echo("g:tc"), QLatin1String("0"));
+    data.doKeys("<ESC>");
+
+    data.doCommand("autocmd!");
+}
+
 void FakeVimTester::test_vim_modeline()
 {
     TestData data;
@@ -7347,11 +7402,18 @@ void FakeVimTester::test_vim_filetype_detection()
     QCOMPARE(echo("g:seen"), QLatin1String("py"));
     QCOMPARE(echo("&cms"), QLatin1String("# %s"));
 
-    // BufEnter/BufLeave reach their rules too.
-    data.doCommand("let g:enter = 0");
-    data.doCommand("autocmd BufEnter * let g:enter += 1");
-    data.handler->triggerAutocmd("BufEnter");
-    QCOMPARE(echo("g:enter"), QLatin1String("1"));
+    // The window and buffer lifecycle events reach their rules too.
+    data.doCommand("autocmd!");
+    data.doCommand("let g:seq = ''");
+    data.doCommand("autocmd BufEnter * let g:seq .= 'be,'");
+    data.doCommand("autocmd BufLeave * let g:seq .= 'bl,'");
+    data.doCommand("autocmd BufWinEnter * let g:seq .= 'bwe,'");
+    data.doCommand("autocmd WinEnter * let g:seq .= 'we,'");
+    data.doCommand("autocmd VimEnter * let g:seq .= 've,'");
+    for (const QString &event : QStringList{"BufEnter", "BufLeave", "BufWinEnter",
+                                           "WinEnter", "VimEnter"})
+        data.handler->triggerAutocmd(event);
+    QCOMPARE(echo("g:seq"), QLatin1String("be,bl,bwe,we,ve,"));
 
     data.doCommand("autocmd!");
 }
