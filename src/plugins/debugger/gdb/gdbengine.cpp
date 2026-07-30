@@ -2326,7 +2326,7 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Break
         // ^error,msg="mi_cmd_break_insert: Unknown option ``a''"
         const QString fileName = bp->fileName().toUrlishString();
         const int lineNumber = bp->textPosition().line;
-        runCommand({"trace \"" + GdbMi::escapeCString(fileName) + "\":" + QString::number(lineNumber),
+        runCommand({"trace " + GdbMi::quoteCString(fileName) + ":" + QString::number(lineNumber),
                     NeedsTemporaryStop});
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
@@ -4175,9 +4175,7 @@ void GdbEngine::setExecArguments(const DebuggerRunParameters &rp)
     if (args.isEmpty())
         return;
 
-    const QStringList miArgs = Utils::transform<QStringList>(args, [](const QString &arg) {
-        return "\"" + GdbMi::escapeCString(arg) + "\"";
-    });
+    const QStringList miArgs = Utils::transform<QStringList>(args, &GdbMi::quoteCString);
     runCommand({"-exec-arguments " + miArgs.join(' ')});
 }
 

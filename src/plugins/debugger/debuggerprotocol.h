@@ -196,6 +196,7 @@ public:
     void fromStringMultiple(const QString &str, QStringDecoder &decoder);
 
     static QString escapeCString(const QString &ba);
+    static QString quoteCString(const QString &ba);
     void parseResultOrValue(DebuggerOutputParser &state);
     void parseValue(DebuggerOutputParser &state);
     void parseTuple(DebuggerOutputParser &state);

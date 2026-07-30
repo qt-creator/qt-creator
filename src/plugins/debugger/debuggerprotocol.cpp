@@ -355,6 +355,11 @@ QString GdbMi::escapeCString(const QString &ba)
     return ret;
 }
 
+QString GdbMi::quoteCString(const QString &ba)
+{
+    return '"' + escapeCString(ba) + '"';
+}
+
 QString GdbMi::toString(bool multiline, int indent) const
 {
     QString result;
@@ -368,7 +373,7 @@ QString GdbMi::toString(bool multiline, int indent) const
         case Const:
             if (!m_name.isEmpty())
                 result += m_name + '=';
-            result += '"' + escapeCString(m_data) + '"';
+            result += quoteCString(m_data);
             break;
         case Tuple:
             if (!m_name.isEmpty())
