@@ -994,6 +994,9 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         }
 
         QVariantHash extra = extraData();
+        const QVariantHash modifierExtra = process.extraData();
+        for (auto it = modifierExtra.cbegin(); it != modifierExtra.cend(); ++it)
+            extra.insert(it.key(), it.value());
         QString shellName = displayName();
 
         if (buildConfiguration()) {
