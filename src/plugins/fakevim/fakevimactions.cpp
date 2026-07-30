@@ -107,6 +107,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&operatorFunc,   {},    "OperatorFunc",   "opfunc", "");
     setup(&commentString,  "// %s", "CommentString", "cms", "");
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
+    setup(&selection,      "inclusive", "Selection", "sel", "");
     setup(&modeline,       true,  "Modeline",       "ml",  "");
     setup(&modelines,      5,     "Modelines",      "mls", "");
 

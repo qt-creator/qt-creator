@@ -160,6 +160,10 @@ public:
     FvStringAspect commentString;
     FvBoolAspect modifiable;
 
+    // Read by scripts that place a visual selection; only "inclusive" is
+    // actually honored by the selection code here.
+    FvStringAspect selection;
+
     // Whether to obey a "vim:" line in the file, and how many lines at each end
     // to look for one in.
     FvBoolAspect modeline;

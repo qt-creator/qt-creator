@@ -248,6 +248,7 @@ private slots:
     void test_vim_modeline();
     void test_vim_change_autocmds();
     void test_vim_script_readfile_writefile();
+    void test_vim_script_search_cursor();
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
@@ -7200,6 +7201,82 @@ void FakeVimTester::test_vim_script_expand()
 
     data.setText("alpha be" X "ta gamma");
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
+}
+
+void FakeVimTester::test_vim_script_search_cursor()
+{
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.setText("alpha" N "beta" N "gamma" N "beta" N "delta");
+
+    // cursor() moves and reports where it went.
+    QCOMPARE(echo("cursor(3, 2)"), QLatin1String("0"));
+    QCOMPARE(echo("[line('.'), col('.')]"), QLatin1String("[3, 2]"));
+    QCOMPARE(echo("cursor(99, 1)"), QLatin1String("-1")); // no such line
+
+    // search() returns the line of the match and moves there.
+    data.doCommand("call cursor(1, 1)");
+    QCOMPARE(echo("search('beta')"), QLatin1String("2"));
+    QCOMPARE(echo("line('.')"), QLatin1String("2"));
+    // Again from there finds the second one.
+    QCOMPARE(echo("search('beta')"), QLatin1String("4"));
+
+    // "b" searches backwards, "n" leaves the cursor alone.
+    data.doCommand("call cursor(5, 1)");
+    QCOMPARE(echo("search('beta', 'bn')"), QLatin1String("4"));
+    QCOMPARE(echo("line('.')"), QLatin1String("5"));
+
+    // "c" accepts a match at the cursor.
+    data.doCommand("call cursor(2, 1)");
+    QCOMPARE(echo("search('beta', 'c')"), QLatin1String("2"));
+    data.doCommand("call cursor(2, 1)");
+    QCOMPARE(echo("search('beta', '')"), QLatin1String("4"));
+
+    // No match gives 0 and the cursor stays put.
+    data.doCommand("call cursor(3, 1)");
+    QCOMPARE(echo("search('nowhere')"), QLatin1String("0"));
+    QCOMPARE(echo("line('.')"), QLatin1String("3"));
+
+    // {stopline} limits how far to look.
+    data.doCommand("call cursor(1, 1)");
+    QCOMPARE(echo("search('beta', 'W', 3)"), QLatin1String("2"));
+    data.doCommand("call cursor(2, 5)");
+    QCOMPARE(echo("search('beta', 'W', 3)"), QLatin1String("0"));
+
+    // {skip} rejects a candidate; it runs with the cursor on the match, so it
+    // can decide from where it is.
+    data.doCommand("call cursor(1, 1)");
+    QCOMPARE(echo("search('beta', 'W', 0, 0, 'line(\".\") == 2')"), QLatin1String("4"));
+    // A funcref works the same way.
+    data.doCommand("function SkipSecond() | return line('.') == 2 | endfunction");
+    data.doCommand("call cursor(1, 1)");
+    QCOMPARE(echo("search('beta', 'W', 0, 0, function('SkipSecond'))"),
+             QLatin1String("4"));
+
+    // "w" wraps and "W" does not, whatever 'wrapscan' says.
+    data.doCommand("call cursor(5, 1)");
+    QCOMPARE(echo("search('alpha', 'w')"), QLatin1String("1"));
+    data.doCommand("call cursor(5, 1)");
+    QCOMPARE(echo("search('alpha', 'W')"), QLatin1String("0"));
+
+    // Without either flag 'wrapscan' decides. It is a global option, so put it
+    // back to where the other tests expect it.
+    data.doCommand("set wrapscan");
+    data.doCommand("call cursor(5, 1)");
+    QCOMPARE(echo("search('alpha')"), QLatin1String("1"));
+    data.doCommand("set nowrapscan");
+    data.doCommand("call cursor(5, 1)");
+    QCOMPARE(echo("search('alpha')"), QLatin1String("0"));
+    data.doCommand("set wrapscan");
 }
 
 void FakeVimTester::test_vim_script_readfile_writefile()

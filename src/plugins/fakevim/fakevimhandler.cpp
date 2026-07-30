@@ -2585,6 +2585,7 @@ public:
     bool setOption(const QString &name, const VimValue &value);
     bool callFunction(const QString &name, const QList<VimValue> &args,
                       VimValue *result, QString *error);
+    bool searchFunction(const QList<VimValue> &args, VimValue *result, QString *error);
     CursorPosition lineColArg(const QString &spec) const;
     QString expandKeyword(const QString &what) const;
     bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
@@ -9401,6 +9402,107 @@ QString FakeVimHandler::Private::expandKeyword(const QString &what) const
     return QString();
 }
 
+// search({pattern} [, {flags} [, {stopline} [, {timeout} [, {skip}]]]])
+// Returns the line the match starts on, or 0 when there is none. {skip} is
+// evaluated with the cursor on each candidate and rejects it when true, which
+// is how a caller ignores matches in, say, a comment.
+bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args,
+    VimValue *result, QString *error)
+{
+    const auto arg = [&](int i) { return i < args.size() ? args.at(i) : VimValue(); };
+    const QString flags = arg(1).toString();
+    const bool backward = flags.contains('b');
+    const bool acceptAtCursor = flags.contains('c');
+    const bool moveToEnd = flags.contains('e');
+    const bool keepCursor = flags.contains('n');
+    // 'W' forbids wrapping, 'w' demands it, otherwise 'wrapscan' decides.
+    const bool wrap = flags.contains('w') || (!flags.contains('W') && s.wrapScan());
+    const int stopLine = args.size() > 2 ? int(arg(2).toNumber()) : 0;
+    const bool haveSkip = args.size() > 4;
+    const VimValue skip = arg(4);
+
+    const QRegularExpression re = vimPatternToQtPattern(arg(0).toString());
+    if (!re.isValid()) {
+        *error = Tr::tr("Invalid pattern: %1").arg(arg(0).toString());
+        return false;
+    }
+
+    const QString text = document()->toPlainText();
+    const int start = position();
+
+    // Collect the match offsets in the order they are to be visited.
+    QList<int> offsets;
+    QRegularExpressionMatchIterator it = re.globalMatch(text);
+    while (it.hasNext()) {
+        const int offset = it.next().capturedStart();
+        if (backward ? (offset < start || (acceptAtCursor && offset == start))
+                     : (offset > start || (acceptAtCursor && offset == start))) {
+            offsets.append(offset);
+        }
+    }
+    if (backward)
+        std::reverse(offsets.begin(), offsets.end());
+    if (wrap) {
+        // A wrapped search continues from the far end, so the matches on the
+        // other side of the cursor come after the ones ahead of it.
+        QList<int> wrapped;
+        it = re.globalMatch(text);
+        while (it.hasNext()) {
+            const int offset = it.next().capturedStart();
+            if (backward ? offset > start : offset < start)
+                wrapped.append(offset);
+        }
+        if (backward)
+            std::reverse(wrapped.begin(), wrapped.end());
+        offsets += wrapped;
+    }
+
+    const CursorPosition saved(m_cursor);
+    for (const int offset : std::as_const(offsets)) {
+        const QTextBlock block = document()->findBlock(offset);
+        const int line = block.blockNumber() + 1;
+        if (stopLine > 0 && (backward ? line < stopLine : line > stopLine))
+            break;
+
+        // Vim evaluates {skip} with the cursor on the candidate.
+        setCursorPosition(CursorPosition(block.blockNumber(), offset - block.position()));
+        if (haveSkip) {
+            VimValue keep;
+            bool ok = true;
+            if (skip.isFunc())
+                ok = invokeCallable(skip, {}, &keep, error);
+            else
+                ok = evaluateExpression(skip.toString(), &keep, error);
+            if (!ok) {
+                setCursorPosition(saved);
+                return false;
+            }
+            if (keep.toBool())
+                continue;
+        }
+        if (keepCursor) {
+            setCursorPosition(saved);
+        } else {
+            if (moveToEnd) {
+                const QRegularExpressionMatch m = re.match(text, offset);
+                if (m.hasMatch() && m.capturedLength() > 0) {
+                    const int end = offset + m.capturedLength() - 1;
+                    const QTextBlock endBlock = document()->findBlock(end);
+                    setCursorPosition(CursorPosition(endBlock.blockNumber(),
+                                                     end - endBlock.position()));
+                }
+            }
+            setTargetColumn();
+        }
+        *result = VimValue(qlonglong(line));
+        return true;
+    }
+
+    setCursorPosition(saved);
+    *result = VimValue(qlonglong(0));
+    return true;
+}
+
 bool FakeVimHandler::Private::callFunction(const QString &name,
     const QList<VimValue> &args, VimValue *result, QString *error)
 {
@@ -9827,6 +9929,27 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QString a = arg(0).toString();
         const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
         *result = VimValue(qlonglong(indentation(lineContents(ln)).logical));
+    } else if (name == "cursor") {
+        // cursor({lnum}, {col}) or cursor([{lnum}, {col}, ...])
+        int line = 0;
+        int column = 1;
+        if (arg(0).isList()) {
+            const QList<VimValue> *l = arg(0).listData();
+            line = l->size() > 0 ? int(l->at(0).toNumber()) : 0;
+            column = l->size() > 1 ? int(l->at(1).toNumber()) : 1;
+        } else {
+            line = int(arg(0).toNumber());
+            column = int(arg(1).toNumber());
+        }
+        if (line <= 0 || line > document()->blockCount()) {
+            *result = VimValue(qlonglong(-1));
+        } else {
+            setCursorPosition(CursorPosition(line - 1, qMax(0, column - 1)));
+            setTargetColumn();
+            *result = VimValue(qlonglong(0));
+        }
+    } else if (name == "search") {
+        return searchFunction(args, result, error);
     } else if (name == "readfile") {
         // readfile({fname} [, {type} [, {max}]])
         const QString fileName = replaceTildeWithHome(arg(0).toString());
