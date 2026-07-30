@@ -2640,8 +2640,12 @@ public:
     // is still being changed, so their rules run from a zero timer: a run of
     // changes then fires once, and a rule may edit the buffer safely.
     QTimer m_autocmdTimer;
+    // Which mode the change happened in is recorded here rather than read back
+    // when the timer runs, since the mode may have been left by then.
     bool m_pendingTextChanged = false;
+    bool m_pendingTextChangedI = false;
     bool m_pendingCursorMoved = false;
+    bool m_pendingCursorMovedI = false;
 
     void miniBufferTextEdited(const QString &text, int cursorPos, int anchorPos);
 
@@ -10053,7 +10057,8 @@ static bool isAutocmdEvent(const QString &word)
         "bufnewfile", "bufreadpre", "bufread", "bufreadpost", "bufenter",
         "bufleave", "bufwinenter", "bufwritepre", "bufwritepost", "bufwritecmd",
         "filetype", "insertenter", "insertleave", "insertchange", "textchanged",
-        "cursormoved", "vimenter", "winenter", "user"
+        "textchangedi", "cursormoved", "cursormovedi", "vimenter", "winenter",
+        "winleave", "user"
     };
     return events.contains(word.toLower());
 }
@@ -12790,25 +12795,42 @@ void FakeVimHandler::Private::queueChangeAutocmds(bool textChanged, bool cursorM
 {
     if (g.autoCommands.isEmpty())
         return; // do not run a timer per keystroke for nothing
-    m_pendingTextChanged = m_pendingTextChanged || textChanged;
-    m_pendingCursorMoved = m_pendingCursorMoved || cursorMoved;
+    // Insert mode has its own pair of events.
+    const bool insert = isInsertMode();
+    if (textChanged) {
+        if (insert)
+            m_pendingTextChangedI = true;
+        else
+            m_pendingTextChanged = true;
+    }
+    if (cursorMoved) {
+        if (insert)
+            m_pendingCursorMovedI = true;
+        else
+            m_pendingCursorMoved = true;
+    }
     m_autocmdTimer.start();
 }
 
 void FakeVimHandler::Private::onAutocmdTimeout()
 {
     const bool textChanged = m_pendingTextChanged;
+    const bool textChangedI = m_pendingTextChangedI;
     const bool cursorMoved = m_pendingCursorMoved;
+    const bool cursorMovedI = m_pendingCursorMovedI;
     m_pendingTextChanged = false;
+    m_pendingTextChangedI = false;
     m_pendingCursorMoved = false;
+    m_pendingCursorMovedI = false;
 
-    // Vim reports insert mode through TextChangedI and CursorMovedI instead.
-    if (isInsertMode())
-        return;
     if (textChanged)
         triggerAutocmd("TextChanged");
+    if (textChangedI)
+        triggerAutocmd("TextChangedI");
     if (cursorMoved)
         triggerAutocmd("CursorMoved");
+    if (cursorMovedI)
+        triggerAutocmd("CursorMovedI");
 }
 
 bool FakeVimHandler::Private::isPassthroughKey(const Input &input) const

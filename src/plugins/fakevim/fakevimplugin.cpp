@@ -2044,7 +2044,10 @@ void FakeVimPlugin::currentEditorAboutToChange(IEditor *editor)
 {
     if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
         handler->enterCommandMode();
+        // Vim leaves the buffer before the window, and enters them the other way
+        // round, so this pairs with the WinEnter/BufEnter on the way in.
         handler->triggerAutocmd("BufLeave");
+        handler->triggerAutocmd("WinLeave");
     }
     if (editor)
         m_alternateFileEditor = editor;

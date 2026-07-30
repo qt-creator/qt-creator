@@ -7294,12 +7294,29 @@ void FakeVimTester::test_vim_change_autocmds()
     settle();
     QCOMPARE(echo("g:tc"), QLatin1String("1"));
 
-    // Insert mode has its own events in Vim, so it is not reported here.
+    // Insert mode reports through the "I" events instead.
+    data.doCommand("let g:tci = 0");
+    data.doCommand("let g:cmi = 0");
+    data.doCommand("autocmd TextChangedI * let g:tci += 1");
+    data.doCommand("autocmd CursorMovedI * let g:cmi += 1");
     data.doCommand("let g:tc = 0");
+    data.doCommand("let g:cm = 0");
     data.doKeys("ihello");
     settle();
+    QVERIFY(echo("g:tci").toInt() > 0);
+    QVERIFY(echo("g:cmi").toInt() > 0);
     QCOMPARE(echo("g:tc"), QLatin1String("0"));
+    QCOMPARE(echo("g:cm"), QLatin1String("0"));
     data.doKeys("<ESC>");
+
+    // Leaving insert mode does not turn the change into a normal mode one: the
+    // mode is remembered from when the change happened, not when it is reported.
+    data.doCommand("let g:tc = 0");
+    data.doCommand("let g:tci = 0");
+    data.doKeys("ix<ESC>");
+    settle();
+    QVERIFY(echo("g:tci").toInt() > 0);
+    QCOMPARE(echo("g:tc"), QLatin1String("0"));
 
     data.doCommand("autocmd!");
 }
@@ -7458,11 +7475,12 @@ void FakeVimTester::test_vim_filetype_detection()
     data.doCommand("autocmd BufLeave * let g:seq .= 'bl,'");
     data.doCommand("autocmd BufWinEnter * let g:seq .= 'bwe,'");
     data.doCommand("autocmd WinEnter * let g:seq .= 'we,'");
+    data.doCommand("autocmd WinLeave * let g:seq .= 'wl,'");
     data.doCommand("autocmd VimEnter * let g:seq .= 've,'");
     for (const QString &event : QStringList{"BufEnter", "BufLeave", "BufWinEnter",
-                                           "WinEnter", "VimEnter"})
+                                           "WinEnter", "WinLeave", "VimEnter"})
         data.handler->triggerAutocmd(event);
-    QCOMPARE(echo("g:seq"), QLatin1String("be,bl,bwe,we,ve,"));
+    QCOMPARE(echo("g:seq"), QLatin1String("be,bl,bwe,we,wl,ve,"));
 
     data.doCommand("autocmd!");
 }
