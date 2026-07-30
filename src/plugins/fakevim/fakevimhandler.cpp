@@ -9703,6 +9703,26 @@ bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args,
     return true;
 }
 
+// The builtins callFunction() below answers to, for exists("*name"). Keep in
+// step with it when adding one; a name missing here only means exists() denies
+// a function that does work.
+static bool isBuiltinFunction(const QString &name)
+{
+    static const QSet<QString> builtins = {
+        "abs", "add", "call", "char2nr", "col", "copy", "count", "cursor",
+        "did_filetype", "empty", "escape", "exists", "expand", "extend",
+        "filter", "funcref", "function", "get", "getcurpos", "getline",
+        "getpos", "has", "has_key", "indent", "index", "insert", "items",
+        "join", "keys", "len", "line", "map", "match", "matchstr", "max",
+        "min", "nr2char", "printf", "range", "readfile", "remove", "repeat",
+        "reverse", "search", "setline", "setpos", "sort", "split", "str2nr",
+        "stridx", "string", "strlen", "strpart", "substitute", "synID",
+        "synIDattr", "synstack", "tolower", "toupper", "trim", "type",
+        "values", "writefile"
+    };
+    return builtins.contains(name);
+}
+
 bool FakeVimHandler::Private::callFunction(const QString &name,
     const QList<VimValue> &args, VimValue *result, QString *error)
 {
@@ -10059,7 +10079,16 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             ex = s.item(Utils::keyFromString(optionNameFromLet(a))) != nullptr;
         else if (a.startsWith('$'))
             ex = qEnvironmentVariableIsSet(a.mid(1).toLatin1().constData());
-        else {
+        else if (a.startsWith('*') || a.startsWith('?')) {
+            // "*name" asks whether a function is there to be called, whether
+            // built in, defined by a script or held by a variable as a Funcref.
+            QString func = a.mid(1);
+            if (func.startsWith("g:"))
+                func = func.mid(2);
+            VimValue held;
+            ex = g.userFunctions.contains(func) || isBuiltinFunction(func)
+                 || (variableValue(func, &held) && held.isFunc());
+        } else {
             VimValue tmp;
             ex = variableValue(a, &tmp);
         }

@@ -5744,6 +5744,19 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("exists(\"&sw\")"), QLatin1String("1"));
     QCOMPARE(echo("exists(\"&nosuchopt\")"), QLatin1String("0"));
 
+    // exists("*name") asks whether a function can be called. Expected values
+    // taken from Vim 9.1.
+    data.doCommand("function MyFunc() | endfunction");
+    data.doCommand("let g:Ref = function('MyFunc')");
+    QCOMPARE(echo("exists('*matchstr')"), QLatin1String("1")); // builtin
+    QCOMPARE(echo("exists('*NoSuchFuncHere')"), QLatin1String("0"));
+    QCOMPARE(echo("exists('*MyFunc')"), QLatin1String("1"));
+    QCOMPARE(echo("exists('*g:MyFunc')"), QLatin1String("1"));
+    QCOMPARE(echo("exists('*Ref')"), QLatin1String("1")); // a variable holding one
+    QCOMPARE(echo("exists('?matchstr')"), QLatin1String("1"));
+    // A function Vim has but this does not is honestly reported as missing.
+    QCOMPARE(echo("exists('*strftime')"), QLatin1String("0"));
+
     // Buffer-backed builtins.
     data.setText("one" N "two" N "three");
     QCOMPARE(echo("line(\"$\")"), QLatin1String("3"));
