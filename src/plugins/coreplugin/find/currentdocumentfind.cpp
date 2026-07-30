@@ -5,8 +5,7 @@
 
 #include "../coreplugintr.h"
 
-#include <aggregation/aggregate.h>
-
+#include <utils/aggregate.h>
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 

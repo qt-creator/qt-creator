@@ -1,5 +1,5 @@
 add_qtc_library(ExtensionSystem
-  DEPENDS Aggregation Utils
+  DEPENDS Utils
   PUBLIC_DEPENDS Qt::Core Qt::Widgets
   SOURCES
     extensionsystem_global.h

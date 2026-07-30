@@ -14,8 +14,6 @@
 #include "vcsoutputwindow.h"
 #include "vcsplugin.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -30,6 +28,7 @@
 
 #include <texteditor/fontsettings.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/completingtextedit.h>
 #include <utils/fileutils.h>

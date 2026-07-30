@@ -3,7 +3,6 @@ import qbs.Utilities
 import QtcFunctions
 
 DynamicLibrary {
-    Depends { name: "Aggregation" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "Utils" }
     Depends { name: "cpp" }

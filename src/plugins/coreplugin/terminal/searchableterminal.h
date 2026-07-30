@@ -6,9 +6,9 @@
 #include "../core_global.h"
 #include "../find/ifindsupport.h"
 
-#include <aggregation/aggregate.h>
-
 #include <solutions/terminal/terminalview.h>
+
+#include <utils/aggregate.h>
 
 namespace Core {
 

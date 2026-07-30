@@ -16,14 +16,13 @@
 #include "memoryusagemodel.h"
 #include "scenegraphtimelinemodel.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/findplaceholder.h>
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinewidget.h>
 
+#include <utils/aggregate.h>
 #include <utils/widgets.h>
 
 #include <QApplication>

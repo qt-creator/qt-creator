@@ -10,7 +10,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/ifindsupport.h>
 
-#include <aggregation/aggregate.h>
+#include <utils/aggregate.h>
 
 using namespace Utils;
 

@@ -8,7 +8,7 @@
 #include "locatorwidget.h"
 #include "../icore.h"
 
-#include <aggregation/aggregate.h>
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 
 #include <QApplication>

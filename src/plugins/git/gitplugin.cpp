@@ -22,8 +22,6 @@
 
 #include "gerrit/gerritplugin.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
@@ -43,6 +41,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/aggregate.h>
 #include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>

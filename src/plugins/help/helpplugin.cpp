@@ -20,8 +20,6 @@
 #include "searchtaskhandler.h"
 #include "topicchooser.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -43,6 +41,7 @@
 
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

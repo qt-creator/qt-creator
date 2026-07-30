@@ -15,8 +15,6 @@
 #include "showoutputtaskhandler.h"
 #include "windebuginterface.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
@@ -32,6 +30,7 @@
 #include <extensionsystem/invoker.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/basetreeview.h>

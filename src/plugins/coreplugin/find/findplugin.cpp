@@ -19,10 +19,9 @@
 #include "searchresultwindow.h"
 #include "textfindconstants.h"
 
-#include <aggregation/aggregate.h>
-
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>

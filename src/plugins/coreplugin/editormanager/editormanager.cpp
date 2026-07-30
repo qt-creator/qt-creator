@@ -37,10 +37,9 @@
 #include "openeditorsview.h"
 #include "openeditorswindow.h"
 
-#include <aggregation/aggregate.h>
-
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>

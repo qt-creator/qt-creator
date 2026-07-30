@@ -9,13 +9,12 @@
 #include "sessionpickerwidget.h"
 #include "toolcalldetailwidget.h"
 
-#include <utils/async.h>
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/icore.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/markdownbrowser.h>

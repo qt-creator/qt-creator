@@ -7,7 +7,6 @@ Project {
         name: "TextEditor"
 
         Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "printsupport"] }
-        Depends { name: "Aggregation" }
         Depends { name: "TextEditorSupport" }
         Depends { name: "Utils" }
         Depends { name: "KSyntaxHighlighting" }

@@ -54,6 +54,8 @@ QtcLibrary {
     files: [
         "action.cpp",
         "action.h",
+        "aggregate.cpp",
+        "aggregate.h",
         "algorithm.h",
         "ansiescapecodehandler.cpp",
         "ansiescapecodehandler.h",

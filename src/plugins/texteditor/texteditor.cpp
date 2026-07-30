@@ -36,8 +36,6 @@
 #include "typehierarchy.h"
 #include "typingsettings.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -53,6 +51,7 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/camelcasecursor.h>

@@ -3,7 +3,6 @@ QtcPlugin {
 
     Depends { name: "Qt"; submodules: ["widgets", "xml"] }
 
-    Depends { name: "Aggregation" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }

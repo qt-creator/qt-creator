@@ -5,7 +5,7 @@
 
 #include "../findplaceholder.h"
 
-#include <aggregation/aggregate.h>
+#include <utils/aggregate.h>
 
 #include <QModelIndex>
 #include <QTextCursor>

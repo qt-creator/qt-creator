@@ -50,11 +50,10 @@
 #include "versiondialog.h"
 #include "windowsupport.h"
 
-#include <aggregation/aggregate.h>
-
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>

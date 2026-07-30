@@ -6,10 +6,9 @@
 #include "../resourceeditortr.h"
 #include "resourcefile_p.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/find/itemviewfind.h>
 
+#include <utils/aggregate.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 

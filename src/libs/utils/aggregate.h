@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "aggregation_global.h"
+#include "utils_global.h"
 
 #include <QObject>
 #include <QList>
@@ -13,7 +13,7 @@
 
 namespace Aggregation {
 
-class AGGREGATION_EXPORT Aggregate : public QObject
+class QTCREATOR_UTILS_EXPORT Aggregate : public QObject
 {
     Q_OBJECT
 
@@ -51,7 +51,7 @@ signals:
     void changed();
 
 private:
-    friend AGGREGATION_EXPORT void aggregate(const QObjectList &);
+    friend QTCREATOR_UTILS_EXPORT void aggregate(const QObjectList &);
     enum PrivateConstructor { PrivateConstructor };
     Aggregate(enum PrivateConstructor);
     void construct();
@@ -63,7 +63,7 @@ private:
     QObjectList m_components;
 };
 
-AGGREGATION_EXPORT void aggregate(const QObjectList &components);
+QTCREATOR_UTILS_EXPORT void aggregate(const QObjectList &components);
 
 // get a component via global template function
 template <typename T> T *query(Aggregate *obj)

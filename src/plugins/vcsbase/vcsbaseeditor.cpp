@@ -11,8 +11,6 @@
 #include "vcscommand.h"
 #include "vcsoutputwindow.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -40,6 +38,7 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>

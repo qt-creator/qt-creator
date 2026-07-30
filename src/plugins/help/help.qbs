@@ -7,7 +7,6 @@ QtcPlugin {
     Depends { name: "Qt.printsupport" }
     Depends { name: "Qt.webenginewidgets"; required: false }
 
-    Depends { name: "Aggregation" }
     Depends { name: "Utils" }
 
     Depends { name: "Core" }

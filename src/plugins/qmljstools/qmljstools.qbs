@@ -4,7 +4,6 @@ QtcPlugin {
     name: "QmlJSTools"
 
     Depends { name: "Qt"; submodules: ["widgets"] }
-    Depends { name: "Aggregation" }
     Depends { name: "CPlusPlus" }
     Depends { name: "LanguageUtils" }
     Depends { name: "QmlJS" }

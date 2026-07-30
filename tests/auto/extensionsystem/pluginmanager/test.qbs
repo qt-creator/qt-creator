@@ -2,7 +2,6 @@ import qbs
 
 QtcAutotest {
     name: "PluginManager autotest"
-    Depends { name: "Aggregation" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "Utils" }
 

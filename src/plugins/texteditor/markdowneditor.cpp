@@ -7,8 +7,6 @@
 #include "texteditor.h"
 #include "texteditortr.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/find/basetextfind.h>
@@ -16,6 +14,7 @@
 #include <coreplugin/minisplitter.h>
 
 #include <utils/action.h>
+#include <utils/aggregate.h>
 #include <utils/markdownbrowser.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>

@@ -5,8 +5,6 @@
 #include "fakevimhandler.h"
 #include "fakevimtr.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -49,6 +47,7 @@
 #include <texteditor/textmark.h>
 #include <texteditor/typingsettings.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/environment.h>

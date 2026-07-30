@@ -2,6 +2,6 @@ import qbs
 
 QtcAutotest {
     name: "Aggregation autotest"
-    Depends { name: "Aggregation" }
+    Depends { name: "Utils" }
     files: "tst_aggregate.cpp"
 }

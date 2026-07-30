@@ -5,8 +5,6 @@
 #include "bineditortr.h"
 #include "markup.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
@@ -25,6 +23,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/filepath.h>

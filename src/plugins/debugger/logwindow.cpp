@@ -22,13 +22,12 @@
 #include <QSyntaxHighlighter>
 #include <QToolButton>
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/find/basetextfind.h>
 
+#include <utils/aggregate.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/theme/theme.h>

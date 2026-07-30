@@ -7,8 +7,6 @@
 #include "textdocument.h"
 #include "texteditortr.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -18,6 +16,7 @@
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/futuresynchronizer.h>

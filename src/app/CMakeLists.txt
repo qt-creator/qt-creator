@@ -22,7 +22,7 @@ add_qtc_executable(qtcreator
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     IDE_APP_ID=\"${IDE_APP_ID}\"
-  DEPENDS Aggregation ExtensionSystem Qt::Core Qt::Widgets Utils shared_qtsingleapplication app_version
+  DEPENDS ExtensionSystem Qt::Core Qt::Widgets Utils shared_qtsingleapplication app_version
   SOURCES
     main.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/app_logo_cmake.qrc

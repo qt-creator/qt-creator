@@ -13,6 +13,7 @@ add_qtc_library(Utils
     ../3rdparty/span/span.hpp
     ../3rdparty/tl_expected/include/tl/expected.hpp
     action.cpp action.h
+    aggregate.cpp aggregate.h
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h
     appinfo.cpp appinfo.h

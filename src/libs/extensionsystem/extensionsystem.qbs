@@ -7,7 +7,6 @@ QtcLibrary {
     Depends { name: "Qt"; submodules: ["core", "widgets"] }
     Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
 
-    Depends { name: "Aggregation" }
     Depends { name: "Utils" }
 
     files: [
