@@ -9734,12 +9734,14 @@ static bool isBuiltinFunction(const QString &name)
         "abs", "add", "bufnr", "call", "char2nr", "col", "copy", "count",
         "cursor",
         "did_filetype", "empty", "escape", "exists", "expand", "extend",
-        "filter", "funcref", "function", "get", "getbufvar", "getcurpos",
-        "getline",
+        "filereadable", "filter", "fnameescape", "fnamemodify", "funcref",
+        "function", "get", "getbufvar", "getcurpos", "getcwd",
+        "getline", "isdirectory",
         "getpos", "has", "has_key", "indent", "index", "insert", "items",
         "join", "keys", "len", "line", "map", "match", "matchstr", "max",
         "min", "nr2char", "printf", "range", "readfile", "remove", "repeat",
-        "reverse", "search", "setbufvar", "setline", "setpos", "sort", "split",
+        "reverse", "search", "setbufvar", "setline", "setpos", "shellescape",
+        "sort", "split",
         "str2nr",
         "strftime", "stridx", "string", "strlen", "strpart", "substitute", "synID",
         "synIDattr", "synstack", "tolower", "toupper", "trim", "type",
@@ -10307,6 +10309,62 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         file.write(text.toUtf8());
         file.close();
         *result = VimValue(qlonglong(0));
+    } else if (name == "fnamemodify") {
+        // fnamemodify({fname}, {mods}) - the modifiers a script uses to take a
+        // path apart, applied left to right as Vim does.
+        QString path = replaceTildeWithHome(arg(0).toString());
+        const QString mods = arg(1).toString();
+        int i = 0;
+        while (i < mods.size()) {
+            if (mods.at(i) != ':')
+                break;
+            ++i;
+            if (i >= mods.size())
+                break;
+            const QChar what = mods.at(i++);
+            if (what == 'p') { // full path
+                path = QFileInfo(path).absoluteFilePath();
+            } else if (what == 'h') { // head, the directory
+                const int slash = path.lastIndexOf('/');
+                path = slash > 0 ? path.left(slash) : (slash == 0 ? "/" : QString("."));
+            } else if (what == 't') { // tail, the file name
+                path = path.mid(path.lastIndexOf('/') + 1);
+            } else if (what == 'r') { // root, without the extension
+                const int dot = path.lastIndexOf('.');
+                if (dot > path.lastIndexOf('/') + 1)
+                    path = path.left(dot);
+            } else if (what == 'e') { // extension only
+                const int dot = path.lastIndexOf('.');
+                path = dot > path.lastIndexOf('/') + 1 ? path.mid(dot + 1) : QString();
+            }
+        }
+        *result = VimValue(path);
+    } else if (name == "filereadable") {
+        const QFileInfo fi(replaceTildeWithHome(arg(0).toString()));
+        *result = VimValue(qlonglong(fi.isFile() && fi.isReadable() ? 1 : 0));
+    } else if (name == "isdirectory") {
+        *result = VimValue(qlonglong(
+            QFileInfo(replaceTildeWithHome(arg(0).toString())).isDir() ? 1 : 0));
+    } else if (name == "getcwd") {
+        *result = VimValue(QDir::currentPath());
+    } else if (name == "fnameescape" || name == "shellescape") {
+        const QString in = arg(0).toString();
+        if (name == "shellescape") {
+            // Wrapped in single quotes, with any of its own doubled out.
+            QString out = in;
+            out.replace("'", "'\\''");
+            *result = VimValue("'" + out + "'");
+        } else {
+            // A backslash in front of what would otherwise be taken as syntax.
+            static const QString special = " \t\n*?[{`$\\%#'\"|!<";
+            QString out;
+            for (const QChar c : in) {
+                if (special.contains(c))
+                    out += '\\';
+                out += c;
+            }
+            *result = VimValue(out);
+        }
     } else if (name == "bufnr") {
         // bufnr([{buf}]) - only the buffer this handler works on can be named,
         // since there is no list of the others to look through.

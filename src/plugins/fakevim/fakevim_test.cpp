@@ -5757,6 +5757,39 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("exists('?matchstr')"), QLatin1String("1"));
     QCOMPARE(echo("exists('*strftime')"), QLatin1String("1"));
 
+    // Path functions. Values taken from Vim 9.1.
+    QCOMPARE(echo("fnamemodify('a/b/file.txt', ':h')"), QLatin1String("a/b"));
+    QCOMPARE(echo("fnamemodify('a/b/file.txt', ':t')"), QLatin1String("file.txt"));
+    QCOMPARE(echo("fnamemodify('a/b/file.txt', ':r')"), QLatin1String("a/b/file"));
+    QCOMPARE(echo("fnamemodify('a/b/file.txt', ':e')"), QLatin1String("txt"));
+    // The modifiers apply one after another.
+    QCOMPARE(echo("fnamemodify('a/b/file.tar.gz', ':t:r')"), QLatin1String("file.tar"));
+    QCOMPARE(echo("fnameescape('a b')"), QLatin1String("a\\ b"));
+    QCOMPARE(echo("shellescape('a b')"), QLatin1String("'a b'"));
+    QCOMPARE(echo("strlen(getcwd()) > 0"), QLatin1String("1"));
+    {
+        // A directory and a file that are really there.
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        QVERIFY(QDir(dir.path()).mkpath("sub"));
+        QFile f(dir.path() + "/file.txt");
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write("x\n");
+        f.close();
+        // Globals are shared between the handlers, so use a name of our own
+        // and take it away again.
+        data.doCommand("let g:pathProbe = '" + dir.path() + "'");
+        QCOMPARE(echo("filereadable(g:pathProbe . '/file.txt')"), QLatin1String("1"));
+        QCOMPARE(echo("filereadable(g:pathProbe . '/nope.txt')"), QLatin1String("0"));
+        QCOMPARE(echo("isdirectory(g:pathProbe . '/sub')"), QLatin1String("1"));
+        // A file is not a directory, and the other way round.
+        QCOMPARE(echo("isdirectory(g:pathProbe . '/file.txt')"), QLatin1String("0"));
+        QCOMPARE(echo("filereadable(g:pathProbe . '/sub')"), QLatin1String("0"));
+        QCOMPARE(echo("fnamemodify(g:pathProbe . '/file.txt', ':t')"),
+                 QLatin1String("file.txt"));
+        data.doCommand("unlet g:pathProbe");
+    }
+
     // Buffer variables. Only the buffer in hand is reachable here, which is
     // what a script asking about its own needs. Values taken from Vim 9.1.
     data.doCommand("let b:mine = 'hello'");
