@@ -2395,8 +2395,8 @@ public:
 
     QString m_currentFileName;
 
-    // Vimscript global variables (b:/w:/t:/s:/v: kept with their prefix,
-    // g: and unscoped-at-global-level canonicalized to the bare name).
+    // Buffer-ish Vimscript variables (b:/w:/t:, kept with their prefix). The
+    // session-wide ones live in g.variables, see variableStore().
     QHash<QString, VimValue> m_variables;
     // User functions and the local (a:/l:) scope stack, one frame per active
     // call.
@@ -2407,16 +2407,10 @@ public:
         QList<ExCommand> body;
         bool vim9 = false; // a :def function (bare-name args, Vim9 semantics)
     };
-    QHash<QString, UserFunction> m_userFunctions;
     struct AutoCommand { QString event; QString pattern; QString command; };
-    QList<AutoCommand> m_autoCommands;
-    QHash<QString, QString> m_userCommands; // :command Name -> replacement text
     bool m_inAutocmd = false; // guard against autocommands triggering autocommands
     QString m_fileType; // matched by FileType autocommands
     bool m_vim9 = false; // Vim9-script semantics are active
-    // Vim9 ":export"ed names of a sourced script, keyed by canonical file
-    // path; built by handleExSourceCommand, consumed by handleExImportCommand.
-    QHash<QString, QMap<QString, VimValue>> m_moduleExports;
     QStringList m_scriptFileStack; // scripts currently sourcing, innermost last
     QStringList m_callStack; // user functions currently running, for <stack>
     QSet<QString> m_sourcesInFlight; // guards against :source/:import cycles
@@ -2759,6 +2753,17 @@ public:
 
         bool surroundUpperCaseS; // True for yS and cS, false otherwise
         QString surroundFunction; // Used for storing the function name provided to ys{motion}f
+
+        // Vimscript state that Vim keeps for the whole session, not per buffer.
+        // It has to outlive a single handler because the vimrc is read into a
+        // throwaway one (see FakeVimPlugin::maybeReadVimRc), while the mappings
+        // it installs are used from every editor.
+        QHash<QString, VimValue> variables; // g:/s:/v: and script-level names
+        QHash<QString, UserFunction> userFunctions;
+        QList<AutoCommand> autoCommands;
+        QHash<QString, QString> userCommands; // :command Name -> replacement
+        // Vim9 ":export"ed names, keyed by canonical script path.
+        QHash<QString, QMap<QString, VimValue>> moduleExports;
     } g;
 
     FakeVimSettings &s = settings();
@@ -7773,7 +7778,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     if (fileVim9 && !exportedNames.isEmpty() && !canonicalPath.isEmpty()) {
         QMap<QString, VimValue> exports;
         for (const QString &name : std::as_const(exportedNames)) {
-            if (m_userFunctions.contains(name))
+            if (g.userFunctions.contains(name))
                 exports.insert(name, VimValue::func(name));
             else {
                 VimValue v;
@@ -7781,7 +7786,7 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
                     exports.insert(name, v);
             }
         }
-        m_moduleExports.insert(canonicalPath, exports);
+        g.moduleExports.insert(canonicalPath, exports);
     }
     return true;
 }
@@ -7838,14 +7843,14 @@ bool FakeVimHandler::Private::handleExImportCommand(const ExCommand &cmd)
         return true;
     }
 
-    if (!m_moduleExports.contains(canonicalPath)) {
+    if (!g.moduleExports.contains(canonicalPath)) {
         ExCommand src;
         src.cmd = "source";
         src.args = canonicalPath;
         handleExSourceCommand(src);
     }
 
-    QMap<QString, VimValue> exports = m_moduleExports.value(canonicalPath);
+    QMap<QString, VimValue> exports = g.moduleExports.value(canonicalPath);
     setVariable(alias, VimValue::dict(exports));
     return true;
 }
@@ -8852,22 +8857,26 @@ QHash<QString, VimValue> *FakeVimHandler::Private::variableStore(const QString &
     const bool inFunction = !m_localScopes.isEmpty();
     if (name.startsWith("g:")) {
         *key = name.mid(2);
-        return &m_variables;
+        return &g.variables;
     }
     if (name.startsWith("a:")) {
         *key = name;
-        return inFunction ? &m_localScopes.last() : &m_variables;
+        return inFunction ? &m_localScopes.last() : &g.variables;
     }
     if (name.startsWith("l:")) {
         *key = name.mid(2);
-        return inFunction ? &m_localScopes.last() : &m_variables;
+        return inFunction ? &m_localScopes.last() : &g.variables;
     }
-    if (name.size() > 1 && name.at(1) == ':') { // b:/w:/t:/s:/v:/...
+    if (name.size() > 1 && name.at(1) == ':') {
         *key = name;
-        return &m_variables;
+        // b:/w:/t: belong to a buffer, window or tab; s:/v: and anything else
+        // to the session, so they have to survive the handler that set them.
+        const QChar scope = name.at(0);
+        const bool perBuffer = scope == 'b' || scope == 'w' || scope == 't';
+        return perBuffer ? &m_variables : &g.variables;
     }
     *key = name;
-    return inFunction ? &m_localScopes.last() : &m_variables;
+    return inFunction ? &m_localScopes.last() : &g.variables;
 }
 
 bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *result)
@@ -9716,8 +9725,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QList<VimValue> callArgs = arg(1).isList() ? *arg(1).listData()
                                                          : QList<VimValue>();
         return invokeCallable(arg(0), callArgs, result, error);
-    } else if (m_userFunctions.contains(name)) {
-        *result = callUserFunction(name, m_userFunctions.value(name), args);
+    } else if (g.userFunctions.contains(name)) {
+        *result = callUserFunction(name, g.userFunctions.value(name), args);
     } else {
         // A variable may hold a funcref or lambda; call it.
         VimValue v;
@@ -9895,7 +9904,7 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
     QStringList tokens = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
     if (tokens.isEmpty()) {
         if (cmd.hasBang)
-            m_autoCommands.clear();
+            g.autoCommands.clear();
         return true;
     }
     // Skip a leading augroup name if the first token is not an event.
@@ -9908,7 +9917,7 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
     ac.event = tokens.takeFirst();
     ac.pattern = tokens.takeFirst();
     ac.command = tokens.join(' ');
-    m_autoCommands.append(ac);
+    g.autoCommands.append(ac);
     return true;
 }
 
@@ -9951,11 +9960,11 @@ bool FakeVimHandler::Private::handleExCommandDefCommand(const ExCommand &cmd)
     // :comclear                                         (remove all)
     // :delcommand {Name}                                (remove one)
     if (cmd.matches("comc", "comclear")) {
-        m_userCommands.clear();
+        g.userCommands.clear();
         return true;
     }
     if (cmd.matches("delc", "delcommand")) {
-        m_userCommands.remove(cmd.args.trimmed());
+        g.userCommands.remove(cmd.args.trimmed());
         return true;
     }
     if (!cmd.matches("com", "command"))
@@ -9974,14 +9983,14 @@ bool FakeVimHandler::Private::handleExCommandDefCommand(const ExCommand &cmd)
     const int sp = rest.indexOf(QRegularExpression("\\s"));
     if (sp < 0)
         return true; // ":command" with no replacement: listing, treated as no-op
-    m_userCommands.insert(rest.left(sp), rest.mid(sp + 1).trimmed());
+    g.userCommands.insert(rest.left(sp), rest.mid(sp + 1).trimmed());
     return true;
 }
 
 bool FakeVimHandler::Private::handleExUserCommand(const ExCommand &cmd)
 {
-    const auto it = m_userCommands.constFind(cmd.cmd);
-    if (it == m_userCommands.constEnd())
+    const auto it = g.userCommands.constFind(cmd.cmd);
+    if (it == g.userCommands.constEnd())
         return false;
 
     // Expand the replacement's <...> tokens from the invocation.
@@ -10015,14 +10024,14 @@ bool FakeVimHandler::Private::handleExUserCommand(const ExCommand &cmd)
 
 void FakeVimHandler::Private::triggerAutocmd(const QString &event)
 {
-    if (m_autoCommands.isEmpty() || m_inAutocmd)
+    if (g.autoCommands.isEmpty() || m_inAutocmd)
         return; // do not fire autocommands from within an autocommand
 
     // FileType patterns match the filetype; other events match the file name.
     const QString target = event.compare("FileType", Qt::CaseInsensitive) == 0
                                ? m_fileType : m_currentFileName;
     // Copy: a fired command might register or clear autocommands.
-    const QList<AutoCommand> commands = m_autoCommands;
+    const QList<AutoCommand> commands = g.autoCommands;
     m_inAutocmd = true;
     for (const AutoCommand &ac : commands) {
         if (ac.event.compare(event, Qt::CaseInsensitive) != 0)
@@ -10453,7 +10462,7 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
         ++index; // consume :endfunction
 
     if (active && !name.isEmpty())
-        m_userFunctions.insert(name, fn);
+        g.userFunctions.insert(name, fn);
     else if (active)
         showMessage(MessageError, Tr::tr("Invalid function definition: %1").arg(header.args));
 }
