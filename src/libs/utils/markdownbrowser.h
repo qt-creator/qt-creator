@@ -19,6 +19,7 @@ class QNetworkAccessManager;
 class QNetworkRequest;
 class QPaintEvent;
 class QShowEvent;
+class QWheelEvent;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -40,15 +41,20 @@ public:
     void setNetworkAccessManager(QNetworkAccessManager *nam);
     void setRequestHook(const RequestHook &hook);
     void setMaximumCacheSize(qsizetype maxSize);
+    void setScale(qreal scale);
+    qreal scale() const;
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
+    void setWheelZoomEnabled(bool enabled);
+    bool isWheelZoomEnabled() const;
     void setMargins(const QMargins &margins);
     void setEnableCodeCopyButton(bool enable);
     void setShowRulersForHeadings(bool show);
 
 protected:
+    void wheelEvent(QWheelEvent *event) override;
     void changeEvent(QEvent *event) override;
     void showEvent(QShowEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -70,10 +76,14 @@ private:
     void updateCopyButtonPositions();
     void updateCopyButtonsForFontScale();
     int currentButtonSize() const;
+    void withFixedTopPosition(const std::function<void()> &action);
 
     bool m_enableCodeCopyButton = false;
     bool m_showRulersForHeadings = false;
     QList<CodeBlockEntry> m_codeBlocks;
+    bool m_isWheelZoomEnabled = false;
+    qreal m_defaultFontSize = 12;
+    qreal m_scale = 1.0f;
 };
 
 } // namespace Utils

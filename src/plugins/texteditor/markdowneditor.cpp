@@ -96,6 +96,7 @@ public:
 
         // preview
         m_previewWidget = new Utils::MarkdownBrowser();
+        m_previewWidget->setWheelZoomEnabled(true);
         m_previewWidget->setFrameShape(QFrame::NoFrame);
         m_previewWidget->setShowRulersForHeadings(true);
         Aggregation::aggregate({m_previewWidget, new BaseTextFind<QTextBrowser>(m_previewWidget)});

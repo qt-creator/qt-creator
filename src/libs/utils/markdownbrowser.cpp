@@ -5,15 +5,17 @@
 
 #include "algorithm.h"
 #include "async.h"
+#include "fadingindicator.h"
 #include "mimeutils.h"
 #include "movie.h"
 #include "networkaccessmanager.h"
-#include "stringutils.h"
 #include "qtdesignwidgets.h"
+#include "stringutils.h"
 #include "stylehelper.h"
 #include "textutils.h"
 #include "theme/theme.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/QSingleTaskTreeRunner>
@@ -22,7 +24,6 @@
 #include <QCache>
 #include <QClipboard>
 #include <QDesktopServices>
-#include <QGuiApplication>
 #include <QMimeData>
 #include <QPainter>
 #include <QScrollBar>
@@ -488,6 +489,7 @@ MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     , m_enableCodeCopyButton(false)
 {
     setFont(Utils::font(contentTF));
+    m_defaultFontSize = font().pointSizeF();
     setOpenLinks(false);
     connect(this, &QTextBrowser::anchorClicked, this, &MarkdownBrowser::handleAnchorClicked);
 
@@ -611,6 +613,16 @@ QSize MarkdownBrowser::minimumSizeHint() const
     return boundingRect.size().toSize() + QTextBrowser::minimumSizeHint();
 }
 
+void MarkdownBrowser::setWheelZoomEnabled(bool enabled)
+{
+    m_isWheelZoomEnabled = enabled;
+}
+
+bool MarkdownBrowser::isWheelZoomEnabled() const
+{
+    return m_isWheelZoomEnabled;
+}
+
 void MarkdownBrowser::setMargins(const QMargins &margins)
 {
     setViewportMargins(margins);
@@ -625,6 +637,42 @@ void MarkdownBrowser::setShowRulersForHeadings(bool show)
 {
     m_showRulersForHeadings = show;
     viewport()->update();
+}
+
+void MarkdownBrowser::wheelEvent(QWheelEvent *event)
+{
+    if (!(event->modifiers() & Qt::ControlModifier)) {
+        QTextBrowser::wheelEvent(event);
+        return;
+    }
+    if (!m_isWheelZoomEnabled)
+        return;
+
+    const qreal deltaY = event->angleDelta().y() / 120.f;
+    qreal step = 10.f * deltaY;
+    // Ensure we always zoom a minimal step in-case the resolution is more than 16x
+    if (step > 0 && step < 1)
+        step = 1;
+    else if (step < 0 && step > -1)
+        step = -1;
+    setScale((scale() * 100 + int(step)) / 100);
+    FadingIndicator::showText(
+        this, Tr::tr("Zoom: %1%").arg(int(scale() * 100)), FadingIndicator::SmallText);
+}
+
+void MarkdownBrowser::setScale(qreal scale)
+{
+    m_scale = qMax(0.1, scale); // min 10% scale
+    withFixedTopPosition([this] {
+        QFont f = font();
+        f.setPointSizeF(m_defaultFontSize * m_scale);
+        setFont(f);
+    });
+}
+
+qreal MarkdownBrowser::scale() const
+{
+    return m_scale;
 }
 
 void MarkdownBrowser::setAllowRemoteImages(bool allow)
@@ -723,9 +771,8 @@ static void postProcessTables(QTextFrame *frame)
 void MarkdownBrowser::postProcessDocument(bool firstTime)
 {
     const QFont contentFont = Utils::font(contentTF);
-    const float fontScale = font().pointSizeF() / qGuiApp->font().pointSizeF();
-    const auto scaledFont = [fontScale](QFont f) {
-        f.setPointSizeF(f.pointSizeF() * fontScale);
+    const auto scaledFont = [this](QFont f) {
+        f.setPointSizeF(f.pointSizeF() * m_scale);
         return f;
     };
     document()->setDefaultFont(scaledFont(contentFont));
@@ -781,17 +828,11 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
         QTextCursor cursor(block);
         auto blockFormat = block.blockFormat();
 
-        const auto scaledFont = [fontScale](QFont f) {
-            f.setPointSizeF(f.pointSizeF() * fontScale);
-            return f;
-        };
-
         if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-            blockFormat.setTopMargin(SpacingTokens::PaddingVXxl * fontScale);
-            blockFormat.setBottomMargin(SpacingTokens::GapVM * fontScale);
+            blockFormat.setTopMargin(SpacingTokens::PaddingVXxl * m_scale);
+            blockFormat.setBottomMargin(SpacingTokens::GapVM * m_scale);
         } else {
-            blockFormat
-                .setLineHeight(lineHeight(contentTF) * fontScale, QTextBlockFormat::FixedHeight);
+            blockFormat.setLineHeight(lineHeight(contentTF) * m_scale, QTextBlockFormat::FixedHeight);
         }
 
         cursor.mergeBlockFormat(blockFormat);
@@ -833,7 +874,7 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
                 // importer (relative to the document's default font at parse time),
                 // so it does not follow later changes to the default font. Rescale it
                 // explicitly here.
-                charFormat.setFontPointSize(contentFont.pointSizeF() * fontScale);
+                charFormat.setFontPointSize(contentFont.pointSizeF() * m_scale);
             }
             fc.setCharFormat(charFormat);
         }
@@ -866,9 +907,8 @@ void MarkdownBrowser::showEvent(QShowEvent *event)
 
 int MarkdownBrowser::currentButtonSize() const
 {
-    const float fontScale = font().pointSizeF() / qGuiApp->font().pointSizeF();
     const int base = kCopyIconSize + 2 * kCopyButtonPadding;
-    return qMax(base, int(base * fontScale));
+    return qMax(base, int(base * m_scale));
 }
 
 void MarkdownBrowser::updateCopyButtonsForFontScale()
@@ -909,6 +949,18 @@ void MarkdownBrowser::resizeEvent(QResizeEvent *event)
 {
     QTextBrowser::resizeEvent(event);
     updateCopyButtonPositions();
+}
+
+void MarkdownBrowser::withFixedTopPosition(const std::function<void()> &action)
+{
+    const int topTextPosition = cursorForPosition(QPoint{width() / 2, 0}).position();
+    action();
+    // scroll to original text position again
+    QTextCursor tc(document());
+    tc.setPosition(topTextPosition);
+    const int dy = cursorRect(tc).top();
+    if (QScrollBar *sb = verticalScrollBar())
+        sb->setValue(qMin(sb->value() + dy, sb->maximum()));
 }
 
 void MarkdownBrowser::scrollContentsBy(int dx, int dy)
