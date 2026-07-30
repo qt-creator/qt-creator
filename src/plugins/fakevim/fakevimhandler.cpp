@@ -6825,6 +6825,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     forever {
         if (eatString("<silent>", &args)) {
             silent = true;
+            continue;
         } else if (eatString("<unique>", &args)) {
             continue;
         } else if (eatString("<special>", &args)) {
