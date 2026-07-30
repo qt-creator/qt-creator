@@ -2617,6 +2617,8 @@ public:
     bool handleExSetFileTypeCommand(const ExCommand &cmd);
     void setFileType(const QString &type, bool fallback = false);
     bool didFileType() const;
+    void processModelines();
+    void applyModeline(const QString &line);
     void triggerAutocmd(const QString &event);
     enum LoopSignal { NoSignal, BreakSignal, ContinueSignal };
     LoopSignal m_loopSignal = NoSignal;
@@ -10026,6 +10028,81 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
     return true;
 }
 
+// Apply one line if it carries a modeline. Two forms are accepted:
+//   [text]{white}{vi:|vim:|ex:}[white]{options}
+//   [text]{white}{vi:|vim:|Vim:|ex:}[white]se[t] {options}:[text]
+// In the first the options run to the end of the line and ":" separates them;
+// in the second they end at the first unescaped ":", which is what makes a
+// modeline usable inside a C comment.
+void FakeVimHandler::Private::applyModeline(const QString &line)
+{
+    // The marker has to start the line or follow a blank, so that an ordinary
+    // word ending in "vim:" is not mistaken for one. "vim" may carry a version
+    // requirement, as in "vim>702:".
+    static const QRegularExpression markerRe(
+        "(?:^|[ \\t])(vim|Vim|vi|ex)([<=>]?)([0-9]+)?:");
+    const QRegularExpressionMatch m = markerRe.match(line);
+    if (!m.hasMatch())
+        return;
+
+    if (!m.captured(3).isEmpty()) {
+        // Compare against the version v:version reports.
+        const int wanted = m.captured(3).toInt();
+        const int have = 900;
+        const QString op = m.captured(2);
+        const bool applies = op == "<" ? have < wanted
+                           : op == ">" ? have > wanted
+                           : op == "=" ? have == wanted
+                                       : have >= wanted;
+        if (!applies)
+            return;
+    }
+
+    QString rest = line.mid(m.capturedEnd()).trimmed();
+    QStringList options;
+    static const QRegularExpression setRe("^se(?:t)?[ \\t]+");
+    const QRegularExpressionMatch setMatch = setRe.match(rest);
+    if (setMatch.hasMatch()) {
+        rest = rest.mid(setMatch.capturedLength());
+        // Ends at the first ":" that is not escaped; anything after it is text.
+        QString collected;
+        for (int i = 0; i < rest.size(); ++i) {
+            const QChar c = rest.at(i);
+            if (c == '\\' && i + 1 < rest.size()) {
+                collected += rest.at(++i);
+                continue;
+            }
+            if (c == ':')
+                break;
+            collected += c;
+        }
+        options = collected.split(QRegularExpression("[ \\t]+"), Qt::SkipEmptyParts);
+    } else {
+        options = rest.split(QRegularExpression("[ \\t:]+"), Qt::SkipEmptyParts);
+    }
+
+    for (const QString &option : std::as_const(options))
+        handleExCommand("set " + option);
+}
+
+// Look for a modeline in the first and last 'modelines' lines of the buffer.
+void FakeVimHandler::Private::processModelines()
+{
+    if (!s.modeline())
+        return;
+    const int count = s.modelines();
+    if (count <= 0)
+        return;
+
+    const int total = document()->blockCount();
+    const int head = qMin(count, total);
+    for (int i = 0; i < head; ++i)
+        applyModeline(document()->findBlockByNumber(i).text());
+    // Do not look at a line twice when the file is shorter than 2 * 'modelines'.
+    for (int i = qMax(head, total - count); i < total; ++i)
+        applyModeline(document()->findBlockByNumber(i).text());
+}
+
 void FakeVimHandler::Private::setFileType(const QString &type, bool fallback)
 {
     m_fileType = type;
@@ -13844,6 +13921,11 @@ void FakeVimHandler::showMessage(MessageLevel level, const QString &msg)
 void FakeVimHandler::triggerAutocmd(const QString &event)
 {
     d->triggerAutocmd(event);
+}
+
+void FakeVimHandler::processModelines()
+{
+    d->processModelines();
 }
 
 QWidget *FakeVimHandler::widget()

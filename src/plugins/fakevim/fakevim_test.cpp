@@ -245,6 +245,7 @@ private slots:
     void test_vim_script_regex_zs_ze();
     void test_vim_commentstring();
     void test_vim_filetype_detection();
+    void test_vim_modeline();
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
@@ -7197,6 +7198,82 @@ void FakeVimTester::test_vim_script_expand()
 
     data.setText("alpha be" X "ta gamma");
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
+}
+
+void FakeVimTester::test_vim_modeline()
+{
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto modeline = [&](const QByteArray &text) {
+        data.doCommand("set sw=8");
+        data.doCommand("set ft=");
+        data.setText(text);
+        data.handler->processModelines();
+    };
+
+    // Both forms, and the "set" form ending its options at the ":".
+    modeline("# vim: sw=3" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("3"));
+    modeline("/* vim: set sw=4: */" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("4"));
+    // ":" separates options in the first form.
+    modeline("# vim: sw=5:ts=7" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("5"));
+    QCOMPARE(echo("&ts"), QLatin1String("7"));
+    // "vi:" and "ex:" are accepted too.
+    modeline("# vi: sw=6" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("6"));
+    modeline("# ex: sw=2" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("2"));
+
+    // A modeline may set the file type, which is the file having the last word.
+    modeline("# vim: ft=python" N "x");
+    QCOMPARE(echo("&ft"), QLatin1String("python"));
+
+    // The marker has to start the line or follow a blank, so an ordinary word
+    // ending in "vim:" is not one.
+    modeline("nonsense_vim: sw=3" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("8"));
+
+    // A version requirement is honored; v:version is 900 here.
+    modeline("# vim>700: sw=3" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("3"));
+    modeline("# vim>900: sw=3" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("8"));
+    modeline("# vim<900: sw=3" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("8"));
+    modeline("# vim900: sw=3" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("3"));
+
+    // The last lines are searched as well, which is where they usually sit.
+    modeline("x" N "y" N "# vim: sw=3");
+    QCOMPARE(echo("&sw"), QLatin1String("3"));
+    // ... but only 'modelines' at each end, so one in the middle is ignored.
+    data.doCommand("set mls=2");
+    modeline("a" N "b" N "# vim: sw=3" N "c" N "d" N "e");
+    QCOMPARE(echo("&sw"), QLatin1String("8"));
+    data.doCommand("set mls=5");
+    modeline("a" N "b" N "# vim: sw=3" N "c" N "d" N "e");
+    QCOMPARE(echo("&sw"), QLatin1String("3"));
+
+    // 'nomodeline' turns the whole thing off.
+    data.doCommand("set noml");
+    modeline("# vim: sw=3" N "x");
+    QCOMPARE(echo("&sw"), QLatin1String("8"));
+    data.doCommand("set ml");
+
+    // These options are global, so put back what the other tests expect.
+    data.doCommand("set sw=8");
+    data.doCommand("set ts=8");
+    data.doCommand("set ft=");
 }
 
 void FakeVimTester::test_vim_filetype_detection()

@@ -107,6 +107,8 @@ FakeVimSettings::FakeVimSettings()
     setup(&operatorFunc,   {},    "OperatorFunc",   "opfunc", "");
     setup(&commentString,  "// %s", "CommentString", "cms", "");
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
+    setup(&modeline,       true,  "Modeline",       "ml",  "");
+    setup(&modelines,      5,     "Modelines",      "mls", "");
 
     // Emulated plugins
     setup(&emulateVimCommentary, false, "commentary", {}, "vim-commentary");

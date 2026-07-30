@@ -160,6 +160,11 @@ public:
     FvStringAspect commentString;
     FvBoolAspect modifiable;
 
+    // Whether to obey a "vim:" line in the file, and how many lines at each end
+    // to look for one in.
+    FvBoolAspect modeline;
+    FvIntegerAspect modelines;
+
     // Time out on a mapping while waiting for the rest of a mapped sequence.
     FvBoolAspect timeout;
     FvIntegerAspect timeoutlen;

@@ -2008,6 +2008,8 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         // script may still replace it.
         handler->handleCommand("if &ft == '' | setf FALLBACK " + fileType + " | endif");
     }
+    // Last, so that what the file says about itself wins over both.
+    handler->processModelines();
     handler->triggerAutocmd("BufEnter");
 
     // pop up the bar

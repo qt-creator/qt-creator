@@ -109,6 +109,10 @@ public:
     // save path so BufWritePre/BufWritePost run on a real save).
     void triggerAutocmd(const QString &event);
 
+    // Obey a "vim:" line in the first or last lines of the buffer. Called when
+    // a document is opened, after the file type has been established.
+    void processModelines();
+
     // This executes an "ex" style command taking context
     // information from the current widget.
     void handleCommand(const QString &cmd);
