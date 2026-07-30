@@ -1347,15 +1347,46 @@ public:
     Inputs() = default;
 
     explicit Inputs(const QString &str, bool noremap = true, bool silent = false,
-                    bool expression = false)
-        : m_noremap(noremap), m_silent(silent), m_expression(expression)
+                    bool expression = false, bool vim9 = false)
+        : m_noremap(noremap), m_silent(silent), m_expression(expression), m_vim9(vim9)
     {
-        if (expression)
+        if (expression) {
             m_expr = str; // evaluated on use; not parsed as keys (:map <expr>)
-        else
-            parseFrom(str);
+            squeeze();
+            return;
+        }
+        // "<Cmd>{command}<CR>" runs an ex command without leaving the current
+        // mode, so the right-hand side is not keys either. "<ScriptCmd>" only
+        // differs in which script the command belongs to, which does not matter
+        // while everything shares one namespace.
+        static const QRegularExpression cmdRe("^<(?:Cmd|ScriptCmd)>",
+                                              QRegularExpression::CaseInsensitiveOption);
+        const QRegularExpressionMatch cmd = cmdRe.match(str);
+        if (cmd.hasMatch()) {
+            QString rest = str.mid(cmd.capturedLength());
+            // The command ends at the <CR>; whatever follows is keys again.
+            static const QRegularExpression endRe("<(?:CR|Return|Enter)>",
+                                                  QRegularExpression::CaseInsensitiveOption);
+            const QRegularExpressionMatch end = endRe.match(rest);
+            if (end.hasMatch()) {
+                m_exCommand = rest.left(end.capturedStart());
+                rest = rest.mid(end.capturedEnd());
+            } else {
+                m_exCommand = rest;
+                rest.clear();
+            }
+            parseFrom(rest);
+            squeeze();
+            return;
+        }
+        parseFrom(str);
         squeeze();
     }
+
+    // The keys of an existing sequence, without whatever else it carried.
+    Inputs(const QVector<Input> &keys, bool noremap, bool silent)
+        : QVector<Input>(keys), m_noremap(noremap), m_silent(silent)
+    {}
 
     bool noremap() const { return m_noremap; }
 
@@ -1364,8 +1395,18 @@ public:
     bool isExpression() const { return m_expression; }
     QString expression() const { return m_expr; }
 
-    // An <expr> mapping holds no parsed keys but is still a real mapping.
-    bool isEmpty() const { return m_expression ? false : QVector<Input>::isEmpty(); }
+    bool isExCommand() const { return !m_exCommand.isEmpty(); }
+    QString exCommand() const { return m_exCommand; }
+    // "<ScriptCmd>" runs in the script that defined the mapping, so a command
+    // from a Vim9 script is read with Vim9 rules.
+    bool vim9() const { return m_vim9; }
+
+    // An <expr> or <Cmd> mapping may hold no parsed keys but is still a real
+    // mapping.
+    bool isEmpty() const
+    {
+        return m_expression || isExCommand() ? false : QVector<Input>::isEmpty();
+    }
 
 private:
     void parseFrom(const QString &str);
@@ -1373,7 +1414,9 @@ private:
     bool m_noremap = true;
     bool m_silent = false;
     bool m_expression = false;
+    bool m_vim9 = false;
     QString m_expr;
+    QString m_exCommand;
 };
 
 static Input parseVimKeyName(const QString &keyName)
@@ -2542,7 +2585,8 @@ public:
     int m_searchFromScreenLine;
     QString m_highlighted; // currently highlighted text
 
-    bool handleExCommandHelper(ExCommand &cmd); // Returns success.
+    bool handleExCommandHelper(ExCommand &cmd);
+    void runExCommandLine(const QString &line); // keeps the current mode
     bool handleExPluginCommand(const ExCommand &cmd); // Handled by plugin?
     bool handleExBangCommand(const ExCommand &cmd);
     bool handleExDelMarksCommand(const ExCommand &cmd);
@@ -3461,7 +3505,20 @@ bool FakeVimHandler::Private::expandCompleteMapping()
     const Inputs &inputs = g.currentMap.inputs();
     int usedInputs = g.currentMap.mapLength();
     prependInputs(g.currentMap.currentInputs().mid(usedInputs));
-    if (inputs.isExpression()) {
+    if (inputs.isExCommand()) {
+        // "<Cmd>{command}<CR>": run the command, staying in the current mode.
+        // Keys behind the <CR> are keys again and follow the command.
+        if (!QVector<Input>(inputs).isEmpty())
+            prependMapping(Inputs(inputs, inputs.noremap(), inputs.silent()));
+        const bool savedVim9 = m_vim9;
+        m_vim9 = inputs.vim9();
+        runExCommandLine(inputs.exCommand());
+        m_vim9 = savedVim9;
+        // Used as a motion, where the command moved the cursor: that is the
+        // range the pending operator works on.
+        if (isOperatorPending())
+            finishMovement();
+    } else if (inputs.isExpression()) {
         // ":map <expr>": the right-hand side is an expression whose string
         // result is used as the typed keys.
         VimValue value;
@@ -6921,7 +6978,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
             break;
         case Map: Q_FALLTHROUGH();
         case Noremap: {
-            const Inputs inputs(rhs, type == Noremap, silent, expression);
+            const Inputs inputs(rhs, type == Noremap, silent, expression, m_vim9);
             for (char c : std::as_const(modes))
                 MappingsIterator(&g.mappings, c).setInputs(key, inputs, unique);
             break;
@@ -7949,6 +8006,12 @@ private:
     {
         VimValue cond = exprOr();
         skipBlanks();
+        if (m_ok && cur() == '?' && at(1) == '?') {
+            // "a ?? b" is b only when a is falsy.
+            m_pos += 2;
+            const VimValue fallback = exprTernary();
+            return cond.toBool() ? cond : fallback;
+        }
         if (m_ok && cur() == '?') {
             ++m_pos;
             VimValue a = exprTernary();
@@ -8410,6 +8473,10 @@ private:
         VimValue v;
         if (m_h->variableValue(name, &v))
             return v;
+        // In Vim9 the name of a function is a funcref, which is how one is
+        // handed to something like search().
+        if (vim9() && m_h->g.userFunctions.contains(name))
+            return VimValue::func(name);
         setError(Tr::tr("Undefined variable: %1").arg(name));
         return {};
     }
@@ -10995,6 +11062,23 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     if (isVisualMode())
         leaveVisualMode();
     leaveCurrentMode();
+}
+
+// Run an ex command line without touching the mode. ":" leaves insert or
+// visual mode and puts the cursor where normal mode wants it, which is exactly
+// what a "<Cmd>" mapping must not do.
+void FakeVimHandler::Private::runExCommandLine(const QString &line0)
+{
+    QString line = m_vim9 ? vim9Statement(line0) : line0;
+    beginLargeEditBlock();
+    QList<ExCommand> cmds;
+    ExCommand cmd;
+    while (parseExCommand(&line, &cmd))
+        cmds.append(cmd);
+    runExCommands(cmds);
+    if (!hasValidEditor())
+        return;
+    endEditBlock();
 }
 
 bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)

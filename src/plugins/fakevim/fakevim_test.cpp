@@ -249,6 +249,7 @@ private slots:
     void test_vim_change_autocmds();
     void test_vim_script_readfile_writefile();
     void test_vim_script_search_cursor();
+    void test_vim_map_cmd();
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
@@ -7201,6 +7202,56 @@ void FakeVimTester::test_vim_script_expand()
 
     data.setText("alpha be" X "ta gamma");
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
+}
+
+void FakeVimTester::test_vim_map_cmd()
+{
+    // "<Cmd>{command}<CR>" runs an ex command without leaving the mode it was
+    // used in. "<ScriptCmd>" is the same here.
+    TestData data;
+    setup(&data);
+
+    // Normal mode.
+    data.doCommand("nnoremap zc <Cmd>call setline(1, 'FROM_CMD')<CR>");
+    data.setText("aaa" N "bbb");
+    data.doKeys("zc");
+    QCOMPARE(data.text(), QByteArray("FROM_CMD" N "bbb"));
+
+    // The mode is kept, so the following keys still act on the buffer.
+    data.doKeys("jx");
+    QCOMPARE(data.text(), QByteArray("FROM_CMD" N "bb"));
+
+    // <ScriptCmd> behaves the same.
+    data.doCommand("nnoremap zs <ScriptCmd>call setline(2, 'SCRIPT')<CR>");
+    data.doKeys("zs");
+    QCOMPARE(data.text(), QByteArray("FROM_CMD" N "SCRIPT"));
+
+    // Insert mode is not left either: the command changes the other line, and
+    // what is typed afterwards still goes into the text.
+    data.doCommand("inoremap zi <Cmd>call setline(2, 'TOUCHED')<CR>");
+    data.setText("aaa" N "bbb");
+    data.doKeys("A");
+    data.doKeys("zi");
+    data.doKeys("Q<ESC>");
+    QCOMPARE(data.text(), QByteArray("aaaQ" N "TOUCHED"));
+
+    // Keys behind the <CR> are keys again and follow the command.
+    data.doCommand("nnoremap zt <Cmd>call cursor(2, 1)<CR>x");
+    data.setText("aaa" N "bbb");
+    data.doKeys("zt");
+    QCOMPARE(data.text(), QByteArray("aaa" N "bb"));
+
+    // Operator pending: a text object placed by the command is what "d" takes.
+    data.doCommand("onoremap zo <Cmd>call cursor(2, 3)<CR>");
+    data.setText("abcde" N "fghij");
+    data.doKeys("gg0dzo");
+    QCOMPARE(data.text(), QByteArray("hij"));
+
+    data.doCommand("nunmap zc");
+    data.doCommand("nunmap zs");
+    data.doCommand("nunmap zt");
+    data.doCommand("iunmap zi");
+    data.doCommand("ounmap zo");
 }
 
 void FakeVimTester::test_vim_script_search_cursor()
