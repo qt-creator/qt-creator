@@ -155,7 +155,8 @@ public:
     // Name of the function "g@" calls; set from a script, no UI.
     FvStringAspect operatorFunc;
 
-    // Read by commenting scripts; usually set per file type from a script.
+    // Fallback for 'commentstring' when the file type is not one of the known
+    // ones. The effective value is buffer-local, see Private::commentString().
     FvStringAspect commentString;
     FvBoolAspect modifiable;
 

@@ -2410,6 +2410,8 @@ public:
     struct AutoCommand { QString event; QString pattern; QString command; };
     bool m_inAutocmd = false; // guard against autocommands triggering autocommands
     QString m_fileType; // matched by FileType autocommands
+    // Buffer-local 'commentstring'; empty means derive it from the file type.
+    QString m_commentString;
     bool m_vim9 = false; // Vim9-script semantics are active
     QStringList m_scriptFileStack; // scripts currently sourcing, innermost last
     QStringList m_callStack; // user functions currently running, for <stack>
@@ -2572,6 +2574,7 @@ public:
     VimValue callUserFunction(const QString &name, const UserFunction &fn,
                               const QList<VimValue> &args);
     bool optionValue(const QString &name, VimValue *result);
+    QString commentString() const;
     bool setOption(const QString &name, const VimValue &value);
     bool callFunction(const QString &name, const QList<VimValue> &args,
                       VimValue *result, QString *error);
@@ -6950,6 +6953,12 @@ bool FakeVimHandler::Private::handleExRegisterCommand(const ExCommand &cmd)
     return true;
 }
 
+// 'commentstring' is buffer-local in Vim, so it is not kept in the settings.
+static bool isCommentStringOption(const QString &name)
+{
+    return name == "commentstring" || name == "cms";
+}
+
 bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 {
     // :se[t]
@@ -6967,9 +6976,16 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
     if (cmd.args.contains('=')) {
         // Non-boolean config to set.
         int p = cmd.args.indexOf('=');
-        QString error = s.trySetValue(cmd.args.left(p), cmd.args.mid(p + 1));
+        const QString optionName = cmd.args.left(p);
+        if (isCommentStringOption(optionName)) {
+            m_commentString = cmd.args.mid(p + 1);
+            return true;
+        }
+        QString error = s.trySetValue(optionName, cmd.args.mid(p + 1));
         if (!error.isEmpty())
             showMessage(MessageError, error);
+    } else if (cmd.args == "commentstring?" || cmd.args == "cms?") {
+        showMessage(MessageInfo, "commentstring=" + commentString());
     } else {
         QString optionName = cmd.args;
 
@@ -9122,8 +9138,62 @@ bool FakeVimHandler::Private::letAssignIndexed(const QString &args)
     return true;
 }
 
+// 'commentstring' by file type. Looked up with the type set by ":setf" first
+// and with the file name extension after that, so both "python" and "py" find
+// the same entry. The part before "%s" is the comment leader, the part behind
+// it the trailer that block styles need.
+static QString commentStringForToken(const QString &token)
+{
+    static const QHash<QString, QString> table = {
+        // C family and the languages that borrowed its line comment
+        {"c", "// %s"}, {"cpp", "// %s"}, {"cxx", "// %s"}, {"cc", "// %s"},
+        {"h", "// %s"}, {"hpp", "// %s"}, {"hxx", "// %s"},
+        {"m", "// %s"}, {"mm", "// %s"}, {"objc", "// %s"},
+        {"java", "// %s"}, {"cs", "// %s"}, {"go", "// %s"}, {"swift", "// %s"},
+        {"rs", "// %s"}, {"rust", "// %s"}, {"kt", "// %s"}, {"kotlin", "// %s"},
+        {"js", "// %s"}, {"javascript", "// %s"}, {"ts", "// %s"},
+        {"typescript", "// %s"}, {"json", "// %s"}, {"qml", "// %s"},
+        {"qbs", "// %s"}, {"php", "// %s"}, {"proto", "// %s"},
+        {"glsl", "// %s"}, {"vert", "// %s"}, {"frag", "// %s"},
+        // "#" comments
+        {"py", "# %s"}, {"python", "# %s"}, {"sh", "# %s"}, {"bash", "# %s"},
+        {"zsh", "# %s"}, {"pl", "# %s"}, {"perl", "# %s"}, {"rb", "# %s"},
+        {"ruby", "# %s"}, {"pri", "# %s"}, {"pro", "# %s"}, {"prf", "# %s"},
+        {"cmake", "# %s"}, {"make", "# %s"}, {"makefile", "# %s"},
+        {"yaml", "# %s"}, {"yml", "# %s"}, {"toml", "# %s"}, {"conf", "# %s"},
+        {"ini", "# %s"}, {"gitignore", "# %s"}, {"desktop", "# %s"},
+        // the rest
+        {"vim", "\" %s"}, {"lua", "-- %s"}, {"sql", "-- %s"}, {"hs", "-- %s"},
+        {"haskell", "-- %s"}, {"ada", "-- %s"}, {"lisp", "; %s"},
+        {"el", "; %s"}, {"scm", "; %s"}, {"asm", "; %s"}, {"s", "; %s"},
+        {"bat", "REM %s"}, {"cmd", "REM %s"}, {"tex", "% %s"},
+        {"f90", "! %s"}, {"fortran", "! %s"},
+        {"css", "/* %s */"}, {"scss", "/* %s */"},
+        {"html", "<!-- %s -->"}, {"htm", "<!-- %s -->"},
+        {"xml", "<!-- %s -->"}, {"ui", "<!-- %s -->"},
+        {"qrc", "<!-- %s -->"}, {"svg", "<!-- %s -->"}
+    };
+    return table.value(token);
+}
+
+// The effective 'commentstring' of this buffer: what ":set" put there wins,
+// then the file type, then the configured fallback.
+QString FakeVimHandler::Private::commentString() const
+{
+    if (!m_commentString.isEmpty())
+        return m_commentString;
+    QString cms = commentStringForToken(m_fileType.toLower());
+    if (cms.isEmpty())
+        cms = commentStringForToken(QFileInfo(m_currentFileName).suffix().toLower());
+    return cms.isEmpty() ? s.commentString() : cms;
+}
+
 bool FakeVimHandler::Private::optionValue(const QString &name, VimValue *result)
 {
+    if (isCommentStringOption(name)) {
+        *result = VimValue(commentString());
+        return true;
+    }
     FvBaseAspect *act = s.item(Utils::keyFromString(name));
     if (!act)
         return false;
@@ -9139,6 +9209,10 @@ bool FakeVimHandler::Private::optionValue(const QString &name, VimValue *result)
 
 bool FakeVimHandler::Private::setOption(const QString &name, const VimValue &value)
 {
+    if (isCommentStringOption(name)) {
+        m_commentString = value.toString();
+        return true;
+    }
     FvBaseAspect *act = s.item(Utils::keyFromString(name));
     if (!act)
         return false;
@@ -11712,17 +11786,15 @@ void FakeVimHandler::Private::callOperatorFunc(const Range &range)
 
 void FakeVimHandler::Private::toggleComment(const Range &range)
 {
-    static const QMap<QString, QString> extensionToCommentString {
-        {"pri", "#"},
-        {"pro", "#"},
-        {"h", "//"},
-        {"hpp", "//"},
-        {"cpp", "//"},
-    };
-    const QString commentString = extensionToCommentString.value(QFileInfo(m_currentFileName).suffix(), "//");
+    // Derive the comment markers from 'commentstring', so this and a script
+    // reading &cms agree on how the buffer is commented.
+    const QString cms = commentString();
+    const int placeholder = cms.indexOf("%s");
+    const QString commentString = (placeholder < 0 ? cms : cms.left(placeholder)).trimmed();
+    const QString trailer = placeholder < 0 ? QString() : cms.mid(placeholder + 2).trimmed();
 
     transformText(range,
-        [&commentString] (const QString &text) -> QString {
+        [&commentString, &trailer] (const QString &text) -> QString {
 
         QStringList lines = text.split('\n');
 
@@ -11740,10 +11812,17 @@ void FakeVimHandler::Private::toggleComment(const Range &range)
                     const int sizeToReplace = hasSpaceAfterCommentString ? commentString.size() + 1
                                                                      : commentString.size();
                     line.replace(line.indexOf(commentString), sizeToReplace, "");
+                    if (!trailer.isEmpty() && line.endsWith(trailer)) {
+                        line.chop(trailer.size());
+                        if (line.endsWith(' '))
+                            line.chop(1);
+                    }
                 } else {
                     static const QRegularExpression regexp("[^\\s]");
                     const int indexOfFirstNonSpace = line.indexOf(regexp);
                     line = line.left(indexOfFirstNonSpace) + commentString  + " " + line.right(line.size() - indexOfFirstNonSpace);
+                    if (!trailer.isEmpty())
+                        line += ' ' + trailer;
                 }
             }
         }

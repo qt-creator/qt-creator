@@ -243,6 +243,7 @@ private slots:
     void test_vim_script_scope_dict();
     void test_vim_script_expand();
     void test_vim_script_regex_zs_ze();
+    void test_vim_commentstring();
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
@@ -7195,6 +7196,60 @@ void FakeVimTester::test_vim_script_expand()
 
     data.setText("alpha be" X "ta gamma");
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
+}
+
+
+void FakeVimTester::test_vim_commentstring()
+{
+    // 'commentstring' follows the file type and is buffer-local.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // Derived from the file name extension.
+    data.handler->setCurrentFileName("Test.cpp");
+    QCOMPARE(echo("&cms"), QLatin1String("// %s"));
+    data.handler->setCurrentFileName("Test.pro");
+    QCOMPARE(echo("&cms"), QLatin1String("# %s"));
+    data.handler->setCurrentFileName("Test.py");
+    QCOMPARE(echo("&commentstring"), QLatin1String("# %s"));
+    data.handler->setCurrentFileName("Test.vim");
+    QCOMPARE(echo("&cms"), QLatin1String("\" %s"));
+    data.handler->setCurrentFileName("Test.html");
+    QCOMPARE(echo("&cms"), QLatin1String("<!-- %s -->"));
+    // An unknown extension falls back to the configured default.
+    data.handler->setCurrentFileName("Test.zzz");
+    QCOMPARE(echo("&cms"), QLatin1String("// %s"));
+
+    // ":setf" wins over the extension, as the file type is more specific.
+    data.handler->setCurrentFileName("Test.zzz");
+    data.doCommand("setf python");
+    QCOMPARE(echo("&cms"), QLatin1String("# %s"));
+
+    // An explicit ":set" wins over both, and stays with this buffer.
+    data.doCommand("set commentstring=;; %s");
+    QCOMPARE(echo("&cms"), QLatin1String(";; %s"));
+    data.handler->setCurrentFileName("Other.cpp");
+    QCOMPARE(echo("&cms"), QLatin1String(";; %s"));
+
+    // "gc" uses the same value, including a trailing part.
+    data.doCommand("set commentary");
+    data.doCommand("set commentstring=<!-- %s -->");
+    data.setText("abc");
+    KEYS("gcc", X "<!-- abc -->");
+    KEYS("gcc", X "abc");
+    // A file type with a line comment keeps the previous behavior.
+    data.doCommand("set commentstring=# %s");
+    data.setText("abc");
+    KEYS("gcc", X "# abc");
+    KEYS("gcc", X "abc");
 }
 
 void FakeVimTester::test_vim_script_regex_zs_ze()
