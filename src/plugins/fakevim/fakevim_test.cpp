@@ -250,6 +250,7 @@ private slots:
     void test_vim_script_readfile_writefile();
     void test_vim_script_search_cursor();
     void test_vim_map_cmd();
+    void test_vim_ex_normal_modes();
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
@@ -7202,6 +7203,37 @@ void FakeVimTester::test_vim_script_expand()
 
     data.setText("alpha be" X "ta gamma");
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
+}
+
+void FakeVimTester::test_vim_ex_normal_modes()
+{
+    // ":normal" aborts a command its keys did not finish, which is what ends a
+    // pending insert mode, but keeps a mode the keys did finish.
+    TestData data;
+    setup(&data);
+
+    // Insert mode is still ended (QTCREATORBUG-25820).
+    data.setText("abc" N "def");
+    data.doCommand("normal A;");
+    QCOMPARE(data.text(), QByteArray("abc;" N "def"));
+    data.doKeys("x");
+    QCOMPARE(data.text(), QByteArray("abc" N "def"));
+
+    // A mode the keys did finish is no longer ended. Typing ":" ends visual
+    // mode again on its own, so this is reached through a <Cmd> mapping.
+    data.doCommand("nnoremap zv <Cmd>normal! gg0vjl<CR>");
+    data.setText("abcde" N "fghij");
+    data.doKeys("zv");
+    // Still selecting, so an operator typed now takes the selection.
+    data.doKeys("d");
+    QCOMPARE(data.text(), QByteArray("hij"));
+    data.doCommand("nunmap zv");
+
+    // Per line in a range, a selection does not reach the next one.
+    data.setText("abc" N "def" N "ghi");
+    data.doCommand("%normal v");
+    QCOMPARE(data.text(), QByteArray("abc" N "def" N "ghi"));
+    data.doKeys("<ESC>");
 }
 
 void FakeVimTester::test_vim_map_cmd()

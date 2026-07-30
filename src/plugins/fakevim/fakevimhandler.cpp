@@ -7119,13 +7119,21 @@ bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
     const int beginLine = lineForPosition(cmd.range.beginPos);
     const int endLine = lineForPosition(cmd.range.endPos);
 
+    // Vim aborts a command the keys did not finish, as if <ESC> had been typed,
+    // which is what ends a pending insert mode (QTCREATORBUG-25820). A mode the
+    // keys did finish is kept, so ":normal! v" leaves a selection behind for
+    // whatever runs next to work on.
+    const auto finishNormal = [this] {
+        if (isInsertMode())
+            replay("<ESC>");
+    };
+
     // Without an explicit range Vim runs the commands once at the current
-    // cursor position. As in the ranged case, Vim terminates any pending
-    // insert mode at the end, so append <ESC> to return to normal mode
-    // (QTCREATORBUG-25820).
+    // cursor position.
     if (!cmd.hasRange) {
         //qDebug() << "REPLAY NORMAL: " << quoteUnprintable(cmd.args);
-        replay(cmd.args + QLatin1String("<ESC>"));
+        replay(cmd.args);
+        finishNormal();
         return true;
     }
 
@@ -7144,11 +7152,13 @@ bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
 
     beginEditBlock();
     for (const QTextCursor &tc : std::as_const(cursors)) {
+        // Each line starts over in normal mode, so a selection one line's keys
+        // left behind must not reach the next one.
+        if (isVisualMode())
+            leaveVisualMode();
         setPosition(tc.position());
-        // Vim terminates any pending insert mode at the end of each line's
-        // commands, so append <ESC> to ensure the next line starts in normal
-        // mode.
-        replay(cmd.args + QLatin1String("<ESC>"));
+        replay(cmd.args);
+        finishNormal();
     }
     endEditBlock();
 
