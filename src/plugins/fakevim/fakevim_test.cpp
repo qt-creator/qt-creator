@@ -7199,7 +7199,6 @@ void FakeVimTester::test_vim_script_expand()
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
 }
 
-
 void FakeVimTester::test_vim_filetype_detection()
 {
     // The pieces file type detection is built from: buffer read autocommands
@@ -7229,6 +7228,40 @@ void FakeVimTester::test_vim_filetype_detection()
     data.doCommand("set ft=");
     data.doCommand("if &ft == '' | setf fallback | endif");
     QCOMPARE(echo("&ft"), QLatin1String("fallback"));
+
+    // did_filetype() only reports on a sequence of autocommands, so an
+    // interactive ":setf" always applies.
+    QCOMPARE(echo("did_filetype()"), QLatin1String("0"));
+    data.doCommand("setf typedbyhand");
+    QCOMPARE(echo("&ft"), QLatin1String("typedbyhand"));
+
+    // Within one read the first ":setf" wins and later ones are ignored.
+    data.doCommand("autocmd!");
+    data.doCommand("autocmd BufRead * setf first");
+    data.doCommand("autocmd BufRead * setf second");
+    data.handler->triggerAutocmd("BufReadPost");
+    QCOMPARE(echo("&ft"), QLatin1String("first"));
+
+    // Reading again starts over, so a rule can claim the buffer anew.
+    data.doCommand("autocmd!");
+    data.doCommand("autocmd BufRead * setf third");
+    data.handler->triggerAutocmd("BufReadPost");
+    QCOMPARE(echo("&ft"), QLatin1String("third"));
+
+    // A FALLBACK type is only a guess, so a later ":setf" replaces it.
+    data.doCommand("autocmd!");
+    data.doCommand("autocmd BufRead * setf FALLBACK guessed");
+    data.doCommand("autocmd BufRead * setf certain");
+    data.handler->triggerAutocmd("BufReadPost");
+    QCOMPARE(echo("&ft"), QLatin1String("certain"));
+
+    // A ":setf" inside a read autocommand still reaches the FileType rules.
+    data.doCommand("autocmd!");
+    data.doCommand("let g:ft = ''");
+    data.doCommand("autocmd FileType nested let g:ft = 'ran'");
+    data.doCommand("autocmd BufRead * setf nested");
+    data.handler->triggerAutocmd("BufReadPost");
+    QCOMPARE(echo("g:ft"), QLatin1String("ran"));
 
     // FileType rules see the type, and the type drives 'commentstring'.
     data.doCommand("let g:seen = ''");
@@ -7341,6 +7374,27 @@ void FakeVimTester::test_vim_script_modifiers()
     // Abbreviated, and stacked with a second modifier.
     data.doCommand("noa keepj call setline(2, 'TWO')");
     QCOMPARE(data.text(), QByteArray("ONE" N "TWO"));
+
+    // ":noautocmd" keeps the autocommands of what follows from firing.
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    data.doCommand("autocmd!");
+    data.doCommand("let g:fired = 0");
+    data.doCommand("autocmd FileType suppressed let g:fired = 1");
+    data.doCommand("noautocmd set ft=suppressed");
+    QCOMPARE(echo("&ft"), QLatin1String("suppressed"));
+    QCOMPARE(echo("g:fired"), QLatin1String("0"));
+    // The same rule does fire without the modifier.
+    data.doCommand("set ft=");
+    data.doCommand("set ft=suppressed");
+    QCOMPARE(echo("g:fired"), QLatin1String("1"));
+    data.doCommand("autocmd!");
 
     // In Vim9 the command after a modifier can be a bare call.
     data.setText("a" N "b");

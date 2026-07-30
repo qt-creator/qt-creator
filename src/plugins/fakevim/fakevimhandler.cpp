@@ -2408,7 +2408,12 @@ public:
         bool vim9 = false; // a :def function (bare-name args, Vim9 semantics)
     };
     struct AutoCommand { QString event; QString pattern; QString command; };
-    bool m_inAutocmd = false; // guard against autocommands triggering autocommands
+    bool m_noAutocmd = false; // ":noautocmd" is suppressing autocommands
+    int m_autocmdDepth = 0; // nesting level of running autocommands
+    // Whether the FileType event has fired for this buffer from a file type
+    // that was not just a guess, which is what ":setf" checks so that the first
+    // rule recognizing a buffer wins. Reset when the buffer is read again.
+    bool m_didFileType = false;
     QString m_fileType; // matched by FileType autocommands
     // Buffer-local 'commentstring'; empty means derive it from the file type.
     QString m_commentString;
@@ -2610,7 +2615,8 @@ public:
     bool handleExCommandDefCommand(const ExCommand &cmd);
     bool handleExUserCommand(const ExCommand &cmd);
     bool handleExSetFileTypeCommand(const ExCommand &cmd);
-    void setFileType(const QString &type);
+    void setFileType(const QString &type, bool fallback = false);
+    bool didFileType() const;
     void triggerAutocmd(const QString &event);
     enum LoopSignal { NoSignal, BreakSignal, ContinueSignal };
     LoopSignal m_loopSignal = NoSignal;
@@ -9806,6 +9812,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QString a = arg(0).toString();
         const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
         *result = VimValue(qlonglong(indentation(lineContents(ln)).logical));
+    } else if (name == "did_filetype") {
+        *result = VimValue(qlonglong(didFileType() ? 1 : 0));
     } else if (name == "expand") {
         *result = VimValue(expandKeyword(arg(0).toString()));
     } else if (name == "function" || name == "funcref") {
@@ -9940,9 +9948,9 @@ bool FakeVimHandler::Private::handleExModifierCommand(const ExCommand &cmd)
         && !cmd.matches("uns", "unsilent")) {
         return false;
     }
-    const bool savedInAutocmd = m_inAutocmd;
+    const bool savedNoAutocmd = m_noAutocmd;
     if (noAutocmd)
-        m_inAutocmd = true; // the guard that keeps autocommands from firing
+        m_noAutocmd = true;
 
     // What follows a modifier is a statement in its own right, so in Vim9 it
     // may be a bare function call and needs the same rewriting as any line.
@@ -9951,7 +9959,7 @@ bool FakeVimHandler::Private::handleExModifierCommand(const ExCommand &cmd)
     while (parseExCommand(&line, &sub))
         handleExCommandHelper(sub);
 
-    m_inAutocmd = savedInAutocmd;
+    m_noAutocmd = savedNoAutocmd;
     return true;
 }
 
@@ -10018,18 +10026,36 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
     return true;
 }
 
-void FakeVimHandler::Private::setFileType(const QString &type)
+void FakeVimHandler::Private::setFileType(const QString &type, bool fallback)
 {
     m_fileType = type;
+    // A guess does not count as knowing the type, so a later ":setf" may still
+    // replace it.
+    if (!fallback)
+        m_didFileType = true;
     triggerAutocmd("FileType");
+}
+
+// Vim's did_filetype(): true only while autocommands run and the type of this
+// buffer has already been settled by something other than a guess.
+bool FakeVimHandler::Private::didFileType() const
+{
+    return m_autocmdDepth > 0 && m_didFileType;
 }
 
 bool FakeVimHandler::Private::handleExSetFileTypeCommand(const ExCommand &cmd)
 {
-    // :setf[iletype] {name}
+    // :setf[iletype] [FALLBACK] {name} - sets the type unless one is already
+    // settled for this buffer, so the first rule that recognizes it wins.
+    // FALLBACK marks a guess that a later ":setf" is allowed to replace.
     if (!cmd.matches("setf", "setfiletype"))
         return false;
-    setFileType(cmd.args.trimmed());
+    QString type = cmd.args.trimmed();
+    const bool fallback = type.startsWith("FALLBACK ");
+    if (fallback)
+        type = type.mid(9).trimmed();
+    if (!didFileType())
+        setFileType(type, fallback);
     return true;
 }
 
@@ -10121,16 +10147,23 @@ bool FakeVimHandler::Private::handleExUserCommand(const ExCommand &cmd)
 
 void FakeVimHandler::Private::triggerAutocmd(const QString &event)
 {
-    if (g.autoCommands.isEmpty() || m_inAutocmd)
-        return; // do not fire autocommands from within an autocommand
+    const QString fired = canonicalAutocmdEvent(event);
+
+    // Reading a buffer starts a fresh file type detection, so a ":setf" in one
+    // of the read autocommands is free to claim it.
+    if (fired == "bufreadpost" || fired == "bufnewfile")
+        m_didFileType = false;
+
+    // One level of nesting, which is what lets a ":setf" inside a read
+    // autocommand still run the FileType rules; deeper chains are cut off.
+    if (g.autoCommands.isEmpty() || m_noAutocmd || m_autocmdDepth >= 2)
+        return;
 
     // FileType patterns match the filetype; other events match the file name.
-    const QString target = event.compare("FileType", Qt::CaseInsensitive) == 0
-                               ? m_fileType : m_currentFileName;
+    const QString target = fired == "filetype" ? m_fileType : m_currentFileName;
     // Copy: a fired command might register or clear autocommands.
     const QList<AutoCommand> commands = g.autoCommands;
-    m_inAutocmd = true;
-    const QString fired = canonicalAutocmdEvent(event);
+    ++m_autocmdDepth;
     for (const AutoCommand &ac : commands) {
         if (canonicalAutocmdEvent(ac.event) != fired)
             continue;
@@ -10141,7 +10174,7 @@ void FakeVimHandler::Private::triggerAutocmd(const QString &event)
         while (parseExCommand(&line, &sub))
             handleExCommandHelper(sub);
     }
-    m_inAutocmd = false;
+    --m_autocmdDepth;
 }
 
 bool FakeVimHandler::Private::handleExExecuteCommand(const ExCommand &cmd)

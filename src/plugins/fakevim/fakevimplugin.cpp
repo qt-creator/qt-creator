@@ -2003,8 +2003,11 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     handler->triggerAutocmd(editor->document()->filePath().exists()
                             ? QLatin1String("BufReadPost") : QLatin1String("BufNewFile"));
     const QString fileType = vimFileType(editor->document());
-    if (!fileType.isEmpty())
-        handler->handleCommand("if &ft == '' | setf " + fileType + " | endif");
+    if (!fileType.isEmpty()) {
+        // FALLBACK: this is what the MIME database guessed, so a ":setf" from a
+        // script may still replace it.
+        handler->handleCommand("if &ft == '' | setf FALLBACK " + fileType + " | endif");
+    }
     handler->triggerAutocmd("BufEnter");
 
     // pop up the bar
