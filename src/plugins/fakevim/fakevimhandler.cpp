@@ -2419,6 +2419,8 @@ public:
     QString m_fileType; // matched by FileType autocommands
     // Buffer-local 'commentstring'; empty means derive it from the file type.
     QString m_commentString;
+    // Syntax item names seen so far; a name's position here is its synID().
+    QStringList m_syntaxNames;
     bool m_vim9 = false; // Vim9-script semantics are active
     QStringList m_scriptFileStack; // scripts currently sourcing, innermost last
     QStringList m_callStack; // user functions currently running, for <stack>
@@ -9929,6 +9931,30 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QString a = arg(0).toString();
         const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
         *result = VimValue(qlonglong(indentation(lineContents(ln)).logical));
+    } else if (name == "synstack" || name == "synID") {
+        // The syntax items at a position, innermost last. Only the ones the
+        // document's language can be asked about are reported, so a caller
+        // looking for anything besides "Comment" or "String" finds nothing.
+        QStringList names;
+        q->syntaxNamesRequested(int(arg(0).toNumber()), int(arg(1).toNumber()), &names);
+        QList<VimValue> ids;
+        for (const QString &syntaxName : std::as_const(names)) {
+            if (!m_syntaxNames.contains(syntaxName))
+                m_syntaxNames.append(syntaxName);
+            ids.append(VimValue(qlonglong(m_syntaxNames.indexOf(syntaxName) + 1)));
+        }
+        if (name == "synID") // just the innermost one, 0 for nothing
+            *result = ids.isEmpty() ? VimValue(qlonglong(0)) : ids.constLast();
+        else
+            *result = VimValue::list(ids);
+    } else if (name == "synIDattr") {
+        const int id = int(arg(0).toNumber());
+        const QString what = arg(1).toString();
+        // Only the name is known; the appearance of an item is not modelled.
+        if (what == "name" && id >= 1 && id <= m_syntaxNames.size())
+            *result = VimValue(m_syntaxNames.at(id - 1));
+        else
+            *result = VimValue(QString());
     } else if (name == "cursor") {
         // cursor({lnum}, {col}) or cursor([{lnum}, {col}, ...])
         int line = 0;

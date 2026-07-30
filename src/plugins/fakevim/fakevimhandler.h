@@ -184,6 +184,11 @@ public:
     Callback<void(int distance)> tagStackRequested;
     // K: look up the symbol under the cursor.
     Callback<void()> contextHelpRequested;
+    // The syntax item names at a position, for synstack(). Qt Creator has no
+    // general way to name what is under the cursor, so this reports only what
+    // the language of the document can be asked about, which is "Comment" and
+    // "String". Line and column are 1-based, as in Vimscript.
+    Callback<void(int line, int column, QStringList *names)> syntaxNamesRequested;
     // CTRL-^: edit the alternate file, the previously active one.
     Callback<void()> alternateFileRequested;
     // Move in Qt Creator's global navigation history when the buffer-local

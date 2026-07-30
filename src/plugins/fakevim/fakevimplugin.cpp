@@ -28,6 +28,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <texteditor/autocompleter.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/asyncprocessor.h>
@@ -1960,6 +1961,25 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         tagStackMove(handler, distance);
     });
 
+    handler->syntaxNamesRequested.set([tew](int line, int column, QStringList *names) {
+        // Qt Creator keeps no name for what the highlighter produced, only
+        // colors, so the only thing that can be answered is what the language
+        // of the document knows how to be asked. That covers what a script
+        // commenting or reformatting code looks for.
+        if (!tew || !tew->autoCompleter())
+            return;
+        QTextCursor cursor(tew->document());
+        const QTextBlock block = tew->document()->findBlockByNumber(line - 1);
+        if (!block.isValid())
+            return;
+        cursor.setPosition(block.position() + qBound(0, column - 1,
+                                                     qMax(0, block.length() - 1)));
+        if (tew->autoCompleter()->isInComment(cursor))
+            names->append("Comment");
+        if (tew->autoCompleter()->isInString(cursor))
+            names->append("String");
+    });
+
     handler->contextHelpRequested.set([] {
         // Help::Constants::CONTEXT_HELP, by id to avoid a Help-plugin dependency.
         triggerAction("Help.Context");
@@ -2010,6 +2030,10 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         // script may still replace it.
         handler->handleCommand("if &ft == '' | setf FALLBACK " + fileType + " | endif");
     }
+    // Highlighting is always on here, and scripts check this before asking what
+    // is under the cursor.
+    if (tew)
+        handler->handleCommand("let g:syntax_on = 1");
     // Last, so that what the file says about itself wins over both.
     handler->processModelines();
     handler->triggerAutocmd("BufEnter");
