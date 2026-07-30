@@ -6749,6 +6749,27 @@ bool FakeVimHandler::Private::parseExCommand(QString *line, ExCommand *cmd)
     if (!parseLineRange(line, cmd))
         return false;
 
+    // ":normal" reaches to the end of the line: Vim counts a "|" as one of the
+    // keys to replay rather than as the start of another command, which is why
+    // it cannot be followed by one.
+    static const QRegularExpression normalRe("^norm(a(l)?)?(!|\\s|$)");
+    if (normalRe.match(*line).hasMatch()) {
+        cmd->cmd = line->trimmed();
+        static const QRegularExpression nonLetter("(?=[^a-zA-Z])");
+        cmd->args = cmd->cmd.section(nonLetter, 1);
+        if (!cmd->args.isEmpty()) {
+            cmd->cmd.chop(cmd->args.size());
+            cmd->hasBang = cmd->args.startsWith('!');
+            if (cmd->hasBang)
+                cmd->args = cmd->args.mid(1);
+            // Only the blank telling the keys from the command name goes.
+            if (cmd->args.startsWith(' ') || cmd->args.startsWith('\t'))
+                cmd->args = cmd->args.mid(1);
+        }
+        line->clear();
+        return true;
+    }
+
     // get first command from command line
     QChar close;
     bool subst = false;

@@ -7219,6 +7219,16 @@ void FakeVimTester::test_vim_ex_normal_modes()
     data.doKeys("x");
     QCOMPARE(data.text(), QByteArray("abc" N "def"));
 
+    // A "|" is one of the keys, not the start of another command, so ":normal"
+    // cannot be followed by one. Expected values taken from Vim 9.1.
+    data.setText("abc" N "def");
+    data.doCommand("call cursor(1, 1)");
+    data.doCommand("normal ix|y");
+    QCOMPARE(data.text(), QByteArray("x|yabc" N "def"));
+    data.doCommand("call cursor(2, 1)");
+    data.doCommand("normal! ip|q");
+    QCOMPARE(data.text(), QByteArray("x|yabc" N "p|qdef"));
+
     // A mode the keys did finish is no longer ended. Typing ":" ends visual
     // mode again on its own, so this is reached through a <Cmd> mapping.
     data.doCommand("nnoremap zv <Cmd>normal! gg0vjl<CR>");
