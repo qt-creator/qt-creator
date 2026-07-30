@@ -7,6 +7,7 @@
 
 #include <QList>
 #include <QDialog>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -46,6 +47,7 @@ private:
     QTreeWidget *m_treeWidget;
     QCheckBox *m_saveBeforeBuildCheckBox;
     QDialogButtonBox *m_buttonBox;
+    QList<QPointer<IDocument>> m_documents;
     QList<IDocument *> m_itemsToSave;
     Utils::FilePaths m_filesToDiff;
     QPushButton *m_diffButton = nullptr;
