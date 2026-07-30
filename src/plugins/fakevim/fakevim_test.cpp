@@ -7310,10 +7310,6 @@ void FakeVimTester::test_vim_map_cmd()
     data.doCommand("onoremap zs <Cmd>call Sel()<CR>");
     data.setText("aaa" N "bbb" N "ccc" N "ddd");
     data.doKeys("dzs");
-    // Both ends of the selection come out a line early, which is what keeps the
-    // comment text objects of Vim's comment plugin from working. The boundaries
-    // the plugin computes are right, so the fault is in how a selection placed
-    // one step at a time is handed back to the operator.
     QEXPECT_FAIL("", "selection placed in steps is off by a line", Continue);
     QCOMPARE(data.text(), QByteArray("aaa" N "ddd"));
 
@@ -7805,6 +7801,16 @@ void FakeVimTester::test_vim_script_regex_zs_ze()
     // "\V" takes everything literally.
     QCOMPARE(echo("matchstr('a.c', '\\Va.c')"), QLatin1String("a.c"));
     QCOMPARE(echo("'[' . matchstr('abc', '\\Va.c') . ']'"), QLatin1String("[]"));
+
+    // The character classes Vim has beyond what a Qt pattern knows. For these
+    // the uppercase form is the same class without the digits, not its
+    // negation. Expected values taken from Vim 9.1.
+    QCOMPARE(echo("matchstr('  ab_9!', '\\v\\k+')"), QLatin1String("ab_9"));
+    QCOMPARE(echo("matchstr('9ab', '\\v\\K+')"), QLatin1String("ab"));
+    QCOMPARE(echo("matchstr('  a1_', '\\i\\+')"), QLatin1String("a1_"));
+    QCOMPARE(echo("matchstr('1ab', '\\I\\+')"), QLatin1String("ab"));
+    QCOMPARE(echo("matchstr('a b', '\\p\\+')"), QLatin1String("a b"));
+    QCOMPARE(echo("matchstr('1ab', '\\P\\+')"), QLatin1String("ab"));
 
     // The shape a plugin uses to find the next word or an empty line.
     QCOMPARE(echo("matchstr('  hello', '\\v%(\\S+)|%(^\\s*$)')"), QLatin1String("hello"));

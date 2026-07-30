@@ -557,6 +557,20 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                 pattern.append("[0-9A-Fa-f]");
             else if (c == 'X')
                 pattern.append("[^0-9A-Fa-f]");
+            // The uppercase form of these is the same class without the
+            // digits, not its negation.
+            else if (c == 'i' || c == 'k') // identifier, keyword
+                pattern.append("[0-9A-Za-z_]");
+            else if (c == 'I' || c == 'K')
+                pattern.append("[A-Za-z_]");
+            else if (c == 'f') // file name
+                pattern.append("[0-9A-Za-z_/.,+=~$%#-]");
+            else if (c == 'F')
+                pattern.append("[A-Za-z_/.,+=~$%#-]");
+            else if (c == 'p') // printable
+                pattern.append("[[:print:]]");
+            else if (c == 'P') // no set intersection here, so spell it out
+                pattern.append("[^\\x00-\\x1f\\x7f0-9]");
             else if (c == '=')
                 pattern.append("?");
             else if (c == 'z')
