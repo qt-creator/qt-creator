@@ -247,6 +247,7 @@ private slots:
     void test_vim_filetype_detection();
     void test_vim_modeline();
     void test_vim_change_autocmds();
+    void test_vim_script_readfile_writefile();
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
@@ -7199,6 +7200,54 @@ void FakeVimTester::test_vim_script_expand()
 
     data.setText("alpha be" X "ta gamma");
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
+}
+
+void FakeVimTester::test_vim_script_readfile_writefile()
+{
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    data.doCommand("let g:p = '" + dir.path() + "/a.txt'");
+
+    // A list written out comes back unchanged.
+    QCOMPARE(echo("writefile(['one', 'two'], g:p)"), QLatin1String("0"));
+    QCOMPARE(echo("readfile(g:p)"), QLatin1String("['one', 'two']"));
+    // Text mode ended the last line, which does not turn into another item.
+    QCOMPARE(echo("len(readfile(g:p))"), QLatin1String("2"));
+
+    // Appending adds to what is there.
+    data.doCommand("call writefile(['three'], g:p, 'a')");
+    QCOMPARE(echo("readfile(g:p)"), QLatin1String("['one', 'two', 'three']"));
+
+    // {max} takes lines from the start, a negative one from the end.
+    QCOMPARE(echo("readfile(g:p, '', 2)"), QLatin1String("['one', 'two']"));
+    QCOMPARE(echo("readfile(g:p, '', -2)"), QLatin1String("['two', 'three']"));
+
+    // Binary mode leaves the last line unterminated, so reading it back in
+    // binary mode gives no trailing empty item.
+    data.doCommand("call writefile(['x', 'y'], g:p, 'b')");
+    QCOMPARE(echo("readfile(g:p, 'b')"), QLatin1String("['x', 'y']"));
+    // An empty last item is what puts a newline at the end in binary mode.
+    data.doCommand("call writefile(['x', ''], g:p, 'b')");
+    QCOMPARE(echo("readfile(g:p, 'b')"), QLatin1String("['x', '']"));
+
+    // Reading a file that is not there gives an empty list.
+    data.doCommand("let g:missing = '" + dir.path() + "/nope.txt'");
+    QCOMPARE(echo("readfile(g:missing)"), QLatin1String("[]"));
+
+    // Writing where that cannot work reports the failure.
+    data.doCommand("let g:bad = '" + dir.path() + "/nodir/x.txt'");
+    QCOMPARE(echo("writefile(['a'], g:bad)"), QLatin1String("-1"));
 }
 
 void FakeVimTester::test_vim_change_autocmds()

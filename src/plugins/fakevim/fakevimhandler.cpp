@@ -9823,6 +9823,79 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QString a = arg(0).toString();
         const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
         *result = VimValue(qlonglong(indentation(lineContents(ln)).logical));
+    } else if (name == "readfile") {
+        // readfile({fname} [, {type} [, {max}]])
+        const QString fileName = replaceTildeWithHome(arg(0).toString());
+        const bool binary = arg(1).toString().contains('b');
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly)) {
+            // Vim reports this and hands back an empty list.
+            showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
+            *result = VimValue::list();
+            return true;
+        }
+        const QByteArray data = file.readAll();
+        file.close();
+        // Decode like ":source" does: prefer UTF-8, fall back to the local
+        // 8-bit encoding for invalid byte sequences.
+        QStringDecoder utf8(QStringDecoder::Utf8);
+        QString text = utf8(data);
+        if (utf8.hasError())
+            text = QString::fromLocal8Bit(data);
+        QStringList lines = text.split('\n');
+        if (!binary) {
+            if (lines.constFirst().startsWith(QChar(0xfeff))) // byte order mark
+                lines[0].remove(0, 1);
+            // A trailing newline does not stand for another line, and a CR in
+            // front of one is dropped.
+            if (lines.size() > 1 && lines.constLast().isEmpty())
+                lines.removeLast();
+            for (QString &line : lines) {
+                if (line.endsWith('\r'))
+                    line.chop(1);
+            }
+        }
+        if (args.size() > 2) {
+            const int max = int(arg(2).toNumber());
+            if (max > 0)
+                lines = lines.mid(0, max);
+            else if (max < 0) // a negative count takes them from the end
+                lines = lines.mid(qMax(0, lines.size() + max));
+            else
+                lines.clear();
+        }
+        QList<VimValue> items;
+        for (const QString &line : std::as_const(lines))
+            items.append(VimValue(line));
+        *result = VimValue::list(items);
+    } else if (name == "writefile") {
+        // writefile({list}, {fname} [, {flags}])
+        if (!arg(0).isList()) {
+            *error = Tr::tr("writefile() expects a list");
+            return false;
+        }
+        const QString fileName = replaceTildeWithHome(arg(1).toString());
+        const QString flags = arg(2).toString();
+        const bool binary = flags.contains('b');
+        QFile file(fileName);
+        const QIODevice::OpenMode mode = QIODevice::WriteOnly
+            | (flags.contains('a') ? QIODevice::Append : QIODevice::Truncate);
+        if (!file.open(mode)) {
+            showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
+            *result = VimValue(qlonglong(-1));
+            return true;
+        }
+        QStringList lines;
+        for (const VimValue &item : *arg(0).listData())
+            lines.append(item.toString());
+        QString text = lines.join('\n');
+        // Text mode ends the last line as well; binary mode leaves it as it is,
+        // so an empty last item is what puts a newline there.
+        if (!binary && !lines.isEmpty())
+            text += '\n';
+        file.write(text.toUtf8());
+        file.close();
+        *result = VimValue(qlonglong(0));
     } else if (name == "did_filetype") {
         *result = VimValue(qlonglong(didFileType() ? 1 : 0));
     } else if (name == "expand") {
