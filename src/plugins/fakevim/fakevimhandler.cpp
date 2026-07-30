@@ -2512,7 +2512,12 @@ public:
         QList<ExCommand> body;
         bool vim9 = false; // a :def function (bare-name args, Vim9 semantics)
     };
-    struct AutoCommand { QString event; QString pattern; QString command; };
+    struct AutoCommand {
+        QString group; // the ":augroup" it belongs to, empty for none
+        QString event;
+        QString pattern;
+        QString command;
+    };
     bool m_noAutocmd = false; // ":noautocmd" is suppressing autocommands
     int m_autocmdDepth = 0; // nesting level of running autocommands
     // Whether the FileType event has fired for this buffer from a file type
@@ -2720,6 +2725,7 @@ public:
     bool handleExSilentCommand(const ExCommand &cmd);
     bool handleExModifierCommand(const ExCommand &cmd);
     bool handleExAutocmdCommand(const ExCommand &cmd);
+    bool handleExAugroupCommand(const ExCommand &cmd);
     bool handleExDoAutocmdCommand(const ExCommand &cmd);
     bool handleExCommandDefCommand(const ExCommand &cmd);
     bool handleExUserCommand(const ExCommand &cmd);
@@ -2892,6 +2898,7 @@ public:
         QHash<QString, UserFunction> userFunctions;
         QList<AutoCommand> autoCommands;
         QHash<QString, QString> userCommands; // :command Name -> replacement
+        QString currentAutoGroup; // group ":augroup" left current
         // Vim9 ":export"ed names, keyed by canonical script path.
         QHash<QString, QMap<QString, VimValue>> moduleExports;
     } g;
@@ -10506,22 +10513,54 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
         return false;
 
     QStringList tokens = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    // A group named here applies to this one command; otherwise the group
+    // ":augroup" left current does, if any.
+    QString group = g.currentAutoGroup;
+    if (!tokens.isEmpty() && !isAutocmdEvent(tokens.first()))
+        group = tokens.takeFirst();
+
     if (tokens.isEmpty()) {
-        if (cmd.hasBang)
-            g.autoCommands.clear();
+        // ":autocmd!" removes what is registered, for the group in hand only
+        // when there is one, so a plugin clearing its own leaves others alone.
+        if (cmd.hasBang) {
+            if (group.isEmpty()) {
+                g.autoCommands.clear();
+            } else {
+                for (int i = g.autoCommands.size() - 1; i >= 0; --i) {
+                    if (g.autoCommands.at(i).group == group)
+                        g.autoCommands.removeAt(i);
+                }
+            }
+        }
         return true;
     }
-    // Skip a leading augroup name if the first token is not an event.
-    if (!isAutocmdEvent(tokens.first()))
-        tokens.removeFirst();
     if (tokens.size() < 3)
         return true; // nothing to register
 
     AutoCommand ac;
+    ac.group = group;
     ac.event = tokens.takeFirst();
     ac.pattern = tokens.takeFirst();
     ac.command = tokens.join(' ');
     g.autoCommands.append(ac);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExAugroupCommand(const ExCommand &cmd)
+{
+    // :aug[roup] {name} makes a group current so the autocommands that follow
+    // belong to it; ":augroup END" ends that. Plugins wrap their autocommands
+    // this way to be able to clear their own without touching anyone else's.
+    if (!cmd.matches("aug", "augroup"))
+        return false;
+
+    const QString name = cmd.args.trimmed();
+    if (name.compare("END", Qt::CaseInsensitive) == 0)
+        g.currentAutoGroup.clear();
+    else if (cmd.hasBang) // ":augroup! {name}" deletes it
+        g.autoCommands.removeIf([&name](const AutoCommand &ac) { return ac.group == name; });
+    else
+        g.currentAutoGroup = name;
     return true;
 }
 
@@ -11290,6 +11329,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExSilentCommand(cmd)
         || handleExModifierCommand(cmd)
         || handleExAutocmdCommand(cmd)
+        || handleExAugroupCommand(cmd)
         || handleExDoAutocmdCommand(cmd)
         || handleExCommandDefCommand(cmd)
         || handleExSetFileTypeCommand(cmd)

@@ -227,6 +227,7 @@ private slots:
     void test_vim_script_ex_commands();
     void test_vim_script_funcref();
     void test_vim_script_autocmd();
+    void test_vim_script_augroup();
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim_script_positions();
@@ -6676,6 +6677,68 @@ void FakeVimTester::test_vim_script_funcref()
     QCOMPARE(echo("filter([1, 2, 3, 4], {i, v -> v % 2 == 0})"), QLatin1String("[2, 4]"));
     QCOMPARE(echo("sort([3, 1, 2], {a, b -> a - b})"), QLatin1String("[1, 2, 3]"));
     QCOMPARE(echo("sort([1, 2, 3], {a, b -> b - a})"), QLatin1String("[3, 2, 1]"));
+}
+
+void FakeVimTester::test_vim_script_augroup()
+{
+    // ":augroup" puts the autocommands that follow in a group, which is how a
+    // plugin clears its own without touching anyone else's. Expected values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    data.doCommand("autocmd!");
+    source("let g:a = 0\n"
+           "let g:b = 0\n"
+           "augroup grpA\n"
+           "  autocmd!\n"
+           "  autocmd FileType zz let g:a += 1\n"
+           "augroup END\n"
+           "augroup grpB\n"
+           "  autocmd!\n"
+           "  autocmd FileType zz let g:b += 1\n"
+           "augroup END\n"
+           "set ft=zz\n");
+    QCOMPARE(echo("g:a . ',' . g:b"), QLatin1String("1,1"));
+
+    // Clearing one group leaves the other in place.
+    source("augroup grpA\n"
+           "  autocmd!\n"
+           "augroup END\n"
+           "let g:a = 0\n"
+           "let g:b = 0\n"
+           "set ft=\n"
+           "set ft=zz\n");
+    QCOMPARE(echo("g:a . ',' . g:b"), QLatin1String("0,1"));
+
+    // A group named on the command itself works the same way.
+    source("let g:b = 0\n"
+           "autocmd grpB FileType yy let g:b += 10\n"
+           "set ft=\n"
+           "set ft=yy\n");
+    QCOMPARE(echo("g:b"), QLatin1String("10"));
+    source("autocmd! grpB\n"
+           "let g:b = 0\n"
+           "set ft=\n"
+           "set ft=yy\n");
+    QCOMPARE(echo("g:b"), QLatin1String("0"));
+
+    data.doCommand("autocmd!");
 }
 
 void FakeVimTester::test_vim_script_autocmd()
