@@ -7293,8 +7293,33 @@ void FakeVimTester::test_vim_map_cmd()
     data.setText("aaa" N "bbb" N "ccc");
     data.doKeys("dzl");
     QCOMPARE(data.text(), QByteArray("ccc"));
+    // The shape a plugin uses: put the cursor on one end, start selecting, then
+    // move to the other end. The moves must not undo the selection.
+    {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write("vim9script\n"
+                   "def Sel()\n"
+                   "  cursor(3, 1)\n"
+                   "  normal! V\n"
+                   "  cursor(2, 1)\n"
+                   "enddef\n");
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    }
+    data.doCommand("onoremap zs <Cmd>call Sel()<CR>");
+    data.setText("aaa" N "bbb" N "ccc" N "ddd");
+    data.doKeys("dzs");
+    // Both ends of the selection come out a line early, which is what keeps the
+    // comment text objects of Vim's comment plugin from working. The boundaries
+    // the plugin computes are right, so the fault is in how a selection placed
+    // one step at a time is handed back to the operator.
+    QEXPECT_FAIL("", "selection placed in steps is off by a line", Continue);
+    QCOMPARE(data.text(), QByteArray("aaa" N "ddd"));
+
     data.doCommand("ounmap zv");
     data.doCommand("ounmap zl");
+    data.doCommand("ounmap zs");
 
     data.doCommand("nunmap zc");
     data.doCommand("nunmap zs");
