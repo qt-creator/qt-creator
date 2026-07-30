@@ -50,7 +50,9 @@
 
 #include <qtapplicationmanager/appmanagerconstants.h>
 
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtcppkitinfo.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
@@ -2619,9 +2621,22 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             }
 
             // Workaround for QTCREATORBUG-19354:
-            bti.runEnvModifier = [this, buildKey](Environment &env, bool enabled) {
-                if (enabled)
-                    env.prependOrSetLibrarySearchPaths(librarySearchPaths(this, buildKey));
+            const FilePath qtBinPath = [this] {
+                if (const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit()))
+                    return qt->binPath();
+                return FilePath();
+            }();
+            bti.runEnvModifier = [this, buildKey, qtBinPath](Environment &env, bool enabled) {
+                if (!enabled)
+                    return;
+                env.prependOrSetLibrarySearchPaths(librarySearchPaths(this, buildKey));
+                // On Windows an application locates its Qt runtime DLLs via PATH. CMake's
+                // library directories point at Qt's import-lib (lib) directory, not the DLL
+                // (bin) directory, so add Qt's bin explicitly. Without it a Qt application
+                // started on a (remote) Windows device exits before main() because Qt6*.dll
+                // cannot be found.
+                if (env.osType() == OsTypeWindows && !qtBinPath.isEmpty())
+                    env.prependOrSetPath(qtBinPath);
             };
 
             appTargetList.append(bti);

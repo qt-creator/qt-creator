@@ -24,6 +24,7 @@ private:
     void handleKitUpdate() override;
 
     Utils::Environment m_remoteEnvironment{Utils::OsTypeLinux};
+    bool m_remoteEnvironmentFetched = false;
 };
 
 } // namespace Remote
