@@ -7489,8 +7489,8 @@ bool FakeVimHandler::Private::handleExUndoRedoCommand(const ExCommand &cmd)
 {
     // :undo
     // :redo
-    bool undo = (cmd.cmd == "u" || cmd.cmd == "un" || cmd.cmd == "undo");
-    if (!undo && cmd.cmd != "red" && cmd.cmd != "redo")
+    bool undo = cmd.matches("u", "undo");
+    if (!undo && !cmd.matches("red", "redo"))
         return false;
 
     undoRedo(undo);
@@ -7616,7 +7616,7 @@ static bool vim9EndsOpen(const QString &s)
 bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 {
     // :source
-    if (cmd.cmd != "so" && cmd.cmd != "source")
+    if (!cmd.matches("so", "source"))
         return false;
 
     QString fileName = replaceTildeWithHome(cmd.args);
@@ -9072,7 +9072,7 @@ bool FakeVimHandler::Private::setOption(const QString &name, const VimValue &val
 bool FakeVimHandler::Private::handleExCallCommand(const ExCommand &cmd)
 {
     // :call {func}({args}) - evaluate a function call for its side effects.
-    if (cmd.cmd != "call")
+    if (!cmd.matches("cal", "call"))
         return false;
     VimValue result;
     QString error;
@@ -9611,7 +9611,7 @@ bool FakeVimHandler::Private::invokeCallable(const VimValue &callable,
 bool FakeVimHandler::Private::handleExUnletCommand(const ExCommand &cmd)
 {
     // :unlet[!] {var} ...
-    if (cmd.cmd != "unlet")
+    if (!cmd.matches("unl", "unlet"))
         return false;
 
     const QStringList names = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
@@ -9636,8 +9636,9 @@ bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 {
     // :echo / :echomsg / :echon evaluate their arguments, joining with a space;
     // :echoerr shows the result as an error.
-    if (cmd.cmd != "echo" && cmd.cmd != "echom" && cmd.cmd != "echomsg"
-        && cmd.cmd != "echon" && cmd.cmd != "echoerr" && cmd.cmd != "echoe")
+    const bool isError = cmd.matches("echoe", "echoerr");
+    if (!isError && !cmd.matches("ec", "echo") && !cmd.matches("echom", "echomsg")
+        && !cmd.matches("echon", "echon"))
         return false;
 
     VimExpr e(this, exprText(cmd));
@@ -9650,7 +9651,6 @@ bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
         }
         parts.append(v.toString());
     }
-    const bool isError = cmd.cmd == "echoerr" || cmd.cmd == "echoe";
     showMessage(isError ? MessageError : MessageInfo, parts.join(' '));
     return true;
 }
@@ -9659,7 +9659,7 @@ bool FakeVimHandler::Private::handleExSilentCommand(const ExCommand &cmd)
 {
     // :silent[!] {command} - run the command with messages (and, with "!",
     // errors) suppressed.
-    if (cmd.cmd != "silent" && cmd.cmd != "sil")
+    if (!cmd.matches("sil", "silent"))
         return false;
 
     ++m_messageSilence;
@@ -9708,7 +9708,7 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
 {
     // :autocmd [group] {event} {pattern} {command} - register a command; a bare
     // :autocmd! clears all registered autocommands.
-    if (cmd.cmd != "autocmd" && cmd.cmd != "au")
+    if (!cmd.matches("au", "autocmd"))
         return false;
 
     QStringList tokens = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
@@ -9740,7 +9740,7 @@ void FakeVimHandler::Private::setFileType(const QString &type)
 bool FakeVimHandler::Private::handleExSetFileTypeCommand(const ExCommand &cmd)
 {
     // :setf[iletype] {name}
-    if (cmd.cmd != "setf" && cmd.cmd != "setfiletype")
+    if (!cmd.matches("setf", "setfiletype"))
         return false;
     setFileType(cmd.args.trimmed());
     return true;
@@ -9749,7 +9749,7 @@ bool FakeVimHandler::Private::handleExSetFileTypeCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExDoAutocmdCommand(const ExCommand &cmd)
 {
     // :doautocmd {event} - fire the matching autocommands now.
-    if (cmd.cmd != "doautocmd" && cmd.cmd != "doau")
+    if (!cmd.matches("doau", "doautocmd"))
         return false;
 
     const QStringList tokens = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
@@ -9769,15 +9769,15 @@ bool FakeVimHandler::Private::handleExCommandDefCommand(const ExCommand &cmd)
     // :command[!] [-attributes] {Name} {replacement}   (define a user command)
     // :comclear                                         (remove all)
     // :delcommand {Name}                                (remove one)
-    if (cmd.cmd == "comclear") {
+    if (cmd.matches("comc", "comclear")) {
         m_userCommands.clear();
         return true;
     }
-    if (cmd.cmd == "delcommand" || cmd.cmd == "delc") {
+    if (cmd.matches("delc", "delcommand")) {
         m_userCommands.remove(cmd.args.trimmed());
         return true;
     }
-    if (cmd.cmd != "command" && cmd.cmd != "com")
+    if (!cmd.matches("com", "command"))
         return false;
 
     QString rest = cmd.args.trimmed();
@@ -9860,7 +9860,7 @@ bool FakeVimHandler::Private::handleExExecuteCommand(const ExCommand &cmd)
 {
     // :execute {expr}... - evaluate the arguments, join with a space and run
     // the result as an ex command line.
-    if (cmd.cmd != "exe" && cmd.cmd != "execute")
+    if (!cmd.matches("exe", "execute"))
         return false;
 
     VimExpr e(this, exprText(cmd));
