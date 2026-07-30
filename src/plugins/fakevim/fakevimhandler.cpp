@@ -58,10 +58,12 @@
 #include <QTextDocumentFragment>
 #include <QTextEdit>
 #include <QMimeData>
+#include <QDateTime>
 #include <QDir>
 
 #include <algorithm>
 #include <climits>
+#include <ctime>
 #include <functional>
 #include <optional>
 
@@ -9716,7 +9718,7 @@ static bool isBuiltinFunction(const QString &name)
         "join", "keys", "len", "line", "map", "match", "matchstr", "max",
         "min", "nr2char", "printf", "range", "readfile", "remove", "repeat",
         "reverse", "search", "setline", "setpos", "sort", "split", "str2nr",
-        "stridx", "string", "strlen", "strpart", "substitute", "synID",
+        "strftime", "stridx", "string", "strlen", "strpart", "substitute", "synID",
         "synIDattr", "synstack", "tolower", "toupper", "trim", "type",
         "values", "writefile"
     };
@@ -10282,6 +10284,32 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         file.write(text.toUtf8());
         file.close();
         *result = VimValue(qlonglong(0));
+    } else if (name == "strftime") {
+        // strftime({format} [, {time}]) - the C library does the formatting, so
+        // the conversions are the ones Vim documents. The parts are filled from
+        // a QDateTime rather than localtime() to keep this off platform calls,
+        // which leaves the time zone unset and "%Z" and "%z" with nothing to
+        // report.
+        const QDateTime when = args.size() > 1
+            ? QDateTime::fromSecsSinceEpoch(qint64(arg(1).toNumber()))
+            : QDateTime::currentDateTime();
+        const QDate date = when.date();
+        const QTime time = when.time();
+        std::tm parts = {};
+        parts.tm_sec = time.second();
+        parts.tm_min = time.minute();
+        parts.tm_hour = time.hour();
+        parts.tm_mday = date.day();
+        parts.tm_mon = date.month() - 1;
+        parts.tm_year = date.year() - 1900;
+        parts.tm_wday = date.dayOfWeek() % 7; // Qt counts from Monday, tm from Sunday
+        parts.tm_yday = date.dayOfYear() - 1;
+        parts.tm_isdst = -1;
+        const QByteArray format = arg(0).toString().toLocal8Bit();
+        char buffer[1024];
+        const size_t used = std::strftime(buffer, sizeof(buffer),
+                                          format.constData(), &parts);
+        *result = VimValue(QString::fromLocal8Bit(buffer, int(used)));
     } else if (name == "did_filetype") {
         *result = VimValue(qlonglong(didFileType() ? 1 : 0));
     } else if (name == "expand") {

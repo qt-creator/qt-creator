@@ -5754,8 +5754,21 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("exists('*g:MyFunc')"), QLatin1String("1"));
     QCOMPARE(echo("exists('*Ref')"), QLatin1String("1")); // a variable holding one
     QCOMPARE(echo("exists('?matchstr')"), QLatin1String("1"));
-    // A function Vim has but this does not is honestly reported as missing.
-    QCOMPARE(echo("exists('*strftime')"), QLatin1String("0"));
+    QCOMPARE(echo("exists('*strftime')"), QLatin1String("1"));
+
+    // strftime(). What a conversion turns into depends on the time zone, so
+    // check the shape rather than a fixed moment.
+    QCOMPARE(echo("strftime('100%%')"), QLatin1String("100%"));
+    QCOMPARE(echo("strftime('literal')"), QLatin1String("literal"));
+    QCOMPARE(echo("strlen(strftime('%Y-%m-%d'))"), QLatin1String("10"));
+    QCOMPARE(echo("strftime('%Y-%m-%d %H:%M:%S', 0) "
+                  "=~ '^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d$'"),
+             QLatin1String("1"));
+    // The turn of the millennium, whichever side of it the zone falls on. The
+    // alternation needs "\v", since a bare "|" is literal in a magic pattern.
+    QCOMPARE(echo("strftime('%Y-%m-%d', 946684800) "
+                  "=~ '\\v^(1999-12-31|2000-01-01)$'"), QLatin1String("1"));
+    QCOMPARE(echo("strlen(strftime('%a', 946684800))"), QLatin1String("3"));
 
     // Buffer-backed builtins.
     data.setText("one" N "two" N "three");
