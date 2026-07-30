@@ -9,6 +9,14 @@ Item {
         function helper() { return doubled }
         return backend.process(helper()) // MARKER: qml breakpoint line
     }
+    function throwsError() {
+        throw new Error("boom")
+    }
+    Timer {
+        interval: 1000
+        running: true
+        onTriggered: throwsError()
+    }
     Component.onCompleted: {
         compute(41)
         Qt.callLater(compute, 41)

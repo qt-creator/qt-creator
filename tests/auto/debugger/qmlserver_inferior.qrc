@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qmlserver_inferior.qml</file>
+    </qresource>
+</RCC>

@@ -7,6 +7,7 @@ Project {
         Depends { name: "Utils" }
         Depends { name: "Qt.network" }
         Depends { name: "qmlstack_inferior"; required: false }
+        Depends { name: "qmlserver_inferior"; required: false }
         Depends { name: "qmlmix_inferior"; required: false }
         Group {
             name: "Sources from Debugger plugin"
@@ -31,6 +32,9 @@ Project {
             if (qmlstack_inferior.present) {
                 defines.push('QMLSTACK_INFERIOR_EXECUTABLE="' + destinationDirectory + '"');
             }
+            if (qmlserver_inferior.present) {
+                defines.push('QMLSERVER_INFERIOR_EXECUTABLE="' + destinationDirectory + '"');
+            }
             if (qmlmix_inferior.present) {
                 defines.push('QMLMIX_INFERIOR_EXECUTABLE="' +  destinationDirectory + '"');
             }
@@ -40,6 +44,7 @@ Project {
     }
     references: [
         "qmlstack_inferior.qbs",
+        "qmlserver_inferior.qbs",
         "qmlmix_inferior.qbs",
     ]
 }

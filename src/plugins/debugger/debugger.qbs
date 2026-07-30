@@ -163,6 +163,7 @@ QtcPlugin {
             "interactiveinterpreter.cpp", "interactiveinterpreter.h",
             "qmlengine.cpp", "qmlengine.h",
             "qmlengineutils.cpp", "qmlengineutils.h",
+            "qmlimpl.cpp", "qmlimpl.h",
             "qmlinspectoragent.cpp", "qmlinspectoragent.h",
             "qmlv8debuggerclientconstants.h"
         ]

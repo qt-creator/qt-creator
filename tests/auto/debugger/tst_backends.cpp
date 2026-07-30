@@ -6,6 +6,7 @@
 #include "gdb/gdbimpl.h"
 #include "lldb/lldbimpl.h"
 #include "pdb/pdbimpl.h"
+#include "qml/qmlimpl.h"
 
 #include <utils/algorithm.h>
 #include <utils/elfreader.h>
@@ -73,6 +74,7 @@ enum class Backend {
     Gdb,
     Lldb,
     Pdb,
+    Qml,
 };
 Q_DECLARE_METATYPE(Backend)
 
@@ -233,6 +235,8 @@ static QString backendName(Backend backend)
         return "lldb";
     case Backend::Pdb:
         return "pdb";
+    case Backend::Qml:
+        return "qml";
     }
     return {};
 }
@@ -253,6 +257,7 @@ static QString printCommand(Backend backend, const QString &expression)
     case Backend::Lldb:
         return "expr " + expression;
     case Backend::Pdb:
+    case Backend::Qml:
         return expression;
     }
     return {};
@@ -710,6 +715,9 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
                                Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
+    case Backend::Qml:
+        return std::make_unique<DebuggerBackend>(std::make_unique<QmlImpl>(QmlImplStartData{
+            .inferiorStartData = AttachToQmlServerData{}}));
     }
     return nullptr;
 }
@@ -733,6 +741,9 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
     case Backend::Pdb:
         break;
+    case Backend::Qml:
+        return std::make_unique<DebuggerBackend>(std::make_unique<QmlImpl>(QmlImplStartData{
+            .inferiorStartData = inferiorStartData}));
     }
     return nullptr;
 }
@@ -811,6 +822,32 @@ void tst_backends::initTestCase()
     m_hasNativeCallHook = hasNativeCallHook();
     qWarning("qt_v4AboutToCallNativeMethodHook: %s",
              m_hasNativeCallHook ? "found" : "NOT found");
+
+#ifdef QMLSERVER_INFERIOR_EXECUTABLE
+    const FilePath qmlInferior = (FilePath::fromUserInput(QMLSERVER_INFERIOR_EXECUTABLE)
+                                  / "qmlserver_inferior").withExecutableSuffix();
+    if (qmlInferior.isExecutableFile()) {
+        InferiorTestData qmlInferiorData;
+        qmlInferiorData.source = FilePath::fromUserInput("qmlserver_inferior.qml");
+        qmlInferiorData.executable = qmlInferior;
+        qmlInferiorData.breakpointLine = qmlMarkerLine("qmlserver_inferior.qml",
+                                                      "// breakpoint line");
+        qmlInferiorData.secondBreakpointLine = qmlMarkerLine("qmlserver_inferior.qml",
+                                                            "// second breakpoint line");
+        QVERIFY(qmlInferiorData.breakpointLine > 0);
+        QVERIFY(qmlInferiorData.secondBreakpointLine > 0);
+        qmlInferiorData.localMarker = "value";
+        qmlInferiorData.functionMarker = "compute";
+        qmlInferiorData.expandableLocal = "nested";
+        qmlInferiorData.expandableChild = "inner";
+        qmlInferiorData.inspectorObject = "root";
+        qmlInferiorData.inspectorProperty = "globalValue";
+        qmlInferiorData.inspectorPropertyExpression = "globalValue";
+        qmlInferiorData.enableToggleWireMarker = "changebreakpoint";
+        qmlInferiorData.inspectorOrphanObject = "orphanObject";
+        m_backendData[Backend::Qml].inferiorData = qmlInferiorData;
+    }
+#endif
 
     const FilePath dumperDir = FilePath::fromUserInput(DUMPERDIR);
     if (!dumperDir.exists())
@@ -5489,6 +5526,13 @@ void tst_backends::attachesToQmlServerAndStopsAtBreakpoint()
     debuggerBackend->clearEvents();
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
                               "breakpoint in compute() never signaled a stop", s_timeout);
+
+    // A stop the engine asked for is a StopOk, not a spontaneous one - an already
+    // stopped inferior has to answer right away.
+    debuggerBackend->clearEvents();
+    engine->execute({ExecutionCommand::Interrupt});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk),
+                              "interrupt while stopped never reported StopOk", s_timeout);
 
     debuggerBackend->clearEvents();
     engine->shutdownEngine();

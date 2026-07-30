@@ -73,6 +73,7 @@ add_qtc_plugin(Debugger
     #qml/qmlcppengine.cpp qml/qmlcppengine.h
     qml/qmlengine.cpp qml/qmlengine.h
     qml/qmlengineutils.cpp qml/qmlengineutils.h
+    qml/qmlimpl.cpp qml/qmlimpl.h
     qml/qmlinspectoragent.cpp qml/qmlinspectoragent.h
     qml/qmlv8debuggerclientconstants.h
     registerhandler.cpp registerhandler.h
