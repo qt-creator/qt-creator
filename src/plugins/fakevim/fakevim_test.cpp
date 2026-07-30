@@ -5757,6 +5757,24 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("exists('?matchstr')"), QLatin1String("1"));
     QCOMPARE(echo("exists('*strftime')"), QLatin1String("1"));
 
+    // Buffer variables. Only the buffer in hand is reachable here, which is
+    // what a script asking about its own needs. Values taken from Vim 9.1.
+    data.doCommand("let b:mine = 'hello'");
+    QCOMPARE(echo("bufnr('%') > 0"), QLatin1String("1"));
+    QCOMPARE(echo("getbufvar('%', 'mine')"), QLatin1String("hello"));
+    QCOMPARE(echo("getbufvar('%', 'nosuch', 'fallback')"), QLatin1String("fallback"));
+    // The name is taken as it stands, so "b:mine" is a different name.
+    QCOMPARE(echo("'[' . getbufvar('%', 'b:mine') . ']'"), QLatin1String("[]"));
+    // Nothing there and nothing offered instead reads as empty, not as zero.
+    QCOMPARE(echo("'[' . getbufvar('%', 'nosuch') . ']'"), QLatin1String("[]"));
+    data.doCommand("call setbufvar('%', 'other', 'world')");
+    QCOMPARE(echo("b:other"), QLatin1String("world"));
+    // A "&name" reads the option; compare against it rather than a number,
+    // since the other tests leave it wherever they left it.
+    QCOMPARE(echo("getbufvar('%', '&shiftwidth') == &shiftwidth"), QLatin1String("1"));
+    // A buffer that cannot be reached reads as the default.
+    QCOMPARE(echo("getbufvar('zzz_no_such', 'mine', 'def')"), QLatin1String("def"));
+
     // strftime(). What a conversion turns into depends on the time zone, so
     // check the shape rather than a fixed moment.
     QCOMPARE(echo("strftime('100%%')"), QLatin1String("100%"));

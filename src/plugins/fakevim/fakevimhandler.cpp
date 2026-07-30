@@ -2527,6 +2527,8 @@ public:
     QString m_fileType; // matched by FileType autocommands
     // Buffer-local 'commentstring'; empty means derive it from the file type.
     QString m_commentString;
+    // What bufnr() reports for this buffer, taken on first use.
+    int m_bufferNumber = 0;
     // Syntax item names seen so far; a name's position here is its synID().
     QStringList m_syntaxNames;
     bool m_vim9 = false; // Vim9-script semantics are active
@@ -2698,6 +2700,7 @@ public:
                       VimValue *result, QString *error);
     bool searchFunction(const QList<VimValue> &args, VimValue *result, QString *error);
     CursorPosition lineColArg(const QString &spec) const;
+    int bufferNumber();
     QString expandKeyword(const QString &what) const;
     bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
                         VimValue *result, QString *error);
@@ -2899,6 +2902,7 @@ public:
         QList<AutoCommand> autoCommands;
         QHash<QString, QString> userCommands; // :command Name -> replacement
         QString currentAutoGroup; // group ":augroup" left current
+        int lastBufferNumber = 0; // hands out the number bufnr() reports
         // Vim9 ":export"ed names, keyed by canonical script path.
         QHash<QString, QMap<QString, VimValue>> moduleExports;
     } g;
@@ -9559,6 +9563,15 @@ CursorPosition FakeVimHandler::Private::lineColArg(const QString &spec) const
     return CursorPosition(-1, -1); // unknown: line()/col() report 0
 }
 
+// What bufnr() reports for this buffer. Numbers are handed out as they are
+// asked for, which is enough for a script to tell one buffer from another.
+int FakeVimHandler::Private::bufferNumber()
+{
+    if (m_bufferNumber == 0)
+        m_bufferNumber = ++g.lastBufferNumber;
+    return m_bufferNumber;
+}
+
 // expand(): the handful of "<...>" keywords and "%" that scripts rely on.
 QString FakeVimHandler::Private::expandKeyword(const QString &what) const
 {
@@ -9718,13 +9731,16 @@ bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args,
 static bool isBuiltinFunction(const QString &name)
 {
     static const QSet<QString> builtins = {
-        "abs", "add", "call", "char2nr", "col", "copy", "count", "cursor",
+        "abs", "add", "bufnr", "call", "char2nr", "col", "copy", "count",
+        "cursor",
         "did_filetype", "empty", "escape", "exists", "expand", "extend",
-        "filter", "funcref", "function", "get", "getcurpos", "getline",
+        "filter", "funcref", "function", "get", "getbufvar", "getcurpos",
+        "getline",
         "getpos", "has", "has_key", "indent", "index", "insert", "items",
         "join", "keys", "len", "line", "map", "match", "matchstr", "max",
         "min", "nr2char", "printf", "range", "readfile", "remove", "repeat",
-        "reverse", "search", "setline", "setpos", "sort", "split", "str2nr",
+        "reverse", "search", "setbufvar", "setline", "setpos", "sort", "split",
+        "str2nr",
         "strftime", "stridx", "string", "strlen", "strpart", "substitute", "synID",
         "synIDattr", "synstack", "tolower", "toupper", "trim", "type",
         "values", "writefile"
@@ -10291,6 +10307,49 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         file.write(text.toUtf8());
         file.close();
         *result = VimValue(qlonglong(0));
+    } else if (name == "bufnr") {
+        // bufnr([{buf}]) - only the buffer this handler works on can be named,
+        // since there is no list of the others to look through.
+        const QString a = args.isEmpty() ? QString("%") : arg(0).toString();
+        if (a == "%" || a == "" || a == "$")
+            *result = VimValue(qlonglong(bufferNumber()));
+        else if (!m_currentFileName.isEmpty() && m_currentFileName.contains(a))
+            *result = VimValue(qlonglong(bufferNumber()));
+        else
+            *result = VimValue(qlonglong(-1));
+    } else if (name == "getbufvar" || name == "setbufvar") {
+        // getbufvar({buf}, {varname} [, {def}]) and its setter. Only this
+        // buffer is reachable; anything else reads as the default and is not
+        // written.
+        const QString which = arg(0).toString();
+        const bool isThisBuffer = which.isEmpty() || which == "%"
+            || int(arg(0).toNumber()) == bufferNumber()
+            || (!m_currentFileName.isEmpty() && m_currentFileName.contains(which));
+        QString varName = arg(1).toString();
+        const bool isOption = varName.startsWith('&');
+        if (isOption)
+            varName = varName.mid(1);
+        // The name is taken as it stands: Vim looks for a buffer variable
+        // called exactly that, so "b:mine" is not the same as "mine".
+
+        if (name == "getbufvar") {
+            VimValue found;
+            bool ok = false;
+            if (isThisBuffer)
+                ok = isOption ? optionValue(varName, &found)
+                              : variableValue("b:" + varName, &found);
+            // Nothing there and nothing offered instead reads as empty.
+            *result = ok ? found
+                         : (args.size() > 2 ? arg(2) : VimValue(QString()));
+        } else {
+            if (isThisBuffer) {
+                if (isOption)
+                    setOption(varName, arg(2));
+                else
+                    setVariable("b:" + varName, arg(2));
+            }
+            *result = VimValue(qlonglong(0));
+        }
     } else if (name == "strftime") {
         // strftime({format} [, {time}]) - the C library does the formatting, so
         // the conversions are the ones Vim documents. The parts are filled from
