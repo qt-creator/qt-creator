@@ -230,6 +230,7 @@ private slots:
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim_script_positions();
+    void test_vim_script_regex_zs_ze();
     void test_vim_script_operatorfunc();
     void test_vim9_basics();
     void test_vim9_def();
@@ -5859,6 +5860,28 @@ void FakeVimTester::test_vim_script_operatorfunc()
     data.doCommand("set operatorfunc=");
     data.doKeys("gg0g@w");
     QVERIFY(message.contains("operatorfunc"));
+}
+
+void FakeVimTester::test_vim_script_regex_zs_ze()
+{
+    // Vim's \zs and \ze move the reported match start and end.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("matchstr('foobar', 'foo\\zsbar')"), QLatin1String("bar"));
+    QCOMPARE(echo("matchstr('foobar', 'foo\\zebar')"), QLatin1String("foo"));
+    // A trailing "[" opens no character class; Vim matches it literally.
+    QCOMPARE(echo("matchstr('a name[3]', '[^. ]*\\ze[')"), QLatin1String("name"));
+    QCOMPARE(echo("substitute('foobar', 'foo\\zsbar', 'X', '')"), QLatin1String("fooX"));
+    QCOMPARE(echo("substitute('foobar', 'foo\\zebar', 'X', '')"), QLatin1String("Xbar"));
 }
 
 void FakeVimTester::test_vim_script_expr_mapping()

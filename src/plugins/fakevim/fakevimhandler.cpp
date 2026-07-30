@@ -436,7 +436,22 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
     bool embraced = false;
     bool range = false;
     bool curly = false;
+    bool zmark = false; // saw "\z", waiting for the "s" or "e"
+    bool lookahead = false; // a "\ze" opened a "(?=" that has to be closed
     for (const QChar &c : needle) {
+        if (zmark) {
+            zmark = false;
+            if (c == 's') { // \zs: the match starts here
+                pattern.append("\\K");
+                continue;
+            }
+            if (c == 'e') { // \ze: the match ends here
+                pattern.append("(?=");
+                lookahead = true;
+                continue;
+            }
+            pattern.append("\\z"); // not \zs or \ze, keep it and handle c below
+        }
         if (brace) {
             brace = false;
             if (c == ']') {
@@ -516,6 +531,8 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                 pattern.append("[^0-9A-Fa-f]");
             else if (c == '=')
                 pattern.append("?");
+            else if (c == 'z')
+                zmark = true;
             else {
                 pattern.append('\\');
                 pattern.append(c);
@@ -535,7 +552,9 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
     if (escape)
         pattern.append('\\');
     else if (brace)
-        pattern.append('[');
+        pattern.append("\\["); // a trailing "[" opens no class; Vim takes it literally
+    if (lookahead)
+        pattern.append(')');
 
     return QRegularExpression(pattern, initialIgnoreCase ? QRegularExpression::CaseInsensitiveOption
                                                          : QRegularExpression::NoPatternOption);
