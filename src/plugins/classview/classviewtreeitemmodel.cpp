@@ -95,7 +95,12 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
             }
         }
         break;
-    case Qt::ToolTipRole:
+    case Qt::ToolTipRole: {
+            const QVariant toolTip = QStandardItemModel::data(index, Qt::ToolTipRole);
+            if (!toolTip.toString().isEmpty())
+                return toolTip;
+        }
+        [[fallthrough]];
     case Qt::DisplayRole: {
             const SymbolInformation &inf = Internal::symbolInformationFromItem(itemFromIndex(index));
 

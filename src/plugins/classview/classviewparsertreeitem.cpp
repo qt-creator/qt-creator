@@ -287,6 +287,7 @@ void ParserTreeItem::fetchMore(QStandardItem *item) const
                 ProjectExplorer::Project *project = ProjectManager::projectForFile(filePath);
                 if (project)
                     add->setIcon(project->containerNode()->icon());
+                add->setToolTip(filePath.toUserOutput());
             }
 
             // draggable
