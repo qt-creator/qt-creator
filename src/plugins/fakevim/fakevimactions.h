@@ -155,6 +155,10 @@ public:
     // Name of the function "g@" calls; set from a script, no UI.
     FvStringAspect operatorFunc;
 
+    // Read by commenting scripts; usually set per file type from a script.
+    FvStringAspect commentString;
+    FvBoolAspect modifiable;
+
     // Time out on a mapping while waiting for the rest of a mapped sequence.
     FvBoolAspect timeout;
     FvIntegerAspect timeoutlen;

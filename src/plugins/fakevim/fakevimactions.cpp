@@ -105,6 +105,8 @@ FakeVimSettings::FakeVimSettings()
     setup(&clipboard,      {},    "Clipboard",      "cb",  "");
     setup(&formatOptions,  {},    "formatoptions",  "fo",  "");
     setup(&operatorFunc,   {},    "OperatorFunc",   "opfunc", "");
+    setup(&commentString,  "// %s", "CommentString", "cms", "");
+    setup(&modifiable,     true,  "Modifiable",     "ma",  "");
 
     // Emulated plugins
     setup(&emulateVimCommentary, false, "commentary", {}, "vim-commentary");

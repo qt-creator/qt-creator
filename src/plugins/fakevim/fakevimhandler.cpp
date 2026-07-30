@@ -2403,6 +2403,7 @@ public:
     struct UserFunction {
         QStringList params;
         QStringList defaults; // parallel to params; "" if no default value
+        QString varargName; // Vim9 "...name": binds the extra arguments as a list
         QList<ExCommand> body;
         bool vim9 = false; // a :def function (bare-name args, Vim9 semantics)
     };
@@ -2416,7 +2417,9 @@ public:
     // Vim9 ":export"ed names of a sourced script, keyed by canonical file
     // path; built by handleExSourceCommand, consumed by handleExImportCommand.
     QHash<QString, QMap<QString, VimValue>> m_moduleExports;
-    QStringList m_scriptDirStack; // directories of scripts currently sourcing
+    QStringList m_scriptFileStack; // scripts currently sourcing, innermost last
+    QStringList m_callStack; // user functions currently running, for <stack>
+    QSet<QString> m_sourcesInFlight; // guards against :source/:import cycles
     QList<QHash<QString, VimValue>> m_localScopes;
     bool m_returning = false;
     VimValue m_returnValue;
@@ -2572,12 +2575,14 @@ public:
     QHash<QString, VimValue> *variableStore(const QString &name, QString *key);
     void collectFunction(const QList<ExCommand> &cmds, int &index, bool active,
                          const ExCommand &header);
-    VimValue callUserFunction(const UserFunction &fn, const QList<VimValue> &args);
+    VimValue callUserFunction(const QString &name, const UserFunction &fn,
+                              const QList<VimValue> &args);
     bool optionValue(const QString &name, VimValue *result);
     bool setOption(const QString &name, const VimValue &value);
     bool callFunction(const QString &name, const QList<VimValue> &args,
                       VimValue *result, QString *error);
     CursorPosition lineColArg(const QString &spec) const;
+    QString expandKeyword(const QString &what) const;
     bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
                         VimValue *result, QString *error);
     bool handleExLetCommand(const ExCommand &cmd);
@@ -2602,6 +2607,7 @@ public:
         return m_loopSignal != NoSignal || m_returning || m_throwing || m_finishing;
     }
     bool handleExSilentCommand(const ExCommand &cmd);
+    bool handleExModifierCommand(const ExCommand &cmd);
     bool handleExAutocmdCommand(const ExCommand &cmd);
     bool handleExDoAutocmdCommand(const ExCommand &cmd);
     bool handleExCommandDefCommand(const ExCommand &cmd);
@@ -7554,12 +7560,25 @@ static QString vim9Statement(const QString &line)
         return "let " + as.captured(1) + " " + op + " " + as.captured(3);
     }
 
-    // Bare call: a capitalized/scoped/method name applied to "(".
+    // Bare call: in Vim9 a statement may be a plain function call, including a
+    // builtin like "add(list, item)". Everything shaped like "name(" is one,
+    // except the statement keywords that can also be written without a space.
     static const QRegularExpression callRe(
         "^([A-Za-z_][A-Za-z0-9_:#]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)\\s*\\(.*$");
-    if (callRe.match(line).hasMatch()
-        && (line.at(0).isUpper() || line.contains('.') || line.contains('#'))) {
-        return "call " + line;
+    const QRegularExpressionMatch call = callRe.match(line);
+    if (call.hasMatch()) {
+        static const QSet<QString> keywords = {
+            "if", "elseif", "else", "endif", "while", "endwhile", "for",
+            "endfor", "return", "break", "continue", "throw", "try", "catch",
+            "finally", "endtry", "def", "enddef", "function", "endfunction",
+            "var", "const", "final", "unlet", "echo", "echon", "echomsg",
+            "echoerr", "execute", "exe", "eval", "call", "import", "export",
+            "silent", "normal", "set", "setlocal", "augroup", "autocmd",
+            "command", "source", "delete", "put", "copy", "move", "sort",
+            "print", "substitute", "global", "range"
+        };
+        if (!keywords.contains(call.captured(1)))
+            return "call " + line;
     }
 
     return line;
@@ -7627,6 +7646,13 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     }
     const QFileInfo fileInfo(fileName);
     const QString canonicalPath = fileInfo.canonicalFilePath();
+
+    // A script that (directly or through an import) sources itself would
+    // recurse until the stack is gone, so refuse a file already in flight.
+    if (m_sourcesInFlight.contains(canonicalPath)) {
+        showMessage(MessageError, Tr::tr("Recursive :source of %1").arg(fileName));
+        return true;
+    }
 
     // Detect the encoding like Vim's 'fileencodings': prefer UTF-8 and fall
     // back to the local 8-bit encoding for invalid byte sequences
@@ -7737,9 +7763,11 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
 
     const bool savedVim9 = m_vim9;
     m_vim9 = fileVim9;
-    m_scriptDirStack.append(fileInfo.canonicalPath());
+    m_scriptFileStack.append(canonicalPath);
+    m_sourcesInFlight.insert(canonicalPath);
     runExCommands(cmds);
-    m_scriptDirStack.removeLast();
+    m_sourcesInFlight.remove(canonicalPath);
+    m_scriptFileStack.removeLast();
     m_vim9 = savedVim9;
 
     if (fileVim9 && !exportedNames.isEmpty() && !canonicalPath.isEmpty()) {
@@ -7768,7 +7796,8 @@ bool FakeVimHandler::Private::handleExImportCommand(const ExCommand &cmd)
         return false;
 
     QString args = cmd.args.trimmed();
-    if (args.startsWith("autoload "))
+    const bool autoload = args.startsWith("autoload ");
+    if (autoload)
         args = args.mid(9).trimmed();
     if (args.isEmpty() || (args.at(0) != '\'' && args.at(0) != '"')) {
         showMessage(MessageError, Tr::tr("Missing file name in :import"));
@@ -7785,11 +7814,25 @@ bool FakeVimHandler::Private::handleExImportCommand(const ExCommand &cmd)
     const QString alias = rest.startsWith("as ")
         ? rest.mid(3).trimmed() : QFileInfo(path).completeBaseName();
 
-    QString resolved = replaceTildeWithHome(path);
-    QFileInfo fi(resolved);
-    if (fi.isRelative() && !m_scriptDirStack.isEmpty())
-        fi.setFile(m_scriptDirStack.last() + '/' + resolved);
-    const QString canonicalPath = fi.canonicalFilePath();
+    const QString resolved = replaceTildeWithHome(path);
+    QString canonicalPath = QFileInfo(resolved).canonicalFilePath();
+    if (QFileInfo(resolved).isRelative() && !m_scriptFileStack.isEmpty()) {
+        // Vim finds an "import autoload" in the "autoload" directories along
+        // the runtimepath. There is no runtimepath here, so look next to the
+        // importing script: a packaged plugin has plugin/x.vim beside
+        // autoload/x.vim. Plain relative imports are script-relative.
+        const QString dir = QFileInfo(m_scriptFileStack.last()).canonicalPath();
+        QStringList candidates;
+        if (autoload)
+            candidates << dir + "/../autoload/" + resolved << dir + "/autoload/" + resolved;
+        candidates << dir + '/' + resolved;
+        canonicalPath.clear();
+        for (const QString &candidate : std::as_const(candidates)) {
+            canonicalPath = QFileInfo(candidate).canonicalFilePath();
+            if (!canonicalPath.isEmpty())
+                break;
+        }
+    }
     if (canonicalPath.isEmpty()) {
         showMessage(MessageError, Tr::tr("Cannot open file %1").arg(path));
         return true;
@@ -8835,6 +8878,39 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
         return true;
     }
     if (name == "v:version") { *result = VimValue(qlonglong(900)); return true; }
+
+    // A bare scope name like "g:" is a dictionary of that scope, as used by
+    // "get(g:, 'name', default)". This is a snapshot: assigning through it
+    // does not reach the variables themselves.
+    if (name.size() == 2 && name.at(1) == ':' && QString("gbwtslav").contains(name.at(0))) {
+        QMap<QString, VimValue> items;
+        if (name == "l:" || name == "a:") {
+            if (!m_localScopes.isEmpty()) {
+                const QHash<QString, VimValue> &frame = m_localScopes.last();
+                const bool wantArgs = name == "a:";
+                for (auto it = frame.cbegin(); it != frame.cend(); ++it) {
+                    if (it.key().startsWith("a:") == wantArgs)
+                        items.insert(wantArgs ? it.key().mid(2) : it.key(), it.value());
+                }
+            }
+        } else {
+            const bool global = name == "g:";
+            // Scan whichever map variableStore() would have used for the scope.
+            QString ignored;
+            const QHash<QString, VimValue> *store = variableStore(name, &ignored);
+            for (auto it = store->cbegin(); it != store->cend(); ++it) {
+                const QString &k = it.key();
+                const bool scoped = k.size() > 1 && k.at(1) == ':';
+                if (global && !scoped)
+                    items.insert(k, it.value());
+                else if (!global && scoped && k.startsWith(name))
+                    items.insert(k.mid(2), it.value());
+            }
+        }
+        *result = VimValue::dict(items);
+        return true;
+    }
+
     QString key;
     QHash<QString, VimValue> *store = variableStore(name, &key);
     const auto it = store->constFind(key);
@@ -9155,6 +9231,55 @@ CursorPosition FakeVimHandler::Private::lineColArg(const QString &spec) const
             return m.position(document());
     }
     return CursorPosition(-1, -1); // unknown: line()/col() report 0
+}
+
+// expand(): the handful of "<...>" keywords and "%" that scripts rely on.
+QString FakeVimHandler::Private::expandKeyword(const QString &what) const
+{
+    if (what == "<stack>") {
+        // Vim reports the source chain, e.g.
+        // "command line..function comment#Toggle[2]". Plugins pick the
+        // innermost function name out of it with a pattern anchored on the
+        // "[", most notably to set 'operatorfunc' to their own function, so
+        // the name here has to be one callFunction() can resolve again.
+        QString out = m_scriptFileStack.isEmpty()
+            ? QStringLiteral("command line") : m_scriptFileStack.last();
+        for (const QString &fn : m_callStack)
+            out += "..function " + fn + "[0]";
+        return out;
+    }
+    if (what == "<sfile>" || what == "<script>")
+        return m_scriptFileStack.isEmpty() ? QString() : m_scriptFileStack.last();
+    if (what == "%" || what == "<afile>")
+        return m_currentFileName;
+    if (what == "%:p")
+        return QFileInfo(m_currentFileName).absoluteFilePath();
+    if (what == "%:t")
+        return QFileInfo(m_currentFileName).fileName();
+    if (what == "%:e")
+        return QFileInfo(m_currentFileName).suffix();
+    if (what == "%:r")
+        return m_currentFileName.left(m_currentFileName.lastIndexOf('.'));
+    if (what == "%:h")
+        return QFileInfo(m_currentFileName).path();
+    if (what == "<cword>" || what == "<cWORD>") {
+        QTextCursor tc = m_cursor;
+        tc.select(what == "<cword>" ? QTextCursor::WordUnderCursor
+                                    : QTextCursor::BlockUnderCursor);
+        if (what == "<cword>")
+            return tc.selectedText();
+        // <cWORD> is delimited by whitespace only.
+        const QString line = tc.selectedText();
+        const int col = m_cursor.positionInBlock();
+        int from = col;
+        while (from > 0 && !line.at(from - 1).isSpace())
+            --from;
+        int to = col;
+        while (to < line.size() && !line.at(to).isSpace())
+            ++to;
+        return line.mid(from, to - from);
+    }
+    return QString();
 }
 
 bool FakeVimHandler::Private::callFunction(const QString &name,
@@ -9558,8 +9683,33 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
         *result = VimValue(lineContents(ln));
     } else if (name == "setline") {
-        setLineContents(int(arg(0).toNumber()), arg(1).toString());
+        // A list argument replaces consecutive lines starting at {lnum}.
+        const int first = int(arg(0).toNumber());
+        if (arg(1).isList()) {
+            const QList<VimValue> *l = arg(1).listData();
+            for (int i = 0; i < l->size(); ++i)
+                setLineContents(first + i, l->at(i).toString());
+        } else {
+            setLineContents(first, arg(1).toString());
+        }
         *result = VimValue(qlonglong(0));
+    } else if (name == "escape") {
+        QString s = arg(0).toString();
+        const QString chars = arg(1).toString();
+        QString out;
+        for (const QChar c : std::as_const(s)) {
+            if (chars.contains(c))
+                out += '\\';
+            out += c;
+        }
+        *result = VimValue(out);
+    } else if (name == "indent") {
+        // The indent of a line in screen columns, so a tab counts as 'tabstop'.
+        const QString a = arg(0).toString();
+        const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
+        *result = VimValue(qlonglong(indentation(lineContents(ln)).logical));
+    } else if (name == "expand") {
+        *result = VimValue(expandKeyword(arg(0).toString()));
     } else if (name == "function" || name == "funcref") {
         *result = VimValue::func(arg(0).toString());
     } else if (name == "call") {
@@ -9567,7 +9717,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                                                          : QList<VimValue>();
         return invokeCallable(arg(0), callArgs, result, error);
     } else if (m_userFunctions.contains(name)) {
-        *result = callUserFunction(m_userFunctions.value(name), args);
+        *result = callUserFunction(name, m_userFunctions.value(name), args);
     } else {
         // A variable may hold a funcref or lambda; call it.
         VimValue v;
@@ -9666,13 +9816,44 @@ bool FakeVimHandler::Private::handleExSilentCommand(const ExCommand &cmd)
     const bool savedSilenceErrors = m_silenceErrors;
     m_silenceErrors = m_silenceErrors || cmd.hasBang;
 
-    QString line = cmd.args;
+    QString line = m_vim9 ? vim9Statement(cmd.args) : cmd.args;
     ExCommand sub;
     while (parseExCommand(&line, &sub))
         handleExCommandHelper(sub);
 
     --m_messageSilence;
     m_silenceErrors = savedSilenceErrors;
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExModifierCommand(const ExCommand &cmd)
+{
+    // Command modifiers that prefix another command. Only ":noautocmd" has an
+    // effect here; the rest concern state FakeVim does not keep (the jump list
+    // is left alone, marks are not adjusted by these commands anyway), so they
+    // just run what follows.
+    const bool noAutocmd = cmd.matches("noa", "noautocmd");
+    if (!noAutocmd
+        && !cmd.matches("keepj", "keepjumps")
+        && !cmd.matches("kee", "keepmarks")
+        && !cmd.matches("keepa", "keepalt")
+        && !cmd.matches("keepp", "keeppatterns")
+        && !cmd.matches("loc", "lockmarks")
+        && !cmd.matches("uns", "unsilent")) {
+        return false;
+    }
+    const bool savedInAutocmd = m_inAutocmd;
+    if (noAutocmd)
+        m_inAutocmd = true; // the guard that keeps autocommands from firing
+
+    // What follows a modifier is a statement in its own right, so in Vim9 it
+    // may be a bare function call and needs the same rewriting as any line.
+    QString line = m_vim9 ? vim9Statement(cmd.args) : cmd.args;
+    ExCommand sub;
+    while (parseExCommand(&line, &sub))
+        handleExCommandHelper(sub);
+
+    m_inAutocmd = savedInAutocmd;
     return true;
 }
 
@@ -10226,8 +10407,16 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
             ? QStringList() : params.split(QRegularExpression("\\s*,\\s*"));
         for (QString p : rawParams) {
             p = p.trimmed();
-            if (p == "..." || p.startsWith("...")) // variadic marker
+            if (p.startsWith("...")) {
+                // Vim9 spells the variadic parameter "...name: type" and binds
+                // the extra arguments as a list under that name.
+                QString varName = p.mid(3).trimmed();
+                const int typeColon = varName.indexOf(':');
+                if (typeColon >= 0)
+                    varName = varName.left(typeColon).trimmed();
+                fn.varargName = varName;
                 continue;
+            }
             // A ":def" param can carry a ": type" and a "= default"; keep only
             // the name and (optional) default expression.
             QString def;
@@ -10244,7 +10433,19 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
         }
     }
 
-    while (index < cmds.size() && !isFunctionEnd(cmds.at(index).cmd)) {
+    // Vim9 ":def" nests (a nested def is a closure defined when the outer one
+    // runs), so stop at the matching end rather than the first one. The inner
+    // def/enddef pair stays in the body and is collected on execution.
+    int depth = 0;
+    while (index < cmds.size()) {
+        const QString &cmd = cmds.at(index).cmd;
+        if (isFunctionEnd(cmd)) {
+            if (depth == 0)
+                break;
+            --depth;
+        } else if (isFunctionStart(cmd)) {
+            ++depth;
+        }
         fn.body.append(cmds.at(index));
         ++index;
     }
@@ -10257,8 +10458,8 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
         showMessage(MessageError, Tr::tr("Invalid function definition: %1").arg(header.args));
 }
 
-VimValue FakeVimHandler::Private::callUserFunction(const UserFunction &fn,
-    const QList<VimValue> &args)
+VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
+    const UserFunction &fn, const QList<VimValue> &args)
 {
     // Bind arguments into a fresh local scope, run the body and return the
     // value from :return (or 0). Loop/return state is saved so nested and
@@ -10283,6 +10484,8 @@ VimValue FakeVimHandler::Private::callUserFunction(const UserFunction &fn,
         frame.insert("a:" + QString::number(i - fn.params.size() + 1), args.at(i));
     }
     frame.insert("a:000", VimValue::list(varargs));
+    if (!fn.varargName.isEmpty())
+        frame.insert(prefix + fn.varargName, VimValue::list(varargs));
 
     const LoopSignal savedSignal = m_loopSignal;
     const bool savedReturning = m_returning;
@@ -10293,8 +10496,10 @@ VimValue FakeVimHandler::Private::callUserFunction(const UserFunction &fn,
     m_vim9 = fn.vim9; // Vim9 expression semantics inside a :def body
 
     m_localScopes.append(frame);
+    m_callStack.append(name);
     int index = 0;
     execSequence(fn.body, index, true);
+    m_callStack.removeLast();
     m_localScopes.removeLast();
 
     const VimValue result = m_returning ? m_returnValue : VimValue();
@@ -10352,6 +10557,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExMoveCommand(cmd)
         || handleExJoinCommand(cmd)
         || handleExSilentCommand(cmd)
+        || handleExModifierCommand(cmd)
         || handleExAutocmdCommand(cmd)
         || handleExDoAutocmdCommand(cmd)
         || handleExCommandDefCommand(cmd)

@@ -230,7 +230,6 @@ private slots:
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim_script_positions();
-    void test_vim_script_regex_zs_ze();
     void test_vim_script_operatorfunc();
     void test_vim9_basics();
     void test_vim9_def();
@@ -239,6 +238,13 @@ private slots:
     void test_vim9_interpolation();
     void test_vim_heredoc();
     void test_vim9_import_export();
+    void test_vim9_import_autoload();
+    void test_vim9_nested_def();
+    void test_vim_script_scope_dict();
+    void test_vim_script_expand();
+    void test_vim_script_regex_zs_ze();
+    void test_vim_script_modifiers();
+    void test_vim_script_operator_plugin();
     void test_vim_file_info();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
@@ -5862,28 +5868,6 @@ void FakeVimTester::test_vim_script_operatorfunc()
     QVERIFY(message.contains("operatorfunc"));
 }
 
-void FakeVimTester::test_vim_script_regex_zs_ze()
-{
-    // Vim's \zs and \ze move the reported match start and end.
-    TestData data;
-    setup(&data);
-    QString message;
-    data.handler->commandBufferChanged.set(
-        [&](const QString &msg, int, int, int) { message = msg; });
-    auto echo = [&](const char *expr) -> QString {
-        message.clear();
-        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
-        return message;
-    };
-
-    QCOMPARE(echo("matchstr('foobar', 'foo\\zsbar')"), QLatin1String("bar"));
-    QCOMPARE(echo("matchstr('foobar', 'foo\\zebar')"), QLatin1String("foo"));
-    // A trailing "[" opens no character class; Vim matches it literally.
-    QCOMPARE(echo("matchstr('a name[3]', '[^. ]*\\ze[')"), QLatin1String("name"));
-    QCOMPARE(echo("substitute('foobar', 'foo\\zsbar', 'X', '')"), QLatin1String("fooX"));
-    QCOMPARE(echo("substitute('foobar', 'foo\\zebar', 'X', '')"), QLatin1String("Xbar"));
-}
-
 void FakeVimTester::test_vim_script_expr_mapping()
 {
     // ":inoremap <expr>" evaluates its right-hand side on each use
@@ -7073,6 +7057,268 @@ void FakeVimTester::test_vim_heredoc()
            "END\n"
            "g:v9 = lines\n");
     QCOMPARE(echo("g:v9"), QLatin1String("['first', 'second']"));
+}
+
+void FakeVimTester::test_vim9_import_autoload()
+{
+    // "import autoload 'x.vim'" is found in the autoload directory next to the
+    // importing script, the layout a packaged plugin uses.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QVERIFY(QDir(dir.path()).mkpath("autoload"));
+    QVERIFY(QDir(dir.path()).mkpath("plugin"));
+
+    QFile module(dir.path() + "/autoload/mod.vim");
+    QVERIFY(module.open(QIODevice::WriteOnly));
+    module.write("vim9script\n"
+                 "export def Twice(n: number): number\n"
+                 "  return n * 2\n"
+                 "enddef\n");
+    module.close();
+
+    QFile plugin(dir.path() + "/plugin/mod.vim");
+    QVERIFY(plugin.open(QIODevice::WriteOnly));
+    plugin.write("vim9script\n"
+                 "import autoload 'mod.vim'\n"
+                 "g:doubled = mod.Twice(21)\n");
+    plugin.close();
+
+    data.doCommand("source " + plugin.fileName());
+    QCOMPARE(echo("g:doubled"), QLatin1String("42"));
+
+    // A script importing itself must be refused rather than recurse until the
+    // stack is gone.
+    QFile loop(dir.path() + "/plugin/loop.vim");
+    QVERIFY(loop.open(QIODevice::WriteOnly));
+    loop.write("vim9script\n"
+               "import autoload 'loop.vim'\n"
+               "g:reached = 1\n");
+    loop.close();
+    message.clear();
+    data.doCommand("source " + loop.fileName());
+    QCOMPARE(echo("g:reached"), QLatin1String("1"));
+}
+
+void FakeVimTester::test_vim9_nested_def()
+{
+    // Vim9 ":def" nests: the inner function is defined when the outer one runs.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    // The outer "enddef" must not be swallowed by the inner one.
+    source("vim9script\n"
+           "def Outer(): number\n"
+           "  def Inner(): number\n"
+           "    return 7\n"
+           "  enddef\n"
+           "  return Inner() + 1\n"
+           "enddef\n"
+           "g:r = Outer()\n"
+           "g:after = 'reached'\n");
+    QCOMPARE(echo("g:r"), QLatin1String("8"));
+    QCOMPARE(echo("g:after"), QLatin1String("reached"));
+}
+
+void FakeVimTester::test_vim_script_scope_dict()
+{
+    // A bare scope name is a dictionary of that scope, as in get(g:, 'x', 1).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("let g:known = 5");
+    data.doCommand("let b:buf = 6");
+    QCOMPARE(echo("get(g:, 'known', 99)"), QLatin1String("5"));
+    QCOMPARE(echo("get(g:, 'missing', 99)"), QLatin1String("99"));
+    QCOMPARE(echo("has_key(g:, 'known')"), QLatin1String("1"));
+    QCOMPARE(echo("get(b:, 'buf', 0)"), QLatin1String("6"));
+    // A scoped name is not visible in the global scope dictionary.
+    QCOMPARE(echo("has_key(g:, 'b:buf')"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_script_expand()
+{
+    // expand() keywords. "<stack>" has to name a function that can be called
+    // again, which is how plugins install their own 'operatorfunc'.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("function Where() | let g:stack = expand('<stack>') "
+                   "| let g:sfile = expand('<sfile>') | endfunction");
+    data.doCommand("call Where()");
+    // Outside a script the chain starts at the command line, and the innermost
+    // entry is the function name followed by "[".
+    QCOMPARE(echo("g:stack"), QLatin1String("command line..function Where[0]"));
+    QCOMPARE(echo("matchstr(g:stack, '[^. ]*\\ze[')"), QLatin1String("Where"));
+    QCOMPARE(echo("'[' . g:sfile . ']'"), QLatin1String("[]"));
+
+    data.setText("alpha be" X "ta gamma");
+    QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
+}
+
+void FakeVimTester::test_vim_script_regex_zs_ze()
+{
+    // Vim's \zs and \ze move the reported match start and end.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("matchstr('foobar', 'foo\\zsbar')"), QLatin1String("bar"));
+    QCOMPARE(echo("matchstr('foobar', 'foo\\zebar')"), QLatin1String("foo"));
+    // A trailing "[" opens no character class; Vim matches it literally.
+    QCOMPARE(echo("matchstr('a name[3]', '[^. ]*\\ze[')"), QLatin1String("name"));
+    QCOMPARE(echo("substitute('foobar', 'foo\\zsbar', 'X', '')"), QLatin1String("fooX"));
+    QCOMPARE(echo("substitute('foobar', 'foo\\zebar', 'X', '')"), QLatin1String("Xbar"));
+}
+
+void FakeVimTester::test_vim_script_modifiers()
+{
+    // Command modifiers prefix another command; what follows is a statement in
+    // its own right, so in Vim9 it may be a bare function call.
+    TestData data;
+    setup(&data);
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    data.setText("one" N "two");
+    data.doCommand("noautocmd call setline(1, 'ONE')");
+    QCOMPARE(data.text(), QByteArray("ONE" N "two"));
+    // Abbreviated, and stacked with a second modifier.
+    data.doCommand("noa keepj call setline(2, 'TWO')");
+    QCOMPARE(data.text(), QByteArray("ONE" N "TWO"));
+
+    // In Vim9 the command after a modifier can be a bare call.
+    data.setText("a" N "b");
+    source("vim9script\n"
+           "def Fill()\n"
+           "  noautocmd keepjumps setline(1, ['x', 'y'])\n"
+           "enddef\n"
+           "Fill()\n");
+    QCOMPARE(data.text(), QByteArray("x" N "y"));
+}
+
+void FakeVimTester::test_vim_script_operator_plugin()
+{
+    // The shape a real Vim 9 plugin uses for a custom operator: an autoload
+    // module whose function sets 'operatorfunc' from expand('<stack>') and
+    // returns "g@", reached through a <Plug> mapping with <silent> <expr>.
+    TestData data;
+    setup(&data);
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QVERIFY(QDir(dir.path()).mkpath("autoload"));
+    QVERIFY(QDir(dir.path()).mkpath("plugin"));
+
+    QFile module(dir.path() + "/autoload/hash.vim");
+    QVERIFY(module.open(QIODevice::WriteOnly));
+    module.write("vim9script\n"
+                 "export def Toggle(...args: list<string>): string\n"
+                 "    if len(args) == 0\n"
+                 "        &opfunc = matchstr(expand('<stack>'), '[^. ]*\\ze[')\n"
+                 "        return 'g@'\n"
+                 "    endif\n"
+                 "    var [l1, l2] = [line(\"'[\"), line(\"']\")]\n"
+                 "    var lines = []\n"
+                 "    for n in range(l1, l2)\n"
+                 "        add(lines, '#' .. getline(n))\n"
+                 "    endfor\n"
+                 "    noautocmd keepjumps setline(l1, lines)\n"
+                 "    return ''\n"
+                 "enddef\n");
+    module.close();
+
+    QFile plugin(dir.path() + "/plugin/hash.vim");
+    QVERIFY(plugin.open(QIODevice::WriteOnly));
+    plugin.write("vim9script\n"
+                 "import autoload 'hash.vim'\n"
+                 "nnoremap <silent> <expr> <Plug>(hash-toggle) hash.Toggle()\n"
+                 "xnoremap <silent> <expr> <Plug>(hash-toggle) hash.Toggle()\n"
+                 "nnoremap <silent> <expr> <Plug>(hash-line) hash.Toggle() .. '_'\n"
+                 "nmap gz <Plug>(hash-toggle)\n"
+                 "xmap gz <Plug>(hash-toggle)\n"
+                 "nmap gzz <Plug>(hash-line)\n");
+    plugin.close();
+
+    data.doCommand("source " + plugin.fileName());
+
+    // Operator plus motion.
+    data.setText("aa" N "bb" N "cc");
+    data.doKeys("gg0gzj");
+    QCOMPARE(data.text(), QByteArray("#aa" N "#bb" N "cc"));
+
+    // The same operator from a visual selection, through the xmap.
+    data.setText("aa" N "bb" N "cc");
+    data.doKeys("gg0Vjgz");
+    QCOMPARE(data.text(), QByteArray("#aa" N "#bb" N "cc"));
+
+    // "." repeats the operator.
+    data.setText("aa" N "bb");
+    data.doKeys("gg0gzj");
+    data.doKeys("gg0.");
+    QCOMPARE(data.text(), QByteArray("##aa" N "##bb"));
+
+    // Mappings live in global state, so undo what this test installed.
+    data.doCommand("nunmap gz");
+    data.doCommand("nunmap gzz");
+    data.doCommand("xunmap gz");
+    data.doCommand("nunmap <Plug>(hash-toggle)");
+    data.doCommand("nunmap <Plug>(hash-line)");
+    data.doCommand("xunmap <Plug>(hash-toggle)");
+    data.doCommand("set opfunc=");
 }
 
 void FakeVimTester::test_vim9_import_export()
