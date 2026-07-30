@@ -57,6 +57,7 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QRegularExpression>
+#include <QUuid>
 
 #include <cctype>
 
@@ -268,6 +269,23 @@ void CdbEngine::handleSetupFailure(const QString &errorMessage)
     notifyEngineSetupFailed();
 }
 
+// Writes the cdb startup command script next to the inferior on the device and returns its
+// path, or an empty path (after reporting the failure) when it cannot be staged.
+FilePath CdbEngine::stageInitScript(const DebuggerRunParameters &sp, const QString &commands)
+{
+    FilePath dir = sp.inferior().workingDirectory;
+    if (dir.isEmpty())
+        dir = sp.inferior().command.executable().parentDir();
+    const FilePath scriptFile
+        = dir / ("qtc-cdb-" + QUuid::createUuid().toString(QUuid::Id128) + ".cmd");
+    if (const Result<qint64> res = scriptFile.writeFileContents(commands.toLocal8Bit()); !res) {
+        handleSetupFailure(Tr::tr("Cannot write the debugger startup script \"%1\": %2")
+                               .arg(scriptFile.toUserOutput(), res.error()));
+        return {};
+    }
+    return scriptFile;
+}
+
 void CdbEngine::setupEngine()
 {
     if (debug)
@@ -358,15 +376,35 @@ void CdbEngine::setupEngine()
     // Prepare command line.
     CommandLine debugger{sp.debugger().command};
     const bool isRemote = sp.startMode() == AttachToRemoteServer;
+    // "-a<name>" only takes a bare DLL name, which cdb resolves through
+    // _NT_DEBUGGER_EXTENSION_PATH. That variable cannot be relied on for a cdb on a device:
+    // the process runs in ProcessMode::Writer, for which the device process interface does not
+    // inject an environment (a shell wrapper would corrupt the command stream). Load the
+    // extension by its absolute device path instead. ".load" needs the full path and consumes
+    // the rest of the line, so it cannot share the single "-c" string with ".idle_cmd"; use a
+    // startup script ("-cf"), which takes one command per line.
+    const bool loadExtensionByPath = !cdbCommand.isLocal();
     if (isRemote) // Must be first
         debugger.addArgs({"-remote", sp.remoteChannel()});
-    else
+    else if (!loadExtensionByPath)
         debugger.addArg("-a" + m_extensionFileName);
 
+    // register idle (debuggee stop) notification
+    const QString idleCommand = ".idle_cmd " + m_extensionCommandPrefix + "idle";
+
     // Source line info/No terminal breakpoint / Pull extension
-    debugger.addArgs({"-lines", "-G",
-                      // register idle (debuggee stop) notification
-                      "-c", ".idle_cmd " + m_extensionCommandPrefix + "idle"});
+    debugger.addArgs({"-lines", "-G"});
+    if (loadExtensionByPath) {
+        const FilePath scriptFile = stageInitScript(
+            sp, ".load " + extensionDir.pathAppended(m_extensionFileName).nativePath() + '\n'
+                    + idleCommand + '\n');
+        if (scriptFile.isEmpty())
+            return; // stageInitScript() reported the failure.
+        m_initScriptFile = scriptFile;
+        debugger.addArgs({"-cf", scriptFile.nativePath()});
+    } else {
+        debugger.addArgs({"-c", idleCommand});
+    }
 
     if (sp.useTerminal()) // Separate console
         debugger.addArg("-2");
@@ -379,14 +417,21 @@ void CdbEngine::setupEngine()
     if (!sourcePaths.isEmpty())
         debugger.addArgs({"-srcpath", sourcePaths.join(';')});
 
-    debugger.addArgs({"-y", QChar('"') + s.cdbSymbolPaths().join(';') + '"'});
+    // Only pass "-y" when there is something to pass: an empty argument ends up as a literal
+    // '""' on the command line, which cdb rejects ("Change all symbol paths attempts to
+    // access '""' failed") and which leaves it without any symbol path at all.
+    const QStringList &symbolPaths = s.cdbSymbolPaths();
+    if (!symbolPaths.isEmpty())
+        debugger.addArgs({"-y", QChar('"') + symbolPaths.join(';') + '"'});
 
     debugger.addArgs(s.cdbAdditionalArguments(), CommandLine::Raw);
 
     switch (sp.startMode()) {
     case StartInternal:
     case StartExternal:
-        debugger.addArg(sp.inferior().command.executable().toUserOutput());
+        // nativePath(), not toUserOutput(): for a remote inferior the latter yields the
+        // urlish "ssh://host/C:/..." form, which cdb on the device cannot open.
+        debugger.addArg(sp.inferior().command.executable().nativePath());
         // Complete native argument string.
         debugger.addArgs(sp.inferior().command.arguments(), CommandLine::Raw);
         break;
@@ -430,9 +475,7 @@ void CdbEngine::setupEngine()
         inferiorEnvironment.set(qtForceStderrLogging, "0");
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
-    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC,
-                                     cdbCommand.isLocal() ? extensionDir.path()
-                                                          : extensionDir.nativePath());
+    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionDir.path());
     if (cdbCommand.isLocal()) {
         const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
         if (!oldCdbExtensionPath.isEmpty())
@@ -688,6 +731,11 @@ void CdbEngine::abortDebuggerProcess()
 
 void CdbEngine::processDone()
 {
+    if (!m_initScriptFile.isEmpty()) {
+        m_initScriptFile.removeFile();
+        m_initScriptFile.clear();
+    }
+
     if (m_process.result() == ProcessResult::StartFailed) {
         handleSetupFailure(m_process.exitMessage());
         return;
