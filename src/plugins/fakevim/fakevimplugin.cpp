@@ -22,6 +22,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <utils/mimeutils.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/statusbarmanager.h>
 
@@ -1204,7 +1205,11 @@ void FakeVimPlugin::initialize()
     connect(EditorManager::instance(), &EditorManager::currentEditorAboutToChange,
             this, &FakeVimPlugin::currentEditorAboutToChange);
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, [this] { updateEditorCommandLinePlacement(); });
+            this, [this](IEditor *editor) {
+        updateEditorCommandLinePlacement();
+        if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler)
+            handler->triggerAutocmd("BufEnter");
+    });
 
     connect(DocumentManager::instance(), &DocumentManager::allDocumentsRenamed,
             this, &FakeVimPlugin::allDocumentsRenamed);
@@ -1524,6 +1529,49 @@ public:
         }
     }
 };
+
+// Vim detects the file type by matching file names and, where that is not
+// enough, by looking into the file. Qt Creator already did all of that to pick
+// an editor and a highlighter, so translate its MIME type instead of carrying a
+// copy of Vim's filetype.vim. Names follow Vim's, since scripts match on them.
+static QString vimFileType(const IDocument *document)
+{
+    static const QHash<QString, QString> mimeToFileType = {
+        {"text/x-c++src", "cpp"}, {"text/x-c++hdr", "cpp"},
+        {"text/x-csrc", "c"}, {"text/x-chdr", "c"},
+        {"text/x-objcsrc", "objc"}, {"text/x-objc++src", "objcpp"},
+        {"text/x-csharp", "cs"}, {"text/x-java", "java"},
+        {"text/x-python", "python"}, {"text/x-python3", "python"},
+        {"text/x-ruby", "ruby"}, {"text/x-perl", "perl"},
+        {"application/x-shellscript", "sh"}, {"text/x-shellscript", "sh"},
+        {"application/x-perl", "perl"}, {"application/x-ruby", "ruby"},
+        {"text/x-go", "go"}, {"text/rust", "rust"}, {"text/x-rust", "rust"},
+        {"text/x-lua", "lua"}, {"text/x-sql", "sql"}, {"text/x-tex", "tex"},
+        {"text/x-haskell", "haskell"},
+        {"application/javascript", "javascript"},
+        {"text/javascript", "javascript"}, {"application/json", "json"},
+        {"application/x-typescript", "typescript"},
+        {"text/x-qml", "qml"}, {"text/x-qt.qml", "qml"},
+        {"text/x-cmake", "cmake"}, {"text/x-cmake-project", "cmake"},
+        {"text/x-makefile", "make"}, {"text/x-qmake-project", "qmake"},
+        {"text/x-qbs-project", "qbs"},
+        {"application/x-yaml", "yaml"}, {"text/x-yaml", "yaml"},
+        {"application/toml", "toml"},
+        {"text/html", "html"}, {"application/xhtml+xml", "html"},
+        {"text/css", "css"}, {"text/markdown", "markdown"},
+        {"application/xml", "xml"}, {"text/xml", "xml"},
+        {"image/svg+xml", "svg"}, {"text/x-qt.ui", "xml"},
+        {"application/vnd.qt.xml.resource", "xml"},
+        {"text/x-vim", "vim"}, {"application/x-desktop", "desktop"},
+        {"text/x-diff", "diff"}, {"text/x-patch", "diff"},
+        {"text/x-ini", "dosini"}
+    };
+
+    QString mimeName = document->mimeType();
+    if (mimeName.isEmpty() && !document->filePath().isEmpty())
+        mimeName = Utils::mimeTypeForFile(document->filePath()).name();
+    return mimeToFileType.value(mimeName);
+}
 
 void FakeVimPlugin::editorOpened(IEditor *editor)
 {
@@ -1949,6 +1997,16 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     handler->setCurrentFileName(editor->document()->filePath().toUrlishString());
     handler->installEventFilter();
 
+    // Vim detects the file type from the buffer read autocommands, so fire
+    // those first and only fill in what they left unset. That way a rule in a
+    // vimrc wins over what Qt Creator guessed.
+    handler->triggerAutocmd(editor->document()->filePath().exists()
+                            ? QLatin1String("BufReadPost") : QLatin1String("BufNewFile"));
+    const QString fileType = vimFileType(editor->document());
+    if (!fileType.isEmpty())
+        handler->handleCommand("if &ft == '' | setf " + fileType + " | endif");
+    handler->triggerAutocmd("BufEnter");
+
     // pop up the bar
     if (settings().useFakeVim()) {
        resetCommandBuffer();
@@ -1969,8 +2027,10 @@ void FakeVimPlugin::editorAboutToClose(IEditor *editor)
 
 void FakeVimPlugin::currentEditorAboutToChange(IEditor *editor)
 {
-    if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler)
+    if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
         handler->enterCommandMode();
+        handler->triggerAutocmd("BufLeave");
+    }
     if (editor)
         m_alternateFileEditor = editor;
 }

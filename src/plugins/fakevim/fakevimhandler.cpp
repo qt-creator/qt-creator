@@ -6959,6 +6959,12 @@ static bool isCommentStringOption(const QString &name)
     return name == "commentstring" || name == "cms";
 }
 
+// 'filetype' is not stored either; it drives the FileType autocommands.
+static bool isFileTypeOption(const QString &name)
+{
+    return name == "filetype" || name == "ft";
+}
+
 bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 {
     // :se[t]
@@ -9170,6 +9176,7 @@ static QString commentStringForToken(const QString &token)
         {"f90", "! %s"}, {"fortran", "! %s"},
         {"css", "/* %s */"}, {"scss", "/* %s */"},
         {"html", "<!-- %s -->"}, {"htm", "<!-- %s -->"},
+        {"md", "<!-- %s -->"}, {"markdown", "<!-- %s -->"},
         {"xml", "<!-- %s -->"}, {"ui", "<!-- %s -->"},
         {"qrc", "<!-- %s -->"}, {"svg", "<!-- %s -->"}
     };
@@ -9194,6 +9201,10 @@ bool FakeVimHandler::Private::optionValue(const QString &name, VimValue *result)
         *result = VimValue(commentString());
         return true;
     }
+    if (isFileTypeOption(name)) {
+        *result = VimValue(m_fileType);
+        return true;
+    }
     FvBaseAspect *act = s.item(Utils::keyFromString(name));
     if (!act)
         return false;
@@ -9211,6 +9222,10 @@ bool FakeVimHandler::Private::setOption(const QString &name, const VimValue &val
 {
     if (isCommentStringOption(name)) {
         m_commentString = value.toString();
+        return true;
+    }
+    if (isFileTypeOption(name)) {
+        setFileType(value.toString());
         return true;
     }
     FvBaseAspect *act = s.item(Utils::keyFromString(name));
@@ -9951,6 +9966,14 @@ static bool isAutocmdEvent(const QString &word)
     return events.contains(word.toLower());
 }
 
+// "BufRead" and "BufReadPost" are two names for the same event, so reduce them
+// to one before comparing a registration against a fired event.
+static QString canonicalAutocmdEvent(const QString &event)
+{
+    const QString lower = event.toLower();
+    return lower == "bufread" ? QStringLiteral("bufreadpost") : lower;
+}
+
 static bool autocmdPatternMatches(const QString &pattern, const QString &fileName)
 {
     const QStringList patterns = pattern.split(',', Qt::SkipEmptyParts);
@@ -10107,8 +10130,9 @@ void FakeVimHandler::Private::triggerAutocmd(const QString &event)
     // Copy: a fired command might register or clear autocommands.
     const QList<AutoCommand> commands = g.autoCommands;
     m_inAutocmd = true;
+    const QString fired = canonicalAutocmdEvent(event);
     for (const AutoCommand &ac : commands) {
-        if (ac.event.compare(event, Qt::CaseInsensitive) != 0)
+        if (canonicalAutocmdEvent(ac.event) != fired)
             continue;
         if (!autocmdPatternMatches(ac.pattern, target))
             continue;

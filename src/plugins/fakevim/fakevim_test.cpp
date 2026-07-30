@@ -244,6 +244,7 @@ private slots:
     void test_vim_script_expand();
     void test_vim_script_regex_zs_ze();
     void test_vim_commentstring();
+    void test_vim_filetype_detection();
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
@@ -7198,6 +7199,52 @@ void FakeVimTester::test_vim_script_expand()
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
 }
 
+
+void FakeVimTester::test_vim_filetype_detection()
+{
+    // The pieces file type detection is built from: buffer read autocommands
+    // fire, ":setf" keeps a type that is already known, and "BufRead" and
+    // "BufReadPost" are the same event.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // A rule registered for "BufRead" runs when "BufReadPost" is fired.
+    data.doCommand("autocmd BufRead *.zz setf ziggy");
+    data.handler->setCurrentFileName("a.zz");
+    data.handler->triggerAutocmd("BufReadPost");
+    QCOMPARE(echo("&ft"), QLatin1String("ziggy"));
+
+    // How the editor fills in a type only if no rule claimed the buffer, which
+    // is what keeps a vimrc rule ahead of what Qt Creator detected.
+    data.doCommand("if &ft == '' | setf fallback | endif");
+    QCOMPARE(echo("&ft"), QLatin1String("ziggy"));
+    data.doCommand("set ft=");
+    data.doCommand("if &ft == '' | setf fallback | endif");
+    QCOMPARE(echo("&ft"), QLatin1String("fallback"));
+
+    // FileType rules see the type, and the type drives 'commentstring'.
+    data.doCommand("let g:seen = ''");
+    data.doCommand("autocmd FileType python let g:seen = 'py'");
+    data.doCommand("set ft=python");
+    QCOMPARE(echo("g:seen"), QLatin1String("py"));
+    QCOMPARE(echo("&cms"), QLatin1String("# %s"));
+
+    // BufEnter/BufLeave reach their rules too.
+    data.doCommand("let g:enter = 0");
+    data.doCommand("autocmd BufEnter * let g:enter += 1");
+    data.handler->triggerAutocmd("BufEnter");
+    QCOMPARE(echo("g:enter"), QLatin1String("1"));
+
+    data.doCommand("autocmd!");
+}
 
 void FakeVimTester::test_vim_commentstring()
 {
