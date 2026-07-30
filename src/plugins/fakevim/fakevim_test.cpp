@@ -7273,11 +7273,28 @@ void FakeVimTester::test_vim_map_cmd()
     data.doKeys("zt");
     QCOMPARE(data.text(), QByteArray("aaa" N "bb"));
 
-    // Operator pending: a text object placed by the command is what "d" takes.
+    // Operator pending, command as a plain motion: the cursor it left is the
+    // end of the range.
     data.doCommand("onoremap zo <Cmd>call cursor(2, 3)<CR>");
     data.setText("abcde" N "fghij");
     data.doKeys("gg0dzo");
     QCOMPARE(data.text(), QByteArray("hij"));
+
+    // Operator pending, command selecting a range: that selection is what the
+    // operator takes, which is how a script defines a text object. The keys run
+    // as if no operator were pending, so "v" starts a selection here.
+    data.doCommand("onoremap zv <Cmd>normal! gg0vjl<CR>");
+    data.setText("abcde" N "fghij");
+    data.doKeys("dzv");
+    QCOMPARE(data.text(), QByteArray("hij"));
+
+    // A linewise selection makes the operator linewise.
+    data.doCommand("onoremap zl <Cmd>normal! ggVj<CR>");
+    data.setText("aaa" N "bbb" N "ccc");
+    data.doKeys("dzl");
+    QCOMPARE(data.text(), QByteArray("ccc"));
+    data.doCommand("ounmap zv");
+    data.doCommand("ounmap zl");
 
     data.doCommand("nunmap zc");
     data.doCommand("nunmap zs");

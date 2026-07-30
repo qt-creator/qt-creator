@@ -3510,14 +3510,53 @@ bool FakeVimHandler::Private::expandCompleteMapping()
         // Keys behind the <CR> are keys again and follow the command.
         if (!QVector<Input>(inputs).isEmpty())
             prependMapping(Inputs(inputs, inputs.noremap(), inputs.silent()));
+        // A command standing in for a motion must not see the operator waiting
+        // for it. Vim runs it as if nothing were pending, so "v" means what it
+        // means in normal mode, and the selection the command leaves behind is
+        // the range the operator then works on. That is how a script defines a
+        // text object.
+        const bool forOperator = isOperatorPending();
+        const SubMode savedSubmode = g.submode;
+        const SubSubMode savedSubsubmode = g.subsubmode;
+        const MoveType savedMovetype = g.movetype;
+        const RangeMode savedRangemode = g.rangemode;
+        const int savedAnchor = anchor();
+        if (forOperator) {
+            g.submode = NoSubMode;
+            g.subsubmode = NoSubSubMode;
+        }
+
         const bool savedVim9 = m_vim9;
         m_vim9 = inputs.vim9();
         runExCommandLine(inputs.exCommand());
         m_vim9 = savedVim9;
-        // Used as a motion, where the command moved the cursor: that is the
-        // range the pending operator works on.
-        if (isOperatorPending())
+
+        if (forOperator) {
+            const bool selected = isVisualMode();
+            const VisualMode visual = g.visualMode;
+            int from = 0;
+            int to = 0;
+            if (selected) {
+                from = qMin(anchor(), position());
+                to = qMax(anchor(), position());
+                leaveVisualMode();
+            }
+            g.submode = savedSubmode;
+            g.subsubmode = savedSubsubmode;
+            if (selected) {
+                // The selection replaces whatever range the operator had.
+                g.movetype = visual == VisualLineMode ? MoveLineWise : MoveInclusive;
+                g.rangemode = visual == VisualBlockMode ? RangeBlockMode
+                            : visual == VisualLineMode ? RangeLineMode : RangeCharMode;
+                setAnchorAndPosition(from, to);
+            } else {
+                // Nothing was selected, so the command acted as a plain motion.
+                g.movetype = savedMovetype;
+                g.rangemode = savedRangemode;
+                setAnchorAndPosition(savedAnchor, position());
+            }
             finishMovement();
+        }
     } else if (inputs.isExpression()) {
         // ":map <expr>": the right-hand side is an expression whose string
         // result is used as the typed keys.
