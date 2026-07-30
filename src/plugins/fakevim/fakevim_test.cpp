@@ -7735,6 +7735,28 @@ void FakeVimTester::test_vim_script_regex_zs_ze()
     QCOMPARE(echo("matchstr('a name[3]', '[^. ]*\\ze[')"), QLatin1String("name"));
     QCOMPARE(echo("substitute('foobar', 'foo\\zsbar', 'X', '')"), QLatin1String("fooX"));
     QCOMPARE(echo("substitute('foobar', 'foo\\zebar', 'X', '')"), QLatin1String("Xbar"));
+
+    // Magic levels. The expected values were taken from Vim 9.1.
+    // "\v": punctuation carries meaning without a backslash.
+    QCOMPARE(echo("matchstr('foo  bar', '\\v\\s+')"), QLatin1String("  "));
+    QCOMPARE(echo("matchstr('xabcy', '\\v%(abc)')"), QLatin1String("abc"));
+    QCOMPARE(echo("matchstr('cat dog', '\\v(dog|cat)')"), QLatin1String("cat"));
+    QCOMPARE(echo("matchstr('a foo b', '\\v<foo>')"), QLatin1String("foo"));
+    QCOMPARE(echo("matchstr('color', '\\vcolou=r')"), QLatin1String("color"));
+    QCOMPARE(echo("matchstr('aaaa', '\\va{2,3}')"), QLatin1String("aaa"));
+    // ... so a backslash is what makes one literal again.
+    QCOMPARE(echo("matchstr('a+b', '\\va\\+b')"), QLatin1String("a+b"));
+
+    // The default is "magic", where it is the other way round.
+    QCOMPARE(echo("matchstr('foo  bar', '\\s\\+')"), QLatin1String("  "));
+    QCOMPARE(echo("matchstr('a+b', 'a+b')"), QLatin1String("a+b"));
+
+    // "\V" takes everything literally.
+    QCOMPARE(echo("matchstr('a.c', '\\Va.c')"), QLatin1String("a.c"));
+    QCOMPARE(echo("'[' . matchstr('abc', '\\Va.c') . ']'"), QLatin1String("[]"));
+
+    // The shape a plugin uses to find the next word or an empty line.
+    QCOMPARE(echo("matchstr('  hello', '\\v%(\\S+)|%(^\\s*$)')"), QLatin1String("hello"));
 }
 
 void FakeVimTester::test_vim_script_modifiers()

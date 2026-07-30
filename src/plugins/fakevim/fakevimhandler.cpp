@@ -438,6 +438,13 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
     bool curly = false;
     bool zmark = false; // saw "\z", waiting for the "s" or "e"
     bool lookahead = false; // a "\ze" opened a "(?=" that has to be closed
+    // How much punctuation carries meaning, set by "\v", "\m", "\M" and "\V".
+    // Very magic is close to what QRegularExpression already reads, magic is
+    // Vim's default and wants a backslash on "(){}+|?", and the nomagic levels
+    // take more and more of it literally.
+    enum MagicLevel { VeryMagic, Magic, NoMagic, VeryNoMagic };
+    MagicLevel magic = Magic;
+    bool percent = false; // saw "%" in very magic, waiting for the "("
     for (const QChar &c : needle) {
         if (zmark) {
             zmark = false;
@@ -451,6 +458,14 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                 continue;
             }
             pattern.append("\\z"); // not \zs or \ze, keep it and handle c below
+        }
+        if (percent) {
+            percent = false;
+            if (c == '(') { // "%(" groups without capturing
+                pattern.append("(?:");
+                continue;
+            }
+            pattern.append("%"); // a "%" of its own, then handle c below
         }
         if (brace) {
             brace = false;
@@ -486,16 +501,29 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                 pattern.append(c);
             }
         } else if (QString("(){}+|?").indexOf(c) != -1) {
-            if (c == '{') {
-                curly = escape;
-            } else if (c == '}' && curly) {
-                curly = false;
-                escape = true;
+            // Magic wants a backslash on these to make them mean something,
+            // very magic wants one to take them literally, and the nomagic
+            // levels never give them a meaning.
+            bool special;
+            if (magic == VeryMagic) {
+                special = !escape;
+                if (c == '{')
+                    curly = special;
+                else if (c == '}' && curly)
+                    curly = false;
+            } else if (magic == Magic) {
+                if (c == '{') {
+                    curly = escape;
+                } else if (c == '}' && curly) {
+                    curly = false;
+                    escape = true;
+                }
+                special = escape;
+            } else {
+                special = false;
             }
-
-            if (escape)
-                escape = false;
-            else
+            escape = false;
+            if (!special)
                 pattern.append('\\');
             pattern.append(c);
         } else if (escape) {
@@ -533,6 +561,14 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                 pattern.append("?");
             else if (c == 'z')
                 zmark = true;
+            else if (c == 'v')
+                magic = VeryMagic;
+            else if (c == 'm')
+                magic = Magic;
+            else if (c == 'M')
+                magic = NoMagic;
+            else if (c == 'V')
+                magic = VeryNoMagic;
             else {
                 pattern.append('\\');
                 pattern.append(c);
@@ -541,10 +577,18 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
             // unescaped expression
             if (c == '\\')
                 escape = true;
-            else if (c == '[')
+            else if (magic == VeryMagic && c == '%')
+                percent = true; // "%(" is a group that does not capture
+            else if (magic == VeryMagic && (c == '<' || c == '>'))
+                pattern.append("\\b");
+            else if (magic == VeryMagic && c == '=')
+                pattern.append('?');
+            else if (c == '[' && magic != VeryNoMagic)
                 brace = true;
             else if (c.isLetter() && ignorecase)
                 pattern.append('[').append(c.toLower()).append(c.toUpper()).append(']');
+            else if (magic >= NoMagic && QString(".*[]~").indexOf(c) != -1)
+                pattern.append('\\').append(c); // no meaning at these levels
             else
                 pattern.append(c);
         }
