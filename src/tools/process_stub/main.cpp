@@ -29,6 +29,15 @@
 #include <sys/prctl.h>
 #endif
 
+// FreeBSD has neither the Linux (ptrace) nor Windows suspend path, so it uses
+// the same strategy as macOS: the child raises SIGSTOP so the debugger can
+// attach. As on macOS, QProcess does not report the inferior's pid when the
+// child stops before execve, so the pid is passed via shared memory and picked
+// up by a poll timer. QTCREATORBUG-14894.
+#if defined(Q_OS_DARWIN) || defined(Q_OS_FREEBSD)
+#define STUB_SIGSTOP_SUSPEND
+#endif
+
 #include <iostream>
 
 static Q_LOGGING_CATEGORY(log, "qtc.process_stub", QtWarningMsg);
@@ -51,7 +60,7 @@ std::optional<QStringList> environmentVariables;
 QProcess inferiorProcess;
 int inferiorId{0};
 
-#ifdef Q_OS_DARWIN
+#ifdef STUB_SIGSTOP_SUSPEND
 // A memory mapped helper to retrieve the pid of the inferior process in debugMode
 static int *shared_child_pid = nullptr;
 #endif
@@ -260,7 +269,7 @@ static void onInferiorStarted()
 #ifdef Q_OS_WIN
     sendThreadId(win_process_information->dwThreadId);
     sendPid(inferiorId);
-#elif defined(Q_OS_DARWIN)
+#elif defined(STUB_SIGSTOP_SUSPEND)
     // In debug mode we use the poll timer to send the pid.
     if (!debugMode)
         sendPid(inferiorId);
@@ -290,8 +299,10 @@ static void setupUnixInferior()
 #ifdef Q_OS_UNIX
     if (debugMode) {
         qCInfo(log) << "Debug mode enabled";
-#ifdef Q_OS_DARWIN
-        // We are using raise(SIGSTOP) to stop the child process, macOS does not support ptrace(...)
+#if defined(STUB_SIGSTOP_SUSPEND)
+        // Stop the child via raise(SIGSTOP) so the debugger can attach. macOS
+        // does not support the ptrace() path used on Linux; FreeBSD has no
+        // dedicated path either, so both use this. QTCREATORBUG-14894.
         inferiorProcess.setChildProcessModifier([] {
             // Let the parent know our pid ...
             *shared_child_pid = getpid();
@@ -323,7 +334,7 @@ static void setupWindowsInferior()
 
 static void setupPidPollTimer()
 {
-#ifdef Q_OS_DARWIN
+#ifdef STUB_SIGSTOP_SUSPEND
     if (!debugMode)
         return;
 
@@ -512,7 +523,7 @@ std::optional<int> trySetWorkingDir()
 
 void setupSharedPid()
 {
-#ifdef Q_OS_DARWIN
+#ifdef STUB_SIGSTOP_SUSPEND
     shared_child_pid = (int *) mmap(NULL,
                                     sizeof *shared_child_pid,
                                     PROT_READ | PROT_WRITE,
