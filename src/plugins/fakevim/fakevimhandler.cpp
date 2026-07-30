@@ -9583,11 +9583,14 @@ bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args,
     const bool haveSkip = args.size() > 4;
     const VimValue skip = arg(4);
 
-    const QRegularExpression re = vimPatternToQtPattern(arg(0).toString());
+    QRegularExpression re = vimPatternToQtPattern(arg(0).toString());
     if (!re.isValid()) {
         *error = Tr::tr("Invalid pattern: %1").arg(arg(0).toString());
         return false;
     }
+    // The whole buffer is matched at once, so "^" and "$" have to mean the ends
+    // of a line rather than the ends of the text, as they do for a Vim pattern.
+    re.setPatternOptions(re.patternOptions() | QRegularExpression::MultilineOption);
 
     const QString text = document()->toPlainText();
     const int start = position();

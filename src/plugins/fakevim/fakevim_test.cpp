@@ -7362,6 +7362,18 @@ void FakeVimTester::test_vim_script_search_cursor()
     QCOMPARE(echo("search('beta', 'W', 0, 0, function('SkipSecond'))"),
              QLatin1String("4"));
 
+    // "^" and "$" mean the ends of a line, not of the buffer, so an empty line
+    // is findable. Plugins lean on this to spot a paragraph break.
+    data.setText("aaa" N "" N "bbb" N "" N "ccc");
+    data.doCommand("call cursor(1, 1)");
+    QCOMPARE(echo("search('^$', 'W')"), QLatin1String("2"));
+    QCOMPARE(echo("search('^$', 'W')"), QLatin1String("4"));
+    data.doCommand("call cursor(1, 1)");
+    QCOMPARE(echo("search('\\v^\\s*$', 'W')"), QLatin1String("2"));
+    // "$" at the end of a line matches there too.
+    data.doCommand("call cursor(1, 1)");
+    QCOMPARE(echo("search('a$', 'W')"), QLatin1String("1"));
+
     // The two-step walk a plugin uses to find the end of a block of lines that
     // share a property: forward past everything having it, then back to the
     // last thing that had it.
