@@ -6785,7 +6785,10 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     if (cmd == "map") { modes = "nvo"; type = Map; } else
     if (cmd == "nm" || cmd == "nmap") { modes = "n"; type = Map; } else
     if (cmd == "vm" || cmd == "vmap") { modes = "v"; type = Map; } else
-    if (cmd == "xm" || cmd == "xmap") { modes = "x"; type = Map; } else
+    // Vim's "x" is Visual mode and "v" is Visual plus Select mode. There is no
+    // Select mode here, so both are the same and have to use the mode code
+    // that currentModeCode() reports for a visual selection.
+    if (cmd == "xm" || cmd == "xmap") { modes = "v"; type = Map; } else
     if (cmd == "smap") { modes = "s"; type = Map; } else
     if (cmd == "omap") { modes = "o"; type = Map; } else
     if (cmd == "map!") { modes = "ic"; type = Map; } else
@@ -6796,7 +6799,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     if (cmd == "no" || cmd == "noremap") { modes = "nvo"; type = Noremap; } else
     if (cmd == "nn" || cmd == "nnoremap") { modes = "n"; type = Noremap; } else
     if (cmd == "vn" || cmd == "vnoremap") { modes = "v"; type = Noremap; } else
-    if (cmd == "xn" || cmd == "xnoremap") { modes = "x"; type = Noremap; } else
+    if (cmd == "xn" || cmd == "xnoremap") { modes = "v"; type = Noremap; } else
     if (cmd == "snor" || cmd == "snoremap") { modes = "s"; type = Noremap; } else
     if (cmd == "ono" || cmd == "onoremap") { modes = "o"; type = Noremap; } else
     if (cmd == "no!" || cmd == "noremap!") { modes = "ic"; type = Noremap; } else
@@ -6807,7 +6810,7 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     if (cmd == "unm" || cmd == "unmap") { modes = "nvo"; type = Unmap; } else
     if (cmd == "nun" || cmd == "nunmap") { modes = "n"; type = Unmap; } else
     if (cmd == "vu" || cmd == "vunmap") { modes = "v"; type = Unmap; } else
-    if (cmd == "xu" || cmd == "xunmap") { modes = "x"; type = Unmap; } else
+    if (cmd == "xu" || cmd == "xunmap") { modes = "v"; type = Unmap; } else
     if (cmd == "sunm" || cmd == "sunmap") { modes = "s"; type = Unmap; } else
     if (cmd == "ou" || cmd == "ounmap") { modes = "o"; type = Unmap; } else
     if (cmd == "unm!" || cmd == "unmap!") { modes = "ic"; type = Unmap; } else
