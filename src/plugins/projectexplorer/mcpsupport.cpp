@@ -4,6 +4,7 @@
 #include "mcpsupport.h"
 
 #include "buildconfiguration.h"
+#include "buildinfo.h"
 #include "buildmanager.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
@@ -42,10 +43,11 @@
 #include <utils/filesearch.h>
 #include <utils/globaltasktree.h>
 #include <utils/id.h>
-#include <utils/processinterface.h>
 #include <utils/mimeconstants.h>
+#include <utils/processinterface.h>
 #include <utils/result.h>
 #include <utils/shutdownguard.h>
+#include <utils/stringutils.h>
 
 #include <QElapsedTimer>
 #include <QJsonArray>
@@ -270,6 +272,55 @@ static bool switchToBuildConfig(const QString &name)
         }
     }
     return false;
+}
+
+static QJsonObject addBuildConfig(const QString &buildType, bool setActive)
+{
+    Project *project = ProjectManager::startupProject();
+    if (!project)
+        return {{"success", false}, {"error", "No active project."}};
+    Target *target = project->activeTarget();
+    if (!target)
+        return {{"success", false}, {"error", "No active target."}};
+    BuildConfigurationFactory *factory = BuildConfigurationFactory::find(target);
+    if (!factory)
+        return {{"success", false}, {"error", "No build configuration factory for the active kit."}};
+
+    const QList<BuildInfo> builds = factory->allAvailableBuilds(target);
+    QStringList available;
+    for (const BuildInfo &b : builds)
+        available.append(b.displayName.isEmpty() ? b.typeName : b.displayName);
+
+    const auto match = Utils::findOrDefault(builds, [&buildType](const BuildInfo &b) {
+        return b.displayName.compare(buildType, Qt::CaseInsensitive) == 0
+               || b.typeName.compare(buildType, Qt::CaseInsensitive) == 0;
+    });
+    if (match.factory == nullptr) {
+        return {{"success", false},
+                {"error", QString("No build type \"%1\" for this kit. Available: %2")
+                              .arg(buildType, available.join(", "))}};
+    }
+
+    // allAvailableBuilds() may leave displayName empty (the GUI prompts for one, defaulting to
+    // the type name); give the configuration a stable, unique name here.
+    BuildInfo chosen = match;
+    if (chosen.displayName.isEmpty())
+        chosen.displayName = chosen.typeName.isEmpty() ? buildType : chosen.typeName;
+    QStringList existingNames;
+    for (BuildConfiguration *bc : target->buildConfigurations())
+        existingNames.append(bc->displayName());
+    chosen.displayName = Utils::makeUniquelyNumbered(chosen.displayName, existingNames);
+
+    const BuildInfo info = BuildConfiguration::fixupBuildInfo(
+        chosen, target->kit(), project->projectFilePath());
+    BuildConfiguration *bc = info.factory->create(target, info);
+    if (!bc)
+        return {{"success", false}, {"error", "Failed to create the build configuration."}};
+
+    target->addBuildConfiguration(bc);
+    if (setActive)
+        target->setActiveBuildConfiguration(bc, SetActive::Cascade);
+    return {{"success", true}, {"name", bc->displayName()}, {"active", setActive}};
 }
 
 static QJsonObject getCurrentProject()
@@ -1909,6 +1960,45 @@ void registerMcpTools()
         wrap([](const QJsonObject &p) {
             const QString name = p.value("name").toString();
             return QJsonObject{{"success", switchToBuildConfig(name)}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("add_build_config")
+            .title("Add a build configuration")
+            .description(
+                "Creates a new build configuration for the active project's kit and, unless "
+                "set_active is false, makes it active. build_type is matched against the build "
+                "types the kit offers (e.g. \"Debug\", \"Release\", \"RelWithDebInfo\", "
+                "\"MinSizeRel\"); on a mismatch the error lists the available types. Useful to "
+                "run or build in a configuration the project does not have yet.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "build_type",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Build type to add, e.g. \"Release\" (matched case-insensitively "
+                             "against the kit's available build types)."}})
+                    .addProperty(
+                        "set_active",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Make the new configuration active. Defaults to true."}})
+                    .addRequired("build_type"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("name", QJsonObject{{"type", "string"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            const QString buildType = p.value("build_type").toString();
+            const bool setActive = p.value("set_active").toBool(true);
+            return addBuildConfig(buildType, setActive);
         }));
 
     ToolRegistry::registerTool(
