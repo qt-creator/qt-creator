@@ -5757,6 +5757,20 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("exists('?matchstr')"), QLatin1String("1"));
     QCOMPARE(echo("exists('*strftime')"), QLatin1String("1"));
 
+    // matchlist() gives the whole match and the nine groups, padded out, and
+    // nothing at all when the pattern does not match. A "\=" replacement is an
+    // expression worked out per match, where submatch() reaches the pieces.
+    // Values taken from Vim 9.1.
+    QCOMPARE(echo("matchlist('foo123bar', '\\v(\\a+)(\\d+)(\\a+)')"),
+             QLatin1String("['foo123bar', 'foo', '123', 'bar', '', '', '', '', '', '']"));
+    QCOMPARE(echo("matchlist('xyz', '\\d\\+')"), QLatin1String("[]"));
+    QCOMPARE(echo("matchlist('abc', 'b')"),
+             QLatin1String("['b', '', '', '', '', '', '', '', '', '']"));
+    QCOMPARE(echo("substitute('foo42', '\\v(\\a+)(\\d+)', "
+                  "'\\=submatch(2) . submatch(1)', '')"), QLatin1String("42foo"));
+    QCOMPARE(echo("substitute('ab', '\\a', '\\=submatch(0) . \"-\"', 'g')"),
+             QLatin1String("a-b-"));
+
     // Path functions. Values taken from Vim 9.1.
     QCOMPARE(echo("fnamemodify('a/b/file.txt', ':h')"), QLatin1String("a/b"));
     QCOMPARE(echo("fnamemodify('a/b/file.txt', ':t')"), QLatin1String("file.txt"));

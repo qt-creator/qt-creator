@@ -2527,6 +2527,9 @@ public:
     QString m_fileType; // matched by FileType autocommands
     // Buffer-local 'commentstring'; empty means derive it from the file type.
     QString m_commentString;
+    // The pieces of the current match, while a "\=" replacement is being
+    // worked out, for submatch() to reach.
+    QStringList m_subMatches;
     // What bufnr() reports for this buffer, taken on first use.
     int m_bufferNumber = 0;
     // Syntax item names seen so far; a name's position here is its synID().
@@ -9739,11 +9742,13 @@ static bool isBuiltinFunction(const QString &name)
         "getline", "isdirectory",
         "getpos", "has", "has_key", "indent", "index", "insert", "items",
         "join", "keys", "len", "line", "map", "match", "matchstr", "max",
-        "min", "nr2char", "printf", "range", "readfile", "remove", "repeat",
+        "matchlist", "min", "nr2char", "printf", "range", "readfile", "remove",
+        "repeat",
         "reverse", "search", "setbufvar", "setline", "setpos", "shellescape",
         "sort", "split",
         "str2nr",
-        "strftime", "stridx", "string", "strlen", "strpart", "substitute", "synID",
+        "strftime", "stridx", "string", "strlen", "strpart", "submatch",
+        "substitute", "synID",
         "synIDattr", "synstack", "tolower", "toupper", "trim", "type",
         "values", "writefile"
     };
@@ -10055,12 +10060,32 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QString str = arg(0).toString();
         const QString tmpl = arg(2).toString();
         const bool global = args.size() > 3 && arg(3).toString().contains('g');
+        // A replacement starting with "\=" is an expression worked out for each
+        // match, with submatch() reaching the pieces that matched.
+        const bool byExpression = tmpl.startsWith("\\=");
         QString out;
         int last = 0;
         QRegularExpressionMatchIterator it = re.globalMatch(str);
         while (it.hasNext()) {
             const QRegularExpressionMatch mm = it.next();
             out += str.mid(last, mm.capturedStart() - last);
+            if (byExpression) {
+                const QStringList savedSubMatches = m_subMatches;
+                m_subMatches.clear();
+                for (int k = 0; k <= 9; ++k)
+                    m_subMatches.append(mm.captured(k));
+                VimValue replacement;
+                QString replaceError;
+                if (evaluateExpression(tmpl.mid(2), &replacement, &replaceError))
+                    out += replacement.toString();
+                else
+                    showMessage(MessageError, replaceError);
+                m_subMatches = savedSubMatches;
+                last = mm.capturedEnd();
+                if (!global)
+                    break;
+                continue;
+            }
             for (int k = 0; k < tmpl.size(); ++k) {
                 const QChar ch = tmpl.at(k);
                 if (ch == '\\' && k + 1 < tmpl.size()) {
@@ -10078,6 +10103,20 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         }
         out += str.mid(last);
         *result = VimValue(out);
+    } else if (name == "matchlist") {
+        // The whole match followed by the nine possible groups, padded out, or
+        // nothing at all when the pattern does not match.
+        const QRegularExpression re = vimPatternToQtPattern(arg(1).toString());
+        const QRegularExpressionMatch mm = re.match(arg(0).toString());
+        QList<VimValue> items;
+        if (mm.hasMatch()) {
+            for (int k = 0; k <= 9; ++k)
+                items.append(VimValue(mm.captured(k)));
+        }
+        *result = VimValue::list(items);
+    } else if (name == "submatch") {
+        // Only meaningful while a "\=" replacement is being worked out.
+        *result = VimValue(m_subMatches.value(int(arg(0).toNumber())));
     } else if (name == "printf") {
         *result = VimValue(vimPrintf(args));
     } else if (name == "abs") {
