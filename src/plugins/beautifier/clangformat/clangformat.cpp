@@ -36,6 +36,7 @@
 #include <QMenu>
 #include <QRadioButton>
 #include <QTextBlock>
+#include <QVersionNumber>
 #include <QXmlStreamWriter>
 
 using namespace TextEditor;
@@ -54,6 +55,9 @@ public:
         command.setDefaultValue("clang-format");
         command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("ClangFormat"));
         command.setLabelText(Tr::tr("ClangFormat command:"));
+
+        // "clang-format version 18.1.3", possibly with a distribution prefix.
+        setVersionRegExp(QRegularExpression("version ([0-9]+)\\.([0-9]+)"));
 
         usePredefinedStyle.setSettingsKey("usePredefinedStyle");
         usePredefinedStyle.setDefaultValue(true);
@@ -510,10 +514,19 @@ Command ClangFormat::textCommand() const
 
         cmd.addOption("-assume-filename=%file");
     } else {
-        cmd.addOption("-style=file");
-        const FilePath path = settings().styleFileName(settings().customStyle())
-            .absolutePath().pathAppended("%filename");
-        cmd.addOption("-assume-filename=" + path.nativePath());
+        const FilePath styleFile = settings().styleFileName(settings().customStyle());
+        if (settings().version() >= QVersionNumber(14)) {
+            // Point clang-format directly at the style file, so the assumed file
+            // name can be the real one. Requires clang-format 14.
+            cmd.addOption("-style=file:" + styleFile.nativePath());
+            cmd.addOption("-assume-filename=%file");
+        } else {
+            // Older clang-format locates the .clang-format via the assumed file's
+            // directory, so pretend the file lives next to the style file.
+            cmd.addOption("-style=file");
+            cmd.addOption("-assume-filename="
+                          + styleFile.absolutePath().pathAppended("%filename").nativePath());
+        }
     }
 
     return cmd;
