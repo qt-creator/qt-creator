@@ -42,6 +42,7 @@
 #include <utils/filesearch.h>
 #include <utils/globaltasktree.h>
 #include <utils/id.h>
+#include <utils/processinterface.h>
 #include <utils/mimeconstants.h>
 #include <utils/result.h>
 #include <utils/shutdownguard.h>
@@ -510,7 +511,25 @@ static QJsonArray getRunConfigurations()
     for (RunConfiguration *rc : bc->runConfigurations()) {
         QJsonObject obj;
         obj["name"] = rc->expandedDisplayName();
+        obj["id"] = rc->id().toString();
         obj["active"] = (rc == activeRc);
+
+        const ProcessRunData runnable = rc->runnable();
+        obj["executable"] = runnable.command.executable().toUserOutput();
+        const QString arguments = runnable.command.arguments();
+        if (!arguments.isEmpty())
+            obj["arguments"] = arguments;
+        if (!runnable.workingDirectory.isEmpty())
+            obj["workingDirectory"] = runnable.workingDirectory.toUserOutput();
+
+        QJsonObject env;
+        runnable.environment.forEachEntry(
+            [&env](const QString &key, const QString &value, bool enabled) {
+                if (enabled)
+                    env.insert(key, value);
+            });
+        obj["environment"] = env;
+
         result.append(obj);
     }
     return result;
@@ -2114,8 +2133,10 @@ void registerMcpTools()
             .name("get_run_configurations")
             .title("Get run configurations")
             .description(
-                "Returns the project's existing run configurations. "
-                "The result includes configuration names and which one is active.")
+                "Returns the project's existing run configurations. Each entry includes the "
+                "display name, the run configuration type id, whether it is the active one, and "
+                "the resolved runnable: executable, arguments, working directory, and the full "
+                "run environment (key-value map, as the application would see it).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2129,8 +2150,13 @@ void registerMcpTools()
                                  {"properties",
                                   QJsonObject{
                                       {"name", QJsonObject{{"type", "string"}}},
-                                      {"active", QJsonObject{{"type", "boolean"}}}}},
-                                 {"required", QJsonArray{"name", "active"}}}},
+                                      {"id", QJsonObject{{"type", "string"}}},
+                                      {"active", QJsonObject{{"type", "boolean"}}},
+                                      {"executable", QJsonObject{{"type", "string"}}},
+                                      {"arguments", QJsonObject{{"type", "string"}}},
+                                      {"workingDirectory", QJsonObject{{"type", "string"}}},
+                                      {"environment", QJsonObject{{"type", "object"}}}}},
+                                 {"required", QJsonArray{"name", "id", "active"}}}},
                             {"description", "List of run configurations"}})
                     .addRequired("configurations")),
         wrap([](const QJsonObject &) {
