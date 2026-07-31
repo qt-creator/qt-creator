@@ -2707,6 +2707,7 @@ public:
     static VimValue deepCopy(const VimValue &value);
     static QString applyFileNameModifiers(const QString &fileName, const QString &mods);
     int bufferNumber();
+    bool loadAutoloadScript(const QString &functionName);
     QString expandKeyword(const QString &what) const;
     bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
                         VimValue *result, QString *error);
@@ -2909,6 +2910,8 @@ public:
         QHash<QString, QString> userCommands; // :command Name -> replacement
         QString currentAutoGroup; // group ":augroup" left current
         int lastBufferNumber = 0; // hands out the number bufnr() reports
+        // Scripts already looked for, so a fruitless search is made only once.
+        QSet<QString> autoloadTried;
         // Vim9 ":export"ed names, keyed by canonical script path.
         QHash<QString, QMap<QString, VimValue>> moduleExports;
     } g;
@@ -7197,7 +7200,29 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         return true;
     }
 
-    if (cmd.args.contains('=')) {
+    static const QRegularExpression addRe("^([a-zA-Z]+)([-+^])=(.*)$");
+    const QRegularExpressionMatch add = addRe.match(cmd.args);
+    if (add.hasMatch()) {
+        // ":set {option}+=" adds to what is there, "-=" takes away and "^="
+        // puts in front, which is how a path option is added to.
+        const QString optionName = add.captured(1);
+        const QString what = add.captured(3);
+        VimValue current;
+        if (!optionValue(optionName, &current)) {
+            showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + optionName);
+        } else {
+            QString value = current.toString();
+            const QChar how = add.captured(2).at(0);
+            if (how == '+')
+                value += (value.isEmpty() ? QString() : QString(',')) + what;
+            else if (how == '^')
+                value = what + (value.isEmpty() ? QString() : QString(',')) + value;
+            else
+                value.remove(QRegularExpression("(^|,)" + QRegularExpression::escape(what)
+                                                + "(?=,|$)"));
+            setOption(optionName, VimValue(value));
+        }
+    } else if (cmd.args.contains('=')) {
         // Non-boolean config to set.
         int p = cmd.args.indexOf('=');
         const QString optionName = cmd.args.left(p);
@@ -8615,8 +8640,10 @@ private:
     // A variable name, optionally with a scope prefix like "g:".
     QString parseName()
     {
+        // "#" is part of a name: "a#b" names one thing, which is how a plugin
+        // spells a function that is loaded when first needed.
         const int start = m_pos;
-        while (cur().isLetterOrNumber() || cur() == '_')
+        while (cur().isLetterOrNumber() || cur() == '_' || cur() == '#')
             ++m_pos;
         QString name = m_in.mid(start, m_pos - start);
         static const QString scopes = "gbwtslav";
@@ -9652,6 +9679,33 @@ VimValue FakeVimHandler::Private::deepCopy(const VimValue &value)
     return value; // the rest carries no reference to share
 }
 
+// Source the script a "#" name lives in. "a#b" is in "autoload/a.vim" and
+// "a#b#c" in "autoload/a/b.vim", looked for along the runtimepath. Returns
+// whether a file was read, and looks only once per script.
+bool FakeVimHandler::Private::loadAutoloadScript(const QString &functionName)
+{
+    const int lastHash = functionName.lastIndexOf('#');
+    if (lastHash <= 0)
+        return false;
+    const QString relative = functionName.left(lastHash).replace('#', '/');
+    if (g.autoloadTried.contains(relative))
+        return false;
+    g.autoloadTried.insert(relative);
+
+    const QStringList dirs = s.runtimePath().split(',', Qt::SkipEmptyParts);
+    for (const QString &dir : dirs) {
+        const QString path = replaceTildeWithHome(dir) + "/autoload/" + relative + ".vim";
+        if (QFileInfo::exists(path)) {
+            ExCommand source;
+            source.cmd = "source";
+            source.args = path;
+            handleExSourceCommand(source);
+            return true;
+        }
+    }
+    return false;
+}
+
 // What bufnr() reports for this buffer. Numbers are handed out as they are
 // asked for, which is enough for a script to tell one buffer from another.
 int FakeVimHandler::Private::bufferNumber()
@@ -10603,6 +10657,13 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         VimValue v;
         if (variableValue(name, &v) && v.isFunc())
             return invokeCallable(v, args, result, error);
+        // "a#b()" lives in "autoload/a.vim" along the runtimepath, loaded when
+        // it is first needed. Look there once and try again.
+        if (name.contains('#') && loadAutoloadScript(name)
+            && g.userFunctions.contains(name)) {
+            *result = callUserFunction(name, g.userFunctions.value(name), args);
+            return true;
+        }
         *error = Tr::tr("Unknown function: %1").arg(name);
         return false;
     }

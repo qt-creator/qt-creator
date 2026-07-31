@@ -173,6 +173,10 @@ public:
     // and exists for the scripts that save it, set it and put it back.
     FvStringAspect cpoOptions;
 
+    // Where to look for the parts of a plugin that are loaded when first
+    // needed, as a comma separated list of directories.
+    FvStringAspect runtimePath;
+
 
     // Whether to obey a "vim:" line in the file, and how many lines at each end
     // to look for one in.

@@ -110,6 +110,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&selection,      "inclusive", "Selection", "sel", "");
     setup(&bufType,        {},    "BufType",        "bt",  "");
     setup(&cpoOptions,     "aABceFsz", "CpoOptions", "cpo", "");
+    setup(&runtimePath,    {},    "RuntimePath",    "rtp", "");
     setup(&modeline,       true,  "Modeline",       "ml",  "");
     setup(&modelines,      5,     "Modelines",      "mls", "");
 

@@ -228,6 +228,7 @@ private slots:
     void test_vim_script_funcref();
     void test_vim_script_autocmd();
     void test_vim_script_augroup();
+    void test_vim_script_autoload();
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim_script_positions();
@@ -6808,6 +6809,51 @@ void FakeVimTester::test_vim_script_funcref()
 }
 
 
+
+void FakeVimTester::test_vim_script_autoload()
+{
+    // A "#" name is loaded from the script it lives in, along the runtimepath,
+    // the first time it is needed. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QVERIFY(QDir(dir.path()).mkpath("autoload/deep"));
+    QFile lib(dir.path() + "/autoload/mylib.vim");
+    QVERIFY(lib.open(QIODevice::WriteOnly));
+    lib.write("let g:mylib_loaded = 1\n"
+              "function! mylib#greet(who)\n"
+              "  return 'hello ' . a:who\n"
+              "endfunction\n");
+    lib.close();
+    QFile nested(dir.path() + "/autoload/deep/nested.vim");
+    QVERIFY(nested.open(QIODevice::WriteOnly));
+    nested.write("function! deep#nested#answer()\n"
+                 "  return 42\n"
+                 "endfunction\n");
+    nested.close();
+
+    data.doCommand("set runtimepath+=" + dir.path());
+    QCOMPARE(echo("&rtp =~ 'autoload' ? 0 : 1"), QLatin1String("1")); // the dir, not its parts
+    // Nothing is read until the name is wanted.
+    QCOMPARE(echo("exists('g:mylib_loaded')"), QLatin1String("0"));
+    QCOMPARE(echo("mylib#greet('world')"), QLatin1String("hello world"));
+    QCOMPARE(echo("exists('g:mylib_loaded')"), QLatin1String("1"));
+    // A deeper name lives a directory further down.
+    QCOMPARE(echo("deep#nested#answer()"), QLatin1String("42"));
+    // One that is nowhere to be found says so rather than searching forever.
+    QCOMPARE(echo("nosuchlib#nope()"), QLatin1String("Unknown function: nosuchlib#nope"));
+    data.doCommand("set runtimepath=");
+}
 
 void FakeVimTester::test_vim_script_augroup()
 {
