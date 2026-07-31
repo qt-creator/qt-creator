@@ -229,6 +229,7 @@ private slots:
     void test_vim_script_autocmd();
     void test_vim_script_augroup();
     void test_vim_script_autoload();
+    void test_vim_script_scriptlocal();
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim_script_positions();
@@ -6828,6 +6829,49 @@ void FakeVimTester::test_vim_script_funcref()
 
 
 
+
+void FakeVimTester::test_vim_script_scriptlocal()
+{
+    // A script-scope variable set inside a function is the same one the script
+    // sees, which is how a plugin settles a choice once and reads it back
+    // later. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    source("let s:mode = ''\n"
+           "let s:flag = 0\n"
+           "function! s:Pick()\n"
+           "  if empty(s:mode)\n"
+           "    let s:mode = 'chosen'\n"
+           "  endif\n"
+           "  let s:flag = 1\n"
+           "  return s:mode\n"
+           "endfunction\n"
+           "let g:before = s:mode\n"
+           "let g:ret = s:Pick()\n"
+           "let g:after = s:mode\n"
+           "let g:flag = s:flag\n");
+    QCOMPARE(echo("'[' . g:before . ']'"), QLatin1String("[]"));
+    QCOMPARE(echo("g:ret"), QLatin1String("chosen"));
+    QCOMPARE(echo("g:after"), QLatin1String("chosen"));
+    QCOMPARE(echo("g:flag"), QLatin1String("1"));
+    data.doCommand("unlet g:before | unlet g:ret | unlet g:after | unlet g:flag");
+}
 
 void FakeVimTester::test_vim_script_autoload()
 {
