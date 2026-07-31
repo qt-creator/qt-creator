@@ -14,9 +14,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
-
-#include <QDir>
-#include <QFileInfo>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -201,14 +198,13 @@ private:
             FilePath sourceFileOrLinkTarget = file.m_source;
             bool link = false;
 
-            const QFileInfo fi(file.m_source.toFileInfo());
-            if (fi.isSymLink()) {
+            if (file.m_source.isSymLink()) {
                 link = true;
                 batchData += "-rm " + ProcessArgs::quoteArgUnix(
                                           file.m_target.path()).toLocal8Bit() + '\n';
                 // see QTBUG-5817.
-                sourceFileOrLinkTarget =
-                    sourceFileOrLinkTarget.withNewPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
+                sourceFileOrLinkTarget = sourceFileOrLinkTarget.withNewPath(
+                    file.m_source.symLinkTarget().relativePathFromDir(file.m_source.parentDir()));
             }
 
             const QByteArray source = ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path())
