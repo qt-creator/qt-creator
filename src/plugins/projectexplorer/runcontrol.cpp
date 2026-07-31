@@ -929,6 +929,7 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         process.setCommand(commandLine());
         process.setWorkingDirectory(workingDirectory());
         process.setEnvironment(environment());
+        process.setExtraData(extraData());
 
         if (startModifier) {
             const SetupResult result = startModifier(process);
@@ -993,22 +994,15 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
             return SetupResult::StopWithError;
         }
 
-        QVariantHash extra = extraData();
-        const QVariantHash modifierExtra = process.extraData();
-        for (auto it = modifierExtra.cbegin(); it != modifierExtra.cend(); ++it)
-            extra.insert(it.key(), it.value());
         QString shellName = displayName();
-
         if (buildConfiguration()) {
             if (BuildConfiguration *buildConfig = buildConfiguration())
                 shellName += " - " + buildConfig->displayName();
         }
 
-        extra[TERMINAL_SHELL_NAME] = shellName;
-
         process.setCommand(cmdLine);
         process.setEnvironment(env);
-        process.setExtraData(extra);
+        process.setExtraData(TERMINAL_SHELL_NAME, shellName);
         process.setForceDefaultErrorModeOnWindows(true);
 
         QObject::connect(&process, &Process::started, this, [this, process = &process] {
