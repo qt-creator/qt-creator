@@ -8177,8 +8177,15 @@ private:
     {
         VimValue e = exprAnd();
         while (m_ok && eatOp("||")) {
-            VimValue r = exprAnd();
-            e = VimValue(qlonglong(e.toBool() || r.toBool()));
+            // Once true the rest cannot change it, so it is read past rather
+            // than worked out: "exists(x) || f(x)" must not call f().
+            const bool decided = e.toBool();
+            if (decided)
+                ++m_skip;
+            const VimValue r = exprAnd();
+            if (decided)
+                --m_skip;
+            e = VimValue(qlonglong(decided || r.toBool()));
         }
         return e;
     }
@@ -8187,8 +8194,15 @@ private:
     {
         VimValue e = exprCompare();
         while (m_ok && eatOp("&&")) {
-            VimValue r = exprCompare();
-            e = VimValue(qlonglong(e.toBool() && r.toBool()));
+            // Once false the rest cannot change it, which is what lets
+            // "exists(x) && x" ask about something that may not be there.
+            const bool decided = !e.toBool();
+            if (decided)
+                ++m_skip;
+            const VimValue r = exprCompare();
+            if (decided)
+                --m_skip;
+            e = VimValue(qlonglong(!decided && r.toBool()));
         }
         return e;
     }
@@ -8624,6 +8638,8 @@ private:
         // handed to something like search().
         if (vim9() && m_h->g.userFunctions.contains(name))
             return VimValue::func(name);
+        if (m_skip)
+            return VimValue(qlonglong(0)); // only being read past
         setError(Tr::tr("Undefined variable: %1").arg(name));
         return {};
     }
@@ -8650,6 +8666,8 @@ private:
             setError(Tr::tr("Missing ')' in call to %1()").arg(name));
             return {};
         }
+        if (m_skip)
+            return VimValue(qlonglong(0)); // not called, only read past
         VimValue result;
         QString error;
         if (!m_h->callFunction(name, args, &result, &error)) {
@@ -9081,6 +9099,9 @@ private:
     [[maybe_unused]] FakeVimHandler::Private *m_h; // used by later steps
     const QString m_in;
     int m_pos = 0;
+    // Above zero while an expression is only being read past, because what it
+    // would work out to can no longer change the answer.
+    int m_skip = 0;
     bool m_ok = true;
     QString m_error;
 };

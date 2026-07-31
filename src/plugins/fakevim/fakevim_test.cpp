@@ -5757,6 +5757,23 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("exists('?matchstr')"), QLatin1String("1"));
     QCOMPARE(echo("exists('*strftime')"), QLatin1String("1"));
 
+    // "&&" and "||" stop once the answer cannot change, so the other side is
+    // neither worked out nor called. This is what lets the guard every plugin
+    // writes ask about something that may not be there. Values from Vim 9.1.
+    data.doCommand("function Bump() | let g:calls += 1 | return 1 | endfunction");
+    QCOMPARE(echo("exists('g:nope') && g:nope == 1"), QLatin1String("0"));
+    data.doCommand("let g:calls = 0");
+    QCOMPARE(echo("0 && Bump()"), QLatin1String("0"));
+    QCOMPARE(echo("g:calls"), QLatin1String("0"));
+    data.doCommand("let g:calls = 0");
+    QCOMPARE(echo("1 || Bump()"), QLatin1String("1"));
+    QCOMPARE(echo("g:calls"), QLatin1String("0"));
+    // ... and is called when it does matter.
+    data.doCommand("let g:calls = 0");
+    QCOMPARE(echo("1 && Bump()"), QLatin1String("1"));
+    QCOMPARE(echo("g:calls"), QLatin1String("1"));
+    data.doCommand("unlet g:calls");
+
     // deepcopy() shares nothing with the original, where copy() shares what is
     // nested. Values taken from Vim 9.1.
     data.doCommand("let g:dcA = [[1, 2], {'k': [3]}]");
@@ -6772,6 +6789,7 @@ void FakeVimTester::test_vim_script_funcref()
     QCOMPARE(echo("sort([3, 1, 2], {a, b -> a - b})"), QLatin1String("[1, 2, 3]"));
     QCOMPARE(echo("sort([1, 2, 3], {a, b -> b - a})"), QLatin1String("[3, 2, 1]"));
 }
+
 
 
 void FakeVimTester::test_vim_script_augroup()
