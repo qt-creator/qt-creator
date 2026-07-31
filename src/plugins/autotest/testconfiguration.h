@@ -105,8 +105,6 @@ public:
 
     virtual QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const = 0;
 
-    bool runsOnIosDevice() const;
-
 private:
     void setupAndroidRunner(ProjectExplorer::BuildConfiguration *buildConfig);
 
