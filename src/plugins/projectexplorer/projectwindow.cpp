@@ -896,7 +896,8 @@ public:
                 if (isEnabled())
                     return QString();
                 return QString("<h3>"
-                    + Tr::tr("Click to enable target, click again to make active") + "</h3>");
+                    + Tr::tr("Double-click to enable target, double-click again to make active")
+                    + "</h3>");
             }();
             return k->toHtml(m_kitIssues, extraText);
         }
@@ -1281,7 +1282,7 @@ private:
 class SelectorTree : public TreeView
 {
 public:
-    SelectorTree()
+    SelectorTree(ActivationMode activationMode = SingleClickActivation)
     {
         setSizeAdjustPolicy(QAbstractItemView::SizeAdjustPolicy::AdjustToContents);
         setFrameStyle(QFrame::NoFrame);
@@ -1295,7 +1296,7 @@ public:
         setSelectionMode(QAbstractItemView::SingleSelection);
         setSelectionBehavior(QAbstractItemView::SelectRows);
         setEditTriggers(QAbstractItemView::NoEditTriggers);
-        setActivationMode(SingleClickActivation);
+        setActivationMode(activationMode);
         setObjectName("ProjectNavigation");
         setContextMenuPolicy(Qt::CustomContextMenu);
     }
@@ -1421,7 +1422,9 @@ public:
     {
         m_projectsModel.setHeader({Tr::tr("Projects")});
 
-        m_targetsView = new SelectorTree;
+        // Require a double click to enable/activate a target, so a stray
+        // single click does not accidentally activate a kit (QTCREATORBUG-31233).
+        m_targetsView = new SelectorTree(DoubleClickActivation);
         m_targetsView->setModel(&m_projectsModel);
         m_targetsView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_targetsView, &QAbstractItemView::activated, this, [this](const QModelIndex &idx) {
@@ -1432,7 +1435,7 @@ public:
         connect(m_targetsView, &QWidget::customContextMenuRequested,
                 this, &ProjectWindowPrivate::openContextMenu);
 
-        m_vanishedTargetsView = new SelectorTree;
+        m_vanishedTargetsView = new SelectorTree(DoubleClickActivation);
         m_vanishedTargetsView->setModel(&m_projectsModel);
         m_vanishedTargetsView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(m_vanishedTargetsView, &QAbstractItemView::activated, this, [this](const QModelIndex &idx) {
