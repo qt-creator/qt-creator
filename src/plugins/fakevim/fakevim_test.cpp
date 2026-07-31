@@ -6773,6 +6773,7 @@ void FakeVimTester::test_vim_script_funcref()
     QCOMPARE(echo("sort([1, 2, 3], {a, b -> b - a})"), QLatin1String("[3, 2, 1]"));
 }
 
+
 void FakeVimTester::test_vim_script_augroup()
 {
     // ":augroup" puts the autocommands that follow in a group, which is how a
@@ -6819,6 +6820,19 @@ void FakeVimTester::test_vim_script_augroup()
            "set ft=\n"
            "set ft=zz\n");
     QCOMPARE(echo("g:a . ',' . g:b"), QLatin1String("0,1"));
+
+    // One command may serve several events, written with commas between them,
+    // which is how nearly every plugin registers. Any event named has to be
+    // recognized or the whole list is misread as a group name.
+    source("let g:n = 0\n"
+           "autocmd BufNewFile,BufReadPost,BufFilePost * let g:n += 1\n"
+           "doautocmd BufReadPost\n");
+    QCOMPARE(echo("g:n"), QLatin1String("1"));
+    // The one that does not fire here is still accepted, not an error.
+    source("let g:n = 0\n"
+           "doautocmd BufNewFile\n");
+    QCOMPARE(echo("g:n"), QLatin1String("1"));
+    data.doCommand("autocmd!");
 
     // A group named on the command itself works the same way.
     source("let g:b = 0\n"

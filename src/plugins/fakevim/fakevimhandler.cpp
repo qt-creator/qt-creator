@@ -2705,6 +2705,7 @@ public:
     bool searchFunction(const QList<VimValue> &args, VimValue *result, QString *error);
     CursorPosition lineColArg(const QString &spec) const;
     static VimValue deepCopy(const VimValue &value);
+    static QString applyFileNameModifiers(const QString &fileName, const QString &mods);
     int bufferNumber();
     QString expandKeyword(const QString &what) const;
     bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
@@ -9568,6 +9569,39 @@ CursorPosition FakeVimHandler::Private::lineColArg(const QString &spec) const
     return CursorPosition(-1, -1); // unknown: line()/col() report 0
 }
 
+// The ":p", ":h", ":t", ":r" and ":e" modifiers a path may carry, applied left
+// to right as Vim applies them. Shared by fnamemodify() and expand().
+QString FakeVimHandler::Private::applyFileNameModifiers(const QString &fileName,
+                                                        const QString &mods)
+{
+    QString path = fileName;
+    int i = 0;
+    while (i < mods.size()) {
+        if (mods.at(i) != ':')
+            break;
+        ++i;
+        if (i >= mods.size())
+            break;
+        const QChar what = mods.at(i++);
+        if (what == 'p') { // full path
+            path = QFileInfo(path).absoluteFilePath();
+        } else if (what == 'h') { // head, the directory
+            const int slash = path.lastIndexOf('/');
+            path = slash > 0 ? path.left(slash) : (slash == 0 ? "/" : QString("."));
+        } else if (what == 't') { // tail, the file name
+            path = path.mid(path.lastIndexOf('/') + 1);
+        } else if (what == 'r') { // root, without the extension
+            const int dot = path.lastIndexOf('.');
+            if (dot > path.lastIndexOf('/') + 1)
+                path = path.left(dot);
+        } else if (what == 'e') { // extension only
+            const int dot = path.lastIndexOf('.');
+            path = dot > path.lastIndexOf('/') + 1 ? path.mid(dot + 1) : QString();
+        }
+    }
+    return path;
+}
+
 // A copy that shares nothing with the original, however deeply nested.
 VimValue FakeVimHandler::Private::deepCopy(const VimValue &value)
 {
@@ -9599,37 +9633,42 @@ int FakeVimHandler::Private::bufferNumber()
 // expand(): the handful of "<...>" keywords and "%" that scripts rely on.
 QString FakeVimHandler::Private::expandKeyword(const QString &what) const
 {
-    if (what == "<stack>") {
+    // What is being asked about comes first, then any ":" modifiers, so
+    // "<afile>:p:h" is the directory of the file the event was for.
+    QString base = what;
+    QString mods;
+    const int modAt = what.startsWith('<') ? what.indexOf(':', what.indexOf('>'))
+                                           : what.indexOf(':');
+    if (modAt > 0) {
+        base = what.left(modAt);
+        mods = what.mid(modAt);
+    }
+
+    QString value;
+    if (base == "<stack>") {
         // Vim reports the source chain, e.g.
         // "command line..function comment#Toggle[2]". Plugins pick the
         // innermost function name out of it with a pattern anchored on the
         // "[", most notably to set 'operatorfunc' to their own function, so
         // the name here has to be one callFunction() can resolve again.
-        QString out = m_scriptFileStack.isEmpty()
+        value = m_scriptFileStack.isEmpty()
             ? QStringLiteral("command line") : m_scriptFileStack.last();
         for (const QString &fn : m_callStack)
-            out += "..function " + fn + "[0]";
-        return out;
+            value += "..function " + fn + "[0]";
+        return value; // not a path, so no modifiers
     }
-    if (what == "<sfile>" || what == "<script>")
-        return m_scriptFileStack.isEmpty() ? QString() : m_scriptFileStack.last();
-    if (what == "%" || what == "<afile>")
-        return m_currentFileName;
-    if (what == "%:p")
-        return QFileInfo(m_currentFileName).absoluteFilePath();
-    if (what == "%:t")
-        return QFileInfo(m_currentFileName).fileName();
-    if (what == "%:e")
-        return QFileInfo(m_currentFileName).suffix();
-    if (what == "%:r")
-        return m_currentFileName.left(m_currentFileName.lastIndexOf('.'));
-    if (what == "%:h")
-        return QFileInfo(m_currentFileName).path();
-    if (what == "<cword>" || what == "<cWORD>") {
+    if (base == "<sfile>" || base == "<script>") {
+        value = m_scriptFileStack.isEmpty() ? QString() : m_scriptFileStack.last();
+    } else if (base == "<abuf>") {
+        // The buffer an event was for, which is this one.
+        return QString::number(const_cast<Private *>(this)->bufferNumber());
+    } else if (base == "%" || base == "<afile>") {
+        value = m_currentFileName;
+    } else if (base == "<cword>" || base == "<cWORD>") {
         QTextCursor tc = m_cursor;
-        tc.select(what == "<cword>" ? QTextCursor::WordUnderCursor
+        tc.select(base == "<cword>" ? QTextCursor::WordUnderCursor
                                     : QTextCursor::BlockUnderCursor);
-        if (what == "<cword>")
+        if (base == "<cword>")
             return tc.selectedText();
         // <cWORD> is delimited by whitespace only.
         const QString line = tc.selectedText();
@@ -9641,8 +9680,10 @@ QString FakeVimHandler::Private::expandKeyword(const QString &what) const
         while (to < line.size() && !line.at(to).isSpace())
             ++to;
         return line.mid(from, to - from);
+    } else {
+        return QString();
     }
-    return QString();
+    return mods.isEmpty() ? value : applyFileNameModifiers(value, mods);
 }
 
 // search({pattern} [, {flags} [, {stopline} [, {timeout} [, {skip}]]]])
@@ -9756,22 +9797,18 @@ static bool isBuiltinFunction(const QString &name)
 {
     static const QSet<QString> builtins = {
         "abs", "add", "bufnr", "call", "char2nr", "col", "copy", "count",
-        "cursor", "deepcopy", "executable",
-        "did_filetype", "empty", "escape", "exists", "expand", "extend",
-        "filereadable", "filter", "fnameescape", "fnamemodify", "funcref",
-        "function", "get", "getbufvar", "getcurpos", "getcwd",
-        "getline", "iconv", "isdirectory",
-        "getpos", "has", "has_key", "indent", "index", "insert", "items",
-        "join", "keys", "len", "line", "map", "match", "matchstr", "max",
-        "matchlist", "min", "nr2char", "printf", "range", "readfile", "remove",
-        "repeat",
-        "reverse", "search", "setbufvar", "setline", "setpos", "shellescape",
-        "sort", "split",
-        "str2nr",
-        "strftime", "stridx", "string", "strlen", "strpart", "submatch",
-        "substitute", "synID",
-        "synIDattr", "synstack", "tolower", "toupper", "trim", "type",
-        "system", "values", "winrestview", "winsaveview", "writefile"
+        "cursor", "deepcopy", "did_filetype", "empty", "escape", "executable",
+        "exists", "expand", "extend", "filereadable", "filter", "fnameescape",
+        "fnamemodify", "funcref", "function", "get", "getbufvar", "getcurpos",
+        "getcwd", "getline", "getpos", "has", "has_key", "iconv", "indent",
+        "index", "insert", "isdirectory", "items", "join", "keys", "len",
+        "line", "map", "match", "matchlist", "matchstr", "max", "min",
+        "nr2char", "printf", "range", "readfile", "remove", "repeat", "reverse",
+        "search", "setbufvar", "setline", "setpos", "shellescape", "sort",
+        "split", "str2nr", "strftime", "stridx", "string", "strlen", "strpart",
+        "submatch", "substitute", "synID", "synIDattr", "synstack", "system",
+        "tolower", "toupper", "trim", "type", "values", "winrestview",
+        "winsaveview", "writefile"
     };
     return builtins.contains(name);
 }
@@ -10421,35 +10458,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         file.close();
         *result = VimValue(qlonglong(0));
     } else if (name == "fnamemodify") {
-        // fnamemodify({fname}, {mods}) - the modifiers a script uses to take a
-        // path apart, applied left to right as Vim does.
-        QString path = replaceTildeWithHome(arg(0).toString());
-        const QString mods = arg(1).toString();
-        int i = 0;
-        while (i < mods.size()) {
-            if (mods.at(i) != ':')
-                break;
-            ++i;
-            if (i >= mods.size())
-                break;
-            const QChar what = mods.at(i++);
-            if (what == 'p') { // full path
-                path = QFileInfo(path).absoluteFilePath();
-            } else if (what == 'h') { // head, the directory
-                const int slash = path.lastIndexOf('/');
-                path = slash > 0 ? path.left(slash) : (slash == 0 ? "/" : QString("."));
-            } else if (what == 't') { // tail, the file name
-                path = path.mid(path.lastIndexOf('/') + 1);
-            } else if (what == 'r') { // root, without the extension
-                const int dot = path.lastIndexOf('.');
-                if (dot > path.lastIndexOf('/') + 1)
-                    path = path.left(dot);
-            } else if (what == 'e') { // extension only
-                const int dot = path.lastIndexOf('.');
-                path = dot > path.lastIndexOf('/') + 1 ? path.mid(dot + 1) : QString();
-            }
-        }
-        *result = VimValue(path);
+        *result = VimValue(applyFileNameModifiers(
+            replaceTildeWithHome(arg(0).toString()), arg(1).toString()));
     } else if (name == "filereadable") {
         const QFileInfo fi(replaceTildeWithHome(arg(0).toString()));
         *result = VimValue(qlonglong(fi.isFile() && fi.isReadable() ? 1 : 0));
@@ -10699,11 +10709,27 @@ bool FakeVimHandler::Private::handleExModifierCommand(const ExCommand &cmd)
 static bool isAutocmdEvent(const QString &word)
 {
     static const QSet<QString> events = {
-        "bufnewfile", "bufreadpre", "bufread", "bufreadpost", "bufenter",
-        "bufleave", "bufwinenter", "bufwritepre", "bufwritepost", "bufwritecmd",
-        "filetype", "insertenter", "insertleave", "insertchange", "textchanged",
-        "textchangedi", "cursormoved", "cursormovedi", "vimenter", "winenter",
-        "winleave", "user"
+        // Fired from here.
+        "bufnewfile", "bufread", "bufreadpost", "bufenter", "bufleave",
+        "bufwinenter", "bufwritepre", "bufwritepost", "filetype",
+        "insertenter", "insertleave", "textchanged", "textchangedi",
+        "cursormoved", "cursormovedi", "vimenter", "winenter", "winleave",
+        "user",
+        // Accepted so that a list naming one of these alongside an event that
+        // does fire is still understood. Registering for one of them is not an
+        // error, it simply never comes up.
+        "bufadd", "bufcreate", "bufdelete", "buffilepre", "buffilepost",
+        "bufhidden", "bufnew", "bufreadcmd", "bufreadpre", "bufunload",
+        "bufwinleave", "bufwipeout", "bufwritecmd", "cmdlineenter",
+        "cmdlineleave", "colorscheme", "completedone", "cursorhold",
+        "cursorholdi", "dirchanged", "encodingchanged", "filechangedshell",
+        "filereadpost", "filereadpre", "filewritepost", "filewritepre",
+        "focusgained", "focuslost", "insertcharpre", "insertchange",
+        "menupopup", "optionset", "quitpre", "safestate", "sessionloadpost",
+        "shellcmdpost", "shellfilterpost", "sourcepost", "sourcepre",
+        "stdinreadpost", "swapexists", "syntax", "tabclosed", "tabenter",
+        "tableave", "tabnew", "termopen", "textyankpost", "vimleave",
+        "vimleavepre", "vimresized", "winclosed", "winnew", "winresized"
     };
     return events.contains(word.toLower());
 }
@@ -10741,10 +10767,22 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
         return false;
 
     QStringList tokens = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    // One command may be registered for several events at once, written with
+    // commas between them.
+    const auto namesEvents = [](const QString &token) {
+        const QStringList parts = token.split(',', Qt::SkipEmptyParts);
+        if (parts.isEmpty())
+            return false;
+        for (const QString &part : parts) {
+            if (!isAutocmdEvent(part))
+                return false;
+        }
+        return true;
+    };
     // A group named here applies to this one command; otherwise the group
     // ":augroup" left current does, if any.
     QString group = g.currentAutoGroup;
-    if (!tokens.isEmpty() && !isAutocmdEvent(tokens.first()))
+    if (!tokens.isEmpty() && !namesEvents(tokens.first()))
         group = tokens.takeFirst();
 
     if (tokens.isEmpty()) {
@@ -10765,12 +10803,17 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
     if (tokens.size() < 3)
         return true; // nothing to register
 
-    AutoCommand ac;
-    ac.group = group;
-    ac.event = tokens.takeFirst();
-    ac.pattern = tokens.takeFirst();
-    ac.command = tokens.join(' ');
-    g.autoCommands.append(ac);
+    const QStringList events = tokens.takeFirst().split(',', Qt::SkipEmptyParts);
+    const QString pattern = tokens.takeFirst();
+    const QString command = tokens.join(' ');
+    for (const QString &event : events) {
+        AutoCommand ac;
+        ac.group = group;
+        ac.event = event;
+        ac.pattern = pattern;
+        ac.command = command;
+        g.autoCommands.append(ac);
+    }
     return true;
 }
 
