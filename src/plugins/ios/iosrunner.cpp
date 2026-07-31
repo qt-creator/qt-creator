@@ -238,7 +238,7 @@ static Group deviceCtlKicker(const QStoredBarrier &barrier, RunControl *runContr
                                           "--json-output",
                                           tempFileStorage->filePath().path()})
                                      + startStoppedArg
-                                     + QStringList({"--console", appInfo->bundleIdentifier})
+                                     + QStringList({"--console", "--", appInfo->bundleIdentifier})
                                      + appInfo->arguments;
             process.setCommand({FilePath::fromString("/usr/bin/xcrun"), args});
             QObject::connect(&process, &Process::started, barrier.activeStorage(), &QBarrier::advance);
@@ -358,6 +358,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
                              "--quiet",
                              "--json-output",
                              "-",
+                             "--",
                              appInfo->bundleIdentifier,
                              appInfo->arguments}});
     };
