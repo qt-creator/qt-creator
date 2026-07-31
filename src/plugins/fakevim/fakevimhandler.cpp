@@ -8354,7 +8354,12 @@ private:
             if (c == '+' || c == '-') {
                 ++m_pos;
                 VimValue r = exprMul();
-                if (e.type() == VimValue::Float || r.type() == VimValue::Float)
+                if (c == '+' && e.isList() && r.isList()) {
+                    // Two lists added are the one after the other.
+                    QList<VimValue> items = *e.listData();
+                    items += *r.listData();
+                    e = VimValue::list(items);
+                } else if (e.type() == VimValue::Float || r.type() == VimValue::Float)
                     e = VimValue(c == '+' ? e.toFloat() + r.toFloat() : e.toFloat() - r.toFloat());
                 else
                     e = VimValue(c == '+' ? e.toNumber() + r.toNumber() : e.toNumber() - r.toNumber());
@@ -9264,6 +9269,12 @@ static VimValue applyCompound(const VimValue &a, QChar op, const VimValue &b)
 {
     if (op == '.')
         return VimValue(a.toString() + b.toString());
+    // "+" on lists joins them, which is how a script grows one item by item.
+    if (op == '+' && a.isList() && b.isList()) {
+        QList<VimValue> items = *a.listData();
+        items += *b.listData();
+        return VimValue::list(items);
+    }
     if (a.type() == VimValue::Float || b.type() == VimValue::Float) {
         const double x = a.toFloat(), y = b.toFloat();
         return VimValue(op == '+' ? x + y : op == '-' ? x - y : op == '*' ? x * y
@@ -10727,6 +10738,12 @@ bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 {
     // :echo / :echomsg / :echon evaluate their arguments, joining with a space;
     // :echoerr shows the result as an error.
+    // ":echohl {group}" only picks the colour the next message is drawn in,
+    // which is not something that can be shown here, so it is accepted and
+    // passed over rather than left to fail in the middle of a script.
+    if (cmd.matches("echoh", "echohl"))
+        return true;
+
     const bool isError = cmd.matches("echoe", "echoerr");
     if (!isError && !cmd.matches("ec", "echo") && !cmd.matches("echom", "echomsg")
         && !cmd.matches("echon", "echon"))

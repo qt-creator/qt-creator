@@ -5792,6 +5792,24 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("&cpo"), QLatin1String("aABceFsz"));
     data.doCommand("unlet g:savedCpo");
 
+    // "+" on lists puts one after the other, which is how a script grows a list
+    // an item at a time. Values taken from Vim 9.1.
+    data.doCommand("let g:lc = [1]");
+    data.doCommand("let g:lc += [2, 3]");
+    QCOMPARE(echo("g:lc"), QLatin1String("[1, 2, 3]"));
+    QCOMPARE(echo("[1, 2] + [3]"), QLatin1String("[1, 2, 3]"));
+    // ... including from nothing, where a numeric reading would give zero.
+    data.doCommand("let g:lc = []");
+    data.doCommand("let g:lc += [1]");
+    QCOMPARE(echo("g:lc"), QLatin1String("[1]"));
+    data.doCommand("unlet g:lc");
+
+    // ":echohl" only picks a colour, so it is passed over rather than failing
+    // and taking the rest of a script with it.
+    data.doCommand("echohl WarningMsg");
+    data.doCommand("echohl None");
+    QCOMPARE(echo("'still here'"), QLatin1String("still here"));
+
     // deepcopy() shares nothing with the original, where copy() shares what is
     // nested. Values taken from Vim 9.1.
     data.doCommand("let g:dcA = [[1, 2], {'k': [3]}]");
@@ -6807,6 +6825,7 @@ void FakeVimTester::test_vim_script_funcref()
     QCOMPARE(echo("sort([3, 1, 2], {a, b -> a - b})"), QLatin1String("[1, 2, 3]"));
     QCOMPARE(echo("sort([1, 2, 3], {a, b -> b - a})"), QLatin1String("[3, 2, 1]"));
 }
+
 
 
 
