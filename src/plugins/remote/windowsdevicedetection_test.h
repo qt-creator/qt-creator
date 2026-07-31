@@ -24,6 +24,7 @@ private slots:
     void testProcessEnvironment();
     void testLocalPortForwardOptions_data();
     void testLocalPortForwardOptions();
+    void testRemoteCdbWriterChannelIdles();
 };
 
 } // namespace Remote::Internal

@@ -843,4 +843,97 @@ void WindowsDeviceDetectionTest::testLocalPortForwardOptions()
     QCOMPARE(localPortForwardOptions(extraData), expected);
 }
 
+// Run cdb on the device through the device process interface in ProcessMode::Writer (as
+// CdbEngine does) and check that the helper extension - loaded by its absolute device path
+// via a "-cf" startup script - reports "session_idle" back over the ssh channel. A remote
+// cdb cannot load it with "-a<name>": that resolves through _NT_DEBUGGER_EXTENSION_PATH,
+// which a Writer-mode device process never receives. The extension directory comes from
+// QTC_SSH_TEST_WIN_CDBEXTDIR.
+void WindowsDeviceDetectionTest::testRemoteCdbWriterChannelIdles()
+{
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params)) {
+        SshTest::printSetupHelp();
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST/USER/... to a reachable Windows-over-SSH host.");
+    }
+    const QString extDirEnv = qEnvironmentVariable("QTC_SSH_TEST_WIN_CDBEXTDIR");
+    if (extDirEnv.isEmpty())
+        QSKIP("Set QTC_SSH_TEST_WIN_CDBEXTDIR to the device's qtcreatorcdbext directory.");
+
+    auto windowsDeviceFactory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
+              return f->deviceType() == Constants::GenericWindowsOsType;
+          });
+    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
+    const IDevicePtr device = windowsDeviceFactory->construct();
+    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
+    device->sshParametersAspectContainer().setSshParameters(params);
+    DeviceManager::addDevice(device);
+    const Id deviceId = device->id();
+    const QScopeGuard cleanup([&] { DeviceManager::removeDevice(deviceId); });
+    const FilePath deviceRoot = device->rootPath();
+
+    // Establish the connection (sets up file access and deploys the command bridge).
+    {
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        QObject::connect(&timeout, &QTimer::timeout, &loop, [&] { loop.exit(1); });
+        timeout.start(60 * 1000);
+        device->tryToConnect(Continuation<>(&loop, [&loop](const Result<> &res) {
+            loop.exit(res ? 0 : 1);
+        }));
+        QCOMPARE(loop.exec(), 0);
+    }
+    QCOMPARE(device->deviceState(), IDevice::DeviceReadyToUse);
+
+    // Locate cdb (x64) and the helper extension on the device.
+    const FilePath cdb = deviceRoot.withNewPath(
+        "C:/Program Files (x86)/Windows Kits/10/Debuggers/x64/cdb.exe");
+    QVERIFY2(cdb.isExecutableFile(), qPrintable("cdb.exe not found: " + cdb.toUserOutput()));
+    const FilePath extDll = deviceRoot.withNewPath(extDirEnv) / "qtcreatorcdbext.dll";
+    QVERIFY2(extDll.isFile(), qPrintable("Extension not found: " + extDll.toUserOutput()));
+
+    // Stage the startup script on the device, mirroring CdbEngine::stageInitScript: load the
+    // extension by absolute path, then register the idle notification.
+    const Result<FilePath> tmp = deviceRoot.tmpDir();
+    QVERIFY2(tmp.has_value(), "Could not resolve a temporary directory on the device.");
+    const FilePath script = *tmp / ("qtc-cdbtest-" + QUuid::createUuid().toString(QUuid::Id128)
+                                    + ".cmd");
+    const QString commands = ".load " + extDll.nativePath() + "\n"
+                             + ".idle_cmd !qtcreatorcdbext.idle\n";
+    QVERIFY2(script.writeFileContents(commands.toLocal8Bit()).has_value(),
+             "Could not stage the cdb startup script on the device.");
+    const QScopeGuard removeScript([&] { script.removeFile(); });
+
+    // Same command line the fixed CdbEngine::setupEngine builds for a remote cdb.
+    const CommandLine cmd{cdb, {"-lines", "-G", "-cf", script.nativePath(),
+                                "C:\\Windows\\System32\\cmd.exe"}};
+
+    QString collected;
+    bool sawIdle = false;
+    Process proc;
+    proc.setCommand(cmd);
+    proc.setProcessMode(ProcessMode::Writer);
+    proc.setStdOutLineCallback([&](const QString &line) {
+        collected += line + '\n';
+        if (line.contains("session_idle")) {
+            sawIdle = true;
+            proc.writeRaw("q\n"); // Let cdb quit cleanly; also exercises the stdin direction.
+        }
+    });
+    proc.start();
+
+    const bool idle = waitFor([&] { return sawIdle; }, 60 * 1000);
+    if (!idle) {
+        qDebug().noquote() << "cdb output over the Writer channel was:\n" << collected;
+        proc.kill();
+    }
+    QVERIFY2(idle, "cdb on the device did not emit session_idle over the Writer-mode channel "
+                   "(the extension did not load or its stdout was not delivered).");
+    proc.waitForFinished(std::chrono::seconds(10));
+    qDebug().noquote() << "OK: extension loaded by path and session_idle received over the real "
+                          "Writer-mode ssh channel.";
+}
+
 } // namespace Remote::Internal
