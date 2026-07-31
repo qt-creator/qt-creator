@@ -5757,6 +5757,35 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("exists('?matchstr')"), QLatin1String("1"));
     QCOMPARE(echo("exists('*strftime')"), QLatin1String("1"));
 
+    // deepcopy() shares nothing with the original, where copy() shares what is
+    // nested. Values taken from Vim 9.1.
+    data.doCommand("let g:dcA = [[1, 2], {'k': [3]}]");
+    data.doCommand("let g:dcB = deepcopy(g:dcA)");
+    data.doCommand("let g:dcB[0][0] = 99");
+    QCOMPARE(echo("g:dcA[0][0] . ',' . g:dcB[0][0]"), QLatin1String("1,99"));
+    data.doCommand("let g:dcC = copy(g:dcA)");
+    data.doCommand("let g:dcC[0][1] = 77");
+    QCOMPARE(echo("g:dcA[0][1]"), QLatin1String("77"));
+    data.doCommand("unlet g:dcA | unlet g:dcB | unlet g:dcC");
+
+    QCOMPARE(echo("executable('sh')"), QLatin1String("1"));
+    QCOMPARE(echo("executable('definitely_no_such_cmd_xyz')"), QLatin1String("0"));
+    QCOMPARE(echo("substitute(system('echo hi'), '\\n', '', 'g')"), QLatin1String("hi"));
+    QCOMPARE(echo("iconv('abc', 'utf-8', 'utf-8')"), QLatin1String("abc"));
+    // An encoding that cannot be had leaves the string as it was.
+    QCOMPARE(echo("iconv('abc', 'no-such-enc', 'utf-8')"), QLatin1String("abc"));
+
+    // The view can be noted and put back.
+    data.setText("l1" N "l2" N "l3" N "l4");
+    data.doCommand("call cursor(3, 2)");
+    data.doCommand("let g:view = winsaveview()");
+    QCOMPARE(echo("has_key(g:view, 'lnum') && has_key(g:view, 'col')"
+                  " && has_key(g:view, 'topline')"), QLatin1String("1"));
+    data.doCommand("call cursor(1, 1)");
+    data.doCommand("call winrestview(g:view)");
+    QCOMPARE(echo("[line('.'), col('.')]"), QLatin1String("[3, 2]"));
+    data.doCommand("unlet g:view");
+
     // matchlist() gives the whole match and the nine groups, padded out, and
     // nothing at all when the pattern does not match. A "\=" replacement is an
     // expression worked out per match, where submatch() reaches the pieces.

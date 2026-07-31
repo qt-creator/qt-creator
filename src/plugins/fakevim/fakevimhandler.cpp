@@ -59,6 +59,7 @@
 #include <QTextEdit>
 #include <QMimeData>
 #include <QDateTime>
+#include <QStandardPaths>
 #include <QDir>
 
 #include <algorithm>
@@ -2703,6 +2704,7 @@ public:
                       VimValue *result, QString *error);
     bool searchFunction(const QList<VimValue> &args, VimValue *result, QString *error);
     CursorPosition lineColArg(const QString &spec) const;
+    static VimValue deepCopy(const VimValue &value);
     int bufferNumber();
     QString expandKeyword(const QString &what) const;
     bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
@@ -9566,6 +9568,25 @@ CursorPosition FakeVimHandler::Private::lineColArg(const QString &spec) const
     return CursorPosition(-1, -1); // unknown: line()/col() report 0
 }
 
+// A copy that shares nothing with the original, however deeply nested.
+VimValue FakeVimHandler::Private::deepCopy(const VimValue &value)
+{
+    if (value.isList()) {
+        QList<VimValue> items;
+        for (const VimValue &item : *value.listData())
+            items.append(deepCopy(item));
+        return VimValue::list(items);
+    }
+    if (value.isDict()) {
+        QMap<QString, VimValue> items;
+        const QMap<QString, VimValue> *from = value.dictData();
+        for (auto it = from->cbegin(); it != from->cend(); ++it)
+            items.insert(it.key(), deepCopy(it.value()));
+        return VimValue::dict(items);
+    }
+    return value; // the rest carries no reference to share
+}
+
 // What bufnr() reports for this buffer. Numbers are handed out as they are
 // asked for, which is enough for a script to tell one buffer from another.
 int FakeVimHandler::Private::bufferNumber()
@@ -9735,11 +9756,11 @@ static bool isBuiltinFunction(const QString &name)
 {
     static const QSet<QString> builtins = {
         "abs", "add", "bufnr", "call", "char2nr", "col", "copy", "count",
-        "cursor",
+        "cursor", "deepcopy", "executable",
         "did_filetype", "empty", "escape", "exists", "expand", "extend",
         "filereadable", "filter", "fnameescape", "fnamemodify", "funcref",
         "function", "get", "getbufvar", "getcurpos", "getcwd",
-        "getline", "isdirectory",
+        "getline", "iconv", "isdirectory",
         "getpos", "has", "has_key", "indent", "index", "insert", "items",
         "join", "keys", "len", "line", "map", "match", "matchstr", "max",
         "matchlist", "min", "nr2char", "printf", "range", "readfile", "remove",
@@ -9750,7 +9771,7 @@ static bool isBuiltinFunction(const QString &name)
         "strftime", "stridx", "string", "strlen", "strpart", "submatch",
         "substitute", "synID",
         "synIDattr", "synstack", "tolower", "toupper", "trim", "type",
-        "values", "writefile"
+        "system", "values", "winrestview", "winsaveview", "writefile"
     };
     return builtins.contains(name);
 }
@@ -10103,6 +10124,57 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         }
         out += str.mid(last);
         *result = VimValue(out);
+    } else if (name == "deepcopy") {
+        *result = deepCopy(arg(0));
+    } else if (name == "winsaveview") {
+        // What it takes to put the view back as it was.
+        QMap<QString, VimValue> view;
+        view.insert("lnum", VimValue(qlonglong(cursorBlockNumber() + 1)));
+        view.insert("col", VimValue(qlonglong(physicalCursorColumn())));
+        view.insert("coladd", VimValue(qlonglong(0)));
+        view.insert("curswant", VimValue(qlonglong(m_targetColumn)));
+        view.insert("topline", VimValue(qlonglong(firstVisibleLine() + 1)));
+        view.insert("topfill", VimValue(qlonglong(0)));
+        view.insert("leftcol", VimValue(qlonglong(0)));
+        view.insert("skipcol", VimValue(qlonglong(0)));
+        *result = VimValue::dict(view);
+    } else if (name == "winrestview") {
+        if (arg(0).isDict()) {
+            const QMap<QString, VimValue> *view = arg(0).dictData();
+            if (view->contains("lnum")) {
+                const int line = int(view->value("lnum").toNumber()) - 1;
+                const int column = view->contains("col")
+                    ? int(view->value("col").toNumber()) : 0;
+                setCursorPosition(CursorPosition(line, column));
+                if (!isVisualMode())
+                    setAnchor();
+            }
+            if (view->contains("topline"))
+                scrollToLine(int(view->value("topline").toNumber()) - 1);
+        }
+        *result = VimValue(qlonglong(0));
+    } else if (name == "executable") {
+        const QString found = QStandardPaths::findExecutable(arg(0).toString());
+        *result = VimValue(qlonglong(found.isEmpty() ? 0 : 1));
+    } else if (name == "system") {
+        // The same way ":!" reaches a shell, so it stays out of this file.
+        QString output;
+        q->processOutput(arg(0).toString(), arg(1).toString(), &output);
+        *result = VimValue(output);
+    } else if (name == "iconv") {
+        // Vim hands the string back untouched when it cannot convert, which is
+        // also what happens here for an encoding Qt does not know.
+        const QString from = arg(1).toString();
+        const QString to = arg(2).toString();
+        QStringDecoder decoder(from.toLatin1().constData());
+        QStringEncoder encoder(to.toLatin1().constData());
+        if (!decoder.isValid() || !encoder.isValid()) {
+            *result = arg(0);
+        } else {
+            const QByteArray encoded = encoder(arg(0).toString());
+            QStringDecoder back(to.toLatin1().constData());
+            *result = VimValue(back(encoded));
+        }
     } else if (name == "matchlist") {
         // The whole match followed by the nine possible groups, padded out, or
         // nothing at all when the pattern does not match.
