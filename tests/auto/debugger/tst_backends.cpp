@@ -3,15 +3,18 @@
 
 #include "debuggerengineinterface.h"
 
+#include "cdb/cdbimpl.h"
 #include "gdb/gdbimpl.h"
 #include "lldb/lldbimpl.h"
 #include "pdb/pdbimpl.h"
 #include "qml/qmlimpl.h"
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/elfreader.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
@@ -32,7 +35,9 @@
 #include <QMap>
 #include <QMetaEnum>
 #include <QPoint>
+#include <QRegularExpression>
 #include <QScopeGuard>
+#include <QSettings>
 #include <QSignalSpy>
 #include <QTcpServer>
 #include <QTemporaryDir>
@@ -62,6 +67,60 @@ static QString compileFailure(const QString &what, const Process &process, qint6
 
 static constexpr quint64 s_symbolAddressRequestId = 999000;
 
+// Runs an MSVC environment batch file and returns the variables it sets, the way
+// MsvcToolchain does: markers around a "set" dump in the batch file's own stdout.
+static QMap<QString, QString> environmentFromBatchFile(const Environment &env,
+                                                       const QString &batchFile)
+{
+    const QString marker = "####################";
+    QByteArray content;
+    const auto writeLine = [&content](const QByteArray &line) { content += line + "\r\n"; };
+    const QByteArray call = "call " + ProcessArgs::quoteArg(batchFile).toLocal8Bit();
+    writeLine(call);
+    writeLine("@echo " + marker.toLocal8Bit());
+    writeLine("set");
+    writeLine("@echo " + marker.toLocal8Bit());
+
+    TempFileSaver saver(QDir::tempPath() + "/qtc_cdbenv_XXXXXX.bat");
+    saver.write(content);
+    if (const Result<> res = saver.finalize(); !res) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
+        return {};
+    }
+
+    Process run;
+    // As of WinSDK 7.1 a preset ORIGINALPATH keeps the path from being set correctly.
+    Environment runEnv = env;
+    runEnv.unset("ORIGINALPATH");
+    run.setEnvironment(runEnv);
+    run.setCommand({FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC")),
+                    {"/D", "/E:ON", "/V:ON", "/c", saver.filePath().nativePath()}});
+    run.runBlocking(s_compileTimeout);
+    if (run.result() != ProcessResult::FinishedWithSuccess) {
+        qWarning("%s: running \"%s\" failed: %s", Q_FUNC_INFO, qPrintable(batchFile),
+                 qPrintable(run.verboseExitMessage()));
+        return {};
+    }
+
+    const QString stdOut = run.cleanedStdOut();
+    const int start = stdOut.indexOf(marker);
+    const int end = start == -1 ? -1 : stdOut.indexOf(marker, start + 1);
+    if (start == -1 || end == -1) {
+        qWarning("%s: no environment dump in the output of \"%s\".", Q_FUNC_INFO,
+                 qPrintable(batchFile));
+        return {};
+    }
+
+    QMap<QString, QString> envPairs;
+    static const QRegularExpression assignment("^(\\w+)=(.+)$");
+    for (const QString &line : stdOut.mid(start, end - start).split('\n')) {
+        const QRegularExpressionMatch match = assignment.match(line.trimmed());
+        if (match.hasMatch())
+            envPairs.insert(match.captured(1), match.captured(2));
+    }
+    return envPairs;
+}
+
 static const char s_qmlNativeDebuggerPluginMissing[] =
     "Qt's qmldbg_native plugin not found - can't establish a live "
     "QML debug connection.";
@@ -75,6 +134,7 @@ enum class Backend {
     Lldb,
     Pdb,
     Qml,
+    Cdb,
 };
 Q_DECLARE_METATYPE(Backend)
 
@@ -120,6 +180,8 @@ struct BackendData
 {
     FilePath path;
     InferiorTestData inferiorData;
+    FilePath cdbExtensionDir;
+    QString cdbExtensionFileName;
 };
 
 static FilePath findGdbOnPath()
@@ -190,6 +252,75 @@ static FilePath findPythonOnPath()
     return {};
 }
 
+static FilePath findCdbOnPath()
+{
+    const auto usable = [](const FilePath &path) {
+        if (!path.isExecutableFile())
+            return false;
+        Process versionProcess;
+        versionProcess.setCommand({path, {"-version"}});
+        versionProcess.runBlocking();
+        return versionProcess.result() == ProcessResult::FinishedWithSuccess;
+    };
+
+    const auto debuggerIn = [&usable](const FilePath &versionRoot) -> FilePath {
+        for (const char *arch :
+#ifdef Q_PROCESSOR_ARM
+             {"arm64", "x64"}
+#else
+             {"x64", "x86"}
+#endif
+             ) {
+            const FilePath candidate = versionRoot / "Debuggers" / arch / "cdb.exe";
+            if (usable(candidate))
+                return candidate;
+        }
+        return {};
+    };
+
+    const QSettings installedRoots(
+        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots",
+        QSettings::NativeFormat);
+    for (const char *kit : {"KitsRoot10", "KitsRoot81"}) {
+        const QString root = installedRoots.value(QLatin1String(kit)).toString();
+        if (root.isEmpty())
+            continue;
+        if (const FilePath cdb = debuggerIn(FilePath::fromUserInput(root)); !cdb.isEmpty())
+            return cdb;
+    }
+
+    for (const char *rootVar : {"ProgramFiles(x86)", "ProgramFiles", "ProgramW6432"}) {
+        const QString root = qtcEnvironmentVariable(rootVar);
+        if (root.isEmpty())
+            continue;
+        const FilePath kitsRoot = FilePath::fromUserInput(root) / "Windows Kits";
+        if (!kitsRoot.isDir())
+            continue;
+        const QDir kitsDir(kitsRoot.toFSPathString());
+        QStringList versions = kitsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        std::sort(versions.begin(), versions.end());
+        std::reverse(versions.begin(), versions.end());
+        for (const QString &version : versions) {
+            if (const FilePath cdb = debuggerIn(kitsRoot / version); !cdb.isEmpty())
+                return cdb;
+        }
+    }
+
+    static const QStringList candidates = {
+        "cdb", "cdb.exe",
+#ifdef Q_PROCESSOR_ARM
+        "cdbARM64.exe",
+#endif
+        "cdbX64.exe", "cdbX86.exe",
+    };
+    for (const QString &candidate : candidates) {
+        const FilePath path = FilePath::fromString(candidate).searchInPath();
+        if (usable(path))
+            return path;
+    }
+    return {};
+}
+
 static bool hasQmlNativeDebuggerPlugin()
 {
     const QDir pluginDir(QLibraryInfo::path(QLibraryInfo::PluginsPath) + "/qmltooling");
@@ -237,6 +368,8 @@ static QString backendName(Backend backend)
         return "pdb";
     case Backend::Qml:
         return "qml";
+    case Backend::Cdb:
+        return "cdb";
     }
     return {};
 }
@@ -259,6 +392,8 @@ static QString printCommand(Backend backend, const QString &expression)
     case Backend::Pdb:
     case Backend::Qml:
         return expression;
+    case Backend::Cdb:
+        return "? " + expression;
     }
     return {};
 }
@@ -358,7 +493,7 @@ static bool canInterruptRunningInferior(Backend backend)
 {
     if (!HostOsInfo::isWindowsHost())
         return true;
-    static const QList<Backend> uninterruptibleOnWindows = {Backend::Pdb};
+    static const QList<Backend> uninterruptibleOnWindows = {Backend::Pdb, Backend::Cdb};
     return !uninterruptibleOnWindows.contains(backend);
 }
 
@@ -718,6 +853,18 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     case Backend::Qml:
         return std::make_unique<DebuggerBackend>(std::make_unique<QmlImpl>(QmlImplStartData{
             .inferiorStartData = AttachToQmlServerData{}}));
+    case Backend::Cdb:
+        return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+            .debuggerRunData = debuggerRunDataOverride.value_or(
+                ProcessRunData{{m_backendData[backend].path, {}}, {},
+                               Environment::systemEnvironment()}),
+            .inferiorStartData = inferiorRunDataOverride.value_or(
+                ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                               Environment::systemEnvironment()}),
+            .extensionDir = m_backendData[backend].cdbExtensionDir,
+            .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .nativeMixed = nativeMixed}));
     }
     return nullptr;
 }
@@ -744,6 +891,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
     case Backend::Qml:
         return std::make_unique<DebuggerBackend>(std::make_unique<QmlImpl>(QmlImplStartData{
             .inferiorStartData = inferiorStartData}));
+    case Backend::Cdb:
+        break;
     }
     return nullptr;
 }
@@ -796,6 +945,35 @@ void tst_backends::initTestCase()
     if (pythonPath.isExecutableFile()) {
         m_backendData[Backend::Pdb].path = pythonPath;
         pythonVersionLine = versionLine(pythonPath);
+    }
+
+    QString cdbVersionLine;
+    if (HostOsInfo::isWindowsHost()) {
+        const QString envCdb = qtcEnvironmentVariable("QTC_CDB_PATH_FOR_TEST");
+        const FilePath cdbPath = envCdb.isEmpty()
+            ? findCdbOnPath()
+            : FilePath::fromUserInput(envCdb);
+        FilePath extensionLibrary;
+#ifdef CDBEXT_LIBRARY
+        extensionLibrary = FilePath::fromUserInput(QLatin1String(CDBEXT_LIBRARY));
+#endif
+        const QString envCdbExtDir = qtcEnvironmentVariable("QTC_CDB_EXTENSION_DIR_FOR_TEST");
+        if (!envCdbExtDir.isEmpty()) {
+            const QString fileName = extensionLibrary.isEmpty()
+                ? QString("qtcreatorcdbext.dll") : extensionLibrary.fileName();
+            extensionLibrary = FilePath::fromUserInput(envCdbExtDir) / fileName;
+        }
+        if (cdbPath.isExecutableFile() && extensionLibrary.isFile()) {
+            m_backendData[Backend::Cdb].path = cdbPath;
+            m_backendData[Backend::Cdb].cdbExtensionDir = extensionLibrary.parentDir();
+            m_backendData[Backend::Cdb].cdbExtensionFileName = extensionLibrary.fileName();
+            cdbVersionLine = versionLine(cdbPath);
+        } else if (cdbPath.isExecutableFile() != extensionLibrary.isFile()) {
+            qWarning("Cdb not tested: cdb.exe %s, extension DLL %s (%s).",
+                     cdbPath.isExecutableFile() ? "found" : "NOT found",
+                     extensionLibrary.isFile() ? "found" : "NOT found",
+                     qPrintable(extensionLibrary.toUserOutput()));
+        }
     }
 
     if (m_backendData.isEmpty())
@@ -881,6 +1059,34 @@ void tst_backends::initTestCase()
                              : QString("No usable C++ compiler to build the test inferior - "
                                        "found, but unable to even run \"--version\":\n  ")
                                    + probeFailures.join("\n  ")));
+    } else if (!compiler.isExecutableFile()) {
+        qWarning("No C++ compiler (g++/clang++) found, and no backend here needs one - "
+                 "the shared inferior and its library are not built. Cdb builds its own "
+                 "inferior with cl.exe instead.");
+    }
+
+    FilePath cdbCompiler;
+    Environment cdbCompileEnv = Environment::systemEnvironment();
+    if (HostOsInfo::isWindowsHost() && m_backendData.contains(Backend::Cdb)) {
+        const QString envBat = qtcEnvironmentVariable("QTC_MSVC_ENV_BAT");
+        if (!envBat.isEmpty()) {
+            const QMap<QString, QString> envPairs
+                = environmentFromBatchFile(cdbCompileEnv, envBat);
+            for (auto it = envPairs.cbegin(); it != envPairs.cend(); ++it)
+                cdbCompileEnv.set(it.key(), it.value());
+        }
+        cdbCompiler = cdbCompileEnv.searchInPath("cl.exe");
+        if (cdbCompiler.isExecutableFile() && !cdbCompileEnv.hasKey("INCLUDE")) {
+            qWarning("cl.exe found, but INCLUDE is unset, so it cannot compile - point "
+                     "QTC_MSVC_ENV_BAT at vcvarsall.bat to get a usable environment.");
+            cdbCompiler = {};
+        }
+        if (!cdbCompiler.isExecutableFile()) {
+            qWarning("cl.exe not found (checked PATH and QTC_MSVC_ENV_BAT) - "
+                     "Cdb needs a real MSVC compiler for PDB debug info; "
+                     "g++/clang++ above produce DWARF, which cdb.exe can't read.");
+            m_backendData.remove(Backend::Cdb);
+        }
     }
 
     QVERIFY(m_tempDir.isValid());
@@ -1056,6 +1262,41 @@ void tst_backends::initTestCase()
         m_backendData[Backend::Lldb].inferiorData.moduleListMarker = "libc";
         m_backendData[Backend::Lldb].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
     }
+    if (m_backendData.contains(Backend::Cdb)) {
+        InferiorTestData msvcInferiorData = cppInferiorData;
+        msvcInferiorData.executable = (FilePath::fromString(m_tempDir.path()) / "inferior_msvc")
+                                     .withExecutableSuffix();
+        const FilePath pdbPath = FilePath::fromString(m_tempDir.path()) / "inferior_msvc.pdb";
+        const QStringList cdbCompileArgs = {
+            "/nologo", "/Zi", "/Od", "/EHsc",
+            "/Fe:" + msvcInferiorData.executable.nativePath(),
+            "/Fd:" + pdbPath.nativePath(),
+            cppInferiorData.source.nativePath(),
+        };
+        Process cdbCompile;
+        cdbCompile.setCommand({cdbCompiler, cdbCompileArgs});
+        cdbCompile.setEnvironment(cdbCompileEnv);
+        QElapsedTimer cdbCompileTimer;
+        cdbCompileTimer.start();
+        cdbCompile.runBlocking(s_compileTimeout);
+        if (cdbCompile.result() == ProcessResult::FinishedWithSuccess) {
+            m_backendData[Backend::Cdb].inferiorData = msvcInferiorData;
+            m_backendData[Backend::Cdb].inferiorData.versionLine = cdbVersionLine;
+            m_backendData[Backend::Cdb].inferiorData.answersRedundantContinue = true;
+            m_backendData[Backend::Cdb].inferiorData.moduleListMarker = "kernel32";
+            m_backendData[Backend::Cdb].inferiorData.moduleSymbolsPath
+                = msvcInferiorData.executable;
+        } else {
+            // Failing initTestCase() over this would skip every other backend too.
+            qWarning("%s", qPrintable(compileFailure("compiling the Cdb test inferior",
+                                                     cdbCompile, cdbCompileTimer.elapsed())));
+            m_backendData.remove(Backend::Cdb);
+        }
+    }
+
+    // Cdb can still drop out above, past the initial check.
+    if (m_backendData.isEmpty())
+        QSKIP("No usable debugger backend left - see the warnings above.");
 
     if (!m_backendData.contains(Backend::Pdb))
         return;
@@ -2863,6 +3104,11 @@ void tst_backends::stepsContinuesAndInterrupts()
     if (backend == Backend::Pdb && HostOsInfo::isWindowsHost())
         QSKIP("Interrupting a running inferior is not supported by pdb on Windows.");
 
+    if (backend == Backend::Cdb) {
+        QSKIP("Interrupting cdb.exe needs the ctrl-c stub, which sits next to the qtcreator "
+              "executable, not next to this test binary.");
+    }
+
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Interrupt});
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk),
@@ -3597,6 +3843,9 @@ void tst_backends::insertsWatchpointAndCatchpoint()
 {
     QFETCH(Backend, backend);
 
+    if (backend == Backend::Cdb)
+        QSKIP("BreakpointAtFork has no Windows equivalent - unsupportable for cdb.");
+
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
 
@@ -3786,6 +4035,9 @@ void tst_backends::reportsEngineSetupFailure()
 void tst_backends::refreshesPeripherals()
 {
     QFETCH(Backend, backend);
+
+    if (backend == Backend::Cdb)
+        QSKIP("refresh(PeripheralRegisters) is not implemented for cdb yet.");
 
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -4722,6 +4974,11 @@ void tst_backends::stepsWithinQmlFrameAfterNativeMixedStepOut()
 void tst_backends::continuesPastNativeMixedCppBreakpoint()
 {
     QFETCH(Backend, backend);
+
+    if (backend == Backend::Cdb) {
+        QSKIP("Interrupting a running inferior is not testable for cdb - "
+              "see stepsContinuesAndInterrupts().");
+    }
 
     if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
         QSKIP(qPrintable(result.error()));

@@ -3,6 +3,7 @@
 
 #include "cdbengine.h"
 
+#include "cdbimpl.h"
 #include "cdboptionspage.h"
 #include "cdbparsehelpers.h"
 #include "stringinputstream.h"
@@ -18,6 +19,7 @@
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
 #include <debugger/enginemanager.h>
+#include <debugger/genericdebuggerengine.h>
 #include <debugger/memoryagent.h>
 #include <debugger/moduleshandler.h>
 #include <debugger/registerhandler.h>
@@ -137,8 +139,28 @@ namespace Debugger::Internal {
 static const char localsPrefixC[] = "local.";
 
 // Accessed by debuggerRecipe()
-DebuggerEngine *createCdbEngine()
+DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp)
 {
+    if (DebuggerEngine::isUsingGenericDebugger()) {
+        bool cdbIs64Bit = true;
+        bool cdbIsArm = false;
+        const Abis abisOfCdb = Abi::abisOfBinary(rp.debugger().command.executable());
+        if (abisOfCdb.size() == 1) {
+            const Abi abi = abisOfCdb.at(0);
+            cdbIs64Bit = abi.wordWidth() == 64;
+            cdbIsArm = abi.architecture() == Abi::Architecture::ArmArchitecture;
+        }
+        const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
+        return new GenericDebuggerEngine("CDB (CdbImpl)", new CdbImpl({
+            .debuggerRunData = rp.debugger(),
+            .inferiorStartData = rp.inferior(),
+            .extensionDir = FilePath::fromString(extensionFi.absolutePath()),
+            .extensionFileName = extensionFi.fileName(),
+            .dumperScriptsDir = Core::ICore::resourcePath("debugger"),
+            .inferiorWordWidth = rp.toolChainAbi().wordWidth(),
+            .nativeMixed = rp.isNativeMixedDebugging(),
+            .useCtrlCStub = true}));
+    }
     return new CdbEngine;
 }
 

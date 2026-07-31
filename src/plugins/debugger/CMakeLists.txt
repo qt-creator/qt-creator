@@ -9,6 +9,7 @@ add_qtc_plugin(Debugger
     breakhandler.cpp breakhandler.h
     breakpoint.cpp breakpoint.h
     cdb/cdbengine.cpp cdb/cdbengine.h
+    cdb/cdbimpl.cpp cdb/cdbimpl.h
     cdb/cdboptionspage.cpp cdb/cdboptionspage.h
     cdb/cdbparsehelpers.cpp cdb/cdbparsehelpers.h
     cdb/stringinputstream.cpp cdb/stringinputstream.h

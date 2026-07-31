@@ -89,6 +89,7 @@ QtcPlugin {
         prefix: "cdb/"
         files: [
             "cdbengine.cpp", "cdbengine.h",
+            "cdbimpl.cpp", "cdbimpl.h",
             "cdboptionspage.cpp", "cdboptionspage.h",
             "cdbparsehelpers.cpp", "cdbparsehelpers.h",
             "stringinputstream.cpp", "stringinputstream.h",

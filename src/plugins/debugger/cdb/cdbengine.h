@@ -219,7 +219,7 @@ private:
     mutable QStringDecoder m_cdbOutputDecoder;
 };
 
-DebuggerEngine *createCdbEngine();
+DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp);
 void addCdbOptionPages(QList<Core::IOptionsPage*> *opts);
 
 } // Debugger::Internal

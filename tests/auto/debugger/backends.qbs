@@ -1,4 +1,5 @@
 import qbs
+import qbs.FileInfo
 
 Project {
     QtcAutotest {
@@ -37,6 +38,15 @@ Project {
             }
             if (qmlmix_inferior.present) {
                 defines.push('QMLMIX_INFERIOR_EXECUTABLE="' +  destinationDirectory + '"');
+            }
+            // Mirrors the qtcreatorcdbext product: msvc-only, and the bitness
+            // suffix sits on the directory, not on the DLL.
+            if (qbs.toolchain.contains("msvc")) {
+                var extDir = "qtcreatorcdbext"
+                        + (qbs.architecture.contains("x86_64") ? "64" : "32");
+                defines.push('CDBEXT_LIBRARY="'
+                             + FileInfo.joinPaths(project.buildDirectory, qtc.libDirName,
+                                                  extDir, "qtcreatorcdbext.dll") + '"');
             }
             return defines;
         }
