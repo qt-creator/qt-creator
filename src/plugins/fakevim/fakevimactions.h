@@ -164,6 +164,10 @@ public:
     // actually honored by the selection code here.
     FvStringAspect selection;
 
+    // What kind of buffer this is. Empty means an ordinary file, which is what
+    // every buffer here is; scripts check it before touching one.
+    FvStringAspect bufType;
+
     // Whether to obey a "vim:" line in the file, and how many lines at each end
     // to look for one in.
     FvBoolAspect modeline;

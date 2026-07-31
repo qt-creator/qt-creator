@@ -108,6 +108,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&commentString,  "// %s", "CommentString", "cms", "");
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
     setup(&selection,      "inclusive", "Selection", "sel", "");
+    setup(&bufType,        {},    "BufType",        "bt",  "");
     setup(&modeline,       true,  "Modeline",       "ml",  "");
     setup(&modelines,      5,     "Modelines",      "mls", "");
 
