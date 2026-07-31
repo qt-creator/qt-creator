@@ -199,7 +199,26 @@ GroupItem QnxDeployQtLibrariesDialog::uploadTask()
         return SetupResult::Continue;
     };
     const auto onError = [this](const FileTransfer &transfer) {
-        emitErrorMessage(transfer.resultData().m_errorString);
+        // The transfer error is the raw sftp stderr. On a first deployment it is
+        // dominated by harmless lines that bury the real failure. Drop those so
+        // it stays visible, and hint at the usual cause.
+        const QString errorString = transfer.resultData().m_errorString;
+        QStringList lines;
+        for (const QString &line : errorString.split('\n', Qt::SkipEmptyParts)) {
+            const QString trimmed = line.trimmed();
+            const bool harmlessRm = (trimmed.startsWith("remote delete ")
+                                     || trimmed.startsWith("Couldn't delete file"))
+                                    && trimmed.endsWith("No such file or directory");
+            const bool harmlessMkdir = trimmed.startsWith("remote mkdir ")
+                                       && trimmed.endsWith("Failure");
+            if (!harmlessRm && !harmlessMkdir)
+                lines.append(line);
+        }
+        if (!lines.isEmpty())
+            emitErrorMessage(lines.join('\n'));
+        emitErrorMessage(Tr::tr("Deployment failed. Make sure the device has enough free disk "
+                                "space and that the remote directory \"%1\" is writable.")
+                             .arg(fullRemoteDirectory()));
     };
     return FileTransferTask(onSetup, onError, CallDoneFlag::OnError);
 }
