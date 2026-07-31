@@ -168,6 +168,12 @@ public:
     // every buffer here is; scripts check it before touching one.
     FvStringAspect bufType;
 
+    // Which Vi compatibilities are in effect. None of the flags change anything
+    // here, where the behavior is Vim's own, so this reports what Vim reports
+    // and exists for the scripts that save it, set it and put it back.
+    FvStringAspect cpoOptions;
+
+
     // Whether to obey a "vim:" line in the file, and how many lines at each end
     // to look for one in.
     FvBoolAspect modeline;

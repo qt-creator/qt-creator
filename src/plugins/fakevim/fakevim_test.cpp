@@ -5774,6 +5774,23 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("g:calls"), QLatin1String("1"));
     data.doCommand("unlet g:calls");
 
+    // 'cpoptions' and putting an option back with "&", the dance nearly every
+    // legacy plugin does around its own body. Values taken from Vim 9.1.
+    QCOMPARE(echo("&cpo"), QLatin1String("aABceFsz"));
+    data.doCommand("let g:savedCpo = &cpo");
+    data.doCommand("set cpo=abc");
+    QCOMPARE(echo("&cpo"), QLatin1String("abc"));
+    data.doCommand("set cpo&vim");
+    QCOMPARE(echo("&cpo"), QLatin1String("aABceFsz"));
+    data.doCommand("set cpo=xyz");
+    data.doCommand("set cpo&");
+    QCOMPARE(echo("&cpo"), QLatin1String("aABceFsz"));
+    // ... and restoring what was saved, which is how the dance ends.
+    data.doCommand("set cpo=qqq");
+    data.doCommand("let &cpo = g:savedCpo");
+    QCOMPARE(echo("&cpo"), QLatin1String("aABceFsz"));
+    data.doCommand("unlet g:savedCpo");
+
     // deepcopy() shares nothing with the original, where copy() shares what is
     // nested. Values taken from Vim 9.1.
     data.doCommand("let g:dcA = [[1, 2], {'k': [3]}]");

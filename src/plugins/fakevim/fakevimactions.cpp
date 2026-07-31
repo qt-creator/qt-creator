@@ -109,6 +109,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
     setup(&selection,      "inclusive", "Selection", "sel", "");
     setup(&bufType,        {},    "BufType",        "bt",  "");
+    setup(&cpoOptions,     "aABceFsz", "CpoOptions", "cpo", "");
     setup(&modeline,       true,  "Modeline",       "ml",  "");
     setup(&modelines,      5,     "Modelines",      "mls", "");
 

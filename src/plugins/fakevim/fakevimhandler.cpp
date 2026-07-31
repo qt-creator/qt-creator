@@ -7210,6 +7210,16 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
             showMessage(MessageError, error);
     } else if (cmd.args == "commentstring?" || cmd.args == "cms?") {
         showMessage(MessageInfo, "commentstring=" + commentString());
+    } else if (cmd.args.endsWith('&') || cmd.args.endsWith("&vim")) {
+        // ":set {option}&" puts an option back to what it started as, which is
+        // how a script leaves one as it found it. Vim's "&vim" asks for its own
+        // default rather than Vi's; there is only one default here.
+        QString optionName = cmd.args;
+        optionName.chop(optionName.endsWith("&vim") ? 4 : 1);
+        if (FvBaseAspect *act = s.item(Utils::keyFromString(optionName)))
+            act->setVariantValue(act->defaultVariantValue());
+        else
+            showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + cmd.args);
     } else {
         QString optionName = cmd.args;
 
