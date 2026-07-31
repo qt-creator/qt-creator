@@ -268,9 +268,9 @@ void LldbEngine::handleLldbStarted()
         return;
     }
 
-    QString commands = nativeStartupCommands();
-    if (!commands.isEmpty())
-        executeCommand(commands);
+    const QStringList startupCommands = nativeStartupCommands().split('\n', Qt::SkipEmptyParts);
+    for (const QString &command : startupCommands)
+        executeDebuggerCommand(command);
 
     const FilePath path = settings().extraDumperFile();
     if (path.isReadableFile()) {
@@ -279,7 +279,7 @@ void LldbEngine::handleLldbStarted()
         runCommand(cmd);
     }
 
-    commands = settings().extraDumperCommands();
+    const QString commands = settings().extraDumperCommands();
     if (!commands.isEmpty())
         executeDebuggerCommand(commands);
 
