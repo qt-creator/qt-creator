@@ -1709,8 +1709,18 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
         d->m_perspective->select();
     showMessage(Tr::tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
-    if (settings().raiseOnInterrupt())
-        ICore::raiseWindow(PerspectivesView::instance()->mainWindow());
+    if (settings().raiseOnInterrupt()) {
+        // Only raise for a stop the user should actually see. Defer by one
+        // event loop cycle and bail out if the engine has meanwhile continued
+        // the inferior: a transient startup stop that is immediately continued
+        // - e.g. the initial stop of a terminal inferior that the process stub
+        // launches suspended - must not steal focus from the terminal
+        // (QTCREATORBUG-15818).
+        QTimer::singleShot(0, this, [this] {
+            if (state() == InferiorStopOk)
+                ICore::raiseWindow(PerspectivesView::instance()->mainWindow());
+        });
+    }
 }
 
 void DebuggerEngine::notifyInferiorStopFailed()
