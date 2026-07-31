@@ -199,11 +199,8 @@ static ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const
         process->setTerminalMode(TerminalMode::Debug);
         process->setRunData(stub);
 
-        auto started = std::make_shared<bool>(false);
         QObject::connect(process, &Process::started, process,
-                         [runParameters = &runParameters, process, barrier = barrier.activeStorage(),
-                          started] {
-            *started = true;
+                         [runParameters = &runParameters, process, barrier = barrier.activeStorage()] {
             runParameters->setApplicationPid(process->processId());
             runParameters->setApplicationMainThreadId(process->applicationMainThreadId());
             barrier->advance();
@@ -215,8 +212,8 @@ static ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const
         // of hanging at "Launching Debugger". QTCREATORBUG-13208.
         QObject::connect(process, &Process::done, process,
                          [process, barrier = barrier.activeStorage(),
-                          runControl = storage->runControl, started] {
-            if (*started)
+                          runControl = storage->runControl] {
+            if (process->result() != ProcessResult::StartFailed)
                 return;
             const QString error = process->errorString();
             runControl->postMessage(
