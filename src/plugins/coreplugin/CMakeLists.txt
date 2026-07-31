@@ -339,6 +339,13 @@ extend_qtc_plugin(Core
   DEPENDS Qt::DBus
 )
 
+extend_qtc_plugin(Core
+  FEATURE_INFO "Task bar progress (Unity D-Bus LauncherEntry)"
+  CONDITION UNIX AND NOT APPLE AND TARGET Qt::DBus
+  DEFINES QTC_SUPPORT_UNITY_LAUNCHER
+  DEPENDS Qt::DBus
+)
+
 set(FONTS_BASE "${QtCreator_SOURCE_DIR}/src/share/3rdparty/studiofonts/")
 qt_add_resources(Core
   CoreWelcomeScreenFonts_rcc

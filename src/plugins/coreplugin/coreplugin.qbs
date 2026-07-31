@@ -3,6 +3,11 @@ import qbs.Utilities
 
 QtcPlugin {
     name: "Core"
+
+    // Unity LauncherEntry D-Bus API for task bar progress (KDE Plasma etc.).
+    property bool useUnityLauncher: qbs.targetOS.contains("unix")
+                                    && !qbs.targetOS.contains("macos")
+
     Depends {
         name: "Qt"
         submodules: ["gui-private", "network", "printsupport", "qml", "widgets", "xml"]
@@ -12,6 +17,7 @@ QtcPlugin {
     Depends { name: "Spinner" }
     Depends { name: "TerminalLib" }
     Depends { name: "qtkeychain" }
+    Depends { name: "Qt.dbus"; condition: useUnityLauncher }
 
     pluginTestDepends: [
         "BinEditor",
@@ -24,6 +30,11 @@ QtcPlugin {
     }
 
     cpp.frameworks: qbs.targetOS.contains("macos") ? ["AppKit"] : undefined
+
+    Properties {
+        condition: useUnityLauncher
+        cpp.defines: base.concat("QTC_SUPPORT_UNITY_LAUNCHER")
+    }
 
     Group {
         name: "General"
