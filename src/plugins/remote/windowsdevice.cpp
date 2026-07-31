@@ -507,7 +507,23 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     script += "schtasks /delete /f /tn $tn 2>&1 | Out-Null\n";
     script += "if (Test-Path $out) { [Console]::Out.Write((Get-Content -Raw $out)) }\n";
     script += "if (Test-Path $err) { [Console]::Error.Write((Get-Content -Raw $err)) }\n";
-    script += "exit [int](Get-Content $done)\n";
+    // The status travels back as the exit code of the SSH connection, which carries only its low
+    // 8 bits. A Windows status code that is a multiple of 256 - which many crash and loader
+    // failures are, e.g. 0xC0000100 - would arrive as 0, reporting a failed run as successful.
+    // So pass ordinary exit codes through unchanged and turn anything that does not survive into
+    // a plain failure that names the real status.
+    script += "$raw = (Get-Content -Raw $done)\n";
+    script += "if ($raw -notmatch '^\\s*-?\\d+\\s*$') {\n";
+    script += "    [Console]::Error.Write('qtc: the application did not report an exit code.')\n";
+    script += "    exit 1\n";
+    script += "}\n";
+    script += "$code = [int]$raw.Trim()\n";
+    script += "if ($code -lt 0 -or $code -gt 255) {\n";
+    script += "    [Console]::Error.Write(('qtc: the application terminated with status "
+              "0x{0:X8}.' -f $code))\n";
+    script += "    exit 1\n";
+    script += "}\n";
+    script += "exit $code\n";
 
     if (const Result<qint64> res = scriptPath.writeFileContents(script.toUtf8()); !res) {
         qCWarning(windowsDeviceLog) << "Failed to write interactive-run script"
