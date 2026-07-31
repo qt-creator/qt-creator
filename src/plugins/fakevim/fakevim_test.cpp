@@ -230,6 +230,7 @@ private slots:
     void test_vim_script_augroup();
     void test_vim_script_autoload();
     void test_vim_script_scriptlocal();
+    void test_vim_script_if_chain();
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim_script_positions();
@@ -6829,6 +6830,61 @@ void FakeVimTester::test_vim_script_funcref()
 
 
 
+
+void FakeVimTester::test_vim_script_if_chain()
+{
+    // The shape a plugin settles a choice with: a block that fills in a
+    // default, another that is skipped, then a chain whose last arm reports
+    // not knowing what to do. Reaching that arm anyway is the sign the chain
+    // was read wrongly. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    source("let s:mode = ''\n"
+           "function! s:Init()\n"
+           "  if empty(s:mode)\n"
+           "    let s:mode = 'vim_core'\n"
+           "  endif\n"
+           "\n"
+           "  if s:mode ==? 'external'\n"
+           "    if 0\n"
+           "      let s:mode = 'never'\n"
+           "    endif\n"
+           "  endif\n"
+           "\n"
+           "  if s:mode ==? 'vim_core'\n"
+           "    if 0\n"
+           "      return 'vimcore-failed'\n"
+           "    endif\n"
+           "  elseif s:mode ==? 'external'\n"
+           "    \" nothing to do here\n"
+           "  else\n"
+           "    return 'unknown:' . s:mode\n"
+           "  endif\n"
+           "\n"
+           "  return 'ok:' . s:mode\n"
+           "endfunction\n"
+           "let g:ret = s:Init()\n"
+           "let g:mode = s:mode\n");
+    QCOMPARE(echo("g:ret"), QLatin1String("ok:vim_core"));
+    QCOMPARE(echo("g:mode"), QLatin1String("vim_core"));
+    data.doCommand("unlet g:ret | unlet g:mode");
+}
 
 void FakeVimTester::test_vim_script_scriptlocal()
 {
