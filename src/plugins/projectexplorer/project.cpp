@@ -48,7 +48,9 @@
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/widgets.h>
 
+#include <QCursor>
 #include <QDir>
 #include <QFileDialog>
 #include <QHash>
@@ -860,6 +862,9 @@ void Project::setType(Id id)
 void Project::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
 {
     QTC_ASSERT(d->m_rootProjectNode.get() != root.get() || !root, return);
+
+    // Applying the new tree blocks the UI thread, potentially for seconds.
+    OverrideCursor busy(Qt::WaitCursor);
 
     if (root && root->isEmpty()) {
         // Something went wrong with parsing: At least the project file needs to be
