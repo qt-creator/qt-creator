@@ -486,6 +486,7 @@ MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
     , m_enableCodeCopyButton(false)
 {
+    setFont(Utils::font(contentTF));
     setOpenLinks(false);
     connect(this, &QTextBrowser::anchorClicked, this, &MarkdownBrowser::handleAnchorClicked);
 
