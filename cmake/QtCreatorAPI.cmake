@@ -393,10 +393,19 @@ function(add_qtc_library name)
     set(_library_enabled OFF)
   endif()
 
+  set(skip_translation OFF)
+  if (_arg_SKIP_TRANSLATION)
+    set(skip_translation ON)
+    set_property(GLOBAL PROPERTY "_qtc_${name}_skip_translation" ON)
+  endif()
+
   if(DEFINED _arg_FEATURE_INFO)
     add_feature_info("Library ${name}" _library_enabled "${_extra_text}")
   endif()
   if (NOT _library_enabled)
+    if (NOT skip_translation)
+      qtc_collect_translation_sources(SOURCES ${_arg_SOURCES} SOURCES_PREFIX "${_arg_SOURCES_PREFIX}")
+    endif()
     return()
   endif()
 
@@ -469,11 +478,6 @@ function(add_qtc_library name)
         "$<BUILD_INTERFACE:${public_build_interface_dir}>"
         "$<INSTALL_INTERFACE:${IDE_DEVEL_HEADER_INSTALL_PATH}/${include_dir_relative_path}>"
     )
-  endif()
-
-  set(skip_translation OFF)
-  if (_arg_SKIP_TRANSLATION)
-    set(skip_translation ON)
   endif()
 
   set(_DESTINATION "${IDE_BIN_PATH}")
@@ -913,10 +917,19 @@ function(add_qtc_plugin target_name)
     set(_plugin_enabled OFF)
   endif()
 
+  set(skip_translation OFF)
+  if (_arg_SKIP_TRANSLATION)
+    set(skip_translation ON)
+    set_property(GLOBAL PROPERTY "_qtc_${target_name}_skip_translation" ON)
+  endif()
+
   if (NOT _arg_INTERNAL_ONLY)
     add_feature_info("Plugin ${name}" _plugin_enabled "${_extra_text}")
   endif()
   if (NOT _plugin_enabled)
+    if (NOT skip_translation)
+      qtc_collect_translation_sources(SOURCES ${_arg_SOURCES})
+    endif()
     return()
   endif()
 
@@ -1087,11 +1100,6 @@ function(add_qtc_plugin target_name)
     set(plugin_dir "${_arg_PLUGIN_PATH}")
   endif()
 
-  set(skip_translation OFF)
-  if (_arg_SKIP_TRANSLATION)
-    set(skip_translation ON)
-  endif()
-
   if(NOT _arg_PLUGIN_CLASS)
     set(_arg_PLUGIN_CLASS ${target_name}Plugin)
   endif()
@@ -1216,9 +1224,6 @@ endfunction()
 #]=]
 function(extend_qtc_plugin target_name)
   qtc_plugin_enabled(_plugin_enabled ${target_name})
-  if (NOT _plugin_enabled)
-    return()
-  endif()
 
   check_library_dependencies(${_arg_DEPENDS})
   check_library_dependencies(${_arg_PUBLIC_DEPENDS})
@@ -1240,9 +1245,6 @@ endfunction()
 #]=]
 function(extend_qtc_library target_name)
   qtc_library_enabled(_library_enabled ${target_name})
-  if (NOT _library_enabled)
-    return()
-  endif()
 
   check_library_dependencies(${_arg_DEPENDS})
   check_library_dependencies(${_arg_PUBLIC_DEPENDS})

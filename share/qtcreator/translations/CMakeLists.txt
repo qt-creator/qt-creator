@@ -50,7 +50,8 @@ add_translation_targets(qtcreator
   OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}/translations"
   INSTALL_DESTINATION "${IDE_DATA_PATH}/translations"
   TARGETS "${__QTC_LIBRARIES}" "${__QTC_PLUGINS}"
-  SOURCES "${json_wizards_h}" "${custom_wizards_h}" "${externaltools_h}" "${snippets_h}"
+  SOURCES "${__QTC_EXTRA_TRANSLATION_SOURCES}"
+  GENERATED_SOURCES "${json_wizards_h}" "${custom_wizards_h}" "${externaltools_h}" "${snippets_h}"
   OUT_VAR_TS_FILES ts_files
   OUT_VAR_QM_FILES qm_files
 )
