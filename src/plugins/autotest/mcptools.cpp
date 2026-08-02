@@ -19,6 +19,8 @@
 #include <utils/qtcassert.h>
 #include <utils/result.h>
 
+#include <chrono>
+
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLoggingCategory>
@@ -49,6 +51,102 @@ struct ResolvedTestRun
     QList<ITestConfiguration *> configs;
 };
 
+// "_"-prefixed keys are reserved by the protocol and not ours to reject.
+static Utils::Result<> rejectUnknownArgs(const QJsonObject &args, const QStringList &known)
+{
+    QStringList unknown;
+    for (auto it = args.begin(), end = args.end(); it != end; ++it) {
+        if (!it.key().startsWith('_') && !known.contains(it.key()))
+            unknown.append(it.key());
+    }
+    if (unknown.isEmpty())
+        return ResultOk;
+    return ResultError(QString("Unknown argument(s): %1 (expected %2)")
+                           .arg(unknown.join(", "), known.join('/')));
+}
+
+static QStringList knownScopes() { return {"all", "selected", "failed", "named"}; }
+static QStringList knownModes() { return {"run", "debug"}; }
+
+// How often to re-check whether test discovery can still deliver.
+constexpr std::chrono::seconds parserPollInterval{30};
+
+// Argument-only checks. Kept out of resolveTestRun so a bad call fails now
+// instead of being deferred until the parser finishes, which on a CTest-only
+// project may be never.
+static Utils::Result<> validateRunArgs(
+    const QString &scope, const QStringList &names, const QString &mode)
+{
+    if (!knownScopes().contains(scope)) {
+        return ResultError(
+            QString("Unknown scope: %1 (expected %2)").arg(scope, knownScopes().join('/')));
+    }
+    if (!knownModes().contains(mode))
+        return ResultError(
+            QString("Unknown mode: %1 (expected %2)").arg(mode, knownModes().join('/')));
+
+    if (scope == QLatin1String("named")) {
+        if (names.isEmpty())
+            return ResultError("scope=named requires a non-empty names array");
+    } else if (!names.isEmpty()) {
+        return ResultError(
+            QString("names is only used with scope=\"named\", but scope is \"%1\". "
+                    "Pass scope=\"named\" to run just those tests.")
+                .arg(scope));
+    }
+    return ResultOk;
+}
+
+struct RunArgs
+{
+    QString scope;
+    QString mode;
+    QStringList names;
+};
+
+// Types are checked here too: toString()/toArray() turn a wrong type into the
+// default, and for scope that default is a silent full run.
+static Utils::Result<RunArgs> readRunArgs(const QJsonObject &p)
+{
+    if (const Utils::Result<> known = rejectUnknownArgs(p, {"scope", "names", "mode"}); !known)
+        return ResultError(known.error());
+
+    const auto readString = [&p](const QString &key,
+                                 const QString &fallback) -> Utils::Result<QString> {
+        const QJsonValue v = p.value(key);
+        if (v.isUndefined() || v.isNull())
+            return fallback;
+        if (!v.isString())
+            return ResultError(QString("%1 must be a string").arg(key));
+        return v.toString();
+    };
+
+    RunArgs args;
+    const Utils::Result<QString> scope = readString("scope", "all");
+    if (!scope)
+        return ResultError(scope.error());
+    args.scope = *scope;
+    const Utils::Result<QString> mode = readString("mode", "run");
+    if (!mode)
+        return ResultError(mode.error());
+    args.mode = *mode;
+
+    const QJsonValue namesValue = p.value("names");
+    if (!namesValue.isUndefined() && !namesValue.isNull() && !namesValue.isArray())
+        return ResultError("names must be an array of strings");
+    const QJsonArray namesArr = namesValue.toArray();
+    args.names.reserve(namesArr.size());
+    for (const QJsonValue &v : namesArr) {
+        if (!v.isString())
+            return ResultError("names must contain strings only");
+        args.names.append(v.toString());
+    }
+
+    if (const Utils::Result<> ok = validateRunArgs(args.scope, args.names, args.mode); !ok)
+        return ResultError(ok.error());
+    return args;
+}
+
 static Utils::Result<ResolvedTestRun> resolveTestRun(
     const QString &scope, const QStringList &names, const QString &mode)
 {
@@ -59,31 +157,26 @@ static Utils::Result<ResolvedTestRun> resolveTestRun(
     if (!model)
         return ResultError("Autotest plugin not available");
 
-    TestRunMode runMode;
-    const QString m = mode.isEmpty() ? QStringLiteral("run") : mode;
-    if (m == QLatin1String("run"))
-        runMode = TestRunMode::Run;
-    else if (m == QLatin1String("debug"))
-        runMode = TestRunMode::Debug;
-    else
-        return ResultError(QString("Unknown mode: %1 (expected run/debug)").arg(m));
+    const TestRunMode runMode = mode == QLatin1String("debug") ? TestRunMode::Debug
+                                                               : TestRunMode::Run;
 
     QList<ITestConfiguration *> configs;
-    const QString s = scope.isEmpty() ? QStringLiteral("all") : scope;
-    if (s == QLatin1String("selected")) {
+    if (scope == QLatin1String("selected")) {
         configs = model->getSelectedTests(runMode);
-    } else if (s == QLatin1String("failed")) {
+    } else if (scope == QLatin1String("failed")) {
         configs = model->getFailedTests();
-    } else if (s == QLatin1String("all")) {
+    } else if (scope == QLatin1String("all")) {
         configs = model->getAllTestCases(runMode);
-    } else if (s == QLatin1String("named")) {
-        if (names.isEmpty())
-            return ResultError("scope=named requires a non-empty names array");
-
+    } else if (scope == QLatin1String("named")) {
         auto lookupByName = [model](const QString &qualifiedName) -> QList<ITestTreeItem *> {
+            // A test name may contain "::" itself, so the whole name wins over
+            // reading it as Class::function.
+            const QList<ITestTreeItem *> whole = model->testItemsByName(qualifiedName);
+            if (!whole.isEmpty())
+                return whole;
             const int sep = qualifiedName.indexOf(QStringLiteral("::"));
             if (sep < 0)
-                return model->testItemsByName(qualifiedName);
+                return {};
             const QString className = qualifiedName.left(sep);
             const QString functionName = qualifiedName.mid(sep + 2);
             QList<ITestTreeItem *> matched;
@@ -132,12 +225,10 @@ static Utils::Result<ResolvedTestRun> resolveTestRun(
         }
         for (ITestTreeItem *root : roots)
             configs.append(root->getTestConfigurationsForItems(itemsPerRoot.value(root), runMode));
-    } else {
-        return ResultError(QString("Unknown scope: %1 (expected all/selected/failed/named)").arg(s));
     }
 
     if (configs.isEmpty())
-        return ResultError(QString("No tests to run for scope: %1").arg(s));
+        return ResultError(QString("No tests to run for scope: %1").arg(scope));
 
     return ResolvedTestRun{runMode, configs};
 }
@@ -150,6 +241,11 @@ static void cancelTestRun()
     if (!runner)
         return;
     emit runner->requestStopTestRun();
+}
+
+static bool discoveryCanStillArrive(TestTreeModel *model)
+{
+    return model && model->parser()->isParsingOrScheduled();
 }
 
 static QJsonObject testRunStatus()
@@ -181,12 +277,30 @@ void registerMcpTools()
     // Leaked on purpose: its destructor runs at exit(), on released memory.
     static ProjectExplorer::IssuesManager &issuesManager = *new ProjectExplorer::IssuesManager;
 
-    using SimplifiedCallback = std::function<QJsonObject(const QJsonObject &)>;
+    using SimplifiedCallback = std::function<Utils::Result<QJsonObject>(const QJsonObject &)>;
     const auto wrap = [](SimplifiedCallback &&callback) -> Server::ToolCallback {
-        return [callback](
+        return [callback = std::move(callback)](
                    const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const QJsonObject result = callback(params.argumentsAsObject());
-            return CallToolResult{}.isError(false).structuredContent(result);
+            const Utils::Result<QJsonObject> result = callback(params.argumentsAsObject());
+            if (!result)
+                return ResultError(result.error());
+            return CallToolResult{}.isError(false).structuredContent(*result);
+        };
+    };
+
+    // For tools that declare an input schema. Without one the tool forbids
+    // nothing, so rejecting arguments there would refuse calls it allows.
+    const auto wrapChecked = [](const QStringList &knownArgs,
+                                SimplifiedCallback &&callback) -> Server::ToolCallback {
+        return [knownArgs, callback = std::move(callback)](
+                   const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            if (const Utils::Result<> known = rejectUnknownArgs(args, knownArgs); !known)
+                return ResultError(known.error());
+            const Utils::Result<QJsonObject> result = callback(args);
+            if (!result)
+                return ResultError(result.error());
+            return CallToolResult{}.isError(false).structuredContent(*result);
         };
     };
 
@@ -273,8 +387,11 @@ void registerMcpTools()
             .description(
                 "Build (if needed) and run autotests, then return a compact summary: "
                 "counts, list of failed/fatal/skipped test names, and list of passing "
-                "test names that emitted warnings. Equivalent to clicking Run (or Debug, "
-                "with mode='debug') in the Tests pane. Returns once the run finishes. "
+                "test names that emitted warnings. Runs the whole suite unless you pass "
+                "scope='named' with names - prefer that when you already know which "
+                "tests you care about; a full run can be slow enough to hit a client "
+                "timeout. Equivalent to clicking Run (or Debug, with mode='debug') in "
+                "the Tests pane. Returns once the run finishes. "
                 "To see per-test details (messages, file/line, etc.), follow up with "
                 "get_test_details using ANY test name from the run — failures, "
                 "warnings, or just a passing test you want to inspect. get_test_details "
@@ -294,21 +411,27 @@ void registerMcpTools()
                             {"default", "all"},
                             {"description",
                              "Which tests to run. 'all' runs every discovered test "
-                             "(default). 'selected' runs whatever is checked in the Tests "
-                             "pane. 'failed' re-runs the tests that failed in the previous "
-                             "run. 'named' runs only the tests in the `names` array."}})
+                             "(default). 'selected' means whatever the user has ticked in "
+                             "the Tests pane, not a selection the caller passes, so it is "
+                             "rarely what a caller wants. 'failed' re-runs the tests that "
+                             "failed in the previous run. 'named' runs only the tests in "
+                             "the `names` array; set this to run one test, as `names` with "
+                             "any other scope is rejected."}})
                     .addProperty(
                         "names",
                         QJsonObject{
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "string"}}},
                             {"description",
-                             "Test names to run when scope='named'. Names typically come "
-                             "from `failures` or `tests_with_warnings` in a previous "
-                             "summary, or from list_tests. Names must already be present "
-                             "in Autotest's current model — if a name is not found, "
-                             "call reconfigure first to trigger a re-parse (needed after "
-                             "adding or renaming test functions). Ignored for other scopes."}})
+                             "Test names to run. Requires scope='named'; passing names "
+                             "with any other scope is an error. Use 'Class', or "
+                             "'Class::function' for frameworks that list functions - "
+                             "CTest entries have none, so only the whole test runs. "
+                             "Names typically come from `failures` or `tests_with_warnings` "
+                             "in a previous summary, or from list_tests. Names must already "
+                             "be present in Autotest's current model — if a name is not "
+                             "found, call reconfigure first to trigger a re-parse (needed "
+                             "after adding or renaming test functions)."}})
                     .addProperty(
                         "mode",
                         QJsonObject{
@@ -326,20 +449,42 @@ void registerMcpTools()
         [](const Schema::CallToolRequestParams &params,
            const ToolInterface &toolInterface) -> Utils::Result<> {
             const QJsonObject p = params.argumentsAsObject();
-            const QString scope = p.value("scope").toString("all");
-            const QString mode = p.value("mode").toString("run");
-            QStringList names;
-            const QJsonArray namesArr = p.value("names").toArray();
-            names.reserve(namesArr.size());
-            for (const QJsonValue &v : namesArr)
-                names.append(v.toString());
+
+            // Before startTask(): a call rejected here never runs, and a task
+            // left behind would be reported completed by its own heartbeat.
+            const Utils::Result<RunArgs> args = readRunArgs(p);
+            if (!args) {
+                toolInterface.finish(
+                    CallToolResult{}.isError(true).addContent(
+                        Schema::TextContent{}.text(args.error())));
+                return ResultOk;
+            }
+            const QString scope = args->scope;
+            const QString mode = args->mode;
+            const QStringList names = args->names;
 
             struct State
             {
-                bool finished = false;
                 bool cancelRequested = false;
                 bool waitingForParser = false;
                 std::optional<QString> resolveError;
+                std::optional<Schema::TaskStatus> finalStatus;
+                ToolInterface::TaskProgressNotify notify;
+
+                bool finished() const { return finalStatus.has_value(); }
+
+                // The only way to end the task, so the status the client is
+                // notified with is the one the heartbeat reports afterwards.
+                // A cancelled run still ends through runFinished, which cannot
+                // tell that apart from a normal end, so honour the request here.
+                void finish(Schema::TaskStatus status, const QString &message)
+                {
+                    const bool cancelled = cancelRequested
+                                           && status == Schema::TaskStatus::completed;
+                    finalStatus = cancelled ? Schema::TaskStatus::cancelled : status;
+                    if (notify)
+                        notify(*finalStatus, cancelled ? "Cancelled" : message, std::nullopt);
+                }
             };
             auto state = std::make_shared<State>();
 
@@ -350,9 +495,11 @@ void registerMcpTools()
             const Utils::Result<ToolInterface::TaskProgressNotify> task = toolInterface.startTask(
                 500ms,
                 [state](Schema::Task t) -> Schema::Task {
-                    if (state->finished) {
+                    if (state->finished()) {
                         letTaskDieIn(t, 1min);
-                        return t.status(Schema::TaskStatus::completed);
+                        // The heartbeat outlives the notify() that set the outcome,
+                        // so it reports what finish() recorded rather than deriving it.
+                        return t.status(*state->finalStatus);
                     }
                     const char *msg = state->cancelRequested  ? "Cancelling tests..."
                                     : state->waitingForParser ? "Waiting for test discovery..."
@@ -387,17 +534,15 @@ void registerMcpTools()
                 return ResultOk;
             }
 
-            const ToolInterface::TaskProgressNotify notify = *task;
+            state->notify = *task;
 
             // Launches an already-resolved run (resolution happens below).
-            auto startRun = [state, notify](ResolvedTestRun resolved) {
+            auto startRun = [state](ResolvedTestRun resolved) {
                 state->waitingForParser = false;
 
                 if (state->cancelRequested) {
                     qDeleteAll(resolved.configs); // owned here
-                    state->finished = true;
-                    if (notify)
-                        notify(Schema::TaskStatus::cancelled, "Cancelled", std::nullopt);
+                    state->finish(Schema::TaskStatus::cancelled, "Cancelled");
                     return;
                 }
 
@@ -406,27 +551,23 @@ void registerMcpTools()
                     &resultsManager(),
                     &TestResultsManager::runFinished,
                     &resultsManager(),
-                    [state, notify, conn]() {
+                    [state, conn]() {
                         QObject::disconnect(*conn);
-                        if (state->finished)
+                        if (state->finished())
                             return;
-                        state->finished = true;
-                        if (notify)
-                            notify(Schema::TaskStatus::completed, "Tests finished", std::nullopt);
+                        state->finish(Schema::TaskStatus::completed, "Tests finished");
                     });
 
                 if (!resultsManager().runTests(resolved.mode, resolved.configs)) {
                     qDeleteAll(resolved.configs);
                     QObject::disconnect(*conn);
                     state->resolveError = "Failed to start test run (already in progress?)";
-                    state->finished = true;
-                    if (notify)
-                        notify(Schema::TaskStatus::failed, "Failed to start", std::nullopt);
+                    state->finish(Schema::TaskStatus::failed, "Failed to start");
                     return;
                 }
 
                 QTimer::singleShot(5000, &resultsManager(), [state]() {
-                    if (state->finished)
+                    if (state->finished())
                         return;
                     if (!resultsManager().isRunning())
                         return;
@@ -437,19 +578,17 @@ void registerMcpTools()
             };
 
             // Re-resolve against the settled tree, then run or report the error.
-            auto resolveAndRun = [scope, names, mode, state, notify, startRun]() {
+            auto resolveAndRun = [scope, names, mode, state, startRun]() {
+                if (state->finished())
+                    return;
                 if (state->cancelRequested) {
-                    state->finished = true;
-                    if (notify)
-                        notify(Schema::TaskStatus::cancelled, "Cancelled", std::nullopt);
+                    state->finish(Schema::TaskStatus::cancelled, "Cancelled");
                     return;
                 }
                 Utils::Result<ResolvedTestRun> resolved = resolveTestRun(scope, names, mode);
                 if (!resolved) {
                     state->resolveError = resolved.error();
-                    state->finished = true;
-                    if (notify)
-                        notify(Schema::TaskStatus::failed, "Error", std::nullopt);
+                    state->finish(Schema::TaskStatus::failed, "Error");
                     return;
                 }
                 startRun(std::move(*resolved));
@@ -460,59 +599,78 @@ void registerMcpTools()
             // Wait for the parser to settle, then re-resolve and run. Queued so
             // it runs after TestTreeModel::sweep(); re-checks each time since a
             // build can trigger several scans.
-            auto deferUntilParsed = [model, resolveAndRun, state, notify]() {
+            auto deferUntilParsed = [model, resolveAndRun, state]() {
                 state->waitingForParser = true;
                 qCDebug(mcpAutotest)
                     << "run_tests: deferring until the test parser finishes discovery";
                 TestCodeParser *parser = model->parser();
                 auto connFinished = std::make_shared<QMetaObject::Connection>();
                 auto connFailed = std::make_shared<QMetaObject::Connection>();
-                auto onParsingDone = [connFinished, connFailed, resolveAndRun, state, notify]() {
+                auto stopWaiting = [connFinished, connFailed, state] {
+                    QObject::disconnect(*connFinished);
+                    QObject::disconnect(*connFailed);
+                    state->waitingForParser = false;
+                };
+                auto onParsingDone = [stopWaiting, resolveAndRun, state]() {
+                    // A queued metacall posted before stopWaiting() still arrives.
+                    if (state->finished() || !state->waitingForParser)
+                        return;
                     if (state->cancelRequested) {
-                        QObject::disconnect(*connFinished);
-                        QObject::disconnect(*connFailed);
-                        state->waitingForParser = false;
-                        state->finished = true;
-                        if (notify)
-                            notify(Schema::TaskStatus::cancelled, "Cancelled", std::nullopt);
+                        stopWaiting();
+                        state->finish(Schema::TaskStatus::cancelled, "Cancelled");
                         return;
                     }
                     TestTreeModel *liveModel = TestTreeModel::instance();
-                    if (liveModel && liveModel->parser()->isParsingOrScheduled()) {
+                    if (discoveryCanStillArrive(liveModel)) {
                         qCDebug(mcpAutotest)
                             << "run_tests: parsingFinished fired but another scan is pending, "
                                "waiting for full convergence";
                         return; // connections stay installed
                     }
                     // Disconnect before resolveAndRun() to avoid double-dispatch.
-                    QObject::disconnect(*connFinished);
-                    QObject::disconnect(*connFailed);
+                    stopWaiting();
                     resolveAndRun();
                 };
                 *connFinished = QObject::connect(
                     parser, &TestCodeParser::parsingFinished,
-                    model, onParsingDone, Qt::QueuedConnection);
+                    parser, onParsingDone, Qt::QueuedConnection);
                 *connFailed = QObject::connect(
                     parser, &TestCodeParser::parsingFailed,
-                    model, onParsingDone, Qt::QueuedConnection);
+                    parser, onParsingDone, Qt::QueuedConnection);
+                // A parser that stops without emitting - the project was closed
+                // mid-scan, say - would otherwise leave the task waiting for good.
+                // A scan still running is not that case, so keep waiting for it.
+                auto *watchdog = new QTimer(parser);
+                watchdog->setInterval(parserPollInterval);
+                QObject::connect(
+                    watchdog, &QTimer::timeout, parser,
+                    [watchdog, stopWaiting, resolveAndRun, state] {
+                        if (state->finished() || !state->waitingForParser) {
+                            watchdog->deleteLater();
+                            return;
+                        }
+                        if (discoveryCanStillArrive(TestTreeModel::instance()))
+                            return;
+                        watchdog->deleteLater();
+                        qCDebug(mcpAutotest) << "run_tests: parser went quiet, resolving now";
+                        stopWaiting();
+                        resolveAndRun();
+                    });
+                watchdog->start();
             };
 
-            // Resolve and run. Don't block on the C++ parser: it can stay
-            // "scheduled" indefinitely on CTest-only projects (its scan is gated
-            // on the code model), which would hang run_tests. Only wait when
-            // nothing resolves yet and the parser is still scanning.
-            const bool parserBusy = model && model->parser()->isParsingOrScheduled();
+            // Resolve and run. A scan still to come can add the missing name, so
+            // wait for it, but only while one can still happen.
+            const bool discoveryPending = discoveryCanStillArrive(model);
             Utils::Result<ResolvedTestRun> resolved = resolveTestRun(scope, names, mode);
             if (resolved) {
                 startRun(std::move(*resolved));
-            } else if (parserBusy) {
+            } else if (discoveryPending) {
                 deferUntilParsed();
             } else {
                 // Not found, parser idle — final answer.
                 state->resolveError = resolved.error();
-                state->finished = true;
-                if (notify)
-                    notify(Schema::TaskStatus::failed, "Error", std::nullopt);
+                state->finish(Schema::TaskStatus::failed, "Error");
             }
 
             return ResultOk;
@@ -685,20 +843,37 @@ void registerMcpTools()
                         QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
                     .addRequired("tests")
                     .addRequired("not_found")),
-        wrap([](const QJsonObject &p) {
+        wrapChecked({"names", "include"}, [](const QJsonObject &p)
+                    -> Utils::Result<QJsonObject> {
+            const QJsonValue namesValue = p.value("names");
+            if (!namesValue.isArray())
+                return ResultError("names must be an array of strings");
+            const QJsonArray namesArr = namesValue.toArray();
+            if (namesArr.isEmpty())
+                return ResultError("names must not be empty");
             QStringList names;
-            const QJsonArray namesArr = p.value("names").toArray();
             names.reserve(namesArr.size());
-            for (const QJsonValue &v : namesArr)
+            for (const QJsonValue &v : namesArr) {
+                if (!v.isString())
+                    return ResultError("names must contain strings only");
                 names.append(v.toString());
+            }
             bool includeLog = false;
             bool includeMessages = false;
-            for (const QJsonValue &v : p.value("include").toArray()) {
+            const QJsonValue includeValue = p.value("include");
+            if (!includeValue.isUndefined() && !includeValue.isArray())
+                return ResultError("include must be an array of strings");
+            for (const QJsonValue &v : includeValue.toArray()) {
+                if (!v.isString())
+                    return ResultError("include must contain strings only");
                 const QString c = v.toString();
                 if (c == QLatin1String("log"))
                     includeLog = true;
                 else if (c == QLatin1String("messages"))
                     includeMessages = true;
+                else
+                    return ResultError(QString("Unknown include: %1 (expected log/messages)")
+                                           .arg(c));
             }
             return resultsManager().testDetails(names, includeLog, includeMessages);
         }));
