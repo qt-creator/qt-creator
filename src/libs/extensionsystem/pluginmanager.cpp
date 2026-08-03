@@ -277,6 +277,7 @@ PluginManager::~PluginManager()
 {
     delete d;
     d = nullptr;
+    m_instance = nullptr;
 }
 
 /*!
@@ -294,6 +295,8 @@ PluginManager::~PluginManager()
 */
 void PluginManager::addObject(QObject *obj)
 {
+    if (!d)
+        return; // object pool is gone (shutdown)
     d->addObject(obj);
 }
 
@@ -304,6 +307,8 @@ void PluginManager::addObject(QObject *obj)
 */
 void PluginManager::removeObject(QObject *obj)
 {
+    if (!d)
+        return; // object pool is gone (shutdown)
     d->removeObject(obj);
 }
 
@@ -316,6 +321,8 @@ void PluginManager::removeObject(QObject *obj)
 */
 QObjectList PluginManager::allObjects()
 {
+    if (!d)
+        return {}; // object pool is gone (shutdown)
     return d->allObjects;
 }
 
@@ -324,6 +331,11 @@ QObjectList PluginManager::allObjects()
 */
 QReadWriteLock *PluginManager::listLock()
 {
+    // A dummy lock after teardown keeps the getObject<T>() templates safe:
+    // they lock it and then iterate the empty allObjects().
+    static QReadWriteLock shutdownLock;
+    if (!d)
+        return &shutdownLock;
     return &d->m_lock;
 }
 
@@ -2185,6 +2197,8 @@ bool PluginManager::isShuttingDown()
 
 QObject *PluginManager::getObjectByName(const QString &name)
 {
+    if (!d)
+        return nullptr; // object pool is gone (shutdown)
     QReadLocker lock(&d->m_lock);
     return Utils::findOrDefault(allObjects(), [&name](const QObject *obj) {
         return obj->objectName() == name;

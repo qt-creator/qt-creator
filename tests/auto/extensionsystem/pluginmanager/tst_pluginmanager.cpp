@@ -26,6 +26,7 @@ private slots:
     void cleanup();
     void addRemoveObjects();
     void getObject();
+    void getObjectAfterShutdown();
     void circularPlugins();
     void correctPlugins1();
 
@@ -68,9 +69,12 @@ void tst_PluginManager::init()
 
 void tst_PluginManager::cleanup()
 {
-    PluginManager::shutdown();
-    SettingsSetup::destroySettings();
-    delete m_pm;
+    if (m_pm) {
+        PluginManager::shutdown();
+        SettingsSetup::destroySettings();
+        delete m_pm;
+        m_pm = nullptr;
+    }
     delete m_objectAdded;
     delete m_aboutToRemoveObject;
     delete m_pluginsChanged;
@@ -139,6 +143,26 @@ void tst_PluginManager::getObject()
     delete object2;
     delete object11;
     delete object2b;
+}
+
+void tst_PluginManager::getObjectAfterShutdown()
+{
+    // Tearing down the PluginManager nulls its private object pool and clears
+    // the instance pointer. Pool accessors must still be callable afterwards,
+    // for objects whose destructors run at static-destruction time, after
+    // ~PluginManager.
+    PluginManager::shutdown();
+    SettingsSetup::destroySettings();
+    delete m_pm;
+    m_pm = nullptr;
+    QVERIFY(!PluginManager::instance());
+    QCOMPARE(PluginManager::getObjectByName("whatever"), nullptr);
+    QCOMPARE(PluginManager::allObjects(), QObjectList());
+    QCOMPARE(PluginManager::getObject<MyClass1>(), nullptr);
+    QObject dummy;
+    PluginManager::addObject(&dummy);
+    QCOMPARE(PluginManager::allObjects(), QObjectList());
+    PluginManager::removeObject(&dummy);
 }
 
 void tst_PluginManager::circularPlugins()
