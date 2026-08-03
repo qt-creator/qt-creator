@@ -46,7 +46,10 @@ public:
         setSupportedType(Constants::HARMONYOS_QT_TYPE);
         setPriority(90);
         setRestrictionChecker([](const SetupData &setup) {
-            return setup.platforms.contains("ohos");
+            // The ohos mkspec bails out unless NATIVE_OHOS_SDK is set in the environment,
+            // which leaves QMAKE_PLATFORM empty. The mkspec name is read from qmake's
+            // QMAKE_XSPEC and stays available, so fall back to it.
+            return setup.platforms.contains("ohos") || setup.mkspec.startsWith("ohos-");
         });
     }
 };
