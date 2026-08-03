@@ -283,6 +283,104 @@ void registerMcpTools()
 
             return ResultOk;
         });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("reset_cmake_configuration")
+            .title("Reset a project's CMake configuration")
+            .description(
+                "Discards the CMake configuration of the project's ACTIVE build configuration "
+                "(equivalent to Build > Clear CMake Configuration) and, unless reconfigure is "
+                "false, configures it again from scratch, blocking until CMake finishes. Deletes "
+                "CMakeCache.txt, CMakeFiles and the file-api reply directory in that build "
+                "directory, so cache values set outside the configuration's initial CMake "
+                "arguments are lost. Use this when a build directory is stale or broken - after "
+                "a failed first configure, a plain reconfigure keeps re-running CMake without "
+                "the initial arguments and cannot recover on its own. Switch configurations with "
+                "switch_build_config to reset another one. Returns the same verdict as "
+                "reconfigure.")
+            .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "project",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Name of the project to reset. Uses the startup project if "
+                             "omitted. Run 'list_projects' to see available names."}})
+                    .addProperty(
+                        "reconfigure",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Run CMake again after clearing the configuration. Defaults to "
+                             "true; pass false to leave the project unconfigured."}}))
+            .outputSchema(verdictOutputSchema)
+            .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true)),
+        [](const Schema::CallToolRequestParams &params,
+           const ToolInterface &toolInterface) -> Utils::Result<> {
+            const QJsonObject args = params.argumentsAsObject();
+            const bool reconfigure = args.value("reconfigure").toBool(true);
+
+            const auto fail = [&](const QString &reason, const QString &message) {
+                toolInterface.finish(CallToolResult{}.isError(true).structuredContent(QJsonObject{
+                    {"succeeded", false},
+                    {"reason", reason},
+                    {"error_count", 0},
+                    {"warning_count", 0},
+                    {"duration_ms", 0},
+                    {"issues", QJsonArray{}},
+                    {"summary_text", message}}));
+            };
+
+            const CMakeTarget target = resolveCMakeTarget(args.value("project").toString());
+            if (!target.buildSystem) {
+                fail(target.reason, target.message);
+                return ResultOk;
+            }
+            // Clearing the configuration under a running build would pull the build directory
+            // out from under it. The Clear CMake Configuration action is hidden while building
+            // for the same reason.
+            if (BuildManager::isBuilding(target.project)) {
+                fail("building",
+                     QString("Project '%1' is building. Wait for the build to finish.")
+                         .arg(target.project->displayName()));
+                return ResultOk;
+            }
+            if (reconfigure && !ProjectExplorerPlugin::saveModifiedFiles()) {
+                fail("save_cancelled", "Reset aborted: saving modified files was cancelled.");
+                return ResultOk;
+            }
+
+            auto elapsed = std::make_shared<QElapsedTimer>();
+            elapsed->start();
+            target.buildSystem->clearCMakeCache();
+
+            if (!reconfigure) {
+                // Leaves the project unconfigured, so the build actions must go with it.
+                target.buildSystem->disableCMakeBuildMenuActions();
+                toolInterface.finish(CallToolResult{}.structuredContent(QJsonObject{
+                    {"succeeded", true},
+                    {"error_count", 0},
+                    {"warning_count", 0},
+                    {"duration_ms", elapsed->elapsed()},
+                    {"issues", QJsonArray{}},
+                    {"summary_text", "CMake configuration cleared"}}));
+                return ResultOk;
+            }
+
+            runCMakeAndReportVerdict(
+                target.buildSystem,
+                issuesManager,
+                toolInterface,
+                params,
+                "CMake configuration reset",
+                elapsed,
+                false);
+
+            return ResultOk;
+        });
 }
 
 } // namespace CMakeProjectManager::Internal
