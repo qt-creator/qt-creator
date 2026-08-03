@@ -2505,8 +2505,12 @@ void registerMcpTools()
         Tool{}
             .name("remove_device")
             .title("Remove a device")
-            .description("Removes the device with the given id from the DeviceManager.")
-            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .description(
+                "Removes the device with the given id from the DeviceManager. As in the Devices "
+                "preferences page, an auto-detected device can only be removed while it is "
+                "disconnected; the local desktop device can never be removed. Kits referring to "
+                "the device are left behind, so remove those with remove_kits.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty("id", QJsonObject{{"type", "string"}, {"description", "Device id."}})
@@ -2518,8 +2522,20 @@ void registerMcpTools()
                     .addRequired("success")),
         wrap([](const QJsonObject &p) -> QJsonObject {
             const Id id = Id::fromString(p.value("id").toString());
-            if (!DeviceManager::find(id))
+            const IDevice::ConstPtr device = DeviceManager::find(id);
+            if (!device)
                 return {{"success", false}, {"error", "No such device."}};
+            // Mirrors the Devices page, which only offers to remove an auto-detected device
+            // once it is disconnected. This is what keeps the desktop device (auto-detected
+            // and permanently ready) from being removed.
+            if (device->isAutoDetected() && device->deviceState() != IDevice::DeviceDisconnected) {
+                return {
+                    {"success", false},
+                    {"error",
+                     QString("Device '%1' was auto-detected and is not disconnected, so it "
+                             "cannot be removed.")
+                         .arg(device->displayName())}};
+            }
             DeviceManager::removeDevice(id);
             return {{"success", true}};
         }));
