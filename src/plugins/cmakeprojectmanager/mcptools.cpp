@@ -98,6 +98,7 @@ static void runCMakeAndReportVerdict(
     {
         bool finished = false;
         bool succeeded = false;
+        QString error;
     };
     auto state = std::make_shared<State>();
 
@@ -107,8 +108,12 @@ static void runCMakeAndReportVerdict(
         bs,
         &BuildSystem::parsingFinished,
         bs,
-        [state](bool success) {
-            state->succeeded = success;
+        [state, bs](bool success) {
+            // A CMake run that fails while the build directory still holds the reply of an
+            // earlier successful one reports a SUCCESSFUL parse, of that stale data. The
+            // build system's error, set just before this signal, is what tells them apart.
+            state->error = bs->error();
+            state->succeeded = success && state->error.isEmpty();
             state->finished = true;
         },
         Qt::SingleShotConnection);
@@ -139,29 +144,35 @@ static void runCMakeAndReportVerdict(
             const int warningCount = summary.value("warningCount").toInt();
             const qint64 durationMs = elapsed->elapsed();
 
-            const QString summaryText
-                = state->succeeded
-                      ? (warningCount == 0
-                             ? QString("%1 succeeded in %2 ms").arg(label).arg(durationMs)
-                             : QString("%1 succeeded with %2 warning(s) in %3 ms")
-                                   .arg(label)
-                                   .arg(warningCount)
-                                   .arg(durationMs))
-                      : QString("%1 failed with %2 error(s) in %3 ms")
-                            .arg(label)
-                            .arg(errorCount)
-                            .arg(durationMs);
+            QString summaryText;
+            if (state->succeeded) {
+                summaryText = warningCount == 0
+                                  ? QString("%1 succeeded in %2 ms").arg(label).arg(durationMs)
+                                  : QString("%1 succeeded with %2 warning(s) in %3 ms")
+                                        .arg(label)
+                                        .arg(warningCount)
+                                        .arg(durationMs);
+            } else {
+                summaryText = QString("%1 failed with %2 error(s) in %3 ms")
+                                  .arg(label)
+                                  .arg(errorCount)
+                                  .arg(durationMs);
+                if (!state->error.isEmpty())
+                    summaryText += ": " + state->error;
+            }
 
-            return CallToolResult{}
-                .structuredContent(QJsonObject{
-                    {"succeeded", state->succeeded},
-                    {"error_count", errorCount},
-                    {"warning_count", warningCount},
-                    {"duration_ms", durationMs},
-                    {"issues", issuesData.value("issues")},
-                    {"summary_text", summaryText},
-                })
-                .isError(!state->succeeded);
+            QJsonObject verdict{
+                {"succeeded", state->succeeded},
+                {"error_count", errorCount},
+                {"warning_count", warningCount},
+                {"duration_ms", durationMs},
+                {"issues", issuesData.value("issues")},
+                {"summary_text", summaryText},
+            };
+            if (!state->succeeded && !state->error.isEmpty())
+                verdict.insert("reason", "cmake_failed");
+
+            return CallToolResult{}.structuredContent(verdict).isError(!state->succeeded);
         },
         []() {}, // CMake reparse has no cancellation API
         Mcp::progressToken(params));
@@ -187,6 +198,13 @@ void registerMcpTools()
                      "success/failure rather than inspecting the issues array."}})
             .addProperty("error_count", QJsonObject{{"type", "integer"}, {"minimum", 0}})
             .addProperty("warning_count", QJsonObject{{"type", "integer"}, {"minimum", 0}})
+            .addProperty(
+                "reason",
+                QJsonObject{
+                    {"type", "string"},
+                    {"description",
+                     "Machine-readable failure cause, only present when succeeded is false, "
+                     "e.g. \"cmake_failed\" or \"no_startup_project\"."}})
             .addProperty(
                 "duration_ms",
                 QJsonObject{
