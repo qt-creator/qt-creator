@@ -355,6 +355,11 @@ DeploymentData BuildSystem::deploymentData() const
     return d->m_deploymentData;
 }
 
+QString BuildSystem::deploymentHint() const
+{
+    return {};
+}
+
 void BuildSystem::setApplicationTargets(const QList<BuildTargetInfo> &appTargets)
 {
     d->m_appTargets = appTargets;

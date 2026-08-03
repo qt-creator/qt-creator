@@ -2766,6 +2766,12 @@ DeploymentData CMakeBuildSystem::deploymentDataFromFile() const
     return result;
 }
 
+QString CMakeBuildSystem::deploymentHint() const
+{
+    return Tr::tr("For CMake projects, add install(TARGETS ...) rules so that Qt Creator adds a "
+                  "CMake Install deploy step.");
+}
+
 QList<ExtraCompiler *> CMakeBuildSystem::findExtraCompilers()
 {
     qCDebug(cmakeBuildSystemLog) << "Finding Extra Compilers: start.";

@@ -447,6 +447,31 @@ Task RunConfiguration::createConfigurationIssue(const QString &description) cons
     return BuildSystemTask(Task::Error, description);
 }
 
+Tasks RunConfiguration::checkForIssues() const
+{
+    // Only a cross-device run needs deployment; a local run uses the host
+    // executable, so an empty value there is a different problem.
+    const auto executableAspect = aspect<ExecutableAspect>();
+    if (!executableAspect || !executableAspect->executable().isEmpty())
+        return {};
+    if (BuildDeviceKitAspect::device(kit()) == RunDeviceKitAspect::device(kit()))
+        return {};
+    return {createNoRemoteExecutableIssue()};
+}
+
+Task RunConfiguration::createNoRemoteExecutableIssue() const
+{
+    QString message = Tr::tr("No remote executable set. The application was not deployed to the "
+                             "device, or deployment produced no runnable file.");
+    if (BuildSystem * const bs = buildSystem()) {
+        const QString hint = bs->deploymentHint();
+        if (!hint.isEmpty())
+            message += ' ' + hint;
+    }
+    message += ' ' + Tr::tr("Alternatively, set an alternate executable on the device.");
+    return createConfigurationIssue(message);
+}
+
 void RunConfiguration::toMap(Store &map) const
 {
     toMapSimple(map);

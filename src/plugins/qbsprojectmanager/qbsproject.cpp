@@ -177,6 +177,12 @@ QbsBuildSystem::~QbsBuildSystem()
     qDeleteAll(m_extraCompilers);
 }
 
+QString QbsBuildSystem::deploymentHint() const
+{
+    return Tr::tr("For qbs projects, mark the product installable (\"install: true\") and set its "
+                  "install directory (\"qbs.installDir\").");
+}
+
 bool QbsBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
     if (dynamic_cast<QbsGroupNode *>(context)) {

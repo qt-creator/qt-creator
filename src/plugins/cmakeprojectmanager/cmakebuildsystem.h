@@ -174,6 +174,7 @@ public:
     bool hasSubprojectBuildSupport() const;
 
     QVariant additionalData(Utils::Id id) const override;
+    QString deploymentHint() const override;
 
     bool isDestructing() const { return m_isDestructing; }
 signals:

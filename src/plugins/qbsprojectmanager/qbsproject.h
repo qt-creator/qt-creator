@@ -111,6 +111,8 @@ private:
     ProjectExplorer::ExtraCompiler *findExtraCompiler(
             const ExtraCompilerFilter &filter) const override;
 
+    QString deploymentHint() const override;
+
     void handleQbsParsingDone(bool success);
     void prepareForParsing();
     void updateDocuments();

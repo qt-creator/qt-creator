@@ -1273,6 +1273,12 @@ void QmakeBuildSystem::collectApplicationData(const QmakeProFile *file, Deployme
                                DeployableFile::TypeExecutable);
 }
 
+QString QmakeBuildSystem::deploymentHint() const
+{
+    return Tr::tr("For qmake projects, set \"target.path\" and add \"INSTALLS += target\" in the "
+                  "project file.");
+}
+
 FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
 {
     const Toolchain *const toolchain = ToolchainKitAspect::cxxToolchain(kit());

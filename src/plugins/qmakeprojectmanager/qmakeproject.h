@@ -54,6 +54,8 @@ public:
     explicit QmakeBuildSystem(ProjectExplorer::BuildConfiguration *bc);
     ~QmakeBuildSystem() override;
 
+    QString deploymentHint() const override;
+
     static QString name() { return "qmake"; }
 
     bool supportsAction(ProjectExplorer::Node *context,

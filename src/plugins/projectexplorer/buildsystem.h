@@ -133,6 +133,9 @@ public:
     void setDeploymentData(const DeploymentData &deploymentData);
     DeploymentData deploymentData() const;
 
+    // Build-system-specific hint on setting up deployment; empty by default.
+    virtual QString deploymentHint() const;
+
     void setApplicationTargets(const QList<BuildTargetInfo> &appTargets);
     const QList<BuildTargetInfo> applicationTargets() const;
     BuildTargetInfo buildTarget(const QString &buildKey) const;

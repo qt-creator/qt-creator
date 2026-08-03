@@ -138,7 +138,7 @@ public:
     bool isConfigured() const;
     bool isCustomized() const;
     bool hasCreator() const;
-    virtual Tasks checkForIssues() const { return {}; }
+    virtual Tasks checkForIssues() const;
     void setPristineState();
 
     using CommandLineGetter = std::function<Utils::CommandLine()>;
@@ -212,6 +212,9 @@ protected:
     void setUpdater(const Updater &updater);
 
     Task createConfigurationIssue(const QString &description) const;
+
+    // Deployment-advice issue for an empty remote executable.
+    Task createNoRemoteExecutableIssue() const;
 
     void setUsesEmptyBuildKeys() { m_usesEmptyBuildKeys = true; }
 
