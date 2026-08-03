@@ -9,6 +9,7 @@
 #include <mcp/server/mcpserver.h>
 #include <mcp/server/toolregistry.h>
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/issuesmanager.h>
 #include <projectexplorer/project.h>
@@ -29,6 +30,143 @@ namespace Schema = Mcp::Schema;
 
 namespace CMakeProjectManager::Internal {
 
+// The CMake build system a tool call acts on, or the reason there is none.
+struct CMakeTarget
+{
+    CMakeBuildSystem *buildSystem = nullptr;
+    Project *project = nullptr;
+    QString reason;
+    QString message;
+};
+
+// Resolves the build system to act on: the one of the project named `projectName`, or of the
+// startup project when that is empty.
+static CMakeTarget resolveCMakeTarget(const QString &projectName)
+{
+    CMakeTarget target;
+    if (projectName.isEmpty()) {
+        target.project = ProjectManager::startupProject();
+        if (!target.project) {
+            target.reason = "no_startup_project";
+            target.message = "No startup project. Open a CMake project or pass 'project'.";
+            return target;
+        }
+    } else {
+        target.project = Utils::findOrDefault(ProjectManager::projects(), [&](Project *p) {
+            return p->displayName() == projectName;
+        });
+        if (!target.project) {
+            target.reason = "project_not_found";
+            target.message
+                = QString("No open project named '%1'. Run 'list_projects' to see available names.")
+                      .arg(projectName);
+            return target;
+        }
+    }
+
+    BuildSystem *buildSystem = target.project->activeBuildSystem();
+    if (!buildSystem) {
+        target.reason = "no_build_config";
+        target.message = QString("Project '%1' has no active build configuration.")
+                             .arg(target.project->displayName());
+        return target;
+    }
+    target.buildSystem = qobject_cast<CMakeBuildSystem *>(buildSystem);
+    if (!target.buildSystem) {
+        target.reason = "no_cmake_project";
+        target.message = QString("Project '%1' does not use the CMake build system.")
+                             .arg(target.project->displayName());
+    }
+    return target;
+}
+
+// Runs CMake on `bs` and reports the verdict once the reparse finishes. `label` names the
+// operation in the progress and summary messages; `elapsed` is already running, so work done
+// before the reparse (clearing the configuration) counts towards the reported duration.
+static void runCMakeAndReportVerdict(
+    CMakeBuildSystem *bs,
+    IssuesManager &issuesManager,
+    const ToolInterface &toolInterface,
+    const Schema::CallToolRequestParams &params,
+    const QString &label,
+    const std::shared_ptr<QElapsedTimer> &elapsed,
+    bool profiling)
+{
+    using CallToolResult = Schema::CallToolResult;
+
+    struct State
+    {
+        bool finished = false;
+        bool succeeded = false;
+    };
+    auto state = std::make_shared<State>();
+
+    // Connect BEFORE the reparse to avoid losing a synchronously emitted
+    // parsingFinished. SingleShotConnection captures exactly one verdict.
+    QObject::connect(
+        bs,
+        &BuildSystem::parsingFinished,
+        bs,
+        [state](bool success) {
+            state->succeeded = success;
+            state->finished = true;
+        },
+        Qt::SingleShotConnection);
+
+    if (profiling)
+        runCMakeWithProfiling(bs);
+    else
+        runCMake(bs);
+
+    using namespace std::chrono_literals;
+    toolInterface.startTask(
+        1s,
+        [state, label](Schema::Task task) -> Schema::Task {
+            if (state->finished) {
+                task.status(
+                    state->succeeded ? Schema::TaskStatus::completed : Schema::TaskStatus::failed);
+                task.statusMessage(
+                    label + (state->succeeded ? QString(" succeeded") : QString(" failed")));
+                Mcp::letTaskDieIn(task, 1min);
+                return task;
+            }
+            return task.status(Schema::TaskStatus::working).statusMessage(label + "...");
+        },
+        [state, label, elapsed, &issuesManager]() -> Utils::Result<CallToolResult> {
+            const QJsonObject issuesData = issuesManager.getCurrentIssues();
+            const QJsonObject summary = issuesData.value("summary").toObject();
+            const int errorCount = summary.value("errorCount").toInt();
+            const int warningCount = summary.value("warningCount").toInt();
+            const qint64 durationMs = elapsed->elapsed();
+
+            const QString summaryText
+                = state->succeeded
+                      ? (warningCount == 0
+                             ? QString("%1 succeeded in %2 ms").arg(label).arg(durationMs)
+                             : QString("%1 succeeded with %2 warning(s) in %3 ms")
+                                   .arg(label)
+                                   .arg(warningCount)
+                                   .arg(durationMs))
+                      : QString("%1 failed with %2 error(s) in %3 ms")
+                            .arg(label)
+                            .arg(errorCount)
+                            .arg(durationMs);
+
+            return CallToolResult{}
+                .structuredContent(QJsonObject{
+                    {"succeeded", state->succeeded},
+                    {"error_count", errorCount},
+                    {"warning_count", warningCount},
+                    {"duration_ms", durationMs},
+                    {"issues", issuesData.value("issues")},
+                    {"summary_text", summaryText},
+                })
+                .isError(!state->succeeded);
+        },
+        []() {}, // CMake reparse has no cancellation API
+        Mcp::progressToken(params));
+}
+
 void registerMcpTools()
 {
     using Tool = Schema::Tool;
@@ -38,7 +176,7 @@ void registerMcpTools()
 
     static IssuesManager issuesManager;
 
-    const auto reconfigureOutputSchema =
+    const auto verdictOutputSchema =
         Tool::OutputSchema{}
             .addProperty(
                 "succeeded",
@@ -99,12 +237,11 @@ void registerMcpTools()
                              "'normal' (default): standard reconfigure. 'profiling': "
                              "reconfigure with profiling enabled and open the CTF Visualizer "
                              "with the resulting profile."}}))
-            .outputSchema(reconfigureOutputSchema)
+            .outputSchema(verdictOutputSchema)
             .annotations(ToolAnnotations{}.readOnlyHint(false)),
         [](const Schema::CallToolRequestParams &params,
            const ToolInterface &toolInterface) -> Utils::Result<> {
             const QJsonObject args = params.argumentsAsObject();
-            const QString projectName = args.value("project").toString();
 
             // Structured error that still satisfies the verdict output schema.
             const auto fail = [&](const QString &reason, const QString &message) {
@@ -118,42 +255,9 @@ void registerMcpTools()
                     {"summary_text", message}}));
             };
 
-            Project *project = nullptr;
-            if (projectName.isEmpty()) {
-                project = ProjectManager::startupProject();
-                if (!project) {
-                    fail("no_startup_project",
-                         "No startup project. Open a CMake project or pass 'project'.");
-                    return ResultOk;
-                }
-            } else {
-                for (Project *p : ProjectManager::projects()) {
-                    if (p->displayName() == projectName) {
-                        project = p;
-                        break;
-                    }
-                }
-                if (!project) {
-                    fail("project_not_found",
-                         QString("No open project named '%1'. Run 'list_projects' to see "
-                                 "available names.")
-                             .arg(projectName));
-                    return ResultOk;
-                }
-            }
-
-            BuildSystem *buildSystem = project->activeBuildSystem();
-            if (!buildSystem) {
-                fail("no_build_config",
-                     QString("Project '%1' has no active build configuration.")
-                         .arg(project->displayName()));
-                return ResultOk;
-            }
-            auto *bs = qobject_cast<CMakeBuildSystem *>(buildSystem);
-            if (!bs) {
-                fail("no_cmake_project",
-                     QString("Project '%1' does not use the CMake build system.")
-                         .arg(project->displayName()));
+            const CMakeTarget target = resolveCMakeTarget(args.value("project").toString());
+            if (!target.buildSystem) {
+                fail(target.reason, target.message);
                 return ResultOk;
             }
 
@@ -166,83 +270,16 @@ void registerMcpTools()
                 return ResultOk;
             }
 
-            const bool profiling = args.value("mode").toString() == QLatin1String("profiling");
-
-            struct State
-            {
-                bool finished = false;
-                bool succeeded = false;
-                QElapsedTimer timer;
-            };
-            auto state = std::make_shared<State>();
-            state->timer.start();
-
-            // Connect BEFORE the reparse to avoid losing a synchronously emitted
-            // parsingFinished. SingleShotConnection captures exactly one verdict.
-            QObject::connect(
-                bs,
-                &BuildSystem::parsingFinished,
-                bs,
-                [state](bool success) {
-                    state->succeeded = success;
-                    state->finished = true;
-                },
-                Qt::SingleShotConnection);
-
-            if (profiling)
-                runCMakeWithProfiling(bs);
-            else
-                runCMake(bs);
-
-            using namespace std::chrono_literals;
-            toolInterface.startTask(
-                1s,
-                [state](Schema::Task task) -> Schema::Task {
-                    if (state->finished) {
-                        task.status(state->succeeded ? Schema::TaskStatus::completed
-                                                     : Schema::TaskStatus::failed);
-                        task.statusMessage(
-                            state->succeeded ? QStringLiteral("CMake reconfigure succeeded")
-                                             : QStringLiteral("CMake reconfigure failed"));
-                        Mcp::letTaskDieIn(task, 1min);
-                        return task;
-                    }
-                    return task.status(Schema::TaskStatus::working)
-                        .statusMessage(QStringLiteral("CMake reconfiguring..."));
-                },
-                [state]() -> Utils::Result<CallToolResult> {
-                    const QJsonObject issuesData = issuesManager.getCurrentIssues();
-                    const QJsonObject summary = issuesData.value("summary").toObject();
-                    const int errorCount = summary.value("errorCount").toInt();
-                    const int warningCount = summary.value("warningCount").toInt();
-                    const qint64 durationMs = state->timer.elapsed();
-
-                    const QString summaryText
-                        = state->succeeded
-                              ? (warningCount == 0
-                                     ? QString("CMake reconfigure succeeded in %1 ms").arg(durationMs)
-                                     : QString(
-                                           "CMake reconfigure succeeded with %1 warning(s) in "
-                                           "%2 ms")
-                                           .arg(warningCount)
-                                           .arg(durationMs))
-                              : QString("CMake reconfigure failed with %1 error(s) in %2 ms")
-                                    .arg(errorCount)
-                                    .arg(durationMs);
-
-                    return CallToolResult{}
-                        .structuredContent(QJsonObject{
-                            {"succeeded", state->succeeded},
-                            {"error_count", errorCount},
-                            {"warning_count", warningCount},
-                            {"duration_ms", durationMs},
-                            {"issues", issuesData.value("issues")},
-                            {"summary_text", summaryText},
-                        })
-                        .isError(!state->succeeded);
-                },
-                []() {}, // CMake reparse has no cancellation API
-                Mcp::progressToken(params));
+            auto elapsed = std::make_shared<QElapsedTimer>();
+            elapsed->start();
+            runCMakeAndReportVerdict(
+                target.buildSystem,
+                issuesManager,
+                toolInterface,
+                params,
+                "CMake reconfigure",
+                elapsed,
+                args.value("mode").toString() == QLatin1String("profiling"));
 
             return ResultOk;
         });
