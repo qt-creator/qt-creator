@@ -83,6 +83,8 @@ QtcPlugin {
             "qmlprofilerconstants.h",
             "qmlprofilerdashboardview.cpp", "qmlprofilerdashboardview.h",
             "qmlprofilerdetailsrewriter.cpp", "qmlprofilerdetailsrewriter.h",
+            "qmlprofilerfindings.h",
+            "qmlprofilerfindingsmodel.cpp", "qmlprofilerfindingsmodel.h",
             "qmlprofilereventsview.h",
             "qmlprofilermodelmanager.cpp", "qmlprofilermodelmanager.h",
             "qmlprofilernotesmodel.cpp", "qmlprofilernotesmodel.h",
@@ -161,6 +163,7 @@ QtcPlugin {
             "qmlprofilerattachdialog_test.cpp", "qmlprofilerattachdialog_test.h",
             "qmlprofilerclientmanager_test.cpp", "qmlprofilerclientmanager_test.h",
             "qmlprofilerdetailsrewriter_test.cpp", "qmlprofilerdetailsrewriter_test.h",
+            "qmlprofilerfindingsmodel_test.cpp", "qmlprofilerfindingsmodel_test.h",
             "qmlprofilertool_test.cpp", "qmlprofilertool_test.h",
             "qmlprofilertraceview_test.cpp", "qmlprofilertraceview_test.h",
 

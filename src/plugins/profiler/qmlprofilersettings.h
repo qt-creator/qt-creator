@@ -16,6 +16,15 @@ public:
     Utils::IntegerAspect flushInterval{this};
     Utils::FilePathAspect lastTraceFile{this};
     Utils::BoolAspect aggregateTraces{this};
+
+    // Thresholds for the findings rules. Defaults suit desktop traces; embedded targets
+    // will want them raised.
+    Utils::IntegerAspect findingsCompileThresholdMs{this};
+    Utils::IntegerAspect findingsSyncLoadThresholdMs{this};
+    Utils::IntegerAspect findingsPeriodicMinCount{this};
+    Utils::IntegerAspect findingsPeriodicDeviationPercent{this};
+    Utils::DoubleAspect findingsPixmapMegapixels{this};
+    Utils::IntegerAspect findingsPerFrameBudgetUs{this};
 };
 
 QmlProfilerSettings &globalSettings();

@@ -49,12 +49,54 @@ QmlProfilerSettings::QmlProfilerSettings()
         "for example if multiple QML engines start and stop sequentially during a single run of\n"
         "the program."));
 
+    findingsCompileThresholdMs.setSettingsKey("Analyzer.QmlProfiler.Findings.CompileThresholdMs");
+    findingsCompileThresholdMs.setRange(1, 100000);
+    findingsCompileThresholdMs.setDefaultValue(50);
+    findingsCompileThresholdMs.setLabelText(Tr::tr("Report compilation above (ms):"));
+
+    findingsSyncLoadThresholdMs.setSettingsKey("Analyzer.QmlProfiler.Findings.SyncLoadThresholdMs");
+    findingsSyncLoadThresholdMs.setRange(1, 100000);
+    findingsSyncLoadThresholdMs.setDefaultValue(20);
+    findingsSyncLoadThresholdMs.setLabelText(Tr::tr("Report items built in a handler above (ms):"));
+
+    findingsPeriodicMinCount.setSettingsKey("Analyzer.QmlProfiler.Findings.PeriodicMinCount");
+    findingsPeriodicMinCount.setRange(2, 1000000);
+    findingsPeriodicMinCount.setDefaultValue(50);
+    findingsPeriodicMinCount.setLabelText(Tr::tr("Report handlers running at least:"));
+    findingsPeriodicMinCount.setToolTip(Tr::tr(
+        "How often a signal handler has to run before the regularity of its interval is\n"
+        "reported. Raise this on applications with many legitimate timers."));
+
+    findingsPeriodicDeviationPercent.setSettingsKey(
+        "Analyzer.QmlProfiler.Findings.PeriodicDeviationPercent");
+    findingsPeriodicDeviationPercent.setRange(1, 100);
+    findingsPeriodicDeviationPercent.setDefaultValue(25);
+    findingsPeriodicDeviationPercent.setLabelText(Tr::tr("Interval counts as regular within (%):"));
+
+    findingsPixmapMegapixels.setSettingsKey("Analyzer.QmlProfiler.Findings.PixmapMegapixels");
+    findingsPixmapMegapixels.setRange(0.1, 1000.0);
+    findingsPixmapMegapixels.setDefaultValue(2.0);
+    findingsPixmapMegapixels.setLabelText(Tr::tr("Report images above (megapixels):"));
+
+    findingsPerFrameBudgetUs.setSettingsKey("Analyzer.QmlProfiler.Findings.PerFrameBudgetUs");
+    findingsPerFrameBudgetUs.setRange(1, 1000000);
+    findingsPerFrameBudgetUs.setDefaultValue(500);
+    findingsPerFrameBudgetUs.setLabelText(Tr::tr("Report per-frame cost above (us):"));
+
     setLayouter([this] {
         using namespace Layouting;
+        // The findings thresholds sit in the same form as the rest: an aspect placed in a
+        // Group needs its label spelled out again in a Row, and these already carry one.
         return Form {
             flushEnabled, br,
             flushInterval, br,
             aggregateTraces, br,
+            findingsCompileThresholdMs, br,
+            findingsSyncLoadThresholdMs, br,
+            findingsPeriodicMinCount, br,
+            findingsPeriodicDeviationPercent, br,
+            findingsPixmapMegapixels, br,
+            findingsPerFrameBudgetUs, br,
         };
     });
 

@@ -13,6 +13,7 @@ if(WITH_TESTS)
     tests/qmlprofilerattachdialog_test.cpp tests/qmlprofilerattachdialog_test.h
     tests/qmlprofilerclientmanager_test.cpp tests/qmlprofilerclientmanager_test.h
     tests/qmlprofilerdetailsrewriter_test.cpp tests/qmlprofilerdetailsrewriter_test.h
+    tests/qmlprofilerfindingsmodel_test.cpp tests/qmlprofilerfindingsmodel_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/tests.qrc
@@ -66,6 +67,8 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilerdashboardview.cpp qmlprofilerdashboardview.h
   qmlprofilerdetailsrewriter.cpp qmlprofilerdetailsrewriter.h
   qmlprofilereventsview.h
+  qmlprofilerfindings.h
+  qmlprofilerfindingsmodel.cpp qmlprofilerfindingsmodel.h
   qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
   qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
   qmlprofilerplainviewmanager.cpp qmlprofilerplainviewmanager.h
