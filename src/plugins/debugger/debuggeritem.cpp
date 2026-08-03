@@ -507,8 +507,19 @@ Store DebuggerItem::toMap() const
     return data;
 }
 
+QString DebuggerItem::defaultDisplayName() const
+{
+    // Recomputed rather than stored, so it always follows the current UI language.
+    const QString pattern = m_detectionSource.id.isEmpty() ? Tr::tr("System %1 at %2")
+                                                           : Tr::tr("Detected %1 at %2");
+    return pattern.arg(engineTypeName(), m_command.toUserOutput());
+}
+
 QString DebuggerItem::displayName() const
 {
+    if (m_unexpandedDisplayName.isEmpty())
+        return defaultDisplayName();
+
     if (!m_unexpandedDisplayName.contains('%'))
         return m_unexpandedDisplayName;
 

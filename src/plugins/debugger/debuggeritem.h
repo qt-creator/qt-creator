@@ -50,6 +50,7 @@ public:
     QVariant id() const { return m_id; }
 
     QString displayName() const;
+    QString defaultDisplayName() const;
     QString unexpandedDisplayName() const { return m_unexpandedDisplayName; }
     void setUnexpandedDisplayName(const QString &unexpandedDisplayName);
 

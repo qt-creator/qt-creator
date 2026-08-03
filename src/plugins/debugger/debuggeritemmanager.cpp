@@ -65,9 +65,6 @@ static DebuggerItem makeAutoDetectedDebuggerItem(
     item.setEngineType(technicalData.engineType);
     item.setAbis(technicalData.abis);
     item.setVersion(technicalData.version);
-    const QString name = detectionSource.id.isEmpty() ? Tr::tr("System %1 at %2")
-                                                      : Tr::tr("Detected %1 at %2");
-    item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
     item.setLastModified(command.lastModified());
     return item;
 }
@@ -264,8 +261,6 @@ void DebuggerModel::autoDetectCdbDebuggers(const ToolDetectionLogger &logger)
         item.setAbis(Abi::abisOfBinary(cdb));
         item.setCommand(cdb);
         item.setEngineType(CdbEngineType);
-        item.setUnexpandedDisplayName(
-            uniqueDisplayName(Tr::tr("Auto-detected CDB at \"%1\"").arg(cdb.toUserOutput())));
         appendItem(item);
         if (logger)
             logger.logItem(Tr::tr("Found: \"%1\".").arg(cdb.toUserOutput()));
@@ -491,8 +486,6 @@ void DebuggerModel::autoDetectUvscDebuggers(const ToolDetectionLogger &logger)
         item.setCommand(uVision);
         item.setVersion(uVisionVersion);
         item.setEngineType(UvscEngineType);
-        item.setUnexpandedDisplayName(uniqueDisplayName(
-            Tr::tr("Auto-detected uVision at \"%1\"").arg(uVision.toUserOutput())));
         appendItem(item);
         if (logger)
             logger.logItem(Tr::tr("Found: \"%1\".").arg(uVision.toUserOutput()));
@@ -953,6 +946,7 @@ private:
     DetectionSource m_detectionSource;
     DebuggerEngineType m_engineType = NoEngineType;
     QVariant m_id;
+    QString m_loadedUnexpandedDisplayName;
     QSingleTaskTreeRunner m_taskTreeRunner;
 };
 
@@ -961,7 +955,11 @@ DebuggerItem DebuggerSettingsPageWidget::currentItem() const
     static const QRegularExpression noAbi("[^A-Za-z0-9-_]+");
 
     DebuggerItem item(m_id);
-    item.setUnexpandedDisplayName(m_displayNameLineEdit.text());
+    // The name field is read-only for auto-detected items, so keep the value loaded
+    // for them (which may be empty, meaning the display name is derived on the fly).
+    item.setUnexpandedDisplayName(m_detectionSource.isAutoDetected()
+                                      ? m_loadedUnexpandedDisplayName
+                                      : m_displayNameLineEdit.text());
     item.setCommand(m_binaryChooser.filePath());
     item.setWorkingDirectory(m_workingDirectoryChooser.filePath());
     item.setDetectionSource(m_detectionSource);
@@ -998,8 +996,10 @@ void DebuggerSettingsPageWidget::load(const DebuggerItem &item)
     // Set values:
     m_detectionSource = item.detectionSource();
 
+    m_loadedUnexpandedDisplayName = item.unexpandedDisplayName();
     m_displayNameLineEdit.setEnabled(!item.detectionSource().isAutoDetected());
-    m_displayNameLineEdit.setText(item.unexpandedDisplayName());
+    m_displayNameLineEdit.setText(item.detectionSource().isAutoDetected()
+                                      ? item.displayName() : item.unexpandedDisplayName());
 
     m_type.setText(item.engineTypeName());
 
