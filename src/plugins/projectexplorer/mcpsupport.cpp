@@ -345,6 +345,10 @@ static QJsonObject kitInfoObject(const Kit *k)
         if (!t.summary().isEmpty())
             issues.append(t.summary());
     }
+    const auto deviceName = [](Utils::Id deviceId) -> QString {
+        const IDevice::ConstPtr device = DeviceManager::find(deviceId);
+        return device ? device->displayName() : QString();
+    };
     return {
         {"name", k->displayName()},
         {"id", k->id().toString()},
@@ -354,6 +358,10 @@ static QJsonObject kitInfoObject(const Kit *k)
         {"auto_detected", ds.isAutoDetected()},
         {"sdk_provided", ds.isSdkProvided()},
         {"file_system_friendly_name", k->fileSystemFriendlyName()},
+        {"run_device_id", RunDeviceKitAspect::deviceId(k).toString()},
+        {"run_device", deviceName(RunDeviceKitAspect::deviceId(k))},
+        {"build_device_id", BuildDeviceKitAspect::deviceId(k).toString()},
+        {"build_device", deviceName(BuildDeviceKitAspect::deviceId(k))},
         {"issues", issues},
     };
 }
@@ -1792,8 +1800,8 @@ void registerMcpTools()
                 "List all kits configured in Qt Creator. Each entry includes the kit name, "
                 "its id, whether it is valid, whether it has warnings, whether it is the "
                 "default kit, whether it was auto-detected (and SDK-provided), a "
-                "filesystem-friendly name, and an issues array with validation messages for "
-                "invalid or warning kits.")
+                "filesystem-friendly name, the kit's run and build device, and an issues array "
+                "with validation messages for invalid or warning kits.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1815,6 +1823,10 @@ void registerMcpTools()
                                       {"sdk_provided", QJsonObject{{"type", "boolean"}}},
                                       {"file_system_friendly_name",
                                        QJsonObject{{"type", "string"}}},
+                                      {"run_device", QJsonObject{{"type", "string"}}},
+                                      {"run_device_id", QJsonObject{{"type", "string"}}},
+                                      {"build_device", QJsonObject{{"type", "string"}}},
+                                      {"build_device_id", QJsonObject{{"type", "string"}}},
                                       {"issues",
                                        QJsonObject{
                                            {"type", "array"},
