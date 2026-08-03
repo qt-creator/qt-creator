@@ -162,6 +162,10 @@ public:
         IEditor *editor = nullptr,
         EditorView *view = nullptr,
         EditorManager::ContextMenuFlags flags = EditorManager::DefaultContextMenu);
+    static void addMultiFileContextMenuActions(
+        QMenu *contextMenu,
+        const Utils::FilePaths &filePaths,
+        EditorManager::ContextMenuFlags flags = EditorManager::DefaultContextMenu);
 
 public slots:
     static bool saveDocument(

@@ -109,7 +109,7 @@ public:
 
     void addNewItem();
     void editCurrentItem();
-    void removeCurrentItem();
+    void removeSelectedItems();
 
     void syncWithFilePath(const Utils::FilePath &filePath);
 
@@ -130,6 +130,7 @@ private:
     void setRootDirectory(const Utils::FilePath &directory);
     int bestRootForFile(const Utils::FilePath &filePath);
     void openItem(const QModelIndex &index);
+    QList<QModelIndex> selectedSourceIndexes() const;
     void createNewFolder(const QModelIndex &parent);
 
     Utils::NavigationTreeView *m_listView = nullptr;

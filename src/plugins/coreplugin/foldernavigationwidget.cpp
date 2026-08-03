@@ -274,6 +274,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_listView->setIconSize(QSize(16,16));
     m_listView->setModel(m_sortProxyModel);
     m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_listView->setDragEnabled(true);
     m_listView->setDragDropMode(QAbstractItemView::DragOnly);
     m_listView->viewport()->installEventFilter(this);
@@ -327,7 +328,13 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &FolderNavigationWidget::handleCurrentEditorChanged);
     connect(m_listView, &QAbstractItemView::activated, this, [this](const QModelIndex &index) {
-        openItem(m_sortProxyModel->mapToSource(index));
+        const QModelIndexList selected = selectedSourceIndexes();
+        if (selected.size() > 1) {
+            for (const QModelIndex &sourceIndex : selected)
+                openItem(sourceIndex);
+        } else {
+            openItem(m_sortProxyModel->mapToSource(index));
+        }
     });
     // Delay updating crumble path by event loop cylce, because that can scroll, which doesn't
     // work well when done directly in currentChanged (the wrong item can get highlighted).
@@ -474,19 +481,63 @@ void FolderNavigationWidget::editCurrentItem()
         m_listView->edit(current);
 }
 
-void FolderNavigationWidget::removeCurrentItem()
+void FolderNavigationWidget::removeSelectedItems()
 {
-    const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
-    if (!current.isValid() || m_fileSystemModel->isDir(current))
-        return;
-    const FilePath filePath = m_fileSystemModel->filePath(current);
-    RemoveFileDialog dialog(filePath);
-    dialog.setDeleteFileVisible(false);
-    if (dialog.exec() == QDialog::Accepted) {
-        emit m_instance->aboutToRemoveFile(filePath);
-        FileChangeBlocker changeGuard(filePath);
-        FileUtils::removeFiles({filePath}, true /*delete from disk*/);
+    FilePaths filePaths;
+    FilePaths dirPaths;
+    for (const QModelIndex &index : selectedSourceIndexes()) {
+        const FilePath filePath = m_fileSystemModel->filePath(index);
+        if (m_fileSystemModel->isDir(index))
+            dirPaths.append(filePath);
+        else
+            filePaths.append(filePath);
     }
+    const int count = int(filePaths.size() + dirPaths.size());
+    if (count == 0)
+        return;
+
+    if (count == 1) {
+        RemoveFileDialog dialog(filePaths.isEmpty() ? dirPaths.first() : filePaths.first());
+        dialog.setDeleteFileVisible(false);
+        if (dialog.exec() != QDialog::Accepted)
+            return;
+    } else {
+        QMessageBox box(QMessageBox::Question,
+                        Tr::tr("Remove Items"),
+                        Tr::tr("Remove these %n items from the file system?", nullptr, count),
+                        QMessageBox::Yes | QMessageBox::No,
+                        ICore::dialogParent());
+        box.setDetailedText(Utils::transform(filePaths + dirPaths, &FilePath::toUserOutput)
+                                .join('\n'));
+        if (box.exec() != QMessageBox::Yes)
+            return;
+    }
+
+    for (const FilePath &filePath : std::as_const(filePaths)) {
+        emit m_instance->aboutToRemoveFile(filePath);
+        DocumentManager::expectFileChange(filePath);
+    }
+    // One call, so that version control asks about the whole set at once.
+    FileUtils::removeFiles(filePaths, true /*delete from disk*/);
+    for (const FilePath &filePath : std::as_const(filePaths))
+        DocumentManager::unexpectFileChange(filePath);
+
+    for (const FilePath &dirPath : std::as_const(dirPaths)) {
+        const Result<> result = dirPath.removeRecursively();
+        if (!result)
+            QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"), result.error());
+    }
+}
+
+QList<QModelIndex> FolderNavigationWidget::selectedSourceIndexes() const
+{
+    QList<QModelIndex> result;
+    for (const QModelIndex &index : m_listView->selectionModel()->selectedRows()) {
+        const QModelIndex sourceIndex = m_sortProxyModel->mapToSource(index);
+        if (sourceIndex.isValid())
+            result.append(sourceIndex);
+    }
+    return result;
 }
 
 void FolderNavigationWidget::syncWithFilePath(const FilePath &filePath)
@@ -693,22 +744,25 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     const QModelIndex current = m_sortProxyModel->mapToSource(m_listView->currentIndex());
     const bool hasCurrentItem = current.isValid();
     QAction *newFolder = nullptr;
-    QAction *removeFolder = nullptr;
     const bool isDir = m_fileSystemModel->isDir(current);
     const FilePath filePath = hasCurrentItem ? m_fileSystemModel->filePath(current) : FilePath();
-    EditorManager::addContextMenuActions(&menu, filePath);
+    const QList<QModelIndex> selected = selectedSourceIndexes();
+    FilePaths selectedPaths = Utils::transform(selected, [this](const QModelIndex &index) {
+        return m_fileSystemModel->filePath(index);
+    });
+    if (selectedPaths.size() < 2)
+        selectedPaths = hasCurrentItem ? FilePaths{filePath} : FilePaths{};
+    EditorManager::addContextMenuActions(&menu, selectedPaths);
     menu.addSeparator();
 
     if (hasCurrentItem) {
         menu.addAction(ActionManager::command(ADDNEWFILE)->action());
         newFolder = menu.addAction(Tr::tr("New Folder"));
-        if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
+        if (selected.size() == 1
+            && (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)) {
             menu.addAction(ActionManager::command(RENAMEFILE)->action());
-        if (isDir)
-            removeFolder = menu.addAction(Tr::tr("Remove Folder..."));
-        else
-            menu.addAction(ActionManager::command(REMOVEFILE)->action());
-
+        }
+        menu.addAction(ActionManager::command(REMOVEFILE)->action());
     }
 
     menu.addSeparator();
@@ -724,14 +778,6 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             createNewFolder(current);
         else
             createNewFolder(current.parent());
-    } else if (action == removeFolder) {
-        RemoveFileDialog dialog(filePath);
-        dialog.setDeleteFileVisible(false);
-        if (dialog.exec() == QDialog::Accepted) {
-            Result<> result = filePath.removeRecursively();
-            if (!result)
-                QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"), result.error());
-        }
     } else if (action == collapseAllAction) {
         m_listView->collapseAll();
     }
@@ -959,9 +1005,10 @@ void FolderNavigationWidgetFactory::registerActions()
     ActionBuilder(this, REMOVEFILE)
         .setText(Tr::tr("Remove..."))
         .setContext(context)
+        .setDefaultKeySequences({QKeySequence::Delete, QKeySequence::Backspace})
         .addOnTriggered([] {
             if (auto navWidget = currentFolderNavigationWidget())
-                navWidget->removeCurrentItem();
+                navWidget->removeSelectedItems();
         });
 }
 

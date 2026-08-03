@@ -176,6 +176,12 @@ public:
         QMenu *contextMenu,
         const Utils::FilePath &filePath,
         ContextMenuFlags flags = DefaultContextMenu);
+    // For a selection of several items. Only the actions that can act on all of
+    // them are added; a selection of one is equivalent to the overload above.
+    static void addContextMenuActions(
+        QMenu *contextMenu,
+        const Utils::FilePaths &filePaths,
+        ContextMenuFlags flags = DefaultContextMenu);
     static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
     static void runWithTemporaryEditor(const Utils::FilePath &filePath,

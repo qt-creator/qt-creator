@@ -3491,6 +3491,17 @@ void EditorManager::addContextMenuActions(QMenu *contextMenu,
     EditorManagerPrivate::addContextMenuActions(contextMenu, filePath, entry, {}, {}, flags);
 }
 
+void EditorManager::addContextMenuActions(QMenu *contextMenu,
+                                          const Utils::FilePaths &filePaths,
+                                          ContextMenuFlags flags)
+{
+    if (filePaths.size() < 2) {
+        addContextMenuActions(contextMenu, filePaths.value(0), flags);
+        return;
+    }
+    EditorManagerPrivate::addMultiFileContextMenuActions(contextMenu, filePaths, flags);
+}
+
 void EditorManagerPrivate::addContextMenuActions(
     QMenu *contextMenu,
     DocumentModel::Entry *entry,
@@ -3535,6 +3546,46 @@ void EditorManagerPrivate::addContextMenuActions(
     EditorManagerPrivate::addNativeDirAndOpenWithActions(
         contextMenu, filePath, entry, editor, view, flags);
     emit m_instance->aboutToShowContextMenu(contextMenu, filePath, insertionPoints);
+}
+
+static QString joinedPaths(const FilePaths &filePaths)
+{
+    return Utils::transform(filePaths, &FilePath::toUserOutput).join('\n');
+}
+
+void EditorManagerPrivate::addMultiFileContextMenuActions(
+    QMenu *contextMenu, const FilePaths &filePaths, EditorManager::ContextMenuFlags flags)
+{
+    QTC_ASSERT(contextMenu, return);
+
+    if (!flags.testFlag(EditorManager::ShowEditorActions)) {
+        const FilePaths files = Utils::filtered(filePaths, [](const FilePath &filePath) {
+            return !filePath.isDir();
+        });
+        if (!files.isEmpty()) {
+            const QString text = files.size() == 1
+                                     ? Tr::tr("Open \"%1\"").arg(files.first().fileName())
+                                     : Tr::tr("Open %n Files", nullptr, int(files.size()));
+            addMenuAction(contextMenu, text, true, m_instance, [files] {
+                for (const FilePath &filePath : files)
+                    EditorManager::openEditor(filePath, {}, EditorManager::AllowExternalEditor);
+            });
+        }
+    }
+    contextMenu->addSeparator();
+
+    addMenuAction(contextMenu, ::Core::Tr::tr("Copy Full Path"), true, d, [filePaths] {
+        setClipboardAndSelection(joinedPaths(filePaths));
+    });
+    addMenuAction(contextMenu, ::Core::Tr::tr("Copy Relative Path"), true, d, [filePaths] {
+        const FilePaths relative = Utils::transform(filePaths, [](const FilePath &filePath) {
+            return ICore::pathRelativeToActiveProject(filePath);
+        });
+        setClipboardAndSelection(joinedPaths(relative));
+    });
+    addMenuAction(contextMenu, ::Core::Tr::tr("Copy File Name"), true, d, [filePaths] {
+        setClipboardAndSelection(Utils::transform(filePaths, &FilePath::fileName).join('\n'));
+    });
 }
 
 /*!

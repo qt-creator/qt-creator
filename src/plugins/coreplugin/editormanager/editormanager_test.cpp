@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../coreconstants.h"
+#include "../coreplugintr.h"
 #include "../find/findplugin.h"
 #include "../findplaceholder.h"
 #include "../generalsettings.h"
@@ -22,6 +23,7 @@
 #include <QApplication>
 #include <QLineEdit>
 #include <QMainWindow>
+#include <QMenu>
 #include <QSet>
 #include <QSignalSpy>
 #include <QTest>
@@ -83,6 +85,7 @@ private slots:
     void testOpenEditorInView();
     void testOpenEditorInClosedView();
     void testClosedViewIsReported();
+    void testMultiFileContextMenu();
 };
 
 QObject *createEditorManagerTest()
@@ -865,6 +868,51 @@ void EditorManagerTest::testClosedViewIsReported()
     QCOMPARE(mainAreaViews().size(), 1);
     QCOMPARE(closed.size(), 1);
     QCOMPARE(closed.at(0).at(0).toInt(), otherId);
+}
+
+// A selection of several files gets only the actions that can act on all of
+// them. Show in Finder, Open Terminal Here, Properties... and Open With would
+// each silently pick one arbitrary member of the selection, so they stay out.
+void EditorManagerTest::testMultiFileContextMenu()
+{
+    TestFile a;
+    TestFile b;
+
+    const auto entries = [](const QMenu &menu) {
+        QStringList result;
+        for (const QAction *action : menu.actions()) {
+            if (!action->isSeparator())
+                result.append(action->text());
+        }
+        return result;
+    };
+
+    QMenu singleMenu;
+    EM::addContextMenuActions(&singleMenu, FilePaths{a.filePath()});
+    const QStringList single = entries(singleMenu);
+    QVERIFY(single.contains(Tr::tr("Open \"%1\"").arg(a.filePath().fileName())));
+    QVERIFY(single.contains(Tr::tr("Properties...")));
+    QVERIFY(single.contains(Tr::tr("Open With")));
+
+    QMenu multiMenu;
+    EM::addContextMenuActions(&multiMenu, FilePaths{a.filePath(), b.filePath()});
+    const QStringList multi = entries(multiMenu);
+    QVERIFY(multi.contains(Tr::tr("Copy Full Path")));
+    QVERIFY(multi.contains(Tr::tr("Copy Relative Path")));
+    QVERIFY(multi.contains(Tr::tr("Copy File Name")));
+    QVERIFY(!multi.contains(Tr::tr("Properties...")));
+    QVERIFY(!multi.contains(Tr::tr("Open With")));
+
+    // The Open entry counts the selection and opens all of it.
+    QAction *openAll = nullptr;
+    for (QAction *action : multiMenu.actions()) {
+        if (action->text() == Tr::tr("Open %n Files", nullptr, 2))
+            openAll = action;
+    }
+    QVERIFY(openAll);
+    openAll->trigger();
+    QVERIFY(DocumentModel::entryForFilePath(a.filePath()));
+    QVERIFY(DocumentModel::entryForFilePath(b.filePath()));
 }
 
 
