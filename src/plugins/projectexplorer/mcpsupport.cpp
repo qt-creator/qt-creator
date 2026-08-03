@@ -468,6 +468,72 @@ static QJsonObject addKitsToProject(
         {"results", results}};
 }
 
+// Removes kits identified by kit id or display name. SDK-provided kits are refused (as in
+// the Kits preferences page), and so is a display name shared by several kits, since
+// removal is not undoable. Reports per-kit results without aborting on the first error.
+static QJsonObject removeKits(const QStringList &kitIdentifiers)
+{
+    if (kitIdentifiers.isEmpty())
+        return {{"success", false}, {"reason", "no_kits"}, {"message", "No kits specified."}};
+
+    QList<Kit *> toRemove;
+    QJsonArray results;
+    for (const QString &identifier : kitIdentifiers) {
+        Kit *kit = KitManager::kit(Utils::Id::fromString(identifier));
+        if (!kit) {
+            const QList<Kit *> byName = Utils::filtered(
+                KitManager::kits(), [&identifier](const Kit *k) {
+                    return k->displayName() == identifier;
+                });
+            if (byName.size() > 1) {
+                QJsonArray candidates;
+                for (const Kit *candidate : byName)
+                    candidates.append(kitInfoObject(candidate));
+                results.append(QJsonObject{
+                    {"kit", identifier},
+                    {"status", "ambiguous_name"},
+                    {"message", QString("%1 kits are named '%2'. Pass a kit id instead.")
+                                    .arg(byName.size())
+                                    .arg(identifier)},
+                    {"candidates", candidates}});
+                continue;
+            }
+            if (!byName.isEmpty())
+                kit = byName.first();
+        }
+        if (!kit) {
+            results.append(QJsonObject{
+                {"kit", identifier},
+                {"status", "not_found"},
+                {"message", QString("No kit matching '%1'.").arg(identifier)}});
+            continue;
+        }
+        if (kit->detectionSource().isSdkProvided()) {
+            results.append(QJsonObject{
+                {"kit", kit->displayName()},
+                {"id", kit->id().toString()},
+                {"status", "sdk_provided"},
+                {"message", QString("Kit '%1' is provided by an SDK and cannot be removed.")
+                                .arg(kit->displayName())}});
+            continue;
+        }
+        if (toRemove.contains(kit))
+            continue;
+        toRemove.append(kit);
+        results.append(QJsonObject{
+            {"kit", kit->displayName()}, {"id", kit->id().toString()}, {"status", "removed"}});
+    }
+
+    // Deregistering deletes the kits, so this comes after all of them were reported on.
+    KitManager::deregisterKits(toRemove);
+
+    return {
+        {"success", true},
+        {"reason", "ok"},
+        {"message", QString("Removed %1 kit(s).").arg(toRemove.size())},
+        {"results", results}};
+}
+
 static QJsonObject openProjectFile(const QString &path)
 {
     const FilePath fp = FilePath::fromUserInput(path);
@@ -1929,6 +1995,43 @@ void registerMcpTools()
                 kits.append(v.toString());
             return addKitsToProject(
                 p.value("project_name").toString(), p.value("project_path").toString(), kits);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("remove_kits")
+            .title("Remove kits")
+            .description(
+                "Removes kits from Qt Creator, identified by kit id or display name (see "
+                "list_kits). Use it to clean up after detect_device_tools, which creates a kit "
+                "per toolchain found on a device; list_kits reports each kit's run and build "
+                "device, so the kits belonging to a device can be picked out. Returns a per-kit "
+                "results array with status removed/not_found/sdk_provided/ambiguous_name; the "
+                "call does not abort on the first error. SDK-provided kits cannot be removed. "
+                "Removing a kit drops the corresponding build target from every project using "
+                "it, so its build and run settings are lost.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "kits",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "string"}}},
+                            {"description", "Kit ids or display names to remove."}})
+                    .addRequired("kits"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("results", QJsonObject{{"type", "array"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            QStringList kits;
+            for (const QJsonValue &v : p.value("kits").toArray())
+                kits.append(v.toString());
+            return removeKits(kits);
         }));
 
     ToolRegistry::registerTool(
