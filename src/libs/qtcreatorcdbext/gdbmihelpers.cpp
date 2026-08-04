@@ -250,7 +250,7 @@ Modules getModules(CIDebugSymbols *syms, std::string *errorMessage)
         *errorMessage = msgDebugEngineComFailed("GetNumberModules", hr);
         return Modules();
     }
-    const ULONG count = Loaded + Unloaded;
+    const ULONG count = Loaded;
     Modules rc;
     rc.reserve(count);
     DEBUG_MODULE_PARAMETERS *parameters = new DEBUG_MODULE_PARAMETERS[count];
