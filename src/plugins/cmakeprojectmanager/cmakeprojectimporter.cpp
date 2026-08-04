@@ -811,15 +811,17 @@ static Toolchain *findExternalToolchain(const QString &presetArchitecture, const
             if (toolsetAbi != tc->targetAbi().osFlavor())
                 return false;
 
-            if (presetToolset.contains("host=") && !presetToolset.contains(host))
-                return false;
+            if (!presetToolset.isEmpty()) {
+                if (presetToolset.contains("host=") && !presetToolset.contains(host))
+                    return false;
 
-            // Make sure we match also version=14.29
-            auto versionIndex = presetToolset.indexOf("version=");
-            if (versionIndex != -1 && !version.startsWith(presetToolset.mid(versionIndex)))
-                return false;
+                // Make sure we match also version=14.29
+                auto versionIndex = presetToolset.indexOf("version=");
+                if (versionIndex != -1 && !version.startsWith(presetToolset.mid(versionIndex)))
+                    return false;
+            }
 
-            if (presetArchitecture != architecture)
+            if (!presetArchitecture.isEmpty() && presetArchitecture != architecture)
                 return false;
 
             qCDebug(cmInputLog) << "For external architecture" << presetArchitecture
@@ -1042,7 +1044,7 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
     if (!toolsetExternalStrategy && configurePreset.toolset && configurePreset.toolset->value)
         data.toolset = *configurePreset.toolset->value;
 
-    if (architectureExternalStrategy && toolsetExternalStrategy) {
+    if (architectureExternalStrategy || toolsetExternalStrategy) {
         const Toolchain *tc
             = findExternalToolchain(configurePreset.architecture->value.value_or(QString()),
                                     configurePreset.toolset->value.value_or(QString()));
