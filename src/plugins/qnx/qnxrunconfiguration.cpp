@@ -5,21 +5,26 @@
 
 #include "qnxconstants.h"
 #include "qnxtr.h"
+#include "slog2inforunner.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <remote/remotelinuxenvironmentaspect.h>
 
+#include <QtTaskTree/QBarrier>
+
 #include <utils/processinterface.h>
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Remote;
 using namespace Utils;
 
@@ -94,10 +99,30 @@ public:
     }
 };
 
+// QnxRunWorkerFactory
+
+class QnxRunWorkerFactory final : public RunWorkerFactory
+{
+public:
+    QnxRunWorkerFactory()
+    {
+        setId("QnxRunWorkerFactory");
+        setRecipeProducer([](RunControl *runControl) {
+            return Group {
+                parallel,
+                slog2InfoRecipe(runControl),
+                runControl->processRecipe(runControl->processTask())
+            };
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
+    }
+};
+
 void setupQnxRunnning()
 {
     static QnxRunConfigurationFactory theQnxRunConfigurationFactory;
-    static ProcessRunnerFactory theQnxRunWorkerFactory({Constants::QNX_RUNCONFIG_ID});
+    static QnxRunWorkerFactory theQnxRunWorkerFactory;
 }
 
 } // Qnx::Internal
