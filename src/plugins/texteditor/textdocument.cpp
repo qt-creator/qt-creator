@@ -374,8 +374,15 @@ const StorageSettingsData &TextDocument::storageSettings() const
 
 void TextDocument::setTabSettings(const TabSettingsData &tabSettings)
 {
-    if (const TabSettingsData candidate = tabSettings.autoDetect(document());
-        candidate != d->m_tabSettings) {
+    TabSettingsData candidate = tabSettings.autoDetect(document());
+    // Makefiles are tab-sensitive: recipe lines must be indented with a real
+    // tab, so enforce tab indentation regardless of the configured code style
+    // (QTCREATORBUG-3408). This also covers files that only inherit the type,
+    // e.g. debian/rules, which is recognized via its "#!/usr/bin/make -f"
+    // shebang rather than a name or suffix.
+    if (Utils::mimeTypeForName(mimeType()).inherits("text/x-makefile"))
+        candidate.m_tabPolicy = TabSettingsData::TabsOnlyTabPolicy;
+    if (candidate != d->m_tabSettings) {
         d->m_tabSettings = candidate;
         emit tabSettingsChanged();
     }

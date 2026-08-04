@@ -99,6 +99,7 @@ private slots:
     void testIndentationClean();
     void testIndentUnindent_data();
     void testIndentUnindent();
+    void testMakefileForcesTabPolicy();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -268,6 +269,27 @@ void TextEditorTest::testIndentUnindent()
         doc.unindent(multi);
 
     QCOMPARE(doc.plainText(), expected);
+}
+
+void TextEditorTest::testMakefileForcesTabPolicy()
+{
+    // Makefiles are tab-sensitive, so the tab policy is forced to tabs
+    // regardless of the configured code style - including for files that only
+    // inherit text/x-makefile, such as debian/rules (QTCREATORBUG-3408).
+    TabSettingsData spaces(TabSettingsData::SpacesOnlyTabPolicy, 8, 8,
+                           TabSettingsData::ContinuationAlignWithSpaces);
+    spaces.m_autoDetect = false;
+
+    TextDocument makefile;
+    makefile.setMimeType("text/x-makefile");
+    makefile.setTabSettings(spaces);
+    QCOMPARE(makefile.tabSettings().m_tabPolicy, TabSettingsData::TabsOnlyTabPolicy);
+
+    // A non-makefile keeps the configured policy.
+    TextDocument plain;
+    plain.setMimeType("text/plain");
+    plain.setTabSettings(spaces);
+    QCOMPARE(plain.tabSettings().m_tabPolicy, TabSettingsData::SpacesOnlyTabPolicy);
 }
 
 QObject *createTextEditorTest()
