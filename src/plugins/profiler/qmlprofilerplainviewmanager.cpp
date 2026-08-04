@@ -3,6 +3,8 @@
 
 #include "qmlprofilerplainviewmanager.h"
 
+#include "qmlprofilerfindingsview.h"
+
 #include "profiler/flamegraphview.h"
 #include "profiler/qmlprofilerdashboardview.h"
 #include "profiler/qmlprofilermodelmanager.h"
@@ -77,6 +79,8 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
     prepareEventsView(statisticsView);
     auto quick3DView = new Internal::Quick3DFrameView(&d->modelManager, parent);
     prepareEventsView(quick3DView);
+    auto findingsView = new Internal::QmlProfilerFindingsView(&d->modelManager, parent);
+    prepareEventsView(findingsView);
 
     // Route the flame graph's details into the shared range details view, matching the
     // full QML Profiler perspective.
@@ -86,7 +90,8 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
     connect(flameGraphView, &Internal::FlameGraphView::detailsCleared,
             d->rangeDetails, &Timeline::RangeDetailsWidget::clear);
 
-    return { dashboardView, traceView, flameGraphView, statisticsView, quick3DView };
+    return { dashboardView, traceView, flameGraphView, statisticsView, quick3DView,
+             findingsView };
 }
 
 QWidget *QmlProfilerPlainViewManager::rangeDetailsWidget() const

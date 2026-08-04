@@ -85,6 +85,7 @@ QtcPlugin {
             "qmlprofilerdetailsrewriter.cpp", "qmlprofilerdetailsrewriter.h",
             "qmlprofilerfindings.h",
             "qmlprofilerfindingsmodel.cpp", "qmlprofilerfindingsmodel.h",
+            "qmlprofilerfindingsview.cpp", "qmlprofilerfindingsview.h",
             "qmlprofilereventsview.h",
             "qmlprofilermodelmanager.cpp", "qmlprofilermodelmanager.h",
             "qmlprofilernotesmodel.cpp", "qmlprofilernotesmodel.h",

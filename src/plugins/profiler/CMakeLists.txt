@@ -69,6 +69,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilereventsview.h
   qmlprofilerfindings.h
   qmlprofilerfindingsmodel.cpp qmlprofilerfindingsmodel.h
+  qmlprofilerfindingsview.cpp qmlprofilerfindingsview.h
   qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
   qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
   qmlprofilerplainviewmanager.cpp qmlprofilerplainviewmanager.h
