@@ -4,10 +4,16 @@
 #include "qmlprofilerfindingsview.h"
 
 #include "profilertr.h"
+#include "qmlprofilertool.h"
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QContextMenuEvent>
+#include <QFile>
 #include <QHeaderView>
+#include <QJsonDocument>
+#include <QMenu>
 #include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 
@@ -25,6 +31,7 @@ static void setViewDefaults(Utils::TreeView *view)
 QmlProfilerFindingsView::QmlProfilerFindingsView(QmlProfilerModelManager *profilerModelManager,
                                                  QWidget *parent)
     : QmlProfilerEventsView(parent)
+    , m_modelManager(profilerModelManager)
 {
     setObjectName("QmlProfiler.Findings.Dock");
     setWindowTitle(Tr::tr("Findings"));
@@ -44,6 +51,37 @@ QmlProfilerFindingsView::QmlProfilerFindingsView(QmlProfilerModelManager *profil
 }
 
 QmlProfilerFindingsView::~QmlProfilerFindingsView() = default;
+
+void QmlProfilerFindingsView::contextMenuEvent(QContextMenuEvent *ev)
+{
+    QMenu menu;
+    const QList<QAction *> commonActions = QmlProfilerTool::profilerContextMenuActions();
+    for (QAction *action : commonActions)
+        menu.addAction(action);
+
+    menu.addSeparator();
+    QAction *exportAction = menu.addAction(Tr::tr("Export Findings..."));
+    exportAction->setEnabled(!m_mainView->findings().isEmpty());
+
+    if (menu.exec(ev->globalPos()) == exportAction)
+        exportFindings();
+}
+
+void QmlProfilerFindingsView::exportFindings() const
+{
+    const Utils::FilePath filePath = Utils::FileUtils::getSaveFilePath(
+        Tr::tr("Export Findings"), {}, Tr::tr("JSON Files (*.json);;All Files (*)"));
+    if (filePath.isEmpty())
+        return;
+
+    const QJsonObject json = findingsToJson(m_mainView->findings(),
+                                            m_modelManager->traceStart(),
+                                            m_modelManager->traceEnd());
+    const Utils::Result<qint64> result
+        = filePath.writeFileContents(QJsonDocument(json).toJson(QJsonDocument::Indented));
+    if (!result)
+        QmlProfilerTool::showNonmodalWarning(result.error());
+}
 
 void QmlProfilerFindingsView::selectByTypeId(int typeIndex)
 {

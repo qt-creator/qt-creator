@@ -28,6 +28,7 @@ private slots:
     void testPerFrameCostReported();
     void testLocationWithoutLine();
     void testSeverityOrdering();
+    void testJsonExport();
     void testClear();
 
 private:

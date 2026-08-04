@@ -3,6 +3,8 @@
 
 #include "qmlprofilerfindingsmodel_test.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QTest>
 
 using namespace QmlDebug;
@@ -243,6 +245,43 @@ void QmlProfilerFindingsModelTest::testSeverityOrdering()
     QCOMPARE(model.data(model.index(0, QmlProfilerFindingsModel::ColumnOccurrences),
                         QmlProfilerFindingsModel::RuleIdRole).toString(),
              QString("pixmap-load-error"));
+}
+
+void QmlProfilerFindingsModelTest::testJsonExport()
+{
+    const QJsonObject json = findingsToJson(model.findings(), 100, 900);
+    QCOMPARE(json.value("version").toInt(), 1);
+    QCOMPARE(json.value("traceStartNs").toInteger(), 100);
+    QCOMPARE(json.value("traceEndNs").toInteger(), 900);
+
+    const QJsonArray findings = json.value("findings").toArray();
+    QCOMPARE(findings.count(), model.findings().count());
+
+    bool sawPositioned = false;
+    bool sawUnpositioned = false;
+    for (const QJsonValue &value : findings) {
+        const QJsonObject object = value.toObject();
+        QVERIFY(!object.value("ruleId").toString().isEmpty());
+        QVERIFY(!object.value("what").toString().isEmpty());
+        QVERIFY(!object.value("suggestion").toString().isEmpty());
+        QVERIFY(!object.value("file").toString().isEmpty());
+
+        const QString severity = object.value("severity").toString();
+        QVERIFY(severity == QLatin1String("critical") || severity == QLatin1String("warning")
+                || severity == QLatin1String("info"));
+
+        // A position is reported only where the trace has one.
+        if (object.value("ruleId").toString() == QLatin1String("sync-view-load")) {
+            QCOMPARE(object.value("line").toInt(), 42);
+            sawPositioned = true;
+        } else if (object.value("ruleId").toString() == QLatin1String("pixmap-load-error")) {
+            QVERIFY(!object.contains("line"));
+            QVERIFY(!object.contains("column"));
+            sawUnpositioned = true;
+        }
+    }
+    QVERIFY(sawPositioned);
+    QVERIFY(sawUnpositioned);
 }
 
 void QmlProfilerFindingsModelTest::testClear()

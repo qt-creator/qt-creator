@@ -7,6 +7,7 @@
 #include <qmldebug/qmleventlocation.h>
 #include <qmldebug/qmleventtype.h>
 
+#include <QJsonObject>
 #include <QList>
 #include <QString>
 
@@ -56,5 +57,10 @@ public:
 using FindingRules = std::vector<std::unique_ptr<FindingRule>>;
 
 FindingRules defaultFindingRules();
+
+// Serializes findings for consumers outside the views: the shape is a contract, so it
+// carries an explicit version.
+QJsonObject findingsToJson(const QList<Finding> &findings, qint64 traceStartNs,
+                           qint64 traceEndNs);
 
 } // namespace Profiler::Internal

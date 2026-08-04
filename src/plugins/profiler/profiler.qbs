@@ -83,7 +83,7 @@ QtcPlugin {
             "qmlprofilerconstants.h",
             "qmlprofilerdashboardview.cpp", "qmlprofilerdashboardview.h",
             "qmlprofilerdetailsrewriter.cpp", "qmlprofilerdetailsrewriter.h",
-            "qmlprofilerfindings.h",
+            "qmlprofilerfindings.cpp", "qmlprofilerfindings.h",
             "qmlprofilerfindingsmodel.cpp", "qmlprofilerfindingsmodel.h",
             "qmlprofilerfindingsview.cpp", "qmlprofilerfindingsview.h",
             "qmlprofilereventsview.h",

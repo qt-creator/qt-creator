@@ -25,7 +25,13 @@ public:
     void selectByTypeId(int typeIndex) final;
     void onVisibleFeaturesChanged(quint64 features) final;
 
+protected:
+    void contextMenuEvent(QContextMenuEvent *ev) final;
+
 private:
+    void exportFindings() const;
+
+    QmlProfilerModelManager *m_modelManager = nullptr;
     std::unique_ptr<QmlProfilerFindingsMainView> m_mainView;
 };
 
@@ -37,6 +43,7 @@ public:
     explicit QmlProfilerFindingsMainView(QmlProfilerFindingsModel *model);
 
     void selectByTypeId(int typeIndex);
+    const QList<Finding> &findings() const { return m_model->findings(); }
 
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);

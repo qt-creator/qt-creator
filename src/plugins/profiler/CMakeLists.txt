@@ -67,7 +67,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilerdashboardview.cpp qmlprofilerdashboardview.h
   qmlprofilerdetailsrewriter.cpp qmlprofilerdetailsrewriter.h
   qmlprofilereventsview.h
-  qmlprofilerfindings.h
+  qmlprofilerfindings.cpp qmlprofilerfindings.h
   qmlprofilerfindingsmodel.cpp qmlprofilerfindingsmodel.h
   qmlprofilerfindingsview.cpp qmlprofilerfindingsview.h
   qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
