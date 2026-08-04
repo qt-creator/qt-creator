@@ -3628,6 +3628,44 @@ def qdump__QJsonObject(d, value):
         qdumpHelper_QJsonObject(d, value['d'].pointer(), value['o'].pointer())
 
 
+def qdump__QSqlQuery(d, value):
+    # QSqlQuery holds a QSqlQueryPrivate *d -> QSqlResult *sqlResult, whose
+    # QSqlResultPrivate d_ptr carries the SQL text, the current row index (idx),
+    # the active/select state and any bound parameter values. The actual result
+    # rows live in the driver-specific result private and cannot be read
+    # generically without side effects, so they are not shown here.
+    # QSqlQueryPrivate (QAtomicInt ref; QSqlResult *sqlResult) is defined in a
+    # .cpp and not introspectable by member name under LLDB, so chase the
+    # pointers by their (very stable) offsets: sqlResult sits behind the atomic
+    # ref, and QSqlResult keeps its only data member d_ptr behind the vtable.
+    dptr = value.extractPointer()
+    if dptr == 0:
+        d.putValue("(invalid)")
+        d.putNumChild(0)
+        return
+    resultPtr = d.extractPointer(dptr + d.ptrSize())
+    if resultPtr == 0:
+        d.putValue("(inactive)")
+        d.putNumChild(0)
+        return
+    privPtr = d.extractPointer(resultPtr + d.ptrSize())
+    if privPtr == 0:
+        d.putValue("(inactive)")
+        d.putNumChild(0)
+        return
+    priv = d.createValue(privPtr, "@QSqlResultPrivate")
+    d.putStringValue(priv["sql"])
+    d.putExpandable()
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem("sql", priv["sql"])
+            d.putSubItem("executedQuery", priv["executedQuery"])
+            d.putSubItem("at", priv["idx"])
+            d.putSubItem("active", priv["active"])
+            d.putSubItem("isSelect", priv["isSel"])
+            d.putSubItem("boundValues", priv["values"])
+
+
 def qdump__QSqlResultPrivate(d, value):
     # QSqlResult *q_ptr;
     # QPointer<QSqlDriver> sqldriver;

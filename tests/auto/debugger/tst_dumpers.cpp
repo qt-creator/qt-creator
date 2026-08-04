@@ -8997,10 +8997,12 @@ void tst_Dumpers::dumper_data()
                     "QSqlField f2 = rec.field(1);\n"
                     "QSqlField f3 = rec.field(2);",
 
-                    "&f1, &f2, &f3")
+                    "&query, &f1, &f2, &f3")
 
             + SqlProfile()
 
+            + Check("query", "\"select * from images\"", "@QSqlQuery")
+            + Check("query.at", "0", "int")
             + Check("f1", "1", "@QSqlField (qlonglong)")
             + Check("f2", "\"qt-logo.png\"", "@QSqlField (QString)")
             + Check("f3", "(invalid)", "@QSqlField (invalid)");
