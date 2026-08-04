@@ -14,6 +14,7 @@ public:
 
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
+    Utils::FilePath cmakeToolchainFile() const override;
 
     Utils::FilePathAspect sdpPath{this};
     Utils::StringAspect cpuDir{this};

@@ -125,6 +125,12 @@ void QnxToolchain::addToEnvironment(Environment &env) const
         env.expandedValueForKey("QNX_CONFIGURATION_EXCLUSIVE").isEmpty())
         setQnxEnvironment(env, QnxUtils::qnxEnvironment(sdpPath()));
 
+    // The CMake QNX toolchain file invokes the compiler by name (qcc/q++), so its
+    // directory must be on PATH for CMake to find it.
+    const FilePath compilerDir = compilerCommand().parentDir();
+    if (!compilerDir.isEmpty())
+        env.prependOrSetPath(compilerDir);
+
     GccToolchain::addToEnvironment(env);
 }
 
@@ -136,6 +142,24 @@ QStringList QnxToolchain::suggestedMkspecList() const
         "qnx-aarch64le-qcc",
         "qnx-x86-64-qcc"
     };
+}
+
+FilePath QnxToolchain::cmakeToolchainFile() const
+{
+    // The SDP ships CMake toolchain files (qnx-toolchain-<arch>.cmake) that set
+    // CMAKE_SYSTEM_NAME=QNX, the qcc target and CMAKE_SYSROOT. Point CMake at the
+    // one matching this toolchain's ABI. Pure path computation (no remote I/O).
+    const Abi abi = targetAbi();
+    QString suffix;
+    if (abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64)
+        suffix = "x8664";
+    else if (abi.architecture() == Abi::ArmArchitecture && abi.wordWidth() == 32)
+        suffix = "armv7le";
+    else if (abi.architecture() == Abi::ArmArchitecture && abi.wordWidth() == 64)
+        suffix = "aarch64le";
+    if (suffix.isEmpty())
+        return {};
+    return sdpPath().pathAppended("qnx-toolchain-" + suffix + ".cmake");
 }
 
 GccToolchain::DetectedAbisResult QnxToolchain::detectSupportedAbis() const

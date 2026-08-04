@@ -1698,8 +1698,18 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             // Android is handled above
             // Desktop should get more testing/exposure before enabling the toolchain file
             // Boot2Qt and MCU may define the toolchain file in the kit configuration already
-            if (qt && qt->qtVersion().majorVersion() >= 6)
+            if (qt && qt->qtVersion().majorVersion() >= 6) {
                 cmd.addArg(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
+            } else {
+                // A toolchain may supply its own CMake toolchain file for
+                // cross-compilation (e.g. QNX without a Qt version).
+                const Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
+                if (!tc)
+                    tc = ToolchainKitAspect::cToolchain(k);
+                const FilePath tcFile = tc ? tc->cmakeToolchainFile() : FilePath();
+                if (!tcFile.isEmpty())
+                    cmd.addArg("-DCMAKE_TOOLCHAIN_FILE:FILEPATH=" + tcFile.path());
+            }
         }
 
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(k);

@@ -95,6 +95,9 @@ public:
     virtual QString originalTargetTriple() const { return {}; }
     virtual QStringList extraCodeModelFlags() const { return {}; }
     virtual Utils::FilePath installDir() const { return {}; }
+    // A CMake toolchain file this toolchain needs for (cross-)compilation, or an
+    // empty path. Seeds CMAKE_TOOLCHAIN_FILE in a kit's default CMake configuration.
+    virtual Utils::FilePath cmakeToolchainFile() const { return {}; }
     virtual bool hostPrefersToolchain() const { return true; }
 
     virtual bool isValid() const;
