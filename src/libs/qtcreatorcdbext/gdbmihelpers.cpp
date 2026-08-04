@@ -466,8 +466,10 @@ Registers getRegisters(CIDebugRegisters *regs,
         }
         hr = regs->GetValue(r, &value);
         if (FAILED(hr)) {
+            // Fails for extended state the CPU lacks, e.g. zmm0 without AVX-512.
+            // Reported only if this leaves no register at all readable.
             *errorMessage = msgDebugEngineComFailed("GetValue", hr);
-            return Registers();
+            continue;
         }
         const bool isSubRegister = (description.Flags & DEBUG_REGISTER_SUB_REGISTER);
         if (!isSubRegister || (flags & IncludeSubRegisters)) {
