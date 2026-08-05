@@ -1321,7 +1321,8 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
 // line, or keeping the file's cursor position. Returns nullptr if the file
 // cannot be shown in a text editor (e.g. designer or binary files) or is too
 // large for live diffing.
-static IEditor *openInlineDiff(const FilePath &filePath,
+static IEditor *openInlineDiff(const FilePath &topLevel,
+                               const FilePath &filePath,
                                const DiffEditor::InlineDiffBaseline &baseline,
                                const QString &title,
                                int line = -1)
@@ -1339,11 +1340,8 @@ static IEditor *openInlineDiff(const FilePath &filePath,
         // the editor, so do not stack blame helpers on the same widget.
         if (TextEditor::TextEditorWidget *widget = DiffEditor::inlineDiffEditorWidget(diffEditor);
             widget && !widget->findChild<BaselineBlame *>()) {
-            const FilePath topLevel = VcsManager::findTopLevelForDirectory(filePath.parentDir());
-            if (!topLevel.isEmpty()) {
-                new BaselineBlame(widget, topLevel, /*ref=*/{},
-                                  filePath.relativeChildPath(topLevel).path(), filePath);
-            }
+            new BaselineBlame(widget, topLevel, /*ref=*/{},
+                              filePath.relativeChildPath(topLevel).path(), filePath);
         }
         if (line > 0)
             diffEditor->gotoLine(line);
@@ -1363,7 +1361,7 @@ void GitClient::inlineDiffFile(const FilePath &workingDirectory, const QString &
     // deleted files cannot be opened in an editor (and would report that);
     // the classic diff view shows the deletion
     if (!filePath.exists()
-        || !openInlineDiff(filePath, indexBaseline(topLevel, relativeFile),
+        || !openInlineDiff(topLevel, filePath, indexBaseline(topLevel, relativeFile),
                            Tr::tr("%1 (Unstaged)").arg(filePath.fileName()))) {
         diffFile(workingDirectory, fileName, Unstaged);
     }
@@ -1387,7 +1385,7 @@ void GitClient::inlineDiffFileAgainst(const FilePath &workingDirectory, const QS
             const std::function<void(const DiffEditor::InlineDiffLineRanges &)> &callback) {
             gitClient().fetchUnstagedLines(topLevel, relativeFile, editorText, callback);
         };
-    if (!openInlineDiff(filePath, baseline,
+    if (!openInlineDiff(topLevel, filePath, baseline,
                         Tr::tr("%1 (Unstaged vs %2)").arg(filePath.fileName(), ref),
                         line)) {
         // classic diff of the working tree file against the revision
