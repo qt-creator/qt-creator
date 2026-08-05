@@ -374,6 +374,9 @@ def deploy_elfutils(qtc_install_dir, chrpath_bin, args):
         os.makedirs(install_path)
     if not os.path.exists(backends_install_path):
         os.makedirs(backends_install_path)
+    # perfparser links libdebuginfod when this elfutils has it, see Findelfutils.cmake
+    if os.path.exists(os.path.join(elfutils_lib_path, lib_name('debuginfod', version))):
+        libs.append('debuginfod')
     # copy main libs
     libs = [os.path.join(elfutils_lib_path, lib_name(lib, version)) for lib in libs]
     for lib in libs:
