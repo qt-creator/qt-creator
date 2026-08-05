@@ -84,6 +84,7 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     case PerfEventType::FeaturesDefinition:
     case PerfEventType::Error:
     case PerfEventType::Progress:
+    case PerfEventType::DebugInfoDownloadProgress:
     case PerfEventType::TracePointFormat:
         return stream; // in fact type data. to be handled elsewhere
     case PerfEventType::ThreadStart:

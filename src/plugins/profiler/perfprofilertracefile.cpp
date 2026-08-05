@@ -200,6 +200,15 @@ void PerfProfilerTraceFile::readMessages(const QByteArray &buffer)
         dataStream >> progress;
         break;
     }
+    case PerfEventType::DebugInfoDownloadProgress: {
+        // Only of interest while parsing, and this analyzer has its own progress
+        // reporting; read the payload so the message counts as fully consumed.
+        qint32 url;
+        qint64 numerator;
+        qint64 denominator;
+        dataStream >> url >> numerator >> denominator;
+        break;
+    }
     case PerfEventType::TracePointFormat: {
         PerfProfilerTraceManager::TracePoint tracePoint;
         dataStream >> id >> tracePoint;

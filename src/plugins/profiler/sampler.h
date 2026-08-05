@@ -12,6 +12,7 @@
 
 #include <QtTaskTree/QTaskTree>
 
+#include <QMutex>
 #include <QString>
 #include <QUrl>
 
@@ -64,6 +65,34 @@ struct RecordingSession
     std::atomic<int> progress = 0;   // 0..100 post-processing percent.
     std::optional<Utils::Result<Utils::FilePath>> result; // Set on the GUI thread when done.
 
+    // The debug-information download a backend is waiting on, if any. Post-
+    // processing can sit on one for minutes, and the plain progress bar cannot
+    // move meanwhile, so the recording page says what is going on instead of
+    // looking hung (see PerfSampler::captureRecipe()).
+    struct DebugInfoDownload
+    {
+        int percent = -1; // 0..100; 0 when the size is not known yet, -1 when idle.
+        QString url;      // The server being queried, empty when not reported.
+    };
+
+    void setDebugInfoDownload(int percent, const QString &url)
+    {
+        QMutexLocker lock(&m_debugInfoDownloadMutex);
+        m_debugInfoDownload = {percent, url};
+    }
+
+    void clearDebugInfoDownload()
+    {
+        QMutexLocker lock(&m_debugInfoDownloadMutex);
+        m_debugInfoDownload = {};
+    }
+
+    DebugInfoDownload debugInfoDownload() const
+    {
+        QMutexLocker lock(&m_debugInfoDownloadMutex);
+        return m_debugInfoDownload;
+    }
+
     // Monotonic instant (steady_clock, microseconds) at which the backend went
     // live, or -1 if it never did. steady_clock is a single process-wide timeline,
     // so two sessions recorded together are directly comparable -- this is what
@@ -82,6 +111,13 @@ struct RecordingSession
                                      std::memory_order_relaxed);
         }
     }
+
+private:
+    // The only state here that is not a lone integer, so it cannot ride on an
+    // atomic like the rest: a backend may report from the thread it processes on
+    // while the GUI polls, and the percentage and the URL have to agree.
+    mutable QMutex m_debugInfoDownloadMutex;
+    DebugInfoDownload m_debugInfoDownload;
 };
 
 // Backend-specific recording settings. Besides holding the options, it renders its

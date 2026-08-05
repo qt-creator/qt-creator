@@ -50,6 +50,11 @@ RecordingPage::RecordingPage(QWidget *parent)
             },
             Space(SpacingTokens::PrimitiveL),
             m_progressBar,
+            Space(SpacingTokens::PrimitiveM),
+            QtDesignWidgets::Label {
+                bindTo(&m_statusLabel),
+                role(QtcLabel::Secondary),
+            },
             Space(SpacingTokens::PrimitiveL),
             QtDesignWidgets::Button {
                 bindTo(&m_stopButton),
@@ -64,6 +69,8 @@ RecordingPage::RecordingPage(QWidget *parent)
         st,
     }.attachTo(this);
     // clang-format on
+
+    m_statusLabel->hide(); // Only shown once there is something to report.
 }
 
 void RecordingPage::start(const QString &processName)
@@ -73,6 +80,7 @@ void RecordingPage::start(const QString &processName)
     m_stopButton->setText(Tr::tr("Stop Recording"));
     m_progressBar->hide();
     m_progressBar->setValue(0);
+    setStatus({});
     m_elapsed.restart();
     updateElapsed();
     m_tick->start();
@@ -88,6 +96,7 @@ void RecordingPage::setProcessing()
     m_stopButton->setText(Tr::tr("Stopping..."));
     m_progressBar->setValue(0);
     m_progressBar->show();
+    setStatus({});
 }
 
 void RecordingPage::setProgress(int percent)
@@ -95,9 +104,21 @@ void RecordingPage::setProgress(int percent)
     m_progressBar->setValue(percent);
 }
 
+void RecordingPage::setStatus(const QString &text, const QString &toolTip)
+{
+    m_statusLabel->setToolTip(toolTip);
+    if (text == m_statusLabel->text())
+        return;
+    m_statusLabel->setText(text);
+    // Keeping an empty label around would leave a gap between the progress bar
+    // and the button, and shift the whole column when the text appears.
+    m_statusLabel->setVisible(!text.isEmpty());
+}
+
 void RecordingPage::stop()
 {
     m_tick->stop();
+    setStatus({});
 }
 
 void RecordingPage::updateElapsed()

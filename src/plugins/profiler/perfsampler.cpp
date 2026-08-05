@@ -36,6 +36,15 @@ namespace QmlProfiler::Internal {
 
 namespace {
 
+// How long elfutils may wait for a debuginfod server to start answering, and how
+// often it may try again, when downloading debug information is enabled. Both are
+// per build id; see onParserSetup().
+constexpr auto debugInfoUrlsVariable = "DEBUGINFOD_URLS"_L1;
+constexpr auto debugInfoTimeoutVariable = "DEBUGINFOD_TIMEOUT"_L1;
+constexpr auto debugInfoRetryVariable = "DEBUGINFOD_RETRY_LIMIT"_L1;
+constexpr int debugInfoTimeoutSeconds = 10;
+constexpr int debugInfoRetryLimit = 0;
+
 // Decodes perfparser's live wire protocol (the same one PerfProfilerTraceFile
 // reads, see perfprofilertracefile.cpp) directly into a SampleTraceData,
 // bypassing PerfProfilerTraceManager: that class exists to back a completely
@@ -46,8 +55,8 @@ namespace {
 class PerfMessageDecoder
 {
 public:
-    PerfMessageDecoder(SampleTraceData &data, std::atomic<int> *progress)
-        : m_data(data), m_progress(progress)
+    PerfMessageDecoder(SampleTraceData &data, const std::shared_ptr<RecordingSession> &session)
+        : m_data(data), m_session(session)
     {}
 
     void addData(const QByteArray &chunk)
@@ -94,6 +103,13 @@ private:
         PerfEvent event;
         stream >> event;
 
+        // perfparser is single-threaded, so any other message proves it got past
+        // the download it last reported. Clear the download state on it instead
+        // of trying to recognize the final progress report, which never arrives
+        // when a lookup gives up or fails.
+        if (event.feature() != PerfEventType::DebugInfoDownloadProgress)
+            m_session->clearDebugInfoDownload();
+
         switch (event.feature()) {
         case PerfEventType::StringDefinition: {
             qint32 id;
@@ -130,8 +146,22 @@ private:
         case PerfEventType::Progress: {
             float percent;
             stream >> percent;
-            if (m_progress)
-                m_progress->store(int(percent * 100), std::memory_order_relaxed);
+            m_session->progress.store(int(percent * 100), std::memory_order_relaxed);
+            break;
+        }
+        case PerfEventType::DebugInfoDownloadProgress: {
+            qint32 url;
+            qint64 numerator;
+            qint64 denominator;
+            stream >> url >> numerator >> denominator;
+            // A server that has not answered yet announces no size, so there is
+            // no percentage to report; 0 stands for that, and the UI then only
+            // says a download is running. The URL is the request being made once
+            // one is in flight, and the configured server list before that.
+            const int percent = denominator > 0
+                ? int(qBound(qint64(0), numerator * 100 / denominator, qint64(100)))
+                : 0;
+            m_session->setDebugInfoDownload(percent, string(url));
             break;
         }
         case PerfEventType::Error: {
@@ -217,7 +247,7 @@ private:
     }
 
     SampleTraceData &m_data;
-    std::atomic<int> *m_progress = nullptr;
+    std::shared_ptr<RecordingSession> m_session;
     QByteArray m_buffer;
     qint32 m_dataStreamVersion = -1;
     qint64 m_firstTimestampNs = -1;
@@ -236,6 +266,17 @@ PerfSamplerSettings::PerfSamplerSettings()
     attach.setSettingsKey("Attach");
     attach.setLabel(Tr::tr("Attach to a running process"),
                     BoolAspect::LabelPlacement::AtCheckBox);
+
+    downloadDebugInfo.setSettingsKey("DownloadDebugInfo");
+    downloadDebugInfo.setDefaultValue(false);
+    downloadDebugInfo.setLabel(Tr::tr("Download missing debug information"),
+                               BoolAspect::LabelPlacement::AtCheckBox);
+    downloadDebugInfo.setToolTip(
+        Tr::tr("Let the profiler fetch debug information it does not find locally from the "
+               "debuginfod servers listed in the DEBUGINFOD_URLS environment variable. This "
+               "resolves symbols in system libraries that have no debug package installed, but "
+               "it happens while the captured samples are processed, so a slow or unreachable "
+               "server delays the trace considerably."));
     // The launch settings are irrelevant while attaching.
     const auto updateLaunchEnabled = [this] {
         const bool launching = !attach();
@@ -267,6 +308,7 @@ PerfSamplerSettings::PerfSamplerSettings()
             arguments,
             workingDirectory,
             Row { attach, pick, picked, st },
+            downloadDebugInfo,
             perfSettings.createPerfConfigWidget(nullptr),
         };
     });
@@ -343,9 +385,10 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
     const FilePath perfExe = Environment::systemEnvironment().searchInPath("perf");
     const FilePath parserExe = findPerfParser();
     const QString recordArgs = m_settings->perfSettings.perfRecordArguments();
+    const bool downloadDebugInfo = m_settings->downloadDebugInfo();
 
     auto sampleData = std::make_shared<SampleTraceData>();
-    auto decoder = std::make_shared<PerfMessageDecoder>(*sampleData, &session->progress);
+    auto decoder = std::make_shared<PerfMessageDecoder>(*sampleData, session);
     auto parserProcessPtr = std::make_shared<QPointer<Process>>();
 
     const auto onRecordSetup = [session, perfExe, recordArgs, parserProcessPtr](Process &process) {
@@ -389,9 +432,38 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
             parser->closeWriteChannel();
     };
 
-    const auto onParserSetup = [parserExe, parserProcessPtr, decoder](Process &process) {
+    const auto onParserSetup = [parserExe, parserProcessPtr, decoder,
+                                downloadDebugInfo](Process &process) {
         *parserProcessPtr = &process;
         process.setCommand(CommandLine(parserExe));
+
+        // Symbol lookups that come up empty locally are answered from a debuginfod
+        // server, which perfparser does synchronously while it processes the
+        // samples. elfutils reads the server list from DEBUGINFOD_URLS, so the
+        // environment we hand the process is what decides, and setting it here
+        // also covers a value inherited from somewhere other than this one.
+        Environment environment = Environment::systemEnvironment();
+        if (downloadDebugInfo) {
+            // A server that accepts the connection and then stays silent costs
+            // elfutils DEBUGINFOD_TIMEOUT seconds per attempt, and it makes
+            // DEBUGINFOD_RETRY_LIMIT further attempts -- 90 seconds and two
+            // retries by default, so 4.5 minutes for one build id, and it pays
+            // that for every build id it cannot resolve locally. That is the wait
+            // that makes post-processing look hung. Allow a fraction of it and no
+            // retry: a healthy server answers in well under a second, and one
+            // that ignored the first request will ignore the second too. Values
+            // already in the environment are a deliberate choice, so leave those.
+            if (!environment.hasKey(debugInfoTimeoutVariable)) {
+                environment.set(debugInfoTimeoutVariable,
+                                QString::number(debugInfoTimeoutSeconds));
+            }
+            if (!environment.hasKey(debugInfoRetryVariable))
+                environment.set(debugInfoRetryVariable, QString::number(debugInfoRetryLimit));
+        } else {
+            // An empty list is how elfutils is told not to ask anyone.
+            environment.set(debugInfoUrlsVariable, {});
+        }
+        process.setEnvironment(environment);
         process.setProcessMode(ProcessMode::Writer); // perf record's output is written to its stdin
         QObject::connect(&process, &Process::readyReadStandardOutput, &process,
                          [p = &process, decoder] { decoder->addData(p->readAllRawStandardOutput()); });
@@ -401,6 +473,10 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
         // perfparser may still have unread, already-flushed output pending.
         if (Process *parser = parserProcessPtr->data())
             decoder->addData(parser->readAllRawStandardOutput());
+
+        // Nothing can be downloading any more, whether or not a final progress
+        // report made it out before perfparser exited.
+        session->clearDebugInfoDownload();
 
         if (session->result)
             return;

@@ -34,6 +34,13 @@ public:
 
     Utils::BoolAspect attach{this}; // Attach to a running process instead of launching.
 
+    // Whether perfparser may download debug information it is missing from the
+    // debuginfod servers in DEBUGINFOD_URLS. Off by default: the download runs
+    // inside post-processing, once per unknown build id, so an unreachable
+    // server turns the end of every recording into a long wait -- while the
+    // symbols one actually profiles come from the binaries on disk anyway.
+    Utils::BoolAspect downloadDebugInfo{this};
+
 private:
     // The process chosen by the picker; used when attach is enabled.
     qint64 m_pickedPid = 0;

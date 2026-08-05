@@ -50,6 +50,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPointer>
+#include <QRegularExpression>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTime>
@@ -160,7 +161,27 @@ public:
     QTimer *processingPoll = nullptr;
     std::optional<milliseconds> recordDuration;   // Set by --record-for; auto-stop span.
     bool recordDurationArmed = false;             // Stop timer armed once capture started.
+    int downloadPolls = 0;                        // Consecutive polls seeing a download.
+    static constexpr int downloadPollsBeforeReporting = 6; // ~300 ms at a 50 ms poll.
 };
+
+// The host names behind a whitespace-separated URL list, for the recording page's
+// status line. What perfparser reports is either one request URL, whose build-id
+// path says nothing a user needs, or the whole DEBUGINFOD_URLS list from before a
+// request was made -- in both cases the host is the part that identifies who is
+// being waited on, and the only part short enough for one line.
+static QString debugInfoServerNames(const QString &urls)
+{
+    static const QRegularExpression whitespace("\\s+"_L1);
+    QStringList hosts;
+    const QStringList entries = urls.split(whitespace, Qt::SkipEmptyParts);
+    for (const QString &entry : entries) {
+        const QString host = QUrl(entry).host();
+        hosts << (host.isEmpty() ? entry : host);
+    }
+    hosts.removeDuplicates();
+    return hosts.join(", "_L1);
+}
 
 WindowPrivate::WindowPrivate(Window *window)
     : QObject(window)
@@ -246,6 +267,35 @@ WindowPrivate::WindowPrivate(Window *window)
             });
         }
         recordingPage->setProgress(session->progress.load(std::memory_order_relaxed));
+
+        // A debug-info download holds up post-processing without moving the
+        // progress bar, for as long as the server takes to answer -- which may be
+        // forever. Name it, so the wait is at least attributable (the Perf
+        // backend's "Download missing debug information" setting turns it off).
+        // A query answered from this machine passes through the same state in
+        // microseconds, so only report one that has lasted long enough to be a
+        // wait somebody is sitting through.
+        const RecordingSession::DebugInfoDownload download = session->debugInfoDownload();
+        if (download.percent < 0) {
+            downloadPolls = 0;
+            recordingPage->setStatus({});
+        } else if (++downloadPolls >= downloadPollsBeforeReporting) {
+            const QString server = debugInfoServerNames(download.url);
+            QString text;
+            if (server.isEmpty()) {
+                text = download.percent == 0
+                           ? Tr::tr("Downloading debug information...")
+                           : Tr::tr("Downloading debug information... %1%").arg(download.percent);
+            } else {
+                text = download.percent == 0
+                           ? Tr::tr("Downloading debug information from %1...").arg(server)
+                           : Tr::tr("Downloading debug information from %1... %2%")
+                                 .arg(server).arg(download.percent);
+            }
+            // The line names the servers; the whole URL, which carries a build id
+            // long enough to crowd everything else out, goes in the tool tip.
+            recordingPage->setStatus(text, download.url);
+        }
     });
 
     connect(recordingPage, &RecordingPage::stopRequested, this, [this] {
@@ -409,6 +459,7 @@ void WindowPrivate::beginRecording(const QString &displayName)
 {
     recording = true;
     processingShown = false;
+    downloadPolls = 0;
     recordingPage->start(displayName);
     rightPane->setCurrentWidget(recordingPage);
     processingPoll->start();

@@ -36,6 +36,11 @@ public:
     void setProcessing();
     // Sets the post-processing progress (0..100).
     void setProgress(int percent);
+    // Adds a line below the progress bar naming what post-processing is busy
+    // with, for the steps that take long enough to look like a hang. Pass an
+    // empty string to take it away again; the tool tip carries the detail that
+    // is too long for the line itself, such as a full request URL.
+    void setStatus(const QString &text, const QString &toolTip = {});
     // Stops the elapsed-time counter.
     void stop();
 
@@ -47,6 +52,7 @@ private:
 
     Utils::QtcLabel *m_titleLabel = nullptr;
     Utils::QtcLabel *m_timerLabel = nullptr;
+    Utils::QtcLabel *m_statusLabel = nullptr;
     Utils::QtcButton *m_stopButton = nullptr;
     QProgressBar *m_progressBar = nullptr;
     QTimer *m_tick = nullptr;
