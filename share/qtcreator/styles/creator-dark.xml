@@ -62,6 +62,9 @@
   <style name="DiffSourceChar" foreground="#2e2f30" background="#c34141"/>
   <style name="DiffDestLine" background="#588a2c"/>
   <style name="DiffDestChar" foreground="#2e2f30" background="#7cc33e"/>
+  <style name="MergeConflictCurrent" background="#1d545c"/>
+  <style name="MergeConflictIncoming" background="#4a2f52"/>
+  <style name="MergeConflictBase" background="#3a3a3a"/>
   <style name="LogChangeLine" foreground="#d65645"/>
   <style name="LogAuthorName" foreground="#ceffe5"/>
   <style name="LogCommitDate" foreground="#00ff00"/>

@@ -99,6 +99,8 @@ Project {
             "marginsettings.h",
             "markdowneditor.cpp",
             "markdowneditor.h",
+            "mergeconflict.cpp",
+            "mergeconflict.h",
             "outlinefactory.cpp",
             "outlinefactory.h",
             "plaintexteditorfactory.cpp",
@@ -220,6 +222,8 @@ Project {
                 "codestyleaspect_test.h",
                 "highlighter_test.cpp",
                 "highlighter_test.h",
+                "mergeconflict_test.cpp",
+                "mergeconflict_test.h",
                 "texteditor_test.cpp",
                 "texteditor_test.h",
             ]

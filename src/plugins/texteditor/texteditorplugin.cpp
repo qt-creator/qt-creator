@@ -39,6 +39,7 @@
 #include "codestyleaspect_test.h"
 #include "formattexteditor.h"
 #include "highlighter_test.h"
+#include "mergeconflict_test.h"
 #include "snippets/snippet.h"
 #include "textdocumentlayout.h"
 #endif
@@ -110,6 +111,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createSnippetTest);
     addTestCreator(createSnippetParserTest);
     addTestCreator(createCodeStyleAspectTest);
+    addTestCreator(createMergeConflictTest);
 #endif
 
     IOptionsPage::registerCategory(

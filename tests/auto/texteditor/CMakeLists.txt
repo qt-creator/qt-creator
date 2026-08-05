@@ -1,1 +1,2 @@
 add_subdirectory(highlighter)
+add_subdirectory(mergeconflict)

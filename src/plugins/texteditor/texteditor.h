@@ -201,6 +201,11 @@ public:
     ~TextEditorWidget() override;
 
     void setTextDocument(const QSharedPointer<TextDocument> &doc);
+
+    // Shows in-editor merge conflict resolution controls when the document has
+    // conflict markers. On by default; turn off for editors that provide their
+    // own conflict handling (e.g. the inline diff editor).
+    void setMergeConflictResolutionEnabled(bool enabled);
     TextDocument *textDocument() const;
     QSharedPointer<TextDocument> textDocumentPtr() const;
 

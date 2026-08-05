@@ -58,6 +58,9 @@
   <style name="DiffSourceChar" background="#ffafaf"/>
   <style name="DiffDestLine" background="#dfffdf"/>
   <style name="DiffDestChar" background="#afffaf"/>
+  <style name="MergeConflictCurrent" background="#cde2f9"/>
+  <style name="MergeConflictIncoming" background="#e6d8f5"/>
+  <style name="MergeConflictBase" background="#e8e8e2"/>
   <style name="LogChangeLine" foreground="#c00000"/>
   <style name="Info" underlineColor="#262088" underlineStyle="DashUnderline"/>
   <style name="InfoContext" underlineColor="#262088" underlineStyle="DotLine"/>

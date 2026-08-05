@@ -40,6 +40,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <texteditor/mergeconflict.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
@@ -74,6 +75,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
@@ -205,8 +207,13 @@ public:
     void diffChangedFile(const FilePath &repository, const QString &relativePath,
                          VcsFileStatus::Section section) final
     {
-        // conflicted files work through the index baseline, too: it compares
-        // unmerged paths against "ours"
+        // a conflicted file is opened in the normal text editor, where its
+        // merge conflict markers can be resolved inline; the diff view has no
+        // conflict controls
+        if (section == VcsFileStatus::Section::Conflicted) {
+            EditorManager::openEditor(repository.resolvePath(relativePath));
+            return;
+        }
         if (section == VcsFileStatus::Section::Staged)
             gitClient().inlineDiffStagedFile(repository, relativePath);
         else
@@ -2444,6 +2451,7 @@ private slots:
     void testGitRemote();
     void testInlineDiffFile();
     void testInlineDiffConflictedFile();
+    void testConflictedFileInTextEditor();
 };
 
 void GitTest::testStatusParsing_data()
@@ -2816,11 +2824,10 @@ void GitTest::testInlineDiffFile()
     QVERIFY(EditorManager::closeDocuments({sourceDocument}, false));
 }
 
-void GitTest::testInlineDiffConflictedFile()
+// Builds a repo whose file.txt is left unmerged: "base" is committed first,
+// then "local" on the current branch and "side" on the merged branch.
+static void createConflictedRepo(const FilePath &repo)
 {
-    QTemporaryDir temporaryDir;
-    QVERIFY(temporaryDir.isValid());
-    const FilePath repo = FilePath::fromString(temporaryDir.path());
     const auto runGit = [repo](const QStringList &arguments) {
         return gitClient().vcsSynchronousExec(repo, arguments).result()
                == ProcessResult::FinishedWithSuccess;
@@ -2840,24 +2847,63 @@ void GitTest::testInlineDiffConflictedFile()
     QVERIFY(file.writeFileContents("local\n"));
     QVERIFY(runGit({"commit", "-am", "local"}));
     QVERIFY(!runGit({"merge", "side"})); // conflicts
+}
 
-    // an unmerged path has no stage 0; the diff compares against "ours" and
-    // must not report an unavailable baseline
+void GitTest::testInlineDiffConflictedFile()
+{
+    // conflicts are resolved in the normal text editor, so the inline diff of
+    // an unmerged file shows the plain diff against "ours" with no conflict
+    // resolution controls
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    createConflictedRepo(repo);
+    const FilePath file = repo / "file.txt";
+
     gitClient().inlineDiffFile(repo, "file.txt");
     QTRY_COMPARE(EditorManager::currentEditor()->document()->displayName(),
                  QString("file.txt (Unstaged)"));
     Core::IEditor *diffEditor = EditorManager::currentEditor();
     TextEditor::TextEditorWidget *diffWidget = DiffEditor::inlineDiffEditorWidget(diffEditor);
     QVERIFY(diffWidget);
+    // an unmerged path has no stage 0; the diff compares against "ours" and
+    // must not report an unavailable baseline
+    QVERIFY(!diffEditor->document()->infoBar()->containsInfo(
+        Utils::Id("DiffEditor.InlineDiff.BaselineError")));
     // the conflict markers differ from "ours", so a hunk with controls shows
     // up once the baseline arrived and the diff is computed
     QTRY_VERIFY(!diffWidget->findChildren<QAbstractButton *>().isEmpty());
-    QVERIFY(!diffEditor->document()->infoBar()->containsInfo(
-        Utils::Id("DiffEditor.InlineDiff.BaselineError")));
+    // ... but no conflict resolution controls: those belong to the normal
+    // text editor, see testConflictedFileInTextEditor()
+    QVERIFY(diffWidget
+                ->findChildren<QLabel *>(
+                    QLatin1StringView(TextEditor::MERGE_CONFLICT_CHOICES_OBJECT_NAME))
+                .isEmpty());
 
     Core::IDocument *sourceDocument = Core::DocumentModel::documentForFilePath(file);
     QVERIFY(sourceDocument);
     QVERIFY(EditorManager::closeDocuments({sourceDocument}, false));
+}
+
+void GitTest::testConflictedFileInTextEditor()
+{
+    // opening a conflicted file gives a normal text editor with a row of
+    // resolution links above each conflict
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    createConflictedRepo(repo);
+    const FilePath file = repo / "file.txt";
+
+    Core::IEditor *editor = EditorManager::openEditor(file);
+    QVERIFY(editor);
+    TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::fromEditor(editor);
+    QVERIFY(widget);
+    // the conflict scan is debounced, so the links only turn up in a moment
+    const QString objectName = QLatin1StringView(TextEditor::MERGE_CONFLICT_CHOICES_OBJECT_NAME);
+    QTRY_COMPARE(widget->findChildren<QLabel *>(objectName).size(), 1);
+
+    QVERIFY(EditorManager::closeDocuments({editor->document()}, false));
 }
 
 #endif

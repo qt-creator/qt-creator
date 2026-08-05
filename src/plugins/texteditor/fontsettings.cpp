@@ -881,6 +881,19 @@ FormatDescriptions initialFormats()
                                     "in differences (in side-by-side diff editor)."),
                              Format(QColor(), QColor(175, 255, 175)));
 
+    formatDescr.emplace_back(C_MERGE_CONFLICT_CURRENT, Tr::tr("Merge Conflict Current Change"),
+                             Tr::tr("Applied to the current (\"ours\") side of a "
+                                    "merge conflict."),
+                             Format(QColor(), QColor(205, 226, 249)));
+    formatDescr.emplace_back(C_MERGE_CONFLICT_INCOMING, Tr::tr("Merge Conflict Incoming Change"),
+                             Tr::tr("Applied to the incoming (\"theirs\") side of a "
+                                    "merge conflict."),
+                             Format(QColor(), QColor(230, 216, 245)));
+    formatDescr.emplace_back(C_MERGE_CONFLICT_BASE, Tr::tr("Merge Conflict Base"),
+                             Tr::tr("Applied to the common ancestor (\"base\") section of a "
+                                    "merge conflict, shown with diff3 conflict style."),
+                             Format(QColor(), QColor(232, 232, 226)));
+
     formatDescr.emplace_back(C_LOG_CHANGE_LINE, Tr::tr("Log Change Line"),
                              Tr::tr("Applied to lines describing changes in version control log."),
                              Format(QColor(192, 0, 0), QColor()));

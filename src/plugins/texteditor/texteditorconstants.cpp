@@ -83,6 +83,10 @@ const char *nameForStyle(TextStyle style)
     case C_DIFF_DEST_LINE:      return "DiffDestLine";
     case C_DIFF_DEST_CHAR:      return "DiffDestChar";
 
+    case C_MERGE_CONFLICT_CURRENT:  return "MergeConflictCurrent";
+    case C_MERGE_CONFLICT_INCOMING: return "MergeConflictIncoming";
+    case C_MERGE_CONFLICT_BASE:     return "MergeConflictBase";
+
     case C_LOG_CHANGE_LINE:     return "LogChangeLine";
     case C_LOG_AUTHOR_NAME:     return "LogAuthorName";
     case C_LOG_COMMIT_DATE:     return "LogCommitDate";

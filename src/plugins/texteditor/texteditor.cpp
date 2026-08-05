@@ -24,6 +24,7 @@
 #include "inlinediffdecorator.h"
 #include "linenumberfilter.h"
 #include "marginsettings.h"
+#include "mergeconflict.h"
 #include "refactoroverlay.h"
 #include "snippets/snippetoverlay.h"
 #include "storagesettings.h"
@@ -1097,6 +1098,11 @@ public:
     QTimer m_scrollBarUpdateTimer;
     HighlightScrollBarController *m_highlightScrollBarController = nullptr;
     MinimapController *m_minimapController = nullptr;
+    // in-editor merge conflict resolution controls; off for editors that
+    // provide their own (e.g. the inline diff editor)
+    bool m_mergeConflictResolutionEnabled = true;
+    QPointer<MergeConflictController> m_mergeConflictController;
+    void updateMergeConflictController();
     std::optional<bool> m_minimapVisible;
 
     bool m_scrollBarUpdateScheduled = false;
@@ -1538,6 +1544,24 @@ void TextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
     d->setDocument(doc);
 }
 
+void TextEditorWidgetPrivate::updateMergeConflictController()
+{
+    if (m_mergeConflictController)
+        m_mergeConflictController->detach();
+    delete m_mergeConflictController;
+    m_mergeConflictController = nullptr;
+    if (m_mergeConflictResolutionEnabled && m_document)
+        m_mergeConflictController = new MergeConflictController(q);
+}
+
+void TextEditorWidget::setMergeConflictResolutionEnabled(bool enabled)
+{
+    if (d->m_mergeConflictResolutionEnabled == enabled)
+        return;
+    d->m_mergeConflictResolutionEnabled = enabled;
+    d->updateMergeConflictController();
+}
+
 void TextEditorWidgetPrivate::setupScrollBar()
 {
     if (m_displaySettings.m_scrollBarHighlights) {
@@ -1699,6 +1723,8 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      });
 
     slotUpdateExtraAreaWidth();
+
+    updateMergeConflictController();
 
     // Apply current settings
     // the document might already have the same settings as we set here in which case we do not

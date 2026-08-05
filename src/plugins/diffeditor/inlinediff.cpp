@@ -41,7 +41,6 @@
 
 #include <tuple>
 #include <QPointer>
-#include <QScopeGuard>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QTextDocument>
@@ -317,6 +316,39 @@ static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
 }
 
 namespace {
+
+// Replaces the blocks firstLine..lastLine (1-based, inclusive) with the given
+// lines, as a single undo step.
+static void replaceLines(QTextDocument *doc, int firstLine, int lastLine,
+                         const QStringList &lines)
+{
+    const QTextBlock first = doc->findBlockByNumber(firstLine - 1);
+    const QTextBlock last = doc->findBlockByNumber(lastLine - 1);
+    QTC_ASSERT(first.isValid() && last.isValid(), return);
+    QString replacement = lines.join('\n');
+    QTextCursor cursor(doc);
+    cursor.beginEditBlock();
+    cursor.setPosition(first.position());
+    if (last.next().isValid()) {
+        // include the trailing newline of the replaced lines. An empty list
+        // removes the block; a single empty line ({""}, empty replacement but
+        // not empty list) still needs its own trailing newline to remain a line
+        cursor.setPosition(last.next().position(), QTextCursor::KeepAnchor);
+        if (!lines.isEmpty())
+            replacement += '\n';
+    } else if (lines.isEmpty() && first.previous().isValid()) {
+        // removing the last lines removes the preceding newline, too
+        const QTextBlock previous = first.previous();
+        cursor.setPosition(previous.position() + previous.length() - 1);
+        cursor.setPosition(last.position() + qMax(0, last.length() - 1),
+                           QTextCursor::KeepAnchor);
+    } else {
+        cursor.setPosition(last.position() + qMax(0, last.length() - 1),
+                           QTextCursor::KeepAnchor);
+    }
+    cursor.insertText(replacement);
+    cursor.endEditBlock();
+}
 
 // A slim vertical bracket next to the text, marking the lines that a hunk's
 // stage/revert buttons apply to. The horizontal end markers are only drawn
@@ -1388,6 +1420,12 @@ public:
         m_document->setParent(this);
 
         setContext(Core::Context("DiffEditor.InlineDiffEditor"));
+        // merge conflicts are resolved in the normal text editor, not here: a
+        // conflicted file opens there, and the line this view would reserve
+        // above each marker for the resolution links would throw off its row
+        // alignment with the baseline. Disable them before the document is set,
+        // which is what would create them.
+        m_widget->setMergeConflictResolutionEnabled(false);
         m_widget->setTextDocument(source);
         if (readOnlySource) {
             m_widget->setReadOnly(true);
@@ -1596,6 +1634,7 @@ private:
         m_baselineDocument = TextDocumentPtr(new TextEditor::TextDocument);
         m_baselineDocument->setMimeType(m_source->mimeType());
         m_baselineWidget = new TextEditorWidget;
+        m_baselineWidget->setMergeConflictResolutionEnabled(false);
         m_baselineWidget->setTextDocument(m_baselineDocument);
         m_baselineWidget->setReadOnly(true);
         m_baselineWidget->setupGenericHighlighter();
@@ -1683,9 +1722,8 @@ private:
             // the per-row height alignment of the two views is handled by the
             // aligner; the decorators only add the change highlights
             m_decorator->apply({}, m_model.changes);
-            if (m_baselineDecorator) {
+            if (m_baselineDecorator)
                 m_baselineDecorator->apply({}, m_model.baselineChanges);
-            }
             if (m_aligner)
                 m_aligner->update(m_model.hunks);
         }
@@ -1716,6 +1754,8 @@ private:
     {
         if (!m_hunkControls)
             return;
+        // bump the id first so an actionable-lines callback still in flight from
+        // an earlier recompute is discarded
         const int requestId = ++m_actionableRequestId;
         if (m_baseline.fetchActionableLines && !m_model.hunks.isEmpty()) {
             m_hunkControls->setHunks({}, {}, {});
@@ -1764,48 +1804,28 @@ private:
         // state, which has no visible line of its own
         const bool touchesEnd = hunk.editorStartLine + qMax(hunk.editorLineCount, 1) - 1
                                 >= doc->blockCount();
-        QString replacement = hunk.baselineLines.join('\n');
         QTextCursor cursor(doc);
         cursor.beginEditBlock();
-        const QScopeGuard endEditBlock([&cursor, &doc, touchesEnd, this] {
-            if (touchesEnd)
-                alignTrailingNewline(doc);
-            cursor.endEditBlock();
-        });
         if (hunk.editorLineCount > 0) {
-            const QTextBlock first = doc->findBlockByNumber(hunk.editorStartLine - 1);
-            const QTextBlock last = doc->findBlockByNumber(hunk.editorStartLine - 1
-                                                           + hunk.editorLineCount - 1);
-            QTC_ASSERT(first.isValid() && last.isValid(), return);
-            cursor.setPosition(first.position());
-            if (last.next().isValid()) {
-                // include the trailing newline of the hunk
-                cursor.setPosition(last.next().position(), QTextCursor::KeepAnchor);
-                if (!replacement.isEmpty())
-                    replacement += '\n';
-            } else if (replacement.isEmpty() && first.previous().isValid()) {
-                // removing the last lines removes the preceding newline, too
-                const QTextBlock previous = first.previous();
-                cursor.setPosition(previous.position() + previous.length() - 1);
-                cursor.setPosition(last.position() + qMax(0, last.length() - 1),
-                                   QTextCursor::KeepAnchor);
-            } else {
-                cursor.setPosition(last.position() + qMax(0, last.length() - 1),
-                                   QTextCursor::KeepAnchor);
-            }
-            cursor.insertText(replacement);
-        } else if (!replacement.isEmpty()) {
+            replaceLines(doc, hunk.editorStartLine,
+                         hunk.editorStartLine + hunk.editorLineCount - 1,
+                         hunk.baselineLines);
+        } else if (!hunk.baselineLines.isEmpty()) {
             // pure removal: re-insert the baseline lines above the anchor
+            const QString replacement = hunk.baselineLines.join('\n');
             if (hunk.editorStartLine > doc->blockCount()) {
                 cursor.movePosition(QTextCursor::End);
                 cursor.insertText('\n' + replacement);
             } else {
                 const QTextBlock block = doc->findBlockByNumber(hunk.editorStartLine - 1);
-                QTC_ASSERT(block.isValid(), return);
+                QTC_ASSERT(block.isValid(), cursor.endEditBlock(); return);
                 cursor.setPosition(block.position());
                 cursor.insertText(replacement + '\n');
             }
         }
+        if (touchesEnd)
+            alignTrailingNewline(doc);
+        cursor.endEditBlock();
     }
 
     // makes reverts of hunks at the end of the file converge on the
