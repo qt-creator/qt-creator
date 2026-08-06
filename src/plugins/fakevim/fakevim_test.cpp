@@ -237,6 +237,12 @@ private slots:
     void test_vim_command_line_ctrl_u();
     void test_vim_script_searchpair();
     void test_vim9_matchit();
+    void test_vim_script_registers();
+    void test_vim_script_mapping_queries();
+    void test_vim_script_range_function();
+    void test_vim_ex_retab();
+    void test_vim_script_width_and_getline();
+    void test_vim9_justify();
     void test_vim_softtabstop();
     void test_vim_script_mode();
     void test_vim_ex_command_own_selection();
@@ -7130,6 +7136,248 @@ void FakeVimTester::test_vim9_matchit()
 
     data.doCommand("nunmap % | nunmap g% | xunmap % | xunmap g%");
     data.doCommand("ounmap % | ounmap g%");
+}
+
+void FakeVimTester::test_vim_script_registers()
+{
+    // What a register holds and of what kind, which is how a plugin puts
+    // something aside and gives it back. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.setText("al" X "pha beta" N "gamma delta");
+    data.doCommand("call setreg('a', 'hello')");
+    QCOMPARE(echo("getreg('a')"), QLatin1String("hello"));
+    QCOMPARE(echo("getregtype('a')"), QLatin1String("v"));
+    // A trailing newline makes it lines, and so does saying so.
+    data.doCommand("call setreg('b', \"linewise\\n\", 'V')");
+    QCOMPARE(echo("getregtype('b')"), QLatin1String("V"));
+    data.doCommand("call setreg('c', 'block', 'b')");
+    QCOMPARE(echo("getregtype('c')[0] == nr2char(22)"), QLatin1String("1"));
+    QCOMPARE(echo("getregtype('c')[1:]"), QLatin1String("5"));
+    // What a yank left behind, under the name a script reads it by.
+    data.doKeys("gg" "yy");
+    QCOMPARE(echo("getreg('')"), QLatin1String("alpha beta\n"));
+    QCOMPARE(echo("getregtype('')"), QLatin1String("V"));
+    // The third argument asks for the lines as a list.
+    QCOMPARE(echo("string(getreg('a', 1, 1))"), QLatin1String("['hello']"));
+    // A list put there becomes lines.
+    data.doCommand("call setreg('d', ['one', 'two'])");
+    QCOMPARE(echo("getreg('d')"), QLatin1String("one\ntwo\n"));
+}
+
+void FakeVimTester::test_vim_script_mapping_queries()
+{
+    // maparg() and hasmapto(), which every plugin asks before putting its own
+    // mappings in. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("nnoremap gX :echo 1<CR>");
+    const QString mapped = echo("maparg('gX', 'n')");
+    const QString missing = echo("'[' . maparg('gZ', 'n') . ']'");
+    const QString to = echo("hasmapto(':echo 1<CR>', 'n')");
+    const QString notTo = echo("hasmapto('nosuchrhs', 'n')");
+    data.doCommand("nunmap gX");
+
+    QCOMPARE(mapped, QLatin1String(":echo 1<CR>"));
+    QCOMPARE(missing, QLatin1String("[]"));
+    QCOMPARE(to, QLatin1String("1"));
+    QCOMPARE(notTo, QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_script_range_function()
+{
+    // A function declared "range" is handed the whole range and called once;
+    // one that is not is called for each line of it, with the cursor there.
+    // Either way it can read the range as a:firstline and a:lastline. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/r.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! WithRange() range\n"
+            "  call add(g:seen, 'first=' . a:firstline . ' last=' . a:lastline\n"
+            "        \\ . ' cursor=' . line('.'))\n"
+            "endfunction\n"
+            "function! NoRange()\n"
+            "  call add(g:seen, 'cursor=' . line('.') . ' first=' . a:firstline)\n"
+            "endfunction\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/r.vim");
+    const auto seen = [&](const char *command) {
+        data.setText("on" X "e" N "two" N "three" N "four" N "five");
+        data.doCommand("let g:seen = []");
+        data.doCommand(QLatin1String(command));
+        message.clear();
+        data.doCommand("echo join(g:seen, ' | ')");
+        return message;
+    };
+
+    // Once, with the range and the cursor on its first line.
+    QCOMPARE(seen("2,4call WithRange()"), QLatin1String("first=2 last=4 cursor=2"));
+    // Without a range both ends are the line the cursor is on.
+    QCOMPARE(seen("call WithRange()"), QLatin1String("first=1 last=1 cursor=1"));
+    // Once for each line, and the range is still there to be read.
+    QCOMPARE(seen("2,4call NoRange()"),
+             QLatin1String("cursor=2 first=2 | cursor=3 first=2 | cursor=4 first=2"));
+    // A call with no range leaves the cursor where it was.
+    data.setText("one" N "t" X "wo" N "three");
+    data.doCommand("let g:seen = []");
+    data.doCommand("call NoRange()");
+    QCOMPARE(data.handler->textCursor().positionInBlock(), 1);
+
+    data.doCommand("delfunction WithRange | delfunction NoRange | unlet g:seen");
+}
+
+void FakeVimTester::test_vim_ex_retab()
+{
+    // ":retab" writes the white space of each line out again for the tab stop.
+    // Without a "!" only a run that holds a tab is touched. Values taken from
+    // Vim 9.1. Everything is read before anything is compared, so that a
+    // comparison giving up in between does not leave the options behind for
+    // other tests to trip over.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto retabbed = [&](const char *options, const char *text, const char *command) {
+        data.doCommand(QLatin1String("set ") + QLatin1String(options));
+        data.setText(text);
+        data.doCommand(QLatin1String(command));
+        return QString::fromUtf8(data.text())
+            .replace(QLatin1Char('\t'), QLatin1String("<T>"))
+            .replace(QLatin1Char('\n'), QLatin1String("/"));
+    };
+
+    // Spaces are left alone unless "!" says otherwise.
+    const QString spaces = retabbed("noet ts=8", "" X "a               b", "retab");
+    const QString bang = retabbed("noet ts=8", "" X "a               b", "retab!");
+    // With 'expandtab' the tabs become spaces.
+    const QString expanded = retabbed("et ts=8", "" X "\ta", "retab");
+    // The whole file where no range says otherwise, and only the lines a range
+    // does name.
+    const QString whole = retabbed("et ts=8", "" X "\tone" N "\ttwo" N "\tthree", "retab");
+    const QString ranged = retabbed("et ts=8", "" X "\tone" N "\ttwo", "2retab");
+    // An argument is the new tab stop, and stays as one.
+    const QString newStop = retabbed("noet ts=8", "" X "\ta", "retab 4");
+    message.clear();
+    data.doCommand("echo &ts");
+    const QString tabStopAfter = message;
+    data.doCommand("set ts=8 | set noet");
+
+    QCOMPARE(spaces, QLatin1String("a               b"));
+    QCOMPARE(bang, QLatin1String("a<T><T>b"));
+    QCOMPARE(expanded, QLatin1String("        a"));
+    QCOMPARE(whole, QLatin1String("        one/        two/        three"));
+    QCOMPARE(ranged, QLatin1String("<T>one/        two"));
+    QCOMPARE(newStop, QLatin1String("<T><T>a"));
+    QCOMPARE(tabStopAfter, QLatin1String("4"));
+}
+
+void FakeVimTester::test_vim_script_width_and_getline()
+{
+    // strdisplaywidth() counts a tab to the next tab stop, from the column it is
+    // given; strwidth() counts it as one. getline() with two arguments answers
+    // with the lines between them. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("set ts=8");
+    QCOMPARE(echo("strdisplaywidth('abc')"), QLatin1String("3"));
+    QCOMPARE(echo("strdisplaywidth(\"a\\tb\")"), QLatin1String("9"));
+    QCOMPARE(echo("strdisplaywidth(\"\\t\")"), QLatin1String("8"));
+    QCOMPARE(echo("strdisplaywidth(\"\\t\", 4)"), QLatin1String("4"));
+    QCOMPARE(echo("strdisplaywidth(\"\\t\", 8)"), QLatin1String("8"));
+    QCOMPARE(echo("strdisplaywidth('abc', 5)"), QLatin1String("3"));
+    QCOMPARE(echo("strwidth(\"a\\tb\")"), QLatin1String("3"));
+    data.doCommand("set ts=4");
+    QCOMPARE(echo("strdisplaywidth(\"\\t\")"), QLatin1String("4"));
+    data.doCommand("set ts=8");
+
+    data.setText("on" X "e" N "two" N "three");
+    QCOMPARE(echo("string(getline(1, '$'))"), QLatin1String("['one', 'two', 'three']"));
+    QCOMPARE(echo("string(getline(2, 3))"), QLatin1String("['two', 'three']"));
+    QCOMPARE(echo("getline('.')"), QLatin1String("one"));
+    QCOMPARE(echo("string(getline(1, 1))"), QLatin1String("['one']"));
+}
+
+void FakeVimTester::test_vim9_justify()
+{
+    // Vim's justify plugin, which pads a line out to 'textwidth' through a
+    // ":Justify" command over a range. Values taken from Vim 9.1 running the
+    // same plugin over the same lines.
+    const QString D = "/usr/share/vim/vim91/pack/dist/opt/justify";
+    if (!QFileInfo::exists(D + "/plugin/justify.vim"))
+        QSKIP("Vim's justify plugin is not installed");
+    TestData data;
+    setup(&data);
+    data.doCommand("set runtimepath+=" + D);
+    data.doCommand("source " + D + "/plugin/justify.vim");
+    data.doCommand("set tw=40 | set noet | set ts=8 | set sw=8");
+    data.setText("" X "The quick brown fox jumps over the lazy dog and keeps on running far away" N
+                 "Short line here" N
+                 "Another line of words to justify nicely across the page width");
+    data.doCommand("1,3Justify");
+    const QString after = QString::fromUtf8(data.text()).replace(QLatin1Char('\n'),
+                                                                 QLatin1Char('/'));
+    // The plugin leaves mappings and a command behind, and the tables they live
+    // in are shared with every other test, so put them back before comparing.
+    data.doCommand("nunmap _j | vunmap _j | nunmap ,gq | vunmap ,gq");
+    data.doCommand("delcommand Justify");
+    data.doCommand("set tw=0 | set ts=8 | set sw=8 | set noet");
+
+    // Only the short line has room to be padded; the others are longer than the
+    // text width and are left as they are.
+    QCOMPARE(after,
+             QLatin1String("The quick brown fox jumps over the lazy dog and keeps on running far away"
+                           "/Short\t\t  line\t\t    here"
+                           "/Another line of words to justify nicely across the page width"));
 }
 
 void FakeVimTester::test_vim_softtabstop()

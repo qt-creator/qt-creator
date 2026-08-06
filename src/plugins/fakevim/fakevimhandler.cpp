@@ -2753,6 +2753,9 @@ public:
         QString varargName; // Vim9 "...name": binds the extra arguments as a list
         QList<ExCommand> body;
         bool vim9 = false; // a :def function (bare-name args, Vim9 semantics)
+        // ":function F() range" is handed the whole range at once; without it
+        // Vim calls the function once for each line of the range.
+        bool takesRange = false;
     };
     struct AutoCommand {
         QString group; // the ":augroup" it belongs to, empty for none
@@ -2790,6 +2793,9 @@ public:
     VimValue m_returnValue;
     bool m_throwing = false; // an exception raised by :throw is in flight
     QString m_exception;
+    // The range a ":call" was given, for "a:firstline" and "a:lastline".
+    int m_callFirstLine = 0;
+    int m_callLastLine = 0;
     int m_tryDepth = 0; // how many ":try" bodies are being run
     bool m_finishing = false; // :finish - stop running the current command list
     int m_messageSilence = 0; // >0 while inside :silent
@@ -2925,6 +2931,7 @@ public:
     bool handleExNormalCommand(const ExCommand &cmd);
     bool handleExReadCommand(const ExCommand &cmd);
     bool handleExUndoRedoCommand(const ExCommand &cmd);
+    bool handleExRetabCommand(const ExCommand &cmd);
     bool handleExSetCommand(const ExCommand &cmd);
     void applySetOption(const QString &arg);
     bool handleExSortCommand(const ExCommand &cmd);
@@ -7679,6 +7686,81 @@ static bool unimplementedOption(const QString &name, OptionKind *kind)
     return true;
 }
 
+// The white space that reaches from one column to another: tabs and spaces where
+// 'expandtab' is off, spaces alone where it is on.
+static QString whitespaceTo(int fromColumn, int toColumn, int tabStop, bool expand)
+{
+    if (expand || tabStop <= 0)
+        return QString(qMax(0, toColumn - fromColumn), ' ');
+    QString result;
+    int column = fromColumn;
+    while ((column / tabStop + 1) * tabStop <= toColumn) {
+        result.append('\t');
+        column = (column / tabStop + 1) * tabStop;
+    }
+    result.append(QString(toColumn - column, ' '));
+    return result;
+}
+
+bool FakeVimHandler::Private::handleExRetabCommand(const ExCommand &cmd)
+{
+    // :[range]ret[ab][!] [{tabstop}] - write the white space of each line out
+    // again for the tab stop, which the argument may change. Without a "!" only
+    // a run that holds a tab is touched; with one a run of spaces is as well.
+    // The whole file unless a range says otherwise.
+    if (!cmd.matches("ret", "retab"))
+        return false;
+
+    const int wanted = cmd.args.trimmed().toInt(); // 0 where nothing was given
+    const int oldTabStop = tabStop();
+    const int newTabStop = wanted > 0 ? wanted : oldTabStop;
+    const bool expand = expandTab();
+    const int firstLine = cmd.hasRange ? blockAt(cmd.range.beginPos).blockNumber() + 1 : 1;
+    const int lastLine = cmd.hasRange ? blockAt(cmd.range.endPos).blockNumber() + 1
+                                      : document()->blockCount();
+
+    beginEditBlock();
+    for (int line = firstLine; line <= lastLine; ++line) {
+        const QString text = lineContents(line);
+        QString result;
+        int column = 0; // where the text stands on screen
+        int i = 0;
+        while (i < text.size()) {
+            if (text.at(i) != ' ' && text.at(i) != '\t') {
+                result.append(text.at(i));
+                ++column;
+                ++i;
+                continue;
+            }
+            // How far this run of white space reaches, and whether it holds a tab.
+            int end = i;
+            int endColumn = column;
+            bool hasTab = false;
+            while (end < text.size() && (text.at(end) == ' ' || text.at(end) == '\t')) {
+                if (text.at(end) == '\t') {
+                    hasTab = true;
+                    endColumn = (endColumn / oldTabStop + 1) * oldTabStop;
+                } else {
+                    ++endColumn;
+                }
+                ++end;
+            }
+            result.append(hasTab || cmd.hasBang
+                              ? whitespaceTo(column, endColumn, newTabStop, expand)
+                              : text.mid(i, end - i));
+            column = endColumn;
+            i = end;
+        }
+        if (result != text)
+            setLineContents(line, result);
+    }
+    endEditBlock();
+
+    if (wanted > 0)
+        setOption("tabstop", VimValue(qlonglong(wanted)));
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 {
     // :se[t]
@@ -10142,10 +10224,39 @@ bool FakeVimHandler::Private::handleExCallCommand(const ExCommand &cmd)
     // :call {func}({args}) - evaluate a function call for its side effects.
     if (!cmd.matches("cal", "call"))
         return false;
+
+    // A function that asked for the range is handed all of it and called once;
+    // one that did not is called for each line in turn, with the cursor there.
+    // Either way it can read the range it was given.
+    const int first = cmd.hasRange ? blockAt(cmd.range.beginPos).blockNumber() + 1
+                                   : cursorBlockNumber() + 1;
+    const int last = cmd.hasRange ? blockAt(cmd.range.endPos).blockNumber() + 1 : first;
+    const int savedFirst = m_callFirstLine;
+    const int savedLast = m_callLastLine;
+    m_callFirstLine = first;
+    m_callLastLine = last;
+
+    static const QRegularExpression nameRe("^\\s*([A-Za-z_][A-Za-z0-9_:#]*)");
+    const QRegularExpressionMatch m = nameRe.match(cmd.args);
+    const QString name = m.hasMatch() ? m.captured(1) : QString();
+    const bool perLine = cmd.hasRange && g.userFunctions.contains(name)
+                         && !g.userFunctions.value(name).takesRange;
+
     VimValue result;
     QString error;
-    if (!evaluateExpression(cmd.args, &result, &error))
-        showMessage(MessageError, error);
+    for (int line = first; line <= (perLine ? last : first); ++line) {
+        // Only a range moves the cursor, to the line being worked on; without
+        // one the call leaves it where it is. Buffer lines, not screen lines.
+        if (cmd.hasRange)
+            setPosition(firstPositionInLine(line, false));
+        if (!evaluateExpression(cmd.args, &result, &error)) {
+            showMessage(MessageError, error);
+            break;
+        }
+    }
+
+    m_callFirstLine = savedFirst;
+    m_callLastLine = savedLast;
     return true;
 }
 
@@ -10647,7 +10758,9 @@ static bool isBuiltinFunction(const QString &name)
         "mode", "searchpair", "searchpairpos",
         "nr2char", "printf", "range", "readfile", "remove", "repeat", "reverse",
         "search", "setbufvar", "setline", "setpos", "shellescape", "sort",
-        "split", "str2nr", "strftime", "stridx", "string", "strlen", "strpart",
+        "getreg", "getregtype", "hasmapto", "maparg", "setreg",
+        "split", "str2nr", "strdisplaywidth", "strftime", "stridx", "string",
+        "strlen", "strpart", "strridx", "strwidth", "virtcol", "visualmode",
         "submatch", "substitute", "synID", "synIDattr", "synstack", "system",
         "tolower", "toupper", "trim", "type", "values", "winrestview",
         "winsaveview", "writefile"
@@ -10935,9 +11048,140 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "str2nr") {
         const int base = args.size() > 1 ? int(arg(1).toNumber()) : 10;
         *result = VimValue(qlonglong(arg(0).toString().trimmed().toLongLong(nullptr, base)));
+    } else if (name == "strridx") {
+        const QString subject = arg(0).toString();
+        const int from = args.size() > 2 ? int(arg(2).toNumber()) : subject.size();
+        *result = VimValue(qlonglong(subject.lastIndexOf(arg(1).toString(), from)));
+    } else if (name == "virtcol") {
+        // Which screen column the place is at, counting a tab to its stop. "$"
+        // is one past the last character of the line.
+        const CursorPosition pos = lineColArg(arg(0).toString());
+        const QString line = lineContents(pos.line + 1);
+        const bool wantEnd = arg(0).toString() == "$";
+        const int upto = wantEnd ? line.size() : qMin(pos.column + 1, int(line.size()));
+        const int ts = tabStop();
+        int column = 0;
+        for (int i = 0; i < upto; ++i)
+            column = line.at(i) == '\t' ? (column / ts + 1) * ts : column + 1;
+        *result = VimValue(qlonglong(wantEnd ? column + 1 : column));
+    } else if (name == "getreg" || name == "getregtype") {
+        // What a register holds, and of what kind. An empty name is the unnamed
+        // register.
+        const QString spec = arg(0).toString();
+        const int reg = spec.isEmpty() ? '"' : spec.at(0).unicode();
+        const Register stored = g.registers.value(reg);
+        if (name == "getregtype") {
+            // "v" for characters, "V" for lines, CTRL-V and a width for a block.
+            QString type = QLatin1String("v");
+            if (stored.rangemode == RangeLineMode || stored.rangemode == RangeLineModeExclusive) {
+                type = QLatin1String("V");
+            } else if (stored.rangemode == RangeBlockMode
+                       || stored.rangemode == RangeBlockAndTailMode) {
+                int width = 0;
+                const QStringList lines = stored.contents.split('\n');
+                for (const QString &line : lines)
+                    width = qMax(width, int(line.size()));
+                type = QString(QChar(0x16)) + QString::number(width);
+            }
+            *result = VimValue(type);
+        } else if (args.size() > 2 && arg(2).toBool()) {
+            QString contents = stored.contents;
+            if (contents.endsWith('\n'))
+                contents.chop(1);
+            QList<VimValue> lines;
+            const QStringList parts = contents.split('\n');
+            for (const QString &line : parts)
+                lines.append(VimValue(line));
+            *result = VimValue::list(lines);
+        } else {
+            *result = VimValue(stored.contents);
+        }
+    } else if (name == "setreg") {
+        // setreg({reg}, {value} [, {options}]): the options say whether what is
+        // put there counts as characters, lines or a block.
+        const QString spec = arg(0).toString();
+        const int reg = spec.isEmpty() ? '"' : spec.at(0).unicode();
+        QString contents;
+        if (arg(1).isList()) {
+            const QList<VimValue> *l = arg(1).listData();
+            for (const VimValue &line : *l)
+                contents += line.toString() + '\n';
+        } else {
+            contents = arg(1).toString();
+        }
+        const QString options = args.size() > 2 ? arg(2).toString() : QString();
+        RangeMode mode = RangeCharMode;
+        if (options.contains('V') || (options.isEmpty() && contents.endsWith('\n')))
+            mode = RangeLineMode;
+        else if (options.contains('b') || options.contains(QChar(0x16)))
+            mode = RangeBlockMode;
+        setRegister(reg, contents, mode);
+        *result = VimValue(qlonglong(0));
+    } else if (name == "visualmode") {
+        // Which kind of selection was made last: "v", "V" or CTRL-V.
+        const VisualMode mode = isVisualMode() ? g.visualMode : m_buffer->lastVisualMode;
+        QString answer;
+        if (mode == VisualLineMode)
+            answer = QLatin1String("V");
+        else if (mode == VisualBlockMode)
+            answer = QString(QChar(0x16));
+        else if (mode == VisualCharMode)
+            answer = QLatin1String("v");
+        *result = VimValue(answer);
+    } else if (name == "maparg" || name == "hasmapto") {
+        // What a key is mapped to, and whether anything maps to a given
+        // right-hand side; plugins ask before putting their own mappings in.
+        const QString wanted = arg(0).toString();
+        const QString modeName = args.size() > 1 ? arg(1).toString() : QString("n");
+        const char mode = modeName.isEmpty() ? 'n' : modeName.at(0).toLatin1();
+        QString found;
+        bool anyTo = false;
+        const auto text = [](const Inputs &rhs) {
+            QString out = rhs.isExCommand() ? ':' + rhs.exCommand() : QString();
+            const QVector<Input> keys(rhs);
+            for (const Input &in : keys)
+                out += in.toString();
+            return out;
+        };
+        const auto walk = [&](const ModeMapping &node, const QString &keys,
+                              const auto &recurse) -> void {
+            for (auto it = node.cbegin(); it != node.cend(); ++it) {
+                const QString here = keys + it.key().toString();
+                const QString rhs = text(it.value().value());
+                if (!rhs.isEmpty()) {
+                    if (here == wanted && found.isEmpty())
+                        found = rhs;
+                    if (rhs.contains(wanted))
+                        anyTo = true;
+                }
+                recurse(it.value(), here, recurse);
+            }
+        };
+        const auto modeIt = g.mappings.constFind(mode == 'x' ? 'v' : mode);
+        if (modeIt != g.mappings.constEnd())
+            walk(*modeIt, QString(), walk);
+        *result = name == "maparg" ? VimValue(found)
+                                  : VimValue(qlonglong(anyTo ? 1 : 0));
     } else if (name == "stridx") {
         const int start = args.size() > 2 ? int(arg(2).toNumber()) : 0;
         *result = VimValue(qlonglong(arg(0).toString().indexOf(arg(1).toString(), start)));
+    } else if (name == "strdisplaywidth" || name == "strwidth") {
+        // How wide the text stands on screen. For strdisplaywidth() a tab
+        // reaches to the next tab stop, counted from the column passed as the
+        // second argument; strwidth() knows nothing of tab stops and counts a
+        // tab as one.
+        const QString text = arg(0).toString();
+        const int from = args.size() > 1 ? int(arg(1).toNumber()) : 0;
+        const int ts = tabStop();
+        const bool useTabStops = name == "strdisplaywidth";
+        int column = from;
+        for (const QChar &ch : text) {
+            if (useTabStops && ch == '\t')
+                column = (column / ts + 1) * ts;
+            else
+                ++column;
+        }
+        *result = VimValue(qlonglong(column - from));
     } else if (name == "strpart") {
         const QString str = arg(0).toString();
         *result = args.size() > 2 ? VimValue(str.mid(int(arg(1).toNumber()), int(arg(2).toNumber())))
@@ -11206,9 +11450,26 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         }
         *result = VimValue(qlonglong(0));
     } else if (name == "getline") {
-        const QString a = arg(0).toString();
-        const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
-        *result = VimValue(lineContents(ln));
+        // getline({lnum}) is that line; getline({lnum}, {end}) is the lines from
+        // one to the other as a list, which is how a script reads a whole buffer.
+        const auto lineNumber = [this](const VimValue &v) {
+            const QString spec = v.toString();
+            if (spec == ".")
+                return cursorLine() + 1;
+            if (spec == "$")
+                return document()->blockCount();
+            return int(v.toNumber());
+        };
+        const int from = lineNumber(arg(0));
+        if (args.size() > 1) {
+            const int to = lineNumber(arg(1));
+            QList<VimValue> lines;
+            for (int line = qMax(1, from); line <= qMin(to, document()->blockCount()); ++line)
+                lines.append(VimValue(lineContents(line)));
+            *result = VimValue::list(lines);
+        } else {
+            *result = VimValue(lineContents(from));
+        }
     } else if (name == "setline") {
         // A list argument replaces consecutive lines starting at {lnum}.
         const int first = int(arg(0).toNumber());
@@ -12393,6 +12654,10 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
     // matching :endfunction (functions do not nest in Vim).
     UserFunction fn;
     fn.vim9 = header.cmd == "def"; // :def uses bare-name args and Vim9 syntax
+    // What follows the parameters says how the function is to be called; only
+    // "range" changes anything here.
+    static const QRegularExpression rangeRe("\\)\\s*(?:[a-z]+\\s+)*range\\b");
+    fn.takesRange = rangeRe.match(header.args).hasMatch();
     static const QRegularExpression re(
         "^\\s*([A-Za-z_][A-Za-z0-9_:#]*)\\s*\\(([^)]*)\\)");
     const QRegularExpressionMatch m = re.match(header.args);
@@ -12481,6 +12746,10 @@ VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
         frame.insert("a:" + QString::number(i - fn.params.size() + 1), args.at(i));
     }
     frame.insert("a:000", VimValue::list(varargs));
+    // The lines the call was given, which every function can read whether it
+    // asked for the range or not.
+    frame.insert("a:firstline", VimValue(qlonglong(m_callFirstLine)));
+    frame.insert("a:lastline", VimValue(qlonglong(m_callLastLine)));
     if (!fn.varargName.isEmpty())
         frame.insert(prefix + fn.varargName, VimValue::list(varargs));
 
@@ -12605,6 +12874,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExNormalCommand(cmd)
         || handleExReadCommand(cmd)
         || handleExUndoRedoCommand(cmd)
+        || handleExRetabCommand(cmd)
         || handleExSetCommand(cmd)
         || handleExShiftCommand(cmd)
         || handleExSortCommand(cmd)
