@@ -8,6 +8,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <solutions/spinner/spinner.h>
+
 #include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
@@ -947,6 +949,26 @@ void setupGuiModule()
             sol::property(&Spinner::setDecorated),
             sol::base_classes,
             sol::bases<Widget, Object>());
+
+        // An overlay spinner that centres itself on an existing widget and dims
+        // it while running, unlike the inline Spinner above. Construct with
+        // SpinnerOverlay(widget) and toggle its 'running' property.
+        gui.new_usertype<SpinnerSolution::Spinner>(
+            "SpinnerOverlay",
+            sol::call_constructor,
+            sol::factories([](Widget *on) -> SpinnerSolution::Spinner * {
+                QWidget *target = on->emerge();
+                auto *spinner = new SpinnerSolution::Spinner(
+                    SpinnerSolution::SpinnerSize::Medium, target);
+                spinner->hide();
+                return spinner; // parented to target; destroyed with it
+            }),
+            "running",
+            sol::property(
+                [](SpinnerSolution::Spinner &self) { return self.isVisible(); },
+                [](SpinnerSolution::Spinner &self, bool running) {
+                    self.setVisible(running);
+                }));
 
         gui.new_usertype<QtDesignWidgets::IconDisplay>(
             "IconDisplay",

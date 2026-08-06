@@ -376,6 +376,15 @@ function gui.MarkdownBrowser(options) end
 ---@field decorated boolean Display spinner with custom styleSheet defined inside control (default true)
 local spinner = {}
 
+---@class SpinnerOverlay
+---@field running boolean Show the spinner as a centered overlay on its target widget and animate it
+local spinnerOverlay = {}
+
+---Create a spinner that overlays and dims an existing widget while running.
+---@param on Widget The widget to overlay (e.g. a ListWidget).
+---@return SpinnerOverlay
+function gui.SpinnerOverlay(on) end
+
 ---@class IconDisplay : Widget
 local IconDisplay = {}
 
