@@ -5,7 +5,7 @@
 
 #include "macsampler.h"
 #ifdef Q_OS_WIN
-#include "winsampler.h"
+#include "etwlauncher_win.h"
 #endif
 #include "processpickerdialog.h"
 
@@ -179,6 +179,14 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
         // symbolized.
         QFuture<void> capture = Utils::asyncRun(
             [session, intervalUs, captured](QPromise<void> &promise) {
+#ifdef Q_OS_WIN
+            // The ETW session needs administrator rights, so the sampling
+            // happens in an elevated helper process rather than here (see
+            // etwlauncher_win.h). It marks the session started itself, once the
+            // consent prompt is behind us.
+            *captured = recordSampleTraceElevated(session, intervalUs,
+                                                  [&promise] { return promise.isCanceled(); });
+#else
             SamplerOptions opts;
             opts.pid = session->pid.load();
             opts.processName = session->processName;
@@ -189,6 +197,7 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
             *captured = recordSampleTrace(opts,
                                           [&promise] { return promise.isCanceled(); },
                                           [session](int percent) { session->setProgress(percent); });
+#endif
         });
 
         // Owned by the barrier, so it goes exactly when this task does.

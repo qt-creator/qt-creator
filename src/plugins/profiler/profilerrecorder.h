@@ -101,6 +101,10 @@ signals:
     void currentBackendChanged(int index);
     // A recording has begun; `target` names what is being recorded.
     void started(const QString &target);
+    // The backend is capturing. Whatever the start took -- launching the
+    // target, bringing up a debug connection, answering a consent prompt --
+    // is over by now, and the recording's clock runs from here.
+    void captureStarted();
     // Capture is over, but the backend is still symbolizing and writing.
     void processingStarted();
     void progressChanged(int percent);

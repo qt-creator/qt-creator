@@ -88,9 +88,11 @@ public:
                 profilerRecorder(), &ProfilerRecorder::stop);
 
         connect(profilerRecorder(), &ProfilerRecorder::started, this, [this](const QString &target) {
-            m_recordingPage->start(target);
+            m_recordingPage->showWaiting(target);
             setCurrentWidget(m_recordingPage);
         });
+        connect(profilerRecorder(), &ProfilerRecorder::captureStarted,
+                m_recordingPage, &RecordingPage::captureStarted);
         connect(profilerRecorder(), &ProfilerRecorder::processingStarted,
                 m_recordingPage, &RecordingPage::setProcessing);
         connect(profilerRecorder(), &ProfilerRecorder::progressChanged,

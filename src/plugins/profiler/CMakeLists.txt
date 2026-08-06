@@ -183,6 +183,7 @@ extend_qtc_plugin(Profiler
 extend_qtc_plugin(Profiler CONDITION WIN32
   DEPENDS dbghelp psapi
   SOURCES
+    etwlauncher_win.cpp etwlauncher_win.h
     winsampler.cpp winsampler.h
     winsymbolicator.cpp winsymbolicator.h
 )

@@ -44,6 +44,7 @@ QtcPlugin {
         name: "Windows sampler"
         condition: qbs.targetOS.contains("windows")
         files: [
+            "etwlauncher_win.cpp", "etwlauncher_win.h",
             "winsampler.cpp", "winsampler.h",
             "winsymbolicator.cpp", "winsymbolicator.h",
         ]

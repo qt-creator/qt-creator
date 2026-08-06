@@ -192,9 +192,11 @@ WindowPrivate::WindowPrivate(Window *window)
 
     connect(recorder, &ProfilerRecorder::started,
             this, [this](const QString &target) {
-        recordingPage->start(target);
+        recordingPage->showWaiting(target);
         rightPane->setCurrentWidget(recordingPage);
     });
+    connect(recorder, &ProfilerRecorder::captureStarted,
+            recordingPage, &RecordingPage::captureStarted);
     connect(recorder, &ProfilerRecorder::processingStarted,
             recordingPage, &RecordingPage::setProcessing);
     connect(recorder, &ProfilerRecorder::statusChanged,

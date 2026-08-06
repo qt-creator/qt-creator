@@ -7,6 +7,7 @@ Project {
         "buildoutputparser/buildoutputparser.qbs",
         "cplusplustools.qbs",
         "disclaim/disclaim.qbs",
+        "etwcapture/etwcapture.qbs",
         "process_stub/process_stub.qbs",
         "qmlpuppet/qmlpuppet.qbs",
         "qtcdebugger/qtcdebugger.qbs",

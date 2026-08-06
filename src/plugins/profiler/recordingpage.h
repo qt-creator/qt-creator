@@ -30,8 +30,12 @@ class PROFILER_EXPORT RecordingPage : public QWidget
 public:
     explicit RecordingPage(QWidget *parent = nullptr);
 
-    // Resets and starts the elapsed-time counter.
-    void start(const QString &processName);
+    // Shows the page for a recording that was asked for but is not capturing
+    // yet: the elapsed time stays at zero until captureStarted().
+    void showWaiting(const QString &processName);
+    // Names the recording and starts counting, so that what the start took --
+    // a launch, a debug connection, a consent prompt -- is not counted.
+    void captureStarted();
     // Switches to the "processing the captured samples" state: the elapsed timer
     // stops, the Stop button is disabled and a progress bar appears, giving
     // immediate feedback while the worker still converts and writes the trace.
@@ -59,6 +63,7 @@ private:
     QProgressBar *m_progressBar = nullptr;
     QTimer *m_tick = nullptr;
     QElapsedTimer m_elapsed;
+    QString m_processName;
 };
 
 } // namespace Profiler::Internal

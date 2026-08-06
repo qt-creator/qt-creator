@@ -72,14 +72,23 @@ RecordingPage::RecordingPage(QWidget *parent)
     m_statusLabel->hide(); // Only shown once there is something to report.
 }
 
-void RecordingPage::start(const QString &processName)
+void RecordingPage::showWaiting(const QString &processName)
 {
-    m_titleLabel->setText(Tr::tr("Recording %1...").arg(processName));
+    m_processName = processName;
+    m_titleLabel->setText(Tr::tr("Waiting for capture of %1...").arg(processName));
     m_stopButton->setEnabled(true);
     m_stopButton->setText(Tr::tr("Stop Recording"));
     m_progressBar->hide();
     m_progressBar->setValue(0);
     setStatus({});
+    m_tick->stop();
+    m_elapsed.restart();
+    updateElapsed();
+}
+
+void RecordingPage::captureStarted()
+{
+    m_titleLabel->setText(Tr::tr("Recording %1...").arg(m_processName));
     m_elapsed.restart();
     updateElapsed();
     m_tick->start();

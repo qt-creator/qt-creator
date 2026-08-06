@@ -1,0 +1,6 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+// Embeds the requireAdministrator manifest, which is what makes
+// ShellExecuteEx elevate this executable. Both rc and windres understand this.
+1 24 "etwcapture-launcher.exe.manifest"

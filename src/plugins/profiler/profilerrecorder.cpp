@@ -83,9 +83,9 @@ public:
     QTimer downloadDelay;    // Before a debug-info download is worth naming.
     bool downloadNameable = false;
     bool recording = false;
+    bool capturing = false;               // Set once the backend went live.
     bool waitingForShutdown = false;      // Set while stopAndWait() runs.
     std::optional<milliseconds> duration; // Set by startTimed(); auto-stop span.
-    bool durationArmed = false;           // Stop timer armed once capture went live.
 };
 
 ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
@@ -133,14 +133,18 @@ void ProfilerRecorderPrivate::updateReports()
 {
     if (!session)
         return;
-    // For startTimed(): once capture is actually live, start the span clock
-    // exactly once, so launch and connect time is not counted against it.
-    if (duration && !durationArmed && session->isStarted()) {
-        durationArmed = true;
-        QTimer::singleShot(*duration, this, [this] {
-            if (session)
-                session->requestStop();
-        });
+    // Report the switch to capturing exactly once. A startTimed() span is
+    // measured from here too, so that launching the target, connecting to it or
+    // elevating the capture is not counted against it.
+    if (!capturing && session->isStarted()) {
+        capturing = true;
+        emit q->captureStarted();
+        if (duration) {
+            QTimer::singleShot(*duration, this, [this] {
+                if (session)
+                    session->requestStop();
+            });
+        }
     }
     emit q->progressChanged(session->progressPercent());
 
@@ -196,6 +200,7 @@ Sampler *ProfilerRecorderPrivate::backendById(Id id) const
 void ProfilerRecorderPrivate::startRecording(const QString &target)
 {
     recording = true;
+    capturing = false;
     downloadNameable = false;
     // The recipe (or the user) ends the capture; either way that is the switch
     // from recording to post-processing. Reported from the request itself, so
@@ -224,10 +229,10 @@ void ProfilerRecorderPrivate::finishRecording()
     if (!recording)
         return;
     recording = false;
+    capturing = false;
     ownsRecipe = false;
     downloadDelay.stop();
     duration.reset(); // One-shot: do not auto-stop a later manual recording.
-    durationArmed = false;
 
     const std::shared_ptr<RecordingSession> finished = session;
     session.reset();
@@ -401,7 +406,6 @@ void ProfilerRecorder::startTimed(milliseconds duration)
     if (!d->recording)
         return; // start() reported the error already.
     d->duration = duration;
-    d->durationArmed = false;
 }
 
 Result<std::shared_ptr<RecordingSession>> ProfilerRecorder::beginRunControlRecording(
