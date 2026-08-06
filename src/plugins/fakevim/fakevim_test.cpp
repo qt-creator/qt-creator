@@ -7022,7 +7022,7 @@ void FakeVimTester::test_vim_script_block_abbreviations()
     const auto ran = [&](const QByteArray &script) {
         const QString path = dir.path() + "/b.vim";
         QFile f(path);
-        f.open(QIODevice::WriteOnly | QIODevice::Truncate);
+        [[maybe_unused]] const bool success = f.open(QIODevice::WriteOnly | QIODevice::Truncate);
         f.write("let g:hit = 0\n" + script);
         f.close();
         data.doCommand("source " + path);
