@@ -885,7 +885,7 @@ AcpMessageView::AcpMessageView(QWidget *parent)
 
     setWidget(m_container);
 
-    Aggregation::aggregate({this, new MessageViewFindSupport(this)});
+    Utils::Aggregation::aggregate({this, new MessageViewFindSupport(this)});
 
     // Track whether user has scrolled up to suppress auto-scroll
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, [this](int value) {

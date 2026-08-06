@@ -8,6 +8,8 @@
 
 //TESTED_COMPONENT=src/libs/aggregation
 
+using namespace Utils;
+
 class tst_Aggregate : public QObject
 {
     Q_OBJECT

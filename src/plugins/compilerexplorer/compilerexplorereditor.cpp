@@ -46,11 +46,11 @@
 
 #include <memory>
 
-using namespace std::chrono_literals;
-using namespace Aggregation;
+using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
-using namespace Core;
+using namespace Utils::Aggregation;
+using namespace std::chrono_literals;
 
 namespace CompilerExplorer {
 

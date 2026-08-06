@@ -35,7 +35,7 @@ static LocatorWidget *locatorWidget()
     if (window->windowFlags() & Qt::Popup && window->parentWidget())
         window = window->parentWidget()->window();
     if (!locatorSettings().useCenteredPopup()) {
-        if (auto *widget = Aggregation::query<LocatorWidget>(window)) {
+        if (auto *widget = Utils::Aggregation::query<LocatorWidget>(window)) {
             if (popup)
                 popup->close();
             return widget;
@@ -77,7 +77,7 @@ QWidget *LocatorManager::createLocatorInputWidget(QWidget *window)
 {
     auto locatorWidget = createStaticLocatorWidget(Locator::instance());
     // register locator widget for this window
-    Aggregation::aggregate({window, locatorWidget});
+    Utils::Aggregation::aggregate({window, locatorWidget});
 
     return locatorWidget;
 }

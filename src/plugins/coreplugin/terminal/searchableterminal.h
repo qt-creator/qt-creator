@@ -83,7 +83,7 @@ private:
     TerminalSearchPtr m_search;
     TerminalSolution::SearchHit m_lastSelectedHit{};
 
-    Aggregation::Aggregate *m_aggregate{nullptr};
+    Utils::Aggregation::Aggregate *m_aggregate{nullptr};
 };
 
 } // namespace Core

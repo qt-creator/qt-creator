@@ -7,7 +7,7 @@
 #include <QDebug>
 
 /*!
-    \namespace Aggregation
+    \namespace Utils::Aggregation
     \inmodule QtCreator
     \brief The Aggregation namespace contains support for bundling related components,
            so that each component exposes the properties and behavior of the
@@ -19,7 +19,7 @@
 */
 
 /*!
-    \class Aggregation::Aggregate
+    \class Utils::Aggregation::Aggregate
     \inheaderfile aggregation/aggregate.h
     \inmodule QtCreator
     \ingroup mainclasses
@@ -43,7 +43,7 @@
     You can use an aggregate to simulate multiple inheritance by aggregation.
     Assuming we have the following code:
     \code
-        using namespace Aggregation;
+        using namespace Utils::Aggregation;
         class MyInterface : public QObject { ........ };
         class MyInterfaceEx : public QObject { ........ };
         [...]
@@ -81,7 +81,7 @@
 */
 
 /*!
-    \fn template <typename T> T *Aggregation::Aggregate::component()
+    \fn template <typename T> T *Utils::Aggregation::Aggregate::component()
 
     Template function that returns the component with the given type, if there is one.
     If there are multiple components with that type, a random one is returned.
@@ -90,7 +90,7 @@
 */
 
 /*!
-    \fn template <typename T> QList<T *> Aggregation::Aggregate::components()
+    \fn template <typename T> QList<T *> Utils::Aggregation::Aggregate::components()
 
     Template function that returns all components with the given type, if there are any.
 
@@ -98,8 +98,8 @@
 */
 
 /*!
-    \relates Aggregation::Aggregate
-    \fn template <typename T> T *Aggregation::query<T *>(QObject *obj)
+    \relates Utils::Aggregation::Aggregate
+    \fn template <typename T> T *Utils::Aggregation::query<T *>(QObject *obj)
 
     Performs a dynamic cast that is aware of a possible aggregate that \a obj
     might belong to. If \a obj itself is of the requested type, it is simply cast
@@ -110,8 +110,8 @@
 */
 
 /*!
-    \relates Aggregation::Aggregate
-    \fn template <typename T> QList<T *> Aggregation::query_all<T *>(QObject *obj)
+    \relates Utils::Aggregation::Aggregate
+    \fn template <typename T> QList<T *> Utils::Aggregation::query_all<T *>(QObject *obj)
 
     If \a obj belongs to an aggregate, all components that can be cast to the given
     type are returned. Otherwise, \a obj is returned if it is of the requested type.
@@ -120,7 +120,7 @@
 */
 
 /*!
-    \fn void Aggregation::Aggregate::changed()
+    \fn void Utils::Aggregation::Aggregate::changed()
 
     This signal is emitted when a component is added to or removed from an
     aggregate.
@@ -128,7 +128,7 @@
     \sa add(), remove()
 */
 
-namespace Aggregation {
+namespace Utils::Aggregation {
 
 /*!
     Returns the aggregate object of \a obj if there is one. Otherwise returns 0.
@@ -288,4 +288,4 @@ void aggregate(const QObjectList &components)
     }
 }
 
-} // namespace Aggregation
+} // namespace Utils::Aggregation

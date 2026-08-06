@@ -11,7 +11,7 @@
 #include <QReadWriteLock>
 #include <QReadLocker>
 
-namespace Aggregation {
+namespace Utils::Aggregation {
 
 class QTCREATOR_UTILS_EXPORT Aggregate : public QObject
 {
@@ -108,4 +108,4 @@ template <typename T> QList<T *> query_all(QObject *obj)
     return results;
 }
 
-} // namespace Aggregation
+} // namespace Utils::Aggregation

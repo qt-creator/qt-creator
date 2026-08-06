@@ -122,7 +122,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager
     d->m_mainView = new Timeline::TimelineWidget(&d->m_modelProxy, &d->m_zoomControl, this);
     setFocusProxy(d->m_mainView);
 
-    Aggregation::aggregate({d->m_mainView, new TraceViewFindSupport(this, modelManager)});
+    Utils::Aggregation::aggregate({d->m_mainView, new TraceViewFindSupport(this, modelManager)});
 
     auto groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0, 0, 0, 0);
