@@ -151,9 +151,9 @@ void ClangdTest::waitForNewClient(bool withIndex)
 {
     // Setting up the project should result in a clangd client being created.
     // Wait until that has happened.
-    m_client = nullptr;
     m_client = ClangModelManagerSupport::clientForProject(project());
-    if (!m_client) {
+    int attempts = 0;
+    while (!m_client && ++attempts < 10) {
         QVERIFY(waitForSignalOrTimeout(LanguageClientManager::instance(),
                                        &LanguageClientManager::clientAdded, timeOutInMs()));
         m_client = ClangModelManagerSupport::clientForProject(project());
