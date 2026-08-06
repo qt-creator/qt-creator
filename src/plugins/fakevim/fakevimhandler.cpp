@@ -2987,6 +2987,7 @@ public:
     bool searchPairFunction(const QList<VimValue> &args, bool wantPosition, VimValue *result,
                             QString *error);
     CursorPosition lineColArg(const QString &spec) const;
+    bool placeFromList(const VimValue &v, int *line, int *column) const;
     static VimValue deepCopy(const VimValue &value);
     static QString applyFileNameModifiers(const QString &fileName, const QString &mods);
     int bufferNumber();
@@ -5081,12 +5082,19 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
     } else if (input.is('a') || input.is('i')) {
         g.subsubmode = TextObjectSubSubMode;
         g.subsubdata = input;
-    } else if (input.is('^') || input.is('_')) {
+    } else if (input.is('^')) {
         if (g.gflag)
             moveToFirstNonBlankOnLineVisually();
         else
             moveToFirstNonBlankOnLine();
         g.movetype = MoveExclusive;
+    } else if (input.is('_')) {
+        // Linewise over count-1 lines downwards: "d_" takes this line alone,
+        // "2d_" this one and the next, which is what "g@_" hands an operator.
+        moveDown(count - 1);
+        moveToFirstNonBlankOnLine();
+        g.movetype = MoveLineWise;
+        count = 1;
     } else if (!s.commaPassesShortcuts() && input.is(',')) {
         // Repeat the last f/F/t/T in the opposite direction. Only when ',' is
         // not reserved for passing shortcuts (QTCREATORBUG-12115).
@@ -10490,6 +10498,27 @@ CursorPosition FakeVimHandler::Private::lineColArg(const QString &spec) const
     return CursorPosition(-1, -1); // unknown: line()/col() report 0
 }
 
+// A "[lnum, col]" list as line(), col() and virtcol() take it, which is how a
+// script asks after a place it is not at. "$" is the column after the last
+// character of that line; a line that is not there, or a column past its end,
+// makes them report 0.
+bool FakeVimHandler::Private::placeFromList(const VimValue &v, int *line, int *column) const
+{
+    if (!v.isList() || v.listData()->size() < 2)
+        return false;
+    const QList<VimValue> &parts = *v.listData();
+    const int lnum = int(parts.at(0).toNumber());
+    if (lnum < 1 || lnum > linesInDocument())
+        return false;
+    const int end = lineContents(lnum).size() + 1;
+    const int col = parts.at(1).toString() == "$" ? end : int(parts.at(1).toNumber());
+    if (col < 1 || col > end)
+        return false;
+    *line = lnum;
+    *column = col;
+    return true;
+}
+
 // The ":p", ":h", ":t", ":r" and ":e" modifiers a path may carry, applied left
 // to right as Vim applies them. Shared by fnamemodify() and expand().
 QString FakeVimHandler::Private::applyFileNameModifiers(const QString &fileName,
@@ -10919,7 +10948,8 @@ static bool isBuiltinFunction(const QString &name)
         "index", "insert", "isdirectory", "items", "join", "keys", "len",
         "line", "map", "match", "matchend", "matchlist", "matchstr", "max", "min",
         "mode", "searchpair", "searchpairpos",
-        "nr2char", "printf", "range", "readfile", "remove", "repeat", "reverse",
+        "nextnonblank", "nr2char", "prevnonblank", "printf", "range", "readfile",
+        "remove", "repeat", "reverse",
         "search", "setbufvar", "setline", "setpos", "shellescape", "sort",
         "getreg", "getregtype", "hasmapto", "maparg", "setreg",
         "split", "str2nr", "strdisplaywidth", "strftime", "stridx", "string",
@@ -10934,6 +10964,15 @@ static bool isBuiltinFunction(const QString &name)
 bool FakeVimHandler::Private::callFunction(const QString &name,
     const QList<VimValue> &args, VimValue *result, QString *error)
 {
+    // A mapping names what belongs to its own script with "<SID>" or
+    // "<SNR>42_", the "s:" of this one flat namespace. An 'operatorfunc' a
+    // plugin sets from a mapping reads that way.
+    static const QRegularExpression scriptId("^<(?:SID>|SNR>\\d+_)",
+                                             QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch scriptPrefix = scriptId.match(name);
+    if (scriptPrefix.hasMatch())
+        return callFunction("s:" + name.mid(scriptPrefix.capturedLength()), args, result, error);
+
     const auto arg = [&](int i) { return i < args.size() ? args.at(i) : VimValue(); };
 
     if (name == "strlen") {
@@ -11218,9 +11257,17 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "virtcol") {
         // Which screen column the place is at, counting a tab to its stop. "$"
         // is one past the last character of the line.
-        const CursorPosition pos = lineColArg(arg(0).toString());
+        int listLine = 0, listColumn = 0;
+        if (arg(0).isList() && !placeFromList(arg(0), &listLine, &listColumn)) {
+            *result = VimValue(qlonglong(0));
+            return true;
+        }
+        const CursorPosition pos = arg(0).isList()
+            ? CursorPosition(listLine - 1, listColumn - 1)
+            : lineColArg(arg(0).toString());
         const QString line = lineContents(pos.line + 1);
-        const bool wantEnd = arg(0).toString() == "$";
+        const bool wantEnd = arg(0).isList() ? listColumn == line.size() + 1
+                                            : arg(0).toString() == "$";
         const int upto = wantEnd ? line.size() : qMin(pos.column + 1, int(line.size()));
         const int ts = tabStop();
         int column = 0;
@@ -11578,10 +11625,17 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             answer = QLatin1String("no");
         *result = VimValue(answer);
     } else if (name == "line") {
-        *result = VimValue(qlonglong(lineColArg(arg(0).toString()).line + 1));
+        int line = 0, column = 0;
+        if (arg(0).isList())
+            *result = VimValue(qlonglong(placeFromList(arg(0), &line, &column) ? line : 0));
+        else
+            *result = VimValue(qlonglong(lineColArg(arg(0).toString()).line + 1));
     } else if (name == "col") {
         const QString a = arg(0).toString();
-        if (a == "$")
+        int line = 0, column = 0;
+        if (arg(0).isList())
+            *result = VimValue(qlonglong(placeFromList(arg(0), &line, &column) ? column : 0));
+        else if (a == "$")
             *result = VimValue(qlonglong(lineContents(cursorLine() + 1).size() + 1));
         else
             *result = VimValue(qlonglong(lineColArg(a).column + 1));
@@ -11653,6 +11707,21 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QString a = arg(0).toString();
         const int ln = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
         *result = VimValue(qlonglong(indentation(lineContents(ln)).logical));
+    } else if (name == "nextnonblank" || name == "prevnonblank") {
+        // The first line from there on that holds more than blanks, looked for
+        // downwards or upwards. A line outside the buffer, or none to be found,
+        // gives 0. A script places an indent by what stands there.
+        const QString a = arg(0).toString();
+        const int from = a == "." ? cursorLine() + 1 : int(arg(0).toNumber());
+        const int step = name == "nextnonblank" ? 1 : -1;
+        int found = 0;
+        for (int ln = from; ln >= 1 && ln <= linesInDocument(); ln += step) {
+            if (!lineContents(ln).trimmed().isEmpty()) {
+                found = ln;
+                break;
+            }
+        }
+        *result = VimValue(qlonglong(found));
     } else if (name == "synstack" || name == "synID") {
         // The syntax items at a position, innermost last. Only the ones the
         // document's language can be asked about are reported, so a caller
@@ -13948,6 +14017,22 @@ int FakeVimHandler::Private::lastPositionInDocument(bool ignoreMode) const
 
 QString FakeVimHandler::Private::selectText(const Range &range) const
 {
+    if (range.rangemode == RangeLineMode) {
+        // Whole lines, each with its own break. Taken block by block because the
+        // range a deletion works on reaches back over the break BEFORE the last
+        // line of the document, which the text itself must not begin with.
+        QString contents;
+        QTextBlock block = blockAt(qMin(range.beginPos, range.endPos));
+        const QTextBlock last = blockAt(qMax(range.beginPos, range.endPos));
+        while (block.isValid()) {
+            contents += block.text() + '\n';
+            if (block == last)
+                break;
+            block = block.next();
+        }
+        return contents;
+    }
+
     QString contents;
     const QString lineEnd = range.rangemode == RangeBlockMode ? QString('\n') : QString();
     QTextCursor tc = m_cursor;
@@ -14389,6 +14474,9 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
         tookLastLine = document()->findBlock(qMax(anchor(), position()))
                        == document()->lastBlock();
     }
+    // A linewise register replacing a charwise selection breaks the line open.
+    const bool splitLine = isVisualCharMode()
+        && (rangeMode == RangeLineMode || rangeMode == RangeLineModeExclusive);
 
     beginEditBlock();
 
@@ -14405,6 +14493,19 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
             text.chop(text.endsWith('\n') ? 1 : 0);
         else
             pasteAfter = true;
+    }
+
+    if (splitLine) {
+        // Whole lines go between the halves of the line the selection was cut
+        // from, so the text before and after it each keep a line of their own.
+        const int pos = position() + 1;
+        const QString lines = QLatin1Char('\n') + text.repeated(count());
+        insertText(lines);
+        setPosition(pos);
+        m_targetColumn = 0;
+        setAnchor();
+        endEditBlock();
+        return;
     }
 
     switch (rangeMode) {
