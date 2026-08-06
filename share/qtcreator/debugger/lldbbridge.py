@@ -1357,7 +1357,7 @@ class Dumper(DumperBase):
                 if not scan.IsValid():
                     break
                 scanName = scan.GetFunctionName() or ''
-                if (scanName == '::qt_qmlDebugMessageAvailable()'
+                if ('qt_qmlDebugMessageAvailable' in scanName
                         or 'QV4::Moth::VME::' in scanName):
                     preSpliceMachineryPcs.update(pending)
                     break
@@ -1390,7 +1390,7 @@ class Dumper(DumperBase):
             # frame, so splice at the QML interpreter frame instead, which
             # shows the QML caller chain. Do it once.
             if (isNativeMixed and not splicedQml
-                    and (functionName == '::qt_qmlDebugMessageAvailable()'
+                    and ('qt_qmlDebugMessageAvailable' in (functionName or '')
                          or 'QV4::Moth::VME::' in (functionName or ''))):
                 splicedQml = True
                 inMachineryBlock = True
@@ -1720,11 +1720,11 @@ class Dumper(DumperBase):
                         return
 
                     #self.report("FRAME: %s" % frame)
-                    function = frame.GetFunction()
-                    functionName = function.GetName()
+                    functionName = frame.GetFunctionName()
                     if self.handleNativeMethodStepInto(stoppedThread, functionName):
                         return
-                    if functionName == "::qt_qmlDebugConnectorOpen()":
+                    # Substring, not "==": demangled formatting can vary.
+                    if "qt_qmlDebugConnectorOpen" in (functionName or ''):
                         self.report("RESOLVER HIT")
                         for resolver in self.interpreterBreakpointResolvers:
                             resolver()
@@ -1732,7 +1732,7 @@ class Dumper(DumperBase):
                         self.reportState("inferiorstopok")
                         self.process.Continue()
                         return
-                    if functionName == "::qt_qmlDebugMessageAvailable()":
+                    if "qt_qmlDebugMessageAvailable" in (functionName or ''):
                         self.report("ASYNC MESSAGE FROM SERVICE")
                         # The interpreter step won the race (possibly a
                         # C++-to-QML crossing); the armed interpreter step
@@ -2064,7 +2064,7 @@ class Dumper(DumperBase):
         if not self.nativeMixed or self.process is None:
             return False
         frame = self.currentThread().GetFrameAtIndex(0)
-        return (frame.GetFunctionName() or '') == '::qt_qmlDebugMessageAvailable()'
+        return 'qt_qmlDebugMessageAvailable' in (frame.GetFunctionName() or '')
 
     def executeStep(self, args):
         if self.atQmlStop():
@@ -2115,7 +2115,7 @@ class Dumper(DumperBase):
             return
         self.machinerySkipsDone = True
         pattern = ('(^QV4::)|(^QQml)|(^QtPrivate::)|(^doActivate)|'
-                   '(^QMetaObject::)|(^qt_qmlDebug)|(^debug_slowPath)|(^std::)')
+                   '(^QMetaObject::)|(qt_qmlDebug)|(^debug_slowPath)|(^std::)')
         result = lldb.SBCommandReturnObject()
         self.debugger.GetCommandInterpreter().HandleCommand(
             'settings set target.process.thread.step-avoid-regexp ' + pattern,
