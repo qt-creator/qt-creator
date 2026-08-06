@@ -457,6 +457,7 @@ public:
     void setCompleter(QCompleter *completer);
     void onReturnPressed(QObject *guard, const std::function<void(Implementation &)> &);
     void onRightSideIconClicked(QObject *guard, const std::function<void()> &);
+    void onTextChanged(QObject *guard, const std::function<void(QString)> &);
 };
 
 class QTCREATOR_UTILS_EXPORT Splitter : public Widget

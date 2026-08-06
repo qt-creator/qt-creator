@@ -2264,6 +2264,15 @@ void LineEdit::onRightSideIconClicked(QObject *guard, const std::function<void()
 }
 
 /*!
+    Connects \a func to the FancyLineEdit::textChanged signal.
+    The connection is automatically removed when \a guard is destroyed.
+*/
+void LineEdit::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
+{
+    QObject::connect(access(this), &Utils::FancyLineEdit::textChanged, guard, func);
+}
+
+/*!
     \class Layouting::Spinner
     \inmodule QtCreator
     \brief Wraps SpinnerSolution::SpinnerWidget for use in a Layouting builder.
