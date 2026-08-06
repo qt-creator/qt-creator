@@ -17,6 +17,8 @@ public:
     static ProjectExplorer::IDevice::Ptr create();
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
+    bool hasDeviceTester() const final { return true; }
+    ProjectExplorer::DeviceTester *createDeviceTester() final;
 
     QString serialNumber() const;
     void setSerialNumber(const QString &serial);
