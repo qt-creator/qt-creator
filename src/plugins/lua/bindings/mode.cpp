@@ -3,16 +3,26 @@
 
 #include "../luaengine.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
 
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
+#include <QDebug>
+#include <QGuiApplication>
 #include <QIcon>
+#include <QPixmap>
 #include <QPointer>
+#include <QScreen>
 #include <QWidget>
+
+#include <algorithm>
+#include <cmath>
 
 using namespace Core;
 using namespace Utils;
@@ -46,9 +56,34 @@ void setupModeModule()
             mode->setDisplayName(options.get_or("displayName", idString));
             mode->setPriority(options.get_or("priority", 0));
 
+            // The mode bar is much darker than a menu, so a plain (e.g. black)
+            // icon would vanish there. Tint the icon to the theme's icon color
+            // while preserving its alpha so it stays visible and follows the
+            // theme. This is themed by default, unlike the opt-in icon tinting
+            // elsewhere in the Lua API (see meta/mode.lua). Rendering goes
+            // through QIcon's icon engine (not QPixmap::load, which cannot
+            // rasterize a transparent SVG) at the mode-bar size, one pixmap per
+            // device pixel ratio.
             const auto iconPath = options.get<sol::optional<FilePath>>("icon");
-            if (iconPath && iconPath->exists())
-                mode->setIcon(QIcon(iconPath->toFSPathString()));
+            if (iconPath && iconPath->exists()) {
+                const QString iconFile = iconPath->toFSPathString();
+                const QColor tint = creatorColor(Theme::IconsBaseColor);
+                const QSize size(Core::Constants::MODEBAR_ICON_SIZE,
+                                 Core::Constants::MODEBAR_ICON_SIZE);
+                int maxDpr = 1;
+                for (const QScreen *screen : QGuiApplication::screens())
+                    maxDpr = std::max(maxDpr, int(std::ceil(screen->devicePixelRatio())));
+                QIcon themedIcon;
+                for (int dpr = 1; dpr <= maxDpr; ++dpr) {
+                    const QPixmap src = QIcon(iconFile).pixmap(size, dpr);
+                    if (!src.isNull())
+                        themedIcon.addPixmap(StyleHelper::tintedPixmap(src, tint));
+                }
+                if (themedIcon.isNull())
+                    qWarning() << "Mode.create: could not load icon" << iconFile;
+                else
+                    mode->setIcon(themedIcon);
+            }
 
             // Hand the widget over through a creator: IMode's destructor deletes
             // a creator-provided widget, so it is cleaned up with the mode.
