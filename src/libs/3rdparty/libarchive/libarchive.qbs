@@ -245,6 +245,11 @@ Project {
             condition: !qbs.targetOS.contains("windows")
             cpp.dynamicLibraries: "iconv"
         }
+        Properties {
+            condition: qbs.toolchain.includes("gcc")
+            cpp.cFlags: "-Wno-discarded-qualifiers"
+        }
+
         cpp.includePaths: "."
 
         Export {
