@@ -25,3 +25,27 @@ else()
 endif()
 
 add_feature_info("Executable CmdBridge" YES "${CMDBRIDGE_FEATURE_TEXT}")
+
+# A HarmonyOS device only runs a self-signed aarch64 binary, whichever
+# implementation produced it, so this is a post-processing step on the built
+# binary rather than a separate target.
+set(CMDBRIDGE_OHOS_SIGN_TOOL "" CACHE FILEPATH
+    "binary-sign-tool of a HarmonyOS SDK, to self-sign cmdbridge-linux-arm64 for HarmonyOS")
+
+if(CMDBRIDGE_OHOS_SIGN_TOOL)
+    if(NOT EXISTS "${CMDBRIDGE_OHOS_SIGN_TOOL}")
+        message(FATAL_ERROR
+            "CMDBRIDGE_OHOS_SIGN_TOOL does not exist: ${CMDBRIDGE_OHOS_SIGN_TOOL}. It is "
+            "toolchains/lib/binary-sign-tool of a HarmonyOS SDK.")
+    endif()
+
+    add_custom_target(CmdBridgeOhosSign ALL
+        COMMAND ${CMAKE_COMMAND}
+            "-DSIGN_TOOL=${CMDBRIDGE_OHOS_SIGN_TOOL}"
+            "-DBINARY=${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-linux-arm64"
+            -P "${CMAKE_CURRENT_LIST_DIR}/OhosSignCmdBridge.cmake"
+        DEPENDS CmdBridge
+        COMMENT "Self-signing cmdbridge-linux-arm64 for HarmonyOS"
+        VERBATIM
+    )
+endif()
