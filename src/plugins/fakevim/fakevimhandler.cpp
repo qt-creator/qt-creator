@@ -2105,6 +2105,54 @@ struct VimFunc;
 // A Vimscript value: scalars (Number/Float/String), List, Dictionary and
 // Funcref/lambda. Containers and funcs are held by a shared pointer, so copies
 // share one instance as in Vim.
+// What Vim makes of a string where a number is wanted: the number it begins
+// with, written as str2nr() takes it - "0x" for hex, "0b" for binary, "0o" or a
+// leading zero for octal. A blank in front means there is no number at all, and
+// a "+" is not a sign.
+static qlonglong stringAsNumber(const QString &s)
+{
+    int i = 0;
+    const bool negative = i < s.size() && s.at(i) == '-';
+    if (negative)
+        ++i;
+
+    int base = 10;
+    if (i + 1 < s.size() && s.at(i) == '0') {
+        const QChar what = s.at(i + 1).toLower();
+        if (what == 'x') {
+            base = 16;
+            i += 2;
+        } else if (what == 'b') {
+            base = 2;
+            i += 2;
+        } else if (what == 'o') {
+            base = 8;
+            i += 2;
+        } else if (what.isDigit()) {
+            // A leading zero is octal only where every digit could be one.
+            int j = i + 1;
+            while (j < s.size() && s.at(j).isDigit() && s.at(j) <= '7')
+                ++j;
+            if (j == s.size() || !s.at(j).isDigit()) {
+                base = 8;
+                ++i;
+            }
+        }
+    }
+
+    qlonglong value = 0;
+    int digits = 0;
+    for (; i < s.size(); ++i, ++digits) {
+        const int digit = QString(s.at(i)).toInt(nullptr, 36);
+        if (!s.at(i).isLetterOrNumber() || digit >= base || (digit == 0 && s.at(i) != '0'))
+            break;
+        value = value * base + digit;
+    }
+    if (digits == 0)
+        return 0;
+    return negative ? -value : value;
+}
+
 class VimValue
 {
 public:
@@ -2151,12 +2199,8 @@ public:
         switch (m_type) {
         case Number: return m_number;
         case Float:  return qlonglong(m_float);
-        case String: {
-            // Vim uses the leading (optionally signed) decimal digits, 0 else.
-            static const QRegularExpression re("^\\s*(-?\\d+)");
-            const QRegularExpressionMatch m = re.match(m_string);
-            return m.hasMatch() ? m.captured(1).toLongLong() : 0;
-        }
+        case String:
+            return stringAsNumber(m_string);
         case List:
         case Dict:
         case Func:
@@ -2768,6 +2812,8 @@ public:
         // ":function F() range" is handed the whole range at once; without it
         // Vim calls the function once for each line of the range.
         bool takesRange = false;
+        // The script it was defined in, which is what "<SID>" stands for there.
+        int scriptId = 0;
     };
     struct AutoCommand {
         QString group; // the ":augroup" it belongs to, empty for none
@@ -2793,6 +2839,8 @@ public:
     QStringList m_syntaxNames;
     bool m_vim9 = false; // Vim9-script semantics are active
     QStringList m_scriptFileStack; // scripts currently sourcing, innermost last
+    int scriptIdFor(const QString &path) const;
+    int currentScriptId() const;
     // Which statement each frame is running, for <stack> and v:throwpoint.
     QList<int> m_scriptLines;
     QList<int> m_functionLines;
@@ -3128,6 +3176,9 @@ public:
         // [count] for current command, 0 if no [count] available
         int mvcount = 0;
         int opcount = 0;
+        // The [count] the command line was entered with, which is what v:count
+        // answers while the command runs - entering it clears the pending one.
+        int commandLineCount = 0;
 
         MoveType movetype = MoveInclusive;
         RangeMode rangemode = RangeCharMode;
@@ -3202,6 +3253,9 @@ public:
         // it installs are used from every editor.
         QHash<QString, VimValue> variables; // g:/s:/v: and script-level names
         QHash<QString, UserFunction> userFunctions;
+        // The number Vim names a script by in "<SNR>42_", handed out in the
+        // order the scripts are first sourced.
+        QHash<QString, int> scriptIds;
         QList<AutoCommand> autoCommands;
         QHash<QString, QString> userCommands; // :command Name -> replacement
         QString currentAutoGroup; // group ":augroup" left current
@@ -6974,6 +7028,8 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
     } else if (input.isReturn()) {
         showMessage(MessageCommand, g.commandBuffer.display());
         handleExCommand(g.commandBuffer.contents());
+        // The count belonged to this command; the next one has its own.
+        g.commandLineCount = 0;
         g.commandBuffer.clear();
     } else if (!g.commandBuffer.handleInput(input)) {
         qDebug() << "IGNORED IN EX-MODE: " << input.key() << input.text();
@@ -9538,7 +9594,52 @@ private:
                 ++m_pos;
             name += ':' + m_in.mid(s2, m_pos - s2);
         }
+        name += parseCurlyNameParts();
         return name;
+    }
+
+    // "{expr}" inside a name stands for what the expression says, so
+    // "s:{algorithm}(x)" calls the one the variable names. Several may follow
+    // each other, and plain text between them belongs to the name as well.
+    QString parseCurlyNameParts()
+    {
+        QString spliced;
+        while (cur() == '{') {
+            const int close = matchingBrace();
+            if (close < 0) {
+                setError(Tr::tr("E15: Invalid expression: %1").arg(m_in.mid(m_pos)));
+                return spliced;
+            }
+            const QString inner = m_in.mid(m_pos + 1, close - m_pos - 1);
+            VimValue value;
+            QString innerError;
+            if (!m_h->evaluateExpression(inner, &value, &innerError)) {
+                setError(innerError);
+                return spliced;
+            }
+            spliced += value.toString();
+            m_pos = close + 1;
+            // Whatever letters follow are part of the name too.
+            const int tail = m_pos;
+            while (cur().isLetterOrNumber() || cur() == '_' || cur() == '#')
+                ++m_pos;
+            spliced += m_in.mid(tail, m_pos - tail);
+        }
+        return spliced;
+    }
+
+    // The "}" that closes the "{" standing here, or -1 if there is none.
+    int matchingBrace() const
+    {
+        int depth = 0;
+        for (int i = m_pos; i < m_in.size(); ++i) {
+            const QChar c = m_in.at(i);
+            if (c == '{')
+                ++depth;
+            else if (c == '}' && --depth == 0)
+                return i;
+        }
+        return -1;
     }
 
     VimValue parseVariable()
@@ -10152,12 +10253,15 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
     if (name == "v:version") { *result = VimValue(qlonglong(900)); return true; }
     // The count a command was given: "v:count" is 0 where none was typed and
     // "v:count1" is 1 there, as Vim has them.
-    if (name == "v:count") {
+    if (name == "v:count" || name == "v:count1") {
+        // The count of the command being run. A mapping to a ":" command is
+        // expanded after the pending count has been taken, so what the command
+        // line was entered with stands in for it.
         const bool typed = g.mvcount != 0 || g.opcount != 0;
-        *result = VimValue(qlonglong(typed ? count() : 0));
+        const int given = typed ? count() : g.commandLineCount;
+        *result = VimValue(qlonglong(name == "v:count" ? given : qMax(1, given)));
         return true;
     }
-    if (name == "v:count1") { *result = VimValue(qlonglong(count())); return true; }
     // The register a command was given, '"' where none was named. A plugin
     // reads it from its mapping to work on the register the user asked for.
     if (name == "v:register") {
@@ -10772,6 +10876,33 @@ int FakeVimHandler::Private::bufferNumber()
 // and "[N]" in a stack. The word "function" stands before the first function
 // only. Scripts sourced from a function are listed before it rather than in
 // call order, there being one stack for each kind here.
+// The number a script is named by, given out when it is first asked for.
+int FakeVimHandler::Private::scriptIdFor(const QString &path) const
+{
+    if (path.isEmpty())
+        return 0;
+    QHash<QString, int> &ids = g.scriptIds;
+    const auto it = ids.constFind(path);
+    if (it != ids.cend())
+        return it.value();
+    const int id = ids.size() + 1;
+    ids.insert(path, id);
+    return id;
+}
+
+// The script whose "s:" is in reach: the one that defined the function being
+// run, or the one being sourced.
+int FakeVimHandler::Private::currentScriptId() const
+{
+    static const QRegularExpression snr("^<SNR>(\\d+)_");
+    for (int i = m_callStack.size() - 1; i >= 0; --i) {
+        const QRegularExpressionMatch m = snr.match(m_callStack.at(i));
+        if (m.hasMatch())
+            return m.captured(1).toInt();
+    }
+    return m_scriptFileStack.isEmpty() ? 0 : scriptIdFor(m_scriptFileStack.last());
+}
+
 QString FakeVimHandler::Private::sourceChain(bool asThrowPoint, bool bareInnermost) const
 {
     QStringList frames;
@@ -10820,6 +10951,11 @@ QString FakeVimHandler::Private::expandKeyword(const QString &what) const
         // "[", most notably to set 'operatorfunc' to their own function, so
         // the name here has to be one callFunction() can resolve again.
         return sourceChain(false); // not a path, so no modifiers
+    }
+    if (base == "<SID>") {
+        // The prefix the script's own names carry, as in "<SNR>42_".
+        const int id = currentScriptId();
+        return id > 0 ? QString("<SNR>%1_").arg(id) : QString();
     }
     if (base == "<sfile>" || base == "<script>") {
         // Inside a function Vim answers with the chain of frames, the innermost
@@ -11114,23 +11250,29 @@ static bool isBuiltinFunction(const QString &name)
         "split", "str2nr", "strdisplaywidth", "strftime", "stridx", "string",
         "strlen", "strpart", "strridx", "strwidth", "virtcol", "visualmode",
         "submatch", "substitute", "synID", "synIDattr", "synstack", "system",
-        "tolower", "toupper", "trim", "type", "values", "winrestview",
+        "tolower", "toupper", "tr", "trim", "type", "values", "winrestview",
         "winsaveview", "writefile"
     };
     return builtins.contains(name);
 }
 
+// A mapping names what belongs to its own script with "<SID>" or "<SNR>42_",
+// the "s:" of this one flat namespace. An 'operatorfunc' a plugin sets from a
+// mapping, and the name it reads back out of "<sfile>", are spelled that way.
+static QString withoutScriptIdPrefix(const QString &name)
+{
+    static const QRegularExpression scriptId("^<(?:SID>|SNR>\\d+_)",
+                                             QRegularExpression::CaseInsensitiveOption);
+    const QRegularExpressionMatch prefix = scriptId.match(name);
+    return prefix.hasMatch() ? "s:" + name.mid(prefix.capturedLength()) : name;
+}
+
 bool FakeVimHandler::Private::callFunction(const QString &name,
     const QList<VimValue> &args, VimValue *result, QString *error)
 {
-    // A mapping names what belongs to its own script with "<SID>" or
-    // "<SNR>42_", the "s:" of this one flat namespace. An 'operatorfunc' a
-    // plugin sets from a mapping reads that way.
-    static const QRegularExpression scriptId("^<(?:SID>|SNR>\\d+_)",
-                                             QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch scriptPrefix = scriptId.match(name);
-    if (scriptPrefix.hasMatch())
-        return callFunction("s:" + name.mid(scriptPrefix.capturedLength()), args, result, error);
+    const QString scriptLocal = withoutScriptIdPrefix(name);
+    if (scriptLocal != name)
+        return callFunction(scriptLocal, args, result, error);
 
     const auto arg = [&](int i) { return i < args.size() ? args.at(i) : VimValue(); };
 
@@ -11384,6 +11526,26 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         } else {
             *result = VimValue(arg(0).toString().repeated(qMax(0, n)));
         }
+    } else if (name == "tr") {
+        // Every character of the second argument stands for the one at the same
+        // place in the third, which is how a script rewrites a name it was given.
+        const QString src = arg(0).toString();
+        const QString from = arg(1).toString();
+        const QString to = arg(2).toString();
+        QString translated;
+        translated.reserve(src.size());
+        for (const QChar c : src) {
+            const int at = from.indexOf(c);
+            if (at < 0) {
+                translated += c;
+            } else if (at < to.size()) {
+                translated += to.at(at);
+            } else {
+                *error = Tr::tr("E475: Invalid argument: %1").arg(from);
+                return false;
+            }
+        }
+        *result = VimValue(translated);
     } else if (name == "trim") {
         *result = VimValue(arg(0).toString().trimmed());
     } else if (name == "nr2char") {
@@ -11526,27 +11688,41 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "maparg" || name == "hasmapto") {
         // What a key is mapped to, and whether anything maps to a given
         // right-hand side; plugins ask before putting their own mappings in.
-        const QString wanted = arg(0).toString();
         const QString modeName = args.size() > 1 ? arg(1).toString() : QString("n");
         const char mode = modeName.isEmpty() ? 'n' : modeName.at(0).toLatin1();
         QString found;
         bool anyTo = false;
-        const auto text = [](const Inputs &rhs) {
-            QString out = rhs.isExCommand() ? ':' + rhs.exCommand() : QString();
-            const QVector<Input> keys(rhs);
+        // Vim writes the keys of a mapping the way they were typed, leaving "<"
+        // as it stands, where Input::toString() spells it "<LT>" for the sake of
+        // the dot command.
+        const auto spell = [](const QVector<Input> &keys) {
+            QString out;
             for (const Input &in : keys)
                 out += in.toString();
+            return out.replace("<LT>", "<");
+        };
+        // The keys asked about may be written in that notation too: "[<Space>"
+        // and "[ " name the same mapping, and a plugin writes the first.
+        const QString wanted = spell(QVector<Input>(Inputs(arg(0).toString())));
+        const auto text = [&spell](const Inputs &rhs) {
+            QString out = rhs.isExCommand() ? ':' + rhs.exCommand() : QString();
+            out += spell(QVector<Input>(rhs));
             return out;
         };
         const auto walk = [&](const ModeMapping &node, const QString &keys,
                               const auto &recurse) -> void {
             for (auto it = node.cbegin(); it != node.cend(); ++it) {
-                const QString here = keys + it.key().toString();
+                const QString here = keys + spell({it.key()});
                 const QString rhs = text(it.value().value());
                 if (!rhs.isEmpty()) {
                     if (here == wanted && found.isEmpty())
                         found = rhs;
-                    if (rhs.contains(wanted))
+                    // What a "<Plug>" mapping mentions in its own right-hand
+                    // side does not count: a plugin names itself there for the
+                    // sake of repeat.vim, and asks hasmapto() whether the USER
+                    // has a mapping to it. Vim tells the two apart by holding a
+                    // key as a token of its own, which there is none of here.
+                    if (rhs.contains(wanted) && !here.startsWith("<Plug>"))
                         anyTo = true;
                 }
                 recurse(it.value(), here, recurse);
@@ -11777,7 +11953,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         else if (a.startsWith('*') || a.startsWith('?')) {
             // "*name" asks whether a function is there to be called, whether
             // built in, defined by a script or held by a variable as a Funcref.
-            QString func = a.mid(1);
+            QString func = withoutScriptIdPrefix(a.mid(1));
             if (func.startsWith("g:"))
                 func = func.mid(2);
             VimValue held;
@@ -13134,9 +13310,10 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
     if (index < cmds.size())
         ++index; // consume :endfunction
 
-    if (active && !name.isEmpty())
+    if (active && !name.isEmpty()) {
+        fn.scriptId = currentScriptId();
         g.userFunctions.insert(name, fn);
-    else if (active)
+    } else if (active)
         showMessage(MessageError, Tr::tr("Invalid function definition: %1").arg(header.args));
 }
 
@@ -13182,7 +13359,12 @@ VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
     m_vim9 = fn.vim9; // Vim9 expression semantics inside a :def body
 
     m_localScopes.append(frame);
-    m_callStack.append(name);
+    // Vim names a script-local function "<SNR>42_Name" in the frame chain, and
+    // a plugin reads that prefix back out of "<sfile>" to build the name of
+    // another one of its own.
+    m_callStack.append(name.startsWith("s:") && fn.scriptId > 0
+                           ? QString("<SNR>%1_%2").arg(fn.scriptId).arg(name.mid(2))
+                           : name);
     m_functionLines.append(0);
     int index = 0;
     execSequence(fn.body, index, true);
@@ -15627,6 +15809,7 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
 
 void FakeVimHandler::Private::enterExMode(const QString &contents)
 {
+    g.commandLineCount = (g.mvcount != 0 || g.opcount != 0) ? count() : 0;
     g.currentMessage.clear();
     g.commandBuffer.clear();
     if (isVisualMode())
