@@ -70,6 +70,7 @@ public:
     QString individualFormatRequests() const;
 
     int format(const QString &iname) const;
+    void setFormat(const QString &iname, int format);
     static QString nameForFormat(int format);
 
     void addDumpers(const GdbMi &dumpers);

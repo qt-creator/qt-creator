@@ -55,6 +55,8 @@ static QJsonObject watchItemToJson(const WatchItem *item)
     obj["iname"] = item->iname;
     obj["name"] = item->name;
     obj["value"] = item->value;
+    item->updateValueCache();
+    obj["display_value"] = item->valueCache;
     obj["type"] = item->type;
     obj["value_editable"] = item->valueEditable;
     obj["has_children"] = item->wantsChildren || item->childCount() > 0;
@@ -391,6 +393,17 @@ static Result<bool> setVariable(const QString &iname, const QString &value)
     if (!engine)
         return ResultError("Debug session ended before value could be assigned");
     engine->assignValueInDebugger(item, item->expression(), QVariant(value));
+    return true;
+}
+
+static Result<bool> setDisplayFormat(const QString &iname, int format)
+{
+    const Result<WatchHandler *> handler = getWatchHandler();
+    if (!handler)
+        return ResultError(handler.error());
+    if (!(*handler)->findItem(iname))
+        return ResultError("No variable with iname: " + iname);
+    (*handler)->setFormat(iname, format);
     return true;
 }
 
@@ -733,7 +746,8 @@ void registerMcpTools()
             {"properties", QJsonObject{
                 {"iname",          QJsonObject{{"type", "string"},  {"description", "Internal name, e.g. \"local.myVar\". Use as key for get_variable / set_variable."}}},
                 {"name",           QJsonObject{{"type", "string"},  {"description", "Display name"}}},
-                {"value",          QJsonObject{{"type", "string"},  {"description", "Current value as a string"}}},
+                {"value",          QJsonObject{{"type", "string"},  {"description", "Raw value as reported by the debugger"}}},
+                {"display_value",  QJsonObject{{"type", "string"},  {"description", "Value as shown in the Locals view, honoring the display format set via set_display_format"}}},
                 {"type",           QJsonObject{{"type", "string"},  {"description", "Type name"}}},
                 {"address",        QJsonObject{{"type", "string"},  {"description", "Memory address, e.g. \"0x1234\""}}},
                 {"value_editable", QJsonObject{{"type", "boolean"}, {"description", "Whether the value can be changed via set_variable"}}},
@@ -812,6 +826,7 @@ void registerMcpTools()
                         {"iname",          QJsonObject{{"type", "string"}}},
                         {"name",           QJsonObject{{"type", "string"}}},
                         {"value",          QJsonObject{{"type", "string"}}},
+                        {"display_value",  QJsonObject{{"type", "string"}}},
                         {"type",           QJsonObject{{"type", "string"}}},
                         {"address",        QJsonObject{{"type", "string"}}},
                         {"value_editable", QJsonObject{{"type", "boolean"}}},
@@ -868,6 +883,45 @@ void registerMcpTools()
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
             const Utils::Result<bool> ok = setVariable(p.value("iname").toString(), p.value("value").toString());
+            if (!ok)
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("set_display_format")
+            .title("Set a variable's display format")
+            .description(
+                "Sets the display format of a single variable (by iname) in the current debug "
+                "session, as the Locals view context menu does. Use 0 to reset to Automatic. "
+                "Common format codes: 0=Automatic, 5=Latin1String, 7=Utf8String, 12=Array of 10, "
+                "22=Decimal, 23=Hexadecimal, 24=Binary, 25=Octal. The format is remembered for the "
+                "variable's current type only. Returns an error if no debug session is active or "
+                "the debugger is not paused.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false).idempotentHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "iname",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Internal name of the variable (e.g. \"local.myVar\")"}})
+                    .addProperty(
+                        "format",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Display format code (0 = Automatic)"}})
+                    .addRequired("iname")
+                    .addRequired("format"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addRequired("success")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const Utils::Result<bool> ok = setDisplayFormat(
+                p.value("iname").toString(), p.value("format").toInt());
             if (!ok)
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});

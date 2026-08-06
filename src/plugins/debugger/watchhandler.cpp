@@ -2794,6 +2794,12 @@ int WatchHandler::format(const QString &iname) const
     return result;
 }
 
+void WatchHandler::setFormat(const QString &iname, int format)
+{
+    m_model->setIndividualFormat(iname, format);
+    m_model->m_engine->updateLocals();
+}
+
 QString WatchHandler::nameForFormat(int format)
 {
     return WatchModel::nameForFormat(format);
