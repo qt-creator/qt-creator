@@ -231,6 +231,14 @@ private slots:
     void test_vim_script_autoload();
     void test_vim_script_scriptlocal();
     void test_vim_script_if_chain();
+    void test_vim_script_error_numbers();
+    void test_vim_pattern_very_magic();
+    void test_vim_script_lockvar();
+    void test_vim_script_messages();
+    void test_vim_script_split();
+    void test_vim_script_pattern_newline();
+    void test_vim_script_known_options();
+    void test_vim_script_trailing_comment();
     void test_vim_script_dict_dot();
     void test_vim_script_command();
     void test_vim_script_positions();
@@ -5671,10 +5679,10 @@ void FakeVimTester::test_vim_script_variables()
     QCOMPARE(echo("v:false"), QLatin1String("0"));
 
     // Undefined variable is reported as an error.
-    QCOMPARE(echo("nosuchvar"), QLatin1String("Undefined variable: nosuchvar"));
+    QCOMPARE(echo("nosuchvar"), QLatin1String("E121: Undefined variable: nosuchvar"));
 
     data.doCommand("unlet g:x");
-    QCOMPARE(echo("x"), QLatin1String("Undefined variable: x"));
+    QCOMPARE(echo("x"), QLatin1String("E121: Undefined variable: x"));
 }
 
 void FakeVimTester::test_vim_script_options_registers()
@@ -6130,7 +6138,7 @@ void FakeVimTester::test_vim_script_if()
 
     // A skipped branch has no side effects.
     data.doCommand("if 0 | let g:d = 99 | endif");
-    QCOMPARE(echo("g:d"), QLatin1String("Undefined variable: g:d"));
+    QCOMPARE(echo("g:d"), QLatin1String("E121: Undefined variable: g:d"));
 
     // Multi-line block from a sourced file.
     QTemporaryFile file;
@@ -6831,6 +6839,337 @@ void FakeVimTester::test_vim_script_funcref()
 
 
 
+
+void FakeVimTester::test_vim_script_error_numbers()
+{
+    // An error carries the number Vim gives it, and inside a ":try" it arrives
+    // as an exception a script can catch. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // Outside a ":try" the error is reported as before, now with its number.
+    QCOMPARE(echo("g:nosuchvar"), QLatin1String("E121: Undefined variable: g:nosuchvar"));
+    QCOMPARE(echo("NoSuchFunc()"), QLatin1String("E117: Unknown function: NoSuchFunc"));
+    QCOMPARE(echo("&nosuchoption"), QLatin1String("E113: Unknown option: nosuchoption"));
+    QCOMPARE(echo("[1, 2][9]"), QLatin1String("E684: List index out of range: 9"));
+    message.clear();
+    data.doCommand("call NoSuchFunc()");
+    QCOMPARE(message, QLatin1String("E117: Unknown function: NoSuchFunc"));
+
+    // Inside a ":try" it arrives as an exception. A block spans several lines,
+    // so this runs as a script rather than one line at a time.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + "/t.vim";
+    QFile f(path);
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("let g:hit = 'no'\n"
+            "try\n"
+            "  echo g:nosuchvar\n"
+            "catch /^Vim\\%((\\a\\+)\\)\\=:E121/\n"
+            "  let g:hit = 'caught'\n"
+            "  let g:ex = v:exception\n"
+            "endtry\n"
+            // This is what lets a plugin tell whether the work it wrapped went
+            // through: the line after the error is not reached.
+            "let g:ok = 1\n"
+            "try\n"
+            "  echo g:nosuchvar\n"
+            "  let g:ok = 2\n"
+            "catch\n"
+            "  let g:ok = 0\n"
+            "endtry\n");
+    f.close();
+    data.doCommand("source " + path);
+    QCOMPARE(echo("g:hit"), QLatin1String("caught"));
+    QCOMPARE(echo("g:ok"), QLatin1String("0"));
+    // "v:exception" holds it in the shape a script reports or matches on.
+    QCOMPARE(echo("g:ex"), QLatin1String("Vim:E121: Undefined variable: g:nosuchvar"));
+    data.doCommand("unlet g:hit | unlet g:ok | unlet g:ex");
+}
+
+void FakeVimTester::test_vim_pattern_very_magic()
+{
+    // Where very magic gives punctuation a meaning, a backslash takes it away
+    // again. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // "\=" is an "=" here, not "0 or 1 of the atom before it". Reading it the
+    // other way put the wrong text in the groups around it.
+    QCOMPARE(echo("string(matchlist('a=b', '\\v^(\\w+)\\s*(\\=)\\s*(.*)$'))"),
+             QLatin1String("['a=b', 'a', '=', 'b', '', '', '', '', '', '']"));
+    QCOMPARE(echo("match('a=b', '\\v\\=')"), QLatin1String("1"));
+    QCOMPARE(echo("match('ab', '\\va\\=b')"), QLatin1String("-1"));
+    QCOMPARE(echo("match('a=b', '\\va\\=b')"), QLatin1String("0"));
+    // Magic is the other way round: there "\=" is the quantifier.
+    QCOMPARE(echo("match('ab', 'a\\=b')"), QLatin1String("0"));
+    // The same holds for "\<" and "\>", a word boundary only where "<" and ">"
+    // do not already mean one.
+    QCOMPARE(echo("match('a<b', '\\v\\<')"), QLatin1String("1"));
+    QCOMPARE(echo("match('word here', '\\v\\<here\\>')"), QLatin1String("-1"));
+    QCOMPARE(echo("match('word here', '\\<here\\>')"), QLatin1String("5"));
+}
+
+void FakeVimTester::test_vim_script_lockvar()
+{
+    // ":lockvar" holds a variable against being given another value, which is
+    // how a script keeps a constant. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("let g:y = 1");
+    data.doCommand("lockvar g:y");
+    data.doCommand("let g:y = 2");
+    QCOMPARE(echo("g:y"), QLatin1String("1"));
+    data.doCommand("unlockvar g:y");
+    data.doCommand("let g:y = 3");
+    QCOMPARE(echo("g:y"), QLatin1String("3"));
+    // Abbreviated, and with the depth a script asks for.
+    data.doCommand("lockv g:y");
+    data.doCommand("unlo g:y");
+    data.doCommand("let g:y = 4");
+    QCOMPARE(echo("g:y"), QLatin1String("4"));
+    data.doCommand("lockvar 3 g:y");
+    data.doCommand("let g:y = 9");
+    QCOMPARE(echo("g:y"), QLatin1String("4"));
+    // A script can catch the attempt, as in Vim. A block spans several lines,
+    // so this runs as a script: driven one line at a time every line runs,
+    // block or no block, and the catch would prove nothing.
+    QTemporaryDir lockDir;
+    QVERIFY(lockDir.isValid());
+    QFile lf(lockDir.path() + "/l.vim");
+    QVERIFY(lf.open(QIODevice::WriteOnly));
+    lf.write("let g:caught = 'no'\n"
+             "try\n"
+             "  let g:y = 9\n"
+             "  let g:caught = 'assigned'\n"
+             "catch /locked/\n"
+             "  let g:caught = 'caught'\n"
+             "endtry\n");
+    lf.close();
+    data.doCommand("source " + lockDir.path() + "/l.vim");
+    QCOMPARE(echo("g:caught"), QLatin1String("caught"));
+    QCOMPARE(echo("g:y"), QLatin1String("4"));
+    data.doCommand("unlockvar! g:y");
+    data.doCommand("let g:y = 5");
+    QCOMPARE(echo("g:y"), QLatin1String("5"));
+    // Locking does not stand in the way of ":unlet".
+    data.doCommand("lockvar g:y");
+    data.doCommand("unlet g:y");
+    QCOMPARE(echo("exists('g:y')"), QLatin1String("0"));
+    data.doCommand("unlockvar g:y | unlet g:caught");
+}
+
+void FakeVimTester::test_vim_script_messages()
+{
+    // Only one message fits in the mini buffer, so a script that has several
+    // things to say was heard once only. ":messages" reports them all, and what
+    // it keeps is what Vim keeps. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString info;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    auto messages = [&]() -> QString {
+        info.clear();
+        data.doCommand("messages");
+        return info;
+    };
+
+    data.doCommand("messages clear");
+    QCOMPARE(messages(), QLatin1String("\n"));
+    data.doCommand("echomsg 'first'");
+    data.doCommand("echomsg 'second'");
+    QCOMPARE(messages(), QLatin1String("first\nsecond\n"));
+    // What ":echo" prints is not kept, nor is a message ":silent" swallowed.
+    data.doCommand("echo 'printed'");
+    data.doCommand("silent echomsg 'hushed'");
+    QCOMPARE(messages(), QLatin1String("first\nsecond\n"));
+    // An error is kept.
+    data.doCommand("echoerr 'went wrong'");
+    QVERIFY(messages().contains("went wrong"));
+    data.doCommand("messages clear");
+    QCOMPARE(messages(), QLatin1String("\n"));
+}
+
+void FakeVimTester::test_vim_script_split()
+{
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo string(") + QLatin1String(expr) + ')');
+        return message;
+    };
+
+    // A separator that matches nothing at all still separates: every place it
+    // matches ends a piece, which is how a string is taken apart character by
+    // character. Plugins do this to walk a pattern.
+    QCOMPARE(echo("split('a*b', '\\zs')"), QLatin1String("['a', '*', 'b']"));
+    // An empty separator is not one that matches everywhere; it is the default,
+    // a run of whitespace.
+    QCOMPARE(echo("split('ab', '')"), QLatin1String("['ab']"));
+    QCOMPARE(echo("split('  a b  ')"), QLatin1String("['a', 'b']"));
+    // Only the first and last piece are dropped when empty, not one in between.
+    QCOMPARE(echo("split('a,,b', ',')"), QLatin1String("['a', '', 'b']"));
+    QCOMPARE(echo("split('a,,b', ',', 1)"), QLatin1String("['a', '', 'b']"));
+    // The separator is a pattern, not a string.
+    QCOMPARE(echo("split('a1b22c', '\\d\\+')"), QLatin1String("['a', 'b', 'c']"));
+}
+
+void FakeVimTester::test_vim_script_pattern_newline()
+{
+    // "\_x" is the atom x with a line break allowed as well. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // "\_." is any character or a line break.
+    QCOMPARE(echo("match(\"a\\nb\", 'a\\_.b')"), QLatin1String("0"));
+    QCOMPARE(echo("match('abc', 'a\\_.c')"), QLatin1String("0"));
+    // "\_$" is the end of a line, which for a string is its end only.
+    QCOMPARE(echo("match('abc', '\\_$')"), QLatin1String("3"));
+    QCOMPARE(echo("match('abc', 'a\\_$')"), QLatin1String("-1"));
+    QCOMPARE(echo("match(\"ab\\ncd\", 'b\\_$')"), QLatin1String("-1"));
+    QCOMPARE(echo("match(\"a\\nb\", '\\_^b')"), QLatin1String("-1"));
+    // A class takes one in as well, negated or not.
+    QCOMPARE(echo("match('abc', '\\_[xy]')"), QLatin1String("-1"));
+    QCOMPARE(echo("match('abc', '\\_[^x]')"), QLatin1String("0"));
+    QCOMPARE(echo("match('abc', '\\_s')"), QLatin1String("-1"));
+    // Very magic reads them the same way. This is the shape the editorconfig
+    // plugin matches a file name against a section of its configuration with.
+    QCOMPARE(echo("match('abc', '\\v\\_.*c\\_$')"), QLatin1String("0"));
+    QCOMPARE(echo("match('/tmp/x/t.cpp', '\\v\\/tmp\\/x\\_.*\\/[^/]*\\_$')"),
+             QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_script_known_options()
+{
+    // Vim keeps the name of every option even where the feature behind it is
+    // missing, as 'shellslash' is on a system with one kind of slash only:
+    // reading it gives 0 or an empty string and setting it does nothing, so a
+    // script that consults it runs anyway. Values taken from Vim 9.1 on Linux.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("&shellslash"), QLatin1String("0"));
+    QCOMPARE(echo("&ssl"), QLatin1String("0"));            // by abbreviation too
+    QCOMPARE(echo("string(&guifont)"), QLatin1String("''"));
+    // Which is what makes the common guarded form work at all.
+    QCOMPARE(echo("exists('+shellslash') && !&shellslash ? 'a' : 'b'"),
+             QLatin1String("b"));
+    // "&opt" asks whether Vim has the option, "+opt" whether it can be used.
+    QCOMPARE(echo("exists('&shellslash')"), QLatin1String("1"));
+    QCOMPARE(echo("exists('+shellslash')"), QLatin1String("0"));
+    QCOMPARE(echo("exists('&shiftwidth')"), QLatin1String("1"));
+    QCOMPARE(echo("exists('+shiftwidth')"), QLatin1String("1"));
+    // A name Vim does not have is still an error.
+    QCOMPARE(echo("exists('&nosuchoption')"), QLatin1String("0"));
+    message.clear();
+    data.doCommand("echo &nosuchoption");
+    QVERIFY(message.contains("nosuchoption"));
+
+    // Setting one is accepted and leaves it as it was.
+    data.doCommand("set shellslash");
+    QCOMPARE(echo("&shellslash"), QLatin1String("0"));
+    data.doCommand("let &guifont = 'zz'");
+    QCOMPARE(echo("string(&guifont)"), QLatin1String("''"));
+    message.clear();
+    data.doCommand("set nosuchoption");
+    QVERIFY(message.contains("nosuchoption"));
+}
+
+void FakeVimTester::test_vim_script_trailing_comment()
+{
+    // A '"' where an expression has already ended begins a comment, which is
+    // how a script explains the line it is setting something on. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("let g:x = 'v'   \" a trailing comment");
+    QCOMPARE(echo("g:x"), QLatin1String("v"));
+    // A '"' that opens the expression is still a string, not a comment.
+    data.doCommand("let g:s = \"str\"");
+    QCOMPARE(echo("g:s"), QLatin1String("str"));
+    // ... and one inside a string is just a character.
+    data.doCommand("let g:q = 'has \" inside'");
+    QCOMPARE(echo("g:q"), QLatin1String("has \" inside"));
+    // A condition may carry one too, which only a block shows: a false one has
+    // to skip its body, so this runs as a script rather than line by line.
+    QTemporaryDir ifDir;
+    QVERIFY(ifDir.isValid());
+    QFile cf(ifDir.path() + "/c.vim");
+    QVERIFY(cf.open(QIODevice::WriteOnly));
+    cf.write("let g:n = 0\n"
+             "if 0   \" a comment on the condition\n"
+             "  let g:n = 5\n"
+             "endif\n"
+             "if 1   \" and on one that holds\n"
+             "  let g:n = 7\n"
+             "endif\n");
+    cf.close();
+    data.doCommand("source " + ifDir.path() + "/c.vim");
+    QCOMPARE(echo("g:n"), QLatin1String("7"));
+    // ":echo" is the exception: it takes several expressions, so a '"' there
+    // opens another string rather than a comment.
+    QCOMPARE(echo("'a' 'b'"), QLatin1String("a b"));
+    QCOMPARE(echo("\"a\" \"b\""), QLatin1String("a b"));
+    data.doCommand("unlet g:x | unlet g:s | unlet g:q | unlet g:n");
+}
+
 void FakeVimTester::test_vim_script_if_chain()
 {
     // The shape a plugin settles a choice with: a block that fills in a
@@ -6970,7 +7309,7 @@ void FakeVimTester::test_vim_script_autoload()
     // A deeper name lives a directory further down.
     QCOMPARE(echo("deep#nested#answer()"), QLatin1String("42"));
     // One that is nowhere to be found says so rather than searching forever.
-    QCOMPARE(echo("nosuchlib#nope()"), QLatin1String("Unknown function: nosuchlib#nope"));
+    QCOMPARE(echo("nosuchlib#nope()"), QLatin1String("E117: Unknown function: nosuchlib#nope"));
     data.doCommand("set runtimepath=");
 }
 

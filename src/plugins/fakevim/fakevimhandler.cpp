@@ -441,6 +441,10 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
     bool curly = false;
     bool zmark = false; // saw "\z", waiting for the "s" or "e"
     bool lookahead = false; // a "\ze" opened a "(?=" that has to be closed
+    // "\_x" is the atom x with a line break allowed as well.
+    bool anyNewline = false; // saw "\_", waiting for the atom it applies to
+    bool newlineAtom = false; // the atom being read has to take in a line break
+    int classNewline = -1; // where a "\_[" class starts, so it can take one too
     // How much punctuation carries meaning, set by "\v", "\m", "\M" and "\V".
     // Very magic is close to what QRegularExpression already reads, magic is
     // Vim's default and wants a backslash on "(){}+|?", and the nomagic levels
@@ -449,6 +453,28 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
     MagicLevel magic = Magic;
     bool percent = false; // saw "%" in very magic, waiting for the "("
     for (const QChar &c : needle) {
+        if (anyNewline) {
+            // "\_." is any character or a line break, "\_$" the end of any
+            // line, and "\_s" or "\_[...]" the class with a line break in it.
+            anyNewline = false;
+            if (c == '.') {
+                pattern.append("[\\s\\S]");
+                continue;
+            }
+            if (c == '^' || c == '$') {
+                // Only where a line really ends, which for a string is its end,
+                // as Vim also has it: "\_$" does not hold at an embedded "\n".
+                pattern.append(c);
+                continue;
+            }
+            if (c == '[') {
+                classNewline = 0; // set once the class is known to open
+                brace = true;
+                continue;
+            }
+            newlineAtom = true;
+            escape = true; // the atom that follows is read as if it were escaped
+        }
         if (zmark) {
             zmark = false;
             if (c == 's') { // \zs: the match starts here
@@ -476,6 +502,8 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                 pattern.append("\\[\\]");
                 continue;
             }
+            if (classNewline == 0)
+                classNewline = pattern.size();
             pattern.append('[');
             escape = true;
             embraced = true;
@@ -495,6 +523,14 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
             } else if (c == ']') {
                 pattern.append(']');
                 embraced = false;
+                if (classNewline > 0) {
+                    // Adding "\n" inside the class would take it away again if
+                    // the class is a negated one, so offer it beside the class.
+                    const QString cls = pattern.mid(classNewline);
+                    pattern.truncate(classNewline);
+                    pattern.append("(?:" + cls + "|\\n)");
+                    classNewline = -1;
+                }
             } else if (c == '-') {
                 range = ignorecase && pattern[pattern.size() - 1].isLetter();
                 pattern.append('-');
@@ -532,7 +568,17 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
         } else if (escape) {
             // escape expression
             escape = false;
-            if (c == '<' || c == '>')
+            const int atomStart = pattern.size();
+            if (c == '_')
+                anyNewline = true;
+            // "\%(" groups without capturing; very magic writes it as "%(".
+            else if (c == '%' && magic != VeryMagic)
+                percent = true;
+            // Where very magic gives punctuation a meaning, a backslash takes
+            // it away again: "\=" is an "=" and "\<" a "<", not an operator.
+            else if (magic == VeryMagic && QString("=<>").indexOf(c) != -1)
+                pattern.append(c);
+            else if (c == '<' || c == '>')
                 pattern.append("\\b");
             else if (c == 'a')
                 pattern.append("[a-zA-Z]");
@@ -589,6 +635,14 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
             else {
                 pattern.append('\\');
                 pattern.append(c);
+            }
+            if (newlineAtom) {
+                newlineAtom = false;
+                if (pattern.size() > atomStart) {
+                    const QString atom = pattern.mid(atomStart);
+                    pattern.truncate(atomStart);
+                    pattern.append("(?:" + atom + "|\\n)");
+                }
             }
         } else {
             // unescaped expression
@@ -2544,6 +2598,7 @@ public:
     VimValue m_returnValue;
     bool m_throwing = false; // an exception raised by :throw is in flight
     QString m_exception;
+    int m_tryDepth = 0; // how many ":try" bodies are being run
     bool m_finishing = false; // :finish - stop running the current command list
     int m_messageSilence = 0; // >0 while inside :silent
     bool m_silenceErrors = false; // :silent! also suppresses errors
@@ -2667,6 +2722,9 @@ public:
     bool handleExJoinCommand(const ExCommand &cmd);
     bool handleExGotoCommand(const ExCommand &cmd);
     bool handleExHistoryCommand(const ExCommand &cmd);
+    bool handleExMessagesCommand(const ExCommand &cmd);
+    bool handleExLockVarCommand(const ExCommand &cmd);
+    void rememberMessage(const QString &msg);
     bool handleExRegisterCommand(const ExCommand &cmd);
     bool handleExMapCommand(const ExCommand &cmd);
     bool handleExMultiRepeatCommand(const ExCommand &cmd);
@@ -2868,6 +2926,11 @@ public:
         QString currentMessage;
         MessageLevel currentMessageLevel = MessageInfo;
         QString currentCommand;
+        // What ":messages" reports. Only one message fits in the mini buffer,
+        // so a script that has something to say is otherwise heard once only.
+        QStringList messageHistory;
+        // What ":lockvar" holds against being given another value.
+        QSet<QString> lockedVariables;
 
         // Search state.
         QString lastSearch; // last search expression as entered by user
@@ -4567,8 +4630,28 @@ void FakeVimHandler::Private::showMessage(MessageLevel level, const QString &msg
     // ":silent" suppresses ordinary messages; ":silent!" also suppresses errors.
     if (m_messageSilence > 0 && (level != MessageError || m_silenceErrors))
         return;
+    // Inside a ":try" an error is an exception a script can catch, which is
+    // the shape Vim reports it in. Outside one nothing changes.
+    if (level == MessageError && m_tryDepth > 0) {
+        m_throwing = true;
+        m_exception = "Vim:" + msg;
+        return;
+    }
     g.currentMessage = msg;
     g.currentMessageLevel = level;
+    // An error or a warning is worth keeping; what ":echo" prints is not, as
+    // Vim also has it. ":echomsg" adds itself.
+    if (level == MessageError || level == MessageWarning)
+        rememberMessage(msg);
+}
+
+void FakeVimHandler::Private::rememberMessage(const QString &msg)
+{
+    if (msg.isEmpty())
+        return;
+    g.messageHistory.append(msg);
+    while (g.messageHistory.size() > 200)
+        g.messageHistory.removeFirst();
 }
 
 void FakeVimHandler::Private::notImplementedYet()
@@ -7127,6 +7210,47 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     return true;
 }
 
+bool FakeVimHandler::Private::handleExLockVarCommand(const ExCommand &cmd)
+{
+    // :lock[var] [depth] {name} .. / :unlo[ckvar] [depth] {name} ..
+    const bool lock = cmd.matches("lock", "lockvar");
+    if (!lock && !cmd.matches("unlo", "unlockvar"))
+        return false;
+
+    // Only the whole variable is held here, so the depth a script asks for is
+    // read and passed over.
+    QStringList names = cmd.args.split(' ', Qt::SkipEmptyParts);
+    if (!names.isEmpty()) {
+        bool isDepth = false;
+        names.constFirst().toInt(&isDepth);
+        if (isDepth)
+            names.removeFirst();
+    }
+    for (const QString &name : names) {
+        QString key;
+        variableStore(name, &key);
+        if (lock)
+            g.lockedVariables.insert(key);
+        else
+            g.lockedVariables.remove(key);
+    }
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExMessagesCommand(const ExCommand &cmd)
+{
+    // :mes[sages] [clear]
+    if (!cmd.matches("mes", "messages"))
+        return false;
+
+    if (cmd.args.trimmed() == "clear") {
+        g.messageHistory.clear();
+        return true;
+    }
+    q->extraInformationChanged(g.messageHistory.join('\n') + '\n');
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
 {
     // :his[tory]
@@ -7186,6 +7310,118 @@ static bool isFileTypeOption(const QString &name)
     return name == "filetype" || name == "ft";
 }
 
+enum class OptionKind { Boolean, Number, String };
+
+static QSet<QString> optionNames(const char *names)
+{
+    const QStringList list = QString::fromLatin1(names).split(' ', Qt::SkipEmptyParts);
+    return QSet<QString>(list.cbegin(), list.cend());
+}
+
+// Every option Vim has, with the type Vim gives it, long names and abbreviations
+// alike. Vim keeps an option's name even where the feature behind it is missing,
+// as 'shellslash' is on a system with one kind of slash only: reading it gives 0
+// or an empty string, and setting it is accepted and does nothing. Scripts
+// consult such an option freely, so failing on one stops them for no reason. Only
+// a name Vim does not have at all is an error. The ones implemented here are
+// looked up before this, so what is left is what is merely known by name.
+static bool unimplementedOption(const QString &name, OptionKind *kind)
+{
+    static const QSet<QString> booleans = optionNames(
+    "ac acd ai akm allowrevins altkeymap anti antialias ar arab arabic arabicshape ari "
+    "arshape asd autochdir autocomplete autoindent autoread autoshelldir autowrite "
+    "autowriteall aw awa backup ballooneval balloonevalterm beval bevalterm bin binary "
+    "biosk bioskey bk bl bomb breakindent bri buflisted cdh cdhome cf ci cin cindent "
+    "compatible confirm consk conskey copyindent cp crb cscoperelative cscopetag "
+    "cscopeverbose csre cst csverb cuc cul cursorbind cursorcolumn cursorline deco "
+    "delcombine dg diff digraph ea eb ed edcompatible ek emo emoji endoffile endofline "
+    "eof eol equalalways errorbells esckeys et ex expandtab exrc fen fic fileignorecase "
+    "fixendofline fixeol fk fkmap foldenable fs fsync gd gdefault guipty hid hidden hk "
+    "hkmap hkmapp hkp hls hlsearch ic icon ignorecase im imc imcmdline imd imdisable "
+    "incsearch inf infercase insertmode is joinspaces js langnoremap langremap lazyredraw "
+    "lbr linebreak lisp list lnr loadplugins lpl lrm lz ma macatsui magic mh ml mle mod "
+    "modeline modelineexpr modifiable modified more mousef mousefocus mousehide mousemev "
+    "mousemoveevent nu number odev opendevice paste pi preserveindent previewwindow "
+    "prompt pvw readonly relativenumber remap restorescreen revins ri rightleft rl rnu ro "
+    "rs ru ruler sb sc scb scf scrollbind scrollfocus scs secure sft shellslash shelltemp "
+    "shiftround shortname showcmd showfulltag showmatch showmode si sm smartcase "
+    "smartindent smarttab smd smoothscroll sms sn sol spell splitbelow splitright spr sr "
+    "ssl sta startofline stmp swapfile swf ta tagbsearch tagrelative tagstack tbi tbidi "
+    "tbs termbidi termguicolors terse textauto textmode tf tgc tgst tildeop timeout title "
+    "to top tr ttimeout ttybuiltin ttyfast tx udf undofile vb visualbell wa warn wb "
+    "weirdinvert wfb wfh wfw wic wildignorecase wildmenu winfixbuf winfixheight "
+    "winfixwidth wiv wlsteal wmnu wrap wrapscan write writeany writebackup ws wst "
+    "xtermcodes");
+    static const QSet<QString> numbers = optionNames(
+    "acl act al aleph autocompletedelay autocompletetimeout balloondelay bdlay ch chi "
+    "chistory cmdheight cmdwinheight co cole columns completetimeout conceallevel "
+    "cscopepathcomp cscopetagorder cspc csto cto cwh fdc fdl fdls fdn fml foldcolumn "
+    "foldlevel foldlevelstart foldminlines foldnestmax ghr guiheadroom helpheight hh hi "
+    "history imi iminsert ims imsearch imst imstyle laststatus lhi lhistory lines "
+    "linespace ls lsp mat matchtime maxcombine maxfuncdepth maxmapdepth maxmem "
+    "maxmempattern maxmemtot maxsearchcount mco menuitems mfd mis mls mm mmd mmp mmt "
+    "modelines mouset mousetime msc mzq mzquantum numberwidth nuw osctimeoutlen ost ph "
+    "pmw previewheight pumheight pummaxwidth pumwidth pvh pw pyx pyxversion rdt re "
+    "redrawtime regexpengine report scr scroll scrolljump scrolloff shelltype shiftwidth "
+    "showtabline showtabpanel sidescroll sidescrolloff siso sj smc so softtabstop ss st "
+    "stal stpl sts sw synmaxcol tabpagemax tabstop taglength termwinscroll textwidth "
+    "timeoutlen titlelen tl tm tpm ts tsl ttimeoutlen ttm ttyscroll tw twsl uc ul "
+    "undolevels undoreload updatecount updatetime ur ut vbs verbose wc wcm wd wh wi "
+    "wildchar wildcharm window winheight winminheight winminwidth winwidth wiw "
+    "wltimeoutlen wm wmh wmw wrapmargin writedelay wtm");
+    static const QSet<QString> strings = optionNames(
+    "ambiwidth ambw background backspace backupcopy backupdir backupext backupskip "
+    "balloonexpr bdir belloff bex bexpr bg bh bkc bo breakat breakindentopt briopt brk "
+    "browsedir bs bsdir bsk bt bufhidden buftype casemap cb cc ccv cd cdpath cedit cfc "
+    "cfu charconvert cia cink cinkeys cino cinoptions cinscopedecls cinsd cinw cinwords "
+    "clipboard clipmethod cm cmp cms cocu colorcolumn com comments commentstring complete "
+    "completefunc completefuzzycollect completeitemalign completeopt completepopup "
+    "completeslash concealcursor cot cpm cpo cpoptions cpp cpt cryptmethod cscopeprg "
+    "cscopequickfix csl csprg csqf culopt cursorlineopt debug def define dex dia dict "
+    "dictionary diffanchors diffexpr diffopt dip dir directory display dy ead eadirection "
+    "ef efm ei eiw enc encoding ep equalprg errorfile errorformat eventignore "
+    "eventignorewin fcl fcs fde fdi fdm fdo fdt fenc fencs fex ff ffs ffu fileencoding "
+    "fileencodings fileformat fileformats filetype fillchars findfunc flp fmr fo "
+    "foldclose foldexpr foldignore foldmarker foldmethod foldopen foldtext formatexpr "
+    "formatlistpat formatoptions formatprg fp ft gcr gfm gfn gfs gfw gli go gp grepformat "
+    "grepprg gtl gtt guicursor guifont guifontset guifontwide guiligatures guioptions "
+    "guitablabel guitabtooltip helpfile helplang hf highlight hl hlg iconstring "
+    "imactivatefunc imactivatekey imaf imak imsf imstatusfunc inc include includeexpr "
+    "inde indentexpr indentkeys indk inex isf isfname isi isident isk iskeyword isp "
+    "isprint jop jumpoptions key keymap keymodel keyprotocol keywordprg km kmp kp kpc "
+    "langmap langmenu lcs lispoptions lispwords listchars lm lmap lop luadll lw makeef "
+    "makeencoding makeprg matchpairs mef menc messagesopt mkspellmem mopt mouse mousem "
+    "mousemodel mouses mouseshape mp mps msm mzschemedll mzschemegcdll nf nrformats oft "
+    "ofu omnifunc operatorfunc opfunc osfiletype pa packpath para paragraphs pastetoggle "
+    "patchexpr patchmode path pb pdev penc perldll pex pexpr pfn pheader pm pmbcs pmbfn "
+    "popt pp previewpopup printdevice printencoding printexpr printfont printheader "
+    "printmbcharset printmbfont printoptions pt pumborder pvp pythondll pythonhome "
+    "pythonthreedll pythonthreehome qe qftf quickfixtextfunc quoteescape renderoptions "
+    "rightleftcmd rlc rop rtp rubydll ruf rulerformat runtimepath sbo sbr scl scrollopt "
+    "sect sections sel selection selectmode sessionoptions sh shcf shell shellcmdflag "
+    "shellpipe shellquote shellredir shellxescape shellxquote shm shortmess showbreak "
+    "showcmdloc shq signcolumn slm sloc sp spc spellcapcheck spellfile spelllang "
+    "spelloptions spellsuggest spf spk spl splitkeep spo sps srr ssop statusline stl su "
+    "sua suffixes suffixesadd swapsync swb switchbuf sws sxe sxq syn syntax tabclose "
+    "tabline tabpanel tabpanelopt tag tagcase tagfunc tags tal tb tbis tc tcl tcldll tenc "
+    "term termencoding termwinkey termwinsize termwintype tfu thesaurus thesaurusfunc "
+    "titleold titlestring toolbar toolbariconsize tpl tplo tsr tsrfu tty ttym ttymouse "
+    "ttytype twk tws twt udir undodir varsofttabstop vartabstop vdir ve verbosefile vfile "
+    "vi viewdir viewoptions vif viminfo viminfofile virtualedit vop vsts vts wak wcr "
+    "whichwrap wig wildignore wildmode wildoptions wim winaltkeys wincolor winptydll "
+    "wlseat wop wse ww");
+
+    if (booleans.contains(name))
+        *kind = OptionKind::Boolean;
+    else if (numbers.contains(name))
+        *kind = OptionKind::Number;
+    else if (strings.contains(name))
+        *kind = OptionKind::String;
+    else
+        return false;
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 {
     // :se[t]
@@ -7209,7 +7445,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         const QString what = add.captured(3);
         VimValue current;
         if (!optionValue(optionName, &current)) {
-            showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + optionName);
+            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + optionName);
         } else {
             QString value = current.toString();
             const QChar how = add.captured(2).at(0);
@@ -7230,6 +7466,9 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
             m_commentString = cmd.args.mid(p + 1);
             return true;
         }
+        OptionKind kind = OptionKind::Boolean;
+        if (!s.item(Utils::keyFromString(optionName)) && unimplementedOption(optionName, &kind))
+            return true;
         QString error = s.trySetValue(optionName, cmd.args.mid(p + 1));
         if (!error.isEmpty())
             showMessage(MessageError, error);
@@ -7241,10 +7480,11 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         // default rather than Vi's; there is only one default here.
         QString optionName = cmd.args;
         optionName.chop(optionName.endsWith("&vim") ? 4 : 1);
+        OptionKind kind = OptionKind::Boolean;
         if (FvBaseAspect *act = s.item(Utils::keyFromString(optionName)))
             act->setVariantValue(act->defaultVariantValue());
-        else
-            showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + cmd.args);
+        else if (!unimplementedOption(optionName, &kind))
+            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + cmd.args);
     } else {
         QString optionName = cmd.args;
 
@@ -7258,8 +7498,17 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
             optionName.remove(0, 2);
 
         FvBaseAspect *act = s.item(Utils::keyFromString(optionName));
-        if (!act) {
-            showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + cmd.args);
+        OptionKind kind = OptionKind::Boolean;
+        if (!act && unimplementedOption(optionName, &kind)) {
+            if (printOption) {
+                const QString shown = kind == OptionKind::Boolean
+                                          ? QString("no" + optionName)
+                                          : optionName + QLatin1String(
+                                                kind == OptionKind::Number ? "=0" : "=");
+                showMessage(MessageInfo, shown);
+            }
+        } else if (!act) {
+            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + cmd.args);
         } else if (act->defaultVariantValue().typeId() == QMetaType::Bool) {
             bool oldValue = act->variantValue().toBool();
             if (printOption) {
@@ -8163,6 +8412,13 @@ public:
     }
 
     bool atEnd() { skipBlanks(); return m_pos >= m_in.size(); }
+    // A '"' where an expression has already ended begins a comment, which is
+    // how a script explains a line it is setting something on.
+    bool atEndOrComment()
+    {
+        skipBlanks();
+        return m_pos >= m_in.size() || m_in.at(m_pos) == '"';
+    }
     bool ok() const { return m_ok; }
     QString error() const { return m_error; }
     void setTrailingError() { setError(Tr::tr("Trailing characters: %1").arg(m_in.mid(m_pos))); }
@@ -8579,7 +8835,7 @@ private:
             if (i < 0)
                 i += n;
             if (i < 0 || i >= n) {
-                setError(Tr::tr("List index out of range: %1").arg(index.toNumber()));
+                setError(Tr::tr("E684: List index out of range: %1").arg(index.toNumber()));
                 return {};
             }
             return l->at(i);
@@ -8594,7 +8850,7 @@ private:
             const QString key = index.toString();
             QMap<QString, VimValue> *d = v.dictData();
             if (!d->contains(key)) {
-                setError(Tr::tr("Key not present in dictionary: %1").arg(key));
+                setError(Tr::tr("E716: Key not present in Dictionary: %1").arg(key));
                 return {};
             }
             return d->value(key);
@@ -8638,7 +8894,7 @@ private:
         if (c.isLetter() || c == '_')
             return parseVariable();
 
-        setError(Tr::tr("Invalid expression: %1").arg(m_in.mid(m_pos)));
+        setError(Tr::tr("E15: Invalid expression: %1").arg(m_in.mid(m_pos)));
         return {};
     }
 
@@ -8682,7 +8938,7 @@ private:
             return VimValue::func(name);
         if (m_skip)
             return VimValue(qlonglong(0)); // only being read past
-        setError(Tr::tr("Undefined variable: %1").arg(name));
+        setError(Tr::tr("E121: Undefined variable: %1").arg(name));
         return {};
     }
 
@@ -9117,7 +9373,7 @@ private:
         VimValue v;
         if (m_h->optionValue(name, &v))
             return v;
-        setError(Tr::tr("Unknown option: %1").arg(name));
+        setError(Tr::tr("E113: Unknown option: %1").arg(name));
         return {};
     }
 
@@ -9158,7 +9414,7 @@ bool FakeVimHandler::Private::evaluateExpression(const QString &expr,
         return false;
     }
     const VimValue v = e.parseExpr();
-    if (e.ok() && !e.atEnd())
+    if (e.ok() && !e.atEndOrComment())
         e.setTrailingError();
     if (!e.ok()) {
         if (error)
@@ -9255,7 +9511,14 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
 void FakeVimHandler::Private::setVariable(const QString &name, const VimValue &value)
 {
     QString key;
-    variableStore(name, &key)->insert(key, value);
+    QHash<QString, VimValue> *store = variableStore(name, &key);
+    if (g.lockedVariables.contains(key)) {
+        // Thrown rather than just reported, so a script can catch it as in Vim.
+        m_throwing = true;
+        m_exception = Tr::tr("E741: Value is locked: %1").arg(name);
+        return;
+    }
+    store->insert(key, value);
 }
 
 bool FakeVimHandler::Private::unsetVariable(const QString &name)
@@ -9355,7 +9618,7 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
         else
             haveOld = variableValue(name, &old);
         if (!haveOld) {
-            showMessage(MessageError, Tr::tr("Undefined variable: %1").arg(name));
+            showMessage(MessageError, Tr::tr("E121: Undefined variable: %1").arg(name));
             return true;
         }
         value = applyCompound(old, op.at(0), value);
@@ -9363,7 +9626,7 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
 
     if (kind == '&') {
         if (!setOption(optionNameFromLet(name), value))
-            showMessage(MessageError, Tr::tr("Unknown option: %1").arg(optionNameFromLet(name)));
+            showMessage(MessageError, Tr::tr("E355: Unknown option: %1").arg(optionNameFromLet(name)));
     } else if (kind == '@') {
         setRegister(name.at(1).unicode(), value.toString(), RangeCharMode);
     } else if (kind == '$') {
@@ -9437,7 +9700,7 @@ bool FakeVimHandler::Private::letAssignIndexed(const QString &args)
         if (i < 0)
             i += l->size();
         if (i < 0 || i >= l->size()) {
-            showMessage(MessageError, Tr::tr("List index out of range: %1").arg(index.toNumber()));
+            showMessage(MessageError, Tr::tr("E684: List index out of range: %1").arg(index.toNumber()));
             return true;
         }
         (*l)[i] = op == "=" ? value : applyCompound(l->at(i), op.at(0), value);
@@ -9513,8 +9776,13 @@ bool FakeVimHandler::Private::optionValue(const QString &name, VimValue *result)
         return true;
     }
     FvBaseAspect *act = s.item(Utils::keyFromString(name));
-    if (!act)
-        return false;
+    if (!act) {
+        OptionKind kind = OptionKind::Boolean;
+        if (!unimplementedOption(name, &kind))
+            return false;
+        *result = kind == OptionKind::String ? VimValue(QString()) : VimValue(qlonglong(0));
+        return true;
+    }
     const QVariant v = act->variantValue();
     if (v.typeId() == QMetaType::Bool)
         *result = VimValue(qlonglong(v.toBool() ? 1 : 0));
@@ -9536,8 +9804,10 @@ bool FakeVimHandler::Private::setOption(const QString &name, const VimValue &val
         return true;
     }
     FvBaseAspect *act = s.item(Utils::keyFromString(name));
-    if (!act)
-        return false;
+    if (!act) {
+        OptionKind kind = OptionKind::Boolean;
+        return unimplementedOption(name, &kind);
+    }
     const QVariant v = act->variantValue();
     if (v.typeId() == QMetaType::Bool)
         act->setVariantValue(value.toBool());
@@ -10193,11 +10463,39 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         *result = args.size() > 2 ? VimValue(str.mid(int(arg(1).toNumber()), int(arg(2).toNumber())))
                                   : VimValue(str.mid(int(arg(1).toNumber())));
     } else if (name == "split") {
-        const QRegularExpression sep(args.size() > 1 ? arg(1).toString() : QString("\\s+"));
-        const QStringList parts = arg(0).toString().split(sep, Qt::SkipEmptyParts);
+        // An empty separator is not one that matches everywhere; Vim takes it
+        // as the default, a run of whitespace. One that matches nothing at all,
+        // as "\zs" does, still separates: every place it matches ends a piece,
+        // which is how a string is taken apart character by character. The
+        // third argument keeps the first and last piece when they are empty,
+        // which is all that is dropped: an empty piece in between stays.
+        const QString text = arg(0).toString();
+        const QString pattern = args.size() > 1 ? arg(1).toString() : QString();
+        const QRegularExpression sep = vimPatternToQtPattern(
+            pattern.isEmpty() ? QString("\\s\\+") : pattern);
+        const bool keepEmpty = args.size() > 2 && arg(2).toNumber() != 0;
+        QStringList pieces;
+        int done = 0; // what is already accounted for by a piece or a separator
+        int from = 0; // where to look for the next separator
+        while (from <= text.size()) {
+            const QRegularExpressionMatch m = sep.match(text, from);
+            if (!m.hasMatch())
+                break;
+            pieces.append(text.mid(done, m.capturedStart() - done));
+            const bool empty = m.capturedLength() == 0;
+            done = empty ? m.capturedStart() : m.capturedEnd();
+            from = empty ? m.capturedStart() + 1 : done;
+        }
+        pieces.append(text.mid(done));
+        if (!keepEmpty) {
+            if (!pieces.isEmpty() && pieces.constLast().isEmpty())
+                pieces.removeLast();
+            if (!pieces.isEmpty() && pieces.constFirst().isEmpty())
+                pieces.removeFirst();
+        }
         QList<VimValue> items;
-        for (const QString &p : parts)
-            items.append(VimValue(p));
+        for (const QString &piece : pieces)
+            items.append(VimValue(piece));
         *result = VimValue::list(items);
     } else if (name == "join") {
         const QString sep = args.size() > 1 ? arg(1).toString() : QString(" ");
@@ -10346,9 +10644,16 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "exists") {
         const QString a = arg(0).toString();
         bool ex;
-        if (a.startsWith('&'))
-            ex = s.item(Utils::keyFromString(optionNameFromLet(a))) != nullptr;
-        else if (a.startsWith('$'))
+        if (a.startsWith('&') || a.startsWith('+')) {
+            // "&opt" asks whether Vim has the option at all, "+opt" whether it
+            // can be used, which for an option only known by name it cannot.
+            const QString opt = optionNameFromLet(a);
+            OptionKind kind = OptionKind::Boolean;
+            ex = s.item(Utils::keyFromString(opt)) != nullptr
+                 || isCommentStringOption(opt) || isFileTypeOption(opt);
+            if (!ex && a.startsWith('&'))
+                ex = unimplementedOption(opt, &kind);
+        } else if (a.startsWith('$'))
             ex = qEnvironmentVariableIsSet(a.mid(1).toLatin1().constData());
         else if (a.startsWith('*') || a.startsWith('?')) {
             // "*name" asks whether a function is there to be called, whether
@@ -10675,7 +10980,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = callUserFunction(name, g.userFunctions.value(name), args);
             return true;
         }
-        *error = Tr::tr("Unknown function: %1").arg(name);
+        *error = Tr::tr("E117: Unknown function: %1").arg(name);
         return false;
     }
     return true;
@@ -10719,7 +11024,7 @@ bool FakeVimHandler::Private::handleExUnletCommand(const ExCommand &cmd)
     const QStringList names = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
     for (const QString &name : names) {
         if (!unsetVariable(name) && !cmd.hasBang) {
-            showMessage(MessageError, Tr::tr("Undefined variable: %1").arg(name));
+            showMessage(MessageError, Tr::tr("E121: Undefined variable: %1").arg(name));
             return true;
         }
     }
@@ -10759,7 +11064,11 @@ bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
         }
         parts.append(v.toString());
     }
-    showMessage(isError ? MessageError : MessageInfo, parts.join(' '));
+    const QString msg = parts.join(' ');
+    showMessage(isError ? MessageError : MessageInfo, msg);
+    // ":silent" keeps a message out of the history as well as off the screen.
+    if (cmd.matches("echom", "echomsg") && m_messageSilence == 0)
+        rememberMessage(msg);
     return true;
 }
 
@@ -11131,7 +11440,7 @@ bool FakeVimHandler::Private::handleExUserCommand(const ExCommand &cmd)
     ExCommand sub;
     while (parseExCommand(&line, &sub)) {
         if (!handleExCommandHelper(sub)) {
-            showMessage(MessageError, Tr::tr("Not an editor command: %1").arg(sub.cmd));
+            showMessage(MessageError, Tr::tr("E492: Not an editor command: %1").arg(sub.cmd));
             break;
         }
     }
@@ -11192,7 +11501,7 @@ bool FakeVimHandler::Private::handleExExecuteCommand(const ExCommand &cmd)
     ExCommand sub;
     while (parseExCommand(&line, &sub)) {
         if (!handleExCommandHelper(sub)) {
-            showMessage(MessageError, Tr::tr("Not an editor command: %1").arg(sub.cmd));
+            showMessage(MessageError, Tr::tr("E492: Not an editor command: %1").arg(sub.cmd));
             break;
         }
     }
@@ -11285,7 +11594,7 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
             if (active) {
                 ExCommand cmd = c;
                 if (!handleExCommandHelper(cmd))
-                    showMessage(MessageError, Tr::tr("Not an editor command: %1").arg(c.cmd));
+                    showMessage(MessageError, Tr::tr("E492: Not an editor command: %1").arg(c.cmd));
             }
             ++index;
         }
@@ -11448,7 +11757,9 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
         return vimPatternToQtPattern(pat).match(ex).hasMatch();
     };
 
+    ++m_tryDepth;
     execSequence(cmds, index, active); // the :try body
+    --m_tryDepth;
     Pending pending = capture();
     bool handled = !pending.thrown;
     execSequence(cmds, index, false); // skip the rest of the body to the clauses
@@ -11700,6 +12011,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExGotoCommand(cmd)
         || handleExBangCommand(cmd)
         || handleExHistoryCommand(cmd)
+        || handleExMessagesCommand(cmd)
+        || handleExLockVarCommand(cmd)
         || handleExRegisterCommand(cmd)
         || handleExDelMarksCommand(cmd)
         || handleExYankDeleteCommand(cmd)
