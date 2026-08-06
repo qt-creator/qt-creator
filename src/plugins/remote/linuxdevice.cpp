@@ -1354,6 +1354,12 @@ void LinuxDevicePrivate::setOsTypeFromUnameResult(const RunResult &result)
         setOsType(OsTypeMac);
     if (osName == "Linux")
         setOsType(OsTypeLinux);
+    if (osName == "FreeBSD")
+        setOsType(OsTypeFreeBSD);
+    if (osName == "OpenBSD")
+        setOsType(OsTypeOpenBSD);
+    if (osName == "NetBSD")
+        setOsType(OsTypeNetBSD);
 }
 
 static RunResult runUnameCommand(const FilePath &rootPath)

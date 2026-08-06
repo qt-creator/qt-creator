@@ -30,10 +30,17 @@ Product {
     Profile { name: "windows-arm64"; go.platform: "windows"; go.architecture: "arm64" }
     Profile { name: "darwin-amd64"; go.platform: "darwin"; go.architecture: "amd64" }
     Profile { name: "darwin-arm64"; go.platform: "darwin"; go.architecture: "arm64" }
+    Profile { name: "freebsd-amd64"; go.platform: "freebsd"; go.architecture: "amd64" }
+    Profile { name: "freebsd-arm64"; go.platform: "freebsd"; go.architecture: "arm64" }
+    Profile { name: "openbsd-amd64"; go.platform: "openbsd"; go.architecture: "amd64" }
+    Profile { name: "openbsd-arm64"; go.platform: "openbsd"; go.architecture: "arm64" }
+    Profile { name: "netbsd-amd64"; go.platform: "netbsd"; go.architecture: "amd64" }
+    Profile { name: "netbsd-arm64"; go.platform: "netbsd"; go.architecture: "arm64" }
     qbs.profiles: buildCmdBridgeC
         ? [] // host only
         : ["linux-amd64", "linux-arm64", "windows-amd64", "windows-arm64", "darwin-amd64",
-           "darwin-arm64"]
+           "darwin-arm64", "freebsd-amd64", "freebsd-arm64", "openbsd-amd64", "openbsd-arm64",
+           "netbsd-amd64", "netbsd-arm64"]
     multiplexByQbsProperties: "profiles"
 
     go.magicPacketMarker: project.magicPacketMarker

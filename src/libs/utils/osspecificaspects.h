@@ -13,7 +13,16 @@
 namespace Utils {
 
 // Add more as needed.
-enum OsType { OsTypeWindows, OsTypeLinux, OsTypeMac, OsTypeOtherUnix, OsTypeOther };
+enum OsType {
+    OsTypeWindows,
+    OsTypeLinux,
+    OsTypeMac,
+    OsTypeFreeBSD,
+    OsTypeOpenBSD,
+    OsTypeNetBSD,
+    OsTypeOtherUnix,
+    OsTypeOther
+};
 
 enum OsArch { OsArchUnknown, OsArchX86, OsArchAMD64, OsArchItanium, OsArchArm, OsArchArm64, OsArchLoongArch64 };
 

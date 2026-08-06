@@ -17,6 +17,7 @@ import subprocess
 import struct
 import sys
 import os
+import shutil
 import signal
 import tempfile
 import threading
@@ -920,8 +921,15 @@ def test_group_id(bin_path):
 
 
 def test_freespace(bin_path):
-    """Get free space on filesystem."""
+    """Get free space on filesystem.
+
+    The value is checked, not just its presence: free space is computed from
+    a different struct on each platform (statfs() with f_bsize, statvfs()
+    with f_frsize on NetBSD), and picking the wrong block size still yields a
+    plausible-looking number that is off by a constant factor.
+    """
     tmpdir = temp_dir()
+    os.makedirs(tmpdir, exist_ok=True)
     cbor = build_cbor_map([
         ("Type", "freespace"),
         ("Id", "24"),
@@ -930,6 +938,17 @@ def test_freespace(bin_path):
     stderr_out = send_command(bin_path, cbor)
     resp = parse_response(stderr_out)
     assert len(resp) == 1, f"expected 1 response, got {len(resp)}"
+
+    free = _extract_cbor_int(resp[0], "FreeSpace")
+    assert free is not None, "FreeSpace missing in freespace result"
+    assert free > 0, f"FreeSpace should be positive, got {free}"
+
+    # Compare against what the OS says. The two are sampled at slightly
+    # different moments on a live filesystem, so only the magnitude is
+    # asserted; a wrong block size is out by a factor of 8 or more.
+    expected = shutil.disk_usage(tmpdir).free
+    assert expected / 4 < free < expected * 4, \
+        f"FreeSpace {free} is not close to the {expected} reported by the OS"
     return True
 
 
@@ -1882,6 +1901,8 @@ def _extract_cbor_int(cbor_data, key):
                     val = struct.unpack(">H", cbor_data[pos:pos+2])[0]; pos += 2; return val
                 elif vinfo == 26:
                     val = struct.unpack(">I", cbor_data[pos:pos+4])[0]; pos += 4; return val
+                elif vinfo == 27:
+                    val = struct.unpack(">Q", cbor_data[pos:pos+8])[0]; pos += 8; return val
             elif vmaj == 0x20:  # negative int
                 if vinfo <= 23:
                     return -(vinfo + 1)
@@ -1891,6 +1912,8 @@ def _extract_cbor_int(cbor_data, key):
                     val = struct.unpack(">H", cbor_data[pos:pos+2])[0]; pos += 2; return -(val + 1)
                 elif vinfo == 26:
                     val = struct.unpack(">I", cbor_data[pos:pos+4])[0]; pos += 4; return -(val + 1)
+                elif vinfo == 27:
+                    val = struct.unpack(">Q", cbor_data[pos:pos+8])[0]; pos += 8; return -(val + 1)
             else:
                 return None
         else:

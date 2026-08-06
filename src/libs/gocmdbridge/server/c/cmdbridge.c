@@ -439,6 +439,8 @@ int main(int argc, char **argv)
     }
 #endif
 
+    plat_raise_fd_limit();
+
     /* Matches Go: the watchdog is on by default so that a bridge whose client
        has gone away does not linger on the remote device forever. */
     watchdog_timeout = 60;

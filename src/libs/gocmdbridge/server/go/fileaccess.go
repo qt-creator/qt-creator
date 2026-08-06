@@ -38,12 +38,6 @@ func fileId(path string) string {
 	return fmt.Sprintf("%x:%x", stat.Dev, stat.Ino)
 }
 
-func freeSpace(path string) uint64 {
-	var stat unix.Statfs_t
-	unix.Statfs(path, &stat)
-	return stat.Bavail * uint64(stat.Bsize)
-}
-
 func owner(path string) string {
 	uid := strconv.Itoa(unix.Getuid())
 	u, _ := user.LookupId(uid)

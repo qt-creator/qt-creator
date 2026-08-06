@@ -157,6 +157,37 @@ if(CMDBRIDGE_USE_ZIG)
     zig_build_target(cmdbridge windows arm64 "aarch64-windows"
         "${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-windows-arm64.exe")
 
+    # The BSD targets need zig 0.16 or newer; earlier versions ship no BSD
+    # libc and fail with "'stdio.h' file not found". Skip them instead of
+    # breaking the build, because a missing binary is not fatal: the client
+    # falls back to its slow file access when it cannot find or start one.
+    # That is also the safety net for OpenBSD and NetBSD in general, which
+    # are cross-compiled but have not been run on the real thing.
+    execute_process(COMMAND ${ZIG_CC} version
+        OUTPUT_VARIABLE ZIG_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET)
+    if(ZIG_VERSION VERSION_GREATER_EQUAL "0.16")
+        zig_build_target(cmdbridge freebsd amd64 "x86_64-freebsd"
+            "${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-freebsd-amd64")
+        zig_build_target(cmdbridge freebsd arm64 "aarch64-freebsd"
+            "${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-freebsd-arm64")
+
+        zig_build_target(cmdbridge openbsd amd64 "x86_64-openbsd"
+            "${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-openbsd-amd64")
+        zig_build_target(cmdbridge openbsd arm64 "aarch64-openbsd"
+            "${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-openbsd-arm64")
+
+        zig_build_target(cmdbridge netbsd amd64 "x86_64-netbsd"
+            "${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-netbsd-amd64")
+        zig_build_target(cmdbridge netbsd arm64 "aarch64-netbsd"
+            "${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-netbsd-arm64")
+    else()
+        message(STATUS
+            "CmdBridge: zig ${ZIG_VERSION} ships no BSD libc, skipping the "
+            "FreeBSD, OpenBSD and NetBSD targets")
+    endif()
+
     add_custom_target(CmdBridge DEPENDS ${ALL_CMDBRIDGE_PLATFORMS}
         SOURCES ${CMDBRIDGE_C_SOURCES})
 

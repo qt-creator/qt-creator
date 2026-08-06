@@ -16,6 +16,12 @@ QString osTypeToString(OsType osType)
         return "Linux";
     case OsTypeMac:
         return "Mac";
+    case OsTypeFreeBSD:
+        return "FreeBSD";
+    case OsTypeOpenBSD:
+        return "OpenBSD";
+    case OsTypeNetBSD:
+        return "NetBSD";
     case OsTypeOtherUnix:
         return "Other Unix";
     case OsTypeOther:
@@ -36,6 +42,17 @@ Result<OsType> osTypeFromString(const QString &string)
         || string.compare("darwin", Qt::CaseInsensitive) == 0
         || string.compare("macos", Qt::CaseInsensitive) == 0)
         return OsTypeMac;
+
+    // These are what "uname -s" prints and what Docker reports as the image
+    // OS.
+    if (string.compare("freebsd", Qt::CaseInsensitive) == 0)
+        return OsTypeFreeBSD;
+
+    if (string.compare("openbsd", Qt::CaseInsensitive) == 0)
+        return OsTypeOpenBSD;
+
+    if (string.compare("netbsd", Qt::CaseInsensitive) == 0)
+        return OsTypeNetBSD;
 
     if (string.compare("other unix", Qt::CaseInsensitive) == 0
         || string.compare("qnx", Qt::CaseInsensitive) == 0)

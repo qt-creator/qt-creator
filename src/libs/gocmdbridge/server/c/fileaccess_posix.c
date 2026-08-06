@@ -8,16 +8,25 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <grp.h>
-#include <sys/random.h>
 #include <pthread.h>
 #include <pwd.h>
+#include <sys/resource.h> /* getrlimit, for plat_raise_fd_limit() */
 
 /* statfs, for fspace() */
-#ifdef __linux__
+#if defined(__linux__)
 #include <sys/statfs.h>
+#elif defined(__NetBSD__)
+/* NetBSD has no statfs(), only the POSIX statvfs(). */
+#include <sys/statvfs.h>
 #else
 #include <sys/mount.h>
 #include <sys/param.h>
+#endif
+
+/* getentropy() is declared in <unistd.h> on Linux and the BSDs, but only in
+   <sys/random.h> on macOS. */
+#ifdef __APPLE__
+#include <sys/random.h>
 #endif
 
 typedef void *(*pthread_func_t)(void *);
@@ -149,6 +158,22 @@ static int plat_create_new_dir(const char *path)
     return mkdir(path, 0700);
 }
 
+/* Raises the descriptor limit to the hard one, as the Go runtime does since
+   Go 1.19. The kqueue watcher spends a descriptor per watched path, and the
+   soft limit is low enough on some systems to cap the number of watches well
+   below what a project needs: OpenBSD's default login class allows 128
+   against a hard limit of 1024. */
+static void plat_raise_fd_limit(void)
+{
+    struct rlimit rl;
+    if (getrlimit(RLIMIT_NOFILE, &rl) != 0)
+        return;
+    if (rl.rlim_cur < rl.rlim_max) {
+        rl.rlim_cur = rl.rlim_max;
+        setrlimit(RLIMIT_NOFILE, &rl);
+    }
+}
+
 /* ================================================================== */
 /*  File attribute helpers used by the stat/is handlers               */
 /* ================================================================== */
@@ -181,8 +206,14 @@ static char *fid(const char *path)
 }
 static uint64_t fspace(const char *path)
 {
+#ifdef __NetBSD__
+    /* statvfs() counts f_bavail in f_frsize units, not f_bsize ones. */
+    struct statvfs s;
+    return (statvfs(path, &s) == 0) ? (uint64_t) s.f_bavail * (uint64_t) s.f_frsize : 0;
+#else
     struct statfs s;
     return (statfs(path, &s) == 0) ? (uint64_t) s.f_bavail * (uint64_t) s.f_bsize : 0;
+#endif
 }
 static char *fowner(const char *path)
 {

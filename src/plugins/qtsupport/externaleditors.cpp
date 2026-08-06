@@ -62,6 +62,9 @@ static QString checkBinary(const QDir &dir, const QString &binary)
 
     switch (HostOsInfo::hostOs()) {
     case OsTypeLinux:
+    case OsTypeFreeBSD:
+    case OsTypeOpenBSD:
+    case OsTypeNetBSD:
     case OsTypeOtherUnix:
     case OsTypeOther:
         break;

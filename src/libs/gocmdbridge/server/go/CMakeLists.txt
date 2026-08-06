@@ -52,6 +52,9 @@ set(SOURCE_FILES
     fileaccess_windows.go
     fileaccess.go
     find.go
+    freespace.go
+    freespace_netbsd.go
+    freespace_openbsd.go
     is.go
     readfile.go
     socketforward.go
@@ -60,7 +63,7 @@ set(SOURCE_FILES
     watcher.go
 )
 
-go_build(cmdbridge "${SOURCE_FILES}" "linux;darwin;windows" "amd64;arm64" "-X main.MagicPacketMarker=${GOBRIDGE_MAGIC_PACKET_MARKER}")
+go_build(cmdbridge "${SOURCE_FILES}" "linux;darwin;windows;freebsd;openbsd;netbsd" "amd64;arm64" "-X main.MagicPacketMarker=${GOBRIDGE_MAGIC_PACKET_MARKER}")
 go_build(cmdbridge "${SOURCE_FILES}" "linux" "arm" "-X main.MagicPacketMarker=${GOBRIDGE_MAGIC_PACKET_MARKER}")
 
 add_custom_target(CmdBridge

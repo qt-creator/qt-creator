@@ -1493,7 +1493,8 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                     << rootPath.withNewPath("/usr/local/opt/ccache/libexec")    // homebrew intel
                     << rootPath.withNewPath("/opt/local/libexec/ccache"); // macports, no links are created automatically though
     }
-    if (os == OsTypeMac || os == OsTypeLinux || os == OsTypeOtherUnix) {
+    if (os == OsTypeMac || os == OsTypeLinux || os == OsTypeFreeBSD || os == OsTypeOpenBSD
+        || os == OsTypeNetBSD || os == OsTypeOtherUnix) {
         FilePath ccachePath = rootPath.withNewPath("/usr/lib/ccache/bin");
         if (!ccachePath.exists())
             ccachePath = rootPath.withNewPath("/usr/lib/ccache");

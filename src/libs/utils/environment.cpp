@@ -180,6 +180,9 @@ void Environment::prependOrSetLibrarySearchPath(const FilePath &value)
         break;
     }
     case OsTypeLinux:
+    case OsTypeFreeBSD:
+    case OsTypeOpenBSD:
+    case OsTypeNetBSD:
     case OsTypeOtherUnix: {
         prependOrSet("LD_LIBRARY_PATH", value.nativePath());
         break;

@@ -1029,6 +1029,9 @@ Result<FilePath> DockerDevicePrivate::localSource(const FilePath &other) const
     if (HostOsInfo::isWindowsHost() &&
             (other.osType() == Utils::OsTypeLinux
              || other.osType() == Utils::OsTypeMac
+             || other.osType() == Utils::OsTypeFreeBSD
+             || other.osType() == Utils::OsTypeOpenBSD
+             || other.osType() == Utils::OsTypeNetBSD
              || other.osType() == Utils::OsTypeOtherUnix)) {
         QRegularExpression linuxPathRegex("^/([A-Za-z])/(.*)?$");
         QRegularExpressionMatch linuxPathMatch = linuxPathRegex.match(fixedPath);

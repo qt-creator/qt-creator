@@ -693,7 +693,9 @@ void IDevice::openTerminal(const Environment &env,
 
 bool IDevice::isAnyUnixDevice() const
 {
-    return d->osType == OsTypeLinux || d->osType == OsTypeMac || d->osType == OsTypeOtherUnix;
+    return d->osType == OsTypeLinux || d->osType == OsTypeMac || d->osType == OsTypeFreeBSD
+           || d->osType == OsTypeOpenBSD || d->osType == OsTypeNetBSD
+           || d->osType == OsTypeOtherUnix;
 }
 
 DeviceFileAccessPtr IDevice::fileAccess() const

@@ -1189,6 +1189,9 @@ Result<FilePath> Client::getCmdBridgePath(
         {OsType::OsTypeWindows, QStringLiteral("windows")},
         {OsType::OsTypeLinux, QStringLiteral("linux")},
         {OsType::OsTypeMac, QStringLiteral("darwin")},
+        {OsType::OsTypeFreeBSD, QStringLiteral("freebsd")},
+        {OsType::OsTypeOpenBSD, QStringLiteral("openbsd")},
+        {OsType::OsTypeNetBSD, QStringLiteral("netbsd")},
         {OsType::OsTypeOtherUnix, QStringLiteral("linux")},
         {OsType::OsTypeOther, QStringLiteral("other")},
     };

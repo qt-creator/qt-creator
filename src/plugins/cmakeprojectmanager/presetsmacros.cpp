@@ -23,6 +23,12 @@ static QString getHostSystemName(Utils::OsType osType)
         return "Linux";
     case Utils::OsTypeMac:
         return "Darwin";
+    case Utils::OsTypeFreeBSD:
+        return "FreeBSD";
+    case Utils::OsTypeOpenBSD:
+        return "OpenBSD";
+    case Utils::OsTypeNetBSD:
+        return "NetBSD";
     case Utils::OsTypeOtherUnix:
         return "Unix";
     case Utils::OsTypeOther:

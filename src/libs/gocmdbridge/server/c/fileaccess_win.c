@@ -805,4 +805,10 @@ static int plat_create_new_dir(const char *path)
     return 0;
 }
 
+/* Nothing to raise: handles are not a per-process rlimit on Windows, and the
+   watcher does not spend one per watched path the way kqueue does. */
+static void plat_raise_fd_limit(void)
+{
+}
+
 #endif /* _WIN32 */
