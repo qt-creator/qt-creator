@@ -232,6 +232,13 @@ private slots:
     void test_vim_script_scriptlocal();
     void test_vim_script_if_chain();
     void test_vim_script_error_numbers();
+    void test_vim_pattern_buffer_position();
+    void test_vim_set_showmatch_name();
+    void test_vim_set_add_remove();
+    void test_vim_set_escaped_value();
+    void test_vim_script_throwpoint();
+    void test_vim_pattern_lookaround();
+    void test_vim_pattern_percent_atoms();
     void test_vim_pattern_very_magic();
     void test_vim_script_lockvar();
     void test_vim_script_messages();
@@ -6896,6 +6903,322 @@ void FakeVimTester::test_vim_script_error_numbers()
     data.doCommand("unlet g:hit | unlet g:ok | unlet g:ex");
 }
 
+void FakeVimTester::test_vim_pattern_buffer_position()
+{
+    // "\%23l" and its kin say where in the buffer a match may sit rather than
+    // anything about the text. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    const char *const start = "aa" X "a" N "bbb" N "ccc" N "ddd";
+    data.doCommand("set wrapscan");
+
+    // A search stops only where the position is allowed. "<" is left out of the
+    // keys here because the notation would take it for the start of a key name.
+    data.setText(start);
+    data.doKeys("/\\%3lc<CR>");
+    QCOMPARE(data.handler->textCursor().blockNumber() + 1, 3);
+    data.setText(start);
+    data.doKeys("/\\%>2l\\a<CR>");
+    QCOMPARE(data.handler->textCursor().blockNumber() + 1, 3);
+
+    // search() answers the same way, and takes the forms with a "<" as well.
+    data.setText(start);
+    QCOMPARE(echo("search('\\%3lc', 'w')"), QLatin1String("3"));
+    data.setText(start);
+    QCOMPARE(echo("search('\\%<2l\\a', 'w')"), QLatin1String("1"));
+    data.setText(start);
+    QCOMPARE(echo("search('\\%2cb', 'w')"), QLatin1String("2"));
+    // A substitution leaves alone what sits elsewhere.
+    data.setText(start);
+    data.doCommand("%s/\\%2l./X/");
+    QCOMPARE(data.text(), QByteArray("aaa" N "Xbb" N "ccc" N "ddd"));
+    data.setText(start);
+    data.doCommand("%s/\\%<2l./X/");
+    QCOMPARE(data.text(), QByteArray("Xaa" N "bbb" N "ccc" N "ddd"));
+
+    // "\%V" is the area the last selection covered, which for a linewise one is
+    // whole lines and for an ordinary one runs from the one end to the other.
+    data.setText(start);
+    data.doKeys("Vj<Esc>");
+    data.doCommand("%s/\\%V./Y/g");
+    QCOMPARE(data.text(), QByteArray("YYY" N "YYY" N "ccc" N "ddd"));
+    data.setText("a" X "aa" N "bbb" N "ccc" N "ddd");
+    data.doKeys("vj<Esc>");
+    data.doCommand("%s/\\%V./Z/g");
+    QCOMPARE(data.text(), QByteArray("aZZ" N "ZZb" N "ccc" N "ddd"));
+}
+
+void FakeVimTester::test_vim_set_showmatch_name()
+{
+    // "sm" is Vim's abbreviation for 'showmatch', which is not implemented
+    // here, so it reads as 0 and setting it does nothing. It used to reach
+    // 'showmarks', an option of this editor's own that Vim has no name for.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("set noshowmarks");
+    // Setting "sm" is taken and passed over, and leaves 'showmarks' alone.
+    message.clear();
+    data.doCommand("set sm");
+    QCOMPARE(message, QLatin1String(""));
+    QCOMPARE(echo("&sm"), QLatin1String("0"));
+    QCOMPARE(echo("&showmarks"), QLatin1String("0"));
+    // The option itself still answers to its own name.
+    data.doCommand("set showmarks");
+    QCOMPARE(echo("&showmarks"), QLatin1String("1"));
+    QCOMPARE(echo("&sm"), QLatin1String("0"));
+    QCOMPARE(echo("exists('&showmatch')"), QLatin1String("1"));
+    data.doCommand("set noshowmarks");
+}
+
+void FakeVimTester::test_vim_set_add_remove()
+{
+    // ":set {option}+=" puts a comma between the parts of a list and nothing
+    // between the letters of a flag-style option. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // Flag-style: the letters stand side by side.
+    data.doCommand("set formatoptions=tc | set formatoptions+=j");
+    QCOMPARE(echo("&fo"), QLatin1String("tcj"));
+    data.doCommand("set formatoptions=tcj | set formatoptions-=c");
+    QCOMPARE(echo("&fo"), QLatin1String("tj"));
+    data.doCommand("set cpoptions=aA | set cpoptions+=B");
+    QCOMPARE(echo("&cpo"), QLatin1String("aAB"));
+    data.doCommand("set cpoptions=aAB | set cpoptions^=x");
+    QCOMPARE(echo("&cpo"), QLatin1String("xaAB"));
+    data.doCommand("set commentstring=#%s | set commentstring+=x");
+    QCOMPARE(echo("&cms"), QLatin1String("#%sx"));
+
+    // A list: the parts are separated by commas.
+    data.doCommand("set backspace=indent | set backspace+=eol");
+    QCOMPARE(echo("&bs"), QLatin1String("indent,eol"));
+    data.doCommand("set backspace=indent,eol,start | set backspace-=eol");
+    QCOMPARE(echo("&bs"), QLatin1String("indent,start"));
+    data.doCommand("set backspace=eol,start | set backspace^=indent");
+    QCOMPARE(echo("&bs"), QLatin1String("indent,eol,start"));
+    data.doCommand("set iskeyword=a-z | set iskeyword+=A-Z | set iskeyword-=a-z");
+    QCOMPARE(echo("&isk"), QLatin1String("A-Z"));
+
+    data.doCommand("set formatoptions=tcq | set backspace=indent,eol,start");
+    data.doCommand("set commentstring=/*%s*/");
+    data.doCommand("set iskeyword=@,48-57,_,192-255,a-z,A-Z");
+}
+
+void FakeVimTester::test_vim_set_escaped_value()
+{
+    // In ":set {option}={value}" a backslash takes the character after it as it
+    // stands, which is how a value holds a space of its own. Every ftplugin and
+    // vimrc sets 'commentstring' this way. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("set commentstring=//\\ %s");
+    QCOMPARE(echo("&cms"), QLatin1String("// %s"));
+    data.doCommand("set commentstring=/*\\ %s\\ */");
+    QCOMPARE(echo("&cms"), QLatin1String("/* %s */"));
+    // A backslash before anything else is dropped just the same.
+    data.doCommand("set commentstring=x\\%sy");
+    QCOMPARE(echo("&cms"), QLatin1String("x%sy"));
+    // A value with no backslash is left alone.
+    data.doCommand("set commentstring=plain%s");
+    QCOMPARE(echo("&cms"), QLatin1String("plain%s"));
+    data.doCommand("set commentstring=/*%s*/");
+}
+
+void FakeVimTester::test_vim_script_throwpoint()
+{
+    // "v:throwpoint" says where the exception a ":catch" took was thrown, as
+    // the chain of frames that were running, and is put back when the ":try" is
+    // left. Values taken from Vim 9.1 running this very script.
+    TestData data;
+    setup(&data);
+    QString message;
+    // The mode line arrives after the echo, so it has to be left out or an
+    // empty value cannot be told apart from it.
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + "/t.vim";
+    QFile f(path);
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("try\n"                              // line 1
+            "  throw 'a'\n"                      // line 2
+            "catch\n"
+            "  let g:atScript = v:throwpoint\n"
+            "endtry\n"
+            "let g:afterScript = v:throwpoint\n"  // put back on leaving
+            "function! Foo()\n"                   // line 7
+            "  throw 'b'\n"                       // line 1 of Foo
+            "endfunction\n"
+            "try\n"
+            "  call Foo()\n"                      // line 11
+            "catch\n"
+            "  let g:atFunc = v:throwpoint\n"
+            "endtry\n"
+            "try\n"
+            "  echo g:nosuchvar\n"                // line 16, an error not a throw
+            "catch\n"
+            "  let g:atError = v:throwpoint\n"
+            "endtry\n"
+            "function! Outer()\n"                 // line 20
+            "  call Foo()\n"                      // line 1 of Outer
+            "endfunction\n"
+            "try\n"
+            "  call Outer()\n"                    // line 24
+            "catch\n"
+            "  let g:atNested = v:throwpoint\n"
+            "endtry\n");
+    f.close();
+    data.doCommand("source " + path);
+    const QString script = "command line..script " + path;
+
+    // The frame that threw carries the line, the ones that called it the
+    // statement they stopped at.
+    QCOMPARE(echo("g:atScript"), script + ", line 2");
+    QCOMPARE(echo("g:atFunc"), script + "[11]..function Foo, line 1");
+    // An error is thrown from where it happened, like ":throw".
+    QCOMPARE(echo("g:atError"), script + ", line 16");
+    // The word "function" stands before the first one only.
+    QCOMPARE(echo("g:atNested"), script + "[24]..function Outer[1]..Foo, line 1");
+    // Leaving the ":try" puts it back to what it was, which was nothing.
+    QCOMPARE(echo("g:afterScript"), QLatin1String(""));
+    QCOMPARE(echo("v:throwpoint"), QLatin1String(""));
+    QCOMPARE(echo("v:exception"), QLatin1String(""));
+
+    data.doCommand("unlet g:atScript | unlet g:afterScript | unlet g:atFunc");
+    data.doCommand("unlet g:atError | unlet g:atNested");
+    data.doCommand("delfunction Foo | delfunction Outer");
+}
+
+void FakeVimTester::test_vim_pattern_lookaround()
+{
+    // "\@=" and its kin make the atom before them something that has to stand
+    // there without being part of the match. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo string(") + QLatin1String(expr) + ')');
+        return message;
+    };
+
+    // What has to follow, and what must not.
+    QCOMPARE(echo("matchstr('foobar', 'foo\\%(bar\\)\\@=')"), QLatin1String("'foo'"));
+    QCOMPARE(echo("matchstr('foobaz', 'foo\\%(bar\\)\\@=')"), QLatin1String("''"));
+    QCOMPARE(echo("matchstr('foobaz', 'foo\\%(bar\\)\\@!')"), QLatin1String("'foo'"));
+    QCOMPARE(echo("matchstr('foobar', 'foo\\%(bar\\)\\@!')"), QLatin1String("''"));
+    // What has to stand before, and what must not.
+    QCOMPARE(echo("matchstr('foobar', '\\%(foo\\)\\@<=bar')"), QLatin1String("'bar'"));
+    QCOMPARE(echo("matchstr('xxbar', '\\%(foo\\)\\@<=bar')"), QLatin1String("''"));
+    QCOMPARE(echo("matchstr('xxbar', '\\%(foo\\)\\@<!bar')"), QLatin1String("'bar'"));
+    QCOMPARE(echo("matchstr('foobar', '\\%(foo\\)\\@<!bar')"), QLatin1String("''"));
+    // A group that gives nothing back once it has matched.
+    QCOMPARE(echo("match('aaa', '\\%(a*\\)\\@>a')"), QLatin1String("-1"));
+    // The operator applies to a single character as well as to a group.
+    QCOMPARE(echo("matchstr('foobar', 'a\\@!foo')"), QLatin1String("'foo'"));
+    // What stands before may be of more than one length, as long as there is a
+    // longest one.
+    QCOMPARE(echo("matchstr('foobar', '\\%(fo\\{1,2}\\)\\@<=bar')"), QLatin1String("'bar'"));
+    QCOMPARE(echo("matchstr('foobar', '\\%(foo\\|xx\\)\\@<=bar')"), QLatin1String("'bar'"));
+    // With no longest one it cannot be looked for at all here, where Vim finds
+    // it: QRegularExpression wants a bounded length behind the match.
+    QCOMPARE(echo("matchstr('foobar', '\\%(fo*\\)\\@<=bar')"), QLatin1String("''"));
+
+    // Very magic writes the operator without the backslash, and a backslash
+    // makes the "@" itself literal, leaving the "=" to quantify it.
+    QCOMPARE(echo("matchstr('foobar', '\\vfoo(bar)@=')"), QLatin1String("'foo'"));
+    QCOMPARE(echo("matchstr('foobar', '\\v(foo)@<=bar')"), QLatin1String("'bar'"));
+    QCOMPARE(echo("matchstr('foobaz', '\\vfoo(bar)@!')"), QLatin1String("'foo'"));
+    QCOMPARE(echo("matchstr('foobar', '\\vfoo(bar)\\@=')"), QLatin1String("'foobar'"));
+
+    // A group inside one is still counted, so what follows keeps its number.
+    QCOMPARE(echo("matchlist('foobar', '\\(foo\\)\\@<=\\(bar\\)')[0:2]"),
+             QLatin1String("['bar', 'foo', 'bar']"));
+}
+
+void FakeVimTester::test_vim_pattern_percent_atoms()
+{
+    // "\%" opens several atoms of its own. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // A character by its number, in decimal, hex, octal and as a code point.
+    QCOMPARE(echo("match('abc', '\\%d98')"), QLatin1String("1"));
+    QCOMPARE(echo("match('abc', '\\%x62')"), QLatin1String("1"));
+    QCOMPARE(echo("match('abc', '\\%o142')"), QLatin1String("1"));
+    QCOMPARE(echo("match('abc', '\\%u0062')"), QLatin1String("1"));
+    // A sequence in which each character may be the last.
+    QCOMPARE(echo("match('abc', '\\%[abc]')"), QLatin1String("0"));
+    QCOMPARE(echo("match('abc', 'a\\%[bc]')"), QLatin1String("0"));
+    QCOMPARE(echo("match('xa', 'a\\%[bc]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('xab', 'a\\%[bc]')"), QLatin1String("1"));
+    QCOMPARE(echo("matchstr('abcd', 'a\\%[bc]')"), QLatin1String("abc"));
+    QCOMPARE(echo("match('xyz', 'a\\%[bc]')"), QLatin1String("-1"));
+
+    // A group that does not capture.
+    QCOMPARE(echo("match('abcabc', '\\%(abc\\)\\{2}')"), QLatin1String("0"));
+}
+
 void FakeVimTester::test_vim_pattern_very_magic()
 {
     // Where very magic gives punctuation a meaning, a backslash takes it away
@@ -7932,8 +8255,9 @@ void FakeVimTester::test_vim_script_expand()
                    "| let g:sfile = expand('<sfile>') | endfunction");
     data.doCommand("call Where()");
     // Outside a script the chain starts at the command line, and the innermost
-    // entry is the function name followed by "[".
-    QCOMPARE(echo("g:stack"), QLatin1String("command line..function Where[0]"));
+    // entry is the function name followed by the statement it is at, in
+    // brackets, as Vim reports it ("function probe#Toggle[1]").
+    QCOMPARE(echo("g:stack"), QLatin1String("command line..function Where[1]"));
     QCOMPARE(echo("matchstr(g:stack, '[^. ]*\\ze[')"), QLatin1String("Where"));
     QCOMPARE(echo("'[' . g:sfile . ']'"), QLatin1String("[]"));
 

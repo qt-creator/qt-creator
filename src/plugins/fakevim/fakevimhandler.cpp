@@ -391,7 +391,26 @@ static bool eatString(const QString &prefix, QString *str)
     return true;
 }
 
-static QRegularExpression vimPatternToQtPattern(const QString &needle)
+// Where in the buffer a match is allowed to sit: "\%23l" and its "<" and ">"
+// forms for the line, the same for the column as "c" or "v", "\%V" for inside
+// the visual area and "\%#" for the cursor. These say nothing about the text,
+// so they are taken out of the pattern and checked against the place a match
+// was found instead.
+struct PatternPosition
+{
+    bool isSet() const { return lineOp != 0 || columnOp != 0 || visual || cursor; }
+
+    // Which way to compare, as '=', '<' or '>', and against what. 0 for neither.
+    char lineOp = 0;
+    int line = 0;
+    char columnOp = 0;
+    int column = 0;
+    bool visual = false;
+    bool cursor = false;
+};
+
+static QRegularExpression vimPatternToQtPattern(const QString &needle,
+                                                PatternPosition *wanted = nullptr)
 {
     /* Transformations (Vim regexp -> QRegularExpression):
      *   \a -> [A-Za-z]
@@ -452,7 +471,99 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
     enum MagicLevel { VeryMagic, Magic, NoMagic, VeryNoMagic };
     MagicLevel magic = Magic;
     bool percent = false; // saw "%" in very magic, waiting for the "("
+    // "\%d123" and its kin name a character by its number.
+    int numberBase = 0; // which base is being read, 0 for none
+    int numberMax = 0;  // how many digits it takes at most
+    QString numberDigits;
+    const auto flushNumber = [&] {
+        if (numberBase == 0)
+            return;
+        const QChar named(numberDigits.toInt(nullptr, numberBase));
+        pattern.append(QRegularExpression::escape(QString(named)));
+        numberBase = 0;
+        numberDigits.clear();
+    };
+    // A "\%" position being read: the way to compare and the number so far.
+    char positionOp = 0;
+    QString positionDigits;
+    // "\%[abc]" is a sequence in which each character may be the last.
+    bool optionalSeq = false;
+    QString optionalChars;
+    // "\@=" and its kin make the atom before them something that has to stand
+    // there without being part of the match. Vim writes the operator after the
+    // atom where QRegularExpression wants it in front, so the atom already
+    // emitted is taken back out and put inside.
+    QList<int> groupStack;  // where each group still open starts in pattern
+    int lastAtomStart = -1; // where the atom such an operator would apply to starts
+    int lookaround = 0;     // 0 none, 1 saw the "@", 2 saw "@<"
+    const auto wrapLastAtom = [&](const QString &kind) {
+        if (lastAtomStart < 0 || lastAtomStart > pattern.size())
+            return;
+        const QString atom = pattern.mid(lastAtomStart);
+        pattern.truncate(lastAtomStart);
+        pattern.append("(?" + kind + atom + ')');
+        lastAtomStart = -1;
+    };
     for (const QChar &c : needle) {
+        if (positionOp != 0) {
+            if (c.isDigit()) {
+                positionDigits.append(c);
+                continue;
+            }
+            // "l" counts lines, "c" characters and "v" screen columns, which
+            // are the same here as there is no measuring of tabs to do.
+            if (c == 'l' || c == 'c' || c == 'v') {
+                if (wanted) {
+                    if (c == 'l') {
+                        wanted->lineOp = positionOp;
+                        wanted->line = positionDigits.toInt();
+                    } else {
+                        wanted->columnOp = positionOp;
+                        wanted->column = positionDigits.toInt();
+                    }
+                }
+                positionOp = 0;
+                continue;
+            }
+            positionOp = 0; // no position after all, so handle c below
+        }
+        if (lookaround != 0) {
+            if (lookaround == 1 && c == '<') {
+                lookaround = 2;
+                continue;
+            }
+            const bool back = lookaround == 2;
+            if (c == '=' || c == '!' || (!back && c == '>')) {
+                lookaround = 0;
+                wrapLastAtom(QLatin1String(back ? "<" : "")
+                             + QLatin1String(c == '=' ? "=" : c == '!' ? "!" : ">"));
+                continue;
+            }
+            lookaround = 0; // no operator after all, so handle c below
+        }
+        if (optionalSeq) {
+            if (c != ']') {
+                optionalChars.append(c);
+                continue;
+            }
+            optionalSeq = false;
+            // "a", "ab" and "abc" all match "\%[abc]", and so does nothing.
+            for (const QChar &oc : std::as_const(optionalChars))
+                pattern.append("(?:" + QRegularExpression::escape(QString(oc)));
+            pattern.append(QString(")?").repeated(optionalChars.size()));
+            continue;
+        }
+        if (numberBase != 0) {
+            const bool isDigit = numberBase == 10  ? c.isDigit()
+                                 : numberBase == 8 ? (c >= '0' && c <= '7')
+                                 : (c.isDigit()
+                                    || (c.toLower() >= 'a' && c.toLower() <= 'f'));
+            if (isDigit && numberDigits.size() < numberMax) {
+                numberDigits.append(c);
+                continue;
+            }
+            flushNumber(); // the number has ended, c belongs to what follows
+        }
         if (anyNewline) {
             // "\_." is any character or a line break, "\_$" the end of any
             // line, and "\_s" or "\_[...]" the class with a line break in it.
@@ -491,7 +602,37 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
         if (percent) {
             percent = false;
             if (c == '(') { // "%(" groups without capturing
+                groupStack.append(pattern.size());
                 pattern.append("(?:");
+                continue;
+            }
+            if (c == '[') { // "%[abc]" holds a sequence of optional characters
+                optionalSeq = true;
+                optionalChars.clear();
+                continue;
+            }
+            if (c == 'V' || c == '#') { // inside the visual area / at the cursor
+                if (wanted) {
+                    if (c == 'V')
+                        wanted->visual = true;
+                    else
+                        wanted->cursor = true;
+                }
+                continue;
+            }
+            if (c == '<' || c == '>' || c.isDigit()) { // "%23l", "%>3c", ...
+                positionOp = c.isDigit() ? '=' : c.toLatin1();
+                positionDigits = c.isDigit() ? QString(c) : QString();
+                continue;
+            }
+            // "%d123" in decimal, "%x62" in hex, "%o142" in octal and "%u0062"
+            // or "%U" as a code point.
+            numberBase = c == 'd' ? 10 : (c == 'o' || c == 'O') ? 8
+                         : (c == 'x' || c == 'X' || c == 'u' || c == 'U') ? 16 : 0;
+            if (numberBase != 0) {
+                numberMax = c == 'd' ? 10 : (c == 'x' || c == 'X') ? 2
+                            : (c == 'o' || c == 'O') ? 4 : c == 'u' ? 4 : 8;
+                numberDigits.clear();
                 continue;
             }
             pattern.append("%"); // a "%" of its own, then handle c below
@@ -564,7 +705,11 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
             escape = false;
             if (!special)
                 pattern.append('\\');
+            if (special && c == '(')
+                groupStack.append(pattern.size());
             pattern.append(c);
+            if (special && c == ')' && !groupStack.isEmpty())
+                lastAtomStart = groupStack.takeLast(); // the group is now an atom
         } else if (escape) {
             // escape expression
             escape = false;
@@ -576,8 +721,11 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                 percent = true;
             // Where very magic gives punctuation a meaning, a backslash takes
             // it away again: "\=" is an "=" and "\<" a "<", not an operator.
-            else if (magic == VeryMagic && QString("=<>").indexOf(c) != -1)
+            else if (magic == VeryMagic && QString("=<>@").indexOf(c) != -1)
                 pattern.append(c);
+            // "\@=" and its kin; very magic writes them without the backslash.
+            else if (c == '@')
+                lookaround = 1;
             else if (c == '<' || c == '>')
                 pattern.append("\\b");
             else if (c == 'a')
@@ -644,10 +792,15 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                     pattern.append("(?:" + atom + "|\\n)");
                 }
             }
+            if (pattern.size() > atomStart)
+                lastAtomStart = atomStart;
         } else {
             // unescaped expression
+            const int atomStart = pattern.size();
             if (c == '\\')
                 escape = true;
+            else if (magic == VeryMagic && c == '@')
+                lookaround = 1;
             else if (magic == VeryMagic && c == '%')
                 percent = true; // "%(" is a group that does not capture
             else if (magic == VeryMagic && (c == '<' || c == '>'))
@@ -662,8 +815,11 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
                 pattern.append('\\').append(c); // no meaning at these levels
             else
                 pattern.append(c);
+            if (pattern.size() > atomStart)
+                lastAtomStart = atomStart;
         }
     }
+    flushNumber();
     if (escape)
         pattern.append('\\');
     else if (brace)
@@ -863,7 +1019,8 @@ static QChar applyReplacementLetterCases(QChar repl,
 static bool substituteText(QString *text,
                            const QRegularExpression &pattern,
                            const QString &replacement,
-                           bool global)
+                           bool global,
+                           const std::function<bool(int)> &allowed = {})
 {
     bool substituted = false;
     int pos = 0;
@@ -874,6 +1031,14 @@ static bool substituteText(QString *text,
             break;
 
         pos = match.capturedStart();
+
+        // Leave alone what the pattern said had to sit elsewhere.
+        if (allowed && !allowed(pos)) {
+            pos = match.capturedEnd() > pos ? match.capturedEnd() : pos + 1;
+            if (pos > text->size())
+                break;
+            continue;
+        }
 
         // ensure that substitution is advancing towards end of line
         if (right == text->size() - pos) {
@@ -2591,7 +2756,12 @@ public:
     QStringList m_syntaxNames;
     bool m_vim9 = false; // Vim9-script semantics are active
     QStringList m_scriptFileStack; // scripts currently sourcing, innermost last
+    // Which statement each frame is running, for <stack> and v:throwpoint.
+    QList<int> m_scriptLines;
+    QList<int> m_functionLines;
+    QString m_throwpoint; // where the exception being carried was thrown
     QStringList m_callStack; // user functions currently running, for <stack>
+    QString sourceChain(bool asThrowPoint) const;
     QSet<QString> m_sourcesInFlight; // guards against :source/:import cycles
     QList<QHash<QString, VimValue>> m_localScopes;
     bool m_returning = false;
@@ -2674,6 +2844,7 @@ public:
 
     // marks
     Mark mark(QChar code) const;
+    bool positionAllowed(const PatternPosition &wanted, int pos) const;
     void setMark(QChar code, CursorPosition position);
     void removeMark(QChar code);
     // jump to valid mark return true if mark is valid and local
@@ -4635,6 +4806,7 @@ void FakeVimHandler::Private::showMessage(MessageLevel level, const QString &msg
     if (level == MessageError && m_tryDepth > 0) {
         m_throwing = true;
         m_exception = "Vim:" + msg;
+        m_throwpoint = sourceChain(true);
         return;
     }
     g.currentMessage = msg;
@@ -7034,7 +7206,8 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     if (g.lastSubstituteFlags.contains('i'))
         needle.prepend("\\c");
 
-    const QRegularExpression pattern = vimPatternToQtPattern(needle);
+    PatternPosition wanted;
+    const QRegularExpression pattern = vimPatternToQtPattern(needle, &wanted);
 
     QTextBlock lastBlock;
     QTextBlock firstBlock;
@@ -7044,7 +7217,13 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
             block.isValid() && block.position() + block.length() > cmd.range.beginPos;
             block = block.previous()) {
             QString text = block.text();
-            if (substituteText(&text, pattern, g.lastSubstituteReplacement, global)) {
+            const int blockPos = block.position();
+            const std::function<bool(int)> allowed
+                = wanted.isSet() ? [this, &wanted, blockPos](int column) {
+                      return positionAllowed(wanted, blockPos + column);
+                  }
+                                 : std::function<bool(int)>();
+            if (substituteText(&text, pattern, g.lastSubstituteReplacement, global, allowed)) {
                 firstBlock = block;
                 if (!lastBlock.isValid()) {
                     lastBlock = block;
@@ -7304,6 +7483,20 @@ static bool isCommentStringOption(const QString &name)
     return name == "commentstring" || name == "cms";
 }
 
+// In ":set {option}={value}" a backslash takes the character after it as it
+// stands, which is how a value holds a space of its own, as "//\ %s" does.
+static QString unescapedSetValue(const QString &value)
+{
+    QString result;
+    result.reserve(value.size());
+    for (int i = 0; i < value.size(); ++i) {
+        if (value.at(i) == '\\' && i + 1 < value.size())
+            ++i;
+        result.append(value.at(i));
+    }
+    return result;
+}
+
 // 'filetype' is not stored either; it drives the FileType autocommands.
 static bool isFileTypeOption(const QString &name)
 {
@@ -7316,6 +7509,28 @@ static QSet<QString> optionNames(const char *names)
 {
     const QStringList list = QString::fromLatin1(names).split(' ', Qt::SkipEmptyParts);
     return QSet<QString>(list.cbegin(), list.cend());
+}
+
+// The options whose value is a comma separated list, as against the flag-style
+// ones ('formatoptions', 'cpoptions', ...) whose letters stand side by side.
+// ":set {option}+=" puts a comma between the parts of the former and nothing
+// between those of the latter. Taken from what Vim does to each of them.
+static bool commaListOption(const QString &name)
+{
+    static const QSet<QString> lists = optionNames(
+    "backspace backupcopy backupdir backupskip bdir belloff bkc bo breakindentopt briopt "
+    "bs bsk casemap cb cd cdpath cink cinkeys cino cinoptions cinscopedecls cinsd cinw "
+    "cinwords clipboard cmp com comments complete completeopt cot cpt dict dictionary "
+    "diffopt dip dir directory display dy efm ei errorformat eventignore fcl fcs fdo "
+    "fencs fileencodings fillchars foldclose foldopen gcr gfm grepformat guicursor "
+    "helplang hlg indentkeys indk isf isfname isi isident isk iskeyword isp isprint "
+    "keymodel km langmap lcs lispwords listchars lmap lw matchpairs mkspellmem mps msm nf "
+    "nrformats pa packpath path popt pp printoptions rtp runtimepath sbo scrollopt "
+    "selectmode sessionoptions slm spellfile spelllang spelloptions spellsuggest spf spl "
+    "spo sps ssop su sua suffixes suffixesadd swb switchbuf tabline tag tags tal "
+    "termguicolors thesaurus tsr udir undodir ve viewoptions vif viminfofile virtualedit "
+    "vop whichwrap wig wildignore wildmode wim ww");
+    return lists.contains(name);
 }
 
 // Every option Vim has, with the type Vim gives it, long names and abbreviations
@@ -7442,34 +7657,43 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         // ":set {option}+=" adds to what is there, "-=" takes away and "^="
         // puts in front, which is how a path option is added to.
         const QString optionName = add.captured(1);
-        const QString what = add.captured(3);
+        const QString what = unescapedSetValue(add.captured(3));
         VimValue current;
         if (!optionValue(optionName, &current)) {
             showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + optionName);
         } else {
             QString value = current.toString();
             const QChar how = add.captured(2).at(0);
+            const bool list = commaListOption(optionName);
+            const QString sep = list && !value.isEmpty() ? QString(',') : QString();
             if (how == '+')
-                value += (value.isEmpty() ? QString() : QString(',')) + what;
+                value += sep + what;
             else if (how == '^')
-                value = what + (value.isEmpty() ? QString() : QString(',')) + value;
+                value = what + sep + value;
+            else if (list) {
+                // Take the part out wherever it stands, leaving no comma of its
+                // own behind.
+                QStringList parts = value.split(',');
+                parts.removeAll(what);
+                value = parts.join(',');
+            }
             else
-                value.remove(QRegularExpression("(^|,)" + QRegularExpression::escape(what)
-                                                + "(?=,|$)"));
+                value.remove(what);
             setOption(optionName, VimValue(value));
         }
     } else if (cmd.args.contains('=')) {
         // Non-boolean config to set.
         int p = cmd.args.indexOf('=');
         const QString optionName = cmd.args.left(p);
+        const QString value = unescapedSetValue(cmd.args.mid(p + 1));
         if (isCommentStringOption(optionName)) {
-            m_commentString = cmd.args.mid(p + 1);
+            m_commentString = value;
             return true;
         }
         OptionKind kind = OptionKind::Boolean;
         if (!s.item(Utils::keyFromString(optionName)) && unimplementedOption(optionName, &kind))
             return true;
-        QString error = s.trySetValue(optionName, cmd.args.mid(p + 1));
+        QString error = s.trySetValue(optionName, value);
         if (!error.isEmpty())
             showMessage(MessageError, error);
     } else if (cmd.args == "commentstring?" || cmd.args == "cms?") {
@@ -8303,10 +8527,12 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     const bool savedVim9 = m_vim9;
     m_vim9 = fileVim9;
     m_scriptFileStack.append(canonicalPath);
+    m_scriptLines.append(0);
     m_sourcesInFlight.insert(canonicalPath);
     runExCommands(cmds);
     m_sourcesInFlight.remove(canonicalPath);
     m_scriptFileStack.removeLast();
+    m_scriptLines.removeLast();
     m_vim9 = savedVim9;
 
     if (fileVim9 && !exportedNames.isEmpty() && !canonicalPath.isEmpty()) {
@@ -9516,6 +9742,7 @@ void FakeVimHandler::Private::setVariable(const QString &name, const VimValue &v
         // Thrown rather than just reported, so a script can catch it as in Vim.
         m_throwing = true;
         m_exception = Tr::tr("E741: Value is locked: %1").arg(name);
+        m_throwpoint = sourceChain(true);
         return;
     }
     store->insert(key, value);
@@ -9997,6 +10224,36 @@ int FakeVimHandler::Private::bufferNumber()
 }
 
 // expand(): the handful of "<...>" keywords and "%" that scripts rely on.
+// The chain Vim reports for "<stack>" and "v:throwpoint": the frame that is
+// running, and what called it. Every frame but the innermost is followed by the
+// statement it stopped at; the innermost carries ", line N" in a throw point
+// and "[N]" in a stack. The word "function" stands before the first function
+// only. Scripts sourced from a function are listed before it rather than in
+// call order, there being one stack for each kind here.
+QString FakeVimHandler::Private::sourceChain(bool asThrowPoint) const
+{
+    QStringList frames;
+    QList<int> lines;
+    for (int i = 0; i < m_scriptFileStack.size(); ++i) {
+        frames.append("script " + m_scriptFileStack.at(i));
+        lines.append(i < m_scriptLines.size() ? m_scriptLines.at(i) : 0);
+    }
+    for (int i = 0; i < m_callStack.size(); ++i) {
+        frames.append((i == 0 ? QString("function ") : QString()) + m_callStack.at(i));
+        lines.append(i < m_functionLines.size() ? m_functionLines.at(i) : 0);
+    }
+
+    QString value = "command line";
+    for (int i = 0; i < frames.size(); ++i) {
+        value += ".." + frames.at(i);
+        if (asThrowPoint && i == frames.size() - 1)
+            value += ", line " + QString::number(lines.at(i));
+        else
+            value += '[' + QString::number(lines.at(i)) + ']';
+    }
+    return value;
+}
+
 QString FakeVimHandler::Private::expandKeyword(const QString &what) const
 {
     // What is being asked about comes first, then any ":" modifiers, so
@@ -10012,16 +10269,12 @@ QString FakeVimHandler::Private::expandKeyword(const QString &what) const
 
     QString value;
     if (base == "<stack>") {
-        // Vim reports the source chain, e.g.
+        // The chain of frames that are running, e.g.
         // "command line..function comment#Toggle[2]". Plugins pick the
         // innermost function name out of it with a pattern anchored on the
         // "[", most notably to set 'operatorfunc' to their own function, so
         // the name here has to be one callFunction() can resolve again.
-        value = m_scriptFileStack.isEmpty()
-            ? QStringLiteral("command line") : m_scriptFileStack.last();
-        for (const QString &fn : m_callStack)
-            value += "..function " + fn + "[0]";
-        return value; // not a path, so no modifiers
+        return sourceChain(false); // not a path, so no modifiers
     }
     if (base == "<sfile>" || base == "<script>") {
         value = m_scriptFileStack.isEmpty() ? QString() : m_scriptFileStack.last();
@@ -10071,7 +10324,8 @@ bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args,
     const bool haveSkip = args.size() > 4;
     const VimValue skip = arg(4);
 
-    QRegularExpression re = vimPatternToQtPattern(arg(0).toString());
+    PatternPosition wanted;
+    QRegularExpression re = vimPatternToQtPattern(arg(0).toString(), &wanted);
     if (!re.isValid()) {
         *error = Tr::tr("Invalid pattern: %1").arg(arg(0).toString());
         return false;
@@ -10116,6 +10370,11 @@ bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args,
         const int line = block.blockNumber() + 1;
         if (stopLine > 0 && (backward ? line < stopLine : line > stopLine))
             break;
+
+        // Asked before the cursor is moved, so that "\%#" still means where it
+        // was rather than the candidate being looked at.
+        if (wanted.isSet() && !positionAllowed(wanted, offset))
+            continue;
 
         // Vim evaluates {skip} with the cursor on the candidate.
         setCursorPosition(CursorPosition(block.blockNumber(), offset - block.position()));
@@ -11543,6 +11802,13 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
 {
     while (index < cmds.size()) {
         const ExCommand c = cmds.at(index);
+        // Which statement of the frame this is, as far as the frame's command
+        // list stands for its lines - a line holding several commands separated
+        // by "|" counts as more than one.
+        if (!m_functionLines.isEmpty())
+            m_functionLines.last() = index + 1;
+        else if (!m_scriptLines.isEmpty())
+            m_scriptLines.last() = index + 1;
         if (c.cmd == "if") {
             ++index;
             execIf(cmds, index, active, active && evalCondition(exprText(c)));
@@ -11562,6 +11828,7 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
                 if (evaluateExpression(exprText(c), &v, &error)) {
                     m_throwing = true;
                     m_exception = v.toString();
+                    m_throwpoint = sourceChain(true);
                 } else {
                     showMessage(MessageError, error);
                 }
@@ -11736,13 +12003,15 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
     struct Pending {
         bool thrown = false;
         QString exception;
+        QString throwpoint;
         bool returning = false;
         VimValue returnValue;
         LoopSignal signal = NoSignal;
         bool empty() const { return !thrown && !returning && signal == NoSignal; }
     };
     const auto capture = [this]() {
-        Pending p{m_throwing, m_exception, m_returning, m_returnValue, m_loopSignal};
+        Pending p{m_throwing, m_exception, m_throwpoint, m_returning, m_returnValue,
+                  m_loopSignal};
         m_throwing = false;
         m_returning = false;
         m_loopSignal = NoSignal;
@@ -11756,6 +12025,16 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
             pat = pat.mid(1, pat.size() - 2);
         return vimPatternToQtPattern(pat).match(ex).hasMatch();
     };
+
+    // Vim puts these back to what they were when the ":try" is left, so a
+    // nested one does not leave its exception behind in the outer clause.
+    VimValue savedException{QString()}; // unset reads as empty, as in Vim
+    VimValue savedThrowPoint{QString()};
+    VimValue saved;
+    if (variableValue("v:exception", &saved))
+        savedException = saved;
+    if (variableValue("v:throwpoint", &saved))
+        savedThrowPoint = saved;
 
     ++m_tryDepth;
     execSequence(cmds, index, active); // the :try body
@@ -11771,6 +12050,7 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
                            && catchMatches(c.args, pending.exception);
         if (match)
             setVariable("v:exception", VimValue(pending.exception));
+            setVariable("v:throwpoint", VimValue(pending.throwpoint));
         execSequence(cmds, index, match);
         if (match)
             handled = true;
@@ -11794,10 +12074,14 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
     if (index < cmds.size() && cmds.at(index).cmd == "endtry")
         ++index;
 
+    setVariable("v:exception", savedException);
+    setVariable("v:throwpoint", savedThrowPoint);
+
     // Re-raise whatever survived unhandled.
     if (pending.thrown && !handled) {
         m_throwing = true;
         m_exception = pending.exception;
+        m_throwpoint = pending.throwpoint;
     } else if (pending.returning) {
         m_returning = true;
         m_returnValue = pending.returnValue;
@@ -11941,9 +12225,11 @@ VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
 
     m_localScopes.append(frame);
     m_callStack.append(name);
+    m_functionLines.append(0);
     int index = 0;
     execSequence(fn.body, index, true);
     m_callStack.removeLast();
+    m_functionLines.removeLast();
     m_localScopes.removeLast();
 
     const VimValue result = m_returning ? m_returnValue : VimValue();
@@ -12104,7 +12390,62 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
 QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, int count,
     bool showMessages)
 {
-    const QRegularExpression needleExp = vimPatternToQtPattern(sd.needle);
+    PatternPosition wanted;
+    const QRegularExpression needleExp = vimPatternToQtPattern(sd.needle, &wanted);
+
+    if (wanted.isSet() && needleExp.isValid()) {
+        // Walk the matches one at a time and count only those sitting where the
+        // pattern allows them to; rare enough to be done the plain way.
+        const auto step = [&](int probe, bool fromEnd) {
+            QTextCursor tc;
+            int one = 1;
+            if (fromEnd) {
+                tc = QTextCursor(document());
+                tc.movePosition(sd.forward ? StartOfDocument : EndOfDocument);
+            } else if (probe >= 0 && probe < document()->characterCount()) {
+                tc = QTextCursor(document());
+                tc.setPosition(probe);
+                if (sd.forward && afterEndOfLine(document(), probe))
+                    tc.movePosition(Right);
+            } else {
+                return tc;
+            }
+            if (sd.forward)
+                searchForward(&tc, needleExp, &one);
+            else
+                searchBackward(&tc, needleExp, &one);
+            return tc;
+        };
+
+        QTextCursor result;
+        int from = startPos;
+        int found = 0;
+        bool wrapped = false;
+        while (found < count) {
+            QTextCursor tc = step(from + (sd.forward ? 1 : -1), false);
+            if (tc.isNull()) {
+                if (wrapped || !s.wrapScan())
+                    break;
+                wrapped = true;
+                tc = step(0, true);
+                if (tc.isNull())
+                    break;
+            }
+            const int at = tc.anchor();
+            if (wrapped && ((sd.forward && at > startPos) || (!sd.forward && at < startPos)))
+                break; // all the way round to where it started
+            from = at;
+            if (positionAllowed(wanted, at)) {
+                result = tc;
+                ++found;
+            }
+        }
+        if (result.isNull() && showMessages)
+            showMessage(MessageError, Tr::tr("Pattern not found: %1").arg(sd.needle));
+        if (sd.highlightMatches)
+            highlightMatches(needleExp.pattern());
+        return result;
+    }
 
     if (!needleExp.isValid()) {
         if (showMessages) {
@@ -14890,6 +15231,55 @@ bool FakeVimHandler::Private::selectTagTextObject(bool inner)
         --p2;
     setAnchorAndPosition(p1, p2);
 
+    return true;
+}
+
+// Whether a match found at pos sits where the pattern said it had to. Vim asks
+// this where the position stands in the pattern; it is asked here of where the
+// match begins, which is where such an atom is written in practice.
+bool FakeVimHandler::Private::positionAllowed(const PatternPosition &wanted, int pos) const
+{
+    const auto holds = [](char op, int wantedValue, int actual) {
+        switch (op) {
+        case '=': return actual == wantedValue;
+        case '<': return actual < wantedValue;
+        case '>': return actual > wantedValue;
+        default: return true;
+        }
+    };
+
+    const QTextBlock block = document()->findBlock(pos);
+    if (!block.isValid())
+        return false;
+    if (!holds(wanted.lineOp, wanted.line, block.blockNumber() + 1))
+        return false;
+    if (!holds(wanted.columnOp, wanted.column, pos - block.position() + 1))
+        return false;
+    if (wanted.cursor && pos != position())
+        return false;
+    if (wanted.visual) {
+        if (!mark('<').isValid() || !mark('>').isValid())
+            return false;
+        const CursorPosition from = markLessPosition();
+        const CursorPosition to = markGreaterPosition();
+        const int line = block.blockNumber();
+        if (line < qMin(from.line, to.line) || line > qMax(from.line, to.line))
+            return false;
+        // What the area takes in depends on how it was drawn: whole lines for a
+        // linewise selection, a rectangle of columns for a blockwise one, and
+        // from the one end to the other for the ordinary kind.
+        const int column = pos - block.position();
+        const VisualMode drawn = isVisualMode() ? g.visualMode : m_buffer->lastVisualMode;
+        if (drawn == VisualBlockMode) {
+            if (column < qMin(from.column, to.column) || column > qMax(from.column, to.column))
+                return false;
+        } else if (drawn != VisualLineMode) {
+            if (line == from.line && column < from.column)
+                return false;
+            if (line == to.line && column > to.column)
+                return false;
+        }
+    }
     return true;
 }
 
