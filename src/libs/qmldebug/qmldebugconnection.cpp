@@ -38,6 +38,7 @@ public:
     int maximumDataStreamVersion = QDataStream::Qt_DefaultCompiledVersion;
 
     void advertisePlugins();
+    void clearConnection();
     void flush();
 };
 
@@ -66,6 +67,23 @@ void QmlDebugConnectionPrivate::advertisePlugins()
     flush();
 }
 
+void QmlDebugConnectionPrivate::clearConnection()
+{
+    if (protocol) {
+        protocol->disconnect();
+        protocol->deleteLater();
+        protocol = nullptr;
+    }
+    if (device) {
+        // Don't allow any "connected()" or "disconnected()" signals to be triggered anymore.
+        // As the protocol is gone this would lead to crashes.
+        device->disconnect();
+        // Don't immediately delete it as it may do some cleanup on returning from a signal.
+        device->deleteLater();
+        device = nullptr;
+    }
+}
+
 void QmlDebugConnection::socketConnected()
 {
     Q_D(QmlDebugConnection);
@@ -88,19 +106,7 @@ void QmlDebugConnection::socketDisconnected()
     } else if (d->device) {
         emit connectionFailed();
     }
-    if (d->protocol) {
-        d->protocol->disconnect();
-        d->protocol->deleteLater();
-        d->protocol = nullptr;
-    }
-    if (d->device) {
-        // Don't allow any "connected()" or "disconnected()" signals to be triggered anymore.
-        // As the protocol is gone this would lead to crashes.
-        d->device->disconnect();
-        // Don't immediately delete it as it may do some cleanup on returning from a signal.
-        d->device->deleteLater();
-        d->device = nullptr;
-    }
+    d->clearConnection();
 }
 
 void QmlDebugConnection::protocolReadyRead()
@@ -259,8 +265,26 @@ bool QmlDebugConnection::isListening() const
 void QmlDebugConnection::close()
 {
     Q_D(QmlDebugConnection);
-    if (d->device && d->device->isOpen())
+    if (!d->device || !d->device->isOpen())
+        return;
+
+    // A connection that was established once tears down asynchronously: closing
+    // the socket triggers disconnected() (or errorOccurred()), and the resulting
+    // socketDisconnected() is what tells the clients and emits disconnected().
+    // That also covers a peer that went away with the queued disconnected() not
+    // delivered yet, where the state is no longer ConnectedState.
+    if (d->gotHello || socketState() == QAbstractSocket::ConnectedState) {
         d->device->close(); // will trigger disconnected() at some point.
+        return;
+    }
+
+    // A socket that never finished connecting emits neither of those on close(),
+    // so socketDisconnected() would never run: d->device would stay set and
+    // isConnecting() stuck true, blocking any later reconnect attempt and
+    // hanging an application launched with "-qmljsdebugger=...,block"
+    // (QTCREATORBUG-34848). Reset the pending connection synchronously instead.
+    d->device->close();
+    d->clearConnection();
 }
 
 QmlDebugClient *QmlDebugConnection::client(const QString &name) const
