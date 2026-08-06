@@ -54,7 +54,7 @@
         \li \l{Debugging}
     \row
         \li \uicontrol Projects
-        \li \key Ctrl+5
+        \li \key Ctrl+6
         \li Configure how to build and run projects.
             This mode is available when a project is open.
         \li \l{Building and running projects}
