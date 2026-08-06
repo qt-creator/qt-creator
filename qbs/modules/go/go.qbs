@@ -1,4 +1,5 @@
 import qbs.File
+import qbs.FileInfo
 import qbs.Process
 import qbs.Probes
 
@@ -57,7 +58,7 @@ Module {
                         '-o', output.filePath];
             var cmd = new Command(product.go.goFilePath, args);
             cmd.environment = env;
-            cmd.workingDirectory = product.sourceDirectory;
+            cmd.workingDirectory = FileInfo.path(inputs["go_src"][0].filePath);
             cmd.description = "building (with go) " + output.fileName;
             cmd.highlight = "compiler";
             cmd.relevantEnvironmentVariables = ["GOARCH", "GOOS", "CGO_ENABLED"];

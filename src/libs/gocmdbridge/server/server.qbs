@@ -47,7 +47,7 @@ Product {
 
     Group {
         name: "Go files"
-        condition: !product.buildCmdBridgeC
+        condition: !buildCmdBridgeC
         files: [
             "go/go.mod",
             "go/*.go",
@@ -55,58 +55,54 @@ Product {
         ]
     }
 
-    // Only cmdbridge.c is compiled; it #includes the others (some of them
-    // indirectly, e.g. watcher.c includes its platform backends), which are
-    // listed separately so they show up in the project and trigger a rebuild.
     Group {
-        name: "C source"
-        condition: product.buildCmdBridgeC
-        files: ["c/cmdbridge.c"]
-    }
-
-    Group {
-        name: "C source (included by cmdbridge.c)"
-        condition: product.buildCmdBridgeC
-        fileTags: [] // not compiled on their own
-        files: [
-            "c/cbor.c",
-            "c/cancel.c",
-            "c/containers.c",
-            "c/environment.c",
-            "c/exec.c",
-            "c/exec_posix.c",
-            "c/exec_win.c",
-            "c/fileaccess.c",
-            "c/fileaccess_posix.c",
-            "c/fileaccess_win.c",
-            "c/fileops.c",
-            "c/find.c",
-            "c/find_posix.c",
-            "c/find_win.c",
-            "c/is.c",
-            "c/readfile.c",
-            "c/socketforward.c",
-            "c/stat.c",
-            "c/watcher.c",
-            "c/watcher_apple.c",
-            "c/watcher_linux.c",
-            "c/watcher_none.c",
-            "c/watcher_win.c",
-            "c/wire.c",
-            "c/writefile.c",
-        ]
-    }
-
-    Properties {
         condition: product.buildCmdBridgeC
         cpp.cLanguageVersion: "c11"
         cpp.defines: [
             "_GNU_SOURCE",
             'GOBRIDGE_MAGIC_PACKET_MARKER="' + project.magicPacketMarker + '"',
         ]
+
         // ws2_32 for AF_UNIX sockets, bcrypt for BCryptGenRandom.
-        cpp.dynamicLibraries: qbs.targetOS.contains("windows")
+        product.cpp.dynamicLibraries: qbs.targetOS.contains("windows")
             ? ["ws2_32", "bcrypt"] : ["pthread"]
+
+        Group {
+            name: "C source"
+            files: ["c/cmdbridge.c"]
+        }
+
+        Group {
+            name: "C source (included by cmdbridge.c)"
+            fileTags: "hpp"
+            files: [
+                "c/cbor.c",
+                "c/cancel.c",
+                "c/containers.c",
+                "c/environment.c",
+                "c/exec.c",
+                "c/exec_posix.c",
+                "c/exec_win.c",
+                "c/fileaccess.c",
+                "c/fileaccess_posix.c",
+                "c/fileaccess_win.c",
+                "c/fileops.c",
+                "c/find.c",
+                "c/find_posix.c",
+                "c/find_win.c",
+                "c/is.c",
+                "c/readfile.c",
+                "c/socketforward.c",
+                "c/stat.c",
+                "c/watcher.c",
+                "c/watcher_apple.c",
+                "c/watcher_linux.c",
+                "c/watcher_none.c",
+                "c/watcher_win.c",
+                "c/wire.c",
+                "c/writefile.c",
+            ]
+        }
     }
 
     Group {
