@@ -242,6 +242,7 @@ class DumperBase():
         self.displayStringLimit = int(args.get('displaystringlimit', 100))
         self.typeformats = args.get('typeformats', {})
         self.formats = args.get('formats', {})
+        self.formattypes = args.get('formattypes', {})
         self.watchers = args.get('watchers', {})
         self.useDynamicType = int(args.get('dyntype', '0'))
         self.useFancy = int(args.get('fancy', '0'))
@@ -2475,10 +2476,16 @@ typename))
 
     def currentItemFormat(self, typename=None):
         displayFormat = self.formats.get(self.currentIName, DisplayFormat.Automatic)
-        if displayFormat == DisplayFormat.Automatic:
-            if typename is None:
-                typename = self.currentType.value
-            needle = None if typename is None else self.stripForFormat(typename)
+        if typename is None:
+            typename = self.currentType.value
+        needle = None if typename is None else self.stripForFormat(typename)
+        if displayFormat != DisplayFormat.Automatic:
+            # Ignore a stored per-item format that was chosen for a different
+            # type than the item currently has (QTCREATORBUG-17221).
+            setForType = self.formattypes.get(self.currentIName)
+            if setForType is not None and setForType != needle:
+                displayFormat = DisplayFormat.Automatic
+        if displayFormat == DisplayFormat.Automatic and needle is not None:
             displayFormat = self.typeformats.get(needle, DisplayFormat.Automatic)
         return displayFormat
 

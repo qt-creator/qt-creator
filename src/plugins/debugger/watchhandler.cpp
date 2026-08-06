@@ -90,6 +90,11 @@ static QSet<QString> theTemporaryWatchers; // Used for 'watched widgets'.
 static int theWatcherCount = 0;
 static QHash<QString, int> theTypeFormats;
 static QHash<QString, int> theIndividualFormats;
+// The (stripped) type each entry in theIndividualFormats was chosen for, keyed
+// by iname. A per-item format is only honored while the item still has that
+// type, so it is not misapplied to an unrelated same-named variable in a
+// different scope. See itemFormat() and QTCREATORBUG-17221.
+static QHash<QString, QString> theIndividualFormatTypes;
 // Temporary per-item format overrides, e.g. to fetch a full (untruncated)
 // string value for "Copy Value to Clipboard". Not persisted, and take
 // precedence over theIndividualFormats. See WatchModel::copyItemValueToClipboard.
@@ -221,9 +226,18 @@ static void loadFormats()
             theTypeFormats.insert(it.key(), it.value().toInt());
     }
 
-    value = SessionManager::value("IndividualFormats").toMap();
+    value = SessionManager::value("IndividualFormatTypes").toMap();
     for (auto it = value.cbegin(), end = value.cend(); it != end; ++it) {
         if (!it.key().isEmpty())
+            theIndividualFormatTypes.insert(it.key(), it.value().toString());
+    }
+
+    value = SessionManager::value("IndividualFormats").toMap();
+    for (auto it = value.cbegin(), end = value.cend(); it != end; ++it) {
+        // Drop formats stored without the type they were chosen for. There is
+        // no way to tell whether they still apply, and keeping them would
+        // carry the stale-format problem over from older sessions.
+        if (!it.key().isEmpty() && theIndividualFormatTypes.contains(it.key()))
             theIndividualFormats.insert(it.key(), it.value().toInt());
     }
 }
@@ -249,6 +263,15 @@ static void saveFormats()
             formats.insert(key, format);
     }
     SessionManager::setValue("IndividualFormats", formats);
+
+    formats.clear();
+    for (auto it = theIndividualFormatTypes.cbegin(), end = theIndividualFormatTypes.cend();
+         it != end; ++it) {
+        const QString key = it.key().trimmed();
+        if (!key.isEmpty())
+            formats.insert(key, it.value());
+    }
+    SessionManager::setValue("IndividualFormatTypes", formats);
 }
 
 static void saveSessionData()
@@ -359,6 +382,7 @@ public:
         if (QObject *o = widget(index)) {
             QString iname = o->property(INameProperty).toString();
             theIndividualFormats.remove(iname);
+            theIndividualFormatTypes.remove(iname);
             saveFormats();
         }
         removeTab(index);
@@ -707,12 +731,22 @@ static QString quoteUnprintable(const QString &str)
     return escapeUnprintable(str, theUnprintableBase);
 }
 
+// The stored per-item format, honored only while the item still has the type
+// the format was chosen for. See QTCREATORBUG-17221.
+static int itemIndividualFormat(const WatchItem *item)
+{
+    const auto it = theIndividualFormatTypes.constFind(item->iname);
+    if (it == theIndividualFormatTypes.constEnd() || it.value() != stripForFormat(item->type))
+        return AutomaticFormat;
+    return theIndividualFormats.value(item->iname, AutomaticFormat);
+}
+
 static int itemFormat(const WatchItem *item)
 {
     const int transientFormat = theTransientFormats.value(item->iname, AutomaticFormat);
     if (transientFormat != AutomaticFormat)
         return transientFormat;
-    const int individualFormat = theIndividualFormats.value(item->iname, AutomaticFormat);
+    const int individualFormat = itemIndividualFormat(item);
     if (individualFormat != AutomaticFormat)
         return individualFormat;
     return theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
@@ -1178,7 +1212,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
 
         case LocalsIndividualFormatRole:
-            return theIndividualFormats.value(item->iname, AutomaticFormat);
+            return itemIndividualFormat(item);
 
         default:
             break;
@@ -2025,7 +2059,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
 
     const QString iname = item->iname;
     const int typeFormat = theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
-    const int individualFormat = theIndividualFormats.value(iname, AutomaticFormat);
+    const int individualFormat = itemIndividualFormat(item);
 
     addCharsPrintableMenu(menu);
 
@@ -2058,6 +2092,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
 
     addAction(this, menu, Tr::tr("Reset All Individual Formats"), true, [this] {
         theIndividualFormats.clear();
+        theIndividualFormatTypes.clear();
         saveFormats();
         m_engine->updateLocals();
     });
@@ -2094,11 +2129,15 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
 void WatchModel::setItemsFormat(const WatchItemSet &items, const DisplayFormat &format)
 {
     if (format == AutomaticFormat) {
-        for (WatchItem *item : items)
+        for (WatchItem *item : items) {
             theIndividualFormats.remove(item->iname);
+            theIndividualFormatTypes.remove(item->iname);
+        }
     } else {
-        for (WatchItem *item : items)
+        for (WatchItem *item : items) {
             theIndividualFormats[item->iname] = format;
+            theIndividualFormatTypes[item->iname] = stripForFormat(item->type);
+        }
     }
     saveFormats();
 }
@@ -2776,10 +2815,14 @@ void WatchModel::setTypeFormat(const QString &type0, int format)
 
 void WatchModel::setIndividualFormat(const QString &iname, int format)
 {
-    if (format == AutomaticFormat)
-        theIndividualFormats.remove(iname);
-    else
+    const WatchItem *item = format == AutomaticFormat ? nullptr : findItem(iname);
+    if (item) {
         theIndividualFormats[iname] = format;
+        theIndividualFormatTypes[iname] = stripForFormat(item->type);
+    } else {
+        theIndividualFormats.remove(iname);
+        theIndividualFormatTypes.remove(iname);
+    }
     saveFormats();
 }
 
@@ -2787,7 +2830,7 @@ int WatchHandler::format(const QString &iname) const
 {
     int result = AutomaticFormat;
     if (const WatchItem *item = m_model->findItem(iname)) {
-        result = theIndividualFormats.value(item->iname, AutomaticFormat);
+        result = itemIndividualFormat(item);
         if (result == AutomaticFormat)
             result = theTypeFormats.value(stripForFormat(item->type), AutomaticFormat);
     }
@@ -2890,6 +2933,16 @@ void WatchHandler::appendFormatRequests(DebuggerCommand *cmd) const
             formats.insert(it.key(), format);
     }
     cmd->arg("formats", formats);
+
+    // The type each individual format was chosen for, so the dumper can ignore
+    // a stored format that no longer matches the item's type (QTCREATORBUG-17221).
+    QJsonObject formattypes;
+    for (auto it = theIndividualFormatTypes.cbegin(), end = theIndividualFormatTypes.cend();
+         it != end; ++it) {
+        if (!it.value().isEmpty())
+            formattypes.insert(it.key(), it.value());
+    }
+    cmd->arg("formattypes", formattypes);
 }
 
 static inline QJsonObject watcher(const QString &iname, const QString &exp)
