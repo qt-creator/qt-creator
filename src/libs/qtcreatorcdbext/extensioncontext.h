@@ -94,6 +94,12 @@ public:
     // its address. Used by the native combined (C++/QML) bridge to marshal
     // string arguments for service calls, since cdb's .call rejects literals.
     bool allocateMemory(unsigned long size, ULONG64 *address, std::string *errorMessage);
+    // The same, for a function ".call" refuses for want of a prototype: a module
+    // with no PDB (Qt's own libraries above all) has export addresses but no type
+    // information. Only the raw return value is reported, there being no type to
+    // interpret it by. x64 only.
+    bool callWithoutPrototype(const std::string &functionCall, ULONG64 *returnValue,
+                              std::string *errorMessage);
 
     CIDebugClient *hookedClient() const { return m_hookedClient; }
 
@@ -104,6 +110,12 @@ public:
 
     bool stateNotification() const { return m_stateNotification; }
     void setStateNotification(bool s) { m_stateNotification = s; }
+
+    // Off while callWithoutPrototype() runs: the int3 it returns to is an
+    // exception of this extension's own making, and so is anything the called
+    // function raises - reported to whoever asked for the call, not to the engine.
+    bool exceptionReporting() const { return m_exceptionReporting; }
+    void setExceptionReporting(bool s) { m_exceptionReporting = s; }
 
     struct CdbVersion
     {
@@ -129,7 +141,12 @@ private:
     OutputCallback *m_creatorOutputCallback = nullptr;
 
     StopReasonMap m_stopReason;
+    // Scratch page in the debuggee holding the int3 an inferior call set up by
+    // callWithoutPrototype() returns to. Allocated once, never freed - same
+    // lifetime the ".dvalloc" blocks of cdbext.allocate() have.
+    ULONG64 m_callReturnTrap = 0;
     bool m_stateNotification = true;
+    bool m_exceptionReporting = true;
     Parameters m_parameters;
 };
 

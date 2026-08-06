@@ -151,6 +151,9 @@ STDMETHODIMP EventCallback::Exception(
     __in ULONG FirstChance
     )
 {
+    if (!ExtensionContext::instance().exceptionReporting())
+        return m_wrapped ? m_wrapped->Exception(Ex, FirstChance) : S_OK;
+
     const ExtensionContext::StopReasonMap parameters = exceptionParameters(*Ex, FirstChance);
     ExtensionContext::instance().setStopReason(parameters, "exception");
     if ((FirstChance && ExtensionContext::instance().parameters().firstChanceException != 0)

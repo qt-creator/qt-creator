@@ -10,6 +10,8 @@
 #include "gdbmihelpers.h"
 
 #include <algorithm>
+#include <cstdlib>
+#include <vector>
 
 #ifdef WITH_PYTHON
 #include <Python.h>
@@ -46,6 +48,23 @@ public:
         , m_extensionContext(ec)
         { m_extensionContext->setStateNotification(false); }
     ~StateNotificationBlocker() { m_extensionContext->setStateNotification(m_oldValue); }
+
+private:
+    const bool m_oldValue;
+    ExtensionContext *m_extensionContext;
+};
+
+class ExceptionReportBlocker
+{
+    ExceptionReportBlocker(const ExceptionReportBlocker &);
+    ExceptionReportBlocker &operator=(const ExceptionReportBlocker &);
+
+public:
+    ExceptionReportBlocker(ExtensionContext *ec)
+        : m_oldValue(ec->exceptionReporting())
+        , m_extensionContext(ec)
+        { m_extensionContext->setExceptionReporting(false); }
+    ~ExceptionReportBlocker() { m_extensionContext->setExceptionReporting(m_oldValue); }
 
 private:
     const bool m_oldValue;
@@ -554,6 +573,246 @@ bool ExtensionContext::allocateMemory(unsigned long size, ULONG64 *address,
     }
     *address = value;
     return true;
+}
+
+// Reads a register by name into a plain integer.
+static bool registerValue(CIDebugRegisters *registers, const char *name, ULONG64 *value,
+                          std::string *errorMessage)
+{
+    ULONG index = 0;
+    if (FAILED(registers->GetIndexByName(name, &index))) {
+        *errorMessage = std::string("No register named ") + name;
+        return false;
+    }
+    DEBUG_VALUE debugValue;
+    if (FAILED(registers->GetValue(index, &debugValue))) {
+        *errorMessage = std::string("Could not read register ") + name;
+        return false;
+    }
+    *value = debugValue.I64;
+    return true;
+}
+
+static bool setRegisterValue(CIDebugRegisters *registers, const char *name, ULONG64 value,
+                             std::string *errorMessage)
+{
+    ULONG index = 0;
+    if (FAILED(registers->GetIndexByName(name, &index))) {
+        *errorMessage = std::string("No register named ") + name;
+        return false;
+    }
+    DEBUG_VALUE debugValue;
+    memset(&debugValue, 0, sizeof(debugValue));
+    debugValue.Type = DEBUG_VALUE_INT64;
+    debugValue.I64 = value;
+    if (FAILED(registers->SetValue(index, &debugValue))) {
+        *errorMessage = std::string("Could not write register ") + name;
+        return false;
+    }
+    return true;
+}
+
+// Runs a call set up by callWithoutPrototype() until it returns to 'trap'. Any other
+// stop leaves the call unfinished, so the caller must not read a return value then.
+static bool runToReturnTrap(ExtensionCommandContext *exc, CIDebugRegisters *registers,
+                            ULONG callThread, ULONG64 trap, const std::string &functionCall,
+                            std::string *errorMessage)
+{
+    // Second round grants a first-chance exception, as call() does. "~. g" runs the
+    // calling thread alone, so no other thread can hit a user breakpoint mid-call.
+    for (int round = 0; round < 2; ++round) {
+        const unsigned flags = round == 0 ? 0u : ExtensionContext::CallWithExceptionsNotHandled;
+        if (FAILED(exc->control()->Execute(DEBUG_OUTCTL_IGNORE, goCommandForCall(flags), 0))) {
+            *errorMessage = "Cannot resume the debuggee for the call.";
+            return false;
+        }
+        if (FAILED(exc->control()->WaitForEvent(0, INFINITE))) {
+            *errorMessage = "The call never came back.";
+            return false;
+        }
+
+        // The stop may belong to any thread, and the registers and the thread
+        // context are read from whichever one dbgeng made current.
+        ULONG stoppedThread = 0;
+        if (SUCCEEDED(exc->systemObjects()->GetCurrentThreadId(&stoppedThread))
+                && stoppedThread != callThread
+                && FAILED(exc->systemObjects()->SetCurrentThreadId(callThread))) {
+            *errorMessage = "Cannot return to the thread called in.";
+            return false;
+        }
+
+        ULONG64 rip = 0;
+        if (!registerValue(registers, "rip", &rip, errorMessage))
+            return false;
+        // Back at the trap, or one byte past it - an int3 leaves rip on either
+        // side of itself depending on how the stop is reported.
+        if (rip == trap || rip == trap + 1)
+            return true;
+
+        ULONG eventType = 0;
+        ULONG eventProcess = 0;
+        ULONG eventThread = 0;
+        DEBUG_LAST_EVENT_INFO_EXCEPTION exception;
+        memset(&exception, 0, sizeof(exception));
+        ULONG used = 0;
+        const bool isException = SUCCEEDED(exc->control()->GetLastEventInformation(
+                                     &eventType, &eventProcess, &eventThread, &exception,
+                                     sizeof(exception), &used, nullptr, 0, nullptr))
+                                 && eventType == DEBUG_EVENT_EXCEPTION;
+        if (round == 0 && isException && exception.FirstChance && eventThread == callThread)
+            continue;
+        if (isException) {
+            std::ostringstream str;
+            str << "The call raised an exception, code 0x" << std::hex
+                << exception.ExceptionRecord.ExceptionCode << ": " << functionCall;
+            *errorMessage = str.str();
+        } else {
+            *errorMessage = "The call stopped before returning: " + functionCall;
+        }
+        return false;
+    }
+    return false;
+}
+
+bool ExtensionContext::callWithoutPrototype(const std::string &functionCall,
+                                           ULONG64 *returnValue, std::string *errorMessage)
+{
+    // "<module>!<function>(<arg>, ...)", the same text call() takes. The arguments
+    // are integers or pointers only - which is what a caller reaching this has,
+    // since ".call" rejects string literals in the first place.
+    const std::string::size_type parenPos = functionCall.find('(');
+    if (parenPos == std::string::npos || functionCall.back() != ')') {
+        *errorMessage = "Not a function call: " + functionCall;
+        return false;
+    }
+    const std::string function = functionCall.substr(0, parenPos);
+    std::vector<ULONG64> arguments;
+    const std::string argumentList = functionCall.substr(parenPos + 1,
+                                                         functionCall.size() - parenPos - 2);
+    for (std::string::size_type pos = 0; pos < argumentList.size(); ) {
+        const std::string::size_type comma = argumentList.find(',', pos);
+        const std::string argument = argumentList.substr(
+            pos, comma == std::string::npos ? std::string::npos : comma - pos);
+        if (argument.find_first_not_of(" \t") != std::string::npos) {
+            const std::string::size_type cast = argument.rfind(')');
+            const std::string value = cast == std::string::npos ? argument
+                                                                : argument.substr(cast + 1);
+            char *end = nullptr;
+            const ULONG64 parsed = std::strtoull(value.c_str(), &end, 0);
+            if (end == value.c_str()) {
+                *errorMessage = "Cannot parse the argument \"" + argument + "\" of " + functionCall;
+                return false;
+            }
+            arguments.push_back(parsed);
+        }
+        if (comma == std::string::npos)
+            break;
+        pos = comma + 1;
+    }
+    if (arguments.size() > 4) {
+        // Anything beyond the fourth argument goes on the stack, which nothing
+        // needs yet - the QML service entry points take two at most.
+        *errorMessage = "More than four arguments are not supported: " + functionCall;
+        return false;
+    }
+
+    ExtensionCommandContext *exc = ExtensionCommandContext::instance();
+    if (!exc) {
+        *errorMessage = "Attempt to issue a call outside a command context.";
+        return false;
+    }
+    CIDebugRegisters *registers = exc->registers();
+    CIDebugDataSpaces *data = exc->dataSpaces();
+
+    ULONG64 address = 0;
+    if (FAILED(exc->symbols()->GetOffsetByName(function.c_str(), &address))) {
+        *errorMessage = "Cannot resolve " + function;
+        return false;
+    }
+
+    // The int3 the call returns to. A page of the debuggee's own, so nothing has
+    // to be assumed about its code and no breakpoint of the caller's is disturbed.
+    // Rechecked each time: the page belongs to a process this context outlives.
+    if (m_callReturnTrap) {
+        unsigned char trap = 0;
+        ULONG read = 0;
+        if (FAILED(data->ReadVirtual(m_callReturnTrap, &trap, 1, &read)) || read != 1
+                || trap != 0xCC) {
+            m_callReturnTrap = 0;
+        }
+    }
+    if (!m_callReturnTrap) {
+        if (!allocateMemory(16, &m_callReturnTrap, errorMessage))
+            return false;
+        unsigned char int3 = 0xCC;
+        ULONG written = 0;
+        if (FAILED(data->WriteVirtual(m_callReturnTrap, &int3, 1, &written)) || written != 1) {
+            m_callReturnTrap = 0;
+            *errorMessage = "Cannot write the return trap.";
+            return false;
+        }
+    }
+
+    // The thread this all applies to: the registers set up below, the context put
+    // back at the end, and the one the call has to come back on.
+    ULONG callThread = 0;
+    if (FAILED(exc->systemObjects()->GetCurrentThreadId(&callThread))) {
+        *errorMessage = "Cannot determine the thread to call in.";
+        return false;
+    }
+
+    // Everything the call clobbers, to be put back afterwards. The whole context,
+    // since the volatile registers are not all of it - the flags and the SSE
+    // registers a callee may use just as well can be live at an arbitrary stop.
+    CONTEXT savedContext;
+    memset(&savedContext, 0, sizeof(savedContext));
+    savedContext.ContextFlags = CONTEXT_FULL;
+    if (FAILED(exc->advanced()->GetThreadContext(&savedContext, sizeof(savedContext)))) {
+        *errorMessage = "Cannot read the thread context.";
+        return false;
+    }
+    ULONG64 stackPointer = 0;
+    if (!registerValue(registers, "rsp", &stackPointer, errorMessage))
+        return false;
+
+    // The x64 convention: the arguments in rcx/rdx/r8/r9, and rsp such that it is
+    // 16-byte aligned *before* the return address goes on - so the callee sees
+    // rsp+8 aligned, as it would after a real "call". Far enough below the current
+    // rsp that the frame the callee builds cannot reach anything live.
+    const ULONG64 stack = ((stackPointer - 0x200) & ~ULONG64(0xF)) - 8;
+    ULONG written = 0;
+    if (FAILED(data->WriteVirtual(stack, &m_callReturnTrap, sizeof(m_callReturnTrap), &written))
+            || written != sizeof(m_callReturnTrap)) {
+        *errorMessage = "Cannot write the return address.";
+        return false;
+    }
+    static const char *argumentRegisters[] = {"rcx", "rdx", "r8", "r9"};
+    bool ok = setRegisterValue(registers, "rsp", stack, errorMessage);
+    for (std::vector<ULONG64>::size_type i = 0; ok && i < arguments.size(); ++i)
+        ok = setRegisterValue(registers, argumentRegisters[i], arguments.at(i), errorMessage);
+    if (ok)
+        ok = setRegisterValue(registers, "rip", address, errorMessage);
+
+    // Run it. The state notifications are blocked for the same reason call()
+    // blocks them: this stop is this extension's own business, and the engine must
+    // not see the debuggee running or stopping for it.
+    if (ok) {
+        StateNotificationBlocker blocker(this);
+        ExceptionReportBlocker exceptionBlocker(this);
+        ok = runToReturnTrap(exc, registers, callThread, m_callReturnTrap, functionCall,
+                             errorMessage);
+    }
+    if (ok)
+        ok = registerValue(registers, "rax", returnValue, errorMessage);
+
+    // Put the thread back as it was, whether the call worked or not: the caller is
+    // stopped somewhere it expects to still be. Failing that, it is left wherever
+    // the call put it, which is nothing to keep quiet about.
+    if (FAILED(exc->advanced()->SetThreadContext(&savedContext, sizeof(savedContext)))) {
+        *errorMessage = "Cannot restore the thread context after: " + functionCall;
+        ok = false;
+    }
+    return ok;
 }
 
 // Exported C-functions
