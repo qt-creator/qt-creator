@@ -4,19 +4,23 @@
 #include "documentmanager_test.h"
 
 #include "coreconstants.h"
+#include "coreplugintr.h"
 #include "documentmanager.h"
 #include "editormanager/documentmodel.h"
 #include "editormanager/editormanager.h"
 #include "editormanager/ieditor.h"
 #include "idocument.h"
 
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/globalfilechangeblocker.h>
+#include <utils/infobar.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDateTime>
 #include <QFile>
 #include <QScopeGuard>
+#include <QSignalSpy>
 #include <QTest>
 
 using namespace Utils;
@@ -52,6 +56,35 @@ static bool modifyFileOnDisk(const FilePath &filePath, const QByteArray &content
     return ok;
 }
 
+// The buttons of the "changed/removed on disk" banner. Which buttons it has is
+// how a test tells the two prompts apart.
+static QList<InfoBarEntry::Button> bannerButtons(IDocument *document)
+{
+    const QList<InfoBarEntry> entries = document->infoBar()->entries();
+    for (const InfoBarEntry &entry : entries) {
+        if (entry.id() == Id(Constants::RELOAD_INFOBAR))
+            return entry.buttons();
+    }
+    return {};
+}
+
+static bool hasBannerButton(IDocument *document, const QString &text)
+{
+    return Utils::contains(bannerButtons(document), [&text](const InfoBarEntry::Button &button) {
+        return button.text == text;
+    });
+}
+
+// The re-check of files that went missing runs when the application becomes
+// active again, which without a window is the blocker's state change. It arms
+// the delayed reload check only when it found something, so a test that finds
+// nothing leaves no timer behind to fire into its neighbour.
+static void simulateActivation()
+{
+    GlobalFileChangeBlocker::instance()->forceBlocked(true);
+    GlobalFileChangeBlocker::instance()->forceBlocked(false);
+}
+
 class DocumentManagerTest final : public QObject
 {
     Q_OBJECT
@@ -67,6 +100,11 @@ private slots:
     void testAlwaysAskFlagsEveryChangedFile();
     void testSaveAsRestoresRemovedFile();
     void testBinaryFileClosesOnExternalRemoval();
+    void testReappearedFileOffersReload();
+    void testReappearedFileOffersReloadAfterConflictCleared();
+    void testActivationIgnoresStillMissingFile();
+    void testApplicationActivationOffersReload();
+    void testReappearedSharedFileIsWatchedAgain();
 
 private:
     // Behave as if the file-system watcher reported the paths and run the reload
@@ -306,6 +344,154 @@ void DocumentManagerTest::testBinaryFileClosesOnExternalRemoval()
     triggerReloadCheck(filePath);
 
     QVERIFY(!DocumentModel::openedDocuments().contains(document));
+}
+
+// Opens a file with contents "line1\n" and removes it behind Creator's back.
+static IDocument *openAndRemove(const FilePath &filePath)
+{
+    if (!filePath.writeFileContents("line1\n"))
+        return nullptr;
+    IEditor *editor = EditorManager::openEditor(filePath);
+    if (!editor)
+        return nullptr;
+    if (!filePath.removeFile())
+        return nullptr;
+    return editor->document();
+}
+
+void DocumentManagerTest::testReappearedFileOffersReload()
+{
+    setReloadSetting(IDocument::AlwaysAsk);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath filePath = tempDir.filePath("test.txt");
+
+    IDocument *document = openAndRemove(filePath);
+    QVERIFY(document);
+    triggerReloadCheck(filePath);
+    QVERIFY(document->isConflicted());
+    QVERIFY(hasBannerButton(document, Tr::tr("Save As...")));
+    QVERIFY(!hasBannerButton(document, Tr::tr("Reload")));
+
+    // The removed path dropped out of the file system watcher, so nothing
+    // reports the file coming back (e.g. when a rebase finishes). Activating
+    // Creator is what takes another look.
+    QVERIFY(filePath.writeFileContents("line1\nrestored\n"));
+    simulateActivation();
+
+    QTRY_VERIFY(hasBannerButton(document, Tr::tr("Reload")));
+    QCOMPARE(document->contents(), QByteArray("line1\n"));
+}
+
+void DocumentManagerTest::testReappearedFileOffersReloadAfterConflictCleared()
+{
+    setReloadSetting(IDocument::AlwaysAsk);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath filePath = tempDir.filePath("test.txt");
+
+    IDocument *document = openAndRemove(filePath);
+    QVERIFY(document);
+    triggerReloadCheck(filePath);
+
+    // The removal banner itself only offers "Save As..." and "Close", but
+    // "Ignore All" on another file's banner clears the conflict of every
+    // conflicted document, this one included. The re-check therefore cannot key
+    // on the flag: the file may still come back.
+    QVERIFY(document->isConflicted());
+    document->setConflicted(false);
+
+    QVERIFY(filePath.writeFileContents("line1\nrestored\n"));
+    simulateActivation();
+
+    QTRY_VERIFY(document->isConflicted());
+    QVERIFY(hasBannerButton(document, Tr::tr("Reload")));
+}
+
+// Activating Creator re-checks the files that went missing. While such a file
+// stays away there is nothing to report, and reporting it anyway is not free:
+// filesChangedExternally() makes the C++ code model restart its client for the
+// file's project, which would then happen on every single activation.
+void DocumentManagerTest::testActivationIgnoresStillMissingFile()
+{
+    setReloadSetting(IDocument::AlwaysAsk);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath filePath = tempDir.filePath("test.txt");
+
+    IDocument *document = openAndRemove(filePath);
+    QVERIFY(document);
+    triggerReloadCheck(filePath);
+    QVERIFY(document->isConflicted());
+
+    // Run the re-check directly instead of waiting for its timer, so that the
+    // absence of a report is observed at a defined point.
+    QSignalSpy announced(DocumentManager::instance(),
+                         &DocumentManager::filesChangedExternally);
+    simulateActivation();
+    DocumentManager::instance()->checkForReload();
+    QCOMPARE(announced.count(), 0);
+}
+
+// Without blocking while inactive the blocker stays silent on activation, so
+// the application state change itself has to trigger the re-check.
+void DocumentManagerTest::testApplicationActivationOffersReload()
+{
+    setReloadSetting(IDocument::AlwaysAsk);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath filePath = tempDir.filePath("test.txt");
+
+    IDocument *document = openAndRemove(filePath);
+    QVERIFY(document);
+    triggerReloadCheck(filePath);
+    QVERIFY(!hasBannerButton(document, Tr::tr("Reload")));
+
+    QVERIFY(filePath.writeFileContents("line1\nrestored\n"));
+    emit qApp->applicationStateChanged(Qt::ApplicationActive);
+
+    QTRY_VERIFY(hasBannerButton(document, Tr::tr("Reload")));
+}
+
+// A project document is registered for the same path as the editor's file. The
+// path must be watched again once the file is back, or the next external change
+// goes unreported.
+void DocumentManagerTest::testReappearedSharedFileIsWatchedAgain()
+{
+    setReloadSetting(IDocument::AlwaysAsk);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath filePath = tempDir.filePath("test.txt");
+
+    IDocument *document = openAndRemove(filePath);
+    QVERIFY(document);
+    IDocument sharedDocument;
+    sharedDocument.setFilePath(filePath);
+    DocumentManager::addDocument(&sharedDocument);
+    const QScopeGuard removeShared([&sharedDocument] {
+        DocumentManager::removeDocument(&sharedDocument);
+    });
+
+    // Let the real watcher report the removal, which is what makes it drop the path.
+    QTRY_VERIFY_WITH_TIMEOUT(document->isConflicted(), 5000);
+
+    QVERIFY(filePath.writeFileContents("line1\nrestored\n"));
+    simulateActivation();
+    QTRY_VERIFY(hasBannerButton(document, Tr::tr("Reload")));
+
+    document->infoBar()->removeInfo(Id(Constants::RELOAD_INFOBAR));
+    QVERIFY(modifyFileOnDisk(filePath, "line1\nrestored\nagain\n"));
+    QTRY_VERIFY(hasBannerButton(document, Tr::tr("Reload")));
 }
 
 QObject *createDocumentManagerTest()
