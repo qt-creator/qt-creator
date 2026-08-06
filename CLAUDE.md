@@ -44,6 +44,10 @@ message (after any `Amends`/`Task-number` footers).
 - Use `Utils::StyleHelper::uiFont()` for fonts. No manual `QFont::setPixelSize/setPointSize/setBold` etc.
 - Use `Utils::SpacingTokens` for margins/spacings/paddings. No hard-coded pixel numbers.
 
+## Code Style Guide
+
+- Always follow the rules in STYLE.md
+
 ## Additional coding style rules
 
 - When calling free functions from the Utils namespace, always qualify the call with the `Utils::` namespace.
