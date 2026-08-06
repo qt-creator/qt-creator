@@ -9,34 +9,22 @@
 #include "extensionmanager_test.h"
 #endif // WITH_TESTS
 
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/imode.h>
 
 #include <extensionsystem/iplugin.h>
 
-#include <utils/icon.h>
-
 using namespace Core;
-using namespace Utils;
 
 namespace ExtensionManager::Internal {
 
-class ExtensionManagerMode final : public IMode
+class ExtensionManagerBrowserPage final : public IOptionsPage
 {
 public:
-    ExtensionManagerMode()
+    ExtensionManagerBrowserPage()
     {
-        setObjectName("ExtensionManagerMode");
-        setId(Constants::C_EXTENSIONMANAGER);
-        setContext(Context(Constants::MODE_EXTENSIONMANAGER));
-        setDisplayName(Tr::tr("Extensions"));
-        const Icon FLAT({{":/extensionmanager/images/mode_extensionmanager_mask.png",
-                          Theme::IconsBaseColor}});
-        setIcon(Icon::sideBarIcon(FLAT, FLAT));
-        setPriority(72);
+        setId(Constants::EXTENSIONMANAGER_BROWSER_PAGE_ID);
+        setDisplayName(Tr::tr("Browse"));
+        setCategory(Constants::EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY);
         setWidgetCreator(&createExtensionManagerWidget);
     }
 };
@@ -47,15 +35,8 @@ class ExtensionManagerPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ExtensionManager.json")
 
 public:
-    ~ExtensionManagerPlugin() final
-    {
-        delete m_mode;
-    }
-
     void initialize() final
     {
-        m_mode = new ExtensionManagerMode;
-
         IOptionsPage::registerCategory(
             Constants::EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY,
             Tr::tr("Extensions"),
@@ -67,7 +48,7 @@ public:
     }
 
 private:
-    ExtensionManagerMode *m_mode = nullptr;
+    const ExtensionManagerBrowserPage m_browserPage;
 };
 
 } // ExtensionManager::Internal

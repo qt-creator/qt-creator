@@ -11,6 +11,8 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
 #include <coreplugin/minisplitter.h>
@@ -531,12 +533,13 @@ signals:
     void tagSelected(const QString &tag);
 };
 
-class ExtensionManagerWidget final : public Core::ResizeSignallingWidget
+class ExtensionManagerWidget final : public Core::IOptionsPageWidget
 {
 public:
     ExtensionManagerWidget();
 
 private:
+    void resizeEvent(QResizeEvent *event) final;
     void updateView(const QModelIndex &current);
     void fetchAndInstallPlugin(const QUrl &url, bool update, const QString &sha);
 
@@ -641,6 +644,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
     m_pluginStatus = new PluginStatusWidget;
 
+    IContext::attach(this, Context(Constants::C_EXTENSIONMANAGER));
     ActionBuilder(this, Core::Constants::TOGGLE_RIGHT_SIDEBAR)
         .setCheckable(true)
         .setChecked(true)
@@ -683,17 +687,14 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         noMargin, spacing(SpacingTokens::GapVXxl),
     }.attachTo(secondaryDetails);
 
-    Column {
-        new StyledBar,
-        Row {
-            Space(SpacingTokens::GapHXxl),
-            m_extensionBrowser,
-            WelcomePageHelpers::createRule(Qt::Vertical),
-            Stack {
-                bindTo(&m_detailsStack),
-                descriptionPlaceHolder(),
-                detailsSplitter,
-            },
+    Row {
+        Space(SpacingTokens::GapHXxl),
+        m_extensionBrowser,
+        WelcomePageHelpers::createRule(Qt::Vertical),
+        Stack {
+            bindTo(&m_detailsStack),
+            descriptionPlaceHolder(),
+            detailsSplitter,
         },
         noMargin, spacing(0),
     }.attachTo(this);
@@ -706,10 +707,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
     connect(m_extensionBrowser, &ExtensionsBrowser::itemSelected,
             this, &ExtensionManagerWidget::updateView);
-    connect(this, &ResizeSignallingWidget::resized, this, [this](const QSize &size) {
-        const int intendedBrowserColumnWidth = size.width() / 3;
-        m_extensionBrowser->adjustToWidth(intendedBrowserColumnWidth);
-    });
 
     const auto installOrUpdate = [this](bool update) {
         QTC_ASSERT(m_headingWidget->selectedVersion(), return);
@@ -751,6 +748,12 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         });
 
     updateView({});
+}
+
+void ExtensionManagerWidget::resizeEvent(QResizeEvent *event)
+{
+    IOptionsPageWidget::resizeEvent(event);
+    m_extensionBrowser->adjustToWidth(width() / 3);
 }
 
 void ExtensionManagerWidget::updateView(const QModelIndex &current)
@@ -985,7 +988,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
     m_dlTaskTreeRunner.start(recipe);
 }
 
-QWidget *createExtensionManagerWidget()
+IOptionsPageWidget *createExtensionManagerWidget()
 {
     return new ExtensionManagerWidget;
 }

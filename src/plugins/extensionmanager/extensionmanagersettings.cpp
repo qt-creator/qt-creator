@@ -100,7 +100,7 @@ public:
     ExtensionManagerSettingsPage()
     {
         setId(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
-        setDisplayName(Tr::tr("Browser"));
+        setDisplayName(Tr::tr("General"));
         setCategory(Constants::EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY);
         setSettingsProvider([] { return &settings(); });
     }

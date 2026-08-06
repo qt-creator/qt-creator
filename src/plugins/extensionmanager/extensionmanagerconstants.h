@@ -5,8 +5,8 @@
 
 namespace ExtensionManager::Constants {
 
-inline constexpr char MODE_EXTENSIONMANAGER[] = "ExtensionManager";
 inline constexpr char C_EXTENSIONMANAGER[]  = "ExtensionManager";
+inline constexpr char EXTENSIONMANAGER_BROWSER_PAGE_ID[] = "ExtensionManager.Browse";
 inline constexpr char EXTENSIONMANAGER_SETTINGSPAGE_ID[] = "ExtensionManager.ExtensionManagerSettings";
 inline constexpr char EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY[] = "ExtensionManager";
 

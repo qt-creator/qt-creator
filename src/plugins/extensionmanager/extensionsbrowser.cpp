@@ -497,7 +497,7 @@ public:
     OptionChooser *filterChooser;
     OptionChooser *sortChooser;
     QListView *extensionsView;
-    QItemSelectionModel *selectionModel = nullptr;
+    QItemSelectionModel *selectionModel;
     QSortFilterProxyModel *searchProxyModel;
     SortFilterProxyModel *sortFilterProxyModel;
     int columnsCount = 2;
@@ -581,6 +581,11 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     d->extensionsView->setModel(d->sortFilterProxyModel);
     d->extensionsView->setMouseTracking(true);
 
+    d->selectionModel = new QItemSelectionModel(d->sortFilterProxyModel, d->extensionsView);
+    d->extensionsView->setSelectionModel(d->selectionModel);
+    connect(d->selectionModel, &QItemSelectionModel::currentChanged,
+            this, &ExtensionsBrowser::itemSelected);
+
     QStackedWidget *extensionViewStack;
 
     const int rightMargin = extraListViewWidth() + gapSize;
@@ -623,18 +628,6 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     d->m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Large, this);
     d->m_spinner->hide();
 
-    auto updateModel = [this] {
-        d->sortFilterProxyModel->sort(0);
-
-        if (d->selectionModel == nullptr) {
-            d->selectionModel = new QItemSelectionModel(d->sortFilterProxyModel,
-                                                          d->extensionsView);
-            d->extensionsView->setSelectionModel(d->selectionModel);
-            connect(d->extensionsView->selectionModel(), &QItemSelectionModel::currentChanged,
-                    this, &ExtensionsBrowser::itemSelected);
-        }
-    };
-
     auto updatePlaceHolderVisibility = [this, extensionViewStack] {
         extensionViewStack->setCurrentIndex(d->sortFilterProxyModel->rowCount() == 0 ? 1 : 0);
     };
@@ -646,7 +639,9 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     };
     updateExternalRepoSwitch();
 
-    connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
+    connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, [this] {
+        d->sortFilterProxyModel->sort(0);
+    });
     connect(d->searchBox, &QLineEdit::textChanged,
             d->searchProxyModel, &QSortFilterProxyModel::setFilterWildcard);
     connect(d->sortChooser, &OptionChooser::currentIndexChanged,
