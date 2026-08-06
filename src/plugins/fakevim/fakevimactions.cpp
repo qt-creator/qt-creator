@@ -71,6 +71,7 @@ FakeVimSettings::FakeVimSettings()
     // Emulated Vsetting
     setup(&startOfLine,    true,  "StartOfLine",    "sol", Tr::tr("Start of line"));
     setup(&tabStop,        8,     "TabStop",        "ts",  Tr::tr("Tabulator size:"));
+    setup(&softTabStop,    0,     "SoftTabStop",    "sts", {});
     setup(&smartTab,       false, "SmartTab",       "sta", Tr::tr("Smart tabulators"));
     setup(&hlSearch,       true,  "HlSearch",       "hls", Tr::tr("Highlight search results"));
     setup(&shiftWidth,     8,     "ShiftWidth",     "sw",  Tr::tr("Shift width:"));
@@ -111,6 +112,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
     setup(&selection,      "inclusive", "Selection", "sel", "");
     setup(&bufType,        {},    "BufType",        "bt",  "");
+    setup(&matchPairs,     "(:),{:},[:]", "MatchPairs", "mps", "");
     setup(&cpoOptions,     "aABceFsz", "CpOptions", "cpo", "");
     setup(&runtimePath,    {},    "RuntimePath",    "rtp", "");
     setup(&modeline,       true,  "Modeline",       "ml",  "");

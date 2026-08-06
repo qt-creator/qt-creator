@@ -528,6 +528,10 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
             positionOp = 0; // no position after all, so handle c below
         }
         if (lookaround != 0) {
+            // "\@123<=" says how far back Vim is to look, which
+            // QRegularExpression works out for itself: read it and pass it over.
+            if (lookaround == 1 && c.isDigit())
+                continue;
             if (lookaround == 1 && c == '<') {
                 lookaround = 2;
                 continue;
@@ -1639,11 +1643,15 @@ public:
         // mode, so the right-hand side is not keys either. "<ScriptCmd>" only
         // differs in which script the command belongs to, which does not matter
         // while everything shares one namespace.
-        static const QRegularExpression cmdRe("^<(?:Cmd|ScriptCmd)>",
+        // Whatever is written before it is keys, and they happen first: the
+        // comment plugin leaves visual mode with an "<esc>" that way before
+        // asking for its own text object.
+        static const QRegularExpression cmdRe("<(?:Cmd|ScriptCmd)>",
                                               QRegularExpression::CaseInsensitiveOption);
         const QRegularExpressionMatch cmd = cmdRe.match(str);
         if (cmd.hasMatch()) {
-            QString rest = str.mid(cmd.capturedLength());
+            m_leadingKeys = str.left(cmd.capturedStart());
+            QString rest = str.mid(cmd.capturedEnd());
             // The command ends at the <CR>; whatever follows is keys again.
             static const QRegularExpression endRe("<(?:CR|Return|Enter)>",
                                                   QRegularExpression::CaseInsensitiveOption);
@@ -1677,6 +1685,7 @@ public:
 
     bool isExCommand() const { return !m_exCommand.isEmpty(); }
     QString exCommand() const { return m_exCommand; }
+    QString leadingKeys() const { return m_leadingKeys; }
     // "<ScriptCmd>" runs in the script that defined the mapping, so a command
     // from a Vim9 script is read with Vim9 rules.
     bool vim9() const { return m_vim9; }
@@ -1697,6 +1706,7 @@ private:
     bool m_vim9 = false;
     QString m_expr;
     QString m_exCommand;
+    QString m_leadingKeys; // keys written before the "<Cmd>", to run before it
 };
 
 static Input parseVimKeyName(const QString &keyName)
@@ -1888,7 +1898,12 @@ public:
 
     bool handleInput(const Input &input)
     {
-        if (input.isShift(Key_Left)) {
+        if (input.isControl('u')) {
+            // Everything before the cursor goes. Plugins write ":<C-U>{command}"
+            // so that the range visual mode puts on the line is not part of it.
+            m_buffer.remove(0, m_pos);
+            m_anchor = m_userPos = m_pos = 0;
+        } else if (input.isShift(Key_Left)) {
             moveLeft();
         } else if (input.isShift(Key_Right)) {
             moveRight();
@@ -2442,6 +2457,13 @@ public:
             return qMax(1, ts);
         return qMax(1, s.tabStop());
     }
+    // How far a tab reaches in insert mode: 'softtabstop' where it is set, and
+    // 'tabstop' otherwise, as in Vim.
+    int softTabStop() const
+    {
+        const int sts = s.softTabStop();
+        return sts > 0 ? sts : tabStop();
+    }
     int shiftWidth() const
     {
         int sw;
@@ -2904,6 +2926,7 @@ public:
     bool handleExReadCommand(const ExCommand &cmd);
     bool handleExUndoRedoCommand(const ExCommand &cmd);
     bool handleExSetCommand(const ExCommand &cmd);
+    void applySetOption(const QString &arg);
     bool handleExSortCommand(const ExCommand &cmd);
     bool handleExShiftCommand(const ExCommand &cmd);
     bool handleExSourceCommand(const ExCommand &cmd);
@@ -2932,6 +2955,8 @@ public:
     bool callFunction(const QString &name, const QList<VimValue> &args,
                       VimValue *result, QString *error);
     bool searchFunction(const QList<VimValue> &args, VimValue *result, QString *error);
+    bool searchPairFunction(const QList<VimValue> &args, bool wantPosition, VimValue *result,
+                            QString *error);
     CursorPosition lineColArg(const QString &spec) const;
     static VimValue deepCopy(const VimValue &value);
     static QString applyFileNameModifiers(const QString &fileName, const QString &mods);
@@ -3839,6 +3864,9 @@ bool FakeVimHandler::Private::expandCompleteMapping()
             g.submode = NoSubMode;
             g.subsubmode = NoSubSubMode;
         }
+
+        if (!inputs.leadingKeys().isEmpty())
+            replay(inputs.leadingKeys());
 
         const bool savedVim9 = m_vim9;
         m_vim9 = inputs.vim9();
@@ -6642,7 +6670,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
                 const Column ind = indentation(data);
                 if (col.logical <= ind.logical && col.logical
                         && startsWithWhitespace(data, col.physical)) {
-                    const int ts = tabStop();
+                    const int ts = softTabStop();
                     const int newl = col.logical - 1 - (col.logical - 1) % ts;
                     const QString prefix = tabExpand(newl);
                     setLineContents(line, prefix + data.mid(col.physical));
@@ -6676,11 +6704,25 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             setTargetColumn();
         } else if (q->tabPressedInInsertMode()) {
             m_buffer->insertState.insertingSpaces = true;
+            const int ts = softTabStop();
+            const int col = logicalCursorColumn();
+            const int target = col + ts - col % ts;
             if (expandTab()) {
-                const int ts = tabStop();
-                const int col = logicalCursorColumn();
-                QString str = QString(ts - col % ts, ' ');
-                insertInInsertMode(str);
+                insertInInsertMode(QString(target - col, ' '));
+            } else if (s.softTabStop() > 0) {
+                // The whitespace reaches the next soft tab stop, and is written
+                // out as tabs as far as a real tab stop takes it.
+                const int line = cursorLine() + 1;
+                const Column here = cursorColumn();
+                const QString data = lineContents(line);
+                if (here.logical <= indentation(data).logical) {
+                    const QString prefix = tabExpand(target);
+                    setLineContents(line, prefix + data.mid(here.physical));
+                    moveToStartOfLine();
+                    moveRight(prefix.size());
+                } else {
+                    insertInInsertMode(QString(target - col, ' '));
+                }
             } else {
                 insertInInsertMode(input.raw());
             }
@@ -7645,14 +7687,48 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
 
     clearMessage();
 
+    // Vim takes any number of options on one line, as a vimrc writes them:
+    // "set ai et sw=4". A backslash keeps a space inside a value from ending it.
+    QStringList options;
+    QString current;
+    bool escaped = false;
+    for (const QChar &c : cmd.args) {
+        if (escaped) {
+            escaped = false;
+            current.append(c);
+            continue;
+        }
+        if (c == '\\') {
+            escaped = true;
+            current.append(c);
+        } else if (c.isSpace()) {
+            if (!current.isEmpty())
+                options.append(current);
+            current.clear();
+        } else {
+            current.append(c);
+        }
+    }
+    if (!current.isEmpty())
+        options.append(current);
+
+    for (const QString &option : options)
+        applySetOption(option);
+
+    return true;
+}
+
+// One option of a ":set", which may hold several.
+void FakeVimHandler::Private::applySetOption(const QString &arg)
+{
     // "filetype"/"ft" is not a stored option; it drives FileType autocommands.
-    if (cmd.args.startsWith("filetype=") || cmd.args.startsWith("ft=")) {
-        setFileType(cmd.args.section('=', 1));
-        return true;
+    if (arg.startsWith("filetype=") || arg.startsWith("ft=")) {
+        setFileType(arg.section('=', 1));
+        return;
     }
 
     static const QRegularExpression addRe("^([a-zA-Z]+)([-+^])=(.*)$");
-    const QRegularExpressionMatch add = addRe.match(cmd.args);
+    const QRegularExpressionMatch add = addRe.match(arg);
     if (add.hasMatch()) {
         // ":set {option}+=" adds to what is there, "-=" takes away and "^="
         // puts in front, which is how a path option is added to.
@@ -7681,36 +7757,36 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
                 value.remove(what);
             setOption(optionName, VimValue(value));
         }
-    } else if (cmd.args.contains('=')) {
+    } else if (arg.contains('=')) {
         // Non-boolean config to set.
-        int p = cmd.args.indexOf('=');
-        const QString optionName = cmd.args.left(p);
-        const QString value = unescapedSetValue(cmd.args.mid(p + 1));
+        int p = arg.indexOf('=');
+        const QString optionName = arg.left(p);
+        const QString value = unescapedSetValue(arg.mid(p + 1));
         if (isCommentStringOption(optionName)) {
             m_commentString = value;
-            return true;
+            return;
         }
         OptionKind kind = OptionKind::Boolean;
         if (!s.item(Utils::keyFromString(optionName)) && unimplementedOption(optionName, &kind))
-            return true;
+            return;
         QString error = s.trySetValue(optionName, value);
         if (!error.isEmpty())
             showMessage(MessageError, error);
-    } else if (cmd.args == "commentstring?" || cmd.args == "cms?") {
+    } else if (arg == "commentstring?" || arg == "cms?") {
         showMessage(MessageInfo, "commentstring=" + commentString());
-    } else if (cmd.args.endsWith('&') || cmd.args.endsWith("&vim")) {
+    } else if (arg.endsWith('&') || arg.endsWith("&vim")) {
         // ":set {option}&" puts an option back to what it started as, which is
         // how a script leaves one as it found it. Vim's "&vim" asks for its own
         // default rather than Vi's; there is only one default here.
-        QString optionName = cmd.args;
+        QString optionName = arg;
         optionName.chop(optionName.endsWith("&vim") ? 4 : 1);
         OptionKind kind = OptionKind::Boolean;
         if (FvBaseAspect *act = s.item(Utils::keyFromString(optionName)))
             act->setVariantValue(act->defaultVariantValue());
         else if (!unimplementedOption(optionName, &kind))
-            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + cmd.args);
+            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + arg);
     } else {
-        QString optionName = cmd.args;
+        QString optionName = arg;
 
         bool toggleOption = optionName.endsWith('!');
         bool printOption = !toggleOption && optionName.endsWith('?');
@@ -7732,7 +7808,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
                 showMessage(MessageInfo, shown);
             }
         } else if (!act) {
-            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + cmd.args);
+            showMessage(MessageError, Tr::tr("E518: Unknown option:") + ' ' + arg);
         } else if (act->defaultVariantValue().typeId() == QMetaType::Bool) {
             bool oldValue = act->variantValue().toBool();
             if (printOption) {
@@ -7742,9 +7818,9 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
                 act->setVariantValue(!oldValue);
             }
         } else if (negateOption && !printOption) {
-            showMessage(MessageError, Tr::tr("Invalid argument:") + ' ' + cmd.args);
+            showMessage(MessageError, Tr::tr("Invalid argument:") + ' ' + arg);
         } else if (toggleOption) {
-            showMessage(MessageError, Tr::tr("Trailing characters:") + ' ' + cmd.args);
+            showMessage(MessageError, Tr::tr("Trailing characters:") + ' ' + arg);
         } else {
             showMessage(MessageInfo, act->settingsKey().toByteArray().toLower() + "="
                         + act->variantValue().toString());
@@ -7752,7 +7828,6 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
     }
     updateEditor();
     updateHighlights();
-    return true;
 }
 
 bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
@@ -8906,6 +8981,10 @@ private:
 
     VimValue exprPostfix()
     {
+        // What follows an atom is read past as well when the expression is only
+        // being skipped: the atom is 0 then, so subscripting or calling it would
+        // be an error where Vim never looks at it at all.
+        const auto skipped = [this] { return VimValue(qlonglong(0)); };
         VimValue v = exprAtom();
         while (m_ok) {
             if (cur() == '[') { // subscript v[i] or slice v[a:b]
@@ -8924,18 +9003,18 @@ private:
                         setError(Tr::tr("Missing ']' in slice"));
                         return {};
                     }
-                    v = slice(v, haveStart, start, haveEnd, end);
+                    v = m_skip ? skipped() : slice(v, haveStart, start, haveEnd, end);
                 } else {
                     if (!eatOp("]")) {
                         setError(Tr::tr("Missing ']' in subscript"));
                         return {};
                     }
-                    v = subscript(v, start);
+                    v = m_skip ? skipped() : subscript(v, start);
                 }
             } else if (cur() == '-' && at(1) == '>') { // method call v->f(...)
                 m_pos += 2;
                 v = parseMethodCall(v);
-            } else if (cur() == '.' && at(1) != '.' && v.isDict()
+            } else if (cur() == '.' && at(1) != '.' && (v.isDict() || m_skip)
                        && (at(1).isLetter() || at(1) == '_')) {
                 // "d.key" dictionary access: only when v is a dictionary, so a
                 // "." after a string/number stays the concatenation operator.
@@ -8943,8 +9022,9 @@ private:
                 const int keyStart = m_pos;
                 while (cur().isLetterOrNumber() || cur() == '_')
                     ++m_pos;
-                v = subscript(v, VimValue(m_in.mid(keyStart, m_pos - keyStart)));
-            } else if (cur() == '(' && v.isFunc()) {
+                v = m_skip ? skipped()
+                           : subscript(v, VimValue(m_in.mid(keyStart, m_pos - keyStart)));
+            } else if (cur() == '(' && (v.isFunc() || m_skip)) {
                 // Calling a funcref value obtained above, e.g. "list[0](x)" or
                 // "ns.Func(x)" (module import namespace access).
                 v = parseFuncrefCall(v);
@@ -9015,6 +9095,8 @@ private:
             setError(Tr::tr("Missing ')' in method call"));
             return {};
         }
+        if (m_skip)
+            return VimValue(qlonglong(0)); // not called, only read past
         VimValue result;
         QString error;
         if (!m_h->callFunction(name, args, &result, &error)) {
@@ -9692,6 +9774,14 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
         return true;
     }
     if (name == "v:version") { *result = VimValue(qlonglong(900)); return true; }
+    // The count a command was given: "v:count" is 0 where none was typed and
+    // "v:count1" is 1 there, as Vim has them.
+    if (name == "v:count") {
+        const bool typed = g.mvcount != 0 || g.opcount != 0;
+        *result = VimValue(qlonglong(typed ? count() : 0));
+        return true;
+    }
+    if (name == "v:count1") { *result = VimValue(qlonglong(count())); return true; }
 
     // A bare scope name like "g:" is a dictionary of that scope, as used by
     // "get(g:, 'name', default)". This is a snapshot: assigning through it
@@ -10309,6 +10399,130 @@ QString FakeVimHandler::Private::expandKeyword(const QString &what) const
 // Returns the line the match starts on, or 0 when there is none. {skip} is
 // evaluated with the cursor on each candidate and rejects it when true, which
 // is how a caller ignores matches in, say, a comment.
+// searchpair({start}, {middle}, {end} [, {flags} [, {skip} [, {stopline}]]]) and
+// searchpairpos(), which answer where the other end of a nested pair is. Vim
+// counts the nesting as it goes: another {start} on the way in makes it deeper,
+// and the {end} that brings it back to nothing is the answer. A {middle} met at
+// no depth at all is one too, which is how "if"/"else"/"endif" is walked.
+bool FakeVimHandler::Private::searchPairFunction(const QList<VimValue> &args, bool wantPosition,
+                                                VimValue *result, QString *error)
+{
+    const auto answer = [&](int line, int column) {
+        if (!wantPosition) {
+            *result = VimValue(qlonglong(line));
+            return;
+        }
+        *result = VimValue::list({VimValue(qlonglong(line)), VimValue(qlonglong(column))});
+    };
+
+    if (args.size() < 3) {
+        *error = Tr::tr("E119: Not enough arguments for function: searchpair");
+        return false;
+    }
+    const QString flags = args.size() > 3 ? args.at(3).toString() : QString();
+    const bool backward = flags.contains('b');
+    const bool keepCursor = flags.contains('n');
+    const bool acceptAtCursor = flags.contains('c');
+    const bool noWrap = flags.contains('W');
+    const VimValue skip = args.size() > 4 ? args.at(4) : VimValue();
+    // "0" or an empty string both mean there is nothing to leave out.
+    const bool haveSkip = !skip.toString().isEmpty() && skip.toString() != QLatin1String("0");
+    const int stopLine = args.size() > 5 ? int(args.at(5).toNumber()) : 0;
+
+    // Where each of the three stands in the text, in the order they come.
+    enum Kind { Start, Middle, End };
+    QList<QPair<int, Kind>> found;
+    const QString text = document()->toPlainText();
+    const auto collect = [&](const QString &pattern, Kind kind) {
+        if (pattern.isEmpty())
+            return;
+        QRegularExpression re = vimPatternToQtPattern(pattern);
+        if (!re.isValid())
+            return;
+        re.setPatternOptions(re.patternOptions() | QRegularExpression::MultilineOption);
+        QRegularExpressionMatchIterator it = re.globalMatch(text);
+        while (it.hasNext())
+            found.append({it.next().capturedStart(), kind});
+    };
+    collect(args.at(0).toString(), Start);
+    collect(args.at(1).toString(), Middle);
+    collect(args.at(2).toString(), End);
+    std::sort(found.begin(), found.end(),
+              [](const QPair<int, Kind> &a, const QPair<int, Kind> &b) {
+                  return a.first < b.first;
+              });
+    if (backward)
+        std::reverse(found.begin(), found.end());
+
+    // Everything from where the cursor is, and then, unless "W" says not to,
+    // what lies on the other side of it.
+    const int from = position();
+    QList<QPair<int, Kind>> ahead;
+    QList<QPair<int, Kind>> behind;
+    for (const QPair<int, Kind> &one : std::as_const(found)) {
+        const bool atCursor = one.first == from;
+        const bool isAhead = backward ? one.first < from : one.first > from;
+        if (isAhead || (atCursor && acceptAtCursor))
+            ahead.append(one);
+        else
+            behind.append(one);
+    }
+    if (!noWrap)
+        ahead += behind;
+
+    const CursorPosition saved(m_cursor);
+    int depth = 0;
+    for (const QPair<int, Kind> &one : std::as_const(ahead)) {
+        const QTextBlock block = document()->findBlock(one.first);
+        const int line = block.blockNumber() + 1;
+        if (stopLine > 0 && (backward ? line < stopLine : line > stopLine))
+            break;
+
+        // Vim asks {skip} with the cursor on what it is asking about.
+        if (haveSkip) {
+            setCursorPosition(CursorPosition(block.blockNumber(), one.first - block.position()));
+            VimValue leaveOut;
+            const bool ok = skip.isFunc() ? invokeCallable(skip, {}, &leaveOut, error)
+                                          : evaluateExpression(skip.toString(), &leaveOut, error);
+            if (!ok) {
+                setCursorPosition(saved);
+                return false;
+            }
+            if (leaveOut.toBool())
+                continue;
+        }
+
+        const Kind deeper = backward ? End : Start;
+        const Kind shallower = backward ? Start : End;
+        if (one.second == deeper) {
+            ++depth;
+        } else if (one.second == shallower) {
+            if (depth == 0) {
+                if (keepCursor)
+                    setCursorPosition(saved);
+                else
+                    setCursorPosition(CursorPosition(block.blockNumber(),
+                                                     one.first - block.position()));
+                answer(line, one.first - block.position() + 1);
+                return true;
+            }
+            --depth;
+        } else if (depth == 0) { // a {middle} where nothing is open
+            if (keepCursor)
+                setCursorPosition(saved);
+            else
+                setCursorPosition(CursorPosition(block.blockNumber(),
+                                                 one.first - block.position()));
+            answer(line, one.first - block.position() + 1);
+            return true;
+        }
+    }
+
+    setCursorPosition(saved);
+    answer(0, 0);
+    return true;
+}
+
 bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args,
     VimValue *result, QString *error)
 {
@@ -10356,7 +10570,9 @@ bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args,
         it = re.globalMatch(text);
         while (it.hasNext()) {
             const int offset = it.next().capturedStart();
-            if (backward ? offset > start : offset < start)
+            // Up to and including where the cursor is: coming all the way
+            // round, that is the last place left to look.
+            if (backward ? offset >= start : offset <= start)
                 wrapped.append(offset);
         }
         if (backward)
@@ -10427,7 +10643,8 @@ static bool isBuiltinFunction(const QString &name)
         "fnamemodify", "funcref", "function", "get", "getbufvar", "getcurpos",
         "getcwd", "getline", "getpos", "has", "has_key", "iconv", "indent",
         "index", "insert", "isdirectory", "items", "join", "keys", "len",
-        "line", "map", "match", "matchlist", "matchstr", "max", "min",
+        "line", "map", "match", "matchend", "matchlist", "matchstr", "max", "min",
+        "mode", "searchpair", "searchpairpos",
         "nr2char", "printf", "range", "readfile", "remove", "repeat", "reverse",
         "search", "setbufvar", "setline", "setpos", "shellescape", "sort",
         "split", "str2nr", "strftime", "stridx", "string", "strlen", "strpart",
@@ -10700,13 +10917,17 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "char2nr") {
         const QString str = arg(0).toString();
         *result = VimValue(qlonglong(str.isEmpty() ? 0 : str.at(0).unicode()));
-    } else if (name == "matchstr" || name == "match") {
+    } else if (name == "matchstr" || name == "match" || name == "matchend") {
+        const QString subject = arg(0).toString();
+        const int from = args.size() > 2 ? int(arg(2).toNumber()) : 0;
         const QRegularExpressionMatch mm =
-            vimPatternToQtPattern(arg(1).toString()).match(arg(0).toString());
+            vimPatternToQtPattern(arg(1).toString()).match(subject, qMax(0, from));
         if (name == "matchstr")
             *result = VimValue(mm.hasMatch() ? mm.captured(0) : QString());
-        else
+        else if (name == "match")
             *result = VimValue(qlonglong(mm.hasMatch() ? mm.capturedStart() : -1));
+        else // "matchend" answers where the match leaves off
+            *result = VimValue(qlonglong(mm.hasMatch() ? mm.capturedEnd() : -1));
     } else if (name == "toupper") {
         *result = VimValue(arg(0).toString().toUpper());
     } else if (name == "tolower") {
@@ -10928,6 +11149,27 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             ex = variableValue(a, &tmp);
         }
         *result = VimValue(qlonglong(ex ? 1 : 0));
+    } else if (name == "mode") {
+        // What Vim answers for each of them was taken from Vim 9.1. Only the
+        // first letter unless something is passed, where operator-pending is
+        // the one that has more to say for itself.
+        const bool full = !args.isEmpty() && arg(0).toBool();
+        QString answer = QLatin1String("n");
+        if (isVisualCharMode())
+            answer = QLatin1String("v");
+        else if (isVisualLineMode())
+            answer = QLatin1String("V");
+        else if (isVisualBlockMode())
+            answer = QString(QChar(0x16)); // CTRL-V
+        else if (g.mode == ExMode)
+            answer = QLatin1String("c");
+        else if (g.mode == InsertMode)
+            answer = QLatin1String("i");
+        else if (g.mode == ReplaceMode)
+            answer = QLatin1String("R");
+        else if (isOperatorPending() && full)
+            answer = QLatin1String("no");
+        *result = VimValue(answer);
     } else if (name == "line") {
         *result = VimValue(qlonglong(lineColArg(arg(0).toString()).line + 1));
     } else if (name == "col") {
@@ -11029,7 +11271,9 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             line = int(arg(0).toNumber());
             column = int(arg(1).toNumber());
         }
-        if (line <= 0 || line > document()->blockCount()) {
+        if (line == 0)
+            line = cursorBlockNumber() + 1; // 0 asks to stay on this line
+        if (line < 0 || line > document()->blockCount()) {
             *result = VimValue(qlonglong(-1));
         } else {
             setCursorPosition(CursorPosition(line - 1, qMax(0, column - 1)));
@@ -11042,6 +11286,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             setTargetColumn();
             *result = VimValue(qlonglong(0));
         }
+    } else if (name == "searchpair" || name == "searchpairpos") {
+        return searchPairFunction(args, name == "searchpairpos", result, error);
     } else if (name == "search") {
         return searchFunction(args, result, error);
     } else if (name == "readfile") {
@@ -11779,22 +12025,45 @@ bool FakeVimHandler::Private::evalCondition(const QString &expr)
 }
 
 // Command names that end a control-flow block; handled by the enclosing level.
+// Vim lets these be shortened, and scripts do: "end" for "endif" is what the
+// matchit plugin writes. The shortest each may be is what Vim documents.
+static bool isCommand(const QString &cmd, const QString &shortest, const QString &full)
+{
+    return cmd.size() >= shortest.size() && full.startsWith(cmd);
+}
+
+// "endf" is Vim's "endfunction" rather than "endfor", so ask about it first;
+// "elsei" likewise stands for "elseif" and not for "else".
 static bool isFunctionStart(const QString &cmd)
 {
-    return cmd == "function" || cmd == "func" || cmd == "fun" || cmd == "fu"
-        || cmd == "def";
+    return isCommand(cmd, "fu", "function") || cmd == "def";
 }
 
 static bool isFunctionEnd(const QString &cmd)
 {
-    return cmd == "endfunction" || cmd == "endfunc" || cmd == "enddef";
+    return isCommand(cmd, "endf", "endfunction") || cmd == "enddef";
 }
+
+static bool isElseIf(const QString &cmd) { return isCommand(cmd, "elsei", "elseif"); }
+static bool isElse(const QString &cmd)
+{
+    return !isElseIf(cmd) && isCommand(cmd, "el", "else");
+}
+static bool isEndIf(const QString &cmd) { return isCommand(cmd, "en", "endif"); }
+static bool isWhile(const QString &cmd) { return isCommand(cmd, "wh", "while"); }
+static bool isEndWhile(const QString &cmd) { return isCommand(cmd, "endw", "endwhile"); }
+static bool isEndFor(const QString &cmd)
+{
+    return !isFunctionEnd(cmd) && isCommand(cmd, "endfo", "endfor");
+}
+static bool isCatch(const QString &cmd) { return isCommand(cmd, "cat", "catch"); }
+static bool isFinally(const QString &cmd) { return isCommand(cmd, "fina", "finally"); }
+static bool isEndTry(const QString &cmd) { return isCommand(cmd, "endt", "endtry"); }
 
 static bool isBlockTerminator(const QString &cmd)
 {
-    return cmd == "endif" || cmd == "else" || cmd == "elseif"
-        || cmd == "endwhile" || cmd == "endfor" || isFunctionEnd(cmd)
-        || cmd == "catch" || cmd == "finally" || cmd == "endtry";
+    return isEndIf(cmd) || isElse(cmd) || isElseIf(cmd) || isEndWhile(cmd) || isEndFor(cmd)
+        || isFunctionEnd(cmd) || isCatch(cmd) || isFinally(cmd) || isEndTry(cmd);
 }
 
 void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
@@ -11812,7 +12081,7 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         if (c.cmd == "if") {
             ++index;
             execIf(cmds, index, active, active && evalCondition(exprText(c)));
-        } else if (c.cmd == "while") {
+        } else if (isWhile(c.cmd)) {
             ++index;
             execWhile(cmds, index, active, exprText(c));
         } else if (c.cmd == "for") {
@@ -11879,16 +12148,16 @@ void FakeVimHandler::Private::execIf(const QList<ExCommand> &cmds,
     execSequence(cmds, index, anyTaken);
     while (index < cmds.size() && !interpreterInterrupted()) {
         const ExCommand c = cmds.at(index);
-        if (c.cmd == "endif") {
+        if (isEndIf(c.cmd)) {
             ++index;
             return;
         }
-        if (c.cmd == "elseif") {
+        if (isElseIf(c.cmd)) {
             ++index;
             const bool take = active && !anyTaken && evalCondition(exprText(c));
             anyTaken = anyTaken || take;
             execSequence(cmds, index, take);
-        } else if (c.cmd == "else") {
+        } else if (isElse(c.cmd)) {
             ++index;
             const bool take = active && !anyTaken;
             anyTaken = anyTaken || take;
@@ -11932,7 +12201,7 @@ void FakeVimHandler::Private::execWhile(const QList<ExCommand> &cmds,
     }
 
     index = endIndex;
-    if (index < cmds.size() && cmds.at(index).cmd == "endwhile")
+    if (index < cmds.size() && isEndWhile(cmds.at(index).cmd))
         ++index;
 }
 
@@ -11991,7 +12260,7 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
     }
 
     index = endIndex;
-    if (index < cmds.size() && cmds.at(index).cmd == "endfor")
+    if (index < cmds.size() && isEndFor(cmds.at(index).cmd))
         ++index;
 }
 
@@ -12043,7 +12312,7 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
     bool handled = !pending.thrown;
     execSequence(cmds, index, false); // skip the rest of the body to the clauses
 
-    while (index < cmds.size() && cmds.at(index).cmd == "catch") {
+    while (index < cmds.size() && isCatch(cmds.at(index).cmd)) {
         const ExCommand c = cmds.at(index);
         ++index;
         const bool match = active && pending.thrown && !handled
@@ -12061,7 +12330,7 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
         }
     }
 
-    if (index < cmds.size() && cmds.at(index).cmd == "finally") {
+    if (index < cmds.size() && isFinally(cmds.at(index).cmd)) {
         ++index;
         execSequence(cmds, index, active);
         if (interpreterInterrupted()) { // :finally replaces any pending interrupt
@@ -12071,7 +12340,7 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
         }
     }
 
-    if (index < cmds.size() && cmds.at(index).cmd == "endtry")
+    if (index < cmds.size() && isEndTry(cmds.at(index).cmd))
         ++index;
 
     setVariable("v:exception", savedException);
@@ -12254,6 +12523,10 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
 
     //qDebug() << "CMD: " << cmd;
 
+    // Whether there was a selection to begin with, so that one the command puts
+    // there itself can be told apart from the one a ":" was typed in.
+    const bool hadSelection = isVisualMode();
+
     enterCommandMode(g.returnToMode);
 
     beginLargeEditBlock();
@@ -12269,9 +12542,19 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
 
     endEditBlock();
 
-    if (isVisualMode())
+    // A ":" typed in visual mode goes back to normal mode when it is done. A
+    // selection the command made itself stays, which is how a script offers a
+    // text object of its own for the next command to work on.
+    if (isVisualMode() && hadSelection) {
         leaveVisualMode();
-    leaveCurrentMode();
+        leaveCurrentMode();
+    } else if (!isVisualMode()) {
+        leaveCurrentMode();
+    } else {
+        g.mode = CommandMode; // out of ex mode, keeping what was selected
+        clearCurrentMode();
+        updateMiniBuffer();
+    }
 }
 
 // Run an ex command line without touching the mode. ":" leaves insert or
@@ -12423,7 +12706,9 @@ QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, 
         bool wrapped = false;
         while (found < count) {
             QTextCursor tc = step(from + (sd.forward ? 1 : -1), false);
-            if (tc.isNull()) {
+            // At the end of the document the search can answer with the place
+            // it started from and nothing selected, which is no new match.
+            if (tc.isNull() || tc.anchor() == from) {
                 if (wrapped || !s.wrapScan())
                     break;
                 wrapped = true;

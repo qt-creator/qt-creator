@@ -110,6 +110,9 @@ public:
 
     FvBoolAspect startOfLine;
     FvIntegerAspect tabStop;
+    // How far a tab reaches in insert mode when that is not the same as
+    // 'tabstop'. 0 leaves 'tabstop' in charge. Set from a script or a vimrc.
+    FvIntegerAspect softTabStop;
     FvBoolAspect hlSearch;
     FvBoolAspect smartTab;
     FvIntegerAspect shiftWidth;
@@ -167,6 +170,10 @@ public:
     // What kind of buffer this is. Empty means an ordinary file, which is what
     // every buffer here is; scripts check it before touching one.
     FvStringAspect bufType;
+
+    // The pairs "%" jumps between, as Vim writes them. Scripts read this to
+    // extend what they match; the jumping here does not consult it yet.
+    FvStringAspect matchPairs;
 
     // Which Vi compatibilities are in effect. None of the flags change anything
     // here, where the behavior is Vim's own, so this reports what Vim reports

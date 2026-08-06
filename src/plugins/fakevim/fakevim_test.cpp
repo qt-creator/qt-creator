@@ -232,6 +232,17 @@ private slots:
     void test_vim_script_scriptlocal();
     void test_vim_script_if_chain();
     void test_vim_script_error_numbers();
+    void test_vim_pattern_lookbehind_limit();
+    void test_vim_script_block_abbreviations();
+    void test_vim_command_line_ctrl_u();
+    void test_vim_script_searchpair();
+    void test_vim9_matchit();
+    void test_vim_softtabstop();
+    void test_vim_script_mode();
+    void test_vim_ex_command_own_selection();
+    void test_vim9_comment_text_object();
+    void test_vim_script_skipped_subscript();
+    void test_vim_search_wraps_to_cursor();
     void test_vim_pattern_buffer_position();
     void test_vim_set_showmatch_name();
     void test_vim_set_add_remove();
@@ -6903,6 +6914,481 @@ void FakeVimTester::test_vim_script_error_numbers()
     data.doCommand("unlet g:hit | unlet g:ok | unlet g:ex");
 }
 
+void FakeVimTester::test_vim_pattern_lookbehind_limit()
+{
+    // "\@123<=" says how far back Vim is to look, which every plugin that skips
+    // an escaped character writes: matchit has "\\\@1<!\%(\\\\\)*". Driven from a
+    // script, where the pattern can be written as Vim writes it. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/p.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("let s:notslash = '\\\\\\@1<!\\%(\\\\\\\\\\)*'\n"
+            "let g:a = substitute('\\<if\\>:\\<else\\>', s:notslash . '\\zs:', 'X', 'g')\n"
+            "let g:b = match('a:b', s:notslash . ':')\n"
+            "let g:c = match('a:b', '\\\\\\@<!:')\n"
+            "let g:d = match('a\\:b', s:notslash . ':')\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/p.vim");
+
+    // The colon that is not escaped is the one it finds.
+    QCOMPARE(echo("g:a"), QLatin1String("\\<if\\>X\\<else\\>"));
+    QCOMPARE(echo("g:b"), QLatin1String("1"));
+    // Without a number it means the same thing here.
+    QCOMPARE(echo("g:c"), QLatin1String("1"));
+    // An escaped colon is passed over, which is the point of the pattern.
+    QCOMPARE(echo("g:d"), QLatin1String("-1"));
+    data.doCommand("unlet g:a | unlet g:b | unlet g:c | unlet g:d");
+}
+
+void FakeVimTester::test_vim_script_block_abbreviations()
+{
+    // Vim lets the block commands be shortened, and scripts do: matchit closes
+    // an "if" with "end". Values taken from Vim 9.1, which accepts every one of
+    // these.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const auto ran = [&](const QByteArray &script) {
+        const QString path = dir.path() + "/b.vim";
+        QFile f(path);
+        f.open(QIODevice::WriteOnly | QIODevice::Truncate);
+        f.write("let g:hit = 0\n" + script);
+        f.close();
+        data.doCommand("source " + path);
+        message.clear();
+        data.doCommand("echo g:hit");
+        return message;
+    };
+
+    QCOMPARE(ran("if 1\n let g:hit = 1\nen\n"), QLatin1String("1"));
+    QCOMPARE(ran("if 1\n let g:hit = 1\nend\n"), QLatin1String("1"));
+    QCOMPARE(ran("if 1\n let g:hit = 1\nendi\n"), QLatin1String("1"));
+    QCOMPARE(ran("if 0\nel\n let g:hit = 1\nendif\n"), QLatin1String("1"));
+    QCOMPARE(ran("if 0\nelsei 1\n let g:hit = 1\nendif\n"), QLatin1String("1"));
+    QCOMPARE(ran("let i = 0\nwh i < 1\n let g:hit = 1\n let i = 1\nendw\n"), QLatin1String("1"));
+    QCOMPARE(ran("for x in [1]\n let g:hit = 1\nendfo\n"), QLatin1String("1"));
+    QCOMPARE(ran("try\n let g:hit = 1\nendt\n"), QLatin1String("1"));
+    QCOMPARE(ran("try\n throw 'x'\ncat\n let g:hit = 1\nendtry\n"), QLatin1String("1"));
+    QCOMPARE(ran("try\n let g:x = 1\nfina\n let g:hit = 1\nendtry\n"), QLatin1String("1"));
+    QCOMPARE(ran("fu! F()\n let g:hit = 1\nendfunction\ncall F()\n"), QLatin1String("1"));
+    QCOMPARE(ran("function! G()\n let g:hit = 1\nendf\ncall G()\n"), QLatin1String("1"));
+    // A block that does not hold is still skipped, shortened or not.
+    QCOMPARE(ran("if 0\n let g:hit = 1\nend\n"), QLatin1String("0"));
+    data.doCommand("unlet g:hit | unlet! g:x | delfunction! F | delfunction! G");
+}
+
+void FakeVimTester::test_vim_command_line_ctrl_u()
+{
+    // ":<C-U>" takes away what is on the command line already, which is how a
+    // plugin drops the range visual mode puts there. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/m.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! Mark(t)\n"
+            "  let g:tag = a:t\n"
+            "endfunction\n"
+            "nnoremap Z1 :call Mark('plain')<CR>\n"
+            "nnoremap Z2 :<C-U>call Mark('cleared')<CR>\n"
+            "xnoremap Z3 :<C-U>call Mark('from visual')<CR>\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/m.vim");
+    const auto after = [&](const char *keys) {
+        data.setText("a" X "bc" N "def");
+        data.doCommand("let g:tag = 'none'");
+        data.doKeys(keys);
+        message.clear();
+        data.doCommand("echo g:tag");
+        return message;
+    };
+
+    const QString plain = after("Z1");
+    const QString cleared = after("Z2");
+    const QString visual = after("VZ3");
+    data.doCommand("nunmap Z1 | nunmap Z2 | xunmap Z3");
+    data.doCommand("delfunction Mark | unlet g:tag");
+
+    QCOMPARE(plain, QLatin1String("plain"));
+    QCOMPARE(cleared, QLatin1String("cleared"));
+    // The "'<,'>" the ":" put there is gone, so the command is reached.
+    QCOMPARE(visual, QLatin1String("from visual"));
+}
+
+void FakeVimTester::test_vim_script_searchpair()
+{
+    // searchpair() answers where the other end of a nested pair is, counting
+    // the nesting on the way. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    const char *const chain = "i" X "f 1" N "else" N "endif" N "after";
+
+    // A {middle} met where nothing is open is an answer of its own.
+    data.setText(chain);
+    QCOMPARE(echo("searchpair('\\<if\\>', '\\<else\\>', '\\<endif\\>', 'W')"
+                  " . ' at ' . line('.')"),
+             QLatin1String("2 at 2"));
+    // With no {middle} it walks on to the end of the pair.
+    data.setText(chain);
+    QCOMPARE(echo("string(searchpairpos('\\<if\\>', '', '\\<endif\\>', 'W'))"),
+             QLatin1String("[3, 1]"));
+    // "n" answers without going there.
+    data.setText(chain);
+    QCOMPARE(echo("searchpair('\\<if\\>', '', '\\<endif\\>', 'Wn') . ' at ' . line('.')"),
+             QLatin1String("3 at 1"));
+    // Backwards from the end finds the start.
+    data.setText("if 1" N "else" N X "endif" N "after");
+    QCOMPARE(echo("searchpair('\\<if\\>', '', '\\<endif\\>', 'bW') . ' at ' . line('.')"),
+             QLatin1String("1 at 1"));
+    // From inside the "endif" that one counts as the way in, so the "if" that
+    // closes it is one level too far out and nothing is answered.
+    data.setText("if 1" N "else" N "en" X "dif" N "after");
+    QCOMPARE(echo("searchpair('\\<if\\>', '', '\\<endif\\>', 'bW') . ' at ' . line('.')"),
+             QLatin1String("0 at 3"));
+    // One nested inside another is passed over.
+    data.setText("i" X "f 1" N "if 2" N "endif" N "endif");
+    QCOMPARE(echo("searchpair('\\<if\\>', '', '\\<endif\\>', 'W')"), QLatin1String("4"));
+    // Nothing to find.
+    data.setText("i" X "f 1" N "after");
+    QCOMPARE(echo("searchpair('\\<if\\>', '', '\\<endif\\>', 'W')"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim9_matchit()
+{
+    // Vim 9.1's matchit plugin, which makes "%" jump between the words of a
+    // pair rather than only between brackets. Values taken from Vim 9.1 running
+    // the same plugin over the same lines.
+    const QString D = "/usr/share/vim/vim91/pack/dist/opt/matchit";
+    if (!QFileInfo::exists(D + "/plugin/matchit.vim"))
+        QSKIP("Vim 9.1's matchit plugin is not installed");
+    TestData data;
+    setup(&data);
+    data.doCommand("set runtimepath+=" + D);
+    data.doCommand("source " + D + "/plugin/matchit.vim");
+    const QLatin1String words("let b:match_words = '\\<if\\>:\\<else\\>:\\<endif\\>'");
+
+    // "%" walks the chain round, and "g%" walks it the other way.
+    const auto walk = [&](const char *keys) {
+        data.setText("i" X "f 1" N "else" N "endif" N "after");
+        data.doCommand(words);
+        QStringList lines;
+        for (int i = 0; i < 3; ++i) {
+            data.doKeys(keys);
+            lines << QString::number(data.handler->textCursor().blockNumber() + 1);
+        }
+        return lines.join(',');
+    };
+    QCOMPARE(walk("%"), QLatin1String("2,3,1"));
+    QCOMPARE(walk("g%"), QLatin1String("3,2,1"));
+
+    // Brackets still work, which the plugin takes from 'matchpairs'.
+    data.setText("x = (a" X " + b) * c");
+    data.doCommand(words);
+    data.doKeys("%");
+    QCOMPARE(data.handler->textCursor().positionInBlock(), 4);
+
+    data.doCommand("nunmap % | nunmap g% | xunmap % | xunmap g%");
+    data.doCommand("ounmap % | ounmap g%");
+}
+
+void FakeVimTester::test_vim_softtabstop()
+{
+    // 'softtabstop' sets how far a tab reaches in insert mode where that is not
+    // the same as 'tabstop', and a backspace takes back just as much. Where
+    // 'expandtab' is off the whitespace is written out as tabs as far as a real
+    // tab stop takes it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    const auto typed = [&](const char *options, const char *keys) {
+        data.doCommand(QLatin1String("set ") + QLatin1String(options));
+        data.setText("" X "x");
+        data.doKeys(keys);
+        data.doKeys("<Esc>");
+        return QString::fromUtf8(data.text()).replace(QLatin1Char('\t'),
+                                                      QLatin1String("<TAB>"));
+    };
+
+    QCOMPARE(typed("sts=4 et ts=8 sw=8", "i<Tab>"), QLatin1String("    x"));
+    QCOMPARE(typed("sts=4 et ts=8 sw=8", "i<Tab><Tab>"), QLatin1String("        x"));
+    QCOMPARE(typed("sts=4 noet ts=8 sw=8", "i<Tab>"), QLatin1String("    x"));
+    // Two of them reach a real tab stop, so a tab is what is left there.
+    QCOMPARE(typed("sts=4 noet ts=8 sw=8", "i<Tab><Tab>"), QLatin1String("<TAB>x"));
+    // A backspace takes back one soft tab stop, not one character.
+    QCOMPARE(typed("sts=4 noet ts=8 sw=8", "i<Tab><Tab><BS>"), QLatin1String("    x"));
+    QCOMPARE(typed("sts=4 et ts=8 sw=8", "i<Tab><Tab><BS>"), QLatin1String("    x"));
+    // Without it 'tabstop' is in charge, as before.
+    QCOMPARE(typed("sts=0 et ts=8 sw=8", "i<Tab>"), QLatin1String("        x"));
+    // A tab reaches the next stop, counting from where the cursor stands.
+    QCOMPARE(typed("sts=3 et ts=8 sw=8", "iab<Tab>"), QLatin1String("ab x"));
+    // What ":set" reports is what was asked for.
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    data.doCommand("set sts=7");
+    message.clear();
+    data.doCommand("echo &sts");
+    QCOMPARE(message, QLatin1String("7"));
+
+    data.doCommand("set sts=0 | set ts=8 | set sw=8 | set noet");
+}
+
+void FakeVimTester::test_vim_script_mode()
+{
+    // mode() says which mode is current, and with something passed has more to
+    // say about operator-pending. Values taken from Vim 9.1, read there through
+    // mappings of the same shape, since asking on the command line would only
+    // ever answer "c". Vim answers "c" for that too, which is what happens here
+    // when the question is put in an ex command.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/m.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! Mark()\n"
+            "  let g:tag = mode() . '/' . mode(1)\n"
+            "  return ''\n"
+            "endfunction\n"
+            "nnoremap <expr> Q Mark()\n"
+            "xnoremap <expr> Q Mark()\n"
+            "inoremap <expr> Q Mark()\n"
+            "onoremap <expr> Q Mark()\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/m.vim");
+
+    const auto after = [&](const char *keys) -> QString {
+        data.setText("aa" X "a" N "bbb");
+        data.doCommand("let g:tag = 'none'");
+        data.doKeys(keys);
+        message.clear();
+        data.doCommand("echo g:tag");
+        return message;
+    };
+
+    // Read them all before comparing: an assertion that gives up in between
+    // would leave the mappings behind for other tests to trip over, the map
+    // table being shared.
+    const QString normal = after("Q");
+    const QString charwise = after("vQ");
+    const QString linewise = after("VQ");
+    const QString blockwise = after("<C-v>Q");
+    const QString insert = after("iQ");
+    const QString replace = after("RQ");
+    const QString pending = after("dQ");
+    message.clear();
+    data.doCommand("echo mode() . '/' . mode(1)");
+    const QString fromExCommand = message;
+    data.doCommand("nunmap Q | xunmap Q | iunmap Q | ounmap Q");
+    data.doCommand("delfunction Mark | unlet g:tag");
+
+    QCOMPARE(normal, QLatin1String("n/n"));
+    QCOMPARE(charwise, QLatin1String("v/v"));
+    QCOMPARE(linewise, QLatin1String("V/V"));
+    QCOMPARE(blockwise, QLatin1String("\x16/\x16"));
+    QCOMPARE(insert, QLatin1String("i/i"));
+    QCOMPARE(replace, QLatin1String("R/R"));
+    // Only with something passed does operator-pending give itself away.
+    QCOMPARE(pending, QLatin1String("n/no"));
+    // A command that has been given already runs in normal mode; "c" is what
+    // mode() answers while the line is still being typed, which is a mapping
+    // away from here.
+    QCOMPARE(fromExCommand, QLatin1String("n/n"));
+}
+
+void FakeVimTester::test_vim_ex_command_own_selection()
+{
+    // A selection an ex command puts there itself stays for the next command to
+    // work on, which is how a script offers a text object of its own. A ":"
+    // typed in visual mode still goes back to normal mode. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/s.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! Sel()\n"
+            "  normal! V\n"
+            "endfunction\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/s.vim");
+
+    data.setText("on" X "e" N "two" N "three");
+    data.doKeys(":call Sel()<CR>");
+    data.doKeys("d");
+    QCOMPARE(data.text(), QByteArray("two" N "three"));
+
+    // The other way round: what the ":" was typed in is left behind.
+    data.setText("on" X "e" N "two" N "three");
+    data.doKeys("V");
+    data.doCommand("echo 1");
+    data.doKeys("d");
+    QCOMPARE(data.text(), QByteArray("one" N "two" N "three"));
+
+    data.doCommand("delfunction Sel");
+}
+
+void FakeVimTester::test_vim9_comment_text_object()
+{
+    // The comment plugin's "ic" and "ac" ask what the syntax is at a place,
+    // which Qt Creator answers from the document's language. Standing in for it
+    // here is a reply of "Comment" on the lines that are one, which is enough to
+    // drive the plugin's own reckoning of where the comment block ends.
+    // Values taken from Vim 9.1 with the same buffer and keys.
+    const QString D = "/usr/share/vim/vim91/pack/dist/opt/comment";
+    if (!QFileInfo::exists(D + "/plugin/comment.vim"))
+        QSKIP("Vim 9.1's comment plugin is not installed");
+
+    const auto check = [&](const char *keys) {
+        TestData data;
+        setup(&data);
+        data.handler->syntaxNamesRequested.set([&](int line, int, QStringList *names) {
+            const QTextBlock block = data.handler->textCursor().document()
+                                         ->findBlockByNumber(line - 1);
+            if (block.isValid() && block.text().startsWith("//"))
+                names->append("Comment");
+        });
+        data.doCommand("set runtimepath+=" + D);
+        data.doCommand("source " + D + "/plugin/comment.vim");
+        data.doCommand("set commentstring=//\\ %s");
+        data.doCommand("let g:syntax_on = 1");
+        data.setText("/" X "/ one" N "// two" N "int a;" N "// three");
+        data.doKeys(keys);
+        const QString text = QString::fromUtf8(data.text())
+                                 .replace(QLatin1Char(0x0a), QLatin1String(" / "));
+        data.doCommand("nunmap gc | nunmap gcc | nunmap gC | xunmap gc");
+        data.doCommand("ounmap ic | ounmap ac | xunmap ic | xunmap ac");
+        data.doCommand("unlet g:syntax_on | set opfunc=");
+        return text;
+    };
+
+    // The whole comment block goes, from either mode and by either name.
+    QCOMPARE(check("dic"), QLatin1String("int a; / // three"));
+    QCOMPARE(check("dac"), QLatin1String("int a; / // three"));
+    QCOMPARE(check("vicd"), QLatin1String("int a; / // three"));
+    QCOMPARE(check("vacd"), QLatin1String("int a; / // three"));
+}
+
+void FakeVimTester::test_vim_script_skipped_subscript()
+{
+    // What "&&" and "||" pass over is not looked at at all, which is how a
+    // script guards an index against a list that is too short. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.doCommand("let g:l = ['a', 'b'] | let g:i = 4 | let g:d = {'k': 1}");
+    // The guarded forms take the other branch and say nothing.
+    message.clear();
+    data.doCommand("if g:i < len(g:l) && g:l[g:i] ==# 'x' | let g:r = 'taken' "
+                   "| else | let g:r = 'not taken' | endif");
+    QCOMPARE(message, QLatin1String(""));
+    QCOMPARE(echo("g:r"), QLatin1String("not taken"));
+    data.doCommand("if 0 && g:l[g:i] ==# 'x' | let g:r = 'taken' "
+                   "| else | let g:r = 'not taken' | endif");
+    QCOMPARE(echo("g:r"), QLatin1String("not taken"));
+    // A key that is not there, guarded the same way.
+    data.doCommand("if has_key(g:d, 'zz') && g:d['zz'] == 1 | let g:r = 'taken' "
+                   "| else | let g:r = 'not taken' | endif");
+    QCOMPARE(echo("g:r"), QLatin1String("not taken"));
+    data.doCommand("if has_key(g:d, 'zz') && g:d.zz == 1 | let g:r = 'taken' "
+                   "| else | let g:r = 'not taken' | endif");
+    QCOMPARE(echo("g:r"), QLatin1String("not taken"));
+    // "||" does look at what follows a false left side, so this one does fail.
+    QCOMPARE(echo("0 || g:l[g:i] ==# 'x'"),
+             QLatin1String("E684: List index out of range: 4"));
+
+    data.doCommand("unlet g:l | unlet g:i | unlet g:d | unlet g:r");
+}
+
+void FakeVimTester::test_vim_search_wraps_to_cursor()
+{
+    // Coming all the way round, the place the cursor sits is the last one left
+    // to look at, so a match there is found. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.setText("x" X "ax" N "yyy");
+    QCOMPARE(echo("search('a', 'w')"), QLatin1String("1"));
+    // Without wrapping there is nothing after the cursor to find.
+    data.setText("x" X "ax" N "yyy");
+    QCOMPARE(echo("search('a', 'W')"), QLatin1String("0"));
+    data.setText("x" X "ax" N "yyy");
+    QCOMPARE(echo("search('a', 'bw')"), QLatin1String("1"));
+}
+
 void FakeVimTester::test_vim_pattern_buffer_position()
 {
     // "\%23l" and its kin say where in the buffer a match may sit rather than
@@ -6932,6 +7418,18 @@ void FakeVimTester::test_vim_pattern_buffer_position()
     data.doKeys("/\\%>2l\\a<CR>");
     QCOMPARE(data.handler->textCursor().blockNumber() + 1, 3);
 
+    // The "<" form, which finds nothing ahead of the cursor and so walks to the
+    // end of the buffer, where the search used to answer with the place it
+    // started from over and over.
+    data.setText(start);
+    data.doKeys("/\\%<2l\\a<CR>");
+    QCOMPARE(data.handler->textCursor().blockNumber() + 1, 1);
+    data.setText(start);
+    data.doCommand("nnoremap Q /\\%<2l\\a<CR>");
+    data.doKeys("Q");
+    QCOMPARE(data.handler->textCursor().blockNumber() + 1, 1);
+    data.doCommand("nunmap Q");
+
     // search() answers the same way, and takes the forms with a "<" as well.
     data.setText(start);
     QCOMPARE(echo("search('\\%3lc', 'w')"), QLatin1String("3"));
@@ -6939,6 +7437,11 @@ void FakeVimTester::test_vim_pattern_buffer_position()
     QCOMPARE(echo("search('\\%<2l\\a', 'w')"), QLatin1String("1"));
     data.setText(start);
     QCOMPARE(echo("search('\\%2cb', 'w')"), QLatin1String("2"));
+    // "\%#" is where the cursor is, which is asked before it is moved. A
+    // wrapped search reaches it by coming round.
+    data.setText("aaa" N "bbb" N "c" X "cc" N "ddd");
+    QCOMPARE(echo("search('\\%#', 'wn')"), QLatin1String("3"));
+
     // A substitution leaves alone what sits elsewhere.
     data.setText(start);
     data.doCommand("%s/\\%2l./X/");
@@ -8812,20 +9315,21 @@ void FakeVimTester::test_vim_commentstring()
     data.doCommand("setf python");
     QCOMPARE(echo("&cms"), QLatin1String("# %s"));
 
-    // An explicit ":set" wins over both, and stays with this buffer.
-    data.doCommand("set commentstring=;; %s");
+    // An explicit ":set" wins over both, and stays with this buffer. The space
+    // is escaped, as Vim wants it: unescaped it would end the value there.
+    data.doCommand("set commentstring=;;\\ %s");
     QCOMPARE(echo("&cms"), QLatin1String(";; %s"));
     data.handler->setCurrentFileName("Other.cpp");
     QCOMPARE(echo("&cms"), QLatin1String(";; %s"));
 
     // "gc" uses the same value, including a trailing part.
     data.doCommand("set commentary");
-    data.doCommand("set commentstring=<!-- %s -->");
+    data.doCommand("set commentstring=<!--\\ %s\\ -->");
     data.setText("abc");
     KEYS("gcc", X "<!-- abc -->");
     KEYS("gcc", X "abc");
     // A file type with a line comment keeps the previous behavior.
-    data.doCommand("set commentstring=# %s");
+    data.doCommand("set commentstring=#\\ %s");
     data.setText("abc");
     KEYS("gcc", X "# abc");
     KEYS("gcc", X "abc");
