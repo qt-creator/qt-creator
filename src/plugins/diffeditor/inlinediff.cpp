@@ -202,8 +202,96 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
     return model;
 }
 
+// Spaces and tabs only, like "git diff -w" and Utils::Differ's own helper.
+// QChar::isSpace() would also match the no-break space and the other Unicode
+// separators, hiding an edit that is invisible in the editor - the diff is
+// the only place it shows up.
+static bool isWhitespace(QChar c)
+{
+    return c == ' ' || c == '\t';
+}
+
+// the two lines are the same apart from the whitespace in them
+static bool equalIgnoringWhitespace(const QString &left, const QString &right)
+{
+    int l = 0;
+    int r = 0;
+    while (l < left.size() && r < right.size()) {
+        if (isWhitespace(left.at(l))) {
+            ++l;
+        } else if (isWhitespace(right.at(r))) {
+            ++r;
+        } else if (left.at(l) != right.at(r)) {
+            return false;
+        } else {
+            ++l;
+            ++r;
+        }
+    }
+    while (l < left.size() && isWhitespace(left.at(l)))
+        ++l;
+    while (r < right.size() && isWhitespace(right.at(r)))
+        ++r;
+    return l == left.size() && r == right.size();
+}
+
+// Drops the character level highlights of a still changed line that cover
+// whitespace only, and trims the whitespace off the ends of the remaining
+// ones. Without it a line that was re-indented and changed would still have
+// its re-indentation highlighted as a change.
+static void trimWhitespaceHighlights(TextLineData &line)
+{
+    const int lineLength = int(line.text.size());
+    QMap<int, int> result;
+    for (auto it = line.changedPositions.cbegin(); it != line.changedPositions.cend(); ++it) {
+        // a negative position continues the highlight from the previous line
+        // or into the next one, see TextLineData
+        int start = qMax(0, it.key());
+        int end = it.value() < 0 ? lineLength : qMin(it.value(), lineLength);
+        while (start < end && isWhitespace(line.text.at(start)))
+            ++start;
+        while (end > start && isWhitespace(line.text.at(end - 1)))
+            --end;
+        if (end > start)
+            result.insert(start, end);
+    }
+    line.changedPositions = result;
+}
+
+// Removes the differences that are whitespace only, like "git diff -w": a row
+// whose two sides are the same apart from whitespace becomes an equal row, so
+// it produces no hunk, no ghost row and no highlight, and a row that really
+// changed loses the character highlights of its whitespace. A line that was
+// added or removed as a whole keeps its row and its highlights - only one side
+// has a line there, so there is nothing to compare it to.
+static void ignoreWhitespaceChanges(ChunkData &chunk)
+{
+    for (RowData &row : chunk.rows) {
+        if (row.equal)
+            continue;
+        TextLineData &left = row.line[LeftSide];
+        TextLineData &right = row.line[RightSide];
+        if (left.textLineType != TextLineData::TextLine
+            || right.textLineType != TextLineData::TextLine
+            // leave the rows the differ paired without any textual difference
+            // alone, e.g. the phantom rows of a trailing newline change
+            || left.text == right.text) {
+            continue;
+        }
+        if (equalIgnoringWhitespace(left.text, right.text)) {
+            row.equal = true;
+            left.changedPositions.clear();
+            right.changedPositions.clear();
+            continue;
+        }
+        trimWhitespaceHighlights(left);
+        trimWhitespaceHighlights(right);
+    }
+}
+
 static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
-                               const QString &baselineText, const QString &editorText)
+                               const QString &baselineText, const QString &editorText,
+                               bool ignoreWhitespace)
 {
     if (baselineText == editorText) {
         InlineDiffRenderModel model;
@@ -219,9 +307,11 @@ static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
     QList<Diff> leftDiffList;
     QList<Diff> rightDiffList;
     Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
-    const ChunkData chunkData = DiffUtils::calculateOriginalData(leftDiffList, rightDiffList);
+    ChunkData chunkData = DiffUtils::calculateOriginalData(leftDiffList, rightDiffList);
     if (promise.isCanceled())
         return;
+    if (ignoreWhitespace)
+        ignoreWhitespaceChanges(chunkData);
     promise.addResult(mapChunkToRenderModel(chunkData, baselineText.endsWith('\n'),
                                             editorText.endsWith('\n')));
 }
@@ -981,6 +1071,7 @@ private:
 
 const char VIEW_MODE_SETTINGS_KEY[] = "DiffEditor/InlineDiffViewMode";
 const char COLLAPSE_SETTINGS_KEY[] = "DiffEditor/InlineDiffCollapseUnchanged";
+const char IGNORE_WHITESPACE_SETTINGS_KEY[] = "DiffEditor/InlineDiffIgnoreWhitespace";
 
 // live diffing on every edit does not scale to arbitrarily large documents
 constexpr qsizetype maxInlineDiffTextSize = 8 * 1000 * 1000;
@@ -1336,6 +1427,20 @@ public:
                 m_collapseController->setEnabled(on);
         });
 
+        m_ignoreWhitespace = Core::ICore::settings()
+                                 ->value(IGNORE_WHITESPACE_SETTINGS_KEY, false).toBool();
+        m_whitespaceAction = m_toolBar->addAction(QIcon(), Tr::tr("Ignore Whitespace"));
+        m_whitespaceAction->setObjectName("InlineDiffIgnoreWhitespaceAction"); // autotest
+        m_whitespaceAction->setCheckable(true);
+        m_whitespaceAction->setChecked(m_ignoreWhitespace);
+        m_whitespaceAction->setToolTip(Tr::tr("Hide differences that consist of "
+                                              "whitespace changes only."));
+        connect(m_whitespaceAction, &QAction::toggled, this, [this](bool on) {
+            Core::ICore::settings()->setValue(IGNORE_WHITESPACE_SETTINGS_KEY, on);
+            m_ignoreWhitespace = on;
+            startUpdate(); // the diff itself changes, recompute it
+        });
+
         m_updateTimer.setSingleShot(true);
         m_updateTimer.setInterval(500);
         connect(&m_updateTimer, &QTimer::timeout, this, &InlineDiffEditor::startUpdate);
@@ -1541,9 +1646,11 @@ private:
         }
 
         using namespace QtTaskTree;
-        const auto onSetup = [baselineText = *m_baselineText,
-                              editorText](Async<InlineDiffRenderModel> &async) {
-            async.setConcurrentCallData(computeRenderModel, baselineText, editorText);
+        const auto onSetup = [baselineText = *m_baselineText, editorText,
+                              ignoreWhitespace = m_ignoreWhitespace]
+            (Async<InlineDiffRenderModel> &async) {
+            async.setConcurrentCallData(computeRenderModel, baselineText, editorText,
+                                        ignoreWhitespace);
         };
         const auto onDone = [this](const Async<InlineDiffRenderModel> &async) {
             applyModel(async.isResultAvailable() ? async.result() : InlineDiffRenderModel());
@@ -1733,6 +1840,8 @@ private:
     QPointer<QToolBar> m_toolBar;
     QAction *m_viewSwitcherAction = nullptr;
     QAction *m_collapseAction = nullptr;
+    QAction *m_whitespaceAction = nullptr;
+    bool m_ignoreWhitespace = false;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;
     bool m_centerOnNextModel = false;
     InlineDiffBaseline m_baseline;
