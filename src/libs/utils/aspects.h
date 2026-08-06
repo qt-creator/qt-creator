@@ -671,7 +671,10 @@ public:
 
     ValueType operator()() const { return fromIndex(SelectionAspect::operator()()); }
     ValueType value() const { return fromIndex(SelectionAspect::value()); }
-    void setValue(ValueType value) { SelectionAspect::setValue(toIndex(value)); }
+    void setValue(ValueType value, Announcement announce = DoEmit)
+    {
+        SelectionAspect::setValue(toIndex(value), announce);
+    }
 
     ValueType defaultValue() const { return fromIndex(SelectionAspect::defaultValue()); }
     void setDefaultValue(ValueType value) { SelectionAspect::setDefaultValue(toIndex(value)); }

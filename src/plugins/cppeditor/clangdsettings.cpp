@@ -427,13 +427,14 @@ bool ClangdSettings::Data::useGoodClangd(const Kit *kit) const
 
 void ClangdSettings::setUseClangd(bool use)
 {
-    instance().useClangd.setValue(use);
+    instance().useClangd.setValue(use, BaseAspect::BeQuiet);
 }
 
 void ClangdSettings::setUseClangdAndSave(bool use)
 {
     setUseClangd(use);
     instance().saveSettings();
+    emit instance().changed();
 }
 
 bool ClangdSettings::hardwareFulfillsRequirements()
@@ -557,23 +558,24 @@ ClangdSettings::Data ClangdSettings::data() const
 void ClangdSettings::setData(const Data &data, bool saveAndEmitSignal)
 {
     if (this == &instance() && data != this->data()) {
-        useClangd.setValue(data.useClangd);
-        clangdPath.setValue(data.executableFilePath);
-        autoIncludeHeaders.setValue(data.autoIncludeHeaders);
-        sizeThresholdEnabled.setValue(data.sizeThresholdEnabled);
-        updateDependentSources.setValue(data.updateDependentSources);
-        useExternalCompilationDb.setValue(data.useExternalCompilationDb);
-        workerThreadLimit.setValue(data.workerThreadLimit);
-        documentUpdateThreshold.setValue(data.documentUpdateThreshold);
-        sizeThresholdInKb.setValue(data.sizeThresholdInKb);
-        completionResults.setValue(data.completionResults);
-        projectIndexPathTemplate.setValue(data.projectIndexPathTemplate);
-        sessionIndexPathTemplate.setValue(data.sessionIndexPathTemplate);
-        indexingPriority.setValue(data.indexingPriority);
-        headerSourceSwitchMode.setValue(data.headerSourceSwitchMode);
-        completionRankingModel.setValue(data.completionRankingModel);
-        completionStyle.setValue(data.completionStyle);
-        diagnosticConfigId.setValue(data.diagnosticConfigId);
+        const BaseAspect::Announcement beQuiet = BaseAspect::BeQuiet;
+        useClangd.setValue(data.useClangd, beQuiet);
+        clangdPath.setValue(data.executableFilePath, beQuiet);
+        autoIncludeHeaders.setValue(data.autoIncludeHeaders, beQuiet);
+        sizeThresholdEnabled.setValue(data.sizeThresholdEnabled, beQuiet);
+        updateDependentSources.setValue(data.updateDependentSources, beQuiet);
+        useExternalCompilationDb.setValue(data.useExternalCompilationDb, beQuiet);
+        workerThreadLimit.setValue(data.workerThreadLimit, beQuiet);
+        documentUpdateThreshold.setValue(data.documentUpdateThreshold, beQuiet);
+        sizeThresholdInKb.setValue(data.sizeThresholdInKb, beQuiet);
+        completionResults.setValue(data.completionResults, beQuiet);
+        projectIndexPathTemplate.setValue(data.projectIndexPathTemplate, beQuiet);
+        sessionIndexPathTemplate.setValue(data.sessionIndexPathTemplate, beQuiet);
+        indexingPriority.setValue(data.indexingPriority, beQuiet);
+        headerSourceSwitchMode.setValue(data.headerSourceSwitchMode, beQuiet);
+        completionRankingModel.setValue(data.completionRankingModel, beQuiet);
+        completionStyle.setValue(data.completionStyle, beQuiet);
+        diagnosticConfigId.setValue(data.diagnosticConfigId, beQuiet);
         m_data.sessionsWithOneClangd = data.sessionsWithOneClangd;
         m_data.customDiagnosticConfigs = data.customDiagnosticConfigs;
         m_data.haveCheckedHardwareReqirements = data.haveCheckedHardwareReqirements;
@@ -707,7 +709,7 @@ void ClangdSettings::saveSettings()
 #ifdef WITH_TESTS
 void ClangdSettings::setClangdFilePath(const FilePath &filePath)
 {
-    instance().clangdPath.setValue(filePath);
+    instance().clangdPath.setValue(filePath, BaseAspect::BeQuiet);
 }
 #endif
 
