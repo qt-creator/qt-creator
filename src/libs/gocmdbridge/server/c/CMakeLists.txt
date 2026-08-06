@@ -240,3 +240,52 @@ else()
         cmdbridge_add_tests("${C_TARGET}")
     endif()
 endif()
+
+# HarmonyOS refuses to execute a binary that carries no .codesign section, and
+# only the OpenHarmony SDK's own lld can write one, so this target cannot go
+# through zig cc like the others. It is opt-in on an SDK path, and is added to
+# the CmdBridge target in either mode above.
+set(CMDBRIDGE_OHOS_SDK "" CACHE PATH
+    "'native' directory of an OpenHarmony SDK, to also build the HarmonyOS CmdBridge")
+
+if(CMDBRIDGE_OHOS_SDK)
+    set(_ohos_clang "${CMDBRIDGE_OHOS_SDK}/llvm/bin/clang")
+    set(_ohos_sysroot "${CMDBRIDGE_OHOS_SDK}/sysroot")
+    if(NOT EXISTS "${_ohos_clang}" OR NOT IS_DIRECTORY "${_ohos_sysroot}")
+        message(FATAL_ERROR
+            "CMDBRIDGE_OHOS_SDK must point at the \"native\" directory of an "
+            "OpenHarmony SDK, which holds llvm/bin/clang and sysroot.")
+    endif()
+
+    # Without the linker flag the binary still builds, but fails to start on the
+    # device with a bare EACCES, so check for it here instead.
+    execute_process(COMMAND "${CMDBRIDGE_OHOS_SDK}/llvm/bin/ld.lld" --help
+        OUTPUT_VARIABLE _ohos_lld_help ERROR_QUIET)
+    if(NOT _ohos_lld_help MATCHES "--code-sign")
+        message(FATAL_ERROR
+            "The lld in ${CMDBRIDGE_OHOS_SDK} does not support --code-sign, so it "
+            "cannot produce a binary that HarmonyOS will execute. Use a newer "
+            "OpenHarmony SDK; 6.1 is known to work.")
+    endif()
+
+    set(OHOS_TARGET "${CMDBRIDGE_OUTPUT_FOLDER}/cmdbridge-ohos-arm64")
+
+    add_custom_command(
+        OUTPUT "${OHOS_TARGET}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMDBRIDGE_OUTPUT_FOLDER}"
+        COMMAND "${_ohos_clang}"
+            --target=aarch64-linux-ohos --sysroot=${_ohos_sysroot}
+            -D_GNU_SOURCE -std=c11 -Wall -Wextra -Os
+            -DGOBRIDGE_MAGIC_PACKET_MARKER="${GOBRIDGE_MAGIC_PACKET_MARKER}"
+            ${CMAKE_CURRENT_SOURCE_DIR}/cmdbridge.c
+            -pthread -o "${OHOS_TARGET}" -Wl,-s -Wl,--code-sign
+        DEPENDS ${CMDBRIDGE_C_SOURCES}
+        COMMENT "Building cmdbridge-ohos-arm64"
+        VERBATIM
+    )
+
+    add_custom_target(cmdbridge-ohos-arm64 DEPENDS "${OHOS_TARGET}")
+    add_dependencies(CmdBridge cmdbridge-ohos-arm64)
+
+    install(PROGRAMS ${OHOS_TARGET} DESTINATION "${IDE_LIBEXEC_PATH}")
+endif()
