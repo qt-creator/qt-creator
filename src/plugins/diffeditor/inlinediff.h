@@ -80,6 +80,12 @@ public:
         return ghosts.isEmpty() && changes.isEmpty() && baselineChanges.isEmpty();
     }
 
+    // Set on every model that is the result of an actual diff, including one
+    // of two identical texts. A default constructed model means there is no
+    // diff to show (not computed yet, or the texts are too large to diff
+    // live), which is a different state from "computed, no differences".
+    bool computed = false;
+
     // trailing newline state of the compared texts; a difference in it has
     // no visible line of its own (see the phantom row handling), but e.g.
     // reverting a hunk at the end of the file has to take it into account

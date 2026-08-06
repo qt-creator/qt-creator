@@ -84,6 +84,7 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
                                             bool editorEndsWithNewline)
 {
     InlineDiffRenderModel model;
+    model.computed = true;
     model.baselineEndsWithNewline = baselineEndsWithNewline;
     model.editorEndsWithNewline = editorEndsWithNewline;
 
@@ -205,7 +206,11 @@ static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
                                const QString &baselineText, const QString &editorText)
 {
     if (baselineText == editorText) {
-        promise.addResult(InlineDiffRenderModel());
+        InlineDiffRenderModel model;
+        model.computed = true; // no differences, as opposed to no diff at all
+        model.baselineEndsWithNewline = model.editorEndsWithNewline
+            = editorText.endsWith('\n');
+        promise.addResult(model);
         return;
     }
 
@@ -732,9 +737,11 @@ private:
 
     void collapse()
     {
-        // with nothing changed there is no focus to keep, so show the full
-        // file instead of collapsing it into a single placeholder
-        if (m_model.hunks.isEmpty())
+        // without a diff there is nothing to collapse against, e.g. before the
+        // first result arrives or for a document too large to diff live. With
+        // a computed diff and no hunks at all, everything is unchanged and
+        // collapses into a single placeholder above the anchor line.
+        if (!m_model.computed)
             return;
         const QList<QPair<int, int>> editorRuns = collapsibleRuns(
             editorChanges(m_model), m_editor->document()->blockCount(), kCollapseContextLines);

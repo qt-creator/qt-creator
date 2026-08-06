@@ -372,6 +372,7 @@ private slots:
     void testInlineDiff();
     void testInlineDiffCollapse();
     void testInlineDiffCollapseAddedLines();
+    void testInlineDiffCollapseUnchangedFile();
 #endif // WITH_TESTS
 };
 
@@ -2061,6 +2062,112 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseAddedLines()
                  ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
     QCOMPARE(baselineWidget->viewport()
                  ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// A file without any difference to its baseline: with the collapsing on there
+// is nothing to show, so the whole file collapses into a single placeholder
+// that expands it again.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseUnchangedFile()
+{
+    using namespace TextEditor;
+
+    QStringList lines;
+    for (int i = 1; i <= 20; ++i)
+        lines << QString("line %1").arg(i);
+    const QString text = lines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffCollapseUnchangedFile.txt";
+    QVERIFY(sourceFile.writeFileContents(text.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [text](const InlineDiffBaseline::TextCallback &callback) {
+        callback(text); // identical to the editor contents
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline,
+                                               "testInlineDiffCollapseUnchangedFile.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+    diffEditor->widget()->show();
+
+    QTextDocument *doc = diffWidget->document();
+    TextEditorLayout *layout = diffWidget->editorLayout();
+    const auto visibleInEditor = [&](int line1) {
+        return layout->isBlockVisibleInEditor(doc->findBlockByNumber(line1 - 1));
+    };
+
+    // every line but the anchor line at the end is hidden, behind a single
+    // placeholder row
+    QTRY_VERIFY(!visibleInEditor(1));
+    for (int line = 1; line < doc->blockCount(); ++line)
+        QVERIFY(!visibleInEditor(line));
+    QVERIFY(visibleInEditor(doc->blockCount()));
+    QCOMPARE(layout->lineCount(), 1);
+    QList<QWidget *> rows
+        = diffWidget->viewport()->findChildren<QWidget *>("InlineDiffCollapsedRow");
+    QCOMPARE(rows.size(), 1);
+
+    // the shared source editor still shows the full file
+    QVERIFY(!sourceWidget->editorLayout()->hasEditorHiddenBlocks());
+
+    // clicking the placeholder expands the file again
+    QTest::mouseClick(rows.first(), Qt::LeftButton);
+    QTRY_VERIFY(!layout->hasEditorHiddenBlocks());
+    QVERIFY(visibleInEditor(1));
+    QCOMPARE(layout->lineCount(), doc->blockCount());
+    QTRY_COMPARE(diffWidget->viewport()
+                     ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 0);
+
+    // turning the toggle off and on again collapses the file once more
+    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    QVERIFY(toolBar);
+    QAction *collapseAction = Utils::findOrDefault(toolBar->actions(),
+                                                   [](QAction *a) { return a->isCheckable(); });
+    QVERIFY(collapseAction);
+    QVERIFY(collapseAction->isChecked());
+    collapseAction->setChecked(false);
+    QVERIFY(!layout->hasEditorHiddenBlocks());
+    collapseAction->setChecked(true);
+    QTRY_VERIFY(layout->hasEditorHiddenBlocks());
+    QVERIFY(!visibleInEditor(1));
+
+    // the side by side view collapses the identical baseline alongside
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> sideWidgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(sideWidgets.size(), 2);
+    TextEditorWidget *baselineWidget = sideWidgets.first() == diffWidget ? sideWidgets.last()
+                                                                        : sideWidgets.first();
+    diffEditor->widget()->resize(1000, 600);
+    diffEditor->widget()->show();
+    QTRY_VERIFY(baselineWidget->editorLayout()->hasEditorHiddenBlocks());
+    QCOMPARE(baselineWidget->editorLayout()->lineCount(), 1);
+    QCOMPARE(baselineWidget->viewport()
+                 ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 1);
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
