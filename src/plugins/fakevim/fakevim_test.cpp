@@ -255,6 +255,14 @@ private slots:
     void test_vim_register_last_line();
     void test_vim_script_nonblank();
     void test_vim9_exchange();
+    void test_vim_script_unpack_rest();
+    void test_vim_ex_put();
+    void test_vim_script_named_key_string();
+    void test_vim_register_carriage_return();
+    void test_vim_script_getchar();
+    void test_vim_script_eval();
+    void test_vim_set_invert();
+    void test_vim_command_line_expression();
     void test_vim_script_registers();
     void test_vim_script_mapping_queries();
     void test_vim_script_string_escapes();
@@ -6743,11 +6751,16 @@ void FakeVimTester::test_vim_script_unpacking()
     QCOMPARE(echo("g:a"), QLatin1String("1"));
     QCOMPARE(echo("g:b"), QLatin1String("2"));
 
-    // Extra items are ignored; missing ones default to 0.
-    data.doCommand("let [g:p, g:q] = [10, 20, 30]");
-    QCOMPARE(echo("g:p"), QLatin1String("10"));
-    data.doCommand("let [g:m, g:n] = [7]");
-    QCOMPARE(echo("g:n"), QLatin1String("0"));
+    // Vim wants a name for every item: too many of either is an error, and
+    // nothing is assigned then (measured from Vim 9.1).
+    data.doCommand("let g:p = 'keep' | let g:q = 'keep'");
+    data.doCommand("let g:e = '' | try | let [g:p, g:q] = [10, 20, 30]"
+                   " | catch | let g:e = v:exception | endtry");
+    QVERIFY(echo("g:e").contains(QLatin1String("E687")));
+    QCOMPARE(echo("g:p"), QLatin1String("keep"));
+    data.doCommand("let g:e = '' | try | let [g:m, g:n] = [7]"
+                   " | catch | let g:e = v:exception | endtry");
+    QVERIFY(echo("g:e").contains(QLatin1String("E688")));
 
     // :for unpacking, e.g. over items().
     data.doCommand("let g:r = [] | for [k, v] in items({\"a\": 1, \"b\": 2}) | "
@@ -7946,6 +7959,376 @@ void FakeVimTester::test_vim9_exchange()
         "    bar / foo",       // the indent stays where it was
     };
     QCOMPARE(got, wanted);
+}
+
+void FakeVimTester::test_vim_script_unpack_rest()
+{
+    // ":let [a, b; rest] = list" gives the last name what is left of the list,
+    // and without one the counts have to match. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto result = [&](const QString &command, const QString &read) {
+        data.doCommand("let g:r = 'unset'");
+        data.doCommand("try | " + command + " | let g:r = string(" + read
+                       + ") | catch | let g:r = v:exception | endtry");
+        message.clear();
+        data.doCommand("echo g:r");
+        return message;
+    };
+
+    QCOMPARE(result("let [a, b; rest] = [1,2,3,4]", "[a, b, rest]"),
+             QLatin1String("[1, 2, [3, 4]]"));
+    // Nothing left over still makes a list, an empty one.
+    QCOMPARE(result("let [c; rest2] = [1]", "[c, rest2]"), QLatin1String("[1, []]"));
+    QCOMPARE(result("let [g, h; rest3] = ['n', '[e', 'x', 'y']", "[g, h, rest3]"),
+             QLatin1String("['n', '[e', ['x', 'y']]"));
+    QCOMPARE(result("let [i, j] = [1, 2]", "[i, j]"), QLatin1String("[1, 2]"));
+    // Too few or too many items are errors a script can catch.
+    QVERIFY(result("let [e, f; rest4] = [1]", "[e]").contains(QLatin1String("E688")));
+    QVERIFY(result("let [k, l] = [1, 2, 3]", "[k, l]").contains(QLatin1String("E687")));
+    data.doCommand("unlet g:r");
+}
+
+void FakeVimTester::test_vim_ex_put()
+{
+    // ":put" puts what a register or an expression holds as whole lines after
+    // the line the range names, or before it with a "!", and leaves the cursor
+    // on the last of them. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto run = [&](const char *command, const char *start) -> QString {
+        data.setText(X "alpha" N "beta" N "gamma");
+        data.doCommand("call setreg('a', \"AAA\\n\", 'V')");
+        data.doCommand("call setreg('b', 'BBB', 'v')");
+        // The registers are shared with every other test.
+        data.doCommand("call setreg('z', '')");
+        data.doKeys(start);
+        data.doCommand(QLatin1String("let g:e = '' | try | ") + command
+                       + " | catch | let g:e = v:exception | endtry");
+        message.clear();
+        data.doCommand("echo line('.') . ',' . col('.') . g:e");
+        return QString::fromUtf8(data.text()).replace(QLatin1Char('\n'), QLatin1String("/"))
+               + "  at " + message;
+    };
+
+    QCOMPARE(run("put a", "j0l"), QLatin1String("alpha/beta/AAA/gamma  at 3,1"));
+    QCOMPARE(run("put! a", "j0l"), QLatin1String("alpha/AAA/beta/gamma  at 2,1"));
+    // A charwise register goes in as a line all the same.
+    QCOMPARE(run("put b", "j0l"), QLatin1String("alpha/beta/BBB/gamma  at 3,1"));
+    QCOMPARE(run("put! b", "j0l"), QLatin1String("alpha/BBB/beta/gamma  at 2,1"));
+    QCOMPARE(run("1put a", "j0l"), QLatin1String("alpha/AAA/beta/gamma  at 2,1"));
+    QCOMPARE(run("$put a", "0l"), QLatin1String("alpha/beta/gamma/AAA  at 4,1"));
+    QCOMPARE(run("2put a", "0l"), QLatin1String("alpha/beta/AAA/gamma  at 3,1"));
+    // A range puts after its last line.
+    QCOMPARE(run("1,2put a", "jj0l"), QLatin1String("alpha/beta/AAA/gamma  at 3,1"));
+    QCOMPARE(run("pu a", "j0l"), QLatin1String("alpha/beta/AAA/gamma  at 3,1"));
+    // The expression form, which needs no register at all.
+    QCOMPARE(run("put ='X'", "j0l"), QLatin1String("alpha/beta/X/gamma  at 3,1"));
+    QCOMPARE(run("put! ='X'", "j0l"), QLatin1String("alpha/X/beta/gamma  at 2,1"));
+    QCOMPARE(run("put ='a' . nr2char(10) . 'b'", "j0l"),
+             QLatin1String("alpha/beta/a/b/gamma  at 4,1"));
+    QCOMPARE(run("put =['p', 'q']", "j0l"), QLatin1String("alpha/beta/p/q/gamma  at 4,1"));
+    // Line breaks alone are empty lines, which is how a plugin makes room.
+    QCOMPARE(run("put! =repeat(nr2char(10), 2)", "j0l"),
+             QLatin1String("alpha///beta/gamma  at 3,1"));
+    QCOMPARE(run("put =''", "j0l"), QLatin1String("alpha/beta//gamma  at 3,1"));
+    // The cursor goes to the first non-blank of the last line put.
+    QCOMPARE(run("put ='   ind'", "j0l"), QLatin1String("alpha/beta/   ind/gamma  at 3,4"));
+    // An empty register is an error, and nothing is put.
+    QVERIFY(run("put z", "j0l").contains(QLatin1String("E353")));
+
+    // The unnamed register, as a plugin duplicates a line.
+    data.setText(X "alpha" N "beta" N "gamma");
+    data.doKeys("yy");
+    data.doCommand("put");
+    QCOMPARE(data.text(), QByteArray("alpha\nalpha\nbeta\ngamma"));
+    data.doCommand("unlet g:e");
+}
+
+void FakeVimTester::test_vim_script_named_key_string()
+{
+    // A key with a name written into a string, as "\<Left>", is that key when
+    // the string is used as keys. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto run = [&](const char *command) -> QString {
+        data.setText(X "abcdef");
+        data.doCommand(command);
+        message.clear();
+        data.doCommand("echo line('.') . ',' . col('.')");
+        return message + " [" + QString::fromUtf8(data.text()) + "]";
+    };
+
+    QCOMPARE(run("execute \"normal! $\\<Left>\""), QLatin1String("1,5 [abcdef]"));
+    QCOMPARE(run("execute \"normal! 0\\<Right>\\<Right>\""), QLatin1String("1,3 [abcdef]"));
+    QCOMPARE(run("execute \"normal! iXY\\<Left>Z\\<Esc>\""),
+             QLatin1String("1,2 [XZYabcdef]"));
+    // Also when the keys come out of a register that is run.
+    data.setText(X "abcdef");
+    data.doCommand("let @z = \"0\\<Right>x\"");
+    data.doKeys("@z");
+    QCOMPARE(data.text(), QByteArray("acdef"));
+    data.doCommand("let @z = ''");
+}
+
+void FakeVimTester::test_vim_register_carriage_return()
+{
+    // A register holds the characters themselves, so the carriage return in one
+    // a script fills is the Return key. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto run = [&](const char *command, const char *keys) -> QString {
+        data.setText(X "one two three");
+        data.doCommand(command);
+        data.doKeys(keys);
+        message.clear();
+        data.doCommand("echo line('.') . ',' . col('.')");
+        return message + " [" + QString::fromUtf8(data.text()) + "]";
+    };
+
+    // The ex command has to be entered, not left standing on the command line.
+    QCOMPARE(run("let @r = ':s/one/ONE/' . nr2char(13)", "@r"),
+             QLatin1String("1,1 [ONE two three]"));
+    QCOMPARE(run("let @s = '/two' . nr2char(13)", "@s"),
+             QLatin1String("1,5 [one two three]"));
+    QCOMPARE(run("let @t = 'iX' . nr2char(27)", "@t"),
+             QLatin1String("1,1 [Xone two three]"));
+    data.doCommand("let @r = '' | let @s = '' | let @t = ''");
+}
+
+void FakeVimTester::test_vim_script_getchar()
+{
+    // getchar() and getcharstr() hand out the keys already typed ahead: what is
+    // left of a mapping being expanded, or of a register being run. Values taken
+    // from Vim 9.1, which answers the same for both of those. Waiting for a key
+    // that has not been typed is not possible here, so the form without an
+    // argument answers like getchar(0).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/g.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("let g:log = []\n"
+            "function! Grab()\n"
+            "  call add(g:log, 'peek=' . string(getchar(1)))\n"
+            "  call add(g:log, 'took=' . string(getchar(0)))\n"
+            "endfunction\n"
+            "function! GrabStr()\n"
+            "  call add(g:log, 'str=' . string(getcharstr(0)))\n"
+            "endfunction\n"
+            "nnoremap QQ :call Grab()<CR>)\n"
+            "nnoremap QS :call GrabStr()<CR>x\n"
+            "nnoremap QA :call Grab()<CR><Left>\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/g.vim");
+    const auto log = [&](const char *keys) {
+        data.setText(X "one two three");
+        data.doCommand("let g:log = []");
+        data.doKeys(keys);
+        message.clear();
+        data.doCommand("echo join(g:log, ' ')");
+        return message;
+    };
+
+    // Nothing typed ahead: no key to hand out.
+    message.clear();
+    data.doCommand("echo getchar(0) . ',' . getchar(1) . ',' . getchar()");
+    QCOMPARE(message, QLatin1String("0,0,0"));
+    message.clear();
+    data.doCommand("echo '[' . getcharstr(0) . getcharstr() . ']'");
+    QCOMPARE(message, QLatin1String("[]"));
+
+    // What the mapping still has after the ":call" it is expanding.
+    QCOMPARE(log("QQ"), QLatin1String("peek=41 took=41"));
+    QCOMPARE(log("QS"), QLatin1String("str='x'"));
+    // A key with a name comes back as the token this engine names it by, which
+    // is what "\<Left>" writes as well, so comparing the two matches as it
+    // does in Vim. Vim answers with its own encoding of the key there, and for
+    // the peek with the first byte of it.
+    QCOMPARE(log("QA"), QLatin1String("peek='<LEFT>' took='<LEFT>'"));
+    message.clear();
+    data.doCommand("echo \"\\<Left>\" . ',' . (\"\\<Left>\" ==# '<LEFT>')");
+    QCOMPARE(message, QLatin1String("<LEFT>,1"));
+
+    // And what a register being run still has.
+    data.doCommand("let @q = \":call Grab()\" . nr2char(13) . '%'");
+    QCOMPARE(log("@q"), QLatin1String("peek=37 took=37"));
+    // The keys the plugin took are gone, so the "%" no longer moves the cursor.
+    message.clear();
+    data.doCommand("echo col('.')");
+    QCOMPARE(message, QLatin1String("1"));
+
+    data.doCommand("nunmap QQ | nunmap QS | nunmap QA");
+    data.doCommand("delfunction Grab | delfunction GrabStr | unlet g:log");
+    data.doCommand("let @q = ''");
+}
+
+void FakeVimTester::test_vim_script_eval()
+{
+    // eval() is the value of what a string says, which is how a script reads a
+    // name it has built and the other half of string(). Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        data.doCommand("let g:e = ''");
+        data.doCommand("try | let g:v = " + expr
+                       + " | catch | let g:e = v:exception | let g:v = 'FAILED' | endtry");
+        message.clear();
+        data.doCommand("echo string(g:v)");
+        return message;
+    };
+    const auto failure = [&](const QString &expr) {
+        value(expr);
+        message.clear();
+        data.doCommand("echo g:e");
+        return message;
+    };
+    data.doCommand("set noignorecase | let g:n = 7");
+
+    QCOMPARE(value("eval('1+2')"), QLatin1String("3"));
+    QCOMPARE(value("eval('&ignorecase')"), QLatin1String("0"));
+    QCOMPARE(value("eval(\"'abc'\")"), QLatin1String("'abc'"));
+    QCOMPARE(value("eval('[1,2]')"), QLatin1String("[1, 2]"));
+    QCOMPARE(value("eval(\"{'a':1}\")"), QLatin1String("{'a': 1}"));
+    QCOMPARE(value("eval('g:n')"), QLatin1String("7"));
+    QCOMPARE(value("eval('2.5')"), QLatin1String("2.5"));
+    // A number is taken as it stands.
+    QCOMPARE(value("eval(42)"), QLatin1String("42"));
+    // What string() wrote, eval() reads back.
+    QCOMPARE(value("eval(string([1,'x']))"), QLatin1String("[1, 'x']"));
+    // And what is no expression at all is an error a script can catch.
+    QVERIFY(failure("eval('nosuchvar')").contains(QLatin1String("E121")));
+    QVERIFY(!failure("eval('1+')").isEmpty());
+    QVERIFY(!failure("eval('')").isEmpty());
+
+    data.doCommand("unlet g:n | unlet g:v | unlet g:e");
+}
+
+void FakeVimTester::test_vim_set_invert()
+{
+    // ":set inv{option}" turns a boolean around, as "{option}!" does. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto run = [&](const QString &command, const char *read) {
+        data.doCommand("let g:e = ''");
+        data.doCommand("try | " + command + " | catch | let g:e = v:exception | endtry");
+        message.clear();
+        data.doCommand(QLatin1String("echo &") + read + " . ' ' . g:e");
+        return message;
+    };
+    data.doCommand("set noignorecase noexpandtab");
+
+    QCOMPARE(run("set invignorecase", "ignorecase"), QLatin1String("1 "));
+    QCOMPARE(run("set invignorecase", "ignorecase"), QLatin1String("0 "));
+    QCOMPARE(run("set ignorecase!", "ignorecase"), QLatin1String("1 "));
+    // Also by the short name.
+    QCOMPARE(run("set invic", "ignorecase"), QLatin1String("0 "));
+    QCOMPARE(run("set ic!", "ignorecase"), QLatin1String("1 "));
+    QCOMPARE(run("set invexpandtab", "expandtab"), QLatin1String("1 "));
+    // Only a boolean can be turned around, and "no" is not part of the name.
+    QVERIFY(run("set invtabstop", "tabstop").contains(QLatin1String("E474")));
+    QVERIFY(run("set tabstop!", "tabstop").contains(QLatin1String("E488")));
+    QVERIFY(run("set invnoignorecase", "ignorecase").contains(QLatin1String("E518")));
+
+    data.doCommand("set noignorecase noexpandtab | unlet g:e");
+}
+
+void FakeVimTester::test_vim_command_line_expression()
+{
+    // CTRL-R = in a command line asks for an expression and puts its value into
+    // the line, which is how a plugin builds a command out of one. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/t.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! Name(opt)\n"
+            "  return 'inv' . a:opt\n"
+            "endfunction\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/t.vim");
+    data.doCommand("set noignorecase");
+
+    data.setText(X "one two three");
+    data.doKeys(":let g:a = <C-r>=1+2<CR><CR>");
+    QCOMPARE(value("g:a"), QLatin1String("3"));
+    data.doKeys(":let g:b = \"<C-r>=nr2char(65)<CR>\"<CR>");
+    QCOMPARE(value("g:b"), QLatin1String("A"));
+    // Escape gives up on the expression and leaves the line as it was.
+    data.doKeys(":let g:c = 9<C-r>=2+2<Esc>9<CR>");
+    QCOMPARE(value("g:c"), QLatin1String("99"));
+    // Every item of a list is a line, and a command line holds one line.
+    data.doKeys(":let g:e = \"<C-r>=[1,2]<CR>\"<CR>");
+    QCOMPARE(value("g:e"), QLatin1String("1 2 "));
+    // The shape a plugin turns an option around with.
+    data.doKeys(":set <C-r>=Name('ignorecase')<CR><CR>");
+    QCOMPARE(value("&ignorecase"), QLatin1String("1"));
+    data.doKeys(":set <C-r>=Name('ignorecase')<CR><CR>");
+    QCOMPARE(value("&ignorecase"), QLatin1String("0"));
+    // And in a search line.
+    data.setText(X "one two three");
+    data.doKeys("/<C-r>=\"two\"<CR><CR>");
+    QCOMPARE(value("col('.')"), QLatin1String("5"));
+
+    data.doCommand("unlet g:a | unlet g:b | unlet g:c | unlet g:e");
+    data.doCommand("delfunction Name");
 }
 
 void FakeVimTester::test_vim_script_registers()

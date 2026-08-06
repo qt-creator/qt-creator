@@ -1403,7 +1403,9 @@ public:
 
     bool isReturn() const
     {
-        return m_key == '\n' || m_key == Key_Return || m_key == Key_Enter;
+        // A string of keys may hold the character itself, as a register a script
+        // fills does, where '\r' is what the Return key sent.
+        return m_key == '\n' || m_key == '\r' || m_key == Key_Return || m_key == Key_Enter;
     }
 
     bool isEscape() const
@@ -2311,6 +2313,10 @@ public:
     EventResult handleKey(const Input &input);
     EventResult handleDefaultKey(const Input &input);
     bool handleCommandBufferPaste(const Input &input);
+    // CTRL-R = in a command line: the expression is typed into a prompt of
+    // its own, and its value goes into the command line it was opened from.
+    CommandBuffer m_expressionBuffer;
+    CommandBuffer *m_expressionTarget = nullptr;
     EventResult handleCurrentMapAsDefault();
     void prependInputs(const QVector<Input> &inputs); // Handle inputs.
     void prependMapping(const Inputs &inputs); // Handle inputs as mapping.
@@ -2940,6 +2946,7 @@ public:
     bool handleExYankDeleteCommand(const ExCommand &cmd);
     bool handleExChangeCommand(const ExCommand &cmd);
     bool handleExMoveCommand(const ExCommand &cmd);
+    bool handleExPutCommand(const ExCommand &cmd);
     bool handleExJoinCommand(const ExCommand &cmd);
     bool handleExGotoCommand(const ExCommand &cmd);
     bool handleExHistoryCommand(const ExCommand &cmd);
@@ -3757,6 +3764,45 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
 
 bool FakeVimHandler::Private::handleCommandBufferPaste(const Input &input)
 {
+    if (m_expressionTarget) {
+        // The "=" prompt is open: Return puts the value of what was typed into
+        // the command line, Escape gives up on it.
+        if (input.isEscape()) {
+            m_expressionBuffer.clear();
+            m_expressionTarget = nullptr;
+        } else if (input.isReturn()) {
+            const QString expr = m_expressionBuffer.contents();
+            CommandBuffer *target = m_expressionTarget;
+            m_expressionBuffer.clear();
+            m_expressionTarget = nullptr;
+            VimValue value;
+            QString error;
+            if (evaluateExpression(expr, &value, &error)) {
+                QString text;
+                if (value.isList()) {
+                    // Every item is a line of its own, and a command line holds
+                    // one line, so the breaks come out as blanks.
+                    for (const VimValue &item : *value.listData())
+                        text += item.toString() + ' ';
+                } else {
+                    text = value.toString();
+                }
+                target->insertText(text);
+            } else {
+                showMessage(MessageError, error);
+            }
+        } else if (input.isBackspace()) {
+            if (m_expressionBuffer.isEmpty())
+                m_expressionTarget = nullptr;
+            else
+                m_expressionBuffer.deleteChar();
+        } else {
+            m_expressionBuffer.handleInput(input);
+        }
+        updateMiniBuffer();
+        return true;
+    }
+
     const bool inCommandLine = g.subsubmode == SearchSubSubMode || g.mode == ExMode;
     if (inCommandLine && input.isControl('v')) {
         // OS-style paste of the clipboard into the command line, in addition to
@@ -3783,7 +3829,12 @@ bool FakeVimHandler::Private::handleCommandBufferPaste(const Input &input)
             return true;
         CommandBuffer &buffer = (g.subsubmode == SearchSubSubMode)
             ? g.searchBuffer : g.commandBuffer;
-        if (input.isControl('w')) {
+        if (input.is('=')) {
+            // CTRL-R = : an expression, asked for in a prompt of its own.
+            m_expressionBuffer.clear();
+            m_expressionBuffer.setPrompt('=');
+            m_expressionTarget = &buffer;
+        } else if (input.isControl('w')) {
             QTextCursor tc = m_cursor;
             tc.select(QTextCursor::WordUnderCursor);
             QString word = tc.selectedText();
@@ -4758,6 +4809,13 @@ void FakeVimHandler::Private::updateMiniBuffer()
 
     if (g.passing) {
         msg = "PASSING";
+    } else if (m_expressionTarget) {
+        // The "=" prompt stands in front of the command line it was opened from.
+        msg = m_expressionBuffer.display();
+        if (g.mapStates.isEmpty()) {
+            cursorPos = m_expressionBuffer.cursorPos() + 1;
+            anchorPos = m_expressionBuffer.anchorPos() + 1;
+        }
     } else if (g.subsubmode == SearchSubSubMode) {
         msg = g.searchBuffer.display();
         if (g.mapStates.isEmpty()) {
@@ -7894,7 +7952,17 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         if (printOption || toggleOption)
             optionName.chop(1);
 
-        bool negateOption = optionName.startsWith("no");
+        // ":set inv{option}" turns a boolean around, as "{option}!" does. A
+        // script that toggles one writes it that way. No option is named
+        // "inv..." itself, which is what makes the prefix safe.
+        const bool invertOption = !toggleOption && !printOption
+                                  && optionName.startsWith("inv");
+        if (invertOption) {
+            optionName.remove(0, 3);
+            toggleOption = true;
+        }
+
+        bool negateOption = !invertOption && optionName.startsWith("no");
         if (negateOption)
             optionName.remove(0, 2);
 
@@ -7918,10 +7986,10 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
             } else if (toggleOption || negateOption == oldValue) {
                 act->setVariantValue(!oldValue);
             }
-        } else if (negateOption && !printOption) {
-            showMessage(MessageError, Tr::tr("Invalid argument:") + ' ' + arg);
+        } else if ((negateOption && !printOption) || invertOption) {
+            showMessage(MessageError, Tr::tr("E474: Invalid argument:") + ' ' + arg);
         } else if (toggleOption) {
-            showMessage(MessageError, Tr::tr("Trailing characters:") + ' ' + arg);
+            showMessage(MessageError, Tr::tr("E488: Trailing characters:") + ' ' + arg);
         } else {
             showMessage(MessageInfo, act->settingsKey().toByteArray().toLower() + "="
                         + act->variantValue().toString());
@@ -8066,12 +8134,6 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
     QString text = selectText(cmd.range);
     removeText(currentRange());
 
-    // The last line has no trailing newline, so its linewise selection carries
-    // a leading newline instead; normalize to the usual "line\n" form so the
-    // text below can be reinserted at any block boundary.
-    if (text.startsWith(QLatin1Char('\n')))
-        text = text.mid(1) + QLatin1Char('\n');
-
     const bool insertAtEnd = targetLine == document()->blockCount();
     if (targetLine >= startLine)
         targetLine -= lines;
@@ -8101,6 +8163,74 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
     if (lines > 2)
         showMessage(MessageInfo, Tr::tr("%n lines moved.", nullptr, lines));
 
+    return true;
+}
+
+// :[range]pu[t] [x] or :[range]pu[t] ={expr} - put what a register or an
+// expression holds as whole lines after the line the range names, or before it
+// with a "!". A script builds lines that way, the expression form even without
+// a register.
+bool FakeVimHandler::Private::handleExPutCommand(const ExCommand &cmd)
+{
+    if (!cmd.matches("pu", "put"))
+        return false;
+
+    QString text;
+    const QString args = cmd.args.trimmed();
+    if (args.startsWith('=')) {
+        VimValue value;
+        QString error;
+        if (!evaluateExpression(args.mid(1), &value, &error)) {
+            showMessage(MessageError, error);
+            return true;
+        }
+        if (value.isList()) {
+            // Every item of a list is a line of its own.
+            QStringList items;
+            for (const VimValue &item : *value.listData())
+                items.append(item.toString());
+            text = items.join('\n');
+        } else {
+            text = value.toString();
+        }
+    } else {
+        const int reg = args.isEmpty() ? '"' : args.at(0).unicode();
+        text = registerContents(reg);
+        if (text.isEmpty()) {
+            showMessage(MessageError,
+                        Tr::tr("E353: Nothing in register %1").arg(QChar(reg)));
+            return true;
+        }
+    }
+    // Whatever it held goes in as lines, so the last one ends too.
+    if (!text.endsWith('\n'))
+        text += '\n';
+
+    pushUndoState();
+    const int lineCount = document()->blockCount();
+    const int target = blockAt(cmd.range.endPos).blockNumber();
+    const int before = cmd.hasBang ? target : target + 1;
+    const int putLines = int(text.count('\n'));
+
+    if (before >= lineCount) {
+        // Behind the last line there is no break to insert in front of.
+        setPosition(lastPositionInLine(lineCount));
+        moveBehindEndOfLine();
+        QString tail = text;
+        tail.chop(1);
+        tail.prepend('\n');
+        insertText(tail);
+    } else {
+        setPosition(firstPositionInLine(before + 1));
+        setAnchor();
+        insertText(text);
+    }
+
+    // Vim leaves the cursor on the last line it put.
+    setPosition(firstPositionInLine(before + putLines));
+    moveToFirstNonBlankOnLine();
+    setAnchor();
+    setTargetColumn();
     return true;
 }
 
@@ -9673,6 +9803,17 @@ private:
                     m_pos = close + 1;
                     return QString(QChar(code));
                 }
+                // A key that stands for no character of its own, like
+                // "\<Left>": the token this engine names it by, so it can be
+                // sent on and compared with what getchar() answers.
+                const QString canonical = keyName.toUpper();
+                if (vimKeyNames().contains(canonical)) {
+                    m_pos = close + 1;
+                    QString token = canonical;
+                    token.prepend('<');
+                    token.append('>');
+                    return token;
+                }
             }
         }
         ++m_pos;
@@ -10135,11 +10276,28 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
         } else if (!list.isList()) {
             showMessage(MessageError, Tr::tr(":let with [...] requires a list"));
         } else {
+            // The last name may be preceded by ";", and takes the rest of the
+            // list: "[a, b; rest]". Without one the counts have to match.
+            QString targets = um.captured(1);
+            QString restName;
+            const int semicolon = targets.indexOf(';');
+            if (semicolon >= 0) {
+                restName = targets.mid(semicolon + 1).trimmed();
+                targets = targets.left(semicolon);
+            }
             const QStringList names =
-                um.captured(1).split(QRegularExpression("\\s*,\\s*"), Qt::SkipEmptyParts);
+                targets.split(QRegularExpression("\\s*,\\s*"), Qt::SkipEmptyParts);
             const QList<VimValue> &items = *list.listData();
-            for (int i = 0; i < names.size(); ++i)
-                setVariable(names.at(i), i < items.size() ? items.at(i) : VimValue());
+            if (names.size() > items.size()) {
+                showMessage(MessageError, Tr::tr("E688: More targets than List items"));
+            } else if (restName.isEmpty() && names.size() < items.size()) {
+                showMessage(MessageError, Tr::tr("E687: Less targets than List items"));
+            } else {
+                for (int i = 0; i < names.size(); ++i)
+                    setVariable(names.at(i), items.at(i));
+                if (!restName.isEmpty())
+                    setVariable(restName, VimValue::list(items.mid(names.size())));
+            }
         }
         return true;
     }
@@ -10941,10 +11099,11 @@ static bool isBuiltinFunction(const QString &name)
 {
     static const QSet<QString> builtins = {
         "abs", "add", "bufnr", "call", "char2nr", "col", "copy", "count",
-        "cursor", "deepcopy", "did_filetype", "empty", "escape", "executable",
+        "cursor", "deepcopy", "did_filetype", "empty", "escape", "eval", "executable",
         "exists", "expand", "extend", "filereadable", "filter", "fnameescape",
         "fnamemodify", "funcref", "function", "get", "getbufvar", "getcurpos",
-        "getcwd", "getline", "getpos", "has", "has_key", "iconv", "indent",
+        "getchar", "getcharstr", "getcwd", "getline", "getpos", "has", "has_key",
+        "iconv", "indent",
         "index", "insert", "isdirectory", "items", "join", "keys", "len",
         "line", "map", "match", "matchend", "matchlist", "matchstr", "max", "min",
         "mode", "searchpair", "searchpairpos",
@@ -11274,6 +11433,32 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         for (int i = 0; i < upto; ++i)
             column = line.at(i) == '\t' ? (column / ts + 1) * ts : column + 1;
         *result = VimValue(qlonglong(wantEnd ? column + 1 : column));
+    } else if (name == "getchar" || name == "getcharstr") {
+        // The next of the keys already typed ahead - what is left of a mapping
+        // being expanded, or of a register being run. There is no waiting for
+        // one here: the engine has no way to suspend a running script, so the
+        // form without an argument answers like getchar(0) instead of blocking.
+        // A "1" only looks at the key, anything else takes it.
+        const bool asString = name == "getcharstr";
+        const bool peek = !args.isEmpty() && arg(0).toNumber() == 1;
+        // A mapping keeps its state in the queue too; only a key at the front
+        // of it is one this can hand out.
+        if (!g.pendingInput.isEmpty() && g.pendingInput.first().isValid()) {
+            const Input in = peek ? g.pendingInput.first() : g.pendingInput.takeFirst();
+            const QChar c = in.asChar();
+            if (c.isNull()) {
+                // A key with a name, as "\<Left>" writes it. Vim answers with
+                // its own encoding of that key, which is what comparing against
+                // "\<Left>" matches there, and this is what matches here.
+                *result = VimValue(in.toString());
+            } else if (asString) {
+                *result = VimValue(QString(c));
+            } else {
+                *result = VimValue(qlonglong(c.unicode()));
+            }
+        } else {
+            *result = asString ? VimValue(QString()) : VimValue(qlonglong(0));
+        }
     } else if (name == "getreg" || name == "getregtype") {
         // What a register holds, and of what kind. An empty name is the unnamed
         // register.
@@ -11950,6 +12135,15 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         *result = VimValue(QString::fromLocal8Bit(buffer, int(used)));
     } else if (name == "did_filetype") {
         *result = VimValue(qlonglong(didFileType() ? 1 : 0));
+    } else if (name == "eval") {
+        // The value of what a string says, which is how a script reads a name it
+        // has built - "eval('&' . option)" - and the other half of string().
+        const QString expr = arg(0).toString();
+        QString evalError;
+        if (!evaluateExpression(expr, result, &evalError)) {
+            *error = evalError;
+            return false;
+        }
     } else if (name == "expand") {
         *result = VimValue(expandKeyword(arg(0).toString()));
     } else if (name == "function" || name == "funcref") {
@@ -13082,6 +13276,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExYankDeleteCommand(cmd)
         || handleExChangeCommand(cmd)
         || handleExMoveCommand(cmd)
+        || handleExPutCommand(cmd)
         || handleExJoinCommand(cmd)
         || handleExSilentCommand(cmd)
         || handleExModifierCommand(cmd)
