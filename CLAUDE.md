@@ -44,6 +44,22 @@ message (after any `Amends`/`Task-number` footers).
 - Use `Utils::StyleHelper::uiFont()` for fonts. No manual `QFont::setPixelSize/setPointSize/setBold` etc.
 - Use `Utils::SpacingTokens` for margins/spacings/paddings. No hard-coded pixel numbers.
 
+## Testing rules
+
+- Never use `QTest::qWait()`, `QThread::sleep()` or any other wall-clock wait
+  in a test. Bound every wait on a causal signal instead - `QTRY_VERIFY*` on a
+  state or event the code under test must produce, or a round trip whose answer
+  proves the earlier command was processed.
+- Asserting that something does *not* happen ("no error is reported") has no
+  event to wait for, which is exactly what tempts a sleep. Use ordering
+  instead: wait for an event that is guaranteed to arrive *after* the moment in
+  question, and check the absence once it has. Commands are processed in order,
+  so if the unwanted event were coming, it would already be there. Where no
+  such later event exists, `QSKIP` with an honest reason.
+- Never raise a shared timeout to make one flaky test pass. Fix the test.
+- An assertion that cannot fail is worse than no assertion. Before claiming a
+  test covers a fix, disable the fix and confirm the test goes red.
+
 ## Code Style Guide
 
 - Always follow the rules in STYLE.md
