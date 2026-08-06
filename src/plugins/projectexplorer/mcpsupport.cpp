@@ -946,6 +946,29 @@ void registerMcpTools()
         };
     };
 
+    // Helpers for the generic kit-configuration tools below.
+    static const auto variantToJson = [](const QVariant &v) -> QJsonValue {
+        switch (v.typeId()) {
+        case QMetaType::Bool: return v.toBool();
+        case QMetaType::Int:
+        case QMetaType::LongLong: return double(v.toLongLong());
+        case QMetaType::Double: return v.toDouble();
+        default: return v.toString();
+        }
+    };
+    static const auto jsonToVariant = [](const QJsonValue &j) -> QVariant {
+        if (j.isBool()) return j.toBool();
+        if (j.isDouble()) return j.toDouble();
+        return j.toString();
+    };
+    static const auto kitAspectFactoryById = [](Utils::Id id) -> KitAspectFactory * {
+        for (KitAspectFactory *f : KitManager::kitAspectFactories()) {
+            if (f->id() == id)
+                return f;
+        }
+        return nullptr;
+    };
+
     using Callback = std::function<void(const QJsonObject &)>;
     using SimplifiedAsyncCallback = std::function<void(const QJsonObject &, const Callback &)>;
     static const auto wrapAsync =
@@ -1900,6 +1923,121 @@ void registerMcpTools()
                                   }}}}})
                     .addRequired("kits")),
         wrap([](const QJsonObject &) { return QJsonObject{{"kits", listKits()}}; }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_kit_aspects")
+            .title("List the configurable aspects of a kit")
+            .description(
+                "List the configurable aspects of a kit (debugger, toolchains, Qt version, "
+                "device, ...). Each entry has the aspect id, its display name, a human-readable "
+                "current value, and the raw stored value. Use the aspect id with "
+                "get_kit_aspect_options and set_kit_value.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("kit_id",
+                                 QJsonObject{{"type", "string"},
+                                             {"description", "Kit id (as reported by list_kits)"}})
+                    .addRequired("kit_id"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("aspects", QJsonObject{{"type", "array"}})
+                    .addRequired("aspects")),
+        wrap([](const QJsonObject &p) {
+            Kit *k = KitManager::kit(Utils::Id::fromString(p.value("kit_id").toString()));
+            if (!k)
+                return QJsonObject{{"error", "no such kit"}};
+            QJsonArray arr;
+            for (KitAspectFactory *f : KitManager::kitAspectFactories()) {
+                QStringList disp;
+                for (const KitAspectFactory::Item &item : f->toUserOutput(k))
+                    disp << (item.second.isEmpty() ? item.first : item.second);
+                arr.append(QJsonObject{{"id", f->id().toString()},
+                                       {"name", f->displayName()},
+                                       {"value", disp.join(", ")},
+                                       {"raw", variantToJson(k->value(f->id()))}});
+            }
+            return QJsonObject{{"aspects", arr}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_kit_aspect_options")
+            .title("List the valid values for a kit aspect")
+            .description(
+                "List the values a kit aspect can be set to (for item-backed aspects such as the "
+                "debugger, toolchain, Qt version or device). Each option has a value (to pass to "
+                "set_kit_value) and a display name. An empty list means the aspect is free-form.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("kit_id", QJsonObject{{"type", "string"}})
+                    .addProperty("aspect_id",
+                                 QJsonObject{{"type", "string"},
+                                             {"description", "Aspect id (from get_kit_aspects)"}})
+                    .addRequired("kit_id")
+                    .addRequired("aspect_id"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("options", QJsonObject{{"type", "array"}})
+                    .addRequired("options")),
+        wrap([](const QJsonObject &p) {
+            Kit *k = KitManager::kit(Utils::Id::fromString(p.value("kit_id").toString()));
+            if (!k)
+                return QJsonObject{{"error", "no such kit"}};
+            KitAspectFactory *f = kitAspectFactoryById(
+                Utils::Id::fromString(p.value("aspect_id").toString()));
+            if (!f)
+                return QJsonObject{{"error", "no such aspect"}};
+            QJsonArray arr;
+            for (const KitAspectFactory::Candidate &c : f->candidateValues(k))
+                arr.append(QJsonObject{{"value", variantToJson(c.value)}, {"display", c.displayName}});
+            return QJsonObject{{"options", arr}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("set_kit_value")
+            .title("Set the value of a kit aspect")
+            .description(
+                "Set a kit aspect to a value. Pass the value reported by get_kit_aspect_options "
+                "for item-backed aspects (the exact stored type is preserved); free-form aspects "
+                "take the value as-is.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("kit_id", QJsonObject{{"type", "string"}})
+                    .addProperty("aspect_id", QJsonObject{{"type", "string"}})
+                    .addProperty("value", QJsonObject{{"description", "Value to set"}})
+                    .addRequired("kit_id")
+                    .addRequired("aspect_id")
+                    .addRequired("value"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            Kit *k = KitManager::kit(Utils::Id::fromString(p.value("kit_id").toString()));
+            if (!k)
+                return QJsonObject{{"success", false}, {"error", "no such kit"}};
+            const Utils::Id aspectId = Utils::Id::fromString(p.value("aspect_id").toString());
+            KitAspectFactory *f = kitAspectFactoryById(aspectId);
+            if (!f)
+                return QJsonObject{{"success", false}, {"error", "no such aspect"}};
+            const QJsonValue wanted = p.value("value");
+            // Prefer an enumerated candidate so the exact stored QVariant type
+            // (e.g. a debugger item id) is preserved; otherwise store as-is.
+            QVariant toStore = jsonToVariant(wanted);
+            for (const KitAspectFactory::Candidate &c : f->candidateValues(k)) {
+                if (variantToJson(c.value) == wanted) {
+                    toStore = c.value;
+                    break;
+                }
+            }
+            k->setValue(aspectId, toStore);
+            return QJsonObject{{"success", true}, {"raw", variantToJson(k->value(aspectId))}};
+        }));
 
     ToolRegistry::registerTool(
         Tool{}

@@ -414,6 +414,14 @@ public:
         return new Internal::DebuggerKitAspectImpl(k, this);
     }
 
+    QList<Candidate> candidateValues(const Kit *k) const override
+    {
+        QList<Candidate> result;
+        for (const DebuggerItem &item : Internal::debuggersForBuildDevice(k))
+            result.append({item.id(), item.displayName()});
+        return result;
+    }
+
     void addToMacroExpander(Kit *kit, Utils::MacroExpander *expander) const override
     {
         QTC_ASSERT(kit, return);

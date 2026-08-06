@@ -133,6 +133,13 @@ public:
 
     virtual ItemList toUserOutput(const Kit *) const = 0;
 
+    // Enumerable values this aspect can be set to, for item-backed aspects such
+    // as the debugger, toolchain, Qt version or device. An empty list means the
+    // value is free-form or not enumerable. Used e.g. to let tooling pick a
+    // valid value for setValue().
+    struct Candidate { QVariant value; QString displayName; };
+    virtual QList<Candidate> candidateValues(const Kit *) const { return {}; }
+
     virtual KitAspect *createKitAspect(Kit *) const = 0;
 
     virtual void addToBuildEnvironment(const Kit *k, Utils::Environment &env) const;
