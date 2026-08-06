@@ -237,8 +237,22 @@ private slots:
     void test_vim_command_line_ctrl_u();
     void test_vim_script_searchpair();
     void test_vim9_matchit();
+    void test_vim_script_setline_place();
+    void test_vim_ex_normal_unfinished();
+    void test_vim_operator_pending_ex_mapping();
+    void test_vim_script_list_compare();
+    void test_vim_script_compare_ignorecase();
+    void test_vim9_argtextobj();
+    void test_vim_visual_mark_selection();
+    void test_vim_script_v_register();
+    void test_vim_set_trailing_comment();
+    void test_vim_visual_paste_register_kind();
+    void test_vim9_replace_with_register();
     void test_vim_script_registers();
     void test_vim_script_mapping_queries();
+    void test_vim_script_string_escapes();
+    void test_vim_script_script_id();
+    void test_vim9_commentary();
     void test_vim_script_range_function();
     void test_vim_ex_retab();
     void test_vim_script_width_and_getline();
@@ -5192,6 +5206,8 @@ void FakeVimTester::test_vim_search_smartcase()
     data.doCommand("set nosmartcase");
     data.setText("|xxx foo xxx Foo xxx");
     KEYS("/Foo<cr>", "xxx " X "foo xxx Foo xxx");
+    // The options are shared with every other test.
+    data.doCommand("set noignorecase");
 }
 
 void FakeVimTester::test_vim_replace_char_newline()
@@ -7138,6 +7154,461 @@ void FakeVimTester::test_vim9_matchit()
     data.doCommand("ounmap % | ounmap g%");
 }
 
+void FakeVimTester::test_vim_script_setline_place()
+{
+    // setline() takes "." for the line the cursor is on and leaves the cursor
+    // where it was; argtextobj puts a line back that way. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    data.setText("one" N "t" X "wo" N "three");
+    // "." names the line the cursor is on.
+    data.doCommand("call setline('.', 'TWO')");
+    QCOMPARE(data.text(), QByteArray("one" N "TWO" N "three"));
+    // And the cursor stays where it was, which a plugin counts on.
+    QCOMPARE(echo("[line('.'), col('.')]"), QLatin1String("[2, 2]"));
+    // "$" is the last line.
+    data.doCommand("call setline('$', 'THREE')");
+    QCOMPARE(data.text(), QByteArray("one" N "TWO" N "THREE"));
+    QCOMPARE(echo("[line('.'), col('.')]"), QLatin1String("[2, 2]"));
+    // A line that is not there is left alone.
+    data.doCommand("call setline(99, 'nowhere')");
+    QCOMPARE(data.text(), QByteArray("one" N "TWO" N "THREE"));
+}
+
+void FakeVimTester::test_vim_ex_normal_unfinished()
+{
+    // ":normal" gives up on what the keys did not finish, as if Escape had been
+    // typed - insert mode and a command line alike. A plugin leaves visual mode
+    // with ":normal :<junk>" that way. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/m.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! Mode()\n"
+            "  return mode()\n"
+            "endfunction\n"
+            "nnoremap <expr> Q Mode()\n"
+            "xnoremap <expr> Q Mode()\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/m.vim");
+
+    // An unfinished command line is given up on, and what it was typed in is
+    // not returned to: Vim leaves visual mode as soon as ":" is pressed.
+    data.setText("on" X "e" N "two");
+    data.doCommand("normal v:junk");
+    // Nothing of the unfinished line was typed into the buffer.
+    QCOMPARE(data.text(), QByteArray("one" N "two"));
+    // A ":" typed in visual mode and given up on lands in normal mode.
+    data.setText("on" X "e" N "two");
+    data.doKeys("Vj:" "<Esc>");
+    data.doKeys("d");
+    QCOMPARE(data.text(), QByteArray("one" N "two"));
+    data.doCommand("delfunction Mode | nunmap Q | xunmap Q");
+}
+
+void FakeVimTester::test_vim_operator_pending_ex_mapping()
+{
+    // A plugin writes its text objects as an operator-pending mapping to a ":"
+    // command, and the selection the command leaves behind is the range the
+    // operator works on. argtextobj and every plugin like it do this.
+    TestData data;
+    setup(&data);
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/o.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    // Selects the three characters the cursor stands on and after.
+    f.write("function! Three()\n"
+            "  normal! v2l\n"
+            "endfunction\n"
+            "onoremap <silent> iq :call Three()<CR>\n"
+            "xnoremap <silent> iq <Esc>:call Three()<CR>\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/o.vim");
+
+    data.setText("abc" X "defghi");
+    data.doKeys("diq");
+    QCOMPARE(data.text(), QByteArray("abcghi"));
+    // The same as a change, which leaves insert mode behind.
+    data.setText("abc" X "defghi");
+    data.doKeys("ciqXY" "<Esc>");
+    QCOMPARE(data.text(), QByteArray("abcXYghi"));
+    // And as a yank, which leaves the text where it was.
+    data.setText("abc" X "defghi");
+    data.doKeys("yiq");
+    QCOMPARE(data.text(), QByteArray("abcdefghi"));
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    message.clear();
+    data.doCommand("echo getreg('')");
+    QCOMPARE(message, QLatin1String("def"));
+    data.doCommand("ounmap iq | xunmap iq | delfunction Three");
+}
+
+void FakeVimTester::test_vim_script_list_compare()
+{
+    // A List or a Dictionary compares with its own kind only, item by item, and
+    // what it holds is compared by type as well: a Number in one is never equal
+    // to a String. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    QCOMPARE(value("[1,2] == [1,2]"), QLatin1String("1"));
+    QCOMPARE(value("[1,2] == [1,3]"), QLatin1String("0"));
+    QCOMPARE(value("[1,2] == [1,2,3]"), QLatin1String("0"));
+    QCOMPARE(value("[] == []"), QLatin1String("1"));
+    QCOMPARE(value("[1,2] != [1,3]"), QLatin1String("1"));
+    QCOMPARE(value("[1,[2,3]] == [1,[2,3]]"), QLatin1String("1"));
+    QCOMPARE(value("[1,[2,3]] == [1,[2,4]]"), QLatin1String("0"));
+    // A Number and a String are equal on their own, but not inside a List.
+    QCOMPARE(value("1 == '1'"), QLatin1String("1"));
+    QCOMPARE(value("[1] == ['1']"), QLatin1String("0"));
+    QCOMPARE(value("1 == 1.0"), QLatin1String("1"));
+    QCOMPARE(value("[1] == [1.0]"), QLatin1String("0"));
+    QCOMPARE(value("[[1]] == [{}]"), QLatin1String("0"));
+    // The keys of a Dictionary are a set, so their order says nothing.
+    QCOMPARE(value("{'a':1} == {'a':1}"), QLatin1String("1"));
+    QCOMPARE(value("{'a':1} == {'a':2}"), QLatin1String("0"));
+    QCOMPARE(value("{'a':1} == {'a':1,'b':2}"), QLatin1String("0"));
+    QCOMPARE(value("{'a':1,'b':2} == {'b':2,'a':1}"), QLatin1String("1"));
+    QCOMPARE(value("{'a':[1]} == {'a':[1]}"), QLatin1String("1"));
+    // A case suffix reaches the strings a container holds.
+    QCOMPARE(value("['A'] ==? ['a']"), QLatin1String("1"));
+    QCOMPARE(value("['A'] ==# ['a']"), QLatin1String("0"));
+    QCOMPARE(value("['A'] !=? ['a']"), QLatin1String("0"));
+    QCOMPARE(value("[['A']] ==? [['a']]"), QLatin1String("1"));
+    // "is" asks after the container itself, not what it holds.
+    QCOMPARE(value("[1] is [1]"), QLatin1String("0"));
+    QCOMPARE(value("[1] isnot 1"), QLatin1String("1"));
+
+    const auto failure = [&](const QString &expr) {
+        data.doCommand("let g:e = ''");
+        data.doCommand("try | echo " + expr + " | catch | let g:e = v:exception | endtry");
+        return value("g:e");
+    };
+    QVERIFY(failure("[1] == 1").contains(QLatin1String("E691")));
+    QVERIFY(failure("1 == [1]").contains(QLatin1String("E691")));
+    QVERIFY(failure("[] == {}").contains(QLatin1String("E691")));
+    QVERIFY(failure("[1] < 1").contains(QLatin1String("E691")));
+    QVERIFY(failure("{'a':1} == 1").contains(QLatin1String("E735")));
+    QVERIFY(failure("[1] < [2]").contains(QLatin1String("E692")));
+    QVERIFY(failure("[1] >= [2]").contains(QLatin1String("E692")));
+    QVERIFY(failure("{'a':1} < {'a':2}").contains(QLatin1String("E736")));
+    data.doCommand("unlet g:e");
+}
+
+void FakeVimTester::test_vim_script_compare_ignorecase()
+{
+    // A bare comparison follows 'ignorecase', which is why a plugin that means
+    // it writes "==#". Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const QStringList exprs = {"'ABC' == 'abc'", "'ABC' ==# 'abc'", "'ABC' ==? 'abc'",
+                               "'ABC' =~ 'abc'", "'ABC' =~# 'abc'", "'ABC' =~? 'abc'",
+                               "'ABC' != 'abc'", "'abc' < 'ABD'", "['ABC'] == ['abc']"};
+
+    QStringList sensitive;
+    for (const QString &expr : exprs)
+        sensitive.append(value(expr));
+    data.doCommand("set ignorecase");
+    QStringList insensitive;
+    for (const QString &expr : exprs)
+        insensitive.append(value(expr));
+    data.doCommand("set noignorecase");
+
+    QCOMPARE(sensitive, QStringList({"0", "0", "1", "0", "0", "1", "1", "0", "0"}));
+    QCOMPARE(insensitive, QStringList({"1", "0", "1", "1", "0", "1", "0", "1", "1"}));
+}
+
+void FakeVimTester::test_vim9_argtextobj()
+{
+    // argtextobj.vim, which gives an argument of a function call as a text
+    // object. Values taken from Vim 9.1 running the real plugin over the same
+    // lines. Not installed with Vim, so the test is skipped without it.
+    const QString D = qEnvironmentVariable("FAKEVIM_TEST_PLUGINS") + "/argtextobj.vim";
+    if (!QFileInfo::exists(D + "/plugin/argtextobj.vim"))
+        QSKIP("argtextobj.vim is not there; set FAKEVIM_TEST_PLUGINS to a checkout");
+    TestData data;
+    setup(&data);
+    data.doCommand("set runtimepath+=" + D);
+    data.doCommand("source " + D + "/plugin/argtextobj.vim");
+
+    // The cursor goes where the X stands, as in the Vim runs at column+1.
+    const auto run = [&](const char *line, const char *keys) {
+        data.setText(line);
+        data.doKeys(keys);
+        return QString::fromUtf8(data.text());
+    };
+    const QStringList got = {
+        run("foo(alpha, " X "beta, gamma)", "dia"),
+        run("foo(alpha, " X "beta, gamma)", "daa"),
+        run("foo(" X "alpha, beta, gamma)", "dia"),
+        run("foo(" X "alpha, beta, gamma)", "daa"),
+        run("foo(alpha, beta, " X "gamma)", "dia"),
+        run("foo(alpha, beta, " X "gamma)", "daa"),
+        run("foo(" X "alpha)", "dia"),
+        run("foo(" X "alpha)", "daa"),
+        run("foo(alpha, bar(" X "x, y), gamma)", "dia"),
+        run("foo(alpha, bar(" X "x, y), gamma)", "daa"),
+        run("foo(alpha, " X "beta, gamma)", "ciaZZ" "<Esc>"),
+        run("foo(alpha, " X "beta, gamma)", "viad"),
+        run("foo(alpha, " X "beta, gamma)", "vaad"),
+        run("foo(alpha,   " X "beta , gamma)", "dia"),
+    };
+    // The mappings live in a table shared with every other test.
+    data.doCommand("ounmap ia | ounmap aa | vunmap ia | vunmap aa");
+
+    const QStringList wanted = {
+        "foo(alpha, , gamma)",
+        "foo(alpha, gamma)",
+        "foo(, beta, gamma)",
+        "foo(beta, gamma)",
+        "foo(alpha, beta, )",
+        "foo(alpha, beta)",
+        "foo()",
+        "foo()",
+        "foo(alpha, bar(, y), gamma)",
+        "foo(alpha, bar(y), gamma)",
+        "foo(alpha, ZZ, gamma)",
+        "foo(alpha, , gamma)",
+        "foo(alpha, gamma)",
+        "foo(alpha,   , gamma)",
+    };
+    QCOMPARE(got, wanted);
+}
+
+void FakeVimTester::test_vim_visual_mark_selection()
+{
+    // A motion to a mark grows the selection in Visual mode rather than
+    // starting a new one. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    // Mark at column 1, cursor on "three", so the selection reaches back.
+    data.setText(X "one two three");
+    data.doKeys("mawwv`ad");
+    QCOMPARE(data.text(), QByteArray("hree"));
+    data.setText(X "one two three");
+    data.doKeys("mawwvg`ad");
+    QCOMPARE(data.text(), QByteArray("hree"));
+    // Outside Visual mode the motion is a plain jump, selecting nothing.
+    data.setText(X "one two three");
+    data.doKeys("maww`ax");
+    QCOMPARE(data.text(), QByteArray("ne two three"));
+    // A mark motion an operator waits for still takes the text between.
+    data.setText(X "one two three");
+    data.doKeys("mawwd`a");
+    QCOMPARE(data.text(), QByteArray("three"));
+}
+
+void FakeVimTester::test_vim_script_v_register()
+{
+    // The register a command was given, which a plugin reads to work on what
+    // the user asked for. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/r.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! Report()\n"
+            "  let g:seen = v:register\n"
+            "  return ''\n"
+            "endfunction\n"
+            "nnoremap <expr> QQ Report()\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/r.vim");
+    const auto seenBy = [&](const char *keys) {
+        data.setText(X "one two three");
+        data.doKeys(keys);
+        message.clear();
+        data.doCommand("echo g:seen");
+        return message;
+    };
+
+    QCOMPARE(seenBy("QQ"), QLatin1String("\""));
+    QCOMPARE(seenBy("\"aQQ"), QLatin1String("a"));
+    QCOMPARE(seenBy("\"AQQ"), QLatin1String("A"));
+    message.clear();
+    data.doCommand("echo v:register");
+    QCOMPARE(message, QLatin1String("\""));
+    message.clear();
+    data.doCommand("echo exists('v:register')");
+    QCOMPARE(message, QLatin1String("1"));
+    data.doCommand("nunmap QQ | delfunction Report | unlet g:seen");
+}
+
+void FakeVimTester::test_vim_set_trailing_comment()
+{
+    // A '"' ends the options of a ":set", which is how a script explains the
+    // line it is setting something on. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &command, const QString &option) {
+        data.doCommand(command);
+        message.clear();
+        data.doCommand("echo &" + option);
+        return message;
+    };
+
+    QCOMPARE(value("set ts=4 \" comment", "ts"), QLatin1String("4"));
+    QCOMPARE(value("set clipboard= \" Avoid clobbering", "clipboard"), QString());
+    // Even glued to the value, as Vim reads it.
+    QCOMPARE(value("set ts=6\" comment", "ts"), QLatin1String("6"));
+    QCOMPARE(value("set ts=2 sw=2 \" comment", "sw"), QLatin1String("2"));
+    QCOMPARE(value("set commentstring=//\\ %s \" c", "commentstring"),
+             QLatin1String("// %s"));
+    // The options are shared with every other test.
+    data.doCommand("set ts=8 sw=8 commentstring=//\\ %s");
+}
+
+void FakeVimTester::test_vim_visual_paste_register_kind()
+{
+    // A linewise selection is replaced by whole lines whatever the register
+    // holds, and a region reaching the last line keeps the ones before it.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto run = [&](const char *contents, const char *type,
+                         const char *start, const char *keys) -> QString {
+        data.setText(X "alpha" N "beta" N "gamma");
+        data.doCommand(QLatin1String("call setreg('a', ") + contents + ", '" + type + "')");
+        data.doKeys(start);
+        data.doKeys(keys);
+        message.clear();
+        data.doCommand("echo line('.') . ',' . col('.')");
+        return QString::fromUtf8(data.text()).replace(QLatin1Char('\n'), QLatin1String(" / "))
+               + "  at " + message;
+    };
+
+    // Charwise text over a linewise selection becomes a line of its own.
+    QCOMPARE(run("'XX'", "v", "j0", "V\"ap"),
+             QLatin1String("alpha / XX / gamma  at 2,1"));
+    QCOMPARE(run("\"XX\\nYY\"", "v", "j0", "V\"ap"),
+             QLatin1String("alpha / XX / YY / gamma  at 2,1"));
+    // The last line is a line like any other.
+    QCOMPARE(run("'XX'", "v", "jj0", "V\"ap"),
+             QLatin1String("alpha / beta / XX  at 3,1"));
+    QCOMPARE(run("\"XX\\n\"", "V", "jj0", "V\"ap"),
+             QLatin1String("alpha / beta / XX  at 3,1"));
+    QCOMPARE(run("'XX'", "v", "j0", "Vj\"ap"),
+             QLatin1String("alpha / XX  at 2,1"));
+    // Nothing is left to keep when the selection was the whole buffer.
+    QCOMPARE(run("'XX'", "v", "0", "VG\"ap"), QLatin1String("XX  at 1,1"));
+    // A charwise selection is still replaced in place.
+    QCOMPARE(run("'XX'", "v", "j0", "viw\"ap"),
+             QLatin1String("alpha / XX / gamma  at 2,2"));
+}
+
+void FakeVimTester::test_vim9_replace_with_register()
+{
+    // Ingo Karkat's ReplaceWithRegister, one of the plugins this editor carries
+    // an imitation of ("gr"). Values taken from Vim 9.1 running the real one
+    // over the same lines. Not installed with Vim, so skipped without it.
+    const QString D = qEnvironmentVariable("FAKEVIM_TEST_PLUGINS") + "/vim-ReplaceWithRegister";
+    if (!QFileInfo::exists(D + "/plugin/ReplaceWithRegister.vim"))
+        QSKIP("ReplaceWithRegister is not there; set FAKEVIM_TEST_PLUGINS to a checkout");
+    TestData data;
+    setup(&data);
+    data.doCommand("set runtimepath+=" + D);
+    data.doCommand("source " + D + "/plugin/ReplaceWithRegister.vim");
+
+    const auto run = [&](const char *lines, const char *keys) {
+        data.setText(lines);
+        data.doKeys(keys);
+        return QString::fromUtf8(data.text()).replace(QLatin1Char('\n'), QLatin1String(" / "));
+    };
+    const QStringList got = {
+        run(X "one two three", "yiwwwgriw"),
+        run(X "alpha" N "beta", "yyjgrr"),
+        run(X "one two three", "yiwwwviwgr"),
+        run(X "one two three", "\"ayiwww\"agriw"),
+        run(X "one two three four", "yiwwgr2w"),
+        run(X "alpha" N "beta" N "gamma", "yyjgrj"),
+        run(X "alpha bit" N "beta", "yiwjgrr"),
+        run(X "alpha" N "beta" N "gamma", "yyjVgr"),
+    };
+    // The mappings live in a table shared with every other test.
+    data.doCommand("nunmap gr | nunmap grr | vunmap gr | set opfunc=");
+
+    const QStringList wanted = {
+        "one two one",
+        "alpha / alpha",
+        "one two one",
+        "one two one",
+        "one onefour",
+        "alpha / alpha",
+        "alpha bit / alpha",
+        "alpha / alpha / gamma",
+    };
+    QCOMPARE(got, wanted);
+}
+
 void FakeVimTester::test_vim_script_registers()
 {
     // What a register holds and of what kind, which is how a plugin puts
@@ -7175,6 +7646,13 @@ void FakeVimTester::test_vim_script_registers()
     // A list put there becomes lines.
     data.doCommand("call setreg('d', ['one', 'two'])");
     QCOMPARE(echo("getreg('d')"), QLatin1String("one\ntwo\n"));
+    // "@@" is the unnamed register, which is how a plugin puts back what it
+    // borrowed: "let reg = @@" ... "let @@ = reg".
+    data.doCommand("let @@ = 'borrowed'");
+    QCOMPARE(echo("@@"), QLatin1String("borrowed"));
+    QCOMPARE(echo("getreg('')"), QLatin1String("borrowed"));
+    data.doCommand("let @a = 'named'");
+    QCOMPARE(echo("@a"), QLatin1String("named"));
 }
 
 void FakeVimTester::test_vim_script_mapping_queries()
@@ -7206,6 +7684,120 @@ void FakeVimTester::test_vim_script_mapping_queries()
     QCOMPARE(missing, QLatin1String("[]"));
     QCOMPARE(to, QLatin1String("1"));
     QCOMPARE(notTo, QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_script_string_escapes()
+{
+    // A double-quoted string names a character by its number or by the key that
+    // sends it, which is how a script spells a key it means to pass on. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("\"\\x41\""), QLatin1String("A"));
+    QCOMPARE(echo("\"\\x7a\""), QLatin1String("z"));
+    QCOMPARE(echo("\"\\101\""), QLatin1String("A"));      // octal
+    QCOMPARE(echo("char2nr(\"\\u00e9\")"), QLatin1String("233"));
+    QCOMPARE(echo("\"\\<Esc>\" == nr2char(27)"), QLatin1String("1"));
+    QCOMPARE(echo("\"\\<CR>\" == nr2char(13)"), QLatin1String("1"));
+    QCOMPARE(echo("\"\\<Tab>\" == nr2char(9)"), QLatin1String("1"));
+    QCOMPARE(echo("\"\\<C-R>\" == nr2char(18)"), QLatin1String("1"));
+    QCOMPARE(echo("\"\\x16\" == nr2char(22)"), QLatin1String("1"));
+    // The plain ones still stand.
+    QCOMPARE(echo("strlen(\"a\\tb\")"), QLatin1String("3"));
+    // A single-quoted string takes them all as they are written.
+    QCOMPARE(echo("'\\x41'"), QLatin1String("\\x41"));
+}
+
+void FakeVimTester::test_vim_script_script_id()
+{
+    // "<SID>name" is the "s:name" of the script that wrote it, which is how a
+    // mapping reaches a function of its own. There is one namespace here, so the
+    // prefix stands for the scope it names.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/s.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! s:answer()\n"
+            "  return 'from the script'\n"
+            "endfunction\n"
+            "function! s:name()\n"
+            // Inside a function "<sfile>" ends with the name of the function,
+            // which is what a plugin sets 'operatorfunc' from.
+            "  return matchstr(expand('<sfile>'), '[^. ]*$')\n"
+            "endfunction\n"
+            "let g:viaSid = <SID>answer()\n"
+            "let g:ownName = s:name()\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/s.vim");
+
+    message.clear();
+    data.doCommand("echo g:viaSid");
+    QCOMPARE(message, QLatin1String("from the script"));
+    // The name it found is one that can be called again.
+    message.clear();
+    data.doCommand("echo exists('*' . g:ownName)");
+    QCOMPARE(message, QLatin1String("1"));
+    data.doCommand("unlet g:viaSid | unlet g:ownName");
+}
+
+void FakeVimTester::test_vim9_commentary()
+{
+    // tpope's vim-commentary, one of the plugins this editor carries an
+    // imitation of. Values taken from Vim 9.1 running the real one over the same
+    // lines. Not installed with Vim, so the test is skipped without it.
+    const QString D = qEnvironmentVariable("FAKEVIM_TEST_PLUGINS") + "/vim-commentary";
+    if (!QFileInfo::exists(D + "/plugin/commentary.vim"))
+        QSKIP("vim-commentary is not there; set FAKEVIM_TEST_PLUGINS to a checkout");
+    TestData data;
+    setup(&data);
+    data.doCommand("set runtimepath+=" + D);
+    data.doCommand("source " + D + "/plugin/commentary.vim");
+    data.doCommand("set commentstring=//\\ %s");
+    const auto shown = [&] {
+        return QString::fromUtf8(data.text()).replace(QLatin1Char('\n'), QLatin1String(" / "));
+    };
+    const char *const lines = "i" X "nt a = 1;" N "int b = 2;" N "int c = 3;";
+
+    data.setText(lines);
+    data.doKeys("gcc");
+    const QString commented = shown();
+    data.doKeys("gcc");
+    const QString back = shown();
+    data.setText(lines);
+    data.doKeys("gcj");
+    const QString twoLines = shown();
+    data.setText(lines);
+    data.doKeys("Vjgc");
+    const QString visual = shown();
+    // The plugin's mappings live in a table shared with every other test.
+    data.doCommand("nunmap gc | nunmap gcc | nunmap gcu | xunmap gc | ounmap gc");
+    data.doCommand("nunmap gcA | nunmap gco | nunmap gcO");
+    data.doCommand("set opfunc=");
+
+    QCOMPARE(commented, QLatin1String("// int a = 1; / int b = 2; / int c = 3;"));
+    QCOMPARE(back, QLatin1String("int a = 1; / int b = 2; / int c = 3;"));
+    QCOMPARE(twoLines, QLatin1String("// int a = 1; / // int b = 2; / int c = 3;"));
+    QCOMPARE(visual, QLatin1String("// int a = 1; / // int b = 2; / int c = 3;"));
 }
 
 void FakeVimTester::test_vim_script_range_function()
@@ -9010,7 +9602,10 @@ void FakeVimTester::test_vim_script_expand()
     // brackets, as Vim reports it ("function probe#Toggle[1]").
     QCOMPARE(echo("g:stack"), QLatin1String("command line..function Where[1]"));
     QCOMPARE(echo("matchstr(g:stack, '[^. ]*\\ze[')"), QLatin1String("Where"));
-    QCOMPARE(echo("'[' . g:sfile . ']'"), QLatin1String("[]"));
+    // Inside a function "<sfile>" names the frames, the innermost being the
+    // function itself and without the statement "<stack>" would add, so that a
+    // plugin can pick its own name out of the end of it.
+    QCOMPARE(echo("g:sfile"), QLatin1String("command line..function Where"));
 
     data.setText("alpha be" X "ta gamma");
     QCOMPARE(echo("expand('<cword>')"), QLatin1String("beta"));
