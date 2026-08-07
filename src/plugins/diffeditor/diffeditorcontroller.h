@@ -51,6 +51,7 @@ protected:
     bool isReloading() const { return m_taskTreeRunner.isRunning(); }
     int contextLineCount() const;
     bool ignoreWhitespace() const;
+    bool patience() const;
     bool chunkExists(int fileIndex, int chunkIndex) const;
     Core::IDocument *document() const;
     QString makePatch(int fileIndex, int chunkIndex, const ChunkSelection &selection,
@@ -65,6 +66,7 @@ protected:
     void setDescription(const QString &description);
     void setStartupFile(const QString &startupFile);
     void forceContextLineCount(int lines);
+    void setPatienceButtonEnabled(bool enabled);
 
 private:
     friend class Internal::DiffEditorWidgetController;

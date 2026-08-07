@@ -208,6 +208,26 @@ bool DiffEditorDocument::ignoreWhitespace() const
     return m_ignoreWhitespace;
 }
 
+void DiffEditorDocument::setPatienceButtonEnabled(bool enabled)
+{
+    m_patienceButtonEnabled = enabled;
+}
+
+bool DiffEditorDocument::isPatienceButtonEnabled()
+{
+    return m_patienceButtonEnabled;
+}
+
+void DiffEditorDocument::setPatience(bool patience)
+{
+    m_patience = patience;
+}
+
+bool DiffEditorDocument::patience() const
+{
+    return m_patience;
+}
+
 Result<> DiffEditorDocument::setContents(const QByteArray &contents)
 {
     Q_UNUSED(contents)

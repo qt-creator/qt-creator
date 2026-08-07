@@ -54,6 +54,10 @@ public:
     bool isContextLineCountForced() const;
     void setIgnoreWhitespace(bool ignore);
     bool ignoreWhitespace() const;
+    void setPatienceButtonEnabled(bool enabled);
+    bool isPatienceButtonEnabled();
+    void setPatience(bool patience);
+    bool patience() const;
 
     Utils::Result<> setContents(const QByteArray &contents) override;
     Utils::FilePath fallbackSaveAsPath() const override;
@@ -92,6 +96,8 @@ private:
     int m_contextLineCount = 3;
     bool m_isContextLineCountForced = false;
     bool m_ignoreWhitespace = false;
+    bool m_patienceButtonEnabled = false;
+    bool m_patience = false;
     bool m_descriptionAnsiEnabled = false;
     State m_state = LoadOK;
 

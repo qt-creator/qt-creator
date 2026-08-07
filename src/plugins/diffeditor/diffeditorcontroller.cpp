@@ -46,6 +46,11 @@ bool DiffEditorController::ignoreWhitespace() const
     return m_document->ignoreWhitespace();
 }
 
+bool DiffEditorController::patience() const
+{
+    return m_document->patience();
+}
+
 QString DiffEditorController::makePatch(int fileIndex, int chunkIndex,
                                         const ChunkSelection &selection,
                                         PatchOptions options) const
@@ -96,6 +101,11 @@ void DiffEditorController::setDescription(const QString &description)
 void DiffEditorController::forceContextLineCount(int lines)
 {
     m_document->forceContextLineCount(lines);
+}
+
+void DiffEditorController::setPatienceButtonEnabled(bool enabled)
+{
+    m_document->setPatienceButtonEnabled(enabled);
 }
 
 IDocument *DiffEditorController::document() const

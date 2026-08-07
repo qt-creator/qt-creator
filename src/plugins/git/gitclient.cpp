@@ -304,6 +304,7 @@ GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document)
     : VcsBaseDiffEditorController(document)
 {
     setDisplayName("Git Diff");
+    setPatienceButtonEnabled(true);
 }
 
 ///////////////////////////////
@@ -322,6 +323,8 @@ QStringList GitBaseDiffEditorController::addConfigurationArguments(const QString
     };
     if (ignoreWhitespace())
         realArgs << "--ignore-space-change";
+    if (patience())
+        realArgs << "--patience";
     realArgs << "--unified=" + QString::number(contextLineCount())
              << "--src-prefix=a/" << "--dst-prefix=b/" << args.mid(1);
 
