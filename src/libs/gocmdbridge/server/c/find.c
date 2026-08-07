@@ -3,7 +3,7 @@
 //
 // Find command handler and output batcher. The directory walk itself is
 // platform specific and included below.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c - do not compile separately.
 
 /* ================================================================== */
 /*  Find -- recursive directory walk                                  */
@@ -25,6 +25,16 @@
 #define FF_CASESENSITIVE 0x800
 #define FF_NODOT 0x2000
 #define FF_NODOTDOT 0x4000
+/* QDir::NoFilter, which Go spells NoFilter and checks for explicitly. Reading
+   it as a bit mask instead turns every filter on, which drops the plain files
+   it is meant to let through. An empty mask means the same thing here. */
+#define FF_NO_FILTER (-1)
+
+/* Whether `ffilt` asks for any filtering at all. */
+static bool find_filtering(int ffilt)
+{
+    return ffilt != 0 && ffilt != FF_NO_FILTER;
+}
 
 /* ================================================================== */
 /*  Find output batcher (matches Go ChannelWriter batching, >1KB flush) */
@@ -111,6 +121,35 @@ static void find_join(char *out, size_t cap, const char *dir, const char *name, 
     snprintf(out, cap, "%.*s%c%s", (int) len, dir, sep, name);
 }
 
+/* Queues one finddata entry. Both walks report through this, so they cannot
+   disagree about the fields or their units - `mtime` is seconds since the Unix
+   epoch, which is what the client reads it as. */
+static void find_emit(int id, const char *path, int64_t size, uint32_t mode, bool is_dir,
+                      int64_t mtime)
+{
+    value *m = mk7(
+        "Type",
+        vs("finddata"),
+        "Id",
+        vi(id),
+        "Path",
+        vs(path),
+        "Size",
+        vi(size),
+        "Mode",
+        vu(mode),
+        "IsDir",
+        vb(is_dir),
+        "ModTime",
+        vi(mtime));
+    size_t l;
+    uint8_t *c = encode(m, &l);
+    if (c)
+        find_batch_add(c, l);
+    mfreekeys(m);
+    vfree(m);
+}
+
 /* ------------------------------------------------------------------
  * The directory walk for this platform, which reports every entry that
  * passes the filters through find_batch_add() above:
@@ -148,7 +187,8 @@ static void h_find(value *cmd)
     int nfilt = 0;
     if (nf && nf->type == V_ARRAY) {
         nfilt = (int) nf->nkids;
-        filters = (const char **) calloc(nfilt, sizeof(const char *));
+        filters = (const char **) xmalloc((size_t) nfilt * sizeof(const char *));
+        memset(filters, 0, (size_t) nfilt * sizeof(const char *));
         for (int i = 0; i < nfilt; i++)
             if (nf->kids[i]->type == V_STRING)
                 filters[i] = nf->kids[i]->str;

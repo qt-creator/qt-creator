@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // POSIX directory walk for the find command. Implements find_walk() as
-// declared in find.c. Included by cmdbridge.c — do not compile separately.
+// declared in find.c. Included by cmdbridge.c - do not compile separately.
 
 #ifndef _WIN32
 #include <dirent.h>
 #include <fnmatch.h>
-static void find_walk(const char *dir, const char **filters, int nfilt, int ffilt, int iflags, int id)
+static void find_walk(
+    const char *dir, const char **filters, int nfilt, int ffilt, int iflags, int id)
 {
     DIR *d = opendir(dir);
     if (!d)
@@ -37,67 +38,53 @@ static void find_walk(const char *dir, const char **filters, int nfilt, int ffil
             }
         }
 
+        /* Whether the entry is reported. A filter it does not pass must not
+           end the walk below it: Go returns filepath.SkipDir only for a
+           non-recursive listing, so a recursive find still descends into a
+           directory it does not report. Deciding this separately is what keeps
+           "all files below here" from stopping at the first directory. */
+        bool report = true;
+
         /* File type filter (bitmask, matches Go FileFilters) */
-        if (ffilt != 0) {
+        if (find_filtering(ffilt)) {
             /* Drives filter: skip device files unless Drives flag set */
             if ((ffilt & FF_DRIVES) == 0 && (S_ISCHR(st.st_mode) || S_ISBLK(st.st_mode)))
-                continue;
+                report = false;
             /* Dirs/Files filter: if TypeMask bits are set, enforce them */
-            if (ffilt & FF_TYPEMASK) {
+            if (report && (ffilt & FF_TYPEMASK)) {
                 bool want_dirs = (ffilt & FF_DIRS) != 0;
                 bool want_files = (ffilt & FF_FILES) != 0;
                 if (!want_dirs && is_dir)
-                    continue;
+                    report = false;
                 if (!want_files && !is_dir)
-                    continue;
+                    report = false;
             }
             /* NoSymLinks: skip symlinks (check original lstat result) */
-            if ((ffilt & FF_NOSYMLINKS) != 0 && is_sym)
-                continue;
-            /* Permission filters — use resolved stats when available */
-            if ((ffilt & FF_READABLE) != 0 && !is_readable(full))
-                continue;
-            if ((ffilt & FF_WRITABLE) != 0 && !is_writable(full))
-                continue;
-            if ((ffilt & FF_EXECUTABLE) != 0 && !is_executable(full))
-                continue;
+            if (report && (ffilt & FF_NOSYMLINKS) != 0 && is_sym)
+                report = false;
+            /* Permission filters - use resolved stats when available */
+            if (report && (ffilt & FF_READABLE) != 0 && !is_readable(full))
+                report = false;
+            if (report && (ffilt & FF_WRITABLE) != 0 && !is_writable(full))
+                report = false;
+            if (report && (ffilt & FF_EXECUTABLE) != 0 && !is_executable(full))
+                report = false;
         }
 
         /* Name filter */
-        bool match = true;
-        if (nfilt > 0) {
-            match = false;
+        if (report && nfilt > 0) {
+            report = false;
             for (int i = 0; i < nfilt; i++)
                 if (filters[i] && fnmatch(filters[i], ent->d_name, 0) == 0) {
-                    match = true;
+                    report = true;
                     break;
                 }
         }
-        if (!match)
-            continue;
 
-        value *m = mk7(
-            "Type",
-            vs("finddata"),
-            "Id",
-            vi(id),
-            "Path",
-            vs(full),
-            "Size",
-            vi((int64_t) st.st_size),
-            "Mode",
-            vu(go_file_mode(st.st_mode)),
-            "IsDir",
-            vb(is_dir),
-            "ModTime",
-            vi((int64_t) st.st_mtime));
-        size_t l;
-        uint8_t *c = encode(m, &l);
-        if (c) {
-            find_batch_add(c, l);
-        }
-        mfreekeys(m);
-        vfree(m);
+        if (report)
+            find_emit(id, full, (int64_t) st.st_size, go_file_mode(st.st_mode), is_dir,
+                      (int64_t) st.st_mtime);
+
         /* Descend only when the client asked for subdirectories, and never
            through a symlink: a link pointing at an ancestor would otherwise
            loop until the path hits PATH_MAX. Go's walk does not follow them
