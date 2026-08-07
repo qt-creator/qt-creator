@@ -13174,9 +13174,10 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
         ++index;
         const bool match = active && pending.thrown && !handled
                            && catchMatches(c.args, pending.exception);
-        if (match)
+        if (match) {
             setVariable("v:exception", VimValue(pending.exception));
             setVariable("v:throwpoint", VimValue(pending.throwpoint));
+        }
         execSequence(cmds, index, match);
         if (match)
             handled = true;
