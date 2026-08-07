@@ -11,6 +11,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/ioutputpane.h>
+#include <coreplugin/outputwindow.h>
 #include <coreplugin/session.h>
 
 #include <mcp/server/toolregistry.h>
@@ -41,6 +43,7 @@
 
 #include <QAbstractButton>
 #include <QApplication>
+#include <QBuffer>
 #include <QComboBox>
 #include <QFile>
 #include <QGroupBox>
@@ -50,7 +53,9 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>
+#include <QMainWindow>
 #include <QMouseEvent>
+#include <QPixmap>
 #include <QProcess>
 #include <QThread>
 #include <QTimer>
@@ -902,6 +907,18 @@ static void typeText(QWidget *target, const QString &text)
         QApplication::sendEvent(target, &press);
         QApplication::sendEvent(target, &release);
     }
+}
+
+// Keeps only the last maxLines lines of text (all of it when maxLines <= 0),
+// so a caller reading a large output pane can ask for just the recent tail.
+static QString lastLines(const QString &text, int maxLines)
+{
+    if (maxLines <= 0)
+        return text;
+    const QStringList lines = text.split('\n');
+    if (lines.size() <= maxLines)
+        return text;
+    return QStringList(lines.mid(lines.size() - maxLines)).join('\n');
 }
 
 void McpCommands::registerCommands()
@@ -2379,6 +2396,219 @@ void McpCommands::registerCommands()
             }
             typeText(target, input);
             return CallToolResult{}.isError(false).structuredContent(describeWidget(target));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("widget_exists")
+            .title("Check whether a widget exists")
+            .description(
+                "Reports whether the widget query matches any live widget, and how many. Use it "
+                "as an assertion (e.g. \"the preview opened\") without failing on zero matches "
+                "the way click_widget does. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(addWidgetQueryProps(Tool::InputSchema{}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("exists", QJsonObject{{"type", "boolean"}})
+                    .addProperty("count", QJsonObject{{"type", "integer"}})
+                    .addRequired("exists")
+                    .addRequired("count")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const WidgetQuery q = widgetQueryFromJson(p);
+            if (widgetQueryIsEmpty(q)) {
+                return {{"exists", false},
+                        {"count", 0},
+                        {"error", "Empty widget query; specify at least one of object_name, "
+                                  "text, class_name, window_title."}};
+            }
+            const QList<QWidget *> matches = resolveWidgets(q);
+            QJsonObject result{{"exists", !matches.isEmpty()}, {"count", matches.size()}};
+            if (!matches.isEmpty())
+                result["first"] = describeWidget(matches.first());
+            return result;
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("list_windows")
+            .title("List top-level windows")
+            .description(
+                "Lists the top-level windows of the running Qt Creator - the main window and any "
+                "open dialogs or popups - each with its class, objectName, title, geometry, "
+                "window id, and whether it is active or modal. Use it to see which dialog is up "
+                "before addressing widgets inside it. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}.addProperty(
+                    "include_invisible",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"description", "Also list hidden windows (default false)."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("count", QJsonObject{{"type", "integer"}})
+                    .addProperty("windows", QJsonObject{{"type", "array"}})
+                    .addRequired("count")
+                    .addRequired("windows")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const bool includeInvisible = p.value("include_invisible").toBool(false);
+            QJsonArray windows;
+            for (QWidget *w : QApplication::topLevelWidgets()) {
+                if (!w->isWindow())
+                    continue;
+                if (!includeInvisible && !w->isVisible())
+                    continue;
+                QJsonObject o = describeWidget(w);
+                o["active"] = w->isActiveWindow();
+                o["modal"] = w->isModal();
+                windows.append(o);
+            }
+            return {{"count", windows.size()}, {"windows", windows}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("read_pane")
+            .title("Read the text of an output pane")
+            .description(
+                "Returns the plain text of an output pane (e.g. \"Application Output\", "
+                "\"General Messages\", \"Compile Output\"), identified by its display name. "
+                "This is the text the user sees in the pane, distinct from get_application_output "
+                "which returns Qt Creator's own log stream. Call without a name (or with an "
+                "unknown one) to get the list of available panes. Panes that are not plain-text "
+                "(e.g. Issues) report 'pane_has_no_text_output'. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "name",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Display name of the pane (see available_panes)."}})
+                    .addProperty(
+                        "max_lines",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Return only the last N lines (optional)."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("text", QJsonObject{{"type", "string"}})
+                    .addProperty("pane", QJsonObject{{"type", "string"}})
+                    .addProperty("available_panes", QJsonObject{{"type", "array"}})
+                    .addRequired("reason")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const QString name = p.value("name").toString();
+            const int maxLines = p.value("max_lines").toInt(0);
+            QJsonArray available;
+            Core::IOutputPane *match = nullptr;
+            for (QObject *object : ExtensionSystem::PluginManager::allObjects()) {
+                auto pane = qobject_cast<Core::IOutputPane *>(object);
+                if (!pane)
+                    continue;
+                available.append(pane->displayName());
+                if (!name.isEmpty() && pane->displayName().compare(name, Qt::CaseInsensitive) == 0)
+                    match = pane;
+            }
+            if (!match) {
+                return {{"reason", name.isEmpty() ? "no_name_given" : "pane_not_found"},
+                        {"available_panes", available},
+                        {"message", "Pick one of available_panes as 'name'."}};
+            }
+            const QList<Core::OutputWindow *> outputWindows = match->outputWindows();
+            if (outputWindows.isEmpty()) {
+                return {{"reason", "pane_has_no_text_output"},
+                        {"pane", match->displayName()},
+                        {"available_panes", available},
+                        {"message", "This pane is not a plain-text output pane."}};
+            }
+            QStringList parts;
+            for (Core::OutputWindow *window : outputWindows)
+                parts << window->toPlainText();
+            return {{"reason", "ok"},
+                    {"pane", match->displayName()},
+                    {"text", lastLines(parts.join('\n'), maxLines)}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("screenshot")
+            .title("Capture a window as a PNG")
+            .description(
+                "Captures a window and returns it as a PNG. If widget query fields are given, "
+                "the target's top-level window is captured (e.g. window_title of a dialog); "
+                "otherwise the active window, falling back to the main window. Rendering is done "
+                "in-process via QWidget::grab(), so the image is deterministic and never blank - "
+                "no compositor or retry needed, unlike an external screen grab. Pass 'path' to "
+                "also save the PNG to disk; the base64 is embedded in the result only when no "
+                "path is given (or embed=true).")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Optional file path to save the PNG to."}})
+                    .addProperty(
+                        "embed",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description", "Embed base64 PNG in the result (default: true unless "
+                                            "a path is given)."}})),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const WidgetQuery q = widgetQueryFromJson(p);
+            QWidget *target = nullptr;
+            if (!widgetQueryIsEmpty(q)) {
+                // The query names a window, not a single widget, so collapse
+                // the matches to their distinct top-level windows: capturing
+                // is unambiguous as long as they all live in the same window
+                // (e.g. window_title matches every widget in a dialog).
+                QWidgetList windows;
+                for (QWidget *w : resolveWidgets(q)) {
+                    if (QWidget *win = w->window(); win && !windows.contains(win))
+                        windows.append(win);
+                }
+                if (windows.isEmpty())
+                    return ResultError(QString("No window matched the query."));
+                if (windows.size() > 1) {
+                    return ResultError(QString("Query spans %1 windows; narrow it with "
+                                               "window_title.").arg(windows.size()));
+                }
+                target = windows.first();
+            } else {
+                target = QApplication::activeWindow();
+                if (!target)
+                    target = Core::ICore::mainWindow();
+            }
+            if (!target)
+                return ResultError(QString("No window to capture."));
+            const QPixmap pixmap = target->grab();
+            if (pixmap.isNull())
+                return ResultError(QString("Captured image is null."));
+            QByteArray bytes;
+            QBuffer buffer(&bytes);
+            buffer.open(QIODevice::WriteOnly);
+            pixmap.save(&buffer, "PNG");
+
+            const QString path = p.value("path").toString();
+            const bool embed = p.value("embed").toBool(path.isEmpty());
+            QJsonObject out{
+                {"width", pixmap.width()},
+                {"height", pixmap.height()},
+                {"window_title", target->windowTitle()}};
+            if (embed)
+                out["base64_png"] = QString::fromLatin1(bytes.toBase64());
+            if (!path.isEmpty()) {
+                const Utils::Result<qint64> written = urlishToFilePath(path).writeFileContents(bytes);
+                out["saved"] = written.has_value();
+                out["path"] = path;
+                if (!written)
+                    out["error"] = written.error();
+            }
+            return CallToolResult{}.isError(false).structuredContent(out);
         });
 }
 
