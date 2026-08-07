@@ -93,6 +93,43 @@ def build_cbor_map(pairs):
     return result
 
 
+def build_cbor(obj):
+    """Encode an arbitrary value, nested maps and arrays included.
+
+    build_cbor_map() only reaches the flat spelling of a command
+    ({"Type": "find", "Directory": ...}), which the C server accepts as a
+    fallback but the client never sends: Client::find() and friends put the
+    arguments in a nested map ({"Type": "find", "Find": {...}}), and the Go
+    server only ever understood that one. Tests for anything the client really
+    does have to go through here.
+    """
+    if isinstance(obj, bool):
+        return b'\xf5' if obj else b'\xf4'
+    if isinstance(obj, int):
+        return _enc_uint(obj) if obj >= 0 else bytes([0x20]) + _enc_uint(-(obj + 1))
+    if isinstance(obj, str):
+        return _enc_str(obj)
+    if isinstance(obj, (bytes, bytearray)):
+        return _enc_bytes(bytes(obj))
+    if isinstance(obj, (list, tuple)):
+        return _enc_head(0x80, len(obj)) + b''.join(build_cbor(v) for v in obj)
+    if isinstance(obj, dict):
+        return (_enc_head(0xA0, len(obj))
+                + b''.join(build_cbor(k) + build_cbor(v) for k, v in obj.items()))
+    raise TypeError(f"cannot encode {type(obj)}")
+
+
+def _enc_head(major, n):
+    """Encode a CBOR head byte plus its length argument."""
+    if n <= 23:
+        return bytes([major | n])
+    if n <= 0xFF:
+        return bytes([major | 24, n])
+    if n <= 0xFFFF:
+        return bytes([major | 25]) + struct.pack('>H', n)
+    return bytes([major | 26]) + struct.pack('>I', n)
+
+
 def _enc_uint(v):
     if v <= 23:
         return bytes([v])
@@ -2325,7 +2362,7 @@ def test_watch_file_readd_on_recreation(bin_path):
 
         assert found_write, "no Write watchevent received before delete"
 
-        # Delete the file — should get a Remove event
+        # Delete the file - should get a Remove event
         os.unlink(watched_file)
         time.sleep(3.0)
 
@@ -2341,7 +2378,7 @@ def test_watch_file_readd_on_recreation(bin_path):
 
         assert found_remove, "no Remove watchevent received after delete"
 
-        # Recreate the file at the same path — this triggers re-add on kqueue/inotify
+        # Recreate the file at the same path - this triggers re-add on kqueue/inotify
         with open(watched_file, "w") as f:
             f.write("recreated content")
         time.sleep(3.0)
@@ -2358,7 +2395,7 @@ def test_watch_file_readd_on_recreation(bin_path):
             time.sleep(0.3)
 
         assert found_after_recreate, (
-            "no watchevent received after file recreation — "
+            "no watchevent received after file recreation - "
             "re-add-on-recreation may not be working"
         )
 
@@ -2654,7 +2691,7 @@ def test_exec_cancel_sigkill(bin_path):
         bridge.proc.stdin.write(cancel_cbor)
         bridge.proc.stdin.flush()
 
-        # Wait for execresult — should come back (process was killed by SIGKILL)
+        # Wait for execresult - should come back (process was killed by SIGKILL)
         deadline = time.time() + 10
         while len(bridge.responses) < 1 and time.time() < deadline:
             bridge.response_event.wait(timeout=1)
@@ -4435,6 +4472,268 @@ def _timeout_handler(signum, frame):
     raise TimeoutError(f"test timed out after {TEST_TIMEOUT}s")
 
 
+def _find_names(bin_path, directory, file_filters, iterator_flags, name_filters=None):
+    """Runs one find in the nested spelling the client uses and returns the base
+    names it reported."""
+    cbor = build_cbor({
+        "Type": "find",
+        "Id": 990,
+        "Find": {
+            "Directory": directory,
+            "FileFilters": file_filters,
+            "NameFilters": name_filters or [],
+            "IteratorFlags": iterator_flags,
+        },
+    })
+    values = assert_one_value_per_packet(send_command(bin_path, cbor), "find")
+    return sorted(os.path.basename(v["Path"])
+                  for v in values if isinstance(v, dict) and v.get("Type") == "finddata")
+
+
+def _make_find_tree(name):
+    """root/top.txt, root/a.cpp, root/sub/mid.txt, root/sub/b.cpp."""
+    import shutil
+    root = os.path.join(temp_dir(), name)
+    shutil.rmtree(root, ignore_errors=True)
+    os.makedirs(os.path.join(root, "sub"))
+    for rel in ("top.txt", "a.cpp", os.path.join("sub", "mid.txt"), os.path.join("sub", "b.cpp")):
+        with open(os.path.join(root, rel), "w") as f:
+            f.write("x")
+    return root
+
+
+def test_find_recursive_descends_past_filtered_dirs(bin_path):
+    """A filter a directory does not pass must not end the walk below it.
+
+    With Files only, the directories are not reported but still have to be
+    descended into, which is what Go's walk does (it returns SkipDir only for a
+    non-recursive listing). Reporting and descending used to be the same
+    decision, so "every file under here" stopped at the top directory.
+    """
+    import shutil
+    root = _make_find_tree("find_prune")
+    try:
+        names = _find_names(bin_path, root, 0x002, 2)  # Files, Subdirectories
+        for expected in ("top.txt", "a.cpp", "mid.txt", "b.cpp"):
+            assert expected in names, \
+                f"recursive Files-only find missed {expected}; got {names}"
+        assert "sub" not in names, f"Files-only find reported a directory: {names}"
+        return True
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def test_find_no_filter_reports_everything(bin_path):
+    """FileFilters -1 is QDir::NoFilter and means no filtering at all.
+
+    Read as a bit mask it turns every filter on, including Executable, which
+    dropped the plain files it is meant to let through.
+    """
+    import shutil
+    root = _make_find_tree("find_nofilter")
+    try:
+        names = _find_names(bin_path, root, -1, 0)
+        for expected in ("top.txt", "a.cpp", "sub"):
+            assert expected in names, f"NoFilter dropped {expected}; got {names}"
+        return True
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def test_find_uses_every_name_filter(bin_path):
+    """Every NameFilter counts, not just the first one."""
+    import shutil
+    root = _make_find_tree("find_filters")
+    try:
+        names = _find_names(bin_path, root, 0x007, 0, ["*.cpp", "*.txt"])
+        assert names == ["a.cpp", "top.txt"], f"expected both filters to match; got {names}"
+        return True
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def test_stat_modtime_is_unix_time(bin_path):
+    """ModTime is seconds since the Unix epoch, and find agrees with stat.
+
+    The client feeds it to QDateTime::fromSecsSinceEpoch(). A Windows FILETIME
+    counts from 1601 instead, which put every file 11644473600 seconds into the
+    future while find, converting properly, disagreed with stat on the same file.
+    """
+    path = os.path.join(temp_dir(), "modtime_probe.txt")
+    with open(path, "w") as f:
+        f.write("x")
+    try:
+        expected = int(os.stat(path).st_mtime)
+
+        values = assert_one_value_per_packet(
+            send_command(bin_path, build_cbor({"Type": "stat", "Id": 991,
+                                               "Stat": {"Path": path}})), "stat")
+        stat_result = next(v for v in values
+                           if isinstance(v, dict) and v.get("Type") == "statresult")
+        got = stat_result.get("ModTime")
+        assert isinstance(got, int) and abs(got - expected) <= 5, \
+            f"stat ModTime {got} is not the file's mtime {expected}"
+
+        found = _find_names(bin_path, os.path.dirname(path), 0x007, 0,
+                            ["modtime_probe.txt"])
+        assert found == ["modtime_probe.txt"], f"find did not report the file: {found}"
+        return True
+    finally:
+        os.remove(path)
+
+
+def test_watch_file_survives_atomic_replace(bin_path):
+    """A watch on a file keeps reporting after the file is replaced.
+
+    Writing a temporary and renaming it over the original is how editors save,
+    and it detaches the watch from the inode. Re-arming only on inotify's
+    IN_DELETE, which is reported for entries *inside* a watched directory, never
+    triggered, so watching stopped at the first save.
+    """
+    directory = temp_dir()
+    os.makedirs(directory, exist_ok=True)
+    watched = os.path.join(directory, "cmdbridge_atomic_watch.txt")
+    with open(watched, "w") as f:
+        f.write("v1")
+
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        resp = bridge.send(build_cbor({"Type": "watch", "Id": 992, "Path": watched}))
+        assert resp is not None and _extract_cbor_string(resp, "Type") == "addwatchresult", \
+            "could not watch the file"
+        time.sleep(1.0)
+
+        def event_count():
+            return sum(1 for r in bridge.responses[:]
+                       if _extract_cbor_string(r, "Type") == "watchEvent")
+
+        replacement = watched + ".new"
+        with open(replacement, "w") as f:
+            f.write("v2")
+        os.replace(replacement, watched)
+        time.sleep(2.0)
+        before = event_count()
+
+        with open(watched, "a") as f:
+            f.write("v3")
+        for _ in range(40):
+            if event_count() > before:
+                return True
+            time.sleep(0.3)
+        raise AssertionError("no event after the watched file was replaced")
+    finally:
+        bridge.close()
+        if os.path.exists(watched):
+            os.remove(watched)
+
+
+def test_exec_does_not_leak_descriptors(bin_path):
+    """A spawned program only gets stdin, stdout and stderr.
+
+    Commands run on several threads, so without O_CLOEXEC a child inherited the
+    pipes of every exec in flight and held them open - and those execs then
+    waited for an end of output that only came when this unrelated process
+    exited. /proc is Linux only, so the check runs there.
+    """
+    if not os.path.isdir("/proc/self/fd"):
+        return True
+
+    bridge = CmdBridgeInteractive(bin_path)
+    try:
+        for i in range(6):
+            bridge.proc.stdin.write(build_cbor(
+                {"Type": "exec", "Id": 800 + i, "Exec": {"Args": ["sleep", "3"]}}))
+        bridge.proc.stdin.flush()
+        time.sleep(0.5)
+
+        bridge.proc.stdin.write(build_cbor(
+            {"Type": "exec", "Id": 810,
+             "Exec": {"Args": ["sh", "-c", "ls /proc/self/fd"]}}))
+        bridge.proc.stdin.flush()
+
+        deadline = time.time() + 10
+        out = b""
+        while time.time() < deadline:
+            for r in bridge.responses[:]:
+                value = decode_cbor(r)
+                if (isinstance(value, dict) and value.get("Id") == 810
+                        and isinstance(value.get("Stdout"), (bytes, bytearray))):
+                    out += bytes(value["Stdout"])
+            if out:
+                break
+            time.sleep(0.1)
+
+        fds = [int(f) for f in out.split() if f.strip().isdigit()]
+        leaked = [f for f in fds if f > 3]
+        assert not leaked, f"child inherited descriptors {leaked} (all fds: {sorted(fds)})"
+        return True
+    finally:
+        bridge.close()
+
+
+def test_exec_env_replaces_environment(bin_path):
+    """An explicit Env is what the child gets, on every platform."""
+    if sys.platform == "win32":
+        args = ["cmd", "/c", "echo", "%CMDBRIDGE_PROBE%"]
+        env = ["CMDBRIDGE_PROBE=probevalue",
+               "SystemRoot=" + os.environ.get("SystemRoot", "C:\\Windows")]
+    else:
+        args = ["sh", "-c", "echo $CMDBRIDGE_PROBE"]
+        env = ["CMDBRIDGE_PROBE=probevalue"]
+
+    values = assert_one_value_per_packet(
+        send_command(bin_path, build_cbor({"Type": "exec", "Id": 993,
+                                           "Exec": {"Args": args, "Env": env}})), "exec")
+    out = b"".join(bytes(v["Stdout"]) for v in values
+                   if isinstance(v, dict) and isinstance(v.get("Stdout"), (bytes, bytearray)))
+    assert b"probevalue" in out, f"Env was not passed to the child; stdout={out!r}"
+    return True
+
+
+def test_exec_stdin_larger_than_pipe_buffer(bin_path):
+    """Stdin bigger than the pipe buffer still gets through.
+
+    Writing it all before reading any output deadlocks once the child stops
+    draining, which happens around 64K on both platforms.
+    """
+    payload = b"".join(b"line %06d\n" % i for i in range(20000))  # ~220 KB
+    if sys.platform == "win32":
+        args = ["cmd", "/c", "more"]
+    else:
+        args = ["cat"]
+
+    values = assert_one_value_per_packet(
+        send_command(bin_path, build_cbor({"Type": "exec", "Id": 994,
+                                           "Exec": {"Args": args, "Stdin": payload}})), "exec")
+    out = b"".join(bytes(v["Stdout"]) for v in values
+                   if isinstance(v, dict) and isinstance(v.get("Stdout"), (bytes, bytearray)))
+    assert any(isinstance(v, dict) and v.get("Type") == "execresult" for v in values), \
+        "exec never finished, which is what the deadlock looked like"
+    assert b"line 019999" in out, f"only {len(out)} bytes came back"
+    return True
+
+
+def test_copyfile_reports_unreadable_source(bin_path):
+    """A source that cannot be read is an error, not a silent empty copy."""
+    import shutil
+    directory = os.path.join(temp_dir(), "copyfail")
+    shutil.rmtree(directory, ignore_errors=True)
+    os.makedirs(directory)
+    target = os.path.join(directory, "target.txt")
+    try:
+        # A directory as the source: opening works, reading does not.
+        values = assert_one_value_per_packet(
+            send_command(bin_path, build_cbor({"Type": "copyfile", "Id": 995,
+                                               "CopyFile": {"Source": directory,
+                                                            "Target": target}})), "copyfile")
+        types = [v.get("Type") for v in values if isinstance(v, dict)]
+        assert "error" in types, f"copying a directory reported {types}"
+        assert "copyfileresult" not in types, f"copyfile also claimed success: {types}"
+        return True
+    finally:
+        shutil.rmtree(directory, ignore_errors=True)
+
+
 def main():
     if len(sys.argv) < 2:
         print(f"Usage: {sys.argv[0]} <cmdbridge_binary>", file=sys.stderr)
@@ -4537,6 +4836,16 @@ def main():
         ("tempfile_names_unique_and_random", test_tempfile_names_unique_and_random),
         ("tempdir_names_unique_and_random", test_tempdir_names_unique_and_random),
         ("temp_names_differ_across_processes", test_temp_names_differ_across_processes),
+        ("find_recursive_descends_past_filtered_dirs",
+         test_find_recursive_descends_past_filtered_dirs),
+        ("find_no_filter_reports_everything", test_find_no_filter_reports_everything),
+        ("find_uses_every_name_filter", test_find_uses_every_name_filter),
+        ("stat_modtime_is_unix_time", test_stat_modtime_is_unix_time),
+        ("watch_file_survives_atomic_replace", test_watch_file_survives_atomic_replace),
+        ("exec_does_not_leak_descriptors", test_exec_does_not_leak_descriptors),
+        ("exec_env_replaces_environment", test_exec_env_replaces_environment),
+        ("exec_stdin_larger_than_pipe_buffer", test_exec_stdin_larger_than_pipe_buffer),
+        ("copyfile_reports_unreadable_source", test_copyfile_reports_unreadable_source),
     ]
 
     passed = 0
