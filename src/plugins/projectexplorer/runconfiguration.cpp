@@ -469,7 +469,10 @@ Task RunConfiguration::createNoRemoteExecutableIssue() const
             message += ' ' + hint;
     }
     message += ' ' + Tr::tr("Alternatively, set an alternate executable on the device.");
-    return createConfigurationIssue(message);
+    // A warning, not an error: it must not disable the Run button (which would
+    // also hide this very explanation). The run may still be started; it will
+    // then fail with the underlying error, but the hint is shown up front.
+    return BuildSystemTask(Task::Warning, message);
 }
 
 void RunConfiguration::toMap(Store &map) const

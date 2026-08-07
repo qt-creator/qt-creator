@@ -2749,7 +2749,10 @@ void ProjectExplorerPluginPrivate::executeRunConfigurationPhase2
             TaskHub::addTask(t);
         // TODO: Insert an extra task with a "link" to the run settings page?
         TaskHub::requestPopup();
-        return;
+        // Errors abort the run; warnings (e.g. a missing remote executable the
+        // user may still want to try) are shown but do not prevent starting.
+        if (Utils::anyOf(runConfigIssues, &Task::isError))
+            return;
     }
 
     auto runControl = new RunControl(runMode);
