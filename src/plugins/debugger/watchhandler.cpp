@@ -536,6 +536,7 @@ public:
     void grabWidget();
     void ungrabWidget();
     void timerEvent(QTimerEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
     void setValueAnnotationsHelper(BaseTextEditor *textEditor,
                                    const Location &loc,
@@ -1517,6 +1518,7 @@ void WatchModel::grabWidget()
    QGuiApplication::setOverrideCursor(Qt::CrossCursor);
    m_grabWidgetTimerId = startTimer(30);
    ICore::mainWindow()->grabMouse();
+   qApp->installEventFilter(this);
 }
 
 void WatchModel::timerEvent(QTimerEvent *event)
@@ -1527,7 +1529,7 @@ void WatchModel::timerEvent(QTimerEvent *event)
         QString msg;
         if (mods == Qt::NoModifier) {
             msg = Tr::tr("Press Ctrl to select widget at (%1, %2). "
-                     "Press any other keyboard modifier to stop selection.")
+                     "Press Escape or any other keyboard modifier to stop selection.")
                         .arg(pnt.x()).arg(pnt.y());
         } else {
             if (mods == Qt::CTRL) {
@@ -1546,10 +1548,29 @@ void WatchModel::timerEvent(QTimerEvent *event)
 
 void WatchModel::ungrabWidget()
 {
+    qApp->removeEventFilter(this);
     ICore::mainWindow()->releaseMouse();
     QGuiApplication::restoreOverrideCursor();
     killTimer(m_grabWidgetTimerId);
     m_grabWidgetTimerId = -1;
+}
+
+bool WatchModel::eventFilter(QObject *watched, QEvent *event)
+{
+    // While picking a widget, let Escape abort the selection (QTCREATORBUG-17326).
+    // Escape is a shortcut elsewhere (it returns to the editor), so it arrives as
+    // a ShortcutOverride before any KeyPress; handle both to catch it reliably.
+    if (m_grabWidgetTimerId != -1) {
+        const QEvent::Type type = event->type();
+        if ((type == QEvent::ShortcutOverride || type == QEvent::KeyPress)
+                && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
+            ungrabWidget();
+            m_engine->showMessage(Tr::tr("Selection aborted."), StatusBar);
+            event->accept();
+            return true;
+        }
+    }
+    return WatchModelBase::eventFilter(watched, event);
 }
 
 int WatchModel::memberVariableRecursion(WatchItem *item,
