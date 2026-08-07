@@ -1103,13 +1103,13 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_MACRO} << 0;
     QTest::newRow("function template call") << 254 << 5 << 254 << 21 << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("template type parameter") << 265 << 17 << 265 << 38
-        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+        << QList<int>{C_TEMPLATE_PARAMETER, C_DECLARATION} << 0;
     QTest::newRow("template parameter default argument") << 265 << 41 << 265 << 44
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("template non-type parameter") << 265 << 50 << 265 << 74
         << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
     QTest::newRow("template template parameter") << 265 << 103 << 265 << 128
-        << QList<int>{C_TYPE, C_DECLARATION} << 0;
+        << QList<int>{C_TEMPLATE_PARAMETER, C_DECLARATION} << 0;
     QTest::newRow("template template parameter default argument") << 265 << 131 << 265 << 142
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("outer opening angle bracket in nested template declaration")
@@ -1127,7 +1127,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("function template declaration") << 266 << 6 << 266 << 22
         << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
     QTest::newRow("template type parameter reference") << 268 << 5 << 268 << 26
-        << QList<int>{C_TYPE} << 0;
+        << QList<int>{C_TEMPLATE_PARAMETER} << 0;
     QTest::newRow("local var declaration of template parameter type") << 268 << 27 << 268 << 57
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
     QTest::newRow("reference to non-type template parameter") << 269 << 46 << 269 << 70
@@ -1136,10 +1136,10 @@ void ClangdTestHighlighting::test_data()
         << 269 << 10 << 269 << 43
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
     QTest::newRow("template template parameter reference") << 270 << 5 << 270 << 30
-        << QList<int>{C_TYPE} << 0;
+        << QList<int>{C_TEMPLATE_PARAMETER} << 0;
     QTest::newRow("template type parameter reference in template instantiation")
         << 270 << 31 << 270 << 52
-        << QList<int>{C_TYPE} << 0;
+        << QList<int>{C_TEMPLATE_PARAMETER} << 0;
     QTest::newRow("local var declaration of template template parameter type")
         << 270 << 54 << 270 << 88
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;

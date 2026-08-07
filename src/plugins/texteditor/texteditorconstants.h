@@ -34,6 +34,7 @@ enum TextStyle : quint8 {
     C_STRING,
     C_TYPE,
     C_CONCEPT,
+    C_TEMPLATE_PARAMETER,
     C_NAMESPACE,
     C_LOCAL,
     C_PARAMETER,

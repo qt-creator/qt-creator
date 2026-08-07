@@ -434,7 +434,8 @@ bool FontSettingsData::loadColorScheme(const Utils::FilePath &filePath,
     for (const FormatDescription &desc : descriptions) {
         const TextStyle id = desc.id();
         if (!m_scheme.contains(id)) {
-            if ((id == C_NAMESPACE || id == C_CONCEPT) && m_scheme.contains(C_TYPE)) {
+            if ((id == C_NAMESPACE || id == C_CONCEPT || id == C_TEMPLATE_PARAMETER)
+                && m_scheme.contains(C_TYPE)) {
                 m_scheme.setFormatFor(id, m_scheme.formatFor(C_TYPE));
                 continue;
             }
@@ -722,6 +723,8 @@ FormatDescriptions initialFormats()
                              Qt::darkMagenta);
     formatDescr.emplace_back(C_CONCEPT, Tr::tr("Concept"), Tr::tr("Name of a concept."),
                              Qt::darkMagenta);
+    formatDescr.emplace_back(C_TEMPLATE_PARAMETER, Tr::tr("Template Parameter"),
+                             Tr::tr("Name of a template type parameter."), Qt::darkMagenta);
     formatDescr.emplace_back(C_NAMESPACE, Tr::tr("Namespace"), Tr::tr("Name of a namespace."),
                              Qt::darkGreen);
     formatDescr.emplace_back(C_LOCAL, Tr::tr("Local"),

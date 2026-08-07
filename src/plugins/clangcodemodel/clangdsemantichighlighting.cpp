@@ -102,7 +102,7 @@ void doSemanticHighlighting(
             // clangd reports both type and non-type template parameters as type parameters,
             // but the latter can be distinguished by the readonly modifier.
             styles.mainStyle = token.modifiers.contains(QLatin1String("readonly"))
-                    ? C_PARAMETER : C_TYPE;
+                    ? C_PARAMETER : C_TEMPLATE_PARAMETER;
         } else if (token.type == "operator") {
             const int pos = Utils::Text::positionInText(&doc, token.line, token.column - 1);
             QTC_ASSERT(pos >= 0 || pos < docContents.size(), return HighlightingResult());
