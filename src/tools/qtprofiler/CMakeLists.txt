@@ -93,13 +93,15 @@ if (TARGET qtprofiler)
   )
 endif()
 
-# add_qtc_executable does not run Qt's WebAssembly executable finalizer the way
-# qt_add_executable does, so invoke it directly: it generates qtprofiler.html from Qt's
-# shell template, copies qtloader.js/qtlogo.svg, links embind (the QPA plugin uses
-# emscripten::val), and sets the MODULARIZE/EXPORT_NAME/EXPORTED_RUNTIME_METHODS and
-# memory link options the generated loader depends on.
-if (EMSCRIPTEN AND TARGET qtprofiler AND COMMAND _qt_internal_finalize_wasm_app)
-  _qt_internal_finalize_wasm_app(qtprofiler)
+# add_qtc_executable() builds on plain add_executable(), so the executable
+# finalization that qt_add_executable() defers never runs. Run it explicitly: on
+# Emscripten it generates qtprofiler.html from Qt's shell template, copies
+# qtloader.js/qtlogo.svg, links embind (the QPA plugin uses emscripten::val), and
+# sets the MODULARIZE/EXPORT_NAME/EXPORTED_RUNTIME_METHODS and memory link options
+# the generated loader depends on. Only done for WebAssembly, where the app is
+# unusable without it; the desktop builds have never been finalized either.
+if (EMSCRIPTEN AND TARGET qtprofiler)
+  qt_finalize_target(qtprofiler)
 endif()
 
 # The call-stack sampler uses task_for_pid(), which requires the binary to carry

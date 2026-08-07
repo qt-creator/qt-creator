@@ -40,10 +40,13 @@ int main(int argc, char *argv[])
     // A GUI tool has no use for a terminal hangup, so ignore it.
     std::signal(SIGHUP, SIG_IGN);
 #endif
-    // In the static (WebAssembly) build, resources compiled into the static Utils
-    // library are not auto-registered, so pull them in explicitly. In shared builds
-    // libUtils registers them via a constructor and does not export
-    // qInitResources_utils(), so calling Q_INIT_RESOURCE there fails to link.
+    // Resources compiled into a static Utils library are not auto-registered, so pull
+    // them in explicitly. In shared builds libUtils registers them via a constructor
+    // and does not export qInitResources_utils(), so calling Q_INIT_RESOURCE there
+    // fails to link. What decides this is QTC_STATIC_BUILD, not the platform, but
+    // that option has no C++ define; WebAssembly is the only static configuration we
+    // build, so key off it here. A static desktop build would still lack the
+    // resources.
 #ifdef __EMSCRIPTEN__
     Q_INIT_RESOURCE(utils);
 #endif
