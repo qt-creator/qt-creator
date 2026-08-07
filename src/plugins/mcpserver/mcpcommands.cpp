@@ -39,11 +39,18 @@
 #include <utils/shutdownguard.h>
 #include <utils/storekey.h>
 
+#include <QAbstractButton>
 #include <QApplication>
+#include <QComboBox>
 #include <QFile>
+#include <QGroupBox>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QKeyEvent>
+#include <QLabel>
+#include <QLineEdit>
 #include <QLoggingCategory>
+#include <QMouseEvent>
 #include <QProcess>
 #include <QThread>
 #include <QTimer>
@@ -724,6 +731,177 @@ static QString pluginStateName(ExtensionSystem::PluginSpec::State state)
     case ExtensionSystem::PluginSpec::Deleted: return "deleted";
     }
     return "unknown";
+}
+
+// ---- Widget resolution ------------------------------------------------
+//
+// A semantic addressing layer over the running UI: scenarios say "the OK
+// button in the Execute Extension Command dialog", not screen coordinates.
+// A query is a conjunction of the fields below; resolveWidgets() walks every
+// live widget and returns the matches. The action tools treat more than one
+// match as an error - an ambiguous query is a bug in the scenario, not a
+// coin toss.
+
+struct WidgetQuery
+{
+    QString objectName;
+    QString text;
+    QString className;
+    QString windowTitle;
+    bool includeInvisible = false;
+};
+
+static WidgetQuery widgetQueryFromJson(const QJsonObject &p)
+{
+    WidgetQuery q;
+    q.objectName = p.value("object_name").toString();
+    q.text = p.value("text").toString();
+    q.className = p.value("class_name").toString();
+    q.windowTitle = p.value("window_title").toString();
+    q.includeInvisible = p.value("include_invisible").toBool(false);
+    return q;
+}
+
+static bool widgetQueryIsEmpty(const WidgetQuery &q)
+{
+    return q.objectName.isEmpty() && q.text.isEmpty() && q.className.isEmpty()
+           && q.windowTitle.isEmpty();
+}
+
+// The visible, human-readable text of a widget, used both to match a query
+// and to describe a resolved widget in the generated tutorial. Accelerator
+// markers ('&') are stripped so a query text of "OK" matches a "&OK" button.
+static QString widgetVisibleText(const QWidget *w)
+{
+    QString text;
+    if (auto b = qobject_cast<const QAbstractButton *>(w))
+        text = b->text();
+    else if (auto l = qobject_cast<const QLabel *>(w))
+        text = l->text();
+    else if (auto c = qobject_cast<const QComboBox *>(w))
+        text = c->currentText();
+    else if (auto g = qobject_cast<const QGroupBox *>(w))
+        text = g->title();
+    else if (auto le = qobject_cast<const QLineEdit *>(w))
+        text = le->text();
+    return text.remove('&');
+}
+
+static bool widgetMatches(const QWidget *w, const WidgetQuery &q)
+{
+    if (!q.includeInvisible && !w->isVisible())
+        return false;
+    if (!q.objectName.isEmpty() && w->objectName() != q.objectName)
+        return false;
+    if (!q.className.isEmpty()
+        && QString::fromLatin1(w->metaObject()->className()) != q.className
+        && !w->inherits(q.className.toLatin1().constData())) {
+        return false;
+    }
+    if (!q.text.isEmpty() && widgetVisibleText(w).trimmed() != q.text.trimmed())
+        return false;
+    if (!q.windowTitle.isEmpty()) {
+        const QWidget *win = w->window();
+        if (!win || !win->windowTitle().contains(q.windowTitle, Qt::CaseInsensitive))
+            return false;
+    }
+    return true;
+}
+
+static QList<QWidget *> resolveWidgets(const WidgetQuery &q)
+{
+    QList<QWidget *> result;
+    for (QWidget *w : QApplication::allWidgets()) {
+        if (widgetMatches(w, q))
+            result.append(w);
+    }
+    return result;
+}
+
+static QJsonObject describeWidget(QWidget *w)
+{
+    QWidget *win = w->window();
+    const QPoint topLeft = w->mapToGlobal(QPoint(0, 0));
+    return QJsonObject{
+        {"class", QString::fromLatin1(w->metaObject()->className())},
+        {"object_name", w->objectName()},
+        {"text", widgetVisibleText(w)},
+        {"visible", w->isVisible()},
+        {"enabled", w->isEnabled()},
+        {"x", topLeft.x()},
+        {"y", topLeft.y()},
+        {"width", w->width()},
+        {"height", w->height()},
+        {"window_title", win ? win->windowTitle() : QString()},
+        // winId() would force-create a native handle on an unmapped window,
+        // so only report it for a window that is actually on screen.
+        {"window_id", (win && win->isVisible()) ? double(win->winId()) : 0}};
+}
+
+static QString describeWidgetShort(QWidget *w)
+{
+    return QString("%1(object_name=\"%2\", text=\"%3\")")
+        .arg(QString::fromLatin1(w->metaObject()->className()), w->objectName(),
+             widgetVisibleText(w));
+}
+
+// Resolves a query to exactly one widget or explains why it could not: empty
+// query, no match, or - the case that keeps tests honest - more than one
+// match.
+static Result<QWidget *> resolveSingleWidget(const WidgetQuery &q)
+{
+    if (widgetQueryIsEmpty(q)) {
+        return ResultError(QString("Empty widget query; specify at least one of "
+                                   "object_name, text, class_name, window_title."));
+    }
+    const QList<QWidget *> matches = resolveWidgets(q);
+    if (matches.isEmpty())
+        return ResultError(QString("No widget matched the query."));
+    if (matches.size() > 1) {
+        QStringList desc;
+        for (QWidget *w : matches)
+            desc << describeWidgetShort(w);
+        return ResultError(
+            QString("Ambiguous widget query: %1 matches [%2]. Narrow it with "
+                    "object_name, class_name or window_title.")
+                .arg(matches.size())
+                .arg(desc.join(", ")));
+    }
+    return matches.first();
+}
+
+// Prefer the widget's own behaviour over synthesising input: a button's
+// click() runs its logic directly, avoiding the popup/dropdown pitfalls of
+// posting raw mouse events. Other widgets do get a synthetic left click at
+// their centre, delivered in-process so no XTEST or X server round trip is
+// needed.
+static void clickWidget(QWidget *w)
+{
+    if (auto b = qobject_cast<QAbstractButton *>(w)) {
+        b->click();
+        return;
+    }
+    const QPointF center = w->rect().center();
+    const QPointF global = w->mapToGlobal(w->rect().center());
+    QMouseEvent press(
+        QEvent::MouseButtonPress, center, global, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QMouseEvent release(
+        QEvent::MouseButtonRelease, center, global, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QApplication::sendEvent(w, &press);
+    QApplication::sendEvent(w, &release);
+}
+
+// Delivers text as key events so widgets that react to typing (line edits,
+// text editors) update as if the user typed. Sent synchronously so the
+// widget state is settled before the tool returns.
+static void typeText(QWidget *target, const QString &text)
+{
+    for (const QChar &ch : text) {
+        QKeyEvent press(QEvent::KeyPress, 0, Qt::NoModifier, QString(ch));
+        QKeyEvent release(QEvent::KeyRelease, 0, Qt::NoModifier, QString(ch));
+        QApplication::sendEvent(target, &press);
+        QApplication::sendEvent(target, &release);
+    }
 }
 
 void McpCommands::registerCommands()
@@ -2026,6 +2204,182 @@ void McpCommands::registerCommands()
                     {"reason", "ok"},
                     {"message", QString("Set '%1' on page '%2'.").arg(key, r.name)}};
         }));
+
+    // The four query fields shared by every widget-addressing tool. A tool's
+    // effective query is the conjunction of the fields the caller provides.
+    const auto addWidgetQueryProps = [](Tool::InputSchema schema) {
+        return schema
+            .addProperty(
+                "object_name",
+                QJsonObject{
+                    {"type", "string"},
+                    {"description", "Exact objectName(). The most robust selector: stable "
+                                    "across translation and layout changes."}})
+            .addProperty(
+                "text",
+                QJsonObject{
+                    {"type", "string"},
+                    {"description", "Visible text (button/label/combo/groupbox), matched "
+                                    "exactly after trimming and stripping '&' accelerators. "
+                                    "Readable but translation-sensitive."}})
+            .addProperty(
+                "class_name",
+                QJsonObject{
+                    {"type", "string"},
+                    {"description", "Meta-object class name, e.g. \"QPushButton\". Matches the "
+                                    "exact class or any subclass (QAbstractButton matches "
+                                    "QPushButton)."}})
+            .addProperty(
+                "window_title",
+                QJsonObject{
+                    {"type", "string"},
+                    {"description", "Restrict to widgets whose top-level window title contains "
+                                    "this (case-insensitive), e.g. to disambiguate an OK button "
+                                    "by its dialog."}})
+            .addProperty(
+                "include_invisible",
+                QJsonObject{
+                    {"type", "boolean"},
+                    {"description", "Also match hidden widgets (default false)."}});
+    };
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("find_widgets")
+            .title("Find widgets in the running UI")
+            .description(
+                "Resolves a semantic widget query against the live Qt Creator UI by walking "
+                "all widgets (including dialogs and popups). Returns every match with its "
+                "class, objectName, visible text, enabled/visible state, geometry in root "
+                "coordinates and top-level window id. This is the addressing layer for "
+                "click_widget / type_text / select_combo_item: use it to discover selectors "
+                "and to check that a query is unambiguous before acting on it. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(addWidgetQueryProps(Tool::InputSchema{}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("count", QJsonObject{{"type", "integer"}})
+                    .addProperty("widgets", QJsonObject{{"type", "array"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("count")
+                    .addRequired("widgets")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const WidgetQuery q = widgetQueryFromJson(p);
+            if (widgetQueryIsEmpty(q)) {
+                return {{"count", 0},
+                        {"widgets", QJsonArray{}},
+                        {"error", "Empty widget query; specify at least one of object_name, "
+                                  "text, class_name, window_title."}};
+            }
+            QJsonArray arr;
+            for (QWidget *w : resolveWidgets(q))
+                arr.append(describeWidget(w));
+            return {{"count", arr.size()}, {"widgets", arr}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("click_widget")
+            .title("Click a widget")
+            .description(
+                "Clicks the single widget matching the query. A button is clicked via its own "
+                "click() slot; any other widget receives a synthetic left click at its centre. "
+                "The query must resolve to exactly one visible widget - zero or multiple matches "
+                "are an error, so ambiguity never silently picks a widget.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(addWidgetQueryProps(Tool::InputSchema{})),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const WidgetQuery q = widgetQueryFromJson(params.argumentsAsObject());
+            const Utils::Result<QWidget *> w = resolveSingleWidget(q);
+            if (!w)
+                return ResultError(w.error());
+            if (!(*w)->isEnabled())
+                return ResultError(QString("Widget is disabled: %1.").arg(describeWidgetShort(*w)));
+            clickWidget(*w);
+            return CallToolResult{}.isError(false).structuredContent(describeWidget(*w));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("select_combo_item")
+            .title("Select an item in a combo box")
+            .description(
+                "Selects an item by its text in the single QComboBox matching the query, via "
+                "setCurrentIndex(). This avoids the pitfall that pressing Return on a focused "
+                "combo box opens its dropdown instead of choosing. The query must resolve to "
+                "exactly one QComboBox.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "item",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Exact text of the item to select."}})
+                    .addRequired("item")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const Utils::Result<QWidget *> w = resolveSingleWidget(widgetQueryFromJson(p));
+            if (!w)
+                return ResultError(w.error());
+            auto combo = qobject_cast<QComboBox *>(*w);
+            if (!combo) {
+                return ResultError(
+                    QString("Widget is not a QComboBox: %1.").arg(describeWidgetShort(*w)));
+            }
+            const QString item = p.value("item").toString();
+            const int index = combo->findText(item);
+            if (index < 0) {
+                QStringList items;
+                for (int i = 0; i < combo->count(); ++i)
+                    items << QString("\"%1\"").arg(combo->itemText(i));
+                return ResultError(QString("Combo box has no item \"%1\". Items: [%2].")
+                                       .arg(item, items.join(", ")));
+            }
+            combo->setCurrentIndex(index);
+            return CallToolResult{}.isError(false).structuredContent(describeWidget(combo));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("type_text")
+            .title("Type text into a widget")
+            .description(
+                "Types text by delivering key events, so widgets that react to typing (line "
+                "edits, text editors) update as if the user typed. If widget query fields are "
+                "given they select and focus the target (which must resolve to exactly one "
+                "widget); otherwise the current focus widget receives the input.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "input",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "The text to type."}})
+                    .addRequired("input")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const QString input = p.value("input").toString();
+            const WidgetQuery q = widgetQueryFromJson(p);
+            QWidget *target = nullptr;
+            if (!widgetQueryIsEmpty(q)) {
+                const Utils::Result<QWidget *> w = resolveSingleWidget(q);
+                if (!w)
+                    return ResultError(w.error());
+                target = *w;
+                target->activateWindow();
+                target->setFocus(Qt::OtherFocusReason);
+            } else {
+                target = QApplication::focusWidget();
+                if (!target) {
+                    return ResultError(QString("No target widget: give a widget query or focus "
+                                               "a widget first."));
+                }
+            }
+            typeText(target, input);
+            return CallToolResult{}.isError(false).structuredContent(describeWidget(target));
+        });
 }
 
 } // namespace Mcp::Internal
