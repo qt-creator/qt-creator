@@ -33,6 +33,7 @@ DebuggerSettings::DebuggerSettings() :
     closeMemoryBuffersOnExit{commonSettings().closeMemoryBuffersOnExit},
     raiseOnInterrupt{commonSettings().raiseOnInterrupt},
     breakpointsFullPathByDefault{commonSettings().breakpointsFullPathByDefault},
+    resolveBreakpointSymlinks{commonSettings().resolveBreakpointSymlinks},
     warnOnReleaseBuilds{commonSettings().warnOnReleaseBuilds},
     nativeMixedMode{commonSettings().nativeMixedMode},
     collapseMachineryFrames{commonSettings().collapseMachineryFrames},

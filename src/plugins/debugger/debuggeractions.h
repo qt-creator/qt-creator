@@ -24,6 +24,7 @@ public:
     Utils::BoolAspect &closeMemoryBuffersOnExit;
     Utils::BoolAspect &raiseOnInterrupt;
     Utils::BoolAspect &breakpointsFullPathByDefault;
+    Utils::BoolAspect &resolveBreakpointSymlinks;
     Utils::BoolAspect &warnOnReleaseBuilds;
     Utils::BoolAspect &nativeMixedMode;
     Utils::BoolAspect &collapseMachineryFrames;

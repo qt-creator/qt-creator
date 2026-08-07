@@ -111,6 +111,15 @@ CommonSettings::CommonSettings()
     breakpointsFullPathByDefault.setToolTip(Tr::tr("Enables a full file path in breakpoints by default also for GDB."));
     breakpointsFullPathByDefault.setLabelText(Tr::tr("Set breakpoints using a full absolute path"));
 
+    resolveBreakpointSymlinks.setSettingsKey(debugModeGroup, "ResolveBreakpointSymlinks");
+    resolveBreakpointSymlinks.setToolTip(
+        Tr::tr("Resolves symbolic links in the file path when setting breakpoints, so the path "
+               "matches the one recorded in the debug information. This helps LLDB bind "
+               "breakpoints in files opened through a symbolic link. Leave this off if the "
+               "project is built through a symbolic link, as the debug information then records "
+               "the unresolved path."));
+    resolveBreakpointSymlinks.setLabelText(Tr::tr("Resolve symbolic links in breakpoint paths"));
+
     raiseOnInterrupt.setSettingsKey(debugModeGroup, "RaiseOnInterrupt");
     raiseOnInterrupt.setDefaultValue(true);
     raiseOnInterrupt.setLabelText(Tr::tr("Bring %1 to foreground when application interrupts")
@@ -172,6 +181,7 @@ CommonSettings::CommonSettings()
                 raiseOnInterrupt,
                 warnOnReleaseBuilds,
                 breakpointsFullPathByDefault,
+                resolveBreakpointSymlinks,
                 forceLoggingToConsole,
                 nativeMixedMode,
                 collapseMachineryFrames,

@@ -1162,11 +1162,19 @@ void BreakpointItem::addToCommand(
                                         ? defaultPathUsage
                                         : requested.pathUsage;
 
+    FilePath fileName = requested.fileName;
+    if (settings().resolveBreakpointSymlinks()
+            && pathUsage == BreakpointPathUsage::BreakpointUseFullPath && fileName.isLocal()) {
+        // LLDB, unlike GDB, does not itself resolve symbolic links in a
+        // breakpoint path to match the debug information (QTCREATORBUG-17554).
+        fileName = fileName.resolveSymlinks();
+    }
+
     cmd->arg(
         "file",
         pathUsage == BreakpointPathUsage::BreakpointUseFullPath
-            ? buildPath.withNewMappedPath(requested.fileName).path()
-            : requested.fileName.fileName());
+            ? buildPath.withNewMappedPath(fileName).path()
+            : fileName.fileName());
 }
 
 void BreakpointItem::updateFromGdbOutput(const GdbMi &bkpt, const DebuggerRunParameters &rp)
