@@ -107,7 +107,7 @@ func TestStopForwardThenDataDoesNotBlock(t *testing.T) {
 	conn, connId := dialAndConnect(t, socketServerPath(cmd.Id), out)
 	defer conn.Close()
 
-	// Grab a reference to fwd before processStopForward removes it —
+	// Grab a reference to fwd before processStopForward removes it -
 	// simulating the race window where processData has already looked up fwd.
 	handler.mutex.Lock()
 	fwd := handler.forwards[cmd.Id]
@@ -142,7 +142,7 @@ func TestStopForwardThenDataDoesNotBlock(t *testing.T) {
 	select {
 	case <-done:
 	case <-time.After(5 * time.Second):
-		t.Fatal("test timed out — late processData calls blocked")
+		t.Fatal("test timed out - late processData calls blocked")
 	}
 }
 
@@ -243,7 +243,7 @@ func TestConcurrentDataAndStop(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			// ConnId 0 will not be found (no active connection) so this returns
-			// immediately — the test exercises the no-deadlock path.
+			// immediately - the test exercises the no-deadlock path.
 			handler.processData(command{
 				Type:       "socketdata",
 				Id:         cmd.Id,
@@ -268,7 +268,7 @@ func TestConcurrentDataAndStop(t *testing.T) {
 	select {
 	case <-done:
 	case <-time.After(10 * time.Second):
-		t.Fatal("test timed out — likely deadlock from concurrent data + stop")
+		t.Fatal("test timed out - likely deadlock from concurrent data + stop")
 	}
 	close(stopDrain)
 }
@@ -331,7 +331,7 @@ func TestDataExchangeMultipleConnections(t *testing.T) {
 	connB, connIdB := dialAndConnect(t, serverPath, out)
 	defer connB.Close()
 
-	// --- Go → remote: send to A, verify A receives and B does not ---
+	// --- Go -> remote: send to A, verify A receives and B does not ---
 	handler.processData(command{
 		Type:       "socketdata",
 		Id:         cmd.Id,
@@ -357,7 +357,7 @@ func TestDataExchangeMultipleConnections(t *testing.T) {
 	}
 	connB.SetReadDeadline(time.Time{})
 
-	// --- remote → Go: data from A arrives tagged with connIdA ---
+	// --- remote -> Go: data from A arrives tagged with connIdA ---
 	if _, werr := connA.Write([]byte("from-A")); werr != nil {
 		t.Fatalf("connA write: %v", werr)
 	}
@@ -381,7 +381,7 @@ func TestDataExchangeMultipleConnections(t *testing.T) {
 		t.Fatal("timed out waiting for socketdata from A")
 	}
 
-	// --- Go → remote: now send to B ---
+	// --- Go -> remote: now send to B ---
 	handler.processData(command{
 		Type:       "socketdata",
 		Id:         cmd.Id,

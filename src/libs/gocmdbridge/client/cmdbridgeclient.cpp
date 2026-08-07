@@ -215,7 +215,7 @@ std::optional<Result<>> ClientPrivate::handleSocketResults(const QVariantMap &ma
     auto addEvent = [&](int id, Client::SocketServerEvent event) -> std::optional<Result<>> {
         const auto it = socketServerForwards.find(id);
         if (it == socketServerForwards.end())
-            return Result<>{}; // Already torn down — ignore late events from Go.
+            return Result<>{}; // Already torn down - ignore late events from Go.
         const auto promise = it.value();
         if (!promise->isCanceled())
             promise->addResult(std::move(event));

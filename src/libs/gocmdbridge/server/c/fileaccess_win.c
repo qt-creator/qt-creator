@@ -3,7 +3,7 @@
 //
 // Windows file access layer: plat_* wrappers, UTF-16 path helpers and file
 // attribute helpers.
-// Included by fileaccess.c — do not compile separately.
+// Included by fileaccess.c - do not compile separately.
 
 #ifdef _WIN32
 // clang-format off
