@@ -3757,7 +3757,8 @@ void GitClient::formatPatch(const Utils::FilePath &workingDirectory, const QStri
         return;
 
     const QStringList args = {"format-patch"};
-    enqueueCommand({workingDirectory, args + patchRange, RunFlag::ShowSuccessMessage});
+    enqueueCommand({workingDirectory, args + patchRange,
+                    RunFlag::ShowSuccessMessage | RunFlag::ShowStdOut});
 }
 
 /* Revert: This function can be called with a file list (to revert single
