@@ -108,6 +108,7 @@ class Dumper(DumperBase):
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.interpreterBreakpointResolvers = []
+        self.interpreterResolverHookBreakpoint = None
         # Internal (not user-visible) breakpoint ids - see handleBreakpointEvent().
         self.internalBreakpointIds = set()
 
@@ -994,6 +995,7 @@ class Dumper(DumperBase):
             self.interpreterEventBreakpoint = \
                 self.target.BreakpointCreateByName('qt_qmlDebugMessageAvailable')
             self.internalBreakpointIds.add(self.interpreterEventBreakpoint.GetID())
+            self.createInterpreterResolverHookBreakpoint()
 
         state = 1 if self.target.IsValid() else 0
         self.reportResult('success="%s",msg="%s",exe="%s"'
@@ -1726,10 +1728,16 @@ class Dumper(DumperBase):
                     # Substring, not "==": demangled formatting can vary.
                     if "qt_qmlDebugConnectorOpen" in (functionName or ''):
                         self.report("RESOLVER HIT")
+                        self.interpreterResolverHookBreakpoint = None
                         for resolver in self.interpreterBreakpointResolvers:
                             resolver()
                         self.report("AUTO-CONTINUE AFTER RESOLVING")
-                        self.reportState("inferiorstopok")
+                        # With nothing pending the hook stopped the inferior for
+                        # no one: reporting a stop would have the engine run a
+                        # full update before the resume, for every native-mixed
+                        # session rather than only those with a QML breakpoint.
+                        if self.interpreterBreakpointResolvers:
+                            self.reportState("inferiorstopok")
                         self.process.Continue()
                         return
                     if "qt_qmlDebugMessageAvailable" in (functionName or ''):
@@ -2525,10 +2533,20 @@ class Dumper(DumperBase):
         n = ns + 'QWidget'
         self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)
 
-    def createResolvePendingBreakpointsHookBreakpoint(self, args):
+    # Armed from setupInferior(), before the inferior runs: the debuggee opens its
+    # debug connector very early in startup, so a hook created later - once a
+    # setbreakpoint attempt has already failed, which needs a live inferior - is
+    # racing it, and loses on macOS.
+    def createInterpreterResolverHookBreakpoint(self):
+        if self.interpreterResolverHookBreakpoint is not None:
+            return
         bp = self.target.BreakpointCreateByName('qt_qmlDebugConnectorOpen')
         bp.SetOneShot(True)
         self.internalBreakpointIds.add(bp.GetID())
+        self.interpreterResolverHookBreakpoint = bp
+
+    def createResolvePendingBreakpointsHookBreakpoint(self, args):
+        self.createInterpreterResolverHookBreakpoint()
         self.interpreterBreakpointResolvers.append(
             lambda: self.resolvePendingInterpreterBreakpoint(args))
 
