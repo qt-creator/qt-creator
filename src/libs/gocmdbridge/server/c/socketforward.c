@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // Socket forwarding handlers (Unix domain socket server + per-conn threads).
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c - do not compile separately.
 
 #ifndef _WIN32
 #include <poll.h>
@@ -83,8 +83,27 @@ static void send_forward_stopped(int id)
 }
 
 /* ================================================================== */
-/*  Platform helpers — callers use these instead of raw syscalls      */
+/*  Platform helpers - callers use these instead of raw syscalls      */
 /* ================================================================== */
+
+/* Sockets are kept out of spawned children, as pipes and files are: a command
+   running on another thread forks, and its child would otherwise hold the
+   forwarded socket open after this side has closed it. Windows has no fork and
+   does not inherit handles unless asked to, so there it is a no-op. */
+#if defined(_WIN32) || !defined(SOCK_CLOEXEC)
+#define SOCK_CLOEXEC_FLAG 0
+#else
+#define SOCK_CLOEXEC_FLAG SOCK_CLOEXEC
+#endif
+
+static int s_accept_cloexec(int fd, struct sockaddr *addr, socklen_t *len)
+{
+#if defined(_WIN32) || !defined(SOCK_CLOEXEC)
+    return accept(fd, addr, len);
+#else
+    return accept4(fd, addr, len, SOCK_CLOEXEC);
+#endif
+}
 
 static int s_close(int fd)
 {
@@ -124,20 +143,37 @@ static ssize_t s_write(int fd, const void *buf, size_t n)
 #endif
 }
 
-/* poll/select wrapper — nfds_t is provided by fileaccess_win.c on Windows. */
+/* poll/select wrapper - nfds_t is provided by fileaccess_win.c on Windows. */
 static int s_poll_wrapper(struct pollfd *fds, nfds_t nfds, int timeout)
 {
 #if _WIN32
     struct timeval tv = { .tv_sec = timeout / 1000, .tv_usec = (timeout % 1000) * 1000 };
     fd_set rset;
     FD_ZERO(&rset);
-    for (nfds_t i = 0; i < nfds; i++)
-        if (fds[i].fd >= 0)
+    /* A closed connection is marked with -1, which is INVALID_SOCKET here. It
+       has to be left out: select() would fail outright on it, and then nothing
+       set revents and the caller read whatever was on the stack. Comparing
+       against 0 did not catch it, SOCKET being unsigned. */
+    bool watching = false;
+    for (nfds_t i = 0; i < nfds; i++) {
+        fds[i].revents = 0;
+        if (fds[i].fd != INVALID_SOCKET) {
             FD_SET(fds[i].fd, &rset);
+            watching = true;
+        }
+    }
+    if (!watching) {
+        if (timeout > 0)
+            Sleep((DWORD) timeout);
+        return 0;
+    }
     int rc = select(0, &rset, NULL, NULL, timeout == -1 ? NULL : &tv);
-    if (rc > 0)
-        for (nfds_t i = 0; i < nfds; i++)
-            fds[i].revents = FD_ISSET(fds[i].fd, &rset) ? POLLIN : 0;
+    if (rc > 0) {
+        for (nfds_t i = 0; i < nfds; i++) {
+            if (fds[i].fd != INVALID_SOCKET && FD_ISSET(fds[i].fd, &rset))
+                fds[i].revents = POLLIN;
+        }
+    }
     return rc;
 #else
     return poll(fds, nfds, timeout);
@@ -308,7 +344,12 @@ static void *conn_thread(void *arg)
         }
     }
 
-    s_close(cs->fd);
+    /* Whoever gets here first closes it. h_stop_forward() also shuts connections
+       down, and closing twice would, in between, have closed whatever unrelated
+       file or socket had meanwhile been handed the same descriptor number. */
+    int fd = __sync_lock_test_and_set(&cs->fd, -1);
+    if (fd >= 0)
+        s_close(fd);
     cs->done = 1;
 
     pthread_mutex_lock(&forwardMu);
@@ -342,7 +383,7 @@ static void *accept_thread(void *arg)
 
         struct sockaddr_un peer;
         socklen_t peer_len = sizeof(peer);
-        int clientFd = accept(fwd->listenerFd, (struct sockaddr *) &peer, &peer_len);
+        int clientFd = s_accept_cloexec(fwd->listenerFd, (struct sockaddr *) &peer, &peer_len);
         if (clientFd < 0) {
             if (fwd->stop)
                 break;
@@ -411,7 +452,9 @@ static void h_forward_server(value *cmd)
 
     s_unlink(serverPath);
 
-    int listenerFd = socket(AF_UNIX, SOCK_STREAM, 0);
+    /* CLOEXEC: a command spawned from another thread must not inherit the
+       listener, which would keep the forwarded socket alive after we close it. */
+    int listenerFd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC_FLAG, 0);
 #if _WIN32
     if (listenerFd < 0) {
 #else
@@ -517,9 +560,9 @@ static void h_socket_data(value *cmd)
     if (!cs)
         return;
 
-    socketForwardCmd *cmdItem = (socketForwardCmd *) malloc(sizeof(socketForwardCmd));
+    socketForwardCmd *cmdItem = (socketForwardCmd *) xmalloc(sizeof(socketForwardCmd));
     cmdItem->kind = 1;
-    cmdItem->data = (uint8_t *) malloc(dataVal->nkids);
+    cmdItem->data = (uint8_t *) xmalloc(dataVal->nkids ? dataVal->nkids : 1);
     memcpy(cmdItem->data, dataVal->bytes, dataVal->nkids);
     cmdItem->data_len = dataVal->nkids;
 
@@ -596,7 +639,10 @@ static void h_stop_forward(value *cmd)
         while (imap_next(&fwd->conns, &it, NULL, &val)) {
             connState *cs = (connState *) val;
             cs->done = 1;
-            s_close(cs->fd);
+            /* See conn_thread(): only one of us closes the descriptor. */
+            int fd = __sync_lock_test_and_set(&cs->fd, -1);
+            if (fd >= 0)
+                s_close(fd);
             conn_retain(cs);
             conns[nconnTids] = cs;
             connTids[nconnTids] = cs->tid;
