@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // Linux file watching backend (inotify). Implements the interface declared in
-// watcher.c. Included by cmdbridge.c — do not compile separately.
+// watcher.c. Included by cmdbridge.c - do not compile separately.
 
 #ifdef __linux__
 #include <sys/inotify.h>
@@ -21,12 +21,15 @@ static imap watchers;
 static int next_watcher_idx = 0;
 static int inotify_fd = -1;
 
-static const uint32_t INOTIFY_MASK
-    = IN_MODIFY | IN_CREATE | IN_DELETE | IN_MOVE | IN_MOVE_SELF | IN_ATTRIB;
+/* IN_DELETE_SELF has to be asked for - inotify only ever delivers IN_IGNORED,
+   IN_Q_OVERFLOW and IN_UNMOUNT unrequested. Without it, the watch on a file that
+   an editor replaces went quiet with nothing to tell us so. */
+static const uint32_t INOTIFY_MASK = IN_MODIFY | IN_CREATE | IN_DELETE | IN_MOVE | IN_MOVE_SELF
+                                     | IN_DELETE_SELF | IN_ATTRIB;
 
 static int inotify_to_op(uint32_t mask)
 {
-    if (mask & IN_DELETE)
+    if (mask & (IN_DELETE | IN_DELETE_SELF))
         return WATCH_OP_REMOVE;
     if (mask & IN_CREATE)
         return WATCH_OP_CREATE;
@@ -71,12 +74,19 @@ static void *watch_thread(void *arg)
                     n = snprintf(full, sizeof(full), "%s", w->path);
                 /* A path that does not fit is one nothing could act on
                    anyway, so report the others and skip this event. */
-                if (n > 0 && (size_t) n < sizeof(full))
-                    watch_emit(idx, full, inotify_to_op(ev->mask));
+                int op = inotify_to_op(ev->mask);
+                if (op != WATCH_OP_NONE && n > 0 && (size_t) n < sizeof(full))
+                    watch_emit(idx, full, op);
 
                 /* A watch on a single file is lost when that file is replaced,
-                   which editors do routinely; re-arm it. Matches watcher.go. */
-                if (w->is_file && (ev->mask & (IN_DELETE | IN_DELETE_SELF)) != 0) {
+                   which editors do routinely; re-arm it. Matches watcher.go.
+                   IN_IGNORED is the one event that says the watch is gone for
+                   certain, and a rename over the file arrives as IN_MOVE_SELF;
+                   watching only for IN_DELETE, which is reported for entries
+                   *inside* a watched directory, meant this never ran and the
+                   file stopped being watched after its first atomic save. */
+                if (w->is_file
+                    && (ev->mask & (IN_DELETE_SELF | IN_MOVE_SELF | IN_IGNORED)) != 0) {
                     struct stat st;
                     if (stat(w->path, &st) == 0 && !S_ISDIR(st.st_mode)) {
                         int new_wd = inotify_add_watch(inotify_fd, w->path, INOTIFY_MASK);
@@ -102,7 +112,7 @@ static void watch_backend_start(void)
     if (inotify_fd >= 0)
         return;
     imap_init(&watchers);
-    inotify_fd = inotify_init1(IN_NONBLOCK);
+    inotify_fd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (inotify_fd < 0)
         return;
     pthread_t tid;

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // Windows file watching backend (ReadDirectoryChangesW). Implements the
-// interface declared in watcher.c. Included by cmdbridge.c — do not compile
+// interface declared in watcher.c. Included by cmdbridge.c - do not compile
 // separately.
 
 #ifdef _WIN32
@@ -11,7 +11,13 @@ typedef struct
 {
     int idx; /* the index watcher.c knows this watcher by */
     HANDLE dirHandle;
-    char path[PATH_MAX];
+    char path[PATH_MAX]; /* what the client asked to watch */
+    /* ReadDirectoryChangesW only works on directories, so watching a file means
+       watching its parent and reporting just that one name - which is what
+       fsnotify did, and what the client needs to hear about a file being saved
+       from another program. Empty when `path` is itself a directory. */
+    char filter[PATH_MAX];
+    bool is_file;
     volatile long cancelled;
     HANDLE stopped; /* signalled by the thread once it is done with the entry */
 } win_watcher_t;
@@ -55,7 +61,7 @@ static void *win_watch_thread(void *arg)
             FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_SIZE
                 | FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_ATTRIBUTES,
             &bytesReturned,
-            NULL, /* no overlapped struct — synchronous */
+            NULL, /* no overlapped struct - synchronous */
             NULL);
 
         if (!ok)
@@ -82,12 +88,22 @@ static void *win_watch_thread(void *arg)
                     CP_UTF8, 0, wname, wcopies, nameA, (int) sizeof(nameA) - 1, NULL, NULL);
                 if (nameALen > 0) {
                     nameA[nameALen] = '\0';
-                    char full[PATH_MAX];
-                    snprintf(full, sizeof(full), "%s\\%s", w->path, nameA);
+                    /* A file watch hears about every sibling in the directory;
+                       only the one that was asked for is reported, under the
+                       path the client used. Windows names are case
+                       insensitive. */
+                    bool wanted = !w->is_file || _stricmp(nameA, w->filter) == 0;
+                    if (wanted) {
+                        char full[PATH_MAX];
+                        if (w->is_file)
+                            snprintf(full, sizeof(full), "%s", w->path);
+                        else
+                            snprintf(full, sizeof(full), "%s\\%s", w->path, nameA);
 
-                    pthread_mutex_lock(&watch_mutex);
-                    watch_emit(w->idx, full, op);
-                    pthread_mutex_unlock(&watch_mutex);
+                        pthread_mutex_lock(&watch_mutex);
+                        watch_emit(w->idx, full, op);
+                        pthread_mutex_unlock(&watch_mutex);
+                    }
                 }
             }
 
@@ -132,15 +148,42 @@ static int watch_backend_find(const char *path)
 
 static int watch_backend_add(const char *path)
 {
-    /* ReadDirectoryChangesW only works on directories. */
     wchar_t *wpath = utf8_to_utf16_long(path);
     if (!wpath)
         return -1;
     WIN32_FILE_ATTRIBUTE_DATA attr;
-    if (!GetFileAttributesExW(wpath, GetFileExInfoStandard, &attr)
-        || !(attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+    if (!GetFileAttributesExW(wpath, GetFileExInfoStandard, &attr)) {
         free(wpath);
         return -1;
+    }
+
+    /* ReadDirectoryChangesW only works on directories, so a file is watched
+       through its parent; the events are filtered back down to it. Refusing the
+       request instead meant the client never heard about a watched file at all. */
+    char watched_dir[PATH_MAX];
+    char filter[PATH_MAX];
+    bool is_file = (attr.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
+    filter[0] = '\0';
+    if (is_file) {
+        snprintf(watched_dir, sizeof(watched_dir), "%s", path);
+        char *sep = strrchr(watched_dir, '\\');
+        char *fwd = strrchr(watched_dir, '/');
+        if (fwd && (!sep || fwd > sep))
+            sep = fwd;
+        if (!sep) {
+            free(wpath);
+            return -1; /* a bare name has no parent to watch */
+        }
+        snprintf(filter, sizeof(filter), "%s", sep + 1);
+        *sep = '\0';
+        if (watched_dir[0] == '\0') {
+            free(wpath);
+            return -1;
+        }
+        free(wpath);
+        wpath = utf8_to_utf16_long(watched_dir);
+        if (!wpath)
+            return -1;
     }
 
     HANDLE h = CreateFileW(
@@ -163,6 +206,8 @@ static int watch_backend_add(const char *path)
     w->idx = next_win_idx++;
     w->dirHandle = h;
     snprintf(w->path, sizeof(w->path), "%s", path);
+    snprintf(w->filter, sizeof(w->filter), "%s", filter);
+    w->is_file = is_file;
     w->cancelled = 0;
     w->stopped = CreateEventA(NULL, TRUE, FALSE, NULL);
 

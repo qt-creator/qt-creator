@@ -2279,9 +2279,9 @@ def test_watch(bin_path):
 def test_watch_file_readd_on_recreation(bin_path):
     """Test file watch re-add-on-recreation: delete watched file, recreate it, verify events continue.
 
-    This tests the kqueue NOTE_DELETE/NOTE_RENAME re-add logic on macOS/BSD and the
-    inotify IN_DELETE re-add logic on Linux. On Windows, file watches are not supported
-    (only directory watches), so this test expects an error.
+    This tests the kqueue NOTE_DELETE/NOTE_RENAME re-add logic on macOS/BSD, the
+    inotify IN_DELETE_SELF/IN_MOVE_SELF/IN_IGNORED re-add logic on Linux, and on
+    Windows the parent-directory watch that a single file is followed through.
     """
     bridge = CmdBridgeInteractive(bin_path)
     try:
@@ -2302,11 +2302,6 @@ def test_watch_file_readd_on_recreation(bin_path):
         resp = bridge.send(cbor)
         assert resp is not None, "no response from watch"
         wtype = _extract_cbor_string(resp, "Type")
-
-        # On Windows, file watches are not supported (only directories)
-        if sys.platform == "win32":
-            assert wtype == "error", f"expected error for file watch on Windows, got {wtype}"
-            return True
 
         assert wtype == "addwatchresult", f"expected addwatchresult, got {wtype}"
 
