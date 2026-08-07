@@ -5,15 +5,6 @@
 // declared in find.c. Included by cmdbridge.c — do not compile separately.
 
 #ifdef _WIN32
-static time_t filetime_to_time(const FILETIME *ft)
-{
-    ULARGE_INTEGER ui;
-    ui.LowPart = ft->dwLowDateTime;
-    ui.HighPart = ft->dwHighDateTime;
-    /* FILETIME is 100-ns intervals since Jan 1, 1601; time_t is seconds since Jan 1, 1970 */
-    return (time_t) ((ui.QuadPart - 116444736000000000ULL) / 10000000);
-}
-
 static bool find_match_name(const char *name, const char **filters, int nfilt)
 {
     if (nfilt <= 0)
@@ -184,8 +175,7 @@ static void find_walk(const char *dir, const char **filters, int nfilt, int ffil
         char full[PATH_MAX];
         find_join(full, sizeof(full), dir, nameA, '\\');
 
-        /* Convert FILETIME to time_t */
-        time_t mtime = filetime_to_time(&fd.ftLastWriteTime);
+        time_t mtime = win_filetime_to_unix(fd.ftLastWriteTime);
         /* Mode: approximate POSIX mode from Windows attributes */
         uint32_t mode;
         if (is_dir) {
@@ -195,8 +185,11 @@ static void find_walk(const char *dir, const char **filters, int nfilt, int ffil
             if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
                 mode |= 0222; /* writable by owner/group/other */
         }
-        if (is_sym)
-            mode |= GO_MODE_SYMLINK;
+        if (is_sym) {
+            /* 0777, like win_fill_stat: the permission bits of a reparse point
+               describe the name, not the file it points at. */
+            mode = (mode & ~0777u) | GO_MODE_SYMLINK | 0777;
+        }
 
         value *m = mk7(
             "Type",

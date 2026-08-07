@@ -190,8 +190,13 @@ static bool is_executable(const char *p)
 {
     return access(p, X_OK) == 0;
 }
-static int nlinks(const char *path)
+/* The caller's lstat already carries the count, so only a symlink needs the
+   second call: the client asks about the file, not the name pointing at it,
+   and Go resolves the link here too. */
+static int nlinks(const char *path, const struct stat *st)
 {
+    if (!S_ISLNK(st->st_mode))
+        return (int) st->st_nlink;
     struct stat s;
     return (stat(path, &s) == 0) ? (int) s.st_nlink : 0;
 }

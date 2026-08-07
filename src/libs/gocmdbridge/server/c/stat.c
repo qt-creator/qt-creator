@@ -44,7 +44,7 @@ static void h_stat(value *cmd)
         "IsDir",
         vb(S_ISDIR(st.st_mode)),
         "NumHardLinks",
-        vi(nlinks(path)));
+        vi(nlinks(path, &st)));
     size_t l;
     uint8_t *c = encode(m, &l);
     if (c) {

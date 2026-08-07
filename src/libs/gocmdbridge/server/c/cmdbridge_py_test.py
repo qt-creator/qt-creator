@@ -3055,6 +3055,12 @@ def test_stat_modtime_is_integer(bin_path):
 
     Go's cbor library encodes time.Time as CBOR tag 0 with an integer payload.
     The C port must match this format for the client to parse correctly.
+
+    The value has to be checked as well as the type: the Windows port divided
+    the FILETIME without shifting it to the Unix epoch, which is an integer
+    like any other, but one in the year 2402. Mode is checked here too, for
+    want of a better place - it was reported as zero on Windows, which the
+    client turns into an empty QFile::Permissions.
     """
     tmpdir = temp_dir()
     # Create a file to ensure it has a valid timestamp
@@ -3080,6 +3086,14 @@ def test_stat_modtime_is_integer(bin_path):
         modtime = decoded.get("ModTime")
         assert modtime is not None, "ModTime field missing"
         assert isinstance(modtime, int), f"ModTime should be int (tagged Unix epoch), got {type(modtime).__name__}: {modtime!r}"
+        expected = os.stat(test_file).st_mtime
+        assert abs(modtime - expected) < 5, \
+            f"ModTime {modtime} is {modtime - expected:.0f}s off from expected {expected}"
+
+        mode = decoded.get("Mode")
+        assert mode is not None, "Mode field missing"
+        assert mode & 0o777, f"Mode carries no permission bits: {mode:#o}"
+        assert mode & 0o400, f"a readable file should report read permission: {mode:#o}"
     finally:
         if os.path.exists(test_file):
             os.unlink(test_file)
@@ -3087,7 +3101,11 @@ def test_stat_modtime_is_integer(bin_path):
 
 
 def test_finddata_modtime_is_integer(bin_path):
-    """Test that finddata ModTime is a tagged integer (Unix epoch), not a string."""
+    """Test that finddata ModTime is a tagged integer (Unix epoch), not a string.
+
+    find derives ModTime and Mode from the same platform data as stat, so it
+    is checked against the same expectations - see test_stat_modtime_is_integer.
+    """
     import shutil
 
     bridge = CmdBridgeInteractive(bin_path)
@@ -3130,6 +3148,16 @@ def test_finddata_modtime_is_integer(bin_path):
                 modtime = _extract_cbor_int(r, "ModTime")
                 assert modtime is not None, f"ModTime missing in finddata: {r.hex()}"
                 assert isinstance(modtime, int), f"ModTime should be int, got {type(modtime).__name__}: {modtime!r}"
+
+                path = _extract_cbor_string(r, "Path")
+                expected = os.stat(path).st_mtime
+                assert abs(modtime - expected) < 5, \
+                    f"ModTime {modtime} for {path} is {modtime - expected:.0f}s off from expected {expected}"
+
+                mode = _extract_cbor_int(r, "Mode")
+                assert mode is not None, f"Mode missing in finddata: {r.hex()}"
+                assert mode & 0o777, f"Mode carries no permission bits: {mode:#o}"
+                assert mode & 0o400, f"a readable file should report read permission: {mode:#o}"
 
         shutil.rmtree(find_dir)
         return True
@@ -4248,6 +4276,55 @@ def test_mode_is_go_filemode(bin_path):
         shutil.rmtree(root, ignore_errors=True)
 
 
+def test_stat_numhardlinks_counts_the_file(bin_path):
+    """NumHardLinks counts the links to the file, not to the name.
+
+    supportsAtomicSaveFile() reads it as "renaming over this would orphan the
+    other link", so a second link has to show, through a symlink as well as
+    directly - DesktopDeviceFileAccess::hasHardLinks follows the link on both
+    platforms, and the bridge is meant to be indistinguishable from it.
+    """
+    import shutil
+
+    tmpdir = temp_dir()
+    root = os.path.join(tmpdir, "nlinks")
+    if os.path.exists(root):
+        shutil.rmtree(root, ignore_errors=True)
+    os.makedirs(root)
+
+    lone = os.path.join(root, "lone.txt")
+    with open(lone, "w") as f:
+        f.write("x")
+    linked = os.path.join(root, "linked.txt")
+    with open(linked, "w") as f:
+        f.write("x")
+    second = os.path.join(root, "second.txt")
+    try:
+        os.link(linked, second)
+    except (OSError, AttributeError):
+        shutil.rmtree(root, ignore_errors=True)
+        return True
+
+    cases = [("lone", lone, 1), ("linked", linked, 2)]
+    if os.name != "nt":
+        via_link = os.path.join(root, "via_symlink")
+        os.symlink(linked, via_link)
+        cases.append(("symlink to a linked file", via_link, 2))
+
+    try:
+        for what, path, expected in cases:
+            cbor = build_cbor_map([
+                ("Type", "stat"), ("Id", "930"), ("Path", path)])
+            st = assert_one_value_per_packet(
+                send_command(bin_path, cbor), "stat")[0]
+            assert st["NumHardLinks"] == expected, (
+                f"{what}: NumHardLinks is {st['NumHardLinks']}, "
+                f"expected {expected}")
+        return True
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+
+
 def test_find_does_not_follow_symlink_loop(bin_path):
     """find must not descend through symlinks.
 
@@ -4410,6 +4487,7 @@ def main():
         ("find_name_filter", test_find_name_filter),
         ("find_cancel", test_find_cancel),
         ("find_one_value_per_packet", test_find_one_value_per_packet),
+        ("stat_numhardlinks_counts_the_file", test_stat_numhardlinks_counts_the_file),
         ("find_does_not_follow_symlink_loop", test_find_does_not_follow_symlink_loop),
         ("find_non_recursive_lists_directories", test_find_non_recursive_lists_directories),
         ("find_recursive_still_descends", test_find_recursive_still_descends),
