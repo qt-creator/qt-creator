@@ -17,6 +17,7 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <remote/remotelinux_constants.h>
 #include <remote/remotelinuxenvironmentaspect.h>
 
 #include <QtTaskTree/QBarrier>
@@ -120,6 +121,8 @@ public:
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
+        addSupportedRunConfig(Remote::Constants::CustomRunConfigId);
+        addSupportedDeviceType(Constants::QNX_QNX_OS_TYPE);
     }
 };
 
