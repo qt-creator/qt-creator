@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // POSIX file access layer: plat_* wrappers and file attribute helpers.
-// Included by fileaccess.c — do not compile separately.
+// Included by fileaccess.c - do not compile separately.
 
 #ifndef _WIN32
 #include <dirent.h>
@@ -38,8 +38,13 @@ extern char **environ;
 typedef int file_t;
 #define INVALID_FILE (-1)
 
-/* Thin wrappers so callers always use plat_* names. */
-static inline file_t plat_open(const char *p, int f, mode_t m) { return open(p, f, m); }
+/* Thin wrappers so callers always use plat_* names. O_CLOEXEC throughout: a
+   command running on another thread must not fork with these open, or the file
+   stays open in a process that has nothing to do with it. */
+static inline file_t plat_open(const char *p, int f, mode_t m)
+{
+    return open(p, f | O_CLOEXEC, m);
+}
 static inline ssize_t plat_read(file_t h, void *b, size_t n) { return read(h, b, n); }
 static inline ssize_t plat_write(file_t h, const void *b, size_t n) { return write(h, b, n); }
 static inline off_t plat_lseek(file_t h, off_t o, int w) { return lseek(h, o, w); }

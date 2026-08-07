@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // macOS and BSD file watching backend (kqueue). Implements the interface
-// declared in watcher.c. Included by cmdbridge.c — do not compile separately.
+// declared in watcher.c. Included by cmdbridge.c - do not compile separately.
 
 #if defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 #include <fcntl.h>
@@ -79,7 +79,7 @@ static void *kq_watch_thread(void *arg)
                 if (w->is_file && (ev->fflags & (NOTE_DELETE | NOTE_RENAME)) != 0) {
                     struct stat st;
                     if (stat(w->path, &st) == 0 && !S_ISDIR(st.st_mode)) {
-                        int new_fd = open(w->path, O_RDONLY);
+                        int new_fd = open(w->path, O_RDONLY | O_CLOEXEC);
                         if (new_fd >= 0) {
                             if (kq_arm(new_fd)) {
                                 close(w->fd);
@@ -132,7 +132,7 @@ static int watch_backend_add(const char *path)
     if (kq_fd < 0)
         return -1;
 
-    int fd = open(path, O_RDONLY);
+    int fd = open(path, O_RDONLY | O_CLOEXEC);
     if (fd < 0)
         return -1;
     if (!kq_arm(fd)) {
