@@ -56,7 +56,6 @@ public:
     QString host;
     GerritUser user;
     QString rootPath; // for http
-    QString version;
     unsigned short port = 0;
     HostType type = Ssh;
     bool authenticated = true;
@@ -69,7 +68,7 @@ private:
     bool setupAuthentication();
     bool ascendPath();
     bool resolveRoot();
-    bool resolveVersion(bool forceReload);
+    bool probeSshServer(bool forceReload);
 };
 
 } // Gerrit::Internal

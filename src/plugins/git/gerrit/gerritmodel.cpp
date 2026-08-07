@@ -57,7 +57,7 @@ static QDebug operator<<(QDebug d, const GerritPatchSet &p)
 
 [[maybe_unused]] static QDebug operator<<(QDebug d, const GerritChange &c)
 {
-    d.nospace() << c.fullTitle() << " by " << c.owner.email
+    d.nospace() << c.title << " by " << c.owner.email
                 << ' ' << c.lastUpdated << ' ' <<  c.currentPatchSet;
     return d;
 }
@@ -186,16 +186,9 @@ QStringList GerritChange::gitFetchArguments(const GerritServer &server) const
     return {"fetch", url, currentPatchSet.ref};
 }
 
-QString GerritChange::fullTitle() const
-{
-    QString res = title;
-    if (status == "DRAFT")
-        res += Git::Tr::tr(" (Draft)");
-    return res;
-}
 
 // Runs ssh gerrit queries from a list of query argument string lists,
-// see http://gerrit.googlecode.com/svn/documentation/2.1.5/cmd-query.html
+// see https://gerrit-review.googlesource.com/Documentation/cmd-query.html
 // In theory, querying uses a continuation/limit protocol, but we assume
 // we will never reach a limit with those queries.
 
@@ -249,7 +242,7 @@ QString GerritModel::dependencyHtml(const QString &header, const int changeNumbe
     str << "<tr><td>" << header << "</td><td><a href="
         << projectPrefix << changeNumber << '>' << changeNumber << "</a>";
     if (const QStandardItem *item = itemForNumber(changeNumber))
-        str << " (" << changeFromItem(item)->fullTitle() << ')';
+        str << " (" << changeFromItem(item)->title << ')';
     str << "</td></tr>";
     return res;
 }
@@ -273,7 +266,7 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     QString result;
     QTextStream str(&result);
     str << "<html><head/><body><table>"
-        << "<tr><td>" << subjectHeader << "</td><td>" << c->fullTitle() << "</td></tr>"
+        << "<tr><td>" << subjectHeader << "</td><td>" << c->title << "</td></tr>"
         << "<tr><td>" << numberHeader << "</td><td><a href=\"" << c->url << "\">" << c->number << "</a></td></tr>"
         << "<tr><td>" << ownerHeader << "</td><td>" << c->owner.fullName << ' '
         << "<a href=\"mailto:" << c->owner.email << "\">" << c->owner.email << "</a></td></tr>"
@@ -433,13 +426,11 @@ static GerritUser parseGerritUser(const QJsonObject &object)
 
 static int numberValue(const QJsonObject &object)
 {
-    const QJsonValue number = object.value("number");
-    // Since Gerrit 2.14 (commits fa92467dc and b0cfe1401) the change and patch set numbers are int
-    return number.isString() ? number.toString().toInt() : number.toInt();
+    return object.value("number").toInt();
 }
 
 /* Parse gerrit query Json output.
- * See http://gerrit.googlecode.com/svn/documentation/2.1.5/cmd-query.html
+ * See https://gerrit-review.googlesource.com/Documentation/cmd-query.html
  * Note: The url will be present only if  "canonicalWebUrl" is configured
  * in gerrit.config.
 \code
@@ -738,7 +729,7 @@ QList<QStandardItem *> GerritModel::changeToRow(const GerritChangePtr &c) const
         row.append(item);
     }
     row[NumberColumn]->setData(c->number, Qt::DisplayRole);
-    row[TitleColumn]->setText(c->fullTitle());
+    row[TitleColumn]->setText(c->title);
     row[OwnerColumn]->setText(c->owner.fullName);
     // Shorten columns: Display time if it is today, else date
     const QString dateString = c->lastUpdated.date() == QDate::currentDate() ?

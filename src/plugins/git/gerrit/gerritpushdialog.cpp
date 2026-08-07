@@ -22,7 +22,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QRegularExpressionValidator>
-#include <QVersionNumber>
 
 using namespace Git::Internal;
 
@@ -125,6 +124,11 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir,
     m_draftCheckBox->setToolTip(::Git::Tr::tr("Checked - Mark change as private.\n"
                                               "Unchecked - Remove mark.\n"
                                               "Partially checked - Do not change current state."));
+    m_draftCheckBox->setTristate(true);
+    m_draftCheckBox->setCheckState(Qt::PartiallyChecked);
+    m_wipCheckBox->setToolTip(::Git::Tr::tr("Checked - Mark change as WIP.\n"
+                                            "Unchecked - Mark change as ready for review.\n"
+                                            "Partially checked - Do not change current state."));
     m_commitView->setToolTip(::Git::Tr::tr(
             "Pushes the selected commit and all commits it depends on."));
     m_reviewersLineEdit->setToolTip(::Git::Tr::tr("Comma-separated list of reviewers.\n"
@@ -174,7 +178,7 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir,
             this, &GerritPushDialog::validate);
 
     updateCommits(m_localBranchComboBox->currentIndex());
-    onRemoteChanged(true);
+    onRemoteChanged();
 
     QRegularExpressionValidator *noSpaceValidator = new QRegularExpressionValidator(QRegularExpression("^\\S+$"), this);
     m_reviewersLineEdit->setText(reviewerList);
@@ -236,45 +240,15 @@ void GerritPushDialog::setChangeRange()
     m_infoLabel->setText(labelText);
 }
 
-static bool versionSupportsWip(const QString &version)
-{
-    return QVersionNumber::fromString(version) >= QVersionNumber(2, 15);
-}
-
-void GerritPushDialog::onRemoteChanged(bool force)
+void GerritPushDialog::onRemoteChanged()
 {
     setRemoteBranches();
-    const QString version = m_remoteComboBox->currentServer().version;
     const QString remote = m_remoteComboBox->currentRemoteName();
 
     m_commitView->setExcludedRemote(remote);
     const QString branch = m_localBranchComboBox->itemText(m_localBranchComboBox->currentIndex());
     m_hasLocalCommits = m_commitView->init(m_workingDir, branch, LogChangeWidget::Silent);
     validate();
-
-    const bool supportsWip = versionSupportsWip(version);
-    if (!force && supportsWip == m_currentSupportsWip)
-        return;
-    m_currentSupportsWip = supportsWip;
-    m_wipCheckBox->setEnabled(supportsWip);
-    if (supportsWip) {
-        m_wipCheckBox->setToolTip(Git::Tr::tr("Checked - Mark change as WIP.\n"
-                                  "Unchecked - Mark change as ready for review.\n"
-                                  "Partially checked - Do not change current state."));
-        m_draftCheckBox->setTristate(true);
-        if (m_draftCheckBox->checkState() != Qt::Checked)
-            m_draftCheckBox->setCheckState(Qt::PartiallyChecked);
-        m_draftCheckBox->setToolTip(Git::Tr::tr("Checked - Mark change as private.\n"
-                                    "Unchecked - Remove mark.\n"
-                                    "Partially checked - Do not change current state."));
-    } else {
-        m_wipCheckBox->setToolTip(Git::Tr::tr("Supported on Gerrit 2.15 and later."));
-        m_draftCheckBox->setTristate(false);
-        if (m_draftCheckBox->checkState() != Qt::Checked)
-            m_draftCheckBox->setCheckState(Qt::Unchecked);
-        m_draftCheckBox->setToolTip(Git::Tr::tr("Checked - The change is a draft.\n"
-                                    "Unchecked - The change is not a draft."));
-    }
 }
 
 QString GerritPushDialog::initErrorMessage() const
@@ -288,23 +262,18 @@ QString GerritPushDialog::pushTarget() const
     QString target = selectedCommit();
     if (target.isEmpty())
         target = "HEAD";
-    target += ":refs/";
-    if (versionSupportsWip(m_remoteComboBox->currentServer().version)) {
-        target += "for";
-        const Qt::CheckState draftState = m_draftCheckBox->checkState();
-        const Qt::CheckState wipState = m_wipCheckBox->checkState();
-        if (draftState == Qt::Checked)
-            options << "private";
-        else if (draftState == Qt::Unchecked)
-            options << "remove-private";
+    target += ":refs/for";
+    const Qt::CheckState draftState = m_draftCheckBox->checkState();
+    const Qt::CheckState wipState = m_wipCheckBox->checkState();
+    if (draftState == Qt::Checked)
+        options << "private";
+    else if (draftState == Qt::Unchecked)
+        options << "remove-private";
 
-        if (wipState == Qt::Checked)
-            options << "wip";
-        else if (wipState == Qt::Unchecked)
-            options << "ready";
-    } else {
-        target += QLatin1String(m_draftCheckBox->isChecked() ? "drafts" : "for");
-    }
+    if (wipState == Qt::Checked)
+        options << "wip";
+    else if (wipState == Qt::Unchecked)
+        options << "ready";
     target += '/' + selectedRemoteBranchName();
     const QString topic = selectedTopic();
     if (!topic.isEmpty())

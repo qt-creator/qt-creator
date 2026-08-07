@@ -29,14 +29,13 @@ namespace Gerrit::Internal {
 
 static const char defaultHostC[] = "codereview.qt-project.org";
 static const char accountUrlC[] = "/accounts/self";
-static const char versionUrlC[] = "/config/server/version";
 static const char isGerritKey[] = "IsGerrit";
 static const char rootPathKey[] = "RootPath";
 static const char userNameKey[] = "UserName";
 static const char fullNameKey[] = "FullName";
 static const char isAuthenticatedKey[] = "IsAuthenticated";
 static const char validateCertKey[] = "ValidateCert";
-static const char versionKey[] = "Version";
+static const char isGerritSshKey[] = "IsGerritSsh";
 
 enum ErrorCodes
 {
@@ -134,9 +133,8 @@ bool GerritServer::fillFromRemote(const QString &remote, bool forceReload)
     host = r.host;
     port = r.port;
     user.userName = r.userName.isEmpty() ? gerritSettings().server.user.userName : r.userName;
-    if (type == GerritServer::Ssh) {
-        return resolveVersion(forceReload);
-    }
+    if (type == GerritServer::Ssh)
+        return probeSshServer(forceReload);
     curlBinary = gerritSettings().curl;
     if (curlBinary.isEmpty() || !curlBinary.exists())
         return false;
@@ -148,17 +146,12 @@ bool GerritServer::fillFromRemote(const QString &remote, bool forceReload)
         // The rest of the path needs to be inspected to find the root path
         // (can be http://example.net/review)
         ascendPath();
-        if (resolveRoot()) {
-            if (!resolveVersion(forceReload))
-                return false;
-            saveSettings(Valid);
-            return true;
-        }
-        return false;
+        // resolveRoot() stores the settings on success
+        return resolveRoot();
     case NotGerrit:
         return false;
     case Valid:
-        return resolveVersion(false);
+        return true;
     }
     return true;
 }
@@ -210,8 +203,7 @@ QStringList GerritServer::curlArguments() const
     // -f - fail silently on server error
     // -n - use credentials from ~/.netrc (or ~/_netrc on Windows)
     // -sS - silent, except server error (no progress)
-    // --basic, --digest - try both authentication types
-    QStringList res = {"-fnsS", "--basic", "--digest"};
+    QStringList res = {"-fnsS"};
     if (!validateCert)
         res << "-k"; // -k - insecure - do not validate certificate
     return res;
@@ -304,43 +296,25 @@ bool GerritServer::resolveRoot()
     return false;
 }
 
-bool GerritServer::resolveVersion(bool forceReload)
+// The only indication that an ssh remote is a Gerrit server at all.
+// A successful probe is remembered, a failing one is retried next time.
+bool GerritServer::probeSshServer(bool forceReload)
 {
-    const GerritParameters &p = gerritSettings();
     QtcSettings *settings = Core::ICore::settings();
-    const Key fullVersionKey = "Gerrit/" + keyFromString(host) + '/' + versionKey;
-    version = settings->value(fullVersionKey).toString();
-    if (!version.isEmpty() && !forceReload)
+    const Key key = "Gerrit/" + keyFromString(host) + '/' + isGerritSshKey;
+    if (!forceReload && settings->value(key).toBool())
         return true;
-    if (type == Ssh) {
-        QStringList arguments;
-        if (port)
-            arguments << p.portFlag << QString::number(port);
-        arguments << hostArgument() << "gerrit" << "version";
-        const CommandResult result = gitClient().vcsSynchronousExec({}, {p.ssh, arguments},
-                                                                    RunFlag::NoOutput);
-        QString stdOut = result.cleanedStdOut().trimmed();
-        stdOut.remove("gerrit version ");
-        version = stdOut;
-        if (version.isEmpty())
-            return false;
-    } else {
-        const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
-        const CommandResult result = gitClient().vcsSynchronousExec({}, {curlBinary, arguments},
-                                                                    RunFlag::NoOutput);
-        // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
-        // if it fails.
-        if (result.result() == ProcessResult::FinishedWithSuccess) {
-            QString output = result.cleanedStdOut();
-            if (output.isEmpty())
-                return false;
-            output.remove(0, output.indexOf('\n')); // Strip first line
-            output.remove('\n');
-            output.remove('"');
-            version = output;
-        }
-    }
-    settings->setValue(fullVersionKey, version);
+
+    const GerritParameters &p = gerritSettings();
+    QStringList arguments;
+    if (port)
+        arguments << p.portFlag << QString::number(port);
+    arguments << hostArgument() << "gerrit" << "version";
+    const CommandResult result = gitClient().vcsSynchronousExec({}, {p.ssh, arguments},
+                                                                RunFlag::NoOutput);
+    if (result.cleanedStdOut().trimmed().isEmpty())
+        return false;
+    settings->setValue(key, true);
     return true;
 }
 

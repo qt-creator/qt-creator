@@ -43,7 +43,7 @@ public:
 
 private:
     void setChangeRange();
-    void onRemoteChanged(bool force = false);
+    void onRemoteChanged();
     void setRemoteBranches(bool includeOld = false);
     void updateCommits(int index);
     void validate();
@@ -71,7 +71,6 @@ private:
     QString m_initErrorMessage;
     RemoteBranchesMap m_remoteBranches;
     bool m_hasLocalCommits = false;
-    bool m_currentSupportsWip = false;
 };
 
 } // Gerrit::Internal
