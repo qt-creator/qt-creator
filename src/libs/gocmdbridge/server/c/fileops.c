@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // Copyfile, symlink, rename, temp dir/file, chmod, createdir handlers.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c - do not compile separately.
 
 #include <fcntl.h>
 
@@ -62,18 +62,23 @@ static void h_createdir(value *cmd)
             wchar_t *wpath = (wchar_t *) malloc(len * sizeof(wchar_t));
             if (wpath) {
                 MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, len);
-                wchar_t *resolved = (wchar_t *) malloc(4096 * sizeof(wchar_t));
-                if (resolved && GetLongPathNameW(wpath, resolved, 4096) > 0) {
-                    char *utf8_resolved = (char *) malloc(4096);
-                    if (utf8_resolved) {
-                        int rlen = WideCharToMultiByte(
-                            CP_UTF8, 0, resolved, -1, utf8_resolved, 4096, NULL, NULL);
-                        if (rlen > 0) {
-                            resolved_path = utf8_resolved;
-                            need_free = 1;
-                        } else {
-                            free(utf8_resolved);
-                        }
+                DWORD rlen = GetLongPathNameW(wpath, NULL, 0);
+                wchar_t *resolved = rlen > 0
+                                        ? (wchar_t *) malloc(rlen * sizeof(wchar_t))
+                                        : NULL;
+                DWORD rn = resolved ? GetLongPathNameW(wpath, resolved, rlen) : 0;
+                if (rn > 0 && rn < rlen) {
+                    int ulen = WideCharToMultiByte(
+                        CP_UTF8, 0, resolved, -1, NULL, 0, NULL, NULL);
+                    char *utf8_resolved = ulen > 0 ? (char *) malloc(ulen) : NULL;
+                    if (utf8_resolved
+                        && WideCharToMultiByte(
+                               CP_UTF8, 0, resolved, -1, utf8_resolved, ulen, NULL, NULL)
+                               > 0) {
+                        resolved_path = utf8_resolved;
+                        need_free = 1;
+                    } else {
+                        free(utf8_resolved);
                     }
                 }
                 free(resolved);
@@ -278,7 +283,7 @@ static void h_mktmpfile(value *cmd)
 static void h_chmod(value *cmd)
 {
 #ifdef _WIN32
-    /* Windows has no POSIX permissions — no-op, matching os.Chmod on Windows */
+    /* Windows has no POSIX permissions - no-op, matching os.Chmod on Windows */
     send_void(mkey(cmd, "Id"), "setpermissionsresult");
 #else
     value *sp = mfind(cmd, "SetPermissions");
