@@ -13,6 +13,7 @@ QT_BEGIN_NAMESPACE
 class QLabel;
 class QPainter;
 class QPalette;
+class QPixmap;
 class QRect;
 // Note, this is exported but in a private header as qtopengl depends on it.
 // We should consider adding this as a public helper function.
@@ -207,6 +208,8 @@ QTCREATOR_UTILS_EXPORT void drawCornerImage(const QImage &img, QPainter *painter
                                             int bottom = 0);
 
 QTCREATOR_UTILS_EXPORT void tintImage(QImage &img, const QColor &tintColor);
+// Flatten a pixmap to a single color, keeping its alpha (a SourceIn fill).
+QTCREATOR_UTILS_EXPORT QPixmap tintedPixmap(const QPixmap &pixmap, const QColor &color);
 QTCREATOR_UTILS_EXPORT QLinearGradient statusBarGradient(const QRect &statusBarRect);
 QTCREATOR_UTILS_EXPORT void setPanelWidget(QWidget *widget, bool value = true);
 QTCREATOR_UTILS_EXPORT void setPanelWidgetSingleRow(QWidget *widget, bool value = true);

@@ -636,11 +636,6 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
             tmpPainter.fillRect(tmp.rect(), color);
             tmpPainter.end();
 
-            tmpPainter.begin(&tmp);
-            tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-            tmpPainter.fillRect(tmp.rect(), color);
-            tmpPainter.end();
-
             // draw the blurred drop shadow...
             cachePainter.drawImage(QRect(0, 0, cache.rect().width(), cache.rect().height()), tmp);
         }
@@ -728,6 +723,24 @@ void StyleHelper::tintImage(QImage &img, const QColor &tintColor)
             }
         }
     }
+}
+
+QPixmap StyleHelper::tintedPixmap(const QPixmap &pixmap, const QColor &color)
+{
+    if (pixmap.isNull())
+        return pixmap;
+    QPixmap result(pixmap.size());
+    result.setDevicePixelRatio(pixmap.devicePixelRatio());
+    result.fill(Qt::transparent);
+    QPainter p(&result);
+    p.drawPixmap(0, 0, pixmap);
+    // Keep the source alpha as a mask and flatten it to a single color. Unlike
+    // Icon's luminance mask this preserves transparency, so a transparent SVG
+    // does not turn into a solid rectangle.
+    p.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    p.fillRect(result.rect(), color);
+    p.end();
+    return result;
 }
 
 QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
