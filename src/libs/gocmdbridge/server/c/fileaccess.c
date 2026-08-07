@@ -7,7 +7,7 @@
 // helpers (is_readable, fid, fspace, fowner, fgroup and friends).
 //
 // One of the two implementations below provides all of it.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c -- do not compile separately.
 
 #include "fileaccess_posix.c"
 #include "fileaccess_win.c"

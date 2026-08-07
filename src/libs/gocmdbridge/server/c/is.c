@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // Is and issamefile handlers.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c -- do not compile separately.
 
 static void h_issamefile(value *cmd)
 {

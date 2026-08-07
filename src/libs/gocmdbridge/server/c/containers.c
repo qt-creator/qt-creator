@@ -14,7 +14,7 @@
 // None of this is thread safe; callers hold the lock that already protects the
 // state the container is part of.
 //
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c -- do not compile separately.
 
 /* ================================================================== */
 /*  FIFO of pointers                                                  */

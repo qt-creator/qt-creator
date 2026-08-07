@@ -4,7 +4,7 @@
 // Command cancellation: the client can ask for a long-running command to stop
 // by sending "cancel" with its Id. Used by the exec and find handlers, which
 // poll is_cancelled() while they work.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c -- do not compile separately.
 
 #include <pthread.h>
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // CBOR encode/decode, value types, map helpers, constructors.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c -- do not compile separately.
 
 /* ================================================================== */
 /*  TinyCBOR -- minimal CBOR encode/decode for CmdBridge              */

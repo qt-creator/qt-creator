@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // Wire protocol, send functions, and platform helpers.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c -- do not compile separately.
 
 /* ================================================================== */
 /*  Wire protocol                                                     */
@@ -182,7 +182,8 @@ static void send_os_err(int id, const char *msg, int os_errno)
 static void send_err_type(int id, const char *msg, const char *errtype)
 {
     value *m = mk5(
-        "Type", vs("error"), "Id", vi(id), "Error", vs(msg), "ErrorType", vs(errtype), "Errno", vi(0));
+        "Type", vs("error"), "Id", vi(id), "Error", vs(msg), "ErrorType", vs(errtype), "Errno",
+        vi(0));
     size_t l;
     uint8_t *c = encode(m, &l);
     if (c) {

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 //
 // Stat, readlink, fileid, freespace, group, owner, remove handlers.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c -- do not compile separately.
 
 /* ================================================================== */
 /*  Command handlers                                                  */
@@ -147,7 +147,8 @@ static void h_group_id(value *cmd)
         return;
     }
     value *m
-        = mk3("Type", vs("groupidresult"), "Id", vi(mkey(cmd, "Id")), "GroupId", vi(fgroup_id(path)));
+        = mk3("Type", vs("groupidresult"), "Id", vi(mkey(cmd, "Id")), "GroupId",
+              vi(fgroup_id(path)));
     size_t l;
     uint8_t *c = encode(m, &l);
     if (c) {
@@ -186,7 +187,8 @@ static void h_owner_id(value *cmd)
         return;
     }
     value *m
-        = mk3("Type", vs("owneridresult"), "Id", vi(mkey(cmd, "Id")), "OwnerId", vi(fowner_id(path)));
+        = mk3("Type", vs("owneridresult"), "Id", vi(mkey(cmd, "Id")), "OwnerId",
+              vi(fowner_id(path)));
     size_t l;
     uint8_t *c = encode(m, &l);
     if (c) {

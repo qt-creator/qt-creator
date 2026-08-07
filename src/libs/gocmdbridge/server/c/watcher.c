@@ -3,7 +3,7 @@
 //
 // File watching: registration bookkeeping, command handlers, and the choice
 // of platform backend (included at the bottom of this file).
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c -- do not compile separately.
 
 /* ================================================================== */
 /*  File watching                                                     */
