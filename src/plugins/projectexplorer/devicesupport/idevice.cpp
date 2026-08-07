@@ -438,9 +438,11 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
             for (const FilePath &pattern : std::as_const(data.patterns)) {
                 FilePaths candidates = Utils::filtered(
                     pattern.searchAllInDirectories(detectionPaths), [&](const FilePath &toolPath) {
-                        // We assume that check() is thread safe to call.
-                        QTC_ASSERT_RESULT(data.factory->check(device, toolPath), return false);
-                        return true;
+                        // We assume that check() is thread safe to call. check() is a
+                        // predicate here: a failed result just means the candidate does
+                        // not apply to this device (e.g. a file suffix that does not match
+                        // the OS), so filter it out silently rather than asserting.
+                        return bool(data.factory->check(device, toolPath));
                     });
                 candidates = Utils::transform(candidates, [deviceRootPath](const FilePath &path) {
                     if (path.isChildOf(deviceRootPath))
