@@ -169,6 +169,7 @@ private:
     void setDeviceInfoWidgetsEnabled(bool enable);
     IDeviceConstPtr currentDevice() const;
     int currentIndex() const;
+    int indexAfterRemoval(int index) const;
     void clearDetails();
     QString parseTestOutput();
     void updateDeviceFromUi();
@@ -386,10 +387,36 @@ void DeviceSettingsWidget::addDevice()
         testDevice();
 }
 
+int DeviceSettingsWidget::indexAfterRemoval(int index) const
+{
+    const auto isKept = [this](int i) {
+        const IDevice::ConstPtr device = m_deviceManagerModel.device(i);
+        return device && !m_deviceProxyModel.isMarkedForDeletion(device->id());
+    };
+
+    // Prefer the next device in the list, fall back to the previous one.
+    for (int i = index + 1, n = m_configurationComboBox->count(); i < n; ++i) {
+        if (isKept(i))
+            return i;
+    }
+    for (int i = index - 1; i >= 0; --i) {
+        if (isKept(i))
+            return i;
+    }
+    return -1;
+}
+
 void DeviceSettingsWidget::removeDevice()
 {
-    m_deviceProxyModel.toggleMarkForDeletion(currentDevice()->id());
+    const Id id = currentDevice()->id();
+    const bool isRestoring = m_deviceProxyModel.isMarkedForDeletion(id);
+    m_deviceProxyModel.toggleMarkForDeletion(id);
     markSettingsDirty();
+    // Removal keeps the device in the list, so move on to make repeated removal work.
+    if (!isRestoring) {
+        if (const int next = indexAfterRemoval(currentIndex()); next >= 0)
+            m_configurationComboBox->setCurrentIndex(next);
+    }
     updateButtons();
 }
 
