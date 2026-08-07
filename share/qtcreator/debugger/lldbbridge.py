@@ -752,6 +752,14 @@ class Dumper(DumperBase):
         val = self.nativeParseAndEvaluate(exp)
         return None if val is None else self.fromNativeValue(val)
 
+    def callServiceFunction(self, function, args=None):
+        strings = args or []
+        literals = ', '.join('"%s"' % arg for arg in strings)
+        signature = ', '.join(['const char*'] * len(strings))
+        value = self.parseAndEvaluateAllowingCalls(
+            '((bool(*)(%s))%s)(%s)' % (signature, function, literals))
+        return None if function == 'qt_qmlDebugClearBuffer' else value
+
     def isWindowsTarget(self):
         return 'windows' in self.target.triple
 
