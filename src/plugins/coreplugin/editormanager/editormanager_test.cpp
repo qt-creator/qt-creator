@@ -38,6 +38,7 @@ private slots:
     void testCloseSplit();
     void testPinned();
     void testDisambiguateUnnamedDuplicates();
+    void testNavigationHistoryDedup();
 };
 
 QObject *createTabbedEditorTest()
@@ -407,6 +408,31 @@ void TabbedEditorTest::testDisambiguateUnnamedDuplicates()
         QVERIFY2(!name.contains(") ("), qPrintable(name));
     // ... and they are all distinct.
     QCOMPARE(QSet<QString>(names.begin(), names.end()).size(), names.size());
+}
+
+// Adding the current position again without moving must not create a duplicate
+// "Go Back" entry (e.g. Follow Symbol on the symbol's own declaration).
+void TabbedEditorTest::testNavigationHistoryDedup()
+{
+    TestFile a;
+    TestFile b;
+    EditorView *view = mainAreaViews().at(0);
+    QVERIFY(EMP::openEditor(view, a.filePath()));
+
+    view->m_navigationHistory.clear();
+    view->m_currentNavigationHistoryPosition = 0;
+
+    view->addCurrentPositionToNavigationHistory();
+    QCOMPARE(view->m_navigationHistory.size(), 1);
+    // Same location again -> deduplicated.
+    view->addCurrentPositionToNavigationHistory();
+    QCOMPARE(view->m_navigationHistory.size(), 1);
+
+    // A genuinely different location is still recorded.
+    QVERIFY(EMP::openEditor(view, b.filePath()));
+    view->addCurrentPositionToNavigationHistory();
+    QVERIFY(view->m_navigationHistory.size() >= 2);
+    QCOMPARE(view->m_navigationHistory.last().filePath, b.filePath());
 }
 
 } // namespace Core::Internal

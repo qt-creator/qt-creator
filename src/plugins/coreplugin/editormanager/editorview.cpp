@@ -1196,6 +1196,15 @@ void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveSta
 
     const auto location = EditLocation::forEditor(editor, saveState);
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
+    // Skip a duplicate of the immediately preceding entry, so navigating to the
+    // location we are already at (e.g. Follow Symbol on the symbol's own
+    // declaration) does not pile up spurious "Go Back" entries.
+    const int previousIndex = m_currentNavigationHistoryPosition - 1;
+    if (previousIndex >= 0 && previousIndex < m_navigationHistory.size()) {
+        const EditLocation &previous = m_navigationHistory.at(previousIndex);
+        if (previous.filePath == location.filePath && previous.state == location.state)
+            return;
+    }
     m_navigationHistory.insert(m_currentNavigationHistoryPosition, location);
     ++m_currentNavigationHistoryPosition;
 
