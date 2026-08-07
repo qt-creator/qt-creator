@@ -185,6 +185,8 @@ signals:
     void currentCloned();
 
 private:
+    QModelIndex indexAfterRemoval(const QModelIndex &current) const;
+
     GroupedModel &m_model;
     QTreeView m_view;
     QPushButton m_removeButton;

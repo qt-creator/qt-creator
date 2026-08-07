@@ -8,6 +8,7 @@
 #include "stringutils.h"
 #include "utilstr.h"
 
+#include <QAction>
 #include <QFont>
 #include <QHeaderView>
 #include <QItemSelectionModel>
@@ -661,6 +662,15 @@ GroupedView::GroupedView(GroupedModel &model)
     m_removeButton.setText(Tr::tr("Remove"));
     m_removeButton.setEnabled(false);
     connect(&m_removeButton, &QPushButton::clicked, this, &GroupedView::removeCurrent);
+
+    auto removeAction = new QAction(&m_view);
+    removeAction->setShortcut(QKeySequence::Delete);
+    removeAction->setShortcutContext(Qt::WidgetShortcut);
+    m_view.addAction(removeAction);
+    connect(removeAction, &QAction::triggered, this, [this] {
+        if (m_removeButton.isEnabled())
+            removeCurrent();
+    });
 }
 
 QTreeView &GroupedView::view()
@@ -736,6 +746,52 @@ void GroupedView::cloneCurrent()
     }
 }
 
+QModelIndex GroupedView::indexAfterRemoval(const QModelIndex &current) const
+{
+    const QAbstractItemModel *model = m_view.model();
+    const int currentGroup = current.parent().row();
+    QTC_ASSERT(currentGroup >= 0, return {});
+
+    const auto isKept = [this](const QModelIndex &index) {
+        const int row = m_model.mapToSource(index).row();
+        return row >= 0 && !m_model.isRemoved(row);
+    };
+
+    // Prefer staying in the same group: the next kept item there, else the
+    // previous one.
+    const QModelIndex currentParent = model->index(currentGroup, 0);
+    for (int row = current.row() + 1, m = model->rowCount(currentParent); row < m; ++row) {
+        const QModelIndex index = model->index(row, 0, currentParent);
+        if (isKept(index))
+            return index;
+    }
+    for (int row = current.row() - 1; row >= 0; --row) {
+        const QModelIndex index = model->index(row, 0, currentParent);
+        if (isKept(index))
+            return index;
+    }
+
+    // The group has no other item left; move to the next group in view order,
+    // and fall back to a previous one.
+    for (int group = currentGroup + 1, n = model->rowCount(); group < n; ++group) {
+        const QModelIndex parent = model->index(group, 0);
+        for (int row = 0, m = model->rowCount(parent); row < m; ++row) {
+            const QModelIndex index = model->index(row, 0, parent);
+            if (isKept(index))
+                return index;
+        }
+    }
+    for (int group = currentGroup - 1; group >= 0; --group) {
+        const QModelIndex parent = model->index(group, 0);
+        for (int row = model->rowCount(parent) - 1; row >= 0; --row) {
+            const QModelIndex index = model->index(row, 0, parent);
+            if (isKept(index))
+                return index;
+        }
+    }
+    return {};
+}
+
 void GroupedView::removeCurrent()
 {
     const int row = currentRow();
@@ -743,11 +799,18 @@ void GroupedView::removeCurrent()
     const bool isRestoring = m_model.isRemoved(row);
     if (!isRestoring && m_model.isDefault(row))
         m_removedDefaultRow = row;
+    // Removal keeps the item in the list, so move on to make repeated removal work.
+    // The index is persistent as removing an added item does shift the rows below.
+    const QPersistentModelIndex next
+        = isRestoring ? QModelIndex{}
+                      : m_model.mapToSource(indexAfterRemoval(m_view.currentIndex()));
     m_model.markRemoved(row);
     if (isRestoring && m_removedDefaultRow == row) {
         m_model.setVolatileDefaultRow(row);
         m_removedDefaultRow = -1;
     }
+    if (next.isValid())
+        selectRow(next.row());
     updateButtons();
     emit currentRemoved();
 }
