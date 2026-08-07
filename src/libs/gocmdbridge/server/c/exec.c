@@ -4,7 +4,7 @@
 // Exec and signal command handlers, and the registry of running processes.
 // Starting, signalling and killing a process is platform specific and is
 // included below.
-// Included by cmdbridge.c — do not compile separately.
+// Included by cmdbridge.c - do not compile separately.
 
 /* ================================================================== */
 /*  Exec -- run external command                                      */
@@ -54,17 +54,16 @@ static void exec_register(int id, exec_val_t val)
     pthread_mutex_unlock(&exec_mutex);
 }
 
+/* Drops the registration. The process handle stored on Windows is *not* closed
+   here: exec_run() owns it and still needs it after a cancel to read the exit
+   code, and closing it in both places closed an unrelated handle that had
+   meanwhile been given the same number. */
 static void exec_unregister(int id)
 {
     pthread_mutex_lock(&exec_mutex);
     exec_val_t *job = (exec_val_t *) imap_get(&exec_jobs, id);
-    if (job) {
-#ifdef _WIN32
-        if (job->h)
-            CloseHandle(job->h);
-#endif
+    if (job)
         imap_remove(&exec_jobs, id);
-    }
     pthread_mutex_unlock(&exec_mutex);
     free(job);
 }

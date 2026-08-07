@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 /*
- * CmdBridge C implementation — single compilation unit built from multiple
+ * CmdBridge C implementation - single compilation unit built from multiple
  * component files for readability.  The build system only references this
  * file; each component is #include'd here in dependency order so that
  * static functions are visible where needed.
@@ -556,10 +556,12 @@ int main(int argc, char **argv)
             if (!nb) {
                 /* Report it rather than dropping the command silently: the
                    client would otherwise wait for a reply that never comes. */
+                /* Not %zu: mingw's printf does not know the length modifier,
+                   so the message came out mangled on Windows. */
                 fprintf(
                     stderr,
-                    "cmdbridge: cannot buffer a command of %zu bytes, discarding\n",
-                    rcap);
+                    "cmdbridge: cannot buffer a command of %llu bytes, discarding\n",
+                    (unsigned long long) rcap);
                 send_err_type(
                     0, "command too large to buffer", "Utils.CommandTooLargeError");
                 rlen = 0;
