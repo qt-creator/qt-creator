@@ -10327,7 +10327,7 @@ void FakeVimHandler::Private::setVariable(const QString &name, const VimValue &v
 bool FakeVimHandler::Private::unsetVariable(const QString &name)
 {
     QString key;
-    return variableStore(name, &key)->remove(key) > 0;
+    return variableStore(name, &key)->remove(key);
 }
 
 // Apply a compound assignment operator (the char before '=' in += etc.).
