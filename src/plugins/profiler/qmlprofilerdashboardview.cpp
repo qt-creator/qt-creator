@@ -86,8 +86,8 @@ protected:
 private:
     const int m_iconSize = 24;
     QString m_text;
-    Theme::Color m_color;
-    Theme::Color m_bgColor;
+    Theme::Color m_color = Theme::Token_Notification_Success_Default;
+    Theme::Color m_bgColor = Theme::Token_Notification_Success_Subtle;
     QIcon m_icon;
 };
 
