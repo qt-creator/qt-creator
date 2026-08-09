@@ -98,7 +98,7 @@ ScoreWidget::ScoreWidget(QWidget *parent)
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 }
 
-void ScoreWidget::paintEvent([[__maybe_unused__]] QPaintEvent *event)
+void ScoreWidget::paintEvent([[maybe_unused]] QPaintEvent *event)
 {
     QPainter p(this);
     drawCardBg(&p, rect(), creatorColor(m_bgColor));
