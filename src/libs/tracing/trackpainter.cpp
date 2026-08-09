@@ -21,7 +21,6 @@ TrackPainter::TrackPainter(QWidget *parent)
     : QCanvasPainterWidget(parent)
 {
     setMouseTracking(true);
-    setAttribute(Qt::WA_NativeWindow, true);
 }
 
 QSize TrackPainter::sizeHint() const
