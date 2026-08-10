@@ -62,7 +62,8 @@ MacDeviceFactory::MacDeviceFactory()
     : IDeviceFactory(Constants::GenericMacOsType)
 {
     setDisplayName(Tr::tr("Remote macOS Device"));
-    setIcon(QIcon());
+    setCombinedIcon(":/remotelinux/images/macosdevicesmall.png",
+                    ":/remotelinux/images/macosdevice.png");
     setQuickCreationAllowed(true);
     setCreator([this]() -> IDevice::Ptr {
         auto device = MacDevice::create();

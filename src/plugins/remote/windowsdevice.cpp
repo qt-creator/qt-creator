@@ -1301,7 +1301,8 @@ WindowsDeviceFactory::WindowsDeviceFactory()
     : IDeviceFactory(Constants::GenericWindowsOsType)
 {
     setDisplayName(Tr::tr("Remote Windows Device"));
-    setIcon(QIcon());
+    setCombinedIcon(":/remotelinux/images/windowsdevicesmall.png",
+                    ":/remotelinux/images/windowsdevice.png");
     setQuickCreationAllowed(true);
     setConstructionFunction(&WindowsDevice::create);
     setCreator([]() -> IDevice::Ptr {

@@ -1641,7 +1641,8 @@ Internal::LinuxDeviceFactory::LinuxDeviceFactory()
     : IDeviceFactory(Constants::GenericLinuxOsType)
 {
     setDisplayName(Tr::tr("Remote Linux Device"));
-    setIcon(QIcon());
+    setCombinedIcon(":/remotelinux/images/linuxdevicesmall.png",
+                    ":/remotelinux/images/linuxdevice.png");
     setConstructionFunction(&LinuxDevice::create);
     setQuickCreationAllowed(true);
     setCreator([this]() -> IDevice::Ptr {
