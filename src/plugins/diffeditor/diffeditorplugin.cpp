@@ -374,6 +374,7 @@ private slots:
     void testInlineDiffCollapseAddedLines();
     void testInlineDiffCollapseUnchangedFile();
     void testInlineDiffIgnoreWhitespace();
+    void testInlineDiffFoldedRows();
 #endif // WITH_TESTS
 };
 
@@ -1627,14 +1628,50 @@ void DiffEditor::Internal::DiffEditorPlugin::testDiffDocuments()
 #include <texteditor/displaysettings.h>
 #include <texteditor/inlinediffdecorator.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+
+#include <coreplugin/icore.h>
 
 #include <utils/environment.h>
 #include <utils/plaintextedit/texteditorlayout.h>
 
+namespace DiffEditor::Internal {
+
+// The tests below exercise the inline diff view itself, so they pin its
+// persisted toolbar toggles to a known state - a toggle left behind by an
+// earlier run must not change what a test sees. They are restored on the way
+// out, including when a test fails midway.
+class InlineDiffViewGuard
+{
+public:
+    explicit InlineDiffViewGuard(bool hideUnchangedLines = true)
+        : m_collapse(Core::ICore::settings()->value(Constants::INLINE_DIFF_COLLAPSE_KEY, true))
+        , m_ignoreWhitespace(Core::ICore::settings()
+                                 ->value(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false))
+    {
+        Core::ICore::settings()->setValue(Constants::INLINE_DIFF_COLLAPSE_KEY, hideUnchangedLines);
+        Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false);
+    }
+    ~InlineDiffViewGuard()
+    {
+        Core::ICore::settings()->setValue(Constants::INLINE_DIFF_COLLAPSE_KEY, m_collapse);
+        Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY,
+                                          m_ignoreWhitespace);
+    }
+
+private:
+    const QVariant m_collapse;
+    const QVariant m_ignoreWhitespace;
+};
+
+} // namespace DiffEditor::Internal
+
 void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
 {
     using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard;
 
     // baseline vs editor: line 2 modified, line 3 removed, a long line added.
     // The added line is long enough to word wrap, which the side by side view
@@ -1846,6 +1883,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
 {
     using namespace TextEditor;
 
+    const InlineDiffViewGuard inlineDiffViewGuard;
+
     // a single change surrounded by many unchanged lines, so the unchanged
     // runs before and after it are long enough to collapse
     QStringList baselineLines;
@@ -1999,6 +2038,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseAddedLines()
 {
     using namespace TextEditor;
 
+    const InlineDiffViewGuard inlineDiffViewGuard;
+
     // baseline: 12 unchanged lines; editor: the same with 3 lines inserted
     // after line 5. This is a pure insertion, so the two sides produce a
     // different number of collapsible unchanged runs (the editor gets a run
@@ -2075,6 +2116,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseAddedLines()
 void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseUnchangedFile()
 {
     using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard;
 
     QStringList lines;
     for (int i = 1; i <= 20; ++i)
@@ -2181,6 +2224,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffIgnoreWhitespace()
 {
     using namespace TextEditor;
 
+    const InlineDiffViewGuard inlineDiffViewGuard;
+
     // line 2 is re-indented (whitespace only), line 4 is re-indented and
     // really changed: the change stays, its re-indentation must not be
     // highlighted along with it. Line 6 swaps its space for a no-break
@@ -2271,6 +2316,114 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffIgnoreWhitespace()
     // and off again brings the whitespace change back
     whitespaceAction->setChecked(false);
     QTRY_COMPARE(ghostItemCount(diffWidget), 3);
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// Code folding is a document level flag, so the editor side of the side by side
+// view inherits the folds of the file's regular editors. The baseline view has
+// to hide the rows it pairs with the folded ones, or the two sides drift apart
+// by the height of every fold. See QTCREATORBUG-34836.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffFoldedRows()
+{
+    using namespace TextEditor;
+
+    // isolate the folding from the collapsing of unchanged lines, which hides
+    // rows through the same per-view mechanism
+    const InlineDiffViewGuard inlineDiffViewGuard(/*hideUnchangedLines=*/false);
+
+    // an inserted line above the folded region, so the folded editor lines map
+    // to baseline lines with a different number
+    QStringList baselineLines;
+    for (int i = 1; i <= 12; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    editorLines.insert(1, "inserted"); // 1-based editor line 2
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffFoldedRows.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline,
+                                               "testInlineDiffFoldedRows.txt");
+    QVERIFY(diffEditor);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> widgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(widgets.size(), 2);
+    TextEditorWidget *baselineWidget = widgets.first() == diffWidget ? widgets.last()
+                                                                    : widgets.first();
+    QTRY_COMPARE(baselineWidget->document()->toPlainText(), baselineText);
+    diffEditor->widget()->resize(800, 600);
+    diffEditor->widget()->show();
+
+    QTextDocument *baselineDoc = baselineWidget->document();
+    TextEditorLayout *baselineLayout = baselineWidget->editorLayout();
+    const auto baselineVisible = [&](int line1) {
+        return baselineLayout->isBlockVisibleInEditor(baselineDoc->findBlockByNumber(line1 - 1));
+    };
+    // nothing is hidden while the editor side shows every line
+    QTRY_VERIFY(!baselineLayout->hasEditorHiddenBlocks());
+
+    // fold editor lines 4 to 6, like a folded comment or function body
+    QTextDocument *editorDoc = diffWidget->document();
+    for (int line = 3; line <= 7; ++line) {
+        TextBlockUserData::setFoldingIndent(editorDoc->findBlockByNumber(line - 1),
+                                            line >= 4 && line <= 6 ? 1 : 0);
+    }
+    const QTextBlock header = editorDoc->findBlockByNumber(2); // editor line 3
+    QVERIFY(TextBlockUserData::canFold(header));
+    TextBlockUserData::doFoldOrUnfold(header, /*unfold=*/false);
+    QVERIFY(!editorDoc->findBlockByNumber(3).isVisible()); // editor line 4
+
+    // the folded editor lines 4 to 6 stand for baseline lines 3 to 5, which the
+    // baseline view hides in its own layout - the document keeps them, so the
+    // baseline text and any other view of it are untouched
+    QTRY_VERIFY(!baselineVisible(3));
+    QVERIFY(!baselineVisible(4));
+    QVERIFY(!baselineVisible(5));
+    QVERIFY(baselineVisible(2));
+    QVERIFY(baselineVisible(6));
+    QVERIFY(baselineDoc->findBlockByNumber(2).isVisible());
+    QCOMPARE(baselineDoc->toPlainText(), baselineText);
+
+    // with the same rows hidden on both sides, the views keep the same height
+    QTRY_COMPARE(baselineLayout->documentPixelHeight(),
+                 diffWidget->editorLayout()->documentPixelHeight());
+
+    // unfolding reveals them again on both sides
+    TextBlockUserData::doFoldOrUnfold(header, /*unfold=*/true);
+    QVERIFY(editorDoc->findBlockByNumber(3).isVisible());
+    QTRY_VERIFY(baselineVisible(3));
+    QVERIFY(!baselineLayout->hasEditorHiddenBlocks());
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));

@@ -18,4 +18,11 @@ inline constexpr char SELECT_ENCODING[] = "DiffEditor.SelectEncoding";
 
 inline constexpr char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Diff";
 
+// The inline diff's toolbar state, persisted globally. Here rather than in
+// inlinediff.cpp because the autotests pin them to a known value.
+inline constexpr char INLINE_DIFF_VIEW_MODE_KEY[] = "DiffEditor/InlineDiffViewMode";
+inline constexpr char INLINE_DIFF_COLLAPSE_KEY[] = "DiffEditor/InlineDiffCollapseUnchanged";
+inline constexpr char INLINE_DIFF_IGNORE_WHITESPACE_KEY[]
+    = "DiffEditor/InlineDiffIgnoreWhitespace";
+
 } // namespace DiffEditor::Constants

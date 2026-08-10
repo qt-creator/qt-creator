@@ -3,6 +3,7 @@
 
 #include "inlinediff.h"
 
+#include "diffeditorconstants.h"
 #include "diffeditoricons.h"
 #include "diffeditortr.h"
 #include "diffutils.h"
@@ -14,6 +15,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <texteditor/fontsettings.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
@@ -691,6 +693,21 @@ static int editorLineToBaseline(const InlineDiffRenderModel &model, int editorLi
     return baselineLine;
 }
 
+// The inverse of editorLineToBaseline(), for the lines a fold in the baseline
+// view hides.
+static int baselineLineToEditor(const InlineDiffRenderModel &model, int baselineLine)
+{
+    int editorLine = baselineLine;
+    for (const InlineDiffChunk &hunk : model.hunks) {
+        const int baselineAnchor = hunk.baselineStartLine + int(hunk.baselineLines.size());
+        if (baselineAnchor > baselineLine) // hunk is not entirely above the line
+            break;
+        const int editorAnchor = hunk.editorStartLine + qMax(hunk.editorLineCount, 0);
+        editorLine = baselineLine + (editorAnchor - baselineAnchor);
+    }
+    return editorLine;
+}
+
 // A clickable, full width placeholder row shown in place of a collapsed run of
 // unchanged lines. Clicking it reveals the hidden lines.
 class CollapsedRow final : public QWidget
@@ -801,6 +818,7 @@ public:
         clearState();
         if (m_editor && m_enabled)
             collapse();
+        mirrorFoldedRows();
         relayout();
     }
 
@@ -831,6 +849,11 @@ private:
         connect(view, &PlainTextEdit::updateRequest, this, [this] { scheduleReposition(); });
         connect(view->textDocument(), &TextDocument::fontSettingsChanged,
                 this, [this] { refresh(); });
+        // folding hides lines on one side only, see mirrorFoldedRows()
+        if (auto layout = qobject_cast<TextDocumentLayout *>(view->document()->documentLayout())) {
+            connect(layout, &TextDocumentLayout::foldChanged,
+                    this, [this] { scheduleRefresh(); });
+        }
         view->viewport()->installEventFilter(this);
     }
 
@@ -893,6 +916,54 @@ private:
             m_units.append(unit);
         }
         reposition();
+    }
+
+    // Code folding is a document level flag, so the editor side of the side by
+    // side view inherits the folds of the file's regular editors while the
+    // baseline document has its own. A folded line takes no space on its side,
+    // which would shift the two views against each other, so hide the rows the
+    // other side pairs with it there as well - in that view's layout only,
+    // like the collapsed runs.
+    void mirrorFoldedRows()
+    {
+        if (!m_baselineActive || !m_editor || !m_baseline || !m_model.computed)
+            return;
+        hideFoldedCounterparts(m_editor, m_baseline,
+                               [this](int line) { return editorLineToBaseline(m_model, line); });
+        hideFoldedCounterparts(m_baseline, m_editor,
+                               [this](int line) { return baselineLineToEditor(m_model, line); });
+    }
+
+    // Hides the rows of 'target' that belong to a folded region of 'source'.
+    // mapLine maps a source line to the target line it pairs with, so mapping
+    // the line below the folded region gives the end of the target range and
+    // takes the lines only the target has (e.g. removed ones) along with it.
+    static void hideFoldedCounterparts(TextEditorWidget *source, TextEditorWidget *target,
+                                       const std::function<int(int)> &mapLine)
+    {
+        TextEditorLayout *targetLayout = target->editorLayout();
+        QTC_ASSERT(targetLayout, return);
+        QTextDocument *sourceDoc = source->document();
+        QTextDocument *targetDoc = target->document();
+        QTextBlock block = sourceDoc->firstBlock();
+        while (block.isValid()) {
+            if (block.isVisible()) {
+                block = block.next();
+                continue;
+            }
+            const int firstSourceLine = block.blockNumber() + 1;
+            while (block.isValid() && !block.isVisible())
+                block = block.next();
+            const int lineBelow = block.isValid() ? block.blockNumber() + 1
+                                                  : sourceDoc->blockCount() + 1;
+            const int first = qMax(1, mapLine(firstSourceLine));
+            const int last = qMin(mapLine(lineBelow) - 1, targetDoc->blockCount());
+            for (int line = first; line <= last; ++line) {
+                const QTextBlock targetBlock = targetDoc->findBlockByNumber(line - 1);
+                if (targetBlock.isValid())
+                    targetLayout->setBlockVisibleInEditor(targetBlock, false);
+            }
+        }
     }
 
     Placeholder makePlaceholder(TextEditorWidget *view, const QPair<int, int> &range, int unitId)
@@ -997,6 +1068,19 @@ private:
         }
     }
 
+    // unfolding a nested region changes several folds in a row; coalesce the
+    // refreshes into one per event loop pass
+    void scheduleRefresh()
+    {
+        if (m_refreshScheduled)
+            return;
+        m_refreshScheduled = true;
+        QMetaObject::invokeMethod(this, [this] {
+            m_refreshScheduled = false;
+            refresh();
+        }, Qt::QueuedConnection);
+    }
+
     // updateRequest fires on every repaint, scroll, and incremental
     // rehighlight; coalesce the repositions into one per event loop pass.
     void scheduleReposition()
@@ -1054,6 +1138,7 @@ private:
     int m_lastBlockCount = 0;
     int m_nextUnitId = 0;
     bool m_repositionScheduled = false;
+    bool m_refreshScheduled = false;
 };
 
 // A thin document for the inline diff editor: it carries the diff title and
@@ -1100,10 +1185,6 @@ protected:
 private:
     const TextDocumentPtr m_source;
 };
-
-const char VIEW_MODE_SETTINGS_KEY[] = "DiffEditor/InlineDiffViewMode";
-const char COLLAPSE_SETTINGS_KEY[] = "DiffEditor/InlineDiffCollapseUnchanged";
-const char IGNORE_WHITESPACE_SETTINGS_KEY[] = "DiffEditor/InlineDiffIgnoreWhitespace";
 
 // live diffing on every edit does not scale to arbitrarily large documents
 constexpr qsizetype maxInlineDiffTextSize = 8 * 1000 * 1000;
@@ -1450,7 +1531,7 @@ public:
         });
 
         const bool collapse = Core::ICore::settings()
-                                  ->value(COLLAPSE_SETTINGS_KEY, true).toBool();
+                                  ->value(Constants::INLINE_DIFF_COLLAPSE_KEY, true).toBool();
         m_collapseAction = m_toolBar->addAction(Utils::Icons::COLLAPSE_TOOLBAR.icon(),
                                                 Tr::tr("Hide Unchanged Lines"));
         m_collapseAction->setObjectName("InlineDiffCollapseAction"); // found by the autotest
@@ -1460,13 +1541,14 @@ public:
                                             "around each change."));
         m_collapseController->setEnabled(collapse);
         connect(m_collapseAction, &QAction::toggled, this, [this](bool on) {
-            Core::ICore::settings()->setValue(COLLAPSE_SETTINGS_KEY, on);
+            Core::ICore::settings()->setValue(Constants::INLINE_DIFF_COLLAPSE_KEY, on);
             if (m_collapseController)
                 m_collapseController->setEnabled(on);
         });
 
         m_ignoreWhitespace = Core::ICore::settings()
-                                 ->value(IGNORE_WHITESPACE_SETTINGS_KEY, false).toBool();
+                                 ->value(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false)
+                                 .toBool();
         m_whitespaceAction = m_toolBar->addAction(QIcon(), Tr::tr("Ignore Whitespace"));
         m_whitespaceAction->setObjectName("InlineDiffIgnoreWhitespaceAction"); // autotest
         m_whitespaceAction->setCheckable(true);
@@ -1474,7 +1556,7 @@ public:
         m_whitespaceAction->setToolTip(Tr::tr("Hide differences that consist of "
                                               "whitespace changes only."));
         connect(m_whitespaceAction, &QAction::toggled, this, [this](bool on) {
-            Core::ICore::settings()->setValue(IGNORE_WHITESPACE_SETTINGS_KEY, on);
+            Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, on);
             m_ignoreWhitespace = on;
             startUpdate(); // the diff itself changes, recompute it
         });
@@ -1522,7 +1604,7 @@ public:
 
         setBaseline(baseline, title);
         const int storedViewMode = Core::ICore::settings()
-                                       ->value(VIEW_MODE_SETTINGS_KEY,
+                                       ->value(Constants::INLINE_DIFF_VIEW_MODE_KEY,
                                                int(InlineDiffViewMode::Inline))
                                        .toInt();
         setViewMode(storedViewMode == int(InlineDiffViewMode::SideBySide)
@@ -1575,7 +1657,7 @@ public:
                                             : Tr::tr("Switch to Inline Diff View");
         m_viewSwitcherAction->setToolTip(switchText);
         m_viewSwitcherAction->setText(switchText);
-        Core::ICore::settings()->setValue(VIEW_MODE_SETTINGS_KEY, int(mode));
+        Core::ICore::settings()->setValue(Constants::INLINE_DIFF_VIEW_MODE_KEY, int(mode));
         applyDecorations();
         if (mode == InlineDiffViewMode::SideBySide && m_baselineWidget) {
             // catch up on scrolling that happened while the mirror was off
