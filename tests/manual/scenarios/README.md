@@ -126,7 +126,8 @@ Action keys:
 |----------------|---------------------|---------------------------------------------------|
 | `invoke_action`| `call_action`       | Value is an action id. Add `blocks: true` for a modal dialog that a later step dismisses. |
 | `click`        | `click_widget`      | Query. Must resolve to exactly one widget.        |
-| `type`         | `type_text`         | `input:` plus optional query fields.              |
+| `type`         | `type_text`         | Literal text: `input:` plus optional query fields. |
+| `press`        | `press_keys`        | A key/chord, e.g. `press: "Ctrl+K"` or `press: {keys: Escape, ...query}`. |
 | `select`       | `select_combo_item` | `item:` plus a combo query.                       |
 | `expect`       | `widget_exists`     | Fails if nothing matches.                         |
 | `expect_gone`  | `widget_exists`     | Fails if anything matches.                        |
@@ -136,6 +137,11 @@ Action keys:
 
 `{scratch}` in any string expands to a fresh per-run temporary directory, so a
 run never depends on the developer's home state.
+
+For keyboard shortcuts, prefer `invoke_action` (focus-independent, reliably
+triggers the effect). Use `press` when a widget handles the key itself
+(Return, Escape, Tab, arrows) or when the tutorial should show the keystroke;
+a synthetic key event does not always drive application-wide shortcuts.
 
 There is deliberately no `sleep`: wait only on observable conditions
 (`wait_for`). See `about-dialog.yaml` for a complete example.

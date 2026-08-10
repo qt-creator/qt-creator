@@ -51,6 +51,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QKeyEvent>
+#include <QKeySequence>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>
@@ -2397,6 +2398,72 @@ void McpCommands::registerCommands()
             }
             typeText(target, input);
             return CallToolResult{}.isError(false).structuredContent(describeWidget(target));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("press_keys")
+            .title("Press a key or keyboard shortcut")
+            .description(
+                "Sends a key chord parsed with QKeySequence (e.g. \"Ctrl+K\", \"Escape\", "
+                "\"Return\", \"Ctrl+Shift+P\", \"Down\") to the focused widget, or to the single "
+                "widget matching the query. Use it for keys a widget handles directly (Return, "
+                "Escape, Tab, arrows) and to demonstrate a shortcut being pressed. To reliably "
+                "trigger an action's effect regardless of focus, prefer call_action - a synthetic "
+                "key event does not always drive application-wide shortcuts.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "keys",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Key sequence, e.g. \"Ctrl+K\" or \"Escape\"."}})
+                    .addRequired("keys")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const QString keys = p.value("keys").toString();
+            if (keys.isEmpty())
+                return ResultError(QString("No key sequence given."));
+            const QKeySequence seq(keys, QKeySequence::PortableText);
+            if (seq.isEmpty())
+                return ResultError(QString("Could not parse key sequence \"%1\".").arg(keys));
+            const QKeyCombination combo = seq[0];
+            const Qt::Key key = combo.key();
+            const Qt::KeyboardModifiers mods = combo.keyboardModifiers();
+
+            const WidgetQuery q = widgetQueryFromJson(p);
+            QWidget *target = nullptr;
+            if (!widgetQueryIsEmpty(q)) {
+                const Utils::Result<QWidget *> w = resolveSingleWidget(q);
+                if (!w)
+                    return ResultError(w.error());
+                target = *w;
+                target->activateWindow();
+                target->setFocus(Qt::OtherFocusReason);
+            } else {
+                target = QApplication::focusWidget();
+                if (!target)
+                    return ResultError(QString("No target widget: give a query or focus one."));
+            }
+
+            // Printable, unmodified keys carry their text so line edits insert them;
+            // chords and named keys deliver an empty text and rely on key+modifiers.
+            QString text;
+            if (!(mods & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier))
+                && key >= Qt::Key_Space && key <= Qt::Key_AsciiTilde) {
+                QChar ch{char16_t(key)};
+                if (!(mods & Qt::ShiftModifier))
+                    ch = ch.toLower();
+                text = QString(ch);
+            }
+            QKeyEvent press(QEvent::KeyPress, key, mods, text);
+            QKeyEvent release(QEvent::KeyRelease, key, mods, text);
+            QApplication::sendEvent(target, &press);
+            QApplication::sendEvent(target, &release);
+            return CallToolResult{}.isError(false).structuredContent(
+                QJsonObject{{"keys", seq.toString(QKeySequence::PortableText)},
+                            {"target", describeWidget(target)}});
         });
 
     ToolRegistry::registerTool(

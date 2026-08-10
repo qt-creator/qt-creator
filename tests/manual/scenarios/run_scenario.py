@@ -436,6 +436,21 @@ class Runner:
                     note="Typed into: " + widget_desc(w),
                     tool="type_text", check=widget_identity(w))
 
+    def do_press(self, step):
+        # A shortcut/chord, e.g. press: "Ctrl+K" or press: {keys: Escape, ...query}.
+        spec = step["press"]
+        args = {"keys": spec} if isinstance(spec, str) else self.subst(spec)
+        query = {k: v for k, v in args.items() if k != "keys"}
+        if query:
+            self.point_at(query)
+        r = self.call_or_fail("press_keys", args, step["describe"])
+        keys = (r or {}).get("keys", args.get("keys", ""))
+        if self.video_t0 is not None:
+            start = time.monotonic() - self.video_t0
+            self.key_events.append((start, start + max(self.dwell, 1.5), keys))
+        self.record(step["describe"], "press_keys " + json.dumps(args),
+                    note="Pressed " + keys, tool="press_keys", check={"keys": keys})
+
     def do_select(self, step):
         args = self.subst(step["select"])
         self.point_at({k: v for k, v in args.items() if k != "item"})
@@ -530,6 +545,8 @@ class Runner:
                 self.do_click(step)
             elif "type" in step:
                 self.do_type(step)
+            elif "press" in step:
+                self.do_press(step)
             elif "select" in step:
                 self.do_select(step)
             elif "expect" in step:
