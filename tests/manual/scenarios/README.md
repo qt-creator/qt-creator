@@ -31,6 +31,18 @@ Or let the runner launch Creator itself with a throwaway settings directory:
 
     ./run_scenario.py about-dialog.yaml --qtcreator ../../../bin/qtcreator --port 8765
 
+A launched Creator is set up to keep recordings clean: the "Take a UI Tour?"
+and "Link with an Installed Qt?" first-run prompts are suppressed via the
+throwaway settings, and the FakeVim plugin is skipped with `-noload FakeVim`
+so typed text is inserted rather than read as Vim commands. Pass
+`--no-preseed` for a pristine configuration (default settings, all plugins).
+
+`--noload PLUGIN` and `--load PLUGIN` (both repeatable) are passed through to a
+launched Creator. Use `--noload` to skip a plugin whose load error would pop a
+dialog over the recording (e.g. `--noload Profiler`), or restrict the set with
+`--noload all --load <plugin>`. `McpServer` is always loaded regardless, so the
+runner can still drive Creator.
+
 The tutorial is written to `out/<scenario-name>/report.md` (override with
 `--out`). Exit code is non-zero if any assertion fails.
 

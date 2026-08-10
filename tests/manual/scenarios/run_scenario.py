@@ -42,6 +42,27 @@ FONT_CANDIDATES = [
 ]
 
 
+# Settings pre-seeded into a launched Creator's throwaway config so recordings
+# are not cluttered by first-run prompts. TakeUITour and LinkWithQtInstallation
+# are InfoBar ids suppressed via the global SuppressedWarnings list. (FakeVim is
+# kept out of the way by not loading its plugin - see LAUNCH_ARGS - rather than
+# by a setting, so typed text is inserted, not read as Vim commands.)
+DEFAULT_SETTINGS = """\
+[General]
+SuppressedWarnings=TakeUITour, LinkWithQtInstallation
+"""
+
+# Plugins to skip when the runner launches Creator, so recordings are not
+# affected by editing modes that reinterpret keystrokes.
+LAUNCH_NOLOAD = ["FakeVim"]
+
+
+def write_default_settings(settings_dir):
+    ini = Path(settings_dir) / "QtProject" / "QtCreator.ini"
+    ini.parent.mkdir(parents=True, exist_ok=True)
+    ini.write_text(DEFAULT_SETTINGS, encoding="utf-8")
+
+
 def find_font():
     for f in FONT_CANDIDATES:
         if os.path.exists(f):
@@ -622,6 +643,15 @@ def main():
                          "window frames (e.g. 'twm'); terminated at the end. Use a dedicated "
                          "display, not your desktop. Implies full-display capture, since a "
                          "frame sits outside the app's client area.")
+    ap.add_argument("--no-preseed", action="store_true",
+                    help="Do not pre-seed the launched Creator's settings (only "
+                         "relevant with --qtcreator)")
+    ap.add_argument("--noload", action="append", default=[], metavar="PLUGIN",
+                    help="Pass -noload PLUGIN to a launched Creator (repeatable; e.g. "
+                         "--noload Profiler to skip a broken plugin, or --noload all "
+                         "with --load)")
+    ap.add_argument("--load", action="append", default=[], metavar="PLUGIN",
+                    help="Pass -load PLUGIN to a launched Creator (repeatable)")
     args = ap.parse_args()
 
     scenario_path = Path(args.scenario).resolve()
@@ -640,9 +670,18 @@ def main():
     if args.qtcreator:
         settings = scratch / "settings"
         settings.mkdir()
-        child = subprocess.Popen(
-            [args.qtcreator, "-settingspath", str(settings),
-             "-load", "McpServer", "-mcp-port", str(args.port)])
+        launch = [args.qtcreator, "-settingspath", str(settings)]
+        if not args.no_preseed:
+            write_default_settings(settings)
+            for plugin in LAUNCH_NOLOAD:
+                launch += ["-noload", plugin]
+        for plugin in args.noload:
+            launch += ["-noload", plugin]
+        for plugin in args.load:
+            launch += ["-load", plugin]
+        # McpServer is loaded last so it survives a user "-noload all".
+        launch += ["-load", "McpServer", "-mcp-port", str(args.port)]
+        child = subprocess.Popen(launch)
 
     exit_code = 0
     try:
