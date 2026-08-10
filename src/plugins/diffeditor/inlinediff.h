@@ -109,6 +109,13 @@ DIFFEDITOR_EXPORT InlineDiffRenderModel mapChunkToRenderModel(
     bool baselineEndsWithNewline = false,
     bool editorEndsWithNewline = false);
 
+// The declaration the code below line lastLine (1-based) belongs to, shown on
+// the placeholder of a collapsed region the way git puts it on a hunk header:
+// the closest line at or above lastLine that starts in column 0 with a letter,
+// an underscore or a dollar sign. Empty if there is none.
+// Exported for the autotest.
+DIFFEDITOR_EXPORT QString inlineDiffContextLine(const QTextDocument *document, int lastLine);
+
 // Opens (or reuses and re-targets) an editor with the given title that shows
 // the differences between the baseline and the document contents inline. The
 // editor shares the text with sourceDocument, so edits show up immediately in

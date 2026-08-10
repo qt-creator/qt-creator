@@ -374,6 +374,7 @@ private slots:
     void testInlineDiffCollapseAddedLines();
     void testInlineDiffCollapseUnchangedFile();
     void testInlineDiffIgnoreWhitespace();
+    void testInlineDiffContextLine();
     void testInlineDiffFoldedRows();
 #endif // WITH_TESTS
 };
@@ -1953,6 +1954,16 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
     // a clickable placeholder row is floated over each collapsed run
     QTRY_COMPARE(diffWidget->viewport()
                      ->findChildren<QWidget *>("InlineDiffCollapsedRow").size(), 2);
+    // each row names the declaration its hidden lines end in, like the function
+    // name on a git hunk header; every line of this file qualifies as one
+    // findChildren() returns creation order, which is not promised to match the
+    // order on screen, so sort by position before naming "the first" one.
+    QList<QWidget *> placeholders
+        = diffWidget->viewport()->findChildren<QWidget *>("InlineDiffCollapsedRow");
+    Utils::sort(placeholders, [](const QWidget *a, const QWidget *b) {
+        return a->y() < b->y();
+    });
+    QCOMPARE(placeholders.first()->accessibleDescription(), QString("line 16"));
 
     const QString grabPath = Utils::qtcEnvironmentVariable("QTC_INLINE_DIFF_COLLAPSE_GRAB");
     if (!grabPath.isEmpty()) {
@@ -2320,6 +2331,37 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffIgnoreWhitespace()
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
     QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// The declaration a collapsed region ends in, shown on its placeholder row the
+// way git puts the function name on a hunk header. See QTCREATORBUG-34836.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffContextLine()
+{
+    QTextDocument document;
+    document.setPlainText("#include <foo.h>\n"        // 1
+                          "\n"                        // 2
+                          "static void helper()\n"    // 3
+                          "{\n"                       // 4
+                          "    // comment\n"          // 5
+                          "    int x = 1;\n"          // 6
+                          "}\n"                       // 7
+                          "\n"                        // 8
+                          "void Class::method(int a)\n" // 9
+                          "{\n"                       // 10
+                          "    int y = 2;\n"          // 11
+                          "}\n");                     // 12
+
+    // the closest line that starts a declaration, skipping indented lines,
+    // comments, braces, blank and preprocessor lines
+    QCOMPARE(inlineDiffContextLine(&document, 6), QString("static void helper()"));
+    QCOMPARE(inlineDiffContextLine(&document, 11), QString("void Class::method(int a)"));
+    // the declaration line itself qualifies
+    QCOMPARE(inlineDiffContextLine(&document, 9), QString("void Class::method(int a)"));
+    // nothing above: the include is not a declaration
+    QCOMPARE(inlineDiffContextLine(&document, 2), QString());
+    QCOMPARE(inlineDiffContextLine(&document, 0), QString());
+    // a line past the end looks from the last line
+    QCOMPARE(inlineDiffContextLine(&document, 1000), QString("void Class::method(int a)"));
 }
 
 // Code folding is a document level flag, so the editor side of the side by side

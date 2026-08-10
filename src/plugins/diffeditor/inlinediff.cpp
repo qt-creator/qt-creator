@@ -708,19 +708,47 @@ static int baselineLineToEditor(const InlineDiffRenderModel &model, int baseline
     return editorLine;
 }
 
+} // anonymous namespace
+
+QString inlineDiffContextLine(const QTextDocument *document, int lastLine)
+{
+    QTC_ASSERT(document, return {});
+    for (int line = qMin(lastLine, document->blockCount()); line >= 1; --line) {
+        const QString text = document->findBlockByNumber(line - 1).text();
+        if (text.isEmpty())
+            continue;
+        // git's default hunk header pattern: a declaration starts in column 0
+        // with a letter, an underscore or a dollar sign, which skips comments,
+        // preprocessor lines, closing braces and anything indented
+        const QChar first = text.at(0);
+        if (first.isLetter() || first == '_' || first == '$')
+            return text.trimmed();
+    }
+    return {};
+}
+
+namespace {
+
 // A clickable, full width placeholder row shown in place of a collapsed run of
-// unchanged lines. Clicking it reveals the hidden lines.
+// unchanged lines. Clicking it reveals the hidden lines. The declaration the
+// hidden lines end in is shown on the left, like the function name on a git
+// hunk header.
 class CollapsedRow final : public QWidget
 {
 public:
-    CollapsedRow(QWidget *parent, int hiddenCount, const std::function<void()> &onClick)
+    CollapsedRow(QWidget *parent, int hiddenCount, const QString &context,
+                 const std::function<void()> &onClick)
         : QWidget(parent)
         , m_hiddenCount(hiddenCount)
+        , m_context(context)
         , m_onClick(onClick)
     {
         setObjectName("InlineDiffCollapsedRow"); // found by the autotest
         setCursor(Qt::PointingHandCursor);
         setToolTip(Tr::tr("Show the hidden unchanged lines"));
+        // the context is painted, so make it available to screen readers and
+        // to the autotest
+        setAccessibleDescription(context);
     }
 
 protected:
@@ -731,9 +759,22 @@ protected:
                                                                : Utils::Theme::Token_Background_Muted));
         painter.setPen(Utils::creatorColor(Utils::Theme::Token_Text_Muted));
         painter.setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementCaption));
-        painter.drawText(rect().adjusted(Utils::StyleHelper::SpacingTokens::PaddingHM, 0, 0, 0),
+        const int padding = Utils::StyleHelper::SpacingTokens::PaddingHM;
+        const QString countText = Tr::tr("Show %n hidden lines", nullptr, m_hiddenCount);
+        painter.drawText(rect().adjusted(padding, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter,
+                         countText);
+        if (m_context.isEmpty())
+            return;
+        // the declaration follows the count, the way a git hunk header names it
+        // after the line ranges
+        const QFontMetrics metrics(painter.font());
+        const int contextLeft = padding + metrics.horizontalAdvance(countText) + padding;
+        const int available = width() - contextLeft - padding;
+        if (available <= 0)
+            return;
+        painter.drawText(rect().adjusted(contextLeft, 0, -padding, 0),
                          Qt::AlignLeft | Qt::AlignVCenter,
-                         Tr::tr("Show %n hidden lines", nullptr, m_hiddenCount));
+                         metrics.elidedText(m_context, Qt::ElideRight, available));
     }
 
     void enterEvent(QEnterEvent *) override { m_hovered = true; update(); }
@@ -746,6 +787,7 @@ protected:
 
 private:
     const int m_hiddenCount;
+    const QString m_context;
     const std::function<void()> m_onClick;
     bool m_hovered = false;
 };
@@ -991,6 +1033,7 @@ private:
         placeholder.anchor = QTextCursor(anchor);
         placeholder.anchorFragment = anchor.fragmentIndex();
         placeholder.row = new CollapsedRow(view->viewport(), placeholder.hiddenCount,
+                                           inlineDiffContextLine(doc, range.second),
                                            [this, unitId] { expandUnit(unitId); });
         return placeholder;
     }
