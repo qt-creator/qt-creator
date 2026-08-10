@@ -9,6 +9,7 @@
 #include <qtkeychain/keychain.h>
 
 #include <QtTaskTree/QTaskTree>
+#include <QtTaskTree/QParallelTaskTreeRunner>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/guardedcallback.h>
@@ -40,6 +41,30 @@ public:
         readCallbacks.clear();
     }
 
+    // The keychain service and key default to the settings key split at the
+    // last '.', for callers that do not set them explicitly.
+    bool applyTo(CredentialQuery &op, const Key &settingsKey) const
+    {
+        if (!service.isEmpty() && !key.isEmpty()) {
+            op.setService(service);
+            op.setKey(key);
+            return true;
+        }
+        QStringList keyParts = stringFromKey(settingsKey).split('.');
+        if (keyParts.size() < 2)
+            return false;
+        op.setKey(keyParts.takeLast());
+        op.setService(keyParts.join('.'));
+        return true;
+    }
+
+    Key plaintextKey(const Key &settingsKey) const
+    {
+        if (!settingsKey.isEmpty())
+            return settingsKey;
+        return Utils::keyFromString(service + '.' + key);
+    }
+
 public:
     QSingleTaskTreeRunner readRunner;
     QSingleTaskTreeRunner writeRunner;
@@ -48,6 +73,8 @@ public:
     bool repeatWriting = false;
     std::vector<ReadCallback> readCallbacks;
     QString value;
+    QString service;
+    QString key;
 };
 
 SecretAspect::SecretAspect(AspectContainer *container)
@@ -57,14 +84,14 @@ SecretAspect::SecretAspect(AspectContainer *container)
 
 SecretAspect::~SecretAspect() = default;
 
-static bool applyKey(const SecretAspect &aspect, CredentialQuery &op)
+void SecretAspect::setService(const QString &service)
 {
-    QStringList keyParts = stringFromKey(aspect.settingsKey()).split('.');
-    if (keyParts.size() < 2)
-        return false;
-    op.setKey(keyParts.takeLast());
-    op.setService(keyParts.join('.'));
-    return true;
+    d->service = service;
+}
+
+void SecretAspect::setKey(const QString &key)
+{
+    d->key = key;
 }
 
 void SecretAspect::readSecret(const std::function<void(Result<QString>)> &cb) const
@@ -78,7 +105,7 @@ void SecretAspect::readSecret(const std::function<void(Result<QString>)> &cb) co
         qWarning() << "No Keychain available, reading from plaintext";
         QtcSettings &settings = Utils::userSettings();
         settings.beginGroup("Secrets");
-        QVariant value = settings.value(settingsKey());
+        QVariant value = settings.value(d->plaintextKey(settingsKey()));
         settings.endGroup();
 
         d->callReadCallbacks(fromSettingsValue(value).toString());
@@ -87,7 +114,7 @@ void SecretAspect::readSecret(const std::function<void(Result<QString>)> &cb) co
 
     const auto onGetCredentialSetup = [this](CredentialQuery &credential) {
         credential.setOperation(CredentialOperation::Get);
-        if (!applyKey(*this, credential))
+        if (!d->applyTo(credential, settingsKey()))
             return SetupResult::StopWithError;
         return SetupResult::Continue;
     };
@@ -129,7 +156,7 @@ void SecretAspect::writeSettings() const
     if (!QKeychain::isAvailable()) {
         QtcSettings &settings = Utils::userSettings();
         settings.beginGroup("Secrets");
-        settings.setValue(settingsKey(), toSettingsValue(d->value));
+        settings.setValue(d->plaintextKey(settingsKey()), toSettingsValue(d->value));
         settings.endGroup();
         d->wasEdited = false;
         return;
@@ -144,7 +171,7 @@ void SecretAspect::writeSettings() const
         credential.setOperation(CredentialOperation::Set);
         credential.setData(d->value.toUtf8());
 
-        if (!applyKey(*this, credential))
+        if (!d->applyTo(credential, settingsKey()))
             return SetupResult::StopWithError;
         return SetupResult::Continue;
     };
@@ -232,6 +259,28 @@ void SecretAspect::setValue(const QString &value)
 bool SecretAspect::isSecretStorageAvailable()
 {
     return QKeychain::isAvailable();
+}
+
+void deleteSecret(const QString &service, const QString &key)
+{
+    // Written by writeSettings() when no keychain was available, possibly by an
+    // earlier run, so remove it regardless of what is available now.
+    QtcSettings &settings = Utils::userSettings();
+    settings.beginGroup("Secrets");
+    settings.remove(Utils::keyFromString(service + '.' + key));
+    settings.endGroup();
+
+    if (!QKeychain::isAvailable())
+        return;
+
+    const auto onDeleteSetup = [service, key](CredentialQuery &credential) {
+        credential.setOperation(CredentialOperation::Delete);
+        credential.setService(service);
+        credential.setKey(key);
+    };
+    // Outlives the caller, which is typically going away right now.
+    static QParallelTaskTreeRunner runner;
+    runner.start({CredentialQueryTask(onDeleteSetup)});
 }
 
 } // namespace Core
