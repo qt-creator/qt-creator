@@ -1342,6 +1342,11 @@ LogWindow *DebuggerEngine::logWindow() const
     return d->m_logWindow;
 }
 
+QString DebuggerEngine::logContents() const
+{
+    return d->m_logWindow ? d->m_logWindow->combinedContents() : QString();
+}
+
 DisassemblerAgent *DebuggerEngine::disassemblerAgent() const
 {
     return &d->m_disassemblerAgent;

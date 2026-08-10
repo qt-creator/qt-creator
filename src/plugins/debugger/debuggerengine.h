@@ -519,6 +519,7 @@ public:
 
     Core::Context debuggerContext() const;
     QString displayName() const;
+    QString logContents() const;
 
     virtual bool acceptsBreakpoint(const BreakpointParameters &bp) const = 0;
     virtual void insertBreakpoint(const Breakpoint &bp) = 0;

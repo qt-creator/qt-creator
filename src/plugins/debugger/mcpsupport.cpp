@@ -260,7 +260,7 @@ static Result<QString> debuggerInterrupt()
     return QString("Interrupt requested");
 }
 
-static Result<QJsonObject> debuggerGetStatus()
+static Result<QJsonObject> debuggerGetStatus(bool includeLog)
 {
     const QPointer<DebuggerEngine> engine = EngineManager::currentEngine();
 
@@ -273,6 +273,8 @@ static Result<QJsonObject> debuggerGetStatus()
 
     result["has_session"] = true;
     result["state"] = DebuggerEngine::stateName(engine->state());
+    if (includeLog)
+        result["log"] = engine->logContents();
 
     const bool isPaused = engine->state() == InferiorStopOk;
     const bool isRunning = engine->state() == InferiorRunOk;
@@ -1327,6 +1329,16 @@ void registerMcpTools()
                 "Returns the current status of the debugger including whether a session is active, "
                 "its state (paused/running/stopped), and the current position if paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "include_log",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Also return the raw debugger log (the commands exchanged with the "
+                             "backend, e.g. GDB/MI) in a \"log\" field. Default false."},
+                            {"default", false}}))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("has_session", QJsonObject{{"type", "boolean"}})
@@ -1334,10 +1346,12 @@ void registerMcpTools()
                     .addProperty("is_paused", QJsonObject{{"type", "boolean"}})
                     .addProperty("is_running", QJsonObject{{"type", "boolean"}})
                     .addProperty("current_position", QJsonObject{{"type", "object"}})
+                    .addProperty("log", QJsonObject{{"type", "string"}})
                     .addRequired("has_session")
                     .addRequired("state")),
-        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
-            const auto result = debuggerGetStatus();
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const auto result = debuggerGetStatus(
+                params.argumentsAsObject().value("include_log").toBool(false));
             if (!result)
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
             return CallToolResult{}.isError(false).structuredContent(*result);
