@@ -801,8 +801,9 @@ void LldbEngine::updateAll()
     DebuggerCommand cmd("fetchThreads");
     cmd.callback = [this](const DebuggerResponse &response) {
         threadsHandler()->setThreads(response.data);
+        // fetchStack() reaches activateFrame(), which reloads the registers, so
+        // do not fetch them a second time here (QTCREATORBUG-17843).
         fetchStack(settings().maximalStackDepth());
-        reloadRegisters();
     };
     runCommand(cmd);
 }
