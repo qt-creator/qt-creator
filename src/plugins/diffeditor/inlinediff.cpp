@@ -46,6 +46,7 @@
 #include <QScrollBar>
 #include <QSplitter>
 #include <QTextDocument>
+#include <QSpinBox>
 #include <QTimer>
 #include <QToolBar>
 
@@ -612,8 +613,10 @@ private:
 };
 
 // unchanged context lines kept visible on each side of a change; runs of
-// unchanged lines longer than a placeholder replaces are collapsed
-constexpr int kCollapseContextLines = 3;
+// unchanged lines longer than a placeholder replaces are collapsed. The same
+// default as the classic diff view's "Context lines", whose setting the inline
+// view shares.
+constexpr int kDefaultContextLines = 3;
 // do not collapse runs this short: a placeholder would not save any rows
 constexpr int kMinCollapsedLines = 2;
 
@@ -854,6 +857,16 @@ public:
         refresh();
     }
 
+    // the toolbar spin box: unchanged lines kept visible around each change
+    void setContextLines(int lines)
+    {
+        lines = qMax(0, lines);
+        if (m_contextLines == lines)
+            return;
+        m_contextLines = lines;
+        refresh();
+    }
+
     // recompute and apply the collapsed runs for the current model and state
     void refresh()
     {
@@ -931,7 +944,7 @@ private:
         if (!m_model.computed)
             return;
         const QList<QPair<int, int>> editorRuns = collapsibleRuns(
-            editorChanges(m_model), m_editor->document()->blockCount(), kCollapseContextLines);
+            editorChanges(m_model), m_editor->document()->blockCount(), m_contextLines);
 
         const bool collapseBaseline = m_baselineActive && m_baseline;
         const int baselineBlockCount = collapseBaseline ? m_baseline->document()->blockCount() : 0;
@@ -1178,6 +1191,7 @@ private:
     InlineDiffRenderModel m_model;
     bool m_enabled = true;
     bool m_baselineActive = false; // side by side view: collapse the baseline too
+    int m_contextLines = kDefaultContextLines;
     int m_lastBlockCount = 0;
     int m_nextUnitId = 0;
     bool m_repositionScheduled = false;
@@ -1583,10 +1597,43 @@ public:
         m_collapseAction->setToolTip(Tr::tr("Hide unchanged lines, keeping some context "
                                             "around each change."));
         m_collapseController->setEnabled(collapse);
-        connect(m_collapseAction, &QAction::toggled, this, [this](bool on) {
+
+        // how many unchanged lines are kept around each change, the counterpart
+        // of the classic diff view's spin box and stored under the same key, so
+        // that the two views show the same amount of context
+        auto contextLabel = new QLabel(Tr::tr("Context lines:"));
+        const int horizontalPadding = Utils::StyleHelper::SpacingTokens::PaddingHS;
+        contextLabel->setContentsMargins(horizontalPadding, 0, horizontalPadding, 0);
+        m_contextLabelAction = m_toolBar->addWidget(contextLabel);
+        auto contextSpinBox = new QSpinBox;
+        contextSpinBox->setObjectName("InlineDiffContextLinesSpinBox"); // autotest
+        contextSpinBox->setRange(1, 100);
+        contextSpinBox->setFrame(false);
+        contextSpinBox->setToolTip(Tr::tr("The number of unchanged lines shown around "
+                                          "each change."));
+        contextSpinBox->setValue(Core::ICore::settings()
+                                     ->value(Constants::CONTEXT_LINES_KEY, kDefaultContextLines)
+                                     .toInt());
+        m_contextSpinBoxAction = m_toolBar->addWidget(contextSpinBox);
+        m_collapseController->setContextLines(contextSpinBox->value());
+        connect(contextSpinBox, &QSpinBox::valueChanged, this, [this](int lines) {
+            Core::ICore::settings()->setValue(Constants::CONTEXT_LINES_KEY, lines);
+            if (m_collapseController)
+                m_collapseController->setContextLines(lines);
+        });
+
+        // the context only applies while unchanged lines are hidden
+        const auto updateContextEnabled = [this](bool collapsing) {
+            m_contextLabelAction->setVisible(collapsing);
+            m_contextSpinBoxAction->setVisible(collapsing);
+        };
+        updateContextEnabled(collapse);
+        connect(m_collapseAction, &QAction::toggled, this,
+                [this, updateContextEnabled](bool on) {
             Core::ICore::settings()->setValue(Constants::INLINE_DIFF_COLLAPSE_KEY, on);
             if (m_collapseController)
                 m_collapseController->setEnabled(on);
+            updateContextEnabled(on);
         });
 
         m_ignoreWhitespace = Core::ICore::settings()
@@ -1985,6 +2032,8 @@ private:
     QPointer<QToolBar> m_toolBar;
     QAction *m_viewSwitcherAction = nullptr;
     QAction *m_collapseAction = nullptr;
+    QAction *m_contextLabelAction = nullptr;
+    QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_whitespaceAction = nullptr;
     bool m_ignoreWhitespace = false;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;

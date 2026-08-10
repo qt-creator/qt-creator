@@ -533,6 +533,7 @@ void DiffEditorPlugin::diffExternalFiles()
 
 #ifdef WITH_TESTS
 
+#include <QSpinBox>
 #include <QTest>
 #include <QToolBar>
 
@@ -1650,20 +1651,24 @@ public:
         : m_collapse(Core::ICore::settings()->value(Constants::INLINE_DIFF_COLLAPSE_KEY, true))
         , m_ignoreWhitespace(Core::ICore::settings()
                                  ->value(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false))
+        , m_contextLines(Core::ICore::settings()->value(Constants::CONTEXT_LINES_KEY, 3))
     {
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_COLLAPSE_KEY, hideUnchangedLines);
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false);
+        Core::ICore::settings()->setValue(Constants::CONTEXT_LINES_KEY, 3);
     }
     ~InlineDiffViewGuard()
     {
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_COLLAPSE_KEY, m_collapse);
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY,
                                           m_ignoreWhitespace);
+        Core::ICore::settings()->setValue(Constants::CONTEXT_LINES_KEY, m_contextLines);
     }
 
 private:
     const QVariant m_collapse;
     const QVariant m_ignoreWhitespace;
+    const QVariant m_contextLines;
 };
 
 } // namespace DiffEditor::Internal
@@ -1977,9 +1982,24 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
     QVERIFY(sourceLayout->isBlockVisibleInEditor(
         sourceWidget->document()->findBlockByNumber(0)));
 
-    // turning the toggle off through the toolbar expands the whole file again
     auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
     QVERIFY(toolBar);
+
+    // the amount of context is configurable, like in the classic diff view: one
+    // line of it leaves only line 19 and line 21 around the change on line 20
+    auto contextSpinBox = toolBar->findChild<QSpinBox *>("InlineDiffContextLinesSpinBox");
+    QVERIFY(contextSpinBox);
+    QCOMPARE(contextSpinBox->value(), 3);
+    contextSpinBox->setValue(1);
+    QTRY_VERIFY(!visibleInEditor(18));
+    QVERIFY(visibleInEditor(19));
+    QVERIFY(visibleInEditor(21));
+    QVERIFY(!visibleInEditor(22));
+    contextSpinBox->setValue(3);
+    QTRY_VERIFY(visibleInEditor(17));
+    QVERIFY(!visibleInEditor(16));
+
+    // turning the toggle off through the toolbar expands the whole file again
     QAction *collapseAction = Utils::findOrDefault(toolBar->actions(), [](QAction *a) {
         return a->objectName() == "InlineDiffCollapseAction";
     });
