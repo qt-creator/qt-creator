@@ -94,9 +94,11 @@ inline qint64 rulerBlockDuration(qint64 rangeDuration, double widthPx,
 // boundary. onTick(x, isMajor) reports the four inner section boundaries of a
 // block as minor ticks and its right edge, which is the next block's left edge,
 // as a major tick. Tick positions are clipped to [0, widthPx].
+// blockLengthHint is passed on to rulerBlockDuration().
 inline void forEachRulerTick(qint64 rangeStart, qint64 rangeEnd, double widthPx,
                              const std::function<void(qint64, double, double)> &onBlockStart,
-                             const std::function<void(double, bool)> &onTick)
+                             const std::function<void(double, bool)> &onTick,
+                             int blockLengthHint = kInitialBlockLength)
 {
     const qint64 rangeDuration = rangeEnd - rangeStart;
     if (rangeDuration <= 0 || widthPx <= 0.0)
@@ -104,7 +106,7 @@ inline void forEachRulerTick(qint64 rangeStart, qint64 rangeEnd, double widthPx,
 
     constexpr int sectionsPerBlock = 5;
     const double scale = widthPx / double(rangeDuration);
-    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, widthPx);
+    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, widthPx, blockLengthHint);
     const double pixelsPerBlock = double(timePerBlock) * scale;
     const double pixelsPerSection = pixelsPerBlock / sectionsPerBlock;
     const qint64 alignedStart = rangeStart - (rangeStart % timePerBlock);

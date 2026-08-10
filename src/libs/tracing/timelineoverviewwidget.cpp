@@ -22,6 +22,7 @@ static const int HandleWidth = 7;
 static const int OverviewHeight = 50;
 static const int kTimeBarHeight = 10;
 static const int kTimeBarFontPx = 6;
+static const int kTimeBarBlockLength = 80; // target pixels per time bar block
 
 static QColor themeColor(Utils::Theme::Color role)
 {
@@ -102,25 +103,21 @@ void TimelineOverviewWidget::rebuildContentCache()
             QFont f = p.font();
             f.setPixelSize(kTimeBarFontPx);
             p.setFont(f);
-            const qint64 traceStart = m_zoom->traceStart();
-            const qint64 blockDur = rulerBlockDuration(traceDuration, double(width()), 80);
-            const qint64 alignedStart = traceStart - (traceStart % blockDur);
-            const double pixPerBlock = double(blockDur) * double(width()) / double(traceDuration);
-            for (qint64 t = alignedStart; ; t += blockDur) {
-                const double x = timeToPixel(t);
-                if (x > double(width()))
-                    break;
-                if (x + pixPerBlock > 0 && x < double(width())) {
+            forEachRulerTick(
+                m_zoom->traceStart(), m_zoom->traceEnd(), double(width()),
+                [&](qint64 t, double x, double pixPerBlock) {
                     const QRectF lr(x + 1, 0, pixPerBlock - 1, kTimeBarHeight);
                     p.setPen(textColor);
                     p.drawText(lr, Qt::AlignLeft | Qt::AlignVCenter,
                                formatTime(t, traceDuration));
-                }
-                if (x > 0 && x <= double(width())) {
+                },
+                [&](double x, bool isMajor) {
+                    if (!isMajor) // the time bar has no minor ticks
+                        return;
                     p.setPen(divColor);
                     p.drawLine(QPointF(x, 0), QPointF(x, kTimeBarHeight - 1));
-                }
-            }
+                },
+                kTimeBarBlockLength);
         }
     }
 
