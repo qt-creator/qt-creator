@@ -34,6 +34,26 @@ Or let the runner launch Creator itself with a throwaway settings directory:
 The tutorial is written to `out/<scenario-name>/report.md` (override with
 `--out`). Exit code is non-zero if any assertion fails.
 
+## Regression mode
+
+A scenario can double as a regression test. Record a baseline of each step's
+stable observations next to the scenario:
+
+    ./run_scenario.py about-dialog.yaml --port 8765 --update-baseline
+
+This writes `about-dialog.baseline.json`, which you commit alongside the
+scenario. Later, re-run in check mode:
+
+    ./run_scenario.py about-dialog.yaml --port 8765 --check
+
+`--check` fails (non-zero exit) if the run diverges from the baseline - a step
+resolving to a different widget, an assertion count changing, a screenshot
+resizing, and so on. The baseline deliberately stores only stable fields
+(which widget was acted on: class, objectName, text; `widget_exists` counts;
+screenshot dimensions), not volatile ones (screen geometry, window ids, pane
+text with timestamps), so it flags behaviour changes rather than cosmetic
+noise. Regenerate it with `--update-baseline` when a change is intended.
+
 ## Scenario format
 
 Top level:

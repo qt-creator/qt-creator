@@ -114,6 +114,34 @@ def widget_desc(w):
         w=w.get("width"), h=w.get("height"), state=state)
 
 
+def widget_identity(w):
+    """The stable identity of a resolved widget for the baseline: which widget
+    was acted on, not where it was or its transient state."""
+    if not isinstance(w, dict):
+        return {}
+    return {"class": w.get("class"), "object_name": w.get("object_name"),
+            "text": w.get("text")}
+
+
+def compare_baseline(expected, actual):
+    """Returns a list of human-readable mismatch strings (empty == match)."""
+    diffs = []
+    exp_steps = expected.get("steps", [])
+    if len(exp_steps) != len(actual):
+        diffs.append("step count changed: baseline {}, run {}"
+                     .format(len(exp_steps), len(actual)))
+    for exp, act in zip(exp_steps, actual):
+        where = "step {} ({})".format(act["step"], act["describe"])
+        if exp.get("tool") != act.get("tool"):
+            diffs.append("{}: tool changed: {} -> {}"
+                         .format(where, exp.get("tool"), act.get("tool")))
+        if exp.get("check") != act.get("check"):
+            diffs.append("{}: {} -> {}"
+                         .format(where, json.dumps(exp.get("check")),
+                                 json.dumps(act.get("check"))))
+    return diffs
+
+
 class Runner:
     def __init__(self, client, scenario, out_dir, scratch):
         self.client = client
@@ -123,6 +151,7 @@ class Runner:
         self.shots_dir = out_dir / "shots"
         self.shots_dir.mkdir(parents=True, exist_ok=True)
         self.report = []          # (index, describe, call_line, note, shot_rel)
+        self.checks = []          # per-step stable observations for --check
         self.pending = []         # (thread, holder) for blocking invoke_action
         self.step_no = 0
 
@@ -133,8 +162,14 @@ class Runner:
             return {k: self.subst(v) for k, v in value.items()}
         return value
 
-    def record(self, describe, call_line, note="", shot_rel=None):
+    def record(self, describe, call_line, note="", shot_rel=None, tool=None, check=None):
         self.report.append((self.step_no, describe, call_line, note, shot_rel))
+        # The baseline deliberately omits volatile fields (geometry, window
+        # ids, transient visible/enabled state): a regression check must react
+        # to behaviour changes, not to a window moving a few pixels.
+        if check is not None:
+            self.checks.append(
+                {"step": self.step_no, "describe": describe, "tool": tool, "check": check})
 
     def call_or_fail(self, tool, args, describe):
         is_error, structured, text = self.client.call(tool, args)
@@ -160,33 +195,38 @@ class Runner:
             t = threading.Thread(target=worker, daemon=True)
             t.start()
             self.pending.append((t, holder, action))
-            self.record(step["describe"], call_line,
+            self.record(step["describe"], call_line, tool="call_action",
+                        check={"dispatched": True},
                         note="Dispatched (opens a modal dialog; dismissed by a later step).")
         else:
             self.call_or_fail("call_action", {"id": action}, step["describe"])
-            self.record(step["describe"], call_line)
+            self.record(step["describe"], call_line, tool="call_action", check={"ok": True})
 
     def do_open(self, path, describe):
         self.call_or_fail("open_file", {"path": path}, describe)
-        self.record(describe, 'open_file path="{}"'.format(path))
+        self.record(describe, 'open_file path="{}"'.format(path),
+                    tool="open_file", check={"ok": True})
 
     def do_click(self, step):
         query = self.subst(step["click"])
         w = self.call_or_fail("click_widget", query, step["describe"])
         self.record(step["describe"], "click_widget " + json.dumps(query),
-                    note="Resolved to: " + widget_desc(w))
+                    note="Resolved to: " + widget_desc(w),
+                    tool="click_widget", check=widget_identity(w))
 
     def do_type(self, step):
         args = self.subst(step["type"])
         w = self.call_or_fail("type_text", args, step["describe"])
         self.record(step["describe"], "type_text " + json.dumps(args),
-                    note="Typed into: " + widget_desc(w))
+                    note="Typed into: " + widget_desc(w),
+                    tool="type_text", check=widget_identity(w))
 
     def do_select(self, step):
         args = self.subst(step["select"])
         w = self.call_or_fail("select_combo_item", args, step["describe"])
         self.record(step["describe"], "select_combo_item " + json.dumps(args),
-                    note="Selected in: " + widget_desc(w))
+                    note="Selected in: " + widget_desc(w),
+                    tool="select_combo_item", check=widget_identity(w))
 
     def do_expect(self, step, want_present):
         query = self.subst(step["expect" if want_present else "expect_gone"])
@@ -202,7 +242,8 @@ class Runner:
         note = "Confirmed {} (count {}).".format(verb, count)
         if want_present and r.get("first"):
             note += " " + widget_desc(r["first"])
-        self.record(step["describe"], "widget_exists " + json.dumps(query), note=note)
+        self.record(step["describe"], "widget_exists " + json.dumps(query), note=note,
+                    tool="widget_exists", check={"exists": bool(exists), "count": count})
 
     def do_wait_for(self, step):
         query = self.subst(step["wait_for"])
@@ -213,7 +254,8 @@ class Runner:
             r = self.call_or_fail("widget_exists", query, step["describe"])
             if r.get("exists"):
                 self.record(step["describe"], "widget_exists " + json.dumps(query),
-                            note="Appeared (count {}).".format(r.get("count")))
+                            note="Appeared (count {}).".format(r.get("count")),
+                            tool="wait_for", check={"appeared": True})
                 return
             count += 1
         raise ScenarioError("step {}: timed out after {}s waiting for {}"
@@ -225,13 +267,17 @@ class Runner:
         reason = r.get("reason")
         if reason != "ok":
             self.record(step["describe"], 'read_pane name="{}"'.format(name),
-                        note="Pane not readable: {}.".format(reason))
+                        note="Pane not readable: {}.".format(reason),
+                        tool="read_pane", check={"reason": reason})
             return
         text = r.get("text", "")
         artifact = self.out_dir / (slugify(name) + ".txt")
         artifact.write_text(text, encoding="utf-8")
+        # The pane text itself is too volatile to baseline (timestamps, paths);
+        # the stable check is that the pane was readable at all.
         self.record(step["describe"], 'read_pane name="{}"'.format(name),
-                    note="{} chars saved to {}.".format(len(text), artifact.name))
+                    note="{} chars saved to {}.".format(len(text), artifact.name),
+                    tool="read_pane", check={"reason": reason})
 
     def do_capture(self, step):
         spec = step.get("capture")
@@ -245,7 +291,9 @@ class Runner:
         self.record(step["describe"], "screenshot " + json.dumps(query),
                     note="Captured {}x{} of \"{}\".".format(
                         r.get("width"), r.get("height"), r.get("window_title")),
-                    shot_rel=rel)
+                    shot_rel=rel, tool="screenshot",
+                    check={"width": r.get("width"), "height": r.get("height"),
+                           "window_title": r.get("window_title")})
 
     # --- driver --------------------------------------------------------
 
@@ -343,6 +391,11 @@ def main():
                     "(otherwise attach to --port)")
     ap.add_argument("--timeout", type=float, default=60,
                     help="Seconds to wait for the MCP port")
+    ap.add_argument("--check", action="store_true",
+                    help="Regression mode: compare the run against the committed "
+                         "baseline and fail on any mismatch")
+    ap.add_argument("--update-baseline", action="store_true",
+                    help="Write/overwrite the baseline next to the scenario from this run")
     args = ap.parse_args()
 
     scenario_path = Path(args.scenario).resolve()
@@ -379,6 +432,29 @@ def main():
             exit_code = 1
             runner.record("(scenario aborted)", str(e))
             print("SCENARIO FAILED:", e, file=sys.stderr)
+
+        baseline_path = scenario_path.with_suffix(".baseline.json")
+        if status == "PASSED" and args.update_baseline:
+            baseline_path.write_text(
+                json.dumps({"name": name, "steps": runner.checks}, indent=2) + "\n",
+                encoding="utf-8")
+            print("Baseline written: {}".format(baseline_path))
+        elif status == "PASSED" and args.check:
+            if not baseline_path.exists():
+                raise ScenarioError("no baseline at {} - run with --update-baseline first"
+                                    .format(baseline_path))
+            expected = json.loads(baseline_path.read_text(encoding="utf-8"))
+            diffs = compare_baseline(expected, runner.checks)
+            if diffs:
+                status = "CHECK FAILED"
+                exit_code = 1
+                print("CHECK FAILED against {}:".format(baseline_path), file=sys.stderr)
+                for d in diffs:
+                    print("  " + d, file=sys.stderr)
+                    runner.record("(check mismatch)", d)
+            else:
+                status = "CHECK PASSED"
+
         report = runner.write_report()
         print("{}: {}".format(status, name))
         print("Tutorial: {}".format(report))

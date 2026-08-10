@@ -1,0 +1,59 @@
+{
+  "name": "Open and close the About Qt Creator dialog",
+  "steps": [
+    {
+      "step": 1,
+      "describe": "Open the About Qt Creator dialog",
+      "tool": "call_action",
+      "check": {
+        "dispatched": true
+      }
+    },
+    {
+      "step": 2,
+      "describe": "Wait for the dialog to appear",
+      "tool": "wait_for",
+      "check": {
+        "appeared": true
+      }
+    },
+    {
+      "step": 3,
+      "describe": "The About dialog is shown",
+      "tool": "widget_exists",
+      "check": {
+        "exists": true,
+        "count": 1
+      }
+    },
+    {
+      "step": 4,
+      "describe": "Capture the dialog",
+      "tool": "screenshot",
+      "check": {
+        "width": 648,
+        "height": 306,
+        "window_title": "About Qt Creator"
+      }
+    },
+    {
+      "step": 5,
+      "describe": "Close the dialog",
+      "tool": "click_widget",
+      "check": {
+        "class": "QPushButton",
+        "object_name": "",
+        "text": "Close"
+      }
+    },
+    {
+      "step": 6,
+      "describe": "The dialog is gone",
+      "tool": "widget_exists",
+      "check": {
+        "exists": false,
+        "count": 0
+      }
+    }
+  ]
+}
