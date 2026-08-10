@@ -24,6 +24,7 @@ import http.client
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -32,6 +33,20 @@ import time
 from pathlib import Path
 
 import yaml
+
+
+FONT_CANDIDATES = [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    "/usr/share/fonts/TTF/DejaVuSans.ttf",
+]
+
+
+def find_font():
+    for f in FONT_CANDIDATES:
+        if os.path.exists(f):
+            return f
+    return None
 
 
 class McpClient:
@@ -97,6 +112,139 @@ class ScenarioError(Exception):
     pass
 
 
+def fmt_offset(seconds):
+    seconds = int(seconds)
+    return "{:02d}:{:02d}".format(seconds // 60, seconds % 60)
+
+
+class Recorder:
+    """Records an X display to a video with ffmpeg x11grab while a scenario
+    runs, then embeds the step timestamps as chapter markers."""
+
+    def __init__(self, display, out_path, size=None, region=None, framerate=15):
+        self.display = display
+        self.raw_path = Path(out_path)
+        self.size = size          # "WxH" grabbed from the display origin
+        self.region = region      # (x, y, w, h) to crop to, e.g. the app window
+        self.framerate = framerate
+        self.proc = None
+        self.log = None
+        self.t0 = None
+        self.duration = 0.0
+
+    def start(self):
+        cmd = ["ffmpeg", "-y", "-f", "x11grab", "-framerate", str(self.framerate)]
+        input_spec = self.display
+        if self.region:
+            x, y, w, h = self.region
+            # libx264 with yuv420p needs even dimensions.
+            w, h = w - (w % 2), h - (h % 2)
+            cmd += ["-video_size", "{}x{}".format(w, h)]
+            input_spec = "{}+{},{}".format(self.display, x, y)
+        elif self.size:
+            cmd += ["-video_size", self.size]
+        cmd += ["-i", input_spec,
+                "-codec:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+                str(self.raw_path)]
+        self.log = open(self.raw_path.with_suffix(".log"), "wb")
+        self.proc = subprocess.Popen(cmd, stdin=subprocess.PIPE,
+                                     stdout=self.log, stderr=self.log)
+        # Wait until ffmpeg is actually writing frames before the run starts,
+        # so early steps are not cut off. This waits on the file growing, not
+        # on a fixed delay.
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            if self.proc.poll() is not None:
+                raise ScenarioError("ffmpeg exited during startup; see {}"
+                                    .format(self.raw_path.with_suffix(".log")))
+            if self.raw_path.exists() and self.raw_path.stat().st_size > 0:
+                break
+            time.sleep(0.1)
+        self.t0 = time.monotonic()
+        return self
+
+    def stop(self, force=False):
+        if not self.proc or self.proc.poll() is not None:
+            return
+        self.duration = time.monotonic() - (self.t0 or time.monotonic())
+        try:
+            if not force and self.proc.stdin:
+                # "q" tells ffmpeg to stop and finalize the file cleanly.
+                self.proc.stdin.write(b"q")
+                self.proc.stdin.flush()
+                self.proc.wait(timeout=10)
+            else:
+                self.proc.terminate()
+                self.proc.wait(timeout=5)
+        except Exception:
+            self.proc.kill()
+        finally:
+            if self.log:
+                self.log.close()
+
+    def _keystroke_filters(self, key_events, font):
+        """Builds ffmpeg drawtext filters that show each typed string as a
+        bottom-centre bubble during its window. The text is passed via a file
+        so it needs no filter-string escaping."""
+        parts = []
+        for i, (start, end, text) in enumerate(key_events):
+            keyfile = self.raw_path.parent / "key_{}.txt".format(i)
+            keyfile.write_text(text, encoding="utf-8")
+            fontopt = "fontfile={}:".format(font) if font else ""
+            parts.append(
+                "drawtext={font}textfile={tf}:reload=0:fontcolor=white:fontsize=40:"
+                "box=1:boxcolor=black@0.65:boxborderw=16:x=(w-text_w)/2:y=h-text_h-90:"
+                "enable='between(t\\,{s:.3f}\\,{e:.3f})'".format(
+                    font=fontopt, tf=keyfile, s=start, e=end))
+        return ",".join(parts)
+
+    def finalize(self, chapters, out_path, key_events=None, font=None):
+        """Muxes chapter markers into out_path and burns in keystroke bubbles.
+        Falls back to the raw recording if processing is unavailable."""
+        out_path = Path(out_path)
+        key_events = key_events or []
+        if not self.raw_path.exists():
+            return None
+        if not chapters and not key_events:
+            self.raw_path.replace(out_path)
+            return out_path
+
+        cmd = ["ffmpeg", "-y", "-i", str(self.raw_path)]
+        meta = None
+        if chapters:
+            meta = self.raw_path.with_suffix(".ffmeta")
+            lines = [";FFMETADATA1"]
+            for i, (offset, title) in enumerate(chapters):
+                start_ms = int(offset * 1000)
+                next_off = chapters[i + 1][0] if i + 1 < len(chapters) else self.duration
+                end_ms = max(int(next_off * 1000), start_ms + 1)
+                safe_title = title.replace("=", " ").replace(";", " ").replace("#", " ")
+                lines += ["[CHAPTER]", "TIMEBASE=1/1000",
+                          "START={}".format(start_ms), "END={}".format(end_ms),
+                          "title={}".format(safe_title)]
+            meta.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            cmd += ["-i", str(meta), "-map_metadata", "1"]
+
+        vf = self._keystroke_filters(key_events, font)
+        if vf:
+            # drawtext requires a re-encode; copy the (absent) audio through.
+            cmd += ["-vf", vf, "-codec:v", "libx264", "-preset", "ultrafast",
+                    "-pix_fmt", "yuv420p"]
+        else:
+            cmd += ["-codec", "copy"]
+        cmd.append(str(out_path))
+
+        result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if result.returncode != 0 or not out_path.exists():
+            # Processing failed - keep the plain recording so a video still exists.
+            self.raw_path.replace(out_path)
+            return out_path
+        self.raw_path.unlink(missing_ok=True)
+        if meta:
+            meta.unlink(missing_ok=True)
+        return out_path
+
+
 def slugify(text):
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40] or "step"
 
@@ -154,6 +302,43 @@ class Runner:
         self.checks = []          # per-step stable observations for --check
         self.pending = []         # (thread, holder) for blocking invoke_action
         self.step_no = 0
+        self.video_t0 = None      # monotonic recording start, if recording
+        self.video_rel = None     # report-relative path to the recording
+        self.chapters = []        # (offset_seconds, describe) for video chapters
+        self.dwell = 0.0          # seconds to linger after each step (video pacing)
+        self.cursor_enabled = False  # glide the pointer onto targets (video mode)
+        self.key_events = []      # (start, end, text) typed-key bubbles for the video
+
+    def mark(self, describe):
+        """Record the current offset into the recording as a chapter start."""
+        if self.video_t0 is not None:
+            self.chapters.append((time.monotonic() - self.video_t0, describe))
+
+    def dwell_now(self):
+        """Linger so a recording shows each state long enough to follow. Only
+        active in video mode; a --check run never waits like this."""
+        if self.dwell:
+            time.sleep(self.dwell)
+
+    def resolve_center(self, query):
+        """Root-coordinate centre of the single widget matching query, or None."""
+        _, structured, _ = self.client.call("find_widgets", query)
+        if not structured or structured.get("count") != 1:
+            return None
+        w = structured["widgets"][0]
+        return (int(w["x"] + w["width"] / 2), int(w["y"] + w["height"] / 2))
+
+    def move_cursor(self, x, y):
+        self.client.call("move_cursor", {"x": int(x), "y": int(y)})
+
+    def point_at(self, query):
+        """Glide the recorded cursor onto a target before acting on it."""
+        if not self.cursor_enabled:
+            return
+        center = self.resolve_center(query)
+        if center:
+            self.move_cursor(center[0], center[1])
+            time.sleep(min(0.4, self.dwell / 2) if self.dwell else 0.4)
 
     def subst(self, value):
         if isinstance(value, str):
@@ -209,6 +394,7 @@ class Runner:
 
     def do_click(self, step):
         query = self.subst(step["click"])
+        self.point_at(query)
         w = self.call_or_fail("click_widget", query, step["describe"])
         self.record(step["describe"], "click_widget " + json.dumps(query),
                     note="Resolved to: " + widget_desc(w),
@@ -216,13 +402,22 @@ class Runner:
 
     def do_type(self, step):
         args = self.subst(step["type"])
+        query = {k: v for k, v in args.items() if k != "input"}
+        if query:
+            self.point_at(query)
         w = self.call_or_fail("type_text", args, step["describe"])
+        # Show the typed text as an on-screen bubble for the duration of the
+        # step's dwell, so the recording makes the keystrokes visible.
+        if self.video_t0 is not None:
+            start = time.monotonic() - self.video_t0
+            self.key_events.append((start, start + max(self.dwell, 1.5), args.get("input", "")))
         self.record(step["describe"], "type_text " + json.dumps(args),
                     note="Typed into: " + widget_desc(w),
                     tool="type_text", check=widget_identity(w))
 
     def do_select(self, step):
         args = self.subst(step["select"])
+        self.point_at({k: v for k, v in args.items() if k != "item"})
         w = self.call_or_fail("select_combo_item", args, step["describe"])
         self.record(step["describe"], "select_combo_item " + json.dumps(args),
                     note="Selected in: " + widget_desc(w),
@@ -301,10 +496,13 @@ class Runner:
         setup = self.scenario.get("setup", {})
         if setup.get("open"):
             self.step_no += 1
+            self.mark("Open " + setup["open"])
             self.do_open(self.subst(setup["open"]), "Open " + setup["open"])
+            self.dwell_now()
 
         for step in self.scenario.get("steps", []):
             self.step_no += 1
+            self.mark(step["describe"])
             if "invoke_action" in step:
                 self.do_invoke_action(step)
             elif "click" in step:
@@ -326,6 +524,7 @@ class Runner:
             else:
                 raise ScenarioError("step {}: no known action in {}"
                                     .format(self.step_no, list(step)))
+            self.dwell_now()
 
         # Collect any blocking invoke_action calls that a later step released.
         for t, holder, action in self.pending:
@@ -337,6 +536,9 @@ class Runner:
             if is_error:
                 raise ScenarioError('blocking action "{}" failed: {}'.format(action, text))
 
+        # Let the recording rest on the final state before it stops.
+        self.dwell_now()
+
     def write_report(self):
         lines = []
         lines.append("# {}".format(self.scenario.get("name", "Scenario")))
@@ -347,6 +549,15 @@ class Runner:
         lines.append("_Generated by run_scenario.py from `{}`._".format(
             self.scenario.get("_source", "")))
         lines.append("")
+        if self.video_rel:
+            lines.append("## Recording")
+            lines.append("")
+            lines.append("[Watch the recording]({}) (chapters embedded in the file):"
+                         .format(self.video_rel))
+            lines.append("")
+            for offset, describe in self.chapters:
+                lines.append("- `{}` {}".format(fmt_offset(offset), describe))
+            lines.append("")
         for idx, describe, call_line, note, shot in self.report:
             lines.append("## Step {} - {}".format(idx, describe))
             lines.append("")
@@ -396,6 +607,21 @@ def main():
                          "baseline and fail on any mismatch")
     ap.add_argument("--update-baseline", action="store_true",
                     help="Write/overwrite the baseline next to the scenario from this run")
+    ap.add_argument("--video", action="store_true",
+                    help="Screen-record the run to tutorial.mp4 with step chapters "
+                         "(records $DISPLAY via ffmpeg x11grab)")
+    ap.add_argument("--video-size",
+                    help="x11grab capture size WxH (default: auto-detected display size)")
+    ap.add_argument("--video-dwell", type=float, default=1.5,
+                    help="Seconds to linger on each step in video mode so the "
+                         "recording is watchable (default 1.5; ignored without --video)")
+    ap.add_argument("--no-cursor", action="store_true",
+                    help="In video mode, do not glide the pointer onto targets")
+    ap.add_argument("--window-manager", metavar="CMD",
+                    help="Launch this window manager on $DISPLAY so the recording shows "
+                         "window frames (e.g. 'twm'); terminated at the end. Use a dedicated "
+                         "display, not your desktop. Implies full-display capture, since a "
+                         "frame sits outside the app's client area.")
     args = ap.parse_args()
 
     scenario_path = Path(args.scenario).resolve()
@@ -407,6 +633,8 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     scratch = Path(tempfile.mkdtemp(prefix="scenario-"))
 
+    recorder = None
+    wm = None
     child = None
     settings = None
     if args.qtcreator:
@@ -418,12 +646,43 @@ def main():
 
     exit_code = 0
     try:
+        if args.window_manager:
+            if not os.environ.get("DISPLAY"):
+                raise ScenarioError("--window-manager needs a DISPLAY")
+            # twm and friends adopt and decorate already-mapped windows on
+            # startup, so this works whether Creator is launched or attached.
+            wm = subprocess.Popen(shlex.split(args.window_manager),
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
         if not wait_for_port(args.host, args.port, args.timeout, child):
             raise ScenarioError("MCP port {} did not open within {}s"
                                 .format(args.port, args.timeout))
         client = McpClient(args.host, args.port)
         client.initialize()
         runner = Runner(client, scenario, out_dir, scratch)
+
+        if args.video:
+            display = os.environ.get("DISPLAY")
+            if not display:
+                raise ScenarioError("--video needs a DISPLAY to record")
+            # Crop the recording to the application window so it has no black
+            # display margin (unless an explicit --video-size was requested, or
+            # a window manager is drawing frames outside the client area).
+            region = None
+            if not args.video_size and not args.window_manager:
+                _, wins, _ = client.call("list_windows", {})
+                windows = wins.get("windows", []) if wins else []
+                main = next((w for w in windows if "MainWindow" in w.get("class", "")),
+                            windows[0] if windows else None)
+                if main:
+                    region = (main["x"], main["y"], main["width"], main["height"])
+            recorder = Recorder(display, out_dir / "recording.mp4",
+                                size=args.video_size, region=region)
+            recorder.start()
+            runner.video_t0 = recorder.t0
+            runner.dwell = args.video_dwell
+            runner.cursor_enabled = not args.no_cursor
+
         try:
             runner.run()
             status = "PASSED"
@@ -432,6 +691,14 @@ def main():
             exit_code = 1
             runner.record("(scenario aborted)", str(e))
             print("SCENARIO FAILED:", e, file=sys.stderr)
+
+        if recorder:
+            recorder.stop()
+            video = recorder.finalize(runner.chapters, out_dir / "tutorial.mp4",
+                                      key_events=runner.key_events, font=find_font())
+            if video:
+                runner.video_rel = os.path.relpath(video, out_dir)
+                print("Recording: {}".format(video))
 
         baseline_path = scenario_path.with_suffix(".baseline.json")
         if status == "PASSED" and args.update_baseline:
@@ -459,6 +726,8 @@ def main():
         print("{}: {}".format(status, name))
         print("Tutorial: {}".format(report))
     finally:
+        if recorder and recorder.proc and recorder.proc.poll() is None:
+            recorder.stop(force=True)
         # Only the Creator we launched ourselves is ours to stop; an attached
         # instance is left running for the caller.
         if child and child.poll() is None:
@@ -467,6 +736,12 @@ def main():
                 child.wait(timeout=10)
             except subprocess.TimeoutExpired:
                 child.kill()
+        if wm and wm.poll() is None:
+            wm.terminate()
+            try:
+                wm.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                wm.kill()
 
     sys.exit(exit_code)
 

@@ -43,6 +43,7 @@
 
 #include <QAbstractButton>
 #include <QApplication>
+#include <QCursor>
 #include <QBuffer>
 #include <QComboBox>
 #include <QFile>
@@ -2610,6 +2611,38 @@ void McpCommands::registerCommands()
             }
             return CallToolResult{}.isError(false).structuredContent(out);
         });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("move_cursor")
+            .title("Move the mouse cursor")
+            .description(
+                "Warps the real mouse pointer to a root coordinate via QCursor::setPos, so a "
+                "screen recording shows the cursor. By default it glides over a few steps; pass "
+                "steps=1 to jump. This only moves the pointer - it does not click.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("x", QJsonObject{{"type", "integer"}})
+                    .addProperty("y", QJsonObject{{"type", "integer"}})
+                    .addProperty(
+                        "steps",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Interpolation steps for the glide (default 20)."}})
+                    .addRequired("x")
+                    .addRequired("y")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const QPoint target(p.value("x").toInt(), p.value("y").toInt());
+            const int steps = qMax(1, p.value("steps").toInt(20));
+            const QPoint start = QCursor::pos();
+            for (int i = 1; i <= steps; ++i) {
+                QCursor::setPos(start + (target - start) * i / steps);
+                if (steps > 1 && i < steps)
+                    QThread::msleep(12);
+            }
+            return {{"x", target.x()}, {"y", target.y()}};
+        }));
 }
 
 } // namespace Mcp::Internal

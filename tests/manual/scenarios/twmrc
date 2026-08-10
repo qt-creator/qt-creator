@@ -1,0 +1,7 @@
+# Minimal twm config for recording scenario videos with window frames.
+# RandomPlacement/UsePPosition avoid twm's default interactive placement,
+# which would otherwise block waiting for a click when a window maps.
+#   run_scenario.py ... --window-manager "twm -f tests/manual/scenarios/twmrc"
+RandomPlacement
+UsePPosition "on"
+NoGrabServer

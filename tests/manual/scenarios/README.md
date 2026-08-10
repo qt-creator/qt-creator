@@ -54,6 +54,45 @@ screenshot dimensions), not volatile ones (screen geometry, window ids, pane
 text with timestamps), so it flags behaviour changes rather than cosmetic
 noise. Regenerate it with `--update-baseline` when a change is intended.
 
+## Recording a video
+
+Add `--video` to screen-record the run to `tutorial.mp4` in the output
+directory, with each step's `describe` embedded as a chapter marker:
+
+    ./run_scenario.py about-dialog.yaml --port 8765 --video
+
+This records the current `$DISPLAY` with ffmpeg `x11grab` (so it works under
+Xvfb), muxes chapters from the step timestamps, and links the video with a
+chapter list from `report.md`. Override the capture size with
+`--video-size WxH` if auto-detection picks the wrong geometry. Requires
+`ffmpeg` with `libx264`.
+
+To make the recording readable it adds two cues:
+
+- **Cursor** - before a `click`/`select` (and a targeted `type`) the real
+  pointer glides onto the resolved widget (the `move_cursor` MCP tool, which
+  warps the pointer in-process), so the recording shows where the action
+  lands. The click itself still goes through the widget's slot; the movement
+  is cosmetic. Disable with `--no-cursor`.
+- **Keystroke bubble** - a `type` step's text is burned in as a bottom-centre
+  caption for the duration of that step (ffmpeg `drawtext`).
+
+Steps run in milliseconds, so video mode paces the run with a per-step dwell
+(`--video-dwell`, default 1.5s) so each state and cue stays on screen. The
+dwell is video-only; a `--check` run never waits.
+
+By default a headless (Xvfb) display has no window manager, so windows are
+undecorated. Pass `--window-manager CMD` to run a window manager on `$DISPLAY` so the
+recording shows title bars and borders; it is terminated at the end. A tiny
+`twmrc` is provided (plain `twm` would block on interactive window placement):
+
+    ./run_scenario.py demo.yaml --qtcreator ../../../bin/qtcreator --port 8765 \
+        --video --window-manager "twm -f twmrc"
+
+Point it at a dedicated display, not your desktop. This implies full-display
+capture (a frame sits outside the app's client area), so size the display
+close to the window - or pass an explicit `--video-size`.
+
 ## Scenario format
 
 Top level:
