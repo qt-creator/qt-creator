@@ -329,6 +329,12 @@ void tst_AnsiEscapeCodeHandler::testNormalizeTerminalOutput_data()
     QTest::newRow("bell") << QByteArray("o\ak\n") << QByteArray("ok\n");
     QTest::newRow("redraw") << QByteArray("-> rtpSho\rvalue = 1\n") << QByteArray("value = 1\n");
     QTest::newRow("partial-redraw") << QByteArray("abcdef\rxy\n") << QByteArray("xycdef\n");
+    // A carriage return only moves to the first column, it never drops the line.
+    QTest::newRow("cr-mid-line") << QByteArray("a\rb\n") << QByteArray("b\n");
+    QTest::newRow("cr-at-end") << QByteArray("ab\r") << QByteArray("ab");
+    QTest::newRow("cr-after-lf") << QByteArray("a\n\r") << QByteArray("a\n");
+    QTest::newRow("cr-only") << QByteArray("\r") << QByteArray();
+    QTest::newRow("crlf-crlf") << QByteArray("a\r\n\r\nb\r\n") << QByteArray("a\n\nb\n");
     QTest::newRow("backspace") << QByteArray("abX\b \b\n") << QByteArray("ab \n");
     QTest::newRow("backspace-at-start") << QByteArray("\b\bab\n") << QByteArray("ab\n");
     // A backspace must step over a whole character, not over a single byte.
