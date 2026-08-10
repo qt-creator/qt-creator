@@ -7,6 +7,8 @@
 
 #include <QPlainTextEdit>
 
+#include <utility>
+
 namespace Utils {
 
 static const QString s_escape        = "\x1b[";
@@ -304,6 +306,117 @@ void AnsiEscapeCodeHandler::setFormatScope(const QTextCharFormat &charFormat)
 {
     m_previousFormat = charFormat;
     m_previousFormatClosed = false;
+}
+
+// Number of bytes making up the UTF-8 character starting with \a c. A
+// continuation or otherwise invalid byte counts as one, so that non-UTF-8 input
+// passes through unchanged instead of being replaced.
+static int utf8SequenceLength(uchar c)
+{
+    if (c < 0x80)
+        return 1;
+    if ((c & 0xE0) == 0xC0)
+        return 2;
+    if ((c & 0xF0) == 0xE0)
+        return 3;
+    if ((c & 0xF8) == 0xF0)
+        return 4;
+    return 1;
+}
+
+// Length of the escape sequence starting at \a pos, which holds an ESC. An
+// unterminated sequence consumes the rest of the input: none of it is
+// displayable text.
+static int escapeSequenceLength(const QByteArray &data, int pos)
+{
+    const int size = data.size();
+    const int rest = size - pos;
+    if (rest < 2)
+        return rest;
+    const char introducer = data.at(pos + 1);
+    int i = pos + 2;
+    switch (introducer) {
+    case '[':
+        // CSI: parameter bytes, intermediate bytes, then one final byte.
+        for (; i < size && uchar(data.at(i)) >= 0x30 && uchar(data.at(i)) <= 0x3F; ++i)
+            ;
+        for (; i < size && uchar(data.at(i)) >= 0x20 && uchar(data.at(i)) <= 0x2F; ++i)
+            ;
+        if (i < size && uchar(data.at(i)) >= 0x40 && uchar(data.at(i)) <= 0x7E)
+            return i + 1 - pos;
+        return rest;
+    case ']': case 'P': case 'X': case '^': case '_':
+        // OSC, DCS, SOS, PM, APC: a string terminated by BEL or ST.
+        for (; i < size; ++i) {
+            if (data.at(i) == '\a')
+                return i + 1 - pos;
+            if (data.at(i) == '\x1b' && i + 1 < size && data.at(i + 1) == '\\')
+                return i + 2 - pos;
+        }
+        return rest;
+    case '(': case ')': case '*': case '+': case '#':
+        // Character set selection: one designator byte.
+        return i < size ? 3 : rest;
+    default:
+        return 2;
+    }
+}
+
+/*!
+    Reduces terminal output \a data to the plain text a terminal would display,
+    with line endings normalized to \a lineEnding, so that callers can match on
+    it byte-exactly.
+
+    A pseudo-terminal is not a transparent byte pipe: the remote line editor
+    (and ConPTY on Windows) may inject escape sequences and redraw lines using
+    carriage returns or backspaces. Escape sequences are removed here, and
+    carriage returns, backspaces and bells are applied to the current line.
+
+    \a data must not end in the middle of a line, because an escape sequence cut
+    in half cannot be recognized. Buffer up to the last newline and pass that.
+*/
+QByteArray normalizeTerminalOutput(const QByteArray &data, TerminalLineEnding lineEnding)
+{
+    const QByteArray newLine = lineEnding == TerminalLineEnding::CrLf ? "\r\n" : "\n";
+    const int size = data.size();
+    QByteArray result;
+    result.reserve(size);
+    QList<QByteArray> line; // One entry per displayed character, so that a
+    int column = 0;         // backspace does not cut a UTF-8 character in half.
+
+    for (int i = 0; i < size; ) {
+        const char c = data.at(i);
+        if (c == '\x1b') {
+            i += escapeSequenceLength(data, i);
+        } else if (c == '\n') {
+            for (const QByteArray &cell : std::as_const(line))
+                result += cell;
+            result += newLine;
+            line.clear();
+            column = 0;
+            ++i;
+        } else if (c == '\r') {
+            column = 0; // The line is being redrawn from the first column.
+            ++i;
+        } else if (c == '\b') {
+            if (column > 0)
+                --column;
+            ++i;
+        } else if (c == '\a') {
+            ++i;
+        } else {
+            const int length = qMin(utf8SequenceLength(uchar(c)), size - i);
+            if (column < line.size())
+                line[column] = data.mid(i, length);
+            else
+                line.append(data.mid(i, length));
+            ++column;
+            i += length;
+        }
+    }
+    for (const QByteArray &cell : std::as_const(line))
+        result += cell;
+    return result;
 }
 
 } // namespace Utils

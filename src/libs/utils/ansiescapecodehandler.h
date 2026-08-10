@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include <QByteArray>
 #include <QTextCharFormat>
 
 QT_BEGIN_NAMESPACE
@@ -42,5 +43,10 @@ private:
     QTextCharFormat m_previousFormat;
     QString         m_pendingText;
 };
+
+enum class TerminalLineEnding { Lf, CrLf };
+
+QTCREATOR_UTILS_EXPORT QByteArray normalizeTerminalOutput(
+    const QByteArray &data, TerminalLineEnding lineEnding = TerminalLineEnding::Lf);
 
 } // namespace Utils

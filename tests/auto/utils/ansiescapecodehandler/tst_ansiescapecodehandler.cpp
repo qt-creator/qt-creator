@@ -31,6 +31,9 @@ private Q_SLOTS:
     void testSimpleFormat_data();
     void testLineOverlappingFormat();
     void testSplitControlSequence();
+    void testNormalizeTerminalOutput();
+    void testNormalizeTerminalOutput_data();
+    void testNormalizeTerminalOutputCrLf();
     void oneLineBenchmark();
     void multiLineBenchmark();
 
@@ -306,6 +309,49 @@ void tst_AnsiEscapeCodeHandler::multiLineBenchmark()
         handler.parseText(FormattedText(line1, defaultFormat));
         handler.parseText(FormattedText(line2, defaultFormat));
     }
+}
+
+void tst_AnsiEscapeCodeHandler::testNormalizeTerminalOutput_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("plain") << QByteArray("value = 1\n") << QByteArray("value = 1\n");
+    QTest::newRow("crlf") << QByteArray("value = 1\r\n") << QByteArray("value = 1\n");
+    QTest::newRow("csi") << QByteArray("\x1b[2Kvalue = 1\n") << QByteArray("value = 1\n");
+    QTest::newRow("csi-private") << QByteArray("\x1b[?25hok\n") << QByteArray("ok\n");
+    QTest::newRow("osc-bel") << QByteArray("\x1b]0;title\avalue = 1\n") << QByteArray("value = 1\n");
+    QTest::newRow("osc-st") << QByteArray("\x1b]0;title\x1b\\ok\n") << QByteArray("ok\n");
+    QTest::newRow("dcs-payload") << QByteArray("\x1bPqfoo\x1b\\bar\n") << QByteArray("bar\n");
+    QTest::newRow("charset") << QByteArray("\x1b(Bok\n") << QByteArray("ok\n");
+    QTest::newRow("two-byte-fe") << QByteArray("a\x1b" "Eb\n") << QByteArray("ab\n");
+    QTest::newRow("unterminated") << QByteArray("ok\n\x1b[2") << QByteArray("ok\n");
+    QTest::newRow("bell") << QByteArray("o\ak\n") << QByteArray("ok\n");
+    QTest::newRow("redraw") << QByteArray("-> rtpSho\rvalue = 1\n") << QByteArray("value = 1\n");
+    QTest::newRow("partial-redraw") << QByteArray("abcdef\rxy\n") << QByteArray("xycdef\n");
+    QTest::newRow("backspace") << QByteArray("abX\b \b\n") << QByteArray("ab \n");
+    QTest::newRow("backspace-at-start") << QByteArray("\b\bab\n") << QByteArray("ab\n");
+    // A backspace must step over a whole character, not over a single byte.
+    QTest::newRow("utf8-backspace") << QByteArray("caf\xC3\xA9\b!\n") << QByteArray("caf!\n");
+    QTest::newRow("utf8-kept") << QByteArray("caf\xC3\xA9\n") << QByteArray("caf\xC3\xA9\n");
+    // Invalid UTF-8 passes through instead of turning into U+FFFD.
+    QTest::newRow("invalid-utf8") << QByteArray("val\xFFue\n") << QByteArray("val\xFFue\n");
+    QTest::newRow("partial-line-kept") << QByteArray("ok\n-> ") << QByteArray("ok\n-> ");
+    QTest::newRow("empty") << QByteArray() << QByteArray();
+}
+
+void tst_AnsiEscapeCodeHandler::testNormalizeTerminalOutput()
+{
+    QFETCH(QByteArray, input);
+    QFETCH(QByteArray, expected);
+
+    QCOMPARE(normalizeTerminalOutput(input), expected);
+}
+
+void tst_AnsiEscapeCodeHandler::testNormalizeTerminalOutputCrLf()
+{
+    QCOMPARE(normalizeTerminalOutput("a\nb\r\nc\n", TerminalLineEnding::CrLf),
+             QByteArray("a\r\nb\r\nc\r\n"));
 }
 
 QTEST_APPLESS_MAIN(tst_AnsiEscapeCodeHandler)
