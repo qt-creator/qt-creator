@@ -4,6 +4,7 @@
 #pragma once
 
 #include "diffeditor_global.h"
+#include "diffutils.h"
 
 #include <texteditor/inlinediffdecorator.h>
 #include <texteditor/textdocument.h>
@@ -16,8 +17,6 @@
 namespace Core { class IEditor; }
 
 namespace DiffEditor {
-
-class ChunkData;
 
 // 1-based, inclusive line ranges <first, last>
 using InlineDiffLineRanges = QList<QPair<int, int>>;
@@ -46,6 +45,10 @@ public:
     QString id;                       // e.g. "git-index", "git-rev:<sha>"
     QString displayName;              // e.g. "Index", "HEAD", a short sha
     Utils::FilePath contextDirectory; // repository top level, enables auto refresh
+    // Optional: the compared file's path relative to contextDirectory, for a
+    // read only source document, which has no file path of its own. A patch
+    // copied out of the diff names this file.
+    QString sourceFileName;
     // Asynchronous provider for the baseline contents. The callback must be
     // invoked on the main thread with '\n' line endings.
     std::function<void(const TextCallback &)> fetchText;
@@ -100,6 +103,10 @@ public:
     // both sides paired, drives the side by side row alignment and the per
     // hunk actions
     QList<InlineDiffChunk> hunks;
+    // the same diff in the classic row representation, which "Copy as Patch"
+    // turns into a unified diff; never with the whitespace only differences
+    // filtered out, unlike the data above
+    ChunkData chunk;
 };
 
 // exported for the autotest; the flags identify the phantom "line" after a

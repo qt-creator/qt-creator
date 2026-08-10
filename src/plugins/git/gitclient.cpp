@@ -1592,6 +1592,11 @@ void GitClient::openSnapshotInlineDiff(const FilePath &topLevel, const FilePath 
                                        const QString &title, int line,
                                        const std::function<void()> &classicFallback)
 {
+    // the snapshot document has no file of its own, so a patch copied out of
+    // the diff takes the file name from here
+    DiffEditor::InlineDiffBaseline snapshotBaseline = baseline;
+    snapshotBaseline.sourceFileName = snapshotFileName;
+
     // fetch the newer contents, then show them read only with the older
     // revision as the baseline
     enqueueCommand(
@@ -1600,7 +1605,7 @@ void GitClient::openSnapshotInlineDiff(const FilePath &topLevel, const FilePath 
          RunFlag::NoOutput | RunFlag::ForceCLocale,
          {},
          encoding(EncodingSource, filePath),
-         [topLevel, filePath, showSpec, blameRev, snapshotFileName, baseline, title, line,
+         [topLevel, filePath, showSpec, blameRev, snapshotFileName, snapshotBaseline, title, line,
           classicFallback](const CommandResult &result) {
              if (result.result() != ProcessResult::FinishedWithSuccess) {
                  // e.g. a staged deletion: the newer side does not exist, but
@@ -1613,7 +1618,7 @@ void GitClient::openSnapshotInlineDiff(const FilePath &topLevel, const FilePath 
              // the snapshot contents are fetched anew on every invocation,
              // so replace a previously opened editor for the same diff
              const QString editorKey = topLevel.toUrlishString() + '\n' + showSpec + '\n'
-                                       + baseline.id;
+                                       + snapshotBaseline.id;
              if (Core::IEditor *previous = snapshotDiffEditors().value(editorKey))
                  EditorManager::closeEditors({previous}, false);
              // the registry outlives its editors; drop dead entries
@@ -1625,7 +1630,7 @@ void GitClient::openSnapshotInlineDiff(const FilePath &topLevel, const FilePath 
              snapshot->document()->setModified(false);
 
              Core::IEditor *diffEditor = DiffEditor::openInlineDiffEditor(
-                 snapshot, baseline, title, /*readOnlySource=*/true);
+                 snapshot, snapshotBaseline, title, /*readOnlySource=*/true);
              if (!diffEditor) {
                  classicFallback();
                  return;

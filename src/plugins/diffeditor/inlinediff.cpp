@@ -26,6 +26,7 @@
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
@@ -36,6 +37,7 @@
 #include <QEnterEvent>
 #include <QEvent>
 #include <QLabel>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QTextLayout>
@@ -310,13 +312,16 @@ static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
     QList<Diff> leftDiffList;
     QList<Diff> rightDiffList;
     Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
-    ChunkData chunkData = DiffUtils::calculateOriginalData(leftDiffList, rightDiffList);
+    const ChunkData chunkData = DiffUtils::calculateOriginalData(leftDiffList, rightDiffList);
     if (promise.isCanceled())
         return;
+    ChunkData displayChunk = chunkData;
     if (ignoreWhitespace)
-        ignoreWhitespaceChanges(chunkData);
-    promise.addResult(mapChunkToRenderModel(chunkData, baselineText.endsWith('\n'),
-                                            editorText.endsWith('\n')));
+        ignoreWhitespaceChanges(displayChunk);
+    InlineDiffRenderModel model = mapChunkToRenderModel(displayChunk, baselineText.endsWith('\n'),
+                                                        editorText.endsWith('\n'));
+    model.chunk = chunkData;
+    promise.addResult(model);
 }
 
 namespace {
@@ -1545,6 +1550,30 @@ private:
     bool m_syncing = false;
 };
 
+// The views of the inline diff editor: text editor widgets with one extra entry
+// at the top of their context menu, "Copy as Patch". The editor sets it up, as
+// it knows the diff the patch is made of.
+class InlineDiffTextEditorWidget final : public TextEditorWidget
+{
+public:
+    void setExtraContextMenuAction(QAction *action) { m_extraAction = action; }
+
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override
+    {
+        QMenu menu;
+        if (m_extraAction) {
+            menu.addAction(m_extraAction);
+            menu.addSeparator();
+        }
+        appendStandardContextMenuActions(&menu);
+        menu.exec(event->globalPos());
+    }
+
+private:
+    QPointer<QAction> m_extraAction;
+};
+
 class InlineDiffEditor final : public Core::IEditor
 {
 public:
@@ -1553,7 +1582,7 @@ public:
         : m_source(source)
         , m_document(new InlineDiffDocument(source, title))
         , m_splitter(new QSplitter)
-        , m_widget(new TextEditorWidget)
+        , m_widget(new InlineDiffTextEditorWidget)
     {
         editorRegistry().insert(source.data(), this);
         m_document->setParent(this);
@@ -1577,6 +1606,7 @@ public:
         setWidget(m_splitter);
         m_decorator = new InlineDiffDecorator(m_widget);
         m_collapseController = new CollapseController(m_widget);
+        m_copyAsPatchAction = createCopyAsPatchAction(m_widget);
 
         m_toolBar = new QToolBar;
         // like the diff editor's view switcher, the icon shows the view that
@@ -1786,6 +1816,152 @@ public:
     }
 
 private:
+    // Adds the "Copy as Patch" entry to the view's context menu and returns the
+    // action, which stays enabled while the view has a change to copy. Both
+    // views get their own: the line numbers of a selection mean different things
+    // on the baseline and on the editor side.
+    QAction *createCopyAsPatchAction(TextEditorWidget *view)
+    {
+        // the views are created here, so their type is known
+        auto widget = static_cast<InlineDiffTextEditorWidget *>(view);
+        auto action = new QAction(Tr::tr("Copy as Patch"), widget);
+        action->setObjectName("InlineDiffCopyAsPatchAction"); // autotest
+        action->setToolTip(Tr::tr("Copy the selected changes, or all of them, as a "
+                                  "unified diff."));
+        connect(action, &QAction::triggered, this, [this, view] { copyAsPatch(view); });
+        connect(view, &PlainTextEdit::selectionChanged,
+                this, [this] { updateCopyAsPatchActions(); });
+        widget->setExtraContextMenuAction(action);
+        return action;
+    }
+
+    void updateCopyAsPatchActions()
+    {
+        if (m_copyAsPatchAction && m_widget)
+            m_copyAsPatchAction->setEnabled(hasChangeInLines(selectedEditorLines(m_widget)));
+        if (m_baselineCopyAsPatchAction && m_baselineWidget) {
+            m_baselineCopyAsPatchAction->setEnabled(
+                hasChangeInLines(selectedEditorLines(m_baselineWidget)));
+        }
+    }
+
+    // The editor side lines the view's selection covers, <-1, -1> when nothing
+    // is selected, which stands for the whole file.
+    QPair<int, int> selectedEditorLines(TextEditorWidget *view) const
+    {
+        const QTextCursor cursor = view->textCursor();
+        if (!cursor.hasSelection())
+            return {-1, -1};
+        QTextDocument *document = view->document();
+        int first = document->findBlock(cursor.selectionStart()).blockNumber() + 1;
+        int last = document->findBlock(cursor.selectionEnd()).blockNumber() + 1;
+        if (view == m_baselineWidget) { // the selection counts baseline lines
+            first = baselineLineToEditor(m_model, first);
+            last = baselineLineToEditor(m_model, last);
+        }
+        return {first, last};
+    }
+
+    bool hasChangeInLines(const QPair<int, int> &lines) const
+    {
+        if (!m_model.computed || m_model.hunks.isEmpty())
+            return false;
+        if (lines.first < 0)
+            return true; // no selection: the whole file
+        for (const InlineDiffChunk &hunk : m_model.hunks) {
+            const int first = hunk.editorStartLine;
+            const int last = first + qMax(hunk.editorLineCount, 1) - 1;
+            if (first <= lines.second && lines.first <= last)
+                return true;
+        }
+        return false;
+    }
+
+    // Puts a unified diff of the changes on the clipboard: those of the selected
+    // lines, or all of them when nothing is selected.
+    void copyAsPatch(TextEditorWidget *view)
+    {
+        QTC_ASSERT(view, return);
+        const QPair<int, int> lines = selectedEditorLines(view);
+        const QString patch = patchForLines(lines.first, lines.second);
+        // the enabled state is decided on the hunks, the patch is built from
+        // the context data, so the two can disagree
+        if (patch.isEmpty())
+            return;
+        Utils::setClipboardAndSelection(patch);
+    }
+
+    // The name to put into the patch header: relative to the repository, so that
+    // the patch applies from there.
+    QString patchFileName() const
+    {
+        const Utils::FilePath filePath = m_source->filePath();
+        if (!filePath.isEmpty()) {
+            const Utils::FilePath &directory = m_baseline.contextDirectory;
+            if (!directory.isEmpty() && filePath.isChildOf(directory))
+                return filePath.relativeChildPath(directory).path();
+            return filePath.fileName();
+        }
+        // a read only snapshot has no file of its own, so the baseline names it
+        if (!m_baseline.sourceFileName.isEmpty())
+            return m_baseline.sourceFileName;
+        // failing that, the title: the file name plus a qualifier in brackets,
+        // e.g. "main.cpp (Staged)"
+        QString title = m_document->displayName();
+        if (title.endsWith(')')) {
+            const int bracket = title.lastIndexOf(" (");
+            if (bracket > 0)
+                title.truncate(bracket);
+        }
+        return title;
+    }
+
+    // A unified diff of the hunks overlapping the given editor lines, with the
+    // toolbar's amount of context around them. A line of -1 means all hunks.
+    QString patchForLines(int firstLine, int lastLine) const
+    {
+        if (!m_model.computed || m_model.chunk.rows.isEmpty())
+            return {};
+        const int contextLines = Core::ICore::settings()
+                                     ->value(Constants::CONTEXT_LINES_KEY, kDefaultContextLines)
+                                     .toInt();
+        const FileData fileData = DiffUtils::calculateContextData(m_model.chunk, contextLines);
+        // the editor side line range each chunk covers, to match it against the
+        // selection; a chunk of context only lines produces no patch text
+        QList<ChunkData> chunks;
+        bool lastChunkIncluded = false;
+        for (const ChunkData &chunk : fileData.chunks) {
+            if (chunk.contextChunk)
+                continue;
+            if (firstLine > 0) {
+                int lineCount = 0;
+                for (const RowData &row : chunk.rows) {
+                    if (row.line[RightSide].textLineType == TextLineData::TextLine)
+                        ++lineCount;
+                }
+                const int start = chunk.startingLineNumber[RightSide] + 1;
+                const int end = start + qMax(lineCount - 1, 0);
+                if (end < firstLine || start > lastLine)
+                    continue;
+            }
+            chunks.append(chunk);
+            lastChunkIncluded = &chunk == &fileData.chunks.back();
+        }
+        if (chunks.isEmpty())
+            return {};
+
+        QString hunks;
+        for (int i = 0; i < chunks.size(); ++i) {
+            const bool lastChunk = i == chunks.size() - 1 && lastChunkIncluded
+                                   && fileData.lastChunkAtTheEndOfFile;
+            hunks += DiffUtils::makePatch(chunks.at(i), lastChunk);
+        }
+        if (hunks.isEmpty())
+            return {};
+        const QString fileName = patchFileName();
+        return "--- a/" + fileName + "\n+++ b/" + fileName + "\n" + hunks;
+    }
+
     void fetchBaseline()
     {
         const int requestId = ++m_baselineRequestId;
@@ -1821,13 +1997,14 @@ private:
             return;
         m_baselineDocument = TextDocumentPtr(new TextEditor::TextDocument);
         m_baselineDocument->setMimeType(m_source->mimeType());
-        m_baselineWidget = new TextEditorWidget;
+        m_baselineWidget = new InlineDiffTextEditorWidget;
         m_baselineWidget->setMergeConflictResolutionEnabled(false);
         m_baselineWidget->setTextDocument(m_baselineDocument);
         m_baselineWidget->setReadOnly(true);
         m_baselineWidget->setupGenericHighlighter();
         m_baselineDecorator = new InlineDiffDecorator(m_baselineWidget,
                                                       InlineDiffDecorator::DiffSide::Baseline);
+        m_baselineCopyAsPatchAction = createCopyAsPatchAction(m_baselineWidget);
         m_splitter->insertWidget(0, m_baselineWidget);
         updateBaselineDocument();
         if (m_baseline.setupBaselineView)
@@ -1916,6 +2093,7 @@ private:
                 m_aligner->update(m_model.hunks);
         }
         updateHunkControls();
+        updateCopyAsPatchActions();
         // the collapser runs last so its placeholder rows sit above any ghost
         // rows the decorator prepended on the same anchor line; in the side by
         // side view it also collapses the baseline so the aligner stays in sync
@@ -2052,6 +2230,8 @@ private:
     QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_whitespaceAction = nullptr;
     QAction *m_patienceAction = nullptr;
+    QPointer<QAction> m_copyAsPatchAction;
+    QPointer<QAction> m_baselineCopyAsPatchAction; // recreated with the baseline view
     bool m_ignoreWhitespace = false;
     bool m_patience = false;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;

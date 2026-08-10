@@ -377,6 +377,7 @@ private slots:
     void testInlineDiffContextLine();
     void testInlineDiffFoldedRows();
     void testInlineDiffPatience();
+    void testInlineDiffCopyAsPatch();
 #endif // WITH_TESTS
 };
 
@@ -534,6 +535,7 @@ void DiffEditorPlugin::diffExternalFiles()
 
 #ifdef WITH_TESTS
 
+#include <QClipboard>
 #include <QSpinBox>
 #include <QTest>
 #include <QToolBar>
@@ -2580,6 +2582,180 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffPatience()
     // and off again restores the other alignment
     patienceAction->setChecked(false);
     QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({3, 7}));
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// "Copy as Patch" in the context menu of both views: a unified diff of the
+// changes, or of the selected ones. See QTCREATORBUG-34836.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard;
+
+    // two changes far enough apart to end up in separate hunks, plus a
+    // re-indented line next to the first one for the whitespace part below
+    QStringList baselineLines;
+    for (int i = 1; i <= 20; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    editorLines[2] = "line 3 changed"; // 1-based line 3
+    editorLines[4] = "    line 5";     // 1-based line 5, whitespace only
+    editorLines.removeAt(17);          // 1-based line 18
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffCopyAsPatch.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.contextDirectory = FilePath::fromString(temporaryDir.path());
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline,
+                                               "testInlineDiffCopyAsPatch.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+
+    // the view's own action, as the context menu shows it
+    QAction *copyAsPatch = diffWidget->findChild<QAction *>("InlineDiffCopyAsPatchAction");
+    QVERIFY(copyAsPatch);
+    // nothing to copy before the diff arrived
+    QVERIFY(!copyAsPatch->isEnabled());
+    QTRY_VERIFY(copyAsPatch->isEnabled());
+
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->clear();
+
+    // no selection: a unified diff of both changes, with three lines of context
+    // and the file name relative to the baseline's context directory, so that
+    // the patch applies from there
+    const QString header = "--- a/testInlineDiffCopyAsPatch.txt\n"
+                           "+++ b/testInlineDiffCopyAsPatch.txt\n";
+    const QString firstHunk = "@@ -1,8 +1,8 @@\n"
+                              " line 1\n"
+                              " line 2\n"
+                              "-line 3\n"
+                              "+line 3 changed\n"
+                              " line 4\n"
+                              "-line 5\n"
+                              "+    line 5\n"
+                              " line 6\n"
+                              " line 7\n"
+                              " line 8\n";
+    const QString secondHunk = "@@ -15,6 +15,5 @@\n"
+                               " line 15\n"
+                               " line 16\n"
+                               " line 17\n"
+                               "-line 18\n"
+                               " line 19\n"
+                               " line 20\n";
+    copyAsPatch->trigger();
+    QCOMPARE(clipboard->text(), header + firstHunk + secondHunk);
+
+    // a selection covering the first change only leaves the other hunk out
+    QTextCursor cursor(diffWidget->document());
+    cursor.setPosition(diffWidget->document()->findBlockByNumber(2).position());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    diffWidget->setTextCursor(cursor);
+    clipboard->clear();
+    copyAsPatch->trigger();
+    QCOMPARE(clipboard->text(), header + firstHunk);
+
+    // a selection without any change in it has nothing to copy
+    QVERIFY(copyAsPatch->isEnabled());
+    cursor.setPosition(diffWidget->document()->findBlockByNumber(9).position());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    diffWidget->setTextCursor(cursor);
+    QVERIFY(!copyAsPatch->isEnabled());
+    clipboard->clear();
+    copyAsPatch->trigger();
+    QVERIFY(clipboard->text().isEmpty());
+
+    // "Ignore Whitespace" takes the re-indented line out of the view, so a
+    // selection holding nothing else has nothing to copy
+    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    QVERIFY(toolBar);
+    QAction *whitespaceAction = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
+        return action->objectName() == "InlineDiffIgnoreWhitespaceAction";
+    });
+    QVERIFY(whitespaceAction);
+    cursor.setPosition(diffWidget->document()->findBlockByNumber(4).position());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    diffWidget->setTextCursor(cursor);
+    QVERIFY(copyAsPatch->isEnabled());
+    whitespaceAction->setChecked(true);
+    QTRY_VERIFY(!copyAsPatch->isEnabled());
+
+    // the patch, however, is the real diff either way: its context lines have
+    // to match the baseline file, or "git apply" rejects the hunk
+    cursor.clearSelection();
+    diffWidget->setTextCursor(cursor);
+    QVERIFY(copyAsPatch->isEnabled());
+    clipboard->clear();
+    copyAsPatch->trigger();
+    QCOMPARE(clipboard->text(), header + firstHunk + secondHunk);
+    whitespaceAction->setChecked(false);
+
+    // A read only snapshot has no file of its own, so the header name comes
+    // from the title, the file name plus a qualifier - and the file name may
+    // well contain a space itself.
+    const TextDocumentPtr snapshot(new TextDocument);
+    snapshot->document()->setPlainText(editorText);
+    snapshot->document()->setModified(false);
+    IEditor *snapshotEditor = openInlineDiffEditor(snapshot, baseline, "my file.txt (Staged)",
+                                                   /*readOnlySource=*/true);
+    QVERIFY(snapshotEditor);
+    TextEditorWidget *snapshotWidget = inlineDiffEditorWidget(snapshotEditor);
+    QVERIFY(snapshotWidget);
+    QAction *snapshotCopyAsPatch
+        = snapshotWidget->findChild<QAction *>("InlineDiffCopyAsPatchAction");
+    QVERIFY(snapshotCopyAsPatch);
+    QTRY_VERIFY(snapshotCopyAsPatch->isEnabled());
+    clipboard->clear();
+    snapshotCopyAsPatch->trigger();
+    QCOMPARE(clipboard->text(), "--- a/my file.txt\n+++ b/my file.txt\n" + firstHunk
+                                    + secondHunk);
+
+    // and a baseline that names the file takes precedence over the title,
+    // which carries no directory
+    InlineDiffBaseline namedBaseline = baseline;
+    namedBaseline.sourceFileName = "sub dir/my file.txt";
+    QCOMPARE(openInlineDiffEditor(snapshot, namedBaseline, "my file.txt (Staged)",
+                                  /*readOnlySource=*/true), snapshotEditor);
+    QTRY_VERIFY(snapshotCopyAsPatch->isEnabled());
+    clipboard->clear();
+    snapshotCopyAsPatch->trigger();
+    QCOMPARE(clipboard->text(), "--- a/sub dir/my file.txt\n+++ b/sub dir/my file.txt\n"
+                                    + firstHunk + secondHunk);
+
+    const QPointer<QWidget> snapshotWidgetGuard = snapshotWidget;
+    QVERIFY(EditorManager::closeEditors({snapshotEditor}, false));
+    QTRY_VERIFY(snapshotWidgetGuard.isNull());
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
