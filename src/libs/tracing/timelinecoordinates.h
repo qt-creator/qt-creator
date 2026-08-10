@@ -11,7 +11,7 @@
 
 namespace Timeline {
 
-static constexpr int kInitialBlockLength = 120; // target pixels per major block
+constexpr int kInitialBlockLength = 120; // target pixels per major block
 
 // Fraction of the visible range that `time` falls at.
 // Returns 0 when rangeEnd == rangeStart (degenerate range).
@@ -83,6 +83,17 @@ inline qint64 rulerBlockDuration(qint64 rangeDuration, double widthPx,
     return qMax(qint64(1), qint64(std::pow(2.0, std::floor(std::log2(ideal)))));
 }
 
+// Iterates the ruler block grid of the visible range, in the order the ruler and
+// the track grid paint it. Blocks are aligned to a multiple of the block duration
+// at or before rangeStart (which is assumed to be >= 0), and each block is
+// divided into five sections.
+//
+// onBlockStart(blockTime, x, pixelsPerBlock) reports every block whose label area
+// [x, x + pixelsPerBlock] is at least partly visible. Its x is the block's left
+// edge and is negative for the first block unless the range starts on a block
+// boundary. onTick(x, isMajor) reports the four inner section boundaries of a
+// block as minor ticks and its right edge, which is the next block's left edge,
+// as a major tick. Tick positions are clipped to [0, widthPx].
 inline void forEachRulerTick(qint64 rangeStart, qint64 rangeEnd, double widthPx,
                              const std::function<void(qint64, double, double)> &onBlockStart,
                              const std::function<void(double, bool)> &onTick)
@@ -91,11 +102,11 @@ inline void forEachRulerTick(qint64 rangeStart, qint64 rangeEnd, double widthPx,
     if (rangeDuration <= 0 || widthPx <= 0.0)
         return;
 
+    constexpr int sectionsPerBlock = 5;
     const double scale = widthPx / double(rangeDuration);
     const qint64 timePerBlock = rulerBlockDuration(rangeDuration, widthPx);
     const double pixelsPerBlock = double(timePerBlock) * scale;
-    const int kSectionsPerBlock = 5;
-    const double pixelsPerSection = pixelsPerBlock / kSectionsPerBlock;
+    const double pixelsPerSection = pixelsPerBlock / sectionsPerBlock;
     const qint64 alignedStart = rangeStart - (rangeStart % timePerBlock);
 
     for (qint64 t = alignedStart; ; t += timePerBlock) {
@@ -103,9 +114,10 @@ inline void forEachRulerTick(qint64 rangeStart, qint64 rangeEnd, double widthPx,
         if (x > widthPx)
             break;
 
-        onBlockStart(t, x, pixelsPerBlock);
+        if (x + pixelsPerBlock > 0.0 && x < widthPx)
+            onBlockStart(t, x, pixelsPerBlock);
 
-        for (int s = 1; s < kSectionsPerBlock; ++s) {
+        for (int s = 1; s < sectionsPerBlock; ++s) {
             const double sx = x + s * pixelsPerSection;
             if (sx >= 0.0 && sx <= widthPx)
                 onTick(sx, false); // minor tick

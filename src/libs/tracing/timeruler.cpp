@@ -49,7 +49,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
         return;
 
     const double rulerWidth = width() - contentsMargins().right();
-    const int ticksTop = height() * 0.75;
+    const int ticksTop = qRound(height() * 0.75); // minor ticks occupy the bottom quarter
     const QColor dividerColor = Utils::creatorTheme()
                                     ? Utils::creatorTheme()->color(Utils::Theme::Timeline_DividerColor)
                                     : QColor(Qt::gray);
@@ -57,6 +57,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
                                  ? Utils::creatorTheme()->color(Utils::Theme::PanelTextColorLight)
                                  : palette().text().color();
     const QFont labelFont = Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementCaption);
+    const int textMargin = Utils::StyleHelper::SpacingTokens::PaddingHS;
 
     p.setFont(labelFont);
 
@@ -64,13 +65,10 @@ void TimeRuler::paintEvent(QPaintEvent *)
         m_rangeStart, m_rangeEnd, rulerWidth,
         // Label for time t, left-aligned in [x, x+pixelsPerBlock].
         [&](qint64 t, double x, double pixelsPerBlock) {
-            if (x + pixelsPerBlock > 0.0 && x < rulerWidth) {
-                const QString label = formatTime(t, rangeDuration);
-                const int kTextMargin = Utils::StyleHelper::SpacingTokens::PaddingHS;
-                const QRectF labelRect(x + kTextMargin, 0, pixelsPerBlock - kTextMargin, ticksTop);
-                p.setPen(textColor);
-                p.drawText(labelRect, Qt::AlignLeft | Qt::AlignVCenter, label);
-            }
+            const QString label = formatTime(t, rangeDuration);
+            const QRectF labelRect(x + textMargin, 0, pixelsPerBlock - textMargin, ticksTop);
+            p.setPen(textColor);
+            p.drawText(labelRect, Qt::AlignLeft | Qt::AlignVCenter, label);
         },
         [&](double x, bool isMajor) {
             const int ix = qRound(x);
