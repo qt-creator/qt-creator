@@ -24,7 +24,9 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMap>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QRegularExpressionValidator>
 #include <QStringList>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -49,16 +51,19 @@ private:
 
     void createTable();
 
+    void changeName(const QString &name);
     void changeDescription(const QString &description);
 
     QStringList m_macroToRemove;
     bool m_changingCurrent = false;
 
     QMap<QString, QString> m_macroToChange;
+    QMap<QString, QString> m_macroToRename;
 
     QTreeWidget *m_treeWidget;
     QPushButton *m_removeButton;
     QGroupBox *m_macroGroup;
+    QLineEdit *m_name;
     QLineEdit *m_description;
 };
 
@@ -74,6 +79,9 @@ MacroOptionsWidget::MacroOptionsWidget()
     m_treeWidget->header()->setSortIndicator(0, Qt::AscendingOrder);
     m_treeWidget->setHeaderLabels({Tr::tr("Name"), Tr::tr("Description"), Tr::tr("Shortcut")});
 
+    m_name = new QLineEdit;
+    m_name->setValidator(
+        new QRegularExpressionValidator(QRegularExpression("^\\w*$"), m_name));
     m_description = new QLineEdit;
 
     m_removeButton = new QPushButton(Tr::tr("Remove"));
@@ -82,7 +90,8 @@ MacroOptionsWidget::MacroOptionsWidget()
 
     using namespace Layouting;
 
-    Row {
+    Form {
+        Tr::tr("Name:"), m_name, br,
         Tr::tr("Description:"), m_description
     }.attachTo(m_macroGroup);
 
@@ -101,6 +110,8 @@ MacroOptionsWidget::MacroOptionsWidget()
             this, &MacroOptionsWidget::changeCurrentItem);
     connect(m_removeButton, &QPushButton::clicked,
             this, &MacroOptionsWidget::remove);
+    connect(m_name, &QLineEdit::textChanged,
+            this, &MacroOptionsWidget::changeName);
     connect(m_description, &QLineEdit::textChanged,
             this, &MacroOptionsWidget::changeDescription);
 
@@ -114,6 +125,7 @@ void MacroOptionsWidget::initialize()
 {
     m_macroToRemove.clear();
     m_macroToChange.clear();
+    m_macroToRename.clear();
     m_treeWidget->clear();
     changeCurrentItem(nullptr);
 
@@ -150,10 +162,14 @@ void MacroOptionsWidget::changeCurrentItem(QTreeWidgetItem *current)
     m_removeButton->setEnabled(current);
     m_macroGroup->setEnabled(current);
     if (!current) {
+        m_name->clear();
         m_description->clear();
     } else {
+        const bool writable = current->data(0, WRITE_ROLE).toBool();
+        m_name->setText(current->text(0));
+        m_name->setEnabled(writable);
         m_description->setText(current->text(1));
-        m_description->setEnabled(current->data(0, WRITE_ROLE).toBool());
+        m_description->setEnabled(writable);
     }
     m_changingCurrent = false;
 }
@@ -161,7 +177,9 @@ void MacroOptionsWidget::changeCurrentItem(QTreeWidgetItem *current)
 void MacroOptionsWidget::remove()
 {
     QTreeWidgetItem *current = m_treeWidget->currentItem();
-    m_macroToRemove.append(current->data(0, NAME_ROLE).toString());
+    const QString name = current->data(0, NAME_ROLE).toString();
+    m_macroToRemove.append(name);
+    m_macroToRename.remove(name);
     delete current;
     Utils::markSettingsDirty();
 }
@@ -174,12 +192,58 @@ void MacroOptionsWidget::apply()
         m_macroToChange.remove(name);
     }
 
+    // Rename macro
+    // A rename can depend on another one giving up its name first,
+    // so retry the failed ones until a pass makes no progress.
+    QMap<QString, QString> pending = m_macroToRename;
+    for (auto it = pending.begin(); it != pending.end();) {
+        if (it.value().isEmpty() || it.value() == it.key())
+            it = pending.erase(it);
+        else
+            ++it;
+    }
+    bool progress = true;
+    while (progress && !pending.isEmpty()) {
+        progress = false;
+        for (auto it = pending.begin(); it != pending.end();) {
+            if (MacroManager::instance()->renameMacro(it.key(), it.value())) {
+                if (m_macroToChange.contains(it.key()))
+                    m_macroToChange[it.value()] = m_macroToChange.take(it.key());
+                it = pending.erase(it);
+                progress = true;
+            } else {
+                ++it;
+            }
+        }
+    }
+    const QStringList failed = pending.values();
+
     // Change macro
     for (auto it = m_macroToChange.cbegin(), end = m_macroToChange.cend(); it != end; ++it)
         MacroManager::instance()->changeMacro(it.key(), it.value());
 
+    if (!failed.isEmpty()) {
+        QMessageBox::warning(this, Tr::tr("Rename Macro"),
+                             Tr::tr("These macros could not be renamed: %1")
+                                 .arg(failed.join(", ")));
+    }
+
     // Reinitialize the page
     initialize();
+}
+
+void MacroOptionsWidget::changeName(const QString &name)
+{
+    QTreeWidgetItem *current = m_treeWidget->currentItem();
+    if (m_changingCurrent || !current)
+        return;
+
+    m_macroToRename[current->data(0, NAME_ROLE).toString()] = name;
+    current->setText(0, name);
+    QFont font = current->font(0);
+    font.setItalic(true);
+    current->setFont(0, font);
+    Utils::markSettingsDirty();
 }
 
 void MacroOptionsWidget::changeDescription(const QString &description)

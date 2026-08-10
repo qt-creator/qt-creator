@@ -41,6 +41,7 @@ private:
 
     void deleteMacro(const QString &name);
     void changeMacro(const QString &name, const QString &description);
+    bool renameMacro(const QString &oldName, const QString &newName);
 
     class MacroManagerPrivate *d;
 };

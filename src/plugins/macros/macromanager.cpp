@@ -22,6 +22,7 @@
 
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -35,6 +36,7 @@
 #include <QList>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QRegularExpressionValidator>
 
 namespace Macros::Internal {
@@ -406,6 +408,53 @@ void MacroManager::changeMacro(const QString &name, const QString &description)
     // Change description
     if (macro->description() != description)
         d->changeMacroDescription(macro, description);
+}
+
+bool MacroManager::renameMacro(const QString &oldName, const QString &newName)
+{
+    static const QRegularExpression valid("^\\w+$");
+    if (!valid.match(newName).hasMatch() || oldName == newName || d->macros.contains(newName))
+        return false;
+    Macro *macro = d->macros.value(oldName);
+    if (!macro || !macro->load())
+        return false;
+
+    // Save under the new file name (which becomes the new display name)
+    // before touching anything else, so a failure changes nothing.
+    const QString oldFileName = macro->fileName();
+    const QString newFileName = MacroManager::macrosDirectory() + QLatin1Char('/') + newName
+                                + QLatin1Char('.') + QLatin1String(Constants::M_EXTENSION);
+    const Utils::FilePath oldPath = Utils::FilePath::fromString(oldFileName);
+    const Utils::FilePath newPath = Utils::FilePath::fromString(newFileName);
+    // The macros map is case-sensitive, the file system may not be.
+    if (newPath.exists() && !oldPath.isSameFile(newPath))
+        return false;
+    if (!macro->save(newFileName))
+        return false;
+    if (!oldPath.isSameFile(newPath))
+        QFile::remove(oldFileName);
+
+    // The command id is derived from the name, so renaming creates a new
+    // command; carry the user's shortcut over to it.
+    QList<QKeySequence> keys;
+    if (Core::Command *command = Core::ActionManager::command(makeId(oldName))) {
+        keys = command->keySequences();
+        // Else the old id keeps the shortcut in the settings.
+        command->setKeySequences({});
+    }
+
+    // Unregister the old command and drop the mapping, but keep the macro
+    // object (removeMacro() would delete it).
+    QAction *action = d->actions.take(oldName);
+    Core::ActionManager::unregisterAction(action, makeId(oldName));
+    delete action;
+    d->macros.remove(oldName);
+
+    // Re-register under the new name and restore the shortcut.
+    d->addMacro(macro);
+    if (Core::Command *command = Core::ActionManager::command(makeId(newName)))
+        command->setKeySequences(keys);
+    return true;
 }
 
 void MacroManager::saveLastMacro()
