@@ -7,8 +7,11 @@
 #include <QtGlobal>
 
 #include <cmath>
+#include <functional>
 
 namespace Timeline {
+
+static constexpr int kInitialBlockLength = 120; // target pixels per major block
 
 // Fraction of the visible range that `time` falls at.
 // Returns 0 when rangeEnd == rangeStart (degenerate range).
@@ -71,7 +74,7 @@ inline int rowTop(int index, const QList<int> &rowHeights)
 // Uses power-of-2 snapping matching the QML TimeDisplay.qml algorithm.
 // blockLengthHint is the target width of one block in pixels.
 inline qint64 rulerBlockDuration(qint64 rangeDuration, double widthPx,
-                                  int blockLengthHint = 120)
+                                 int blockLengthHint = kInitialBlockLength)
 {
     if (widthPx <= 0.0 || rangeDuration <= 0)
         return 1;
@@ -80,5 +83,38 @@ inline qint64 rulerBlockDuration(qint64 rangeDuration, double widthPx,
     return qMax(qint64(1), qint64(std::pow(2.0, std::floor(std::log2(ideal)))));
 }
 
+inline void forEachRulerTick(qint64 rangeStart, qint64 rangeEnd, double widthPx,
+                             const std::function<void(qint64, double, double)> &onBlockStart,
+                             const std::function<void(double, bool)> &onTick)
+{
+    const qint64 rangeDuration = rangeEnd - rangeStart;
+    if (rangeDuration <= 0 || widthPx <= 0.0)
+        return;
+
+    const double scale = widthPx / double(rangeDuration);
+    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, widthPx);
+    const double pixelsPerBlock = double(timePerBlock) * scale;
+    const int kSectionsPerBlock = 5;
+    const double pixelsPerSection = pixelsPerBlock / kSectionsPerBlock;
+    const qint64 alignedStart = rangeStart - (rangeStart % timePerBlock);
+
+    for (qint64 t = alignedStart; ; t += timePerBlock) {
+        const double x = timeToPixel(t, rangeStart, rangeEnd, widthPx);
+        if (x > widthPx)
+            break;
+
+        onBlockStart(t, x, pixelsPerBlock);
+
+        for (int s = 1; s < kSectionsPerBlock; ++s) {
+            const double sx = x + s * pixelsPerSection;
+            if (sx >= 0.0 && sx <= widthPx)
+                onTick(sx, false); // minor tick
+        }
+
+        const double tickX = x + pixelsPerBlock;
+        if (tickX >= 0.0 && tickX <= widthPx)
+            onTick(tickX, true); // major tick, at the right edge of this block
+    }
+}
 
 } // namespace Timeline

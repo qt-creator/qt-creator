@@ -270,26 +270,10 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
         return;
 
     // Vertical grid lines (same block geometry as TimeRuler) as 1px columns.
-    {
-        const double scale = double(w) / double(rangeDuration);
-        const qint64 timePerBlock = rulerBlockDuration(rangeDuration, double(w));
-        const double pixelsPerBlock = double(timePerBlock) * scale;
-        const double pixelsPerSection = pixelsPerBlock / 5.0;
-        const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
-        for (qint64 t = alignedStart; ; t += timePerBlock) {
-            const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, double(w));
-            if (x > double(w))
-                break;
-            for (int s = 1; s <= 4; ++s) {
-                const double sx = x + s * pixelsPerSection;
-                if (sx >= 0.0 && sx <= double(w))
-                    geom.grid.append(QRectF(qRound(sx), 0, 1, trackH));
-            }
-            const double tickX = x + pixelsPerBlock;
-            if (tickX >= 0.0 && tickX <= double(w))
-                geom.grid.append(QRectF(qRound(tickX), 0, 1, trackH));
-        }
-    }
+    forEachRulerTick(
+        m_rangeStart, m_rangeEnd, double(w),
+        [](qint64, double, double) {}, // no per-block start marker here
+        [&](double x, bool) { geom.grid.append(QRectF(qRound(x), 0, 1, trackH)); });
 
     // Density graphs: one rect list per row (all columns share the row color).
     if (model->rendersAsDensity()) {

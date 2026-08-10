@@ -15,10 +15,6 @@
 
 namespace Timeline {
 
-static constexpr int kInitialBlockLength = 120; // target pixels per major block
-static constexpr int kTextMargin = 5;
-static constexpr int kFontPixelSize = 8;
-
 TimeRuler::TimeRuler(QWidget *parent)
     : QWidget(parent)
 {
@@ -53,63 +49,34 @@ void TimeRuler::paintEvent(QPaintEvent *)
         return;
 
     const double rulerWidth = width() - contentsMargins().right();
-    const double spacing = rulerWidth / double(rangeDuration);
-
-    const qint64 timePerBlock = rulerBlockDuration(rangeDuration, rulerWidth,
-                                                   kInitialBlockLength);
-
-    // Align the first block to a timePerBlock boundary at or before rangeStart.
-    const qint64 alignedStart = m_rangeStart - (m_rangeStart % timePerBlock);
-
-    const double pixelsPerBlock = double(timePerBlock) * spacing;
-    const double pixelsPerSection = pixelsPerBlock / 5.0;
-
-    const int labelsHeight = height();
-    const int ticksTop = labelsHeight / 2; // minor ticks occupy bottom half
-
+    const int ticksTop = height() * 0.75;
     const QColor dividerColor = Utils::creatorTheme()
                                     ? Utils::creatorTheme()->color(Utils::Theme::Timeline_DividerColor)
                                     : QColor(Qt::gray);
     const QColor textColor = Utils::creatorTheme()
                                  ? Utils::creatorTheme()->color(Utils::Theme::PanelTextColorLight)
                                  : palette().text().color();
+    const QFont labelFont = Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementCaption);
 
-    QFont font = p.font();
-    font.setPixelSize(kFontPixelSize);
-    p.setFont(font);
-    p.setPen(dividerColor);
+    p.setFont(labelFont);
 
-    for (qint64 t = alignedStart; ; t += timePerBlock) {
-        const double x = timeToPixel(t, m_rangeStart, m_rangeEnd, rulerWidth);
-        if (x > rulerWidth)
-            break;
-
+    forEachRulerTick(
+        m_rangeStart, m_rangeEnd, rulerWidth,
         // Label for time t, left-aligned in [x, x+pixelsPerBlock].
-        if (x + pixelsPerBlock > 0.0 && x < rulerWidth) {
-            const QString label = formatTime(t, rangeDuration);
-            const QRectF labelRect(x + kTextMargin, 0,
-                                   pixelsPerBlock - kTextMargin, double(labelsHeight));
-            p.setPen(textColor);
-            p.drawText(labelRect, Qt::AlignLeft | Qt::AlignVCenter, label);
-            p.setPen(dividerColor);
-        }
-
-        // 4 minor ticks at 1/5..4/5 of the block.
-        for (int s = 1; s <= 4; ++s) {
-            const double sx = x + s * pixelsPerSection;
-            if (sx >= 0.0 && sx <= rulerWidth) {
-                const int ix = qRound(sx);
-                p.drawLine(ix, ticksTop, ix, height() - 1);
+        [&](qint64 t, double x, double pixelsPerBlock) {
+            if (x + pixelsPerBlock > 0.0 && x < rulerWidth) {
+                const QString label = formatTime(t, rangeDuration);
+                const int kTextMargin = Utils::StyleHelper::SpacingTokens::PaddingHS;
+                const QRectF labelRect(x + kTextMargin, 0, pixelsPerBlock - kTextMargin, ticksTop);
+                p.setPen(textColor);
+                p.drawText(labelRect, Qt::AlignLeft | Qt::AlignVCenter, label);
             }
-        }
-
-        // Major tick at the right edge of this block (= left edge of next block).
-        const double tickX = x + pixelsPerBlock;
-        if (tickX >= 0.0 && tickX <= rulerWidth) {
-            const int ix = qRound(tickX);
-            p.drawLine(ix, 0, ix, height() - 1);
-        }
-    }
+        },
+        [&](double x, bool isMajor) {
+            const int ix = qRound(x);
+            const int y = isMajor ? 0 : ticksTop;
+            p.fillRect(QRect(ix, y, 1, height() - y), dividerColor);
+        });
 
     // Draw marker diamonds and delete buttons
     if (!m_markers.isEmpty()) {
