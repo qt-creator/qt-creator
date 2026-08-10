@@ -9,5 +9,7 @@ namespace Core::Internal {
 
 ExtensionSystem::IPlugin *corePlugin();
 
+void updateActionsForOptionsPages();
+
 } // Core::Internal
 

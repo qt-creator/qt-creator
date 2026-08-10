@@ -32,6 +32,8 @@
 #include <QSpinBox>
 #include <QStyledItemDelegate>
 
+#include <utility>
+
 using namespace Utils;
 
 static const int SortRole = Qt::UserRole + 1;
@@ -354,6 +356,7 @@ public:
         saveFilterStates();
 
         connect(&settings, &BaseAspect::volatileValueChanged, &markSettingsDirty);
+        connect(m_plugin, &Locator::filtersChanged, this, &LocatorSettingsWidget::updateFilters);
     }
 
     void apply() final;
@@ -367,6 +370,7 @@ private:
     void initializeModel();
     void saveFilterStates();
     void restoreFilterStates();
+    void updateFilters();
     void requestRefresh();
     void setFilter(const QString &text);
 
@@ -387,14 +391,12 @@ private:
 
 void LocatorSettingsWidget::apply()
 {
-    // Delete removed filters and clear added filters
-    qDeleteAll(m_removedFilters);
-    m_removedFilters.clear();
+    m_plugin->setCustomFilters(m_customFilters);
+    m_plugin->updateFilters();
+
+    qDeleteAll(std::exchange(m_removedFilters, {}));
     m_addedFilters.clear();
 
-    // Pass the new configuration on to the plugin
-    m_plugin->setFilters(m_filters);
-    m_plugin->setCustomFilters(m_customFilters);
     locatorSettings().apply();
     requestRefresh();
     m_plugin->saveSettings();
@@ -408,8 +410,7 @@ void LocatorSettingsWidget::cancel()
     restoreFilterStates();
 
     // Delete added filters and clear removed filters
-    qDeleteAll(m_addedFilters);
-    m_addedFilters.clear();
+    qDeleteAll(std::exchange(m_addedFilters, {}));
     m_removedFilters.clear();
 
     // Further cleanup
@@ -443,6 +444,35 @@ void LocatorSettingsWidget::restoreFilterStates()
 {
     for (auto it = m_filterStates.cbegin(); it != m_filterStates.cend(); ++it)
         it.key()->restoreState(*it);
+}
+
+void LocatorSettingsWidget::updateFilters()
+{
+    const QList<ILocatorFilter *> current = Locator::filters();
+    const auto isGone = [this, &current](ILocatorFilter *filter) {
+        return !current.contains(filter) && !m_addedFilters.contains(filter)
+               && !m_removedFilters.contains(filter);
+    };
+    bool changed = m_filters.removeIf(isGone) > 0;
+    changed = m_customFilters.removeIf(isGone) > 0 || changed;
+    m_refreshFilters.removeIf(isGone);
+    m_filterStates.removeIf([&isGone](const QHash<ILocatorFilter *, QByteArray>::iterator &it) {
+        return isGone(it.key());
+    });
+
+    for (ILocatorFilter *filter : current) {
+        if (m_filters.contains(filter) || m_removedFilters.contains(filter))
+            continue;
+        m_filters.append(filter);
+        m_filterStates.insert(filter, filter->saveState());
+        changed = true;
+    }
+
+    if (!changed)
+        return;
+    initializeModel();
+    m_filterList->expandAll();
+    updateButtonStates();
 }
 
 void LocatorSettingsWidget::initializeModel()
@@ -506,14 +536,16 @@ void LocatorSettingsWidget::configureFilter(const QModelIndex &proxyIndex)
 void LocatorSettingsWidget::addCustomFilter(ILocatorFilter *filter)
 {
     bool needsRefresh = false;
-    if (filter->openConfigDialog(this, needsRefresh)) {
-        m_filters.append(filter);
-        m_addedFilters.append(filter);
-        m_customFilters.append(filter);
-        m_refreshFilters.append(filter);
-        m_customFilterRoot->appendChild(new FilterItem(filter));
-        markSettingsDirty();
+    if (!filter->openConfigDialog(this, needsRefresh)) {
+        delete filter;
+        return;
     }
+    m_filters.append(filter);
+    m_addedFilters.append(filter);
+    m_customFilters.append(filter);
+    m_refreshFilters.append(filter);
+    m_customFilterRoot->appendChild(new FilterItem(filter));
+    markSettingsDirty();
 }
 
 void LocatorSettingsWidget::removeCustomFilter()

@@ -140,10 +140,13 @@ Locator::Locator()
     m_instance = this;
     m_refreshTimer.setSingleShot(false);
     connect(&m_refreshTimer, &QTimer::timeout, this, [this] { refresh(filters()); });
+    m_filterUpdateTimer.setSingleShot(true);
+    connect(&m_filterUpdateTimer, &QTimer::timeout, this, &Locator::updateFilters);
 }
 
 Locator::~Locator()
 {
+    m_instance = nullptr;
     delete m_locatorData;
     qDeleteAll(m_customFilters);
 }
@@ -174,15 +177,55 @@ void Locator::initialize()
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &Locator::saveSettings);
 }
 
-void Locator::extensionsInitialized()
+static bool isCustomFilter(const ILocatorFilter *filter)
 {
-    m_filters = Utils::sorted(ILocatorFilter::allLocatorFilters(),
+    const QByteArrayView name = filter->id().name();
+    return name.startsWith(Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
+           || name.startsWith(Constants::CUSTOM_URL_FILTER_BASEID);
+}
+
+void Locator::updateFilters()
+{
+    const QList<ILocatorFilter *> all = ILocatorFilter::allLocatorFilters();
+    // A custom filter only takes part once it is in m_customFilters: one that the
+    // settings page created is not applied yet, one that it removed is about to go.
+    const QList<ILocatorFilter *> custom
+        = Utils::filtered(m_customFilters, [&all](ILocatorFilter *filter) {
+              return all.contains(filter);
+          });
+    // The custom filters keep their place at the end, where loading them put them.
+    const QList<ILocatorFilter *> filters
+        = Utils::filtered(all, [](ILocatorFilter *filter) { return !isCustomFilter(filter); });
+
+    const QList<ILocatorFilter *> refreshing
+        = Utils::filtered(m_refreshingFilters, [&all](ILocatorFilter *filter) {
+              return all.contains(filter);
+          });
+    if (refreshing.size() != m_refreshingFilters.size()) {
+        // The refresh recipe of a filter that is gone can refer to it.
+        const bool wasRunning = m_taskTreeRunner.isRunning();
+        m_taskTreeRunner.reset();
+        m_refreshingFilters = refreshing;
+        if (wasRunning && !m_refreshingFilters.isEmpty())
+            refresh({});
+    }
+
+    setFilters(Utils::sorted(filters,
                 [](const ILocatorFilter *first, const ILocatorFilter *second) -> bool {
         if (first->priority() != second->priority())
             return first->priority() < second->priority();
         return first->id().alphabeticallyBefore(second->id());
-    });
-    setFilters(m_filters);
+    }) + custom);
+}
+
+void Locator::scheduleUpdateFilters()
+{
+    m_filterUpdateTimer.start();
+}
+
+void Locator::extensionsInitialized()
+{
+    updateFilters();
 
     Command *openCommand = ActionManager::command(Constants::OPEN);
     Command *locateCommand = ActionManager::command(Constants::LOCATE);

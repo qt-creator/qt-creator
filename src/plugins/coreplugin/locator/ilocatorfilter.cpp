@@ -7,6 +7,8 @@
 
 #include "../coreplugintr.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
@@ -474,11 +476,18 @@ ILocatorFilter::ILocatorFilter(QObject *parent)
     Internal::locatorSettings().ignoreGeneratedFiles.addOnChanged(this, [this] {
         emit ignoreGeneratedFilesChanged();
     });
+
+    if (Internal::Locator *locator = Internal::Locator::instance())
+        locator->scheduleUpdateFilters();
 }
 
 ILocatorFilter::~ILocatorFilter()
 {
     g_locatorFilters.removeOne(this);
+    if (!ExtensionSystem::PluginManager::isShuttingDown()) {
+        if (Internal::Locator *locator = Internal::Locator::instance())
+            locator->updateFilters();
+    }
 }
 
 /*!

@@ -326,6 +326,8 @@ extend_qtc_plugin(Core
     externaltool_test.h
     locator/locator_test.cpp
     locator/locator_test.h
+    registries_test.cpp
+    registries_test.h
     locator/locatorfiltertest.cpp
     locator/locatorfiltertest.h
 )

@@ -6,18 +6,27 @@
 
 #include "ioptionspage.h"
 
+#include "../actionmanager/actionmanager.h"
+#include "../coreplugin.h"
+#include "../coreplugintr.h"
+#include "../icore.h"
+
 #include <utils/algorithm.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <QAction>
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QHash>
 #include <QLabel>
+#include <QMap>
 #include <QPointer>
 #include <QPushButton>
+#include <QSet>
+#include <QTimer>
 
 #include <utility>
 
@@ -254,6 +263,93 @@ static QList<IOptionsPage *> &optionsPages()
     return thePages;
 }
 
+static Id generateOpenPageCommandId(IOptionsPage *page)
+{
+    // The page and category are prioritized by their alphabetical order so usually the ids are
+    // prepended by some prioritizing characters like D.ProjectExplorer.KitsOptions separated
+    // by dots. Create a new actions id by joining the last parts of the page and category id
+    // with an additional ".SettingsPage."
+    const QStringList pageIdParts = page->id().toString().split('.');
+    const QStringList categoryIdParts = page->category().toString().split('.');
+    if (pageIdParts.isEmpty() || categoryIdParts.isEmpty())
+        return {};
+
+    const Id candidate = Id::fromString(
+        QStringList{"Preferences", categoryIdParts.last(), pageIdParts.last()}.join('.'));
+    QString suffix;
+    int i = 0;
+    while (ActionManager::command(candidate.withSuffix(suffix)))
+        suffix = QString::number(++i);
+    return candidate.withSuffix(suffix);
+}
+
+static void registerActionsForOptions()
+{
+    static QHash<Id, std::pair<Id, QAction *>> registered; // page id -> command id, action
+
+    QMap<Utils::Id, QString> categoryDisplay;
+    for (IOptionsPage *page : IOptionsPage::allOptionsPages()) {
+        if (!categoryDisplay.contains(page->category()) && !page->displayCategory().isEmpty())
+            categoryDisplay[page->category()] = page->displayCategory();
+    }
+    QSet<Id> current;
+    for (IOptionsPage *page : IOptionsPage::allOptionsPages()) {
+        current.insert(page->id());
+        const QString text = Tr::tr("%1 > %2 Preferences...")
+                                 .arg(categoryDisplay.value(page->category()),
+                                      page->displayName());
+        // The category display name can come from a page that was not there
+        // when the text was first built, apply it again.
+        if (const auto it = registered.constFind(page->id()); it != registered.constEnd()) {
+            it->second->setText(text);
+            continue;
+        }
+
+        const Id commandId = generateOpenPageCommandId(page);
+        if (!commandId.isValid())
+            continue;
+
+        ActionBuilder builder(ICore::instance(), commandId);
+        builder
+            .setText(text)
+            .addOnTriggered(ICore::instance(), [id = page->id()] {
+                ICore::showSettings(id);
+            })
+            .setCommandAttribute(Command::CA_UpdateText);
+        registered.insert(page->id(), {commandId, builder.contextAction()});
+    }
+    for (auto it = registered.begin(); it != registered.end(); ) {
+        if (current.contains(it.key())) {
+            ++it;
+            continue;
+        }
+        ActionManager::unregisterAction(it->second, it->first);
+        delete it->second;
+        it = registered.erase(it);
+    }
+}
+
+void Internal::updateActionsForOptionsPages()
+{
+    registerActionsForOptions();
+}
+
+static void scheduleUpdateActionsForOptionsPages()
+{
+    // Pages created before ICore exists are picked up by CorePlugin::extensionsInitialized()
+    QObject *guard = ICore::instance();
+    if (!guard)
+        return;
+
+    static QPointer<QTimer> timer;
+    if (!timer) {
+        timer = new QTimer(guard);
+        timer->setSingleShot(true);
+        QObject::connect(timer, &QTimer::timeout, guard, &registerActionsForOptions);
+    }
+    timer->start();
+}
+
 /*!
     Constructs an options page and registers it
     at the global options page pool if \a registerGlobally is \c true.
@@ -261,8 +357,11 @@ static QList<IOptionsPage *> &optionsPages()
 IOptionsPage::IOptionsPage(bool registerGlobally)
     : d(new Internal::IOptionsPagePrivate)
 {
-    if (registerGlobally)
-        optionsPages().append(this);
+    if (!registerGlobally)
+        return;
+
+    optionsPages().append(this);
+    scheduleUpdateActionsForOptionsPages();
 }
 
 /*!
@@ -271,6 +370,7 @@ IOptionsPage::IOptionsPage(bool registerGlobally)
 IOptionsPage::~IOptionsPage()
 {
     optionsPages().removeOne(this);
+    scheduleUpdateActionsForOptionsPages();
 }
 
 /*!

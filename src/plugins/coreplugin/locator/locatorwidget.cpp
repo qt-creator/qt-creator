@@ -668,7 +668,10 @@ LocatorWidget::LocatorWidget(Locator *locator)
             m_previousFocusWidget = previous;
     });
 
-    connect(locator, &Locator::filtersChanged, this, &LocatorWidget::updateFilterList);
+    connect(locator, &Locator::filtersChanged, this, [this] {
+        updateFilterList();
+        stopMatcherIfFilterGone();
+    });
     updateFilterList();
 }
 
@@ -710,6 +713,24 @@ void LocatorWidget::updateFilterList()
     m_filterMenu->addAction(m_ignoreGeneratedFiles);
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
+}
+
+void LocatorWidget::stopMatcherIfFilterGone()
+{
+    const QList<ILocatorFilter *> current = Locator::filters();
+    const bool filterGone = Utils::anyOf(m_matcherFilters, [&current](ILocatorFilter *filter) {
+        return !current.contains(filter);
+    });
+    if (!filterGone)
+        return;
+
+    // The running tasks and the entries shown can refer to the filter that is gone.
+    m_locatorMatcher.reset();
+    m_matcherFilters.clear();
+    m_rowRequestedForAccept.reset();
+    m_showProgressTimer.stop();
+    setProgressIndicatorVisible(false);
+    m_locatorModel->clear();
 }
 
 bool LocatorWidget::isInMainWindow() const
@@ -924,6 +945,7 @@ void LocatorWidget::runMatcher(const QString &text)
         tasks += filter->matchers();
 
     m_locatorMatcher.reset(new LocatorMatcher);
+    m_matcherFilters = filters;
     m_locatorMatcher->setTasks(tasks);
     m_locatorMatcher->setInputData(searchText);
     m_rowRequestedForAccept.reset();

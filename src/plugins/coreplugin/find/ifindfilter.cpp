@@ -3,8 +3,12 @@
 
 #include "ifindfilter.h"
 
+#include "findplugin.h"
+
 #include "../coreicons.h"
 #include "../coreplugintr.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcsettings.h>
 
@@ -208,6 +212,7 @@ static QList<IFindFilter *> g_findFilters;
 IFindFilter::IFindFilter()
 {
     g_findFilters.append(this);
+    Find::scheduleUpdateFindFilters();
 }
 
 /*!
@@ -216,6 +221,8 @@ IFindFilter::IFindFilter()
 IFindFilter::~IFindFilter()
 {
     g_findFilters.removeOne(this);
+    if (!ExtensionSystem::PluginManager::isShuttingDown())
+        Find::updateFindFilters();
 }
 
 /*!

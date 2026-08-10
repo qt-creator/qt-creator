@@ -29,7 +29,6 @@
 #include "helpmanager.h"
 #include "icore.h"
 #include "idocumentfactory.h"
-#include "inavigationwidgetfactory.h"
 #include "iwizardfactory.h"
 #ifndef Q_OS_WASM
 #include "jsexpander.h"
@@ -1521,8 +1520,7 @@ void ICore::extensionsInitialized()
     d->m_windowSupport->setCloseActionEnabled(false);
     OutputPaneManager::initialize();
     VcsManager::extensionsInitialized();
-    d->m_leftNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
-    d->m_rightNavigationWidget->setFactories(INavigationWidgetFactory::allNavigationFactories());
+    NavigationWidget::updateFactories();
 
     ModeManager::extensionsInitialized();
 

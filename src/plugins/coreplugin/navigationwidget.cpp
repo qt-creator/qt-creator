@@ -31,6 +31,7 @@
 #include <QHBoxLayout>
 #include <QResizeEvent>
 #include <QStandardItemModel>
+#include <QTimer>
 
 using namespace Utils;
 
@@ -57,8 +58,6 @@ static NavigationWidget *instance(Side side)
 {
     return side == Side::Left ? s_instanceLeft : s_instanceRight;
 }
-
-static bool s_factoriesTaken = false;
 
 static Id sidebarActionId(Id factoryId)
 {
@@ -200,6 +199,7 @@ struct NavigationWidgetPrivate
     int m_width;
     QAction *m_toggleSideBarAction; // does not take ownership
     Side m_side;
+    QTimer m_factoryUpdateTimer;
 };
 
 NavigationWidgetPrivate::NavigationWidgetPrivate(QAction *toggleSideBarAction, Side side) :
@@ -216,6 +216,9 @@ NavigationWidget::NavigationWidget(QAction *toggleSideBarAction, Side side) :
 {
     d->m_factoryModel->setSortRole(FactoryPriorityRole);
     setOrientation(Qt::Vertical);
+
+    d->m_factoryUpdateTimer.setSingleShot(true);
+    connect(&d->m_factoryUpdateTimer, &QTimer::timeout, this, [this] { addMissingFactories(); });
 
     if (side == Side::Left)
         s_instanceLeft = this;
@@ -254,11 +257,14 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, Side fallbackSide)
     return navigationWidget->activateSubWidget(factoryId, preferredPosition);
 }
 
-void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &factories)
+void NavigationWidget::addMissingFactories()
 {
     Context navicontext(Constants::C_NAVIGATION_PANE);
-    for (INavigationWidgetFactory *factory : std::as_const(factories)) {
+    for (INavigationWidgetFactory *factory : INavigationWidgetFactory::allNavigationFactories()) {
         const Id id = factory->id();
+        if (factoryIndex(id) >= 0)
+            continue;
+
         const Id actionId = sidebarActionId(id);
 
         if (!ActionManager::command(actionId)) {
@@ -281,23 +287,28 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
     }
     d->m_factoryModel->sort(0);
     updateToggleAction();
-    s_factoriesTaken = true;
 }
 
-void NavigationWidget::addFactory(INavigationWidgetFactory *factory)
+void NavigationWidget::updateFactories()
 {
-    if (!s_factoriesTaken)
-        return;
-    for (const Side side : {Side::Left, Side::Right}) {
-        NavigationWidget *navigationWidget = instance(side);
-        if (navigationWidget && navigationWidget->factoryRow(factory) < 0)
-            navigationWidget->setFactories({factory});
+    for (NavigationWidget *navigationWidget : {s_instanceLeft, s_instanceRight}) {
+        if (navigationWidget)
+            navigationWidget->addMissingFactories();
+    }
+}
+
+void NavigationWidget::scheduleUpdateFactories()
+{
+    // Factories created before the sidebars exist are picked up by ICore::extensionsInitialized()
+    for (NavigationWidget *navigationWidget : {s_instanceLeft, s_instanceRight}) {
+        if (navigationWidget)
+            navigationWidget->d->m_factoryUpdateTimer.start();
     }
 }
 
 void NavigationWidget::removeFactory(INavigationWidgetFactory *factory)
 {
-    if (!s_factoriesTaken || ExtensionSystem::PluginManager::isShuttingDown())
+    if (ExtensionSystem::PluginManager::isShuttingDown())
         return;
     const Id id = factory->id();
     for (const Side side : {Side::Left, Side::Right}) {

@@ -73,10 +73,7 @@ static QList<INavigationWidgetFactory *> g_navigationWidgetFactories;
 INavigationWidgetFactory::INavigationWidgetFactory()
 {
     g_navigationWidgetFactories.append(this);
-    // The subclass constructor sets id, display name and priority. A factory
-    // from before the sidebars took their list is found there already.
-    QMetaObject::invokeMethod(this, [this] { NavigationWidget::addFactory(this); },
-                              Qt::QueuedConnection);
+    NavigationWidget::scheduleUpdateFactories();
 }
 
 INavigationWidgetFactory::~INavigationWidgetFactory()

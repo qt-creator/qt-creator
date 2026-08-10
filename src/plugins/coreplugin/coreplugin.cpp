@@ -28,6 +28,7 @@
 #include "loggingviewer.h"
 #include "mcp/mcpmanager.h"
 #include "modemanager.h"
+#include "registries_test.h"
 #include "session.h"
 #include "systemsettings.h"
 #include "themechooser.h"
@@ -512,6 +513,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createActionManagerTest);
     addTestCreator(createDocumentManagerTest);
     addTestCreator(createExternalToolTest);
+    addTestCreator(createRegistriesTest);
     addTestCreator(createLocatorTest);
     addTestCreator(createVcsManagerTest);
     addTestCreator(createEditorManagerTest);
@@ -526,47 +528,6 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     return ResultOk;
 }
 
-static Id generateOpenPageCommandId(IOptionsPage *page)
-{
-    // The page and category are prioritized by their alphabetical order so usually the ids are
-    // prepended by some prioritizing characters like D.ProjectExplorer.KitsOptions separated
-    // by dots. Create a new actions id by joining the last parts of the page and category id
-    // with an additional ".SettingsPage."
-    const QStringList pageIdParts = page->id().toString().split('.');
-    const QStringList categoryIdParts = page->category().toString().split('.');
-    if (pageIdParts.isEmpty() || categoryIdParts.isEmpty())
-        return {};
-
-    const Id candidate = Id::fromString(
-        QStringList{"Preferences", categoryIdParts.last(), pageIdParts.last()}.join('.'));
-    QString suffix;
-    int i = 0;
-    while (ActionManager::command(candidate.withSuffix(suffix)))
-        suffix = QString::number(++i);
-    return candidate.withSuffix(suffix);
-}
-
-static void registerActionsForOptions()
-{
-    QMap<Utils::Id, QString> categoryDisplay;
-    for (IOptionsPage *page : IOptionsPage::allOptionsPages()) {
-        if (!categoryDisplay.contains(page->category()) && !page->displayCategory().isEmpty())
-            categoryDisplay[page->category()] = page->displayCategory();
-    }
-    for (IOptionsPage *page : IOptionsPage::allOptionsPages()) {
-        const Id commandId = generateOpenPageCommandId(page);
-        if (!commandId.isValid())
-            continue;
-
-        ActionBuilder(ICore::instance(), commandId)
-            .setText(Tr::tr("%1 > %2 Preferences...")
-                         .arg(categoryDisplay.value(page->category()), page->displayName()))
-            .addOnTriggered(ICore::instance(), [id = page->id()] {
-                ICore::showSettings(id);
-            });
-    }
-}
-
 void CorePlugin::extensionsInitialized()
 {
     DesignMode::createModeIfRequired();
@@ -574,7 +535,7 @@ void CorePlugin::extensionsInitialized()
     m_locator->extensionsInitialized();
     ICore::extensionsInitialized();
     checkSettings();
-    registerActionsForOptions();
+    updateActionsForOptionsPages();
 }
 
 bool CorePlugin::delayedInitialize()

@@ -29,6 +29,7 @@
 #include <QApplication>
 #include <QMenu>
 #include <QStringListModel>
+#include <QTimer>
 #include <QVector>
 #include <QAction>
 
@@ -156,13 +157,15 @@ void CompletionModel::updateCompletion(const QString &text, FindFlags f)
 class FindPrivate : public QObject
 {
 public:
+    FindPrivate();
+
     bool isAnyFilterEnabled() const;
     void writeSettings();
     void setFindFlag(FindFlag flag, bool enabled);
     static void updateCompletion(const QString &text, QStringList &completions,
                                  QStringListModel *model);
     void setupMenu();
-    void setupFilterMenuItems();
+    void updateFilterMenuItems();
     void readSettings();
 
     Internal::CurrentDocumentFind *m_currentDocumentFind = nullptr;
@@ -174,10 +177,18 @@ public:
     QStringListModel m_replaceCompletionModel;
     QStringList m_replaceCompletions;
     QAction *m_openFindDialog = nullptr;
+    QHash<Utils::Id, QAction *> m_filterActions; // filter id -> its scope action
+    QTimer m_filterUpdateTimer;
 };
 
 Find *m_instance = nullptr;
 FindPrivate *d = nullptr;
+
+FindPrivate::FindPrivate()
+{
+    m_filterUpdateTimer.setSingleShot(true);
+    connect(&m_filterUpdateTimer, &QTimer::timeout, this, &FindPrivate::updateFilterMenuItems);
+}
 
 void Find::destroy()
 {
@@ -190,6 +201,7 @@ void Find::destroy()
         ExtensionSystem::PluginManager::removeObject(d->m_searchResultWindow);
         delete d->m_searchResultWindow;
         delete d;
+        d = nullptr;
     }
 }
 
@@ -231,7 +243,20 @@ void Find::initialize()
 
 void Find::extensionsInitialized()
 {
-    d->setupFilterMenuItems();
+    d->updateFilterMenuItems();
+}
+
+void Find::updateFindFilters()
+{
+    if (d)
+        d->updateFilterMenuItems();
+}
+
+void Find::scheduleUpdateFindFilters()
+{
+    // Filters created before Find exists are picked up by extensionsInitialized()
+    if (d)
+        d->m_filterUpdateTimer.start();
 }
 
 void Find::aboutToShutdown()
@@ -298,25 +323,31 @@ static QString filterActionName(const IFindFilter *filter)
     return QLatin1String("    ") + filter->displayName();
 }
 
-void FindPrivate::setupFilterMenuItems()
+void FindPrivate::updateFilterMenuItems()
 {
     bool haveEnabledFilters = false;
     const Id base("FindFilter.");
     const QList<IFindFilter *> sortedFilters = Utils::sorted(IFindFilter::allFindFilters(),
                                                              &IFindFilter::displayName);
+    QSet<Id> current;
     for (IFindFilter *filter : sortedFilters) {
-        ActionBuilder findScope(this, base.withSuffix(filter->id()));
-        findScope.setText(filterActionName(filter));
-        bool isEnabled = filter->isEnabled();
-        if (isEnabled)
+        if (filter->isEnabled())
             haveEnabledFilters = true;
-        findScope.setEnabled(isEnabled);
+        const Id id = base.withSuffix(filter->id());
+        current.insert(id);
+        if (m_filterActions.contains(id))
+            continue; // a filter that was already here keeps its action
+
+        ActionBuilder findScope(this, id);
+        findScope.setText(filterActionName(filter));
+        findScope.setEnabled(filter->isEnabled());
         findScope.setDefaultKeySequence(filter->defaultShortcut());
         findScope.setCommandAttribute(Command::CA_UpdateText);
         findScope.addToContainer(Constants::M_FIND_ADVANCED);
         findScope.addOnTriggered(this, [filter] { Find::openFindDialog(filter); });
 
         QAction *findScopeAction = findScope.contextAction();
+        m_filterActions.insert(id, findScopeAction);
         connect(filter, &IFindFilter::enabledChanged, this, [filter, findScopeAction] {
             findScopeAction->setEnabled(filter->isEnabled());
             d->m_openFindDialog->setEnabled(d->isAnyFilterEnabled());
@@ -324,6 +355,15 @@ void FindPrivate::setupFilterMenuItems()
         connect(filter, &IFindFilter::displayNameChanged, this, [filter, findScopeAction] {
             findScopeAction->setText(filterActionName(filter));
         });
+    }
+    for (auto it = m_filterActions.begin(); it != m_filterActions.end(); ) {
+        if (current.contains(it.key())) {
+            ++it;
+            continue;
+        }
+        ActionManager::unregisterAction(it.value(), it.key());
+        delete it.value();
+        it = m_filterActions.erase(it);
     }
     d->m_findDialog->setFindFilters(sortedFilters);
     d->m_openFindDialog->setEnabled(haveEnabledFilters);

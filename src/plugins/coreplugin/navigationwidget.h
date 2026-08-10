@@ -68,11 +68,8 @@ public:
     explicit NavigationWidget(QAction *toggleSideBarAction, Side side);
     ~NavigationWidget() override;
 
-    void setFactories(const QList<INavigationWidgetFactory*> &factories);
-
-    // A factory made after the sidebars took the list is added and removed by
-    // the INavigationWidgetFactory constructor and destructor.
-    static void addFactory(INavigationWidgetFactory *factory);
+    static void updateFactories();
+    static void scheduleUpdateFactories();
     static void removeFactory(INavigationWidgetFactory *factory);
 
     Utils::Key settingsGroup() const;
@@ -102,6 +99,7 @@ private:
     void switchModeLayout(Utils::Id mode);
     void storeLayout();
     void applyLayout();
+    void addMissingFactories();
     void closeSubWidget(Internal::NavigationSubWidget *subWidget);
     bool toggleActionVisible() const;
     bool toggleActionEnabled() const;

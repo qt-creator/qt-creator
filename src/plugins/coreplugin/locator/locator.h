@@ -45,6 +45,8 @@ public:
     void initialize();
     void extensionsInitialized();
     bool delayedInitialize();
+    void updateFilters();
+    void scheduleUpdateFilters();
 
     static QList<ILocatorFilter *> filters();
     QList<ILocatorFilter *> customFilters();
@@ -73,6 +75,7 @@ private:
     QList<ILocatorFilter *> m_customFilters;
     QMap<Utils::Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
+    QTimer m_filterUpdateTimer;
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     QList<ILocatorFilter *> m_refreshingFilters;
 };

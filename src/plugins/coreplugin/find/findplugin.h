@@ -56,8 +56,11 @@ signals:
 
 private:
     friend class Internal::CorePlugin;
+    friend class IFindFilter;
     static void initialize();
     static void extensionsInitialized();
+    static void updateFindFilters();
+    static void scheduleUpdateFindFilters();
     static void aboutToShutdown();
     static void destroy();
 };

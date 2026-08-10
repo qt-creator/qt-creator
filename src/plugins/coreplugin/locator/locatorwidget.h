@@ -55,6 +55,7 @@ private:
     void showPopupNow();
     static void showConfigureDialog();
     void updateFilterList();
+    void stopMatcherIfFilterGone();
     bool isInMainWindow() const;
 
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -83,6 +84,7 @@ private:
     std::optional<int> m_rowRequestedForAccept;
     QPointer<QWidget> m_previousFocusWidget;
     std::unique_ptr<LocatorMatcher> m_locatorMatcher;
+    QList<ILocatorFilter *> m_matcherFilters;
 };
 
 class LocatorPopup : public QWidget
