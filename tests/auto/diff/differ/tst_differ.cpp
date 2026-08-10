@@ -58,8 +58,116 @@ private Q_SLOTS:
     void cleanupSemanticsLossless();
     void diffBetweenEqualitiesRepeatedSubstrings_data();
     void diffBetweenEqualitiesRepeatedSubstrings();
+    void patience_data();
+    void patience();
+    void patienceLinesUpUniqueLines();
 };
 
+// The lines of these two texts repeat, so the smallest set of changes is not
+// unique: the Myers diff removes a fragment spanning two of the repeated lines,
+// while the patience diff lines the two sides up at the lines that occur once on
+// each side and removes a whole line between them.
+static QString repeatedLinesText1()
+{
+    return QStringList{"beginBlock();", "step();", "flush();", "check();", "step();", "check();",
+                       "step();", "notify();", "check();", "", "notify();", "flush();"}
+               .join('\n')
+           + '\n';
+}
+
+static QString repeatedLinesText2()
+{
+    return QStringList{"beginBlock();", "step();", "flush();", "endBlock();", "step();", "step();",
+                       "notify();", "check();", "", "flush();"}
+               .join('\n')
+           + '\n';
+}
+
+// the text one side of the diff spells out: the equalities plus its own changes
+static QString textOfSide(const QList<Diff> &diffList, Diff::Command side)
+{
+    QString text;
+    for (const Diff &diff : diffList) {
+        if (diff.command == Diff::Equal || diff.command == side)
+            text += diff.text;
+    }
+    return text;
+}
+
+void tst_Differ::patience_data()
+{
+    QTest::addColumn<QString>("text1");
+    QTest::addColumn<QString>("text2");
+    QTest::addColumn<QList<Diff>>("expected");
+
+    QTest::newRow("Null texts") << QString() << QString() << QList<Diff>();
+    QTest::newRow("Equal texts") << QString("a\nb\n") << QString("a\nb\n")
+                                 << QList<Diff>{Diff(Diff::Equal, "a\nb\n")};
+    QTest::newRow("All inserted") << QString() << QString("a\nb\n")
+                                  << QList<Diff>{Diff(Diff::Insert, "a\nb\n")};
+    QTest::newRow("All deleted") << QString("a\nb\n") << QString()
+                                 << QList<Diff>{Diff(Diff::Delete, "a\nb\n")};
+    // the common prefix covers all of the shorter text, so what is left of the
+    // longer one is answered before any anchor is looked for
+    QTest::newRow("Trimmed to nothing") << QString("x\nx\nx\n") << QString("x\nx\n")
+                                        << QList<Diff>{Diff(Diff::Equal, "x\nx\n"),
+                                                       Diff(Diff::Delete, "x\n")};
+    // no symbol is unique on both sides here either, but nothing is trimmed
+    // away first, so this is the region-without-anchors case
+    QTest::newRow("No anchors at all") << QString("a\nb\na\n") << QString("b\na\nb\n")
+                                       << QList<Diff>{Diff(Diff::Delete, "a\n"),
+                                                      Diff(Diff::Equal, "b\na\n"),
+                                                      Diff(Diff::Insert, "b\n")};
+    // a changed line is still diffed character wise between its anchors
+    QTest::newRow("Modified line") << QString("one\ntwo\nthree\n")
+                                   << QString("one\ntwo changed\nthree\n")
+                                   << QList<Diff>{Diff(Diff::Equal, "one\ntwo"),
+                                                  Diff(Diff::Insert, " changed"),
+                                                  Diff(Diff::Equal, "\nthree\n")};
+    QTest::newRow("Repeated lines")
+        << repeatedLinesText1() << repeatedLinesText2()
+        << QList<Diff>{Diff(Diff::Equal, "beginBlock();\nstep();\nflush();\n"),
+                       Diff(Diff::Delete, "ch"),
+                       Diff(Diff::Equal, "e"),
+                       Diff(Diff::Insert, "ndBlo"),
+                       Diff(Diff::Equal, "ck();\nstep();\n"),
+                       Diff(Diff::Delete, "check();\n"),
+                       Diff(Diff::Equal, "step();\nnotify();\ncheck();\n"),
+                       Diff(Diff::Delete, "\nnotify();"),
+                       Diff(Diff::Equal, "\nflush();\n")};
+}
+
+void tst_Differ::patience()
+{
+    QFETCH(QString, text1);
+    QFETCH(QString, text2);
+    QFETCH(QList<Diff>, expected);
+
+    Differ differ;
+    differ.setPatience(true);
+    const QList<Diff> result = differ.diff(text1, text2);
+    QCOMPARE(result, expected);
+    // whatever the alignment, the two sides must spell out the inputs again
+    QCOMPARE(textOfSide(result, Diff::Delete), text1);
+    QCOMPARE(textOfSide(result, Diff::Insert), text2);
+}
+
+void tst_Differ::patienceLinesUpUniqueLines()
+{
+    const QString text1 = repeatedLinesText1();
+    const QString text2 = repeatedLinesText2();
+
+    // the removed line is removed as a whole line ...
+    Differ patienceDiffer;
+    patienceDiffer.setPatience(true);
+    QVERIFY(patienceDiffer.diff(text1, text2).contains(Diff(Diff::Delete, "check();\n")));
+
+    // ... which the Myers diff, free to pick any of the equally small sets of
+    // changes, does not do here: this is what the option is good for
+    Differ myersDiffer;
+    QVERIFY(!myersDiffer.patience()); // the comparison rests on that default
+    QVERIFY(!myersDiffer.diff(text1, text2).contains(Diff(Diff::Delete, "check();\n")));
+}
 
 void tst_Differ::preprocess_data()
 {

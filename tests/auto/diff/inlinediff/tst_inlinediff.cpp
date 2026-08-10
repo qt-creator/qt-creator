@@ -26,15 +26,119 @@ private slots:
     void modifyDeleteAdd();
     void newlineOnlyDifference();
     void changeOnLastLineWithoutNewline();
+    void patienceAnchorsUniqueLines();
+    void patienceIsOff();
+    void patienceAvoidsSpuriousModification();
 
 private:
-    static InlineDiffRenderModel compute(const QString &baseline, const QString &editor);
+    static InlineDiffRenderModel compute(const QString &baseline, const QString &editor,
+                                         bool patience = false);
 };
 
-InlineDiffRenderModel tst_InlineDiff::compute(const QString &baseline, const QString &editor)
+// The repeated lines make the smallest set of changes ambiguous: the Myers diff
+// may pair up any of them, while the patience diff lines the two sides up at the
+// lines that occur only once on each side. Here that is the difference between
+// reporting one removed line and reporting two of them plus a wider change.
+static QString patienceBaseline()
+{
+    return QStringList{"delta();", "{", "alpha();", "beta();", "delta();", "delta();", "beta();"}
+               .join('\n') + '\n';
+}
+
+static QString patienceEditor()
+{
+    return QStringList{"delta();", "{", "beta();", "delta();", "", "delta();", "alpha();",
+                       "beta();"}.join('\n') + '\n';
+}
+
+static QString patchFor(const QString &baseline, const QString &editor, bool patience)
+{
+    Utils::Differ differ;
+    differ.setPatience(patience);
+    const QList<Utils::Diff> diffList
+        = Utils::Differ::cleanupSemantics(differ.diff(baseline, editor));
+    QList<Utils::Diff> left;
+    QList<Utils::Diff> right;
+    Utils::Differ::splitDiffList(diffList, &left, &right);
+    const ChunkData chunk = DiffUtils::calculateOriginalData(left, right);
+    FileData fileData = DiffUtils::calculateContextData(chunk, 3);
+    fileData.fileInfo[LeftSide] = DiffFileInfo("example");
+    fileData.fileInfo[RightSide] = DiffFileInfo("example");
+    return DiffUtils::makePatch({fileData});
+}
+
+// What the option is for, as a patch: a file full of repeated calls with two
+// changes in it. Without patience the added line is reported as a modification
+// of an unchanged line above it, because that set of changes is just as small.
+void tst_InlineDiff::patienceAvoidsSpuriousModification()
+{
+    const QStringList baselineLines{"void Session::sync()",
+                                    "{",
+                                    "    trace();",
+                                    "    trace();",
+                                    "",
+                                    "    connect();",
+                                    "    prepare();",
+                                    "",
+                                    "    lock();",
+                                    "    trace();",
+                                    "    flush();",
+                                    "    prepare();",
+                                    "    send();",
+                                    "    send();",
+                                    "    flush();",
+                                    "    prepare();",
+                                    "",
+                                    "    send();",
+                                    "    trace();",
+                                    "    unlock();",
+                                    "}"};
+    QStringList editorLines = baselineLines;
+    editorLines[2] = "    send();";         // a changed line near the top
+    editorLines.insert(15, "    flush();"); // an added line further down
+    const QString baseline = baselineLines.join('\n') + '\n';
+    const QString editor = editorLines.join('\n') + '\n';
+
+    const QString withoutPatience = patchFor(baseline, editor, false);
+    const QString withPatience = patchFor(baseline, editor, true);
+
+    // both report the changed line
+    QVERIFY(withoutPatience.contains("-    trace();\n+    send();\n"));
+    QVERIFY(withPatience.contains("-    trace();\n+    send();\n"));
+
+    // the added line: patience reports just that, while the Myers alignment
+    // takes an unchanged "send();" line along as a modification of itself
+    QVERIFY(withPatience.contains("     flush();\n+    flush();\n"));
+    QVERIFY(!withPatience.contains("-    send();\n+    send();\n"));
+    QVERIFY(withoutPatience.contains("-    send();\n+    send();\n"));
+}
+
+void tst_InlineDiff::patienceAnchorsUniqueLines()
+{
+    const InlineDiffRenderModel model = compute(patienceBaseline(), patienceEditor(),
+                                                /*patience=*/true);
+    // "alpha();" occurs once on each side, so it is lined up: the only line
+    // that went away above it is the first "beta();"
+    QCOMPARE(model.ghosts.size(), 1);
+    QCOMPARE(model.ghosts.first().anchorLine, 3);
+    QCOMPARE(model.ghosts.first().lines, QStringList("alpha();"));
+}
+
+void tst_InlineDiff::patienceIsOff()
+{
+    // without it the same texts are lined up at the repeated lines instead,
+    // which spreads the change over more rows
+    const InlineDiffRenderModel model = compute(patienceBaseline(), patienceEditor());
+    QCOMPARE(model.ghosts.size(), 2);
+    QCOMPARE(model.ghosts.first().lines, QStringList({"alpha();", "beta();"}));
+}
+
+InlineDiffRenderModel tst_InlineDiff::compute(const QString &baseline, const QString &editor,
+                                             bool patience)
 {
     // mirrors the inline diff editor's diff pipeline
     Utils::Differ differ;
+    differ.setPatience(patience);
     const QList<Utils::Diff> diffList
         = Utils::Differ::cleanupSemantics(differ.diff(baseline, editor));
     QList<Utils::Diff> leftDiffList;

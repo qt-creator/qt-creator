@@ -376,6 +376,7 @@ private slots:
     void testInlineDiffIgnoreWhitespace();
     void testInlineDiffContextLine();
     void testInlineDiffFoldedRows();
+    void testInlineDiffPatience();
 #endif // WITH_TESTS
 };
 
@@ -1652,10 +1653,12 @@ public:
         , m_ignoreWhitespace(Core::ICore::settings()
                                  ->value(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false))
         , m_contextLines(Core::ICore::settings()->value(Constants::CONTEXT_LINES_KEY, 3))
+        , m_patience(Core::ICore::settings()->value(Constants::PATIENCE_KEY, false))
     {
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_COLLAPSE_KEY, hideUnchangedLines);
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY, false);
         Core::ICore::settings()->setValue(Constants::CONTEXT_LINES_KEY, 3);
+        Core::ICore::settings()->setValue(Constants::PATIENCE_KEY, false);
     }
     ~InlineDiffViewGuard()
     {
@@ -1663,12 +1666,14 @@ public:
         Core::ICore::settings()->setValue(Constants::INLINE_DIFF_IGNORE_WHITESPACE_KEY,
                                           m_ignoreWhitespace);
         Core::ICore::settings()->setValue(Constants::CONTEXT_LINES_KEY, m_contextLines);
+        Core::ICore::settings()->setValue(Constants::PATIENCE_KEY, m_patience);
     }
 
 private:
     const QVariant m_collapse;
     const QVariant m_ignoreWhitespace;
     const QVariant m_contextLines;
+    const QVariant m_patience;
 };
 
 } // namespace DiffEditor::Internal
@@ -2486,6 +2491,95 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffFoldedRows()
     QVERIFY(editorDoc->findBlockByNumber(3).isVisible());
     QTRY_VERIFY(baselineVisible(3));
     QVERIFY(!baselineLayout->hasEditorHiddenBlocks());
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// The "Patience" toggle: repeated lines leave more than one way to line the two
+// sides up, and patience anchors the alignment at the lines that occur only once
+// on each side. Which lines the ghost rows hold is the visible difference. See
+// QTCREATORBUG-34836.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffPatience()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard(/*hideUnchangedLines=*/false);
+
+    const QString baselineText
+        = QStringList{"delta();", "{", "alpha();", "beta();", "delta();", "delta();", "beta();"}
+              .join('\n') + '\n';
+    const QString editorText
+        = QStringList{"delta();", "{", "beta();", "delta();", "", "delta();", "alpha();",
+                      "beta();"}.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffPatience.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline,
+                                               "testInlineDiffPatience.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+    diffEditor->widget()->show();
+
+    // the editor lines that carry ghost rows for the removed lines
+    const auto ghostedLines = [](TextEditorWidget *widget) {
+        QList<int> lines;
+        for (QTextBlock block = widget->document()->firstBlock(); block.isValid();
+             block = block.next()) {
+            if (!widget->editorLayout()
+                     ->layoutItemsForCategory(block, inlineDiffGhostCategory()).isEmpty())
+                lines << block.blockNumber() + 1;
+        }
+        return lines;
+    };
+
+    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    QVERIFY(toolBar);
+    QAction *patienceAction = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
+        return action->objectName() == "InlineDiffPatienceAction";
+    });
+    QVERIFY(patienceAction);
+    QVERIFY(!patienceAction->isChecked());
+
+    // off: the repeated lines are paired up, which spreads the removal over two
+    // ghost rows
+    QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({3, 7}));
+
+    // on: the diff is recomputed and anchored at the unique "alpha();" line,
+    // leaving a single ghost row
+    patienceAction->setChecked(true);
+    QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({3}));
+
+    // and off again restores the other alignment
+    patienceAction->setChecked(false);
+    QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({3, 7}));
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));

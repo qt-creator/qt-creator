@@ -50,6 +50,13 @@ public:
     QList<Diff> unifiedDiff(const QString &text1, const QString &text2);
     void setDiffMode(DiffMode mode);
     DiffMode diffMode() const;
+    // Line up the subtexts (i.e. lines in LineMode) that occur exactly once on
+    // each side first, and diff the regions between them - "patience diff", as
+    // git calls it. Common but unrelated subtexts, like a lone closing brace,
+    // are then no longer matched up across a change. Has no effect in CharMode,
+    // which has no subtexts to be unique.
+    void setPatience(bool patience);
+    bool patience() const;
     static QList<Diff> merge(const QList<Diff> &diffList);
     static QList<Diff> cleanupSemantics(const QList<Diff> &diffList);
     static QList<Diff> cleanupSemanticsLossless(const QList<Diff> &diffList);
@@ -81,6 +88,8 @@ private:
     QList<Diff> diffMyers(const QString &text1, const QString &text2);
     QList<Diff> diffMyersSplit(const QString &text1, int x,
                                const QString &text2, int y);
+    QList<Diff> diffPatience(const QString &text1, const QString &text2);
+    QList<Diff> diffPatienceBetweenAnchors(const QString &text1, const QString &text2);
     QList<Diff> diffNonCharMode(const QString &text1, const QString &text2);
     QStringList encode(const QString &text1,
                        const QString &text2,
@@ -93,6 +102,7 @@ private:
                        int subTextStart);
     DiffMode m_diffMode = Differ::LineMode;
     DiffMode m_currentDiffMode = Differ::LineMode;
+    bool m_patience = false;
     std::optional<QFuture<void>> m_future;
 };
 

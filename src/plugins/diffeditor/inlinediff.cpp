@@ -293,7 +293,7 @@ static void ignoreWhitespaceChanges(ChunkData &chunk)
 
 static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
                                const QString &baselineText, const QString &editorText,
-                               bool ignoreWhitespace)
+                               bool ignoreWhitespace, bool patience)
 {
     if (baselineText == editorText) {
         InlineDiffRenderModel model;
@@ -305,6 +305,7 @@ static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
     }
 
     Differ differ(QFuture<void>(promise.future()));
+    differ.setPatience(patience);
     const QList<Diff> diffList = Differ::cleanupSemantics(differ.diff(baselineText, editorText));
     QList<Diff> leftDiffList;
     QList<Diff> rightDiffList;
@@ -1651,6 +1652,21 @@ public:
             startUpdate(); // the diff itself changes, recompute it
         });
 
+        // like the classic diff view's toggle, and stored under the same key
+        m_patience = Core::ICore::settings()->value(Constants::PATIENCE_KEY, false).toBool();
+        m_patienceAction = m_toolBar->addAction(QIcon(), Tr::tr("Patience"));
+        m_patienceAction->setObjectName("InlineDiffPatienceAction"); // autotest
+        m_patienceAction->setCheckable(true);
+        m_patienceAction->setChecked(m_patience);
+        m_patienceAction->setToolTip(Tr::tr("Line the lines that occur only once on each "
+                                            "side up first, which keeps unrelated lines, "
+                                            "like a lone brace, from being paired up."));
+        connect(m_patienceAction, &QAction::toggled, this, [this](bool on) {
+            Core::ICore::settings()->setValue(Constants::PATIENCE_KEY, on);
+            m_patience = on;
+            startUpdate(); // the diff itself changes, recompute it
+        });
+
         m_updateTimer.setSingleShot(true);
         m_updateTimer.setInterval(500);
         connect(&m_updateTimer, &QTimer::timeout, this, &InlineDiffEditor::startUpdate);
@@ -1858,10 +1874,10 @@ private:
 
         using namespace QtTaskTree;
         const auto onSetup = [baselineText = *m_baselineText, editorText,
-                              ignoreWhitespace = m_ignoreWhitespace]
+                              ignoreWhitespace = m_ignoreWhitespace, patience = m_patience]
             (Async<InlineDiffRenderModel> &async) {
             async.setConcurrentCallData(computeRenderModel, baselineText, editorText,
-                                        ignoreWhitespace);
+                                        ignoreWhitespace, patience);
         };
         const auto onDone = [this](const Async<InlineDiffRenderModel> &async) {
             applyModel(async.isResultAvailable() ? async.result() : InlineDiffRenderModel());
@@ -2035,7 +2051,9 @@ private:
     QAction *m_contextLabelAction = nullptr;
     QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_whitespaceAction = nullptr;
+    QAction *m_patienceAction = nullptr;
     bool m_ignoreWhitespace = false;
+    bool m_patience = false;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;
     bool m_centerOnNextModel = false;
     InlineDiffBaseline m_baseline;

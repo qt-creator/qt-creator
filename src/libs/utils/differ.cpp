@@ -975,7 +975,8 @@ QList<Diff> Differ::unifiedDiff(const QString &text1, const QString &text2)
 
     // Each different subtext is a separate symbol
     // process these symbols as text with bigger alphabet
-    QList<Diff> diffList = merge(preprocess1AndDiff(encodedText1, encodedText2));
+    QList<Diff> diffList = merge(m_patience ? diffPatience(encodedText1, encodedText2)
+                                            : preprocess1AndDiff(encodedText1, encodedText2));
 
     diffList = decode(diffList, subtexts);
     m_currentDiffMode = diffMode;
@@ -990,6 +991,16 @@ void Differ::setDiffMode(Differ::DiffMode mode)
 Differ::DiffMode Differ::diffMode() const
 {
     return m_diffMode;
+}
+
+void Differ::setPatience(bool patience)
+{
+    m_patience = patience;
+}
+
+bool Differ::patience() const
+{
+    return m_patience;
 }
 
 QList<Diff> Differ::preprocess1AndDiff(const QString &text1, const QString &text2)
@@ -1062,8 +1073,13 @@ QList<Diff> Differ::preprocess2AndDiff(const QString &text1, const QString &text
         }
     }
 
-    if (m_currentDiffMode != Differ::CharMode && text1.size() > 80 && text2.size() > 80)
+    // Short texts are diffed character wise directly, which gives the same
+    // result more cheaply - except with patience, which needs the subtexts to
+    // look for the unique ones among them.
+    if (m_currentDiffMode != Differ::CharMode
+        && (m_patience || (text1.size() > 80 && text2.size() > 80))) {
         return diffNonCharMode(text1, text2);
+    }
 
     return diffMyers(text1, text2);
 }
@@ -1189,6 +1205,135 @@ QList<Diff> Differ::diffMyersSplit(
     return diffList1 + diffList2;
 }
 
+// The pairs of positions <in text1, in text2> of the symbols that occur exactly
+// once in each text, reduced to the longest sequence that is increasing on both
+// sides. Those are the anchors of a patience diff: they can be lined up without
+// crossing each other, and no other pairing of them is more plausible.
+static QList<QPair<int, int>> patienceAnchors(const QString &text1, const QString &text2)
+{
+    QHash<QChar, int> count1;
+    QHash<QChar, int> count2;
+    QHash<QChar, int> position2;
+    for (const QChar &c : text1)
+        ++count1[c];
+    for (int i = 0; i < text2.size(); ++i) {
+        const QChar c = text2.at(i);
+        ++count2[c];
+        position2.insert(c, i);
+    }
+
+    // the candidates, in the order of text1
+    QList<QPair<int, int>> candidates;
+    for (int i = 0; i < text1.size(); ++i) {
+        const QChar c = text1.at(i);
+        if (count1.value(c) == 1 && count2.value(c) == 1)
+            candidates.append({i, position2.value(c)});
+    }
+    if (candidates.size() < 2)
+        return candidates;
+
+    // longest strictly increasing subsequence of the text2 positions, by
+    // patience sorting: tails[n] is the candidate ending the shortest
+    // increasing sequence of length n + 1 found so far
+    QList<int> tails;
+    QList<int> previous(candidates.size(), -1);
+    for (int candidate = 0; candidate < candidates.size(); ++candidate) {
+        const int position = candidates.at(candidate).second;
+        int low = 0;
+        int high = tails.size();
+        while (low < high) {
+            const int middle = (low + high) / 2;
+            if (candidates.at(tails.at(middle)).second < position)
+                low = middle + 1;
+            else
+                high = middle;
+        }
+        if (low > 0)
+            previous[candidate] = tails.at(low - 1);
+        if (low == tails.size())
+            tails.append(candidate);
+        else
+            tails[low] = candidate;
+    }
+
+    QList<QPair<int, int>> anchors;
+    for (int candidate = tails.isEmpty() ? -1 : tails.last(); candidate >= 0;
+         candidate = previous.at(candidate)) {
+        anchors.prepend(candidates.at(candidate));
+    }
+    return anchors;
+}
+
+QList<Diff> Differ::diffPatience(const QString &text1, const QString &text2)
+{
+    if (m_future && m_future->isCanceled())
+        return {};
+
+    if (text1 == text2) {
+        if (text1.isEmpty())
+            return {};
+        return {Diff(Diff::Equal, text1)};
+    }
+    if (text1.isEmpty())
+        return {Diff(Diff::Insert, text2)};
+    if (text2.isEmpty())
+        return {Diff(Diff::Delete, text1)};
+
+    // the common ends need no anchors, and trimming them lets a symbol that
+    // occurs once in the rest of the texts act as one
+    QString newText1 = text1;
+    QString newText2 = text2;
+    const int prefixCount = commonPrefix(text1, text2);
+    if (prefixCount) {
+        newText1 = text1.mid(prefixCount);
+        newText2 = text2.mid(prefixCount);
+    }
+    const int suffixCount = commonSuffix(newText1, newText2);
+    if (suffixCount) {
+        newText1.chop(suffixCount);
+        newText2.chop(suffixCount);
+    }
+
+    QList<Diff> diffList = diffPatienceBetweenAnchors(newText1, newText2);
+    if (prefixCount)
+        diffList.prepend(Diff(Diff::Equal, text1.left(prefixCount)));
+    if (suffixCount)
+        diffList.append(Diff(Diff::Equal, text1.right(suffixCount)));
+    return diffList;
+}
+
+// Splits the texts at their anchors and diffs the regions between them the same
+// way, recursively. A region without anchors - no symbol of it is unique on both
+// sides - is left to the Myers diff.
+QList<Diff> Differ::diffPatienceBetweenAnchors(const QString &text1, const QString &text2)
+{
+    if (text1.isEmpty() && text2.isEmpty())
+        return {};
+    if (text1.isEmpty())
+        return {Diff(Diff::Insert, text2)};
+    if (text2.isEmpty())
+        return {Diff(Diff::Delete, text1)};
+
+    const QList<QPair<int, int>> anchors = patienceAnchors(text1, text2);
+    if (anchors.isEmpty())
+        return preprocess2AndDiff(text1, text2);
+
+    QList<Diff> diffList;
+    int position1 = 0;
+    int position2 = 0;
+    for (const QPair<int, int> &anchor : anchors) {
+        // the anchors themselves are equal, the regions in between are diffed
+        // with the anchors found inside them
+        diffList += diffPatience(text1.mid(position1, anchor.first - position1),
+                                 text2.mid(position2, anchor.second - position2));
+        diffList.append(Diff(Diff::Equal, text1.mid(anchor.first, 1)));
+        position1 = anchor.first + 1;
+        position2 = anchor.second + 1;
+    }
+    diffList += diffPatience(text1.mid(position1), text2.mid(position2));
+    return diffList;
+}
+
 QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
 {
     QString encodedText1;
@@ -1200,7 +1345,8 @@ QList<Diff> Differ::diffNonCharMode(const QString &text1, const QString &text2)
 
     // Each different subtext is a separate symbol
     // process these symbols as text with bigger alphabet
-    QList<Diff> diffList = preprocess1AndDiff(encodedText1, encodedText2);
+    QList<Diff> diffList = m_patience ? diffPatience(encodedText1, encodedText2)
+                                      : preprocess1AndDiff(encodedText1, encodedText2);
 
     diffList = decode(diffList, subtexts);
 
