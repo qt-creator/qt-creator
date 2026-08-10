@@ -37,7 +37,7 @@ using namespace Utils;
 
 namespace Mcp {
 
-static constexpr int s_maxPageSize = 100;
+static constexpr int s_maxPageSize = 200;
 
 enum ErrorCodes {
     // Defined by JSON RPC
