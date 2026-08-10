@@ -135,6 +135,8 @@ void QdbDevice::setupDefaultNetworkSettings(const QString &host)
     parameters.setTimeout(10);
     parameters.setAuthenticationType(SshParameters::AuthenticationTypeAll);
     parameters.setHostKeyCheckingMode(ProjectExplorer::SshHostKeyCheckingNone);
+    // Flashing a new image regenerates the host key.
+    parameters.setUseKnownHostsFile(false);
     setDefaultSshParameters(parameters);
 }
 
