@@ -1370,6 +1370,44 @@ void DocumentManager::checkForReload()
                 info.addCustomButton(Tr::tr("Close"), [document] {
                     EditorManager::closeDocuments({document}, false);
                 }, Tr::tr("Close this file and discard the contents."));
+                // Batch actions for when many files disappear at once, e.g.
+                // during an interactive rebase.
+                // Go by the recorded state, as the banners do: a file that came back
+                // meanwhile is not noticed before the next activation.
+                const auto removedDocuments = [] {
+                    return Utils::filtered(
+                        DocumentManager::conflictedDocuments(), [](IDocument *doc) {
+                            return Utils::anyOf(
+                                d->m_documentsWithWatch.value(doc), [doc](const FilePath &key) {
+                                    const auto states = d->m_states.value(key).lastUpdatedState;
+                                    return states.contains(doc)
+                                           && !states.value(doc).modified.isValid();
+                                });
+                        });
+                };
+                info.addCustomButton(
+                    Tr::tr("Keep All"),
+                    [removedDocuments] {
+                        const QList<IDocument *> docs = removedDocuments();
+                        const QList<QPointer<IDocument>> guardedDocs(docs.cbegin(), docs.cend());
+                        for (const QPointer<IDocument> &doc : guardedDocs) {
+                            if (!doc) // may have been deleted as a side effect of another reload
+                                continue;
+                            // Keep the recorded state "missing", so that a file which came
+                            // back is still offered for reload on the next activation.
+                            d->m_blockedIDocument = doc;
+                            reloadDocument(doc, IDocument::FlagIgnore, IDocument::TypeRemoved);
+                            d->m_blockedIDocument = nullptr;
+                        }
+                    },
+                    Tr::tr("Keep all editors whose files were removed."));
+                info.addCustomButton(
+                    Tr::tr("Close All"),
+                    [removedDocuments] {
+                        EditorManager::closeDocuments(removedDocuments(), true);
+                    },
+                    Tr::tr("Close all editors whose files were removed and discard "
+                           "their contents."));
                 info.removeCancelButton();
                 infoBar->addInfo(info);
             }

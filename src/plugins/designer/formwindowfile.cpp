@@ -189,10 +189,10 @@ bool FormWindowFile::isSaveAsAllowed() const
     return true;
 }
 
-Result<> FormWindowFile::reload(ReloadFlag flag, ChangeType type)
+Result<> FormWindowFile::reload(ReloadFlag flag, ChangeType)
 {
     if (flag == FlagIgnore) {
-        if (!m_formWindow || type != TypeContents)
+        if (!m_formWindow)
             return ResultOk;
         const bool wasModified = m_formWindow->isDirty();
         {

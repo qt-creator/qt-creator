@@ -1041,12 +1041,9 @@ Result<> TextDocument::setPlainText(const QString &text)
     return ResultOk;
 }
 
-Result<> TextDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> TextDocument::reload(ReloadFlag flag, ChangeType)
 {
     if (flag == FlagIgnore) {
-        if (type != TypeContents)
-            return ResultOk;
-
         const bool wasModified = document()->isModified();
         {
             GuardLocker locker(d->m_modificationChangedGuard);

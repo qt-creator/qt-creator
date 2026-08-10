@@ -75,6 +75,18 @@ static bool hasBannerButton(IDocument *document, const QString &text)
     });
 }
 
+static bool pressBannerButton(IDocument *document, const QString &text)
+{
+    const QList<InfoBarEntry::Button> buttons = bannerButtons(document);
+    for (const InfoBarEntry::Button &button : buttons) {
+        if (button.text == text) {
+            button.callback();
+            return true;
+        }
+    }
+    return false;
+}
+
 // The re-check of files that went missing runs when the application becomes
 // active again, which without a window is the blocker's state change. It arms
 // the delayed reload check only when it found something, so a test that finds
@@ -105,6 +117,9 @@ private slots:
     void testActivationIgnoresStillMissingFile();
     void testApplicationActivationOffersReload();
     void testReappearedSharedFileIsWatchedAgain();
+    void testCloseAllClosesOnlyRemovedFiles();
+    void testKeepAllMarksRemovedFilesModified();
+    void testIgnoreAllMarksRemovedFileModified();
 
 private:
     // Behave as if the file-system watcher reported the paths and run the reload
@@ -492,6 +507,110 @@ void DocumentManagerTest::testReappearedSharedFileIsWatchedAgain()
     document->infoBar()->removeInfo(Id(Constants::RELOAD_INFOBAR));
     QVERIFY(modifyFileOnDisk(filePath, "line1\nrestored\nagain\n"));
     QTRY_VERIFY(hasBannerButton(document, Tr::tr("Reload")));
+}
+
+// The batch buttons of the removal banner act on every editor whose file is
+// gone, not on the conflicted set as a whole: a file that merely changed on
+// disk has its own banner, and closing it here would discard contents that the
+// user can still get back by reloading.
+void DocumentManagerTest::testCloseAllClosesOnlyRemovedFiles()
+{
+    setReloadSetting(IDocument::AlwaysAsk);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath first = tempDir.filePath("first.txt");
+    const FilePath second = tempDir.filePath("second.txt");
+    const FilePath changed = tempDir.filePath("changed.txt");
+
+    IDocument *firstDocument = nullptr;
+    IDocument *secondDocument = nullptr;
+    QVERIFY(openTwoFiles(first, second, &firstDocument, &secondDocument));
+    QVERIFY(changed.writeFileContents("changed\n"));
+    IEditor *changedEditor = EditorManager::openEditor(changed);
+    QVERIFY(changedEditor);
+    IDocument *changedDocument = changedEditor->document();
+    QVERIFY(changedDocument);
+
+    QVERIFY(first.removeFile());
+    QVERIFY(second.removeFile());
+    QVERIFY(modifyFileOnDisk(changed, "changed\nagain\n"));
+    triggerReloadCheck({first, second, changed});
+    QVERIFY(firstDocument->isConflicted());
+    QVERIFY(secondDocument->isConflicted());
+    QVERIFY(changedDocument->isConflicted());
+    // Back on disk, but not noticed before the next check: still shown as removed.
+    QVERIFY(first.writeFileContents("first\n"));
+
+    // Do not dereference the closed documents afterwards.
+    QVERIFY(pressBannerButton(firstDocument, Tr::tr("Close All")));
+
+    const QList<IDocument *> open = DocumentModel::openedDocuments();
+    QVERIFY(!open.contains(firstDocument));
+    QVERIFY(!open.contains(secondDocument));
+    QVERIFY(open.contains(changedDocument));
+    QVERIFY(changedDocument->isConflicted());
+}
+
+// A kept editor whose file is gone holds the only copy of the contents, so
+// closing it later must ask to save rather than discard them silently.
+void DocumentManagerTest::testKeepAllMarksRemovedFilesModified()
+{
+    setReloadSetting(IDocument::AlwaysAsk);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath first = tempDir.filePath("first.txt");
+    const FilePath second = tempDir.filePath("second.txt");
+
+    IDocument *firstDocument = nullptr;
+    IDocument *secondDocument = nullptr;
+    QVERIFY(openTwoFiles(first, second, &firstDocument, &secondDocument));
+    QVERIFY(!firstDocument->isModified());
+    QVERIFY(!secondDocument->isModified());
+
+    QVERIFY(first.removeFile());
+    QVERIFY(second.removeFile());
+    triggerReloadCheck({first, second});
+    QVERIFY(firstDocument->isConflicted());
+    QVERIFY(secondDocument->isConflicted());
+    // Back on disk, but not noticed before the next check: still shown as removed.
+    QVERIFY(first.writeFileContents("first\n"));
+
+    QVERIFY(pressBannerButton(firstDocument, Tr::tr("Keep All")));
+
+    QVERIFY(!firstDocument->isConflicted());
+    QVERIFY(!secondDocument->isConflicted());
+    QVERIFY(!hasBannerButton(firstDocument, Tr::tr("Keep All")));
+    QVERIFY(!hasBannerButton(secondDocument, Tr::tr("Keep All")));
+    QVERIFY(firstDocument->isModified());
+    QVERIFY(secondDocument->isModified());
+
+    simulateActivation();
+    QTRY_VERIFY(hasBannerButton(firstDocument, Tr::tr("Reload")));
+}
+
+void DocumentManagerTest::testIgnoreAllMarksRemovedFileModified()
+{
+    setReloadSetting(IDocument::IgnoreAll);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath first = tempDir.filePath("first.txt");
+    const FilePath second = tempDir.filePath("second.txt");
+
+    IDocument *firstDocument = nullptr;
+    IDocument *secondDocument = nullptr;
+    QVERIFY(openTwoFiles(first, second, &firstDocument, &secondDocument));
+
+    QVERIFY(first.removeFile());
+    triggerReloadCheck({first});
+    QVERIFY(!firstDocument->isConflicted());
+    QVERIFY(firstDocument->isModified());
+    QVERIFY(!secondDocument->isModified());
 }
 
 QObject *createDocumentManagerTest()
