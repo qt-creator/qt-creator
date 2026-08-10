@@ -2195,6 +2195,7 @@ FileDialog::FileDialog(QWidget *parent)
             d->m_pathCombo,
             LineEdit {
                 bindTo(&d->m_searchEdit),
+                Layouting::objectName("searchEdit"),
                 placeholderText(Tr::tr("Search")),
             },
         },
@@ -2213,6 +2214,7 @@ FileDialog::FileDialog(QWidget *parent)
                     Label { bindTo(&d->m_saveAsLabel), text(Tr::tr("Save As:")) },
                     LineEdit {
                         bindTo(&d->m_saveAsEdit),
+                        Layouting::objectName("saveAsEdit"),
                         placeholderText(Tr::tr("File Name")),
                         onReturnPressed(this, [acceptFileNameField](auto &) {
                             acceptFileNameField();
@@ -2227,6 +2229,7 @@ FileDialog::FileDialog(QWidget *parent)
                     Label { bindTo(&d->m_fileNameLabel), text(Tr::tr("File name:")) },
                     LineEdit {
                         bindTo(&d->m_fileNameEdit),
+                        Layouting::objectName("fileNameEdit"),
                         placeholderText(Tr::tr("File Name")),
                         onReturnPressed(this, [acceptFileNameField](auto &) {
                             acceptFileNameField();
@@ -2248,6 +2251,7 @@ FileDialog::FileDialog(QWidget *parent)
                         dialogButton(QDialogButtonBox::ButtonRole::AcceptRole,
                             QtDesignWidgets::Button {
                                 bindTo(&d->m_acceptButton),
+                                Layouting::objectName("acceptButton"),
                                 stdButtonText(QDialogButtonBox::StandardButton::Open),
                                 enabled(false),
                                 onClicked(this, handleOpen),
