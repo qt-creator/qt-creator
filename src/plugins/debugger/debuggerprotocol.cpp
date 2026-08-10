@@ -819,6 +819,8 @@ QString decodeData(QStringView ba, const QString &encoding)
         return Tr::tr("<%n items>", nullptr, ba.toInt());
     if (encoding == "notaccessible")
         return Tr::tr("<not accessible>");
+    if (encoding == "incomplete")
+        return Tr::tr("<incomplete type>");
     if (encoding == "optimizedout")
         return Tr::tr("<optimized out>");
     if (encoding == "nullreference")

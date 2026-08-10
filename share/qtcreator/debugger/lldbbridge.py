@@ -3938,6 +3938,7 @@ class SummaryProvider(LogMixin):
                 "null":             "<null>",
                 "itemcount":        "<%s items>" % summaryValue,
                 "notaccessible":    "<not accessible>",
+                "incomplete":       "<incomplete type>",
                 "optimizedout":     "<optimized out>",
                 "nullreference":    "<null reference>",
                 "emptystructure":   "<empty structure>",
