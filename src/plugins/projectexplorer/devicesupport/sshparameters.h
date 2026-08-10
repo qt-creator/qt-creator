@@ -60,6 +60,12 @@ public:
     SshHostKeyCheckingMode hostKeyCheckingMode() const { return m_hostKeyCheckingMode; }
     void setHostKeyCheckingMode(SshHostKeyCheckingMode mode) { m_hostKeyCheckingMode = mode; }
 
+    // Whether to use the user's known_hosts file at all. Device types whose
+    // hardware gets reflashed can turn this off: the board regenerates its host
+    // key, and the stale entry then makes ssh refuse password authentication.
+    bool useKnownHostsFile() const { return m_useKnownHostsFile; }
+    void setUseKnownHostsFile(bool use) { m_useKnownHostsFile = use; }
+
     // ssh ProxyJump spec ("[user@]host[:port]") to reach the target through
     // another host ("Access via"). Empty means a direct connection.
     QString proxyJump() const { return m_proxyJump; }
@@ -71,6 +77,7 @@ private:
     int m_timeout = 0; // In seconds. TODO: Change to chrono::duration
     AuthenticationType m_authenticationType = AuthenticationTypeAll;
     SshHostKeyCheckingMode m_hostKeyCheckingMode = SshHostKeyCheckingAllowNoMatch;
+    bool m_useKnownHostsFile = true;
 
     QString m_host;
     quint16 m_port = 22;

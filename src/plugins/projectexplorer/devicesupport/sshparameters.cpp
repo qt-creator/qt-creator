@@ -54,6 +54,13 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     QStringList args{"-o", "StrictHostKeyChecking=" + hostKeyCheckingString,
                      "-o", "Port=" + QString::number(port())};
 
+    if (!m_useKnownHostsFile) {
+        // The null device makes ssh neither read nor record host keys.
+        const QString nullDevice = HostOsInfo::isWindowsHost() ? QString("NUL")
+                                                               : QString("/dev/null");
+        args << "-o" << "UserKnownHostsFile=" + nullDevice;
+    }
+
     if (!userName().isEmpty())
         args << "-o" << "User=" + userName();
 
@@ -114,6 +121,7 @@ bool operator==(const SshParameters &p1, const SshParameters &p2)
             && p1.m_authenticationType == p2.m_authenticationType
             && p1.m_privateKeyFile == p2.m_privateKeyFile
             && p1.m_hostKeyCheckingMode == p2.m_hostKeyCheckingMode
+            && p1.m_useKnownHostsFile == p2.m_useKnownHostsFile
             && p1.m_x11DisplayName == p2.m_x11DisplayName
             && p1.m_timeout == p2.m_timeout
             && p1.m_proxyJump == p2.m_proxyJump;
