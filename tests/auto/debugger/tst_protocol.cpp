@@ -213,6 +213,18 @@ void tst_protocol::reformatCharacter()
     QCOMPARE(Debugger::Internal::reformatCharacter(code, size, isSigned), expected);
 }
 
+// The printed glyph is wrapped in Unicode directional isolates, so that a
+// right-to-left character cannot reorder the quotes around it.
+static QString isolated(const QString &glyph)
+{
+    return QChar(0x2068) + glyph + QChar(0x2069);
+}
+
+static QString isolated(QChar glyph)
+{
+    return isolated(QString(glyph));
+}
+
 void tst_protocol::reformatCharacter_data()
 {
     QTest::addColumn<int>("code");
@@ -222,9 +234,9 @@ void tst_protocol::reformatCharacter_data()
 
     // Printable ASCII: trailing space after the character, then tab
     QTest::newRow("A-unsigned")
-        << int('A') << 1 << false << QString("'A' \t65\t0x41");
+        << int('A') << 1 << false << ("'" + isolated(QChar(u'A')) + "' \t65\t0x41");
     QTest::newRow("A-signed")
-        << int('A') << 1 << true << QString("'A' \t65    \t0x41");
+        << int('A') << 1 << true << ("'" + isolated(QChar(u'A')) + "' \t65    \t0x41");
     QTest::newRow("nul")
         << 0 << 1 << false << QString("'\\0'\t0\t0x00");
     QTest::newRow("newline")
@@ -238,21 +250,30 @@ void tst_protocol::reformatCharacter_data()
         << int('\a') << 1 << false << QString("    \t7\t0x07");
     QTest::newRow("signed-minus8")
         << int(-8) << 1 << true
-        << (QString("'") + QChar(0xf8) + "' \t-8/248\t0xf8");
+        << ("'" + isolated(QChar(0xf8)) + "' \t-8/248\t0xf8");
     QTest::newRow("signed-minus1")
         << int(-1) << 1 << true
-        << (QString("'") + QChar(0xff) + "' \t-1/255\t0xff");
+        << ("'" + isolated(QChar(0xff)) + "' \t-1/255\t0xff");
     QTest::newRow("unsigned-minus40")
         << int(-40) << 1 << false
-        << (QString("'") + QChar(0xd8) + "' \t216\t0xd8");
+        << ("'" + isolated(QChar(0xd8)) + "' \t216\t0xd8");
 
     // Debugger reports value as unsigned. Function must re-interpret as signed.
     QTest::newRow("signed-from-unsigned-size1")
         << 216 << 1 << true
-        << (QString("'") + QChar(0xd8) + "' \t-40/216\t0xd8");
+        << ("'" + isolated(QChar(0xd8)) + "' \t-40/216\t0xd8");
     QTest::newRow("signed-from-unsigned-size2")
         << 0x8000 << 2 << true
-        << (QString("'") + QChar(0x8000) + "' \t-32768/32768\t0x8000");
+        << ("'" + isolated(QChar(0x8000)) + "' \t-32768/32768\t0x8000");
+
+    // Hebrew alef, the case the isolates are there for.
+    QTest::newRow("right-to-left")
+        << 0x05d0 << 2 << false
+        << ("'" + isolated(QChar(0x05d0)) + "' \t1488\t0x05d0");
+    // Above the BMP, which takes the other branch and has no trailing space.
+    QTest::newRow("beyond-bmp")
+        << 0x1f600 << 4 << false
+        << ("'" + isolated(QString::fromUcs4(U"\U0001F600")) + "'\t128512\t0x0001f600");
 }
 
 void tst_protocol::reformatCharacterWithFormat()
@@ -277,7 +298,7 @@ void tst_protocol::reformatCharacterWithFormat_data()
 
     QTest::newRow("auto-A")
         << int('A') << 1 << false << int(AutomaticFormat)
-        << QString("'A' \t65\t0x41");
+        << ("'" + isolated(QChar(u'A')) + "' \t65\t0x41");
 
     QTest::newRow("decimal-A")
         << int('A') << 1 << false << int(DecimalIntegerFormat)

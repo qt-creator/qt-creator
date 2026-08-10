@@ -999,12 +999,18 @@ QString reformatUnsignedInteger128(unsigned __int128 value, int format)
 
 QString reformatCharacter(int code, int size, bool isSigned)
 {
+    // Wrap the printed glyph in Unicode directional isolates (FSI ... PDI) so a
+    // right-to-left character cannot reorder the surrounding quotes in the value
+    // column (QTCREATORBUG-18006).
+    const QString fsi(QChar(0x2068));
+    const QString pdi(QChar(0x2069));
+
     if (code > 0xffff) {
         std::array<char, sizeof(char32_t)> buf;
         memcpy(buf.data(), &code, sizeof(char32_t));
         QByteArrayView view(buf);
         const QString encoded = QStringDecoder(QStringDecoder::Utf32)(view);
-        return QString("'%1'\t%2\t0x%3").arg(encoded).arg(unsigned(code))
+        return QString("'%1'\t%2\t0x%3").arg(fsi + encoded + pdi).arg(unsigned(code))
                    .arg(uint(code & ((1ULL << (8*size)) - 1)), 2 * size, 16, QLatin1Char('0'));
     }
 
@@ -1018,7 +1024,7 @@ QString reformatCharacter(int code, int size, bool isSigned)
 
     QString out;
     if (c.isPrint())
-        out = QString("'") + c + "' ";
+        out = QString("'") + fsi + c + pdi + "' ";
     else if (code == 0)
         out = "'\\0'";
     else if (code == '\r')
