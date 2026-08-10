@@ -1,5 +1,5 @@
 add_qtc_executable(qtc-askpass
-  DEPENDS Qt::Widgets
+  DEPENDS Qt::Network Qt::Widgets
   SOURCES
     qtc-askpass-main.cpp
 )

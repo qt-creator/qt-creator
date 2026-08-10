@@ -41,7 +41,9 @@ public:
 
     QStringList connectionOptions(const Utils::FilePath &binary) const;
 
-    static void setupSshEnvironment(Utils::Process *process);
+    // A non-empty \a password is handed to qtc-askpass when ssh prompts for
+    // one, so that no pseudo-terminal and no user interaction are needed.
+    static void setupSshEnvironment(Utils::Process *process, const QString &password = {});
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
 

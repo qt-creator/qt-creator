@@ -13,10 +13,80 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QLocalServer>
+#include <QLocalSocket>
+#include <QRandomGenerator>
+#include <QUuid>
 
 using namespace Utils;
 
 namespace ProjectExplorer {
+
+/*
+    Serves stored passwords to the qtc-askpass instances that ssh starts.
+
+    The password never enters the child's environment or the file system. The
+    child is told the name of a local server and a random token, and reads the
+    password back over that connection. The token is worthless once the process
+    that it was issued for is gone.
+*/
+class AskPassServer
+{
+public:
+    static AskPassServer &instance()
+    {
+        static AskPassServer theServer;
+        return theServer;
+    }
+
+    // Returns an empty string when no server is listening.
+    QString registerPassword(const QString &password)
+    {
+        if (!m_server.isListening())
+            return {};
+        QString token;
+        for (int i = 0; i < 4; ++i) {
+            token += QString::number(QRandomGenerator::system()->generate64(), 16)
+                         .rightJustified(16, '0');
+        }
+        m_passwords.insert(token, password);
+        return token;
+    }
+
+    void unregisterPassword(const QString &token) { m_passwords.remove(token); }
+
+    QString serverName() const { return m_server.fullServerName(); }
+
+private:
+    AskPassServer()
+    {
+        m_server.setSocketOptions(QLocalServer::UserAccessOption);
+        if (!m_server.listen("qtcreator-askpass-" + QUuid::createUuid().toString(QUuid::Id128)))
+            qWarning() << "Cannot serve stored SSH passwords:" << m_server.errorString();
+
+        QObject::connect(&m_server, &QLocalServer::newConnection, &m_server, [this] {
+            while (QLocalSocket *socket = m_server.nextPendingConnection())
+                serve(socket);
+        });
+    }
+
+    void serve(QLocalSocket *socket)
+    {
+        QObject::connect(socket, &QLocalSocket::disconnected, socket, &QLocalSocket::deleteLater);
+        QObject::connect(socket, &QLocalSocket::readyRead, socket, [this, socket] {
+            if (!socket->canReadLine())
+                return;
+            const QByteArray token = socket->readLine().trimmed();
+            const QString password = m_passwords.value(QString::fromLatin1(token));
+            if (!password.isEmpty())
+                socket->write(password.toUtf8() + '\n');
+            socket->disconnectFromServer();
+        });
+    }
+
+    QLocalServer m_server;
+    QHash<QString, QString> m_passwords;
+};
 
 SshParameters::SshParameters() = default;
 
@@ -85,7 +155,7 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     return args;
 }
 
-void SshParameters::setupSshEnvironment(Process *process)
+void SshParameters::setupSshEnvironment(Process *process, const QString &password)
 {
     Environment env = process->controlEnvironment();
     if (!env.hasChanges())
@@ -100,6 +170,22 @@ void SshParameters::setupSshEnvironment(Process *process)
         // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.
         if (!env.hasKey("DISPLAY"))
             env.set("DISPLAY", ":0");
+
+        // Answer the prompt from the stored password instead of asking the
+        // user. Only our own askpass knows how to pick the password up, and
+        // only for as long as this process runs.
+        if (!password.isEmpty() && askPass.fileName().contains("qtc")) {
+            const QString token = AskPassServer::instance().registerPassword(password);
+            if (!token.isEmpty()) {
+                env.set("QTC_ASKPASS_SERVER", AskPassServer::instance().serverName());
+                env.set("QTC_ASKPASS_TOKEN", token);
+                const auto forget = [token] {
+                    AskPassServer::instance().unregisterPassword(token);
+                };
+                QObject::connect(process, &Process::done, process, forget);
+                QObject::connect(process, &QObject::destroyed, process, forget);
+            }
+        }
     }
     process->setEnvironment(env);
 
