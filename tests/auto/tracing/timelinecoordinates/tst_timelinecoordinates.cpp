@@ -18,7 +18,36 @@ private slots:
     void rowAt();
     void rowTop_data();
     void rowTop();
+    void rulerBlockDuration();
+    void forEachRulerTick();
 };
+
+namespace {
+
+struct Ticks
+{
+    QList<qint64> blockTimes;
+    QList<double> blockX;
+    QList<double> minor;
+    QList<double> major;
+    double pixelsPerBlock = 0.0;
+};
+
+Ticks collectTicks(qint64 rangeStart, qint64 rangeEnd, double widthPx)
+{
+    Ticks ticks;
+    Timeline::forEachRulerTick(
+        rangeStart, rangeEnd, widthPx,
+        [&](qint64 t, double x, double pixelsPerBlock) {
+            ticks.blockTimes.append(t);
+            ticks.blockX.append(x);
+            ticks.pixelsPerBlock = pixelsPerBlock;
+        },
+        [&](double x, bool isMajor) { (isMajor ? ticks.major : ticks.minor).append(x); });
+    return ticks;
+}
+
+} // namespace
 
 void tst_TimelineCoordinates::timeToProportion()
 {
@@ -148,6 +177,78 @@ void tst_TimelineCoordinates::rowTop()
     QFETCH(int, expected);
 
     QCOMPARE(Timeline::rowTop(index, heights), expected);
+}
+
+void tst_TimelineCoordinates::rulerBlockDuration()
+{
+    // 1000 ns over 1000 px: the 120 px hint asks for 120 ns, snapped down to 64.
+    QCOMPARE(Timeline::rulerBlockDuration(1000, 1000.0), qint64(64));
+
+    // Snapping is to the power of two at or below the ideal duration.
+    QCOMPARE(Timeline::rulerBlockDuration(1280, 1280.0), qint64(64));
+    QCOMPARE(Timeline::rulerBlockDuration(2560, 1280.0), qint64(128));
+
+    // A smaller hint asks for shorter blocks.
+    QCOMPARE(Timeline::rulerBlockDuration(1000, 1000.0, 80), qint64(64));
+    QCOMPARE(Timeline::rulerBlockDuration(1000, 1000.0, 30), qint64(16));
+
+    // Never shorter than 1 ns, and degenerate input is safe.
+    QCOMPARE(Timeline::rulerBlockDuration(1, 100000.0), qint64(1));
+    QCOMPARE(Timeline::rulerBlockDuration(0, 100.0), qint64(1));
+    QCOMPARE(Timeline::rulerBlockDuration(100, 0.0), qint64(1));
+    QCOMPARE(Timeline::rulerBlockDuration(100, -1.0), qint64(1));
+}
+
+void tst_TimelineCoordinates::forEachRulerTick()
+{
+    // 1024 ns over 1024 px: 64 ns blocks, 64 px wide, 12.8 px per section.
+    const Ticks aligned = collectTicks(0, 1024, 1024.0);
+    QCOMPARE(aligned.pixelsPerBlock, 64.0);
+
+    // Blocks start at multiples of the block duration. The block starting on the
+    // right edge has no visible label area and is not reported.
+    QCOMPARE(aligned.blockTimes.size(), 16);
+    QCOMPARE(aligned.blockTimes.first(), qint64(0));
+    QCOMPARE(aligned.blockTimes.last(), qint64(960));
+    QCOMPARE(aligned.blockX.first(), 0.0);
+    QCOMPARE(aligned.blockX.last(), 960.0);
+
+    // A major tick sits on every block edge, the right edge of the view included.
+    QCOMPARE(aligned.major.size(), 16);
+    QCOMPARE(aligned.major.first(), 64.0);
+    QCOMPARE(aligned.major.last(), 1024.0);
+
+    // Four minor ticks per block, none of them beyond the last major tick.
+    QCOMPARE(aligned.minor.size(), 64);
+    QCOMPARE(aligned.minor.first(), 12.8);
+    QCOMPARE(aligned.minor.last(), 1011.2);
+
+    // Ticks arrive left to right and stay within the view.
+    for (const QList<double> &ticks : {aligned.minor, aligned.major}) {
+        for (int i = 0; i < ticks.size(); ++i) {
+            QVERIFY(ticks.at(i) >= 0.0 && ticks.at(i) <= 1024.0);
+            if (i > 0)
+                QVERIFY(ticks.at(i) > ticks.at(i - 1));
+        }
+    }
+
+    // A range that does not start on a block boundary: the first block starts
+    // left of the view and is reported, because its label area reaches into it.
+    const Ticks unaligned = collectTicks(100, 1100, 1000.0);
+    QCOMPARE(unaligned.blockTimes.first(), qint64(64));
+    QCOMPARE(unaligned.blockX.first(), -36.0);
+    QCOMPARE(unaligned.minor.first(), 2.4);
+    QCOMPARE(unaligned.major.first(), 28.0);
+
+    // Degenerate ranges report nothing at all.
+    for (const Ticks &ticks : {collectTicks(0, 0, 1000.0),
+                               collectTicks(1000, 0, 1000.0),
+                               collectTicks(0, 1000, 0.0),
+                               collectTicks(0, 1000, -1.0)}) {
+        QVERIFY(ticks.blockTimes.isEmpty());
+        QVERIFY(ticks.minor.isEmpty());
+        QVERIFY(ticks.major.isEmpty());
+    }
 }
 
 QTEST_GUILESS_MAIN(tst_TimelineCoordinates)
