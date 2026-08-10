@@ -404,6 +404,8 @@ private slots:
     void multi_byte_code_point_in_expansion();
     void trigraph();
     void nested_arguments_expansion();
+    void argument_prescan();
+    void argument_prescan_data();
     void preprocessorSymbolsAsMacroArguments();
     void pragmas();
 };
@@ -2278,6 +2280,48 @@ void tst_Preprocessor::nested_arguments_expansion()
     const QByteArray output = "# 1 \"<stdin>\"\n";
     // Check that it does not crash.
     QVERIFY(prep.contains(output));
+}
+
+void tst_Preprocessor::argument_prescan_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("output");
+
+    // Expected output as produced by gcc -E.
+    QTest::newRow("standard example") << _(
+            "#define x 3\n"
+            "#define f(a) f(x * (a))\n"
+            "#undef x\n"
+            "#define x 2\n"
+            "#define g f\n"
+            "#define z z[0]\n"
+            "#define t(a) a\n"
+            "f(y+1) + f(f(z)) % t(t(g)(0) + t)(1);\n"
+        ) << _("f(2 * (y+1)) + f(2 * (f(2 * (z[0])))) % f(2 * (0)) + t(1);\n");
+
+    QTest::newRow("painted through argument") << _(
+            "#define f(a) a*g\n"
+            "#define g(a) f(a)\n"
+            "f(2)(9)\n"
+        ) << _("2*9*g\n");
+
+    QTest::newRow("self reference in argument") << _(
+            "#define CAT(a, b) a ## b\n"
+            "#define XCAT(a, b) CAT(a, b)\n"
+            "#define AB done\n"
+            "#define B XCAT(A, B)\n"
+            "XCAT(A, B)\n"
+        ) << _("Adone\n");
+}
+
+void tst_Preprocessor::argument_prescan()
+{
+    QFETCH(QByteArray, input);
+    QFETCH(QByteArray, output);
+
+    Environment env;
+    Preprocessor preprocess(nullptr, &env);
+    QCOMPARE(simplified(preprocess.run("<stdin>", input)), simplified(output));
 }
 
 void tst_Preprocessor::preprocessorSymbolsAsMacroArguments()

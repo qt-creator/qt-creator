@@ -114,8 +114,19 @@ public:
     unsigned originalOffset() const
     { return m_originalOffset != -1 ? m_originalOffset : byteOffset; }
 
+    // "Do not expand" flag (gcc/clang macro-expansion approach): once a token
+    // that names a currently-expanding (disabled) macro is seen, it is frozen
+    // so it is never replaced later, even after the macro is re-enabled.
+    // Combined with the "a macro is disabled while its expansion buffer is on
+    // the chain" rule,
+    // it encodes gcc's NODE_DISABLED + NO_EXPAND / clang's MacroInfo::isEnabled
+    // + Token::DisableExpand.
+    bool disableExpand() const { return m_disableExpand; }
+    void setDisableExpand(bool on) { m_disableExpand = on; }
+
 private:
     QByteArray m_src;
+    bool m_disableExpand = false;
 
     // TODO: We may or may not be able to get rid of this member. In order to find out,
     //       all code calling this class' accessors (including the parent class'

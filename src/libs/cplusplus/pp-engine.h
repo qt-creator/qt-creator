@@ -193,6 +193,12 @@ private:
                                  const QList<QList<PPToken> > &actuals,
                                  unsigned lineRef);
 
+    // Fully macro-expand an actual argument before it is substituted for a
+    // parameter that is not an operand of # or ## (argument prescan,
+    // [cpp.subst]). Runs on an isolated buffer chain; tokens frozen during
+    // argument collection (setDisableExpand) stay frozen here.
+    QList<PPToken> expandTokenList(const QList<PPToken> &tokens);
+
     bool skipping() const
     { return m_state.m_skipping[m_state.m_ifLevel]; }
 
@@ -200,8 +206,7 @@ private:
 
     bool scanComment(PPToken *tk);
     bool consumeComments(PPToken *tk);
-    bool collectActualArguments(PPToken *tk, QList<QList<PPToken> > *actuals,
-                                const QByteArray &parentMacroName);
+    bool collectActualArguments(PPToken *tk, QList<QList<PPToken> > *actuals);
     void scanActualArgument(PPToken *tk, QList<PPToken> *tokens);
 
     void handlePreprocessorDirective(PPToken *tk);
