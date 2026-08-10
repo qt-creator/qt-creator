@@ -1,0 +1,38 @@
+name: Open and close the About Qt Creator dialog
+intent: >
+  Demonstrate driving a modal dialog end to end: invoke an action that opens
+  it, confirm and screenshot it, then dismiss it - all by semantic widget
+  queries, no screen coordinates. Serves as the smoke test for the scenario
+  runner and the MCP widget tools.
+
+steps:
+  - describe: Open the About Qt Creator dialog
+    # The dialog is modal (exec()), so this call does not return until a
+    # later step closes it. "blocks" makes the runner fire it and continue.
+    invoke_action: QtCreator.AboutQtCreator
+    blocks: true
+
+  - describe: Wait for the dialog to appear
+    wait_for:
+      class_name: QPushButton
+      window_title: About Qt Creator
+    timeout: 15
+
+  - describe: The About dialog is shown
+    expect:
+      text: Close
+      window_title: About Qt Creator
+
+  - describe: Capture the dialog
+    capture:
+      window_title: About Qt Creator
+
+  - describe: Close the dialog
+    click:
+      text: Close
+      window_title: About Qt Creator
+
+  - describe: The dialog is gone
+    expect_gone:
+      class_name: QPushButton
+      window_title: About Qt Creator
