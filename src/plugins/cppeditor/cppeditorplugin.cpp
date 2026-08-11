@@ -20,6 +20,7 @@
 #include "cpptoolsreuse.h"
 #include "cpptoolssettings.h"
 #include "cpptypehierarchy.h"
+#include "mcpsupport.h"
 #include "quickfixes/cppquickfix.h"
 #include "quickfixes/cppquickfixsettings.h"
 
@@ -252,6 +253,8 @@ void CppEditorPlugin::initialize()
     setupCppProjectUpdater();
 
     CppModelManager::registerJsExtension();
+
+    registerMcpTools();
 
     setupMenus();
     registerVariables();

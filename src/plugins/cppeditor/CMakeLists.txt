@@ -1,5 +1,5 @@
 add_qtc_plugin(CppEditor
-  DEPENDS Qt::Network Qt::Xml
+  DEPENDS Qt::Network Qt::Xml McpServerLib
   PUBLIC_DEPENDS CPlusPlus Qt::Widgets
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor
   PLUGIN_TEST_DEPENDS QbsProjectManager QmakeProjectManager
@@ -92,6 +92,7 @@ add_qtc_plugin(CppEditor
     includeutils.cpp includeutils.h
     indexitem.cpp indexitem.h
     insertionpointlocator.cpp insertionpointlocator.h
+    mcpsupport.cpp mcpsupport.h
     projectinfo.cpp projectinfo.h
     projectpart.cpp projectpart.h
     quickfixes/addmodulefrominclude.cpp quickfixes/addmodulefrominclude.h

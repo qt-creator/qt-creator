@@ -12,6 +12,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "McpServerLib" }
 
     pluginTestDepends: [
         "QmakeProjectManager",
@@ -194,6 +195,8 @@ QtcPlugin {
         "indexitem.h",
         "insertionpointlocator.cpp",
         "insertionpointlocator.h",
+        "mcpsupport.cpp",
+        "mcpsupport.h",
         "projectinfo.cpp",
         "projectinfo.h",
         "projectpart.cpp",
