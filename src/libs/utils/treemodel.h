@@ -228,6 +228,7 @@ protected:
     Qt::ItemFlags flags(const QModelIndex &idx) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     bool hasChildren(const QModelIndex &idx) const override;
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
     bool canFetchMore(const QModelIndex &idx) const override;
     void fetchMore(const QModelIndex &idx) override;
@@ -315,6 +316,7 @@ public:
     using BaseTreeModel::index;
     using BaseTreeModel::indexForItem;
     using BaseTreeModel::parent;
+    using BaseTreeModel::removeRows;
     using BaseTreeModel::rowCount;
     using BaseTreeModel::setData;
     using BaseTreeModel::setHeader;

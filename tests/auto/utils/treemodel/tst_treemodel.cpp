@@ -3,6 +3,7 @@
 
 #include <utils/treemodel.h>
 
+#include <QSortFilterProxyModel>
 #include <QTest>
 
 #include <type_traits>
@@ -19,6 +20,7 @@ private slots:
     void testTypes();
     void testIteration();
     void testMixed();
+    void testRemoveRows();
 };
 
 static int countLevelItems(TreeItem *base, int level)
@@ -91,6 +93,39 @@ void tst_TreeModel::testMixed()
     n = 0;
     m.forItemsAtLevel<2>([&n](ItemB *) { ++n; });
     QCOMPARE(n, 2);
+}
+
+void tst_TreeModel::testRemoveRows()
+{
+    TreeModel<> m;
+    TreeItem *r = m.rootItem();
+    for (int i = 0; i < 5; ++i)                     // item0 .. item4
+        r->appendChild(createItem(QString("item%1").arg(i)));
+    QCOMPARE(m.rowCount(), 5);
+
+    // Direct removal of a middle range.
+    QVERIFY(m.removeRows(1, 2));                     // drops item1, item2
+    QCOMPARE(m.rowCount(), 3);
+    QCOMPARE(m.index(0, 0).data().toString(), QString("item0"));
+    QCOMPARE(m.index(1, 0).data().toString(), QString("item3"));
+    QCOMPARE(m.index(2, 0).data().toString(), QString("item4"));
+
+    // Out-of-range and empty requests are rejected without changing anything.
+    QVERIFY(!m.removeRows(2, 5));
+    QVERIFY(!m.removeRows(-1, 1));
+    QVERIFY(!m.removeRows(0, 0));
+    QCOMPARE(m.rowCount(), 3);
+
+    // Removal through a QSortFilterProxyModel must reach the source model.
+    // The Valgrind suppression dialog relies on exactly this path
+    // (QTCREATORBUG-18041).
+    QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&m);
+    QCOMPARE(proxy.rowCount(), 3);
+    QVERIFY(proxy.removeRow(0));                     // drops item0 via the proxy
+    QCOMPARE(proxy.rowCount(), 2);
+    QCOMPARE(m.rowCount(), 2);
+    QCOMPARE(m.index(0, 0).data().toString(), QString("item3"));
 }
 
 void tst_TreeModel::testTypes()

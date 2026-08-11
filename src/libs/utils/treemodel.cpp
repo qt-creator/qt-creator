@@ -1213,6 +1213,20 @@ void BaseTreeModel::destroyItem(TreeItem *item)
     delete takeItem(item);
 }
 
+bool BaseTreeModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    if (count <= 0 || row < 0)
+        return false;
+    TreeItem *parentItem = itemForIndex(parent);
+    QTC_ASSERT(parentItem, return false);
+    if (row + count > parentItem->childCount())
+        return false;
+    // Remove back to front to keep the remaining row indices valid.
+    for (int i = row + count - 1; i >= row; --i)
+        parentItem->removeChildAt(i);
+    return true;
+}
+
 StaticTreeItem::StaticTreeItem(const QStringList &displays)
     : m_displays(displays)
 {
