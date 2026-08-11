@@ -4,6 +4,7 @@
 #include "mcpsupport.h"
 
 #include "cppcanonicalsymbol.h"
+#include "cppelementevaluator.h"
 #include "cppindexingsupport.h"
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
@@ -23,6 +24,8 @@
 #include <utils/filepath.h>
 #include <utils/result.h>
 
+#include <QFuture>
+#include <QFutureInterface>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QTextBlock>
@@ -143,6 +146,29 @@ static QList<CPlusPlus::Usage> symbolUsages(CPlusPlus::Symbol *symbol,
         usages += findUsages.usages();
     }
     return usages;
+}
+
+static QJsonObject hierarchyToJson(const CppClass &cppClass)
+{
+    QJsonObject node{{"name", cppClass.name}};
+    if (!cppClass.qualifiedName.isEmpty() && cppClass.qualifiedName != cppClass.name)
+        node.insert("qualified_name", cppClass.qualifiedName);
+    if (!cppClass.link.targetFilePath.isEmpty()) {
+        node.insert("file", cppClass.link.targetFilePath.toUserOutput());
+        node.insert("line", cppClass.link.target.line);
+        node.insert("column", cppClass.link.target.column);
+    }
+    QJsonArray bases;
+    for (const CppClass &base : cppClass.bases)
+        bases.append(hierarchyToJson(base));
+    if (!bases.isEmpty())
+        node.insert("bases", bases);
+    QJsonArray derived;
+    for (const CppClass &sub : cppClass.derived)
+        derived.append(hierarchyToJson(sub));
+    if (!derived.isEmpty())
+        node.insert("derived", derived);
+    return node;
 }
 
 void registerMcpTools()
@@ -445,6 +471,73 @@ void registerMcpTools()
             }
 
             return CallToolResult{}.isError(false).structuredContent(result);
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_type_hierarchy")
+            .title("Get C++ type hierarchy")
+            .description(
+                "Returns the base and derived class hierarchy of the C++ class or struct at "
+                "a position. Give the file and a 1-based line and column pointing at a class "
+                "name; returns the class with nested \"bases\" (up) and \"derived\" (down), "
+                "each with name and location. The file must belong to an open project.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Absolute path to the C++ file."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the class name."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the class name."}})
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("name", QJsonObject{{"type", "string"}})
+                    .addRequired("name")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            if (file.isEmpty() || line <= 0 || column <= 0) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Requires \"file\" and 1-based \"line\" and \"column\"."));
+            }
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            CPlusPlus::LookupContext context;
+            CPlusPlus::Symbol *symbol = symbolAt(filePath, line, column, &context);
+            if (!symbol) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ symbol found at %1:%2:%3.")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+
+            // A live (non-canceled) future is required; the lookups bail out on
+            // future.isCanceled(), and a default-constructed QFuture reads as
+            // canceled.
+            QFutureInterface<void> futureInterface;
+            futureInterface.reportStarted();
+            const QFuture<void> future = futureInterface.future();
+            CppClass cppClass(symbol);
+            cppClass.lookupBases(future, symbol, context);
+            cppClass.lookupDerived(future, symbol, context.snapshot());
+            futureInterface.reportFinished();
+
+            return CallToolResult{}.isError(false).structuredContent(hierarchyToJson(cppClass));
         });
 }
 
