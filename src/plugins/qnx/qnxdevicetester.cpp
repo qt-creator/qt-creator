@@ -39,7 +39,7 @@ void QnxDeviceTester::testDevice()
         "slog2info"
     };
 
-    setExtraCommandsToTest(commandsToTest);
+    setCommandsToTest(commandsToTest);
 
     using namespace QtTaskTree;
 

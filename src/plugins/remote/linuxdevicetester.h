@@ -25,6 +25,9 @@ public:
     ~GenericLinuxDeviceTester() override;
 
     void setExtraCommandsToTest(const QStringList &extraCommands);
+    // Replace the default set of required commands (instead of adding to it),
+    // for devices that legitimately lack some of them (e.g. QNX).
+    void setCommandsToTest(const QStringList &commands);
     void setExtraTests(const QList<QtTaskTree::GroupItem> &extraTests);
     void testDevice() override;
     void stopTest() override;

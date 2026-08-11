@@ -42,6 +42,7 @@ public:
     GenericLinuxDeviceTester *q = nullptr;
     LinuxDevice::Ptr m_device;
     QSingleTaskTreeRunner m_taskTreeRunner;
+    QStringList m_commandsToTest; // If set, replaces the default list below.
     QStringList m_extraCommands;
     GroupItems m_extraTests;
 };
@@ -81,7 +82,8 @@ QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
     // other possible commands (checked for qnx):
     // "awk", "grep", "netstat", "print", "pidin", "sleep", "uname"
 
-    QStringList commands = s_commandsToTest + m_extraCommands;
+    QStringList commands = (m_commandsToTest.isEmpty() ? s_commandsToTest : m_commandsToTest)
+                           + m_extraCommands;
     commands.removeDuplicates();
     Utils::sort(commands);
     return commands;
@@ -330,6 +332,11 @@ GenericLinuxDeviceTester::~GenericLinuxDeviceTester() = default;
 void GenericLinuxDeviceTester::setExtraCommandsToTest(const QStringList &extraCommands)
 {
     d->m_extraCommands = extraCommands;
+}
+
+void GenericLinuxDeviceTester::setCommandsToTest(const QStringList &commands)
+{
+    d->m_commandsToTest = commands;
 }
 
 void GenericLinuxDeviceTester::setExtraTests(const GroupItems &extraTests)
