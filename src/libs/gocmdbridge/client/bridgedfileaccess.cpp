@@ -806,46 +806,39 @@ Result<> FileAccess::iterateDirectory(
     Result<QFuture<Client::FindData>> result = m_client->find(filePath.nativePath(), filter);
     QTC_ASSERT_RESULT(result, return ResultError(result.error()));
 
-    int idx = 0;
+    QElapsedTimer t;
+    t.start();
 
-    auto processResults = [&idx, &result, &callback, filePath]() {
-        for (int i = idx; i < result->resultCount(); ++i, ++idx) {
-            auto res = result->resultAt(i);
+    try {
+        // Iterating the future waits for each result. Polling it instead would keep
+        // taking the future's mutex, starving the bridge thread that needs the same
+        // mutex to hand the results over.
+        for (const Client::FindData &res : *result) {
             if (!res.has_value()) {
                 if (res.error().has_value())
                     qCWarning(faLog) << "Error iterating directory:" << *res.error();
-                return;
+                break;
             }
 
             const FilePath path = filePath.withNewPath(FilePath::fromUserInput(res->path).path());
 
+            IterationPolicy policy;
             if (callback.index() == 0) {
-                if (std::get<0>(callback)(path) != IterationPolicy::Continue) {
-                    result->cancel();
-                    return;
-                }
+                policy = std::get<0>(callback)(path);
             } else {
-                FilePathInfo::FileFlags flags = fileInfoFlagsfromStatMode(res->mode);
-                if (std::get<1>(callback)(path, FilePathInfo{res->size, flags, res->modTime})
-                    != IterationPolicy::Continue) {
-                    result->cancel();
-                    return;
-                }
+                const FilePathInfo::FileFlags flags = fileInfoFlagsfromStatMode(res->mode);
+                policy = std::get<1>(callback)(path, FilePathInfo{res->size, flags, res->modTime});
+            }
+
+            if (policy != IterationPolicy::Continue) {
+                result->cancel();
+                break;
             }
         }
-    };
-
-    QElapsedTimer t;
-    t.start();
-
-    while (!result->isFinished()) {
-        if (result->isValid() && idx < result->resultCount()) {
-            result->resultAt(idx);
-            // Wait for the next result to become available
-            processResults();
-        }
+    } catch (const std::exception &e) {
+        return logError(
+            Tr::tr("Could not iterate the directory \"%1\": %2").arg(str(filePath), str(e)));
     }
-    processResults();
 
     qCDebug(faLog) << "Iterated directory" << filePath.toUserOutput() << "in" << t.elapsed() << "ms";
     return ResultOk;

@@ -52,10 +52,14 @@ struct ClientPrivate
     QThread *thread = nullptr;
     QTimer *watchDogTimer = nullptr;
 
+    // The handlers are shared, not copied, when taken out of the map: some of them
+    // keep state across the packets of one job (see Client::find).
+    using JobHandler = std::shared_ptr<std::function<JobResult(QVariantMap)>>;
+
     struct Jobs
     {
         int nextId = 0;
-        QMap<int, std::function<JobResult(QVariantMap)>> map;
+        QMap<int, JobHandler> map;
     };
 
     Utils::SynchronizedValue<Jobs> jobs;
@@ -285,19 +289,25 @@ Result<> ClientPrivate::readPacket(QCborStreamReader &reader)
         return *socketHandled;
 
     auto id = map.value("Id").toInt();
-    auto j = jobs.readLocked();
-    auto it = j->map.find(id);
-    if (it == j->map.end())
-        return ResultError(
-            QString("No job found for packet with id %1: %2")
-                .arg(id)
-                .arg(QString::fromUtf8(QJsonDocument::fromVariant(map).toJson())));
 
-    if (it.value()(map) == JobResult::Done) {
-        j.unlock();
-        auto jw = jobs.writeLocked();
-        jw->map.remove(id);
+    // Drop the lock before running the handler. The handler completes a promise,
+    // which can end up back here on this thread, and taking the write lock then
+    // would deadlock against our own read lock. The handler is kept alive by the
+    // shared pointer, so removing it from the map meanwhile is fine.
+    JobHandler job;
+    {
+        auto j = jobs.readLocked();
+        auto it = j->map.find(id);
+        if (it == j->map.end())
+            return ResultError(
+                QString("No job found for packet with id %1: %2")
+                    .arg(id)
+                    .arg(QString::fromUtf8(QJsonDocument::fromVariant(map).toJson())));
+        job = it.value();
     }
+
+    if ((*job)(map) == JobResult::Done)
+        jobs.writeLocked()->map.remove(id);
 
     return {};
 }
@@ -371,16 +381,24 @@ Result<> Client::start(bool deleteOnExit)
                         << "StandardOutput:" << d->process->readAllStandardOutput();
                 }
 
-                auto j = d->jobs.writeLocked();
-                for (auto it = j->map.cbegin(); it != j->map.cend();) {
-                    auto func = it.value();
-                    auto id = it.key();
-                    it = j->map.erase(it);
-                    func(QVariantMap{
+                // Take the handlers out first and run them without the lock, as they
+                // complete promises, which can end up in readPacket() on this thread.
+                QList<std::pair<int, Internal::ClientPrivate::JobHandler>> pending;
+                {
+                    auto j = d->jobs.writeLocked();
+                    for (auto it = j->map.cbegin(); it != j->map.cend(); ++it)
+                        pending.append({it.key(), it.value()});
+                    j->map.clear();
+                }
+
+                const QString error = QString("Process exited: %1").arg(d->process->errorString());
+                const bool exitedNormally = d->process->exitCode() == 0;
+                for (const auto &[id, func] : pending) {
+                    (*func)(QVariantMap{
                         {"Type", "error"},
                         {"Id", id},
-                        {"Error", QString("Process exited: %1").arg(d->process->errorString())},
-                        {"ErrorType", (d->process->exitCode() == 0 ? "NormalExit" : "ErrorExit")}});
+                        {"Error", error},
+                        {"ErrorType", (exitedNormally ? "NormalExit" : "ErrorExit")}});
                 }
 
                 // Finish any outstanding socket forward promises so that
@@ -513,7 +531,7 @@ static Utils::Result<QFuture<R>> createJob(
 
     auto j = d->jobs.writeLocked();
     int id = j->nextId++;
-    j->map.insert(id, [handleErrors, promise, resultFunc](QVariantMap map) {
+    auto handler = [handleErrors, promise, resultFunc](QVariantMap map) {
         QString type = map.value("Type").toString();
 
         if (handleErrors == Errors::Handle && type == "error") {
@@ -542,7 +560,9 @@ static Utils::Result<QFuture<R>> createJob(
             promise->finish();
 
         return result;
-    });
+    };
+    j->map.insert(id,
+                  std::make_shared<std::function<JobResult(QVariantMap)>>(std::move(handler)));
 
     args.insert(QString("Id"), id);
 
