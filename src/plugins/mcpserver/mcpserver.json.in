@@ -26,6 +26,10 @@
             "Name" : "-mcp-port",
             "Parameter" : "port",
             "Description" : "Start the MCP server on the given port (enables the server, overrides the configured port)"
+        },
+        {
+            "Name" : "-mcp-stdio",
+            "Description" : "Serve the MCP protocol over stdin/stdout (newline-delimited JSON-RPC), for MCP clients that spawn the server as a subprocess"
         }
     ],
     ${IDE_PLUGIN_DEPENDENCIES}

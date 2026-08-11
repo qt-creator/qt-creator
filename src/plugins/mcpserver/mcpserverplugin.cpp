@@ -43,9 +43,14 @@
 #include <QStyledItemDelegate>
 #include <QTableView>
 #include <QTcpServer>
+#include <QThread>
 #include <QToolTip>
 
 #include <QtTaskTree/QParallelTaskTreeRunner>
+
+#include <cstdio>
+#include <iostream>
+#include <string>
 
 using namespace Core;
 using namespace QtTaskTree;
@@ -381,6 +386,32 @@ void setupResources(QObject *guard, Mcp::Server &server, QParallelTaskTreeRunner
 
 static const char QT_MCPSERVER_MANAGER_ID[] = "QTCREATOR.BUILTIN.MCP.SERVER";
 
+// Reads newline-delimited JSON-RPC messages from stdin on a dedicated thread
+// (stdin has no portable readyRead notifier), handing each line and the final
+// EOF to the caller-supplied callbacks. The callbacks are invoked on this
+// thread; the caller marshals them to the main thread.
+class StdinReader : public QThread
+{
+public:
+    std::function<void(const QByteArray &)> onLine;
+    std::function<void()> onEof;
+
+protected:
+    void run() final
+    {
+        std::string line;
+        while (std::getline(std::cin, line)) {
+            QByteArray message = QByteArray::fromStdString(line);
+            if (message.endsWith('\r'))
+                message.chop(1);
+            if (!message.isEmpty() && onLine)
+                onLine(message);
+        }
+        if (onEof)
+            onEof();
+    }
+};
+
 class McpServerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -427,6 +458,12 @@ public:
         }
 
         restartServer();
+
+        // Serve over stdin/stdout for MCP clients that spawn the server as a
+        // subprocess (the transport most clients default to).
+        if (arguments.contains("-mcp-stdio"))
+            startStdio();
+
         return ResultOk;
     }
 
@@ -441,6 +478,10 @@ public:
     ShutdownFlag aboutToShutdown() final
     {
         qDeleteAll(m_server.boundTcpServers());
+        if (m_stdinReader && m_stdinReader->isRunning()) {
+            m_stdinReader->terminate(); // The thread is blocked in getline() on stdin.
+            m_stdinReader->wait(200);
+        }
         return SynchronousShutdown;
     }
 
@@ -494,6 +535,39 @@ public:
         }
     }
 
+    void startStdio()
+    {
+        const Result<std::function<void(QByteArray)>> input
+            = m_server.bindIO([](const QByteArray &message) {
+                  // MCP stdio framing: one JSON-RPC message per line on stdout.
+                  std::fwrite(message.constData(), 1, size_t(message.size()), stdout);
+                  std::fputc('\n', stdout);
+                  std::fflush(stdout);
+              });
+        if (!input) {
+            qCWarning(mcpPlugin) << "MCP stdio: bindIO failed:" << input.error();
+            return;
+        }
+        m_stdioInput = *input;
+
+        m_stdinReader = std::make_unique<StdinReader>();
+        m_stdinReader->onLine = [this](const QByteArray &message) {
+            QMetaObject::invokeMethod(
+                this,
+                [this, message] {
+                    if (m_stdioInput)
+                        m_stdioInput(message);
+                },
+                Qt::QueuedConnection);
+        };
+        m_stdinReader->onEof = [this] {
+            QMetaObject::invokeMethod(
+                this, [] { QCoreApplication::quit(); }, Qt::QueuedConnection);
+        };
+        m_stdinReader->start();
+        qCInfo(mcpPlugin) << "MCP server serving over stdio.";
+    }
+
     bool isServerRunning() const { return !m_server.boundTcpServers().isEmpty(); }
     QString listenAddresses() const
     {
@@ -520,6 +594,9 @@ private:
             .description(
                 "MCP server for Qt Creator to allow external tools to interact with the IDE.")
             .version(QCoreApplication::applicationVersion())};
+
+    std::unique_ptr<StdinReader> m_stdinReader;
+    std::function<void(QByteArray)> m_stdioInput;
 
     McpServerPluginSettings settings{this};
     McpServerSettingsPage settingsPage{&settings};
