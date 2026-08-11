@@ -451,6 +451,38 @@ class Runner:
         self.record(step["describe"], "press_keys " + json.dumps(args),
                     note="Pressed " + keys, tool="press_keys", check={"keys": keys})
 
+    def _await_menu_item(self, title, timeout=5):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            _, structured, _ = self.client.call("find_menu_item", {"title": title})
+            if structured and structured.get("found"):
+                return structured
+            time.sleep(0.1)
+        raise ScenarioError("step {}: menu item \"{}\" not found".format(self.step_no, title))
+
+    def do_menu(self, step):
+        # Drive a menu with the cursor: for each entry, glide the pointer to it
+        # (find_menu_item gives the geometry) and activate it - a submenu opens,
+        # a leaf is triggered. A submenu item only appears after its parent is
+        # opened, so each lookup polls (find_menu_item) until present.
+        path = step["menu"]
+        if isinstance(path, str):
+            path = [path]
+        for index, title in enumerate(path):
+            item = self._await_menu_item(title)
+            cx = int(item["x"] + item["width"] / 2)
+            cy = int(item["y"] + item["height"] / 2)
+            if self.cursor_enabled:
+                self.move_cursor(cx, cy)
+            self.client.call("activate_menu_item", {"title": title})
+            # Let a freshly opened submenu linger on screen before navigating
+            # deeper, so the recording shows the menu (video mode only).
+            if self.dwell and index < len(path) - 1:
+                time.sleep(self.dwell)
+        self.record(step["describe"], "menu " + json.dumps(path),
+                    note="Navigated " + " > ".join(path),
+                    tool="menu", check={"path": path})
+
     def do_select(self, step):
         args = self.subst(step["select"])
         self.point_at({k: v for k, v in args.items() if k != "item"})
@@ -539,6 +571,12 @@ class Runner:
         for step in self.scenario.get("steps", []):
             self.step_no += 1
             self.mark(step["describe"])
+            # Capture the caption's start before the action runs, so it is on
+            # screen while the mouse opens a menu or a dialog appears - not only
+            # after. It is closed below, once the step (and its dwell) is done.
+            caption = step.get("caption")
+            caption_start = (time.monotonic() - self.video_t0
+                             if caption and self.video_t0 is not None else None)
             if "invoke_action" in step:
                 self.do_invoke_action(step)
             elif "click" in step:
@@ -547,6 +585,8 @@ class Runner:
                 self.do_type(step)
             elif "press" in step:
                 self.do_press(step)
+            elif "menu" in step:
+                self.do_menu(step)
             elif "select" in step:
                 self.do_select(step)
             elif "expect" in step:
@@ -563,6 +603,13 @@ class Runner:
                 raise ScenarioError("step {}: no known action in {}"
                                     .format(self.step_no, list(step)))
             self.dwell_now()
+            # An optional caption overlays the whole step (from caption_start,
+            # through the action and the dwell), naming an otherwise invisible
+            # action (e.g. invoke_action).
+            if caption_start is not None:
+                end = time.monotonic() - self.video_t0
+                self.key_events.append(
+                    (caption_start, max(end, caption_start + max(self.dwell, 1.5)), caption))
 
         # Collect any blocking invoke_action calls that a later step released.
         for t, holder, action in self.pending:

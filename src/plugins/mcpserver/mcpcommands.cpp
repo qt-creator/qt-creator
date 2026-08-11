@@ -54,8 +54,11 @@
 #include <QKeySequence>
 #include <QLabel>
 #include <QLineEdit>
+#include <QAction>
 #include <QLoggingCategory>
 #include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
 #include <QMouseEvent>
 #include <QPixmap>
 #include <QProcess>
@@ -2468,6 +2471,75 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("find_menu_item")
+            .title("Locate a menu bar entry or open-menu item")
+            .description(
+                "Returns the geometry, in root coordinates, of a menu bar entry (e.g. "
+                "\"Help\") or of an item in a currently-open menu (e.g. \"About Qt Creator\"), "
+                "matched by visible text ('&' and a trailing \"...\" are ignored). Menu items "
+                "are QActions, not addressable widgets, so this is how a scenario drives menus "
+                "with the cursor. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "title",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Visible text of the menu or item."}})
+                    .addRequired("title"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("found", QJsonObject{{"type", "boolean"}})
+                    .addProperty("source", QJsonObject{{"type", "string"}})
+                    .addRequired("found")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const auto norm = [](QString t) {
+                t.remove('&');
+                while (t.endsWith('.'))
+                    t.chop(1);
+                return t.trimmed();
+            };
+            const QString title = norm(p.value("title").toString());
+            if (title.isEmpty())
+                return {{"found", false}};
+            const auto entry = [&](QWidget *w, QAction *a, const QRect &r, const QString &src) {
+                const QPoint tl = w->mapToGlobal(r.topLeft());
+                return QJsonObject{{"found", true},
+                                   {"source", src},
+                                   {"text", norm(a->text())},
+                                   {"x", tl.x()},
+                                   {"y", tl.y()},
+                                   {"width", r.width()},
+                                   {"height", r.height()}};
+            };
+            for (QWidget *w : QApplication::allWidgets()) {
+                auto menuBar = qobject_cast<QMenuBar *>(w);
+                if (!menuBar || !menuBar->isVisible())
+                    continue;
+                for (QAction *a : menuBar->actions()) {
+                    if (!a->isSeparator()
+                        && norm(a->text()).compare(title, Qt::CaseInsensitive) == 0) {
+                        return entry(menuBar, a, menuBar->actionGeometry(a), "menubar");
+                    }
+                }
+            }
+            for (QWidget *w : QApplication::allWidgets()) {
+                auto menu = qobject_cast<QMenu *>(w);
+                if (!menu || !menu->isVisible())
+                    continue;
+                for (QAction *a : menu->actions()) {
+                    if (!a->isSeparator()
+                        && norm(a->text()).compare(title, Qt::CaseInsensitive) == 0) {
+                        return entry(menu, a, menu->actionGeometry(a), "menu");
+                    }
+                }
+            }
+            return {{"found", false}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("widget_exists")
             .title("Check whether a widget exists")
             .description(
@@ -2710,6 +2782,91 @@ void McpCommands::registerCommands()
             }
             return {{"x", target.x()}, {"y", target.y()}};
         }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("activate_menu_item")
+            .title("Open or trigger a menu item")
+            .description(
+                "Finds a menu bar entry or an item in a currently-open menu by visible text and "
+                "activates it via the menu API: a submenu is shown (QMenu::popup) so a scenario "
+                "can navigate into it, and a leaf item is triggered. The trigger is posted "
+                "asynchronously, so this does not block even when it opens a modal dialog. Pair "
+                "with find_menu_item + move_cursor to drive a menu with the cursor.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "title",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Visible text of the menu or item."}})
+                    .addRequired("title"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("opened", QJsonObject{{"type", "boolean"}})
+                    .addProperty("triggered", QJsonObject{{"type", "boolean"}})),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const auto norm = [](QString t) {
+                t.remove('&');
+                while (t.endsWith('.'))
+                    t.chop(1);
+                return t.trimmed();
+            };
+            const QString title = norm(params.argumentsAsObject().value("title").toString());
+            if (title.isEmpty())
+                return ResultError(QString("No menu title given."));
+
+            QAction *action = nullptr;
+            QWidget *owner = nullptr;
+            QRect rect;
+            for (QWidget *w : QApplication::allWidgets()) {
+                auto menuBar = qobject_cast<QMenuBar *>(w);
+                if (!menuBar || !menuBar->isVisible())
+                    continue;
+                for (QAction *a : menuBar->actions()) {
+                    if (!a->isSeparator() && norm(a->text()).compare(title, Qt::CaseInsensitive) == 0) {
+                        action = a;
+                        owner = menuBar;
+                        rect = menuBar->actionGeometry(a);
+                    }
+                }
+            }
+            if (!action) {
+                for (QWidget *w : QApplication::allWidgets()) {
+                    auto menu = qobject_cast<QMenu *>(w);
+                    if (!menu || !menu->isVisible())
+                        continue;
+                    for (QAction *a : menu->actions()) {
+                        if (!a->isSeparator()
+                            && norm(a->text()).compare(title, Qt::CaseInsensitive) == 0) {
+                            action = a;
+                            owner = menu;
+                            rect = menu->actionGeometry(a);
+                        }
+                    }
+                }
+            }
+            if (!action)
+                return ResultError(QString("No menu item \"%1\".").arg(title));
+
+            if (QMenu *submenu = action->menu()) {
+                // A menu bar entry drops its menu below it; a submenu inside an
+                // open menu opens to the right.
+                const bool inBar = qobject_cast<QMenuBar *>(owner) != nullptr;
+                const QPoint pos = owner->mapToGlobal(inBar ? rect.bottomLeft() : rect.topRight());
+                submenu->popup(pos);
+                return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"opened", true}});
+            }
+            // Leaf: trigger asynchronously so a modal dialog does not block this
+            // call, and close any open menu so it does not linger on screen.
+            QMetaObject::invokeMethod(action, "trigger", Qt::QueuedConnection);
+            for (QWidget *w : QApplication::allWidgets()) {
+                if (auto menu = qobject_cast<QMenu *>(w); menu && menu->isVisible())
+                    menu->hide();
+            }
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"triggered", true}});
+        });
 }
 
 } // namespace Mcp::Internal

@@ -128,6 +128,7 @@ Action keys:
 | `click`        | `click_widget`      | Query. Must resolve to exactly one widget.        |
 | `type`         | `type_text`         | Literal text: `input:` plus optional query fields. |
 | `press`        | `press_keys`        | A key/chord, e.g. `press: "Ctrl+K"` or `press: {keys: Escape, ...query}`. |
+| `menu`         | `find_menu_item` + `activate_menu_item` | Navigate a menu with the cursor, e.g. `menu: [Help, About Qt Creator]` (needs a DISPLAY). |
 | `select`       | `select_combo_item` | `item:` plus a combo query.                       |
 | `expect`       | `widget_exists`     | Fails if nothing matches.                         |
 | `expect_gone`  | `widget_exists`     | Fails if anything matches.                        |
@@ -142,6 +143,14 @@ For keyboard shortcuts, prefer `invoke_action` (focus-independent, reliably
 triggers the effect). Use `press` when a widget handles the key itself
 (Return, Escape, Tab, arrows) or when the tutorial should show the keystroke;
 a synthetic key event does not always drive application-wide shortcuts.
+
+`invoke_action` triggers an action directly, so nothing visible happens on the
+way to its effect. In a video, either add a `caption:` to any step (shown as
+an on-screen overlay, e.g. `caption: "Help > About Qt Creator"`) to name what
+is happening, or use a `menu:` step to actually navigate the menu with the
+cursor. `menu` opens submenus and triggers the item through the menu API
+(`activate_menu_item`), so it also triggers the effect - no separate
+`invoke_action` needed.
 
 There is deliberately no `sleep`: wait only on observable conditions
 (`wait_for`). See `about-dialog.yaml` for a complete example.
