@@ -9,6 +9,7 @@
 #include "cppworkingcopy.h"
 #include "indexitem.h"
 #include "searchsymbols.h"
+#include "symbolfinder.h"
 
 #include <mcp/server/toolregistry.h>
 
@@ -16,6 +17,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/FindUsages.h>
 #include <cplusplus/Literals.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/Symbols.h>
 
 #include <utils/filepath.h>
 #include <utils/result.h>
@@ -69,6 +72,24 @@ static QString usageKind(CPlusPlus::Usage::Tags tags)
     if (tags.testFlag(CPlusPlus::Usage::Tag::Read))
         return QStringLiteral("read");
     return QStringLiteral("other");
+}
+
+static QString symbolKind(const CPlusPlus::Symbol *symbol)
+{
+    if (symbol->asClass())
+        return QStringLiteral("class");
+    if (symbol->asEnum())
+        return QStringLiteral("enum");
+    if (symbol->asNamespace())
+        return QStringLiteral("namespace");
+    if (symbol->asTemplate())
+        return QStringLiteral("template");
+    if (symbol->asFunction())
+        return QStringLiteral("function");
+    if (const CPlusPlus::Declaration *decl = symbol->asDeclaration())
+        return decl->type()->asFunctionType() ? QStringLiteral("function")
+                                              : QStringLiteral("variable");
+    return QStringLiteral("symbol");
 }
 
 // Resolve the C++ symbol at a 1-based line/column in a file, returning it and
@@ -340,6 +361,90 @@ void registerMcpTools()
 
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"references", references}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_symbol_info")
+            .title("Get C++ symbol info and definition")
+            .description(
+                "Resolves the C++ symbol at a position and returns its name, fully qualified "
+                "name, kind and type, plus its declaration and (for functions) definition "
+                "locations - i.e. go-to-definition. Give the file and a 1-based line and "
+                "column pointing at an identifier. The file must belong to an open project.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Absolute path to the C++ file."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the identifier."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the identifier."}})
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("name", QJsonObject{{"type", "string"}})
+                    .addProperty("kind", QJsonObject{{"type", "string"}})
+                    .addRequired("name")
+                    .addRequired("kind")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            if (file.isEmpty() || line <= 0 || column <= 0) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Requires \"file\" and 1-based \"line\" and \"column\"."));
+            }
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            CPlusPlus::LookupContext context;
+            CPlusPlus::Symbol *symbol = symbolAt(filePath, line, column, &context);
+            if (!symbol) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ symbol found at %1:%2:%3.")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+
+            CPlusPlus::Overview overview;
+            QJsonObject result{
+                {"name", overview.prettyName(symbol->name())},
+                {"kind", symbolKind(symbol)}};
+            const QString qualified
+                = overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol));
+            if (!qualified.isEmpty())
+                result.insert("qualified_name", qualified);
+            const QString type = overview.prettyType(symbol->type());
+            if (!type.isEmpty())
+                result.insert("type", type);
+
+            const auto location = [](const CPlusPlus::Symbol *s) {
+                return QJsonObject{{"file", s->filePath().toUserOutput()},
+                                   {"line", s->line()},
+                                   {"column", s->column()}};
+            };
+            if (!symbol->filePath().isEmpty())
+                result.insert("declaration", location(symbol));
+
+            SymbolFinder finder;
+            if (CPlusPlus::Function *def
+                    = finder.findMatchingDefinition(symbol, context.snapshot(), false)) {
+                result.insert("definition", location(def));
+            }
+
+            return CallToolResult{}.isError(false).structuredContent(result);
         });
 }
 
