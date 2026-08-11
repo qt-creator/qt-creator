@@ -1,4 +1,5 @@
 add_qtc_plugin(Git
+  DEPENDS McpServerLib
   PLUGIN_DEPENDS Core DiffEditor TextEditor VcsBase
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
@@ -33,6 +34,7 @@ add_qtc_plugin(Git
     gitutils.cpp gitutils.h
     instantblame.cpp instantblame.h
     logchangedialog.cpp logchangedialog.h
+    mcpsupport.cpp mcpsupport.h
     mergetool.cpp mergetool.h
     remotedialog.cpp remotedialog.h
     remotemodel.cpp remotemodel.h

@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "VcsBase" }
     Depends { name: "DiffEditor" }
+    Depends { name: "McpServerLib" }
 
     cpp.defines: base.concat(["QT_NO_FOREACH"])
 
@@ -53,6 +54,8 @@ QtcPlugin {
         "instantblame.h",
         "logchangedialog.cpp",
         "logchangedialog.h",
+        "mcpsupport.cpp",
+        "mcpsupport.h",
         "mergetool.cpp",
         "mergetool.h",
         "remotedialog.cpp",

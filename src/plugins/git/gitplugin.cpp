@@ -16,6 +16,7 @@
 #include "gitutils.h"
 #include "instantblame.h"
 #include "logchangedialog.h"
+#include "mcpsupport.h"
 #include "remotedialog.h"
 #include "stashdialog.h"
 #include "temporarypatchfile.h"
@@ -2871,6 +2872,8 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
 #endif
 
         dd = new GitPluginPrivate;
+
+        registerMcpTools();
 
         auto cmdContext = new QObject(this);
         connect(ICore::instance(), &ICore::coreOpened, cmdContext, [this, cmdContext, arguments] {
