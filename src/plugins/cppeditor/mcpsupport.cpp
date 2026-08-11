@@ -6,6 +6,7 @@
 #include "cppcanonicalsymbol.h"
 #include "cppelementevaluator.h"
 #include "cppindexingsupport.h"
+#include "cpplocatordata.h"
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
 #include "indexitem.h"
@@ -34,6 +35,8 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
+
+#include <algorithm>
 
 using namespace Utils;
 
@@ -834,6 +837,171 @@ void registerMcpTools()
 
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"callees", callees}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("find_symbols")
+            .title("Search C++ symbols in the project")
+            .description(
+                "Searches the project-wide C++ code model index by name - a fast "
+                "\"go to symbol\". The index holds classes, enums, function DEFINITIONS, "
+                "signals and type aliases; it does NOT contain plain declarations (data "
+                "members, globals, or member functions that are only declared), so an "
+                "empty result does NOT prove a name is unused - use get_file_symbols for "
+                "the complete symbol list of a known file. Give a case-insensitive name "
+                "substring; optionally restrict by \"kind\" and cap the count with "
+                "\"limit\". Results are ranked (exact, then prefix, then substring) so the "
+                "most relevant survive the cap; \"total_matches\" and \"truncated\" report "
+                "when the cap dropped matches. Each match has its name, kind, fully "
+                "qualified scope, type/signature, and file with 1-based line and column.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "query",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Case-insensitive substring to match against symbol names "
+                             "(matched against the fully qualified name)."}})
+                    .addProperty(
+                        "kind",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"class", "function", "enum", "declaration"}},
+                            {"description",
+                             "Optional: restrict to one kind. \"function\" is function "
+                             "definitions; \"declaration\" is type aliases and signals "
+                             "(the index holds no plain declarations)."}})
+                    .addProperty(
+                        "limit",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "Optional: maximum number of results (default 200)."}})
+                    .addRequired("query"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "symbols",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description",
+                             "Matching symbols across the project, most relevant first."}})
+                    .addProperty(
+                        "total_matches",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "Total matches before the limit was applied."}})
+                    .addProperty(
+                        "truncated",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "True if more matches existed than the limit returned."}})
+                    .addRequired("symbols")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString query = args.value("query").toString();
+            if (query.isEmpty()) {
+                return CallToolResult{}.isError(true).addContent(
+                    TextContent{}.text("Missing required argument \"query\"."));
+            }
+            const QString kind = args.value("kind").toString();
+            int limit = args.value("limit").toInt();
+            if (limit <= 0)
+                limit = 200;
+
+            IndexItem::ItemType typeFilter = IndexItem::All;
+            if (kind == QLatin1String("class"))
+                typeFilter = IndexItem::Class;
+            else if (kind == QLatin1String("function"))
+                typeFilter = IndexItem::Function;
+            else if (kind == QLatin1String("enum"))
+                typeFilter = IndexItem::Enum;
+            else if (kind == QLatin1String("declaration"))
+                typeFilter = IndexItem::Declaration;
+            else if (!kind.isEmpty()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("Unknown kind \"%1\". Use class, function, enum or "
+                            "declaration.").arg(kind)));
+            }
+
+            // locatorData() is the address of a by-value member, never null.
+            CppLocatorData *locatorData = CppModelManager::locatorData();
+
+            QList<IndexItem::Ptr> matches;
+            locatorData->filterAllFiles([&](const IndexItem::Ptr &item) {
+                if ((item->type() & typeFilter)
+                        && item->scopedSymbolName().contains(query, Qt::CaseInsensitive))
+                    matches.append(item);
+                return IndexItem::Recurse;
+            });
+
+            // filterAllFiles traverses a QHash in unspecified order, so rank the
+            // matches before truncating: exact name match first, then prefix, then
+            // substring, then scope-only; ties broken deterministically so the same
+            // query yields the same result and the limit never silently drops a
+            // better match. Mirrors the ordering of cpplocatorfilter's matchesFor().
+            const auto rankOf = [&query](const IndexItem::Ptr &item) {
+                const QString name = item->symbolName();
+                if (name.compare(query, Qt::CaseInsensitive) == 0)
+                    return 0;
+                if (name.startsWith(query, Qt::CaseInsensitive))
+                    return 1;
+                if (name.contains(query, Qt::CaseInsensitive))
+                    return 2;
+                return 3; // Matched only via the scope qualifier.
+            };
+            // Only the first `limit` are returned, so partial_sort is enough - a
+            // broad query can match ~10^5 symbols and fully sorting them all is
+            // pure waste (and this runs on the GUI thread).
+            std::partial_sort(matches.begin(),
+                              matches.begin() + qMin(limit, int(matches.size())),
+                              matches.end(),
+                      [&rankOf](const IndexItem::Ptr &a, const IndexItem::Ptr &b) {
+                          const int ra = rankOf(a);
+                          const int rb = rankOf(b);
+                          if (ra != rb)
+                              return ra < rb;
+                          int c = a->scopedSymbolName().compare(b->scopedSymbolName(),
+                                                                Qt::CaseInsensitive);
+                          if (c != 0)
+                              return c < 0;
+                          c = a->filePath().toUserOutput().compare(b->filePath().toUserOutput());
+                          if (c != 0)
+                              return c < 0;
+                          if (a->line() != b->line())
+                              return a->line() < b->line();
+                          return a->column() < b->column();
+                      });
+
+            const int total = int(matches.size());
+            QJsonArray symbols;
+            for (int i = 0; i < total && i < limit; ++i) {
+                const IndexItem::Ptr &item = matches.at(i);
+                QJsonObject obj{
+                    {"name", item->symbolName()},
+                    {"kind", itemKind(item->type())},
+                    {"file", item->filePath().toUserOutput()},
+                    {"line", item->line()},
+                    {"column", item->column() + 1}}; // IndexItem::column() is 0-based.
+                if (!item->symbolScope().isEmpty())
+                    obj.insert("scope", item->symbolScope());
+                if (!item->symbolType().isEmpty())
+                    obj.insert("type", item->symbolType());
+                if (item->type() == IndexItem::Function)
+                    obj.insert("is_definition", item->isFunctionDefinition());
+                symbols.append(obj);
+            }
+
+            return CallToolResult{}.isError(false).structuredContent(
+                QJsonObject{{"symbols", symbols},
+                            {"total_matches", total},
+                            {"truncated", total > limit}});
         });
 }
 
