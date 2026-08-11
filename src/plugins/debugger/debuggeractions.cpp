@@ -85,6 +85,7 @@ DebuggerSettings::DebuggerSettings() :
     showStdNamespace{localsAndExpressionSettings().showStdNamespace},
     showQtNamespace{localsAndExpressionSettings().showQtNamespace},
     showQObjectNames{localsAndExpressionSettings().showQObjectNames},
+    showVariablesFromAllScopes{localsAndExpressionSettings().showVariablesFromAllScopes},
     maximalStringLength{localsAndExpressionSettings().maximalStringLength},
     displayStringLimit{localsAndExpressionSettings().displayStringLimit},
     defaultArraySize{localsAndExpressionSettings().defaultArraySize}

@@ -746,7 +746,63 @@ class Dumper(DumperBase):
 
             block = block.superblock
 
+        if self.allScopes:
+            self.listLocalsInAllScopes(frame, partialVar, items)
+
         return items
+
+    # gdb only reports variables of the lexical blocks enclosing the current
+    # program counter. When the user opts in, also collect variables from the
+    # other blocks of the current function (e.g. an 'if' or 'for' body not yet
+    # entered), so they show up in the Locals view. Their value is undefined
+    # until execution reaches the declaration.
+    def listLocalsInAllScopes(self, frame, partialVar, items):
+        try:
+            functionBlock = frame.block()
+        except Exception:
+            return
+        while functionBlock is not None and functionBlock.function is None:
+            functionBlock = functionBlock.superblock
+        if functionBlock is None or functionBlock.function is None:
+            return
+        try:
+            linetable = functionBlock.function.symtab.linetable()
+        except Exception:
+            return
+
+        seenNames = set(value.name for value in items)
+        handledBlocks = set()
+        for entry in linetable:
+            pc = entry.pc
+            if pc < functionBlock.start or pc >= functionBlock.end:
+                continue
+            block = gdb.block_for_pc(pc)
+            while block is not None:
+                key = (block.start, block.end)
+                if key not in handledBlocks:
+                    handledBlocks.add(key)
+                    for symbol in block:
+                        if not (symbol.is_variable or symbol.is_argument):
+                            continue
+                        name = symbol.print_name
+                        if name in ('__in_chrg', '__PRETTY_FUNCTION__'):
+                            continue
+                        if partialVar is not None and partialVar != name:
+                            continue
+                        if name in seenNames:
+                            continue
+                        try:
+                            # symbol.value() works for variables of blocks that
+                            # are not in the current scope, unlike read_var().
+                            value = self.fromFrameValue(symbol.value(frame))
+                            value.name = name
+                            items.append(value)
+                            seenNames.add(name)
+                        except Exception:
+                            pass
+                if block.function is not None:
+                    break
+                block = block.superblock
 
     def reportToken(self, args):
         pass

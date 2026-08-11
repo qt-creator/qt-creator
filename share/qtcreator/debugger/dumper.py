@@ -195,6 +195,7 @@ class DumperBase():
         self.autoDerefPointers = False
         self.useTimeStamps = False
         self.forceQtNamespace = False
+        self.allScopes = False
 
         self.isBigEndian = False
         self.packCode = '<'
@@ -258,6 +259,7 @@ class DumperBase():
         self.nativeMixed = int(args.get('nativemixed', '0'))
         self.autoDerefPointers = int(args.get('autoderef', '0'))
         self.useTimeStamps = int(args.get('timestamps', '0'))
+        self.allScopes = int(args.get('allscopes', '0'))
         self.partialVariable = args.get('partialvar', '')
         self.uninitialized = args.get('uninitialized', [])
 

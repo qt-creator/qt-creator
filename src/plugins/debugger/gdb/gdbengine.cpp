@@ -5136,6 +5136,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("autoderef", s.autoDerefPointers());
     cmd.arg("dyntype", s.useDynamicType());
     cmd.arg("qobjectnames", s.showQObjectNames());
+    cmd.arg("allscopes", s.showVariablesFromAllScopes());
     cmd.arg("timestamps", s.logTimeStamps());
     cmd.arg("qtversion", runParameters().qtVersion());
     cmd.arg("qtnamespace", runParameters().configuredQtNamespace());

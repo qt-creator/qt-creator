@@ -92,6 +92,7 @@ public:
     Utils::BoolAspect showStdNamespace{this};
     Utils::BoolAspect showQtNamespace{this};
     Utils::BoolAspect showQObjectNames{this};
+    Utils::BoolAspect showVariablesFromAllScopes{this};
 
     Utils::IntegerAspect maximalStringLength{this};
     Utils::IntegerAspect displayStringLimit{this};
