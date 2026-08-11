@@ -14,12 +14,15 @@
 
 #include <mcp/server/toolregistry.h>
 
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/Control.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/FindUsages.h>
 #include <cplusplus/Literals.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Symbols.h>
+#include <cplusplus/TranslationUnit.h>
 
 #include <utils/filepath.h>
 #include <utils/result.h>
@@ -170,6 +173,58 @@ static QJsonObject hierarchyToJson(const CppClass &cppClass)
         node.insert("derived", derived);
     return node;
 }
+
+// Collects the call sites within one function definition, identified by its
+// 1-based definition line/column, for the outgoing call hierarchy.
+class CalleeCollector : public CPlusPlus::ASTVisitor
+{
+public:
+    CalleeCollector(CPlusPlus::TranslationUnit *unit, int defLine, int defColumn)
+        : ASTVisitor(unit), m_defLine(defLine), m_defColumn(defColumn)
+    {}
+
+    // The (line, column) of each called function's name token, in source order.
+    QList<QPair<int, int>> callPositions()
+    {
+        QList<QPair<int, int>> positions;
+        if (m_firstToken < 0)
+            return positions;
+        for (int i = 0; i < m_callNameTokens.size(); ++i) {
+            const int token = m_callNameTokens.at(i);
+            if (token < m_firstToken || token > m_lastToken)
+                continue;
+            int line = 0;
+            int column = 0;
+            translationUnit()->getTokenPosition(token, &line, &column);
+            positions.append({line, column});
+        }
+        return positions;
+    }
+
+private:
+    bool visit(CPlusPlus::FunctionDefinitionAST *ast) override
+    {
+        if (ast->symbol && ast->symbol->line() == m_defLine
+                && ast->symbol->column() == m_defColumn) {
+            m_firstToken = ast->firstToken();
+            m_lastToken = ast->lastToken();
+        }
+        return true;
+    }
+
+    bool visit(CPlusPlus::CallAST *ast) override
+    {
+        if (ast->base_expression && ast->base_expression->lastToken() > 0)
+            m_callNameTokens.append(ast->base_expression->lastToken() - 1);
+        return true;
+    }
+
+    const int m_defLine;
+    const int m_defColumn;
+    int m_firstToken = -1;
+    int m_lastToken = -1;
+    QList<int> m_callNameTokens;
+};
 
 void registerMcpTools()
 {
@@ -640,6 +695,145 @@ void registerMcpTools()
 
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"callers", callers}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("find_callees")
+            .title("Find C++ callees")
+            .description(
+                "Finds the functions called by the C++ function at a position - the "
+                "outgoing call hierarchy - using the C++ code model. Give the file and a "
+                "1-based line and column pointing at a function name; returns each called "
+                "function grouped with its call sites (file, 1-based line and column, and "
+                "source line text). It resolves the function's definition, so the body "
+                "must be available; the file must belong to an open project.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the C++ file containing the function."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the function name to resolve."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the function name to resolve."}})
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "callees",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description", "Functions called by the function."}})
+                    .addRequired("callees")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            if (file.isEmpty() || line <= 0 || column <= 0) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Requires \"file\" and 1-based \"line\" and \"column\"."));
+            }
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            CPlusPlus::LookupContext context;
+            CPlusPlus::Symbol *symbol = symbolAt(filePath, line, column, &context);
+            if (!symbol) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ symbol found at %1:%2:%3. Is the file in an open project "
+                            "and the position on a function name?")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+            if (symbolKind(symbol) != QLatin1String("function")) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("The symbol at %1:%2:%3 is not a function.")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+
+            // Prefer the definition (which has a body); fall back to the symbol
+            // itself when no separate definition is found.
+            const CPlusPlus::Snapshot snapshot = context.snapshot();
+            SymbolFinder finder;
+            const CPlusPlus::Symbol *defSymbol = symbol;
+            if (CPlusPlus::Function *def = finder.findMatchingDefinition(symbol, snapshot, false))
+                defSymbol = def;
+            const FilePath defFile = defSymbol->filePath();
+
+            QJsonArray callees;
+            if (!defFile.isEmpty()) {
+                const QByteArray source = fileSource(defFile, CppModelManager::workingCopy());
+                CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(source, defFile);
+                doc->tokenize();
+                doc->check();
+                CPlusPlus::TranslationUnit *unit = doc->translationUnit();
+                if (unit && unit->ast()) {
+                    CalleeCollector collector(unit, defSymbol->line(), defSymbol->column());
+                    unit->ast()->accept(&collector);
+                    const QStringList lines = QString::fromUtf8(source).split('\n');
+
+                    CPlusPlus::Overview overview;
+                    QStringList order;
+                    QHash<QString, QJsonObject> nodes;
+                    QHash<QString, QJsonArray> sites;
+                    const QList<QPair<int, int>> positions = collector.callPositions();
+                    for (const QPair<int, int> &pos : positions) {
+                        CPlusPlus::LookupContext calleeContext;
+                        CPlusPlus::Symbol *callee
+                            = symbolAt(defFile, pos.first, pos.second, &calleeContext);
+                        if (!callee || symbolKind(callee) != QLatin1String("function"))
+                            continue;
+                        const QString name = overview.prettyName(callee->name());
+                        const QString qualified = overview.prettyName(
+                            CPlusPlus::LookupContext::fullyQualifiedName(callee));
+                        const QString key = (qualified.isEmpty() ? name : qualified)
+                                            + '@' + callee->filePath().toUserOutput() + ':'
+                                            + QString::number(callee->line());
+                        if (!nodes.contains(key)) {
+                            order.append(key);
+                            QJsonObject node{{"callee", name}};
+                            if (!qualified.isEmpty() && qualified != name)
+                                node.insert("qualified_name", qualified);
+                            if (!callee->filePath().isEmpty()) {
+                                node.insert(
+                                    "declaration",
+                                    QJsonObject{{"file", callee->filePath().toUserOutput()},
+                                                {"line", callee->line()},
+                                                {"column", callee->column()}});
+                            }
+                            nodes.insert(key, node);
+                        }
+                        QJsonObject site{{"file", defFile.toUserOutput()},
+                                         {"line", pos.first},
+                                         {"column", pos.second}};
+                        const QString lineText = lines.value(pos.first - 1).trimmed();
+                        if (!lineText.isEmpty())
+                            site.insert("line_text", lineText);
+                        sites[key].append(site);
+                    }
+                    for (const QString &key : order) {
+                        QJsonObject node = nodes.value(key);
+                        node.insert("call_sites", sites.value(key));
+                        callees.append(node);
+                    }
+                }
+            }
+
+            return CallToolResult{}.isError(false).structuredContent(
+                QJsonObject{{"callees", callees}});
         });
 }
 
