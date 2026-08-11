@@ -575,6 +575,15 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
     if (candidate < 0)
         return -1;
 
+    // Events narrower than a pixel are drawn as a single pixel column, which is
+    // next to impossible to hit precisely with a mouse. Accept items up to one
+    // pixel to either side of the cursor, preferring an item actually under it
+    // (see the two-tier scoring below). Items directly under the cursor always
+    // win, so this only widens the target where nothing was hit before.
+    constexpr double tolerance = 1.0;
+    const qint64 toleranceStart = pixelToTime(local.x() - tolerance, double(w),
+                                              m_rangeStart, m_rangeEnd);
+
     // Search outward from the candidate for the smallest item whose drawn
     // rectangle contains the cursor. Items are ordered by start time, not by
     // row, so the item under the cursor (a long parent range, or an item on a
@@ -582,21 +591,28 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
     // A fixed-size window therefore misses such items; instead we expand until
     // the start-time ordering proves no further item can match.
     int best = -1;
+    bool bestExact = false;
     qint64 bestWidth = std::numeric_limits<qint64>::max();
+    double bestDistance = std::numeric_limits<double>::max();
     const int count = model->count();
 
-    // Test whether item i is drawn under the cursor and, if so, whether it is
-    // narrower than the current best (innermost nested item wins).
+    // Test whether item i is drawn under the cursor - or within the tolerance of
+    // it - and whether it beats the current best. Items under the cursor beat
+    // merely nearby ones; within a tier the narrowest wins, so the innermost
+    // nested item is picked.
     const auto test = [&](int i) {
+        // Hit test against the full row, not the item's own height. Events with
+        // a relativeHeight() below 1 (the perf, CPU and memory usage tracks) do
+        // not fill their row, and the renderer coalesces runs of sub-pixel
+        // events into one rect carrying the tallest event's height, so an item's
+        // drawn height is not its own. Using the row keeps everything that is
+        // visible clickable, and matches the pre-widget renderer, which likewise
+        // matched on the row alone.
         const int row = model->row(i);
         const int rowH = model->rowHeight(row);
         const int rowY = model->rowOffset(row);
 
-        const double relH = model->relativeHeight(i);
-        const double itemH = rowH * relH;
-        const double itemY = rowY + rowH - itemH;
-
-        if (local.y() < itemY || local.y() >= itemY + itemH)
+        if (local.y() < rowY || local.y() >= rowY + rowH)
             return;
 
         const qint64 start = model->startTime(i);
@@ -607,33 +623,50 @@ int TrackPainterBase::indexInModel(const TimelineModel *model, const QPoint &loc
         if (x2 - x1 < 1.0)
             x2 = x1 + 1.0;
 
-        if (local.x() < x1 || local.x() >= x2)
+        // The drawn rect is half-open, [x1, x2).
+        const bool exact = local.x() >= x1 && local.x() < x2;
+        if (bestExact && !exact)
             return;
 
+        // Gap in pixels between the cursor and the item's drawn rect.
+        double distance = 0.0;
+        if (!exact) {
+            distance = local.x() < x1 ? x1 - local.x() : local.x() - x2;
+            if (distance > tolerance)
+                return;
+        }
+
         const qint64 width = end - start;
-        if (best == -1 || width < bestWidth) {
+        const bool better = (exact && !bestExact) // first exact hit outranks any nearby item
+                || distance < bestDistance
+                || (distance == bestDistance && width < bestWidth);
+        if (best == -1 || better) {
             best = i;
+            bestExact = exact;
             bestWidth = width;
+            bestDistance = distance;
         }
     };
 
-    // Forward: start times only increase, so once an item starts to the right
-    // of the cursor no later item can contain it.
+    // Forward: start times only increase, so once an item starts further right
+    // than the cursor plus the tolerance no later item can match.
     for (int i = candidate; i < count; ++i) {
-        if (timeToPixel(model->startTime(i), m_rangeStart, m_rangeEnd, double(w)) > local.x())
+        if (timeToPixel(model->startTime(i), m_rangeStart, m_rangeEnd, double(w))
+                > local.x() + tolerance) {
             break;
+        }
         test(i);
     }
 
     // Backward: a short item that doesn't reach the cursor may still have a
     // long parent that does. Only stop once neither the item nor its parent can
-    // cover the cursor time.
+    // reach the tolerance window.
     for (int i = candidate - 1; i >= 0; --i) {
         const qint64 end = model->endTime(i);
-        if (end < t) {
+        if (end < toleranceStart) {
             const int parent = model->parentIndex(i);
             const qint64 parentEnd = parent == -1 ? end : model->endTime(parent);
-            if (parentEnd < t)
+            if (parentEnd < toleranceStart)
                 break;
         }
         test(i);
