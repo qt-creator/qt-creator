@@ -9,6 +9,7 @@
 
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
@@ -19,11 +20,25 @@
 #include <QObject>
 #include <QSignalSpy>
 #include <QTest>
+#include <QThread>
+
+#include <atomic>
+#include <optional>
 
 using namespace Utils;
 
 #define QVERIFY_DEPLOY_RESULT(result) \
     QVERIFY2(result, result ? #result : static_cast<const char *>(result.error().message.toUtf8()))
+
+// Some of what the bridge does is POSIX only: deployAndInit() probes the device
+// with echo/which/uname, chmod bits mean little on Windows, creating a symlink
+// there needs a privilege, and socket forwarding listens on a unix socket. The
+// tests covering those skip on a Windows host; the rest run everywhere.
+#define SKIP_ON_WINDOWS(what) \
+    do { \
+        if (HostOsInfo::isWindowsHost()) \
+            QSKIP(what " is POSIX only."); \
+    } while (false)
 
 class TestDFA : public UnixDeviceFileAccess
 {
@@ -56,23 +71,50 @@ public:
     }
 };
 
+// Note: a run that ENDS with testFind() does not shut down - the client waits for
+// an exit reply that only Process::done can conclude, and nothing delivers it once
+// the last test is over. Keep at least one test after it.
 class tst_CmdBridge : public QObject
 {
     Q_OBJECT
 
     QString libExecPath = TEST_LIBEXEC_PATH;
+    FilePath bridgePath; // The local bridge binary, see initTestCase().
+
+private:
+    // The bridge runs on this very host, so there is nothing to deploy and nothing
+    // to probe: we know the platform, and deployAndInit() would only shortcut to
+    // init() anyway. Going straight to init() is what lets these tests run on
+    // Windows, where the probing (echo, which, uname) has no chance.
+    Result<> initFileAccess(CmdBridge::FileAccess &fileAccess)
+    {
+        return fileAccess.init(bridgePath, Environment::systemEnvironment(), false);
+    }
 
 private slots:
     void initTestCase()
     {
         TemporaryDirectory::setMasterTemporaryDirectory(
             QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
+
+        // Every test here talks to a real bridge, and there is none to talk to in a
+        // build configured with -DBUILD_EXECUTABLE_CMDBRIDGE=OFF. Skipping here skips
+        // them all.
+        const Result<FilePath> path = CmdBridge::Client::getCmdBridgePath(
+            HostOsInfo::hostOs(),
+            HostOsInfo::hostArchitecture(),
+            FilePath::fromUserInput(libExecPath));
+        if (!path)
+            QSKIP(qPrintable(path.error()));
+        bridgePath = *path;
     }
 
     void cleanupTestCase() { ProcessReaper::deleteAll(); }
 
     void testDeviceEnvironment()
     {
+        SKIP_ON_WINDOWS("Deploying the bridge");
+
         CmdBridge::FileAccess fileAccess;
         CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
@@ -93,6 +135,8 @@ private slots:
 
     void testSetPermissions()
     {
+        SKIP_ON_WINDOWS("Setting permission bits");
+
         CmdBridge::FileAccess fileAccess;
         CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
@@ -121,12 +165,7 @@ private slots:
     void testTempFile()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         Result<FilePath> tempFile = fileAccess.createTempFile(FilePath::fromUserInput(QDir::tempPath())
                                                   / "test.XXXXXX");
@@ -152,12 +191,7 @@ private slots:
     void testTempDir()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         Result<FilePath> tempDir = fileAccess.createTempDir(
             FilePath::fromUserInput(QDir::tempPath()) / "test.XXXXXX");
@@ -175,12 +209,7 @@ private slots:
     void testTempFileWithoutPlaceholder()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         const FilePath pattern = FilePath::fromUserInput(QDir::tempPath()) / "test.txt";
 
@@ -202,12 +231,7 @@ private slots:
     void testIsWritableDirectory()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         const FilePath testDir = FilePath::fromUserInput(QDir::tempPath() + "/testIsWritableDir");
         QVERIFY_RESULT(fileAccess.isWritableDirectory(testDir));
@@ -217,12 +241,7 @@ private slots:
     void testEnsureWritableDir()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         const FilePath testFile = FilePath::fromUserInput(
             QDir::tempPath() + "/testEnsureWritableDir");
@@ -237,12 +256,7 @@ private slots:
     void testFileContents()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         const FilePath testFile = FilePath::fromUserInput(QDir::tempPath() + "/test.txt");
 
@@ -317,31 +331,26 @@ The end.
 
     void testIs()
     {
-        Result<FilePath> bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
-                                                              HostOsInfo::hostArchitecture(),
-                                                              FilePath::fromUserInput(libExecPath));
-        QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
-
-        CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
+        CmdBridge::Client client(bridgePath, Environment::systemEnvironment());
         client.start();
 
-        bool result = client.is("/tmp", CmdBridge::Client::Is::Dir)->result();
+        // Ask about paths we know the state of, instead of POSIX ones that do not
+        // exist on a Windows host.
+        const FilePath existing = TemporaryDirectory::masterDirectoryFilePath();
+        const FilePath missing = existing / "idonotexist";
+
+        bool result = client.is(existing.nativePath(), CmdBridge::Client::Is::Dir)->result();
         QVERIFY(result);
 
-        result = client.is("/idonotexist", CmdBridge::Client::Is::Dir)->result();
+        result = client.is(missing.nativePath(), CmdBridge::Client::Is::Dir)->result();
         QVERIFY(!result);
-        result = client.is("/idonotexist", CmdBridge::Client::Is::Exists)->result();
+        result = client.is(missing.nativePath(), CmdBridge::Client::Is::Exists)->result();
         QVERIFY(!result);
     }
 
     void testStat()
     {
-        Result<FilePath> bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
-                                                              HostOsInfo::hostArchitecture(),
-                                                              FilePath::fromUserInput(libExecPath));
-        QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
-
-        CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
+        CmdBridge::Client client(bridgePath, Environment::systemEnvironment());
         QTC_ASSERT_RESULT(client.start(), return);
 
         try {
@@ -355,6 +364,8 @@ The end.
 
     void testSymLink()
     {
+        SKIP_ON_WINDOWS("Creating symlinks");
+
         CmdBridge::FileAccess fileAccess;
         CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
@@ -363,22 +374,26 @@ The end.
 
         QVERIFY_DEPLOY_RESULT(res);
 
-        // FIXME: /tmp is not everywhere a symlink. Create a test link ourselves?
-        Result<FilePath> tmptarget = fileAccess.symLinkTarget(FilePath::fromUserInput("/tmp"));
-        QVERIFY_RESULT(tmptarget);
+        // Create the link instead of relying on /tmp being one, which only holds
+        // on macOS.
+        const FilePath testDir = TemporaryDirectory::masterDirectoryFilePath()
+                                 / "test-symlink-target";
+        QVERIFY_RESULT(testDir.ensureWritableDir());
 
-        qDebug() << "SymLinkTarget:" << tmptarget->toUserOutput();
+        const FilePath original = testDir / "original-file.txt";
+        QVERIFY_RESULT(original.writeFileContents("Hello World"));
+        const FilePath link = testDir / "link.txt";
+        QVERIFY_RESULT(original.createSymLink(link));
+
+        const Result<FilePath> target = fileAccess.symLinkTarget(link);
+        QVERIFY_RESULT(target);
+        QCOMPARE(target->path(), original.path());
     }
 
     void testFileId()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         Result<QByteArray> fileId = fileAccess.fileId(FilePath::fromUserInput(QDir::rootPath()));
         QVERIFY_RESULT(fileId);
@@ -389,12 +404,7 @@ The end.
     void testFreeSpace()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         Result<quint64> freeSpace = fileAccess.bytesAvailable(FilePath::fromUserInput(QDir::rootPath()));
         QVERIFY_RESULT(freeSpace);
@@ -405,28 +415,42 @@ The end.
     void testFind()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
-        QVERIFY_DEPLOY_RESULT(res);
-        fileAccess.iterateDirectory(
-            FilePath::fromUserInput(QDir::homePath()),
-            [](const FilePath &path, const FilePathInfo &) {
-                qDebug() << path;
+        // Walk a tree we control, and require the bridge to report the same entries
+        // as the shell fallback does. That fallback shells out to "find" and "stat",
+        // so it can only be compared against on a Unix host.
+        const FilePath walkDir = TemporaryDirectory::masterDirectoryFilePath() / "test-find-walk";
+        QVERIFY_RESULT(walkDir.ensureWritableDir());
+        for (const QString &name : {"one.txt", "two.txt", "three.txt"})
+            QVERIFY_RESULT((walkDir / name).writeFileContents("Hello World"));
+        QVERIFY_RESULT((walkDir / "subdir").ensureWritableDir());
+
+        const FileFilter walkFilter({},
+                                    DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot,
+                                    DirIteratorFlag::NoIteratorFlags);
+        const auto collector = [](QStringList *names) {
+            return [names](const FilePath &path, const FilePathInfo &) {
+                *names << path.fileName();
                 return IterationPolicy::Continue;
-            },
-            FileFilter({}, DirFilterFlag::AllEntries, DirIteratorFlag::NoIteratorFlags));
+            };
+        };
+
+        QStringList viaBridge;
+        fileAccess.iterateDirectory(walkDir, collector(&viaBridge), walkFilter);
+        viaBridge.sort();
+        QCOMPARE(viaBridge, QStringList({"one.txt", "subdir", "three.txt", "two.txt"}));
+
+        // The rest needs the shell fallback's tools, and creating a symlink needs a
+        // privilege on Windows.
+        if (HostOsInfo::isWindowsHost())
+            return;
 
         TestDFA dfa;
-        dfa.iterateDirectory(
-            FilePath::fromUserInput(QDir::homePath()),
-            [](const FilePath &path, const FilePathInfo &) {
-                qDebug() << path;
-                return IterationPolicy::Continue;
-            },
-            FileFilter({}, DirFilterFlag::AllEntries, DirIteratorFlag::NoIteratorFlags));
+        QStringList viaFallback;
+        dfa.iterateDirectory(walkDir, collector(&viaFallback), walkFilter);
+        viaFallback.sort();
+        QCOMPARE(viaFallback, viaBridge);
 
         // We had a bug where symlinks were filtered by the name of their target
         // instead of the name of the link itself. Test that this is not the case.
@@ -455,12 +479,7 @@ The end.
     void testBridge()
     {
         CmdBridge::FileAccess fileAccess;
-        CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath),
-            FilePath::fromUserInput("/"),
-            Environment::systemEnvironment());
-
-        QVERIFY_DEPLOY_RESULT(res);
+        QVERIFY_RESULT(initFileAccess(fileAccess));
 
         QElapsedTimer timer;
         timer.start();
@@ -472,6 +491,9 @@ The end.
             },
             FileFilter({}, DirFilterFlag::AllEntries, DirIteratorFlag::NoIteratorFlags));
         qDebug() << "CmdBridge Find took:" << timer.restart();
+
+        if (HostOsInfo::isWindowsHost())
+            return; // The fallback runs "ls".
 
         TestDFA dfa;
         dfa.iterateDirectory(
@@ -486,12 +508,7 @@ The end.
 
     void testInit()
     {
-        Result<FilePath> bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
-                                                              HostOsInfo::hostArchitecture(),
-                                                              FilePath::fromUserInput(libExecPath));
-        QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
-
-        CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
+        CmdBridge::Client client(bridgePath, Environment::systemEnvironment());
 
         auto result = client.start();
         QTC_ASSERT_RESULT(result, QFAIL("Failed to start bridge"));
@@ -513,8 +530,52 @@ The end.
         }
     }
 
+    // Job handlers run on the bridge thread, and a continuation attached without a
+    // launch policy runs wherever the promise is concluded - which is that very
+    // handler, inside readPacket(). Asking for another job from there deadlocked as
+    // long as readPacket() ran the handler while holding the jobs lock for reading,
+    // because registering a job asks for the same lock for writing.
+    // Note: without that fix this does not merely fail, it leaves the bridge thread
+    // stuck, so the run does not shut down cleanly.
+    void testNestedRequestFromHandler()
+    {
+        // The continuation runs on the bridge thread and may outlive this function, so
+        // everything it touches is shared with it, the client included.
+        auto client
+            = std::make_shared<CmdBridge::Client>(bridgePath, Environment::systemEnvironment());
+        QVERIFY_RESULT(client->start());
+
+        const QString root = QDir::rootPath();
+        auto ranOffMainThread = std::make_shared<std::atomic_bool>(false);
+        auto nested = std::make_shared<std::optional<QFuture<CmdBridge::Client::Stat>>>();
+        auto nestedReady = std::make_shared<std::atomic_bool>(false);
+
+        Result<QFuture<CmdBridge::Client::Stat>> first = client->stat(root);
+        QVERIFY_RESULT(first);
+
+        QFuture<void> chain = first->then(
+            [client, root, ranOffMainThread, nested, nestedReady](CmdBridge::Client::Stat) {
+                *ranOffMainThread = !QThread::isMainThread();
+                if (Result<QFuture<CmdBridge::Client::Stat>> second = client->stat(root))
+                    *nested = *second;
+                // Stored last, so that observing it means the write above is visible.
+                *nestedReady = true;
+            });
+
+        QTRY_VERIFY(nestedReady->load());
+        QVERIFY(nested->has_value());
+        QTRY_VERIFY((*nested)->isFinished());
+
+        if (!*ranOffMainThread) {
+            QSKIP("The first job finished before the continuation was attached, so it "
+                  "ran inline on this thread and the handler path was not exercised.");
+        }
+    }
+
     void testSocketForward()
     {
+        SKIP_ON_WINDOWS("Socket forwarding");
+
         {
             CmdBridge::FileAccess fileAccess;
             CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
@@ -616,6 +677,8 @@ The end.
 
     void testSocketForwardMultipleConnections()
     {
+        SKIP_ON_WINDOWS("Socket forwarding");
+
         {
             CmdBridge::FileAccess fileAccess;
             CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
@@ -716,6 +779,8 @@ The end.
 
     void testSocketForwardAfterLocalServerClose()
     {
+        SKIP_ON_WINDOWS("Socket forwarding");
+
         {
             CmdBridge::FileAccess fileAccess;
             CmdBridge::FileAccess::DeployResult res = fileAccess.deployAndInit(
@@ -783,13 +848,7 @@ The end.
         if (HostOsInfo::isLinuxHost())
             QSKIP("Skipping test on Linux, as it will probably be case sensitive.");
 
-        Result<FilePath> bridgePath = CmdBridge::Client::getCmdBridgePath(
-            HostOsInfo::hostOs(),
-            HostOsInfo::hostArchitecture(),
-            FilePath::fromUserInput(libExecPath));
-        QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
-
-        CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
+        CmdBridge::Client client(bridgePath, Environment::systemEnvironment());
         QTC_ASSERT_RESULT(client.start(), return);
 
         const FilePath file1 = FilePath::fromUserInput(QDir::tempPath());
@@ -799,19 +858,11 @@ The end.
         QTC_ASSERT_RESULT(result, QFAIL("isSameFile failed"));
         QVERIFY(!result->result());
 
-        const FilePath testDir = TemporaryDirectory::masterDirectoryFilePath()
-                                 / "test-samefile-symlinks";
+        const FilePath testDir = TemporaryDirectory::masterDirectoryFilePath() / "test-samefile";
         QVERIFY_RESULT(testDir.ensureWritableDir());
 
         const FilePath original = testDir / "original-file.txt";
-        original.writeFileContents("Hello World");
-
-        const auto link = testDir / "link.txt";
-        QVERIFY_RESULT(original.createSymLink(link));
-
-        result = client.isSameFile(original.path(), link.path());
-        QVERIFY_RESULT(result);
-        QVERIFY(result->result());
+        QVERIFY_RESULT(original.writeFileContents("Hello World"));
 
         // Check if path is case in-sensitive:
         const auto uppercased = original.withNewFileName("ORIGINAL-FILE.txt");
@@ -822,6 +873,28 @@ The end.
         result = client.isSameFile(original.path(), uppercased.path());
         QVERIFY_RESULT(result);
         QCOMPARE(result->result(), isCaseInsensitive);
+    }
+
+    void testSameFileSymLink()
+    {
+        SKIP_ON_WINDOWS("Creating a symlink");
+
+        CmdBridge::Client client(bridgePath, Environment::systemEnvironment());
+        QTC_ASSERT_RESULT(client.start(), return);
+
+        const FilePath testDir = TemporaryDirectory::masterDirectoryFilePath()
+                                 / "test-samefile-symlinks";
+        QVERIFY_RESULT(testDir.ensureWritableDir());
+
+        const FilePath original = testDir / "original-file.txt";
+        QVERIFY_RESULT(original.writeFileContents("Hello World"));
+
+        const auto link = testDir / "link.txt";
+        QVERIFY_RESULT(original.createSymLink(link));
+
+        const Result<QFuture<bool>> result = client.isSameFile(original.path(), link.path());
+        QVERIFY_RESULT(result);
+        QVERIFY(result->result());
     }
 };
 

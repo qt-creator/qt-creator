@@ -1,7 +1,7 @@
 import qbs.FileInfo
 
-QtcManualTest {
-    name: "CmdBridge manualtest"
+QtcAutotest {
+    name: "CmdBridge autotest"
 
     Depends { name: "app_version_header" }
     Depends { name: "CmdBridgeClient" }

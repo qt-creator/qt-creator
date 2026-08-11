@@ -8,6 +8,7 @@ Project {
         "algorithm/algorithm.qbs",
         "android/android.qbs",
         "changeset/changeset.qbs",
+        "cmdbridge/cmdbridge.qbs",
         "commontraceformat/commontraceformat.qbs",
         "cplusplus/cplusplus.qbs",
         "debugger/debugger.qbs",
