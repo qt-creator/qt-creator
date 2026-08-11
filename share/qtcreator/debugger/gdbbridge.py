@@ -657,7 +657,7 @@ class Dumper(DumperBase):
             return []
 
         items = []
-        shadowed = {}
+        seenNames = set()
         while True:
             if block is None:
                 self.warn("UNEXPECTED 'None' BLOCK")
@@ -673,6 +673,20 @@ class Dumper(DumperBase):
 
                     if partialVar is not None and partialVar != name:
                         continue
+
+                    # A local of this name was already taken from an inner
+                    # block. gcc lists a constructor's locals in several blocks
+                    # of the chain, the outer copies being optimized out; skip
+                    # those. Genuinely shadowed variables in outer scopes stay
+                    # readable and are still shown.
+                    if name in seenNames:
+                        try:
+                            probe = frame.read_var(name, block)
+                        except Exception:
+                            probe = None
+                        if probe is None or probe.is_optimized_out:
+                            continue
+                    seenNames.add(name)
 
                     #self.warn('SYMBOL %s  (%s, %s)): ' % (symbol, name, symbol.name))
                     if self.passExceptions and not self.isTesting:
