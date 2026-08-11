@@ -3507,8 +3507,11 @@ public:
 #ifdef WITH_TESTS
 static QList<AspectContainer *> &aspectContainerRegistry()
 {
-    static QList<AspectContainer *> registry;
-    return registry;
+    // Intentionally leaked. Containers held in statics unregister from their
+    // destructor, and the order of static destruction across libraries is
+    // unspecified, so the registry must outlive every possible user.
+    static QList<AspectContainer *> *registry = new QList<AspectContainer *>;
+    return *registry;
 }
 
 const QList<AspectContainer *> &AspectContainer::registeredContainers()
