@@ -20,11 +20,8 @@
 #include <utils/processinfo.h>
 #include <utils/synchronizedvalue.h>
 
-#include <QDateTime>
-#include <QDir>
 #include <QFileInfo>
 #include <QScopeGuard>
-#include <QStandardPaths>
 
 #include <evntcons.h>
 #include <evntrace.h>
@@ -817,17 +814,16 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
                                   "or the sampling interval may be too low."));
 
     // Write trace to disk.
-    const QString dirName = u"qtprofiler-sample-%1"_s.arg(QDateTime::currentMSecsSinceEpoch());
-    const QString dirPath =
-        QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath(dirName);
-    if (!QDir().mkpath(dirPath))
-        return ResultError(Tr::tr("Cannot create temporary trace directory %1.").arg(dirPath));
+    const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
+    if (!dir.createDir()) {
+        return ResultError(
+            Tr::tr("Cannot create temporary trace directory %1.").arg(dir.toUserOutput()));
+    }
 
     // Transfer data ownership and write trace. The process handle is closed by
     // the scope guard when this function returns.
     SampleTraceData data = std::move(ctx.data);
 
-    const FilePath dir = FilePath::fromString(dirPath);
     if (Result<> r = writeSampleTrace(data, dir,
                                       [&postProgress](int p) { postProgress(50 + p / 2); });
         !r) {

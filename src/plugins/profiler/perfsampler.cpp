@@ -20,10 +20,7 @@
 #include <utils/qtdesignwidgets.h>
 
 #include <QDataStream>
-#include <QDateTime>
-#include <QDir>
 #include <QPointer>
-#include <QStandardPaths>
 #include <QTimer>
 #include <QtEndian>
 
@@ -419,16 +416,13 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
             return;
         }
 
-        const QString dirName = u"qtprofiler-sample-%1"_s.arg(QDateTime::currentMSecsSinceEpoch());
-        const QString dirPath =
-            QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath(dirName);
-        if (!QDir().mkpath(dirPath)) {
+        const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
+        if (!dir.createDir()) {
             session->result = ResultError(
-                Tr::tr("Cannot create temporary trace directory %1.").arg(dirPath));
+                Tr::tr("Cannot create temporary trace directory %1.").arg(dir.toUserOutput()));
             return;
         }
 
-        const FilePath dir = FilePath::fromString(dirPath);
         const auto writeProgress = [session](int percent) {
             session->progress.store(percent, std::memory_order_relaxed);
         };

@@ -10,10 +10,7 @@
 #include "sampletrace.h"
 #include "symbolicator.h"
 
-#include <QDateTime>
-#include <QDir>
 #include <QFileInfo>
-#include <QStandardPaths>
 #include <QVarLengthArray>
 
 #include <vector>
@@ -289,12 +286,11 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
     if (data.samples.isEmpty())
         return ResultError(Tr::tr("No samples were captured. The target may have exited."));
 
-    const QString dirName = u"qtprofiler-sample-%1"_s.arg(
-        QDateTime::currentMSecsSinceEpoch());
-    const QString dirPath = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
-                                .filePath(dirName);
-    if (!QDir().mkpath(dirPath))
-        return ResultError(Tr::tr("Cannot create temporary trace directory %1.").arg(dirPath));
+    const FilePath dir = uniqueTracePath("qtprofiler-sample"_L1);
+    if (!dir.createDir()) {
+        return ResultError(
+            Tr::tr("Cannot create temporary trace directory %1.").arg(dir.toUserOutput()));
+    }
 
     // Symbolication already happened during capture, so the post-stop work is
     // just writing the trace.
@@ -302,7 +298,6 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         if (progressPercent)
             progressPercent->store(percent, std::memory_order_relaxed);
     };
-    const FilePath dir = FilePath::fromString(dirPath);
     if (Result<> r = writeSampleTrace(data, dir, writeProgress); !r)
         return ResultError(r.error());
     return dir;

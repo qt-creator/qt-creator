@@ -7,6 +7,7 @@
 #include "qmlprofilerconstants.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatemanager.h"
+#include "sampletrace.h"
 
 #include "profilertr.h"
 
@@ -21,10 +22,7 @@
 
 #include <QtTaskTree/QBarrier>
 
-#include <QDateTime>
 #include <QDebug>
-#include <QDir>
-#include <QStandardPaths>
 #include <QTimer>
 
 using namespace Profiler;
@@ -171,11 +169,7 @@ SamplerSettings *QmlProfilerSampler::settings() const
 
 static FilePath tempQtdPath()
 {
-    const QString dir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-    const QString name = u"qtprofiler-qml-%1%2"_s
-                             .arg(QDateTime::currentMSecsSinceEpoch())
-                             .arg(QLatin1String(Constants::QtdFileExtension));
-    return FilePath::fromString(QDir(dir).filePath(name));
+    return uniqueTracePath("qtprofiler-qml"_L1, QLatin1StringView(Constants::QtdFileExtension));
 }
 
 void QmlProfilerSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &session) const

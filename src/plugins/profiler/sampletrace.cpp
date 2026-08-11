@@ -15,7 +15,9 @@
 #include <commontraceformat/stream/tracereader.h>
 #include <commontraceformat/stream/tracewriter.h>
 
+#include <QDateTime>
 #include <QFile>
+#include <QStandardPaths>
 
 #include <algorithm>
 
@@ -318,6 +320,20 @@ bool isSamplerTrace(const FilePath &dir)
     return std::any_of(reader->schema().dataStreamClasses.cbegin(),
                        reader->schema().dataStreamClasses.cend(),
                        [](const DataStreamClass &cls) { return cls.name == samplerStreamName; });
+}
+
+FilePath uniqueTracePath(QLatin1StringView prefix, QLatin1StringView suffix)
+{
+    const FilePath tempDir = FilePath::fromString(
+        QStandardPaths::writableLocation(QStandardPaths::TempLocation));
+    // No colons or spaces: the name has to survive as a path component on every
+    // host, and it ends up on command lines and in log messages.
+    const QString stamp = QDateTime::currentDateTime().toString(u"yyyy-MM-dd-hh-mm-ss"_s);
+
+    FilePath path = tempDir / u"%1-%2%3"_s.arg(prefix, stamp, suffix);
+    for (int counter = 2; path.exists(); ++counter)
+        path = tempDir / u"%1-%2-%3%4"_s.arg(prefix, stamp).arg(counter).arg(suffix);
+    return path;
 }
 
 } // namespace QmlProfiler::Internal

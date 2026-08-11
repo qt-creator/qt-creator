@@ -5,11 +5,16 @@
 
 #include <utils/result.h>
 
+#include <QDateTime>
+#include <QRegularExpression>
+#include <QScopeGuard>
+#include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QtTest>
 
 using namespace QmlProfiler::Internal;
 using namespace Utils;
+using namespace Qt::StringLiterals;
 
 static SampleTraceData makeTestData()
 {
@@ -78,6 +83,38 @@ private slots:
         QVERIFY_RESULT(read);
         QVERIFY(read->samples.isEmpty());
         QVERIFY(read->labels.isEmpty());
+    }
+
+    void tracePathCarriesReadableDate()
+    {
+        const FilePath path = uniqueTracePath("tst-sampletrace"_L1, ".qtd"_L1);
+        QVERIFY(!path.exists());
+        QCOMPARE(path.parentDir(),
+                 FilePath::fromString(
+                     QStandardPaths::writableLocation(QStandardPaths::TempLocation)));
+
+        static const QRegularExpression re(
+            uR"(^tst-sampletrace-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})\.qtd$)"_s);
+        const QRegularExpressionMatch match = re.match(path.fileName());
+        QVERIFY2(match.hasMatch(), qPrintable(path.fileName()));
+
+        const QDateTime stamp =
+            QDateTime::fromString(match.captured(1), u"yyyy-MM-dd-hh-mm-ss"_s);
+        QVERIFY(stamp.isValid());
+        QCOMPARE(stamp.date(), QDate::currentDate());
+    }
+
+    void tracePathAvoidsCollisions()
+    {
+        const FilePath first = uniqueTracePath("tst-sampletrace"_L1);
+        QVERIFY(first.createDir());
+        const QScopeGuard cleanup([&first] { first.removeRecursively(); });
+
+        // Same second, so the plain timestamp is taken and a counter must appear.
+        const FilePath second = uniqueTracePath("tst-sampletrace"_L1);
+        QVERIFY(second != first);
+        QVERIFY(!second.exists());
+        QCOMPARE(second.fileName(), first.fileName() + "-2"_L1);
     }
 };
 

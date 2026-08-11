@@ -13,13 +13,10 @@
 #include <qmldebug/qmleventtype.h>
 #include <qmldebug/qmlprofilereventtypes.h>
 
-#include <QDateTime>
 #include <QDebug>
-#include <QDir>
 #include <QFutureInterface>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QStandardPaths>
 
 using namespace Profiler;
 using namespace Profiler::Internal;
@@ -170,14 +167,12 @@ void CombinedTraceLoader::onQmlLoaded()
     options.sampleTimeOffsetUs = readClockOffsetUs(d->bundleDir);
     const SampleTraceData mergedData = mergeQmlIntoSamples(*native, ranges, options);
 
-    const QString dirName = u"qtprofiler-merged-%1"_s.arg(QDateTime::currentMSecsSinceEpoch());
-    const QString dirPath =
-        QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath(dirName);
-    if (!QDir().mkpath(dirPath)) {
-        emit failed(Tr::tr("Cannot create the merged trace directory %1.").arg(dirPath));
+    const FilePath outDir = uniqueTracePath("qtprofiler-merged"_L1);
+    if (!outDir.createDir()) {
+        emit failed(
+            Tr::tr("Cannot create the merged trace directory %1.").arg(outDir.toUserOutput()));
         return;
     }
-    const FilePath outDir = FilePath::fromString(dirPath);
     if (Result<> result = writeSampleTrace(mergedData, outDir); !result) {
         emit failed(result.error());
         return;

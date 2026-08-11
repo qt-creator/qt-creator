@@ -84,4 +84,11 @@ Utils::Result<SampleTraceData> readSampleTrace(const Utils::FilePath &dir);
 // named samplerStreamName. Reads only the metadata file.
 bool isSamplerTrace(const Utils::FilePath &dir);
 
+// Path of a not-yet-existing trace in the temporary location, named after
+// `prefix`, the current local time and `suffix`, for example
+// ".../qtprofiler-sample-2026-08-11-14-32-07". The traces pile up there, so the
+// timestamp is spelled out rather than counted in milliseconds since the epoch.
+// A counter is appended if a trace of the same second is already present.
+Utils::FilePath uniqueTracePath(QLatin1StringView prefix, QLatin1StringView suffix = {});
+
 } // namespace QmlProfiler::Internal

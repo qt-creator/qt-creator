@@ -8,6 +8,7 @@
 #include "profilertr.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilersampler.h"
+#include "sampletrace.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
 
@@ -16,11 +17,9 @@
 
 #include <QtTaskTree/QBarrier>
 
-#include <QDateTime>
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QStandardPaths>
 #include <QTimer>
 
 using namespace Profiler;
@@ -156,15 +155,14 @@ static void assembleBundle(const std::shared_ptr<RecordingSession> &parent,
         return;
     }
 
-    const QString dirName = u"qtprofiler-combined-%1"_s.arg(QDateTime::currentMSecsSinceEpoch());
-    const QString bundlePath =
-        QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath(dirName);
-    if (!QDir().mkpath(bundlePath)) {
-        fail(Tr::tr("Cannot create the combined trace directory %1.").arg(bundlePath));
+    const FilePath bundlePath = uniqueTracePath("qtprofiler-combined"_L1);
+    if (!bundlePath.createDir()) {
+        fail(Tr::tr("Cannot create the combined trace directory %1.")
+                 .arg(bundlePath.toUserOutput()));
         return;
     }
 
-    const QDir bundle(bundlePath);
+    const QDir bundle(bundlePath.toFSPathString());
     if (!QDir().rename(nativeResult->toFSPathString(), bundle.filePath(combinedSamplerSubdir))) {
         fail(Tr::tr("Cannot move the sampler trace into the bundle."));
         return;
@@ -200,7 +198,7 @@ static void assembleBundle(const std::shared_ptr<RecordingSession> &parent,
     manifestFile.write(QJsonDocument(manifest).toJson(QJsonDocument::Indented));
     manifestFile.close();
 
-    parent->result.emplace(FilePath::fromString(bundlePath));
+    parent->result.emplace(bundlePath);
 }
 
 ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSession> &parent) const
