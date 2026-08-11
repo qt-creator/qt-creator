@@ -39,6 +39,8 @@ public:
 
     Utils::BoolAspect autoSaveAfterRefactoring{this};
 
+    Utils::BoolAspect disableAtomicSave{this};
+
     Utils::BoolAspect autoSuspendEnabled{this};
     Utils::IntegerAspect autoSuspendMinDocumentCount{this};
 

@@ -47,6 +47,11 @@
             the \uicontrol Interval field.
         \li Select the \uicontrol {Auto-save files after refactoring} check
             box to automatically save refactored files.
+        \li Select \uicontrol {Disable atomic saving of files} to write files
+            directly instead of saving them to a temporary file that is renamed
+            over the original. The file keeps its identity on the file system,
+            and with it metadata that a new file would not inherit. However,
+            saving is no longer resilient against a crash or a power failure.
         \li Select the \uicontrol {Auto-suspend unmodified files} check
             box to automatically free the resources of open files after
             prolonged inactivity. The files are still listed in the

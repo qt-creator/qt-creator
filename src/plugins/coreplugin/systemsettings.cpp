@@ -17,6 +17,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
+#include <utils/fileutils.h>
 #include <utils/globalfilechangeblocker.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
@@ -187,6 +188,16 @@ SystemSettings::SystemSettings()
         Tr::tr("Automatically saves all open files affected by a refactoring operation,\n"
                "provided they were unmodified before the refactoring."));
 
+    disableAtomicSave.setSettingsKey("EditorManager/DisableAtomicSave");
+    disableAtomicSave.setDefaultValue(false);
+    disableAtomicSave.setLabelPlacement(boolAspectLabelPlacement);
+    disableAtomicSave.setLabelText(Tr::tr("Disable atomic saving of files"));
+    disableAtomicSave.setToolTip(
+        Tr::tr("Writes files directly instead of saving to a temporary file and renaming it "
+               "over the original. The file keeps its inode, and with it any file-system "
+               "metadata that a freshly created file would not inherit, but saving is no "
+               "longer resilient against a crash or power failure."));
+
     autoSuspendEnabled.setSettingsKey("EditorManager/AutoSuspendEnabled");
     autoSuspendEnabled.setDefaultValue(true);
     autoSuspendEnabled.setLabelText(Tr::tr("Auto-suspend unmodified files"));
@@ -273,6 +284,12 @@ SystemSettings::SystemSettings()
     syncReloadSetting();
     updateSystemEnv();
 
+    const auto syncDisableAtomicSave = [this] {
+        Utils::FileUtils::setAtomicSaveDisabled(disableAtomicSave());
+    };
+    syncDisableAtomicSave();
+    disableAtomicSave.addOnChanged(this, syncDisableAtomicSave);
+
     autoSaveInterval.setEnabler(&autoSaveModifiedFiles);
     autoSuspendMinDocumentCount.setEnabler(&autoSuspendEnabled);
     bigFileSizeLimitInMB.setEnabler(&warnBeforeOpeningBigFiles);
@@ -313,6 +330,7 @@ SystemSettings::SystemSettings()
             reloadSetting, br,
             autoSaveModifiedFiles, Row { autoSaveInterval }, st, br,
             autoSaveAfterRefactoring, br,
+            disableAtomicSave, br,
             autoSuspendEnabled, Row { autoSuspendMinDocumentCount}, st, br,
             warnBeforeOpeningBigFiles, Row { bigFileSizeLimitInMB }, st, br,
             askBeforeExit, br,

@@ -47,6 +47,8 @@
 
 namespace Utils {
 
+static bool m_atomicSaveDisabled = false;
+
 // FileSaver
 
 FileSaverBase::FileSaverBase()
@@ -125,7 +127,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
     }
 
     const bool readOnlyOrAppend = mode & (QIODevice::ReadOnly | QIODevice::Append);
-    m_isSafe = !readOnlyOrAppend && !qtcEnvironmentVariableIsSet("QTC_DISABLE_ATOMICSAVE")
+    m_isSafe = !readOnlyOrAppend && !FileUtils::atomicSaveDisabled()
                && filePath.supportsAtomicSaveFile();
     if (m_isSafe)
         m_file.reset(new SaveFile(filePath));
@@ -212,6 +214,16 @@ TempFileSaver::~TempFileSaver()
 
 */
 namespace FileUtils {
+
+bool atomicSaveDisabled()
+{
+    return m_atomicSaveDisabled;
+}
+
+void setAtomicSaveDisabled(bool on)
+{
+    m_atomicSaveDisabled = on;
+}
 
 #ifdef QT_GUI_LIB
 CopyAskingForOverwrite::CopyAskingForOverwrite(const std::function<bool (FilePath)> &postOperation)

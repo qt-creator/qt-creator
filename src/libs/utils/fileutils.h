@@ -77,6 +77,13 @@ QTCREATOR_UTILS_EXPORT FilePathInfo filePathInfoFromTriple(const QString &infos,
 //! Returns known paths like /opt/homebrew on macOS that might not be in PATH
 QTCREATOR_UTILS_EXPORT FilePaths usefulExtraSearchPaths();
 
+// When set, FileSaver writes files in place instead of using the atomic
+// temp-file-and-rename scheme. This trades resilience against a crash while
+// saving for keeping the file's inode, and with it any file-system metadata a
+// freshly created file would not inherit.
+QTCREATOR_UTILS_EXPORT bool atomicSaveDisabled();
+QTCREATOR_UTILS_EXPORT void setAtomicSaveDisabled(bool on);
+
 #ifdef QT_WIDGETS_LIB
 QTCREATOR_UTILS_EXPORT bool hasNativeFileDialog();
 
