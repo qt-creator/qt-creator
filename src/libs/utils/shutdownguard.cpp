@@ -5,6 +5,7 @@
 
 #include <qtcassert.h>
 
+#include <QCoreApplication>
 #include <QThread>
 
 namespace Utils {
@@ -24,6 +25,14 @@ public:
         if (!m_shutdownGuard) {
             QTC_CHECK(QThread::isMainThread());
             m_shutdownGuard = new QObject;
+            // Tear the guard down from a Qt post routine, so that guarded objects
+            // die while the application object is still alive and before any other
+            // static is destroyed. Both ~QCoreApplication and the exit() paths that
+            // bypass it, such as QCommandLineParser's --help handling, call
+            // qt_call_post_routines(). Without this the teardown would be left to
+            // this holder's own static destructor, whose order relative to other
+            // statics is unspecified.
+            qAddPostRoutine(&Utils::triggerShutdownGuard);
         }
         return m_shutdownGuard;
     }
