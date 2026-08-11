@@ -47,6 +47,7 @@ TimelineOverviewWidget::TimelineOverviewWidget(TimelineModelAggregator *aggregat
         update();
     });
     connect(aggregator, &TimelineModelAggregator::modelsChanged, this, [this] {
+        connectModels();
         m_contentDirty = true;
         update();
     });
@@ -54,6 +55,26 @@ TimelineOverviewWidget::TimelineOverviewWidget(TimelineModelAggregator *aggregat
         m_contentDirty = true;
         update();
     });
+
+    connectModels();
+}
+
+// The cached content depends on the models' rows, which change after the models
+// have been set: a model publishes its row count from finalize(), and expanding
+// one switches to its expanded rows. Follow that, or a cache built while the
+// rows are still incomplete stays on screen.
+void TimelineOverviewWidget::connectModels()
+{
+    for (const QMetaObject::Connection &connection : std::as_const(m_modelConnections))
+        disconnect(connection);
+    m_modelConnections.clear();
+
+    for (TimelineModel *model : m_aggregator->models()) {
+        m_modelConnections.append(connect(model, &TimelineModel::rowCountChanged, this, [this] {
+            m_contentDirty = true;
+            update();
+        }));
+    }
 }
 
 QSize TimelineOverviewWidget::sizeHint() const
@@ -147,12 +168,18 @@ void TimelineOverviewWidget::rebuildContentCache()
             const double bandY = contentTop + bandIdx * bandH;
             const int count = model->count();
 
-            QVarLengthArray<double, 64> rowNextX(model->rowCount());
+            const int rowCount = model->rowCount();
+            QVarLengthArray<double, 64> rowNextX(rowCount);
             std::fill(rowNextX.begin(), rowNextX.end(), -1.0);
 
             for (int i = 0; i < count; ++i) {
 
                 const int row = model->row(i);
+                // Rows are assigned while loading, the row count only from
+                // finalize(), so a not yet finalized model can report rows
+                // beyond it. Skip those instead of indexing out of bounds.
+                if (row < 0 || row >= rowCount)
+                    continue;
                 const qint64 start = model->startTime(i);
                 const qint64 end   = model->endTime(i);
 

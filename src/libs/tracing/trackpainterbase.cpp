@@ -355,6 +355,12 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
 
         for (int i = first; i <= last; ++i) {
             const int row = rowCache[i];
+            // Rows are assigned while loading, the row count only from
+            // finalize(), so a not yet finalized model can report rows beyond
+            // it. Skip those instead of indexing out of bounds; finalize()
+            // emits contentChanged, which rebuilds the tracks with final rows.
+            if (row < 0 || row >= rowCount)
+                continue;
 
             double x1 = double(model->startTime(i) - m_rangeStart) * scale;
             double x2 = double(model->endTime(i) - m_rangeStart) * scale;

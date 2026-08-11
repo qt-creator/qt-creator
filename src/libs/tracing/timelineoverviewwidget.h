@@ -5,6 +5,8 @@
 
 #include "tracing_global.h"
 
+#include <QList>
+#include <QMetaObject>
 #include <QPixmap>
 #include <QWidget>
 
@@ -36,6 +38,7 @@ private:
     qint64 pixelToTime(double px) const;
     bool nearHandle(double px, double handlePx) const;
     void applyDrag(double px);
+    void connectModels();
     void rebuildContentCache();
 
     enum DragMode { DragNone, DragLeft, DragRight, DragRange };
@@ -50,6 +53,8 @@ private:
 
     bool m_leftHovered = false;
     bool m_rightHovered = false;
+
+    QList<QMetaObject::Connection> m_modelConnections;
 
     QPixmap m_contentCache;
     bool m_contentDirty = true;
