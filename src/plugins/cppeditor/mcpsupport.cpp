@@ -539,6 +539,108 @@ void registerMcpTools()
 
             return CallToolResult{}.isError(false).structuredContent(hierarchyToJson(cppClass));
         });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("find_callers")
+            .title("Find C++ callers")
+            .description(
+                "Finds the callers of the C++ function at a position - the incoming call "
+                "hierarchy - using the C++ code model. Give the file and a 1-based line and "
+                "column pointing at a function name; returns each call site with its file, "
+                "1-based line and column, the source line text, and the enclosing function "
+                "(with its own location) that makes the call. The file must belong to an "
+                "open project.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the C++ file containing the function."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the function name to resolve."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the function name to resolve."}})
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "callers",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description", "Call sites of the function."}})
+                    .addRequired("callers")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            if (file.isEmpty() || line <= 0 || column <= 0) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Requires \"file\" and 1-based \"line\" and \"column\"."));
+            }
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            CPlusPlus::LookupContext context;
+            CPlusPlus::Symbol *symbol = symbolAt(filePath, line, column, &context);
+            if (!symbol) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ symbol found at %1:%2:%3. Is the file in an open project "
+                            "and the position on a function name?")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+            if (symbolKind(symbol) != QLatin1String("function")) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("The symbol at %1:%2:%3 is not a function.")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+
+            // Group the call sites by the function that contains them. Only the
+            // containingFunction name is safe to use here: containingFunctionSymbol
+            // points into a document that symbolUsages() has already destroyed.
+            QStringList callerOrder;
+            QHash<QString, QJsonArray> sitesByCaller;
+            const QList<CPlusPlus::Usage> usages = symbolUsages(symbol, context);
+            for (const CPlusPlus::Usage &u : usages) {
+                if (u.tags.testFlag(CPlusPlus::Usage::Tag::Declaration))
+                    continue; // The function's own declaration/definition is not a call.
+
+                const QString caller = u.containingFunction; // Empty at file scope.
+                if (!sitesByCaller.contains(caller))
+                    callerOrder.append(caller);
+                QJsonObject site{
+                    {"file", u.path.toUserOutput()},
+                    {"line", u.line},
+                    {"column", u.col}};
+                const QString lineText = u.lineText.trimmed();
+                if (!lineText.isEmpty())
+                    site.insert("line_text", lineText);
+                sitesByCaller[caller].append(site);
+            }
+
+            QJsonArray callers;
+            for (const QString &caller : callerOrder) {
+                QJsonObject node{{"call_sites", sitesByCaller.value(caller)}};
+                if (!caller.isEmpty())
+                    node.insert("caller", caller);
+                callers.append(node);
+            }
+
+            return CallToolResult{}.isError(false).structuredContent(
+                QJsonObject{{"callers", callers}});
+        });
 }
 
 } // namespace CppEditor::Internal
