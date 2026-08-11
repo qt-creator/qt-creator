@@ -15,9 +15,34 @@
 #  include <sys/stat.h>
 #endif
 
+#ifdef Q_OS_LINUX
+#  include <sys/xattr.h>
+#endif
+
 namespace Utils {
 
 static QFile::Permissions m_umask;
+
+#ifdef Q_OS_LINUX
+// setPermissions() restores only the classic rwx mode bits, not the POSIX ACL.
+// On file systems that carry permissions in an ACL (notably Samba/CIFS mounts,
+// where the executable bit lives in the ACL) a plain mode-bit copy silently
+// drops it, e.g. clearing the execute permission on every save. Copy the access
+// ACL verbatim through its extended attribute. Best-effort; ignore errors.
+static void copyPosixAccessAcl(const QString &from, const QString &to)
+{
+    static const char aclAttr[] = "system.posix_acl_access";
+    const QByteArray fromPath = QFile::encodeName(from);
+    ssize_t size = getxattr(fromPath.constData(), aclAttr, nullptr, 0);
+    if (size <= 0)
+        return; // No ACL, or not supported by the file system.
+    QByteArray blob(size, '\0');
+    size = getxattr(fromPath.constData(), aclAttr, blob.data(), blob.size());
+    if (size <= 0)
+        return;
+    setxattr(QFile::encodeName(to).constData(), aclAttr, blob.constData(), size, 0);
+}
+#endif
 
 SaveFile::SaveFile(const FilePath &filePath) :
     m_finalFilePath(filePath)
@@ -57,6 +82,9 @@ bool SaveFile::open(OpenMode flags)
     m_finalized = false; // needs clean up in the end
     if (ofi.exists()) {
         setPermissions(ofi.permissions()); // Ignore errors
+#ifdef Q_OS_LINUX
+        copyPosixAccessAcl(m_finalFilePath.toFSPathString(), fileName());
+#endif
     } else {
         Permissions permAll = QFile::ReadOwner
                 | QFile::ReadGroup
