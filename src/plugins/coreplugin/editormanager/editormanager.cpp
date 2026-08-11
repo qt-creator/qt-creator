@@ -722,6 +722,20 @@ void EditorManagerPrivate::init()
     gotoNextSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
     gotoNextSplit.addOnTriggered(this, &EditorManagerPrivate::gotoNextSplit);
 
+    ActionBuilder moveToPreviousSplit(this, Constants::MOVE_TO_PREV_SPLIT);
+    moveToPreviousSplit.setText(::Core::Tr::tr("Move Document to Previous Split or Window"));
+    moveToPreviousSplit.bindContextAction(&m_moveToPreviousSplitAction);
+    moveToPreviousSplit.setContext(editManagerContext);
+    moveToPreviousSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
+    moveToPreviousSplit.addOnTriggered(this, &EditorManagerPrivate::moveEditorToPreviousSplit);
+
+    ActionBuilder moveToNextSplit(this, Constants::MOVE_TO_NEXT_SPLIT);
+    moveToNextSplit.setText(::Core::Tr::tr("Move Document to Next Split or Window"));
+    moveToNextSplit.bindContextAction(&m_moveToNextSplitAction);
+    moveToNextSplit.setContext(editManagerContext);
+    moveToNextSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
+    moveToNextSplit.addOnTriggered(this, &EditorManagerPrivate::moveEditorToNextSplit);
+
     ActionBuilder equallyDistributeSplits(this, Constants::EQUALLY_DISTRIBUTE_SPLITS);
     equallyDistributeSplits.setText(::Core::Tr::tr("Equally Distribute Splits"));
     equallyDistributeSplits.bindContextAction(&m_equallyDistributeSplitsAction);
@@ -2252,8 +2266,12 @@ void EditorManagerPrivate::updateActions()
     const bool hasSplitter = view && view->isInSplit();
     d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
-    d->m_gotoPreviousSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
-    d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
+    const bool hasOtherView = hasSplitter || d->m_editorAreas.size() > 1;
+    d->m_gotoPreviousSplitAction->setEnabled(hasOtherView);
+    d->m_gotoNextSplitAction->setEnabled(hasOtherView);
+    const bool canMove = hasOtherView && view && view->currentEditor();
+    d->m_moveToPreviousSplitAction->setEnabled(canMove);
+    d->m_moveToNextSplitAction->setEnabled(canMove);
     d->m_equallyDistributeSplitsAction->setEnabled(hasSplitter);
     const bool splitActionsEnabled = viewCount < kMaxViews;
     d->m_splitAction->setEnabled(splitActionsEnabled);
@@ -2387,48 +2405,95 @@ void EditorManagerPrivate::gotoLastEditLocation()
     view->goToEditLocation(d->m_globalLastEditLocation);
 }
 
+EditorView *EditorManagerPrivate::nextView(EditorView *view)
+{
+    QTC_ASSERT(view, return nullptr);
+    if (EditorView *next = view->findNextView())
+        return next;
+    // we are in the "last" view in this editor area
+    int index = -1;
+    EditorArea *area = findEditorArea(view, &index);
+    QTC_ASSERT(area, return nullptr);
+    QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return nullptr);
+    // find next editor area. this might be the same editor area if there's only one.
+    int nextIndex = index + 1;
+    if (nextIndex >= d->m_editorAreas.size())
+        nextIndex = 0;
+    return d->m_editorAreas.at(nextIndex)->findFirstView();
+}
+
+EditorView *EditorManagerPrivate::previousView(EditorView *view)
+{
+    QTC_ASSERT(view, return nullptr);
+    if (EditorView *prev = view->findPreviousView())
+        return prev;
+    // we are in the "first" view in this editor area
+    int index = -1;
+    EditorArea *area = findEditorArea(view, &index);
+    QTC_ASSERT(area, return nullptr);
+    QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return nullptr);
+    // find previous editor area. this might be the same editor area if there's only one.
+    int nextIndex = index - 1;
+    if (nextIndex < 0)
+        nextIndex = d->m_editorAreas.count() - 1;
+    return d->m_editorAreas.at(nextIndex)->findLastView();
+}
+
 void EditorManagerPrivate::gotoNextSplit()
 {
     EditorView *view = currentEditorView();
     QTC_ASSERT(view, return);
-    EditorView *nextView = view->findNextView();
-    if (!nextView) {
-        // we are in the "last" view in this editor area
-        int index = -1;
-        EditorArea *area = findEditorArea(view, &index);
-        QTC_ASSERT(area, return);
-        QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return);
-        // find next editor area. this might be the same editor area if there's only one.
-        int nextIndex = index + 1;
-        if (nextIndex >= d->m_editorAreas.size())
-            nextIndex = 0;
-        nextView = d->m_editorAreas.at(nextIndex)->findFirstView();
-    }
-
-    if (QTC_GUARD(nextView))
-        activateView(nextView);
+    if (EditorView *next = nextView(view))
+        activateView(next);
 }
 
 void EditorManagerPrivate::gotoPreviousSplit()
 {
     EditorView *view = currentEditorView();
     QTC_ASSERT(view, return);
-    EditorView *prevView = view->findPreviousView();
-    if (!prevView) {
-        // we are in the "first" view in this editor area
-        int index = -1;
-        EditorArea *area = findEditorArea(view, &index);
-        QTC_ASSERT(area, return);
-        QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return);
-        // find previous editor area. this might be the same editor area if there's only one.
-        int nextIndex = index - 1;
-        if (nextIndex < 0)
-            nextIndex = d->m_editorAreas.count() - 1;
-        prevView = d->m_editorAreas.at(nextIndex)->findLastView();
+    if (EditorView *prev = previousView(view))
+        activateView(prev);
+}
+
+void EditorManagerPrivate::moveCurrentEditorToView(EditorView *targetView)
+{
+    EditorView *sourceView = currentEditorView();
+    QTC_ASSERT(sourceView, return);
+    if (!targetView || targetView == sourceView)
+        return;
+
+    IEditor *editor = sourceView->currentEditor();
+    if (!editor) {
+        activateView(targetView);
+        return;
     }
 
-    if (QTC_GUARD(prevView))
-        activateView(prevView);
+    // The target's editor for the document is not necessarily the visible one there. Raise it,
+    // and close the source's, which is a duplicate then, and so not the document's last one.
+    if (IEditor *existing = targetView->editorForDocument(editor->document())) {
+        closeEditors({editor}, CloseFlag::SuspendRemoveTab);
+        activateEditor(targetView, existing);
+        return;
+    }
+
+    // Takes care of choosing what to show in the source view instead, including suspended tabs.
+    removeEditorsFromViews(
+        {{sourceView, editor}}, EditorView::RemoveTab, RemoveEditorFlag::EnsureNewEditor);
+    activateEditor(targetView, editor);
+}
+
+void EditorManagerPrivate::moveEditorToNextSplit()
+{
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return);
+    moveCurrentEditorToView(nextView(view));
+}
+
+void EditorManagerPrivate::moveEditorToPreviousSplit()
+{
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return);
+    moveCurrentEditorToView(previousView(view));
 }
 
 // Returns the number of leaf views this node contributes in parentOrientation's direction.

@@ -67,6 +67,9 @@ public:
 
     static EditorArea *mainEditorArea();
     static EditorView *currentEditorView();
+    static EditorView *nextView(EditorView *view);
+    static EditorView *previousView(EditorView *view);
+    static void moveCurrentEditorToView(EditorView *targetView);
     static QList<EditorView *> allEditorViews();
     static bool hasMoreThanOneview();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
@@ -168,6 +171,8 @@ public slots:
     static void removeAllSplits();
     static void gotoPreviousSplit();
     static void gotoNextSplit();
+    static void moveEditorToPreviousSplit();
+    static void moveEditorToNextSplit();
     static void equallyDistributeSplits();
     static void cycleToNextEditor(const Utils::FilePath &filePath);
 
@@ -292,6 +297,8 @@ private:
     QAction *m_removeAllSplitsAction = nullptr;
     QAction *m_gotoPreviousSplitAction = nullptr;
     QAction *m_gotoNextSplitAction = nullptr;
+    QAction *m_moveToPreviousSplitAction = nullptr;
+    QAction *m_moveToNextSplitAction = nullptr;
     QAction *m_equallyDistributeSplitsAction = nullptr;
     QAction *m_cycleNextEditorAction = nullptr;
 

@@ -39,6 +39,11 @@ private slots:
     void testPinned();
     void testDisambiguateUnnamedDuplicates();
     void testNavigationHistoryDedup();
+    void testMoveEditorToNextSplit();
+    void testMoveEditorToNextSplitKeepsPrevious();
+    void testMoveEditorToNextSplitWithExistingEditor();
+    void testMoveEditorToNextSplitWhenAlreadyVisible();
+    void testMoveEditorToNextSplitRestoresSuspendedTab();
 };
 
 QObject *createTabbedEditorTest()
@@ -433,6 +438,153 @@ void TabbedEditorTest::testNavigationHistoryDedup()
     view->addCurrentPositionToNavigationHistory();
     QVERIFY(view->m_navigationHistory.size() >= 2);
     QCOMPARE(view->m_navigationHistory.last().filePath, b.filePath());
+}
+
+/*
+    Move the current editor to the next split.
+    A! in first view, B! in second view, first view current.
+    After moving: first view empty, second view has A! (and B), second view current.
+*/
+void TabbedEditorTest::testMoveEditorToNextSplit()
+{
+    TestFile a;
+    TestFile b;
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    IEditor *editorB = EMP::openEditor(views.at(1), b.filePath());
+    IEditor *editorA = EMP::openEditor(views.at(0), a.filePath());
+    QCOMPARE(EMP::currentEditorView(), views.at(0));
+    QCOMPARE(views.at(0)->currentEditor(), editorA);
+
+    EMP::moveEditorToNextSplit();
+
+    QVERIFY(!views.at(0)->hasEditor(editorA));
+    QVERIFY(views.at(0)->editors().isEmpty());
+    QVERIFY(views.at(1)->hasEditor(editorA));
+    QVERIFY(views.at(1)->hasEditor(editorB));
+    QCOMPARE(views.at(1)->currentEditor(), editorA);
+    QCOMPARE(EMP::currentEditorView(), views.at(1));
+}
+
+/*
+    Moving the current editor out of a split shows the previously current editor there.
+    A and C! in first view, B! in second view, first view current.
+    After moving C to the next split: A! in first view, C! (and B) in second view.
+*/
+void TabbedEditorTest::testMoveEditorToNextSplitKeepsPrevious()
+{
+    TestFile a;
+    TestFile b;
+    TestFile c;
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    IEditor *editorA = EMP::openEditor(views.at(0), a.filePath());
+    EMP::openEditor(views.at(1), b.filePath());
+    IEditor *editorC = EMP::openEditor(views.at(0), c.filePath());
+    QCOMPARE(EMP::currentEditorView(), views.at(0));
+    QCOMPARE(views.at(0)->currentEditor(), editorC);
+
+    EMP::moveEditorToNextSplit();
+
+    QVERIFY(!views.at(0)->hasEditor(editorC));
+    QCOMPARE(views.at(0)->currentEditor(), editorA);
+    QCOMPARE(views.at(1)->currentEditor(), editorC);
+    QCOMPARE(EMP::currentEditorView(), views.at(1));
+}
+
+/*
+    Moving to a split that has an editor for the document raises that one, also when it is not
+    the visible one there.
+    A! in first view, A and B! in second view, first view current.
+    After moving A to the next split: none in first view, A! (and B) in second view.
+*/
+void TabbedEditorTest::testMoveEditorToNextSplitWithExistingEditor()
+{
+    TestFile a;
+    TestFile b;
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    IEditor *editorA = EMP::openEditor(views.at(0), a.filePath());
+    IEditor *duplicateA = EMP::openEditor(views.at(1), a.filePath());
+    IEditor *editorB = EMP::openEditor(views.at(1), b.filePath());
+    EMP::openEditor(views.at(0), a.filePath()); // makes the first view current again
+    // verify the setup
+    QVERIFY(duplicateA != editorA);
+    QCOMPARE(views.at(0)->editors(), (QList<IEditor *>{editorA}));
+    QCOMPARE(views.at(1)->editors(), (QList<IEditor *>{duplicateA, editorB}));
+    QCOMPARE(views.at(1)->currentEditor(), editorB);
+    QCOMPARE(EMP::currentEditorView(), views.at(0));
+
+    EMP::moveEditorToNextSplit(); // editorA is dead now
+
+    QVERIFY(views.at(0)->editors().isEmpty());
+    QVERIFY(views.at(0)->tabs().isEmpty());
+    QCOMPARE(views.at(1)->editors(), (QList<IEditor *>{editorB, duplicateA}));
+    QCOMPARE(views.at(1)->currentEditor(), duplicateA);
+    QCOMPARE(EMP::currentEditorView(), views.at(1));
+    QCOMPARE(DocumentModel::editorsForFilePath(a.filePath()), (QList<IEditor *>{duplicateA}));
+}
+
+/*
+    Moving to a split that already shows the document must still empty the source split,
+    otherwise the document gets stuck in the source split.
+    A! in first view, A! in second view, first view current.
+    After moving A to the next split: none in first view, A! in second view.
+*/
+void TabbedEditorTest::testMoveEditorToNextSplitWhenAlreadyVisible()
+{
+    TestFile a;
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    IEditor *editorA = EMP::openEditor(views.at(0), a.filePath());
+    IEditor *duplicateA = EMP::openEditor(views.at(1), a.filePath());
+    EMP::openEditor(views.at(0), a.filePath()); // makes the first view current again
+    QVERIFY(duplicateA != editorA);
+    QCOMPARE(views.at(0)->editors(), (QList<IEditor *>{editorA}));
+    QCOMPARE(views.at(1)->editors(), (QList<IEditor *>{duplicateA}));
+    QCOMPARE(EMP::currentEditorView(), views.at(0));
+
+    EMP::moveEditorToNextSplit(); // editorA is dead now
+
+    QVERIFY(views.at(0)->editors().isEmpty());
+    QCOMPARE(views.at(1)->currentEditor(), duplicateA);
+    QCOMPARE(EMP::currentEditorView(), views.at(1));
+    QCOMPARE(DocumentModel::editorsForFilePath(a.filePath()), (QList<IEditor *>{duplicateA}));
+}
+
+/*
+    Moving the current editor out of a split can bring back a suspended tab there.
+    A(s) and C! in first view, A! in second view, first view current.
+    After moving C to the next split: A! in first view, C! in second view.
+*/
+void TabbedEditorTest::testMoveEditorToNextSplitRestoresSuspendedTab()
+{
+    TestFile a;
+    TestFile c;
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    EMP::openEditor(views.at(0), a.filePath());
+    IEditor *editorC = EMP::openEditor(views.at(0), c.filePath());
+    EMP::openEditor(views.at(1), a.filePath()); // pulls A over, leaving a suspended tab behind
+    EMP::openEditor(views.at(0), c.filePath()); // makes the first view current again
+    // verify the setup
+    QCOMPARE(views.at(0)->editors(), (QList<IEditor *>{editorC}));
+    QCOMPARE(views.at(0)->tabs().size(), 2);
+    QCOMPARE(views.at(0)->tabs().at(0).editor, nullptr);
+    QCOMPARE(views.at(0)->tabs().at(0).entry->filePath(), a.filePath());
+    QCOMPARE(EMP::currentEditorView(), views.at(0));
+
+    EMP::moveEditorToNextSplit();
+
+    QVERIFY(views.at(0)->currentEditor());
+    QCOMPARE(views.at(0)->currentEditor()->document()->filePath(), a.filePath());
+    QCOMPARE(views.at(1)->currentEditor(), editorC);
+    QCOMPARE(EMP::currentEditorView(), views.at(1));
 }
 
 } // namespace Core::Internal

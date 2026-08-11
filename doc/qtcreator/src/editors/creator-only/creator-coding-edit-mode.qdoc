@@ -595,6 +595,12 @@
     \uicontrol Window > \uicontrol {Go to Next Split or Window} or select
     \key {Ctrl+E, O}.
 
+    To move the current document to another split view or editor window, go to
+    \uicontrol Window > \uicontrol {Move Document to Next Split or Window} or
+    \uicontrol Window > \uicontrol {Move Document to Previous Split or Window}.
+    If the split view that you move the document from has other documents, it
+    shows the one that was current there before.
+
     \section1 Remove splits
 
     To remove a split view:
