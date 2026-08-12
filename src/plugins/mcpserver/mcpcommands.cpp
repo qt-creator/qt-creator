@@ -47,6 +47,9 @@
 #include <QCursor>
 #include <QBuffer>
 #include <QComboBox>
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QMenuBar>
 #include <QTreeView>
 #include <QFile>
 #include <QGroupBox>
@@ -2576,6 +2579,13 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Full path or label of the item to click."}})
+                    .addProperty(
+                        "context_menu",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Ask the row for its context menu instead of clicking it. The "
+                             "menu is then driven with activate_menu_item."}})
                     .addRequired("item")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
@@ -2597,6 +2607,16 @@ void McpCommands::registerCommands()
             const QRect rect = (*view)->visualRect(*index);
             const QPointF center = rect.center();
             const QPointF global = (*view)->viewport()->mapToGlobal(rect.center());
+            if (p.value("context_menu").toBool(false)) {
+                // A synthetic right click does not produce one: the context
+                // menu event comes from the platform, so send that instead.
+                (*view)->setCurrentIndex(*index);
+                QContextMenuEvent event(QContextMenuEvent::Mouse, rect.center(),
+                                        global.toPoint());
+                QApplication::sendEvent((*view)->viewport(), &event);
+                return CallToolResult{}.isError(false).structuredContent(
+                    describeItem(*view, *index));
+            }
             QMouseEvent press(QEvent::MouseButtonPress, center, global, Qt::LeftButton,
                               Qt::LeftButton, Qt::NoModifier);
             QMouseEvent release(QEvent::MouseButtonRelease, center, global, Qt::LeftButton,
