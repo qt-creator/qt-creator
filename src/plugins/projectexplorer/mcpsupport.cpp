@@ -217,6 +217,24 @@ static QString getBuildStatus()
     return "Not building";
 }
 
+// Accumulates the Compile Output pane text (build AND deploy step output) so it
+// can be inspected via get_compile_output - deploy errors in particular are not
+// otherwise surfaced through MCP.
+static QString &compileOutputBuffer()
+{
+    static QString buffer;
+    static const QMetaObject::Connection conn = QObject::connect(
+        BuildManager::instance(), &BuildManager::outputText,
+        BuildManager::instance(), [](const QString &text) {
+            buffer += text;
+            static constexpr int maxOutputSize = 1024 * 200; // cap to bound context size
+            if (buffer.size() > maxOutputSize)
+                buffer = buffer.right(maxOutputSize);
+        });
+    Q_UNUSED(conn)
+    return buffer;
+}
+
 static QStringList findFiles(const QList<Project *> &projects, const QRegularExpression &re)
 {
     QStringList result;
@@ -1793,6 +1811,21 @@ void registerMcpTools()
                     .addProperty("status", QJsonObject{{"type", "string"}})
                     .addRequired("status")),
         wrap([](const QJsonObject &) { return QJsonObject{{"status", getBuildStatus()}}; }));
+
+    compileOutputBuffer(); // start capturing build/deploy output from now on
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_compile_output")
+            .title("Get compile and deploy output")
+            .description("Returns the recent Compile Output pane text, including build step and "
+                         "deploy step output. Use it to see why a build or deployment failed "
+                         "when build/run_project reports a failure without detail.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("output", QJsonObject{{"type", "string"}})
+                    .addRequired("output")),
+        wrap([](const QJsonObject &) { return QJsonObject{{"output", compileOutputBuffer()}}; }));
 
     ToolRegistry::registerTool(
         Tool{}
