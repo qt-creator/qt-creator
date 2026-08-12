@@ -4058,7 +4058,7 @@ typename))
         #self.warn('CREATING %s AT 0x%x' % (val.type.name, address))
         val.laddress = address
         if self.useDynamicType:
-            val.typeid = self.dynamic_typeid_at_address(val.typeid, address)
+            val.typeid, val.laddress = self.dynamic_type_and_address(val.typeid, address)
         return val
 
     def createValueFromData(self, data, typish):
@@ -4407,10 +4407,17 @@ typename))
                 self.type_bitsize_cache[typeid] = bitsize
         return bitsize
 
-    def dynamic_typeid_at_address(self, base_typeid, address):
+    def dynamic_type_and_address(self, base_typeid, address, use_cache=True):
+        # Resolve the runtime type at an address and the address of the complete
+        # object. A pointer to a base that is not at offset 0 (multiple
+        # inheritance) must be shifted back to the complete object; backends
+        # that can compute that adjustment override this.
+        return self.dynamic_typeid_at_address(base_typeid, address, use_cache), address
+
+    def dynamic_typeid_at_address(self, base_typeid, address, use_cache=True):
         #with self.dumper.timer('dynamic_typeid_at_address %s 0x%s' % (self.name, address)):
         type_code = self.type_code_cache.get(base_typeid, None)
-        if type_code != TypeCode.Struct:
+        if use_cache and type_code != TypeCode.Struct:
            #self.dump_type_cache()
            #self.warn('SHORT CUT FOR BASE ID: %d TC: %s' % (base_typeid, type_code))
            return base_typeid
@@ -4738,8 +4745,9 @@ typename))
                 if val.laddress is None and value.laddress is not None:
                     val.laddress = value.laddress
                 val.typeid = self.type_dereference(value.typeid)
-                if self.useDynamicType:
-                    val.typeid = self.nativeDynamicType(val.laddress, val.typeid)
+                if self.useDynamicType and val.laddress is not None:
+                    val.typeid, val.laddress = self.dynamic_type_and_address(
+                        val.typeid, val.laddress, False)
             else:
                 val = self.nativeValueDereferenceReference(value)
         elif value.type.code == TypeCode.Pointer:
@@ -4748,8 +4756,9 @@ typename))
             except Exception:
                 val.laddress = value.pointer()
                 val.typeid = self.type_dereference(value.typeid)
-                if self.useDynamicType:
-                    val.typeid = self.nativeDynamicType(val.laddress, val.typeid)
+                if self.useDynamicType and val.laddress is not None:
+                    val.typeid, val.laddress = self.dynamic_type_and_address(
+                        val.typeid, val.laddress, False)
         else:
             raise RuntimeError("WRONG: %s" % value.type.code)
 

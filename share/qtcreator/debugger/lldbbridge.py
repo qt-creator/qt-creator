@@ -202,9 +202,10 @@ class Dumper(DumperBase):
             target_typeid = self.from_native_type(nativeTargetType)
             target_address = nativeValue.GetValueAsUnsigned()
             val = self.Value(self)
-            val.ldata = target_address.to_bytes(self.ptrSize(), self.byteorder)
             if self.useDynamicType:
-                target_typeid = self.dynamic_typeid_at_address(target_typeid, target_address)
+                target_typeid, target_address = self.dynamic_type_and_address(
+                    target_typeid, target_address)
+            val.ldata = target_address.to_bytes(self.ptrSize(), self.byteorder)
             val.typeid = self.create_reference_typeid(target_typeid)
             val.laddress = nativeValue.AddressOf().GetValueAsUnsigned()
             #self.warn('CREATED REF: %s' % val)
@@ -691,6 +692,37 @@ class Dumper(DumperBase):
 
     def nativeDynamicType(self, address, base_typeid):
         return self.nativeDynamicType_2(address, base_typeid)
+
+    def dynamic_type_and_address(self, base_typeid, address, use_cache=True):
+        dynamic_typeid = self.dynamic_typeid_at_address(base_typeid, address, use_cache)
+        if dynamic_typeid == base_typeid:
+            return base_typeid, address
+        # The resolved object is the complete object, which for a base that is
+        # not at offset 0 (multiple inheritance) sits before the base subobject
+        # the address points to. Shift by the vtable's offset-to-top (Itanium
+        # C++ ABI); leave the address alone if it looks implausible.
+        if self.isMsvcTarget():
+            return dynamic_typeid, address
+        try:
+            process = self.target.GetProcess()
+            error = lldb.SBError()
+            ps = self.ptrSize()
+            vptr = process.ReadPointerFromMemory(address, error)
+            if not error.Success():
+                return dynamic_typeid, address
+            offsetToTop = process.ReadUnsignedFromMemory(vptr - 2 * ps, ps, error)
+            if not error.Success():
+                return dynamic_typeid, address
+            if offsetToTop >= (1 << (8 * ps - 1)):
+                offsetToTop -= (1 << (8 * ps))
+            # The base subobject must stay inside the complete object.
+            dynamicSize = self.type_size(dynamic_typeid)
+            baseSize = self.type_size(base_typeid)
+            if -(1 << 20) < offsetToTop <= 0 and dynamicSize + offsetToTop >= baseSize:
+                return dynamic_typeid, address + offsetToTop
+        except Exception:
+            pass
+        return dynamic_typeid, address
 
     def nativeDynamicType_1(self, address, base_typeid):
         # Solutions 1: Breaks StdUniquePtr and QVariant1 test

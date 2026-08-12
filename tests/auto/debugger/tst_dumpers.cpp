@@ -7007,6 +7007,38 @@ void tst_Dumpers::dumper_data()
                + Check("d", "", "Derived")
                + Check("d.@1.x", "7", "int");
 
+    QTest::newRow("QTCREATORBUG-18295-MultipleInheritance")
+            << Data("#include <vector>\n"
+                    "struct Base1 { virtual ~Base1() {} int bar = 42; };\n"
+                    "struct Base2 { virtual ~Base2() {} int baz = 84; };\n"
+                    "struct Derived : Base1, Base2 {};\n",
+
+                    "std::vector<Base2 *> vec{new Derived, new Derived};\n"
+                    "unused(&vec);\n",
+
+                    "&vec")
+
+               // A Base2* points to a non-primary base subobject; resolving it
+               // to the complete Derived must adjust the address, otherwise the
+               // base members read at the wrong offset.
+               + Check("vec.0", "[0]", "", "Derived") % NoCdbEngine
+               + Check("vec.0.@1.bar", "42", "int") % NoCdbEngine
+               + Check("vec.0.@2.baz", "84", "int") % NoCdbEngine;
+
+    QTest::newRow("QTCREATORBUG-18295-MultipleInheritanceReference")
+            << Data("struct Base1 { virtual ~Base1() {} int bar = 42; };\n"
+                    "struct Base2 { virtual ~Base2() {} int baz = 84; };\n"
+                    "struct Derived : Base1, Base2 {};\n",
+
+                    "Base2 &ref = *new Derived;\n"
+                    "unused(&ref);\n",
+
+                    "&ref")
+
+               + Check("ref", "", "Derived &") % NoCdbEngine
+               + Check("ref.@1.bar", "42", "int") % NoCdbEngine
+               + Check("ref.@2.baz", "84", "int") % NoCdbEngine;
+
 //    QTest::newRow("TypeFormats")
 //                  << Data(
 //    "// These tests should result in properly displayed umlauts in the\n"

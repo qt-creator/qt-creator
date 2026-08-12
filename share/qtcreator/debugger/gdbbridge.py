@@ -241,7 +241,8 @@ class Dumper(DumperBase):
             target_typeid = self.from_native_type(nativeType.target().unqualified())
             val.ldata = int(nativeValue.address)
             if self.useDynamicType:  # needed for Gdb13393
-                target_typeid = self.dynamic_typeid_at_address(target_typeid, val.ldata)
+                target_typeid, val.ldata = self.dynamic_type_and_address(
+                    target_typeid, val.ldata)
             val.typeid = self.create_reference_typeid(target_typeid)
             #self.warn('CREATED REF: %s' % val)
             return val
@@ -1613,6 +1614,27 @@ class Dumper(DumperBase):
         nativeTypePointer = nativeType.pointer()
         nativeValue = gdb.Value(address).cast(nativeTypePointer).dereference()
         return self.from_native_type(nativeValue.dynamic_type)
+
+    def dynamic_type_and_address(self, base_typeid, address, use_cache=True):
+        dynamic_typeid = self.dynamic_typeid_at_address(base_typeid, address, use_cache)
+        if dynamic_typeid == base_typeid:
+            return base_typeid, address
+        # The complete object sits at the vtable's offset-to-top (Itanium C++ ABI)
+        # from a base subobject that is not at offset 0 (multiple inheritance).
+        # Leave the address alone if that looks implausible.
+        try:
+            ps = self.ptrSize()
+            inferior = gdb.selected_inferior()
+            vptr = int.from_bytes(inferior.read_memory(address, ps).tobytes(), self.byteorder)
+            raw = inferior.read_memory(vptr - 2 * ps, ps).tobytes()
+            offsetToTop = int.from_bytes(raw, self.byteorder, signed=True)
+            dynamicSize = self.type_size(dynamic_typeid)
+            baseSize = self.type_size(base_typeid)
+            if -(1 << 20) < offsetToTop <= 0 and dynamicSize + offsetToTop >= baseSize:
+                return dynamic_typeid, address + offsetToTop
+        except Exception:
+            pass
+        return dynamic_typeid, address
 
     def enumExpression(self, enumType, enumValue):
         return self.qtNamespace() + 'Qt::' + enumValue
