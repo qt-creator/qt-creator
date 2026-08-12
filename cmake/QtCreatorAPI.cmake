@@ -1360,6 +1360,12 @@ function(qtc_add_resources target resourceName)
 
   set(rccArgs --name "${newResourceName}"
       --output "${generatedSourceCode}" "${generatedResourceFile}")
+  # rcc compresses with zstd by default, and the generated code then needs zstd
+  # support in the Qt it is linked against, which a cross-built Qt may lack.
+  # qt_add_resources() guards this the same way.
+  if(NOT QT_FEATURE_zstd)
+      list(APPEND rccArgs --no-zstd)
+  endif()
   if(rcc_OPTIONS)
       list(APPEND rccArgs ${rcc_OPTIONS})
   endif()
