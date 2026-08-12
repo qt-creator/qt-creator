@@ -352,11 +352,12 @@ void JsonWizard::accept()
     }
 
     const QList<Core::IDocument *> documentsToClose
-        = transform(m_files, [](const GeneratorFile &file) -> Core::IDocument * {
-              if ((file.file.attributes() & Core::GeneratedFile::OpenEditorAttribute) == 0)
-                  return nullptr;
-              return Core::DocumentModel::documentForFilePath(file.file.filePath());
-          });
+        = filtered(
+            transform(m_files, [](const GeneratorFile &file) -> Core::IDocument * {
+                if ((file.file.attributes() & Core::GeneratedFile::OpenEditorAttribute) == 0)
+                    return nullptr;
+                return Core::DocumentModel::documentForFilePath(file.file.filePath());
+            }), [](Core::IDocument *doc) { return doc; });
     Core::EditorManager::closeDocuments(documentsToClose, /*askAboutModifiedEditors=*/false);
 
     emit preWriteFiles(m_files);
