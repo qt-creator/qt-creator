@@ -144,6 +144,7 @@ extend_qtc_plugin(CppEditor
     cppincludehierarchy_test.cpp cppincludehierarchy_test.h
     cpplocalsymbols_test.cpp cpplocalsymbols_test.h
     cpplocatorfilter_test.cpp cpplocatorfilter_test.h
+    cppmcpsupport_test.cpp cppmcpsupport_test.h
     cppmodelmanager_test.cpp cppmodelmanager_test.h
     cpppointerdeclarationformatter_test.cpp cpppointerdeclarationformatter_test.h
     cpprenaming_test.cpp cpprenaming_test.h

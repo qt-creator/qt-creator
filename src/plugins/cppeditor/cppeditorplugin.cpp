@@ -33,6 +33,7 @@
 #include "cppincludehierarchy_test.h"
 #include "cpplocalsymbols_test.h"
 #include "cpplocatorfilter_test.h"
+#include "cppmcpsupport_test.h"
 #include "cppmodelmanager_test.h"
 #include "cpppointerdeclarationformatter_test.h"
 #include "cpprenaming_test.h"
@@ -607,6 +608,7 @@ void CppEditorPlugin::registerTests()
     addTest<CodegenTest>();
     addTest<CompilerOptionsBuilderTest>();
     addTest<CompletionTest>();
+    addTest<CppMcpSupportTest>();
     addTestCreator(createFindParentImplTest);
     addTest<FunctionUtilsTest>();
     addTest<HeaderPathFilterTest>();

@@ -320,6 +320,8 @@ QtcPlugin {
             "cpplocalsymbols_test.h",
             "cpplocatorfilter_test.cpp",
             "cpplocatorfilter_test.h",
+            "cppmcpsupport_test.cpp",
+            "cppmcpsupport_test.h",
             "cppmodelmanager_test.cpp",
             "cppmodelmanager_test.h",
             "cpppointerdeclarationformatter_test.cpp",
