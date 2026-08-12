@@ -606,6 +606,27 @@ private slots:
 
         QCOMPARE(expander.expand(in), out);
     }
+
+    void testUnresolvedVariables()
+    {
+        MacroExpander expander;
+        expander.registerVariable("Known", "", [] { return "value"; });
+        expander.registerVariable("Empty", "", [] { return QString(); });
+
+        // Registered variables are resolved and never reported, even when they
+        // resolve to an empty string.
+        QVERIFY(expander.unresolvedVariables("%{Known}").isEmpty());
+        QVERIFY(expander.unresolvedVariables("%{Empty}").isEmpty());
+        QVERIFY(expander.unresolvedVariables("plain text").isEmpty());
+
+        // A default value counts as resolved.
+        QVERIFY(expander.unresolvedVariables("%{Unknown:-fallback}").isEmpty());
+
+        // Unknown variables without a default are reported, de-duplicated.
+        QCOMPARE(expander.unresolvedVariables("a %{Unknown} b"), QStringList{"Unknown"});
+        QCOMPARE(expander.unresolvedVariables("%{Unknown} %{Unknown} %{AlsoUnknown}"),
+                 (QStringList{"Unknown", "AlsoUnknown"}));
+    }
 };
 
 QTEST_GUILESS_MAIN(tst_expander)

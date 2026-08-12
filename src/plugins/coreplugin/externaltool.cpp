@@ -536,6 +536,18 @@ Result<> ExecuteData::resolve()
     MacroExpander *expander = globalMacroExpander();
     m_tool.environmentUserChanges().modifyEnvironment(m_resolvedEnvironment, expander);
 
+    // Refuse to run when the command references variables that cannot be expanded
+    // (QTCREATORBUG-8490), instead of silently running with the unexpanded "%{...}".
+    QStringList unresolved;
+    for (const FilePath &executable : m_tool.executables())
+        unresolved += expander->unresolvedVariables(executable.toUrlishString());
+    unresolved += expander->unresolvedVariables(m_tool.arguments());
+    unresolved += expander->unresolvedVariables(m_tool.input());
+    unresolved += expander->unresolvedVariables(m_tool.workingDirectory().toUrlishString());
+    unresolved.removeDuplicates();
+    if (!unresolved.isEmpty())
+        return ResultError(Tr::tr("Failed to expand the variables: %1").arg(unresolved.join(", ")));
+
     FilePaths expandedExecutables; /* for error message */
     const FilePaths executables = m_tool.executables();
     for (const FilePath &executable : executables) {

@@ -55,6 +55,10 @@ public:
     QByteArray expand(const QByteArray &stringWithVariables) const;
     QVariant expandVariant(const QVariant &v) const;
 
+    // Returns the names of the %{...} variables in the string that cannot be resolved
+    // (unknown variables without a default value), i.e. would be left in the string as-is.
+    QStringList unresolvedVariables(const QString &stringWithVariables) const;
+
     Result<QString> expandProcessArgs(
         const QString &argsWithVariables, Utils::OsType osType = Utils::HostOsInfo::hostOs()) const;
 

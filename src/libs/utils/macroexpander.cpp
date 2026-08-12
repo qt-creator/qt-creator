@@ -88,6 +88,8 @@ public:
                     *ret = defaultValue;
                     return true;
                 }
+                if (m_unresolved)
+                    m_unresolved->append(varName);
                 return false;
             } else if (c == '{' && prev == '%') {
                 if (!expandNestedMacros(str, &i, ret))
@@ -199,6 +201,7 @@ public:
 
     bool m_aborted = false;
     int m_lockDepth = 0;
+    QStringList *m_unresolved = nullptr; // collects unresolvable variable names when set
 };
 
 } // Internal
@@ -399,6 +402,16 @@ FilePath MacroExpander::expand(const FilePath &fileNameWithVariables) const
 QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const
 {
     return expand(QString::fromLatin1(stringWithVariables)).toLatin1();
+}
+
+QStringList MacroExpander::unresolvedVariables(const QString &stringWithVariables) const
+{
+    QStringList unresolved;
+    d->m_unresolved = &unresolved;
+    expand(stringWithVariables);
+    d->m_unresolved = nullptr;
+    unresolved.removeDuplicates();
+    return unresolved;
 }
 
 QVariant MacroExpander::expandVariant(const QVariant &v) const
