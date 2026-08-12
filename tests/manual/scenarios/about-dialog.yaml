@@ -9,7 +9,7 @@ steps:
   - describe: Open the About Qt Creator dialog
     # The dialog is modal (exec()), so this call does not return until a
     # later step closes it. "blocks" makes the runner fire it and continue.
-    invoke_action: QtCreator.AboutQtCreator
+    call_action: QtCreator.AboutQtCreator
     blocks: true
 
   - describe: Wait for the dialog to appear
@@ -24,11 +24,11 @@ steps:
       window_title: About Qt Creator
 
   - describe: Capture the dialog
-    capture:
+    screenshot:
       window_title: About Qt Creator
 
   - describe: Close the dialog
-    click:
+    click_widget:
       text: Close
       window_title: About Qt Creator
 

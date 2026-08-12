@@ -81,13 +81,13 @@ chapter list from `report.md`. Override the capture size with
 
 To make the recording readable it adds two cues:
 
-- **Cursor** - before a `click`/`select` (and a targeted `type`) the real
+- **Cursor** - before a click, select or targeted type step, the real
   pointer glides onto the resolved widget (the `move_cursor` MCP tool, which
   warps the pointer in-process), so the recording shows where the action
   lands. The click itself still goes through the widget's slot; the movement
   is cosmetic. Disable with `--no-cursor`.
-- **Keystroke bubble** - a `type` step's text is burned in as a bottom-centre
-  caption for the duration of that step (ffmpeg `drawtext`).
+- **Keystroke bubble** - a `type_text` step's text is burned in as a
+  bottom-centre caption for the duration of that step (ffmpeg `drawtext`).
 
 Steps run in milliseconds, so video mode paces the run with a per-step dwell
 (`--video-dwell`, default 1.5s) so each state and cue stays on screen. The
@@ -115,42 +115,42 @@ Top level:
 - `steps` - a list; each step has a `describe` (the tutorial sentence) plus
   exactly one action key.
 
-Widget queries (`click`, `type`, `select`, `expect`, `expect_gone`,
-`wait_for`, and the optional target of `capture`) are maps of the fields the
-MCP widget tools understand: `object_name`, `text`, `class_name`,
-`window_title`, `include_invisible`.
+Widget queries (`click_widget`, `type_text`, `select_combo_item`, `expect`,
+`expect_gone`, `wait_for`, and the optional target of `screenshot`) are maps of
+the fields the MCP widget tools understand: `object_name`, `text`,
+`class_name`, `window_title`, `include_invisible`.
 
-Action keys:
+Action keys mirror the MCP tool names. Each step has exactly one:
 
-| Key            | MCP tool            | Notes                                             |
-|----------------|---------------------|---------------------------------------------------|
-| `invoke_action`| `call_action`       | Value is an action id. Add `blocks: true` for a modal dialog that a later step dismisses. |
-| `click`        | `click_widget`      | Query. Must resolve to exactly one widget.        |
-| `type`         | `type_text`         | Literal text: `input:` plus optional query fields. |
-| `press`        | `press_keys`        | A key/chord, e.g. `press: "Ctrl+K"` or `press: {keys: Escape, ...query}`. |
-| `menu`         | `find_menu_item` + `activate_menu_item` | Navigate a menu with the cursor, e.g. `menu: [Help, About Qt Creator]` (needs a DISPLAY). |
-| `select`       | `select_combo_item` | `item:` plus a combo query.                       |
-| `expect`       | `widget_exists`     | Fails if nothing matches.                         |
-| `expect_gone`  | `widget_exists`     | Fails if anything matches.                        |
-| `wait_for`     | `widget_exists`     | Polls until present; `timeout:` seconds (default 15). |
-| `read_pane`    | `read_pane`         | Value is a pane display name; text saved as an artefact. |
-| `capture`      | `screenshot`        | Optional query selects the window; PNG saved under `shots/`. |
+| Key                 | Notes |
+|---------------------|-------|
+| `call_action`       | Value is an action id. Add `blocks: true` for a modal dialog that a later step dismisses. |
+| `click_widget`      | Query; must resolve to exactly one widget. |
+| `type_text`         | `input:` plus optional query fields. |
+| `press_keys`        | A key/chord, e.g. `press_keys: "Ctrl+K"` or `press_keys: {keys: Escape, ...query}`. |
+| `select_combo_item` | `item:` plus a combo query. |
+| `menu`              | Navigate a menu with the cursor, e.g. `menu: [Help, About Qt Creator]`; drives `find_menu_item` + `activate_menu_item` (needs a DISPLAY). |
+| `expect`            | `widget_exists`; fails if nothing matches. |
+| `expect_gone`       | `widget_exists`; fails if anything matches. |
+| `wait_for`          | `widget_exists`; polls until present; `timeout:` seconds (default 15). |
+| `read_pane`         | Value is a pane display name; text saved as an artefact. |
+| `screenshot`        | Optional query selects the window; PNG saved under `shots/`. |
 
 `{scratch}` in any string expands to a fresh per-run temporary directory, so a
 run never depends on the developer's home state.
 
-For keyboard shortcuts, prefer `invoke_action` (focus-independent, reliably
-triggers the effect). Use `press` when a widget handles the key itself
+For keyboard shortcuts, prefer `call_action` (focus-independent, reliably
+triggers the effect). Use `press_keys` when a widget handles the key itself
 (Return, Escape, Tab, arrows) or when the tutorial should show the keystroke;
 a synthetic key event does not always drive application-wide shortcuts.
 
-`invoke_action` triggers an action directly, so nothing visible happens on the
+`call_action` triggers an action directly, so nothing visible happens on the
 way to its effect. In a video, either add a `caption:` to any step (shown as
 an on-screen overlay, e.g. `caption: "Help > About Qt Creator"`) to name what
 is happening, or use a `menu:` step to actually navigate the menu with the
 cursor. `menu` opens submenus and triggers the item through the menu API
 (`activate_menu_item`), so it also triggers the effect - no separate
-`invoke_action` needed.
+`call_action` needed.
 
 There is deliberately no `sleep`: wait only on observable conditions
 (`wait_for`). See `about-dialog.yaml` for a complete example.

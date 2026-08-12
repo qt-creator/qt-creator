@@ -387,7 +387,7 @@ class Runner:
     # --- step handlers -------------------------------------------------
 
     def do_invoke_action(self, step):
-        action = step["invoke_action"]
+        action = step["call_action"]
         call_line = 'call_action id="{}"'.format(action)
         if step.get("blocks"):
             # A modal exec() dialog blocks this call until a later step
@@ -414,7 +414,7 @@ class Runner:
                     tool="open_file", check={"ok": True})
 
     def do_click(self, step):
-        query = self.subst(step["click"])
+        query = self.subst(step["click_widget"])
         self.point_at(query)
         w = self.call_or_fail("click_widget", query, step["describe"])
         self.record(step["describe"], "click_widget " + json.dumps(query),
@@ -422,7 +422,7 @@ class Runner:
                     tool="click_widget", check=widget_identity(w))
 
     def do_type(self, step):
-        args = self.subst(step["type"])
+        args = self.subst(step["type_text"])
         query = {k: v for k, v in args.items() if k != "input"}
         if query:
             self.point_at(query)
@@ -438,7 +438,7 @@ class Runner:
 
     def do_press(self, step):
         # A shortcut/chord, e.g. press: "Ctrl+K" or press: {keys: Escape, ...query}.
-        spec = step["press"]
+        spec = step["press_keys"]
         args = {"keys": spec} if isinstance(spec, str) else self.subst(spec)
         query = {k: v for k, v in args.items() if k != "keys"}
         if query:
@@ -484,7 +484,7 @@ class Runner:
                     tool="menu", check={"path": path})
 
     def do_select(self, step):
-        args = self.subst(step["select"])
+        args = self.subst(step["select_combo_item"])
         self.point_at({k: v for k, v in args.items() if k != "item"})
         w = self.call_or_fail("select_combo_item", args, step["describe"])
         self.record(step["describe"], "select_combo_item " + json.dumps(args),
@@ -543,7 +543,7 @@ class Runner:
                     tool="read_pane", check={"reason": reason})
 
     def do_capture(self, step):
-        spec = step.get("capture")
+        spec = step.get("screenshot")
         query = self.subst(spec) if isinstance(spec, dict) else {}
         shot = self.shots_dir / "{:02d}-{}.png".format(self.step_no, slugify(step["describe"]))
         args = dict(query)
@@ -577,17 +577,17 @@ class Runner:
             caption = step.get("caption")
             caption_start = (time.monotonic() - self.video_t0
                              if caption and self.video_t0 is not None else None)
-            if "invoke_action" in step:
+            if "call_action" in step:
                 self.do_invoke_action(step)
-            elif "click" in step:
+            elif "click_widget" in step:
                 self.do_click(step)
-            elif "type" in step:
+            elif "type_text" in step:
                 self.do_type(step)
-            elif "press" in step:
+            elif "press_keys" in step:
                 self.do_press(step)
             elif "menu" in step:
                 self.do_menu(step)
-            elif "select" in step:
+            elif "select_combo_item" in step:
                 self.do_select(step)
             elif "expect" in step:
                 self.do_expect(step, True)
@@ -597,7 +597,7 @@ class Runner:
                 self.do_wait_for(step)
             elif "read_pane" in step:
                 self.do_read_pane(step)
-            elif "capture" in step:
+            elif "screenshot" in step:
                 self.do_capture(step)
             else:
                 raise ScenarioError("step {}: no known action in {}"
