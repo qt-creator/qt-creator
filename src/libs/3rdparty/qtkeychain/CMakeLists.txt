@@ -67,10 +67,13 @@ if (UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
       )
     endif()
 
-  qt6_add_dbus_interface(dbus_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/qtkeychain/org.kde.KWallet.xml
-    qtkeychain/kwallet_interface KWalletInterface
-  )
+  # The command comes with Qt::DBus, which a Qt build can lack.
+  if (TARGET Qt::DBus)
+    qt6_add_dbus_interface(dbus_SOURCES
+      ${CMAKE_CURRENT_SOURCE_DIR}/qtkeychain/org.kde.KWallet.xml
+      qtkeychain/kwallet_interface KWalletInterface
+    )
+  endif()
 
   extend_qtc_library(qtkeychain
     CONDITION TARGET Qt::DBus
