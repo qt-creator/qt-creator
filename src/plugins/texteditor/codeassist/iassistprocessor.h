@@ -31,9 +31,7 @@ public:
     virtual bool needsRestart() const;
     virtual void cancel();
 
-#ifdef WITH_TESTS
     void setupAssistInterface(std::unique_ptr<AssistInterface> &&interface);
-#endif
 
 protected:
     virtual IAssistProposal *perform() = 0;
