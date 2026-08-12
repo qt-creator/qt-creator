@@ -25,6 +25,7 @@ Project {
         Depends { name: "Utils" }
         cpp.includePaths: base.concat([path + "/../../../../src/plugins/profiler"])
         cpp.defines: base.concat([
+            'PROFILER_STATIC_LIBRARY',
             'SYMBOLICATOR_FIXTURE_DYLIB="' + project.fixtureDir + '/libsymbolicatorfixture.dylib"'
         ])
         files: [

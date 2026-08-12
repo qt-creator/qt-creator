@@ -7,6 +7,7 @@ QtcAutotest {
     Depends { name: "Utils" }
     Depends { name: "Qt.gui" }
     condition: Tracing.present
+    cpp.defines: base.concat(["PROFILER_STATIC_LIBRARY"])
     cpp.includePaths: base.concat([
         path + "/../../../../src/plugins/profiler",
         path + "/../../../../src/plugins",
