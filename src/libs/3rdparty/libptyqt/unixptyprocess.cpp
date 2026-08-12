@@ -3,7 +3,7 @@
 
 #include <errno.h>
 #include <termios.h>
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_FREEBSD)
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_FREEBSD) && !defined(Q_OS_OHOS)
 #include <utmpx.h>
 #endif
 #include <fcntl.h>
@@ -322,7 +322,7 @@ void ShellProcess::configChildProcess()
     ioctl(m_handleSlave, TIOCSCTTY, 0);
     tcsetpgrp(m_handleSlave, sid);
 
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_FREEBSD)
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_FREEBSD) && !defined(Q_OS_OHOS)
     // on Android imposible to put record to the 'utmp' file
     struct utmpx utmpxInfo;
     memset(&utmpxInfo, 0, sizeof(utmpxInfo));
