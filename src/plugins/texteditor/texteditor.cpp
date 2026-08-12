@@ -1005,6 +1005,17 @@ public:
     void foldLicenseHeader();
 
     QBasicTimer autoScrollTimer;
+
+    // Middle-button auto-scroll. Only used where the middle button is not already the
+    // X11 selection paste, i.e. clipboard()->supportsSelection() is false.
+    QBasicTimer m_middleClickScrollTimer;
+    QPoint m_middleClickScrollAnchor;
+    QPoint m_middleClickScrollPos;
+    bool m_middleClickScrolling = false;
+    void startMiddleClickScroll(const QPoint &viewportPos);
+    void stopMiddleClickScroll();
+    void doMiddleClickScroll();
+
     uint m_marksVisible : 1;
     uint m_codeFoldingVisible : 1;
     uint m_codeFoldingSupported : 1;
@@ -7425,6 +7436,8 @@ void TextEditorWidget::timerEvent(QTimerEvent *e)
     } else if (e->timerId() == d->m_cursorFlashTimer.timerId()) {
         d->m_cursorVisible = !d->m_cursorVisible;
         viewport()->update(d->cursorUpdateRect(d->m_cursors));
+    } else if (e->timerId() == d->m_middleClickScrollTimer.timerId()) {
+        d->doMiddleClickScroll();
     }
     PlainTextEdit::timerEvent(e);
 }
@@ -7442,8 +7455,53 @@ void TextEditorWidgetPrivate::clearVisibleFoldedBlock()
     }
 }
 
+void TextEditorWidgetPrivate::startMiddleClickScroll(const QPoint &viewportPos)
+{
+    m_middleClickScrolling = true;
+    m_middleClickScrollAnchor = viewportPos;
+    m_middleClickScrollPos = viewportPos;
+    q->viewport()->setCursor(Qt::SizeAllCursor);
+    m_middleClickScrollTimer.start(30, q);
+}
+
+void TextEditorWidgetPrivate::stopMiddleClickScroll()
+{
+    if (!m_middleClickScrolling)
+        return;
+    m_middleClickScrolling = false;
+    m_middleClickScrollTimer.stop();
+    q->viewport()->setCursor(Qt::IBeamCursor);
+}
+
+void TextEditorWidgetPrivate::doMiddleClickScroll()
+{
+    // The further the mouse is from the anchor, the faster we scroll; a small dead zone
+    // around the anchor keeps the view still. Scrolling by single steps keeps this agnostic
+    // to whether the scroll bar counts lines or pixels.
+    const auto scrollAxis = [](QScrollBar *bar, int distance) {
+        constexpr int deadZone = 8;
+        if (qAbs(distance) <= deadZone)
+            return;
+        const int over = qAbs(distance) - deadZone;
+        const int steps = over <= 32 ? 1 : over <= 96 ? 2 : 4;
+        const auto action = distance < 0 ? QAbstractSlider::SliderSingleStepSub
+                                         : QAbstractSlider::SliderSingleStepAdd;
+        for (int i = 0; i < steps; ++i)
+            bar->triggerAction(action);
+    };
+    const QPoint offset = m_middleClickScrollPos - m_middleClickScrollAnchor;
+    scrollAxis(q->verticalScrollBar(), offset.y());
+    scrollAxis(q->horizontalScrollBar(), offset.x());
+}
+
 void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
+    if (d->m_middleClickScrolling) {
+        d->m_middleClickScrollPos = e->pos();
+        e->accept();
+        return;
+    }
+
     d->requestUpdateLink(e);
 
     bool onLink = false;
@@ -7544,6 +7602,14 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
 {
     ICore::restartTrimmer();
 
+    if (d->m_middleClickScrolling && e->button() != Qt::MiddleButton) {
+        // any other button cancels auto-scroll instead of acting on its own, matching
+        // Windows' own middle-click auto-scroll
+        d->stopMiddleClickScroll();
+        e->accept();
+        return;
+    }
+
     if (e->button() == Qt::LeftButton) {
         MultiTextCursor multiCursor = multiTextCursor();
         const QTextCursor &cursor = cursorForPosition(e->pos());
@@ -7601,6 +7667,18 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
                 || eventCursorPosition > textCursor().selectionEnd()) {
             setTextCursor(cursorForPosition(e->pos()));
         }
+    } else if (e->button() == Qt::MiddleButton
+               && !QGuiApplication::clipboard()->supportsSelection()) {
+        // Where the middle button is not the X11 selection paste, a click toggles
+        // auto-scroll on and off (as on Windows): the first press arms it, anchored
+        // at the press position; a second press disarms it again. Holding the
+        // button down or releasing it does not matter either way.
+        if (d->m_middleClickScrolling)
+            d->stopMiddleClickScroll();
+        else
+            d->startMiddleClickScroll(e->pos());
+        e->accept();
+        return;
     }
 
     if (HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
@@ -7612,6 +7690,11 @@ void TextEditorWidget::mousePressEvent(QMouseEvent *e)
 void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     const Qt::MouseButton button = e->button();
+    if (button == Qt::MiddleButton && d->m_middleClickScrolling) {
+        // arming/disarming happens on press (see mousePressEvent), not on release
+        e->accept();
+        return;
+    }
     if (d->m_linkPressed && d->isMouseNavigationEvent(e) && button == Qt::LeftButton) {
         bool inNextSplit = ((e->modifiers() & Qt::AltModifier) && !alwaysOpenLinksInNextSplit())
                 || (alwaysOpenLinksInNextSplit() && !(e->modifiers() & Qt::AltModifier));
