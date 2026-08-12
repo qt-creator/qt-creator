@@ -93,8 +93,8 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_widget, 10);
 
-    // Follow the Qt Creator theme (QTCREATORBUG-8465); the matching documentation CSS is
-    // injected in LocalHelpManager::helpData(). The page background avoids a white flash.
+    // Follow the Qt Creator theme; the matching documentation CSS is injected in
+    // LocalHelpManager::helpData(). The page background avoids a white flash.
     if (Utils::creatorTheme())
         setPalette(Utils::creatorTheme()->palette());
     m_widget->page()->setBackgroundColor(Utils::creatorColor(Utils::Theme::BackgroundColorNormal));

@@ -512,7 +512,7 @@ QByteArray LocalHelpManager::loadErrorMessage(const QUrl &url, const QString &er
 }
 
 // In a dark Qt Creator theme, serve a dark stylesheet for the Qt documentation instead of
-// its default light one, so every help viewer backend follows the theme (QTCREATORBUG-8465).
+// its default light one, so every help viewer backend follows the theme.
 // Prefer a dark stylesheet shipped with the documentation, else the one bundled with Qt
 // Creator. The litehtml backend requests offline-dark.css directly, so it never matches here.
 static QByteArray darkDocumentationCss(const QHelpEngineCore &engine, const QUrl &lightCssUrl,

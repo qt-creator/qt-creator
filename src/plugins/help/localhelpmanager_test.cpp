@@ -13,8 +13,7 @@
 namespace Help::Internal {
 
 // Verifies that a dark Qt Creator theme substitutes a dark stylesheet for the
-// documentation's default light one, so every help viewer backend follows the
-// theme (QTCREATORBUG-8465).
+// documentation's default light one, so every help viewer backend follows the theme.
 class LocalHelpManagerTest final : public QObject
 {
     Q_OBJECT

@@ -99,7 +99,6 @@ public:
     static QByteArray loadErrorMessage(const QUrl &url, const QString &errorString);
     Q_INVOKABLE static Help::Internal::LocalHelpManager::HelpData helpData(const QUrl &url);
     // Same, but with an explicit dark-theme decision instead of reading the current theme.
-    // Exposed for testing the dark documentation stylesheet substitution (QTCREATORBUG-8465).
     static HelpData helpData(const QUrl &url, bool darkTheme);
 
     static QHelpFilterEngine *filterEngine();
