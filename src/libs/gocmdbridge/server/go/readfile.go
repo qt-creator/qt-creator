@@ -30,6 +30,9 @@ func processReadFile(cmd command, out chan<- []byte) {
 		sendError(out, cmd, seekErr)
 		return
 	}
+	// Windows refuses to delete or replace a file while a handle to it is open,
+	// so leaking it here made every read poison later writes to the same file.
+	defer file.Close()
 
 	size, seekErr := file.Seek(0, io.SeekEnd)
 	if seekErr != nil {
