@@ -8,12 +8,15 @@
 #include "cppindexingsupport.h"
 #include "cpplocatordata.h"
 #include "cppmodelmanager.h"
+#include "cpprefactoringchanges.h"
 #include "cppworkingcopy.h"
 #include "indexitem.h"
 #include "searchsymbols.h"
 #include "symbolfinder.h"
 
 #include <mcp/server/toolregistry.h>
+
+#include <texteditor/refactoringchanges.h>
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTVisitor.h>
@@ -25,6 +28,7 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <utils/changeset.h>
 #include <utils/filepath.h>
 #include <utils/result.h>
 
@@ -32,6 +36,7 @@
 #include <QFutureInterface>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -1002,6 +1007,201 @@ void registerMcpTools()
                 QJsonObject{{"symbols", symbols},
                             {"total_matches", total},
                             {"truncated", total > limit}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("rename_symbol")
+            .title("Rename a C++ symbol")
+            .description(
+                "Renames the C++ symbol at a position across the whole project, using the "
+                "code model - the rename refactoring. Give the file and a 1-based line and "
+                "column on an identifier, and the \"new_name\". By default this is a DRY "
+                "RUN: it returns the edits it would make (each with file, 1-based line and "
+                "column, length, and the old and new text) and changes nothing. Set "
+                "\"apply\" to true to write the edits. The file must belong to an open "
+                "project.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the C++ file containing the symbol."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the identifier to rename."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the identifier to rename."}})
+                    .addProperty(
+                        "new_name",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "The new identifier name."}})
+                    .addProperty(
+                        "apply",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Write the edits to disk. Default false (dry run)."}})
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column")
+                    .addRequired("new_name"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("applied", QJsonObject{{"type", "boolean"}})
+                    .addProperty("total_edits", QJsonObject{{"type", "integer"}})
+                    .addProperty(
+                        "edits",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addRequired("applied")
+                    .addRequired("total_edits")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            const QString newName = args.value("new_name").toString();
+            const bool apply = args.value("apply").toBool();
+            if (file.isEmpty() || line <= 0 || column <= 0 || newName.isEmpty()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Requires \"file\", 1-based \"line\"/\"column\" and \"new_name\"."));
+            }
+
+            static const QRegularExpression identifier(
+                QStringLiteral("^[A-Za-z_][A-Za-z0-9_]*$"));
+            if (!identifier.match(newName).hasMatch()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("\"%1\" is not a valid C++ identifier.").arg(newName)));
+            }
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            CPlusPlus::LookupContext context;
+            CPlusPlus::Symbol *symbol = symbolAt(filePath, line, column, &context);
+            if (!symbol) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ symbol found at %1:%2:%3. Is the file in an open "
+                            "project and the position on an identifier?")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+            const CPlusPlus::Identifier *id = symbol->identifier();
+            if (!id) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("The symbol at %1:%2:%3 has no renamable name.")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+            const QString oldName = QString::fromUtf8(id->chars(), id->size());
+            if (newName == oldName) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("New name equals the current name \"%1\".").arg(oldName)));
+            }
+
+            // The occurrences to rewrite are exactly the symbol's usages; group
+            // them by file (preserving first-seen order) so each file is edited
+            // in one pass. Also drives the dry-run preview so it matches what
+            // apply would do.
+            QList<FilePath> fileOrder;
+            QHash<FilePath, QList<CPlusPlus::Usage>> byFile;
+            const QList<CPlusPlus::Usage> usages = symbolUsages(symbol, context);
+            for (const CPlusPlus::Usage &u : usages) {
+                if (!byFile.contains(u.path))
+                    fileOrder.append(u.path);
+                byFile[u.path].append(u);
+            }
+
+            if (!apply) {
+                QJsonArray edits;
+                for (const CPlusPlus::Usage &u : usages) {
+                    QJsonObject edit{
+                        {"file", u.path.toUserOutput()},
+                        {"line", u.line},
+                        {"column", u.col + 1}, // Usage::col is 0-based.
+                        {"length", u.len},
+                        {"old_text", oldName},
+                        {"new_text", newName}};
+                    const QString lineText = u.lineText.trimmed();
+                    if (!lineText.isEmpty())
+                        edit.insert("line_text", lineText);
+                    edits.append(edit);
+                }
+                return CallToolResult{}.isError(false).structuredContent(QJsonObject{
+                    {"applied", false},
+                    {"symbol", oldName},
+                    {"new_name", newName},
+                    {"total_edits", int(usages.size())},
+                    {"files", int(fileOrder.size())},
+                    {"edits", edits}});
+            }
+
+            // Refuse before touching anything if any target is read-only, so we
+            // never trip the modal read-only-files dialog in a headless server.
+            QStringList notWritable;
+            for (const FilePath &fp : fileOrder) {
+                if (!fp.isWritableFile())
+                    notWritable.append(fp.toUserOutput());
+            }
+            if (!notWritable.isEmpty()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("Cannot apply: not writable: %1").arg(notWritable.join(", "))));
+            }
+
+            // Build and check every change set before applying the first one.
+            // The usages come from the snapshot, the edits go to the editor
+            // document, which may be newer, so verify that each offset still
+            // holds the old name rather than rewrite an arbitrary span.
+            CppRefactoringChanges changes(context.snapshot());
+            QList<TextEditor::RefactoringFilePtr> refFiles;
+            QList<Utils::ChangeSet> changeSets;
+            for (const FilePath &fp : fileOrder) {
+                const TextEditor::RefactoringFilePtr refFile = changes.file(fp);
+                Utils::ChangeSet changeSet;
+                for (const CPlusPlus::Usage &u : byFile.value(fp)) {
+                    const int start = refFile->position(u.line, u.col + 1);
+                    if (start < 0 || refFile->textOf(start, start + u.len) != oldName) {
+                        return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                            QString("Cannot apply: %1:%2:%3 no longer holds \"%4\". The code "
+                                    "model is out of date, nothing was changed.")
+                                .arg(fp.toUserOutput()).arg(u.line).arg(u.col + 1).arg(oldName)));
+                    }
+                    changeSet.replace(start, start + u.len, newName);
+                }
+                refFiles.append(refFile);
+                changeSets.append(changeSet);
+            }
+
+            int applied = 0;
+            QJsonArray filesChanged;
+            QStringList failed;
+            for (int i = 0; i < fileOrder.size(); ++i) {
+                const FilePath &fp = fileOrder.at(i);
+                if (refFiles.at(i)->apply(changeSets.at(i))) {
+                    applied += int(byFile.value(fp).size());
+                    filesChanged.append(fp.toUserOutput());
+                } else {
+                    failed.append(fp.toUserOutput());
+                }
+            }
+            if (!failed.isEmpty()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("Renamed %1 of %2 occurrences, writing failed for: %3")
+                        .arg(applied).arg(usages.size()).arg(failed.join(", "))));
+            }
+
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{
+                {"applied", true},
+                {"symbol", oldName},
+                {"new_name", newName},
+                {"total_edits", applied},
+                {"files_changed", filesChanged}});
         });
 }
 
