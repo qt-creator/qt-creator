@@ -1438,3 +1438,12 @@ typedef uint64_t uintmax_t;
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef uintptr_t */
+
+/* Everything above is generated on a glibc Linux, see ../CMakeLists.txt. The
+   musl of the OHOS sysroot has none of these three, so keep this when
+   regenerating the file. */
+#if defined(__OHOS__)
+#undef HAVE_CLOSEFROM
+#undef HAVE_CLOSE_RANGE
+#undef HAVE_LCHMOD
+#endif
