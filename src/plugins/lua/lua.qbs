@@ -9,6 +9,7 @@ QtcPlugin {
     Depends { name: "lua546" }
     Depends { name: "sol2" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "Spinner" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
@@ -39,6 +40,7 @@ QtcPlugin {
 
         files: [
             "action.cpp",
+            "async.h",
             "core.cpp",
             "device.cpp",
             "fetch.cpp",
