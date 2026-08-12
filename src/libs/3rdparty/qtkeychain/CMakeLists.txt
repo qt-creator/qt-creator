@@ -48,7 +48,15 @@ extend_qtc_library(qtkeychain
   DEPENDS ${FWFoundation} ${FWSecurity}
 )
 
-if (UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+extend_qtc_library(qtkeychain
+  CONDITION CMAKE_SYSTEM_NAME STREQUAL "OHOS"
+  FEATURE_INFO "OHOS asset store keychain support"
+  SOURCES_PREFIX qtkeychain
+  SOURCES keychain_ohos.cpp
+  DEPENDS asset_ndk.z
+)
+
+if (UNIX AND NOT APPLE AND NOT EMSCRIPTEN AND NOT CMAKE_SYSTEM_NAME STREQUAL "OHOS")
     find_package(Qt6 COMPONENTS DBus)
 
     option(LIBSECRET_SUPPORT "Build with libsecret support if available" ON)
