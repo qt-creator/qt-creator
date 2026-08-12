@@ -63,6 +63,12 @@ message (after any `Amends`/`Task-number` footers).
 ## Code Style Guide
 
 - Always follow the rules in STYLE.md
+- Do not describe your changes in the source. What changed, and why, belongs in
+  the commit message.
+- Comment only genuinely non-obvious code, and then tersely.
+- No comments narrating where a file came from, or restating what the code does.
+- Leave out bug numbers: provenance is discoverable via `git blame` and the
+  commit's `Fixes:` or `Task-number:` trailer.
 
 ## Additional coding style rules
 
