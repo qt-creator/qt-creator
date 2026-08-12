@@ -5,6 +5,7 @@
 
 #include "cppcanonicalsymbol.h"
 #include "cppcompletionassist.h"
+#include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppindexingsupport.h"
 #include "cpplocatordata.h"
@@ -14,6 +15,9 @@
 #include "indexitem.h"
 #include "searchsymbols.h"
 #include "symbolfinder.h"
+
+#include "quickfixes/cppquickfix.h"
+#include "quickfixes/cppquickfixassistant.h"
 
 #include <mcp/server/toolregistry.h>
 
@@ -27,6 +31,7 @@
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistproposal.h>
+#include <texteditor/quickfix.h>
 
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTVisitor.h>
@@ -1356,6 +1361,118 @@ void registerMcpTools()
 
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"completions", completions}, {"total", total}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_quick_fixes")
+            .title("Get C++ quick-fixes")
+            .description(
+                "Lists the C++ quick-fixes and refactoring actions the editor offers at a "
+                "position - what \"Alt+Enter\" would show - each with its description. Give "
+                "the file and a 1-based line and column. This only lists the available "
+                "actions; it does not apply them. The file is opened in an editor if it is "
+                "not already, and must belong to an open project and be parsed (the actions "
+                "depend on the editor's semantic info being up to date).")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Absolute path to the C++ file."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the position."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the position."}})
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "quick_fixes",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addRequired("quick_fixes")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            if (file.isEmpty() || line <= 0 || column <= 0) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Requires \"file\" and 1-based \"line\" and \"column\"."));
+            }
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            if (!CppModelManager::document(filePath)) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ code model document for \"%1\". Is it a C++ file that "
+                            "belongs to an open project?").arg(filePath.toUserOutput())));
+            }
+
+            Core::IEditor *editor = Core::EditorManager::openEditor(
+                filePath, {},
+                Core::EditorManager::DoNotChangeCurrentEditor
+                    | Core::EditorManager::DoNotMakeVisible);
+            auto cppWidget = qobject_cast<CppEditorWidget *>(
+                TextEditor::TextEditorWidget::fromEditor(editor));
+            if (!cppWidget) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("Could not open \"%1\" in a C++ editor.")
+                        .arg(filePath.toUserOutput())));
+            }
+
+            // Semantic info arrives asynchronously, so a file this call just
+            // opened has none yet. Say so instead of reporting no quick-fixes.
+            if (!cppWidget->isSemanticInfoValid()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("\"%1\" is not parsed yet. Try again once the code model "
+                            "has caught up.").arg(filePath.toUserOutput())));
+            }
+
+            QTextDocument *doc = cppWidget->document();
+            const QTextBlock block = doc->findBlockByNumber(line - 1);
+            if (!block.isValid()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("Line %1 is out of range in \"%2\".")
+                        .arg(line).arg(filePath.toUserOutput())));
+            }
+            const QTextCursor savedCursor = cppWidget->textCursor();
+            const QScopeGuard restoreCursor([cppWidget, savedCursor] {
+                cppWidget->setTextCursor(savedCursor);
+            });
+            QTextCursor cursor(doc);
+            cursor.setPosition(block.position() + qMin(column - 1, block.length() - 1));
+            cppWidget->setTextCursor(cursor);
+
+            const CppQuickFixInterface interface(cppWidget, TextEditor::ExplicitlyInvoked);
+            if (interface.path().isEmpty()) {
+                return CallToolResult{}.isError(false).structuredContent(
+                    QJsonObject{{"quick_fixes", QJsonArray()}});
+            }
+
+            QJsonArray quickFixes;
+            for (CppQuickFixFactory *factory : CppQuickFixFactory::cppQuickFixFactories()) {
+                CppQuickFixFactory::QuickFixOperations operations;
+                factory->match(interface, operations);
+                for (const TextEditor::QuickFixOperation::Ptr &op : operations) {
+                    const QString description = op->description();
+                    if (!description.isEmpty())
+                        quickFixes.append(QJsonObject{{"description", description}});
+                }
+            }
+
+            return CallToolResult{}.isError(false).structuredContent(
+                QJsonObject{{"quick_fixes", quickFixes}});
         });
 }
 
