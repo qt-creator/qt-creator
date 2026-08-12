@@ -797,6 +797,22 @@ static QString widgetVisibleText(const QWidget *w)
     return text.remove('&');
 }
 
+// The text of the QLabel this widget is a buddy of (via setBuddy or an
+// Alt-mnemonic), i.e. the caption next to an input such as a QLineEdit. Lets a
+// query address "the field labelled X" when the input has no text of its own.
+// Empty if no label points at the widget.
+static QString buddyText(const QWidget *w)
+{
+    const QWidget *win = w->window();
+    if (!win)
+        return {};
+    for (QLabel *label : win->findChildren<QLabel *>()) {
+        if (label->buddy() == w)
+            return QString(label->text()).remove('&');
+    }
+    return {};
+}
+
 static bool widgetMatches(const QWidget *w, const WidgetQuery &q)
 {
     if (!q.includeInvisible && !w->isVisible())
@@ -808,8 +824,18 @@ static bool widgetMatches(const QWidget *w, const WidgetQuery &q)
         && !w->inherits(q.className.toLatin1().constData())) {
         return false;
     }
-    if (!q.text.isEmpty() && widgetVisibleText(w).trimmed() != q.text.trimmed())
-        return false;
+    if (!q.text.isEmpty()) {
+        const QString want = q.text.trimmed();
+        // Match the widget's own text, or - for a labelled input - its buddy
+        // label's text. A label that captions another widget (has a buddy) is
+        // NOT matched by its own text: that text identifies the buddy field,
+        // so "the field labelled X" resolves to the field, not its caption.
+        const auto label = qobject_cast<const QLabel *>(w);
+        const bool ownTextMatches = !(label && label->buddy())
+                                    && widgetVisibleText(w).trimmed() == want;
+        if (!ownTextMatches && buddyText(w).trimmed() != want)
+            return false;
+    }
     if (!q.windowTitle.isEmpty()) {
         const QWidget *win = w->window();
         if (!win || !win->windowTitle().contains(q.windowTitle, Qt::CaseInsensitive))
@@ -832,7 +858,7 @@ static QJsonObject describeWidget(QWidget *w)
 {
     QWidget *win = w->window();
     const QPoint topLeft = w->mapToGlobal(QPoint(0, 0));
-    return QJsonObject{
+    QJsonObject result{
         {"class", QString::fromLatin1(w->metaObject()->className())},
         {"object_name", w->objectName()},
         {"text", widgetVisibleText(w)},
@@ -846,6 +872,9 @@ static QJsonObject describeWidget(QWidget *w)
         // winId() would force-create a native handle on an unmapped window,
         // so only report it for a window that is actually on screen.
         {"window_id", (win && win->isVisible()) ? double(win->winId()) : 0}};
+    if (const QString buddy = buddyText(w); !buddy.isEmpty())
+        result.insert("buddy_text", buddy);
+    return result;
 }
 
 static QString describeWidgetShort(QWidget *w)
@@ -2272,7 +2301,8 @@ void McpCommands::registerCommands()
                 "text",
                 QJsonObject{
                     {"type", "string"},
-                    {"description", "Visible text (button/label/combo/groupbox), matched "
+                    {"description", "Visible text (button/label/combo/groupbox), or, for an "
+                                    "input like a line edit, its buddy label's text. Matched "
                                     "exactly after trimming and stripping '&' accelerators. "
                                     "Readable but translation-sensitive."}})
             .addProperty(
