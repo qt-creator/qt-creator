@@ -27,6 +27,12 @@ public:
     static void enableTool(const QString &toolName, bool enabled);
     static QList<Schema::Tool> registeredTools();
 
+    // Invokes a registered synchronous tool by name and returns its result.
+    // Intended for tests; asynchronous (ToolInterface) tools cannot be driven
+    // this way and return an error.
+    static Utils::Result<Schema::CallToolResult> callToolForTests(
+        const QString &name, const Schema::CallToolRequestParams &params);
+
 signals:
     void toolRegistered();
     void toolEnabled(const QString &toolName, bool enabled);

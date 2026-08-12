@@ -60,6 +60,22 @@ QList<Schema::Tool> ToolRegistry::registeredTools()
     return tools;
 }
 
+Utils::Result<Schema::CallToolResult> ToolRegistry::callToolForTests(
+    const QString &name, const Schema::CallToolRequestParams &params)
+{
+    for (const auto &tool : Internal::registry().tools) {
+        if (tool.metadata.name() != name)
+            continue;
+        if (!tool.enabled)
+            return Utils::ResultError(QString("Tool \"%1\" is disabled.").arg(name));
+        if (auto *callback = std::get_if<Server::ToolCallback>(&tool.callback))
+            return (*callback)(params);
+        return Utils::ResultError(
+            QString("Tool \"%1\" is asynchronous and cannot be called synchronously.").arg(name));
+    }
+    return Utils::ResultError(QString("No registered tool named \"%1\".").arg(name));
+}
+
 void ToolRegistry::enableTool(const QString &toolName, bool enabled)
 {
     auto tool = std::find_if(
