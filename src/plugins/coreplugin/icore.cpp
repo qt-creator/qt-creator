@@ -98,7 +98,7 @@
 #include <QToolButton>
 #include <QVersionNumber>
 
-#ifdef Q_OS_LINUX
+#ifdef __GLIBC__
 #include <malloc.h>
 #endif
 
@@ -1437,7 +1437,7 @@ void ICorePrivate::init()
         using namespace std::chrono_literals;
         m_trimTimer.setInterval(60s);
         // glibc may not actually free memory in free().
-#ifdef Q_OS_LINUX
+#ifdef __GLIBC__
         connect(&m_trimTimer, &QTimer::timeout, this, [] { malloc_trim(0); });
 #endif
     }
