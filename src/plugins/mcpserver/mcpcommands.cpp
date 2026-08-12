@@ -42,10 +42,12 @@
 #include <utils/storekey.h>
 
 #include <QAbstractButton>
+#include <QAbstractItemView>
 #include <QApplication>
 #include <QCursor>
 #include <QBuffer>
 #include <QComboBox>
+#include <QTreeView>
 #include <QFile>
 #include <QGroupBox>
 #include <QJsonArray>
@@ -938,6 +940,97 @@ static Result<QWidget *> resolveKeyTarget(const WidgetQuery &q)
     }
     QWidget *window = windows.first();
     return window->focusWidget() ? window->focusWidget() : window;
+}
+
+// Items live in a view's model, not in the widget tree, so they need their own
+// addressing: the labels leading to a row, joined by " / ". A query names the
+// view (the widget query above) and then the item within it.
+
+static QString itemPath(const QModelIndex &index)
+{
+    QStringList labels;
+    for (QModelIndex i = index; i.isValid(); i = i.parent())
+        labels.prepend(i.data(Qt::DisplayRole).toString());
+    return labels.join(" / ");
+}
+
+// Everything currently in the model below parent. Children of a collapsed row
+// are included when they exist, but a lazily filled view only creates them on
+// expansion - hence set_item_expanded.
+static void collectItems(const QAbstractItemModel *model, const QModelIndex &parent,
+                         QList<QModelIndex> *out)
+{
+    const int rows = model->rowCount(parent);
+    for (int row = 0; row < rows; ++row) {
+        const QModelIndex index = model->index(row, 0, parent);
+        if (!index.isValid())
+            continue;
+        out->append(index);
+        collectItems(model, index, out);
+    }
+}
+
+static QJsonObject describeItem(QAbstractItemView *view, const QModelIndex &index)
+{
+    const auto tree = qobject_cast<QTreeView *>(view);
+    const QRect rect = view->visualRect(index);
+    const QPoint topLeft = view->viewport()->mapToGlobal(rect.topLeft());
+    return QJsonObject{
+        {"path", itemPath(index)},
+        {"text", index.data(Qt::DisplayRole).toString()},
+        {"row", index.row()},
+        {"has_children", index.model()->hasChildren(index)},
+        {"expanded", tree ? tree->isExpanded(index) : false},
+        {"selected", view->selectionModel() && view->selectionModel()->isSelected(index)},
+        {"enabled", index.flags().testFlag(Qt::ItemIsEnabled)},
+        {"x", topLeft.x()},
+        {"y", topLeft.y()},
+        {"width", rect.width()},
+        {"height", rect.height()}};
+}
+
+static Utils::Result<QAbstractItemView *> resolveSingleView(const WidgetQuery &q)
+{
+    const Utils::Result<QWidget *> w = resolveSingleWidget(q);
+    if (!w)
+        return ResultError(w.error());
+    if (auto view = qobject_cast<QAbstractItemView *>(*w))
+        return view;
+    return ResultError(
+        QString("Widget is not an item view: %1.").arg(describeWidgetShort(*w)));
+}
+
+// An item is named by its full path ("Outgoing / Fix the thing") or, when that
+// is unambiguous, by its label alone. More than one match is an error, for the
+// same reason an ambiguous widget query is.
+static Utils::Result<QModelIndex> resolveSingleItem(QAbstractItemView *view, const QString &item)
+{
+    QList<QModelIndex> all;
+    collectItems(view->model(), view->rootIndex(), &all);
+    QList<QModelIndex> matches;
+    for (const QModelIndex &index : all) {
+        if (itemPath(index) == item || index.data(Qt::DisplayRole).toString() == item)
+            matches.append(index);
+    }
+    if (matches.isEmpty()) {
+        QStringList paths;
+        for (const QModelIndex &index : all)
+            paths << QString("\"%1\"").arg(itemPath(index));
+        if (paths.size() > 20)
+            paths = paths.mid(0, 20) << QString("... (%1 in total)").arg(all.size());
+        return ResultError(QString("No item \"%1\" in the view. Items: [%2].")
+                               .arg(item, paths.join(", ")));
+    }
+    if (matches.size() > 1) {
+        QStringList paths;
+        for (const QModelIndex &index : matches)
+            paths << QString("\"%1\"").arg(itemPath(index));
+        return ResultError(QString("Ambiguous item \"%1\": %2 matches [%3]. Name the full path.")
+                               .arg(item)
+                               .arg(matches.size())
+                               .arg(paths.join(", ")));
+    }
+    return matches.first();
 }
 
 // Prefer the widget's own behaviour over synthesising input: a button's
@@ -2421,6 +2514,138 @@ void McpCommands::registerCommands()
             }
             combo->setCurrentIndex(index);
             return CallToolResult{}.isError(false).structuredContent(describeWidget(combo));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("find_items")
+            .title("Find items in a view")
+            .description(
+                "Lists the items of the single item view matching the widget query - a tree, "
+                "list or table - with the path of labels leading to each row, its text, whether "
+                "it has children, is expanded, selected or enabled, and its geometry in root "
+                "coordinates. This is the addressing layer for click_item and "
+                "set_item_expanded, and the way to assert what a view actually shows. A view "
+                "that fills lazily only has the children of rows that were expanded, so expand "
+                "first and look again.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "item",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Only report items whose full path or label is exactly this."}})),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const Utils::Result<QAbstractItemView *> view
+                = resolveSingleView(widgetQueryFromJson(p));
+            if (!view)
+                return ResultError(view.error());
+            const QString filter = p.value("item").toString();
+            QList<QModelIndex> all;
+            collectItems((*view)->model(), (*view)->rootIndex(), &all);
+            QJsonArray items;
+            for (const QModelIndex &index : all) {
+                if (!filter.isEmpty() && itemPath(index) != filter
+                    && index.data(Qt::DisplayRole).toString() != filter) {
+                    continue;
+                }
+                items.append(describeItem(*view, index));
+            }
+            return CallToolResult{}.isError(false).structuredContent(
+                QJsonObject{{"count", items.size()}, {"items", items}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("click_item")
+            .title("Click an item in a view")
+            .description(
+                "Clicks one item of the item view matching the widget query, by delivering a "
+                "left click at its centre, so the view reacts exactly as it would to the user - "
+                "selection, activation and any command the item carries. Name the item by its "
+                "full path (\"Outgoing / Fix the thing\") or, when unambiguous, by its label. "
+                "Zero or multiple matches are an error.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "item",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Full path or label of the item to click."}})
+                    .addRequired("item")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const Utils::Result<QAbstractItemView *> view
+                = resolveSingleView(widgetQueryFromJson(p));
+            if (!view)
+                return ResultError(view.error());
+            const Utils::Result<QModelIndex> index
+                = resolveSingleItem(*view, p.value("item").toString());
+            if (!index)
+                return ResultError(index.error());
+            if (!index->flags().testFlag(Qt::ItemIsEnabled)) {
+                return ResultError(
+                    QString("Item is disabled: \"%1\".").arg(itemPath(*index)));
+            }
+            // Scroll it into view first: a click outside the viewport lands
+            // nowhere, and visualRect() of an off-screen row is empty.
+            (*view)->scrollTo(*index);
+            const QRect rect = (*view)->visualRect(*index);
+            const QPointF center = rect.center();
+            const QPointF global = (*view)->viewport()->mapToGlobal(rect.center());
+            QMouseEvent press(QEvent::MouseButtonPress, center, global, Qt::LeftButton,
+                              Qt::LeftButton, Qt::NoModifier);
+            QMouseEvent release(QEvent::MouseButtonRelease, center, global, Qt::LeftButton,
+                                Qt::NoButton, Qt::NoModifier);
+            QApplication::sendEvent((*view)->viewport(), &press);
+            QApplication::sendEvent((*view)->viewport(), &release);
+            return CallToolResult{}.isError(false).structuredContent(describeItem(*view, *index));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("set_item_expanded")
+            .title("Expand or collapse an item in a tree")
+            .description(
+                "Expands or collapses one item of the QTreeView matching the widget query. "
+                "Needed to reach nested items at all: a view that fills lazily asks its source "
+                "for the children only when a row is expanded, so the children appear in "
+                "find_items a moment later, not immediately.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "item",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Full path or label of the item."}})
+                    .addProperty(
+                        "expanded",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description", "Expand it (default), or collapse it when false."}})
+                    .addRequired("item")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const Utils::Result<QAbstractItemView *> view
+                = resolveSingleView(widgetQueryFromJson(p));
+            if (!view)
+                return ResultError(view.error());
+            auto tree = qobject_cast<QTreeView *>(*view);
+            if (!tree) {
+                return ResultError(QString("View is not a QTreeView: %1.")
+                                       .arg(describeWidgetShort(*view)));
+            }
+            const Utils::Result<QModelIndex> index
+                = resolveSingleItem(tree, p.value("item").toString());
+            if (!index)
+                return ResultError(index.error());
+            tree->setExpanded(*index, p.value("expanded").toBool(true));
+            return CallToolResult{}.isError(false).structuredContent(describeItem(tree, *index));
         });
 
     ToolRegistry::registerTool(
