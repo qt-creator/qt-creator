@@ -42,7 +42,7 @@ static void setPaletteFromTheme(QWidget *widget)
 
 static bool isDarkTheme()
 {
-    return Utils::creatorTheme() && Utils::creatorTheme()->flag(Utils::Theme::DarkUserInterface);
+    return Utils::creatorTheme() && Utils::creatorTheme()->colorScheme() == Qt::ColorScheme::Dark;
 }
 
 static QByteArray getData(const QUrl &url, QWidget *widget)

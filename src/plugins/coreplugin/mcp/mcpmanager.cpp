@@ -91,7 +91,7 @@ static QString iconExtension(const McpRegistry::Icon &icon)
 
 static bool isDarkTheme()
 {
-    return creatorTheme() && creatorTheme()->flag(Theme::DarkUserInterface);
+    return creatorTheme() && creatorTheme()->colorScheme() == Qt::ColorScheme::Dark;
 }
 
 // Pick the best icon for the current theme: prefer a matching theme variant,
