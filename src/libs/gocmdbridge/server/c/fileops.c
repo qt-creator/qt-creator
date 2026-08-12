@@ -120,15 +120,31 @@ static void h_copyfile(value *cmd)
         return;
     }
     uint8_t buf[32768];
-    ssize_t n;
-    while ((n = plat_read(infd, buf, sizeof(buf))) > 0) {
+    for (;;) {
+        ssize_t n = plat_read(infd, buf, sizeof(buf));
+        if (n < 0) {
+            if (errno == EINTR)
+                continue;
+            /* A source that cannot be read - a directory, say - is an error,
+               not an empty copy. */
+            int e = errno;
+            plat_close(infd);
+            plat_close(outfd);
+            send_os_err(mkey(cmd, "Id"), strerror(e), e);
+            return;
+        }
+        if (n == 0)
+            break;
         ssize_t w = 0;
-        while ((size_t) w < (size_t) n) {
-            ssize_t wn = plat_write(outfd, buf + w, (size_t) n - (size_t) w);
+        while (w < n) {
+            ssize_t wn = plat_write(outfd, buf + w, (size_t) (n - w));
+            if (wn < 0 && errno == EINTR)
+                continue;
             if (wn <= 0) {
+                int e = wn < 0 ? errno : EIO;
                 plat_close(infd);
                 plat_close(outfd);
-                send_err(mkey(cmd, "Id"), "write error");
+                send_os_err(mkey(cmd, "Id"), strerror(e), e);
                 return;
             }
             w += wn;
