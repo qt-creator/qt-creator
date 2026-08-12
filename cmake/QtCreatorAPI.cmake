@@ -839,6 +839,7 @@ function(add_qtc_executable name)
     ALLOW_ASCII_CASTS
     SKIP_PCH
     QTC_RUNNABLE
+    QT_APP
   )
   set(single_args
     DESTINATION
@@ -923,7 +924,14 @@ function(add_qtc_executable name)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 
-  add_executable("${name}" ${_arg_SOURCES})
+  # Android and HarmonyOS load an application as a module rather than starting an
+  # executable, and only Qt knows how to set one up. Helper executables stay
+  # executables, so this is opt-in.
+  if (_arg_QT_APP AND (ANDROID OR OHOS))
+    qt_add_executable("${name}" ${_arg_SOURCES})
+  else()
+    add_executable("${name}" ${_arg_SOURCES})
+  endif()
 
   if (WITH_SANITIZE)
     qtc_enable_sanitize("${name}" ${SANITIZE_FLAGS})
@@ -963,6 +971,13 @@ function(add_qtc_executable name)
   set(install_rpath "${install_rpath};${CMAKE_INSTALL_RPATH}")
 
   qtc_output_binary_dir(_output_binary_dir)
+  # A module application is loaded with dlopen(), so main() has to stay visible.
+  # That is why Qt sets the preset to default, and why it must not be overridden.
+  set(_visibility hidden)
+  if (_arg_QT_APP AND (ANDROID OR OHOS))
+    set(_visibility default)
+  endif()
+
   set_target_properties("${name}" PROPERTIES
     LINK_DEPENDS_NO_SHARED ON
     BUILD_RPATH "${build_rpath}"
@@ -970,7 +985,7 @@ function(add_qtc_executable name)
     RUNTIME_OUTPUT_DIRECTORY "${_output_binary_dir}/${_DESTINATION}"
     QT_SKIP_TRANSLATION "${skip_translation}"
     CXX_EXTENSIONS OFF
-    CXX_VISIBILITY_PRESET hidden
+    CXX_VISIBILITY_PRESET ${_visibility}
     VISIBILITY_INLINES_HIDDEN ON
     QT_COMPILE_OPTIONS_DISABLE_WARNINGS OFF
     ${_arg_PROPERTIES}

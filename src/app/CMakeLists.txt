@@ -32,6 +32,7 @@ add_qtc_executable(qtcreator
     OUTPUT_NAME "${IDE_APP_TARGET}"
   DESTINATION "${IDE_APP_PATH}"
   QTC_RUNNABLE
+  QT_APP
 )
 
 extend_qtc_executable(qtcreator
