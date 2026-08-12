@@ -39,8 +39,8 @@ TextBrowserHelpViewer::TextBrowserHelpViewer(QWidget *parent)
         p.color(QPalette::Active, QPalette::Highlight));
     p.setColor(QPalette::Inactive, QPalette::HighlightedText,
         p.color(QPalette::Active, QPalette::HighlightedText));
-    p.setColor(QPalette::Base, Qt::white);
-    p.setColor(QPalette::Text, Qt::black);
+    // Leave Base/Text at the theme's values so the documentation follows the theme
+    // (QTCREATORBUG-8465); the matching CSS is injected in LocalHelpManager::helpData().
     setPalette(p);
 
     connect(m_textBrowser, &TextBrowserHelpWidget::anchorClicked,

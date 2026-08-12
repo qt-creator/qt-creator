@@ -29,6 +29,7 @@ extend_qtc_plugin(Help
   CONDITION WITH_TESTS
   SOURCES
     bookmarkmanager_test.cpp bookmarkmanager_test.h
+    localhelpmanager_test.cpp localhelpmanager_test.h
 )
 
 set(HELPVIEWER_DEFAULT_BACKEND "litehtml" CACHE STRING "Sets default help viewer backend")

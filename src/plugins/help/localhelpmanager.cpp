@@ -30,6 +30,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
 #include <utils/stringutils.h>
+#include <utils/theme/theme.h>
 
 #ifdef QTC_WEBENGINE_HELPVIEWER
 #include "webenginehelpviewer.h"
@@ -510,10 +511,59 @@ QByteArray LocalHelpManager::loadErrorMessage(const QUrl &url, const QString &er
         .toUtf8();
 }
 
+// In a dark Qt Creator theme, serve a dark stylesheet for the Qt documentation instead of
+// its default light one, so every help viewer backend follows the theme (QTCREATORBUG-8465).
+// Prefer a dark stylesheet shipped with the documentation, else the one bundled with Qt
+// Creator. The litehtml backend requests offline-dark.css directly, so it never matches here.
+static QByteArray darkDocumentationCss(const QHelpEngineCore &engine, const QUrl &lightCssUrl,
+                                       const QString &lightCssFile, QUrl *resolvedUrl)
+{
+    QUrl darkUrl = lightCssUrl;
+    darkUrl.setPath(lightCssUrl.path(QUrl::FullyEncoded).replace(lightCssFile, "/offline-dark.css"));
+    const QUrl resolved = engine.findFile(darkUrl);
+    if (resolved.isValid()) {
+        // findFile() can hand back a valid-looking URL even when the documentation ships no
+        // dark stylesheet, so only use it when it actually resolves to data.
+        const QByteArray data = engine.fileData(resolved);
+        if (!data.isEmpty()) {
+            *resolvedUrl = resolved;
+            return data;
+        }
+    }
+    QFile css(":/help/offline-dark.css");
+    if (css.open(QIODevice::ReadOnly)) {
+        *resolvedUrl = darkUrl;
+        return css.readAll();
+    }
+    return {};
+}
+
 LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
+{
+    const bool darkTheme = Utils::creatorTheme()
+                           && Utils::creatorTheme()->flag(Utils::Theme::DarkUserInterface);
+    return helpData(url, darkTheme);
+}
+
+LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url, bool darkTheme)
 {
     HelpData data;
     const QHelpEngineCore &engine = helpEngine();
+
+    if (darkTheme) {
+        const QString path = url.path(QUrl::FullyEncoded);
+        for (const QString &lightCss : {QString("/offline.css"), QString("/offline-simple.css")}) {
+            if (path.endsWith(lightCss)) {
+                const QByteArray dark = darkDocumentationCss(engine, url, lightCss, &data.resolvedUrl);
+                if (!dark.isEmpty()) {
+                    data.data = dark;
+                    data.mimeType = "text/css";
+                    return data;
+                }
+                break;
+            }
+        }
+    }
 
     data.resolvedUrl = engine.findFile(url);
     if (data.resolvedUrl.isValid()) {

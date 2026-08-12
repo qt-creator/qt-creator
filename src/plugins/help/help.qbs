@@ -54,6 +54,8 @@ QtcPlugin {
         files: [
             "bookmarkmanager_test.cpp",
             "bookmarkmanager_test.h",
+            "localhelpmanager_test.cpp",
+            "localhelpmanager_test.h",
         ]
     }
 

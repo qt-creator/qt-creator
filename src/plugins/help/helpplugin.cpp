@@ -5,6 +5,7 @@
 
 #include "bookmarkmanager.h"
 #include "bookmarkmanager_test.h"
+#include "localhelpmanager_test.h"
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
 #include "helpconstants.h"
@@ -655,6 +656,7 @@ private:
         dd = new HelpPluginPrivate;
 #ifdef WITH_TESTS
         addTestCreator(createBookmarkManagerTest);
+        addTestCreator(createLocalHelpManagerTest);
 #endif
     }
 

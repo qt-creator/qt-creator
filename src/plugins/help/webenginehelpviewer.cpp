@@ -9,6 +9,7 @@
 #include "openpagesmanager.h"
 
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QBuffer>
 #include <QContextMenuEvent>
@@ -92,10 +93,11 @@ WebEngineHelpViewer::WebEngineHelpViewer(QWidget *parent) :
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_widget, 10);
 
-    QPalette p = palette();
-    p.setColor(QPalette::Base, Qt::white);
-    p.setColor(QPalette::Text, Qt::black);
-    setPalette(p);
+    // Follow the Qt Creator theme (QTCREATORBUG-8465); the matching documentation CSS is
+    // injected in LocalHelpManager::helpData(). The page background avoids a white flash.
+    if (Utils::creatorTheme())
+        setPalette(Utils::creatorTheme()->palette());
+    m_widget->page()->setBackgroundColor(Utils::creatorColor(Utils::Theme::BackgroundColorNormal));
 
     connect(m_widget, &QWebEngineView::urlChanged, this, &WebEngineHelpViewer::sourceChanged);
     connect(m_widget, &QWebEngineView::loadStarted, this, [this] {
