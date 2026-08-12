@@ -114,7 +114,7 @@ def qdumpHelper__std__deque__libstdcxx(d, value):
 
 def qdumpHelper__std__deque__libcxx(d, value):
     alloc_type = value.type[1] # see disclaimer #1
-    alloc_size = alloc_type.size()
+    alloc_size = alloc_type.size() or 0
     # see disclaimer #2
     if alloc_size > 1:
         mptr, mfirst, mbegin, mend, alloc, start, size = value.split('pppp{{{}}}tt'.format(alloc_type.name))
@@ -185,7 +185,7 @@ def qdumpHelper__std__deque__msvc(d, value):
     else:
         bufsize = 1
 
-    alloc_size = value.type[1].size() # see disclaimer #1
+    alloc_size = value.type[1].size() or 0 # see disclaimer #1
     # see disclaimer #2
     offset = alloc_size if alloc_size > 1 else 0
     core = d.createValue(value.address() + offset, value.type)
@@ -251,7 +251,7 @@ def qdump__std__list__QNX(d, value):
         except Exception:
             d.isDebugBuild = False
 
-    alloc_size = value.type[1].size() # see disclaimer #1
+    alloc_size = value.type[1].size() or 0 # see disclaimer #1
     # see disclaimer #2
     offset = alloc_size if alloc_size > 1 else 0
     if d.isDebugBuild:
@@ -364,7 +364,7 @@ def qdump_std__map__helper(d, value):
             d.isDebugBuild = True
         except Exception:
             d.isDebugBuild = False
-    alloc_size = value.type[3].size() # see disclaimer #1
+    alloc_size = value.type[3].size() or 0 # see disclaimer #1
     # see disclaimer #2
     offset = alloc_size if alloc_size > 1 else 0
     if d.isDebugBuild:
@@ -596,7 +596,7 @@ def qdump__std__set__QNX(d, value):
         except Exception:
             d.isDebugBuild = False
 
-    alloc_size = value.type[2].size() # see disclaimer #1
+    alloc_size = value.type[2].size() or 0 # see disclaimer #1
     # see disclaimer #2
     offset = alloc_size if alloc_size > 1 else 0
     if d.isDebugBuild:
@@ -881,7 +881,7 @@ def qdump__std__unordered_map(d, value):
             except Exception:
                 d.isDebugBuild = False
 
-        alloc_size = value.type[4].size() # see disclaimer #1
+        alloc_size = value.type[4].size() or 0 # see disclaimer #1
         # see disclaimer #2
         offset = alloc_size if alloc_size > 1 else 0
         if d.isDebugBuild:
@@ -1131,7 +1131,7 @@ def qdumpHelper__std__vector__msvc(d, value):
             except RuntimeError:
                 d.isDebugBuild = False
 
-        alloc_size = value.type[1].size() # see disclaimer #1
+        alloc_size = value.type[1].size() or 0 # see disclaimer #1
         # see disclaimer #2
         offset = alloc_size if alloc_size > 1 else 0
         if d.isDebugBuild:
@@ -1148,7 +1148,7 @@ def qdumpHelper__std__vector__msvc(d, value):
             except RuntimeError:
                 d.isDebugBuild = False
 
-        alloc_size = value.type[1].size() # see disclaimer #1
+        alloc_size = value.type[1].size() or 0 # see disclaimer #1
         # see disclaimer #2
         offset = alloc_size if alloc_size > 1 else 0
         if d.isDebugBuild:
