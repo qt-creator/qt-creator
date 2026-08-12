@@ -77,6 +77,8 @@ public:
     void onExpanded(const QModelIndex &idx);
     void onCollapsed(const QModelIndex &idx);
 
+    void reapplyExpansion();
+
 signals:
     void renamed(const Utils::FilePath &oldName, const Utils::FilePath &newName);
 
@@ -103,6 +105,7 @@ private:
     void handleProjectRemoved(Project *project);
     WrapperNode *nodeForProject(const Project *project) const;
     void addOrRebuildProjectModel(Project *project);
+    void requestExpansionFor(WrapperNode *root);
 
     void parsingStateChanged(Project *project);
 

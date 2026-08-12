@@ -298,6 +298,10 @@ ProjectTreeWidget::ProjectTreeWidget()
     connect(m_view, &QTreeView::collapsed,
             m_model, &FlatModel::onCollapsed);
 
+    // The model was populated during its construction, before the expansion
+    // signal above was connected, so apply the restored expansion state now.
+    m_model->reapplyExpansion();
+
     m_toggleSync = new QAction(this);
     m_toggleSync->setIcon(Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
