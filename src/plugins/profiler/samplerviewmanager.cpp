@@ -106,7 +106,9 @@ void SamplerViewManager::load(const FilePath &dir)
         return;
 
     const auto onSetup = [dir](Async<Result<SampleTraceData>> &async) {
-        async.setConcurrentCallData(readSampleTrace, dir);
+        // The progress callback is spelled out because a function pointer carries
+        // no default arguments.
+        async.setConcurrentCallData(readSampleTrace, dir, std::function<void(int)>{});
     };
     const auto onTaskDone = [this](const Async<Result<SampleTraceData>> &async) {
         Result<SampleTraceData> read = async.isResultAvailable()

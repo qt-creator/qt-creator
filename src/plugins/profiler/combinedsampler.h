@@ -18,6 +18,14 @@ inline constexpr QLatin1StringView combinedManifestName("manifest.json");
 inline constexpr QLatin1StringView combinedSamplerSubdir("sampler");
 inline constexpr QLatin1StringView combinedQmlFileName("qml.qtd");
 
+// The native-mixed sampler trace produced by merging the two sides. Written
+// during recording post-processing and named by the manifest's "merged" key.
+// Absent from bundles recorded before this existed, and from any bundle whose
+// merge failed, so CombinedTraceLoader still merges on demand when it is
+// missing rather than treating it as required.
+inline constexpr QLatin1StringView combinedMergedSubdir("merged");
+inline constexpr QLatin1StringView combinedMergedKey("merged");
+
 // Settings for the combined backend: it always launches an executable (running
 // two captures against one already-running or attached target is a later
 // addition), so it reuses the base launch fields and adds the two sub-backends'

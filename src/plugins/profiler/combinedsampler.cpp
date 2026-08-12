@@ -4,6 +4,7 @@
 #include "combinedsampler.h"
 
 #include "callstacksampler.h"
+#include "combinedtraceloader.h"
 #include "perfsampler.h"
 #include "profilertr.h"
 #include "qmlprofilermodelmanager.h"
@@ -238,7 +239,10 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
             }
             if (qmlChild->started.load() && nativeChild->started.load())
                 parent->started.store(true);
-            parent->progress.store(qMax(qmlChild->progress.load(), nativeChild->progress.load()),
+            // Post-processing has two phases -- the captures' own symbolicating
+            // and writing, then the merge below -- and they share one bar, so
+            // each drives half of it rather than both running 0..100.
+            parent->progress.store(qMax(qmlChild->progress.load(), nativeChild->progress.load()) / 2,
                                    std::memory_order_relaxed);
             if (qmlChild->result.has_value() && nativeChild->result.has_value()) {
                 poll->stop();
@@ -250,6 +254,25 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
 
     const auto assemble = [parent, qmlChild, nativeChild] {
         assembleBundle(parent, qmlChild, nativeChild);
+    };
+
+    // Merging the two sides into one native-mixed trace is the last, and by far
+    // the longest, part of post-processing. Doing it here rather than leaving it
+    // to the load that follows keeps it on the recording page's progress bar --
+    // and out of the GUI thread, where it used to freeze the window for minutes.
+    //
+    // Nested, because the bundle path only exists once assemble has stored it:
+    // the recipe is built when this task starts rather than when the tree is.
+    const auto onMergeSetup = [parent](QTaskTree &taskTree) {
+        if (!parent->result || !*parent->result) {
+            taskTree.setRecipe({}); // Assembly failed: nothing to merge.
+            return;
+        }
+        // The captures took the bar to 50; the merge takes it the rest of the way.
+        const auto reportProgress = [parent](int percent) {
+            parent->progress.store(50 + percent / 2, std::memory_order_relaxed);
+        };
+        taskTree.setRecipe({mergeCombinedBundleRecipe(**parent->result, reportProgress)});
     };
 
     return Group {
@@ -266,6 +289,7 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
             QBarrierTask(onForwardSetup),
         },
         QSyncTask(assemble),
+        QTaskTreeTask(onMergeSetup),
     };
 }
 

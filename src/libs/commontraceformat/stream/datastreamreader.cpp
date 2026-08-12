@@ -99,6 +99,17 @@ Utils::Result<EventRecord> DataStreamReader::nextEvent()
     }
 }
 
+qint64 DataStreamReader::bytesDecoded() const
+{
+    qint64 decoded = m_dev->pos();
+    if (m_reader)
+        decoded -= m_reader->unreadContentBits() / 8;
+    // Bytes over-read into the next packet have been taken off the device but
+    // belong to data that has not been decoded yet either.
+    decoded -= m_pendingBytes.size();
+    return qMax<qint64>(0, decoded);
+}
+
 bool DataStreamReader::atEnd() const
 {
     if (m_atEnd)

@@ -77,8 +77,11 @@ public:
 Utils::Result<> writeSampleTrace(const SampleTraceData &data, const Utils::FilePath &dir,
                                  const std::function<void(int)> &progress = {});
 
-// Reads back a trace written by writeSampleTrace.
-Utils::Result<SampleTraceData> readSampleTrace(const Utils::FilePath &dir);
+// Reads back a trace written by writeSampleTrace. `progress`, if set, is called
+// with 0..100 as the stream is decoded; a sampler stream routinely runs to
+// hundreds of megabytes, so a caller on a worker thread wants to report it.
+Utils::Result<SampleTraceData> readSampleTrace(const Utils::FilePath &dir,
+                                               const std::function<void(int)> &progress = {});
 
 // True if `dir` holds a CTF2 trace whose schema contains a data stream class
 // named samplerStreamName. Reads only the metadata file.

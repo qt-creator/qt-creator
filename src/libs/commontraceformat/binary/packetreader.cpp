@@ -609,4 +609,11 @@ bool PacketReader::atEnd() const
     return m_dev->atEnd() && atEndOfPacket();
 }
 
+qint64 PacketReader::unreadContentBits() const
+{
+    if (!m_buf)
+        return 0;
+    return qMax<qint64>(0, m_contentEndBit - m_buf->readBitOffset());
+}
+
 } // namespace CommonTraceFormat

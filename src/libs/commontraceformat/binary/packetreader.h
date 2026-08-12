@@ -66,6 +66,12 @@ public:
     bool atEndOfPacket() const;
     bool atEnd() const;
 
+    // Bits of the current packet's content area that have been read into memory
+    // but not yet decoded; 0 when no packet is open. Lets a caller convert a
+    // device position, which only moves when a whole packet is pulled in, into
+    // how far decoding has actually got (see DataStreamReader::bytesDecoded()).
+    qint64 unreadContentBits() const;
+
     // Snapshot of the discarded-event-record counter of the stream at the end of
     // the current packet (spec 6.1 DISC_ER_SNAP), if the packet context carries
     // the role. std::nullopt when absent.

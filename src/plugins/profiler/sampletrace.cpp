@@ -229,7 +229,7 @@ static QString stringField(const StructureValue &sv, const QString &name)
     return {};
 }
 
-Result<SampleTraceData> readSampleTrace(const FilePath &dir)
+Result<SampleTraceData> readSampleTrace(const FilePath &dir, const std::function<void(int)> &progress)
 {
     QFile metaFile(dir.pathAppended(u"metadata"_s).toFSPathString());
     if (!metaFile.open(QIODevice::ReadOnly))
@@ -256,6 +256,12 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir)
     if (!stream)
         return ResultError(Tr::tr("Cannot open the sample data stream."));
 
+    // Events are small and numerous, so progress is sampled every so often
+    // rather than computed per record.
+    const qint64 totalBytes = std::max<qint64>(1, dataFile.size());
+    int eventCount = 0;
+    int lastPercent = -1;
+
     SampleTraceData data;
     while (true) {
         auto rec = stream->nextEvent();
@@ -263,6 +269,13 @@ Result<SampleTraceData> readSampleTrace(const FilePath &dir)
             if (stream->atEnd())
                 break;
             return ResultError(rec.error());
+        }
+        if (progress && (++eventCount & 0x3ff) == 0) {
+            const int percent = int(stream->bytesDecoded() * 100 / totalBytes);
+            if (percent != lastPercent) {
+                lastPercent = percent;
+                progress(percent);
+            }
         }
         data.pid = uintField(rec->commonContext, u"pid"_s);
         switch (rec->eventClassId) {

@@ -39,6 +39,15 @@ public:
 
     bool atEnd() const;
 
+    // Bytes of the stream decoded so far, for progress reporting: the device
+    // position, less what has been pulled into memory but not yet decoded.
+    //
+    // The correction matters because packets are read whole. A stream that
+    // declares no packet length is read as a single packet spanning the device,
+    // so the device position alone would jump to the end on the very first event
+    // and report 100% for the entire decode.
+    qint64 bytesDecoded() const;
+
     // Number of packets missing from the stream, inferred from gaps in packet
     // sequence numbers (spec 4.2.1). 0 when no gaps (or no sequence numbers).
     quint64 lostPacketCount() const { return m_lostPacketCount; }
