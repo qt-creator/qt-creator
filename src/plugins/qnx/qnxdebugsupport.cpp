@@ -102,7 +102,8 @@ static Group attachToProcessRecipe(RunControl *runControl, const DebuggerRunPara
         return debuggerRecipe(runControl, rp);
 
     const auto modifier = [runControl](Process &process) {
-        process.setCommand({QNX_DEBUG_EXECUTABLE, {QString::number(runControl->debugChannel().port())}});
+        process.setCommand({QNX_DEBUG_EXECUTABLE,
+                            {"-f", QString::number(runControl->debugChannel().port())}});
     };
     return When (runControl->processTaskWithModifier(modifier), &Process::started) >> Do {
         debuggerRecipe(runControl, rp)
@@ -184,6 +185,7 @@ public:
                 if (runControl->usesDebugChannel()) {
                     const int pdebugPort = runControl->debugChannel().port();
                     cmd.setExecutable(runControl->device()->filePath(QNX_DEBUG_EXECUTABLE));
+                    arguments.append("-f");
                     arguments.append(QString::number(pdebugPort));
                 } else if (runControl->usesQmlChannel()) {
                     arguments.append(qmlDebugTcpArguments(QmlDebuggerServices, runControl->qmlChannel()));
