@@ -80,6 +80,7 @@ const char fixedOptionsC[]
       "    -pid <pid>                    Attempt to connect to instance given by pid\n"
       "    -block                        Block until editor is closed\n"
       "    -pluginpath <path>            Add a custom search path for plugins\n"
+      "    -resourcepath <path>          Override the path the installed resources are read from\n"
       "    -language <locale>            Set the UI language\n"
       "    -list-themes                  List available UI themes\n"
       "    -trace-on-warning <pattern>   Print a stack trace for each message containing pattern\n";
@@ -103,6 +104,7 @@ const char NO_BANNERS_OPTION[] = "-no-banners";
 const char PID_OPTION[] = "-pid";
 const char BLOCK_OPTION[] = "-block";
 const char PLUGINPATH_OPTION[] = "-pluginpath";
+const char RESOURCEPATH_OPTION[] = "-resourcepath";
 const char LANGUAGE_OPTION[] = "-language";
 const char LIST_THEMES_OPTION[] = "-list-themes";
 const char USER_LIBRARY_PATH_OPTION[] = "-user-library-path"; // hidden option for qtcreator.sh
@@ -207,8 +209,15 @@ static QString applicationDirPath(char *arg = nullptr)
     return dir;
 }
 
+// Set from -resourcepath, for installations that do not have the resources in
+// the place relative to the executable that the build assumed.
+static QString overriddenResourcePath;
+
 static QString resourcePath()
 {
+    if (!overriddenResourcePath.isEmpty())
+        return overriddenResourcePath;
+
     return QDir::cleanPath(applicationDirPath() + '/' + RELATIVE_DATA_PATH);
 }
 
@@ -408,6 +417,9 @@ static Options parseCommandLine(int argc, char *argv[])
     }});
     options.insert(PLUGINPATH_OPTION, {HasParameter, [&result](const QString &parameter) {
         result.customPluginPaths += QDir::fromNativeSeparators(parameter);
+    }});
+    options.insert(RESOURCEPATH_OPTION, {HasParameter, [](const QString &parameter) {
+        overriddenResourcePath = QDir::fromNativeSeparators(parameter);
     }});
     options.insert(LANGUAGE_OPTION, {HasParameter, [&result](const QString &parameter) {
         result.uiLanguage = parameter;
@@ -841,7 +853,7 @@ int main(int argc, char **argv)
     info.userFileExtension = Constants::IDE_PROJECT_USER_FILE_EXTENSION;
     info.plugins = (appDirPath / RELATIVE_PLUGIN_PATH).cleanPath();
     info.userPluginsRoot = userPluginsRoot();
-    info.resources = (appDirPath / RELATIVE_DATA_PATH).cleanPath();
+    info.resources = FilePath::fromUserInput(resourcePath());
     info.userResources = userResourcePath(userSettings->fileName(), Constants::IDE_ID);
     info.libexec = (appDirPath / RELATIVE_LIBEXEC_PATH).cleanPath();
     info.documentation = (appDirPath / RELATIVE_DOC_PATH).cleanPath();
