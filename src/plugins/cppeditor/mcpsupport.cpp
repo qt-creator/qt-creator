@@ -12,6 +12,7 @@
 #include "cppmodelmanager.h"
 #include "cpprefactoringchanges.h"
 #include "cppworkingcopy.h"
+#include "functionutils.h"
 #include "indexitem.h"
 #include "searchsymbols.h"
 #include "symbolfinder.h"
@@ -1473,6 +1474,112 @@ void registerMcpTools()
 
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"quick_fixes", quickFixes}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("find_overrides")
+            .title("Find C++ virtual function overrides")
+            .description(
+                "Finds the overriding implementations of the virtual C++ member function "
+                "at a position - go to implementation(s) - across the class hierarchy, "
+                "plus the base declaration(s) it overrides. Give the file and a 1-based "
+                "line and column on a function name; returns \"overrides\" (each with its "
+                "fully qualified name, signature and location), \"base_declarations\", and "
+                "whether the function is virtual. The file must belong to an open project.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the C++ file containing the function."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the function name."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the function name."}})
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("is_virtual", QJsonObject{{"type", "boolean"}})
+                    .addProperty(
+                        "overrides",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addRequired("overrides")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            if (file.isEmpty() || line <= 0 || column <= 0) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Requires \"file\" and 1-based \"line\" and \"column\"."));
+            }
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            CPlusPlus::LookupContext context;
+            CPlusPlus::Symbol *symbol = symbolAt(filePath, line, column, &context);
+            // A member function declaration resolves to a Declaration whose type
+            // is the function; unwrap it (this also passes a Function through).
+            CPlusPlus::Function *function
+                = symbol ? symbol->type()->asFunctionType() : nullptr;
+            if (!function) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ function found at %1:%2:%3. Is the file in an open "
+                            "project and the position on a function name?")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+
+            const CPlusPlus::Snapshot snapshot = context.snapshot();
+            SymbolFinder finder;
+            CPlusPlus::Class *functionsClass
+                = finder.findMatchingClassDeclaration(function, snapshot);
+            if (!functionsClass) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Could not find the class that declares the function."));
+            }
+
+            CPlusPlus::Overview overview;
+            const auto functionToJson = [&overview](const CPlusPlus::Function *f) {
+                return QJsonObject{
+                    {"name", overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(
+                                 const_cast<CPlusPlus::Function *>(f)))},
+                    {"signature", overview.prettyType(f->type(), f->name())},
+                    {"file", f->filePath().toUserOutput()},
+                    {"line", f->line()},
+                    {"column", f->column()}};
+            };
+
+            QList<const CPlusPlus::Function *> firstVirtuals;
+            const bool isVirtual
+                = FunctionUtils::isVirtualFunction(function, context, &firstVirtuals);
+
+            QJsonArray overrides;
+            if (isVirtual) {
+                const QList<CPlusPlus::Function *> functions = FunctionUtils::overrides(
+                    function, functionsClass, functionsClass, snapshot);
+                for (const CPlusPlus::Function *f : functions)
+                    overrides.append(functionToJson(f));
+            }
+            QJsonArray baseDeclarations;
+            for (const CPlusPlus::Function *f : firstVirtuals)
+                baseDeclarations.append(functionToJson(f));
+
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{
+                {"is_virtual", isVirtual},
+                {"overrides", overrides},
+                {"base_declarations", baseDeclarations}});
         });
 }
 
