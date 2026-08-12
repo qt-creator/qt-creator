@@ -880,6 +880,37 @@ static Result<QWidget *> resolveSingleWidget(const WidgetQuery &q)
     return matches.first();
 }
 
+// Resolves a query to the widget that should receive a key event. Unlike
+// resolveSingleWidget this accepts a window-level query (e.g. window_title
+// alone, which matches every widget in that window): the keys then go to that
+// window's focused widget - "press Enter in the About dialog" - rather than
+// failing as ambiguous. Still an error if the matches span several windows.
+static Result<QWidget *> resolveKeyTarget(const WidgetQuery &q)
+{
+    if (widgetQueryIsEmpty(q)) {
+        if (QWidget *focus = QApplication::focusWidget())
+            return focus;
+        return ResultError(QString("No target widget: give a query or focus one."));
+    }
+    const QList<QWidget *> matches = resolveWidgets(q);
+    if (matches.isEmpty())
+        return ResultError(QString("No widget matched the query."));
+    if (matches.size() == 1)
+        return matches.first();
+    QWidgetList windows;
+    for (QWidget *w : matches) {
+        if (QWidget *win = w->window(); win && !windows.contains(win))
+            windows.append(win);
+    }
+    if (windows.size() != 1) {
+        return ResultError(QString("Query matches %1 widgets across %2 windows; narrow it.")
+                               .arg(matches.size())
+                               .arg(windows.size()));
+    }
+    QWidget *window = windows.first();
+    return window->focusWidget() ? window->focusWidget() : window;
+}
+
 // Prefer the widget's own behaviour over synthesising input: a button's
 // click() runs its logic directly, avoiding the popup/dropdown pitfalls of
 // posting raw mouse events. Other widgets do get a synthetic left click at
@@ -2384,21 +2415,13 @@ void McpCommands::registerCommands()
             const QJsonObject p = params.argumentsAsObject();
             const QString input = p.value("input").toString();
             const WidgetQuery q = widgetQueryFromJson(p);
-            QWidget *target = nullptr;
-            if (!widgetQueryIsEmpty(q)) {
-                const Utils::Result<QWidget *> w = resolveSingleWidget(q);
-                if (!w)
-                    return ResultError(w.error());
-                target = *w;
-                target->activateWindow();
-                target->setFocus(Qt::OtherFocusReason);
-            } else {
-                target = QApplication::focusWidget();
-                if (!target) {
-                    return ResultError(QString("No target widget: give a widget query or focus "
-                                               "a widget first."));
-                }
-            }
+            const Utils::Result<QWidget *> t = resolveKeyTarget(q);
+            if (!t)
+                return ResultError(t.error());
+            QWidget *target = *t;
+            if (QWidget *window = target->window())
+                window->activateWindow();
+            target->setFocus(Qt::OtherFocusReason);
             typeText(target, input);
             return CallToolResult{}.isError(false).structuredContent(describeWidget(target));
         });
@@ -2436,19 +2459,13 @@ void McpCommands::registerCommands()
             const Qt::KeyboardModifiers mods = combo.keyboardModifiers();
 
             const WidgetQuery q = widgetQueryFromJson(p);
-            QWidget *target = nullptr;
-            if (!widgetQueryIsEmpty(q)) {
-                const Utils::Result<QWidget *> w = resolveSingleWidget(q);
-                if (!w)
-                    return ResultError(w.error());
-                target = *w;
-                target->activateWindow();
-                target->setFocus(Qt::OtherFocusReason);
-            } else {
-                target = QApplication::focusWidget();
-                if (!target)
-                    return ResultError(QString("No target widget: give a query or focus one."));
-            }
+            const Utils::Result<QWidget *> t = resolveKeyTarget(q);
+            if (!t)
+                return ResultError(t.error());
+            QWidget *target = *t;
+            if (QWidget *window = target->window())
+                window->activateWindow();
+            target->setFocus(Qt::OtherFocusReason);
 
             // Printable, unmodified keys carry their text so line edits insert them;
             // chords and named keys deliver an empty text and rely on key+modifiers.
