@@ -480,8 +480,12 @@ void GdbEngine::handleResponse(const QString &buff)
             break;
         }
         default: {
-            qDebug() << "UNKNOWN RESPONSE TYPE '" << parser.current() << "'. BUFFER: "
-                     << parser.buffer();
+            // Not a MI record. This is what inferior output looks like when it
+            // shares gdb's stdout, i.e. whenever no separate tty was set up for
+            // it. That is the case for all non-local devices, as the collector
+            // needs a fifo reachable under the same path as gdb sees it, see
+            // usesOutputCollector(). Report it instead of dropping it.
+            showMessage(buff, AppOutput);
             break;
         }
     }
