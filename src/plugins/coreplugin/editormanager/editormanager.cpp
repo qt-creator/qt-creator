@@ -3053,6 +3053,12 @@ void EditorManagerPrivate::addCopyFilePathActions(
         setClipboardAndSelection(filePath.toUserOutput());
     });
 
+    // Copy Relative Path
+    addMenuAction(
+        contextMenu, ::Core::Tr::tr("Copy Relative Path"), copyActionsEnabled, d, [filePath] {
+            setClipboardAndSelection(ICore::pathRelativeToActiveProject(filePath).toUserOutput());
+        });
+
     // Copy Path and Line Number
     if (editor) {
         if (const int lineNumber = editor->currentLine()) {
@@ -3064,6 +3070,16 @@ void EditorManagerPrivate::addCopyFilePathActions(
                 [filePath, lineNumber] {
                     const QString text = filePath.toUserOutput() + ':'
                                          + QString::number(lineNumber);
+                    setClipboardAndSelection(text);
+                });
+            addMenuAction(
+                contextMenu,
+                ::Core::Tr::tr("Copy Relative Path and Line Number"),
+                copyActionsEnabled,
+                d,
+                [filePath, lineNumber] {
+                    const QString text = ICore::pathRelativeToActiveProject(filePath).toUserOutput()
+                                         + ':' + QString::number(lineNumber);
                     setClipboardAndSelection(text);
                 });
         }
