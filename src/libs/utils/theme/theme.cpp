@@ -39,7 +39,7 @@ Theme *creatorTheme()
 // Convenience
 QColor creatorColor(Theme::Color role)
 {
-    return m_creatorTheme->color(role);
+    return m_creatorTheme ? m_creatorTheme->color(role) : QColor();
 }
 
 static bool isOverridingPalette(const Theme *theme)

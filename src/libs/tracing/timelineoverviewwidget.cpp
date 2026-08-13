@@ -24,13 +24,6 @@ static const int kTimeBarHeight = 10;
 static const int kTimeBarFontPx = 6;
 static const int kTimeBarBlockLength = 80; // target pixels per time bar block
 
-static QColor themeColor(Utils::Theme::Color role)
-{
-    if (Utils::creatorTheme())
-        return Utils::creatorTheme()->color(role);
-    return QColor();
-}
-
 TimelineOverviewWidget::TimelineOverviewWidget(TimelineModelAggregator *aggregator,
                                                TimelineZoomControl *zoom,
                                                QWidget *parent)
@@ -110,15 +103,15 @@ void TimelineOverviewWidget::rebuildContentCache()
     m_contentCache.setDevicePixelRatio(dpr);
 
     QPainter p(&m_contentCache);
-    p.fillRect(m_contentCache.rect(), themeColor(Utils::Theme::Timeline_BackgroundColor2));
+    p.fillRect(m_contentCache.rect(), Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor2));
 
     const qint64 traceDuration = m_zoom->traceDuration();
 
     // Time bar: small ruler at the top showing the full trace time scale
     {
-        const QColor bgColor = themeColor(Utils::Theme::PanelStatusBarBackgroundColor);
-        const QColor textColor = themeColor(Utils::Theme::PanelTextColorLight);
-        const QColor divColor = themeColor(Utils::Theme::Timeline_DividerColor);
+        const QColor bgColor = Utils::creatorColor(Utils::Theme::PanelStatusBarBackgroundColor);
+        const QColor textColor = Utils::creatorColor(Utils::Theme::PanelTextColorLight);
+        const QColor divColor = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
         p.fillRect(0, 0, width(), kTimeBarHeight, bgColor);
         if (traceDuration > 0 && width() > 0) {
             QFont f = p.font();
@@ -213,7 +206,7 @@ void TimelineOverviewWidget::rebuildContentCache()
     // Note indicators: vertical bar (exclamation mark shape)
     const TimelineNotesModel *notes = m_aggregator->notes();
     if (notes && numModels > 0) {
-        const QColor noteColor = themeColor(Utils::Theme::Timeline_HighlightColor);
+        const QColor noteColor = Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
         p.setPen(QPen(noteColor, 2));
         const double bandH = double(contentH) / double(numModels);
         const double vertSpace = bandH / 7.0;
@@ -263,19 +256,19 @@ void TimelineOverviewWidget::paintEvent(QPaintEvent *)
     const double rangeRight = timeToPixel(m_zoom->rangeEnd());
 
     // Semi-transparent fill
-    QColor rangeColor = themeColor(Utils::Theme::Timeline_RangeColor);
+    QColor rangeColor = Utils::creatorColor(Utils::Theme::Timeline_RangeColor);
     rangeColor.setAlphaF(0.4f);
     if (rangeRight - rangeLeft > 1.0)
         p.fillRect(QRectF(rangeLeft, 0, rangeRight - rangeLeft, height()), rangeColor);
 
     // Left handle
-    QColor handleColor = themeColor(Utils::Theme::Timeline_HandleColor);
+    QColor handleColor = Utils::creatorColor(Utils::Theme::Timeline_HandleColor);
     if (m_leftHovered)
         handleColor = handleColor.lighter(130);
     p.fillRect(QRectF(rangeLeft - HandleWidth, 0, HandleWidth, height()), handleColor);
 
     // Right handle
-    handleColor = themeColor(Utils::Theme::Timeline_HandleColor);
+    handleColor = Utils::creatorColor(Utils::Theme::Timeline_HandleColor);
     if (m_rightHovered)
         handleColor = handleColor.lighter(130);
     p.fillRect(QRectF(rangeRight, 0, HandleWidth, height()), handleColor);

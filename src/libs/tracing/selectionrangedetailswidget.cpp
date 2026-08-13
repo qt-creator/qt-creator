@@ -19,13 +19,6 @@
 
 namespace Timeline {
 
-static QColor themeColor(Utils::Theme::Color role)
-{
-    if (Utils::creatorTheme())
-        return Utils::creatorTheme()->color(role);
-    return QColor();
-}
-
 class SelectionTitleButton : public QToolButton
 {
 public:
@@ -41,7 +34,7 @@ protected:
         if (underMouse()) {
             p.setRenderHint(QPainter::Antialiasing);
             p.setPen(Qt::NoPen);
-            p.setBrush(themeColor(Utils::Theme::FancyToolButtonHoverColor));
+            p.setBrush(Utils::creatorColor(Utils::Theme::FancyToolButtonHoverColor));
             p.drawRoundedRect(rect(), 3, 3);
         }
         const QRect r((width() - iconSize().width()) / 2,
@@ -100,7 +93,7 @@ SelectionRangeDetailsWidget::SelectionRangeDetailsWidget(QWidget *parent)
     separator->setAutoFillBackground(true);
     {
         auto pal = separator->palette();
-        pal.setColor(QPalette::Window, themeColor(Utils::Theme::PanelTextColorMid));
+        pal.setColor(QPalette::Window, Utils::creatorColor(Utils::Theme::PanelTextColorMid));
         separator->setPalette(pal);
     }
     outerLayout->addWidget(separator);
@@ -132,13 +125,13 @@ SelectionRangeDetailsWidget::SelectionRangeDetailsWidget(QWidget *parent)
 
     // Theme colors
     auto pal = palette();
-    pal.setColor(QPalette::Window, themeColor(Utils::Theme::Timeline_PanelBackgroundColor));
-    pal.setColor(QPalette::WindowText, themeColor(Utils::Theme::Timeline_TextColor));
+    pal.setColor(QPalette::Window, Utils::creatorColor(Utils::Theme::Timeline_PanelBackgroundColor));
+    pal.setColor(QPalette::WindowText, Utils::creatorColor(Utils::Theme::Timeline_TextColor));
     setPalette(pal);
 
     auto titlePal = titleBar->palette();
-    titlePal.setColor(QPalette::Window, themeColor(Utils::Theme::Timeline_PanelHeaderColor));
-    titlePal.setColor(QPalette::WindowText, themeColor(Utils::Theme::PanelTextColorLight));
+    titlePal.setColor(QPalette::Window, Utils::creatorColor(Utils::Theme::Timeline_PanelHeaderColor));
+    titlePal.setColor(QPalette::WindowText, Utils::creatorColor(Utils::Theme::PanelTextColorLight));
     titleBar->setPalette(titlePal);
     titleLabel->setPalette(titlePal);
 }
@@ -195,7 +188,7 @@ void SelectionRangeDetailsWidget::mouseReleaseEvent(QMouseEvent *event)
 void SelectionRangeDetailsWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setPen(themeColor(Utils::Theme::PanelTextColorMid));
+    p.setPen(Utils::creatorColor(Utils::Theme::PanelTextColorMid));
     p.setBrush(Qt::NoBrush);
     p.drawRect(0, 0, width() - 1, height() - 1);
 }

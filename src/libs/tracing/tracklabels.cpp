@@ -26,13 +26,6 @@ static constexpr int kTextRightMargin = kIndicatorSize
 static constexpr int kResizeZone = 5;
 static constexpr int kMinRowHeight = 30;
 
-static QColor themeColor(Utils::Theme::Color role)
-{
-    if (Utils::creatorTheme())
-        return Utils::creatorTheme()->color(role);
-    return QColor();
-}
-
 static int trackTitleHeight(const TrackInfo &track)
 {
     return track.rowHeights.isEmpty() ? kMinRowHeight : track.rowHeights[0];
@@ -135,9 +128,9 @@ void TrackLabels::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
 
-    const QColor bgColor = themeColor(Utils::Theme::PanelStatusBarBackgroundColor);
-    const QColor dividerColor = themeColor(Utils::Theme::Timeline_DividerColor);
-    const QColor textColor = themeColor(Utils::Theme::PanelTextColorLight);
+    const QColor bgColor = Utils::creatorColor(Utils::Theme::PanelStatusBarBackgroundColor);
+    const QColor dividerColor = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
+    const QColor textColor = Utils::creatorColor(Utils::Theme::PanelTextColorLight);
 
     p.fillRect(rect(), bgColor);
     p.setPen(textColor);
@@ -226,7 +219,7 @@ void TrackLabels::paintEvent(QPaintEvent *event)
     if (m_dragging && m_dragInsertSlot >= 0) {
         const int lineY = insertionSlotY(m_tracks, m_dragInsertSlot, m_scrollOffset);
         p.fillRect(0, lineY - 1, width(), 2,
-                   themeColor(Utils::Theme::Timeline_HandleColor));
+                   Utils::creatorColor(Utils::Theme::Timeline_HandleColor));
     }
 }
 

@@ -13,13 +13,6 @@
 
 namespace Timeline {
 
-static QColor themeColor(Utils::Theme::Color role)
-{
-    if (Utils::creatorTheme())
-        return Utils::creatorTheme()->color(role);
-    return QColor();
-}
-
 SelectionRangeOverlay::SelectionRangeOverlay(TimelineZoomControl *zoom, QWidget *parent)
     : QWidget(parent)
     , m_zoom(zoom)
@@ -68,8 +61,8 @@ void SelectionRangeOverlay::paintEvent(QPaintEvent *)
     if (!m_active || m_state == State::Inactive)
         return;
 
-    const QColor rangeColor = themeColor(Utils::Theme::Timeline_RangeColor);
-    const QColor handleColor = themeColor(Utils::Theme::Timeline_HandleColor);
+    const QColor rangeColor = Utils::creatorColor(Utils::Theme::Timeline_RangeColor);
+    const QColor handleColor = Utils::creatorColor(Utils::Theme::Timeline_HandleColor);
     const int h = height();
 
     QPainter p(this);

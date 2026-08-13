@@ -33,13 +33,6 @@ QSize TrackPainterRaster::sizeHint() const
     return QSize(200, TimelineModel::defaultRowHeight());
 }
 
-static QColor themeColor(Utils::Theme::Color role)
-{
-    if (Utils::creatorTheme())
-        return Utils::creatorTheme()->color(role);
-    return QColor();
-}
-
 void TrackPainterRaster::paintEvent(QPaintEvent *)
 {
     // Time the CPU cost of producing this frame; this single widget renders all
@@ -54,8 +47,8 @@ void TrackPainterRaster::paintEvent(QPaintEvent *)
 
     ensureGeometry();
 
-    const QColor bg1 = themeColor(Utils::Theme::Timeline_BackgroundColor1);
-    const QColor bg2 = themeColor(Utils::Theme::Timeline_BackgroundColor2);
+    const QColor bg1 = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor1);
+    const QColor bg2 = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor2);
 
     // Striped background, but only below the track content: the per-track row
     // backgrounds below already paint the same zebra over every track, so filling
@@ -68,9 +61,9 @@ void TrackPainterRaster::paintEvent(QPaintEvent *)
         p.fillRect(stripe.rect, stripe.bg1 ? bg1 : bg2);
     }
 
-    const QColor divider   = themeColor(Utils::Theme::Timeline_DividerColor);
-    const QColor handle     = themeColor(Utils::Theme::Timeline_HandleColor);
-    const QColor highlight  = themeColor(Utils::Theme::Timeline_HighlightColor);
+    const QColor divider = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
+    const QColor handle = Utils::creatorColor(Utils::Theme::Timeline_HandleColor);
+    const QColor highlight = Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
 
     // Replay the cached per-track geometry, translated into content space. No
     // event iteration happens here, so scrolling, hovering and selection (which
@@ -176,11 +169,11 @@ void TrackPainterRaster::paintScaleOverlay(QPainter &p, const Track &track) cons
     p.setFont(sf);
     p.setRenderHint(QPainter::Antialiasing, true);
 
-    const QColor scaleDiv = themeColor(Utils::Theme::Timeline_DividerColor);
+    const QColor scaleDiv = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
     for (const QRectF &line : std::as_const(ov.lines))
         p.fillRect(line, scaleDiv);
 
-    const QColor scaleText = themeColor(Utils::Theme::Timeline_TextColor);
+    const QColor scaleText = Utils::creatorColor(Utils::Theme::Timeline_TextColor);
     p.setPen(scaleText);
     for (const ScaleLabel &label : std::as_const(ov.labels))
         p.drawText(QPointF(label.x, label.baselineY), label.text);
