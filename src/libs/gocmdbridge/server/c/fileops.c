@@ -115,8 +115,9 @@ static void h_copyfile(value *cmd)
     }
     file_t outfd = plat_open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (outfd == INVALID_FILE) {
+        int e = errno;
         plat_close(infd);
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), strerror(e), e);
         return;
     }
     uint8_t buf[32768];
@@ -141,10 +142,13 @@ static void h_copyfile(value *cmd)
             if (wn < 0 && errno == EINTR)
                 continue;
             if (wn <= 0) {
-                int e = wn < 0 ? errno : EIO;
+                /* Match Go: a write of nothing is io.ErrShortWrite, which
+                   carries no errno of its own. */
+                int e = wn < 0 ? errno : EINVAL;
+                const char *msg = wn < 0 ? strerror(e) : "short write";
                 plat_close(infd);
                 plat_close(outfd);
-                send_os_err(mkey(cmd, "Id"), strerror(e), e);
+                send_os_err(mkey(cmd, "Id"), msg, e);
                 return;
             }
             w += wn;
