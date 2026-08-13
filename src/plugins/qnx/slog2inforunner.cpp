@@ -9,10 +9,8 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QDateTime>
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -25,8 +23,6 @@ struct SlogData
 {
     RunControl *m_runControl = nullptr;
     QString m_applicationId;
-    QDateTime m_launchDateTime = {};
-    bool m_currentLogs = false;
     QString m_remainingData = {};
 
     void processLogLine(const QString &line);
@@ -43,23 +39,11 @@ Group slog2InfoRecipe(RunControl *runControl)
 
     const Storage<SlogData> storage(SlogData{runControl, applicationId});
 
-    const auto onTestSetup = [runControl](Process &process) {
-        process.setCommand(CommandLine{runControl->device()->filePath("slog2info")});
-    };
-    const auto onTestDone = [runControl] {
-        runControl->postMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
-                                       "debug output not available."), ErrorMessageFormat);
-    };
-
-    const auto onLaunchTimeSetup = [runControl](Process &process) {
-        process.setCommand({runControl->device()->filePath("date"), "+\"%d %H:%M:%S\"", CommandLine::Raw});
-    };
-    const auto onLaunchTimeDone = [applicationId, storage](const Process &process) {
-        QTC_CHECK(!applicationId.isEmpty());
-        storage->m_launchDateTime = QDateTime::fromString(process.cleanedStdOut().trimmed(),
-                                                          "dd HH:mm:ss");
-    };
-
+    // Start "slog2info -w" right away. It only reports entries logged after it
+    // attaches (it does not replay the buffer), so any preceding round-trip -
+    // an existence probe, a launch-time query - just widens the window in which
+    // early application output is missed; the more so over a slow (ssh-fallback)
+    // connection. A failure to start is reported by onLogError below.
     const auto onLogSetup = [storage, runControl](Process &process) {
         process.setCommand({runControl->device()->filePath("slog2info"), {"-w"}});
         SlogData *slogData = storage.activeStorage();
@@ -81,8 +65,6 @@ Group slog2InfoRecipe(RunControl *runControl)
 
     return Group {
         storage,
-        ProcessTask(onTestSetup, onTestDone, CallDoneFlag::OnError),
-        ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDoneFlag::OnSuccess),
         ProcessTask(onLogSetup, onLogError, CallDoneFlag::OnError),
         onGroupDone(onCanceled, CallDoneFlag::OnCancel)
     }.withCancel(runControl->canceler());
@@ -119,18 +101,6 @@ void SlogData::processLogLine(const QString &line)
     const QRegularExpressionMatch match = regexp.match(line);
     if (!match.hasMatch())
         return;
-
-    // Note: This is useless if/once slog2info -b displays only logs from recent launches
-    if (!m_launchDateTime.isNull()) {
-        // Check if logs are from the recent launch
-        if (!m_currentLogs) {
-            const QDateTime dateTime = QDateTime::fromString(match.captured(1),
-                                                             QLatin1String("dd HH:mm:ss.zzz"));
-            m_currentLogs = dateTime >= m_launchDateTime;
-            if (!m_currentLogs)
-                return;
-        }
-    }
 
     const QString applicationId = match.captured(2);
     if (!applicationId.startsWith(m_applicationId))
