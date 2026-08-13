@@ -22,6 +22,7 @@
 #include "projectmanager.h"
 #include "projectnodes.h"
 #include "runconfiguration.h"
+#include "runconfigurationaspects.h"
 #include "runcontrol.h"
 #include "target.h"
 #include "task.h"
@@ -676,6 +677,65 @@ static QJsonArray getRunConfigurations()
         result.append(obj);
     }
     return result;
+}
+
+static QJsonObject configureRunConfig(const QString &idOrName,
+                                      const QString &executable,
+                                      bool setActive)
+{
+    Project *project = ProjectManager::startupProject();
+    if (!project)
+        return {{"success", false}, {"reason", "no_project"}, {"message", "No startup project."}};
+    Target *target = project->activeTarget();
+    if (!target)
+        return {{"success", false}, {"reason", "no_target"}, {"message", "No active target."}};
+    BuildConfiguration *bc = target->activeBuildConfiguration();
+    if (!bc) {
+        return {{"success", false}, {"reason", "no_build_config"},
+                {"message", "No active build configuration."}};
+    }
+    // A type id is shared by every run configuration its factory created, so it
+    // can match several; the display name is the selector that identifies one.
+    QList<RunConfiguration *> byName;
+    QList<RunConfiguration *> byId;
+    for (RunConfiguration *rc : bc->runConfigurations()) {
+        if (rc->expandedDisplayName() == idOrName)
+            byName.append(rc);
+        else if (rc->id().toString() == idOrName)
+            byId.append(rc);
+    }
+    const QList<RunConfiguration *> &matches = byName.isEmpty() ? byId : byName;
+    if (matches.isEmpty()) {
+        return {{"success", false}, {"reason", "not_found"},
+                {"message", QString("No run configuration matching \"%1\".").arg(idOrName)}};
+    }
+    if (matches.size() > 1) {
+        QJsonArray candidates;
+        for (RunConfiguration *rc : matches)
+            candidates.append(rc->expandedDisplayName());
+        return {{"success", false}, {"reason", "ambiguous"},
+                {"candidates", candidates},
+                {"message", QString("\"%1\" matches %2 run configurations. Pass one of "
+                                    "\"candidates\" as \"id\" instead.")
+                                .arg(idOrName).arg(matches.size())}};
+    }
+    RunConfiguration *match = matches.first();
+    if (!executable.isEmpty()) {
+        auto aspect = match->aspect<ExecutableAspect>();
+        if (!aspect) {
+            return {{"success", false}, {"reason", "no_executable_aspect"},
+                    {"message", "Run configuration has no executable aspect."}};
+        }
+        aspect->setExecutable(FilePath::fromUserInput(executable));
+    }
+    if (setActive)
+        bc->setActiveRunConfiguration(match);
+    return {{"success", true},
+            {"reason", "ok"},
+            {"id", match->id().toString()},
+            {"name", match->expandedDisplayName()},
+            {"active", match == target->activeRunConfiguration()},
+            {"executable", match->runnable().command.executable().toUserOutput()}};
 }
 
 // Helper: compute FindFlags from regex/caseSensitive booleans
@@ -2560,6 +2620,61 @@ void registerMcpTools()
                     .addRequired("configurations")),
         wrap([](const QJsonObject &) {
             return QJsonObject{{"configurations", getRunConfigurations()}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("configure_run_config")
+            .title("Configure a run configuration")
+            .description(
+                "Selects an existing run configuration (by display name or type id, see "
+                "get_run_configurations) as the active one and/or sets its executable. Setting "
+                "the executable only works for run configurations that have one, such as the "
+                "bare-metal \"Custom Executable\" configuration. Then start_debug (with no "
+                "arguments) debugs it via its run configuration's own launch path. Several run "
+                "configurations share one type id, so an id matching more than one fails with "
+                "reason \"ambiguous\" and the matching display names in \"candidates\", rather "
+                "than picking one of them.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "id",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Run configuration display name, or type id when it is unique."}})
+                    .addProperty(
+                        "executable",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Executable to set on the run configuration (local path)."}})
+                    .addProperty(
+                        "set_active",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"default", true},
+                            {"description", "Make this the active run configuration."}})
+                    .addRequired("id"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("id", QJsonObject{{"type", "string"}})
+                    .addProperty("name", QJsonObject{{"type", "string"}})
+                    .addProperty("active", QJsonObject{{"type", "boolean"}})
+                    .addProperty("executable", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "candidates",
+                        QJsonObject{
+                            {"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            const bool setActive = p.contains("set_active") ? p.value("set_active").toBool() : true;
+            return configureRunConfig(
+                p.value("id").toString(), p.value("executable").toString(), setActive);
         }));
 
     // --- Device management tools -------------------------------------------
