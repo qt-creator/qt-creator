@@ -108,7 +108,7 @@ QString OpenOcdGdbServerProvider::defaultResetCommands()
 QString OpenOcdGdbServerProvider::channelPipe() const
 {
     CommandLine cmd = command();
-    QStringList args = {cmd.executable().path()};
+    QStringList args = {"|", cmd.executable().path()};
     for (const QString &a : ProcessArgs::splitArgs(cmd.arguments(), HostOsInfo::hostOs())) {
         if (a.startsWith('\"') && a.endsWith('\"'))
             args << a;
