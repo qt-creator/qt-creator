@@ -86,6 +86,7 @@ public:
     int showTime() const override { return 30000; }
     bool equals(int typeId, const QVariant &other, const QVariant &otherContextHelp) const override;
     bool isInteractive() const override { return true; }
+    QSize sizeHint() const override;
 
 private:
     QWidget *m_widget;

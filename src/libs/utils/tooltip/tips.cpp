@@ -288,4 +288,10 @@ bool WidgetTip::equals(int typeId, const QVariant &other, const QVariant &otherC
             && other.value<QWidget *>() == m_widget;
 }
 
+QSize WidgetTip::sizeHint() const
+{
+    // QLabel is based on empty text of the label and ignores the layout, take layout into account
+    return QWidget::sizeHint();
+}
+
 } // namespace Utils::Internal

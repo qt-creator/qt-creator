@@ -331,18 +331,20 @@ void ToolTip::placeTip(const QPoint &pos)
     if (!qscreen)
         qscreen = QGuiApplication::primaryScreen();
     const QRect screen = qscreen->availableGeometry();
+    m_tip->ensurePolished();
+    const QSize size = m_tip->testAttribute(Qt::WA_Resized) ? m_tip->size() : m_tip->sizeHint();
     QPoint p = pos;
     p += offsetFromPosition();
-    if (p.y() + m_tip->height() > screen.y() + screen.height())
-        p.ry() -= 24 + m_tip->height();
+    if (p.y() + size.height() > screen.y() + screen.height())
+        p.ry() -= 24 + size.height();
     if (p.y() < screen.y())
         p.setY(screen.y());
-    if (p.x() + m_tip->width() > screen.x() + screen.width())
-        p.setX(screen.x() + screen.width() - m_tip->width());
+    if (p.x() + size.width() > screen.x() + screen.width())
+        p.setX(screen.x() + screen.width() - size.width());
     if (p.x() < screen.x())
         p.setX(screen.x());
-    if (p.y() + m_tip->height() > screen.y() + screen.height())
-        p.setY(screen.y() + screen.height() - m_tip->height());
+    if (p.y() + size.height() > screen.y() + screen.height())
+        p.setY(screen.y() + screen.height() - size.height());
 
     m_tip->move(p);
 }
