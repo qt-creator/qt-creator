@@ -42,6 +42,10 @@ public:
     // work; everything below describes the case where it has to be built.
     void load(const Utils::FilePath &bundleDir);
 
+    // Drops a load in flight without emitting anything. Call it when the result is
+    // no longer wanted, for example because another trace is being shown.
+    void cancel();
+
 signals:
     // The directory holding the merged, native-mixed sampler trace: the bundle's
     // own combinedMergedSubdir once the merge has succeeded.

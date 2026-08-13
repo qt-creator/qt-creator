@@ -39,6 +39,8 @@ public:
     QmlProfilerModelManager modelManager;
     FilePath bundleDir;
     bool loading = false;
+    bool qmlFailed = false;
+    bool cancelled = false;
     QSingleTaskTreeRunner taskTreeRunner;
 
     // The merge runs on a worker thread and stores its percentage here; the GUI
@@ -59,6 +61,18 @@ static qint64 readClockOffsetUs(const FilePath &bundleDir)
         return 0;
     const QJsonObject object = QJsonDocument::fromJson(*content).object();
     return qint64(object.value("qmlClockOffsetUs"_L1).toDouble(0));
+}
+
+// The manifest entry appears only once the merge is complete, so unlike probing the
+// directory - whose metadata file is written long before the stream - this tells a
+// finished merge from an abandoned one.
+static bool hasMergedTrace(const FilePath &bundleDir)
+{
+    const Result<QByteArray> content = (bundleDir / combinedManifestName).fileContents();
+    if (!content)
+        return false;
+    const QJsonObject object = QJsonDocument::fromJson(*content).object();
+    return object.contains(combinedMergedKey) && isSamplerTrace(bundleDir / combinedMergedSubdir);
 }
 
 // Records the merged trace in the bundle manifest, so a later load finds it
@@ -87,7 +101,11 @@ static Result<> noteMergedInManifest(const FilePath &bundleDir)
 // Runs on a worker thread: a sampler stream is routinely hundreds of megabytes,
 // so this takes minutes on a long recording (far longer under a sanitizer, which
 // taxes every allocation).
+// `markComplete` is false when the QML half did not load cleanly: the result is
+// good enough to show, but recording it in the manifest would serve a QML-less
+// merge for good.
 static Result<FilePath> mergeBundle(const FilePath &bundleDir, const QList<QmlRange> &ranges,
+                                    bool markComplete,
                                     const std::function<void(int)> &progress)
 {
     // Decoding and writing are comparable in cost, so each drives half the bar.
@@ -112,8 +130,10 @@ static Result<FilePath> mergeBundle(const FilePath &bundleDir, const QList<QmlRa
 
     // Only now is the merged trace complete; a manifest entry written earlier
     // would advertise a half-written directory if the write failed.
-    if (const Result<> result = noteMergedInManifest(bundleDir); !result)
-        return ResultError(result.error());
+    if (markComplete) {
+        if (const Result<> result = noteMergedInManifest(bundleDir); !result)
+            return ResultError(result.error());
+    }
 
     return outDir;
 }
@@ -140,7 +160,9 @@ CombinedTraceLoader::CombinedTraceLoader(QObject *parent)
     // successful load too, so it does not gate the flow: loadFinished always fires
     // (the reader is destroyed on both paths) and drives onQmlLoaded. A genuinely
     // failed QML load just yields no ranges, so the merged trace is the native one.
-    connect(&d->modelManager, &QmlProfilerModelManager::error, this, [](const QString &message) {
+    connect(&d->modelManager, &QmlProfilerModelManager::error,
+            this, [this](const QString &message) {
+        d->qmlFailed = true;
         qWarning().noquote() << "CombinedTraceLoader: QML trace load reported:" << message;
     });
 
@@ -161,24 +183,39 @@ CombinedTraceLoader::~CombinedTraceLoader()
 
 void CombinedTraceLoader::load(const FilePath &bundleDir)
 {
-    // `loading` covers the QML half; the runner covers the native merge that
-    // follows it, so both have to be idle before a new bundle can be started.
-    if (d->loading || d->taskTreeRunner.isRunning())
+    // Only the QML half has to be idle: it feeds the model manager, which holds one
+    // trace at a time. A merge still running is superseded by the start() below.
+    if (d->loading)
         return;
     d->bundleDir = bundleDir;
+    d->cancelled = false;
 
     // A bundle merged when it was recorded carries the result, so there is nothing
     // to redo. Emit asynchronously to keep merged()/failed() consistently deferred:
     // callers connect right after calling load() and would miss a direct emit.
     const FilePath mergedDir = bundleDir / combinedMergedSubdir;
-    if (isSamplerTrace(mergedDir)) {
-        QTimer::singleShot(0, this, [this, mergedDir] { emit merged(mergedDir); });
+    if (hasMergedTrace(bundleDir)) {
+        QTimer::singleShot(0, this, [this, mergedDir] {
+            if (!d->cancelled)
+                emit merged(mergedDir);
+        });
         return;
     }
 
     d->loading = true;
+    d->qmlFailed = false;
     // Loads on a worker thread; onQmlLoaded() runs once loadFinished fires.
     d->modelManager.load((bundleDir / combinedQmlFileName).toFSPathString());
+}
+
+void CombinedTraceLoader::cancel()
+{
+    // The merge is a plain concurrent call and cannot be interrupted; finishing it
+    // still leaves a usable cache, so only the reporting is dropped. Tearing the
+    // task tree down here instead would risk doing so from its own done handler.
+    d->cancelled = true;
+    d->loading = false;
+    d->progressPoll.stop();
 }
 
 void CombinedTraceLoader::onQmlLoaded()
@@ -258,15 +295,17 @@ void CombinedTraceLoader::onQmlLoaded()
     d->lastProgress = -1;
     d->progressPoll.start();
 
-    const auto onSetup = [bundleDir = d->bundleDir, ranges,
+    const auto onSetup = [bundleDir = d->bundleDir, ranges, markComplete = !d->qmlFailed,
                           cell = d->progressCell](Async<Result<FilePath>> &async) {
         const std::function<void(int)> report = [cell](int percent) {
             cell->store(percent, std::memory_order_relaxed);
         };
-        async.setConcurrentCallData(mergeBundle, bundleDir, ranges, report);
+        async.setConcurrentCallData(mergeBundle, bundleDir, ranges, markComplete, report);
     };
     const auto onDone = [this](const Async<Result<FilePath>> &async) {
         d->progressPoll.stop();
+        if (d->cancelled)
+            return;
         const Result<FilePath> result = async.isResultAvailable()
                                             ? async.result()
                                             : ResultError(Tr::tr("Cannot merge the combined trace."));

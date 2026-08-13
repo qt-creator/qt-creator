@@ -676,6 +676,7 @@ void WindowPrivate::clearTrace()
         return;
 
     setTraceDuration(milliseconds{0});
+    combinedLoader->cancel();
     qmlManager->clear();
     ctfManager->clear();
     samplerManager->clear();
@@ -688,6 +689,7 @@ void WindowPrivate::clearTrace()
 void WindowPrivate::doLoad(const FilePath &filePath)
 {
     settings().lastTraceFile.setValue(filePath);
+    combinedLoader->cancel();
     rightPane->setCurrentWidget(traceArea);
     setTraceDuration(milliseconds{0});
     rangeDetails->reset(); // Don't carry the previous trace's details over.
