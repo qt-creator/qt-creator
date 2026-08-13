@@ -133,25 +133,25 @@ void TrackPainter::buildTrackGeometry(const Track &track, TrackGeometry &geom) c
         geom.hasBackground[phase] = !neutral.background[phase].isEmpty();
     }
 
-    for (const QRectF &r : neutral.grid)
+    for (const QRectF &r : std::as_const(neutral.grid))
         geom.grid.rect(r);
     geom.hasGrid = !neutral.grid.isEmpty();
 
     geom.fills.reserve(neutral.fills.size());
-    for (const ColorRects &cr : neutral.fills) {
+    for (const ColorRects &cr : std::as_const(neutral.fills)) {
         QCanvasPath path;
         for (const QRectF &r : cr.rects)
             path.rect(r);
         geom.fills.append({cr.color, std::move(path)});
     }
 
-    for (const QRectF &r : neutral.markers)
+    for (const QRectF &r : std::as_const(neutral.markers))
         geom.markers.rect(r);
     geom.hasMarkers = !neutral.markers.isEmpty();
 
-    for (const QRectF &r : neutral.noteSticks)
+    for (const QRectF &r : std::as_const(neutral.noteSticks))
         geom.notes.rect(r);
-    for (const Circle &c : neutral.noteDots)
+    for (const Circle &c : std::as_const(neutral.noteDots))
         geom.notes.circle(c.x, c.y, c.radius);
     geom.hasNotes = !neutral.noteSticks.isEmpty() || !neutral.noteDots.isEmpty();
 }
@@ -174,12 +174,12 @@ void TrackPainter::paintScaleOverlay(QCanvasPainter &p, const Track &track) cons
 
     const QColor scaleDiv = themeColor(Utils::Theme::Timeline_DividerColor);
     p.setFillStyle(scaleDiv);
-    for (const QRectF &line : ov.lines)
+    for (const QRectF &line : std::as_const(ov.lines))
         p.fillRect(line);
 
     const QColor scaleText = themeColor(Utils::Theme::Timeline_TextColor);
     p.setFillStyle(scaleText);
-    for (const ScaleLabel &label : ov.labels)
+    for (const ScaleLabel &label : std::as_const(ov.labels))
         p.fillText(label.text, label.x, label.baselineY);
     p.restore();
 }

@@ -153,9 +153,9 @@ void TrackPainterRaster::buildTrackGeometry(const Track &track, TrackGeometry &g
     geom.fills = std::move(neutral.fills);
 
     geom.notes.setFillRule(Qt::WindingFill);
-    for (const QRectF &r : neutral.noteSticks)
+    for (const QRectF &r : std::as_const(neutral.noteSticks))
         geom.notes.addRect(r);
-    for (const Circle &c : neutral.noteDots)
+    for (const Circle &c : std::as_const(neutral.noteDots))
         geom.notes.addEllipse(QPointF(c.x, c.y), c.radius, c.radius);
 }
 
@@ -177,12 +177,12 @@ void TrackPainterRaster::paintScaleOverlay(QPainter &p, const Track &track) cons
     p.setRenderHint(QPainter::Antialiasing, true);
 
     const QColor scaleDiv = themeColor(Utils::Theme::Timeline_DividerColor);
-    for (const QRectF &line : ov.lines)
+    for (const QRectF &line : std::as_const(ov.lines))
         p.fillRect(line, scaleDiv);
 
     const QColor scaleText = themeColor(Utils::Theme::Timeline_TextColor);
     p.setPen(scaleText);
-    for (const ScaleLabel &label : ov.labels)
+    for (const ScaleLabel &label : std::as_const(ov.labels))
         p.drawText(QPointF(label.x, label.baselineY), label.text);
     p.restore();
 }
