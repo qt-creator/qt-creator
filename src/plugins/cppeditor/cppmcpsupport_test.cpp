@@ -209,6 +209,25 @@ void CppMcpSupportTest::testRenameSymbolDryRun()
     QCOMPARE(file.fileContents().value_or(QByteArray()), source);
 }
 
+void CppMcpSupportTest::testResultCap()
+{
+    CppEditor::Tests::TestCase testCase;
+    QVERIFY(testCase.succeededSoFar());
+    CppEditor::Tests::TemporaryDir dir;
+    Utils::FilePath file;
+    QVERIFY(writeAndParse(dir,
+                          "int a() { return 0; }\n"
+                          "int b() { return 0; }\n"
+                          "int c() { return 0; }\n",
+                          &file));
+
+    const QJsonObject result = callTool("get_file_symbols",
+                                        {{"file", file.toFSPathString()}, {"limit", 2}});
+    QCOMPARE(result.value("symbols").toArray().size(), 2);
+    QVERIFY(result.value("truncated").toBool());
+    QCOMPARE(result.value("total").toInt(), 3);
+}
+
 void CppMcpSupportTest::testErrorHandling()
 {
     QString error;

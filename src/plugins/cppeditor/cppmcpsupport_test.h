@@ -18,6 +18,7 @@ private slots:
     void testGetTypeHierarchy();
     void testFindOverrides();
     void testRenameSymbolDryRun();
+    void testResultCap();
     void testErrorHandling();
 };
 

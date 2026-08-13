@@ -106,6 +106,40 @@ static QString usageKind(CPlusPlus::Usage::Tags tags)
     return QStringLiteral("other");
 }
 
+constexpr int defaultResultLimit = 200;
+constexpr int maxResultLimit = 1000;
+
+// Parse an optional "limit" argument. Clamped, so a client cannot use it to ask
+// for an unbounded response again.
+static int resultLimit(const QJsonObject &args)
+{
+    const int limit = args.value("limit").toInt();
+    return std::clamp(limit > 0 ? limit : defaultResultLimit, 1, maxResultLimit);
+}
+
+// Cap a result array to a limit, reporting the pre-cap total and whether it was
+// truncated, so a query on a large project cannot return an unbounded response.
+static QJsonArray capResults(const QJsonArray &results, int limit, int *total, bool *truncated)
+{
+    *total = int(results.size());
+    *truncated = *total > limit;
+    if (!*truncated)
+        return results;
+    QJsonArray capped;
+    for (int i = 0; i < limit; ++i)
+        capped.append(results.at(i));
+    return capped;
+}
+
+// The input-schema property for the optional result limit.
+static QJsonObject limitProperty()
+{
+    return QJsonObject{{"type", "integer"},
+                       {"description", QString("Maximum number of results (default %1, "
+                                               "capped at %2).")
+                                           .arg(defaultResultLimit).arg(maxResultLimit)}};
+}
+
 static QString symbolKind(const CPlusPlus::Symbol *symbol)
 {
     if (symbol->asClass())
@@ -274,6 +308,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Absolute path to the C++ source or header file."}})
+                    .addProperty("limit", limitProperty())
                     .addRequired("file"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -284,6 +319,8 @@ void registerMcpTools()
                             {"items", QJsonObject{{"type", "object"}}},
                             {"description",
                              "Symbols defined in the file, in declaration order."}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
                     .addRequired("symbols")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject args = params.argumentsAsObject();
@@ -325,8 +362,11 @@ void registerMcpTools()
                 });
             }
 
-            return CallToolResult{}.isError(false).structuredContent(
-                QJsonObject{{"symbols", symbols}});
+            int total = 0;
+            bool truncated = false;
+            const QJsonArray capped = capResults(symbols, resultLimit(args), &total, &truncated);
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{
+                {"symbols", capped}, {"total", total}, {"truncated", truncated}});
         });
 
     ToolRegistry::registerTool(
@@ -417,6 +457,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "integer"},
                             {"description", "1-based column of the identifier to resolve."}})
+                    .addProperty("limit", limitProperty())
                     .addRequired("file")
                     .addRequired("line")
                     .addRequired("column"))
@@ -428,6 +469,8 @@ void registerMcpTools()
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "object"}}},
                             {"description", "Usages of the symbol."}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
                     .addRequired("references")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject args = params.argumentsAsObject();
@@ -466,8 +509,11 @@ void registerMcpTools()
                 references.append(obj);
             }
 
-            return CallToolResult{}.isError(false).structuredContent(
-                QJsonObject{{"references", references}});
+            int total = 0;
+            bool truncated = false;
+            const QJsonArray capped = capResults(references, resultLimit(args), &total, &truncated);
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{
+                {"references", capped}, {"total", total}, {"truncated", truncated}});
         });
 
     ToolRegistry::registerTool(
@@ -651,6 +697,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "integer"},
                             {"description", "1-based column of the function name to resolve."}})
+                    .addProperty("limit", limitProperty())
                     .addRequired("file")
                     .addRequired("line")
                     .addRequired("column"))
@@ -662,6 +709,8 @@ void registerMcpTools()
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "object"}}},
                             {"description", "Call sites of the function."}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
                     .addRequired("callers")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject args = params.argumentsAsObject();
@@ -719,8 +768,11 @@ void registerMcpTools()
                 callers.append(node);
             }
 
+            int total = 0;
+            bool truncated = false;
+            const QJsonArray capped = capResults(callers, resultLimit(args), &total, &truncated);
             return CallToolResult{}.isError(false).structuredContent(
-                QJsonObject{{"callers", callers}});
+                QJsonObject{{"callers", capped}, {"total", total}, {"truncated", truncated}});
         });
 
     ToolRegistry::registerTool(
@@ -753,6 +805,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "integer"},
                             {"description", "1-based column of the function name to resolve."}})
+                    .addProperty("limit", limitProperty())
                     .addRequired("file")
                     .addRequired("line")
                     .addRequired("column"))
@@ -764,6 +817,8 @@ void registerMcpTools()
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "object"}}},
                             {"description", "Functions called by the function."}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
                     .addRequired("callees")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject args = params.argumentsAsObject();
@@ -858,8 +913,11 @@ void registerMcpTools()
                 }
             }
 
+            int total = 0;
+            bool truncated = false;
+            const QJsonArray capped = capResults(callees, resultLimit(args), &total, &truncated);
             return CallToolResult{}.isError(false).structuredContent(
-                QJsonObject{{"callees", callees}});
+                QJsonObject{{"callees", capped}, {"total", total}, {"truncated", truncated}});
         });
 
     ToolRegistry::registerTool(
@@ -1069,6 +1127,7 @@ void registerMcpTools()
                             {"type", "boolean"},
                             {"description",
                              "Write the edits to disk. Default false (dry run)."}})
+                    .addProperty("limit", limitProperty())
                     .addRequired("file")
                     .addRequired("line")
                     .addRequired("column")
@@ -1081,6 +1140,7 @@ void registerMcpTools()
                         "edits",
                         QJsonObject{{"type", "array"},
                                     {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
                     .addRequired("applied")
                     .addRequired("total_edits")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
@@ -1151,13 +1211,17 @@ void registerMcpTools()
                         edit.insert("line_text", lineText);
                     edits.append(edit);
                 }
+                int total = 0;
+                bool truncated = false;
+                const QJsonArray capped = capResults(edits, resultLimit(args), &total, &truncated);
                 return CallToolResult{}.isError(false).structuredContent(QJsonObject{
                     {"applied", false},
                     {"symbol", oldName},
                     {"new_name", newName},
-                    {"total_edits", int(usages.size())},
+                    {"total_edits", total},
                     {"files", int(fileOrder.size())},
-                    {"edits", edits}});
+                    {"edits", capped},
+                    {"truncated", truncated}});
             }
 
             // Refuse before touching anything if any target is read-only, so we
@@ -1252,11 +1316,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "integer"},
                             {"description", "1-based column of the cursor position."}})
-                    .addProperty(
-                        "limit",
-                        QJsonObject{
-                            {"type", "integer"},
-                            {"description", "Maximum number of proposals (default 100)."}})
+                    .addProperty("limit", limitProperty())
                     .addRequired("file")
                     .addRequired("line")
                     .addRequired("column"))
@@ -1266,15 +1326,14 @@ void registerMcpTools()
                         "completions",
                         QJsonObject{{"type", "array"},
                                     {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
                     .addRequired("completions")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject args = params.argumentsAsObject();
             const QString file = args.value("file").toString();
             const int line = args.value("line").toInt();
             const int column = args.value("column").toInt();
-            int limit = args.value("limit").toInt();
-            if (limit <= 0)
-                limit = 100;
+            const int limit = resultLimit(args);
             if (file.isEmpty() || line <= 0 || column <= 0) {
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     "Requires \"file\" and 1-based \"line\" and \"column\"."));
@@ -1361,7 +1420,9 @@ void registerMcpTools()
             }
 
             return CallToolResult{}.isError(false).structuredContent(
-                QJsonObject{{"completions", completions}, {"total", total}});
+                QJsonObject{{"completions", completions},
+                            {"total", total},
+                            {"truncated", total > completions.size()}});
         });
 
     ToolRegistry::registerTool(
