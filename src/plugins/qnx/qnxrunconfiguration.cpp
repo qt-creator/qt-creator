@@ -108,8 +108,12 @@ public:
     {
         setId("QnxRunWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
+            // slog2InfoRecipe follows the system log and never finishes on its
+            // own; stopOnSuccessOrError ends the run (and cancels the follower)
+            // as soon as the application process exits.
             return Group {
                 parallel,
+                stopOnSuccessOrError,
                 slog2InfoRecipe(runControl),
                 runControl->processRecipe(runControl->processTask())
             };
