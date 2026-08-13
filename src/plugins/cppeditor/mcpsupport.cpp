@@ -131,6 +131,17 @@ static QJsonArray capResults(const QJsonArray &results, int limit, int *total, b
     return capped;
 }
 
+// The output-schema shape of a source location, as reported by location().
+static QJsonObject locationSchema()
+{
+    return QJsonObject{
+        {"type", "object"},
+        {"properties",
+         QJsonObject{{"file", QJsonObject{{"type", "string"}}},
+                     {"line", QJsonObject{{"type", "integer"}}},
+                     {"column", QJsonObject{{"type", "integer"}}}}}};
+}
+
 // The input-schema property for the optional result limit.
 static QJsonObject limitProperty()
 {
@@ -550,6 +561,10 @@ void registerMcpTools()
                 Tool::OutputSchema{}
                     .addProperty("name", QJsonObject{{"type", "string"}})
                     .addProperty("kind", QJsonObject{{"type", "string"}})
+                    .addProperty("qualified_name", QJsonObject{{"type", "string"}})
+                    .addProperty("type", QJsonObject{{"type", "string"}})
+                    .addProperty("declaration", locationSchema())
+                    .addProperty("definition", locationSchema())
                     .addRequired("name")
                     .addRequired("kind")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
@@ -633,6 +648,17 @@ void registerMcpTools()
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("name", QJsonObject{{"type", "string"}})
+                    .addProperty("qualified_name", QJsonObject{{"type", "string"}})
+                    .addProperty("file", QJsonObject{{"type", "string"}})
+                    .addProperty("line", QJsonObject{{"type", "integer"}})
+                    .addProperty("column", QJsonObject{{"type", "integer"}})
+                    // Each entry is a node of this same shape, nested recursively.
+                    .addProperty(
+                        "bases",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty(
+                        "derived",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "object"}}}})
                     .addRequired("name")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject args = params.argumentsAsObject();
@@ -1097,7 +1123,7 @@ void registerMcpTools()
                 "column, length, and the old and new text) and changes nothing. Set "
                 "\"apply\" to true to write the edits. The file must belong to an open "
                 "project.")
-            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
@@ -1135,11 +1161,17 @@ void registerMcpTools()
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("applied", QJsonObject{{"type", "boolean"}})
+                    .addProperty("symbol", QJsonObject{{"type", "string"}})
+                    .addProperty("new_name", QJsonObject{{"type", "string"}})
                     .addProperty("total_edits", QJsonObject{{"type", "integer"}})
+                    .addProperty("files", QJsonObject{{"type", "integer"}})
                     .addProperty(
                         "edits",
                         QJsonObject{{"type", "array"},
                                     {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty(
+                        "files_changed",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
                     .addProperty("truncated", QJsonObject{{"type", "boolean"}})
                     .addRequired("applied")
                     .addRequired("total_edits")),
@@ -1326,6 +1358,7 @@ void registerMcpTools()
                         "completions",
                         QJsonObject{{"type", "array"},
                                     {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
                     .addProperty("truncated", QJsonObject{{"type", "boolean"}})
                     .addRequired("completions")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
@@ -1575,6 +1608,10 @@ void registerMcpTools()
                     .addProperty("is_virtual", QJsonObject{{"type", "boolean"}})
                     .addProperty(
                         "overrides",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty(
+                        "base_declarations",
                         QJsonObject{{"type", "array"},
                                     {"items", QJsonObject{{"type", "object"}}}})
                     .addRequired("overrides")),
