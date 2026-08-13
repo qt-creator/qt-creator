@@ -103,12 +103,15 @@ static QString breakpointTypeToString(BreakpointType type)
     }
 }
 
-static Result<QString> startDebug()
+static Result<QString> startDebug(const QJsonObject &args)
 {
     const Result<> canRun = ProjectExplorer::ProjectExplorerPlugin::canRunStartupProject(
         ProjectExplorer::Constants::DEBUG_RUN_MODE);
     if (!canRun)
         return ResultError(canRun.error());
+    // The flag is only consumed once a run reaches fixupParameters(), which a build
+    // failure prevents. Assign it either way so a stale one cannot survive.
+    DebuggerRunParameters::setBreakOnMainNextTime(args.value("break_at_main").toBool(false));
     ProjectExplorer::ProjectExplorerPlugin::runStartupProject(
         ProjectExplorer::Constants::DEBUG_RUN_MODE);
     return QString("Debug session start requested for the startup project.");
@@ -133,6 +136,12 @@ static Result<QString> startDebugExecutable(const QJsonObject &args)
     for (const QJsonValue &v : args.value("arguments").toArray())
         arguments << v.toString();
 
+    const QString remoteChannel = args.value("remote_channel").toString();
+    if (!remoteChannel.isEmpty() && args.value("qml_debugging").toBool(false)) {
+        return ResultError(QString("\"qml_debugging\" is not supported when attaching to a "
+                                   "remote server."));
+    }
+
     const Utils::Id runMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     auto runControl = new ProjectExplorer::RunControl(runMode);
     runControl->setKit(kit);
@@ -143,13 +152,26 @@ static Result<QString> startDebugExecutable(const QJsonObject &args)
     inferior.workingDirectory = workingDir.isEmpty() ? executable.parentDir()
                                                      : FilePath::fromUserInput(workingDir);
     rp.setInferior(inferior);
-    rp.setStartMode(StartExternal);
     // Native combined C++/QML debugging additionally needs QML debugging on; with
     // QTC_DEBUGGER_NATIVE_MIXED set this makes isNativeMixedDebugging() true.
     rp.setQmlDebugging(args.value("qml_debugging").toBool(false));
-    rp.setDisplayName(QString("External: %1").arg(executable.fileName()));
+    DebuggerRunParameters::setBreakOnMainNextTime(false);
+    rp.setBreakOnMain(args.value("break_at_main").toBool(false));
+    if (remoteChannel.isEmpty()) {
+        rp.setStartMode(StartExternal);
+        rp.setDisplayName(QString("External: %1").arg(executable.fileName()));
+    } else {
+        // Attach to an already-running gdbserver/stub; the executable supplies symbols.
+        rp.setStartMode(AttachToRemoteServer);
+        rp.setRemoteChannel(remoteChannel);
+        rp.setCloseMode(KillAtClose);
+        rp.setUseContinueInsteadOfRun(true);
+        rp.setDisplayName(QString("Attach to %1").arg(remoteChannel));
+    }
     runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
+    if (!remoteChannel.isEmpty())
+        return QString("Attach to remote server %1 requested.").arg(remoteChannel);
     return QString("Debug session start requested for %1.").arg(executable.toUserOutput());
 }
 
@@ -1405,7 +1427,10 @@ void registerMcpTools()
                 "current startup project using its active run configuration and kit (does not "
                 "build first - use the build tool beforehand if it may be out of date). If "
                 "\"executable\" is given, debugs that executable directly (no project or build "
-                "needed) with an optional kit, arguments, working directory and QML debugging.")
+                "needed) with an optional kit, arguments, working directory and QML debugging. "
+                "If \"remote_channel\" is also given, attaches to an already-running gdbserver "
+                "or stub at that channel (e.g. a bare-metal target) instead of launching the "
+                "executable locally; the executable then only supplies symbols.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1442,15 +1467,40 @@ void registerMcpTools()
                             {"default", false},
                             {"description",
                              "Enable QML debugging. With QTC_DEBUGGER_NATIVE_MIXED set this "
-                             "activates native combined C++/QML debugging."}}))
+                             "activates native combined C++/QML debugging. Cannot be combined "
+                             "with \"remote_channel\"."}})
+                    .addProperty(
+                        "remote_channel",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Attach to an already-running gdbserver/stub at this channel "
+                             "(e.g. \"localhost:1234\" or \"tcp:localhost:1234\"; CDB kits need "
+                             "the cdb form, e.g. \"tcp:server=localhost,port=1234\") instead of "
+                             "launching the executable. Requires \"executable\" for symbols."}})
+                    .addProperty(
+                        "break_at_main",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"default", false},
+                            {"description",
+                             "Set a temporary breakpoint at main and stop there. Without "
+                             "\"executable\" it applies to the next debug start, which a "
+                             "pending build may delay. When attaching to a remote server it "
+                             "is honored by GDB and CDB kits only."}}))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("message", QJsonObject{{"type", "string"}})
                     .addRequired("message")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject args = params.argumentsAsObject();
-            const Utils::Result<QString> result = args.value("executable").toString().isEmpty()
-                                                      ? startDebug()
+            const QString executable = args.value("executable").toString();
+            if (executable.isEmpty() && !args.value("remote_channel").toString().isEmpty()) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "\"remote_channel\" requires \"executable\" to supply symbols."));
+            }
+            const Utils::Result<QString> result = executable.isEmpty()
+                                                      ? startDebug(args)
                                                       : startDebugExecutable(args);
             if (!result)
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));

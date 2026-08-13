@@ -80,7 +80,7 @@ class DEBUGGER_EXPORT DebuggerRunParameters
 public:
     static DebuggerRunParameters fromRunControl(ProjectExplorer::RunControl *runControl);
 
-    static void setBreakOnMainNextTime();
+    static void setBreakOnMainNextTime(bool on = true);
 
     void setupPortsGatherer(ProjectExplorer::RunControl *runControl) const;
 

@@ -207,9 +207,9 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
 
 static bool breakOnMainNextTime = false;
 
-void DebuggerRunParameters::setBreakOnMainNextTime()
+void DebuggerRunParameters::setBreakOnMainNextTime(bool on)
 {
-    breakOnMainNextTime = true;
+    breakOnMainNextTime = on;
 }
 
 void DebuggerRunParameters::setupPortsGatherer(RunControl *runControl) const
