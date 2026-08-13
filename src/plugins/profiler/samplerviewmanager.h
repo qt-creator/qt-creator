@@ -12,6 +12,8 @@
 
 #include <chrono>
 
+namespace Timeline { class RangeDetailsWidget; }
+
 namespace QmlProfiler::Internal {
 
 // Hosts the Instruments-like views for traces recorded by a call-stack sampler
@@ -24,14 +26,16 @@ class PROFILER_EXPORT SamplerViewManager : public QObject
     Q_OBJECT
 
 public:
-    explicit SamplerViewManager(QObject *parent = nullptr);
+    // `details` is the range details panel this manager's views fill. It is owned
+    // by the caller, which lets every profiler backend share a single one.
+    explicit SamplerViewManager(Timeline::RangeDetailsWidget *details,
+                                QObject *parent = nullptr);
     ~SamplerViewManager() override;
 
     // True if `dir` contains a sampler trace (cheap: reads only the metadata).
     static bool isSamplerTrace(const Utils::FilePath &dir);
 
     QWidgetList views(QWidget *parent);
-    QWidget *rangeDetailsWidget() const;
     void load(const Utils::FilePath &dir);
     void clear();
     std::chrono::milliseconds traceDuration() const;

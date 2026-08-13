@@ -227,10 +227,14 @@ PerfProfilerTool::PerfProfilerTool()
             &d->m_traceView, &Timeline::TimelineWidget::selectByTypeId);
 
     // Route the flame graph's details into the shared range details view.
-    connect(&d->m_flameGraphView, &Timeline::FlameGraphWidget::detailsChanged,
-            d->m_traceView.rangeDetailsWidget(), &Timeline::RangeDetailsWidget::setData);
-    connect(&d->m_flameGraphView, &Timeline::FlameGraphWidget::detailsCleared,
-            d->m_traceView.rangeDetailsWidget(), &Timeline::RangeDetailsWidget::clear);
+    Timeline::RangeDetailsWidget *rangeDetails = d->m_traceView.rangeDetailsWidget();
+    connect(&d->m_flameGraphView, &Timeline::FlameGraphWidget::detailsChanged, rangeDetails,
+            [this, rangeDetails](const QString &title,
+                                 const QList<QPair<QString, QString>> &content) {
+        rangeDetails->setData(&d->m_flameGraphView, title, content);
+    });
+    connect(&d->m_flameGraphView, &Timeline::FlameGraphWidget::detailsCleared, rangeDetails,
+            [this, rangeDetails] { rangeDetails->clear(&d->m_flameGraphView); });
 
     connect(&d->m_traceView, &Timeline::TimelineWidget::typeSelected,
             &d->m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);

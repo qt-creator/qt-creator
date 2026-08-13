@@ -138,7 +138,7 @@ CtfVisualizerTool::CtfVisualizerTool()
 
 void CtfVisualizerTool::createViews()
 {
-    m_traceView = new Timeline::TimelineWidget(&m_modelAggregator, &m_zoomControl, nullptr);
+    m_traceView = new Timeline::TimelineWidget(&m_modelAggregator, &m_zoomControl);
     m_traceView->setObjectName(QLatin1String("CtfVisualizerTraceView"));
     m_traceView->setWindowTitle(Tr::tr("Timeline"));
 

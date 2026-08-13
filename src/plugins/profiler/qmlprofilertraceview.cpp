@@ -74,7 +74,8 @@ public:
     Timeline::TimelineZoomControl m_zoomControl;
 };
 
-QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager)
+QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager,
+                                           Timeline::RangeDetailsWidget *details)
     : d(new QmlProfilerTraceViewPrivate)
 {
     setWindowTitle(Tr::tr("Timeline"));
@@ -119,7 +120,8 @@ QmlProfilerTraceView::QmlProfilerTraceView(QmlProfilerModelManager *modelManager
         models.append(new QmlProfilerRangeModel(modelManager, (RangeType)i, &d->m_modelProxy));
     d->m_modelProxy.setModels(models);
 
-    d->m_mainView = new Timeline::TimelineWidget(&d->m_modelProxy, &d->m_zoomControl, this);
+    d->m_mainView = new Timeline::TimelineWidget(&d->m_modelProxy, &d->m_zoomControl, details,
+                                                 this);
     setFocusProxy(d->m_mainView);
 
     Utils::Aggregation::aggregate({d->m_mainView, new TraceViewFindSupport(this, modelManager)});

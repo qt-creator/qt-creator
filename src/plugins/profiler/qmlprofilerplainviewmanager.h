@@ -9,6 +9,7 @@
 
 #include <QObject>
 
+namespace Timeline { class RangeDetailsWidget; }
 namespace Utils { class FilePath; }
 
 namespace Profiler {
@@ -18,11 +19,13 @@ class PROFILER_EXPORT QmlProfilerPlainViewManager : public QObject
     Q_OBJECT
 
 public:
-    explicit QmlProfilerPlainViewManager(QObject *parent = nullptr);
+    // `details` is the range details panel this manager's views fill. It is owned
+    // by the caller, which lets every profiler backend share a single one.
+    explicit QmlProfilerPlainViewManager(Timeline::RangeDetailsWidget *details,
+                                         QObject *parent = nullptr);
     ~QmlProfilerPlainViewManager();
 
     QWidgetList views(QWidget *parent);
-    QWidget *rangeDetailsWidget() const;
     static QString fileDialogTraceFilesFilter();
     void loadTraceFile(const Utils::FilePath &file);
     void clear();

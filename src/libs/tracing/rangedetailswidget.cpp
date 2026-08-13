@@ -75,17 +75,39 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
         m_treeView,
     }.attachTo(this);
 
-    clear();
+    reset();
 }
 
-void RangeDetailsWidget::setData(const QString &title, const QList<QPair<QString, QString>> &content)
+void RangeDetailsWidget::setData(QObject *provider, const QString &title,
+                                 const QList<QPair<QString, QString>> &content)
 {
+    m_provider = provider;
     m_hasData = true;
     m_titleLabel->setText(title);
     rebuildRows(content);
 }
 
-void RangeDetailsWidget::clear()
+void RangeDetailsWidget::clear(QObject *provider)
+{
+    // Losing a selection in one view must not take down the details another view
+    // is showing.
+    if (m_provider && m_provider != provider)
+        return;
+    reset();
+}
+
+void RangeDetailsWidget::reset()
+{
+    m_provider = nullptr;
+    clearContent();
+}
+
+QObject *RangeDetailsWidget::provider() const
+{
+    return m_provider;
+}
+
+void RangeDetailsWidget::clearContent()
 {
     m_hasData = false;
     m_titleLabel->setText(Tr::tr("No item selected"));

@@ -27,6 +27,8 @@
 
 #include <coreplugin/minisplitter.h>
 
+#include <tracing/rangedetailswidget.h>
+
 #include <utils/commandline.h>
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
@@ -79,13 +81,13 @@ namespace QtProfiler {
 // combined recording (native-mixed sampler trace + its source QML trace).
 enum class Format { Qml, Ctf, Sampler, Combined };
 
-// One set of dock widgets, plus its (untabbed) range-details dock. The views
-// are tabbed onto the first by default; when stackVertically is set they are
-// split below it instead (the sampler stacks Call Stacks below CPU Usage).
+// One set of dock widgets. The views are tabbed onto the first by default; when
+// stackVertically is set they are split below it instead (the sampler stacks
+// Call Stacks below CPU Usage). The range details dock is not part of a group:
+// every backend fills the same one (see WindowPrivate::rangeDetails).
 struct ViewGroup
 {
     QList<QDockWidget *> docks;         // List with original dock widgets order
-    QDockWidget *detailsDock = nullptr; // Range details, docked to the right (not tabbed)
     bool stackVertically = false;
     bool built = false;                 // Views created and docked lazily on first use
 };
@@ -129,6 +131,11 @@ public:
     RecordingPage *recordingPage = nullptr; // Shown while a recording is running.
     FancyMainWindow *traceArea = nullptr; // Hosts the trace view docks (right pane).
     MainSidebar *sidebar = nullptr;       // List of opened traces (left pane).
+    // The one range details panel every backend's views fill, and its dock. It is
+    // shared rather than per-backend so a trace shows a single "Details" view --
+    // combined traces would otherwise put the QML and sampler ones side by side.
+    Timeline::RangeDetailsWidget *rangeDetails = nullptr;
+    QDockWidget *detailsDock = nullptr;   // Created with the first view group.
     QmlProfilerPlainViewManager *qmlManager;
     CtfPlainViewManager *ctfManager;
     SamplerViewManager *samplerManager;
@@ -246,9 +253,10 @@ WindowPrivate::WindowPrivate(Window *window)
             session->stop.store(true);
     });
 
-    qmlManager = new QmlProfilerPlainViewManager(traceArea);
-    ctfManager = new CtfPlainViewManager(traceArea);
-    samplerManager = new SamplerViewManager(traceArea);
+    rangeDetails = new Timeline::RangeDetailsWidget(traceArea);
+    qmlManager = new QmlProfilerPlainViewManager(rangeDetails, traceArea);
+    ctfManager = new CtfPlainViewManager(rangeDetails, traceArea);
+    samplerManager = new SamplerViewManager(rangeDetails, traceArea);
 
     progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
     progressIndicator->hide();
@@ -532,41 +540,33 @@ void WindowPrivate::ensureGroupBuilt(Format format)
         return;
     }
 
+    // The details panel is shared by all backends, so it gets a single dock, put
+    // up with the first views to be built.
+    if (!detailsDock)
+        detailsDock = traceArea->addDockForWidget(rangeDetails);
+
     ViewGroup &group = groupFor(format);
     if (group.built)
         return;
     group.built = true;
 
-    const auto buildGroup = [this](const QWidgetList &views, QWidget *details, ViewGroup &g) {
+    const auto buildGroup = [this](const QWidgetList &views, ViewGroup &g) {
         for (QWidget *w : views)
             g.docks.append(traceArea->addDockForWidget(w));
-        // The range details view lives next to the tabbed views, docked to the right.
-        if (details)
-            g.detailsDock = traceArea->addDockForWidget(details);
     };
 
-    // views() populates the manager's range-details widget, so it must run
-    // before rangeDetailsWidget() is queried. Take the views into a local first;
-    // the two calls cannot be arguments to the same call, as the evaluation order
-    // of function arguments is unspecified in C++.
     switch (format) {
-    case Format::Qml: {
-        const QWidgetList views = qmlManager->views(traceArea);
-        buildGroup(views, qmlManager->rangeDetailsWidget(), qmlGroup);
+    case Format::Qml:
+        buildGroup(qmlManager->views(traceArea), qmlGroup);
         break;
-    }
-    case Format::Ctf: {
-        const QWidgetList views = ctfManager->views(traceArea);
-        buildGroup(views, ctfManager->rangeDetailsWidget(), ctfGroup);
+    case Format::Ctf:
+        buildGroup(ctfManager->views(traceArea), ctfGroup);
         break;
-    }
-    case Format::Sampler: {
-        const QWidgetList views = samplerManager->views(traceArea);
-        buildGroup(views, samplerManager->rangeDetailsWidget(), samplerGroup);
+    case Format::Sampler:
+        buildGroup(samplerManager->views(traceArea), samplerGroup);
         // Stack Call Stacks below CPU Usage instead of tabbing them together.
         samplerGroup.stackVertically = true;
         break;
-    }
     case Format::Combined:
         break; // Handled above by building the QML and sampler groups.
     }
@@ -576,20 +576,19 @@ void WindowPrivate::resetLayout(Format format)
 {
     ensureGroupBuilt(format);
 
-    // The groups shown for each format. Combined shows the QML and sampler views
-    // together (their view docks tabbed, their range-details tabbed on the right).
+    // The groups shown for each format. Combined tabs the QML and sampler view
+    // docks together; both feed the one details dock on the right.
     const QList<ViewGroup *> active = groupsFor(format);
 
     // Setting "managed_dockwidget" excludes a dock from FancyMainWindow's tab
     // context menu (see FancyMainWindow::addDockActionsToMenu). We hide the other
     // formats' docks and take them out of the menu so a trace only offers the
-    // views that apply to it.
+    // views that apply to it. The details dock applies to every format and so
+    // always stays visible and in the menu.
     const auto setInMenu = [](const ViewGroup &group, bool inMenu) {
         const QVariant managed = inMenu ? QVariant() : QVariant("true");
         for (QDockWidget *dw : group.docks)
             dw->setProperty("managed_dockwidget", managed);
-        if (group.detailsDock)
-            group.detailsDock->setProperty("managed_dockwidget", managed);
     };
 
     // Hide the docks of every group that is not active, and keep only the active
@@ -599,8 +598,6 @@ void WindowPrivate::resetLayout(Format format)
         if (!isActive) {
             for (QDockWidget *dw : std::as_const(group->docks))
                 dw->setVisible(false);
-            if (group->detailsDock)
-                group->detailsDock->setVisible(false);
         }
         setInMenu(*group, isActive);
     }
@@ -610,7 +607,6 @@ void WindowPrivate::resetLayout(Format format)
     const bool stackVertically = active.size() == 1 && active.first()->stackVertically;
 
     QDockWidget *firstDockWidget = nullptr;
-    QDockWidget *firstDetailsDock = nullptr;
     for (ViewGroup *group : std::as_const(active)) {
         for (QDockWidget *dw : std::as_const(group->docks)) {
             dw->setVisible(true);
@@ -626,23 +622,13 @@ void WindowPrivate::resetLayout(Format format)
 
     // Split the details off the first view before tabbing the others onto it.
     // QMainWindow::splitDockWidget() only splits when the anchor is not yet tabbed;
-    // doing this after tabifying would just add the details as another tab. When
-    // several groups are combined, their details docks are tabbed together.
-    for (ViewGroup *group : std::as_const(active)) {
-        if (!group->detailsDock)
-            continue;
-        group->detailsDock->setVisible(true);
+    // doing this after tabifying would just add the details as another tab.
+    detailsDock->setVisible(true);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-        group->detailsDock->setDockLocation(Qt::RightDockWidgetArea);
+    detailsDock->setDockLocation(Qt::RightDockWidgetArea);
 #endif
-        group->detailsDock->setFloating(false);
-        if (!firstDetailsDock) {
-            traceArea->splitDockWidget(firstDockWidget, group->detailsDock, Qt::Horizontal);
-            firstDetailsDock = group->detailsDock;
-        } else {
-            traceArea->tabifyDockWidget(firstDetailsDock, group->detailsDock);
-        }
-    }
+    detailsDock->setFloating(false);
+    traceArea->splitDockWidget(firstDockWidget, detailsDock, Qt::Horizontal);
 
     for (ViewGroup *group : std::as_const(active)) {
         for (QDockWidget *dw : std::as_const(group->docks)) {
@@ -693,6 +679,8 @@ void WindowPrivate::clearTrace()
     qmlManager->clear();
     ctfManager->clear();
     samplerManager->clear();
+    // Whichever view last filled the shared panel, its trace is gone now.
+    rangeDetails->reset();
     rightPane->setCurrentWidget(welcomePage);
     RPC::notifyTraceDiscarded();
 }
@@ -702,6 +690,7 @@ void WindowPrivate::doLoad(const FilePath &filePath)
     settings().lastTraceFile.setValue(filePath);
     rightPane->setCurrentWidget(traceArea);
     setTraceDuration(milliseconds{0});
+    rangeDetails->reset(); // Don't carry the previous trace's details over.
     progressIndicator->show();
     lastLoadError.clear();
     RPC::notifyTraceFileLoadingStarted(filePath);

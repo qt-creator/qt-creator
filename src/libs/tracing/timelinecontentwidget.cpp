@@ -131,11 +131,23 @@ TimelineContentWidget::TimelineContentWidget(TimelineModelAggregator *aggregator
         frameTimeTimer->start();
     }
 
+    // The details panel may be shared with other timelines and flame graphs, so
+    // only act on it while it is showing this timeline's selection.
+    // Recentering is the exception: it does not read the displayed rows, it just
+    // scrolls this timeline to its own selection. So it also runs when another
+    // view filled the panel - a flame graph or a statistics row selection leaves
+    // its content there while this timeline holds the matching item. Only a
+    // timeline that is off screen (behind a tab, say) stays put; nobody is
+    // looking at it.
     connect(m_details, &RangeDetailsWidget::recenterOnItem, this, [this] {
+        if (m_details->provider() != this && !isVisible())
+            return;
         recenterOnItem(m_selectedModelIndex, m_selectedItemIndex);
     });
 
     connect(m_details, &RangeDetailsWidget::rowDoubleClicked, this, [this](int row) {
+        if (m_details->provider() != this)
+            return;
         if (m_selectedModelIndex >= 0 && m_selectedModelIndex < m_trackModels.size()
                 && m_selectedItemIndex >= 0) {
             m_trackModels[m_selectedModelIndex]->navigateToDetail(
@@ -550,7 +562,7 @@ void TimelineContentWidget::rebuildTracks()
         connect(model, &TimelineModel::detailsChanged, this,
                 [this, modelIndex] {
             if (m_selectedModelIndex == modelIndex && m_selectedItemIndex >= 0)
-                showItemDetails(m_selectedModelIndex, m_selectedItemIndex);
+                refreshItemDetails(m_selectedModelIndex, m_selectedItemIndex);
         });
 
         TrackInfo info;
@@ -597,14 +609,14 @@ void TimelineContentWidget::rebuildTracks()
                 m_selectedModelIndex = i;
                 m_selectedItemIndex = savedItemIndex;
                 m_tracksView->setSelectedItem(i, savedItemIndex);
-                showItemDetails(i, savedItemIndex);
+                refreshItemDetails(i, savedItemIndex);
                 return;
             }
         }
     }
     m_selectedModelIndex = -1;
     m_selectedItemIndex = -1;
-    m_details->clear();
+    m_details->clear(this);
 }
 
 void TimelineContentWidget::updateNotes()
@@ -850,7 +862,9 @@ void TimelineContentWidget::jumpToPrev()
 void TimelineContentWidget::clear()
 {
     selectItem(-1, -1);
-    m_details->clear();
+    // The whole trace is going away, so the panel must drop whatever it shows --
+    // even content another view put there.
+    m_details->reset();
     setSelectionRangeMode(false);
     setSelectionLocked(true);
 }
@@ -869,6 +883,17 @@ void TimelineContentWidget::setSelectionLocked(bool locked)
     emit selectionLockedChanged(locked);
 }
 
+void TimelineContentWidget::refreshItemDetails(int modelIndex, int itemIndex)
+{
+    // A model rebuild is not a user selection, so it must not pull a shared panel
+    // away from the view whose content it is showing. Refresh only while the panel
+    // is ours or unclaimed.
+    const QObject *provider = m_details->provider();
+    if (provider && provider != this)
+        return;
+    showItemDetails(modelIndex, itemIndex);
+}
+
 void TimelineContentWidget::showItemDetails(int modelIndex, int itemIndex)
 {
     if (modelIndex >= 0 && modelIndex < m_trackModels.size() && itemIndex >= 0) {
@@ -876,9 +901,9 @@ void TimelineContentWidget::showItemDetails(int modelIndex, int itemIndex)
         const OrderedItemDetails od = model->orderedDetails(itemIndex);
         const QString title = od.title;
         const QList<QPair<QString, QString>> content = od.content;
-        m_details->setData(title, content);
+        m_details->setData(this, title, content);
     } else {
-        m_details->clear();
+        m_details->clear(this);
     }
 }
 

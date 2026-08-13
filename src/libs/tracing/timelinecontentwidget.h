@@ -103,6 +103,7 @@ private:
     void recenterOnItem(int modelIndex, int itemIndex);
     void onItemHovered(int modelIndex, int itemIndex);
     void showItemDetails(int modelIndex, int itemIndex);
+    void refreshItemDetails(int modelIndex, int itemIndex);
     void onFramePainted(std::chrono::nanoseconds renderTime);
     void updateFrameTime();
     void positionFrameTimeLabel();

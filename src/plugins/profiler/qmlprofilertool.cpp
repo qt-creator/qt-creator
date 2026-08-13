@@ -147,10 +147,14 @@ QmlProfilerTool::QmlProfilerTool()
             this, [this](int typeId) { d->selectByTypeId(typeId); });
 
     // Route the flame graph's details into the shared range details view.
-    connect(&d->m_flameGraphView, &FlameGraphView::detailsChanged,
-            d->m_traceView.rangeDetailsWidget(), &Timeline::RangeDetailsWidget::setData);
-    connect(&d->m_flameGraphView, &FlameGraphView::detailsCleared,
-            d->m_traceView.rangeDetailsWidget(), &Timeline::RangeDetailsWidget::clear);
+    Timeline::RangeDetailsWidget *rangeDetails = d->m_traceView.rangeDetailsWidget();
+    connect(&d->m_flameGraphView, &FlameGraphView::detailsChanged, rangeDetails,
+            [this, rangeDetails](const QString &title,
+                                 const QList<QPair<QString, QString>> &content) {
+        rangeDetails->setData(&d->m_flameGraphView, title, content);
+    });
+    connect(&d->m_flameGraphView, &FlameGraphView::detailsCleared, rangeDetails,
+            [this, rangeDetails] { rangeDetails->clear(&d->m_flameGraphView); });
 
     new QmlProfilerStateWidget(&d->m_profilerState, &d->m_profilerModelManager,
                                &d->m_traceView);

@@ -11,6 +11,7 @@
 
 #include <chrono>
 
+namespace Timeline { class RangeDetailsWidget; }
 namespace Utils { class FilePath; }
 
 namespace Profiler {
@@ -23,11 +24,13 @@ class PROFILER_EXPORT CtfPlainViewManager : public QObject
     Q_OBJECT
 
 public:
-    explicit CtfPlainViewManager(QObject *parent = nullptr);
+    // `details` is the range details panel this manager's views fill. It is owned
+    // by the caller, which lets every profiler backend share a single one.
+    explicit CtfPlainViewManager(Timeline::RangeDetailsWidget *details,
+                                 QObject *parent = nullptr);
     ~CtfPlainViewManager();
 
     QWidgetList views(QWidget *parent);
-    QWidget *rangeDetailsWidget() const;
     void loadJson(const Utils::FilePath &file);
     void loadCtf2(const Utils::FilePath &dir);
     void clear();

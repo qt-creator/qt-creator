@@ -16,6 +16,7 @@
 #include <tracing/timelinezoomcontrol.h>
 
 #include <utils/async.h>
+#include <utils/qtcassert.h>
 
 #include <QPointer>
 #include <QTimer>
@@ -41,14 +42,21 @@ public:
     QSingleTaskTreeRunner taskTreeRunner;
     QTimer rangeDebounce;
 
+    QPointer<Timeline::RangeDetailsWidget> rangeDetails; // Not owned; shared with the
+                                                         // other backends' views.
     QPointer<Timeline::TimelineWidget> timelineView;
     QPointer<CallTreeView> callTreeView;
 };
 
-SamplerViewManager::SamplerViewManager(QObject *parent)
+SamplerViewManager::SamplerViewManager(Timeline::RangeDetailsWidget *details, QObject *parent)
     : QObject(parent)
     , d(new SamplerViewManagerPrivate)
 {
+    // The caller docks the panel it passes in. A panel the timeline creates for
+    // itself instead would never be shown, leaving this backend without details.
+    QTC_CHECK(details);
+    d->rangeDetails = details;
+
     // Re-aggregating the call tree on every drag step would be wasteful, so
     // range selections are applied debounced.
     d->rangeDebounce.setSingleShot(true);
@@ -79,7 +87,8 @@ bool SamplerViewManager::isSamplerTrace(const FilePath &dir)
 
 QWidgetList SamplerViewManager::views(QWidget *parent)
 {
-    d->timelineView = new Timeline::TimelineWidget(&d->modelAggregator, &d->zoomControl, parent);
+    d->timelineView = new Timeline::TimelineWidget(&d->modelAggregator, &d->zoomControl,
+                                                   d->rangeDetails, parent);
     d->timelineView->setObjectName("SamplerCpuUsageView");
     d->timelineView->setWindowTitle(Tr::tr("CPU Usage"));
 
@@ -93,11 +102,6 @@ QWidgetList SamplerViewManager::views(QWidget *parent)
             this, &SamplerViewManager::gotoSourceLocation);
 
     return {d->timelineView, d->callTreeView};
-}
-
-QWidget *SamplerViewManager::rangeDetailsWidget() const
-{
-    return d->timelineView ? d->timelineView->rangeDetailsWidget() : nullptr;
 }
 
 void SamplerViewManager::load(const FilePath &dir)

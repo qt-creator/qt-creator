@@ -31,7 +31,8 @@ public:
     TimelineZoomControl *m_zoomControl = nullptr;
     TimelineContentWidget *m_content = nullptr;
     TimelineOverviewWidget *m_overview = nullptr;
-    RangeDetailsWidget *m_details = nullptr; // Owned by the perspective once docked.
+    RangeDetailsWidget *m_details = nullptr; // Owned by the perspective once docked,
+                                             // or by whoever passed it in.
 
     QWidget *m_zoomSliderRow = nullptr;
     QSlider *m_zoomSlider = nullptr;
@@ -78,6 +79,7 @@ public:
 
 TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
                                TimelineZoomControl *zoomControl,
+                               RangeDetailsWidget *details,
                                QWidget *parent)
     : QWidget(parent), d(new TimelineWidgetPrivate)
 {
@@ -86,7 +88,7 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     setMinimumHeight(170);
 
     // ---- Range details (hosted in a dockable view; ownership transfers there) ----
-    d->m_details = new RangeDetailsWidget(this);
+    d->m_details = details ? details : new RangeDetailsWidget(this);
 
     // ---- Content and overview ----
     d->m_content = new TimelineContentWidget(aggregator, zoomControl, d->m_details, this);

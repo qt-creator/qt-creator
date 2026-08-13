@@ -17,13 +17,18 @@ class TRACING_EXPORT TimelineWidget : public QWidget
 {
     Q_OBJECT
 public:
+    // Pass a `details` panel to share one details view between several timelines,
+    // as the profiler does across its backends; the caller owns it then. When it
+    // is null the timeline creates its own.
     explicit TimelineWidget(TimelineModelAggregator *aggregator,
                             TimelineZoomControl *zoomControl,
+                            RangeDetailsWidget *details = nullptr,
                             QWidget *parent = nullptr);
     ~TimelineWidget() override;
 
     // The range details panel, meant to be added to a perspective as a dockable
-    // view. Ownership transfers to the perspective via Perspective::addWindow().
+    // view. Ownership transfers to the perspective via Perspective::addWindow(),
+    // unless the panel was passed in.
     RangeDetailsWidget *rangeDetailsWidget() const;
 
     bool hasValidSelection() const;

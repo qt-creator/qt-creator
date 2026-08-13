@@ -18,7 +18,10 @@ class QmlProfilerTraceView final : public QWidget
     Q_OBJECT
 
 public:
-    explicit QmlProfilerTraceView(QmlProfilerModelManager *modelManager);
+    // `details` is the range details panel to fill; when null the view brings its
+    // own (see Timeline::TimelineWidget).
+    explicit QmlProfilerTraceView(QmlProfilerModelManager *modelManager,
+                                  Timeline::RangeDetailsWidget *details = nullptr);
     ~QmlProfilerTraceView() override;
 
     Timeline::RangeDetailsWidget *rangeDetailsWidget() const;
