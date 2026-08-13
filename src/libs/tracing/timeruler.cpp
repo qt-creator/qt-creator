@@ -58,7 +58,10 @@ void TimeRuler::paintEvent(QPaintEvent *)
                                  : palette().text().color();
     const QFont labelFont = Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementCaption);
     const int textMargin = Utils::StyleHelper::SpacingTokens::PaddingHS;
+    const QColor bottomLineColor = Utils::creatorColor(Utils::Theme::FancyToolBarSeparatorColor);
+    const int bottomLineWidth = 1;
 
+    p.fillRect(QRect(0, height() - bottomLineWidth, width(), bottomLineWidth), bottomLineColor);
     p.setFont(labelFont);
 
     forEachRulerTick(

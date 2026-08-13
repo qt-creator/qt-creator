@@ -3,6 +3,8 @@
 
 #include "tracklabels.h"
 
+#include "trackpainterbase.h"
+
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -17,7 +19,8 @@
 namespace Timeline {
 
 static constexpr int kAccentWidth = Utils::StyleHelper::SpacingTokens::PaddingHXs;
-static constexpr int kTextLeftMargin = Utils::StyleHelper::SpacingTokens::PaddingHXs;
+static constexpr int kTextLeftMargin = kTimeLineLeftMargin + kAccentWidth
+                                       + Utils::StyleHelper::SpacingTokens::PrimitiveS;
 static constexpr int kNoteButtonWidth = 20;
 static constexpr int kIndicatorSize = 16;
 static constexpr int kTextRightMargin = kIndicatorSize
@@ -36,7 +39,7 @@ static int trackTotalHeight(const TrackInfo &track)
     int height = 0;
     for (int h : track.rowHeights)
         height += h;
-    return height;
+    return kTrackPaddingAndOutline + height + kTrackPaddingAndOutline;
 }
 
 TrackLabels::TrackLabels(QWidget *parent)
@@ -80,7 +83,7 @@ bool TrackLabels::event(QEvent *e)
     if (e->type() == QEvent::ToolTip) {
         auto *help = static_cast<QHelpEvent *>(e);
         const int hoverY = help->pos().y();
-        int y = -m_scrollOffset;
+        int y = -m_scrollOffset + kTimeLineTopMargin;
         for (const TrackInfo &track : std::as_const(m_tracks)) {
             const int titleHeight = trackTitleHeight(track);
             const int trackHeight = trackTotalHeight(track);
@@ -118,28 +121,43 @@ bool TrackLabels::event(QEvent *e)
 
 static int insertionSlotY(const QList<TrackInfo> &tracks, int slot, int scrollOffset)
 {
-    int y = -scrollOffset;
+    int y = -scrollOffset - kTrackPaddingAndOutline + kTimeLineTopMargin;
     for (int i = 0; i < slot && i < tracks.size(); ++i)
         y += trackTotalHeight(tracks[i]);
     return y;
 }
 
+constexpr Utils::StyleHelper::TextFormat trackLabelTf {
+    .themeColor = Utils::Theme::Token_Text_Default,
+    .uiElement = Utils::StyleHelper::UiElementLabelMedium,
+};
+
+constexpr Utils::StyleHelper::TextFormat subTrackLabelTf {
+    .themeColor = trackLabelTf.themeColor,
+    .uiElement = Utils::StyleHelper::UiElementCaption,
+};
+
 void TrackLabels::paintEvent(QPaintEvent *event)
 {
     QPainter p(this);
 
-    const QColor bgColor = Utils::creatorColor(Utils::Theme::PanelStatusBarBackgroundColor);
+    const QColor bgColor = Utils::creatorColor(Utils::Theme::Token_Background_Default);
+    const QColor trackBgColor = Utils::creatorColor(Utils::Theme::Token_Background_Muted);
+    const QColor trackOutlineColor = Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle);
     const QColor dividerColor = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
-    const QColor textColor = Utils::creatorColor(Utils::Theme::PanelTextColorLight);
+    const int rounding = qMax(Utils::StyleHelper::SpacingTokens::RadiusS, kTrackOutline);
+    const QPen outlinePen(trackOutlineColor, kTrackOutline);
+    const QFont trackLabelFont = trackLabelTf.font();
+    const QColor trackLabelColor = trackLabelTf.color();
+    const QFont subTrackLabelFont = subTrackLabelTf.font();
+    const QColor subTrackLabelColor = subTrackLabelTf.color();
 
     p.fillRect(rect(), bgColor);
-    p.setPen(textColor);
-    p.setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementLabelMedium));
 
-    int y = -m_scrollOffset;
-    bool firstTrack = true;
+    int y = -m_scrollOffset + kTimeLineTopMargin;
 
     const QRect viewRect = event->rect();
+    p.fillRect(viewRect, bgColor);
     for (const TrackInfo &track : std::as_const(m_tracks)) {
         const int titleHeight = trackTitleHeight(track);
         const int trackHeight = trackTotalHeight(track);
@@ -147,29 +165,36 @@ void TrackLabels::paintEvent(QPaintEvent *event)
         // Skip tracks entirely above the viewport
         if (y + trackHeight <= 0) {
             y += trackHeight;
-            firstTrack = false;
             continue;
         }
         // Stop once below the viewport
         if (y >= height())
             break;
 
-        // Top divider (not for the very first track)
-        if (!firstTrack) {
-            p.fillRect(0, y, width(), 1, dividerColor);
-        }
-        firstTrack = false;
+        // Track round rect
+        const QRect trackStripR(kTimeLineLeftMargin, y - kTrackOutline, width() + rounding,
+                                trackHeight - 2 * kTrackPadding);
+        Utils::StyleHelper::drawCardBg(&p, trackStripR, trackBgColor, outlinePen, rounding);
 
         // Left accent strip
-        p.fillRect(0, y, kAccentWidth, trackHeight, track.color);
+        if (track.color.isValid()) {
+            QRect accentR = trackStripR;
+            accentR.setWidth(kAccentWidth);
+            p.save();
+            p.setClipRect(accentR);
+            Utils::StyleHelper::drawCardBg(&p, trackStripR, track.color, Qt::NoPen, rounding);
+            p.restore();
+        }
 
         // Title row
         const bool hasNotes = !track.noteEventIds.isEmpty();
-        const int textX = kAccentWidth + kTextLeftMargin;
+        const int textX = kTextLeftMargin;
         const int expandLeft = width() - kTextRightMargin;
         const int noteLeft = hasNotes ? expandLeft - kNoteButtonWidth : expandLeft;
         const int textW = noteLeft - textX;
         const QRectF titleRect(textX, y, textW, titleHeight);
+        p.setFont(trackLabelFont);
+        p.setPen(trackLabelColor);
         p.drawText(titleRect, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
                    p.fontMetrics().elidedText(track.name, Qt::ElideRight, textW));
 
@@ -183,8 +208,13 @@ void TrackLabels::paintEvent(QPaintEvent *event)
 
         // Expand/collapse indicator (right-aligned in title row)
         {
-            const QIcon icon = (track.expanded ? Utils::Icons::ARROW_UP
-                                               : Utils::Icons::ARROW_DOWN).icon();
+            static const QIcon up = Utils::Icon({{":/utils/images/arrowup.png",
+                                                  Utils::Theme::PanelTextColorMid}},
+                                                Utils::Icon::Tint).icon();
+            static const QIcon down = Utils::Icon({{":/utils/images/arrowdown.png",
+                                                    Utils::Theme::PanelTextColorMid}},
+                                                  Utils::Icon::Tint).icon();
+            const QIcon &icon = track.expanded ? up : down;
             const int ix = expandLeft + (kTextRightMargin - kIndicatorSize) / 2;
             const int iy = y + (titleHeight - kIndicatorSize) / 2;
             icon.paint(&p, ix, iy, kIndicatorSize, kIndicatorSize);
@@ -192,13 +222,15 @@ void TrackLabels::paintEvent(QPaintEvent *event)
 
         // Sub-row labels (expanded state)
         if (track.expanded && track.rowLabels.size() == track.rowHeights.size() - 1) {
+            p.setFont(subTrackLabelFont);
+            p.setPen(subTrackLabelColor);
             int rowY = y + titleHeight;
             for (int i = 0; i < track.rowLabels.size(); ++i) {
                 if (rowY > viewRect.bottom())
                     break;
                 const int rowH = track.rowHeights[i + 1];
                 if (rowY + rowH >= viewRect.top()) {
-                    const int rxText = textX + kTextLeftMargin;
+                    const int rxText = textX + Utils::StyleHelper::SpacingTokens::PaddingHXs;
 
                     // Row border
                     p.fillRect(rxText, rowY, width() - kAccentWidth, 1, dividerColor);
@@ -233,7 +265,7 @@ void TrackLabels::mousePressEvent(QMouseEvent *event)
     const int clickX = event->pos().x();
     const int clickY = event->pos().y();
 
-    int y = -m_scrollOffset;
+    int y = -m_scrollOffset + kTimeLineTopMargin;
     for (int i = 0; i < m_tracks.size(); ++i) {
         const TrackInfo &track = m_tracks[i];
         const int titleHeight = trackTitleHeight(track);
@@ -301,7 +333,7 @@ void TrackLabels::mouseMoveEvent(QMouseEvent *event)
         }
         if (m_dragging) {
             setCursor(Qt::ClosedHandCursor);
-            const int dragY = event->pos().y() + m_scrollOffset;
+            const int dragY = event->pos().y() + m_scrollOffset - kTimeLineTopMargin;
             int slot = 0;
             int cumY = 0;
             for (int i = 0; i < m_tracks.size(); ++i) {
@@ -334,7 +366,7 @@ void TrackLabels::mouseMoveEvent(QMouseEvent *event)
 
     // Hover: update cursor based on what's under the mouse
     const int hoverY = event->pos().y();
-    int y = -m_scrollOffset;
+    int y = -m_scrollOffset + kTimeLineTopMargin;
     for (const TrackInfo &track : std::as_const(m_tracks)) {
         const int titleHeight = trackTitleHeight(track);
         const int trackHeight = trackTotalHeight(track);

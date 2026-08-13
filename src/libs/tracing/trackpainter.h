@@ -82,6 +82,8 @@ private:
         QCanvasPath grid;
         bool hasGrid = false;
         QList<ColorPath> fills;         // event bars or density columns, grouped by color
+        QCanvasPath outlines;           // Token_Stroke_Subtle, above and below the track
+        bool hasOutlines = false;
         QCanvasPath markers;
         bool hasMarkers = false;
         QCanvasPath notes;

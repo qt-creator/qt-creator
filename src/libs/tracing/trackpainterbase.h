@@ -12,6 +12,8 @@
 #include <QRgb>
 #include <QString>
 
+#include <utils/stylehelper.h>
+
 QT_BEGIN_NAMESPACE
 class QWheelEvent;
 class QWidget;
@@ -28,6 +30,13 @@ enum class TrackBackend {
     Gpu,       // QCanvasPainter (RHI) -> TrackPainter
     Software,  // QPainter          -> TrackPainterRaster
 };
+
+static constexpr int kTrackOutline = 1;
+static constexpr int kTrackPadding = Utils::StyleHelper::SpacingTokens::PrimitiveXs;
+static constexpr int kTrackPaddingAndOutline = kTrackPadding + kTrackOutline;
+
+static constexpr int kTimeLineTopMargin = kTrackPadding + kTrackPadding;
+static constexpr int kTimeLineLeftMargin = Utils::StyleHelper::SpacingTokens::PaddingHXxl;
 
 // Global override for the track backend. Automatic (the default) resolves per
 // host OS in resolvedTrackBackend(). Read when a track area is created, so a
@@ -94,7 +103,6 @@ protected:
     struct Track {
         TimelineModel *model = nullptr;
         int yOffset = 0;     // absolute top within the content
-        bool startOdd = true;
         // Per-event attributes cached as flat arrays. row()/color()/relativeHeight()
         // are virtual and range-independent, so caching them avoids a few million
         // virtual calls per frame while panning/zooming. Rebuilt whenever the track
@@ -122,16 +130,10 @@ protected:
         QList<QRectF> background[2]; // [0] = bg1 rows, [1] = bg2 rows
         QList<QRectF> grid;          // Timeline_DividerColor
         QList<ColorRects> fills;     // event bars or density columns, grouped by colour
+        QRectF outlines[2];          // [0] = above, [1] = below the track
         QList<QRectF> markers;       // Timeline_HandleColor
         QList<QRectF> noteSticks;    // Timeline_HighlightColor
         QList<Circle> noteDots;      // Timeline_HighlightColor
-    };
-
-    // Viewport-filling zebra background (continues below the last track). Drawn
-    // in widget space, not cached.
-    struct Stripe {
-        QRectF rect;
-        bool bg1; // true -> Timeline_BackgroundColor1, false -> ...Color2
     };
 
     // Value-scale overlay primitives for one expanded track, in track-local
@@ -157,7 +159,6 @@ protected:
     // --- Shared geometry / overlay computation (single-sourced) ---------------
     void ensureAttrCache(Track &track) const;
     void buildNeutralGeometry(const Track &track, NeutralTrackGeometry &geom) const;
-    QList<Stripe> backgroundStripes() const;
     void buildScaleOverlay(const Track &track, OverlayScale &out) const;
     QList<OverlayStroke> buildSelectionOverlay() const;
 

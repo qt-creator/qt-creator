@@ -74,6 +74,7 @@ private:
         QList<QRectF> background[2];    // [0] = bg1 rows, [1] = bg2 rows
         QList<QRectF> grid;             // 1px columns
         QList<ColorRects> fills;        // event bars or density columns, by color
+        QRectF outlines[2];             // Token_Stroke_Subtle, above and below the track
         QList<QRectF> markers;          // 2px columns
         QPainterPath notes;             // exclamation marks (antialiased)
     };

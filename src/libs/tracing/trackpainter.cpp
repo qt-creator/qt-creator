@@ -21,6 +21,7 @@ TrackPainter::TrackPainter(QWidget *parent)
     : QCanvasPainterWidget(parent)
 {
     setMouseTracking(true);
+    setFillColor(Utils::creatorColor(Utils::Theme::Token_Background_Default));
 }
 
 QSize TrackPainter::sizeHint() const
@@ -46,15 +47,8 @@ void TrackPainter::paint(QCanvasPainter *painter)
 
     const QColor bg1 = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor1);
     const QColor bg2 = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor2);
-
-    // Striped background covering the whole viewport (continues below the last
-    // track, like the QML striped background). Tracks overdraw their own rows.
-    for (const Stripe &stripe : backgroundStripes()) {
-        p.setFillStyle(stripe.bg1 ? bg1 : bg2);
-        p.fillRect(stripe.rect);
-    }
-
     const QColor divider = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
+    const QColor outline = Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle);
     const QColor handle = Utils::creatorColor(Utils::Theme::Timeline_HandleColor);
     const QColor highlight = Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
 
@@ -78,6 +72,7 @@ void TrackPainter::paint(QCanvasPainter *painter)
         if (g.hasBackground[0]) { p.setFillStyle(bg1); p.fill(g.background[0]); }
         if (g.hasBackground[1]) { p.setFillStyle(bg2); p.fill(g.background[1]); }
         if (g.hasGrid) { p.setFillStyle(divider); p.fill(g.grid); }
+        if (g.hasOutlines) { p.setFillStyle(outline); p.fill(g.outlines); }
         p.setAntialias(1.0);
         for (const ColorPath &cp : g.fills) {
             p.setFillStyle(QColor::fromRgb(cp.color));
@@ -137,6 +132,10 @@ void TrackPainter::buildTrackGeometry(const Track &track, TrackGeometry &geom) c
             path.rect(r);
         geom.fills.append({cr.color, std::move(path)});
     }
+
+    for (const QRectF &r : neutral.outlines)
+        geom.outlines.rect(r);
+    geom.hasOutlines = neutral.outlines[0].isValid();
 
     for (const QRectF &r : std::as_const(neutral.markers))
         geom.markers.rect(r);

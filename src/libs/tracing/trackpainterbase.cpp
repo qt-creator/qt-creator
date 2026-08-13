@@ -97,23 +97,16 @@ void TrackPainterBase::setTracks(const QList<TimelineModel *> &models)
         track.model = model;
         m_tracks.append(std::move(track));
     }
-    rebuildGeometry();
-    invalidateBackendGeometry();
-    requestUpdate();
+    refreshGeometry();
 }
 
 void TrackPainterBase::rebuildGeometry()
 {
-    int y = 0;
-    int totalRowsBefore = 0;
+    int y = kTimeLineTopMargin - kTrackPaddingAndOutline;
     for (Track &track : m_tracks) {
-        track.yOffset = y;
-        // Zebra parity continues across track boundaries (matches TimeMarks).
-        track.startOdd = (totalRowsBefore % 2 == 0);
-        if (track.model) {
-            y += track.model->height();
-            totalRowsBefore += track.model->rowCount();
-        }
+        track.yOffset = y + kTrackPaddingAndOutline;
+        if (track.model)
+            y += kTrackPaddingAndOutline + track.model->height() + kTrackPaddingAndOutline;
     }
     m_totalHeight = y;
 }
@@ -258,12 +251,17 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
     for (int phase = 0; phase < 2; ++phase) {
         QList<QRectF> &rects = geom.background[phase];
         for (int row = 0; row < rowCount; ++row) {
-            const bool odd = ((row % 2 == 0) == track.startOdd);
+            const bool odd = row % 2 == 0;
             if (odd != (phase == 0))
                 continue;
             rects.append(QRectF(0, model->rowOffset(row), w, model->rowHeight(row)));
         }
     }
+
+    // Outline strokes matching the label sidebar's track card border (see
+    // TrackLabels::paintEvent), 1px above and below the track content.
+    geom.outlines[0] = QRectF(0, -kTrackOutline, w, kTrackOutline);
+    geom.outlines[1] = QRectF(0, trackH, w, kTrackOutline);
 
     const qint64 rangeDuration = m_rangeEnd - m_rangeStart;
     if (model->isEmpty() || rangeDuration <= 0 || w == 0)
@@ -423,7 +421,8 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
     if (!m_markers.isEmpty()) {
         for (qint64 ts : m_markers) {
             const double mx = timeToPixel(ts, m_rangeStart, m_rangeEnd, double(w));
-            geom.markers.append(QRectF(mx - 1.0, 0.0, 2.0, trackH));
+            geom.markers.append(QRectF(mx - 1.0, -kTrackPaddingAndOutline,
+                                       2.0, trackH + 2 * kTrackPaddingAndOutline));
         }
     }
 
@@ -452,21 +451,6 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
             geom.noteDots.append({float(cx), float((dotStart + dotEnd) / 2.0), 1.5f});
         }
     }
-}
-
-QList<TrackPainterBase::Stripe> TrackPainterBase::backgroundStripes() const
-{
-    // Striped background covering the whole viewport (continues below the last
-    // track, like the QML striped background). Tracks overdraw their own rows.
-    QList<Stripe> stripes;
-    const int w = viewWidth();
-    const int h = viewHeight();
-    const int stripeH = qMax(1, TimelineModel::defaultRowHeight());
-    for (int vy = -(m_scrollOffset % stripeH); vy < h; vy += stripeH) {
-        const int absRow = (vy + m_scrollOffset) / stripeH;
-        stripes.append({QRectF(0, vy, w, stripeH), absRow % 2 == 0});
-    }
-    return stripes;
 }
 
 // Value scale for expanded rows with min/max values (TimeMarks.qml equivalent),

@@ -160,7 +160,7 @@ int TimelineModel::row(int index) const
 }
 
 TimelineModel::TimelineModelPrivate::TimelineModelPrivate(int modelId) :
-    modelId(modelId), categoryColor(Qt::transparent), hasMixedTypesInExpandedState(false),
+    modelId(modelId), hasMixedTypesInExpandedState(false),
     expanded(false), hidden(false), expandedRowCount(1), collapsedRowCount(1)
 {
 }

@@ -22,8 +22,6 @@ TrackPainterRaster::TrackPainterRaster(QWidget *parent)
     : QWidget(parent)
 {
     setMouseTracking(true);
-    // The striped background covers the whole widget every frame.
-    setAttribute(Qt::WA_OpaquePaintEvent);
 }
 
 QSize TrackPainterRaster::sizeHint() const
@@ -33,7 +31,7 @@ QSize TrackPainterRaster::sizeHint() const
     return QSize(200, TimelineModel::defaultRowHeight());
 }
 
-void TrackPainterRaster::paintEvent(QPaintEvent *)
+void TrackPainterRaster::paintEvent(QPaintEvent *event)
 {
     // Time the CPU cost of producing this frame; this single widget renders all
     // tracks, so its paint is the full-frame render time (see painted()).
@@ -47,23 +45,14 @@ void TrackPainterRaster::paintEvent(QPaintEvent *)
 
     ensureGeometry();
 
-    const QColor bg1 = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor1);
-    const QColor bg2 = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor2);
-
-    // Striped background, but only below the track content: the per-track row
-    // backgrounds below already paint the same zebra over every track, so filling
-    // the whole viewport here (as the GPU backend does) would just be overdrawn.
-    // Skipping it avoids a full-viewport software fill on every repaint.
-    const double contentBottom = double(totalHeight() - scrollOffset());
-    for (const Stripe &stripe : backgroundStripes()) {
-        if (stripe.rect.bottom() <= contentBottom)
-            continue; // covered by a per-track background
-        p.fillRect(stripe.rect, stripe.bg1 ? bg1 : bg2);
-    }
-
+    const QColor trackBg1 = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor1);
+    const QColor trackBg2 = Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor2);
     const QColor divider = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
+    const QColor outline = Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle);
     const QColor handle = Utils::creatorColor(Utils::Theme::Timeline_HandleColor);
     const QColor highlight = Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
+
+    p.fillRect(event->rect(), Utils::creatorColor(Utils::Theme::Token_Background_Default));
 
     // Replay the cached per-track geometry, translated into content space. No
     // event iteration happens here, so scrolling, hovering and selection (which
@@ -87,14 +76,15 @@ void TrackPainterRaster::paintEvent(QPaintEvent *)
         // every rect through the antialiased path rasterizer. Only the round note
         // markers need antialiasing.
         p.setRenderHint(QPainter::Antialiasing, false);
-        for (const QRectF &r : g.background[0]) p.fillRect(r, bg1);
-        for (const QRectF &r : g.background[1]) p.fillRect(r, bg2);
+        for (const QRectF &r : g.background[0]) p.fillRect(r, trackBg1);
+        for (const QRectF &r : g.background[1]) p.fillRect(r, trackBg2);
         for (const QRectF &r : g.grid) p.fillRect(r, divider);
         for (const ColorRects &cr : g.fills) {
             const QColor c = QColor::fromRgb(cr.color);
             for (const QRectF &r : cr.rects)
                 p.fillRect(r, c);
         }
+        for (const QRectF &r : g.outlines) p.fillRect(r, outline);
         for (const QRectF &r : g.markers) p.fillRect(r, handle);
         if (!g.notes.isEmpty()) {
             p.setRenderHint(QPainter::Antialiasing, true);
@@ -141,6 +131,8 @@ void TrackPainterRaster::buildTrackGeometry(const Track &track, TrackGeometry &g
     geom.background[0] = std::move(neutral.background[0]);
     geom.background[1] = std::move(neutral.background[1]);
     geom.grid = std::move(neutral.grid);
+    geom.outlines[0] = neutral.outlines[0];
+    geom.outlines[1] = neutral.outlines[1];
     geom.markers = std::move(neutral.markers);
 
     geom.fills = std::move(neutral.fills);
