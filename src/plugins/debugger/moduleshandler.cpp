@@ -96,7 +96,7 @@ QVariant ModulesModel::itemData(const Module &module, int column, int role) cons
             switch (module.elfData.symbolsType) {
             case UnknownSymbols:
                 return Tr::tr("It is unknown whether this module contains debug "
-                          "information.\nUse \"Examine Symbols\" from the "
+                          "information.\nUse \"Examine All Modules\" from the "
                           "context menu to initiate a check.");
             case NoSymbols:
                 return Tr::tr("This module neither contains nor references debug "
