@@ -282,6 +282,11 @@ QWidget *VcsOutputWindow::outputWidget(QWidget *parent)
     return &d->widget;
 }
 
+const QList<Core::OutputWindow *> VcsOutputWindow::outputWindows() const
+{
+    return {&d->widget};
+}
+
 void VcsOutputWindow::clearContents()
 {
     d->widget.clear();

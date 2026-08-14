@@ -343,6 +343,11 @@ IOutputPane::IOutputPane(QObject *parent)
         QMetaObject::invokeMethod(this, &OutputPaneManager::setupButtons, Qt::QueuedConnection);
 }
 
+const QList<IOutputPane *> IOutputPane::allOutputPanes()
+{
+    return Utils::transform<QList>(g_outputPanes, &OutputPaneData::pane);
+}
+
 IOutputPane::~IOutputPane()
 {
     const int i = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::pane, this));

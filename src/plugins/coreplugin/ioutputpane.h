@@ -21,6 +21,8 @@ public:
     IOutputPane(QObject *parent = nullptr);
     ~IOutputPane() override;
 
+    static const QList<IOutputPane *> allOutputPanes();
+
     virtual QWidget *outputWidget(QWidget *parent) = 0;
     virtual QList<QWidget *> toolBarWidgets() const;
     Utils::Id id() const;

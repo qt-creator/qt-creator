@@ -78,6 +78,8 @@ private:
         return m_widget;
     }
 
+    const QList<OutputWindow *> outputWindows() const final { return {m_widget}; }
+
     void clearContents() final { m_widget->clear(); }
 
     bool canFocus() const final { return true; }

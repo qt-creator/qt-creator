@@ -327,6 +327,11 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
     return m_outputWidget;
 }
 
+const QList<Core::OutputWindow *> TestResultsPane::outputWindows() const
+{
+    return {m_textOutput};
+}
+
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
     QList<QWidget *> result = {m_expandCollapse, m_runAll, m_runSelected, m_runFailed,
