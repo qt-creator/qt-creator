@@ -1513,10 +1513,16 @@ void registerMcpTools()
 
     // Shared callback factory for run/debug tools.
     const auto makeRunCallback =
-        [](Utils::Id runMode, const QString &finishedMessage) -> Mcp::Server::ToolInterfaceCallback {
-        return [runMode, finishedMessage](
+        [](Utils::Id defaultRunMode, const QString &finishedMessage) -> Mcp::Server::ToolInterfaceCallback {
+        return [defaultRunMode, finishedMessage](
                    const Schema::CallToolRequestParams &params,
                    const ToolInterface &toolInterface) -> Utils::Result<> {
+            // The run mode defaults to the tool's own (e.g. normal run), but can
+            // be overridden per call, so one tool reaches any registered run mode
+            // (analyzers, profilers, ...). Interactive modes have dedicated tools.
+            const QString runModeArg = params.argumentsAsObject().value("run_mode").toString();
+            const Utils::Id runMode = runModeArg.isEmpty() ? defaultRunMode
+                                                           : Utils::Id::fromString(runModeArg);
             const Utils::Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(runMode);
             if (!canRun) {
                 toolInterface.finish(
@@ -1666,8 +1672,24 @@ void registerMcpTools()
                 "code 0). "
                 "On build failure, returns isError=true with structured content in the same "
                 "format as list_issues (issues array + summary). "
+                "By default this is a normal run; pass run_mode to run the project under a "
+                "different, non-interactive run mode such as an analyzer (the run must finish "
+                "on its own). Interactive modes have dedicated tools: use start_debug for "
+                "debugging and start_profiler for the QML profiler. "
                 "Returns an error if there is no startup project, no active build configuration, "
-                "or the project cannot currently be run.")
+                "or the project cannot currently be run in the requested mode.")
+            .inputSchema(
+                Tool::InputSchema{}.addProperty(
+                    "run_mode",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description",
+                         "Run-mode id to run the startup project under. Defaults to the normal "
+                         "run mode (\"RunConfiguration.NormalRunMode\"). Examples: "
+                         "\"PerfProfiler.RunMode\", \"RunConfiguration.QmlProfilerRunMode\". The "
+                         "mode must have a run worker registered for the project's device and "
+                         "run to completion; interactive modes belong to start_debug / "
+                         "start_profiler."}}))
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .outputSchema(runToolOutputSchema),
         makeRunCallback(Utils::Id(Constants::NORMAL_RUN_MODE), "Run finished"));
