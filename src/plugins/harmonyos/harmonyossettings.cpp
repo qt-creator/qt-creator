@@ -42,7 +42,38 @@ HarmonyOsSettings::HarmonyOsSettings()
     automaticKitCreation.setLabelText(Tr::tr("Create kits automatically"));
     automaticKitCreation.setDefaultValue(true);
 
-    connect(this, &AspectContainer::applied, this, [] { applyConfig(); });
+    signingCertificate.setSettingsKey("SigningCertificate");
+    signingCertificate.setExpectedKind(PathChooserKind::File);
+    signingCertificate.setLabelText(Tr::tr("Certificate (.cer):"));
+
+    signingProfile.setSettingsKey("SigningProfile");
+    signingProfile.setExpectedKind(PathChooserKind::File);
+    signingProfile.setLabelText(Tr::tr("Provisioning profile (.p7b):"));
+
+    signingKeystore.setSettingsKey("SigningKeystore");
+    signingKeystore.setExpectedKind(PathChooserKind::File);
+    signingKeystore.setLabelText(Tr::tr("Keystore (.p12):"));
+
+    signingKeyAlias.setSettingsKey("SigningKeyAlias");
+    signingKeyAlias.setDisplayStyle(StringAspect::LineEditDisplay);
+    signingKeyAlias.setLabelText(Tr::tr("Key alias:"));
+
+    // Name the keychain entry explicitly: a settings key without a '.' cannot be
+    // split into a service and a key, and the keychain access then fails.
+    signingKeyPassword.setSettingsKey("SigningKeyPassword");
+    signingKeyPassword.setService("HarmonyOS");
+    signingKeyPassword.setKey("KeyPassword");
+    signingKeyPassword.setLabelText(Tr::tr("Key password:"));
+
+    signingStorePassword.setSettingsKey("SigningStorePassword");
+    signingStorePassword.setService("HarmonyOS");
+    signingStorePassword.setKey("StorePassword");
+    signingStorePassword.setLabelText(Tr::tr("Keystore password:"));
+
+    connect(this, &AspectContainer::applied, this, [this] {
+        refreshSigningPasswords();
+        applyConfig();
+    });
 
     setLayouter([this] {
         auto instruction = new QLabel(
@@ -57,6 +88,12 @@ HarmonyOsSettings::HarmonyOsSettings()
         status->setElideMode(Qt::ElideNone);
         status->setWordWrap(true);
 
+        auto signingNote = new QLabel(
+            Tr::tr("Material for signing HarmonyOS packages, as issued for the developer "
+                   "account. Projects that DevEco Studio set up for automatic signing use "
+                   "their own material instead."));
+        signingNote->setWordWrap(true);
+
         using namespace Layouting;
         Column column {
             Group {
@@ -66,6 +103,20 @@ HarmonyOsSettings::HarmonyOsSettings()
                     Row { sdkLocation, autodetectButton },
                     status,
                     automaticKitCreation,
+                },
+            },
+            Group {
+                title(Tr::tr("Package Signing")),
+                Column {
+                    signingNote,
+                    Form {
+                        signingCertificate, br,
+                        signingProfile, br,
+                        signingKeystore, br,
+                        signingKeyAlias, br,
+                        signingKeyPassword, br,
+                        signingStorePassword, br,
+                    },
                 },
             },
             st,
@@ -109,6 +160,19 @@ HarmonyOsSettings::HarmonyOsSettings()
     });
 
     readSettings();
+    refreshSigningPasswords();
+}
+
+void HarmonyOsSettings::refreshSigningPasswords()
+{
+    signingKeyPassword.requestValue([this](const Result<QString> &password) {
+        if (password)
+            m_keyPassword = *password;
+    });
+    signingStorePassword.requestValue([this](const Result<QString> &password) {
+        if (password)
+            m_storePassword = *password;
+    });
 }
 
 // HarmonyOsSettingsPage
