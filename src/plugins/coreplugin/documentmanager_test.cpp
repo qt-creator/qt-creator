@@ -97,6 +97,22 @@ static void simulateActivation()
     GlobalFileChangeBlocker::instance()->forceBlocked(false);
 }
 
+// Changes a file's contents on disk while keeping its modification time, as
+// happens when a fast external tool rewrites a file within the same time-stamp
+// tick as a preceding save.
+static bool modifyFileKeepingTimestamp(const FilePath &filePath, const QByteArray &contents)
+{
+    const QDateTime originalTime = filePath.lastModified();
+    if (!filePath.writeFileContents(contents))
+        return false;
+    QFile file(filePath.path());
+    if (!file.open(QIODevice::ReadWrite))
+        return false;
+    const bool ok = file.setFileTime(originalTime, QFileDevice::FileModificationTime);
+    file.close();
+    return ok;
+}
+
 class DocumentManagerTest final : public QObject
 {
     Q_OBJECT
@@ -106,6 +122,8 @@ private slots:
     void cleanupTestCase();
 
     void testReloadUnmodifiedOnExternalChange();
+    void testReloadOnSameTimestampChange();
+    void testNoReloadOnNotificationWithoutChange();
     void testAutoCloseOnExternalRemoval();
     void testAlwaysAskFlagsChangeAsConflicted();
     void testReloadAppliesToEveryChangedFile();
@@ -186,6 +204,49 @@ void DocumentManagerTest::testReloadUnmodifiedOnExternalChange()
 
     QCOMPARE(document->contents(), QByteArray("line1\naddedLine\n"));
     QVERIFY(!document->isModified());
+}
+
+void DocumentManagerTest::testReloadOnSameTimestampChange()
+{
+    setReloadSetting(IDocument::ReloadUnmodifiedImmediately);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath filePath = tempDir.filePath("test.txt");
+    QVERIFY(filePath.writeFileContents("line1\n"));
+
+    IEditor *editor = EditorManager::openEditor(filePath);
+    QVERIFY(editor);
+    IDocument *document = editor->document();
+    QVERIFY(document);
+    QCOMPARE(document->contents(), QByteArray("line1\n"));
+
+    QVERIFY(modifyFileKeepingTimestamp(filePath, "line1\nformatted\n"));
+    triggerReloadCheck(filePath);
+
+    QCOMPARE(document->contents(), QByteArray("line1\nformatted\n"));
+    QVERIFY(!document->isModified());
+}
+
+void DocumentManagerTest::testNoReloadOnNotificationWithoutChange()
+{
+    setReloadSetting(IDocument::ReloadUnmodifiedImmediately);
+
+    TemporaryDirectory tempDir("qtc-documentmanager-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    const FilePath filePath = tempDir.filePath("test.txt");
+    QVERIFY(filePath.writeFileContents("line1\n"));
+
+    IEditor *editor = EditorManager::openEditor(filePath);
+    QVERIFY(editor);
+    IDocument *document = editor->document();
+    QVERIFY(document);
+
+    QSignalSpy aboutToReload(document, &IDocument::aboutToReload);
+    triggerReloadCheck(filePath);
+    QCOMPARE(aboutToReload.count(), 0);
 }
 
 void DocumentManagerTest::testAutoCloseOnExternalRemoval()

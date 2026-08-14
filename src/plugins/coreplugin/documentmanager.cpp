@@ -126,6 +126,7 @@ struct FileStateItem
 {
     QDateTime modified;
     QFile::Permissions permissions;
+    qint64 size = -1;
 };
 
 struct FileState
@@ -301,6 +302,7 @@ static void addFileInfo(IDocument *document, const FilePath &filePath, const Fil
         qCDebug(log) << "adding document for" << filePath << "(" << filePathKey << ")";
         state.modified = filePath.lastModified();
         state.permissions = filePath.permissions();
+        state.size = filePath.fileSize();
         // Add state if we don't have already
         if (!d->m_states.contains(filePathKey)) {
             FileState state;
@@ -650,6 +652,7 @@ static void updateExpectedState(const FilePath &filePathKey)
         const FilePath watched = d->m_states.value(filePathKey).watchedFilePath;
         d->m_states[filePathKey].expected.modified = watched.lastModified();
         d->m_states[filePathKey].expected.permissions = watched.permissions();
+        d->m_states[filePathKey].expected.size = watched.fileSize();
     }
 }
 
@@ -1148,8 +1151,9 @@ void DocumentManager::checkForReload()
         } else {
             state.modified = filePath.lastModified();
             state.permissions = filePath.permissions();
+            state.size = filePath.fileSize();
             qCDebug(log) << "file was modified, time:" << state.modified
-                         << "permissions: " << state.permissions;
+                         << "permissions: " << state.permissions << "size:" << state.size;
         }
         currentStates.insert(fileKey, state);
         changeTypes.insert(fileKey, type);
@@ -1204,16 +1208,22 @@ void DocumentManager::checkForReload()
                 wasMissing = true;
 
             // did the file actually change?
-            if (lastState.modified == currentState.modified && lastState.permissions == currentState.permissions)
+            // A rewrite within the same time-stamp tick keeps the modification
+            // time, so the size has to tell content changes apart, too.
+            const bool sameContents = lastState.modified == currentState.modified
+                                      && lastState.size == currentState.size;
+            if (sameContents && lastState.permissions == currentState.permissions)
                 continue;
             changed = true;
 
             // was it only a permission change?
-            if (lastState.modified == currentState.modified)
+            if (sameContents)
                 continue;
 
             // was the change unexpected?
-            if ((currentState.modified != expectedState.modified || currentState.permissions != expectedState.permissions)
+            if ((currentState.modified != expectedState.modified
+                 || currentState.size != expectedState.size
+                 || currentState.permissions != expectedState.permissions)
                     && !expectedFileKeys.contains(fileKey)) {
                 trigger = IDocument::TriggerExternal;
             }
