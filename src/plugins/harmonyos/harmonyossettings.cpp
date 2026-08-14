@@ -65,15 +65,6 @@ HarmonyOsSettings::HarmonyOsSettings()
     signingKeyAlias.setDisplayStyle(StringAspect::LineEditDisplay);
     signingKeyAlias.setLabelText(Tr::tr("Key alias:"));
 
-    droppedPermissions.setSettingsKey("DroppedPermissions");
-    droppedPermissions.setDisplayStyle(StringAspect::LineEditDisplay);
-    droppedPermissions.setLabelText(Tr::tr("Permissions to drop:"));
-    droppedPermissions.setToolTip(
-        Tr::tr("Permissions to remove from the application package, separated by spaces. A "
-               "device refuses to install a package that requests a permission the "
-               "provisioning profile does not allow, and a debug profile allows none that "
-               "need an ACL."));
-
     // Name the keychain entry explicitly: a settings key without a '.' cannot be
     // split into a service and a key, and the keychain access then fails.
     signingKeyPassword.setSettingsKey("SigningKeyPassword");
@@ -131,7 +122,6 @@ HarmonyOsSettings::HarmonyOsSettings()
                         signingProfile, br,
                         signingKeystore, br,
                         signingKeyAlias, br,
-                        droppedPermissions, br,
                         signingKeyPassword, br,
                         signingStorePassword, br,
                     },

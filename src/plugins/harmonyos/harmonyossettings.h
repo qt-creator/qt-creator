@@ -23,7 +23,6 @@ public:
     Utils::FilePathAspect signingProfile{this};
     Utils::FilePathAspect signingKeystore{this};
     Utils::StringAspect signingKeyAlias{this};
-    Utils::StringAspect droppedPermissions{this};
     Core::SecretAspect signingKeyPassword{this};
     Core::SecretAspect signingStorePassword{this};
 
