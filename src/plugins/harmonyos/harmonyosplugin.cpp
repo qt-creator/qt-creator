@@ -30,6 +30,7 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
 
         setupHarmonyOsSettingsPage();
         setupHarmonyOsDevice();
+        setupHarmonyOsDeviceDetection();
         setupHarmonyOsQtVersion();
         setupHarmonyOsToolchain();
 

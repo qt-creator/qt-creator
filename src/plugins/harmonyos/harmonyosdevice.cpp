@@ -18,6 +18,7 @@
 
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QTimer>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -68,6 +69,17 @@ void HarmonyOsDevice::setSerialNumber(const QString &serial)
     setExtraData(Constants::HARMONYOS_SERIAL_NUMBER, serial);
 }
 
+static QStringList serialNumbers(const QString &hdcOutput)
+{
+    QStringList serials;
+    for (const QString &line : hdcOutput.split('\n', Qt::SkipEmptyParts)) {
+        const QString serial = line.trimmed();
+        if (!serial.isEmpty() && serial != "[Empty]")
+            serials.append(serial);
+    }
+    return serials;
+}
+
 // Runs "hdc list targets" and returns the serial numbers of the connected devices.
 static Result<QStringList> connectedSerialNumbers(const FilePath &hdc)
 {
@@ -77,14 +89,7 @@ static Result<QStringList> connectedSerialNumbers(const FilePath &hdc)
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return ResultError(process.exitMessage());
 
-    QStringList serials;
-    const QString output = process.cleanedStdOut();
-    for (const QString &line : output.split('\n', Qt::SkipEmptyParts)) {
-        const QString serial = line.trimmed();
-        if (!serial.isEmpty() && serial != "[Empty]")
-            serials.append(serial);
-    }
-    return serials;
+    return serialNumbers(process.cleanedStdOut());
 }
 
 // Re-checks with hdc whether this device is still attached and updates its state.
@@ -229,6 +234,81 @@ static IDevice::Ptr createHarmonyOsDevice()
     harmonyDevice->setSerialNumber(serial);
     harmonyDevice->setDeviceState(IDevice::DeviceReadyToUse);
     return device;
+}
+
+// Device detection
+//
+// hdc has no device-tracking stream, so attached devices are found by asking it
+// every few seconds. Polling only happens while an SDK is configured.
+class HarmonyOsDeviceDetector final : public QObject
+{
+public:
+    HarmonyOsDeviceDetector()
+    {
+        m_timer.setInterval(5s);
+        connect(&m_timer, &QTimer::timeout, this, &HarmonyOsDeviceDetector::poll);
+        connect(&m_process, &Process::done, this, [this] {
+            if (m_process.result() == ProcessResult::FinishedWithSuccess)
+                updateDevices(serialNumbers(m_process.cleanedStdOut()));
+        });
+        connect(&settings(), &AspectContainer::applied, this, [this] { poll(); });
+        poll();
+        m_timer.start();
+    }
+
+private:
+    void poll()
+    {
+        if (m_process.state() != ProcessState::NotRunning)
+            return;
+        const FilePath hdc = Sdk::hdcCommand(settings().sdkLocation());
+        if (hdc.isEmpty())
+            return;
+        m_process.setCommand({hdc, {"list", "targets"}});
+        m_process.start();
+    }
+
+    static void updateDevices(const QStringList &serials)
+    {
+        for (const QString &serial : serials) {
+            const Id id = deviceId(serial);
+            if (DeviceManager::find(id))
+                continue;
+            const IDevice::Ptr device = HarmonyOsDevice::create();
+            auto harmonyDevice = static_cast<HarmonyOsDevice *>(device.get());
+            harmonyDevice->setupId(IDevice::AutoDetected, id);
+            harmonyDevice->setDisplayName(Tr::tr("HarmonyOS Device (%1)").arg(serial));
+            harmonyDevice->setSerialNumber(serial);
+            harmonyDevice->setDeviceState(IDevice::DeviceReadyToUse);
+            DeviceManager::addDevice(device);
+        }
+
+        // Devices that went away stay in the list, so that kits and run configurations
+        // keep pointing at them, but they are no longer ready to use.
+        DeviceManager::forEachDevice([&serials](const IDeviceConstPtr &device) {
+            if (device->type() != Constants::HARMONYOS_DEVICE_TYPE)
+                return;
+            const QString serial
+                = static_cast<const HarmonyOsDevice *>(device.get())->serialNumber();
+            const bool connected = !serial.isEmpty() && serials.contains(serial);
+            DeviceManager::setDeviceState(device->id(),
+                                         connected ? IDevice::DeviceReadyToUse
+                                                   : IDevice::DeviceDisconnected);
+        });
+    }
+
+    static Id deviceId(const QString &serial)
+    {
+        return Id::fromString(QString("HarmonyOS.Device.%1").arg(serial));
+    }
+
+    QTimer m_timer;
+    Process m_process;
+};
+
+void setupHarmonyOsDeviceDetection()
+{
+    static HarmonyOsDeviceDetector theHarmonyOsDeviceDetector;
 }
 
 // Factory

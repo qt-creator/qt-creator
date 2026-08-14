@@ -34,5 +34,6 @@ public:
 };
 
 void setupHarmonyOsDevice();
+void setupHarmonyOsDeviceDetection();
 
 } // namespace HarmonyOs::Internal
