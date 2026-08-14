@@ -133,12 +133,9 @@ void BridgeEngine::setupEngine()
     const DebuggerRunParameters &rp = runParameters();
     const FilePath dumperDir = ICore::resourcePath("debugger");
 
-    // Start gdb with the bridge loaded and hand control to its DAP-shaped
-    // server loop, which frames requests/responses/events as Content-Length
-    // JSON on stdio (the same framing DapClient already parses).
-    // TODO: theDumper.runDapServer() is the bridge-side entry point added in
-    // the next step; until then this engine starts but does not converse.
-    CommandLine cmd{rp.debugger().command.executable(), {"--nx", "--nw", "-q"}};
+    CommandLine cmd{rp.debugger().command.executable(), {"--nw", "-q"}};
+    if (!settings().loadGdbInit())
+        cmd.addArg("--nx");
     cmd.addArgs({"-iex", "python sys.path.insert(1, '" + dumperDir.path() + "')"});
     cmd.addArgs({"-iex", "python from gdbbridge import *"});
     cmd.addArgs({"-ex", "python theDumper.runDapServer()"});
