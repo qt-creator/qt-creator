@@ -98,6 +98,9 @@ public:
     void setInferiorExecutable(const Utils::FilePath &executable) {
         m_inferior.command.setExecutable(executable);
     }
+    void setInferiorArguments(const QString &arguments) {
+        m_inferior.command.setArguments(arguments);
+    }
     void setInferiorEnvironment(const Utils::Environment &env) { m_inferior.environment = env; }
     Utils::ProcessRunData inferior() const { return m_inferior; }
 
