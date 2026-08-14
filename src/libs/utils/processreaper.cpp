@@ -250,7 +250,10 @@ ProcessReaperImpl::ProcessReaperImpl()
     m_private->moveToThread(&m_thread);
     QObject::connect(&m_thread, &QThread::finished, m_private, &QObject::deleteLater);
     m_thread.start();
-    m_thread.moveToThread(qApp->thread());
+    // A process can still be reaped while the application is being torn down, and
+    // then there is no application thread left to hand the thread object to.
+    if (QCoreApplication *app = QCoreApplication::instance())
+        m_thread.moveToThread(app->thread());
 }
 
 ProcessReaperImpl::~ProcessReaperImpl()
@@ -273,6 +276,16 @@ void ProcessReaperImpl::reap(QProcess *process, milliseconds timeout)
 
     process->disconnect();
     if (fromQProcess(process->state()) == ProcessState::NotRunning) {
+        delete process;
+        return;
+    }
+
+    // Processes can still be reaped while the application is being torn down, but
+    // the reaper's event loop cannot run without an application, so handle it here
+    // instead. Killing is what the reaper would have ended up doing anyway.
+    if (!QCoreApplication::instance()) {
+        process->kill();
+        process->waitForFinished(500);
         delete process;
         return;
     }
