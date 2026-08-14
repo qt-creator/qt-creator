@@ -810,6 +810,16 @@ class DapServer():
             entry['symbolsRead'] = fields[2] == 'Yes'
         self.sendResponse(request, body={'modules': list(modules.values())})
 
+    def cmd_qtc_executeCommand(self, request):
+        # The debugger console. Capture what gdb prints: its stdout is the
+        # protocol stream.
+        command = request.get('arguments', {}).get('command', '')
+        try:
+            self.sendResponse(request,
+                              body={'output': gdb.execute(command, to_string=True) or ''})
+        except gdb.error as error:
+            self.sendResponse(request, body={'error': str(error)})
+
     def cmd_qtc_fetchRegisters(self, request):
         # Enumerate the selected frame's registers via gdb's Python API and
         # return name/value(hex)/size. The C++ side (handleFetchRegistersResponse)

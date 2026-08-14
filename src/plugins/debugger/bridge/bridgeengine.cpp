@@ -263,9 +263,24 @@ void BridgeEngine::handleDapConfigurationDone()
     notifyEngineRunAndInferiorRunOk();
 }
 
-void BridgeEngine::executeDebuggerCommand(const QString & /*command*/)
+void BridgeEngine::executeDebuggerCommand(const QString &command)
 {
     QTC_ASSERT(state() == InferiorStopOk, qCDebug(logCategory()) << state());
+
+    m_dapClient->postRequest("qtc/executeCommand", QJsonObject{{"command", command}});
+}
+
+void BridgeEngine::handleExecuteCommandResponse(const QJsonObject &response)
+{
+    // gdb prints to its stdout, which is the protocol stream, so the bridge
+    // captures the output and reports it here instead.
+    const QJsonObject body = response.value("body").toObject();
+    const QString output = body.value("output").toString();
+    if (!output.isEmpty())
+        showMessage(output, LogOutput);
+    const QString error = body.value("error").toString();
+    if (!error.isEmpty())
+        showMessage(error, LogError);
 }
 
 void BridgeEngine::shutdownInferior()
@@ -700,6 +715,8 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
             handleFetchVariablesResponse(response);
         else if (command == "qtc/fetchModules")
             handleFetchModulesResponse(response);
+        else if (command == "qtc/executeCommand")
+            handleExecuteCommandResponse(response);
         else if (command == "qtc/fetchRegisters")
             handleFetchRegistersResponse(response);
         else if (command == "qtc/readMemory")
