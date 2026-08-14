@@ -8,6 +8,7 @@
     "trDisplayCategory": "C/C++",
     "iconText": "h",
     "enabled": "%{JS: isPluginRunning('cppeditor')}",
+    "platformIndependent": true,
 
     "options": [
         { "key": "DefaultSuffix", "value": "%{JS: Cpp.cxxHeaderSuffix()}" },

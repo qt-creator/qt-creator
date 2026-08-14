@@ -8,6 +8,7 @@
     "trDisplayCategory": "C/C++",
     "iconText": "cpp",
     "enabled": "%{JS: isPluginRunning('cppeditor')}",
+    "platformIndependent": true,
 
     "options": [
         { "key": "FileName", "value": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}" },

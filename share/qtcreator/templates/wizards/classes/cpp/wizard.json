@@ -8,6 +8,7 @@
     "trDisplayCategory": "C/C++",
     "iconText": "h/cpp",
     "enabled": "%{JS: isPluginRunning('cppeditor')}",
+    "platformIndependent": true,
 
     "options":
     [

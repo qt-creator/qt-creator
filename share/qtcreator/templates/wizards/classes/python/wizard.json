@@ -9,6 +9,7 @@
     "icon": "../../files/python/icon.png",
     "iconKind": "Themed",
     "enabled": "%{JS: isPluginRunning('python')}",
+    "platformIndependent": true,
 
     "options":
     [
