@@ -1,6 +1,6 @@
 add_qtc_plugin(Help
   CONDITION TARGET Qt::Help
-  DEPENDS shared_help
+  DEPENDS shared_help McpServerLib
   PLUGIN_DEPENDS Core ProjectExplorer
   PLUGIN_RECOMMENDS TextEditor
   SOURCES
@@ -15,6 +15,7 @@ add_qtc_plugin(Help
     helpviewer.cpp helpviewer.h
     helpwidget.cpp helpwidget.h
     localhelpmanager.cpp localhelpmanager.h
+    mcpsupport.cpp mcpsupport.h
     offline-dark.css
     openpagesmanager.cpp openpagesmanager.h
     openpagesswitcher.cpp openpagesswitcher.h
@@ -30,6 +31,7 @@ extend_qtc_plugin(Help
   SOURCES
     bookmarkmanager_test.cpp bookmarkmanager_test.h
     localhelpmanager_test.cpp localhelpmanager_test.h
+    mcpsupport_test.cpp mcpsupport_test.h
 )
 
 set(HELPVIEWER_DEFAULT_BACKEND "litehtml" CACHE STRING "Sets default help viewer backend")

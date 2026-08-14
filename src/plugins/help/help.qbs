@@ -11,6 +11,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "McpServerLib" }
 
     Depends { name: "qlitehtml"; required: false }
 
@@ -40,6 +41,7 @@ QtcPlugin {
             "helpwidget.cpp", "helpwidget.h",
             "helptr.h",
             "localhelpmanager.cpp", "localhelpmanager.h",
+            "mcpsupport.cpp", "mcpsupport.h",
             "openpagesmanager.cpp", "openpagesmanager.h",
             "openpagesswitcher.cpp", "openpagesswitcher.h",
             "openpageswidget.cpp", "openpageswidget.h",
@@ -56,6 +58,8 @@ QtcPlugin {
             "bookmarkmanager_test.h",
             "localhelpmanager_test.cpp",
             "localhelpmanager_test.h",
+            "mcpsupport_test.cpp",
+            "mcpsupport_test.h",
         ]
     }
 
