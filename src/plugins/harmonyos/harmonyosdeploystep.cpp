@@ -21,6 +21,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/commandline.h>
+#include <utils/qtcprocess.h>
 #include <utils/environment.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
@@ -115,6 +116,29 @@ static SigningConfig readSigningConfig(const FilePath &buildDir)
     return config;
 }
 
+// The signing material configured in Preferences > SDKs > HarmonyOS, for projects that
+// were not set up with DevEco's automatic signing. Empty unless all of it is present.
+static SigningConfig signingConfigFromSettings()
+{
+    const FilePath certificate = settings().signingCertificate();
+    const FilePath profile = settings().signingProfile();
+    const FilePath keystore = settings().signingKeystore();
+    const QString alias = settings().signingKeyAlias();
+    if (certificate.isEmpty() || profile.isEmpty() || keystore.isEmpty() || alias.isEmpty())
+        return {};
+
+    SigningConfig config;
+    config.insert(Constants::SIGNING_CERT_PATH_ENV_VAR, certificate.nativePath());
+    config.insert(Constants::SIGNING_PROFILE_ENV_VAR, profile.nativePath());
+    config.insert(Constants::SIGNING_STORE_FILE_ENV_VAR, keystore.nativePath());
+    config.insert(Constants::SIGNING_KEY_ALIAS_ENV_VAR, alias);
+    if (const QString password = settings().keyPassword(); !password.isEmpty())
+        config.insert(Constants::SIGNING_KEY_PASSWORD_ENV_VAR, password);
+    if (const QString password = settings().storePassword(); !password.isEmpty())
+        config.insert(Constants::SIGNING_STORE_PASSWORD_ENV_VAR, password);
+    return config;
+}
+
 // Builds the .hap via the Qt-generated CMake "<target>_make_hap" target.
 class MakeHapStep final : public AbstractProcessStep
 {
@@ -169,22 +193,26 @@ private:
         const SigningConfig live = readSigningConfig(buildDir);
         if (!live.isEmpty())
             m_signingCache = live;
+        else if (const SigningConfig configured = signingConfigFromSettings(); !configured.isEmpty())
+            m_signingCache = configured;
 
         Environment env = bc->environment();
         if (m_signingCache.isEmpty()) {
             emit addOutput(Tr::tr("No HarmonyOS signing configuration was found. The package "
-                                  "will be unsigned and cannot be installed on a device. Open "
-                                  "the harmonyos-build folder in DevEco Studio to set up "
-                                  "automatic signing."),
+                                  "will be unsigned and cannot be installed on a device. Set up "
+                                  "signing in Preferences > SDKs > HarmonyOS, or open the "
+                                  "harmonyos-build folder in DevEco Studio to set up automatic "
+                                  "signing."),
                            OutputFormat::Stdout);
         } else {
             for (auto it = m_signingCache.cbegin(); it != m_signingCache.cend(); ++it)
                 env.set(it.key(), it.value());
             if (!m_signingCache.contains(Constants::SIGNING_KEY_PASSWORD_ENV_VAR)
                 || !m_signingCache.contains(Constants::SIGNING_STORE_PASSWORD_ENV_VAR)) {
-                emit addOutput(Tr::tr("The HarmonyOS signing passwords are not available. Open "
-                                      "the harmonyos-build folder in DevEco Studio to refresh "
-                                      "the signing configuration."),
+                emit addOutput(Tr::tr("The HarmonyOS signing passwords are not available. Enter "
+                                      "them in Preferences > SDKs > HarmonyOS, or open the "
+                                      "harmonyos-build folder in DevEco Studio to refresh the "
+                                      "signing configuration."),
                                OutputFormat::Stdout);
             }
         }
@@ -267,8 +295,9 @@ private:
             return false;
         }
 
-        const FilePath hap = bc->buildDirectory().pathAppended(
+        m_hap = bc->buildDirectory().pathAppended(
             "harmonyos-build/entry/build/default/outputs/default/" + buildKey + ".hap");
+        const FilePath &hap = m_hap;
 
         // Target the run device explicitly so the right one is used when several
         // are connected.
@@ -289,6 +318,45 @@ private:
         formatter->addLineParsers(kit()->createOutputParsers());
         AbstractProcessStep::setupOutputFormatter(formatter);
     }
+
+    QtTaskTree::GroupItem runRecipe() final
+    {
+        using namespace QtTaskTree;
+
+        const auto onSetup = [this](Process &process) {
+            // Checked here rather than in init(), which runs before the steps that
+            // build the package.
+            if (!m_hap.exists()) {
+                emit addOutput(Tr::tr("The package \"%1\" was not built.")
+                                   .arg(m_hap.toUserOutput()),
+                               OutputFormat::ErrorMessage);
+                return SetupResult::StopWithError;
+            }
+            if (!setupProcess(process))
+                return SetupResult::StopWithError;
+            m_output.clear();
+            process.setStdOutCallback([this](const QString &text) {
+                m_output += text;
+                emit addOutput(text, OutputFormat::Stdout, DontAppendNewline);
+            });
+            return SetupResult::Continue;
+        };
+        const auto onDone = [this](const Process &process) {
+            // hdc exits successfully even when it did not install anything, so the
+            // outcome has to be read off its output. It reports a package it could
+            // not read with "[Fail]" and one the device rejected with "msg:error:".
+            if (m_output.contains("[Fail]") || m_output.contains("msg:error:")) {
+                emit addOutput(Tr::tr("Installing the package on the device failed."),
+                               OutputFormat::ErrorMessage);
+                return false;
+            }
+            return handleProcessDone(process);
+        };
+        return ProcessTask(onSetup, onDone);
+    }
+
+    FilePath m_hap;
+    QString m_output;
 };
 
 class InstallHapStepFactory final : public BuildStepFactory
