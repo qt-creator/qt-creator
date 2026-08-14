@@ -214,6 +214,14 @@ add_qtc_test(tst_debugger_dapclient
     "${DEBUGGERDIR}/dap/dapclient.cpp" "${DEBUGGERDIR}/dap/dapclient.h"
 )
 
+add_qtc_test(tst_debugger_bridge
+  DEFINES
+    DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
+    BRIDGE_DRIVER="${CMAKE_CURRENT_SOURCE_DIR}/bridgedriver.py"
+  SOURCES
+    tst_bridge.cpp
+)
+
 add_qtc_test(tst_debugger_pdb
   DEFINES
     DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
