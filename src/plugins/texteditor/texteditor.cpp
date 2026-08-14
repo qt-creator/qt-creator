@@ -3362,6 +3362,78 @@ void TextEditorWidget::gotoNextWordCamelCaseWithSelection()
     setMultiTextCursor(cursor);
 }
 
+// Blocks hidden by a fold belong to the paragraph of their fold header, so
+// the motions never stop on or inside a collapsed fold.
+static bool isBlankBlock(const QTextBlock &block)
+{
+    return block.isVisible() && block.text().trimmed().isEmpty();
+}
+
+static QTextBlock firstBlockOfParagraph(QTextBlock block)
+{
+    while (block.previous().isValid() && !isBlankBlock(block.previous()))
+        block = block.previous();
+    return block;
+}
+
+// Moves the cursor to the start of the next or previous paragraph, skipping the
+// blank lines in between. Moving backwards from within a paragraph goes to its
+// own start first. Clamps to the document boundary when there is no further
+// paragraph.
+static void moveCursorToParagraph(QTextCursor &cursor, QTextCursor::MoveOperation direction,
+                                  QTextCursor::MoveMode mode)
+{
+    const bool next = direction == QTextCursor::NextBlock;
+    QTextBlock block = cursor.block();
+    if (next) {
+        while (block.isValid() && !isBlankBlock(block))
+            block = block.next();
+        while (block.isValid() && isBlankBlock(block))
+            block = block.next();
+    } else {
+        if (cursor.position() == block.position())
+            block = block.previous();
+        while (block.isValid() && isBlankBlock(block))
+            block = block.previous();
+        if (block.isValid())
+            block = firstBlockOfParagraph(block);
+    }
+    const int position = block.isValid() ? block.position()
+                                         : (next ? cursor.document()->characterCount() - 1 : 0);
+    cursor.setPosition(position, mode);
+}
+
+static void moveToParagraph(TextEditorWidget *widget, QTextCursor::MoveOperation direction,
+                            QTextCursor::MoveMode mode)
+{
+    MultiTextCursor multi = widget->multiTextCursor();
+    QList<QTextCursor> cursors = multi.cursors();
+    for (QTextCursor &cursor : cursors)
+        moveCursorToParagraph(cursor, direction, mode);
+    multi.setCursors(cursors);
+    widget->setMultiTextCursor(multi);
+}
+
+void TextEditorWidget::gotoPreviousParagraph()
+{
+    moveToParagraph(this, QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
+}
+
+void TextEditorWidget::gotoPreviousParagraphWithSelection()
+{
+    moveToParagraph(this, QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
+}
+
+void TextEditorWidget::gotoNextParagraph()
+{
+    moveToParagraph(this, QTextCursor::NextBlock, QTextCursor::MoveAnchor);
+}
+
+void TextEditorWidget::gotoNextParagraphWithSelection()
+{
+    moveToParagraph(this, QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+}
+
 bool TextEditorWidget::selectBlockUp()
 {
     if (multiTextCursor().hasMultipleCursors())
@@ -5799,6 +5871,14 @@ void TextEditorWidgetPrivate::registerActions()
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->gotoNextWordCamelCase(); })
         .setScriptable(true);
+    ActionBuilder(this, GOTO_PREVIOUS_PARAGRAPH)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousParagraph(); })
+        .setScriptable(true);
+    ActionBuilder(this, GOTO_NEXT_PARAGRAPH)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextParagraph(); })
+        .setScriptable(true);
 
     ActionBuilder(this, GOTO_LINE_START_WITH_SELECTION)
         .setContext(m_editorContext)
@@ -5839,6 +5919,14 @@ void TextEditorWidgetPrivate::registerActions()
     ActionBuilder(this, GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION)
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->gotoNextWordCamelCaseWithSelection(); })
+        .setScriptable(true);
+    ActionBuilder(this, GOTO_PREVIOUS_PARAGRAPH_WITH_SELECTION)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousParagraphWithSelection(); })
+        .setScriptable(true);
+    ActionBuilder(this, GOTO_NEXT_PARAGRAPH_WITH_SELECTION)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextParagraphWithSelection(); })
         .setScriptable(true);
 
     m_suggestionActions <<

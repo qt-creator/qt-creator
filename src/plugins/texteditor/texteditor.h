@@ -509,6 +509,10 @@ public:
     void gotoPreviousWordCamelCaseWithSelection();
     void gotoNextWordCamelCase();
     void gotoNextWordCamelCaseWithSelection();
+    void gotoPreviousParagraph();
+    void gotoPreviousParagraphWithSelection();
+    void gotoNextParagraph();
+    void gotoNextParagraphWithSelection();
 
     virtual bool selectBlockUp();
     virtual bool selectBlockDown();
