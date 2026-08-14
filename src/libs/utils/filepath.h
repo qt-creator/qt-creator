@@ -178,6 +178,7 @@ public:
     bool contains(const QString &s, Qt::CaseSensitivity = Qt::CaseInsensitive) const;
 
     bool exists() const;
+    Result<> checkDeviceAccess() const;
 
     FilePath parentDir() const;
     bool isChildOf(const FilePath &s) const;

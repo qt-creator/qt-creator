@@ -2767,6 +2767,26 @@ FilePath FilePath::findCmdExe(const Environment &env) const
 }
 
 /*!
+    Returns whether the device this path belongs to can answer questions about
+    files, or the reason why it cannot: the device may be unknown to this
+    session, or provide no file access.
+
+    Without this, such a path answers every query with "no": it does not exist,
+    it is not a directory, it has no entries. That is indistinguishable from a
+    path that is simply not there, and reads as an empty answer rather than as
+    "cannot look".
+
+    \sa exists()
+*/
+Result<> FilePath::checkDeviceAccess() const
+{
+    const Result<DeviceFileAccessPtr> access = fileAccess();
+    if (!access)
+        return ResultError(access.error());
+    return ResultOk;
+}
+
+/*!
     Returns the environment of the device this path belongs to, or an error result on failure.
 
     \sa deviceEnvironment()
