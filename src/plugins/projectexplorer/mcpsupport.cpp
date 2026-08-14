@@ -32,6 +32,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <mcp/server/mcpserver.h>
@@ -499,6 +500,23 @@ static BoundedOutput &compileOutput()
         BuildManager::instance(), [](const QString &text) { out.append(text); });
     Q_UNUSED(conn)
     return out;
+}
+
+static QString &generalMessagesBuffer()
+{
+    static QString buffer;
+    static const bool started = [] {
+        Core::MessageManager::addObserver(Utils::shutdownGuard(), [](const QString &message) {
+            buffer += message;
+            buffer += '\n';
+            static constexpr int maxOutputSize = 1024 * 200; // cap to bound context size
+            if (buffer.size() > maxOutputSize)
+                buffer = buffer.right(maxOutputSize);
+        });
+        return true;
+    }();
+    Q_UNUSED(started)
+    return buffer;
 }
 
 static QStringList findFiles(const QList<Project *> &projects, const QRegularExpression &re)
@@ -2344,6 +2362,22 @@ void registerMcpTools()
                                                {"total_chars", captured.total()}})
                 .isError(false);
         });
+
+    generalMessagesBuffer(); // start capturing General Messages from now on
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_general_messages")
+            .title("Get General Messages output")
+            .description("Returns the recent General Messages pane text - the warnings, errors "
+                         "and status that plugins surface to the user outside the Compile Output "
+                         "and Application Output panes. Use it to see diagnostics that are "
+                         "otherwise only shown in the GUI.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("output", QJsonObject{{"type", "string"}})
+                    .addRequired("output")),
+        wrap([](const QJsonObject &) { return QJsonObject{{"output", generalMessagesBuffer()}}; }));
 
     ToolRegistry::registerTool(
         Tool{}
