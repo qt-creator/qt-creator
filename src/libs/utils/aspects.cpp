@@ -1285,6 +1285,9 @@ void StringAspect::addToLayoutImpl(Layout &parent)
     case PasswordLineEditDisplay:
     case LineEditDisplay: {
         auto lineEditDisplay = createSubWidget<FancyLineEdit>();
+        // Named after the setting, like a path chooser, so a page with several of
+        // them can be told apart.
+        lineEditDisplay->setObjectName(stringFromKey(settingsKey()));
         addMacroExpansion(lineEditDisplay);
         lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         lineEditDisplay->setMinimumHeight(d->m_minimumHeight);
@@ -1786,6 +1789,8 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
 
     d->m_pathChooserDisplay = createSubWidget<PathChooser>();
+    // A settings page tends to hold several of these, so name them apart.
+    d->m_pathChooserDisplay->setObjectName(stringFromKey(settingsKey()));
     addMacroExpansion(d->m_pathChooserDisplay);
     d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
     if (!d->m_historyCompleterKey.isEmpty())
