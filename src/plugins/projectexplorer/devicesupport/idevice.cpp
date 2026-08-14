@@ -768,15 +768,26 @@ FileTransferInterface *IDevice::createFileTransferInterface(
 
 Environment IDevice::systemEnvironment() const
 {
-    Result<Environment> env = systemEnvironmentWithError();
-    QTC_ASSERT_RESULT(env, return {});
+    const Result<Environment> env = systemEnvironmentWithError();
+    if (!env) {
+        // Empty, but with the device's OsType: callers merge kit and project
+        // items into this, and mixing entries of a foreign OsType asserts.
+        return Environment(osType());
+    }
     return *env;
 }
 
 Result<Environment> IDevice::systemEnvironmentWithError() const
 {
     DeviceFileAccessPtr access = fileAccess();
-    QTC_ASSERT(access, return Environment::systemEnvironment());
+    if (!access) {
+        // Not a programming error: LinuxDevice for one sets its file access up
+        // asynchronously, so everything asking before that is done ends up
+        // here, restoring a project among it. Once setFileAccess() announces
+        // the device, the kits using it are updated, and the build
+        // configurations recompute their environment.
+        return ResultError(Tr::tr("Device is not connected."));
+    }
     return access->deviceEnvironment();
 }
 
