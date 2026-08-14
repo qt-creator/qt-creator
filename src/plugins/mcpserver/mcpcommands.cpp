@@ -60,7 +60,10 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QAction>
+#include <QDateTime>
 #include <QLoggingCategory>
+#include <QMessageBox>
+#include <QPointer>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -1094,6 +1097,72 @@ static QString lastLines(const QString &text, int maxLines)
     return QStringList(lines.mid(lines.size() - maxLines)).join('\n');
 }
 
+// QMessageBox popups (QMessageBox::warning/question/..., or a non-modal box shown
+// via new QMessageBox(...) + show()) do not reach the log or message panes, so a
+// headless client cannot otherwise see them. Record each one as it is shown, via
+// an application-wide event filter, so get_message_boxes can report it.
+static QString messageBoxIconName(QMessageBox::Icon icon)
+{
+    switch (icon) {
+    case QMessageBox::NoIcon: return "none";
+    case QMessageBox::Information: return "information";
+    case QMessageBox::Warning: return "warning";
+    case QMessageBox::Critical: return "critical";
+    case QMessageBox::Question: return "question";
+    }
+    return "none";
+}
+
+class MessageBoxCapture : public QObject
+{
+public:
+    static MessageBoxCapture &instance()
+    {
+        static MessageBoxCapture theCapture;
+        return theCapture;
+    }
+
+    class Entry
+    {
+    public:
+        QPointer<QMessageBox> box;
+        qint64 timestamp = 0;
+        QString title;
+        QString text;
+        QString informativeText;
+        QString icon;
+        QStringList buttons;
+        bool modal = false;
+    };
+
+    QList<Entry> entries;
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Show) {
+            if (auto *box = qobject_cast<QMessageBox *>(watched)) {
+                Entry entry;
+                entry.box = box;
+                entry.timestamp = QDateTime::currentMSecsSinceEpoch();
+                entry.title = box->windowTitle();
+                entry.text = box->text();
+                entry.informativeText = box->informativeText();
+                entry.icon = messageBoxIconName(box->icon());
+                const QList<QAbstractButton *> buttons = box->buttons();
+                for (const QAbstractButton *button : buttons)
+                    entry.buttons << button->text();
+                entry.modal = box->isModal();
+                entries.append(entry);
+                static constexpr int maxEntries = 100; // bound the buffer
+                if (entries.size() > maxEntries)
+                    entries.removeFirst();
+            }
+        }
+        return QObject::eventFilter(watched, event);
+    }
+};
+
 void McpCommands::registerCommands()
 {
     using namespace Mcp::Schema;
@@ -1101,6 +1170,8 @@ void McpCommands::registerCommands()
     using ExtensionSystem::PluginSpec;
 
     static McpCommands commands;
+
+    qApp->installEventFilter(&MessageBoxCapture::instance());
 
     using SimplifiedCallback = std::function<QJsonObject(const QJsonObject &)>;
 
@@ -1123,6 +1194,48 @@ void McpCommands::registerCommands()
             return ResultOk;
         };
     };
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_message_boxes")
+            .title("Get message box popups")
+            .description(
+                "Returns the QMessageBox popups (warnings, errors, questions, ...) shown since "
+                "startup, including transient or non-modal ones that never reach the log or "
+                "message panes. Each entry has the title, text, informative_text, icon, buttons, "
+                "whether it is modal, and whether it is still open. Pass open_only=true to get "
+                "only the currently-visible ones.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}.addProperty(
+                    "open_only",
+                    QJsonObject{
+                        {"type", "boolean"},
+                        {"default", false},
+                        {"description", "Only return message boxes that are still open."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("message_boxes", QJsonObject{{"type", "array"}})
+                    .addRequired("message_boxes")),
+        wrap([](const QJsonObject &args) {
+            const bool openOnly = args.value("open_only").toBool(false);
+            QJsonArray boxes;
+            for (const MessageBoxCapture::Entry &entry : MessageBoxCapture::instance().entries) {
+                const bool open = !entry.box.isNull() && entry.box->isVisible();
+                if (openOnly && !open)
+                    continue;
+                boxes.append(QJsonObject{
+                    {"title", entry.title},
+                    {"text", entry.text},
+                    {"informative_text", entry.informativeText},
+                    {"icon", entry.icon},
+                    {"buttons", QJsonArray::fromStringList(entry.buttons)},
+                    {"modal", entry.modal},
+                    {"open", open},
+                    {"timestamp", entry.timestamp}});
+            }
+            return QJsonObject{{"message_boxes", boxes}};
+        }));
 
     ToolRegistry::registerTool(
         Tool{}
