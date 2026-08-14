@@ -86,13 +86,16 @@ FilePath hvigorBinPath(const FilePath &sdkRoot)
         return {};
 
     // DevEco Studio keeps hvigor under "tools/hvigor/bin"; the standalone command-line-tools
-    // package keeps the hvigorw launcher directly in "bin".
+    // package keeps the hvigorw launcher directly in "bin". Both sit next to the "sdk" folder,
+    // which a configured root may point at directly.
     static const QStringList candidates = {"tools/hvigor/bin", "bin"};
-    for (const QString &candidate : candidates) {
-        const FilePath binDir = sdkRoot.pathAppended(candidate);
-        if (binDir.pathAppended("hvigorw").withExecutableSuffix().exists()
-            || binDir.pathAppended("hvigorw.bat").exists()) {
-            return binDir;
+    for (const FilePath &root : {sdkRoot, sdkRoot.parentDir()}) {
+        for (const QString &candidate : candidates) {
+            const FilePath binDir = root.pathAppended(candidate);
+            if (binDir.pathAppended("hvigorw").withExecutableSuffix().exists()
+                || binDir.pathAppended("hvigorw.bat").exists()) {
+                return binDir;
+            }
         }
     }
     return {};
@@ -115,10 +118,12 @@ FilePath nodeBinPath(const FilePath &sdkRoot)
         return {};
 
     static const QStringList candidates = {"tools/node", "node"};
-    for (const QString &candidate : candidates) {
-        const FilePath nodeDir = sdkRoot.pathAppended(candidate);
-        if (nodeDir.pathAppended("node").withExecutableSuffix().exists())
-            return nodeDir;
+    for (const FilePath &root : {sdkRoot, sdkRoot.parentDir()}) {
+        for (const QString &candidate : candidates) {
+            const FilePath nodeDir = root.pathAppended(candidate);
+            if (nodeDir.pathAppended("node").withExecutableSuffix().exists())
+                return nodeDir;
+        }
     }
     return {};
 }
