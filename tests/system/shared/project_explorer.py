@@ -21,8 +21,8 @@ def switchViewTo(view):
     mouseClick(tabBar, 20, 20 + tabHeight * view, 0, Qt.LeftButton)
 
 def __kitIsActivated__(kit):
-    return not ("<h3>Click to enable target, click again to make active</h3>" in str(kit.toolTip)
-                or "<h3>Kit is unsuited for project</h3>" in str(kit.toolTip))
+    return not ("<h3>Double-click to enable target, double-click again to make active</h3>"
+                in str(kit.toolTip) or "<h3>Kit is unsuited for project</h3>" in str(kit.toolTip))
 
 
 # helper function - assumes to be already in Projects mode
@@ -156,21 +156,21 @@ def invokeContextMenuOnProject(projectName, menuItem):
 
 def addAndActivateKit(kit):
     kitString = Targets.getStringForTarget(kit)
-    clickToActivate = ("<html><body><h3>%s</h3><p><h3>Click to enable target, click again to make "
-                       "active</h3>" % kitString)
+    clickToActivate = ("<html><body><h3>%s</h3><p><h3>Double-click to enable target, double-click "
+                       "again to make active</h3>" % kitString)
     switchViewTo(ViewConstants.PROJECTS)
     try:
         waitForObject(":Projects.ProjectNavigationTreeView")
         wanted = getQModelIndexStr("text='%s'" % kitString, ":Projects.ProjectNavigationTreeView")
         index = findObject(wanted)
         if str(index.toolTip).startswith(clickToActivate):
-            mouseClick(index)
+            doubleClick(index)
             test.verify(waitFor("not str(index.toolTip).startswith(clickToActivate)", 1500),
                         "Kit added for this project")
         else:
             test.warning("Kit is already added for this project.")
         index = waitForObject(wanted, 1000)
-        mouseClick(index)
+        doubleClick(index)
         test.verify(waitFor("index.font.bold == True", 1500),
                     "Verifying whether kit is current active")
     except:
