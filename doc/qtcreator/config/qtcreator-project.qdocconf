@@ -13,8 +13,8 @@ ignorewords += \
     MinGW
 
 headerdirs =
-sourcedirs = ../src \
-    $$GENERATED_ATTRIBUTIONS_DIR
+sourcedirs = $$GENERATED_ATTRIBUTIONS_DIR \
+    ../src
 
 imagedirs = ../images \
 ../../../src/libs/qmleditorwidgets/images \

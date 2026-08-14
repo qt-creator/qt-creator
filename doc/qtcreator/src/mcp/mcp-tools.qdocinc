@@ -1,0 +1,12 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+// Placeholder for the generated MCP tool list. Building the documentation
+// generates the list from a Qt Creator build into the build directory (the
+// regenerate_mcp_tools_doc target), where it takes precedence over this file.
+
+//! [tools]
+This version of the documentation does not include the tool list. To see the
+tools that your \QC offers, along with their descriptions and parameters, ask
+your MCP client to list the tools of the \QC MCP server.
+//! [tools]

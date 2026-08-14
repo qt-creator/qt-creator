@@ -205,7 +205,7 @@ void registerMcpTools()
                     {"type", "string"},
                     {"description",
                      "Machine-readable failure cause, only present when succeeded is false, "
-                     "e.g. \"cmake_failed\" or \"no_startup_project\"."}})
+                     "such as \"cmake_failed\" or \"no_startup_project\"."}})
             .addProperty(
                 "duration_ms",
                 QJsonObject{
@@ -236,7 +236,7 @@ void registerMcpTools()
                 "blocks until CMake finishes. Returns a verdict: {succeeded, error_count, "
                 "warning_count, duration_ms, issues, summary_text}. Use after editing "
                 "CMakeLists.txt to add a target or test so the next build_project/test_run sees "
-                "the refreshed target list; the natural pattern is cmake_reconfigure -> "
+                "the refreshed target list. The natural pattern is cmake_reconfigure -> "
                 "build_project -> test_run. Uses the startup project if 'project' is omitted.")
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .inputSchema(
@@ -309,7 +309,7 @@ void registerMcpTools()
             .name("cmake_reset_configuration")
             .title("Reset a project's CMake configuration")
             .description(
-                "Discards the CMake configuration of the project's ACTIVE build configuration "
+                "Discards the CMake configuration of the project's active build configuration "
                 "(equivalent to Build > Clear CMake Configuration) and, unless reconfigure is "
                 "false, configures it again from scratch, blocking until CMake finishes. Deletes "
                 "CMakeCache.txt, CMakeFiles and the file-api reply directory in that build "
@@ -335,7 +335,7 @@ void registerMcpTools()
                             {"type", "boolean"},
                             {"description",
                              "Run CMake again after clearing the configuration. Defaults to "
-                             "true; pass false to leave the project unconfigured."}}))
+                             "true. Pass false to leave the project unconfigured."}}))
             .outputSchema(verdictOutputSchema)
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true)),
         [](const Schema::CallToolRequestParams &params,

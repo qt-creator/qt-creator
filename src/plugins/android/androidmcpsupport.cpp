@@ -103,7 +103,7 @@ void registerAndroidMcpTools()
                 "automatic Android kits from the configured SDK/NDK and the installed "
                 "Qt-for-Android versions. Use after the Android SDK location and a Qt-for-Android "
                 "version are configured to obtain a usable Android kit without driving the "
-                "preferences GUI. Returns all kits present afterwards, each with the id of its "
+                "preferences GUI. Returns all kits present afterwards, each with the ID of its "
                 "run device type, so that the Android ones can be told apart, plus the Android "
                 "Qt versions and Android toolchains that the kit creation had to work with. "
                 "Fails if the configured Android SDK is not usable, which is otherwise "
@@ -147,7 +147,7 @@ void registerAndroidMcpTools()
                                            {"items", QJsonObject{{"type", "string"}}}}},
                                   }}}},
                             {"description",
-                             "Registered Qt-for-Android versions the kit creation drew on"}})
+                             "Registered Qt-for-Android versions the kit creation drew on."}})
                     .addProperty(
                         "android_toolchains",
                         QJsonObject{
@@ -161,7 +161,7 @@ void registerAndroidMcpTools()
                                       {"abi", QJsonObject{{"type", "string"}}},
                                       {"valid", QJsonObject{{"type", "boolean"}}},
                                   }}}},
-                            {"description", "Android NDK toolchains registered by the setup"}})
+                            {"description", "Android NDK toolchains registered by the setup."}})
                     .addRequired("kits")
                     .addRequired("android_qt_versions")
                     .addRequired("android_toolchains")),

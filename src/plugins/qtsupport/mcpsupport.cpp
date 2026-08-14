@@ -54,27 +54,27 @@ void registerMcpTools()
                         "qt_directory",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Qt installation prefix directory"}})
+                            {"description", "Qt installation prefix directory."}})
                     .addProperty(
                         "qt_version",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Qt version string (e.g. \"6.8.0\")"}})
+                            {"description", "Qt version string (such as \"6.8.0\")."}})
                     .addProperty(
                         "bin_path",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Path to Qt target bin directory"}})
+                            {"description", "Path to Qt target bin directory."}})
                     .addProperty(
                         "header_path",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Path to Qt header directory"}})
+                            {"description", "Path to Qt header directory."}})
                     .addProperty(
                         "library_path",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Path to Qt library directory"}})),
+                            {"description", "Path to Qt library directory."}})),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QString projectName = params.arguments()->value("project_name").toString();
             ProjectExplorer::Project *project = nullptr;
@@ -126,7 +126,7 @@ void registerMcpTools()
                         "qmake_path",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Path to the qmake executable of the Qt to add"}})
+                            {"description", "Path to the qmake executable of the Qt to add."}})
                     .addProperty(
                         "name",
                         QJsonObject{
@@ -139,33 +139,33 @@ void registerMcpTools()
                 Tool::OutputSchema{}
                     .addProperty(
                         "id",
-                        QJsonObject{{"type", "integer"}, {"description", "Unique id"}})
+                        QJsonObject{{"type", "integer"}, {"description", "Unique ID."}})
                     .addProperty(
-                        "name", QJsonObject{{"type", "string"}, {"description", "Display name"}})
+                        "name", QJsonObject{{"type", "string"}, {"description", "Display name."}})
                     .addProperty(
                         "qt_version",
-                        QJsonObject{{"type", "string"}, {"description", "Qt version string"}})
+                        QJsonObject{{"type", "string"}, {"description", "Qt version string."}})
                     .addProperty(
                         "type",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Qt version type, as the factories named it"}})
+                            {"description", "Qt version type, as the factories named it."}})
                     .addProperty(
                         "mkspec",
-                        QJsonObject{{"type", "string"}, {"description", "Default mkspec"}})
+                        QJsonObject{{"type", "string"}, {"description", "Default mkspec."}})
                     .addProperty(
                         "abis",
                         QJsonObject{
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "string"}}},
-                            {"description", "ABIs the version was found to build for"}})
+                            {"description", "ABIs the version was found to build for."}})
                     .addProperty(
-                        "valid", QJsonObject{{"type", "boolean"}, {"description", "Is it usable"}})
+                        "valid", QJsonObject{{"type", "boolean"}, {"description", "Is it usable."}})
                     .addProperty(
                         "already_registered",
                         QJsonObject{
                             {"type", "boolean"},
-                            {"description", "Was this qmake known before the call"}})),
+                            {"description", "Was this qmake known before the call."}})),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const FilePath qmake = FilePath::fromUserInput(
                 params.arguments()->value("qmake_path").toString());

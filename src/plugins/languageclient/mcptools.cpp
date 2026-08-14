@@ -1609,7 +1609,7 @@ void registerMcpTools()
                 "for C++, qmlls for QML, or whatever server is configured for the file "
                 "type, so this is the tool for a symbol's documentation. Give the file and a "
                 "1-based line and column on an identifier. The file is opened in a hidden "
-                "editor if it is not open; a server must be configured for its file type, "
+                "editor if it is not open. A server must be configured for its file type, "
                 "and a server that is still starting asks to be retried.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(positionInputSchema("the identifier"))
@@ -1642,7 +1642,7 @@ void registerMcpTools()
                 "the calls happen, and, with a \"depth\" above 1, its own \"calls\" nested "
                 "below it. clangd supports outgoing calls from version 20.1 on and reports "
                 "an error before that. The file is opened in a hidden editor if it is not "
-                "open; a server that is still starting asks to be retried.")
+                "open. A server that is still starting asks to be retried.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 positionInputSchema("the function name")
@@ -1688,8 +1688,8 @@ void registerMcpTools()
                 "computes them from its index. Give the file and a 1-based line and column "
                 "on a class name. Each entry has the type's name, kind, file and position, "
                 "and, with a \"depth\" above 1, its own \"supertypes\" or \"subtypes\" "
-                "nested below it. The file is opened in a hidden editor if it is not open; "
-                "a server that is still starting asks to be retried.")
+                "nested below it. The file is opened in a hidden editor if it is not open. "
+                "A server that is still starting asks to be retried.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 positionInputSchema("the class name")
@@ -1734,10 +1734,10 @@ void registerMcpTools()
                 "file type) knows them from its index - templates, overloads and macros "
                 "included, across all files it has indexed. Give the file and a 1-based "
                 "line and column on an identifier. Each reference has its file and 1-based "
-                "line/column to end_line/end_column; the declaration is included unless "
+                "line/column to end_line/end_column. The declaration is included unless "
                 "\"include_declaration\" is false. The list is sorted by file and position "
                 "and capped by \"limit\", with \"total\" and \"truncated\" saying what "
-                "was left out. The file is opened in a hidden editor if it is not open; a "
+                "was left out. The file is opened in a hidden editor if it is not open. A "
                 "server that is still starting asks to be retried.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -1771,15 +1771,15 @@ void registerMcpTools()
                 "for C++, qmlls for QML, or whatever server is configured for the file type) "
                 "knows it - templates, overloads and macros included. Give the file, a "
                 "1-based line and column on the identifier, and the \"new_name\". By default "
-                "this is a DRY RUN: it returns the edits the server proposes (each with file, "
+                "this is a dry run: it returns the edits the server proposes (each with file, "
                 "1-based position, old and new text) and changes nothing. Set \"apply\" to "
                 "true to make the edits: they reach the files on disk, and a file open in an "
                 "editor is updated there too, unless it had unsaved changes of its own, in "
                 "which case it is edited but not saved and named in \"unsaved_files\". The "
-                "server refuses a name that clashes within the same scope; other "
+                "server refuses a name that clashes within the same scope. Other "
                 "symbols that already carry the new name anywhere in the project are listed "
                 "as \"conflicts\" for you to judge, and do not block. The file is opened in a "
-                "hidden editor if it is not open; a server that is still starting asks to be "
+                "hidden editor if it is not open. A server that is still starting asks to be "
                 "retried.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
             .inputSchema(
@@ -1840,12 +1840,12 @@ void registerMcpTools()
                 "file type) resolves it - templates, overloads and macros included. Give the "
                 "file and a 1-based line and column on an identifier. \"kind\" chooses the "
                 "question: \"definition\" (default) for the symbol's own definition, or its "
-                "declaration when the server knows no definition; \"type_definition\" for the "
-                "definition of the symbol's type, for a variable or parameter; "
+                "declaration when the server knows no definition. \"type_definition\" for the "
+                "definition of the symbol's type, for a variable or parameter. "
                 "\"implementation\" for the overrides of a virtual function or the classes "
                 "implementing an interface. Each location has its file and 1-based "
                 "line/column to end_line/end_column. The file is opened in a hidden editor "
-                "if it is not open; a server that is still starting asks to be retried.")
+                "if it is not open. A server that is still starting asks to be retried.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 positionInputSchema("the identifier")
@@ -1879,9 +1879,9 @@ void registerMcpTools()
                 "\"query\" (matched fuzzily, ranked by the server) and any \"file\" the "
                 "server handles, which picks the server: a C++ file for clangd, a QML file "
                 "for qmlls. Each symbol has its name, kind, container (class or namespace), "
-                "file and 1-based line/column of its name. \"limit\" caps the count; "
+                "file and 1-based line/column of its name. \"limit\" caps the count. "
                 "\"truncated\" says whether more matched. The file is opened in a hidden "
-                "editor if it is not open; a server that is still starting asks to be "
+                "editor if it is not open. A server that is still starting asks to be "
                 "retried.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -1890,7 +1890,7 @@ void registerMcpTools()
                         "file",
                         QJsonObject{{"type", "string"},
                                     {"description",
-                                     "Absolute path to a file the server handles; chooses "
+                                     "Absolute path to a file the server handles. Chooses "
                                      "the server."}})
                     .addProperty(
                         "query",

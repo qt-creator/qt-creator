@@ -437,7 +437,8 @@ void registerMcpTools()
                            {"skipped", QJsonObject{{"type", "integer"}}},
                            {"fatal",
                             QJsonObject{
-                                {"type", "integer"}, {"description", "Tests aborted by qFatal()"}}},
+                                {"type", "integer"},
+                                {"description", "Tests aborted by qFatal()."}}},
                            {"blacklisted",
                             QJsonObject{
                                 {"type", "integer"},
@@ -445,8 +446,8 @@ void registerMcpTools()
                                  "Tests with a Blacklisted{Pass,Fail,XPass,XFail} outcome. "
                                  "Qt Test treats these as 'result does not matter for overall "
                                  "result' - the project has explicitly opted out. Counted "
-                                 "here for completeness but NOT included in passed/failed and "
-                                 "NOT listed in the failures[] array."}}},
+                                 "here for completeness but not included in passed/failed and "
+                                 "not listed in the failures[] array."}}},
                            {"total", QJsonObject{{"type", "integer"}}},
                            {"duration_ms",
                             QJsonObject{
@@ -454,7 +455,7 @@ void registerMcpTools()
                                 {"minimum", -1},
                                 {"description",
                                  "Whole-run duration in milliseconds. -1 if autotest "
-                                 "didn't report a duration."}}},
+                                 "did not report a duration."}}},
                            {"build_failed", QJsonObject{{"type", "boolean"}}}}},
                       {"required",
                        QJsonArray{
@@ -492,7 +493,7 @@ void registerMcpTools()
                        "Build errors/warnings from the pre-test build. Present only when "
                        "summary.build_failed is true - folded in by test_run so the AI "
                        "can diagnose the build failure without a separate build_get_issues "
-                       "call. Objects with type, description, file, line and id. Absent "
+                       "call. Objects with type, description, file, line and ID. Absent "
                        "when the build succeeded."}})
               .addRequired("summary")
               .addRequired("failures")
@@ -527,7 +528,7 @@ void registerMcpTools()
                        "results are that run's, and on an unfinished one the run_id will "
                        "collect them, so in both cases they are not necessarily the "
                        "scope/names this call asked for. \"call_cancelled\" means this "
-                       "call was cancelled; if it carries a run_id that run is still "
+                       "call was cancelled. If it carries a run_id that run is still "
                        "going."}})
               .addProperty(
                   "run_id",
@@ -552,24 +553,24 @@ void registerMcpTools()
             .name("test_run")
             .title("Run tests")
             .description(
-                "Build (if needed) and run autotests, then return a compact summary: "
+                "Builds (if needed) and runs autotests, then returns a compact summary: "
                 "counts, list of failed/fatal/skipped test names, and list of passing "
                 "test names that emitted warnings. Runs the whole suite unless you pass "
                 "scope='named' with names - prefer that when you already know which "
-                "tests you care about; a full run can be slow enough to hit a client "
+                "tests you care about. A full run can be slow enough to hit a client "
                 "timeout. Equivalent to clicking Run (or Debug, with mode='debug') in "
                 "the Tests pane. Returns once the run finishes. "
-                "To see per-test details (messages, file/line, etc.), follow up with "
-                "test_get_details using ANY test name from the run - failures, "
+                "To see per-test details (messages, file/line, and so on), follow up with "
+                "test_get_details using any test name from the run - failures, "
                 "warnings, or just a passing test you want to inspect. test_get_details "
                 "returns the full message log for every named test regardless of its "
-                "outcome; an empty messages[] means the test simply didn't emit anything. "
-                "NOTE: each call replaces the current snapshot - if the user has just "
+                "outcome. An empty messages[] means the test did not emit anything. "
+                "Note: each call replaces the current snapshot - if the user has just "
                 "run something interesting in the UI, call test_get_last_results first "
                 "instead of clobbering it."
                 "\n\n"
                 "Read `finished` first. When it is true the summary is this run's result. "
-                "When it is false nothing failed - the run simply has not ended yet, and "
+                "When it is false nothing failed - the run has not ended yet, and "
                 "the response carries a run_id, elapsed_ms and a reason of "
                 "\"still_running\", or \"joined_existing_run\" if the run it is waiting "
                 "for is one that was already going. "
@@ -595,7 +596,7 @@ void registerMcpTools()
                              "the Tests pane, not a selection the caller passes, so it is "
                              "rarely what a caller wants. 'failed' re-runs the tests that "
                              "failed in the previous run. 'named' runs only the tests in "
-                             "the `names` array; set this to run one test, as `names` with "
+                             "the `names` array. Set this to run one test, as `names` with "
                              "any other scope is rejected."}})
                     .addProperty(
                         "names",
@@ -603,7 +604,7 @@ void registerMcpTools()
                             {"type", "array"},
                             {"items", QJsonObject{{"type", "string"}}},
                             {"description",
-                             "Test names to run. Requires scope='named'; passing names "
+                             "Test names to run. Requires scope='named'. Passing names "
                              "with any other scope is an error. Use 'Class', or "
                              "'Class::function' for frameworks that list functions - "
                              "CTest entries have none, so only the whole test runs. "
@@ -621,9 +622,9 @@ void registerMcpTools()
                             {"description",
                              "How to execute. 'run' is the normal mode. 'debug' runs them "
                              "under the debugger, which can reproduce timing-sensitive "
-                             "failures that don't manifest in plain Run mode (e.g. "
+                             "failures that do not manifest in plain Run mode (for example, "
                              "qFatals that only fire when stepped through). Debug mode is "
-                             "much slower; use it for narrowing in on a known failure."}})
+                             "much slower. Use it for narrowing in on a known failure."}})
                     .addProperty(
                         "wait_ms",
                         QJsonObject{
@@ -639,7 +640,7 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "integer"},
                             {"description",
-                             "Attach to the run with this id instead of starting one. Use "
+                             "Attach to the run with this ID instead of starting one. Use "
                              "the run_id from a previous still_running response."}}))
             .outputSchema(runTestsOutputSchema)
             .annotations(ToolAnnotations{}.readOnlyHint(false)),
@@ -1110,8 +1111,8 @@ void registerMcpTools()
             .name("test_get_last_results")
             .title("Read the most recent test run summary")
             .description(
-                "Read-only summary of the most recent test run. Reflects whatever was "
-                "last executed - by test_run OR by the user clicking Run/Debug in the "
+                "Returns a read-only summary of the most recent test run. Reflects whatever was "
+                "last executed - by test_run or by the user clicking Run/Debug in the "
                 "Tests pane. Returns counts plus name lists for failures and "
                 "tests-with-warnings. Use test_get_details with specific test names to "
                 "see per-test messages, file/line, and full debug log. Calling test_run "
@@ -1129,9 +1130,9 @@ void registerMcpTools()
             .description(
                 "Reports whether a test run is currently in progress and "
                 "whether the snapshot holds results worth looking at. Call this before "
-                "test_run if there's any chance the user has just produced an "
-                "interesting result (e.g. a debug-mode failure) in the Tests pane that "
-                "you don't want to overwrite.")
+                "test_run if there is any chance the user has just produced an "
+                "interesting result (for example, a debug-mode failure) in the Tests pane that "
+                "you do not want to overwrite.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1179,7 +1180,7 @@ void registerMcpTools()
                           {"description",
                            "The failure assertion(s) - FAIL!/Actual/Expected/Loc - or the "
                            "skip reason, extracted from the log. Present for failing or "
-                           "skipped tests; read this first, it is small and actionable."}}},
+                           "skipped tests. Read this first, it is small and actionable."}}},
              {"warnings",
               QJsonObject{{"type", "string"},
                           {"description",
@@ -1190,12 +1191,12 @@ void registerMcpTools()
               QJsonObject{{"type", "string"},
                           {"description",
                            "Full test log (capped to the tail when very large - see "
-                           "'truncated'). Use 'failure' for the assertion; this is the "
+                           "'truncated'). Use 'failure' for the assertion. This is the "
                            "surrounding context. Empty for a passing test with no output."}}},
              {"truncated",
               QJsonObject{{"type", "boolean"},
                           {"description",
-                           "True if message/failure/messages text was capped; the full "
+                           "True if message/failure/messages text was capped. The full "
                            "log is in Qt Creator's Test Results pane."}}},
              {"file", QJsonObject{{"type", "string"}}},
              {"line", QJsonObject{{"type", "integer"}, {"minimum", 1}}},
@@ -1212,7 +1213,7 @@ void registerMcpTools()
                   {"items", perTestMessageItemSchema},
                   {"description",
                    "Full log of qDebug/qInfo/qWarning/qCritical/qFatal messages "
-                   "emitted DURING the test function, in arrival order. NOT "
+                   "emitted during the test function, in arrival order. Not "
                    "filtered by pass/fail - an empty array means the test (and "
                    "the production code paths it exercised) emitted nothing, "
                    "which is normal, not a bug. For passing tests this is the "
@@ -1227,17 +1228,17 @@ void registerMcpTools()
             .name("test_get_details")
             .title("Get per-test details from the most recent run")
             .description(
-                "Per-test details for the named tests from the most recent run. By "
+                "Returns per-test details for the named tests from the most recent run. By "
                 "default returns only the small, actionable fields - status, 'failure' "
                 "(the extracted assertion for a failing test), 'warnings' (any warning "
                 "lines), file/line, duration - so a build/test/fix loop never has to "
                 "wade through a huge log. Names typically come from test_run / "
-                "test_get_last_results (`failures` / `tests_with_warnings`); unmatched "
+                "test_get_last_results (`failures` / `tests_with_warnings`). Unmatched "
                 "names appear in `not_found`."
                 "\n\n"
                 "Pass include:[\"log\"] for the full (tail-capped) output as `message`, "
                 "and include:[\"messages\"] for the qDebug/qInfo/... context array. "
-                "`truncated` is set when any text was capped; the full log is always in "
+                "`truncated` is set when any text was capped. The full log is always in "
                 "Qt Creator's Test Results pane.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -1258,7 +1259,7 @@ void registerMcpTools()
                             {"description",
                              "Optional heavy fields beyond the default "
                              "status/failure/warnings: \"log\" adds the full (capped) "
-                             "output as 'message'; \"messages\" adds the context array. "
+                             "output as 'message'. \"messages\" adds the context array. "
                              "Omit to keep the response small."}})
                     .addRequired("names"))
             .outputSchema(
@@ -1312,13 +1313,13 @@ void registerMcpTools()
             .name("test_list")
             .title("Discover the available tests in the active project")
             .description(
-                "Read-only: enumerate every test class Autotest currently knows "
+                "Enumerates every test class Autotest currently knows "
                 "about, with its functions. Useful as a discovery step before "
                 "calling test_run - gives exact class and function names to pass "
                 "as test_run({scope: \"named\", names: [\"Class::function\"]}) "
                 "without guessing from build artifacts. Each entry carries the "
-                "framework label (e.g. \"Qt Test\", \"Google Test\"). "
-                "Returns empty if Autotest hasn't finished parsing yet or the "
+                "framework label (such as \"Qt Test\", \"Google Test\"). "
+                "Returns empty if Autotest has not finished parsing yet or the "
                 "project has no recognized tests.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(

@@ -135,7 +135,7 @@ void registerLogTools()
                 "qCWarning()/... stream, including Q_LOGGING_CATEGORY output, as well as messages "
                 "written to the General Messages pane (under the 'general' category). Read "
                 "incrementally by passing the 'cursor' returned by the previous call as "
-                "'sinceCursor'. Optionally filter by a logging-category prefix, e.g. "
+                "'sinceCursor'. Optionally filter by a logging-category prefix, such as "
                 "'qtc.remotewindows' or 'general'.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -199,8 +199,9 @@ void registerLogTools()
             .title("Set runtime logging rules")
             .description(
                 "Applies QLoggingCategory filter rules at runtime, equivalent to QT_LOGGING_RULES, "
-                "e.g. 'qtc.remotewindows.*=true'. Separate multiple rules with newlines. Use this "
-                "to enable a logging category before reading it back with get_application_output.")
+                "such as 'qtc.remotewindows.*=true'. Separate multiple rules with newlines. Use "
+                "this to enable a logging category before reading it back with "
+                "get_application_output.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -208,7 +209,7 @@ void registerLogTools()
                         "rules",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Logging rules, one per line, e.g. 'qtc.*.debug=true'."}})
+                            {"description", "Logging rules, one per line, such as 'qtc.*.debug=true'."}})
                     .addRequired("rules"))
             .outputSchema(
                 Tool::OutputSchema{}
