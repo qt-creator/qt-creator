@@ -37,6 +37,10 @@ public:
 
     const InstanceConfig &instanceConfig() const { return m_instanceConfig; }
 
+    // Whether the last start ended because the user refused to run a command
+    // outside the container, as opposed to failing.
+    bool hostCommandDeclined() const { return m_hostCommandDeclined; }
+
     void restart(std::function<void(Utils::Result<>)> callback);
 
     Utils::ProcessInterface *createProcessInterface() const override;
@@ -58,6 +62,7 @@ public: // FilePath stuff
 
 private:
     void onConfigChanged();
+    Utils::Result<> askForHostCommand(const Config &config);
     QtTaskTree::Group upRecipe(
         InstanceConfig instanceConfig, QtTaskTree::Storage<ProgressPtr> progressStorage);
     QtTaskTree::Group downRecipe(bool forceDown);
@@ -65,6 +70,7 @@ private:
 private:
     Utils::Process::ProcessInterfaceCreator m_processInterfaceCreator;
     InstanceConfig m_instanceConfig;
+    bool m_hostCommandDeclined = false;
     std::shared_ptr<CmdBridge::FileAccess> m_fileAccess;
     std::optional<Utils::Environment> m_systemEnvironment;
     std::optional<QtTaskTree::ExecutableItem> m_downRecipe;

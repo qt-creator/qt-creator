@@ -223,8 +223,8 @@ void DevContainerPlugin::onProjectAdded(Project *project)
         if (instanceConfigs.size() == 1) {
             InfoBarEntry entry(
                 infoBarId,
-                Tr::tr(
-                    "Found a development container in the project %1, would you like to start it?")
+                Tr::tr("Found a development container in the project %1. Starting it builds the "
+                       "container and runs the commands its configuration defines. Start it?")
                     .arg(project->displayName()),
                 InfoBarEntry::GlobalSuppression::Enabled);
 
@@ -244,7 +244,8 @@ void DevContainerPlugin::onProjectAdded(Project *project)
 
         InfoBarEntry entry(
             infoBarId,
-            Tr::tr("Found development containers in the project %1, would you like to start any of them?")
+            Tr::tr("Found development containers in the project %1. Starting one builds the "
+                   "container and runs the commands its configuration defines. Start any of them?")
                 .arg(project->displayName()),
             InfoBarEntry::GlobalSuppression::Enabled);
 
@@ -490,12 +491,16 @@ void DevContainerPlugin::startDeviceForProject(
 
         DeviceManager::removeDevice(device->id());
 
-        QMessageBox box(Core::ICore::dialogParent());
-        box.setWindowTitle(Tr::tr("Development Container Error"));
-        box.setIcon(QMessageBox::Critical);
-        box.setText(result.error());
-        box.setDetailedText(*log);
-        box.exec();
+        // Refusing to run the host command is an answer, not a failure, and the
+        // user has just given it in a dialog of its own.
+        if (!device->hostCommandDeclined()) {
+            QMessageBox box(Core::ICore::dialogParent());
+            box.setWindowTitle(Tr::tr("Development Container Error"));
+            box.setIcon(QMessageBox::Critical);
+            box.setText(result.error());
+            box.setDetailedText(*log);
+            box.exec();
+        }
 
 #ifdef WITH_TESTS
         emit deviceUpDone();

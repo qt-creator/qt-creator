@@ -30,6 +30,7 @@
 #include <utils/algorithm.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/infobar.h>
+#include <utils/utility.h>
 
 #include <QtTaskTree/QConditional>
 
@@ -184,7 +185,7 @@ void Device::onConfigChanged()
             restart([this, log, oldLogFunction](Result<> result) {
                 m_instanceConfig.logFunction = oldLogFunction;
 
-                if (!result) {
+                if (!result && !m_hostCommandDeclined) {
                     QMessageBox box(Core::ICore::dialogParent());
                     box.setWindowTitle(Tr::tr("Development Container Error"));
                     box.setIcon(QMessageBox::Critical);
@@ -197,6 +198,53 @@ void Device::onConfigChanged()
         Tr::tr("Rebuild and restart the development container."));
 
     infoBar->addInfo(entry);
+}
+
+static QString commandDisplay(const Command &command)
+{
+    const auto oneCommand = overloaded{
+        [](const QString &cmd) { return cmd; },
+        [](const QStringList &cmd) { return cmd.join(' '); }};
+
+    return std::visit(
+        overloaded{
+            oneCommand,
+            [&oneCommand](const CommandMap &map) {
+                QStringList commands;
+                for (const auto &[name, cmd] : map)
+                    commands << std::visit(oneCommand, cmd);
+                return commands.join('\n');
+            }},
+        command);
+}
+
+// Of all the lifecycle hooks, initializeCommand is the one that does not run in
+// the container: runLifecycleHooksRecipe() prefixes the others with "docker
+// exec" and leaves this one to a shell on the host. Which makes it arbitrary
+// code from the project, running unconfined, so ask separately for it. Asking
+// off the configuration that is about to be started, rather than off a second
+// read of the file, keeps the command shown the command run, and covers a
+// restart after the configuration changed just as well as the first start.
+Result<> Device::askForHostCommand(const Config &config)
+{
+    const std::optional<Command> &command = config.common.initializeCommand;
+    if (!command)
+        return ResultOk;
+
+    const QMessageBox::StandardButton answer = QMessageBox::warning(
+        Core::ICore::dialogParent(),
+        Tr::tr("Run a Command Outside the Container?"),
+        Tr::tr("The development container of the project %1 runs this command on your "
+               "machine, not in the container:\n\n%2\n\nRun it only if you trust the "
+               "project.")
+            .arg(m_project->displayName(), commandDisplay(*command)),
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+        return ResultOk;
+
+    m_hostCommandDeclined = true;
+    return ResultError(Tr::tr("The command was not allowed to run outside the container."));
 }
 
 Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progressStorage)
@@ -220,6 +268,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
 
     const auto init = [instanceConfig, this]() {
         m_instanceConfig = instanceConfig;
+        m_hostCommandDeclined = false;
         m_processInterfaceCreator = nullptr;
         m_fileAccess.reset();
         m_systemEnvironment.reset();
@@ -255,6 +304,9 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
                         "The configuration does not contain a \"build\", \"image\" or "
                         "\"dockerComposeFile\" entry."));
             }
+
+            if (const Result<> allowed = askForHostCommand(*config); !allowed)
+                return allowed;
 
             options->mountLibExec
                 = DevContainer::customization(*config, "qt-creator/device/mount-libexec")
