@@ -17,10 +17,13 @@ public:
     Utils::FilePathAspect sdkLocation{this};
     Utils::BoolAspect automaticKitCreation{this};
 
+    Utils::FilePathAspect additionalPackages{this};
+
     Utils::FilePathAspect signingCertificate{this};
     Utils::FilePathAspect signingProfile{this};
     Utils::FilePathAspect signingKeystore{this};
     Utils::StringAspect signingKeyAlias{this};
+    Utils::StringAspect droppedPermissions{this};
     Core::SecretAspect signingKeyPassword{this};
     Core::SecretAspect signingStorePassword{this};
 

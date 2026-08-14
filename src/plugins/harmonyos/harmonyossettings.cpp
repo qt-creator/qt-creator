@@ -42,6 +42,13 @@ HarmonyOsSettings::HarmonyOsSettings()
     automaticKitCreation.setLabelText(Tr::tr("Create kits automatically"));
     automaticKitCreation.setDefaultValue(true);
 
+    additionalPackages.setSettingsKey("AdditionalPackages");
+    additionalPackages.setExpectedKind(PathChooserKind::ExistingDirectory);
+    additionalPackages.setLabelText(Tr::tr("Additional packages:"));
+    additionalPackages.setToolTip(
+        Tr::tr("Directory holding the third-party libraries built for HarmonyOS that Qt needs "
+               "at run time. Their contents are added to the application package."));
+
     signingCertificate.setSettingsKey("SigningCertificate");
     signingCertificate.setExpectedKind(PathChooserKind::File);
     signingCertificate.setLabelText(Tr::tr("Certificate (.cer):"));
@@ -57,6 +64,15 @@ HarmonyOsSettings::HarmonyOsSettings()
     signingKeyAlias.setSettingsKey("SigningKeyAlias");
     signingKeyAlias.setDisplayStyle(StringAspect::LineEditDisplay);
     signingKeyAlias.setLabelText(Tr::tr("Key alias:"));
+
+    droppedPermissions.setSettingsKey("DroppedPermissions");
+    droppedPermissions.setDisplayStyle(StringAspect::LineEditDisplay);
+    droppedPermissions.setLabelText(Tr::tr("Permissions to drop:"));
+    droppedPermissions.setToolTip(
+        Tr::tr("Permissions to remove from the application package, separated by spaces. A "
+               "device refuses to install a package that requests a permission the "
+               "provisioning profile does not allow, and a debug profile allows none that "
+               "need an ACL."));
 
     // Name the keychain entry explicitly: a settings key without a '.' cannot be
     // split into a service and a key, and the keychain access then fails.
@@ -102,6 +118,7 @@ HarmonyOsSettings::HarmonyOsSettings()
                     instruction,
                     Row { sdkLocation, autodetectButton },
                     status,
+                    Form { additionalPackages, br },
                     automaticKitCreation,
                 },
             },
@@ -114,6 +131,7 @@ HarmonyOsSettings::HarmonyOsSettings()
                         signingProfile, br,
                         signingKeystore, br,
                         signingKeyAlias, br,
+                        droppedPermissions, br,
                         signingKeyPassword, br,
                         signingStorePassword, br,
                     },
