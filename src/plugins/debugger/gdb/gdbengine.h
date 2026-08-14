@@ -125,6 +125,7 @@ private: ////////// General Interface //////////
     bool m_ignoreNextTrap = false;
     bool m_detectTargetIncompat = false;
     bool m_lruFailure = false;
+    bool m_xmlSupportWarned = false;
 
     ////////// Gdb Output, State & Capability Handling //////////
 

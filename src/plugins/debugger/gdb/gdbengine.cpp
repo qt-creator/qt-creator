@@ -405,6 +405,18 @@ void GdbEngine::handleResponse(const QString &buff)
                 showMessage(data.mid(9), AppStuff); // Cut "warning: "
                 if (data.contains(notCompatibleMessage))
                     m_ignoreNextTrap = true;
+                if (!m_xmlSupportWarned
+                        && data.contains("XML support was disabled at compile time")) {
+                    // Otherwise this only ends up in the log and the user is left
+                    // wondering why debugging does not work.
+                    m_xmlSupportWarned = true;
+                    AsynchronousMessageBox::warning(
+                        Tr::tr("GDB Without XML Support"),
+                        Tr::tr("The GDB used for debugging was built without XML support, so it "
+                               "cannot read the target description (register and memory layout) "
+                               "sent by the remote. Debugging will not work correctly. Please use "
+                               "a GDB build that has XML support enabled."));
+                }
             } else if (data.startsWith("Error while mapping")) {
                 m_detectTargetIncompat = true;
             } else if (m_detectTargetIncompat && data.contains(notCompatibleMessage)) {
