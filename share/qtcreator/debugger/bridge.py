@@ -74,6 +74,8 @@ class DapServer():
         # and the arguments each was created for.
         self.breakpointById = {}
         self.breakpointArgsById = {}
+        # Extra gdb breakpoints belonging to one of ours (catch fork/vfork).
+        self.companionBreakpoints = {}
 
         # Rebuilt on every stop: maps a DAP frame id to a gdb.Frame.
         self.frameForId = {}
@@ -525,13 +527,64 @@ class DapServer():
     BP_BY_FILE_AND_LINE = 1
     BP_BY_FUNCTION = 2
     BP_BY_ADDRESS = 3
+    BP_AT_THROW = 4
+    BP_AT_CATCH = 5
+    BP_AT_MAIN = 6
+    BP_AT_FORK = 7
+    BP_AT_EXEC = 8
+    BP_AT_SYSCALL = 9
     BP_WATCH_ADDRESS = 10
     BP_WATCH_EXPRESSION = 11
+
+    # Throwing and catching are breaks in the C++ runtime, as in GdbEngine.
+    FUNCTION_FOR_TYPE = {BP_AT_THROW: '__cxa_throw',
+                         BP_AT_CATCH: '__cxa_begin_catch'}
+    # The rest are catchpoints, which gdb only creates from the CLI. A fork
+    # breakpoint means both flavours, again as in GdbEngine.
+    CATCH_KINDS = {BP_AT_FORK: ('fork', 'vfork'), BP_AT_EXEC: ('exec',),
+                   BP_AT_SYSCALL: ('syscall',)}
+
+    def _createCatchpoint(self, bptype):
+        # gdb has no Python constructor for catchpoints; make them with the CLI
+        # command and pick up what appeared.
+        created = []
+        for kind in self.CATCH_KINDS[bptype]:
+            known = {bp.number for bp in (gdb.breakpoints() or ())}
+            gdb.execute('catch %s' % kind, to_string=True)
+            created += [bp for bp in (gdb.breakpoints() or ())
+                        if bp.number not in known]
+        if not created:
+            raise gdb.error('gdb created no catchpoint')
+        if len(created) > 1:
+            # Only the first one is reported; the others go with it.
+            self.companionBreakpoints[str(created[0].number)] = created[1:]
+        return created[0]
+
+    def _applyBreakpointArgs(self, bp, args):
+        condition = args.get('condition', '')
+        bp.condition = self.dumper.hexdecode(condition) if condition else ''
+        bp.ignore_count = int(args.get('ignorecount', 0) or 0)
+        bp.enabled = bool(args.get('enabled', True))
+
+    def _applyBreakpointArgsToAll(self, bp, args):
+        # A companion carries the same settings: a disabled fork breakpoint
+        # that leaves its vfork twin armed still stops the inferior.
+        self._applyBreakpointArgs(bp, args)
+        for companion in self.companionBreakpoints.get(str(bp.number), ()):
+            self._applyBreakpointArgs(companion, args)
 
     def _createGdbBreakpoint(self, args):
         bptype = args.get('type', self.BP_BY_FILE_AND_LINE)
         temporary = bool(args.get('oneshot'))
-        if bptype == self.BP_BY_FUNCTION:
+        if bptype in self.CATCH_KINDS:
+            bp = self._createCatchpoint(bptype)
+        elif bptype in self.FUNCTION_FOR_TYPE:
+            bp = gdb.Breakpoint(function=self.FUNCTION_FOR_TYPE[bptype],
+                                temporary=temporary)
+        elif bptype == self.BP_AT_MAIN:
+            bp = gdb.Breakpoint(function=args.get('function') or 'main',
+                                temporary=temporary)
+        elif bptype == self.BP_BY_FUNCTION:
             bp = gdb.Breakpoint(function=args.get('function', ''),
                                 temporary=temporary)
         elif bptype == self.BP_BY_ADDRESS:
@@ -546,14 +599,7 @@ class DapServer():
                                 line=int(args.get('line', 0)),
                                 temporary=temporary)
 
-        condition = args.get('condition', '')
-        if condition:
-            bp.condition = self.dumper.hexdecode(condition)
-        ignore = args.get('ignorecount', 0)
-        if ignore:
-            bp.ignore_count = int(ignore)
-        if not args.get('enabled', True):
-            bp.enabled = False
+        self._applyBreakpointArgsToAll(bp, args)
         return bp
 
     def _fillLocationDict(self, target, location):
@@ -620,7 +666,19 @@ class DapServer():
                 enabled=bp.enabled))
         return decoded
 
+    def _isWatchpoint(self, bp, requested):
+        if requested is not None:
+            return requested in (self.BP_WATCH_ADDRESS, self.BP_WATCH_EXPRESSION)
+        try:
+            # Not one of ours. gdb refuses to map a type it does not know
+            # rather than returning it, so this can raise.
+            return bp.type != gdb.BP_BREAKPOINT
+        except Exception:
+            return False
+
     def _breakpointToMi(self, bp):
+        args = self.breakpointArgsById.get(str(bp.number), {})
+        requested = args.get('type')
         result = {
             'number': bp.number,
             'enabled': 'y' if bp.enabled else 'n',
@@ -629,14 +687,24 @@ class DapServer():
         if bp.condition:
             result['cond'] = bp.condition
 
-        if bp.type != gdb.BP_BREAKPOINT:
+        if self._isWatchpoint(bp, requested):
             # A watchpoint has no code location, and must not be asked for one:
             # gdb.Breakpoint.locations dies on it (gdb 17.1: internal-error,
             # gdbarch_addr_bit assertion). Report what it watches instead, which
             # is also what keeps it from being displayed as forever pending.
             result['type'] = 'hw watchpoint'
-            result['what'] = self.breakpointArgsById.get(str(bp.number), {}).get(
-                'expression') or bp.location or ''
+            result['what'] = args.get('expression') or bp.location or ''
+            return self.dumper.resultToMi(result)
+
+        if requested in self.CATCH_KINDS:
+            # The shape gdb's MI uses for a catchpoint, which is what
+            # BreakpointParameters::updateFromGdbOutput() reads: a breakpoint
+            # carrying a catch-type. Reporting it as a watchpoint instead would
+            # replace the type the user asked for. It has no code location
+            # either, and none reported would show it as forever pending.
+            result['type'] = 'breakpoint'
+            result['catch-type'] = self.CATCH_KINDS[requested][0]
+            result['what'] = self.CATCH_KINDS[requested][0]
             return self.dumper.resultToMi(result)
 
         result['type'] = 'breakpoint'
@@ -659,6 +727,7 @@ class DapServer():
     def cmd_qtc_insertBreakpoint(self, request):
         args = request.get('arguments', {})
         body = {'modelid': args.get('modelid')}
+        bp = None
         try:
             bp = self._createGdbBreakpoint(args)
             self.breakpointById[str(bp.number)] = bp
@@ -666,6 +735,11 @@ class DapServer():
             body['bkpt'] = self._breakpointToMi(bp)
         except Exception as error:
             warn('insertBreakpoint failed: %s' % error)
+            # Whatever gdb created before the failure has to go with it: the
+            # C++ side takes an empty bkpt as "there is no breakpoint" and
+            # would never remove or disable one that stayed behind.
+            if bp is not None:
+                self._forgetBreakpoint(str(bp.number))
             body['bkpt'] = ''
             body['error'] = str(error)
         self.sendResponse(request, body=body)
@@ -682,21 +756,13 @@ class DapServer():
         # place, but it cannot move a breakpoint: for that it has to be
         # recreated, or we would acknowledge a move that never happened.
         if self._locationOf(args) != self._locationOf(self.breakpointArgsById.get(key, {})):
-            try:
-                bp.delete()
-            except (gdb.error, RuntimeError):
-                pass
-            self.breakpointById.pop(key, None)
-            self.breakpointArgsById.pop(key, None)
+            self._forgetBreakpoint(key)
             # The insert reply carries the new breakpoint in the same shape,
             # and the C++ side feeds both through the same handler.
             self.cmd_qtc_insertBreakpoint(request)
             return
 
-        bp.condition = self.dumper.hexdecode(args.get('condition', '')) \
-            if args.get('condition') else ''
-        bp.enabled = bool(args.get('enabled', True))
-        bp.ignore_count = int(args.get('ignorecount', 0))
+        self._applyBreakpointArgsToAll(bp, args)
         self.breakpointArgsById[key] = args
         self.sendResponse(request, body={'modelid': args.get('modelid'),
                                          'bkpt': self._breakpointToMi(bp)})
@@ -706,16 +772,18 @@ class DapServer():
         return (args.get('type'), args.get('file'), args.get('line'),
                 args.get('function'), args.get('address'), args.get('expression'))
 
-    def cmd_qtc_removeBreakpoint(self, request):
-        args = request.get('arguments', {})
-        key = str(args.get('id'))
+    def _forgetBreakpoint(self, key):
         self.breakpointArgsById.pop(key, None)
         bp = self.breakpointById.pop(key, None)
-        if bp is not None:
+        for breakpoint in self.companionBreakpoints.pop(key, []) + ([bp] if bp else []):
             try:
-                bp.delete()
-            except gdb.error:
+                breakpoint.delete()
+            except (gdb.error, RuntimeError):
                 pass
+
+    def cmd_qtc_removeBreakpoint(self, request):
+        args = request.get('arguments', {})
+        self._forgetBreakpoint(str(args.get('id')))
         self.sendResponse(request, body={'modelid': args.get('modelid')})
 
     #######################################################################
