@@ -30,6 +30,11 @@
         {
             "Name" : "-mcp-stdio",
             "Description" : "Serve the MCP protocol over stdin/stdout (newline-delimited JSON-RPC), for MCP clients that spawn the server as a subprocess"
+        },
+        {
+            "Name" : "-mcp-dump-tools",
+            "Parameter" : "file",
+            "Description" : "Write a qdoc table of all registered MCP tools to the given file and quit (used by the documentation build)"
         }
     ],
     ${IDE_PLUGIN_DEPENDENCIES}
