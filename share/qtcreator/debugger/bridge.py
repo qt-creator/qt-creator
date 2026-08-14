@@ -166,6 +166,19 @@ class DapServer():
         self.protocolFd = os.dup(1)
         os.dup2(2, 1)
 
+    def _takeOverStopEvents(self):
+        # A session can only have one stop handler. gdbbridge connects an
+        # interpreter (native mixed) handler when it is imported, which runs
+        # before ours and, for a breakpoint carrying an interpreter handler,
+        # resumes the inferior on its own - we would then report a stop that no
+        # longer holds. The bridge does not do native mixed debugging, so take
+        # that handler out for as long as we own the process. Reviving it is
+        # part of the native mixed work, which needs its own requests anyway.
+        try:
+            self.dumper.disableInterpreterStopHandler()
+        except Exception as error:
+            warn('cannot take over the stop events: %s' % error)
+
     def _setupInferiorTty(self):
         # The inferior must not share our stdout either. Give it a pty and
         # forward what it writes as DAP 'output' events, which is what puts it
@@ -203,6 +216,7 @@ class DapServer():
 
     def run(self):
         self._claimStdio()
+        self._takeOverStopEvents()
 
         # Keep gdb quiet and non-interactive; this loop owns stdio.
         for command in ['set pagination off', 'set confirm off',

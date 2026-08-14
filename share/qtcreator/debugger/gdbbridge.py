@@ -202,6 +202,12 @@ class Dumper(DumperBase):
     def warn(self, message):
         print('bridgemessage={msg="%s"},' % message.replace('"', '$').encode('latin1'))
 
+    def disableInterpreterStopHandler(self):
+        # For a caller that drives the process itself: while this handler is
+        # connected, a breakpoint carrying an interpreter handler resumes the
+        # inferior behind that caller's back.
+        gdb.events.stop.disconnect(interpreterStopHandler)
+
     def prepare(self, args):
         self.output = []
         self.setVariableFetchingOptions(args)
