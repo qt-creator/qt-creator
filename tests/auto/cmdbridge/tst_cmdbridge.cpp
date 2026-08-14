@@ -7,6 +7,7 @@
 #include <client/bridgedfileaccess.h>
 #include <client/cmdbridgeclient.h>
 
+#include <utils/async.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -23,6 +24,7 @@
 #include <QThread>
 
 #include <atomic>
+#include <memory>
 #include <optional>
 
 using namespace Utils;
@@ -525,6 +527,63 @@ The end.
                 qDebug() << "Exit code:" << exitCode;
             }
         }
+    }
+
+    void testTeardown()
+    {
+        std::optional<ProcessResultData> resultData;
+        Result<QFuture<CmdBridge::Client::Stat>> pending = ResultError(QString("not started"));
+        {
+            CmdBridge::Client client(bridgePath, Environment::systemEnvironment());
+            QVERIFY_RESULT(client.start());
+
+            // Direct connection: the client reports this from its own thread, and waiting
+            // for that thread is the last thing its destructor does.
+            connect(
+                &client,
+                &CmdBridge::Client::done,
+                this,
+                [&resultData](const ProcessResultData &data) { resultData = data; },
+                Qt::DirectConnection);
+
+            pending = client.stat(QDir::rootPath());
+        }
+
+        // Whether the job made it through or not, it must not be left pending, and one
+        // that did not must carry the error the handlers report. A promise that is
+        // merely destroyed cancels its future too, so finished alone proves nothing.
+        QVERIFY_RESULT(pending);
+        QVERIFY(pending->isFinished());
+        if (pending->isCanceled())
+            QVERIFY_THROWS_EXCEPTION(std::exception, pending->waitForFinished());
+
+        // The bridge is asked to exit and does so by itself, it must not be killed.
+        QVERIFY(resultData);
+        QCOMPARE(resultData->m_exitStatus, ProcessExitStatus::NormalExit);
+        QCOMPARE(resultData->m_exitCode, 0);
+    }
+
+    void testTeardownOfUnresponsiveBridge()
+    {
+        // "cat" stands in for a bridge that answers nothing and does not exit by itself.
+        // Tearing the client down must wait for neither.
+        const FilePath cat = Environment::systemEnvironment().searchInPath("cat");
+        if (cat.isEmpty())
+            QSKIP("No \"cat\" to stand in for an unresponsive bridge");
+
+        // Owned by the worker: when it hangs, the test fails and leaves this scope
+        // while the worker is still running.
+        const auto startResult = std::make_shared<Result<>>(ResultOk);
+        // Tear down on a worker so that a client that does hang fails the test instead
+        // of blocking it forever.
+        const QFuture<void> teardown = asyncRun([cat, startResult] {
+            CmdBridge::Client client(cat, Environment::systemEnvironment());
+            *startResult = client.start();
+        });
+
+        // Above threadStopTimeout, so the bound does not race the timeout it bounds.
+        QTRY_VERIFY_WITH_TIMEOUT(teardown.isFinished(), 30000);
+        QVERIFY_RESULT(*startResult);
     }
 
     // Job handlers run on the bridge thread, and a continuation attached without a

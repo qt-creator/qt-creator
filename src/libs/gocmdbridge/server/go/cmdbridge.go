@@ -211,6 +211,11 @@ func readPacket(decoder *cbor.Decoder) (*command, error) {
 	return cmd, err
 }
 
+func hasBufferedData(decoder *cbor.Decoder) bool {
+	n, _ := decoder.Buffered().Read(make([]byte, 1))
+	return n > 0
+}
+
 func sendError(out chan<- []byte, cmd command, err error) {
 	errMsg := err.Error()
 	errType := reflect.TypeOf(err).Name()
@@ -777,14 +782,24 @@ func readMain(test bool, watchDogTimeOut time.Duration) {
 		}
 		// disable watchdog while we are busy processing data
 		watchDogChannel <- false
-		cmd, err := readPacket(decoder)
-		if err == io.EOF {
-			close(commandChannel)
+		// One read can carry several commands, and the decoder keeps what it did
+		// not decode yet. Those bytes are gone from the reader Peek() looks at, so
+		// keep decoding as long as the decoder still has some.
+		eof := false
+		for more := true; more; more = hasBufferedData(decoder) {
+			cmd, err := readPacket(decoder)
+			if err == io.EOF {
+				close(commandChannel)
+				eof = true
+				break
+			} else if err != nil {
+				commandChannel <- command{Type: "error", Id: cmd.Id, Error: err.Error()}
+			} else {
+				commandChannel <- *cmd
+			}
+		}
+		if eof {
 			break
-		} else if err != nil {
-			commandChannel <- command{Type: "error", Id: cmd.Id, Error: err.Error()}
-		} else {
-			commandChannel <- *cmd
 		}
 		// reset watchdog timer
 		watchDogChannel <- true

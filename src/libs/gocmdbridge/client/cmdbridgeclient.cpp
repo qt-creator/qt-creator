@@ -20,6 +20,8 @@
 #include <QThread>
 #include <QTimer>
 
+#include <atomic>
+
 static Q_LOGGING_CATEGORY(clientLog, "qtc.cmdbridge.client", QtWarningMsg)
 
 #define ASSERT_TYPE(expectedtype) \
@@ -40,6 +42,12 @@ enum class JobResult {
     Done,
 };
 
+// A bridge that is still there exits within milliseconds. One that is not (because the
+// device is gone or the connection died) must not stall the teardown, so give up early.
+static constexpr std::chrono::seconds shutdownTimeout{2};
+// Long enough for two of those, and for a thread that is merely slow to get there.
+static constexpr std::chrono::seconds threadStopTimeout{10};
+
 namespace Internal {
 
 struct ClientPrivate
@@ -51,6 +59,10 @@ struct ClientPrivate
     Process *process = nullptr;
     QThread *thread = nullptr;
     QTimer *watchDogTimer = nullptr;
+    bool shuttingDown = false;
+    // Set by ~Client when it gives up on the thread and leaves this behind. Read on
+    // that thread, written on the one destroying the client.
+    std::atomic<bool> clientGone = false;
 
     // The handlers are shared, not copied, when taken out of the map: some of them
     // keep state across the packets of one job (see Client::find).
@@ -78,6 +90,11 @@ struct ClientPrivate
     Result<> readPacket(QCborStreamReader &reader);
     std::optional<Result<>> handleWatchResults(const QVariantMap &map);
     std::optional<Result<>> handleSocketResults(const QVariantMap &map);
+
+    // The following three run in the thread that owns the process.
+    void concludePendingJobs(const QString &error, bool normalExit);
+    void handleProcessDone();
+    void shutdown();
 };
 
 static QString decodeString(QCborStreamReader &reader)
@@ -312,6 +329,77 @@ Result<> ClientPrivate::readPacket(QCborStreamReader &reader)
     return {};
 }
 
+void ClientPrivate::concludePendingJobs(const QString &error, bool normalExit)
+{
+    // Take the handlers out first and run them without the lock, as they
+    // complete promises, which can end up in readPacket() on this thread.
+    QList<std::pair<int, JobHandler>> pending;
+    {
+        auto j = jobs.writeLocked();
+        for (auto it = j->map.cbegin(); it != j->map.cend(); ++it)
+            pending.append({it.key(), it.value()});
+        j->map.clear();
+    }
+
+    for (const auto &[id, func] : pending) {
+        (*func)(QVariantMap{
+            {"Type", "error"},
+            {"Id", id},
+            {"Error", error},
+            {"ErrorType", (normalExit ? "NormalExit" : "ErrorExit")}});
+    }
+
+    // Finish any outstanding socket forward promises so that
+    // QFutureWatcher/QFuture waiters do not block forever.
+    for (auto &promise : socketServerForwards)
+        promise->finish();
+    socketServerForwards.clear();
+}
+
+void ClientPrivate::handleProcessDone()
+{
+    if (!shuttingDown && process->resultData().m_exitCode != 0) {
+        qCWarning(clientLog) << "Process exited with error code:"
+                             << process->resultData().m_exitCode
+                             << "Error:" << process->errorString()
+                             << "StandardError:" << process->readAllStandardError()
+                             << "StandardOutput:" << process->readAllStandardOutput();
+    }
+
+    // Nothing is going to be sent or answered anymore. The timer is already gone if the
+    // process finished during the teardown.
+    if (watchDogTimer)
+        watchDogTimer->stop();
+    concludePendingJobs(
+        Tr::tr("Process exited: %1").arg(process->errorString()), process->exitCode() == 0);
+}
+
+void ClientPrivate::shutdown()
+{
+    QTC_ASSERT(QThread::currentThread() == thread, return);
+
+    // Whatever happens to the process from here on, we asked for it.
+    shuttingDown = true;
+    delete watchDogTimer;
+    watchDogTimer = nullptr;
+
+    if (process->isRunning()) {
+        // The server answers "exit" by exiting, so the process going away is the only
+        // reply there is - and waiting for it is also what gets the request written.
+        process->writeRaw(QCborMap{{"Type", "exit"}, {"Id", -1}}.toCborValue().toCbor());
+        if (!process->waitForFinished(shutdownTimeout)) {
+            process->stop();
+            process->waitForFinished(shutdownTimeout);
+        }
+    }
+
+    // Whether the server heard us or not, from here on nothing can conclude the jobs.
+    concludePendingJobs(Tr::tr("The bridge was shut down."), true);
+
+    delete process;
+    process = nullptr;
+}
+
 } // namespace Internal
 
 Client::Client(const Utils::FilePath &remoteCmdBridgePath, const Utils::Environment &env)
@@ -323,38 +411,30 @@ Client::Client(const Utils::FilePath &remoteCmdBridgePath, const Utils::Environm
 
 Client::~Client()
 {
-    if (!d->thread->isRunning()) {
+    if (!d->thread)
+        return; // Never started.
+
+    // The bridge is torn down from QThread::finished, so we cannot be that thread.
+    QTC_ASSERT(QThread::currentThread() != d->thread, return);
+
+    // Stopping the event loop makes the thread tear the bridge down, see start(). A
+    // queued call would do that too, but only while there is somebody delivering it,
+    // and by the time the last device goes away there may not be.
+    d->thread->quit();
+
+    if (d->thread->wait(threadStopTimeout)) {
         delete d->thread;
         d->thread = nullptr;
         return;
     }
 
-    // Tear the process down in the thread that owns it and stop that thread from
-    // the inside. Asking the bridge to exit and waiting for the answer instead
-    // would hang: it answers by exiting, not by a reply packet, so only the
-    // process-exit handler could conclude that wait - and by the time the last
-    // device goes away, nothing may be delivering the events it needs.
-    QMetaObject::invokeMethod(
-        d->process,
-        [d = d.get()] {
-            if (Process *process = std::exchange(d->process, nullptr)) {
-                // Best effort, so the bridge gets the chance to go away by itself.
-                const QCborMap args{{"Id", -1}, {"Type", "exit"}};
-                process->writeRaw(args.toCborValue().toCbor());
-                process->close();
-            }
-            QThread::currentThread()->quit();
-        },
-        Qt::QueuedConnection);
-
-    if (d->thread->wait(5000)) {
-        delete d->thread;
-    } else {
-        // Whatever is stuck in there must not be destroyed while it runs. Leave it
-        // to the exiting process; the bridge has a watchdog and exits by itself.
-        qCWarning(clientLog) << "Bridge thread did not stop, leaving it behind.";
-    }
-    d->thread = nullptr;
+    // Whatever is stuck in there must not be destroyed while it runs, and neither must
+    // the state it is still working on. Leave both to the exiting process; the bridge
+    // has a watchdog and exits by itself. The handlers work on the released data, but
+    // this object is gone, so tell them to stop reporting to it.
+    qCWarning(clientLog) << "Bridge thread did not stop, leaving it behind.";
+    d->clientGone = true;
+    (void) d.release();
 }
 
 Result<> Client::start(bool deleteOnExit)
@@ -370,13 +450,21 @@ Result<> Client::start(bool deleteOnExit)
     d->watchDogTimer->setInterval(1000);
     d->watchDogTimer->moveToThread(d->thread);
 
-    connect(d->thread, &QThread::finished, d->watchDogTimer, &QTimer::deleteLater);
-    connect(d->watchDogTimer, &QTimer::timeout, d->process, [this] {
-        QTC_ASSERT(d->process, return);
+    // Tear the bridge down in the thread that owns the process, once its event loop has
+    // been stopped by ~Client. Being called from the signal, and not through an event,
+    // is what makes the teardown work even when nobody delivers those anymore.
+    // Neither of these may go through the client: it can be destroyed while the thread
+    // is still running, in which case the data below outlives it, see ~Client.
+    Internal::ClientPrivate *p = d.get();
+    connect(
+        d->thread, &QThread::finished, d->process, [p] { p->shutdown(); }, Qt::DirectConnection);
+
+    connect(d->watchDogTimer, &QTimer::timeout, d->process, [p] {
+        QTC_ASSERT(p->process, return);
         QCborMap args;
         args.insert(QString("Id"), -1);
         args.insert(QString("Type"), QString("ping"));
-        d->process->writeRaw(args.toCborValue().toCbor());
+        p->process->writeRaw(args.toCborValue().toCbor());
     });
     connect(d->process, &Process::started, d->watchDogTimer, qOverload<>(&QTimer::start));
 
@@ -384,7 +472,7 @@ Result<> Client::start(bool deleteOnExit)
 
     QMetaObject::invokeMethod(
         d->process,
-        [this, deleteOnExit]() -> Result<> {
+        [this, p, deleteOnExit]() -> Result<> {
             QStringList args;
             if (deleteOnExit)
                 args << "-deleteOnStart";
@@ -402,49 +490,17 @@ Result<> Client::start(bool deleteOnExit)
             // and dead lock.
             d->process->setUtf8Codec();
 
-            connect(d->process, &Process::done, d->process, [this] {
-                if (d->process->resultData().m_exitCode != 0) {
-                    qCWarning(clientLog)
-                        << "Process exited with error code:" << d->process->resultData().m_exitCode
-                        << "Error:" << d->process->errorString()
-                        << "StandardError:" << d->process->readAllStandardError()
-                        << "StandardOutput:" << d->process->readAllStandardOutput();
-                }
-
-                // Take the handlers out first and run them without the lock, as they
-                // complete promises, which can end up in readPacket() on this thread.
-                QList<std::pair<int, Internal::ClientPrivate::JobHandler>> pending;
-                {
-                    auto j = d->jobs.writeLocked();
-                    for (auto it = j->map.cbegin(); it != j->map.cend(); ++it)
-                        pending.append({it.key(), it.value()});
-                    j->map.clear();
-                }
-
-                const QString error = QString("Process exited: %1").arg(d->process->errorString());
-                const bool exitedNormally = d->process->exitCode() == 0;
-                for (const auto &[id, func] : pending) {
-                    (*func)(QVariantMap{
-                        {"Type", "error"},
-                        {"Id", id},
-                        {"Error", error},
-                        {"ErrorType", (exitedNormally ? "NormalExit" : "ErrorExit")}});
-                }
-
-                // Finish any outstanding socket forward promises so that
-                // QFutureWatcher/QFuture waiters do not block forever.
-                for (auto &promise : d->socketServerForwards)
-                    promise->finish();
-                d->socketServerForwards.clear();
-
-                emit done(d->process->resultData());
-                d->process->deleteLater();
-                d->process = nullptr;
-                QThread::currentThread()->quit();
+            // The process is kept alive and the thread keeps running until the client is
+            // destroyed, so that the teardown always finds both of them where it left them.
+            connect(d->process, &Process::done, d->process, [this, p] {
+                p->handleProcessDone();
+                // Only the signal needs the client, and it may be gone by now.
+                if (!p->clientGone)
+                    emit done(p->process->resultData());
             });
 
             auto stateMachine =
-                [markerOffset = 0, state = int(0), packetSize = qint32(0), packetData = QByteArray(), this](
+                [markerOffset = 0, state = int(0), packetSize = qint32(0), packetData = QByteArray(), p](
                     QByteArray &buffer) mutable -> bool {
                     static const QByteArray MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
 
@@ -503,7 +559,7 @@ Result<> Client::start(bool deleteOnExit)
                             reader.addData(packetData);
                             packetData.clear();
                             state = 0;
-                            auto result = d->readPacket(reader);
+                            auto result = p->readPacket(reader);
                             QTC_CHECK_RESULT(result);
                         }
                     }
@@ -514,13 +570,13 @@ Result<> Client::start(bool deleteOnExit)
                 d->process,
                 &Process::readyReadStandardError,
                 d->process,
-                [this, buffer = QByteArray(), stateMachine]() mutable {
-                    buffer.append(d->process->readAllRawStandardError());
+                [p, buffer = QByteArray(), stateMachine]() mutable {
+                    buffer.append(p->process->readAllRawStandardError());
                     while (stateMachine(buffer)) {}
                 });
 
-            connect(d->process, &Process::readyReadStandardOutput, d->process, [this] {
-                qCWarning(clientLog).noquote() << d->process->readAllStandardOutput();
+            connect(d->process, &Process::readyReadStandardOutput, d->process, [p] {
+                qCWarning(clientLog).noquote() << p->process->readAllStandardOutput();
             });
 
             d->process->start();
