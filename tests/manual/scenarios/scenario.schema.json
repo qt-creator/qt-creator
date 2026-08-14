@@ -1,0 +1,275 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "A Qt Creator UI scenario file for tests/manual/scenarios/run_scenario.py. See README.md for the full format description.",
+    "type": "object",
+    "required": ["name", "steps"],
+    "additionalProperties": false,
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Title, also the default output subdirectory."
+        },
+        "intent": {
+            "type": "string",
+            "description": "One paragraph; appears as a blockquote in the generated tutorial."
+        },
+        "setup": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "open": {
+                    "type": "string",
+                    "description": "A file path to open first. Supports {scratch}."
+                }
+            }
+        },
+        "steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/definitions/step" }
+        }
+    },
+    "definitions": {
+        "describeField": { "type": "string", "description": "The tutorial sentence for this step." },
+        "captionField": { "type": "string", "description": "An on-screen overlay caption shown for the whole step in a recording." },
+        "widgetQueryFields": {
+            "object_name": {
+                "type": "string",
+                "description": "Exact objectName(). The most robust selector: stable across translation and layout changes."
+            },
+            "text": {
+                "type": "string",
+                "description": "Visible text (button/label/combo/groupbox), or, for an input like a line edit, its buddy label's text. Matched exactly after trimming and stripping '&' accelerators. Readable but translation-sensitive."
+            },
+            "class_name": {
+                "type": "string",
+                "description": "Meta-object class name, e.g. \"QPushButton\". Matches the exact class or any subclass (QAbstractButton matches QPushButton)."
+            },
+            "window_title": {
+                "type": "string",
+                "description": "Restrict to widgets whose top-level window title contains this (case-insensitive), e.g. to disambiguate an OK button by its dialog."
+            },
+            "include_invisible": {
+                "type": "boolean",
+                "description": "Also match hidden widgets (default false)."
+            }
+        },
+        "widgetQuery": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "description": "Fields understood by the MCP widget-addressing tools (addWidgetQueryProps in src/plugins/mcpserver/mcpcommands.cpp; canonical field schemas live in definitions/widgetQueryFields). Duplicated inline (without this minProperties requirement) in type_text, press_keys, select_combo_item, and screenshot, since draft-07 additionalProperties:false cannot see properties contributed through $ref.",
+            "properties": {
+                "object_name": { "$ref": "#/definitions/widgetQueryFields/object_name" },
+                "text": { "$ref": "#/definitions/widgetQueryFields/text" },
+                "class_name": { "$ref": "#/definitions/widgetQueryFields/class_name" },
+                "window_title": { "$ref": "#/definitions/widgetQueryFields/window_title" },
+                "include_invisible": { "$ref": "#/definitions/widgetQueryFields/include_invisible" }
+            }
+        },
+        "step": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "required": ["describe", "call_action"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "call_action": {
+                            "type": "string",
+                            "description": "An action id to trigger via the MCP call_action tool."
+                        },
+                        "blocks": {
+                            "type": "boolean",
+                            "description": "Set true for a modal dialog that a later step dismisses; the runner fires the call and continues."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "click_widget"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "click_widget": {
+                            "allOf": [{ "$ref": "#/definitions/widgetQuery" }],
+                            "description": "Query; must resolve to exactly one widget."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "type_text"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "type_text": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["input"],
+                            "properties": {
+                                "input": { "type": "string", "description": "The text to type." },
+                                "object_name": { "$ref": "#/definitions/widgetQueryFields/object_name" },
+                                "text": { "$ref": "#/definitions/widgetQueryFields/text" },
+                                "class_name": { "$ref": "#/definitions/widgetQueryFields/class_name" },
+                                "window_title": { "$ref": "#/definitions/widgetQueryFields/window_title" },
+                                "include_invisible": { "$ref": "#/definitions/widgetQueryFields/include_invisible" }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "press_keys"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "press_keys": {
+                            "description": "A key or chord, e.g. \"Ctrl+K\" or {keys: Escape, ...query}.",
+                            "oneOf": [
+                                { "type": "string" },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "required": ["keys"],
+                                    "properties": {
+                                        "keys": { "type": "string" },
+                                        "object_name": { "$ref": "#/definitions/widgetQueryFields/object_name" },
+                                        "text": { "$ref": "#/definitions/widgetQueryFields/text" },
+                                        "class_name": { "$ref": "#/definitions/widgetQueryFields/class_name" },
+                                        "window_title": { "$ref": "#/definitions/widgetQueryFields/window_title" },
+                                        "include_invisible": { "$ref": "#/definitions/widgetQueryFields/include_invisible" }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "select_combo_item"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "select_combo_item": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["item"],
+                            "properties": {
+                                "item": { "type": "string", "description": "The combo box entry to select." },
+                                "object_name": { "$ref": "#/definitions/widgetQueryFields/object_name" },
+                                "text": { "$ref": "#/definitions/widgetQueryFields/text" },
+                                "class_name": { "$ref": "#/definitions/widgetQueryFields/class_name" },
+                                "window_title": { "$ref": "#/definitions/widgetQueryFields/window_title" },
+                                "include_invisible": { "$ref": "#/definitions/widgetQueryFields/include_invisible" }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "menu"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "menu": {
+                            "description": "Navigate a menu with the cursor, e.g. [Help, About Qt Creator].",
+                            "oneOf": [
+                                { "type": "string" },
+                                { "type": "array", "minItems": 1, "items": { "type": "string" } }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "expect"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "expect": {
+                            "allOf": [{ "$ref": "#/definitions/widgetQuery" }],
+                            "description": "widget_exists; fails if nothing matches."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "expect_gone"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "expect_gone": {
+                            "allOf": [{ "$ref": "#/definitions/widgetQuery" }],
+                            "description": "widget_exists; fails if anything matches."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "wait_for"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "wait_for": {
+                            "allOf": [{ "$ref": "#/definitions/widgetQuery" }],
+                            "description": "widget_exists; polls until present."
+                        },
+                        "timeout": {
+                            "type": "number",
+                            "description": "Seconds to poll before failing. Default 15."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "read_pane"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "read_pane": {
+                            "type": "string",
+                            "description": "A pane display name; its text is saved as an artefact."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "screenshot"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "screenshot": {
+                            "description": "Optional query selecting the window to capture; a PNG is saved under shots/. An absent, null, or empty query captures the whole window.",
+                            "oneOf": [
+                                { "type": "null" },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "object_name": { "$ref": "#/definitions/widgetQueryFields/object_name" },
+                                        "text": { "$ref": "#/definitions/widgetQueryFields/text" },
+                                        "class_name": { "$ref": "#/definitions/widgetQueryFields/class_name" },
+                                        "window_title": { "$ref": "#/definitions/widgetQueryFields/window_title" },
+                                        "include_invisible": { "$ref": "#/definitions/widgetQueryFields/include_invisible" }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

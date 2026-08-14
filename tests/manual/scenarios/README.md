@@ -107,6 +107,13 @@ close to the window - or pass an explicit `--video-size`.
 
 ## Scenario format
 
+`scenario.schema.json` (next to this README) is a JSON Schema for this
+format. Editors with a `yaml-language-server` integration (e.g. VS Code with
+`redhat.vscode-yaml`) will validate and autocomplete a scenario file that
+starts with:
+
+    # yaml-language-server: $schema=./scenario.schema.json
+
 Top level:
 
 - `name` - title, also the default output subdirectory.

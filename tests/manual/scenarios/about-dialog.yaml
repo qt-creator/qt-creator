@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=./scenario.schema.json
 name: Open and close the About Qt Creator dialog
 intent: >
   Demonstrate driving a modal dialog end to end: invoke an action that opens
