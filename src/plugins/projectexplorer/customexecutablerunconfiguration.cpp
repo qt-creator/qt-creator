@@ -8,6 +8,8 @@
 #include "runconfigurationaspects.h"
 #include "target.h"
 
+#include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
 using namespace Utils;
@@ -37,6 +39,17 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(BuildConfigur
     connect(&environment, &EnvironmentAspect::environmentChanged, this, [this]  {
          executable.setEnvironment(environment.environment());
     });
+
+    if (HostOsInfo::isMacHost()) {
+        connect(&useDyldSuffix, &UseDyldSuffixAspect::changed,
+                &environment, &EnvironmentAspect::environmentChanged);
+        environment.addModifier([this](Environment &env) {
+            if (useDyldSuffix())
+                env.set("DYLD_IMAGE_SUFFIX", "_debug");
+        });
+    } else {
+        useDyldSuffix.setVisible(false);
+    }
 
     setDefaultDisplayName(defaultDisplayName());
     setUsesEmptyBuildKeys();

@@ -31,6 +31,7 @@ private:
     WorkingDirectoryAspect workingDir{this};
     RunAsAspect runAs{this};
     TerminalAspect terminal{this};
+    UseDyldSuffixAspect useDyldSuffix{this};
 };
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory
