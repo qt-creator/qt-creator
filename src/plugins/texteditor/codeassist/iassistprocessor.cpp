@@ -51,12 +51,10 @@ void IAssistProcessor::cancel() {}
 AssistInterface *IAssistProcessor::interface() { return m_interface.get(); }
 const AssistInterface *IAssistProcessor::interface() const { return m_interface.get(); }
 
-#ifdef WITH_TESTS
 void IAssistProcessor::setupAssistInterface(std::unique_ptr<AssistInterface> &&interface)
 {
     m_interface = std::move(interface);
 }
-#endif
 
 /*!
     \fn IAssistProposal *TextEditor::IAssistProcessor::start()
