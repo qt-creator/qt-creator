@@ -72,7 +72,9 @@ public:
         m_proc.setProcessMode(ProcessMode::Writer);
         if (m_runParameters.debugger().workingDirectory.isDir())
             m_proc.setWorkingDirectory(m_runParameters.debugger().workingDirectory);
-        m_proc.setEnvironment(m_runParameters.debugger().environment);
+        Environment gdbEnv = m_runParameters.debugger().environment;
+        gdbEnv.setupEnglishOutput();
+        m_proc.setEnvironment(gdbEnv);
         m_proc.setCommand(m_cmd);
         m_proc.start();
     }
@@ -170,15 +172,63 @@ void BridgeEngine::handleDapStarted()
     m_dapClient->sendInitialize();
 }
 
+// The environment the inferior should run in, as the difference against the
+// debugger's own: only what the run configuration actually changes travels, so
+// nothing the inferior legitimately inherits is stripped. Mirrors what
+// GdbEngine::setEnvironmentVariables() sends.
+static QJsonArray inferiorEnvironment(const DebuggerRunParameters &rp)
+{
+    QJsonArray items;
+    // Diff against the environment gdb actually runs with, English forcing
+    // included, so the inferior does not silently keep the debugger's locale
+    // either. (GdbEngine diffs against the plain debugger environment and
+    // leaks it.)
+    Environment gdbEnv = rp.debugger().environment;
+    gdbEnv.setupEnglishOutput();
+    const EnvironmentItems diff = gdbEnv.diff(rp.inferior().environment);
+    for (const EnvironmentItem &item : diff) {
+        // gdb on Windows spells the path variable in all uppercase.
+        const bool isWindowsPath = HostOsInfo::isWindowsHost()
+                                   && item.name.compare("path", Qt::CaseInsensitive) == 0;
+        const bool unset = item.operation == EnvironmentItem::Unset
+                           || item.operation == EnvironmentItem::SetDisabled;
+        const QString name = isWindowsPath ? QString("PATH") : item.name;
+        if (!unset && name != item.name) {
+            // Drop the differently cased one, or the inferior gets both.
+            items.append(QJsonObject{{"name", item.name}, {"value", QString()},
+                                     {"unset", true}});
+        }
+        items.append(QJsonObject{{"name", name},
+                                 {"value", unset ? QString() : item.value},
+                                 {"unset", unset}});
+    }
+    return items;
+}
+
 void BridgeEngine::handleDapInitialize()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
-    if (runParameters().isLocalAttachEngine())
+    const DebuggerRunParameters &rp = runParameters();
+    if (rp.isLocalAttachEngine()) {
         m_dapClient->postRequest("attach",
-                                 QJsonObject{{"pid", qint64(runParameters().attachPid().pid())}});
-    else
-        m_dapClient->sendLaunch(runParameters().inferior().command);
+                                 QJsonObject{{"pid", qint64(rp.attachPid().pid())}});
+        return;
+    }
+
+    // Not sendLaunch(): the inferior would inherit gdb's working directory and
+    // environment, which are the debugger's, not the debuggee's - a Qt
+    // application then typically fails to start at all.
+    const CommandLine &command = rp.inferior().command;
+    QJsonObject args{{"noDebug", false},
+                     {"program", command.executable().path()},
+                     {"args", command.arguments()}};
+    if (!rp.inferior().workingDirectory.isEmpty())
+        args.insert("cwd", rp.inferior().workingDirectory.path());
+    const QJsonArray environment = inferiorEnvironment(rp);
+    if (!environment.isEmpty())
+        args.insert("env", environment);
+    m_dapClient->postRequest("launch", args);
 }
 
 void BridgeEngine::handleDapEventInitialized()

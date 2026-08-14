@@ -31,6 +31,17 @@ except ImportError:  # not POSIX
 import gdb
 
 
+def gdbLineArgument(value, what):
+    # Rest-of-line gdb commands take everything to the end of the line and
+    # cannot be escaped, so a newline would end the command and run the rest as
+    # the next one.
+    text = str(value)
+    if '\n' in text or '\r' in text:
+        warn('%s contains a newline, ignoring it: %r' % (what, text))
+        return None
+    return text
+
+
 def warn(message):
     # Diagnostics must not go to stdout: that is the protocol stream. The C++
     # side reads stderr separately and shows it in the debugger log.
@@ -328,12 +339,30 @@ class DapServer():
     def cmd_launch(self, request):
         self.attachMode = False
         arguments = request.get('arguments', {})
-        program = arguments.get('program', '')
+        program = gdbLineArgument(arguments.get('program') or '', 'the program path')
         if program:
             gdb.execute('file "%s"' % program, to_string=True)
         programArgs = arguments.get('args', '')
         if programArgs:
             gdb.execute('set args %s' % programArgs, to_string=True)
+        # The debuggee runs where and how the run configuration says, not
+        # wherever gdb happens to sit. No quoting anywhere here: gdb takes the
+        # rest of the line verbatim, so a path with spaces works as is while
+        # quotes would become part of it.
+        cwd = gdbLineArgument(arguments.get('cwd') or '', 'the working directory')
+        if cwd:
+            gdb.execute('set cwd %s' % cwd, to_string=True)
+        for item in arguments.get('env', []):
+            name = gdbLineArgument(item.get('name') or '', 'an environment variable name')
+            if not name:
+                continue
+            if item.get('unset'):
+                gdb.execute('unset environment %s' % name, to_string=True)
+                continue
+            value = gdbLineArgument(item.get('value', ''), 'the value of %s' % name)
+            if value is None:
+                continue
+            gdb.execute('set environment %s=%s' % (name, value), to_string=True)
         # Do not run yet; wait for configurationDone so breakpoints are set.
         self.sendResponse(request)
 
