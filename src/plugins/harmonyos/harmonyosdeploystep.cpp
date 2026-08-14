@@ -39,17 +39,6 @@ namespace HarmonyOs::Internal {
 // Signing values keyed by the QT_HARMONYOS_SIGNING_* environment variable name.
 using SigningConfig = QMap<QString, QString>;
 
-const char SIGNING_CACHE_KEY[] = "HarmonyOS.SigningCache";
-
-// The key and store passwords are secrets. They are applied to the build but
-// never written to the project .user file; they are re-read from
-// build-profile.json5 each session instead.
-static bool isSecretSigningVar(const QString &var)
-{
-    return var == Constants::SIGNING_KEY_PASSWORD_ENV_VAR
-        || var == Constants::SIGNING_STORE_PASSWORD_ENV_VAR;
-}
-
 // Returns the balanced {...} object at or after "from", honouring string
 // literals so that braces inside strings do not end the object.
 static QString balancedBraces(const QString &text, qsizetype from)
@@ -118,7 +107,7 @@ static SigningConfig readSigningConfig(const FilePath &buildDir)
 
 // The signing material configured in Preferences > SDKs > HarmonyOS, for projects that
 // were not set up with DevEco's automatic signing. Empty unless all of it is present.
-static SigningConfig signingConfigFromSettings()
+static SigningConfig signingConfigFromSettings(const Environment &env)
 {
     const FilePath certificate = settings().signingCertificate();
     const FilePath profile = settings().signingProfile();
@@ -132,11 +121,59 @@ static SigningConfig signingConfigFromSettings()
     config.insert(Constants::SIGNING_PROFILE_ENV_VAR, profile.nativePath());
     config.insert(Constants::SIGNING_STORE_FILE_ENV_VAR, keystore.nativePath());
     config.insert(Constants::SIGNING_KEY_ALIAS_ENV_VAR, alias);
-    if (const QString password = settings().keyPassword(); !password.isEmpty())
-        config.insert(Constants::SIGNING_KEY_PASSWORD_ENV_VAR, password);
-    if (const QString password = settings().storePassword(); !password.isEmpty())
-        config.insert(Constants::SIGNING_STORE_PASSWORD_ENV_VAR, password);
+    const auto insertPassword = [&config, &env](const QString &var, const QString &password) {
+        if (!password.isEmpty())
+            config.insert(var, password);
+        else if (const QString fromEnv = env.value(var); !fromEnv.isEmpty())
+            config.insert(var, fromEnv);
+    };
+    insertPassword(Constants::SIGNING_KEY_PASSWORD_ENV_VAR, settings().keyPassword());
+    insertPassword(Constants::SIGNING_STORE_PASSWORD_ENV_VAR, settings().storePassword());
     return config;
+}
+
+// A device refuses to install a package that asks for a permission the provisioning
+// profile does not allow.
+static Result<QStringList> dropPermissions(const FilePath &moduleJson, const QStringList &names)
+{
+    const Result<QByteArray> contents = moduleJson.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+
+    QString text = QString::fromUtf8(*contents);
+    QStringList dropped;
+    for (const QString &name : names) {
+        const qsizetype at = text.indexOf('"' + name + '"');
+        if (at < 0)
+            continue;
+        // The permission sits in an object of its own, which is what has to go.
+        qsizetype start = text.lastIndexOf('{', at);
+        if (start < 0)
+            continue;
+        const QString object = balancedBraces(text, start);
+        if (object.isEmpty())
+            continue;
+        qsizetype end = start + object.size();
+        while (end < text.size() && (text.at(end) == ',' || text.at(end).isSpace()))
+            ++end;
+        text.remove(start, end - start);
+        dropped.append(name);
+    }
+    if (dropped.isEmpty())
+        return dropped;
+    if (const Result<qint64> written = moduleJson.writeFileContents(text.toUtf8()); !written)
+        return ResultError(written.error());
+    return dropped;
+}
+
+static FilePath packageDir(const BuildConfiguration *bc)
+{
+    return bc->buildDirectory().pathAppended("harmonyos-package");
+}
+
+static FilePath projectDir(const BuildConfiguration *bc)
+{
+    return bc->buildDirectory().pathAppended("harmonyos-build");
 }
 
 // Builds the .hap via the Qt-generated CMake "<target>_make_hap" target.
@@ -186,58 +223,22 @@ private:
             {cmake, {"--build", buildDir.path(), "--target", target}});
         processParameters()->setWorkingDirectory(buildDir);
 
-        // make_hap regenerates build-profile.json5 and drops the signing config
-        // on every run, so cache the material and re-apply it even after a run
-        // (or another tool) has cleared it. Secrets are not cached to disk (see
-        // toMap), so the passwords are re-read here on every session.
-        const SigningConfig live = readSigningConfig(buildDir);
-        if (!live.isEmpty())
-            m_signingCache = live;
-        else if (const SigningConfig configured = signingConfigFromSettings(); !configured.isEmpty())
-            m_signingCache = configured;
-
+        // Generate the project and stop there: the two steps that follow do the
+        // packaging and signing harmonydeployqt would delegate to hvigor.
         Environment env = bc->environment();
-        if (m_signingCache.isEmpty()) {
-            emit addOutput(Tr::tr("No HarmonyOS signing configuration was found. The package "
-                                  "will be unsigned and cannot be installed on a device. Set up "
-                                  "signing in Preferences > SDKs > HarmonyOS, or open the "
-                                  "harmonyos-build folder in DevEco Studio to set up automatic "
-                                  "signing."),
-                           OutputFormat::Stdout);
-        } else {
-            for (auto it = m_signingCache.cbegin(); it != m_signingCache.cend(); ++it)
-                env.set(it.key(), it.value());
-            if (!m_signingCache.contains(Constants::SIGNING_KEY_PASSWORD_ENV_VAR)
-                || !m_signingCache.contains(Constants::SIGNING_STORE_PASSWORD_ENV_VAR)) {
-                emit addOutput(Tr::tr("The HarmonyOS signing passwords are not available. Enter "
-                                      "them in Preferences > SDKs > HarmonyOS, or open the "
-                                      "harmonyos-build folder in DevEco Studio to refresh the "
-                                      "signing configuration."),
-                               OutputFormat::Stdout);
-            }
+        env.unset(Constants::HVIGOR_ENV_VAR);
+        // Signing inputs would make harmonydeployqt insist on a complete set for hvigor.
+        for (const char *var : {Constants::SIGNING_CERT_PATH_ENV_VAR,
+                                Constants::SIGNING_PROFILE_ENV_VAR,
+                                Constants::SIGNING_STORE_FILE_ENV_VAR,
+                                Constants::SIGNING_KEY_ALIAS_ENV_VAR,
+                                Constants::SIGNING_KEY_PASSWORD_ENV_VAR,
+                                Constants::SIGNING_STORE_PASSWORD_ENV_VAR,
+                                Constants::SIGNING_ALG_ENV_VAR}) {
+            env.unset(QLatin1String(var));
         }
         processParameters()->setEnvironment(env);
         return true;
-    }
-
-    void toMap(Store &map) const final
-    {
-        AbstractProcessStep::toMap(map);
-        QVariantMap cache;
-        for (auto it = m_signingCache.cbegin(); it != m_signingCache.cend(); ++it) {
-            if (!isSecretSigningVar(it.key()))
-                cache.insert(it.key(), it.value());
-        }
-        map.insert(SIGNING_CACHE_KEY, cache);
-    }
-
-    void fromMap(const Store &map) final
-    {
-        AbstractProcessStep::fromMap(map);
-        m_signingCache.clear();
-        const QVariantMap cache = map.value(SIGNING_CACHE_KEY).toMap();
-        for (auto it = cache.cbegin(); it != cache.cend(); ++it)
-            m_signingCache.insert(it.key(), it.value().toString());
     }
 
     void setupOutputFormatter(OutputFormatter *formatter) final
@@ -246,7 +247,6 @@ private:
         AbstractProcessStep::setupOutputFormatter(formatter);
     }
 
-    SigningConfig m_signingCache;
 };
 
 class MakeHapStepFactory final : public BuildStepFactory
@@ -259,6 +259,273 @@ public:
         setSupportedDeviceType(Constants::HARMONYOS_DEVICE_TYPE);
         setRepeatable(false);
         setDisplayName(Tr::tr("Build HarmonyOS package (.hap)"));
+    }
+};
+
+
+class PackageHapStep final : public AbstractProcessStep
+{
+public:
+    PackageHapStep(BuildStepList *bsl, Id id)
+        : AbstractProcessStep(bsl, id)
+    {
+        setDisplayName(Tr::tr("Package HarmonyOS application with hvigor"));
+        setSummaryUpdater([] { return Tr::tr("<b>Package application with hvigor</b>"); });
+
+    }
+
+private:
+    bool init() final
+    {
+        if (!AbstractProcessStep::init())
+            return false;
+
+        BuildConfiguration *const bc = buildConfiguration();
+        QTC_ASSERT(bc, return false);
+
+        const FilePath hvigor = Sdk::hvigorCommand(settings().sdkLocation());
+        if (hvigor.isEmpty()) {
+            emit addOutput(Tr::tr("hvigor was not found in the HarmonyOS SDK."),
+                           OutputFormat::ErrorMessage);
+            return false;
+        }
+
+        m_buildKey = bc->activeBuildKey();
+        m_project = projectDir(bc);
+        m_package = packageDir(bc).pathAppended(m_buildKey + "-unsigned.hap");
+
+        processParameters()->setCommandLine({hvigor, {"assembleHap", "--no-daemon"}});
+        processParameters()->setWorkingDirectory(m_project);
+        return true;
+    }
+
+    // The libraries Qt needs at run time, which harmonydeployqt does not stage.
+    bool addAdditionalPackages()
+    {
+        const FilePath libs = settings().additionalPackages();
+        if (libs.isEmpty())
+            return true;
+
+        const FilePaths abiDirs = m_project.pathAppended("entry/libs").dirEntries(
+            FileFilter({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot));
+        for (const FilePath &abiDir : abiDirs) {
+            const FilePaths sources = libs.dirEntries(
+                FileFilter({"*.so"}, DirFilterFlag::Files));
+            for (const FilePath &source : sources) {
+                const FilePath target = abiDir / source.fileName();
+                if (target.exists())
+                    continue;
+                if (const Result<> copied = source.copyFile(target); !copied) {
+                    emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // The next generation replaces the project wholesale.
+    bool keepPackage()
+    {
+        const FilePath built = m_project.pathAppended(
+            "entry/build/default/outputs/default/entry-default-unsigned.hap");
+        if (!built.exists()) {
+            emit addOutput(Tr::tr("The package \"%1\" was not built.").arg(built.toUserOutput()),
+                           OutputFormat::ErrorMessage);
+            return false;
+        }
+        m_package.parentDir().ensureWritableDir();
+        m_package.removeFile();
+        if (const Result<> copied = built.copyFile(m_package); !copied) {
+            emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        return true;
+    }
+
+    QtTaskTree::GroupItem runRecipe() final
+    {
+        using namespace QtTaskTree;
+
+        const auto onSetup = [this](Process &process) {
+            if (!addAdditionalPackages())
+                return SetupResult::StopWithError;
+            const QStringList unwanted = settings().droppedPermissions().split(
+                ' ', Qt::SkipEmptyParts);
+            if (!unwanted.isEmpty()) {
+                const FilePath moduleJson = m_project.pathAppended(
+                    "entry/src/main/module.json5");
+                const Result<QStringList> dropped = dropPermissions(moduleJson, unwanted);
+                if (!dropped) {
+                    emit addOutput(dropped.error(), OutputFormat::ErrorMessage);
+                    return SetupResult::StopWithError;
+                }
+                for (const QString &name : *dropped) {
+                    emit addOutput(Tr::tr("Dropped the request for %1 from the package.")
+                                       .arg(name),
+                                   OutputFormat::Stdout);
+                }
+            }
+
+            if (!setupProcess(process))
+                return SetupResult::StopWithError;
+            return SetupResult::Continue;
+        };
+        const auto onDone = [this](const Process &process) {
+            if (!handleProcessDone(process))
+                return false;
+            return keepPackage();
+        };
+        return ProcessTask(onSetup, onDone);
+    }
+
+    void setupOutputFormatter(OutputFormatter *formatter) final
+    {
+        formatter->addLineParsers(kit()->createOutputParsers());
+        AbstractProcessStep::setupOutputFormatter(formatter);
+    }
+
+    QString m_buildKey;
+    FilePath m_project;
+    FilePath m_package;
+};
+
+class PackageHapStepFactory final : public BuildStepFactory
+{
+public:
+    PackageHapStepFactory()
+    {
+        registerStep<PackageHapStep>(Constants::HARMONYOS_PACKAGE_HAP_STEP_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(Constants::HARMONYOS_DEVICE_TYPE);
+        setRepeatable(false);
+        setDisplayName(Tr::tr("Package HarmonyOS application with hvigor"));
+    }
+};
+
+// Unlike hvigor, hap-sign-tool takes the signing material as it is issued.
+class SignHapStep final : public AbstractProcessStep
+{
+public:
+    SignHapStep(BuildStepList *bsl, Id id)
+        : AbstractProcessStep(bsl, id)
+    {
+        setDisplayName(Tr::tr("Sign HarmonyOS package"));
+        setSummaryUpdater([] { return Tr::tr("<b>Sign package with hap-sign-tool</b>"); });
+    }
+
+private:
+    bool init() final
+    {
+        if (!AbstractProcessStep::init())
+            return false;
+
+        BuildConfiguration *const bc = buildConfiguration();
+        QTC_ASSERT(bc, return false);
+
+        const SigningConfig config = signingConfigFromSettings(bc->environment());
+        if (config.isEmpty()) {
+            emit addOutput(Tr::tr("No HarmonyOS signing material is configured. The package "
+                                  "cannot be installed on a device. Set it up in "
+                                  "Preferences > SDKs > HarmonyOS."),
+                           OutputFormat::ErrorMessage);
+            return false;
+        }
+        const QString keyPassword = config.value(Constants::SIGNING_KEY_PASSWORD_ENV_VAR);
+        const QString storePassword = config.value(Constants::SIGNING_STORE_PASSWORD_ENV_VAR);
+        if (keyPassword.isEmpty() || storePassword.isEmpty()) {
+            emit addOutput(Tr::tr("The HarmonyOS signing passwords are not available. Enter them "
+                                  "in Preferences > SDKs > HarmonyOS, or pass them in the "
+                                  "environment as %1 and %2.")
+                               .arg(QLatin1String(Constants::SIGNING_KEY_PASSWORD_ENV_VAR),
+                                    QLatin1String(Constants::SIGNING_STORE_PASSWORD_ENV_VAR)),
+                           OutputFormat::ErrorMessage);
+            return false;
+        }
+
+        const FilePath jar = Sdk::hapSignToolJar(settings().sdkLocation());
+        if (jar.isEmpty()) {
+            emit addOutput(Tr::tr("hap-sign-tool.jar was not found in the HarmonyOS SDK."),
+                           OutputFormat::ErrorMessage);
+            return false;
+        }
+        const FilePath java = bc->environment().searchInPath("java");
+        if (java.isEmpty()) {
+            emit addOutput(Tr::tr("No Java runtime was found; hap-sign-tool needs one."),
+                           OutputFormat::ErrorMessage);
+            return false;
+        }
+
+        const QString buildKey = bc->activeBuildKey();
+        m_unsignedPackage = packageDir(bc).pathAppended(buildKey + "-unsigned.hap");
+        m_signedPackage = packageDir(bc).pathAppended(buildKey + ".hap");
+
+        CommandLine cmd{java, {"-jar", jar.nativePath(), "sign-app",
+                               "-mode", "localSign",
+                               "-signAlg", config.value(Constants::SIGNING_ALG_ENV_VAR,
+                                                        "SHA256withECDSA"),
+                               "-signCode", "1",
+                               "-keyAlias", config.value(Constants::SIGNING_KEY_ALIAS_ENV_VAR),
+                               "-keyPwd", keyPassword,
+                               "-keystorePwd", storePassword,
+                               "-keystoreFile",
+                               config.value(Constants::SIGNING_STORE_FILE_ENV_VAR),
+                               "-appCertFile",
+                               config.value(Constants::SIGNING_CERT_PATH_ENV_VAR),
+                               "-profileFile", config.value(Constants::SIGNING_PROFILE_ENV_VAR),
+                               "-inFile", m_unsignedPackage.nativePath(),
+                               "-outFile", m_signedPackage.nativePath()}};
+        processParameters()->setCommandLine(cmd);
+        processParameters()->setWorkingDirectory(packageDir(bc));
+        return true;
+    }
+
+    QtTaskTree::GroupItem runRecipe() final
+    {
+        using namespace QtTaskTree;
+
+        const auto onSetup = [this](Process &process) {
+            // Checked here rather than in init(), which runs before the step that packages.
+            if (!m_unsignedPackage.exists()) {
+                emit addOutput(Tr::tr("The package \"%1\" was not built.")
+                                   .arg(m_unsignedPackage.toUserOutput()),
+                               OutputFormat::ErrorMessage);
+                return SetupResult::StopWithError;
+            }
+            m_signedPackage.removeFile();
+            return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
+        };
+        const auto onDone = [this](const Process &process) {
+            // hap-sign-tool reports its failures on stdout and exits successfully.
+            if (!m_signedPackage.exists()) {
+                emit addOutput(Tr::tr("Signing the package failed."), OutputFormat::ErrorMessage);
+                return false;
+            }
+            return handleProcessDone(process);
+        };
+        return ProcessTask(onSetup, onDone);
+    }
+
+    void setupOutputFormatter(OutputFormatter *formatter) final
+    {
+        formatter->addLineParsers(kit()->createOutputParsers());
+        AbstractProcessStep::setupOutputFormatter(formatter);
+    }
+
+    FilePath m_unsignedPackage;
+    FilePath m_signedPackage;
+};
+
+class SignHapStepFactory final : public BuildStepFactory
+{
+public:
+    SignHapStepFactory()
+    {
+        registerStep<SignHapStep>(Constants::HARMONYOS_SIGN_HAP_STEP_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(Constants::HARMONYOS_DEVICE_TYPE);
+        setRepeatable(false);
+        setDisplayName(Tr::tr("Sign HarmonyOS package"));
     }
 };
 
@@ -295,8 +562,7 @@ private:
             return false;
         }
 
-        m_hap = bc->buildDirectory().pathAppended(
-            "harmonyos-build/entry/build/default/outputs/default/" + buildKey + ".hap");
+        m_hap = packageDir(bc).pathAppended(buildKey + ".hap");
         const FilePath &hap = m_hap;
 
         // Target the run device explicitly so the right one is used when several
@@ -381,6 +647,8 @@ public:
         addSupportedTargetDeviceType(Constants::HARMONYOS_DEVICE_TYPE);
         setDefaultDisplayName(Tr::tr("Deploy to HarmonyOS device"));
         addInitialStep(Constants::HARMONYOS_MAKE_HAP_STEP_ID);
+        addInitialStep(Constants::HARMONYOS_PACKAGE_HAP_STEP_ID);
+        addInitialStep(Constants::HARMONYOS_SIGN_HAP_STEP_ID);
         addInitialStep(Constants::HARMONYOS_INSTALL_HAP_STEP_ID);
     }
 };
@@ -388,6 +656,8 @@ public:
 void setupHarmonyOsDeployStep()
 {
     static MakeHapStepFactory theMakeHapStepFactory;
+    static PackageHapStepFactory thePackageHapStepFactory;
+    static SignHapStepFactory theSignHapStepFactory;
     static InstallHapStepFactory theInstallHapStepFactory;
 }
 

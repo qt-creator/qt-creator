@@ -17,6 +17,8 @@ inline const Utils::Id HARMONYOS_SERIAL_NUMBER = "HarmonyOS.SerialNumber";
 
 inline constexpr char HARMONYOS_DEPLOY_CONFIG_ID[] = "HarmonyOS.DeployConfiguration";
 inline constexpr char HARMONYOS_MAKE_HAP_STEP_ID[] = "HarmonyOS.MakeHapStep";
+inline constexpr char HARMONYOS_PACKAGE_HAP_STEP_ID[] = "HarmonyOS.PackageHapStep";
+inline constexpr char HARMONYOS_SIGN_HAP_STEP_ID[] = "HarmonyOS.SignHapStep";
 inline constexpr char HARMONYOS_INSTALL_HAP_STEP_ID[] = "HarmonyOS.InstallHapStep";
 inline constexpr char HARMONYOS_RUNCONFIG_ID[] = "HarmonyOS.RunConfiguration";
 
