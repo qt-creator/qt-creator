@@ -7398,6 +7398,22 @@ void tst_Dumpers::dumper_data()
 
                + Check("is1", "1", TypePattern("boost::variant<int, std::.*>"))
                + Check("is2", "\"sss\"", TypePattern("boost::variant<int, std::.*>"));
+
+    QTest::newRow("BoostVariantReference")
+            << Data("#include <boost/variant/variant.hpp>\n"
+                    "struct B { int value; };\n"
+                    "struct A { B &ref; };\n",
+
+                    "B b{23};\n"
+                    "A a{b};\n"
+                    "boost::variant<int, A> wrong{a};\n"
+                    "unused(&wrong, &b);",
+
+                    "&wrong, &b")
+
+               + BoostProfile()
+
+               + Check("wrong.ref.value", "23", "int");
 #endif
 
 
