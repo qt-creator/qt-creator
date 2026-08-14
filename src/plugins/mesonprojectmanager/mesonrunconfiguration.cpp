@@ -12,8 +12,6 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <utils/hostosinfo.h>
-
 #include <debugger/debuggerruncontrol.h>
 
 using namespace ProjectExplorer;
@@ -36,16 +34,7 @@ public:
         connect(&useLibraryPaths, &BaseAspect::changed,
                 &environment, &EnvironmentAspect::environmentChanged);
 
-        if (HostOsInfo::isMacHost()) {
-            connect(&useDyldSuffix, &BaseAspect::changed,
-                    &environment, &EnvironmentAspect::environmentChanged);
-            environment.addModifier([this](Environment &env) {
-                if (useDyldSuffix())
-                    env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
-            });
-        } else {
-            useDyldSuffix.setVisible(false);
-        }
+        useDyldSuffix.applyTo(environment);
 
         environment.addModifier([this](Environment &env) {
             BuildTargetInfo bti = buildTargetInfo();

@@ -37,16 +37,7 @@ public:
         connect(&useLibraryPaths, &UseLibraryPathsAspect::changed,
                 &environment, &EnvironmentAspect::environmentChanged);
 
-        if (HostOsInfo::isMacHost()) {
-            connect(&useDyldSuffix, &UseLibraryPathsAspect::changed,
-                    &environment, &EnvironmentAspect::environmentChanged);
-            environment.addModifier([this](Environment &env) {
-                if (useDyldSuffix())
-                    env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
-            });
-        } else {
-            useDyldSuffix.setVisible(false);
-        }
+        useDyldSuffix.applyTo(environment);
 
         enableCategoriesFilterAspect.setEnabled(kit()->supportsQtCategoryFilter());
 

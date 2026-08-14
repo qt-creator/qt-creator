@@ -17,6 +17,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -809,6 +810,20 @@ UseDyldSuffixAspect::UseDyldSuffixAspect(AspectContainer *container)
     setSettingsKey("RunConfiguration.UseDyldImageSuffix");
     setLabel(Tr::tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"),
              LabelPlacement::AtCheckBox);
+    setVisible(HostOsInfo::isMacHost());
+}
+
+void UseDyldSuffixAspect::applyTo(EnvironmentAspect &environment)
+{
+    if (!HostOsInfo::isMacHost())
+        return;
+
+    connect(this, &UseDyldSuffixAspect::changed,
+            &environment, &EnvironmentAspect::environmentChanged);
+    environment.addModifier([this](Environment &env) {
+        if (value())
+            env.set("DYLD_IMAGE_SUFFIX", "_debug");
+    });
 }
 
 /*!

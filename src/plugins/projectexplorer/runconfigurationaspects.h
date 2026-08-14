@@ -154,6 +154,9 @@ class PROJECTEXPLORER_EXPORT UseDyldSuffixAspect : public Utils::BoolAspect
 
 public:
     UseDyldSuffixAspect(Utils::AspectContainer *container = nullptr);
+
+    // Makes the aspect drive DYLD_IMAGE_SUFFIX in the given environment.
+    void applyTo(EnvironmentAspect &environment);
 };
 
 class PROJECTEXPLORER_EXPORT RunAsAspect : public Utils::AspectContainer
