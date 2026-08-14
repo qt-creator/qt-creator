@@ -1519,7 +1519,8 @@ void McpCommands::registerCommands()
                 "files; for text use file_plain_text. Optionally restrict to a byte range via "
                 "offset/length. Local and remote files are both supported via Qt Creator urlish "
                 "paths such as ssh://user@host/path or docker://id/path; remote access is "
-                "transparent.")
+                "transparent. 'reason' distinguishes an empty directory from one that could "
+                "not be read: device_unavailable, not_found, not_a_directory.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1645,6 +1646,8 @@ void McpCommands::registerCommands()
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("entries", QJsonObject{{"type", "array"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
                     .addRequired("entries")),
         wrapAsync([](const QJsonObject &p, const Callback &callback) {
             const QString path = p.value("path").toString();
@@ -1655,6 +1658,27 @@ void McpCommands::registerCommands()
             runFileOpOffThread(
                 [path, nameFilters, recursive]() -> QJsonObject {
                     const FilePath dir = urlishToFilePath(path);
+                    // An empty directory, a wrong path and a device that is
+                    // not configured or not reachable all yield no entries, so
+                    // say which it was: a caller that cannot tell them apart
+                    // reads "cannot look" as "nothing there".
+                    if (const Utils::Result<> access = dir.checkDeviceAccess(); !access) {
+                        return QJsonObject{{"entries", QJsonArray{}},
+                                           {"reason", "device_unavailable"},
+                                           {"message", access.error()}};
+                    }
+                    if (!dir.exists()) {
+                        return QJsonObject{{"entries", QJsonArray{}},
+                                           {"reason", "not_found"},
+                                           {"message", QString("No such directory: %1.")
+                                                           .arg(dir.toUserOutput())}};
+                    }
+                    if (!dir.isDir()) {
+                        return QJsonObject{{"entries", QJsonArray{}},
+                                           {"reason", "not_a_directory"},
+                                           {"message", QString("Not a directory: %1.")
+                                                           .arg(dir.toUserOutput())}};
+                    }
                     const FileFilter filter(
                         nameFilters,
                         DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot,
@@ -1672,7 +1696,7 @@ void McpCommands::registerCommands()
                             {"isExecutable", bool(info.fileFlags & FilePathInfo::ExeOwnerPerm)},
                         });
                     }
-                    return QJsonObject{{"entries", entries}};
+                    return QJsonObject{{"entries", entries}, {"reason", "ok"}};
                 },
                 callback);
         }));
