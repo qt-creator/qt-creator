@@ -1890,9 +1890,13 @@ void Process::runBlocking(seconds timeout)
 
     if (state() != ProcessState::NotRunning && !waitForFinished(timeout)) {
         stop();
-        // TODO: This arbitrary 2s causes flakiness of:
-        //       tst_Process::runBlockingStdOut:"Short timeout without end of line".
-        QTC_CHECK(waitForFinished(2s));
+        // stop() only asks the process to terminate; the escalation to a kill
+        // happens on the reaper timeout, which is user-configurable and may be
+        // huge. Keep the wait bounded and let the reaper finish the job.
+        if (!waitForFinished(2s)) {
+            qCDebug(processLog) << "Process" << d->m_setup.m_commandLine.toUserOutput()
+                                << "did not finish after being stopped, leaving it to the reaper";
+        }
     }
 
     if (blockingThresholdMs > 0) {
