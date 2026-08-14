@@ -57,17 +57,37 @@ void registerNewToolchains()
 
 // Whether a Qt version targets HarmonyOS.
 //
-// This is normally decided by the version's type. As a workaround we also accept versions that
-// the Qt online installer mislabels as Desktop but that report an OpenHarmony ABI (see
-// QTCREATORBUG-34793). Remove the ABI fallback once the installer registers HarmonyOS Qt with
-// QtVersion.Type=Qt4ProjectManager.QtVersion.HarmonyOS.
+// This is normally decided by the version's type. As a workaround we also accept what the Qt
+// online installer registers, which is a version mislabeled as Desktop (QTCREATORBUG-34793),
+// recognizable by its mkspec. Remove both fallbacks once the installer registers HarmonyOS Qt
+// with QtVersion.Type=Qt4ProjectManager.QtVersion.HarmonyOS.
 static bool isHarmonyOsQtVersion(const QtVersion *v)
 {
     if (v->type() == Constants::HARMONYOS_QT_TYPE)
         return true;
+    if (v->mkspec().startsWith("ohos-"))
+        return true;
     return Utils::anyOf(v->qtAbis(), [](const Abi &abi) {
         return abi.osFlavor() == Abi::OpenHarmonyLinuxFlavor;
     });
+}
+
+// The installed Qt reports no ABI, because the metadata it would come from is empty.
+// Take the architecture from the libraries and pair it with the only OS they can be for.
+static Abis harmonyOsQtAbis(const QtVersion *v)
+{
+    const Abis abis = v->qtAbis();
+    if (!abis.isEmpty())
+        return abis;
+
+    const FilePath library = v->libraryPath().pathAppended("libQt6Core.so");
+    for (const Abi &abi : Abi::abisOfBinary(library)) {
+        if (abi.architecture() != Abi::UnknownArchitecture) {
+            return {Abi(abi.architecture(), Abi::LinuxOS, Abi::OpenHarmonyLinuxFlavor,
+                        Abi::ElfFormat, abi.wordWidth())};
+        }
+    }
+    return {};
 }
 
 // The HarmonyOS ABI name (as used by the Qt installation directories and the ohos mkspec),
@@ -138,7 +158,7 @@ void updateAutomaticKitList()
     const QtVersions qtVersions = QtVersionManager::versions(
         [](const QtVersion *v) { return isHarmonyOsQtVersion(v); });
     for (const QtVersion *qtVersion : qtVersions) {
-        const Abis qtAbis = qtVersion->qtAbis();
+        const Abis qtAbis = harmonyOsQtAbis(qtVersion);
         qCDebug(kitsLog) << "Qt" << qtVersion->displayName() << "abis"
                          << Utils::transform(qtAbis, &Abi::toString);
         if (qtAbis.isEmpty())
