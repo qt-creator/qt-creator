@@ -1393,6 +1393,39 @@ void LinuxDevicePrivate::setupFileAccess(
     // Make the process interface work even though we are not "connected". Must be reset in phase2
     q->setIsTesting(true);
 
+    if (!q->usesCmdBridge()) {
+        // With no bridge to deploy there is no echo test either, so uname doubles
+        // as the reachability probe: without judging its result an unreachable
+        // device would be reported as connected and every later file operation
+        // would fail on its own instead.
+        QFuture<RunResult> future = Utils::asyncRun([this, rootPath = q->rootPath()] {
+            const RunResult unameResult = runUnameCommand(rootPath);
+            setOsTypeFromUnameResult(unameResult);
+            return unameResult;
+        });
+        future.then(q, [this, cont](const RunResult &unameResult) {
+            q->setIsTesting(false);
+            if (unameResult.exitCode != 0) {
+                DEBUG("Failed to run \"uname\" on the device.");
+                q->setFileAccess(nullptr);
+                q->setDeviceState(IDevice::DeviceDisconnected);
+                const QString error = QString::fromUtf8(unameResult.stdErr).trimmed();
+                setupFileAccessFinalize(
+                    ResultError(error.isEmpty()
+                                    ? Tr::tr("Failed to connect to the device and run \"uname\".")
+                                    : Tr::tr("Failed to connect to the device and run \"uname\": %1")
+                                          .arg(error)),
+                    cont);
+                return;
+            }
+            q->setFileAccess(std::make_shared<LinuxDeviceAccess>(this));
+            q->setDeviceState(IDevice::DeviceConnected);
+            setupFileAccessFinalize(ResultOk, cont);
+        });
+        Utils::futureSynchronizer()->addFuture(future);
+        return;
+    }
+
     // update OsType and try using the cmdbridge first
     QFuture<CmdBridgeDeployResult> future = Utils::asyncRun(
         [this, rootPath = q->rootPath()]() -> CmdBridgeDeployResult {

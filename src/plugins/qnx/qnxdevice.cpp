@@ -59,6 +59,10 @@ public:
     }
 
     DeviceTester *createDeviceTester() final { return new QnxDeviceTester(shared_from_this()); }
+
+protected:
+    // QNX has no command-bridge binary.
+    bool usesCmdBridge() const final { return false; }
 };
 
 class QnxDeviceFactory final : public IDeviceFactory

@@ -229,6 +229,9 @@ public:
 
     virtual bool canMount(const Utils::FilePath &filePath) const;
 
+    // Devices without a command-bridge binary (e.g. QNX) return false to use ssh.
+    virtual bool usesCmdBridge() const { return true; }
+
     virtual QtTaskTree::ExecutableItem signalOperationRecipe(
         const SignalOperationData &data,
         const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const;
