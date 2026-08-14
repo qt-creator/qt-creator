@@ -304,6 +304,11 @@ class DapServer():
             # stopped now, which is what was asked for; report it below.
             pass
 
+        self._reportInferiorState()
+
+    def _reportInferiorState(self):
+        # Whatever the inferior did while a command was running: gone, or
+        # stopped somewhere.
         inferior = gdb.selected_inferior()
         if self.inferiorExited or not inferior.threads():
             code = self.lastExitCode if self.lastExitCode is not None else 0
@@ -814,11 +819,34 @@ class DapServer():
         # The debugger console. Capture what gdb prints: its stdout is the
         # protocol stream.
         command = request.get('arguments', {}).get('command', '')
+        self.lastStopEvent = None
+        self.inferiorExited = False
+        self.lastExitCode = None
         try:
-            self.sendResponse(request,
-                              body={'output': gdb.execute(command, to_string=True) or ''})
-        except gdb.error as error:
-            self.sendResponse(request, body={'error': str(error)})
+            body = {'output': gdb.execute(command, to_string=True) or ''}
+        except KeyboardInterrupt:
+            # An interrupt that arrived while the command ran the inferior; the
+            # state it left behind is reported below.
+            body = {'output': ''}
+        except Exception as error:
+            # Not only gdb.error: a command can raise anything, and letting it
+            # out would answer with a bare protocol failure that the console
+            # cannot show.
+            body = {'error': str(error)}
+
+        # The console can resume the inferior - continue, next, finish, run -
+        # and gdb returns only once it stopped again. Nobody else reports that,
+        # so the views would keep showing the old location. 'continued' first:
+        # a stop can only be reported from a running state.
+        resumed = self.lastStopEvent is not None or self.inferiorExited
+        if resumed:
+            thread = gdb.selected_thread()
+            self.sendEvent('continued',
+                           {'threadId': thread.global_num if thread is not None else 0,
+                            'allThreadsContinued': True})
+        self.sendResponse(request, body=body)
+        if resumed:
+            self._reportInferiorState()
 
     def cmd_qtc_fetchRegisters(self, request):
         # Enumerate the selected frame's registers via gdb's Python API and

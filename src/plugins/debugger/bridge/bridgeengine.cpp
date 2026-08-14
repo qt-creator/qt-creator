@@ -265,7 +265,13 @@ void BridgeEngine::handleDapConfigurationDone()
 
 void BridgeEngine::executeDebuggerCommand(const QString &command)
 {
-    QTC_ASSERT(state() == InferiorStopOk, qCDebug(logCategory()) << state());
+    if (state() != InferiorStopOk) {
+        // The bridge sits in gdb while the inferior runs, so the request would
+        // be read at the next stop and run then - long after it was typed.
+        showMessage(Tr::tr("The debugger console needs the program to be stopped."),
+                    LogError);
+        return;
+    }
 
     m_dapClient->postRequest("qtc/executeCommand", QJsonObject{{"command", command}});
 }
@@ -956,6 +962,16 @@ void BridgeEngine::handleEvent(DapEventType type, const QJsonObject &event)
     const QString eventType = event.value("event").toString();
     const QJsonObject body = event.value("body").toObject();
     showMessage(eventType, LogDebug);
+
+    if (eventType == "continued") {
+        // The console resumed the inferior behind the engine's back; the stop
+        // that follows can only be reported from a running state.
+        if (state() == InferiorStopOk) {
+            notifyInferiorRunRequested();
+            notifyInferiorRunOk();
+        }
+        return;
+    }
 
     switch (type) {
     case DapEventType::Initialized:
