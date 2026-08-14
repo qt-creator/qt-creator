@@ -919,6 +919,18 @@ static Result<QWidget *> resolveSingleWidget(const WidgetQuery &q)
 // alone, which matches every widget in that window): the keys then go to that
 // window's focused widget - "press Enter in the About dialog" - rather than
 // failing as ambiguous. Still an error if the matches span several windows.
+// Keys have to reach whatever actually edits text: a composite like a path chooser
+// hands that to a child, which the query resolves to only by accident.
+static QWidget *keyEntryWidget(QWidget *widget)
+{
+    if (QWidget *proxy = widget->focusProxy())
+        return keyEntryWidget(proxy);
+    if (qobject_cast<QLineEdit *>(widget) || qobject_cast<QAbstractSpinBox *>(widget))
+        return widget;
+    const QList<QLineEdit *> edits = widget->findChildren<QLineEdit *>();
+    return edits.size() == 1 ? edits.first() : widget;
+}
+
 static Result<QWidget *> resolveKeyTarget(const WidgetQuery &q)
 {
     if (widgetQueryIsEmpty(q)) {
@@ -930,7 +942,7 @@ static Result<QWidget *> resolveKeyTarget(const WidgetQuery &q)
     if (matches.isEmpty())
         return ResultError(QString("No widget matched the query."));
     if (matches.size() == 1)
-        return matches.first();
+        return keyEntryWidget(matches.first());
     QWidgetList windows;
     for (QWidget *w : matches) {
         if (QWidget *win = w->window(); win && !windows.contains(win))
@@ -2375,6 +2387,9 @@ void McpCommands::registerCommands()
                                  .arg(QString::fromUtf8(cur.typeName()))}};
             }
             target->setVariantValue(newValue);
+            // Applying is what tells the owner to act on the new value, the way clicking
+            // "Apply" in the settings page does.
+            r.container->apply();
             r.container->writeSettings();
             return {{"applied", true},
                     {"key", key},
