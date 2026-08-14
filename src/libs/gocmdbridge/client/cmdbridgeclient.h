@@ -154,7 +154,6 @@ public:
     void sendSocketStopForward(int id);
 
 protected:
-    bool exit();
 
 signals:
     void done(const Utils::ProcessResultData &resultData);

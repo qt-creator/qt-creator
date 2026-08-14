@@ -323,13 +323,43 @@ Client::Client(const Utils::FilePath &remoteCmdBridgePath, const Utils::Environm
 
 Client::~Client()
 {
-    if (d->thread->isRunning() && exit())
-        d->thread->wait(2000);
+    if (!d->thread->isRunning()) {
+        delete d->thread;
+        d->thread = nullptr;
+        return;
+    }
+
+    // Tear the process down in the thread that owns it and stop that thread from
+    // the inside. Asking the bridge to exit and waiting for the answer instead
+    // would hang: it answers by exiting, not by a reply packet, so only the
+    // process-exit handler could conclude that wait - and by the time the last
+    // device goes away, nothing may be delivering the events it needs.
+    QMetaObject::invokeMethod(
+        d->process,
+        [d = d.get()] {
+            if (Process *process = std::exchange(d->process, nullptr)) {
+                // Best effort, so the bridge gets the chance to go away by itself.
+                const QCborMap args{{"Id", -1}, {"Type", "exit"}};
+                process->writeRaw(args.toCborValue().toCbor());
+                process->close();
+            }
+            QThread::currentThread()->quit();
+        },
+        Qt::QueuedConnection);
+
+    if (d->thread->wait(5000)) {
+        delete d->thread;
+    } else {
+        // Whatever is stuck in there must not be destroyed while it runs. Leave it
+        // to the exiting process; the bridge has a watchdog and exits by itself.
+        qCWarning(clientLog) << "Bridge thread did not stop, leaving it behind.";
+    }
+    d->thread = nullptr;
 }
 
 Result<> Client::start(bool deleteOnExit)
 {
-    d->thread = new QThread(this);
+    d->thread = new QThread;
     d->thread->setObjectName("CmdBridgeClientThread");
     d->thread->start();
 
@@ -1143,28 +1173,6 @@ void Client::sendSocketStopForward(int id)
     });
 }
 
-bool Client::exit()
-{
-    try {
-        createVoidJob(d.get(), QCborMap{{"Type", "exit"}}, "exitres").and_then([](auto future) {
-            future.waitForFinished();
-            return Result<>();
-        });
-        return true;
-    } catch (const std::runtime_error &e) {
-        if (e.what() == std::string("NormalExit"))
-            return true;
-
-        qCWarning(clientLog) << "Client::exit() caught exception:" << e.what();
-        return false;
-    } catch (const std::exception &e) {
-        qCWarning(clientLog) << "Client::exit() caught exception:" << e.what();
-        return false;
-    } catch (...) {
-        qCWarning(clientLog) << "Client::exit() caught unexpected exception";
-        return false;
-    }
-}
 
 Utils::Result<QFuture<Client::Stat>> Client::stat(const QString &path)
 {

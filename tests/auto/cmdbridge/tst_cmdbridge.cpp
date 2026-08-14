@@ -71,9 +71,6 @@ public:
     }
 };
 
-// Note: a run that ENDS with testFind() does not shut down - the client waits for
-// an exit reply that only Process::done can conclude, and nothing delivers it once
-// the last test is over. Keep at least one test after it.
 class tst_CmdBridge : public QObject
 {
     Q_OBJECT
