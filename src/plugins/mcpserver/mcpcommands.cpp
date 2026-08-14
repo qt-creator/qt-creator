@@ -45,6 +45,8 @@
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QCursor>
+
+#include <cmath>
 #include <QBuffer>
 #include <QComboBox>
 #include <QContextMenuEvent>
@@ -58,6 +60,10 @@
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QLabel>
+#include <QCursor>
+
+#include <cmath>
+#include <QEventLoop>
 #include <QLineEdit>
 #include <QAction>
 #include <QDateTime>
@@ -1056,9 +1062,74 @@ static Utils::Result<QModelIndex> resolveSingleItem(QAbstractItemView *view, con
 // posting raw mouse events. Other widgets do get a synthetic left click at
 // their centre, delivered in-process so no XTEST or X server round trip is
 // needed.
+// Pacing for a screen recording.
+//
+// The tools deliver synthetic events, which is what makes them reliable, but it also
+// means nothing moves: text appears at once and no pointer ever travels to what is
+// clicked. With a pace set, the pointer glides to its target and text arrives character
+// by character, and the wait in between lets the interface repaint, so a capture of a
+// driven session looks like someone using it. Off by default.
+class DemoPace
+{
+public:
+    int keyDelayMs = 0;
+    int pointerPixelsPerSecond = 0;
+    int clickHoldMs = 0;
+
+    bool isSet() const
+    {
+        return keyDelayMs > 0 || pointerPixelsPerSecond > 0 || clickHoldMs > 0;
+    }
+};
+
+static DemoPace &demoPace()
+{
+    static DemoPace thePace;
+    return thePace;
+}
+
+// Waits without freezing what is being recorded.
+static void waitPainting(int ms)
+{
+    if (ms <= 0)
+        return;
+    QEventLoop loop;
+    QTimer::singleShot(ms, &loop, &QEventLoop::quit);
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+}
+
+// Moves the actual pointer, so the recording shows it arrive. It travels at a set
+// speed, so that how long it takes follows how far it has to go.
+static void glidePointerTo(QWidget *w)
+{
+    const DemoPace &pace = demoPace();
+    if (pace.pointerPixelsPerSecond <= 0)
+        return;
+    const QPoint target = w->mapToGlobal(w->rect().center());
+    const QPoint start = QCursor::pos();
+    const qreal distance = std::hypot(target.x() - start.x(), target.y() - start.y());
+    if (distance < 1)
+        return;
+
+    const int frameMs = 16; // One step per frame at 60Hz, which any capture can follow.
+    const int steps = qMax(1, qRound(distance / pace.pointerPixelsPerSecond * 1000 / frameMs));
+    for (int step = 1; step <= steps; ++step) {
+        const qreal t = qreal(step) / steps;
+        QCursor::setPos(start + (target - start) * t);
+        waitPainting(frameMs);
+    }
+}
+
 static void clickWidget(QWidget *w)
 {
+    glidePointerTo(w);
     if (auto b = qobject_cast<QAbstractButton *>(w)) {
+        if (demoPace().clickHoldMs > 0) {
+            // Show the button being held down rather than only its effect.
+            b->setDown(true);
+            waitPainting(demoPace().clickHoldMs);
+            b->setDown(false);
+        }
         b->click();
         return;
     }
@@ -1069,6 +1140,7 @@ static void clickWidget(QWidget *w)
     QMouseEvent release(
         QEvent::MouseButtonRelease, center, global, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
     QApplication::sendEvent(w, &press);
+    waitPainting(demoPace().clickHoldMs);
     QApplication::sendEvent(w, &release);
 }
 
@@ -1082,6 +1154,7 @@ static void typeText(QWidget *target, const QString &text)
         QKeyEvent release(QEvent::KeyRelease, 0, Qt::NoModifier, QString(ch));
         QApplication::sendEvent(target, &press);
         QApplication::sendEvent(target, &release);
+        waitPainting(demoPace().keyDelayMs);
     }
 }
 
@@ -2836,6 +2909,48 @@ void McpCommands::registerCommands()
             typeText(target, input);
             return CallToolResult{}.isError(false).structuredContent(describeWidget(target));
         });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("set_demo_pace")
+            .title("Pace the driving tools for a screen recording")
+            .description(
+                "Slows the widget tools down so a screen capture of a driven session looks "
+                "like someone using the IDE: the pointer travels to what click_widget clicks "
+                "at a set speed, "
+                "buttons show as held down, and type_text arrives character by character. All "
+                "delays are in milliseconds; zero everywhere (the default) restores the "
+                "immediate behaviour that tests want.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("key_delay_ms",
+                                 QJsonObject{{"type", "integer"},
+                                             {"description", "Pause after each typed character, "
+                                                             "e.g. 60."}})
+                    .addProperty("pointer_speed",
+                                 QJsonObject{{"type", "integer"},
+                                             {"description", "How fast the pointer travels to a "
+                                                             "target, in pixels per second, e.g. "
+                                                             "700, so that the time it takes "
+                                                             "follows the distance. Zero leaves "
+                                                             "the pointer alone."}})
+                    .addProperty("click_hold_ms",
+                                 QJsonObject{{"type", "integer"},
+                                             {"description", "How long a click is held, e.g. 120."}})),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            DemoPace &pace = demoPace();
+            if (p.contains("key_delay_ms"))
+                pace.keyDelayMs = p.value("key_delay_ms").toInt();
+            if (p.contains("pointer_speed"))
+                pace.pointerPixelsPerSecond = p.value("pointer_speed").toInt();
+            if (p.contains("click_hold_ms"))
+                pace.clickHoldMs = p.value("click_hold_ms").toInt();
+            return {{"key_delay_ms", pace.keyDelayMs},
+                    {"pointer_speed", pace.pointerPixelsPerSecond},
+                    {"click_hold_ms", pace.clickHoldMs},
+                    {"paced", pace.isSet()}};
+        }));
 
     ToolRegistry::registerTool(
         Tool{}
