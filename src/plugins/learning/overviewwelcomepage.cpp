@@ -25,6 +25,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QDesktopServices>
@@ -519,6 +520,9 @@ public:
         updateModel();
         connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
                 this, &RecommendationsWidget::updateModel);
+        connect(ProjectExplorer::KitManager::instance(),
+                &ProjectExplorer::KitManager::kitsLoaded,
+                this, &RecommendationsWidget::updateModel);
         connect(&settings(), &BaseAspect::changed,
                 this, &RecommendationsWidget::updateModel);
     }
@@ -544,6 +548,14 @@ private:
 
     void updateModel()
     {
+        // The items are looked up in the Qt versions and in the default kit,
+        // and neither answers before toolchain detection is through - asking
+        // earlier trips an assert per item. Both signals that lead here fire
+        // when their manager is ready, and they arrive one after the other, so
+        // this waits for the later one.
+        if (!QtVersionManager::isLoaded() || !ProjectExplorer::KitManager::isLoaded())
+            return;
+
         m_model.clear();
         const QList<ListItem *> items = OverviewItem::items(
             {OverviewItem::Course, OverviewItem::Example, OverviewItem::Tutorial});
