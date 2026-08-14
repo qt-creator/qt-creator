@@ -2483,10 +2483,11 @@ void McpCommands::registerCommands()
             .name("select_combo_item")
             .title("Select an item in a combo box")
             .description(
-                "Selects an item by its text in the single QComboBox matching the query, via "
-                "setCurrentIndex(). This avoids the pitfall that pressing Return on a focused "
-                "combo box opens its dropdown instead of choosing. The query must resolve to "
-                "exactly one QComboBox.")
+                "Selects an item by its text in the single QComboBox matching the query, as a "
+                "user picking it would: the index is set and activated() is emitted, which many "
+                "combo boxes act on rather than currentIndexChanged. This avoids the pitfall "
+                "that pressing Return on a focused combo box opens its dropdown instead of "
+                "choosing. The query must resolve to exactly one QComboBox.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})
@@ -2516,6 +2517,13 @@ void McpCommands::registerCommands()
                                        .arg(item, items.join(", ")));
             }
             combo->setCurrentIndex(index);
+            // Picking an entry also emits activated(), which many combo boxes
+            // listen to instead of currentIndexChanged - setCurrentIndex()
+            // alone leaves those untouched, and the tool would report success
+            // while nothing happened.
+            QMetaObject::invokeMethod(combo, "activated", Qt::DirectConnection, Q_ARG(int, index));
+            QMetaObject::invokeMethod(combo, "textActivated", Qt::DirectConnection,
+                                      Q_ARG(QString, combo->itemText(index)));
             return CallToolResult{}.isError(false).structuredContent(describeWidget(combo));
         });
 
