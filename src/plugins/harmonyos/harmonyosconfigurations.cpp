@@ -32,11 +32,15 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QLoggingCategory>
+
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
 namespace HarmonyOs::Internal {
+
+static Q_LOGGING_CATEGORY(kitsLog, "qtc.harmonyos.kits", QtWarningMsg)
 
 void registerNewToolchains()
 {
@@ -135,6 +139,8 @@ void updateAutomaticKitList()
         [](const QtVersion *v) { return isHarmonyOsQtVersion(v); });
     for (const QtVersion *qtVersion : qtVersions) {
         const Abis qtAbis = qtVersion->qtAbis();
+        qCDebug(kitsLog) << "Qt" << qtVersion->displayName() << "abis"
+                         << Utils::transform(qtAbis, &Abi::toString);
         if (qtAbis.isEmpty())
             continue;
         qtVersionsForArch[qtAbis.first()].append(qtVersion);
@@ -157,6 +163,8 @@ void updateAutomaticKitList()
     QList<Kit *> unhandledKits = existingKits;
     for (const ToolchainBundle &bundle : bundles) {
         const QString abiName = ohosAbiName(bundle.targetAbi());
+        qCDebug(kitsLog) << "bundle abi" << bundle.targetAbi().toString() << "->" << abiName
+                         << "qt versions" << qtVersionsForArch.value(bundle.targetAbi()).size();
         for (const QtVersion *qt : qtVersionsForArch.value(bundle.targetAbi())) {
             Kit *existingKit = Utils::findOrDefault(existingKits, [&](const Kit *b) {
                 return qt == QtKitAspect::qtVersion(b) && matchKit(bundle, *b);
