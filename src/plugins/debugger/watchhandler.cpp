@@ -1832,6 +1832,21 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
               canHandleWatches && !exp.isEmpty() && item && !(item->level() == 2 && item->isWatcher()),
               [this, exp, name] { m_handler->watchExpression(exp, name); });
 
+    // Pin the object to its current address and type so it keeps evaluating
+    // after switching to a different stack frame.
+    QString fixedType = item ? item->type.trimmed() : QString();
+    while (fixedType.endsWith('&'))
+        fixedType.chop(1);
+    fixedType = fixedType.trimmed();
+    const QString fixedExp = (item && item->address && !fixedType.isEmpty())
+        ? QString("*(%1*)0x%2").arg(fixedType).arg(item->address, 0, 16) : QString();
+    const QString fixedText = name.isEmpty()
+        ? Tr::tr("Add Fixed-Address Expression Evaluator")
+        : Tr::tr("Add Fixed-Address Expression Evaluator for \"%1\"").arg(name);
+    addAction(this, menu, fixedText,
+              canHandleWatches && canInsertWatches && !fixedExp.isEmpty(),
+              [this, fixedExp] { m_handler->watchExpression(fixedExp); });
+
     addAction(this, menu, removeWatchActionText(exp),
               canRemoveWatches && !exp.isEmpty() && item && item->isWatcher(),
               [this, item] { removeWatchItem(item); });
