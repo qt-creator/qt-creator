@@ -14,6 +14,7 @@
 
 #include <QDebug>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -990,13 +991,28 @@ void QrcEditor::onAddFiles()
     int const prefixArrayIndex = currentIsPrefixNode ? current.row()
             : m_treeview->model()->parent(current).row();
     int const cursorFileArrayIndex = currentIsPrefixNode ? 0 : current.row();
-    QStringList fileNames = m_treeview->fileNamesToAdd();
-    fileNames = m_treeview->existingFilesSubtracted(prefixArrayIndex, fileNames);
-    resolveLocationIssues(fileNames);
-    if (fileNames.isEmpty())
+    const QStringList fileNames = m_treeview->fileNamesToAdd();
+    QStringList uniqueFileNames = m_treeview->existingFilesSubtracted(prefixArrayIndex, fileNames);
+
+    // Files already present in the prefix are dropped silently otherwise.
+    QStringList alreadyPresent;
+    for (const QString &file : fileNames) {
+        if (!uniqueFileNames.contains(file))
+            alreadyPresent.append(QFileInfo(file).fileName());
+    }
+    if (!alreadyPresent.isEmpty()) {
+        QMessageBox::information(
+            this,
+            Tr::tr("Files Already Present"),
+            Tr::tr("The following files are already in the resource and were not added again:")
+                + "\n\n" + alreadyPresent.join('\n'));
+    }
+
+    resolveLocationIssues(uniqueFileNames);
+    if (uniqueFileNames.isEmpty())
         return;
     QUndoCommand * const addFilesCommand = new AddFilesCommand(
-            m_treeview, prefixArrayIndex, cursorFileArrayIndex, fileNames);
+            m_treeview, prefixArrayIndex, cursorFileArrayIndex, uniqueFileNames);
     m_history.push(addFilesCommand);
     updateHistoryControls();
 }
