@@ -17,6 +17,8 @@
 
 #include <baremetal/baremetalconstants.h>
 
+#include <harmonyos/harmonyosconstants.h>
+
 #include <ios/iosconstants.h>
 
 #include <webassembly/webassemblyconstants.h>
@@ -210,6 +212,7 @@ static bool supportsStageForInstallation(const Kit *kit)
            && runDeviceType != Ios::Constants::IOS_DEVICE_TYPE
            && runDeviceType != Ios::Constants::IOS_SIMULATOR_TYPE
            && runDeviceType != BareMetal::Constants::BareMetalOsType
+           && runDeviceType != HarmonyOs::Constants::HARMONYOS_DEVICE_TYPE
            && runDeviceType != WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
 }
 
