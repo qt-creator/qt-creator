@@ -268,15 +268,6 @@ void BridgeEngine::executeDebuggerCommand(const QString & /*command*/)
     QTC_ASSERT(state() == InferiorStopOk, qCDebug(logCategory()) << state());
 }
 
-void BridgeEngine::runCommand(const DebuggerCommand &cmd)
-{
-    if (state() == EngineSetupRequested) { // cmd has been triggered too early
-        showMessage("IGNORED COMMAND: " + cmd.function);
-        return;
-    }
-    QTC_ASSERT(m_dapClient->dataProvider()->isRunning(), notifyEngineIll());
-}
-
 void BridgeEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qCDebug(logCategory()) << state());
@@ -471,66 +462,29 @@ void BridgeEngine::loadAllSymbols()
 
 void BridgeEngine::reloadModules()
 {
-    runCommand({"listModules"});
+    if (state() == InferiorRunOk || state() == InferiorStopOk)
+        m_dapClient->postRequest("qtc/fetchModules", {});
 }
 
-void BridgeEngine::refreshModules(const GdbMi &modules)
+void BridgeEngine::handleFetchModulesResponse(const QJsonObject &response)
 {
     ModulesHandler *handler = modulesHandler();
     handler->beginUpdateAll();
-    for (const GdbMi &item : modules) {
+    const FilePath inferior = runParameters().inferior().command.executable();
+    for (const QJsonValue &value : response.value("body").toObject().value("modules").toArray()) {
+        const QJsonObject item = value.toObject();
         Module module;
-        module.moduleName = item["name"].data();
-        QString path = item["value"].data();
-        int pos = path.indexOf("' from '");
-        if (pos != -1) {
-            path = path.mid(pos + 8);
-            if (path.size() >= 2)
-                path.chop(2);
-        } else if (path.startsWith("<module '") && path.endsWith("' (built-in)>")) {
-            path = "(builtin)";
-        }
-        module.modulePath = FilePath::fromUserInput(path);
+        // withNewPath(): the paths are the target's, which is not the host for
+        // a remote inferior.
+        module.modulePath = inferior.withNewPath(item.value("path").toString());
+        module.moduleName = module.modulePath.fileName();
+        module.startAddress = quint64(item.value("startAddress").toInteger());
+        module.endAddress = quint64(item.value("endAddress").toInteger());
+        module.symbolsRead = item.value("symbolsRead").toBool() ? Module::ReadOk
+                                                               : Module::ReadFailed;
         handler->updateModule(module);
     }
     handler->endUpdateAll();
-}
-
-void BridgeEngine::refreshState(const GdbMi &reportedState)
-{
-    QString newState = reportedState.data();
-    if (newState == "stopped") {
-        notifyInferiorSpontaneousStop();
-        updateAll();
-    } else if (newState == "inferiorexited") {
-        notifyInferiorExited();
-    }
-}
-
-void BridgeEngine::refreshLocation(const GdbMi &reportedLocation)
-{
-    StackFrame frame;
-    frame.file = FilePath::fromUserInput(reportedLocation["file"].data());
-    frame.line = reportedLocation["line"].toInt();
-    frame.usable = frame.file.isReadableFile();
-    if (state() == InferiorRunOk) {
-        showMessage(QString("STOPPED AT: %1:%2").arg(frame.file.toUserOutput()).arg(frame.line));
-        gotoLocation(frame);
-        notifyInferiorSpontaneousStop();
-        updateAll();
-    }
-}
-
-void BridgeEngine::refreshSymbols(const GdbMi &symbols)
-{
-    QString moduleName = symbols["module"].data();
-    Symbols syms;
-    for (const GdbMi &item : symbols["symbols"]) {
-        Symbol symbol;
-        symbol.name = item["name"].data();
-        syms.append(symbol);
-    }
-    showModuleSymbols(FilePath::fromUserInput(moduleName), syms);
 }
 
 void BridgeEngine::doUpdateLocals(const UpdateParameters &params)
@@ -744,6 +698,8 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         }
         if (command == "qtc/fetchVariables")
             handleFetchVariablesResponse(response);
+        else if (command == "qtc/fetchModules")
+            handleFetchModulesResponse(response);
         else if (command == "qtc/fetchRegisters")
             handleFetchRegistersResponse(response);
         else if (command == "qtc/readMemory")

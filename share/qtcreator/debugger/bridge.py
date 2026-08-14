@@ -778,6 +778,38 @@ class DapServer():
 
         self.sendResponse(request, body={'dumperResult': captured.get('result', '')})
 
+    def cmd_qtc_fetchModules(self, request):
+        # gdb's Python API lists the objfiles but not where they are loaded or
+        # whether their symbols are in, so 'info sharedlibrary' fills that in.
+        # The two sources can spell one module differently - a symlink, a
+        # sysroot prefix, a '..' - so they are matched on the resolved path
+        # while the reported one stays as it came. Resolving rather than
+        # comparing file names keeps two same-named libraries apart.
+        modules = {}
+        for objfile in gdb.objfiles():
+            path = objfile.filename
+            if not path or getattr(objfile, 'owner', None) is not None:
+                continue  # an owner means separate debug info for that entry
+            modules[os.path.realpath(path)] = {'path': path, 'symbolsRead': True,
+                                               'startAddress': 0, 'endAddress': 0}
+        try:
+            listing = gdb.execute('info sharedlibrary', to_string=True)
+        except gdb.error:
+            listing = ''
+        for line in listing.splitlines():
+            fields = line.split()
+            if len(fields) < 4 or not fields[0].startswith('0x'):
+                continue
+            rest = fields[3:]
+            if rest[0] == '(*)':  # symbols not fully read yet
+                rest = rest[1:]
+            path = ' '.join(rest)  # may contain spaces
+            entry = modules.setdefault(os.path.realpath(path), {'path': path})
+            entry['startAddress'] = int(fields[0], 16)
+            entry['endAddress'] = int(fields[1], 16)
+            entry['symbolsRead'] = fields[2] == 'Yes'
+        self.sendResponse(request, body={'modules': list(modules.values())})
+
     def cmd_qtc_fetchRegisters(self, request):
         # Enumerate the selected frame's registers via gdb's Python API and
         # return name/value(hex)/size. The C++ side (handleFetchRegistersResponse)

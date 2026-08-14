@@ -69,6 +69,7 @@ private:
     void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
     void reloadModules() override;
+    void handleFetchModulesResponse(const QJsonObject &response);
     void reloadRegisters() override;
     void reloadSourceFiles() override {}
     void reloadFullStack() override;
@@ -82,13 +83,7 @@ private:
 
     bool hasCapability(unsigned cap) const override;
 
-    void runCommand(const DebuggerCommand &cmd);
-
-    void refreshLocation(const GdbMi &reportedLocation);
     void refreshStack(const QJsonArray &stackFrames);
-    void refreshModules(const GdbMi &modules);
-    void refreshState(const GdbMi &reportedState);
-    void refreshSymbols(const GdbMi &symbols);
 
     QString errorMessage(QProcess::ProcessError error) const;
 
