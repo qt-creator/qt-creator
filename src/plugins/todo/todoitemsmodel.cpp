@@ -7,6 +7,8 @@
 #include "constants.h"
 #include "todotr.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 
 #include <QIcon>
@@ -72,7 +74,7 @@ QVariant TodoItemsModel::data(const QModelIndex &index, int role) const
 
         case Constants::OUTPUT_COLUMN_FILE:
             if (role == Qt::DisplayRole)
-                return item.file.toUserOutput();
+                return Core::ICore::pathRelativeToActiveProject(item.file).toUserOutput();
             break;
 
         case Constants::OUTPUT_COLUMN_LINE:
