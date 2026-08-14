@@ -78,6 +78,7 @@
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QMetaEnum>
 #include <QPointer>
 #include <QMainWindow>
 #include <QMenu>
@@ -1366,6 +1367,40 @@ protected:
     }
 };
 
+// Button text with the mnemonic "&" removed and case folded, for matching.
+static QString normalizedButtonText(const QString &text)
+{
+    QString result = text;
+    result.remove('&');
+    return result.trimmed().toLower();
+}
+
+// The untranslated name of a standard button ("yes", "no", "ok", ...). Matching
+// on the visible text alone only works in an English UI: a translated box offers
+// "Ja"/"Nein", which no caller naming the button in English would hit.
+static QString standardButtonName(QMessageBox *box, QAbstractButton *button)
+{
+    const QMessageBox::StandardButton standard = box->standardButton(button);
+    if (standard == QMessageBox::NoButton)
+        return {};
+    const char *key = QMetaEnum::fromType<QMessageBox::StandardButton>().valueToKey(standard);
+    return key ? QString::fromLatin1(key).toLower() : QString();
+}
+
+// The message box to act on: the active modal one, else the most recently shown
+// box that is still visible.
+static QMessageBox *currentMessageBox()
+{
+    if (auto *box = qobject_cast<QMessageBox *>(QApplication::activeModalWidget()))
+        return box;
+    const QList<MessageBoxCapture::Entry> &entries = MessageBoxCapture::instance().entries;
+    for (auto it = entries.crbegin(); it != entries.crend(); ++it) {
+        if (!it->box.isNull() && it->box->isVisible())
+            return it->box;
+    }
+    return nullptr;
+}
+
 void McpCommands::registerCommands()
 {
     using namespace Mcp::Schema;
@@ -1439,6 +1474,56 @@ void McpCommands::registerCommands()
                     {"timestamp", entry.timestamp}});
             }
             return QJsonObject{{"message_boxes", boxes}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("answer_message_box")
+            .title("Answer a message box")
+            .description(
+                "Clicks a button on the currently-open message box - the active modal one, or "
+                "the most recently shown box still visible - to dismiss it. The button is "
+                "matched by its text with the mnemonic '&' and case ignored, or by the "
+                "untranslated standard-button name, so \"Yes\", \"No\", \"Ok\", \"Cancel\" "
+                "work whatever the UI language; see get_message_boxes for the available buttons. "
+                "Returns an error (with available_buttons) if there is no open box or no match.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "button",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Text of the button to click (mnemonic '&' and case ignored)."}})
+                    .addRequired("button"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("clicked", QJsonObject{{"type", "string"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addProperty("available_buttons", QJsonObject{{"type", "array"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &args) -> QJsonObject {
+            QMessageBox *box = currentMessageBox();
+            if (!box)
+                return {{"success", false}, {"error", "No open message box."}};
+            const QString want = normalizedButtonText(args.value("button").toString());
+            QJsonArray available;
+            const QList<QAbstractButton *> buttons = box->buttons();
+            for (QAbstractButton *button : buttons) {
+                available.append(button->text());
+                if (normalizedButtonText(button->text()) == want
+                    || standardButtonName(box, button) == want) {
+                    const QString clicked = button->text();
+                    button->click();
+                    return {{"success", true}, {"clicked", clicked}};
+                }
+            }
+            return {{"success", false},
+                    {"error", QString("No button matching \"%1\".")
+                                  .arg(args.value("button").toString())},
+                    {"available_buttons", available}};
         }));
 
     ToolRegistry::registerTool(
