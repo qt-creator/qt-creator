@@ -71,6 +71,15 @@ FilePath hdcCommand(const FilePath &sdkRoot)
     return hdc.exists() ? hdc : FilePath();
 }
 
+FilePath hapSignToolJar(const FilePath &sdkRoot)
+{
+    const FilePath native = nativeSdkPath(sdkRoot);
+    if (native.isEmpty())
+        return {};
+    const FilePath jar = native.parentDir().pathAppended("toolchains/lib/hap-sign-tool.jar");
+    return jar.exists() ? jar : FilePath();
+}
+
 FilePath sysrootPath(const FilePath &sdkRoot)
 {
     const FilePath native = nativeSdkPath(sdkRoot);
