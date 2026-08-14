@@ -6,7 +6,7 @@
 #include "qmlprofilermodelmanager.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 
 #include <QKeyEvent>
 #include <QMouseEvent>

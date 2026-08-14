@@ -6,7 +6,7 @@
 #include "profilertr.h"
 #include "qmlprofilerconstants.h"
 
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 
 using namespace QmlDebug;
 namespace Profiler::Internal {

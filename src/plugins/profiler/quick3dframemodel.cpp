@@ -29,7 +29,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "quick3dmodel.h"
 
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 
 using namespace QmlDebug;
 

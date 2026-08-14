@@ -12,7 +12,7 @@ QtcLibrary {
         "flamegraphwidget.cpp", "flamegraphwidget.h",
         "safecastable.h",
         "timelinecoordinates.h",
-        "timelineformattime.cpp", "timelineformattime.h",
+        "timelineformatdata.cpp", "timelineformatdata.h",
         "trackpainter.cpp", "trackpainter.h",
         "trackpainterbase.cpp", "trackpainterbase.h",
         "trackpainterraster.cpp", "trackpainterraster.h",

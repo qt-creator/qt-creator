@@ -5,7 +5,7 @@
 #include "profilertr.h"
 #include "json/json.hpp"
 
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 
 namespace Profiler::Internal {
 

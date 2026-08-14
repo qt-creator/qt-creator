@@ -4,7 +4,7 @@
 #include "timelineoverviewwidget.h"
 
 #include "timelinecoordinates.h"
-#include "timelineformattime.h"
+#include "timelineformatdata.h"
 #include "timelinemodel.h"
 #include "timelinemodelaggregator.h"
 #include "timelinenotesmodel.h"

@@ -7,7 +7,7 @@
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
 
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -97,27 +97,6 @@ static QString prettyPrintTraceData(const QVariant &data)
     }
 }
 
-static QString prettyPrintMemory(qint64 amount)
-{
-    const qint64 absAmount = qAbs(amount);
-
-    if (absAmount < (1 << 10))
-        return QString::number(amount);
-
-    if (absAmount < (1 << 20)) {
-        return QString::fromLatin1("%1k")
-                .arg(QString::number(amount / static_cast<float>(1 << 10), 'f', 3));
-    }
-
-    if (absAmount < (1 << 30)) {
-        return QString::fromLatin1("%1M")
-                .arg(QString::number(amount / static_cast<float>(1 << 20), 'f', 3));
-    }
-
-    return QString::fromLatin1("%1G")
-            .arg(QString::number(amount / static_cast<float>(1 << 30), 'f', 3));
-}
-
 static const QByteArray &orUnknown(const QByteArray &string)
 {
     static const QByteArray unknown = Tr::tr("[unknown]").toUtf8();
@@ -160,8 +139,8 @@ Timeline::ItemDetails PerfTimelineModel::details(int index) const
             }
         }
         if (!m_resourceBlocks.isEmpty()) {
-            result.insert(Tr::tr("Resource Usage"), prettyPrintMemory(frame.resourcePeak));
-            result.insert(Tr::tr("Resource Change"), prettyPrintMemory(frame.resourceDelta));
+            result.insert(Tr::tr("Resource Usage"), Timeline::formatMemory(frame.resourcePeak));
+            result.insert(Tr::tr("Resource Change"), Timeline::formatMemory(frame.resourceDelta));
         }
     } else if (typeId == PerfEvent::ThreadStartTypeId) {
         result.insert(Tr::tr("Details"), Tr::tr("thread started"));
@@ -205,13 +184,13 @@ Timeline::ItemDetails PerfTimelineModel::details(int index) const
         result.insert(Tr::tr("Total Samples"), QString::number(stats.numSamples));
         result.insert(Tr::tr("Total Unique Samples"), QString::number(stats.numUniqueSamples));
         if (!m_resourceBlocks.isEmpty()) {
-            result.insert(Tr::tr("Resource Peak"), prettyPrintMemory(frame.resourcePeak));
-            result.insert(Tr::tr("Resource Change"), prettyPrintMemory(frame.resourceDelta));
+            result.insert(Tr::tr("Resource Peak"), Timeline::formatMemory(frame.resourcePeak));
+            result.insert(Tr::tr("Resource Change"), Timeline::formatMemory(frame.resourceDelta));
         }
     }
 
     if (frame.resourceGuesses > 0)
-        result.insert(Tr::tr("Resource Guesses"), prettyPrintMemory(frame.resourceGuesses));
+        result.insert(Tr::tr("Resource Guesses"), Timeline::formatMemory(frame.resourceGuesses));
 
     return result;
 }

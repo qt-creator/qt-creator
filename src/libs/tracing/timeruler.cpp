@@ -4,7 +4,7 @@
 #include "timeruler.h"
 
 #include "timelinecoordinates.h"
-#include "timelineformattime.h"
+#include "timelineformatdata.h"
 
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>

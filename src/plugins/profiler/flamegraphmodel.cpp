@@ -12,6 +12,7 @@
 #include <QSet>
 #include <QString>
 
+#include <tracing/timelineformatdata.h>
 #include <tracing/timelinenotesmodel.h>
 
 using namespace QmlDebug;
@@ -209,6 +210,9 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     case TimePerCallRole: return stats.duration / stats.calls;
     case AllocationsRole: return stats.allocations;
     case MemoryRole: return stats.memory;
+    case DurationDisplayRole: return Timeline::formatTime(stats.duration);
+    case TimePerCallDisplayRole: return Timeline::formatTime(stats.duration / stats.calls);
+    case MemoryDisplayRole: return Timeline::formatMemory(stats.memory);
     default: break;
     }
 
@@ -322,7 +326,10 @@ QHash<int, QByteArray> FlameGraphModel::roleNames() const
         {RangeTypeRole, "rangeType"},
         {LocationRole, "location" },
         {AllocationsRole, "allocations" },
-        {MemoryRole, "memory" }
+        {MemoryRole, "memory" },
+        {DurationDisplayRole, "durationDisplay" },
+        {TimePerCallDisplayRole, "timePerCallDisplay" },
+        {MemoryDisplayRole, "memoryDisplay" }
     };
     QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
     Utils::addToHash(&roles, extraRoles);

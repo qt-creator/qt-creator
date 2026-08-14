@@ -6,6 +6,7 @@
 #include "qmlprofilermodelmanager.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
+#include <tracing/timelineformatdata.h>
 #include <utils/qtcassert.h>
 
 using namespace QmlDebug;
@@ -69,15 +70,6 @@ Timeline::RowLabels MemoryUsageModel::labels() const
     return result;
 }
 
-static int toSameSignedInt(qint64 number)
-{
-    if (number > std::numeric_limits<int>::max())
-        return std::numeric_limits<int>::max();
-    if (number < std::numeric_limits<int>::min())
-        return std::numeric_limits<int>::min();
-    return static_cast<int>(number);
-}
-
 Timeline::ItemDetails MemoryUsageModel::details(int index) const
 {
     Timeline::ItemDetails result;
@@ -88,14 +80,13 @@ Timeline::ItemDetails MemoryUsageModel::details(int index) const
     else
         result.insert(QLatin1String("displayName"), Tr::tr("Memory Freed"));
 
-    result.insert(Tr::tr("Total"), Tr::tr("%n byte(s)", nullptr, toSameSignedInt(ev->size)));
+    result.insert(Tr::tr("Total"), Timeline::formatMemory(ev->size));
     if (ev->allocations > 0) {
-        result.insert(Tr::tr("Allocated"), Tr::tr("%n byte(s)", nullptr, toSameSignedInt(ev->allocated)));
+        result.insert(Tr::tr("Allocated"), Timeline::formatMemory(ev->allocated));
         result.insert(Tr::tr("Allocations"), QString::number(ev->allocations));
     }
     if (ev->deallocations > 0) {
-        result.insert(Tr::tr("Deallocated"),
-                      Tr::tr("%n byte(s)", nullptr, toSameSignedInt(-ev->deallocated)));
+        result.insert(Tr::tr("Deallocated"), Timeline::formatMemory(-ev->deallocated));
         result.insert(Tr::tr("Deallocations"), QString::number(ev->deallocations));
     }
     QString memoryTypeName;

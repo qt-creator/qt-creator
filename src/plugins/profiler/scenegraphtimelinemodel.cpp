@@ -6,7 +6,7 @@
 #include "scenegraphtimelinemodel.h"
 
 #include <qmldebug/qmlprofilereventtypes.h>
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 
 #include <QCoreApplication>
 #include <QDebug>

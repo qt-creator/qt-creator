@@ -9,7 +9,7 @@
 #include <QVBoxLayout>
 
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timelinenotesmodel.h>
 #include <tracing/timeruler.h>

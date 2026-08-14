@@ -3,7 +3,7 @@
 
 #include "qmlprofileranimationsmodel_test.h"
 #include "../profilertr.h"
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 #include <QTest>
 
 using namespace QmlDebug;

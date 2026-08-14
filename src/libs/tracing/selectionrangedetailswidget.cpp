@@ -3,7 +3,7 @@
 
 #include "selectionrangedetailswidget.h"
 
-#include "timelineformattime.h"
+#include "timelineformatdata.h"
 
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>

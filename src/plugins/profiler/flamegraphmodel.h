@@ -63,6 +63,9 @@ public:
         LocationRole,
         AllocationsRole,
         MemoryRole,
+        DurationDisplayRole, // formatted duration, for display only
+        TimePerCallDisplayRole, // formatted time per call, for display only
+        MemoryDisplayRole, // formatted memory, for display only
         MaxRole
     };
     Q_ENUM(Role)

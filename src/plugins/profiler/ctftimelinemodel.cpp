@@ -7,7 +7,7 @@
 #include "ctfvisualizerconstants.h"
 #include "profilertr.h"
 
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 
 #include <utils/qtcassert.h>
 

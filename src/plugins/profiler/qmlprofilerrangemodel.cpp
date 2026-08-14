@@ -5,7 +5,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerrangemodel.h"
 
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 
 #include <QCoreApplication>
 #include <QHash>

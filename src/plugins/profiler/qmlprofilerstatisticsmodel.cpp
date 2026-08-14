@@ -7,7 +7,7 @@
 
 #include <utils/theme/theme.h>
 
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 #include <tracing/timelinenotesmodel.h>
 
 #include <utils/algorithm.h>

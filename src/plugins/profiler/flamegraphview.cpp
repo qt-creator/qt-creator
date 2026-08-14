@@ -49,13 +49,13 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
         {Role::AllocationsRole, Tr::tr("Allocations")},
     });
     m_content->setDetailsRoles({
-        {Role::DetailsRole,     Tr::tr("Details")},
-        {Role::CallCountRole,   Tr::tr("Calls")},
-        {Role::DurationRole,    Tr::tr("Total Time")},
-        {Role::TimePerCallRole, Tr::tr("Mean Time")},
-        {Role::LocationRole,    Tr::tr("Location")},
-        {Role::MemoryRole,      Tr::tr("Memory")},
-        {Role::AllocationsRole, Tr::tr("Allocations")},
+        {Role::DetailsRole,            Tr::tr("Details")},
+        {Role::CallCountRole,          Tr::tr("Calls")},
+        {Role::DurationDisplayRole,    Tr::tr("Total Time")},
+        {Role::TimePerCallDisplayRole, Tr::tr("Mean Time")},
+        {Role::LocationRole,           Tr::tr("Location")},
+        {Role::MemoryDisplayRole,      Tr::tr("Memory")},
+        {Role::AllocationsRole,        Tr::tr("Allocations")},
     });
     m_content->setOthersText(Tr::tr("Various Events"));
 }

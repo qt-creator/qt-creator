@@ -4,7 +4,7 @@
 #include "pixmapcachemodel_test.h"
 #include "../profilertr.h"
 
-#include <tracing/timelineformattime.h>
+#include <tracing/timelineformatdata.h>
 
 #include <QTest>
 
