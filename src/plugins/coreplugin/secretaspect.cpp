@@ -201,6 +201,7 @@ bool SecretAspect::isDirty() const
 void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     auto edit = createSubWidget<FancyLineEdit>();
+    edit->setObjectName(stringFromKey(settingsKey()) + ".secret");
     edit->setEchoMode(QLineEdit::Password);
     auto showPasswordButton = createSubWidget<Utils::ShowPasswordButton>();
     // Keep read-only/disabled until we have retrieved the value.
