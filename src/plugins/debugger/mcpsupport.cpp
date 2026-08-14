@@ -23,6 +23,7 @@
 #include <mcp/server/toolregistry.h>
 
 #include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/processinterface.h>
@@ -160,6 +161,9 @@ static Result<QString> startDebugExecutable(const QJsonObject &args)
     DebuggerRunParameters::setBreakOnMainNextTime(false);
     rp.setBreakOnMain(args.value("break_at_main").toBool(false));
     if (remoteChannel.isEmpty()) {
+        // Locally launched inferiors inherit Creator's environment, so GUI apps
+        // find DISPLAY etc.
+        rp.setInferiorEnvironment(Utils::Environment::systemEnvironment());
         rp.setStartMode(StartExternal);
         rp.setDisplayName(QString("External: %1").arg(executable.fileName()));
     } else {
