@@ -666,6 +666,16 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         if (!success)
             notifyInferiorStopFailed();
         break;
+    case DapResponseType::Attach:
+        if (!success) {
+            notifyEngineRunFailed();
+            AsynchronousMessageBox::critical(
+                Tr::tr("Failed to Attach to Process"),
+                Tr::tr("Attaching to process %1 failed. Error message: %2")
+                    .arg(runParameters().attachPid().pid())
+                    .arg(response.value("message").toString()));
+        }
+        break;
     case DapResponseType::Launch:
         if (!success) {
             notifyEngineRunFailed();
