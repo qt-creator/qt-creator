@@ -3487,10 +3487,7 @@ void McpCommands::registerCommands()
             const int maxLines = p.value("max_lines").toInt(0);
             QJsonArray available;
             Core::IOutputPane *match = nullptr;
-            for (QObject *object : ExtensionSystem::PluginManager::allObjects()) {
-                auto pane = qobject_cast<Core::IOutputPane *>(object);
-                if (!pane)
-                    continue;
+            for (Core::IOutputPane *pane : Core::IOutputPane::allOutputPanes()) {
                 available.append(pane->displayName());
                 if (!name.isEmpty() && pane->displayName().compare(name, Qt::CaseInsensitive) == 0)
                     match = pane;
