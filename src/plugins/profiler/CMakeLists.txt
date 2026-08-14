@@ -150,6 +150,11 @@ add_qtc_plugin(Profiler
       json-nlohmann
 )
 
+extend_qtc_plugin(Profiler
+  SOURCES mcpsupport.cpp mcpsupport.h
+  DEPENDS McpServerLib
+)
+
 # The Windows sampler backend is only compiled on Windows (its sources use
 # Windows APIs without Q_OS_WIN guards) and on every Windows toolchain, so the
 # libraries it needs are linked for all of them, not just MSVC.

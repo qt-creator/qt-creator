@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "ctfvisualizertool.h"
+#include "mcpsupport.h"
 #include "profilermode.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
@@ -56,6 +57,8 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
         Profiler::Internal::setupCtfVisualizerTool();
         setupQmlProfilerTool();
         setupQmlProfilerRunning();
+
+        registerMcpTools();
 
         setupPerfProfilerTool();
         setupPerfProfilerRunWorker();

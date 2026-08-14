@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "Utils" }
     Depends { name: "Tracing"; required: false }
     Depends { name: "QtTaskTree" }
+    Depends { name: "McpServerLib" }
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
@@ -52,6 +53,7 @@ QtcPlugin {
             "calltreeview.cpp", "calltreeview.h",
             "cpuusagemodel.cpp", "cpuusagemodel.h",
             "macsampler.cpp", "macsampler.h",
+            "mcpsupport.cpp", "mcpsupport.h",
             "processpickerdialog.cpp", "processpickerdialog.h",
             "qmlprofilersampler.cpp", "qmlprofilersampler.h",
             "samplemerge.cpp", "samplemerge.h",
