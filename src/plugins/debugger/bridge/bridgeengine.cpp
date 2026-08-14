@@ -559,9 +559,10 @@ void BridgeEngine::handleDapDone()
 
 void BridgeEngine::readDapStandardError()
 {
-    QString err = m_dapClient->dataProvider()->readAllStandardError();
+    // gdb's console output and the bridge's diagnostics both arrive here now.
+    const QString err = m_dapClient->dataProvider()->readAllStandardError();
     qCDebug(logCategory()) << "BRIDGE STDERR:" << err;
-    showMessage("Unexpected bridge stderr: " + err);
+    showMessage(err, LogOutput);
 }
 
 void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &response)

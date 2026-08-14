@@ -20,7 +20,13 @@ import base64
 import json
 import os
 import sys
+import threading
 import types
+
+try:
+    import termios
+except ImportError:  # not POSIX
+    termios = None
 
 import gdb
 
@@ -39,6 +45,12 @@ class DapServer():
         self.running = False
         self.attachMode = False
         self.dumperSetup = ''
+
+        # The protocol stream. Set up by _claimStdio() before anything is
+        # written; the inferior output pump uses it from its own thread.
+        self.protocolFd = 1
+        self.sendLock = threading.RLock()
+        self.inferiorTty = None
 
         # Native qtc/ breakpoints: gdb.Breakpoint by its (stringified) number,
         # and the arguments each was created for.
@@ -91,20 +103,20 @@ class DapServer():
         return json.loads(body.decode('utf-8'))
 
     def _send(self, obj):
-        data = json.dumps(obj).encode('utf-8')
-        message = ('Content-Length: %d\r\n\r\n' % len(data)).encode('ascii') + data
-        written = 0
-        while written < len(message):
-            written += os.write(1, message[written:])
-
-    def _nextSeq(self):
-        self.seq += 1
-        return self.seq
+        with self.sendLock:
+            # Numbered under the same lock that writes, or two threads can take
+            # their numbers in one order and write in the other.
+            self.seq += 1
+            obj['seq'] = self.seq
+            data = json.dumps(obj).encode('utf-8')
+            message = ('Content-Length: %d\r\n\r\n' % len(data)).encode('ascii') + data
+            written = 0
+            while written < len(message):
+                written += os.write(self.protocolFd, message[written:])
 
     def sendResponse(self, request, body=None, success=True, message=None):
         response = {
             'type': 'response',
-            'seq': self._nextSeq(),
             'request_seq': request.get('seq', 0),
             'command': request.get('command', ''),
             'success': success,
@@ -126,7 +138,7 @@ class DapServer():
         self._send(response)
 
     def sendEvent(self, event, body=None):
-        message = {'type': 'event', 'seq': self._nextSeq(), 'event': event}
+        message = {'type': 'event', 'event': event}
         if body is not None:
             message['body'] = body
         self._send(message)
@@ -135,7 +147,52 @@ class DapServer():
     # Main loop
     #######################################################################
 
+    def _claimStdio(self):
+        # The protocol gets a private copy of the original stdout, and fd 1 is
+        # pointed at stderr. Anything that still writes to stdout - gdb's own
+        # console output, a stray dumper print - then lands in the debugger log
+        # instead of corrupting the framing.
+        self.protocolFd = os.dup(1)
+        os.dup2(2, 1)
+
+    def _setupInferiorTty(self):
+        # The inferior must not share our stdout either. Give it a pty and
+        # forward what it writes as DAP 'output' events, which is what puts it
+        # in the Application Output pane.
+        if termios is None:
+            return
+        try:
+            master, slave = os.openpty()
+            attrs = termios.tcgetattr(slave)
+            attrs[1] &= ~termios.ONLCR  # no \n -> \r\n on the way out
+            attrs[3] &= ~termios.ECHO
+            termios.tcsetattr(slave, termios.TCSANOW, attrs)
+            gdb.execute('set inferior-tty %s' % os.ttyname(slave), to_string=True)
+        except (OSError, gdb.error) as error:
+            warn('no inferior tty: %s' % error)
+            return
+
+        # Keep the slave open, so reading the master blocks between runs
+        # instead of failing once the inferior is gone.
+        self.inferiorTty = (master, slave)
+        thread = threading.Thread(target=self._pumpInferiorOutput, args=(master,))
+        thread.daemon = True
+        thread.start()
+
+    def _pumpInferiorOutput(self, master):
+        while True:
+            try:
+                data = os.read(master, 4096)
+            except OSError:
+                return
+            if not data:
+                return
+            self.sendEvent('output', {'category': 'stdout',
+                                      'output': data.decode('utf-8', 'replace')})
+
     def run(self):
+        self._claimStdio()
+
         # Keep gdb quiet and non-interactive; this loop owns stdio.
         for command in ['set pagination off', 'set confirm off',
                         'set width 0', 'set height 0',
@@ -154,6 +211,8 @@ class DapServer():
             self.dumperSetup = self.dumper.setupDumpers()
         except Exception as error:
             warn('setupDumpers failed: %s' % error)
+
+        self._setupInferiorTty()
 
         self.running = True
         while self.running:
