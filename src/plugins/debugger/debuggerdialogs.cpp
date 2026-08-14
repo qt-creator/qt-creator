@@ -434,7 +434,13 @@ void StartApplicationDialog::run(bool attachRemote)
     if (attachRemote) {
         rp.setStartMode(AttachToRemoteServer);
         rp.setCloseMode(KillAtClose);
-        rp.setUseContinueInsteadOfRun(true);
+        // With target extended-remote the program is launched by us (via run),
+        // so the command-line arguments are applied. Plain target remote has
+        // the program already started by gdbserver, so just continue.
+        // Only GDB knows extended-remote, other engines always continue.
+        const bool runsViaExtendedRemote = newParameters.useTargetExtendedRemote
+                                           && rp.cppEngineType() == GdbEngineType;
+        rp.setUseContinueInsteadOfRun(!runsViaExtendedRemote);
         rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel()));
     }
 
