@@ -3,6 +3,8 @@
 
 #include "mcpsupport.h"
 
+#include "perfprofilertool.h"
+#include "perfprofilertracemanager.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilertool.h"
@@ -22,11 +24,11 @@ using namespace Utils;
 
 namespace Profiler::Internal {
 
-static RunControl *runningProfilerRunControl()
+static RunControl *runningRunControl(const Utils::Id &runMode)
 {
     const QList<RunControl *> runControls = ProjectExplorerPlugin::allRunControls();
     for (RunControl *rc : runControls) {
-        if (rc && rc->runMode() == Constants::QML_PROFILER_RUN_MODE && rc->isRunning())
+        if (rc && rc->runMode() == runMode && rc->isRunning())
             return rc;
     }
     return nullptr;
@@ -96,7 +98,7 @@ void registerMcpTools()
             return {
                 {"state", stateManager->currentStateAsString()},
                 {"recording", stateManager->serverRecording()},
-                {"running", runningProfilerRunControl() != nullptr},
+                {"running", runningRunControl(Constants::QML_PROFILER_RUN_MODE) != nullptr},
                 {"num_events", modelManager->numEvents()},
                 {"trace_duration_ns", qint64(modelManager->traceDuration())},
             };
@@ -118,11 +120,86 @@ void registerMcpTools()
                     .addProperty("error", QJsonObject{{"type", "string"}})
                     .addRequired("success")),
         wrap([](const QJsonObject &) -> QJsonObject {
-            RunControl *runControl = runningProfilerRunControl();
+            RunControl *runControl = runningRunControl(Constants::QML_PROFILER_RUN_MODE);
             if (!runControl)
                 return {{"success", false}, {"error", "No QML profiler session is running."}};
             runControl->initiateStop();
             return {{"success", true}, {"message", "QML profiler stop requested."}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("start_perf_profiler")
+            .title("Start the CPU (perf) profiler")
+            .description(
+                "Starts the CPU (perf) profiler on the current startup project (perf profiler run "
+                "mode), using its active run configuration and kit. Does not build first - use the "
+                "build tool beforehand if it may be out of date. Recording starts automatically; "
+                "poll get_perf_profiler_status, and use stop_perf_profiler (or let the application "
+                "exit) to finalize the trace.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &) -> QJsonObject {
+            const Utils::Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(
+                Constants::PERFPROFILER_RUN_MODE);
+            if (!canRun)
+                return {{"success", false}, {"error", canRun.error()}};
+            ProjectExplorerPlugin::runStartupProject(Constants::PERFPROFILER_RUN_MODE);
+            return {{"success", true},
+                    {"message", "Perf profiler start requested for the startup project."}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_perf_profiler_status")
+            .title("Get CPU (perf) profiler status")
+            .description(
+                "Returns whether the perf profiler is recording, whether a perf run is active, and "
+                "a summary of the data collected so far: the sample/event count and the trace "
+                "duration in nanoseconds.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("recording", QJsonObject{{"type", "boolean"}})
+                    .addProperty("running", QJsonObject{{"type", "boolean"}})
+                    .addProperty("num_events", QJsonObject{{"type", "integer"}})
+                    .addProperty("trace_duration_ns", QJsonObject{{"type", "integer"}})
+                    .addRequired("recording")),
+        wrap([](const QJsonObject &) -> QJsonObject {
+            return {
+                {"recording", PerfProfilerTool::instance()->isRecording()},
+                {"running", runningRunControl(Constants::PERFPROFILER_RUN_MODE) != nullptr},
+                {"num_events", traceManager().numEvents()},
+                {"trace_duration_ns", qint64(traceManager().traceDuration())},
+            };
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("stop_perf_profiler")
+            .title("Stop the CPU (perf) profiler")
+            .description(
+                "Stops the running perf profiler session by requesting its run control to stop, "
+                "which finalizes the trace. Returns an error if no perf session is running. Poll "
+                "get_perf_profiler_status afterwards for the finalized sample count.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &) -> QJsonObject {
+            RunControl *runControl = runningRunControl(Constants::PERFPROFILER_RUN_MODE);
+            if (!runControl)
+                return {{"success", false}, {"error", "No perf profiler session is running."}};
+            runControl->initiateStop();
+            return {{"success", true}, {"message", "Perf profiler stop requested."}};
         }));
 }
 
