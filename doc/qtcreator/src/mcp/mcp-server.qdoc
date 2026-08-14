@@ -12,6 +12,23 @@
     \QC supports the model context protocol (MCP) to let AI assistants control it
     for debugging, building, and managing projects.
 
+    The server exposes tools for:
+
+    \list
+        \li Building, running, and debugging projects
+        \li Navigating C++ code: listing the symbols or diagnostics of a file,
+            searching for symbols across the project, finding references, going
+            to declarations and definitions, showing type and call hierarchies,
+            finding the overrides of a virtual function, and getting code
+            completions or quick-fixes at a position
+        \li Renaming a C++ symbol across the project
+        \li Inspecting Git repositories: status, log, diff, and blame
+        \li Reading, writing, and searching files, also on remote devices
+    \endlist
+
+    The MCP client shows the tools that are currently available, along with a
+    description of each.
+
     To start the MCP server and use an MCP client, install a client and activate
     the MCP server extension.
 
