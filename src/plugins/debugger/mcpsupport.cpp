@@ -165,7 +165,12 @@ static Result<QString> startDebugExecutable(const QJsonObject &args)
         rp.setStartMode(AttachToRemoteServer);
         rp.setRemoteChannel(remoteChannel);
         rp.setCloseMode(KillAtClose);
-        rp.setUseContinueInsteadOfRun(true);
+        // With target extended-remote (a "gdbserver --multi" style server) the
+        // program is launched by us via run, so its arguments apply; plain
+        // target remote has it already started, so continue.
+        const bool extended = args.value("extended_remote").toBool(false);
+        rp.setUseExtendedRemote(extended);
+        rp.setUseContinueInsteadOfRun(!extended);
         rp.setDisplayName(QString("Attach to %1").arg(remoteChannel));
     }
     runControl->setRunRecipe(debuggerRecipe(runControl, rp));
@@ -1478,6 +1483,16 @@ void registerMcpTools()
                              "(e.g. \"localhost:1234\" or \"tcp:localhost:1234\"; CDB kits need "
                              "the cdb form, e.g. \"tcp:server=localhost,port=1234\") instead of "
                              "launching the executable. Requires \"executable\" for symbols."}})
+                    .addProperty(
+                        "extended_remote",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"default", false},
+                            {"description",
+                             "Use \"target extended-remote\" for \"remote_channel\" (a "
+                             "\"gdbserver --multi\" server): the program is launched via run, so "
+                             "\"arguments\" are passed to it, instead of continuing an "
+                             "already-started process."}})
                     .addProperty(
                         "break_at_main",
                         QJsonObject{
