@@ -42,6 +42,13 @@ def gdbLineArgument(value, what):
     return text
 
 
+def quoteArgument(argument):
+    # Double quotes with backslash escapes are understood both by the shell gdb
+    # starts the inferior through and by gdb's own argument splitting, so an
+    # argument containing spaces survives either way.
+    return '"%s"' % argument.replace('\\', '\\\\').replace('"', '\\"')
+
+
 def warn(message):
     # Diagnostics must not go to stdout: that is the protocol stream. The C++
     # side reads stderr separately and shows it in the debugger log.
@@ -355,14 +362,22 @@ class DapServer():
         arguments = request.get('arguments', {})
         program = gdbLineArgument(arguments.get('program') or '', 'the program path')
         if program:
-            gdb.execute('file "%s"' % program, to_string=True)
-        programArgs = arguments.get('args', '')
-        if programArgs:
-            gdb.execute('set args %s' % programArgs, to_string=True)
+            gdb.execute('file %s' % quoteArgument(program), to_string=True)
+        quoted = []
+        for argument in arguments.get('args') or []:
+            text = gdbLineArgument(argument, 'an inferior argument')
+            if text is None:
+                self.sendResponse(request, success=False,
+                                  message='An inferior argument contains a newline: %r'
+                                          % argument)
+                return
+            quoted.append(quoteArgument(text))
+        if quoted:
+            gdb.execute('set args %s' % ' '.join(quoted), to_string=True)
         # The debuggee runs where and how the run configuration says, not
-        # wherever gdb happens to sit. No quoting anywhere here: gdb takes the
-        # rest of the line verbatim, so a path with spaces works as is while
-        # quotes would become part of it.
+        # wherever gdb happens to sit. No quoting for these: 'set cwd' and
+        # 'set environment' take the rest of the line, so a path with spaces
+        # works as is while quotes would become part of it.
         cwd = gdbLineArgument(arguments.get('cwd') or '', 'the working directory')
         if cwd:
             gdb.execute('set cwd %s' % cwd, to_string=True)

@@ -217,9 +217,29 @@ void BridgeEngine::handleDapInitialize()
     // environment, which are the debugger's, not the debuggee's - a Qt
     // application then typically fails to start at all.
     const CommandLine &command = rp.inferior().command;
+    // One entry per argument, not the joined string: the bridge quotes them
+    // individually, so an argument containing spaces stays one argument.
+    // CommandLine::splitArguments() drops the error, and unbalanced quoting
+    // has no sensible reading - running something else instead is worse than
+    // saying so.
+    ProcessArgs::SplitError splitError = ProcessArgs::SplitOk;
+    const QStringList arguments = ProcessArgs::splitArgs(command.arguments(),
+                                                        command.executable().osType(),
+                                                        false, &splitError);
+    if (splitError != ProcessArgs::SplitOk) {
+        notifyEngineRunFailed();
+        AsynchronousMessageBox::critical(
+            Tr::tr("Cannot Start Application"),
+            Tr::tr("The arguments \"%1\" cannot be split: the quoting is unbalanced.")
+                .arg(command.arguments()));
+        return;
+    }
+    QJsonArray inferiorArgs;
+    for (const QString &argument : arguments)
+        inferiorArgs.append(argument);
     QJsonObject args{{"noDebug", false},
                      {"program", command.executable().path()},
-                     {"args", command.arguments()}};
+                     {"args", inferiorArgs}};
     if (!rp.inferior().workingDirectory.isEmpty())
         args.insert("cwd", rp.inferior().workingDirectory.path());
     const QJsonArray environment = inferiorEnvironment(rp);
