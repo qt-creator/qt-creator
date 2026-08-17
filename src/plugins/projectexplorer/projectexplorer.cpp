@@ -467,6 +467,15 @@ private:
     Core::LocatorMatcherTasks matchers() final;
 };
 
+class ProjectSwitchFilter final : public ILocatorFilter
+{
+public:
+    ProjectSwitchFilter();
+
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
 class DefaultDeployConfigurationFactory final : public DeployConfigurationFactory
 {
 public:
@@ -743,6 +752,7 @@ public:
     RunConfigurationStartFilter m_runConfigurationStartFilter;
     RunConfigurationDebugFilter m_runConfigurationDebugFilter;
     RunConfigurationSwitchFilter m_runConfigurationSwitchFilter;
+    ProjectSwitchFilter m_projectSwitchFilter;
 
     CopyFileStepFactory m_copyFileStepFactory;
     CopyDirectoryStepFactory m_copyDirectoryFactory;
@@ -4903,6 +4913,48 @@ RunConfigurationSwitchFilter::RunConfigurationSwitchFilter()
 LocatorMatcherTasks RunConfigurationSwitchFilter::matchers()
 {
     return runConfigurationMatchers(&switchAcceptor);
+}
+
+ProjectSwitchFilter::ProjectSwitchFilter()
+{
+    setId("Switch active project");
+    setDisplayName(Tr::tr("Switch Active Project"));
+    setDescription(Tr::tr("Makes one of the open projects the active project."));
+    setDefaultShortcutString("sp");
+    setPriority(Medium);
+    const auto projectListUpdated = [this] { setEnabled(ProjectManager::hasProjects()); };
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
+            this, projectListUpdated);
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
+            this, projectListUpdated);
+    projectListUpdated();
+}
+
+LocatorMatcherTasks ProjectSwitchFilter::matchers()
+{
+    const auto onSetup = [] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        const QString input = storage.input();
+
+        LocatorFilterEntries entries;
+        for (const Project *project : ProjectManager::projects()) {
+            if (!project->displayName().contains(input, Qt::CaseInsensitive))
+                continue;
+            const FilePath projectFile = project->projectFilePath();
+            LocatorFilterEntry entry;
+            entry.displayName = project->displayName();
+            entry.extraInfo = projectFile.shortNativePath();
+            entry.filePath = projectFile;
+            entry.acceptor = [projectFile] {
+                if (Project *project = ProjectManager::projectWithProjectFile(projectFile, false))
+                    ProjectManager::setStartupProject(project);
+                return AcceptResult();
+            };
+            entries.append(entry);
+        }
+        storage.reportOutput(entries);
+    };
+    return {QSyncTask(onSetup)};
 }
 
 } // namespace ProjectExplorer
