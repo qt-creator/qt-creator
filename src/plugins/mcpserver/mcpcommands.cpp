@@ -28,6 +28,7 @@
 
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
@@ -3583,6 +3584,44 @@ void McpCommands::registerCommands()
             return {{"reason", "ok"},
                     {"pane", match->displayName()},
                     {"text", lastLines(parts.join('\n'), maxLines)}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_editor_folds")
+            .title("Get the code-folding structure of the current editor")
+            .description(
+                "Returns the code-folding structure of the current text editor, one entry per "
+                "line: the 1-based \"line\", the \"fold_indent\" (nesting level behind the fold "
+                "markers - a line starts a foldable region when the next line has a greater "
+                "indent, and the region extends until the indent drops back), whether the line "
+                "is currently \"folded\", whether it is \"ifdefed_out\" (inactive/greyed "
+                "preprocessor code), and a trimmed \"text\" snippet. Use it to check which "
+                "lines are foldable, how far each fold region reaches, and how folding "
+                "interacts with inactive code. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(Tool::OutputSchema{}
+                              .addProperty("lines", QJsonObject{{"type", "array"}})
+                              .addProperty("count", QJsonObject{{"type", "integer"}})
+                              .addProperty("reason", QJsonObject{{"type", "string"}})
+                              .addRequired("reason")),
+        wrap([](const QJsonObject &) -> QJsonObject {
+            Core::IEditor *editor = Core::EditorManager::currentEditor();
+            auto *textEditor = editor
+                ? qobject_cast<TextEditor::TextEditorWidget *>(editor->widget()) : nullptr;
+            if (!textEditor)
+                return {{"reason", "no_text_editor"}, {"message", "No text editor is current."}};
+            QJsonArray lines;
+            const QTextDocument *doc = textEditor->document();
+            for (QTextBlock block = doc->begin(); block.isValid(); block = block.next()) {
+                lines.append(QJsonObject{
+                    {"line", block.blockNumber() + 1},
+                    {"fold_indent", TextEditor::TextBlockUserData::foldingIndent(block)},
+                    {"folded", TextEditor::TextBlockUserData::isFolded(block)},
+                    {"ifdefed_out", TextEditor::TextBlockUserData::ifdefedOut(block)},
+                    {"text", block.text().trimmed().left(60)}});
+            }
+            return {{"reason", "ok"}, {"count", int(lines.size())}, {"lines", lines}};
         }));
 
     ToolRegistry::registerTool(
