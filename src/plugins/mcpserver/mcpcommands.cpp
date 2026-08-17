@@ -1135,16 +1135,10 @@ static void glidePointerToGlobal(const QPoint &target)
 static void clickWidget(QWidget *w)
 {
     glidePointerTo(w);
-    if (auto b = qobject_cast<QAbstractButton *>(w)) {
-        if (demoPace().clickHoldMs > 0) {
-            // Show the button being held down rather than only its effect.
-            b->setDown(true);
-            waitPainting(demoPace().clickHoldMs);
-            b->setDown(false);
-        }
-        b->click();
-        return;
-    }
+    // Deliver the events a real click produces rather than calling click() on a
+    // button: a widget is free to act on the mouse itself, and some do - Qt Creator's
+    // own buttons emit a separate signal from their mouse handler, so click() leaves
+    // them looking pressed while nothing happens.
     const QPointF center = w->rect().center();
     const QPointF global = w->mapToGlobal(w->rect().center());
     QMouseEvent press(
