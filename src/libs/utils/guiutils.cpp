@@ -74,6 +74,18 @@ void setDialogParentGetter(QWidget *(*getter)())
     s_dialogParentGetter = getter;
 }
 
+static bool s_dialogsInteractive = true;
+
+void setDialogsInteractive(bool interactive)
+{
+    s_dialogsInteractive = interactive;
+}
+
+bool dialogsInteractive()
+{
+    return s_dialogsInteractive;
+}
+
 QWidget *dialogParent()
 {
     return s_dialogParentGetter ? s_dialogParentGetter() : nullptr;

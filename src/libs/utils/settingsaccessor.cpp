@@ -154,6 +154,19 @@ SettingsAccessor::reportIssues(const Issue &issue, const FilePath &path)
     const QMessageBox::StandardButtons buttons = issue.allButtons();
     QTC_ASSERT(buttons != QMessageBox::NoButton, return Continue);
 
+    if (!Utils::dialogsInteractive()) {
+        // No user to answer (scripted/headless): proceed as if the default
+        // button had been chosen, rather than blocking on a modal dialog.
+        const QMessageBox::StandardButton chosen
+            = issue.defaultButton != QMessageBox::NoButton
+                  ? issue.defaultButton
+                  : (issue.buttons.isEmpty() ? QMessageBox::NoButton
+                                             : issue.buttons.constBegin().key());
+        qWarning().noquote() << "SettingsAccessor:" << issue.title
+                             << "- no interactive session, proceeding with the default.";
+        return issue.buttons.value(chosen, Continue);
+    }
+
     QMessageBox msgBox(icon, issue.title, issue.message, buttons, Utils::dialogParent());
     if (issue.defaultButton != QMessageBox::NoButton)
         msgBox.setDefaultButton(issue.defaultButton);

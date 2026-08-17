@@ -24,6 +24,7 @@
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/async.h>
+#include <utils/guiutils.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
@@ -455,6 +456,10 @@ public:
             }
             settings.enabled.setValue(true);
             settings.port.setValue(p);
+            // A -mcp-port launch is a scripted/headless session with no user to
+            // answer modal dialogs; let such dialogs resolve to their defaults
+            // instead of blocking (e.g. the settings-restore prompt on open).
+            Utils::setDialogsInteractive(false);
         }
 
         // Dump the registered tools to a qdoc fragment and quit, for the doc
