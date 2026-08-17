@@ -2604,6 +2604,44 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("show_settings_page")
+            .title("Open a preferences page")
+            .description(
+                "Opens Preferences on the given page, so that its widgets can be driven with "
+                "find_widgets, click_widget and the item tools. Pages build their widgets "
+                "lazily, so a page that has never been shown has none to find. Give the page "
+                "id from list_settings_pages, or none to open Preferences where it last was.")
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("page_id",
+                                 QJsonObject{{"type", "string"},
+                                             {"description",
+                                              "Page id, e.g. \"Alien.Settings\" (optional)."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("page", QJsonObject{{"type", "string"}})
+                    .addProperty("available_pages", QJsonObject{{"type", "array"}})
+                    .addRequired("reason")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const QString pageId = p.value("page_id").toString();
+            QJsonArray available;
+            bool known = pageId.isEmpty();
+            for (Core::IOptionsPage *page : Core::IOptionsPage::allOptionsPages()) {
+                available.append(page->id().toString());
+                known = known || page->id().toString() == pageId;
+            }
+            if (!known) {
+                return {{"reason", "page_not_found"},
+                        {"available_pages", available},
+                        {"message", "Pick one of available_pages as 'page_id'."}};
+            }
+            Core::ICore::showSettings(Utils::Id::fromString(pageId));
+            return {{"reason", "ok"}, {"page", pageId}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("list_settings_pages")
             .title("List aspect-backed settings pages")
             .description(
@@ -2976,6 +3014,13 @@ void McpCommands::registerCommands()
                             {"description",
                              "Ask the row for its context menu instead of clicking it. The "
                              "menu is then driven with activate_menu_item."}})
+                    .addProperty(
+                        "double_click",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Double-click the row. Some views act only on that (opening what "
+                             "the row stands for), and a single click then does nothing."}})
                     .addRequired("item")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
@@ -3015,6 +3060,14 @@ void McpCommands::registerCommands()
             QApplication::sendEvent((*view)->viewport(), &press);
             waitPainting(demoPace().clickHoldMs);
             QApplication::sendEvent((*view)->viewport(), &release);
+            if (p.value("double_click").toBool(false)) {
+                // The second press of a double click arrives as its own event
+                // type; a view that only reacts to that ignores two singles.
+                QMouseEvent doubleClick(QEvent::MouseButtonDblClick, center, global,
+                                        Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                QApplication::sendEvent((*view)->viewport(), &doubleClick);
+                QApplication::sendEvent((*view)->viewport(), &release);
+            }
             return CallToolResult{}.isError(false).structuredContent(describeItem(*view, *index));
         });
 
