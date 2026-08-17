@@ -287,6 +287,26 @@ static Result<QString> debuggerInterrupt()
     return QString("Interrupt requested");
 }
 
+static Result<QString> debuggerRunToLine(const QString &file, int line)
+{
+    const auto engine = getActiveEngine();
+    if (!engine)
+        return ResultError(engine.error());
+    if (file.isEmpty() || line <= 0)
+        return ResultError("Requires \"file\" and a 1-based \"line\".");
+    if ((*engine)->state() != InferiorStopOk)
+        return ResultError("Debugger is not paused (current state: "
+                           + DebuggerEngine::stateName((*engine)->state()) + ")");
+    if (!(*engine)->hasCapability(RunToLineCapability))
+        return ResultError("The current debugger engine cannot run to a line.");
+    ContextData data;
+    data.type = LocationByFile;
+    data.fileName = FilePath::fromUserInput(file);
+    data.textPosition.line = line;
+    (*engine)->runToLine(data);
+    return QString("Running to %1:%2").arg(data.fileName.toUserOutput()).arg(line);
+}
+
 static Result<QJsonObject> debuggerGetStatus(bool includeLog)
 {
     const QPointer<DebuggerEngine> engine = EngineManager::currentEngine();
@@ -1423,6 +1443,42 @@ void registerMcpTools()
                     .addRequired("message")),
         [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
             const auto result = debuggerInterrupt();
+            if (!result)
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("run_to_line")
+            .title("Run to line")
+            .description(
+                "Resumes execution until it reaches the given 1-based line in the given file, "
+                "then stops (like the debugger's \"Run to Line\"). Requires an active debug "
+                "session that is paused and an engine that supports running to a line.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Absolute path of the source file."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line to run to."}})
+                    .addRequired("file")
+                    .addRequired("line"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addRequired("message")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const auto result = debuggerRunToLine(
+                args.value("file").toString(), args.value("line").toInt());
             if (!result)
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(result.error()));
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"message", *result}});

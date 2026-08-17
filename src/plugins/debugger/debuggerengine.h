@@ -660,6 +660,7 @@ public:
     void handleExecReturn();
     void handleExecJumpToLine();
     void handleExecRunToLine();
+    void runToLine(const Internal::ContextData &location);
     void handleExecRunToSelectedFunction();
     void handleAddToWatchWindow();
     void handleFrameDown();

@@ -2909,6 +2909,13 @@ void DebuggerEngine::handleExecRunToLine()
     }
 }
 
+void DebuggerEngine::runToLine(const ContextData &location)
+{
+    resetLocation();
+    if (location.isValid())
+        executeRunToLine(location);
+}
+
 void DebuggerEngine::handleExecRunToSelectedFunction()
 {
     BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor();
