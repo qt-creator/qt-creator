@@ -65,6 +65,7 @@
 #include <optional>
 
 #ifdef WITH_TESTS
+#include <QTemporaryDir>
 #include <QTest>
 #endif
 
@@ -2279,6 +2280,31 @@ private slots:
             maxFetches = qMax(maxFetches, c);
         QCOMPARE(maxFetches, 1); // No block fetched twice: no flood.
     }
+
+    // We are the editor of last resort for a path with no detectable MIME type,
+    // so we are the one to tell the user that the file is not there at all.
+    void testOpenMissingFile()
+    {
+        QTemporaryDir tempDir;
+        QVERIFY(tempDir.isValid());
+        const FilePath dir = FilePath::fromString(tempDir.path());
+
+        const FilePath missing = dir / "missing";
+        QVERIFY(!missing.exists());
+        auto document = std::make_shared<BinEditorDocument>();
+        const Result<> missingResult = document->open(missing, missing);
+        QVERIFY(!missingResult);
+        QCOMPARE(
+            missingResult.error(),
+            Tr::tr("File \"%1\" does not exist.").arg(missing.toUserOutput()));
+
+        const FilePath empty = dir / "empty";
+        QVERIFY(empty.writeFileContents({}));
+        QVERIFY(empty.exists());
+        const Result<> emptyResult = document->open(empty, empty);
+        QVERIFY(!emptyResult);
+        QCOMPARE(emptyResult.error(), Tr::tr("The Binary Editor cannot open empty files."));
+    }
 };
 
 #endif // WITH_TESTS
@@ -2306,12 +2332,11 @@ Result<> BinEditorDocument::setContents(const QByteArray &contents)
 
 Result<> BinEditorDocument::openImpl(const FilePath &filePath, quint64 offset)
 {
-    const qint64 size = filePath.fileSize();
-    if (size < 0) {
-        // FIXME: Was: file.errorString(), but we don't have a file anymore.
-        return ResultError(Tr::tr("Cannot open \"%1\".").arg(filePath.toUserOutput()));
-    }
+    // fileSize() reports zero both for a missing and for an empty file.
+    if (!filePath.exists())
+        return ResultError(Tr::tr("File \"%1\" does not exist.").arg(filePath.toUserOutput()));
 
+    const qint64 size = filePath.fileSize();
     if (size == 0)
         return ResultError(Tr::tr("The Binary Editor cannot open empty files."));
 
