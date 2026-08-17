@@ -14,6 +14,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
@@ -1697,6 +1698,26 @@ public:
             startUpdate(); // the diff itself changes, recompute it
         });
 
+        // a global display setting, but the toggle belongs where the diff is
+        // shown: a reader who cannot tell the colors apart will not go looking
+        // for it in the preferences
+        m_signsAction = m_toolBar->addAction(QIcon(), Tr::tr("+/- Signs"));
+        m_signsAction->setObjectName("InlineDiffChangeSignsAction"); // autotest
+        m_signsAction->setCheckable(true);
+        m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
+        m_signsAction->setToolTip(Tr::tr("Mark added and removed lines with \"+\" and \"-\" "
+                                         "signs, so the changes can be told apart without "
+                                         "relying on color."));
+        connect(m_signsAction, &QAction::toggled, this, [](bool on) {
+            TextEditor::displaySettings().markDiffChangeSigns.setValue(on);
+            TextEditor::displaySettings().writeSettings();
+        });
+        connect(&TextEditor::displaySettings(), &DisplaySettings::changed,
+                m_signsAction, [this] {
+            QSignalBlocker blocker(m_signsAction);
+            m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
+        });
+
         m_updateTimer.setSingleShot(true);
         m_updateTimer.setInterval(500);
         connect(&m_updateTimer, &QTimer::timeout, this, &InlineDiffEditor::startUpdate);
@@ -2230,6 +2251,7 @@ private:
     QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_whitespaceAction = nullptr;
     QAction *m_patienceAction = nullptr;
+    QAction *m_signsAction = nullptr;
     QPointer<QAction> m_copyAsPatchAction;
     QPointer<QAction> m_baselineCopyAsPatchAction; // recreated with the baseline view
     bool m_ignoreWhitespace = false;
