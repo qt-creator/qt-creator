@@ -169,7 +169,17 @@ void BridgeEngine::handleDapStarted()
     notifyEngineSetupOk();
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
-    m_dapClient->sendInitialize();
+    // Not sendInitialize(): the user's extra dumpers have to travel with it.
+    // The bridge sets the dumpers up while answering, so a later request would
+    // be too late.
+    QJsonObject args{{"clientID", "QtCreator"}, {"clientName", "QtCreator"}};
+    const FilePath extraDumperFile = settings().extraDumperFile();
+    if (extraDumperFile.isReadableFile())
+        args.insert("qtcDumperFile", extraDumperFile.path());
+    const QString extraDumperCommands = settings().extraDumperCommands();
+    if (!extraDumperCommands.isEmpty())
+        args.insert("qtcDumperCommands", extraDumperCommands);
+    m_dapClient->postRequest("initialize", args);
 }
 
 // The environment the inferior should run in, as the difference against the
