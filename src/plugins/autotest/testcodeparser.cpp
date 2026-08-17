@@ -112,8 +112,10 @@ void TestCodeParser::syncTestFrameworks(const QList<ITestParser *> &parsers)
 
 void TestCodeParser::emitUpdateTestTree(ITestParser *parser)
 {
-    if (m_testCodeParsers.isEmpty())
+    if (m_testCodeParsers.isEmpty()) {
+        m_postponedUpdateType = UpdateType::NoUpdate;
         return;
+    }
     if (parser)
         m_updateParsers.insert(parser);
     else
@@ -199,6 +201,8 @@ void TestCodeParser::onStartupProjectChanged(Project *project)
     emit aboutToPerformFullParse();
     if (project)
         emitUpdateTestTree();
+    else
+        m_postponedUpdateType = UpdateType::NoUpdate;
 }
 
 void TestCodeParser::onProjectPartsUpdated(Project *project)
@@ -273,8 +277,11 @@ static void parseFileForTests(QPromise<TestParseResultPtr> &promise,
 void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
                                   const QList<ITestParser *> &parsers)
 {
-    if (m_parserState == Shutdown || m_parserState == DisabledTemporarily || m_testCodeParsers.isEmpty())
+    if (m_parserState == Shutdown || m_parserState == DisabledTemporarily
+        || m_testCodeParsers.isEmpty()) {
+        m_postponedUpdateType = UpdateType::NoUpdate;
         return;
+    }
 
     if (postponed(filePaths))
         return;
