@@ -2329,6 +2329,7 @@ void McpCommands::registerCommands()
                                   {"id", QJsonObject{{"type", "string"}}},
                                   {"text", QJsonObject{{"type", "string"}}},
                                   {"description", QJsonObject{{"type", "string"}}},
+                                  {"shortcut", QJsonObject{{"type", "string"}}},
                               }},
                              {"required", QJsonArray{"id", "text"}}}},
                         {"description", "List of matching actions"}})),
@@ -2344,9 +2345,11 @@ void McpCommands::registerCommands()
             for (const auto &m : matches) {
                 const QString text = m->action() ? m->action()->text() : QString();
                 const QString description = m->description();
-                actions.append(
-                    QJsonObject{
-                        {"id", m->id().toString()}, {"text", text}, {"description", description}});
+                actions.append(QJsonObject{
+                    {"id", m->id().toString()},
+                    {"text", text},
+                    {"description", description},
+                    {"shortcut", m->keySequence().toString(QKeySequence::PortableText)}});
             }
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"actions", actions}});
