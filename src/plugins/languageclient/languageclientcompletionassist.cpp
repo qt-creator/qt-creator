@@ -434,8 +434,10 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform()
             return nullptr;
         }
     }
-    if (m_postponedUpdateConnection)
+    if (m_postponedUpdateConnection) {
         QObject::disconnect(m_postponedUpdateConnection);
+        m_postponedUpdateConnection = {};
+    }
     CompletionParams::CompletionContext context;
     if (interface()->reason() == ActivationCharacter) {
         context.setTriggerKind(CompletionParams::TriggerCharacter);
@@ -486,6 +488,7 @@ void LanguageClientCompletionAssistProcessor::cancel()
         m_currentRequest.reset();
     } else if (m_postponedUpdateConnection) {
         QObject::disconnect(m_postponedUpdateConnection);
+        m_postponedUpdateConnection = {};
     }
 }
 
