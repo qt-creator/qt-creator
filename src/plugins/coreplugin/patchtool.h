@@ -7,6 +7,8 @@
 
 #include <utils/filepath.h>
 
+#include <functional>
+
 namespace Core {
 
 enum class PatchAction {
@@ -21,9 +23,12 @@ public:
 
     static bool confirmPatching(QWidget *parent, PatchAction patchAction, bool isModified);
 
-    // Utility to run the 'patch' command
+    // Utility to run the 'patch' command. When a logger is given, the progress
+    // and error messages that otherwise go to the message pane are handed to it
+    // instead, so a headless caller can capture the patch tool's output.
     static bool runPatch(const QByteArray &input, const Utils::FilePath &workingDirectory = {},
-                         int strip = 0, PatchAction patchAction = PatchAction::Apply);
+                         int strip = 0, PatchAction patchAction = PatchAction::Apply,
+                         const std::function<void(const QString &)> &logger = {});
 };
 
 } // namespace Core

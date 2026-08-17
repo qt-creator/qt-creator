@@ -48,18 +48,30 @@ bool PatchTool::confirmPatching(QWidget *parent, PatchAction patchAction, bool i
 }
 
 static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirectory,
-                           int strip, PatchAction patchAction, bool withCrlf)
+                           int strip, PatchAction patchAction, bool withCrlf,
+                           const std::function<void(const QString &)> &logger)
 {
+    // When a logger is given, capture the messages instead of disrupting the
+    // message pane; otherwise keep the previous pane behavior exactly.
+    const auto report = [&logger](const QString &message, bool disrupting) {
+        if (logger)
+            logger(message);
+        else if (disrupting)
+            MessageManager::writeDisrupting(message);
+        else
+            MessageManager::writeFlashing(message);
+    };
+
     const FilePath patch = PatchTool::patchCommand();
     if (patch.isEmpty()) {
-        MessageManager::writeDisrupting(Tr::tr("There is no patch-command configured in "
-                                               "the general \"Environment\" settings."));
+        report(Tr::tr("There is no patch-command configured in "
+                      "the general \"Environment\" settings."), true);
         return false;
     }
 
     if (!patch.exists() && !patch.searchInPath().exists()) {
-        MessageManager::writeDisrupting(Tr::tr("The patch-command configured in the general "
-                                               "\"Environment\" settings does not exist."));
+        report(Tr::tr("The patch-command configured in the general "
+                      "\"Environment\" settings does not exist."), true);
         return false;
     }
 
@@ -80,15 +92,15 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
     if (patchAction == PatchAction::Revert)
         args << "-R";
     args << "--binary";
-    MessageManager::writeDisrupting(
-        Tr::tr("Running in \"%1\": %2 %3.")
-            .arg(workingDirectory.toUserOutput(), patch.toUserOutput(), args.join(' ')));
+    report(Tr::tr("Running in \"%1\": %2 %3.")
+               .arg(workingDirectory.toUserOutput(), patch.toUserOutput(), args.join(' ')),
+           true);
     patchProcess.setCommand({patch, args});
     patchProcess.setWriteData(input);
     patchProcess.start();
     if (!patchProcess.waitForStarted()) {
-        MessageManager::writeFlashing(Tr::tr("Unable to launch \"%1\": %2")
-                                      .arg(patch.toUserOutput(), patchProcess.errorString()));
+        report(Tr::tr("Unable to launch \"%1\": %2")
+                   .arg(patch.toUserOutput(), patchProcess.errorString()), false);
         return false;
     }
 
@@ -97,8 +109,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
     if (!patchProcess.readDataFromProcess(&stdOut, &stdErr)) {
         patchProcess.stop();
         patchProcess.waitForFinished();
-        MessageManager::writeFlashing(
-            Tr::tr("A timeout occurred running \"%1\".").arg(patch.toUserOutput()));
+        report(Tr::tr("A timeout occurred running \"%1\".").arg(patch.toUserOutput()), false);
         return false;
 
     }
@@ -106,30 +117,31 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
         if (stdOut.contains("(different line endings)") && !withCrlf) {
             QByteArray crlfInput = input;
             crlfInput.replace('\n', "\r\n");
-            return runPatchHelper(crlfInput, workingDirectory, strip, patchAction, true);
+            return runPatchHelper(crlfInput, workingDirectory, strip, patchAction, true, logger);
         } else {
-            MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
+            report(QString::fromLocal8Bit(stdOut), false);
         }
     }
     if (!stdErr.isEmpty())
-        MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
+        report(QString::fromLocal8Bit(stdErr), false);
 
     if (patchProcess.exitStatus() != ProcessExitStatus::NormalExit) {
-        MessageManager::writeFlashing(Tr::tr("\"%1\" crashed.").arg(patch.toUserOutput()));
+        report(Tr::tr("\"%1\" crashed.").arg(patch.toUserOutput()), false);
         return false;
     }
     if (patchProcess.exitCode() != 0) {
-        MessageManager::writeFlashing(Tr::tr("\"%1\" failed (exit code %2).")
-                                      .arg(patch.toUserOutput()).arg(patchProcess.exitCode()));
+        report(Tr::tr("\"%1\" failed (exit code %2).")
+                   .arg(patch.toUserOutput()).arg(patchProcess.exitCode()), false);
         return false;
     }
     return true;
 }
 
 bool PatchTool::runPatch(const QByteArray &input, const FilePath &workingDirectory,
-                         int strip, PatchAction patchAction)
+                         int strip, PatchAction patchAction,
+                         const std::function<void(const QString &)> &logger)
 {
-    return runPatchHelper(input, workingDirectory, strip, patchAction, false);
+    return runPatchHelper(input, workingDirectory, strip, patchAction, false, logger);
 }
 
 } // namespace Core
