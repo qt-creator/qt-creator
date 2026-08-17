@@ -53,6 +53,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDateTime>
+#include <QDeadlineTimer>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFileSystemWatcher>
@@ -70,6 +71,7 @@
 #include <QToolButton>
 #include <QtTaskTree/QConditional>
 
+#include <chrono>
 #include <optional>
 
 #ifdef Q_OS_UNIX
@@ -230,24 +232,43 @@ public:
         return fAccess;
     }
 
+    bool shouldRetryBridge() const { return m_retryBridge && m_bridgeRetryTimer.hasExpired(); }
+
+    // Returns the cached access, unless it is a fallback that is still worth retrying.
+    DeviceFileAccessPtr cachedFileAccess() const
+    {
+        auto fileAccess = m_fileAccess.readLocked();
+        if (*fileAccess && !shouldRetryBridge())
+            return *fileAccess;
+        return {};
+    }
+
     DeviceFileAccessPtr createFileAccess()
     {
-        if (DeviceFileAccessPtr fileAccess = *m_fileAccess.readLocked())
+        if (DeviceFileAccessPtr fileAccess = cachedFileAccess())
             return fileAccess;
 
         if (!DockerApi::instance(q->type())->imageExists(q->repoAndTag()))
             return nullptr;
 
         SynchronizedValue<DeviceFileAccessPtr>::unique_lock fileAccess = m_fileAccess.writeLocked();
-        if (*fileAccess)
+        if (*fileAccess && !shouldRetryBridge())
             return *fileAccess;
+
+        // Cleared for the duration of the attempt, so that the recursive getFileAccess()
+        // calls made while deploying take the fallback instead of starting another attempt.
+        m_retryBridge = false;
 
         Result<DeviceFileAccessPtr> fAccess = createBridgeFileAccess(fileAccess);
 
         if (fAccess) {
             *fileAccess = std::move(*fAccess);
+            m_bridgeAttempts = 0;
             return *fileAccess;
         }
+
+        m_retryBridge = ++m_bridgeAttempts < MaxBridgeAttempts;
+        m_bridgeRetryTimer = QDeadlineTimer(BridgeRetryDelay);
 
         qCWarning(dockerDeviceLog).noquote() << "Failed to start CmdBridge:" << fAccess.error()
                                              << ", falling back to slow direct access";
@@ -276,6 +297,16 @@ public:
     bool m_isShutdown = false;
     SynchronizedValue<DeviceFileAccessPtr> m_fileAccess;
     SynchronizedValue<std::unique_ptr<DockerContainerThread>> m_deviceThread;
+
+    // Guarded by m_fileAccess. Bringing up the bridge can fail transiently, so a cached
+    // fallback is replaced by another attempt instead of degrading the whole session.
+    // Attempts are spaced out, or a burst of file operations would spend them all on the
+    // same transient failure.
+    static constexpr int MaxBridgeAttempts = 3;
+    static constexpr std::chrono::seconds BridgeRetryDelay{5};
+    bool m_retryBridge = false;
+    int m_bridgeAttempts = 0;
+    QDeadlineTimer m_bridgeRetryTimer;
 
     struct HandlesFileData
     {
@@ -488,6 +519,8 @@ void DockerDevicePrivate::stopCurrentContainer()
     { // scope, so they are unlocked before setDeviceState
         auto fileAccess = m_fileAccess.writeLocked();
         fileAccess->reset();
+        m_retryBridge = false;
+        m_bridgeAttempts = 0;
 
         auto locked = m_deviceThread.writeLocked();
         locked->reset();
@@ -1340,7 +1373,7 @@ DockerDevice::DockerDevice(ContainerToolSettings *settings)
     setMachineType(IDevice::Hardware);
 
     setFileAccessFactory([this]() -> DeviceFileAccessPtr {
-        if (auto fileAccess = *d->m_fileAccess.readLocked())
+        if (DeviceFileAccessPtr fileAccess = d->cachedFileAccess())
             return fileAccess;
 
         if (DeviceFileAccessPtr fileAccess = d->createFileAccess()) {
