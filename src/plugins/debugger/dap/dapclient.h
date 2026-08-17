@@ -165,6 +165,9 @@ signals:
     void responseReady(DapResponseType type, const QJsonObject &response);
     void eventReady(DapEventType type, const QJsonObject &response);
 
+    // Bytes that arrived where a message header was expected.
+    void unframedOutput(const QString &text);
+
 private:
     void readOutput();
 

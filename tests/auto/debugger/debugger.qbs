@@ -5,6 +5,7 @@ Project {
     property path debuggerDir: project.ide_source_tree + "/src/plugins/debugger/"
     references: [
         "backends.qbs",
+        "dapclient.qbs",
         "disassembler.qbs",
         "dumpers.qbs",
         "gdb.qbs",

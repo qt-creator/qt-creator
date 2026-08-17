@@ -159,6 +159,8 @@ void BridgeEngine::connectDataGeneratorSignals()
     connect(m_dapClient, &DapClient::done, this, &BridgeEngine::handleDapDone);
     connect(m_dapClient, &DapClient::readyReadStandardError,
             this, &BridgeEngine::readDapStandardError);
+    connect(m_dapClient, &DapClient::unframedOutput,
+            this, [this](const QString &text) { showMessage(text, LogOutput); });
 
     connect(m_dapClient, &DapClient::responseReady, this, &BridgeEngine::handleResponse);
     connect(m_dapClient, &DapClient::eventReady, this, &BridgeEngine::handleEvent);

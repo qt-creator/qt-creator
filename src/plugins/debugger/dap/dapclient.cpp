@@ -27,7 +27,16 @@ DapClient::DapClient(IDataProvider *dataProvider, QObject *parent)
             this,
             &DapClient::readyReadStandardError);
 
-    connect(m_dataProvider, &IDataProvider::done, this, &DapClient::done);
+    connect(m_dataProvider, &IDataProvider::done, this, [this] {
+        // Nothing will frame the rest any more, and it is often the reason the
+        // session ended - a .gdbinit that failed, say.
+        readOutput();
+        const QByteArray rest = m_inbuffer.trimmed();
+        m_inbuffer.clear();
+        if (!rest.isEmpty())
+            emit unframedOutput(QString::fromUtf8(rest));
+        emit done();
+    });
     connect(m_dataProvider, &IDataProvider::started, this, &DapClient::started);
 }
 
@@ -172,6 +181,21 @@ void DapClient::readOutput()
         int pos1 = m_inbuffer.indexOf("Content-Length:");
         if (pos1 == -1)
             break;
+
+        if (pos1 > 0) {
+            // Whatever sits before a header is not part of the protocol: gdb's
+            // own console output before the bridge takes stdio over, or an
+            // adapter printing to stdout. It used to be dropped here without a
+            // trace. Consume it right away: the message below may still be
+            // incomplete, and the same bytes would be reported again with
+            // every chunk until it is not.
+            const QByteArray unframed = m_inbuffer.left(pos1).trimmed();
+            m_inbuffer.remove(0, pos1);
+            pos1 = 0;
+            if (!unframed.isEmpty())
+                emit unframedOutput(QString::fromUtf8(unframed));
+        }
+
         pos1 += 15;
 
         int pos2 = m_inbuffer.indexOf('\n', pos1);

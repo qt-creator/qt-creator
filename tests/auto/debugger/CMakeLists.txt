@@ -206,6 +206,14 @@ add_qtc_test(tst_debugger_simplifytypes
     "${DEBUGGERDIR}/simplifytype.cpp" "${DEBUGGERDIR}/simplifytype.h"
 )
 
+add_qtc_test(tst_debugger_dapclient
+  DEPENDS Utils
+  INCLUDES "${DEBUGGERDIR}"
+  SOURCES
+    tst_dapclient.cpp
+    "${DEBUGGERDIR}/dap/dapclient.cpp" "${DEBUGGERDIR}/dap/dapclient.h"
+)
+
 add_qtc_test(tst_debugger_pdb
   DEFINES
     DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
