@@ -6,6 +6,8 @@
 #include "buildconfiguration.h"
 #include "buildinfo.h"
 #include "buildmanager.h"
+#include "buildsystem.h"
+#include "buildtargetinfo.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
@@ -209,6 +211,34 @@ static ProjectResolution resolveTargetProject(
 
     r.project = resolved.projects.first();
     return r;
+}
+
+// Describes a project as a "module": its runnable application targets (from the
+// active build system, so empty until the project is configured and parsed - and
+// executables only, as that is all applicationTargets() carries) and the other
+// loaded projects it depends on (the session Dependencies settings).
+static QJsonObject projectModulesObject(Project *project)
+{
+    QJsonObject obj = projectInfoObject(project);
+
+    QJsonArray targets;
+    if (BuildSystem *bs = project->activeBuildSystem()) {
+        for (const BuildTargetInfo &t : bs->applicationTargets()) {
+            targets.append(QJsonObject{
+                {"name", t.displayName},
+                {"build_key", t.buildKey},
+                {"executable", t.targetFilePath.toUserOutput()},
+                {"project_file", t.projectFilePath.toUserOutput()}});
+        }
+    }
+    obj["targets"] = targets;
+
+    QJsonArray dependsOn;
+    for (const Project *dep : ProjectManager::dependencies(project))
+        dependsOn.append(projectInfoObject(dep));
+    obj["depends_on"] = dependsOn;
+
+    return obj;
 }
 
 // Tracks the outcome of every build observed since plugin load. Subscribes
@@ -2201,6 +2231,64 @@ void registerMcpTools()
                     .addRequired("projects")),
         wrap([](const QJsonObject &) {
             return QJsonObject{{"projects", listProjects()}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("get_project_modules")
+            .title("Get a project's targets and dependencies")
+            .description(
+                "Describes a project's structure: its runnable application targets (name, "
+                "build key, executable, and defining project file) and the other loaded "
+                "projects it depends on (from the session Dependencies settings). Selects the "
+                "project by project_name or project_path, defaulting to the startup project. "
+                "\"targets\" comes from the build system's application targets, so it lists "
+                "executables and runnable utility targets only - libraries and other "
+                "non-runnable targets are not reported - and it is empty until the project is "
+                "configured with a kit and parsed.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "project_name",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Name of the project. Defaults to the startup "
+                                            "project."}})
+                    .addProperty(
+                        "project_path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Project file path, to disambiguate a shared name."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("name", QJsonObject{{"type", "string"}})
+                    .addProperty("path", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "targets",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items",
+                             QJsonObject{
+                                 {"type", "object"},
+                                 {"properties",
+                                  QJsonObject{
+                                      {"name", QJsonObject{{"type", "string"}}},
+                                      {"build_key", QJsonObject{{"type", "string"}}},
+                                      {"executable", QJsonObject{{"type", "string"}}},
+                                      {"project_file", QJsonObject{{"type", "string"}}},
+                                  }}}}})
+                    .addProperty(
+                        "depends_on",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}}})),
+        wrap([](const QJsonObject &p) {
+            const ProjectResolution r = resolveTargetProject(
+                p.value("project_name").toString(), p.value("project_path").toString(), true);
+            if (!r.project)
+                return r.error;
+            return projectModulesObject(r.project);
         }));
 
     ToolRegistry::registerTool(
