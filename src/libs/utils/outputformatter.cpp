@@ -18,8 +18,10 @@
 #include <QPointer>
 #include <QRegularExpressionMatch>
 #include <QTextCursor>
+#include <QUrl>
 
 #ifdef WITH_TESTS
+#include <QTemporaryDir>
 #include <QTest>
 #endif
 
@@ -43,6 +45,7 @@ OutputLineParser::~OutputLineParser() { delete d; }
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString, linkPrefix, {"olpfile://"})
 Q_GLOBAL_STATIC_WITH_ARGS(QString, linkSep, {"::"})
+static constexpr QLatin1StringView fileScheme{"file://"};
 
 QString OutputLineParser::createLinkTarget(const FilePath &filePath, int line = -1, int column = -1)
 {
@@ -53,20 +56,32 @@ QString OutputLineParser::createLinkTarget(const FilePath &filePath, int line = 
 bool OutputLineParser::isLinkTarget(const QString &target)
 {
     // TODO: Can we use the generic file scheme for our internal links as well?
-    return target.startsWith(*linkPrefix()) || target.startsWith("file://");
+    return target.startsWith(*linkPrefix()) || target.startsWith(fileScheme);
 }
 
 Link OutputLineParser::parseLinkTarget(const QString &target)
 {
-    const QStringList parts = target.startsWith(*linkPrefix)
-        ? target.mid(linkPrefix()->size()).split(*linkSep())
-        : target.mid(7).split(':');
-    if (parts.isEmpty())
+    if (target.startsWith(*linkPrefix())) {
+        const QStringList parts = target.mid(linkPrefix()->size()).split(*linkSep());
+        if (parts.isEmpty())
+            return {};
+        return Link(
+            FilePath::fromString(parts.first()),
+            parts.length() > 1 ? parts.at(1).toInt() : 0,
+            parts.length() > 2 ? parts.at(2).toInt() - 1 : 0);
+    }
+
+    if (!target.startsWith(fileScheme))
         return {};
-    return Link(
-        FilePath::fromString(parts.first()),
-        parts.length() > 1 ? parts.at(1).toInt() : 0,
-        parts.length() > 2 ? parts.at(2).toInt() - 1 : 0);
+
+    QString path = QUrl::fromPercentEncoding(target.sliced(fileScheme.size()).toUtf8());
+
+    // In "file:///c:/dir/file.cpp", the slash separating the empty authority from the path
+    // is not part of the latter.
+    if (path.size() > 2 && path.at(0) == '/' && path.at(1).isLetter() && path.at(2) == ':')
+        path.remove(0, 1);
+
+    return Link::fromString(path, true);
 }
 
 // The redirection mechanism is needed for broken build tools (e.g. xcodebuild) that get invoked
@@ -562,7 +577,23 @@ bool OutputFormatter::handleFileLink(const QString &href)
         return false;
 
     Link link = OutputLineParser::parseLinkTarget(href);
-    QTC_ASSERT(!link.targetFilePath.isEmpty(), return false);
+    if (link.targetFilePath.isEmpty())
+        return false;
+
+    // The path printed by the application need not be usable as is: It can be relative, or
+    // refer to a copy of the file in the build or deploy directory.
+    if (!link.targetFilePath.exists()) {
+        bool found = false;
+        const FilePaths candidates
+            = d->fileFinder.findFile(QUrl::fromLocalFile(link.targetFilePath.path()), &found);
+        if (found) {
+            const FilePath chosen = chooseFileFromList(candidates);
+            if (chosen.isEmpty())
+                return true;
+            link.targetFilePath = chosen;
+        }
+    }
+
     emit openInEditorRequested(link);
     return true;
 }
@@ -793,6 +824,91 @@ private slots:
             formatter.flush();
             QCOMPARE(textEdit.toPlainText(), output);
         }
+    }
+
+    void testParseLinkTarget_data()
+    {
+        QTest::addColumn<QString>("target");
+        QTest::addColumn<QString>("filePath");
+        QTest::addColumn<int>("line");
+        QTest::addColumn<int>("column");
+
+        QTest::addRow("no scheme") << QString("/main.cpp:2") << QString() << 0 << -1;
+        QTest::addRow("internal link")
+            << QString("olpfile:///main.cpp::2::3") << QString("/main.cpp") << 2 << 2;
+        QTest::addRow("UNIX path with line and column")
+            << QString("file:///main.cpp:2:3") << QString("/main.cpp") << 2 << 2;
+        QTest::addRow("UNIX path with line")
+            << QString("file:///main.cpp:2") << QString("/main.cpp") << 2 << 0;
+        QTest::addRow("UNIX path with no line")
+            << QString("file:///main.cpp") << QString("/main.cpp") << 0 << -1;
+        QTest::addRow("Windows path with line")
+            << QString("file:///C:/dir/main.cpp:40") << QString("C:/dir/main.cpp") << 40 << 0;
+        QTest::addRow("Windows path with line and column")
+            << QString("file:///c:/dir/main.cpp:40:7") << QString("c:/dir/main.cpp") << 40 << 6;
+        QTest::addRow("Windows path without authority separator")
+            << QString("file://C:\\dir\\main.cpp:2:3") << QString("C:/dir/main.cpp") << 2 << 2;
+        QTest::addRow("relative path")
+            << QString("file://../main.cpp:157") << QString("../main.cpp") << 157 << 0;
+        QTest::addRow("percent-encoded path")
+            << QString("file:///dir/with%20space/main.cpp:5")
+            << QString("/dir/with space/main.cpp") << 5 << 0;
+    }
+
+    void testParseLinkTarget()
+    {
+        QFETCH(QString, target);
+        QFETCH(QString, filePath);
+        QFETCH(int, line);
+        QFETCH(int, column);
+
+        const Link link = OutputLineParser::parseLinkTarget(target);
+        QCOMPARE(link.targetFilePath, FilePath::fromString(filePath));
+        QCOMPARE(link.target.line, line);
+        QCOMPARE(link.target.column, column);
+    }
+
+    // A path that the application prints need not be usable as is: It can be relative to
+    // some directory we do not know, or refer to a copy of the file.
+    void testFileLinkResolution()
+    {
+        QTemporaryDir projectDir;
+        QVERIFY(projectDir.isValid());
+        const FilePath projectPath = FilePath::fromString(projectDir.path());
+        const FilePath sourceFile = projectPath / "src" / "main.cpp";
+        QVERIFY(sourceFile.parentDir().ensureWritableDir());
+        QVERIFY(sourceFile.writeFileContents("int main() {}\n"));
+
+        FileInProjectFinder finder;
+        finder.setProjectDirectory(projectPath);
+        finder.setProjectFiles({sourceFile});
+
+        OutputFormatter formatter;
+        formatter.setFileFinder(finder);
+
+        Link requested;
+        connect(&formatter, &OutputFormatter::openInEditorRequested, this,
+                [&requested](const Link &link) { requested = link; });
+        const auto clickedLink = [&](const QString &href) {
+            requested = {};
+            formatter.handleLink(href);
+            return requested;
+        };
+
+        // An existing file is taken as is.
+        const Link direct = clickedLink("file://" + sourceFile.path() + ":7");
+        QCOMPARE(direct.targetFilePath, sourceFile);
+        QCOMPARE(direct.target.line, 7);
+
+        // A path relative to the application's working directory is looked up in the project.
+        const Link relative = clickedLink("file:///../../src/main.cpp:36");
+        QCOMPARE(relative.targetFilePath, sourceFile);
+        QCOMPARE(relative.target.line, 36);
+
+        // So is a path from a machine or checkout that is not the current one.
+        const Link foreign = clickedLink("file:///C:/elsewhere/src/main.cpp:36");
+        QCOMPARE(foreign.targetFilePath, sourceFile);
+        QCOMPARE(foreign.target.line, 36);
     }
 
     static QString input() { return "A line with some \x1b[31mred\x1b[0m output\n"; };
