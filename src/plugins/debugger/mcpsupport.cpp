@@ -482,6 +482,30 @@ static Result<bool> setDisplayFormat(const QString &iname, int format)
     return true;
 }
 
+static Result<bool> collapseAllChildren(const QString &iname)
+{
+    const Result<WatchHandler *> handler = getWatchHandler();
+    if (!handler)
+        return ResultError(handler.error());
+    if (!(*handler)->findItem(iname))
+        return ResultError("No variable with iname: " + iname);
+    (*handler)->collapseAllChildren(iname);
+    return true;
+}
+
+static Result<QJsonArray> expandedINames()
+{
+    const Result<WatchHandler *> handler = getWatchHandler();
+    if (!handler)
+        return ResultError(handler.error());
+    QStringList names = (*handler)->expandedINames().values();
+    names.sort();
+    QJsonArray result;
+    for (const QString &name : std::as_const(names))
+        result.append(name);
+    return result;
+}
+
 static Result<QString> addWatchExpression(const QString &expression, const QString &name)
 {
     const Result<WatchHandler *> handler = getWatchHandler();
@@ -961,6 +985,62 @@ void registerMcpTools()
             if (!ok)
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("debugger_collapse_all_children")
+            .title("Collapse all children of a variable")
+            .description(
+                "Recursively clears the expanded state of every descendant of the given variable, "
+                "so re-expanding it shows its whole subtree collapsed at all levels. "
+                "Returns an error if no debug session is active or the debugger is not paused.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "iname",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Internal name of the variable (e.g. \"local.myVar\")"}})
+                    .addRequired("iname"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addRequired("success")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const Utils::Result<bool> ok = collapseAllChildren(p.value("iname").toString());
+            if (!ok)
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
+            return CallToolResult{}.isError(false).structuredContent(
+                QJsonObject{{"success", true}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("debugger_expanded_inames")
+            .title("List expanded variable inames")
+            .description(
+                "Returns the sorted set of inames currently marked as expanded in the Locals and "
+                "Expressions view. Returns an error if no debug session is active or the debugger "
+                "is not paused.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "inames",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "string"}}}})
+                    .addRequired("inames")),
+        [](const Schema::CallToolRequestParams &) -> Utils::Result<CallToolResult> {
+            const Utils::Result<QJsonArray> names = expandedINames();
+            if (!names)
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(names.error()));
+            return CallToolResult{}.isError(false).structuredContent(
+                QJsonObject{{"inames", *names}});
         });
 
     ToolRegistry::registerTool(
