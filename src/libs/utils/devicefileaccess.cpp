@@ -562,9 +562,9 @@ class DesktopFilePathWatcher final : public FilePathWatcher
             d->moveToThread(&m_thread);
             // The private object and its children must be destroyed in the watcher
             // thread, as that is where their timers live.
+            QObject::connect(&m_thread, &QThread::started, d, &Private::init);
             QObject::connect(&m_thread, &QThread::finished, d, &QObject::deleteLater);
             m_thread.start();
-            d->init();
         }
         ~GlobalWatcher()
         {
@@ -589,7 +589,6 @@ class DesktopFilePathWatcher final : public FilePathWatcher
         class Private : public QObject
         {
         public:
-            void init() { QMetaObject::invokeMethod(this, &Private::_init, Qt::QueuedConnection); }
             QList<Result<>> watch(const QList<DesktopFilePathWatcher *> &watchers)
             {
                 QList<Result<>> results;
@@ -611,8 +610,8 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                 return result;
             }
 
-        protected:
-            void _init()
+            // Runs in the watcher thread, via QThread::started().
+            void init()
             {
                 // magic numbers
                 static constexpr int compressInterval = 50;
@@ -643,6 +642,7 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                 connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, addPath);
             }
 
+        protected:
             void notify()
             {
                 const QSet<FilePath> paths = m_scheduledPaths;
