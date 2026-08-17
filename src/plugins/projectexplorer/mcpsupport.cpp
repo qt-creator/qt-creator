@@ -1902,6 +1902,32 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("get_run_modes")
+            .title("Get run modes")
+            .description(
+                "Lists every run mode that has a registered run worker, and whether the current "
+                "startup project can be run in each one right now (with the reason if not). Use a "
+                "runnable id as run_project's run_mode; interactive modes have dedicated tools "
+                "(start_debug, start_profiler).")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("run_modes", QJsonObject{{"type", "array"}})
+                    .addRequired("run_modes")),
+        wrap([](const QJsonObject &) {
+            QJsonArray modes;
+            for (const Utils::Id &mode : RunWorkerFactory::allRunModes()) {
+                const Utils::Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(mode);
+                QJsonObject entry{{"id", mode.toString()}, {"runnable", bool(canRun)}};
+                if (!canRun)
+                    entry.insert("reason", canRun.error());
+                modes.append(entry);
+            }
+            return QJsonObject{{"run_modes", modes}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("search_in_files")
             .title("Search for pattern in project files")
             .description(

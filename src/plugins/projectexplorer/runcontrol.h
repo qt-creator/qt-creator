@@ -46,6 +46,7 @@ public:
     ~RunWorkerFactory();
 
     static void dumpAll(); // For debugging only.
+    static QList<Utils::Id> allRunModes(); // Every run mode with a registered worker.
     Utils::Id id() const { return m_id; }
 
 protected:

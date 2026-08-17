@@ -170,6 +170,11 @@ void RunWorkerFactory::dumpAll()
     }
 }
 
+QList<Id> RunWorkerFactory::allRunModes()
+{
+    return g_runModes.values();
+}
+
 /*!
     \class ProjectExplorer::RunControl
     \brief The RunControl class instances represent one item that is run.
