@@ -117,6 +117,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createRewrapParagraphTest);
     addTestCreator(createExternalToolReadOnlyTest);
     addTestCreator(createParagraphMovementTest);
+    addTestCreator(createPasteReindentTest);
     addTestCreator(createRevertToSavedTest);
     addTestCreator(createFindReplaceTest);
     addTestCreator(createSnippetTest);

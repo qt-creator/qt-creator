@@ -5,21 +5,23 @@
 
 #include "texteditor_test.h"
 
-#include "behaviorsettings.h"
-#include "storagesettings.h"
-#include "displaysettings.h"
-#include "tabsettings.h"
-#include "textdocument.h"
-#include "texteditor.h"
-#include "marginsettings.h"
-#include "textdocumentlayout.h"
-#include "textmark.h"
 #include "basefilefind.h"
 #include "basehoverhandler.h"
+#include "behaviorsettings.h"
+#include "displaysettings.h"
 #include "highlighter.h"
 #include "jsoneditor.h"
+#include "marginsettings.h"
 #include "snippets/snippet.h"
 #include "snippets/snippetparser.h"
+#include "storagesettings.h"
+#include "tabsettings.h"
+#include "textdocument.h"
+#include "textdocumentlayout.h"
+#include "texteditor.h"
+#include "texteditorconstants.h"
+#include "textmark.h"
+#include "typingsettings.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -37,7 +39,6 @@
 #include <coreplugin/find/textfindconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include "texteditorconstants.h"
 
 #include <utils/aggregate.h>
 #include <utils/filepath.h>
@@ -55,6 +56,7 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QClipboard>
 #include <QDialog>
 #include <QDropEvent>
 #include <QFile>
@@ -69,12 +71,12 @@
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QScrollBar>
-#include <QStringDecoder>
 #include <QSignalSpy>
-#include <QTimer>
+#include <QStringDecoder>
 #include <QTest>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QTimer>
 #include <QToolButton>
 
 #include <memory>
@@ -2978,6 +2980,75 @@ void ParagraphMovementTest::testGotoParagraphSkipsFold()
 QObject *createParagraphMovementTest()
 {
     return new ParagraphMovementTest;
+}
+
+class PasteReindentTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testPasteReindentsToContext_data();
+    void testPasteReindentsToContext();
+};
+
+// Pasting reindents the pasted text to the surrounding context instead of
+// keeping the source's raw indentation, so the leading whitespace of a line
+// pasted at column 0 is normalized away regardless of the tab policy
+// (QTCREATORBUG-10729: paste does conform, contrary to the original report).
+void PasteReindentTest::testPasteReindentsToContext_data()
+{
+    QTest::addColumn<TabSettingsData::TabPolicy>("policy");
+    QTest::addColumn<QString>("pasted");
+
+    QTest::newRow("tab pasted into spaces-only")
+        << TabSettingsData::SpacesOnlyTabPolicy << QString("\tx\n");
+    QTest::newRow("spaces pasted into tabs-only")
+        << TabSettingsData::TabsOnlyTabPolicy << QString("    x\n");
+}
+
+void PasteReindentTest::testPasteReindentsToContext()
+{
+    QFETCH(TabSettingsData::TabPolicy, policy);
+    QFETCH(QString, pasted);
+
+    QString title = "paste_reindent.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, QByteArray("first\n"));
+    QVERIFY(editor);
+    const QScopeGuard cleanup([editor] { Core::EditorManager::closeEditors({editor}, false); });;
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
+    TextDocument *doc = editorWidget->textDocument();
+
+    TabSettingsData tab(policy, 4, 4, TabSettingsData::ContinuationAlignWithSpaces);
+    tab.m_autoDetect = false;
+    doc->setTabSettings(tab);
+    TypingSettingsData typing = doc->typingSettings();
+    typing.m_autoIndent = true;
+    doc->setTypingSettings(typing);
+
+    QClipboard *clipboard = QApplication::clipboard();
+    const QString savedClipboard = clipboard->text();
+    clipboard->setText(pasted);
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    editorWidget->setTextCursor(cursor);
+    editorWidget->paste();
+
+    clipboard->setText(savedClipboard);
+
+    const QStringList lines = doc->plainText().split('\n');
+    QVERIFY(lines.size() >= 2);
+    // Reindented to the column-0 context: the source's leading tab/spaces are gone.
+    QCOMPARE(lines.at(1), QString("x"));
+}
+
+QObject *createPasteReindentTest()
+{
+    return new PasteReindentTest;
 }
 
 class RevertToSavedTest final : public QObject

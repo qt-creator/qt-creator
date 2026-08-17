@@ -15,6 +15,7 @@ QObject *createUndoCursorTest();
 QObject *createRewrapParagraphTest();
 QObject *createExternalToolReadOnlyTest();
 QObject *createParagraphMovementTest();
+QObject *createPasteReindentTest();
 QObject *createRevertToSavedTest();
 QObject *createFindReplaceTest();
 QObject *createSnippetTest();
