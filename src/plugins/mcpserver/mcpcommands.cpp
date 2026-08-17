@@ -13,6 +13,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/outputwindow.h>
+#include <coreplugin/patchtool.h>
 #include <coreplugin/session.h>
 
 #include <mcp/server/toolregistry.h>
@@ -710,6 +711,52 @@ bool McpCommands::createNewFile(const QString &path, const QString &text)
         return false;
     }
     return true;
+}
+
+QJsonObject McpCommands::applyPatch(
+    const QString &patch, const QString &workingDirectory, int strip, bool revert)
+{
+    if (patch.isEmpty())
+        return QJsonObject{{"applied", false}, {"output", "Empty patch."}};
+
+    FilePath workDir = FilePath::fromUserInput(workingDirectory);
+    if (workingDirectory.isEmpty()) {
+        if (ProjectExplorer::Project *pr = ProjectExplorer::ProjectManager::startupProject())
+            workDir = pr->projectDirectory();
+    }
+    if (workDir.isEmpty()) {
+        return QJsonObject{
+            {"applied", false},
+            {"output", "No working_directory given and no startup project to derive one from."}};
+    }
+
+    QStringList log;
+    const bool applied = Core::PatchTool::runPatch(
+        patch.toUtf8(), workDir, strip,
+        revert ? Core::PatchAction::Revert : Core::PatchAction::Apply,
+        [&log](const QString &message) { log.append(message); });
+
+    // Report the files the patch targets, taken from its "+++" headers with the
+    // -p<strip> leading path components removed, matching what patch edited.
+    QJsonArray files;
+    const QStringList lines = patch.split('\n');
+    for (const QString &line : lines) {
+        if (!line.startsWith("+++ "))
+            continue;
+        QString path = line.mid(4).section('\t', 0, 0).trimmed();
+        if (path == "/dev/null")
+            continue;
+        for (int i = 0; i < strip && path.contains('/'); ++i)
+            path = path.section('/', 1);
+        if (!path.isEmpty())
+            files.append(path);
+    }
+
+    return QJsonObject{
+        {"applied", applied},
+        {"working_directory", workDir.toUserOutput()},
+        {"files", files},
+        {"output", log.join('\n')}};
 }
 
 bool McpCommands::reformatFile(const QString &path)
@@ -2257,6 +2304,64 @@ void McpCommands::registerCommands()
             const QString text = p.value("text").toString();
             bool ok = commands.createNewFile(path, text);
             return QJsonObject{{"success", ok}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("apply_patch")
+            .title("Apply a unified diff")
+            .description(
+                "Applies a unified diff to files on disk using the configured patch command. "
+                "Give the diff in \"patch\". \"strip\" is the number of leading path components "
+                "to drop from each file in the diff (like patch -p): use 1 for git-style diffs "
+                "with a/ and b/ prefixes (the default), 0 for diffs with plain paths. Paths are "
+                "resolved against \"working_directory\", which defaults to the startup project's "
+                "directory. Set \"revert\" to true to undo the diff instead. On failure nothing "
+                "is left half-applied only if the patch command rejects atomically; check "
+                "\"output\" for the tool's own messages (including rejected hunks).")
+            .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "patch",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "The unified diff to apply."}})
+                    .addProperty(
+                        "working_directory",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Directory the diff paths are relative to. Defaults to the startup "
+                             "project's directory."}})
+                    .addProperty(
+                        "strip",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "Leading path components to strip (patch -p). Default 1."}})
+                    .addProperty(
+                        "revert",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description", "Revert the diff instead of applying it."}})
+                    .addRequired("patch"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("applied", QJsonObject{{"type", "boolean"}})
+                    .addProperty("working_directory", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "files",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addProperty("output", QJsonObject{{"type", "string"}})
+                    .addRequired("applied")),
+        wrap([](const QJsonObject &p) {
+            const int strip = p.contains("strip") ? p.value("strip").toInt() : 1;
+            return commands.applyPatch(
+                p.value("patch").toString(),
+                p.value("working_directory").toString(),
+                strip,
+                p.value("revert").toBool());
         }));
 
     ToolRegistry::registerTool(

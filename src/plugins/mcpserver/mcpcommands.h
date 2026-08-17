@@ -78,6 +78,9 @@ public:
         const QString &arguments,
         const QString &workingDirectory,
         const ResponseCallback &callback);
+
+    QJsonObject applyPatch(
+        const QString &patch, const QString &workingDirectory, int strip, bool revert);
 };
 
 } // namespace Mcp::Internal
