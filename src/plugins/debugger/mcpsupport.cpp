@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "breakhandler.h"
+#include "console/console.h"
+#include "console/consoleitem.h"
 #include "debuggerengine.h"
 #include "debuggerruncontrol.h"
 #include "enginemanager.h"
@@ -524,6 +526,19 @@ static Result<QJsonArray> expandedINames()
     for (const QString &name : std::as_const(names))
         result.append(name);
     return result;
+}
+
+static Result<bool> printConsoleMessage(const QString &type, const QString &text)
+{
+    ConsoleItem::ItemType itemType = ConsoleItem::DefaultType;
+    if (type == "error")
+        itemType = ConsoleItem::ErrorType;
+    else if (type == "warning")
+        itemType = ConsoleItem::WarningType;
+    else if (type == "debug" || type == "log")
+        itemType = ConsoleItem::DebugType;
+    debuggerConsole()->printItem(itemType, text);
+    return true;
 }
 
 static Result<QString> addWatchExpression(const QString &expression, const QString &name)
@@ -1061,6 +1076,40 @@ void registerMcpTools()
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(names.error()));
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"inames", *names}});
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("debugger_console_message")
+            .title("Print a message to the QML Debugger Console")
+            .description(
+                "Appends a message of the given type to the QML Debugger Console, exactly as the "
+                "debugger would. Useful for exercising the console's auto-popup behavior. Does not "
+                "require an active debug session.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "type",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"error", "warning", "debug", "default"}},
+                            {"description", "Message type: error, warning, debug, or default"}})
+                    .addProperty(
+                        "text",
+                        QJsonObject{{"type", "string"}, {"description", "Message text"}})
+                    .addRequired("type"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addRequired("success")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const Utils::Result<bool> ok = printConsoleMessage(p.value("type").toString(),
+                                                               p.value("text").toString());
+            if (!ok)
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(ok.error()));
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"success", true}});
         });
 
     ToolRegistry::registerTool(
