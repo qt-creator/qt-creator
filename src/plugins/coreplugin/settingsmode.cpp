@@ -564,6 +564,7 @@ SettingsWidget::SettingsWidget()
     m_proxyModel.setSortLocaleAware(true);
     m_proxyModel.setSourceModel(&m_model);
     m_proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_categoryList->setObjectName("settingsCategoryList");
     m_categoryList->setIconSize(QSize(categoryIconSize, categoryIconSize));
     m_categoryList->setModel(&m_proxyModel);
     m_categoryList->setSelectionMode(QAbstractItemView::SingleSelection);

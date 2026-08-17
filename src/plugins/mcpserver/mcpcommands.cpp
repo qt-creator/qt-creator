@@ -1098,6 +1098,8 @@ static void waitPainting(int ms)
     loop.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
+static void glidePointerToGlobal(const QPoint &target);
+
 // Moves the actual pointer, so the recording shows it arrive. It travels at a set
 // speed, so that how long it takes follows how far it has to go.
 static void glidePointerTo(QWidget *w)
@@ -1105,7 +1107,14 @@ static void glidePointerTo(QWidget *w)
     const DemoPace &pace = demoPace();
     if (pace.pointerPixelsPerSecond <= 0)
         return;
-    const QPoint target = w->mapToGlobal(w->rect().center());
+    glidePointerToGlobal(w->mapToGlobal(w->rect().center()));
+}
+
+static void glidePointerToGlobal(const QPoint &target)
+{
+    const DemoPace &pace = demoPace();
+    if (pace.pointerPixelsPerSecond <= 0)
+        return;
     const QPoint start = QCursor::pos();
     const qreal distance = std::hypot(target.x() - start.x(), target.y() - start.y());
     if (distance < 1)
@@ -2830,7 +2839,9 @@ void McpCommands::registerCommands()
                               Qt::LeftButton, Qt::NoModifier);
             QMouseEvent release(QEvent::MouseButtonRelease, center, global, Qt::LeftButton,
                                 Qt::NoButton, Qt::NoModifier);
+            glidePointerToGlobal(global.toPoint());
             QApplication::sendEvent((*view)->viewport(), &press);
+            waitPainting(demoPace().clickHoldMs);
             QApplication::sendEvent((*view)->viewport(), &release);
             return CallToolResult{}.isError(false).structuredContent(describeItem(*view, *index));
         });
@@ -2909,6 +2920,20 @@ void McpCommands::registerCommands()
             typeText(target, input);
             return CallToolResult{}.isError(false).structuredContent(describeWidget(target));
         });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("pointer_position")
+            .title("Where the pointer is")
+            .description("Returns the pointer position in screen coordinates, which is what a "
+                         "screen recording shows. Useful to check that a paced click actually "
+                         "moved it.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(Tool::InputSchema{}),
+        wrap([](const QJsonObject &) -> QJsonObject {
+            const QPoint pos = QCursor::pos();
+            return {{"x", pos.x()}, {"y", pos.y()}};
+        }));
 
     ToolRegistry::registerTool(
         Tool{}
