@@ -177,6 +177,9 @@ public:
     QString additionalStartupCommands() const { return m_additionalStartupCommands; }
 
     DebuggerEngineType cppEngineType() const { return m_cppEngineType; }
+    // For callers that know better than the kit which engine they want, e.g. a
+    // plugin driving an adapter of its own.
+    void setCppEngineType(DebuggerEngineType engineType) { m_cppEngineType = engineType; }
 
     QString version() const { return m_version; }
 

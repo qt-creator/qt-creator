@@ -562,12 +562,7 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
     if (rp.isCppDebugging()) {
         switch (rp.cppEngineType()) {
         case GdbEngineType:
-            // Experimental opt-in: route gdb debugging through the DAP-shaped
-            // BridgeEngine instead, for testing it against a real gdb kit.
-            if (qtcEnvironmentVariableIsSet("QTC_DEBUGGER_USE_BRIDGE"))
-                engines << createBridgeEngine();
-            else
-                engines << createGdbEngine(rp);
+            engines << createGdbEngine(rp);
             break;
         case CdbEngineType:
             if (rp.debugger().command.executable().osType() != OsTypeWindows)
@@ -763,6 +758,16 @@ void EnginesDriver::showMessage(const QString &msg, int channel, int timeout)
     }
 }
 
+// Experimental opt-in: ask for the DAP-shaped BridgeEngine rather than
+// GdbEngine, to try it against an existing gdb kit.
+static void applyCppEngineOptIn(DebuggerRunParameters &rp)
+{
+    if (rp.cppEngineType() == GdbEngineType
+        && qtcEnvironmentVariableIsSet("QTC_DEBUGGER_USE_BRIDGE")) {
+        rp.setCppEngineType(BridgeEngineType);
+    }
+}
+
 Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initialParameters,
                      const std::function<void(DebuggerRunParameters &)> &parametersModifier)
 {
@@ -772,6 +777,9 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
         storage->runParameters.setAttachPid(storage->runControl->attachPid());
         if (parametersModifier)
             parametersModifier(storage->runParameters);
+        // After the modifier: it can still turn QML debugging on, and the
+        // engine choice depends on it.
+        applyCppEngineOptIn(storage->runParameters);
     };
 
     const auto terminalKicker = [storage](const QStoredBarrier &barrier) {
