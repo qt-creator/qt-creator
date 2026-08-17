@@ -14,6 +14,7 @@ QtcPlugin {
     Depends { name: "qtkeychain" }
 
     pluginTestDepends: [
+        "BinEditor",
         "TextEditor"
     ]
 

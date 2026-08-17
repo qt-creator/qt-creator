@@ -3,6 +3,7 @@
 
 #include "documentmanager_test.h"
 
+#include "coreconstants.h"
 #include "documentmanager.h"
 #include "editormanager/documentmodel.h"
 #include "editormanager/editormanager.h"
@@ -296,6 +297,7 @@ void DocumentManagerTest::testBinaryFileClosesOnExternalRemoval()
     QVERIFY(editor);
     IDocument *document = editor->document();
     QVERIFY(document);
+    QCOMPARE(document->id(), Id(Constants::K_DEFAULT_BINARY_EDITOR_ID));
     QVERIFY(DocumentModel::openedDocuments().contains(document));
 
     // The system test covered a binary file too. Whichever editor opens it, the

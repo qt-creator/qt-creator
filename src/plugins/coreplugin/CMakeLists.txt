@@ -2,7 +2,7 @@ find_package(Qt6 COMPONENTS DBus QUIET)
 
 add_qtc_plugin(Core
   DEPENDS Qt::PrintSupport Qt::Qml Qt::Gui TerminalLib qtkeychain
-  PLUGIN_TEST_DEPENDS TextEditor
+  PLUGIN_TEST_DEPENDS BinEditor TextEditor
   PUBLIC_DEPENDS ExtensionSystem Utils
   SOURCES
     actionmanager/actioncontainer.cpp
