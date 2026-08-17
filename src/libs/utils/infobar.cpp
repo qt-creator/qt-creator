@@ -27,6 +27,7 @@ using namespace Qt::StringLiterals;
 namespace Utils {
 
 QSet<Id> InfoBar::globallySuppressed;
+bool InfoBar::m_allSuppressed = false;
 QtcSettings *InfoBar::m_settings = nullptr;
 const int spacing = 6;
 
@@ -288,6 +289,8 @@ InfoLabelType InfoBarEntry::infoType() const
 
 void InfoBar::addInfo(const InfoBarEntry &info)
 {
+    if (m_allSuppressed)
+        return;
     m_infoBarEntries << info;
     emit changed();
 }
@@ -315,7 +318,19 @@ void InfoBar::suppressInfo(Id id)
 // Info cannot be added more than once, or if it is suppressed
 bool InfoBar::canInfoBeAdded(Id id) const
 {
+    if (m_allSuppressed)
+        return false;
     return !containsInfo(id) && !m_suppressed.contains(id) && !globallySuppressed.contains(id);
+}
+
+void InfoBar::suppressAll(bool suppress)
+{
+    m_allSuppressed = suppress;
+}
+
+bool InfoBar::allSuppressed()
+{
+    return m_allSuppressed;
 }
 
 void InfoBar::unsuppressInfo(Id id)

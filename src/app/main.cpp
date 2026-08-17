@@ -18,6 +18,7 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
+#include <utils/infobar.h>
 #include <utils/plaintextedit/plaintexteditaccessibility.h>
 #include <utils/processreaper.h>
 #include <utils/qtcassert.h>
@@ -74,6 +75,8 @@ const char fixedOptionsC[]
       "    -installsettingspath <path>   Override the default path from where user-independent "
       "settings are read\n"
       "    -temporarycleansettings, -tcs Use clean settings for debug or testing reasons\n"
+      "    -no-banners                   Do not show the notification banners, for a screenshot\n"
+      "                                  or a recording\n"
       "    -pid <pid>                    Attempt to connect to instance given by pid\n"
       "    -block                        Block until editor is closed\n"
       "    -pluginpath <path>            Add a custom search path for plugins\n"
@@ -96,6 +99,7 @@ const char STYLE_OPTION[] = "-style";
 const char QML_LITE_DESIGNER_OPTION[] = "-qml-lite-designer";
 const char TEMPORARY_CLEAN_SETTINGS1[] = "-temporarycleansettings";
 const char TEMPORARY_CLEAN_SETTINGS2[] = "-tcs";
+const char NO_BANNERS_OPTION[] = "-no-banners";
 const char PID_OPTION[] = "-pid";
 const char BLOCK_OPTION[] = "-block";
 const char PLUGINPATH_OPTION[] = "-pluginpath";
@@ -380,6 +384,7 @@ struct Options
     QStringList traceOnWarningPatterns;
     bool hasTestOption = false;
     bool wantsCleanSettings = false;
+    bool wantsNoBanners = false;
     bool hasStyleOption = false;
 };
 
@@ -418,6 +423,9 @@ static Options parseCommandLine(int argc, char *argv[])
             options.traceOnWarningPatterns << nextArg;
         } else if (arg == TEMPORARY_CLEAN_SETTINGS1 || arg == TEMPORARY_CLEAN_SETTINGS2) {
             options.wantsCleanSettings = true;
+            options.preAppArguments << arg;
+        } else if (arg == NO_BANNERS_OPTION) {
+            options.wantsNoBanners = true;
             options.preAppArguments << arg;
         } else if (arg == CLIENTID_OPTION && hasNext) {
             ++it;
@@ -699,6 +707,9 @@ int main(int argc, char **argv)
     rl.rlim_cur = qMin((rlim_t)OPEN_MAX, rl.rlim_max);
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
+
+    if (options.wantsNoBanners)
+        InfoBar::suppressAll(true);
 
     QScopedPointer<TemporaryDirectory> temporaryCleanSettingsDir;
     if (options.settingsPath.isEmpty() && (options.hasTestOption || options.wantsCleanSettings)) {

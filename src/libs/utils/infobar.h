@@ -128,6 +128,10 @@ public:
     bool canInfoBeAdded(Id id) const;
     void unsuppressInfo(Id id);
     void clear();
+    // Suppresses every banner, for a screenshot, a recording or a test run.
+    static void suppressAll(bool suppress);
+    static bool allSuppressed();
+
     static void globallySuppressInfo(Id id);
     static void globallyUnsuppressInfo(Id id);
     static void clearGloballySuppressed();
@@ -152,6 +156,7 @@ private:
     QSet<Id> m_suppressed;
 
     static QSet<Id> globallySuppressed;
+    static bool m_allSuppressed;
     static QtcSettings *m_settings;
 };
 
