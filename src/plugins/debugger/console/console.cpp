@@ -231,10 +231,15 @@ void Console::printItem(ConsoleItem::ItemType itemType, const QString &text)
 void Console::printItem(ConsoleItem *item)
 {
     m_consoleItemModel->appendItem(item);
-    if (item->itemType() == ConsoleItem::ErrorType)
-        popup(Core::IOutputPane::ModeSwitch);
-    else if (item->itemType() == ConsoleItem::WarningType)
-        flash();
+    // Only draw attention to a message type the user has not filtered out:
+    // popping the pane up for errors that are hidden anyway is just clutter.
+    if (item->itemType() == ConsoleItem::ErrorType) {
+        if (m_showError())
+            popup(Core::IOutputPane::ModeSwitch);
+    } else if (item->itemType() == ConsoleItem::WarningType) {
+        if (m_showWarning())
+            flash();
+    }
 }
 
 void Console::evaluate(const QString &expression)
