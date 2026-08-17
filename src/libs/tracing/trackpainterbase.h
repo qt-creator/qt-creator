@@ -19,6 +19,10 @@ class QWheelEvent;
 class QWidget;
 QT_END_NAMESPACE
 
+namespace Utils {
+class Icon;
+}
+
 namespace Timeline {
 
 class TimelineModel;
@@ -37,6 +41,8 @@ static constexpr int kTrackPaddingAndOutline = kTrackPadding + kTrackOutline;
 
 static constexpr int kTimeLineTopMargin = kTrackPadding + kTrackPadding;
 static constexpr int kTimeLineLeftMargin = Utils::StyleHelper::SpacingTokens::PaddingHXxl;
+
+static constexpr int kNoteIconSize = 24;
 
 // Global override for the track backend. Automatic (the default) resolves per
 // host OS in resolvedTrackBackend(). Read when a track area is created, so a
@@ -99,6 +105,8 @@ public:
     // Which backend this concrete widget is.
     virtual TrackBackend backend() const = 0;
 
+    static const Utils::Icon &noteIcon();
+
 protected:
     struct Track {
         TimelineModel *model = nullptr;
@@ -121,19 +129,13 @@ protected:
         QRgb color;
         QList<QRectF> rects;
     };
-    struct Circle {
-        float x;
-        float y;
-        float radius;
-    };
     struct NeutralTrackGeometry {
         QList<QRectF> background[2]; // [0] = bg1 rows, [1] = bg2 rows
         QList<QRectF> grid;          // Timeline_DividerColor
         QList<ColorRects> fills;     // event bars or density columns, grouped by colour
         QRectF outlines[2];          // [0] = above, [1] = below the track
         QList<QRectF> markers;       // Timeline_HandleColor
-        QList<QRectF> noteSticks;    // Timeline_HighlightColor
-        QList<Circle> noteDots;      // Timeline_HighlightColor
+        QList<QPoint> noteIcons;     // center point of each note icon
     };
 
     // Value-scale overlay primitives for one expanded track, in track-local

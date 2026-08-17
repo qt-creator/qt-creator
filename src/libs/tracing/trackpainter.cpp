@@ -5,6 +5,7 @@
 
 #include "timelinemodel.h"
 
+#include <utils/icon.h>
 #include <utils/theme/theme.h>
 
 #include <QCanvasPainter>
@@ -31,6 +32,12 @@ QSize TrackPainter::sizeHint() const
     return QSize(200, TimelineModel::defaultRowHeight());
 }
 
+void TrackPainter::initializeResources(QCanvasPainter *painter)
+{
+    const QImage image = noteIcon().icon().pixmap(kNoteIconSize, kNoteIconSize).toImage();
+    m_noteIcon = painter->addImage(image);
+}
+
 void TrackPainter::paint(QCanvasPainter *painter)
 {
     // Time the CPU cost of producing this frame; this single widget renders all
@@ -50,7 +57,6 @@ void TrackPainter::paint(QCanvasPainter *painter)
     const QColor divider = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
     const QColor outline = Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle);
     const QColor handle = Utils::creatorColor(Utils::Theme::Timeline_HandleColor);
-    const QColor highlight = Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
 
     // Replay the cached per-track geometry, translated into content space. No
     // event iteration happens here, so scrolling, hovering and selection (which
@@ -79,7 +85,13 @@ void TrackPainter::paint(QCanvasPainter *painter)
             p.fill(cp.path);
         }
         if (g.hasMarkers) { p.setFillStyle(handle); p.fill(g.markers); }
-        if (g.hasNotes) { p.setFillStyle(highlight); p.fill(g.notes); }
+        if (!g.noteIcons.isEmpty() && !m_noteIcon.isNull()) {
+            for (const QPoint &c : g.noteIcons) {
+                p.drawImage(m_noteIcon, QRectF(c.x() - kNoteIconSize / 2.0,
+                                               c.y() - kNoteIconSize / 2.0,
+                                               kNoteIconSize, kNoteIconSize));
+            }
+        }
         paintScaleOverlay(p, track);
         p.restore();
     }
@@ -141,11 +153,7 @@ void TrackPainter::buildTrackGeometry(const Track &track, TrackGeometry &geom) c
         geom.markers.rect(r);
     geom.hasMarkers = !neutral.markers.isEmpty();
 
-    for (const QRectF &r : std::as_const(neutral.noteSticks))
-        geom.notes.rect(r);
-    for (const Circle &c : std::as_const(neutral.noteDots))
-        geom.notes.circle(c.x, c.y, c.radius);
-    geom.hasNotes = !neutral.noteSticks.isEmpty() || !neutral.noteDots.isEmpty();
+    geom.noteIcons = std::move(neutral.noteIcons);
 }
 
 // Value scale for expanded rows with min/max values. Drawn in track-local

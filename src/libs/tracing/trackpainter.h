@@ -6,6 +6,7 @@
 #include "tracing_global.h"
 #include "trackpainterbase.h"
 
+#include <QCanvasImage>
 #include <QCanvasPainterWidget>
 #include <QCanvasPath>
 #include <QList>
@@ -52,6 +53,8 @@ signals:
     void painted(std::chrono::nanoseconds renderTime);
 
 protected:
+    void initializeResources(QCanvasPainter *painter) override;
+    void graphicsResourcesInvalidated() override { m_noteIcon = {}; }
     void paint(QCanvasPainter *painter) override;
     void mouseMoveEvent(QMouseEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
@@ -86,8 +89,7 @@ private:
         bool hasOutlines = false;
         QCanvasPath markers;
         bool hasMarkers = false;
-        QCanvasPath notes;
-        bool hasNotes = false;
+        QList<QPoint> noteIcons;        // center point of each note icon
     };
 
     void ensureGeometry();           // rebuild the cache if the range/width changed
@@ -100,6 +102,8 @@ private:
     qint64 m_geomRangeStart = 0;
     qint64 m_geomRangeEnd = 0;
     int m_geomWidth = -1;
+
+    QCanvasImage m_noteIcon;
 };
 
 } // namespace Timeline

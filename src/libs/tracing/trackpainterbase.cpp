@@ -8,6 +8,8 @@
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
 
+#include <utils/icon.h>
+
 #include <QHash>
 #include <QVarLengthArray>
 #include <QWheelEvent>
@@ -402,8 +404,7 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
         }
     }
 
-    // Note markers: exclamation mark shape matching the QSG notes shader.
-    // The shader draws d < 2/3 (stick) and d > 5/6 (dot), masking the gap between them.
+    // Note markers: center point of each icon
     if (m_notes) {
         const int modelId = model->modelId();
         for (int i = 0; i < m_notes->count(); ++i) {
@@ -417,14 +418,7 @@ void TrackPainterBase::buildNeutralGeometry(const Track &track, NeutralTrackGeom
             const double rowY = model->rowOffset(row);
             const qint64 center = (model->startTime(idx) + model->endTime(idx)) / 2;
             const double cx = timeToPixel(center, m_rangeStart, m_rangeEnd, double(w));
-            const double span = 0.8 * rowH;
-            const double top = rowY + 0.1 * rowH;
-            const double stickEnd = top + (2.0 / 3.0) * span;
-            const double dotStart = top + (5.0 / 6.0) * span;
-            const double dotEnd   = top + span;
-            // Stick: a 3px wide filled column. Dot: a small filled disc.
-            geom.noteSticks.append(QRectF(cx - 1.5, top, 3.0, stickEnd - top));
-            geom.noteDots.append({float(cx), float((dotStart + dotEnd) / 2.0), 1.5f});
+            geom.noteIcons.append(QPoint(cx, rowY + rowH / 2));
         }
     }
 }
@@ -654,6 +648,14 @@ void TrackPainterBase::itemAt(const QPoint &pos, int *trackIndex, int *itemIndex
     const int item = indexInModel(t.model, local);
     *trackIndex = track;
     *itemIndex = item;
+}
+
+const Utils::Icon &TrackPainterBase::noteIcon()
+{
+    static const Utils::Icon icon({{":/utils/images/infolarge.png",
+                                    Utils::Theme::Token_Notification_Neutral_Default}},
+                                  Utils::Icon::Tint);
+    return icon;
 }
 
 void TrackPainterBase::handleMousePress(int button, const QPoint &globalPos)

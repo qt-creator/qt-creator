@@ -5,6 +5,7 @@
 
 #include "timelinemodel.h"
 
+#include <utils/icon.h>
 #include <utils/theme/theme.h>
 
 #include <QColor>
@@ -50,7 +51,6 @@ void TrackPainterRaster::paintEvent(QPaintEvent *event)
     const QColor divider = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
     const QColor outline = Utils::creatorColor(Utils::Theme::Token_Stroke_Subtle);
     const QColor handle = Utils::creatorColor(Utils::Theme::Timeline_HandleColor);
-    const QColor highlight = Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
 
     p.fillRect(event->rect(), Utils::creatorColor(Utils::Theme::Token_Background_Default));
 
@@ -86,9 +86,13 @@ void TrackPainterRaster::paintEvent(QPaintEvent *event)
         }
         for (const QRectF &r : g.outlines) p.fillRect(r, outline);
         for (const QRectF &r : g.markers) p.fillRect(r, handle);
-        if (!g.notes.isEmpty()) {
-            p.setRenderHint(QPainter::Antialiasing, true);
-            p.fillPath(g.notes, highlight);
+        if (!g.noteIcons.isEmpty()) {
+            static const QIcon icon = noteIcon().icon();
+            for (const QPoint &c : g.noteIcons) {
+                icon.paint(&p, QRect(c.x() - kNoteIconSize / 2,
+                                     c.y() - kNoteIconSize / 2,
+                                     kNoteIconSize, kNoteIconSize));
+            }
         }
         paintScaleOverlay(p, track);
         p.restore();
@@ -118,9 +122,9 @@ void TrackPainterRaster::ensureGeometry()
 // Caches the backend-independent neutral geometry for one track. All the
 // axis-aligned groups (backgrounds, grid, event bars, markers) are kept as plain
 // rects and filled directly with fillRect at paint time (the fast solid blitter,
-// far cheaper than the antialiased path rasterizer); only the round note markers
-// become a QPainterPath. ensureAttrCache is a base helper that populates the
-// per-event attribute arrays the neutral build consumes.
+// far cheaper than the antialiased path rasterizer); note icons are kept as
+// plain center points and painted as icons. ensureAttrCache is a base helper
+// that populates the per-event attribute arrays the neutral build consumes.
 void TrackPainterRaster::buildTrackGeometry(const Track &track, TrackGeometry &geom) const
 {
     ensureAttrCache(const_cast<Track &>(track));
@@ -134,14 +138,8 @@ void TrackPainterRaster::buildTrackGeometry(const Track &track, TrackGeometry &g
     geom.outlines[0] = neutral.outlines[0];
     geom.outlines[1] = neutral.outlines[1];
     geom.markers = std::move(neutral.markers);
-
     geom.fills = std::move(neutral.fills);
-
-    geom.notes.setFillRule(Qt::WindingFill);
-    for (const QRectF &r : std::as_const(neutral.noteSticks))
-        geom.notes.addRect(r);
-    for (const Circle &c : std::as_const(neutral.noteDots))
-        geom.notes.addEllipse(QPointF(c.x, c.y), c.radius, c.radius);
+    geom.noteIcons = std::move(neutral.noteIcons);
 }
 
 // Value scale for expanded rows with min/max values. Drawn in track-local

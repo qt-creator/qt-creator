@@ -69,14 +69,15 @@ private:
     // from the neutral geometry and replayed each frame. Axis-aligned, opaque
     // groups (backgrounds, grid, markers) are kept as plain rects and filled with
     // QPainter::fillRect, which hits the fast solid-fill blitter; the antialiased
-    // event bars and notes are pre-assembled into QPainterPaths.
+    // event bars are pre-assembled into QPainterPaths, note icons are painted
+    // individually from their center points.
     struct TrackGeometry {
         QList<QRectF> background[2];    // [0] = bg1 rows, [1] = bg2 rows
         QList<QRectF> grid;             // 1px columns
         QList<ColorRects> fills;        // event bars or density columns, by color
         QRectF outlines[2];             // Token_Stroke_Subtle, above and below the track
         QList<QRectF> markers;          // 2px columns
-        QPainterPath notes;             // exclamation marks (antialiased)
+        QList<QPoint> noteIcons;        // center point of each note icon
     };
 
     void ensureGeometry();           // rebuild the cache if the range/width changed
