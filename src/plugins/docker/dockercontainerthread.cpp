@@ -7,7 +7,10 @@
 
 #include <utils/qtcprocess.h>
 
+#include <QDateTime>
+#include <QDeadlineTimer>
 #include <QLoggingCategory>
+#include <QThread>
 
 using namespace Utils;
 
@@ -69,15 +72,42 @@ private:
         return m_containerId;
     }
 
+    Result<bool> isContainerRunning() const
+    {
+        Process inspectProcess;
+        inspectProcess.setCommand(
+            {m_init.dockerBinaryPath,
+             {"container", "inspect", "--format", "{{.State.Running}}", m_containerId}});
+        inspectProcess.runBlocking();
+
+        if (inspectProcess.result() != ProcessResult::FinishedWithSuccess) {
+            return make_unexpected(
+                Tr::tr("Failed inspecting Docker container: %1")
+                    .arg(inspectProcess.verboseExitMessage()));
+        }
+
+        return inspectProcess.cleanedStdOut().trimmed() == "true";
+    }
+
     Result<> startContainer()
     {
         using namespace std::chrono_literals;
+
+        // The listener races the container start below, so backdate the event stream. The
+        // container ID is fresh, so no start event other than ours can match the filter.
+        const QString since = QDateTime::currentDateTimeUtc().addSecs(-3600).toString(Qt::ISODate);
 
         Process eventProcess;
         // Start an docker event listener to listen for the container start event
         eventProcess.setCommand(
             {m_init.dockerBinaryPath,
-             {"events", "--filter", "event=start", "--filter", "container=" + m_containerId}});
+             {"events",
+              "--since",
+              since,
+              "--filter",
+              "event=start",
+              "--filter",
+              "container=" + m_containerId}});
         eventProcess.setProcessMode(ProcessMode::Reader);
         eventProcess.start();
         if (!eventProcess.waitForStarted(5s)) {
@@ -109,23 +139,49 @@ private:
         qCDebug(dockerThreadLog) << "Started container: " << m_startProcess->commandLine();
 
         // Read a line from the eventProcess
-        while (true) {
-            if (!eventProcess.waitForReadyRead(5s)) {
-                m_startProcess->kill();
-                if (!m_startProcess->waitForFinished(5s)) {
-                    qCWarning(dockerThreadLog)
-                        << "Docker start process took more than 5 seconds to finish.";
-                }
-                return ResultError(
-                    Tr::tr("Failed starting Docker container. Exit code: %1, output: %2")
-                        .arg(m_startProcess->exitCode())
-                        .arg(m_startProcess->allOutput()));
-            }
-            if (!eventProcess.stdOutLines().isEmpty()) {
+        QDeadlineTimer deadline(5s);
+        bool started = false;
+        while (!started && !deadline.hasExpired()) {
+            if (!eventProcess.waitForReadyRead(deadline))
                 break;
+            started = !eventProcess.stdOutLines().isEmpty();
+        }
+
+        if (started) {
+            qCDebug(dockerThreadLog) << "Started event received for container: " << m_containerId;
+        } else {
+            // Event delivery can be unavailable entirely, so poll the state directly. The
+            // listener may have died right away, so this has to honor the same deadline.
+            Result<bool> running = isContainerRunning();
+            while (!running.value_or(false) && !deadline.hasExpired()) {
+                QThread::msleep(100);
+                running = isContainerRunning();
+            }
+            started = running.value_or(false);
+            if (started) {
+                qCWarning(dockerThreadLog)
+                    << "No start event received, but container" << m_containerId << "is running.";
+            } else if (!running) {
+                qCWarning(dockerThreadLog) << running.error();
             }
         }
-        qCDebug(dockerThreadLog) << "Started event received for container: " << m_containerId;
+
+        if (!started) {
+            if (m_startProcess->state() == ProcessState::NotRunning) {
+                return ResultError(
+                    Tr::tr("Failed starting Docker container: %1")
+                        .arg(m_startProcess->verboseExitMessage()));
+            }
+            m_startProcess->kill();
+            if (!m_startProcess->waitForFinished(5s)) {
+                qCWarning(dockerThreadLog)
+                    << "Docker start process took more than 5 seconds to finish.";
+            }
+            return ResultError(
+                Tr::tr("Timed out waiting for Docker container \"%1\" to start.")
+                    .arg(m_containerId));
+        }
+
         eventProcess.kill();
         if (!eventProcess.waitForFinished(5s)) {
             qCWarning(dockerThreadLog)
