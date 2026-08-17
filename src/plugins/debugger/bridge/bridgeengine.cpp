@@ -10,6 +10,7 @@
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerprotocol.h>
+#include <debugger/debuggersourcepathmappingwidget.h>
 #include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
@@ -31,6 +32,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <QDir>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QStringDecoder>
@@ -202,9 +204,42 @@ static QJsonArray inferiorEnvironment(const DebuggerRunParameters &rp)
     return items;
 }
 
+// Where the target's sources and libraries are: without this, gdb looks for
+// them at the paths recorded in the debug info, which are the build machine's.
+void BridgeEngine::configureTarget()
+{
+    const DebuggerRunParameters &rp = runParameters();
+    QJsonArray mappings;
+    const SourcePathMap sourcePathMap =
+        mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+    for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it)
+        mappings.append(QJsonObject{{"from", it.key()}, {"to", expand(it.value())}});
+
+    QJsonArray sourceDirectories;
+    for (const QString &location : rp.debugSourceLocation()) {
+        if (QDir(location).exists())
+            sourceDirectories.append(location);
+        else
+            showMessage("# directory does not exist: " + location, LogInput);
+    }
+
+    QJsonObject args;
+    if (!mappings.isEmpty())
+        args.insert("sourcePathMap", mappings);
+    if (!sourceDirectories.isEmpty())
+        args.insert("sourceDirectories", sourceDirectories);
+    if (!rp.sysRoot().isEmpty())
+        args.insert("sysroot", rp.sysRoot().path());
+    if (!args.isEmpty())
+        m_dapClient->postRequest("qtc/configureTarget", args);
+}
+
 void BridgeEngine::handleDapInitialize()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
+
+    // Before the program is loaded: a sysroot has to be known by then.
+    configureTarget();
 
     const DebuggerRunParameters &rp = runParameters();
     if (rp.isLocalAttachEngine()) {
@@ -717,7 +752,10 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
             }
             break;
         }
-        if (command == "qtc/fetchVariables")
+        if (command == "qtc/configureTarget") {
+            // Only an acknowledgement, there is no body to consume.
+        }
+        else if (command == "qtc/fetchVariables")
             handleFetchVariablesResponse(response);
         else if (command == "qtc/fetchModules")
             handleFetchModulesResponse(response);

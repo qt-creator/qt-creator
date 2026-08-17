@@ -87,6 +87,7 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
 
     void claimInitialBreakpoints();
+    void configureTarget();
 
     void handleDapStarted();
     void handleDapInitialize();

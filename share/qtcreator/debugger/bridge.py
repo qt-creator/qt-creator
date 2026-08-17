@@ -783,6 +783,38 @@ class DapServer():
 
         self.sendResponse(request, body={'dumperResult': captured.get('result', '')})
 
+    def cmd_qtc_configureTarget(self, request):
+        # Tell gdb where the target's sources and libraries are, before the
+        # program is loaded.
+        args = request.get('arguments', {})
+        # 'set substitute-path' and 'directory' split their arguments like a
+        # shell, so a path with spaces needs quoting. 'set sysroot' takes the
+        # rest of the line and would keep the quotes.
+        for mapping in args.get('sourcePathMap', []):
+            source = gdbLineArgument(mapping.get('from', ''), 'source path (from)')
+            target = gdbLineArgument(mapping.get('to', ''), 'source path (to)')
+            if source is not None and target is not None:
+                self._executeQuietly('set substitute-path %s %s'
+                                     % (quoteArgument(source), quoteArgument(target)))
+        for directory in args.get('sourceDirectories', []):
+            directory = gdbLineArgument(directory, 'source directory')
+            if directory is not None:
+                self._executeQuietly('directory %s' % quoteArgument(directory))
+        sysroot = gdbLineArgument(args.get('sysroot', ''), 'sysroot')
+        if sysroot:
+            self._executeQuietly('set sysroot %s' % sysroot)
+            # A sysroot alone does not locate the sources; relocate the most
+            # likely place for them too, as GdbEngine does.
+            self._executeQuietly('set substitute-path /usr/src %s'
+                                 % quoteArgument(sysroot + '/usr/src'))
+        self.sendResponse(request)
+
+    def _executeQuietly(self, command):
+        try:
+            gdb.execute(command, to_string=True)
+        except gdb.error as error:
+            warn('%r failed: %s' % (command, error))
+
     def cmd_qtc_fetchModules(self, request):
         # gdb's Python API lists the objfiles but not where they are loaded or
         # whether their symbols are in, so 'info sharedlibrary' fills that in.

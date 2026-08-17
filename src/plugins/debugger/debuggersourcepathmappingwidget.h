@@ -16,4 +16,9 @@ using SourcePathMap = QMap<QString, QString>;
  * is already in the map. */
 SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourcePathMap &in);
 
+/* Merge the run parameters' own mappings over the given ones, expanding
+ * macros. User settings win. */
+SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,
+                                                const SourcePathMap &in);
+
 } // Debugger::Internal

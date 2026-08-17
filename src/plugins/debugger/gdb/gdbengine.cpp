@@ -3903,19 +3903,6 @@ bool GdbEngine::handleCliDisassemblerResult(const QString &output, DisassemblerA
     return false;
 }
 
-static SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,
-                                                       const SourcePathMap &in)
-{
-    // Do not overwrite user settings.
-    SourcePathMap rc = sp.sourcePathMap();
-    for (auto it = in.constBegin(), end = in.constEnd(); it != end; ++it) {
-        // Entries that start with parenthesis are handled in DebuggerEngine::validateRunParameters
-        if (!it.key().startsWith('('))
-            rc.insert(it.key(), sp.macroExpander()->expand(it.value()));
-    }
-    return rc;
-}
-
 //
 // Starting up & shutting down
 //

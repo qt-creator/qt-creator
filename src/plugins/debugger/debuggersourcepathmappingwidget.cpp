@@ -11,6 +11,7 @@
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
@@ -419,6 +420,20 @@ void DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged()
         m_model->setTarget(row, editTargetField());
         updateEnabled();
     }
+}
+
+SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,
+                                                const SourcePathMap &in)
+{
+    // Do not overwrite user settings.
+    SourcePathMap rc = sp.sourcePathMap();
+    for (auto it = in.constBegin(), end = in.constEnd(); it != end; ++it) {
+        // Entries that start with parenthesis are handled in
+        // DebuggerEngine::validateRunParameters
+        if (!it.key().startsWith('('))
+            rc.insert(it.key(), sp.macroExpander()->expand(it.value()));
+    }
+    return rc;
 }
 
 /* Merge settings for an installed Qt (unless another setting is already in the map. */
