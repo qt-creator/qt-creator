@@ -179,10 +179,11 @@ void TrackPainterRaster::paintSelectionOverlay(QPainter &p) const
         return;
 
     p.save();
-    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setRenderHint(QPainter::Antialiasing, false);
     p.setBrush(Qt::NoBrush);
     for (const OverlayStroke &s : strokes) {
-        p.setPen(QPen(QColor::fromRgb(s.color), s.lineWidth));
+        p.setPen(QPen(QColor::fromRgb(s.color), s.lineWidth, Qt::SolidLine, Qt::FlatCap,
+                      Qt::MiterJoin));
         p.drawRect(s.rect);
     }
     p.restore();

@@ -155,7 +155,7 @@ protected:
     struct OverlayStroke {
         QRectF rect;
         QRgb color;
-        float lineWidth;
+        qreal lineWidth;
     };
 
     // --- Shared geometry / overlay computation (single-sourced) ---------------

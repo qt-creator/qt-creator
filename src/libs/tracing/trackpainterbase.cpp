@@ -481,8 +481,10 @@ QList<TrackPainterBase::OverlayStroke> TrackPainterBase::buildSelectionOverlay()
     if (m_rangeStart >= m_rangeEnd)
         return strokes;
 
-    const QRgb selectionColor = m_selectionLocked ? qRgb(96, 0, 255) : qRgb(0, 0, 255);
-    const QRgb hoverColor = qRgb(255, 255, 255);
+    const QColor selectionColor = Utils::creatorColor(
+        m_selectionLocked ? Utils::Theme::Token_Notification_Neutral_Default
+                          : Utils::Theme::Token_Notification_Neutral_Muted);
+    const QColor hoverColor = Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Muted);
 
     const int w = viewWidth();
     const auto appendOverlay = [&](int trackIndex, int idx) {
@@ -501,17 +503,21 @@ QList<TrackPainterBase::OverlayStroke> TrackPainterBase::buildSelectionOverlay()
         const double itemY = topPx + rowY + rowH - itemH;
         const qint64 start = model->startTime(idx);
         const qint64 end = model->endTime(idx);
-        double x1 = timeToPixel(start, m_rangeStart, m_rangeEnd, double(w));
-        double x2 = timeToPixel(end, m_rangeStart, m_rangeEnd, double(w));
-        if (x2 - x1 < 1.0)
-            x2 = x1 + 1.0;
-        x1 = qMax(x1, 0.0);
-        x2 = qMin(x2, double(w));
+        const double x1raw = timeToPixel(start, m_rangeStart, m_rangeEnd, double(w));
+        double x2raw = timeToPixel(end, m_rangeStart, m_rangeEnd, double(w));
+        x2raw = qMax(x2raw, x1raw + 1.0);
+        if (x2raw < 0.0 || x1raw > double(w))
+            return;
+        const bool isSelection = trackIndex == m_selectedTrack && idx == m_selectedItem;
+        const double lineWidth = isSelection ? 4 : 2;
+        double x1 = qMax(x1raw, 0.0);
+        double x2 = qMin(x2raw, double(w));
         const QRectF itemRect(x1, itemY, x2 - x1, itemH);
-        if (trackIndex == m_selectedTrack && idx == m_selectedItem)
-            strokes.append({itemRect.adjusted(2.0, 2.0, -2.0, -2.0), selectionColor, 4.0f});
-        else
-            strokes.append({itemRect.adjusted(0.5, 0.5, -0.5, -0.5), hoverColor, 1.0f});
+        const double adj = lineWidth / 2.0;
+        const QRgb color = (isSelection ? selectionColor : hoverColor).rgb();
+        // Expand outward horizontally so the border does not cut into the
+        // item; keep it inset vertically, as before.
+        strokes.append({itemRect.adjusted(-adj, adj, adj, -adj).normalized(), color, lineWidth});
     };
 
     appendOverlay(m_hoveredTrack, m_hoveredItem);
