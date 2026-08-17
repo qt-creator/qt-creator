@@ -715,7 +715,6 @@ class DapServer():
         self._selectThread(threadId)
 
         self.frameForId = {}
-        self.variableReferences = {}
         frames = []
         frameId = 1
         try:
