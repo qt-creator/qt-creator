@@ -37,6 +37,8 @@
 #include <utils/filesearch.h>
 #include <utils/id.h>
 #include <utils/mimeutils.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 #include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
 #include <utils/storekey.h>
@@ -65,6 +67,7 @@
 #include <cmath>
 #include <QEventLoop>
 #include <QLineEdit>
+#include <QTabBar>
 #include <QAction>
 #include <QDateTime>
 #include <QLoggingCategory>
@@ -2919,6 +2922,110 @@ void McpCommands::registerCommands()
             target->setFocus(Qt::OtherFocusReason);
             typeText(target, input);
             return CallToolResult{}.isError(false).structuredContent(describeWidget(target));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("show_caption")
+            .title("Show a caption over the window")
+            .description(
+                "Puts a line of text over the main window for a while, and returns once it is "
+                "gone. For a screen recording of a driven session: a step with no visible "
+                "trigger, a mode being switched or a run being started from a tool, otherwise "
+                "just happens. An empty text removes the caption right away.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty("text",
+                                 QJsonObject{{"type", "string"},
+                                             {"description", "What the caption says."}})
+                    .addProperty("seconds",
+                                 QJsonObject{{"type", "number"},
+                                             {"description", "How long it stays, 2 by default."}})
+                    .addRequired("text")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            static QPointer<QLabel> caption;
+            delete caption;
+            const QString text = p.value("text").toString();
+            if (text.isEmpty())
+                return {{"shown", false}};
+
+            QWidget *window = Core::ICore::mainWindow();
+            auto label = new QLabel(text, window);
+            caption = label;
+            label->setObjectName("mcpCaption");
+            label->setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementH2));
+            label->setAlignment(Qt::AlignCenter);
+            label->setAutoFillBackground(true);
+            QPalette palette = label->palette();
+            palette.setColor(QPalette::Window, Utils::creatorColor(Utils::Theme::Token_Accent_Muted));
+            palette.setColor(QPalette::WindowText,
+                             Utils::creatorColor(Utils::Theme::Token_Text_Default));
+            label->setPalette(palette);
+            label->setMargin(Utils::StyleHelper::SpacingTokens::PaddingHM);
+            label->adjustSize();
+            label->move((window->width() - label->width()) / 2, Utils::StyleHelper::SpacingTokens::PaddingVXxl);
+            label->show();
+            label->raise();
+
+            const double seconds = p.contains("seconds") ? p.value("seconds").toDouble() : 2.0;
+            waitPainting(int(seconds * 1000));
+            delete caption;
+            return {{"shown", true}, {"text", text}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("click_tab")
+            .title("Click a tab by its label")
+            .description(
+                "Clicks one tab of the QTabBar matching the widget query, by the text on it. A "
+                "tab is not a widget of its own, so it cannot be reached with click_widget.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty("tab",
+                                 QJsonObject{{"type", "string"},
+                                             {"description", "Text on the tab, matched after "
+                                                             "trimming and stripping '&'."}})
+                    .addRequired("tab")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            WidgetQuery q = widgetQueryFromJson(p);
+            if (q.className.isEmpty())
+                q.className = "QTabBar";
+            const Utils::Result<QWidget *> w = resolveSingleWidget(q);
+            if (!w)
+                return ResultError(w.error());
+            auto bar = qobject_cast<QTabBar *>(*w);
+            if (!bar)
+                return ResultError(QString("Not a tab bar: %1").arg((*w)->metaObject()->className()));
+
+            const QString wanted = p.value("tab").toString();
+            QStringList labels;
+            for (int i = 0; i < bar->count(); ++i) {
+                const QString label = bar->tabText(i).remove('&').trimmed();
+                labels << label;
+                if (label != wanted.trimmed())
+                    continue;
+                if (!bar->isTabEnabled(i))
+                    return ResultError(QString("Tab is disabled: \"%1\".").arg(label));
+                const QRect rect = bar->tabRect(i);
+                glidePointerToGlobal(bar->mapToGlobal(rect.center()));
+                const QPointF center = rect.center();
+                const QPointF global = bar->mapToGlobal(rect.center());
+                QMouseEvent press(QEvent::MouseButtonPress, center, global, Qt::LeftButton,
+                                  Qt::LeftButton, Qt::NoModifier);
+                QMouseEvent release(QEvent::MouseButtonRelease, center, global, Qt::LeftButton,
+                                    Qt::NoButton, Qt::NoModifier);
+                QApplication::sendEvent(bar, &press);
+                waitPainting(demoPace().clickHoldMs);
+                QApplication::sendEvent(bar, &release);
+                return CallToolResult{}.isError(false).structuredContent(
+                    QJsonObject{{"tab", label}, {"index", i}});
+            }
+            return ResultError(QString("No tab \"%1\". Tabs: %2")
+                                   .arg(wanted, labels.join(", ")));
         });
 
     ToolRegistry::registerTool(
