@@ -421,7 +421,7 @@ The end.
         // so it can only be compared against on a Unix host.
         const FilePath walkDir = TemporaryDirectory::masterDirectoryFilePath() / "test-find-walk";
         QVERIFY_RESULT(walkDir.ensureWritableDir());
-        for (const QString &name : {"one.txt", "two.txt", "three.txt"})
+        for (const char *const &name : {"one.txt", "two.txt", "three.txt"})
             QVERIFY_RESULT((walkDir / name).writeFileContents("Hello World"));
         QVERIFY_RESULT((walkDir / "subdir").ensureWritableDir());
 
