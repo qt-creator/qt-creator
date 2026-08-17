@@ -429,6 +429,7 @@ TargetSetupPagePrivate::TargetSetupPagePrivate(TargetSetupPage *parent)
 
     kitFilterLineEdit = new FancyLineEdit(q);
     kitFilterLineEdit->setFiltering(true);
+    kitFilterLineEdit->setObjectName("kitFilterLineEdit");
     kitFilterLineEdit->setPlaceholderText(Tr::tr("Type to filter kits by name..."));
 
     hideUnsuitableKitsCheckBox = new QCheckBox(Tr::tr("Hide unsuitable kits"), q);
