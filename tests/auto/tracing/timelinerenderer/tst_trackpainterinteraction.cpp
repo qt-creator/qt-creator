@@ -12,12 +12,14 @@
 
 using namespace Timeline;
 
-// TrackPainter renders all tracks in one widget; for these single-track tests
-// the item index under a point is the item of track 0.
+// TrackPainter renders all tracks in one widget, stacked below the top margin.
+// For these single-track tests the point is given in track-0-local coordinates
+// (the same space the renderer builds its geometry in) and the item index under
+// it is the item of track 0.
 static int itemIndexAt(const TrackPainter &painter, QPoint pos)
 {
     int track = -1, item = -1;
-    painter.itemAt(pos, &track, &item);
+    painter.itemAt(pos + QPoint(0, painter.trackYOffset(0)), &track, &item);
     return item;
 }
 
@@ -172,7 +174,7 @@ void tst_TrackPainterInteraction::narrowEventTolerance()
     model.loadData();
     painter.setTracks({&model});
     painter.setRange(0, 10000);
-    painter.resize(1000, 30);
+    painter.resize(1000, painter.totalHeight());
 
     // Drawn as the pixel column x=500.5..501.5, i.e. only x=501 is pixel-exact.
     QCOMPARE(itemIndexAt(painter, QPoint(501, 15)), 0);
@@ -208,7 +210,7 @@ void tst_TrackPainterInteraction::narrowEventUnderCursorWins()
     model.loadData();
     painter.setTracks({&model});
     painter.setRange(0, 10000);
-    painter.resize(1000, 30);
+    painter.resize(1000, painter.totalHeight());
 
     QCOMPARE(itemIndexAt(painter, QPoint(500, 15)), 0);
     QCOMPARE(itemIndexAt(painter, QPoint(501, 15)), 1);
@@ -222,7 +224,7 @@ void tst_TrackPainterInteraction::shortBarHitOverFullRow()
     model.loadData();
     painter.setTracks({&model});
     painter.setRange(0, 10000);
-    painter.resize(1000, 30);
+    painter.resize(1000, painter.totalHeight());
 
     const int rowH = model.rowHeight(0);
     QCOMPARE(model.relativeHeight(0), 0.2f);
@@ -254,7 +256,7 @@ void tst_TrackPainterInteraction::drawnPixelsAreHittable()
     model.setExpanded(expanded);
     painter.setTracks({&model});
     painter.setRange(0, 10000);
-    painter.resize(1000, 60);
+    painter.resize(1000, painter.totalHeight());
 
     QString report;
     const int misses = unhittableDrawnPixels(painter, &report);
@@ -280,7 +282,7 @@ void tst_TrackPainterInteraction::selectionLockedHover()
     model.loadData();
     painter.setTracks({&model});
     painter.setRange(0, 100);
-    painter.resize(100, 30);
+    painter.resize(100, painter.totalHeight());
     painter.setSelectionLocked(true);
 
     QMouseEvent ev(QEvent::MouseMove, QPointF(5, 15), QPointF(5, 15),
@@ -296,7 +298,7 @@ void tst_TrackPainterInteraction::indexAtWithData()
     model.loadData();
     painter.setTracks({&model});
     painter.setRange(0, 100);
-    painter.resize(100, 30);
+    painter.resize(100, painter.totalHeight());
 
     int idx = itemIndexAt(painter, QPoint(5, 15));
     QVERIFY(idx >= 0);
@@ -311,7 +313,7 @@ void tst_TrackPainterInteraction::indexAtFarParent()
     model.loadData();
     painter.setTracks({&model});
     painter.setRange(0, 1000);
-    painter.resize(1000, 30);
+    painter.resize(1000, painter.totalHeight());
 
     // x=610 falls in a gap between the children at 600..605 and 640..645, so
     // only the long parent (index 0) is drawn there. bestIndex() lands near the
@@ -331,7 +333,7 @@ void tst_TrackPainterInteraction::unlockedHover()
     model.loadData();
     painter.setTracks({&model});
     painter.setRange(0, 100);
-    painter.resize(100, 30);
+    painter.resize(100, painter.totalHeight());
     painter.setSelectionLocked(false);
 
     QSignalSpy spy(&painter, &TrackPainter::itemHovered);
