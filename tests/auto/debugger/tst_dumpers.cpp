@@ -2328,26 +2328,6 @@ void tst_Dumpers::dumper_data()
                + Check("ba1.17", "[17]", "1", "bool");
 
 
-    QTest::newRow("Typedef")
-            << Data("#include <QString>\n"
-                    "#include <string>\n",
-
-                    "typedef QString MyString;\n"
-                    "MyString mystr = \"hello\";\n"
-                    "std::string plain = \"world\";",
-
-                    "&mystr, &plain")
-
-               + CoreProfile()
-
-               // A typedef of a type that has display formats still displays
-               // as the alias, but reports the underlying type in formatstype
-               // so the GUI offers that type's formats (QTCREATORBUG-7186).
-               + Check("mystr", "\"hello\"", TypeDef("@QString", "MyString"))
-                    % FormatType("@QString")
-               + Check("plain", "\"world\"", "std::string");
-
-
     QTest::newRow("QByteArray")
             << Data("#include <QByteArray>\n"
                     "#include <QString>\n"
@@ -6731,6 +6711,26 @@ void tst_Dumpers::dumper_data()
 
                + Cxx11Profile()
                + Check("foo.u", "Value (0)", "Unnamed");
+
+
+    QTest::newRow("Typedef4")
+            << Data("#include <QString>\n"
+                    "#include <string>\n",
+
+                    "typedef QString MyString;\n"
+                    "MyString mystr = \"hello\";\n"
+                    "std::string plain = \"world\";",
+
+                    "&mystr, &plain")
+
+               + CoreProfile()
+
+               // A typedef of a type that has display formats still displays
+               // as the alias, but reports the underlying type in formatstype
+               // so the GUI offers that type's formats (QTCREATORBUG-7186).
+               + Check("mystr", "\"hello\"", TypeDef("@QString", "MyString"))
+                    % FormatType("@QString")
+               + Check("plain", "\"world\"", "std::string");
 
 
     QTest::newRow("Struct")
