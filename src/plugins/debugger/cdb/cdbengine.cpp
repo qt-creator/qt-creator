@@ -2506,6 +2506,10 @@ void CdbEngine::parseOutputLine(QString line)
             showStatusMessage(Tr::tr("Module loaded: %1").arg(module), 3000);
             checkQtSdkPdbFiles(module);
         }
+    } else if (state() == InferiorRunOk) {
+        // Unrecognized output while the inferior runs is the debuggee's own
+        // stdout/stderr, which CDB relays inline; show it as application output.
+        showMessage(line, AppOutput);
     } else {
         showMessage(line, LogMisc);
     }
