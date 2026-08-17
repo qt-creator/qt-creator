@@ -266,6 +266,10 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
             if (startupProjectIndex > 0)
                 projects.move(startupProjectIndex, 0);
 
+            const bool showProjectName = Utils::count(projects, [](const Project *p) {
+                return qobject_cast<const CMakeProject *>(p) != nullptr;
+            }) > 1;
+
             for (Project *project : projects) {
                 const auto cmakeProject = qobject_cast<const CMakeProject *>(project);
                 if (!cmakeProject)
@@ -288,6 +292,8 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
                         const QString displayName = target.title;
                         LocatorFilterEntry entry;
                         entry.displayName = displayName;
+                        if (showProjectName)
+                            entry.displayExtra = cmakeProject->displayName();
                         const QStringList capturedExtraArgs = extraArgs;
                         if (acceptor) {
                             entry.acceptor = [bs, displayName, capturedExtraArgs, acceptor] {
