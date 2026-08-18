@@ -13,6 +13,41 @@ _emit_comments: bool = True
 # Controls whether setter/builder methods are emitted. Set via --read-only.
 _read_only: bool = False
 
+# Controls whether optional nullable fields are modeled as three-state
+# Patch<T> (absent / null / value) instead of std::optional<T>. Set via
+# --three-state. Required for schemas with upsert patch semantics where
+# omitted and null carry different meanings (e.g. ACP v2).
+_three_state: bool = False
+
+_PATCH_CLASS = '''
+/**
+ * Three-state field for upsert patch semantics: absent (leave unchanged),
+ * null (explicit clear), or a concrete value.
+ */
+template<typename T>
+class Patch
+{
+public:
+    Patch() = default;
+    Patch(std::nullopt_t) : m_null(true) {}
+    Patch(const T &value) : m_value(value) {}
+
+    bool isAbsent() const { return !m_null && !m_value.has_value(); }
+    bool isNull() const { return m_null; }
+    bool has_value() const { return m_value.has_value(); }
+    const T &operator*() const { return *m_value; }
+    const T *operator->() const { return &*m_value; }
+    const std::optional<T> &asOptional() const { return m_value; }
+
+    Patch &operator=(std::nullopt_t) { m_null = true; m_value.reset(); return *this; }
+    Patch &operator=(const T &value) { m_null = false; m_value = value; return *this; }
+
+private:
+    bool m_null = false;
+    std::optional<T> m_value;
+};
+'''
+
 # Maps variant_type_str -> alias_name for inline union aliases already emitted.
 # Prevents redefinition of fromJson/toJsonValue for equivalent variant types.
 _emitted_variant_sigs: dict = {}
@@ -43,7 +78,7 @@ def make_header(namespace: str, export_header: str = None) -> str:
 #include <variant>
 
 namespace {namespace} {{
-
+{_PATCH_CLASS if _three_state else ''}
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 '''
 
@@ -74,13 +109,18 @@ def use_return_if_no_co_await(lines):
     return lines
 
 
+def _escape_comment(text):
+    """Break /* and */ so schema prose cannot open or close the block comment."""
+    return re.sub(r'/\*|\*/', lambda m: m.group(0)[0] + '\\' + m.group(0)[1], text)
+
+
 def doc_comment(text, indent=''):
     """Format a description as a /** ... */ Doxygen block comment."""
     if not _emit_comments:
         return ''
     if not text:
         return ''
-    text = text.strip()
+    text = _escape_comment(text).strip()
     if not text:
         return ''
     lines = text.split('\n')
@@ -1364,6 +1404,23 @@ def _nullable_type(spec):
     # Multiple non-null types or empty non-null list — not a simple nullable scalar
     return None, has_null
 
+def _nullable_ref_array_type(spec):
+    """Detect type: ["array", "null"] with $ref items. Returns the item ref
+    type name, or None. Only used in --three-state mode."""
+    base_t, has_null = _nullable_type(spec)
+    if base_t != "array" or not has_null:
+        return None
+    items_ref = _extract_ref(spec.get("items", {}))
+    return ref_type(items_ref) if items_ref else None
+
+def _is_patch_field(spec, is_optional):
+    """True if an optional nullable field should be modeled as Patch<T>."""
+    if not _three_state or not is_optional:
+        return False
+    if _nullable_type(spec)[1]:
+        return True
+    return _extract_nullable_ref(spec) is not None
+
 def nested_short_name(parent_name, child_name):
     """Strip parent name prefix from a nested child name for cleaner C++ declarations.
 
@@ -1440,6 +1497,9 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
                 if prop in required:
                     post_lines.append(f"    else")
                     post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
+                elif _is_patch_field(spec, is_optional):
+                    post_lines.append(f"    else if (data._{sanitize_identifier(prop)}.isNull())")
+                    post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
             else:
                 is_enum = is_enum_type(t, types)
                 is_union = is_union_type_name(t, types)
@@ -1453,6 +1513,9 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
                     post_lines.append(f"        obj.insert(\"{prop}\", *data._{sanitize_identifier(prop)});")
                 if prop in required:
                     post_lines.append(f"    else")
+                    post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
+                elif _is_patch_field(spec, is_optional):
+                    post_lines.append(f"    else if (data._{sanitize_identifier(prop)}.isNull())")
                     post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
         elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
             item_type = ref_type(_extract_ref(spec.get("items", {})))
@@ -1469,6 +1532,19 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
                 post_lines.append(f"    QJsonArray arr_{prop_name};")
                 post_lines.append(f"    for (const auto &v : data._{sanitize_identifier(prop)}) arr_{prop_name}.append({arr_fn}(v));")
                 post_lines.append(f"    obj.insert(\"{prop}\", arr_{prop_name});")
+        elif _three_state and _nullable_ref_array_type(spec):
+            item_type = _nullable_ref_array_type(spec)
+            is_enum = is_enum_type(item_type, types)
+            is_union = is_union_type_name(item_type, types)
+            arr_fn = "toJsonValue" if (is_enum or is_union) else "toJson"
+            post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value()) {{")
+            post_lines.append(f"        QJsonArray arr_{prop_name};")
+            post_lines.append(f"        for (const auto &v : *data._{sanitize_identifier(prop)}) arr_{prop_name}.append({arr_fn}(v));")
+            post_lines.append(f"        obj.insert(\"{prop}\", arr_{prop_name});")
+            post_lines.append(f"    }}")
+            if _is_patch_field(spec, is_optional):
+                post_lines.append(f"    else if (data._{sanitize_identifier(prop)}.isNull())")
+                post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
         elif prop in array_item_struct_names:
             if is_optional:
                 post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value()) {{")
@@ -1565,6 +1641,9 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
             if is_optional:
                 post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value())")
                 post_lines.append(f"        obj.insert(\"{prop}\", *data._{sanitize_identifier(prop)});")
+                if _is_patch_field(spec, is_optional):
+                    post_lines.append(f"    else if (data._{sanitize_identifier(prop)}.isNull())")
+                    post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
             elif is_nullable:
                 post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value())")
                 post_lines.append(f"        obj.insert(\"{prop}\", *data._{sanitize_identifier(prop)});")
@@ -1850,13 +1929,23 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 t = "int"
             else:
                 t = nested_short_names.get(t, t)
-            decl_type = f"std::optional<{t}>"  # always optional (nullable)
+            if _is_patch_field(spec, is_optional):
+                decl_type = f"Patch<{t}>"
+            else:
+                decl_type = f"std::optional<{t}>"  # always optional (nullable)
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
         elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
             item_type = ref_type(_extract_ref(spec.get("items", {})))
             item_type = nested_short_names.get(item_type, item_type)  # use short name if nested
             decl_type = list_type(item_type, is_optional)
+            lines.extend(pre_lines)
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+        elif _three_state and _nullable_ref_array_type(spec):
+            item_type = _nullable_ref_array_type(spec)
+            item_type = nested_short_names.get(item_type, item_type)
+            inner = list_type(item_type)
+            decl_type = f"Patch<{inner}>" if is_optional else f"std::optional<{inner}>"
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
         elif prop in array_item_struct_names:
@@ -1904,7 +1993,12 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         else:
             base_t, is_nullable = _nullable_type(spec)
             t = base_t if base_t else spec.get("type", "string")
-            decl_type = f"std::optional<{cpp_type(t)}>" if (is_optional or is_nullable) else cpp_type(t)
+            if _is_patch_field(spec, is_optional):
+                decl_type = f"Patch<{cpp_type(t)}>"
+            elif is_optional or is_nullable:
+                decl_type = f"std::optional<{cpp_type(t)}>"
+            else:
+                decl_type = cpp_type(t)
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
         if not is_const_string(spec):
@@ -1956,6 +2050,9 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             list_item_type = ref_type(_extract_ref(spec.get("items", {})))
             list_item_type = nested_short_names.get(list_item_type, list_item_type)  # use short name if nested
             inner_type = list_type(list_item_type)
+        elif _three_state and _nullable_ref_array_type(spec):
+            item_type = _nullable_ref_array_type(spec)
+            inner_type = list_type(nested_short_names.get(item_type, item_type))
         elif prop in array_item_struct_names:
             list_item_type = array_item_struct_names[prop]
             inner_type = list_type(list_item_type)
@@ -1981,8 +2078,15 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             inner_type = cpp_type(base_t if base_t else spec.get("type", "string"))
             if is_nullable and not is_optional:
                 inner_type = f"std::optional<{inner_type}>"
-        setter_type = f"std::optional<{inner_type}>" if is_optional else inner_type
+        if _is_patch_field(spec, is_optional):
+            setter_type = f"Patch<{inner_type}>"
+        elif is_optional:
+            setter_type = f"std::optional<{inner_type}>"
+        else:
+            setter_type = inner_type
         lines.append(f"    {name}& {prop_name}({_param_type(setter_type)} v) {{ _{sanitize_identifier(prop)} = v; return *this; }}")
+        if _is_patch_field(spec, is_optional):
+            lines.append(f"    {name}& {prop_name}({_param_type(inner_type)} v) {{ _{sanitize_identifier(prop)} = v; return *this; }}")
         # For open-map fields emit a per-key adder and a QJsonObject merger
         if is_open_map(spec):
             add_name = singular_add_name(prop)
@@ -2149,14 +2253,21 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                     fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
         elif _extract_nullable_ref(spec):
             t = _extract_nullable_ref(spec)
+            is_patch = _is_patch_field(spec, is_optional)
             if is_integer_const_namespace(t, types):
                 fj_lines.append(f"    if (obj.contains(\"{prop}\") && !obj[\"{prop}\"].isNull())")
                 fj_lines.append(f"        result._{sanitize_identifier(prop)} = obj[\"{prop}\"].toInt();")
+                if is_patch:
+                    fj_lines.append(f"    else if (obj.contains(\"{prop}\"))")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = std::nullopt;")
             else:
                 t_fj = f"{name}::{nested_short_names[t]}" if t in nested_short_names else t
                 # Nullable ref: only parse when present and non-null
                 fj_lines.append(f"    if (obj.contains(\"{prop}\") && !obj[\"{prop}\"].isNull())")
                 fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                if is_patch:
+                    fj_lines.append(f"    else if (obj.contains(\"{prop}\"))")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = std::nullopt;")
         elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
             item_type = ref_type(_extract_ref(spec.get("items", {})))
             # Use qualified short-name when the item type is nested inside this struct
@@ -2176,6 +2287,20 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 fj_lines.append(f"            result._{sanitize_identifier(prop)}.append(co_await fromJson<{item_type_fj}>(v));")
                 fj_lines.append(f"        }}")
             fj_lines.append(f"    }}")
+        elif _three_state and _nullable_ref_array_type(spec):
+            item_type = _nullable_ref_array_type(spec)
+            item_type_fj = f"{name}::{nested_short_names[item_type]}" if item_type in nested_short_names else item_type
+            fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isArray()) {{")
+            fj_lines.append(f"        const QJsonArray arr = obj[\"{prop}\"].toArray();")
+            fj_lines.append(f"        {list_type(item_type_fj)} list_{prop_name};")
+            fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
+            fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{item_type_fj}>(v));")
+            fj_lines.append(f"        }}")
+            fj_lines.append(f"        result._{sanitize_identifier(prop)} = list_{prop_name};")
+            fj_lines.append(f"    }}")
+            if _is_patch_field(spec, is_optional):
+                fj_lines.append(f"    else if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isNull())")
+                fj_lines.append(f"        result._{sanitize_identifier(prop)} = std::nullopt;")
         elif prop in array_item_struct_names:
             t = array_item_struct_names[prop]
             t_fj = f"{name}::{t}"  # inline sub-structs are always nested
@@ -2279,8 +2404,12 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 t = base_t if base_t else spec.get("type", "string")
                 ct = cpp_type(t)
             _scalar_expr = _json_extract_expr(ct, f'obj.value("{prop}")')
+            braced_presence = is_optional and _is_patch_field(spec, is_optional)
             if is_optional:
-                fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
+                if braced_presence:
+                    fj_lines.append(f"    if (obj.contains(\"{prop}\")) {{")
+                else:
+                    fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
                 indent = "        "
             else:
                 indent = "    "
@@ -2291,11 +2420,16 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                     fj_lines.append(f"{indent}    result._{sanitize_identifier(prop)} = {_scalar_expr};")
                 else:
                     fj_lines.append(f"{indent}    // Unknown property type: {ct}")
+                if _is_patch_field(spec, is_optional):
+                    fj_lines.append(f"{indent}}} else {{")
+                    fj_lines.append(f"{indent}    result._{sanitize_identifier(prop)} = std::nullopt;")
                 fj_lines.append(f"{indent}}}")
             elif _scalar_expr:
                 fj_lines.append(f"{indent}result._{sanitize_identifier(prop)} = {_scalar_expr};")
             else:
                 fj_lines.append(f"{indent}// Unknown property type: {ct}")
+            if braced_presence:
+                fj_lines.append(f"    }}")
     if has_additional_props:
         known_keys = list(props.keys())
         fj_lines.append(f"    {{")
@@ -2769,10 +2903,19 @@ def main():
         help="Skip generation of setter/builder methods (setXYZ, addXYZ). "
              "Only getters and fromJson/toJson are emitted.",
     )
+    parser.add_argument(
+        "--three-state",
+        action="store_true",
+        default=False,
+        help="Model optional nullable fields as three-state Patch<T> "
+             "(absent/null/value) instead of std::optional<T>. Needed for "
+             "schemas with upsert patch semantics (e.g. ACP v2).",
+    )
     args = parser.parse_args()
-    global _emit_comments, _emitted_variant_sigs, _read_only
+    global _emit_comments, _emitted_variant_sigs, _read_only, _three_state
     _emit_comments = not args.no_comments
     _read_only = args.read_only
+    _three_state = args.three_state
     _emitted_variant_sigs = {}  # reset per run
     schema_path = Path(args.schema)
     output_path = Path(args.output)
