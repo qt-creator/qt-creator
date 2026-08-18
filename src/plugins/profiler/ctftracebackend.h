@@ -5,6 +5,10 @@
 
 #include "profilertracebackend.h"
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace Timeline { class RangeDetailsWidget; }
 
 namespace Profiler::Internal {
@@ -21,12 +25,16 @@ public:
     ~CtfTraceBackend() override;
 
     QWidgetList views(QWidget *parent) override;
+    QList<QWidget *> toolBarWidgets() override;
 
     void load(const Utils::FilePath &path) override;
     void clear() override;
     std::chrono::milliseconds traceDuration() const override;
 
 private:
+    void updateThreadMenu();
+    void toggleThreadRestriction(QAction *action);
+
     class CtfTraceBackendPrivate *d;
 };
 

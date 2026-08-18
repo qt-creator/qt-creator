@@ -4,6 +4,7 @@
 #include "mcpsupport.h"
 
 #include "perfprofilertool.h"
+#include "perfprofilertracebackend.h"
 #include "perfprofilertracemanager.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatemanager.h"
@@ -203,13 +204,21 @@ void registerMcpTools()
                     .addProperty("error", QJsonObject{{"type", "string"}})
                     .addRequired("recording")),
         wrap([](const QJsonObject &) -> QJsonObject {
+            // The trace of the running session, or of the last one to have run.
             PerfProfilerTool *tool = PerfProfilerTool::instance();
             if (!tool) {
                 return {{"recording", false},
                         {"running", false},
                         {"error", "The perf profiler is not available."}};
             }
-            const PerfProfilerTraceManager *traceManager = tool->traceManager();
+            PerfProfilerTraceBackend *backend = tool->liveBackend();
+            if (!backend) {
+                return {{"recording", false},
+                        {"running", false},
+                        {"num_events", 0},
+                        {"trace_duration_ns", 0}};
+            }
+            const PerfProfilerTraceManager *traceManager = backend->traceManager();
             return {
                 {"recording", tool->isRecording()},
                 {"running", runningRunControl(Constants::PERFPROFILER_RUN_MODE) != nullptr},

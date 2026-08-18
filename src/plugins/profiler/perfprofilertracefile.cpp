@@ -140,6 +140,8 @@ QDataStream &operator>>(QDataStream &stream, PerfFeatures &features)
 void PerfProfilerTraceFile::readMessages(const QByteArray &buffer)
 {
     PerfProfilerTraceManager *traceManager = manager();
+    if (!traceManager) // Detached mid-run: the manager's document is gone.
+        return;
 
     QDataStream dataStream(buffer);
     dataStream.setVersion(m_dataStreamVersion);

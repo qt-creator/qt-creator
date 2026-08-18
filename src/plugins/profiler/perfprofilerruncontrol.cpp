@@ -7,6 +7,7 @@
 #include "perfprofilerconstants.h"
 #include "perfprofilertracemanager.h"
 #include "perfprofilertool.h"
+#include "perfprofilertracebackend.h"
 #include "perfprofilertr.h"
 
 #include <coreplugin/icore.h>
@@ -53,13 +54,28 @@ static ExecutableItem perfParserRecipe(RunControl *runControl)
 {
     const auto onSetup = [runControl](PerfDataReader &reader) {
         auto tool = PerfProfilerTool::instance();
-        PerfProfilerTraceManager *traceManager = tool->traceManager();
+        PerfProfilerTraceBackend *backend = tool->liveBackend();
+        QTC_ASSERT(backend, return);
+        PerfProfilerTraceManager *traceManager = backend->traceManager();
 
         reader.setTraceManager(traceManager);
-        reader.triggerRecordingStateChange(tool->isRecording());
+        reader.triggerRecordingStateChange(backend->isRecording());
 
-        QObject::connect(tool, &PerfProfilerTool::recordingChanged,
+        // Scoped to the backend rather than relayed through the tool: a backend
+        // outlives its run in an open editor, and a tool-wide relay would let a
+        // finished run's still-enabled record button drive this run's reader.
+        QObject::connect(backend, &PerfProfilerTraceBackend::recordingChanged,
                          &reader, &PerfDataReader::triggerRecordingStateChange);
+
+        // The manager lives in the backend's document; the run does not own it.
+        // If the trace editor closes mid-run, let go of the manager before it
+        // is freed under the reader, and wind the run down: what it still
+        // delivers has nowhere to go.
+        QObject::connect(backend, &PerfProfilerTraceBackend::aboutToBeDestroyed, &reader,
+                         [readerPtr = &reader, runControl] {
+            readerPtr->detachTraceManager();
+            runControl->initiateStop();
+        });
 
         QObject::connect(&reader, &PerfDataReader::updateTimestamps, tool, &PerfProfilerTool::updateTime);
         QObject::connect(&reader, &PerfDataReader::started, traceManager,
@@ -140,9 +156,6 @@ public:
             // 3. QdbPerfProfilerWorkerFactory
 
             PerfProfilerTool::instance()->onWorkerCreation(runControl);
-            auto tool = PerfProfilerTool::instance();
-            QObject::connect(tool->stopAction(), &QAction::triggered,
-                             runControl, &RunControl::initiateStop);
             QObject::connect(runControl, &RunControl::started, PerfProfilerTool::instance(),
                              &PerfProfilerTool::onRunControlStarted);
             QObject::connect(runControl, &RunControl::stopped, PerfProfilerTool::instance(),

@@ -16,8 +16,6 @@ inline constexpr int QML_MIN_LEVEL = 1; // Set to 0 to remove the empty line bet
 inline constexpr char QtdFileExtension[] = ".qtd";
 inline constexpr char QztFileExtension[] = ".qzt";
 
-inline constexpr char QmlProfilerPerspectiveId[]  = "QmlProfiler.Perspective";
-
 inline constexpr char C_PROFILER_TRACE_EDITOR[]   = "Profiler.TraceEditor";
 inline constexpr char QML_TRACE_EDITOR_ID[]       = "Profiler.QmlTraceEditor";
 inline constexpr char PERF_TRACE_EDITOR_ID[]      = "Profiler.PerfTraceEditor";

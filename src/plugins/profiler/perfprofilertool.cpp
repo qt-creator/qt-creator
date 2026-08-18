@@ -3,102 +3,62 @@
 
 #include "perfprofilertool.h"
 
-#include "perfprofilerconstants.h"
-#include "profilermode.h"
-#include "perfprofilerflamegraphmodel.h"
-#include "perfprofilerflamegraphview.h"
 #include "perfloaddialog.h"
-#include "perfprofilerstatisticsview.h"
+#include "perfprofilerconstants.h"
 #include "perfprofilertr.h"
+#include "perfprofilertracebackend.h"
 #include "perfprofilertracemanager.h"
-#include "perftimelinemodelmanager.h"
-#include "perfsettings.h"
 #include "perftracepointdialog.h"
+#include "profilertracedocument.h"
+#include "profilertraceeditor.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/perspective.h>
 
+#include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/sysrootkitaspect.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#ifndef __EMSCRIPTEN__ // QtSupport is excluded from the WebAssembly build
-#include <qtsupport/qtkitaspect.h>
-#endif
-
-#include <tracing/rangedetailswidget.h>
-#include <tracing/timelinewidget.h>
-#include <tracing/timelinezoomcontrol.h>
-
 #include <utils/action.h>
-#include <utils/fancymainwindow.h>
-#include <utils/fileinprojectfinder.h>
 #include <utils/fileutils.h>
-#include <utils/stylehelper.h>
-#include <utils/utilsicons.h>
-#include <utils/widgets.h>
+#include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 
-#include <QCoreApplication>
-#include <QDirIterator>
-#include <QLabel>
+#include <QAction>
 #include <QMenu>
-#include <QMessageBox>
-#include <QToolButton>
+#include <QPointer>
 
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Profiler::Constants;
 using namespace Utils;
-using namespace std::placeholders;
 
 namespace Profiler::Internal {
 
 class PerfProfilerToolPrivate
 {
 public:
-    PerfProfilerTraceManager m_traceManager;
-    PerfTimelineModelManager m_modelManager{&m_traceManager};
-
-    Core::Perspective m_perspective{
-        Constants::PerfProfilerPerspectiveId,
-        QCoreApplication::translate("QtC::PerfProfiler", "Performance Analyzer"),
-        {}, {}, profilerView()
-    };
+    // The document a run records into. Each run gets its own.
+    QPointer<ProfilerTraceDocument> liveDocument;
+    int runCount = 0;
 
     QAction m_startAction;
-    QAction m_stopAction;
     Utils::Action m_loadPerfData;
     Utils::Action m_loadTrace;
     Utils::Action m_saveTrace;
     Utils::Action m_limitToRange;
     Utils::Action m_showFullRange;
-    QToolButton m_clearButton;
-    QToolButton m_recordButton;
-    QLabel m_recordedLabel;
-    QLabel m_delayLabel;
-    QMenu m_filterMenu;
-    QToolButton m_filterButton;
-    QToolButton m_aggregateButton;
-    QToolButton m_tracePointsButton;
+    QAction *m_tracePointsAction = nullptr;
 
-    Timeline::TimelineZoomControl m_zoomControl;
-    Timeline::TimelineWidget m_traceView{&m_modelManager, &m_zoomControl};
-    PerfProfilerStatisticsView m_statisticsView{&m_traceManager};
-    PerfProfilerFlameGraphModel m_flameGraphModel{&m_traceManager};
-    PerfProfilerFlameGraphView m_flameGraphView{&m_flameGraphModel};
-    Utils::FileInProjectFinder m_fileFinder;
-    bool m_readerRunning = false;
     bool m_processRunning = false;
 };
 
@@ -108,10 +68,6 @@ PerfProfilerTool::PerfProfilerTool()
     : d(new PerfProfilerToolPrivate)
 {
     s_instance = this;
-    d->m_traceManager.registerFeatures(PerfEventType::allFeatures(),
-                                     std::bind(&PerfProfilerTool::initialize, this),
-                                     std::bind(&PerfProfilerTool::finalize, this),
-                                     std::bind(&PerfProfilerTool::clearUi, this));
 
     const Id subMenu = "Analyzer.Menu.PerfOptions";
     ActionContainer *options = ActionManager::createMenu(subMenu);
@@ -144,9 +100,8 @@ PerfProfilerTool::PerfProfilerTool()
         .setText(Tr::tr("Limit to Range Selected in Timeline"))
         .addToContainer(subMenu)
         .addOnTriggered(this, [this] {
-            d->m_traceManager.restrictByFilter(d->m_traceManager.rangeAndThreadFilter(
-                d->m_zoomControl.selectionStart(),
-                d->m_zoomControl.selectionEnd()));
+            if (PerfProfilerTraceBackend *backend = currentBackend())
+                backend->restrictToSelectedRange();
         });
 
     ActionBuilder(options, Constants::PerfProfilerTaskFullRange)
@@ -154,21 +109,18 @@ PerfProfilerTool::PerfProfilerTool()
         .setText(Tr::tr("Show Full Range"))
         .addToContainer(subMenu)
         .addOnTriggered(this, [this] {
-            d->m_traceManager.restrictByFilter(d->m_traceManager.rangeAndThreadFilter(-1, -1));
+            if (PerfProfilerTraceBackend *backend = currentBackend())
+                backend->showFullRange();
         });
 
-    QAction *tracePointsAction = nullptr;
     ActionBuilder(options, Constants::PerfProfilerTaskTracePoints)
         .setText(Tr::tr("Create Memory Trace Points"))
-        .bindContextAction(&tracePointsAction)
+        .bindContextAction(&d->m_tracePointsAction)
         .setIcon(ProjectExplorer::Icons::TRACEPOINT_TOOLBAR.icon())
         .setIconVisibleInMenu(false)
         .setToolTip(Tr::tr("Create trace points for memory profiling on the target device."))
         .addToContainer(subMenu)
         .addOnTriggered(this, &PerfProfilerTool::createTracePoints);
-
-    StyleHelper::setPanelWidget(&d->m_tracePointsButton);
-    d->m_tracePointsButton.setDefaultAction(tracePointsAction);
 
     QAction *action = nullptr;
     ActionBuilder(this, Constants::PerfProfilerLocalActionId)
@@ -180,208 +132,16 @@ PerfProfilerTool::PerfProfilerTool()
 
     d->m_startAction.setText(Tr::tr("Start"));
     d->m_startAction.setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
-
-    d->m_stopAction.setText(Tr::tr("Stop"));
-    d->m_stopAction.setIcon(Utils::Icons::STOP_SMALL_TOOLBAR.icon());
-
     QObject::connect(&d->m_startAction, &QAction::triggered, action, &QAction::triggered);
-    QObject::connect(&d->m_startAction, &QAction::changed, action, [action, tracePointsAction, this] {
+    QObject::connect(&d->m_startAction, &QAction::changed, action, [this, action] {
         action->setEnabled(d->m_startAction.isEnabled());
-        tracePointsAction->setEnabled(d->m_startAction.isEnabled());
+        d->m_tracePointsAction->setEnabled(d->m_startAction.isEnabled());
     });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &PerfProfilerTool::updateRunActions);
-
-    StyleHelper::setPanelWidget(&d->m_recordButton);
-    StyleHelper::setPanelWidget(&d->m_clearButton);
-    StyleHelper::setPanelWidget(&d->m_filterButton);
-    StyleHelper::setPanelWidget(&d->m_aggregateButton);
-    StyleHelper::setPanelWidget(&d->m_recordedLabel);
-    StyleHelper::setPanelWidget(&d->m_delayLabel);
-
-    d->m_traceView.setObjectName(QLatin1String("PerfProfilerTraceView"));
-    d->m_traceView.setWindowTitle(Tr::tr("Timeline"));
-    connect(&d->m_traceView, &Timeline::TimelineWidget::gotoSourceLocation,
-            this, &PerfProfilerTool::gotoSourceLocation);
-
-    d->m_statisticsView.setWindowTitle(Tr::tr("Statistics"));
-    d->m_flameGraphView.setWindowTitle(Tr::tr("Flame Graph"));
-
-    connect(&d->m_statisticsView, &PerfProfilerStatisticsView::gotoSourceLocation,
-            this, &PerfProfilerTool::gotoSourceLocation);
-    connect(&d->m_flameGraphView, &PerfProfilerFlameGraphView::gotoSourceLocation,
-            this, &PerfProfilerTool::gotoSourceLocation);
-
-    d->m_perspective.addWindow(&d->m_traceView, Perspective::SplitVertical, nullptr);
-    // Split the details off before tabbing other views onto the trace view; otherwise
-    // QMainWindow::splitDockWidget() would just add it as a tab (the anchor is tabbed).
-    d->m_perspective.addWindow(d->m_traceView.rangeDetailsWidget(), Perspective::SplitHorizontal,
-                               &d->m_traceView);
-    d->m_perspective.addWindow(&d->m_flameGraphView, Perspective::AddToTab, &d->m_traceView);
-    d->m_perspective.addWindow(&d->m_statisticsView, Perspective::AddToTab, &d->m_flameGraphView);
-
-    connect(&d->m_statisticsView, &PerfProfilerStatisticsView::typeSelected,
-            &d->m_traceView, &Timeline::TimelineWidget::selectByTypeId);
-    connect(&d->m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
-            &d->m_traceView, &Timeline::TimelineWidget::selectByTypeId);
-
-    // Route the flame graph's details into the shared range details view.
-    Timeline::RangeDetailsWidget *rangeDetails = d->m_traceView.rangeDetailsWidget();
-    connect(&d->m_flameGraphView, &Timeline::FlameGraphWidget::detailsChanged, rangeDetails,
-            [this, rangeDetails](const QString &title,
-                                 const QList<QPair<QString, QString>> &content) {
-        rangeDetails->setData(&d->m_flameGraphView, title, content);
-    });
-    connect(&d->m_flameGraphView, &Timeline::FlameGraphWidget::detailsCleared, rangeDetails,
-            [this, rangeDetails] { rangeDetails->clear(&d->m_flameGraphView); });
-
-    connect(&d->m_traceView, &Timeline::TimelineWidget::typeSelected,
-            &d->m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
-    connect(&d->m_flameGraphView, &PerfProfilerFlameGraphView::typeSelected,
-            &d->m_statisticsView, &PerfProfilerStatisticsView::selectByTypeId);
-
-    connect(&d->m_traceView, &Timeline::TimelineWidget::typeSelected,
-            &d->m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
-    connect(&d->m_statisticsView, &PerfProfilerStatisticsView::typeSelected,
-            &d->m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
-
-    // Clear settings if the statistics or flamegraph view isn't there yet.
-    QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(Key("AnalyzerViewSettings_") + Constants::PerfProfilerPerspectiveId);
-    if (!settings->contains(keyFromString(d->m_statisticsView.objectName()))
-            || !settings->contains(keyFromString(d->m_flameGraphView.objectName()))) {
-        settings->remove(Key());
-    }
-    settings->endGroup();
-
-    d->m_recordButton.setCheckable(true);
-
-    QMenu *recordMenu = new QMenu(&d->m_recordButton);
-    connect(recordMenu, &QMenu::aboutToShow, recordMenu, [recordMenu] {
-        recordMenu->hide();
-        PerfSettings *settings = nullptr;
-        Target *target = ProjectManager::startupTarget();
-        if (target) {
-            if (auto runConfig = activeRunConfigForActiveProject())
-                settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
-        }
-
-        QWidget *widget = settings ? settings->createPerfConfigWidget(target)
-                                   : globalSettings().createPerfConfigWidget(target);
-        widget->setWindowFlags(Qt::Dialog);
-        widget->setAttribute(Qt::WA_DeleteOnClose);
-        widget->show();
-    }, Qt::QueuedConnection);
-    d->m_recordButton.setPopupMode(QToolButton::MenuButtonPopup);
-    d->m_recordButton.setMenu(recordMenu);
-    setRecording(true);
-    connect(&d->m_recordButton, &QAbstractButton::clicked, this, &PerfProfilerTool::setRecording);
-
-    d->m_clearButton.setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
-    d->m_clearButton.setToolTip(Tr::tr("Discard data."));
-    connect(&d->m_clearButton, &QAbstractButton::clicked, this, &PerfProfilerTool::clear);
-
-    d->m_filterButton.setIcon(Utils::Icons::FILTER.icon());
-    d->m_filterButton.setPopupMode(QToolButton::InstantPopup);
-    d->m_filterButton.setProperty(StyleHelper::C_NO_ARROW, true);
-    d->m_filterButton.setMenu(&d->m_filterMenu);
-
-    d->m_aggregateButton.setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
-    d->m_aggregateButton.setCheckable(true);
-    setAggregated(false);
-    connect(&d->m_aggregateButton, &QAbstractButton::toggled, this, &PerfProfilerTool::setAggregated);
-
-    d->m_recordedLabel.setIndent(10);
-    connect(&d->m_clearButton, &QAbstractButton::clicked, &d->m_recordedLabel, &QLabel::clear);
-
-    d->m_delayLabel.setIndent(10);
-
-    connect(&d->m_traceManager, &PerfProfilerTraceManager::error, this, [](const QString &message) {
-        QMessageBox *errorDialog = new QMessageBox(ICore::dialogParent());
-        errorDialog->setIcon(QMessageBox::Warning);
-        errorDialog->setWindowTitle(Tr::tr("Performance Analyzer"));
-        errorDialog->setText(message);
-        errorDialog->setStandardButtons(QMessageBox::Ok);
-        errorDialog->setDefaultButton(QMessageBox::Ok);
-        errorDialog->setModal(false);
-        errorDialog->show();
-    });
-
-    connect(&d->m_traceManager, &PerfProfilerTraceManager::finishedEmpty, this, [this] {
-        d->m_readerRunning = false;
-        Core::MessageManager::writeDisrupting(
-            Tr::tr("The profiler did not produce any samples. "
-                   "Make sure that you are running a recent Linux kernel and that "
-                   "the \"perf\" utility is available and generates useful call "
-                   "graphs.\nYou might find further explanations in the "
-                   "Application Output view."));
-        clear();
-    });
-
-    connect(&d->m_traceManager, &PerfProfilerTraceManager::saveFinished, this, [this] {
-        setToolActionsEnabled(true);
-    });
-
-    connect(this, &PerfProfilerTool::aggregatedChanged,
-            &d->m_traceManager, &PerfProfilerTraceManager::setAggregateAddresses);
-
-    QMenu *menu1 = new QMenu(&d->m_traceView);
-    addLoadSaveActionsToMenu(menu1);
-    connect(menu1->addAction(Tr::tr("Limit to Selected Range")), &QAction::triggered,
-            &d->m_limitToRange, &QAction::trigger);
-    menu1->addAction(&d->m_showFullRange);
-    connect(menu1->addAction(Tr::tr("Reset Zoom")), &QAction::triggered, this, [this](){
-        d->m_zoomControl.setRange(d->m_zoomControl.traceStart(), d->m_zoomControl.traceEnd());
-    });
-
-    d->m_traceView.setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(&d->m_traceView, &QWidget::customContextMenuRequested,
-            menu1, [menu1, this](const QPoint &pos) {
-        menu1->exec(d->m_traceView.mapToGlobal(pos));
-    });
-
-    menu1 = new QMenu(&d->m_statisticsView);
-    addLoadSaveActionsToMenu(menu1);
-    connect(menu1->addAction(Tr::tr("Limit to Range Selected in Timeline")), &QAction::triggered,
-            &d->m_limitToRange, &QAction::trigger);
-    connect(menu1->addAction(Tr::tr("Show Full Range")), &QAction::triggered,
-            &d->m_showFullRange, &QAction::trigger);
-    connect(menu1->addAction(Tr::tr("Copy Table")), &QAction::triggered,
-            &d->m_statisticsView, &PerfProfilerStatisticsView::copyFocusedTableToClipboard);
-    QAction *copySelection = menu1->addAction(Tr::tr("Copy Row"));
-    connect(copySelection, &QAction::triggered,
-            &d->m_statisticsView, &PerfProfilerStatisticsView::copyFocusedSelectionToClipboard);
-    d->m_statisticsView.setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(&d->m_statisticsView, &QWidget::customContextMenuRequested,
-            menu1, [this, menu1, copySelection](const QPoint &pos) {
-        copySelection->setEnabled(d->m_statisticsView.focusedTableHasValidSelection());
-        menu1->exec(d->m_statisticsView.mapToGlobal(pos));
-    });
-
-    menu1 = new QMenu(&d->m_flameGraphView);
-    addLoadSaveActionsToMenu(menu1);
-    connect(menu1->addAction(Tr::tr("Limit to Range Selected in Timeline")), &QAction::triggered,
-            &d->m_limitToRange, &QAction::trigger);
-    connect(menu1->addAction(Tr::tr("Show Full Range")), &QAction::triggered,
-            &d->m_showFullRange, &QAction::trigger);
-    menu1->addAction(d->m_flameGraphView.resetAction());
-    d->m_flameGraphView.setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(&d->m_flameGraphView, &QWidget::customContextMenuRequested,
-            menu1, [this, menu1](const QPoint &pos) {
-        menu1->exec(d->m_flameGraphView.mapToGlobal(pos));
-    });
-
-    d->m_perspective.addToolBarAction(&d->m_startAction);
-    d->m_perspective.addToolBarAction(&d->m_stopAction);
-    d->m_perspective.addToolBarWidget(&d->m_recordButton);
-    d->m_perspective.addToolBarWidget(&d->m_clearButton);
-    d->m_perspective.addToolBarWidget(&d->m_filterButton);
-    d->m_perspective.addToolBarWidget(&d->m_aggregateButton);
-    d->m_perspective.addToolBarWidget(&d->m_recordedLabel);
-    d->m_perspective.addToolBarWidget(&d->m_delayLabel);
-    d->m_perspective.addToolBarWidget(&d->m_tracePointsButton);
-
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, &PerfProfilerTool::updateRunActions);
     updateRunActions();
 }
 
@@ -391,65 +151,53 @@ PerfProfilerTool::~PerfProfilerTool()
     s_instance = nullptr;
 }
 
-const QAction *PerfProfilerTool::stopAction() const
-{
-    return &d->m_stopAction;
-}
-
-PerfProfilerTraceManager *PerfProfilerTool::traceManager() const
-{
-    return &d->m_traceManager;
-}
-
-PerfTimelineModelManager *PerfProfilerTool::modelManager() const
-{
-    return &d->m_modelManager;
-}
-
 PerfProfilerTool *PerfProfilerTool::instance()
 {
     return s_instance;
 }
 
-void PerfProfilerTool::addLoadSaveActionsToMenu(QMenu *menu)
+PerfProfilerTraceBackend *PerfProfilerTool::liveBackend() const
 {
-    menu->addAction(&d->m_loadPerfData);
-    menu->addAction(&d->m_loadTrace);
-    menu->addAction(&d->m_saveTrace);
+    if (!d->liveDocument || d->liveDocument->backends().isEmpty())
+        return nullptr;
+    return qobject_cast<PerfProfilerTraceBackend *>(d->liveDocument->backends().first());
 }
 
 void PerfProfilerTool::profileStartupProject()
 {
-    d->m_perspective.select();
     ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
 }
 
-void PerfProfilerTool::createTracePoints()
+PerfProfilerTraceBackend *PerfProfilerTool::currentBackend() const
 {
-    PerfTracePointDialog dialog;
-    dialog.exec();
+    if (auto trace = qobject_cast<ProfilerTraceDocument *>(EditorManager::currentDocument())) {
+        if (!trace->backends().isEmpty()) {
+            if (auto backend = qobject_cast<PerfProfilerTraceBackend *>(trace->backends().first()))
+                return backend;
+        }
+    }
+    return liveBackend();
 }
 
-void PerfProfilerTool::initialize()
+bool PerfProfilerTool::isRecording() const
 {
-    d->m_readerRunning = true;
-    clearUi();
-    setToolActionsEnabled(false);
-    updateRunActions();
+    PerfProfilerTraceBackend *backend = liveBackend();
+    return backend && backend->isRecording();
 }
 
-void PerfProfilerTool::finalize()
+void PerfProfilerTool::onWorkerCreation(RunControl *runControl)
 {
-    d->m_readerRunning = false;
-    const qint64 startTime = d->m_traceManager.traceStart();
-    const qint64 endTime = d->m_traceManager.traceEnd();
-    QTC_ASSERT(endTime >= startTime, return);
-    d->m_zoomControl.setTrace(startTime, endTime);
-    d->m_zoomControl.setRange(startTime, startTime + (endTime - startTime) / 10);
-    updateTime(d->m_zoomControl.traceDuration(), -1);
-    updateFilterMenu();
+    d->liveDocument = openLiveTrace(TraceFormat::Perf,
+                                    Tr::tr("Performance Analysis %1").arg(++d->runCount),
+                                    QString("PerfProfiler.Run.%1").arg(d->runCount));
+    PerfProfilerTraceBackend *backend = liveBackend();
+    QTC_ASSERT(backend, return);
+
+    connect(backend->stopAction(), &QAction::triggered, runControl, &RunControl::initiateStop);
+    emit liveBackendChanged(backend);
+
+    backend->prepareRun(runControl->project(), runControl->kit());
     updateRunActions();
-    setToolActionsEnabled(true);
 }
 
 void PerfProfilerTool::onRunControlStarted()
@@ -464,15 +212,17 @@ void PerfProfilerTool::onRunControlFinished()
     updateRunActions();
 }
 
-void PerfProfilerTool::onWorkerCreation(RunControl *runControl)
+void PerfProfilerTool::updateTime(qint64 duration, qint64 delay)
 {
-    populateFileFinder(runControl->project(), runControl->kit());
+    if (PerfProfilerTraceBackend *backend = liveBackend())
+        backend->updateTime(duration, delay);
 }
 
 void PerfProfilerTool::updateRunActions()
 {
-    d->m_stopAction.setEnabled(d->m_processRunning);
-    if (d->m_readerRunning || d->m_processRunning) {
+    PerfProfilerTraceBackend *backend = liveBackend();
+    const bool readerRunning = backend && backend->isReaderRunning();
+    if (readerRunning || d->m_processRunning) {
         d->m_startAction.setEnabled(false);
         d->m_startAction.setToolTip(Tr::tr("A performance analysis is still in progress."));
         d->m_loadPerfData.setEnabled(false);
@@ -480,263 +230,101 @@ void PerfProfilerTool::updateRunActions()
     } else {
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
             ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
-        d->m_startAction.setToolTip(canRun ? Tr::tr("Start a performance analysis.") : canRun.error());
+        d->m_startAction.setToolTip(canRun ? Tr::tr("Start a performance analysis.")
+                                           : canRun.error());
         d->m_startAction.setEnabled(canRun.has_value());
         d->m_loadPerfData.setEnabled(true);
         d->m_loadTrace.setEnabled(true);
     }
-    d->m_saveTrace.setEnabled(!d->m_traceManager.isEmpty());
+
+    PerfProfilerTraceBackend *current = currentBackend();
+    // Saving writes the document being shown (see showSaveTraceDialog), so the
+    // liveBackend() fallback in currentBackend() must not enable it: a QML
+    // trace would end up in a .ptq.
+    const auto shown = qobject_cast<ProfilerTraceDocument *>(EditorManager::currentDocument());
+    d->m_saveTrace.setEnabled(shown && shown->format() == TraceFormat::Perf
+                              && current && !current->isEmpty());
+    d->m_limitToRange.setEnabled(current);
+    d->m_showFullRange.setEnabled(current);
 }
 
-void PerfProfilerTool::setToolActionsEnabled(bool on)
+// Opens an editor for a trace that is loaded rather than recorded.
+PerfProfilerTraceBackend *PerfProfilerTool::openLoadedTrace()
 {
-    d->m_limitToRange.setEnabled(on);
-    d->m_showFullRange.setEnabled(on);
-    d->m_clearButton.setEnabled(on);
-    d->m_filterButton.setEnabled(on);
-    d->m_aggregateButton.setEnabled(on);
-    d->m_filterMenu.setEnabled(on);
-    d->m_traceView.setEnabled(on);
-    d->m_statisticsView.setEnabled(on);
-    d->m_flameGraphView.setEnabled(on);
+    d->liveDocument = openLiveTrace(TraceFormat::Perf,
+                                    Tr::tr("Performance Analysis %1").arg(++d->runCount),
+                                    QString("PerfProfiler.Load.%1").arg(d->runCount));
+    return liveBackend();
 }
 
-bool PerfProfilerTool::isRecording() const
+QList<QAction *> PerfProfilerTool::traceMenuActions() const
 {
-    return d->m_recordButton.isChecked();
+    return {&d->m_loadPerfData, &d->m_loadTrace, &d->m_saveTrace};
 }
 
-static bool operator<(const PerfProfilerTraceManager::Thread &a,
-                      const PerfProfilerTraceManager::Thread &b)
+QAction *PerfProfilerTool::limitToRangeAction() const
 {
-    return a.tid < b.tid;
+    return &d->m_limitToRange;
 }
 
-void PerfProfilerTool::updateFilterMenu()
+QAction *PerfProfilerTool::showFullRangeAction() const
 {
-    d->m_filterMenu.clear();
-
-    QAction *enableAll = d->m_filterMenu.addAction(Tr::tr("Enable All"));
-    QAction *disableAll = d->m_filterMenu.addAction(Tr::tr("Disable All"));
-    d->m_filterMenu.addSeparator();
-
-    QList<PerfProfilerTraceManager::Thread> threads = d->m_traceManager.threads().values();
-    std::sort(threads.begin(), threads.end());
-
-    for (const PerfProfilerTraceManager::Thread &thread : std::as_const(threads)) {
-        QAction *action = d->m_filterMenu.addAction(
-                    QString::fromLatin1("%1 (%2)")
-                    .arg(QString::fromUtf8(d->m_traceManager.string(thread.name)))
-                    .arg(thread.tid));
-        action->setCheckable(true);
-        action->setData(thread.tid);
-        action->setChecked(thread.enabled);
-        if (thread.tid == 0) {
-            action->setEnabled(false);
-        } else {
-            connect(action, &QAction::toggled, this, [this, action](bool checked) {
-                d->m_traceManager.setThreadEnabled(action->data().toUInt(), checked);
-            });
-            connect(enableAll, &QAction::triggered,
-                    action, [action]() { action->setChecked(true); });
-            connect(disableAll, &QAction::triggered,
-                    action, [action]() { action->setChecked(false); });
-        }
-    }
-}
-
-void PerfProfilerTool::gotoSourceLocation(QString filePath, int lineNumber, int columnNumber)
-{
-    if (lineNumber < 0 || filePath.isEmpty())
-        return;
-
-    QFileInfo fi(filePath);
-    if (!fi.isAbsolute() || !fi.exists() || !fi.isReadable()) {
-        fi.setFile(d->m_fileFinder.findFile(filePath).constFirst().toUrlishString());
-        if (!fi.exists() || !fi.isReadable())
-            return;
-    }
-
-    // The text editors count columns starting with 0, but the ASTs store the
-    // location starting with 1, therefore the -1.
-    EditorManager::openEditorAt({FilePath::fromFileInfo(fi), lineNumber, columnNumber - 1},
-                                Utils::Id(),
-                                EditorManager::DoNotSwitchToDesignMode
-                                    | EditorManager::DoNotSwitchToEditMode);
-}
-
-static Utils::FilePaths collectQtIncludePaths(const ProjectExplorer::Kit *kit)
-{
-#ifdef __EMSCRIPTEN__
-    // QtSupport is not part of the WebAssembly build.
-    Q_UNUSED(kit)
-    return Utils::FilePaths();
-#else
-    QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit);
-    if (qt == nullptr)
-        return Utils::FilePaths();
-    Utils::FilePaths paths{qt->headerPath()};
-    QDirIterator dit(paths.first().toUrlishString(), QStringList(), QDir::Dirs | QDir::NoDotAndDotDot,
-                     QDirIterator::Subdirectories);
-    while (dit.hasNext()) {
-        dit.next();
-        paths << Utils::FilePath::fromString(dit.filePath());
-    }
-    return paths;
-#endif
-}
-
-static Utils::FilePath sysroot(const Kit *kit)
-{
-    return SysRootKitAspect::sysRoot(kit);
-}
-
-static Utils::FilePaths sourceFiles(const Project *currentProject = nullptr)
-{
-    Utils::FilePaths sourceFiles;
-
-    // Have the current project first.
-    if (currentProject)
-        sourceFiles.append(currentProject->files(Project::SourceFiles));
-
-    const QList<Project *> projects = ProjectManager::projects();
-    for (const Project *project : projects) {
-        if (project != currentProject)
-            sourceFiles.append(project->files(Project::SourceFiles));
-    }
-
-    return sourceFiles;
+    return &d->m_showFullRange;
 }
 
 void PerfProfilerTool::showLoadPerfDialog()
 {
-    d->m_perspective.select();
-
-    PerfLoadDialog dlg(Core::ICore::dialogParent());
+    PerfLoadDialog dlg(ICore::dialogParent());
     if (dlg.exec() != PerfLoadDialog::Accepted)
         return;
 
-    Kit *kit = dlg.kit();
-    d->m_fileFinder.setAdditionalSearchDirectories(collectQtIncludePaths(kit));
-    d->m_fileFinder.setSysroot(sysroot(kit));
-    d->m_fileFinder.setProjectFiles(sourceFiles());
-    d->m_traceManager.loadFromPerfData(FilePath::fromUserInput(dlg.traceFilePath()), dlg.executableDirPath(), kit);
+    if (PerfProfilerTraceBackend *backend = openLoadedTrace()) {
+        backend->loadPerfData(FilePath::fromUserInput(dlg.traceFilePath()),
+                              FilePath::fromUserInput(dlg.executableDirPath()), dlg.kit());
+    }
 }
 
 void PerfProfilerTool::loadTraceFile(const FilePath &filePath)
 {
-    d->m_perspective.select();
-
-    const Project *activeProject = ProjectManager::startupProject();
-    const Kit *kit = activeKit(activeProject);
-    populateFileFinder(activeProject, kit);
-
-    d->m_traceManager.loadFromTraceFile(filePath);
+    openTraceFile(filePath);
 }
 
 void PerfProfilerTool::showLoadTraceDialog()
 {
-    const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Load Trace File"),
-                                                         {}, Tr::tr("Trace File (*.ptq)"));
-    if (filePath.isEmpty())
-        return;
-
-    loadTraceFile(filePath);
+    const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Load Trace File"), {},
+                                                         Tr::tr("Trace File (*.ptq)"));
+    if (!filePath.isEmpty())
+        loadTraceFile(filePath);
 }
 
 void PerfProfilerTool::showSaveTraceDialog()
 {
-    d->m_perspective.select();
+    auto trace = qobject_cast<ProfilerTraceDocument *>(EditorManager::currentDocument());
+    if (!trace || trace->format() != TraceFormat::Perf)
+        return;
 
-    FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save Trace File"),
-                                                   {}, Tr::tr("Trace File (*.ptq)"));
+    FilePath filePath = FileUtils::getSaveFilePath(Tr::tr("Save Trace File"), {},
+                                                   Tr::tr("Trace File (*.ptq)"));
     if (filePath.isEmpty())
         return;
     if (!filePath.endsWith(".ptq"))
         filePath = filePath.stringAppended(".ptq");
-
-    setToolActionsEnabled(false);
-    d->m_traceManager.saveToTraceFile(filePath);
+    trace->save(filePath);
 }
 
-void PerfProfilerTool::setAggregated(bool aggregated)
+void PerfProfilerTool::createTracePoints()
 {
-    d->m_aggregateButton.setChecked(aggregated);
-    d->m_aggregateButton.setToolTip(aggregated ? Tr::tr("Show all addresses.")
-                                               : Tr::tr("Aggregate by functions."));
-    emit aggregatedChanged(aggregated);
-}
-
-void PerfProfilerTool::setRecording(bool recording)
-{
-    const static QIcon recordOn = ProjectExplorer::Icons::RECORD_ON.icon();
-    const static QIcon recordOff = ProjectExplorer::Icons::RECORD_OFF.icon();
-
-    d->m_recordButton.setIcon(recording ? recordOn : recordOff);
-    d->m_recordButton.setChecked(recording);
-    d->m_recordButton.setToolTip(recording ? Tr::tr("Stop collecting profile data.") :
-                                             Tr::tr("Collect profile data."));
-    emit recordingChanged(recording);
-}
-
-void PerfProfilerTool::updateTime(qint64 duration, qint64 delay)
-{
-    qint64 e9 = 1e9, e8 = 1e8, ten = 10; // compiler would cast to double
-    if (duration > 0)
-        d->m_recordedLabel.setText(Tr::tr("Recorded: %1.%2s").arg(duration / e9)
-                                   .arg(qAbs(duration / e8) % ten));
-    else if (duration == 0)
-        d->m_recordedLabel.clear();
-
-    if (delay > 0)
-        d->m_delayLabel.setText(Tr::tr("Processing delay: %1.%2s").arg(delay / e9)
-                                .arg(qAbs(delay / e8) % ten));
-    else if (delay == 0)
-        d->m_delayLabel.clear();
-}
-
-void PerfProfilerTool::populateFileFinder(const Project *project, const Kit *kit)
-{
-    d->m_fileFinder.setProjectFiles(sourceFiles(project));
-
-    if (project)
-        d->m_fileFinder.setProjectDirectory(project->projectDirectory());
-
-    if (kit) {
-        d->m_fileFinder.setAdditionalSearchDirectories(collectQtIncludePaths(kit));
-        d->m_fileFinder.setSysroot(sysroot(kit));
-    }
-}
-
-void PerfProfilerTool::clear()
-{
-    clearData();
-    clearUi();
-}
-
-void PerfProfilerTool::clearData()
-{
-    d->m_traceManager.clearAll();
-    d->m_traceManager.setAggregateAddresses(d->m_aggregateButton.isChecked());
-    d->m_zoomControl.clear();
-}
-
-void PerfProfilerTool::clearUi()
-{
-    d->m_traceView.clear();
-    updateTime(0, 0);
-    updateFilterMenu();
-    updateRunActions();
+    PerfTracePointDialog dialog;
+    dialog.exec();
 }
 
 void setupPerfProfilerTool()
 {
-    (void) new PerfProfilerTool;
+    static GuardedObject<PerfProfilerTool> thePerfProfilerTool;
 }
 
 void destroyPerfProfilerTool()
 {
-    delete s_instance;
 }
 
-} // Profiler::Internal
+} // namespace Profiler::Internal

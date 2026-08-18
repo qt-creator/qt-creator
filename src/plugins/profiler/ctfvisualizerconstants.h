@@ -11,8 +11,6 @@ inline constexpr char CtfVisualizerTaskLoadJson[] =
 inline constexpr char CtfVisualizerTaskLoadCtf2[] =
         "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadCtf2Trace";
 
-inline constexpr char CtfVisualizerPerspectiveId[] = "CtfVisualizer.Perspective";
-
 inline constexpr char CtfTraceEventsKey[] = "traceEvents";
 
 inline constexpr char CtfEventNameKey[] = "name";

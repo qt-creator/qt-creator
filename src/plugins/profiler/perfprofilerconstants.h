@@ -22,7 +22,6 @@ inline constexpr char PerfProfilerTaskSkipDelay[]  = "Analyzer.Perf.SkipDelay";
 
 inline constexpr char TraceFileExtension[]         = ".data";
 
-inline constexpr char PerfProfilerPerspectiveId[]  = "PerfProfiler.Perspective";
 inline constexpr char PerfProfilerLocalActionId[]  = "PerfProfiler.Local";
 inline constexpr char AnalyzerSettingsGroupId[]    = "Analyzer";
 

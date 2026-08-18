@@ -45,6 +45,7 @@ public:
                                                          // other backends' views.
     QPointer<Timeline::TimelineWidget> traceView;
     QPointer<CtfStatisticsView> statisticsView;
+    std::function<void(QTaskTree &)> taskTreeSetup;
 };
 
 CtfPlainViewManager::CtfPlainViewManager(Timeline::RangeDetailsWidget *details, QObject *parent)
@@ -81,6 +82,16 @@ QWidgetList CtfPlainViewManager::views(QWidget *parent)
             d->statisticsView, &CtfStatisticsView::selectByTitle);
 
     return {d->traceView, d->statisticsView};
+}
+
+CtfTraceManager *CtfPlainViewManager::traceManager()
+{
+    return &d->traceManager;
+}
+
+void CtfPlainViewManager::setTaskTreeSetup(const std::function<void(QTaskTree &)> &setup)
+{
+    d->taskTreeSetup = setup;
 }
 
 // Shared completion handling for both load paths. Emits error() on any failure
@@ -124,7 +135,7 @@ void CtfPlainViewManager::loadJson(const FilePath &file)
         finishLoad(this, d->traceManager, d->zoomControl, result,
                    Tr::tr("Cannot read the Chrome Trace Format file."));
     };
-    d->taskTreeRunner.start({AsyncTask<json>(onSetup)}, {}, onDone);
+    d->taskTreeRunner.start({AsyncTask<json>(onSetup)}, d->taskTreeSetup, onDone);
 }
 
 void CtfPlainViewManager::loadCtf2(const FilePath &dir)
@@ -144,7 +155,7 @@ void CtfPlainViewManager::loadCtf2(const FilePath &dir)
         finishLoad(this, d->traceManager, d->zoomControl, result,
                    Tr::tr("Cannot read the CTF2 trace."));
     };
-    d->taskTreeRunner.start({AsyncTask<json>(onSetup)}, {}, onDone);
+    d->taskTreeRunner.start({AsyncTask<json>(onSetup)}, d->taskTreeSetup, onDone);
 }
 
 void CtfPlainViewManager::clear()

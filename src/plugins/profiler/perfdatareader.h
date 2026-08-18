@@ -86,6 +86,9 @@ public:
     void createParser(const Utils::CommandLine &arguments);
     void startParser();
     void stopParser();
+    // Lets go of the trace manager and kills the parser: for when the document
+    // owning the manager goes away while the run is still feeding it.
+    void detachTraceManager();
 
     void addTargetArguments(Utils::CommandLine *cmd, const ProjectExplorer::RunControl *runControl) const;
     void clear();

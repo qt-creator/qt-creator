@@ -148,6 +148,13 @@ void PerfDataReader::startParser()
     m_input.start();
 }
 
+void PerfDataReader::detachTraceManager()
+{
+    setTraceManager(nullptr);
+    m_recording = false; // The timer must not ask the manager for a duration.
+    m_input.kill();      // Output still in flight is discarded by readMessages().
+}
+
 void PerfDataReader::stopParser()
 {
     m_dataFinished = true;
@@ -238,7 +245,8 @@ void PerfDataReader::timerEvent(QTimerEvent *event)
                     currentTime : m_localRecordingEnd;
         qint64 currentDelay = qMax(delay(endTime), 1ll);
 
-        emit updateTimestamps(m_recording ? traceManager()->traceDuration() : -1, currentDelay);
+        emit updateTimestamps(m_recording && traceManager() ? traceManager()->traceDuration() : -1,
+                              currentDelay);
         if (waitingForStartDelay && currentTime - m_localRecordingStart > currentDelay)
             setRecording(true);
         else if (waitingForEndDelay && currentTime - m_localRecordingEnd > currentDelay)

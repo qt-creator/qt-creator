@@ -5,28 +5,18 @@
 
 #include <QObject>
 
-QT_BEGIN_NAMESPACE
-class QAction;
-class QMenu;
-QT_END_NAMESPACE
-
-namespace Utils {
-class FilePath;
-}
-
-namespace ProjectExplorer {
-class Kit;
-class Project;
-class RunControl;
-}
+namespace Utils { class FilePath; }
+namespace ProjectExplorer { class RunControl; }
 
 namespace Profiler::Internal {
 
 class PerfProfilerToolPrivate;
-class PerfProfilerTraceManager;
-class PerfTimelineModelManager;
+class PerfProfilerTraceBackend;
 
-class PerfProfilerTool  : public QObject
+// The Performance Analyzer's menu entries and run-control glue. The trace
+// itself lives in a ProfilerTraceDocument; this points a run at one and keeps
+// the run actions in step.
+class PerfProfilerTool : public QObject
 {
     Q_OBJECT
 
@@ -36,12 +26,18 @@ public:
 
     static PerfProfilerTool *instance();
 
-    PerfProfilerTraceManager *traceManager() const;
-    PerfTimelineModelManager *modelManager() const;
+    // The backend the running (or last) session records into, or null when no
+    // trace has been opened for a run yet.
+    PerfProfilerTraceBackend *liveBackend() const;
+
+    // The entries a perf trace's context menus show; owned by the tool. The
+    // backends fetch these themselves, so every path that creates one -- the
+    // File > Open editor factory included -- gets the same menus.
+    QList<QAction *> traceMenuActions() const;
+    QAction *limitToRangeAction() const;
+    QAction *showFullRangeAction() const;
 
     bool isRecording() const;
-
-    const QAction *stopAction() const;
 
     void profileStartupProject();
 
@@ -53,30 +49,19 @@ public:
     void updateTime(qint64 duration, qint64 delay);
 
 signals:
-    void recordingChanged(bool recording);
-    void aggregatedChanged(bool aggregated);
+    // A run has opened the trace it records into, before it starts reading.
+    void liveBackendChanged(PerfProfilerTraceBackend *backend);
 
 private:
-    void setToolActionsEnabled(bool on);
-    void gotoSourceLocation(QString filePath, int lineNumber, int columnNumber);
+    // The trace the menu actions act on: the one being shown, else the live one.
+    PerfProfilerTraceBackend *currentBackend() const;
+    PerfProfilerTraceBackend *openLoadedTrace();
+
     void showLoadPerfDialog();
     void showLoadTraceDialog();
     void showSaveTraceDialog();
-    void setRecording(bool recording);
-    void setAggregated(bool aggregated);
-    void clearUi();
-    void clearData();
-    void clear();
-
-    void populateFileFinder(const ProjectExplorer::Project *project,
-                            const ProjectExplorer::Kit *kit);
-    void updateFilterMenu();
     void updateRunActions();
-    void addLoadSaveActionsToMenu(QMenu *menu);
     void createTracePoints();
-
-    void initialize();
-    void finalize();
 
     PerfProfilerToolPrivate *d = nullptr;
 };

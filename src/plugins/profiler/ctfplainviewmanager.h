@@ -10,15 +10,20 @@
 #include <QObject>
 
 #include <chrono>
+#include <functional>
+
+namespace QtTaskTree { class QTaskTree; }
 
 namespace Timeline { class RangeDetailsWidget; }
 namespace Utils { class FilePath; }
 
 namespace Profiler {
 
-// Headless counterpart to CtfVisualizerTool: hosts the Chrome Trace Format /
-// Common Trace Format timeline and statistics views without QtCreator's
-// perspective/action-manager infrastructure, for use in the standalone viewer.
+namespace Internal { class CtfTraceManager; }
+
+// The Chrome Trace Format / Common Trace Format timeline and statistics views
+// for one trace, with no dependency on Qt Creator's action manager. Shared by
+// the standalone viewer and CtfTraceBackend.
 class PROFILER_EXPORT CtfPlainViewManager : public QObject
 {
     Q_OBJECT
@@ -31,6 +36,13 @@ public:
     ~CtfPlainViewManager();
 
     QWidgetList views(QWidget *parent);
+    Internal::CtfTraceManager *traceManager();
+
+    // Called with a load's task tree before it starts, for a frontend that has
+    // somewhere to report progress. Qt Creator attaches a Core::TaskProgress;
+    // the standalone viewer has no ProgressManager to attach one to, and shows
+    // its own indicator instead.
+    void setTaskTreeSetup(const std::function<void(QtTaskTree::QTaskTree &)> &setup);
     void loadJson(const Utils::FilePath &file);
     void loadCtf2(const Utils::FilePath &dir);
     void clear();
