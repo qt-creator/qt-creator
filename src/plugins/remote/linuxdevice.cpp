@@ -1399,6 +1399,9 @@ void LinuxDevicePrivate::setupFileAccess(
                 QMetaObject::invokeMethod(
                     this->q, [this] { announceConnectionLoss(); }, Qt::QueuedConnection);
             });
+            fileAccess->setExecutablePreparer([this](const QByteArray &binary) {
+                return q->prepareExecutableForUpload(binary);
+            });
             Utils::expected<void, CmdBridge::FileAccess::DeployError> deployAndInitResult
                 = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath, getEnvironment());
             if (deployAndInitResult)

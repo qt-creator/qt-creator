@@ -70,6 +70,11 @@ static Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputDa
     return p.readAllStandardOutput().trimmed();
 }
 
+void FileAccess::setExecutablePreparer(const ExecutablePreparer &preparer)
+{
+    m_executablePreparer = preparer;
+}
+
 Result<> FileAccess::init(
     const FilePath &pathToBridge, const Environment &environment, bool deleteOnExit)
 {
@@ -181,6 +186,14 @@ FileAccess::DeployResult FileAccess::deployAndInit(
             DeployError::Other);
     }
 
+    QByteArray cmdBridgeBinary = *cmdBridgeFileData;
+    if (m_executablePreparer) {
+        const Result<QByteArray> prepared = m_executablePreparer(cmdBridgeBinary);
+        if (!prepared)
+            return logError(prepared.error(), DeployError::Other);
+        cmdBridgeBinary = *prepared;
+    }
+
     const QString xdgRuntimeDir = environment.value("XDG_RUNTIME_DIR");
     QStringList tmpFileArgs = {"-t", "cmdbridge.XXXXXXXXXX"};
     if (!xdgRuntimeDir.isEmpty())
@@ -196,7 +209,7 @@ FileAccess::DeployResult FileAccess::deployAndInit(
 
     qCDebug(faLog) << deco() << "Using temporary file:" << *tmpFile;
     const auto dd = run({remoteRootPath.withNewPath("dd"), {"of=" + *tmpFile}},
-                        *cmdBridgeFileData);
+                        cmdBridgeBinary);
 
     qCDebug(faLog) << deco() << "dd run";
 

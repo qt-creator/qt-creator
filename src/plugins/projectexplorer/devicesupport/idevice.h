@@ -308,6 +308,10 @@ public:
     virtual Utils::FilePath searchExecutable(const QString &fileName,
                                              const Utils::FilePaths &dirs) const;
 
+    // A device that only executes binaries carrying its own signature prepares
+    // them here, before they are uploaded.
+    virtual Utils::Result<QByteArray> prepareExecutableForUpload(const QByteArray &binary) const;
+
     virtual Utils::ProcessInterface *createProcessInterface() const;
     virtual FileTransferInterface *createFileTransferInterface(
             const FileTransferSetupData &setup) const;

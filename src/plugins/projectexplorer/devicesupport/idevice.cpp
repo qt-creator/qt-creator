@@ -755,6 +755,11 @@ FilePath IDevice::searchExecutable(const QString &fileName, const FilePaths &dir
     return {};
 }
 
+Result<QByteArray> IDevice::prepareExecutableForUpload(const QByteArray &binary) const
+{
+    return binary;
+}
+
 ProcessInterface *IDevice::createProcessInterface() const
 {
     return nullptr;

@@ -58,6 +58,11 @@ public:
         const Utils::Environment &environment,
         bool deleteOnExit);
 
+    // A system that only executes binaries carrying its own signature needs the
+    // bridge prepared before it is uploaded.
+    using ExecutablePreparer = std::function<Utils::Result<QByteArray>(const QByteArray &)>;
+    void setExecutablePreparer(const ExecutablePreparer &preparer);
+
     Utils::Result<> signalProcess(int pid, Utils::ControlSignal signal) const;
 
     // Connects a local QLocalSocket to the Unix socket server at
@@ -132,6 +137,7 @@ protected:
 
 private:
     std::unique_ptr<CmdBridge::Client> m_client;
+    ExecutablePreparer m_executablePreparer;
     Utils::Environment m_environment;
     const std::function<void()> m_errorExitHandler;
 };
