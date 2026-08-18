@@ -54,6 +54,11 @@ Result<OsType> osTypeFromString(const QString &string)
     if (string.compare("netbsd", Qt::CaseInsensitive) == 0)
         return OsTypeNetBSD;
 
+    // Its userland is close enough to Linux that everything we do with it - the
+    // toolchains, the bridge binary, /proc - is the Linux one.
+    if (string.compare("harmonyos", Qt::CaseInsensitive) == 0)
+        return OsTypeLinux;
+
     if (string.compare("other unix", Qt::CaseInsensitive) == 0
         || string.compare("qnx", Qt::CaseInsensitive) == 0)
         return OsTypeOtherUnix;
