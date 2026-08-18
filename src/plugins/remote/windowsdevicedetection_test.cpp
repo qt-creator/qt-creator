@@ -186,12 +186,18 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     QVERIFY2(cxxTc, "Kit has no C++ toolchain.");
     if (MsvcToolchain *msvcTc = dynamic_cast<MsvcToolchain *>(cTc))
         QVERIFY2(!msvcTc->varsBat().isEmpty(), "MSVC toolchain has no vcvars.bat.");
-    else
-        QVERIFY2(!cTc->compilerCommand().isEmpty(), "C compiler command is empty.");
     if (MsvcToolchain *msvcxxTc = dynamic_cast<MsvcToolchain *>(cxxTc))
         QVERIFY2(!msvcxxTc->varsBat().isEmpty(), "MSVC toolchain has no vcvars.bat.");
-    else
-        QVERIFY2(!cxxTc->compilerCommand().isEmpty(), "C++ compiler command is empty.");
+
+    // An MSVC toolchain resolves its compiler only once the vcvars environment capture for that
+    // toolchain has finished, which happens after the kit exists. Wait for it: which of the
+    // device's kits comes first is not fixed, and the build below passes these commands to CMake,
+    // where an unresolved one silently becomes an empty -DCMAKE_CXX_COMPILER and CMake then
+    // reports "No CMAKE_CXX_COMPILER could be found".
+    QVERIFY2(waitFor([&] {
+                 return !cTc->compilerCommand().isEmpty() && !cxxTc->compilerCommand().isEmpty();
+             }, 120 * 1000),
+             "The kit's compilers were not resolved.");
 
     QVERIFY2(cTc->isSameDevice(deviceRoot),
              "C compiler is not located on the device.");
@@ -215,12 +221,7 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
             return v.isValid() && v.toInt() >= 0;
         }, 30 * 1000);
         qDebug().noquote() << "  Qt: version id" << kit->value(qtAspectId).toInt();
-        // Qt attachment is intermittently flaky over the device (the asynchronous qmake query
-        // run via GlobalTaskTree sometimes does not finish within the wait); warn instead of
-        // failing so this test reliably covers the toolchain/CMake/build path. TODO: make the
-        // Qt detection deterministic and restore the hard check.
-        if (!qtAttached)
-            qWarning("No Qt version was attached to the kit (flaky; see TODO).");
+        QVERIFY2(qtAttached, "No Qt version was attached to the kit.");
     } else {
         qWarning("QtSupport not loaded; skipping the Qt attachment check.");
     }
