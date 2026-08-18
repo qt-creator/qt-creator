@@ -361,7 +361,7 @@ void registerMcpTools()
                         {"name", item->symbolName()},
                         {"kind", itemKind(item->type())},
                         {"line", item->line()},
-                        {"column", item->column()}};
+                        {"column", item->column() + 1}}; // IndexItem::column() is 0-based.
                     if (!item->symbolScope().isEmpty())
                         obj.insert("scope", item->symbolScope());
                     if (!item->symbolType().isEmpty())
