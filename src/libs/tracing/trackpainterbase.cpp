@@ -4,6 +4,7 @@
 #include "trackpainterbase.h"
 
 #include "timelinecoordinates.h"
+#include "timelineformatdata.h"
 #include "timelinemodel.h"
 #include "timelinenotesmodel.h"
 
@@ -42,31 +43,6 @@ TrackBackend resolvedTrackBackend()
 #else
     return TrackBackend::Software;
 #endif
-}
-
-// --- Helpers -----------------------------------------------------------------
-
-// Matches QML TimeMarks prettyPrintScale/roundTo3Digits (units: " kMGT", base 1024).
-static QString prettyPrintScale(qint64 amount)
-{
-    static const char units[] = " kMGT";
-    const bool negative = amount < 0;
-    double a = double(qAbs(amount));
-    int unitIdx = 0;
-    while (unitIdx + 1 < int(sizeof(units)) - 1 && a > 1024.0) {
-        ++unitIdx;
-        a /= 1024.0;
-    }
-    int decimals;
-    if (a < 10.0) decimals = 2;
-    else if (a < 100.0) decimals = 1;
-    else decimals = 0;
-    QString result = QString::number(a, 'f', decimals);
-    if (negative)
-        result.prepend(QLatin1Char('-'));
-    if (units[unitIdx] != ' ')
-        result.append(QLatin1Char(units[unitIdx]));
-    return result;
 }
 
 // --- TrackPainterBase --------------------------------------------------------
@@ -489,7 +465,7 @@ void TrackPainterBase::buildScaleOverlay(const Track &track, OverlayScale &out) 
         const double stepH = double(stepVal) * double(rowH) / double(valDiff);
         const int topLabelBottom = rowY + kFontPx + kMarg * 2 + 2;
 
-        out.labels.append({prettyPrintScale(maxVal), float(kMarg), float(topLabelBottom)});
+        out.labels.append({formatDataSize(maxVal), float(kMarg), float(topLabelBottom)});
 
         const int numLines = int(valDiff / stepVal);
         for (int i = 0; i < numLines; ++i) {
@@ -497,7 +473,7 @@ void TrackPainterBase::buildScaleOverlay(const Track &track, OverlayScale &out) 
                 break;
             const int lineY = rowY + rowH - qRound(double(i) * stepH);
             out.lines.append(QRectF(0, lineY, w, 1));
-            out.labels.append({prettyPrintScale(minVal + qint64(i) * stepVal),
+            out.labels.append({formatDataSize(minVal + qint64(i) * stepVal),
                                float(kMarg), float(lineY - kMarg)});
         }
     }
