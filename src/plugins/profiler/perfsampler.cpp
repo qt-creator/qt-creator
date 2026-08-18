@@ -65,6 +65,12 @@ public:
         while (parseNextMessage()) { }
     }
 
+    // Samples perfparser delivered, including those dropped for having no
+    // resolvable call stack. A recording that captured plenty but resolved none
+    // is a symbolication problem, not an empty one, and only this count tells
+    // the two apart.
+    int receivedSamples() const { return m_receivedSamples; }
+
 private:
     bool parseNextMessage()
     {
@@ -216,6 +222,7 @@ private:
     void appendSample(const PerfEvent &event)
     {
         m_data.pid = event.pid();
+        ++m_receivedSamples;
 
         QList<int> reversedFrames; // built innermost-first, like origFrames()
         for (qint32 frame : event.origFrames()) {
@@ -250,12 +257,108 @@ private:
     std::shared_ptr<RecordingSession> m_session;
     QByteArray m_buffer;
     qint32 m_dataStreamVersion = -1;
+    int m_receivedSamples = 0;
     qint64 m_firstTimestampNs = -1;
     QHash<qint32, QByteArray> m_strings;
     QHash<qint32, PerfEventType::Location> m_locations;
     QHash<qint32, PerfProfilerTraceManager::Symbol> m_symbols;
     QHash<qint32, int> m_labelIds;
 };
+
+// perf_event_paranoid up to 2 still permits sampling a process the user owns;
+// 3 -- a Debian/Ubuntu addition -- and above deny unprivileged sampling outright.
+constexpr int lowestParanoidBlockingUserSampling = 3;
+constexpr int paranoidAllowingUserSampling = 2;
+constexpr auto paranoidSettingName = "perf_event_paranoid"_L1;
+constexpr auto paranoidSysctlKey = "kernel.perf_event_paranoid"_L1;
+
+// The programs driven here, named in messages but never translated.
+constexpr auto perfRecordName = "perf record"_L1;
+constexpr auto perfParserName = "perfparser"_L1;
+
+// "perf record" follows a failure with a screenful of advice; keep the message
+// box to the part that names the failure.
+constexpr int maxReportedErrorLines = 6;
+
+std::optional<int> perfEventParanoid()
+{
+    const Result<QByteArray> contents =
+        FilePath::fromString("/proc/sys/kernel/perf_event_paranoid"_L1).fileContents();
+    if (!contents)
+        return std::nullopt;
+    bool ok = false;
+    const int value = QString::fromLatin1(*contents).trimmed().toInt(&ok);
+    return ok ? std::optional(value) : std::nullopt;
+}
+
+// What "perf record" left behind, shared between its own done handler and
+// perfparser's, which is where a sample-less recording is diagnosed.
+struct RecordOutcome
+{
+    QString stdErr;
+    bool failed = false; // perf exited non-zero other than by our own stop()
+};
+
+// The diagnosis out of "perf record"'s stderr. A successful run still writes
+// there ("[ perf record: Captured and wrote ... ]", build-id warnings), so this
+// starts at the first "Error:" line, and the caller only asks once perf has
+// actually failed.
+QString reportedFailure(const QString &recordStdErr)
+{
+    const QStringList lines = recordStdErr.trimmed().split(u'\n', Qt::SkipEmptyParts);
+    qsizetype start = 0;
+    for (qsizetype i = 0; i < lines.size(); ++i) {
+        if (lines.at(i).trimmed().startsWith("Error:"_L1)) {
+            start = i;
+            break;
+        }
+    }
+    return lines.mid(start, maxReportedErrorLines).join(u'\n');
+}
+
+QString noSamplesError(const QString &recordStdErr, bool recordFailed, int receivedSamples)
+{
+    const std::optional<int> paranoid = perfEventParanoid();
+    if (paranoid && *paranoid >= lowestParanoidBlockingUserSampling) {
+        const QString message = Tr::tr("No samples were captured: \"%1\" is %2, which denies "
+                                       "performance monitoring to unprivileged processes. "
+                                       "Sampling processes you own needs it set to %3 or less.")
+                                    .arg(paranoidSettingName)
+                                    .arg(*paranoid)
+                                    .arg(paranoidAllowingUserSampling);
+        const QString command = QString("sudo sysctl -w %1=%2"_L1)
+                                    .arg(paranoidSysctlKey).arg(paranoidAllowingUserSampling);
+        return message + u'\n' + Tr::tr("Set it with:") + u"\n    "_s + command;
+    }
+
+    // Any other failure to open events -- an unsupported event, a target already
+    // gone -- is named by "perf record" itself, so quote it rather than guess.
+    if (recordFailed) {
+        const QString reported = reportedFailure(recordStdErr);
+        if (!reported.isEmpty())
+            return Tr::tr("No samples were captured. \"%1\" reported:\n%2")
+                .arg(perfRecordName).arg(reported);
+    }
+
+    // perf sampled the target fine; every sample was dropped for want of a call
+    // stack, which is about debug information, not about the recording.
+    if (receivedSamples > 0) {
+        return Tr::tr("\"%1\" captured %n sample(s), but none of them could be resolved to a "
+                      "call stack. Install debug information for the profiled binary and its "
+                      "libraries, or build it with frame pointers, and record again.",
+                      nullptr, receivedSamples)
+            .arg(perfRecordName);
+    }
+
+    if (paranoid) {
+        return Tr::tr("No samples were captured, although \"%1\" is %2, which permits sampling "
+                      "your own processes. The target may have exited before \"%3\" attached, or "
+                      "never run on the CPU while it was recorded.")
+            .arg(paranoidSettingName).arg(*paranoid).arg(perfRecordName);
+    }
+    return Tr::tr("No samples were captured. The target may have exited immediately, or never "
+                  "run on the CPU while it was recorded.");
+}
 
 } // namespace
 
@@ -367,8 +470,8 @@ bool PerfSampler::isAvailable(QString *error) const
     const FilePath parser = findPerfParser();
     if (!parser.isExecutableFile()) {
         if (error) {
-            *error = Tr::tr("The perfparser helper tool was not found at \"%1\".")
-                         .arg(parser.toUserOutput());
+            *error = Tr::tr("The %1 helper tool was not found at \"%2\".")
+                         .arg(perfParserName).arg(parser.toUserOutput());
         }
         return false;
     }
@@ -390,12 +493,23 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
     auto sampleData = std::make_shared<SampleTraceData>();
     auto decoder = std::make_shared<PerfMessageDecoder>(*sampleData, session);
     auto parserProcessPtr = std::make_shared<QPointer<Process>>();
+    auto recordOutcome = std::make_shared<RecordOutcome>();
+    auto parserStdErr = std::make_shared<QString>();
 
-    const auto onRecordSetup = [session, perfExe, recordArgs, parserProcessPtr](Process &process) {
+    const auto onRecordSetup = [session, perfExe, recordArgs, parserProcessPtr,
+                                recordOutcome](Process &process) {
         CommandLine cmd(perfExe,
                         {"record", "--pid", QString::number(session->pid.load()), "-o", "-"});
         cmd.addArgs(recordArgs, CommandLine::Raw);
         process.setCommand(cmd);
+
+        // "perf record" states the actual reason for a permission failure (e.g.
+        // the current perf_event_paranoid restriction) on stderr; kept around so
+        // onParserDone can quote it instead of guessing why no samples arrived.
+        QObject::connect(&process, &Process::readyReadStandardError, &process,
+                         [p = &process, recordOutcome] {
+            recordOutcome->stdErr.append(QString::fromLocal8Bit(p->readAllRawStandardError()));
+        });
 
         // Polls session->stop (set by the "Stop Recording" button) and asks
         // perf record to finish; there is no signal to hook for this since the
@@ -417,7 +531,8 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
 
         session->markStarted(); // perf is attached; the duration clock can start
     };
-    const auto onRecordDone = [session, parserProcessPtr](const Process &process, DoneWith result) {
+    const auto onRecordDone = [session, parserProcessPtr, recordOutcome](const Process &process,
+                                                                        DoneWith result) {
         // Stopping recording calls process.stop(), which itself is reported as
         // DoneWith::Error (see Process::stop()'s ProcessResult::Canceled) -- so
         // only a genuine failure to launch perf is treated as an error here;
@@ -426,13 +541,18 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
         if (result == DoneWith::Error && process.error() == ProcessError::FailedToStart
             && !session->result) {
             session->result = ResultError(
-                Tr::tr("Failed to start \"perf record\": %1").arg(process.errorString()));
+                Tr::tr("Failed to start \"%1\": %2")
+                    .arg(perfRecordName).arg(process.errorString()));
         }
+        // Stopping recording cancels perf; anything else non-zero is perf giving
+        // up on its own, which is what makes its stderr worth quoting.
+        recordOutcome->failed = result == DoneWith::Error
+                                && process.result() != ProcessResult::Canceled;
         if (Process *parser = parserProcessPtr->data())
             parser->closeWriteChannel();
     };
 
-    const auto onParserSetup = [parserExe, parserProcessPtr, decoder,
+    const auto onParserSetup = [parserExe, parserProcessPtr, decoder, parserStdErr,
                                 downloadDebugInfo](Process &process) {
         *parserProcessPtr = &process;
         process.setCommand(CommandLine(parserExe));
@@ -467,9 +587,16 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
         process.setProcessMode(ProcessMode::Writer); // perf record's output is written to its stdin
         QObject::connect(&process, &Process::readyReadStandardOutput, &process,
                          [p = &process, decoder] { decoder->addData(p->readAllRawStandardOutput()); });
+        // perfparser rejecting an argument or giving up mid-stream leaves the
+        // recording empty; without its stderr that looks like a target that never
+        // ran, so keep it for onParserDone to quote.
+        QObject::connect(&process, &Process::readyReadStandardError, &process,
+                         [p = &process, parserStdErr] {
+            parserStdErr->append(QString::fromLocal8Bit(p->readAllRawStandardError()));
+        });
     };
-    const auto onParserDone = [session, sampleData, decoder, parserProcessPtr](
-                                  const Process &process, DoneWith result) {
+    const auto onParserDone = [session, sampleData, decoder, parserProcessPtr, recordOutcome,
+                               parserStdErr](const Process &process, DoneWith result) {
         // perfparser may still have unread, already-flushed output pending.
         if (Process *parser = parserProcessPtr->data())
             decoder->addData(parser->readAllRawStandardOutput());
@@ -482,13 +609,25 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
             return;
         if (result == DoneWith::Error && process.error() == ProcessError::FailedToStart) {
             session->result = ResultError(
-                Tr::tr("Failed to start perfparser: %1").arg(process.errorString()));
+                Tr::tr("Failed to start %1: %2")
+                    .arg(perfParserName).arg(process.errorString()));
+            return;
+        }
+        // perfparser started but gave up, so it -- not the recording -- is what
+        // went wrong, and it has already said why.
+        if (result == DoneWith::Error) {
+            const QString reported = parserStdErr->trimmed();
+            session->result = ResultError(
+                reported.isEmpty()
+                    ? Tr::tr("%1 failed with exit code %2.")
+                          .arg(perfParserName).arg(process.exitCode())
+                    : Tr::tr("%1 failed: %2").arg(perfParserName).arg(reported));
             return;
         }
         if (sampleData->samples.isEmpty()) {
             session->result = ResultError(
-                Tr::tr("No samples were captured. The target may have exited immediately, or "
-                       "\"perf_event_paranoid\" may be blocking unprivileged sampling."));
+                noSamplesError(recordOutcome->stdErr, recordOutcome->failed,
+                               decoder->receivedSamples()));
             return;
         }
 
