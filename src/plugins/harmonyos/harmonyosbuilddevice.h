@@ -19,6 +19,8 @@ public:
 
     static Ptr create() { return Ptr(new HarmonyOsBuildDevice); }
 
+    Utils::Result<QByteArray> prepareExecutableForUpload(const QByteArray &binary) const final;
+
 protected:
     HarmonyOsBuildDevice();
 };

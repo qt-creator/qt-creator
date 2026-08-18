@@ -80,6 +80,15 @@ FilePath hapSignToolJar(const FilePath &sdkRoot)
     return jar.exists() ? jar : FilePath();
 }
 
+FilePath binarySignTool(const FilePath &sdkRoot)
+{
+    const FilePath native = nativeSdkPath(sdkRoot);
+    if (native.isEmpty())
+        return {};
+    const FilePath tool = native.parentDir().pathAppended("toolchains/lib/binary-sign-tool");
+    return tool.exists() ? tool : FilePath();
+}
+
 FilePath sysrootPath(const FilePath &sdkRoot)
 {
     const FilePath native = nativeSdkPath(sdkRoot);

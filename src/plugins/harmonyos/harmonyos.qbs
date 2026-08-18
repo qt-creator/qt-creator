@@ -7,6 +7,8 @@ QtcPlugin {
     Depends { name: "Qt.widgets" }
     Depends { name: "Utils" }
 
+    Depends { name: "CmdBridgeClient" }
+
     Depends { name: "CMakeProjectManager" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }

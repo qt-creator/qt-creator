@@ -11,6 +11,8 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 
+#include <gocmdbridge/client/bridgedfileaccess.h>
+
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
@@ -179,6 +181,9 @@ private slots:
         }
 
         QVERIFY(device->rootPath().exists());
+        // The bridge only runs there when it was signed on its way to the device.
+        QVERIFY2(dynamic_cast<CmdBridge::FileAccess *>(device->fileAccess().get()),
+                 "The device is served by the shell fallback, not the bridge.");
         for (const QString &tool : {QString("cmake"), QString("ninja"), QString("clang++")}) {
             const FilePath found = device->searchExecutableInPath(tool);
             qDebug().noquote() << QString("  %1: %2").arg(tool, 8)

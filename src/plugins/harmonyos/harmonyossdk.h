@@ -25,6 +25,8 @@ Utils::FilePath hdcCommand(const Utils::FilePath &sdkRoot);
 
 Utils::FilePath hapSignToolJar(const Utils::FilePath &sdkRoot);
 
+Utils::FilePath binarySignTool(const Utils::FilePath &sdkRoot);
+
 // The sysroot of the native SDK.
 Utils::FilePath sysrootPath(const Utils::FilePath &sdkRoot);
 

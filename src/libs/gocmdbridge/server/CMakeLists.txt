@@ -29,6 +29,10 @@ add_feature_info("Executable CmdBridge" YES "${CMDBRIDGE_FEATURE_TEXT}")
 # A HarmonyOS device only runs a self-signed aarch64 binary, whichever
 # implementation produced it, so this is a post-processing step on the built
 # binary rather than a separate target.
+#
+# Redundant as things stand: HarmonyOsBuildDevice signs the bridge when it
+# uploads it, which needs no SDK where Qt Creator is built. Kept for a build
+# that wants the shipped binary signed already.
 set(CMDBRIDGE_OHOS_SIGN_TOOL "" CACHE FILEPATH
     "binary-sign-tool of a HarmonyOS SDK, to self-sign cmdbridge-linux-arm64 for HarmonyOS")
 

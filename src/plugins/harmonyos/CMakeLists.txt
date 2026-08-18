@@ -17,6 +17,7 @@ add_qtc_plugin(HarmonyOS
 
 extend_qtc_plugin(HarmonyOS
   CONDITION WITH_TESTS
+  DEPENDS CmdBridgeClient
   SOURCES
     harmonyosdevice_test.cpp harmonyosdevice_test.h
 )
