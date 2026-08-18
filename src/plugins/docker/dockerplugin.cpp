@@ -7,6 +7,7 @@
 #include "dockersettings.h"
 #ifdef WITH_TESTS
 #include "dockerdebuggertest.h"
+#include "dockermounttest.h"
 #endif
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -96,6 +97,7 @@ private:
         m_podmanApi = std::make_unique<DockerApi>(&podmanSettings());
         setupDockerRunAndDebugSupport();
 #ifdef WITH_TESTS
+        addTestCreator(createDockerMountTest);
         addTestCreator(createDockerQmlChannelTest);
         addTestCreator(createDockerPortsGatheringTest);
 #endif

@@ -35,6 +35,7 @@
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/pathlisteditor.h>
 #include <utils/port.h>
 #include <utils/processinfo.h>
@@ -166,6 +167,7 @@ public:
 
     bool prepareForBuild(const Target *target);
     Tasks validateMounts() const;
+    QList<MountPair> mountPairs(const QStringList &entries) const;
 
     void stopCurrentContainer();
     Result<Environment> fetchEnvironment() const;
@@ -181,7 +183,7 @@ public:
         bool keepEntryPoint = false;
         bool enableLldbFlags = false;
         QString network;
-        FilePaths mounts;
+        QList<MountPair> mounts;
         QString extraArgs;
         QString repoTag;
     };
@@ -295,12 +297,6 @@ public:
     DockerDevice *const q;
     ContainerToolSettings *m_containerSettings = nullptr;
 
-    struct MountPair
-    {
-        FilePath path;
-        FilePath containerPath;
-    };
-
     bool m_isShutdown = false;
     SynchronizedValue<DeviceFileAccessPtr> m_fileAccess;
     SynchronizedValue<std::unique_ptr<DockerContainerThread>> m_deviceThread;
@@ -391,14 +387,115 @@ static WrappedProcessInterface *makeProcessInterface(
     return processInterface;
 }
 
+// An entry is "<host path>" to mount at the same place inside the container, or
+// "<host path>:<container path>" as the docker command line spells it. Splitting
+// at the last colon that starts an absolute path keeps "C:\src:/work" working,
+// as well as a plain "C:\src".
+std::pair<QString, QString> splitMountEntry(const QString &entry)
+{
+    for (int i = entry.size() - 1; i > 0; --i) {
+        if (entry.at(i) != ':')
+            continue;
+        // A drive letter's colon is not a separator: "C:/src" is one path, not
+        // host "C" mounted at "/src". Only "C:\src" is safe without this.
+        if (i == 1 && entry.at(0).isLetter())
+            break;
+        const QStringView containerPath = QStringView(entry).mid(i + 1);
+        if (containerPath.startsWith('/'))
+            return {entry.left(i), containerPath.toString()};
+        break;
+    }
+    return {entry, entry};
+}
+
+MountPair parseMount(const QString &entry)
+{
+    const auto [path, containerPath] = splitMountEntry(entry);
+    return {FilePath::fromUserInput(path), FilePath::fromUserInput(containerPath)};
+}
+
+QList<MountPair> parseMounts(const QStringList &entries)
+{
+    return Utils::transform(entries, &parseMount);
+}
+
+FilePath mapToContainerPath(const QList<MountPair> &mounts, const FilePath &hostPath)
+{
+    for (const MountPair &mount : mounts) {
+        if (mount.path == mount.containerPath)
+            continue; // Mounted where it already is, nothing to translate.
+        if (hostPath == mount.path)
+            return mount.containerPath;
+        if (hostPath.isChildOf(mount.path)) {
+            const FilePath relativePath = hostPath.relativeChildPath(mount.path);
+            return mount.containerPath.pathAppended(relativePath.path());
+        }
+    }
+    return {};
+}
+
+QString invertedDriveLetterPath(OsType hostOs, const FilePath &devicePath)
+{
+    if (hostOs != OsTypeWindows)
+        return {};
+    if (devicePath.osType() == OsTypeWindows || devicePath.osType() == OsTypeOther)
+        return {};
+
+    static const QRegularExpression linuxPathRegex("^/([A-Za-z])/(.*)?$");
+    const QRegularExpressionMatch match = linuxPathRegex.match(devicePath.path());
+    if (!match.hasMatch())
+        return {};
+    return match.captured(1).toUpper() + ":/" + match.captured(2);
+}
+
+Result<FilePath> hostPathFor(
+    const QList<MountPair> &mounts, OsType hostOs, const FilePath &devicePath)
+{
+    // The inversion undoes the implicit C:/dev/src -> /c/dev/src mapping a
+    // Windows host gets (see mapToDevicePath), which only applies as long as the
+    // mount does not name a container path itself. A named one wins over it:
+    // "/w" is then a mount point, not drive W. So the plain path goes first.
+    QStringList candidates{devicePath.path()};
+    const QString inverted = invertedDriveLetterPath(hostOs, devicePath);
+    if (!inverted.isEmpty())
+        candidates << inverted;
+
+    for (const QString &candidate : candidates) {
+        const FilePath containerPath = FilePath::fromString(candidate);
+        for (const MountPair &mount : mounts) {
+            if (containerPath == mount.containerPath)
+                return mount.path;
+            if (containerPath.isChildOf(mount.containerPath)) {
+                const FilePath relativePath = containerPath.relativeChildPath(mount.containerPath);
+                return mount.path.pathAppended(relativePath.path());
+            }
+        }
+    }
+
+    return ResultError(
+        Tr::tr("localSource: No mount point found for %1").arg(devicePath.toUserOutput()));
+}
+
+// The aspect's own operator()() expands macros, mounts.value() does not, and the
+// default entry is "%{Config:DefaultProjectDirectory:NativeFilePath}". Expand
+// before splitting, so a macro containing a colon cannot look like a separator.
+QList<MountPair> DockerDevicePrivate::mountPairs(const QStringList &entries) const
+{
+    Utils::MacroExpander *expander = q->mounts.macroExpander();
+    if (!expander)
+        return parseMounts(entries);
+    return parseMounts(
+        Utils::transform(entries, [expander](const QString &e) { return expander->expand(e); }));
+}
+
 Tasks DockerDevicePrivate::validateMounts() const
 {
     Tasks result;
 
-    for (const FilePath &mount : q->mounts()) {
-        if (!mount.isDir()) {
+    for (const MountPair &mount : mountPairs(q->mounts.value())) {
+        if (!mount.path.isDir()) {
             const QString message = Tr::tr("Path \"%1\" is not a directory or does not exist.")
-                                        .arg(mount.toUserOutput());
+                                        .arg(mount.path.toUserOutput());
 
             result.append(Task(Task::Error, message, {}, -1, {}));
         }
@@ -446,6 +543,14 @@ QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
     // make sure to convert windows style paths to unix style paths with the file system case:
     // C:/dev/src -> /c/dev/src
     const FilePath normalized = FilePath::fromString(hostPath).normalizedPathName();
+
+    // A mount that names its container path decides where the file is, so it
+    // takes precedence over the drive-letter conversion below.
+    const FilePath mapped
+        = mapToContainerPath(m_dev->mountPairs(m_dev->q->mounts.value()), normalized);
+    if (!mapped.isEmpty())
+        return mapped.path();
+
     QString newPath = normalized.path();
     if (HostOsInfo::isWindowsHost() && normalized.startsWithDriveLetter()) {
         const QChar lowerDriveLetter = newPath.at(0);
@@ -583,7 +688,7 @@ static QString escapeMountPath(const FilePath &fp)
     return escapeMountPathUnix(fp);
 }
 
-static QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
+static QStringList toMountArg(const MountPair &mi)
 {
     QString escapedPath;
     QString escapedContainerPath;
@@ -598,7 +703,7 @@ static QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
     return QStringList{"--mount", mountArg};
 }
 
-static Result<> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
+static Result<> isValidMountInfo(const MountPair &mi)
 {
     if (!mi.path.isLocal())
         return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
@@ -647,7 +752,7 @@ DockerDevicePrivate::CreateCommandLineParams DockerDevicePrivate::appliedParams(
     p.x11Display = q->x11Display();
     p.useLocalUidGid = q->useLocalUidGid();
     p.network = q->network();
-    p.mounts = q->mounts();
+    p.mounts = mountPairs(q->mounts.value());
     p.mountCmdBridge = q->mountCmdBridge();
     p.keepEntryPoint = q->keepEntryPoint();
     p.enableLldbFlags = q->enableLldbFlags();
@@ -663,7 +768,7 @@ DockerDevicePrivate::CreateCommandLineParams DockerDevicePrivate::volatileParams
     p.x11Display = q->x11Display.volatileValue();
     p.useLocalUidGid = q->useLocalUidGid.volatileValue();
     p.network = q->network.volatileValue();
-    p.mounts = transform(q->mounts.volatileValue(), &FilePath::fromUserInput);
+    p.mounts = mountPairs(q->mounts.volatileValue());
     p.mountCmdBridge = q->mountCmdBridge.volatileValue();
     p.keepEntryPoint = q->keepEntryPoint.volatileValue();
     p.enableLldbFlags = q->enableLldbFlags.volatileValue();
@@ -682,9 +787,7 @@ DockerDevicePrivate::CreateCommandLineParams DockerDevicePrivate::volatileParams
 QStringList DockerDevicePrivate::createMountArgs(const CreateCommandLineParams &p) const
 {
     QStringList cmds;
-    QList<MountPair> mounts;
-    for (const FilePath &m : p.mounts)
-        mounts.append({m, m});
+    QList<MountPair> mounts = p.mounts;
 
     if (p.mountCmdBridge) {
         const Result<FilePath> cmdBridgePath = getCmdBridgePath();
@@ -1080,38 +1183,7 @@ void DockerDevicePrivate::shutdown()
 
 Result<FilePath> DockerDevicePrivate::localSource(const FilePath &other) const
 {
-    QString fixedPath = other.path();
-    /* Try to convert Unix-style paths (originally Windows paths transformed
-     * into Unix-style for mounting purposes) back to Windows format:
-     * /c/dev/src -> C:/dev/src
-     * This is the opposite to DockerDeviceFileAccess::mapToDevicePath.
-     */
-    if (HostOsInfo::isWindowsHost() &&
-            (other.osType() == Utils::OsTypeLinux
-             || other.osType() == Utils::OsTypeMac
-             || other.osType() == Utils::OsTypeFreeBSD
-             || other.osType() == Utils::OsTypeOpenBSD
-             || other.osType() == Utils::OsTypeNetBSD
-             || other.osType() == Utils::OsTypeOtherUnix)) {
-        QRegularExpression linuxPathRegex("^/([A-Za-z])/(.*)?$");
-        QRegularExpressionMatch linuxPathMatch = linuxPathRegex.match(fixedPath);
-        if (linuxPathMatch.hasMatch()) {
-            QString driveLetter = linuxPathMatch.captured(1);
-            QString restOfThePath = linuxPathMatch.captured(2);
-            fixedPath = driveLetter.toUpper() + ":/" + restOfThePath;
-        }
-    }
-    const auto devicePath = FilePath::fromString(fixedPath);
-    for (const FilePath &mount : q->mounts()) {
-        const FilePath mountPoint = mount;
-        if (devicePath.isChildOf(mountPoint)) {
-            const FilePath relativePath = devicePath.relativeChildPath(mountPoint);
-            return mountPoint.pathAppended(relativePath.path());
-        }
-    }
-
-    return make_unexpected(
-        Tr::tr("localSource: No mount point found for %1").arg(other.toUserOutput()));
+    return hostPathFor(mountPairs(q->mounts.value()), HostOsInfo::hostOs(), other);
 }
 
 Result<> DockerDevicePrivate::ensureReachable(const FilePath &other)
@@ -1124,11 +1196,11 @@ Result<> DockerDevicePrivate::ensureReachable(const FilePath &other)
             Tr::tr("Cannot reach \"%1\" from \"%2\".").arg(other.toUserOutput()).arg(q->displayName()));
     }
 
-    for (const FilePath &mount : q->mounts()) {
-        if (other.isChildOf(mount))
+    for (const MountPair &mount : mountPairs(q->mounts.value())) {
+        if (other.isChildOf(mount.path))
             return ResultOk;
 
-        if (mount == other)
+        if (mount.path == other)
             return ResultOk;
     }
 
@@ -1322,7 +1394,12 @@ DockerDevice::DockerDevice(ContainerToolSettings *settings)
     mounts.setSettingsKey(DockerDeviceMappedPaths);
     mounts.setLabelText(Tr::tr("Paths to mount:"));
     mounts.setDefaultValue({"%{Config:DefaultProjectDirectory:NativeFilePath}"});
-    mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
+    mounts.setToolTip(
+        Tr::tr("Host directories to mount into the container, one per line. A plain path is "
+               "mounted at the same place inside the container. To mount it elsewhere, append "
+               "the path in the container, as in \"%1\".")
+            .arg(HostOsInfo::isWindowsHost() ? QString("C:\\src:/work")
+                                             : QString("/home/user/src:/work")));
     mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container."));
     mounts.addOnChanged(DeviceManager::instance(), [this] {
         DeviceManager::instance()->deviceUpdated(id());

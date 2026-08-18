@@ -13,6 +13,8 @@
 #include <utils/aspectlist.h>
 #include <utils/synchronizedvalue.h>
 
+#include <utility>
+
 namespace Docker {
 namespace Internal {
 
@@ -29,6 +31,36 @@ public:
     QStringList createArguments() const;
     QSet<int> usedContainerPorts() const;
 };
+
+struct MountPair
+{
+    Utils::FilePath path;
+    Utils::FilePath containerPath;
+};
+
+// Splits "<host>" or "<host>:<container>" without interpreting either side as a
+// path, which is what makes it checkable on any host OS.
+std::pair<QString, QString> splitMountEntry(const QString &entry);
+
+MountPair parseMount(const QString &entry);
+QList<MountPair> parseMounts(const QStringList &entries);
+
+// Where a host path shows up inside the container, for a mount that names its
+// container path. Empty when no such mount covers it, leaving the caller with
+// the plain path. The way back is DockerDevicePrivate::localSource().
+Utils::FilePath mapToContainerPath(const QList<MountPair> &mounts, const Utils::FilePath &hostPath);
+
+// Inverts the drive-letter mapping a Windows host applies on the way in (see
+// mapToDevicePath): /c/dev/src -> C:/dev/src. Empty when the path is not shaped
+// like that, or when the host does not map that way at all. Takes the host OS
+// rather than asking HostOsInfo, so the rule can be checked from any host.
+QString invertedDriveLetterPath(Utils::OsType hostOs, const Utils::FilePath &devicePath);
+
+// Where a path inside the container comes from on the host, the way back from
+// mapToContainerPath(). The mounts are tried before the inversion above, so a
+// mount naming "/w" wins over reading it as drive W.
+Utils::Result<Utils::FilePath> hostPathFor(
+    const QList<MountPair> &mounts, Utils::OsType hostOs, const Utils::FilePath &devicePath);
 
 } // namespace Internal
 

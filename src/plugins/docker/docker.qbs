@@ -34,6 +34,8 @@ QtcPlugin {
         files: [
             "dockerdebuggertest.h",
             "dockerdebuggertest.cpp",
+            "dockermounttest.h",
+            "dockermounttest.cpp",
         ]
     }
 

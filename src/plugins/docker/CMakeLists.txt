@@ -21,6 +21,8 @@ extend_qtc_plugin(Docker
   SOURCES
     dockerdebuggertest.h
     dockerdebuggertest.cpp
+    dockermounttest.h
+    dockermounttest.cpp
 )
 
 qtc_add_resources(Docker "images"
