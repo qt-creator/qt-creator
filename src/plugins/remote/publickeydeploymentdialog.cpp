@@ -83,18 +83,43 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
 
     CommandLine cmd{sshSettings().sshFilePath()};
     if (isWindowsDevice) {
-        // Native Windows OpenSSH: no POSIX shell. Append the key to
-        // %USERPROFILE%\.ssh\authorized_keys via "powershell -EncodedCommand", which works
-        // whether the remote default shell is cmd.exe or PowerShell.
+        // Native Windows OpenSSH: no POSIX shell. Append the key via
+        // "powershell -EncodedCommand", which works whether the remote default shell is
+        // cmd.exe or PowerShell. For a user in the Administrators group the default
+        // sshd_config ignores %USERPROFILE%\.ssh\authorized_keys ("Match Group
+        // administrators" points AuthorizedKeysFile at administrators_authorized_keys
+        // instead), so the key goes into both files - the admin one only if it does not
+        // already hold the key, creating it with the ACL sshd insists on (SIDs, not
+        // localizable group names). A non-default sshd_config may use either file, and a
+        // duplicate key entry in the unused one is harmless.
         cmd.addArgs(params.connectionOptions(sshSettings().sshFilePath()));
         cmd.addArg(params.host());
 
         const QString key = QString::fromLocal8Bit(publicKey.value()).trimmed();
         const QString script = QStringLiteral(
             "$ErrorActionPreference = 'Stop';"
+            "$key = %1;"
             "$d = Join-Path $env:USERPROFILE '.ssh';"
             "if (!(Test-Path $d)) { New-Item -ItemType Directory -Path $d | Out-Null };"
-            "Add-Content -Path (Join-Path $d 'authorized_keys') -Value %1 -Encoding ascii")
+            "Add-Content -Path (Join-Path $d 'authorized_keys') -Value $key -Encoding ascii;"
+            // by SID, not name (localized), via whoami: unlike WindowsIdentity.Groups it
+            // also reports a deny-only (UAC-filtered) membership, which still makes sshd
+            // apply its "Match Group administrators" block to this user
+            "$admin = [bool](& (Join-Path $env:SystemRoot 'System32\\whoami.exe')"
+            " /groups /fo csv | ConvertFrom-Csv |"
+            " Where-Object { $_.SID -eq 'S-1-5-32-544' });"
+            "if ($admin) {"
+            "    $f = Join-Path $env:ProgramData 'ssh\\administrators_authorized_keys';"
+            "    $isNew = !(Test-Path $f);"
+            "    if ($isNew -or !(Select-String -Path $f -Pattern ([regex]::Escape($key))"
+            " -Quiet)) {"
+            "        Add-Content -Path $f -Value $key -Encoding ascii;"
+            "    };"
+            "    if ($isNew) {"
+            "        icacls $f /inheritance:r /grant '*S-1-5-32-544:F' '*S-1-5-18:F'"
+            " | Out-Null;"
+            "    };"
+            "}")
             .arg(psQuote(key));
         cmd.addArg("powershell -NoProfile -NonInteractive -EncodedCommand "
                    + encodePowerShellCommand(script));
