@@ -320,6 +320,11 @@ void Toolchain::toolChainUpdated()
     ToolchainManager::notifyAboutUpdate(this);
 }
 
+void Toolchain::holdToolDetection(const IDevicePtr &, quint64)
+{
+    // Nothing to wait for: a toolchain is fully known once it is registered, unless it says so.
+}
+
 void Toolchain::setDetectionSource(const DetectionSource &source)
 {
     d->m_detectionSource = source;

@@ -959,6 +959,28 @@ void MsvcToolchain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
     m_envModWatcher.setFuture(future);
 }
 
+// The compiler is known only once the vcvars environment capture has run, so keep the detection
+// that just registered this toolchain open until then - the release is bound to the watcher
+// finishing, which also covers a capture that fails or is cancelled.
+void MsvcToolchain::holdToolDetection(const IDevicePtr &device, quint64 token)
+{
+    if (!m_envModWatcher.isRunning())
+        return;
+    device->registerToolDetectionTask(token);
+    m_detectionDeviceId = device->id();
+    m_detectionToken = token;
+    connect(&m_envModWatcher, &QFutureWatcherBase::finished,
+            this, &MsvcToolchain::releaseToolDetection, Qt::SingleShotConnection);
+}
+
+void MsvcToolchain::releaseToolDetection()
+{
+    if (const IDevice::Ptr device = DeviceManager::find(m_detectionDeviceId))
+        device->deregisterToolDetectionTask(m_detectionToken);
+    m_detectionDeviceId = {};
+    m_detectionToken = 0;
+}
+
 void MsvcToolchain::handleEnvModResult()
 {
     const GenerateEnvResult &result = m_envModWatcher.result();

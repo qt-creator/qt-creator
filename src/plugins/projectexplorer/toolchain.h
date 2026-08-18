@@ -131,6 +131,11 @@ public:
         const QStringList &cxxflags, const Utils::FilePath &sysRoot, const QString &originalTargetTriple)>;
     virtual BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &env) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
+
+    // Called right after a device's tool detection registered this toolchain. One that is still
+    // initializing keeps that detection open (IDevice::registerToolDetectionTask) until it is
+    // done, so the device's kits are not created around a half-known toolchain.
+    virtual void holdToolDetection(const IDevicePtr &device, quint64 token);
     virtual Utils::FilePath makeCommand(const Utils::Environment &env) const = 0;
 
     Utils::Id language() const;

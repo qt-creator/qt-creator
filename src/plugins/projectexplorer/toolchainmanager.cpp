@@ -137,6 +137,13 @@ void ToolchainManager::restoreToolchains()
                 logger.logItem(Tr::tr("Found toolchain: %1").arg(tc->displayName()));
         }
         registerToolchains(toRegister);
+
+        // A toolchain that is not fully known yet - MSVC learns its compiler only once its
+        // vcvars environment capture has run - keeps this detection open, so the kits, created
+        // when the last detection task is deregistered, wait for it.
+        for (Toolchain * const tc : std::as_const(toRegister))
+            tc->holdToolDetection(device, token);
+
         device->deregisterToolDetectionTask(token);
     });
 }

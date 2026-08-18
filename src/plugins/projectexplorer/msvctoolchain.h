@@ -39,6 +39,7 @@ public:
     void fromMap(const Utils::Store &data) override;
 
     bool hostPrefersToolchain() const override;
+    void holdToolDetection(const IDevicePtr &device, quint64 token) override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
@@ -113,6 +114,11 @@ private:
     void handleEnvModResult();
     void rescanForCompiler();
     void rescanWhenDeviceReady();
+    void releaseToolDetection();
+
+    // Set while this toolchain keeps a device's tool detection open for its running capture.
+    Utils::Id m_detectionDeviceId;
+    quint64 m_detectionToken = 0;
 
     mutable Utils::EnvironmentItems m_environmentModifications;
     mutable QFutureWatcher<GenerateEnvResult> m_envModWatcher;
