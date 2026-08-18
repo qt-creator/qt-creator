@@ -126,6 +126,35 @@ public:
 
 static QList<ProfilerTraceEditorFactory *> s_factories;
 
+static Id editorIdFor(TraceFormat format)
+{
+    switch (format) {
+    case TraceFormat::Qml: return Constants::QML_TRACE_EDITOR_ID;
+    case TraceFormat::Perf: return Constants::PERF_TRACE_EDITOR_ID;
+    case TraceFormat::Ctf: return Constants::CTF_TRACE_EDITOR_ID;
+    case TraceFormat::Sampler: return Constants::SAMPLER_TRACE_EDITOR_ID;
+    case TraceFormat::Combined: return Constants::COMBINED_TRACE_EDITOR_ID;
+    }
+    return {};
+}
+
+IEditor *openTraceFile(const FilePath &path)
+{
+    const TraceFile trace = identifyTrace(path);
+    return EditorManager::openEditor(trace.path, editorIdFor(trace.format),
+                                     EditorManager::DoNotSwitchToDesignMode);
+}
+
+ProfilerTraceDocument *openLiveTrace(TraceFormat format, const QString &title,
+                                     const QString &uniqueId)
+{
+    QString displayName = title;
+    IEditor *editor = EditorManager::openEditorWithContents(editorIdFor(format), &displayName, {},
+                                                            uniqueId,
+                                                            EditorManager::DoNotSwitchToDesignMode);
+    return editor ? qobject_cast<ProfilerTraceDocument *>(editor->document()) : nullptr;
+}
+
 void setupProfilerTraceEditors()
 {
     QTC_ASSERT(s_factories.isEmpty(), return);

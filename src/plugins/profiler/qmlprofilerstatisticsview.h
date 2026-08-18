@@ -19,6 +19,8 @@ class QmlProfilerTextMarkModel;
 
 class QmlProfilerStatisticsView final : public QmlProfilerEventsView
 {
+    Q_OBJECT
+
 public:
     explicit QmlProfilerStatisticsView(QmlProfilerModelManager *profilerModelManager,
                                        QWidget *parent = nullptr);

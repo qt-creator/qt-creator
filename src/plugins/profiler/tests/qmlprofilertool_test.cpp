@@ -15,6 +15,9 @@
 #include <profiler/qmlprofilermodelmanager.h>
 #include <profiler/qmlprofilerstatemanager.h>
 #include <profiler/qmlprofilertool.h>
+#include <profiler/qmlprofilertracebackend.h>
+
+#include <tracing/rangedetailswidget.h>
 
 #include <utils/qtcsettings.h>
 #include <utils/url.h>
@@ -40,11 +43,17 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
     QmlProfilerTool &profilerTool = *QmlProfilerTool::instance();
 
-    QmlProfilerClientManager *clientManager = profilerTool.clientManager();
-    clientManager->setRetryInterval(10);
-    clientManager->setMaximumRetries(10);
-    connect(clientManager, &QmlProfilerClientManager::connectionFailed, [] {
-        QFAIL("Connection failed");
+    // The run opens the trace it records into, and with it the client manager,
+    // just before connecting; this is the point at which it can be configured.
+    QmlProfilerClientManager *clientManager = nullptr;
+    connect(&profilerTool, &QmlProfilerTool::liveBackendChanged,
+            this, [&clientManager](QmlProfilerTraceBackend *backend) {
+        clientManager = backend->clientManager();
+        clientManager->setRetryInterval(10);
+        clientManager->setMaximumRetries(10);
+        connect(clientManager, &QmlProfilerClientManager::connectionFailed, [] {
+            QFAIL("Connection failed");
+        });
     });
 
     QTcpServer server;
@@ -86,6 +95,7 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     QTRY_VERIFY(runControl->isRunning());
     QTRY_VERIFY(modalSeen);
     QTRY_VERIFY(!timer.isActive());
+    QVERIFY(clientManager);
     QTRY_VERIFY(clientManager->isConnected());
 
     connection.reset();
@@ -94,10 +104,12 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
 
 void QmlProfilerToolTest::testClearEvents()
 {
-    QmlProfilerTool &profilerTool = *QmlProfilerTool::instance();
-    QmlProfilerModelManager *modelManager = profilerTool.modelManager();
+    // A trace's own models and recording state, as a document owns them.
+    Timeline::RangeDetailsWidget details;
+    QmlProfilerTraceBackend backend(&details);
+    QmlProfilerModelManager *modelManager = backend.modelManager();
     QVERIFY(modelManager);
-    QmlProfilerStateManager *stateManager = profilerTool.stateManager();
+    QmlProfilerStateManager *stateManager = backend.stateManager();
     QVERIFY(stateManager);
 
     stateManager->setCurrentState(QmlProfilerStateManager::AppRunning);

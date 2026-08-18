@@ -11,10 +11,17 @@
 #include "qmlprofilertracebackend.h"
 #include "samplertracebackend.h"
 
+#include "qmlprofilertool.h"
+
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <tracing/rangedetailswidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+
+#include <QApplication>
+#include <QMessageBox>
 
 using namespace Utils;
 
@@ -53,11 +60,32 @@ ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
             emit busyChanged(false);
             emit changed();
         });
+        connect(backend, &ProfilerTraceBackend::error, this, [](const QString &message) {
+            QmlProfilerTool::showNonmodalWarning(message);
+        });
+        connect(backend, &ProfilerTraceBackend::gotoSourceLocation,
+                this, [](const Link &link) {
+            Core::EditorManager::openEditorAt(link, {},
+                                              Core::EditorManager::DoNotSwitchToDesignMode
+                                                  | Core::EditorManager::DoNotSwitchToEditMode);
+        });
     }
+
     if (auto qml = qobject_cast<QmlProfilerTraceBackend *>(m_backends.first())) {
         connect(qml, &QmlProfilerTraceBackend::busyChanged, this,
                 &ProfilerTraceDocument::busyChanged);
         connect(qml, &QmlProfilerTraceBackend::saved, this, &IDocument::changed);
+        // A new recording is about to discard notes the user has not saved. The
+        // session cannot be paused to ask, so offer to save rather than to cancel.
+        connect(qml, &QmlProfilerTraceBackend::saveBeforeRecordingRequested, this, [this] {
+            const auto answer = QMessageBox::warning(
+                QApplication::activeWindow(), Tr::tr("QML Profiler"),
+                Tr::tr("Starting a new profiling session will discard the previous data, "
+                       "including unsaved notes.\nDo you want to save the data first?"),
+                QMessageBox::Save, QMessageBox::Discard);
+            if (answer == QMessageBox::Save)
+                Core::EditorManager::saveDocument(this);
+        });
     }
 }
 
@@ -88,6 +116,13 @@ void ProfilerTraceDocument::load(const FilePath &path)
         return;
     }
     m_backends.first()->load(path);
+}
+
+Result<> ProfilerTraceDocument::setContents(const QByteArray &contents)
+{
+    if (!contents.isEmpty())
+        return ResultError(Tr::tr("A trace cannot be filled from memory."));
+    return ResultOk;
 }
 
 Result<> ProfilerTraceDocument::saveImpl(const FilePath &filePath, SaveOption option)

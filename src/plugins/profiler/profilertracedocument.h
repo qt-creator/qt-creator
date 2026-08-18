@@ -40,6 +40,9 @@ public:
 
     Utils::Result<> open(const Utils::FilePath &filePath,
                          const Utils::FilePath &realFilePath) override;
+    // A live document starts out empty and is filled by a running session;
+    // there are no contents to hand it.
+    Utils::Result<> setContents(const QByteArray &contents) override;
 
     bool isModified() const override;
     bool isSaveAsAllowed() const override;

@@ -8,9 +8,12 @@
 
 #include <memory>
 
+namespace Utils { class FilePath; }
+
 namespace Profiler::Internal {
 
 class ProfilerTraceDocument;
+enum class TraceFormat;
 
 // Shows one trace: its backends' views as tabs, with the shared details panel
 // beside them.
@@ -28,6 +31,15 @@ public:
 private:
     class ProfilerTraceEditorPrivate *d;
 };
+
+// Opens `path` as a trace editor, choosing the editor from the file's format.
+Core::IEditor *openTraceFile(const Utils::FilePath &path);
+
+// Opens an empty trace document for a profiling run to record into. `uniqueId`
+// identifies the run: opening with one that is already showing reuses its
+// editor rather than adding another.
+ProfilerTraceDocument *openLiveTrace(TraceFormat format, const QString &title,
+                                     const QString &uniqueId);
 
 void setupProfilerTraceEditors();
 void destroyProfilerTraceEditors();

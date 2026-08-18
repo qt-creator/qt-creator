@@ -10,6 +10,7 @@
 #include <profiler/qmlprofilerruncontrol.h>
 #include <profiler/qmlprofilerstatemanager.h>
 #include <profiler/qmlprofilertool.h>
+#include <profiler/qmlprofilertracebackend.h>
 
 #include <utils/url.h>
 #include <utils/temporaryfile.h>
@@ -28,13 +29,16 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 
 void LocalQmlProfilerRunnerTest::testRunner()
 {
-    QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
-    QVERIFY(stateManager);
-
     // Request some (invalid) feature so that old Qt versions don't run into interesting
-    // situations when starting and stopping profiler adapters.
-    if (!stateManager->requestedFeatures())
-        stateManager->setRequestedFeatures(1ull << 63);
+    // situations when starting and stopping profiler adapters. The trace the run
+    // records into is opened just before it connects, which is where its state
+    // manager becomes reachable.
+    connect(QmlProfilerTool::instance(), &QmlProfilerTool::liveBackendChanged,
+            this, [](QmlProfilerTraceBackend *backend) {
+        QmlProfilerStateManager *stateManager = backend->stateManager();
+        if (!stateManager->requestedFeatures())
+            stateManager->setRequestedFeatures(1ull << 63);
+    });
 
     std::unique_ptr<RunControl> runControl;
 

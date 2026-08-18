@@ -3,18 +3,22 @@
 
 #pragma once
 
-#include <QAction>
 #include <QObject>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer { class RunControl; }
 namespace Utils { class FilePath; }
 
 namespace Profiler::Internal {
 
-class QmlProfilerClientManager;
-class QmlProfilerModelManager;
-class QmlProfilerStateManager;
+class QmlProfilerTraceBackend;
 
+// The QML profiler's menu entries and run-control glue. The trace itself lives
+// in a ProfilerTraceDocument; this points a run at one and keeps the run
+// actions in step.
 class QmlProfilerTool : public QObject
 {
     Q_OBJECT
@@ -26,29 +30,18 @@ public:
     static QmlProfilerTool *instance();
 
     void finalizeRunControl(ProjectExplorer::RunControl *runControl);
-    void handleStop();
+    void handleStop(QmlProfilerTraceBackend *backend);
 
-    bool prepareTool();
     ProjectExplorer::RunControl *attachToWaitingApplication();
 
-    static QList <QAction *> profilerContextMenuActions();
+    static QList<QAction *> profilerContextMenuActions();
 
-    // display dialogs / log output
+    // The backend the running (or last) session records into, or null when no
+    // trace has been opened for a run yet.
+    QmlProfilerTraceBackend *liveBackend() const;
+
     static void logState(const QString &msg);
     static void showNonmodalWarning(const QString &warningMsg);
-
-    QmlProfilerClientManager *clientManager();
-    QmlProfilerModelManager *modelManager();
-    QmlProfilerStateManager *stateManager();
-
-    void profilerStateChanged();
-    void serverRecordingChanged();
-    void clientsDisconnected();
-    void setAvailableFeatures(quint64 features);
-    void setRecordedFeatures(quint64 features);
-    void recordingButtonChanged(bool recording);
-
-    void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber);
 
     static QString fileDialogTraceFilesFilter();
     void showSaveDialog();
@@ -57,28 +50,13 @@ public:
 
     void profileStartupProject();
 
+signals:
+    // A run has opened the trace it records into. Emitted before the debug
+    // connection is made, so a listener can still configure the session.
+    void liveBackendChanged(QmlProfilerTraceBackend *backend);
+
 private:
-    void clearEvents();
-    void clearData();
-    void showErrorDialog(const QString &error);
-    void profilerDataModelStateChanged();
-    void updateTimeDisplay();
-    void showTimeLineSearch();
-
-    void onLoadSaveFinished();
-
-    void toggleRequestedFeature(QAction *action);
-    void toggleVisibleFeature(QAction *action);
-
     void updateRunActions();
-    void clearDisplay();
-    bool checkForUnsavedNotes();
-    void setButtonsEnabled(bool enable);
-    void createInitialTextMarks();
-
-    void initialize();
-    void finalize();
-    void clear();
 
     class QmlProfilerToolPrivate;
     QmlProfilerToolPrivate *d;
@@ -86,4 +64,4 @@ private:
 
 void setupQmlProfilerTool();
 
-} // namespace Internal::Internal
+} // namespace Profiler::Internal

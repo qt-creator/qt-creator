@@ -8,6 +8,7 @@
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilertool.h"
+#include "qmlprofilertracebackend.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -109,8 +110,17 @@ void registerMcpTools()
                         {"running", false},
                         {"error", "The QML profiler is not available."}};
             }
-            QmlProfilerModelManager *modelManager = tool->modelManager();
-            QmlProfilerStateManager *stateManager = tool->stateManager();
+            // The trace of the running session, or of the last one to have run.
+            QmlProfilerTraceBackend *backend = tool->liveBackend();
+            if (!backend) {
+                return {{"state", "Idle"},
+                        {"recording", false},
+                        {"running", false},
+                        {"num_events", 0},
+                        {"trace_duration_ns", 0}};
+            }
+            const QmlProfilerModelManager *modelManager = backend->modelManager();
+            QmlProfilerStateManager *stateManager = backend->stateManager();
             return {
                 {"state", stateManager->currentStateAsString()},
                 {"recording", stateManager->serverRecording()},
