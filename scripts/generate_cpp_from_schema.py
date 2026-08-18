@@ -514,8 +514,14 @@ def _parse_discriminated_union(name, spec, types=None):
 
     # Extract (ref_type_name, discriminator_const_value) for each oneOf item
     variants = []  # list of (cpp_type_name, disc_value, item_spec)
+    has_fallback = False
     for item in items:
         ref = _extract_ref(item)
+        if ref is None and "not" in item:
+            # Open-union catch-all ({"title": "other", "not": {...}}):
+            # unknown discriminator values are preserved as raw QJsonObject.
+            has_fallback = True
+            continue
         # Get the discriminator const value from inline properties
         disc_val = None
         inline_props = item.get("properties", {})
@@ -553,13 +559,16 @@ def _parse_discriminated_union(name, spec, types=None):
 
     # Check if we need a wrapper struct (duplicates exist or inline-only variants)
     if has_duplicates or has_inline_only:
-        return _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types)
+        return _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types,
+                                                 has_fallback=has_fallback)
     else:
         # No duplicates — generate a using alias with discriminator-based dispatch
-        return _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types)
+        return _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types,
+                                        has_fallback=has_fallback)
 
 
-def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types):
+def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types,
+                                      has_fallback=False):
     """Generate a wrapper struct for discriminated unions with duplicate types or inline-only variants."""
     prefix = doc_comment(spec.get('description', ''))
     lines = []
@@ -570,6 +579,8 @@ def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_typ
     variant_members = list(unique_cpp_types)
     if has_inline_only:
         variant_members.insert(0, "std::monostate")
+    if has_fallback and "QJsonObject" not in variant_members:
+        variant_members.append("QJsonObject")
     variant_type_str = ", ".join(variant_members)
 
     lines.append(f"struct {name} {{")
@@ -604,8 +615,14 @@ def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_typ
             fj.append(f"    {kw} (kind == \"{disc_val}\")")
             fj.append(f"        result._value = std::monostate{{}};")
 
-    fj.append(f"    else")
-    fj.append(f'        co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + kind + "\\"");')
+    if has_fallback:
+        fj.append(f"    else if (kind.isEmpty())")
+        fj.append(f'        co_return Utils::ResultError("Invalid {name}: missing {disc_field}");')
+        fj.append(f"    else")
+        fj.append(f"        result._value = obj;  // open union: preserve unknown variants raw")
+    else:
+        fj.append(f"    else")
+        fj.append(f'        co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + kind + "\\"");')
     fj.append(f"    co_return result;")
     fj.append(f"}}")
     lines.extend(use_return_if_no_co_await(fj))
@@ -615,9 +632,13 @@ def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_typ
     if not _read_only:
         lines.append(f"inline QJsonObject toJson(const {name} &data) {{")
         lines.append(f"    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {{")
-        if has_inline_only:
+        if has_inline_only or has_fallback:
             lines.append(f"        using T = std::decay_t<decltype(v)>;")
-            lines.append(f"        if constexpr (std::is_same_v<T, std::monostate>) return {{}};")
+            if has_inline_only:
+                lines.append(f"        if constexpr (std::is_same_v<T, std::monostate>) return {{}};")
+            if has_fallback:
+                kw = "else if constexpr" if has_inline_only else "if constexpr"
+                lines.append(f"        {kw} (std::is_same_v<T, QJsonObject>) return v;")
             lines.append(f"        else return toJson(v);")
         else:
             lines.append(f"        return toJson(v);")
@@ -633,11 +654,15 @@ def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_typ
     return prefix + "\n".join(lines), variant_type_str
 
 
-def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types):
+def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types,
+                             has_fallback=False):
     """Generate a using alias with discriminator-based dispatch for unions without duplicate types."""
     prefix = doc_comment(spec.get('description', ''))
     lines = []
-    variant_type_str = ", ".join(unique_cpp_types)
+    variant_members = list(unique_cpp_types)
+    if has_fallback and "QJsonObject" not in variant_members:
+        variant_members.append("QJsonObject")
+    variant_type_str = ", ".join(variant_members)
 
     lines.append(f"using {name} = std::variant<{variant_type_str}>;")
     lines.append(f"")
@@ -657,7 +682,12 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
         fj.append(f"    {kw} (dispatchValue == \"{disc_val}\")")
         fj.append(f"        co_return {name}(co_await fromJson<{cpp_type_name}>(val));")
 
-    fj.append(f'    co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + dispatchValue + "\\"");')
+    if has_fallback:
+        fj.append(f"    if (dispatchValue.isEmpty())")
+        fj.append(f'        co_return Utils::ResultError("Invalid {name}: missing {disc_field}");')
+        fj.append(f"    co_return {name}(val.toObject());  // open union: preserve unknown variants raw")
+    else:
+        fj.append(f'    co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + dispatchValue + "\\"");')
     fj.append(f"}}")
     lines.extend(use_return_if_no_co_await(fj))
     lines.append(f"")
@@ -678,6 +708,9 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
         kw = "if constexpr" if first else "else if constexpr"
         first = False
         lines.append(f"        {kw} (std::is_same_v<T, {cpp_type_name}>) return \"{disc_val}\";")
+    if has_fallback:
+        kw = "if constexpr" if first else "else if constexpr"
+        lines.append(f"        {kw} (std::is_same_v<T, QJsonObject>) return v.value(\"{disc_field}\").toString();")
     lines.append(f"        return {{}};")
     lines.append(f"    }}, val);")
     lines.append(f"}}")
@@ -702,9 +735,10 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
         lines.append(f"    return toJson(val);")
         lines.append(f"}}")
 
-    # Shared field accessors
+    # Shared field accessors (not for open unions: the raw QJsonObject
+    # fallback alternative has no typed fields)
     ref_names = unique_cpp_types
-    if types:
+    if types and not has_fallback:
         for field, ret_type in find_shared_fields(ref_names, types):
             lines.append(f"")
             if _emit_comments:
@@ -799,6 +833,12 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
         ref_names = [ref_type(r) for item in items if (r := _extract_ref(item))]
         # Collect plain-type items (non-$ref items with a "type" field)
         plain_items = [item for item in items if not _extract_ref(item) and "type" in item]
+        # Open-union catch-all ({"title": "other", "not": {...}}), matching the
+        # detection in _parse_discriminated_union — not just any object-typed
+        # variant, which would otherwise wrongly suppress validation and
+        # shared field accessors for ordinary object unions.
+        has_open_union_fallback = any(
+            _extract_ref(item) is None and "not" in item for item in items)
 
         # If all items are plain types (no $refs), generate primitive-style fromJson
         if plain_items and not ref_names:
@@ -853,7 +893,10 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                     first = False
                     fj.append(f"    {kw} (dispatchValue == \"{const_val}\")")
                     fj.append(f"        co_return {name}(co_await fromJson<{ref_name}>(val));")
-                fj.append(f"    co_return Utils::ResultError(\"Invalid {name}: unknown {dispatch_field} \\\"\" + dispatchValue + \"\\\"\");")
+                if has_open_union_fallback:
+                    fj.append(f"    co_return {name}(val.toObject());  // open union: preserve unknown variants raw")
+                else:
+                    fj.append(f"    co_return Utils::ResultError(\"Invalid {name}: unknown {dispatch_field} \\\"\" + dispatchValue + \"\\\"\");")
                 fj.append("}")  # close fromJson function
                 if not skip_from_json:
                     lines.extend(use_return_if_no_co_await(fj))
@@ -885,10 +928,15 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                     kw = "if constexpr" if first else "else if constexpr"
                     first = False
                     lines.append(f"        {kw} (std::is_same_v<T, {ref_name}>) return \"{const_val}\";")
+                if has_open_union_fallback:
+                    kw = "if constexpr" if first else "else if constexpr"
+                    lines.append(f"        {kw} (std::is_same_v<T, QJsonObject>) return v.value(\"{dispatch_field}\").toString();")
                 lines.append("        return {};")
                 lines.append("    }, val);")
                 lines.append("}")
-                for field, ret_type in find_shared_fields(ref_names, types):
+                shared_fields = [] if has_open_union_fallback \
+                    else find_shared_fields(ref_names, types)
+                for field, ret_type in shared_fields:
                     lines.append("")
                     if _emit_comments:
                         lines.append(f"/** Returns the '{field}' field from the active variant. */")
@@ -933,7 +981,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
         items = spec.get("anyOf", spec.get("oneOf", []))
         ref_names = [ref_type(r) for item in items if (r := _extract_ref(item))]
         # Only for pure $ref unions (not already handled by the const-dispatch branch above)
-        if ref_names and types:
+        if ref_names and types and "QJsonObject" not in variant_types:
             _, had_dispatch = find_dispatch_field(ref_names, types)
             if not had_dispatch:
                 for field, ret_type in find_shared_fields(ref_names, types):
