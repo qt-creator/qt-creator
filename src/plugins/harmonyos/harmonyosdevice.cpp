@@ -13,10 +13,15 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/devicefileaccess.h>
+#include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
+#include <utils/synchronizedvalue.h>
+#include <utils/temporaryfile.h>
 
 #include <QInputDialog>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QTimer>
 
@@ -26,11 +31,133 @@ using namespace std::chrono_literals;
 
 namespace HarmonyOs::Internal {
 
+static Q_LOGGING_CATEGORY(deviceLog, "qtc.harmonyos.device", QtWarningMsg)
+
 static Result<QStringList> connectedSerialNumbers(const FilePath &hdc);
 static void updateDeviceState(const IDevice::Ptr &device);
 static DeviceTester *createHarmonyOsDeviceTester(const IDevice::Ptr &device);
 
+// Shared, because both users outlive a single call and run in other threads.
+class AccessData
+{
+public:
+    SynchronizedValue<QString> serialNumber;
+    SynchronizedValue<FilePath> hdcCommand;
+};
+
+static const char s_exitCodeMarker[] = "__qtc_exit_code=";
+
+class HarmonyOsFileAccess final : public UnixDeviceFileAccess
+{
+public:
+    explicit HarmonyOsFileAccess(const std::shared_ptr<AccessData> &data)
+        : m_data(data)
+    {}
+
+    // hdc merges the remote stderr into stdout, so dd's report would end up in the
+    // data. Read the file with the transfer instead.
+    Result<QByteArray> fileContents(const FilePath &filePath, qint64 limit, qint64 offset)
+        const final
+    {
+        TemporaryFile local("qtc-harmonyos-XXXXXX");
+        if (!local.open())
+            return ResultError(local.errorString());
+        local.close();
+
+        if (const Result<> transferred = transfer({"file", "recv"}, filePath.path(),
+                                                  local.filePath().nativePath());
+            !transferred) {
+            return ResultError(transferred.error());
+        }
+
+        const Result<QByteArray> contents = local.filePath().fileContents(limit, offset);
+        if (!contents)
+            return ResultError(contents.error());
+        return *contents;
+    }
+
+    // hdc shell does not forward stdin, so anything that would be piped in goes
+    // over the file transfer instead.
+    Result<qint64> writeFileContents(const FilePath &filePath, const QByteArray &data) const final
+    {
+        TemporaryFile local("qtc-harmonyos-XXXXXX");
+        if (!local.open())
+            return ResultError(local.errorString());
+        if (local.write(data) != data.size())
+            return ResultError(local.errorString());
+        local.close();
+
+        if (const Result<> transferred = transfer({"file", "send"},
+                                                  local.filePath().nativePath(), filePath.path());
+            !transferred) {
+            return ResultError(transferred.error());
+        }
+        return data.size();
+    }
+
+    Result<> transfer(const QStringList &mode, const QString &from, const QString &to) const
+    {
+        CommandLine cmd(*m_data->hdcCommand.readLocked());
+        cmd.addArgs({"-t", *m_data->serialNumber.readLocked()});
+        cmd.addArgs(mode);
+        cmd.addArgs({from, to});
+
+        Process process;
+        process.setCommand(cmd);
+        process.runBlocking();
+        const QString output = process.allOutput();
+        qCDebug(deviceLog) << cmd.toUserOutput() << "->" << output;
+        // hdc reports a failed transfer in its output, not in its exit code.
+        if (process.result() != ProcessResult::FinishedWithSuccess || output.contains("[Fail]"))
+            return ResultError(output.trimmed());
+        return ResultOk;
+    }
+
+protected:
+    Result<RunResult> runInShellImpl(const CommandLine &cmdLine,
+                                     const QByteArray &inputData) const final
+    {
+        CommandLine cmd(*m_data->hdcCommand.readLocked());
+        cmd.addArgs({"-t", *m_data->serialNumber.readLocked(), "shell"});
+        // hdc exits successfully whatever the command did, so have the shell report
+        // the status itself.
+        CommandLine remote = cmdLine;
+        remote.addArgs(QString("; echo %1$?").arg(QLatin1String(s_exitCodeMarker)), CommandLine::Raw);
+        cmd.addCommandLineAsSingleArg(remote);
+
+        Process process;
+        process.setWriteData(inputData);
+        process.setCommand(cmd);
+        process.runBlocking();
+        QByteArray stdOut = process.readAllRawStandardOutput();
+        int exitCode = process.resultData().m_exitCode;
+        const qsizetype markerAt = stdOut.lastIndexOf(s_exitCodeMarker);
+        if (markerAt >= 0) {
+            exitCode = stdOut.mid(markerAt + qstrlen(s_exitCodeMarker)).trimmed().toInt();
+            stdOut.truncate(markerAt);
+        }
+
+        const RunResult result{exitCode, stdOut, process.readAllRawStandardError()};
+        qCDebug(deviceLog) << cmd.toUserOutput() << "->" << result.exitCode
+                           << "out:" << result.stdOut << "err:" << result.stdErr;
+        return result;
+    }
+
+private:
+    std::shared_ptr<AccessData> m_data;
+};
+
+class HarmonyOsDevice::Private
+{
+public:
+    std::shared_ptr<AccessData> accessData = std::make_shared<AccessData>();
+    std::shared_ptr<HarmonyOsFileAccess> fileAccess;
+};
+
+HarmonyOsDevice::~HarmonyOsDevice() = default;
+
 HarmonyOsDevice::HarmonyOsDevice()
+    : d(new Private)
 {
     setType(Constants::HARMONYOS_DEVICE_TYPE);
     setDefaultDisplayName(Tr::tr("Run on HarmonyOS"));
@@ -67,6 +194,48 @@ QString HarmonyOsDevice::serialNumber() const
 void HarmonyOsDevice::setSerialNumber(const QString &serial)
 {
     setExtraData(Constants::HARMONYOS_SERIAL_NUMBER, serial);
+    *d->accessData->serialNumber.writeLocked() = serial;
+    updateFileAccess();
+}
+
+void HarmonyOsDevice::updateFileAccess()
+{
+    const FilePath hdc = Sdk::hdcCommand(settings().sdkLocation());
+    *d->accessData->hdcCommand.writeLocked() = hdc;
+
+    if (hdc.isEmpty() || serialNumber().isEmpty() || deviceState() != IDevice::DeviceReadyToUse) {
+        setFileAccess(nullptr);
+        d->fileAccess.reset();
+        return;
+    }
+    if (!d->fileAccess) {
+        d->fileAccess = std::make_shared<HarmonyOsFileAccess>(d->accessData);
+        setFileAccess(d->fileAccess);
+    }
+}
+
+ProcessInterface *HarmonyOsDevice::createProcessInterface() const
+{
+    const FilePath hdc = *d->accessData->hdcCommand.readLocked();
+    const QString serial = *d->accessData->serialNumber.readLocked();
+    const auto wrapCommandLine = [hdc, serial](const ProcessSetupData &setupData,
+                                               const QString &pidMarker) -> Result<CommandLine> {
+        if (hdc.isEmpty())
+            return ResultError(Tr::tr("No hdc command is available."));
+        CommandLine cmd(hdc);
+        cmd.addArgs({"-t", serial, "shell"});
+        CommandLine inner("echo", {pidMarker.arg("1234")}); // No pid to report, as with Android.
+        if (!setupData.rawWorkingDirectory().isEmpty())
+            inner.addCommandLineWithAnd({"cd", {setupData.rawWorkingDirectory().path()}});
+        inner.addCommandLineWithAnd(setupData.m_commandLine);
+        inner.addArgs(QString("; echo %1$?").arg(QLatin1String(s_exitCodeMarker)), CommandLine::Raw);
+        cmd.addCommandLineAsSingleArg(inner);
+        return cmd;
+    };
+    const auto controlSignal = [](ControlSignal, qint64) {
+        // hdc shell leaves no process of ours behind to signal.
+    };
+    return new WrappedProcessInterface(wrapCommandLine, controlSignal, s_exitCodeMarker);
 }
 
 static QStringList serialNumbers(const QString &hdcOutput)
@@ -309,6 +478,14 @@ private:
 void setupHarmonyOsDeviceDetection()
 {
     static HarmonyOsDeviceDetector theHarmonyOsDeviceDetector;
+
+    QObject::connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
+                     DeviceManager::instance(), [](const Id &id) {
+        if (const IDevice::Ptr device = DeviceManager::find(id)) {
+            if (const auto harmonyDevice = dynamic_cast<HarmonyOsDevice *>(device.get()))
+                harmonyDevice->updateFileAccess();
+        }
+    });
 }
 
 // Factory
