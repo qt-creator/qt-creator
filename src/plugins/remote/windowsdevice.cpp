@@ -338,10 +338,11 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine()
 
 // Builds the remote command for a GUI run: stages a PowerShell orchestrator on the device and
 // returns the "powershell -File <script>" invocation to run over SSH (in the invisible session 0).
-// Run in its default mode the script creates an interactive scheduled task (schtasks /it) that
-// re-invokes it in "app" mode inside the logged-on user's desktop session, where it applies the
-// run environment and starts the application (so its window is actually visible), waits for it,
-// and reports the exit code back. Returns an empty string on staging failure (caller falls back).
+// Run in its default mode the script creates a scheduled task running as SYSTEM that re-invokes
+// it in "sys" mode; only SYSTEM can reach the interactive desktop, so that mode starts "app" mode
+// in the active session, where it applies the run environment and starts the application (so its
+// window is actually visible), waits for it, and reports the exit code back. Returns an empty
+// string on staging failure (caller falls back).
 QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
 {
     const CommandLine remoteCommand = m_setup.m_commandLine;
