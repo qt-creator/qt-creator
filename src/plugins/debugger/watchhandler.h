@@ -58,6 +58,7 @@ public:
 
     bool isExpandedIName(const QString &iname) const;
     QSet<QString> expandedINames() const;
+    void collapseAllChildren(const QString &iname);
     int maxArrayCount(const QString &iname) const;
 
     static QStringList watchedExpressions();

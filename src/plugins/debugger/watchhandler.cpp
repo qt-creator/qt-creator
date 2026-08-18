@@ -3043,6 +3043,17 @@ QSet<QString> WatchHandler::expandedINames() const
     return m_model->m_expandedINames;
 }
 
+void WatchHandler::collapseAllChildren(const QString &iname)
+{
+    WatchItem *item = m_model->findItem(iname);
+    QTC_ASSERT(item, return);
+    // Every descendant, not just the first level: the point is that expanding
+    // the item again shows its subtree collapsed at all levels.
+    item->forAllChildren(
+        [this](WatchItem *child) { m_model->m_expandedINames.remove(child->iname); });
+    m_model->m_engine->updateLocals();
+}
+
 int WatchHandler::maxArrayCount(const QString &iname) const
 {
     return m_model->m_maxArrayCount.value(iname, settings().defaultArraySize());
