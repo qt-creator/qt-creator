@@ -217,6 +217,46 @@ private slots:
         DeviceManager::removeDevice(device->id());
     }
 
+    // A plain remote Linux device signs nothing, so the bridge it uploads cannot be
+    // executed here. Reporting that as a working bridge left the device with file
+    // access that only asserted.
+    void testUnrunnableBridgeFallsBack()
+    {
+        const QString spec = qEnvironmentVariable("QTC_HARMONYOS_BUILD_DEVICE");
+        if (spec.isEmpty())
+            QSKIP("QTC_HARMONYOS_BUILD_DEVICE is not set");
+
+        const Remote::LinuxDevice::Ptr device = Remote::LinuxDevice::create();
+        const QString user = spec.left(spec.indexOf('@'));
+        const QString hostAndPort = spec.mid(spec.indexOf('@') + 1);
+        SshParameters params = device->sshParameters();
+        params.setUserName(user);
+        params.setHost(hostAndPort.left(hostAndPort.indexOf(':')));
+        params.setPort(hostAndPort.mid(hostAndPort.indexOf(':') + 1).toInt());
+        params.setHostKeyCheckingMode(SshHostKeyCheckingNone);
+        params.setTimeout(15);
+        device->setupId(IDevice::ManuallyAdded, Id::fromString(QString("HarmonyOS.PlainLinux.Test")));
+        DeviceRef(IDevice::Ptr(device)).setSshParameters(params);
+        DeviceManager::addDevice(device);
+
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        QObject::connect(&timeout, &QTimer::timeout, &loop, [&loop] { loop.exit(1); });
+        timeout.start(120 * 1000);
+        device->tryToConnect(Continuation<>(&loop, [&loop](const Result<> &result) {
+            loop.exit(result ? 0 : 1);
+        }));
+        QCOMPARE(loop.exec(), 0);
+
+        QVERIFY(device->fileAccess());
+        QVERIFY2(!dynamic_cast<CmdBridge::FileAccess *>(device->fileAccess().get()),
+                 "A bridge that cannot run was reported as usable.");
+        QVERIFY(device->rootPath().exists());
+
+        DeviceManager::removeDevice(device->id());
+    }
+
     // Runs the same detection the Devices page offers.
     void testAutoDetect()
     {

@@ -11,6 +11,7 @@
 
 #include <QCoreApplication>
 #include <QElapsedTimer>
+#include <QEventLoop>
 #include <QFutureWatcher>
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -100,6 +101,36 @@ Result<> FileAccess::init(
     auto startResult = m_client->start(deleteOnExit);
     if (!startResult)
         return logError(Tr::tr("Could not start cmdbridge: %1").arg(startResult.error()));
+
+    // Starting the transport says nothing about the binary at the other end: where
+    // it cannot be executed, the process is gone and every later call asserts
+    // instead of the caller getting a chance to fall back. Have it answer once.
+    // A bridge that exits concludes the pending job with an exception, which
+    // waitForFinished() rethrows - the catch below is that expected failure path.
+    // The bound only fires when the bridge neither answers nor exits; unbounded,
+    // that case would block init() and, through the future synchronizer, shutdown.
+    try {
+        const Result<QFuture<bool>> answer = m_client->is("/", Client::Is::Dir);
+        if (!answer)
+            return logError(Tr::tr("The bridge did not answer: %1").arg(answer.error()));
+        QFuture<bool> future = *answer;
+        QEventLoop loop;
+        QFutureWatcher<bool> watcher;
+        QObject::connect(&watcher, &QFutureWatcher<bool>::finished, &loop, &QEventLoop::quit);
+        QTimer::singleShot(std::chrono::seconds(30), &loop, [&loop] { loop.exit(1); });
+        watcher.setFuture(future);
+        if (loop.exec() != 0)
+            return logError(Tr::tr("The bridge did not answer within 30 seconds."));
+        future.waitForFinished();
+        if (future.isCanceled() || future.resultCount() == 0)
+            return logError(Tr::tr("The bridge did not answer."));
+    } catch (const std::exception &e) {
+        // concludePendingJobs() spells a clean early exit "NormalExit"; this is
+        // the one caller that knows what that silence means.
+        if (str(e) == "NormalExit")
+            return logError(Tr::tr("The bridge exited without answering."));
+        return logError(Tr::tr("The bridge did not answer: %1").arg(str(e)));
+    }
 
     m_started = true;
     return ResultOk;
