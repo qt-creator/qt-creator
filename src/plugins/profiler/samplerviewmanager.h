@@ -14,7 +14,7 @@
 
 namespace Timeline { class RangeDetailsWidget; }
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Hosts the Instruments-like views for traces recorded by a call-stack sampler
 // backend (macOS mach-based or Linux perf-based): a CPU usage timeline and the
@@ -50,4 +50,4 @@ private:
     class SamplerViewManagerPrivate *d;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

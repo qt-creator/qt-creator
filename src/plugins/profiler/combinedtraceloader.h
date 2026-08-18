@@ -13,7 +13,7 @@
 
 #include <functional>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Turns a combined bundle (see CombinedSampler) into a single native-mixed
 // sampler trace: it loads the bundle's QML ".qtd", reconstructs the JS/QML call
@@ -74,4 +74,4 @@ private:
 PROFILER_EXPORT QtTaskTree::ExecutableItem mergeCombinedBundleRecipe(
     const Utils::FilePath &bundleDir, const std::function<void(int)> &reportProgress);
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

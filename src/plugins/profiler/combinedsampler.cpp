@@ -23,12 +23,11 @@
 #include <QJsonObject>
 #include <QTimer>
 
-using namespace Profiler;
 using namespace QtTaskTree;
 using namespace Utils;
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 CombinedSamplerSettings::CombinedSamplerSettings()
 {
@@ -333,4 +332,4 @@ bool CombinedSampler::isCombinedTrace(const FilePath &dir)
     return object.contains("sampler"_L1) && object.contains("qml"_L1);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

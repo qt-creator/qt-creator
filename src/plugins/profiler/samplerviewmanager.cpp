@@ -23,13 +23,12 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
-using namespace Profiler;
 using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace std::chrono;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class SamplerViewManagerPrivate
 {
@@ -82,7 +81,7 @@ SamplerViewManager::~SamplerViewManager()
 
 bool SamplerViewManager::isSamplerTrace(const FilePath &dir)
 {
-    return QmlProfiler::Internal::isSamplerTrace(dir);
+    return Profiler::Internal::isSamplerTrace(dir);
 }
 
 QWidgetList SamplerViewManager::views(QWidget *parent)
@@ -154,4 +153,4 @@ milliseconds SamplerViewManager::traceDuration() const
     return duration_cast<milliseconds>(nanoseconds{d->cpuModel.traceEndNs()});
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

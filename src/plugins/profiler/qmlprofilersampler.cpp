@@ -25,15 +25,13 @@
 #include <QDebug>
 #include <QTimer>
 
-using namespace Profiler;
-using namespace Profiler::Internal;
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
 
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
 {
@@ -260,4 +258,4 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
     return QBarrierTask(onSetup, onDone);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

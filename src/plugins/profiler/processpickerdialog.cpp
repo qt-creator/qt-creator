@@ -15,10 +15,9 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
-using namespace Profiler;
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 enum Column { PidColumn, NameColumn, CommandColumn, ColumnCount };
 // The list index into m_processes, stored on the first column so a proxy/sorted
@@ -134,4 +133,4 @@ void ProcessPickerDialog::updateOkButton()
     m_okButton->setEnabled(selectedProcess().has_value());
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

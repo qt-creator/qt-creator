@@ -316,9 +316,7 @@ namespace `Profiler`) and `perfprofiler` folded into it, so the perf and QML
 profilers share one tool/perspective/trace clock. A single fused perspective needs
 one tool owning both streams on one `TimelineZoomControl` and one trace clock;
 separate plugins/perspectives cannot share zoom/selection cleanly. perfparser is an
-external process, so the merge did not pull elfutils into Creator itself. (Some
-sampler files remain in the older `QmlProfiler::Internal` namespace; unifying that
-is outstanding.)
+external process, so the merge did not pull elfutils into Creator itself.
 
 ---
 

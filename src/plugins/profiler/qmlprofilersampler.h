@@ -13,7 +13,7 @@ class QmlProfilerModelManager;
 class QmlProfilerStateManager;
 }
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Settings for the QML profiler backend: whether to connect to a running QML debug
 // server (host/port) or launch the configured executable, and the set of profiler
@@ -63,4 +63,4 @@ private:
     std::unique_ptr<Profiler::Internal::QmlProfilerClientManager> m_clientManager;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

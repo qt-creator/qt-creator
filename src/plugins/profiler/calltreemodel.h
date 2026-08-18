@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Aggregates the on-CPU samples of a recording into one merged call tree:
 // every sample's root-first frame path is merged so identical prefixes share
@@ -90,4 +90,4 @@ private:
                                   // its weight is the total sample count
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

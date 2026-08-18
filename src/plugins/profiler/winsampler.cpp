@@ -34,11 +34,10 @@
 #include <utility>
 #include <vector>
 
-using namespace Profiler;
 using namespace Utils;
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 namespace {
 
 // ETW GUIDs, with the values evntrace.h defines (the SDK only provides them
@@ -832,4 +831,4 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
     return dir;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

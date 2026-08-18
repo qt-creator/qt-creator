@@ -24,14 +24,12 @@
 #include <QtTaskTree/QBarrier>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
-using namespace Profiler;
-using namespace Profiler::Internal;
 using namespace QmlDebug;
 using namespace QtTaskTree;
 using namespace Utils;
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class CombinedTraceLoaderPrivate
 {
@@ -345,4 +343,4 @@ ExecutableItem mergeCombinedBundleRecipe(const FilePath &bundleDir,
     return QBarrierTask(onSetup);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -21,10 +21,9 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
-using namespace Profiler;
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // A one-line colour key explaining the QML/JS vs C++ frame tint. Shown only for
 // merged native-mixed traces (see CallTreeModel::hasJsFrames).
@@ -169,4 +168,4 @@ void CallTreeView::onHeaviestDoubleClicked(QTreeWidgetItem *item)
     emitGotoForIndex(item->data(0, Qt::UserRole).value<QPersistentModelIndex>());
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

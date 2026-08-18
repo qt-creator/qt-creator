@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 Q_DECLARE_LOGGING_CATEGORY(etwLog)
 
@@ -134,4 +134,4 @@ private:
     QMutex m_mutex; // Protects all internal state from concurrent ETW callbacks.
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

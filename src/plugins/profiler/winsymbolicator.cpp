@@ -22,7 +22,7 @@
 
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 Q_LOGGING_CATEGORY(etwLog, "qtc.profiler.etw", QtWarningMsg)
 
@@ -380,4 +380,4 @@ int LiveLabeler::labelIdFor(quint64 addr)
     return id;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

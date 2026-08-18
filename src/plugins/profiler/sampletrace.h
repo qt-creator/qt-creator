@@ -14,7 +14,7 @@
 #include <functional>
 #include <utility>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Name of the CTF2 data stream class that marks a call-stack sampler trace.
 inline constexpr QLatin1StringView samplerStreamName = QLatin1StringView("sampler-stacks");
@@ -101,4 +101,4 @@ Utils::FilePath uniqueTracePathAt(const QDateTime &now, QLatin1StringView prefix
 // uniqueTracePathAt() for the current local time.
 Utils::FilePath uniqueTracePath(QLatin1StringView prefix, QLatin1StringView suffix = {});
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

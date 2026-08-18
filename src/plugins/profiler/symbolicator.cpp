@@ -20,7 +20,7 @@
 
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 namespace {
 
 // Reads a NUL-terminated C string out of the target task, up to a sane cap.
@@ -241,6 +241,6 @@ int LiveLabeler::labelIdFor(quint64 addr)
     return id;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal
 
 #endif // Q_OS_MACOS

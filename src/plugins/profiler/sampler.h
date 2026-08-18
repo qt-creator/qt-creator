@@ -21,7 +21,7 @@
 #include <memory>
 #include <optional>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Options for a single sampling session. The target is selected by `pid` when it
 // is non-zero (e.g. a process launched to be profiled), otherwise by `processName`.
@@ -211,4 +211,4 @@ public:
     virtual std::optional<SamplerFix> availableFix() const { return std::nullopt; }
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

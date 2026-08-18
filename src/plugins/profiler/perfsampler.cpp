@@ -26,13 +26,11 @@
 
 #include <optional>
 
-using namespace Profiler;
-using namespace Profiler::Internal;
 using namespace QtTaskTree;
 using namespace Utils;
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 namespace {
 
@@ -704,4 +702,4 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
     };
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

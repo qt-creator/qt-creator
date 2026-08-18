@@ -11,11 +11,10 @@
 
 #include <QPointer>
 
-using namespace Profiler;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 QtTaskTree::Group launchThenCapture(const std::shared_ptr<RecordingSession> &session,
                                     const QtTaskTree::ExecutableItem &capture)
@@ -81,4 +80,4 @@ QtTaskTree::Group launchThenCapture(const std::shared_ptr<RecordingSession> &ses
     };
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

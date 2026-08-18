@@ -5,7 +5,7 @@
 
 #include <QtTest>
 
-using namespace QmlProfiler::Internal;
+using namespace Profiler::Internal;
 
 using Label = SampleTraceData::Label;
 using ThreadSample = SampleTraceData::ThreadSample;

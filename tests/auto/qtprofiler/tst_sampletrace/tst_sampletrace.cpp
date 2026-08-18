@@ -12,7 +12,7 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
-using namespace QmlProfiler::Internal;
+using namespace Profiler::Internal;
 using namespace Utils;
 using namespace Qt::StringLiterals;
 

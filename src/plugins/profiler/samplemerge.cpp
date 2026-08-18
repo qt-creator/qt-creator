@@ -5,7 +5,7 @@
 
 #include <QHash>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // The JIT region marker the QML engine emits for compiled JS, matching the
 // convention used on the perf side (see perfprofilerconstants.h).
@@ -160,4 +160,4 @@ SampleTraceData mergeQmlIntoSamples(
     return merged;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

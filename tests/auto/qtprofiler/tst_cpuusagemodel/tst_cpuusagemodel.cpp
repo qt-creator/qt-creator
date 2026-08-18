@@ -8,7 +8,7 @@
 #include <QSignalSpy>
 #include <QtTest>
 
-using namespace QmlProfiler::Internal;
+using namespace Profiler::Internal;
 
 // Three ticks at t=0, 100, 200 µs with two threads:
 //   t=0:   both running (usage 2)

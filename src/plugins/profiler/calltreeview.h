@@ -14,7 +14,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class TreeView; }
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class CallTreeModel;
 
@@ -45,4 +45,4 @@ private:
     bool m_syncingSelection = false; // suppress pane rebuild during heaviest->tree sync
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

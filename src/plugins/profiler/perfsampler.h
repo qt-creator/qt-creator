@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Settings for the Linux perf-based sampler. Perf-specific configuration
 // (events, call-graph mode, frequency, extra arguments) is not reimplemented
@@ -73,4 +73,4 @@ private:
     std::unique_ptr<PerfSamplerSettings> m_settings;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

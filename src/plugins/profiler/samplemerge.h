@@ -9,7 +9,7 @@
 #include <QList>
 #include <QString>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // One QML/JS activation taken from a QML profiler trace recorded concurrently
 // with the native sampler. Timestamps are on the same clock as
@@ -65,4 +65,4 @@ PROFILER_EXPORT SampleTraceData mergeQmlIntoSamples(
 // merge treats as the JS boundary. Exposed for testing.
 PROFILER_EXPORT bool isEngineFrame(const SampleTraceData::Label &label);
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

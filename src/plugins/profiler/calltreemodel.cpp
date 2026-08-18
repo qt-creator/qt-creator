@@ -12,9 +12,8 @@
 
 #include <algorithm>
 
-using namespace Profiler;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 CallTreeModel::CallTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -222,4 +221,4 @@ QVariant CallTreeModel::headerData(int section, Qt::Orientation orientation, int
     return {};
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

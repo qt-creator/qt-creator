@@ -9,10 +9,9 @@
 
 #include <QHash>
 
-using namespace Profiler;
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Timeline rows: 0 = category header, 1 = total graph, 2.. = threads.
 constexpr int TotalRow = 1;
@@ -375,4 +374,4 @@ bool CpuUsageModel::fillDensityColumns(int row, qint64 startNs, qint64 endNs,
     return true;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

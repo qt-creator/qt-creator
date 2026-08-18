@@ -7,7 +7,7 @@
 
 #include "sampler.h"
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 #ifdef Q_OS_MACOS
 // Attaches to the target process, periodically suspends it and walks the
@@ -26,4 +26,4 @@ PROFILER_EXPORT Utils::Result<Utils::FilePath> recordSampleTrace(
     std::atomic<int> *progressPercent = nullptr);
 #endif
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -10,7 +10,7 @@
 
 #include <memory>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Composes process launching around a backend's capture item. When
 // session->launchCommand is set, it launches that command, runs `capture` once
@@ -24,4 +24,4 @@ PROFILER_EXPORT QtTaskTree::Group launchThenCapture(
     const std::shared_ptr<RecordingSession> &session,
     const QtTaskTree::ExecutableItem &capture);
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

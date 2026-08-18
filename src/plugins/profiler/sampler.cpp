@@ -9,11 +9,10 @@
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
-using namespace Profiler;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 void Sampler::prepareLaunch(const std::shared_ptr<RecordingSession> &) const
 {
@@ -55,4 +54,4 @@ Result<> SamplerSettings::fillLaunch(RecordingSession &session) const
     return ResultOk;
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

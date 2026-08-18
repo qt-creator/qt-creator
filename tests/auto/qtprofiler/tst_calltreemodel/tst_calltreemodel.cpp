@@ -6,7 +6,7 @@
 #include <QtTest>
 #include <QAbstractItemModelTester>
 
-using namespace QmlProfiler::Internal;
+using namespace Profiler::Internal;
 
 // labels: 0=start 1=main 2=work 3=idle 4=helper
 static SampleTraceData makeTestData()

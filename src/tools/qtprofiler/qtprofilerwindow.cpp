@@ -71,7 +71,7 @@
 #include <memory>
 
 using namespace Profiler;
-using namespace QmlProfiler::Internal;
+using namespace Profiler::Internal;
 using namespace Utils;
 using namespace Utils::StyleHelper;
 

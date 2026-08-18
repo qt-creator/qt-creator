@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 class QmlProfilerSampler;
 
@@ -80,4 +80,4 @@ private:
     std::unique_ptr<QmlProfilerSampler> m_qml; // QML debug-protocol capture
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

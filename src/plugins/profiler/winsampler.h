@@ -7,7 +7,7 @@
 
 #include "sampler.h"
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Attaches to the target process and records the NT Kernel Logger's sampled
 // profile (with call stacks) of it, then writes the collected samples to a
@@ -34,4 +34,4 @@ PROFILER_EXPORT Utils::Result<Utils::FilePath> recordSampleTrace(
     const std::atomic_bool &stop,
     std::atomic<int> *progressPercent = nullptr);
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

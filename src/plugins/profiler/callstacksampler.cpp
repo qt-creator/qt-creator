@@ -20,11 +20,10 @@
 #include <memory>
 #include <optional>
 
-using namespace Profiler;
 using namespace QtTaskTree;
 using namespace Utils;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 #if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
 // No sampling backend on this platform. isAvailable() already reports that, but
@@ -155,4 +154,4 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
     return QThreadFunctionTask<Result<FilePath>>(onSetup, onDone);
 }
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

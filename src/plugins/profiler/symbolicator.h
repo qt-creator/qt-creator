@@ -17,7 +17,7 @@
 
 #include <vector>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Reads a single value of type T out of the target task's address space. Returns
 // false (and leaves *out untouched) if the read fails or is short. Lives in the
@@ -156,6 +156,6 @@ private:
     QHash<quint64, int> m_labelIdByAddr;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal
 
 #endif // Q_OS_MACOS

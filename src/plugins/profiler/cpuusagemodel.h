@@ -7,7 +7,7 @@
 
 #include <tracing/timelinemodel.h>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // CPU usage of a sampled recording in the timeline: a "Total" graph row with
 // the number of running threads per sampling tick, plus one row per thread
@@ -86,4 +86,4 @@ private:
     mutable QList<QList<int>> m_cacheActive; // [threadIndex][col] on-CPU ticks
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

@@ -11,7 +11,7 @@
 
 #include <cstdint>
 
-using namespace QmlProfiler::Internal;
+using namespace Profiler::Internal;
 
 // A function defined in this test binary itself, used to check that an address
 // inside the running executable resolves to both this image and (when

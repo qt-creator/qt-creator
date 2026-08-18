@@ -18,7 +18,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class FancyLineEdit; }
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // A minimal "attach to process" picker: lists the running processes with a
 // type-to-filter field and returns the one the user chooses. Self-contained so
@@ -47,4 +47,4 @@ private:
     QPushButton *m_okButton = nullptr;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

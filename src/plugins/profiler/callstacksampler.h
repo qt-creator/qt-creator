@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 
 // Settings for the call-stack sampler: the sampling cadence, plus an option to
 // attach to an already-running process (picked via a button) instead of launching
@@ -50,4 +50,4 @@ private:
     std::unique_ptr<CallStackSamplerSettings> m_settings;
 };
 
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal

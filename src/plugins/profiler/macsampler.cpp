@@ -15,7 +15,6 @@
 
 #include <vector>
 
-using namespace Profiler;
 using namespace Utils;
 
 #include <libproc.h>
@@ -27,7 +26,7 @@ using namespace Utils;
 
 using namespace Qt::StringLiterals;
 
-namespace QmlProfiler::Internal {
+namespace Profiler::Internal {
 namespace {
 
 constexpr int kMaxStackDepth = 256;
@@ -302,7 +301,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         return ResultError(r.error());
     return dir;
 }
-} // namespace QmlProfiler::Internal
+} // namespace Profiler::Internal
 
 #endif // Q_OS_MACOS
 
