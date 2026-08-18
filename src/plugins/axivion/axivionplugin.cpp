@@ -688,6 +688,8 @@ static Group authorizationRecipe(DashboardMode dashboardMode)
         const Storage<LocalDashboardAccess> serverAccessStorage;
         const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
         const auto onLocalAuthorizationSetup = [serverAccessStorage] {
+            if (!dd->m_currentProjectInfo) // async - server could have removed it meanwhile
+                return SetupResult::StopWithError;
             std::optional<LocalDashboardAccess>
                     access = localDashboardAccessFor(dd->m_currentProjectInfo->name);
             if (!access)
@@ -951,6 +953,8 @@ Group dashboardInfoRecipe(DashboardMode dashboardMode, const DashboardInfoHandle
         if (auto info = dashboardInfo(dashboardMode)) {
             bool serverChanged = false;
             if (dashboardMode == DashboardMode::Local) {
+                if (!dd->m_currentProjectInfo) // async - server could have removed it meanwhile
+                    return SetupResult::StopWithError;
                 if (auto optionalAccess = localDashboardAccessFor(dd->m_currentProjectInfo->name)) {
                     if (info->source != optionalAccess->url)
                         serverChanged = true;
