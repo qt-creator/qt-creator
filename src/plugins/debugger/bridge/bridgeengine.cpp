@@ -601,7 +601,7 @@ void BridgeEngine::doUpdateLocals(const UpdateParameters &params)
 
     const StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);
-    cmd.arg("nativemixed", false);
+    cmd.arg("nativemixed", isNativeMixedActive());
 
     cmd.arg("stringcutoff", s.maximalStringLength());
     cmd.arg("displaystringlimit", s.displayStringLimit());

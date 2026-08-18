@@ -42,6 +42,8 @@
 #include <utils/temporaryfile.h>
 #include <utils/winutils.h>
 
+#include <QLoggingCategory>
+
 using namespace Core;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -762,10 +764,20 @@ void EnginesDriver::showMessage(const QString &msg, int channel, int timeout)
 // GdbEngine, to try it against an existing gdb kit.
 static void applyCppEngineOptIn(DebuggerRunParameters &rp)
 {
-    if (rp.cppEngineType() == GdbEngineType
-        && qtcEnvironmentVariableIsSet("QTC_DEBUGGER_USE_BRIDGE")) {
-        rp.setCppEngineType(BridgeEngineType);
+    if (rp.cppEngineType() != GdbEngineType
+        || !qtcEnvironmentVariableIsSet("QTC_DEBUGGER_USE_BRIDGE")) {
+        return;
     }
+    const DebuggerStartMode mode = rp.startMode();
+    const bool runnable = !rp.isNativeMixedDebugging()
+                          && (mode == StartInternal || mode == StartExternal
+                              || rp.isLocalAttachEngine());
+    if (!runnable) {
+        static const QLoggingCategory category("qtc.dbg.bridgeengine", QtWarningMsg);
+        qCDebug(category) << "not a session the bridge can run; staying with GdbEngine";
+        return;
+    }
+    rp.setCppEngineType(BridgeEngineType);
 }
 
 Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initialParameters,

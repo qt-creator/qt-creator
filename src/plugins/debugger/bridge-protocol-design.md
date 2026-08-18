@@ -266,8 +266,44 @@ per-backend selection.
   Accepted: that skeleton is where the duplicated, error-prone code is.
 - Re-rooting the state machine on events instead of MI parsing is the main
   non-mechanical work. De-risked by the existing DapEngine doing exactly this.
-- Native-mixed C++/QML debugging (interpreter breakpoints, additional QML
-  stack, mixed stepping) needs its own qtc/ requests/events; design TBD.
+- Native-mixed C++/QML debugging needs its own qtc/ requests and events. The
+  machinery already exists in dumper.py; what is missing is a way to reach it,
+  because the classic engine drives it with DebuggerCommands and picks the
+  answers off gdb's MI console stream, which the bridge does not have. The
+  surface, from the GdbEngine side:
+
+  Requests (thin wrappers over the dumper functions of the same name):
+
+      qtc/insertInterpreterBreakpoint { <BreakpointParameters> } -> { bkpt }
+      qtc/removeInterpreterBreakpoint { id } -> { ok }
+      qtc/armInterpreterStepIn {} -> { ok }
+
+  Events, for what the classic protocol sends out of band as
+  interpreterasync={...} and nativemixedstep={...}:
+
+      qtc/interpreterBreakpointChanged { <bkpt> }   (a pending QML breakpoint
+                                                     bound, moved or went away)
+      qtc/nativeMixedStep { state: "entered" | "left" }
+
+  The step marker exists because the dumper single-steps from QML into a C++
+  method; the intermediate run/stop cycles must not surface as stops, which the
+  classic engine handles with a flag set from that message.
+
+  Two things do not follow from the request list:
+
+  - The stack. With native mixed the classic engine takes the whole stack from
+    the dumper's fetchStack, which merges the QML frames in. The bridge builds
+    it from gdb's own frames via DAP stackTrace, so it would have to switch to
+    the dumper for these sessions, or ask for the QML frames separately and
+    merge them itself.
+  - Stop ownership. gdbbridge connects an interpreter stop handler that can
+    resume the inferior by itself, which is why the server currently
+    disconnects it for the session. For native mixed the server has to consult
+    that machinery on each stop instead, and suppress the stop when it says the
+    inferior is to keep going.
+
+  Until that exists the engine declines native-mixed sessions rather than
+  running them as plain C++ with the QML side silently missing.
 - Registers and peripheral registers have no DAP request; carried as qtc/
   requests (or modeled as a variables scope). Decide per UI need.
 - Exact qtc/ schemas above are illustrative, not final.
