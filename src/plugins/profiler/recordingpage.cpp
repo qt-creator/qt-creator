@@ -3,7 +3,7 @@
 
 #include "recordingpage.h"
 
-#include <profiler/profilertr.h>
+#include "profilertr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
@@ -13,12 +13,11 @@
 #include <QTimer>
 
 using namespace Layouting;
-using namespace Profiler;
 using namespace Utils;
 using namespace Utils::StyleHelper;
 using namespace Qt::StringLiterals;
 
-namespace QtProfiler {
+namespace Profiler::Internal {
 
 RecordingPage::RecordingPage(QWidget *parent)
     : QWidget(parent)
@@ -129,4 +128,4 @@ void RecordingPage::updateElapsed()
     m_timerLabel->setText(t.toString(format));
 }
 
-} // namespace QtProfiler
+} // namespace Profiler::Internal

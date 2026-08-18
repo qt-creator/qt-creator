@@ -20,15 +20,10 @@ QtcTool {
         "qtprofilerrpc.h",
         "qtprofilersettings.cpp",
         "qtprofilersettings.h",
-        "qtprofilertypes.h",
         "qtprofilerwindow.cpp",
         "qtprofilerwindow.h",
         "mainsidebar.cpp",
         "mainsidebar.h",
-        "recordingpage.cpp",
-        "recordingpage.h",
-        "welcomepage.cpp",
-        "welcomepage.h",
         "schema/api.h",
     ]
 

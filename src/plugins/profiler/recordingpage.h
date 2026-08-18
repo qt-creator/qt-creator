@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "profiler_global.h"
+
 #include <QElapsedTimer>
 #include <QWidget>
 
@@ -16,12 +18,12 @@ class QtcButton;
 class QtcLabel;
 }
 
-namespace QtProfiler {
+namespace Profiler::Internal {
 
 // Shown while a recording is in progress: names the sampled process, counts up
 // the elapsed time, and offers a Stop button. Recording runs until the user
 // stops it.
-class RecordingPage : public QWidget
+class PROFILER_EXPORT RecordingPage : public QWidget
 {
     Q_OBJECT
 
@@ -59,4 +61,4 @@ private:
     QElapsedTimer m_elapsed;
 };
 
-} // namespace QtProfiler
+} // namespace Profiler::Internal

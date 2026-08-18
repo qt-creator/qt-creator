@@ -41,6 +41,10 @@ SamplerSettings::SamplerSettings()
     workingDirectory.setSettingsKey("WorkingDirectory");
     workingDirectory.setExpectedKind(PathChooserKind::ExistingDirectory);
     workingDirectory.setLabelText(Tr::tr("Working directory:"));
+
+    seededExecutable.setSettingsKey("SeededExecutable");
+    seededArguments.setSettingsKey("SeededArguments");
+    seededWorkingDirectory.setSettingsKey("SeededWorkingDirectory");
 }
 
 Result<> SamplerSettings::fillLaunch(RecordingSession &session) const

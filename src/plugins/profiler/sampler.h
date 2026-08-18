@@ -7,6 +7,7 @@
 
 #include <utils/aspects.h>
 #include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/result.h>
 
@@ -52,6 +53,8 @@ struct RecordingSession
     // inject -qmljsdebugger arguments.
     std::optional<Utils::CommandLine> launchCommand;
     Utils::FilePath launchWorkingDir;
+    // The environment to launch in; empty means the one this process inherited.
+    Utils::Environment launchEnvironment;
 
     // QML debug channel for protocol-based backends; empty for native ones.
     QUrl serverUrl;
@@ -138,6 +141,13 @@ public:
     Utils::FilePathAspect executable{this};
     Utils::StringAspect arguments{this};
     Utils::FilePathAspect workingDirectory{this};
+
+    // What the frontend last put into the three fields above (see
+    // ProfilerRecorder::seedLaunchTarget). Persisted, so a value the user typed
+    // over a seeded one still reads as theirs after a restart. Never shown.
+    Utils::FilePathAspect seededExecutable{this};
+    Utils::StringAspect seededArguments{this};
+    Utils::FilePathAspect seededWorkingDirectory{this};
 
     // Builds a RecordingSession from the current settings, or an error explaining
     // what is missing/misconfigured (e.g. no executable, or attach with no process).

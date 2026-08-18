@@ -30,15 +30,18 @@ QtTaskTree::Group launchThenCapture(const std::shared_ptr<RecordingSession> &ses
     // trace is still written.
     const CommandLine cmd = *session->launchCommand;
     const FilePath workingDir = session->launchWorkingDir;
+    const Environment environment = session->launchEnvironment;
     // Lets the "capture finished" handler terminate the launched process. The
     // pointer is valid exactly while the ProcessTask runs, i.e. whenever we might
     // still need to stop the process.
     const auto launched = std::make_shared<QPointer<Process>>();
 
-    const auto onProcessSetup = [session, cmd, workingDir, launched](Process &process) {
+    const auto onProcessSetup = [session, cmd, workingDir, environment, launched](Process &process) {
         process.setCommand(cmd);
         if (!workingDir.isEmpty())
             process.setWorkingDirectory(workingDir);
+        if (environment.hasChanges())
+            process.setEnvironment(environment);
         // Forward the target's stdout/stderr straight to our console. We do not
         // display its output, and reading it ourselves would make Process install
         // channel socket notifiers whose teardown on macOS can crash when the

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "profiler_global.h"
+
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -14,12 +16,12 @@ class QtcButton;
 class QtcComboBox;
 }
 
-namespace QtProfiler {
+namespace Profiler::Internal {
 
 // Shown in the trace area while no trace is loaded yet. Lets the user pick a
 // recording backend, configure it (each backend renders its own controls,
 // including how to start: launch / attach / connect), then Start Recording.
-class WelcomePage : public QWidget
+class PROFILER_EXPORT WelcomePage : public QWidget
 {
     Q_OBJECT
 
@@ -46,4 +48,4 @@ private:
     QWidget *m_configWidget = nullptr;
 };
 
-} // namespace QtProfiler
+} // namespace Profiler::Internal

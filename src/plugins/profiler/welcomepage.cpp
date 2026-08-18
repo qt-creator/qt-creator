@@ -3,7 +3,7 @@
 
 #include "welcomepage.h"
 
-#include <profiler/profilertr.h>
+#include "profilertr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
@@ -11,11 +11,10 @@
 #include <QVBoxLayout>
 
 using namespace Layouting;
-using namespace Profiler;
 using namespace Utils;
 using namespace Utils::StyleHelper;
 
-namespace QtProfiler {
+namespace Profiler::Internal {
 
 WelcomePage::WelcomePage(QWidget *parent)
     : QWidget(parent)
@@ -73,4 +72,4 @@ void WelcomePage::setActiveBackend(QWidget *configWidget)
         m_configLayout->addWidget(m_configWidget);
 }
 
-} // namespace QtProfiler
+} // namespace Profiler::Internal

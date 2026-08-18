@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qtprofilertypes.h"
+#include <profiler/traceformat.h>
 
 #include <QWidget>
 
@@ -29,7 +29,8 @@ public:
     // Adds the trace if not present yet and selects it without emitting traceActivated().
     void addTrace(const Utils::FilePath &filePath);
 
-    void setTraceFormat(const Utils::FilePath &filePath, Format format);
+    void setTraceFormat(const Utils::FilePath &filePath,
+                        Profiler::Internal::TraceFormat format);
     void setTraceDuration(const Utils::FilePath &filePath, std::chrono::milliseconds ms);
 
     // Removes the currently selected trace. Removing it selects a neighbour (which

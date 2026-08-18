@@ -3,28 +3,22 @@
 
 #include "qtprofilerwindow.h"
 
-#include <profiler/callstacksampler.h>
-#include <profiler/combinedsampler.h>
-#include <profiler/combinedtraceloader.h>
 #include "mainsidebar.h"
-#include <profiler/perfsampler.h>
 #include "qtprofilerrpc.h"
 #include "qtprofilersettings.h"
-#include "qtprofilertypes.h"
-#include "recordingpage.h"
-#include <profiler/qmlprofilersampler.h>
-#include <profiler/sampler.h>
-#include <profiler/samplerviewmanager.h>
-#include "welcomepage.h"
 
-#include <utils/aspects.h>
-#include <utils/layoutbuilder.h>
-
+#include <profiler/combinedsampler.h>
+#include <profiler/combinedtraceloader.h>
 #include <profiler/ctfplainviewmanager.h>
+#include <profiler/profilerrecorder.h>
 #include <profiler/profilertr.h>
-#include <profiler/sampletrace.h>
 #include <profiler/qmlprofilerconstants.h>
 #include <profiler/qmlprofilerplainviewmanager.h>
+#include <profiler/recordingpage.h>
+#include <profiler/sampletrace.h>
+#include <profiler/samplerviewmanager.h>
+#include <profiler/traceformat.h>
+#include <profiler/welcomepage.h>
 
 #include <coreplugin/minisplitter.h>
 
@@ -37,25 +31,21 @@
 #include <utils/fileutils.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcprocess.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
-#include <QtTaskTree/QBarrier>
-#include <QtTaskTree/QSingleTaskTreeRunner>
-
 #include <QApplication>
 #include <QDesktopServices>
 #include <QDir>
 #include <QDockWidget>
-#include <QEventLoop>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
-#include <QRegularExpression>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTime>
@@ -65,10 +55,7 @@
 #include <QUrl>
 
 #include <algorithm>
-#include <atomic>
 #include <iostream>
-#include <optional>
-#include <memory>
 
 using namespace Profiler;
 using namespace Profiler::Internal;
@@ -80,6 +67,8 @@ using namespace Qt::StringLiterals;
 using namespace std::chrono;
 
 namespace QtProfiler {
+
+using Format = TraceFormat;
 
 // pkexec's exit code for "the user dismissed the authentication dialog".
 constexpr int pkexecDismissed = 126;
@@ -102,13 +91,7 @@ public:
 
     void showOpenFileDialog();
     void showOpenCtfDirDialog();
-    void selectBackend(int index);
-    bool selectBackendByName(const QString &name);
-    void startRecording();
-    void startTimedRecording(milliseconds duration);
-    void beginRecording(const QString &displayName);
-    void finishRecording();
-    void stopAndWaitForRecording();
+    void showBackendConfig();
 
     void onError(const QString &error); // Connected to the loaders' failure signals.
     void showError(const QString &error, const std::optional<SamplerFix> &fix);
@@ -155,6 +138,7 @@ public:
     // combined traces would otherwise put the QML and sampler ones side by side.
     Timeline::RangeDetailsWidget *rangeDetails = nullptr;
     QDockWidget *detailsDock = nullptr;   // Created with the first view group.
+    ProfilerRecorder *recorder = nullptr;
     QmlProfilerPlainViewManager *qmlManager;
     CtfPlainViewManager *ctfManager;
     SamplerViewManager *samplerManager;
@@ -167,40 +151,7 @@ public:
     ViewGroup qmlGroup;
     ViewGroup ctfGroup;
     ViewGroup samplerGroup;
-    bool recording = false;
-    bool processingShown = false;                 // setProcessing() already called this session.
-    bool closing = false;                         // Set while waiting for shutdown.
-    std::vector<std::unique_ptr<Sampler>> backends; // Available profiling backends.
-    std::vector<int> offeredBackends;             // Indices into `backends` that are actually
-                                                   // usable here (see isAvailable()); this is
-                                                   // what the dropdown offers, in display order.
-    Sampler *sampler = nullptr;                   // The selected backend (owned by `backends`).
-    std::shared_ptr<RecordingSession> session;    // Non-null while recording.
-    QtTaskTree::QSingleTaskTreeRunner recordingRunner;
-    QTimer *processingPoll = nullptr;
-    std::optional<milliseconds> recordDuration;   // Set by --record-for; auto-stop span.
-    bool recordDurationArmed = false;             // Stop timer armed once capture started.
-    int downloadPolls = 0;                        // Consecutive polls seeing a download.
-    static constexpr int downloadPollsBeforeReporting = 6; // ~300 ms at a 50 ms poll.
 };
-
-// The host names behind a whitespace-separated URL list, for the recording page's
-// status line. What perfparser reports is either one request URL, whose build-id
-// path says nothing a user needs, or the whole DEBUGINFOD_URLS list from before a
-// request was made -- in both cases the host is the part that identifies who is
-// being waited on, and the only part short enough for one line.
-static QString debugInfoServerNames(const QString &urls)
-{
-    static const QRegularExpression whitespace("\\s+"_L1);
-    QStringList hosts;
-    const QStringList entries = urls.split(whitespace, Qt::SkipEmptyParts);
-    for (const QString &entry : entries) {
-        const QString host = QUrl(entry).host();
-        hosts << (host.isEmpty() ? entry : host);
-    }
-    hosts.removeDuplicates();
-    return hosts.join(", "_L1);
-}
 
 WindowPrivate::WindowPrivate(Window *window)
     : QObject(window)
@@ -221,105 +172,44 @@ WindowPrivate::WindowPrivate(Window *window)
     rightPane->addWidget(traceArea);
     rightPane->setCurrentWidget(welcomePage);
 
+    recorder = new ProfilerRecorder(this);
+    // Any --launch command reaches the backends through the same path Qt
+    // Creator's run configuration takes.
+    recorder->seedLaunchTarget({settings().recordExecutable(), settings().recordArguments(),
+                                CommandLine::Raw}, {});
+    welcomePage->setBackends(recorder->backendNames(), recorder->currentBackend());
+    showBackendConfig();
+
     connect(welcomePage, &WelcomePage::startRecordingRequested,
-            this, &WindowPrivate::startRecording);
-    connect(welcomePage, &WelcomePage::backendChanged, this, &WindowPrivate::selectBackend);
+            recorder, &ProfilerRecorder::start);
+    connect(welcomePage, &WelcomePage::backendChanged,
+            recorder, &ProfilerRecorder::setCurrentBackend);
+    connect(recorder, &ProfilerRecorder::currentBackendChanged,
+            this, &WindowPrivate::showBackendConfig);
+    connect(recordingPage, &RecordingPage::stopRequested,
+            recorder, &ProfilerRecorder::stop);
 
-    // The native call-stack samplers first (macOS mach-based, Linux perf-based),
-    // then the QML-protocol profiler. Each backend persists and renders its own
-    // settings, and decides how to start (launch / attach / connect) from those
-    // settings in createSession().
-    backends.push_back(std::make_unique<CallStackSampler>());
-    backends.push_back(std::make_unique<PerfSampler>());
-    backends.push_back(std::make_unique<QmlProfilerSampler>());
-    // Records a native sampler and the QML profiler against one target at once,
-    // producing a bundle both are later merged from
-    // (see design-docs/native-mixed-profiler-design.md).
-    backends.push_back(std::make_unique<CombinedSampler>());
-
-    for (const std::unique_ptr<Sampler> &backend : backends) {
-        if (SamplerSettings *s = backend->settings())
-            s->readSettings();
-    }
-
-    // Only offer backends that are actually usable here -- e.g. CallStackSampler
-    // doesn't even appear outside macOS. If that leaves nothing (shouldn't
-    // happen; QmlProfilerSampler is always available), fall back to offering
-    // everything so the dropdown isn't empty and Start Recording can still
-    // explain why.
-    for (int i = 0; i < int(backends.size()); ++i) {
-        if (backends[i]->isAvailable())
-            offeredBackends.push_back(i);
-    }
-    if (offeredBackends.empty()) {
-        for (int i = 0; i < int(backends.size()); ++i)
-            offeredBackends.push_back(i);
-    }
-
-    QStringList backendNames;
-    for (int index : offeredBackends)
-        backendNames << backends[index]->displayName();
-    welcomePage->setBackends(backendNames, 0);
-    // selectBackend() seeds any CLI --launch command into the chosen backend, so
-    // this also primes backend 0 for a straight-away start.
-    selectBackend(0);
-
-    processingPoll = new QTimer(this);
-    processingPoll->setInterval(50);
-    connect(processingPoll, &QTimer::timeout, this, [this] {
-        if (!session)
-            return;
-        // The recipe (or the user) may set stop on its own (e.g. the target exited);
-        // reflect the switch to post-processing exactly once.
-        if (session->stop.load(std::memory_order_relaxed) && !processingShown) {
-            processingShown = true;
-            recordingPage->setProcessing();
-        }
-        // For --record-for: once capture is actually live, start the span clock
-        // (exactly once) so launch/connect time isn't counted against it.
-        if (recordDuration && !recordDurationArmed
-                && session->started.load(std::memory_order_relaxed)) {
-            recordDurationArmed = true;
-            QTimer::singleShot(*recordDuration, this, [this] {
-                if (session)
-                    session->stop.store(true);
-            });
-        }
-        recordingPage->setProgress(session->progress.load(std::memory_order_relaxed));
-
-        // A debug-info download holds up post-processing without moving the
-        // progress bar, for as long as the server takes to answer -- which may be
-        // forever. Name it, so the wait is at least attributable (the Perf
-        // backend's "Download missing debug information" setting turns it off).
-        // A query answered from this machine passes through the same state in
-        // microseconds, so only report one that has lasted long enough to be a
-        // wait somebody is sitting through.
-        const RecordingSession::DebugInfoDownload download = session->debugInfoDownload();
-        if (download.percent < 0) {
-            downloadPolls = 0;
-            recordingPage->setStatus({});
-        } else if (++downloadPolls >= downloadPollsBeforeReporting) {
-            const QString server = debugInfoServerNames(download.url);
-            QString text;
-            if (server.isEmpty()) {
-                text = download.percent == 0
-                           ? Tr::tr("Downloading debug information...")
-                           : Tr::tr("Downloading debug information... %1%").arg(download.percent);
-            } else {
-                text = download.percent == 0
-                           ? Tr::tr("Downloading debug information from %1...").arg(server)
-                           : Tr::tr("Downloading debug information from %1... %2%")
-                                 .arg(server).arg(download.percent);
-            }
-            // The line names the servers; the whole URL, which carries a build id
-            // long enough to crowd everything else out, goes in the tool tip.
-            recordingPage->setStatus(text, download.url);
-        }
+    connect(recorder, &ProfilerRecorder::started,
+            this, [this](const QString &target) {
+        recordingPage->start(target);
+        rightPane->setCurrentWidget(recordingPage);
     });
-
-    connect(recordingPage, &RecordingPage::stopRequested, this, [this] {
-        if (session)
-            session->stop.store(true);
+    connect(recorder, &ProfilerRecorder::processingStarted,
+            recordingPage, &RecordingPage::setProcessing);
+    connect(recorder, &ProfilerRecorder::statusChanged,
+            recordingPage, &RecordingPage::setStatus);
+    connect(recorder, &ProfilerRecorder::progressChanged,
+            recordingPage, &RecordingPage::setProgress);
+    connect(recorder, &ProfilerRecorder::finished,
+            this, [this](const FilePath &tracePath) {
+        recordingPage->stop();
+        q->loadTraceFile(tracePath);
+    });
+    connect(recorder, &ProfilerRecorder::error, this,
+            [this](const QString &e, const std::optional<SamplerFix> &fix) {
+        recordingPage->stop();
+        rightPane->setCurrentWidget(welcomePage);
+        showError(e, fix);
     });
 
     rangeDetails = new Timeline::RangeDetailsWidget(traceArea);
@@ -383,148 +273,9 @@ void WindowPrivate::showOpenCtfDirDialog()
         q->loadTraceFile(dir);
 }
 
-void WindowPrivate::selectBackend(int index)
+void WindowPrivate::showBackendConfig()
 {
-    if (index < 0 || index >= int(offeredBackends.size()))
-        return;
-    sampler = backends[offeredBackends[index]].get();
-
-    // A launch command passed on the CLI (--launch) seeds the selected backend so
-    // it can be started straight away -- and so --backend can precede or follow
-    // --launch. Only fill an empty executable; never clobber a GUI edit.
-    if (SamplerSettings *s = sampler->settings()) {
-        if (const FilePath exe = settings().recordExecutable();
-            !exe.isEmpty() && s->executable().isEmpty()) {
-            s->executable.setValue(exe);
-            s->arguments.setValue(settings().recordArguments());
-        }
-    }
-
-    QWidget *config = nullptr;
-    if (SamplerSettings *s = sampler->settings()) {
-        config = new QWidget;
-        s->layouter()().attachTo(config);
-    }
-    welcomePage->setActiveBackend(config);
-}
-
-bool WindowPrivate::selectBackendByName(const QString &name)
-{
-    for (int i = 0; i < int(offeredBackends.size()); ++i) {
-        if (backends[offeredBackends[i]]->displayName().contains(name, Qt::CaseInsensitive)) {
-            welcomePage->setCurrentBackend(i); // emits backendChanged() -> selectBackend()
-            return true;
-        }
-    }
-    return false;
-}
-
-void WindowPrivate::startTimedRecording(milliseconds duration)
-{
-    startRecording();
-    if (!recording)
-        return; // startRecording() reported the error already.
-
-    // The clock only starts once the backend is actually capturing (after launch
-    // and, for the QML profiler, after the debug connection is up); otherwise the
-    // launch/connect delay would eat into the requested span. The processing poll
-    // watches session->started and arms the stop timer on the 0->1 transition.
-    recordDuration = duration;
-    recordDurationArmed = false;
-}
-
-void WindowPrivate::startRecording()
-{
-    if (recording)
-        return;
-
-    QString reason;
-    if (!sampler->isAvailable(&reason)) {
-        onError(reason);
-        return;
-    }
-
-    SamplerSettings *settings = sampler->settings();
-    if (!settings) {
-        onError(Tr::tr("This backend cannot be configured for recording."));
-        return;
-    }
-
-    const Result<std::shared_ptr<RecordingSession>> created = settings->createSession();
-    if (!created) {
-        onError(created.error());
-        return;
-    }
-    session = *created;
-
-    // A name for the recording page: the launched command, the attach target, or
-    // the connect endpoint.
-    QString name;
-    if (session->launchCommand)
-        name = session->launchCommand->executable().fileName();
-    else if (!session->processName.isEmpty())
-        name = session->processName;
-    else if (!session->serverUrl.isEmpty())
-        name = session->serverUrl.host() + u':' + QString::number(session->serverUrl.port());
-    beginRecording(name);
-}
-
-void WindowPrivate::beginRecording(const QString &displayName)
-{
-    recording = true;
-    processingShown = false;
-    downloadPolls = 0;
-    recordingPage->start(displayName);
-    rightPane->setCurrentWidget(recordingPage);
-    processingPoll->start();
-
-    // The backend owns the complete recipe: it launches the target (when
-    // session->launchCommand is set), captures it, and tears it down. When the
-    // tree is done, finishRecording() loads the captured trace.
-    recordingRunner.start(QtTaskTree::Group{sampler->recordRecipe(session)}, [] {},
-                          [this](QtTaskTree::DoneWith) { finishRecording(); });
-}
-
-void WindowPrivate::finishRecording()
-{
-    recording = false;
-    processingPoll->stop();
-    recordingPage->stop();
-    recordDuration.reset(); // one-shot: don't auto-stop a later manual recording
-    recordDurationArmed = false;
-
-    const std::shared_ptr<RecordingSession> finished = session;
-    session.reset();
-
-    if (closing)
-        return; // The window is shutting down: don't touch the UI or load a trace.
-
-    if (!finished || !finished->result) {
-        rightPane->setCurrentWidget(welcomePage);
-        onError(Tr::tr("Recording did not produce a trace."));
-        return;
-    }
-    const Result<FilePath> &result = *finished->result;
-    if (!result) {
-        rightPane->setCurrentWidget(welcomePage);
-        showError(result.error(), sampler ? sampler->availableFix() : std::nullopt);
-        return;
-    }
-    q->loadTraceFile(*result);
-}
-
-void WindowPrivate::stopAndWaitForRecording()
-{
-    if (!recording || !session)
-        return;
-    // The sampler loops until stopped; ask it to finish and pump events until the
-    // task tree (and its worker thread) have wound down. Otherwise the global
-    // thread pool would block at exit and the launched process would be left
-    // running.
-    closing = true;
-    session->stop.store(true);
-    while (recording)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+    welcomePage->setActiveBackend(recorder->createConfigWidget());
 }
 
 void WindowPrivate::onError(const QString &error)
@@ -594,7 +345,7 @@ void WindowPrivate::applyFix(const SamplerFix &fix)
         // The setting is live now, so go straight back to the recording the user
         // asked for; starting it again is the only confirmation they need.
         if (process->result() == ProcessResult::FinishedWithSuccess) {
-            startRecording();
+            recorder->start();
             return;
         }
         // Dismissing the prompt is a deliberate "no", not a fault worth an error
@@ -835,40 +586,35 @@ void WindowPrivate::doLoad(const FilePath &filePath)
     lastLoadError.clear();
     RPC::notifyTraceFileLoadingStarted(filePath);
 
-    // Pick the manager by file format. A directory or a bare "metadata" file
-    // holds either a recorded sampler trace or a generic Common Trace Format
-    // trace; a .json file is Chrome Trace Format; anything else is treated as
-    // a QML profiler trace.
-    if (filePath.isDir() || filePath.fileName() == "metadata"_L1) {
-        const FilePath dir = filePath.isDir() ? filePath : filePath.parentDir();
-        if (CombinedSampler::isCombinedTrace(dir)) {
-            // A combined bundle holds both a native sampler trace and a QML trace.
-            // Show the combined layout straight away (so there is no flash of the
-            // QML-only layout), populate the QML views from the bundle's .qtd, and
-            // merge the two into one native-mixed sampler trace for the sampler
-            // views (asynchronously; see the merged() handler).
-            setActiveFormat(Format::Combined);
-            awaitLoad(qmlManager, filePath, Format::Combined);
-            awaitLoad(samplerManager, filePath, Format::Combined);
-            qmlManager->loadTraceFile(dir / combinedQmlFileName);
-            combinedLoader->load(dir);
-        } else if (SamplerViewManager::isSamplerTrace(dir)) {
-            setActiveFormat(Format::Sampler);
-            awaitLoad(samplerManager, filePath, Format::Sampler);
-            samplerManager->load(dir);
-        } else {
-            setActiveFormat(Format::Ctf);
-            awaitLoad(ctfManager, filePath, Format::Ctf);
-            ctfManager->loadCtf2(dir);
-        }
-    } else if (filePath.suffix() == "json"_L1) {
-        setActiveFormat(Format::Ctf);
+    const TraceFile trace = identifyTrace(filePath);
+    setActiveFormat(trace.format);
+    switch (trace.format) {
+    case Format::Combined:
+        // A combined bundle holds both a native sampler trace and a QML trace.
+        // The combined layout is set above, so there is no flash of the QML-only
+        // one; populate the QML views from the bundle's .qtd, and merge the two
+        // into one native-mixed sampler trace for the sampler views
+        // (asynchronously; see the merged() handler).
+        awaitLoad(qmlManager, filePath, Format::Combined);
+        awaitLoad(samplerManager, filePath, Format::Combined);
+        qmlManager->loadTraceFile(trace.path / combinedQmlFileName);
+        combinedLoader->load(trace.path);
+        break;
+    case Format::Sampler:
+        awaitLoad(samplerManager, filePath, Format::Sampler);
+        samplerManager->load(trace.path);
+        break;
+    case Format::Ctf:
         awaitLoad(ctfManager, filePath, Format::Ctf);
-        ctfManager->loadJson(filePath);
-    } else {
-        setActiveFormat(Format::Qml);
+        if (trace.path.isDir())
+            ctfManager->loadCtf2(trace.path);
+        else
+            ctfManager->loadJson(trace.path);
+        break;
+    case Format::Qml:
         awaitLoad(qmlManager, filePath, Format::Qml);
-        qmlManager->loadTraceFile(filePath);
+        qmlManager->loadTraceFile(trace.path);
+        break;
     }
     sidebar->setTraceFormat(filePath, activeFormat);
 }
@@ -961,22 +707,22 @@ void Window::loadTraceFile(const FilePath &filePath)
 
 bool Window::selectBackend(const QString &name)
 {
-    return d->selectBackendByName(name);
+    if (!d->recorder->selectBackend(name))
+        return false;
+    d->welcomePage->setCurrentBackend(d->recorder->currentBackend());
+    return true;
 }
 
 void Window::startTimedRecording(std::chrono::milliseconds duration)
 {
-    d->startTimedRecording(duration);
+    d->recorder->startTimed(duration);
 }
 
 void Window::closeEvent(QCloseEvent *event)
 {
     settings().windowGeometry.setValue(saveGeometry());
-    for (const std::unique_ptr<Sampler> &backend : d->backends) {
-        if (Utils::AspectContainer *s = backend->settings())
-            s->writeSettings();
-    }
-    d->stopAndWaitForRecording();
+    d->recorder->writeSettings();
+    d->recorder->stopAndWait();
     QMainWindow::closeEvent(event);
 }
 

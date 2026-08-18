@@ -19,6 +19,7 @@
 #include <QVBoxLayout>
 
 using namespace Profiler;
+using namespace Profiler::Internal;
 using namespace Utils;
 using namespace Utils::StyleHelper;
 using namespace std::chrono;
@@ -31,13 +32,13 @@ enum Role {
     FormatRole,
 };
 
-static QString formatDisplayName(Format format)
+static QString formatDisplayName(TraceFormat format)
 {
     switch (format) {
-    case Format::Qml: return Tr::tr("QML Trace");
-    case Format::Ctf: return Tr::tr("Common Trace Format");
-    case Format::Sampler: return Tr::tr("Sampler Trace");
-    case Format::Combined: return Tr::tr("Combined Trace");
+    case TraceFormat::Qml: return Tr::tr("QML Trace");
+    case TraceFormat::Ctf: return Tr::tr("Common Trace Format");
+    case TraceFormat::Sampler: return Tr::tr("Sampler Trace");
+    case TraceFormat::Combined: return Tr::tr("Combined Trace");
     }
     Q_UNREACHABLE_RETURN({});
 }
@@ -47,7 +48,7 @@ static QString captionText(const QModelIndex &index)
     QStringList parts;
     const QVariant formatV = index.data(FormatRole);
     if (formatV.isValid())
-        parts << formatDisplayName(static_cast<Format>(formatV.toInt()));
+        parts << formatDisplayName(static_cast<TraceFormat>(formatV.toInt()));
     const QVariant durationV = index.data(DurationRole);
     if (durationV.isValid()) {
         const nanoseconds ns = duration_cast<nanoseconds>(milliseconds(durationV.toLongLong()));
@@ -173,7 +174,7 @@ void MainSidebar::addTrace(const FilePath &filePath)
     m_list->setCurrentItem(item);
 }
 
-void MainSidebar::setTraceFormat(const FilePath &filePath, Format format)
+void MainSidebar::setTraceFormat(const FilePath &filePath, TraceFormat format)
 {
     if (QListWidgetItem *item = traceItem(filePath))
         item->setData(FormatRole, static_cast<int>(format));
