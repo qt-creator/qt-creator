@@ -648,9 +648,12 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
             }
             // A token-correlated request has an agent waiting for it; drop the
             // entry, or the map grows for every failure.
-            const int token = response.value("body").toObject().value("token").toInt();
-            m_memoryAgents.remove(token);
-            m_disassemblerAgents.remove(token);
+            const QJsonObject body = response.value("body").toObject();
+            if (body.contains("token")) {
+                const int token = body.value("token").toInt();
+                m_memoryAgents.remove(token);
+                m_disassemblerAgents.remove(token);
+            }
             // And the locals view has to be released, or it stays in its
             // updating state - with stale, unexpandable items - until the next
             // successful fetch.
