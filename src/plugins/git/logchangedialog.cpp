@@ -11,6 +11,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QItemSelectionModel>
@@ -216,6 +217,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
     arguments << "--";
 
     const Result<QString> res = gitClient().synchronousLog(repository, arguments, RunFlag::NoOutput);
+    m_hasLogError = !res;
     if (!res) {
         VcsOutputWindow::appendError(repository, res.error());
         return false;
@@ -270,6 +272,17 @@ LogChangeDialog::LogChangeDialog(DialogType type, QWidget *parent) :
     m_selectionHintLabel->setVisible(false);
     layout->addWidget(m_selectionHintLabel);
     layout->addWidget(m_widget);
+    m_noCommitsLabel = new QLabel(this);
+    m_noCommitsLabel->setWordWrap(true);
+    m_noCommitsLabel->setVisible(false);
+    layout->addWidget(m_noCommitsLabel);
+
+    // Commits reachable from remote branches are hidden by default; offer to
+    // show them, so an interactive rebase can go beyond the upstream point.
+    m_includeRemotesCheckBox = new QCheckBox(Tr::tr("Include commits from remote branches"), this);
+    layout->addWidget(m_includeRemotesCheckBox);
+    connect(m_includeRemotesCheckBox, &QCheckBox::toggled, this, [this] { reloadLog(); });
+
     auto popUpLayout = new QHBoxLayout;
     if (isReset) {
         popUpLayout->addWidget(new QLabel(Tr::tr("Reset type:")));
@@ -304,12 +317,44 @@ void LogChangeDialog::setSelectionMode(QAbstractItemView::SelectionMode mode)
     m_selectionHintLabel->setVisible(mode == QAbstractItemView::SelectionMode::MultiSelection);
 }
 
+bool LogChangeDialog::reloadLog()
+{
+    const bool includeRemotes = m_includeRemotesCheckBox->isChecked();
+    LogChangeWidget::LogFlags flags = m_flags | LogChangeWidget::Silent;
+    flags.setFlag(LogChangeWidget::IncludeRemotes, includeRemotes);
+    const bool hasCommits = m_widget->init(m_repository, m_commit, flags);
+    if (!hasCommits) {
+        m_noCommitsLabel->setText(
+            includeRemotes ? GitClient::msgNoCommits(true)
+                           : Tr::tr("No local commits were found. Select \"%1\" to show "
+                                    "commits that were already pushed.")
+                                 .arg(m_includeRemotesCheckBox->text()));
+        m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    }
+    m_noCommitsLabel->setVisible(!hasCommits);
+    return hasCommits;
+}
+
 bool LogChangeDialog::runDialog(const FilePath &repository,
                                 const QString &commit,
                                 LogChangeWidget::LogFlags flags)
 {
-    if (!m_widget->init(repository, commit, flags))
-        return false;
+    m_repository = repository;
+    m_commit = commit;
+    m_flags = flags;
+    {
+        const QSignalBlocker blocker(m_includeRemotesCheckBox);
+        m_includeRemotesCheckBox->setChecked(flags & LogChangeWidget::IncludeRemotes);
+    }
+    if (!reloadLog()) {
+        if (m_widget->hasLogError())
+            return false;
+        if (m_includeRemotesCheckBox->isChecked()) {
+            if (!(flags & LogChangeWidget::Silent))
+                VcsOutputWindow::appendError(repository, GitClient::msgNoCommits(true));
+            return false;
+        }
+    }
 
     if (QDialog::exec() == QDialog::Accepted) {
         if (m_resetTypeComboBox)

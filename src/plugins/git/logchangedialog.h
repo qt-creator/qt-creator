@@ -12,6 +12,7 @@
 #include <QStyledItemDelegate>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QDialogButtonBox;
 class QComboBox;
 class QLabel;
@@ -51,6 +52,7 @@ public:
     QString earliestCommit() const;
     void setItemDelegate(QAbstractItemDelegate *delegate);
     void setExcludedRemote(const QString &remote) { m_excludedRemote = remote; }
+    bool hasLogError() const { return m_hasLogError; }
 
 signals:
     void commitActivated(const QString &commit);
@@ -66,6 +68,7 @@ private:
     LogChangeModel *m_model;
     bool m_hasCustomDelegate;
     QString m_excludedRemote;
+    bool m_hasLogError = false;
 };
 
 class LogChangeDialog : public QDialog
@@ -90,10 +93,17 @@ public:
     LogChangeWidget *widget() const;
 
 private:
+    bool reloadLog();
+
     LogChangeWidget *m_widget = nullptr;
     QLabel *m_selectionHintLabel = nullptr;
     QDialogButtonBox *m_dialogButtonBox = nullptr;
     QComboBox *m_resetTypeComboBox = nullptr;
+    QCheckBox *m_includeRemotesCheckBox = nullptr;
+    QLabel *m_noCommitsLabel = nullptr;
+    Utils::FilePath m_repository;
+    QString m_commit;
+    LogChangeWidget::LogFlags m_flags = LogChangeWidget::None;
 };
 
 class LogItemDelegate : public QStyledItemDelegate
