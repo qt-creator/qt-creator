@@ -12,6 +12,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/ioutputpane.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/patchtool.h>
 #include <coreplugin/session.h>
@@ -1524,6 +1525,39 @@ void McpCommands::registerCommands()
                     {"error", QString("No button matching \"%1\".")
                                   .arg(args.value("button").toString())},
                     {"available_buttons", available}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("activate_mode")
+            .title("Activate a mode")
+            .description(
+                "Switches Qt Creator to a top-level mode (the left mode bar) and returns the "
+                "current mode id; omit \"mode\" to just query. A mode only activates when it is "
+                "available (e.g. \"Project\" needs an open project). Common ids: \"Welcome\", "
+                "\"Edit\", \"Design\", \"Project\" (the Projects/build-run-settings mode), "
+                "\"Mode.Debug\", \"Help\".")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}.addProperty(
+                    "mode",
+                    QJsonObject{
+                        {"type", "string"},
+                        {"description", "Mode id to activate (optional; omit to just query)."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("current_mode", QJsonObject{{"type", "string"}})
+                    .addRequired("current_mode")),
+        wrap([](const QJsonObject &args) -> QJsonObject {
+            const QString requested = args.value("mode").toString();
+            bool success = true;
+            if (!requested.isEmpty()) {
+                Core::ModeManager::activateMode(Utils::Id::fromString(requested));
+                success = Core::ModeManager::currentModeId() == Utils::Id::fromString(requested);
+            }
+            return {{"success", success},
+                    {"current_mode", Core::ModeManager::currentModeId().toString()}};
         }));
 
     ToolRegistry::registerTool(
