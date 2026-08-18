@@ -2416,10 +2416,34 @@ void registerMcpTools()
                    const ToolInterface &toolInterface) -> Utils::Result<> {
             // The run mode defaults to the tool's own (e.g. normal run), but can
             // be overridden per call, so one tool reaches any registered run mode
-            // (analyzers, profilers, ...). Interactive modes have dedicated tools.
+            // (analyzers, profilers, ...).
             const QString runModeArg = params.argumentsAsObject().value("run_mode").toString();
             const Utils::Id runMode = runModeArg.isEmpty() ? defaultRunMode
                                                            : Utils::Id::fromString(runModeArg);
+
+            // A debug session ends when someone steps through it, so waiting for
+            // it to finish would hang. Name the tool that manages it, if any.
+            static const QSet<Utils::Id> debugRunModes = {
+                Constants::DEBUG_RUN_MODE,
+                Constants::DAP_CMAKE_DEBUG_RUN_MODE,
+                Constants::DAP_GDB_DEBUG_RUN_MODE,
+                Constants::DAP_LLDB_DEBUG_RUN_MODE,
+                Constants::DAP_PY_DEBUG_RUN_MODE,
+                Utils::Id("MemcheckTool.MemcheckWithGdbRunMode"),
+            };
+            if (debugRunModes.contains(runMode)) {
+                const QString hint = runMode == Constants::DEBUG_RUN_MODE
+                    ? QString("Use debugger_start instead.")
+                    : QString("No tool drives this debug mode, start it from the IDE.");
+                toolInterface.finish(
+                    CallToolResult{}.isError(true).addContent(
+                        Schema::TextContent{}.text(
+                            QString("The run mode \"%1\" cannot be driven by a tool that waits "
+                                    "for the run to finish. %2")
+                                .arg(runMode.toString(), hint))));
+                return ResultOk;
+            }
+
             const Utils::Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(runMode);
             if (!canRun) {
                 toolInterface.finish(
@@ -2574,9 +2598,11 @@ void registerMcpTools()
                 "On build failure, returns isError=true with structured content in the same "
                 "shape as the Issues pane's tasks (issues array + summary). "
                 "By default this is a normal run. Pass run_mode to run the project under a "
-                "different, non-interactive run mode such as an analyzer (the run must finish "
-                "on its own). Interactive modes have dedicated tools: use debugger_start for "
-                "debugging and profiler_qml_start for the QML profiler. "
+                "different run mode such as an analyzer. The run has to end on its own, since "
+                "this tool waits for it. To drive a session and stop it yourself, use the "
+                "dedicated tools instead: debugger_start for debugging, profiler_qml_start and "
+                "profiler_perf_start for the profilers, which return immediately and come with "
+                "status and stop tools. "
                 "Returns an error if there is no startup project, no active build configuration, "
                 "or the project cannot currently be run in the requested mode.")
             .inputSchema(
@@ -2587,10 +2613,12 @@ void registerMcpTools()
                         {"description",
                          "Run-mode ID to run the startup project under. Defaults to the normal "
                          "run mode (\"RunConfiguration.NormalRunMode\"). Examples: "
-                         "\"PerfProfiler.RunMode\", \"RunConfiguration.QmlProfilerRunMode\". The "
-                         "mode must have a run worker registered for the project's device and "
-                         "run to completion. Interactive modes belong to debugger_start / "
-                         "profiler_qml_start."}}))
+                         "\"PerfProfiler.RunMode\", \"MemcheckTool.MemcheckRunMode\". The mode "
+                         "must have a run worker registered for the project's device and run to "
+                         "completion. The debug run modes, including "
+                         "\"MemcheckTool.MemcheckWithGdbRunMode\", are rejected here. Use "
+                         "debugger_start for \"RunConfiguration.DebugRunMode\", the other debug "
+                         "modes have no tool."}}))
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .outputSchema(runToolOutputSchema),
         makeRunCallback(Utils::Id(Constants::NORMAL_RUN_MODE), "Run finished"));
