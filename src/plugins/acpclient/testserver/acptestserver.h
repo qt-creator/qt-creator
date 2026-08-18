@@ -28,6 +28,9 @@ public:
     bool stderrNoise = false;      // --stderr-noise
     bool invalidResponse = false;  // --invalid-response-on-prompt
     int chunks = 3;                // --chunks <N>
+    int protocolVersion = -1;      // --protocol-version <N>, -1 negotiates
+    bool omitProtocolVersion = false; // --omit-protocol-version
+
 };
 
 // A minimal, deterministic ACP agent speaking newline-delimited JSON-RPC 2.0

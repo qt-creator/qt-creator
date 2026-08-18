@@ -35,6 +35,10 @@ int main(int argc, char *argv[])
                       "Write a non-JSON line before answering session/prompt."});
     parser.addOption({"chunks", "Number of agent_message_chunk updates per prompt "
                                 "(default 3).", "count"});
+    parser.addOption({"protocol-version", "Answer initialize with <version> verbatim "
+                                          "instead of negotiating one.", "version"});
+    parser.addOption({"omit-protocol-version",
+                      "Answer initialize without a protocolVersion field."});
     parser.process(app);
 
     AcpTestServer::ServerScenario scenario;
@@ -51,6 +55,9 @@ int main(int argc, char *argv[])
     scenario.invalidResponse = parser.isSet("invalid-response-on-prompt");
     if (parser.isSet("chunks"))
         scenario.chunks = parser.value("chunks").toInt();
+    if (parser.isSet("protocol-version"))
+        scenario.protocolVersion = parser.value("protocol-version").toInt();
+    scenario.omitProtocolVersion = parser.isSet("omit-protocol-version");
 
     AcpTestServer::Server server(scenario);
     return server.run();

@@ -41,6 +41,9 @@ public:
 
     // Outgoing requests (client → agent)
     void initialize(const Acp::InitializeRequest &request, ResponseCallback callback = {});
+    // Raw variant for version-negotiating requests; the callback receives the
+    // unparsed result so the caller can dispatch on the negotiated version.
+    void initializeRaw(const QJsonObject &params, ResponseCallback callback);
     void authenticate(const Acp::AuthenticateRequest &request, ResponseCallback callback = {});
     void newSession(const Acp::NewSessionRequest &request, ResponseCallback callback = {});
     void listSessions(const Acp::ListSessionsRequest &request, ResponseCallback callback = {});

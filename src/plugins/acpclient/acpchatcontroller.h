@@ -84,8 +84,13 @@ signals:
     void promptFinished();
     void errorOccurred(const QString &error);
 
+public:
+    // The hybrid v1+v2 initialize request parameters. Exposed for testing.
+    static QJsonObject buildInitializeParams();
+
 private:
-    void onInitializeResult(const Acp::InitializeResponse &response);
+    void onInitializeResult(const QJsonObject &result);
+    void setUpV1Adapter(const Acp::InitializeResponse &response);
     QJsonArray buildMcpServersJson() const;
 
     AcpInspector *m_inspector = nullptr;

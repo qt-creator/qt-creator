@@ -8,6 +8,7 @@
 #include <QDir>
 #include <QJsonDocument>
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -110,7 +111,11 @@ void Server::handleInitialize(const QJsonValue &id, const QJsonObject &params)
     }
 
     InitializeResponse response;
-    response.protocolVersion(request->protocolVersion());
+    // A v1-only agent answers with its own latest version when the client
+    // requests a newer one.
+    response.protocolVersion(m_scenario.protocolVersion >= 0
+                                 ? m_scenario.protocolVersion
+                                 : std::min(request->protocolVersion(), 1));
     response.agentInfo(Implementation().name("acptestserver").version("1.0"));
 
     if (m_scenario.requireAuth) {
@@ -130,7 +135,10 @@ void Server::handleInitialize(const QJsonValue &id, const QJsonObject &params)
     }
     response.agentCapabilities(capabilities);
 
-    sendResult(id, toJson(response));
+    QJsonObject responseObject = toJson(response);
+    if (m_scenario.omitProtocolVersion)
+        responseObject.remove("protocolVersion");
+    sendResult(id, responseObject);
 }
 
 void Server::handleAuthenticate(const QJsonValue &id, const QJsonObject &params)

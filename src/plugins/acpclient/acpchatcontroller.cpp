@@ -104,38 +104,57 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
 
     connect(m_client, &AcpClientObject::stateChanged,
             this, &AcpChatController::connectionStateChanged);
-    connect(m_client, &AcpClientObject::initializeResult,
-            this, &AcpChatController::onInitializeResult);
     connect(m_client, &AcpClientObject::errorOccurred,
             this, &AcpChatController::errorOccurred);
 
     connect(m_transport, &AcpTransport::started, this, [this] {
-        InitializeRequest initReq;
-        initReq.protocolVersion(1);
-        Implementation clientInfoImpl;
-        clientInfoImpl.name(QStringLiteral("QtCreator"));
-        clientInfoImpl.version(QStringLiteral("1.0"));
-        initReq.clientInfo(clientInfoImpl);
-
-        ClientCapabilities caps;
-        caps.terminal(true);
-        FileSystemCapabilities fsCaps;
-        fsCaps.readTextFile(true);
-        fsCaps.writeTextFile(true);
-        caps.fs(fsCaps);
-
-        SessionConfigOptionsCapabilities configOptionsCaps;
-        configOptionsCaps.boolean(BooleanConfigOptionCapabilities());
-        ClientSessionCapabilities sessionCaps;
-        sessionCaps.configOptions(configOptionsCaps);
-        caps.session(sessionCaps);
-
-        initReq.clientCapabilities(caps);
-
-        m_client->initialize(initReq);
+        m_client->initializeRaw(buildInitializeParams(),
+                                [this](const QJsonObject &result,
+                                       const std::optional<Error> &error) {
+            if (error) {
+                emit errorOccurred(Tr::tr("Initialization failed: %1").arg(error->message()));
+                return;
+            }
+            onInitializeResult(result);
+        });
     });
 
     m_transport->start();
+}
+
+// The initialize request must parse for both v1 and v2 agents: the v2 shape
+// (protocolVersion 2, info, capabilities) is merged with the v1 fields
+// (clientInfo, clientCapabilities), which v1 requires and v2 ignores.
+QJsonObject AcpChatController::buildInitializeParams()
+{
+    V2::InitializeRequest v2Request;
+    v2Request.protocolVersion(2);
+    v2Request.info(V2::Implementation()
+                       .name(QStringLiteral("QtCreator"))
+                       .version(QStringLiteral("1.0")));
+    v2Request.capabilities(V2::ClientCapabilities());
+    QJsonObject params = V2::toJson(v2Request);
+
+    Implementation clientInfoImpl;
+    clientInfoImpl.name(QStringLiteral("QtCreator"));
+    clientInfoImpl.version(QStringLiteral("1.0"));
+    params.insert(QStringLiteral("clientInfo"), toJson(clientInfoImpl));
+
+    ClientCapabilities caps;
+    caps.terminal(true);
+    FileSystemCapabilities fsCaps;
+    fsCaps.readTextFile(true);
+    fsCaps.writeTextFile(true);
+    caps.fs(fsCaps);
+
+    SessionConfigOptionsCapabilities configOptionsCaps;
+    configOptionsCaps.boolean(BooleanConfigOptionCapabilities());
+    ClientSessionCapabilities sessionCaps;
+    sessionCaps.configOptions(configOptionsCaps);
+    caps.session(sessionCaps);
+    params.insert(QStringLiteral("clientCapabilities"), toJson(caps));
+
+    return params;
 }
 
 void AcpChatController::disconnectFromServer()
@@ -352,7 +371,32 @@ void AcpChatController::sendPermissionCancelled(const QJsonValue &id)
         m_permissionHandler->sendPermissionCancelled(id);
 }
 
-void AcpChatController::onInitializeResult(const InitializeResponse &response)
+void AcpChatController::onInitializeResult(const QJsonObject &result)
+{
+    const QJsonValue versionValue = result.value(QStringLiteral("protocolVersion"));
+    const int version = versionValue.isDouble() ? versionValue.toInt() : -1;
+    if (version == 1) {
+        const auto response = fromJson<InitializeResponse>(QJsonValue(result));
+        if (!response) {
+            emit errorOccurred(Tr::tr("Initialization failed: invalid response."));
+            disconnectFromServer();
+            return;
+        }
+        setUpV1Adapter(*response);
+    } else if (version == 2) {
+        emit errorOccurred(
+            Tr::tr("The agent requires ACP protocol version 2, which is not supported yet."));
+        disconnectFromServer();
+    } else if (!versionValue.isDouble()) {
+        emit errorOccurred(Tr::tr("The agent did not report an ACP protocol version."));
+        disconnectFromServer();
+    } else {
+        emit errorOccurred(Tr::tr("Unsupported ACP protocol version: %1").arg(version));
+        disconnectFromServer();
+    }
+}
+
+void AcpChatController::setUpV1Adapter(const InitializeResponse &response)
 {
     if (const auto info = response.agentInfo()) {
         m_agentName = info->title().value_or(info->name());

@@ -312,11 +312,39 @@ public:
     // done. Callers must bail out with QTest::currentTestFailed() afterwards.
     void connectToServer(const QStringList &arguments)
     {
-        const Utils::FilePath binary = testServerBinary();
-        QVERIFY2(binary.isExecutableFile(),
-                 qPrintable(QString("acptestserver not found: %1").arg(binary.toUserOutput())));
+        AcpSettings::ServerInfo info = serverInfo(arguments);
+        if (QTest::currentTestFailed())
+            return;
+        controller.connectToServer(info);
+        // Bail out quickly with the actual error text if the server fails to
+        // come up, instead of running into the timeout.
+        QTRY_VERIFY_WITH_TIMEOUT(controller.isInitialized() || !errors.isEmpty(), 15000);
+        QVERIFY2(errors.isEmpty(), qPrintable(errors.join("; ")));
+        QTRY_VERIFY(sessionSelectionRequiredCount > 0);
+    }
 
+    // Connects to acptestserver and waits for the handshake to be rejected.
+    void connectExpectingFailure(const QStringList &arguments)
+    {
+        AcpSettings::ServerInfo info = serverInfo(arguments);
+        if (QTest::currentTestFailed())
+            return;
+        controller.connectToServer(info);
+        QTRY_VERIFY_WITH_TIMEOUT(!errors.isEmpty() || controller.isInitialized(), 15000);
+    }
+
+    AcpSettings::ServerInfo serverInfo(const QStringList &arguments)
+    {
         AcpSettings::ServerInfo info;
+        const Utils::FilePath binary = testServerBinary();
+        if (!binary.isExecutableFile()) {
+            // QVERIFY2 cannot be used in a function that returns a value.
+            QTest::qFail(qPrintable(QString("acptestserver not found: %1")
+                                        .arg(binary.toUserOutput())),
+                         __FILE__, __LINE__);
+            return info;
+        }
+
         info.id = "acptestserver";
         info.name = "AcpTestServer";
         info.launchCommand = Utils::CommandLine(binary, arguments);
@@ -331,12 +359,7 @@ public:
                                                 Utils::EnvironmentItem::Prepend));
         }
         info.envChanges = Utils::EnvironmentChanges(items);
-        controller.connectToServer(info);
-        // Bail out quickly with the actual error text if the server fails to
-        // come up, instead of running into the timeout.
-        QTRY_VERIFY_WITH_TIMEOUT(controller.isInitialized() || !errors.isEmpty(), 15000);
-        QVERIFY2(errors.isEmpty(), qPrintable(errors.join("; ")));
-        QTRY_VERIFY(sessionSelectionRequiredCount > 0);
+        return info;
     }
 
     // The synthesized select option the v1 adapter represents session modes with.
@@ -426,6 +449,10 @@ private slots:
     void testE2eInvalidResponseLine();
 
     // Tier 3: chat workflows against acptestserver (AcpChatController)
+    void testHybridInitializeParams();
+    void testInitializeDowngradeToV1();
+    void testInitializeUnsupportedVersion();
+    void testInitializeMissingVersion();
     void testControllerConnectAndSession();
     void testControllerPromptStreaming();
     void testControllerAuthentication();
@@ -1400,6 +1427,70 @@ void AcpClientTest::testE2eInvalidResponseLine()
 }
 
 // --- Tier 3 ------------------------------------------------------------------
+
+// The initialize request negotiates protocol version 2 but stays parseable for
+// v1 agents: the v2 fields (info, capabilities) and the v1 fields (clientInfo,
+// clientCapabilities) are both present.
+void AcpClientTest::testHybridInitializeParams()
+{
+    const QJsonObject params = AcpChatController::buildInitializeParams();
+    QCOMPARE(params.value("protocolVersion").toInt(), 2);
+
+    const QJsonObject info = params.value("info").toObject();
+    QCOMPARE(info.value("name").toString(), "QtCreator");
+    QVERIFY(!info.value("version").toString().isEmpty());
+    QVERIFY(params.contains("capabilities"));
+
+    const QJsonObject clientInfo = params.value("clientInfo").toObject();
+    QCOMPARE(clientInfo.value("name").toString(), "QtCreator");
+    const QJsonObject clientCaps = params.value("clientCapabilities").toObject();
+    QVERIFY(clientCaps.value("terminal").toBool());
+    QVERIFY(clientCaps.value("fs").toObject().value("readTextFile").toBool());
+}
+
+// A v1-only agent answers the version-2 request with protocolVersion 1; the
+// controller continues on the v1 surface.
+void AcpClientTest::testInitializeDowngradeToV1()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {});
+
+    QCOMPARE(fixture.agentName, "acptestserver");
+    QVERIFY(fixture.controller.isInitialized());
+
+    fixture.controller.createNewSession(Utils::FilePath::fromUserInput(QDir::currentPath()));
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+}
+
+// An agent answering with a version the client does not speak is rejected, and
+// the version it reported is part of the message.
+void AcpClientTest::testInitializeUnsupportedVersion()
+{
+    ControllerFixture fixture;
+    fixture.connectExpectingFailure({"--protocol-version", "99"});
+    if (QTest::currentTestFailed())
+        return;
+
+    QVERIFY(!fixture.controller.isInitialized());
+    QCOMPARE(fixture.errors.size(), 1);
+    QVERIFY2(fixture.errors.first().contains("99"), qPrintable(fixture.errors.first()));
+}
+
+// An agent that reports no version at all gets its own message rather than one
+// naming an empty version.
+void AcpClientTest::testInitializeMissingVersion()
+{
+    ControllerFixture fixture;
+    fixture.connectExpectingFailure({"--omit-protocol-version"});
+    if (QTest::currentTestFailed())
+        return;
+
+    QVERIFY(!fixture.controller.isInitialized());
+    QCOMPARE(fixture.errors.size(), 1);
+    QVERIFY2(!fixture.errors.first().endsWith(": "), qPrintable(fixture.errors.first()));
+    QVERIFY2(fixture.errors.first().contains("did not report"),
+             qPrintable(fixture.errors.first()));
+}
 
 // Connecting emits agent info and asks for session selection; creating a session
 // reports its id, config options, and modes; mode and config changes round-trip

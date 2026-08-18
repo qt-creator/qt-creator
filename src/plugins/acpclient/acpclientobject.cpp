@@ -54,6 +54,17 @@ void AcpClientObject::initialize(const InitializeRequest &request, ResponseCallb
     setState(State::InitializeRequested);
 }
 
+void AcpClientObject::initializeRaw(const QJsonObject &params, ResponseCallback callback)
+{
+    sendRequest(QStringLiteral("initialize"), params, [this, callback](const QJsonObject &result, const std::optional<Error> &error) {
+        if (!error)
+            setState(State::Initialized);
+        if (callback)
+            callback(result, error);
+    });
+    setState(State::InitializeRequested);
+}
+
 void AcpClientObject::authenticate(const AuthenticateRequest &request, ResponseCallback callback)
 {
     sendRequest(QStringLiteral("authenticate"), Acp::toJson(request), callback);
