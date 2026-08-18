@@ -7,6 +7,7 @@
 #include "qtcprocess.h"
 
 #include <QLoggingCategory>
+#include <QRandomGenerator>
 
 static Q_LOGGING_CATEGORY(wrappedProcessInterface, "qtc.wrappedprocessinterface", QtWarningMsg)
 
@@ -54,6 +55,74 @@ public:
     QString m_unexpectedStartupOutput;
     bool m_forwardStdout = false;
     bool m_forwardStderr = false;
+    // The token the command echoes its status with, when it was asked to. It
+    // carries a nonce and closes at both ends, in the same spirit as the PID
+    // line, so that output which happens to look like it is still output.
+    QByteArray m_exitCodePrefix;
+    QByteArray m_exitCodeSuffix;
+    QByteArray m_heldBack; // tail that may still hold a token split by a read
+
+    // The tail that may yet turn out to be a token: a whole prefix, which the
+    // digits and the closing part can still follow, or short of that the
+    // longest end which is the beginning of one.
+    qsizetype tokenTailSize() const
+    {
+        const qsizetype at = m_heldBack.lastIndexOf(m_exitCodePrefix);
+        if (at >= 0)
+            return m_heldBack.size() - at;
+        for (qsizetype n = qMin(m_heldBack.size(), m_exitCodePrefix.size() - 1); n > 0; --n) {
+            if (m_heldBack.endsWith(m_exitCodePrefix.left(n)))
+                return n;
+        }
+        return 0;
+    }
+
+    // Only that tail is held back, so a token split between two reads is still
+    // found whole while everything before it goes out at once.
+    QByteArray filterOutput(const QByteArray &chunk)
+    {
+        if (m_exitCodePrefix.isEmpty())
+            return chunk;
+        m_heldBack += chunk;
+        const qsizetype keep = tokenTailSize();
+        const QByteArray ready = m_heldBack.left(m_heldBack.size() - keep);
+        m_heldBack = m_heldBack.right(keep);
+        return ready;
+    }
+
+    struct HeldBack
+    {
+        QByteArray output;
+        std::optional<int> exitCode;
+    };
+
+    // Called when there is no more output. A token counts only whole: the
+    // prefix, digits, and the closing suffix. Anything else is output.
+    HeldBack takeHeldBack()
+    {
+        HeldBack result;
+        if (m_exitCodePrefix.isEmpty()) {
+            result.output = std::exchange(m_heldBack, {});
+            return result;
+        }
+        const qsizetype at = m_heldBack.lastIndexOf(m_exitCodePrefix);
+        const qsizetype digitsAt = at + m_exitCodePrefix.size();
+        const qsizetype end = at < 0 ? -1 : m_heldBack.indexOf(m_exitCodeSuffix, digitsAt);
+        if (end > 0) {
+            const QByteArray digits = m_heldBack.mid(digitsAt, end - digitsAt);
+            const bool isNumber = !digits.isEmpty()
+                                  && std::all_of(digits.begin(), digits.end(),
+                                                 [](char c) { return c >= '0' && c <= '9'; });
+            if (isNumber) {
+                result.exitCode = digits.toInt();
+                const QByteArray all = std::exchange(m_heldBack, {});
+                result.output = all.left(at) + all.mid(end + m_exitCodeSuffix.size());
+                return result;
+            }
+        }
+        result.output = std::exchange(m_heldBack, {});
+        return result;
+    }
 
     WrappedProcessInterface::WrapFunction m_wrapFunction;
     WrappedProcessInterface::ControlSignalFunction m_controlSignalFunction;
@@ -62,11 +131,19 @@ public:
 } // namespace Internal
 
 WrappedProcessInterface::WrappedProcessInterface(
-    const WrapFunction &wrapFunction, const ControlSignalFunction &controlSignalFunction)
+    const WrapFunction &wrapFunction, const ControlSignalFunction &controlSignalFunction,
+    bool commandReportsExitCode)
     : d(new Internal::WrappedProcessInterfacePrivate(this))
 {
     d->m_wrapFunction = wrapFunction;
     d->m_controlSignalFunction = controlSignalFunction;
+    if (commandReportsExitCode) {
+        // A nonce per launch: nothing the command writes can be guessed to
+        // match it, which is what makes stripping the token safe.
+        const QString nonce = QString::number(QRandomGenerator::global()->generate(), 16);
+        d->m_exitCodePrefix = QString("__qtcstatus%1_").arg(nonce).toUtf8();
+        d->m_exitCodeSuffix = "_statusqtc__";
+    }
 
     d->m_process.setParent(this);
 
@@ -81,12 +158,17 @@ WrappedProcessInterface::WrappedProcessInterface(
 
     connect(&d->m_process, &Process::readyReadStandardOutput, this, [this] {
         if (d->m_hasReceivedFirstOutput) {
-            const QByteArray output = d->m_process.readAllRawStandardOutput();
+            const QByteArray output = d->filterOutput(d->m_process.readAllRawStandardOutput());
             qCDebug(wrappedProcessInterface) << "Received output:" << output;
-            emit readyRead(output, {});
+            // With a marker a chunk can be held back entirely; without one this
+            // is what it always was.
+            if (d->m_exitCodePrefix.isEmpty() || !output.isEmpty())
+                emit readyRead(output, {});
             return;
         }
 
+        // The first line carries the PID and comes before anything the command
+        // itself writes, so it is never held back.
         QByteArray output = d->m_process.readAllRawStandardOutput();
         QByteArrayView outputView(output);
         qsizetype idx = outputView.indexOf('\n');
@@ -115,9 +197,10 @@ WrappedProcessInterface::WrappedProcessInterface(
 
         d->m_hasReceivedFirstOutput = true;
 
-        if (d->m_forwardStdout && rest.size() > 0) {
-            fprintf(stdout, "%s", rest.constData());
-            rest = QByteArrayView();
+        QByteArray restOutput = d->filterOutput(rest.toByteArray());
+        if (d->m_forwardStdout && restOutput.size() > 0) {
+            fprintf(stdout, "%s", restOutput.constData());
+            restOutput.clear();
         }
 
         // In case we already received some error output, send it now.
@@ -127,8 +210,8 @@ WrappedProcessInterface::WrappedProcessInterface(
             stdErr.clear();
         }
 
-        if (rest.size() > 0 || stdErr.size() > 0)
-            emit readyRead(rest.toByteArray(), stdErr);
+        if (restOutput.size() > 0 || stdErr.size() > 0)
+            emit readyRead(restOutput, stdErr);
     });
 
     connect(&d->m_process, &Process::readyReadStandardError, this, [this] {
@@ -147,7 +230,14 @@ WrappedProcessInterface::WrappedProcessInterface(
         qCDebug(wrappedProcessInterface) << "Process exited:" << d->m_process.commandLine()
                                          << "with code:" << d->m_process.resultData().m_exitCode;
 
+        // Whatever was held back is the token, the last of the output, or both.
+        const Internal::WrappedProcessInterfacePrivate::HeldBack heldBack = d->takeHeldBack();
+        if (!heldBack.output.isEmpty())
+            emit readyRead(heldBack.output, {});
+
         ProcessResultData resultData = d->m_process.resultData();
+        if (heldBack.exitCode)
+            resultData.m_exitCode = *heldBack.exitCode;
 
         if (d->m_remotePID == 0 && !d->m_hasReceivedFirstOutput) {
             resultData.m_error = ProcessError::FailedToStart;
@@ -200,7 +290,12 @@ void WrappedProcessInterface::start()
     d->m_forwardStderr = m_setup.m_processChannelMode == ProcessChannelMode::ForwardedChannels
                          || m_setup.m_processChannelMode == ProcessChannelMode::ForwardedErrorChannel;
 
-    const Result<CommandLine> fullCommandLine = d->m_wrapFunction(m_setup, "__qtc%1qtc__");
+    const QString exitCodeTemplate = d->m_exitCodePrefix.isEmpty()
+                                         ? QString()
+                                         : QString::fromUtf8(d->m_exitCodePrefix) + "%1"
+                                               + QString::fromUtf8(d->m_exitCodeSuffix);
+    const Result<CommandLine> fullCommandLine
+        = d->m_wrapFunction(m_setup, "__qtc%1qtc__", exitCodeTemplate);
 
     if (!fullCommandLine) {
         emit done(ProcessResultData{

@@ -1732,7 +1732,9 @@ static WrappedProcessInterface *makeProcessInterface(
     const DynamicString &containerId)
 {
     const auto wrapCommandLine = [=](const ProcessSetupData &setupData,
-                                     const QString &markerTemplate) -> Result<CommandLine> {
+                                     const QString &markerTemplate,
+                                     const QString & /*exitCodeTemplate*/)
+        -> Result<CommandLine> {
         CommandLine dockerCmd{instanceConfig.dockerCli, {"exec"}};
 
         const bool inTerminal = setupData.m_terminalMode != TerminalMode::Off

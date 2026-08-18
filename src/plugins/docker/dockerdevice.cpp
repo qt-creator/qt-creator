@@ -324,7 +324,8 @@ static WrappedProcessInterface *makeProcessInterface(
     std::weak_ptr<const IDevice> weakDevice = device;
 
     const auto wrapCommandLine =
-        [devicePrivate](const ProcessSetupData &setupData, const QString &markerTemplate)
+        [devicePrivate](const ProcessSetupData &setupData, const QString &markerTemplate,
+                        const QString & /*exitCodeTemplate*/)
         -> Result<CommandLine> {
         QTC_ASSERT(
             devicePrivate,

@@ -76,6 +76,9 @@ private slots:
     // Keep me as a first test to ensure that all singletons are working OK
     // when being instantiated from the non-main thread.
     void processReaperCreatedInNonMainThread();
+    void wrappedExitCodeMarker();
+    void wrappedExitCodeMarkerInOutput();
+    void wrappedExitCodeMarkerSplitRead();
     void testEnv()
     {
         if (HostOsInfo::isWindowsHost())
@@ -1295,6 +1298,97 @@ void tst_Process::runBlocking()
         process.runBlocking(10s);
         QCOMPARE(process.result(), ProcessResult::StartFailed);
     }
+}
+
+// A transport that loses the status of the command it wraps - hdc does - can
+// have the command echo it instead. The wrapper here is a plain shell, standing
+// in for such a transport: it reports success whatever the command did.
+// The script is handed the token template as $1, so a test can echo a status
+// with it - or something that only looks like one.
+static Process *wrappedShellProcess(const QString &script, QObject *parent)
+{
+    const auto wrap = [script](const ProcessSetupData &, const QString &markerTemplate,
+                               const QString &exitCodeTemplate) -> Result<CommandLine> {
+        // The PID line as the interface expects it, with the shell's own PID.
+        const QString pidLine = markerTemplate.arg("$$");
+        const QString full = QString("echo \"%1\"; %2").arg(pidLine, script);
+        return CommandLine{FilePath::fromString("/bin/sh"),
+                           {"-c", full, "sh", exitCodeTemplate}};
+    };
+    auto process = new Process(parent);
+    // What the transport would carry; this wrapper ignores it and runs the
+    // script instead.
+    process->setCommand(CommandLine{FilePath::fromString("/bin/true")});
+    process->setProcessInterfaceCreator([wrap] {
+        return new WrappedProcessInterface(wrap, [](ControlSignal, qint64) {}, true);
+    });
+    return process;
+}
+
+void tst_Process::wrappedExitCodeMarker()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The wrapper here is a POSIX shell");
+
+    Process process;
+    // $1 is the token template; the command reports 7 with it.
+    Process *wrapped = wrappedShellProcess(
+        "echo hello; printf '%s' \"$(echo \"$1\" | sed 's/%1/7/')\"", &process);
+    wrapped->start();
+    QVERIFY(wrapped->waitForFinished(std::chrono::seconds(5)));
+
+    // The status the command reported, not the one the wrapper exited with.
+    QCOMPARE(wrapped->exitCode(), 7);
+    // And the output without the status glued to it.
+    QCOMPARE(wrapped->cleanedStdOut().trimmed(), QString("hello"));
+}
+
+void tst_Process::wrappedExitCodeMarkerInOutput()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The wrapper here is a POSIX shell");
+
+    Process process;
+    // The command's own output contains the marker but never reports a status
+    // with it. That is output, all of it, and the status is the wrapper's.
+    // Output that ends the way a token starts - Jarek's "value: <prefix>42" -
+    // is output: without the closing part it is not a status.
+    Process *wrapped = wrappedShellProcess(
+        "printf 'value: %s42\\n' \"$(echo \"$1\" | sed 's/%1.*//')\"", &process);
+    wrapped->start();
+    QVERIFY(wrapped->waitForFinished(std::chrono::seconds(5)));
+
+    QCOMPARE(wrapped->exitCode(), 0);
+    const QString out = wrapped->cleanedStdOut();
+    QVERIFY2(out.contains("value: __qtcstatus"), qPrintable(out));
+    QVERIFY2(out.trimmed().endsWith("42"), qPrintable(out));
+}
+
+void tst_Process::wrappedExitCodeMarkerSplitRead()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The wrapper here is a POSIX shell");
+
+    Process process;
+    // The token is written in two pieces, the second one only once the test has
+    // seen the first arrive - a read splitting a token, which is what the tail
+    // is held back for. The prefix is longer than twelve characters, so the cut
+    // is inside it.
+    Process *wrapped = wrappedShellProcess(
+        "t=$(echo \"$1\" | sed 's/%1/7/');"
+        " printf 'hello\\n%s' \"$(printf '%s' \"$t\" | cut -c1-12)\";"
+        " read line;"
+        " printf '%s' \"$(printf '%s' \"$t\" | cut -c13-)\"", &process);
+    wrapped->setProcessMode(ProcessMode::Writer);
+    wrapped->start();
+    // "hello" came in the same write as the first piece, so that piece has been
+    // read as well; letting the second one out now splits the token.
+    QTRY_VERIFY(wrapped->rawStdOut().contains("hello"));
+    wrapped->writeRaw("\n");
+    QVERIFY(wrapped->waitForFinished(std::chrono::seconds(5)));
+
+    QCOMPARE(wrapped->exitCode(), 7);
+    QCOMPARE(wrapped->cleanedStdOut().trimmed(), QString("hello"));
 }
 
 QTEST_GUILESS_MAIN(tst_Process)

@@ -177,13 +177,21 @@ class WrappedProcessInterfacePrivate;
 class QTCREATOR_UTILS_EXPORT WrappedProcessInterface final : public ProcessInterface
 {
 public:
-    using WrapFunction = std::function<
-        Result<CommandLine>(const ProcessSetupData &setupData, const QString &markerTemplate)>;
+    using WrapFunction = std::function<Result<CommandLine>(
+        const ProcessSetupData &setupData,
+        const QString &markerTemplate,
+        // Present when the interface was told the command reports its own exit
+        // status: a template for what the command echoes with it, unique to this
+        // launch and closed at both ends, so it cannot be mistaken for output.
+        const QString &exitCodeTemplate)>;
     using ControlSignalFunction = std::function<void(ControlSignal controlSignal, qint64 remotePid)>;
 
 public:
+    // A transport that loses the status of the command it wraps can have the
+    // command report it instead, by echoing exitCodeTemplate with its status.
     WrappedProcessInterface(
-        const WrapFunction &wrapFunction, const ControlSignalFunction &controlSignalFunction);
+        const WrapFunction &wrapFunction, const ControlSignalFunction &controlSignalFunction,
+        bool commandReportsExitCode = false);
     ~WrappedProcessInterface() override;
 
     void emitDone(const ProcessResultData &resultData) { emit done(resultData); }

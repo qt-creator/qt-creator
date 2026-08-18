@@ -842,7 +842,8 @@ ProcessInterface *AndroidDevice::createProcessInterface() const
     const FilePath adbToolPath = *d->m_accessData->adbToolPath.readLocked();
     const QString serialNumber = *d->m_accessData->serialNumber.readLocked();
     const auto wrapCommandLine =
-        [adbToolPath, serialNumber](const ProcessSetupData &setupData, const QString &pidMarker)
+        [adbToolPath, serialNumber](const ProcessSetupData &setupData, const QString &pidMarker,
+                                    const QString & /*exitCodeTemplate*/)
         -> Result<CommandLine> {
         CommandLine cmd(adbToolPath);
         cmd.addArgs({"-s", serialNumber, "shell"});
