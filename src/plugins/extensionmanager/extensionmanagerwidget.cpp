@@ -9,16 +9,14 @@
 #include "extensionsmodel.h"
 #include "remotespec.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
-#include <coreplugin/minisplitter.h>
 #include <coreplugin/plugininstallwizard.h>
 #include <coreplugin/welcomepagehelper.h>
 
+#include <extensionsystem/plugindetailsview.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginview.h>
@@ -45,7 +43,6 @@
 #include <utils/textutils.h>
 #include <utils/widgets.h>
 
-#include <QAction>
 #include <QApplication>
 #include <QCheckBox>
 #include <QCryptographicHash>
@@ -55,7 +52,7 @@
 #include <QMessageBox>
 #include <QMetaEnum>
 #include <QProgressDialog>
-#include <QScrollArea>
+#include <QRegularExpression>
 
 using namespace Core;
 using namespace ExtensionSystem;
@@ -67,37 +64,9 @@ namespace ExtensionManager::Internal {
 
 [[maybe_unused]] static Q_LOGGING_CATEGORY(widgetLog, "qtc.extensionmanager.widget", QtWarningMsg)
 
-constexpr TextFormat contentTF
-    {Theme::Token_Text_Default, UiElement::UiElementBody2};
-
-constexpr TextFormat h6TF
-    {contentTF.themeColor, UiElement::UiElementH6};
-constexpr TextFormat h6CapitalTF
-    {Theme::Token_Text_Muted, UiElement::UiElementH6Capital};
-
-static QLabel *sectionTitle(const TextFormat &tf, const QString &title)
-{
-    auto *label = new ElidingLabel(title);
-    applyTf(label, tf);
-    return label;
-};
-
-static QWidget *toScrollableColumn(QWidget *widget)
-{
-    widget->setContentsMargins(SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXxl,
-                               SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXxl);
-    widget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
-
-    auto scrollArea = new QScrollArea;
-    scrollArea->setWidget(widget);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scrollArea->setFrameStyle(QFrame::NoFrame);
-
-    return scrollArea;
-};
-
 const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
+const char kUrlSchemeTag[] = "myschemetag";
+const char kUrlSchemeDependency[] = "myschemedependency";
 
 static void requestRestart()
 {
@@ -426,6 +395,7 @@ public:
         m_label = new InfoLabel;
         m_label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         m_switch = new QtcSwitch(Tr::tr("Active"));
+        auto detailsButton = new QtcButton(Tr::tr("Details..."), QtcButton::SmallPrimary);
         m_pluginView.hide();
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
@@ -433,6 +403,9 @@ public:
         Grid {
             Span(2, m_label), br,
             m_switch, empty, br,
+            Span(2, detailsButton), br,
+            spacing(SpacingTokens::GapVXs),
+            noMargin,
         }.attachTo(this);
 
         connect(m_switch, &QtcSwitch::clicked, this, [this](bool checked) {
@@ -450,6 +423,13 @@ public:
             } else {
                 m_switch->setChecked(!checked);
             }
+        });
+
+        connect(detailsButton, &QAbstractButton::clicked, this, [this] {
+            PluginSpec *spec = PluginManager::specById(m_pluginId);
+            if (spec == nullptr)
+                return;
+            PluginDetailsView::showModal(ICore::dialogParent(), spec);
         });
 
         connect(
@@ -497,42 +477,6 @@ private:
     PluginView m_pluginView{this};
 };
 
-class TagList : public QWidget
-{
-    Q_OBJECT
-
-public:
-    using QWidget::QWidget;
-
-    void setTags(const QStringList &tags)
-    {
-        delete layout();
-        qDeleteAll(children());
-
-        if (!tags.empty()) {
-            const auto tagToButton = [this](const QString &tag) {
-                auto btn = new QtcButton(tag, QtcButton::Tag);
-                connect(btn, &QAbstractButton::clicked, this, [tag, this] { emit tagSelected(tag); });
-                return btn;
-            };
-
-            using namespace Layouting;
-            // clang-format off
-            Flow {
-                noMargin,
-                spacing(SpacingTokens::GapHM),
-                Utils::transform(tags, tagToButton)
-            }.attachTo(this);
-            // clang-format on
-        }
-
-        updateGeometry();
-    }
-
-signals:
-    void tagSelected(const QString &tag);
-};
-
 class ExtensionManagerWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -540,6 +484,7 @@ public:
 
 private:
     void resizeEvent(QResizeEvent *event) final;
+    QString detailsMarkdown(const QModelIndex &index);
     void updateView(const QModelIndex &current);
     void fetchAndInstallPlugin(const QUrl &url, bool update, const QString &sha);
 
@@ -547,19 +492,8 @@ private:
     ExtensionsModel *m_extensionModel;
     ExtensionsBrowser *m_extensionBrowser;
     QStackedWidget *m_detailsStack;
-    QWidget *m_secondaryDetailsColumn;
     HeadingWidget *m_headingWidget;
     MarkdownBrowser *m_description;
-    QLabel *m_dateUpdatedTitle;
-    QLabel *m_dateUpdated;
-    QLabel *m_tagsTitle;
-    TagList *m_tags;
-    QLabel *m_platformsTitle;
-    QLabel *m_platforms;
-    QLabel *m_dependenciesTitle;
-    QLabel *m_dependencies;
-    QLabel *m_packExtensionsTitle;
-    QLabel *m_packExtensions;
     PluginStatusWidget *m_pluginStatus;
     QString m_currentDownloadUrl;
     QString m_currentId;
@@ -616,50 +550,20 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_description->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     m_description->viewport()->setAutoFillBackground(false);
 
-    m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
-    m_dateUpdated = new QLabel;
-    applyTf(m_dateUpdated, contentTF, false);
-    m_tagsTitle = sectionTitle(h6TF, Tr::tr("Tags"));
-    m_tags = new TagList;
-    m_platformsTitle = sectionTitle(h6TF, Tr::tr("Platforms"));
-    m_platforms = new QLabel;
-    applyTf(m_platforms, contentTF, false);
-    m_dependenciesTitle = sectionTitle(h6TF, Tr::tr("Dependencies"));
-    m_dependencies = new QLabel;
-    applyTf(m_dependencies, contentTF, false);
-    m_dependencies->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
-    connect(m_dependencies, &QLabel::linkActivated, this, [this](const QString &link) {
-        m_extensionBrowser->selectIndex(m_extensionModel->indexOfId(link));
-    });
-
-    m_packExtensionsTitle = sectionTitle(h6TF, Tr::tr("Extensions in pack"));
-    m_packExtensions = new QLabel;
-    applyTf(m_packExtensions, contentTF, false);
-
-    m_packExtensions->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
-    connect(m_packExtensions, &QLabel::linkActivated, this, [this](const QString &link) {
-        m_extensionBrowser->selectIndex(m_extensionModel->indexOfId(link));
+    connect(m_description, &QTextBrowser::anchorClicked, this, [this](const QUrl &url) {
+        if (url.scheme() == kUrlSchemeDependency)
+            m_extensionBrowser->selectIndex(m_extensionModel->indexOfId(url.path()));
+        else if (url.scheme() == kUrlSchemeTag)
+            m_extensionBrowser->setFilter(url.path());
     });
 
     m_pluginStatus = new PluginStatusWidget;
 
     IContext::attach(this, Context(Constants::C_EXTENSIONMANAGER));
-    ActionBuilder(this, Core::Constants::TOGGLE_RIGHT_SIDEBAR)
-        .setCheckable(true)
-        .setChecked(true)
-        .setContext(Constants::C_EXTENSIONMANAGER)
-        .setText(Tr::tr("Toggle Secondary Details"))
-        .addOnTriggered(this, [this](bool c) { m_secondaryDetailsColumn->setVisible(c); });
 
     auto primaryDetailsColumn = new QWidget;
-    auto secondaryDetails = new QWidget;
-    secondaryDetails->setMinimumWidth(100);
-    m_secondaryDetailsColumn = toScrollableColumn(secondaryDetails);
-
-    auto detailsSplitter = new MiniSplitter;
 
     using namespace Layouting;
-    const auto spXxs = spacing(SpacingTokens::GapVXs);
     // clang-format off
     Column {
         Row {
@@ -672,20 +576,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         noMargin, spacing(0),
     }.attachTo(primaryDetailsColumn);
 
-    Column {
-        sectionTitle(h6CapitalTF, Tr::tr("Extension details")),
-        Column {
-            Column { m_dateUpdatedTitle, m_dateUpdated, spXxs },
-            Column { m_tagsTitle, m_tags, spXxs },
-            Column { m_platformsTitle, m_platforms, spXxs },
-            Column { m_dependenciesTitle, m_dependencies, spXxs },
-            Column { m_packExtensionsTitle, m_packExtensions, spXxs },
-            spacing(SpacingTokens::GapVXl),
-        },
-        st,
-        noMargin, spacing(SpacingTokens::GapVXxl),
-    }.attachTo(secondaryDetails);
-
     Row {
         Space(bigSpacing),
         m_extensionBrowser,
@@ -693,14 +583,11 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         Stack {
             bindTo(&m_detailsStack),
             descriptionPlaceHolder(),
-            detailsSplitter,
+            primaryDetailsColumn,
         },
         noMargin, spacing(0),
     }.attachTo(this);
     // clang-format on
-
-    detailsSplitter->addWidget(primaryDetailsColumn);
-    detailsSplitter->addWidget(m_secondaryDetailsColumn);
 
     WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);
 
@@ -721,7 +608,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         installOrUpdate(true);
     });
 
-    connect(m_tags, &TagList::tagSelected, m_extensionBrowser, &ExtensionsBrowser::setFilter);
     connect(m_headingWidget, &HeadingWidget::vendorClicked,
             m_extensionBrowser, &ExtensionsBrowser::setFilter);
 
@@ -755,13 +641,97 @@ void ExtensionManagerWidget::resizeEvent(QResizeEvent *event)
     m_extensionBrowser->adjustToWidth(width() / 3);
 }
 
+static QString stripMarkdownLinkChars(QString text)
+{
+    static const QRegularExpression re(R"([\[\]()])");
+    return text.remove(re);
+}
+
+static QString toMarkdownLink(const QUrl &url, const QString &displayName = {})
+{
+    const QString text = displayName.isEmpty() ? url.toString() : displayName;
+    const QString encodedUrl = QString::fromUtf8(url.toEncoded());
+    return "[" + stripMarkdownLinkChars(text) + "](" + stripMarkdownLinkChars(encodedUrl) + ")";
+}
+
+static QStringList toMarkdownLinks(const QStringList &ids, const QString &scheme,
+                                   const std::function<QString(const QString &)> &displayNameFor)
+{
+    return Utils::transform(ids, [&scheme, &displayNameFor](const QString &id) {
+        QUrl url;
+        url.setScheme(scheme);
+        url.setPath(id);
+        return toMarkdownLink(url, displayNameFor(id));
+    });
+}
+
+QString ExtensionManagerWidget::detailsMarkdown(const QModelIndex &index)
+{
+    auto idToDisplayName = [this](const QString &id) {
+        const QModelIndex dependencyIndex = m_extensionModel->indexOfId(id);
+        QString displayName = dependencyIndex.data(RoleName).toString();
+        if (displayName.isEmpty())
+            displayName = id;
+        return displayName;
+    };
+
+    auto toContentParagraph = [](const QStringList &text) {
+        return text.join(", ");
+    };
+
+    static const QString rowTemplate = "%1: %2";
+
+    QStringList rows;
+
+    const QString moreInfoUrl = index.data(RoleMoreInfoUrl).toString();
+    if (!moreInfoUrl.isEmpty())
+        rows.append(rowTemplate.arg(Tr::tr("More information"), toMarkdownLink(moreInfoUrl)));
+
+    const QString documentationUrl = index.data(RoleDocumentationUrl).toString();
+    if (!documentationUrl.isEmpty())
+        rows.append(rowTemplate.arg(Tr::tr("Documentation"), toMarkdownLink(documentationUrl)));
+
+    const QDate dateUpdated = index.data(RoleDateUpdated).toDate();
+    if (dateUpdated.isValid())
+        rows.append(rowTemplate.arg(Tr::tr("Last Update"), dateUpdated.toString()));
+
+    const QStringList tags = index.data(RoleTags).toStringList();
+    if (!tags.isEmpty()) {
+        const QStringList tagLinks = toMarkdownLinks(tags, kUrlSchemeTag,
+                                                       [](const QString &tag) { return tag; });
+        rows.append(rowTemplate.arg(Tr::tr("Tags"), toContentParagraph(tagLinks)));
+    }
+
+    const QStringList platforms = index.data(RolePlatforms).toStringList();
+    if (!platforms.isEmpty())
+        rows.append(rowTemplate.arg(Tr::tr("Platforms"), toContentParagraph(platforms)));
+
+    const QStringList dependencies = index.data(RoleDependencies).toStringList();
+    if (!dependencies.isEmpty()) {
+        const QStringList dependencyLinks
+            = toMarkdownLinks(dependencies, kUrlSchemeDependency, idToDisplayName);
+        rows.append(rowTemplate.arg(Tr::tr("Dependencies"), toContentParagraph(dependencyLinks)));
+    }
+
+    const bool isPack = index.data(RoleItemType) == ItemTypePack;
+    const QStringList plugins = index.data(RolePlugins).toStringList();
+    if (isPack && !plugins.isEmpty()) {
+        const QStringList pluginLinks
+            = toMarkdownLinks(plugins, kUrlSchemeDependency, idToDisplayName);
+        rows.append(rowTemplate.arg(Tr::tr("Extensions in pack"), toContentParagraph(pluginLinks)));
+    }
+
+    if (rows.isEmpty())
+        return {};
+
+    rows.prepend("### " + Tr::tr("More Information"));
+
+    return rows.join("\n\n");
+}
+
 void ExtensionManagerWidget::updateView(const QModelIndex &current)
 {
     const bool currentIsValid = current.isValid();
-
-    Command *command = ActionManager::command(Core::Constants::TOGGLE_RIGHT_SIDEBAR);
-    QAction *action = command->actionForContext(Constants::C_EXTENSIONMANAGER);
-    action->setEnabled(currentIsValid);
 
     if (currentIsValid) {
         m_detailsStack->setCurrentIndex(1);
@@ -779,64 +749,12 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
 
     m_currentId = current.data(RoleFullId).toString();
 
-    const QString description = current.data(RoleDescriptionLong).toString();
+    QString description = current.data(RoleDescriptionLong).toString();
+    const QString details = detailsMarkdown(current);
+    if (!details.isEmpty())
+        description.append("\n\n" + details);
     m_description->setMarkdown(description);
     m_description->document()->setDocumentMargin(SpacingTokens::PaddingVXl);
-
-    auto idToDisplayName = [this](const QString &id) {
-        const QModelIndex dependencyIndex = m_extensionModel->indexOfId(id);
-        QString displayName = dependencyIndex.data(RoleName).toString();
-        if (displayName.isEmpty())
-            displayName = id;
-        return QString("<a href=\"%1\">%2</a>").arg(id).arg(displayName);
-    };
-
-    auto toContentParagraph =
-        [](const QStringList &text) {
-            const QString lines = text.join("<br/>");
-            const QString pHtml = QString::fromLatin1("<p style=\"margin-top:0;margin-bottom:0;"
-                                                      "line-height:%1px\">%2</p>")
-                                      .arg(contentTF.lineHeight()).arg(lines);
-            return pHtml;
-        };
-
-    const QDate dateUpdated = current.data(RoleDateUpdated).toDate();
-    const bool hasDateUpdated = dateUpdated.isValid();
-    if (hasDateUpdated)
-        m_dateUpdated->setText(dateUpdated.toString());
-    m_dateUpdatedTitle->setVisible(hasDateUpdated);
-    m_dateUpdated->setVisible(hasDateUpdated);
-
-    const QStringList tags = current.data(RoleTags).toStringList();
-    m_tags->setTags(tags);
-    const bool hasTags = !tags.isEmpty();
-    m_tagsTitle->setVisible(hasTags);
-    m_tags->setVisible(hasTags);
-
-    const QStringList platforms = current.data(RolePlatforms).toStringList();
-    const bool hasPlatforms = !platforms.isEmpty();
-    if (hasPlatforms)
-        m_platforms->setText(toContentParagraph(platforms));
-    m_platformsTitle->setVisible(hasPlatforms);
-    m_platforms->setVisible(hasPlatforms);
-
-    const QStringList dependencies = current.data(RoleDependencies).toStringList();
-    const bool hasDependencies = !dependencies.isEmpty();
-    if (hasDependencies) {
-        const QStringList displayNames = transform(dependencies, idToDisplayName);
-        m_dependencies->setText(toContentParagraph(displayNames));
-    }
-    m_dependenciesTitle->setVisible(hasDependencies);
-    m_dependencies->setVisible(hasDependencies);
-
-    const QStringList plugins = current.data(RolePlugins).toStringList();
-    const bool hasExtensions = isPack && !plugins.isEmpty();
-    if (hasExtensions) {
-        const QStringList displayNames = transform(plugins, idToDisplayName);
-        m_packExtensions->setText(toContentParagraph(displayNames));
-    }
-    m_packExtensionsTitle->setVisible(hasExtensions);
-    m_packExtensions->setVisible(hasExtensions);
 }
 
 void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update, const QString &sha)

@@ -52,21 +52,6 @@ void ExtensionsModelPrivate::addUnlistedLocalPlugins()
     qCDebug(modelLog) << "Number of added local plugins:" << localPlugins.count();
 }
 
-static QString descriptionWithLinks(const QString &description, const QString &url,
-                             const QString &documentationUrl)
-{
-    QStringList fragments;
-    const QString mdLink("[%1](%2)");
-    if (!url.isEmpty())
-        fragments.append(mdLink.arg(url).arg(url));
-    if (!documentationUrl.isEmpty())
-        fragments.append(mdLink.arg(Tr::tr("Documentation")).arg(documentationUrl));
-    if (!fragments.isEmpty())
-        fragments.prepend("### " + Tr::tr("More Information"));
-    fragments.prepend(description);
-    return fragments.join("\n\n");
-}
-
 QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) const
 {
     QTC_ASSERT(index >= 0 && size_t(index) < remotePlugins.size(), return {});
@@ -132,14 +117,14 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
             return ItemTypePack;
 
         return ItemTypeExtension;
-    case RoleDescriptionLong: {
-        const QString description = remoteSpec->longDescription();
-        const QString url = remoteSpec->url();
-        const QString documentationUrl = remoteSpec->documentationUrl();
-        return descriptionWithLinks(description, url, documentationUrl);
-    }
+    case RoleDescriptionLong:
+        return remoteSpec->longDescription();
     case RoleDescriptionShort:
         return remoteSpec->description();
+    case RoleDocumentationUrl:
+        return remoteSpec->documentationUrl();
+    case RoleMoreInfoUrl:
+        return remoteSpec->url();
     case RolePlugins:
         return remoteSpec->packPluginIds();
     }
@@ -165,10 +150,13 @@ QVariant ExtensionsModelPrivate::dataFromLocalPlugin(int index, int role) const
         return dependencies;
     }
     case RoleDescriptionLong:
-        return descriptionWithLinks(pluginSpec->longDescription(), pluginSpec->url(),
-                                    pluginSpec->documentationUrl());
+        return pluginSpec->longDescription();
     case RoleDescriptionShort:
         return pluginSpec->description();
+    case RoleDocumentationUrl:
+        return pluginSpec->documentationUrl();
+    case RoleMoreInfoUrl:
+        return pluginSpec->url();
     case RoleFullId:
         return QString("%1.%2").arg(pluginSpec->vendorId()).arg(pluginSpec->id());
     case RoleId:
