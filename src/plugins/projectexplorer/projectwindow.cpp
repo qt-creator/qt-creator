@@ -893,11 +893,13 @@ public:
             const QString extraText = [this] {
                 if (m_kitErrorsForProject)
                     return QString("<h3>" + Tr::tr("Kit is unsuited for project") + "</h3>");
-                if (isEnabled())
-                    return QString();
-                return QString("<h3>"
-                    + Tr::tr("Double-click to enable target, double-click again to make active")
-                    + "</h3>");
+                if (!isEnabled())
+                    return QString("<h3>"
+                        + Tr::tr("Double-click to enable target, double-click again to make active")
+                        + "</h3>");
+                if (!isActive())
+                    return QString("<h3>" + Tr::tr("Double-click to make active") + "</h3>");
+                return QString();
             }();
             return k->toHtml(m_kitIssues, extraText);
         }
@@ -971,6 +973,13 @@ public:
         Kit *kit = KitManager::kit(m_kitId);
         QTC_ASSERT(kit, return);
         const QString projectName = m_project->displayName();
+
+        QAction *activateAction = menu->addAction(Tr::tr("Set as Active Kit"));
+        activateAction->setEnabled(isSelectable && isEnabled() && !isActive());
+        QObject::connect(activateAction, &QAction::triggered, m_project, [this] {
+            m_project->setActiveTarget(target(), SetActive::Cascade);
+        });
+        menu->addSeparator();
 
         QAction *enableAction = menu->addAction(Tr::tr("Enable Kit for Project \"%1\"").arg(projectName));
         enableAction->setEnabled(isSelectable && m_kitId.isValid() && !isEnabled());
@@ -1082,6 +1091,7 @@ private:
     }
 
     bool isEnabled() const { return target() != nullptr; }
+    bool isActive() const { return isEnabled() && m_project->activeTarget() == target(); }
 
 public:
     QPointer<Project> m_project; // Not owned.
