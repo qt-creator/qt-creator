@@ -5,6 +5,8 @@
 
 #include <QWidget>
 
+#include <utils/stylehelper.h>
+
 QT_FORWARD_DECLARE_CLASS(QLabel)
 
 namespace ExtensionManager::Internal {
@@ -41,7 +43,7 @@ private:
     class ExtensionsBrowserPrivate *d = nullptr;
 };
 
-constexpr static QSize iconBgSizeSmall{50, 50};
+constexpr static QSize iconBgSizeSmall{40, 50};
 constexpr static QSize iconBgSizeBig{68, 68};
 enum Size {
     SizeSmall,
@@ -49,5 +51,7 @@ enum Size {
 };
 QPixmap itemIcon(const QModelIndex &index, Size size);
 QPixmap itemBadge(const QModelIndex &index, Size size);
+
+constexpr static int bigSpacing = Utils::StyleHelper::SpacingTokens::PrimitiveXl;
 
 } // ExtensionManager::Internal

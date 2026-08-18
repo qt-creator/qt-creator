@@ -239,7 +239,7 @@ public:
         m_dlCount->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
         m_details = new ElidingLabel;
         applyTf(m_details, detailsTF);
-        installButton = new QtcButton(Tr::tr("Install..."), QtcButton::MediumPrimary);
+        installButton = new QtcButton(Tr::tr("Install..."), QtcButton::SmallPrimary);
         installButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         installButton->hide();
         connect(
@@ -256,7 +256,7 @@ public:
             requestRestart();
         });
 
-        updateButton = new QtcButton(Tr::tr("Update..."), QtcButton::MediumPrimary);
+        updateButton = new QtcButton(Tr::tr("Update..."), QtcButton::SmallPrimary);
         updateButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         updateButton->hide();
         connect(updateButton, &QAbstractButton::pressed, this, &HeadingWidget::pluginUpdateRequested);
@@ -611,12 +611,10 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_description->setAllowRemoteImages(true);
     m_description->setFrameStyle(QFrame::NoFrame);
     m_description->setOpenExternalLinks(true);
-    QPalette browserPal = m_description->palette();
-    browserPal.setColor(QPalette::Base, creatorColor(Theme::Token_Background_Default));
-    m_description->setPalette(browserPal);
-    const int verticalPadding = SpacingTokens::PaddingVXxl - SpacingTokens::PaddingVXl;
+    const int verticalPadding = bigSpacing - SpacingTokens::PaddingVXl;
     m_description->setMargins({verticalPadding, 0, verticalPadding, 0});
     m_description->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    m_description->viewport()->setAutoFillBackground(false);
 
     m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
     m_dateUpdated = new QLabel;
@@ -667,8 +665,8 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         Row {
             m_headingWidget,
             m_pluginStatus,
-            customMargins(SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXxl,
-                          SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXxl),
+            customMargins(bigSpacing, bigSpacing,
+                          bigSpacing, bigSpacing),
         },
         m_description,
         noMargin, spacing(0),
@@ -689,7 +687,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     }.attachTo(secondaryDetails);
 
     Row {
-        Space(SpacingTokens::GapHXxl),
+        Space(bigSpacing),
         m_extensionBrowser,
         WelcomePageHelpers::createRule(Qt::Vertical),
         Stack {

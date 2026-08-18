@@ -30,7 +30,6 @@
 #include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/unarchiver.h>
-#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QDir>
@@ -42,7 +41,6 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
-#include <QPushButton>
 #include <QStyle>
 #include <QTemporaryFile>
 
@@ -59,7 +57,7 @@ namespace ExtensionManager::Internal {
 static Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 
 constexpr int gapSize = GapHXl;
-constexpr int itemWidth = 330;
+constexpr int itemWidth = 280;
 constexpr int cellWidth = itemWidth + gapSize;
 
 class OptionChooser : public QComboBox
@@ -197,7 +195,7 @@ public:
         // |           |       |       |                                    (GapVXs)                                    |           |         |
         // |           |       |       +---------------------+-------+--------------+-------+--------+--------+---------+           |         |
         // |(PaddingHL)|<icon> |(GapHL)|       <vendor>      |(GapHM)|<divider>(h16)|(GapHM)|<dlIcon>|(GapHXs)|<dlCount>|(PaddingHL)|(gapSize)|
-        // |           |(50x50)|       +---------------------+-------+--------------+-------+--------+--------+---------+           |         |
+        // |           |(h: 50)|       +---------------------+-------+--------------+-------+--------+--------+---------+           |         |
         // |           |       |       |                                    (GapVXs)                                    |           |         |
         // |           |       |       +--------------------------------------------------------------------------------+           |         |
         // |           |       |       |                               <shortDescription>                               |           |         |
@@ -533,11 +531,6 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
 
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
-    static const TextFormat titleTF
-        {Theme::Token_Text_Default, UiElementH2};
-    auto titleLabel = new ElidingLabel(Tr::tr("Manage Extensions"));
-    applyTf(titleLabel, titleTF);
-
     auto externalRepoSwitch = new QtcSwitch("Use external repository");
     externalRepoSwitch->setEnabled(settings().useExternalRepo.isEnabled());
     if (settings().useExternalRepo.isEnabled())
@@ -566,11 +559,6 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     d->sortChooser->addItems(Utils::transform(SortFilterProxyModel::sortOptions(),
                                               &SortFilterProxyModel::SortOption::displayName));
 
-    auto settingsToolButton = new QPushButton;
-    settingsToolButton->setIcon(Icons::SETTINGS.icon());
-    settingsToolButton->setFlat(true);
-    settingsToolButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-
     d->extensionsView = new QListView;
     d->extensionsView->setFrameStyle(QFrame::NoFrame);
     d->extensionsView->setItemDelegate(new ExtensionItemDelegate(this));
@@ -580,6 +568,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     d->extensionsView->setViewMode(QListView::IconMode);
     d->extensionsView->setModel(d->sortFilterProxyModel);
     d->extensionsView->setMouseTracking(true);
+    d->extensionsView->viewport()->setAutoFillBackground(false);
 
     d->selectionModel = new QItemSelectionModel(d->sortFilterProxyModel, d->extensionsView);
     d->extensionsView->setSelectionModel(d->selectionModel);
@@ -592,16 +581,11 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     using namespace Layouting;
     Column {
         Row {
-            titleLabel,
-            settingsToolButton,
-            customMargins(0, PaddingVXl, rightMargin, 0),
-        },
-        Row {
             Column {
                 Row{ st, externalRepoSwitch },
                 d->searchBox,
             },
-            customMargins(0, PaddingVXl, rightMargin, PaddingVXl),
+            customMargins(0, bigSpacing, rightMargin, bigSpacing),
         },
         Row {
             d->filterChooser,
@@ -619,11 +603,6 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         },
         noMargin, spacing(0),
     }.attachTo(this);
-
-    WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);
-    WelcomePageHelpers::setBackgroundColor(d->extensionsView, Theme::Token_Background_Default);
-    WelcomePageHelpers::setBackgroundColor(d->extensionsView->viewport(),
-                                           Theme::Token_Background_Default);
 
     d->m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Large, this);
     d->m_spinner->hide();
@@ -652,9 +631,6 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             this, updatePlaceHolderVisibility);
     connect(d->sortFilterProxyModel, &SortFilterProxyModel::rowsInserted,
             this, updatePlaceHolderVisibility);
-    connect(settingsToolButton, &QAbstractButton::clicked, this, []() {
-        ICore::showSettings(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
-    });
     connect(&settings().useExternalRepo, &BaseAspect::changed, this, updateExternalRepoSwitch);
     connect(externalRepoSwitch, &QAbstractButton::toggled, this, setUseExternalRepo);
     connect(&settings(), &AspectContainer::changed, this, [this] {
@@ -688,8 +664,7 @@ QSize ExtensionsBrowser::sizeHint() const
 
 int ExtensionsBrowser::extraListViewWidth() const
 {
-    // TODO: Investigate "transient" scrollbar, just for this list view.
-    constexpr int extraPadding = qMax(0, PaddingHXxl - gapSize);
+    constexpr int extraPadding = qMax(0, bigSpacing - gapSize);
     return d->extensionsView->style()->pixelMetric(QStyle::PM_ScrollBarExtent)
            + extraPadding
            + 1; // Needed
