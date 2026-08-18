@@ -1120,6 +1120,9 @@ TargetGroupItem::TargetGroupItem(Project *project)
     QObject::connect(project, &Project::removedTarget, &m_guard, [this] {
         scheduleRebuildContents();
     });
+    QObject::connect(project, &Project::activeTargetChanged, &m_guard, [this] {
+        updateAll();
+    });
 
     QObject::connect(KitManager::instance(), &KitManager::kitAdded, &m_guard, [this] {
         scheduleRebuildContents();
