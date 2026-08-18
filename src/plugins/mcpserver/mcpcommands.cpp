@@ -2993,7 +2993,7 @@ void McpCommands::registerCommands()
                 return ResultError(w.error());
             auto bar = qobject_cast<QTabBar *>(*w);
             if (!bar)
-                return ResultError(QString("Not a tab bar: %1").arg((*w)->metaObject()->className()));
+                return ResultError(QString("Not a tab bar: %1").arg(QLatin1String((*w)->metaObject()->className())));
 
             const QString wanted = p.value("tab").toString();
             QStringList labels;
