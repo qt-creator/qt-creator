@@ -2165,7 +2165,7 @@ ACPLIB_EXPORT QJsonObject toJson(const SetSessionModeResponse &data);
 using AgentResponse = std::variant<QJsonObject>;
 
 template<>
-ACPLIB_EXPORT Utils::Result<AgentResponse> fromJson<AgentResponse>(const QJsonValue & /*val*/);
+ACPLIB_EXPORT Utils::Result<AgentResponse> fromJson<AgentResponse>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonValue toJsonValue(const AgentResponse &val);
 

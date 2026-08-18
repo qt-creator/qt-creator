@@ -2412,8 +2412,10 @@ QJsonObject toJson(const SetSessionModeResponse &data)
 }
 
 template<>
-Utils::Result<AgentResponse> fromJson<AgentResponse>(const QJsonValue & /*val*/)
+Utils::Result<AgentResponse> fromJson<AgentResponse>(const QJsonValue &val)
 {
+    if (val.isObject())
+        return AgentResponse(val.toObject());  // open union: preserve unknown variants raw
     return Utils::ResultError("Invalid AgentResponse");
 }
 
