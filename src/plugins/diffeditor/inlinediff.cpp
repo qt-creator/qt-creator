@@ -587,7 +587,8 @@ protected:
                                                                : Utils::Theme::Token_Background_Muted));
         painter.setPen(Utils::creatorColor(Utils::Theme::Token_Text_Muted));
         painter.setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementCaption));
-        painter.drawText(rect(), Qt::AlignCenter,
+        painter.drawText(rect().adjusted(Utils::StyleHelper::SpacingTokens::PaddingHM, 0, 0, 0),
+                         Qt::AlignLeft | Qt::AlignVCenter,
                          Tr::tr("Show %n hidden lines", nullptr, m_hiddenCount));
     }
 
@@ -620,8 +621,12 @@ public:
     {
         connectView(m_editor);
         m_lastBlockCount = m_editor->document()->blockCount();
-        // like the decorator, drop the hidden state on edits that recycle the
-        // anchor blocks' fragment indexes, and wait for the next refresh()
+        // Like the decorator, drop the hidden state on edits that recycle the
+        // anchor blocks' fragment indexes, and wait for the next refresh().
+        // Only the anchors are checked: a same-block-count rewrite can recycle
+        // a hidden block's fragment index past this heuristic, leaving stale
+        // hidden lines until the diff update calls refresh() - a deliberately
+        // accepted, self-healing window.
         connect(m_editor->document(), &QTextDocument::contentsChange, this,
                 [this](int, int charsRemoved, int) {
             if (!m_editor)
@@ -746,9 +751,14 @@ private:
                 // two sides aligned regardless of how the sides' run counts differ
                 const int first = editorLineToBaseline(m_model, run.first);
                 const int last = editorLineToBaseline(m_model, run.second);
-                if (first < 1 || last < first || last > baselineBlockCount)
+                // the placeholder anchors on the line after the run, so the run
+                // must end before the baseline's last line
+                if (first < 1 || last < first || last >= baselineBlockCount)
                     continue; // out of range: leave this run expanded on both sides
                 unit.baseline = makePlaceholder(m_baseline, {first, last}, unit.id);
+                // collapsing only the editor side would break the row alignment
+                if (!unit.baseline.view)
+                    continue; // failed before hiding anything: leave both sides expanded
             }
             unit.editor = makePlaceholder(m_editor, run, unit.id);
             m_units.append(unit);
@@ -1274,6 +1284,7 @@ public:
                                   ->value(COLLAPSE_SETTINGS_KEY, true).toBool();
         m_collapseAction = m_toolBar->addAction(Utils::Icons::COLLAPSE_TOOLBAR.icon(),
                                                 Tr::tr("Hide Unchanged Lines"));
+        m_collapseAction->setObjectName("InlineDiffCollapseAction"); // found by the autotest
         m_collapseAction->setCheckable(true);
         m_collapseAction->setChecked(collapse);
         m_collapseAction->setToolTip(Tr::tr("Hide unchanged lines, keeping some context "

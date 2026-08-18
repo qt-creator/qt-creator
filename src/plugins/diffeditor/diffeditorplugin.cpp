@@ -1930,8 +1930,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapse()
     // turning the toggle off through the toolbar expands the whole file again
     auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
     QVERIFY(toolBar);
-    QAction *collapseAction = Utils::findOrDefault(toolBar->actions(),
-                                                   [](QAction *a) { return a->isCheckable(); });
+    QAction *collapseAction = Utils::findOrDefault(toolBar->actions(), [](QAction *a) {
+        return a->objectName() == "InlineDiffCollapseAction";
+    });
     QVERIFY(collapseAction);
     QVERIFY(collapseAction->isChecked());
     collapseAction->setChecked(false);
