@@ -53,6 +53,10 @@ public:
     void setSessionConfigOption(const Acp::SetSessionConfigOptionRequest &request, ResponseCallback callback = {});
     void cancelRequest(qint64 requestId);
 
+    // Raw JSON-RPC layer, used by protocol adapters.
+    qint64 sendRequest(const QString &method, const QJsonObject &params, ResponseCallback callback);
+    void sendNotification(const QString &method, const QJsonObject &params);
+
     // Respond to incoming agent requests (QJsonValue carries the raw JSON-RPC id)
     void sendResponse(const QJsonValue &id, const QJsonObject &result);
     void sendErrorResponse(const QJsonValue &id, int code, const QString &message);
@@ -63,6 +67,10 @@ signals:
 
     // Session notifications
     void sessionUpdate(const QString &sessionId, const Acp::SessionUpdate &update);
+
+    // Raw incoming traffic, emitted in addition to the typed signals.
+    void notificationReceived(const QString &method, const QJsonObject &params);
+    void requestReceived(const QJsonValue &id, const QString &method, const QJsonObject &params);
 
     // Client-side method requests from agent (QJsonValue carries the raw JSON-RPC id)
     void createTerminalRequested(const QJsonValue &id, const Acp::CreateTerminalRequest &request);
@@ -84,8 +92,6 @@ private:
     void handleRequest(const QJsonValue &id, const QString &method, const QJsonObject &params);
     void handleNotification(const QString &method, const QJsonObject &params);
     void handleResponse(const QJsonValue &id, const QJsonObject &message);
-    qint64 sendRequest(const QString &method, const QJsonObject &params, ResponseCallback callback);
-    void sendNotification(const QString &method, const QJsonObject &params);
     void setState(State state);
 
     AcpTransport *m_transport = nullptr;

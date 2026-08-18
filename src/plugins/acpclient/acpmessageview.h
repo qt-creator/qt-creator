@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <acp/acp.h>
+#include <acp/acpv2.h>
 
 #include <QHash>
 #include <QJsonValue>
@@ -55,18 +55,17 @@ public:
     void addUserMessage(const QString &text);
     void appendAgentText(const QString &text);
     void appendAgentThought(const QString &text);
-    void addToolCall(const Acp::ToolCall &toolCall);
-    void updateToolCall(const Acp::ToolCallUpdate &update);
-    void addPlan(const Acp::Plan &plan);
+    void updateToolCall(const Acp::V2::ToolCallUpdate &update);
+    void addPlan(const Acp::V2::PlanUpdate &plan);
     void addStatusMessage(const QString &text);
     void addErrorMessage(const QString &text);
     void finishAgentMessage();
 
     void addPermissionRequest(const QJsonValue &id,
-                              const Acp::RequestPermissionRequest &request);
+                              const Acp::V2::RequestPermissionRequest &request);
     void cancelPermissionRequest(const QJsonValue &id);
 
-    void addAuthenticationRequest(const QList<Acp::AuthMethod> &methods);
+    void addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &methods);
     void showAuthenticationError(const QString &error);
     void resolveAuthentication();
 

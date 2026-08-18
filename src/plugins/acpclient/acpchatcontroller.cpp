@@ -7,6 +7,7 @@
 #include "acpfilesystemhandler.h"
 #include "acpinspector.h"
 #include "acppermissionhandler.h"
+#include "acpprotocolv1adapter.h"
 #include "acpsettings.h"
 #include "acpstdiotransport.h"
 #include "acpterminalhandler.h"
@@ -25,9 +26,7 @@
 
 #include <QBuffer>
 #include <QImage>
-#include <QLoggingCategory>
-
-static Q_LOGGING_CATEGORY(logController, "qtc.acpclient.controller", QtWarningMsg);
+#include <QJsonArray>
 
 using namespace Acp;
 using namespace Utils;
@@ -100,15 +99,11 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
     m_filesystemHandler = new AcpFilesystemHandler(m_client, this);
     m_permissionHandler = new AcpPermissionHandler(m_client, this);
 
-    connect(m_permissionHandler, &AcpPermissionHandler::permissionRequested,
-            this, &AcpChatController::permissionRequested);
     connect(m_permissionHandler, &AcpPermissionHandler::permissionCancelledByAgent,
             this, &AcpChatController::permissionCancelledByAgent);
 
     connect(m_client, &AcpClientObject::stateChanged,
             this, &AcpChatController::connectionStateChanged);
-    connect(m_client, &AcpClientObject::sessionUpdate,
-            this, &AcpChatController::sessionUpdate);
     connect(m_client, &AcpClientObject::initializeResult,
             this, &AcpChatController::onInitializeResult);
     connect(m_client, &AcpClientObject::errorOccurred,
@@ -151,6 +146,10 @@ void AcpChatController::disconnectFromServer()
     if (m_transport)
         m_transport->stop();
 
+    if (m_adapter) {
+        m_adapter->deleteLater();
+        m_adapter = nullptr;
+    }
     if (m_permissionHandler) {
         m_permissionHandler->deleteLater();
         m_permissionHandler = nullptr;
@@ -177,8 +176,6 @@ void AcpChatController::disconnectFromServer()
     m_agentName.clear();
     m_agentVersion.clear();
     m_serverName.clear();
-    m_authMethods.clear();
-    m_agentCapabilities.reset();
     m_initialized = false;
 
     if (wasConnected)
@@ -187,66 +184,12 @@ void AcpChatController::disconnectFromServer()
 
 void AcpChatController::createNewSession(const FilePath &workingDirectory)
 {
-    if (!m_client || !m_initialized)
+    if (!m_adapter || !m_initialized)
         return;
 
     m_workingDirectory = workingDirectory;
 
-    m_client->newSession(buildNewSessionRequest(),
-                         [this](const QJsonObject &result, const std::optional<Error> &error) {
-        if (error) {
-            if (error->code() == ErrorCode::Authentication_required && !m_authMethods.isEmpty()) {
-                emit authenticationRequired(m_authMethods);
-                return;
-            }
-            emit errorOccurred(Tr::tr("Session error: %1").arg(error->message()));
-            return;
-        }
-        auto response = fromJson<NewSessionResponse>(QJsonValue(result));
-        if (!response) {
-            emit errorOccurred(Tr::tr("Session error: invalid response."));
-            return;
-        }
-
-        m_sessionId = response->sessionId();
-        emit sessionCreated(m_sessionId);
-
-        if (const auto &opts = response->configOptions(); opts.has_value() && !opts->isEmpty()) {
-            qCDebug(logController) << "Session configOptions raw array size:" << opts->size();
-            QList<SessionConfigOption> configOptions;
-            for (const QJsonValue &item : *opts) {
-                auto opt = fromJson<SessionConfigOption>(item);
-                if (opt)
-                    configOptions.append(*opt);
-            }
-            emit configOptionsReceived(configOptions);
-        } else {
-            qCDebug(logController) << "Session response has no configOptions";
-        }
-
-        if (const auto &modes = response->modes())
-            emit sessionModesReceived(modes->availableModes(), modes->currentModeId());
-
-        qCDebug(logController) << "Session created:" << m_sessionId;
-    });
-}
-
-static bool supportsEmbeddedPromptResources(std::optional<Acp::AgentCapabilities> agentCapabilities)
-{
-    if (!agentCapabilities)
-        return false;
-    if (auto promptCapabilities = agentCapabilities->promptCapabilities())
-        return promptCapabilities->embeddedContext().value_or(false);
-    return false;
-}
-
-static bool supportsImagePromptContent(std::optional<Acp::AgentCapabilities> agentCapabilities)
-{
-    if (!agentCapabilities)
-        return false;
-    if (auto promptCapabilities = agentCapabilities->promptCapabilities())
-        return promptCapabilities->image().value_or(false);
-    return false;
+    m_adapter->newSession(m_workingDirectory.toFSPathString(), buildMcpServersJson());
 }
 
 void AcpChatController::sendPrompt(const QString &text,
@@ -256,15 +199,14 @@ void AcpChatController::sendPrompt(const QString &text,
                                    const QList<ImageContext> &imageContexts)
 {
     using namespace TextEditor;
-    if (text.isEmpty() || !m_client || m_sessionId.isEmpty())
+    if (text.isEmpty() || !m_adapter || m_sessionId.isEmpty())
         return;
 
-    PromptRequest request;
-    request.sessionId(m_sessionId);
+    const bool embeddedContext = m_adapter->supportsEmbeddedContext();
 
-    TextContent textContent;
+    V2::TextContent textContent;
     textContent.text(text);
-    QList<ContentBlock> content = {textContent};
+    QList<V2::ContentBlock> content = {textContent};
     Core::IEditor *currentEditor = Core::EditorManager::currentEditor();
     if (includeCurrentEditor && currentEditor) {
         const Core::IDocument *document = currentEditor->document();
@@ -272,17 +214,15 @@ void AcpChatController::sendPrompt(const QString &text,
         const FilePath filePath = document->filePath();
         if (!filePath.isEmpty()) {
             const QString uri = filePath.toUrl().toString();
-            content << ResourceLink()
+            content << V2::ResourceLink()
                            .name(filePath.fileName())
-                           .description("Qt Creator's current editor file.")
+                           .description(QString("Qt Creator's current editor file."))
                            .mimeType(mimeTypeName)
                            .uri(uri);
 
-            if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
+            if (embeddedContext) {
                 if (auto *currentTextEditor = qobject_cast<BaseTextEditor *>(currentEditor)) {
                     TextEditorWidget *widget = currentTextEditor->editorWidget();
-                    TextResourceContents editorState;
-                    editorState.uri(uri);
                     QString stateString
                         = "This is the state of the current Text Editor in Qt Creator\n";
                     QTextCursor tc = currentTextEditor->textCursor();
@@ -301,45 +241,45 @@ void AcpChatController::sendPrompt(const QString &text,
                                    + QString::number(widget->firstVisibleBlockNumber()) + "\n";
                     stateString += "Last Visible Line: "
                                    + QString::number(widget->lastVisibleBlockNumber()) + "\n";
-                    content << EmbeddedResource().resource(
-                        TextResourceContents().text(stateString).uri(uri));
+                    content << V2::EmbeddedResource().resource(
+                        V2::TextResourceContents().text(stateString).uri(uri));
                 }
             }
-        } else if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
-            auto embeddedResourceResource = [&]() -> EmbeddedResourceResource {
+        } else if (embeddedContext) {
+            auto embeddedResourceResource = [&]() -> V2::EmbeddedResourceResource {
                 const MimeType mimeType = Utils::mimeTypeForName(mimeTypeName);
                 const QString uri = QStringLiteral("qt_creator://current_editor/%1")
                         .arg(document->displayName());
                 if (mimeType.inherits("text/plain")) {
-                    TextResourceContents contents;
+                    V2::TextResourceContents contents;
                     contents.uri(uri);
                     contents.text(TextEncoding::encodingForLocale().decode(document->contents()));
                     contents.mimeType(mimeTypeName);
                     return contents;
                 }
-                BlobResourceContents contents;
+                V2::BlobResourceContents contents;
                 contents.uri(uri);
                 contents.blob(QString::fromLatin1(document->contents().toBase64()));
                 contents.mimeType(mimeTypeName);
                 return contents;
             };
 
-            content << EmbeddedResource().resource(embeddedResourceResource());
+            content << V2::EmbeddedResource().resource(embeddedResourceResource());
         }
     }
 
     for (const Utils::FilePath &file : additionalFiles) {
         const QString uri = file.toUrl().toString();
-        content << ResourceLink()
+        content << V2::ResourceLink()
                        .name(file.fileName())
-                       .description("Manually added context file.")
+                       .description(QString("Manually added context file."))
                        .uri(uri);
 
-        if (supportsEmbeddedPromptResources(m_agentCapabilities)) {
+        if (embeddedContext) {
             const auto fileContents = file.fileContents();
             if (fileContents) {
-                content << EmbeddedResource().resource(
-                    TextResourceContents()
+                content << V2::EmbeddedResource().resource(
+                    V2::TextResourceContents()
                         .text(QString::fromUtf8(*fileContents))
                         .uri(uri));
             }
@@ -348,13 +288,13 @@ void AcpChatController::sendPrompt(const QString &text,
 
     for (const TextContext &ctx : textContexts) {
         const QString uri = QStringLiteral("context://%1").arg(ctx.name);
-        content << EmbeddedResource().resource(
-            TextResourceContents().text(ctx.text).uri(uri));
+        content << V2::EmbeddedResource().resource(
+            V2::TextResourceContents().text(ctx.text).uri(uri));
     }
 
     // Images are only ever attached when the agent advertises image support
     // (the chat panel blocks pasting otherwise), so send them as image blocks.
-    if (supportsImagePromptContent(m_agentCapabilities)) {
+    if (m_adapter->supportsImagePrompt()) {
         for (const ImageContext &imageContext : imageContexts) {
             if (imageContext.image.isNull())
                 continue;
@@ -363,96 +303,41 @@ void AcpChatController::sendPrompt(const QString &text,
             QBuffer buffer(&bytes);
             buffer.open(QIODevice::WriteOnly);
             imageContext.image.save(&buffer, "PNG");
-            content << ImageContent()
+            content << V2::ImageContent()
                            .data(QString::fromLatin1(bytes.toBase64()))
                            .mimeType(QStringLiteral("image/png"));
         }
     }
 
-    request.prompt(content);
+    QJsonArray contentArray;
+    for (const V2::ContentBlock &block : std::as_const(content))
+        contentArray.append(V2::toJsonValue(block));
 
-    m_client->prompt(request, [this](const QJsonObject &result, const std::optional<Error> &error) {
-        if (error) {
-            emit errorOccurred(Tr::tr("Prompt error: %1").arg(error->message()));
-        } else {
-            auto response = fromJson<PromptResponse>(QJsonValue(result));
-            if (response)
-                qCDebug(logController) << "Prompt completed. Stop reason:" << toString(response->stopReason());
-        }
-        emit promptFinished();
-    });
+    m_adapter->prompt(m_sessionId, contentArray);
 }
 
 void AcpChatController::cancelPrompt()
 {
-    if (!m_client || m_sessionId.isEmpty())
+    if (!m_adapter || m_sessionId.isEmpty())
         return;
 
-    CancelNotification cancel;
-    cancel.sessionId(m_sessionId);
-    m_client->cancelSession(cancel);
+    m_adapter->cancel(m_sessionId);
 }
 
 void AcpChatController::authenticate(const QString &methodId)
 {
-    if (!m_client || !m_initialized)
+    if (!m_adapter || !m_initialized)
         return;
 
-    AuthenticateRequest req;
-    req.methodId(methodId);
-    m_client->authenticate(req, [this](const QJsonObject &result, const std::optional<Error> &error) {
-        Q_UNUSED(result)
-        if (error) {
-            QString errorMsg = error->message();
-            if (const std::optional<QJsonValue> data = error->data(); data && data->isString()) {
-                if (auto dataString = data->toString(); !dataString.isEmpty())
-                    errorMsg.append("\n" + dataString);
-            }
-            emit authenticationFailed(errorMsg);
-            return;
-        }
-        createNewSession();
-    });
+    m_adapter->authenticate(methodId);
 }
 
 void AcpChatController::setConfigOption(const QString &configId, const QJsonValue &value)
 {
-    if (m_sessionId.isEmpty() || !m_client)
+    if (m_sessionId.isEmpty() || !m_adapter)
         return;
 
-    SetSessionConfigOptionRequest req;
-    req.sessionId(m_sessionId);
-    req.configId(configId);
-    req.additionalProperties(QStringLiteral("value"), value);
-    if (value.isBool())
-        req.additionalProperties(QStringLiteral("type"), QJsonValue(QStringLiteral("boolean")));
-    m_client->setSessionConfigOption(req, [this](const QJsonObject &result, const std::optional<Error> &error) {
-        if (error) {
-            emit errorOccurred(Tr::tr("Failed to set config option: %1").arg(error->message()));
-            return;
-        }
-        auto resp = fromJson<SetSessionConfigOptionResponse>(QJsonValue(result));
-        if (resp)
-            emit configOptionsReceived(resp->configOptions());
-    });
-}
-
-void AcpChatController::setSessionMode(const QString &modeId)
-{
-    if (m_sessionId.isEmpty() || !m_client)
-        return;
-
-    SetSessionModeRequest req;
-    req.sessionId(m_sessionId);
-    req.modeId(modeId);
-    m_client->setSessionMode(req, [this, modeId](const QJsonObject &result, const std::optional<Error> &error) {
-        Q_UNUSED(result)
-        if (error) {
-            emit errorOccurred(Tr::tr("Failed to set mode: %1").arg(error->message()));
-            return;
-        }
-        emit currentModeChanged(modeId);
-    });
+    m_adapter->setConfigOption(m_sessionId, configId, value);
 }
 
 void AcpChatController::sendPermissionResponse(const QJsonValue &id, const QString &optionId)
@@ -476,13 +361,47 @@ void AcpChatController::onInitializeResult(const InitializeResponse &response)
 
     m_initialized = true;
 
-    m_authMethods = response.authMethods().value_or(QList<AuthMethod>{});
-    m_agentCapabilities = response.agentCapabilities();
-
     if (m_inspector) {
+        const auto &capabilities = response.agentCapabilities();
         m_inspector->setCapabilities(
-            m_serverName, m_agentCapabilities ? toJson(*m_agentCapabilities) : QJsonObject());
+            m_serverName, capabilities ? toJson(*capabilities) : QJsonObject());
     }
+
+    m_adapter = new AcpProtocolV1Adapter(m_client, response, this);
+    connect(m_adapter, &AcpProtocolAdapter::sessionCreated, this, [this](const QString &sessionId) {
+        m_sessionId = sessionId;
+        emit sessionCreated(sessionId);
+    });
+    connect(m_adapter, &AcpProtocolAdapter::sessionResumed, this, [this](const QString &sessionId) {
+        m_sessionId = sessionId;
+        emit sessionLoaded(sessionId);
+    });
+    connect(m_adapter, &AcpProtocolAdapter::sessionsListed,
+            this, &AcpChatController::sessionsListed);
+    connect(m_adapter, &AcpProtocolAdapter::sessionDeleted,
+            this, &AcpChatController::sessionDeleted);
+    connect(m_adapter, &AcpProtocolAdapter::sessionClosed, this, [this](const QString &sessionId) {
+        m_sessionId.clear();
+        m_workingDirectory.clear();
+        emit sessionClosed(sessionId);
+        emit sessionSelectionRequired();
+    });
+    connect(m_adapter, &AcpProtocolAdapter::configOptionsReceived,
+            this, &AcpChatController::configOptionsReceived);
+    connect(m_adapter, &AcpProtocolAdapter::sessionUpdate,
+            this, &AcpChatController::sessionUpdate);
+    connect(m_adapter, &AcpProtocolAdapter::permissionRequested,
+            this, &AcpChatController::permissionRequested);
+    connect(m_adapter, &AcpProtocolAdapter::authenticationRequired,
+            this, &AcpChatController::authenticationRequired);
+    connect(m_adapter, &AcpProtocolAdapter::authenticationFailed,
+            this, &AcpChatController::authenticationFailed);
+    connect(m_adapter, &AcpProtocolAdapter::authenticated,
+            this, [this] { createNewSession(); });
+    connect(m_adapter, &AcpProtocolAdapter::promptFinished,
+            this, [this](const std::optional<V2::StopReason> &) { emit promptFinished(); });
+    connect(m_adapter, &AcpProtocolAdapter::errorOccurred,
+            this, &AcpChatController::errorOccurred);
 
     emit agentInfoReceived(m_agentName, m_agentVersion, m_iconUrl);
 
@@ -557,12 +476,15 @@ static QList<McpServer> buildMcpServers()
     return mcpServers;
 }
 
-NewSessionRequest AcpChatController::buildNewSessionRequest() const
+// The MCP server list is built with the v1 vocabulary (the SSE variant only
+// exists there) and passed to the adapter as an opaque JSON array.
+QJsonArray AcpChatController::buildMcpServersJson() const
 {
-    NewSessionRequest req;
-    req.cwd(m_workingDirectory.toFSPathString());
-    req.mcpServers(buildMcpServers());
-    return req;
+    QJsonArray result;
+    const QList<McpServer> mcpServers = buildMcpServers();
+    for (const McpServer &server : mcpServers)
+        result.append(Acp::toJsonValue(server));
+    return result;
 }
 
 QString AcpChatController::displayName() const
@@ -576,129 +498,57 @@ QString AcpChatController::displayName() const
 
 bool AcpChatController::supportsSessionList() const
 {
-    if (!m_agentCapabilities)
-        return false;
-    const auto &sessionCaps = m_agentCapabilities->sessionCapabilities();
-    return sessionCaps.has_value() && sessionCaps->list().has_value();
+    return m_adapter && m_adapter->supportsSessionList();
 }
 
 bool AcpChatController::supportsSessionDelete() const
 {
-    if (!m_agentCapabilities)
-        return false;
-    const auto &sessionCaps = m_agentCapabilities->sessionCapabilities();
-    return sessionCaps.has_value() && sessionCaps->delete_().has_value();
+    return m_adapter && m_adapter->supportsSessionDelete();
 }
 
 bool AcpChatController::supportsSessionClose() const
 {
-    if (!m_agentCapabilities)
-        return false;
-    const auto &sessionCaps = m_agentCapabilities->sessionCapabilities();
-    return sessionCaps.has_value() && sessionCaps->close().has_value();
+    return m_adapter && m_adapter->supportsSessionClose();
 }
 
 bool AcpChatController::supportsImagePrompt() const
 {
-    return supportsImagePromptContent(m_agentCapabilities);
+    return m_adapter && m_adapter->supportsImagePrompt();
 }
 
 void AcpChatController::closeSession()
 {
-    if (m_sessionId.isEmpty() || !m_client)
+    if (m_sessionId.isEmpty() || !m_adapter)
         return;
 
-    CloseSessionRequest req;
-    req.sessionId(m_sessionId);
-
-    const QString sessionId = m_sessionId;
-    m_client->closeSession(req, [this, sessionId](const QJsonObject &, const std::optional<Error> &error) {
-        if (error) {
-            emit errorOccurred(Tr::tr("Failed to close session: %1").arg(error->message()));
-            return;
-        }
-        m_sessionId.clear();
-        m_workingDirectory.clear();
-        emit sessionClosed(sessionId);
-        emit sessionSelectionRequired();
-    });
+    m_adapter->closeSession(m_sessionId);
 }
 
 void AcpChatController::listSessions(const std::optional<QString> &cursor)
 {
-    if (!m_client || !m_initialized)
+    if (!m_adapter || !m_initialized)
         return;
 
-    ListSessionsRequest req;
-    req.cursor(cursor);
-
-    m_client->listSessions(req, [this](const QJsonObject &result, const std::optional<Error> &error) {
-        if (error) {
-            emit errorOccurred(Tr::tr("Failed to list sessions: %1").arg(error->message()));
-            return;
-        }
-        auto resp = fromJson<ListSessionsResponse>(QJsonValue(result));
-        if (!resp) {
-            emit errorOccurred(Tr::tr("Failed to list sessions: invalid response."));
-            return;
-        }
-        emit sessionsListed(resp->sessions(), resp->nextCursor());
-    });
+    m_adapter->listSessions(cursor);
 }
 
 void AcpChatController::deleteSession(const QString &sessionId)
 {
-    if (!m_client || !m_initialized)
+    if (!m_adapter || !m_initialized)
         return;
 
-    DeleteSessionRequest req;
-    req.sessionId(sessionId);
-
-    m_client->deleteSession(req, [this, sessionId](const QJsonObject &, const std::optional<Error> &error) {
-        if (error) {
-            emit errorOccurred(Tr::tr("Failed to delete session: %1").arg(error->message()));
-            return;
-        }
-        emit sessionDeleted(sessionId);
-    });
+    m_adapter->deleteSession(sessionId);
 }
 
 void AcpChatController::loadSession(const QString &sessionId, const FilePath &workingDirectory)
 {
-    if (!m_client || !m_initialized)
+    if (!m_adapter || !m_initialized)
         return;
 
     m_workingDirectory = workingDirectory;
 
-    LoadSessionRequest req;
-    req.sessionId(sessionId);
-    req.cwd(m_workingDirectory.toFSPathString());
-    req.mcpServers(buildMcpServers());
-
-    m_client->loadSession(req, [this, sessionId](const QJsonObject &result,
-                                                  const std::optional<Error> &error) {
-        if (error) {
-            emit errorOccurred(Tr::tr("Failed to load session: %1").arg(error->message()));
-            return;
-        }
-        m_sessionId = sessionId;
-        emit sessionLoaded(m_sessionId);
-
-        auto resp = fromJson<LoadSessionResponse>(QJsonValue(result));
-        if (resp) {
-            if (const auto &opts = resp->configOptions(); opts.has_value() && !opts->isEmpty()) {
-                QList<SessionConfigOption> configOptions;
-                for (const QJsonValue &item : *opts) {
-                    auto opt = fromJson<SessionConfigOption>(item);
-                    if (opt)
-                        configOptions.append(*opt);
-                }
-                emit configOptionsReceived(configOptions);
-            }
-            if (const auto &modes = resp->modes())
-                emit sessionModesReceived(modes->availableModes(), modes->currentModeId());
-        }
-    });
+    m_adapter->resumeSession(sessionId, m_workingDirectory.toFSPathString(),
+                             buildMcpServersJson());
 }
 
 } // namespace AcpClient::Internal

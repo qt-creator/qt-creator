@@ -33,7 +33,7 @@
 #include <QVBoxLayout>
 #include <QtMath>
 
-using namespace Acp;
+using namespace Acp::V2;
 using namespace Utils::StyleHelper::SpacingTokens;
 
 namespace AcpClient::Internal {
@@ -48,6 +48,7 @@ QWidget *toolCallStatusWidget(ToolCallStatus status, QWidget *parent)
     case ToolCallStatus::pending:   icon = Utils::Icons::DOWNLOAD; break;
     case ToolCallStatus::completed: icon = Utils::Icons::OK; break;
     case ToolCallStatus::failed:    icon = Utils::Icons::CRITICAL; break;
+    case ToolCallStatus::cancelled: icon = Utils::Icons::STOP_SMALL; break;
     default: break;
     }
     auto *display = new Utils::QtcIconDisplay(parent);
@@ -91,34 +92,37 @@ static Utils::Theme::Color toolCallBorderColor(ToolCallStatus status)
     case ToolCallStatus::in_progress: return Utils::Theme::Token_Notification_Neutral_Muted;
     case ToolCallStatus::completed:   return Utils::Theme::Token_Notification_Success_Muted;
     case ToolCallStatus::failed:      return Utils::Theme::Token_Notification_Danger_Muted;
+    case ToolCallStatus::cancelled:   return Utils::Theme::Token_Foreground_Muted;
     }
     return Utils::Theme::ChatPlanBackground;
 }
 
-ToolCallDetailWidget::ToolCallDetailWidget(const ToolCall &toolCall, QWidget *parent)
+ToolCallDetailWidget::ToolCallDetailWidget(const ToolCallUpdate &toolCall, QWidget *parent)
     : CollapsibleFrame(parent)
 {
     setFrameShape(QFrame::NoFrame);
     setCollapsible(false);
 
-    const ToolCallStatus status = toolCall.status().value_or(ToolCallStatus::in_progress);
+    const ToolCallStatus status
+        = toolCall.status().asOptional().value_or(ToolCallStatus::in_progress);
 
     // Header: status widget + title + kind badge
     m_statusWidget = toolCallStatusWidget(status, this);
     m_headerLayout->addWidget(m_statusWidget);
 
-    if (const auto icon = iconForToolKind(toolCall.kind())) {
+    if (const auto icon = iconForToolKind(toolCall.kind().asOptional())) {
         auto *kindIcon = new Utils::QtcIconDisplay(this);
         kindIcon->setIcon(*icon);
         m_headerLayout->addWidget(kindIcon);
     }
 
-    m_titleLabel = new Utils::ElidingLabel(toolCall.title(), this);
+    m_titleLabel = new Utils::ElidingLabel(
+        toolCall.title().asOptional().value_or(QStringLiteral("Tool Call")), this);
     m_titleLabel->setElideMode(Qt::ElideRight);
     m_headerLayout->addWidget(m_titleLabel, 1);
 
     m_status = status;
-    populateContent(toolCall);
+    updateContent(toolCall);
 }
 
 void ToolCallDetailWidget::applyStatus(ToolCallStatus status)
@@ -154,100 +158,75 @@ void ToolCallDetailWidget::setContentMaxWidth(int width)
 
 void ToolCallDetailWidget::updateContent(const ToolCallUpdate &update)
 {
-    if (const auto status = update.status())
-        applyStatus(*status);
-    if (const auto title = update.title(); title && !title->isEmpty())
+    if (update.status().has_value())
+        applyStatus(*update.status());
+    if (const auto &title = update.title(); title.has_value() && !title->isEmpty())
         m_titleLabel->setText(*title);
 
     if (const auto &rawInput = update.rawInput())
         addRawInputContent(*rawInput);
 
-    // Parse updated content if available
-    if (const auto &contentArr = update.content()) {
-        for (const QJsonValue &val : *contentArr) {
-            auto content = fromJson<ToolCallContent>(val);
-            if (!content)
-                continue;
-            if (auto *diff = std::get_if<Diff>(&*content))
+    if (update.content().has_value()) {
+        for (const ToolCallContent &content : *update.content()) {
+            if (const auto *diff = std::get_if<Diff>(&content))
                 addDiffContent(*diff);
-            else if (auto *terminal = std::get_if<Terminal>(&*content))
+            else if (const auto *terminal = std::get_if<Terminal>(&content))
                 addTerminalContent(*terminal);
-            else if (auto *textContent = std::get_if<Content>(&*content))
+            else if (const auto *textContent = std::get_if<Content>(&content))
                 addTextContent(*textContent);
         }
     }
 
-    // Parse updated locations
-    if (const auto &locsArr = update.locations()) {
-        QList<ToolCallLocation> locs;
-        for (const QJsonValue &val : *locsArr) {
-            auto loc = fromJson<ToolCallLocation>(val);
-            if (loc)
-                locs.append(*loc);
-        }
-        if (!locs.isEmpty())
-            addLocations(locs);
-    }
-}
-
-void ToolCallDetailWidget::populateContent(const ToolCall &toolCall)
-{
-    if (const auto &rawInput = toolCall.rawInput())
-        addRawInputContent(*rawInput);
-
-    // Content items
-    if (const auto &contentList = toolCall.content()) {
-        for (const ToolCallContent &tc : *contentList) {
-            if (auto *diff = std::get_if<Diff>(&tc))
-                addDiffContent(*diff);
-            else if (auto *terminal = std::get_if<Terminal>(&tc))
-                addTerminalContent(*terminal);
-            else if (auto *textContent = std::get_if<Content>(&tc))
-                addTextContent(*textContent);
-        }
-    }
-
-    // Locations
-    if (const auto &locs = toolCall.locations())
-        addLocations(*locs);
+    if (update.locations().has_value() && !update.locations()->isEmpty())
+        addLocations(*update.locations());
 }
 
 void ToolCallDetailWidget::addDiffContent(const Diff &diff)
 {
-    // File path as clickable link
-    auto *pathLabel = new QLabel(this);
-    pathLabel->setTextFormat(Qt::RichText);
-    const QColor linkColor = Utils::creatorColor(Utils::Theme::TextColorLink);
-    pathLabel->setText(QStringLiteral("<a href=\"file://%1\" style=\"color:%2; text-decoration:none;\">%1</a>")
-                           .arg(diff.path().toHtmlEscaped(),
-                                linkColor.name()));
-    pathLabel->setCursor(Qt::PointingHandCursor);
-    connect(pathLabel, &QLabel::linkActivated, this, [](const QString &link) {
-        const QString path = QUrl(link).toLocalFile();
-        if (!path.isEmpty())
-            Core::EditorManager::openEditorAt(Utils::Link::fromString(path));
-    });
-    addBodyWidget(pathLabel);
+    const auto addPathLabel = [this](const QString &path) {
+        if (path.isEmpty())
+            return;
+        auto *pathLabel = new QLabel(this);
+        pathLabel->setTextFormat(Qt::RichText);
+        const QColor linkColor = Utils::creatorColor(Utils::Theme::TextColorLink);
+        pathLabel->setText(
+            QStringLiteral("<a href=\"file://%1\" style=\"color:%2; text-decoration:none;\">%1</a>")
+                .arg(path.toHtmlEscaped(), linkColor.name()));
+        pathLabel->setCursor(Qt::PointingHandCursor);
+        connect(pathLabel, &QLabel::linkActivated, this, [](const QString &link) {
+            const QString path = QUrl(link).toLocalFile();
+            if (!path.isEmpty())
+                Core::EditorManager::openEditorAt(Utils::Link::fromString(path));
+        });
+        addBodyWidget(pathLabel);
+    };
 
-    // Render diff as markdown code block
-    QString markdown = QStringLiteral("```diff\n");
-    if (diff.oldText().has_value()) {
-        // Show abbreviated diff context
-        const QStringList oldLines = diff.oldText()->split(QLatin1Char('\n'));
-        const QStringList newLines = diff.newText().split(QLatin1Char('\n'));
-        for (const QString &line : oldLines)
-            markdown += QStringLiteral("-%1\n").arg(line);
+    // The v1 adapter forwards oldText/newText as additional change properties;
+    // render the inline diff from those where present, otherwise fall back to
+    // the renderable patch text.
+    bool renderedText = false;
+    for (const DiffChange &change : diff.changes()) {
+        const QJsonObject extra = change.additionalProperties();
+        addPathLabel(extra.value("path").toString());
+
+        if (!extra.contains("newText"))
+            continue;
+        QString markdown = QStringLiteral("```diff\n");
+        if (extra.value("oldText").isString()) {
+            const QStringList oldLines = extra.value("oldText").toString().split(QLatin1Char('\n'));
+            for (const QString &line : oldLines)
+                markdown += QStringLiteral("-%1\n").arg(line);
+        }
+        const QStringList newLines = extra.value("newText").toString().split(QLatin1Char('\n'));
         for (const QString &line : newLines)
             markdown += QStringLiteral("+%1\n").arg(line);
-    } else {
-        // New file
-        const QStringList lines = diff.newText().split(QLatin1Char('\n'));
-        for (const QString &line : lines)
-            markdown += QStringLiteral("+%1\n").arg(line);
+        markdown += QStringLiteral("```");
+        addMarkdownContent(markdown);
+        renderedText = true;
     }
-    markdown += QStringLiteral("```");
 
-    addMarkdownContent(markdown);
+    if (!renderedText && diff.patch().has_value())
+        addMarkdownContent(QStringLiteral("```diff\n%1\n```").arg(diff.patch()->text()));
 }
 
 void ToolCallDetailWidget::addMarkdownContent(const QString &markdown)
@@ -301,12 +280,12 @@ void ToolCallDetailWidget::addLocations(const QList<ToolCallLocation> &locations
         label->setCursor(Qt::PointingHandCursor);
 
         QString display = loc.path();
-        if (const auto line = loc.line())
-            display += QStringLiteral(":%1").arg(*line);
+        if (loc.line().has_value())
+            display += QStringLiteral(":%1").arg(*loc.line());
 
         label->setText(QStringLiteral("<a href=\"loc://%1:%2\">%3</a>")
                            .arg(loc.path().toHtmlEscaped())
-                           .arg(loc.line().value_or(0))
+                           .arg(loc.line().asOptional().value_or(0))
                            .arg(display.toHtmlEscaped()));
 
         connect(label, &QLabel::linkActivated, this, [](const QString &link) {

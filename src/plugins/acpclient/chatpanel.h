@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <acp/acp.h>
+#include <acp/acpv2.h>
 
 #include <utils/filepath.h>
 
@@ -78,16 +78,14 @@ public:
     void setCanCloseSession(bool canClose);
     void setImagePasteSupported(bool supported) { m_imagePasteSupported = supported; }
 
-    void setConfigOptions(const QList<Acp::SessionConfigOption> &configOptions);
-    void setSessionModes(const QList<Acp::SessionMode> &modes, const QString &currentModeId);
-    void setCurrentMode(const QString &modeId);
-    void setUsage(const Acp::UsageUpdate &usage);
+    void setConfigOptions(const QList<Acp::V2::SessionConfigOption> &configOptions);
+    void setUsage(const Acp::V2::UsageUpdate &usage);
     void setTokenUsageVisible(bool visible);
     bool tokenUsageVisible() const { return m_showTokenUsage; }
     void clear();
     void clearConfigOptions();
 
-    void updateAvailableCommands(const QList<Acp::AvailableCommand> &commands);
+    void updateAvailableCommands(const QList<Acp::V2::AvailableCommand> &commands);
     bool includeCurrentEditorContext() const { return m_includeCurrentEditorContext; }
     QList<Utils::FilePath> manualContextFiles() const { return m_manualContextFiles; }
     QList<TextContext> textContexts() const { return m_textContexts; }
@@ -98,16 +96,15 @@ public:
     void addUserMessage(const QString &text);
     void appendAgentText(const QString &text);
     void appendAgentThought(const QString &text);
-    void addToolCall(const Acp::ToolCall &toolCall);
-    void updateToolCall(const Acp::ToolCallUpdate &update);
-    void addPlan(const Acp::Plan &plan);
+    void updateToolCall(const Acp::V2::ToolCallUpdate &update);
+    void addPlan(const Acp::V2::PlanUpdate &plan);
     void addErrorMessage(const QString &text);
     void finishAgentMessage();
     void addPermissionRequest(const QJsonValue &id,
-                              const Acp::RequestPermissionRequest &request);
+                              const Acp::V2::RequestPermissionRequest &request);
     void cancelPermissionRequest(const QJsonValue &id);
 
-    void addAuthenticationRequest(const QList<Acp::AuthMethod> &methods);
+    void addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &methods);
     void showAuthenticationError(const QString &error);
     void resolveAuthentication();
 
@@ -117,7 +114,6 @@ signals:
     void sendRequested(const QString &text);
     void cancelRequested();
     void configOptionChanged(const QString &configId, const QJsonValue &value);
-    void modeChanged(const QString &modeId);
     void permissionOptionSelected(const QJsonValue &id, const QString &optionId);
     void permissionCancelled(const QJsonValue &id);
     void authenticateRequested(const QString &methodId);
@@ -125,17 +121,14 @@ signals:
     void closeSessionRequested();
 
 private:
-    QList<Acp::SessionConfigOption> m_configOptions;
+    QList<Acp::V2::SessionConfigOption> m_configOptions;
     void showConfigMenu();
 
-    void updateConfigOptions();
-
-    QList<Acp::SessionMode> m_sessionModes;
-    QString m_currentModeId;
+    QString m_modeConfigId;
     void updateModeButton();
 
-    std::optional<Acp::UsageUpdate> m_usage;
-    std::optional<Acp::UsageUpdate> m_usageAtPromptStart;
+    std::optional<Acp::V2::UsageUpdate> m_usage;
+    std::optional<Acp::V2::UsageUpdate> m_usageAtPromptStart;
     bool m_showTokenUsage = true;
     void updateUsageDisplay();
 

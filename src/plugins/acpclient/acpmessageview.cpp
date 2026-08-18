@@ -45,7 +45,7 @@
 #include <QVBoxLayout>
 #include <QElapsedTimer>
 
-using namespace Acp;
+using namespace Acp::V2;
 using namespace Utils::StyleHelper::SpacingTokens;
 
 namespace AcpClient::Internal {
@@ -326,6 +326,7 @@ public:
             ToolCallStatus::in_progress,
             ToolCallStatus::failed,
             ToolCallStatus::pending,
+            ToolCallStatus::cancelled,
         };
         for (int i = 0; i < StatusCount; ++i) {
             m_statusIcons[i] = toolCallStatusWidget(statusMap[i], this);
@@ -406,6 +407,9 @@ public:
                 if (const QString title = m_titles.value(it.key()); !title.isEmpty())
                     runningNames << title;
                 break;
+            case ToolCallStatus::cancelled:
+                ++counts[Cancelled];
+                break;
             }
         }
 
@@ -431,7 +435,7 @@ public:
     }
 
 private:
-    enum StatusIndex { Completed, InProgress, Failed, Pending, StatusCount };
+    enum StatusIndex { Completed, InProgress, Failed, Pending, Cancelled, StatusCount };
 
     Utils::QtcIconDisplay *m_summaryIcon = nullptr;
     QLabel *m_summaryLabel = nullptr;
@@ -460,7 +464,7 @@ protected:
 class PlanWidget : public CollapsibleFrame
 {
 public:
-    explicit PlanWidget(const Plan &plan, QWidget *parent = nullptr)
+    explicit PlanWidget(const QList<PlanEntry> &entries, QWidget *parent = nullptr)
         : CollapsibleFrame(parent)
     {
         setFrameShape(QFrame::NoFrame);
@@ -470,7 +474,7 @@ public:
 
         QString listHtml = QStringLiteral(
             "<ul style='margin-top:2px; margin-bottom:2px; list-style-type:none; padding-left:4px;'>");
-        for (const PlanEntry &entry : plan.entries()) {
+        for (const PlanEntry &entry : entries) {
             QString icon;
             switch (entry.status()) {
             case PlanEntryStatus::completed:
@@ -481,6 +485,9 @@ public:
                 break;
             case PlanEntryStatus::pending:
                 icon = QStringLiteral("<span style='color:gray'>\u25CB</span>");
+                break;
+            case PlanEntryStatus::cancelled:
+                icon = QStringLiteral("<span style='color:gray'>\u2717</span>");
                 break;
             }
             listHtml += QStringLiteral("<li style='margin-bottom:3px;'>%1 %2</li>")
@@ -513,7 +520,7 @@ class AuthenticationWidget : public CollapsibleFrame
     Q_OBJECT
 
 public:
-    explicit AuthenticationWidget(const QList<Acp::AuthMethod> &methods,
+    explicit AuthenticationWidget(const QList<Acp::V2::AuthMethod> &methods,
                                   QWidget *parent = nullptr)
         : CollapsibleFrame(parent)
     {
@@ -529,10 +536,10 @@ public:
 
         // Method selector (only shown if multiple methods)
         m_methodCombo = new QComboBox(this);
-        for (const Acp::AuthMethod &method : methods) {
-            const auto *agent = std::get_if<Acp::AuthMethodAgent>(&method);
+        for (const Acp::V2::AuthMethod &method : methods) {
+            const auto *agent = std::get_if<Acp::V2::AuthMethodAgent>(&method);
             QTC_ASSERT(agent, continue);
-            m_methodCombo->addItem(agent->name(), agent->id());
+            m_methodCombo->addItem(agent->name(), agent->methodId());
         }
         m_methodCombo->setVisible(methods.size() > 1);
         m_bodyLayout->addWidget(m_methodCombo);
@@ -573,7 +580,7 @@ public:
         auto updateDescription = [this, methods] {
             const int idx = m_methodCombo->currentIndex();
             if (idx >= 0 && idx < methods.size()) {
-                const auto *agent = std::get_if<Acp::AuthMethodAgent>(&methods.at(idx));
+                const auto *agent = std::get_if<Acp::V2::AuthMethodAgent>(&methods.at(idx));
                 QTC_ASSERT(agent, return);
                 const auto &desc = agent->description();
                 if (desc.has_value() && !desc->isEmpty()) {
@@ -1080,61 +1087,41 @@ void AcpMessageView::finishToolCallGroup()
     }
 }
 
-void AcpMessageView::addToolCall(const ToolCall &toolCall)
-{
-    finishAgentMessage();
-
-    auto *group = ensureToolCallGroup();
-    const ToolCallStatus status = toolCall.status().value_or(ToolCallStatus::in_progress);
-    group->trackStatus(toolCall.toolCallId(), status);
-    group->trackTitle(toolCall.toolCallId(), toolCall.title());
-    m_toolCallGroups[toolCall.toolCallId()] = group;
-
-    auto *detail = new ToolCallDetailWidget(toolCall, group);
-    detail->setContentMaxWidth(contentMaxWidth());
-    group->addChildWidget(detail);
-    m_toolCallDetailWidgets[toolCall.toolCallId()] = detail;
-}
-
 void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
 {
-    auto updateGroup = [&](const QString &id, std::optional<ToolCallStatus> status,
-                           std::optional<QString> title) {
-        if (auto *group = m_toolCallGroups.value(id)) {
-            if (status)
-                group->trackStatus(id, *status);
-            if (title)
-                group->trackTitle(id, *title);
-        }
-    };
-
+    // Tool calls are created by the first update for an unseen tool call id.
     ToolCallDetailWidget *detail = m_toolCallDetailWidgets.value(update.toolCallId());
     if (!detail) {
-        const QString title = update.title().value_or(QStringLiteral("Tool Call"));
-        ToolCall tc;
-        tc.toolCallId(update.toolCallId());
-        tc.title(title);
-        tc.status(update.status().value_or(ToolCallStatus::in_progress));
-        tc.kind(update.kind());
+        finishAgentMessage();
+        const QString title = update.title().asOptional().value_or(QStringLiteral("Tool Call"));
         auto *group = ensureToolCallGroup();
         group->trackStatus(update.toolCallId(),
-                           update.status().value_or(ToolCallStatus::in_progress));
+                           update.status().asOptional().value_or(ToolCallStatus::in_progress));
         group->trackTitle(update.toolCallId(), title);
         m_toolCallGroups[update.toolCallId()] = group;
-        detail = new ToolCallDetailWidget(tc, group);
+        detail = new ToolCallDetailWidget(update, group);
         detail->setContentMaxWidth(contentMaxWidth());
         group->addChildWidget(detail);
         m_toolCallDetailWidgets[update.toolCallId()] = detail;
+        return;
     }
     detail->updateContent(update);
-    updateGroup(update.toolCallId(), update.status(), update.title());
+    if (auto *group = m_toolCallGroups.value(update.toolCallId())) {
+        if (update.status().has_value())
+            group->trackStatus(update.toolCallId(), *update.status());
+        if (update.title().has_value())
+            group->trackTitle(update.toolCallId(), *update.title());
+    }
 }
 
-void AcpMessageView::addPlan(const Plan &plan)
+void AcpMessageView::addPlan(const PlanUpdate &plan)
 {
+    const auto *items = std::get_if<PlanItems>(&plan.plan());
+    if (!items)
+        return;
     finishAgentMessage();
     finishToolCallGroup();
-    addWidget(new PlanWidget(plan, m_container));
+    addWidget(new PlanWidget(items->entries(), m_container));
 }
 
 void AcpMessageView::addPermissionRequest(const QJsonValue &id,
@@ -1142,27 +1129,32 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
 {
     finishAgentMessage();
 
-    const ToolCallUpdate &toolCall = request.toolCall();
+    ToolCallUpdate toolCall;
+    if (request.subject().has_value()) {
+        if (const auto *subject = std::get_if<ToolCallPermissionSubject>(&*request.subject()))
+            toolCall = subject->toolCall();
+    }
+    if (toolCall.toolCallId().isEmpty())
+        toolCall.toolCallId(QStringLiteral("permission-%1").arg(m_toolCallDetailWidgets.size()));
+    if (!toolCall.title().has_value())
+        toolCall.title(request.title());
+    if (!toolCall.status().has_value())
+        toolCall.status(ToolCallStatus::pending);
     const QString toolCallId = toolCall.toolCallId();
-    const QString title = toolCall.title().value_or(QString());
+    const QString title = toolCall.title().asOptional().value_or(QString());
 
     // Ensure a detail widget exists for this tool call so we can inline the controls.
     ToolCallDetailWidget *detail = m_toolCallDetailWidgets.value(toolCallId);
     ToolCallGroupWidget *group = m_toolCallGroups.value(toolCallId);
     if (!detail) {
-        ToolCall tc;
-        tc.toolCallId(toolCallId);
-        if (!title.isEmpty())
-            tc.title(title);
-        tc.status(toolCall.status().value_or(ToolCallStatus::pending));
-        tc.kind(toolCall.kind());
         if (!group)
             group = ensureToolCallGroup();
-        group->trackStatus(toolCallId, toolCall.status().value_or(ToolCallStatus::pending));
+        group->trackStatus(toolCallId,
+                           toolCall.status().asOptional().value_or(ToolCallStatus::pending));
         if (!title.isEmpty())
             group->trackTitle(toolCallId, title);
         m_toolCallGroups[toolCallId] = group;
-        detail = new ToolCallDetailWidget(tc, group);
+        detail = new ToolCallDetailWidget(toolCall, group);
         detail->setContentMaxWidth(contentMaxWidth());
         group->addChildWidget(detail);
         m_toolCallDetailWidgets[toolCallId] = detail;
@@ -1212,7 +1204,7 @@ void AcpMessageView::cancelPermissionRequest(const QJsonValue &id)
     m_pendingPermissionRequests.erase(it);
 }
 
-void AcpMessageView::addAuthenticationRequest(const QList<Acp::AuthMethod> &methods)
+void AcpMessageView::addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &methods)
 {
     finishAgentMessage();
     finishToolCallGroup();

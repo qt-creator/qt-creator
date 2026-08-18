@@ -13,6 +13,7 @@
 #include "chatpanel.h"
 
 #include <acp/acp.h>
+#include <acp/acpv2.h>
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
@@ -262,7 +263,7 @@ public:
         QObject::connect(&controller, &AcpChatController::sessionLoaded, &controller,
                          [this](const QString &sessionId) { loadedSessions.append(sessionId); });
         QObject::connect(&controller, &AcpChatController::sessionsListed, &controller,
-                         [this](const QList<SessionInfo> &sessions,
+                         [this](const QList<V2::SessionInfo> &sessions,
                                 const std::optional<QString> &nextCursor) {
                              listedSessions.append(sessions);
                              lastCursor = nextCursor;
@@ -273,28 +274,21 @@ public:
         QObject::connect(&controller, &AcpChatController::sessionClosed, &controller,
                          [this](const QString &sessionId) { closedSessions.append(sessionId); });
         QObject::connect(&controller, &AcpChatController::configOptionsReceived, &controller,
-                         [this](const QList<SessionConfigOption> &options) {
+                         [this](const QList<V2::SessionConfigOption> &options) {
                              configOptions = options;
                          });
-        QObject::connect(&controller, &AcpChatController::sessionModesReceived, &controller,
-                         [this](const QList<SessionMode> &modes, const QString &currentModeId) {
-                             sessionModes = modes;
-                             currentMode = currentModeId;
-                         });
-        QObject::connect(&controller, &AcpChatController::currentModeChanged, &controller,
-                         [this](const QString &modeId) { currentMode = modeId; });
         QObject::connect(&controller, &AcpChatController::sessionUpdate, &controller,
-                         [this](const QString &, const SessionUpdate &update) {
+                         [this](const QString &, const V2::SessionUpdate &update) {
                              updates.append(update);
                          });
         QObject::connect(&controller, &AcpChatController::promptFinished, &controller,
                          [this] { ++promptFinishedCount; });
         QObject::connect(&controller, &AcpChatController::authenticationRequired, &controller,
-                         [this](const QList<AuthMethod> &methods) { authMethods = methods; });
+                         [this](const QList<V2::AuthMethod> &methods) { authMethods = methods; });
         QObject::connect(&controller, &AcpChatController::authenticationFailed, &controller,
                          [this](const QString &error) { authErrors.append(error); });
         QObject::connect(&controller, &AcpChatController::permissionRequested, &controller,
-                         [this](const QJsonValue &id, const RequestPermissionRequest &request) {
+                         [this](const QJsonValue &id, const V2::RequestPermissionRequest &request) {
                              permissionIds.append(id);
                              permissionRequests.append(request);
                          });
@@ -345,6 +339,16 @@ public:
         QTRY_VERIFY(sessionSelectionRequiredCount > 0);
     }
 
+    // The synthesized select option the v1 adapter represents session modes with.
+    QString currentModeValue() const
+    {
+        for (const V2::SessionConfigOption &option : configOptions) {
+            if (option.configId() == QLatin1String("_v1_session_mode"))
+                return option.additionalProperties().value("currentValue").toString();
+        }
+        return {};
+    }
+
     AcpChatController controller;
     QList<AcpClientObject::State> states;
     QString agentName;
@@ -352,20 +356,18 @@ public:
     int sessionSelectionRequiredCount = 0;
     QStringList createdSessions;
     QStringList loadedSessions;
-    QList<SessionInfo> listedSessions;
+    QList<V2::SessionInfo> listedSessions;
     std::optional<QString> lastCursor;
     int listCount = 0;
     QStringList deletedSessions;
     QStringList closedSessions;
-    QList<SessionConfigOption> configOptions;
-    QList<SessionMode> sessionModes;
-    QString currentMode;
-    QList<SessionUpdate> updates;
+    QList<V2::SessionConfigOption> configOptions;
+    QList<V2::SessionUpdate> updates;
     int promptFinishedCount = 0;
-    QList<AuthMethod> authMethods;
+    QList<V2::AuthMethod> authMethods;
     QStringList authErrors;
     QList<QJsonValue> permissionIds;
-    QList<RequestPermissionRequest> permissionRequests;
+    QList<V2::RequestPermissionRequest> permissionRequests;
     QList<QJsonValue> cancelledPermissionIds;
     QStringList errors;
 };
@@ -1415,19 +1417,22 @@ void AcpClientTest::testControllerConnectAndSession()
     QTRY_COMPARE(fixture.createdSessions.size(), 1);
     QCOMPARE(fixture.controller.sessionId(), fixture.createdSessions.first());
 
-    QCOMPARE(fixture.configOptions.size(), 2);
-    QCOMPARE(fixture.configOptions.first().id(), "test.autoApprove");
-    QCOMPARE(fixture.configOptions.last().id(), "test.model");
-    QCOMPARE(fixture.sessionModes.size(), 2);
-    QCOMPARE(fixture.currentMode, "ask");
+    // The v1 session modes arrive as a synthesized select config option.
+    QCOMPARE(fixture.configOptions.size(), 3);
+    QCOMPARE(fixture.configOptions.at(0).configId(), "test.autoApprove");
+    QCOMPARE(fixture.configOptions.at(1).configId(), "test.model");
+    QCOMPARE(fixture.configOptions.at(2).configId(), "_v1_session_mode");
+    QVERIFY(fixture.configOptions.at(2).category().has_value());
+    QVERIFY(*fixture.configOptions.at(2).category() == V2::SessionConfigOptionCategory::mode);
+    QCOMPARE(fixture.currentModeValue(), "ask");
 
     // Changing the mode round-trips through the server.
-    fixture.controller.setSessionMode("code");
-    QTRY_COMPARE(fixture.currentMode, "code");
+    fixture.controller.setConfigOption("_v1_session_mode", "code");
+    QTRY_COMPARE(fixture.currentModeValue(), "code");
 
     // Changing a config option reports the new state.
     fixture.controller.setConfigOption("test.autoApprove", true);
-    QTRY_VERIFY(Utils::anyOf(fixture.updates, [](const SessionUpdate &update) {
+    QTRY_VERIFY(Utils::anyOf(fixture.updates, [](const V2::SessionUpdate &update) {
         return update.kind() == QLatin1String("config_option_update");
     }));
     QVERIFY(fixture.errors.isEmpty());
@@ -1448,9 +1453,10 @@ void AcpClientTest::testControllerPromptStreaming()
     QCOMPARE(fixture.updates.size(), 3);
     for (int i = 0; i < 3; ++i) {
         QCOMPARE(fixture.updates.at(i).kind(), "agent_message_chunk");
-        const auto *chunk = fixture.updates.at(i).get<ContentChunk>();
+        const auto *chunk = fixture.updates.at(i).get<V2::ContentChunk>();
         QVERIFY(chunk);
-        const auto *text = std::get_if<TextContent>(&chunk->content());
+        QVERIFY(!chunk->messageId().isEmpty()); // synthesized by the v1 adapter
+        const auto *text = std::get_if<V2::TextContent>(&chunk->content());
         QVERIFY(text);
         QCOMPARE(text->text(), QString("chunk-%1:hello").arg(i + 1));
     }
@@ -1468,7 +1474,10 @@ void AcpClientTest::testControllerAuthentication()
     // Creating a session triggers the authentication workflow.
     fixture.controller.createNewSession();
     QTRY_COMPARE(fixture.authMethods.size(), 1);
-    QCOMPARE(name(fixture.authMethods.first()), "Test Login");
+    const auto *agentMethod = std::get_if<V2::AuthMethodAgent>(&fixture.authMethods.first());
+    QVERIFY(agentMethod);
+    QCOMPARE(agentMethod->name(), "Test Login");
+    QCOMPARE(agentMethod->methodId(), "test-login");
     QVERIFY(fixture.createdSessions.isEmpty());
 
     // A failing authentication is reported.
@@ -1608,13 +1617,13 @@ void AcpClientTest::testChatPanelTurnStats()
 {
     ChatPanel panel;
 
-    panel.setUsage(UsageUpdate().used(100).size(1000).cost(
-        Cost().amount(0.5).currency("USD")));
+    panel.setUsage(V2::UsageUpdate().used(100).size(1000).cost(
+        V2::Cost().amount(0.5).currency("USD")));
     panel.setPrompting(true);
     QVERIFY(turnStatsTexts(panel).isEmpty());
 
-    panel.setUsage(UsageUpdate().used(350).size(1000).cost(
-        Cost().amount(0.75).currency("USD")));
+    panel.setUsage(V2::UsageUpdate().used(350).size(1000).cost(
+        V2::Cost().amount(0.75).currency("USD")));
     panel.setPrompting(false);
 
     const QStringList stats = turnStatsTexts(panel);
@@ -1639,9 +1648,9 @@ void AcpClientTest::testChatPanelTokenUsageToggle()
     const QScopeGuard restore([&panel, wasVisible] { panel.setTokenUsageVisible(wasVisible); });
     panel.setTokenUsageVisible(false);
 
-    panel.setUsage(UsageUpdate().used(100).size(1000));
+    panel.setUsage(V2::UsageUpdate().used(100).size(1000));
     panel.setPrompting(true);
-    panel.setUsage(UsageUpdate().used(350).size(1000));
+    panel.setUsage(V2::UsageUpdate().used(350).size(1000));
     panel.setPrompting(false);
 
     const QList<QLabel *> statsLabels
@@ -1666,8 +1675,8 @@ void AcpClientTest::testChatPanelFirstTurnStats()
     ChatPanel panel;
 
     panel.setPrompting(true);
-    panel.setUsage(UsageUpdate().used(120).size(1000).cost(
-        Cost().amount(0.25).currency("USD")));
+    panel.setUsage(V2::UsageUpdate().used(120).size(1000).cost(
+        V2::Cost().amount(0.25).currency("USD")));
     panel.setPrompting(false);
 
     const QStringList stats = turnStatsTexts(panel);
@@ -1683,9 +1692,9 @@ void AcpClientTest::testChatPanelUnchangedUsageElapsedOnly()
 {
     ChatPanel panel;
 
-    panel.setUsage(UsageUpdate().used(100).size(1000));
+    panel.setUsage(V2::UsageUpdate().used(100).size(1000));
     panel.setPrompting(true);
-    panel.setUsage(UsageUpdate().used(100).size(1000));
+    panel.setUsage(V2::UsageUpdate().used(100).size(1000));
     panel.setPrompting(false);
 
     const QStringList stats = turnStatsTexts(panel);

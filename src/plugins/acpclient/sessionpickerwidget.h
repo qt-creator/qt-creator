@@ -5,7 +5,7 @@
 
 #include "collapsibleframe.h"
 
-#include <acp/acp.h>
+#include <acp/acpv2.h>
 
 #include <utils/filepath.h>
 
@@ -31,9 +31,9 @@ public:
 
     void setCanDeleteSessions(bool canDelete);
 
-    void setInitialSessions(const QList<Acp::SessionInfo> &sessions,
+    void setInitialSessions(const QList<Acp::V2::SessionInfo> &sessions,
                             const std::optional<QString> &nextCursor);
-    void appendSessions(const QList<Acp::SessionInfo> &sessions,
+    void appendSessions(const QList<Acp::V2::SessionInfo> &sessions,
                         const std::optional<QString> &nextCursor);
     void removeSession(const QString &sessionId);
 
@@ -55,7 +55,7 @@ private:
         Utils::FilePath cwd;
     };
 
-    void addSessionItem(const Acp::SessionInfo &session);
+    void addSessionItem(const Acp::V2::SessionInfo &session);
     void requestNewSession(const Utils::FilePath &cwd);
     void requestCustomDirectorySession();
     void updateLoadMoreButton();

@@ -31,7 +31,7 @@
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
-using namespace Acp;
+using namespace Acp::V2;
 using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -305,8 +305,6 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     connect(m_chatPanel, &ChatPanel::cancelRequested, m_controller, &AcpChatController::cancelPrompt);
     connect(m_chatPanel, &ChatPanel::configOptionChanged,
             m_controller, &AcpChatController::setConfigOption);
-    connect(m_chatPanel, &ChatPanel::modeChanged,
-            m_controller, &AcpChatController::setSessionMode);
     connect(m_chatPanel, &ChatPanel::inspectRequested,
             m_controller, &AcpChatController::showInspector);
     connect(m_chatPanel, &ChatPanel::closeSessionRequested,
@@ -335,7 +333,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         emit titleChanged();
     });
     connect(m_controller, &AcpChatController::authenticationRequired,
-            this, [this](const QList<Acp::AuthMethod> &methods) {
+            this, [this](const QList<Acp::V2::AuthMethod> &methods) {
         // Show auth inline in chat instead of a separate page
         m_stack->setCurrentIndex(2);
         m_chatPanel->addAuthenticationRequest(methods);
@@ -370,10 +368,6 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     });
     connect(m_controller, &AcpChatController::configOptionsReceived,
             m_chatPanel, &ChatPanel::setConfigOptions);
-    connect(m_controller, &AcpChatController::sessionModesReceived,
-            m_chatPanel, &ChatPanel::setSessionModes);
-    connect(m_controller, &AcpChatController::currentModeChanged,
-            m_chatPanel, &ChatPanel::setCurrentMode);
     connect(m_controller, &AcpChatController::sessionUpdate,
             this, [this](const QString &sessionId, const SessionUpdate &update) {
         Q_UNUSED(sessionId)
@@ -393,21 +387,15 @@ AcpChatTab::AcpChatTab(QWidget *parent)
                 if (const auto *textBlock = std::get_if<TextContent>(&chunk->content()))
                     m_chatPanel->addUserMessage(textBlock->text());
             }
-        } else if (kind == QLatin1String("tool_call")) {
-            if (const auto *tc = update.get<ToolCall>())
-                m_chatPanel->addToolCall(*tc);
         } else if (kind == QLatin1String("tool_call_update")) {
             if (const auto *tcu = update.get<ToolCallUpdate>())
                 m_chatPanel->updateToolCall(*tcu);
-        } else if (kind == QLatin1String("plan")) {
-            if (const auto *p = update.get<Plan>())
+        } else if (kind == QLatin1String("plan_update")) {
+            if (const auto *p = update.get<PlanUpdate>())
                 m_chatPanel->addPlan(*p);
         } else if (kind == QLatin1String("config_option_update")) {
             if (const auto *cu = update.get<ConfigOptionUpdate>())
                 m_chatPanel->setConfigOptions(cu->configOptions());
-        } else if (kind == QLatin1String("current_mode_update")) {
-            if (const auto *cmu = update.get<CurrentModeUpdate>())
-                m_chatPanel->setCurrentMode(cmu->currentModeId());
         } else if (kind == QLatin1String("available_commands_update")) {
             if (const auto *acu = update.get<AvailableCommandsUpdate>())
                 m_chatPanel->updateAvailableCommands(acu->availableCommands());
@@ -417,7 +405,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         }
     });
     connect(m_controller, &AcpChatController::permissionRequested,
-            this, [this](const QJsonValue &id, const Acp::RequestPermissionRequest &request) {
+            this, [this](const QJsonValue &id, const Acp::V2::RequestPermissionRequest &request) {
         m_chatPanel->addPermissionRequest(id, request);
     });
     connect(m_chatPanel, &ChatPanel::permissionOptionSelected,
@@ -573,7 +561,7 @@ void AcpChatTab::showSessionPicker()
     auto isFirstPage = QSharedPointer<bool>::create(true);
     connect(m_controller, &AcpChatController::sessionsListed, picker,
             [picker, isFirstPage](
-                const QList<Acp::SessionInfo> &sessions,
+                const QList<Acp::V2::SessionInfo> &sessions,
                 const std::optional<QString> &nextCursor) {
         if (*isFirstPage) {
             *isFirstPage = false;

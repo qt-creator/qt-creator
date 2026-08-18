@@ -8,6 +8,7 @@
 #include "chatpanel.h"
 
 #include <acp/acp.h>
+#include <acp/acpv2.h>
 
 #include <QJsonValue>
 #include <QObject>
@@ -20,6 +21,7 @@ class AcpClientObject;
 class AcpFilesystemHandler;
 class AcpInspector;
 class AcpPermissionHandler;
+class AcpProtocolAdapter;
 class AcpTerminalHandler;
 class AcpTransport;
 
@@ -48,7 +50,6 @@ public:
     void cancelPrompt();
     void authenticate(const QString &methodId);
     void setConfigOption(const QString &configId, const QJsonValue &value);
-    void setSessionMode(const QString &modeId);
     void sendPermissionResponse(const QJsonValue &id, const QString &optionId);
     void sendPermissionCancelled(const QJsonValue &id);
     void deleteSession(const QString &sessionId);
@@ -70,28 +71,27 @@ signals:
     void sessionSelectionRequired();
     void sessionCreated(const QString &sessionId);
     void sessionLoaded(const QString &sessionId);
-    void sessionsListed(const QList<Acp::SessionInfo> &sessions,
+    void sessionsListed(const QList<Acp::V2::SessionInfo> &sessions,
                         const std::optional<QString> &nextCursor);
     void sessionDeleted(const QString &sessionId);
     void sessionClosed(const QString &sessionId);
-    void configOptionsReceived(const QList<Acp::SessionConfigOption> &configOptions);
-    void sessionModesReceived(const QList<Acp::SessionMode> &modes, const QString &currentModeId);
-    void currentModeChanged(const QString &modeId);
-    void sessionUpdate(const QString &sessionId, const Acp::SessionUpdate &update);
-    void authenticationRequired(const QList<Acp::AuthMethod> &methods);
+    void configOptionsReceived(const QList<Acp::V2::SessionConfigOption> &configOptions);
+    void sessionUpdate(const QString &sessionId, const Acp::V2::SessionUpdate &update);
+    void authenticationRequired(const QList<Acp::V2::AuthMethod> &methods);
     void authenticationFailed(const QString &error);
-    void permissionRequested(const QJsonValue &id, const Acp::RequestPermissionRequest &request);
+    void permissionRequested(const QJsonValue &id, const Acp::V2::RequestPermissionRequest &request);
     void permissionCancelledByAgent(const QJsonValue &id);
     void promptFinished();
     void errorOccurred(const QString &error);
 
 private:
     void onInitializeResult(const Acp::InitializeResponse &response);
-    Acp::NewSessionRequest buildNewSessionRequest() const;
+    QJsonArray buildMcpServersJson() const;
 
     AcpInspector *m_inspector = nullptr;
     AcpTransport *m_transport = nullptr;
     AcpClientObject *m_client = nullptr;
+    AcpProtocolAdapter *m_adapter = nullptr;
     AcpTerminalHandler *m_terminalHandler = nullptr;
     AcpFilesystemHandler *m_filesystemHandler = nullptr;
     AcpPermissionHandler *m_permissionHandler = nullptr;
@@ -102,8 +102,6 @@ private:
     QString m_agentVersion;
     QString m_serverName;
     QString m_iconUrl;
-    QList<Acp::AuthMethod> m_authMethods;
-    std::optional<Acp::AgentCapabilities> m_agentCapabilities;
     bool m_initialized = false;
 };
 

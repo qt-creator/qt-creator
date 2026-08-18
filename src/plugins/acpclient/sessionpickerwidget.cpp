@@ -22,7 +22,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-using namespace Acp;
+using namespace Acp::V2;
 
 namespace AcpClient::Internal {
 
@@ -425,7 +425,7 @@ Utils::FilePath SessionPickerWidget::defaultTarget() const
 
 void SessionPickerWidget::addSessionItem(const SessionInfo &session)
 {
-    const QString title = session.title().value_or(session.sessionId());
+    const QString title = session.title().asOptional().value_or(session.sessionId());
     auto *item = new PickerItem(title, {}, this);
     if (session.updatedAt().has_value())
         item->setTrailingText(relativeTime(*session.updatedAt()));

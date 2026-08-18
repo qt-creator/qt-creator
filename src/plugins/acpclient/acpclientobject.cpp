@@ -181,6 +181,8 @@ void AcpClientObject::handleRequest(const QJsonValue &id, const QString &method,
 
     m_pendingIncomingRequestIds.append(id);
 
+    emit requestReceived(id, method, params);
+
     const QJsonValue paramsVal(params);
 
     auto dispatch = [&]<typename T>(auto signal) {
@@ -217,6 +219,8 @@ void AcpClientObject::handleRequest(const QJsonValue &id, const QString &method,
 void AcpClientObject::handleNotification(const QString &method, const QJsonObject &params)
 {
     qCDebug(logClient) << "Agent notification:" << method;
+
+    emit notificationReceived(method, params);
 
     if (method == QLatin1String("session/update")) {
         auto notif = fromJson<SessionNotification>(QJsonValue(params));

@@ -5,7 +5,7 @@
 
 #include "collapsibleframe.h"
 
-#include <acp/acp.h>
+#include <acp/acpv2.h>
 
 #include <utils/icon.h>
 
@@ -21,22 +21,23 @@ class MarkdownBrowser;
 
 namespace AcpClient::Internal {
 
-QWidget *toolCallStatusWidget(Acp::ToolCallStatus status, QWidget *parent = nullptr);
-std::optional<Utils::Icon> iconForToolKind(std::optional<Acp::ToolKind> kind);
+QWidget *toolCallStatusWidget(Acp::V2::ToolCallStatus status, QWidget *parent = nullptr);
+std::optional<Utils::Icon> iconForToolKind(std::optional<Acp::V2::ToolKind> kind);
 
 class ToolCallDetailWidget : public CollapsibleFrame
 {
     Q_OBJECT
 
 public:
-    explicit ToolCallDetailWidget(const Acp::ToolCall &toolCall, QWidget *parent = nullptr);
+    explicit ToolCallDetailWidget(const Acp::V2::ToolCallUpdate &toolCall,
+                                  QWidget *parent = nullptr);
 
-    Acp::ToolCallStatus status() const { return m_status; }
-    void applyStatus(Acp::ToolCallStatus status);
-    void updateContent(const Acp::ToolCallUpdate &update);
+    Acp::V2::ToolCallStatus status() const { return m_status; }
+    void applyStatus(Acp::V2::ToolCallStatus status);
+    void updateContent(const Acp::V2::ToolCallUpdate &update);
     void setContentMaxWidth(int width);
 
-    void addPermissionControls(const QList<Acp::PermissionOption> &options,
+    void addPermissionControls(const QList<Acp::V2::PermissionOption> &options,
                                bool addDenyFallback);
     void resolvePermission(const QString &text, bool accepted);
 
@@ -48,12 +49,11 @@ protected:
     void paintEvent(QPaintEvent *e) override;
 
 private:
-    void populateContent(const Acp::ToolCall &toolCall);
-    void addDiffContent(const Acp::Diff &diff);
+    void addDiffContent(const Acp::V2::Diff &diff);
     void addMarkdownContent(const QString &markdown);
-    void addTerminalContent(const Acp::Terminal &terminal);
-    void addTextContent(const Acp::Content &content);
-    void addLocations(const QList<Acp::ToolCallLocation> &locations);
+    void addTerminalContent(const Acp::V2::Terminal &terminal);
+    void addTextContent(const Acp::V2::Content &content);
+    void addLocations(const QList<Acp::V2::ToolCallLocation> &locations);
     void addRawInputContent(const QJsonValue &rawInput);
     void addBodyWidget(QWidget *widget);
 
@@ -62,7 +62,7 @@ private:
     QLabel *m_commandLabel = nullptr;
     CollapsibleFrame *m_rawInputFrame = nullptr;
     Utils::MarkdownBrowser *m_rawInputContent = nullptr;
-    Acp::ToolCallStatus m_status = Acp::ToolCallStatus::in_progress;
+    Acp::V2::ToolCallStatus m_status = Acp::V2::ToolCallStatus::in_progress;
     int m_contentMaxWidth = -1;
 
     QWidget *m_permissionRow = nullptr;
