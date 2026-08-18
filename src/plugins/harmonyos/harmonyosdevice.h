@@ -24,6 +24,8 @@ public:
     bool hasDeviceTester() const final { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() final;
     Utils::ProcessInterface *createProcessInterface() const final;
+    void runAutoDetect(const ProjectExplorer::ToolDetectionLogger &logger,
+                       const std::function<void()> &onDone) final;
 
     QString serialNumber() const;
     void setSerialNumber(const QString &serial);

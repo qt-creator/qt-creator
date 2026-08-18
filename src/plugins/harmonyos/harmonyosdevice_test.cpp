@@ -9,6 +9,7 @@
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
@@ -99,6 +100,50 @@ private slots:
         process.runBlocking(std::chrono::seconds(15));
         QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
         QCOMPARE(process.cleanedStdOut().trimmed(), QString("ran-on-device"));
+    }
+
+    // Reports what a build on the device would have to work with.
+    void testProbeBuildEnvironment()
+    {
+        const IDevice::Ptr device = attachedDevice();
+        if (!device)
+            QSKIP("No HarmonyOS device is attached");
+
+        const Result<Environment> env = device->systemEnvironmentWithError();
+        QVERIFY2(env.has_value(), qPrintable(env ? QString() : env.error()));
+        qDebug().noquote() << "PATH on the device:" << env->value("PATH");
+
+        for (const QString &tool : {QString("sh"), QString("tar"), QString("cmake"),
+                                    QString("ninja"), QString("make"), QString("cc"),
+                                    QString("clang"), QString("gcc"), QString("g++"),
+                                    QString("python3"), QString("node"), QString("ld"),
+                                    QString("ar"), QString("pkg-config")}) {
+            const FilePath found = device->searchExecutableInPath(tool);
+            qDebug().noquote() << QString("  %1: %2").arg(tool, 12)
+                                      .arg(found.isEmpty() ? QString("-") : found.path());
+        }
+
+        // Whatever else is missing, the shell the file access relies on must be there.
+        QVERIFY(!device->searchExecutableInPath("sh").isEmpty());
+    }
+
+    // Runs the same detection the Devices page offers.
+    void testAutoDetect()
+    {
+        const IDevice::Ptr device = attachedDevice();
+        if (!device)
+            QSKIP("No HarmonyOS device is attached");
+
+        QStringList log;
+        const ToolDetectionLogger logger([&log](const QString &message) {
+            log.append(message);
+            qDebug().noquote() << "detection:" << message;
+        });
+
+        bool done = false;
+        device->runAutoDetect(logger, [&done] { done = true; });
+        QTRY_VERIFY_WITH_TIMEOUT(done, 240 * 1000);
+        QVERIFY(!log.isEmpty());
     }
 
     void testFailingProcess()

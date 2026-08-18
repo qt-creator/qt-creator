@@ -14,6 +14,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/devicefileaccess.h>
+#include <utils/globaltasktree.h>
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
@@ -216,6 +217,21 @@ void HarmonyOsDevice::updateFileAccess()
         d->fileAccess = std::make_shared<HarmonyOsFileAccess>(d->accessData);
         setFileAccess(d->fileAccess);
     }
+}
+
+// Reports nothing until the device can execute a tool it did not install itself.
+void HarmonyOsDevice::runAutoDetect(const ToolDetectionLogger &logger,
+                                    const std::function<void()> &onDone)
+{
+    updateFileAccess();
+    if (!fileAccess()) {
+        if (logger)
+            logger.logTopLevel(Tr::tr("The device is not reachable."));
+        onDone();
+        return;
+    }
+    requestToolDetection(toolSearchPaths(), logger);
+    GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onDone);
 }
 
 ProcessInterface *HarmonyOsDevice::createProcessInterface() const
