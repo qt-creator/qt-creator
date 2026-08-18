@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <acp/acp.h>
+#include <acp/acpv2.h>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -108,6 +109,18 @@ private slots:
     void fromJsonWrongType();
     void fromJsonMissingMultipleRequired();
     void emptyObjectForRequiredFields();
+
+    // --- Protocol v2 ---
+    void v2PatchAbsent();
+    void v2PatchNull();
+    void v2PatchValue();
+    void v2PatchNullableArray();
+    void v2OpenUnionUnknownSessionUpdate();
+    void v2OpenUnionKnownVariant();
+    void v2StateUpdateRoundtrip();
+    void v2AuthMethodUnknownType();
+    void v2InitializeResponseRoundtrip();
+    void v2PromptResponseEmpty();
 };
 
 // =============================================================================
@@ -754,6 +767,163 @@ void tst_Acp::emptyObjectForRequiredFields()
 
     auto r4 = fromJson<Annotations>(QJsonValue(jsonObj("{}")));
     QVERIFY(r4.has_value());
+}
+
+// =============================================================================
+// Protocol v2
+// =============================================================================
+
+template<typename T>
+void verifyRoundtripV2(const QJsonObject &original)
+{
+    auto parsed = Acp::V2::fromJson<T>(QJsonValue(original));
+    QVERIFY_RESULT(parsed);
+    QJsonObject serialized = Acp::V2::toJson(*parsed);
+    QCOMPARE(serialized, original);
+}
+
+void tst_Acp::v2PatchAbsent()
+{
+    const QJsonObject obj = jsonObj(R"({"toolCallId": "call-1"})");
+    auto parsed = Acp::V2::fromJson<Acp::V2::ToolCallUpdate>(QJsonValue(obj));
+    QVERIFY_RESULT(parsed);
+    QVERIFY(parsed->title().isAbsent());
+    QVERIFY(!parsed->title().isNull());
+    QVERIFY(!parsed->title().has_value());
+    QCOMPARE(Acp::V2::toJson(*parsed), obj);
+}
+
+void tst_Acp::v2PatchNull()
+{
+    const QJsonObject obj = jsonObj(R"({"toolCallId": "call-1", "title": null})");
+    auto parsed = Acp::V2::fromJson<Acp::V2::ToolCallUpdate>(QJsonValue(obj));
+    QVERIFY_RESULT(parsed);
+    QVERIFY(parsed->title().isNull());
+    QVERIFY(!parsed->title().isAbsent());
+    QVERIFY(!parsed->title().has_value());
+    QCOMPARE(Acp::V2::toJson(*parsed), obj);
+}
+
+void tst_Acp::v2PatchValue()
+{
+    const QJsonObject obj = jsonObj(R"({"toolCallId": "call-1", "title": "Reading file"})");
+    auto parsed = Acp::V2::fromJson<Acp::V2::ToolCallUpdate>(QJsonValue(obj));
+    QVERIFY_RESULT(parsed);
+    QVERIFY(parsed->title().has_value());
+    QCOMPARE(*parsed->title(), QString("Reading file"));
+    QCOMPARE(Acp::V2::toJson(*parsed), obj);
+}
+
+void tst_Acp::v2PatchNullableArray()
+{
+    const QJsonObject withContent = jsonObj(R"({
+        "toolCallId": "call-1",
+        "content": [{"type": "text", "text": "hello"}]
+    })");
+    auto parsed = Acp::V2::fromJson<Acp::V2::ToolCallUpdate>(QJsonValue(withContent));
+    QVERIFY_RESULT(parsed);
+    QVERIFY(parsed->content().has_value());
+    QCOMPARE(parsed->content()->size(), 1);
+    QCOMPARE(Acp::V2::toJson(*parsed), withContent);
+
+    const QJsonObject cleared = jsonObj(R"({"toolCallId": "call-1", "content": null})");
+    auto parsedCleared = Acp::V2::fromJson<Acp::V2::ToolCallUpdate>(QJsonValue(cleared));
+    QVERIFY_RESULT(parsedCleared);
+    QVERIFY(parsedCleared->content().isNull());
+    QCOMPARE(Acp::V2::toJson(*parsedCleared), cleared);
+}
+
+void tst_Acp::v2OpenUnionUnknownSessionUpdate()
+{
+    const QJsonObject obj = jsonObj(R"({
+        "sessionUpdate": "_vendor_custom_update",
+        "customPayload": 42
+    })");
+    auto parsed = Acp::V2::fromJson<Acp::V2::SessionUpdate>(QJsonValue(obj));
+    QVERIFY_RESULT(parsed);
+    QCOMPARE(parsed->kind(), QString("_vendor_custom_update"));
+    const QJsonObject *raw = parsed->get<QJsonObject>();
+    QVERIFY(raw);
+    QCOMPARE(raw->value("customPayload").toInt(), 42);
+    QCOMPARE(Acp::V2::toJson(*parsed), obj);
+}
+
+void tst_Acp::v2OpenUnionKnownVariant()
+{
+    const QJsonObject obj = jsonObj(R"({
+        "sessionUpdate": "agent_message_chunk",
+        "messageId": "msg-1",
+        "content": {"type": "text", "text": "hi"}
+    })");
+    auto parsed = Acp::V2::fromJson<Acp::V2::SessionUpdate>(QJsonValue(obj));
+    QVERIFY_RESULT(parsed);
+    QCOMPARE(parsed->kind(), QString("agent_message_chunk"));
+    const Acp::V2::ContentChunk *chunk = parsed->get<Acp::V2::ContentChunk>();
+    QVERIFY(chunk);
+    QCOMPARE(chunk->messageId(), QString("msg-1"));
+    QCOMPARE(Acp::V2::toJson(*parsed), obj);
+}
+
+void tst_Acp::v2StateUpdateRoundtrip()
+{
+    const QJsonObject idle = jsonObj(R"({"state": "idle", "stopReason": "end_turn"})");
+    auto parsed = Acp::V2::fromJson<Acp::V2::StateUpdate>(QJsonValue(idle));
+    QVERIFY_RESULT(parsed);
+    const auto *idleState = std::get_if<Acp::V2::IdleStateUpdate>(&*parsed);
+    QVERIFY(idleState);
+    QVERIFY(idleState->stopReason().has_value());
+    QVERIFY(*idleState->stopReason() == Acp::V2::StopReason::end_turn);
+    QCOMPARE(Acp::V2::toJson(*parsed), idle);
+
+    const QJsonObject running = jsonObj(R"({"state": "running"})");
+    auto parsedRunning = Acp::V2::fromJson<Acp::V2::StateUpdate>(QJsonValue(running));
+    QVERIFY_RESULT(parsedRunning);
+    QVERIFY(std::get_if<Acp::V2::RunningStateUpdate>(&*parsedRunning));
+    QCOMPARE(Acp::V2::toJson(*parsedRunning), running);
+}
+
+void tst_Acp::v2AuthMethodUnknownType()
+{
+    const QJsonObject agent = jsonObj(R"({
+        "type": "agent",
+        "methodId": "oauth",
+        "name": "Log in"
+    })");
+    auto parsed = Acp::V2::fromJson<Acp::V2::AuthMethod>(QJsonValue(agent));
+    QVERIFY_RESULT(parsed);
+    QVERIFY(std::get_if<Acp::V2::AuthMethodAgent>(&*parsed));
+
+    const QJsonObject unknown = jsonObj(R"({"type": "_vendor_sso", "endpoint": "https://x"})");
+    auto parsedUnknown = Acp::V2::fromJson<Acp::V2::AuthMethod>(QJsonValue(unknown));
+    QVERIFY_RESULT(parsedUnknown);
+    const auto *raw = std::get_if<QJsonObject>(&*parsedUnknown);
+    QVERIFY(raw);
+    QCOMPARE(Acp::V2::toJson(*parsedUnknown), unknown);
+}
+
+void tst_Acp::v2InitializeResponseRoundtrip()
+{
+    const QJsonObject obj = jsonObj(R"({
+        "protocolVersion": 2,
+        "info": {"name": "test-agent", "version": "0.1"},
+        "capabilities": {
+            "session": {
+                "prompt": {"image": {}, "embeddedContext": {}}
+            }
+        }
+    })");
+    auto parsed = Acp::V2::fromJson<Acp::V2::InitializeResponse>(QJsonValue(obj));
+    QVERIFY_RESULT(parsed);
+    QCOMPARE(parsed->protocolVersion(), 2);
+    QCOMPARE(parsed->info().name(), QString("test-agent"));
+    QVERIFY(parsed->capabilities().has_value());
+    QVERIFY(parsed->capabilities()->session().has_value());
+    QCOMPARE(Acp::V2::toJson(*parsed), obj);
+}
+
+void tst_Acp::v2PromptResponseEmpty()
+{
+    verifyRoundtripV2<Acp::V2::PromptResponse>(jsonObj("{}"));
 }
 
 QTEST_GUILESS_MAIN(tst_Acp)

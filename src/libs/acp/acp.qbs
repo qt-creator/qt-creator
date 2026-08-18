@@ -11,6 +11,8 @@ QtcLibrary {
         "acp_global.h",
         "acpregistry.cpp",
         "acpregistry.h",
+        "acpv2.cpp",
+        "acpv2.h",
     ]
 
     Properties {
