@@ -271,6 +271,7 @@ constexpr int lowestParanoidBlockingUserSampling = 3;
 constexpr int paranoidAllowingUserSampling = 2;
 constexpr auto paranoidSettingName = "perf_event_paranoid"_L1;
 constexpr auto paranoidSysctlKey = "kernel.perf_event_paranoid"_L1;
+constexpr auto sysctlConfigFile = "/etc/sysctl.conf"_L1;
 
 // The programs driven here, named in messages but never translated.
 constexpr auto perfRecordName = "perf record"_L1;
@@ -289,6 +290,20 @@ std::optional<int> perfEventParanoid()
     bool ok = false;
     const int value = QString::fromLatin1(*contents).trimmed().toInt(&ok);
     return ok ? std::optional(value) : std::nullopt;
+}
+
+// sysctl lives in /usr/sbin, which a desktop session's PATH need not contain.
+FilePath sysctlExecutable()
+{
+    const FilePath inPath = Environment::systemEnvironment().searchInPath("sysctl");
+    if (!inPath.isEmpty())
+        return inPath;
+    for (const auto &candidate : {"/usr/sbin/sysctl"_L1, "/sbin/sysctl"_L1}) {
+        const FilePath path = FilePath::fromString(candidate);
+        if (path.isExecutableFile())
+            return path;
+    }
+    return {};
 }
 
 // What "perf record" left behind, shared between its own done handler and
@@ -320,15 +335,21 @@ QString noSamplesError(const QString &recordStdErr, bool recordFailed, int recei
 {
     const std::optional<int> paranoid = perfEventParanoid();
     if (paranoid && *paranoid >= lowestParanoidBlockingUserSampling) {
-        const QString message = Tr::tr("No samples were captured: \"%1\" is %2, which denies "
-                                       "performance monitoring to unprivileged processes. "
-                                       "Sampling processes you own needs it set to %3 or less.")
-                                    .arg(paranoidSettingName)
-                                    .arg(*paranoid)
-                                    .arg(paranoidAllowingUserSampling);
-        const QString command = QString("sudo sysctl -w %1=%2"_L1)
-                                    .arg(paranoidSysctlKey).arg(paranoidAllowingUserSampling);
-        return message + u'\n' + Tr::tr("Set it with:") + u"\n    "_s + command;
+        QString message = Tr::tr("No samples were captured: \"%1\" is %2, which denies "
+                                 "performance monitoring to unprivileged processes. Sampling "
+                                 "processes you own needs it set to %3 or less.")
+                              .arg(paranoidSettingName)
+                              .arg(*paranoid)
+                              .arg(paranoidAllowingUserSampling);
+        // Where availableFix() has something to offer, the UI puts a button on
+        // this message that makes the change; naming the command here as well
+        // would only ask the reader which of the two they are meant to use.
+        if (sysctlExecutable().isEmpty()) {
+            const QString command = QString("sudo sysctl -w %1=%2"_L1)
+                                        .arg(paranoidSysctlKey).arg(paranoidAllowingUserSampling);
+            message += u'\n' + Tr::tr("Set it with:") + u"\n    "_s + command;
+        }
+        return message;
     }
 
     // Any other failure to open events -- an unsupported event, a target already
@@ -481,6 +502,34 @@ bool PerfSampler::isAvailable(QString *error) const
 SamplerSettings *PerfSampler::settings() const
 {
     return m_settings.get();
+}
+
+std::optional<SamplerFix> PerfSampler::availableFix() const
+{
+    const std::optional<int> paranoid = perfEventParanoid();
+    if (!paranoid || *paranoid < lowestParanoidBlockingUserSampling)
+        return std::nullopt;
+
+    const FilePath sysctl = sysctlExecutable();
+    if (sysctl.isEmpty())
+        return std::nullopt;
+
+    const QString assignment = QString("%1=%2"_L1)
+                                   .arg(paranoidSysctlKey).arg(paranoidAllowingUserSampling);
+    const QString persistentSetting = QString("%1 = %2"_L1)
+                                          .arg(paranoidSysctlKey).arg(paranoidAllowingUserSampling);
+    const QString buttonText = Tr::tr("Allow Sampling");
+    return SamplerFix{
+        buttonText,
+        Tr::tr("\"%1\" sets \"%2\" to %3 for you, asking for your password, and then records "
+               "again. The setting reverts on reboot; to keep it, add \"%4\" to %5.")
+            .arg(buttonText)
+            .arg(paranoidSysctlKey)
+            .arg(paranoidAllowingUserSampling)
+            .arg(persistentSetting)
+            .arg(sysctlConfigFile),
+        CommandLine{sysctl, {"-w", assignment}},
+    };
 }
 
 ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession> &session) const

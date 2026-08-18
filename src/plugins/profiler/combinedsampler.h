@@ -68,6 +68,7 @@ public:
         const std::shared_ptr<RecordingSession> &session) const override;
 
     SamplerSettings *settings() const override;
+    std::optional<SamplerFix> availableFix() const override;
 
     // True if `dir` is a bundle written by this backend (has a manifest.json
     // naming a sampler trace and a QML trace). Reads only the manifest.

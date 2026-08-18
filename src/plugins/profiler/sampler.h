@@ -149,6 +149,16 @@ protected:
     Utils::Result<> fillLaunch(RecordingSession &session) const;
 };
 
+// A repair for a system setting that stops a backend from recording, offered to
+// the user as a button next to the failure. The command is run as root, so it
+// names one specific change and nothing else.
+struct SamplerFix
+{
+    QString buttonText;         // Button label, e.g. "Allow Sampling".
+    QString detail;             // What applying it does, shown with the error.
+    Utils::CommandLine command; // Run with root privileges by the UI.
+};
+
 // A profiling backend: records a trace of a target process until the session is
 // stopped, then writes it and reports the resulting trace directory.
 //
@@ -194,6 +204,11 @@ public:
     // configuration controls and attach/connect start buttons (see SamplerSettings).
     // Null when the backend has no options. Owned by the backend.
     virtual SamplerSettings *settings() const { return nullptr; }
+
+    // A system setting the user can change to make recording work, queried after
+    // a recording failed. Re-reads the setting rather than interpreting the error,
+    // so it only offers a change that is still needed. None by default.
+    virtual std::optional<SamplerFix> availableFix() const { return std::nullopt; }
 };
 
 } // namespace QmlProfiler::Internal

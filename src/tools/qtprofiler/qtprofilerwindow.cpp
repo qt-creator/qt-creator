@@ -30,8 +30,10 @@
 #include <tracing/rangedetailswidget.h>
 
 #include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcprocess.h>
@@ -50,6 +52,7 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QPointer>
+#include <QPushButton>
 #include <QRegularExpression>
 #include <QSplitter>
 #include <QStackedWidget>
@@ -82,6 +85,9 @@ namespace QtProfiler {
 // combined recording (native-mixed sampler trace + its source QML trace).
 enum class Format { Qml, Ctf, Sampler, Combined };
 
+// pkexec's exit code for "the user dismissed the authentication dialog".
+constexpr int pkexecDismissed = 126;
+
 // One set of dock widgets. The views are tabbed onto the first by default; when
 // stackVertically is set they are split below it instead (the sampler stacks
 // Call Stacks below CPU Usage). The range details dock is not part of a group:
@@ -108,7 +114,9 @@ public:
     void finishRecording();
     void stopAndWaitForRecording();
 
-    void onError(const QString &error);
+    void onError(const QString &error); // Connected to the loaders' failure signals.
+    void showError(const QString &error, const std::optional<SamplerFix> &fix);
+    void applyFix(const SamplerFix &fix);
     void onLoadFinished();
     void onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber,
                               const QString &module = {}, quint64 offset = 0);
@@ -493,7 +501,7 @@ void WindowPrivate::finishRecording()
     const Result<FilePath> &result = *finished->result;
     if (!result) {
         rightPane->setCurrentWidget(welcomePage);
-        onError(result.error());
+        showError(result.error(), sampler ? sampler->availableFix() : std::nullopt);
         return;
     }
     q->loadTraceFile(*result);
@@ -515,6 +523,11 @@ void WindowPrivate::stopAndWaitForRecording()
 
 void WindowPrivate::onError(const QString &error)
 {
+    showError(error, std::nullopt);
+}
+
+void WindowPrivate::showError(const QString &error, const std::optional<SamplerFix> &fix)
+{
     lastLoadError = error;
     progressIndicator->hide();
 
@@ -526,7 +539,71 @@ void WindowPrivate::onError(const QString &error)
 
     // Non-modal: the static QMessageBox::critical() spins a nested event loop via exec(),
     // which aborts on Qt for WebAssembly (no asyncify). AsynchronousMessageBox does not block.
-    AsynchronousMessageBox::critical(Tr::tr("Error"), error);
+    if (!fix) {
+        AsynchronousMessageBox::critical(Tr::tr("Error"), error);
+        return;
+    }
+
+    // The backend offered a system setting the user can change to make recording
+    // work, so put it one click away instead of leaving them the command to run.
+    // Same non-blocking box AsynchronousMessageBox builds, assembled here because
+    // a QMessageBox takes its size from the content it has when it is shown: the
+    // extra text and button have to be in place before that, or they are laid out
+    // into a box already sized for less.
+    // Cancel rather than OK: with the fix on offer this asks a question, and the
+    // other answer is to leave the setting alone. It stays the default -- Enter
+    // should not be a way to walk into a password prompt.
+    auto *messageBox = new QMessageBox(QMessageBox::Critical, Tr::tr("Error"), error,
+                                       QMessageBox::Cancel, Utils::dialogParent());
+    messageBox->setAttribute(Qt::WA_DeleteOnClose);
+    messageBox->setModal(true);
+    messageBox->setInformativeText(fix->detail);
+    QPushButton *fixButton = messageBox->addButton(fix->buttonText, QMessageBox::ActionRole);
+    messageBox->setDefaultButton(QMessageBox::Cancel);
+    connect(fixButton, &QPushButton::clicked, this, [this, fix = *fix] { applyFix(fix); });
+    messageBox->show();
+}
+
+void WindowPrivate::applyFix(const SamplerFix &fix)
+{
+    // pkexec prompts for the password in its own graphical dialog, the only
+    // elevation that works from a GUI with no terminal attached; plain sudo would
+    // read from a tty that is not there.
+    const FilePath pkexec = Environment::systemEnvironment().searchInPath("pkexec");
+    if (pkexec.isEmpty()) {
+        AsynchronousMessageBox::warning(
+            Tr::tr("Cannot Elevate Privileges"),
+            Tr::tr("\"pkexec\" was not found, so the change cannot be applied from here. "
+                   "Run this as root instead:\n\n    sudo %1")
+                .arg(fix.command.toUserOutput()));
+        return;
+    }
+
+    auto *process = new Process(this);
+    CommandLine elevated(pkexec);
+    elevated.addCommandLineAsArgs(fix.command);
+    process->setCommand(elevated);
+    connect(process, &Process::done, this, [this, process, fix] {
+        process->deleteLater();
+        // The setting is live now, so go straight back to the recording the user
+        // asked for; starting it again is the only confirmation they need.
+        if (process->result() == ProcessResult::FinishedWithSuccess) {
+            startRecording();
+            return;
+        }
+        // Dismissing the prompt is a deliberate "no", not a fault worth an error
+        // box. A wrong password exits 127 instead and does get reported, with
+        // pkexec's own "Not authorized" on stderr saying so.
+        if (process->exitCode() == pkexecDismissed)
+            return;
+        const QString details = process->cleanedStdErr().trimmed();
+        AsynchronousMessageBox::critical(
+            Tr::tr("Could Not Apply Change"),
+            details.isEmpty() ? Tr::tr("Running \"%1\" failed.").arg(fix.command.toUserOutput())
+                              : Tr::tr("Running \"%1\" failed:\n\n%2")
+                                    .arg(fix.command.toUserOutput(), details));
+    });
+    process->start();
 }
 
 void WindowPrivate::onLoadFinished()

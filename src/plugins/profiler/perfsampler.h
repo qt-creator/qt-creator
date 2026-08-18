@@ -67,6 +67,7 @@ public:
         const std::shared_ptr<RecordingSession> &session) const override;
 
     SamplerSettings *settings() const override;
+    std::optional<SamplerFix> availableFix() const override;
 
 private:
     std::unique_ptr<PerfSamplerSettings> m_settings;

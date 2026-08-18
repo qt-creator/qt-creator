@@ -123,6 +123,13 @@ SamplerSettings *CombinedSampler::settings() const
     return m_settings.get();
 }
 
+std::optional<SamplerFix> CombinedSampler::availableFix() const
+{
+    // The native half does the sampling that a system setting can block; the QML
+    // half talks to the target over a debug socket and has nothing to offer.
+    return m_native->availableFix();
+}
+
 void CombinedSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &session) const
 {
     // Only the QML side rewrites the launch command (it injects -qmljsdebugger and
