@@ -24,6 +24,7 @@ public:
 
     void activateProjectPanel(Utils::Id panelId);
     void activateBuildSettings();
+    void activateDeploySettings();
     void activateRunSettings();
 
     Core::OutputWindow *buildSystemOutput() const;

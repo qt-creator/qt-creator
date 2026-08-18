@@ -2085,6 +2085,48 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("select_project_panel")
+            .title("Select a project settings panel")
+            .description(
+                "Switches to Projects mode and shows one of the active project's settings "
+                "panels. Pass panel = \"build\", \"deploy\" or \"run\" for the target's "
+                "Build/Deploy/Run Settings tabs, or a project-panel id (e.g. \"Editor\") for "
+                "the left-hand project settings. Use this to reach settings only shown in "
+                "these panels, such as the run configuration's \"Executable on device\" "
+                "field. Returns an error when no project is open.")
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "panel",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "\"build\", \"deploy\" or \"run\" for the target settings tabs, "
+                             "or a project-panel id for the left-hand project settings."}})
+                    .addRequired("panel"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("panel", QJsonObject{{"type", "string"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &args) -> QJsonObject {
+            const QString panel = args.value("panel").toString();
+            if (!ProjectManager::startupProject())
+                return {{"success", false}, {"reason", "no_project"}, {"message", "No project is open."}};
+            const QString key = panel.toLower();
+            if (key == "build")
+                ProjectExplorerPlugin::activateBuildSettings();
+            else if (key == "deploy")
+                ProjectExplorerPlugin::activateDeploySettings();
+            else if (key == "run")
+                ProjectExplorerPlugin::activateRunSettings();
+            else
+                ProjectExplorerPlugin::activateProjectPanel(Utils::Id::fromString(panel));
+            return {{"success", true}, {"panel", panel}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("search_in_files")
             .title("Search for pattern in project files")
             .description(

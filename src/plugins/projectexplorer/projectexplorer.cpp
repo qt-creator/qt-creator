@@ -4602,6 +4602,24 @@ void ProjectExplorerPlugin::activateProjectPanel(Id panelId)
     dd->m_proWindow->activateProjectPanel(panelId);
 }
 
+void ProjectExplorerPlugin::activateBuildSettings()
+{
+    ModeManager::activateMode(Constants::MODE_SESSION);
+    dd->m_proWindow->activateBuildSettings();
+}
+
+void ProjectExplorerPlugin::activateDeploySettings()
+{
+    ModeManager::activateMode(Constants::MODE_SESSION);
+    dd->m_proWindow->activateDeploySettings();
+}
+
+void ProjectExplorerPlugin::activateRunSettings()
+{
+    ModeManager::activateMode(Constants::MODE_SESSION);
+    dd->m_proWindow->activateRunSettings();
+}
+
 void ProjectExplorerPlugin::clearRecentProjects()
 {
     dd->clearRecentProjects();

@@ -155,6 +155,9 @@ public:
     static void updateActions();
 
     static void activateProjectPanel(Utils::Id panelId);
+    static void activateBuildSettings();
+    static void activateDeploySettings();
+    static void activateRunSettings();
     static void clearRecentProjects();
     static void removeFromRecentProjects(const Utils::FilePath &filePath);
 
