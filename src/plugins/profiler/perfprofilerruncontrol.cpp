@@ -53,17 +53,18 @@ static ExecutableItem perfParserRecipe(RunControl *runControl)
 {
     const auto onSetup = [runControl](PerfDataReader &reader) {
         auto tool = PerfProfilerTool::instance();
+        PerfProfilerTraceManager *traceManager = tool->traceManager();
 
-        reader.setTraceManager(&traceManager());
+        reader.setTraceManager(traceManager);
         reader.triggerRecordingStateChange(tool->isRecording());
 
         QObject::connect(tool, &PerfProfilerTool::recordingChanged,
                          &reader, &PerfDataReader::triggerRecordingStateChange);
 
         QObject::connect(&reader, &PerfDataReader::updateTimestamps, tool, &PerfProfilerTool::updateTime);
-        QObject::connect(&reader, &PerfDataReader::started, &traceManager(),
+        QObject::connect(&reader, &PerfDataReader::started, traceManager,
                          &PerfProfilerTraceManager::initialize);
-        QObject::connect(&reader, &PerfDataReader::finished, &traceManager(),
+        QObject::connect(&reader, &PerfDataReader::finished, traceManager,
                          &PerfProfilerTraceManager::finalize);
         QObject::connect(&reader, &PerfDataReader::processStarted, runControl, &RunControl::reportStarted);
 

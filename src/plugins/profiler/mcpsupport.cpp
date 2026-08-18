@@ -199,11 +199,12 @@ void registerMcpTools()
                         {"running", false},
                         {"error", "The perf profiler is not available."}};
             }
+            const PerfProfilerTraceManager *traceManager = tool->traceManager();
             return {
                 {"recording", tool->isRecording()},
                 {"running", runningRunControl(Constants::PERFPROFILER_RUN_MODE) != nullptr},
-                {"num_events", traceManager().numEvents()},
-                {"trace_duration_ns", qint64(traceManager().traceDuration())},
+                {"num_events", traceManager->numEvents()},
+                {"trace_duration_ns", qint64(traceManager->traceDuration())},
             };
         }));
 

@@ -10,6 +10,7 @@
 
 namespace Profiler::Internal {
 
+class PerfProfilerTraceManager;
 class PerfTimelineModelManager;
 
 class PerfTimelineModel : public Timeline::TimelineModel
@@ -77,6 +78,8 @@ public:
     void addLostEvent(qint64 timestamp, int numConcurrentThreads);
 
 private:
+    const PerfProfilerTraceManager *traceManager() const { return m_traceManager; }
+
     struct StackFrame {
         int numSamples = 1;
         int numExpectedParallelSamples = 1;
@@ -110,6 +113,7 @@ private:
         }
     };
 
+    const PerfProfilerTraceManager *m_traceManager = nullptr;
     QList<int> m_currentStack;
 
     qint64 m_lastTimestamp;

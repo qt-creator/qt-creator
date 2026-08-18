@@ -8,6 +8,7 @@
 
 namespace Profiler::Internal {
 
+class PerfProfilerTraceManager;
 struct PerfProfilerStatisticsData;
 
 class PerfProfilerStatisticsModel : public QAbstractTableModel
@@ -58,8 +59,10 @@ class PerfProfilerStatisticsMainModel : public PerfProfilerStatisticsModel
 {
     Q_OBJECT
 public:
-    PerfProfilerStatisticsMainModel(QObject *parent);
+    PerfProfilerStatisticsMainModel(PerfProfilerTraceManager *traceManager, QObject *parent);
     ~PerfProfilerStatisticsMainModel() override;
+
+    PerfProfilerTraceManager *traceManager() const { return m_traceManager; }
     PerfProfilerStatisticsRelativesModel *children() const { return m_children; }
     PerfProfilerStatisticsRelativesModel *parents() const { return m_parents; }
 
@@ -89,6 +92,7 @@ public:
     };
 
 private:
+    PerfProfilerTraceManager *m_traceManager = nullptr;
     QList<Data> m_data;
     QList<int> m_forwardIndex;
     QList<int> m_backwardIndex;

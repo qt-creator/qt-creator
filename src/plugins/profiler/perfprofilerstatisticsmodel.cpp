@@ -151,7 +151,7 @@ QByteArray PerfProfilerStatisticsMainModel::metaInfo(
         int typeId, PerfProfilerStatisticsModel::Column column) const
 {
     // Need to look up stuff from tracemanager
-    PerfProfilerTraceManager *manager = &traceManager();
+    const PerfProfilerTraceManager *manager = m_traceManager;
     switch (column) {
     case BinaryLocation:
     case Function: {
@@ -175,7 +175,7 @@ QByteArray PerfProfilerStatisticsMainModel::metaInfo(
 
 quint64 PerfProfilerStatisticsMainModel::address(int typeId) const
 {
-    return traceManager().location(typeId).address;
+    return m_traceManager->location(typeId).address;
 }
 
 void PerfProfilerStatisticsMainModel::initialize()
@@ -315,20 +315,23 @@ int PerfProfilerStatisticsMainModel::rowForTypeId(int typeId) const
     return m_backwardIndex[static_cast<int>(it - m_data.begin())];
 }
 
-PerfProfilerStatisticsMainModel::PerfProfilerStatisticsMainModel(QObject *parent) :
-    PerfProfilerStatisticsModel(Main, parent), m_startTime(std::numeric_limits<qint64>::min()),
+PerfProfilerStatisticsMainModel::PerfProfilerStatisticsMainModel(
+        PerfProfilerTraceManager *traceManager, QObject *parent) :
+    PerfProfilerStatisticsModel(Main, parent), m_traceManager(traceManager),
+    m_startTime(std::numeric_limits<qint64>::min()),
     m_endTime(std::numeric_limits<qint64>::max()), m_totalSamples(0)
 {
     m_children = new PerfProfilerStatisticsRelativesModel(Children, this);
     m_parents = new PerfProfilerStatisticsRelativesModel(Parents, this);
     PerfProfilerStatisticsData *data = new PerfProfilerStatisticsData;
-    traceManager().perfLoaders.append({PerfEventType::attributeFeatures(),
-                                       std::bind(&PerfProfilerStatisticsData::loadEvent, data,
-                                                 std::placeholders::_1, std::placeholders::_2)});
-    traceManager().registerFeatures(PerfEventType::attributeFeatures(),
-                                    std::bind(&PerfProfilerStatisticsMainModel::initialize, this),
-                                    std::bind(&PerfProfilerStatisticsMainModel::finalize, this, data),
-                                    std::bind(&PerfProfilerStatisticsMainModel::clear, this, data));
+    m_traceManager->perfLoaders.append({PerfEventType::attributeFeatures(),
+                                        std::bind(&PerfProfilerStatisticsData::loadEvent, data,
+                                                  std::placeholders::_1, std::placeholders::_2)});
+    m_traceManager->registerFeatures(
+                PerfEventType::attributeFeatures(),
+                std::bind(&PerfProfilerStatisticsMainModel::initialize, this),
+                std::bind(&PerfProfilerStatisticsMainModel::finalize, this, data),
+                std::bind(&PerfProfilerStatisticsMainModel::clear, this, data));
     m_offlineData.reset(data);
 }
 

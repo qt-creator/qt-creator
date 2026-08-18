@@ -23,6 +23,8 @@ class RunControl;
 namespace Profiler::Internal {
 
 class PerfProfilerToolPrivate;
+class PerfProfilerTraceManager;
+class PerfTimelineModelManager;
 
 class PerfProfilerTool  : public QObject
 {
@@ -33,6 +35,9 @@ public:
     ~PerfProfilerTool();
 
     static PerfProfilerTool *instance();
+
+    PerfProfilerTraceManager *traceManager() const;
+    PerfTimelineModelManager *modelManager() const;
 
     bool isRecording() const;
 

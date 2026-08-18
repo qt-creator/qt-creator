@@ -40,7 +40,7 @@ public:
     }
 };
 
-PerfProfilerStatisticsView::PerfProfilerStatisticsView()
+PerfProfilerStatisticsView::PerfProfilerStatisticsView(PerfProfilerTraceManager *traceManager)
 {
     setObjectName(QLatin1String("PerfProfilerStatisticsView"));
 
@@ -66,7 +66,7 @@ PerfProfilerStatisticsView::PerfProfilerStatisticsView()
     groupLayout->addWidget(splitterVertical);
     setLayout(groupLayout);
 
-    auto mainModel = new PerfProfilerStatisticsMainModel(this);
+    auto mainModel = new PerfProfilerStatisticsMainModel(traceManager, this);
 
     PerfProfilerStatisticsRelativesModel *children = mainModel->children();
     PerfProfilerStatisticsRelativesModel *parents = mainModel->parents();
@@ -75,11 +75,11 @@ PerfProfilerStatisticsView::PerfProfilerStatisticsView()
     m_childrenView->setModel(children);
     m_parentsView->setModel(parents);
 
-    auto propagateSelection = [this, children, parents](int locationId) {
+    auto propagateSelection = [this, traceManager, children, parents](int locationId) {
         children->selectByTypeId(locationId);
         parents->selectByTypeId(locationId);
-        const PerfEventType::Location &location = traceManager().location(locationId);
-        const QByteArray &file = traceManager().string(location.file);
+        const PerfEventType::Location &location = traceManager->location(locationId);
+        const QByteArray &file = traceManager->string(location.file);
         if (!file.isEmpty())
             emit gotoSourceLocation(QString::fromUtf8(file), location.line, location.column);
         emit typeSelected(locationId);

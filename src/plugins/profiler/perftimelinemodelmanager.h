@@ -15,13 +15,16 @@ namespace Profiler::Internal {
 
 class PerfEvent;
 class PerfEventType;
+class PerfProfilerTraceManager;
 class PerfTimelineModel;
 
 class PerfTimelineModelManager : public Timeline::TimelineModelAggregator
 {
 public:
-    PerfTimelineModelManager();
+    explicit PerfTimelineModelManager(PerfProfilerTraceManager *traceManager);
     ~PerfTimelineModelManager();
+
+    PerfProfilerTraceManager *traceManager() const { return m_traceManager; }
 
     void loadEvent(const PerfEvent &event, const PerfEventType &type);
     void initialize();
@@ -40,10 +43,9 @@ private:
     using ContainerMap
         = typename std::unordered_map<quint32, std::unique_ptr<PerfResourceCounter<>::Container>>;
 
+    PerfProfilerTraceManager *m_traceManager = nullptr;
     QHash<quint32, PerfTimelineModel *> m_unfinished;
     ContainerMap m_resourceContainers;
 };
-
-PerfTimelineModelManager &modelManager();
 
 } // namespace Profiler::Internal

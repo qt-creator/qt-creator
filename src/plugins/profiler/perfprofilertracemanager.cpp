@@ -626,10 +626,4 @@ void PerfProfilerTraceManager::loadFromPerfData(const FilePath &filePath,
     reader->loadFromFile(filePath, executableDirPath, kit);
 }
 
-PerfProfilerTraceManager &traceManager()
-{
-    static PerfProfilerTraceManager thePerfProfilerTraceManager;
-    return thePerfProfilerTraceManager;
-}
-
 } // namespace Profiler::Internal

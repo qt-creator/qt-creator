@@ -7,6 +7,7 @@
 
 namespace Profiler::Internal {
 
+class PerfProfilerTraceManager;
 class StatisticsView;
 
 class PerfProfilerStatisticsView : public QWidget
@@ -14,7 +15,7 @@ class PerfProfilerStatisticsView : public QWidget
     Q_OBJECT
 
 public:
-    PerfProfilerStatisticsView();
+    explicit PerfProfilerStatisticsView(PerfProfilerTraceManager *traceManager);
 
     bool focusedTableHasValidSelection() const;
 

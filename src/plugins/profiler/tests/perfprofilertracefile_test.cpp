@@ -76,7 +76,7 @@ void PerfProfilerTraceFileTest::testSaveLoadTraceData()
 {
     MessageHandler messageHandler(&handleMessage);
     PerfProfilerTraceManager traceManager;
-    PerfTimelineModelManager modelManager;
+    PerfTimelineModelManager modelManager(&traceManager);
     {
         PerfProfilerTraceFile traceFile;
         traceFile.setTraceManager(&traceManager);

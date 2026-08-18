@@ -17,9 +17,10 @@ namespace Profiler::Internal {
 
 PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime, qint64 endTime,
                                      PerfTimelineModelManager *parent) :
-    Timeline::TimelineModel(parent), m_lastTimestamp(-1), m_threadStartTimestamp(startTime - 1),
-    m_threadEndTimestamp(endTime + 1), m_resourceBlocks(parent->resourceContainer(pid)),
-    m_pid(pid), m_tid(tid), m_samplingFrequency(1)
+    Timeline::TimelineModel(parent), m_traceManager(parent->traceManager()), m_lastTimestamp(-1),
+    m_threadStartTimestamp(startTime - 1), m_threadEndTimestamp(endTime + 1),
+    m_resourceBlocks(parent->resourceContainer(pid)), m_pid(pid), m_tid(tid),
+    m_samplingFrequency(1)
 {
     setCollapsedRowCount(MaximumSpecialRow);
     setExpandedRowCount(MaximumSpecialRow);
@@ -66,7 +67,7 @@ QRgb PerfTimelineModel::color(int index) const
     // apart from native C++ frames at a glance, while keeping per-function
     // variation. A proper per-kind palette can replace this once the typed
     // Symbol kind field lands; see perfnativemixed.h.
-    if (frameKind(traceManager(), id) == FrameKind::Js)
+    if (frameKind(*traceManager(), id) == FrameKind::Js)
         hue = 100 + hue % 60;
 
     return table.get(hue, static_cast<int>(saturation));
@@ -78,7 +79,7 @@ Timeline::RowLabels PerfTimelineModel::labels() const
 
     result.append({Tr::tr("sample collected"), PerfEvent::LastSpecialTypeId});
 
-    const PerfProfilerTraceManager *manager = &traceManager();
+    const PerfProfilerTraceManager *manager = traceManager();
     const bool aggregated = manager->aggregateAddresses();
     for (int i = 0; i < m_locationOrder.length(); ++i) {
         int locationId = m_locationOrder[i];
@@ -121,7 +122,7 @@ Timeline::ItemDetails PerfTimelineModel::details(int index) const
 
     const StackFrame &frame = m_data[index];
 
-    const PerfProfilerTraceManager *manager = &traceManager();
+    const PerfProfilerTraceManager *manager = traceManager();
     int typeId = selectionId(index);
     if (isSample(index)) {
         const PerfEventType::Attribute &attribute = manager->attribute(typeId);
@@ -212,8 +213,8 @@ Timeline::ItemLocation PerfTimelineModel::location(int index) const
     if (typeId < 0) // not a location
         return {};
 
-    const PerfEventType::Location &loc = traceManager().location(typeId);
-    const QByteArray &file = traceManager().string(loc.file);
+    const PerfEventType::Location &loc = traceManager()->location(typeId);
+    const QByteArray &file = traceManager()->string(loc.file);
     if (file.isEmpty())
         return {};
 
@@ -246,7 +247,7 @@ float PerfTimelineModel::relativeHeight(int index) const
 
 void PerfTimelineModel::updateTraceData(const PerfEvent &event)
 {
-    const PerfProfilerTraceManager *manager = &traceManager();
+    const PerfProfilerTraceManager *manager = traceManager();
     for (int i = 0; i < event.numAttributes(); ++i) {
         const PerfEventType::Attribute &attribute = manager->attribute(event.attributeId(i));
         if (attribute.type != PerfEventType::TypeTracepoint)
@@ -550,7 +551,7 @@ bool PerfTimelineModel::isResourceTracePoint(int index) const
     if (!isSample(index))
         return false;
 
-    const PerfProfilerTraceManager *manager = &traceManager();
+    const PerfProfilerTraceManager *manager = traceManager();
 
     const PerfEventType::Attribute &attribute = manager->attribute(typeId(index));
     if (attribute.type != PerfEventType::TypeTracepoint)

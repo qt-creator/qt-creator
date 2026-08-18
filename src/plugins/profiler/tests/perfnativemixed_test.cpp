@@ -181,10 +181,9 @@ QByteArray buildSyntheticTrace()
 
 void PerfNativeMixedTest::testMergedStacks()
 {
-    PerfProfilerTraceManager &manager = traceManager();
-    PerfTimelineModelManager modelManager;
+    PerfProfilerTraceManager manager;
+    PerfTimelineModelManager modelManager(&manager);
 
-    manager.clearAll();
     manager.initialize();
 
     QByteArray trace = buildSyntheticTrace();

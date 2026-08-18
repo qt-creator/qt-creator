@@ -241,6 +241,4 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfProfilerTraceManag
     return stream << thread.pid << thread.tid << thread.start << thread.cpu << thread.name;
 }
 
-PerfProfilerTraceManager &traceManager();
-
 } // namespace Profiler::Internal
