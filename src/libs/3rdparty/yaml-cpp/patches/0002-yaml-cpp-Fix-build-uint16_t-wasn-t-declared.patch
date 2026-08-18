@@ -1,0 +1,35 @@
+From 95cf12be210d94b71da5b6d0aa56adc6cde7b27c Mon Sep 17 00:00:00 2001
+From: Thiago Macieira <thiago.macieira@intel.com>
+Date: Tue, 4 Aug 2026 13:38:26 -0700
+Subject: [PATCH] yaml-cpp: Fix build: uint16_t wasn't declared
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Needs <stdint.h>
+
+emitterutils.cpp:221:11: error: ‘uint16_t’ was not declared in this scope
+  221 | std::pair<uint16_t, uint16_t> EncodeUTF16SurrogatePair(int codePoint) {
+      |           ^~~~~~~~
+
+Change-Id: Ie4261e815c02fcaaef91fffd82056c8113438797
+---
+ src/libs/3rdparty/yaml-cpp/src/emitterutils.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/libs/3rdparty/yaml-cpp/src/emitterutils.cpp b/src/libs/3rdparty/yaml-cpp/src/emitterutils.cpp
+index 6cdf6de7e29..da1cbcacbbb 100644
+--- a/src/libs/3rdparty/yaml-cpp/src/emitterutils.cpp
++++ b/src/libs/3rdparty/yaml-cpp/src/emitterutils.cpp
+@@ -2,6 +2,8 @@
+ #include <iomanip>
+ #include <sstream>
+ 
++#include <stdint.h>
++
+ #include "emitterutils.h"
+ #include "exp.h"
+ #include "indentation.h"
+-- 
+2.55.0
+

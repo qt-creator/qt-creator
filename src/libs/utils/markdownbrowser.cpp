@@ -487,6 +487,7 @@ MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
     , m_enableCodeCopyButton(false)
 {
+    setFont(Utils::font(contentTF));
     setOpenLinks(false);
     connect(this, &QTextBrowser::anchorClicked, this, &MarkdownBrowser::handleAnchorClicked);
 
@@ -826,8 +827,14 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
             } else {
                 charFormat.setForeground(color(contentTF));
             }
-            if (charFormat.fontFixedPitch())
+            if (charFormat.fontFixedPitch()) {
                 charFormat.setBackground(creatorColor(Theme::Token_Background_Muted));
+                // Inline code spans get their point size baked in by the markdown
+                // importer (relative to the document's default font at parse time),
+                // so it does not follow later changes to the default font. Rescale it
+                // explicitly here.
+                charFormat.setFontPointSize(contentFont.pointSizeF() * fontScale);
+            }
             fc.setCharFormat(charFormat);
         }
     }
