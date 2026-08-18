@@ -760,9 +760,14 @@ public:
 
     ~DesktopFilePathWatcher()
     {
-        if (m_isWatched) {
-            QTC_CHECK_RESULT(GlobalWatcher::instance()->removeWatch(this));
-        }
+        if (!m_isWatched)
+            return;
+        // The global watcher dies with the shutdown guard, that is, before the plugins
+        // owning watchers are deleted. Then there is nothing left to remove.
+        GlobalWatcher *globalWatcher = GlobalWatcher::instance();
+        if (!globalWatcher)
+            return;
+        QTC_CHECK_RESULT(globalWatcher->removeWatch(this));
     }
 
     FilePath path() const { return m_path; }
