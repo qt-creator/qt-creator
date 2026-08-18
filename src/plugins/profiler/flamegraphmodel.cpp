@@ -212,7 +212,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
     case MemoryRole: return stats.memory;
     case DurationDisplayRole: return Timeline::formatTime(stats.duration);
     case TimePerCallDisplayRole: return Timeline::formatTime(stats.duration / stats.calls);
-    case MemoryDisplayRole: return Timeline::formatMemory(stats.memory);
+    case MemoryDisplayRole: return Timeline::formatDataSize(stats.memory);
     default: break;
     }
 

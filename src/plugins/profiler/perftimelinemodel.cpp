@@ -139,8 +139,8 @@ Timeline::ItemDetails PerfTimelineModel::details(int index) const
             }
         }
         if (!m_resourceBlocks.isEmpty()) {
-            result.insert(Tr::tr("Resource Usage"), Timeline::formatMemory(frame.resourcePeak));
-            result.insert(Tr::tr("Resource Change"), Timeline::formatMemory(frame.resourceDelta));
+            result.insert(Tr::tr("Resource Usage"), Timeline::formatDataSize(frame.resourcePeak));
+            result.insert(Tr::tr("Resource Change"), Timeline::formatDataSize(frame.resourceDelta));
         }
     } else if (typeId == PerfEvent::ThreadStartTypeId) {
         result.insert(Tr::tr("Details"), Tr::tr("thread started"));
@@ -184,13 +184,13 @@ Timeline::ItemDetails PerfTimelineModel::details(int index) const
         result.insert(Tr::tr("Total Samples"), QString::number(stats.numSamples));
         result.insert(Tr::tr("Total Unique Samples"), QString::number(stats.numUniqueSamples));
         if (!m_resourceBlocks.isEmpty()) {
-            result.insert(Tr::tr("Resource Peak"), Timeline::formatMemory(frame.resourcePeak));
-            result.insert(Tr::tr("Resource Change"), Timeline::formatMemory(frame.resourceDelta));
+            result.insert(Tr::tr("Resource Peak"), Timeline::formatDataSize(frame.resourcePeak));
+            result.insert(Tr::tr("Resource Change"), Timeline::formatDataSize(frame.resourceDelta));
         }
     }
 
     if (frame.resourceGuesses > 0)
-        result.insert(Tr::tr("Resource Guesses"), Timeline::formatMemory(frame.resourceGuesses));
+        result.insert(Tr::tr("Resource Guesses"), Timeline::formatDataSize(frame.resourceGuesses));
 
     return result;
 }

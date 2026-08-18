@@ -3,6 +3,8 @@
 
 #include "timelineformatdata.h"
 
+#include <QLocale>
+
 namespace Timeline {
 
 QString formatTime(qint64 timestamp, qint64 reference)
@@ -63,25 +65,9 @@ QString formatTime(qint64 timestamp, qint64 reference)
     }
 }
 
-QString formatMemory(qint64 bytes)
+QString formatDataSize(qint64 bytes)
 {
-    const qint64 absBytes = qAbs(bytes);
-
-    if (absBytes < (1 << 10))
-        return QString::number(bytes);
-
-    if (absBytes < (1 << 20)) {
-        return QString::fromLatin1("%1k")
-                .arg(QString::number(bytes / static_cast<float>(1 << 10), 'f', 3));
-    }
-
-    if (absBytes < (1 << 30)) {
-        return QString::fromLatin1("%1M")
-                .arg(QString::number(bytes / static_cast<float>(1 << 20), 'f', 3));
-    }
-
-    return QString::fromLatin1("%1G")
-            .arg(QString::number(bytes / static_cast<float>(1 << 30), 'f', 3));
+    return QLocale::system().formattedDataSize(bytes, 3, QLocale::DataSizeTraditionalFormat);
 }
 
 }

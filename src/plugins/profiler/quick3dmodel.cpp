@@ -167,7 +167,7 @@ Timeline::ItemDetails Quick3DModel::details(int index) const
     }
     if ((detailType >= MeshLoad && detailType <= TextureLoad)
             || (detailType >= MeshMemoryConsumption && detailType <= TextureMemoryConsumption)) {
-        result.insert(Tr::tr("Total Memory Usage"), Timeline::formatMemory(m_data[index].data));
+        result.insert(Tr::tr("Total Memory Usage"), Timeline::formatDataSize(m_data[index].data));
     }
     if (detailType == RenderCall) {
         quint32 primitives = m_data[index].data & 0xffffffff;

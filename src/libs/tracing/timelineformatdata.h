@@ -9,6 +9,6 @@
 namespace Timeline {
 QString TRACING_EXPORT formatTime(qint64 timestamp,
                                    qint64 reference = std::numeric_limits<qint64>::max());
-QString TRACING_EXPORT formatMemory(qint64 bytes);
+QString TRACING_EXPORT formatDataSize(qint64 bytes);
 
 }

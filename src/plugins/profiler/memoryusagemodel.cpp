@@ -80,13 +80,13 @@ Timeline::ItemDetails MemoryUsageModel::details(int index) const
     else
         result.insert(QLatin1String("displayName"), Tr::tr("Memory Freed"));
 
-    result.insert(Tr::tr("Total"), Timeline::formatMemory(ev->size));
+    result.insert(Tr::tr("Total"), Timeline::formatDataSize(ev->size));
     if (ev->allocations > 0) {
-        result.insert(Tr::tr("Allocated"), Timeline::formatMemory(ev->allocated));
+        result.insert(Tr::tr("Allocated"), Timeline::formatDataSize(ev->allocated));
         result.insert(Tr::tr("Allocations"), QString::number(ev->allocations));
     }
     if (ev->deallocations > 0) {
-        result.insert(Tr::tr("Deallocated"), Timeline::formatMemory(-ev->deallocated));
+        result.insert(Tr::tr("Deallocated"), Timeline::formatDataSize(-ev->deallocated));
         result.insert(Tr::tr("Deallocations"), QString::number(ev->deallocations));
     }
     QString memoryTypeName;

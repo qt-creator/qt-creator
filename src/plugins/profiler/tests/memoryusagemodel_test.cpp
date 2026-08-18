@@ -129,8 +129,8 @@ void MemoryUsageModelTest::testDetails()
 {
     const Timeline::ItemDetails allocated = model.details(0);
     QCOMPARE(allocated[QString("displayName")], Tr::tr("Memory Allocated"));
-    QCOMPARE(allocated[Tr::tr("Total")], Timeline::formatMemory(4096));
-    QCOMPARE(allocated[Tr::tr("Allocated")], Timeline::formatMemory(4096));
+    QCOMPARE(allocated[Tr::tr("Total")], Timeline::formatDataSize(4096));
+    QCOMPARE(allocated[Tr::tr("Allocated")], Timeline::formatDataSize(4096));
     QCOMPARE(allocated[Tr::tr("Allocations")], QString::number(2));
     QCOMPARE(allocated[Tr::tr("Type")], Tr::tr("Heap Allocation"));
     QCOMPARE(allocated[Tr::tr("Location")], Tr::tr("<bytecode>"));
@@ -140,8 +140,8 @@ void MemoryUsageModelTest::testDetails()
 
     const Timeline::ItemDetails large = model.details(2);
     QCOMPARE(large[QString("displayName")], Tr::tr("Memory Allocated"));
-    QCOMPARE(large[Tr::tr("Total")], Timeline::formatMemory(5120));
-    QCOMPARE(large[Tr::tr("Allocated")], Timeline::formatMemory(1024));
+    QCOMPARE(large[Tr::tr("Total")], Timeline::formatDataSize(5120));
+    QCOMPARE(large[Tr::tr("Allocated")], Timeline::formatDataSize(1024));
     QCOMPARE(large[Tr::tr("Allocations")], QString::number(1));
     QCOMPARE(large[Tr::tr("Type")], Tr::tr("Large Item Allocation"));
     QCOMPARE(large[Tr::tr("Location")], Tr::tr("<bytecode>"));
@@ -151,8 +151,8 @@ void MemoryUsageModelTest::testDetails()
 
     const Timeline::ItemDetails freed = model.details(9);
     QCOMPARE(freed[QString("displayName")], Tr::tr("Memory Freed"));
-    QCOMPARE(freed[Tr::tr("Total")], Timeline::formatMemory(2048));
-    QCOMPARE(freed[Tr::tr("Deallocated")], Timeline::formatMemory(1024));
+    QCOMPARE(freed[Tr::tr("Total")], Timeline::formatDataSize(2048));
+    QCOMPARE(freed[Tr::tr("Deallocated")], Timeline::formatDataSize(1024));
     QCOMPARE(freed[Tr::tr("Deallocations")], QString::number(1));
     QCOMPARE(freed[Tr::tr("Type")], Tr::tr("Heap Usage"));
     QCOMPARE(freed[Tr::tr("Location")], Tr::tr("<bytecode>"));
