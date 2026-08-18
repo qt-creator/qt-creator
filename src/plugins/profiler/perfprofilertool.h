@@ -38,6 +38,8 @@ public:
 
     const QAction *stopAction() const;
 
+    void profileStartupProject();
+
     void onRunControlStarted();
     void onRunControlFinished();
     void onWorkerCreation(ProjectExplorer::RunControl *runControl);

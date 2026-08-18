@@ -173,10 +173,7 @@ PerfProfilerTool::PerfProfilerTool()
         .bindContextAction(&action)
         .setToolTip(Tr::tr("Finds performance bottlenecks."))
         .addToContainer(Core::Constants::M_DEBUG_ANALYZER, Core::Constants::G_ANALYZER_TOOLS)
-        .addOnTriggered(this, [this] {
-            d->m_perspective.select();
-            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
-        });
+        .addOnTriggered(this, &PerfProfilerTool::profileStartupProject);
 
     d->m_startAction.setText(Tr::tr("Start"));
     d->m_startAction.setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
@@ -388,6 +385,7 @@ PerfProfilerTool::PerfProfilerTool()
 PerfProfilerTool::~PerfProfilerTool()
 {
     delete d;
+    s_instance = nullptr;
 }
 
 const QAction *PerfProfilerTool::stopAction() const
@@ -405,6 +403,12 @@ void PerfProfilerTool::addLoadSaveActionsToMenu(QMenu *menu)
     menu->addAction(&d->m_loadPerfData);
     menu->addAction(&d->m_loadTrace);
     menu->addAction(&d->m_saveTrace);
+}
+
+void PerfProfilerTool::profileStartupProject()
+{
+    d->m_perspective.select();
+    ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
 }
 
 void PerfProfilerTool::createTracePoints()

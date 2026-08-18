@@ -24,6 +24,12 @@ using namespace Utils;
 
 namespace Profiler::Internal {
 
+// The tools are deleted on shutdown while the MCP server may still answer.
+static QJsonObject unavailableError(const QString &tool)
+{
+    return {{"success", false}, {"error", QString("The %1 is not available.").arg(tool)}};
+}
+
 static RunControl *runningRunControl(const Utils::Id &runMode)
 {
     const QList<RunControl *> runControls = ProjectExplorerPlugin::allRunControls();
@@ -55,7 +61,8 @@ void registerMcpTools()
                 "using its active run configuration and kit. Does not build first - use the build "
                 "tool beforehand if it may be out of date. Recording starts automatically; poll "
                 "get_profiler_status for progress, and use stop_profiler (or let the application "
-                "exit) to finalize the trace.")
+                "exit) to finalize the trace. Returns as soon as the run is requested, unlike "
+                "run_project, which waits for the run to finish.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -64,11 +71,14 @@ void registerMcpTools()
                     .addProperty("error", QJsonObject{{"type", "string"}})
                     .addRequired("success")),
         wrap([](const QJsonObject &) -> QJsonObject {
+            QmlProfilerTool *tool = QmlProfilerTool::instance();
+            if (!tool)
+                return unavailableError("QML profiler");
             const Utils::Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(
                 Constants::QML_PROFILER_RUN_MODE);
             if (!canRun)
                 return {{"success", false}, {"error", canRun.error()}};
-            QmlProfilerTool::instance()->profileStartupProject();
+            tool->profileStartupProject();
             return {{"success", true},
                     {"message", "QML profiler start requested for the startup project."}};
         }));
@@ -78,10 +88,10 @@ void registerMcpTools()
             .name("get_profiler_status")
             .title("Get QML profiler status")
             .description(
-                "Returns the QML profiler state (Idle/AppRunning/AppStopRequested/AppDying), "
-                "whether the server is recording, whether a profiler run is active, and a summary "
-                "of the data collected so far: the event count and the trace duration in "
-                "nanoseconds.")
+                "Returns the QML profiler state (Idle/AppRunning/AppStopRequested/AppDying, or "
+                "Unavailable if the profiler is gone), whether the server is recording, whether a "
+                "profiler run is active, and a summary of the data collected so far: the event "
+                "count and the trace duration in nanoseconds.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -90,9 +100,15 @@ void registerMcpTools()
                     .addProperty("running", QJsonObject{{"type", "boolean"}})
                     .addProperty("num_events", QJsonObject{{"type", "integer"}})
                     .addProperty("trace_duration_ns", QJsonObject{{"type", "integer"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
                     .addRequired("state")),
         wrap([](const QJsonObject &) -> QJsonObject {
             QmlProfilerTool *tool = QmlProfilerTool::instance();
+            if (!tool) {
+                return {{"state", "Unavailable"},
+                        {"running", false},
+                        {"error", "The QML profiler is not available."}};
+            }
             QmlProfilerModelManager *modelManager = tool->modelManager();
             QmlProfilerStateManager *stateManager = tool->stateManager();
             return {
@@ -136,7 +152,9 @@ void registerMcpTools()
                 "mode), using its active run configuration and kit. Does not build first - use the "
                 "build tool beforehand if it may be out of date. Recording starts automatically; "
                 "poll get_perf_profiler_status, and use stop_perf_profiler (or let the application "
-                "exit) to finalize the trace.")
+                "exit) to finalize the trace. Returns as soon as the run is requested, unlike "
+                "run_project with run_mode \"PerfProfiler.RunMode\", which waits for the run to "
+                "finish and gives no access to the trace.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -145,11 +163,14 @@ void registerMcpTools()
                     .addProperty("error", QJsonObject{{"type", "string"}})
                     .addRequired("success")),
         wrap([](const QJsonObject &) -> QJsonObject {
+            PerfProfilerTool *tool = PerfProfilerTool::instance();
+            if (!tool)
+                return unavailableError("perf profiler");
             const Utils::Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(
                 Constants::PERFPROFILER_RUN_MODE);
             if (!canRun)
                 return {{"success", false}, {"error", canRun.error()}};
-            ProjectExplorerPlugin::runStartupProject(Constants::PERFPROFILER_RUN_MODE);
+            tool->profileStartupProject();
             return {{"success", true},
                     {"message", "Perf profiler start requested for the startup project."}};
         }));
@@ -169,10 +190,17 @@ void registerMcpTools()
                     .addProperty("running", QJsonObject{{"type", "boolean"}})
                     .addProperty("num_events", QJsonObject{{"type", "integer"}})
                     .addProperty("trace_duration_ns", QJsonObject{{"type", "integer"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
                     .addRequired("recording")),
         wrap([](const QJsonObject &) -> QJsonObject {
+            PerfProfilerTool *tool = PerfProfilerTool::instance();
+            if (!tool) {
+                return {{"recording", false},
+                        {"running", false},
+                        {"error", "The perf profiler is not available."}};
+            }
             return {
-                {"recording", PerfProfilerTool::instance()->isRecording()},
+                {"recording", tool->isRecording()},
                 {"running", runningRunControl(Constants::PERFPROFILER_RUN_MODE) != nullptr},
                 {"num_events", traceManager().numEvents()},
                 {"trace_duration_ns", qint64(traceManager().traceDuration())},
