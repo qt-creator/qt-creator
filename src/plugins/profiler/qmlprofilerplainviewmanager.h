@@ -14,6 +14,8 @@ namespace Utils { class FilePath; }
 
 namespace Profiler {
 
+namespace Internal { class QmlProfilerModelManager; }
+
 class PROFILER_EXPORT QmlProfilerPlainViewManager : public QObject
 {
     Q_OBJECT
@@ -26,6 +28,7 @@ public:
     ~QmlProfilerPlainViewManager();
 
     QWidgetList views(QWidget *parent);
+    Internal::QmlProfilerModelManager *modelManager();
     static QString fileDialogTraceFilesFilter();
     void loadTraceFile(const Utils::FilePath &file);
     void clear();

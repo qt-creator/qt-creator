@@ -107,6 +107,11 @@ QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
              findingsView };
 }
 
+QmlProfilerModelManager *QmlProfilerPlainViewManager::modelManager()
+{
+    return &d->modelManager;
+}
+
 QString QmlProfilerPlainViewManager::fileDialogTraceFilesFilter()
 {
     return Internal::QmlProfilerTool::fileDialogTraceFilesFilter();

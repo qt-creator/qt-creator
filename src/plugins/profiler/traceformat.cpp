@@ -25,6 +25,8 @@ TraceFile identifyTrace(const FilePath &path)
     }
     if (path.suffix() == "json"_L1)
         return {TraceFormat::Ctf, path};
+    if (path.suffix() == "ptq"_L1)
+        return {TraceFormat::Perf, path};
     return {TraceFormat::Qml, path};
 }
 

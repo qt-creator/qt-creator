@@ -100,7 +100,6 @@ void QmlProfilerNotesModel::stash()
             m_notes.append(save);
         }
     }
-    resetModified();
 }
 
 const QList<QmlNote> &QmlProfilerNotesModel::notes() const

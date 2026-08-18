@@ -59,6 +59,10 @@ public:
     };
     std::optional<QueuedLoad> queuedLoad;
 
+    // Saves still running when the manager is destroyed; the workers
+    // dereference the manager and its writer, so the destructor joins them.
+    QList<QFuture<void>> saveFutures;
+
     void cancelQueuedLoad();
     void dispatch(const TraceEvent &event, const TraceEventType &type);
     void reset();
@@ -77,6 +81,13 @@ TimelineTraceManager::TimelineTraceManager(std::unique_ptr<TraceEventStorage> &&
 
 TimelineTraceManager::~TimelineTraceManager()
 {
+    // A save still running dereferences this manager and its writer from a
+    // worker thread; wait for it. Not cancelled: the write may be the very one
+    // the user asked for when closing the trace, and cancelling would remove
+    // the file.
+    for (QFuture<void> &future : d->saveFutures)
+        future.waitForFinished();
+
     d->cancelQueuedLoad();
 
     // The notes model is a child QObject and would otherwise be destroyed by ~QObject's
@@ -236,12 +247,26 @@ QFuture<void> TimelineTraceManager::save(const QString &filename)
     if (d->notesModel)
         d->notesModel->stash();
 
-    connect(writer, &QObject::destroyed, this, &TimelineTraceManager::saveFinished);
-    connect(writer, &TimelineTraceFile::error, this, &TimelineTraceManager::error);
-
     QFutureInterface<void> fi;
     fi.reportStarted();
     writer->setFuture(fi);
+
+    // stash() copies the notes into what is written, but only a write that made
+    // it out whole may clear their modified state: until then closing the trace
+    // must still count them as unsaved.
+    const auto hadError = std::make_shared<bool>(false);
+    connect(writer, &TimelineTraceFile::error, this, [this, hadError](const QString &message) {
+        *hadError = true;
+        emit error(message);
+    });
+    connect(writer, &QObject::destroyed, this, [this, hadError, future = fi.future()] {
+        if (!*hadError && !future.isCanceled() && d->notesModel)
+            d->notesModel->resetModified();
+        emit saveFinished();
+    });
+
+    d->saveFutures.removeIf([](const QFuture<void> &f) { return f.isFinished(); });
+    d->saveFutures.append(fi.future());
 
     Utils::asyncRun([filename, writer, fi] {
         QFile file(filename);

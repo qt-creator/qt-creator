@@ -4,6 +4,7 @@
 #include "ctfvisualizertool.h"
 #include "mcpsupport.h"
 #include "profilermode.h"
+#include "profilertraceeditor.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilertool.h"
@@ -11,8 +12,6 @@
 #include "perfprofilerruncontrol.h"
 #include "perfprofilertool.h"
 #include "perfrunconfigurationaspect.h"
-
-#include <coreplugin/idocumentfactory.h>
 
 #ifdef WITH_TESTS
 
@@ -53,6 +52,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
     {
         // Must exist before the tools construct their perspectives.
         setupProfilerMode();
+        setupProfilerTraceEditors();
 
         Profiler::Internal::setupCtfVisualizerTool();
         setupQmlProfilerTool();
@@ -62,18 +62,6 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
 
         setupPerfProfilerTool();
         setupPerfProfilerRunWorker();
-
-        m_traceFileFactory.addMimeType("application/x-qmlprofiler-trace");
-        m_traceFileFactory.setOpener([](const Utils::FilePath &filePath) -> Core::IDocument * {
-            QmlProfilerTool::instance()->loadFile(filePath);
-            return nullptr;
-        });
-
-        m_perfTraceFileFactory.addMimeType("application/x-perfprofiler-trace");
-        m_perfTraceFileFactory.setOpener([](const Utils::FilePath &filePath) -> Core::IDocument * {
-            PerfProfilerTool::instance()->loadTraceFile(filePath);
-            return nullptr;
-        });
 
 #ifdef WITH_TESTS
         addTest<DebugMessagesModelTest>();
@@ -106,12 +94,10 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
     ShutdownFlag aboutToShutdown() final
     {
         destroyPerfProfilerTool();
+        destroyProfilerTraceEditors();
         destroyProfilerMode();
         return SynchronousShutdown;
     }
-
-    Core::IDocumentFactory m_traceFileFactory;
-    Core::IDocumentFactory m_perfTraceFileFactory;
 };
 
 } // namespace Profiler::Internal

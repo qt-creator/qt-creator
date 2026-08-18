@@ -36,6 +36,7 @@ static QString formatDisplayName(TraceFormat format)
 {
     switch (format) {
     case TraceFormat::Qml: return Tr::tr("QML Trace");
+    case TraceFormat::Perf: return Tr::tr("Perf Trace");
     case TraceFormat::Ctf: return Tr::tr("Common Trace Format");
     case TraceFormat::Sampler: return Tr::tr("Sampler Trace");
     case TraceFormat::Combined: return Tr::tr("Combined Trace");

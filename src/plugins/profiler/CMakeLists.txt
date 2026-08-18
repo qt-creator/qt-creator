@@ -40,11 +40,13 @@ set(QMLPROFILER_CPP_SOURCES
   samplemerge.cpp samplemerge.h
   sampler.cpp sampler.h
   samplerrecipe.cpp samplerrecipe.h
+  samplertracebackend.cpp samplertracebackend.h
   samplerviewmanager.cpp samplerviewmanager.h
   sampletrace.cpp sampletrace.h
   symbolicator.cpp symbolicator.h
   ctfplainviewmanager.cpp ctfplainviewmanager.h
   ctfstatisticsmodel.cpp ctfstatisticsmodel.h
+  ctftracebackend.cpp ctftracebackend.h
   ctfstatisticsview.cpp ctfstatisticsview.h
   ctftimelinemodel.cpp ctftimelinemodel.h
   ctftracemanager.cpp ctftracemanager.h
@@ -60,6 +62,9 @@ set(QMLPROFILER_CPP_SOURCES
   profilermode.cpp profilermode.h
   profilerplugin.cpp
   profilerrecorder.cpp profilerrecorder.h
+  profilertracebackend.cpp profilertracebackend.h
+  profilertracedocument.cpp profilertracedocument.h
+  profilertraceeditor.cpp profilertraceeditor.h
   profilertr.h
   profiler_global.h
   recordingpage.cpp recordingpage.h
@@ -88,6 +93,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilerstatisticsmodel.cpp qmlprofilerstatisticsmodel.h
   qmlprofilerstatisticsview.cpp qmlprofilerstatisticsview.h
   qmlprofilertimelinemodel.cpp qmlprofilertimelinemodel.h
+  qmlprofilertracebackend.cpp qmlprofilertracebackend.h
   qmlprofilertool.cpp qmlprofilertool.h
   qmlprofilertracefile.cpp qmlprofilertracefile.h
   qmlprofilertraceview.cpp qmlprofilertraceview.h
@@ -111,6 +117,7 @@ set(PERFPROFILER_CPP_SOURCES
   profiler.qrc
   perfprofilerconstants.h
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
+  perfprofilertracebackend.cpp perfprofilertracebackend.h
   perfprofilerflamegraphview.cpp perfprofilerflamegraphview.h
   perfprofilerruncontrol.cpp perfprofilerruncontrol.h
   perfprofilerstatisticsmodel.cpp perfprofilerstatisticsmodel.h
