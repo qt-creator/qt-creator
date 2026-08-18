@@ -106,6 +106,7 @@ public:
     Internal::PortMappings portMappings{this};
     Utils::BoolAspect mountCmdBridge{this};
     Utils::BoolAspect enableX11Forwarding{this};
+    Utils::StringAspect x11Display{this};
 
 protected:
     void fromMap(const Utils::Store &map) final;

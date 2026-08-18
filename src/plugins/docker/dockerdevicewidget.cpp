@@ -162,6 +162,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->enableLldbFlags, br,
             dockerDevice->mountCmdBridge, br,
             dockerDevice->enableX11Forwarding, br,
+            dockerDevice->x11Display, br,
             dockerDevice->network, refreshNetworksButton,br,
             dockerDevice->extraArgs, br,
             dockerDevice->environment, br,

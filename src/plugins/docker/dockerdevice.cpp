@@ -175,6 +175,7 @@ public:
     struct CreateCommandLineParams
     {
         bool x11Forwarding = false;
+        QString x11Display;
         bool useLocalUidGid = false;
         bool mountCmdBridge = false;
         bool keepEntryPoint = false;
@@ -537,6 +538,22 @@ bool DockerDevicePrivate::prepareForBuild(const Target *target)
            && ensureReachable(target->activeBuildConfiguration()->buildDirectory());
 }
 
+static QString autoDetectedX11Display()
+{
+    const QString hostDisplay = qtcEnvironmentVariable("DISPLAY");
+
+    // A local display name refers to the host's X11 socket, which is mounted into the container,
+    // so it applies verbatim. A host-qualified one would resolve inside the container instead.
+    const bool isLocal = hostDisplay.startsWith(':') || hostDisplay.startsWith("unix:");
+    if (HostOsInfo::isLinuxHost() && (hostDisplay.isEmpty() || isLocal))
+        return hostDisplay.isEmpty() ? QString(":0") : hostDisplay;
+
+    // Otherwise the container has to reach the X server over TCP. Keep the display number, but
+    // replace the host part, which is a socket path in the case of XQuartz.
+    const qsizetype colon = hostDisplay.lastIndexOf(':');
+    return "host.docker.internal:" + (colon == -1 ? QString("0") : hostDisplay.mid(colon + 1));
+}
+
 static QString escapeMountPathUnix(const FilePath &fp)
 {
     return fp.nativePath().replace('\"', "\"\"");
@@ -619,6 +636,7 @@ DockerDevicePrivate::CreateCommandLineParams DockerDevicePrivate::appliedParams(
 {
     CreateCommandLineParams p;
     p.x11Forwarding = q->enableX11Forwarding();
+    p.x11Display = q->x11Display();
     p.useLocalUidGid = q->useLocalUidGid();
     p.network = q->network();
     p.mounts = q->mounts();
@@ -634,6 +652,7 @@ DockerDevicePrivate::CreateCommandLineParams DockerDevicePrivate::volatileParams
 {
     CreateCommandLineParams p;
     p.x11Forwarding = q->enableX11Forwarding.volatileValue();
+    p.x11Display = q->x11Display.volatileValue();
     p.useLocalUidGid = q->useLocalUidGid.volatileValue();
     p.network = q->network.volatileValue();
     p.mounts = transform(q->mounts.volatileValue(), &FilePath::fromUserInput);
@@ -696,8 +715,7 @@ CommandLine DockerDevicePrivate::createCommandLine(const CreateCommandLineParams
     CommandLine dockerCreate{m_containerSettings->binaryPath(), {"create", "-i", "--rm"}};
 
     if (p.x11Forwarding) {
-        const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
-                                                          : QString("host.docker.internal:0");
+        const QString display = p.x11Display.isEmpty() ? autoDetectedX11Display() : p.x11Display;
         dockerCreate.addArgs({"-e", QString("DISPLAY=%1").arg(display),
                               "-e", "XAUTHORITY=/.Xauthority"});
     }
@@ -1365,6 +1383,15 @@ DockerDevice::DockerDevice(ContainerToolSettings *settings)
         Tr::tr("Mounts the X11 socket and Xauthority file into the container so that "
                "graphical applications can display on the host. Disable to reduce "
                "noise on the command line when X11 is not needed."));
+
+    x11Display.setSettingsKey("X11Display");
+    x11Display.setLabelText(Tr::tr("X11 display:"));
+    x11Display.setDisplayStyle(StringAspect::LineEditDisplay);
+    x11Display.setEnabler(&enableX11Forwarding);
+    x11Display.setPlaceHolderText(Internal::autoDetectedX11Display());
+    x11Display.setToolTip(
+        Tr::tr("The DISPLAY value to set inside the container. Leave empty to derive it "
+               "from the host's DISPLAY environment variable."));
 
     setDisplayType(settings->displayType());
     setOsType(OsTypeLinux);
