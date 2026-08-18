@@ -3,17 +3,24 @@
 
 #include "harmonyosdevice_test.h"
 
+#include "harmonyosbuilddevice.h"
 #include "harmonyosdevice.h"
 #include "harmonyossdk.h"
 #include "harmonyossettings.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 
+#include <projectexplorer/toolchainmanager.h>
+
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
+#include <QEventLoop>
 #include <QTest>
+#include <QTimer>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -125,6 +132,84 @@ private slots:
 
         // Whatever else is missing, the shell the file access relies on must be there.
         QVERIFY(!device->searchExecutableInPath("sh").isEmpty());
+    }
+
+    // The build device is driven over SSH, so it needs a machine to talk to:
+    // QTC_HARMONYOS_BUILD_DEVICE=<user>@<host>:<port>.
+    IDevice::Ptr buildDevice()
+    {
+        const QString spec = qEnvironmentVariable("QTC_HARMONYOS_BUILD_DEVICE");
+        if (spec.isEmpty())
+            return {};
+
+        const QString user = spec.left(spec.indexOf('@'));
+        const QString hostAndPort = spec.mid(spec.indexOf('@') + 1);
+        const HarmonyOsBuildDevice::Ptr device = HarmonyOsBuildDevice::create();
+        SshParameters params = device->sshParameters();
+        params.setUserName(user);
+        params.setHost(hostAndPort.left(hostAndPort.indexOf(':')));
+        params.setPort(hostAndPort.mid(hostAndPort.indexOf(':') + 1).toInt());
+        // No terminal to answer a host key prompt on.
+        params.setHostKeyCheckingMode(SshHostKeyCheckingNone);
+        params.setTimeout(15);
+        DeviceRef(IDevice::Ptr(device)).setSshParameters(params);
+        device->setupId(IDevice::ManuallyAdded, Id::fromString(QString("HarmonyOS.BuildDevice.Test")));
+        DeviceManager::addDevice(device);
+        return device;
+    }
+
+    void testBuildDeviceToolchain()
+    {
+        const IDevice::Ptr device = buildDevice();
+        if (!device)
+            QSKIP("QTC_HARMONYOS_BUILD_DEVICE is not set");
+
+        // The SSH connection is set up asynchronously, so let it finish before
+        // anything synchronous asks the device a question.
+        {
+            QEventLoop loop;
+            QTimer timeout;
+            timeout.setSingleShot(true);
+            QObject::connect(&timeout, &QTimer::timeout, &loop, [&loop] { loop.exit(1); });
+            timeout.start(60 * 1000);
+            device->tryToConnect(Continuation<>(&loop, [&loop](const Result<> &result) {
+                loop.exit(result ? 0 : 1);
+            }));
+            QCOMPARE(loop.exec(), 0);
+        }
+
+        QVERIFY(device->rootPath().exists());
+        for (const QString &tool : {QString("cmake"), QString("ninja"), QString("clang++")}) {
+            const FilePath found = device->searchExecutableInPath(tool);
+            qDebug().noquote() << QString("  %1: %2").arg(tool, 8)
+                                      .arg(found.isEmpty() ? QString("-") : found.path());
+            QVERIFY2(!found.isEmpty(), qPrintable(tool));
+        }
+
+        Process process;
+        process.setCommand({device->searchExecutableInPath("cmake"), {"--version"}});
+        process.runBlocking(std::chrono::seconds(30));
+        QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
+        qDebug().noquote() << "  device cmake:" << process.cleanedStdOut().split('\n').first();
+        QVERIFY(process.cleanedStdOut().contains("cmake version"));
+
+        // The same detection the Devices page runs, which is what a kit needs.
+        const ToolDetectionLogger logger([](const QString &message) {
+            qDebug().noquote() << "detection:" << message;
+        });
+        bool done = false;
+        device->runAutoDetect(logger, [&done] { done = true; });
+        QTRY_VERIFY_WITH_TIMEOUT(done, 240 * 1000);
+
+        const QList<Toolchain *> deviceToolchains = Utils::filtered(
+            ToolchainManager::toolchains(), [&device](Toolchain *toolchain) {
+                return toolchain->compilerCommand().isSameDevice(device->rootPath());
+            });
+        for (Toolchain *toolchain : deviceToolchains)
+            qDebug().noquote() << "  toolchain:" << toolchain->compilerCommand().path();
+        QVERIFY(!deviceToolchains.isEmpty());
+
+        DeviceManager::removeDevice(device->id());
     }
 
     // Runs the same detection the Devices page offers.

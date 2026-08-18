@@ -1,6 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "harmonyosbuilddevice.h"
 #include "harmonyosconfigurations.h"
 #include "harmonyosdeploystep.h"
 #include "harmonyosdevice.h"
@@ -34,6 +35,7 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
 
         setupHarmonyOsSettingsPage();
         setupHarmonyOsDevice();
+        setupHarmonyOsBuildDevice();
         setupHarmonyOsDeviceDetection();
         setupHarmonyOsQtVersion();
         setupHarmonyOsToolchain();

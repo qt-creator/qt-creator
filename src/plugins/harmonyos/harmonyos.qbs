@@ -12,8 +12,11 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
+    Depends { name: "Remote" }
 
     files: [
+        "harmonyosbuilddevice.cpp",
+        "harmonyosbuilddevice.h",
         "harmonyosconfigurations.cpp",
         "harmonyosconfigurations.h",
         "harmonyosconstants.h",

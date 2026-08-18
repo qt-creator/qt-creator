@@ -12,6 +12,10 @@ inline constexpr char HARMONYOS_TOOLCHAIN_TYPEID[] = "Qt4ProjectManager.ToolChai
 inline constexpr char HARMONYOS_QT_TYPE[] = "Qt4ProjectManager.QtVersion.HarmonyOS";
 
 inline constexpr char HARMONYOS_DEVICE_TYPE[] = "HarmonyOS.Device.Type";
+inline constexpr char HARMONYOS_BUILD_DEVICE_TYPE[] = "HarmonyOS.BuildDevice.Type";
+
+// The sshd of the environment that carries the native toolchain, not the system one.
+inline constexpr int HARMONYOS_SSH_PORT = 8022;
 
 inline const Utils::Id HARMONYOS_SERIAL_NUMBER = "HarmonyOS.SerialNumber";
 
