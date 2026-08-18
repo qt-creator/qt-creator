@@ -153,6 +153,7 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
 
 #ifdef WITH_TESTS
         addTestCreator(createGoToSlotTest);
+        addTestCreator(createFormWindowFileTest);
 #endif
 
         parseArguments(arguments);
