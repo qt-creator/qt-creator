@@ -88,17 +88,6 @@ public:
     // The default (Debug) view.
     static PerspectivesView *instance();
     static void ensureMainWindowExists();
-
-    // Creates an additional view, hosted in its own mode.
-    static PerspectivesView *createView(const QString &settingsGroup,
-                                        const Utils::Id &modeContext,
-                                        const QString &statusObjectName);
-
-    // Tears down a view created with createView(). Must be called before the
-    // hosting mode's widget is destroyed (see the Profiler mode).
-    static void destroyView(PerspectivesView *view);
-
-    // Shuts down all views.
     static void doShutdown();
 
     void showStatusMessage(const QString &message, int timeoutMS);

@@ -3,12 +3,15 @@
 
 #pragma once
 
-namespace Core { class PerspectivesView; }
-
 namespace Profiler::Internal {
 
-// The perspective view hosting the profiler tools, shown in the Profiler mode.
-Core::PerspectivesView *profilerView();
+// Brings the Profile mode to the front. Opening a trace calls this first, so
+// the editor lands in this mode rather than sending the user to Edit.
+void activateProfilerMode();
+
+// The recorder driving the sampler backends. It outlives the mode's widget and
+// the start page, so a recording survives closing either.
+class ProfilerRecorder *profilerRecorder();
 
 void setupProfilerMode();
 void destroyProfilerMode();

@@ -229,6 +229,26 @@ QStringList ProfilerRecorder::backendNames() const
     return names;
 }
 
+QList<Id> ProfilerRecorder::backendIds() const
+{
+    QList<Id> ids;
+    for (int index : d->offered)
+        ids << d->backends[index]->id();
+    return ids;
+}
+
+void ProfilerRecorder::setLaunchFieldsEnabled(bool enabled)
+{
+    for (const std::unique_ptr<Sampler> &backend : d->backends) {
+        SamplerSettings *settings = backend->settings();
+        if (!settings)
+            continue;
+        settings->executable.setEnabled(enabled);
+        settings->arguments.setEnabled(enabled);
+        settings->workingDirectory.setEnabled(enabled);
+    }
+}
+
 int ProfilerRecorder::currentBackend() const
 {
     return d->current;

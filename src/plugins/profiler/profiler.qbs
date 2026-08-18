@@ -81,6 +81,7 @@ QtcPlugin {
             "profilermode.cpp", "profilermode.h",
             "profilerplugin.cpp",
             "profilerrecorder.cpp", "profilerrecorder.h",
+            "profilerstarteditor.cpp", "profilerstarteditor.h",
             "profilertracebackend.cpp", "profilertracebackend.h",
             "profilertracedocument.cpp", "profilertracedocument.h",
             "profilertraceeditor.cpp", "profilertraceeditor.h",

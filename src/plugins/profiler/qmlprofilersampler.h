@@ -48,6 +48,7 @@ public:
     QmlProfilerSampler();
     ~QmlProfilerSampler() override;
 
+    Utils::Id id() const override { return SamplerIds::Qml; }
     QString displayName() const override;
     bool isAvailable(QString *error = nullptr) const override;
     void prepareLaunch(const std::shared_ptr<RecordingSession> &session) const override;

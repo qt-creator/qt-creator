@@ -61,6 +61,7 @@ public:
     PerfSampler();
     ~PerfSampler() override;
 
+    Utils::Id id() const override { return SamplerIds::Perf; }
     QString displayName() const override;
     bool isAvailable(QString *error = nullptr) const override;
     QtTaskTree::ExecutableItem captureRecipe(

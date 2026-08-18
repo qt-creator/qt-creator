@@ -4,6 +4,7 @@
 #include "profilertraceeditor.h"
 
 #include "qmlprofilerconstants.h"
+#include "profilermode.h"
 #include "profilertr.h"
 #include "profilertracebackend.h"
 #include "profilertracedocument.h"
@@ -19,6 +20,7 @@
 #include <utils/widgets.h>
 
 #include <QHBoxLayout>
+#include <QPointer>
 #include <QTabWidget>
 
 using namespace Core;
@@ -64,6 +66,10 @@ public:
     ProfilerTraceWidget *widget = nullptr;
     StyledBar *toolBar = nullptr;
     QHBoxLayout *toolBarLayout = nullptr;
+    // The backends' toolbar controls, which they own. Adding them to a layout
+    // reparents them, so they have to be taken back out before the toolbar is
+    // deleted -- they are members of the backends, not heap-allocated.
+    QList<QPointer<QWidget>> borrowedToolBarWidgets;
 };
 
 ProfilerTraceEditor::ProfilerTraceEditor(std::unique_ptr<ProfilerTraceDocument> document)
@@ -84,14 +90,20 @@ ProfilerTraceEditor::ProfilerTraceEditor(std::unique_ptr<ProfilerTraceDocument> 
     d->toolBarLayout->setSpacing(PrimitiveS);
     for (ProfilerTraceBackend *backend : d->document->backends()) {
         const QList<QWidget *> widgets = backend->toolBarWidgets();
-        for (QWidget *widget : widgets)
+        for (QWidget *widget : widgets) {
             d->toolBarLayout->addWidget(widget);
+            d->borrowedToolBarWidgets.append(widget);
+        }
     }
     d->toolBarLayout->addStretch();
 }
 
 ProfilerTraceEditor::~ProfilerTraceEditor()
 {
+    for (const QPointer<QWidget> &widget : std::as_const(d->borrowedToolBarWidgets)) {
+        if (widget)
+            widget->setParent(nullptr);
+    }
     delete d->toolBar;
     delete d->widget;
     delete d;
@@ -138,20 +150,25 @@ static Id editorIdFor(TraceFormat format)
     return {};
 }
 
+// Activating the mode first is what keeps the editor here: EditorManager only
+// forces Edit mode when the editor's widget is not already visible.
 IEditor *openTraceFile(const FilePath &path)
 {
+    activateProfilerMode();
     const TraceFile trace = identifyTrace(path);
     return EditorManager::openEditor(trace.path, editorIdFor(trace.format),
-                                     EditorManager::DoNotSwitchToDesignMode);
+                                     EditorManager::DoNotSwitchToDesignMode
+                                         | EditorManager::DoNotSwitchToEditMode);
 }
 
 ProfilerTraceDocument *openLiveTrace(TraceFormat format, const QString &title,
                                      const QString &uniqueId)
 {
+    activateProfilerMode();
     QString displayName = title;
-    IEditor *editor = EditorManager::openEditorWithContents(editorIdFor(format), &displayName, {},
-                                                            uniqueId,
-                                                            EditorManager::DoNotSwitchToDesignMode);
+    IEditor *editor = EditorManager::openEditorWithContents(
+        editorIdFor(format), &displayName, {}, uniqueId,
+        EditorManager::DoNotSwitchToDesignMode | EditorManager::DoNotSwitchToEditMode);
     return editor ? qobject_cast<ProfilerTraceDocument *>(editor->document()) : nullptr;
 }
 

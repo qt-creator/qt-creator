@@ -3,6 +3,7 @@
 
 #include "qmlprofilertool.h"
 
+#include "profilermode.h"
 #include "profilertr.h"
 #include "profilertracedocument.h"
 #include "profilertraceeditor.h"
@@ -271,6 +272,7 @@ void QmlProfilerTool::showLoadDialog()
 
 void QmlProfilerTool::profileStartupProject()
 {
+    activateProfilerMode();
     ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 }
 

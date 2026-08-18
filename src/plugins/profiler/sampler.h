@@ -9,6 +9,7 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
+#include <utils/id.h>
 #include <utils/result.h>
 
 #include <QtTaskTree/QTaskTree>
@@ -175,11 +176,21 @@ struct SamplerFix
 // Implementations differ in how they capture (call-stack sampling today; a QML
 // profiler or perf-based recorder could be added alongside). Each returns a
 // QtTaskTree recipe so the window can compose it with process launching.
+// Identifies a backend to a frontend that has its own way of profiling the same
+// thing, and does not change when the display name is translated.
+namespace SamplerIds {
+inline constexpr char CallStack[] = "Profiler.Sampler.CallStack";
+inline constexpr char Perf[]      = "Profiler.Sampler.Perf";
+inline constexpr char Qml[]       = "Profiler.Sampler.Qml";
+inline constexpr char Combined[]  = "Profiler.Sampler.Combined";
+} // namespace SamplerIds
+
 class PROFILER_EXPORT Sampler
 {
 public:
     virtual ~Sampler() = default;
 
+    virtual Utils::Id id() const = 0;
     virtual QString displayName() const = 0;
 
     // Whether this backend can run in the current environment; when it cannot,

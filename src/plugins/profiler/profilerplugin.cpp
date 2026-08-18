@@ -4,6 +4,7 @@
 #include "ctfvisualizertool.h"
 #include "mcpsupport.h"
 #include "profilermode.h"
+#include "profilerstarteditor.h"
 #include "profilertraceeditor.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
@@ -53,6 +54,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         // Must exist before the tools construct their perspectives.
         setupProfilerMode();
         setupProfilerTraceEditors();
+        setupProfilerStartEditor();
 
         Profiler::Internal::setupCtfVisualizerTool();
         setupQmlProfilerTool();
@@ -94,6 +96,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
     ShutdownFlag aboutToShutdown() final
     {
         destroyPerfProfilerTool();
+        destroyProfilerStartEditor();
         destroyProfilerTraceEditors();
         destroyProfilerMode();
         return SynchronousShutdown;

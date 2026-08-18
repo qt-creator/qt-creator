@@ -39,6 +39,7 @@ public:
     CallStackSampler();
     ~CallStackSampler() override;
 
+    Utils::Id id() const override { return SamplerIds::CallStack; }
     QString displayName() const override;
     bool isAvailable(QString *error = nullptr) const override;
     QtTaskTree::ExecutableItem captureRecipe(

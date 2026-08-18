@@ -31,6 +31,11 @@ public:
     // Fills the backend selector. Does not emit backendChanged().
     void setBackends(const QStringList &names, int current);
 
+    // Fills the target selector, which says what a recording runs against. An
+    // empty list hides the row: the standalone viewer has only the target its
+    // backend is configured with, so there is nothing to choose.
+    void setTargets(const QStringList &names, int current);
+
     // Selects a backend by index, as if the user picked it (emits backendChanged()).
     void setCurrentBackend(int index);
 
@@ -38,12 +43,19 @@ public:
     // ownership of `configWidget` (may be null).
     void setActiveBackend(QWidget *configWidget);
 
+    // Whether the selected backend can record at all; `toolTip` says why not.
+    void setStartEnabled(bool enabled, const QString &toolTip = {});
+
 signals:
     void startRecordingRequested();
     void backendChanged(int index);
+    void targetChanged(int index);
 
 private:
     Utils::QtcComboBox *m_backendCombo = nullptr;
+    Utils::QtcComboBox *m_targetCombo = nullptr;
+    QWidget *m_targetRow = nullptr;
+    Utils::QtcButton *m_startButton = nullptr;
     QVBoxLayout *m_configLayout = nullptr;
     QWidget *m_configWidget = nullptr;
 };

@@ -60,6 +60,7 @@ public:
     CombinedSampler();
     ~CombinedSampler() override;
 
+    Utils::Id id() const override { return SamplerIds::Combined; }
     QString displayName() const override;
     bool isAvailable(QString *error = nullptr) const override;
 

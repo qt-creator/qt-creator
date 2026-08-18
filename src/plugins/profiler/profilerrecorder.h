@@ -8,6 +8,7 @@
 
 #include <utils/environment.h>
 #include <utils/filepath.h>
+#include <utils/id.h>
 
 #include <QObject>
 #include <QStringList>
@@ -40,6 +41,9 @@ public:
     // The backends offered here, in display order. Backends that cannot run in
     // this environment are left out (see Sampler::isAvailable).
     QStringList backendNames() const;
+    // Their ids, in the same order, for a frontend that pairs a backend with
+    // its own way of profiling the same thing.
+    QList<Utils::Id> backendIds() const;
 
     int currentBackend() const;
     void setCurrentBackend(int index);
@@ -57,6 +61,10 @@ public:
     void seedLaunchTarget(const Utils::CommandLine &command,
                           const Utils::FilePath &workingDirectory,
                           const Utils::Environment &environment = {});
+
+    // Whether the launch fields may be edited. A frontend that has decided what
+    // to profile turns them off, leaving the rest of a backend's options alone.
+    void setLaunchFieldsEnabled(bool enabled);
 
     bool isRecording() const;
 

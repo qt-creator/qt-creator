@@ -401,23 +401,8 @@ void PerspectivesView::ensureMainWindowExists()
     }
 }
 
-PerspectivesView *PerspectivesView::createView(const QString &settingsGroup,
-                                               const Utils::Id &modeContext,
-                                               const QString &statusObjectName)
-{
-    return new PerspectivesView(settingsGroup, modeContext, statusObjectName);
-}
-
-void PerspectivesView::destroyView(PerspectivesView *view)
-{
-    delete view;
-}
-
 void PerspectivesView::doShutdown()
 {
-    // Additional views (e.g. the Profiler mode's) are torn down by their
-    // owning plugins, in "view before mode" order. Here we only handle the
-    // default (Debug) view.
     delete theDefaultView;
     theDefaultView = nullptr;
 }

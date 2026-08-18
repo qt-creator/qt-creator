@@ -17,6 +17,7 @@ inline constexpr char QtdFileExtension[] = ".qtd";
 inline constexpr char QztFileExtension[] = ".qzt";
 
 inline constexpr char C_PROFILER_TRACE_EDITOR[]   = "Profiler.TraceEditor";
+inline constexpr char START_EDITOR_ID[]           = "Profiler.StartEditor";
 inline constexpr char QML_TRACE_EDITOR_ID[]       = "Profiler.QmlTraceEditor";
 inline constexpr char PERF_TRACE_EDITOR_ID[]      = "Profiler.PerfTraceEditor";
 inline constexpr char CTF_TRACE_EDITOR_ID[]       = "Profiler.CtfTraceEditor";

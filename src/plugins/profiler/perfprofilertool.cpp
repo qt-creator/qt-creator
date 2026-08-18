@@ -9,6 +9,7 @@
 #include "perfprofilertracebackend.h"
 #include "perfprofilertracemanager.h"
 #include "perftracepointdialog.h"
+#include "profilermode.h"
 #include "profilertracedocument.h"
 #include "profilertraceeditor.h"
 
@@ -165,6 +166,7 @@ PerfProfilerTraceBackend *PerfProfilerTool::liveBackend() const
 
 void PerfProfilerTool::profileStartupProject()
 {
+    activateProfilerMode();
     ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
 }
 
