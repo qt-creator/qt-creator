@@ -15,6 +15,7 @@
 #include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/elidinglabel.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/markdownbrowser.h>
@@ -290,6 +291,89 @@ protected:
 
 private:
     QLabel *m_label = nullptr;
+};
+
+// ---------------------------------------------------------------------------
+// TerminalDisplayWidget — read-only view of an agent-owned display terminal
+// ---------------------------------------------------------------------------
+
+class TerminalDisplayWidget : public CollapsibleFrame
+{
+public:
+    explicit TerminalDisplayWidget(const QString &terminalId, QWidget *parent = nullptr)
+        : CollapsibleFrame(parent)
+    {
+        setFrameShape(QFrame::NoFrame);
+        setCollapsible(true);
+
+        m_titleLabel = new Utils::ElidingLabel(Tr::tr("Terminal %1").arg(terminalId), this);
+        m_titleLabel->setElideMode(Qt::ElideRight);
+        m_headerLayout->addWidget(m_titleLabel, 1);
+
+        m_browser = new Utils::MarkdownBrowser(this);
+        m_browser->setFrameShape(QFrame::NoFrame);
+        m_browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        m_browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        m_browser->setMargins({0, 0, 0, 0});
+        m_browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        connect(m_browser->document()->documentLayout(),
+                &QAbstractTextDocumentLayout::documentSizeChanged,
+                m_browser, [browser = m_browser] {
+            const int h = qCeil(browser->document()->size().height())
+                          + browser->contentsMargins().top()
+                          + browser->contentsMargins().bottom();
+            browser->setFixedHeight(qMax(h, browser->fontMetrics().height()));
+        });
+        m_bodyLayout->addWidget(m_browser);
+    }
+
+    void setCommand(const QString &command)
+    {
+        m_titleLabel->setText(command);
+    }
+
+    void setOutput(const QByteArray &output)
+    {
+        m_output = output;
+        renderOutput();
+    }
+
+    void appendOutput(const QByteArray &output)
+    {
+        m_output += output;
+        renderOutput();
+    }
+
+    void setExited(const std::optional<int> &exitCode)
+    {
+        if (!m_exitLabel) {
+            m_exitLabel = new QLabel(this);
+            m_headerLayout->addWidget(m_exitLabel);
+        }
+        m_exitLabel->setText(exitCode ? Tr::tr("Exited (%1)").arg(*exitCode)
+                                      : Tr::tr("Exited"));
+    }
+
+private:
+    void renderOutput()
+    {
+        const QString text = QString::fromUtf8(m_output);
+        // Terminal output is arbitrary, so the fence has to outrun the longest
+        // backtick run in it.
+        int longestRun = 0;
+        int run = 0;
+        for (const QChar c : text) {
+            run = (c == QLatin1Char('`')) ? run + 1 : 0;
+            longestRun = qMax(longestRun, run);
+        }
+        const QString fence(qMax(3, longestRun + 1), QLatin1Char('`'));
+        m_browser->setMarkdown(fence + QLatin1Char('\n') + text + QLatin1Char('\n') + fence);
+    }
+
+    Utils::ElidingLabel *m_titleLabel = nullptr;
+    QLabel *m_exitLabel = nullptr;
+    Utils::MarkdownBrowser *m_browser = nullptr;
+    QByteArray m_output;
 };
 
 // ---------------------------------------------------------------------------
@@ -1025,6 +1109,7 @@ void AcpMessageView::clear()
     m_turnStatsLabels.clear();
     m_toolCallDetailWidgets.clear();
     m_toolCallGroups.clear();
+    m_terminalWidgets.clear();
     m_autoScroll = true;
 }
 
@@ -1112,6 +1197,38 @@ void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
         if (update.title().has_value())
             group->trackTitle(update.toolCallId(), *update.title());
     }
+}
+
+TerminalDisplayWidget *AcpMessageView::ensureTerminalWidget(const QString &terminalId)
+{
+    TerminalDisplayWidget *terminal = m_terminalWidgets.value(terminalId);
+    if (!terminal) {
+        finishAgentMessage();
+        finishToolCallGroup();
+        terminal = new TerminalDisplayWidget(terminalId, m_container);
+        m_terminalWidgets[terminalId] = terminal;
+        addWidget(terminal);
+    }
+    return terminal;
+}
+
+void AcpMessageView::updateTerminal(const TerminalUpdate &update)
+{
+    TerminalDisplayWidget *terminal = ensureTerminalWidget(update.terminalId());
+    if (update.command().has_value())
+        terminal->setCommand(*update.command());
+    if (update.output().has_value())
+        terminal->setOutput(QByteArray::fromBase64(update.output()->data().toLatin1()));
+    else if (update.output().isNull())
+        terminal->setOutput({});
+    if (update.exitStatus().has_value())
+        terminal->setExited(update.exitStatus()->exitCode().asOptional());
+}
+
+void AcpMessageView::appendTerminalOutput(const TerminalOutputChunk &chunk)
+{
+    ensureTerminalWidget(chunk.terminalId())
+        ->appendOutput(QByteArray::fromBase64(chunk.data().toLatin1()));
 }
 
 void AcpMessageView::addPlan(const PlanUpdate &plan)

@@ -26,6 +26,7 @@ add_qtc_plugin(AcpClient
     acppermissionhandler.cpp acppermissionhandler.h
     acpprotocoladapter.cpp acpprotocoladapter.h
     acpprotocolv1adapter.cpp acpprotocolv1adapter.h
+    acpprotocolv2adapter.cpp acpprotocolv2adapter.h
     acpstdiotransport.cpp acpstdiotransport.h
     acpterminalhandler.cpp acpterminalhandler.h
     acptransport.cpp acptransport.h

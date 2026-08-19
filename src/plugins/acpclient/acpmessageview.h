@@ -27,6 +27,7 @@ namespace AcpClient::Internal {
 class AgentMessageWidget;
 class AuthenticationWidget;
 class SessionPickerWidget;
+class TerminalDisplayWidget;
 class ThoughtWidget;
 class ToolCallDetailWidget;
 class ToolCallGroupWidget;
@@ -56,6 +57,8 @@ public:
     void appendAgentText(const QString &text);
     void appendAgentThought(const QString &text);
     void updateToolCall(const Acp::V2::ToolCallUpdate &update);
+    void updateTerminal(const Acp::V2::TerminalUpdate &update);
+    void appendTerminalOutput(const Acp::V2::TerminalOutputChunk &chunk);
     void addPlan(const Acp::V2::PlanUpdate &plan);
     void addStatusMessage(const QString &text);
     void addErrorMessage(const QString &text);
@@ -86,6 +89,7 @@ private:
     QWidget *wrapWithSpacer(QWidget *widget, Qt::Alignment side);
     ToolCallGroupWidget *ensureToolCallGroup();
     void finishToolCallGroup();
+    TerminalDisplayWidget *ensureTerminalWidget(const QString &terminalId);
     void addWidget(QWidget *widget);
     int contentMaxWidth() const;
 
@@ -107,6 +111,7 @@ private:
     QHash<QString, ToolCallDetailWidget *> m_toolCallDetailWidgets;
     QList<QPair<QJsonValue, ToolCallDetailWidget *>> m_pendingPermissionRequests;
     QHash<QString, ToolCallGroupWidget *> m_toolCallGroups; // toolCallId -> owning group
+    QHash<QString, TerminalDisplayWidget *> m_terminalWidgets;
     AuthenticationWidget *m_currentAuthWidget = nullptr;
     QString m_agentIconUrl;
     bool m_autoScroll = true;

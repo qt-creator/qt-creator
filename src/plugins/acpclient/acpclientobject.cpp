@@ -5,6 +5,8 @@
 #include "acpinspector.h"
 #include "acptransport.h"
 
+#include <acp/acpv2.h>
+
 #include <QJsonDocument>
 #include <QLoggingCategory>
 
@@ -219,7 +221,14 @@ void AcpClientObject::handleRequest(const QJsonValue &id, const QString &method,
     } else if (method == QLatin1String("fs/write_text_file")) {
         dispatch.template operator()<WriteTextFileRequest>(&AcpClientObject::writeTextFileRequested);
     } else if (method == QLatin1String("session/request_permission")) {
-        dispatch.template operator()<RequestPermissionRequest>(&AcpClientObject::requestPermissionRequested);
+        // A v2-shaped request fails the v1 parse; it is handled by the v2
+        // protocol adapter via requestReceived, so only reply with an error
+        // when the parameters are valid for neither protocol version.
+        auto req = fromJson<RequestPermissionRequest>(paramsVal);
+        if (req)
+            emit requestPermissionRequested(id, *req);
+        else if (!Acp::V2::fromJson<Acp::V2::RequestPermissionRequest>(paramsVal))
+            sendErrorResponse(id, ErrorCode::Invalid_params, req.error());
     } else {
         qCWarning(logClient) << "Unknown agent request method:" << method;
         sendErrorResponse(id, ErrorCode::Method_not_found,

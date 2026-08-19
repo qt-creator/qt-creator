@@ -16,6 +16,13 @@ AcpPermissionHandler::AcpPermissionHandler(AcpClientObject *client, QObject *par
     : QObject(parent)
     , m_client(client)
 {
+    // Track pending ids from the raw request so agent-side cancellation works
+    // for every protocol version, not only for requests that parse as v1.
+    connect(client, &AcpClientObject::requestReceived, this,
+            [this](const QJsonValue &id, const QString &method, const QJsonObject &) {
+                if (method == QLatin1String("session/request_permission"))
+                    m_pendingIds.append(id);
+            });
     connect(client, &AcpClientObject::requestPermissionRequested,
             this, &AcpPermissionHandler::handleRequestPermission);
     connect(client, &AcpClientObject::requestCancelled,
@@ -25,7 +32,6 @@ AcpPermissionHandler::AcpPermissionHandler(AcpClientObject *client, QObject *par
 void AcpPermissionHandler::handleRequestPermission(const QJsonValue &id, const RequestPermissionRequest &request)
 {
     qCDebug(logPermission) << "Permission request for tool call:" << request.toolCall().toolCallId();
-    m_pendingIds.append(id);
     emit permissionRequested(id, request);
 }
 

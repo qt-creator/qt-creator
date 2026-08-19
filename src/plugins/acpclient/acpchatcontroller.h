@@ -91,6 +91,9 @@ public:
 private:
     void onInitializeResult(const QJsonObject &result);
     void setUpV1Adapter(const Acp::InitializeResponse &response);
+    void setUpV2Adapter(const Acp::V2::InitializeResponse &response,
+                        const QJsonObject &rawCapabilities);
+    void connectAdapter();
     QJsonArray buildMcpServersJson() const;
 
     AcpInspector *m_inspector = nullptr;

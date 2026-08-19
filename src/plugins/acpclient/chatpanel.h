@@ -97,6 +97,8 @@ public:
     void appendAgentText(const QString &text);
     void appendAgentThought(const QString &text);
     void updateToolCall(const Acp::V2::ToolCallUpdate &update);
+    void updateTerminal(const Acp::V2::TerminalUpdate &update);
+    void appendTerminalOutput(const Acp::V2::TerminalOutputChunk &chunk);
     void addPlan(const Acp::V2::PlanUpdate &plan);
     void addErrorMessage(const QString &text);
     void finishAgentMessage();

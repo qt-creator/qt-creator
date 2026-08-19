@@ -39,6 +39,8 @@ Project {
             "acpprotocoladapter.h",
             "acpprotocolv1adapter.cpp",
             "acpprotocolv1adapter.h",
+            "acpprotocolv2adapter.cpp",
+            "acpprotocolv2adapter.h",
             "acpsettings.cpp",
             "acpsettings.h",
             "acpstdiotransport.cpp",

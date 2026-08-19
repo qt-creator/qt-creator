@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
         "Deterministic ACP agent for testing the Qt Creator AcpClient plugin.");
     parser.addHelpOption();
     parser.addOption({"require-auth", "Require authenticate before session/new succeeds."});
+    parser.addOption({"emit-unknown-update", "Stream an unknown session/update kind during "
+                                             "v2 prompts."});
     parser.addOption({"sessions", "Seed <count> sessions and advertise session "
                                   "list/load/delete/close capabilities.", "count"});
     parser.addOption({"permission", "Request permission during session/prompt."});
@@ -43,6 +45,7 @@ int main(int argc, char *argv[])
 
     AcpTestServer::ServerScenario scenario;
     scenario.requireAuth = parser.isSet("require-auth");
+    scenario.emitUnknownUpdate = parser.isSet("emit-unknown-update");
     if (parser.isSet("sessions"))
         scenario.seededSessions = parser.value("sessions").toInt();
     scenario.permission = parser.isSet("permission");

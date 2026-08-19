@@ -4,6 +4,7 @@
 #include "acptestserver.h"
 
 #include <acp/acp.h>
+#include <acp/acpv2.h>
 
 #include <QDir>
 #include <QJsonDocument>
@@ -68,6 +69,35 @@ void Server::dispatch(const QJsonObject &message)
 
 void Server::handleRequest(const QJsonValue &id, const QString &method, const QJsonObject &params)
 {
+    if (m_scenario.protocolVersion == 2) {
+        if (method == "initialize")
+            handleInitializeV2(id, params);
+        else if (method == "auth/login")
+            handleLogin(id, params);
+        else if (method == "auth/logout")
+            sendResult(id, QJsonObject());
+        else if (method == "session/new")
+            handleNewSessionV2(id, params);
+        else if (method == "session/list")
+            handleListSessions(id, params);
+        else if (method == "session/resume")
+            handleResumeSession(id, params);
+        else if (method == "session/delete")
+            handleDeleteSession(id, params);
+        else if (method == "session/close")
+            handleCloseSession(id, params);
+        else if (method == "session/prompt")
+            handlePromptV2(id, params);
+        else if (method == "session/set_config_option")
+            handleSetConfigOption(id, params);
+        else if (method == "test/quit") {
+            sendResult(id, QJsonObject());
+            m_quitRequested = true;
+        } else
+            sendError(id, ErrorCode::Method_not_found, QString("Unknown method: %1").arg(method));
+        return;
+    }
+
     if (method == "initialize")
         handleInitialize(id, params);
     else if (method == "authenticate")
@@ -422,13 +452,21 @@ void Server::handleSetConfigOption(const QJsonValue &id, const QJsonObject &para
         return;
     }
 
+    const QJsonArray options = m_scenario.protocolVersion == 2 ? configOptionsJsonV2()
+                                                               : configOptionsJson();
     QJsonObject result;
-    result["configOptions"] = configOptionsJson();
+    result["configOptions"] = options;
     sendResult(id, result);
+
+    if (m_scenario.protocolVersion == 2) {
+        sendSessionUpdateV2(request->sessionId(),
+                            QJsonObject{{"sessionUpdate", "config_option_update"},
+                                        {"configOptions", options}});
+        return;
+    }
 
     SessionUpdate update;
     ConfigOptionUpdate configUpdate;
-    const QJsonArray options = configOptionsJson();
     for (const QJsonValue &option : options) {
         if (const auto parsed = fromJson<SessionConfigOption>(option))
             configUpdate.addConfigOption(*parsed);
@@ -437,6 +475,212 @@ void Server::handleSetConfigOption(const QJsonValue &id, const QJsonObject &para
     update._kind = "config_option_update";
     sendNotification("session/update",
                      toJson(SessionNotification().sessionId(request->sessionId()).update(update)));
+}
+
+// --- v2 mode ------------------------------------------------------------------
+
+void Server::handleInitializeV2(const QJsonValue &id, const QJsonObject &params)
+{
+    const auto request = V2::fromJson<V2::InitializeRequest>(QJsonValue(params));
+    if (!request) {
+        sendError(id, ErrorCode::Invalid_params, request.error());
+        return;
+    }
+
+    QJsonObject session;
+    session["prompt"] = QJsonObject{{"image", QJsonObject()},
+                                    {"embeddedContext", QJsonObject()}};
+    if (m_scenario.seededSessions > 0)
+        session["delete"] = QJsonObject();
+
+    QJsonObject result;
+    result["protocolVersion"] = 2;
+    result["info"] = QJsonObject{{"name", "acptestserver"}, {"version", "1.0"}};
+    result["capabilities"] = QJsonObject{{"session", session}};
+    if (m_scenario.requireAuth) {
+        result["authMethods"] = QJsonArray{QJsonObject{{"type", "agent"},
+                                                       {"methodId", "test-login"},
+                                                       {"name", "Test Login"}}};
+    }
+    sendResult(id, result);
+}
+
+void Server::handleLogin(const QJsonValue &id, const QJsonObject &params)
+{
+    const QString methodId = params.value("methodId").toString();
+    if (methodId != QLatin1String("test-login")) {
+        sendError(id, ErrorCode::Invalid_params,
+                  QString("Unknown authentication method: %1").arg(methodId));
+        return;
+    }
+    m_authenticated = true;
+    sendResult(id, QJsonObject());
+}
+
+void Server::handleNewSessionV2(const QJsonValue &id, const QJsonObject &params)
+{
+    const auto request = V2::fromJson<V2::NewSessionRequest>(QJsonValue(params));
+    if (!request) {
+        sendError(id, ErrorCode::Invalid_params, request.error());
+        return;
+    }
+    if (m_scenario.requireAuth && !m_authenticated) {
+        sendError(id, ErrorCode::Authentication_required, "Authentication required");
+        return;
+    }
+
+    const QString sessionId = QString("session-%1").arg(m_nextSessionNumber++);
+    m_sessions.append(sessionId);
+
+    QJsonObject result;
+    result["sessionId"] = sessionId;
+    if (m_scenario.configOptions)
+        result["configOptions"] = configOptionsJsonV2();
+    sendResult(id, result);
+}
+
+void Server::handleResumeSession(const QJsonValue &id, const QJsonObject &params)
+{
+    const auto request = V2::fromJson<V2::ResumeSessionRequest>(QJsonValue(params));
+    if (!request) {
+        sendError(id, ErrorCode::Invalid_params, request.error());
+        return;
+    }
+    if (!m_sessions.contains(request->sessionId())) {
+        sendError(id, ErrorCode::Resource_not_found,
+                  QString("Unknown session: %1").arg(request->sessionId()));
+        return;
+    }
+
+    // With a replay cursor, history is replayed as ordinary session updates
+    // before the response.
+    if (request->replayFrom().has_value()) {
+        sendSessionUpdateV2(request->sessionId(),
+                            QJsonObject{{"sessionUpdate", "user_message"},
+                                        {"messageId", "replay-user-1"},
+                                        {"content",
+                                         QJsonArray{QJsonObject{{"type", "text"},
+                                                                {"text", "replayed prompt"}}}}});
+        sendAgentMessageChunkV2(request->sessionId(), "replay-agent-1", "replayed history");
+    }
+
+    QJsonObject result;
+    if (m_scenario.configOptions)
+        result["configOptions"] = configOptionsJsonV2();
+    sendResult(id, result);
+}
+
+void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
+{
+    const auto request = V2::fromJson<V2::PromptRequest>(QJsonValue(params));
+    if (!request) {
+        sendError(id, ErrorCode::Invalid_params, request.error());
+        return;
+    }
+    const QString sessionId = request->sessionId();
+
+    QString promptText;
+    for (const V2::ContentBlock &block : request->prompt()) {
+        if (const auto *text = std::get_if<V2::TextContent>(&block)) {
+            promptText = text->text();
+            break;
+        }
+    }
+
+    // The response only acknowledges acceptance; the turn runs on afterwards.
+    sendResult(id, QJsonObject());
+    sendStateUpdate(sessionId, "running");
+
+    const QString messageId = QString("msg-%1").arg(++m_messageCounter);
+
+    if (m_scenario.permission) {
+        sendAgentMessageChunkV2(sessionId, messageId, QString("chunk-1:%1").arg(promptText));
+
+        const qint64 permissionId = m_nextOutgoingId++;
+        QJsonObject requestMessage;
+        requestMessage["jsonrpc"] = "2.0";
+        requestMessage["id"] = static_cast<double>(permissionId);
+        requestMessage["method"] = "session/request_permission";
+        requestMessage["params"] = QJsonObject{
+            {"sessionId", sessionId},
+            {"title", "Allow test tool?"},
+            {"subject", QJsonObject{{"type", "tool_call"},
+                                    {"toolCall", QJsonObject{{"toolCallId", "tool-perm"},
+                                                             {"title", "Dangerous operation"}}}}},
+            {"options", QJsonArray{QJsonObject{{"optionId", "allow"},
+                                               {"name", "Allow"},
+                                               {"kind", "allow_once"}},
+                                   QJsonObject{{"optionId", "reject"},
+                                               {"name", "Reject"},
+                                               {"kind", "reject_once"}}}}};
+        writeLine(requestMessage);
+
+        const auto answer = readUntil([permissionId](const QJsonObject &message) {
+            if (message.value("method").toString() == QLatin1String("session/cancel"))
+                return true;
+            return !message.contains("method")
+                   && message.value("id").toDouble() == permissionId;
+        });
+        if (!answer)
+            return; // stdin closed
+
+        if (answer->value("method").toString() == QLatin1String("session/cancel")) {
+            sendNotification("$/cancel_request",
+                             toJson(CancelRequestNotification().requestId(
+                                 RequestId(static_cast<int>(permissionId)))));
+            sendStateUpdate(sessionId, "idle", "cancelled");
+            return;
+        }
+
+        const QJsonObject outcome
+            = answer->value("result").toObject().value("outcome").toObject();
+        if (outcome.value("outcome").toString() == QLatin1String("selected")) {
+            sendSessionUpdateV2(sessionId,
+                                QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                            {"toolCallId", "tool-perm"},
+                                            {"status", "completed"}});
+            sendAgentMessageChunkV2(sessionId, messageId, QString("chunk-2:%1").arg(promptText));
+            sendStateUpdate(sessionId, "idle", "end_turn");
+        } else {
+            sendStateUpdate(sessionId, "idle", "cancelled");
+        }
+        return;
+    }
+
+    if (m_scenario.waitForCancel) {
+        sendAgentMessageChunkV2(sessionId, messageId, QString("chunk-1:%1").arg(promptText));
+        const auto cancel = readUntil([](const QJsonObject &message) {
+            return message.value("method").toString() == QLatin1String("session/cancel");
+        });
+        if (!cancel)
+            return; // stdin closed
+        sendStateUpdate(sessionId, "idle", "cancelled");
+        return;
+    }
+
+    for (int i = 1; i <= m_scenario.chunks; ++i)
+        sendAgentMessageChunkV2(sessionId, messageId, QString("chunk-%1:%2").arg(i).arg(promptText));
+
+    sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                               {"toolCallId", "tool-1"},
+                                               {"title", "Reading a file"},
+                                               {"kind", "read"},
+                                               {"status", "in_progress"}});
+    sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                               {"toolCallId", "tool-1"},
+                                               {"status", "completed"}});
+    sendSessionUpdateV2(sessionId,
+                        QJsonObject{{"sessionUpdate", "plan_update"},
+                                    {"plan", QJsonObject{{"planId", "plan-1"},
+                                                         {"entries",
+                                                          QJsonArray{QJsonObject{
+                                                              {"content", "first step"},
+                                                              {"priority", "high"},
+                                                              {"status", "pending"}}}}}}});
+    if (m_scenario.emitUnknownUpdate)
+        sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "_test_future_kind"},
+                                                   {"x", 1}});
+    sendStateUpdate(sessionId, "idle", "end_turn");
 }
 
 QJsonArray Server::configOptionsJson() const
@@ -459,6 +703,52 @@ QJsonArray Server::configOptionsJson() const
                          QJsonArray{toJson(SessionConfigSelectOption().value("small").name("Small")),
                                     toJson(SessionConfigSelectOption().value("big").name("Big"))}));
     return QJsonArray{autoApprove, model};
+}
+
+QJsonArray Server::configOptionsJsonV2() const
+{
+    const QJsonObject autoApprove
+        = V2::toJson(V2::SessionConfigOption()
+                         .configId("test.autoApprove")
+                         .name("Auto approve")
+                         .additionalProperties("type", "boolean")
+                         .additionalProperties("currentValue", m_autoApprove));
+    const QJsonObject model
+        = V2::toJson(V2::SessionConfigOption()
+                         .configId("test.model")
+                         .name("Model")
+                         .category(V2::SessionConfigOptionCategory::model)
+                         .additionalProperties("type", "select")
+                         .additionalProperties("currentValue", m_model)
+                         .additionalProperties(
+                             "options",
+                             QJsonArray{QJsonObject{{"value", "small"}, {"name", "Small"}},
+                                        QJsonObject{{"value", "big"}, {"name", "Big"}}}));
+    return QJsonArray{autoApprove, model};
+}
+
+void Server::sendSessionUpdateV2(const QString &sessionId, const QJsonObject &update)
+{
+    sendNotification("session/update",
+                     QJsonObject{{"sessionId", sessionId}, {"update", update}});
+}
+
+void Server::sendAgentMessageChunkV2(const QString &sessionId, const QString &messageId,
+                                     const QString &text)
+{
+    sendSessionUpdateV2(sessionId,
+                        QJsonObject{{"sessionUpdate", "agent_message_chunk"},
+                                    {"messageId", messageId},
+                                    {"content", QJsonObject{{"type", "text"}, {"text", text}}}});
+}
+
+void Server::sendStateUpdate(const QString &sessionId, const QString &state,
+                             const QString &stopReason)
+{
+    QJsonObject update{{"sessionUpdate", "state_update"}, {"state", state}};
+    if (!stopReason.isEmpty())
+        update["stopReason"] = stopReason;
+    sendSessionUpdateV2(sessionId, update);
 }
 
 void Server::sendResult(const QJsonValue &id, const QJsonObject &result)

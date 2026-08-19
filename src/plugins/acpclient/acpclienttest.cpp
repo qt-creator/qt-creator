@@ -462,6 +462,14 @@ private slots:
     void testControllerServerCrash();
     void testControllerDisconnect();
 
+    // Tier 3b: v2 chat workflows against acptestserver --protocol-version 2
+    void testV2InitializeNegotiation();
+    void testV2PromptLifecycle();
+    void testV2PromptCancel();
+    void testV2PermissionRequest();
+    void testV2SessionResume();
+    void testV2UnknownSessionUpdateIgnored();
+
     // Tier 4: chat panel presentation
     void testChatPanelTurnStats();
     void testChatPanelFirstTurnStats();
@@ -1687,6 +1695,211 @@ void AcpClientTest::testControllerDisconnect()
     QVERIFY(fixture.states.contains(AcpClientObject::State::Disconnected));
     QVERIFY(!fixture.controller.isInitialized());
     QVERIFY(fixture.controller.sessionId().isEmpty());
+}
+
+// --- Tier 3b -----------------------------------------------------------------
+
+static bool isStateUpdate(const V2::SessionUpdate &update, const QString &state)
+{
+    if (update.kind() != QLatin1String("state_update"))
+        return false;
+    const auto *stateUpdate = update.get<V2::StateUpdate>();
+    return stateUpdate && V2::dispatchValue(*stateUpdate) == state;
+}
+
+static int indexOfStateUpdate(const QList<V2::SessionUpdate> &updates, const QString &state)
+{
+    for (int i = 0; i < updates.size(); ++i) {
+        if (isStateUpdate(updates.at(i), state))
+            return i;
+    }
+    return -1;
+}
+
+// Negotiating protocol version 2 yields a working surface: agent info from the
+// v2 initialize response, capabilities implied by the session capability
+// object, and session creation over session/new.
+void AcpClientTest::testV2InitializeNegotiation()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2"});
+
+    QCOMPARE(fixture.agentName, "acptestserver");
+    QCOMPARE(fixture.agentVersion, "1.0");
+    QVERIFY(fixture.controller.isInitialized());
+
+    // capabilities.session commits the agent to list/close; delete stays an
+    // explicit presence marker (absent without seeded sessions).
+    QVERIFY(fixture.controller.supportsSessionList());
+    QVERIFY(fixture.controller.supportsSessionClose());
+    QVERIFY(!fixture.controller.supportsSessionDelete());
+    QVERIFY(fixture.controller.supportsImagePrompt());
+
+    fixture.controller.createNewSession(Utils::FilePath::fromUserInput(QDir::currentPath()));
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+    QCOMPARE(fixture.controller.sessionId(), fixture.createdSessions.first());
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// In v2 the session/prompt response only acknowledges acceptance; the turn is
+// driven by state updates: running before the streamed output, promptFinished
+// exactly once from the idle state update.
+void AcpClientTest::testV2PromptLifecycle()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_VERIFY(indexOfStateUpdate(fixture.updates, "idle") >= 0);
+    QCOMPARE(fixture.promptFinishedCount, 1);
+
+    QStringList chunkTexts;
+    int firstChunkIndex = -1;
+    for (int i = 0; i < fixture.updates.size(); ++i) {
+        const V2::SessionUpdate &update = fixture.updates.at(i);
+        if (update.kind() != QLatin1String("agent_message_chunk"))
+            continue;
+        if (firstChunkIndex < 0)
+            firstChunkIndex = i;
+        const auto *chunk = update.get<V2::ContentChunk>();
+        QVERIFY(chunk);
+        QVERIFY(!chunk->messageId().isEmpty());
+        if (const auto *text = std::get_if<V2::TextContent>(&chunk->content()))
+            chunkTexts.append(text->text());
+    }
+    QCOMPARE(chunkTexts,
+             QStringList({"chunk-1:hello", "chunk-2:hello", "chunk-3:hello"}));
+
+    const int runningIndex = indexOfStateUpdate(fixture.updates, "running");
+    const int idleIndex = indexOfStateUpdate(fixture.updates, "idle");
+    QVERIFY(runningIndex >= 0);
+    QVERIFY(runningIndex < firstChunkIndex);
+    QVERIFY(firstChunkIndex < idleIndex);
+
+    const auto *idleState = fixture.updates.at(idleIndex).get<V2::StateUpdate>();
+    QVERIFY(idleState);
+    const auto *idle = std::get_if<V2::IdleStateUpdate>(idleState);
+    QVERIFY(idle);
+    QVERIFY(idle->stopReason().has_value());
+    QVERIFY(*idle->stopReason() == V2::StopReason::end_turn);
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// session/cancel during a v2 prompt finishes the turn through an idle state
+// update carrying stopReason cancelled.
+void AcpClientTest::testV2PromptCancel()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--cancel"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("work", {}, false);
+    QTRY_VERIFY(Utils::anyOf(fixture.updates, [](const V2::SessionUpdate &update) {
+        return update.kind() == QLatin1String("agent_message_chunk");
+    }));
+    QCOMPARE(fixture.promptFinishedCount, 0);
+
+    fixture.controller.cancelPrompt();
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    const int idleIndex = indexOfStateUpdate(fixture.updates, "idle");
+    QVERIFY(idleIndex >= 0);
+    const auto *idleState = fixture.updates.at(idleIndex).get<V2::StateUpdate>();
+    QVERIFY(idleState);
+    const auto *idle = std::get_if<V2::IdleStateUpdate>(idleState);
+    QVERIFY(idle);
+    QVERIFY(idle->stopReason().has_value());
+    QVERIFY(*idle->stopReason() == V2::StopReason::cancelled);
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// A v2 permission request carries title, subject, and options; answering with
+// the allow option completes the tool call and ends the turn.
+void AcpClientTest::testV2PermissionRequest()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--permission"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("do it", {}, false);
+    QTRY_COMPARE(fixture.permissionIds.size(), 1);
+
+    const V2::RequestPermissionRequest &request = fixture.permissionRequests.first();
+    QVERIFY(!request.title().isEmpty());
+    QVERIFY(request.subject().has_value());
+    const auto *subject = std::get_if<V2::ToolCallPermissionSubject>(&*request.subject());
+    QVERIFY(subject);
+    QCOMPARE(subject->toolCall().toolCallId(), "tool-perm");
+    QCOMPARE(request.options().size(), 2);
+    QCOMPARE(request.options().at(0).optionId(), "allow");
+    QCOMPARE(fixture.promptFinishedCount, 0); // the turn is blocked on the permission
+
+    fixture.controller.sendPermissionResponse(fixture.permissionIds.first(), "allow");
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    QVERIFY(Utils::anyOf(fixture.updates, [](const V2::SessionUpdate &update) {
+        if (update.kind() != QLatin1String("tool_call_update"))
+            return false;
+        const auto *toolCall = update.get<V2::ToolCallUpdate>();
+        return toolCall && toolCall->toolCallId() == QLatin1String("tool-perm")
+               && toolCall->status().has_value()
+               && *toolCall->status() == V2::ToolCallStatus::completed;
+    }));
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// session/resume replaces v1 session/load; with a replayFrom cursor the agent
+// replays history as ordinary session updates before the response.
+void AcpClientTest::testV2SessionResume()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--sessions", "2"});
+
+    QVERIFY(fixture.controller.supportsSessionDelete()); // seeded sessions advertise delete
+
+    fixture.controller.listSessions();
+    QTRY_COMPARE(fixture.listCount, 1);
+    QCOMPARE(fixture.listedSessions.size(), 2);
+
+    fixture.controller.loadSession("session-1",
+                                   Utils::FilePath::fromUserInput(QDir::currentPath()));
+    QTRY_COMPARE(fixture.loadedSessions, QStringList("session-1"));
+    QCOMPARE(fixture.controller.sessionId(), "session-1");
+
+    // The replayed history arrived before the resume response.
+    QVERIFY(Utils::anyOf(fixture.updates, [](const V2::SessionUpdate &update) {
+        return update.kind() == QLatin1String("user_message");
+    }));
+    QVERIFY(Utils::anyOf(fixture.updates, [](const V2::SessionUpdate &update) {
+        return update.kind() == QLatin1String("agent_message_chunk");
+    }));
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// Unknown session update kinds are tolerated: they parse to the raw fallback,
+// the UI ignores them, and the turn still completes without errors.
+void AcpClientTest::testV2UnknownSessionUpdateIgnored()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--emit-unknown-update"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    QVERIFY(Utils::anyOf(fixture.updates, [](const V2::SessionUpdate &update) {
+        return update.kind() == QLatin1String("_test_future_kind");
+    }));
+    QVERIFY(fixture.errors.isEmpty());
 }
 
 // Collects the texts of the stats lines the message view appended for finished

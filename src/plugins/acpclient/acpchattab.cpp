@@ -38,6 +38,18 @@ using namespace ProjectExplorer;
 
 namespace AcpClient::Internal {
 
+static QString joinedTextContent(const Patch<QList<ContentBlock>> &content)
+{
+    if (!content.has_value())
+        return {};
+    QString text;
+    for (const ContentBlock &block : *content) {
+        if (const auto *textBlock = std::get_if<TextContent>(&block))
+            text += textBlock->text();
+    }
+    return text;
+}
+
 AcpChatTab::AcpChatTab(QWidget *parent)
     : QWidget(parent)
 {
@@ -387,9 +399,44 @@ AcpChatTab::AcpChatTab(QWidget *parent)
                 if (const auto *textBlock = std::get_if<TextContent>(&chunk->content()))
                     m_chatPanel->addUserMessage(textBlock->text());
             }
+        } else if (kind == QLatin1String("agent_message")) {
+            // Whole-message upsert; approximated by starting a fresh message
+            // with the replacement content.
+            if (const auto *message = update.get<AgentMessage>()) {
+                m_chatPanel->finishAgentMessage();
+                const QString text = joinedTextContent(message->content());
+                if (!text.isEmpty())
+                    m_chatPanel->appendAgentText(text);
+            }
+        } else if (kind == QLatin1String("agent_thought")) {
+            if (const auto *thought = update.get<AgentThought>()) {
+                const QString text = joinedTextContent(thought->content());
+                if (!text.isEmpty())
+                    m_chatPanel->appendAgentThought(text);
+            }
+        } else if (kind == QLatin1String("user_message")) {
+            if (const auto *message = update.get<UserMessage>()) {
+                const QString text = joinedTextContent(message->content());
+                if (!text.isEmpty())
+                    m_chatPanel->addUserMessage(text);
+            }
         } else if (kind == QLatin1String("tool_call_update")) {
             if (const auto *tcu = update.get<ToolCallUpdate>())
                 m_chatPanel->updateToolCall(*tcu);
+        } else if (kind == QLatin1String("tool_call_content_chunk")) {
+            // Chunks append a single content item to the tool call.
+            if (const auto *chunk = update.get<ToolCallContentChunk>()) {
+                ToolCallUpdate append;
+                append.toolCallId(chunk->toolCallId());
+                append.content(QList<ToolCallContent>{chunk->content()});
+                m_chatPanel->updateToolCall(append);
+            }
+        } else if (kind == QLatin1String("terminal_update")) {
+            if (const auto *terminal = update.get<TerminalUpdate>())
+                m_chatPanel->updateTerminal(*terminal);
+        } else if (kind == QLatin1String("terminal_output_chunk")) {
+            if (const auto *chunk = update.get<TerminalOutputChunk>())
+                m_chatPanel->appendTerminalOutput(*chunk);
         } else if (kind == QLatin1String("plan_update")) {
             if (const auto *p = update.get<PlanUpdate>())
                 m_chatPanel->addPlan(*p);

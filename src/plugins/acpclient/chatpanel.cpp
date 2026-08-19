@@ -988,6 +988,16 @@ void ChatPanel::updateToolCall(const ToolCallUpdate &update)
     m_messageView->updateToolCall(update);
 }
 
+void ChatPanel::updateTerminal(const TerminalUpdate &update)
+{
+    m_messageView->updateTerminal(update);
+}
+
+void ChatPanel::appendTerminalOutput(const TerminalOutputChunk &chunk)
+{
+    m_messageView->appendTerminalOutput(chunk);
+}
+
 void ChatPanel::addPlan(const PlanUpdate &plan)
 {
     m_messageView->addPlan(plan);

@@ -8,6 +8,7 @@
 #include "acpinspector.h"
 #include "acppermissionhandler.h"
 #include "acpprotocolv1adapter.h"
+#include "acpprotocolv2adapter.h"
 #include "acpsettings.h"
 #include "acpstdiotransport.h"
 #include "acpterminalhandler.h"
@@ -95,8 +96,6 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
     m_client = new AcpClientObject(m_transport, this);
     if (m_inspector)
         m_client->setInspector(m_inspector, m_serverName);
-    m_terminalHandler = new AcpTerminalHandler(m_client, this);
-    m_filesystemHandler = new AcpFilesystemHandler(m_client, this);
     m_permissionHandler = new AcpPermissionHandler(m_client, this);
 
     connect(m_permissionHandler, &AcpPermissionHandler::permissionCancelledByAgent,
@@ -291,7 +290,7 @@ void AcpChatController::sendPrompt(const QString &text,
         const QString uri = file.toUrl().toString();
         content << V2::ResourceLink()
                        .name(file.fileName())
-                       .description(QString("Manually added context file."))
+                       .description("Manually added context file.")
                        .uri(uri);
 
         if (embeddedContext) {
@@ -384,9 +383,13 @@ void AcpChatController::onInitializeResult(const QJsonObject &result)
         }
         setUpV1Adapter(*response);
     } else if (version == 2) {
-        emit errorOccurred(
-            Tr::tr("The agent requires ACP protocol version 2, which is not supported yet."));
-        disconnectFromServer();
+        const auto response = V2::fromJson<V2::InitializeResponse>(QJsonValue(result));
+        if (!response) {
+            emit errorOccurred(Tr::tr("Initialization failed: invalid response."));
+            disconnectFromServer();
+            return;
+        }
+        setUpV2Adapter(*response, result.value(QStringLiteral("capabilities")).toObject());
     } else if (!versionValue.isDouble()) {
         emit errorOccurred(Tr::tr("The agent did not report an ACP protocol version."));
         disconnectFromServer();
@@ -411,7 +414,40 @@ void AcpChatController::setUpV1Adapter(const InitializeResponse &response)
             m_serverName, capabilities ? toJson(*capabilities) : QJsonObject());
     }
 
+    // The client-side fs/* and terminal/* method surface only exists in v1.
+    m_terminalHandler = new AcpTerminalHandler(m_client, this);
+    m_filesystemHandler = new AcpFilesystemHandler(m_client, this);
+
     m_adapter = new AcpProtocolV1Adapter(m_client, response, this);
+    connectAdapter();
+
+    emit agentInfoReceived(m_agentName, m_agentVersion, m_iconUrl);
+
+    emit sessionSelectionRequired();
+}
+
+void AcpChatController::setUpV2Adapter(const V2::InitializeResponse &response,
+                                       const QJsonObject &rawCapabilities)
+{
+    const V2::Implementation &info = response.info();
+    m_agentName = info.title().asOptional().value_or(info.name());
+    m_agentVersion = info.version();
+
+    m_initialized = true;
+
+    if (m_inspector)
+        m_inspector->setCapabilities(m_serverName, rawCapabilities);
+
+    m_adapter = new AcpProtocolV2Adapter(m_client, response, this);
+    connectAdapter();
+
+    emit agentInfoReceived(m_agentName, m_agentVersion, m_iconUrl);
+
+    emit sessionSelectionRequired();
+}
+
+void AcpChatController::connectAdapter()
+{
     connect(m_adapter, &AcpProtocolAdapter::sessionCreated, this, [this](const QString &sessionId) {
         m_sessionId = sessionId;
         emit sessionCreated(sessionId);
@@ -446,10 +482,6 @@ void AcpChatController::setUpV1Adapter(const InitializeResponse &response)
             this, [this](const std::optional<V2::StopReason> &) { emit promptFinished(); });
     connect(m_adapter, &AcpProtocolAdapter::errorOccurred,
             this, &AcpChatController::errorOccurred);
-
-    emit agentInfoReceived(m_agentName, m_agentVersion, m_iconUrl);
-
-    emit sessionSelectionRequired();
 }
 
 // Agents may insist on the MCP server name charset, so map anything else to '_'.

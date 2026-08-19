@@ -18,6 +18,7 @@ class ServerScenario
 {
 public:
     bool requireAuth = false;      // --require-auth
+    bool emitUnknownUpdate = false; // --emit-unknown-update
     int seededSessions = 0;        // --sessions <N>
     bool permission = false;       // --permission
     bool waitForCancel = false;    // --cancel
@@ -59,15 +60,27 @@ private:
     void handleSetMode(const QJsonValue &id, const QJsonObject &params);
     void handleSetConfigOption(const QJsonValue &id, const QJsonObject &params);
 
+    void handleInitializeV2(const QJsonValue &id, const QJsonObject &params);
+    void handleLogin(const QJsonValue &id, const QJsonObject &params);
+    void handleNewSessionV2(const QJsonValue &id, const QJsonObject &params);
+    void handleResumeSession(const QJsonValue &id, const QJsonObject &params);
+    void handlePromptV2(const QJsonValue &id, const QJsonObject &params);
+
     void sendResult(const QJsonValue &id, const QJsonObject &result);
     void sendError(const QJsonValue &id, int code, const QString &message);
     void sendNotification(const QString &method, const QJsonObject &params);
     void sendAgentMessageChunk(const QString &sessionId, const QString &text);
+    void sendSessionUpdateV2(const QString &sessionId, const QJsonObject &update);
+    void sendAgentMessageChunkV2(const QString &sessionId, const QString &messageId,
+                                 const QString &text);
+    void sendStateUpdate(const QString &sessionId, const QString &state,
+                         const QString &stopReason = {});
     void writeLine(const QJsonObject &message);
     void writeRawLine(const QByteArray &line);
     void noise(const char *context);
 
     QJsonArray configOptionsJson() const;
+    QJsonArray configOptionsJsonV2() const;
 
     // Blocks reading stdin, dispatching messages that do not match the
     // predicate, until a matching message arrives or stdin is closed.
@@ -81,6 +94,7 @@ private:
     QString m_currentModeId = "ask";
     QStringList m_sessions;
     int m_nextSessionNumber = 1;
+    int m_messageCounter = 0;
     // Ids for server -> client requests. Distinct range from typical client
     // ids to keep protocol logs unambiguous.
     qint64 m_nextOutgoingId = 1000;
