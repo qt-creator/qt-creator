@@ -98,7 +98,7 @@ private:
 
     static QString pattern()
     {
-        const QString possibleDrive("(?:[A-Za-z]:)?");
+        const QString possibleDrive("(?:/?[A-Za-z]:)?");
         const QString lineOrColumnSuffix("(?::\\d+)");
 
         // A path with "weird characters" can only be properly detected if it is followed
@@ -147,6 +147,12 @@ private slots:
         QTest::addRow("Windows path with spaces and no line")
             << QString("Cannot be properly detected: file://C:\\file with spaces.cpp")
             << OutputLineParser::LinkSpecs{{29, 14, "file://C:\\file"}};
+        QTest::addRow("Windows path with empty authority and line and column")
+            << QString("the path: file:///C:/dir/main.cpp:2:3")
+            << OutputLineParser::LinkSpecs{{10, 27, "file:///C:/dir/main.cpp:2:3"}};
+        QTest::addRow("Windows path with empty authority and no line")
+            << QString("the path: file:///c:/dir/main.cpp")
+            << OutputLineParser::LinkSpecs{{10, 23, "file:///c:/dir/main.cpp"}};
         QTest::addRow("More than one file on a line")
             << QString(
                    "A plain file:///file1.cpp, then a file:///file2.cpp:1199 with a line number, "
