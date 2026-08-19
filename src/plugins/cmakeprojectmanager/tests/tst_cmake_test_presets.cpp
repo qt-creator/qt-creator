@@ -474,6 +474,149 @@ private slots:
         QVERIFY(args.contains("--build-config"));
     }
 
+    void testParseRunSettings()
+    {
+        const QByteArray json = R"({
+            "version": 3,
+            "configurePresets": [
+                {
+                    "name": "default",
+                    "vendor": {
+                        "qt.io/QtCreator/1.0": {
+                            "runSettings": [
+                                {
+                                    "target": "myApp",
+                                    "displayName": "My App",
+                                    "executable": "/bin/myApp",
+                                    "arguments": "--verbose",
+                                    "workingDirectory": "${sourceDir}",
+                                    "useTerminal": true,
+                                    "useLibraryPaths": false,
+                                    "useDyldSuffix": true,
+                                    "useVncDisplay": true,
+                                    "enableCategoriesFilter": true,
+                                    "x11Forwarding": ":0.0",
+                                    "runAs": "root",
+                                    "environment": { "MY_VAR": "my_value" },
+                                    "active": true
+                                },
+                                { "target": "myApp" }
+                            ]
+                        }
+                    }
+                }
+            ]
+        })";
+
+        const FilePath file = writeJson("runsettings.json", json);
+        PresetsParser parser;
+        QString error;
+        int errorLine = 0;
+        QVERIFY(parser.parse(file, error, errorLine));
+
+        const QList<PresetsDetails::ConfigurePreset> &presets
+            = parser.presetsData().configurePresets;
+        QCOMPARE(presets.size(), 1);
+
+        const QList<PresetsDetails::RunSettings> &runSettings = presets.at(0).runSettings;
+        QCOMPARE(runSettings.size(), 2);
+
+        const PresetsDetails::RunSettings &first = runSettings.at(0);
+        QCOMPARE(first.target, QString("myApp"));
+        QCOMPARE(first.displayName, std::optional<QString>("My App"));
+        QCOMPARE(first.executable, std::optional<QString>("/bin/myApp"));
+        QCOMPARE(first.arguments, std::optional<QString>("--verbose"));
+        QCOMPARE(first.workingDirectory, std::optional<QString>("${sourceDir}"));
+        QCOMPARE(first.useTerminal, std::optional<bool>(true));
+        QCOMPARE(first.useLibraryPaths, std::optional<bool>(false));
+        QCOMPARE(first.useDyldSuffix, std::optional<bool>(true));
+        QCOMPARE(first.useVncDisplay, std::optional<bool>(true));
+        QCOMPARE(first.enableCategoriesFilter, std::optional<bool>(true));
+        QCOMPARE(first.x11Forwarding, std::optional<QString>(":0.0"));
+        QCOMPARE(first.runAs, std::optional<QString>("root"));
+        QCOMPARE(first.active, std::optional<bool>(true));
+        QVERIFY(first.environment);
+        QCOMPARE(first.environment->value("MY_VAR"), QString("my_value"));
+
+        // Everything but the target is optional
+        const PresetsDetails::RunSettings &second = runSettings.at(1);
+        QCOMPARE(second.target, QString("myApp"));
+        QVERIFY(!second.displayName);
+        QVERIFY(!second.executable);
+        QVERIFY(!second.environment);
+        QVERIFY(!second.active);
+    }
+
+    void testParseRunSettingsInvalid_data()
+    {
+        QTest::addColumn<QByteArray>("runSettings");
+
+        QTest::newRow("not an array") << QByteArray(R"({ "target": "myApp" })");
+        QTest::newRow("not an object") << QByteArray(R"([ "myApp" ])");
+        QTest::newRow("no target") << QByteArray(R"([ { "arguments": "--verbose" } ])");
+        QTest::newRow("empty target") << QByteArray(R"([ { "target": "" } ])");
+        QTest::newRow("environment not an object")
+            << QByteArray(R"([ { "target": "myApp", "environment": "MY_VAR=1" } ])");
+    }
+
+    void testParseRunSettingsInvalid()
+    {
+        QFETCH(QByteArray, runSettings);
+
+        const QByteArray json = R"({
+            "version": 3,
+            "configurePresets": [
+                {
+                    "name": "default",
+                    "vendor": { "qt.io/QtCreator/1.0": { "runSettings": )"
+                                + runSettings + R"( } }
+                }
+            ]
+        })";
+
+        const FilePath file = writeJson("runsettings-invalid.json", json);
+        PresetsParser parser;
+        QString error;
+        int errorLine = 0;
+        QVERIFY(!parser.parse(file, error, errorLine));
+        QVERIFY(!error.isEmpty());
+    }
+
+    void testRunSettingsAreInherited()
+    {
+        PresetsDetails::RunSettings parentSetting;
+        parentSetting.target = "fromParent";
+
+        PresetsDetails::ConfigurePreset parent;
+        parent.name = "parent";
+        parent.runSettings = {parentSetting};
+
+        PresetsDetails::ConfigurePreset child;
+        child.name = "child";
+        child.inheritFrom(parent);
+        QCOMPARE(child.runSettings.size(), 1);
+        QCOMPARE(child.runSettings.at(0).target, QString("fromParent"));
+
+        // Own run settings take precedence over the inherited ones
+        PresetsDetails::RunSettings ownSetting;
+        ownSetting.target = "own";
+
+        PresetsDetails::ConfigurePreset sibling;
+        sibling.name = "sibling";
+        sibling.runSettings = {ownSetting};
+        sibling.inheritFrom(parent);
+        QCOMPARE(sibling.runSettings.size(), 1);
+        QCOMPARE(sibling.runSettings.at(0).target, QString("own"));
+    }
+
+private:
+    static FilePath writeJson(const QString &fileName, const QByteArray &contents)
+    {
+        const FilePath file = FilePath::fromUserInput(QDir::tempPath()).pathAppended(fileName);
+        if (!file.writeFileContents(contents))
+            return {};
+        return file;
+    }
 };
 
 QTEST_GUILESS_MAIN(TestPresetsTests)

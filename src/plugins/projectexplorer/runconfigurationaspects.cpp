@@ -885,6 +885,18 @@ QString RunAsAspect::user() const
     return {};
 }
 
+void RunAsAspect::setUser(const QString &user)
+{
+    if (user.isEmpty()) {
+        m_selection.setValue(0);
+    } else if (user == "root") {
+        m_selection.setValue(1);
+    } else {
+        m_selection.setValue(2);
+        m_user.setValue(user);
+    }
+}
+
 void RunAsAspect::fromMap(const Utils::Store &map)
 {
     AspectContainer::fromMap(map);

@@ -53,6 +53,8 @@ endif()
 
 set_target_properties(cmakepresets PROPERTIES FOLDER qtc_runnable)
 
+add_custom_target(hello COMMAND ${CMAKE_COMMAND} -E echo "Hello from CMake!")
+
 target_link_libraries(cmakepresets PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(cmakepresets PROPERTIES

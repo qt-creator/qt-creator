@@ -170,6 +170,7 @@ public:
 
     // Empty means default
     QString user() const;
+    void setUser(const QString &user);
 
 private:
     QVariant variantValue() const override { return user(); }

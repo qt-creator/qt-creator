@@ -439,6 +439,157 @@
     }
     \endcode
 
+    \section1 Run presets
+
+    Run presets provide settings for running applications built with CMake.
+
+    Each run setting has a \c target that matches a build target name. \QC creates
+    one run configuration per run setting and applies the settings to it. Where a
+    run setting does not set \c displayName, the run configuration is named after
+    the target, with a numeric suffix from the second run setting for that target
+    onwards (for example, \c myApp, \c myApp2, \c myApp3).
+
+    Settings that the run configuration does not support are ignored. For example,
+    \c useDyldSuffix has no effect unless you run the application locally on \macos.
+
+    Run presets also support utility targets (\c add_custom_target in CMake). For
+    these targets, \QC creates a run configuration that runs
+    \c {cmake --build . --target <targetName>}. To specify a custom executable instead,
+    use the \c executable field.
+
+    The following table summarizes the available run settings:
+
+    \table
+    \header
+        \li Preset
+        \li Description
+        \li Read More
+    \row
+        \li \c {target}
+        \li The name of the CMake build target. For executables, this matches the
+            target created in \c CMakeLists.txt. For utility targets, this matches
+            the name used in \c add_custom_target(). If the target does not exist
+            as a CMake build target, \QC creates a run configuration that
+            runs the specified \c executable, or falls back to
+            \c {cmake --build . --target <targetName>}.
+        \li \l{Building projects with CMake}
+    \row
+        \li \c {displayName}
+        \li Display name for the run configuration. If omitted, the \c target
+            name is used. Use this to give meaningful names when a target has
+            multiple run settings (for example, \c {"myApp - tests"}, \c {"myApp - debug"}).
+        \li
+    \row
+        \li \c {executable}
+        \li Path to the executable to run. Supports
+            \l{CMake: Preset macros}.
+        \li \l{Configure projects for running}
+    \row
+        \li \c {arguments}
+        \li Command line arguments for the run configuration. Supports
+            \l{CMake: Preset macros}.
+        \li \l{Configure projects for running}
+    \row
+        \li \c {workingDirectory}
+        \li Working directory for the run configuration. Supports
+            \l{CMake: Preset macros}.
+        \li \l{Configure projects for running}
+    \row
+        \li \c {useTerminal}
+        \li Whether to run the application in a terminal window.
+        \li \l{Configure projects for running}
+    \row
+        \li \c {useLibraryPaths}
+        \li Adds build library search paths to the runtime environment.
+            On \macos this sets \c DYLD_LIBRARY_PATH and \c DYLD_FRAMEWORK_PATH,
+            on Linux it sets \c LD_LIBRARY_PATH, and on Windows it adds to \c PATH.
+        \li \l{Configure projects for running}
+    \row
+        \li \c {useDyldSuffix}
+        \li (\macos) Whether to load the debug version of linked frameworks by
+            setting the \c DYLD_IMAGE_SUFFIX environment variable to \c _debug.
+        \li \l{Debug linked frameworks}
+    \row
+        \li \c {useVncDisplay}
+        \li (Remote Linux) Whether to start a VNC server on the device and run
+            the application on its display.
+        \li \l{View the application UI}
+    \row
+        \li \c {enableCategoriesFilter}
+        \li Enables Qt logging category filtering by setting the \c QT_LOGGING_RULES
+            and \c QT_MESSAGE_PATTERN environment variables.
+        \li \l{Set the environment for all run configurations}
+    \row
+        \li \c {x11Forwarding}
+        \li (Remote Linux) The X11 display to forward to (for example, \c :0.0).
+        \li \l{Specify remote Linux run settings}
+    \row
+        \li \c {runAs}
+        \li The user account to run as (Unix only). Valid values are \c default,
+            \c root, or a custom username.
+        \li \l{Run as a different user}
+    \row
+        \li \c {environment}
+        \li A JSON object mapping environment variable names to their values.
+        \li \l{Specify the environment for projects}
+    \row
+        \li \c {active}
+        \li If set to \c true, the matched run configuration is set as the active
+            (selected) run configuration for its build configuration. If multiple
+            presets specify \c active, the last one processed wins.
+        \li \l{Configure projects for running}
+    \endtable
+
+    An example of \QC run settings:
+
+    \code [json]
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "runSettings": [
+          {
+            "target": "myApp",
+            "displayName": "My App - production",
+            "arguments": "--verbose --config production",
+            "workingDirectory": "${sourceDir}/output",
+            "useTerminal": false,
+            "useLibraryPaths": true,
+            "environment": {
+              "MY_VAR": "my_value"
+            }
+          },
+          {
+            "target": "myApp",
+            "displayName": "My App - debug",
+            "arguments": "--debug",
+            "workingDirectory": "${sourceDir}/debug-output",
+            "useDyldSuffix": true,
+            "useLibraryPaths": true,
+            "active": true
+          },
+          {
+            "target": "run-tests",
+            "useTerminal": true
+          },
+          {
+            "target": "shell",
+            "displayName": "Interactive Shell",
+            "executable": "/bin/bash",
+            "arguments": "--help",
+            "useTerminal": true
+          }
+        ]
+      }
+    }
+    \endcode
+
+    This example creates four run configurations:
+    \list
+        \li \c {"My App - production"} (from the first run setting)
+        \li \c {"My App - debug"} (from the second run setting, same target)
+        \li \c run-tests (a utility target, runs \c {cmake --build . --target run-tests})
+        \li \c {"Interactive Shell"} (a standalone executable, runs \c{/bin/bash})
+    \endlist
+
     \section1 Compiler presets
 
     The following table summarizes the available presets.
@@ -449,7 +600,7 @@
     \header
         \li Preset
         \li Description
-        \row
+    \row
             \li \c {c}
             \li Path to the C compiler installation folder.
         \row

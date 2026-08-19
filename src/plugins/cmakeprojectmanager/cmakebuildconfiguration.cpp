@@ -40,6 +40,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -1771,6 +1772,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         setBuildPresetToBuildSteps();
     });
+
+    connect(this, &BuildConfiguration::runConfigurationsUpdated, this, [this] {
+        applyRunSettingsToRunConfigurations(static_cast<CMakeProject *>(project()));
+    });
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration() = default;
@@ -2206,6 +2211,137 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps()
                 cbs->setUseClearEnvironment(vendor.value("clearSystemEnvironment").toBool());
         }
     }
+}
+
+static void applyRunSettings(
+    const PresetsDetails::RunSettings &rs,
+    const PresetsDetails::ConfigurePreset &configurePreset,
+    RunConfiguration *rc,
+    const Environment &env,
+    const FilePath &sourceDirectory)
+{
+    // Not every run configuration has every aspect: UseVncDisplayAspect and X11ForwardingAspect
+    // only exist for remote Linux, UseDyldSuffixAspect and EnableCategoriesFilterAspect only for
+    // the desktop. Silently skip what the run configuration does not offer.
+    const auto expanded = [&](const QString &value) {
+        QString result = value;
+        CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, result);
+        return result;
+    };
+
+    if (rs.executable) {
+        if (auto aspect = rc->aspect<ExecutableAspect>())
+            aspect->setExecutable(FilePath::fromUserInput(expanded(*rs.executable)));
+    }
+
+    if (rs.arguments) {
+        if (auto aspect = rc->aspect<ArgumentsAspect>())
+            aspect->setArguments(expanded(*rs.arguments));
+    }
+
+    if (rs.workingDirectory) {
+        if (auto aspect = rc->aspect<WorkingDirectoryAspect>())
+            aspect->setDefaultWorkingDirectory(
+                FilePath::fromUserInput(expanded(*rs.workingDirectory)));
+    }
+
+    if (rs.useTerminal) {
+        if (auto aspect = rc->aspect<TerminalAspect>())
+            aspect->setVariantValue(*rs.useTerminal, BaseAspect::BeQuiet);
+    }
+
+    if (rs.useLibraryPaths) {
+        if (auto aspect = rc->aspect<UseLibraryPathsAspect>())
+            aspect->setValue(*rs.useLibraryPaths);
+    }
+
+    if (rs.useDyldSuffix) {
+        if (auto aspect = rc->aspect<UseDyldSuffixAspect>())
+            aspect->setValue(*rs.useDyldSuffix);
+    }
+
+    if (rs.useVncDisplay) {
+        if (auto aspect = rc->aspect<UseVncDisplayAspect>())
+            aspect->setValue(*rs.useVncDisplay);
+    }
+
+    if (rs.enableCategoriesFilter) {
+        if (auto aspect = rc->aspect<EnableCategoriesFilterAspect>())
+            aspect->setValue(*rs.enableCategoriesFilter);
+    }
+
+    if (rs.x11Forwarding) {
+        if (auto aspect = rc->aspect<X11ForwardingAspect>())
+            aspect->setValue(expanded(*rs.x11Forwarding));
+    }
+
+    if (rs.runAs) {
+        if (auto aspect = rc->aspect<RunAsAspect>())
+            aspect->setUser(*rs.runAs == "default" ? QString() : *rs.runAs);
+    }
+
+    if (rs.environment) {
+        if (auto aspect = rc->aspect<EnvironmentAspect>()) {
+            EnvironmentItems items;
+            rs.environment->forEachEntry(
+                [&](const QString &key, const QString &value, bool enabled) {
+                    items.append({key,
+                                  expanded(value),
+                                  enabled ? EnvironmentItem::SetEnabled
+                                          : EnvironmentItem::SetDisabled});
+                });
+            aspect->setUserEnvironmentChanges(EnvironmentChanges(items));
+        }
+    }
+}
+
+void CMakeBuildConfiguration::applyRunSettingsToRunConfigurations(const CMakeProject *project)
+{
+    if (!project)
+        return;
+
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(kit());
+    if (presetItem.isNull())
+        return;
+
+    // Keep the presets data alive for as long as the run settings taken from it are used.
+    const PresetsData presetsData = project->presetsData();
+    const QString presetName = presetItem.expandedValue(kit());
+    const PresetsDetails::ConfigurePreset *configurePreset = nullptr;
+    for (const PresetsDetails::ConfigurePreset &cp : presetsData.configurePresets) {
+        if (cp.name == presetName) {
+            configurePreset = &cp;
+            break;
+        }
+    }
+    if (!configurePreset || configurePreset->runSettings.isEmpty())
+        return;
+
+    QMap<QString, QList<const PresetsDetails::RunSettings *>> runSettingsByTarget;
+    for (const PresetsDetails::RunSettings &rs : configurePreset->runSettings)
+        runSettingsByTarget[rs.target].append(&rs);
+
+    // appTargets() emits one run configuration per run setting, in run settings order and all
+    // sharing the target name as build key. Match them up again by that order.
+    QHash<QString, int> indexByTarget;
+    RunConfiguration *toActivate = nullptr;
+    for (RunConfiguration *rc : runConfigurations()) {
+        const auto it = runSettingsByTarget.constFind(rc->buildKey());
+        if (it == runSettingsByTarget.constEnd())
+            continue;
+
+        const int index = indexByTarget[rc->buildKey()]++;
+        if (index >= it->size())
+            continue;
+
+        const PresetsDetails::RunSettings &rs = *it->at(index);
+        applyRunSettings(rs, *configurePreset, rc, environment(), project->projectDirectory());
+        if (rs.active.value_or(false))
+            toActivate = rc;
+    }
+
+    if (toActivate)
+        setActiveRunConfiguration(toActivate);
 }
 
 /*!

@@ -569,6 +569,10 @@
     \title CMake: cmake-presets(7)
 */
 /*!
+    \externalpage https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html#macro-expansion
+    \title CMake: Preset macros
+*/
+/*!
     \externalpage https://cmake.org/cmake/help/latest/prop_gbl/GENERATOR_IS_MULTI_CONFIG.html
     \title CMake: Multi-config generators
 */

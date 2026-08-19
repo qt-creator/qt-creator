@@ -15,19 +15,27 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-${presetName}",
       "graphviz" : "${sourceDir}/build-${presetName}/graphviz.dot",
-      "toolchainFile" : "$env{HOME}/Qt/6.11.0/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile" : "$env{HOME}/Qt/6.11.1/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
       "condition" : {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
       },
       "vendor": {
-          "qt.io/QtCreator/1.0": {
-              "runEnvironment": {
-                  "HOME_VARIABLE_WITH_HEART": "$env{HOME}/❤️"
-              }
-          }
+        "qt.io/QtCreator/1.0": {
+          "runEnvironment": {
+            "HOME_VARIABLE_WITH_HEART": "$env{HOME}/❤️"
+          },
+          "runSettings": [
+            {
+              "target": "cmakepresets",
+              "useTerminal": true,
+              "arguments": "--verbose",
+              "workingDirectory": "${sourceDir}"
+            }
+          ]
         }
+      }
     },
     {
       "name": "macos-clang",
@@ -41,17 +49,41 @@
         "rhs": "Darwin"
       },
       "vendor": {
-          "qt.io/QtCreator/1.0": {
-              "runEnvironment": {
-                  "HOME_VARIABLE_WITH_HEART": "$env{HOME}/❤️"
-              },
-              "debugger": "/usr/bin/lldb",
-              "qt": "$env{HOME}/Qt/6.11.0/macos/bin/qmake",
-              "compiler": {
-                "c" : "$env{HOME}/llvm/mac/bin/clang",
-                "cxx" : "$env{HOME}/llvm/mac/bin/clang++"
-              }
-          }
+        "qt.io/QtCreator/1.0": {
+          "runEnvironment": {
+            "HOME_VARIABLE_WITH_HEART": "$env{HOME}/❤️"
+          },
+          "runSettings": [
+            {
+              "target": "cmakepresets",
+              "useTerminal": true,
+              "useDyldSuffix": true,
+              "runAs": "root",
+              "arguments": "--verbose",
+              "workingDirectory": "${sourceDir}"
+            },
+            {
+              "target": "cmakepresets",
+              "displayName": "cmakepresets two",
+              "useTerminal": false,
+              "useDyldSuffix": false,
+              "runAs": "cool",
+              "arguments": "--verbose --two",
+              "workingDirectory": "${sourceDir}"
+            },
+            {
+              "target": "hello",
+              "useTerminal": true
+            },
+            {
+              "target": "bash",
+              "useTerminal": true,
+              "executable": "/bin/bash",
+              "arguments": "--help",
+              "active": true
+            }
+          ]
+        }
       }
     }
   ]

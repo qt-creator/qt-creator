@@ -112,6 +112,7 @@ private:
 
     void setInitialBuildAndCleanSteps();
     void setBuildPresetToBuildSteps();
+    void applyRunSettingsToRunConfigurations(const CMakeProject *project);
     void filterConfigArgumentsFromAdditionalCMakeArguments();
 
     QStringList m_unrestrictedBuildTargets;
