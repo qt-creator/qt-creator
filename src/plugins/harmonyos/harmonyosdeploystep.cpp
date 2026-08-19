@@ -68,45 +68,6 @@ static QString balancedBraces(const QString &text, qsizetype from)
     return {};
 }
 
-// Reads the signingConfigs.material block that DevEco's automatic signing writes
-// into the project's harmonyos-build/build-profile.json5, mapping each field to
-// its QT_HARMONYOS_SIGNING_* variable. Empty when no signing material is present.
-static SigningConfig readSigningConfig(const FilePath &buildDir)
-{
-    SigningConfig config;
-    const FilePath profile = buildDir.pathAppended("harmonyos-build/build-profile.json5");
-    const Result<QByteArray> contents = profile.fileContents();
-    if (!contents)
-        return config;
-
-    const QString text = QString::fromUtf8(Utils::removeCommentsFromJson(*contents));
-    const qsizetype materialStart = text.indexOf("\"material\"");
-    if (materialStart < 0)
-        return config;
-    // The material block is a flat leaf object, so it parses as plain JSON once
-    // the surrounding JSON5 comments have been stripped.
-    const QString object = balancedBraces(text, materialStart);
-    if (object.isEmpty())
-        return config;
-    const QJsonObject material = QJsonDocument::fromJson(object.toUtf8()).object();
-
-    const QPair<QString, QString> fields[] = {
-        {"certpath", Constants::SIGNING_CERT_PATH_ENV_VAR},
-        {"profile", Constants::SIGNING_PROFILE_ENV_VAR},
-        {"storeFile", Constants::SIGNING_STORE_FILE_ENV_VAR},
-        {"keyAlias", Constants::SIGNING_KEY_ALIAS_ENV_VAR},
-        {"keyPassword", Constants::SIGNING_KEY_PASSWORD_ENV_VAR},
-        {"storePassword", Constants::SIGNING_STORE_PASSWORD_ENV_VAR},
-        {"signAlg", Constants::SIGNING_ALG_ENV_VAR},
-    };
-    for (const auto &[key, var] : fields) {
-        const QJsonValue value = material.value(key);
-        if (value.isString())
-            config.insert(var, value.toString());
-    }
-    return config;
-}
-
 // The signing material configured in Preferences > SDKs > HarmonyOS, for projects that
 // were not set up with DevEco's automatic signing. Empty unless all of it is present.
 static SigningConfig signingConfigFromSettings(const Environment &env)
