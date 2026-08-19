@@ -121,6 +121,13 @@ static QMap<QString, QString> environmentFromBatchFile(const Environment &env,
     return envPairs;
 }
 
+// Only the reference CI is provisioned with every backend, so a backend missing
+// there is a defect rather than something that was never installed.
+static bool backendsAreRequired()
+{
+    return qtcEnvironmentVariableIsSet("QTC_REQUIRE_BACKENDS_FOR_TEST");
+}
+
 static const char s_qmlNativeDebuggerPluginMissing[] =
     "Qt's qmldbg_native plugin not found - can't establish a live "
     "QML debug connection.";
@@ -976,10 +983,6 @@ void tst_backends::initTestCase()
         }
     }
 
-    if (m_backendData.isEmpty())
-        QSKIP("No supported debugger backend found - set QTC_GDB_PATH_FOR_TEST or "
-              "QTC_PYTHON_PATH_FOR_TEST to override.");
-
     const QString envGdbserver = qtcEnvironmentVariable("QTC_GDBSERVER_PATH_FOR_TEST");
     m_gdbserverPath = envGdbserver.isEmpty() ? FilePath::fromString("gdbserver").searchInPath()
                                              : FilePath::fromUserInput(envGdbserver);
@@ -1053,12 +1056,13 @@ void tst_backends::initTestCase()
     const bool needsCompiler = m_backendData.contains(Backend::Gdb)
                             || m_backendData.contains(Backend::Lldb);
     if (needsCompiler && !compiler.isExecutableFile()) {
-        QSKIP(qPrintable(probeFailures.isEmpty()
-                             ? QString("No C++ compiler (g++/clang++) found to build the "
-                                       "test inferior.")
-                             : QString("No usable C++ compiler to build the test inferior - "
-                                       "found, but unable to even run \"--version\":\n  ")
-                                   + probeFailures.join("\n  ")));
+        const QString why = probeFailures.isEmpty()
+                ? QString("No C++ compiler (g++/clang++) found to build the test inferior.")
+                : QString("No usable C++ compiler to build the test inferior - found, but "
+                          "unable to even run \"--version\":\n  ")
+                      + probeFailures.join("\n  ");
+        QVERIFY2(!backendsAreRequired(), qPrintable(why));
+        QSKIP(qPrintable(why));
     } else if (!compiler.isExecutableFile()) {
         qWarning("No C++ compiler (g++/clang++) found, and no backend here needs one - "
                  "the shared inferior and its library are not built. Cdb builds its own "
@@ -1294,7 +1298,32 @@ void tst_backends::initTestCase()
         }
     }
 
-    // Cdb can still drop out above, past the initial check.
+    // Last point at which a backend can still have dropped out, so the one place
+    // where what is left is what the rows will actually run.
+    QList<Backend> expected{Backend::Pdb};
+    if (HostOsInfo::isWindowsHost())
+        expected << Backend::Cdb;
+    else if (HostOsInfo::isMacHost())
+        expected << Backend::Lldb;
+    else
+        expected << Backend::Gdb;
+#ifdef QMLSERVER_INFERIOR_EXECUTABLE
+    expected << Backend::Qml;
+#endif
+    QStringList missing;
+    for (Backend backend : std::as_const(expected)) {
+        if (!m_backendData.contains(backend))
+            missing << backendName(backend);
+    }
+    if (!missing.isEmpty()) {
+        const QString what = QString("Backends expected on this platform but not usable: %1 - "
+                                     "none of their rows would run. See the warnings above for "
+                                     "which piece is missing.")
+                                 .arg(missing.join(", "));
+        QVERIFY2(!backendsAreRequired(), qPrintable(what));
+        qWarning("%s", qPrintable(what));
+    }
+
     if (m_backendData.isEmpty())
         QSKIP("No usable debugger backend left - see the warnings above.");
 

@@ -8,6 +8,9 @@ instructions:
     userMessageOnFailure: "Failed to unarchive build artifacts, check logs"
   - type: ChangeDirectory
     directory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/build"
+  - type: EnvironmentVariable
+    variableName: QTC_REQUIRE_BACKENDS_FOR_TEST
+    variableValue: "1"
   - type: ExecuteCommand
     command: "ctest -j 4 --timeout 60 --output-on-failure --label-exclude exclude_from_precheck --exclude-regex tst_perfdata"
     maxTimeInSeconds: 600
