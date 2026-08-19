@@ -10,6 +10,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/guiutils.h>
+#include <utils/infolabel.h>
 #include <utils/itemviews.h>
 
 #include <QAbstractTableModel>
@@ -278,7 +279,7 @@ public:
         const auto mainLayout = new QVBoxLayout(this);
         const auto widgetLayout = new QHBoxLayout;
         mainLayout->addLayout(widgetLayout);
-        const auto hintLabel = new QLabel(Tr::tr(
+        const auto hintLabel = new Utils::InfoLabel(Tr::tr(
             "Custom output parsers defined here can be enabled individually "
             "in the project's build or run settings."));
         mainLayout->addWidget(hintLabel);
