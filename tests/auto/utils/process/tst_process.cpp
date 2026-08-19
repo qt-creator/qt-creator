@@ -228,6 +228,32 @@ static QByteArray readData(Process *process, QProcess::ProcessChannel processCha
                                                       : process->readAllRawStandardError();
 }
 
+static constexpr auto s_echoTimeout = 5s;
+
+// The echoer writes on its own account before echoing anything - a build with
+// QML debugging enabled greets us on stderr - so read up to a token of ours.
+static QByteArray syncChannel(Process *process, QProcess::ProcessChannel processChannel)
+{
+    process->writeRaw("sync\n");
+    QByteArray buffer;
+    const QDeadlineTimer deadline(s_echoTimeout);
+    while (!buffer.endsWith("sync") && process->waitForReadyRead(deadline))
+        buffer += readData(process, processChannel);
+    return buffer;
+}
+
+static QByteArray roundTrip(Process *process, QProcess::ProcessChannel processChannel,
+                            const QByteArray &data)
+{
+    QTC_ASSERT(!data.isEmpty(), return {});
+    process->writeRaw(data + '\n');
+    QByteArray buffer;
+    const QDeadlineTimer deadline(s_echoTimeout);
+    while (buffer.size() < data.size() && process->waitForReadyRead(deadline))
+        buffer += readData(process, processChannel);
+    return buffer;
+}
+
 void tst_Process::multiRead()
 {
     QFETCH(QProcess::ProcessChannel, processChannel);
@@ -242,27 +268,11 @@ void tst_Process::multiRead()
     process.start();
 
     QVERIFY(process.waitForStarted());
+    const QByteArray sync = syncChannel(&process, processChannel);
+    QVERIFY2(sync.endsWith("sync"), sync.constData());
 
-    static const QByteArray qmlDebuggingMessage =
-        "QML debugging is enabled. Only use this in a safe environment.\n";
-
-    const auto readExpected = [&](const QByteArray &expected) -> bool {
-        QByteArray buffer;
-        while (true) {
-            if (!process.waitForReadyRead(1s))
-                return false;
-            buffer += readData(&process, processChannel);
-            buffer.replace(qmlDebuggingMessage, {});
-            if (buffer == expected)
-                return true;
-        }
-    };
-
-    process.writeRaw("hi\n");
-    QVERIFY(readExpected(QByteArray("hi")));
-
-    process.writeRaw("you\n");
-    QVERIFY(readExpected(QByteArray("you")));
+    QCOMPARE(roundTrip(&process, processChannel, "hi"), QByteArray("hi"));
+    QCOMPARE(roundTrip(&process, processChannel, "you"), QByteArray("you"));
 
     process.writeRaw("exit\n");
     QVERIFY(process.waitForFinished(1s));
