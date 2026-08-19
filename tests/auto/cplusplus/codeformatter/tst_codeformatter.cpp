@@ -67,6 +67,7 @@ private Q_SLOTS:
     void operatorOverloads();
     void gnuStyle();
     void whitesmithsStyle();
+    void lambdaWhitesmithsStyle();
     void singleLineEnum();
     void functionReturnType();
     void streamOp();
@@ -1316,6 +1317,24 @@ void tst_CodeFormatter::whitesmithsStyle()
          << Line("    {")
          << Line("    int i;")
          << Line("    };")
+         ;
+    checkIndent(data, 2);
+}
+
+void tst_CodeFormatter::lambdaWhitesmithsStyle()
+{
+    QList<Line> data;
+    data << Line("void foo()")
+         << Line("    {")
+         << Line("    auto f = [&]()")
+         << Line("        {")
+         << Line("        x;")
+         << Line("        };")
+         << Line("    auto g = [&]")
+         << Line("        {")
+         << Line("        y;")
+         << Line("        };")
+         << Line("    }")
          ;
     checkIndent(data, 2);
 }

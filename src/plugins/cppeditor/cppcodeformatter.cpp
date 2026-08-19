@@ -217,7 +217,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case lambda_declarator_expected:
             switch (kind) {
             case T_LPAREN:      turnInto(lambda_declarator_or_expression); break; // '(' just after ']'. We can't make decisioin here
-            case T_LBRACE:      turnInto(substatement_open); break; // '{' just after ']' opens a lambda-compound statement
+            case T_LBRACE:      turnInto(defun_open); break; // '{' just after ']' opens a lambda-compound statement
             default:
                 if (m_currentState.size() >= 3 && m_currentState.at(m_currentState.size() - 3).type == declaration_start)
                     leave();
@@ -233,7 +233,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case lambda_declarator_or_expression:
             switch (kind) {
-            case T_LBRACE:      turnInto(substatement_open); /*tryStatement();*/ break;
+            case T_LBRACE:      turnInto(defun_open); /*tryStatement();*/ break;
             case T_RPAREN:      turnInto(lambda_statement_expected); break;
             case T_IDENTIFIER:
             case T_SEMICOLON:   leave(); continue;
@@ -251,7 +251,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case lambda_statement_expected:
             switch (kind) {
-            case T_LBRACE:      turnInto(substatement_open); /*tryStatement()*/; break;
+            case T_LBRACE:      turnInto(defun_open); /*tryStatement()*/; break;
             case T_NOEXCEPT:    // 'noexcept', 'decltype' and 'mutable' are only part of lambda declarator
             case T_DECLTYPE:
             case T_MUTABLE:     turnInto(lambda_declarator); break;
@@ -269,7 +269,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case lambda_declarator:
             switch (kind) {
-            case T_LBRACE:      turnInto(substatement_open); /*tryStatement()*/; break;
+            case T_LBRACE:      turnInto(defun_open); /*tryStatement()*/; break;
             } break;
 
         case arglist_open:
@@ -1617,13 +1617,18 @@ void QtStyleCodeFormatter::adjustIndent(const Tokens &tokens, int lexerState, in
             if (m_styleSettings.indentBlockBraces)
                 *indentDepth += m_tabSettings.m_indentSize;
             *paddingDepth = 0;
+        } else if (topState.type == lambda_statement_expected
+                || topState.type == lambda_declarator_expected
+                || topState.type == lambda_declarator) {
+            *indentDepth = topState.savedIndentDepth;
+            if (m_styleSettings.indentFunctionBraces)
+                *indentDepth += m_tabSettings.m_indentSize;
+            *paddingDepth = 0;
         } else if (topState.type != defun_open
                 && topState.type != block_open
                 && topState.type != substatement_open
                 && topState.type != brace_list_open
                 && topState.type != arglist_open
-                && topState.type != lambda_statement_expected
-                && topState.type != lambda_declarator_expected
                 && !topWasMaybeElse) {
             *indentDepth = topState.savedIndentDepth;
             *paddingDepth = 0;
