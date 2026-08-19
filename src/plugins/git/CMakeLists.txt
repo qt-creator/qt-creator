@@ -25,6 +25,8 @@ add_qtc_plugin(Git
     gitclient.cpp gitclient.h
     gitconstants.h
     giteditor.cpp giteditor.h
+    gitgraphmodel.cpp gitgraphmodel.h
+    gitgraphview.cpp gitgraphview.h
     gitgrep.cpp gitgrep.h
     githighlighters.cpp githighlighters.h
     gitplugin.cpp gitplugin.h

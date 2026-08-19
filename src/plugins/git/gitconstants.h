@@ -14,6 +14,7 @@ inline constexpr char GIT_BLAME_EDITOR_ID[] = "Git Annotation Editor";
 inline constexpr char GIT_COMMIT_TEXT_EDITOR_ID[] = "Git Commit Editor";
 inline constexpr char GIT_REBASE_EDITOR_ID[] = "Git Rebase Editor";
 inline constexpr char GIT_BRANCH_VIEW_ID[] = "Git Branches";
+inline constexpr char GIT_GRAPH_VIEW_ID[] = "Git Log";
 
 inline constexpr char GIT_CONTEXT[] = "Git Context";
 inline constexpr char GITSUBMITEDITOR_ID[] = "Git Submit Editor";

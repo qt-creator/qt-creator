@@ -9,6 +9,7 @@
 #include "gitclient.h"
 #include "gitconstants.h"
 #include "giteditor.h"
+#include "gitgraphview.h"
 #include "gitgrep.h"
 #include "gitsettings.h"
 #include "gitsubmiteditor.h"
@@ -402,6 +403,7 @@ public:
 
     QPointer<StashDialog> m_stashDialog;
     BranchViewFactory m_branchViewFactory;
+    GitGraphViewFactory m_graphViewFactory;
     QPointer<RemoteDialog> m_remoteDialog;
     FilePath m_submitRepository;
     FilePath m_commitMessageFileName;
@@ -1871,6 +1873,8 @@ void GitPluginPrivate::updateActions(VersionControlBase::ActionState as)
         m_stashDialog->refresh(state.topLevel(), false);
     if (m_branchViewFactory.view())
         m_branchViewFactory.view()->refresh(state.topLevel(), false);
+    if (m_graphViewFactory.view())
+        m_graphViewFactory.view()->refresh(state.topLevel(), false);
     if (m_remoteDialog)
         m_remoteDialog->refresh(state.topLevel(), false);
 
@@ -1942,12 +1946,16 @@ void GitPluginPrivate::updateBranches(const FilePath &repository)
 {
     if (m_branchViewFactory.view())
         m_branchViewFactory.view()->refreshIfSame(repository);
+    if (m_graphViewFactory.view())
+        m_graphViewFactory.view()->refreshIfSame(repository);
 }
 
 void GitPluginPrivate::updateCurrentBranch()
 {
     if (m_branchViewFactory.view())
         m_branchViewFactory.view()->refreshCurrentBranch();
+    if (m_graphViewFactory.view())
+        m_graphViewFactory.view()->refreshCurrentBranch();
 }
 
 void GitPluginPrivate::updateRepositoryBrowserAction()
