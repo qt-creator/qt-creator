@@ -75,7 +75,7 @@ void FileAccess::setExecutablePreparer(const ExecutablePreparer &preparer)
     m_executablePreparer = preparer;
 }
 
-void FileAccess::setStartMarker(const QByteArray &marker)
+void FileAccess::setStartMarker(const QString &marker)
 {
     m_startMarker = marker;
 }

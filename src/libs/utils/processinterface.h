@@ -13,6 +13,8 @@
 #include <QProcess>
 #include <QSize>
 
+#include <optional>
+
 namespace Utils {
 
 namespace Internal { class ProcessPrivate; }
@@ -173,6 +175,24 @@ private:
 namespace Internal {
 class WrappedProcessInterfacePrivate;
 }
+
+// A launcher that runs a command somewhere it cannot observe the exec has the
+// started process report its own pid, substituted into this template's %1, on
+// a line of its stdout.
+QTCREATOR_UTILS_EXPORT QString pidMarkerTemplate();
+
+struct PidMarker
+{
+    // Set once a whole marker line has arrived.
+    std::optional<qint64> pid;
+    // What the launcher wrote before it, already off the buffer.
+    QByteArray skipped;
+};
+
+// Takes whole lines off the front of buffer until one frames a pid; that line
+// and everything before it are gone from buffer when it does. A trailing
+// partial line stays, so the next chunk can complete it.
+QTCREATOR_UTILS_EXPORT PidMarker takePidMarker(QByteArray &buffer);
 
 class QTCREATOR_UTILS_EXPORT WrappedProcessInterface final : public ProcessInterface
 {

@@ -53,7 +53,7 @@ namespace Internal {
 struct ClientPrivate
 {
     FilePath remoteCmdBridgePath;
-    QByteArray startMarker;
+    QString startMarker;
     Environment environment;
 
     // Only access from the thread
@@ -438,7 +438,7 @@ Client::~Client()
     (void) d.release();
 }
 
-void Client::setStartMarker(const QByteArray &marker)
+void Client::setStartMarker(const QString &marker)
 {
     d->startMarker = marker;
 }
@@ -489,8 +489,8 @@ Result<> Client::start(bool deleteOnExit)
             if (!watchdogTimeout.isEmpty())
                 args << "-watchdogTimeout" << watchdogTimeout;
             if (!d->startMarker.isEmpty()) {
-                args << "-pidMarker" << QString::fromUtf8(d->startMarker);
-                d->process->setExtraData("Ssh.TargetReportsPid", true);
+                args << "-pidMarker" << d->startMarker;
+                d->process->setExtraData("Process.TargetReportsPid", true);
             }
             d->process->setCommand({d->remoteCmdBridgePath, args});
             d->process->setEnvironment(d->environment);

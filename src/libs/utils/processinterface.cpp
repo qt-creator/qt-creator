@@ -13,6 +13,57 @@ static Q_LOGGING_CATEGORY(wrappedProcessInterface, "qtc.wrappedprocessinterface"
 
 namespace Utils {
 
+static constexpr QByteArrayView s_pidMarkerPrefix = "__qtc";
+static constexpr QByteArrayView s_pidMarkerSuffix = "qtc__";
+
+QString pidMarkerTemplate()
+{
+    return QString::fromLatin1(s_pidMarkerPrefix) + "%1"
+           + QString::fromLatin1(s_pidMarkerSuffix);
+}
+
+// A launcher can leave output of its own in front of the marker on the same
+// line, so the prefix is taken as the last one before the closing suffix.
+static std::optional<qint64> pidFromLine(QByteArrayView line)
+{
+    if (!line.endsWith(s_pidMarkerSuffix))
+        return std::nullopt;
+    const QByteArrayView framed = line.chopped(s_pidMarkerSuffix.size());
+    const qsizetype at = framed.lastIndexOf(s_pidMarkerPrefix);
+    if (at < 0)
+        return std::nullopt;
+    bool ok = false;
+    const qint64 pid
+        = framed.sliced(at + s_pidMarkerPrefix.size()).toByteArray().toLongLong(&ok);
+    if (!ok || pid <= 0)
+        return std::nullopt;
+    return pid;
+}
+
+PidMarker takePidMarker(QByteArray &buffer)
+{
+    PidMarker result;
+    qsizetype at = 0;
+    while (true) {
+        const qsizetype eol = buffer.indexOf('\n', at);
+        if (eol < 0)
+            break;
+        const QByteArrayView line = QByteArrayView(buffer).sliced(at, eol - at).trimmed();
+        if (const std::optional<qint64> pid = pidFromLine(line)) {
+            result.pid = pid;
+            result.skipped = buffer.left(at);
+            buffer.remove(0, eol + 1);
+            return result;
+        }
+        at = eol + 1;
+    }
+    // A line that is complete and not a marker never becomes one, so it goes
+    // out as skipped rather than being rescanned with every further chunk.
+    result.skipped = buffer.left(at);
+    buffer.remove(0, at);
+    return result;
+}
+
 namespace Pty {
 
 void Data::resize(const QSize &size)
@@ -51,6 +102,7 @@ public:
 
     Process m_process{this};
     bool m_hasReceivedFirstOutput = false;
+    QByteArray m_startupOutput;
     qint64 m_remotePID = 0;
     QString m_unexpectedStartupOutput;
     bool m_forwardStdout = false;
@@ -167,37 +219,34 @@ WrappedProcessInterface::WrappedProcessInterface(
             return;
         }
 
-        // The first line carries the PID and comes before anything the command
-        // itself writes, so it is never held back.
-        QByteArray output = d->m_process.readAllRawStandardOutput();
-        QByteArrayView outputView(output);
-        qsizetype idx = outputView.indexOf('\n');
-        QByteArrayView firstLine = outputView.left(idx).trimmed();
-        QByteArrayView rest = outputView.mid(idx + 1);
+        // The pid line comes before anything the command itself writes, so it
+        // is never held back.
+        d->m_startupOutput += d->m_process.readAllRawStandardOutput();
+        const PidMarker marker = takePidMarker(d->m_startupOutput);
+
+        // The launcher reports the pid before it runs the command, so anything
+        // ahead of it means it never got that far.
+        if (!marker.skipped.isEmpty()) {
+            qCDebug(wrappedProcessInterface) << "Unexpected startup output:"
+                                             << d->m_process.commandLine() << marker.skipped;
+            d->m_unexpectedStartupOutput = QString::fromUtf8(marker.skipped).trimmed();
+            d->m_process.kill();
+            return;
+        }
+
+        // Wait for the rest of the line instead.
+        if (!marker.pid)
+            return;
 
         qCDebug(wrappedProcessInterface)
-            << "Process first line received:" << d->m_process.commandLine() << firstLine;
+            << "Process pid received:" << d->m_process.commandLine() << *marker.pid;
 
-        if (!firstLine.startsWith("__qtc")) {
-            d->m_unexpectedStartupOutput = QString::fromUtf8(firstLine);
-            d->m_process.kill();
-            return;
-        }
-
-        bool ok = false;
-        d->m_remotePID = firstLine.mid(5, firstLine.size() - 5 - 5).toLongLong(&ok);
-
-        if (ok)
-            emit started(d->m_remotePID);
-        else {
-            d->m_unexpectedStartupOutput = QString::fromUtf8(firstLine);
-            d->m_process.kill();
-            return;
-        }
+        d->m_remotePID = *marker.pid;
+        emit started(d->m_remotePID);
 
         d->m_hasReceivedFirstOutput = true;
 
-        QByteArray restOutput = d->filterOutput(rest.toByteArray());
+        QByteArray restOutput = d->filterOutput(std::exchange(d->m_startupOutput, {}));
         if (d->m_forwardStdout && restOutput.size() > 0) {
             fprintf(stdout, "%s", restOutput.constData());
             restOutput.clear();
@@ -295,7 +344,7 @@ void WrappedProcessInterface::start()
                                          : QString::fromUtf8(d->m_exitCodePrefix) + "%1"
                                                + QString::fromUtf8(d->m_exitCodeSuffix);
     const Result<CommandLine> fullCommandLine
-        = d->m_wrapFunction(m_setup, "__qtc%1qtc__", exitCodeTemplate);
+        = d->m_wrapFunction(m_setup, pidMarkerTemplate(), exitCodeTemplate);
 
     if (!fullCommandLine) {
         emit done(ProcessResultData{

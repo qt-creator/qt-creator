@@ -63,8 +63,6 @@ using namespace QtTaskTree;
 
 namespace Remote {
 
-const QByteArray s_pidMarker = "__qtc";
-
 static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
 #define DEBUG(x) qCDebug(linuxDeviceLog) << x << '\n'
 
@@ -860,28 +858,14 @@ void SshProcessInterfacePrivate::handleReadyReadStandardOutput()
 
     m_output.append(outputData);
 
-    static const QByteArray endMarker = s_pidMarker + '\n';
-    int endMarkerLength = endMarker.length();
-    int endMarkerOffset = m_output.indexOf(endMarker);
-    if (endMarkerOffset == -1) {
-        static const QByteArray endMarkerCRLF = s_pidMarker + "\r\n";
-        endMarkerOffset = m_output.indexOf(endMarkerCRLF);
-        endMarkerLength = endMarkerCRLF.length();
-        if (endMarkerOffset == -1)
-            return;
-    }
-    const int startMarkerOffset = m_output.indexOf(s_pidMarker);
-    if (startMarkerOffset == endMarkerOffset) // Only theoretically possible.
+    // Anything ahead of the pid line comes from e.g. /etc/profile, and is
+    // dropped along with it.
+    const PidMarker marker = takePidMarker(m_output);
+    if (!marker.pid)
         return;
-    const int pidStart = startMarkerOffset + s_pidMarker.length();
-    const QByteArray pidString = m_output.mid(pidStart, endMarkerOffset - pidStart);
+
     m_pidParsed = true;
-    const qint64 processId = pidString.toLongLong();
-
-    // We don't want to show output from e.g. /etc/profile.
-    m_output = m_output.mid(endMarkerOffset + endMarkerLength);
-
-    q->emitStarted(processId);
+    q->emitStarted(*marker.pid);
 
     if (!m_output.isEmpty() || !m_error.isEmpty())
         emit q->readyRead(m_output, m_error);
@@ -1076,9 +1060,11 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     }
 
     const bool targetReportsPid
-        = q->m_setup.m_extraData.value("Ssh.TargetReportsPid").toBool();
-    if (usePidMarker && !targetReportsPid)
-        inner.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
+        = q->m_setup.m_extraData.value("Process.TargetReportsPid").toBool();
+    if (usePidMarker && !targetReportsPid) {
+        inner.addArgs(QString("echo ") + pidMarkerTemplate().arg("$$") + " && ",
+                      CommandLine::Raw);
+    }
 
     const Environment &env = q->m_setup.m_environment;
     env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
@@ -1437,7 +1423,7 @@ void LinuxDevicePrivate::setupFileAccess(
             fileAccess->setExecutablePreparer([this](const QByteArray &binary) {
                 return q->prepareExecutableForUpload(binary);
             });
-            fileAccess->setStartMarker(s_pidMarker);
+            fileAccess->setStartMarker(pidMarkerTemplate());
             Utils::expected<void, CmdBridge::FileAccess::DeployError> deployAndInitResult
                 = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath, getEnvironment());
             if (deployAndInitResult)

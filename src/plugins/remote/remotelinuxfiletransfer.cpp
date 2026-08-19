@@ -26,8 +26,6 @@ using namespace Utils;
 
 namespace Remote::Internal {
 
-const QByteArray s_pidMarker = "__qtc";
-
 static SshParameters displayless(const SshParameters &sshParameters)
 {
     SshParameters parameters = sshParameters;

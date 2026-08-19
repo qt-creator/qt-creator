@@ -11,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -820,13 +822,18 @@ func main() {
 	watchDogTimeout := flag.Int("watchdogTimeout", 60,
 		"watchdog timeout in seconds; 0 disables the watchdog")
 	pidMarker := flag.String("pidMarker", "",
-		"wrap our pid in this marker on stdout before doing anything else")
+		"report our pid on stdout, substituted into this template's %1")
 
 	flag.Parse()
 
 	// Before anything below, all of which can fail.
 	if *pidMarker != "" {
-		fmt.Fprintf(os.Stdout, "%s%d%s\n", *pidMarker, os.Getpid(), *pidMarker)
+		if !strings.Contains(*pidMarker, "%1") {
+			fmt.Fprintf(os.Stderr, "pidMarker %q has no %%1 to report the pid in\n", *pidMarker)
+		} else {
+			fmt.Fprintln(os.Stdout,
+				strings.Replace(*pidMarker, "%1", strconv.Itoa(os.Getpid()), 1))
+		}
 	}
 
 	if *deleteOnStart {

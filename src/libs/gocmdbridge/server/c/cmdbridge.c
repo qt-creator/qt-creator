@@ -452,8 +452,14 @@ int main(int argc, char **argv)
     for (int i = 1; i < argc; i++) {
         const char *marker = match_opt(argc, argv, &i, "pidMarker");
         if (marker != NULL && marker[0] != '\0') {
-            fprintf(stdout, "%s%ld%s\n", marker, (long) getpid(), marker);
-            fflush(stdout);
+            const char *hole = strstr(marker, "%1");
+            if (hole == NULL) {
+                fprintf(stderr, "pidMarker \"%s\" has no %%1 to report the pid in\n", marker);
+            } else {
+                fprintf(stdout, "%.*s%ld%s\n", (int) (hole - marker), marker,
+                        (long) getpid(), hole + 2);
+                fflush(stdout);
+            }
             break;
         }
     }

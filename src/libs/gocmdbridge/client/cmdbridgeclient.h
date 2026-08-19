@@ -29,7 +29,7 @@ public:
     ~Client();
 
     // Only a launcher that parses the marker off stdout may set one.
-    void setStartMarker(const QByteArray &marker);
+    void setStartMarker(const QString &marker);
 
     Utils::Result<> start(bool deleteOnExit = false);
 
