@@ -36,7 +36,7 @@
 #include <QJsonDocument>
 #include <QMessageBox>
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -60,7 +60,7 @@ namespace {
 static Q_LOGGING_CATEGORY(detectLog, "qtc.ios.deviceDetect", QtWarningMsg)
 }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 static QString CFStringRef2QString(CFStringRef s)
 {
     unsigned char buf[250];
@@ -964,7 +964,7 @@ void IosDeviceManager::deviceInfo(const QString &uid,
     }
 }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 namespace {
 io_iterator_t gAddedIter;
 io_iterator_t gRemovedIter;
@@ -1063,7 +1063,7 @@ void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
 
 void IosDeviceManager::monitorAvailableDevices()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     CFMutableDictionaryRef  matchingDictionary =
                                         IOServiceMatching("IOUSBDevice" );
     {

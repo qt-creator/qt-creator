@@ -281,7 +281,7 @@ void tst_CodeSize::codesize_data()
 #ifdef Q_CC_MSVC
     s.cmd = "dumpbin /DISASM /SECTION:.text";
 #else
-# ifdef Q_OS_MAC
+# ifdef Q_OS_MACOS
     s.cmd = "otool -t -v";
 # else
     s.cmd = "objdump -D -j.text";

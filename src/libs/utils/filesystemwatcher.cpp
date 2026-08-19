@@ -19,7 +19,7 @@ namespace Utils {
 // crashes).
 static inline quint64 getFileLimit()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     struct rlimit rl;
     getrlimit(RLIMIT_NOFILE, &rl);
     return rl.rlim_cur; // quint64

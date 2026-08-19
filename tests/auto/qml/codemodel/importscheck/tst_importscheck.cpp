@@ -76,7 +76,7 @@ tst_ImportCheck::tst_ImportCheck()
 {
 }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #  define SHARE_PATH "/Resources"
 #else
 #  define SHARE_PATH "/share/qtcreator"

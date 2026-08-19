@@ -255,7 +255,7 @@ void tst_TestCore::initTestCase()
 
    // Load plugins
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     const QString pluginPath = IDE_PLUGIN_PATH "/QmlDesigner";
 #else
     const QString pluginPath = IDE_PLUGIN_PATH "/qmldesigner";

@@ -355,7 +355,7 @@ static QString example()
     return
 #if defined(Q_OS_WIN)
     QString::fromLatin1("> echo int foo() {} | %1 && %2.ast.png")
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     QString::fromLatin1("$ echo \"int foo() {}\" | ./%1 && open %2.ast.png")
 #else
     QString::fromLatin1("$ echo \"int foo() {}\" | ./%1 && xdg-open %2.ast.png")

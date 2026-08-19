@@ -200,7 +200,7 @@ bool ToolTip::acceptShow(const QVariant &content,
         }
         hideTipImmediately();
     }
-#if !defined(QT_NO_EFFECTS) && !defined(Q_OS_MAC)
+#if !defined(QT_NO_EFFECTS) && !defined(Q_OS_MACOS)
     // While the effect takes places it might be that although the widget is actually on
     // screen the isVisible function doesn't return true.
     else if (m_tip
@@ -257,7 +257,7 @@ QPoint ToolTip::offsetFromPosition()
 
 void ToolTip::showTip()
 {
-#if !defined(QT_NO_EFFECTS) && !defined(Q_OS_MAC)
+#if !defined(QT_NO_EFFECTS) && !defined(Q_OS_MACOS)
     if (QApplication::isEffectEnabled(Qt::UI_FadeTooltip))
         qFadeEffect(m_tip);
     else if (QApplication::isEffectEnabled(Qt::UI_AnimateTooltip))

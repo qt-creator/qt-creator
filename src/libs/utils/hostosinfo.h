@@ -27,7 +27,7 @@ QTCREATOR_UTILS_EXPORT constexpr OsType hostOs()
     return OsTypeWindows;
 #elif defined(Q_OS_LINUX)
     return OsTypeLinux;
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     return OsTypeMac;
 #elif defined(Q_OS_UNIX)
     return OsTypeOtherUnix;

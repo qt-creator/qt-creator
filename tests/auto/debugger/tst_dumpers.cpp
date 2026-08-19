@@ -1270,7 +1270,7 @@ void tst_Dumpers::initTestCase()
 {
     m_debuggerBinary = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_PATH_FOR_TEST"));
     if (m_debuggerBinary.isEmpty()) {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         m_debuggerBinary = "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb";
 #else
         m_debuggerBinary = "gdb";
@@ -1671,7 +1671,7 @@ void tst_Dumpers::dumper()
                 "\n#include <stdint.h>";
 
     if (m_debuggerEngine == LldbEngine)
-//#ifdef Q_OS_MAC
+//#ifdef Q_OS_MACOS
 //        fullCode += "\n#define BREAK do { asm(\"int $3\"); } while (0)";
 //#else
         fullCode += "\n#define BREAK int *nullPtr = 0; *nullPtr = 0;";
@@ -8684,7 +8684,7 @@ void tst_Dumpers::dumper_data()
             + Check("p.FlagBit", "", "<Value unavailable error>", "") % CdbEngine;
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     QTest::newRow("CFStrings")
             << Data("#include <CoreFoundation/CoreFoundation.h>\n"
                     "#include <string>\n"

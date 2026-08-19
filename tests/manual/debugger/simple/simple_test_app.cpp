@@ -2173,7 +2173,7 @@ namespace plugin {
     void testPlugin()
     {
         QString dir = QApplication::applicationDirPath();
-    #ifdef Q_OS_MAC
+    #ifdef Q_OS_MACOS
         dir = QFileInfo(dir + "/../..").canonicalPath();
         QLibrary lib(dir + "/libsimple_test_plugin.dylib");
     #elif defined(Q_OS_WIN)

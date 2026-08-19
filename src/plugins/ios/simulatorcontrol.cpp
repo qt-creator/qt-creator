@@ -11,7 +11,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -247,7 +247,7 @@ SimulatorInfo deviceInfo(const QString &simUdid)
 QString bundleIdentifier(const Utils::FilePath &bundlePath)
 {
     QString bundleID;
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (bundlePath.exists()) {
         CFStringRef cFBundlePath = bundlePath.toUrlishString().toCFString();
         CFURLRef bundle_url = CFURLCreateWithFileSystemPath (kCFAllocatorDefault, cFBundlePath, kCFURLPOSIXPathStyle, true);
