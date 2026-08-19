@@ -40,6 +40,10 @@
 #include <QPushButton>
 #include <QLoggingCategory>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace Utils;
 using namespace ProjectExplorer::Internal;
 
@@ -447,32 +451,41 @@ Task RunConfiguration::createConfigurationIssue(const QString &description) cons
     return BuildSystemTask(Task::Error, description);
 }
 
-Tasks RunConfiguration::checkForIssues() const
+// The policy behind checkForIssues(), factored out so it can be unit-tested
+// without a full run configuration. Only a cross-device run needs deployment; a
+// local run uses the host executable, so an empty value there is a different
+// problem.
+static Tasks noRemoteExecutableIssues(bool hasExecutableAspect,
+                                      bool executableIsEmpty,
+                                      const IDevice::ConstPtr &buildDevice,
+                                      const IDevice::ConstPtr &runDevice,
+                                      const QString &deploymentHint)
 {
-    // Only a cross-device run needs deployment; a local run uses the host
-    // executable, so an empty value there is a different problem.
-    const auto executableAspect = aspect<ExecutableAspect>();
-    if (!executableAspect || !executableAspect->executable().isEmpty())
+    if (!hasExecutableAspect || !executableIsEmpty)
         return {};
-    if (BuildDeviceKitAspect::device(kit()) == RunDeviceKitAspect::device(kit()))
+    if (buildDevice == runDevice)
         return {};
-    return {createNoRemoteExecutableIssue()};
-}
-
-Task RunConfiguration::createNoRemoteExecutableIssue() const
-{
     QString message = Tr::tr("No remote executable set. The application was not deployed to the "
                              "device, or deployment produced no runnable file.");
-    if (BuildSystem * const bs = buildSystem()) {
-        const QString hint = bs->deploymentHint();
-        if (!hint.isEmpty())
-            message += ' ' + hint;
-    }
+    if (!deploymentHint.isEmpty())
+        message += ' ' + deploymentHint;
     message += ' ' + Tr::tr("Alternatively, set an alternate executable on the device.");
     // A warning, not an error: it must not disable the Run button (which would
     // also hide this very explanation). The run may still be started; it will
     // then fail with the underlying error, but the hint is shown up front.
-    return BuildSystemTask(Task::Warning, message);
+    return {BuildSystemTask(Task::Warning, message)};
+}
+
+Tasks RunConfiguration::checkForIssues() const
+{
+    const auto executableAspect = aspect<ExecutableAspect>();
+    const BuildSystem * const bs = buildSystem();
+    return noRemoteExecutableIssues(
+        executableAspect != nullptr,
+        executableAspect && executableAspect->executable().isEmpty(),
+        BuildDeviceKitAspect::device(kit()),
+        RunDeviceKitAspect::device(kit()),
+        bs ? bs->deploymentHint() : QString());
 }
 
 void RunConfiguration::toMap(Store &map) const
@@ -991,4 +1004,67 @@ QString RunConfiguration::expandedDisplayName() const
     return joinStrings({displayName, QString("[%1]").arg(Tr::tr("unavailable"))}, ' ');
 }
 
+#ifdef WITH_TESTS
+namespace Internal {
+
+class DummyDevice : public IDevice
+{
+    IDeviceWidget *createWidget() override { return nullptr; }
+};
+
+class RunConfigurationTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testNoRemoteExecutableIssues_data()
+    {
+        QTest::addColumn<bool>("hasExecutableAspect");
+        QTest::addColumn<bool>("executableIsEmpty");
+        QTest::addColumn<bool>("crossDevice");
+        QTest::addColumn<int>("expectedTaskCount");
+
+        QTest::newRow("no executable aspect") << false << true << true << 0;
+        QTest::newRow("executable set") << true << false << true << 0;
+        QTest::newRow("empty, same device") << true << true << false << 0;
+        QTest::newRow("empty, cross-device") << true << true << true << 1;
+    }
+
+    void testNoRemoteExecutableIssues()
+    {
+        QFETCH(bool, hasExecutableAspect);
+        QFETCH(bool, executableIsEmpty);
+        QFETCH(bool, crossDevice);
+        QFETCH(int, expectedTaskCount);
+
+        const IDevice::ConstPtr buildDevice = IDevice::Ptr(new DummyDevice);
+        const IDevice::ConstPtr runDevice = crossDevice ? IDevice::ConstPtr(IDevice::Ptr(new DummyDevice))
+                                                        : buildDevice;
+
+        const Tasks tasks = noRemoteExecutableIssues(
+            hasExecutableAspect, executableIsEmpty, buildDevice, runDevice,
+            QString("Add a deploy step."));
+
+        QCOMPARE(int(tasks.size()), expectedTaskCount);
+        if (!tasks.isEmpty()) {
+            // The empty remote executable must be a warning, not an error: an
+            // error would disable the Run button and hide this explanation.
+            QCOMPARE(tasks.first().type(), Task::Warning);
+            QVERIFY(tasks.first().description().contains("Add a deploy step."));
+        }
+    }
+};
+
+QObject *createRunConfigurationTest()
+{
+    return new RunConfigurationTest;
+}
+
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <runconfiguration.moc>
+#endif

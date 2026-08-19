@@ -213,9 +213,6 @@ protected:
 
     Task createConfigurationIssue(const QString &description) const;
 
-    // Deployment-advice issue for an empty remote executable.
-    Task createNoRemoteExecutableIssue() const;
-
     void setUsesEmptyBuildKeys() { m_usesEmptyBuildKeys = true; }
 
 private:
@@ -324,5 +321,9 @@ private:
 PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfig(const Project *project);
 PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfigForActiveProject();
 PROJECTEXPLORER_EXPORT RunConfiguration *activeRunConfigForCurrentProject();
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createRunConfigurationTest(); }
+#endif
 
 } // namespace ProjectExplorer
