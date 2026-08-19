@@ -1549,4 +1549,9 @@ Result<> IDevice::supportsBuildingProject(const FilePath &projectDir) const
     return handlesFile(projectDir);
 }
 
+QString hostX11Display()
+{
+    return Utils::qtcEnvironmentVariable("DISPLAY");
+}
+
 } // namespace ProjectExplorer

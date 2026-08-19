@@ -1094,11 +1094,6 @@ void LauncherAspect::updateComboBox()
      for a remotely running X11 client.
 */
 
-static QString defaultDisplay()
-{
-    return qtcEnvironmentVariable("DISPLAY");
-}
-
 X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
     : StringAspect(container)
 {
@@ -1107,7 +1102,7 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
     setSettingsKey("RunConfiguration.X11Forwarding");
     makeCheckable(
         CheckBoxPlacement::Left, Tr::tr("Use X11 forwarding:"), "RunConfiguration.UseX11Forwarding");
-    setValue(defaultDisplay());
+    setPlaceHolderText(hostX11Display());
     setLabelText("DISPLAY=");
 
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
@@ -1115,7 +1110,12 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
 
 QString X11ForwardingAspect::display() const
 {
-    return !isChecked() ? QString() : macroExpander()->expand(value());
+    if (!isChecked())
+        return {};
+
+    // Follow the current session unless the user pinned a display.
+    const QString display = value().isEmpty() ? hostX11Display() : value();
+    return macroExpander()->expand(display);
 }
 
 

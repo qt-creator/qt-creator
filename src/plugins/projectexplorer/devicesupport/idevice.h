@@ -445,4 +445,7 @@ private:
     const IDevice::Ptr m_device;
 };
 
+// The display of the X11 session Qt Creator runs in, empty if there is none.
+PROJECTEXPLORER_EXPORT QString hostX11Display();
+
 } // namespace ProjectExplorer

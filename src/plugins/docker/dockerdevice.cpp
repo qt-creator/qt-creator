@@ -541,7 +541,7 @@ bool DockerDevicePrivate::prepareForBuild(const Target *target)
 
 static QString autoDetectedX11Display()
 {
-    const QString hostDisplay = qtcEnvironmentVariable("DISPLAY");
+    const QString hostDisplay = hostX11Display();
 
     // A local display name refers to the host's X11 socket, which is mounted into the container,
     // so it applies verbatim. A host-qualified one would resolve inside the container instead.
