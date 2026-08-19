@@ -193,6 +193,7 @@ def build_qtcreator(args, paths):
     if common.is_windows_platform():
         cmake_args += ['-DBUILD_EXECUTABLE_WIN32INTERRUPT=OFF',
                        '-DBUILD_EXECUTABLE_WIN64INTERRUPT=OFF',
+                       '-DBUILD_EXECUTABLE_WINARM64INTERRUPT=OFF',
                        '-DBUILD_LIBRARY_QTCREATORCDBEXT=OFF']
 
     ide_revision = common.get_commit_SHA(paths.src)
