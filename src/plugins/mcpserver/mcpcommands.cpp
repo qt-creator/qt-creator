@@ -1197,6 +1197,33 @@ static void clickWidget(QWidget *w)
     QApplication::sendEvent(w, &release);
 }
 
+// Sends a single mouse press/move/release to a widget at widget-local (x, y).
+// Unlike clickWidget these are separate tool calls, so a caller can hold a
+// press, do something else (e.g. start a debug session), then move/release -
+// which is how a dock-separator drag racing a relayout is reproduced.
+static Utils::Result<> sendMouseEventTo(QWidget *w, const QString &action, int x, int y)
+{
+    const QPointF local(x, y);
+    const QPointF global = w->mapToGlobal(QPoint(x, y));
+    QEvent::Type type = QEvent::MouseMove;
+    Qt::MouseButton button = Qt::NoButton;
+    Qt::MouseButtons buttons = Qt::LeftButton;
+    if (action == "press") {
+        type = QEvent::MouseButtonPress;
+        button = Qt::LeftButton;
+    } else if (action == "release") {
+        type = QEvent::MouseButtonRelease;
+        button = Qt::LeftButton;
+        buttons = Qt::NoButton;
+    } else if (action != "move") {
+        return ResultError(QString("Unknown mouse action \"%1\" (use press, move or release).")
+                               .arg(action));
+    }
+    QMouseEvent ev(type, local, global, button, buttons, Qt::NoModifier);
+    QApplication::sendEvent(w, &ev);
+    return ResultOk;
+}
+
 // Delivers text as key events so widgets that react to typing (line edits,
 // text editors) update as if the user typed. Sent synchronously so the
 // widget state is settled before the tool returns.
@@ -2850,6 +2877,44 @@ void McpCommands::registerCommands()
             if (!(*w)->isEnabled())
                 return ResultError(QString("Widget is disabled: %1.").arg(describeWidgetShort(*w)));
             clickWidget(*w);
+            return CallToolResult{}.isError(false).structuredContent(describeWidget(*w));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("mouse_event")
+            .title("Send a single mouse press/move/release")
+            .description(
+                "Delivers one mouse press, move or release to the widget matching the query at "
+                "widget-local coordinates (x, y). Because the three actions are separate calls, a "
+                "caller can press, do something else, then move and release - e.g. hold a drag on "
+                "a QMainWindow dock separator across a relayout. describeWidget in the result "
+                "gives the widget's screen geometry to compute coordinates from.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "action",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"press", "move", "release"}},
+                            {"description", "Which mouse action to send."}})
+                    .addProperty("x", QJsonObject{{"type", "integer"},
+                                                  {"description", "Widget-local x."}})
+                    .addProperty("y", QJsonObject{{"type", "integer"},
+                                                  {"description", "Widget-local y."}})
+                    .addRequired("action")
+                    .addRequired("x")
+                    .addRequired("y")),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            const Utils::Result<QWidget *> w = resolveSingleWidget(widgetQueryFromJson(p));
+            if (!w)
+                return ResultError(w.error());
+            const Utils::Result<> sent = sendMouseEventTo(
+                *w, p.value("action").toString(), p.value("x").toInt(), p.value("y").toInt());
+            if (!sent)
+                return ResultError(sent.error());
             return CallToolResult{}.isError(false).structuredContent(describeWidget(*w));
         });
 
