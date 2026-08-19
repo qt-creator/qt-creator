@@ -82,24 +82,78 @@ option(BUILD_QML_MCP_SERVER
        ${ENV_QTC_BUILD_QML_MCP_SERVER})
 
 if(BUILD_QML_MCP_SERVER)
-  find_package(Python3 REQUIRED COMPONENTS Interpreter)
-  message(STATUS "Using Python3_EXECUTABLE='${Python3_EXECUTABLE}' to generate the QML MCP server.")
+  set(_mcp_project_dir "${CMAKE_CURRENT_SOURCE_DIR}/mcp")
+  set(_mcp_venv_dir "${CMAKE_CURRENT_BINARY_DIR}/mcp-venv")
+
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${_mcp_project_dir}/pyproject.toml"
+    "${_mcp_project_dir}/uv.lock"
+  )
+
+  find_program(UV_EXECUTABLE uv)
+  if(UV_EXECUTABLE)
+    if(WIN32)
+      set(_mcp_python "${_mcp_venv_dir}/Scripts/python.exe")
+    else()
+      set(_mcp_python "${_mcp_venv_dir}/bin/python")
+    endif()
+
+    set(ENV{UV_PROJECT_ENVIRONMENT} "${_mcp_venv_dir}")
+    execute_process(
+      COMMAND "${UV_EXECUTABLE}" sync --locked --managed-python --group build
+              --project "${_mcp_project_dir}"
+      RESULT_VARIABLE _uv_sync_check
+    )
+    unset(ENV{UV_PROJECT_ENVIRONMENT})
+    if(NOT _uv_sync_check EQUAL 0)
+      message(FATAL_ERROR
+        "Could not provision the QML MCP server runtime from '${_mcp_project_dir}'."
+        " A stale lock file, an unusable '${UV_EXECUTABLE}', or no route to the"
+        " Python and package indexes all fail here."
+      )
+    endif()
+  else()
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    set(_mcp_python "${Python3_EXECUTABLE}")
+
+    execute_process(
+      COMMAND "${_mcp_python}" -m PyInstaller --version
+      RESULT_VARIABLE _pyinstaller_check
+      OUTPUT_QUIET
+      ERROR_QUIET
+    )
+    if(NOT _pyinstaller_check EQUAL 0)
+      message(FATAL_ERROR
+        "PyInstaller was not found in the Python environment '${_mcp_python}'."
+        " Install it with:\n  ${_mcp_python} -m pip install pyinstaller"
+      )
+    endif()
+
+    message(WARNING
+      "'uv' was not found, so the server is built from the ambient Python"
+      " '${_mcp_python}'. Its runtime version and payload differ from the"
+      " shipped bundle, which is pinned in '${_mcp_project_dir}'. This build"
+      " must not be packaged."
+    )
+  endif()
+
+  message(STATUS "Using '${_mcp_python}' to generate the QML MCP server.")
 
   execute_process(
-    COMMAND "${Python3_EXECUTABLE}" -m PyInstaller --version
-    RESULT_VARIABLE _pyinstaller_check
-    OUTPUT_QUIET
+    COMMAND "${_mcp_python}" -c "import platform; print(platform.python_version())"
+    RESULT_VARIABLE _python_version_check
+    OUTPUT_VARIABLE _python_version
+    OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
-  if(NOT _pyinstaller_check EQUAL 0)
+  if(NOT _python_version_check EQUAL 0)
     message(FATAL_ERROR
-      "PyInstaller was not found in the Python environment '${Python3_EXECUTABLE}'."
-      " Install it with:\n  ${Python3_EXECUTABLE} -m pip install pyinstaller"
+      "Could not determine the Python version of '${_mcp_python}'."
     )
   endif()
 
   execute_process(
-    COMMAND "${Python3_EXECUTABLE}" -c
+    COMMAND "${_mcp_python}" -c
             "from importlib.metadata import version; print(version('mcp'))"
     RESULT_VARIABLE _mcp_package_check
     OUTPUT_VARIABLE _mcp_version
@@ -108,13 +162,12 @@ if(BUILD_QML_MCP_SERVER)
   )
   if(NOT _mcp_package_check EQUAL 0)
     message(FATAL_ERROR
-      "The 'mcp' Python package was not found in the Python environment '${Python3_EXECUTABLE}'."
-      " Install it with:\n  ${Python3_EXECUTABLE} -m pip install mcp"
+      "The 'mcp' package is missing from the environment of '${_mcp_python}'."
     )
   endif()
 
   execute_process(
-    COMMAND "${Python3_EXECUTABLE}" -c "import ssl; print(ssl.OPENSSL_VERSION.split()[1])"
+    COMMAND "${_mcp_python}" -c "import ssl; print(ssl.OPENSSL_VERSION.split()[1])"
     RESULT_VARIABLE _openssl_version_check
     OUTPUT_VARIABLE _openssl_version
     OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -122,12 +175,12 @@ if(BUILD_QML_MCP_SERVER)
   )
   if(NOT _openssl_version_check EQUAL 0)
     message(FATAL_ERROR
-      "Could not determine the OpenSSL version used by '${Python3_EXECUTABLE}'."
+      "Could not determine the OpenSSL version used by '${_mcp_python}'."
     )
   endif()
 
   add_custom_target(QmlDesignerMcpServer ALL
-    COMMAND "${Python3_EXECUTABLE}" -m PyInstaller
+    COMMAND "${_mcp_python}" -m PyInstaller
             --distpath "${QtCreator_BINARY_DIR}/${IDE_LIBEXEC_PATH}"
             --workpath "${CMAKE_CURRENT_BINARY_DIR}/pyinstaller-build"
             --noconfirm
@@ -148,7 +201,7 @@ if(BUILD_QML_MCP_SERVER)
     USE_ATTRIBUTION_FILES
     ATTRIBUTION_FILE_PATHS "${QtCreator_SOURCE_DIR}/qt_attributions.json"
     ATTRIBUTION_IDS qml-mcp-server-python
-    PACKAGE_VERSION "${Python3_VERSION}"
+    PACKAGE_VERSION "${_python_version}"
   )
 
   qtc_add_sbom(QmlDesignerMcpServerMcp

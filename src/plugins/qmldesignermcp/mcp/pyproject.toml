@@ -1,0 +1,17 @@
+[project]
+name = "qml-mcp-server"
+version = "0.1.0"
+description = "Runtime dependencies of the QML MCP server shipped with Qt Design Studio"
+requires-python = "==3.14.6"
+dependencies = [
+    "mcp==1.25.0",
+]
+
+[tool.uv]
+python-preference = "only-managed"
+python-downloads = "automatic"
+
+[dependency-groups]
+build = [
+    "pyinstaller==6.19.0",
+]
