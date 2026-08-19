@@ -2445,57 +2445,11 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("unload_plugin")
-            .title("Unload a plugin at runtime")
-            .description(
-                "Takes a running soft-loadable plugin back out of the running Qt Creator: it is "
-                "stopped and waited for if it shuts down asynchronously, and its instance is "
-                "unloaded. Fails while another running plugin needs it. Use it to check that a "
-                "plugin leaves nothing behind - actions, panes, views - which is otherwise only "
-                "visible at application shutdown. One way: the plugin cannot be loaded again "
-                "until Qt Creator is restarted.")
-            .annotations(ToolAnnotations{}.readOnlyHint(false))
-            .inputSchema(
-                Tool::InputSchema{}
-                    .addProperty(
-                        "name",
-                        QJsonObject{{"type", "string"},
-                                    {"description", "Name of the plugin to unload, as reported "
-                                                    "by list_plugins"}})
-                    .addRequired("name"))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("success", QJsonObject{{"type", "boolean"}})
-                    .addProperty("state", QJsonObject{{"type", "string"}})
-                    .addProperty("message", QJsonObject{{"type", "string"}})
-                    .addRequired("success")),
-        wrap([](const QJsonObject &p) {
-            const QString name = p.value("name").toString();
-            PluginSpec *spec = Utils::findOrDefault(PluginManager::plugins(),
-                                                    [&name](PluginSpec *s) {
-                                                        return s->name().compare(
-                                                                   name, Qt::CaseInsensitive) == 0;
-                                                    });
-            if (!spec) {
-                return QJsonObject{
-                    {"success", false}, {"message", QString("No plugin named \"%1\".").arg(name)}};
-            }
-            if (const Utils::Result<> unloaded = PluginManager::unloadPluginsAtRuntime({spec});
-                !unloaded) {
-                return QJsonObject{{"success", false},
-                                   {"state", pluginStateName(spec->state())},
-                                   {"message", unloaded.error()}};
-            }
-            return QJsonObject{{"success", true}, {"state", pluginStateName(spec->state())}};
-        }));
-
-    ToolRegistry::registerTool(
-        Tool{}
             .name("load_plugin")
             .title("Load a plugin at runtime")
             .description("Soft-loads a plugin, and its soft-loadable dependencies, into the running "
                          "Qt Creator without a restart. Only works for plugins marked as "
-                         "soft-loadable. unload_plugin takes it back out, once.")
+                         "soft-loadable; there is no matching unload.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
