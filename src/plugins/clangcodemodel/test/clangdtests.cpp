@@ -191,7 +191,7 @@ void ClangdTest::initTestCase()
         QSKIP("clangd binary not found");
     CppEditor::ClangdSettings::setUseClangd(true);
     settingsData.completionStyle = CppEditor::ClangdSettings::CompletionStyle::Bundled;
-    CppEditor::ClangdSettings::instance().setData(settingsData, false);
+    CppEditor::ClangdSettings::instance().setData(settingsData);
 
     // Find suitable kit.
     m_kit = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
@@ -2294,13 +2294,13 @@ void ClangdTestIndirectChanges::initTestCase()
     CppEditor::ClangdSettings &settings = CppEditor::ClangdSettings::instance();
     CppEditor::ClangdSettings::Data settingsData = settings.data();
     settingsData.updateDependentSources = true;
-    settings.setData(settingsData, false);
+    settings.setData(settingsData);
     ClangdTest::initTestCase();
 }
 
 void ClangdTestIndirectChanges::cleanupTestCase()
 {
-    CppEditor::ClangdSettings::instance().setData({}, false);
+    CppEditor::ClangdSettings::instance().setData({});
 }
 
 void ClangdTestIndirectChanges::test()

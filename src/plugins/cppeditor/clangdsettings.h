@@ -118,7 +118,7 @@ public:
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
     static ClangDiagnosticConfigsModel diagnosticConfigsModel();
 
-    void setData(const Data &data, bool saveAndEmitSignal = true);
+    void setData(const Data &data);
     Data data() const;
 
     static Utils::FilePath clangdUserConfigFilePath();

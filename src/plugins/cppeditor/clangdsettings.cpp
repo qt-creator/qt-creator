@@ -555,7 +555,7 @@ ClangdSettings::Data ClangdSettings::data() const
     return d;
 }
 
-void ClangdSettings::setData(const Data &data, bool saveAndEmitSignal)
+void ClangdSettings::setData(const Data &data)
 {
     if (this == &instance() && data != this->data()) {
         const BaseAspect::Announcement beQuiet = BaseAspect::BeQuiet;
@@ -579,10 +579,6 @@ void ClangdSettings::setData(const Data &data, bool saveAndEmitSignal)
         m_data.sessionsWithOneClangd = data.sessionsWithOneClangd;
         m_data.customDiagnosticConfigs = data.customDiagnosticConfigs;
         m_data.haveCheckedHardwareReqirements = data.haveCheckedHardwareReqirements;
-        if (saveAndEmitSignal) {
-            saveSettings();
-            emit changed();
-        }
     }
 }
 
