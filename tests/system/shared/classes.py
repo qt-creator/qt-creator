@@ -99,7 +99,7 @@ class ProjectSettings:
 
 # this class defines some constants for the views of the creator's MainWindow
 class ViewConstants:
-    WELCOME, EDIT, DESIGN, DEBUG, PROFILER, PROJECTS, EXTENSIONS, HELP, PREFERENCES = range(9)
+    WELCOME, EDIT, DESIGN, DEBUG, PROFILER, PROJECTS, HELP, PREFERENCES = range(8)
     FIRST_AVAILABLE = 0
     # always adjust the following to the highest value of the available ViewConstants when adding new
     LAST_AVAILABLE = PREFERENCES
