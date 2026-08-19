@@ -89,6 +89,9 @@ def collected_dylibs(module_names: list[str]) -> set[Path]:
     dylibs: set[Path] = set()
 
     for module_name in module_names:
+        if module_name in sys.builtin_module_names:
+            continue
+
         module = importlib.import_module(module_name)
         module_file = Path(module.__file__).resolve()
         rpaths = rpaths_for(module_file)
