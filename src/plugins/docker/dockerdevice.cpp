@@ -210,6 +210,11 @@ public:
         Result<> initResult = ResultOk;
         if (q->mountCmdBridge()
             && cmdBridgePath->isSameDevice(m_containerSettings->binaryPath())) {
+            // The mount is picked from image metadata rather than a live uname,
+            // so a binary that cannot exec (wrong arch, say) is more likely here
+            // than after deployAndInit()'s own probing - which is exactly when a
+            // marker matters most.
+            fAccess->setStartMarker(Utils::pidMarkerTemplate());
             initResult = fAccess->init(
                 q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"), q->environment(), false);
         } else {
@@ -219,6 +224,7 @@ public:
             fileAccess.unlock();
 
             // ... and then deploy the CmdBridge.
+            fAccess->setStartMarker(Utils::pidMarkerTemplate());
             CmdBridge::FileAccess::DeployResult res
                 = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), q->environment());
             initResult = res ? ResultOk : ResultError(res.error().message);
@@ -345,7 +351,8 @@ static WrappedProcessInterface *makeProcessInterface(
             setupData.rawWorkingDirectory(),
             interactive,
             inTerminal,
-            !setupData.m_ptyData);
+            !setupData.m_ptyData
+                && !setupData.m_extraData.value("Process.TargetReportsPid").toBool());
     };
 
     const auto controlSignalFunction =
