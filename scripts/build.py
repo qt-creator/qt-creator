@@ -13,7 +13,7 @@ import shutil
 import sys
 
 import common
-from common import cmake_option
+from common import cmake_option, to_posix_path
 
 
 def existing_path(path):
@@ -129,14 +129,14 @@ def common_cmake_arguments(args):
                   '-G', 'Ninja']
 
     if args.python3:
-        cmake_args += ['-DPython3_EXECUTABLE=' + args.python3]
+        cmake_args += ['-DPython3_EXECUTABLE=' + to_posix_path(args.python3)]
         # QT_SBOM_PYTHON_INTERP expects the dir that contains the python executable.
-        cmake_args += ['-DQT_SBOM_PYTHON_INTERP=' + os.path.dirname(args.python3)]
+        cmake_args += ['-DQT_SBOM_PYTHON_INTERP=' + to_posix_path(os.path.dirname(args.python3))]
     if args.python_path:
-        cmake_args += ['-DPython3_ROOT_DIR=' + args.python_path]
+        cmake_args += ['-DPython3_ROOT_DIR=' + to_posix_path(args.python_path)]
 
     if args.module_paths:
-        module_paths = [common.to_posix_path(os.path.abspath(fp)) for fp in args.module_paths]
+        module_paths = [to_posix_path(os.path.abspath(fp)) for fp in args.module_paths]
         cmake_args += ['-DCMAKE_MODULE_PATH=' + ';'.join(module_paths)]
 
     # force MSVC on Windows, because it looks for GCC in the PATH first,
@@ -170,7 +170,7 @@ def build_qtcreator(args, paths):
         prefix_paths += [paths.llvm]
     if paths.elfutils:
         prefix_paths += [paths.elfutils]
-    prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
+    prefix_paths = [to_posix_path(fp) for fp in prefix_paths]
     cmake_args = ['cmake',
                   '-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
                   '-DSHOW_BUILD_DATE=' + cmake_option(not args.no_build_date),
@@ -248,11 +248,11 @@ def build_wininterrupt(args, paths):
         return
     if not os.path.exists(paths.wininterrupt_build):
         os.makedirs(paths.wininterrupt_build)
-    prefix_paths = [common.to_posix_path(os.path.abspath(fp)) for fp in args.prefix_paths]
+    prefix_paths = [to_posix_path(os.path.abspath(fp)) for fp in args.prefix_paths]
     # Needed for Qt SBOM API
     prefix_paths += [paths.qt]
     cmake_args = ['-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
-                  '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.wininterrupt_install),
+                  '-DCMAKE_INSTALL_PREFIX=' + to_posix_path(paths.wininterrupt_install),
                   '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom)]
     cmake_args += common_cmake_arguments(args)
     common.check_print_call(['cmake'] + cmake_args + [os.path.join(paths.src, 'src', 'tools', 'wininterrupt')],
@@ -273,9 +273,9 @@ def build_qtcreatorcdbext(args, paths):
     prefix_paths += [paths.qt]
     if paths.llvm:
         prefix_paths += [paths.llvm]
-    prefix_paths = [common.to_posix_path(fp) for fp in prefix_paths]
+    prefix_paths = [to_posix_path(fp) for fp in prefix_paths]
     cmake_args = ['-DCMAKE_PREFIX_PATH=' + ';'.join(prefix_paths),
-                  '-DCMAKE_INSTALL_PREFIX=' + common.to_posix_path(paths.qtcreatorcdbext_install),
+                  '-DCMAKE_INSTALL_PREFIX=' + to_posix_path(paths.qtcreatorcdbext_install),
                   '-DQT_GENERATE_SBOM=' + cmake_option(not args.no_sbom)]
     cmake_args += common_cmake_arguments(args)
     common.check_print_call(['cmake'] + cmake_args + [os.path.join(paths.src, 'src', 'libs', 'qtcreatorcdbext')],

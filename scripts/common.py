@@ -7,7 +7,7 @@ import asyncio
 from itertools import islice
 import os
 import locale
-from pathlib import Path
+from pathlib import Path, PurePath
 import re
 import shutil
 import struct
@@ -30,10 +30,9 @@ def is_mac_platform():
     return sys.platform.startswith('darwin')
 
 def to_posix_path(path):
-    if is_windows_platform():
-        # should switch to pathlib from python3
-        return path.replace('\\', '/')
-    return path
+    if not path:
+        return path
+    return PurePath(path).as_posix()
 
 def cmake_option(option):
     return 'ON' if option else 'OFF'
