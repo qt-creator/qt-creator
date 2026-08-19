@@ -75,16 +75,24 @@ void FileAccess::setExecutablePreparer(const ExecutablePreparer &preparer)
     m_executablePreparer = preparer;
 }
 
+void FileAccess::setStartMarker(const QByteArray &marker)
+{
+    m_startMarker = marker;
+}
+
 Result<> FileAccess::init(
     const FilePath &pathToBridge, const Environment &environment, bool deleteOnExit)
 {
     m_environment = environment;
     m_client = std::make_unique<Client>(pathToBridge, environment);
+    m_client->setStartMarker(m_startMarker);
     if (m_errorExitHandler) {
         QObject::connect(m_client.get(), &Client::done, [this](const ProcessResultData &data) {
-            if (data.m_exitCode != 0) {
+            // A bridge that never came up is not a lost connection: the caller
+            // falls back instead of keeping this access, and announcing a loss
+            // tears down the connection it is falling back onto.
+            if (m_started && data.m_exitCode != 0)
                 m_errorExitHandler();
-            }
         });
     }
 
@@ -92,6 +100,7 @@ Result<> FileAccess::init(
     if (!startResult)
         return logError(Tr::tr("Could not start cmdbridge: %1").arg(startResult.error()));
 
+    m_started = true;
     return ResultOk;
 }
 

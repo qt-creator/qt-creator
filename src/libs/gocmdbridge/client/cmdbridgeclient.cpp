@@ -53,6 +53,7 @@ namespace Internal {
 struct ClientPrivate
 {
     FilePath remoteCmdBridgePath;
+    QByteArray startMarker;
     Environment environment;
 
     // Only access from the thread
@@ -437,6 +438,11 @@ Client::~Client()
     (void) d.release();
 }
 
+void Client::setStartMarker(const QByteArray &marker)
+{
+    d->startMarker = marker;
+}
+
 Result<> Client::start(bool deleteOnExit)
 {
     d->thread = new QThread;
@@ -482,6 +488,10 @@ Result<> Client::start(bool deleteOnExit)
                 = Utils::qtcEnvironmentVariable("QTC_CMDBRIDGE_WATCHDOG_TIMEOUT");
             if (!watchdogTimeout.isEmpty())
                 args << "-watchdogTimeout" << watchdogTimeout;
+            if (!d->startMarker.isEmpty()) {
+                args << "-pidMarker" << QString::fromUtf8(d->startMarker);
+                d->process->setExtraData("Ssh.TargetReportsPid", true);
+            }
             d->process->setCommand({d->remoteCmdBridgePath, args});
             d->process->setEnvironment(d->environment);
             d->process->setProcessMode(ProcessMode::Writer);
@@ -587,6 +597,14 @@ Result<> Client::start(bool deleteOnExit)
             if (!d->process->waitForStarted())
                 return ResultError(
                     Tr::tr("Cannot start bridge process: %1").arg(d->process->errorString()));
+            // waitForStarted() is also satisfied by a done signal arriving instead
+            // of a started one, so it says nothing on its own about a bridge that
+            // exited immediately - which is what one that cannot be executed does.
+            if (!d->process->isRunning()) {
+                return ResultError(
+                    Tr::tr("Bridge process exited immediately: %1")
+                        .arg(d->process->errorString()));
+            }
             return ResultOk;
         },
         Qt::BlockingQueuedConnection,

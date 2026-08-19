@@ -1075,7 +1075,9 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
         inner.addArgs("&&", CommandLine::Raw);
     }
 
-    if (usePidMarker)
+    const bool targetReportsPid
+        = q->m_setup.m_extraData.value("Ssh.TargetReportsPid").toBool();
+    if (usePidMarker && !targetReportsPid)
         inner.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
 
     const Environment &env = q->m_setup.m_environment;
@@ -1402,6 +1404,7 @@ void LinuxDevicePrivate::setupFileAccess(
             fileAccess->setExecutablePreparer([this](const QByteArray &binary) {
                 return q->prepareExecutableForUpload(binary);
             });
+            fileAccess->setStartMarker(s_pidMarker);
             Utils::expected<void, CmdBridge::FileAccess::DeployError> deployAndInitResult
                 = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath, getEnvironment());
             if (deployAndInitResult)

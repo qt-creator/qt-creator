@@ -63,6 +63,8 @@ public:
     using ExecutablePreparer = std::function<Utils::Result<QByteArray>(const QByteArray &)>;
     void setExecutablePreparer(const ExecutablePreparer &preparer);
 
+    void setStartMarker(const QByteArray &marker);
+
     Utils::Result<> signalProcess(int pid, Utils::ControlSignal signal) const;
 
     // Connects a local QLocalSocket to the Unix socket server at
@@ -137,6 +139,8 @@ protected:
 
 private:
     std::unique_ptr<CmdBridge::Client> m_client;
+    QByteArray m_startMarker;
+    bool m_started = false;
     ExecutablePreparer m_executablePreparer;
     Utils::Environment m_environment;
     const std::function<void()> m_errorExitHandler;

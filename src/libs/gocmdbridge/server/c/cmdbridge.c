@@ -448,9 +448,21 @@ int main(int argc, char **argv)
 
     int num_workers = DEFAULT_WORKER_THREADS;
 
+    /* Before anything below, including -deleteOnStart, all of which can fail. */
+    for (int i = 1; i < argc; i++) {
+        const char *marker = match_opt(argc, argv, &i, "pidMarker");
+        if (marker != NULL && marker[0] != '\0') {
+            fprintf(stdout, "%s%ld%s\n", marker, (long) getpid(), marker);
+            fflush(stdout);
+            break;
+        }
+    }
+
     for (int i = 1; i < argc; i++) {
         const char *val;
-        if ((val = match_opt(argc, argv, &i, "watchdogTimeout")) != NULL) {
+        if ((val = match_opt(argc, argv, &i, "pidMarker")) != NULL) {
+            /* Handled above; matched again so it is not warned about. */
+        } else if ((val = match_opt(argc, argv, &i, "watchdogTimeout")) != NULL) {
             watchdog_timeout = atoi(val);
             watchdog_enabled = watchdog_timeout > 0;
         } else if ((val = match_opt(argc, argv, &i, "workers")) != NULL) {

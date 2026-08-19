@@ -819,8 +819,15 @@ func main() {
 	deleteOnStart := flag.Bool("deleteOnStart", false, "delete cmdbridge directly on startup")
 	watchDogTimeout := flag.Int("watchdogTimeout", 60,
 		"watchdog timeout in seconds; 0 disables the watchdog")
+	pidMarker := flag.String("pidMarker", "",
+		"wrap our pid in this marker on stdout before doing anything else")
 
 	flag.Parse()
+
+	// Before anything below, all of which can fail.
+	if *pidMarker != "" {
+		fmt.Fprintf(os.Stdout, "%s%d%s\n", *pidMarker, os.Getpid(), *pidMarker)
+	}
 
 	if *deleteOnStart {
 		executable, err := os.Executable()
