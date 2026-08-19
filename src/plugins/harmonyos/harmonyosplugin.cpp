@@ -9,10 +9,6 @@
 #include "harmonyossettings.h"
 #include "harmonyostoolchain.h"
 
-#ifdef WITH_TESTS
-#include "harmonyosdevice_test.h"
-#endif
-
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/kitmanager.h>
@@ -44,10 +40,6 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
 
         connect(KitManager::instance(), &KitManager::kitsLoaded, this,
                 &HarmonyOsPlugin::kitsRestored, Qt::SingleShotConnection);
-
-#ifdef WITH_TESTS
-        addTestCreator(createHarmonyOsDeviceTest);
-#endif
     }
 
     void kitsRestored()

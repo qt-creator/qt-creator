@@ -13,9 +13,3 @@ add_qtc_plugin(HarmonyOS
     harmonyostoolchain.cpp harmonyostoolchain.h
     harmonyostr.h
 )
-
-extend_qtc_plugin(HarmonyOS
-  CONDITION WITH_TESTS
-  SOURCES
-    harmonyosdevice_test.cpp harmonyosdevice_test.h
-)

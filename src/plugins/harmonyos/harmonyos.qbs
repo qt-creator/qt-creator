@@ -34,11 +34,4 @@ QtcPlugin {
         "harmonyostoolchain.h",
         "harmonyostr.h",
     ]
-
-    QtcTestFiles {
-        files: [
-            "harmonyosdevice_test.cpp",
-            "harmonyosdevice_test.h",
-        ]
-    }
 }

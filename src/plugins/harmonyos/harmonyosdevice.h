@@ -6,8 +6,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <memory>
-
 namespace HarmonyOs::Internal {
 
 // A HarmonyOS target device. Like Android, it derives from IDevice rather than
@@ -16,25 +14,17 @@ namespace HarmonyOs::Internal {
 class HarmonyOsDevice final : public ProjectExplorer::IDevice
 {
 public:
-    ~HarmonyOsDevice() final;
-
     static ProjectExplorer::IDevice::Ptr create();
 
     ProjectExplorer::IDeviceWidget *createWidget() final;
     bool hasDeviceTester() const final { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() final;
-    Utils::ProcessInterface *createProcessInterface() const final;
 
     QString serialNumber() const;
     void setSerialNumber(const QString &serial);
 
-    void updateFileAccess();
-
 private:
     HarmonyOsDevice();
-
-    class Private;
-    const std::unique_ptr<Private> d;
 };
 
 class HarmonyOsDeviceFactory final : public ProjectExplorer::IDeviceFactory
