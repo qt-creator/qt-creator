@@ -97,6 +97,15 @@ CombinedSampler::CombinedSampler()
         m_native = std::make_unique<CallStackSampler>();
     else if (HostOsInfo::isLinuxHost())
         m_native = std::make_unique<PerfSampler>();
+
+    // Only the top-level backends' settings are loaded (see the qtprofiler
+    // window), so whatever a sub-capture reads from its own settings rather
+    // than from the session -- the perf record arguments, the debuginfod
+    // toggle -- would stay at its default here.
+    if (m_native) {
+        if (SamplerSettings *nativeSettings = m_native->settings())
+            nativeSettings->readSettings();
+    }
 }
 
 CombinedSampler::~CombinedSampler() = default;
@@ -251,6 +260,14 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
             // each drives half of it rather than both running 0..100.
             parent->progress.store(qMax(qmlChild->progress.load(), nativeChild->progress.load()) / 2,
                                    std::memory_order_relaxed);
+            // Only the native capture ever reports a debug-info download, and
+            // the GUI watches the parent.
+            const RecordingSession::DebugInfoDownload download
+                = nativeChild->debugInfoDownload();
+            if (download.percent < 0)
+                parent->clearDebugInfoDownload();
+            else
+                parent->setDebugInfoDownload(download.percent, download.url);
             if (qmlChild->result.has_value() && nativeChild->result.has_value()) {
                 poll->stop();
                 b->advance();
