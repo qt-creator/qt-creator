@@ -793,7 +793,7 @@
         "Name": "OpenSSL",
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
-        "QtUsage": "Bundled with the QML MCP server on macOS to back Python's ssl and hashlib modules.",
+        "QtUsage": "Bundled with the QML MCP server to back Python's ssl and hashlib modules.",
         "Description": "Cryptography and SSL/TLS toolkit.",
         "Homepage": "https://www.openssl.org/",
         "PURL": "pkg:generic/openssl",

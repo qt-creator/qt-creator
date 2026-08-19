@@ -113,19 +113,17 @@ if(BUILD_QML_MCP_SERVER)
     )
   endif()
 
-  if(APPLE)
-    execute_process(
-      COMMAND "${Python3_EXECUTABLE}" -c "import ssl; print(ssl.OPENSSL_VERSION.split()[1])"
-      RESULT_VARIABLE _openssl_version_check
-      OUTPUT_VARIABLE _openssl_version
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
+  execute_process(
+    COMMAND "${Python3_EXECUTABLE}" -c "import ssl; print(ssl.OPENSSL_VERSION.split()[1])"
+    RESULT_VARIABLE _openssl_version_check
+    OUTPUT_VARIABLE _openssl_version
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+  if(NOT _openssl_version_check EQUAL 0)
+    message(FATAL_ERROR
+      "Could not determine the OpenSSL version used by '${Python3_EXECUTABLE}'."
     )
-    if(NOT _openssl_version_check EQUAL 0)
-      message(FATAL_ERROR
-        "Could not determine the OpenSSL version used by '${Python3_EXECUTABLE}'."
-      )
-    endif()
   endif()
 
   add_custom_target(QmlDesignerMcpServer ALL
@@ -161,13 +159,11 @@ if(BUILD_QML_MCP_SERVER)
     PACKAGE_VERSION "${_mcp_version}"
   )
 
-  if(APPLE)
-    qtc_add_sbom(QmlDesignerMcpServerOpenSSL
-      SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY
-      USE_ATTRIBUTION_FILES
-      ATTRIBUTION_FILE_PATHS "${QtCreator_SOURCE_DIR}/qt_attributions.json"
-      ATTRIBUTION_IDS qml-mcp-server-openssl
-      PACKAGE_VERSION "${_openssl_version}"
-    )
-  endif()
+  qtc_add_sbom(QmlDesignerMcpServerOpenSSL
+    SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY
+    USE_ATTRIBUTION_FILES
+    ATTRIBUTION_FILE_PATHS "${QtCreator_SOURCE_DIR}/qt_attributions.json"
+    ATTRIBUTION_IDS qml-mcp-server-openssl
+    PACKAGE_VERSION "${_openssl_version}"
+  )
 endif()
