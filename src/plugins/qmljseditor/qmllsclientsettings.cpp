@@ -441,7 +441,7 @@ static CommandLine commandLineForQmlls(const BuildConfiguration *bc)
         // add custom import paths that the embedded codemodel uses too
         const QmlJS::ModelManagerInterface::ProjectInfo projectInfo
             = QmlJS::ModelManagerInterface::instance()->projectInfo(bc->project());
-        for (QmlJS::PathAndLanguage path : projectInfo.importPaths) {
+        for (const QmlJS::PathAndLanguage &path : projectInfo.importPaths) {
             if (path.language() == QmlJS::Dialect::Qml)
                 result.addArgs({"-I", path.path().path()});
         }

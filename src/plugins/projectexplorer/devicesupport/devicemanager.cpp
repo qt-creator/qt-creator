@@ -176,7 +176,7 @@ void DeviceManager::load()
     }
 
     // Trigger auto-connection
-    for (const IDevice::Ptr &device : d->devices)
+    for (const IDevice::Ptr &device : std::as_const(d->devices))
         device->postLoad();
 
     emit s_instance->devicesLoaded();

@@ -578,7 +578,7 @@ public:
             s.replace('\n', ' ');
             return s;
         };
-        for (const Schema::Tool &tool : tools) {
+        for (const Schema::Tool &tool : std::as_const(tools)) {
             out += "\\row\n";
             out += QString("    \\li \\c {%1}\n").arg(tool.name());
             out += QString("    \\li %1\n").arg(qdocText(tool.description().value_or(QString())));

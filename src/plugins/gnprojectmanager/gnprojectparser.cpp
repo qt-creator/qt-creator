@@ -122,7 +122,7 @@ static std::unique_ptr<GNTargetNode> makeTargetNode(std::unique_ptr<GNProjectNod
                                           Tr::tr("Source Files"),
                                           true,
                                           ProjectExplorer::Constants::FILEOVERLAY_CPP);
-        for (const auto &file : sources)
+        for (const auto &file : std::as_const(sources))
             sourcesGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Source));
         targetNode->addNode(std::move(sourcesGroup));
     }
@@ -131,7 +131,7 @@ static std::unique_ptr<GNTargetNode> makeTargetNode(std::unique_ptr<GNProjectNod
                                           Tr::tr("Header Files"),
                                           true,
                                           ProjectExplorer::Constants::FILEOVERLAY_H);
-        for (const auto &file : headers)
+        for (const auto &file : std::as_const(headers))
             headersGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Header));
         targetNode->addNode(std::move(headersGroup));
     }
@@ -140,7 +140,7 @@ static std::unique_ptr<GNTargetNode> makeTargetNode(std::unique_ptr<GNProjectNod
                                         Tr::tr("Other Files"),
                                         false,
                                         ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN);
-        for (const auto &file : otherFiles)
+        for (const auto &file : std::as_const(otherFiles))
             otherGroup->addNestedNode(std::make_unique<FileNode>(file, FileType::Unknown));
         targetNode->addNode(std::move(otherGroup));
     }
@@ -412,7 +412,7 @@ RawProjectParts GNProjectParser::
         // Determine language from sources - if it has .c files use C, otherwise C++
         bool hasCFiles = false;
         bool hasCppFiles = false;
-        for (const auto &src : sourceFiles) {
+        for (const auto &src : std::as_const(sourceFiles)) {
             if (src.endsWith(".c"))
                 hasCFiles = true;
             if (src.endsWith(".cpp") || src.endsWith(".cc") || src.endsWith(".cxx") || src.endsWith(".cppm"))

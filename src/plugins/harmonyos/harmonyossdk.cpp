@@ -197,7 +197,7 @@ FilePath detectDevEcoSdk()
         candidates << FilePath::fromUserInput("/Applications/DevEco-Studio.app/Contents");
     }
 
-    for (const FilePath &candidate : candidates) {
+    for (const FilePath &candidate : std::as_const(candidates)) {
         if (isValidSdk(candidate))
             return candidate;
     }

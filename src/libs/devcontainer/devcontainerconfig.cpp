@@ -57,7 +57,7 @@ static std::variant<QString, QStringList> parseStringOrList(
 
     if (value.isArray()) {
         QStringList list;
-        QJsonArray array = value.toArray();
+        const QJsonArray array = value.toArray();
         for (const QJsonValue &v : array) {
             if (v.isString())
                 list.append(jsonStringToString(v));
@@ -78,7 +78,7 @@ Command parseCommand(const QJsonValue &value, const JsonStringToString &jsonStri
 
     if (value.isArray()) {
         QStringList commands;
-        QJsonArray commandArray = value.toArray();
+        const QJsonArray commandArray = value.toArray();
         for (const QJsonValue &cmd : commandArray)
             commands.append(jsonStringToString(cmd));
 
@@ -205,7 +205,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
     if (json.contains("overrideFeatureInstallOrder")
         && json["overrideFeatureInstallOrder"].isArray()) {
         QStringList features;
-        QJsonArray featuresArray = json["overrideFeatureInstallOrder"].toArray();
+        const QJsonArray featuresArray = json["overrideFeatureInstallOrder"].toArray();
         for (const QJsonValue &value : featuresArray) {
             features.append(jsonStringToString(value));
         }
@@ -223,7 +223,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
 
     if (json.contains("forwardPorts") && json["forwardPorts"].isArray()) {
         QList<std::variant<int, QString>> ports;
-        QJsonArray portsArray = json["forwardPorts"].toArray();
+        const QJsonArray portsArray = json["forwardPorts"].toArray();
         for (const QJsonValue &value : portsArray) {
             if (value.isDouble())
                 ports.append(value.toInt());
@@ -268,7 +268,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
         common.containerUser = jsonStringToString(json["containerUser"]);
 
     if (json.contains("mounts") && json["mounts"].isArray()) {
-        QJsonArray mountsArray = json["mounts"].toArray();
+        const QJsonArray mountsArray = json["mounts"].toArray();
         for (const QJsonValue &value : mountsArray) {
             const Result<std::variant<Mount, QString>> mount
                 = Mount::fromJsonVariant(value, jsonStringToString);
@@ -286,7 +286,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
 
     if (json.contains("capAdd") && json["capAdd"].isArray()) {
         QStringList capabilities;
-        QJsonArray capArray = json["capAdd"].toArray();
+        const QJsonArray capArray = json["capAdd"].toArray();
         for (const QJsonValue &value : capArray)
             capabilities.append(jsonStringToString(value));
         common.capAdd = capabilities;
@@ -294,7 +294,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
 
     if (json.contains("securityOpt") && json["securityOpt"].isArray()) {
         QStringList secOpts;
-        QJsonArray secOptsArray = json["securityOpt"].toArray();
+        const QJsonArray secOptsArray = json["securityOpt"].toArray();
         for (const QJsonValue &value : secOptsArray)
             secOpts.append(jsonStringToString(value));
         common.securityOpt = secOpts;
@@ -395,7 +395,7 @@ Result<> NonComposeBase::fromJson(
             appPort = jsonStringToString(json["appPort"]);
         } else if (json["appPort"].isArray()) {
             QList<std::variant<int, QString>> ports;
-            QJsonArray portsArray = json["appPort"].toArray();
+            const QJsonArray portsArray = json["appPort"].toArray();
             for (const QJsonValue &value : portsArray) {
                 if (value.isDouble())
                     ports.append(value.toInt());
@@ -408,7 +408,7 @@ Result<> NonComposeBase::fromJson(
 
     if (json.contains("runArgs") && json["runArgs"].isArray()) {
         QStringList args;
-        QJsonArray argsArray = json["runArgs"].toArray();
+        const QJsonArray argsArray = json["runArgs"].toArray();
         for (const QJsonValue &value : argsArray)
             args.append(jsonStringToString(value));
         runArgs = args;
@@ -456,7 +456,7 @@ Result<ComposeContainer> ComposeContainer::fromJson(
             container.dockerComposeFiles = {jsonStringToString(json["dockerComposeFile"])};
         } else if (json["dockerComposeFile"].isArray()) {
             QStringList composeFiles;
-            QJsonArray composeArray = json["dockerComposeFile"].toArray();
+            const QJsonArray composeArray = json["dockerComposeFile"].toArray();
             for (const QJsonValue &value : composeArray) {
                 composeFiles.append(jsonStringToString(value));
             }
@@ -469,7 +469,7 @@ Result<ComposeContainer> ComposeContainer::fromJson(
 
     if (json.contains("runServices") && json["runServices"].isArray()) {
         QStringList services;
-        QJsonArray servicesArray = json["runServices"].toArray();
+        const QJsonArray servicesArray = json["runServices"].toArray();
         for (const QJsonValue &value : servicesArray)
             services.append(jsonStringToString(value));
         container.runServices = services;
@@ -577,7 +577,7 @@ BuildOptions BuildOptions::fromJson(
             opts.cacheFrom = jsonStringToString(json["cacheFrom"]);
         } else if (json["cacheFrom"].isArray()) {
             QStringList cacheList;
-            QJsonArray cacheArray = json["cacheFrom"].toArray();
+            const QJsonArray cacheArray = json["cacheFrom"].toArray();
             for (const QJsonValue &value : cacheArray)
                 cacheList.append(jsonStringToString(value));
             opts.cacheFrom = cacheList;
@@ -585,7 +585,7 @@ BuildOptions BuildOptions::fromJson(
     }
 
     if (json.contains("options") && json["options"].isArray()) {
-        QJsonArray optionsArray = json["options"].toArray();
+        const QJsonArray optionsArray = json["options"].toArray();
         for (const QJsonValue &value : optionsArray)
             opts.options.append(jsonStringToString(value));
     }

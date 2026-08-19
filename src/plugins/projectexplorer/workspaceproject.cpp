@@ -347,7 +347,7 @@ void WorkspaceProject::addTargetForExecutable(const Utils::FilePath &path)
     QTC_ASSERT(projectFilePath().exists(), return);
     if (Result<QJsonObject> json = projectDefinition(projectFilePath())) {
         QJsonArray targets = (*json)[TARGETS_KEY].toArray();
-        for (const QJsonValue &target : targets) {
+        for (const QJsonValue &target : std::as_const(targets)) {
             QTC_ASSERT(target.isObject(), continue);
             const QJsonObject targetObject = target.toObject();
             const FilePath executable = FilePath::fromUserInput(

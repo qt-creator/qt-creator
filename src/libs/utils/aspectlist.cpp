@@ -339,7 +339,7 @@ public:
                 onClicked(aspect, removeCurrent),
             },
         };
-        for (const ExtraButton &eb : extraButtons) {
+        for (const ExtraButton &eb : std::as_const(extraButtons)) {
             buttonColumn.addItem(PushButton {
                 text(eb.text),
                 onClicked(aspect, eb.callback),
@@ -541,12 +541,12 @@ void AspectList::apply()
 
 void AspectList::cancel()
 {
-    for (const auto &item : d->volatileItems)
+    for (const auto &item : std::as_const(d->volatileItems))
         d->disconnectVolatile(item, this);
 
     d->volatileItems = d->items;
 
-    for (const auto &item : d->volatileItems)
+    for (const auto &item : std::as_const(d->volatileItems))
         d->connectVolatile(item, this);
 
     forEachItem([](BaseAspect *aspect) { aspect->cancel(); });
@@ -586,7 +586,7 @@ bool AspectList::isDirty() const
 void AspectList::setVariantValue(const QVariant &value, Announcement howToAnnounce)
 {
     const QVariantList list = value.toList();
-    for (const std::shared_ptr<BaseAspect> &item : d->volatileItems)
+    for (const std::shared_ptr<BaseAspect> &item : std::as_const(d->volatileItems))
         d->disconnectVolatile(item, this);
 
     d->volatileItems.clear();

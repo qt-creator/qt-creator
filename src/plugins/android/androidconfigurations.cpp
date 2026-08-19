@@ -267,7 +267,7 @@ static FilePath ndkSubPathFromQtVersion(const QtVersion &version)
             return FilePath::fromString(NdksSubDir) / bw.ndkVersion.toString();
     }
 
-    for (const SdkForQtVersions &item : config().m_specificQtVersions) {
+    for (const SdkForQtVersions &item : std::as_const(config().m_specificQtVersions)) {
         if (item.containsVersion(version.qtVersion()))
             return ndkSubPath(item);
     }

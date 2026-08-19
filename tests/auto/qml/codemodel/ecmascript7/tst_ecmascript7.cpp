@@ -86,10 +86,10 @@ static QStringList readSkipList(const QDir &dir, const QString &filename)
 void printUnexpectedMessages(const QmlJSTools::SemanticInfo &info, int nSemantic, int nStatic)
 {
     if (nSemantic == 0 && info.semanticMessages.length() > 0)
-        for (auto msg: info.semanticMessages)
+        for (auto msg: std::as_const(info.semanticMessages))
             qDebug() << msg.message;
     if (nStatic == 0 && info.staticAnalysisMessages.length() > 0)
-        for (auto msg: info.staticAnalysisMessages)
+        for (auto msg: std::as_const(info.staticAnalysisMessages))
             qDebug() << msg.message;
     return;
 }

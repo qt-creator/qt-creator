@@ -619,7 +619,7 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
             if (m_tagType != Metadata && m_tagType != MetadataItem && xml.qualifiedName().toString() == "qt:editorinfo") {
                 // Read editorinfos
                 const QXmlStreamAttributes attributes = xml.attributes();
-                for (QXmlStreamAttribute attr : attributes) {
+                for (const QXmlStreamAttribute &attr : attributes) {
                     m_editorInfo[attr.name().toString()] = attr.value().toString();
                 }
 

@@ -497,7 +497,7 @@ void IosConfigurations::loadProvisioningData(bool notify)
         return teamInfo1.value(freeTeamTag).toInt() < teamInfo2.value(freeTeamTag).toInt();
     });
 
-    for (auto teamInfo : std::as_const(teams)) {
+    for (const auto &teamInfo : std::as_const(teams)) {
         auto team = std::make_shared<DevelopmentTeam>();
         team->m_name = teamInfo.value(teamNameTag).toString();
         team->m_email = teamInfo.value(emailTag).toString();

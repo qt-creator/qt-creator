@@ -452,7 +452,7 @@ static ProcessTask inspectContainerTask(
         details.Config.User = configObj.value("User").toString();
 
         if (configObj.contains("Env")) {
-            QJsonArray envArray = configObj.value("Env").toArray();
+            const QJsonArray envArray = configObj.value("Env").toArray();
             details.Config.Env.clear();
             for (const QJsonValue &envValue : envArray) {
                 if (!envValue.isString()) {
@@ -475,7 +475,7 @@ static ProcessTask inspectContainerTask(
 
         // Parse Mounts
         if (json.contains("Mounts") && json["Mounts"].isArray()) {
-            QJsonArray mountsArray = json["Mounts"].toArray();
+            const QJsonArray mountsArray = json["Mounts"].toArray();
             for (const QJsonValue &mountValue : mountsArray) {
                 QJsonObject mountObj = mountValue.toObject();
                 ContainerDetails::Mount mount;
@@ -494,7 +494,7 @@ static ProcessTask inspectContainerTask(
             if (networkSettingsObj.contains("Ports")) {
                 QJsonObject portsObj = networkSettingsObj.value("Ports").toObject();
                 for (auto it = portsObj.begin(); it != portsObj.end(); ++it) {
-                    QJsonArray portBindingsArray = it.value().toArray();
+                    const QJsonArray portBindingsArray = it.value().toArray();
                     QList<ContainerDetails::NetworkSettings::PortBinding> portBindings;
                     for (const QJsonValue &bindingValue : portBindingsArray) {
                         QJsonObject bindingObj = bindingValue.toObject();
@@ -602,7 +602,7 @@ static ProcessTask inspectImageTask(
         QJsonObject config = json.value("Config").toObject();
         details.Config.User = config.value("User").toString();
         if (config.contains("Env")) {
-            QJsonArray envArray = config.value("Env").toArray();
+            const QJsonArray envArray = config.value("Env").toArray();
             details.Config.Env = QStringList();
             for (const QJsonValue &envValue : envArray)
                 details.Config.Env->append(envValue.toString());
@@ -614,13 +614,13 @@ static ProcessTask inspectImageTask(
                 details.Config.Labels->insert(it.key(), it.value().toString());
         }
         if (config.contains("Entrypoint")) {
-            QJsonArray entrypointArray = config.value("Entrypoint").toArray();
+            const QJsonArray entrypointArray = config.value("Entrypoint").toArray();
             details.Config.Entrypoint = QStringList();
             for (const QJsonValue &entryValue : entrypointArray)
                 details.Config.Entrypoint->append(entryValue.toString());
         }
         if (config.contains("Cmd")) {
-            QJsonArray cmdArray = config.value("Cmd").toArray();
+            const QJsonArray cmdArray = config.value("Cmd").toArray();
             details.Config.Cmd = QStringList();
             for (const QJsonValue &cmdValue : cmdArray)
                 details.Config.Cmd->append(cmdValue.toString());
@@ -1518,7 +1518,7 @@ static Result<Group> prepareContainerRecipe(
               });
 
         QStringList composeFilesWithFlag;
-        for (const QString &file : composeFiles) {
+        for (const QString &file : std::as_const(composeFiles)) {
             composeFilesWithFlag.append("-f");
             composeFilesWithFlag.append(file);
         }
@@ -1665,7 +1665,7 @@ static Result<Group> downContainerRecipe(
               });
 
         QStringList composeFilesWithFlag;
-        for (const QString &file : composeFiles) {
+        for (const QString &file : std::as_const(composeFiles)) {
             composeFilesWithFlag.append("-f");
             composeFilesWithFlag.append(file);
         }

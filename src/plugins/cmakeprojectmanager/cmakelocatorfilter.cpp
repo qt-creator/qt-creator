@@ -270,7 +270,7 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
                 return qobject_cast<const CMakeProject *>(p) != nullptr;
             }) > 1;
 
-            for (Project *project : projects) {
+            for (Project *project : std::as_const(projects)) {
                 const auto cmakeProject = qobject_cast<const CMakeProject *>(project);
                 if (!cmakeProject)
                     continue;
@@ -551,7 +551,7 @@ private:
             // Then the tests themselves
             testCasesInfo << bs->testcasesInfo();
 
-            for (const TestCaseInfo &testInfo : testCasesInfo) {
+            for (const TestCaseInfo &testInfo : std::as_const(testCasesInfo)) {
                 const QRegularExpressionMatch match = regexp.match(testInfo.name);
                 if (match.hasMatch()) {
                     const QString displayName = testInfo.path.fileName() == "CMakePresets.json"

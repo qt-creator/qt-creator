@@ -7577,7 +7577,7 @@ bool FakeVimHandler::Private::handleExLockVarCommand(const ExCommand &cmd)
         if (isDepth)
             names.removeFirst();
     }
-    for (const QString &name : names) {
+    for (const QString &name : std::as_const(names)) {
         QString key;
         variableStore(name, &key);
         if (lock)

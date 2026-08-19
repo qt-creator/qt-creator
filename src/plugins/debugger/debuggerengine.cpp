@@ -610,13 +610,13 @@ public:
     // Registers the engine's actions with the global Core::ActionManager.
     void registerActions()
     {
-        for (const auto &[action, id] : m_engineActions)
+        for (const auto &[action, id] : std::as_const(m_engineActions))
             ActionManager::registerAction(action, id, m_context);
     }
 
     void unregisterActions()
     {
-        for (const auto &[action, id] : m_engineActions)
+        for (const auto &[action, id] : std::as_const(m_engineActions))
             ActionManager::unregisterAction(action, id);
     }
 
@@ -3265,7 +3265,7 @@ void DebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 bool found = false;
                 while (str < limit) {
                     const QString string = QString::fromUtf8(str);
-                    for (auto pair : std::as_const(globalRegExpSourceMap)) {
+                    for (const auto &pair : std::as_const(globalRegExpSourceMap)) {
                         const QRegularExpressionMatch match = pair.first.match(string);
                         if (match.hasMatch()) {
                             rp.insertSourcePath(string.left(match.capturedStart()) + match.captured(1),

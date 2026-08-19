@@ -59,7 +59,7 @@ private:
 private slots:
     void cleanupTestCase()
     {
-        for (Kit *k : m_kits)
+        for (Kit *k : std::as_const(m_kits))
             KitManager::deregisterKit(k);
         m_kits.clear();
     }

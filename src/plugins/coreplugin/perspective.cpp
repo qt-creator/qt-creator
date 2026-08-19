@@ -372,10 +372,10 @@ PerspectivesView::~PerspectivesView()
     // Delete inner toolbars before the main window so that tracked toolbar
     // widgets (which may be value members in plugin-owned objects) are
     // unparented before Qt's parent-child deletion runs.
-    for (const QPointer<Perspective> &p : d->m_perspectives) {
+    for (const QPointer<Perspective> &p : std::as_const(d->m_perspectives)) {
         if (!p)
             continue;
-        for (const QPointer<QWidget> &w : p->d->m_toolBarWidgets) {
+        for (const QPointer<QWidget> &w : std::as_const(p->d->m_toolBarWidgets)) {
             if (w)
                 w->setParent(nullptr);
         }
@@ -880,7 +880,7 @@ Perspective::~Perspective()
 {
     // The owning view may already have been torn down in doShutdown().
     if (theViews.contains(d->m_view)) {
-        for (const QPointer<QWidget> &w : d->m_toolBarWidgets)
+        for (const QPointer<QWidget> &w : std::as_const(d->m_toolBarWidgets))
             if (w) w->setParent(nullptr);
         delete d->m_innerToolBar;
         d->m_innerToolBar = nullptr;

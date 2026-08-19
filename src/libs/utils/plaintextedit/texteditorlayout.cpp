@@ -870,7 +870,7 @@ void TextLayoutItem::ensureLayouted(QTextDocument *doc, const QFontMetrics & fm,
 void TextLayoutItem::paintBackground(QPainter *p, const QPointF &pos, const QRectF &clip)
 {
     QTC_ASSERT(m_textLayout, return);
-    for (auto format : m_textLayout->formats()) {
+    for (const QTextLayout::FormatRange &format : m_textLayout->formats()) {
         if (format.format.boolProperty(FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID)) {
             QRectF blockRect = m_textLayout->boundingRect();
             blockRect = blockRect.translated(pos);

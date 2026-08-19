@@ -136,7 +136,7 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     QString args = ProcessArgs::joinArgs(arguments);
     // User arguments
     ProcessArgs::addArgs(&args, userArguments());
-    for (QString arg : std::as_const(m_extraArgs))
+    for (const QString &arg : std::as_const(m_extraArgs))
         ProcessArgs::addArgs(&args, arg);
     return (flags & ArgumentFlag::Expand) ? bc->macroExpander()->expand(args) : args;
 }

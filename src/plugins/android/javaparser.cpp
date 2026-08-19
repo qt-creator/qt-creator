@@ -49,7 +49,7 @@ OutputLineParser::Result JavaParser::handleLine(const QString &line, OutputForma
         file = m_sourceDirectory.resolvePath(relativePath);
     }
     if (file.isRelativePath()) {
-        for (const FilePath &fp : m_fileList)
+        for (const FilePath &fp : std::as_const(m_fileList))
             if (fp.endsWith(file.path())) {
                 file = fp;
                 break;

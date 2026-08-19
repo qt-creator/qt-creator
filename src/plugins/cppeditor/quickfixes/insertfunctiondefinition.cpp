@@ -580,7 +580,7 @@ private:
                 = symbolFinder.findMatchingVarDefinition(symbol, interface.snapshot())) {
                 defs << varDef;
             }
-            for (const Symbol * const def : defs) {
+            for (const Symbol * const def : std::as_const(defs)) {
                 const Project * const defProject = ProjectManager::projectForFile(def->filePath());
                 if (declProject == defProject) {
                     if (!declProduct)

@@ -903,7 +903,7 @@ static void mcpFindInFiles(
         TextEditor::TextDocument::openedTextDocumentContents());
     Utils::onFinished(future, guard, [callback](const QFuture<SearchResultItems> &future) {
         QJsonArray resultsArray;
-        for (Utils::SearchResultItems results : future.results()) {
+        for (const Utils::SearchResultItems &results : future.results()) {
             for (const SearchResultItem &item : results) {
                 QJsonObject resultObj;
                 const Text::Range range = item.mainRange();

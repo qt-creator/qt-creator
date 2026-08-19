@@ -416,7 +416,7 @@ static void findInFiles(
         TextEditor::TextDocument::openedTextDocumentContents());
     Utils::onFinished(future, guard, [callback](const QFuture<SearchResultItems> &future) {
         QJsonArray resultsArray;
-        for (Utils::SearchResultItems results : future.results()) {
+        for (const Utils::SearchResultItems &results : future.results()) {
             for (const SearchResultItem &item : results) {
                 QJsonObject resultObj;
                 const Text::Range range = item.mainRange();
@@ -1082,13 +1082,13 @@ static Utils::Result<QModelIndex> resolveSingleItem(QAbstractItemView *view, con
     QList<QModelIndex> all;
     collectItems(view->model(), view->rootIndex(), &all);
     QList<QModelIndex> matches;
-    for (const QModelIndex &index : all) {
+    for (const QModelIndex &index : std::as_const(all)) {
         if (itemPath(index) == item || index.data(Qt::DisplayRole).toString() == item)
             matches.append(index);
     }
     if (matches.isEmpty()) {
         QStringList paths;
-        for (const QModelIndex &index : all)
+        for (const QModelIndex &index : std::as_const(all))
             paths << QString("\"%1\"").arg(itemPath(index));
         if (paths.size() > 20)
             paths = paths.mid(0, 20) << QString("... (%1 in total)").arg(all.size());
@@ -1346,7 +1346,8 @@ void McpCommands::registerCommands()
         wrap([](const QJsonObject &args) {
             const bool openOnly = args.value("open_only").toBool(false);
             QJsonArray boxes;
-            for (const MessageBoxCapture::Entry &entry : MessageBoxCapture::instance().entries) {
+            for (const MessageBoxCapture::Entry &entry :
+                 std::as_const(MessageBoxCapture::instance().entries)) {
                 const bool open = !entry.box.isNull() && entry.box->isVisible();
                 if (openOnly && !open)
                     continue;
@@ -2932,7 +2933,7 @@ void McpCommands::registerCommands()
             QList<QModelIndex> all;
             collectItems((*view)->model(), (*view)->rootIndex(), &all);
             QJsonArray items;
-            for (const QModelIndex &index : all) {
+            for (const QModelIndex &index : std::as_const(all)) {
                 if (!filter.isEmpty() && itemPath(index) != filter
                     && index.data(Qt::DisplayRole).toString() != filter) {
                     continue;

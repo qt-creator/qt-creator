@@ -376,7 +376,7 @@ ITaskHandler *taskHandlerForAction(QAction *action)
 void updateTaskHandlerActionsState()
 {
     const Tasks tasks = g_getTasks();
-    for (ITaskHandler * const h : g_taskHandlers)
+    for (ITaskHandler * const h : std::as_const(g_taskHandlers))
         h->action()->setEnabled(h->canHandle(tasks));
 }
 

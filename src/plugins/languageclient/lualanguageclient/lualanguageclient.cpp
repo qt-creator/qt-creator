@@ -298,11 +298,11 @@ public:
             auto mimeTypes = languageFilter->get<std::optional<sol::table>>("mimeTypes");
 
             if (patterns)
-                for (auto [_, v] : *patterns)
+                for (const auto &[_, v] : *patterns)
                     m_languageFilter.filePattern.push_back(v.as<QString>());
 
             if (mimeTypes)
-                for (auto [_, v] : *mimeTypes)
+                for (const auto &[_, v] : *mimeTypes)
                     m_languageFilter.mimeTypes.push_back(v.as<QString>());
         }
 

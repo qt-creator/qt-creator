@@ -85,7 +85,7 @@ TextEditor::IndentationForBlock QmlJsIndenter::indentationForBlocks(
     codeFormatter.updateStateUntil(blocks.last());
 
     TextEditor::IndentationForBlock ret;
-    for (QTextBlock block : blocks)
+    for (const QTextBlock &block : blocks)
         ret.insert(block.blockNumber(), codeFormatter.indentFor(block));
     return ret;
 }

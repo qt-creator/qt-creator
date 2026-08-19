@@ -97,7 +97,7 @@ PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySide
 
     m_pySideVersion.setLabelText(Tr::tr("PySide version:"));
     m_pySideVersion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    for (auto [name, data] : pySideAndData)
+    for (const auto &[name, data] : pySideAndData)
         m_pySideVersion.addOption(SelectionAspect::Option(name, {}, data));
     if (defaultPyside >= 0)
         m_pySideVersion.setDefaultValue(defaultPyside);

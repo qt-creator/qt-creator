@@ -654,7 +654,7 @@ IDevice::~IDevice() = default;
 void IDevice::initDeviceToolAspects()
 {
     // shared_from_this doesn't work in the ctor.
-    for (const DeviceToolAspectFactory *factory : theDeviceToolFactories) {
+    for (const DeviceToolAspectFactory *factory : std::as_const(theDeviceToolFactories)) {
         DeviceToolAspect *toolAspect = factory->createAspect(shared_from_this());
         registerAspect(toolAspect, true);
         toolAspect->setBaseDirectory([this] { return rootPath(); });
@@ -1511,7 +1511,7 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
             return a.first > b.first;
         });
 
-        for (const VersionAndPath &vp : qtBinPaths)
+        for (const VersionAndPath &vp : std::as_const(qtBinPaths))
             paths += vp.second;
 
         // The Qt online installer also ships build tools (CMake, Ninja) under

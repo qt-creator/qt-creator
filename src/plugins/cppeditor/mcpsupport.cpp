@@ -1559,7 +1559,7 @@ void registerMcpTools()
             for (CppQuickFixFactory *factory : CppQuickFixFactory::cppQuickFixFactories()) {
                 CppQuickFixFactory::QuickFixOperations operations;
                 factory->match(interface, operations);
-                for (const TextEditor::QuickFixOperation::Ptr &op : operations) {
+                for (const TextEditor::QuickFixOperation::Ptr &op : std::as_const(operations)) {
                     const QString description = op->description();
                     if (!description.isEmpty())
                         quickFixes.append(QJsonObject{{"description", description}});
@@ -1671,7 +1671,7 @@ void registerMcpTools()
                     overrides.append(functionToJson(f));
             }
             QJsonArray baseDeclarations;
-            for (const CPlusPlus::Function *f : firstVirtuals)
+            for (const CPlusPlus::Function *f : std::as_const(firstVirtuals))
                 baseDeclarations.append(functionToJson(f));
 
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{

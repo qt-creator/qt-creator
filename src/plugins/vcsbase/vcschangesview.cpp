@@ -1137,7 +1137,7 @@ void ChangesView::openContextMenu(const QPoint &point)
     // their state.
     if (menu.exec(m_treeView->mapToGlobal(point))) {
         FilePaths refreshed;
-        for (const Target &t : targets) {
+        for (const Target &t : std::as_const(targets)) {
             if (!refreshed.contains(t.repository)) {
                 refreshed.append(t.repository);
                 t.vc->requestRepositoryStatus(t.repository);

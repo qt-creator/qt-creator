@@ -80,7 +80,7 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
     setLayouter([this] {
         using namespace Layouting;
         Flow features;
-        for (BoolAspect *aspect : featureAspects)
+        for (BoolAspect *aspect : std::as_const(featureAspects))
             features.addItem(*aspect);
 
         return Column {

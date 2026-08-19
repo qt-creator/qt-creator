@@ -1192,7 +1192,7 @@ private slots:
             for (Id device : devices) {
                 for (Id runConfig : std::as_const(g_runConfigs)) {
                     QList<Id> creators;
-                    for (RunWorkerFactory *factory : g_runWorkerFactories) {
+                    for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
                         // TODO: !!
                         if (factory->canCreate(runMode, device, runConfig, Id()))
                             creators.append(factory->id());

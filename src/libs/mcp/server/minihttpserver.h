@@ -525,7 +525,7 @@ private:
     {
         const QByteArray path = req.url().path().toUtf8();
 
-        for (const Route &route : m_routes) {
+        for (const Route &route : std::as_const(m_routes)) {
             if (route.path == path && route.method == req.method()) {
                 HttpResponder responder(socket);
                 route.handler(req, responder);

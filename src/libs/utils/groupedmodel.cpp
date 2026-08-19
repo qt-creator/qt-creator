@@ -113,7 +113,7 @@ void GroupedModel::DisplayModel::setFilters(const QString &defaultTitle,
 void GroupedModel::DisplayModel::setExtraFilter(const Filter &filter)
 {
     m_extraFilter = filter;
-    for (FilterModel *fm : m_filters)
+    for (FilterModel *fm : std::as_const(m_filters))
         fm->invalidate();
 }
 
@@ -263,7 +263,7 @@ QVariant GroupedModel::DisplayModel::headerData(int section, Qt::Orientation ori
 
 void GroupedModel::DisplayModel::sort(int column, Qt::SortOrder order)
 {
-    for (FilterModel *fm : m_filters)
+    for (FilterModel *fm : std::as_const(m_filters))
         fm->sort(column, order);
 }
 

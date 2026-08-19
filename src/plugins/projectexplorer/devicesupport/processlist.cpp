@@ -109,7 +109,7 @@ void ProcessList::update()
             d->model.rootItem()->appendChild(new DeviceProcessTreeItem(
                 {0, {}, Tr::tr("Failed to fetch process list.")}, Qt::NoItemFlags));
 
-            QStringList errors = result.error().split('\n');
+            const QStringList errors = result.error().split('\n');
             for (const QString &error : errors) {
                 d->model.rootItem()->appendChild(
                     new DeviceProcessTreeItem({1, {}, error}, Qt::NoItemFlags));

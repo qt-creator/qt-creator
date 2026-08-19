@@ -2852,10 +2852,10 @@ void CMakeBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
     addImports(cm.stringValueOf("QML_IMPORT_PATH"));
     addImports(kit()->value(QtSupport::Constants::KIT_QML_IMPORT_PATH).toString());
 
-    for (const QString &extraHeaderPath : m_extraHeaderPaths)
+    for (const QString &extraHeaderPath : std::as_const(m_extraHeaderPaths))
         projectInfo.qmlImportPaths.append(FilePath::fromString(extraHeaderPath));
 
-    for (const QByteArray &mm : m_moduleMappings) {
+    for (const QByteArray &mm : std::as_const(m_moduleMappings)) {
         auto kvPair = mm.split('=');
         if (kvPair.size() != 2)
             continue;

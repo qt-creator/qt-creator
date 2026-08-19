@@ -421,7 +421,7 @@ void Server::handleSetConfigOption(const QJsonValue &id, const QJsonObject &para
     SessionUpdate update;
     ConfigOptionUpdate configUpdate;
     const QJsonArray options = configOptionsJson();
-    for (const QJsonValue option : options) {
+    for (const QJsonValue &option : options) {
         if (const auto parsed = fromJson<SessionConfigOption>(option))
             configUpdate.addConfigOption(*parsed);
     }

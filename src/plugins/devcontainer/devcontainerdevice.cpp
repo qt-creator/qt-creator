@@ -422,7 +422,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
     };
 
     const auto setupManualKits = [this, instance, instanceConfig](QTaskTree &tree) {
-        QJsonArray kits = customization((*instance)->config(), "qt-creator/kits").toArray();
+        const QJsonArray kits = customization((*instance)->config(), "qt-creator/kits").toArray();
 
         GroupItems steps;
 

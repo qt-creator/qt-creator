@@ -95,7 +95,7 @@ void ToolchainConfigWidget::makeReadOnly()
 
 void ToolchainConfigWidget::setFallbackBrowsePath(const Utils::FilePath &path)
 {
-    for (const ToolchainChooser &chooser : m_commands)
+    for (const ToolchainChooser &chooser : std::as_const(m_commands))
         chooser.second->setInitialBrowsePathBackup(path);
 }
 

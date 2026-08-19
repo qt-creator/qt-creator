@@ -812,7 +812,7 @@ private slots:
         visibleOsMap[HostOsInfo::hostOs()].second = true;
 
         // Only the host os preset should evaluate the "condition" and not be hidden
-        for (const QPair<QString, bool> &os : visibleOsMap) {
+        for (const QPair<QString, bool> &os : std::as_const(visibleOsMap)) {
             const QString presetName = os.first;
 
             auto it = std::find_if(

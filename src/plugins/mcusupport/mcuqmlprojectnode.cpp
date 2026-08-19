@@ -84,7 +84,7 @@ bool McuQmlProjectNode::populateModuleNode(FolderNode *moduleNode, const QVarian
         foldernode->setIcon(DirectoryIcon(icon));
         foldernode->setPriority(p);
         const auto nodeFiles = moduleObject.value(node, {}).toStringList();
-        for (auto p : nodeFiles) {
+        for (const QString &p : nodeFiles) {
             const FilePath nodePath = FilePath::fromUserInput(p);
             foldernode->addNestedNode(
                 std::make_unique<FileNode>(nodePath, FileNode::fileTypeForFileName(nodePath)));
