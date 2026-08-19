@@ -411,7 +411,10 @@ void AcpChatController::setUpV1Adapter(const InitializeResponse &response)
     if (m_inspector) {
         const auto &capabilities = response.agentCapabilities();
         m_inspector->setCapabilities(
-            m_serverName, capabilities ? toJson(*capabilities) : QJsonObject());
+            m_serverName,
+            {{QStringLiteral("protocolVersion"), 1},
+             {QStringLiteral("capabilities"),
+              capabilities ? toJson(*capabilities) : QJsonObject()}});
     }
 
     // The client-side fs/* and terminal/* method surface only exists in v1.
@@ -435,8 +438,11 @@ void AcpChatController::setUpV2Adapter(const V2::InitializeResponse &response,
 
     m_initialized = true;
 
-    if (m_inspector)
-        m_inspector->setCapabilities(m_serverName, rawCapabilities);
+    if (m_inspector) {
+        m_inspector->setCapabilities(m_serverName,
+                                     {{QStringLiteral("protocolVersion"), 2},
+                                      {QStringLiteral("capabilities"), rawCapabilities}});
+    }
 
     m_adapter = new AcpProtocolV2Adapter(m_client, response, this);
     connectAdapter();

@@ -414,6 +414,8 @@ private slots:
     void testFramingCrLfAndEmptyLines();
     void testFramingMalformedJson();
     void testFramingNonObject();
+    void testFramingBatchArray();
+    void testFramingEmptyBatch();
     void testFramingSendFormat();
 
     // Tier 1b: JSON-RPC engine (AcpClientObject on a loopback transport)
@@ -566,9 +568,45 @@ void AcpClientTest::testFramingNonObject()
     connect(&transport, &AcpTransport::errorOccurred, this,
             [&](const QString &error) { errors.append(error); });
 
-    transport.injectData("[1,2]\n");
+    transport.injectData("42\n");
     QCOMPARE(errors.size(), 1);
     QCOMPARE(received.size(), 0);
+
+    // Batch arrays are valid, but their entries must be objects.
+    transport.injectData("[1,2]\n");
+    QCOMPARE(errors.size(), 3);
+    QCOMPARE(received.size(), 0);
+}
+
+// A JSON-RPC 2.0 batch array on a single line delivers each entry as its own
+// message (explicitly allowed on stdio by ACP v2).
+void AcpClientTest::testFramingBatchArray()
+{
+    TestTransport transport;
+    QList<QJsonObject> received;
+    connect(&transport, &AcpTransport::messageReceived, this,
+            [&](const QJsonObject &message) { received.append(message); });
+
+    transport.injectData("[{\"a\":1},{\"b\":2}]\n");
+    QCOMPARE(received.size(), 2);
+    QCOMPARE(received.at(0).value("a").toInt(), 1);
+    QCOMPARE(received.at(1).value("b").toInt(), 2);
+}
+
+// An empty batch carries no request at all, which JSON-RPC 2.0 rejects.
+void AcpClientTest::testFramingEmptyBatch()
+{
+    TestTransport transport;
+    QList<QJsonObject> received;
+    QStringList errors;
+    connect(&transport, &AcpTransport::messageReceived, this,
+            [&](const QJsonObject &message) { received.append(message); });
+    connect(&transport, &AcpTransport::errorOccurred, this,
+            [&](const QString &error) { errors.append(error); });
+
+    transport.injectData("[]\n");
+    QCOMPARE(received.size(), 0);
+    QCOMPARE(errors.size(), 1);
 }
 
 // send() produces compact JSON terminated by exactly one newline.

@@ -5,6 +5,7 @@
 
 #include "acpclienttr.h"
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QLoggingCategory>
 
@@ -44,6 +45,25 @@ void AcpTransport::parseData(const QByteArray &data)
         const QJsonDocument doc = QJsonDocument::fromJson(line, &parseError);
         if (parseError.error != QJsonParseError::NoError) {
             emit errorOccurred(Tr::tr("JSON parse error: %1").arg(parseError.errorString()));
+            continue;
+        }
+
+        // ACP v2 explicitly allows JSON-RPC 2.0 batches on stdio: a line may
+        // carry an array of requests, notifications, or responses.
+        if (doc.isArray()) {
+            const QJsonArray batch = doc.array();
+            // JSON-RPC 2.0 calls an empty batch an Invalid Request; report it
+            // so that every line either produces messages or an error.
+            if (batch.isEmpty()) {
+                emit errorOccurred(Tr::tr("Empty JSON-RPC batch."));
+                continue;
+            }
+            for (const QJsonValue &entry : batch) {
+                if (entry.isObject())
+                    emit messageReceived(entry.toObject());
+                else
+                    emit errorOccurred(Tr::tr("Expected JSON object in batch."));
+            }
             continue;
         }
 
