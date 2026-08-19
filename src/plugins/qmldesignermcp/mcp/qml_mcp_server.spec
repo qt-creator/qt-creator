@@ -15,6 +15,11 @@ import bundle_dylibs
 script_path = spec_dir / "qml_mcp_server.py"
 binaries = []
 
+forbidden_packages = [
+    "certifi",
+    "cryptography",
+]
+
 if sys.platform == "darwin":
     # Python's _ssl/_hashlib reference libssl/libcrypto via @rpath,
     # which PyInstaller doesn't auto-collect for pyenv-style builds.
@@ -30,10 +35,29 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=forbidden_packages,
     noarchive=False,
     optimize=0,
 )
+
+
+def forbidden_entries(table):
+    for name, source, _kind in table:
+        top = Path(name).parts[0].split(".")[0].split("-")[0]
+        if top in forbidden_packages:
+            yield f"{name} <- {source}"
+
+
+collected = sorted(
+    entry
+    for table in (a.pure, a.binaries, a.datas)
+    for entry in forbidden_entries(table)
+)
+if collected:
+    raise SystemExit(
+        "qml_mcp_server would ship excluded packages:\n  " + "\n  ".join(collected)
+    )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
