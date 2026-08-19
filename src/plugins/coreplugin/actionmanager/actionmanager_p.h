@@ -12,6 +12,10 @@
 
 #include <memory>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace Core {
 
 class Command;
@@ -40,6 +44,8 @@ public:
     Command *overridableAction(Utils::Id id);
 
     static void readUserSettings(Utils::Id id, Command *cmd);
+
+    bool removeAction(QAction *action, Utils::Id id);
 
     void scheduleContainerUpdate(ActionContainerPrivate *actionContainer);
     void updateContainer();

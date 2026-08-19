@@ -411,6 +411,7 @@ void Internal::CommandPrivate::removeOverrideAction(QAction *action)
     }
     for (Id id : toRemove)
         m_contextActionMap.remove(id);
+    m_scriptableHash.remove(action);
     setCurrentContext(m_context);
 }
 

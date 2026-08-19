@@ -305,6 +305,8 @@ add_qtc_plugin(Core
 extend_qtc_plugin(Core
   CONDITION WITH_TESTS
   SOURCES
+    actionmanager/actionmanager_test.cpp
+    actionmanager/actionmanager_test.h
     documentmanager_test.cpp
     documentmanager_test.h
     editormanager/editormanager_test.cpp

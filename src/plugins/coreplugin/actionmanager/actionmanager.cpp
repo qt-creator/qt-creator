@@ -7,6 +7,8 @@
 #include "command_p.h"
 #include "../icore.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
@@ -659,6 +661,14 @@ Command *ActionManager::registerAction(QAction *action, Id id, const Context &co
     Command *cmd = d->overridableAction(id);
     if (cmd) {
         cmd->d->addOverrideAction(action, context, scriptable);
+        // An action can outlive its registration - the plugin that owns it is
+        // taken back out, a dynamic tool goes away - and the command would then
+        // stay behind with nothing to delegate to, in its menu and in the
+        // keyboard shortcut settings.
+        connect(action, &QObject::destroyed, d, [action, id] {
+            if (!ExtensionSystem::PluginManager::isShuttingDown())
+                d->removeAction(action, id);
+        });
         emit m_instance->commandListChanged();
         emit m_instance->commandAdded(id);
     }
@@ -744,23 +754,31 @@ void ActionManager::unregisterAction(QAction *action, Id id)
 {
     if (!d) // stray call during shutdown
         return;
-    Command *cmd = d->m_idCmdMap.value(id, nullptr);
-    if (!cmd) {
+    if (!d->removeAction(action, id)) {
         qWarning() << "unregisterAction: id" << id.name()
                    << "is registered with a different command type.";
-        return;
     }
+}
+
+// Returns whether anything was registered under id at all.
+bool ActionManagerPrivate::removeAction(QAction *action, Id id)
+{
+    Command *cmd = m_idCmdMap.value(id, nullptr);
+    if (!cmd)
+        return false;
     cmd->d->removeOverrideAction(action);
     if (cmd->d->isEmpty()) {
         // clean up
-        ActionManagerPrivate::saveSettings(cmd);
-        ICore::mainWindow()->removeAction(cmd->action());
+        saveSettings(cmd);
+        if (QMainWindow *mainWindow = ICore::mainWindow())
+            mainWindow->removeAction(cmd->action());
         // ActionContainers listen to the commands' destroyed signals
         delete cmd->action();
-        d->m_idCmdMap.remove(id);
+        m_idCmdMap.remove(id);
         delete cmd;
     }
     emit m_instance->commandListChanged();
+    return true;
 }
 
 /*!
