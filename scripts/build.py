@@ -121,7 +121,7 @@ def common_cmake_arguments(args):
                   '-G', 'Ninja']
 
     if args.python3:
-        cmake_args += ['-DPython3_EXECUTABLE=' + args.python3]
+        cmake_args += ['-DPython3_EXECUTABLE=' + common.to_posix_path(args.python3)]
     if args.python_path:
         cmake_args += ['-DPython3_ROOT_DIR=' + args.python_path]
 

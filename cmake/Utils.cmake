@@ -12,6 +12,7 @@ function(setup_dependencies_component)
     message("No python interpreter found, skipping \"Dependencies\" install component.")
   else()
     get_target_property(_qmake_binary Qt::qmake IMPORTED_LOCATION)
+    cmake_path(SET _python_binary "${Python3_EXECUTABLE}")
     set(_llvm_arg)
     if (LLVM_INSTALL_PREFIX)
       set(_llvm_arg "--llvm \"${LLVM_INSTALL_PREFIX}\"")
@@ -43,7 +44,7 @@ function(setup_dependencies_component)
           set(_ide_app_target \"\${_default_app_target}\")
         endif()
         execute_process(COMMAND
-          \"${Python3_EXECUTABLE}\"
+          \"${_python_binary}\"
           \"-u\"
           \"${CMAKE_CURRENT_LIST_DIR}/scripts/deploy.py\"
           ${_llvm_arg}
