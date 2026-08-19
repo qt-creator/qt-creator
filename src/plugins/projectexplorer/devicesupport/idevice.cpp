@@ -1412,6 +1412,12 @@ Result<FilePath> IDevice::localSource(const FilePath &other) const
     return make_unexpected(Tr::tr("localSource() not implemented for this device type."));
 }
 
+FilePath IDevice::configuredDevicePath(const FilePath &localPath) const
+{
+    Q_UNUSED(localPath)
+    return {};
+}
+
 bool IDevice::prepareForBuild(const Target *target)
 {
     Q_UNUSED(target)

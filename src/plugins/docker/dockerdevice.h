@@ -62,6 +62,10 @@ QString invertedDriveLetterPath(Utils::OsType hostOs, const Utils::FilePath &dev
 Utils::Result<Utils::FilePath> hostPathFor(
     const QList<MountPair> &mounts, Utils::OsType hostOs, const Utils::FilePath &devicePath);
 
+// The whole host-to-container translation: the mounts above, and failing those
+// the drive letter a Windows host gets. Pure, so it needs no running container.
+QString containerPathFor(const QList<MountPair> &mounts, const QString &hostPath);
+
 } // namespace Internal
 
 class DOCKER_EXPORT DockerDevice : public ProjectExplorer::IDevice
@@ -105,6 +109,7 @@ public:
     Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
     Utils::Result<> ensureReachable(const Utils::FilePath &other) const override;
     Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
+    Utils::FilePath configuredDevicePath(const Utils::FilePath &localPath) const override;
 
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
     Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const override;

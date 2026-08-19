@@ -540,14 +540,18 @@ Result<Environment> DockerDevicePrivate::fetchEnvironment() const
 
 QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
 {
+    return containerPathFor(m_dev->mountPairs(m_dev->q->mounts.value()), hostPath);
+}
+
+QString containerPathFor(const QList<MountPair> &mounts, const QString &hostPath)
+{
     // make sure to convert windows style paths to unix style paths with the file system case:
     // C:/dev/src -> /c/dev/src
     const FilePath normalized = FilePath::fromString(hostPath).normalizedPathName();
 
     // A mount that names its container path decides where the file is, so it
     // takes precedence over the drive-letter conversion below.
-    const FilePath mapped
-        = mapToContainerPath(m_dev->mountPairs(m_dev->q->mounts.value()), normalized);
+    const FilePath mapped = mapToContainerPath(mounts, normalized);
     if (!mapped.isEmpty())
         return mapped.path();
 
@@ -1632,6 +1636,14 @@ Result<> DockerDevice::ensureReachable(const FilePath &other) const
 Result<FilePath> DockerDevice::localSource(const FilePath &other) const
 {
     return d->localSource(other);
+}
+
+FilePath DockerDevice::configuredDevicePath(const FilePath &localPath) const
+{
+    if (!localPath.isLocal())
+        return {};
+    return rootPath().withNewPath(
+        containerPathFor(d->mountPairs(mounts.value()), localPath.path()));
 }
 
 Result<Environment> DockerDevice::systemEnvironmentWithError() const

@@ -335,6 +335,11 @@ public:
     virtual Utils::Result<> ensureReachable(const Utils::FilePath &other) const;
     virtual Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const;
 
+    // The counterpart of localSource(), answered from the device configuration
+    // alone: no connection is opened, and in particular none is started. Empty
+    // when the device cannot tell without one, which is the default.
+    virtual Utils::FilePath configuredDevicePath(const Utils::FilePath &localPath) const;
+
     virtual bool prepareForBuild(const Target *target);
 
     virtual void checkOsType() {}

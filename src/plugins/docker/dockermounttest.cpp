@@ -186,6 +186,32 @@ private slots:
             = mapToContainerPath(parseMounts({mount}), FilePath::fromString(hostPath));
         QCOMPARE(mapped.path(), containerPath);
     }
+
+    // configuredDevicePath() has to answer from the mount settings alone. A
+    // device that was never started has no container, so anything reaching for
+    // file access here would either block or spin one up. It is the way into
+    // the container, so it has to agree with localSource() on the way out.
+    void testConfiguredDevicePath()
+    {
+        const DockerDevice::Ptr device = DockerDevice::create(&dockerSettings());
+        device->mounts.setValue({"/home/user/src:/work"});
+
+        const FilePath hostPath = FilePath::fromString("/home/user/src/a.pro");
+        const FilePath onDevice = device->configuredDevicePath(hostPath);
+        QCOMPARE(onDevice, device->rootPath().withNewPath("/work/a.pro"));
+
+        const Result<FilePath> back = device->localSource(onDevice);
+        if (!back)
+            QFAIL(qPrintable(back.error()));
+        QCOMPARE(*back, hostPath);
+
+        // Not mounted anywhere: the plain path, for the caller to use as is.
+        QCOMPARE(device->configuredDevicePath(FilePath::fromString("/elsewhere/a.pro")).path(),
+                 QString("/elsewhere/a.pro"));
+        // Already on a device, so there is nothing to translate.
+        QVERIFY(device->configuredDevicePath(device->rootPath().withNewPath("/work/a.pro"))
+                    .isEmpty());
+    }
 };
 
 QObject *createDockerMountTest()

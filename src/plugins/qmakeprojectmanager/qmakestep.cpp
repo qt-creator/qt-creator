@@ -17,6 +17,8 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/processparameters.h>
@@ -110,10 +112,18 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QTC_ASSERT(bc, return {});
     QStringList arguments;
-    if (bc->subNodeBuild())
-        arguments << bc->subNodeBuild()->filePath().nativePath();
-    else
-        arguments << project()->projectFilePath().nativePath();
+    const FilePath proFile = bc->subNodeBuild() ? bc->subNodeBuild()->filePath()
+                                                : project()->projectFilePath();
+    // A project file on the same device as qmake is spelled the way that device
+    // spells it. One that is only mounted into it has to be translated, or qmake
+    // is handed a path from the host side that means nothing where it runs. Ask
+    // the device rather than FilePath, so that showing the effective call does
+    // not start a container.
+    const IDevice::ConstPtr buildDevice = DeviceManager::deviceForPath(v->qmakeFilePath());
+    const FilePath onDevice = buildDevice && !proFile.isSameDevice(v->qmakeFilePath())
+                                  ? buildDevice->configuredDevicePath(proFile)
+                                  : FilePath();
+    arguments << (onDevice.isEmpty() ? proFile.nativePath() : onDevice.path());
 
     if (v->qtVersion() < QVersionNumber(5, 0, 0))
         arguments << "-r";
