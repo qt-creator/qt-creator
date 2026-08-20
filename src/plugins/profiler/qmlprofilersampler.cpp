@@ -200,15 +200,15 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
             b->stopWithResult(DoneResult::Error);
         });
 
-        // Once the server stops recording (we asked it to, or the target finished
-        // the trace), the model has been finalized; save it to a .qtd and only
-        // advance the barrier from saveFinished, when the file is complete.
-        QObject::connect(m_stateManager.get(), &QmlProfilerStateManager::serverRecordingChanged,
-                         b, [this, b, session](bool recording) {
-            if (recording) {
-                session->markStarted(); // capture is live; the duration clock can start
+        // Writes what the model holds and finishes the capture from saveFinished,
+        // when the file is complete. Guarded because both ways of getting here --
+        // the server reporting that it stopped, and the connection dropping --
+        // can happen for one recording.
+        auto saving = std::make_shared<bool>(false);
+        const auto saveAndFinish = [this, b, session, saving] {
+            if (*saving)
                 return;
-            }
+            *saving = true;
             const FilePath out = tempQtdPath();
             QObject::connect(m_modelManager.get(), &QmlProfilerModelManager::saveFinished,
                              b, [b, session, out] {
@@ -221,6 +221,35 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
                 b->stopWithResult(DoneResult::Error);
             }, Qt::SingleShotConnection);
             m_modelManager->save(out.toFSPathString());
+        };
+
+        // Once the server stops recording (we asked it to, or the target finished
+        // the trace), the model has been finalized and can be written out.
+        QObject::connect(m_stateManager.get(), &QmlProfilerStateManager::serverRecordingChanged,
+                         b, [session, saveAndFinish](bool recording) {
+            if (recording) {
+                session->markStarted(); // capture is live; the duration clock can start
+                return;
+            }
+            saveAndFinish();
+        });
+
+        // The target can also just go away, in which case the server will never
+        // report that it stopped and nothing above would ever end the capture.
+        // Finalize whatever arrived and write that; a recording that never got
+        // anything has nothing to show and says so.
+        QObject::connect(m_clientManager.get(), &QmlProfilerClientManager::connectionClosed,
+                         b, [this, b, session, saving, saveAndFinish] {
+            if (*saving || session->result.has_value())
+                return;
+            m_modelManager->finalize();
+            if (m_modelManager->isEmpty()) {
+                session->result.emplace(ResultError(
+                    Tr::tr("The application finished before it sent any profiling data.")));
+                b->stopWithResult(DoneResult::Error);
+                return;
+            }
+            saveAndFinish();
         });
 
         // Start from a clean slate so repeated recordings don't accumulate.
