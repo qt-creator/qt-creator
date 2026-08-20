@@ -63,7 +63,7 @@ public:
     using ExecutablePreparer = std::function<Utils::Result<QByteArray>(const QByteArray &)>;
     void setExecutablePreparer(const ExecutablePreparer &preparer);
 
-    void setStartMarker(const QString &marker);
+    void setPidMarker(const QString &marker);
 
     Utils::Result<> signalProcess(int pid, Utils::ControlSignal signal) const;
 
@@ -139,7 +139,7 @@ protected:
 
 private:
     std::unique_ptr<CmdBridge::Client> m_client;
-    QString m_startMarker;
+    QString m_pidMarker;
     bool m_started = false;
     ExecutablePreparer m_executablePreparer;
     Utils::Environment m_environment;

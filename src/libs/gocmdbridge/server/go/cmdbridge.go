@@ -863,6 +863,21 @@ func readMain(test bool, watchDogTimeOut time.Duration) {
 	outputWG.Wait()
 }
 
+// writePidMarker reports pid substituted into marker's %1, the format the
+// launcher parses off stdout. An empty marker reports nothing; one without a
+// hole for the pid reports nothing either, since a line that does not frame a
+// pid is output of the started command as far as the launcher can tell.
+func writePidMarker(w io.Writer, marker string, pid int) error {
+	if marker == "" {
+		return nil
+	}
+	if !strings.Contains(marker, "%1") {
+		return fmt.Errorf("pidMarker %q has no %%1 to report the pid in", marker)
+	}
+	_, err := fmt.Fprintln(w, strings.Replace(marker, "%1", strconv.Itoa(pid), 1))
+	return err
+}
+
 func main() {
 	test := flag.Bool("test", false, "test instead of read from stdin")
 	write := flag.Bool("write", false, "write instead of read data")
@@ -875,13 +890,8 @@ func main() {
 	flag.Parse()
 
 	// Before anything below, all of which can fail.
-	if *pidMarker != "" {
-		if !strings.Contains(*pidMarker, "%1") {
-			fmt.Fprintf(os.Stderr, "pidMarker %q has no %%1 to report the pid in\n", *pidMarker)
-		} else {
-			fmt.Fprintln(os.Stdout,
-				strings.Replace(*pidMarker, "%1", strconv.Itoa(os.Getpid()), 1))
-		}
+	if err := writePidMarker(os.Stdout, *pidMarker, os.Getpid()); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 	}
 
 	if *deleteOnStart {

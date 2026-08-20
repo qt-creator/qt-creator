@@ -181,6 +181,10 @@ class WrappedProcessInterfacePrivate;
 // a line of its stdout.
 QTCREATOR_UTILS_EXPORT QString pidMarkerTemplate();
 
+// Extra-data key: the target reports its own pid, so the launcher must not
+// report one for it.
+inline constexpr char TARGET_REPORTS_PID[] = "Process.TargetReportsPid";
+
 struct PidMarker
 {
     // Set once a whole marker line has arrived.

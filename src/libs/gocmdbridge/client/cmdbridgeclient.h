@@ -28,8 +28,9 @@ public:
     Client(const Utils::FilePath &remoteCmdBridgePath, const Utils::Environment &env);
     ~Client();
 
-    // Only a launcher that parses the marker off stdout may set one.
-    void setStartMarker(const QString &marker);
+    // Only a launcher that parses the marker off stdout may set one, and only
+    // before start().
+    void setPidMarker(const QString &marker);
 
     Utils::Result<> start(bool deleteOnExit = false);
 

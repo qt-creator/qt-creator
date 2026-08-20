@@ -3845,6 +3845,100 @@ def test_watchdog_on_by_default(bin_path):
     return True
 
 
+def test_pid_marker(bin_path):
+    """The bridge reports its own pid, in the format Utils::takePidMarker reads.
+
+    A launcher only sees that its own wrapper ran, not that the exec of this
+    binary succeeded, so the marker has to come from here. It must be the first
+    line on stdout, and carry this process's pid rather than a shell's.
+    """
+    marker = "__qtc%1qtc__"
+    proc = subprocess.Popen(
+        [bin_path, "-pidMarker", marker],
+        stdin=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+    )
+    try:
+        line = proc.stdout.readline()
+        expected = marker.replace("%1", str(proc.pid)).encode() + b"\n"
+        assert line == expected, f"expected {expected!r}, got {line!r}"
+    finally:
+        proc.kill()
+        proc.wait()
+        proc.stdin.close()
+        proc.stdout.close()
+    return True
+
+
+def test_pid_marker_without_hole(bin_path):
+    """A template with nowhere to put the pid reports nothing on stdout.
+
+    Whatever went there would be read as output of the command the launcher
+    started, so the complaint about it goes to stderr. Reading to EOF after
+    "exit" covers the whole run.
+    """
+    cbor = build_cbor_map([("Type", "exit")])
+    proc = subprocess.Popen(
+        [bin_path, "-pidMarker", "__qtc"],
+        stdin=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+    )
+    try:
+        try:
+            proc.stdin.write(cbor)
+            proc.stdin.close()
+        except (BrokenPipeError, OSError):
+            pass
+        out = proc.stdout.read()
+        err = proc.stderr.read()
+        proc.wait(timeout=5)
+        assert out == b"", f"unexpected output on stdout: {out!r}"
+        assert b"%1" in err, f"no complaint about the template: {err!r}"
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+            proc.wait()
+        proc.stdout.close()
+        proc.stderr.close()
+    return True
+
+
+def test_no_pid_marker(bin_path):
+    """Asked for no marker, stdout carries nothing but the wire protocol.
+
+    Docker and Android start the bridge without one, so a line written there
+    unconditionally would land in the output of what they started. Both the
+    missing option and an empty one mean the same. Reading to EOF after "exit"
+    covers the whole run, so an empty stdout here is an absence rather than a
+    race.
+    """
+    cbor = build_cbor_map([("Type", "exit")])
+    for args in ([], ["-pidMarker", ""]):
+        proc = subprocess.Popen(
+            [bin_path] + args,
+            stdin=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+        )
+        try:
+            try:
+                proc.stdin.write(cbor)
+                proc.stdin.close()
+            except (BrokenPipeError, OSError):
+                pass
+            out = proc.stdout.read()
+            proc.wait(timeout=5)
+            assert out == b"", f"{args}: unexpected output on stdout: {out!r}"
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.wait()
+            proc.stdout.close()
+    return True
+
+
 def test_long_exec_does_not_block_other_commands(bin_path):
     """Long-running commands must not starve the ones behind them.
 
@@ -4820,6 +4914,9 @@ def main():
         ("exec_missing_program", test_exec_missing_program),
         ("client_style_flags", test_client_style_flags),
         ("watchdog_on_by_default", test_watchdog_on_by_default),
+        ("pid_marker", test_pid_marker),
+        ("pid_marker_without_hole", test_pid_marker_without_hole),
+        ("no_pid_marker", test_no_pid_marker),
         ("long_exec_does_not_block_other_commands",
          test_long_exec_does_not_block_other_commands),
         ("stop_forward_replies", test_stop_forward_replies),

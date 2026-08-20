@@ -75,9 +75,9 @@ void FileAccess::setExecutablePreparer(const ExecutablePreparer &preparer)
     m_executablePreparer = preparer;
 }
 
-void FileAccess::setStartMarker(const QString &marker)
+void FileAccess::setPidMarker(const QString &marker)
 {
-    m_startMarker = marker;
+    m_pidMarker = marker;
 }
 
 Result<> FileAccess::init(
@@ -85,7 +85,7 @@ Result<> FileAccess::init(
 {
     m_environment = environment;
     m_client = std::make_unique<Client>(pathToBridge, environment);
-    m_client->setStartMarker(m_startMarker);
+    m_client->setPidMarker(m_pidMarker);
     if (m_errorExitHandler) {
         QObject::connect(m_client.get(), &Client::done, [this](const ProcessResultData &data) {
             // A bridge that never came up is not a lost connection: the caller

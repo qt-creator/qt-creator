@@ -53,7 +53,7 @@ namespace Internal {
 struct ClientPrivate
 {
     FilePath remoteCmdBridgePath;
-    QString startMarker;
+    QString pidMarker;
     Environment environment;
 
     // Only access from the thread
@@ -438,9 +438,12 @@ Client::~Client()
     (void) d.release();
 }
 
-void Client::setStartMarker(const QString &marker)
+void Client::setPidMarker(const QString &marker)
 {
-    d->startMarker = marker;
+    // d->thread is set by start() and cleared by ~Client, both on this thread,
+    // so an unset one means "not started yet" without racing the bridge one.
+    QTC_ASSERT(!d->thread, return);
+    d->pidMarker = marker;
 }
 
 Result<> Client::start(bool deleteOnExit)
@@ -488,9 +491,9 @@ Result<> Client::start(bool deleteOnExit)
                 = Utils::qtcEnvironmentVariable("QTC_CMDBRIDGE_WATCHDOG_TIMEOUT");
             if (!watchdogTimeout.isEmpty())
                 args << "-watchdogTimeout" << watchdogTimeout;
-            if (!d->startMarker.isEmpty()) {
-                args << "-pidMarker" << d->startMarker;
-                d->process->setExtraData("Process.TargetReportsPid", true);
+            if (!d->pidMarker.isEmpty()) {
+                args << "-pidMarker" << d->pidMarker;
+                d->process->setExtraData(TARGET_REPORTS_PID, true);
             }
             d->process->setCommand({d->remoteCmdBridgePath, args});
             d->process->setEnvironment(d->environment);
