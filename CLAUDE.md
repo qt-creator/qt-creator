@@ -6,6 +6,33 @@ This project maintains two parallel build system descriptions: CMake (`CMakeList
 
 Whenever you modify a `CMakeLists.txt` file, also update the corresponding `.qbs` file in the same directory (and vice versa). The two files describe the same targets, sources, and dependencies — changes to one must be reflected in the other.
 
+## Building and running tests
+
+Build and test through a Qt Creator MCP server when the instance behind it has
+this checkout open: ask `get_current_project` and compare its
+`project_directory` with the directory you are working in. An agent started
+from within Qt Creator always talks to that instance. Use these instead of
+invoking a compiler or build tool from the shell:
+
+- `build` to build, `get_build_status` to see whether it is still running and
+  whether it succeeded.
+- `get_compile_output` and `list_issues` / `get_file_problems` to read what
+  failed. Do not re-run the build just to see its output again.
+- `run_tests`, `get_test_status`, `get_last_test_results`, `get_test_details`
+  for tests.
+- `list_build_configs`, `get_current_build_config` and `switch_build_config`
+  when the target configuration matters. Do not switch it without saying so.
+
+The instance behind the MCP server is the user's own editor: it holds their
+build configuration, and its build directory is the one they look at. Use it so
+that what you build is what they see.
+
+Build from the shell when `project_directory` is a different directory, which
+includes another checkout of this same repository, when no Qt Creator MCP
+server is connected, or when the user's own instructions call for it — and say
+which one you used. Never drive a shell build and an MCP build of the same build
+directory in parallel; they fight over the same files.
+
 ## Commit message rule
 
 Commit message lines must not exceed 72 characters.
