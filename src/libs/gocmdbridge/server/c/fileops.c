@@ -83,7 +83,7 @@ static void h_createdir(value *cmd)
     }
 
     if (mkdir_all(resolved_path, 0755) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         if (need_free)
             free((void *) resolved_path);
         return;
@@ -92,7 +92,7 @@ static void h_createdir(value *cmd)
         free((void *) resolved_path);
 #else
     if (mkdir_all(path, 0755) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
 #endif
@@ -110,14 +110,14 @@ static void h_copyfile(value *cmd)
     }
     file_t infd = plat_open(src, O_RDONLY, 0);
     if (infd == INVALID_FILE) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     file_t outfd = plat_open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (outfd == INVALID_FILE) {
         int e = errno;
         plat_close(infd);
-        send_os_err(mkey(cmd, "Id"), strerror(e), e);
+        send_os_err(mkey(cmd, "Id"), os_strerror(e), e);
         return;
     }
     uint8_t buf[32768];
@@ -131,7 +131,7 @@ static void h_copyfile(value *cmd)
             int e = errno;
             plat_close(infd);
             plat_close(outfd);
-            send_os_err(mkey(cmd, "Id"), strerror(e), e);
+            send_os_err(mkey(cmd, "Id"), os_strerror(e), e);
             return;
         }
         if (n == 0)
@@ -145,7 +145,7 @@ static void h_copyfile(value *cmd)
                 /* Match Go: a write of nothing is io.ErrShortWrite, which
                    carries no errno of its own. */
                 int e = wn < 0 ? errno : EINVAL;
-                const char *msg = wn < 0 ? strerror(e) : "short write";
+                const char *msg = wn < 0 ? os_strerror(e) : "short write";
                 plat_close(infd);
                 plat_close(outfd);
                 send_os_err(mkey(cmd, "Id"), msg, e);
@@ -201,7 +201,7 @@ static void h_symlink(value *cmd)
         return;
     }
     if (plat_symlink(target, link) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     send_void(mkey(cmd, "Id"), "createsymlinkresult");
@@ -217,7 +217,7 @@ static void h_rename(value *cmd)
         return;
     }
     if (plat_rename(src, dst) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     send_void(mkey(cmd, "Id"), "renamefileresult");
@@ -234,7 +234,7 @@ static void h_mktmpdir(value *cmd)
     snprintf(tmp, sizeof(tmp), "%s", path);
 
     if (plat_mktemp_dir(tmp, sizeof(tmp)) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
 
@@ -260,7 +260,7 @@ static void h_mktmpfile(value *cmd)
     snprintf(tmp, sizeof(tmp), "%s", path);
 
     if (plat_mktemp_file(tmp, sizeof(tmp)) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
 
@@ -289,7 +289,7 @@ static void h_chmod(value *cmd)
         return;
     }
     if (chmod(path, (mode_t) mode) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     send_void(mkey(cmd, "Id"), "setpermissionsresult");

@@ -15,7 +15,7 @@ static void h_issamefile(value *cmd)
     }
     bool same = false;
     if (plat_same_file(p1, p2, &same) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     value *m = mk3("Type", vs("issamefileresult"), "Id", vi(mkey(cmd, "Id")), "Result", vb(same));

@@ -21,7 +21,7 @@ static void h_writefile(value *cmd)
     }
     file_t fd = plat_open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd == INVALID_FILE) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     size_t to_write = contents->nkids;

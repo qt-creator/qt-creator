@@ -145,19 +145,9 @@ static void send_err(int id, const char *msg)
 
 static void send_os_err(int id, const char *msg, int os_errno)
 {
-    const char *errtype = "os.PathError";
-#ifdef _WIN32
-    (void) os_errno;
-#else
-    if (os_errno == ENOENT || os_errno == ENOTDIR)
-        errtype = "os.ErrNotExist";
-    else if (os_errno == EACCES || os_errno == EPERM || os_errno == EROFS)
-        errtype = "os.ErrPermission";
-    else if (os_errno == EEXIST)
-        errtype = "os.ErrExist";
-    else if (os_errno == EINVAL || os_errno == ENOTEMPTY)
-        errtype = "os.PathError";
-#endif
+    /* The client only special-cases the literal "Errno" type: it decodes
+       Errno through std::generic_category(), so os_errno must already be
+       a POSIX number here (win_to_errno's job on Windows). */
     value *m = mk5(
         "Type",
         vs("error"),
@@ -166,7 +156,7 @@ static void send_os_err(int id, const char *msg, int os_errno)
         "Error",
         vs(msg),
         "ErrorType",
-        vs(errtype),
+        vs("Errno"),
         "Errno",
         vi(os_errno));
     size_t l;

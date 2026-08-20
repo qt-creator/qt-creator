@@ -50,6 +50,7 @@ static inline ssize_t plat_write(file_t h, const void *b, size_t n) { return wri
 static inline off_t plat_lseek(file_t h, off_t o, int w) { return lseek(h, o, w); }
 static inline int plat_close(file_t h) { return close(h); }
 static inline int plat_mkdir(const char *p, mode_t m) { return mkdir(p, m); }
+static inline const char *os_strerror(int e) { return strerror(e); }
 static inline int plat_symlink(const char *t, const char *l) { return symlink(t, l); }
 static inline int plat_rename(const char *s, const char *d) { return rename(s, d); }
 static inline int plat_unlink(const char *p) { return unlink(p); }

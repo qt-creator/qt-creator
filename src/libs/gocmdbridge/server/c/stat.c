@@ -18,7 +18,7 @@ static void h_stat(value *cmd)
     }
     struct stat st;
     if (plat_lstat(path, &st) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     uint32_t um = 0;
@@ -65,7 +65,7 @@ static void h_readlink(value *cmd)
     char buf[PATH_MAX];
     ssize_t n = plat_readlink(path, buf, sizeof(buf) - 1);
     if (n < 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     buf[n] = '\0';
@@ -207,7 +207,7 @@ static void h_remove(value *cmd)
         return;
     }
     if (plat_unlink(path) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     send_void(mkey(cmd, "Id"), "removeresult");
@@ -233,18 +233,18 @@ static void h_remove_all(value *cmd)
             send_void(mkey(cmd, "Id"), "removeallresult");
             return;
         }
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
 
     errno = 0;
     if (S_ISDIR(st.st_mode) && !S_ISLNK(st.st_mode)) {
         if (plat_rmtree(path) != 0) {
-            send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+            send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
             return;
         }
     } else if (plat_unlink(path) != 0) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     send_void(mkey(cmd, "Id"), "removeallresult");
@@ -261,7 +261,7 @@ static void h_ensure_file(value *cmd)
     if (plat_stat(path, &st) != 0) {
         file_t fd = plat_open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (fd == INVALID_FILE) {
-            send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+            send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
             return;
         }
         plat_close(fd);

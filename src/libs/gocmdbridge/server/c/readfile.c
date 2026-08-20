@@ -18,7 +18,7 @@ static void h_readfile(value *cmd)
     }
     file_t fd = plat_open(path, O_RDONLY, 0);
     if (fd == INVALID_FILE) {
-        send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+        send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     if (plat_lseek(fd, offset, SEEK_SET) == (off_t) -1) {
@@ -45,7 +45,7 @@ static void h_readfile(value *cmd)
         if (n < 0) {
             if (errno == EINTR)
                 continue;
-            send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+            send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
             plat_close(fd);
             return;
         }

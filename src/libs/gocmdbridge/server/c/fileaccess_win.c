@@ -93,6 +93,16 @@ static time_t win_filetime_to_unix(FILETIME ft)
     return (time_t) ((ui.QuadPart - WIN_UNIX_EPOCH_IN_FILETIME) / 10000000ULL);
 }
 
+/* The Win32 code behind the win_to_errno() call that most recently fell
+   through to its unspecific EIO case. Lets os_strerror() recover the real
+   message for that EIO instead of the misleading "Input/output error".
+   Set only in the default case below (not on every call) and cleared once
+   os_strerror() reads it, so a later, unrelated EIO - e.g. plat_mktemp()'s
+   own EIO when plat_random_bytes() fails, which never calls win_to_errno()
+   at all - cannot be blamed on a stale code from an earlier, successfully
+   mapped call. */
+static _Thread_local DWORD g_win32_eio_err;
+
 /* Map Win32 GetLastError() to POSIX errno for strerror() compatibility. */
 static int win_to_errno(DWORD err)
 {
@@ -105,7 +115,10 @@ static int win_to_errno(DWORD err)
     case ERROR_SHARING_VIOLATION:
         return EACCES;
     case ERROR_ALREADY_EXISTS:
+    case ERROR_FILE_EXISTS:
         return EEXIST;
+    case ERROR_DIR_NOT_EMPTY:
+        return ENOTEMPTY;
     case ERROR_FILENAME_EXCED_RANGE:
         return ENAMETOOLONG;
     case ERROR_HANDLE_DISK_FULL:
@@ -115,8 +128,44 @@ static int win_to_errno(DWORD err)
     case ERROR_INVALID_PARAMETER:
         return EINVAL;
     default:
+        g_win32_eio_err = err;
         return EIO;
     }
+}
+
+/* strerror(), except an EIO coming from the unmapped case in win_to_errno()
+   above is replaced by the real Win32 message, so it is not lost behind
+   the misleading "Input/output error". FormatMessage is asked for UTF-16
+   and converted through CP_UTF8, like every other string in this file:
+   the *A form returns text in the system ANSI code page, which on a
+   non-English Windows is not valid UTF-8, and the wire protocol's CBOR
+   text strings must be - an invalid one is a decode error the client
+   cannot recover from, so the whole error packet is silently dropped and
+   the caller hangs in waitForFinished() instead of seeing any error at
+   all. */
+static const char *os_strerror(int e)
+{
+    if (e == EIO && g_win32_eio_err != 0) {
+        DWORD code = g_win32_eio_err;
+        g_win32_eio_err = 0;
+
+        wchar_t wbuf[256];
+        DWORD n = FormatMessageW(
+            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, code, 0, wbuf, (DWORD) (sizeof(wbuf) / sizeof(wbuf[0])), NULL);
+        while (n > 0 && (wbuf[n - 1] == L'\r' || wbuf[n - 1] == L'\n'))
+            wbuf[--n] = L'\0';
+        if (n > 0) {
+            static _Thread_local char buf[256];
+            int len = WideCharToMultiByte(
+                CP_UTF8, 0, wbuf, (int) n, buf, (int) sizeof(buf) - 1, NULL, NULL);
+            if (len > 0) {
+                buf[len] = '\0';
+                return buf;
+            }
+        }
+    }
+    return strerror(e);
 }
 
 static wchar_t *utf8_to_utf16(const char *utf8)

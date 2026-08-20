@@ -141,7 +141,7 @@ static void h_signal(value *cmd)
         if (errno == EINVAL)
             send_err(mkey(cmd, "Id"), "unknown signal");
         else
-            send_os_err(mkey(cmd, "Id"), strerror(errno), errno);
+            send_os_err(mkey(cmd, "Id"), os_strerror(errno), errno);
         return;
     }
     send_void(mkey(cmd, "Id"), "signalsuccess");

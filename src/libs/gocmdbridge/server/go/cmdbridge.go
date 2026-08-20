@@ -5,12 +5,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -19,6 +20,37 @@ import (
 
 	"github.com/fxamacker/cbor/v2"
 )
+
+// Canonical POSIX errno numbers. The C++ client always decodes an "Errno"
+// error via std::generic_category(), regardless of which OS the bridge
+// runs on, so these must not be replaced with syscall.ENOENT and friends:
+// on Windows those are either raw Win32 error codes or Go-invented
+// sentinel values, neither of which are POSIX numbers.
+const (
+	posixENOENT    = 2
+	posixEACCES    = 13
+	posixEEXIST    = 17
+	posixEINVAL    = 22
+	posixENOTEMPTY = 39
+)
+
+// Win32 codes with no equivalent among syscall's portable Errno values
+// (see isErrno), needed to recognize a condition on Windows that a POSIX
+// syscall would report through a different errno than syscall.EINVAL/
+// ENOTEMPTY, e.g. os.Readlink on a plain file.
+const (
+	errorNotAReparsePoint = 4390 // os.Readlink on a non-symlink
+	errorDirNotEmpty      = 145  // rmdir on a non-empty directory
+)
+
+// True if err carries posixErrno on a POSIX system, or the equivalent
+// winCode on Windows - the two are unrelated numbers for the same
+// condition. errors.Is matches posixErrno directly, by plain equality
+// down err's unwrap chain; win32Errno is compared the same way, since
+// syscall.Errno on Windows is just the raw GetLastError() value.
+func isErrno(err error, posixErrno syscall.Errno, winCode int) bool {
+	return errors.Is(err, posixErrno) || errors.Is(err, syscall.Errno(winCode))
+}
 
 // Can be changed from CMakeLists.txt (-X main.MagicPacketMarker=...)
 var MagicPacketMarker = "-magic-packet-marker-"
@@ -220,22 +252,38 @@ func hasBufferedData(decoder *cbor.Decoder) bool {
 
 func sendError(out chan<- []byte, cmd command, err error) {
 	errMsg := err.Error()
-	errType := reflect.TypeOf(err).Name()
-	errno := syscall.EINVAL
 	if e, ok := err.(*os.PathError); ok {
 		errMsg = e.Err.Error()
-		errType = reflect.TypeOf(e.Err).Name()
-
-		if erno, ok := e.Err.(syscall.Errno); ok {
-			errno = erno
-		}
 	}
+
+	errType := "Error"
+	errno := 0
+	switch {
+	// More specific than fs.ErrExist/fs.ErrNotExist below, which also
+	// match on these: syscall.Errno.Is() treats ENOTEMPTY as a kind of
+	// "exists" (rmdir on a directory that already has entries in it),
+	// and ENOTDIR/ENOENT are otherwise indistinguishable through fs.Err*.
+	// fs.ErrInvalid is not one of these: unlike the other three,
+	// syscall.Errno never matches it, on any platform, so it can only
+	// ever classify errors this function does not itself construct.
+	case isErrno(err, syscall.EINVAL, errorNotAReparsePoint):
+		errType, errno = "Errno", posixEINVAL
+	case isErrno(err, syscall.ENOTEMPTY, errorDirNotEmpty):
+		errType, errno = "Errno", posixENOTEMPTY
+	case errors.Is(err, fs.ErrPermission):
+		errType, errno = "Errno", posixEACCES
+	case errors.Is(err, fs.ErrExist):
+		errType, errno = "Errno", posixEEXIST
+	case errors.Is(err, fs.ErrNotExist):
+		errType, errno = "Errno", posixENOENT
+	}
+
 	result, _ := cbor.Marshal(errorresult{
 		Type:  "error",
 		Id:    cmd.Id,
 		Error: errMsg,
 		ErrorType: errType,
-		Errno: int(errno),
+		Errno: errno,
 	})
 	out <- result
 }

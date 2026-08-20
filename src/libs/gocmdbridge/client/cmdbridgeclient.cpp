@@ -644,8 +644,8 @@ static Utils::Result<QFuture<R>> createJob(
             const int errNo = map.value("Errno", -1).toInt();
 
             if (errType == "Errno") {
-                promise->setException(
-                    std::make_exception_ptr(std::system_error(errNo, std::generic_category())));
+                promise->setException(std::make_exception_ptr(
+                    std::system_error(errNo, std::generic_category(), err.toStdString())));
                 promise->finish();
             } else if (errType == "NormalExit") {
                 promise->setException(std::make_exception_ptr(std::runtime_error("NormalExit")));
