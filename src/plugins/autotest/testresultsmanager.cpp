@@ -216,6 +216,7 @@ void TestResultsManager::onTestRunStarted()
     m_durationMs = -1;
     m_buildFailed = false;
     m_running = true;
+    emit runStarted();
 }
 
 void TestResultsManager::onTestResultReady(const Autotest::TestResult &result)

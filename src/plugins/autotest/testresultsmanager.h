@@ -59,6 +59,9 @@ public:
                             bool includeMessages) const;
 
 signals:
+    // Emitted for every run, whoever started it -- the Tests pane as well as
+    // runTests() -- so callers can identify the run they are watching.
+    void runStarted();
     void runFinished();
 
 private slots:
