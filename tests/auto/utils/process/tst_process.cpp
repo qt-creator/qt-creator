@@ -79,6 +79,8 @@ private slots:
     void wrappedExitCodeMarker();
     void wrappedExitCodeMarkerInOutput();
     void wrappedExitCodeMarkerSplitRead();
+    void pidMarker_data();
+    void pidMarker();
     void testEnv()
     {
         if (HostOsInfo::isWindowsHost())
@@ -1399,6 +1401,89 @@ void tst_Process::wrappedExitCodeMarkerSplitRead()
 
     QCOMPARE(wrapped->exitCode(), 7);
     QCOMPARE(wrapped->cleanedStdOut().trimmed(), QString("hello"));
+}
+
+void tst_Process::pidMarker_data()
+{
+    QTest::addColumn<QByteArray>("buffer");
+    // -1 for a buffer that does not hold a whole marker line yet.
+    QTest::addColumn<qint64>("pid");
+    QTest::addColumn<QByteArray>("skipped");
+    QTest::addColumn<QByteArray>("rest");
+
+    // The literal format the two bridges build as text of their own, and the
+    // template they are handed to build it from. A change to either without
+    // the other breaks reporting silently.
+    QTest::newRow("marker") << QByteArray("__qtc4711qtc__\n")
+                            << qint64(4711) << QByteArray() << QByteArray();
+    QTest::newRow("template round trip")
+        << (pidMarkerTemplate().arg(4711).toLatin1() + '\n')
+        << qint64(4711) << QByteArray() << QByteArray();
+
+    QTest::newRow("crlf") << QByteArray("__qtc4711qtc__\r\n")
+                          << qint64(4711) << QByteArray() << QByteArray();
+    QTest::newRow("output before it") << QByteArray("hello\n__qtc4711qtc__\n")
+                                      << qint64(4711) << QByteArray("hello\n") << QByteArray();
+    // A shell profile can print without a newline, so the marker shares the
+    // line. Everything up to the last prefix is the launcher's.
+    QTest::newRow("output on the marker line")
+        << QByteArray("profile: __qtc4711qtc__\n")
+        << qint64(4711) << QByteArray() << QByteArray();
+    // And that output can be a prefix itself, so it is the last one that
+    // frames the pid.
+    QTest::newRow("prefix in the output on the line")
+        << QByteArray("__qtc: __qtc4711qtc__\n")
+        << qint64(4711) << QByteArray() << QByteArray();
+    QTest::newRow("second marker stays")
+        << QByteArray("__qtc4711qtc__\n__qtc4712qtc__\n")
+        << qint64(4711) << QByteArray() << QByteArray("__qtc4712qtc__\n");
+
+    // No whole line yet: the tail waits for the chunk that completes it
+    // instead of being answered as "not a marker".
+    QTest::newRow("partial marker") << QByteArray("__qtc4711qtc")
+                                    << qint64(-1) << QByteArray()
+                                    << QByteArray("__qtc4711qtc");
+    QTest::newRow("partial marker after a line")
+        << QByteArray("hello\n__qtc47") << qint64(-1) << QByteArray("hello\n")
+        << QByteArray("__qtc47");
+
+    // A complete line that is not a marker never becomes one, so it goes out
+    // as skipped rather than being rescanned forever - which used to leave a
+    // start-up with neither a started() nor a done().
+    QTest::newRow("no marker at all") << QByteArray("hello\nworld\n")
+                                      << qint64(-1) << QByteArray("hello\nworld\n")
+                                      << QByteArray();
+    QTest::newRow("stray prefix before it")
+        << QByteArray("__qtc\n__qtc4711qtc__\n")
+        << qint64(4711) << QByteArray("__qtc\n") << QByteArray();
+
+    // Framed by only one half, or by both with nothing usable between them.
+    QTest::newRow("suffix only") << QByteArray("4711qtc__\n")
+                                 << qint64(-1) << QByteArray("4711qtc__\n") << QByteArray();
+    QTest::newRow("prefix only") << QByteArray("__qtc4711\n")
+                                 << qint64(-1) << QByteArray("__qtc4711\n") << QByteArray();
+    QTest::newRow("halves touching") << QByteArray("__qtcqtc__\n")
+                                     << qint64(-1) << QByteArray("__qtcqtc__\n") << QByteArray();
+    QTest::newRow("not a number") << QByteArray("__qtcabcqtc__\n")
+                                  << qint64(-1) << QByteArray("__qtcabcqtc__\n") << QByteArray();
+    QTest::newRow("zero") << QByteArray("__qtc0qtc__\n")
+                          << qint64(-1) << QByteArray("__qtc0qtc__\n") << QByteArray();
+    QTest::newRow("negative") << QByteArray("__qtc-1qtc__\n")
+                              << qint64(-1) << QByteArray("__qtc-1qtc__\n") << QByteArray();
+}
+
+void tst_Process::pidMarker()
+{
+    QFETCH(QByteArray, buffer);
+    QFETCH(qint64, pid);
+    QFETCH(QByteArray, skipped);
+    QFETCH(QByteArray, rest);
+
+    const PidMarker marker = takePidMarker(buffer);
+
+    QCOMPARE(marker.pid.value_or(-1), pid);
+    QCOMPARE(marker.skipped, skipped);
+    QCOMPARE(buffer, rest);
 }
 
 QTEST_GUILESS_MAIN(tst_Process)
