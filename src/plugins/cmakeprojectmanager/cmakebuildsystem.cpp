@@ -1542,6 +1542,12 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
     if (parameters.configurationChangesArguments.isEmpty())
         return false;
 
+    // The question needs someone to answer it, and this dialog blocks the thread it is raised
+    // on until then - which stalls Qt Creator when it is driven from the outside instead. Apply
+    // the changes, the answer the dialog offers by default, when asking is turned off.
+    if (!cmakeSettingsForProject(project()).askBeforeApplyingConfigurationChanges())
+        return true;
+
     QDialog question(Core::ICore::dialogParent());
     question.resize(600, 300);
     question.setWindowTitle(Tr::tr("Apply Configuration Changes?"));

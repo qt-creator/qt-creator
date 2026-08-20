@@ -36,6 +36,7 @@ public:
     Utils::BoolAspect packageManagerAutoSetup{this};
     Utils::BoolAspect askBeforeReConfigureInitialParams{this};
     Utils::BoolAspect askBeforePresetsReload{this};
+    Utils::BoolAspect askBeforeApplyingConfigurationChanges{this};
     Utils::BoolAspect showSourceSubFolders{this};
     Utils::BoolAspect showAdvancedOptionsByDefault{this};
     Utils::BoolAspect useJunctionsForSourceAndBuildDirectories{this};

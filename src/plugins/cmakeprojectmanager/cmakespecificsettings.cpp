@@ -117,6 +117,9 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     askBeforePresetsReload.setDefaultValue(true);
     askBeforePresetsReload.setLabelText(::CMakeProjectManager::Tr::tr("Ask before reloading CMake Presets"));
 
+    askBeforeApplyingConfigurationChanges.setSettingsKey("AskApplyConfigurationChanges");
+    askBeforeApplyingConfigurationChanges.setDefaultValue(true);
+
     showSourceSubFolders.setSettingsKey("ShowSourceSubFolders");
     showSourceSubFolders.setDefaultValue(true);
     showSourceSubFolders.setLabelText(
