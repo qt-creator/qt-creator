@@ -1099,72 +1099,52 @@ static Result<OsArch> detectWindowsArchitecture(const Environment &env)
     return ResultError(Tr::tr("Unsupported remote architecture \"%1\".").arg(archStr));
 }
 
-// Tries to bring up the fast Go CmdBridge on the device: copy the matching cmdbridge.exe to
-// the device's temp directory (via sftp) and start it. Returns the bridge file access on
+// Tries to bring up the fast Go CmdBridge on the device: the bridge library picks the matching
+// cmdbridge.exe and starts it, we only move the file. Returns the bridge file access on
 // success. Runs on a worker thread. (A base64-over-PowerShell-stdin push is far too slow for
 // a multi-MB binary, so we use sftp, which ships with Windows OpenSSH.)
 static Result<DeviceFileAccessPtr> deployCmdBridge(const SshParameters &ssh,
                                                    const FilePath &rootPath,
                                                    const std::function<void()> &errorExitHandler)
 {
-    if (qtcEnvironmentVariableIsSet("QTC_DISABLE_CMDBRIDGE"))
-        return ResultError(QString("CmdBridge disabled via QTC_DISABLE_CMDBRIDGE."));
-
     // Query the device environment through a local (per-command) access rather than the device's
     // own file access, so setupFileAccess() need not expose that slow access publicly while the
     // device is still being probed - see the note there.
     const Result<Environment> envResult = WindowsDeviceAccess(ssh).queryEnvironment();
     if (!envResult)
         return ResultError(envResult.error());
-    const Environment env = *envResult;
 
-    const Result<OsArch> arch = detectWindowsArchitecture(env);
-    if (!arch)
-        return ResultError(arch.error());
+    const auto upload = [&ssh](const FilePath &from, const FilePath &to) -> Result<> {
+        const FilePath sftpBinary = sshSettings().sftpFilePath();
+        if (sftpBinary.isEmpty())
+            return ResultError(Tr::tr("No sftp client is configured."));
 
-    const Result<FilePath> localBridge = CmdBridge::Client::getCmdBridgePath(
-        OsTypeWindows, *arch, Core::ICore::libexecPath());
-    if (!localBridge)
-        return ResultError(localBridge.error());
+        CommandLine sftpCmd{sftpBinary};
+        sftpCmd.addArgs(ssh.connectionOptions(sftpBinary));
+        sftpCmd.addArgs({"-b", "-"}); // read the batch of commands from stdin
+        sftpCmd.addArg(ssh.host());
 
-    QString tempDir = env.value("TEMP");
-    if (tempDir.isEmpty())
-        tempDir = env.value("TMP");
-    if (tempDir.isEmpty())
-        tempDir = "C:/Windows/Temp";
-    tempDir.replace('\\', '/');
-
-    const FilePath remoteBridge = rootPath.withNewPath(
-        tempDir + "/qtc-cmdbridge-" + QUuid::createUuid().toString(QUuid::Id128) + ".exe");
-
-    // Transfer the binary via sftp. Windows OpenSSH sftp wants an absolute remote path with a
-    // leading slash before the drive letter, e.g. "/C:/Users/.../x.exe".
-    const FilePath sftpBinary = sshSettings().sftpFilePath();
-    if (sftpBinary.isEmpty())
-        return ResultError(Tr::tr("No sftp client is configured."));
-
-    CommandLine sftpCmd{sftpBinary};
-    sftpCmd.addArgs(ssh.connectionOptions(sftpBinary));
-    sftpCmd.addArgs({"-b", "-"}); // read the batch of commands from stdin
-    sftpCmd.addArg(ssh.host());
-
-    Process sftp;
-    SshParameters::setupSshEnvironment(&sftp);
-    sftp.setCommand(sftpCmd);
-    sftp.setWriteData(QString("put \"%1\" \"/%2\"\n")
-                          .arg(localBridge->path(), remoteBridge.path()).toUtf8());
-    qCDebug(windowsDeviceLog) << "Deploying CmdBridge via sftp to" << remoteBridge.toUserOutput();
-    sftp.runBlocking(std::chrono::seconds(60));
-    if (sftp.result() != ProcessResult::FinishedWithSuccess) {
-        return ResultError(Tr::tr("Failed to transfer the CmdBridge: %1")
-                               .arg(sftp.exitMessage(Process::FailureMessageFormat::WithStdErr)));
-    }
+        Process sftp;
+        SshParameters::setupSshEnvironment(&sftp);
+        sftp.setCommand(sftpCmd);
+        // Windows OpenSSH sftp wants an absolute remote path with a leading slash before the
+        // drive letter, e.g. "/C:/Users/.../x.exe".
+        sftp.setWriteData(QString("put \"%1\" \"/%2\"\n").arg(from.path(), to.path()).toUtf8());
+        qCDebug(windowsDeviceLog) << "Deploying CmdBridge via sftp to" << to.toUserOutput();
+        sftp.runBlocking(std::chrono::seconds(60));
+        if (sftp.result() != ProcessResult::FinishedWithSuccess) {
+            return ResultError(
+                Tr::tr("Failed to transfer the CmdBridge: %1")
+                    .arg(sftp.exitMessage(Process::FailureMessageFormat::WithStdErr)));
+        }
+        return ResultOk;
+    };
 
     auto fileAccess = std::make_shared<CmdBridge::FileAccess>(errorExitHandler);
-    // deleteOnExit is false: the bridge cannot delete its own running .exe on Windows.
-    const Result<> initResult = fileAccess->init(remoteBridge, env, /*deleteOnExit=*/false);
-    if (!initResult)
-        return ResultError(initResult.error());
+    const CmdBridge::FileAccess::DeployResult res = fileAccess->deployAndInitWindows(
+        Core::ICore::libexecPath(), rootPath, *envResult, upload);
+    if (!res)
+        return ResultError(res.error().message);
 
     qCDebug(windowsDeviceLog) << "CmdBridge started on" << rootPath.toUserOutput();
     return DeviceFileAccessPtr(fileAccess);

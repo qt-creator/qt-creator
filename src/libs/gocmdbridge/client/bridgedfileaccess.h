@@ -53,6 +53,18 @@ public:
         const Utils::FilePath &remoteRootPath,
         const Utils::Environment &environment);
 
+    // Transport for putting the bridge onto a device that cannot receive it over its shell.
+    using Uploader
+        = std::function<Utils::Result<>(const Utils::FilePath &from, const Utils::FilePath &to)>;
+
+    // Windows has none of the shell tools deployAndInit() uses, so the binary goes over the
+    // given transport and stays on the device.
+    DeployResult deployAndInitWindows(
+        const Utils::FilePath &libExecPath,
+        const Utils::FilePath &remoteRootPath,
+        const Utils::Environment &environment,
+        const Uploader &uploader);
+
     Utils::Result<> init(
         const Utils::FilePath &pathToBridge,
         const Utils::Environment &environment,

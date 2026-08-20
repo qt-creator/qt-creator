@@ -16,6 +16,7 @@
 #include <QLocalSocket>
 #include <QLoggingCategory>
 #include <QTimer>
+#include <QUuid>
 
 static Q_LOGGING_CATEGORY(faLog, "qtc.cmdbridge.fileaccess", QtWarningMsg);
 
@@ -232,6 +233,56 @@ FileAccess::DeployResult FileAccess::deployAndInit(
     }
 
     return toDeployError(init(remoteRootPath.withNewPath(*tmpFile), environment, true));
+}
+
+FileAccess::DeployResult FileAccess::deployAndInitWindows(
+    const FilePath &libExecPath,
+    const FilePath &remoteRootPath,
+    const Environment &environment,
+    const Uploader &uploader)
+{
+    const auto deployError = [](const QString &message, DeployError::Code code) {
+        qCWarning(faLog) << message;
+        return make_unexpected(DeployError{message, code});
+    };
+
+    if (qtcEnvironmentVariableIsSet("QTC_DISABLE_CMDBRIDGE"))
+        return deployError("Disabled for testing!", DeployError::Disabled);
+
+    const Result<OsArch> osArch
+        = osArchFromString(environment.value("PROCESSOR_ARCHITECTURE").toLower());
+    if (!osArch)
+        return deployError(osArch.error(), DeployError::Other);
+
+    const Result<FilePath> cmdBridgePath
+        = Client::getCmdBridgePath(OsTypeWindows, *osArch, libExecPath);
+    if (!cmdBridgePath) {
+        return deployError(
+            Tr::tr("Could not find a compatible cmdbridge for the remote host: %1")
+                .arg(cmdBridgePath.error()),
+            DeployError::Other);
+    }
+
+    QString tempDir = environment.value("TEMP");
+    if (tempDir.isEmpty())
+        tempDir = environment.value("TMP");
+    if (tempDir.isEmpty())
+        tempDir = "C:/Windows/Temp";
+    tempDir.replace('\\', '/');
+
+    const FilePath deviceBridge = remoteRootPath.withNewPath(
+        tempDir + "/qtc-cmdbridge-" + QUuid::createUuid().toString(QUuid::Id128) + ".exe");
+
+    if (const Result<> uploaded = uploader(*cmdBridgePath, deviceBridge); !uploaded)
+        return deployError(uploaded.error(), DeployError::Other);
+
+    // deleteOnExit is false: the bridge cannot delete its own running executable on Windows.
+    const Result<> initResult = init(deviceBridge, environment, false);
+    if (!initResult)
+        return deployError(initResult.error(), DeployError::Other);
+
+    qCDebug(faLog) << "Started the cmdbridge at" << deviceBridge.toUserOutput();
+    return {};
 }
 
 Result<bool> FileAccess::isExecutableFile(const FilePath &filePath) const
