@@ -24,6 +24,11 @@ PROFILER_EXPORT Utils::Result<Utils::FilePath> recordSampleTrace(
     const SamplerOptions &opts,
     const std::atomic_bool &stop,
     std::atomic<int> *progressPercent = nullptr);
+
+// Whether this process may sample another one at all. task_for_pid() is only
+// granted to a binary signed with com.apple.security.cs.debugger, or to root,
+// and finding that out at attach time means finding it out after a recording.
+PROFILER_EXPORT bool canSampleOtherProcesses();
 #endif
 
 } // namespace Profiler::Internal

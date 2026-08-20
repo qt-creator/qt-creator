@@ -11,11 +11,14 @@
 #include "symbolicator.h"
 
 #include <QFileInfo>
+#include <QScopeGuard>
 #include <QVarLengthArray>
 
 #include <vector>
 
 using namespace Utils;
+
+#include <Security/Security.h>
 
 #include <libproc.h>
 #include <mach/mach.h>
@@ -301,6 +304,34 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         return ResultError(r.error());
     return dir;
 }
+
+bool canSampleOtherProcesses()
+{
+    // root may sample anything; everyone else needs the entitlement.
+    if (geteuid() == 0)
+        return true;
+
+    SecCodeRef self = nullptr;
+    if (SecCodeCopySelf(kSecCSDefaultFlags, &self) != errSecSuccess)
+        return false;
+    const QScopeGuard releaseSelf([self] { CFRelease(self); });
+
+    CFDictionaryRef info = nullptr;
+    if (SecCodeCopySigningInformation(reinterpret_cast<SecStaticCodeRef>(self),
+                                      kSecCSRequirementInformation, &info) != errSecSuccess) {
+        return false;
+    }
+    const QScopeGuard releaseInfo([info] { CFRelease(info); });
+
+    const auto entitlements = static_cast<CFDictionaryRef>(
+        CFDictionaryGetValue(info, kSecCodeInfoEntitlementsDict));
+    if (!entitlements)
+        return false;
+    const auto granted = static_cast<CFBooleanRef>(
+        CFDictionaryGetValue(entitlements, CFSTR("com.apple.security.cs.debugger")));
+    return granted && CFBooleanGetValue(granted);
+}
+
 } // namespace Profiler::Internal
 
 #endif // Q_OS_MACOS

@@ -1,3 +1,11 @@
+# canSampleOtherProcesses() asks the Security framework what entitlements this
+# process was granted, so the sampler can say up front that it cannot attach.
+if(APPLE)
+  set(PROFILER_APPLE_LIBS "-framework Security")
+else()
+  set(PROFILER_APPLE_LIBS "")
+endif()
+
 if(WITH_TESTS)
   set(TEST_SOURCES
     tests/debugmessagesmodel_test.cpp tests/debugmessagesmodel_test.h
@@ -146,7 +154,7 @@ endif()
 
 add_qtc_plugin(Profiler
   CONDITION TARGET Tracing
-  DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree
+  DEPENDS QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree ${PROFILER_APPLE_LIBS}
   INCLUDES ${PROJECT_SOURCE_DIR}/src
   PLUGIN_DEPENDS Core ProjectExplorer ${_profiler_qtsupport_dep} TextEditor
   SOURCES

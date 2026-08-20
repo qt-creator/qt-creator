@@ -15,6 +15,8 @@
 #include <utils/processinfo.h>
 #include <utils/qtdesignwidgets.h>
 
+#include <QGuiApplication>
+
 #include <QtTaskTree/QThreadFunction>
 
 #include <memory>
@@ -112,7 +114,17 @@ QString CallStackSampler::displayName() const
 
 bool CallStackSampler::isAvailable(QString *error) const
 {
-#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+#if defined(Q_OS_MACOS)
+    if (!canSampleOtherProcesses()) {
+        if (error) {
+            *error = Tr::tr("Sampling another process needs the "
+                            "\"com.apple.security.cs.debugger\" entitlement, which this build of "
+                            "%1 does not carry.").arg(QGuiApplication::applicationDisplayName());
+        }
+        return false;
+    }
+    return true;
+#elif defined(Q_OS_WIN)
     Q_UNUSED(error)
     return true;
 #else
