@@ -204,7 +204,13 @@ LiveLabeler::LiveLabeler(task_t task, Symbolicator &symbolicator, SampleTraceDat
     , m_data(data)
     , m_images(readImages(task))
     , m_imageCount(loadedImageCount(task))
-{}
+{
+    // Labels `data` already holds, so a labeler that takes over a trace part-way
+    // through -- after the target exec()d, say -- adds to that table instead of
+    // giving every symbol in it a second id.
+    for (int i = 0; i < m_data.labels.size(); ++i)
+        m_labelIds.insert(m_data.labels.at(i).name, i);
+}
 
 void LiveLabeler::refreshImagesIfChanged()
 {

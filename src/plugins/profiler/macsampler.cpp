@@ -20,11 +20,13 @@ using namespace Utils;
 
 #include <Security/Security.h>
 
+#include <errno.h>
 #include <libproc.h>
 #include <mach/mach.h>
 #include <mach/mach_vm.h>
 #include <mach/thread_status.h>
 
+#include <signal.h>
 #include <time.h>
 
 using namespace Qt::StringLiterals;
@@ -74,6 +76,11 @@ Result<pid_t> findProcessByName(const QString &name)
             return pid;
     }
     return ResultError(Tr::tr("No running process named \"%1\" was found.").arg(name));
+}
+
+bool isProcessAlive(pid_t pid)
+{
+    return kill(pid, 0) == 0 || errno == EPERM;
 }
 
 Result<task_t> attachToPid(pid_t pid)
@@ -137,10 +144,17 @@ void walkThread(task_t task, thread_act_t thread, Sample &sample)
 // Samples the target until `stop` is set or it exits, resolving each stack into
 // trace labels via `labeler` as it is taken (so symbolication happens while the
 // target is alive) and appending the result to `data`.
-void capture(task_t task, const SamplerOptions &opts, const std::atomic_bool &stop,
-             SampleTraceData &data, LiveLabeler &labeler)
+//
+// Returns true when it stopped because the Mach task went away, which is either
+// the process exiting or it exec()ing a new image.
+//
+// Sample timestamps are relative to `startNs`, which is the whole recording's
+// zero rather than this call's: a capture that starts over after an exec has to
+// stay on the timeline the caller anchored, or a combined recording could not
+// line the two traces up (see RecordingSession::markStarted).
+bool capture(task_t task, const SamplerOptions &opts, const std::atomic_bool &stop,
+             SampleTraceData &data, LiveLabeler &labeler, quint64 startNs)
 {
-    const quint64 startNs = nowNs();
     std::vector<Sample> tick; // raw stacks gathered during one suspend window
 
     // Samples accumulate in RAM until the trace is written at the end (see
@@ -156,11 +170,11 @@ void capture(task_t task, const SamplerOptions &opts, const std::atomic_bool &st
 
         thread_act_array_t threads = nullptr;
         mach_msg_type_number_t threadCount = 0;
-        // A failure here means the target task is gone (the process has exited).
-        // Stop sampling so the recording finishes: when attached to a process we
-        // did not launch ourselves, this is the only signal that the target quit.
+        // A failure here means the target task is gone. Stop sampling so the
+        // recording finishes: when attached to a process we did not launch
+        // ourselves, this is the only signal that the target quit.
         if (task_threads(task, &threads, &threadCount) != KERN_SUCCESS)
-            break;
+            return true;
 
         // Sample each thread's run state from the still-running task: once
         // the task is suspended every thread reports TH_STATE_WAITING, so
@@ -251,6 +265,24 @@ void capture(task_t task, const SamplerOptions &opts, const std::atomic_bool &st
             nanosleep(&req, nullptr);
         }
     }
+    return false;
+}
+
+// The task an exec() leaves behind is not usable, and the one that replaces it
+// takes a moment to appear.
+Result<task_t> waitForNewTask(pid_t pid)
+{
+    constexpr int attempts = 50; // ~500 ms at the 10 ms cadence below.
+    Result<task_t> task = ResultError(Tr::tr("The process exited before it could be "
+                                             "attached to again."));
+    for (int i = 0; i < attempts && isProcessAlive(pid); ++i) {
+        task = attachToPid(pid);
+        if (task)
+            return task;
+        timespec req{0, 10 * 1000 * 1000};
+        nanosleep(&req, nullptr);
+    }
+    return task;
 }
 
 } // namespace
@@ -268,22 +300,39 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         pid = *found;
     }
 
-    auto taskResult = attachToPid(pid);
+    Result<task_t> taskResult = attachToPid(pid);
     if (!taskResult)
         return ResultError(taskResult.error());
-    const task_t task = *taskResult;
 
     SampleTraceData data;
     data.pid = quint64(pid);
+    const quint64 startNs = nowNs();
 
-    // Symbolize while the target runs (see LiveLabeler): this picks up images
-    // loaded during recording, such as dlopen()'d plugins, and keeps symbols even
-    // if the target is force-quit, since nothing is resolved after capture ends.
-    Symbolicator symbolicator(task);
-    LiveLabeler labeler(task, symbolicator, data);
-    capture(task, opts, stop, data, labeler);
+    // What Qt Creator runs is started through a helper that exec()s the real
+    // target (see src/tools/disclaim), and an exec replaces the Mach task the
+    // sampler holds. Attach to the new one and carry on against the same trace:
+    // by this point every frame is a resolved string, so the image it came from
+    // being gone does not make it wrong, and starting over would throw away a
+    // whole recording when a target exec()s late rather than at startup.
+    for (;;) {
+        const task_t task = *taskResult;
 
-    mach_port_deallocate(mach_task_self(), task);
+        // Symbolize while the target runs (see LiveLabeler): this picks up images
+        // loaded during recording, such as dlopen()'d plugins, and keeps symbols
+        // even if the target is force-quit, since nothing is resolved after
+        // capture ends.
+        Symbolicator symbolicator(task);
+        LiveLabeler labeler(task, symbolicator, data);
+        const bool taskGone = capture(task, opts, stop, data, labeler, startNs);
+
+        mach_port_deallocate(mach_task_self(), task);
+
+        if (!taskGone || stop.load(std::memory_order_relaxed) || !isProcessAlive(pid))
+            break;
+        taskResult = waitForNewTask(pid);
+        if (!taskResult)
+            break; // The process went away while we were looking for its new task.
+    }
 
     if (data.samples.isEmpty())
         return ResultError(Tr::tr("No samples were captured. The target may have exited."));

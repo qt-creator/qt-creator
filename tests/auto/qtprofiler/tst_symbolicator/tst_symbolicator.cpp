@@ -161,6 +161,27 @@ private slots:
         QCOMPARE(labeler.labelIdFor(addr), id);
     }
 
+    // What happens after the target exec()s: the sampler attaches to the new
+    // task and builds a second labeler over the same trace. It has to continue
+    // that trace's label table rather than give every symbol already in it a
+    // second id.
+    void aSecondLabelerContinuesTheLabelTable()
+    {
+        SampleTraceData data;
+        Symbolicator symbolicator(mach_task_self());
+        const quint64 addr = addressOf(reinterpret_cast<const void *>(
+            &qtprofiler_symbolicatorOwnFunction));
+
+        LiveLabeler first(mach_task_self(), symbolicator, data);
+        const int id = first.labelIdFor(addr);
+        const qsizetype labelCount = data.labels.size();
+        QCOMPARE(labelCount, 1);
+
+        LiveLabeler second(mach_task_self(), symbolicator, data);
+        QCOMPARE(second.labelIdFor(addr), id);
+        QCOMPARE(data.labels.size(), labelCount);
+    }
+
     // Symbolicating an address inside the running test binary against our own
     // task. Skips when the private CoreSymbolication framework is unavailable.
     void symbolizesOwnTask()
