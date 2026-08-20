@@ -1619,6 +1619,23 @@ public:
                             : InlineDiffViewMode::Inline);
         });
 
+        m_previousChangeAction = m_toolBar->addAction(Utils::Icons::ARROW_UP_TOOLBAR.icon(),
+                                                      Tr::tr("Go to Previous Change"));
+        m_previousChangeAction->setObjectName("InlineDiffPreviousChangeAction"); // autotest
+        m_previousChangeAction->setToolTip(Tr::tr("Go to the closest change above the "
+                                                  "cursor."));
+        connect(m_previousChangeAction, &QAction::triggered,
+                this, [this] { goToChange(/*forward=*/false); });
+        m_nextChangeAction = m_toolBar->addAction(Utils::Icons::ARROW_DOWN_TOOLBAR.icon(),
+                                                  Tr::tr("Go to Next Change"));
+        m_nextChangeAction->setObjectName("InlineDiffNextChangeAction"); // autotest
+        m_nextChangeAction->setToolTip(Tr::tr("Go to the closest change below the cursor."));
+        connect(m_nextChangeAction, &QAction::triggered,
+                this, [this] { goToChange(/*forward=*/true); });
+        connect(m_widget, &PlainTextEdit::cursorPositionChanged,
+                this, [this] { updateChangeNavigationActions(); });
+        updateChangeNavigationActions();
+
         const bool collapse = Core::ICore::settings()
                                   ->value(Constants::INLINE_DIFF_COLLAPSE_KEY, true).toBool();
         m_collapseAction = m_toolBar->addAction(Utils::Icons::COLLAPSE_TOOLBAR.icon(),
@@ -1781,6 +1798,7 @@ public:
         QTC_ASSERT(baseline.isValid(), return);
         m_baseline = baseline;
         m_baselineText.reset();
+        m_jumpToFirstChange = true;
         m_document->setPreferredDisplayName(title);
         if (m_baselineWidget) {
             // recreate the baseline view, it may carry baseline specific
@@ -1831,6 +1849,7 @@ public:
     void gotoLine(int line, int column, bool centerLine) override
     {
         m_widget->gotoLine(line, column, centerLine);
+        m_jumpToFirstChange = false; // the caller picked the line
         // decorations arriving later insert rows above the line and push it
         // away, so re-center once when the next diff result is applied
         m_centerOnNextModel = centerLine;
@@ -1854,6 +1873,39 @@ private:
                 this, [this] { updateCopyAsPatchActions(); });
         widget->setExtraContextMenuAction(action);
         return action;
+    }
+
+    // The line of the closest change above or below the cursor, 0 when there
+    // is none in that direction. A change the cursor sits in counts as the one
+    // above, so that going up lands on its first line first.
+    int adjacentChangeLine(bool forward) const
+    {
+        if (!m_widget)
+            return 0;
+        const int line = m_widget->textCursor().blockNumber() + 1;
+        int previous = 0;
+        for (const InlineDiffChunk &hunk : m_model.hunks) { // ordered by line
+            if (hunk.editorStartLine > line)
+                return forward ? hunk.editorStartLine : previous;
+            if (hunk.editorStartLine < line)
+                previous = hunk.editorStartLine;
+        }
+        return forward ? 0 : previous;
+    }
+
+    void goToChange(bool forward)
+    {
+        const int line = adjacentChangeLine(forward);
+        if (line > 0)
+            gotoLine(line, 0, /*centerLine=*/true);
+    }
+
+    void updateChangeNavigationActions()
+    {
+        if (m_previousChangeAction)
+            m_previousChangeAction->setEnabled(adjacentChangeLine(/*forward=*/false) > 0);
+        if (m_nextChangeAction)
+            m_nextChangeAction->setEnabled(adjacentChangeLine(/*forward=*/true) > 0);
     }
 
     void updateCopyAsPatchActions()
@@ -2088,6 +2140,15 @@ private:
     {
         m_model = model;
         applyDecorations();
+        if (m_jumpToFirstChange && model.computed) {
+            // only the first result of a target counts, later ones come from
+            // editing the file and must leave the cursor where it is
+            m_jumpToFirstChange = false;
+            if (!model.hunks.isEmpty()) {
+                m_widget->gotoLine(model.hunks.first().editorStartLine, 0,
+                                   /*centerLine=*/true);
+            }
+        }
         if (m_centerOnNextModel) {
             m_centerOnNextModel = false;
             m_widget->centerCursor();
@@ -2115,6 +2176,7 @@ private:
         }
         updateHunkControls();
         updateCopyAsPatchActions();
+        updateChangeNavigationActions();
         // the collapser runs last so its placeholder rows sit above any ghost
         // rows the decorator prepended on the same anchor line; in the side by
         // side view it also collapses the baseline so the aligner stays in sync
@@ -2246,6 +2308,8 @@ private:
     TextDocumentPtr m_baselineDocument;
     QPointer<QToolBar> m_toolBar;
     QAction *m_viewSwitcherAction = nullptr;
+    QAction *m_previousChangeAction = nullptr;
+    QAction *m_nextChangeAction = nullptr;
     QAction *m_collapseAction = nullptr;
     QAction *m_contextLabelAction = nullptr;
     QAction *m_contextSpinBoxAction = nullptr;
@@ -2258,6 +2322,7 @@ private:
     bool m_patience = false;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;
     bool m_centerOnNextModel = false;
+    bool m_jumpToFirstChange = false;
     InlineDiffBaseline m_baseline;
     std::optional<QString> m_baselineText;
     InlineDiffRenderModel m_model;

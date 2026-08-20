@@ -1317,9 +1317,9 @@ void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileNa
 }
 
 // Opens filePath in a text editor and attaches the inline diff, going to
-// line, or keeping the file's cursor position. Returns nullptr if the file
-// cannot be shown in a text editor (e.g. designer or binary files) or is too
-// large for live diffing.
+// line; without one the diff editor goes to the first change. Returns
+// nullptr if the file cannot be shown in a text editor (e.g. designer or
+// binary files) or is too large for live diffing.
 static IEditor *openInlineDiff(const FilePath &topLevel,
                                const FilePath &filePath,
                                const DiffEditor::InlineDiffBaseline &baseline,
@@ -1346,8 +1346,6 @@ static IEditor *openInlineDiff(const FilePath &topLevel,
         }
         if (line > 0)
             diffEditor->gotoLine(line);
-        else
-            diffEditor->gotoLine(textEditor->currentLine(), textEditor->currentColumn());
     }
     return diffEditor;
 }

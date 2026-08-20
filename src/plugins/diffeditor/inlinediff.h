@@ -129,6 +129,9 @@ DIFFEDITOR_EXPORT QString inlineDiffContextLine(const QTextDocument *document, i
 // its regular editors as well, which stay free of diff decorations.
 // With readOnlySource set, the document is shown read only with a generic
 // highlighter, e.g. for revision snapshots that have no regular editors.
+// The editor goes to the first change once the diff has been computed; a
+// caller that wants a line of its own calls IEditor::gotoLine() on the
+// returned editor.
 // Returns nullptr if the document is too large for live diffing; callers
 // should fall back to a regular diff view then.
 DIFFEDITOR_EXPORT Core::IEditor *openInlineDiffEditor(

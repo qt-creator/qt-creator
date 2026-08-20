@@ -378,6 +378,8 @@ private slots:
     void testInlineDiffFoldedRows();
     void testInlineDiffPatience();
     void testInlineDiffCopyAsPatch();
+    void testInlineDiffGoToFirstChange();
+    void testInlineDiffChangeNavigation();
 #endif // WITH_TESTS
 };
 
@@ -2758,6 +2760,197 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
     QTRY_VERIFY(snapshotWidgetGuard.isNull());
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// Opening the inline diff editor goes to the first change, unless the caller
+// asks for a line of its own.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGoToFirstChange()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard(/*hideUnchangedLines=*/false);
+
+    QStringList baselineLines;
+    for (int i = 1; i <= 40; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    editorLines[11] = "line 12 changed"; // 1-based line 12
+    editorLines[29] = "line 30 changed"; // 1-based line 30
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffGoToFirstChange.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    const auto baselineFor = [](const QStringList &lines) {
+        InlineDiffBaseline baseline;
+        baseline.id = "test";
+        baseline.displayName = "Test";
+        baseline.fetchText = [text = lines.join('\n') + '\n'](
+                                 const InlineDiffBaseline::TextCallback &callback) {
+            callback(text);
+        };
+        return baseline;
+    };
+
+    const QString title = "testInlineDiffGoToFirstChange.txt";
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baselineFor(baselineLines), title);
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+
+    // the editor lines carrying ghost rows for the replaced baseline lines,
+    // which tell which diff the view is showing
+    const auto ghostedLines = [](TextEditorWidget *widget) {
+        QList<int> lines;
+        for (QTextBlock block = widget->document()->firstBlock(); block.isValid();
+             block = block.next()) {
+            if (!widget->editorLayout()
+                     ->layoutItemsForCategory(block, inlineDiffGhostCategory()).isEmpty())
+                lines << block.blockNumber() + 1;
+        }
+        return lines;
+    };
+
+    // the cursor waits at the top of the file while the diff is computed and
+    // moves to the first change once it arrives
+    QCOMPARE(diffEditor->currentLine(), 1);
+    QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({12, 30}));
+    QCOMPARE(diffEditor->currentLine(), 12);
+
+    // editing the file recomputes the diff but leaves the cursor alone
+    QTextCursor cursor(sourceWidget->document());
+    cursor.setPosition(sourceWidget->document()->findBlockByNumber(39).position());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    cursor.insertText("line 40 changed");
+    QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({12, 30, 40}));
+    QCOMPARE(diffEditor->currentLine(), 12);
+
+    // re-targeting the editor at another baseline with a line requested by
+    // the caller keeps that line
+    QStringList otherBaselineLines = editorLines; // matches the file but for
+    otherBaselineLines[19] = "line 20 old";       // line 20, and line 40 above
+    QCOMPARE(openInlineDiffEditor(sourceDocument, baselineFor(otherBaselineLines), title),
+             diffEditor);
+    diffEditor->gotoLine(5);
+    QCOMPARE(diffEditor->currentLine(), 5);
+    // once the new diff shows, a jump to its first change would have happened
+    QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({20, 40}));
+    QCOMPARE(diffEditor->currentLine(), 5);
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// The toolbar's up and down buttons go to the change above or below the
+// cursor and are disabled when there is none.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffChangeNavigation()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard(/*hideUnchangedLines=*/false);
+
+    QStringList baselineLines;
+    for (int i = 1; i <= 40; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    editorLines[11] = "line 12 changed"; // 1-based lines 12, 20 and 30
+    editorLines[19] = "line 20 changed";
+    editorLines[29] = "line 30 changed";
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffChangeNavigation.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline,
+                                               "testInlineDiffChangeNavigation.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    diffEditor->widget()->resize(800, 600);
+
+    auto toolBar = qobject_cast<QToolBar *>(diffEditor->toolBar());
+    QVERIFY(toolBar);
+    const auto toolBarAction = [toolBar](const QString &objectName) {
+        return Utils::findOrDefault(toolBar->actions(), [&objectName](QAction *action) {
+            return action->objectName() == objectName;
+        });
+    };
+    QAction *previousChange = toolBarAction("InlineDiffPreviousChangeAction");
+    QAction *nextChange = toolBarAction("InlineDiffNextChangeAction");
+    QVERIFY(previousChange);
+    QVERIFY(nextChange);
+
+    // there is nothing to go to before the diff arrived
+    QVERIFY(!previousChange->isEnabled());
+    QVERIFY(!nextChange->isEnabled());
+
+    // the cursor starts on the first change, so only the way down is left
+    QTRY_COMPARE(diffEditor->currentLine(), 12);
+    QVERIFY(!previousChange->isEnabled());
+    QVERIFY(nextChange->isEnabled());
+
+    nextChange->trigger();
+    QCOMPARE(diffEditor->currentLine(), 20);
+    QVERIFY(previousChange->isEnabled());
+    nextChange->trigger();
+    QCOMPARE(diffEditor->currentLine(), 30);
+    QVERIFY(!nextChange->isEnabled()); // the last change
+
+    previousChange->trigger();
+    QCOMPARE(diffEditor->currentLine(), 20);
+    QVERIFY(nextChange->isEnabled());
+    previousChange->trigger();
+    QCOMPARE(diffEditor->currentLine(), 12);
+    QVERIFY(!previousChange->isEnabled());
+
+    // from an unchanged line each button goes to its neighboring change
+    diffEditor->gotoLine(25);
+    QCOMPARE(diffEditor->currentLine(), 25);
+    previousChange->trigger();
+    QCOMPARE(diffEditor->currentLine(), 20);
+    diffEditor->gotoLine(25);
+    nextChange->trigger();
+    QCOMPARE(diffEditor->currentLine(), 30);
+
+    const QPointer<QWidget> diffWidgetGuard = diffEditor->widget();
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
     QTRY_VERIFY(diffWidgetGuard.isNull());
 }
