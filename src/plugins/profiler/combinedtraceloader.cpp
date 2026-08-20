@@ -24,6 +24,8 @@
 #include <QtTaskTree/QBarrier>
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <utility>
+
 using namespace QmlDebug;
 using namespace QtTaskTree;
 using namespace Utils;
@@ -38,7 +40,13 @@ public:
     FilePath bundleDir;
     bool loading = false;
     bool qmlFailed = false;
-    bool cancelled = false;
+    // Bumped by every load() and every cancel(). A result still on its way from
+    // an earlier load carries the generation it was started for and drops itself
+    // when that no longer matches: neither the merge nor the QML load can be
+    // interrupted, so this is what makes abandoning one stick.
+    int generation = 0;
+    int qmlGeneration = 0; // The generation the in-flight QML load belongs to.
+    FilePath pending;      // A bundle to load once that QML load has reported.
     QSingleTaskTreeRunner taskTreeRunner;
 
     // The merge runs on a worker thread and stores its percentage here; the GUI
@@ -181,38 +189,48 @@ CombinedTraceLoader::~CombinedTraceLoader()
 
 void CombinedTraceLoader::load(const FilePath &bundleDir)
 {
-    // Only the QML half has to be idle: it feeds the model manager, which holds one
-    // trace at a time. A merge still running is superseded by the start() below.
-    if (d->loading)
-        return;
-    d->bundleDir = bundleDir;
-    d->cancelled = false;
+    ++d->generation; // Whatever an earlier load still delivers is now stale.
 
     // A bundle merged when it was recorded carries the result, so there is nothing
     // to redo. Emit asynchronously to keep merged()/failed() consistently deferred:
     // callers connect right after calling load() and would miss a direct emit.
     const FilePath mergedDir = bundleDir / combinedMergedSubdir;
     if (hasMergedTrace(bundleDir)) {
-        QTimer::singleShot(0, this, [this, mergedDir] {
-            if (!d->cancelled)
+        d->pending.clear();
+        QTimer::singleShot(0, this, [this, mergedDir, generation = d->generation] {
+            if (generation == d->generation)
                 emit merged(mergedDir);
         });
         return;
     }
 
+    // The model manager holds one trace at a time, so a QML load already running
+    // has to report before the next one can start; onQmlLoaded() picks this up.
+    if (d->loading) {
+        d->pending = bundleDir;
+        return;
+    }
+    startQmlLoad(bundleDir);
+}
+
+void CombinedTraceLoader::startQmlLoad(const FilePath &bundleDir)
+{
+    d->bundleDir = bundleDir;
     d->loading = true;
     d->qmlFailed = false;
+    d->qmlGeneration = d->generation;
     // Loads on a worker thread; onQmlLoaded() runs once loadFinished fires.
     d->modelManager.load((bundleDir / combinedQmlFileName).toFSPathString());
 }
 
 void CombinedTraceLoader::cancel()
 {
-    // The merge is a plain concurrent call and cannot be interrupted; finishing it
-    // still leaves a usable cache, so only the reporting is dropped. Tearing the
-    // task tree down here instead would risk doing so from its own done handler.
-    d->cancelled = true;
-    d->loading = false;
+    // Neither half can be interrupted -- the merge is a plain concurrent call, and
+    // finishing it still leaves a usable cache -- so only the reporting is dropped.
+    // Tearing the task tree down here instead would risk doing so from its own done
+    // handler.
+    ++d->generation;
+    d->pending.clear();
     d->progressPoll.stop();
 }
 
@@ -221,6 +239,14 @@ void CombinedTraceLoader::onQmlLoaded()
     if (!d->loading)
         return; // Guard against a spurious loadFinished with no load in flight.
     d->loading = false;
+
+    if (d->qmlGeneration != d->generation) {
+        // Superseded while it was loading: these ranges describe a trace nobody
+        // is waiting for. Take the request that superseded it instead.
+        if (!d->pending.isEmpty())
+            startQmlLoad(std::exchange(d->pending, {}));
+        return;
+    }
 
     // Reconstruct the JS/QML call stack as it varies over time: replay every range
     // event, maintaining a stack of open ranges, and emit one QmlRange per closed
@@ -300,9 +326,9 @@ void CombinedTraceLoader::onQmlLoaded()
         };
         async.setConcurrentCallData(mergeBundle, bundleDir, ranges, markComplete, report);
     };
-    const auto onDone = [this](const Async<Result<FilePath>> &async) {
+    const auto onDone = [this, generation = d->generation](const Async<Result<FilePath>> &async) {
         d->progressPoll.stop();
-        if (d->cancelled)
+        if (generation != d->generation)
             return;
         const Result<FilePath> result = async.isResultAvailable()
                                             ? async.result()

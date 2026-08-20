@@ -35,7 +35,8 @@ public:
     ~CombinedTraceLoader() override;
 
     // Starts loading and merging `bundleDir`. Emits merged() or failed() exactly
-    // once. Calling it again while a load is in flight is ignored.
+    // once. A load already in flight is superseded rather than ignored: its result
+    // is dropped and this one takes its place.
     //
     // A bundle that already carries a merged trace (combinedMergedSubdir, written
     // when it was recorded) short-circuits to merged() without redoing any of the
@@ -57,6 +58,7 @@ signals:
     void progress(int percent);
 
 private:
+    void startQmlLoad(const Utils::FilePath &bundleDir);
     void onQmlLoaded();
 
     class CombinedTraceLoaderPrivate *d;

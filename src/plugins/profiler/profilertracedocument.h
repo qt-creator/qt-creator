@@ -14,6 +14,7 @@
 
 namespace Profiler::Internal {
 
+class CombinedTraceLoader;
 class ProfilerTraceBackend;
 
 // One profiling run or loaded trace, as a document. Each owns its own backends,
@@ -58,10 +59,15 @@ protected:
 
 private:
     void load(const Utils::FilePath &rawPath);
+    void finishLoadStep();
 
     const TraceFormat m_format;
     QList<ProfilerTraceBackend *> m_backends;
     QPointer<Timeline::RangeDetailsWidget> m_rangeDetails;
+    // Builds what the sampler views of a combined trace show; null for the
+    // formats that have no second half to merge in.
+    CombinedTraceLoader *m_combinedLoader = nullptr;
+    int m_pendingLoads = 0; // Backends still to report on the current load.
 };
 
 } // namespace Profiler::Internal
