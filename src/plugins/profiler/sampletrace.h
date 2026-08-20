@@ -6,6 +6,7 @@
 #include <utils/filepath.h>
 #include <utils/result.h>
 
+#include <QDateTime>
 #include <QHash>
 #include <QLatin1StringView>
 #include <QList>
@@ -88,10 +89,16 @@ Utils::Result<SampleTraceData> readSampleTrace(const Utils::FilePath &dir,
 bool isSamplerTrace(const Utils::FilePath &dir);
 
 // Path of a not-yet-existing trace in the temporary location, named after
-// `prefix`, the current local time and `suffix`, for example
+// `prefix`, `now` and `suffix`, for example
 // ".../qtprofiler-sample-2026-08-11-14-32-07". The traces pile up there, so the
 // timestamp is spelled out rather than counted in milliseconds since the epoch.
 // A counter is appended if a trace of the same second is already present.
+// Split out from uniqueTracePath() so a test can exercise collision handling
+// for a fixed point in time instead of racing the real clock.
+Utils::FilePath uniqueTracePathAt(const QDateTime &now, QLatin1StringView prefix,
+                                  QLatin1StringView suffix = {});
+
+// uniqueTracePathAt() for the current local time.
 Utils::FilePath uniqueTracePath(QLatin1StringView prefix, QLatin1StringView suffix = {});
 
 } // namespace QmlProfiler::Internal

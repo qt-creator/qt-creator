@@ -106,12 +106,16 @@ private slots:
 
     void tracePathAvoidsCollisions()
     {
-        const FilePath first = uniqueTracePath("tst-sampletrace"_L1);
+        // A fixed point in time, so the two calls below are guaranteed to
+        // collide on the same second instead of racing the real clock.
+        const QDateTime now = QDateTime::currentDateTime();
+
+        const FilePath first = uniqueTracePathAt(now, "tst-sampletrace"_L1);
         QVERIFY(first.createDir());
         const QScopeGuard cleanup([&first] { first.removeRecursively(); });
 
         // Same second, so the plain timestamp is taken and a counter must appear.
-        const FilePath second = uniqueTracePath("tst-sampletrace"_L1);
+        const FilePath second = uniqueTracePathAt(now, "tst-sampletrace"_L1);
         QVERIFY(second != first);
         QVERIFY(!second.exists());
         QCOMPARE(second.fileName(), first.fileName() + "-2"_L1);

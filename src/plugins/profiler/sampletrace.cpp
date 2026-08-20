@@ -335,18 +335,24 @@ bool isSamplerTrace(const FilePath &dir)
                        [](const DataStreamClass &cls) { return cls.name == samplerStreamName; });
 }
 
-FilePath uniqueTracePath(QLatin1StringView prefix, QLatin1StringView suffix)
+FilePath uniqueTracePathAt(const QDateTime &now, QLatin1StringView prefix,
+                           QLatin1StringView suffix)
 {
     const FilePath tempDir = FilePath::fromString(
         QStandardPaths::writableLocation(QStandardPaths::TempLocation));
     // No colons or spaces: the name has to survive as a path component on every
     // host, and it ends up on command lines and in log messages.
-    const QString stamp = QDateTime::currentDateTime().toString(u"yyyy-MM-dd-hh-mm-ss"_s);
+    const QString stamp = now.toString(u"yyyy-MM-dd-hh-mm-ss"_s);
 
     FilePath path = tempDir / u"%1-%2%3"_s.arg(prefix, stamp, suffix);
     for (int counter = 2; path.exists(); ++counter)
         path = tempDir / u"%1-%2-%3%4"_s.arg(prefix, stamp).arg(counter).arg(suffix);
     return path;
+}
+
+FilePath uniqueTracePath(QLatin1StringView prefix, QLatin1StringView suffix)
+{
+    return uniqueTracePathAt(QDateTime::currentDateTime(), prefix, suffix);
 }
 
 } // namespace QmlProfiler::Internal
