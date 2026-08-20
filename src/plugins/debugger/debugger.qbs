@@ -129,6 +129,7 @@ QtcPlugin {
         prefix: "bridge/"
         files: [
             "bridgeengine.cpp", "bridgeengine.h",
+            "bridgeimpl.cpp", "bridgeimpl.h",
         ]
     }
 

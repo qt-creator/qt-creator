@@ -135,6 +135,6 @@ private:
     int m_nextDisassemblerToken = 0;
 };
 
-DebuggerEngine *createBridgeEngine();
+DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp);
 
 } // namespace Debugger::Internal

@@ -3,6 +3,7 @@
 
 #include "debuggerengineinterface.h"
 
+#include "bridge/bridgeimpl.h"
 #include "cdb/cdbimpl.h"
 #include "gdb/gdbimpl.h"
 #include "lldb/lldbimpl.h"
@@ -139,6 +140,7 @@ static const char s_qtDeclarativeDebugInfoMissing[] =
 
 enum class Backend {
     Gdb,
+    Bridge,
     Lldb,
     Pdb,
     Qml,
@@ -418,6 +420,8 @@ static QString backendName(Backend backend)
     switch (backend) {
     case Backend::Gdb:
         return "gdb";
+    case Backend::Bridge:
+        return "bridge";
     case Backend::Lldb:
         return "lldb";
     case Backend::Pdb:
@@ -461,6 +465,7 @@ static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
+    case Backend::Bridge:
         break;
     }
     return {};
@@ -481,6 +486,7 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
+    case Backend::Bridge:
         break;
     }
     return {};
@@ -499,6 +505,7 @@ static QString disassemblyFlavorQuery(Backend backend)
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
+    case Backend::Bridge:
         break;
     }
     return {};
@@ -513,6 +520,7 @@ static QString debugInfoDaemonQuery(Backend backend)
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
+    case Backend::Bridge:
         break;
     }
     return {};
@@ -529,6 +537,7 @@ static bool limitsStackDepth(Backend backend)
         return true;
     case Backend::Pdb:
     case Backend::Qml:
+    case Backend::Bridge:
         break;
     }
     return false;
@@ -545,6 +554,7 @@ static bool breaksOnSpecialFunctions(Backend backend)
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
+    case Backend::Bridge:
         break;
     }
     return false;
@@ -562,6 +572,7 @@ static bool debuggingHelpersChangeContainerOutput(Backend backend)
         return true;
     case Backend::Lldb:
     case Backend::Qml:
+    case Backend::Bridge:
         break;
     }
     return false;
@@ -582,6 +593,7 @@ static QString watchdogProbeCommand(Backend backend, int seconds)
         return QString("platform shell sleep %1").arg(seconds);
     case Backend::Pdb:
     case Backend::Qml:
+    case Backend::Bridge:
         break;
     }
     return {};
@@ -592,6 +604,7 @@ static QString printCommand(Backend backend, const QString &expression)
     Q_UNUSED(expression)
     switch (backend) {
     case Backend::Gdb:
+    case Backend::Bridge:
         return "print " + expression;
     case Backend::Lldb:
         return "expr " + expression;
@@ -1115,6 +1128,14 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .flags = nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
                                  : GdbImplFlags(),
             .watchdogTimeout = watchdogTimeout}));
+    case Backend::Bridge:
+        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
+            .debuggerRunData = debuggerRunDataOverride.value_or(
+                ProcessRunData{{m_backendData[backend].path, {}}, {}, Environment::systemEnvironment()}),
+            .inferiorStartData = inferiorRunDataOverride.value_or(
+                ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .hostRecipe = gdbHostRecipe(false)}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = debuggerRunDataOverride.value_or(
@@ -1188,6 +1209,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
+    case Backend::Bridge:
         break;
     }
     return nullptr;
@@ -1204,6 +1226,13 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
                                               Environment::systemEnvironment()},
             .inferiorStartData = inferiorStartData,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
+    case Backend::Bridge:
+        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = inferiorStartData,
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .hostRecipe = gdbHostRecipe(false)}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -1597,6 +1626,13 @@ void tst_backends::initTestCase()
     }
 
     if (m_backendData.contains(Backend::Gdb)) {
+        m_backendData[Backend::Bridge] = m_backendData[Backend::Gdb];
+        m_backendData[Backend::Bridge].inferiorData = cppInferiorData;
+        m_backendData[Backend::Bridge].inferiorData.versionLine = gdbVersionLine;
+        m_backendData[Backend::Bridge].inferiorData.moduleListMarker = "libc";
+        m_backendData[Backend::Bridge].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
+        m_backendData[Backend::Bridge].inferiorData.answersRedundantContinue = true;
+
         m_backendData[Backend::Gdb].inferiorData = cppInferiorData;
         m_backendData[Backend::Gdb].inferiorData.longTextSymbol = "longText";
         m_backendData[Backend::Gdb].inferiorData.versionLine = gdbVersionLine;
@@ -6443,7 +6479,7 @@ void tst_backends::reportsBreakpointModifiedEvents()
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
     QTRY_VERIFY_WITH_TIMEOUT(std::any_of(modified.cbegin(), modified.cend(), [](const GdbMi &data) {
-        return data.childAt(0)["times"].data() != "0";
+        return data.childAt(0)["times"].toInt() > 0;
     }), s_timeout);
 }
 

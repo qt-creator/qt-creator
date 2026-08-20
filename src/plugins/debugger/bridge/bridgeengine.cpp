@@ -3,6 +3,10 @@
 
 #include "bridgeengine.h"
 
+#include "bridgeimpl.h"
+
+#include <debugger/genericdebuggerengine.h>
+
 #include <debugger/dap/dapclient.h>
 
 #include <debugger/breakhandler.h>
@@ -11,6 +15,9 @@
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggersourcepathmappingwidget.h>
+
+#include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
@@ -22,6 +29,8 @@
 #include <debugger/watchhandler.h>
 
 #include <coreplugin/icore.h>
+
+#include <projectexplorer/abi.h>
 
 #include <utils/environment.h>
 #include <utils/mimeconstants.h>
@@ -1177,8 +1186,43 @@ const QLoggingCategory &BridgeEngine::logCategory()
     return category;
 }
 
-DebuggerEngine *createBridgeEngine()
+DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
 {
+    if (DebuggerEngine::isUsingGenericDebugger()) {
+        InferiorStartData inferiorStartData = rp.inferior();
+        if (rp.isLocalAttachEngine())
+            inferiorStartData = AttachToProcessData{rp.attachPid()};
+        QList<QPair<QString, QString>> sourcePathMap;
+        const SourcePathMap mergedMap = mergeStartParametersSourcePathMap(
+            rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+        for (auto it = mergedMap.cbegin(), end = mergedMap.cend(); it != end; ++it)
+            sourcePathMap.append(qMakePair(it.key(),
+                                           rp.macroExpander()->expand(it.value())));
+        Utils::FilePaths sourceDirectories;
+        for (const QString &directory : rp.debugSourceLocation())
+            sourceDirectories.append(FilePath::fromUserInput(directory));
+        Utils::FilePaths extraDumperFiles;
+        if (settings().extraDumperFile().isReadableFile())
+            extraDumperFiles.append(settings().extraDumperFile());
+        QStringList extraDumperCommands = settings().extraDumperCommands().split('\n');
+        extraDumperCommands = Utils::filtered(extraDumperCommands, [](const QString &line) {
+            const QString trimmed = line.trimmed();
+            return !trimmed.isEmpty() && !trimmed.startsWith('#');
+        });
+        return new GenericDebuggerEngine("Bridge (BridgeImpl)", new BridgeImpl({
+            .debuggerRunData = rp.debugger(),
+            .inferiorStartData = inferiorStartData,
+            .dumperScriptsDir = ICore::resourcePath("debugger"),
+            .hostRecipe = gdbHostRecipe(settings().loadGdbInit()),
+            .extraDumperFiles = extraDumperFiles,
+            .extraDumperCommands = extraDumperCommands,
+            .sysroot = rp.sysRoot(),
+            .sourcePathMap = sourcePathMap,
+            .sourceDirectories = sourceDirectories,
+            .nativeMixedDebugging = rp.isNativeMixedDebugging(),
+            .qtVersion = rp.qtVersion(),
+            .qtNamespace = rp.configuredQtNamespace()}));
+    }
     return new BridgeEngine;
 }
 
