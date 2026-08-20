@@ -3212,11 +3212,7 @@ void registerMcpTools()
                     callback({{"success", false}, {"error", res.error()}});
                     return;
                 }
-                // Toolchain and debugger detection run synchronously here.
-                device->requestToolDetection(device->toolSearchPaths());
-                // On-device build tools (rsync, cmake, ...) are detected asynchronously;
-                // create the kits once that has finished.
-                GlobalTaskTree::start(device->autoDetectDeviceToolsRecipe(), {}, reportKits);
+                device->runAutoDetect({}, reportKits);
             };
 
             device->tryToConnect({Utils::shutdownGuard(), onConnected});
