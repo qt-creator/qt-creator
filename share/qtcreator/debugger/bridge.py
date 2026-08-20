@@ -388,8 +388,14 @@ class DapServer():
         self.attachMode = False
         arguments = request.get('arguments', {})
         program = gdbLineArgument(arguments.get('program') or '', 'the program path')
-        if program:
-            gdb.execute('file %s' % quoteArgument(program), to_string=True)
+        if not program:
+            # Going on would leave gdb without an executable, and the session
+            # would start and exit again with the reason nowhere in sight.
+            self.sendResponse(request, success=False,
+                              message='No usable program path for the launch: %r'
+                                      % arguments.get('program'))
+            return
+        gdb.execute('file %s' % quoteArgument(program), to_string=True)
         quoted = []
         for argument in arguments.get('args') or []:
             text = gdbLineArgument(argument, 'an inferior argument')

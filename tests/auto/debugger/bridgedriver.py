@@ -884,6 +884,8 @@ def check_launch_passes_cwd_and_environment(bridge):
                             "env": [{"name": "LD_LIBRARY_PATH", "value": "/opt/qt/lib",
                                      "unset": False},
                                     {"name": "LC_ALL", "value": "", "unset": True}]})
+    assert 'file "/tmp/app"' in gdb.commands, \
+        "the program was not quoted like the arguments: %s" % gdb.commands
     assert "set cwd /tmp/a directory with spaces" in gdb.commands, \
         "working directory not applied, or quoted: %s" % gdb.commands
     assert "set environment LD_LIBRARY_PATH=/opt/qt/lib" in gdb.commands, gdb.commands
@@ -891,6 +893,31 @@ def check_launch_passes_cwd_and_environment(bridge):
     # One argument per entry: an argument with spaces must not become two.
     assert 'set args "--plain" "two words" "has\\"quote"' in gdb.commands, \
         "arguments not quoted individually: %s" % gdb.commands
+
+
+def check_an_unusable_program_fails_the_launch(bridge):
+    # Loading no executable and answering 'success' anyway makes the session
+    # start and exit again with the reason only in the log.
+    peer = Peer(bridge)
+    peer.request("launch", {"program": "/tmp/app\nkill"})
+    responses = responsesOf(peer.messages(), "launch")
+    assert len(responses) == 1, responses
+    assert responses[0]["success"] is False, responses[0]
+    assert not any(c.startswith("file ") for c in gdb.commands), \
+        "an executable was loaded anyway: %s" % gdb.commands
+
+
+def check_a_rejected_argument_fails_the_launch(bridge):
+    # Dropping the whole argument list would run the debuggee differently
+    # instead of saying that it cannot be run as asked.
+    peer = Peer(bridge)
+    peer.request("launch", {"program": "/tmp/app",
+                            "args": ["--fine", "two\nlines"]})
+    responses = responsesOf(peer.messages(), "launch")
+    assert len(responses) == 1, responses
+    assert responses[0]["success"] is False, responses[0]
+    assert not any(c.startswith("set args") for c in gdb.commands), \
+        "arguments were applied anyway: %s" % gdb.commands
 
 
 def check_a_newline_cannot_smuggle_a_gdb_command(bridge):
@@ -942,6 +969,10 @@ checks = {
     "one-module-is-not-reported-twice": check_one_module_is_not_reported_twice,
     "a-newline-cannot-smuggle-a-gdb-command":
         check_a_newline_cannot_smuggle_a_gdb_command,
+    "an-unusable-program-fails-the-launch":
+        check_an_unusable_program_fails_the_launch,
+    "a-rejected-argument-fails-the-launch":
+        check_a_rejected_argument_fails_the_launch,
 }
 
 if check not in checks:

@@ -106,6 +106,10 @@ void tst_Bridge::protocol_data()
         << "one-module-is-not-reported-twice";
     QTest::newRow("a newline cannot smuggle a gdb command")
         << "a-newline-cannot-smuggle-a-gdb-command";
+    QTest::newRow("an unusable program fails the launch")
+        << "an-unusable-program-fails-the-launch";
+    QTest::newRow("a rejected argument fails the launch")
+        << "a-rejected-argument-fails-the-launch";
 }
 
 void tst_Bridge::protocol()
