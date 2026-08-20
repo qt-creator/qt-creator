@@ -230,6 +230,15 @@ bool SimulatorControl::isSimulatorRunning(const QString &simUdid)
     return deviceInfo(simUdid).isBooted();
 }
 
+bool SimulatorControl::supportsArchitecture(
+    const QString &simUdid, Abi::Architecture architecture)
+{
+    const SimulatorInfo info = Utils::findOrDefault(
+        availableSimulators(),
+        [&simUdid](const SimulatorInfo &info) { return info.identifier == simUdid; });
+    return info.runtime.architectures.contains(architecture);
+}
+
 QString SimulatorControl::bundleIdentifier(const Utils::FilePath &bundlePath)
 {
     return Internal::bundleIdentifier(bundlePath);

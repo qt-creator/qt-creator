@@ -10,6 +10,7 @@
 #include "iossimulator.h"
 #include "iostoolhandler.h"
 #include "iostr.h"
+#include "simulatorcontrol.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -57,6 +58,33 @@ public:
         connect(m_toolHandler.get(), &IosToolHandler::message, this, &IosTransfer::message);
         connect(m_toolHandler.get(), &IosToolHandler::errorMsg, this, [this](const QString &message) {
             TaskHub::addTask<DeploymentTask>(Task::Error, message);
+            if ((message.contains("Failed to find matching arch for input file") // Xcode < 27
+                 || message.contains(
+                     "does not contain code for any platform and CPU architecture combination that "
+                     "is runnable on this device") // Xcode >= 27
+                 )
+                && m_deviceType->type == IosDeviceType::SimulatedDevice
+                && !SimulatorControl::supportsArchitecture(
+                    m_deviceType->identifier, Abi::X86Architecture)) {
+                TaskHub::addTask<DeploymentTask>(
+                    Task::Error,
+                    Tr::tr(
+                        "The application binary does not match the architecture of the "
+                        "installed iOS Simulator runtime.\n"
+                        "Qt is probably built for x86_64, "
+                        "but the installed Simulator runtime supports only arm64. Install an "
+                        "x86_64-compatible Simulator runtime, or use a Qt Simulator build for "
+                        "arm64.\n"
+                        "To install the universal Simulator runtime, first delete the current "
+                        "runtime in Xcode > Settings > Components, and then install it by running "
+                        "\"xcodebuild -downloadPlatform iOS -architectureVariant universal\" in "
+                        "Terminal.\n"
+                        "You might need to add a specific runtime version like "
+                        "\"-buildVersion 26.5\" if the default runtime no longer provides "
+                        "universal builds.\n"
+                        "You also need to have Rosetta 2 installed (for example by running "
+                        "\"softwareupdate --install-rosetta\")."));
+            }
             emit errorMessage(message);
         });
         connect(m_toolHandler.get(), &IosToolHandler::didTransferApp, this,

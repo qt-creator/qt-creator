@@ -56,6 +56,8 @@ public:
     static QList<SimulatorInfo> availableSimulators();
     static void updateAvailableSimulators(const std::function<void()> &doneHandler = {});
     static bool isSimulatorRunning(const QString &simUdid);
+    static bool supportsArchitecture(
+        const QString &simUdid, ProjectExplorer::Abi::Architecture architecture);
     static QString bundleIdentifier(const Utils::FilePath &bundlePath);
 };
 
