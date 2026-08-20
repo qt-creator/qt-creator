@@ -141,11 +141,16 @@ def makeFakeGdb():
     module.breakpointObjects = []
     module.nextBreakpointNumber = 1
     module.onExecute = None
+    module.miErrorRecord = None
 
     def execute(command, to_string=False):
         module.commands.append(command)
         if command == "info sharedlibrary":
             return module.sharedLibraryListing
+        if command.startswith("interpreter-exec mi"):
+            if module.miErrorRecord:
+                return module.miErrorRecord
+            return '^done,threads=[{id="1"}],current-thread-id="1"\n'
         if command.startswith("catch "):
             FakeBreakpoint(command)  # gdb creates one, we only see it in the list
         if module.onExecute:
@@ -202,6 +207,8 @@ def realDumperBase():
 class FakeDumper():
     def __init__(self):
         self.addedModules = []
+        self.calls = []
+        self.reported = []
 
     def addDumperModule(self, args):
         self.addedModules.append(args['path'])
@@ -221,6 +228,18 @@ class FakeDumper():
         # import. The bridge has to ask for it; if it stops asking, the handler
         # stays connected and the check below fails.
         gdb.events.stop.disconnect(interpreterStopHandler)
+
+    def fetchStack(self, args):
+        self.calls.append("fetchStack")
+        self.reportResult('stack={frames=[{level="0",function="main"}]}', args)
+
+    def assignValue(self, args):
+        self.calls.append("assignValue")
+        self.reportResult("", args)
+
+    def reportResult(self, result, args):
+        # Replaced by the server while it captures; a real dumper prints here.
+        self.reported.append(result)
 
     def hexdecode(self, s):
         return bytes.fromhex(s).decode("utf-8")
@@ -897,6 +916,40 @@ def check_launch_passes_cwd_and_environment(bridge):
         "arguments not quoted individually: %s" % gdb.commands
 
 
+def check_data_requests_use_the_dumpers(bridge):
+    # The interface's data plane is the dumpers' own output, and a reply has to
+    # carry the token back or the caller cannot tell what it answers.
+    peer = Peer(bridge)
+    peer.request("qtc/fetchStack", {"token": 7, "limit": -1})
+    responses = responsesOf(peer.messages(), "qtc/fetchStack")
+    assert len(responses) == 1, responses
+    body = responses[0]["body"]
+    assert body["dumperResult"] == 'stack={frames=[{level="0",function="main"}]}', body
+    assert body["token"] == 7, "the token did not travel back: %s" % body
+    assert peer.server.dumper.calls == ["fetchStack"], peer.server.dumper.calls
+    # Captured, not printed: a dumper writing to the protocol stream would have
+    # broken the framing above.
+    assert peer.server.dumper.reported == [], peer.server.dumper.reported
+
+    threads = Peer(bridge)
+    threads.request("qtc/fetchThreads", {"token": 8})
+    body = responsesOf(threads.messages(), "qtc/fetchThreads")[0]["body"]
+    assert body["dumperResult"].startswith("threads="), body
+    assert body["token"] == 8, body
+
+    # An error record has the shape of a result one; passed on as a dumper
+    # result the C++ side would parse the message as threads.
+    gdb.miErrorRecord = '^error,msg="No threads."\n'
+    try:
+        failing = Peer(bridge)
+        failing.request("qtc/fetchThreads", {"token": 9})
+        answer = responsesOf(failing.messages(), "qtc/fetchThreads")[0]
+    finally:
+        gdb.miErrorRecord = None
+    assert answer["success"] is False, answer
+    assert "No threads." in answer.get("message", ""), answer
+
+
 def check_startup_commands_reach_gdb(bridge):
     # The user's "Additional Startup Commands" and the script that can replace
     # them: without these the setting is silently ignored.
@@ -1018,6 +1071,7 @@ checks = {
         check_a_rejected_argument_fails_the_launch,
     "a-loaded-library-is-reported": check_a_loaded_library_is_reported,
     "startup-commands-reach-gdb": check_startup_commands_reach_gdb,
+    "data-requests-use-the-dumpers": check_data_requests_use_the_dumpers,
 }
 
 if check not in checks:
