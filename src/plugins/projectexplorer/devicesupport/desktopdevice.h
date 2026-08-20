@@ -30,9 +30,6 @@ public:
 
     IDeviceWidget *createWidget() override;
     bool canCreateProcessModel() const override;
-    QtTaskTree::ExecutableItem signalOperationRecipe(
-        const ProjectExplorer::SignalOperationData &data,
-        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
 
     Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
@@ -52,6 +49,11 @@ protected:
     friend class Internal::DesktopDeviceFactory;
 
     std::unique_ptr<DesktopDevicePrivate> d;
+
+private:
+    QtTaskTree::ExecutableItem signalOperationRecipeImpl(
+        const ProjectExplorer::SignalOperationData &data,
+        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
 };
 
 } // namespace ProjectExplorer

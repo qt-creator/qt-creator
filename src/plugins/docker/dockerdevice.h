@@ -89,10 +89,6 @@ public:
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     QString qmlDebugServerBindHost() const override;
 
-    QtTaskTree::ExecutableItem signalOperationRecipe(
-        const ProjectExplorer::SignalOperationData &data,
-        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
-
     Utils::StringAspect imageId{this};
     Utils::StringAspect repo{this};
     Utils::StringAspect tag{this};
@@ -114,6 +110,9 @@ protected:
 
 private:
     void aboutToBeRemoved() const final;
+    QtTaskTree::ExecutableItem signalOperationRecipeImpl(
+        const ProjectExplorer::SignalOperationData &data,
+        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
 
     Internal::DockerDevicePrivate *d = nullptr;
 

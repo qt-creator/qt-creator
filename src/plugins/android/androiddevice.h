@@ -72,7 +72,7 @@ protected:
 private:
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const override;
     ProjectExplorer::IDeviceWidget *createWidget() override;
-    QtTaskTree::ExecutableItem signalOperationRecipe(
+    QtTaskTree::ExecutableItem signalOperationRecipeImpl(
         const ProjectExplorer::SignalOperationData &data,
         const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
     QUrl toolControlChannel(const ControlChannelHint &) const override;

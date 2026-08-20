@@ -721,8 +721,8 @@ IDeviceWidget *AndroidDevice::createWidget()
     return new AndroidDeviceWidget(shared_from_this());
 }
 
-ExecutableItem AndroidDevice::signalOperationRecipe(const SignalOperationData &data,
-                                                    const Storage<Result<>> &resultStorage) const
+ExecutableItem AndroidDevice::signalOperationRecipeImpl(
+    const SignalOperationData &data, const Storage<Result<>> &resultStorage) const
 {
     struct InternalStorage {
         FilePath adbPath = AndroidConfig::adbToolPath();
@@ -732,11 +732,6 @@ ExecutableItem AndroidDevice::signalOperationRecipe(const SignalOperationData &d
     const Storage<InternalStorage> storage;
 
     const auto onSetup = [data, resultStorage] {
-        const auto validResult = data.isValid();
-        if (!validResult) {
-            *resultStorage = validResult;
-            return SetupResult::StopWithError;
-        }
         if (data.mode == SignalOperationMode::KillByPath) {
             *resultStorage = ResultError(
                 "The android signal operation does not support killing by filepath.");

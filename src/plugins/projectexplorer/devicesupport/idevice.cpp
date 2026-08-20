@@ -952,6 +952,25 @@ ExecutableItem IDevice::signalOperationRecipe(
     const SignalOperationData &data,
     const Storage<Utils::Result<>> &resultStorage) const
 {
+    const auto onSetup = [data, resultStorage] {
+        const Result<> validResult = data.isValid();
+        if (validResult)
+            return SetupResult::Continue;
+
+        *resultStorage = validResult;
+        return SetupResult::StopWithError;
+    };
+
+    return Group {
+        onGroupSetup(onSetup),
+        signalOperationRecipeImpl(data, resultStorage)
+    };
+}
+
+ExecutableItem IDevice::signalOperationRecipeImpl(
+    const SignalOperationData &data,
+    const Storage<Utils::Result<>> &resultStorage) const
+{
     Q_UNUSED(data)
     return QSyncTask([resultStorage] {
         *resultStorage = ResultError(

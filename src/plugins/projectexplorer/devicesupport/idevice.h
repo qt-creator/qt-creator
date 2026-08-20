@@ -232,7 +232,8 @@ public:
     // Devices without a command-bridge binary (e.g. QNX) return false to use ssh.
     virtual bool usesCmdBridge() const { return true; }
 
-    virtual QtTaskTree::ExecutableItem signalOperationRecipe(
+    // Checks the data before handing it to signalOperationRecipeImpl().
+    QtTaskTree::ExecutableItem signalOperationRecipe(
         const SignalOperationData &data,
         const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const;
 
@@ -380,6 +381,10 @@ protected:
 private:
     IDevice(const IDevice &) = delete;
     IDevice &operator=(const IDevice &) = delete;
+
+    virtual QtTaskTree::ExecutableItem signalOperationRecipeImpl(
+        const SignalOperationData &data,
+        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const;
 
     int version() const;
     void setFromSdk();

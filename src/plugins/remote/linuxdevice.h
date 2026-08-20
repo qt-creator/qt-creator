@@ -56,9 +56,6 @@ public:
     bool canCreateProcessModel() const override { return true; }
     bool hasDeviceTester() const override { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() override;
-    QtTaskTree::ExecutableItem signalOperationRecipe(
-        const ProjectExplorer::SignalOperationData &data,
-        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
 
     QString userAtHost() const;
     QString userAtHostAndPort() const;
@@ -103,6 +100,11 @@ protected:
 
     class LinuxDevicePrivate *d;
     friend class LinuxDevicePrivate;
+
+private:
+    QtTaskTree::ExecutableItem signalOperationRecipeImpl(
+        const ProjectExplorer::SignalOperationData &data,
+        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const final;
 };
 
 namespace Internal {

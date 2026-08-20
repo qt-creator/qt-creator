@@ -367,20 +367,15 @@ bool DesktopDevice::canCreateProcessModel() const
     return true;
 }
 
-ExecutableItem DesktopDevice::signalOperationRecipe(const SignalOperationData &data,
-                                                    const Storage<Result<>> &resultStorage) const
+ExecutableItem DesktopDevice::signalOperationRecipeImpl(
+    const SignalOperationData &data, const Storage<Result<>> &resultStorage) const
 {
     const auto onSetup = [data, resultStorage] {
-        const auto validResult = data.isValid();
-        if (!validResult) {
-            *resultStorage = validResult;
-            return DoneResult::Error;
-        }
         *resultStorage = doSignalOperation(data);
         return toDoneResult(*resultStorage == ResultOk);
     };
 
-    return Group { QSyncTask(onSetup) };
+    return QSyncTask(onSetup);
 }
 
 QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const

@@ -1241,18 +1241,9 @@ static QString commandForData(const SignalOperationData &data,
     return {};
 }
 
-ExecutableItem LinuxDevice::signalOperationRecipe(const SignalOperationData &data,
-                                                  const Storage<Result<>> &resultStorage) const
+ExecutableItem LinuxDevice::signalOperationRecipeImpl(const SignalOperationData &data,
+                                                      const Storage<Result<>> &resultStorage) const
 {
-    const auto onSetup = [data, resultStorage] {
-        const auto validResult = data.isValid();
-        if (validResult)
-            return SetupResult::Continue;
-
-        *resultStorage = validResult;
-        return SetupResult::StopWithError;
-    };
-
     const auto onProcessSetup = [device = shared_from_this(), data, resultStorage,
                                  handler = d->m_killCommandForPathFunction](Process &process) {
         const QString command = commandForData(data, handler);
@@ -1265,10 +1256,7 @@ ExecutableItem LinuxDevice::signalOperationRecipe(const SignalOperationData &dat
             *resultStorage = ResultError(Tr::tr("Signal operation canceled."));
     };
 
-    return Group {
-        onGroupSetup(onSetup),
-        ProcessTask(onProcessSetup, onProcessDone)
-    };
+    return ProcessTask(onProcessSetup, onProcessDone);
 }
 QString LinuxDevice::userAtHost() const
 {

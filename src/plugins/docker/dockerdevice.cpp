@@ -1634,18 +1634,9 @@ QString DockerDevice::qmlDebugServerBindHost() const
     return "0.0.0.0";
 }
 
-ExecutableItem DockerDevice::signalOperationRecipe(
+ExecutableItem DockerDevice::signalOperationRecipeImpl(
     const SignalOperationData &data, const Storage<Result<>> &resultStorage) const
 {
-    const auto onSetup = [data, resultStorage] {
-        const Result<> validResult = data.isValid();
-        if (validResult)
-            return SetupResult::Continue;
-
-        *resultStorage = validResult;
-        return SetupResult::StopWithError;
-    };
-
     Storage<qint64> pid;
 
     const auto onFindProcessSetup = [this, data](Async<Result<qint64>> &task) {
@@ -1695,7 +1686,6 @@ ExecutableItem DockerDevice::signalOperationRecipe(
     // clang-format off
     return Group {
         pid,
-        onGroupSetup(onSetup),
         If ([data] { return data.mode == SignalOperationMode::KillByPath; }) >> Then {
             AsyncTask<Result<qint64>>(onFindProcessSetup, onFindProcessDone),
         } >> Else {
