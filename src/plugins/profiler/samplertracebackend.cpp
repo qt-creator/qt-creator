@@ -5,11 +5,28 @@
 
 #include "samplerviewmanager.h"
 
+#ifndef __EMSCRIPTEN__ // QtSupport is excluded from the WebAssembly build
+#include <qtsupport/baseqtversion.h>
+#endif
+
+#include <utils/fileinprojectfinder.h>
+
+#include <QUrl>
+
 using namespace Utils;
 
 using namespace std::chrono;
 
 namespace Profiler::Internal {
+
+// A sampled frame names its source the way the compiler or the QML engine did:
+// a path on disk, or a URL when the file came out of a resource. A one-letter
+// scheme is a Windows drive rather than a scheme.
+static QUrl sourceUrl(const QString &file)
+{
+    const QUrl url(file);
+    return url.scheme().size() > 1 ? url : QUrl::fromLocalFile(file);
+}
 
 class SamplerTraceBackendPrivate
 {
@@ -19,6 +36,11 @@ public:
     {}
 
     SamplerViewManager viewManager;
+
+    // A sampled frame names the file the compiler or the QML engine knew, which
+    // is not always one on disk: a QML module bundles its sources, so the JS
+    // frames spliced into a combined trace point at "qrc:/" instead.
+    FileInProjectFinder fileFinder;
 };
 
 SamplerTraceBackend::SamplerTraceBackend(Timeline::RangeDetailsWidget *details, QObject *parent)
@@ -36,7 +58,19 @@ SamplerTraceBackend::SamplerTraceBackend(Timeline::RangeDetailsWidget *details, 
         // offset; there is nothing to open for it.
         if (file.isEmpty() || line < 0)
             return;
-        emit gotoSourceLocation({FilePath::fromUserInput(file), line, column});
+        FilePath path = FilePath::fromUserInput(file);
+        if (!path.isAbsolutePath() || !path.isReadableFile()) {
+            // A finder that resolves nothing answers with what it was given, so
+            // only `resolved` tells a hit from a miss.
+            bool resolved = false;
+            const FilePaths found = d->fileFinder.findFile(sourceUrl(file), &resolved);
+            if (!resolved)
+                return;
+            path = found.constFirst();
+            if (!path.isReadableFile())
+                return;
+        }
+        emit gotoSourceLocation({path, line, column});
     });
 }
 
@@ -52,6 +86,11 @@ QWidgetList SamplerTraceBackend::views(QWidget *parent)
 
 void SamplerTraceBackend::load(const FilePath &path)
 {
+    // Which projects are open, and what their resources map to, can have changed
+    // since the last trace, so this is answered per load rather than once.
+#ifndef __EMSCRIPTEN__
+    QtSupport::QtVersion::populateQmlFileFinder(&d->fileFinder, nullptr);
+#endif
     d->viewManager.load(path);
 }
 

@@ -62,6 +62,7 @@ CallTreeView::CallTreeView(CallTreeModel *model, QWidget *parent)
     , m_model(model)
 {
     m_tree = new Utils::TreeView(this);
+    m_tree->setObjectName("SamplerCallTree");
     m_tree->setModel(model);
     m_tree->setSelectionMode(QAbstractItemView::SingleSelection);
     m_tree->setUniformRowHeights(true);
@@ -73,6 +74,7 @@ CallTreeView::CallTreeView(CallTreeModel *model, QWidget *parent)
     m_tree->header()->setSectionResizeMode(CallTreeModel::SymbolColumn, QHeaderView::Stretch);
 
     m_heaviest = new QTreeWidget(this);
+    m_heaviest->setObjectName("SamplerHeaviestStack");
     m_heaviest->setColumnCount(2);
     m_heaviest->setHeaderLabels({Tr::tr("Weight"), Tr::tr("Heaviest Stack")});
     m_heaviest->setRootIsDecorated(false);
