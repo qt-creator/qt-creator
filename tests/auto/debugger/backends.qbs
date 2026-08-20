@@ -42,7 +42,7 @@ Project {
         cpp.includePaths: base.concat([project.debuggerDir])
     }
     references: [
-        "qmlstack_inferior/qmlstack_inferior.qbs",
+        "qmlstack_inferior.qbs",
         "qmlmix_inferior.qbs",
     ]
 }

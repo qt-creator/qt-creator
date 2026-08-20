@@ -13,9 +13,7 @@ QtApplication {
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
 
     files: [
-        "qmlentrypoint.h",
-        "qmlentrypoint.cpp",
-        "main.cpp",
-        "main.qrc",
+        "qmlstack_inferior.cpp",
+        "qmlstack_inferior.qrc",
     ]
 }

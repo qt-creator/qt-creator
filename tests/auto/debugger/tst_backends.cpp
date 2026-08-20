@@ -3819,9 +3819,9 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
         request.requestId = 30;
         request.modelId = 42;
         request.params.type = BreakpointByFileAndLine;
-        request.params.fileName = FilePath::fromUserInput("main.qml");
+        request.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
         request.params.textPosition.line =
-            qmlMarkerLine("qmlstack_inferior/main.qml", "MARKER: qml breakpoint line");
+            qmlMarkerLine("qmlstack_inferior.qml", "MARKER: qml breakpoint line");
         QVERIFY(request.params.textPosition.line > 0);
         request.params.textPosition.column = 0;
         request.params.enabled = true;
@@ -3906,9 +3906,9 @@ void tst_backends::insertsQmlBreakpointBeforeDumpersLoad()
             request.requestId = 30;
             request.modelId = 42;
             request.params.type = BreakpointByFileAndLine;
-            request.params.fileName = FilePath::fromUserInput("main.qml");
+            request.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
             request.params.textPosition.line =
-                qmlMarkerLine("qmlstack_inferior/main.qml", "MARKER: qml breakpoint line");
+                qmlMarkerLine("qmlstack_inferior.qml", "MARKER: qml breakpoint line");
             QVERIFY(request.params.textPosition.line > 0);
             request.params.textPosition.column = 0;
             request.params.enabled = true;
@@ -4128,7 +4128,7 @@ void tst_backends::stepsWithinQmlFrameAfterNativeMixedStepOut()
         ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
                         {}, env}, true);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
-    const int qmlLine = qmlMarkerLine("qmlmix_inferior/Main.qml", "MARKER: qml-return");
+    const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-return");
     QVERIFY(qmlLine > 0);
 
     QList<GdbMi> modifiedReports;
@@ -4354,7 +4354,7 @@ void tst_backends::stepsFromQmlIntoNativeMixedCppFrame()
         ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
                         {}, env}, true);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
-    const int qmlLine = qmlMarkerLine("qmlmix_inferior/Main.qml", "MARKER: qml-to-cpp");
+    const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-to-cpp");
     QVERIFY(qmlLine > 0);
 
     connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),

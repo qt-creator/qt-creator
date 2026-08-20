@@ -124,27 +124,23 @@ list(APPEND BACKENDS_TEST_DEFINES
 
 if (TARGET Qt::Quick)
   qt_add_executable(qmlstack_inferior
-    qmlstack_inferior/qmlentrypoint.h qmlstack_inferior/qmlentrypoint.cpp
-    qmlstack_inferior/main.cpp qmlstack_inferior/main.qrc
+    qmlstack_inferior.cpp qmlstack_inferior.qrc
   )
   target_link_libraries(qmlstack_inferior PRIVATE Qt::Quick Qt::Qml)
   target_compile_definitions(qmlstack_inferior PRIVATE QT_QML_DEBUG)
   list(APPEND BACKENDS_TEST_DEFINES
     "QMLSTACK_INFERIOR_EXECUTABLE=\"$<TARGET_FILE_DIR:qmlstack_inferior>\"")
 
-  qt_add_executable(qmlmix_inferior qmlmix_inferior/main.cpp)
-  set_source_files_properties(qmlmix_inferior/Main.qml PROPERTIES
-    QT_RESOURCE_ALIAS "Main.qml")
+  qt_add_executable(qmlmix_inferior qmlmix_inferior.cpp)
   qt_add_qml_module(qmlmix_inferior
     URI MixTest
     VERSION 1.0
     RESOURCE_PREFIX "/qt/qml"
-    QML_FILES qmlmix_inferior/Main.qml
-    SOURCES qmlmix_inferior/qmlentrypoint.h qmlmix_inferior/qmlentrypoint.cpp
+    QML_FILES Main.qml
+    SOURCES qmlmix_inferior.h
   )
   target_compile_definitions(qmlmix_inferior PRIVATE QT_QML_DEBUG)
   target_link_libraries(qmlmix_inferior PRIVATE Qt::Quick)
-  target_include_directories(qmlmix_inferior PRIVATE qmlmix_inferior)
   list(APPEND BACKENDS_TEST_DEFINES
     "QMLMIX_INFERIOR_EXECUTABLE=\"$<TARGET_FILE_DIR:qmlmix_inferior>\"")
 endif()

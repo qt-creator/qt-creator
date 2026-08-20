@@ -4,11 +4,20 @@
 #pragma once
 
 #include <QObject>
+#include <QtQmlIntegration/qqmlintegration.h>
 
+// A header of its own, unlike the qmlstack inferior: qmltyperegistrar includes
+// the file that declares a QML_ELEMENT type, which duplicates every definition
+// that shares it.
 class QmlEntryPoint : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+
 public:
     using QObject::QObject;
     Q_INVOKABLE int process(int value);
+
+private:
+    int offset(int value) const;
 };

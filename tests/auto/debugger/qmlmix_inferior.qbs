@@ -17,15 +17,14 @@ QtApplication {
                           + FileInfo.relativePath(project.ide_source_tree, sourceDirectory)
 
     files: [
-        "qmlmix_inferior/qmlentrypoint.h",
-        "qmlmix_inferior/qmlentrypoint.cpp",
-        "qmlmix_inferior/main.cpp",
+        "qmlmix_inferior.h",
+        "qmlmix_inferior.cpp",
     ]
 
     Group {
         name: "qmlmix QML sources"
-        Qt.core.resourceSourceBase: FileInfo.joinPaths(path, "qmlmix_inferior")
-        files: ["qmlmix_inferior/Main.qml"]
+        Qt.core.resourceSourceBase: path
+        files: ["Main.qml"]
         fileTags: ["qt.qml.qml", "qt.core.resource_data"]
     }
 }
