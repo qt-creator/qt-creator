@@ -3,6 +3,7 @@
 
 #include "rangedetailswidget.h"
 
+#include "timelineformatdata.h"
 #include "tracingtr.h"
 
 #include <utils/elidinglabel.h>
@@ -39,6 +40,12 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
     m_titleLabel->setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementH6));
     m_titleLabel->setTextFormat(Qt::PlainText);
 
+    m_selectionRangeBar = new Utils::StyledBar;
+
+    m_selectionRangeLabel = new Utils::ElidingLabel;
+    m_selectionRangeLabel->setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementH6));
+    m_selectionRangeLabel->setTextFormat(Qt::PlainText);
+
     m_model = new QStandardItemModel(this);
     m_model->setColumnCount(2);
 
@@ -60,6 +67,12 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
         m_titleLabel,
     }.attachTo(m_titleBar);
 
+    Column {
+        customMargins(Utils::StyleHelper::SpacingTokens::PaddingVS, 0, 0, 0),
+        spacing(0),
+        m_selectionRangeLabel,
+    }.attachTo(m_selectionRangeBar);
+
     connect(m_treeView, &QAbstractItemView::doubleClicked, this,
             [this](const QModelIndex &index) {
                 // Only top-level rows map 1:1 to orderedDetails content rows;
@@ -72,6 +85,7 @@ RangeDetailsWidget::RangeDetailsWidget(QWidget *parent)
         noMargin,
         spacing(0),
         m_titleBar,
+        m_selectionRangeBar,
         m_treeView,
     }.attachTo(this);
 
@@ -85,6 +99,21 @@ void RangeDetailsWidget::setData(QObject *provider, const QString &title,
     m_hasData = true;
     m_titleLabel->setText(title);
     rebuildRows(content);
+}
+
+void RangeDetailsWidget::setSelectionRange(qint64 start, qint64 end, qint64 referenceDuration)
+{
+    const bool showRange = start < end && referenceDuration > 0;
+    m_selectionRangeBar->setVisible(showRange);
+
+    if (!showRange)
+        return;
+
+    const QString startText = formatTime(start, referenceDuration);
+    m_selectionRangeLabel->setText(
+        Tr::tr("Range Start: %1  End: %2  Duration: %3")
+            .arg(startText, formatTime(end, referenceDuration),
+                 formatTime(end - start, referenceDuration)));
 }
 
 void RangeDetailsWidget::clear(QObject *provider)
@@ -111,6 +140,7 @@ void RangeDetailsWidget::clearContent()
 {
     m_hasData = false;
     m_titleLabel->setText(Tr::tr("No item selected"));
+    setSelectionRange(0, 0, 0);
     rebuildRows({});
 }
 

@@ -13,7 +13,6 @@ add_qtc_library(Tracing
     tracklabels.cpp tracklabels.h
     timeruler.cpp timeruler.h
     rangedetailswidget.cpp rangedetailswidget.h
-    selectionrangedetailswidget.cpp selectionrangedetailswidget.h
     selectionrangeoverlay.cpp selectionrangeoverlay.h
     timelinescrollsync.cpp timelinescrollsync.h
     timelinecontentwidget.cpp timelinecontentwidget.h

@@ -30,6 +30,8 @@ public:
     // content another view put there.
     void setData(QObject *provider, const QString &title,
                  const QList<QPair<QString, QString>> &content);
+    // Shows the current time-range selection in a bar above the details tree.
+    void setSelectionRange(qint64 start, qint64 end, qint64 referenceDuration);
     // Drops the content only if `provider` is the view that put it there.
     void clear(QObject *provider);
     // Drops the content whoever put it there, for when the trace itself goes away.
@@ -50,6 +52,8 @@ private:
 
     QWidget *m_titleBar = nullptr;
     QLabel *m_titleLabel = nullptr;
+    QWidget *m_selectionRangeBar = nullptr;
+    QLabel *m_selectionRangeLabel = nullptr;
     QTreeView *m_treeView = nullptr;
     QStandardItemModel *m_model = nullptr;
     QPointer<QObject> m_provider; // The view whose content is currently shown.
