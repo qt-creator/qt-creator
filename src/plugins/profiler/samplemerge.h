@@ -48,11 +48,18 @@ struct MergeOptions
 // Splice QML/JS frames into a native sampler trace, using a concurrently
 // recorded QML profiler stream as the source of exact JS frames.
 //
-// For each sample, the contiguous run of QML engine frames (see isEngineFrame)
-// is replaced by -- or, with MergeOptions::revealEngineFrames, followed by --
-// the JS call stack active at the sample's timestamp. A sample is returned
-// unchanged when it has no engine-frame run (nothing to attribute) or when no
-// JS is active at its time (so engine housekeeping is not dropped).
+// Only the thread that ran the engine's JS is spliced into: the QML profiler
+// describes one engine, so its stacks belong to one thread, and the threads the
+// QML library runs for its own purposes did not execute any of it. That thread
+// is the one the trace caught in the V4 interpreter or its JIT'd code; a trace
+// that caught none is returned unchanged.
+//
+// Within that thread, for each sample, the contiguous run of QML engine frames
+// (see isEngineFrame) is replaced by -- or, with
+// MergeOptions::revealEngineFrames, followed by -- the JS call stack active at
+// the sample's timestamp. A sample is returned unchanged when it has no
+// engine-frame run (nothing to attribute) or when no JS is active at its time
+// (so engine housekeeping is not dropped).
 //
 // The returned trace shares `native`'s labels and appends interned JS labels;
 // `native` itself is not modified.

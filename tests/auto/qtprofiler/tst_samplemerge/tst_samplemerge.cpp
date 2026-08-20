@@ -146,6 +146,62 @@ private slots:
         QCOMPARE(names(mergeQmlIntoSamples(native, ranges, opts), 0), (QStringList{"onClicked"}));
     }
 
+    void onlyTheEngineThreadGetsJsFrames()
+    {
+        // A QQmlThread worker spends its whole life inside the QML library, so
+        // every one of its samples looks like an engine frame -- but it runs no
+        // JS, and the engine's stack is not its to show.
+        SampleTraceData native;
+        native.labels = {"main", "QV4::call", "thread_start",
+                         Label("QQmlThreadPrivate::run", QString(), 0, "libQt6Qml.so"),
+                         "poll"};
+        native.samples = {
+            {500, 1, true, {0, 1}},    // the engine's thread
+            {500, 2, true, {2, 3, 4}}, // a QQmlThread worker, parked
+        };
+        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+
+        const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
+        QCOMPARE(names(merged, 0), (QStringList{"main", "onClicked"}));
+        QCOMPARE(names(merged, 1),
+                 (QStringList{"thread_start", "QQmlThreadPrivate::run", "poll"}));
+    }
+
+    void theBusiestJsThreadIsTheEngineThread()
+    {
+        // An engine on a worker thread (a WorkerScript) is found the same way as
+        // one on the main thread: by where JS was actually executing.
+        SampleTraceData native;
+        native.labels = {"main", Label("idle", QString(), 0, "libQt6Qml.so"),
+                         "thread_start", "QV4::call"};
+        native.samples = {
+            {500, 1, true, {0, 1}},    // main thread, in the library but not in JS
+            {500, 7, true, {2, 3}},    // worker thread, in the interpreter
+            {600, 7, true, {2, 3}},
+        };
+        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+
+        const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
+        QCOMPARE(names(merged, 0), (QStringList{"main", "idle"}));
+        QCOMPARE(names(merged, 1), (QStringList{"thread_start", "onClicked"}));
+    }
+
+    void withoutSampledJsExecutionNothingIsAttributed()
+    {
+        // Library frames but no interpreter: which thread ran the engine is
+        // unknown, and guessing is what put JS stacks on threads that never ran
+        // a line of it.
+        SampleTraceData native;
+        native.labels = {"thread_start",
+                         Label("QQmlThreadPrivate::run", QString(), 0, "libQt6Qml.so")};
+        native.samples = {{500, 2, true, {0, 1}}};
+        const QList<QmlRange> ranges = {{0, 1000, "onClicked", "/main.qml", 10, -1}};
+
+        const SampleTraceData merged = mergeQmlIntoSamples(native, ranges);
+        QCOMPARE(names(merged, 0), (QStringList{"thread_start", "QQmlThreadPrivate::run"}));
+        QCOMPARE(merged.labels.size(), native.labels.size()); // nothing interned
+    }
+
     void picksInnermostRangeAtSampleTime()
     {
         SampleTraceData native;
