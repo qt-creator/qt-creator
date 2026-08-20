@@ -425,7 +425,7 @@ void FindPrivate::writeSettings()
 void FindPrivate::readSettings()
 {
     const Store s = storeFromVariant(SessionManager::value("Find"));
-    if (!s.empty()) {
+    if (!s.empty() || SessionManager::isDefaultVirgin()) {
         {
             QSignalBlocker blocker(m_instance);
             Find::setBackward(s.value("Backward", false).toBool());
