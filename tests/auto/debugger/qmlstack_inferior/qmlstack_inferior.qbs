@@ -3,8 +3,8 @@ import qbs.FileInfo
 QtApplication {
     name: "qmlstack_inferior"
     condition: Qt.quick.present
-    Depends { name: "Qt.quick" }
-    Depends { name: "Qt.qml" }
+
+    Depends { name: "Qt.quick"; required: false }
 
     cpp.defines: ["QT_QML_DEBUG"]
 

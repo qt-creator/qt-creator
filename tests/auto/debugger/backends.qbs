@@ -29,9 +29,11 @@ Project {
                 'DUMPERDIR="' + path + '/../../../share/qtcreator/debugger"',
                 'BACKENDS_TEST_SOURCE_DIR="' + path + '"'
             ]);
-            if (Qt.quick.present) {
+            if (qmlstack_inferior.present) {
                 defines.push('QMLSTACK_INFERIOR_EXECUTABLE="'
                              + FileInfo.joinPaths(destinationDirectory, "qmlstack_inferior") + '"');
+            }
+            if (qmlmix_inferior.present) {
                 defines.push('QMLMIX_INFERIOR_EXECUTABLE="'
                              + FileInfo.joinPaths(destinationDirectory, "qmlmix_inferior") + '"');
             }

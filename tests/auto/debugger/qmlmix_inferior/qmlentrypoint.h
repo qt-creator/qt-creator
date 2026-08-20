@@ -4,7 +4,7 @@
 #pragma once
 
 #include <QObject>
-#include <QtQml/qqmlregistration.h>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 class QmlEntryPoint : public QObject
 {
