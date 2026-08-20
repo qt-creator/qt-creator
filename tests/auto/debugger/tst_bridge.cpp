@@ -110,6 +110,7 @@ void tst_Bridge::protocol_data()
         << "an-unusable-program-fails-the-launch";
     QTest::newRow("a rejected argument fails the launch")
         << "a-rejected-argument-fails-the-launch";
+    QTest::newRow("startup commands reach gdb") << "startup-commands-reach-gdb";
 }
 
 void tst_Bridge::protocol()

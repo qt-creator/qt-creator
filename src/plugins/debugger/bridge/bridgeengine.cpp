@@ -256,9 +256,37 @@ void BridgeEngine::configureTarget()
         m_dapClient->postRequest("qtc/configureTarget", args);
 }
 
+void BridgeEngine::runStartupCommands()
+{
+    // Where GdbEngine::loadInitScript() runs them: the dumpers are up, the
+    // target is not set up yet, so these can still influence it.
+    const FilePath script = runParameters().overrideStartScript();
+    if (!script.isEmpty()) {
+        if (script.isReadableFile()) {
+            m_dapClient->postRequest("qtc/runStartupCommands",
+                                     QJsonObject{{"script", script.path()}});
+        } else {
+            AsynchronousMessageBox::warning(
+                Tr::tr("Cannot Find Debugger Initialization Script"),
+                Tr::tr("The debugger settings point to a script file at \"%1\", "
+                       "which is not accessible. If a script file is not needed, "
+                       "consider clearing that entry to avoid this warning.")
+                    .arg(script.toUserOutput()));
+        }
+        return;
+    }
+
+    const QString commands = nativeStartupCommands().trimmed();
+    if (!commands.isEmpty())
+        m_dapClient->postRequest("qtc/runStartupCommands",
+                                 QJsonObject{{"commands", commands}});
+}
+
 void BridgeEngine::handleDapInitialize()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
+
+    runStartupCommands();
 
     // Before the program is loaded: a sysroot has to be known by then.
     configureTarget();

@@ -895,6 +895,25 @@ def check_launch_passes_cwd_and_environment(bridge):
         "arguments not quoted individually: %s" % gdb.commands
 
 
+def check_startup_commands_reach_gdb(bridge):
+    # The user's "Additional Startup Commands" and the script that can replace
+    # them: without these the setting is silently ignored.
+    peer = Peer(bridge)
+    peer.request("qtc/runStartupCommands",
+                 {"commands": "set print pretty on\n\nset listsize 20"})
+    sent = [c for c in gdb.commands if c.startswith("set ")]
+    assert sent == ["set print pretty on", "set listsize 20"], sent
+
+    del gdb.commands[:]
+    peer.request("qtc/runStartupCommands", {"script": "/tmp/a dir/init.gdb"})
+    assert "source /tmp/a dir/init.gdb" in gdb.commands, gdb.commands
+
+    del gdb.commands[:]
+    peer.request("qtc/runStartupCommands", {"script": "/tmp/init.gdb\nkill"})
+    assert not any(c.startswith("source") for c in gdb.commands), \
+        "a script path with a newline was sourced anyway: %s" % gdb.commands
+
+
 def check_an_unusable_program_fails_the_launch(bridge):
     # Loading no executable and answering 'success' anyway makes the session
     # start and exit again with the reason only in the log.
@@ -973,6 +992,7 @@ checks = {
         check_an_unusable_program_fails_the_launch,
     "a-rejected-argument-fails-the-launch":
         check_a_rejected_argument_fails_the_launch,
+    "startup-commands-reach-gdb": check_startup_commands_reach_gdb,
 }
 
 if check not in checks:

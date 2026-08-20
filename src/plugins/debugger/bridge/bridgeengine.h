@@ -89,6 +89,7 @@ private:
     void claimInitialBreakpoints();
     QJsonObject stepArguments(bool byInstruction) const;
     void configureTarget();
+    void runStartupCommands();
 
     void handleDapStarted();
     void handleDapInitialize();

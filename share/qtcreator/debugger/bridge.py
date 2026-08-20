@@ -931,6 +931,19 @@ class DapServer():
 
         self.sendResponse(request, body={'dumperResult': captured.get('result', '')})
 
+    def cmd_qtc_runStartupCommands(self, request):
+        # The user's own gdb commands, or the script that replaces them. Blank
+        # lines are the caller's own formatting; comments are already filtered
+        # out on the way here.
+        args = request.get('arguments', {})
+        script = gdbLineArgument(args.get('script') or '', 'the startup script path')
+        if script:
+            self._executeQuietly('source %s' % script)
+        for line in (args.get('commands') or '').splitlines():
+            if line.strip():
+                self._executeQuietly(line)
+        self.sendResponse(request)
+
     def cmd_qtc_configureTarget(self, request):
         # Tell gdb where the target's sources and libraries are, before the
         # program is loaded.
