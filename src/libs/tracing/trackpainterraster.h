@@ -19,7 +19,7 @@ QT_END_NAMESPACE
 
 namespace Timeline {
 
-// QPainter (software) twin of TrackPainter. Feature- and pixel-identical to the
+// QPainter (software) twin of TrackPainterGpu. Feature- and pixel-identical to the
 // QCanvasPainter/RHI backend: it shares all geometry, hit-testing and
 // interaction logic with it through TrackPainterBase, and only differs in that
 // it caches the neutral geometry as QPainterPath and paints with QPainter in a

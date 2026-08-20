@@ -4,7 +4,7 @@
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinenotesmodel.h>
-#include <tracing/trackpainter.h>
+#include <tracing/trackpaintergpu.h>
 #include <tracing/trackpainterraster.h>
 
 #include <QPixmap>
@@ -12,9 +12,9 @@
 
 using namespace Timeline;
 
-// TrackPainter renders all tracks in one widget; for these single-track tests
+// TrackPainterGpu renders all tracks in one widget; for these single-track tests
 // the item index under a point is the item of track 0.
-static int itemIndexAt(const TrackPainter &painter, QPoint pos)
+static int itemIndexAt(const TrackPainterGpu &painter, QPoint pos)
 {
     int track = -1, item = -1;
     painter.itemAt(pos, &track, &item);
@@ -61,7 +61,7 @@ private slots:
 
 void tst_TrackPainterProperties::model()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
 
@@ -74,7 +74,7 @@ void tst_TrackPainterProperties::model()
 
 void tst_TrackPainterProperties::notes()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineNotesModel notes;
 
     painter.setNotes(&notes);
@@ -83,7 +83,7 @@ void tst_TrackPainterProperties::notes()
 
 void tst_TrackPainterProperties::range()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     painter.setRange(10, 200);
     QCOMPARE(painter.rangeStart(), 10);
     QCOMPARE(painter.rangeEnd(), 200);
@@ -91,7 +91,7 @@ void tst_TrackPainterProperties::range()
 
 void tst_TrackPainterProperties::selectionLocked()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     QVERIFY(painter.findChild<QObject *>() == nullptr || true);
     painter.setSelectionLocked(false);
     painter.setSelectionLocked(true);
@@ -99,7 +99,7 @@ void tst_TrackPainterProperties::selectionLocked()
 
 void tst_TrackPainterProperties::selectedItem()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     painter.setSelectedItem(-1, -1);
     painter.setSelectedItem(0, 0);
     painter.setSelectedItem(0, 5);
@@ -108,7 +108,7 @@ void tst_TrackPainterProperties::selectedItem()
 
 void tst_TrackPainterProperties::indexAt()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
 
     TimelineModelAggregator aggregator;

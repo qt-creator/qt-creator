@@ -3,15 +3,15 @@
 
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/trackpainter.h>
+#include <tracing/trackpaintergpu.h>
 
 #include <QTest>
 
 using namespace Timeline;
 
-// TrackPainter renders all tracks in one widget; for these single-track tests
+// TrackPainterGpu renders all tracks in one widget; for these single-track tests
 // the item index under a point is the item of track 0.
-static int itemIndexAt(const TrackPainter &painter, QPoint pos)
+static int itemIndexAt(const TrackPainterGpu &painter, QPoint pos)
 {
     int track = -1, item = -1;
     painter.itemAt(pos, &track, &item);
@@ -43,20 +43,20 @@ private slots:
 
 void tst_SelectionStatePaint::initialState()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     QCOMPARE(itemIndexAt(painter, QPoint(-1, -1)), -1);
 }
 
 void tst_SelectionStatePaint::selectedItemGetter()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     painter.setSelectedItem(0, 5);
     painter.setSelectedItem(-1, -1);
 }
 
 void tst_SelectionStatePaint::paintWithSelection()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
@@ -68,7 +68,7 @@ void tst_SelectionStatePaint::paintWithSelection()
 
 void tst_SelectionStatePaint::selectionLockedDefaults()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     painter.setSelectionLocked(true);
     painter.setSelectionLocked(false);
 }

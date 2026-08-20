@@ -3,15 +3,15 @@
 
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/trackpainter.h>
+#include <tracing/trackpaintergpu.h>
 
 #include <QTest>
 
 using namespace Timeline;
 
-// TrackPainter renders all tracks in one widget; for these single-track tests
+// TrackPainterGpu renders all tracks in one widget; for these single-track tests
 // the item index under a point is the item of track 0.
-static int itemIndexAt(const TrackPainter &painter, QPoint pos)
+static int itemIndexAt(const TrackPainterGpu &painter, QPoint pos)
 {
     int track = -1, item = -1;
     painter.itemAt(pos, &track, &item);
@@ -43,14 +43,14 @@ private slots:
 
 void tst_TrackPainterVisibility::noModel()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     painter.resize(100, 30);
     QCOMPARE(itemIndexAt(painter, QPoint(50, 15)), -1);
 }
 
 void tst_TrackPainterVisibility::emptyRange()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
@@ -62,7 +62,7 @@ void tst_TrackPainterVisibility::emptyRange()
 
 void tst_TrackPainterVisibility::indexAtItem()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
@@ -77,7 +77,7 @@ void tst_TrackPainterVisibility::indexAtItem()
 
 void tst_TrackPainterVisibility::outOfRange()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();

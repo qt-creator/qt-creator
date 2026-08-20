@@ -31,7 +31,7 @@ class TimelineNotesModel;
 // Which rendering backend the track area uses.
 enum class TrackBackend {
     Automatic, // resolve per host OS (GPU on macOS/Windows, software on Linux)
-    Gpu,       // QCanvasPainter (RHI) -> TrackPainter
+    Gpu,       // QCanvasPainter (RHI) -> TrackPainterGpu
     Software,  // QPainter          -> TrackPainterRaster
 };
 
@@ -55,7 +55,7 @@ TRACING_EXPORT TrackBackend resolvedTrackBackend();
 // Backend-independent core of the track area: track bookkeeping, the per-event
 // attribute cache, hit testing, mouse/wheel interaction and the range-dependent
 // *neutral* geometry (plain rects/circles, no backend path type). The two
-// concrete widgets - TrackPainter (QCanvasPainter/RHI) and TrackPainterRaster
+// concrete widgets - TrackPainterGpu (QCanvasPainter/RHI) and TrackPainterRaster
 // (QPainter) - derive from this together with their respective QWidget base and
 // only add backend path caching plus the actual draw calls. Keeping the geometry
 // decisions here single-sources the pixels both backends produce.

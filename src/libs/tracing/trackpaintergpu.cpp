@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "trackpainter.h"
+#include "trackpaintergpu.h"
 
 #include "timelinemodel.h"
 
@@ -18,27 +18,27 @@
 
 namespace Timeline {
 
-TrackPainter::TrackPainter(QWidget *parent)
+TrackPainterGpu::TrackPainterGpu(QWidget *parent)
     : QCanvasPainterWidget(parent)
 {
     setMouseTracking(true);
     setFillColor(Utils::creatorColor(Utils::Theme::Token_Background_Default));
 }
 
-QSize TrackPainter::sizeHint() const
+QSize TrackPainterGpu::sizeHint() const
 {
     // The widget fills the viewport; its size is driven externally. The hint is
     // only a sensible fallback.
     return QSize(200, TimelineModel::defaultRowHeight());
 }
 
-void TrackPainter::initializeResources(QCanvasPainter *painter)
+void TrackPainterGpu::initializeResources(QCanvasPainter *painter)
 {
     const QImage image = noteIcon().icon().pixmap(kNoteIconSize, kNoteIconSize).toImage();
     m_noteIcon = painter->addImage(image);
 }
 
-void TrackPainter::paint(QCanvasPainter *painter)
+void TrackPainterGpu::paint(QCanvasPainter *painter)
 {
     // Time the CPU cost of producing this frame; this single widget renders all
     // tracks, so its paint() is the full-frame render time (see painted()).
@@ -99,7 +99,7 @@ void TrackPainter::paint(QCanvasPainter *painter)
     paintSelectionOverlay(p);
 }
 
-void TrackPainter::ensureGeometry()
+void TrackPainterGpu::ensureGeometry()
 {
     if (m_geometryValid && m_geomRangeStart == rangeStart() && m_geomRangeEnd == rangeEnd()
         && m_geomWidth == width())
@@ -120,7 +120,7 @@ void TrackPainter::ensureGeometry()
 // Converts the backend-independent neutral geometry into cached QCanvasPath
 // objects, one draw call per group. ensureAttrCache is a base helper that
 // populates the per-event attribute arrays the neutral build consumes.
-void TrackPainter::buildTrackGeometry(const Track &track, TrackGeometry &geom) const
+void TrackPainterGpu::buildTrackGeometry(const Track &track, TrackGeometry &geom) const
 {
     ensureAttrCache(const_cast<Track &>(track));
 
@@ -158,7 +158,7 @@ void TrackPainter::buildTrackGeometry(const Track &track, TrackGeometry &geom) c
 
 // Value scale for expanded rows with min/max values. Drawn in track-local
 // coordinates (the painter is already translated).
-void TrackPainter::paintScaleOverlay(QCanvasPainter &p, const Track &track) const
+void TrackPainterGpu::paintScaleOverlay(QCanvasPainter &p, const Track &track) const
 {
     OverlayScale ov;
     buildScaleOverlay(track, ov);
@@ -186,7 +186,7 @@ void TrackPainter::paintScaleOverlay(QCanvasPainter &p, const Track &track) cons
 
 // Selection and hover borders, drawn on top of the track content in
 // widget(content) space.
-void TrackPainter::paintSelectionOverlay(QCanvasPainter &p) const
+void TrackPainterGpu::paintSelectionOverlay(QCanvasPainter &p) const
 {
     for (const OverlayStroke &s : buildSelectionOverlay()) {
         p.setStrokeStyle(QColor::fromRgb(s.color));
@@ -195,27 +195,27 @@ void TrackPainter::paintSelectionOverlay(QCanvasPainter &p) const
     }
 }
 
-void TrackPainter::mouseMoveEvent(QMouseEvent *event)
+void TrackPainterGpu::mouseMoveEvent(QMouseEvent *event)
 {
     handleMouseMove(event->buttons(), event->pos(), event->globalPosition().toPoint());
 }
 
-void TrackPainter::mousePressEvent(QMouseEvent *event)
+void TrackPainterGpu::mousePressEvent(QMouseEvent *event)
 {
     handleMousePress(event->button(), event->globalPosition().toPoint());
 }
 
-void TrackPainter::mouseReleaseEvent(QMouseEvent *event)
+void TrackPainterGpu::mouseReleaseEvent(QMouseEvent *event)
 {
     handleMouseRelease(event->button(), event->pos());
 }
 
-void TrackPainter::wheelEvent(QWheelEvent *event)
+void TrackPainterGpu::wheelEvent(QWheelEvent *event)
 {
     handleWheel(event);
 }
 
-void TrackPainter::leaveEvent(QEvent *)
+void TrackPainterGpu::leaveEvent(QEvent *)
 {
     handleLeave();
 }

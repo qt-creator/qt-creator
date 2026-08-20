@@ -3,7 +3,7 @@
 
 #include <tracing/timelinemodel.h>
 #include <tracing/timelinemodelaggregator.h>
-#include <tracing/trackpainter.h>
+#include <tracing/trackpaintergpu.h>
 
 #include <QCoreApplication>
 #include <QMouseEvent>
@@ -12,11 +12,11 @@
 
 using namespace Timeline;
 
-// TrackPainter renders all tracks in one widget, stacked below the top margin.
+// TrackPainterGpu renders all tracks in one widget, stacked below the top margin.
 // For these single-track tests the point is given in track-0-local coordinates
 // (the same space the renderer builds its geometry in) and the item index under
 // it is the item of track 0.
-static int itemIndexAt(const TrackPainter &painter, QPoint pos)
+static int itemIndexAt(const TrackPainterGpu &painter, QPoint pos)
 {
     int track = -1, item = -1;
     painter.itemAt(pos + QPoint(0, painter.trackYOffset(0)), &track, &item);
@@ -92,7 +92,7 @@ public:
 
 // Exposes the renderer's own fill geometry so a test can assert that whatever
 // is drawn is also hit-testable.
-class ProbePainter : public TrackPainter
+class ProbePainter : public TrackPainterGpu
 {
 public:
     QList<QRectF> fillRects(int trackIndex)
@@ -168,7 +168,7 @@ public:
 
 void tst_TrackPainterInteraction::narrowEventTolerance()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     NarrowModel model(&aggregator);
     model.loadData();
@@ -204,7 +204,7 @@ public:
 
 void tst_TrackPainterInteraction::narrowEventUnderCursorWins()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     TwoNarrowModel model(&aggregator);
     model.loadData();
@@ -218,7 +218,7 @@ void tst_TrackPainterInteraction::narrowEventUnderCursorWins()
 
 void tst_TrackPainterInteraction::shortBarHitOverFullRow()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     ShortBarModel model(&aggregator);
     model.loadData();
@@ -267,7 +267,7 @@ void tst_TrackPainterInteraction::drawnPixelsAreHittable()
 
 void tst_TrackPainterInteraction::initialState()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     QCOMPARE(painter.findChildren<QObject *>().size(), 0);
     painter.setSelectedItem(-1, -1);
     QCOMPARE(itemIndexAt(painter, QPoint(0, 0)), -1);
@@ -276,7 +276,7 @@ void tst_TrackPainterInteraction::initialState()
 
 void tst_TrackPainterInteraction::selectionLockedHover()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
@@ -292,7 +292,7 @@ void tst_TrackPainterInteraction::selectionLockedHover()
 
 void tst_TrackPainterInteraction::indexAtWithData()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
@@ -307,7 +307,7 @@ void tst_TrackPainterInteraction::indexAtWithData()
 
 void tst_TrackPainterInteraction::indexAtFarParent()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     NestedModel model(&aggregator);
     model.loadData();
@@ -327,7 +327,7 @@ void tst_TrackPainterInteraction::indexAtFarParent()
 
 void tst_TrackPainterInteraction::unlockedHover()
 {
-    TrackPainter painter;
+    TrackPainterGpu painter;
     TimelineModelAggregator aggregator;
     DummyModel model(&aggregator);
     model.loadData();
@@ -336,7 +336,7 @@ void tst_TrackPainterInteraction::unlockedHover()
     painter.resize(100, painter.totalHeight());
     painter.setSelectionLocked(false);
 
-    QSignalSpy spy(&painter, &TrackPainter::itemHovered);
+    QSignalSpy spy(&painter, &TrackPainterGpu::itemHovered);
 
     QMouseEvent ev(QEvent::MouseMove, QPointF(5, 15), QPointF(5, 15),
                    Qt::NoButton, Qt::NoButton, Qt::NoModifier);

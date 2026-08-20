@@ -8,7 +8,7 @@
 #include <tracing/timelinezoomcontrol.h>
 #include <tracing/timeruler.h>
 #include <tracing/tracklabels.h>
-#include <tracing/trackpainter.h>
+#include <tracing/trackpaintergpu.h>
 
 using namespace Timeline;
 
@@ -61,7 +61,7 @@ void tst_TimelineScrollSync::painterSyncedOnRegister()
     zoom.setRange(3000, 7000);
 
     TimelineScrollSync sync(&zoom);
-    TrackPainter painter;
+    TrackPainterGpu painter;
     sync.registerContent(&painter);
 
     QCOMPARE(painter.rangeStart(), qint64(3000));
@@ -75,7 +75,7 @@ void tst_TimelineScrollSync::painterGetsRangeChange()
     zoom.setRange(3000, 7000);
 
     TimelineScrollSync sync(&zoom);
-    TrackPainter painter;
+    TrackPainterGpu painter;
     sync.registerContent(&painter);
 
     zoom.setRange(0, 100000);

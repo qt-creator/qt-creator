@@ -7,8 +7,8 @@ add_qtc_library(Tracing
     safecastable.h
     timelinecoordinates.h
     timelineformatdata.cpp timelineformatdata.h
-    trackpainter.cpp trackpainter.h
     trackpainterbase.cpp trackpainterbase.h
+    trackpaintergpu.cpp trackpaintergpu.h
     trackpainterraster.cpp trackpainterraster.h
     tracklabels.cpp tracklabels.h
     timeruler.cpp timeruler.h

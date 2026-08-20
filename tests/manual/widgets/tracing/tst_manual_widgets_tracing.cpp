@@ -14,7 +14,7 @@
 #include <tracing/timelinenotesmodel.h>
 #include <tracing/timeruler.h>
 #include <tracing/tracklabels.h>
-#include <tracing/trackpainter.h>
+#include <tracing/trackpaintergpu.h>
 #include <tracing/trackpainterraster.h>
 #include <tracing/timelinecontentwidget.h>
 #include <tracing/rangedetailswidget.h>
@@ -177,15 +177,15 @@ int main(int argc, char *argv[])
 
     labelsWindow->show();
 
-    // TrackPainter — single track event renderer
+    // TrackPainterGpu — single track event renderer
     auto painterWindow = new QWidget;
-    painterWindow->setWindowTitle("TrackPainter (QPainter)");
+    painterWindow->setWindowTitle("TrackPainterGpu (QCanvasPainter/GPU)");
     painterWindow->resize(700, 120);
 
     auto painterLayout = new QVBoxLayout(painterWindow);
     painterLayout->setContentsMargins(0, 0, 0, 0);
 
-    auto trackPainter = new Timeline::TrackPainter(painterWindow);
+    auto trackPainter = new Timeline::TrackPainterGpu(painterWindow);
     trackPainter->setTracks({model});
     trackPainter->setNotes(notes);
     trackPainter->setRange(0, oneMs * 1000 / 3);
@@ -197,19 +197,19 @@ int main(int argc, char *argv[])
                          trackPainter->setRange(start, end);
                      });
 
-    QObject::connect(trackPainter, &Timeline::TrackPainter::itemHovered,
+    QObject::connect(trackPainter, &Timeline::TrackPainterGpu::itemHovered,
                      trackPainter, [trackPainter](int track, int index) {
                          trackPainter->setHoveredItem(track, index);
                      });
 
-    QObject::connect(trackPainter, &Timeline::TrackPainter::itemClicked,
+    QObject::connect(trackPainter, &Timeline::TrackPainterGpu::itemClicked,
                      trackPainter, [trackPainter](int track, int index) {
                          trackPainter->setSelectedItem(track, index);
                      });
 
     painterWindow->show();
 
-    // TrackPainterRaster — the QPainter twin of TrackPainter, same inputs, so
+    // TrackPainterRaster — the QPainter twin of TrackPainterGpu, same inputs, so
     // the two windows can be compared side by side for pixel identity.
     auto rasterWindow = new QWidget;
     rasterWindow->setWindowTitle("TrackPainterRaster (QPainter/software)");

@@ -13,7 +13,7 @@
 #include "timelinezoomcontrol.h"
 #include "timeruler.h"
 #include "tracklabels.h"
-#include "trackpainter.h"
+#include "trackpaintergpu.h"
 #include "trackpainterraster.h"
 
 #include <utils/stylehelper.h>
@@ -470,7 +470,7 @@ void TimelineContentWidget::activateTrackView(TrackBackend backend)
         m_tracksWidget = m_rasterView;
     } else {
         if (!m_gpuView) {
-            m_gpuView = new TrackPainter(viewport);
+            m_gpuView = new TrackPainterGpu(viewport);
             wireTrackView(m_gpuView);
         }
         m_tracksView = m_gpuView;

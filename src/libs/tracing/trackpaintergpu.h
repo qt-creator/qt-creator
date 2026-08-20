@@ -30,11 +30,11 @@ namespace Timeline {
 // twin. All backend-independent logic lives in TrackPainterBase; this class only
 // caches the neutral geometry as QCanvasPath and issues the QCanvasPainter draw
 // calls.
-class TRACING_EXPORT TrackPainter : public QCanvasPainterWidget, public TrackPainterBase
+class TRACING_EXPORT TrackPainterGpu : public QCanvasPainterWidget, public TrackPainterBase
 {
     Q_OBJECT
 public:
-    explicit TrackPainter(QWidget *parent = nullptr);
+    explicit TrackPainterGpu(QWidget *parent = nullptr);
 
     QWidget *widget() override { return this; }
     TrackBackend backend() const override { return TrackBackend::Gpu; }
