@@ -34,6 +34,7 @@ public:
 
     QList<TaskCategory> categories() const;
     void addCategory(const TaskCategory &category);
+    void removeCategory(Utils::Id categoryId);
 
     const Task &taskAt(int index) const { return m_tasks.at(index); }
     void addTask(Task t);

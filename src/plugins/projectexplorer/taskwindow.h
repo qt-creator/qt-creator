@@ -62,6 +62,7 @@ private:
     void updateFilter() override;
 
     void addCategory(const TaskCategory &category);
+    void removeCategory(Utils::Id categoryId);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
     void updatedTaskFilePath(const Task &task, const Utils::FilePath &fileName);

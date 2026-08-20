@@ -184,6 +184,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
     TaskHub *hub = &taskHub();
     connect(hub, &TaskHub::categoryAdded, this, &TaskWindow::addCategory);
+    connect(hub, &TaskHub::categoryRemoved, this, &TaskWindow::removeCategory);
     connect(hub, &TaskHub::taskAdded, this, &TaskWindow::addTask);
     connect(hub, &TaskHub::taskRemoved, this, &TaskWindow::removeTask);
     connect(hub, &TaskHub::taskLineNumberUpdated, this, &TaskWindow::updatedTaskLineNumber);
@@ -312,6 +313,14 @@ void TaskWindow::addCategory(const TaskCategory &category)
         filters.insert(category.id);
         d->m_filter->setFilteredCategories(filters);
     }
+}
+
+void TaskWindow::removeCategory(Id categoryId)
+{
+    d->m_model->removeCategory(categoryId);
+    QSet<Id> filters = d->m_filter->filteredCategories();
+    if (filters.remove(categoryId))
+        d->m_filter->setFilteredCategories(filters);
 }
 
 void TaskWindow::addTask(const Task &task)

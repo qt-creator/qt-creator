@@ -41,6 +41,7 @@ public:
     static void clearAndRemoveTask(Task &task);
 
     static void addCategory(const TaskCategory &category);
+    static void removeCategory(Utils::Id categoryId);
     static void updateTaskFilePath(const Task &task, const Utils::FilePath &filePath);
     static void updateTaskLineNumber(const Task &task, int line);
     static void taskMarkClicked(const Task &task);
@@ -51,6 +52,7 @@ public:
 
 signals:
     void categoryAdded(const TaskCategory &category);
+    void categoryRemoved(Utils::Id categoryId);
     void taskAdded(const ProjectExplorer::Task &task);
     void taskRemoved(const ProjectExplorer::Task &task);
     void tasksCleared(Utils::Id categoryId);

@@ -32,6 +32,12 @@ void TaskHub::addCategory(const TaskCategory &category)
     emit taskHub().categoryAdded(category);
 }
 
+void TaskHub::removeCategory(Id categoryId)
+{
+    QTC_ASSERT(s_registeredCategories.removeOne(categoryId), return);
+    emit taskHub().categoryRemoved(categoryId);
+}
+
 void TaskHub::addTask(Task::TaskType type, const QString &description, Utils::Id category)
 {
     addTask<Task>(type, description, Utils::FilePath(), -1, category);

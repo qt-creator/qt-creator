@@ -64,6 +64,13 @@ void TaskModel::addCategory(const TaskCategory &category)
     m_categories.insert(category.id, data);
 }
 
+void TaskModel::removeCategory(Utils::Id categoryId)
+{
+    QTC_ASSERT(categoryId.isValid(), return);
+    clearTasks(categoryId);
+    m_categories.remove(categoryId);
+}
+
 bool TaskModel::compareTasks(const Task &task1, const Task &task2)
 {
     if (task1.category() == task2.category())
