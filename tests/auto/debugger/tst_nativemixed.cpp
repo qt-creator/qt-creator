@@ -9,6 +9,8 @@
 // The checks that need the qtdeclarative qt_v4AboutToCallNativeMethodHook
 // (QML->C++ step-in, C++->QML step-out, the C++-frame stack splice) only
 // work with Qt >= 6.12, so they are required only there and ignored on
+// older Qt. The inferior also needs the qmldbg_native plugin; the test skips
+// if the debugger or the inferior build is unavailable.
 
 #include <QDir>
 #include <QDirIterator>
@@ -112,6 +114,7 @@ bool tst_NativeMixed::buildInferior()
     const QString out = runAndCapture("cmake", {"--build", build});
     qCDebug(lcNativeMixed).noquote() << "cmake configure:\n" << cfg << "\ncmake build:\n" << out;
 
+    // The inferior target is qmlmixtest; find the produced executable.
     QDirIterator it(build, QDir::Files | QDir::Executable, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         const QFileInfo fi(it.next());
