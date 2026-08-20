@@ -13,9 +13,12 @@ namespace Profiler::Internal {
 
 TraceFile identifyTrace(const FilePath &path)
 {
-    // "metadata" names a Common Trace Format metadata file, which selects the
-    // directory containing it.
-    if (path.isDir() || path.fileName() == "metadata"_L1) {
+    // A trace that is a directory can also be named by the one file inside it
+    // that identifies it: the Common Trace Format metadata, or a combined
+    // bundle's manifest. Both select the directory containing them, which is
+    // what the loaders want and what File > Open File can actually pick.
+    if (path.isDir() || path.fileName() == "metadata"_L1
+            || path.fileName() == combinedManifestName) {
         const FilePath dir = path.isDir() ? path : path.parentDir();
         if (CombinedSampler::isCombinedTrace(dir))
             return {TraceFormat::Combined, dir};

@@ -57,7 +57,7 @@ protected:
     Utils::Result<> saveImpl(const Utils::FilePath &filePath, SaveOption option) override;
 
 private:
-    void load(const Utils::FilePath &path);
+    void load(const Utils::FilePath &rawPath);
 
     const TraceFormat m_format;
     QList<ProfilerTraceBackend *> m_backends;

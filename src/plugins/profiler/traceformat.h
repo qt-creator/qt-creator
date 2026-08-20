@@ -23,10 +23,10 @@ struct TraceFile
     Utils::FilePath path;
 };
 
-// Identifies the trace at `path`. A directory, or the bare "metadata" file
-// inside one, holds a combined bundle, a recorded sampler trace or a Common
-// Trace Format trace; a .json file is Chrome Trace Format, a .ptq file a perf
-// trace; anything else is a QML profiler trace.
+// Identifies the trace at `path`. A directory, or the "metadata" or
+// "manifest.json" file naming one, holds a combined bundle, a recorded sampler
+// trace or a Common Trace Format trace; a .json file is Chrome Trace Format, a
+// .ptq file a perf trace; anything else is a QML profiler trace.
 PROFILER_EXPORT TraceFile identifyTrace(const Utils::FilePath &path);
 
 } // namespace Profiler::Internal

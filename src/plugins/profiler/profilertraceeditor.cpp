@@ -182,14 +182,19 @@ void setupProfilerTraceEditors()
         << new ProfilerTraceEditorFactory(Constants::PERF_TRACE_EDITOR_ID,
                                           Tr::tr("Perf Trace Editor"), TraceFormat::Perf,
                                           {"application/x-perfprofiler-trace"})
-        // A CTF or sampler trace is a directory, or plain JSON, so neither has a
-        // mime type of its own to be offered for. Both are opened by id.
+        // The remaining three are told apart by content rather than by name: a
+        // Chrome trace is JSON, and the two directory formats are opened
+        // through the file that names the directory (see Profiler.json.in).
         << new ProfilerTraceEditorFactory(Constants::CTF_TRACE_EDITOR_ID,
-                                          Tr::tr("Chrome Trace Format Editor"), TraceFormat::Ctf, {})
+                                          Tr::tr("Chrome Trace Format Editor"), TraceFormat::Ctf,
+                                          {"application/x-chrome-trace",
+                                           "application/x-ctf-trace"})
         << new ProfilerTraceEditorFactory(Constants::SAMPLER_TRACE_EDITOR_ID,
-                                          Tr::tr("Sampler Trace Editor"), TraceFormat::Sampler, {})
+                                          Tr::tr("Sampler Trace Editor"), TraceFormat::Sampler,
+                                          {"application/x-sampler-trace"})
         << new ProfilerTraceEditorFactory(Constants::COMBINED_TRACE_EDITOR_ID,
-                                          Tr::tr("Combined Trace Editor"), TraceFormat::Combined, {});
+                                          Tr::tr("Combined Trace Editor"), TraceFormat::Combined,
+                                          {"application/x-combined-profiler-trace"});
 }
 
 void destroyProfilerTraceEditors()

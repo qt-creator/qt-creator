@@ -104,10 +104,14 @@ Result<> ProfilerTraceDocument::open(const FilePath &filePath, const FilePath &r
     return ResultOk;
 }
 
-void ProfilerTraceDocument::load(const FilePath &path)
+void ProfilerTraceDocument::load(const FilePath &rawPath)
 {
     emit busyChanged(true);
     m_rangeDetails->reset(); // Don't carry a previous trace's details over.
+
+    // Opening a directory-based trace by the file that names it hands us that
+    // file; the loaders want the directory.
+    const FilePath path = identifyTrace(rawPath).path;
 
     if (m_format == TraceFormat::Combined) {
         // The QML views read the bundle's own .qtd; the sampler views wait for
