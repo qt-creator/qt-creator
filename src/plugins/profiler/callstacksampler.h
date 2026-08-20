@@ -24,6 +24,10 @@ public:
     Utils::IntegerAspect intervalUs{this};
     Utils::BoolAspect attach{this}; // Attach to a running process instead of launching.
 
+protected:
+    void fillOptions(RecordingSession &session) const override;
+    void updateTargetEnabled() override;
+
 private:
     // The process chosen by the picker; used when attach is enabled.
     qint64 m_pickedPid = 0;

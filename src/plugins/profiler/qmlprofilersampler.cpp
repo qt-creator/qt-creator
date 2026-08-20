@@ -53,15 +53,8 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
     port.setDefaultValue(3768); // QML debug server's conventional default port.
     port.setEnabler(&connectToServer);
 
-    // The launch settings are irrelevant while connecting to a running server.
-    const auto updateLaunchEnabled = [this] {
-        const bool launching = !connectToServer();
-        executable.setEnabled(launching);
-        arguments.setEnabled(launching);
-        workingDirectory.setEnabled(launching);
-    };
-    updateLaunchEnabled();
-    connect(&connectToServer, &BoolAspect::changed, this, updateLaunchEnabled);
+    updateTargetEnabled();
+    connect(&connectToServer, &BoolAspect::changed, this, [this] { updateTargetEnabled(); });
 
     // One toggle per profiler feature, defaulting to enabled (record everything).
     for (int feature = 0; feature < QmlDebug::MaximumProfileFeature; ++feature) {
@@ -92,10 +85,30 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
     });
 }
 
+void QmlProfilerSamplerSettings::fillOptions(RecordingSession &session) const
+{
+    session.requestedFeatures = requestedFeatures();
+}
+
+// The launch settings are irrelevant while connecting to a running server, and
+// both are while the target comes from a run configuration.
+void QmlProfilerSamplerSettings::updateTargetEnabled()
+{
+    const bool own = !targetChosenElsewhere();
+    connectToServer.setEnabled(own);
+    const bool connecting = own && connectToServer();
+    host.setEnabled(connecting);
+    port.setEnabled(connecting);
+    const bool launching = own && !connectToServer();
+    executable.setEnabled(launching);
+    arguments.setEnabled(launching);
+    workingDirectory.setEnabled(launching);
+}
+
 Result<std::shared_ptr<RecordingSession>> QmlProfilerSamplerSettings::createSession() const
 {
     auto session = std::make_shared<RecordingSession>();
-    session->requestedFeatures = requestedFeatures();
+    fillOptions(*session);
     if (connectToServer()) {
         QUrl url;
         url.setScheme(urlTcpScheme());

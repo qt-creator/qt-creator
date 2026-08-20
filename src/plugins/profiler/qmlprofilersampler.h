@@ -37,6 +37,10 @@ public:
 
     // One toggle per QmlDebug::ProfileFeature, indexed by the feature value.
     QList<Utils::BoolAspect *> featureAspects;
+
+protected:
+    void fillOptions(RecordingSession &session) const override;
+    void updateTargetEnabled() override;
 };
 
 // Records a real QML profiler trace (.qtd) over the QML debug protocol, either by
@@ -54,6 +58,7 @@ public:
     void prepareLaunch(const std::shared_ptr<RecordingSession> &session) const override;
     QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const override;
+    bool needsQmlChannel() const override { return true; }
 
     SamplerSettings *settings() const override;
 

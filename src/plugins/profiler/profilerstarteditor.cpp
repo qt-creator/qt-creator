@@ -5,6 +5,7 @@
 
 #include "profilermode.h"
 #include "profilerrecorder.h"
+#include "profilersamplerruncontrol.h"
 #include "profilertr.h"
 #include "profilertracedocument.h"
 #include "profilertraceeditor.h"
@@ -22,7 +23,6 @@
 #include <coreplugin/idocument.h>
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 
 #include <utils/qtcassert.h>
@@ -44,19 +44,6 @@ namespace Profiler::Internal {
 // What a recording runs against. The startup project is what the run button
 // would run; the other is an executable the user points the backend at.
 enum Target { StartupProject, ChosenExecutable };
-
-// Qt Creator can profile the startup project through its own run machinery for
-// the backends that have a run mode, which is what brings the kit's
-// environment, its device and any deployment along. The rest launch the
-// project's executable themselves, seeded from the same run configuration.
-static Id runModeFor(const Id &backendId)
-{
-    if (backendId == SamplerIds::Qml)
-        return ProjectExplorer::Constants::QML_PROFILER_RUN_MODE;
-    if (backendId == SamplerIds::Perf)
-        return ProjectExplorer::Constants::PERFPROFILER_RUN_MODE;
-    return {};
-}
 
 // The page that starts a run, and the progress of one that is running. They
 // share a widget because a recording begins on the first and continues on the
@@ -88,11 +75,12 @@ public:
             showTarget();
         });
         connect(m_welcomePage, &WelcomePage::startRecordingRequested, this, [this] {
-            // Where the backend has a run mode, the startup project goes through
-            // Qt Creator's run machinery; everything else the backend launches.
-            const Id runMode = m_target == StartupProject ? currentRunMode() : Id();
-            if (runMode.isValid())
-                ProjectExplorerPlugin::runStartupProject(runMode);
+            // The startup project goes through Qt Creator's run machinery, which
+            // is what brings the run configuration's arguments and environment,
+            // the kit's device and any deployment along. A target the user names
+            // here has none of that, and the backend launches it itself.
+            if (m_target == StartupProject)
+                ProjectExplorerPlugin::runStartupProject(currentRunMode());
             else
                 profilerRecorder()->start();
         });
@@ -137,12 +125,11 @@ public:
     }
 
 private:
-    // Valid when the selected backend profiles the startup project through a run
-    // control rather than by launching it itself.
+    // The run mode that records the startup project with the selected backend.
     Id currentRunMode() const
     {
         const int backend = profilerRecorder()->currentBackend();
-        return backend >= 0 && backend < m_backendIds.size() ? runModeFor(m_backendIds[backend])
+        return backend >= 0 && backend < m_backendIds.size() ? samplerRunMode(m_backendIds[backend])
                                                              : Id();
     }
 
@@ -150,23 +137,21 @@ private:
     // it could run at all.
     void showTarget()
     {
-        // The launch fields say what to profile, so they are the user's to edit
-        // only when the target is theirs to choose.
-        profilerRecorder()->setLaunchFieldsEnabled(m_target == ChosenExecutable);
+        // The settings that pick a target are the user's to edit only when the
+        // target is theirs to choose; the backend's own options -- a sampling
+        // interval, the features to record -- apply either way and stay.
+        profilerRecorder()->setTargetChosenElsewhere(m_target == StartupProject);
+        QWidget *config = profilerRecorder()->createConfigWidget();
 
         if (m_target == ChosenExecutable) {
-            m_welcomePage->setActiveBackend(profilerRecorder()->createConfigWidget());
+            m_welcomePage->setActiveBackend(config);
             m_welcomePage->setStartEnabled(true);
             return;
         }
 
-        // A run control brings the kit and its device along, so it is that which
-        // decides whether the project can be profiled; a backend launching the
-        // project itself only needs something to launch.
-        const Id runMode = currentRunMode();
-        const Result<> canRun = runMode.isValid()
-                                    ? ProjectExplorerPlugin::canRunStartupProject(runMode)
-                                    : Result<>(ResultOk);
+        // The run control brings the kit and its device along, so it is that
+        // which decides whether the project can be profiled this way.
+        const Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(currentRunMode());
         RunConfiguration *runConfig = activeRunConfigForActiveProject();
 
         auto description = new QLabel;
@@ -178,18 +163,13 @@ private:
         else
             description->setText(Tr::tr("No active project."));
 
-        // A backend that launches the project itself still has options of its
-        // own -- a sampling interval, say -- so show its controls too, with the
-        // launch fields disabled above.
         QWidget *page = description;
-        if (!runMode.isValid()) {
-            if (QWidget *config = profilerRecorder()->createConfigWidget()) {
-                page = new QWidget;
-                auto layout = new QVBoxLayout(page);
-                layout->setContentsMargins(0, 0, 0, 0);
-                layout->addWidget(description);
-                layout->addWidget(config);
-            }
+        if (config) {
+            page = new QWidget;
+            auto layout = new QVBoxLayout(page);
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->addWidget(description);
+            layout->addWidget(config);
         }
         m_welcomePage->setActiveBackend(page);
         m_welcomePage->setStartEnabled(canRun.has_value() && runConfig,

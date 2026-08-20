@@ -154,10 +154,41 @@ public:
     // what is missing/misconfigured (e.g. no executable, or attach with no process).
     virtual Utils::Result<std::shared_ptr<RecordingSession>> createSession() const = 0;
 
+    // Builds a RecordingSession for a target something else launches -- Qt
+    // Creator's run machinery, say (see profilersamplerruncontrol.cpp). It
+    // carries the backend's own options and no target of its own, so it cannot
+    // be missing one and never fails.
+    std::shared_ptr<RecordingSession> createRunControlSession() const;
+
+    // Set while a target is chosen elsewhere. The settings that pick one -- the
+    // launch fields, and any attach or connect alternative -- then go read-only
+    // rather than away, so the backend's remaining options stay usable.
+    void setTargetChosenElsewhere(bool chosen);
+    bool targetChosenElsewhere() const { return m_targetChosenElsewhere; }
+
+signals:
+    // Emitted when setTargetChosenElsewhere() changes what may be picked, for
+    // the controls that are not aspects (a "Select Process..." button, say) and
+    // that updateTargetEnabled() therefore cannot reach.
+    void targetSelectionChanged();
+
 protected:
     // Populates session->launchCommand/launchWorkingDir from executable+arguments;
     // fails if no executable is set.
     Utils::Result<> fillLaunch(RecordingSession &session) const;
+
+    // Copies the backend's own options -- a sampling cadence, the features to
+    // record -- onto `session`, leaving its target alone. Both ways of building
+    // a session go through this, so the two cannot drift apart.
+    virtual void fillOptions(RecordingSession &session) const;
+
+    // Applies targetChosenElsewhere() to the settings that pick a target. The
+    // base handles the launch fields; a backend offering an attach or connect
+    // alternative extends this.
+    virtual void updateTargetEnabled();
+
+private:
+    bool m_targetChosenElsewhere = false;
 };
 
 // A repair for a system setting that stops a backend from recording, offered to
@@ -220,6 +251,12 @@ public:
     // backend it wraps.
     virtual QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const = 0;
+
+    // Whether the target has to be started with a QML debug server for this
+    // backend to capture it. prepareLaunch() arranges that for a launch the
+    // backend composes itself; a frontend launching through Qt Creator's run
+    // machinery has to arrange it on the run control instead, and asks this.
+    virtual bool needsQmlChannel() const { return false; }
 
     // Backend-specific recording settings, which also render the backend's own
     // configuration controls and attach/connect start buttons (see SamplerSettings).

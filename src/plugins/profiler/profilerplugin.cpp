@@ -4,6 +4,7 @@
 #include "ctfvisualizertool.h"
 #include "mcpsupport.h"
 #include "profilermode.h"
+#include "profilersamplerruncontrol.h"
 #include "profilerstarteditor.h"
 #include "profilertraceeditor.h"
 #include "qmlprofilerrunconfigurationaspect.h"
@@ -59,6 +60,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         Profiler::Internal::setupCtfVisualizerTool();
         setupQmlProfilerTool();
         setupQmlProfilerRunning();
+        setupProfilerSamplerRunning();
 
         registerMcpTools();
 

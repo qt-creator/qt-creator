@@ -399,15 +399,8 @@ PerfSamplerSettings::PerfSamplerSettings()
                "resolves symbols in system libraries that have no debug package installed, but "
                "it happens while the captured samples are processed, so a slow or unreachable "
                "server delays the trace considerably."));
-    // The launch settings are irrelevant while attaching.
-    const auto updateLaunchEnabled = [this] {
-        const bool launching = !attach();
-        executable.setEnabled(launching);
-        arguments.setEnabled(launching);
-        workingDirectory.setEnabled(launching);
-    };
-    updateLaunchEnabled();
-    connect(&attach, &BoolAspect::changed, this, updateLaunchEnabled);
+    updateTargetEnabled();
+    connect(&attach, &BoolAspect::changed, this, [this] { updateTargetEnabled(); });
 
     setLayouter([this] {
         using namespace Layouting;
@@ -415,8 +408,12 @@ PerfSamplerSettings::PerfSamplerSettings()
         auto picked = new QtcLabel(m_pickedName.isEmpty() ? Tr::tr("No process selected")
                                                           : m_pickedName,
                                    QtcLabel::Secondary);
-        pick->setEnabled(attach());
-        connect(&attach, &BoolAspect::changed, pick, [this, pick] { pick->setEnabled(attach()); });
+        const auto updatePick = [this, pick] {
+            pick->setEnabled(!targetChosenElsewhere() && attach());
+        };
+        updatePick();
+        connect(&attach, &BoolAspect::changed, pick, updatePick);
+        connect(this, &SamplerSettings::targetSelectionChanged, pick, updatePick);
         connect(pick, &QAbstractButton::clicked, this, [this, picked] {
             const std::optional<ProcessInfo> info = ProcessPickerDialog::pickProcess();
             if (!info)
@@ -434,6 +431,18 @@ PerfSamplerSettings::PerfSamplerSettings()
             perfSettings.createPerfConfigWidget(nullptr),
         };
     });
+}
+
+// The launch settings are irrelevant while attaching, and both are while the
+// target comes from a run configuration.
+void PerfSamplerSettings::updateTargetEnabled()
+{
+    const bool own = !targetChosenElsewhere();
+    attach.setEnabled(own);
+    const bool launching = own && !attach();
+    executable.setEnabled(launching);
+    arguments.setEnabled(launching);
+    workingDirectory.setEnabled(launching);
 }
 
 Result<std::shared_ptr<RecordingSession>> PerfSamplerSettings::createSession() const

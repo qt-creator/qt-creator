@@ -41,6 +41,9 @@ public:
     // symbols one actually profiles come from the binaries on disk anyway.
     Utils::BoolAspect downloadDebugInfo{this};
 
+protected:
+    void updateTargetEnabled() override;
+
 private:
     // The process chosen by the picker; used when attach is enabled.
     qint64 m_pickedPid = 0;

@@ -45,6 +45,9 @@ public:
     // The QmlDebug::ProfileFeature bitmask to request, OR'd from the toggles.
     quint64 requestedFeatures() const;
     QList<Utils::BoolAspect *> featureAspects; // One per QmlDebug::ProfileFeature.
+
+protected:
+    void fillOptions(RecordingSession &session) const override;
 };
 
 // Records a target with a native call-stack sampler AND the QML profiler at the
@@ -67,6 +70,7 @@ public:
     void prepareLaunch(const std::shared_ptr<RecordingSession> &session) const override;
     QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const override;
+    bool needsQmlChannel() const override { return true; }
 
     SamplerSettings *settings() const override;
     std::optional<SamplerFix> availableFix() const override;

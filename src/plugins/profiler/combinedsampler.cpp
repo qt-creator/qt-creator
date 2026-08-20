@@ -76,13 +76,18 @@ quint64 CombinedSamplerSettings::requestedFeatures() const
     return features;
 }
 
+void CombinedSamplerSettings::fillOptions(RecordingSession &session) const
+{
+    session.intervalUs = int(intervalUs());
+    session.requestedFeatures = requestedFeatures();
+}
+
 Result<std::shared_ptr<RecordingSession>> CombinedSamplerSettings::createSession() const
 {
     // v1 always launches: both captures must target one process, and launching it
     // ourselves is the only way to guarantee that (and to inject -qmljsdebugger).
     auto session = std::make_shared<RecordingSession>();
-    session->intervalUs = int(intervalUs());
-    session->requestedFeatures = requestedFeatures();
+    fillOptions(*session);
     if (Result<> launch = fillLaunch(*session); !launch)
         return ResultError(launch.error());
     return session;
@@ -221,22 +226,23 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
 {
     // Each sub-capture writes its own trace into its own result; they share the
     // parent's target and stop flag, forwarded below. The QML child connects to
-    // the debug server prepareLaunch() allocated on the parent.
+    // the debug server the target came up on, which the parent carries.
     auto qmlChild = std::make_shared<RecordingSession>();
     auto nativeChild = std::make_shared<RecordingSession>();
-    qmlChild->serverUrl = parent->serverUrl;
     qmlChild->requestedFeatures = parent->requestedFeatures; // QML feature toggles
     nativeChild->intervalUs = parent->intervalUs;            // native sampler cadence
 
-    // recordRecipe() runs captureRecipe() only after the target has started (see
-    // launchThenCapture), so parent->pid is already set; copy it to both children
-    // before either sub-capture reads it.
+    // The capture only runs once the target has started (see launchThenCapture),
+    // so by now the parent knows its pid and which debug server it came up on.
+    // Neither is known when this recipe is built, so both are copied to the
+    // children here rather than above.
     const auto prime = [parent, qmlChild, nativeChild] {
         const qint64 pid = parent->pid.load();
         qmlChild->pid.store(pid);
         nativeChild->pid.store(pid);
         qmlChild->processName = parent->processName;
         nativeChild->processName = parent->processName;
+        qmlChild->serverUrl = parent->serverUrl;
     };
 
     // Runs in parallel with the two captures: forwards the GUI's stop request (and

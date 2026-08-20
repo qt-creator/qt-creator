@@ -16,7 +16,6 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
-#include <QCoreApplication>
 #include <QRegularExpression>
 #include <QUrl>
 #include <QTimer>
@@ -56,9 +55,11 @@ class ProfilerRecorderPrivate : public QObject
 public:
     explicit ProfilerRecorderPrivate(ProfilerRecorder *recorder);
 
+    void startRecording(const QString &target);
     void beginRecording(const QString &target);
     void finishRecording();
     Sampler *backend() const;
+    Sampler *backendById(Utils::Id id) const;
 
     ProfilerRecorder *q = nullptr;
 
@@ -72,7 +73,11 @@ public:
     int current = 0; // Index into `offered`.
 
     std::shared_ptr<RecordingSession> session; // Non-null while recording.
+    // The backend of the running recording, which outlives a change of the
+    // selected one -- and which the run-control path does not select at all.
+    Sampler *active = nullptr;
     QtTaskTree::QSingleTaskTreeRunner runner;
+    bool ownsRecipe = false; // The recorder runs the capture itself.
     QTimer poll;
     int downloadPolls = 0;                        // Consecutive polls seeing a download.
     static constexpr int downloadPollsBeforeReporting = 6; // ~300 ms at a 50 ms poll.
@@ -171,29 +176,49 @@ Sampler *ProfilerRecorderPrivate::backend() const
     return backends[offered[current]].get();
 }
 
-void ProfilerRecorderPrivate::beginRecording(const QString &target)
+Sampler *ProfilerRecorderPrivate::backendById(Id id) const
+{
+    for (int index : offered) {
+        if (backends[index]->id() == id)
+            return backends[index].get();
+    }
+    return nullptr;
+}
+
+void ProfilerRecorderPrivate::startRecording(const QString &target)
 {
     recording = true;
     processingShown = false;
     downloadPolls = 0;
     emit q->started(target);
     poll.start();
+}
+
+void ProfilerRecorderPrivate::beginRecording(const QString &target)
+{
+    ownsRecipe = true;
+    startRecording(target);
 
     // The backend owns the complete recipe: it launches the target (when
     // session->launchCommand is set), captures it, and tears it down.
-    runner.start(QtTaskTree::Group{backend()->recordRecipe(session)}, [] {},
+    runner.start(QtTaskTree::Group{active->recordRecipe(session)}, [] {},
                  [this](QtTaskTree::DoneWith) { finishRecording(); });
 }
 
 void ProfilerRecorderPrivate::finishRecording()
 {
+    if (!recording)
+        return;
     recording = false;
+    ownsRecipe = false;
     poll.stop();
     duration.reset(); // One-shot: do not auto-stop a later manual recording.
     durationArmed = false;
 
     const std::shared_ptr<RecordingSession> finished = session;
     session.reset();
+    Sampler *sampler = active;
+    active = nullptr;
 
     if (waitingForShutdown)
         return; // Shutting down: don't hand a trace to a frontend that is going away.
@@ -204,7 +229,6 @@ void ProfilerRecorderPrivate::finishRecording()
     }
     const Result<FilePath> &result = *finished->result;
     if (!result) {
-        Sampler *sampler = backend();
         emit q->error(result.error(), sampler ? sampler->availableFix() : std::nullopt);
         return;
     }
@@ -237,16 +261,17 @@ QList<Id> ProfilerRecorder::backendIds() const
     return ids;
 }
 
-void ProfilerRecorder::setLaunchFieldsEnabled(bool enabled)
+void ProfilerRecorder::setTargetChosenElsewhere(bool chosen)
 {
     for (const std::unique_ptr<Sampler> &backend : d->backends) {
-        SamplerSettings *settings = backend->settings();
-        if (!settings)
-            continue;
-        settings->executable.setEnabled(enabled);
-        settings->arguments.setEnabled(enabled);
-        settings->workingDirectory.setEnabled(enabled);
+        if (SamplerSettings *settings = backend->settings())
+            settings->setTargetChosenElsewhere(chosen);
     }
+}
+
+Sampler *ProfilerRecorder::backendById(Id id) const
+{
+    return d->backendById(id);
 }
 
 int ProfilerRecorder::currentBackend() const
@@ -342,6 +367,7 @@ void ProfilerRecorder::start()
     }
     d->session = *created;
     d->session->launchEnvironment = d->seededEnvironment;
+    d->active = backend;
 
     // Name the recording for the frontend: the launched command, the attach
     // target, or the connect endpoint.
@@ -364,6 +390,37 @@ void ProfilerRecorder::startTimed(milliseconds duration)
     d->durationArmed = false;
 }
 
+Result<std::shared_ptr<RecordingSession>> ProfilerRecorder::beginRunControlRecording(
+    Id backendId, const QString &target)
+{
+    if (d->recording)
+        return ResultError(Tr::tr("A recording is already running."));
+
+    Sampler *backend = d->backendById(backendId);
+    QTC_ASSERT(backend, return ResultError(Tr::tr("Unknown profiling backend.")));
+
+    QString reason;
+    if (!backend->isAvailable(&reason))
+        return ResultError(reason);
+
+    SamplerSettings *settings = backend->settings();
+    if (!settings)
+        return ResultError(Tr::tr("This backend cannot be configured for recording."));
+
+    d->active = backend;
+    d->session = settings->createRunControlSession();
+    d->startRecording(target);
+    return d->session;
+}
+
+void ProfilerRecorder::endRunControlRecording(const std::shared_ptr<RecordingSession> &session)
+{
+    if (d->session != session)
+        return;
+    if (!d->ownsRecipe)
+        d->finishRecording();
+}
+
 void ProfilerRecorder::stop()
 {
     if (d->session)
@@ -374,12 +431,26 @@ void ProfilerRecorder::stopAndWait()
 {
     if (!d->recording || !d->session)
         return;
-    // The sampler loops until stopped; ask it to finish and pump events until
-    // the task tree and its worker thread have wound down.
+    // Whatever the trace still becomes is not for a frontend that is going
+    // away, so leave the recording unreported.
     d->waitingForShutdown = true;
+
+    // Ask the capture to end on its own terms first: the sampling worker polls
+    // this flag, and perf's recipe stops "perf record" by it.
     d->session->stop.store(true);
-    while (d->recording)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+
+    // A capture the run machinery drives winds down with its run control, which
+    // is not ours to end. Both callers are shutting down, so nothing follows
+    // that would want waitingForShutdown cleared.
+    if (!d->ownsRecipe)
+        return;
+
+    // Ours is, so end it. Cancelling runs the recipe's done handler, leaving
+    // the recording finished once this returns, and it is what bounds the wait:
+    // a backend that would not come back on its own -- perfparser stalled on an
+    // unresponsive debuginfod server, say -- has its tasks cancelled rather
+    // than waited for.
+    d->runner.cancel();
     d->waitingForShutdown = false;
 }
 

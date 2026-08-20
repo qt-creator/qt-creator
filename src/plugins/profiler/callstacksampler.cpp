@@ -49,15 +49,8 @@ CallStackSamplerSettings::CallStackSamplerSettings()
     attach.setSettingsKey("Attach");
     attach.setLabel(Tr::tr("Attach to a running process"),
                     BoolAspect::LabelPlacement::AtCheckBox);
-    // The launch settings are irrelevant while attaching.
-    const auto updateLaunchEnabled = [this] {
-        const bool launching = !attach();
-        executable.setEnabled(launching);
-        arguments.setEnabled(launching);
-        workingDirectory.setEnabled(launching);
-    };
-    updateLaunchEnabled();
-    connect(&attach, &BoolAspect::changed, this, updateLaunchEnabled);
+    updateTargetEnabled();
+    connect(&attach, &BoolAspect::changed, this, [this] { updateTargetEnabled(); });
 
     setLayouter([this] {
         using namespace Layouting;
@@ -65,8 +58,12 @@ CallStackSamplerSettings::CallStackSamplerSettings()
         auto picked = new QtcLabel(m_pickedName.isEmpty() ? Tr::tr("No process selected")
                                                           : m_pickedName,
                                    QtcLabel::Secondary);
-        pick->setEnabled(attach());
-        connect(&attach, &BoolAspect::changed, pick, [this, pick] { pick->setEnabled(attach()); });
+        const auto updatePick = [this, pick] {
+            pick->setEnabled(!targetChosenElsewhere() && attach());
+        };
+        updatePick();
+        connect(&attach, &BoolAspect::changed, pick, updatePick);
+        connect(this, &SamplerSettings::targetSelectionChanged, pick, updatePick);
         connect(pick, &QAbstractButton::clicked, this, [this, picked] {
             const std::optional<ProcessInfo> info = ProcessPickerDialog::pickProcess();
             if (!info)
@@ -85,10 +82,27 @@ CallStackSamplerSettings::CallStackSamplerSettings()
     });
 }
 
+void CallStackSamplerSettings::fillOptions(RecordingSession &session) const
+{
+    session.intervalUs = int(intervalUs());
+}
+
+// The launch settings are irrelevant while attaching, and both are while the
+// target comes from a run configuration.
+void CallStackSamplerSettings::updateTargetEnabled()
+{
+    const bool own = !targetChosenElsewhere();
+    attach.setEnabled(own);
+    const bool launching = own && !attach();
+    executable.setEnabled(launching);
+    arguments.setEnabled(launching);
+    workingDirectory.setEnabled(launching);
+}
+
 Result<std::shared_ptr<RecordingSession>> CallStackSamplerSettings::createSession() const
 {
     auto session = std::make_shared<RecordingSession>();
-    session->intervalUs = int(intervalUs());
+    fillOptions(*session);
     if (attach()) {
         if (m_pickedPid == 0)
             return ResultError(Tr::tr("Select a process to attach to."));

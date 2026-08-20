@@ -62,13 +62,30 @@ public:
                           const Utils::FilePath &workingDirectory,
                           const Utils::Environment &environment = {});
 
-    // Whether the launch fields may be edited. A frontend that has decided what
-    // to profile turns them off, leaving the rest of a backend's options alone.
-    void setLaunchFieldsEnabled(bool enabled);
+    // Whether the target comes from somewhere other than the backends' own
+    // settings -- a run configuration, say. The settings that pick a target then
+    // go read-only, leaving the rest of a backend's options alone.
+    void setTargetChosenElsewhere(bool chosen);
+
+    // The backend with this id among those offered here, or null.
+    Sampler *backendById(Utils::Id id) const;
 
     bool isRecording() const;
 
     void start();
+
+    // Starts a recording whose target Qt Creator's run machinery launches (see
+    // profilersamplerruncontrol.cpp): the recorder builds the session from the
+    // backend's options, then watches and reports it exactly as one it runs
+    // itself, while the caller supplies the process. The caller drives the
+    // returned session's capture and must call endRunControlRecording() when
+    // that is over, however it ended.
+    Utils::Result<std::shared_ptr<RecordingSession>> beginRunControlRecording(
+        Utils::Id backendId, const QString &target);
+    // Ends the recording `session` belongs to. A no-op when another recording
+    // has begun since, so a late caller cannot end its successor.
+    void endRunControlRecording(const std::shared_ptr<RecordingSession> &session);
+
     // Starts, then stops again `duration` after the backend actually goes live,
     // so launch and connect time is not counted against the span.
     void startTimed(std::chrono::milliseconds duration);
