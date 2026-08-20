@@ -217,7 +217,7 @@ void DockerApi::refreshNetworks()
 {
     FilePath dockerExe = dockerClient();
     if (dockerExe.isEmpty() || !dockerExe.isExecutableFile()) {
-        qCWarning(dockerApiLog)
+        qCDebug(dockerApiLog)
             << Tr::tr("%1 executable not found").arg(m_settings->displayType());
         return;
     }
