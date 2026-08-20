@@ -3,6 +3,23 @@ import qbs 1.0
 QtcTool {
     name: "QtProfiler"
 
+    Depends { name: "codesign" }
+
+    Properties {
+        condition: qbs.targetOS.contains("macos")
+        // The call-stack sampler needs the debugger entitlement here just as
+        // much as in Qt Creator itself, and refuses to offer itself without it
+        // (see src/app/app.qbs).
+        codesign.enableCodeSigning: true
+        codesign.signingType: "ad-hoc"
+    }
+
+    Group {
+        name: "entitlements"
+        condition: qbs.targetOS.contains("macos")
+        files: ["../../../dist/installer/mac/Qt Profiler.entitlements"]
+    }
+
     Depends { name: "app_version_header" }
     Depends { name: "Utils" }
     Depends { name: "Core" }

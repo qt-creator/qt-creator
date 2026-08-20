@@ -119,6 +119,15 @@ if (APPLE)
   set_target_properties(qtcreator PROPERTIES
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/app-Info.plist"
   )
+  # The profiler's call-stack sampler attaches with task_for_pid(), which the
+  # kernel only grants to a binary carrying the debugger entitlement. Packaging
+  # signs a release with the file below (see scripts/common.py); a build from the
+  # source tree is signed ad-hoc without entitlements, so native sampling does not
+  # work there. Sign it with the same file that packaging uses - the whole list,
+  # not the debugger entitlement alone - so a source build behaves like a released
+  # one.
+  qtc_sign_with_entitlements(qtcreator
+    "${QtCreator_SOURCE_DIR}/dist/installer/mac/Qt Creator.entitlements")
   # icon
   ## Roughly check for Xcode 26 tools for the default icon generation method
   if(${CMAKE_C_COMPILER_ID} STREQUAL "AppleClang"

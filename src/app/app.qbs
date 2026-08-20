@@ -2,11 +2,24 @@ import qbs
 
 QtcProduct {
     Depends { name: "bundle" }
+    Depends { name: "codesign" }
     Depends { name: "ib"; condition: qbs.targetOS.contains("macos") }
 
     Properties {
         condition: qbs.targetOS.contains("macos")
         ib.appIconName: "qtcreator"
+        // The profiler's call-stack sampler attaches with task_for_pid(), which
+        // the kernel only grants to a binary carrying the debugger entitlement;
+        // an unsigned build from source carries none. Same entitlements the
+        // CMake build applies through qtc_sign_with_entitlements().
+        codesign.enableCodeSigning: true
+        codesign.signingType: "ad-hoc"
+    }
+
+    Group {
+        name: "entitlements"
+        condition: qbs.targetOS.contains("macos")
+        files: ["../../dist/installer/mac/Qt Creator.entitlements"]
     }
 
     Properties {

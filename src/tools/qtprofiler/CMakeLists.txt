@@ -47,6 +47,11 @@ if (APPLE AND TARGET qtprofiler)
     MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in"
   )
 
+  # The call-stack sampler needs the debugger entitlement here just as much as in
+  # Qt Creator itself, and refuses to offer itself without it (see src/app).
+  qtc_sign_with_entitlements(qtprofiler
+    "${QtCreator_SOURCE_DIR}/dist/installer/mac/Qt Profiler.entitlements")
+
   # Copies the icon into qtprofiler.app/Contents/Resources in the build tree.
   set(qtprofiler_icon "${CMAKE_CURRENT_SOURCE_DIR}/macos/qtprofiler.icns")
   target_sources(qtprofiler PRIVATE "${qtprofiler_icon}")
