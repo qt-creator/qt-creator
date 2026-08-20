@@ -16,8 +16,12 @@
 /*  Temporary names                                                   */
 /* ================================================================== */
 
-/* Appends a random suffix to `path` and creates it, retrying until the name is
-   free. Keeps the caller's name as a prefix, the way os.CreateTemp does.
+/* Replaces the last '*' in `path` with a random suffix and creates it,
+   retrying until the name is free, the way os.CreateTemp's pattern works:
+   whatever comes after the '*' is kept as a literal tail. The client
+   always sends a '*' (see FileAccess::createTemp), but a path without one
+   is treated as a prefix with an empty tail, appending the suffix at the
+   end.
 
    The suffix comes from the platform's CSPRNG (see plat_random_bytes) rather
    than from libc's mkstemp or from GetTempFileNameW: a temporary in a shared
@@ -31,8 +35,13 @@ static int plat_mktemp(char *path, size_t cap, int (*create)(const char *))
 {
     static const char alphanum[] = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-    size_t base_len = strlen(path);
-    if (base_len + TEMP_SUFFIX_LEN + 1 > cap) {
+    char *star = strrchr(path, '*');
+    size_t prefix_len = star ? (size_t) (star - path) : strlen(path);
+    char tail[PATH_MAX];
+    snprintf(tail, sizeof(tail), "%s", star ? star + 1 : "");
+    size_t tail_len = strlen(tail);
+
+    if (prefix_len + TEMP_SUFFIX_LEN + tail_len + 1 > cap) {
         errno = ENAMETOOLONG;
         return -1;
     }
@@ -40,22 +49,23 @@ static int plat_mktemp(char *path, size_t cap, int (*create)(const char *))
     for (int attempt = 0; attempt < TEMP_MAX_ATTEMPTS; attempt++) {
         unsigned char rnd[TEMP_SUFFIX_LEN];
         if (!plat_random_bytes(rnd, sizeof(rnd))) {
-            path[base_len] = '\0';
+            path[prefix_len] = '\0';
             errno = EIO;
             return -1;
         }
         for (size_t i = 0; i < sizeof(rnd); i++)
-            path[base_len + i] = alphanum[rnd[i] % (sizeof(alphanum) - 1)];
-        path[base_len + TEMP_SUFFIX_LEN] = '\0';
+            path[prefix_len + i] = alphanum[rnd[i] % (sizeof(alphanum) - 1)];
+        memcpy(path + prefix_len + TEMP_SUFFIX_LEN, tail, tail_len);
+        path[prefix_len + TEMP_SUFFIX_LEN + tail_len] = '\0';
 
         if (create(path) == 0)
             return 0;
         if (errno != EEXIST) {
-            path[base_len] = '\0';
+            path[prefix_len] = '\0';
             return -1;
         }
     }
-    path[base_len] = '\0';
+    path[prefix_len] = '\0';
     errno = EEXIST;
     return -1;
 }
