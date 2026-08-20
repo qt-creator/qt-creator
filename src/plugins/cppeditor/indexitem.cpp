@@ -47,7 +47,8 @@ bool IndexItem::unqualifiedNameAndScope(const QString &defaultName, QString *nam
     *scope = m_symbolScope;
     const QString qualifiedName = scopedSymbolName();
     const int colonColonPosition = qualifiedName.lastIndexOf(QLatin1String("::"));
-    if (colonColonPosition != -1) {
+    const int lessPos = qualifiedName.indexOf('<');
+    if (colonColonPosition != -1 && (lessPos == -1 || colonColonPosition < lessPos)) {
         *name = qualifiedName.mid(colonColonPosition + 2);
         *scope = qualifiedName.left(colonColonPosition);
         return true;

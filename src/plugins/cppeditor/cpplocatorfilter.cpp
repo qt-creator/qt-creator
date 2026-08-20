@@ -110,59 +110,39 @@ static ExecutableItem locatorMatcher(IndexItem::ItemType type, const EntryFromIn
     return AsyncTask<void>(onSetup);
 }
 
+static LocatorFilterEntry convert(const IndexItem::Ptr &info)
+{
+    LocatorFilterEntry filterEntry;
+    filterEntry.displayIcon = info->icon();
+    filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
+    filterEntry.filePath = info->filePath();
+    QString name = info->symbolName();
+    QString extraInfo;
+    info->unqualifiedNameAndScope(name, &name, &extraInfo);
+    filterEntry.displayName = name;
+    if (extraInfo.isEmpty())
+        extraInfo = info->shortNativeFilePath();
+    else
+        extraInfo.append(" (" + info->filePath().fileName() + ')');
+    filterEntry.extraInfo = extraInfo;
+    if (info->type() == IndexItem::Function)
+        filterEntry.displayName += info->symbolType();
+    return filterEntry;
+}
+
 static ExecutableItem allSymbolsMatcher()
 {
-    const auto converter = [](const IndexItem::Ptr &info) {
-        LocatorFilterEntry filterEntry;
-        filterEntry.displayName = info->symbolName();
-        filterEntry.displayIcon = info->icon();
-        filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
-        if (!info->symbolScope().isEmpty())
-            filterEntry.extraInfo = info->symbolScope();
-        else if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
-            filterEntry.extraInfo = info->shortNativeFilePath();
-        else
-            filterEntry.extraInfo = info->symbolType();
-        return filterEntry;
-    };
-    return locatorMatcher(IndexItem::All, converter);
+    return locatorMatcher(IndexItem::All, convert);
 }
 
 static ExecutableItem classMatcher()
 {
-    const auto converter = [](const IndexItem::Ptr &info) {
-        LocatorFilterEntry filterEntry;
-        filterEntry.displayName = info->symbolName();
-        filterEntry.displayIcon = info->icon();
-        filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
-        filterEntry.extraInfo = info->symbolScope().isEmpty()
-                                    ? info->shortNativeFilePath()
-                                    : info->symbolScope();
-        filterEntry.filePath = info->filePath();
-        return filterEntry;
-    };
-    return locatorMatcher(IndexItem::Class, converter);
+    return locatorMatcher(IndexItem::Class, convert);
 }
 
 static ExecutableItem functionMatcher()
 {
-    const auto converter = [](const IndexItem::Ptr &info) {
-        QString name = info->symbolName();
-        QString extraInfo = info->symbolScope();
-        info->unqualifiedNameAndScope(name, &name, &extraInfo);
-        if (extraInfo.isEmpty())
-            extraInfo = info->shortNativeFilePath();
-        else
-            extraInfo.append(" (" + info->filePath().fileName() + ')');
-        LocatorFilterEntry filterEntry;
-        filterEntry.displayName = name + info->symbolType();
-        filterEntry.displayIcon = info->icon();
-        filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
-        filterEntry.extraInfo = extraInfo;
-
-        return filterEntry;
-    };
-    return locatorMatcher(IndexItem::Function, converter);
+    return locatorMatcher(IndexItem::Function, convert);
 }
 
 static QList<IndexItem::Ptr> itemsOfCurrentDocument(const FilePath &currentFileName)

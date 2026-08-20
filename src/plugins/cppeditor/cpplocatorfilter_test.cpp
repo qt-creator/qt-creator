@@ -206,9 +206,10 @@ void LocatorFilterTest::testLocatorFilter_data()
         << MatcherType::Classes
         << "myclass"
         << ResultDataList{
-               ResultData("MyClass", "<anonymous namespace>"),
-               ResultData("MyClass", "MyNamespace"),
-               ResultData("MyClass", testFileShort)
+               ResultData("MyClass", "<anonymous namespace> (file1.cpp)"),
+               ResultData("MyClass", "MyNamespace (file1.cpp)"),
+               ResultData("MyClass", testFileShort),
+               ResultData("Runner<MyNamespace::MyClass>", "<anonymous namespace> (file1.cpp)"),
            };
 
     QTest::newRow("CppClassesFilter-WithNamespacePrefix")
@@ -216,7 +217,8 @@ void LocatorFilterTest::testLocatorFilter_data()
         << MatcherType::Classes
         << "mynamespace::"
         << ResultDataList{
-               ResultData("MyClass", "MyNamespace")
+               ResultData("Runner<MyNamespace::MyClass>", "<anonymous namespace> (file1.cpp)"),
+               ResultData("MyClass", "MyNamespace (file1.cpp)"),
            };
 
     // all symbols in the left column are expected to be fully qualified.
@@ -225,18 +227,19 @@ void LocatorFilterTest::testLocatorFilter_data()
         << MatcherType::AllSymbols
         << "my"
         << ResultDataList{
-               ResultData("MyClass", "<anonymous namespace>"),
-               ResultData("MyClass", "<anonymous namespace>::MyClass"),
-               ResultData("MyClass", "MyClass"),
-               ResultData("MyClass", "MyNamespace"),
-               ResultData("MyClass", "MyNamespace::MyClass"),
+               ResultData("MyClass", "<anonymous namespace> (file1.cpp)"),
+               ResultData("MyClass", "MyNamespace (file1.cpp)"),
                ResultData("MyClass", testFileShort),
-               ResultData("MyEnum", "<anonymous namespace>"),
-               ResultData("MyEnum", "MyNamespace"),
+               ResultData("MyClass()", "<anonymous namespace>::MyClass (file1.cpp)"),
+               ResultData("MyClass()", "MyClass (file1.cpp)"),
+               ResultData("MyClass()", "MyNamespace::MyClass (file1.cpp)"),
+               ResultData("MyEnum", "<anonymous namespace> (file1.cpp)"),
+               ResultData("MyEnum", "MyNamespace (file1.cpp)"),
                ResultData("MyEnum", testFileShort),
-               ResultData("myFunction", "(bool, int)"),
-               ResultData("myFunction", "<anonymous namespace>"),
-               ResultData("myFunction", "MyNamespace"),
+               ResultData("myFunction(bool, int)", "<anonymous namespace> (file1.cpp)"),
+               ResultData("myFunction(bool, int)", "MyNamespace (file1.cpp)"),
+               ResultData("myFunction(bool, int)", testFileShort),
+               ResultData("Runner<MyNamespace::MyClass>", "<anonymous namespace> (file1.cpp)"),
            };
 
     QTest::newRow("CppClassesFilter-ObjC")
@@ -305,6 +308,10 @@ void LocatorFilterTest::testCurrentDocumentFilter()
         ResultData("functionDeclaredOnly()", "<anonymous namespace>::MyClass"),
         ResultData("functionDefinedInClass(bool, int)", "<anonymous namespace>::MyClass"),
         ResultData("functionDefinedOutSideClass(char)", "<anonymous namespace>::MyClass"),
+        ResultData("Runner", "<anonymous namespace>"),
+        ResultData("run()", "<anonymous namespace>::Runner"),
+        ResultData("Runner<MyNamespace::MyClass>", "<anonymous namespace>"),
+        ResultData("run()", "<anonymous namespace>::Runner<MyNamespace::MyClass>"),
         ResultData("main()", ""),
     };
 

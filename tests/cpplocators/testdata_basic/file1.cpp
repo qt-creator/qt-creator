@@ -82,6 +82,10 @@ public:
 
 int MyClass::functionDefinedOutSideClass(char c) {}
 
+template<typename T> struct Runner { void run(); };
+
+template<> struct Runner<MyNamespace::MyClass> { void run(); };
+
 } // anonymous namespace
 
 
