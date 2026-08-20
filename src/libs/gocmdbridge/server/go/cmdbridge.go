@@ -773,7 +773,7 @@ func watchDogLoop(channel chan bool, watchDogTimeOut time.Duration) {
 			}
 		case <-timer.C:
 			// If we don't get a signal for one minute, we assume that the connection is dead.
-			fmt.Println("Watchdog timeout, exiting.")
+			fmt.Fprintln(os.Stderr, "Watchdog timeout, exiting.")
 			os.Exit(100)
 		}
 	}
