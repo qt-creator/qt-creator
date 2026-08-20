@@ -529,10 +529,11 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
                                                  CPlusPlus::LookupContext *context)
 {
     QTC_ASSERT(context, return nullptr);
-    if (!snapshot.contains(parameters.symbolFilePath))
-        return nullptr;
 
     CPlusPlus::Document::Ptr newSymbolDocument = snapshot.document(parameters.symbolFilePath);
+    if (!newSymbolDocument)
+        return nullptr;
+
     // document is not parsed and has no bindings yet, do it
     QByteArray source = getSource(newSymbolDocument->filePath(), CppModelManager::workingCopy());
     CPlusPlus::Document::Ptr doc =

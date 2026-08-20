@@ -152,8 +152,7 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     // fallback for inherited functions
     if (lookupItems.isEmpty() && !alternativeFiles.isEmpty()) {
         for (const FilePath &alternativeFile : alternativeFiles) {
-            if (snapshot.contains(alternativeFile)) {
-                CPlusPlus::Document::Ptr document = snapshot.document(alternativeFile);
+            if (CPlusPlus::Document::Ptr document = snapshot.document(alternativeFile)) {
                 CPlusPlus::TypeOfExpression typeOfExpr; // we need a new one with no bindings
                 typeOfExpr.init(document, snapshot);
                 lookupItems = typeOfExpr(testCaseName.toUtf8(), document->globalNamespace());

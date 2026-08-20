@@ -169,7 +169,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
         const FilePath configurationFileName = CppModelManager::configurationFileName();
         if (invalidateConfig)
             state.snapshot.remove(configurationFileName);
-        if (!state.snapshot.contains(configurationFileName))
+        if (invalidateConfig || !state.snapshot.contains(configurationFileName))
             workingCopy.insert(configurationFileName, state.configFile);
         state.snapshot.remove(filePath());
 
