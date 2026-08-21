@@ -6462,7 +6462,8 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
         d->paintSelectionOverlay(data, painter);
     }
 
-    paintPlaceholderText(&painter);
+    if (!suggestionVisible())
+        paintPlaceholderText(&painter);
 
     while (data.block.isValid()) {
 
