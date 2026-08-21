@@ -10,7 +10,7 @@ QtApplication {
     Qt.qml.importVersion: "1.0"
 
     cpp.defines: ["QT_QML_DEBUG"]
-    cpp.includePaths: base.concat("qmlmix_inferior")
+    cpp.includePaths: base.concat(path)
 
     install: false
     destinationDirectory: project.buildDirectory + '/'
