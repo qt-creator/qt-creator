@@ -40,13 +40,14 @@ protected:
 private:
     void updateHeight();
     void updateSuggestion();
+    void showHistorySuggestion(const QString &text);
+    void acceptHistorySuggestion();
     void historyUp();
     void historyDown();
 
     ChatInputCompletionProvider *m_completionProvider = nullptr;
     Utils::HistoryCompleter *m_history = nullptr;
     int m_historyIndex = -1;
-    QString m_editBuffer;
 };
 
 } // namespace AcpClient::Internal

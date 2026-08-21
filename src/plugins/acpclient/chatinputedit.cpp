@@ -99,44 +99,44 @@ void ChatInputEdit::keyPressEvent(QKeyEvent *event)
         if (event->modifiers() & Qt::ShiftModifier) {
             TextEditorWidget::keyPressEvent(event);
         } else {
+            acceptHistorySuggestion();
             const QString text = toPlainText().trimmed();
             if (!text.isEmpty())
                 m_history->addEntry(text);
             m_historyIndex = -1;
-            m_editBuffer.clear();
+            clearSuggestion();
             event->accept();
             emit sendRequested();
         }
         return;
     }
 
-    auto cursorVisualLine =
-        [this]() {
-            const QTextCursor cursor = textCursor();
-            const QTextBlock block = cursor.block();
-            const int blockStart = editorLayout()->firstLineNumberOf(block);
-            return blockStart
-                   + editorLayout()
-                         ->blockLayout(block)
-                         ->lineForTextPosition(cursor.positionInBlock())
-                         .lineNumber();
-        };
-
     if (event->key() == Qt::Key_Up && !(event->modifiers() & Qt::ShiftModifier)) {
-        if (cursorVisualLine() == 0) {
+        if (document()->isEmpty()) {
             historyUp();
             return;
         }
     }
 
     if (event->key() == Qt::Key_Down && !(event->modifiers() & Qt::ShiftModifier)) {
-        if (cursorVisualLine() == editorLayout()->lineCount() - 1) {
+        if (document()->isEmpty() && m_historyIndex != -1) {
             historyDown();
             return;
         }
     }
 
+    const QString eventText = event->text();
+    const bool isPrintable = !eventText.isEmpty()
+                              && (eventText.at(0).isPrint() || eventText.at(0) == QLatin1Char('\t'));
+    if (isPrintable)
+        acceptHistorySuggestion();
+
     TextEditorWidget::keyPressEvent(event);
+
+    // Escape/Backspace can dismiss the ghost suggestion without going
+    // through updateSuggestion(), leaving m_historyIndex stale.
+    if (m_historyIndex != -1 && !suggestionVisible())
+        m_historyIndex = -1;
 }
 
 bool ChatInputEdit::canInsertFromMimeData(const QMimeData *source) const
@@ -184,8 +184,10 @@ void ChatInputEdit::updateHeight()
 
 void ChatInputEdit::updateSuggestion()
 {
-    // Don't show suggestions while browsing history
+    // Any real edit ends history browsing; the ghost suggestion it was
+    // showing is gone once the document actually changes.
     if (m_historyIndex != -1) {
+        m_historyIndex = -1;
         clearSuggestion();
         return;
     }
@@ -223,6 +225,26 @@ void ChatInputEdit::updateSuggestion()
     insertSuggestion(std::make_unique<TextEditor::CyclicSuggestion>(suggestions, document()));
 }
 
+void ChatInputEdit::showHistorySuggestion(const QString &text)
+{
+    const QString currentText = toPlainText();
+    TextEditor::TextSuggestion::Data data;
+    data.range = {Utils::Text::Position{1, 0},
+                  Utils::Text::Position{1, int(currentText.length())}};
+    data.position = Utils::Text::Position{1, int(currentText.length())};
+    data.text = text;
+    insertSuggestion(std::make_unique<TextEditor::CyclicSuggestion>(
+        QList<TextEditor::TextSuggestion::Data>{data}, document()));
+}
+
+void ChatInputEdit::acceptHistorySuggestion()
+{
+    if (m_historyIndex == -1)
+        return;
+    if (TextEditor::TextSuggestion *suggestion = currentSuggestion())
+        suggestion->apply();
+}
+
 void ChatInputEdit::historyUp()
 {
     const QAbstractItemModel *model = m_history->model();
@@ -230,17 +252,14 @@ void ChatInputEdit::historyUp()
     if (count == 0)
         return;
 
-    if (m_historyIndex == -1) {
-        m_editBuffer = toPlainText();
+    if (m_historyIndex == -1)
         m_historyIndex = 0;
-    } else if (m_historyIndex < count - 1) {
+    else if (m_historyIndex < count - 1)
         ++m_historyIndex;
-    } else {
+    else
         return;
-    }
 
-    setPlainText(model->data(model->index(m_historyIndex, 0)).toString());
-    moveCursor(QTextCursor::End);
+    showHistorySuggestion(model->data(model->index(m_historyIndex, 0)).toString());
 }
 
 void ChatInputEdit::historyDown()
@@ -251,13 +270,11 @@ void ChatInputEdit::historyDown()
     if (m_historyIndex > 0) {
         --m_historyIndex;
         const QAbstractItemModel *model = m_history->model();
-        setPlainText(model->data(model->index(m_historyIndex, 0)).toString());
+        showHistorySuggestion(model->data(model->index(m_historyIndex, 0)).toString());
     } else {
         m_historyIndex = -1;
-        setPlainText(m_editBuffer);
-        m_editBuffer.clear();
+        clearSuggestion();
     }
-    moveCursor(QTextCursor::End);
 }
 
 } // namespace AcpClient::Internal
