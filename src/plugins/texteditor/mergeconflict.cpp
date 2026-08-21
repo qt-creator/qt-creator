@@ -165,8 +165,9 @@ void resolveMergeConflict(QTextDocument *doc, const MergeConflict &conflict,
 
 // Paints distinct full-width backgrounds behind the "current" (<<<<<<< to
 // =======) and "incoming" (======= to >>>>>>>) side of each conflict on the
-// widget's editor layout, so the two sides can be told apart. Replaces any
-// previously applied conflict backgrounds; an empty list clears them.
+// widget's editor layout, so the two sides can be told apart, and marks the
+// sides on the scroll bar in the same colors. Replaces any previously applied
+// conflict backgrounds; an empty list clears them.
 static void highlightMergeConflictSections(TextEditorWidget *widget,
                                            const QList<MergeConflict> &conflicts)
 {
@@ -177,6 +178,7 @@ static void highlightMergeConflictSections(TextEditorWidget *widget,
         return;
     const int removed = layout->removeMainLayoutFormatsWithProperty(MERGE_CONFLICT_SECTION_PROPERTY_ID);
     if (conflicts.isEmpty()) {
+        widget->setScrollBarHighlights(Constants::SCROLL_BAR_MERGE_CONFLICT, {});
         if (removed > 0)
             layout->requestUpdate();
         return;
@@ -218,21 +220,36 @@ static void highlightMergeConflictSections(TextEditorWidget *widget,
             layout->addBlockEditorFormats(block, {range});
         }
     };
+    // the scroll bar shows where the conflicts are. The section backgrounds
+    // are far too pale to read as a few pixels of it, so the markers take
+    // theme colors of their own, in the hue of the side they stand for.
+    QList<TextEditorWidget::ScrollBarHighlight> scrollBarHighlights;
+    const auto markSide = [&](int firstLine, int lastLine, Utils::Theme::Color color) {
+        if (firstLine <= lastLine)
+            scrollBarHighlights.append({firstLine, lastLine, color});
+    };
     for (const MergeConflict &conflict : conflicts) {
         // current side: "<<<<<<<" (bold) through the line before "|||||||"/"======="
         const int currentEnd = (conflict.baseLine > 0 ? conflict.baseLine : conflict.separatorLine) - 1;
         highlight(conflict.startLine, conflict.startLine, boldMarker(currentFormat));
         highlight(conflict.startLine + 1, currentEnd, currentFormat);
+        markSide(conflict.startLine, currentEnd,
+                 Utils::Theme::TextEditor_MergeConflictCurrent_ScrollBarColor);
         // base side (diff3 only): "|||||||" (bold) through the line before "======="
         if (conflict.baseLine > 0) {
             highlight(conflict.baseLine, conflict.baseLine, boldMarker(baseFormat));
             highlight(conflict.baseLine + 1, conflict.separatorLine - 1, baseFormat);
+            markSide(conflict.baseLine, conflict.separatorLine - 1,
+                     Utils::Theme::TextEditor_MergeConflictBase_ScrollBarColor);
         }
         highlight(conflict.separatorLine, conflict.separatorLine, separatorFormat);
         // incoming side: the line after "=======" through ">>>>>>>" (bold)
         highlight(conflict.separatorLine + 1, conflict.endLine - 1, incomingFormat);
         highlight(conflict.endLine, conflict.endLine, boldMarker(incomingFormat));
+        markSide(conflict.separatorLine + 1, conflict.endLine,
+                 Utils::Theme::TextEditor_MergeConflictIncoming_ScrollBarColor);
     }
+    widget->setScrollBarHighlights(Constants::SCROLL_BAR_MERGE_CONFLICT, scrollBarHighlights);
     layout->requestUpdate();
 }
 

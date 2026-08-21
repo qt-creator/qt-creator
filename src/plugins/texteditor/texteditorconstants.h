@@ -234,6 +234,7 @@ inline constexpr char SCROLL_BAR_SEARCH_RESULT[] = "TextEditor.ScrollBarSearchRe
 inline constexpr char SCROLL_BAR_SELECTION[] = "TextEditor.ScrollBarSelection";
 inline constexpr char SCROLL_BAR_CURRENT_LINE[] = "TextEditor.ScrollBarCurrentLine";
 inline constexpr char SCROLL_BAR_INLINE_DIFF[] = "TextEditor.ScrollBarInlineDiff";
+inline constexpr char SCROLL_BAR_MERGE_CONFLICT[] = "TextEditor.ScrollBarMergeConflict";
 
 const TEXTEDITOR_EXPORT char *nameForStyle(TextStyle style);
 TextStyle styleFromName(const char *name);

@@ -6,6 +6,9 @@
 #include "mergeconflict.h"
 #include "textdocument.h"
 #include "texteditor.h"
+#include "texteditorconstants.h"
+
+#include <coreplugin/find/highlightscrollbarcontroller.h>
 
 #include <utils/plaintextedit/texteditorlayout.h>
 
@@ -100,6 +103,54 @@ private slots:
         QTRY_VERIFY(formats(2).isEmpty());
     }
 
+    void testMarksSidesOnScrollBar()
+    {
+        setText(QLatin1StringView(conflictText));
+        QTRY_COMPARE(scrollBarHighlights().size(), 2);
+
+        // one marker per side, in the side's own color, the current side
+        // above the incoming one
+        QCOMPARE(scrollBarHighlights().first().color,
+                 Utils::Theme::TextEditor_MergeConflictCurrent_ScrollBarColor);
+        QCOMPARE(scrollBarHighlights().last().color,
+                 Utils::Theme::TextEditor_MergeConflictIncoming_ScrollBarColor);
+        QVERIFY(scrollBarHighlights().first().position
+                < scrollBarHighlights().last().position);
+
+        // the markers go with the conflict
+        setText("a\nmine\nb");
+        QTRY_VERIFY(scrollBarHighlights().isEmpty());
+    }
+
+    void testMarksEmptySides_data()
+    {
+        QTest::addColumn<QString>("text");
+
+        QTest::newRow("empty current side")
+            << "a\n<<<<<<< HEAD\n=======\ntheirs\n>>>>>>> branch\nb";
+        QTest::newRow("empty incoming side")
+            << "a\n<<<<<<< HEAD\nmine\n=======\n>>>>>>> branch\nb";
+        QTest::newRow("both sides empty")
+            << "a\n<<<<<<< HEAD\n=======\n>>>>>>> branch\nb";
+    }
+
+    // a side that holds no lines still owns its marker line, so both sides
+    // are marked whichever of them is empty
+    void testMarksEmptySides()
+    {
+        QFETCH(QString, text);
+
+        setText(text);
+        QTRY_COMPARE(scrollBarHighlights().size(), 2);
+        QCOMPARE(scrollBarHighlights().first().color,
+                 Utils::Theme::TextEditor_MergeConflictCurrent_ScrollBarColor);
+        QCOMPARE(scrollBarHighlights().last().color,
+                 Utils::Theme::TextEditor_MergeConflictIncoming_ScrollBarColor);
+        QVERIFY(scrollBarHighlights().first().position < scrollBarHighlights().last().position);
+        QVERIFY(scrollBarHighlights().first().length > 0);
+        QVERIFY(scrollBarHighlights().last().length > 0);
+    }
+
     void testReadOnlyView()
     {
         // a read-only view cannot be edited, so it shows the sides of a
@@ -154,6 +205,14 @@ private:
     {
         return m_widget->cursorRect(QTextCursor(block(markerLine))).top()
                - reservedHeight(markerLine);
+    }
+
+    QVector<Core::Highlight> scrollBarHighlights() const
+    {
+        Core::HighlightScrollBarController *controller
+            = m_widget->highlightScrollBarController();
+        return controller ? controller->highlights().value(Constants::SCROLL_BAR_MERGE_CONFLICT)
+                          : QVector<Core::Highlight>();
     }
 
     QList<QTextLayout::FormatRange> formats(int line) const

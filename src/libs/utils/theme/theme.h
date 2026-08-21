@@ -269,6 +269,9 @@ public:
         TextEditor_SearchResult_ScrollBarColor,
         TextEditor_Selection_ScrollBarColor,
         TextEditor_CurrentLine_ScrollBarColor,
+        TextEditor_MergeConflictCurrent_ScrollBarColor,
+        TextEditor_MergeConflictIncoming_ScrollBarColor,
+        TextEditor_MergeConflictBase_ScrollBarColor,
 
         /* Debugger Plugin */
         Debugger_Breakpoint_TextMarkColor,
