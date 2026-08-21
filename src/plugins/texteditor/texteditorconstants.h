@@ -233,6 +233,7 @@ inline constexpr char JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.Ju
 inline constexpr char SCROLL_BAR_SEARCH_RESULT[] = "TextEditor.ScrollBarSearchResult";
 inline constexpr char SCROLL_BAR_SELECTION[] = "TextEditor.ScrollBarSelection";
 inline constexpr char SCROLL_BAR_CURRENT_LINE[] = "TextEditor.ScrollBarCurrentLine";
+inline constexpr char SCROLL_BAR_INLINE_DIFF[] = "TextEditor.ScrollBarInlineDiff";
 
 const TEXTEDITOR_EXPORT char *nameForStyle(TextStyle style);
 TextStyle styleFromName(const char *name);

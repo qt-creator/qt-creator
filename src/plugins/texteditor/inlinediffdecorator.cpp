@@ -9,6 +9,7 @@
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 
+#include <utils/algorithm.h>
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 
@@ -289,6 +290,30 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
         }
     }
 
+    // publish the scroll bar markers in the colors of the change bands, so
+    // the changes can be found without scrolling through the file. A removal
+    // is marked on the line its ghost rows hang above, unless that line is
+    // changed itself and already marked.
+    QList<TextEditorWidget::ScrollBarHighlight> scrollBarHighlights;
+    // the band colors are line backgrounds, far too pale to read as a few
+    // pixels of scroll bar, so the markers take the notification tokens
+    const Utils::Theme::Color changedColor
+        = isBaseline ? Utils::Theme::Token_Notification_Danger_Default
+                     : Utils::Theme::Token_Notification_Neutral_Default;
+    const Utils::Theme::Color removedColor = Utils::Theme::Token_Notification_Danger_Default;
+    const auto isChangedLine = [this](int line) {
+        return Utils::anyOf(m_changes, [line](const ChangedRange &range) {
+            return range.startLine <= line && line <= range.endLine;
+        });
+    };
+    for (const ChangedRange &range : std::as_const(m_changes))
+        scrollBarHighlights.append({range.startLine, range.endLine, changedColor});
+    for (const GhostBlock &ghost : std::as_const(m_ghosts)) {
+        if (!ghost.lines.isEmpty() && !isChangedLine(ghost.anchorLine))
+            scrollBarHighlights.append({ghost.anchorLine, ghost.anchorLine, removedColor});
+    }
+    m_widget->setScrollBarHighlights(Constants::SCROLL_BAR_INLINE_DIFF, scrollBarHighlights);
+
     // publish the +/- gutter signs: changed real lines carry '+' on the editor
     // side and '-' on the baseline side; removed lines rendered as ghost rows
     // are marked '-' by the widget from the layout (hasGhostRows)
@@ -317,6 +342,7 @@ void InlineDiffDecorator::clear()
     if (cleared > 0 && layout)
         layout->requestUpdate();
     m_widget->setDiffChangeSigns({}, false);
+    m_widget->setScrollBarHighlights(Constants::SCROLL_BAR_INLINE_DIFF, {});
 }
 
 int InlineDiffDecorator::stripChangedLineFormats()

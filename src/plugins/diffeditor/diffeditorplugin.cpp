@@ -380,6 +380,7 @@ private slots:
     void testInlineDiffCopyAsPatch();
     void testInlineDiffGoToFirstChange();
     void testInlineDiffChangeNavigation();
+    void testInlineDiffScrollBarMarkers();
 #endif // WITH_TESTS
 };
 
@@ -1633,11 +1634,14 @@ void DiffEditor::Internal::DiffEditorPlugin::testDiffDocuments()
 #include "inlinediff.h"
 
 #include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/inlinediffdecorator.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
 
+#include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/icore.h>
 
 #include <utils/environment.h>
@@ -2949,6 +2953,84 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffChangeNavigation()
     diffEditor->gotoLine(25);
     nextChange->trigger();
     QCOMPARE(diffEditor->currentLine(), 30);
+
+    const QPointer<QWidget> diffWidgetGuard = diffEditor->widget();
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// Each change is marked on the scroll bar in the color of its band.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffScrollBarMarkers()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard(/*hideUnchangedLines=*/false);
+
+    QStringList baselineLines;
+    for (int i = 1; i <= 20; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    editorLines[4] = "line 5 changed"; // 1-based line 5
+    editorLines.removeAt(11);          // removes 1-based line 12
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffScrollBarMarkers.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline,
+                                               "testInlineDiffScrollBarMarkers.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget
+        = Utils::findOrDefault(diffEditor->widget()->findChildren<TextEditorWidget *>(),
+                               [&sourceDocument](TextEditorWidget *widget) {
+        return widget->document() == sourceDocument->document();
+    });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+
+    const auto markers = [](TextEditorWidget *widget) {
+        Core::HighlightScrollBarController *controller = widget->highlightScrollBarController();
+        return controller
+                   ? controller->highlights().value(TextEditor::Constants::SCROLL_BAR_INLINE_DIFF)
+                   : QVector<Core::Highlight>();
+    };
+
+    // the changed line and, below it, the line the removed one hangs above
+    QTRY_COMPARE(markers(diffWidget).size(), 2);
+    const QVector<Core::Highlight> highlights = markers(diffWidget);
+    QCOMPARE(highlights.first().color, Utils::Theme::Token_Notification_Neutral_Default);
+    QCOMPARE(highlights.last().color, Utils::Theme::Token_Notification_Danger_Default);
+    QVERIFY(highlights.first().position < highlights.last().position);
+
+    // the source editor's scroll bar stays free of them
+    QVERIFY(markers(sourceWidget).isEmpty());
+
+    // reverting the change in the shared buffer takes its marker away
+    QTextCursor cursor(sourceWidget->document());
+    cursor.setPosition(sourceWidget->document()->findBlockByNumber(4).position());
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    cursor.insertText("line 5");
+    QTRY_COMPARE(markers(diffWidget).size(), 1);
 
     const QPointer<QWidget> diffWidgetGuard = diffEditor->widget();
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
