@@ -1037,6 +1037,8 @@ public:
             }
         });
 
+        // Queue this, because the plugin change can be triggered by a settings page
+        // like the Extensions page. Don't kill the page while we are in its stack.
         connect(
             ExtensionSystem::PluginManager::instance(),
             &ExtensionSystem::PluginManager::pluginsChanged,
@@ -1048,7 +1050,8 @@ public:
 
                 if (ModeManager::currentModeId() == Constants::MODE_SETTINGS)
                     open({});
-            });
+            },
+            Qt::QueuedConnection);
     }
 
     ~SettingsModeWidget() = default;
