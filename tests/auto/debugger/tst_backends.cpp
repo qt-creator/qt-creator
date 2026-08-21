@@ -314,6 +314,41 @@ private:
     QString m_breakpointResponseId;
 };
 
+static QString wireTail(const QStringList &wire, int lines = 40)
+{
+    QStringList tail;
+    for (const QString &line : wire.mid(qMax(0, wire.size() - lines)))
+        tail.append(line.size() > 160 ? line.left(160) + "..." : line);
+    return tail.join("\n  ");
+}
+
+static bool hasResolvedQmlBreakpoint(const QList<GdbMi> &reports, int modelId)
+{
+    for (const GdbMi &report : reports) {
+        const GdbMi entry = report.childAt(0);
+        if (entry["modelid"].toInt() == modelId && entry["pending"].toInt() == 0
+            && !entry["number"].data().isEmpty() && entry["number"].toInt() != -1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static QString qmlResolutionDiagnosis(const QList<GdbMi> &reports, const QStringList &wire)
+{
+    return QString("no report resolved the QML breakpoint (%1 arrived; a refused one "
+                   "reports number=-1) - last wire traffic:\n  %2")
+        .arg(reports.size()).arg(wireTail(wire));
+}
+
+static bool canInterruptRunningInferior(Backend backend)
+{
+    if (!HostOsInfo::isWindowsHost())
+        return true;
+    static const QList<Backend> uninterruptibleOnWindows = {};
+    return !uninterruptibleOnWindows.contains(backend);
+}
+
 class tst_backends : public QObject
 {
     Q_OBJECT
@@ -2717,22 +2752,6 @@ void tst_backends::continueAfterExitReportsInferiorIll()
                               "stale Continue after exit never reported InferiorIll", s_timeout);
 }
 
-static QString wireTail(const QStringList &wire, int lines = 40)
-{
-    QStringList tail;
-    for (const QString &line : wire.mid(qMax(0, wire.size() - lines)))
-        tail.append(line.size() > 160 ? line.left(160) + "..." : line);
-    return tail.join("\n  ");
-}
-
-static bool canInterruptRunningInferior(Backend backend)
-{
-    if (!HostOsInfo::isWindowsHost())
-        return true;
-    static const QList<Backend> uninterruptibleOnWindows = {};
-    return !uninterruptibleOnWindows.contains(backend);
-}
-
 void tst_backends::stopsAtFunctionBreakpointInsertedBeforeFirstRun()
 {
     QFETCH(Backend, backend);
@@ -4102,6 +4121,8 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
         ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
                         {}, env}, true);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int markerLine = qmlMarkerLine("qmlstack_inferior.qml", "MARKER: qml breakpoint line");
+    QVERIFY(markerLine > 0);
 
     QHash<quint64, bool> insertResults;
     connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
@@ -4116,7 +4137,7 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
             [&wire](const QString &text, int, int) { wire.append(text); });
 
     connect(engine, &DebuggerEngineInterface::inferiorEvent, this,
-            [engine](InferiorEvent event) {
+            [engine, markerLine](InferiorEvent event) {
         if (event != InferiorEvent::EngineSetupOk)
             return;
         BreakpointChangeRequest request;
@@ -4125,9 +4146,7 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
         request.modelId = 42;
         request.params.type = BreakpointByFileAndLine;
         request.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
-        request.params.textPosition.line =
-            qmlMarkerLine("qmlstack_inferior.qml", "MARKER: qml breakpoint line");
-        QVERIFY(request.params.textPosition.line > 0);
+        request.params.textPosition.line = markerLine;
         request.params.textPosition.column = 0;
         request.params.enabled = true;
         engine->changeBreakpoint(request);
@@ -4137,15 +4156,33 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
     QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(30), s_qmlStartupTimeout);
     QVERIFY2(insertResults.value(30), "pending QML breakpoint insert failed");
 
-    QTRY_VERIFY2_WITH_TIMEOUT(!modifiedReports.isEmpty(),
-                              qPrintable("the resolver's retry never reported the QML "
-                                         "breakpoint back - last wire traffic:\n  "
-                                         + wireTail(wire)),
+    QTRY_VERIFY2_WITH_TIMEOUT(hasResolvedQmlBreakpoint(modifiedReports, 42),
+                              qPrintable(qmlResolutionDiagnosis(modifiedReports, wire)),
                               s_timeout);
-    const GdbMi resolved = modifiedReports.constFirst().childAt(0);
-    QCOMPARE(resolved["modelid"].toInt(), 42);
-    QVERIFY(resolved["pending"].toInt() == 0);
-    QVERIFY(!resolved["number"].data().isEmpty());
+
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              qPrintable("the resolved QML breakpoint never signaled a stop"
+                                         " - last wire traffic:\n  " + wireTail(wire)),
+                              s_timeout);
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    RefreshRequest qmlStackRequest;
+    qmlStackRequest.kind = RefreshKind::QmlStack;
+    qmlStackRequest.requestId = 20;
+    engine->refresh(qmlStackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+
+    const GdbMi stack = responses.value(int(RefreshKind::FullStack));
+    const bool stoppedAtMarker = Utils::anyOf(stack["stack"]["frames"],
+                                              [markerLine](const GdbMi &frame) {
+        return frame["language"].data() == "js" && frame["line"].toInt() == markerLine;
+    });
+    QVERIFY2(stoppedAtMarker, qPrintable(QString("no js frame at line %1 - stack: %2")
+                                             .arg(markerLine).arg(stack.toString())));
 
 #endif
 }
@@ -4236,15 +4273,9 @@ void tst_backends::insertsQmlBreakpointBeforeDumpersLoad()
     QVERIFY2(!sawUndefinedDumperError,
              "QML breakpoint insert reached gdb before theDumper existed");
 
-    QTRY_VERIFY2_WITH_TIMEOUT(!modifiedReports.isEmpty(),
-                              qPrintable("the resolver's retry never reported the QML "
-                                         "breakpoint back - last wire traffic:\n  "
-                                         + wireTail(wire)),
+    QTRY_VERIFY2_WITH_TIMEOUT(hasResolvedQmlBreakpoint(modifiedReports, 42),
+                              qPrintable(qmlResolutionDiagnosis(modifiedReports, wire)),
                               s_timeout);
-    const GdbMi resolved = modifiedReports.constFirst().childAt(0);
-    QCOMPARE(resolved["modelid"].toInt(), 42);
-    QVERIFY(resolved["pending"].toInt() == 0);
-    QVERIFY(!resolved["number"].data().isEmpty());
     QVERIFY2(!sawUndefinedDumperError,
              "QML breakpoint insert reached gdb before theDumper existed");
 
@@ -4448,6 +4479,9 @@ void tst_backends::stepsWithinQmlFrameAfterNativeMixedStepOut()
     QList<GdbMi> modifiedReports;
     connect(engine, &DebuggerEngineInterface::breakpointModified, this,
             [&modifiedReports](const GdbMi &data) { modifiedReports.append(data); });
+    QStringList wire;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&wire](const QString &text, int, int) { wire.append(text); });
 
     connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
             [engine, qmlLine](InferiorEvent event) {
@@ -4475,11 +4509,12 @@ void tst_backends::stepsWithinQmlFrameAfterNativeMixedStepOut()
 
     engine->start();
 
-    QTRY_VERIFY_WITH_TIMEOUT(Utils::anyOf(modifiedReports, [](const GdbMi &data) {
-        const GdbMi resolved = data.childAt(0);
-        return resolved["modelid"].toInt() == 99 && resolved["pending"].toInt() == 0;
-    }) || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
-       || debuggerBackend->contains(InferiorEvent::EngineRunFailed), s_qmlStartupTimeout);
+    QTRY_VERIFY_WITH_TIMEOUT(hasResolvedQmlBreakpoint(modifiedReports, 99)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY2(hasResolvedQmlBreakpoint(modifiedReports, 99),
+             qPrintable(qmlResolutionDiagnosis(modifiedReports, wire)));
 
     const int stopsBeforeResolve = debuggerBackend->count(InferiorEvent::SpontaneousStop);
     debuggerBackend->execute({ExecutionCommand::Continue});
