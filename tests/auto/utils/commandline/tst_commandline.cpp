@@ -32,7 +32,10 @@ private:
         Process p;
         p.setCommand(cmd);
         p.setEnvironment(testEnv);
-        p.runBlocking();
+        p.runBlocking(std::chrono::seconds(60));
+        if (p.result() != ProcessResult::FinishedWithSuccess) {
+            qWarning("%s", qPrintable(p.exitMessage() + '\n' + p.readAllStandardError()));
+        }
         return QString::fromUtf8(p.rawStdOut());
     }
 
