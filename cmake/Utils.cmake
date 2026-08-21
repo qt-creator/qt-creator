@@ -257,6 +257,7 @@ Qml2Imports=qml
           COMPONENT ${component_name}
           EXCLUDE_FROM_ALL
           PATTERN "Headers" EXCLUDE
+          PATTERN "Modules" EXCLUDE
         )
       endif()
     endif()
