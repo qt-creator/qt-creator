@@ -26,6 +26,7 @@ public:
         setDisplayName(Tr::tr("Browse"));
         setCategory(Constants::EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY);
         setWidgetCreator(&createExtensionManagerWidget);
+        setRecreateOnCancel(false);
     }
 };
 
