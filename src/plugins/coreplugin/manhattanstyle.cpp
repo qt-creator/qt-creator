@@ -423,6 +423,25 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setPalette(pal);
         }
     }
+    // If a line edits background (Base) is not the "system background" on macOS Liquid Glass,
+    // it cannot be shown via the normal rounded system shape, which is why Qt then does some
+    // square drawing with the right color itself.
+    // See qtbase/6f2cf01c29232e3edb96b149c8e5b67d011de6c2
+    // Our theme might set a slightly adapted Base though, which then leads to weird line edits even
+    // though the background would be "almost right". So, if the line edit background has not been
+    // changed from the app background, reset it to the initial "system" background.
+    if (HostOsInfo::isMacHost() && !isPanelWidget && qobject_cast<QLineEdit *>(widget)) {
+        const QBrush editBase = widget->palette().brush(QPalette::Base);
+        const QBrush themeBase = QApplication::palette().brush(QPalette::Base);
+        const QBrush systemBase = Theme::initialPalette().brush(QPalette::Base);
+        if (editBase.color() == themeBase.color()) {
+            QPalette editPal = widget->palette();
+            QBrush newEditBase = editBase;
+            newEditBase.setColor(systemBase.color());
+            editPal.setBrush(QPalette::Base, newEditBase);
+            widget->setPalette(editPal);
+        }
+    }
 }
 
 void ManhattanStyle::unpolish(QWidget *widget)
