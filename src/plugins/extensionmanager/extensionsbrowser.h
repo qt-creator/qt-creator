@@ -33,6 +33,7 @@ public:
 
     QModelIndex currentIndex() const;
     void selectIndex(const QModelIndex &index);
+    bool selectId(const QString &id); // Returns whether id was found and selected.
 
 signals:
     void itemSelected(const QModelIndex &current, const QModelIndex &previous);

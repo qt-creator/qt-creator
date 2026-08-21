@@ -695,6 +695,19 @@ void ExtensionsBrowser::selectIndex(const QModelIndex &index)
 {
     d->selectionModel->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 }
+
+bool ExtensionsBrowser::selectId(const QString &id)
+{
+    if (id.isEmpty())
+        return false;
+
+    const QModelIndex index = d->model->indexOfId(id);
+    if (!index.isValid())
+        return false;
+
+    selectIndex(index);
+    return true;
+}
 class Downloader : public QObject
 {
     Q_OBJECT

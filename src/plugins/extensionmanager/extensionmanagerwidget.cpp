@@ -68,6 +68,15 @@ const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
 const char kUrlSchemeTag[] = "myschemetag";
 const char kUrlSchemeDependency[] = "myschemedependency";
 
+// Remembers the selected extension across re-creations of the widget, e.g.
+// when the browser is torn down and rebuilt. May refer to an extension that
+// is only known once remote extensions are fetched.
+static QString &lastSelectedExtensionId()
+{
+    static QString id;
+    return id;
+}
+
 static void requestRestart()
 {
     InfoBar *infoBar = ICore::popupInfoBar();
@@ -481,6 +490,7 @@ class ExtensionManagerWidget final : public Core::IOptionsPageWidget
 {
 public:
     ExtensionManagerWidget();
+    ~ExtensionManagerWidget() override;
 
 private:
     void resizeEvent(QResizeEvent *event) final;
@@ -633,6 +643,21 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         });
 
     updateView({});
+
+    const QString idToRestore = lastSelectedExtensionId();
+    if (!idToRestore.isEmpty() && !m_extensionBrowser->selectId(idToRestore)) {
+        // Not found yet, e.g. because remote extensions are not fetched yet.
+        // Retry once the model has been (re-)populated.
+        connect(m_extensionModel, &QAbstractItemModel::modelReset, this,
+                [this, idToRestore] { m_extensionBrowser->selectId(idToRestore); },
+                Qt::SingleShotConnection);
+    }
+}
+
+ExtensionManagerWidget::~ExtensionManagerWidget()
+{
+    const QModelIndex current = m_extensionBrowser->currentIndex();
+    lastSelectedExtensionId() = current.isValid() ? current.data(RoleId).toString() : QString();
 }
 
 void ExtensionManagerWidget::resizeEvent(QResizeEvent *event)
