@@ -33,7 +33,9 @@ QtcProduct {
         "NSHumanReadableCopyright": qtc.ide_copyright_string,
         "CFBundleExecutable": qtc.ide_app_target,
         "CFBundleIdentifier": qtc.ide_bundle_identifier,
-        "CFBundleVersion": version
+        "CFBundleVersion": version,
+        "NSAppleEventsUsageDescription": "An application launched via " + qtc.ide_app_target
+                                         + " would like to access AppleScript."
     })
 
     cpp.rpaths: qbs.targetOS.contains("macos") ? ["@executable_path/../Frameworks"]
