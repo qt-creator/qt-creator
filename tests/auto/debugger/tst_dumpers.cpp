@@ -1047,6 +1047,7 @@ public:
     const Data &operator+(const XmlProfile &) const
     {
         this->operator+(CoreProfile());
+        useXml = true;
         profileExtra +=
             "greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat\n"
             "else: QT += xml\n";
@@ -1149,6 +1150,7 @@ public:
     mutable bool useQHash = false;
     mutable bool useBoost = false;
     mutable bool useGNUstep = false;
+    mutable bool useXml = false;
     mutable bool disabledOnARM = false;
     mutable int engines = AllEngines;
     mutable int skipLevels = 0;              // Levels to go 'up' before dumping variables.
@@ -1233,6 +1235,7 @@ private:
     int m_gccVersion = 0;
     int m_msvcVersion = 0;
     bool m_isMacGdb = false;
+    bool m_hasQt5Compat = false;
     bool m_isQnxGdb = false;
     bool m_useGLibCxxDebug = false;
     int m_totalDumpTime = 0;
@@ -1285,8 +1288,19 @@ void tst_Dumpers::initTestCase()
     int patch = output.mid(pos2, pos3++ - pos2).toInt();
     m_qtVersion = 0x10000 * major + 0x100 * minor + patch;
 
+    if (m_qtVersion >= 0x060000) {
+        QProcess query;
+        query.start(m_qmakeBinary, {"-query", "QT_HOST_DATA"});
+        QVERIFY(query.waitForFinished());
+        QVERIFY(query.exitCode() == 0);
+        const QString hostData = QString::fromLocal8Bit(query.readAllStandardOutput()).trimmed();
+        QVERIFY(!hostData.isEmpty());
+        m_hasQt5Compat = QFileInfo::exists(hostData + "/mkspecs/modules/qt_lib_core5compat.pri");
+    }
+
     qCDebug(lcDumpers) << "QMake              : " << m_qmakeBinary;
     qCDebug(lcDumpers) << "Qt Version         : " << m_qtVersion;
+    qCDebug(lcDumpers) << "Qt5Compat          : " << m_hasQt5Compat;
     qCDebug(lcDumpers) << "Use CMake          : " << (m_buildSystem == BuildSystem::CMake) << int(m_buildSystem);
 
     m_useGLibCxxDebug = qgetenv("QTC_USE_GLIBCXXDEBUG_FOR_TEST").toInt();
@@ -1474,6 +1488,10 @@ void tst_Dumpers::dumper()
             MSKIP_SINGLE(QByteArray("Need maximum Qt version "
                 + QByteArray::number(data.neededQtVersion.max, 16)));
     }
+
+    // The Qt 5 XML classes these tests look at live in Qt5Compat from Qt 6 on.
+    if (data.useXml && m_qtVersion >= 0x060000 && !m_hasQt5Compat)
+        MSKIP_SINGLE("Qt is built without the Qt5Compat module");
 
     if (data.neededGccVersion.isRestricted && m_debuggerEngine == GdbEngine) {
         QProcess gcc;
