@@ -21,6 +21,7 @@
 #include <utils/multitextcursor.h>
 #include <utils/plaintextedit/plaintextedit.h>
 #include <utils/textutils.h>
+#include <utils/theme/theme.h>
 #include <utils/uncommentselection.h>
 
 #include <QPlainTextEdit>
@@ -385,6 +386,23 @@ public:
     // hasRemovedRows tells the widget that removed lines are shown as ghost
     // rows, which get a '-' derived from the layout. Used by InlineDiffDecorator.
     void setDiffChangeSigns(const QHash<int, QChar> &blockSigns, bool hasRemovedRows);
+
+    // A marker on the scroll bar covering the 1-based document lines
+    // [firstLine, lastLine], in a theme color of its own.
+    class ScrollBarHighlight
+    {
+    public:
+        int firstLine = 1;
+        int lastLine = 1;
+        Utils::Theme::Color color = Utils::Theme::TextColorNormal;
+    };
+    // Publishes markers the widget draws on its scroll bar next to its own
+    // ones (search results, marks), e.g. for the changes of an inline diff or
+    // the merge conflicts of a file. A call replaces the category's previous
+    // markers, an empty list removes them. The lines are mapped to the
+    // current layout on every scroll bar update, so folding and inserted rows
+    // carry the markers along.
+    void setScrollBarHighlights(Utils::Id category, const QList<ScrollBarHighlight> &highlights);
     virtual void setMarginSettings(const TextEditor::MarginSettingsData &);
     void setBehaviorSettings(const TextEditor::BehaviorSettingsData &);
     void setTypingSettings(const TextEditor::TypingSettingsData &);

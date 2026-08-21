@@ -1098,6 +1098,7 @@ public:
     QList<SearchResult> m_selectionResults;
     QTimer m_scrollBarUpdateTimer;
     HighlightScrollBarController *m_highlightScrollBarController = nullptr;
+    QHash<Id, QList<TextEditorWidget::ScrollBarHighlight>> m_scrollBarHighlights;
     MinimapController *m_minimapController = nullptr;
     // in-editor merge conflict resolution controls; off for editors that
     // provide their own (e.g. the inline diff editor)
@@ -8851,6 +8852,37 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
         if (block.isValid() && block.isVisible())
             m_highlightScrollBarController->addHighlight(markToHighlight(mark, block));
     }
+
+    // update the markers published by decorators, e.g. the inline diff
+    TextEditorLayout *layout = q->editorLayout();
+    for (auto it = m_scrollBarHighlights.cbegin(); it != m_scrollBarHighlights.cend(); ++it) {
+        for (const TextEditorWidget::ScrollBarHighlight &highlight : it.value()) {
+            const QTextBlock first = q->document()->findBlockByNumber(highlight.firstLine - 1);
+            if (!first.isValid() || !first.isVisible())
+                continue;
+            const QTextBlock last = q->document()->findBlockByNumber(highlight.lastLine - 1);
+            // the top of the first block, which is above the rows an inline
+            // diff shows the removed lines on, down to the last one
+            const int pos = layout->offsetForLine(layout->firstLineNumberOf(first));
+            const QTextBlock bottom = last.isValid() && last.isVisible() ? last : first;
+            const int end = layout->offsetForLine(layout->firstLineNumberOf(bottom))
+                            + layout->lineSpacing();
+            m_highlightScrollBarController->addHighlight(
+                {it.key(), pos, qMax(end - pos, 1), highlight.color, Highlight::NormalPriority});
+        }
+    }
+}
+
+void TextEditorWidget::setScrollBarHighlights(Utils::Id category,
+                                              const QList<ScrollBarHighlight> &highlights)
+{
+    if (highlights.isEmpty()) {
+        if (d->m_scrollBarHighlights.remove(category) == 0)
+            return;
+    } else {
+        d->m_scrollBarHighlights.insert(category, highlights);
+    }
+    d->scheduleUpdateHighlightScrollBar();
 }
 
 MultiTextCursor TextEditorWidget::multiTextCursor() const
