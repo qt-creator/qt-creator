@@ -384,22 +384,121 @@ struct BuildStateTracker
     }
 };
 
+// Counts what it drops, so a reply can say how much is missing.
+class BoundedOutput
+{
+public:
+    static constexpr int maxCaptureSize = 1024 * 200;
+
+    void append(const QString &text)
+    {
+        m_text += text;
+        if (m_text.size() > maxCaptureSize) {
+            m_dropped += m_text.size() - maxCaptureSize;
+            m_text = m_text.right(maxCaptureSize);
+        }
+    }
+
+    void clear() { *this = {}; }
+
+    bool isEmpty() const { return m_text.isEmpty(); }
+    qint64 total() const { return m_dropped + m_text.size(); }
+    bool truncatedAt(int maxChars) const { return keptFor(maxChars) < m_text.size(); }
+
+    // For output scoped to one build: the first error is the cause and the
+    // ones after it cascade, so the head carries more than the tail. The end
+    // is kept too, because a link or deploy failure has nothing before it.
+    QString digest(int maxChars) const
+    {
+        const int keep = keptFor(maxChars);
+        if (keep == m_text.size() && m_dropped == 0)
+            return m_text;
+        if (m_dropped > 0) // the head is gone already; do not imply otherwise
+            return tail(maxChars);
+        const int split = keep - keep / 4;
+        const auto joined = [this](int head, int tailFrom) {
+            return m_text.left(head) + marker(tailFrom - head) + m_text.mid(tailFrom);
+        };
+        // Cut on line boundaries: splicing mid-token reads as corruption
+        // rather than as an omission. Aligning shortens both halves but can
+        // lengthen the marker by a digit, so it may not breach the cap.
+        const int head = m_text.lastIndexOf('\n', split - 1) + 1;
+        const int tailFrom = m_text.indexOf('\n', m_text.size() - (keep - head)) + 1;
+        if (head > 0 && tailFrom > head) {
+            const QString aligned = joined(head, tailFrom);
+            if (aligned.size() <= maxChars)
+                return aligned;
+        }
+        return joined(split, m_text.size() - (keep - split));
+    }
+
+    QString tail(int maxChars) const
+    {
+        const int keep = keptFor(maxChars);
+        if (keep == m_text.size() && m_dropped == 0)
+            return m_text;
+        return marker(total() - keep) + m_text.right(keep);
+    }
+
+private:
+    static QString marker(qint64 omitted)
+    {
+        return QString("[%1 earlier character(s) omitted]\n").arg(omitted);
+    }
+
+    // The marker counts as part of what the caller asked for, so its own
+    // length has to come out of the budget before the text does.
+    int keptFor(int maxChars) const
+    {
+        if (total() <= maxChars)
+            return m_text.size();
+        int keep = maxChars;
+        for (int i = 0; i < 8; ++i) {
+            const int next = qMax(0, maxChars - int(marker(total() - keep).size()));
+            if (next == keep)
+                break;
+            keep = next;
+        }
+        return qMin(keep, int(m_text.size()));
+    }
+
+    QString m_text;
+    qint64 m_dropped = 0;
+};
+
+// Above this, typical clients spill the reply to a file.
+static constexpr int maxReplyOutputSize = 1024 * 16;
+static constexpr int minReplyOutputSize = 1000;
+// Past the capture size, so asking for the maximum returns everything still
+// held instead of reporting truncated for good: the marker is charged
+// against the same budget.
+static constexpr int maxRequestableOutputSize = BoundedOutput::maxCaptureSize + 128;
+static constexpr int defaultSearchResults = 200;
+static constexpr int maxSearchResults = 5000;
+
+// A wrongly-typed count would fall through to a default and quietly do
+// something else than asked.
+static Utils::Result<int> readCount(const QJsonObject &args, const QString &key, int fallback)
+{
+    const QJsonValue value = args.value(key);
+    if (value.isUndefined() || value.isNull())
+        return fallback;
+    if (!value.isDouble())
+        return ResultError(QString("%1 must be a number").arg(key));
+    return int(qBound<double>(INT_MIN, value.toDouble(), INT_MAX));
+}
+
 // Accumulates the Compile Output pane text (build AND deploy step output) so it
 // can be inspected via get_compile_output - deploy errors in particular are not
 // otherwise surfaced through MCP.
-static QString &compileOutputBuffer()
+static BoundedOutput &compileOutput()
 {
-    static QString buffer;
+    static BoundedOutput out;
     static const QMetaObject::Connection conn = QObject::connect(
         BuildManager::instance(), &BuildManager::outputText,
-        BuildManager::instance(), [](const QString &text) {
-            buffer += text;
-            static constexpr int maxOutputSize = 1024 * 200; // cap to bound context size
-            if (buffer.size() > maxOutputSize)
-                buffer = buffer.right(maxOutputSize);
-        });
+        BuildManager::instance(), [](const QString &text) { out.append(text); });
     Q_UNUSED(conn)
-    return buffer;
+    return out;
 }
 
 static QStringList findFiles(const QList<Project *> &projects, const QRegularExpression &re)
@@ -923,6 +1022,7 @@ static void mcpFindInFiles(
     bool regex,
     bool caseSensitive,
     const QString &pattern,
+    int maxResults,
     QObject *guard,
     const McpResponseCallback &callback)
 {
@@ -931,10 +1031,15 @@ static void mcpFindInFiles(
         fileContainer,
         mcpFindFlags(regex, caseSensitive),
         TextEditor::TextDocument::openedTextDocumentContents());
-    Utils::onFinished(future, guard, [callback](const QFuture<SearchResultItems> &future) {
+    Utils::onFinished(future, guard, [callback, maxResults](
+                                         const QFuture<SearchResultItems> &future) {
         QJsonArray resultsArray;
+        qint64 total = 0;
         for (const Utils::SearchResultItems &results : future.results()) {
             for (const SearchResultItem &item : results) {
+                ++total;
+                if (resultsArray.size() >= maxResults)
+                    continue;
                 QJsonObject resultObj;
                 const Text::Range range = item.mainRange();
                 const QString lineText = item.lineText();
@@ -951,6 +1056,8 @@ static void mcpFindInFiles(
         }
         QJsonObject response;
         response["results"] = resultsArray;
+        response["total_matches"] = total;
+        response["truncated"] = total > resultsArray.size();
         callback(response);
     });
 }
@@ -1013,6 +1120,7 @@ static void searchInFiles(
     const QString &pattern,
     bool regex,
     bool caseSensitive,
+    int maxResults,
     QObject *guard,
     const McpResponseCallback &callback)
 {
@@ -1040,7 +1148,7 @@ static void searchInFiles(
         }
     }
     FileListContainer fileContainer(encodings.keys(), encodings.values());
-    mcpFindInFiles(fileContainer, regex, caseSensitive, pattern, guard, callback);
+    mcpFindInFiles(fileContainer, regex, caseSensitive, pattern, maxResults, guard, callback);
 }
 
 static void replaceInFiles(
@@ -1307,8 +1415,10 @@ void registerMcpTools()
                   QJsonObject{
                       {"type", "string"},
                       {"description",
-                       "Captured stdout+stderr from the build. May be truncated if the build "
-                       "produced an extremely large amount of output."}})
+                       "Tail of the failed build's stdout+stderr, truncated to keep the "
+                       "reply small. Empty when the build succeeded; the issues array "
+                       "carries the diagnostics either way. Call get_compile_output for "
+                       "more of the text."}})
               .addRequired("succeeded")
               .addRequired("error_count")
               .addRequired("warning_count")
@@ -1446,14 +1556,8 @@ void registerMcpTools()
                     BuildManager::instance(),
                     &BuildManager::outputText,
                     BuildManager::instance(),
-                    [this](const QString &text) {
-                        this->text += text;
-                        // 100 KB cap to not explode the context size.
-                        static constexpr auto maxOutputSize = 1024 * 100;
-                        if (this->text.size() > maxOutputSize)
-                            this->text = this->text.right(maxOutputSize);
-                    });
-                QString text;
+                    [this](const QString &text) { this->text.append(text); });
+                BoundedOutput text;
 
                 ~Output() { QObject::disconnect(connection); }
 
@@ -1567,11 +1671,9 @@ void registerMcpTools()
                                 {"duration_ms", 0},
                                 {"issues", QJsonArray{}},
                                 {"summary_text",
-                                 output->text.isEmpty()
-                                     ? QStringLiteral("Build failed to start. Check that the "
-                                                      "project is configured for this kit.")
-                                     : QString("Build failed to start.\n%1").arg(output->text)},
-                                {"output", output->text},
+                                 QStringLiteral("Build failed to start. Check that the "
+                                                "project is configured for this kit.")},
+                                {"output", output->text.digest(maxReplyOutputSize)},
                             };
                             task.status(Schema::TaskStatus::failed);
                             task.statusMessage("Build failed to start");
@@ -1654,7 +1756,9 @@ void registerMcpTools()
                                 {"duration_ms", durationMs},
                                 {"issues", issuesData.value("issues")},
                                 {"summary_text", summaryText},
-                                {"output", output->text},
+                                {"output",
+                                 state->succeeded ? QString()
+                                                  : output->text.digest(maxReplyOutputSize)},
                             })
                         .isError(!state->succeeded);
                 },
@@ -1731,7 +1835,10 @@ void registerMcpTools()
                 "output",
                 QJsonObject{
                     {"type", "string"},
-                    {"description", "Collected output from the run (present on success)"}})
+                    {"description",
+                     "Tail of the output the run produced (present on success), truncated "
+                     "to keep the reply small. The Application Output pane keeps the rest; "
+                     "read_pane returns it."}})
             .addProperty(
                 "exitCode",
                 QJsonObject{
@@ -1769,7 +1876,8 @@ void registerMcpTools()
 
             struct State
             {
-                QStringList output;
+                BoundedOutput output;
+                QString lastLine;
                 bool finished = false;
                 QJsonObject failureIssues;
                 QPointer<RunControl> rc;
@@ -1791,14 +1899,14 @@ void registerMcpTools()
                             : failed         ? Schema::TaskStatus::failed
                                              : Schema::TaskStatus::completed)
                         .statusMessage(
-                            state->output.isEmpty() ? std::nullopt
-                                                    : std::optional{state->output.last()});
+                            state->lastLine.isEmpty() ? std::nullopt
+                                                      : std::optional{state->lastLine});
                 },
                 [state]() -> Utils::Result<CallToolResult> {
                     if (!state->failureIssues.isEmpty())
                         return CallToolResult{}.isError(true).structuredContent(
                             QJsonObject{{"issues", state->failureIssues}});
-                    QJsonObject out{{"output", state->output.join('\n')}};
+                    QJsonObject out{{"output", state->output.tail(maxReplyOutputSize)}};
                     if (state->exitCode)
                         out["exitCode"] = *state->exitCode;
                     out["succeeded"] = state->exitCode.has_value() && *state->exitCode == 0;
@@ -1838,7 +1946,8 @@ void registerMcpTools()
                             const QString trimmed = msg.trimmed();
                             if (trimmed.isEmpty())
                                 return;
-                            state->output.append(trimmed);
+                            state->output.append(trimmed + '\n');
+                            state->lastLine = trimmed;
                             if (notify)
                                 notify(Schema::TaskStatus::working, trimmed, std::nullopt);
                         });
@@ -1993,26 +2102,75 @@ void registerMcpTools()
                         QJsonObject{
                             {"type", "boolean"},
                             {"description", "Whether the search should be case sensitive"}})
+                    .addProperty(
+                        "max_results",
+                        QJsonObject{
+                            {"type", "number"},
+                            {"description",
+                             "How many matches to return (default 200). Clamped to 1-5000. "
+                             "total_matches reports how many there were."}})
                     .addRequired("file_pattern")
-                    .addRequired("pattern")),
-        wrapAsync([](const QJsonObject &p, const Callback &callback) {
-            const QString filePattern = p.value("file_pattern").toString();
+                    .addRequired("pattern"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "results",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items",
+                             QJsonObject{
+                                 {"type", "object"},
+                                 {"properties",
+                                  QJsonObject{
+                                      {"file", QJsonObject{{"type", "string"}}},
+                                      {"line", QJsonObject{{"type", "number"}}},
+                                      {"column", QJsonObject{{"type", "number"}}},
+                                      {"text", QJsonObject{{"type", "string"}}}}}}}})
+                    .addProperty(
+                        "total_matches",
+                        QJsonObject{
+                            {"type", "number"},
+                            {"description", "Matches found, which max_results may have cut "
+                                            "the returned list down from."}})
+                    .addProperty(
+                        "truncated",
+                        QJsonObject{{"type", "boolean"},
+                                    {"description", "Whether results is shorter than "
+                                                    "total_matches."}})
+                    .addRequired("results")
+                    .addRequired("total_matches")
+                    .addRequired("truncated")),
+        [](const Schema::CallToolRequestParams &params,
+           const ToolInterface &toolInterface) -> Utils::Result<> {
+            const QJsonObject p = params.argumentsAsObject();
             const QString pattern = p.value("pattern").toString();
-            const bool isRegex = p.value("regex").toBool(false);
-            const bool caseSensitive = p.value("case_sensitive").toBool(false);
-            const std::optional<QString> projectName = p.contains("project_name")
-                                                           ? std::optional<QString>(
-                                                                 p.value("project_name").toString())
-                                                           : std::nullopt;
+            if (pattern.isEmpty()) {
+                // Declared required, but nothing enforces that: an empty pattern
+                // matches every position of every file in every open project.
+                return ResultError(QString("pattern must not be empty"));
+            }
+            const Utils::Result<int> requested
+                = readCount(p, "max_results", defaultSearchResults);
+            if (!requested)
+                return ResultError(requested.error());
+            const std::optional<QString> projectName
+                = p.contains("project_name")
+                      ? std::optional<QString>(p.value("project_name").toString())
+                      : std::nullopt;
             searchInFiles(
-                filePattern,
+                p.value("file_pattern").toString(),
                 projectName,
                 pattern,
-                isRegex,
-                caseSensitive,
+                p.value("regex").toBool(false),
+                p.value("case_sensitive").toBool(false),
+                qBound(1, *requested, maxSearchResults),
                 BuildManager::instance(),
-                callback);
-        }));
+                [toolInterface](const QJsonObject &result) {
+                    toolInterface.finish(
+                        CallToolResult{}.isError(false).structuredContent(result));
+                });
+            return ResultOk;
+        });
 
     ToolRegistry::registerTool(
         Tool{}
@@ -2130,20 +2288,62 @@ void registerMcpTools()
                     .addRequired("summary_text")),
         wrap([](const QJsonObject &) { return buildStateTracker.statusSnapshot(); }));
 
-    compileOutputBuffer(); // start capturing build/deploy output from now on
+    compileOutput(); // start capturing build/deploy output from now on
     ToolRegistry::registerTool(
         Tool{}
             .name("get_compile_output")
             .title("Get compile and deploy output")
-            .description("Returns the recent Compile Output pane text, including build step and "
-                         "deploy step output. Use it to see why a build or deployment failed "
-                         "when build/run_project reports a failure without detail.")
+            .description("Returns the tail of the recent Compile Output pane text, including "
+                         "build step and deploy step output. Use it to see why a build or "
+                         "deployment failed when build/run_project reports a failure without "
+                         "detail. Prefer list_issues for the structured diagnostics; this is "
+                         "the raw text, and asking for a large max_chars can return more than "
+                         "a client will accept in one reply.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}.addProperty(
+                    "max_chars",
+                    QJsonObject{
+                        {"description",
+                         "How much of the end of the output text to return (default 16384). "
+                         "Clamped to 1000-204928. Must be a number. A short marker naming "
+                         "the dropped character count is prepended when there was more."},
+                        {"type", "number"}}))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty("output", QJsonObject{{"type", "string"}})
-                    .addRequired("output")),
-        wrap([](const QJsonObject &) { return QJsonObject{{"output", compileOutputBuffer()}}; }));
+                    .addProperty(
+                        "truncated",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Whether output left out any of the kept text; raising "
+                             "max_chars returns the rest."}})
+                    .addProperty(
+                        "total_chars",
+                        QJsonObject{
+                            {"type", "number"},
+                            {"description",
+                             "Characters captured since Qt Creator started. Only the last "
+                             "204800 are kept, so a larger number here means the rest is "
+                             "gone for good."}})
+                    .addRequired("output")
+                    .addRequired("truncated")
+                    .addRequired("total_chars")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const Utils::Result<int> requested
+                = readCount(params.argumentsAsObject(), "max_chars", maxReplyOutputSize);
+            if (!requested)
+                return ResultError(requested.error());
+            const int maxChars
+                = qBound(minReplyOutputSize, *requested, maxRequestableOutputSize);
+            const BoundedOutput &captured = compileOutput();
+            return CallToolResult{}
+                .structuredContent(QJsonObject{{"output", captured.tail(maxChars)},
+                                               {"truncated", captured.truncatedAt(maxChars)},
+                                               {"total_chars", captured.total()}})
+                .isError(false);
+        });
 
     ToolRegistry::registerTool(
         Tool{}
