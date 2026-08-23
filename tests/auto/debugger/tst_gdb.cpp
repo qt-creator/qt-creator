@@ -123,6 +123,10 @@ void tst_gdb::version_data()
     QTest::newRow("Ubuntu 22.04")
         << "GNU gdb (Ubuntu 12.1-0ubuntu1~22.04) 12.1"
         << 120100 << 0 << false << false;
+
+    QTest::newRow("crosstool-NG")
+       << "GNU gdb (crosstool-NG 1.29.0_rc2) 17.2"
+       << 170200 << 0 << false << false;
 }
 
 static QString chopConst(QString type)
