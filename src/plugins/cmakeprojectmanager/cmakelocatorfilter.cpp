@@ -291,7 +291,7 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
                         const FilePath projectPath = cmakeProject->projectFilePath();
                         const QString displayName = target.title;
                         LocatorFilterEntry entry;
-                        entry.displayName = displayName;
+                        entry.uniquifier = entry.displayName = displayName;
                         if (showProjectName)
                             entry.displayExtra = cmakeProject->displayName();
                         const QStringList capturedExtraArgs = extraArgs;
@@ -341,7 +341,7 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
                 const int index = cmd.indexOf(input, 0, cs);
                 if (index >= 0) {
                     LocatorFilterEntry entry;
-                    entry.displayName = cmd;
+                    entry.uniquifier = entry.displayName = cmd;
                     const QString capturedCmd = cmd;
                     entry.acceptor = [capturedCmd] {
                         addToCmLocatorHistory(capturedCmd);
@@ -363,7 +363,7 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
                     });
 
                 LocatorFilterEntry entry;
-                entry.displayName = trimmedInput;
+                entry.uniquifier = entry.displayName = trimmedInput;
                 const QString capturedCmd = trimmedInput;
                 entry.acceptor = [capturedCmd] {
                     addToCmLocatorHistory(capturedCmd);
@@ -558,7 +558,7 @@ private:
                                                     ? presetDisplayName(testInfo)
                                                     : testInfo.name;
                     LocatorFilterEntry entry;
-                    entry.displayName = displayName;
+                    entry.uniquifier = entry.displayName = displayName;
                     if (acceptor) {
                         entry.acceptor = [bs, testInfo, acceptor] {
                             acceptor(bs, testInfo);

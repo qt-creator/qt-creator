@@ -75,17 +75,17 @@ namespace Core {
 struct CacheKey
 {
     Utils::Link link;
-    QString displayName;
+    QString uniquifier;
 
     bool operator==(const CacheKey &other) const
     {
-        return link == other.link && displayName == other.displayName;
+        return link == other.link && uniquifier == other.uniquifier;
     }
 };
 
 struct CacheKeyHash
 {
-    size_t operator()(const CacheKey &k) const { return qHashMulti(0, k.link, k.displayName); }
+    size_t operator()(const CacheKey &k) const { return qHashMulti(0, k.link, k.uniquifier); }
 };
 
 class ResultsDeduplicator
@@ -116,7 +116,7 @@ class ResultsDeduplicator
                 if (state == State::Canceled)
                     return {};
                 const auto &link = entry.linkForEditor;
-                if (!link || m_cache.emplace(CacheKey{*link, entry.displayName}).second)
+                if (!link || m_cache.emplace(CacheKey{*link, entry.uniquifier}).second)
                     results.append(entry);
             }
             if (state == State::Canceled)

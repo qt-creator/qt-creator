@@ -95,6 +95,9 @@ public:
     QString extraInfo;
     /* additional tooltip */
     QString toolTip;
+    /* Set to a suitable value if entries with the same link can show up more than once in the
+       locator widget. */
+    QString uniquifier;
     /* called by locator widget on accept. By default, when acceptor is empty,
        EditorManager::openEditor(LocatorFilterEntry) will be used instead. */
     Acceptor acceptor;
