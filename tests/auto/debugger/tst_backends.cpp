@@ -106,14 +106,14 @@ struct BackendData
     InferiorTestData inferiorData;
 };
 
-static int debuggerMajorVersion(const QString &versionLine)
+[[maybe_unused]] static int debuggerMajorVersion(const QString &versionLine)
 {
     static const QRegularExpression firstNumber("(\\d+)");
     const QRegularExpressionMatch match = firstNumber.match(versionLine);
     return match.hasMatch() ? match.captured(1).toInt() : 0;
 }
 
-static QString versionLine(const FilePath &tool)
+[[maybe_unused]] static QString versionLine(const FilePath &tool)
 {
     Process versionProcess;
     versionProcess.setCommand({tool, {"--version"}});
@@ -121,7 +121,7 @@ static QString versionLine(const FilePath &tool)
     return versionProcess.cleanedStdOut().section('\n', 0, 0);
 }
 
-static FilePath findPythonOnPath()
+[[maybe_unused]] static FilePath findPythonOnPath()
 {
     static const QStringList candidates = {
         "python3", "python3.exe", "python", "python.exe",
@@ -186,6 +186,7 @@ static QString backendName(Backend backend)
 
 static QString printCommand(Backend backend, const QString &expression)
 {
+    Q_UNUSED(expression)
     switch (backend) {
     }
     return {};
@@ -571,6 +572,9 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     const std::optional<ProcessRunData> &inferiorRunDataOverride,
     bool nativeMixed)
 {
+    Q_UNUSED(debuggerRunDataOverride)
+    Q_UNUSED(inferiorRunDataOverride)
+    Q_UNUSED(nativeMixed)
     switch (backend) {
     }
     return nullptr;
@@ -579,6 +583,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
     Backend backend, const InferiorStartData &inferiorStartData)
 {
+    Q_UNUSED(inferiorStartData)
     switch (backend) {
     }
     return nullptr;
