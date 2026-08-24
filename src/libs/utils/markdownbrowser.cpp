@@ -57,22 +57,6 @@ static constexpr std::array<TextFormat, 6> markdownHeadingFormats{
 
 static constexpr int MinimumSizeBlocks = 5;
 
-static QFont font(TextFormat format, bool underlined = false)
-{
-    QFont result = Utils::StyleHelper::uiFont(format.uiElement);
-    result.setUnderline(underlined);
-    return result;
-}
-static int lineHeight(TextFormat format)
-{
-    return Utils::StyleHelper::uiFontLineHeight(format.uiElement);
-}
-
-static QColor color(TextFormat format)
-{
-    return Utils::creatorColor(format.themeColor);
-}
-
 static QTextDocument *highlightText(const QString &code, const QString &language)
 {
     auto mimeTypes = mimeTypesForFileName("file." + language);
@@ -488,7 +472,7 @@ MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
     , m_enableCodeCopyButton(false)
 {
-    setFont(Utils::font(contentTF));
+    setFont(contentTF.font());
     m_defaultFontSize = font().pointSizeF();
     setOpenLinks(false);
     connect(this, &QTextBrowser::anchorClicked, this, &MarkdownBrowser::handleAnchorClicked);
@@ -796,7 +780,7 @@ static void postProcessTables(QTextFrame *frame)
 
 void MarkdownBrowser::postProcessDocument(bool firstTime)
 {
-    const QFont contentFont = Utils::font(contentTF);
+    const QFont contentFont = contentTF.font();
     const auto scaledFont = [this](QFont f) {
         f.setPointSizeF(f.pointSizeF() * m_scale);
         return f;
@@ -858,7 +842,7 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
             blockFormat.setTopMargin(SpacingTokens::PaddingVXxl * m_scale);
             blockFormat.setBottomMargin(SpacingTokens::GapVM * m_scale);
         } else {
-            blockFormat.setLineHeight(lineHeight(contentTF) * m_scale, QTextBlockFormat::FixedHeight);
+            blockFormat.setLineHeight(contentTF.lineHeight() * m_scale, QTextBlockFormat::FixedHeight);
         }
 
         cursor.mergeBlockFormat(blockFormat);
@@ -866,7 +850,7 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
         const TextFormat &headingTf
             = markdownHeadingFormats[qBound(0, blockFormat.headingLevel() - 1, 5)];
 
-        const QFont headingFont = scaledFont(Utils::font(headingTf));
+        const QFont headingFont = scaledFont(headingTf.font());
 
         QList<QTextCursor> fragmentCursors = [&block]() {
             QList<QTextCursor> result;
@@ -888,11 +872,11 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
                 charFormat.setFontCapitalization(headingFont.capitalization());
                 charFormat.setFontFamilies(headingFont.families());
                 charFormat.setFontWeight(headingFont.weight());
-                charFormat.setForeground(color(headingTf));
+                charFormat.setForeground(headingTf.color());
             } else if (charFormat.isAnchor()) {
                 charFormat.setForeground(creatorColor(Theme::Token_Text_Accent));
             } else {
-                charFormat.setForeground(color(contentTF));
+                charFormat.setForeground(contentTF.color());
             }
             if (charFormat.fontFixedPitch()) {
                 charFormat.setBackground(creatorColor(Theme::Token_Background_Muted));
