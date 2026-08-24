@@ -58,6 +58,7 @@ set(QMLPROFILER_CPP_SOURCES
   pixmapcachemodel.cpp pixmapcachemodel.h
   qmlnote.cpp qmlnote.h
   profilermode.cpp profilermode.h
+  profilerplugin.cpp
   profilertr.h
   profiler_global.h
   qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
@@ -73,7 +74,6 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
   qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
   qmlprofilerplainviewmanager.cpp qmlprofilerplainviewmanager.h
-  qmlprofilerplugin.cpp
   qmlprofilerrangemodel.cpp qmlprofilerrangemodel.h
   qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
   qmlprofilerruncontrol.cpp qmlprofilerruncontrol.h

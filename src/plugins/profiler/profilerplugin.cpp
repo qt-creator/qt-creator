@@ -44,7 +44,7 @@ using namespace Profiler::Internal;
 
 namespace Profiler::Internal {
 
-class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
+class ProfilerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Profiler.json")
@@ -116,4 +116,4 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
 
 } // namespace Profiler::Internal
 
-#include "qmlprofilerplugin.moc"
+#include "profilerplugin.moc"
