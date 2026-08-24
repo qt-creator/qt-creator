@@ -1546,8 +1546,11 @@ class Dumper(DumperBase):
             self.reportResult('error="No frame"', args)
             return
 
-        self.isArmMac = frame.module.triple.startswith('arm64-apple')
-        self.isBigEndian = frame.module.byte_order == lldb.eByteOrderBig
+        # A frame in a module lldb could not identify - a library loaded from a device
+        # whose loader it cannot read, say - has none of this.
+        triple = frame.module.triple if frame.module else None
+        self.isArmMac = triple is not None and triple.startswith('arm64-apple')
+        self.isBigEndian = frame.module and frame.module.byte_order == lldb.eByteOrderBig
         self.packCode = '>' if self.isBigEndian else '<'
         self.byteorder = 'big' if self.isBigEndian else 'little'
 
