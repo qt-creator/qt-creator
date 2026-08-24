@@ -10,6 +10,7 @@
 #include <profiler/perfsampler.h>
 #include "qtprofilerrpc.h"
 #include "qtprofilersettings.h"
+#include "qtprofilertypes.h"
 #include "recordingpage.h"
 #include <profiler/qmlprofilersampler.h>
 #include <profiler/sampler.h>
@@ -28,6 +29,7 @@
 #include <coreplugin/minisplitter.h>
 
 #include <tracing/rangedetailswidget.h>
+#include <tracing/timelineformatdata.h>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -79,12 +81,6 @@ using namespace std::chrono;
 
 namespace QtProfiler {
 
-// A trace file format determines which manager and view set are used. Chrome
-// Trace Format and Common Trace Format both render through the CTF views.
-// Combined shows the QML profiler views and the sampler views together, for a
-// combined recording (native-mixed sampler trace + its source QML trace).
-enum class Format { Qml, Ctf, Sampler, Combined };
-
 // pkexec's exit code for "the user dismissed the authentication dialog".
 constexpr int pkexecDismissed = 126;
 
@@ -117,7 +113,7 @@ public:
     void onError(const QString &error); // Connected to the loaders' failure signals.
     void showError(const QString &error, const std::optional<SamplerFix> &fix);
     void applyFix(const SamplerFix &fix);
-    void onLoadFinished();
+    void onLoadFinished(const Utils::FilePath &trace, Format format);
     void onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber,
                               const QString &module = {}, quint64 offset = 0);
 
@@ -130,7 +126,21 @@ public:
     void clearTrace();
     void doLoad(const Utils::FilePath &filePath);
     void setTraceDuration(milliseconds ms);
-    milliseconds activeTraceDuration() const;
+    milliseconds traceDuration(Format format) const;
+
+    // Ties the load about to be started to the loadFinished() it will emit, so that
+    // a load finishing after another one was started reports its own trace instead
+    // of whatever is selected by then. A manager loads one trace at a time, so a new
+    // load on it supersedes the pending connection.
+    template <typename Manager>
+    void awaitLoad(Manager *manager, const Utils::FilePath &trace, Format format)
+    {
+        QMetaObject::Connection &connection = loadConnections[manager];
+        disconnect(connection);
+        connection = connect(manager, &Manager::loadFinished, this,
+                             [this, trace, format] { onLoadFinished(trace, format); },
+                             Qt::SingleShotConnection);
+    }
 
     static void openHelpInBrowser();
 
@@ -150,6 +160,7 @@ public:
     SamplerViewManager *samplerManager;
     CombinedTraceLoader *combinedLoader; // Merges a combined bundle into one sampler trace.
     Format activeFormat = Format::Qml;
+    QHash<const QObject *, QMetaObject::Connection> loadConnections; // Pending loads.
     QString lastLoadError;
     QLabel *traceDurationLabel = nullptr;
     ProgressIndicator *progressIndicator;
@@ -322,19 +333,14 @@ WindowPrivate::WindowPrivate(Window *window)
     connect(sidebar, &MainSidebar::traceActivated, this, &WindowPrivate::doLoad);
 
     connect(qmlManager, &QmlProfilerPlainViewManager::error, this, &WindowPrivate::onError);
-    connect(qmlManager, &QmlProfilerPlainViewManager::loadFinished,
-            this, &WindowPrivate::onLoadFinished);
     connect(qmlManager, &QmlProfilerPlainViewManager::gotoSourceLocation, this,
             [this](const QString &file, int line, int column) {
                 onGotoSourceLocation(file, line, column);
             });
 
     connect(ctfManager, &CtfPlainViewManager::error, this, &WindowPrivate::onError);
-    connect(ctfManager, &CtfPlainViewManager::loadFinished, this, &WindowPrivate::onLoadFinished);
 
     connect(samplerManager, &SamplerViewManager::error, this, &WindowPrivate::onError);
-    connect(samplerManager, &SamplerViewManager::loadFinished,
-            this, &WindowPrivate::onLoadFinished);
     connect(samplerManager, &SamplerViewManager::gotoSourceLocation,
             this, &WindowPrivate::onGotoSourceLocation);
 
@@ -606,11 +612,15 @@ void WindowPrivate::applyFix(const SamplerFix &fix)
     process->start();
 }
 
-void WindowPrivate::onLoadFinished()
+void WindowPrivate::onLoadFinished(const FilePath &trace, Format format)
 {
-    setTraceDuration(activeTraceDuration());
-    progressIndicator->hide();
-    RPC::notifyTraceFileLoadingFinished(settings().lastTraceFile(), lastLoadError);
+    const milliseconds duration = traceDuration(format);
+    sidebar->setTraceDuration(trace, duration);
+    if (trace == sidebar->currentTrace()) {
+        setTraceDuration(duration);
+        progressIndicator->hide();
+    }
+    RPC::notifyTraceFileLoadingFinished(trace, lastLoadError);
 }
 
 void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber, int columnNumber,
@@ -619,9 +629,9 @@ void WindowPrivate::onGotoSourceLocation(const QString &fileUrl, int lineNumber,
     RPC::notifyTraceEventSelected(fileUrl, lineNumber, columnNumber, module, offset);
 }
 
-milliseconds WindowPrivate::activeTraceDuration() const
+milliseconds WindowPrivate::traceDuration(Format format) const
 {
-    switch (activeFormat) {
+    switch (format) {
     case Format::Qml: return qmlManager->traceDuration();
     case Format::Ctf: return ctfManager->traceDuration();
     case Format::Sampler: return samplerManager->traceDuration();
@@ -838,33 +848,35 @@ void WindowPrivate::doLoad(const FilePath &filePath)
             // merge the two into one native-mixed sampler trace for the sampler
             // views (asynchronously; see the merged() handler).
             setActiveFormat(Format::Combined);
+            awaitLoad(qmlManager, filePath, Format::Combined);
+            awaitLoad(samplerManager, filePath, Format::Combined);
             qmlManager->loadTraceFile(dir / combinedQmlFileName);
             combinedLoader->load(dir);
         } else if (SamplerViewManager::isSamplerTrace(dir)) {
             setActiveFormat(Format::Sampler);
+            awaitLoad(samplerManager, filePath, Format::Sampler);
             samplerManager->load(dir);
         } else {
             setActiveFormat(Format::Ctf);
+            awaitLoad(ctfManager, filePath, Format::Ctf);
             ctfManager->loadCtf2(dir);
         }
     } else if (filePath.suffix() == "json"_L1) {
         setActiveFormat(Format::Ctf);
+        awaitLoad(ctfManager, filePath, Format::Ctf);
         ctfManager->loadJson(filePath);
     } else {
         setActiveFormat(Format::Qml);
+        awaitLoad(qmlManager, filePath, Format::Qml);
         qmlManager->loadTraceFile(filePath);
     }
+    sidebar->setTraceFormat(filePath, activeFormat);
 }
 
 void WindowPrivate::setTraceDuration(milliseconds ms)
 {
-    const int msCount = ms.count();
-    const QTime durationTime = QTime::fromMSecsSinceStartOfDay(msCount);
-    const QString format = msCount >= 60 * 60 * 1000
-                               ? "H:mm:ss' h'"_L1
-                               : msCount >= 60 * 1000 ? "m:ss' m'"_L1
-                                                      : "s.z' s'"_L1;
-    const QString durationString = durationTime.toString(format);
+    const qint64 ns = duration_cast<nanoseconds>(ms).count();
+    const QString durationString = Timeline::formatTime(ns);
     const QString text = Tr::tr("Trace duration: %1").arg(durationString);
     traceDurationLabel->setText(text);
 }

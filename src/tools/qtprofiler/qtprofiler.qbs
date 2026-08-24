@@ -20,6 +20,7 @@ QtcTool {
         "qtprofilerrpc.h",
         "qtprofilersettings.cpp",
         "qtprofilersettings.h",
+        "qtprofilertypes.h",
         "qtprofilerwindow.cpp",
         "qtprofilerwindow.h",
         "mainsidebar.cpp",
