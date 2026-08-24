@@ -93,6 +93,9 @@ bool GitGraphModel::hasChildren(const QModelIndex &parent) const
         return rowCount() > 0;
     if (parent.internalId() != 0 || parent.row() < 0 || parent.row() >= m_entries.size())
         return false;
+    // Merges never get files from git, no need to wait for the fetch to find out.
+    if (m_entries.at(parent.row()).parents.size() > 1)
+        return false;
     // A commit whose files were not fetched yet is assumed to have some.
     return canFetchMore(parent) || !filesAt(parent.row()).isEmpty();
 }
