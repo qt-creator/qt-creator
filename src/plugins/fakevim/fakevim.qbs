@@ -8,6 +8,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
+    Depends { name: "McpServerLib" }
 
     pluginTestDepends: [
         "CppEditor",
@@ -21,6 +22,8 @@ QtcPlugin {
         "fakevimhandler.h",
         "fakevimplugin.cpp",
         "fakevimtr.h",
+        "mcpsupport.cpp",
+        "mcpsupport.h",
     ]
 
     QtcTestFiles {

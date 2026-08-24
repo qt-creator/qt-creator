@@ -12,6 +12,9 @@
 #include "fakevimactions.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <mcp/server/toolregistry.h>
+
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -22,6 +25,7 @@
 
 #include <QApplication>
 #include <QFocusEvent>
+#include <QJsonObject>
 #include <QDir>
 #include <QFileInfo>
 #include <QKeyEvent>
@@ -117,6 +121,8 @@ private slots:
     void test_vim_ex_join();
     void test_vim_ex_normal();
     void test_advanced_commands();
+
+    void test_mcp_keys();
 
 //public:
 //    void changeStatusData(const QString &info) { m_statusData = info; }
@@ -12103,6 +12109,42 @@ void FakeVimTester::test_vim_qtcreator()
          "#endi" X "f" N
          "}" N
          "");
+}
+
+void FakeVimTester::test_mcp_keys()
+{
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+
+    TestData data;
+    setup(&data);
+    data.setText("some text");
+
+    // Keys sent through the tool edit the current editor, and the reported
+    // cursor is where the keys left it: after "ihello <Esc>" it sits on the
+    // inserted space, column 6 of line 1.
+    const Utils::Result<Mcp::Schema::CallToolResult> result = Mcp::ToolRegistry::callToolForTests(
+        "fakevim_keys",
+        Mcp::Schema::CallToolRequestParams{}.arguments(QJsonObject{{"keys", "ihello <Esc>"}}));
+    QVERIFY2(result, result ? "" : qPrintable(result.error()));
+    QVERIFY(!result->isError().value_or(false));
+    QCOMPARE(data.text(), QByteArray("hello some text"));
+    const QJsonObject content = result->structuredContentAsObject();
+    QCOMPARE(content.value("line").toInt(), 1);
+    QCOMPARE(content.value("column").toInt(), 6);
+
+    // With FakeVim disabled the tool refuses instead of editing the buffer
+    // through the still existing handler.
+    useFakeVim.setValue(false);
+    const Utils::Result<Mcp::Schema::CallToolResult> disabled = Mcp::ToolRegistry::callToolForTests(
+        "fakevim_keys",
+        Mcp::Schema::CallToolRequestParams{}.arguments(QJsonObject{{"keys", "x"}}));
+    QVERIFY(!disabled);
+    QVERIFY2(disabled.error().contains("disabled"), qPrintable(disabled.error()));
+    QCOMPARE(data.text(), QByteArray("hello some text"));
+
+    useFakeVim.setValue(savedUseFakeVim);
 }
 
 } // FakeVim::Internal

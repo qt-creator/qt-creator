@@ -1,4 +1,5 @@
 add_qtc_plugin(FakeVim
+  DEPENDS McpServerLib
   PLUGIN_DEPENDS Core TextEditor
   PLUGIN_TEST_DEPENDS CppEditor
   SOURCES ${TEST_SOURCES}
@@ -7,6 +8,7 @@ add_qtc_plugin(FakeVim
     fakevimhandler.cpp fakevimhandler.h
     fakevimplugin.cpp
     fakevimtr.h
+    mcpsupport.cpp mcpsupport.h
 )
 
 extend_qtc_plugin(FakeVim

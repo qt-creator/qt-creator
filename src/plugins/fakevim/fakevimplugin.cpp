@@ -4,6 +4,7 @@
 #include "fakevimactions.h"
 #include "fakevimhandler.h"
 #include "fakevimtr.h"
+#include "mcpsupport.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -1166,6 +1167,8 @@ void FakeVimPlugin::initialize()
 */
     readSettings();
 
+    registerMcpTools();
+
     // Vimrc can break test so don't source it if running tests.
     if (!ExtensionSystem::PluginManager::testRunRequested())
         maybeReadVimRc();
@@ -1262,6 +1265,11 @@ void FakeVimPlugin::userActionTriggered(int key)
         if (enableFakeVim)
             setUseFakeVimInternal(false);
     }
+}
+
+FakeVimHandler *handlerForEditor(IEditor *editor)
+{
+    return dd ? dd->m_editorToHandler.value(editor).handler : nullptr;
 }
 
 void FakeVimPlugin::updateAllHightLights()
