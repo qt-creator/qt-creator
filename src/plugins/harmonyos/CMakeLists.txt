@@ -3,6 +3,7 @@ add_qtc_plugin(HarmonyOS
   SOURCES
     harmonyosbuilddevice.cpp harmonyosbuilddevice.h
     harmonyosconfigurations.cpp harmonyosconfigurations.h
+    harmonyosdebugsupport.cpp harmonyosdebugsupport.h
     harmonyosconstants.h
     harmonyosdeploystep.cpp harmonyosdeploystep.h
     harmonyosdevice.cpp harmonyosdevice.h

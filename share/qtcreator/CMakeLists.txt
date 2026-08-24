@@ -2,6 +2,7 @@ set(resource_directories
   android
   cplusplus
   glsl
+  harmonyos
   indexer_preincludes
   jsonschemas
   lua-plugins

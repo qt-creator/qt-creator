@@ -17,6 +17,11 @@ inline constexpr char HARMONYOS_BUILD_DEVICE_TYPE[] = "HarmonyOS.BuildDevice.Typ
 // The sshd of the environment that carries the native toolchain, not the system one.
 inline constexpr int HARMONYOS_SSH_PORT = 8022;
 
+// The port the application's own debug server listens on, forwarded to the host.
+inline constexpr int HARMONYOS_DEBUG_PORT = 8123;
+inline constexpr char HARMONYOS_DEBUG_SERVER_PACKAGE[] = "lldbserver";
+inline constexpr char HARMONYOS_DEBUG_PLUGIN[] = "qtcdebug";
+
 inline const Utils::Id HARMONYOS_SERIAL_NUMBER = "HarmonyOS.SerialNumber";
 
 inline constexpr char HARMONYOS_DEPLOY_CONFIG_ID[] = "HarmonyOS.DeployConfiguration";

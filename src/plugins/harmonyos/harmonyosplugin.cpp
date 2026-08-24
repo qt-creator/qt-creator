@@ -3,6 +3,7 @@
 
 #include "harmonyosbuilddevice.h"
 #include "harmonyosconfigurations.h"
+#include "harmonyosdebugsupport.h"
 #include "harmonyosdeploystep.h"
 #include "harmonyosdevice.h"
 #include "harmonyosqtversion.h"
@@ -43,12 +44,14 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
         setupHarmonyOsDeployConfiguration();
         setupHarmonyOsDeployStep();
         setupHarmonyOsRunSupport();
+        setupHarmonyOsDebugSupport();
 
         connect(KitManager::instance(), &KitManager::kitsLoaded, this,
                 &HarmonyOsPlugin::kitsRestored, Qt::SingleShotConnection);
 
 #ifdef WITH_TESTS
         addTestCreator(createHarmonyOsDeviceTest);
+        addTestCreator(createHarmonyOsManifestTest);
 #endif
     }
 

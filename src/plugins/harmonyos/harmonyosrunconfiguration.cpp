@@ -29,8 +29,7 @@ using namespace std::chrono_literals;
 
 namespace HarmonyOs::Internal {
 
-// The application bundle name from the generated harmonyos-build/AppScope/app.json5.
-static QString bundleName(const FilePath &buildDir)
+QString bundleName(const FilePath &buildDir)
 {
     const FilePath appJson = buildDir.pathAppended("harmonyos-build/AppScope/app.json5");
     const Result<QByteArray> contents = appJson.fileContents();

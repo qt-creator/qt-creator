@@ -3,17 +3,8 @@
 
 #pragma once
 
-#ifdef WITH_TESTS
-class QObject;
-#endif
-
 namespace HarmonyOs::Internal {
 
-void setupHarmonyOsDeployStep();
-void setupHarmonyOsDeployConfiguration();
-
-#ifdef WITH_TESTS
-QObject *createHarmonyOsManifestTest();
-#endif
+void setupHarmonyOsDebugSupport();
 
 } // namespace HarmonyOs::Internal

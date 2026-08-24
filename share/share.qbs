@@ -16,6 +16,7 @@ Product {
             "debugger/**/*",
             "designer/**/*",
             "glsl/**/*",
+            "harmonyos/**/*",
             "jsonschemas/**/*",
             "lua-lupdate/**/*",
             "lua-plugins/**/*",

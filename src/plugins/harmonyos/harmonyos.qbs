@@ -19,6 +19,8 @@ QtcPlugin {
     files: [
         "harmonyosbuilddevice.cpp",
         "harmonyosbuilddevice.h",
+        "harmonyosdebugsupport.cpp",
+        "harmonyosdebugsupport.h",
         "harmonyosconfigurations.cpp",
         "harmonyosconfigurations.h",
         "harmonyosconstants.h",

@@ -4,6 +4,10 @@
 #include "harmonyossdk.h"
 #include "harmonyosconstants.h"
 
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
@@ -87,6 +91,76 @@ FilePath binarySignTool(const FilePath &sdkRoot)
         return {};
     const FilePath tool = native.parentDir().pathAppended("toolchains/lib/binary-sign-tool");
     return tool.exists() ? tool : FilePath();
+}
+
+QString sdkVersion(const FilePath &sdkRoot)
+{
+    const FilePath native = nativeSdkPath(sdkRoot);
+    if (native.isEmpty())
+        return {};
+    // Any of the SDK components carries the version the SDK manager knows it by.
+    const FilePath package = native.parentDir().pathAppended("js/oh-uni-package.json");
+    const Result<QByteArray> contents = package.fileContents();
+    if (!contents)
+        return {};
+    const QJsonObject json = QJsonDocument::fromJson(*contents).object();
+    const QString version = json.value("version").toString();
+    const QString api = json.value("apiVersion").toString();
+    if (version.isEmpty() || api.isEmpty())
+        return {};
+    // "6.0.2.130" is spelled "6.0.2" where a compatible version is asked for.
+    const QStringList parts = version.split('.');
+    if (parts.size() < 3)
+        return {};
+    return QString("%1.%2.%3(%4)").arg(parts.at(0), parts.at(1), parts.at(2), api);
+}
+
+QStringList restrictedPermissions(const FilePath &sdkRoot)
+{
+    const FilePath native = nativeSdkPath(sdkRoot);
+    if (native.isEmpty())
+        return {};
+    const FilePath definitions
+        = native.parentDir().pathAppended("toolchains/lib/PermissionDefinitions.json");
+    const Result<QByteArray> contents = definitions.fileContents();
+    if (!contents)
+        return {};
+
+    // Anything above "normal" is only granted when the provisioning profile allows it.
+    QStringList result;
+    const QJsonArray permissions
+        = QJsonDocument::fromJson(*contents).object().value("definePermissions").toArray();
+    for (const QJsonValue &permission : permissions) {
+        const QJsonObject object = permission.toObject();
+        if (object.value("availableLevel").toString() != "normal")
+            result.append(object.value("name").toString());
+    }
+    return result;
+}
+
+FilePath hnpcliCommand(const FilePath &sdkRoot)
+{
+    const FilePath native = nativeSdkPath(sdkRoot);
+    if (native.isEmpty())
+        return {};
+    const FilePath tool = native.parentDir().pathAppended("toolchains/hnpcli");
+    return tool.exists() ? tool : FilePath();
+}
+
+FilePath lldbServerForDevice(const FilePath &sdkRoot)
+{
+    const FilePath native = nativeSdkPath(sdkRoot);
+    if (native.isEmpty())
+        return {};
+    // The device-side server sits with the target-specific runtime bits, whose directory
+    // carries the clang version.
+    const FilePath clang = native.pathAppended("llvm/lib/clang");
+    for (const FilePath &version : clang.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
+        const FilePath server = version.pathAppended("bin/aarch64-linux-ohos/lldb-server");
+        if (server.exists())
+            return server;
+    }
+    return {};
 }
 
 FilePath sysrootPath(const FilePath &sdkRoot)

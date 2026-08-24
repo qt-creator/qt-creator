@@ -5,6 +5,9 @@
 
 #include <utils/filepath.h>
 
+#include <QString>
+#include <QStringList>
+
 namespace Utils { class Environment; }
 
 namespace HarmonyOs::Internal::Sdk {
@@ -26,6 +29,19 @@ Utils::FilePath hdcCommand(const Utils::FilePath &sdkRoot);
 Utils::FilePath hapSignToolJar(const Utils::FilePath &sdkRoot);
 
 Utils::FilePath binarySignTool(const Utils::FilePath &sdkRoot);
+
+// The version of the configured SDK, spelled as build-profile.json5 wants it.
+QString sdkVersion(const Utils::FilePath &sdkRoot);
+
+// The permissions a device only grants when the provisioning profile allows them.
+QStringList restrictedPermissions(const Utils::FilePath &sdkRoot);
+
+// The tool that packs a directory into an .hnp native package.
+Utils::FilePath hnpcliCommand(const Utils::FilePath &sdkRoot);
+
+// The aarch64 lldb-server to ship in a package, so that a debugged application can
+// start it in its own context.
+Utils::FilePath lldbServerForDevice(const Utils::FilePath &sdkRoot);
 
 // The sysroot of the native SDK.
 Utils::FilePath sysrootPath(const Utils::FilePath &sdkRoot);

@@ -12,6 +12,8 @@
 #include <cmakeprojectmanager/cmakekitaspect.h>
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <coreplugin/icore.h>
+#include <qtsupport/qtkitaspect.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -35,6 +37,11 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+
+#ifdef WITH_TESTS
+#include <QTemporaryDir>
+#include <QTest>
+#endif
 
 namespace HarmonyOs::Internal {
 
@@ -104,6 +111,21 @@ public:
     QStringList allowedAcls;
 };
 
+// The signature around the JSON can hold stray braces, so the content is the first
+// balanced object that parses into something a profile would say.
+static QJsonObject signedContent(const QString &text)
+{
+    for (qsizetype at = text.indexOf('{'); at >= 0; at = text.indexOf('{', at + 1)) {
+        const QString object = balancedBraces(text, at);
+        if (object.isEmpty())
+            continue;
+        const QJsonObject json = QJsonDocument::fromJson(object.toUtf8()).object();
+        if (json.contains("bundle-info"))
+            return json;
+    }
+    return {};
+}
+
 static ProvisioningProfile readProvisioningProfile(const FilePath &profile)
 {
     ProvisioningProfile result;
@@ -111,11 +133,7 @@ static ProvisioningProfile readProvisioningProfile(const FilePath &profile)
     if (!contents)
         return result;
 
-    const QString text = QString::fromLatin1(*contents);
-    const QString object = balancedBraces(text, 0);
-    if (object.isEmpty())
-        return result;
-    const QJsonObject json = QJsonDocument::fromJson(object.toUtf8()).object();
+    const QJsonObject json = signedContent(QString::fromLatin1(*contents));
     result.bundleName = json.value("bundle-info").toObject().value("bundle-name").toString();
     for (const QJsonValue &acl : json.value("acls").toObject().value("allowed-acls").toArray())
         result.allowedAcls.append(acl.toString());
@@ -123,9 +141,11 @@ static ProvisioningProfile readProvisioningProfile(const FilePath &profile)
 }
 
 // The permissions Qt asks for that a device only grants when the profile allows them.
-static QStringList aclPermissions()
+// Falls back to the one Qt is known to ask for when the SDK cannot be read.
+static QStringList aclPermissions(const FilePath &sdkRoot)
 {
-    return {"ohos.permission.READ_PASTEBOARD"};
+    const QStringList restricted = Sdk::restrictedPermissions(sdkRoot);
+    return restricted.isEmpty() ? QStringList{"ohos.permission.READ_PASTEBOARD"} : restricted;
 }
 
 // A device refuses to install a package that asks for a permission the provisioning
@@ -160,6 +180,76 @@ static Result<QStringList> dropPermissions(const FilePath &moduleJson, const QSt
     if (const Result<qint64> written = moduleJson.writeFileContents(text.toUtf8()); !written)
         return ResultError(written.error());
     return dropped;
+}
+
+static Result<> addPermission(const FilePath &moduleJson, const QString &name)
+{
+    const Result<QByteArray> contents = moduleJson.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+
+    QString text = QString::fromUtf8(*contents);
+    if (text.contains('"' + name + '"'))
+        return ResultOk;
+
+    static const QRegularExpression re("\"requestPermissions\"\\s*:\\s*\\[");
+    const QRegularExpressionMatch match = re.match(text);
+    if (!match.hasMatch())
+        return ResultError(Tr::tr("No permission list in \"%1\".").arg(moduleJson.toUserOutput()));
+
+    text.insert(match.capturedEnd(), "\n        { \"name\": \"" + name + "\" },");
+    if (const Result<qint64> written = moduleJson.writeFileContents(text.toUtf8()); !written)
+        return ResultError(written.error());
+    return ResultOk;
+}
+
+// A native package is only unpacked on the device when the module declares it.
+static Result<> declareHnpPackage(const FilePath &moduleJson, const QString &fileName)
+{
+    const Result<QByteArray> contents = moduleJson.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+
+    QString text = QString::fromUtf8(*contents);
+    if (text.contains("\"hnpPackages\""))
+        return ResultOk;
+
+    static const QRegularExpression re("\"module\"\\s*:\\s*\\{");
+    const QRegularExpressionMatch match = re.match(text);
+    if (!match.hasMatch())
+        return ResultError(Tr::tr("No module object in \"%1\".").arg(moduleJson.toUserOutput()));
+
+    text.insert(match.capturedEnd(),
+                "\n    \"hnpPackages\": [\n"
+                "      { \"package\": \"" + fileName + "\", \"type\": \"public\" }\n"
+                "    ],");
+    if (const Result<qint64> written = moduleJson.writeFileContents(text.toUtf8()); !written)
+        return ResultError(written.error());
+    return ResultOk;
+}
+
+// The generated project asks for the SDK version Qt was built against, which is not
+// necessarily the one that is installed, and hvigor refuses what its SDK manager cannot find.
+static Result<QString> setSdkVersion(const FilePath &buildProfile, const QString &version)
+{
+    const Result<QByteArray> contents = buildProfile.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+
+    static const QRegularExpression re("(\"compatibleSdkVersion\"\\s*:\\s*\")([^\"]*)(\")");
+    QString text = QString::fromUtf8(*contents);
+    const QRegularExpressionMatch match = re.match(text);
+    if (!match.hasMatch())
+        return ResultError(Tr::tr("No SDK version in \"%1\".").arg(buildProfile.toUserOutput()));
+    const QString previous = match.captured(2);
+    if (previous == version)
+        return previous;
+
+    text.replace(match.capturedStart(), match.capturedLength(),
+                 match.captured(1) + version + match.captured(3));
+    if (const Result<qint64> written = buildProfile.writeFileContents(text.toUtf8()); !written)
+        return ResultError(written.error());
+    return previous;
 }
 
 static Result<QString> setBundleName(const FilePath &appJson, const QString &bundleName)
@@ -317,6 +407,214 @@ private:
         return true;
     }
 
+    // The plugin that starts the server is built here rather than shipped: it has to match
+    // the Qt it is loaded into, and everything needed for that comes from the kit.
+    bool buildDebugPlugin(const FilePath &generic)
+    {
+        BuildConfiguration *const bc = buildConfiguration();
+        QtSupport::QtVersion *const qt = QtSupport::QtKitAspect::qtVersion(bc->kit());
+        const FilePath sdk = settings().sdkLocation();
+        const FilePath compiler = Sdk::clangCompiler(sdk, true);
+        const FilePath sysroot = Sdk::sysrootPath(sdk);
+        const FilePath source = Core::ICore::resourcePath("harmonyos/qtcdebugplugin.cpp");
+        if (!qt || compiler.isEmpty() || sysroot.isEmpty() || !source.exists()) {
+            emit addOutput(Tr::tr("Cannot build the debug plugin; the package will not be "
+                                  "debuggable."), OutputFormat::Stdout);
+            return true;
+        }
+
+        const FilePath work = bc->buildDirectory().pathAppended("harmonyos-debug-plugin");
+        if (const Result<> created = work.ensureWritableDir(); !created) {
+            emit addOutput(created.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        const FilePath plugin = work.pathAppended("libqtcdebug.so");
+        if (plugin.exists() && plugin.lastModified() > source.lastModified())
+            return copyDebugPlugin(plugin, generic);
+
+        const QStringList includes = {"-I" + source.parentDir().path(),
+                                      "-I" + qt->headerPath().path(),
+                                      "-I" + qt->headerPath().pathAppended("QtCore").path(),
+                                      "-I" + qt->headerPath().pathAppended("QtGui").path()};
+
+        // moc resolves the plugin interface id from the Qt headers, so it needs them too.
+        const FilePath mocOutput = work.pathAppended("qtcdebugplugin.moc");
+        Process moc;
+        moc.setCommand({qt->hostLibexecPath().pathAppended("moc"),
+                        QStringList(includes) << source.path() << "-o" << mocOutput.path()});
+        moc.runBlocking();
+        if (!mocOutput.exists()) {
+            emit addOutput(Tr::tr("Running moc for the debug plugin failed: %1")
+                               .arg(moc.allOutput()), OutputFormat::ErrorMessage);
+            return false;
+        }
+
+        Process compile;
+        compile.setCommand({compiler, QStringList{"--target=aarch64-linux-ohos",
+                                                  "--sysroot=" + sysroot.path(),
+                                                  "-fPIC", "-shared", "-std=c++17"}
+                                          << includes << "-I" + work.path()
+                                          << "-L" + qt->libraryPath().path()
+                                          << "-lQt6Core" << "-lQt6Gui"
+                                          << source.path() << "-o" << plugin.path()});
+        compile.runBlocking();
+        if (!plugin.exists()) {
+            emit addOutput(Tr::tr("Building the debug plugin failed: %1")
+                               .arg(compile.allOutput()), OutputFormat::ErrorMessage);
+            return false;
+        }
+        return copyDebugPlugin(plugin, generic);
+    }
+
+    bool copyDebugPlugin(const FilePath &plugin, const FilePath &generic)
+    {
+        if (const Result<> created = generic.ensureWritableDir(); !created) {
+            emit addOutput(created.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        const FilePath target = generic.pathAppended(plugin.fileName());
+        target.removeFile();
+        if (const Result<> copied = plugin.copyFile(target); !copied) {
+            emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        return true;
+    }
+
+    // Qt's project templates are copied from its source tree, which in an in-source build
+    // holds CMake's own files as well. hvigor takes exception to them: with them present it
+    // deletes the generated project mid-run and then reports the files it deleted as missing.
+    void dropCMakeLeftovers()
+    {
+        const QStringList leftovers = {"CMakeFiles", "cmake_install.cmake", "CTestTestfile.cmake"};
+        for (const QString &name : leftovers) {
+            const FilePath path = m_project.pathAppended(name);
+            if (!path.exists())
+                continue;
+            const Result<> removed = path.isDir() ? path.removeRecursively() : path.removeFile();
+            if (!removed)
+                emit addOutput(removed.error(), OutputFormat::Stdout);
+        }
+    }
+
+    // Nothing can be launched under a debugger on the device, so a debugged application
+    // starts the server itself, and both it and the plugin that starts it travel in the
+    // package. hvigor packages no native package, so the server is put in afterwards,
+    // but it has to be declared here, before the manifest is packaged.
+    bool shipDebugPlugin()
+    {
+        if (!buildDebugPlugin(m_project.pathAppended("entry/libs/arm64-v8a/generic")))
+            return false;
+
+        const FilePath moduleJson = m_project.pathAppended("entry/src/main/module.json5");
+        // The server listens on a socket for the debugger on the other side of the forward.
+        if (const Result<> added = addPermission(moduleJson, "ohos.permission.INTERNET"); !added) {
+            emit addOutput(added.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+
+        m_debugServer = packDebugServer();
+        if (m_debugServer.isEmpty())
+            return true;
+
+        const Result<> declared = declareHnpPackage(moduleJson, m_debugServer.fileName());
+        if (!declared) {
+            emit addOutput(declared.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        return true;
+    }
+
+    // Returns the packed server, or nothing when the SDK does not have what it takes.
+    FilePath packDebugServer()
+    {
+        const FilePath sdk = settings().sdkLocation();
+        const FilePath server = Sdk::lldbServerForDevice(sdk);
+        const FilePath hnpcli = Sdk::hnpcliCommand(sdk);
+        if (server.isEmpty() || hnpcli.isEmpty()) {
+            emit addOutput(Tr::tr("No debug server in the HarmonyOS SDK; the package will "
+                                  "not be debuggable."), OutputFormat::Stdout);
+            return {};
+        }
+
+        // What is packed and what comes out are kept apart, so that only the package itself
+        // ends up in the application.
+        const FilePath source = stagingDir().pathAppended("server");
+        const FilePath target = stagingDir().pathAppended("package").pathAppended(hnpDirectory());
+        for (const FilePath &dir : {source.pathAppended("bin"), target}) {
+            if (const Result<> created = dir.ensureWritableDir(); !created) {
+                emit addOutput(created.error(), OutputFormat::ErrorMessage);
+                return {};
+            }
+        }
+        const FilePath staged = source.pathAppended("bin").pathAppended(server.fileName());
+        staged.removeFile();
+        if (const Result<> copied = server.copyFile(staged); !copied) {
+            emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+            return {};
+        }
+
+        Process pack;
+        pack.setCommand({hnpcli, {"pack", "-i", source.nativePath(), "-o", target.nativePath(),
+                                  "-n", Constants::HARMONYOS_DEBUG_SERVER_PACKAGE, "-v", "1.0"}});
+        pack.runBlocking();
+        const FilePath packed
+            = target.pathAppended(QString(Constants::HARMONYOS_DEBUG_SERVER_PACKAGE) + ".hnp");
+        if (!packed.exists()) {
+            emit addOutput(Tr::tr("Packing the debug server failed: %1").arg(pack.allOutput()),
+                           OutputFormat::ErrorMessage);
+            return {};
+        }
+        return packed;
+    }
+
+    // Puts the packed server into the package hvigor built, which leaves it out. Signing
+    // refuses a native package the manifest does not describe, and the device refuses to
+    // install one it cannot find, so this belongs with the declaration.
+    bool addDebugServerToPackage()
+    {
+        if (m_debugServer.isEmpty())
+            return true;
+
+        BuildConfiguration * const bc = buildConfiguration();
+        QTC_ASSERT(bc, return false);
+        const FilePath jar = bc->environment().searchInPath("jar");
+        if (jar.isEmpty()) {
+            emit addOutput(Tr::tr("No \"jar\" to put the debug server into the package with; "
+                                  "the package will not be debuggable."), OutputFormat::Stdout);
+            return true;
+        }
+
+        Process add;
+        add.setCommand({jar, {"u0f", m_package.nativePath(), hnpDirectory().section('/', 0, 0)}});
+        add.setWorkingDirectory(stagingDir().pathAppended("package"));
+        add.runBlocking();
+        if (add.exitCode() != 0) {
+            emit addOutput(Tr::tr("Putting the debug server into the package failed: %1")
+                               .arg(add.allOutput()), OutputFormat::ErrorMessage);
+            return false;
+        }
+        return true;
+    }
+
+    FilePath stagingDir() const
+    {
+        return m_project.parentDir().pathAppended("harmonyos-hnp");
+    }
+
+    static QString hnpDirectory() { return "hnp/arm64-v8a"; }
+
+    // hvigor reuses the libraries of a previous run, which then lacks whatever was staged
+    // since, so its output goes before packaging.
+    void dropStaleModuleOutput()
+    {
+        const FilePath output = m_project.pathAppended("entry/build");
+        if (!output.exists())
+            return;
+        if (const Result<> removed = output.removeRecursively(); !removed)
+            emit addOutput(removed.error(), OutputFormat::Stdout);
+    }
+
     // The libraries Qt needs at run time, which harmonydeployqt does not stage.
     bool addAdditionalPackages()
     {
@@ -358,7 +656,7 @@ private:
             emit addOutput(copied.error(), OutputFormat::ErrorMessage);
             return false;
         }
-        return true;
+        return addDebugServerToPackage();
     }
 
     QtTaskTree::GroupItem runRecipe() final
@@ -368,6 +666,12 @@ private:
         const auto onSetup = [this](Process &process) {
             if (!addAdditionalPackages())
                 return SetupResult::StopWithError;
+            dropCMakeLeftovers();
+            if (buildConfiguration()->buildType() == BuildConfiguration::Debug
+                && !shipDebugPlugin()) {
+                return SetupResult::StopWithError;
+            }
+            dropStaleModuleOutput();
             const ProvisioningProfile profile
                 = readProvisioningProfile(settings().signingProfile());
 
@@ -386,8 +690,22 @@ private:
                 }
             }
 
+            const QString sdkVersion = Sdk::sdkVersion(settings().sdkLocation());
+            if (!sdkVersion.isEmpty()) {
+                const Result<QString> previous
+                    = setSdkVersion(m_project.pathAppended("build-profile.json5"), sdkVersion);
+                if (!previous) {
+                    emit addOutput(previous.error(), OutputFormat::ErrorMessage);
+                    return SetupResult::StopWithError;
+                }
+                if (*previous != sdkVersion) {
+                    emit addOutput(Tr::tr("Packaging against SDK %1, which is the one that is "
+                                          "installed.").arg(sdkVersion), OutputFormat::Stdout);
+                }
+            }
+
             QStringList unwanted;
-            for (const QString &name : aclPermissions()) {
+            for (const QString &name : aclPermissions(settings().sdkLocation())) {
                 if (!profile.allowedAcls.contains(name))
                     unwanted.append(name);
             }
@@ -427,6 +745,7 @@ private:
     QString m_buildKey;
     FilePath m_project;
     FilePath m_package;
+    FilePath m_debugServer;
 };
 
 class PackageHapStepFactory final : public BuildStepFactory
@@ -705,4 +1024,117 @@ void setupHarmonyOsDeployConfiguration()
     static HarmonyOsDeployConfigurationFactory theHarmonyOsDeployConfigurationFactory;
 }
 
+#ifdef WITH_TESTS
+
+class HarmonyOsManifestTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDeclareHnpPackage()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath moduleJson = FilePath::fromString(dir.filePath("module.json5"));
+        QVERIFY(moduleJson.writeFileContents(manifest()));
+
+        QVERIFY(declareHnpPackage(moduleJson, "lldbserver.hnp"));
+        const QString once = text(moduleJson);
+        QVERIFY(once.contains("\"hnpPackages\""));
+        QVERIFY(once.contains("\"package\": \"lldbserver.hnp\""));
+
+        QVERIFY(declareHnpPackage(moduleJson, "lldbserver.hnp"));
+        QCOMPARE(text(moduleJson).count("hnpPackages"), 1);
+    }
+
+    void testAddPermission()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath moduleJson = FilePath::fromString(dir.filePath("module.json5"));
+        QVERIFY(moduleJson.writeFileContents(manifest()));
+
+        QVERIFY(addPermission(moduleJson, "ohos.permission.INTERNET"));
+        QCOMPARE(text(moduleJson).count("ohos.permission.INTERNET"), 1);
+        QVERIFY(text(moduleJson).contains("ohos.permission.STORE_PERSISTENT_DATA"));
+
+        QVERIFY(addPermission(moduleJson, "ohos.permission.INTERNET"));
+        QCOMPARE(text(moduleJson).count("ohos.permission.INTERNET"), 1);
+    }
+
+    void testReadProvisioningProfile()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath profile = FilePath::fromString(dir.filePath("profile.p7b"));
+        // As in a real profile: DER bytes with a stray brace ahead of the JSON.
+        const QByteArray blob = QByteArray("0\x82\x0f{\x06\x09*\x86H")
+            + R"({"version-name":"2.0.0","bundle-info":{"bundle-name":"Qt.Greatest.App"},)"
+              R"("acls":{"allowed-acls":["ohos.permission.READ_PASTEBOARD"]}})";
+        QVERIFY(profile.writeFileContents(blob));
+
+        const ProvisioningProfile read = readProvisioningProfile(profile);
+        QCOMPARE(read.bundleName, QString("Qt.Greatest.App"));
+        QCOMPARE(read.allowedAcls, QStringList{"ohos.permission.READ_PASTEBOARD"});
+    }
+
+    void testDebugPluginSourceIsShipped()
+    {
+        const FilePath source = Core::ICore::resourcePath("harmonyos/qtcdebugplugin.cpp");
+        QVERIFY2(source.exists(), qPrintable(source.toUserOutput()));
+        const Result<QByteArray> contents = source.fileContents();
+        QVERIFY(contents);
+        QVERIFY(contents->contains("QGenericPluginFactoryInterface_iid"));
+        QVERIFY(contents->contains("lldb-server"));
+        QVERIFY(Core::ICore::resourcePath("harmonyos/qtcdebug.json").exists());
+    }
+
+    void testAddPermissionWithoutList()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath moduleJson = FilePath::fromString(dir.filePath("module.json5"));
+        QVERIFY(moduleJson.writeFileContents(R"({ "module": { "name": "entry" } })"));
+
+        QVERIFY(!addPermission(moduleJson, "ohos.permission.INTERNET"));
+    }
+
+private:
+    static QByteArray manifest()
+    {
+        return R"({
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "mainElement": "QAbility",
+    "requestPermissions": [
+        {
+            "name": "ohos.permission.STORE_PERSISTENT_DATA"
+        },
+        {
+            "name": "ohos.permission.FILE_ACCESS_PERSIST"
+        }
+    ]
+  }
+})";
+    }
+
+    static QString text(const FilePath &path)
+    {
+        const Result<QByteArray> contents = path.fileContents();
+        return contents ? QString::fromUtf8(*contents) : QString();
+    }
+};
+
+QObject *createHarmonyOsManifestTest()
+{
+    return new HarmonyOsManifestTest;
+}
+
+#endif // WITH_TESTS
+
 } // namespace HarmonyOs::Internal
+
+#ifdef WITH_TESTS
+#include "harmonyosdeploystep.moc"
+#endif
