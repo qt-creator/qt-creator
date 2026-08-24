@@ -779,7 +779,6 @@ public:
         setId(Constants::ANDROID_SETTINGS_ID);
         setDisplayName(Tr::tr("Android"));
         setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
-        setAutoApply();
         setWidgetCreator([] { return new AndroidSettingsWidget; });
     }
 };
