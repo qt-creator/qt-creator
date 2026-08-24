@@ -256,5 +256,7 @@
 	<string>${IDE_VERSION}</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>An application launched via ${IDE_APP_TARGET} would like to access AppleScript.</string>
 </dict>
 </plist>

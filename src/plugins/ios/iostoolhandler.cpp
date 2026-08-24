@@ -745,10 +745,9 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundl
             isTransferringApp(m_bundlePath, m_deviceId, 100, 100, "");
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Success);
             return true;
-        } else {
-            errorMsg(Tr::tr("Application install on simulator failed. %1").arg(response.error()));
-            didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
         }
+        errorMsg(Tr::tr("Application install on simulator failed. %1").arg(response.error()));
+        didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
         emit q->finished();
         return false;
     };
@@ -869,7 +868,8 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const FilePath &appBundlePath
             m_pid = -1;
             errorMsg(Tr::tr("Application launch on simulator failed. %1").arg(response.error()));
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
-            stop(-1);
+            toolExited(-1);
+            emit q->finished();
         }
         return false;
     };
