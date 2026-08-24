@@ -536,6 +536,8 @@ static QWidget *descriptionPlaceHolder()
 
 ExtensionManagerWidget::ExtensionManagerWidget()
 {
+    // everything here takes effect immediately, nothing to apply
+    setDirtyChecker([]{ return false; });
     m_extensionModel = new ExtensionsModel(this);
     m_extensionBrowser = new ExtensionsBrowser(m_extensionModel);
 
