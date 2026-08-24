@@ -7,6 +7,7 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
+#include <utils/fileutils.h>
 
 #include <QFile>
 #include <QDomDocument>
@@ -232,19 +233,18 @@ static Result<void> modifyActivityMetaData(QDomDocument &doc, QDomElement &manif
 
 static Result<void> saveDocument(const FilePath &manifestPath, const QDomDocument &doc)
 {
-    Core::DocumentManager::expectFileChange(manifestPath);
     QScopeGuard unexpect([&] { Core::DocumentManager::unexpectFileChange(manifestPath); });
-    QFile file(manifestPath.toFSPathString());
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
-        return ResultError(QString("Cannot open manifest file for writing: %1")
-                               .arg(file.errorString()));
-    file.write(doc.toString(4).toUtf8());
-    file.close();
+    Core::DocumentManager::expectFileChange(manifestPath);
+
+    Utils::FileSaver saver(manifestPath, QIODevice::Text);
+    saver.write(doc.toString(4).toUtf8());
+    if (!saver.finalize())
+        return ResultError(QString("Cannot write to manifest file: %1").arg(saver.errorString()));
 
     const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(manifestPath);
     for (Core::IEditor *editor : editors) {
-        if (Core::IDocument *doc = editor->document())
-            doc->reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
+        if (Core::IDocument *editorDocument = editor->document())
+            editorDocument->reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
     }
     return {};
 }
