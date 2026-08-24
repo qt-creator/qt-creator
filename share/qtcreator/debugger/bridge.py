@@ -90,6 +90,12 @@ class DapServer():
         gdb.events.stop.connect(self._onStop)
         gdb.events.exited.connect(self._onExited)
         gdb.events.breakpoint_modified.connect(self._onBreakpointModified)
+        # What MI reports as =library-loaded: without it the modules view stays
+        # empty until the user asks for it by hand.
+        gdb.events.new_objfile.connect(self._onNewObjfile)
+        freed = getattr(gdb.events, 'free_objfile', None)  # gdb 11+
+        if freed is not None:
+            freed.connect(self._onFreeObjfile)
 
     #######################################################################
     # Transport
@@ -284,6 +290,20 @@ class DapServer():
     def _onExited(self, event):
         self.inferiorExited = True
         self.lastExitCode = getattr(event, 'exit_code', None)
+
+    def _onNewObjfile(self, event):
+        self._reportLibrary('loaded', getattr(event, 'new_objfile', None))
+
+    def _onFreeObjfile(self, event):
+        self._reportLibrary('unloaded', getattr(event, 'objfile', None))
+
+    def _reportLibrary(self, reason, objfile):
+        if objfile is None or getattr(objfile, 'owner', None) is not None:
+            return  # an owner means separate debug info for another entry
+        path = getattr(objfile, 'filename', None)
+        if not path:
+            return
+        self.sendEvent('qtc/library', {'reason': reason, 'path': path})
 
     #######################################################################
     # Execution helper

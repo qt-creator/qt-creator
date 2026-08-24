@@ -117,6 +117,7 @@ private:
 
     void handleEvent(DapEventType type, const QJsonObject &event);
     void handleStoppedEvent(const QJsonObject &event);
+    void handleLibraryEvent(const QJsonObject &body);
 
     void connectDataGeneratorSignals();
 
