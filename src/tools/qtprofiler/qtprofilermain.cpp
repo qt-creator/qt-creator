@@ -11,6 +11,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/filepath.h>
 #include <utils/qtcsettings.h>
@@ -70,9 +71,10 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument(
-        "tracefile",
-        "A QML trace (*.qtd, *.qzt), a Chrome Trace Format file (*.json), or a Common Trace "
-        "Format trace directory (or its metadata file).");
+        "tracefile(s)",
+        "QML trace (*.qtd, *.qzt), "
+        "Chrome Trace Format file (*.json), "
+        "Common Trace Format trace directory (or its metadata file).");
     QCommandLineOption exitOnError(QStringList({"e", "exit-on-error"}),
                                    "Exit on error, with error message on stderr.");
     parser.addOption(exitOnError);
@@ -124,13 +126,14 @@ int main(int argc, char *argv[])
 
     QtProfiler::Window window;
     if (!parser.positionalArguments().isEmpty()) {
-        const QString tracefile = parser.positionalArguments().constFirst();
-        const FilePath file = FilePath::fromUserInput(tracefile);
-        QTimer::singleShot(0, &window, [&window, file] {
-            window.loadTraceFile(file);
+        const FilePaths files = Utils::transform(parser.positionalArguments(),
+                                                 &FilePath::fromUserInput);
+        QTimer::singleShot(0, &window, [&window, files] {
+            for (const FilePath &file : files)
+                window.loadTraceFile(file);
         });
         const QString title = parser.isSet(windowTitle) ? parser.value(windowTitle)
-                                                        : file.toUserOutput();
+                                                        : files.constFirst().toUserOutput();
         window.setWindowTitle(title);
     } else if (parser.isSet(windowTitle)) {
         window.setWindowTitle(parser.value(windowTitle));
