@@ -11,6 +11,7 @@
 #include "iossimulator.h"
 #include "iostoolhandler.h"
 #include "iostr.h"
+#include "simulatorcontrol.h"
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerruncontrol.h>
@@ -482,7 +483,15 @@ struct DebugInfo
     bool cppDebug = false;
 };
 
-static void handleIosToolErrorMessage(RunControl *runControl, const QString &message)
+static bool simulatorSupportsX86_64(const IosDeviceType &deviceType)
+{
+    return deviceType.type == IosDeviceType::SimulatedDevice
+           && SimulatorControl::supportsArchitecture(
+               deviceType.identifier, ProjectExplorer::Abi::X86Architecture);
+}
+
+static void handleIosToolErrorMessage(
+    RunControl *runControl, const IosDeviceType &deviceType, const QString &message)
 {
     QString res(message);
     const QString lockedErr = "Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)";
@@ -495,6 +504,15 @@ static void handleIosToolErrorMessage(RunControl *runControl, const QString &mes
         QString message = Tr::tr("The device is locked, please unlock.");
         TaskHub::addTask<DeploymentTask>(Task::Error, message);
         res.replace(lockedErr, message);
+    } else if (message.contains("SBMainWorkspace") && simulatorSupportsX86_64(deviceType)) {
+        TaskHub::addTask<DeploymentTask>(
+            Task::Error,
+            Tr::tr(
+                "The request was denied by service delegate (SBMainWorkspace). Maybe Rosetta 2 is "
+                "not installed?\n"
+                "This can happen if Rosetta 2 is not installed, which is needed to run "
+                "x86_64 binaries on the Simulator on Apple Silicon Macs.\n"
+                "Install it by running \"softwareupdate --install-rosetta\" in Terminal."));
     }
     runControl->postMessage(res, StdErrFormat);
 }
@@ -594,7 +612,8 @@ static Group iosToolKicker(const QStoredBarrier &barrier, RunControl *runControl
     const auto onIosToolSetup = [runControl, debugInfo, bundleDir, deviceType, device,
                                  setupCanceler, barrier](IosToolRunner &runner) {
         runner.setDeviceType(deviceType);
-        runner.setStartHandler([runControl, debugInfo, bundleDir, device, setupCanceler,
+        runner.setStartHandler([runControl, debugInfo, bundleDir, deviceType, device,
+                                setupCanceler,
                                 barrier = barrier.activeStorage()](IosToolHandler *handler) {
             const auto messageHandler = [runControl](const QString &message) {
                 runControl->postMessage(message, StdOutFormat);
@@ -603,8 +622,11 @@ static Group iosToolKicker(const QStoredBarrier &barrier, RunControl *runControl
             QObject::connect(handler, &IosToolHandler::appOutput, runControl, messageHandler);
             QObject::connect(handler, &IosToolHandler::message, runControl, messageHandler);
             QObject::connect(
-                handler, &IosToolHandler::errorMsg, runControl, [runControl](const QString &message) {
-                    handleIosToolErrorMessage(runControl, message);
+                handler,
+                &IosToolHandler::errorMsg,
+                runControl,
+                [runControl, deviceType](const QString &message) {
+                    handleIosToolErrorMessage(runControl, deviceType, message);
                 });
             QObject::connect(
                 handler,
