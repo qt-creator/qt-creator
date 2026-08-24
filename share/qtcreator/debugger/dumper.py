@@ -2940,6 +2940,17 @@ typename))
             resdict['error'] = 'Pending interpreter breakpoint insertion failed.'
         self.reportInterpreterAsync(resdict, 'breakpointmodified')
 
+    serviceFunctionCasts = {
+        'qt_qmlDebugSendDataToService': 'unsigned char (*)(char *, char *)',
+        'qt_qmlDebugEnableService': 'unsigned char (*)(char *)',
+        'qt_qmlDebugClearBuffer': 'void (*)()',
+    }
+
+    serviceVariableCasts = {
+        'qt_qmlDebugMessageBuffer': 'char *',
+        'qt_qmlDebugMessageLength': 'int',
+    }
+
     def callServiceFunction(self, function, args=None):
         # Issue an inferior call to a NativeQmlDebugger service function with
         # string arguments. GDB and LLDB inline the arguments as string
@@ -2947,12 +2958,16 @@ typename))
         # target memory and call by pointer, because cdb's .call rejects
         # string literals (see tests/manual/debugger/qmlmix/cdb-reference.md).
         literals = ', '.join('"%s"' % arg for arg in (args or []))
-        return self.parseAndEvaluateAllowingCalls('%s(%s)' % (function, literals))
+        cast = self.serviceFunctionCasts.get(function)
+        callee = ('((%s)%s)' % (cast, function)) if cast else function
+        return self.parseAndEvaluateAllowingCalls('%s(%s)' % (callee, literals))
 
     def readServiceVariable(self, name):
         # Read a NativeQmlDebugger service global. Overridable so the CDB
         # bridge can module-qualify the symbol.
-        return self.parseAndEvaluateAllowingCalls(name)
+        cast = self.serviceVariableCasts.get(name)
+        exp = ('*(%s*)&%s' % (cast, name)) if cast else name
+        return self.parseAndEvaluateAllowingCalls(exp)
 
     def fetchInterpreterResult(self):
         buf = self.readServiceVariable('qt_qmlDebugMessageBuffer')

@@ -343,6 +343,48 @@ static bool hasQmlNativeDebuggerPlugin()
     });
 }
 
+// A released Qt ships libqmldbg_native without debug info, which leaves its
+// qt_qmlDebug* symbols typeless - the case the casts in dumper.py exist for. A
+// developer build has the debug info, so recreate the released shape from it.
+static Result<FilePath> strippedQmlDebugPluginDir(const FilePath &parentDir)
+{
+    const FilePath pluginDir =
+        FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::PluginsPath)) / "qmltooling";
+    const FilePath original = Utils::findOrDefault(pluginDir.dirEntries(DirFilterFlag::Files),
+                                                   [](const FilePath &path) {
+        const QString base = path.completeBaseName();
+        return base == "qmldbg_native" || base == "libqmldbg_native";
+    });
+    if (original.isEmpty())
+        return ResultError("No qmldbg_native plugin in " + pluginDir.toUserOutput());
+
+    if (Utils::ElfReader(original).readHeaders().indexOf(".debug_info") == -1) {
+        return ResultError(original.toUserOutput()
+                           + " has no .debug_info section to strip - not an ELF build?");
+    }
+
+    const FilePath objcopy = FilePath::fromString("objcopy").searchInPath();
+    if (!objcopy.isExecutableFile())
+        return ResultError(QString("objcopy was not found in PATH."));
+
+    const FilePath strippedDir = parentDir / "qmltooling";
+    if (const Result<> res = strippedDir.ensureWritableDir(); !res)
+        return ResultError(res.error());
+
+    const FilePath stripped = strippedDir / original.fileName();
+    Process objcopyProcess;
+    objcopyProcess.setCommand(
+        {objcopy, {"--strip-debug", original.nativePath(), stripped.nativePath()}});
+    objcopyProcess.runBlocking(s_timeout);
+    if (objcopyProcess.result() != ProcessResult::FinishedWithSuccess)
+        return ResultError("objcopy failed: " + objcopyProcess.allOutput());
+    // Without this the test would silently pass on an unstripped plugin, which
+    // is exactly the configuration that cannot tell the casts apart.
+    if (Utils::ElfReader(stripped).readHeaders().indexOf(".debug_info") != -1)
+        return ResultError(stripped.toUserOutput() + " still carries debug info.");
+    return strippedDir;
+}
+
 static bool hasQtDeclarativeDebugInfo()
 {
     const QDir libDir(QLibraryInfo::path(QLibraryInfo::LibrariesPath));
@@ -693,6 +735,8 @@ private slots:
     void insertsQmlBreakpointAndStopsAtIt();
     void insertsQmlBreakpointBeforeDumpersLoad_data() { addBackendRows(); }
     void insertsQmlBreakpointBeforeDumpersLoad();
+    void resolvesQmlBreakpointWithoutServiceDebugInfo_data() { addBackendRows(); }
+    void resolvesQmlBreakpointWithoutServiceDebugInfo();
     void splicesQmlFramesIntoPlainFullStackWhenNativeMixed_data() { addBackendRows(); }
     void splicesQmlFramesIntoPlainFullStackWhenNativeMixed();
     void stepsOutOfNativeMixedCppFrameBackIntoQml_data() { addBackendRows(); }
@@ -4943,6 +4987,86 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
     QVERIFY2(stoppedAtMarker, qPrintable(QString("no js frame at line %1 - stack: %2")
                                              .arg(markerLine).arg(stack.toString())));
 
+#endif
+}
+
+void tst_backends::resolvesQmlBreakpointWithoutServiceDebugInfo()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    // The CDB bridge marshals the arguments and calls by address, so it never
+    // goes through the casts this exercises.
+    if (backend == Backend::Cdb)
+        QSKIP("The CDB bridge does not use the service call casts.");
+    // Same macOS gap as insertsQmlBreakpointAndStopsAtIt() - see its comment.
+    if (backend == Backend::Lldb && HostOsInfo::isMacHost())
+        QSKIP("QML breakpoint resolution does not work on macOS.");
+
+#ifndef QMLSTACK_INFERIOR_EXECUTABLE
+    QSKIP("Qt::Quick not available when this test binary was configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QMLSTACK_INFERIOR_EXECUTABLE)
+                              / "qmlstack_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("QML stack inferior not found at " + inferior.toUserOutput()));
+
+    // Outlives the engine below, which debugs an inferior that has it mapped.
+    TemporaryDirectory pluginRoot("qmldbg-stripped-XXXXXX");
+    QVERIFY(pluginRoot.isValid());
+    const Result<FilePath> strippedDir = strippedQmlDebugPluginDir(pluginRoot.path());
+    if (!strippedDir)
+        QSKIP(qPrintable(strippedDir.error()));
+
+    Environment env = Environment::systemEnvironment();
+    env.set("QV4_FORCE_INTERPRETER", "1");
+    // Ahead of the plugin the local Qt would load, debug info and all.
+    env.set("QT_PLUGIN_PATH", pluginRoot.path().nativePath());
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
+                        {}, env}, true);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int markerLine = qmlMarkerLine("qmlstack_inferior.qml", "MARKER: qml breakpoint line");
+    QVERIFY(markerLine > 0);
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        insertResults[requestId] = ok;
+    });
+    QList<GdbMi> modifiedReports;
+    connect(engine, &DebuggerEngineInterface::breakpointModified, this,
+            [&modifiedReports](const GdbMi &data) { modifiedReports.append(data); });
+    QStringList wire;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&wire](const QString &text, int, int) { wire.append(text); });
+
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, this,
+            [engine, markerLine](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 30;
+        request.modelId = 42;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
+        request.params.textPosition.line = markerLine;
+        request.params.textPosition.column = 0;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(30), s_qmlStartupTimeout);
+    QVERIFY2(insertResults.value(30), "pending QML breakpoint insert failed");
+
+    // Without the casts the debugger refuses the typeless call and read, so no
+    // request ever reaches the interpreter and the breakpoint stays pending.
+    QTRY_VERIFY2_WITH_TIMEOUT(hasResolvedQmlBreakpoint(modifiedReports, 42),
+                              qPrintable(qmlResolutionDiagnosis(modifiedReports, wire)),
+                              s_qmlStartupTimeout);
 #endif
 }
 
