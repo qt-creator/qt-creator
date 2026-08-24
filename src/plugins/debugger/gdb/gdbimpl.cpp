@@ -1892,6 +1892,20 @@ void GdbImpl::handleOutputLine(const QString &line)
 
             const QString reason = result["reason"].data();
 
+            // The interpreter is reachable from here on, so a breakpoint it refused
+            // earlier can be inserted now. The dumpers stay out of it: an inferior
+            // call from inside this frame suspends the inferior's other threads.
+            if (result["frame"]["func"].data() == u"qt_qmlDebugObjectAvailable") {
+                runCommand({"resolveInterpreterBreakpoints",
+                            DebuggerCommand::NeedsTemporaryStop,
+                           [this](const DebuggerResponse &) {
+                    runCommand({"-exec-continue", [this](const DebuggerResponse &reply) {
+                        m_inferiorRunning = reply.resultClass == ResultRunning;
+                    }});
+                }});
+                break;
+            }
+
             if (m_expectTerminalTrap) {
                 if (HostOsInfo::isWindowsHost() && reason.isEmpty()) {
                     m_expectTerminalTrap = false;

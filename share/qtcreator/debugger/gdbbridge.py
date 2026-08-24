@@ -1524,27 +1524,12 @@ class Dumper(DumperBase):
         self.reportResult(self.takeOutput(), args)
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
-        class Resolver(gdb.Breakpoint):
-            def __init__(self, dumper, args):
-                self.dumper = dumper
-                self.args = args
-                spec = 'qt_qmlDebugConnectorOpen'
-                super(Resolver, self).\
-                    __init__(spec, gdb.BP_BREAKPOINT, internal=True, temporary=False)
-
-            def stop(self):
-                # Inferior calls are not allowed from within stop() and
-                # can leave the inferior's other threads suspended, e.g.
-                # deadlocking the xcb event thread. Stop for real; the
-                # work happens in interpreterStopHandler().
-                self.enabled = False
-                return True
-
-            def interpreterEventHandler(self):
-                self.dumper.resolvePendingInterpreterBreakpoint(self.args)
-                return False  # Do not stay stopped.
-
-        self.interpreterBreakpointResolvers.append(Resolver(self, args))
+        # The connector being open is not enough: the service object the request
+        # goes to is created later, and announced by qt_qmlDebugObjectAvailable.
+        pending = getattr(self, 'pendingInterpreterBreakpoints', [])
+        pending.append(args)
+        self.pendingInterpreterBreakpoints = pending
+        self.ensureInterpreterAvailabilityHook()
 
     def ensureInterpreterMessageBreakpoint(self):
         # The interpreter signals events worth stopping for by calling
@@ -1554,6 +1539,23 @@ class Dumper(DumperBase):
                 self.interpreterMessageBreakpoint = InterpreterMessageBreakpoint()
             except Exception as error:
                 self.warn('Cannot set interpreter message breakpoint: %s' % error)
+
+    def resolveInterpreterBreakpoints(self, args):
+        self.reportToken(args)
+        self.resolvePendingInterpreterBreakpoints()
+        if not getattr(self, 'pendingInterpreterBreakpoints', []):
+            hook = getattr(self, 'objectAvailableBreakpoint', None)
+            if hook is not None:
+                self.objectAvailableBreakpoint = None
+                hook.delete()
+        self.reportResult('', args)
+
+    def ensureInterpreterAvailabilityHook(self):
+        if getattr(self, 'objectAvailableBreakpoint', None) is None:
+            try:
+                self.objectAvailableBreakpoint = ObjectAvailableBreakpoint()
+            except Exception as error:
+                self.warn('Cannot set object availability breakpoint: %s' % error)
 
     def setupMachinerySkips(self):
         # Cross stepping pauses in qt_qmlDebugMessageAvailable() even
@@ -1874,6 +1876,19 @@ class InterpreterMessageBreakpoint(gdb.Breakpoint):
         print('Interpreter event received.')
         # Stay stopped if the interpreter reported a 'break' event.
         return theDumper.handleInterpreterMessage()
+
+
+class ObjectAvailableBreakpoint(gdb.Breakpoint):
+    def __init__(self):
+        spec = 'qt_qmlDebugObjectAvailable'
+        super(ObjectAvailableBreakpoint, self).\
+            __init__(spec, gdb.BP_BREAKPOINT, internal=True)
+
+    def stop(self):
+        return True
+
+    def interpreterEventHandler(self):
+        return True
 
 
 class NativeMethodCallBreakpoint(gdb.Breakpoint):

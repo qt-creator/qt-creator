@@ -2874,6 +2874,15 @@ typename))
         resdict = self.fetchInterpreterResult()
         return resdict.get('event') == 'break'
 
+    def ensureInterpreterAvailabilityHook(self):
+        pass
+
+    def resolvePendingInterpreterBreakpoints(self):
+        pending = getattr(self, 'pendingInterpreterBreakpoints', [])
+        self.pendingInterpreterBreakpoints = []
+        for args in pending:
+            self.resolvePendingInterpreterBreakpoint(args)
+
     def reportInterpreterMessage(self):
         # CDB drives stops from the C++ engine rather than from a Python stop
         # handler (as GDB and LLDB do), so report the decoded QML debug event
@@ -2917,6 +2926,14 @@ typename))
         if bp:
             resdict['number'] = bp
             resdict['pending'] = 0
+        elif not response:
+            pending = getattr(self, 'pendingInterpreterBreakpoints', [])
+            pending.append(args)
+            self.pendingInterpreterBreakpoints = pending
+            self.ensureInterpreterAvailabilityHook()
+            resdict['number'] = -1
+            resdict['pending'] = 1
+            resdict['warning'] = 'Interpreter not reachable yet, still pending.'
         else:
             resdict['number'] = -1
             resdict['pending'] = 0

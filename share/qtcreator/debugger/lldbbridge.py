@@ -1819,6 +1819,13 @@ class Dumper(DumperBase):
                             self.reportState("inferiorstopok")
                         self.process.Continue()
                         return
+                    if "qt_qmlDebugObjectAvailable" in (functionName or ''):
+                        self.report("OBJECT AVAILABLE")
+                        self.resolvePendingInterpreterBreakpoints()
+                        if not getattr(self, 'pendingInterpreterBreakpoints', []):
+                            self.dropInterpreterAvailabilityHook()
+                        self.process.Continue()
+                        return
                     if "qt_qmlDebugMessageAvailable" in (functionName or ''):
                         self.report("ASYNC MESSAGE FROM SERVICE")
                         # The interpreter step won the race (possibly a
@@ -2730,6 +2737,21 @@ class Dumper(DumperBase):
         bp.SetOneShot(True)
         self.internalBreakpointIds.add(bp.GetID())
         self.interpreterResolverHookBreakpoint = bp
+
+    def ensureInterpreterAvailabilityHook(self):
+        if getattr(self, 'objectAvailableBreakpoint', None) is not None:
+            return
+        bp = self.target.BreakpointCreateByName('qt_qmlDebugObjectAvailable')
+        self.internalBreakpointIds.add(bp.GetID())
+        self.objectAvailableBreakpoint = bp
+
+    def dropInterpreterAvailabilityHook(self):
+        bp = getattr(self, 'objectAvailableBreakpoint', None)
+        if bp is None:
+            return
+        self.internalBreakpointIds.discard(bp.GetID())
+        self.target.BreakpointDelete(bp.GetID())
+        self.objectAvailableBreakpoint = None
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         self.createInterpreterResolverHookBreakpoint()
