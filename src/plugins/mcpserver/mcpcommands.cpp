@@ -845,6 +845,7 @@ struct WidgetQuery
     QString className;
     QString windowTitle;
     bool includeInvisible = false;
+    int index = -1;
 };
 
 static WidgetQuery widgetQueryFromJson(const QJsonObject &p)
@@ -855,6 +856,7 @@ static WidgetQuery widgetQueryFromJson(const QJsonObject &p)
     q.className = p.value("class_name").toString();
     q.windowTitle = p.value("window_title").toString();
     q.includeInvisible = p.value("include_invisible").toBool(false);
+    q.index = p.contains("index") ? p.value("index").toInt(-1) : -1;
     return q;
 }
 
@@ -935,6 +937,18 @@ static bool widgetMatches(const QWidget *w, const WidgetQuery &q)
     return true;
 }
 
+// A widget's position in its parent's children(), walked up to its window: a
+// creation-order key that tells apart identical widgets overlapping on screen.
+static QList<int> siblingIndexPath(QWidget *w)
+{
+    QList<int> path;
+    while (QWidget *parent = w->parentWidget()) {
+        path.prepend(parent->children().indexOf(w));
+        w = parent;
+    }
+    return path;
+}
+
 static QList<QWidget *> resolveWidgets(const WidgetQuery &q)
 {
     QList<QWidget *> result;
@@ -942,7 +956,40 @@ static QList<QWidget *> resolveWidgets(const WidgetQuery &q)
         if (widgetMatches(w, q))
             result.append(w);
     }
+    // allWidgets() has no defined order, so order the matches as they appear on
+    // screen to make an index into them reproducible. Identical widgets that
+    // overlap exactly (e.g. hidden stacked pages) fall back to their position
+    // in the widget tree, which is equally stable across runs.
+    Utils::sort(result, [](QWidget *l, QWidget *r) {
+        const QPoint lp = l->mapToGlobal(QPoint(0, 0));
+        const QPoint rp = r->mapToGlobal(QPoint(0, 0));
+        if (lp.y() != rp.y())
+            return lp.y() < rp.y();
+        if (lp.x() != rp.x())
+            return lp.x() < rp.x();
+        if (l->objectName() != r->objectName())
+            return l->objectName() < r->objectName();
+        if (const int c = qstrcmp(l->metaObject()->className(), r->metaObject()->className()))
+            return c < 0;
+        return siblingIndexPath(l) < siblingIndexPath(r);
+    });
     return result;
+}
+
+// Applies the query's index to the sorted matches: no index leaves them
+// untouched, a valid index picks that single match, anything else is an error.
+// An empty input stays empty so "no match" reporting stays with the caller.
+static Result<QList<QWidget *>> applyQueryIndex(const QList<QWidget *> &matches,
+                                                const WidgetQuery &q)
+{
+    if (q.index < 0 || matches.isEmpty())
+        return matches;
+    if (q.index >= matches.size()) {
+        return ResultError(QString("Index %1 is out of range; the query matches %2 widgets.")
+                               .arg(q.index)
+                               .arg(matches.size()));
+    }
+    return QList<QWidget *>{matches.at(q.index)};
 }
 
 static QString checkStateName(Qt::CheckState state)
@@ -1005,20 +1052,23 @@ static Result<QWidget *> resolveSingleWidget(const WidgetQuery &q)
         return ResultError(QString("Empty widget query; specify at least one of "
                                    "object_name, text, class_name, window_title."));
     }
-    const QList<QWidget *> matches = resolveWidgets(q);
-    if (matches.isEmpty())
+    const QList<QWidget *> all = resolveWidgets(q);
+    if (all.isEmpty())
         return ResultError(QString("No widget matched the query."));
-    if (matches.size() > 1) {
+    const Result<QList<QWidget *>> matches = applyQueryIndex(all, q);
+    if (!matches)
+        return ResultError(matches.error());
+    if (matches->size() > 1) {
         QStringList desc;
-        for (QWidget *w : matches)
+        for (QWidget *w : *matches)
             desc << describeWidgetShort(w);
         return ResultError(
             QString("Ambiguous widget query: %1 matches [%2]. Narrow it with "
-                    "object_name, class_name or window_title.")
-                .arg(matches.size())
+                    "object_name, class_name or window_title, or pick one with index.")
+                .arg(matches->size())
                 .arg(desc.join(", ")));
     }
-    return matches.first();
+    return matches->first();
 }
 
 // Resolves a query to the widget that should receive a key event. Unlike
@@ -1045,19 +1095,22 @@ static Result<QWidget *> resolveKeyTarget(const WidgetQuery &q)
             return focus;
         return ResultError(QString("No target widget: give a query or focus one."));
     }
-    const QList<QWidget *> matches = resolveWidgets(q);
-    if (matches.isEmpty())
+    const QList<QWidget *> all = resolveWidgets(q);
+    if (all.isEmpty())
         return ResultError(QString("No widget matched the query."));
-    if (matches.size() == 1)
-        return keyEntryWidget(matches.first());
+    const Result<QList<QWidget *>> matches = applyQueryIndex(all, q);
+    if (!matches)
+        return ResultError(matches.error());
+    if (matches->size() == 1)
+        return keyEntryWidget(matches->first());
     QWidgetList windows;
-    for (QWidget *w : matches) {
+    for (QWidget *w : *matches) {
         if (QWidget *win = w->window(); win && !windows.contains(win))
             windows.append(win);
     }
     if (windows.size() != 1) {
         return ResultError(QString("Query matches %1 widgets across %2 windows; narrow it.")
-                               .arg(matches.size())
+                               .arg(matches->size())
                                .arg(windows.size()));
     }
     QWidget *window = windows.first();
@@ -3067,7 +3120,15 @@ void McpCommands::registerCommands()
                 "include_invisible",
                 QJsonObject{
                     {"type", "boolean"},
-                    {"description", "Also match hidden widgets (default false)."}});
+                    {"description", "Also match hidden widgets (default false)."}})
+            .addProperty(
+                "index",
+                QJsonObject{
+                    {"type", "integer"},
+                    {"description", "Pick the nth match, 0-based and in on-screen order (top to "
+                                    "bottom, then left to right), instead of failing when the "
+                                    "query matches several widgets. Listing tools report just "
+                                    "that match."}});
     };
 
     ToolRegistry::registerTool(
@@ -3101,8 +3162,11 @@ void McpCommands::registerCommands()
                         {"error", "Empty widget query; specify at least one of object_name, "
                                   "text, class_name, window_title."}};
             }
+            const Utils::Result<QList<QWidget *>> matches = applyQueryIndex(resolveWidgets(q), q);
+            if (!matches)
+                return {{"count", 0}, {"widgets", QJsonArray{}}, {"error", matches.error()}};
             QJsonArray arr;
-            for (QWidget *w : resolveWidgets(q))
+            for (QWidget *w : *matches)
                 arr.append(describeWidget(w));
             return {{"count", arr.size()}, {"widgets", arr}};
         }));
@@ -3756,10 +3820,13 @@ void McpCommands::registerCommands()
                         {"error", "Empty widget query; specify at least one of object_name, "
                                   "text, class_name, window_title."}};
             }
-            const QList<QWidget *> matches = resolveWidgets(q);
-            QJsonObject result{{"exists", !matches.isEmpty()}, {"count", matches.size()}};
-            if (!matches.isEmpty())
-                result["first"] = describeWidget(matches.first());
+            const QList<QWidget *> all = resolveWidgets(q);
+            const Utils::Result<QList<QWidget *>> matches = applyQueryIndex(all, q);
+            if (!matches)
+                return {{"exists", false}, {"count", all.size()}, {"error", matches.error()}};
+            QJsonObject result{{"exists", !matches->isEmpty()}, {"count", all.size()}};
+            if (!matches->isEmpty())
+                result["first"] = describeWidget(matches->first());
             return result;
         }));
 
@@ -4175,8 +4242,12 @@ void McpCommands::registerCommands()
                 // the matches to their distinct top-level windows: capturing
                 // is unambiguous as long as they all live in the same window
                 // (e.g. window_title matches every widget in a dialog).
+                const Utils::Result<QList<QWidget *>> matches
+                    = applyQueryIndex(resolveWidgets(q), q);
+                if (!matches)
+                    return ResultError(matches.error());
                 QWidgetList windows;
-                for (QWidget *w : resolveWidgets(q)) {
+                for (QWidget *w : *matches) {
                     if (QWidget *win = w->window(); win && !windows.contains(win))
                         windows.append(win);
                 }
