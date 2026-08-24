@@ -434,6 +434,25 @@ FilePath mapToContainerPath(const QList<MountPair> &mounts, const FilePath &host
     return {};
 }
 
+QString driveLetterContainerPath(const FilePath &normalizedHostPath)
+{
+    const QString path = normalizedHostPath.path();
+    if (!normalizedHostPath.startsWithDriveLetter())
+        return path;
+    return '/' + path.left(1) + path.mid(2); // strip the colon: C:/dev/src -> /C/dev/src
+}
+
+QString mountPathFor(OsType hostOs, const FilePath &hostPath)
+{
+    // path(), not nativePath(): the separators follow hostOs, not the host the
+    // tests happen to run on.
+    if (hostOs != OsTypeWindows)
+        return hostPath.path();
+    // The destination the mount is bound at, which a Linux container reads
+    // case-sensitively, so it has to be the spelling containerPathFor() answers.
+    return driveLetterContainerPath(hostPath.normalizedPathName());
+}
+
 QString invertedDriveLetterPath(OsType hostOs, const FilePath &devicePath)
 {
     if (hostOs != OsTypeWindows)
@@ -540,13 +559,14 @@ Result<Environment> DockerDevicePrivate::fetchEnvironment() const
 
 QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
 {
-    return containerPathFor(m_dev->mountPairs(m_dev->q->mounts.value()), hostPath);
+    return containerPathFor(
+        m_dev->mountPairs(m_dev->q->mounts.value()), HostOsInfo::hostOs(), hostPath);
 }
 
-QString containerPathFor(const QList<MountPair> &mounts, const QString &hostPath)
+QString containerPathFor(const QList<MountPair> &mounts, OsType hostOs, const QString &hostPath)
 {
     // make sure to convert windows style paths to unix style paths with the file system case:
-    // C:/dev/src -> /c/dev/src
+    // C:/dev/src -> /C/dev/src
     const FilePath normalized = FilePath::fromString(hostPath).normalizedPathName();
 
     // A mount that names its container path decides where the file is, so it
@@ -555,12 +575,9 @@ QString containerPathFor(const QList<MountPair> &mounts, const QString &hostPath
     if (!mapped.isEmpty())
         return mapped.path();
 
-    QString newPath = normalized.path();
-    if (HostOsInfo::isWindowsHost() && normalized.startsWithDriveLetter()) {
-        const QChar lowerDriveLetter = newPath.at(0);
-        newPath = '/' + lowerDriveLetter + newPath.mid(2); // strip C:
-    }
-    return newPath;
+    if (hostOs == OsTypeWindows)
+        return driveLetterContainerPath(normalized);
+    return normalized.path();
 }
 
 Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
@@ -671,25 +688,9 @@ static QString autoDetectedX11Display()
     return "host.docker.internal:" + (colon == -1 ? QString("0") : hostDisplay.mid(colon + 1));
 }
 
-static QString escapeMountPathUnix(const FilePath &fp)
-{
-    return fp.nativePath().replace('\"', "\"\"");
-}
-
-static QString escapeMountPathWin(const FilePath &fp)
-{
-    QString result = fp.nativePath().replace('\"', "\"\"").replace('\\', '/');
-    if (result.size() >= 2 && result[1] == ':')
-        result = "/" + result[0] + "/" + result.mid(3);
-    return result;
-}
-
 static QString escapeMountPath(const FilePath &fp)
 {
-    if (HostOsInfo::isWindowsHost())
-        return escapeMountPathWin(fp);
-
-    return escapeMountPathUnix(fp);
+    return mountPathFor(HostOsInfo::hostOs(), fp).replace('\"', "\"\"");
 }
 
 static QStringList toMountArg(const MountPair &mi)
@@ -1643,7 +1644,7 @@ FilePath DockerDevice::configuredDevicePath(const FilePath &localPath) const
     if (!localPath.isLocal())
         return {};
     return rootPath().withNewPath(
-        containerPathFor(d->mountPairs(mounts.value()), localPath.path()));
+        containerPathFor(d->mountPairs(mounts.value()), HostOsInfo::hostOs(), localPath.path()));
 }
 
 Result<Environment> DockerDevice::systemEnvironmentWithError() const

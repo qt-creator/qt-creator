@@ -139,6 +139,46 @@ private slots:
         QVERIFY(!hostPathFor(other, OsTypeWindows, devicePath));
     }
 
+    // The spelling a one-to-one Windows mount gets inside the container.
+    void testDriveLetterContainerPath_data()
+    {
+        QTest::addColumn<QString>("hostPath");
+        QTest::addColumn<QString>("containerPath");
+
+        QTest::newRow("drive") << "C:/dev/src" << "/C/dev/src";
+        QTest::newRow("drive root") << "C:/" << "/C/";
+        QTest::newRow("unix path") << "/work" << "/work";
+    }
+
+    void testDriveLetterContainerPath()
+    {
+        QFETCH(QString, hostPath);
+        QFETCH(QString, containerPath);
+
+        QCOMPARE(driveLetterContainerPath(FilePath::fromString(hostPath)), containerPath);
+    }
+
+    // The destination a mount is bound at and the path a process is handed have
+    // to be the same string, or a Linux container reads them as two directories.
+    void testMountDestinationMatchesMappedPath_data()
+    {
+        QTest::addColumn<int>("hostOs");
+        QTest::addColumn<QString>("hostPath");
+
+        QTest::newRow("windows host") << int(OsTypeWindows) << "C:/Dev/Src";
+        QTest::newRow("windows host, lower case") << int(OsTypeWindows) << "c:/dev/src";
+        QTest::newRow("unix host") << int(OsTypeLinux) << "/home/user/src";
+    }
+
+    void testMountDestinationMatchesMappedPath()
+    {
+        QFETCH(int, hostOs);
+        QFETCH(QString, hostPath);
+
+        QCOMPARE(mountPathFor(OsType(hostOs), FilePath::fromUserInput(hostPath)),
+                 containerPathFor(parseMounts({hostPath}), OsType(hostOs), hostPath));
+    }
+
     // The entries are macro-expanded before they are split. The default entry is
     // "%{Config:DefaultProjectDirectory:NativeFilePath}", so reading the raw
     // value would mount that literal string instead of a directory.

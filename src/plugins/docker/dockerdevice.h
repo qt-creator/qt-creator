@@ -50,6 +50,14 @@ QList<MountPair> parseMounts(const QStringList &entries);
 // the plain path. The way back is DockerDevicePrivate::localSource().
 Utils::FilePath mapToContainerPath(const QList<MountPair> &mounts, const Utils::FilePath &hostPath);
 
+// Where a Windows path ends up inside the container when mounted one to one:
+// C:/dev/src -> /C/dev/src. Expects canonical capitalization.
+QString driveLetterContainerPath(const Utils::FilePath &normalizedHostPath);
+
+// How a host path is spelled on the docker command line, both as a mount's
+// source and as the destination it is bound at.
+QString mountPathFor(Utils::OsType hostOs, const Utils::FilePath &hostPath);
+
 // Inverts the drive-letter mapping a Windows host applies on the way in (see
 // mapToDevicePath): /c/dev/src -> C:/dev/src. Empty when the path is not shaped
 // like that, or when the host does not map that way at all. Takes the host OS
@@ -64,7 +72,8 @@ Utils::Result<Utils::FilePath> hostPathFor(
 
 // The whole host-to-container translation: the mounts above, and failing those
 // the drive letter a Windows host gets. Pure, so it needs no running container.
-QString containerPathFor(const QList<MountPair> &mounts, const QString &hostPath);
+QString containerPathFor(
+    const QList<MountPair> &mounts, Utils::OsType hostOs, const QString &hostPath);
 
 } // namespace Internal
 
