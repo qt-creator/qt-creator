@@ -21,6 +21,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 import threading
 import types
 
@@ -48,6 +49,37 @@ def quoteArgument(argument):
     # starts the inferior through and by gdb's own argument splitting, so an
     # argument containing spaces survives either way.
     return '"%s"' % argument.replace('\\', '\\\\').replace('"', '\\"')
+
+
+def dotEscape(text):
+    # 'sharedlibrary' takes a regular expression, and this is how GdbEngine
+    # feeds a path to it: the separators become the wildcard.
+    return text.replace(' ', '.').replace('\\', '.').replace('/', '.')
+
+
+def parseSymbolLine(line):
+    # What 'maint print msymbols' writes, e.g.
+    #   [ 0] A 0x16bd64 _DYNAMIC  moc_qudpsocket.cpp
+    #   [12] S 0xe94680 _ZN4myns5QFileC1Ev section .plt  myns::QFile::QFile()
+    if not line.startswith('['):
+        return None
+    _, _, rest = line.partition(']')
+    parts = rest.split(None, 2)
+    if len(parts) < 3 or not parts[1].startswith('0x'):
+        return None
+    state, address, tail = parts
+    if ' section ' in tail:
+        name, _, after = tail.partition(' section ')
+        pieces = after.split(None, 1)
+        section = pieces[0]
+        demangled = pieces[1] if len(pieces) > 1 else ''
+    else:
+        pieces = tail.split(None, 1)
+        name = pieces[0]
+        section = ''
+        demangled = pieces[1] if len(pieces) > 1 else ''
+    return {'state': state, 'address': address, 'name': name.strip(),
+            'section': section, 'demangled': demangled.strip()}
 
 
 def warn(message):
@@ -1037,6 +1069,52 @@ class DapServer():
         _, _, payload = output.partition(',')
         self.sendResponse(request, body={'dumperResult': payload.strip()})
 
+    def cmd_qtc_loadSymbols(self, request):
+        args = request.get('arguments', {})
+        if args.get('all'):
+            self._executeQuietly('sharedlibrary .*')
+            self.sendResponse(request)
+            return
+        module = gdbLineArgument(args.get('module') or '', 'the module path')
+        if not module:
+            self.sendResponse(request, success=False,
+                              message='No usable module path: %r' % args.get('module'))
+            return
+        self._executeQuietly('sharedlibrary %s' % dotEscape(module))
+        self.sendResponse(request)
+
+    def cmd_qtc_fetchSymbols(self, request):
+        # gdb's Python API cannot enumerate an object file's symbols; 'maint
+        # print msymbols' can, but only into a file.
+        args = request.get('arguments', {})
+        module = gdbLineArgument(args.get('module') or '', 'the module path')
+        if not module:
+            self.sendResponse(request, success=False,
+                              message='No usable module path: %r' % args.get('module'))
+            return
+
+        handle, path = tempfile.mkstemp(prefix='qtc-msymbols-')
+        os.close(handle)
+        try:
+            # Both quoted: an unquoted -objfile with a space in it makes gdb
+            # answer "Junk at end of command".
+            gdb.execute('maint print msymbols -objfile %s -- %s'
+                        % (quoteArgument(module), quoteArgument(path)),
+                        to_string=True)
+            with open(path, 'r', errors='replace') as listing:
+                lines = listing.read().splitlines()
+        except (gdb.error, OSError) as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        finally:
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+        symbols = [entry for entry in map(parseSymbolLine, lines) if entry]
+        self.sendResponse(request, body={'module': module, 'symbols': symbols})
+
     def cmd_qtc_configureTarget(self, request):
         # Tell gdb where the target's sources and libraries are, before the
         # program is loaded.
@@ -1081,14 +1159,6 @@ class DapServer():
         if output:
             self.sendEvent('output', {'category': 'console', 'output': output})
 
-    def cmd_qtc_loadSymbols(self, request):
-        # 'sharedlibrary' with no argument means every library, which is what
-        # an empty module stands for.
-        args = request.get('arguments', {})
-        module = args.get('module') or '.*'
-        self._executeQuietly('sharedlibrary %s' % module)
-        self.sendResponse(request)
-
     def cmd_qtc_reloadDumpers(self, request):
         try:
             self.dumperSetup = self.dumper.reloadDumpers({})
@@ -1096,59 +1166,6 @@ class DapServer():
             self.sendResponse(request, success=False, message=str(error))
             return
         self.sendResponse(request)
-
-    def _parseMsymbolLine(self, line):
-        if not line or line[0] != '[':
-            return None
-        posCode = line.find(']') + 2
-        posAddress = line.find('0x', posCode)
-        if posAddress < 0:
-            return None
-        posName = line.find(' ', posAddress)
-        posSection = line.find(' section ')
-        section = ''
-        demangled = ''
-        if posSection < 0:
-            name = line[posName:]
-        else:
-            name = line[posName:posSection]
-            posSection += 9
-            posDemangled = line.find(' ', posSection + 1)
-            if posDemangled < 0:
-                section = line[posSection:]
-            else:
-                section = line[posSection:posDemangled]
-                demangled = line[posDemangled + 1:]
-        return {'state': line[posCode:posCode + 1],
-                'address': line[posAddress:posName],
-                'name': name.strip(),
-                'section': section.strip(),
-                'demangled': demangled.strip()}
-
-    def cmd_qtc_fetchSymbols(self, request):
-        # 'maint print msymbols' only writes to a file, so it goes through one.
-        args = request.get('arguments', {})
-        module = args.get('module', '')
-        import tempfile
-        handle, path = tempfile.mkstemp(prefix='qtc-msymbols-')
-        os.close(handle)
-        try:
-            gdb.execute('maint print msymbols -objfile %s -- "%s"' % (module, path),
-                        to_string=True)
-            with open(path, 'r', errors='replace') as symbolFile:
-                text = symbolFile.read()
-        except (gdb.error, OSError) as error:
-            self.sendResponse(request, success=False, message=str(error))
-            return
-        finally:
-            try:
-                os.remove(path)
-            except OSError:
-                pass
-
-        symbols = [entry for entry in (self._parseMsymbolLine(line)
-                                       for line in text.split('\n')) if entry]
-        self.sendResponse(request, body={'module': module, 'symbols': symbols})
 
     def cmd_qtc_fetchModules(self, request):
         # gdb's Python API lists the objfiles but not where they are loaded or

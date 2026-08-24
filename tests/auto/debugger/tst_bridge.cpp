@@ -111,6 +111,9 @@ void tst_Bridge::protocol_data()
     QTest::newRow("a rejected argument fails the launch")
         << "a-rejected-argument-fails-the-launch";
     QTest::newRow("a loaded library is reported") << "a-loaded-library-is-reported";
+    QTest::newRow("module symbols are fetched") << "module-symbols-are-fetched";
+    QTest::newRow("symbols are loaded for a module")
+        << "symbols-are-loaded-for-a-module";
     QTest::newRow("startup commands reach gdb") << "startup-commands-reach-gdb";
     QTest::newRow("data requests use the dumpers") << "data-requests-use-the-dumpers";
 }

@@ -587,12 +587,39 @@ void BridgeEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
     bp->updateFromGdbOutput(bkpt, runParameters());
 }
 
-void BridgeEngine::loadSymbols(const Utils::FilePath & /*moduleName*/)
+void BridgeEngine::loadSymbols(const Utils::FilePath &moduleName)
 {
+    m_dapClient->postRequest("qtc/loadSymbols",
+                             QJsonObject{{"module", moduleName.path()}});
 }
+
+void BridgeEngine::requestModuleSymbols(const Utils::FilePath &moduleName)
+{
+    m_dapClient->postRequest("qtc/fetchSymbols",
+                             QJsonObject{{"module", moduleName.path()}});
+}
+
+void BridgeEngine::handleFetchSymbolsResponse(const QJsonObject &response)
+{
+    const QJsonObject body = response.value("body").toObject();
+    Symbols symbols;
+    for (const QJsonValue &value : body.value("symbols").toArray()) {
+        const QJsonObject item = value.toObject();
+        Symbol symbol;
+        symbol.state = item.value("state").toString();
+        symbol.address = item.value("address").toString();
+        symbol.name = item.value("name").toString();
+        symbol.section = item.value("section").toString();
+        symbol.demangled = item.value("demangled").toString();
+        symbols.append(symbol);
+    }
+    showModuleSymbols(FilePath::fromUserInput(body.value("module").toString()), symbols);
+}
+
 
 void BridgeEngine::loadAllSymbols()
 {
+    m_dapClient->postRequest("qtc/loadSymbols", QJsonObject{{"all", true}});
 }
 
 void BridgeEngine::reloadModules()
@@ -862,6 +889,14 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
             handleFetchVariablesResponse(response);
         else if (command == "qtc/fetchModules")
             handleFetchModulesResponse(response);
+        else if (command == "qtc/fetchSymbols")
+            handleFetchSymbolsResponse(response);
+        else if (command == "qtc/loadSymbols") {
+            // What the newly read symbols change: the module list, and every
+            // view that resolves an address through them.
+            reloadModules();
+            updateAll();
+        }
         else if (command == "qtc/executeCommand")
             handleExecuteCommandResponse(response);
         else if (command == "qtc/fetchRegisters")

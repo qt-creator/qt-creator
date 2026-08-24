@@ -147,6 +147,13 @@ def makeFakeGdb():
         module.commands.append(command)
         if command == "info sharedlibrary":
             return module.sharedLibraryListing
+        if command.startswith("maint print msymbols"):
+            path = command.rsplit(" -- ", 1)[1].strip('"')
+            with open(path, "w") as listing:
+                listing.write("Object file /lib/libc.so.6:\n"
+                              "[ 0] A 0x16bd64 _DYNAMIC  moc_qudpsocket.cpp\n"
+                              "[12] S 0xe94680 _ZN4myns5QFileC1Ev section .plt"
+                              "  myns::QFile::QFile()\n")
         if command.startswith("interpreter-exec mi"):
             if module.miErrorRecord:
                 return module.miErrorRecord
@@ -981,6 +988,38 @@ def check_an_unusable_program_fails_the_launch(bridge):
         "an executable was loaded anyway: %s" % gdb.commands
 
 
+def check_module_symbols_are_fetched(bridge):
+    # ShowModuleSymbolsCapability is claimed, so "Show Symbols" has to answer
+    # with something; gdb only writes msymbols to a file.
+    peer = Peer(bridge)
+    peer.request("qtc/fetchSymbols", {"module": "/lib/a dir/libc.so.6"})
+    body = responsesOf(peer.messages(), "qtc/fetchSymbols")[0]["body"]
+    assert body["module"] == "/lib/a dir/libc.so.6", body
+    assert len(body["symbols"]) == 2, body
+    assert body["symbols"][0] == {"state": "A", "address": "0x16bd64",
+                                  "name": "_DYNAMIC", "section": "",
+                                  "demangled": "moc_qudpsocket.cpp"}, body
+    assert body["symbols"][1]["section"] == ".plt", body
+    assert body["symbols"][1]["demangled"] == "myns::QFile::QFile()", body
+    # The listing went through a file, which has to be gone again.
+    written = [c for c in gdb.commands if c.startswith("maint print msymbols")]
+    assert len(written) == 1, gdb.commands
+    path = written[0].rsplit(" -- ", 1)[1].strip('"')
+    assert not os.path.exists(path), "the temporary listing was left behind: " + path
+
+
+def check_symbols_are_loaded_for_a_module(bridge):
+    peer = Peer(bridge)
+    peer.request("qtc/loadSymbols", {"module": "/usr/lib/a dir/libfoo.so.1"})
+    # 'sharedlibrary' takes a regular expression, so the separators become the
+    # wildcard, as GdbEngine does it.
+    assert "sharedlibrary .usr.lib.a.dir.libfoo.so.1" in gdb.commands, gdb.commands
+
+    del gdb.commands[:]
+    peer.request("qtc/loadSymbols", {"all": True})
+    assert "sharedlibrary .*" in gdb.commands, gdb.commands
+
+
 def check_a_loaded_library_is_reported(bridge):
     # Without this the modules view stays empty until the user asks for it;
     # MI reports the same thing as =library-loaded.
@@ -1070,6 +1109,8 @@ checks = {
     "a-rejected-argument-fails-the-launch":
         check_a_rejected_argument_fails_the_launch,
     "a-loaded-library-is-reported": check_a_loaded_library_is_reported,
+    "module-symbols-are-fetched": check_module_symbols_are_fetched,
+    "symbols-are-loaded-for-a-module": check_symbols_are_loaded_for_a_module,
     "startup-commands-reach-gdb": check_startup_commands_reach_gdb,
     "data-requests-use-the-dumpers": check_data_requests_use_the_dumpers,
 }
