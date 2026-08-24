@@ -25,6 +25,7 @@ SearchSymbols::SearchSymbols()
     : symbolsToSearchFor(SymbolType::Classes | SymbolType::Functions | SymbolType::Enums)
 {
     overview.showTemplateParameters = true;
+    overview.includeWhiteSpaceInOperatorName = false;
 }
 
 void SearchSymbols::setSymbolsToSearchFor(const SymbolTypes &types)
