@@ -36,7 +36,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QStackedWidget>
-#include <QTimer>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -151,48 +150,6 @@ private:
     QCheckBox m_detectX64AsX32CheckBox;
 };
 
-// --------------------------------------------------------------------------
-// ToolChainOptionsWidget
-// --------------------------------------------------------------------------
-
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
-
-class StackedWidget final : public QStackedWidget
-{
-    Q_OBJECT
-
-public:
-    using QStackedWidget::QStackedWidget;
-
-    bool event(QEvent *ev) final
-    {
-        const bool res = QStackedWidget::event(ev);
-
-        if (ev->type() == QEvent::ChildAdded) {
-            QChildEvent *childEvent = static_cast<QChildEvent *>(ev);
-            if (QWidget *w = qobject_cast<QWidget *>(childEvent->child())) {
-                QTimer::singleShot(0, this, [this, w = QPointer(w)] {
-                    QTC_ASSERT(w, return);
-                    const int idx = indexOf(w.get());
-                    emit widgetAdded(idx);
-                });
-            }
-        }
-
-        return res;
-    }
-
-signals:
-    void widgetAdded(int index);
-};
-
-#else
-
-using StackedWidget = QStackedWidget;
-
-#endif
-
 } // namespace ProjectExplorer::Internal
 
 Q_DECLARE_METATYPE(ProjectExplorer::Internal::ToolchainTreeItem)
@@ -202,7 +159,7 @@ namespace ProjectExplorer::Internal {
 class ToolchainModel final : public TypedGroupedModel<ToolchainTreeItem>
 {
 public:
-    explicit ToolchainModel(StackedWidget *widgetStack);
+    explicit ToolchainModel(QStackedWidget *widgetStack);
     ~ToolchainModel() override;
 
     int insertBundle(const ToolchainBundle &bundle, bool changed = false);
@@ -220,11 +177,11 @@ public:
 private:
     QVariant variantData(int row, int column, int role) const override;
 
-    StackedWidget * const m_widgetStack;
+    QStackedWidget * const m_widgetStack;
     QMap<Id, ToolchainConfigWidget *> m_widgets;
 };
 
-ToolchainModel::ToolchainModel(StackedWidget *widgetStack)
+ToolchainModel::ToolchainModel(QStackedWidget *widgetStack)
     : m_widgetStack(widgetStack)
 {
     setHeader({Tr::tr("Name"), Tr::tr("Type"), Tr::tr("Language")});
@@ -457,7 +414,7 @@ public:
 
 private:
     DetailsWidget m_container;
-    StackedWidget m_widgetStack;
+    QStackedWidget m_widgetStack;
     ToolchainModel m_model{&m_widgetStack};
     GroupedView m_groupedView{m_model};
     DeviceComboBox m_deviceComboBox;
@@ -764,8 +721,3 @@ ToolChainOptionsPage::ToolChainOptionsPage()
 }
 
 } // namespace ProjectExplorer::Internal
-
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
-#include "toolchainoptionspage.moc"
-#endif
