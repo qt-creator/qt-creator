@@ -509,6 +509,7 @@ void InfoBarDisplay::update()
             }
 
             auto showDetailsButton = new QToolButton;
+            showDetailsButton->setObjectName("infoBarDetailsButton." + info.id().toString());
             showDetailsButton->setCheckable(true);
             showDetailsButton->setChecked(m_isShowingDetailsWidget);
             showDetailsButton->setText(Tr::tr("&Show Details"));
@@ -547,8 +548,12 @@ void InfoBarDisplay::update()
         }
 
         const QList<InfoBarEntry::Button> buttons = info.buttons();
+        int buttonIndex = 0;
         for (const InfoBarEntry::Button &button : buttons) {
             auto infoWidgetButton = new QToolButton;
+            infoWidgetButton->setObjectName(QString("infoBarButton.%1.%2")
+                                                .arg(info.id().toString())
+                                                .arg(buttonIndex++));
             infoWidgetButton->setText(button.text);
             infoWidgetButton->setToolTip(button.tooltip);
             infoWidgetButton->setEnabled(button.enabled);
@@ -562,6 +567,7 @@ void InfoBarDisplay::update()
         QToolButton *infoWidgetSuppressButton = nullptr;
         if (info.globalSuppression() == InfoBarEntry::GlobalSuppression::Enabled) {
             infoWidgetSuppressButton = new QToolButton;
+            infoWidgetSuppressButton->setObjectName("infoBarSuppressButton." + id.toString());
             infoWidgetSuppressButton->setText(msgDoNotShowAgain());
             connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
                 m_infoBar->removeInfo(id);
@@ -572,6 +578,7 @@ void InfoBarDisplay::update()
         QToolButton *infoWidgetCloseButton = nullptr;
         if (info.hasCancelButton()) {
             infoWidgetCloseButton = new QToolButton;
+            infoWidgetCloseButton->setObjectName("infoBarCloseButton." + id.toString());
             // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
             // because the latter removes the button and with it any connect
             if (info.cancelButtonCallback())

@@ -185,8 +185,9 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
         return cb;
     };
 
-    const auto makeDetails = [this, info] {
+    const auto makeDetails = [this, info, id] {
         auto showDetailsButton = new QToolButton;
+        showDetailsButton->setObjectName("infoBarDetailsButton." + id.toString());
         showDetailsButton->setText(::Core::Tr::tr("Show Details..."));
         connect(showDetailsButton, &QToolButton::clicked, this, [this, info](bool) {
             if (m_detailsWidget) {
@@ -208,8 +209,11 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
         return showDetailsButton;
     };
 
-    const auto makeButton = [infoBar, id](const InfoBarEntry::Button &button) {
+    int buttonIndex = 0;
+    const auto makeButton = [infoBar, id, &buttonIndex](const InfoBarEntry::Button &button) {
         auto infoWidgetButton = new QToolButton;
+        infoWidgetButton->setObjectName(
+            QString("infoBarButton.%1.%2").arg(id.toString()).arg(buttonIndex++));
         infoWidgetButton->setText(button.text);
         infoWidgetButton->setToolTip(button.tooltip);
         connect(infoWidgetButton, &QAbstractButton::clicked, [button, infoBar, id] {
@@ -220,6 +224,7 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
 
     const auto makeSuppressionButton = [infoBar, id, this] {
         auto infoWidgetSuppressButton = new QToolButton;
+        infoWidgetSuppressButton->setObjectName("infoBarSuppressButton." + id.toString());
         infoWidgetSuppressButton->setText(msgDoNotShowAgain());
         connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [infoBar, id] {
             if (!infoBar)
@@ -275,6 +280,7 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
     titleLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH5));
 
     if (info.hasCancelButton() && QTC_GUARD(infoWidgetCloseButton)) {
+        infoWidgetCloseButton->setObjectName("infoBarCloseButton." + id.toString());
         // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
         // because the latter removes the button and with it any connect
         if (info.cancelButtonCallback()) {
