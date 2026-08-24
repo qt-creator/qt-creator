@@ -1333,6 +1333,8 @@ void MiniProjectTargetSelector::activeBuildConfigurationChanged(BuildConfigurati
     } else {
         m_listWidgets[DEPLOY]->setProjectConfigurations({}, nullptr);
         activeDeployConfigurationChanged(nullptr);
+        m_listWidgets[RUN]->setProjectConfigurations({}, nullptr);
+        activeRunConfigurationChanged(nullptr);
     }
     m_listWidgets[BUILD]->setActiveProjectConfiguration(bc);
     updateActionAndSummary();
