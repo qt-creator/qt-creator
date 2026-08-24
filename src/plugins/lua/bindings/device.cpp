@@ -104,6 +104,14 @@ void setupDeviceModule()
                 DeviceManager::removeDevice(d->id());
         };
 
+        result["setKitRunDevice"] = [](const QString &kitId, const QString &deviceId) -> bool {
+            Kit *kit = KitManager::kit(Id::fromString(kitId));
+            if (!kit)
+                return false;
+            RunDeviceKitAspect::setDeviceId(kit, Id::fromString(deviceId));
+            return true;
+        };
+
         // Connects to the device and runs the same auto-detection as the device
         // configuration's "Run Auto-detection": toolchains, debuggers and Qt
         // versions, then (re)creates the device's kits. Awaitable: returns a list
