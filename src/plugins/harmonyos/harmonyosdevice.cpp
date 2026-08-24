@@ -41,16 +41,18 @@ static DeviceTester *createHarmonyOsDeviceTester(const IDevice::Ptr &device);
 class AccessData
 {
 public:
-    SynchronizedValue<QString> serialNumber;
-    SynchronizedValue<FilePath> hdcCommand;
+    QString serialNumber;
+    FilePath hdcCommand;
 };
+
+using SharedAccessData = std::shared_ptr<SynchronizedValue<AccessData>>;
 
 static const char s_exitCodeMarker[] = "__qtc_exit_code=";
 
 class HarmonyOsFileAccess final : public UnixDeviceFileAccess
 {
 public:
-    explicit HarmonyOsFileAccess(const std::shared_ptr<AccessData> &data)
+    explicit HarmonyOsFileAccess(const SharedAccessData &data)
         : m_data(data)
     {}
 
@@ -97,8 +99,9 @@ public:
 
     Result<> transfer(const QStringList &mode, const QString &from, const QString &to) const
     {
-        CommandLine cmd(*m_data->hdcCommand.readLocked());
-        cmd.addArgs({"-t", *m_data->serialNumber.readLocked()});
+        const AccessData data = m_data->get();
+        CommandLine cmd(data.hdcCommand);
+        cmd.addArgs({"-t", data.serialNumber});
         cmd.addArgs(mode);
         cmd.addArgs({from, to});
 
@@ -117,8 +120,9 @@ protected:
     Result<RunResult> runInShellImpl(const CommandLine &cmdLine,
                                      const QByteArray &inputData) const final
     {
-        CommandLine cmd(*m_data->hdcCommand.readLocked());
-        cmd.addArgs({"-t", *m_data->serialNumber.readLocked(), "shell"});
+        const AccessData data = m_data->get();
+        CommandLine cmd(data.hdcCommand);
+        cmd.addArgs({"-t", data.serialNumber, "shell"});
         // hdc exits successfully whatever the command did, so have the shell report
         // the status itself.
         CommandLine remote = cmdLine;
@@ -144,13 +148,13 @@ protected:
     }
 
 private:
-    std::shared_ptr<AccessData> m_data;
+    SharedAccessData m_data;
 };
 
 class HarmonyOsDevice::Private
 {
 public:
-    std::shared_ptr<AccessData> accessData = std::make_shared<AccessData>();
+    SharedAccessData accessData = std::make_shared<SynchronizedValue<AccessData>>();
     std::shared_ptr<HarmonyOsFileAccess> fileAccess;
 };
 
@@ -194,14 +198,14 @@ QString HarmonyOsDevice::serialNumber() const
 void HarmonyOsDevice::setSerialNumber(const QString &serial)
 {
     setExtraData(Constants::HARMONYOS_SERIAL_NUMBER, serial);
-    *d->accessData->serialNumber.writeLocked() = serial;
+    d->accessData->write([&serial](AccessData &data) { data.serialNumber = serial; });
     updateFileAccess();
 }
 
 void HarmonyOsDevice::updateFileAccess()
 {
     const FilePath hdc = Sdk::hdcCommand(settings().sdkLocation());
-    *d->accessData->hdcCommand.writeLocked() = hdc;
+    d->accessData->write([&hdc](AccessData &data) { data.hdcCommand = hdc; });
 
     if (hdc.isEmpty() || serialNumber().isEmpty() || deviceState() != IDevice::DeviceReadyToUse) {
         setFileAccess(nullptr);
@@ -216,8 +220,9 @@ void HarmonyOsDevice::updateFileAccess()
 
 ProcessInterface *HarmonyOsDevice::createProcessInterface() const
 {
-    const FilePath hdc = *d->accessData->hdcCommand.readLocked();
-    const QString serial = *d->accessData->serialNumber.readLocked();
+    const AccessData access = d->accessData->get();
+    const FilePath hdc = access.hdcCommand;
+    const QString serial = access.serialNumber;
     const auto wrapCommandLine = [hdc, serial](const ProcessSetupData &setupData,
                                                const QString &pidMarker,
                                                const QString &exitCodeTemplate)
