@@ -404,7 +404,7 @@ public:
 
     bool isDirty() const
     {
-        return m_inner && m_inner->isDirty();
+        return !m_page->autoApply() && m_inner && m_inner->isDirty();
     }
 
 private:

@@ -60,6 +60,7 @@ public:
     QString displayCategory() const;
     Utils::FilePath categoryIconPath() const;
     bool recreateOnCancel() const;
+    bool autoApply() const;
 
     std::optional<Utils::AspectContainer *> aspects() const;
     bool matches(const QRegularExpression &regexp) const;

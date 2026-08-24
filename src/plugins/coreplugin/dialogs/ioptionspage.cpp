@@ -328,6 +328,19 @@ bool IOptionsPage::recreateOnCancel() const
     return d->m_recreateOnCancel;
 }
 
+bool IOptionsPage::autoApply() const
+{
+    return d->m_autoApply;
+}
+
+/*!
+    Marks the page as applying its changes right away.
+
+    Such a page is never dirty, so the \uicontrol Options dialog neither
+    enables \uicontrol Apply for it nor asks about unapplied changes when
+    leaving it. This is the widget counterpart of an auto-apply
+    Utils::AspectContainer.
+*/
 void IOptionsPage::setAutoApply()
 {
     d->m_autoApply = true;
