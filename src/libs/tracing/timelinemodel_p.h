@@ -9,10 +9,10 @@
 namespace Timeline {
 
 struct HueLookupTable {
-    QRgb table[360];
+    QRgb table[kHueRange];
     HueLookupTable();
 
-    QRgb operator[](int hue) const { return table[hue % 360]; }
+    QRgb operator[](int hue) const { return table[hue % kHueRange]; }
 };
 
 class TRACING_EXPORT TimelineModel::TimelineModelPrivate {
@@ -24,7 +24,6 @@ public:
     static const int SelectionIdHueMultiplier = 25;
     static const int FractionHueMultiplier = 96;
     static const int FractionHueMininimum = 10;
-    static const int Saturation = 130;
 
     struct Range {
         Range() : start(-1), duration(-1), selectionId(-1), parent(-1), endIndex(-1) {}

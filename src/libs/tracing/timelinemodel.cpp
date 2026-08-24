@@ -12,6 +12,13 @@
 
 namespace Timeline {
 
+int defaultColorLightness()
+{
+    const Qt::ColorScheme scheme = Utils::creatorTheme() ? Utils::creatorTheme()->colorScheme()
+                                                         : Utils::Theme::systemColorScheme();
+    return scheme == Qt::ColorScheme::Dark ? 115 : 175;
+}
+
 /*!
     \class Timeline::TimelineModel
     \brief The TimelineModel class provides a sorted model for timeline data.
@@ -697,11 +704,9 @@ int TimelineModel::prevItemByTypeId(int requestedTypeId, qint64 time, int curren
 
 HueLookupTable::HueLookupTable()
 {
-    const Qt::ColorScheme scheme = Utils::creatorTheme()->colorScheme();
-    const int lightness = scheme == Qt::ColorScheme::Dark ? 115 : 175;
-    for (int hue = 0; hue < 360; ++hue) {
-        table[hue] = QColor::fromHsl(hue, TimelineModel::TimelineModelPrivate::Saturation,
-                                     lightness).rgb();
+    const int lightness = defaultColorLightness();
+    for (int hue = 0; hue < kHueRange; ++hue) {
+        table[hue] = QColor::fromHsl(hue, kDefaultSaturation, lightness).rgb();
     }
 }
 

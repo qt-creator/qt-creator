@@ -14,6 +14,12 @@
 
 namespace Timeline {
 
+constexpr int kHueRange = 360;
+constexpr int kDefaultSaturation = 130;
+constexpr int kSaturationSteps = 16;
+
+TRACING_EXPORT int defaultColorLightness();
+
 class RowLabel
 {
 public:

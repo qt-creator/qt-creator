@@ -26,15 +26,26 @@ PerfTimelineModel::PerfTimelineModel(quint32 pid, quint32 tid, qint64 startTime,
 }
 
 struct ColorTable {
-    QRgb table[360 * 16];
+    QRgb table[Timeline::kHueRange * Timeline::kSaturationSteps];
     ColorTable() {
-        for (int hue = 0; hue < 360; ++hue) {
-            for (int saturation = 0; saturation < 16; ++saturation)
-                table[hue * 16 + saturation] = QColor::fromHsl(hue, 75 + saturation * 12, 166).rgb();
+        const int saturationIncrement = 12;
+        const int saturationRange = Timeline::kSaturationSteps * saturationIncrement;
+        const int saturationRangeStart = Timeline::kDefaultSaturation - saturationRange / 2;
+        const int lightness = Timeline::defaultColorLightness();
+        for (int hue = 0; hue < Timeline::kHueRange; ++hue) {
+            for (int i = 0; i < Timeline::kSaturationSteps; ++i) {
+                const int saturation = qBound(0, saturationRangeStart + i * saturationIncrement,
+                                              255);
+                table[hue * Timeline::kSaturationSteps + i]
+                        = QColor::fromHsl(hue, saturation, lightness).rgb();
+            }
         }
     }
 
-    QRgb get(int hue, int saturation) const { return table[hue * 16 + saturation]; }
+    QRgb get(int hue, int saturation) const
+    {
+        return table[hue * Timeline::kSaturationSteps + saturation];
+    }
 };
 
 QRgb PerfTimelineModel::color(int index) const
@@ -46,11 +57,11 @@ QRgb PerfTimelineModel::color(int index) const
                      avgSampleDuration / 2),
                 avgSampleDuration * 2);
     const qint64 saturation = 10 * avgSampleDuration / sampleDuration - 5;
-    QTC_ASSERT(saturation < 16, return QRgb(0));
+    QTC_ASSERT(saturation < Timeline::kSaturationSteps, return QRgb(0));
     QTC_ASSERT(saturation >= 0, return QRgb(0));
 
     const int id = selectionId(index);
-    int hue = qAbs(id * 25) % 360;
+    int hue = qAbs(id * 25) % Timeline::kHueRange;
     // Native-mixed prototype: push QML/JS frames into a green band so they read
     // apart from native C++ frames at a glance, while keeping per-function
     // variation. A proper per-kind palette can replace this once the typed
