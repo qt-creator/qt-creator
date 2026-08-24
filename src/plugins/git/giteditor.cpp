@@ -479,8 +479,11 @@ void GitEditorWidget::jumpToDiffTarget(const FilePath &filePath,
                             relativePath.toUrlishString(),
                             lineNumber,
                             revision,
-                            [this, filePath, lineNumber, contextBlock](int resolvedLine) {
-        VcsBaseEditorWidget::jumpToDiffTarget(filePath, resolvedLine > 0 ? resolvedLine : lineNumber, contextBlock);
+                            [this, topLevel, lineNumber, contextBlock]
+                            (const QString &resolvedFilePath, int resolvedLine) {
+        const FilePath newPath = topLevel.pathAppended(resolvedFilePath);
+        const int newLine = resolvedLine > 0 ? resolvedLine : lineNumber;
+        VcsBaseEditorWidget::jumpToDiffTarget(newPath, newLine, contextBlock);
     });
 }
 

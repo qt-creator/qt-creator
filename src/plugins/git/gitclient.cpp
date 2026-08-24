@@ -403,7 +403,7 @@ public:
 private:
     void resolveCurrentLine(const QString &filePath,
                             int originalLineNumber,
-                            const std::function<void(int)> &callback) override
+                            const std::function<void(const QString &, int)> &callback) override
     {
         gitClient().resolveLine(workingDirectory(), filePath, originalLineNumber, m_id, callback);
     }
@@ -4698,27 +4698,36 @@ void GitClient::resolveLine(const FilePath &workingDirectory,
                             const QString &relativeFilePath,
                             int originalLine,
                             const QString &hash,
-                            const std::function<void(int)> &callback)
+                            const std::function<void(const QString &, int)> &callback)
 {
     if (!callback)
         return;
     if (hash.isEmpty()) {
-        callback(originalLine);
+        callback(relativeFilePath, originalLine);
         return;
     }
 
     const QString linePattern = QString("-L%1,%1").arg(originalLine);
+    const auto command = [callback, originalLine, relativeFilePath](const CommandResult &result) {
+        const QStringList blame = result.cleanedStdOut().split('\n');
+        if (blame.size() < 12) {
+            callback(relativeFilePath, originalLine);
+            return;
+        }
+        QString newFilePath;
+        if (blame.at(10).startsWith("filename"))
+            newFilePath = blame.at(10).mid(9);
+        else if (blame.at(11).startsWith("filename"))
+            newFilePath = blame.at(11).mid(9);
 
-    const auto command = [callback, originalLine](const CommandResult &result) {
-        const QString firstLine = result.cleanedStdOut().section('\n', 0, 0);
-        const QStringList items = firstLine.split(' '); // <hash> <new line> <original line> <lines>
+        const QStringList items = blame.first().split(' '); // <hash> <new line> <original line> <lines>
         if (items.size() != 4) {
-            callback(originalLine);
+            callback(relativeFilePath, originalLine);
             return;
         }
         bool ok = false;
         const int newLine = items.at(1).toInt(&ok);
-        callback(newLine && ok ? newLine : originalLine);
+        callback(newFilePath, newLine && ok ? newLine : originalLine);
     };
 
     const QStringList args =

@@ -545,8 +545,9 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
         return;
 
     auto jumpToOriginalFile = [this](const QString &file, int line, int column) {
-        m_controller.resolveCurrentLine(file, line, [this, file, column](int line) {
-            m_controller.jumpToOriginalFile(file, line, column);
+        m_controller.resolveCurrentLine(
+            file, line, [this, column](const QString &resolvedFile, int line) {
+                m_controller.jumpToOriginalFile(resolvedFile, line, column);
         });
     };
 

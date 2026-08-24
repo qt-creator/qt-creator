@@ -439,7 +439,7 @@ public:
                      const QString &relativeFilePath,
                      int originalLine,
                      const QString &hash,
-                     const std::function<void(int)> &callback);
+                     const std::function<void(const QString &, int)> &callback);
 
     Author parseAuthor(const QString &authorInfo);
     Author getAuthor(const Utils::FilePath &workingDirectory);

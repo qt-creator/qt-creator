@@ -74,7 +74,7 @@ private:
                                  const ChunkSelection &selection);
     virtual void resolveCurrentLine(const QString &relativeFilePath,
                                     int originalLine,
-                                    const std::function<void(int)> &callback);
+                                    const std::function<void(const QString &, int)> &callback);
 
     Internal::DiffEditorDocument *const m_document;
     QString m_displayName;
