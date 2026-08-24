@@ -148,6 +148,10 @@ protected:
     struct OverlayScale {
         QList<ScaleLabel> labels;
         QList<QRectF> lines; // 1px full-width divider rects
+        constexpr static Utils::StyleHelper::TextFormat textFormat {
+            .themeColor = Utils::Theme::Timeline_TextColor,
+            .uiElement = Utils::StyleHelper::UiElementCaption,
+        };
     };
 
     // Selection/hover borders, in widget(content) space, colour and line width

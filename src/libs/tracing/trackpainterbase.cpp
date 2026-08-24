@@ -433,7 +433,7 @@ void TrackPainterBase::buildScaleOverlay(const Track &track, OverlayScale &out) 
 
     static const int kScaleMinH = 60;
     static const int kScaleStep = 30;
-    static const int kFontPx = 8;
+    static const int kFontPx = OverlayScale::textFormat.lineHeight();
     static const int kMarg = 2;
 
     const int w = viewWidth();

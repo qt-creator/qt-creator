@@ -151,20 +151,13 @@ void TrackPainterRaster::paintScaleOverlay(QPainter &p, const Track &track) cons
     if (ov.labels.isEmpty() && ov.lines.isEmpty())
         return;
 
-    static const int kFontPx = 8;
-
-    p.save();
-    QFont sf = font();
-    sf.setPixelSize(kFontPx);
-    p.setFont(sf);
-    p.setRenderHint(QPainter::Antialiasing, true);
-
     const QColor scaleDiv = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
     for (const QRectF &line : std::as_const(ov.lines))
         p.fillRect(line, scaleDiv);
 
-    const QColor scaleText = Utils::creatorColor(Utils::Theme::Timeline_TextColor);
-    p.setPen(scaleText);
+    p.save();
+    p.setFont(OverlayScale::textFormat.font());
+    p.setPen(OverlayScale::textFormat.color());
     for (const ScaleLabel &label : std::as_const(ov.labels))
         p.drawText(QPointF(label.x, label.baselineY), label.text);
     p.restore();

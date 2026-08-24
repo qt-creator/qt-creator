@@ -165,20 +165,15 @@ void TrackPainterGpu::paintScaleOverlay(QCanvasPainter &p, const Track &track) c
     if (ov.labels.isEmpty() && ov.lines.isEmpty())
         return;
 
-    static const int kFontPx = 8;
-
     p.save();
-    QFont sf = font();
-    sf.setPixelSize(kFontPx);
-    p.setFont(sf);
 
     const QColor scaleDiv = Utils::creatorColor(Utils::Theme::Timeline_DividerColor);
     p.setFillStyle(scaleDiv);
     for (const QRectF &line : std::as_const(ov.lines))
         p.fillRect(line);
 
-    const QColor scaleText = Utils::creatorColor(Utils::Theme::Timeline_TextColor);
-    p.setFillStyle(scaleText);
+    p.setFont(OverlayScale::textFormat.font());
+    p.setFillStyle(OverlayScale::textFormat.color());
     for (const ScaleLabel &label : std::as_const(ov.labels))
         p.fillText(label.text, label.x, label.baselineY);
     p.restore();
