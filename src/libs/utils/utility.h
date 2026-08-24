@@ -69,16 +69,7 @@ template<typename Type, typename... Arguments>
 constexpr auto to_sorted_array(Arguments &&...arguments)
 {
     auto array = to_array<Type>(std::forward<Arguments>(arguments)...);
-    // std::sort is not constexpr before C++20, so sort in place ourselves.
-    for (std::size_t i = 1; i < array.size(); ++i) {
-        Type key = array[i];
-        std::size_t j = i;
-        while (j > 0 && key < array[j - 1]) {
-            array[j] = array[j - 1];
-            --j;
-        }
-        array[j] = key;
-    }
+    std::sort(array.begin(), array.end());
     return array;
 }
 
