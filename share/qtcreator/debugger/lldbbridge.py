@@ -1089,6 +1089,31 @@ class Dumper(DumperBase):
                         self.createBreakpointAtMain()
 
                     DumperBase.warn("PROCESS: %s (%s)" % (self.process, error.Success() and "Success" or error.GetCString()))
+                elif self.platform_ == "remote-ohos":
+                    # The platform on the other side knows the process and what it has
+                    # mapped, so attaching through it is what makes symbols work.
+                    url = "connect://" + self.remoteChannel_
+                    self.report("Connecting to remote platform: %s" % url)
+                    platform = self.target.GetPlatform()
+                    error = platform.ConnectRemote(lldb.SBPlatformConnectOptions(url))
+                    if not error.Success():
+                        self.report("Failed to connect to remote platform (%s): %s"
+                                    % (url, error.GetCString()))
+                        self.reportState('enginerunfailed')
+                        return
+
+                    self.process = self.target.Attach(
+                        lldb.SBAttachInfo(self.attachPid_), error)
+                    if not error.Success():
+                        self.report("Failed to attach to %s: %s"
+                                    % (self.attachPid_, error.GetCString()))
+                        self.reportState('enginerunfailed')
+                        return
+                    # Attaching stops the process, and saying so is what keeps the
+                    # engine's idea of the state and LLDB's the same.
+                    self.report('pid="%s"' % self.process.GetProcessID())
+                    self.reportState('enginerunandinferiorstopok')
+
                 elif self.platform_ == "remote-linux":
                     self.report("Connecting to remote target: connect://%s" % self.remoteChannel_)
 
@@ -2482,6 +2507,25 @@ class Dumper(DumperBase):
             self.reportResult('output="%s"' % toCString(result.GetOutput()), args)
         else:
             self.reportResult('error="%s"' % toCString(result.GetError()), args)
+
+    def loadModuleAt(self, args):
+        # A device whose loader LLDB cannot read tells it nothing about what is mapped
+        # where, so the addresses are handed in and the modules placed by hand.
+        self.reportToken(args)
+        path = args['path']
+        slide = int(args['slide'])
+        triple = args.get('triple', '') or None
+        module = self.target.FindModule(lldb.SBFileSpec(path))
+        if not module.IsValid():
+            module = self.target.AddModule(path, triple, None)
+        if not module.IsValid():
+            self.reportResult('error="no module for %s"' % toCString(path), args)
+            return
+        error = self.target.SetModuleLoadAddress(module, slide)
+        if error is not None and error.Fail():
+            self.reportResult('error="%s"' % toCString(error.GetCString() or 'unknown'), args)
+            return
+        self.reportResult('ok="1"', args)
 
     def executeRoundtrip(self, args):
         self.reportResult('', args)
