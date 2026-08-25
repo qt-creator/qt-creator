@@ -31,6 +31,39 @@ using QHttpHeaders = MiniHttp::HttpHeaders;
 static Q_LOGGING_CATEGORY(mcpServerLog, "mcp.server", QtWarningMsg)
 static Q_LOGGING_CATEGORY(mcpServerIOLog, "mcp.server.io", QtWarningMsg)
 
+// Accept carries a list, and its entries may have parameters. Comparing the
+// header as a whole rejects every client that sends more than one type - which
+// the protocol requires them to do on POST. Media types are case-insensitive
+// and may be given as the "*/*" and "type/*" wildcards.
+static bool accepts(const QHttpServerRequest &request, QByteArrayView mediaType)
+{
+    // value() is a QByteArrayView with QHttpHeaders and a QByteArray with
+    // MiniHttp; only the latter has split().
+    const QByteArray accept = QByteArrayView(request.headers().value("Accept")).toByteArray();
+    const qsizetype slash = mediaType.indexOf('/');
+    const QByteArrayView type = slash < 0 ? QByteArrayView() : mediaType.first(slash);
+    for (const QByteArray &entry : accept.split(',')) {
+        const QList<QByteArray> parts = entry.split(';');
+        // "q=0" refuses that type rather than accepting it.
+        bool refused = false;
+        for (qsizetype i = 1; i < parts.size() && !refused; ++i) {
+            const QByteArray param = parts.at(i).trimmed();
+            refused = param.startsWith("q=") && param.mid(2).trimmed().toDouble() == 0.0;
+        }
+        if (refused)
+            continue;
+        const QByteArray value = parts.constFirst().trimmed();
+        if (value == "*/*" || value.compare(mediaType, Qt::CaseInsensitive) == 0)
+            return true;
+        // A media type given without a subtype has no "type/*" to match.
+        if (!type.isEmpty() && value.endsWith("/*")
+            && QByteArrayView(value).chopped(2).compare(type, Qt::CaseInsensitive) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 using UniqueDeleteLaterTimer = std::unique_ptr<QTimer, QScopedPointerObjectDeleteLater<QTimer>>;
 
 using namespace Utils;
@@ -1576,7 +1609,7 @@ Server::Server(Schema::Implementation serverInfo)
         "/",
         QHttpServerRequest::Method::Get,
         [this](const QHttpServerRequest &req, QHttpServerResponder &responder) {
-            if (req.headers().value("accept") == "text/event-stream") {
+            if (accepts(req, "text/event-stream")) {
                 if (req.headers().contains("mcp-session-id")) {
                     qCDebug(mcpServerLog) << "Received SSE connection with session ID:"
                                           << req.headers().value("mcp-session-id");
@@ -1675,13 +1708,8 @@ Server::Server(Schema::Implementation serverInfo)
                                               << req.headers() << "\nand body:\n"
                                               << req.body() << "\nEnd of body";
 
-            QStringList acceptValues = QString::fromUtf8(req.headers().value("Accept")).split(",");
-            for (QString &value : acceptValues)
-                value = value.trimmed();
-            acceptValues.sort();
-
-            const bool streamMode = acceptValues
-                                    == QStringList{"application/json", "text/event-stream"};
+            const bool streamMode = accepts(req, "application/json")
+                                    && accepts(req, "text/event-stream");
 
             if (!streamMode) {
                 responder.write(
