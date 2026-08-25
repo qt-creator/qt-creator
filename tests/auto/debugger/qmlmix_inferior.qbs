@@ -5,12 +5,15 @@ QtApplication {
     condition: Qt.quick.present
 
     Depends { name: "Qt.quick"; required: false }
+    Depends { name: "bundle" }
 
     Qt.qml.importName: "MixTest"
     Qt.qml.importVersion: "1.0"
 
     cpp.defines: ["QT_QML_DEBUG"]
     cpp.includePaths: base.concat(path)
+
+    bundle.isBundle: false
 
     install: false
     destinationDirectory: project.buildDirectory + '/'

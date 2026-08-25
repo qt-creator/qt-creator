@@ -1,5 +1,4 @@
 import qbs
-import qbs.FileInfo
 
 Project {
     QtcAutotest {
@@ -30,12 +29,10 @@ Project {
                 'BACKENDS_TEST_SOURCE_DIR="' + path + '"'
             ]);
             if (qmlstack_inferior.present) {
-                defines.push('QMLSTACK_INFERIOR_EXECUTABLE="'
-                             + FileInfo.joinPaths(destinationDirectory, "qmlstack_inferior") + '"');
+                defines.push('QMLSTACK_INFERIOR_EXECUTABLE="' + destinationDirectory + '"');
             }
             if (qmlmix_inferior.present) {
-                defines.push('QMLMIX_INFERIOR_EXECUTABLE="'
-                             + FileInfo.joinPaths(destinationDirectory, "qmlmix_inferior") + '"');
+                defines.push('QMLMIX_INFERIOR_EXECUTABLE="' +  destinationDirectory + '"');
             }
             return defines;
         }

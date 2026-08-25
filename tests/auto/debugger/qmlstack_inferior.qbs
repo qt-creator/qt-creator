@@ -5,8 +5,11 @@ QtApplication {
     condition: Qt.quick.present
 
     Depends { name: "Qt.quick"; required: false }
+    Depends { name: "bundle" }
 
     cpp.defines: ["QT_QML_DEBUG"]
+
+    bundle.isBundle: false
 
     install: false
     destinationDirectory: project.buildDirectory + '/'
