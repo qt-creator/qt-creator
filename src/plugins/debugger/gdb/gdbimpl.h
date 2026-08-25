@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <debugger/outputcollector.h>
 #include "../debuggerengineinterface.h"
 
 #include <utils/environment.h>
@@ -125,6 +126,7 @@ private:
 
     void runCommand(const DebuggerCommand &command);
     void setTokenBarrier();
+    bool usesOutputCollector() const;
     void requestInferiorInterrupt();
     void runCommandNow(const DebuggerCommand &command);
     void handleOutputLine(const QString &line);
@@ -133,6 +135,7 @@ private:
     GdbImplStartData m_startData;
     qint64 m_inferiorPid = -1;
     Utils::Process m_gdbProc;
+    OutputCollector m_outputCollector;
     QString m_inbuffer;
     enum class AttachPhase { Idle, AwaitingConnect, Stopped, Continuing };
     AttachPhase m_attachPhase = AttachPhase::Idle;

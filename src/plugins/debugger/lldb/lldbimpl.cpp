@@ -1030,7 +1030,10 @@ void LldbImpl::handleLldbOutput(const QString &output)
         } else if (name == "state") {
             handleStateReport(item);
         } else if (name == "output") {
-            emit message(fromHex(item["data"].data()), LogOutput);
+            const QString channel = item["channel"].data();
+            const LogChannel logChannel = channel == "stdout" ? AppOutput
+                                          : channel == "stderr" ? AppError : AppStuff;
+            emit message(fromHex(item["data"].data()), logChannel);
         } else if (name == "bridgemessage") {
             emit message(item["msg"].data(), item["channel"].toInt());
         } else if (name == "pid") {

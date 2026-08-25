@@ -1448,7 +1448,10 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
         emit message(line, LogMisc);
         return;
     }
-    emit message(line, LogMisc);
+    // What cdb relays inline while the inferior runs is the debuggee's own output,
+    // except for cdb's own notifications - ModLoad being by far the most frequent.
+    const bool isDebuggeeOutput = m_inferiorRunning && !line.startsWith("ModLoad: ");
+    emit message(line, isDebuggeeOutput ? AppOutput : LogMisc);
 }
 
 void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,

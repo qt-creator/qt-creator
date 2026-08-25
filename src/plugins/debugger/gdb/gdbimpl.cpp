@@ -311,9 +311,13 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         emit message(m_gdbProc.readAllStandardError(), LogError);
     });
     connect(&m_gdbProc, &Process::done, this, [this] {
+        m_outputCollector.shutdown();
         if (m_gdbProc.result() == ProcessResult::StartFailed)
             emit inferiorEvent(InferiorEvent::EngineSetupFailed);
         emit engineProcessFinished(m_gdbProc.resultData());
+    });
+    connect(&m_outputCollector, &OutputCollector::byteDelivery, this, [this](const QByteArray &ba) {
+        emit message(m_outputDecoder.decode(ba), AppStuff);
     });
 }
 
@@ -323,8 +327,24 @@ GdbImpl::~GdbImpl()
         m_gdbProc.write("kill\r\n");
 }
 
+bool GdbImpl::usesOutputCollector() const
+{
+    return std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)
+           && m_startData.debuggerRunData.command.executable().isLocal();
+}
+
 void GdbImpl::start()
 {
+    if (usesOutputCollector()) {
+        if (m_outputCollector.listen()) {
+            CommandLine gdbCommand = m_gdbProc.commandLine();
+            gdbCommand.addArg("--tty=" + m_outputCollector.serverName());
+            m_gdbProc.setCommand(gdbCommand);
+        } else {
+            emit message(QString("GdbImpl: cannot set up communication with the child process: %1")
+                             .arg(m_outputCollector.errorString()), LogError);
+        }
+    }
     m_gdbProc.start();
 }
 
@@ -2042,9 +2062,10 @@ void GdbImpl::handleOutputLine(const QString &line)
         break;
     }
     case '@':
-        emit message(parser.readCString(), LogOutput);
+        emit message(parser.readCString(), AppOutput);
         break;
     default:
+        emit message(line, AppOutput);
         break;
     }
 }

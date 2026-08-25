@@ -605,6 +605,8 @@ void PdbImpl::handleOutputLine(const QString &line)
         list.m_type = GdbMi::List;
         list.addChild(bkpt);
         emit breakpointModified(list);
+    } else {
+        emit message(line, AppOutput);
     }
 }
 

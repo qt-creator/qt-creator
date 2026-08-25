@@ -179,6 +179,7 @@ struct InferiorTestData
     QString inspectorOrphanObject;
     QString versionLine;
     QString moduleListMarker;
+    QString applicationOutputMarker;
     FilePath moduleSymbolsPath;
     QString falseLiteral = "0";
 };
@@ -597,6 +598,8 @@ private slots:
     void stopsAtFunctionBreakpointInsertedBeforeFirstRun();
     void continueSignalsExitedForSpontaneousExit_data() { addBackendRows(); }
     void continueSignalsExitedForSpontaneousExit();
+    void reportsApplicationOutput_data() { addBackendRows(); }
+    void reportsApplicationOutput();
     void refreshesLocalsAndStack_data() { addBackendRows(); }
     void refreshesLocalsAndStack();
     void expandsContainerLocalWhenExpanded_data() { addBackendRows(); }
@@ -1194,6 +1197,7 @@ void tst_backends::initTestCase()
     cppInferiorData.localMarker = "localValue";
     cppInferiorData.functionMarker = "bump";
     cppInferiorData.recursionDepthVariable = "depth";
+    cppInferiorData.applicationOutputMarker = "after bump";
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
     cppInferiorData.expectedExitCode = 7;
     QVERIFY(cppInferiorData.secondBreakpointLine > 0);
@@ -1381,6 +1385,7 @@ void tst_backends::initTestCase()
     }
     QVERIFY(pdbInferiorData.breakpointLine > 0);
     pdbInferiorData.localMarker = "localValue";
+    pdbInferiorData.applicationOutputMarker = "after bump";
     pdbInferiorData.functionMarker = "bump";
     pdbInferiorData.recursionDepthVariable = "depth";
     QVERIFY(pdbInferiorData.secondBreakpointLine > 0);
@@ -3291,6 +3296,45 @@ void tst_backends::continueSignalsExitedForSpontaneousExit()
              "spontaneous exit via Continue was misreported as SpontaneousStop");
     QVERIFY2(!debuggerBackend->contains(InferiorEvent::StopOk),
              "spontaneous exit via Continue was misreported as StopOk");
+}
+
+void tst_backends::reportsApplicationOutput()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const QString marker = inferiorTestData(backend).applicationOutputMarker;
+    if (marker.isEmpty())
+        QSKIP("inferior declares no application output marker");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList applicationOutput;
+    QStringList otherChannels;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&applicationOutput, &otherChannels](const QString &text, int channel, int) {
+        if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+            applicationOutput.append(text);
+        else
+            otherChannels.append(text);
+    });
+
+    stopInferiorSpinLoop(backend, engine);
+
+    debuggerBackend->clearInferiorResults();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(!debuggerBackend->inferiorResults().isEmpty(), s_timeout);
+
+    QTRY_VERIFY2_WITH_TIMEOUT(applicationOutput.join('\n').contains(marker),
+                              qPrintable(QString("the debuggee's own output never arrived on the "
+                                                 "application channel - looked for \"%1\", other "
+                                                 "channels saw:\n  %2")
+                                             .arg(marker, otherChannels.join("\n  ").left(600))),
+                              s_timeout);
 }
 
 void tst_backends::expandsContainerLocalWhenExpanded()
