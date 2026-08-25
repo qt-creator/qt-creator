@@ -19,27 +19,27 @@ AiProviderData AiDefaultSettings::providerData(const QString &name)
         {"Gemini", AiProviderData{
             .url = "https://generativelanguage.googleapis.com/v1beta/models/{modelId}:generateContent",
             .models = {
-                {"gemini-3.5-flash",       "Gemini 3.5 Flash"},
-                {"gemini-3.1-pro-preview", "Gemini 3.1 Pro"},
-                {"gemini-3.1-flash-lite",  "Gemini 3.1 Flash Lite"},
-                {"gemini-3-flash-preview", "Gemini 3 Flash"}
+                {"gemini-3.7-flash",       "Gemini 3.7 Flash"},
+                {"gemini-3.6-flash",       "Gemini 3.6 Flash"},
+                {"gemini-3.5-flash-lite",  "Gemini 3.5 Flash Lite"},
+                {"gemini-3.1-pro-preview", "Gemini 3.1 Pro"}
             }
         }},
         {"Claude", AiProviderData{
             .url = "https://api.anthropic.com/v1/messages",
             .models = {
-                {"claude-opus-4-8",           "Claude Opus 4.8"},
-                {"claude-sonnet-4-6",         "Claude Sonnet 4.6"},
+                {"claude-opus-5",             "Claude Opus 5"},
+                {"claude-sonnet-5",           "Claude Sonnet 5"},
                 {"claude-haiku-4-5-20251001", "Claude Haiku 4.5"}
             },
         }},
         {"OpenAI", AiProviderData{
             .url = "https://api.openai.com/v1/responses",
             .models = {
-                {"gpt-5.5",      "GPT 5.5"},
-                {"gpt-5.4",      "GPT 5.4"},
-                {"gpt-5.4-mini", "GPT 5.4 Mini"},
-                {"gpt-5.4-nano", "GPT 5.4 Nano"}
+                {"gpt-5.6-sol",   "GPT 5.6 Sol"},
+                {"gpt-5.6-terra", "GPT 5.6 Terra"},
+                {"gpt-5.6-luna",  "GPT 5.6 Luna"},
+                {"gpt-5.5",       "GPT 5.5"}
             },
         }},
     };
