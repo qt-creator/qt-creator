@@ -180,6 +180,7 @@ struct InferiorTestData
     QString versionLine;
     QString moduleListMarker;
     QString applicationOutputMarker;
+    QString environmentReportPrefix;
     FilePath moduleSymbolsPath;
     QString falseLiteral = "0";
 };
@@ -600,6 +601,10 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void passesInferiorEnvironmentToTheDebuggee_data() { addBackendRows(); }
+    void passesInferiorEnvironmentToTheDebuggee();
+    void reportsSourcePathsInStackFrames_data() { addBackendRows(); }
+    void reportsSourcePathsInStackFrames();
     void refreshesLocalsAndStack_data() { addBackendRows(); }
     void refreshesLocalsAndStack();
     void expandsContainerLocalWhenExpanded_data() { addBackendRows(); }
@@ -708,7 +713,8 @@ private:
         bool nativeMixed = false);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData);
-    std::unique_ptr<DebuggerBackend> launchAndStopAtBreakpoint(Backend backend);
+    std::unique_ptr<DebuggerBackend> launchAndStopAtBreakpoint(Backend backend,
+        const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {});
     std::unique_ptr<DebuggerBackend> stopAtBreakpoint(Backend backend, Process &helperInferior);
     bool hasCapability(Backend backend, Debugger::DebuggerCapabilities capability,
                        Debugger::DebuggerStartMode startMode = Debugger::NoStartMode);
@@ -1107,6 +1113,7 @@ void tst_backends::initTestCase()
     const QStringList inferiorLines = {
         "#include <chrono>",
         "#include <cstdio>",
+        "#include <cstdlib>",
         "#include <cstring>",
         "#include <thread>",
         "#ifdef _WIN32",
@@ -1174,6 +1181,8 @@ void tst_backends::initTestCase()
         "    multi(1);",
         "    multi(2.0);",
         "    recurse(40);",
+        "    if (const char *marker = getenv(\"QTC_BACKEND_ENV_MARKER\"))",
+        "        printf(\"env=%s\\n\", marker);",
         "    printf(\"after bump\\n\");",
         "    fflush(stdout);",
         "    spin(); // second breakpoint line",
@@ -1198,6 +1207,7 @@ void tst_backends::initTestCase()
     cppInferiorData.functionMarker = "bump";
     cppInferiorData.recursionDepthVariable = "depth";
     cppInferiorData.applicationOutputMarker = "after bump";
+    cppInferiorData.environmentReportPrefix = "env=";
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
     cppInferiorData.expectedExitCode = 7;
     QVERIFY(cppInferiorData.secondBreakpointLine > 0);
@@ -1338,6 +1348,8 @@ void tst_backends::initTestCase()
     pdbInferiorData.source = pdbInferiorData.executable =
         FilePath::fromString(m_tempDir.path()) / "inferior.py";
     const QStringList pdbInferiorLines = {
+        "import os",
+        "",
         "globalValue = 41",
         "keepSpinning = True",
         "",
@@ -1362,6 +1374,9 @@ void tst_backends::initTestCase()
         "# a comment, pdb refuses a breakpoint here: unbreakable line",
         "def main():",
         "    bump(globalValue + 1)",
+        "    marker = os.environ.get(\"QTC_BACKEND_ENV_MARKER\")",
+        "    if marker:",
+        "        print(\"env=%s\" % marker)",
         "    print(\"after bump\")",
         "    recurse(40)",
         "    spin()  # second breakpoint line",
@@ -1386,6 +1401,7 @@ void tst_backends::initTestCase()
     QVERIFY(pdbInferiorData.breakpointLine > 0);
     pdbInferiorData.localMarker = "localValue";
     pdbInferiorData.applicationOutputMarker = "after bump";
+    pdbInferiorData.environmentReportPrefix = "env=";
     pdbInferiorData.functionMarker = "bump";
     pdbInferiorData.recursionDepthVariable = "depth";
     QVERIFY(pdbInferiorData.secondBreakpointLine > 0);
@@ -2964,9 +2980,11 @@ void tst_backends::testWatchpointByExpressionCapability()
                               "watchpoint never triggered on globalValue's write", s_timeout);
 }
 
-std::unique_ptr<DebuggerBackend> tst_backends::launchAndStopAtBreakpoint(Backend backend)
+std::unique_ptr<DebuggerBackend> tst_backends::launchAndStopAtBreakpoint(Backend backend,
+    const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride)
 {
-    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend);
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+                                                                   inferiorRunDataOverride);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
@@ -3335,6 +3353,95 @@ void tst_backends::reportsApplicationOutput()
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
                               s_timeout);
+}
+
+void tst_backends::passesInferiorEnvironmentToTheDebuggee()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const InferiorTestData &data = inferiorTestData(backend);
+    if (data.environmentReportPrefix.isEmpty())
+        QSKIP("inferior does not report its environment");
+
+    const QString markerValue = "environment-of-the-run-configuration";
+    Environment inferiorEnvironment = Environment::systemEnvironment();
+    inferiorEnvironment.set("QTC_BACKEND_ENV_MARKER", markerValue);
+    const ProcessRunData inferiorRunData{{data.executable, {}}, {}, inferiorEnvironment};
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend,
+                                                                                inferiorRunData);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList applicationOutput;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&applicationOutput](const QString &text, int channel, int) {
+        if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+            applicationOutput.append(text);
+    });
+
+    stopInferiorSpinLoop(backend, engine);
+
+    debuggerBackend->clearInferiorResults();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(!debuggerBackend->inferiorResults().isEmpty(), s_timeout);
+
+    const QString expected = data.environmentReportPrefix + markerValue;
+    QTRY_VERIFY2_WITH_TIMEOUT(applicationOutput.join('\n').contains(expected),
+                              qPrintable(QString("the debuggee never saw the inferior's "
+                                                 "environment - looked for \"%1\" in:\n  %2")
+                                             .arg(expected,
+                                                  applicationOutput.join("\n  ").left(600))),
+                              s_timeout);
+}
+
+void tst_backends::reportsSourcePathsInStackFrames()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const FilePath source = inferiorTestData(backend).source;
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    std::optional<GdbMi> stack;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&stack](quint64, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::FullStack)
+            stack = data;
+    });
+
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 1;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(stack.has_value(), s_timeout);
+
+    const GdbMi frames = (*stack)["stack"]["frames"];
+    QVERIFY(frames.childCount() > 0);
+
+    // StackFrame::parseFrame() opens what a frame reports as "file", resolving a relative
+    // path against the build directory - a base name there names an unrelated file.
+    QStringList reportedFiles;
+    bool found = false;
+    for (const GdbMi &frame : frames) {
+        const QString file = frame["file"].data();
+        if (file.isEmpty())
+            continue;
+        reportedFiles.append(file);
+        if (FilePath::fromUserInput(file).canonicalPath() == source.canonicalPath())
+            found = true;
+    }
+    QVERIFY2(found, qPrintable(QString("no stack frame points at \"%1\" - the frames name:\n  %2")
+                                   .arg(source.toUserOutput(),
+                                        reportedFiles.join("\n  ").left(600))));
 }
 
 void tst_backends::expandsContainerLocalWhenExpanded()

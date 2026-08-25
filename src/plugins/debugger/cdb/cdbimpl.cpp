@@ -117,15 +117,21 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     CommandLine cdbCommand = m_startData.debuggerRunData.command;
     cdbCommand.addArg("-a" + m_startData.extensionFileName);
     cdbCommand.addArgs({"-lines", "-G", "-c", ".idle_cmd " + m_extensionCommandPrefix + "idle"});
+    // cdb launches the inferior itself, so the inferior's environment and working directory
+    // have to be the ones cdb is started with.
+    ProcessRunData runData = m_startData.debuggerRunData;
     if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
         const auto &inferiorRunData = std::get<ProcessRunData>(m_startData.inferiorStartData);
         cdbCommand.addArg(inferiorRunData.command.executable().toUserOutput());
         cdbCommand.addArgs(inferiorRunData.command.arguments(), CommandLine::Raw);
+        runData = inferiorRunData;
     }
     m_cdbProc.setCommand(cdbCommand);
     if (m_startData.debuggerRunData.workingDirectory.isDir())
         m_cdbProc.setWorkingDirectory(m_startData.debuggerRunData.workingDirectory);
-    Environment env = m_startData.debuggerRunData.environment;
+    const Environment &runEnvironment = m_startData.debuggerRunData.environment;
+    Environment env = runEnvironment.hasChanges() ? runEnvironment
+                                                  : Environment::systemEnvironment();
     env.set("_NT_DEBUGGER_EXTENSION_PATH", m_startData.extensionDir.nativePath());
     m_cdbProc.setEnvironment(env);
 
@@ -998,6 +1004,7 @@ void CdbImpl::setupScripting()
 void CdbImpl::restartSession()
 {
     m_shuttingDown = false;
+    m_accessible = false;
     m_initialSessionIdleHandled = false;
     m_inferiorExited = false;
     m_inferiorRunning = false;
@@ -1116,9 +1123,38 @@ static GdbMi interpreterStackFrames(const GdbMi &msg)
     return frames;
 }
 
+// The extension reports the full path as "fullname" and the plain base name as "file", and
+// the module as "from". StackFrame::parseFrame() expects the path in "file" and the module
+// in "module" - a base name there would be resolved against the build directory.
+static GdbMi normalizedFrame(const GdbMi &frameMi)
+{
+    const QString fullName = frameMi["fullname"].data();
+    const QString module = frameMi["from"].data();
+    if (fullName.isEmpty() && module.isEmpty())
+        return frameMi;
+    GdbMi frame;
+    frame.m_type = GdbMi::Tuple;
+    frame.m_name = frameMi.m_name;
+    for (const GdbMi &child : frameMi) {
+        if (child.m_name == "file" && !fullName.isEmpty())
+            continue;
+        frame.addChild(child);
+    }
+    if (!fullName.isEmpty()) {
+        frame.addChild(constMi("file", FilePath::fromUserInput(fullName)
+                                           .normalizedPathName().toUrlishString()));
+    }
+    if (!module.isEmpty())
+        frame.addChild(constMi("module", module));
+    return frame;
+}
+
 static GdbMi stackTreeFromFrames(const GdbMi &reply)
 {
-    GdbMi frames = reply;
+    GdbMi frames;
+    frames.m_type = GdbMi::List;
+    for (const GdbMi &frameMi : reply)
+        frames.addChild(normalizedFrame(frameMi));
     frames.m_name = "frames";
     GdbMi stack;
     stack.m_type = GdbMi::Tuple;
@@ -1501,8 +1537,19 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         return;
     }
 
-    // 7 is dbgeng's DEBUG_SESSION_END.
-    if (what == "session_inaccessible" && payload.trimmed() == "7") {
+    if (what == "session_accessible") {
+        m_accessible = true;
+        return;
+    }
+
+    // 7 is dbgeng's DEBUG_SESSION_END, and only a session that was accessible
+    // can end - cdb reports one inaccessible session before the first one opens.
+    if (what == "session_inaccessible") {
+        if (!m_accessible)
+            return;
+        m_accessible = false;
+        if (payload.trimmed() != "7")
+            return;
         m_inferiorRunning = false;
         if (!m_shuttingDown && !m_inferiorExited) {
             m_inferiorExited = true;

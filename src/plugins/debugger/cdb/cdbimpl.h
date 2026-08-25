@@ -128,6 +128,7 @@ private:
 
     QString m_extensionMessageBuffer;
 
+    bool m_accessible = false;
     bool m_initialSessionIdleHandled = false;
     bool m_expectSpontaneousStop = false;
     bool m_inInternalStop = false;
