@@ -2489,6 +2489,9 @@ void McpCommands::registerCommands()
                                   {"text", QJsonObject{{"type", "string"}}},
                                   {"description", QJsonObject{{"type", "string"}}},
                                   {"shortcut", QJsonObject{{"type", "string"}}},
+                                  {"keys", QJsonObject{{"type", "array"},
+                                                       {"items", QJsonObject{
+                                                            {"type", "string"}}}}},
                               }},
                              {"required", QJsonArray{"id", "text"}}}},
                         {"description", "List of matching actions"}})),
@@ -2504,11 +2507,22 @@ void McpCommands::registerCommands()
             for (const auto &m : matches) {
                 const QString text = m->action() ? m->action()->text() : QString();
                 const QString description = m->description();
+                // PortableText, as "shortcut" has it: the native spelling of a
+                // sequence is a different string for the same keys. One entry per
+                // sequence, because toString() already puts ", " between the steps
+                // of a single one.
+                QJsonArray keys;
+                for (const QKeySequence &sequence : m->keySequences()) {
+                    // A command can carry an unset slot beside a real sequence.
+                    if (!sequence.isEmpty())
+                        keys.append(sequence.toString(QKeySequence::PortableText));
+                }
                 actions.append(QJsonObject{
                     {"id", m->id().toString()},
                     {"text", text},
                     {"description", description},
-                    {"shortcut", m->keySequence().toString(QKeySequence::PortableText)}});
+                    {"shortcut", m->keySequence().toString(QKeySequence::PortableText)},
+                    {"keys", keys}});
             }
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"actions", actions}});
