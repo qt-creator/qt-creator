@@ -27,6 +27,7 @@ public:
         setCategory(Constants::EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY);
         setWidgetCreator(&createExtensionManagerWidget);
         setRecreateOnCancel(false);
+        setAutoApply();
     }
 };
 
