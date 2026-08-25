@@ -3,6 +3,7 @@
 
 #include <QRandomGenerator>
 #include <QTest>
+#include <QUrl>
 
 #include <utils/algorithm.h>
 #include <utils/co_result.h>
@@ -10,6 +11,7 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/link.h>
+#include <utils/markdownbrowser.h>
 #include <utils/temporaryfile.h>
 
 #include <QSignalSpy>
@@ -91,6 +93,8 @@ private slots:
 
     void linkFromString_data();
     void linkFromString();
+    void linkFromMarkdownLink_data();
+    void linkFromMarkdownLink();
 
     void pathAppended_data();
     void pathAppended();
@@ -1544,6 +1548,43 @@ void tst_filepath::linkFromString_data()
                                    << FilePath("/some/path/file.txt") << 42 << 2;
     QTest::newRow("(42) at end") << QString::fromLatin1("/some/path/file.txt(42)")
                                  << FilePath("/some/path/file.txt") << 42 << 0;
+}
+
+void tst_filepath::linkFromMarkdownLink()
+{
+    QFETCH(QString, url);
+    QFETCH(Utils::FilePath, filePath);
+    QFETCH(int, line);
+    QFETCH(int, column);
+
+    const Link link = MarkdownBrowser::fileLink(QUrl(url));
+    QCOMPARE(link.targetFilePath, filePath);
+    QCOMPARE(link.target.line, line);
+    QCOMPARE(link.target.column, column);
+}
+
+void tst_filepath::linkFromMarkdownLink_data()
+{
+    QTest::addColumn<QString>("url");
+    QTest::addColumn<Utils::FilePath>("filePath");
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("column");
+
+    QTest::newRow("relative") << "foo/bar.cpp" << FilePath("foo/bar.cpp") << 0 << -1;
+    QTest::newRow("colon-line") << "foo/bar.cpp:42" << FilePath("foo/bar.cpp") << 42 << 0;
+    QTest::newRow("colon-line-column") << "foo.cpp:42:3" << FilePath("foo.cpp") << 42 << 2;
+    QTest::newRow("fragment-line") << "foo/bar.cpp#L42" << FilePath("foo/bar.cpp") << 42 << 0;
+    QTest::newRow("fragment-range") << "foo/bar.cpp#L42-45" << FilePath("foo/bar.cpp") << 42 << 0;
+    QTest::newRow("fragment-range-prefixed") << "foo/bar.cpp#L42-L45" << FilePath("foo/bar.cpp") << 42 << 0;
+    QTest::newRow("mailto") << "mailto:42" << FilePath() << 0 << -1;
+    QTest::newRow("tel") << "tel:42" << FilePath() << 0 << -1;
+    QTest::newRow("dotted-scheme") << "foo.bar:baz" << FilePath() << 0 << -1;
+    QTest::newRow("windows-path") << "C:/foo.cpp:42" << FilePath("c:/foo.cpp") << 42 << 0;
+    QTest::newRow("windows-path-fragment")
+        << "C:/foo.cpp#L42" << FilePath("c:/foo.cpp") << 42 << 0;
+    QTest::newRow("unc-path")
+        << "//foo.bar/baz.cpp" << FilePath("//foo.bar/baz.cpp") << 0 << -1;
+    QTest::newRow("http") << "https://example.com/foo.cpp:42" << FilePath() << 0 << -1;
 }
 
 void tst_filepath::pathAppended()

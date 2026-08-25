@@ -26,6 +26,7 @@
 #include <QDesktopServices>
 #include <QMimeData>
 #include <QPainter>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QTextBlock>
 #include <QTextBrowser>
@@ -705,8 +706,53 @@ void MarkdownBrowser::setMaximumCacheSize(qsizetype maxSize)
     static_cast<AnimatedDocument *>(document())->setMaximumCacheSize(maxSize);
 }
 
+/*!
+    Returns the local file target of the Markdown link \a url.
+
+    In addition to ordinary file URLs and relative paths, line and column suffixes
+    understood by Link::fromString() and GitHub-style line fragments are supported.
+    URLs with a non-file scheme return an invalid Link. A file name that QUrl
+    interprets as a scheme, such as \c {file.cpp:12}, is accepted as well.
+*/
+Link MarkdownBrowser::fileLink(const QUrl &url)
+{
+    QString path;
+    if (url.isLocalFile()) {
+        path = url.toLocalFile();
+    } else if (url.scheme().isEmpty() && !url.path().isEmpty()) {
+        if (!url.authority().isEmpty())
+            path = "//" + url.authority();
+        path += url.path(QUrl::FullyDecoded);
+    } else {
+        const QString urlText = url.scheme() + ':' + url.path(QUrl::FullyDecoded);
+        const Link lineLink = Link::fromString(urlText, true);
+        const bool isWindowsPath = url.scheme().size() == 1 && urlText.size() > 2
+                                   && urlText.at(1) == u':'
+                                   && (urlText.at(2) == u'/' || urlText.at(2) == u'\\');
+        const bool isFileNameInterpretedAsScheme = url.scheme().contains('.')
+                                                   && lineLink.target.line > 0;
+        if (!url.authority().isEmpty() || (!isWindowsPath && !isFileNameInterpretedAsScheme))
+            return {};
+        path = urlText;
+    }
+
+    static const QRegularExpression lineFragment(R"(^L(\d+)(?:-L?\d+)?$)");
+    if (const QRegularExpressionMatch match
+        = lineFragment.match(url.fragment(QUrl::FullyDecoded));
+        match.hasMatch()) {
+        return Link(FilePath::fromUserInput(path), match.captured(1).toInt(), 0);
+    }
+
+    return Link::fromString(path, true);
+}
+
 void MarkdownBrowser::handleAnchorClicked(const QUrl &link)
 {
+    if (const Link localFileLink = fileLink(link); localFileLink.hasValidTarget()) {
+        emit openFileRequested(localFileLink);
+        return;
+    }
+
     if (link.scheme() == "http" || link.scheme() == "https")
         QDesktopServices::openUrl(link);
 

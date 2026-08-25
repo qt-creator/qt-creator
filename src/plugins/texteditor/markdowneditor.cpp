@@ -16,6 +16,7 @@
 
 #include <utils/action.h>
 #include <utils/aggregate.h>
+#include <utils/link.h>
 #include <utils/markdownbrowser.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
@@ -103,13 +104,15 @@ public:
         m_previewWidget->setShowRulersForHeadings(true);
         Aggregation::aggregate({m_previewWidget, new BaseTextFind<QTextBrowser>(m_previewWidget)});
         IContext::attach(m_previewWidget, Context(MARKDOWNVIEWER_PREVIEW_CONTEXT));
-        connect(m_previewWidget, &QTextBrowser::anchorClicked, this, [this](const QUrl &link) {
-            if (link.isLocalFile() || (link.scheme().isEmpty() && !link.path().isEmpty())) {
-                // absolute path or relative (to the document): open in Qt Creator
-                EditorManager::openEditor(
-                    document()->filePath().parentDir().resolvePath(link.path()));
-            }
-        });
+        connect(m_previewWidget,
+                &MarkdownBrowser::openFileRequested,
+                this,
+                [this](Link link) {
+                    // Absolute path or relative (to the document): open in Qt Creator.
+                    link.targetFilePath = document()->filePath().parentDir().resolvePath(
+                        link.targetFilePath);
+                    EditorManager::openEditorAt(link);
+                });
 
         // editor
         m_textEditorWidget = new MarkdownEditorWidget;
@@ -674,22 +677,18 @@ void MarkdownEditorWidget::findLinkAt(const QTextCursor &cursor,
         if (const QStringView link = match.capturedView(CAPTURE_GROUP_LINK); !link.isEmpty()) {
             // Process regular Markdown links of the form `[description](link)`.
 
-            const QUrl url = link.toString();
-            const auto linkedPath = [this, url] {
-                if (url.isRelative())
-                    return textDocument()->filePath().parentDir().resolvePath(url.path());
-                else if (url.isLocalFile())
-                    return FilePath::fromString(url.toLocalFile());
-                else if (!url.scheme().isEmpty())
-                    return FilePath::fromString(url.toString());
-                else
-                    return FilePath{};
-            }();
-
-            if (!linkedPath.isFile() && url.scheme().isEmpty())
+            const QUrl url(link.toString());
+            Link result = MarkdownBrowser::fileLink(url);
+            if (result.hasValidTarget()) {
+                result.targetFilePath = textDocument()->filePath().parentDir().resolvePath(
+                    result.targetFilePath);
+                if (!result.targetFilePath.isFile())
+                    continue;
+            } else if (!url.scheme().isEmpty()) {
+                result.targetFilePath = FilePath::fromString(url.toString());
+            } else {
                 continue;
-
-            Link result = linkedPath;
+            }
             result.linkTextStart = match.capturedStart() + blockOffset;
             result.linkTextEnd = match.capturedEnd() + blockOffset;
             processLinkCallback(result);

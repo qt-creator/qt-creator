@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include "filepath.h"
+#include "link.h"
 
 #include <QTextBrowser>
 #include <QTextFragment>
@@ -33,6 +34,7 @@ public:
     using RequestHook = std::function<void (QNetworkRequest *)>;
 
     MarkdownBrowser(QWidget *parent = nullptr);
+    static Link fileLink(const QUrl &url);
 
     void setMarkdown(const QString &markdown);
     QString toMarkdown() const;
@@ -55,6 +57,9 @@ public:
     void setMargins(const QMargins &margins);
     void setEnableCodeCopyButton(bool enable);
     void setShowRulersForHeadings(bool show);
+
+signals:
+    void openFileRequested(const Utils::Link &link);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
