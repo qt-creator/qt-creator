@@ -541,11 +541,16 @@ static QList<ConfigSelectEntry> selectEntries(const SessionConfigSelect &select)
     return result;
 }
 
+static const char SETTINGS_INCLUDE_CURRENT_EDITOR[] = "acpclient/includeCurrentEditorContext";
+
 ChatPanel::ChatPanel(QWidget *parent)
     : QWidget(parent)
 {
     Core::IContext::attach(this, Core::Context(Constants::C_ACP_CHAT));
     enableChatZoom(this);
+
+    m_includeCurrentEditorContext
+        = Core::ICore::settings()->value(SETTINGS_INCLUDE_CURRENT_EDITOR, true).toBool();
 
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -658,7 +663,7 @@ ChatPanel::ChatPanel(QWidget *parent)
             menu->addSeparator();
             auto *action = menu->addAction(Tr::tr("Current Editor"));
             connect(action, &QAction::triggered, this, [this] {
-                m_includeCurrentEditorContext = true;
+                setIncludeCurrentEditorContext(true);
                 updateContextBar();
             });
         }
@@ -1419,6 +1424,14 @@ void ChatPanel::clearImageContexts()
     updateContextBar();
 }
 
+void ChatPanel::setIncludeCurrentEditorContext(bool include)
+{
+    if (m_includeCurrentEditorContext == include)
+        return;
+    m_includeCurrentEditorContext = include;
+    Core::ICore::settings()->setValue(SETTINGS_INCLUDE_CURRENT_EDITOR, include);
+}
+
 void ChatPanel::updateContextBar()
 {
     while (QLayoutItem *item = m_contextBarLayout->takeAt(0)) {
@@ -1435,7 +1448,7 @@ void ChatPanel::updateContextBar()
             if (!name.isEmpty()) {
                 auto *item = new ContextItem(name, FileIconProvider::icon(filePath), m_contextBar);
                 connect(item, &ContextItem::removeRequested, this, [this] {
-                    m_includeCurrentEditorContext = false;
+                    setIncludeCurrentEditorContext(false);
                     QMetaObject::invokeMethod(this, [this] { updateContextBar(); }, Qt::QueuedConnection);
                 });
                 connect(item, &ContextItem::clicked, this, [filePath] {
