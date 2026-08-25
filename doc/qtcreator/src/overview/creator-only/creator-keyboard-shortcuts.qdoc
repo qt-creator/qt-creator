@@ -427,6 +427,10 @@
             \li Ctrl+4
             \li Ctrl+4
         \row
+            \li Switch to \uicontrol Profile mode
+            \li Ctrl+5
+            \li Ctrl+5
+        \row
             \li Switch to \uicontrol Projects mode
             \li Ctrl+6
             \li Ctrl+6
@@ -434,6 +438,10 @@
             \li Switch to \uicontrol Help mode
             \li Ctrl+7
             \li Ctrl+7
+        \row
+            \li Switch to \uicontrol Preferences mode
+            \li Ctrl+8
+            \li Ctrl+8
         \row
             \li Go to \uicontrol Edit mode
 

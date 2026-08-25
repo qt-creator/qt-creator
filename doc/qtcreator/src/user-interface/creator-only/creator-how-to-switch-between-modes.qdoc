@@ -29,7 +29,7 @@
         \li Purpose
         \li Read More
     \row
-        \li {1,8} \inlineimage {qtcreator-mode-selector.webp} {Mode selector}
+        \li {1,9} \inlineimage {qtcreator-mode-selector.webp} {Mode selector}
     \row
         \li \uicontrol Welcome
         \li \key Ctrl+1
@@ -50,8 +50,13 @@
         \li \uicontrol Debug
         \li \key Ctrl+4
         \li Inspect the state of your application while debugging or use code
-            analysis tools to detect memory leaks and profile code.
+            analysis tools to detect memory leaks.
         \li \l{Debugging}
+    \row
+        \li \uicontrol Profile
+        \li \key Ctrl+5
+        \li Profile CPU and memory usage and visualize trace events.
+        \li \l{Analyzing code}
     \row
         \li \uicontrol Projects
         \li \key Ctrl+6
