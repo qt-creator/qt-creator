@@ -9,11 +9,11 @@
 
     \title Manage extensions
 
-    In the \uicontrol Extensions mode, you can install extensions from the
-    \l{\QC extension registry} or from other external repositories, as well
-    as activate and deactivate them.
+    In \preferences > \uicontrol Extensions > \uicontrol Browse, you can install
+    extensions from the \l{\QC extension registry} or from other external
+    repositories, as well as activate and deactivate them.
 
-    \image {qtcreator-extension-mode.webp} {Extensions mode}
+    \image {qtcreator-extension-mode.webp} {Browse tab in Extensions preferences}
 
     When you \e {install} extensions, they are copied to the correct place on
     the computer and \e {activated} for use. \QC can also \e {load} extensions
@@ -25,7 +25,8 @@
 
     To add URLs for installing extensions from external registries
     or to install extensions from installation packages, select
-    \imagesettings (\uicontrol {Preferences}).
+    \imagesettings (\uicontrol {Preferences}) to open the \uicontrol General
+    tab.
 
     \sa {Install extensions}, {Activate extensions}
 */
@@ -38,8 +39,8 @@
 
     \title Activate extensions
 
-    In the \uicontrol Extensions mode, you can activate installed extensions to
-    use them.
+    In \preferences > \uicontrol Extensions > \uicontrol Browse, you can activate
+    installed extensions to use them.
 
     New extensions are often introduced as \e {experimental extensions} to let
     you try them out before they are fully supported. You must activate them to
@@ -55,8 +56,8 @@
     To activate extensions:
 
     \list 1
-        \li Go to \uicontrol Extensions.
-            \image {qtcreator-extension-activate.webp} {An extension that has not been loaded in Extensions mode}
+        \li Go to \preferences > \uicontrol Extensions > \uicontrol Browse.
+            \image {qtcreator-extension-activate.webp} {An extension that has not been loaded}
         \li Select an inactive extension.
         \li Select \uicontrol {Active}.
         \li Select \uicontrol {Restart Now} to restart \QC and load the extension.
@@ -79,8 +80,8 @@
     To install extensions from the extension registry:
 
     \list 1
-        \li Go to \uicontrol Extensions.
-            \image {qtcreator-extension-mode.webp} {Extensions mode}
+        \li Go to \preferences > \uicontrol Extensions > \uicontrol Browse.
+            \image {qtcreator-extension-mode.webp} {Browse tab in Extensions preferences}
         \li Select an extension.
         \li Select \uicontrol {Install}.
         \li Follow the instructions of the wizard to check the archive and to
@@ -89,20 +90,20 @@
     \endlist
 
     If you have an installation package, you can drag it to the
-    \uicontrol {Extensions} mode to start the installation.
+    \uicontrol Browse tab to start the installation.
 
     \section1 Install extensions from external repositories
 
     To add URLs of external repositories:
 
     \list 1
-        \li Go to \preferences > \uicontrol Extensions.
-            \image {qtcreator-preferences-extensions.webp} {Extensions preferences}
+        \li Go to \preferences > \uicontrol Extensions > \uicontrol General.
+            \image {qtcreator-preferences-extensions.webp} {General tab in Extensions preferences}
         \li Select \uicontrol {Use external repository}.
         \li In \uicontrol {Repository URLs}, enter the URL of an external
             repository.
-        \li Select \uicontrol {OK}.
-        \li In the \uicontrol {Extensions} mode, select
+        \li Select \uicontrol {Apply}.
+        \li In the \uicontrol Browse tab, select
             \uicontrol {Use external repository}.
     \endlist
 
@@ -110,7 +111,7 @@
 
     \section1 Update extensions
 
-    The \uicontrol {Extensions} mode highlights updated extensions. To install
+    The \uicontrol Browse tab highlights updated extensions. To install
     updates, select \uicontrol {Update}.
 
     \section1 Remove extensions
@@ -128,7 +129,7 @@
     \list
         \li Check that the extension is compatible with your \QC version and
             other extensions that you install. You can find this information in
-            the description of the extension in the \uicontrol Extensions mode.
+            the description of the extension in the \uicontrol Browse tab.
         \li Check what other users are saying about the extension and how they
             rate it.
         \li Make sure the vendor is reputable and known for creating high-quality

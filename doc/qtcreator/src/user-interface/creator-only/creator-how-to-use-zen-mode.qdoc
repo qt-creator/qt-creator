@@ -18,8 +18,9 @@
     The Zen Mode extension provides modes that hide UI elements so you
     can focus on editing code.
 
-    Activate the \uicontrol {Zen Mode} extension in the \uicontrol {Extensions}
-    mode. For more information about extensions, see \l {Activate extensions}.
+    Activate the \uicontrol {Zen Mode} extension in \preferences >
+    \uicontrol Extensions > \uicontrol Browse. For more information about
+    extensions, see \l {Activate extensions}.
 
     \section1 Toggle distraction free mode
 

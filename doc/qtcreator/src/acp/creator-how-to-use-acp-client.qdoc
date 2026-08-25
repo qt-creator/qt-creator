@@ -20,9 +20,9 @@
     \section1 Prerequisites
 
     \list
-        \li Activate the \uicontrol {ACP Client} extension in the
-            \uicontrol {Extensions} mode. For more information about
-            extensions, see \l {Activate extensions}.
+        \li Activate the \uicontrol {ACP Client} extension in \preferences >
+            \uicontrol Extensions > \uicontrol Browse. For more information
+            about extensions, see \l {Activate extensions}.
         \li Recommended: Activate and set up the \uicontrol {MCP Server}
             extension if you want the agent to trigger \QC actions such as
             building or running your project. For more information, see

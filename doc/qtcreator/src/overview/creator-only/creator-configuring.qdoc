@@ -114,8 +114,8 @@
     To install plugins, go to \uicontrol Help > \uicontrol {About Plugins} and
     select \uicontrol {Install Plugin}.
 
-    You can also install and activate extensions in the \uicontrol Extensions
-    mode.
+    You can also install and activate extensions in \preferences >
+    \uicontrol Extensions > \uicontrol Browse.
 
     \section1 Accessibility
 

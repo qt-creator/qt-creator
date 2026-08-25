@@ -6,13 +6,14 @@
     \title Distributing Extensions and Plugins
 
     To make your extension or plugin available to a wider range of users, publish
-    it as a \QC extension or plugin that users can discover and install in the
-    \uicontrol Extensions mode.
+    it as a \QC extension or plugin that users can discover and install in
+    \uicontrol Edit > \uicontrol Preferences > \uicontrol Extensions >
+    \uicontrol Browse.
 
     You can also distribute archives of Lua extensions or binary builds
     of C++-based plugins that users can install in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Extensions >
-    \uicontrol {Install Extensions}.
+    \uicontrol Preferences > \uicontrol Extensions > \uicontrol General >
+    \uicontrol {Install Extension}.
 
     \section1 Publishing Extensions
 
