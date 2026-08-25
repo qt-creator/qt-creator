@@ -227,7 +227,9 @@ public:
         setDisplayName(Tr::tr("Deploy files"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
         setSupportedDeviceTypes(
-            {Remote::Constants::GenericLinuxOsType, Remote::Constants::GenericMacOsType});
+            {Remote::Constants::GenericLinuxOsType,
+             Remote::Constants::GenericMacOsType,
+             Remote::Constants::GenericWindowsOsType});
     }
 };
 

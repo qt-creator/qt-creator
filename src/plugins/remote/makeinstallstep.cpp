@@ -280,7 +280,9 @@ public:
         setDisplayName(Tr::tr("Install into temporary host directory"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
         setSupportedDeviceTypes(
-            {Remote::Constants::GenericLinuxOsType, Remote::Constants::GenericMacOsType});
+            {Remote::Constants::GenericLinuxOsType,
+             Remote::Constants::GenericMacOsType,
+             Remote::Constants::GenericWindowsOsType});
     }
 };
 

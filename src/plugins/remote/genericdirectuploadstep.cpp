@@ -276,7 +276,9 @@ public:
         setDisplayName(Tr::tr("Upload files via SFTP"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
         setSupportedDeviceTypes(
-            {Remote::Constants::GenericLinuxOsType, Remote::Constants::GenericMacOsType});
+            {Remote::Constants::GenericLinuxOsType,
+             Remote::Constants::GenericMacOsType,
+             Remote::Constants::GenericWindowsOsType});
     }
 };
 
