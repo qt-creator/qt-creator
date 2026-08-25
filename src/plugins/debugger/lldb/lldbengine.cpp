@@ -384,6 +384,9 @@ void LldbEngine::handleLldbStarted()
                 const QString trimmed = line.trimmed();
                 return !trimmed.isEmpty() && !trimmed.startsWith('#');
             });
+            // Anything that needs the attached target, such as telling the debugger
+            // where the target loaded a library, only works from here on.
+            commands += runParameters().commandsAfterConnect();
             for (const QString &cmd : std::as_const(commands)) {
                 executeDebuggerCommand(cmd);
             }
