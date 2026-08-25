@@ -5,7 +5,10 @@
 
 #include <QCoreApplication>
 #include <QDataStream>
+#include <QElapsedTimer>
 #include <QTime>
+
+#include <memory>
 
 #if defined(Q_OS_WIN)
 #include <QLibrary>
@@ -115,22 +118,41 @@ bool QtLocalPeer::sendMessage(const QString &message, int timeout, bool block)
     return res;
 }
 
+// Messages are small IPC payloads (command-line args, file paths); reject
+// anything grossly larger to avoid a hostile or broken peer causing an OOM.
+static const quint32 maxMessageSize = 64 * 1024 * 1024; // 64 MB
+static const qint64 receiveTimeoutMs = 5000;            // total time budget for reading one message
+
 void QtLocalPeer::receiveConnection()
 {
-    QLocalSocket* socket = server->nextPendingConnection();
+    std::unique_ptr<QLocalSocket> socket(server->nextPendingConnection());
     if (!socket)
         return;
+
+    QElapsedTimer timer;
+    timer.start();
+    const auto remainingTime = [&timer]() -> qint64 {
+        return qMax(0, receiveTimeoutMs - timer.elapsed());
+    };
 
     // Why doesn't Qt have a blocking stream that takes care of this shait???
     while (socket->bytesAvailable() < static_cast<int>(sizeof(quint32))) {
         if (!socket->isValid()) // stale request
             return;
-        socket->waitForReadyRead(1000);
+        if (timer.hasExpired(receiveTimeoutMs)) {
+            qWarning() << "QtLocalPeer: Timed out waiting for message header";
+            return;
+        }
+        socket->waitForReadyRead(remainingTime());
     }
-    QDataStream ds(socket);
+    QDataStream ds(socket.get());
     QByteArray uMsg;
     quint32 remaining;
     ds >> remaining;
+    if (remaining > maxMessageSize) {
+        qWarning() << "QtLocalPeer: Rejecting oversized message of" << remaining << "bytes";
+        return;
+    }
     uMsg.resize(remaining);
     int got = 0;
     char* uMsgBuf = uMsg.data();
@@ -140,18 +162,26 @@ void QtLocalPeer::receiveConnection()
         remaining -= got;
         uMsgBuf += got;
         //qDebug() << "RCV: got" << got << "remaining" << remaining;
-    } while (remaining && got >= 0 && socket->waitForReadyRead(2000));
-    //### error check: got<0
+        if (remaining == 0 || got < 0)
+            break;
+        if (timer.hasExpired(receiveTimeoutMs)) {
+            qWarning() << "QtLocalPeer: Timed out receiving message";
+            return;
+        }
+    } while (socket->waitForReadyRead(remainingTime()));
     if (got < 0) {
         qWarning() << "QtLocalPeer: Message reception failed" << socket->errorString();
-        delete socket;
         return;
     }
-    // ### async this
+    if (remaining != 0) {
+        qWarning() << "QtLocalPeer: Incomplete message," << remaining << "bytes missing";
+        return;
+    }
     QString message = QString::fromUtf8(uMsg.constData(), uMsg.size());
     socket->write(ack, qstrlen(ack));
     socket->waitForBytesWritten(1000);
-    emit messageReceived(message, socket); // ##(might take a long time to return)
+    // might take a long time to return
+    emit messageReceived(message, socket.release());
 }
 
 } // namespace SharedTools
