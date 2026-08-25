@@ -42,6 +42,9 @@
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QHash>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QList>
 #include <QLoggingCategory>
 #include <QSettings>
@@ -98,6 +101,50 @@ static Id deviceId(const QString &sdkName)
 static bool isSimulatorDeviceId(const Id &id)
 {
     return id == Constants::IOS_SIMULATOR_TYPE;
+}
+
+// device type -> architecture (e.g. "arm64", "x86_64") pairs that a Qt version's
+// modules/Core.json declares support for. Falls back to the historic
+// device/arm64 + simulator/x86_64 combination if Core.json could not be found
+// or parsed (older Qt versions do not ship a Core.json).
+using SupportedIosTargets = QSet<std::pair<Id, QString>>;
+
+static SupportedIosTargets defaultSupportedIosTargets()
+{
+    return {{Constants::IOS_DEVICE_TYPE, "arm64"}, {Constants::IOS_SIMULATOR_TYPE, "x86_64"}};
+}
+
+static SupportedIosTargets supportedIosTargets(const QtVersion *qtVersion)
+{
+    FilePath jsonFile;
+    for (const FilePath &baseDir : {qtVersion->dataPath(), qtVersion->hostDataPath()}) {
+        const FilePath candidate = baseDir.pathAppended("modules/Core.json");
+        if (candidate.exists()) {
+            jsonFile = candidate;
+            break;
+        }
+    }
+    if (jsonFile.isEmpty())
+        return defaultSupportedIosTargets();
+
+    const auto content = jsonFile.fileContents();
+    if (!content)
+        return defaultSupportedIosTargets();
+    const QJsonDocument doc = QJsonDocument::fromJson(*content);
+    SupportedIosTargets result;
+    for (const QJsonValue &p : doc.object().value("platforms").toArray()) {
+        const QJsonObject platform = p.toObject();
+        const Id deviceType = deviceId(platform.value("variant").toString());
+        if (!deviceType.isValid())
+            continue;
+        for (const QJsonValue &t : platform.value("targets").toArray()) {
+            const QString architecture = t.toObject().value("architecture").toString();
+            if (architecture.isEmpty())
+                continue;
+            result.insert({deviceType, architecture});
+        }
+    }
+    return result.isEmpty() ? defaultSupportedIosTargets() : result;
 }
 
 static QList<GccToolchain *> clangToolchains(const Toolchains &toolchains)
@@ -238,6 +285,11 @@ void IosConfigurations::updateAutomaticKitList()
         return v->type() == Constants::IOSQT && v->isValid();
     }));
 
+    // Qt version -> device type/architecture pairs it supports, per its Core.json.
+    QHash<QtVersion *, SupportedIosTargets> qtVersionTargets;
+    for (QtVersion *qtVersion : qtVersions)
+        qtVersionTargets.insert(qtVersion, supportedIosTargets(qtVersion));
+
     const DebuggerItem possibleDebugger = DebuggerItemManager::findByEngineType(LldbEngineType);
     const QVariant debuggerId = (possibleDebugger ? possibleDebugger.id() : QVariant());
 
@@ -247,55 +299,70 @@ void IosConfigurations::updateAutomaticKitList()
     QSet<Kit *> resultingKits;
     for (const XcodePlatform &platform : platforms) {
         for (const auto &sdk : platform.sdks) {
-            const auto targets = filtered(platform.targets,
-                                          [&sdk](const XcodePlatform::ToolchainTarget &target) {
-                 return sdk.architectures.first() == target.architecture;
-            });
-            if (targets.empty())
-                continue;
-
-            const auto target = targets.front();
-
-            const ToolchainPair &platformToolchains = targetToolchainHash.value(target);
-            if (!platformToolchains.first && !platformToolchains.second) {
-                qCDebug(kitSetupLog) << "  - No tool chain found";
-                continue;
-            }
             Id pDeviceType = deviceId(sdk.directoryName);
             if (!pDeviceType.isValid()) {
                 qCDebug(kitSetupLog) << "Unsupported/Invalid device type" << sdk.directoryName;
                 continue;
             }
-
-            for (QtVersion *qtVersion : qtVersions) {
-                qCDebug(kitSetupLog) << "  - Qt version:" << qtVersion->displayName();
-                Kit *kit = findOrDefault(existingKits, [&pDeviceType, &platformToolchains, &qtVersion](const Kit *kit) {
-                    // we do not compare the sdk (thus automatically upgrading it in place if a
-                    // new Xcode is used). Change?
-                    return RunDeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
-                            && ToolchainKitAspect::cxxToolchain(kit) == platformToolchains.second
-                            && ToolchainKitAspect::cToolchain(kit) == platformToolchains.first
-                            && QtKitAspect::qtVersion(kit) == qtVersion;
+            // an SDK can list more than one architecture (e.g. a Simulator SDK
+            // supporting both arm64 and x86_64); build a kit candidate per architecture
+            for (const QString &architecture : sdk.architectures) {
+                const auto targets = filtered(platform.targets,
+                                              [&architecture](const XcodePlatform::ToolchainTarget &target) {
+                     return architecture == target.architecture;
                 });
-                QTC_ASSERT(!resultingKits.contains(kit), continue);
-                if (kit) {
-                    qCDebug(kitSetupLog) << "    - Kit matches:" << kit->displayName();
-                    kit->blockNotification();
-                    setupKit(kit, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
-                    kit->unblockNotification();
-                } else {
-                    qCDebug(kitSetupLog) << "    - Setting up new kit";
-                    const auto init = [&](Kit *k) {
-                        k->setDetectionSource({DetectionSource::FromSystem, iosDetectionSource});
-                        const QString baseDisplayName = isSimulatorDeviceId(pDeviceType)
-                                ? Tr::tr("%1 Simulator").arg(qtVersion->unexpandedDisplayName())
-                                : qtVersion->unexpandedDisplayName();
-                        k->setUnexpandedDisplayName(baseDisplayName);
-                        setupKit(k, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
-                    };
-                    kit = KitManager::registerKit(init);
+                if (targets.empty())
+                    continue;
+
+                const auto target = targets.front();
+
+                const ToolchainPair &platformToolchains = targetToolchainHash.value(target);
+                if (!platformToolchains.first && !platformToolchains.second) {
+                    qCDebug(kitSetupLog) << "  - No tool chain found for" << architecture;
+                    continue;
                 }
-                resultingKits.insert(kit);
+
+                for (QtVersion *qtVersion : qtVersions) {
+                    const SupportedIosTargets &supportedTargets = qtVersionTargets.value(qtVersion);
+                    if (!supportedTargets.contains({pDeviceType, target.architecture})) {
+                        qCDebug(kitSetupLog) << "  - Qt version:" << qtVersion->displayName()
+                                             << "does not support" << pDeviceType << target.architecture;
+                        continue;
+                    }
+                    qCDebug(kitSetupLog) << "  - Qt version:" << qtVersion->displayName();
+                    Kit *kit = findOrDefault(existingKits, [&pDeviceType, &platformToolchains, &qtVersion](const Kit *kit) {
+                        // we do not compare the sdk (thus automatically upgrading it in place if a
+                        // new Xcode is used). Change?
+                        return RunDeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
+                                && ToolchainKitAspect::cxxToolchain(kit) == platformToolchains.second
+                                && ToolchainKitAspect::cToolchain(kit) == platformToolchains.first
+                                && QtKitAspect::qtVersion(kit) == qtVersion;
+                    });
+                    QTC_ASSERT(!resultingKits.contains(kit), continue);
+                    if (kit) {
+                        qCDebug(kitSetupLog) << "    - Kit matches:" << kit->displayName();
+                        kit->blockNotification();
+                        setupKit(kit, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
+                        kit->unblockNotification();
+                    } else {
+                        qCDebug(kitSetupLog) << "    - Setting up new kit";
+                        const auto init = [&](Kit *k) {
+                            k->setDetectionSource({DetectionSource::FromSystem, iosDetectionSource});
+                            // If the Qt version supports only one platform/architecture, only
+                            // one kit is ever created for it, since its own display name already
+                            // identifies it uniquely (like "Qt x.y.z for iOS (Simulator (Intel))")
+                            QString baseDisplayName = qtVersion->unexpandedDisplayName();
+                            if (supportedTargets.size() != 1) {
+                                if (isSimulatorDeviceId(pDeviceType))
+                                    baseDisplayName = Tr::tr("%1 Simulator").arg(baseDisplayName);
+                            }
+                            k->setUnexpandedDisplayName(baseDisplayName);
+                            setupKit(k, pDeviceType, platformToolchains, debuggerId, sdk.path, qtVersion);
+                        };
+                        kit = KitManager::registerKit(init);
+                    }
+                    resultingKits.insert(kit);
+                }
             }
         }
     }

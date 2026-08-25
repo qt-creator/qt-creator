@@ -80,7 +80,8 @@ void XcodeProbe::setupDefaultToolchains(const QString &devPath)
     QSet<QString> allArchitectures;
     static const std::map<QString, QStringList> sdkConfigs{
         {QLatin1String("iPhoneOS"), QStringList{QLatin1String("arm64")}},
-        {QLatin1String("iPhoneSimulator"), QStringList{QLatin1String("x86_64")}}};
+        {QLatin1String("iPhoneSimulator"),
+         QStringList{QLatin1String("arm64"), QLatin1String("x86_64")}}};
     for (const auto &sdkConfig : sdkConfigs) {
         XcodePlatform::SDK sdk;
         sdk.directoryName = sdkConfig.first;
