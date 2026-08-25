@@ -117,6 +117,8 @@ CppCodeModelSettings &CppCodeModelSettings::global()
 
 CppCodeModelSettingsData CppCodeModelSettings::settingsForProject(const Utils::FilePath &projectFile)
 {
+    if (projectFile.isEmpty())
+        return global().data();
     return settingsForProject(ProjectManager::projectWithProjectFile(projectFile, true));
 }
 
