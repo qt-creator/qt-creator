@@ -491,8 +491,34 @@ static QString parseTemporaryBreakpointNumber(const QString &consoleStreamOutput
     return match.hasMatch() ? match.captured(1) : QString();
 }
 
+static bool resumesInferior(ExecutionCommand command)
+{
+    switch (command) {
+    case ExecutionCommand::Continue:
+    case ExecutionCommand::StepOver:
+    case ExecutionCommand::StepIn:
+    case ExecutionCommand::StepOut:
+    case ExecutionCommand::Return:
+    case ExecutionCommand::RunToLine:
+    case ExecutionCommand::RunToFunction:
+    case ExecutionCommand::JumpToLine:
+    case ExecutionCommand::ResetInferior:
+        return true;
+    case ExecutionCommand::Interrupt:
+    case ExecutionCommand::Detach:
+    case ExecutionCommand::Abort:
+    case ExecutionCommand::RecordReverse:
+    case ExecutionCommand::RepeatLastCommand:
+        break;
+    }
+    return false;
+}
+
 void GdbImpl::execute(const ExecutionRequest &request)
 {
+    if (resumesInferior(request.command))
+        setTokenBarrier();
+
     switch (request.command) {
     case ExecutionCommand::Continue:
         if (m_startData.nativeMixedDebugging && request.currentFrameIsQml)
@@ -1753,6 +1779,12 @@ void GdbImpl::runCommandNow(const DebuggerCommand &command)
     m_gdbProc.write(line + "\r\n");
 }
 
+void GdbImpl::setTokenBarrier()
+{
+    emit message("--- token barrier ---", LogMiscInput);
+    m_oldestAcceptableToken = m_lastToken;
+}
+
 void GdbImpl::handleOutputLine(const QString &line)
 {
     if (line.isEmpty() || line == "(gdb) ")
@@ -2027,8 +2059,13 @@ void GdbImpl::handleResultRecord(DebuggerResponse *response)
         emit message(QString("GdbImpl: no command found for token %1").arg(token), LogError);
         return;
     }
-    const DebuggerCommand::Callback callback = m_commandForToken.take(token).callback;
-    if (callback)
-        callback(*response);
+    const DebuggerCommand cmd = m_commandForToken.take(token);
+    if (token < m_oldestAcceptableToken && (cmd.flags & DebuggerCommand::Discardable)) {
+        emit message(QString("GdbImpl: skipping stale result for token %1").arg(token),
+                     LogMiscInput);
+        return;
+    }
+    if (cmd.callback)
+        cmd.callback(*response);
 }
 } // namespace Debugger::Internal

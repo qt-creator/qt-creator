@@ -124,6 +124,7 @@ private:
     void handleFetchMemory(const DebuggerResponse &response, const MemoryRequestCookie &cookie);
 
     void runCommand(const DebuggerCommand &command);
+    void setTokenBarrier();
     void requestInferiorInterrupt();
     void runCommandNow(const DebuggerCommand &command);
     void handleOutputLine(const QString &line);
@@ -149,6 +150,7 @@ private:
     QList<DebuggerCommand> m_onStopCommands;
     bool m_onStopWantContinue = false;
     int m_lastToken = 0;
+    int m_oldestAcceptableToken = -1;
 
     bool m_dumpersReady = false;
     QList<DebuggerCommand> m_bufferedDumperCommands;

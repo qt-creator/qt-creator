@@ -396,6 +396,8 @@ private slots:
     void expandsContainerLocalWhenExpanded();
     void refreshesRegisters_data() { addBackendRows(); }
     void refreshesRegisters();
+    void refreshesRegistersAfterResume_data() { addBackendRows(); }
+    void refreshesRegistersAfterResume();
     void updatesEnablesAndRemovesBreakpoint_data() { addBackendRows(); }
     void updatesEnablesAndRemovesBreakpoint();
     void writesMemoryAndPeripheralRegister_data() { addBackendRows(); }
@@ -3012,6 +3014,61 @@ void tst_backends::refreshesRegisters()
     secondRegistersRequest.requestId = 13;
     engine->refresh(secondRegistersRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Registers)), s_timeout);
+    QVERIFY(responses.value(int(RefreshKind::Registers)).childCount() > 0);
+}
+
+void tst_backends::refreshesRegistersAfterResume()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    QHash<quint64, bool> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        results[requestId] = ok;
+    });
+
+    RefreshRequest registersRequest;
+    registersRequest.kind = RefreshKind::Registers;
+    registersRequest.requestId = 260;
+    engine->refresh(registersRequest);
+
+    BreakpointChangeRequest insertRequest;
+    insertRequest.op = BreakpointOp::Insert;
+    insertRequest.requestId = 261;
+    insertRequest.params.type = BreakpointByFileAndLine;
+    insertRequest.params.fileName = inferiorTestData(backend).source;
+    insertRequest.params.textPosition.line = inferiorTestData(backend).secondBreakpointLine;
+    insertRequest.params.enabled = true;
+    engine->changeBreakpoint(insertRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(261), s_timeout);
+    QVERIFY2(results.value(261), "second breakpoint insert failed");
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), inferiorTestData(backend).secondBreakpointLine);
+
+    responses.clear();
+    RefreshRequest secondRegistersRequest;
+    secondRegistersRequest.kind = RefreshKind::Registers;
+    secondRegistersRequest.requestId = 262;
+    engine->refresh(secondRegistersRequest);
+    QTRY_VERIFY2_WITH_TIMEOUT(responses.contains(int(RefreshKind::Registers)),
+                              "no register data after the resume - a discarded reply from before "
+                              "it took the fresh one with it",
+                              s_timeout);
     QVERIFY(responses.value(int(RefreshKind::Registers)).childCount() > 0);
 }
 
