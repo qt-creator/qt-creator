@@ -4,9 +4,8 @@
 #include "deploymentdata.h"
 
 #include <utils/algorithm.h>
+#include <utils/result.h>
 
-#include <QFile>
-#include <QFileInfo>
 #include <QTextStream>
 
 using namespace Utils;
@@ -49,34 +48,29 @@ bool DeploymentData::operator==(const DeploymentData &other) const
 }
 
 QString DeploymentData::addFilesFromDeploymentFile(const FilePath &deploymentFilePath,
-                                                   const FilePath &sourceDir_)
+                                                   const FilePath &sourceDir)
 {
-    const QString sourceDir = sourceDir_.toUrlishString();
-    const QString sourcePrefix = sourceDir.endsWith('/') ? sourceDir : sourceDir + '/';
-    QFile deploymentFile(deploymentFilePath.toUrlishString());
-    QTextStream deploymentStream;
-    QString deploymentPrefix;
+    const Result<QByteArray> contents = deploymentFilePath.fileContents();
+    if (!contents)
+        return {};
 
-    if (!deploymentFile.open(QFile::ReadOnly | QFile::Text))
-        return deploymentPrefix;
-    deploymentStream.setDevice(&deploymentFile);
-    deploymentPrefix = deploymentStream.readLine();
+    QByteArray data = *contents;
+    QTextStream deploymentStream(&data, QIODevice::ReadOnly);
+    QString deploymentPrefix = deploymentStream.readLine();
     if (!deploymentPrefix.endsWith('/'))
         deploymentPrefix.append('/');
-    if (deploymentStream.device()) {
-        while (!deploymentStream.atEnd()) {
-            QString line = deploymentStream.readLine();
-            if (!line.contains(':'))
-                continue;
-            int splitPoint = line.lastIndexOf(':');
-            QString sourceFile = line.left(splitPoint);
-            if (QFileInfo(sourceFile).isRelative())
-                sourceFile.prepend(sourcePrefix);
-            QString targetFile = line.mid(splitPoint + 1);
-            if (QFileInfo(targetFile).isRelative())
-                targetFile.prepend(deploymentPrefix);
-            addFile(FilePath::fromString(sourceFile), targetFile);
-        }
+
+    while (!deploymentStream.atEnd()) {
+        const QString line = deploymentStream.readLine();
+        const int splitPoint = line.lastIndexOf(':');
+        if (splitPoint < 0)
+            continue;
+
+        QString targetFile = line.mid(splitPoint + 1);
+        if (FilePath::fromUserInput(targetFile).isRelativePath())
+            targetFile.prepend(deploymentPrefix);
+
+        addFile(sourceDir.resolvePath(line.left(splitPoint)), targetFile);
     }
     return deploymentPrefix;
 }
