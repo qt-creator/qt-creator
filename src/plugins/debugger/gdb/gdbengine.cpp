@@ -5229,13 +5229,38 @@ QString GdbEngine::mainFunction() const
 // Factory
 //
 
+static InferiorStartData inferiorStartData(const DebuggerRunParameters &rp)
+{
+    switch (rp.startMode()) {
+    case AttachToCore:
+        return AttachToCoreData{rp.coreFile(), rp.inferior().command.executable()};
+    case AttachToLocalProcess:
+    case AttachToCrashedProcess:
+        return AttachToProcessData{rp.attachPid()};
+    case AttachToRemoteServer:
+    case AttachToRemoteProcess:
+    case StartRemoteProcess: {
+        const FilePath remoteExecutable = rp.useExtendedRemote() && !rp.attachPid().isValid()
+                                              ? rp.inferior().command.executable()
+                                              : FilePath();
+        return AttachToRemoteServerData{rp.remoteChannel(), rp.symbolFile(), rp.attachPid(),
+                                        remoteExecutable};
+    }
+    case AttachToQmlServer:
+        return AttachToQmlServerData{rp.qmlServer()};
+    default:
+        break;
+    }
+    return rp.inferior();
+}
+
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp)
 {
     if (DebuggerEngine::isUsingGenericDebugger()) {
         const QString mainFunctionName = QLatin1String(
             rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal() ? "qMain" : "main");
         return new GenericDebuggerEngine("GDB (GdbImpl)",
-                                        new GdbImpl({rp.debugger(), rp.inferior(),
+                                        new GdbImpl({rp.debugger(), inferiorStartData(rp),
                                                      ICore::resourcePath("debugger"),
                                                      mainFunctionName,
                                                      rp.isNativeMixedDebugging(),
