@@ -50,6 +50,7 @@
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QCursor>
+#include <QHeaderView>
 
 #include <cmath>
 #include <QBuffer>
@@ -1074,6 +1075,23 @@ static Utils::Result<QAbstractItemView *> resolveSingleView(const WidgetQuery &q
         return ResultError(w.error());
     if (auto view = qobject_cast<QAbstractItemView *>(*w))
         return view;
+    // The view a caller means is often wrapped in a container that carries the
+    // stable object name - a dock widget, a search-enabled wrapper. Accept the
+    // container as long as it holds exactly one view. A header is part of its
+    // view, not a candidate, and hidden ones do not count: a search box brings
+    // its completer popup, itself a view, along.
+    QList<QAbstractItemView *> inner = (*w)->findChildren<QAbstractItemView *>();
+    Utils::erase(inner, [](QAbstractItemView *view) {
+        return qobject_cast<QHeaderView *>(view);
+    });
+    if (!q.includeInvisible)
+        Utils::erase(inner, [](QAbstractItemView *view) { return !view->isVisible(); });
+    if (inner.size() == 1)
+        return inner.first();
+    if (inner.size() > 1) {
+        return ResultError(QString("%1 holds %2 item views; name one of them.")
+                               .arg(describeWidgetShort(*w)).arg(inner.size()));
+    }
     return ResultError(
         QString("Widget is not an item view: %1.").arg(describeWidgetShort(*w)));
 }
