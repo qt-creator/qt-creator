@@ -2346,18 +2346,34 @@ class Dumper(DumperBase):
             thread = self.firstStoppedThread() or self.process.GetSelectedThread()
         return False
 
+    def killInferior(self):
+        # Everything but a process that is gone already gets killed; the states one
+        # still exists in are not worth enumerating. Kill() waits for it to be
+        # reaped, though, which for a process behind a gdb remote stub never happens
+        # - Stop() does not come back there either - so nothing is left waiting on it
+        # for longer than a shutdown may take.
+        if self.process is None or self.process.GetState() in (
+                lldb.eStateInvalid, lldb.eStateUnloaded, lldb.eStateDetached,
+                lldb.eStateExited):
+            return ''
+        result = []
+        killer = threading.Thread(target=lambda: result.append(self.process.Kill()))
+        killer.daemon = True
+        killer.start()
+        killer.join(2)
+        if not result:
+            return 'status="Killing the inferior did not come back."'
+        return self.describeError(result[0])
+
     def shutdownInferior(self, args):
         self.isShuttingDown_ = True
-        if self.process is not None:
-            state = self.process.GetState()
-            if state == lldb.eStateStopped:
-                self.process.Kill()
+        status = self.killInferior()
         self.reportState('inferiorshutdownfinished')
-        self.reportResult('', args)
+        self.reportResult(status, args)
 
     def quit(self, args):
         self.reportState('engineshutdownfinished')
-        self.process.Kill()
+        self.killInferior()
         self.reportResult('', args)
 
     def executeStepI(self, args):
