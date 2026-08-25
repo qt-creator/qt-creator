@@ -4,11 +4,11 @@
 #include "connectdevicestep.h"
 
 #include "abstractremotelinuxdeploystep.h"
-#include "linuxdevice.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/buildstep.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace ProjectExplorer;
@@ -26,8 +26,7 @@ public:
         setWidgetExpandedByDefault(false);
 
         setInternalInitializer([this]() -> Result<> {
-            if (!deviceConfiguration()
-                || !std::dynamic_pointer_cast<const LinuxDevice>(deviceConfiguration()))
+            if (!deviceConfiguration())
                 return make_unexpected(Tr::tr("No device configured for the run configuration."));
             return {};
         });
@@ -40,7 +39,7 @@ private:
 struct DeviceAndResult
 {
     ConnectDeviceStep *step = nullptr;
-    LinuxDevice::ConstPtr device;
+    ProjectExplorer::IDevice::ConstPtr device;
     Result<void> result;
 };
 
@@ -62,7 +61,7 @@ using ConnectDeviceTask = QCustomTask<DeviceAndResult, ConnectDeviceTaskAdapter>
 GroupItem ConnectDeviceStep::deployRecipe()
 {
     const auto setup = [this](DeviceAndResult &task) {
-        auto device = std::dynamic_pointer_cast<const LinuxDevice>(deviceConfiguration());
+        const IDevice::ConstPtr device = deviceConfiguration();
         if (device->isUp())
             return SetupResult::StopWithSuccess;
 
@@ -93,7 +92,9 @@ public:
         setDisplayName(Tr::tr("Connect to the target device"));
         setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
         setSupportedDeviceTypes(
-            {Remote::Constants::GenericLinuxOsType, Remote::Constants::GenericMacOsType});
+            {Remote::Constants::GenericLinuxOsType,
+             Remote::Constants::GenericMacOsType,
+             Remote::Constants::GenericWindowsOsType});
     }
 };
 
