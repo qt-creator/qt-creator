@@ -13,11 +13,16 @@
 #include <QDateTime>
 #include <QFuture>
 #include <QHash>
+#include <QSet>
 #include <QSharedPointer>
 
+#include <optional>
+
 namespace CPlusPlus {
-class MacroArgumentReference;
+class Environment;
 class LookupContext;
+class MacroArgumentReference;
+class Snapshot;
 
 class CPLUSPLUS_EXPORT Document
 {
@@ -79,6 +84,20 @@ public:
 
     const QByteArray &fingerprint() const { return m_fingerprint; }
     void setFingerprint(const QByteArray &fingerprint) { m_fingerprint = fingerprint; }
+
+    // Tells whether this (already parsed) document can be reused as-is for a
+    // later #include of the same file under the given, possibly different,
+    // macro environment: true iff every macro this document's own
+    // preprocessing actually checked or expanded (macroUses()/
+    // undefinedMacroUses()) still resolves the same way in "env" - except for
+    // macros established by this document's own transitive #include closure
+    // (per "snapshot"): those get re-derived identically by a full reparse
+    // regardless of the includer's environment, so they aren't really a
+    // dependency on it. Unrelated macros that this document never queried,
+    // and an unrelated project part's own macros (e.g. its export define),
+    // are likewise deliberately ignored, so they cannot needlessly invalidate
+    // reuse of a header that never looked at them.
+    bool isValidForCurrentEnvironment(const Environment &env, const Snapshot &snapshot) const;
 
     LanguageFeatures languageFeatures() const;
     void setLanguageFeatures(LanguageFeatures features);

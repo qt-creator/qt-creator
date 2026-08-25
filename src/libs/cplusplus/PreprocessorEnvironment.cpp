@@ -43,7 +43,6 @@ static unsigned hashCode(const char *str, int length)
     return hash_value;
 }
 
-
 Environment::Environment()
     : currentLine(0),
       hideNext(false),

@@ -753,6 +753,116 @@ void ModelManagerTest::testDefinesPerProject()
     }
 }
 
+/// Check: A header that CppSourceProcessor::sourceNeeded() finds already present in the snapshot
+/// must not be reused as-is unless none of the macros it actually queried while being parsed
+/// (Document::isValidForCurrentEnvironment(), based on macroUses()/undefinedMacroUses()) would
+/// resolve differently now. Without that check, when two sibling source files of the same
+/// indexing batch textually include the same header under different preprocessor conditions,
+/// whichever one is processed first would silently "freeze" the header's content for the rest of
+/// the batch, and CppModelManager::GC() could neither detect nor fix it, since the
+/// wrongly-inherited includes stay "reachable" forever.
+void ModelManagerTest::testStaleHeaderReuseAcrossConfigs_QTCREATORBUG_18800()
+{
+    ModelManagerTestHelper helper;
+
+    const FilePath dataDir = testDataDir("testdata_stale_header_reuse");
+    const FilePath sharedHeader = dataDir / "shared.h";
+    const FilePath onlyWithFlag = dataDir / "onlywithflag.h";
+    const FilePath configACpp = dataDir / "configA.cpp";
+    const FilePath configBCpp = dataDir / "configB.cpp";
+
+    // Both files are part of the same project and get indexed in the same
+    // batch, sharing one CppSourceProcessor. configA.cpp defines FLAG itself
+    // before including the shared header, so it legitimately pulls in
+    // onlywithflag.h. configB.cpp does not, and is sorted after configA.cpp,
+    // so it is processed once shared.h is already sitting in the (shared,
+    // in-batch) snapshot with configA.cpp's FLAG-flavored content.
+    const auto project = helper.createProject(_("test_modelmanager_stale_header_reuse"),
+                                               FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+            {{configACpp, ProjectFile::CXXSource},
+             {configBCpp, ProjectFile::CXXSource},
+             {sharedHeader, ProjectFile::CXXHeader}});
+    const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
+    helper.updateProjectInfo(pi);
+
+    QVERIFY(CppModelManager::snapshot().contains(onlyWithFlag));
+
+    // Since configB.cpp never defines FLAG, its translation unit must not
+    // (transitively) depend on onlywithflag.h.
+    const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    const QSet<FilePath> reachableFromB = snapshot.allIncludesForDocument(configBCpp);
+    QVERIFY2(!reachableFromB.contains(onlyWithFlag),
+             "shared.h was reused unchanged from configA.cpp instead of being "
+             "reparsed for configB.cpp, which never defines FLAG");
+}
+
+/// Check: Document::isValidForCurrentEnvironment()'s own-closure exclusion (see
+/// its doc comment in CppDocument.cpp) is an approximation, not a proof: it does
+/// not recursively verify that a transitively-included definer's own content is
+/// itself free of dependencies on the *outer* translation unit. Here, outer.h
+/// uses NESTED_FLAG, which is defined by definer.h - a file outer.h itself
+/// #includes, so its definer is (wrongly, in this case) treated as
+/// self-contained. But definer.h's own value for NESTED_FLAG actually depends
+/// on FLAG, a macro from a sibling file external to outer.h's own closure. This
+/// is a known, accepted limitation, not something Document::
+/// isValidForCurrentEnvironment() is expected to catch; contrast
+/// testStaleHeaderReuseAcrossConfigs_QTCREATORBUG_18800(), the direct case that
+/// fix *does* cover.
+void ModelManagerTest::testStaleHeaderReuseViaNestedDependency()
+{
+    ModelManagerTestHelper helper;
+
+    const FilePath dataDir = testDataDir("testdata_stale_header_reuse_nested");
+    const FilePath outerHeader = dataDir / "outer.h";
+    const FilePath onlyWithNestedFlag = dataDir / "onlywithnestedflag.h";
+    const FilePath configACpp = dataDir / "configA.cpp";
+    const FilePath configBCpp = dataDir / "configB.cpp";
+
+    // Both files are part of the same project and get indexed in the same
+    // batch. configA.cpp defines FLAG before including outer.h, so
+    // NESTED_FLAG (defined by definer.h, based on FLAG) legitimately pulls in
+    // onlywithnestedflag.h. configB.cpp does not define FLAG.
+    const auto project = helper.createProject(
+                _("test_modelmanager_stale_header_reuse_nested"),
+                FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+            {{configACpp, ProjectFile::CXXSource},
+             {configBCpp, ProjectFile::CXXSource},
+             {outerHeader, ProjectFile::CXXHeader}});
+    const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
+    helper.updateProjectInfo(pi);
+
+    // Exactly one of the two should (transitively) depend on
+    // onlywithnestedflag.h: configA.cpp (which defines FLAG) should,
+    // configB.cpp (which doesn't) shouldn't - regardless of which of the two
+    // happened to be processed first in the batch (index() has no defined
+    // order; params.sourceFiles is a QSet). The known limitation makes both
+    // configs silently agree instead, whichever way that race goes: outer.h
+    // ends up frozen at whichever NESTED_FLAG value was established first,
+    // since NESTED_FLAG's definer (definer.h) is part of outer.h's own
+    // #include closure, so its actual dependency on FLAG - external to that
+    // closure - gets wrongly ignored for the second config either way.
+    const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    const bool reachableFromA =
+            snapshot.allIncludesForDocument(configACpp).contains(onlyWithNestedFlag);
+    const bool reachableFromB =
+            snapshot.allIncludesForDocument(configBCpp).contains(onlyWithNestedFlag);
+    QEXPECT_FAIL("", "Known limitation: Document::isValidForCurrentEnvironment()'s "
+                 "own-closure exclusion does not verify that a transitively-included "
+                 "definer's own content is free of dependencies on the outer "
+                 "translation unit", Abort);
+    QVERIFY2(reachableFromA != reachableFromB,
+             "configA.cpp and configB.cpp ended up agreeing on whether "
+             "onlywithnestedflag.h is reachable, because NESTED_FLAG's definer "
+             "(definer.h) is part of outer.h's own #include closure and so its "
+             "dependency on FLAG, external to that closure, was wrongly ignored");
+}
+
 void ModelManagerTest::testPrecompiledHeaders()
 {
     ModelManagerTestHelper helper;

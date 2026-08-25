@@ -423,10 +423,19 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     if (!isInjectedFile(absoluteFilePath))
         m_included.insert(absoluteFilePath);
 
-    // Already in snapshot? Use it!
+    // Already in snapshot? Use it, but only if none of the macros it
+    // actually queried while being parsed (macroUses()/undefinedMacroUses())
+    // would resolve differently now: a header whose content forks on a
+    // macro can otherwise get silently "frozen" with whichever sibling
+    // file's environment happened to touch it first in this batch. Macros
+    // the document never looked at (e.g. an unrelated project part's own
+    // export define) are deliberately not compared, so they cannot force a
+    // needless reparse.
     if (Document::Ptr document = m_snapshot.document(absoluteFilePath)) {
-        mergeEnvironment(document);
-        return;
+        if (document->isValidForCurrentEnvironment(m_env, m_snapshot)) {
+            mergeEnvironment(document);
+            return;
+        }
     }
 
     if (fileSizeExceedsLimit(absoluteFilePath, m_fileSizeLimitInMb))

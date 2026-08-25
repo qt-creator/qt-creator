@@ -26,6 +26,8 @@ private slots:
     void testDontGcOpenedFiles();
     void testDefinesPerProject();
     void testDefinesPerEditor();
+    void testStaleHeaderReuseAcrossConfigs_QTCREATORBUG_18800();
+    void testStaleHeaderReuseViaNestedDependency();
     void testUpdateEditorsAfterProjectUpdate();
     void testPrecompiledHeaders();
     void testRenameIncludes_data();

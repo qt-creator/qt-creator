@@ -5,6 +5,7 @@
 #include "FastPreprocessor.h"
 #include "LookupContext.h"
 #include "Overview.h"
+#include "PreprocessorEnvironment.h"
 
 #include <cplusplus/Bind.h>
 #include <cplusplus/Control.h>
@@ -26,6 +27,7 @@
 
 #include <QByteArray>
 #include <QDebug>
+#include <QSet>
 #include <QStack>
 
 /*!
@@ -355,6 +357,55 @@ void Document::addUndefinedMacroUse(const QByteArray &name,
     QByteArray copy(name.data(), name.size());
     UndefinedMacroUse use(copy, bytesOffset, utf16charsOffset);
     _undefinedMacroUses.append(use);
+}
+
+bool Document::isValidForCurrentEnvironment(const Environment &env, const Snapshot &snapshot) const
+{
+    // Checked first: a document that observed a macro as undefined may well have
+    // #defined it itself afterwards, as in the "#ifndef FOO / #define FOO 1"
+    // idiom. Such a definition is conditional on the incoming environment, so
+    // the check below may only treat this document's own macros as
+    // self-contained once these uses have confirmed the environment agrees.
+    // The include guard is exempt: it is what makes the document idempotent in
+    // the first place, not something it branches on.
+    for (const UndefinedMacroUse &use : _undefinedMacroUses) {
+        const QByteArray name = use.name();
+        if (name == _includeGuardMacroName)
+            continue;
+        // Was undefined when this document was parsed, is defined now.
+        if (env.resolve(ByteArrayRef(&name)))
+            return false;
+    }
+
+    // If a used macro's defining file is one that *this* document itself
+    // transitively #includes - rather than one included by whatever included
+    // *this* document - assume a full reparse would re-derive it identically.
+    // This is an approximation: the defining file's own content is not checked
+    // for dependencies on the outer translation unit. See
+    // ModelManagerTest::testStaleHeaderReuseViaNestedDependency().
+    std::optional<QSet<Utils::FilePath>> ownClosure;
+    const auto establishedByOwnClosure = [&](const Utils::FilePath &definingFile) {
+        if (!ownClosure)
+            ownClosure = snapshot.allIncludesForDocument(_filePath);
+        return ownClosure->contains(definingFile);
+    };
+
+    for (const MacroUse &use : _macroUses) {
+        const Macro &macro = use.macro();
+        if (macro.filePath() == _filePath)
+            continue; // Self-reference; the environment cannot have it yet.
+        const QByteArray name = macro.name();
+        const Macro *current = env.resolve(ByteArrayRef(&name));
+        const bool mismatch = !current // Was defined when this document was parsed, isn't anymore.
+                || current->definitionText() != macro.definitionText()
+                || current->formals() != macro.formals()
+                || current->isFunctionLike() != macro.isFunctionLike()
+                || current->isVariadic() != macro.isVariadic(); // Defined differently now.
+        if (mismatch && !establishedByOwnClosure(macro.filePath()))
+            return false;
+    }
+
+    return true;
 }
 
 int Document::pragmaOnceLine() const
