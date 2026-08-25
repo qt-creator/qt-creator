@@ -63,6 +63,7 @@
 #include <QVersionNumber>
 
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace Remote {
@@ -1318,6 +1319,44 @@ Result<> WindowsDevice::handlesFile(const FilePath &filePath) const
 ProcessInterface *WindowsDevice::createProcessInterface() const
 {
     return new WindowsProcessInterface(shared_from_this());
+}
+
+ExecutableItem WindowsDevice::signalOperationRecipeImpl(
+    const SignalOperationData &data, const Storage<Result<>> &resultStorage) const
+{
+    QString script;
+    switch (data.mode) {
+    case SignalOperationMode::KillByPath:
+        // Match the image path, not the file name, and let a missing process pass.
+        script = "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Path -ieq "
+                 + psPath(data.filePath) + " } | Stop-Process -Force";
+        break;
+    case SignalOperationMode::KillByPid:
+        script = QString("Stop-Process -Id %1 -Force").arg(data.pid);
+        break;
+    case SignalOperationMode::InterruptByPid:
+        // Windows has no interrupt signal; that needs a debugger (DebugBreakProcess).
+        return QSyncTask([resultStorage] {
+            *resultStorage = ResultError(
+                Tr::tr("Interrupting a process is not supported on a remote Windows device."));
+            return DoneResult::Error;
+        });
+    }
+
+    const auto onSetup = [device = shared_from_this(), script](Process &process) {
+        process.setCommand(
+            {device->filePath("powershell.exe"),
+             {"-NoProfile", "-NonInteractive", "-EncodedCommand",
+              encodePowerShellCommand(script)}});
+    };
+    const auto onDone = [resultStorage](const Process &process, DoneWith result) {
+        if (result == DoneWith::Error)
+            *resultStorage = ResultError(process.exitMessage());
+        else if (result == DoneWith::Cancel)
+            *resultStorage = ResultError(Tr::tr("Signal operation canceled."));
+    };
+
+    return ProcessTask(onSetup, onDone);
 }
 
 void WindowsDevice::tryToConnect(const Continuation<> &cont) const

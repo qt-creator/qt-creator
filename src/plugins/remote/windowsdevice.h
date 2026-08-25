@@ -47,6 +47,10 @@ public:
 
     Utils::ProcessInterface *createProcessInterface() const override;
 
+    QtTaskTree::ExecutableItem signalOperationRecipeImpl(
+        const ProjectExplorer::SignalOperationData &data,
+        const QtTaskTree::Storage<Utils::Result<>> &resultStorage) const override;
+
     void tryToConnect(const Utils::Continuation<> &cont) const override;
 
     void postLoad() override;
