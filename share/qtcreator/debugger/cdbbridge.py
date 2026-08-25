@@ -302,19 +302,15 @@ class Dumper(DumperBase):
         qualified = ('%s!%s' % (module, function)) if module else function
         pointers = ['(char *)0x%x' % self.marshalString(arg) for arg in (args or [])]
         call = '%s(%s)' % (qualified, ', '.join(pointers))
-        # Both paths report the bool the service function returned, so that a
-        # refusal is falsy either way, and None if the call did not happen.
         result = cdbext.call(call)
-        if result is not None:
-            if result.type().code() == TypeCode.Void:
-                return 1  # qt_qmlDebugClearBuffer() has nothing to report.
-            return self.fromNativeValue(result).integer()
-        # No PDB for the module, so cdb's '.call' has no prototype to go by;
-        # the call is set up by hand instead, which needs only the address.
-        # A bool return lives in al alone, the rest of rax being whatever was
-        # there; void qt_qmlDebugClearBuffer() has nothing to report anyway.
-        raw = cdbext.callRaw(call)
-        return None if raw is None else raw & 0xff
+        if result is None:
+            # No PDB for the module, so cdb's '.call' has no prototype to go by;
+            # the call is set up by hand instead, which needs only the address.
+            # A bool return lives in al alone, the rest of rax being whatever was
+            # there; void qt_qmlDebugClearBuffer() has nothing to report anyway.
+            raw = cdbext.callRaw(call)
+            result = None if raw is None else raw & 0xff
+        return result
 
     def readServiceVariable(self, name):
         module = self.serviceModuleName()
