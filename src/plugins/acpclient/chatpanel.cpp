@@ -10,6 +10,7 @@
 #include <coreplugin/coreicons.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <texteditor/displaysettings.h>
@@ -65,6 +66,8 @@ using namespace Utils;
 using namespace Utils::StyleHelper::SpacingTokens;
 
 namespace AcpClient::Internal {
+
+static const char SETTINGS_TOKEN_USAGE_VISIBLE[] = "acpclient/tokenUsageVisible";
 
 class InputContainerWidget : public QWidget
 {
@@ -622,6 +625,14 @@ ChatPanel::ChatPanel(QWidget *parent)
     m_usageBar->hide();
     bottomRowLayout->addWidget(m_usageBar, 0, Qt::AlignVCenter);
 
+    m_usageLabel = new QLabel;
+    applyStatsFormat(m_usageLabel);
+    m_usageLabel->hide();
+    bottomRowLayout->addWidget(m_usageLabel, 0, Qt::AlignVCenter);
+
+    m_showTokenUsage
+        = Core::ICore::settings()->value(SETTINGS_TOKEN_USAGE_VISIBLE, true).toBool();
+
     bottomRowLayout->addWidget(addContextButton);
 
     m_commandsButton = new QtcIconButton;
@@ -728,10 +739,28 @@ void ChatPanel::setAgentIcon(const QString &iconUrl)
 
 void ChatPanel::setPrompting(bool prompting)
 {
+    const bool wasPrompting = m_prompting;
     m_prompting = prompting;
     m_sendButton->setText(prompting ? Tr::tr("Cancel") : Tr::tr("Send"));
     m_sendButton->setRole(prompting ? QtcButton::MediumTertiary : QtcButton::MediumPrimary);
     m_messageView->setPrompting(prompting);
+
+    if (prompting) {
+        if (!wasPrompting)
+            m_usageAtPromptStart = m_usage;
+    } else if (wasPrompting && m_usage) {
+        const int usedBefore = m_usageAtPromptStart ? m_usageAtPromptStart->used() : 0;
+        std::optional<double> costDelta;
+        QString currency;
+        if (m_usage->cost()) {
+            const double costBefore = m_usageAtPromptStart && m_usageAtPromptStart->cost()
+                                          ? m_usageAtPromptStart->cost()->amount()
+                                          : 0.;
+            costDelta = m_usage->cost()->amount() - costBefore;
+            currency = m_usage->cost()->currency();
+        }
+        m_messageView->addTurnStats(m_usage->used() - usedBefore, costDelta, currency);
+    }
 }
 
 void ChatPanel::setSendEnabled(bool enabled)
@@ -811,6 +840,11 @@ void ChatPanel::showConfigMenu()
     showThoughts->setChecked(m_messageView->thoughtsVisible());
     connect(showThoughts, &QAction::toggled, m_messageView, &AcpMessageView::setThoughtsVisible);
 
+    QAction *showTokenUsage = menu->addAction(Tr::tr("Show Token Usage"));
+    showTokenUsage->setCheckable(true);
+    showTokenUsage->setChecked(m_showTokenUsage);
+    connect(showTokenUsage, &QAction::toggled, this, &ChatPanel::setTokenUsageVisible);
+
     QAction *inspect = menu->addAction(Tr::tr("Inspect ACP Client..."));
     connect(inspect, &QAction::triggered, this, &ChatPanel::inspectRequested);
 
@@ -837,10 +871,29 @@ void ChatPanel::setCurrentMode(const QString &modeId)
 
 void ChatPanel::setUsage(const Acp::UsageUpdate &usage)
 {
+    m_usage = usage;
+    updateUsageDisplay();
+}
+
+void ChatPanel::setTokenUsageVisible(bool visible)
+{
+    if (m_showTokenUsage == visible)
+        return;
+    m_showTokenUsage = visible;
+    Core::ICore::settings()->setValue(SETTINGS_TOKEN_USAGE_VISIBLE, visible);
+    updateUsageDisplay();
+}
+
+void ChatPanel::updateUsageDisplay()
+{
+    const Acp::UsageUpdate usage = m_usage.value_or(Acp::UsageUpdate());
     const int size = usage.size();
     const int used = usage.used();
-    if (size <= 0) {
+    m_messageView->setTurnStatsVisible(m_showTokenUsage);
+    if (!m_showTokenUsage || size <= 0) {
         m_usageBar->hide();
+        m_usageLabel->hide();
+        m_messageView->setLiveUsage(0, 0);
         return;
     }
     m_usageBar->setRange(0, size);
@@ -856,6 +909,10 @@ void ChatPanel::setUsage(const Acp::UsageUpdate &usage)
     }
     m_usageBar->setToolTip(tooltip);
     m_usageBar->show();
+    m_usageLabel->setText(QString("%1/%2").arg(formatTokenCount(used), formatTokenCount(size)));
+    m_usageLabel->setToolTip(tooltip);
+    m_usageLabel->show();
+    m_messageView->setLiveUsage(used, size);
 }
 
 void ChatPanel::updateModeButton()
@@ -878,8 +935,13 @@ void ChatPanel::updateModeButton()
 void ChatPanel::clear()
 {
     m_messageView->clear();
+    m_messageView->setLiveUsage(0, 0);
+    m_usage.reset();
+    m_usageAtPromptStart.reset();
     if (m_usageBar)
         m_usageBar->hide();
+    if (m_usageLabel)
+        m_usageLabel->hide();
 }
 
 void ChatPanel::clearConfigOptions()

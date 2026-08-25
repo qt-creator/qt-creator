@@ -32,6 +32,7 @@
 #include <QDateTime>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLocale>
 #include <QtMath>
 #include <QPushButton>
 #include <QResizeEvent>
@@ -843,6 +844,26 @@ private:
 
 static const char SETTINGS_THOUGHTS_VISIBLE[] = "acpclient/thoughtsVisible";
 
+QString formatTokenCount(int tokens)
+{
+    if (tokens >= 1000000) {
+        //: %1 is a token count in millions, e.g. "1.2M"
+        return Tr::tr("%1M").arg(tokens / 1000000.0, 0, 'f', 1);
+    }
+    if (tokens >= 1000) {
+        //: %1 is a token count in thousands, e.g. "12.5k"
+        return Tr::tr("%1k").arg(tokens / 1000.0, 0, 'f', 1);
+    }
+    return QString::number(tokens);
+}
+
+void applyStatsFormat(QLabel *label)
+{
+    Utils::StyleHelper::applyTf(
+        label,
+        {Utils::Theme::Token_Text_Muted, Utils::StyleHelper::UiElementCaption});
+}
+
 AcpMessageView::AcpMessageView(QWidget *parent)
     : QScrollArea(parent)
 {
@@ -872,6 +893,11 @@ AcpMessageView::AcpMessageView(QWidget *parent)
     elapsedFont.setFamily(QStringLiteral("monospace"));
     m_elapsedLabel->setFont(elapsedFont);
     trailingLayout->addWidget(m_elapsedLabel);
+
+    m_usageLabel = new QLabel(trailingRow);
+    m_usageLabel->setVisible(false);
+    applyStatsFormat(m_usageLabel);
+    trailingLayout->addWidget(m_usageLabel);
 
     trailingLayout->addStretch();
 
@@ -906,6 +932,15 @@ void AcpMessageView::setThoughtsVisible(bool visible)
         w->setVisible(visible);
 }
 
+void AcpMessageView::setTurnStatsVisible(bool visible)
+{
+    if (m_turnStatsVisible == visible)
+        return;
+    m_turnStatsVisible = visible;
+    for (QLabel *label : std::as_const(m_turnStatsLabels))
+        label->setVisible(visible);
+}
+
 void AcpMessageView::setAgentIconUrl(const QString &iconUrl)
 {
     m_agentIconUrl = iconUrl;
@@ -913,6 +948,7 @@ void AcpMessageView::setAgentIconUrl(const QString &iconUrl)
 
 void AcpMessageView::setPrompting(bool prompting)
 {
+    m_prompting = prompting;
     if (prompting) {
         m_elapsedTimer->restart();
         updateElapsedTimeLabel();
@@ -921,8 +957,6 @@ void AcpMessageView::setPrompting(bool prompting)
         m_progressUpdateTimer->stop();
         for (auto it = m_toolCallDetailWidgets.constBegin();
              it != m_toolCallDetailWidgets.constEnd(); ++it) {
-            qDebug() << "Checking tool call" << it.key() << "status"
-                     << toString(it.value()->status());
             if (it.value()->status() == ToolCallStatus::in_progress
                 || it.value()->status() == ToolCallStatus::pending) {
                 it.value()->applyStatus(ToolCallStatus::failed);
@@ -933,6 +967,37 @@ void AcpMessageView::setPrompting(bool prompting)
     }
     m_progressIndicator->setVisible(prompting);
     m_elapsedLabel->setVisible(prompting);
+    m_usageLabel->setVisible(prompting && !m_usageLabel->text().isEmpty());
+}
+
+void AcpMessageView::setLiveUsage(int used, int size)
+{
+    if (size <= 0) {
+        m_usageLabel->clear();
+        m_usageLabel->setVisible(false);
+        return;
+    }
+    m_usageLabel->setText(Tr::tr("%1 / %2 context")
+                              .arg(formatTokenCount(used), formatTokenCount(size)));
+    m_usageLabel->setVisible(m_prompting);
+}
+
+void AcpMessageView::addTurnStats(int contextDelta, const std::optional<double> &costDelta,
+                                  const QString &currency)
+{
+    QStringList parts;
+    if (contextDelta > 0)
+        parts << Tr::tr("+%1 context").arg(formatTokenCount(contextDelta));
+    if (costDelta && *costDelta > 0)
+        parts << QString("%1 %2").arg(QLocale::system().toString(*costDelta, 'f', 4), currency);
+    parts << elapsedTimeText();
+
+    auto *label = new QLabel(parts.join(QString(" %1 ").arg(QChar(0x00b7))), m_container);
+    label->setObjectName("turnStats");
+    applyStatsFormat(label);
+    label->setVisible(m_turnStatsVisible);
+    m_turnStatsLabels.append(label);
+    addWidget(label);
 }
 
 void AcpMessageView::clear()
@@ -950,6 +1015,7 @@ void AcpMessageView::clear()
     m_currentToolCallGroup = nullptr;
     m_currentAuthWidget = nullptr;
     m_thoughtWidgets.clear();
+    m_turnStatsLabels.clear();
     m_toolCallDetailWidgets.clear();
     m_toolCallGroups.clear();
     m_autoScroll = true;
@@ -1268,16 +1334,19 @@ void AcpMessageView::resizeEvent(QResizeEvent *event)
         detail->setContentMaxWidth(maxW);
 }
 
+QString AcpMessageView::elapsedTimeText() const
+{
+    const int secs = m_elapsedTimer->elapsed() / 1000;
+    const int minutes = secs / 60;
+    return minutes ? Tr::tr("%1:%2 minutes")
+                         .arg(minutes)
+                         .arg(QString::number(secs % 60).rightJustified(2, '0'))
+                   : Tr::tr("%n second(s)", nullptr, secs);
+}
+
 void AcpMessageView::updateElapsedTimeLabel()
 {
-    const qint64 elapsedMS = m_elapsedTimer->elapsed();
-    const int secs = elapsedMS / 1000;
-    const int minutes = secs / 60;
-    const QString text = minutes ? Tr::tr("%1:%2 minutes")
-                                       .arg(minutes)
-                                       .arg(QString::number(secs % 60).rightJustified(2, '0'))
-                                 : Tr::tr("%n second(s)", nullptr, secs);
-    m_elapsedLabel->setText(text);
+    m_elapsedLabel->setText(elapsedTimeText());
 }
 
 } // namespace AcpClient::Internal

@@ -5,10 +5,12 @@
 
 #include "acpchatcontroller.h"
 #include "acpclientobject.h"
+#include "acpmessageview.h"
 #include "acppermissionhandler.h"
 #include "acpsettings.h"
 #include "acpstdiotransport.h"
 #include "acptransport.h"
+#include "chatpanel.h"
 
 #include <acp/acp.h>
 
@@ -22,7 +24,10 @@
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLabel>
 #include <QLibraryInfo>
+#include <QLocale>
+#include <QScopeGuard>
 #include <QTest>
 
 using namespace Acp;
@@ -427,6 +432,12 @@ private slots:
     void testControllerCancelPrompt();
     void testControllerServerCrash();
     void testControllerDisconnect();
+
+    // Tier 4: chat panel presentation
+    void testChatPanelTurnStats();
+    void testChatPanelFirstTurnStats();
+    void testChatPanelUnchangedUsageElapsedOnly();
+    void testChatPanelTokenUsageToggle();
 };
 
 // --- Tier 1a -----------------------------------------------------------------
@@ -1576,6 +1587,111 @@ void AcpClientTest::testControllerDisconnect()
     QVERIFY(fixture.states.contains(AcpClientObject::State::Disconnected));
     QVERIFY(!fixture.controller.isInitialized());
     QVERIFY(fixture.controller.sessionId().isEmpty());
+}
+
+// Collects the texts of the stats lines the message view appended for finished
+// turns.
+static QStringList turnStatsTexts(const ChatPanel &panel)
+{
+    QStringList result;
+    const QList<QLabel *> labels
+        = panel.messageView()->findChildren<QLabel *>(QLatin1String("turnStats"));
+    for (const QLabel *label : labels)
+        result.append(label->text());
+    return result;
+}
+
+// A finished turn is annotated with the context and cost it consumed, which is
+// the difference between the usage reported before and after the turn, not the
+// cumulative session usage.
+void AcpClientTest::testChatPanelTurnStats()
+{
+    ChatPanel panel;
+
+    panel.setUsage(UsageUpdate().used(100).size(1000).cost(
+        Cost().amount(0.5).currency("USD")));
+    panel.setPrompting(true);
+    QVERIFY(turnStatsTexts(panel).isEmpty());
+
+    panel.setUsage(UsageUpdate().used(350).size(1000).cost(
+        Cost().amount(0.75).currency("USD")));
+    panel.setPrompting(false);
+
+    const QStringList stats = turnStatsTexts(panel);
+    QCOMPARE(stats.size(), 1);
+    QVERIFY2(stats.first().startsWith("+250 context"), qPrintable(stats.first()));
+    QVERIFY2(stats.first().contains(QLocale::system().toString(0.25, 'f', 4) + " USD"),
+             qPrintable(stats.first()));
+
+    // The cumulative figure stays visible next to the input.
+    const QList<QLabel *> labels = panel.findChildren<QLabel *>();
+    QVERIFY(Utils::anyOf(labels, [](const QLabel *label) {
+        return label->text() == "350/1.0k";
+    }));
+}
+
+// The chat input's configuration menu toggle hides the usage figures and the
+// per-turn stats lines, including the ones of turns that already finished.
+void AcpClientTest::testChatPanelTokenUsageToggle()
+{
+    ChatPanel panel;
+    const bool wasVisible = panel.tokenUsageVisible();
+    const QScopeGuard restore([&panel, wasVisible] { panel.setTokenUsageVisible(wasVisible); });
+    panel.setTokenUsageVisible(false);
+
+    panel.setUsage(UsageUpdate().used(100).size(1000));
+    panel.setPrompting(true);
+    panel.setUsage(UsageUpdate().used(350).size(1000));
+    panel.setPrompting(false);
+
+    const QList<QLabel *> statsLabels
+        = panel.messageView()->findChildren<QLabel *>(QLatin1String("turnStats"));
+    QCOMPARE(statsLabels.size(), 1);
+    QVERIFY(statsLabels.first()->isHidden());
+
+    const QList<QLabel *> labels = panel.findChildren<QLabel *>();
+    const bool anyVisibleFigure = Utils::anyOf(labels, [](const QLabel *label) {
+        return label->text().contains("1.0k");
+    });
+    QVERIFY(!anyVisibleFigure);
+
+    panel.setTokenUsageVisible(true);
+    QVERIFY(!statsLabels.first()->isHidden());
+}
+
+// The first turn has no usage reported before it, so its whole usage is the
+// turn's own consumption.
+void AcpClientTest::testChatPanelFirstTurnStats()
+{
+    ChatPanel panel;
+
+    panel.setPrompting(true);
+    panel.setUsage(UsageUpdate().used(120).size(1000).cost(
+        Cost().amount(0.25).currency("USD")));
+    panel.setPrompting(false);
+
+    const QStringList stats = turnStatsTexts(panel);
+    QCOMPARE(stats.size(), 1);
+    QVERIFY2(stats.first().startsWith("+120 context"), qPrintable(stats.first()));
+    QVERIFY2(stats.first().contains(QLocale::system().toString(0.25, 'f', 4) + " USD"),
+             qPrintable(stats.first()));
+}
+
+// A turn that consumes nothing and reports no cost is still annotated with the
+// time it took.
+void AcpClientTest::testChatPanelUnchangedUsageElapsedOnly()
+{
+    ChatPanel panel;
+
+    panel.setUsage(UsageUpdate().used(100).size(1000));
+    panel.setPrompting(true);
+    panel.setUsage(UsageUpdate().used(100).size(1000));
+    panel.setPrompting(false);
+
+    const QStringList stats = turnStatsTexts(panel);
+    QCOMPARE(stats.size(), 1);
+    QVERIFY2(!stats.first().contains("context"), qPrintable(stats.first()));
+    QVERIFY2(!stats.first().contains("USD"), qPrintable(stats.first()));
 }
 
 QObject *createAcpClientTest()

@@ -11,6 +11,8 @@
 #include <QPair>
 #include <QScrollArea>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 class QElapsedTimer;
 class QLabel;
@@ -29,6 +31,9 @@ class ThoughtWidget;
 class ToolCallDetailWidget;
 class ToolCallGroupWidget;
 
+QString formatTokenCount(int tokens);
+void applyStatsFormat(QLabel *label);
+
 class AcpMessageView : public QScrollArea
 {
     Q_OBJECT
@@ -41,6 +46,10 @@ public:
     bool thoughtsVisible() const { return m_thoughtsVisible; }
 
     void setPrompting(bool prompting);
+    void setLiveUsage(int used, int size);
+    void setTurnStatsVisible(bool visible);
+    void addTurnStats(int contextDelta, const std::optional<double> &costDelta,
+                      const QString &currency);
 
     void clear();
     void addUserMessage(const QString &text);
@@ -72,6 +81,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    QString elapsedTimeText() const;
     void updateElapsedTimeLabel();
     void scrollToBottom();
     QWidget *wrapWithSpacer(QWidget *widget, Qt::Alignment side);
@@ -83,6 +93,7 @@ private:
     QWidget *m_container = nullptr;
     QVBoxLayout *m_layout = nullptr;
     QLabel *m_elapsedLabel = nullptr;
+    QLabel *m_usageLabel = nullptr;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
     QElapsedTimer *m_elapsedTimer = nullptr;
     QTimer *m_progressUpdateTimer = nullptr;
@@ -90,6 +101,9 @@ private:
     ThoughtWidget *m_currentThoughtWidget = nullptr;
     QList<ThoughtWidget *> m_thoughtWidgets;
     bool m_thoughtsVisible = true;
+    QList<QLabel *> m_turnStatsLabels;
+    bool m_turnStatsVisible = true;
+    bool m_prompting = false;
     ToolCallGroupWidget *m_currentToolCallGroup = nullptr;
     QHash<QString, ToolCallDetailWidget *> m_toolCallDetailWidgets;
     QList<QPair<QJsonValue, ToolCallDetailWidget *>> m_pendingPermissionRequests;

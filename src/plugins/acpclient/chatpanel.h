@@ -13,6 +13,8 @@
 #include <QPointer>
 #include <QWidget>
 
+#include <optional>
+
 namespace Utils {
 class InfoLabel;
 class QtcButton;
@@ -22,6 +24,7 @@ class QtcProgressBar;
 } // namespace Utils
 
 class QHBoxLayout;
+class QLabel;
 class QLayout;
 class QMenu;
 class QTimer;
@@ -79,6 +82,8 @@ public:
     void setSessionModes(const QList<Acp::SessionMode> &modes, const QString &currentModeId);
     void setCurrentMode(const QString &modeId);
     void setUsage(const Acp::UsageUpdate &usage);
+    void setTokenUsageVisible(bool visible);
+    bool tokenUsageVisible() const { return m_showTokenUsage; }
     void clear();
     void clearConfigOptions();
 
@@ -129,6 +134,11 @@ private:
     QString m_currentModeId;
     void updateModeButton();
 
+    std::optional<Acp::UsageUpdate> m_usage;
+    std::optional<Acp::UsageUpdate> m_usageAtPromptStart;
+    bool m_showTokenUsage = true;
+    void updateUsageDisplay();
+
     // Widget shown in AcpChatWidget's tool bar while this panel's tab is active.
     QPointer<QWidget> m_toolBarWidget;
     QToolButton *m_switchSessionButton = nullptr;
@@ -143,6 +153,7 @@ private:
     Utils::QtcIconButton *m_configButton = nullptr;
     Utils::QtcComboBox *m_modeCombo = nullptr;
     Utils::QtcProgressBar *m_usageBar = nullptr;
+    QLabel *m_usageLabel = nullptr;
     QMenu *m_commandsMenu = nullptr;
     QWidget *m_contextBar = nullptr;
     QLayout *m_contextBarLayout = nullptr;
