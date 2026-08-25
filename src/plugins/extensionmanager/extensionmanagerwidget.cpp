@@ -198,7 +198,7 @@ public:
         m_vendor->setContentsMargins({});
         m_divider = new QLabel;
         m_divider->setFixedSize(1, dividerH);
-        WelcomePageHelpers::setBackgroundColor(m_divider, dlTF.themeColor);
+        StyleHelper::setBackgroundColor(m_divider, dlTF.themeColor);
         m_dlIcon = new QLabel;
         const QPixmap dlIcon = Icon({{":/extensionmanager/images/download.png", dlTF.themeColor}},
                                     Icon::Tint).pixmap();
@@ -529,7 +529,7 @@ static QWidget *descriptionPlaceHolder()
         noMargin,
     }.attachTo(placeHolder);
     // clang-format on
-    WelcomePageHelpers::setBackgroundColor(placeHolder, Theme::Token_Background_Muted);
+    StyleHelper::setBackgroundColor(placeHolder, Theme::Token_Background_Muted);
     placeHolder->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     return placeHolder;
 }
@@ -591,7 +591,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     }.attachTo(this);
     // clang-format on
 
-    WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);
+    StyleHelper::setBackgroundColor(this, Theme::Token_Background_Default);
 
     connect(m_extensionBrowser, &ExtensionsBrowser::itemSelected,
             this, &ExtensionManagerWidget::updateView);

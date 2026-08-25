@@ -48,17 +48,6 @@ static QColor themeColor(Theme::Color role)
 
 namespace WelcomePageHelpers {
 
-void setBackgroundColor(QWidget *widget, Theme::Color colorRole)
-{
-    QPalette palette = creatorTheme()->palette();
-    const QPalette::ColorRole role = QPalette::Window;
-    palette.setBrush(role, {});
-    palette.setColor(role, creatorColor(colorRole));
-    widget->setPalette(palette);
-    widget->setBackgroundRole(role);
-    widget->setAutoFillBackground(true);
-}
-
 QWidget *createRule(Qt::Orientation orientation, QWidget *parent)
 {
     auto rule = new QWidget(parent);
@@ -66,7 +55,7 @@ QWidget *createRule(Qt::Orientation orientation, QWidget *parent)
         rule->setFixedHeight(1);
     else
         rule->setFixedWidth(1);
-    setBackgroundColor(rule, Theme::Token_Stroke_Subtle);
+    StyleHelper::setBackgroundColor(rule, Theme::Token_Stroke_Subtle);
     return rule;
 }
 

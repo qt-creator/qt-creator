@@ -44,10 +44,7 @@ static QWidget *createLegend(QWidget *parent)
     const auto addEntry = [&](Theme::Color color, const QString &text) {
         auto swatch = new QLabel(legend);
         swatch->setFixedSize(10, 10);
-        swatch->setAutoFillBackground(true);
-        QPalette pal = swatch->palette();
-        pal.setColor(QPalette::Window, creatorColor(color));
-        swatch->setPalette(pal);
+        StyleHelper::setBackgroundColor(swatch, color);
         auto label = new QLabel(text, legend);
         label->setFont(StyleHelper::uiFont(StyleHelper::UiElementCaption));
         layout->addWidget(swatch);

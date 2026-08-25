@@ -33,7 +33,6 @@ namespace WelcomePageHelpers {
 
 constexpr QSize WelcomeThumbnailSize(214, 160);
 
-CORE_EXPORT void setBackgroundColor(QWidget *widget, Utils::Theme::Color colorRole);
 constexpr Utils::Theme::Color cardDefaultBackground = Utils::Theme::Token_Background_Muted;
 constexpr Utils::Theme::Color cardDefaultStroke = Utils::Theme::Token_Stroke_Subtle;
 constexpr Utils::Theme::Color cardHoverBackground = Utils::Theme::Token_Background_Subtle;

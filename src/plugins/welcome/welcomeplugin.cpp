@@ -96,7 +96,7 @@ class WelcomeModeWidget final : public QWidget
 public:
     WelcomeModeWidget()
     {
-        setBackgroundColor(this, Theme::Token_Background_Default);
+        StyleHelper::setBackgroundColor(this, Theme::Token_Background_Default);
 
         m_buttonGroup = new QButtonGroup(this);
         m_buttonGroup->setExclusive(true);

@@ -1099,4 +1099,15 @@ void StyleHelper::modifyPaletteBase(QWidget *widget, const QColor &color)
     widget->setPalette(palette);
 }
 
+void StyleHelper::setBackgroundColor(QWidget *widget, Theme::Color colorRole)
+{
+    QPalette palette = widget->palette();
+    const QPalette::ColorRole role = QPalette::Window;
+    palette.setBrush(role, {});
+    palette.setColor(role, creatorColor(colorRole));
+    widget->setPalette(palette);
+    widget->setBackgroundRole(role);
+    widget->setAutoFillBackground(true);
+}
+
 } // namespace Utils

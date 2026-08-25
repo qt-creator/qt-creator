@@ -270,4 +270,6 @@ QTCREATOR_UTILS_EXPORT QColor ensureReadableOn(const QColor &background,
                                                const QColor &desiredForeground);
 // modifies widget's palette QPalette::Base to color, leaves other colors of palette untouched
 QTCREATOR_UTILS_EXPORT void modifyPaletteBase(QWidget *widget, const QColor &color);
+// sets widget's background to colorRole from theme
+QTCREATOR_UTILS_EXPORT void setBackgroundColor(QWidget *widget, Theme::Color colorRole);
 } // namespace Utils::StyleHelper
