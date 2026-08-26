@@ -122,6 +122,8 @@ protected:
                               QFutureInterface<void> &future) const = 0;
 
 private:
+    void startLoad(const QString &filename, QFutureInterface<void> fi);
+
     class TimelineTraceManagerPrivate;
     TimelineTraceManagerPrivate *d;
 };

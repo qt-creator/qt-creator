@@ -10,8 +10,11 @@
 #include <utils/qtcassert.h>
 
 #include <QFile>
+#include <QFutureWatcher>
+#include <QPointer>
 
 #include <memory>
+#include <optional>
 
 namespace Timeline {
 
@@ -46,6 +49,17 @@ public:
     qint64 traceStart = -1;
     qint64 traceEnd = -1;
 
+    // A load() worker thread keeps calling loadEvent() on the timeline models
+    // until it notices cancellation, so a new load must not clearAll() that
+    // state underneath it. Cancel the running one and defer the new one.
+    QPointer<TimelineTraceFile> activeLoadReader;
+    struct QueuedLoad {
+        QString filename;
+        QFutureInterface<void> fi;
+    };
+    std::optional<QueuedLoad> queuedLoad;
+
+    void cancelQueuedLoad();
     void dispatch(const TraceEvent &event, const TraceEventType &type);
     void reset();
     void updateTraceTime(qint64 time);
@@ -63,6 +77,8 @@ TimelineTraceManager::TimelineTraceManager(std::unique_ptr<TraceEventStorage> &&
 
 TimelineTraceManager::~TimelineTraceManager()
 {
+    d->cancelQueuedLoad();
+
     // The notes model is a child QObject and would otherwise be destroyed by ~QObject's
     // deleteChildren(), i.e. *after* this destructor frees d below. Its destruction emits
     // notesChanged, which fans out to views querying eventType()/the storages. Delete it
@@ -246,17 +262,36 @@ QFuture<void> TimelineTraceManager::save(const QString &filename)
 
 QFuture<void> TimelineTraceManager::load(const QString &filename)
 {
+    QFutureInterface<void> fi;
+    fi.reportStarted();
+
+    if (d->activeLoadReader) {
+        d->cancelQueuedLoad();
+        d->queuedLoad = TimelineTraceManagerPrivate::QueuedLoad{filename, fi};
+
+        // The superseded load is not the one whose completion the clients wait for.
+        disconnect(d->activeLoadReader.data(), &QObject::destroyed,
+                   this, &TimelineTraceManager::loadFinished);
+        d->activeLoadReader->future().cancel();
+        return fi.future();
+    }
+
+    startLoad(filename, fi);
+    return fi.future();
+}
+
+void TimelineTraceManager::startLoad(const QString &filename, QFutureInterface<void> fi)
+{
     clearAll();
     initialize();
     TimelineTraceFile *reader = createTraceFile();
     reader->setTraceManager(this);
     reader->setNotes(d->notesModel);
+    d->activeLoadReader = reader;
 
     connect(reader, &QObject::destroyed, this, &TimelineTraceManager::loadFinished);
     connect(reader, &TimelineTraceFile::error, this, &TimelineTraceManager::error);
 
-    QFutureInterface<void> fi;
-    fi.reportStarted();
     reader->setFuture(fi);
     Utils::asyncRun([filename, reader, fi] {
         QFile file(filename);
@@ -272,9 +307,11 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
     });
 
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(reader);
-    connect(watcher, &QFutureWatcherBase::canceled, this, &TimelineTraceManager::clearAll);
     connect(watcher, &QFutureWatcherBase::finished, this, [this, reader] {
-        if (!reader->isCanceled()) {
+        if (reader->isCanceled()) {
+            // Only now the worker thread has stopped calling loadEvent().
+            clearAll();
+        } else {
             if (reader->traceStart() >= 0)
                 decreaseTraceStart(reader->traceStart());
             if (reader->traceEnd() >= 0)
@@ -284,9 +321,19 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
             if (d->notesModel)
                 d->notesModel->restore();
         }
+
+        d->activeLoadReader = nullptr;
+
+        if (d->queuedLoad) {
+            TimelineTraceManagerPrivate::QueuedLoad queued = *d->queuedLoad;
+            d->queuedLoad.reset();
+            if (queued.fi.isCanceled())
+                queued.fi.reportFinished();
+            else
+                startLoad(queued.filename, queued.fi);
+        }
     });
     watcher->setFuture(fi.future());
-    return fi.future();
 }
 
 qint64 TimelineTraceManager::traceStart() const
@@ -400,6 +447,17 @@ void TimelineTraceManager::TimelineTraceManagerPrivate::dispatch(const TraceEven
     if (event.timestamp() >= 0)
         updateTraceTime(event.timestamp());
     ++numEvents;
+}
+
+void TimelineTraceManager::TimelineTraceManagerPrivate::cancelQueuedLoad()
+{
+    if (!queuedLoad)
+        return;
+
+    QueuedLoad queued = *queuedLoad;
+    queuedLoad.reset();
+    queued.fi.reportCanceled();
+    queued.fi.reportFinished();
 }
 
 void TimelineTraceManager::TimelineTraceManagerPrivate::reset()
