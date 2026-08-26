@@ -1,10 +1,14 @@
 # Qt Creator
 
-This project maintains two parallel build system descriptions: CMake (`CMakeLists.txt`) and qbs (`.qbs` files). They must be kept in sync.
-
 ## Build system sync rule
 
-Whenever you modify a `CMakeLists.txt` file, also update the corresponding `.qbs` file in the same directory (and vice versa). The two files describe the same targets, sources, and dependencies — changes to one must be reflected in the other.
+This project maintains two parallel build system descriptions: CMake
+(`CMakeLists.txt`) and qbs (`.qbs` files). They must be kept in sync.
+
+Whenever you modify a `CMakeLists.txt` file, also update the corresponding
+`.qbs` file in the same directory (and vice versa). The two files describe
+the same targets, sources, and dependencies — changes to one must be
+reflected in the other.
 
 ## Building and running tests
 
@@ -33,43 +37,39 @@ server is connected, or when the user's own instructions call for it — and say
 which one you used. Never drive a shell build and an MCP build of the same build
 directory in parallel; they fight over the same files.
 
-## Commit message rule
+## Commit message rules
 
-Commit message lines must not exceed 72 characters.
+- Lines must not exceed 72 characters.
+- Structure: (1) short title summarizing the change, (2) brief description
+  of what changed and why, if not clear from the title or diff, (3) detailed
+  explanation only when necessary.
+- Commits addressing Coverity diagnostics include the Coverity IDs in a
+  `Coverity-Id` footer.
+- Commits fixing a regression introduced by an earlier commit reference it
+  in an `Amends <full-sha>.` footer (full 40-character hash, trailing
+  period). The `Amends` line must come before other footer fields (such as
+  `Task-number` and `Change-Id`), separated from them by a blank line.
+- Never change the `Change-Id` trailer on the last line of a commit when
+  editing its message. The Change-Id identifies the Gerrit review;
+  changing it orphans that review and opens a new one. This requires an
+  active step, not just intent: the Gerrit `commit-msg` hook regenerates a
+  fresh Change-Id whenever an amended message lacks one, so rewriting the
+  message (e.g. `git commit --amend -F -`) silently changes it. Before
+  amending, read the current trailer with
 
-Commit messages should follow this structure:
-1. A short title summarizing the change
-2. A brief description of what was changed and why, if not clear from the title or code diff
-3. Detailed explanation only when necessary
+      git log -1 --format=%b | grep -i change-id
 
-When a commit addresses Coverity diagnostics, include the Coverity IDs in a
-Coverity-Id footer.
-
-When a commit fixes a regression introduced by a specific earlier commit,
-reference that commit in an `Amends <full-sha>.` footer (full 40-character
-hash, trailing period). The `Amends` line must come before other footer
-fields (such as `Task-number` and `Change-Id`) and be separated from them by
-a blank line.
-
-Never change the `Change-Id` trailer on the last line of a commit when you
-edit its message. The Change-Id identifies the Gerrit review; changing it
-orphans that review and opens a new one.
-
-This requires an active step, not just intent: the Gerrit `commit-msg` hook
-regenerates a fresh Change-Id whenever an amended message lacks one, so
-rewriting the message (e.g. `git commit --amend -F -`) silently changes it.
-Before amending, read the current trailer with
-
-    git log -1 --format=%b | grep -i change-id
-
-and re-append that exact `Change-Id:` line as the last line of the new
-message (after any `Amends`/`Task-number` footers).
+  and re-append that exact `Change-Id:` line as the last line of the new
+  message (after any `Amends`/`Task-number` footers).
 
 ## UI design rules
 
-- Use `Utils::creatorColor()` or `QPalette::color()` for `QColor`. No hard-coded colors, no alpha-blended text.
-- Use `Utils::StyleHelper::uiFont()` for fonts. No manual `QFont::setPixelSize/setPointSize/setBold` etc.
-- Use `Utils::SpacingTokens` for margins/spacings/paddings. No hard-coded pixel numbers.
+- Use `Utils::creatorColor()` or `QPalette::color()` for `QColor`. No
+  hard-coded colors, no alpha-blended text.
+- Use `Utils::StyleHelper::uiFont()` for fonts. No manual
+  `QFont::setPixelSize/setPointSize/setBold` etc.
+- Use `Utils::SpacingTokens` for margins/spacings/paddings. No hard-coded
+  pixel numbers.
 
 ## Testing rules
 
@@ -87,17 +87,17 @@ message (after any `Amends`/`Task-number` footers).
 - An assertion that cannot fail is worse than no assertion. Before claiming a
   test covers a fix, disable the fix and confirm the test goes red.
 
-## Code Style Guide
+## Code style rules
 
-- Always follow the rules in STYLE.md
-- Do not describe your changes in the source. What changed, and why, belongs in
-  the commit message.
+- Always follow the rules in STYLE.md.
+- Do not describe your changes in the source. What changed, and why, belongs
+  in the commit message.
 - Comment only genuinely non-obvious code, and then tersely.
-- No comments narrating where a file came from, or restating what the code does.
+- No comments narrating where a file came from, or restating what the code
+  does.
 - Leave out bug numbers: provenance is discoverable via `git blame` and the
   commit's `Fixes:` or `Task-number:` trailer.
-
-## Additional coding style rules
-
-- When calling free functions from the Utils namespace, always qualify the call with the `Utils::` namespace.
-- Do not use Q_ASSERT, use QTC_ASSERT, QTC_CHECK, and QTC_GUARD as appropriate instead.
+- When calling free functions from the Utils namespace, always qualify the
+  call with the `Utils::` namespace.
+- Do not use `Q_ASSERT`, use `QTC_ASSERT`, `QTC_CHECK`, and `QTC_GUARD` as
+  appropriate instead.
