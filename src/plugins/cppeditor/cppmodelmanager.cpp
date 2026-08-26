@@ -2038,6 +2038,8 @@ void CppModelManager::handleSettingsChange(Project *project)
     else
         info << projectInfos();
     for (const ProjectInfo::ConstPtr &pi : std::as_const(info)) {
+        if (!pi)
+            continue;
         const CppCodeModelSettingsData newSettings = CppCodeModelSettings::settingsForProject(
             pi->projectFilePath());
         if (pi->settings() != newSettings)
