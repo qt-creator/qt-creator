@@ -85,7 +85,7 @@ RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(AspectContainer *cont
         // changes.
         if (!m_remoteEnvironmentFetched) {
             if (const IDevice::ConstPtr device = this->device()) {
-                if (const Result<Environment> env = device->systemEnvironmentWithError()) {
+                if (const Result<Environment> env = device->systemEnvironmentIfKnown()) {
                     m_remoteEnvironment = *env;
                     m_remoteEnvironmentFetched = true;
                 }

@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QRandomGenerator>
+#include <QScopeGuard>
 #include <QTest>
 #include <QTimer>
 
@@ -691,6 +692,35 @@ void AccessViaTest::testEquality()
 
     viaJump.setProxyJump("qt@buildvm");
     QVERIFY(!(direct == viaJump));
+}
+
+
+// A consumer that must not block gets the device environment from
+// systemEnvironmentIfKnown(), which fills itself in the background. Check that
+// it does arrive on its own once the device is connected.
+void AccessViaTest::testDeviceEnvironmentBecomesAvailable()
+{
+    if (!SshTest::checkParameters(SshTest::getParameters()))
+        QSKIP("No ssh test parameters, see FileSystemAccessTest for the setup.");
+
+    TestLinuxDeviceFactory factory;
+    const IDevice::Ptr device = factory.create();
+    QVERIFY(device);
+    DeviceManager::addDevice(device);
+    const QScopeGuard cleanup([&] { DeviceManager::removeDevice(device->id()); });
+
+    QEventLoop loop;
+    QTimer guard;
+    guard.setSingleShot(true);
+    QObject::connect(&guard, &QTimer::timeout, &loop, [&loop] { loop.exit(1); });
+    guard.start(30 * 1000);
+    device->tryToConnect(Continuation<>(this, [&loop](const Result<> &res) {
+        loop.exit(res ? 0 : 1);
+    }));
+    QCOMPARE(loop.exec(), 0);
+
+    QTRY_VERIFY(device->systemEnvironmentIfKnown().has_value());
+    QVERIFY(device->systemEnvironmentIfKnown()->hasKey("PATH"));
 }
 
 } // Remote::Internal

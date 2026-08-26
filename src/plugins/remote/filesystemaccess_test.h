@@ -59,6 +59,7 @@ class AccessViaTest : public QObject
 private slots:
     void testConnectionOptions();
     void testEquality();
+    void testDeviceEnvironmentBecomesAvailable();
 };
 
 } // Remote::Internal

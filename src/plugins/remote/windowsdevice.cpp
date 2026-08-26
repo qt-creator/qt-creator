@@ -1233,6 +1233,7 @@ void WindowsDevicePrivate::setupFileAccess(const Continuation<> &cont)
             q->setDeviceState(IDevice::DeviceConnected);
             cont(ResultOk);
         }
+        q->warmSystemEnvironment();
         DeviceManager::instance()->deviceUpdated(q->id());
     });
     Utils::futureSynchronizer()->addFuture(future);

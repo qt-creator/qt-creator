@@ -323,6 +323,10 @@ public:
 
     Utils::Environment systemEnvironment() const;
     virtual Utils::Result<Utils::Environment> systemEnvironmentWithError() const;
+    // Answers from the cache only, and starts filling it when it is empty. For
+    // callers that must not block or reenter, e.g. anything that runs while a
+    // device or kit change is being announced.
+    Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const;
     virtual Utils::Result<Utils::Environment> sourcedEnvironment(const Utils::FilePath &script) const;
 
     virtual void aboutToBeRemoved() const {}
@@ -374,6 +378,13 @@ protected:
     void setFileAccessFactory(std::function<Utils::DeviceFileAccessPtr()> fileAccessFactory);
 
     virtual void initDeviceToolAspects();
+
+    // Drops the environment cached by systemEnvironmentWithError().
+    void invalidateSystemEnvironment() const;
+
+    // Retrieves the environment in the background, so that later requests,
+    // including the ones that must not block, are answered from the cache.
+    void warmSystemEnvironment() const;
 
     Utils::Result<Utils::Environment> getUnixEnvironment(
         const Utils::FilePath &scriptToSource = {}) const;

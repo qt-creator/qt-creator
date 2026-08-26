@@ -30,6 +30,7 @@
 #include <utils/synchronizedvalue.h>
 #include <utils/url.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/futuresynchronizer.h>
 
 #include <utils/globaltasktree.h>
 
@@ -202,6 +203,7 @@ public:
     }
 
     FilePaths autoDetectionPaths() const;
+    void startSystemEnvironmentFetch(const DeviceFileAccessPtr &access);
 
     IDevice *q;
 
@@ -212,6 +214,8 @@ public:
     IDevice::MachineType machineType = IDevice::Hardware;
     SynchronizedValue<OsType> osType = OsTypeOther;
     SynchronizedValue<DeviceFileAccessPtr> fileAccess;
+    SynchronizedValue<std::optional<Result<Environment>>> systemEnvironment;
+    bool systemEnvironmentFetchRunning = false; // GUI thread only.
     std::function<DeviceFileAccessPtr()> fileAccessFactory;
     int version = 0; // This is used by devices that have been added by the SDK.
 
@@ -784,6 +788,9 @@ Environment IDevice::systemEnvironment() const
 
 Result<Environment> IDevice::systemEnvironmentWithError() const
 {
+    if (const std::optional<Result<Environment>> cached = *d->systemEnvironment.readLocked())
+        return *cached;
+
     DeviceFileAccessPtr access = fileAccess();
     if (!access) {
         // Not a programming error: LinuxDevice for one sets its file access up
@@ -793,7 +800,36 @@ Result<Environment> IDevice::systemEnvironmentWithError() const
         // configurations recompute their environment.
         return ResultError(Tr::tr("Device is not connected."));
     }
-    return access->deviceEnvironment();
+
+    // Only a success is cached: a device that is not ready yet must be asked
+    // again, and callers like FilePath::tmpDir() need a real answer.
+    const Result<Environment> env = access->deviceEnvironment();
+    if (env)
+        *d->systemEnvironment.writeLocked() = env;
+    return env;
+}
+
+Result<Environment> IDevice::systemEnvironmentIfKnown() const
+{
+    if (const std::optional<Result<Environment>> cached = *d->systemEnvironment.readLocked())
+        return *cached;
+
+    if (const DeviceFileAccessPtr access = fileAccess())
+        d->startSystemEnvironmentFetch(access);
+    return ResultError(Tr::tr("Device environment is not available yet."));
+}
+
+void IDevice::warmSystemEnvironment() const
+{
+    if (d->systemEnvironment.readLocked()->has_value())
+        return;
+    if (const DeviceFileAccessPtr access = fileAccess())
+        d->startSystemEnvironmentFetch(access);
+}
+
+void IDevice::invalidateSystemEnvironment() const
+{
+    d->systemEnvironment.writeLocked()->reset();
 }
 
 Utils::Result<Environment> IDevice::sourcedEnvironment(const Utils::FilePath &script) const
@@ -821,6 +857,7 @@ void IDevice::setOsType(OsType osType)
 void IDevice::setFileAccess(DeviceFileAccessPtr fileAccess, bool announce)
 {
     d->fileAccess.writeLocked()->swap(fileAccess);
+    invalidateSystemEnvironment();
     Utils::FSEngine::invalidateFileInfoCache();
     if (announce)
         emit DeviceManager::instance()->deviceUpdated(id());
@@ -1494,6 +1531,24 @@ SshParametersAspectContainer &IDevice::sshParametersAspectContainer() const
 bool IDevice::supportsQtTargetDeviceType(const QSet<Id> &targetDeviceTypes) const
 {
     return targetDeviceTypes.contains(type());
+}
+
+void Internal::IDevicePrivate::startSystemEnvironmentFetch(const DeviceFileAccessPtr &access)
+{
+    if (systemEnvironmentFetchRunning)
+        return;
+    systemEnvironmentFetchRunning = true;
+
+    QFuture<Result<Environment>> future
+        = Utils::asyncRun([access] { return access->deviceEnvironment(); });
+    future.then(q, [this](const Result<Environment> &env) {
+        systemEnvironmentFetchRunning = false;
+        if (!env)
+            return;
+        *systemEnvironment.writeLocked() = env;
+        emit DeviceManager::instance()->deviceUpdated(id);
+    });
+    Utils::futureSynchronizer()->addFuture(future);
 }
 
 FilePaths Internal::IDevicePrivate::autoDetectionPaths() const

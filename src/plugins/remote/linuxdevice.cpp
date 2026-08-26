@@ -598,6 +598,7 @@ public:
 
 void LinuxDevicePrivate::invalidateEnvironmentCache()
 {
+    q->invalidateSystemEnvironment();
     QWriteLocker locker(&m_environmentCacheLock);
     m_environmentCache.reset();
 }
@@ -1453,6 +1454,7 @@ void LinuxDevicePrivate::setupFileAccessPhase2(
 void LinuxDevicePrivate::setupFileAccessFinalize(const Result<> &result, const Continuation<> &cont)
 {
     unannounceConnectionAttempt();
+    q->warmSystemEnvironment();
 
     cont(result);
 
