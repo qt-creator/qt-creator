@@ -5,8 +5,10 @@
 
 #include <QWidget>
 
+class QAbstractButton;
 class QComboBox;
 class QLabel;
+class QScrollArea;
 class QStackedWidget;
 class QVBoxLayout;
 
@@ -41,8 +43,17 @@ public:
 signals:
     void titleChanged();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
+    enum ConfigPage { NoServers, Connect, Registry };
+
     void populateServerButtons();
+    void showRegistryPage();
+    void clearRegistryButtons();
+    void populateRegistryButtons();
+    void registryFetchFailed();
     void showSessionPicker();
 
     // Config page
@@ -51,6 +62,9 @@ private:
     QVBoxLayout *m_serverButtonsLayout = nullptr;
     Utils::InfoLabel *m_noServerLabel;
     Utils::InfoLabel *m_connectionErrorLabel = nullptr;
+    QScrollArea *m_registryScrollArea = nullptr;
+    QVBoxLayout *m_registryButtonsLayout = nullptr;
+    Utils::InfoLabel *m_registryInfoLabel = nullptr;
 
     // Initializing page
     QLabel *m_initializingLabel = nullptr;

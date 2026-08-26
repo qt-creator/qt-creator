@@ -31,10 +31,28 @@ public:
 
     static AcpSettings &instance();
 
+    struct RegistryAgent
+    {
+        QString id;
+        QString name;
+        QString description;
+        QString iconUrl;
+    };
+
     static QList<ServerInfo> servers();
+    static bool hasServers();
+
+    static bool isRegistryAvailable();
+    // Fetches the registry unless it is available already. Answered by
+    // registryFetched(), so a fetch that failed can be asked for again.
+    static void fetchRegistry();
+    // Registry agents that are not configured as a server yet.
+    static QList<RegistryAgent> unconfiguredRegistryAgents();
+    static void addServerFromRegistry(const QString &registryId);
 
 signals:
     void serversChanged();
+    void registryFetched(bool success);
 
 private:
     AcpSettings();

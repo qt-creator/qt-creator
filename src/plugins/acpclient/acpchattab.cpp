@@ -24,10 +24,12 @@
 #include <utils/qtdesignwidgets.h>
 
 #include <QComboBox>
+#include <QEvent>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
@@ -56,17 +58,24 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
+    auto makeAddAgentButton = [this](QtcButton::Role role) {
+        auto *button = new QtcButton(Tr::tr("Add Agent"), role);
+        button->setPixmap(Utils::Icons::PLUS.pixmap());
+        button->setToolTip(Tr::tr("Add an agent from the ACP registry."));
+        connect(button, &QAbstractButton::clicked, this, [this] { showRegistryPage(); });
+        return button;
+    };
+
     m_stack = new QStackedWidget;
 
     // --- Page 0: Configuration (shown when disconnected) ---
     {
         auto *configPage = new QWidget;
         auto *configOuter = new QVBoxLayout(configPage);
-        configOuter->addStretch();
 
         m_configStack = new QStackedWidget;
         m_configStack->setMaximumWidth(480);
-        m_configStack->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        m_configStack->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
         // Config stack page 0: no servers configured
         {
@@ -76,11 +85,13 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             noServerLayout->addStretch();
 
             m_noServerLabel = new InfoLabel(
-                Tr::tr("No ACP servers configured. Add a server in the settings to get started."),
+                Tr::tr("No ACP servers configured. Add an agent to get started."),
                 InfoLabelType::Information);
             m_noServerLabel->setElideMode(Qt::ElideNone);
             m_noServerLabel->setWordWrap(true);
             noServerLayout->addWidget(m_noServerLabel);
+
+            auto *addButton = makeAddAgentButton(QtcButton::MediumSecondary);
 
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
                                                QtcButton::MediumSecondary);
@@ -91,12 +102,13 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             });
             auto *manageRow = new QHBoxLayout;
             manageRow->addStretch();
+            manageRow->addWidget(addButton);
             manageRow->addWidget(manageButton);
             manageRow->addStretch();
             noServerLayout->addLayout(manageRow);
             noServerLayout->addStretch();
 
-            m_configStack->addWidget(noServerPage); // index 0
+            m_configStack->addWidget(noServerPage); // ConfigPage::NoServers
         }
 
         // Config stack page 1: list of agent buttons
@@ -128,6 +140,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_connectionErrorLabel->hide();
             connectLayout->addWidget(m_connectionErrorLabel);
 
+            auto *addButton = makeAddAgentButton(QtcButton::MediumGhost);
+
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
                                                QtcButton::MediumGhost);
             manageButton->setToolTip(Tr::tr("Open ACP server settings."));
@@ -136,11 +150,62 @@ AcpChatTab::AcpChatTab(QWidget *parent)
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });
             connectLayout->addWidget(Layouting::createHr());
+            connectLayout->addWidget(addButton);
             connectLayout->addWidget(manageButton);
 
             connectLayout->addStretch();
 
-            m_configStack->addWidget(connectPage); // index 1
+            m_configStack->addWidget(connectPage); // ConfigPage::Connect
+        }
+
+        // Config stack page 2: registry agents that are not configured yet
+        {
+            auto *registryPage = new QWidget;
+            auto *registryLayout = new QVBoxLayout(registryPage);
+            registryLayout->setSpacing(12);
+
+            auto *titleLabel = new QLabel(Tr::tr("Add AI Agent"));
+            QFont titleFont = titleLabel->font();
+            titleFont.setPointSizeF(titleFont.pointSizeF() * 1.3);
+            titleFont.setBold(true);
+            titleLabel->setFont(titleFont);
+            titleLabel->setAlignment(Qt::AlignHCenter);
+            registryLayout->addWidget(titleLabel);
+            registryLayout->addWidget(Layouting::createHr());
+
+            auto *registryButtonsWidget = new QWidget;
+            m_registryButtonsLayout = new QVBoxLayout(registryButtonsWidget);
+            m_registryButtonsLayout->setContentsMargins(0, 0, 0, 0);
+            m_registryButtonsLayout->setSpacing(2);
+
+            m_registryScrollArea = new QScrollArea;
+            m_registryScrollArea->setWidget(registryButtonsWidget);
+            m_registryScrollArea->setWidgetResizable(true);
+            m_registryScrollArea->setFrameShape(QFrame::NoFrame);
+            m_registryScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            m_registryScrollArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+            m_registryScrollArea->viewport()->setAutoFillBackground(false);
+            registryButtonsWidget->setAutoFillBackground(false);
+            registryButtonsWidget->installEventFilter(this);
+            registryLayout->addWidget(m_registryScrollArea, 1);
+
+            m_registryInfoLabel = new InfoLabel({}, InfoLabelType::Information);
+            m_registryInfoLabel->setElideMode(Qt::ElideNone);
+            m_registryInfoLabel->setWordWrap(true);
+            m_registryInfoLabel->hide();
+            registryLayout->addWidget(m_registryInfoLabel);
+
+            auto *backButton = new QtcButton(Tr::tr("Back"), QtcButton::MediumGhost);
+            connect(backButton, &QAbstractButton::clicked, this, [this] {
+                m_configStack->setCurrentIndex(
+                    AcpSettings::hasServers() ? ConfigPage::Connect : ConfigPage::NoServers);
+            });
+            registryLayout->addWidget(Layouting::createHr());
+            registryLayout->addWidget(backButton);
+
+            registryLayout->addStretch();
+
+            m_configStack->addWidget(registryPage); // ConfigPage::Registry
         }
 
         auto *configCenter = new QHBoxLayout;
@@ -148,7 +213,6 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         configCenter->addWidget(m_configStack);
         configCenter->addStretch();
         configOuter->addLayout(configCenter);
-        configOuter->addStretch();
 
         m_stack->addWidget(configPage);  // index 0
     }
@@ -279,8 +343,17 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     populateServerButtons();
 
     // --- Connections: Settings ---
-    connect(&AcpSettings::instance(), &AcpSettings::serversChanged,
-            this, &AcpChatTab::populateServerButtons);
+    connect(&AcpSettings::instance(), &AcpSettings::serversChanged, this, [this] {
+        populateServerButtons();
+        if (m_configStack->currentIndex() == ConfigPage::Registry)
+            populateRegistryButtons();
+    });
+    // A registry that arrived re-applies the templates, so it comes in as
+    // serversChanged() as well, which fills the registry page.
+    connect(&AcpSettings::instance(), &AcpSettings::registryFetched, this, [this](bool success) {
+        if (!success)
+            registryFetchFailed();
+    });
 
     // --- Connections: ChatPanel -> Controller ---
     connect(m_chatPanel, &ChatPanel::sendRequested, this, [this](const QString &text) {
@@ -662,7 +735,89 @@ void AcpChatTab::populateServerButtons()
         m_serverButtonsLayout->addWidget(button);
     }
 
-    m_configStack->setCurrentIndex(servers.isEmpty() ? 0 : 1);
+    // Leave the registry page alone, it navigates away on its own.
+    if (m_configStack->currentIndex() != ConfigPage::Registry) {
+        m_configStack->setCurrentIndex(
+            servers.isEmpty() ? ConfigPage::NoServers : ConfigPage::Connect);
+    }
+}
+
+void AcpChatTab::showRegistryPage()
+{
+    m_configStack->setCurrentIndex(ConfigPage::Registry);
+    if (AcpSettings::isRegistryAvailable()) {
+        populateRegistryButtons();
+        return;
+    }
+
+    clearRegistryButtons();
+    m_registryInfoLabel->setType(InfoLabelType::Information);
+    m_registryInfoLabel->setText(Tr::tr("Fetching the agent registry..."));
+    m_registryInfoLabel->show();
+    AcpSettings::fetchRegistry();
+}
+
+bool AcpChatTab::eventFilter(QObject *watched, QEvent *event)
+{
+    // Take the space the agent list needs, but no more than that. A button added
+    // to the list is only shown by a queued event, and the layout leaves it out
+    // of its size hint until then, so the height cannot be taken right away; the
+    // font behind the list can change later, too.
+    QWidget *buttons = m_registryScrollArea->widget();
+    if (watched == buttons && event->type() == QEvent::LayoutRequest)
+        m_registryScrollArea->setMaximumHeight(buttons->sizeHint().height());
+    return QWidget::eventFilter(watched, event);
+}
+
+void AcpChatTab::clearRegistryButtons()
+{
+    while (QLayoutItem *item = m_registryButtonsLayout->takeAt(0)) {
+        if (QWidget *widget = item->widget()) {
+            // A button can be cleared from its own clicked() handler.
+            widget->hide();
+            widget->deleteLater();
+        }
+        delete item;
+    }
+}
+
+void AcpChatTab::populateRegistryButtons()
+{
+    clearRegistryButtons();
+
+    const QList<AcpSettings::RegistryAgent> agents = AcpSettings::unconfiguredRegistryAgents();
+    for (const AcpSettings::RegistryAgent &agent : agents) {
+        auto *button = new QtcButton(agent.name, QtcButton::MediumTertiary);
+        button->setToolTip(agent.description);
+        const QString registryId = agent.id;
+        connect(button, &QAbstractButton::clicked, this, [this, registryId] {
+            m_configStack->setCurrentIndex(ConfigPage::Connect);
+            AcpSettings::addServerFromRegistry(registryId);
+        });
+        Utils::onResultReady(
+            AcpSettings::iconForUrl(agent.iconUrl), button, [button](const QIcon &icon) {
+                const int size = button->fontMetrics().height();
+                button->setPixmap(icon.pixmap(size, size));
+            });
+        m_registryButtonsLayout->addWidget(button);
+    }
+
+    m_registryInfoLabel->setType(InfoLabelType::Information);
+    m_registryInfoLabel->setText(Tr::tr("All agents of the registry are already configured."));
+    m_registryInfoLabel->setVisible(agents.isEmpty());
+}
+
+void AcpChatTab::registryFetchFailed()
+{
+    if (m_configStack->currentIndex() != ConfigPage::Registry)
+        return;
+
+    clearRegistryButtons();
+    m_registryInfoLabel->setType(InfoLabelType::Error);
+    m_registryInfoLabel->setText(
+        Tr::tr("The agent registry could not be fetched. Check the network connection and "
+               "try again, or configure an agent in the ACP server settings."));
+    m_registryInfoLabel->show();
 }
 
 } // namespace AcpClient::Internal

@@ -100,6 +100,9 @@ static void fetchIconToPersistentCache(const QString &url, const std::shared_ptr
     GlobalTaskTree::start({FileStreamerTask(setupFetch, fetchDone)});
 }
 
+static std::optional<Acp::Registry::ACPAgentRegistry> s_registry;
+static bool s_fetchingRegistry = false;
+
 class AcpRegistryBrowser : public StringSelectionAspect
 {
 public:
@@ -109,16 +112,18 @@ public:
         setComboBoxEditable(false);
 
         auto fillCallback = [this](ResultCallback resultCb) {
-            if (!s_registry) {
-                // Not yet fetched — return just the custom item for now
-                auto customItem = new QStandardItem(Tr::tr("<Custom>"));
-                customItem->setData(QString());
-                customItem->setToolTip(
-                    Tr::tr("Manually specify an agent not listed in the registry."));
-                resultCb({customItem});
-                return;
+            QList<QStandardItem *> items = registryItems();
+            // Until the registry is there, the selected template is kept as an
+            // item of its own, or the combo box would fall back to the first
+            // item and the selection would be lost.
+            const QString selectedId = volatileValue();
+            if (!s_registry && !selectedId.isEmpty()) {
+                auto selectedItem = new QStandardItem(selectedId);
+                selectedItem->setData(selectedId);
+                selectedItem->setToolTip(Tr::tr("The agent registry has not been fetched yet."));
+                items.append(selectedItem);
             }
-            resultCb(registryItems());
+            resultCb(items);
         };
         setFillCallback(fillCallback);
     }
@@ -127,8 +132,6 @@ public:
     {
         comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     }
-
-    std::optional<Acp::Registry::ACPAgentRegistry> registry() const { return s_registry; }
 
     QList<QStandardItem *> registryItems()
     {
@@ -157,13 +160,19 @@ public:
         return items;
     }
 
-    static void prefetch(std::function<void()> onDone = {})
+    static void prefetch(std::function<void(bool success)> onDone = {})
     {
         if (s_registry) {
             if (onDone)
-                onDone();
+                onDone(true);
             return;
         }
+
+        // A fetch on its way reports through the same signals; a second one would
+        // download the registry twice.
+        if (s_fetchingRegistry)
+            return;
+        s_fetchingRegistry = true;
 
         const auto setupFetch = [](QNetworkReplyWrapper &wrapper) {
             wrapper.setNetworkAccessManager(Utils::NetworkAccessManager::instance());
@@ -172,15 +181,26 @@ public:
                 QUrl("https://cdn.agentclientprotocol.com/registry/v1/latest/registry.json"));
             wrapper.setRequest(request);
         };
+        // Every way out answers, so that a fetch which did not arrive can be
+        // told apart from one that is still on its way.
         const auto fetchDone = [onDone](const QNetworkReplyWrapper &wrapper, DoneWith doneWith) {
-            if (doneWith != DoneWith::Success)
+            const auto answer = [onDone](bool success) {
+                s_fetchingRegistry = false;
+                if (onDone)
+                    onDone(success);
+            };
+
+            if (doneWith != DoneWith::Success) {
+                answer(false);
                 return;
+            }
 
             const QByteArray data = wrapper.reply()->readAll();
             QJsonParseError error;
             const QJsonDocument doc = QJsonDocument::fromJson(data, &error);
             if (error.error != QJsonParseError::NoError) {
                 qWarning() << "Failed to parse registry JSON:" << error.errorString();
+                answer(false);
                 return;
             }
 
@@ -188,21 +208,17 @@ public:
                 doc.object());
             if (!registry) {
                 qWarning() << "Failed to parse registry:" << registry.error();
+                answer(false);
                 return;
             }
             s_registry = std::move(*registry);
-            if (onDone)
-                onDone();
+            answer(true);
         };
 
         GlobalTaskTree::start({QNetworkReplyWrapperTask(setupFetch, fetchDone)});
     }
 
-private:
-    static std::optional<Acp::Registry::ACPAgentRegistry> s_registry;
 };
-
-std::optional<Acp::Registry::ACPAgentRegistry> AcpRegistryBrowser::s_registry;
 
 class AcpServerAspect : public AspectContainer
 {
@@ -345,19 +361,18 @@ public:
         if (selectedId.isEmpty())
             return;
 
-        const auto &registry = registryBrowser.registry();
-        if (!registry) {
+        if (!s_registry) {
             qWarning() << "No registry data available";
             return;
         }
 
         const auto agent = std::find_if(
-            registry->agents().begin(),
-            registry->agents().end(),
+            s_registry->agents().begin(),
+            s_registry->agents().end(),
             [&selectedId](const Acp::Registry::ACPAgent &a) {
                 return a.id() == selectedId;
             });
-        if (agent == registry->agents().end()) {
+        if (agent == s_registry->agents().end()) {
             qWarning() << "Selected agent not found in registry:" << selectedId;
             return;
         }
@@ -539,6 +554,52 @@ QList<AcpSettings::ServerInfo> AcpSettings::servers()
     return result;
 }
 
+bool AcpSettings::hasServers()
+{
+    return AcpManagerSettings::instance().acpServers.size() > 0;
+}
+
+bool AcpSettings::isRegistryAvailable()
+{
+    return s_registry.has_value();
+}
+
+QList<AcpSettings::RegistryAgent> AcpSettings::unconfiguredRegistryAgents()
+{
+    if (!s_registry)
+        return {};
+
+    QSet<QString> configured;
+    AcpManagerSettings::instance().acpServers.forEachItem(
+        [&configured](const std::shared_ptr<AcpServerAspect> &server) {
+            const QString templateId = server->registryBrowser.value();
+            if (!templateId.isEmpty())
+                configured.insert(templateId);
+        });
+
+    QList<RegistryAgent> result;
+    for (const Acp::Registry::ACPAgent &agent : s_registry->agents()) {
+        if (configured.contains(agent.id()))
+            continue;
+        result.append({agent.id(),
+                       agent.name(),
+                       agent.description(),
+                       agent.icon().value_or(QString())});
+    }
+    return result;
+}
+
+void AcpSettings::addServerFromRegistry(const QString &registryId)
+{
+    auto server = std::make_shared<AcpServerAspect>();
+    server->registryBrowser.setValue(registryId);
+
+    AspectList &servers = AcpManagerSettings::instance().acpServers;
+    servers.addItem(server);
+    servers.apply();
+    AcpManagerSettings::instance().writeSettings();
+}
+
 QFuture<QIcon> AcpSettings::iconForUrl(const QString &url)
 {
     auto promise = std::make_shared<QPromise<QIcon>>();
@@ -625,14 +686,25 @@ void setupAcpSettings()
 void prefetchAcpRegistry()
 {
     AcpRegistryBrowser::prefetch(
-        [] {
-            AcpManagerSettings::instance().acpServers.forEachItem(
-                [](const std::shared_ptr<AcpServerAspect> &server) {
-                    server->applyRegistryTemplate();
-                });
-            AcpManagerSettings::instance().acpServers.writeSettings();
-            emit AcpSettings::instance().serversChanged();
+        [](bool success) {
+            if (success) {
+                AcpManagerSettings::instance().acpServers.forEachItem(
+                    [](const std::shared_ptr<AcpServerAspect> &server) {
+                        // A settings page opened before the registry arrived
+                        // lists the registry now, too.
+                        server->registryBrowser.refill();
+                        server->applyRegistryTemplate();
+                    });
+                AcpManagerSettings::instance().writeSettings();
+                emit AcpSettings::instance().serversChanged();
+            }
+            emit AcpSettings::instance().registryFetched(success);
         });
+}
+
+void AcpSettings::fetchRegistry()
+{
+    prefetchAcpRegistry();
 }
 
 } // namespace AcpClient::Internal
