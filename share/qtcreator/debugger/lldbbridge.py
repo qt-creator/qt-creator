@@ -7,6 +7,7 @@ import os
 import platform
 import re
 import sys
+import tempfile
 import threading
 import time
 import lldb
@@ -1118,6 +1119,8 @@ class Dumper(DumperBase):
                                     % (self.attachPid_, error.GetCString()))
                         self.reportState('enginerunfailed')
                         return
+                    self.placeMappedModules()
+                    self.watchLoaderForMappedModules()
                     # Attaching stops the process, and saying so is what keeps the
                     # engine's idea of the state and LLDB's the same.
                     self.report('pid="%s"' % self.process.GetProcessID())
@@ -1198,6 +1201,94 @@ class Dumper(DumperBase):
 
         s = threading.Thread(target=self.loop, args=[])
         s.start()
+
+    def execSearchPaths(self):
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(
+            'settings show target.exec-search-paths', result)
+        # The entries are printed as '[0]: /some/where  [1]: /elsewhere', all on one
+        # line, so the indices are what separates them rather than a newline.
+        entries = re.split(r'\[\d+\]:\s*', result.GetOutput() or '')[1:]
+        return [entry.strip() for entry in entries if entry.strip()]
+
+    # A platform that did not launch the process reports no module list for it, so
+    # nothing is loaded: no frame can be named and no breakpoint can be placed. The
+    # memory regions do say which file is mapped where, so the libraries that are
+    # available on this side are placed at the address the process has them at.
+    def placeMappedModules(self):
+        paths = self.execSearchPaths()
+        if not paths:
+            return
+
+        # A library is mapped in several parts; the lowest one is where it was loaded.
+        mapped = {}
+        regions = self.process.GetMemoryRegions()
+        info = lldb.SBMemoryRegionInfo()
+        for index in range(regions.GetSize()):
+            if not regions.GetMemoryRegionAtIndex(index, info):
+                continue
+            name = info.GetName()
+            # A versioned soname does not end in ".so", and the loader is one of those.
+            if not name or not (name.endswith('.so') or '.so.' in name):
+                continue
+            base = info.GetRegionBase()
+            key = os.path.basename(name)
+            if base < mapped.get(key, (base + 1, ''))[0]:
+                mapped[key] = (base, name)
+
+        placed = 0
+        for key, (base, remote) in mapped.items():
+            local = None
+            for path in paths:
+                candidate = os.path.join(path, key)
+                if os.path.exists(candidate):
+                    local = candidate
+                    break
+            if not local and self.isLoader(key):
+                local = self.fetchedFromDevice(remote)
+            if not local:
+                continue
+            module = self.target.AddModule(local, None, None)
+            if module and self.target.SetModuleLoadAddress(module, base).Success():
+                placed += 1
+        if placed:
+            self.report('Placed %s module(s) from the memory map of the process.' % placed)
+
+    @staticmethod
+    def isLoader(basename):
+        return basename.startswith('ld-musl') or basename.startswith('ld-linux')
+
+    # The loader exists only on the device, and without it _dl_debug_state cannot be
+    # found, so that one file is worth fetching. The platform can read it even though
+    # it refuses the /proc entries of the process.
+    def fetchedFromDevice(self, remotePath):
+        directory = os.path.join(tempfile.gettempdir(), 'qtc-device-modules')
+        local = os.path.join(directory, os.path.basename(remotePath))
+        if os.path.exists(local):
+            return local
+        try:
+            os.makedirs(directory, exist_ok=True)
+        except OSError:
+            return None
+        error = self.target.GetPlatform().Get(lldb.SBFileSpec(remotePath),
+                                              lldb.SBFileSpec(local))
+        if error.Success() and os.path.exists(local):
+            return local
+        return None
+
+    # Placing them once only covers what was mapped at the time. The loader calls
+    # _dl_debug_state after it has mapped an object and before it runs that object's
+    # initializers, so stopping there is what lets a library loaded later be placed
+    # while a breakpoint in it can still be resolved.
+    def watchLoaderForMappedModules(self):
+        breakpoint = self.target.BreakpointCreateByName('_dl_debug_state')
+        if not breakpoint.GetNumLocations():
+            return
+        # Returning False keeps the stop here, so the engine never learns of it.
+        error = breakpoint.SetScriptCallbackBody(
+            'lldb.theDumper.placeMappedModules(); return False')
+        if error.Success():
+            self.report('Watching the loader for libraries mapped later.')
 
     def loop(self):
         event = lldb.SBEvent()
