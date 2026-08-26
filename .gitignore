@@ -145,8 +145,8 @@ tmp/
 # ignore both a directory as well as a symlink
 /share/qtcreator/QtProject
 
-# Claude
-/CLAUDE.md
+# AI artifacts
+/mcp_debug.log
 /.claude/
 
 # Binaries
