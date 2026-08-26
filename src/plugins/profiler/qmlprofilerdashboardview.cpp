@@ -4,6 +4,7 @@
 #include "qmlprofilerdashboardview.h"
 
 #include "profilertr.h"
+#include "qmlprofilerdashboardstats.h"
 
 #include <utils/filepath.h>
 #include <utils/icon.h>
@@ -138,6 +139,7 @@ void ScoreWidget::setScore(ScoreWidget::Score score)
         break;
     }
     m_icon = Icon({{iconMask, m_color}}).icon();
+    updateGeometry();
     update();
 }
 
@@ -331,6 +333,8 @@ class QmlProfilerDashboardViewPrivate : public QObject
 public:
     QmlProfilerDashboardViewPrivate(QObject *parent = nullptr);
 
+    QmlProfilerDashboardStats *stats = nullptr;
+
     Category *overallRating = nullptr;
 
     QLabel *gaugeTitle = nullptr;
@@ -364,7 +368,9 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     : QWidget(parent)
     , d(new QmlProfilerDashboardViewPrivate(this))
 {
-    Q_UNUSED(manager)
+    d->stats = new QmlProfilerDashboardStats(manager, d);
+    connect(d->stats, &QmlProfilerDashboardStats::changed,
+            this, &QmlProfilerDashboardView::updateValues);
 
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
@@ -384,7 +390,9 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     applyTf(d->gaugeTitle, titleTf);
     d->gauge = new Gauge;
     d->gauge->setFixedSize(110, 110);
-    d->gaugeText = new QLabel(Tr::tr("60+ FPS Rate (Steady-State)"));
+    d->gauge->setUnit("%");
+    d->gaugeText = new QLabel(
+        Tr::tr("%1+ FPS Rate (Steady-State)").arg(qRound(kDisplayRefreshRate)));
     applyTf(d->gaugeText, textTf);
 
 
@@ -393,18 +401,31 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     applyTf(d->framesTitle, titleTf);
 
     d->framesOnTargetBadge = new QtcBadge;
-    d->framesOnTargetLabel = new QLabel(Tr::tr("On target (60+ FPS (<=16.8ms))"));
+    d->framesOnTargetBadge->setInfoType(Utils::InfoLabelType::Ok);
+    d->framesOnTargetLabel = new QLabel(
+        Tr::tr("On target (%1+ FPS (<=%2ms))")
+            .arg(qRound(kDisplayRefreshRate))
+            .arg(kOnTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesOnTargetLabel, textFrameAnalysisTf);
 
     d->framesNearTargetBadge = new QtcBadge;
-    d->framesNearTargetLabel = new QLabel(Tr::tr("Near Target (16.8-20ms)"));
+    d->framesNearTargetBadge->setInfoType(Utils::InfoLabelType::Warning);
+    d->framesNearTargetLabel = new QLabel(
+        Tr::tr("Near Target (%1-%2ms)")
+            .arg(kOnTargetFrameTimeMs, 0, 'f', 1)
+            .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesNearTargetLabel, textFrameAnalysisTf);
 
     d->framesFailedBadge = new QtcBadge;
-    d->framesFailedLabel = new QLabel(Tr::tr("Failed (33-50 FPS (20-30ms))"));
+    d->framesFailedBadge->setInfoType(Utils::InfoLabelType::NotOk);
+    d->framesFailedLabel = new QLabel(
+        Tr::tr("Failed (<%1 FPS (>%2ms))")
+            .arg(qRound(1000.0 / kNearTargetFrameTimeMs))
+            .arg(kNearTargetFrameTimeMs, 0, 'f', 1));
     applyTf(d->framesFailedLabel, textFrameAnalysisTf);
 
-    d->framesText = new QLabel(Tr::tr("60+ FPS Rate (Steady-State)"));
+    d->framesText = new QLabel(
+        Tr::tr("%1+ FPS Rate (Steady-State)").arg(qRound(kDisplayRefreshRate)));
     applyTf(d->framesText, textTf);
 
 
@@ -420,7 +441,9 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
         Tr::tr("Frame time variation (lower is better for smooth animations)"));
     d->stutterPrevention = new Category(
         Tr::tr("Stutter Prevention"),
-        Tr::tr("Frames slower than 30 FPS (33ms) cause noticeable UI freezes"));
+        Tr::tr("Frames slower than %1 FPS (%2ms) cause noticeable UI freezes")
+            .arg(qRound(kStutterFps))
+            .arg(kStutterFrameTimeMs, 0, 'f', 1));
     d->p99Quality = new Category(
         Tr::tr("P99 Quality"),
         Tr::tr("99th percentile frame time ensures consistent experience"));
@@ -518,22 +541,35 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
 
 void QmlProfilerDashboardView::updateValues()
 {
-    d->gauge->setValue(75);
-    d->gauge->setUnit("%");
+    d->gauge->setValue(d->stats->onTargetPercent());
 
-    d->framesOnTargetBadge->setInfoType(Utils::InfoLabelType::Ok);
-    d->framesOnTargetBadge->setText("114");
-    d->framesNearTargetBadge->setInfoType(Utils::InfoLabelType::Warning);
-    d->framesNearTargetBadge->setText("12");
-    d->framesFailedBadge->setInfoType(Utils::InfoLabelType::NotOk);
-    d->framesFailedBadge->setText("4");
+    d->framesOnTargetBadge->setText(QString::number(d->stats->framesOnTarget()));
+    d->framesNearTargetBadge->setText(QString::number(d->stats->framesNearTarget()));
+    d->framesFailedBadge->setText(QString::number(d->stats->framesFailed()));
 
-    d->overallRating->setScore(ScoreWidget::Good, 95);
-    d->uiResponsiveness->setScore(ScoreWidget::Excellent, 100);
-    d->frameConsistency->setScore(ScoreWidget::Good, 95);
-    d->stutterPrevention->setScore(ScoreWidget::Alerting, 69);
-    d->p99Quality->setScore(ScoreWidget::Excellent, 100);
-    d->startupSpeed->setScore(ScoreWidget::Poor, 50);
+    const auto scoreFor = [](int percent) {
+        if (percent >= 95)
+            return ScoreWidget::Excellent;
+        if (percent >= 80)
+            return ScoreWidget::Good;
+        if (percent >= 50)
+            return ScoreWidget::Alerting;
+        return ScoreWidget::Poor;
+    };
+
+    const int onTargetPercent = d->stats->onTargetPercent();
+    const int stutterFreePercent = d->stats->stutterFreePercent();
+    const int uiResponsivenessPercent = d->stats->uiResponsivenessPercent();
+    const int p99Percent = d->stats->p99Percent();
+    const int startupSpeedPercent = d->stats->startupSpeedPercent();
+    const int overallPercent = d->stats->overallPercent();
+
+    d->frameConsistency->setScore(scoreFor(onTargetPercent), onTargetPercent);
+    d->stutterPrevention->setScore(scoreFor(stutterFreePercent), stutterFreePercent);
+    d->uiResponsiveness->setScore(scoreFor(uiResponsivenessPercent), uiResponsivenessPercent);
+    d->p99Quality->setScore(scoreFor(p99Percent), p99Percent);
+    d->startupSpeed->setScore(scoreFor(startupSpeedPercent), startupSpeedPercent);
+    d->overallRating->setScore(scoreFor(overallPercent), overallPercent);
 }
 
 } // namespace Profiler::Internal

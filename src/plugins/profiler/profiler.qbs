@@ -84,6 +84,7 @@ QtcPlugin {
             "qmlprofilerattachdialog.cpp", "qmlprofilerattachdialog.h",
             "qmlprofilerclientmanager.cpp", "qmlprofilerclientmanager.h",
             "qmlprofilerconstants.h",
+            "qmlprofilerdashboardstats.cpp", "qmlprofilerdashboardstats.h",
             "qmlprofilerdashboardview.cpp", "qmlprofilerdashboardview.h",
             "qmlprofilerdetailsrewriter.cpp", "qmlprofilerdetailsrewriter.h",
             "qmlprofilerfindings.cpp", "qmlprofilerfindings.h",
