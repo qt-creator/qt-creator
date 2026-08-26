@@ -394,7 +394,13 @@ void LldbImpl::shutdownInferior(ShutdownMode mode)
     const QString function = mode == ShutdownMode::Detach ? QLatin1String("detachInferior")
                                                           : QLatin1String("shutdownInferior");
     m_detached = mode == ShutdownMode::Detach;
-    runCommand({function, [this](const DebuggerResponse &) {
+    runCommand({function, [this, mode](const DebuggerResponse &response) {
+        // ShutdownFinished is the only outcome the interface has, so a kill that did
+        // not work is logged here or nowhere.
+        if (mode != ShutdownMode::Detach && !response.data["success"].toInt())
+            emit message("Killing the inferior failed: "
+                         + response.data["error"]["status"].data()
+                         + response.data["status"].data(), LogError);
         emit inferiorEvent(InferiorEvent::ShutdownFinished);
     }});
 }

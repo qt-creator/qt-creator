@@ -2350,19 +2350,20 @@ class Dumper(DumperBase):
         # Everything but a process that is gone already gets killed; the states one
         # still exists in are not worth enumerating. Kill() waits for it to be
         # reaped, though, which for a process behind a gdb remote stub never happens
-        # - Stop() does not come back there either - so nothing is left waiting on it
-        # for longer than a shutdown may take.
+        # - Stop() does not come back there either - so it runs in a daemon thread.
+        # That bounds this call, not the kill: two seconds are plenty for one that
+        # works, one that does not stays stuck in lldb.
         if self.process is None or self.process.GetState() in (
                 lldb.eStateInvalid, lldb.eStateUnloaded, lldb.eStateDetached,
                 lldb.eStateExited):
-            return ''
+            return 'success="1"'
         result = []
         killer = threading.Thread(target=lambda: result.append(self.process.Kill()))
         killer.daemon = True
         killer.start()
         killer.join(2)
         if not result:
-            return 'status="Killing the inferior did not come back."'
+            return 'success="0",status="Kill() did not come back."'
         return self.describeError(result[0])
 
     def shutdownInferior(self, args):

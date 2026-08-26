@@ -5084,9 +5084,10 @@ void tst_backends::attachesToRunningProcess()
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
             || debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
 
-    // An attach that stopped the inferior is resumed by the engine itself, so
-    // wait for that before shutting down: killing a running inferior is what
-    // this covers, and the two events are the same thing on either path.
+    // lldb attaches with the inferior stopped and resumes it itself: wait for that,
+    // so the shutdown below has to kill a running inferior. gdb reports the attach
+    // as RunAndInferiorRunOk without resuming, so there this passes right away and
+    // the shutdown keeps covering a stopped one.
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk)
                              || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
                              s_timeout);
