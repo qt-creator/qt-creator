@@ -2377,7 +2377,16 @@ void FakeVimPlugin::showCommandBuffer(FakeVimHandler *handler, const QString &co
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
     QTC_ASSERT(m_miniBuffer, return);
 
-    if (settings().commandLineInEditor() && settings().useFakeVim()) {
+    if (!settings().useFakeVim()) {
+        // The handler keeps running its buffer-local vim state (e.g. modelines,
+        // autocommands) regardless of this setting, so that state is ready if
+        // FakeVim gets turned on mid-session. Just don't show any of it.
+        releaseEditorMiniBuffer();
+        m_miniBuffer->setContents(QString(), -1, -1, MessageMode, nullptr);
+        return;
+    }
+
+    if (settings().commandLineInEditor()) {
         if (!m_miniBufferEditor)
             updateEditorCommandLinePlacement();
         // Placement (which editor hosts the command line) is owned by
