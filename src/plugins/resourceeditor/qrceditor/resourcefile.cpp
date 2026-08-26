@@ -12,7 +12,6 @@
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/theme/theme.h>
-#include <utils/widgets.h>
 
 #include <QDebug>
 #include <QDir>
@@ -1192,18 +1191,9 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
     } else {
         const FilePath fileNameBackup = file(index);
         const QString aliasBackup = alias(index);
-        if (!fileNameBackup.exists()) {
-            deleteItem(index);
-            return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup.path(), aliasBackup);
-        }
-        RemoveFileDialog removeFileDialog(fileNameBackup);
-        if (removeFileDialog.exec() == QDialog::Accepted) {
-            deleteItem(index);
-            Core::FileUtils::removeFiles({fileNameBackup},
-                                         removeFileDialog.isDeleteFileChecked());
-            return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup.path(), aliasBackup);
-        }
-        return nullptr;
+        deleteItem(index);
+        return new FileEntryBackup(*this, prefixIndex.row(), index.row(),
+                                   fileNameBackup.path(), aliasBackup);
     }
 }
 
