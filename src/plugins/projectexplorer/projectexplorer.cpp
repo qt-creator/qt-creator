@@ -2613,8 +2613,11 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
             return fileName.absoluteFilePath();
         }();
 
-        Project *found = Utils::findOrDefault(ProjectManager::projects(),
-                                              Utils::equal(&Project::projectFilePath, filePath));
+        Project *found = Utils::findOrDefault(
+                    ProjectManager::projects(), [filePath, searchInDir](Project *project) {
+            return project->projectFilePath() == filePath
+                    || (!searchInDir && project->projectDirectory() == filePath);
+        });
         if (found) {
             alreadyOpen.append(found);
             SessionManager::sessionLoadingProgress();
