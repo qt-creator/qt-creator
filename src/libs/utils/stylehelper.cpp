@@ -600,8 +600,14 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
         QPixmap px = icon.pixmap(rect.size(), devicePixelRatio, iconMode, iconState);
-        int radius = int(dipRadius * devicePixelRatio);
-        QPoint offset = dipOffset * devicePixelRatio;
+        // icon.pixmap() never upscales: if no source pixmap with a high enough
+        // resolution is available (e.g. icons only have up to @2x variants, but
+        // devicePixelRatio is higher), it returns a smaller pixmap with a lower
+        // devicePixelRatio instead. Use that actual ratio, otherwise the icon
+        // would be painted too small.
+        const qreal pixmapDevicePixelRatio = px.devicePixelRatio();
+        int radius = int(dipRadius * pixmapDevicePixelRatio);
+        QPoint offset = dipOffset * pixmapDevicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
         cache.fill(Qt::transparent);
 
@@ -643,7 +649,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // Draw the actual pixmap...
         cachePainter.drawPixmap(QRect(QPoint(radius, radius) + offset, QSize(px.width(), px.height())), px);
         cachePainter.end();
-        cache.setDevicePixelRatio(devicePixelRatio);
+        cache.setDevicePixelRatio(pixmapDevicePixelRatio);
         QPixmapCache::insert(pixmapName, cache);
     }
 
