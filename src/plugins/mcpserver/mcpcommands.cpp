@@ -39,6 +39,7 @@
 #include <utils/filesearch.h>
 #include <utils/id.h>
 #include <utils/mimeutils.h>
+#include <utils/plaintextedit/plaintextedit.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/qtcprocess.h>
@@ -69,7 +70,9 @@
 #include <cmath>
 #include <QEventLoop>
 #include <QLineEdit>
+#include <QPlainTextEdit>
 #include <QTabBar>
+#include <QTextEdit>
 #include <QAction>
 #include <QDateTime>
 #include <QLoggingCategory>
@@ -1228,6 +1231,34 @@ static Utils::Result<> sendMouseEventTo(QWidget *w, const QString &action, int x
 // Delivers text as key events so widgets that react to typing (line edits,
 // text editors) update as if the user typed. Sent synchronously so the
 // widget state is settled before the tool returns.
+static void sendKey(
+    QWidget *target, Qt::Key key, Qt::KeyboardModifiers modifiers, const QString &text = {})
+{
+    QKeyEvent press(QEvent::KeyPress, key, modifiers, text);
+    QKeyEvent release(QEvent::KeyRelease, key, modifiers, text);
+    QApplication::sendEvent(target, &press);
+    QApplication::sendEvent(target, &release);
+}
+
+// Where select-all plus delete edits text. In an item view those keys act on
+// the items instead - Delete in the Breakpoints view deletes the breakpoints.
+static bool isTextInput(const QWidget *w)
+{
+    if (auto combo = qobject_cast<const QComboBox *>(w))
+        return combo->isEditable();
+    return qobject_cast<const QLineEdit *>(w) || qobject_cast<const QAbstractSpinBox *>(w)
+           || qobject_cast<const QTextEdit *>(w) || qobject_cast<const QPlainTextEdit *>(w)
+           || qobject_cast<const Utils::PlainTextEdit *>(w);
+}
+
+// Empties the widget the way a user would, by selecting everything and deleting it. Line
+// edits and the editors all match Ctrl+A against QKeySequence::SelectAll.
+static void clearText(QWidget *target)
+{
+    sendKey(target, Qt::Key_A, Qt::ControlModifier, "a");
+    sendKey(target, Qt::Key_Delete, Qt::NoModifier);
+}
+
 static void typeText(QWidget *target, const QString &text)
 {
     for (const QChar &ch : text) {
@@ -3151,6 +3182,17 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"description", "The text to type."}})
+                    .addProperty(
+                        "mode",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"append", "set"}},
+                            {"description",
+                             "\"append\" (the default) types at the cursor and keeps what is "
+                             "already there. \"set\" replaces the content, so the widget ends up "
+                             "holding exactly the input - use it for a filter or a line edit that "
+                             "a previous call left non-empty. An empty input then clears it. "
+                             "Only text inputs accept it."}})
                     .addRequired("input")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
@@ -3160,9 +3202,18 @@ void McpCommands::registerCommands()
             if (!t)
                 return ResultError(t.error());
             QWidget *target = *t;
+            const bool replace = p.value("mode").toString() == "set";
+            if (replace && !isTextInput(target)) {
+                return ResultError(
+                    QString("Mode \"set\" empties the target with select-all and delete, which "
+                            "only a text input handles as text editing: %1.")
+                        .arg(describeWidgetShort(target)));
+            }
             if (QWidget *window = target->window())
                 window->activateWindow();
             target->setFocus(Qt::OtherFocusReason);
+            if (replace)
+                clearText(target);
             typeText(target, input);
             return CallToolResult{}.isError(false).structuredContent(describeWidget(target));
         });
