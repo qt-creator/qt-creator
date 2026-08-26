@@ -1165,9 +1165,16 @@ static Result<OsArch> detectWindowsArchitecture(const Environment &env)
 // cmdbridge.exe and starts it, we only move the file. Returns the bridge file access on
 // success. Runs on a worker thread. (A base64-over-PowerShell-stdin push is far too slow for
 // a multi-MB binary, so we use sftp, which ships with Windows OpenSSH.)
-static Result<DeviceFileAccessPtr> deployCmdBridge(const SshParameters &ssh,
-                                                   const FilePath &rootPath,
-                                                   const std::function<void()> &errorExitHandler)
+struct BridgeDeployment
+{
+    DeviceFileAccessPtr access;
+    FilePath bridge;
+};
+
+static Result<BridgeDeployment> deployCmdBridge(const SshParameters &ssh,
+                                                const FilePath &rootPath,
+                                                const FilePath &previousBridge,
+                                                const std::function<void()> &errorExitHandler)
 {
     // Query the device environment through a local (per-command) access rather than the device's
     // own file access, so setupFileAccess() need not expose that slow access publicly while the
@@ -1203,14 +1210,36 @@ static Result<DeviceFileAccessPtr> deployCmdBridge(const SshParameters &ssh,
         return ResultOk;
     };
 
+    const auto started = [&rootPath](const std::shared_ptr<CmdBridge::FileAccess> &fileAccess) {
+        qCDebug(windowsDeviceLog) << "CmdBridge started on" << rootPath.toUserOutput();
+        return BridgeDeployment{DeviceFileAccessPtr(fileAccess), fileAccess->bridgePath()};
+    };
+
+    // A reconnect reuses the binary of the previous one instead of adding another. Starting it
+    // is the test: whether it is still there cannot be asked over the file access the bridge
+    // itself provides, which a reconnect is short of.
+    if (!previousBridge.isEmpty()) {
+        auto fileAccess = std::make_shared<CmdBridge::FileAccess>(errorExitHandler);
+        // deleteOnExit is false: the bridge cannot delete its own running .exe on Windows.
+        const Result<> res = fileAccess->init(previousBridge, *envResult, /*deleteOnExit=*/false);
+        if (res)
+            return started(fileAccess);
+        qCDebug(windowsDeviceLog) << "Deployed CmdBridge unusable, replacing it:" << res.error();
+
+        // The replacement gets a fresh name, as this binary may still be locked by a bridge
+        // that has not exited yet. The file is ours, so remove it - Windows refuses while it
+        // is locked, which leaves it for the next connect to retry.
+        runPowerShell(ssh, "Remove-Item -LiteralPath " + psQuote(previousBridge.path())
+                               + " -Force -ErrorAction SilentlyContinue");
+    }
+
     auto fileAccess = std::make_shared<CmdBridge::FileAccess>(errorExitHandler);
     const CmdBridge::FileAccess::DeployResult res = fileAccess->deployAndInitWindows(
         Core::ICore::libexecPath(), rootPath, *envResult, upload);
     if (!res)
         return ResultError(res.error().message);
 
-    qCDebug(windowsDeviceLog) << "CmdBridge started on" << rootPath.toUserOutput();
-    return DeviceFileAccessPtr(fileAccess);
+    return started(fileAccess);
 }
 
 // WindowsDevicePrivate
@@ -1223,6 +1252,8 @@ public:
     void setupFileAccess(const Continuation<> &cont);
 
     WindowsDevice *q = nullptr;
+    // The CmdBridge binary deployed to the device, kept so that a reconnect reuses it.
+    FilePath m_bridgeExe;
     QMutex m_systemDriveMutex;
     std::optional<QString> m_systemDrive;
 };
@@ -1249,26 +1280,28 @@ void WindowsDevicePrivate::setupFileAccess(const Continuation<> &cont)
     };
 
     qCDebug(windowsDeviceLog) << "setupFileAccess: probing" << rootPath.toUserOutput();
-    QFuture<Result<DeviceFileAccessPtr>> future = Utils::asyncRun(
-        [ssh, rootPath, onBridgeExit]() -> Result<DeviceFileAccessPtr> {
+    QFuture<Result<BridgeDeployment>> future = Utils::asyncRun(
+        [ssh, rootPath, previousBridge = m_bridgeExe, onBridgeExit]() -> Result<BridgeDeployment> {
             if (const Result<> res = probeWindows(ssh); !res)
                 return ResultError(res.error());
-            // Prefer the fast CmdBridge; a null result means "keep the slow access".
-            const Result<DeviceFileAccessPtr> bridge = deployCmdBridge(ssh, rootPath, onBridgeExit);
+            // Prefer the fast CmdBridge; a null access means "keep the slow access".
+            const Result<BridgeDeployment> bridge
+                = deployCmdBridge(ssh, rootPath, previousBridge, onBridgeExit);
             if (bridge)
                 return bridge;
             qCDebug(windowsDeviceLog) << "CmdBridge unavailable, using slow access:"
                                       << bridge.error();
-            return DeviceFileAccessPtr();
+            return BridgeDeployment{};
         });
-    future.then(q, [this, cont, ssh](const Result<DeviceFileAccessPtr> &res) {
+    future.then(q, [this, cont, ssh](const Result<BridgeDeployment> &res) {
         q->setIsTesting(false);
         if (!res) {
             q->setFileAccess(nullptr);
             q->setDeviceState(IDevice::DeviceDisconnected);
             cont(ResultError(res.error()));
-        } else if (*res) {
-            q->setFileAccess(*res);
+        } else if (res->access) {
+            m_bridgeExe = res->bridge;
+            q->setFileAccess(res->access);
             q->setDeviceState(IDevice::DeviceReadyToUse);
             cont(ResultOk);
         } else {

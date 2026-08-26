@@ -70,6 +70,9 @@ public:
         const Utils::Environment &environment,
         bool deleteOnExit);
 
+    // The binary the bridge runs from, for a caller that wants to start the same one again.
+    Utils::FilePath bridgePath() const { return m_bridgePath; }
+
     // A system that only executes binaries carrying its own signature needs the
     // bridge prepared before it is uploaded.
     using ExecutablePreparer = std::function<Utils::Result<QByteArray>(const QByteArray &)>;
@@ -151,6 +154,7 @@ protected:
 
 private:
     std::unique_ptr<CmdBridge::Client> m_client;
+    Utils::FilePath m_bridgePath;
     QString m_pidMarker;
     bool m_started = false;
     ExecutablePreparer m_executablePreparer;

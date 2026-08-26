@@ -94,6 +94,7 @@ Result<> FileAccess::init(
     const FilePath &pathToBridge, const Environment &environment, bool deleteOnExit)
 {
     m_environment = environment;
+    m_bridgePath = pathToBridge;
     m_client = std::make_unique<Client>(pathToBridge, environment);
     m_client->setPidMarker(m_pidMarker);
     if (m_errorExitHandler) {
