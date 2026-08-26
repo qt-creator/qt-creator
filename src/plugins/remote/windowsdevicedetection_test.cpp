@@ -157,6 +157,29 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     QVERIFY2(waitFor([&] { return !deviceToolchains().isEmpty(); }, 30 * 1000),
              "No toolchains were detected for the device.");
 
+    // clang-cl installed on the device must be found too, and paired with an MSVC from the
+    // same machine - the pairing supplies the vcvars environment it needs.
+    const auto deviceClangCl = [&] {
+        return Utils::filtered(ToolchainManager::toolchains(), [&](Toolchain *tc) {
+            return tc->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID
+                   && tc->compilerCommand().isSameDevice(deviceRoot);
+        });
+    };
+    // Whether the machine has LLVM installed is not this test's business, but if it has, the
+    // detection must find it.
+    const bool deviceHasClangCl
+        = deviceRoot.withNewPath("C:/Program Files/LLVM/bin/clang-cl.exe").isExecutableFile();
+    if (deviceHasClangCl) {
+        QVERIFY2(waitFor([&] { return !deviceClangCl().isEmpty(); }, 60 * 1000),
+                 "clang-cl is installed on the device but was not detected.");
+        for (Toolchain *tc : deviceClangCl()) {
+            qDebug().noquote() << "clang-cl:" << tc->displayName()
+                               << tc->compilerCommand().toUserOutput();
+        }
+    } else {
+        qWarning("No LLVM on the device, so the clang-cl detection is not covered here.");
+    }
+
     const auto deviceKits = [&] {
         return Utils::filtered(KitManager::kits(), [&](Kit *k) {
             return k->detectionSource().id.startsWith(sourceId);

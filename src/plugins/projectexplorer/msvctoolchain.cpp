@@ -298,6 +298,31 @@ static QList<VisualStudioInstallation> detectCppBuildTools2017(const FilePath &r
     return {installation};
 }
 
+// Where the standalone LLVM installer put itself, as recorded in the registry. QSettings can
+// only read the host's registry, so on a device this asks reg.exe. Returns an empty path when
+// no such installation is registered.
+static FilePath remoteLlvmInstallDir(const FilePath &root)
+{
+    for (const QString &key : {QString("HKLM\\SOFTWARE\\WOW6432Node\\LLVM\\LLVM"),
+                               QString("HKLM\\SOFTWARE\\LLVM\\LLVM")}) {
+        Process reg;
+        reg.setCommand({root.withNewPath("reg.exe"), {"query", key, "/ve"}});
+        reg.runBlocking(std::chrono::seconds(30));
+        if (reg.result() != ProcessResult::FinishedWithSuccess)
+            continue;
+        // "    (Default)    REG_SZ    C:\Program Files\LLVM"
+        for (const QString &line : reg.cleanedStdOut().split('\n')) {
+            const int typeEnd = line.indexOf("REG_SZ");
+            if (typeEnd < 0)
+                continue;
+            const QString dir = line.mid(typeEnd + 6).trimmed();
+            if (!dir.isEmpty())
+                return root.withNewPath(QString(dir).replace('\\', '/'));
+        }
+    }
+    return {};
+}
+
 static FilePath vswherePath(const FilePath &root)
 {
     return windowsProgramFilesDir(root) / "Microsoft Visual Studio/Installer/vswhere.exe";
@@ -1907,11 +1932,14 @@ static const MsvcToolchain *selectMsvcToolChain(const QString &displayedVarsBat,
     flavors << Abi::WindowsMsvc2015Flavor << Abi::WindowsMsvc2013Flavor;
     for (const Abi::OSFlavor flavor : std::as_const(flavors)) {
         if (const auto tc = Utils::findOrDefault(g_availableMsvcToolchains,
-                                                 [&clangClInfo, flavor](const MsvcToolchain *tc) {
+                                                 [&clangClInfo, &clangClPath, flavor](
+                                                     const MsvcToolchain *tc) {
                                                      const Abi abi = tc->targetAbi();
                                                      return abi.osFlavor() == flavor
                                                             && abi.isCompatibleWith(
                                                                 clangClInfo.defaultAbi())
+                                                            && tc->varsBat().isSameDevice(
+                                                                clangClPath)
                                                             && tc->hostPrefersToolchain();
                                                  })) {
             return tc;
@@ -2450,7 +2478,7 @@ public:
         setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
         setSupportedToolchainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
         setToolchainConstructor([] { return new ClangClToolchain; });
-        setUserCreatable(true);
+        setUserCreatable(HostOsInfo::isWindowsHost());
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
@@ -2496,10 +2524,10 @@ static ExecutableItem detectClangClRecipe(const FilePath &vswhere)
 
 Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
-    if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        // FIXME currently no support for msvc toolchains on a device
+    // Anything that is not a Windows machine has no clang-cl to find - that covers the local
+    // desktop of a Linux or macOS host as well as a remote Linux device.
+    if (detector.device->rootPath().osType() != OsTypeWindows)
         return {};
-    }
 #ifdef Q_OS_WIN64
     const char registryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\LLVM\\LLVM";
 #else
@@ -2531,6 +2559,14 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
         }
     }
 
+    if (!deviceRoot.isLocal()) {
+        const FilePath clangCl = remoteLlvmInstallDir(deviceRoot) / "bin/clang-cl.exe";
+        if (clangCl.isExecutableFile()) {
+            results.append(detectClangClToolChainInPath(clangCl, known, ""));
+            known.append(results);
+        }
+    }
+
     const Environment environment = deviceRoot.deviceEnvironment();
     const FilePath clangClPath
         = environment.searchInPath("clang-cl.exe", {}, {}, FilePath::WithAnySuffix, deviceRoot);
@@ -2554,9 +2590,9 @@ void setupMsvcToolchain()
 
 void setupClangClToolchain()
 {
-#ifdef Q_OS_WIN
+    // Registered on all hosts, like the MSVC factory, so clang-cl can be auto-detected on a
+    // remote Windows device.
     static GuardedObject<ClangClToolchainFactory> theClangClToolchainFactory;
-#endif
 }
 
 ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
