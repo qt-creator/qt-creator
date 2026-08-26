@@ -6,6 +6,7 @@
 #include "powershellutils.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
+#include "sshconnectionsharing.h"
 #include "sshdevicewizard.h"
 #include "sshkeycreationdialog.h"
 #include "windowsdevicetester.h"
@@ -82,6 +83,7 @@ static CommandLine sshCommandLine(const SshParameters &ssh, const QString &remot
     // turning a dropped connection into a silent, empty result. ssh's stderr is ignored
     // on success anyway.
     cmd.addArgs(ssh.connectionOptions(sshBinary));
+    cmd.addArgs(Internal::sharedConnectionOptions(ssh));
     cmd.addArg(ssh.host());
     cmd.addArg(remoteCommand);
     return cmd;
@@ -233,6 +235,8 @@ CommandLine WindowsProcessInterface::fullLocalCommandLine()
     }
 
     cmd.addArgs(sshParameters.connectionOptions(sshBinary));
+    if (forwardPort.isEmpty())
+        cmd.addArgs(Internal::sharedConnectionOptions(sshParameters));
     cmd.addArg(sshParameters.host());
 
     // Re-assemble the remote command without the "ssh://host" prefix. The remote
@@ -1121,6 +1125,7 @@ static Result<DeviceFileAccessPtr> deployCmdBridge(const SshParameters &ssh,
 
         CommandLine sftpCmd{sftpBinary};
         sftpCmd.addArgs(ssh.connectionOptions(sftpBinary));
+        sftpCmd.addArgs(Internal::sharedConnectionOptions(ssh));
         sftpCmd.addArgs({"-b", "-"}); // read the batch of commands from stdin
         sftpCmd.addArg(ssh.host());
 
@@ -1255,6 +1260,7 @@ WindowsDevice::WindowsDevice()
 
 WindowsDevice::~WindowsDevice()
 {
+    Internal::closeSharedConnections(sshParameters());
     delete d;
 }
 
