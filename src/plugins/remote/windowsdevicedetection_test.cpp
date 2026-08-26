@@ -461,17 +461,13 @@ void WindowsDeviceDetectionTest::testRunsInTheDeviceUsersSession()
         QCOMPARE(loop.exec(), 0);
     }
 
-    // Whether the device user is logged on, and to what, is a property of the machine, not
-    // of the code under test.
+    // Whether the device user is logged on at all is a property of the machine, not of the
+    // code under test.
     const QString user = params.userName().section('\\', -1).section('@', 0, 0);
     const QString session = userSession(deviceRoot, user);
     if (session.isEmpty())
         QSKIP("The device user is not logged on, so there is no session to launch into.");
     qDebug().noquote() << "Device user" << user << "is logged on to session" << session;
-    // Only an active session is launched into, so one left disconnected gives the run
-    // nowhere to go.
-    if (session.section(' ', 1).compare("Active", Qt::CaseInsensitive) != 0)
-        QSKIP("The device user's session is disconnected, so nothing is launched into it.");
     const QString desktopSession = session.section(' ', 0, 0);
 
     // A private copy, so the sessions found below can only be this test's own process. It is

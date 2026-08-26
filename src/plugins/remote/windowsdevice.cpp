@@ -448,6 +448,7 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     script += "$err = " + psQuote((dir / "err.txt").nativePath()) + "\n";
     script += "$done = " + psQuote((dir / "exit.txt").nativePath()) + "\n";
     script += "$started = " + psQuote((dir / "started.txt").nativePath()) + "\n";
+    script += "$note = " + psQuote((dir / "note.txt").nativePath()) + "\n";
     script += "$exe = " + psQuote(remoteCommand.executable().nativePath()) + "\n";
     script += "$tn = " + psQuote("qtc_run_" + id) + "\n";
     script += "$self = " + psQuote(self) + "\n\n";
@@ -515,6 +516,7 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     script += "    $wanted = " + psQuote(sessionUser) + "\n";
     script += "    $wtsUserName = 5\n";
     script += "    $sid = -1\n";
+    script += "    $active = $false\n";
     script += "    $qfail = ''; $qerr = 0\n";
     script += "    $pInfo = [IntPtr]::Zero; $count = 0\n";
     script += "    if ([Qtc.Native]::WTSEnumerateSessions([IntPtr]::Zero, 0, 1, [ref]$pInfo, [ref]$count)) {\n";
@@ -522,7 +524,7 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     script += "        for ($i = 0; $i -lt $count; $i++) {\n";
     script += "            $e = [Runtime.InteropServices.Marshal]::PtrToStructure("
               "[IntPtr]([int64]$pInfo + $i * $sz), [type]'Qtc.Native+WTS_SESSION_INFO')\n";
-    script += "            if ($e.State -ne 0) { continue }\n";
+    script += "            if ($e.State -ne 0 -and $e.State -ne 4) { continue }\n";
     script += "            $pName = [IntPtr]::Zero; $nameBytes = 0\n";
     script += "            $owner = ''\n";
     script += "            if ([Qtc.Native]::WTSQuerySessionInformation([IntPtr]::Zero,"
@@ -531,7 +533,9 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     script += "                [Qtc.Native]::WTSFreeMemory($pName)\n";
     script += "            } elseif (-not $qfail) { $qfail = 'WTSQuerySessionInformation';"
               " $qerr = (& $le) }\n";
-    script += "            if ($owner -ieq $wanted) { $sid = [int]$e.SessionId; break }\n";
+    script += "            if ($owner -ine $wanted) { continue }\n";
+    script += "            if ($e.State -eq 0) { $sid = [int]$e.SessionId; $active = $true; break }\n";
+    script += "            if ($sid -lt 0) { $sid = [int]$e.SessionId }\n";
     script += "        }\n";
     script += "        [Qtc.Native]::WTSFreeMemory($pInfo)\n";
     script += "    } else { $qfail = 'WTSEnumerateSessions'; $qerr = (& $le) }\n";
@@ -541,7 +545,12 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
               " + ' failed err=' + $qerr); return }\n";
     script += "    if ($sid -lt 0) { Add-Content -Path $err -Value ('qtc: ' + "
               + psQuote(sessionUser)
-              + " + ' has no active interactive session on the device.'); return }\n";
+              + " + ' is not logged on to the device, so there is no desktop to run on.');"
+                " return }\n";
+    script += "    if (-not $active) { Set-Content -Path $note -Value ('qtc: session ' + $sid"
+              " + ' of ' + " + psQuote(sessionUser) + " + ' is disconnected. The application runs"
+              " in it, but its window becomes visible only when that session is reconnected.')"
+              " }\n";
     script += "    $tok = [IntPtr]::Zero\n";
     script += "    if (-not [Qtc.Native]::WTSQueryUserToken([uint32]$sid, [ref]$tok)) "
               "{ Add-Content -Path $err -Value ('qtc: WTSQueryUserToken failed err=' + (& $le)); return }\n";
@@ -595,6 +604,7 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     script += "}\n";
     script += "while (-not (Test-Path $done)) { Start-Sleep -Milliseconds 300 }\n";
     script += "schtasks /delete /f /tn $tn 2>&1 | Out-Null\n";
+    script += "if (Test-Path $note) { [Console]::Error.Write((Get-Content -Raw $note)) }\n";
     script += "if (Test-Path $out) { [Console]::Out.Write((Get-Content -Raw $out)) }\n";
     script += "if (Test-Path $err) { [Console]::Error.Write((Get-Content -Raw $err)) }\n";
     // The status travels back as the exit code of the SSH connection, which carries only its low
