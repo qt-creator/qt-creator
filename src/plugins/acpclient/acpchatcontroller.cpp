@@ -489,6 +489,19 @@ void AcpChatController::onInitializeResult(const InitializeResponse &response)
     emit sessionSelectionRequired();
 }
 
+// Agents may insist on the MCP server name charset, so map anything else to '_'.
+static QString mcpServerName(const QString &name)
+{
+    QString result = name;
+    for (QChar &c : result) {
+        const bool allowed = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+                             || (c >= '0' && c <= '9') || c == '_' || c == '-';
+        if (!allowed)
+            c = '_';
+    }
+    return result;
+}
+
 static QList<McpServer> buildMcpServers()
 {
     auto generateHeaders = [](const QStringList &headers) {
@@ -510,7 +523,8 @@ static QList<McpServer> buildMcpServers()
             const QString command = commandLine.executable().toUserOutput();
             const QStringList args = ProcessArgs::splitArgs(
                 commandLine.arguments(), HostOsInfo::hostOs());
-            auto stdioServer = McpServerStdio().name(info.name).command(command).args(args);
+            auto stdioServer
+                = McpServerStdio().name(mcpServerName(info.name)).command(command).args(args);
             if (info.envChanges.hasItems()) {
                 QList<EnvVariable> envVars;
                 for (const EnvironmentItem &item : info.envChanges.itemsFromUser()) {
@@ -526,14 +540,16 @@ static QList<McpServer> buildMcpServers()
             QTC_ASSERT(std::holds_alternative<QUrl>(info.launchInfo), continue);
             const QString url = std::get<QUrl>(info.launchInfo).toString();
             const QList<HttpHeader> headers = generateHeaders(info.httpHeaders);
-            mcpServers.append(McpServerSse().name(info.name).url(url).headers(headers));
+            mcpServers.append(
+                McpServerSse().name(mcpServerName(info.name)).url(url).headers(headers));
             break;
         }
         case Core::McpManager::Streamable_Http: {
             QTC_ASSERT(std::holds_alternative<QUrl>(info.launchInfo), continue);
             const QString url = std::get<QUrl>(info.launchInfo).toString();
             const QList<HttpHeader> headers = generateHeaders(info.httpHeaders);
-            mcpServers.append(McpServerHttp().name(info.name).url(url).headers(headers));
+            mcpServers.append(
+                McpServerHttp().name(mcpServerName(info.name)).url(url).headers(headers));
             break;
         }
         }
