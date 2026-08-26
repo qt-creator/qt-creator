@@ -704,15 +704,57 @@ static QJsonObject projectKits(const QString &projectName, const QString &projec
         {"kits", kits}};
 }
 
-// Resolves a kit by its id first (ids are unique), then falls back to an exact
-// display-name match. Returns nullptr if nothing matches.
-static Kit *resolveKit(const QString &identifier)
+// Resolves a kit by id or, failing that, by display name. A name several kits share is
+// refused rather than resolved to the first match, since nothing tells them apart. The
+// error is the tool reply for the failure, so each tool reports the same way.
+struct KitResolution
 {
-    if (identifier.isEmpty())
-        return nullptr;
-    if (Kit *byId = KitManager::kit(Utils::Id::fromString(identifier)))
-        return byId;
-    return KitManager::kit([&identifier](const Kit *k) { return k->displayName() == identifier; });
+    Kit *kit = nullptr;
+    QJsonObject error;
+};
+
+static KitResolution resolveKit(const QString &kitIdentifier)
+{
+    if (kitIdentifier.isEmpty()) {
+        return {nullptr, {{"success", false}, {"reason", "no_kit"},
+                          {"message", "No kit specified."}}};
+    }
+
+    if (Kit * const kit = KitManager::kit(Utils::Id::fromString(kitIdentifier)))
+        return {kit, {}};
+
+    const QList<Kit *> byName = Utils::filtered(
+        KitManager::kits(),
+        [&kitIdentifier](const Kit *k) { return k->displayName() == kitIdentifier; });
+    if (byName.size() == 1)
+        return {byName.first(), {}};
+
+    if (byName.size() > 1) {
+        QJsonArray candidates;
+        for (const Kit *k : byName)
+            candidates.append(kitInfoObject(k));
+        return {nullptr, {{"success", false},
+                          {"reason", "ambiguous_name"},
+                          {"message", QString("%1 kits are called \"%2\"; pass a kit id instead.")
+                                          .arg(byName.size())
+                                          .arg(kitIdentifier)},
+                          {"candidates", candidates}}};
+    }
+
+    return {nullptr, {{"success", false},
+                      {"reason", "not_found"},
+                      {"message", QString("No kit matching \"%1\".").arg(kitIdentifier)}}};
+}
+
+// The same failure as one entry of a tool that works through a list of kits.
+static QJsonObject kitResolutionResult(const QString &kitIdentifier, const QJsonObject &error)
+{
+    QJsonObject result{{"kit", kitIdentifier},
+                       {"status", error.value("reason")},
+                       {"message", error.value("message")}};
+    if (error.contains("candidates"))
+        result.insert("candidates", error.value("candidates"));
+    return result;
 }
 
 // Adds a build target for each requested kit to a project. `kitIdentifiers` may
@@ -733,13 +775,12 @@ static QJsonObject addKitsToProject(
     QJsonArray results;
     int addedCount = 0;
     for (const QString &identifier : kitIdentifiers) {
-        Kit *kit = resolveKit(identifier);
-        if (!kit) {
-            results.append(QJsonObject{
-                {"kit", identifier}, {"status", "not_found"},
-                {"message", QString("No kit matching '%1'.").arg(identifier)}});
+        const KitResolution kitResolution = resolveKit(identifier);
+        if (!kitResolution.kit) {
+            results.append(kitResolutionResult(identifier, kitResolution.error));
             continue;
         }
+        Kit * const kit = kitResolution.kit;
         if (project->target(kit)) {
             results.append(QJsonObject{
                 {"kit", kit->displayName()}, {"id", kit->id().toString()},
@@ -770,6 +811,93 @@ static QJsonObject addKitsToProject(
         {"results", results}};
 }
 
+// Renames a kit, as editing its name on the Kits preferences page does. A display name
+// shared by several kits has to be told apart by id, which is the case renaming is for.
+static QJsonObject renameKit(const QString &kitIdentifier, const QString &name)
+{
+    if (name.isEmpty())
+        return {{"success", false}, {"reason", "no_name"}, {"message", "No name specified."}};
+
+    const KitResolution resolution = resolveKit(kitIdentifier);
+    if (!resolution.kit)
+        return resolution.error;
+    Kit * const kit = resolution.kit;
+
+    const QString previous = kit->displayName();
+    kit->setUnexpandedDisplayName(name);
+
+    // The name is not made unique here, as it is for a clone on the Kits page: a caller
+    // may want one deliberately, in two steps. But sharing one is what this tool exists
+    // to undo, so it is reported rather than left to be discovered.
+    const QList<Kit *> sharing = Utils::filtered(KitManager::kits(), [kit](const Kit *k) {
+        return k != kit && k->displayName() == kit->displayName();
+    });
+    QJsonArray shared;
+    for (const Kit *k : sharing)
+        shared.append(kitInfoObject(k));
+
+    QString message = QString("Kit \"%1\" is now called \"%2\".").arg(previous, kit->displayName());
+    if (sharing.size() == 1) {
+        message += QString(" One other kit carries that name as well; kits sharing a name "
+                           "share a build directory.");
+    } else if (sharing.size() > 1) {
+        message += QString(" %1 other kits carry that name as well; kits sharing a name "
+                           "share a build directory.").arg(sharing.size());
+    }
+
+    return {
+        {"success", true},
+        {"reason", "ok"},
+        {"message", message},
+        {"previous_name", previous},
+        {"kit", kitInfoObject(kit)},
+        {"shared_name", !sharing.isEmpty()},
+        {"shares_name_with", shared}};
+}
+
+// Makes a project's target for a kit the active one, as choosing it in the kit selector
+// does. A display name shared by several kits is refused rather than guessed at, since
+// nothing distinguishes them; the id from kit_list always identifies one.
+static QJsonObject setActiveKit(
+    const QString &projectName, const QString &projectPath, const QString &kitIdentifier)
+{
+    const ProjectResolution resolution = resolveTargetProject(projectName, projectPath, true);
+    if (!resolution.project)
+        return resolution.error;
+    Project *project = resolution.project;
+
+    const KitResolution kitResolution = resolveKit(kitIdentifier);
+    if (!kitResolution.kit)
+        return kitResolution.error;
+    Kit * const kit = kitResolution.kit;
+
+    Target * const target = project->target(kit);
+    if (!target) {
+        return {
+            {"success", false},
+            {"reason", "kit_not_configured"},
+            {"message", QString("Project \"%1\" is not configured for kit \"%2\"; add it with "
+                                "kit_add_to_project first.")
+                            .arg(project->displayName(), kit->displayName())}};
+    }
+
+    const bool wasActive = project->activeTarget() == target;
+    project->setActiveTarget(target, SetActive::Cascade);
+
+    const QString message
+        = (wasActive ? QString("Kit \"%1\" was already active for project \"%2\".")
+                     : QString("Kit \"%1\" is now active for project \"%2\"."))
+              .arg(kit->displayName(), project->displayName());
+
+    return {
+        {"success", true},
+        {"reason", "ok"},
+        {"message", message},
+        {"project", projectInfoObject(project)},
+        {"kit", kitInfoObject(kit)},
+        {"already_active", wasActive}};
+}
+
 // Removes kits identified by kit id or display name. SDK-provided kits are refused (as in
 // the Kits preferences page), and so is a display name shared by several kits, since
 // removal is not undoable. Reports per-kit results without aborting on the first error.
@@ -781,35 +909,12 @@ static QJsonObject removeKits(const QStringList &kitIdentifiers)
     QList<Kit *> toRemove;
     QJsonArray results;
     for (const QString &identifier : kitIdentifiers) {
-        Kit *kit = KitManager::kit(Utils::Id::fromString(identifier));
-        if (!kit) {
-            const QList<Kit *> byName = Utils::filtered(
-                KitManager::kits(), [&identifier](const Kit *k) {
-                    return k->displayName() == identifier;
-                });
-            if (byName.size() > 1) {
-                QJsonArray candidates;
-                for (const Kit *candidate : byName)
-                    candidates.append(kitInfoObject(candidate));
-                results.append(QJsonObject{
-                    {"kit", identifier},
-                    {"status", "ambiguous_name"},
-                    {"message", QString("%1 kits are named '%2'. Pass a kit id instead.")
-                                    .arg(byName.size())
-                                    .arg(identifier)},
-                    {"candidates", candidates}});
-                continue;
-            }
-            if (!byName.isEmpty())
-                kit = byName.first();
-        }
-        if (!kit) {
-            results.append(QJsonObject{
-                {"kit", identifier},
-                {"status", "not_found"},
-                {"message", QString("No kit matching '%1'.").arg(identifier)}});
+        const KitResolution resolution = resolveKit(identifier);
+        if (!resolution.kit) {
+            results.append(kitResolutionResult(identifier, resolution.error));
             continue;
         }
+        Kit * const kit = resolution.kit;
         if (kit->detectionSource().isSdkProvided()) {
             results.append(QJsonObject{
                 {"kit", kit->displayName()},
@@ -3403,6 +3508,97 @@ void registerMcpTools()
                 kits.append(v.toString());
             return addKitsToProject(
                 p.value("project_name").toString(), p.value("project_path").toString(), kits);
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("kit_rename")
+            .title("Rename a kit")
+            .description(
+                "Gives a kit another display name, as editing it on the Kits preferences page "
+                "does. Worth knowing why it matters: the default build directory of a project "
+                "is derived from the kit name, so two kits that share one name also share one "
+                "build directory and overwrite each other's configuration. Kits generated per "
+                "Qt version collide that way when the versions carry the same version number "
+                "and ABI. The kit may be given by id or display name (see kit_list); a name "
+                "several kits share has to be told apart by id, which is the case this is for.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "kit",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Kit id or current display name."}})
+                    .addProperty(
+                        "name",
+                        QJsonObject{{"type", "string"}, {"description", "The new display name."}})
+                    .addRequired("kit")
+                    .addRequired("name"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("previous_name", QJsonObject{{"type", "string"}})
+                    .addProperty("kit", QJsonObject{{"type", "object"}})
+                    .addProperty("shared_name", QJsonObject{{"type", "boolean"}})
+                    .addProperty("shares_name_with", QJsonObject{{"type", "array"}})
+                    .addProperty("candidates", QJsonObject{{"type", "array"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            return renameKit(p.value("kit").toString(), p.value("name").toString());
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("kit_set_active")
+            .title("Set the active kit of a project")
+            .description(
+                "Makes the project build and run with one of the kits it is configured for, "
+                "as choosing it in the kit selector does. The kit may be given by id or "
+                "display name (see kit_list, and kit_list_for_project for which are configured "
+                "and which is active); a display name that several kits share is refused, so "
+                "use the id to tell them apart. Defaults to the active startup project when "
+                "neither project_name nor project_path is given.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "kit",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Kit id or display name to make active."}})
+                    .addProperty(
+                        "project_name",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Display name of the project. Optional; defaults to the active "
+                             "startup project."}})
+                    .addProperty(
+                        "project_path",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the project file. Unambiguously identifies "
+                             "the project and takes precedence over project_name."}})
+                    .addRequired("kit"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("success", QJsonObject{{"type", "boolean"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty("project", QJsonObject{{"type", "object"}})
+                    .addProperty("kit", QJsonObject{{"type", "object"}})
+                    .addProperty("already_active", QJsonObject{{"type", "boolean"}})
+                    .addProperty("candidates", QJsonObject{{"type", "array"}})
+                    .addRequired("success")),
+        wrap([](const QJsonObject &p) {
+            return setActiveKit(
+                p.value("project_name").toString(),
+                p.value("project_path").toString(),
+                p.value("kit").toString());
         }));
 
     ToolRegistry::registerTool(
