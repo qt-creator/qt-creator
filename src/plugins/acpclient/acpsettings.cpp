@@ -428,10 +428,10 @@ public:
 
             const auto updateCmdInfo = [templateCmdInfo, cmdNotFoundLabel, this]() {
                 const bool isCustom = registryBrowser.volatileValue().isEmpty();
-                const FilePath executable = launchCommand.expandedValue();
+                const FilePath executable = launchCommand.expandedVolatileValue();
                 const QString info = QString("%1 %2")
                                          .arg(executable.toUserOutput())
-                                         .arg(launchArguments());
+                                         .arg(launchArguments.volatileValue());
                 templateCmdInfo->setText(info);
                 templateCmdInfo->setVisible(!isCustom);
                 const bool executableCanBeFound
@@ -523,12 +523,12 @@ public:
             return;
         }
         const Acp::Registry::ACPAgent &selectedAgent = *agent;
-        name.setValue(selectedAgent.name());
-        iconUrl.setValue(selectedAgent.icon().value_or(QString()));
+        name.setVolatileValue(selectedAgent.name());
+        iconUrl.setVolatileValue(selectedAgent.icon().value_or(QString()));
 
         if (selectedAgent.distribution().binary()) {
             const FilePath stubPath = (appInfo().libexec / "dlwrapper").withExecutableSuffix();
-            launchCommand.setValue(stubPath);
+            launchCommand.setVolatileValue(stubPath.toUserOutput());
 
             const QMap<QPair<OsType, OsArch>, std::optional<Acp::Registry::binaryTarget>>
                 platformToBinary{
@@ -561,19 +561,19 @@ public:
             const QString cmdLine
                 = (QStringList{binary.cmd()} + binary.args().value_or(QStringList{})).join(" ");
 
-            launchArguments.setValue(QString("--download %1 --version %2 %3 %4")
-                                         .arg(binary.archive())
-                                         .arg(selectedAgent.version())
-                                         .arg(envChanges.join(" "))
-                                         .arg(cmdLine));
+            launchArguments.setVolatileValue(QString("--download %1 --version %2 %3 %4")
+                                                 .arg(binary.archive())
+                                                 .arg(selectedAgent.version())
+                                                 .arg(envChanges.join(" "))
+                                                 .arg(cmdLine));
         } else if (selectedAgent.distribution().npx()) {
-            launchCommand.setValue(FilePath("npx"));
-            launchArguments.setValue(
+            launchCommand.setVolatileValue("npx");
+            launchArguments.setVolatileValue(
                 selectedAgent.distribution().npx()->package() + " "
                 + selectedAgent.distribution().npx()->args().value_or(QStringList{}).join(" "));
         } else if (selectedAgent.distribution().uvx()) {
-            launchCommand.setValue(FilePath("uvx"));
-            launchArguments.setValue(
+            launchCommand.setVolatileValue("uvx");
+            launchArguments.setVolatileValue(
                 selectedAgent.distribution().uvx()->package() + " "
                 + selectedAgent.distribution().uvx()->args().value_or(QStringList{}).join(" "));
         }
@@ -760,7 +760,7 @@ QList<AcpSettings::RegistryAgent> AcpSettings::unconfiguredRegistryAgents()
 void AcpSettings::addServerFromRegistry(const QString &registryId)
 {
     auto server = std::make_shared<AcpServerAspect>();
-    server->registryBrowser.setValue(registryId);
+    server->registryBrowser.setVolatileValue(registryId);
 
     AspectList &servers = AcpManagerSettings::instance().acpServers;
     servers.addItem(server);
@@ -901,12 +901,19 @@ static void refillRegistryBrowsers()
 
 static void applyRegistryToServers()
 {
-    AcpManagerSettings::instance().acpServers.forEachItem(
+    AspectList &servers = AcpManagerSettings::instance().acpServers;
+    // Applying a template fills volatile values, so it would overwrite and
+    // persist changes that the settings page has not confirmed yet.
+    if (servers.isDirty())
+        return;
+
+    servers.forEachItem(
         [](const std::shared_ptr<AcpServerAspect> &server) {
             server->applyRegistryTemplate();
         });
+    // apply() reports the change, which AcpSettings turns into serversChanged().
+    servers.apply();
     AcpManagerSettings::instance().writeSettings();
-    emit AcpSettings::instance().serversChanged();
 }
 
 void AcpSettings::fetchRegistry()
