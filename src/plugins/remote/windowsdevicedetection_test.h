@@ -18,6 +18,7 @@ class WindowsDeviceDetectionTest : public QObject
 private slots:
     void testDetectToolchainsAndCreateKit();
     void testRunsInTheDeviceUsersSession();
+    void testRunsWithoutADesktopSession();
     void testStopKillsTheRemoteApplication();
 };
 

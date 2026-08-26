@@ -516,6 +516,88 @@ void WindowsDeviceDetectionTest::testRunsInTheDeviceUsersSession()
     QCOMPARE(appSession, desktopSession);
 }
 
+// With nobody logged on there is no desktop to launch into, and refusing to run would make
+// an unattended machine useless for anything - a test binary needs no window. The run has to
+// happen anyway, in whatever session is available.
+void WindowsDeviceDetectionTest::testRunsWithoutADesktopSession()
+{
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::checkParameters(params)) {
+        SshTest::printSetupHelp();
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST/USER/... (or QTC_SSH_TEST_*) to a reachable "
+              "Windows-over-SSH host.");
+    }
+
+    auto windowsDeviceFactory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
+              return f->deviceType() == Constants::GenericWindowsOsType;
+          });
+    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
+    const IDevicePtr device = windowsDeviceFactory->construct();
+    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
+    device->sshParametersAspectContainer().setSshParameters(params);
+    DeviceManager::addDevice(device);
+
+    const Id deviceId = device->id();
+    const FilePath deviceRoot = device->rootPath();
+    const QScopeGuard removeDevice([&] { DeviceManager::removeDevice(deviceId); });
+
+    {
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        QObject::connect(&timeout, &QTimer::timeout, &loop, [&] { loop.exit(1); });
+        timeout.start(60 * 1000);
+        device->tryToConnect(Continuation<>(this, [&](const Result<> &res) {
+            loop.exit(res ? 0 : 1);
+        }));
+        QCOMPARE(loop.exec(), 0);
+    }
+
+    const QString user = params.userName().section('\\', -1).section('@', 0, 0);
+    if (!userSession(deviceRoot, user).isEmpty())
+        QSKIP("The device user is logged on, so this is not the unattended case.");
+
+    const QString appName = "qtc-nodesk-test-" + QUuid::createUuid().toString(QUuid::Id128);
+    const FilePath appOnDevice = deviceRoot.withNewPath("C:/Users/Public/" + appName + ".exe");
+    QVERIFY2(bool(deviceRoot.withNewPath("C:/Windows/System32/ping.exe").copyFile(appOnDevice)),
+             "Failed to copy the test application onto the device.");
+
+    Process app;
+    app.setCommand({appOnDevice, {"-n", "600", "127.0.0.1"}});
+    app.setExtraData(Constants::RunInInteractiveSession, true);
+    app.start();
+    const QScopeGuard killApp([&] {
+        Process killer;
+        killer.setCommand(
+            {deviceRoot.withNewPath("powershell.exe"),
+             {"-NoProfile", "-NonInteractive", "-EncodedCommand",
+              encodePowerShellCommand("Get-Process | Where-Object { $_.Name -eq '" + appName
+                                      + "' } | Stop-Process -Force")}});
+        killer.runBlocking(std::chrono::seconds(60));
+        if (killer.result() != ProcessResult::FinishedWithSuccess)
+            qWarning().noquote() << "Failed to stop" << appName << ":" << killer.allOutput();
+        if (!appOnDevice.removeFile())
+            qWarning().noquote() << "Failed to remove" << appOnDevice.path();
+    });
+
+    std::optional<QStringList> sessions;
+    const bool started = waitFor(
+        [&] {
+            sessions = processSessions(deviceRoot, appName);
+            return sessions && !sessions->isEmpty();
+        },
+        90 * 1000);
+    if (!started)
+        qDebug().noquote() << "The launcher reported:" << app.allOutput();
+    QVERIFY2(sessions, "The device could not be asked which session the application runs in.");
+    QVERIFY2(started, "The application did not run on an unattended device.");
+
+    // In the SSH session, which is what is left when nobody is logged on - and never in the
+    // session of some other user who happens to be.
+    QCOMPARE(sessions->first(), QString("0"));
+}
+
 // Stopping a run must end the application on the device, not just the SSH connection that
 // carried it. The victim is a private copy of ping.exe, so the check cannot be confused by
 // another instance of a system binary, and killing it cannot disturb anything else.
