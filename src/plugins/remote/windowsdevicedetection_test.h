@@ -17,6 +17,7 @@ class WindowsDeviceDetectionTest : public QObject
 
 private slots:
     void testDetectToolchainsAndCreateKit();
+    void testStopKillsTheRemoteApplication();
 };
 
 } // namespace Remote::Internal

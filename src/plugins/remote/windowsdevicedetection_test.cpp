@@ -3,6 +3,7 @@
 
 #include "windowsdevicedetection_test.h"
 
+#include "powershellutils.h"
 #include "windowsdevice.h"
 #include "remotelinux_constants.h"
 
@@ -56,6 +57,30 @@ static bool waitFor(const std::function<bool()> &predicate, int timeoutMs)
         loop.exec();
     }
     return predicate();
+}
+
+// The sessions a process runs in, empty when it does not run at all, and nothing when the
+// device could not be asked. Get-Process and not the device's process list: that one goes
+// through WMI, which a machine can deny to its own user. Filtering rather than -Name so
+// that finding nothing is a successful query, not a suppressed error.
+static std::optional<QStringList> processSessions(const FilePath &deviceRoot,
+                                                  const QString &imageName)
+{
+    Process query;
+    query.setCommand(
+        {deviceRoot.withNewPath("powershell.exe"),
+         {"-NoProfile", "-NonInteractive", "-EncodedCommand",
+          encodePowerShellCommand("Get-Process | Where-Object { $_.Name -eq '" + imageName
+                                  + "' } | ForEach-Object { $_.SessionId }")}});
+    query.runBlocking(std::chrono::seconds(60));
+    if (query.result() != ProcessResult::FinishedWithSuccess)
+        return std::nullopt;
+    QStringList result;
+    for (const QString &line : query.cleanedStdOut().split('\n')) {
+        if (!line.trimmed().isEmpty())
+            result.append(line.trimmed());
+    }
+    return result;
 }
 
 // Locates cmake.exe bundled with Qt under C:\Qt\Tools on the device (e.g. CMake_64\bin\cmake.exe).
@@ -375,6 +400,98 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
     QCOMPARE(run.result(), ProcessResult::FinishedWithSuccess);
     QVERIFY2(run.cleanedStdOut().contains("HELLO_FROM_DEVICE"),
              "The executable's output was not captured from the device.");
+}
+
+// Stopping a run must end the application on the device, not just the SSH connection that
+// carried it. The victim is a private copy of ping.exe, so the check cannot be confused by
+// another instance of a system binary, and killing it cannot disturb anything else.
+void WindowsDeviceDetectionTest::testStopKillsTheRemoteApplication()
+{
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::checkParameters(params)) {
+        SshTest::printSetupHelp();
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST/USER/... (or QTC_SSH_TEST_*) to a reachable "
+              "Windows-over-SSH host.");
+    }
+
+    auto windowsDeviceFactory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
+              return f->deviceType() == Constants::GenericWindowsOsType;
+          });
+    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
+    const IDevicePtr device = windowsDeviceFactory->construct();
+    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
+    device->sshParametersAspectContainer().setSshParameters(params);
+    DeviceManager::addDevice(device);
+
+    const Id deviceId = device->id();
+    const FilePath deviceRoot = device->rootPath();
+    FilePath victim; // Named once the device can say where its temporary directory is.
+    const QScopeGuard cleanup([&] {
+        if (victim.isEmpty()) {
+            DeviceManager::removeDevice(deviceId);
+            return;
+        }
+        // A failing run leaves the victim behind, and Windows locks the image of a running
+        // process, so it has to go before its file can. taskkill and not the device's own
+        // kill by path: that is what the test is here to catch failing.
+        Process killer;
+        killer.setCommand({deviceRoot.withNewPath("C:/Windows/System32/taskkill.exe"),
+                           {"/F", "/IM", victim.fileName()}});
+        killer.runBlocking(std::chrono::seconds(60));
+        victim.removeFile();
+        DeviceManager::removeDevice(deviceId);
+    });
+
+    {
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        QObject::connect(&timeout, &QTimer::timeout, &loop, [&] { loop.exit(1); });
+        timeout.start(60 * 1000);
+        device->tryToConnect(Continuation<>(this, [&](const Result<> &res) {
+            loop.exit(res ? 0 : 1);
+        }));
+        QCOMPARE(loop.exec(), 0);
+    }
+
+    QString tempDir = device->systemEnvironment().value("TEMP");
+    if (tempDir.isEmpty())
+        tempDir = device->systemEnvironment().value("TMP");
+    QVERIFY2(!tempDir.isEmpty(), "The device reports no temporary directory.");
+    tempDir.replace('\\', '/');
+    // The device user's own directory: a machine can keep C:/Users/Public to itself.
+    victim = deviceRoot.withNewPath(
+        tempDir + "/qtc-stop-test-" + QUuid::createUuid().toString(QUuid::Id128) + ".exe");
+
+    const FilePath ping = deviceRoot.withNewPath("C:/Windows/System32/ping.exe");
+    QVERIFY2(ping.isExecutableFile(), "ping.exe was not found on the device.");
+    QVERIFY2(bool(ping.copyFile(victim)), "Failed to copy the test executable on the device.");
+
+    // By image name, which carries the uuid. A query that did not get through says nothing
+    // about the process, and taking it for an absent one would let the second wait below
+    // pass on the very thing it looks for.
+    const auto victimRuns = [&]() -> std::optional<bool> {
+        const std::optional<QStringList> sessions
+            = processSessions(deviceRoot, victim.completeBaseName());
+        if (!sessions)
+            return std::nullopt;
+        return !sessions->isEmpty();
+    };
+
+    Process app;
+    app.setCommand({victim, {"-n", "600", "127.0.0.1"}});
+    app.setExtraData(ProjectExplorer::Constants::IS_APPLICATION_RUN, true);
+    app.start();
+    QVERIFY2(app.waitForStarted(std::chrono::seconds(60)),
+             qPrintable("The test application did not start: " + app.errorString()));
+
+    QVERIFY2(waitFor([&] { return victimRuns() == std::optional(true); }, 90 * 1000),
+             "The application never appeared on the device.");
+
+    app.stop();
+    QVERIFY2(waitFor([&] { return victimRuns() == std::optional(false); }, 90 * 1000),
+             "Stopping the run left the application running on the device.");
 }
 
 } // namespace Remote::Internal

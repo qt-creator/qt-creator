@@ -964,6 +964,7 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         process.setWorkingDirectory(workingDirectory());
         process.setEnvironment(environment());
         process.setExtraData(extraData());
+        process.setExtraData(Constants::IS_APPLICATION_RUN, true);
 
         if (startModifier) {
             const SetupResult result = startModifier(process);
