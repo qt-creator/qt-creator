@@ -1229,6 +1229,7 @@ QString QtcBadge::text() const
 void QtcBadge::setText(const QString &text)
 {
     m_text = text;
+    updateGeometry();
     update();
 }
 
