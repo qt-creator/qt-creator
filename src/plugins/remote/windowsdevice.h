@@ -34,6 +34,8 @@ public:
     bool hasDeviceTester() const override { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() override;
 
+    bool canCreateProcessModel() const override { return true; }
+
     QString userAtHost() const;
     QString userAtHostAndPort() const;
 
