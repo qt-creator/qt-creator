@@ -218,6 +218,53 @@ static Result<QList<ProcessInfo>> getProcessesUsingPidin(const FilePath &deviceR
     return Utils::sorted(std::move(processes));
 }
 
+// -EncodedCommand takes base64 of UTF-16LE, which keeps the shell layers on the way to the
+// machine from misreading the script's quotes.
+static Result<QList<ProcessInfo>> processInfoListWindows(const FilePath &deviceRoot)
+{
+    const QString script
+        = "Get-CimInstance Win32_Process | ForEach-Object { \"$($_.ProcessId)`t"
+          "$($_.ExecutablePath)`t$($_.Name)`t$($_.CommandLine)\" }";
+    QByteArray utf16le;
+    utf16le.reserve(script.size() * 2);
+    for (const QChar c : script) {
+        const ushort unicode = c.unicode();
+        utf16le.append(char(unicode & 0xff));
+        utf16le.append(char((unicode >> 8) & 0xff));
+    }
+
+    const FilePath powerShell = deviceRoot.withNewPath("powershell.exe");
+    Process process;
+    process.setCommand({powerShell,
+                        {"-NoProfile", "-NonInteractive", "-EncodedCommand",
+                         QString::fromLatin1(utf16le.toBase64())}});
+    process.runBlocking();
+    if (!process.errorString().isEmpty()) {
+        return ResultError(Tr::tr("Failed to run %1: %2")
+                               .arg(powerShell.toUserOutput(), process.errorString()));
+    }
+    if (process.exitCode() != 0) {
+        return ResultError(Tr::tr("Failed to run %1: %2")
+                               .arg(powerShell.toUserOutput(), process.readAllStandardError()));
+    }
+
+    QList<ProcessInfo> processes;
+    const QStringList lines = process.readAllStandardOutput().split('\n');
+    for (const QString &line : lines) {
+        const QStringList fields = line.trimmed().split('\t');
+        if (fields.size() < 3)
+            continue;
+        const qint64 pid = fields.at(0).toLongLong();
+        if (pid <= 0)
+            continue;
+        const QString executable = fields.at(1).isEmpty() ? fields.at(2) : fields.at(1);
+        const QString commandLine = fields.size() > 3 && !fields.at(3).isEmpty() ? fields.at(3)
+                                                                                : executable;
+        processes.append({pid, executable, commandLine});
+    }
+    return processes;
+}
+
 static Result<QList<ProcessInfo>> processInfoListUnix(const FilePath &deviceRoot)
 {
     return getLocalProcessesUsingPs(deviceRoot)
@@ -242,7 +289,10 @@ Result<QList<ProcessInfo>> ProcessInfo::processInfoList(const FilePath &deviceRo
     if (deviceRoot.osType() != OsType::OsTypeWindows)
         return processInfoListUnix(deviceRoot);
 
-    if (HostOsInfo::isWindowsHost() && deviceRoot.isLocal()) {
+    if (!deviceRoot.isLocal())
+        return processInfoListWindows(deviceRoot);
+
+    if (HostOsInfo::isWindowsHost()) {
 #if defined(Q_OS_WIN)
         QList<ProcessInfo> processes;
 
