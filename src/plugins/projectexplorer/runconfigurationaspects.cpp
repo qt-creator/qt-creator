@@ -217,9 +217,14 @@ void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
     m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
 
     if (m_envAspect) {
-        connect(m_envAspect, &EnvironmentAspect::environmentChanged, this, [this] {
-            if (m_chooser)
-                m_chooser->setEnvironment(m_envAspect->environment());
+        connect(m_envAspect, &EnvironmentAspect::environmentChanged,
+                this, [this, self = QPointer(this)] {
+            // Evaluate the environment first: it reaches into device and kit
+            // machinery that can destroy the chooser or even this aspect, so
+            // both checks have to happen after it, not before.
+            const Environment env = m_envAspect->environment();
+            if (self && m_chooser)
+                m_chooser->setEnvironment(env);
         });
         m_chooser->setEnvironment(m_envAspect->environment());
     }
