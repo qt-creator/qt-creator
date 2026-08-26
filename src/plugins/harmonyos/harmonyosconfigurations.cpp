@@ -179,6 +179,7 @@ void updateAutomaticKitList()
         Sdk::lldbCommand(settings().sdkLocation()));
     const FilePath sysroot = Sdk::sysrootPath(settings().sdkLocation());
     const FilePath cmakeToolchainFile = Sdk::cmakeToolchainFile(settings().sdkLocation());
+    const FilePath additionalPackages = settings().additionalPackages();
 
     QList<Kit *> unhandledKits = existingKits;
     for (const ToolchainBundle &bundle : bundles) {
@@ -190,7 +191,8 @@ void updateAutomaticKitList()
                 return qt == QtKitAspect::qtVersion(b) && matchKit(bundle, *b);
             });
 
-            const auto initializeKit = [&bundle, qt, debuggerId, sysroot, cmakeToolchainFile](Kit *k) {
+            const auto initializeKit = [&bundle, qt, debuggerId, sysroot, cmakeToolchainFile,
+                                        additionalPackages](Kit *k) {
                 const auto source = qt->detectionSource().isAutoDetected()
                                         ? DetectionSource::FromSystem
                                         : DetectionSource::Manual;
@@ -209,6 +211,14 @@ void updateAutomaticKitList()
                         config.insert(CMakeConfigItem("QT_CHAINLOAD_TOOLCHAIN_FILE",
                                                       CMakeConfigItem::FILEPATH,
                                                       cmakeToolchainFile.path().toUtf8()));
+                    }
+                    // The path qt.toolchain.cmake looks for these under is the one of the
+                    // machine Qt was built on, so an installed Qt finds nothing there and
+                    // harmonydeployqt stages none of them.
+                    if (!additionalPackages.isEmpty()) {
+                        config.insert(CMakeConfigItem("QT_ADDITIONAL_PACKAGES_PREFIX_PATH",
+                                                      CMakeConfigItem::PATH,
+                                                      additionalPackages.path().toUtf8()));
                     }
                     CMakeConfigurationKitAspect::setConfiguration(k, config);
                 }

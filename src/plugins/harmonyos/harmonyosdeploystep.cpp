@@ -615,31 +615,6 @@ private:
             emit addOutput(removed.error(), OutputFormat::Stdout);
     }
 
-    // The libraries Qt needs at run time, which harmonydeployqt does not stage.
-    bool addAdditionalPackages()
-    {
-        const FilePath libs = settings().additionalPackages();
-        if (libs.isEmpty())
-            return true;
-
-        const FilePaths abiDirs = m_project.pathAppended("entry/libs").dirEntries(
-            FileFilter({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot));
-        for (const FilePath &abiDir : abiDirs) {
-            const FilePaths sources = libs.dirEntries(
-                FileFilter({"*.so"}, DirFilterFlag::Files));
-            for (const FilePath &source : sources) {
-                const FilePath target = abiDir / source.fileName();
-                if (target.exists())
-                    continue;
-                if (const Result<> copied = source.copyFile(target); !copied) {
-                    emit addOutput(copied.error(), OutputFormat::ErrorMessage);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     // The next generation replaces the project wholesale.
     bool keepPackage()
     {
@@ -664,8 +639,6 @@ private:
         using namespace QtTaskTree;
 
         const auto onSetup = [this](Process &process) {
-            if (!addAdditionalPackages())
-                return SetupResult::StopWithError;
             dropCMakeLeftovers();
             if (buildConfiguration()->buildType() == BuildConfiguration::Debug
                 && !shipDebugPlugin()) {
