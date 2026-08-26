@@ -132,6 +132,23 @@ static FilePath findGdbOnPath()
     return {};
 }
 
+// Auto-detection stays off on Windows, but an explicit override works there, too.
+static FilePath gdbPathForTest()
+{
+    const QString override = qtcEnvironmentVariable("QTC_GDB_PATH_FOR_TEST");
+    if (!override.isEmpty())
+        return FilePath::fromUserInput(override);
+    return HostOsInfo::isWindowsHost() ? FilePath() : findGdbOnPath();
+}
+
+static FilePath lldbPathForTest()
+{
+    const QString override = qtcEnvironmentVariable("QTC_LLDB_PATH_FOR_TEST");
+    if (!override.isEmpty())
+        return FilePath::fromUserInput(override);
+    return HostOsInfo::isWindowsHost() ? FilePath() : FilePath::fromString("lldb").searchInPath();
+}
+
 [[maybe_unused]] static int debuggerMajorVersion(const QString &versionLine)
 {
     static const QRegularExpression firstNumber("(\\d+)");
@@ -691,18 +708,13 @@ void tst_backends::initTestCase()
     QString lldbVersionLine;
 
     {
-        // Auto-detection stays off on Windows, but an explicit override works there, too.
-        const QString envGdb = qtcEnvironmentVariable("QTC_DEBUGGER_PATH_FOR_TEST");
-        const FilePath gdbPath = !envGdb.isEmpty() ? FilePath::fromUserInput(envGdb)
-                                 : HostOsInfo::isWindowsHost() ? FilePath() : findGdbOnPath();
+        const FilePath gdbPath = gdbPathForTest();
         if (gdbPath.isExecutableFile()) {
             m_backendData[Backend::Gdb].path = gdbPath;
             gdbVersionLine = versionLine(gdbPath);
         }
 
-        const QString envLldb = qtcEnvironmentVariable("QTC_LLDB_PATH_FOR_TEST");
-        const FilePath lldbPath = envLldb.isEmpty() ? FilePath::fromString("lldb").searchInPath()
-                                                    : FilePath::fromUserInput(envLldb);
+        const FilePath lldbPath = lldbPathForTest();
         if (lldbPath.isExecutableFile()) {
             m_backendData[Backend::Lldb].path = lldbPath;
             lldbVersionLine = versionLine(lldbPath);
@@ -711,7 +723,7 @@ void tst_backends::initTestCase()
 
     if (m_backendData.isEmpty())
         QSKIP("No supported debugger backend found - set "
-              "QTC_DEBUGGER_PATH_FOR_TEST to override.");
+              "QTC_GDB_PATH_FOR_TEST to override.");
 
     const QString envGdbserver = qtcEnvironmentVariable("QTC_GDBSERVER_PATH_FOR_TEST");
     m_gdbserverPath = envGdbserver.isEmpty() ? FilePath::fromString("gdbserver").searchInPath()
@@ -5147,7 +5159,7 @@ void tst_backends::attachesToCoreFile()
         QSKIP(qPrintable(result.error()));
 
     const FilePath gcorePath = FilePath::fromString("gcore").searchInPath();
-    const FilePath lldbPath = FilePath::fromString("lldb").searchInPath();
+    const FilePath lldbPath = lldbPathForTest();
     if (HostOsInfo::isMacHost() ? !lldbPath.isExecutableFile() : !gcorePath.isExecutableFile())
         QSKIP("No tool found to generate a core file for this test.");
 
