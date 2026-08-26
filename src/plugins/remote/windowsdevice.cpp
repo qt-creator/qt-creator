@@ -435,6 +435,12 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     const QString workingDir = m_setup.rawWorkingDirectory().isEmpty()
             ? QString() : m_setup.rawWorkingDirectory().nativePath();
 
+    // The application runs as the owner of the session it is launched into, so only the
+    // device's own account qualifies. A domain-qualified user name, in either notation,
+    // appears bare in the session list.
+    const QString deviceUser = m_device->sshParameters().userName();
+    const QString sessionUser = deviceUser.section('\\', -1).section('@', 0, 0);
+
     QString script;
     script += "param([string]$Mode = 'run')\n";
     script += "$ErrorActionPreference = 'SilentlyContinue'\n";
@@ -469,8 +475,7 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
 
     // "sys" mode: runs as SYSTEM (via a scheduled task the run mode creates). Only SYSTEM may call
     // WTSQueryUserToken, so this is where we cross from the invisible SSH session 0 onto the user's
-    // interactive desktop: resolve the desktop session (owner of explorer.exe - reliable on console
-    // or RDP, and even for a logged-on-but-disconnected session), grab that user's token, and
+    // interactive desktop: resolve the device user's desktop session, grab their token, and
     // CreateProcessAsUser the "app" mode into their session (winsta0\default) with their
     // environment. Failures are written to $err so the run mode can report them.
     script += "if ($Mode -eq 'sys') {\n";
@@ -481,6 +486,9 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     script += "public static extern int WTSEnumerateSessions(IntPtr hServer, int reserved, int version, out IntPtr ppSessionInfo, out int count);\n";
     script += "[DllImport(\"wtsapi32.dll\")]\n";
     script += "public static extern void WTSFreeMemory(IntPtr p);\n";
+    script += "[DllImport(\"wtsapi32.dll\", SetLastError=true, CharSet=CharSet.Unicode)]\n";
+    script += "public static extern bool WTSQuerySessionInformation(IntPtr hServer, uint SessionId,"
+              " int WTSInfoClass, out IntPtr ppBuffer, out uint pBytesReturned);\n";
     script += "[StructLayout(LayoutKind.Sequential)]\n";
     script += "public struct WTS_SESSION_INFO { public uint SessionId; public IntPtr pWinStationName; public int State; }\n";
     script += "[DllImport(\"advapi32.dll\", SetLastError=true)]\n";
@@ -499,23 +507,41 @@ QString WindowsProcessInterface::buildInteractiveRunRemoteCommand()
     script += "public static extern bool CreateProcessAsUser(IntPtr hToken, string app, string cmd, IntPtr pa, IntPtr ta,\n";
     script += "  bool inherit, uint flags, IntPtr env, string cwd, ref STARTUPINFO si, out PROCESS_INFORMATION pi);\n";
     script += "'@\n";
-    // Target the ACTIVE interactive session deterministically - the one a user is currently
-    // looking at - rather than an arbitrary logged-on session (WTS_CONNECTSTATE_CLASS.WTSActive
-    // is 0). If nothing is active, there is no visible desktop to run on, so report that.
+    // Target the ACTIVE interactive session (WTS_CONNECTSTATE_CLASS.WTSActive is 0) of the
+    // device's own user. The token comes from that session, so the application runs AS its
+    // owner, on their screen: another user's session is not ours to launch into, however
+    // active it is.
+    script += "    $le = { [Runtime.InteropServices.Marshal]::GetLastWin32Error() }\n";
+    script += "    $wanted = " + psQuote(sessionUser) + "\n";
+    script += "    $wtsUserName = 5\n";
     script += "    $sid = -1\n";
+    script += "    $qfail = ''; $qerr = 0\n";
     script += "    $pInfo = [IntPtr]::Zero; $count = 0\n";
     script += "    if ([Qtc.Native]::WTSEnumerateSessions([IntPtr]::Zero, 0, 1, [ref]$pInfo, [ref]$count)) {\n";
     script += "        $sz = [Runtime.InteropServices.Marshal]::SizeOf([type]'Qtc.Native+WTS_SESSION_INFO')\n";
     script += "        for ($i = 0; $i -lt $count; $i++) {\n";
     script += "            $e = [Runtime.InteropServices.Marshal]::PtrToStructure("
               "[IntPtr]([int64]$pInfo + $i * $sz), [type]'Qtc.Native+WTS_SESSION_INFO')\n";
-    script += "            if ($e.State -eq 0) { $sid = [int]$e.SessionId; break }\n";
+    script += "            if ($e.State -ne 0) { continue }\n";
+    script += "            $pName = [IntPtr]::Zero; $nameBytes = 0\n";
+    script += "            $owner = ''\n";
+    script += "            if ([Qtc.Native]::WTSQuerySessionInformation([IntPtr]::Zero,"
+              " [uint32]$e.SessionId, $wtsUserName, [ref]$pName, [ref]$nameBytes)) {\n";
+    script += "                $owner = [Runtime.InteropServices.Marshal]::PtrToStringUni($pName)\n";
+    script += "                [Qtc.Native]::WTSFreeMemory($pName)\n";
+    script += "            } elseif (-not $qfail) { $qfail = 'WTSQuerySessionInformation';"
+              " $qerr = (& $le) }\n";
+    script += "            if ($owner -ieq $wanted) { $sid = [int]$e.SessionId; break }\n";
     script += "        }\n";
     script += "        [Qtc.Native]::WTSFreeMemory($pInfo)\n";
-    script += "    }\n";
-    script += "    if ($sid -lt 0) { Add-Content -Path $err -Value 'qtc: no active interactive "
-              "session on the device.'; return }\n";
-    script += "    $le = { [Runtime.InteropServices.Marshal]::GetLastWin32Error() }\n";
+    script += "    } else { $qfail = 'WTSEnumerateSessions'; $qerr = (& $le) }\n";
+    // A session whose owner could not be read looks exactly like one the device user does not
+    // have, so report a failed query as itself instead of as nobody being logged on.
+    script += "    if ($sid -lt 0 -and $qfail) { Add-Content -Path $err -Value ('qtc: ' + $qfail"
+              " + ' failed err=' + $qerr); return }\n";
+    script += "    if ($sid -lt 0) { Add-Content -Path $err -Value ('qtc: ' + "
+              + psQuote(sessionUser)
+              + " + ' has no active interactive session on the device.'); return }\n";
     script += "    $tok = [IntPtr]::Zero\n";
     script += "    if (-not [Qtc.Native]::WTSQueryUserToken([uint32]$sid, [ref]$tok)) "
               "{ Add-Content -Path $err -Value ('qtc: WTSQueryUserToken failed err=' + (& $le)); return }\n";

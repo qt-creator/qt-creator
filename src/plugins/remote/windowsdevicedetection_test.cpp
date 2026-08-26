@@ -402,6 +402,124 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
              "The executable's output was not captured from the device.");
 }
 
+// The session the given user is logged on to, as "<id> <state>", or an empty string when
+// they have none. Read from "query session", whose columns need no elevation - GetOwner() on
+// a Win32_Process does.
+static QString userSession(const FilePath &deviceRoot, const QString &user)
+{
+    Process query;
+    query.setCommand({deviceRoot.withNewPath("C:/Windows/System32/query.exe"), {"session", user}});
+    query.runBlocking(std::chrono::seconds(60));
+    for (const QString &line : query.cleanedStdOut().split('\n')) {
+        const QStringList columns = line.simplified().split(' ');
+        // "<sessionname> <user> <id> <state>", with the leading marker and name optional.
+        // Windows prints the account as it was created, the device may name it in any case.
+        const int userColumn = Utils::indexOf(columns, [&user](const QString &column) {
+            return column.compare(user, Qt::CaseInsensitive) == 0;
+        });
+        if (userColumn >= 0 && columns.size() > userColumn + 2)
+            return columns.at(userColumn + 1) + ' ' + columns.at(userColumn + 2);
+    }
+    return {};
+}
+
+// A GUI run must land in the desktop session of the device's own user, never in the
+// invisible services session 0. Whether an active session of somebody else is passed over
+// shows only on a machine that has one.
+void WindowsDeviceDetectionTest::testRunsInTheDeviceUsersSession()
+{
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::checkParameters(params)) {
+        SshTest::printSetupHelp();
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST/USER/... (or QTC_SSH_TEST_*) to a reachable "
+              "Windows-over-SSH host.");
+    }
+
+    auto windowsDeviceFactory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
+              return f->deviceType() == Constants::GenericWindowsOsType;
+          });
+    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
+    const IDevicePtr device = windowsDeviceFactory->construct();
+    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
+    device->sshParametersAspectContainer().setSshParameters(params);
+    DeviceManager::addDevice(device);
+
+    const Id deviceId = device->id();
+    const FilePath deviceRoot = device->rootPath();
+    const QScopeGuard cleanup([&] { DeviceManager::removeDevice(deviceId); });
+
+    {
+        QEventLoop loop;
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        QObject::connect(&timeout, &QTimer::timeout, &loop, [&] { loop.exit(1); });
+        timeout.start(60 * 1000);
+        device->tryToConnect(Continuation<>(this, [&](const Result<> &res) {
+            loop.exit(res ? 0 : 1);
+        }));
+        QCOMPARE(loop.exec(), 0);
+    }
+
+    // Whether the device user is logged on, and to what, is a property of the machine, not
+    // of the code under test.
+    const QString user = params.userName().section('\\', -1).section('@', 0, 0);
+    const QString session = userSession(deviceRoot, user);
+    if (session.isEmpty())
+        QSKIP("The device user is not logged on, so there is no session to launch into.");
+    qDebug().noquote() << "Device user" << user << "is logged on to session" << session;
+    // Only an active session is launched into, so one left disconnected gives the run
+    // nowhere to go.
+    if (session.section(' ', 1).compare("Active", Qt::CaseInsensitive) != 0)
+        QSKIP("The device user's session is disconnected, so nothing is launched into it.");
+    const QString desktopSession = session.section(' ', 0, 0);
+
+    // A private copy, so the sessions found below can only be this test's own process. It is
+    // a console application on purpose: which session it lands in is the point here, and a
+    // windowless program survives wherever it is put, while a copied GUI binary may hand off
+    // to a packaged app and exit at once.
+    const QString appName = "qtc-session-test-" + QUuid::createUuid().toString(QUuid::Id128);
+    const FilePath appOnDevice = deviceRoot.withNewPath("C:/Users/Public/" + appName + ".exe");
+    QVERIFY2(bool(deviceRoot.withNewPath("C:/Windows/System32/ping.exe").copyFile(appOnDevice)),
+             "Failed to copy the test application onto the device.");
+
+    Process app;
+    app.setCommand({appOnDevice, {"-n", "600", "127.0.0.1"}});
+    app.setExtraData(Constants::RunInInteractiveSession, true);
+    app.start();
+    const QScopeGuard killApp([&] {
+        Process killer;
+        killer.setCommand(
+            {deviceRoot.withNewPath("powershell.exe"),
+             {"-NoProfile", "-NonInteractive", "-EncodedCommand",
+              encodePowerShellCommand("Get-Process | Where-Object { $_.Name -eq '" + appName
+                                      + "' } | Stop-Process -Force")}});
+        killer.runBlocking(std::chrono::seconds(60));
+        if (killer.result() != ProcessResult::FinishedWithSuccess)
+            qWarning().noquote() << "Failed to stop" << appName << ":" << killer.allOutput();
+        if (!appOnDevice.removeFile())
+            qWarning().noquote() << "Failed to remove" << appOnDevice.path();
+    });
+
+    // A query that did not get through says nothing about the application, and taking it for
+    // one that has not started yet would blame the launcher for a failure of the check.
+    std::optional<QStringList> sessions;
+    const bool started = waitFor(
+        [&] {
+            sessions = processSessions(deviceRoot, appName);
+            return sessions && !sessions->isEmpty();
+        },
+        90 * 1000);
+    if (!started)
+        qDebug().noquote() << "The launcher reported:" << app.allOutput();
+    QVERIFY2(sessions, "The device could not be asked which session the application runs in.");
+    QVERIFY2(started, "The application was not started on the device.");
+
+    const QString appSession = sessions->first();
+    QVERIFY2(appSession != "0", "The application was left in the invisible services session.");
+    QCOMPARE(appSession, desktopSession);
+}
+
 // Stopping a run must end the application on the device, not just the SSH connection that
 // carried it. The victim is a private copy of ping.exe, so the check cannot be confused by
 // another instance of a system binary, and killing it cannot disturb anything else.
