@@ -4288,13 +4288,16 @@ typename))
             return self.value_members(value, False)[indexish]
         raise RuntimeError('BAD INDEX TYPE %s' % type(indexish))
 
-    def value_extract_bits(self, value, bitpos, bitsize):
+    def value_extract_bits(self, value, bitpos, bitsize, signed=False):
         value_size = self.type_size(value.typeid)
         ldata = bytes(self.value_data(value, value_size))
         bdata = ''.join([format(x, '0>8b')[::-1] for x in ldata])
         fdata = bdata[bitpos : bitpos + bitsize]
         fdata = fdata[::-1]
-        return int(fdata, 2)
+        res = int(fdata, 2)
+        if signed and res >= 1 << (bitsize - 1):
+            res -= 1 << bitsize
+        return res
 
     def value_display_enum(self, value, form='%d'):
         size = value.type.size()

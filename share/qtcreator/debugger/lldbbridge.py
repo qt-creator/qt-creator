@@ -219,6 +219,13 @@ class Dumper(DumperBase):
         val.size = nativeType.GetByteSize() * 8
         return val
 
+    def isSignedNativeType(self, nativeType):
+        nativeType = nativeType.GetCanonicalType()
+        if nativeType.GetTypeClass() == lldb.eTypeClassEnumeration:
+            # LLDB does not set eTypeIsSigned for enumerations.
+            nativeType = nativeType.GetEnumerationIntegerType()
+        return bool(nativeType.GetTypeFlags() & lldb.eTypeIsSigned)
+
     def nativeListMembers(self, value, nativeType, include_base):
         #self.warn("ADDR: 0x%x" % self.fakeAddress_)
         nativeValue = value.nativeValue
@@ -271,7 +278,8 @@ class Dumper(DumperBase):
                 val.name = fieldName
                 val.isBaseClass = False
                 val.typeid = field_typeid
-                val.ldata = self.value_extract_bits(value, bitpos, bitsize)
+                signed = self.isSignedNativeType(nativeFieldType)
+                val.ldata = self.value_extract_bits(value, bitpos, bitsize, signed)
                 val.laddress = None
                 fields.append(val)
 

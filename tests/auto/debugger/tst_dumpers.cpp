@@ -6533,10 +6533,11 @@ void tst_Dumpers::dumper_data()
                     "typedef int gint;\n"
                     "typedef unsigned int guint;\n"
                     "enum E { V1, V2 };\n"
+                    "enum SE { SM1 = -1, S0 = 0 };\n"
                     "struct S\n"
                     "{\n"
-                    "    S() : front(13), x(2), y(3), z(39), t1(1), t2(1), e(V2), c(1), b(0), f(5),"
-                    "          g(46), h(47), d(6), i(7) {}\n"
+                    "    S() : front(13), x(2), y(3), z(39), t1(-1), t2(1), e(V2), se(SM1), c(1),"
+                    "          b(0), f(5), g(-46), h(47), d(6), i(7) {}\n"
                     "    unsigned int front;\n"
                     "    unsigned int x : 3;\n"
                     "    unsigned int y : 4;\n"
@@ -6544,6 +6545,7 @@ void tst_Dumpers::dumper_data()
                     "    gint t1 : 2;\n"
                     "    guint t2 : 2;\n"
                     "    E e : 3;\n"
+                    "    SE se : 3;\n"
                     "    bool c : 1;\n"
                     "    bool b;\n"
                     "    float f;\n"
@@ -6565,8 +6567,11 @@ void tst_Dumpers::dumper_data()
                + Check("s.x", "2", "unsigned int : 3") % NoCdbEngine
                + Check("s.y", "3", "unsigned int : 4") % NoCdbEngine
                + Check("s.z", "39", "unsigned int : 18") % NoCdbEngine
+               + Check("s.t1", "-1", "gint : 2") % NoCdbEngine
+               + Check("s.t2", "1", "guint : 2") % NoCdbEngine
+               + Check("s.se", "-1", "SE : 3") % NoCdbEngine
                // + Check("s.e", "V2 (1)", "E : 3") % GdbEngine    FIXME
-               + Check("s.g", "46", "char : 7") % GdbEngine
+               + Check("s.g", "-46", "char : 7") % NoCdbEngine
                + Check("s.h", "47", "char") % GdbEngine
                + Check("s.x", "2", "unsigned int") % CdbEngine
                + Check("s.y", "3", "unsigned int") % CdbEngine
@@ -6586,10 +6591,10 @@ void tst_Dumpers::dumper_data()
                + Check("watch.1.7", "s.y", "3", "unsigned int") % GdbEngine
                + Check("watch.1.8", "s.z", "39", "unsigned int") % GdbEngine
                + Check("watch.1.9", "s.e", "V2 (1)", "E") % GdbEngine
-               + Check("watch.1.10", "s.g", "46", "char") % GdbEngine
+               + Check("watch.1.10", "s.g", "-46", "char") % GdbEngine
                + Check("watch.1.11", "s.h", "47", "char") % GdbEngine
                + Check("watch.1.12", "s.front", "13", "unsigned int") % GdbEngine
-               + Check("watch.1.13", "s.t1", "1", "gint") % GdbEngine
+               + Check("watch.1.13", "s.t1", "-1", "gint") % GdbEngine
                + Check("watch.1.14", "s.t2", "1", "guint") % GdbEngine;
 
 
