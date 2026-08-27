@@ -235,10 +235,14 @@ void updateAutomaticKitList()
                 initializeKit(existingKit); // Update the existing kit with fresh data.
                 unhandledKits.removeOne(existingKit);
             } else {
-                KitManager::registerKit([initializeKit, abiName](Kit *k) {
-                    k->setUnexpandedDisplayName(
-                        Tr::tr("%1 for HarmonyOS %2")
-                            .arg(QLatin1String("Qt %{Qt:Version}"), abiName));
+                // Naming the kit after the version number and the ABI gives two Qt
+                // versions that share both the same name, and with it the same build
+                // directory, where each overwrites what the other configured. A kit here
+                // is one Qt version on the one ABI that version builds for, so the name
+                // of the version identifies it, and saying the rest again only repeats
+                // what that name already carries.
+                KitManager::registerKit([initializeKit, qtName = qt->displayName()](Kit *k) {
+                    k->setUnexpandedDisplayName(qtName);
                     initializeKit(k);
                 });
             }
