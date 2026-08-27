@@ -10,6 +10,8 @@
 
 #include <QPointer>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 class QToolButton;
 class QAction;
@@ -80,9 +82,13 @@ public:
     void prepareRunControlStart(RunControl *runControl);
     void showOutputPaneForRunControl(RunControl *runControl);
 
+    bool clearForRunControl(const RunControl *runControl);
+    void setFilterTextForRunControl(const RunControl *runControl, const QString &text);
+
     void closeTabsWithoutPrompt();
 
 private:
+    void setFilterFieldText(const QString &text);
     enum CloseTabMode {
         CloseTabNoPrompt,
         CloseTabWithPrompt
@@ -121,6 +127,7 @@ private:
         QPointer<RunControl> runControl;
         QPointer<AppOutputWindow> window;
         AppOutputPaneMode behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
+        std::optional<QString> sourceFilterText;
     };
 
     void closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
@@ -133,7 +140,7 @@ private:
     RunControlTab *currentTab();
     const RunControlTab *currentTab() const;
     RunControl *currentRunControl() const;
-    void handleOldOutput(Core::OutputWindow *window) const;
+    bool handleOldOutput(Core::OutputWindow *window) const;
     void updateCloseActions();
 
     QWidget *outputWidget(QWidget *) final;
@@ -170,6 +177,7 @@ private:
     QWidget *m_formatterWidget;
     ShowOutputTaskHandler * const m_handler;
     bool m_paneVisible = false;
+    QString m_lastReportedFilterText;
 };
 
 AppOutputPane &appOutputPane();
