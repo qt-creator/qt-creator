@@ -168,10 +168,8 @@ void ExtraCompiler::compileIfDirty()
 ExtraCompiler::ContentProvider ExtraCompiler::fromFileProvider() const
 {
     const auto provider = [fileName = source()] {
-        QFile file(fileName.toUrlishString());
-        if (!file.open(QFile::ReadOnly | QFile::Text))
-            return QByteArray();
-        return file.readAll();
+        const Result<QByteArray> contents = fileName.fileContents();
+        return contents ? *contents : QByteArray();
     };
     return provider;
 }
@@ -207,8 +205,7 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
         return;
 
     forEachTarget([&](const FilePath &target) {
-        QFileInfo fi(target.toFileInfo());
-        QDateTime generateTime = fi.exists() ? fi.lastModified() : QDateTime();
+        const QDateTime generateTime = target.exists() ? target.lastModified() : QDateTime();
         if (generateTime.isValid() && (generateTime > sourceTime)) {
             if (d->compileTime >= generateTime)
                 return;
