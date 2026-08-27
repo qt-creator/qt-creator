@@ -248,10 +248,11 @@ QString Environment::expandedValueForKey(const QString &key) const
 FilePath Environment::searchInPath(const QString &executable,
                                    const FilePaths &additionalDirs,
                                    const FilePathPredicate &filter,
-                                   FilePath::MatchScope scope) const
+                                   FilePath::MatchScope scope,
+                                   const FilePath &anchor) const
 {
     const FilePath exec = FilePath::fromUserInput(expandVariables(executable));
-    const FilePaths dirs = path() + additionalDirs;
+    const FilePaths dirs = (anchor.isEmpty() ? path() : mappedPath(anchor)) + additionalDirs;
     return exec.searchInDirectories(dirs, filter, scope);
 }
 

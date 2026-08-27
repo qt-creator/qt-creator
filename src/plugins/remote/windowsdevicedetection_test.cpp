@@ -21,6 +21,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/msvctoolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -287,6 +288,30 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
                 "int main() { printf(\"HELLO_FROM_DEVICE\\n\"); return 0; }\n").has_value());
 
     const Environment buildEnv = kit->buildEnvironment();
+    // The make tool a qmake project would build with.
+    for (Toolchain *tc : ToolchainKitAspect::toolChains(kit)) {
+        const FilePath make = tc->makeCommand(buildEnv);
+        qDebug().noquote() << "make tool:" << tc->displayName() << "->" << make.toUserOutput();
+        QVERIFY2(make.isSameDevice(deviceRoot),
+                 qPrintable("The make tool is not on the device: " + make.toUserOutput()));
+        QVERIFY2(make.isExecutableFile(),
+                 qPrintable("The make tool does not exist: " + make.toUserOutput()));
+
+        // jom wins over nmake where the Qt installer put one.
+        const FilePath deviceJom = deviceRoot.withNewPath(
+            "C:/Qt/Tools/QtCreator/bin/jom/jom.exe");
+        if (deviceJom.isExecutableFile() && globalProjectExplorerSettings().useJom())
+            QCOMPARE(make, deviceJom);
+
+        Process makeVersion;
+        makeVersion.setCommand({make, {"/?"}});
+        makeVersion.setEnvironment(buildEnv);
+        makeVersion.runBlocking(std::chrono::seconds(60));
+        // nmake announces itself as NMAKE, jom as jom.
+        QVERIFY2(makeVersion.allOutput().contains("NMAKE")
+                     || makeVersion.allOutput().contains("jom"),
+                 qPrintable("Running the make tool said: " + makeVersion.allOutput()));
+    }
 
     // Pass the compiler explicitly from the kit toolchains, as Qt Creator's own CMake configure
     // does; the MSVC environment (INCLUDE/LIB) comes from the kit's build environment.

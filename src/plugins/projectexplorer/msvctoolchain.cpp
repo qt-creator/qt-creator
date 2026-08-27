@@ -1466,25 +1466,32 @@ FilePath MsvcToolchain::makeCommand(const Environment &environment) const
     const bool useJom = globalProjectExplorerSettings().useJom();
     const QString jom("jom.exe");
     const QString nmake("nmake.exe");
-    Utils::FilePath tmp;
+
+    const bool onDevice = !m_vcvarsBat.isLocal();
+    FilePaths extraDirs;
+    if (onDevice) {
+        if (const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_vcvarsBat))
+            extraDirs = device->toolSearchPaths();
+    }
+
+    const auto search = [&](const QString &executable, const FilePaths &dirs) {
+        return environment.searchInPath(executable, dirs, {}, FilePath::WithAnySuffix, m_vcvarsBat);
+    };
 
     FilePath command;
     if (useJom) {
-        tmp = environment.searchInPath(jom,
-                                       {Core::ICore::libexecPath(),
-                                        Core::ICore::libexecPath("jom")});
-        if (!tmp.isEmpty())
-            command = tmp;
-    }
-
-    if (command.isEmpty()) {
-        tmp = environment.searchInPath(nmake);
-        if (!tmp.isEmpty())
-            command = tmp;
+        FilePaths dirs = extraDirs;
+        if (!onDevice)
+            dirs << Core::ICore::libexecPath() << Core::ICore::libexecPath("jom");
+        command = search(jom, dirs);
     }
 
     if (command.isEmpty())
-        command = FilePath::fromString(useJom ? jom : nmake);
+        command = search(nmake, extraDirs);
+
+    // Name it and let the shell that runs it resolve the name.
+    if (command.isEmpty())
+        command = FilePath::fromString(useJom && !onDevice ? jom : nmake);
 
     if (environment.hasKey("VSLANG"))
         return wrappedMakeCommand(command);

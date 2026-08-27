@@ -1595,8 +1595,13 @@ FilePaths Internal::IDevicePrivate::autoDetectionPaths() const
         for (const FilePath &tool : toolsDir.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
             paths += tool; // e.g. Tools/Ninja holding the ninja binary directly.
             const FilePath binDir = tool.pathAppended("bin");
-            if (binDir.exists()) // e.g. Tools/CMake/bin on Linux and Windows.
+            if (binDir.exists()) { // e.g. Tools/CMake/bin on Linux and Windows.
                 paths += binDir;
+                // Qt Creator's own installation carries jom one level deeper.
+                const FilePath jomDir = binDir.pathAppended("jom");
+                if (jomDir.exists())
+                    paths += jomDir;
+            }
             // On macOS the tool is an application bundle, e.g. Tools/CMake/CMake.app/Contents/bin.
             for (const FilePath &sub : tool.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot)) {
                 if (sub.fileName().endsWith(".app")) {
