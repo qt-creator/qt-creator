@@ -198,6 +198,7 @@ public:
     { return useDebugChannel || useQmlChannel || usePerfChannel || useWorkerChannel; }
 
     QString displayName;
+    QString toolTip;
     ProcessRunData runnable;
     QVariantHash extraData;
     std::optional<int> exitCode;
@@ -770,6 +771,19 @@ QString RunControl::displayName() const
 void RunControl::setDisplayName(const QString &displayName)
 {
     d->data.displayName = displayName;
+}
+
+QString RunControl::toolTip() const
+{
+    return d->data.toolTip;
+}
+
+void RunControl::setToolTip(const QString &toolTip)
+{
+    if (d->data.toolTip == toolTip)
+        return;
+    d->data.toolTip = toolTip;
+    emit toolTipChanged();
 }
 
 void RunControl::setIcon(const Icon &icon)

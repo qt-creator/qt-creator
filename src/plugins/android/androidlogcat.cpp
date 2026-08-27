@@ -407,12 +407,24 @@ LogcatStream::~LogcatStream()
         reg.remove(m_device->id());
 }
 
+static QString deviceToolTip(const AndroidDevice::ConstPtr &device)
+{
+    QStringList lines;
+    lines << QString("<b>%1</b>").arg(device->displayName().toHtmlEscaped());
+    if (device->sdkLevel() > 0)
+        lines << Tr::tr("SDK level: %1").arg(device->sdkLevel());
+    if (!device->serialNumber().isEmpty())
+        lines << Tr::tr("Serial number: %1").arg(device->serialNumber().toHtmlEscaped());
+    return lines.join(QLatin1String("<br/>"));
+}
+
 void LogcatStream::attachTab(RunControl *tab)
 {
     QTC_ASSERT(tab, return);
     m_tabContext = {};
     m_tabContext.tab = tab;
     tab->setDisplayName(m_device->displayName());
+    tab->setToolTip(deviceToolTip(m_device));
     QObject::connect(tab, &RunControl::outputVisibilityChanged,
                      this, &LogcatStream::setStreaming);
     QObject::connect(tab, &RunControl::outputFilterChanged,
@@ -699,6 +711,8 @@ void LogcatStream::onDeviceUpdated(Id id)
         return;
     if (const auto current = findDevice(id))
         m_device = current;
+    if (m_tabContext.tab)
+        m_tabContext.tab->setToolTip(deviceToolTip(m_device));
     if (m_device->deviceState() == IDevice::DeviceReadyToUse)
         onConnected();
     else

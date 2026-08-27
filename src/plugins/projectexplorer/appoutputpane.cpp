@@ -715,6 +715,12 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     });
     connect(rc, &RunControl::applicationProcessHandleChanged,
             this, &AppOutputPane::enableDefaultButtons);
+    connect(rc, &RunControl::toolTipChanged, this, [this, rc] {
+        const RunControlTab * const tab = tabFor(rc);
+        if (!tab || !tab->window)
+            return;
+        m_tabWidget->setTabToolTip(m_tabWidget->indexOf(tab->window), rc->toolTip());
+    });
     connect(rc, &RunControl::outputPaneActionsEnabledChanged,
             this, &AppOutputPane::enableDefaultButtons);
     connect(rc, &RunControl::appendMessage,
@@ -762,6 +768,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         const int tabIndex = m_tabWidget->indexOf(tab->window);
         QTC_ASSERT(tabIndex != -1, return);
         m_tabWidget->setTabText(tabIndex, rc->displayName());
+        m_tabWidget->setTabToolTip(tabIndex, rc->toolTip());
         updateOutputFileName(tabIndex, rc);
         updateOutputFiltersWidget(tabIndex, rc);
 
@@ -941,6 +948,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
 
     m_runControlTabs.push_back(RunControlTab(rc, ow));
     m_tabWidget->addTab(ow, cv, rc->displayName());
+    m_tabWidget->setTabToolTip(m_tabWidget->count() - 1, rc->toolTip());
     updateOutputFileName(m_tabWidget->count() - 1, rc);
     updateOutputFiltersWidget(m_tabWidget->count() - 1, rc);
     qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Adding tab for" << rc;
