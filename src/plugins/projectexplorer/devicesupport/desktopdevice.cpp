@@ -416,6 +416,11 @@ Result<Environment> DesktopDevice::systemEnvironmentWithError() const
     return Environment::systemEnvironment();
 }
 
+Result<Environment> DesktopDevice::systemEnvironmentIfKnown() const
+{
+    return systemEnvironmentWithError();
+}
+
 FilePath DesktopDevice::rootPath() const
 {
     // FIXME: This is ugly as  .filePath(xxx) and .rootPath().withNewPath(xxx) diverge here.
@@ -436,6 +441,19 @@ class DesktopDeviceTest : public QObject
 {
     Q_OBJECT
 private slots:
+    // A device that answers without talking to anything must do so through
+    // systemEnvironmentIfKnown() too, which callers in the middle of a device or
+    // kit announcement use instead of the blocking getter.
+    void testSystemEnvironmentIsKnownRightAway()
+    {
+        const IDevice::ConstPtr device = DeviceManager::defaultDesktopDevice();
+        QVERIFY(device);
+        const Result<Environment> known = device->systemEnvironmentIfKnown();
+        if (!known)
+            QFAIL(qPrintable(known.error()));
+        QCOMPARE(known->toStringList(), Environment::systemEnvironment().toStringList());
+    }
+
     void testScriptSourcing()
     {
         if (!HostOsInfo::isAnyUnixHost())

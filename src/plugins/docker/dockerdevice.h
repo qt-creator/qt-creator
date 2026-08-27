@@ -75,6 +75,7 @@ public:
     Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
 
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
+    Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const override;
 
     Utils::Result<> updateContainerAccess() const;
 

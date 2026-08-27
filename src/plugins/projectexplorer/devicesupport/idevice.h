@@ -325,8 +325,9 @@ public:
     virtual Utils::Result<Utils::Environment> systemEnvironmentWithError() const;
     // Answers from the cache only, and starts filling it when it is empty. For
     // callers that must not block or reenter, e.g. anything that runs while a
-    // device or kit change is being announced.
-    Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const;
+    // device or kit change is being announced. Reimplement in devices that can
+    // answer without talking to the device; the cache is for those that cannot.
+    virtual Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const;
     virtual Utils::Result<Utils::Environment> sourcedEnvironment(const Utils::FilePath &script) const;
 
     virtual void aboutToBeRemoved() const {}

@@ -707,6 +707,11 @@ Result<Environment> Device::systemEnvironmentWithError() const
     return *m_systemEnvironment;
 }
 
+Result<Environment> Device::systemEnvironmentIfKnown() const
+{
+    return systemEnvironmentWithError();
+}
+
 Result<> Device::ensureReachable(const FilePath &other) const
 {
     if (other == m_instanceConfig.workspaceFolder)

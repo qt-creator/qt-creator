@@ -34,6 +34,7 @@ public:
 
     Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
+    Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const override;
     Utils::Result<Utils::Environment> sourcedEnvironment(
         const Utils::FilePath &script) const override;
 

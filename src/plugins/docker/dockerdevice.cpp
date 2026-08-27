@@ -1565,6 +1565,11 @@ Result<Environment> DockerDevice::systemEnvironmentWithError() const
     return make_unexpected(Tr::tr("Environment could not be captured."));
 }
 
+Result<Environment> DockerDevice::systemEnvironmentIfKnown() const
+{
+    return systemEnvironmentWithError();
+}
+
 void DockerDevice::aboutToBeRemoved() const
 {
     QTaskTree tree(
