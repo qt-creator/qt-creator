@@ -40,6 +40,7 @@ public:
     Core::ProgressParser progressParser = {};
     Utils::TextEncoding encoding = {};
     CommandHandler commandHandler = {};
+    QByteArray writeData;
 };
 
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject

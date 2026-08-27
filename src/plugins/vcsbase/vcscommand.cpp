@@ -94,6 +94,7 @@ static ProcessTask vcsProcessTaskHelper(
         process.setEnvironment(environment);
         process.setWorkingDirectory(data.runData.workingDirectory);
         process.setCommand(data.runData.command);
+        process.setWriteData(data.writeData);
         process.setDisableUnixTerminal();
         process.setUseCtrlCStub(true);
 

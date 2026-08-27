@@ -170,7 +170,8 @@ ExecutableItem VcsBaseClientImpl::commandTask(const VcsCommandData &data) const
             processEnvironment(data.workingDirectory)},
         .flags = data.flags,
         .progressParser = data.progressParser,
-        .encoding = data.encoding
+        .encoding = data.encoding,
+        .writeData = data.writeData,
     };
 
     const auto task = data.commandHandler ? vcsProcessTask(processData, resultStorage)
