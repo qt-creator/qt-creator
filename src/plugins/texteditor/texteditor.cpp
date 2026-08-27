@@ -744,6 +744,7 @@ public:
     void updateLineSelectionColor();
 
     void print(QPrinter *printer);
+    int printPageCount(QPrinter *printer) const;
 
     void maybeSelectLine();
     void duplicateSelection(bool comment);
@@ -1757,6 +1758,11 @@ void TextEditorWidget::print(QPrinter *printer)
 {
     const bool oldFullPage = printer->fullPage();
     printer->setFullPage(true);
+    // Offer a valid page range in the dialog. Without this the printer reports
+    // no range and the dialog shows an invalid "0-1" that prints only the first
+    // page.
+    if (const int pageCount = d->printPageCount(printer); pageCount > 0)
+        printer->setFromTo(1, pageCount);
     auto dlg = new QPrintDialog(printer, this);
     dlg->setWindowTitle(Tr::tr("Print Document"));
     if (dlg->exec() == QDialog::Accepted)
@@ -1814,6 +1820,31 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc,
 }
 
 static Q_LOGGING_CATEGORY(printLog, "qtc.editor.print", QtWarningMsg)
+
+int TextEditorWidgetPrivate::printPageCount(QPrinter *printer) const
+{
+    const QRectF pageRect(printer->pageLayout().paintRectPixels(printer->resolution()));
+    if (pageRect.isEmpty())
+        return 0;
+
+    QTextDocument *doc = q->document()->clone();
+    const QScopeGuard cleanup([doc] { delete doc; });
+
+    QTextOption opt = doc->defaultTextOption();
+    opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    doc->setDefaultTextOption(opt);
+
+    doc->documentLayout()->setPaintDevice(printer);
+
+    const int dpiy = qRound(QGuiApplication::primaryScreen()->logicalDotsPerInchY());
+    const int margin = int((2/2.54)*dpiy); // 2 cm margins
+    QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+    fmt.setMargin(margin);
+    doc->rootFrame()->setFrameFormat(fmt);
+
+    doc->setPageSize(QSizeF(pageRect.width(), pageRect.height()));
+    return doc->pageCount();
+}
 
 void TextEditorWidgetPrivate::print(QPrinter *printer)
 {
