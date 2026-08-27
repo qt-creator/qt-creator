@@ -48,6 +48,7 @@ private:
 
     void shutdownInferior() override;
     void shutdownEngine() override;
+    void abortDebuggerProcess() override;
 
     void continueInferior() override;
     void interruptInferior() override;

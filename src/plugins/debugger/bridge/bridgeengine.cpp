@@ -394,6 +394,17 @@ void BridgeEngine::shutdownEngine()
     m_dapClient->dataProvider()->kill();
 }
 
+void BridgeEngine::abortDebuggerProcess()
+{
+    // shutdownEngine() already kills, so this is the way out of a shutdown
+    // that did not finish: the process is gone, nothing will report it.
+    IDataProvider *provider = m_dapClient->dataProvider();
+    if (provider->isRunning())
+        provider->kill();
+    else
+        notifyEngineShutdownFinished();
+}
+
 void BridgeEngine::interruptInferior()
 {
     // The bridge server is synchronous - while the inferior runs it is blocked
