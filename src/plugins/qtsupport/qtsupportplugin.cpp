@@ -39,6 +39,7 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 
+#include <QDir>
 #include <QInputDialog>
 
 using namespace Core;
@@ -49,15 +50,24 @@ namespace QtSupport::Internal {
 
 static void processRunnerCallback(ProcessData *data)
 {
-    FilePath rootPath = FilePath::fromString(data->deviceRoot);
+    const FilePath rootPath = FilePath::fromString(data->deviceRoot);
+    const OsType osType = rootPath.osType();
+    const Environment env(data->environment.toStringList(), osType);
 
     Process proc;
     // Docker and others do not support different processChannelModes (yet).
     // So we have to ignore what the caller wants here.
     //proc.setProcessChannelMode(data->processChannelMode);
-    proc.setCommand({rootPath.withNewPath("/bin/sh"), {QString("-c"), data->command}});
-    proc.setWorkingDirectory(FilePath::fromString(data->workingDirectory));
-    proc.setEnvironment(Environment(data->environment.toStringList(), OsTypeLinux));
+    if (osType == OsTypeWindows) {
+        const QString comSpec = env.value("COMSPEC");
+        const FilePath shell = rootPath.withNewPath(
+            comSpec.isEmpty() ? QString("cmd.exe") : QDir::fromNativeSeparators(comSpec));
+        proc.setCommand({shell, {"/c", data->command}});
+    } else {
+        proc.setCommand({rootPath.withNewPath("/bin/sh"), {QString("-c"), data->command}});
+    }
+    proc.setWorkingDirectory(rootPath.withNewPath(data->workingDirectory));
+    proc.setEnvironment(env);
 
     proc.runBlocking();
 
