@@ -242,7 +242,7 @@ QIcon Icon::sideBarIcon(const Icon &classic, const Icon &flat)
 QIcon Icon::combinedIcon(const QList<QIcon> &icons)
 {
     QIcon result;
-    const qreal devicePixelRatio = QApplication::allWidgets().constFirst()->devicePixelRatio();
+    const qreal devicePixelRatio = qApp->devicePixelRatio();
     for (const QIcon &icon: icons)
         for (const QIcon::Mode mode: {QIcon::Disabled, QIcon::Normal})
             for (const QSize &size: icon.availableSizes(mode))

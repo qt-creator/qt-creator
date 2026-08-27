@@ -340,37 +340,16 @@ const char MENU_GROUP_GENERAL[]              = "Debugger.Group.General";
 const char MENU_GROUP_SPECIAL[]              = "Debugger.Group.Special";
 const char MENU_GROUP_START_QML[]            = "Debugger.Group.Start.Qml";
 
-static QIcon startIcon(bool toolBarStyle)
+static QIcon startIcon()
 {
-    const static QIcon sidebarIcon =
-            Icon::sideBarIcon(ProjectExplorer::Icons::DEBUG_START, ProjectExplorer::Icons::DEBUG_START_FLAT);
-    const static QIcon icon =
-            Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL.icon(), sidebarIcon});
-    const static QIcon iconToolBar =
-            Icon::combinedIcon({ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR.icon(), sidebarIcon});
-    return toolBarStyle ? iconToolBar : icon;
+    const static QIcon icon = ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR.icon();
+    return icon;
 }
 
-static QIcon continueIcon(bool toolBarStyle)
+static QIcon interruptIcon()
 {
-    const static QIcon sidebarIcon =
-            Icon::sideBarIcon(Icons::CONTINUE, Icons::CONTINUE_FLAT);
-    const static QIcon icon =
-            Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL.icon(), sidebarIcon});
-    const static QIcon iconToolBar =
-            Icon::combinedIcon({Icons::DEBUG_CONTINUE_SMALL_TOOLBAR.icon(), sidebarIcon});
-    return toolBarStyle ? iconToolBar : icon;
-}
-
-static QIcon interruptIcon(bool toolBarStyle)
-{
-    const static QIcon sidebarIcon =
-            Icon::sideBarIcon(Icons::INTERRUPT, Icons::INTERRUPT_FLAT);
-    const static QIcon icon =
-            Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL.icon(), sidebarIcon});
-    const static QIcon iconToolBar =
-            Icon::combinedIcon({Icons::DEBUG_INTERRUPT_SMALL_TOOLBAR.icon(), sidebarIcon});
-    return toolBarStyle ? iconToolBar : icon;
+    const static QIcon icon = Icons::DEBUG_INTERRUPT_SMALL.icon();
+    return icon;
 }
 
 static bool hideDebugMenu()
@@ -669,6 +648,7 @@ public:
     void parseCommandLineArguments();
 
     void updatePresetState();
+    void updateModeSelectorDebugAction(const Id &actionId, QAction *optionalAction = nullptr);
     QWidget *addSearch(BaseTreeView *treeView);
 
 public:
@@ -677,7 +657,7 @@ public:
 
     QList<RunControl *> m_scheduledStarts;
 
-    ProxyAction m_visibleStartAction; // The fat debug button
+    ProxyAction m_modeSelectorDebugAction; // The fat debug button
     ProxyAction m_hiddenStopAction;
     QAction m_undisturbableAction;
     QAction m_startAction;
@@ -868,6 +848,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     connect(&m_startAction, &QAction::triggered, this, [] {
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, false);
     });
+    m_startAction.setText(Tr::tr("Start Debugging of Startup Project"));
+    m_startAction.setIcon(startIcon());
 
     connect(&m_debugWithoutDeployAction, &QAction::triggered, this, [] {
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DEBUG_RUN_MODE, true);
@@ -906,7 +888,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     const QKeySequence startShortcut(useMacShortcuts ? Tr::tr("Ctrl+Y") : Tr::tr("F5"));
 
-    Command *cmd = ActionManager::registerAction(&m_visibleStartAction, "Debugger.Debug");
+    Command *cmd = ActionManager::registerAction(&m_modeSelectorDebugAction, "Debugger.Debug");
 
     cmd->setDescription(Tr::tr("Start Debugging or Continue"));
     cmd->setAttribute(Command::CA_UpdateText);
@@ -919,17 +901,16 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     cmd->setDefaultKeySequence(startShortcut);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    m_visibleStartAction.initialize(&m_startAction);
-    m_visibleStartAction.setAttribute(ProxyAction::UpdateText);
-    m_visibleStartAction.setAttribute(ProxyAction::UpdateIcon);
-    m_visibleStartAction.setAction(&m_startAction);
+    m_modeSelectorDebugAction.initialize(&m_startAction);
+    m_modeSelectorDebugAction.setAttribute(ProxyAction::UpdateText);
+    updateModeSelectorDebugAction(DEBUGGER_START);
 
-    m_visibleStartAction.setObjectName("Debug"); // used for UI introduction
+    m_modeSelectorDebugAction.setObjectName("Debug"); // used for UI introduction
 
     if (!hideDebugMenu())
-        ModeManager::addAction(&m_visibleStartAction, /*priority*/ 90);
+        ModeManager::addAction(&m_modeSelectorDebugAction, /*priority*/ 90);
 
-    m_undisturbableAction.setIcon(interruptIcon(false));
+    m_undisturbableAction.setIcon(interruptIcon());
     m_undisturbableAction.setEnabled(false);
 
     cmd = ActionManager::registerAction(&m_debugWithoutDeployAction,
@@ -985,7 +966,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     cmd = ActionManager::registerAction(act, Constants::DETACH);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    act = new QAction(interruptIcon(false), Tr::tr("Interrupt"), this);
+    act = new QAction(interruptIcon(), Tr::tr("Interrupt"), this);
     act->setEnabled(false);
     cmd = ActionManager::registerAction(act, Constants::INTERRUPT);
     cmd->setDescription(Tr::tr("Interrupt Debugger"));
@@ -995,7 +976,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     touchBar->addAction(cmd);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    act = new QAction(continueIcon(false), Tr::tr("Continue"), this);
+    act = new QAction(Icons::DEBUG_CONTINUE_SMALL.icon(), Tr::tr("Continue"), this);
     act->setEnabled(false);
     cmd = ActionManager::registerAction(act, Constants::CONTINUE);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -1004,9 +985,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     touchBar->addAction(cmd);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    const QIcon sidebarStopIcon = Icon::sideBarIcon(Icons::STOP, Icons::STOP_FLAT);
-    const QIcon stopIcon = Icon::combinedIcon({Icons::DEBUG_EXIT_SMALL.icon(), sidebarStopIcon});
-    act = new QAction(stopIcon, Tr::tr("Stop Debugger"), this);
+    act = new QAction(Icons::DEBUG_EXIT_SMALL.icon(), Tr::tr("Stop Debugger"), this);
     act->setEnabled(false);
     cmd = ActionManager::registerAction(act, Constants::STOP);
     cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_DEBUG_EXIT.icon());
@@ -1282,7 +1261,7 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
     m_startDapAction.setToolTip(Tr::tr("Start DAP Debugging"));
     m_startDapAction.setText(Tr::tr("Start DAP Debugging"));
     m_startDapAction.setEnabled(true);
-    m_startDapAction.setIcon(startIcon(true));
+    m_startDapAction.setIcon(startIcon());
     m_startDapAction.setVisible(true);
 
     m_perspectiveDap.useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
@@ -1509,16 +1488,14 @@ void DebuggerPluginPrivate::updatePresetState()
                                         : canRun.error();
 
     m_startAction.setToolTip(startToolTip);
-    m_startAction.setText(Tr::tr("Start Debugging of Startup Project"));
 
     if (!currentEngine) {
         // No engine running  -- or -- we have a running engine but it does not
         // correspond to the current start up project.
         m_startAction.setEnabled(canRun.has_value());
-        m_startAction.setIcon(startIcon(true));
         m_startAction.setVisible(true);
         m_debugWithoutDeployAction.setEnabled(canRun.has_value());
-        m_visibleStartAction.setAction(&m_startAction);
+        updateModeSelectorDebugAction(DEBUGGER_START);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
         return;
     }
@@ -1527,7 +1504,6 @@ void DebuggerPluginPrivate::updatePresetState()
 
     // We have a current engine, and it belongs to the startup runconfig.
     // The 'state' bits only affect the fat debug button, not the preset start button.
-    m_startAction.setIcon(startIcon(false));
     m_startAction.setEnabled(false);
     m_startAction.setVisible(false);
 
@@ -1539,25 +1515,25 @@ void DebuggerPluginPrivate::updatePresetState()
         // F5 continues, Shift-F5 kills. It is "continuable".
         m_startAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(ActionManager::command(Constants::CONTINUE)->action());
+        updateModeSelectorDebugAction(Constants::CONTINUE);
         m_hiddenStopAction.setAction(ActionManager::command(Constants::STOP)->action());
     } else if (state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
         m_startAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(ActionManager::command(Constants::INTERRUPT)->action());
+        updateModeSelectorDebugAction(Constants::INTERRUPT);
         m_hiddenStopAction.setAction(ActionManager::command(Constants::INTERRUPT)->action());
     } else if (state == DebuggerFinished) {
         // We don't want to do anything anymore.
         m_startAction.setEnabled(canRun.has_value());
         m_debugWithoutDeployAction.setEnabled(canRun.has_value());
-        m_visibleStartAction.setAction(ActionManager::command(DEBUGGER_START)->action());
+        updateModeSelectorDebugAction(DEBUGGER_START);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
     } else if (state == InferiorUnrunnable) {
         // We don't want to do anything anymore.
         m_startAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(ActionManager::command(Constants::STOP)->action());
+        updateModeSelectorDebugAction(Constants::STOP);
         m_hiddenStopAction.setAction(ActionManager::command(Constants::STOP)->action());
     } else {
         // The startup phase should be over once we are here.
@@ -1566,7 +1542,7 @@ void DebuggerPluginPrivate::updatePresetState()
         // Everything else is "undisturbable".
         m_startAction.setEnabled(false);
         m_debugWithoutDeployAction.setEnabled(false);
-        m_visibleStartAction.setAction(&m_undisturbableAction);
+        updateModeSelectorDebugAction(INTERRUPT, &m_undisturbableAction);
         m_hiddenStopAction.setAction(&m_undisturbableAction);
     }
 
@@ -1589,6 +1565,22 @@ void DebuggerPluginPrivate::updatePresetState()
     m_watchAction.setEnabled(state != DebuggerFinished && state != DebuggerNotReady);
     m_setOrRemoveBreakpointAction.setEnabled(true);
     m_enableOrDisableBreakpointAction.setEnabled(true);
+}
+
+void DebuggerPluginPrivate::updateModeSelectorDebugAction(const Id &actionId, QAction *optionalAction)
+{
+    const static QMap<Id, QIcon> icons
+        = {{DEBUGGER_START,
+            Icon::sideBarIcon(
+                ProjectExplorer::Icons::DEBUG_START, ProjectExplorer::Icons::DEBUG_START_FLAT)},
+           {CONTINUE, Icon::sideBarIcon(Icons::CONTINUE, Icons::CONTINUE_FLAT)},
+           {INTERRUPT, Icon::sideBarIcon(Icons::INTERRUPT, Icons::INTERRUPT_FLAT)},
+           {STOP, Icon::sideBarIcon(Icons::STOP, Icons::STOP_FLAT)}};
+    if (optionalAction)
+        m_modeSelectorDebugAction.setAction(optionalAction);
+    else
+        m_modeSelectorDebugAction.setAction(ActionManager::command(actionId)->action());
+    m_modeSelectorDebugAction.setIcon(icons.value(actionId));
 }
 
 void DebuggerPluginPrivate::onStartupProjectChanged()
