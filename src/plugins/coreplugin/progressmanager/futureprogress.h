@@ -75,7 +75,6 @@ signals:
 
 protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
-    void paintEvent(QPaintEvent *) override;
 
 private:
     void updateToolTip(const QString &);

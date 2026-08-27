@@ -96,7 +96,7 @@ private:
 PopupInfoBarDisplay::PopupInfoBarDisplay()
 {
     m_layout = new QVBoxLayout;
-    m_layout->setContentsMargins(0, 2, 0, 0);
+    m_layout->setContentsMargins({});
     m_layout->setSpacing(0);
     setLayout(m_layout);
 }
@@ -586,7 +586,7 @@ void ProgressManagerPrivate::init()
     m_summaryProgressWidget->setVisible(!m_progressViewPinned);
     m_summaryProgressWidget->setGraphicsEffect(m_opacityEffect);
     auto summaryProgressLayout = new QHBoxLayout(m_summaryProgressWidget);
-    summaryProgressLayout->setContentsMargins(0, 0, 0, 2);
+    summaryProgressLayout->setContentsMargins({});
     summaryProgressLayout->setSpacing(0);
     m_summaryProgressWidget->setLayout(summaryProgressLayout);
     auto statusDetailsWidgetContainer = new StatusDetailsWidgetContainer(m_summaryProgressWidget);
@@ -596,9 +596,7 @@ void ProgressManagerPrivate::init()
     m_statusDetailsWidgetLayout->addStretch(1);
     statusDetailsWidgetContainer->setLayout(m_statusDetailsWidgetLayout);
     summaryProgressLayout->addWidget(statusDetailsWidgetContainer);
-    m_summaryProgressBar = new ProgressBar(m_summaryProgressWidget);
-    m_summaryProgressBar->setMinimumWidth(70);
-    m_summaryProgressBar->setTitleVisible(false);
+    m_summaryProgressBar = new ProgressBar(ProgressBar::Compact, m_summaryProgressWidget);
     m_summaryProgressBar->setCancelEnabled(false);
     summaryProgressLayout->addWidget(m_summaryProgressBar);
     layout->addWidget(m_summaryProgressWidget);

@@ -13,7 +13,6 @@
 #include <QFutureWatcher>
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
-#include <QPainter>
 #include <QSequentialAnimationGroup>
 #include <QTimer>
 
@@ -111,7 +110,7 @@ FutureProgress::FutureProgress(QWidget *parent) :
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addLayout(d->m_widgetLayout);
-    d->m_widgetLayout->setContentsMargins(7, 0, 7, 2);
+    d->m_widgetLayout->setContentsMargins({});
     d->m_widgetLayout->setSpacing(0);
 
     connect(&d->m_watcher, &QFutureWatcherBase::started, this, &FutureProgress::setStarted);
@@ -309,21 +308,6 @@ void FutureProgress::mouseReleaseEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
         emit clicked();
     QWidget::mouseReleaseEvent(event);
-}
-
-void FutureProgress::paintEvent(QPaintEvent *)
-{
-    QPainter p(this);
-    if (creatorTheme()->flag(Theme::FlatToolBars)) {
-        const int m = StyleHelper::SpacingTokens::PaddingVXxs;
-        StyleHelper::drawCardBg(&p, QRectF(rect()).adjusted(0, m, 0, 0),
-                                creatorColor(Theme::Token_Background_Muted),
-                                creatorColor(Theme::Token_Stroke_Subtle),
-                                StyleHelper::SpacingTokens::RadiusM);
-    } else {
-        QLinearGradient grad = StyleHelper::statusBarGradient(rect());
-        p.fillRect(rect(), grad);
-    }
 }
 
 /*!

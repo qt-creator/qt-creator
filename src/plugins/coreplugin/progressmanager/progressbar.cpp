@@ -3,58 +3,131 @@
 
 #include "progressbar.h"
 
+#include <utils/icon.h>
+#include <utils/layoutbuilder.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
-#include <QPropertyAnimation>
+#include <QEnterEvent>
+#include <QLabel>
 #include <QPainter>
-#include <QFont>
-#include <QColor>
-#include <QMouseEvent>
 
 using namespace Core;
-using namespace Core::Internal;
 using namespace Utils;
 
-static const int PROGRESSBAR_HEIGHT = 13;
-static const int CANCELBUTTON_WIDTH = 16;
+namespace Core::Internal {
 
-ProgressBar::ProgressBar(QWidget *parent)
-    : QWidget(parent)
+class CloseButton : public QAbstractButton
 {
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    setMouseTracking(true);
+public:
+    CloseButton(QWidget *parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+};
+
+void CloseButton::paintEvent(QPaintEvent*)
+{
+    QPainter p(this);
+    if (underMouse() && isEnabled())
+        StyleHelper::drawCardBg(&p, rect(), creatorColor(Theme::BackgroundColorHover));
+    static const QIcon icon = Icon({{":/utils/images/close_small.png", Theme::PanelTextColorMid}},
+                                   Icon::Tint).icon();
+    icon.paint(&p, rect(), Qt::AlignCenter, isEnabled() ? QIcon::Mode::Normal
+                                                        : QIcon::Mode::Disabled);
 }
 
-bool ProgressBar::event(QEvent *e)
+void CloseButton::enterEvent(QEnterEvent *event)
 {
-    switch (e->type()) {
-    case QEvent::Enter:
-        {
-            QPropertyAnimation *animation = new QPropertyAnimation(this, "cancelButtonFader");
-            animation->setDuration(125);
-            animation->setEndValue(1.0);
-            animation->start(QAbstractAnimation::DeleteWhenStopped);
-        }
-        break;
-    case QEvent::Leave:
-        {
-            QPropertyAnimation *animation = new QPropertyAnimation(this, "cancelButtonFader");
-            animation->setDuration(225);
-            animation->setEndValue(0.0);
-            animation->start(QAbstractAnimation::DeleteWhenStopped);
-        }
-        break;
-    default:
-        return QWidget::event(e);
+    if (isEnabled())
+        update();
+    QAbstractButton::enterEvent(event);
+}
+
+void CloseButton::leaveEvent(QEvent *event)
+{
+    if (isEnabled())
+        update();
+    QAbstractButton::leaveEvent(event);
+}
+
+CloseButton::CloseButton(QWidget *parent)
+    : QAbstractButton(parent)
+{
+    setAttribute(Qt::WA_LayoutUsesWidgetRect);
+    setFixedSize(14, 10);
+    setFocusPolicy(Qt::NoFocus);
+}
+
+ProgressBar::ProgressBar(Role role, QWidget *parent)
+    : QWidget(parent)
+    , m_progressBar(new Utils::QtcProgressBar)
+{
+    setMinimumWidth(role == Default ? 200 : 70);
+    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+
+    m_progressBar->setTextVisible(false);
+    m_progressBar->setRange(m_minimum, m_maximum);
+    m_progressBar->setValue(m_value);
+    m_progressBar->setBackgroundColor(Theme::ProgressBarBackgroundColor);
+    updateColor();
+
+    const int margin = StyleHelper::SpacingTokens::PaddingHM;
+    const qreal marginThird = margin / 3.0;
+    using namespace Layouting;
+    if (role == Default) {
+        constexpr StyleHelper::TextFormat titleTf {
+            .themeColor = Theme::Token_Text_Default,
+            .uiElement = StyleHelper::UiElementCaptionStrong,
+            .drawTextFlags = Qt::AlignCenter,
+        };
+
+        m_titleLabel = new QLabel;
+        StyleHelper::applyTf(m_titleLabel, titleTf, false);
+        m_titleLabel->setTextInteractionFlags(Qt::NoTextInteraction);
+
+        m_cancelButton = new CloseButton;
+        connect(m_cancelButton, &QAbstractButton::clicked, this, &ProgressBar::clicked);
+
+        m_subtitleLabel = new QLabel;
+        StyleHelper::applyTf(m_subtitleLabel, titleTf, false);
+        m_subtitleLabel->setTextInteractionFlags(Qt::NoTextInteraction);
+        m_subtitleLabel->setVisible(false);
+
+        Column {
+            Row {
+                m_titleLabel,
+                customMargins(0, 0, margin, 0),
+            },
+            Row {
+                m_progressBar,
+                Space(marginThird),
+                m_cancelButton,
+                spacing(0),
+                customMargins(0, 0, marginThird * 2, 0),
+            },
+            Row {
+                m_subtitleLabel,
+                customMargins(0, 0, margin, 0),
+            },
+            spacing(StyleHelper::SpacingTokens::GapVS),
+            customMargins(margin, margin, 0, margin),
+        }.attachTo(this);
+    } else {
+        Column {
+            m_progressBar,
+            customMargins(margin, margin, margin, margin),
+        }.attachTo(this);
     }
-    return QWidget::event(e);
 }
 
 void ProgressBar::reset()
 {
     m_value = m_minimum;
-    update();
+    m_progressBar->setValue(m_value);
 }
 
 void ProgressBar::setRange(int minimum, int maximum)
@@ -63,7 +136,8 @@ void ProgressBar::setRange(int minimum, int maximum)
     m_maximum = maximum;
     if (m_value < m_minimum || m_value > m_maximum)
         m_value = m_minimum;
-    update();
+    m_progressBar->setRange(m_minimum, m_maximum);
+    m_progressBar->setValue(m_value);
 }
 
 void ProgressBar::setValue(int value)
@@ -73,7 +147,7 @@ void ProgressBar::setValue(int value)
         return;
     }
     m_value = value;
-    update();
+    m_progressBar->setValue(m_value);
 }
 
 void ProgressBar::setFinished(bool b)
@@ -81,12 +155,29 @@ void ProgressBar::setFinished(bool b)
     if (b == m_finished)
         return;
     m_finished = b;
-    update();
+    updateColor();
+    updateCancelButton();
+}
+
+void ProgressBar::updateColor()
+{
+    const Theme::Color themeColor = m_error ? Theme::ProgressBarColorError
+                                    : m_finished ? Theme::ProgressBarColorFinished
+                                                 : Theme::ProgressBarColorNormal;
+    m_progressBar->setFillColor(themeColor);
+}
+
+void ProgressBar::updateCancelButton()
+{
+    if (!m_cancelButton)
+        return;
+    m_cancelButton->setEnabled(m_cancelEnabled);
+    m_cancelButton->setVisible(!m_finished);
 }
 
 QString ProgressBar::title() const
 {
-    return m_title;
+    return m_titleLabel ? m_titleLabel->text() : QString();
 }
 
 bool ProgressBar::hasError() const
@@ -96,43 +187,27 @@ bool ProgressBar::hasError() const
 
 void ProgressBar::setTitle(const QString &title)
 {
-    m_title = title;
-    updateGeometry();
-    update();
-}
-
-void ProgressBar::setTitleVisible(bool visible)
-{
-    if (m_titleVisible == visible)
-        return;
-    m_titleVisible = visible;
-    updateGeometry();
-    update();
-}
-
-bool ProgressBar::isTitleVisible() const
-{
-    return m_titleVisible;
+    if (m_titleLabel)
+        m_titleLabel->setText(title);
 }
 
 void ProgressBar::setSubtitle(const QString &subtitle)
 {
-    m_subtitle = subtitle;
-    updateGeometry();
-    update();
+    if (!m_subtitleLabel)
+        return;
+    m_subtitleLabel->setText(subtitle);
+    m_subtitleLabel->setVisible(!subtitle.isEmpty());
 }
 
 QString ProgressBar::subtitle() const
 {
-    return m_subtitle;
+    return m_subtitleLabel ? m_subtitleLabel->text() : QString();
 }
 
 void ProgressBar::setCancelEnabled(bool enabled)
 {
-    if (m_cancelEnabled == enabled)
-        return;
     m_cancelEnabled = enabled;
-    update();
+    updateCancelButton();
 }
 
 bool ProgressBar::isCancelEnabled() const
@@ -143,172 +218,7 @@ bool ProgressBar::isCancelEnabled() const
 void ProgressBar::setError(bool on)
 {
     m_error = on;
-    update();
+    updateColor();
 }
 
-QSize ProgressBar::sizeHint() const
-{
-    int width = 50;
-    int height = PROGRESSBAR_HEIGHT + 5 + StyleHelper::SpacingTokens::PaddingVXs;
-    if (m_titleVisible) {
-        const QFont font = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
-        const QFontMetrics fm(font);
-        width = qMax(width, fm.horizontalAdvance(m_title) + 16);
-        height += fm.height() + 5;
-        if (!m_subtitle.isEmpty()) {
-            width = qMax(width, fm.horizontalAdvance(m_subtitle) + 16);
-            height += fm.height() + 5;
-        }
-    }
-    return QSize(width, height);
-}
-
-namespace { const int INDENT = 6; }
-
-void ProgressBar::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (m_cancelEnabled) {
-        if (event->modifiers() == Qt::NoModifier
-            && m_cancelRect.contains(event->pos())) {
-            emit clicked();
-        }
-    }
-    QWidget::mouseReleaseEvent(event);
-}
-
-void ProgressBar::mouseMoveEvent(QMouseEvent *ev)
-{
-    update();
-    QWidget::mouseMoveEvent(ev);
-}
-
-void ProgressBar::paintEvent(QPaintEvent *)
-{
-    // TODO move font into Utils::StyleHelper
-    // TODO use Utils::StyleHelper white
-
-    double range = maximum() - minimum();
-    double percent = 0.;
-    if (!qFuzzyIsNull(range))
-        percent = qBound(0., (value() - minimum()) / range, 1.);
-
-    if (finished())
-        percent = 1;
-
-    QPainter p(this);
-    const QFont fnt = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
-    const QFontMetrics fm(fnt);
-
-    const int titleHeight = m_titleVisible ? fm.height() + 5 : 4;
-
-    const int progressHeight = PROGRESSBAR_HEIGHT + ((PROGRESSBAR_HEIGHT % 2) + 1) % 2; // make odd
-    const int progressY = titleHeight + StyleHelper::SpacingTokens::PaddingVXs;
-
-    if (m_titleVisible) {
-        const int alignment = Qt::AlignHCenter;
-        const int textSpace = rect().width() - 8;
-        // If there is not enough room when centered, we left align and
-        // elide the text
-        const QString elidedtitle = fm.elidedText(m_title, Qt::ElideRight, textSpace);
-
-        QRect textRect = rect().adjusted(3, StyleHelper::SpacingTokens::PaddingVXs - 1, -3, 0);
-        textRect.setHeight(fm.height() + 4);
-
-        p.setFont(fnt);
-        p.setPen(creatorColor(Theme::ProgressBarTitleColor));
-        p.drawText(textRect, alignment | Qt::AlignBottom, elidedtitle);
-
-        if (!m_subtitle.isEmpty()) {
-            const QString elidedsubtitle = fm.elidedText(m_subtitle, Qt::ElideRight, textSpace);
-
-            QRect subtextRect = textRect;
-            subtextRect.moveTop(progressY + progressHeight);
-
-            p.setFont(fnt);
-            p.setPen(creatorColor(Theme::ProgressBarTitleColor));
-            p.drawText(subtextRect, alignment | Qt::AlignBottom, elidedsubtitle);
-        }
-    }
-
-    // draw outer rect
-    const QRect rect(INDENT - 1, progressY, size().width() - 2 * INDENT + 1, progressHeight);
-
-    QRectF inner = rect.adjusted(2, 2, -2, -2);
-    inner.adjust(0, 0, qRound((percent - 1) * inner.width()), 0);
-
-    // Show at least a hint of progress. Non-flat needs more pixels due to the borders.
-    inner.setWidth(qMax(qMin(3.0, qreal(rect.width())), inner.width()));
-
-    Theme::Color themeColor = Theme::ProgressBarColorNormal;
-    if (m_error)
-        themeColor = Theme::ProgressBarColorError;
-    else if (m_finished)
-        themeColor = Theme::ProgressBarColorFinished;
-    const QColor c = creatorColor(themeColor);
-
-    //draw the progress bar
-    if (creatorTheme()->flag(Theme::FlatToolBars)) {
-        p.fillRect(rect.adjusted(2, 2, -2, -2), creatorColor(Theme::ProgressBarBackgroundColor));
-        p.fillRect(inner, c);
-    } else {
-        const static QImage bar(StyleHelper::dpiSpecificImageFile(
-                                    ":/utils/images/progressbar.png"));
-        StyleHelper::drawCornerImage(bar, &p, rect, 3, 3, 3, 3);
-
-        // Draw line and shadow after the gradient fill
-        if (value() > 0 && value() < maximum()) {
-            p.fillRect(QRect(inner.right(), inner.top(), 2, inner.height()), QColor(0, 0, 0, 20));
-            p.fillRect(QRect(inner.right(), inner.top(), 1, inner.height()), QColor(0, 0, 0, 60));
-        }
-
-        QLinearGradient grad(inner.topLeft(), inner.bottomLeft());
-        grad.setColorAt(0, c.lighter(130));
-        grad.setColorAt(0.4, c.lighter(106));
-        grad.setColorAt(0.41, c.darker(106));
-        grad.setColorAt(1, c.darker(130));
-        p.setPen(Qt::NoPen);
-        p.setBrush(grad);
-        p.drawRect(inner);
-        p.setBrush(Qt::NoBrush);
-        p.setPen(QPen(QColor(0, 0, 0, 30), 1));
-
-        p.drawLine(inner.topLeft() + QPointF(0.5, 0.5), inner.topRight() + QPointF(-0.5, 0.5));
-        p.drawLine(inner.topLeft() + QPointF(0.5, 0.5), inner.bottomLeft() + QPointF(0.5, -0.5));
-        p.drawLine(inner.topRight() + QPointF(-0.5, 0.5), inner.bottomRight() + QPointF(-0.5, -0.5));
-        p.drawLine(inner.bottomLeft() + QPointF(0.5, -0.5), inner.bottomRight() + QPointF(-0.5, -0.5));
-    }
-
-    if (m_cancelEnabled) {
-        // Draw cancel button
-        p.setOpacity(m_cancelButtonFader);
-
-        if (value() < maximum() && !m_error) {
-            m_cancelRect = QRect(rect.adjusted(rect.width() - CANCELBUTTON_WIDTH + 2, 1, 0, 0));
-            const bool hover = m_cancelRect.contains(mapFromGlobal(QCursor::pos()));
-            const QRectF cancelVisualRect(m_cancelRect.adjusted(0, 1, -2, -2));
-            int intensity = hover ? 90 : 70;
-            if (!creatorTheme()->flag(Theme::FlatToolBars)) {
-                QLinearGradient grad(cancelVisualRect.topLeft(), cancelVisualRect.bottomLeft());
-                QColor buttonColor(intensity, intensity, intensity, 255);
-                grad.setColorAt(0, buttonColor.lighter(130));
-                grad.setColorAt(1, buttonColor.darker(130));
-                p.setPen(Qt::NoPen);
-                p.setBrush(grad);
-                p.drawRect(cancelVisualRect);
-
-                p.setPen(QPen(QColor(0, 0, 0, 30)));
-                p.drawLine(cancelVisualRect.topLeft() + QPointF(-0.5, 0.5), cancelVisualRect.bottomLeft() + QPointF(-0.5, -0.5));
-                p.setPen(QPen(QColor(0, 0, 0, 120)));
-                p.drawLine(cancelVisualRect.topLeft() + QPointF(0.5, 0.5), cancelVisualRect.bottomLeft() + QPointF(0.5, -0.5));
-                p.setPen(QPen(QColor(255, 255, 255, 30)));
-                p.drawLine(cancelVisualRect.topLeft() + QPointF(1.5, 0.5), cancelVisualRect.bottomLeft() + QPointF(1.5, -0.5));
-            }
-            const QColor closeIconColor = hover ? StyleHelper::panelTextColor()
-                                                : creatorColor(Theme::Token_Text_Muted);
-            p.setPen(QPen(closeIconColor, 1.2, Qt::SolidLine, Qt::FlatCap));
-            p.setRenderHint(QPainter::Antialiasing, true);
-            p.drawLine(cancelVisualRect.topLeft() + QPointF(4.0, 2.0), cancelVisualRect.bottomRight() + QPointF(-3.0, -2.0));
-            p.drawLine(cancelVisualRect.bottomLeft() + QPointF(4.0, -2.0), cancelVisualRect.topRight() + QPointF(-3.0, 2.0));
-        }
-    }
-}
+} // namespace Core::Internal

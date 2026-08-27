@@ -80,6 +80,8 @@
         <file>images/inputfield_disabled@2x.png</file>
         <file>images/close.png</file>
         <file>images/close@2x.png</file>
+        <file>images/close_small.png</file>
+        <file>images/close_small@2x.png</file>
         <file>images/linkicon.png</file>
         <file>images/linkicon@2x.png</file>
         <file>images/magnifier.png</file>
@@ -117,8 +119,6 @@
         <file>images/undo@2x.png</file>
         <file>images/extension.png</file>
         <file>images/extension@2x.png</file>
-        <file>images/progressbar.png</file>
-        <file>images/progressbar@2x.png</file>
         <file>images/editclear.png</file>
         <file>images/editclear@2x.png</file>
         <file>images/arrowdown.png</file>
