@@ -1092,6 +1092,37 @@ private slots:
 
         QVERIFY(parent == nullptr); // the fetcher really ran
     }
+
+    // The connection belongs to the chooser, so a panel that is gone stops
+    // asking for the environment instead of evaluating it for nobody.
+    void testWorkingDirectoryAspectStopsAskingOnceTornDown()
+    {
+        auto parent = new QWidget;
+        int fetches = 0;
+
+        EnvironmentAspect envAspect;
+        envAspect.addPreferredBaseEnvironment("Counting", [&fetches] {
+            ++fetches;
+            return Utils::Environment();
+        });
+
+        WorkingDirectoryAspect workingDir;
+        workingDir.setEnvironment(&envAspect);
+
+        Layouting::Layout layout(new QVBoxLayout);
+        workingDir.addToLayout(layout);
+        layout.attachTo(parent);
+        QVERIFY(parent->findChild<Utils::PathChooser *>());
+
+        // Taken before the teardown, so that destroying the widgets may not
+        // ask for the environment either.
+        const int fetchesWhileAlive = fetches;
+
+        delete parent;
+        emit envAspect.environmentChanged();
+
+        QCOMPARE(fetches, fetchesWhileAlive);
+    }
 };
 
 QObject *createRunConfigurationTest()

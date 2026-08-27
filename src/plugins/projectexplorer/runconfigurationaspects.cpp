@@ -217,14 +217,15 @@ void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
     m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
 
     if (m_envAspect) {
-        connect(m_envAspect, &EnvironmentAspect::environmentChanged,
-                this, [this, self = QPointer(this)] {
-            // Evaluate the environment first: it reaches into device and kit
-            // machinery that can destroy the chooser or even this aspect, so
-            // both checks have to happen after it, not before.
-            const Environment env = m_envAspect->environment();
-            if (self && m_chooser)
-                m_chooser->setEnvironment(env);
+        // The chooser is the context, so a torn-down panel stops asking instead
+        // of outliving its widgets. Evaluating the environment still reaches into
+        // device and kit machinery that can tear the tree down while it runs,
+        // hence the check after it and not before.
+        connect(m_envAspect, &EnvironmentAspect::environmentChanged, m_chooser,
+                [envAspect = m_envAspect, chooser = QPointer(m_chooser.data())] {
+            const Environment env = envAspect->environment();
+            if (chooser)
+                chooser->setEnvironment(env);
         });
         m_chooser->setEnvironment(m_envAspect->environment());
     }
