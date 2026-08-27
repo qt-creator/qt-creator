@@ -495,19 +495,27 @@ void GenericDebuggerEngine::handleBreakpointModified(const GdbMi &data)
 }
 
 void GenericDebuggerEngine::handleNotResponding(std::chrono::seconds waited,
-                                                const QStringList &pendingCommands)
+                                                const QStringList &pendingCommands,
+                                                NotRespondingCause cause)
 {
     showMessage(QString("TIMED OUT WAITING FOR A REPLY. COMMANDS STILL IN PROGRESS: %1")
                     .arg(pendingCommands.join(", ")));
     if (m_notRespondingPending)
         return;
     m_notRespondingPending = true;
+    const bool fetching = cause == NotRespondingCause::FetchingDebugInfo;
     CheckableMessageBox::question_async(
-        Tr::tr("Debugger Not Responding"),
-        Tr::tr("The debugger process has not responded to a command within %n seconds. This "
-               "could mean it is stuck in an endless loop or taking longer than expected to "
-               "perform the operation.<br/>You can choose between waiting longer or aborting "
-               "debugging.", nullptr, int(waited.count())),
+        fetching ? Tr::tr("Downloading Debug Information")
+                 : Tr::tr("Debugger Not Responding"),
+        fetching ? Tr::tr("The debugger is downloading debug information, which can take a "
+                          "long time on a slow connection, and none has arrived for the last "
+                          "%n seconds. The server may also be unreachable.<br/>You can keep "
+                          "waiting or stop debugging.", nullptr, int(waited.count()))
+                 : Tr::tr("The debugger process has not responded to a command within %n "
+                          "seconds. This could mean it is stuck in an endless loop or taking "
+                          "longer than expected to perform the operation.<br/>You can choose "
+                          "between waiting longer or aborting debugging.",
+                          nullptr, int(waited.count())),
         {}, this,
         [this](QMessageBox::StandardButton button) {
             m_notRespondingPending = false;

@@ -5326,6 +5326,7 @@ static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
         .dumperScriptsDir = ICore::resourcePath("debugger"),
         .mainFunctionName = QLatin1String(windowsMain ? "qMain" : "main"),
         .flags = gdbImplFlags(rp),
+        .useDebugInfoD = settings().useDebugInfoD(),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
         .extraDumperFile = settings().extraDumperFile(),

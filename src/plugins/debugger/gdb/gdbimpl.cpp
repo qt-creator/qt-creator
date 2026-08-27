@@ -119,7 +119,10 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         if (pending.isEmpty())
             return;
         m_watchdog.start();
-        emit notResponding(m_startData.watchdogTimeout, pending);
+        emit notResponding(m_startData.watchdogTimeout, pending,
+                           m_debuginfodDownloadInProgress
+                               ? NotRespondingCause::FetchingDebugInfo
+                               : NotRespondingCause::Unknown);
     });
 
     CommandLine gdbCommand = m_startData.debuggerRunData.command;
@@ -144,7 +147,13 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
 
         // What GdbEngine::handleGdbStarted() sets, minus the settings-driven ones:
         // pending breakpoints for libraries that are not loaded yet, untruncated
-        // values, and no paging of console command output.
+        // values, no paging of console command output, and enough completions for
+        // a gdb-multiarch to answer "complete set arch".
+        // Several decisions depend on the version, and nothing else asks for it.
+        runCommand({"show version", [this](const DebuggerResponse &response) {
+            handleShowVersion(response);
+            applyDebugInfoDSettings();
+        }});
         runCommand({"set breakpoint pending on"});
         runCommand({"set print elements 10000"});
         runCommand({"set unwindonsignal on"});
@@ -335,6 +344,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
     });
     connect(&m_gdbProc, &Process::readyReadStandardOutput, this, [this] {
         restartWatchdog();
+        m_debuginfodDownloadInProgress = false;
         m_inbuffer += m_gdbProc.readAllStandardOutput();
         int newline;
         while ((newline = m_inbuffer.indexOf('\n')) >= 0) {
@@ -1832,6 +1842,25 @@ void GdbImpl::runCommandNow(const DebuggerCommand &command)
         restartWatchdog();
 }
 
+void GdbImpl::applyDebugInfoDSettings()
+{
+    // The commands exist from gdb 10.1 on, and only in a build with debuginfod
+    // support - an older or plainer gdb answers with an error we leave alone.
+    if (m_gdbVersion < 100100)
+        return;
+    switch (m_startData.useDebugInfoD.toInt()) {
+    case Utils::TriState::EnabledValue:
+        runCommand({"set debuginfod verbose 1"});
+        runCommand({"set debuginfod enabled on"});
+        break;
+    case Utils::TriState::DisabledValue:
+        runCommand({"set debuginfod enabled off"});
+        break;
+    default:
+        break;
+    }
+}
+
 void GdbImpl::createSpecialBreakpoints()
 {
     // A core file has nothing to break in.
@@ -2207,6 +2236,10 @@ void GdbImpl::handleOutputLine(const QString &line)
             handleResultRecord(&response);
             break;
         }
+        // gdb announces a debuginfod download with one line and then fetches
+        // silently, which looks exactly like a debugger that stopped answering.
+        if (data.startsWith("Downloading") && data.contains("separate debug info"))
+            m_debuginfodDownloadInProgress = true;
         m_pendingConsoleStreamOutput += data;
         break;
     }

@@ -486,6 +486,22 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
     return {};
 }
 
+// Only gdb has a debug info daemon to configure, and only when built with
+// support for it, which the test probes for at runtime.
+static QString debugInfoDaemonQuery(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return "show debuginfod enabled";
+    case Backend::Lldb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Cdb:
+        break;
+    }
+    return {};
+}
+
 // pdbbridge.py's stackListFrames() reports the whole stack and takes no limit,
 // so a depth limit cannot reach it yet.
 static bool limitsStackDepth(Backend backend)
@@ -834,6 +850,8 @@ private slots:
     void reportsAnUnresponsiveDebugger();
     void appliesConfiguredDebuggerOptions_data() { addBackendRows(); }
     void appliesConfiguredDebuggerOptions();
+    void configuresTheDebugInfoDaemon_data() { addBackendRows(); }
+    void configuresTheDebugInfoDaemon();
     void breaksBeforeTheInferiorAborts_data() { addBackendRows(); }
     void breaksBeforeTheInferiorAborts();
     void readsTheDebuggerInitFileWhenConfigured_data() { addBackendRows(); }
@@ -1137,6 +1155,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
                      | GdbImplFlag::UseIndexCache | GdbImplFlag::MultiInferior
                      | GdbImplFlag::ForceTargetAsync | GdbImplFlag::BreakOnAbort
                      | GdbImplFlag::BreakOnWarning | GdbImplFlag::BreakOnFatal,
+            .useDebugInfoD = TriState(TriState::EnabledValue),
             .extraDumperFile = existingDir / "qtc_extra_dumper.py",
             .extraDumperCommands = "echo QTCEXTRADUMPERCOMMAND\\n",
             .searchPaths = {.sysRoot = FilePath::fromUserInput("/qtc-test-sysroot"),
@@ -4759,6 +4778,54 @@ void tst_backends::appliesConfiguredDebuggerOptions()
                                   qPrintable(QString("%1 never answered with \"%2\"")
                                                  .arg(probe.query, expected)), s_timeout);
     }
+}
+
+void tst_backends::configuresTheDebugInfoDaemon()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    const QString query = debugInfoDaemonQuery(backend);
+    if (query.isEmpty())
+        QSKIP("This backend has no debug info daemon to configure.");
+
+    const FilePath existingDir = FilePath::fromString(m_tempDir.path()) / "debuginfod";
+    QVERIFY(existingDir.ensureWritableDir());
+    QVERIFY((existingDir / "qtc_extra_dumper.py").writeFileContents("pass\n"));
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createFullyConfiguredEngine(
+        backend, Environment::systemEnvironment(), existingDir);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList messages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
+
+    const auto answerTo = [&](const QString &command) -> QString {
+        messages.clear();
+        engine->executeDebuggerCommand(command, {});
+        QString answer;
+        [&] {
+            QTRY_VERIFY_WITH_TIMEOUT(std::any_of(messages.cbegin(), messages.cend(),
+                                                 [](const QString &text) {
+                return text.contains("Debuginfod") || text.contains("Undefined");
+            }), s_timeout);
+        }();
+        for (const QString &text : messages) {
+            if (text.contains("Debuginfod") || text.contains("Undefined"))
+                answer = text;
+        }
+        return answer;
+    };
+
+    const QString support = answerTo(query);
+    if (support.contains("Undefined"))
+        QSKIP("This debugger was built without debug info daemon support.");
+    QVERIFY2(support.contains("\"on\""),
+             qPrintable("the debug info daemon was not enabled as configured: " + support));
 }
 
 void tst_backends::breaksBeforeTheInferiorAborts()

@@ -6,6 +6,7 @@
 #include <debugger/outputcollector.h>
 #include "../debuggerengineinterface.h"
 
+#include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/processinterface.h>
@@ -80,6 +81,7 @@ public:
     Utils::FilePath dumperScriptsDir;
     QString mainFunctionName = "main";
     GdbImplFlags flags;
+    Utils::TriState useDebugInfoD;
     int qtVersion = 0;
     QString qtNamespace;
     Utils::FilePath extraDumperFile;
@@ -173,6 +175,7 @@ private:
     void applySearchPaths();
     void loadExtraDumpers();
     void createSpecialBreakpoints();
+    void applyDebugInfoDSettings();
     void runUserStartupCommands();
     void restartWatchdog();
     bool usesOutputCollector() const;
@@ -188,6 +191,7 @@ private:
     OutputCollector m_outputCollector;
     QString m_inbuffer;
     QString m_resultVarName;
+    bool m_debuginfodDownloadInProgress = false;
     enum class AttachPhase { Idle, AwaitingConnect, Stopped, Continuing };
     AttachPhase m_attachPhase = AttachPhase::Idle;
     QString m_pendingConsoleStreamOutput;

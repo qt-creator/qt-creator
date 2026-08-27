@@ -118,6 +118,10 @@ enum class BreakpointOp { Insert, Remove, Update, EnableSub };
 
 enum class LibraryEvent { Loaded, Unloaded };
 
+// Why a backend stopped answering, as far as it can tell. Fetching debug info
+// can take minutes on a slow server, and blaming the debugger misleads the user.
+enum class NotRespondingCause { Unknown, FetchingDebugInfo };
+
 class DEBUGGER_EXPORT BreakpointChangeRequest
 {
 public:
@@ -289,7 +293,8 @@ signals:
 
     void signalReceived(const QString &name, const QString &meaning);
 
-    void notResponding(std::chrono::seconds waited, const QStringList &pendingCommands);
+    void notResponding(std::chrono::seconds waited, const QStringList &pendingCommands,
+                       NotRespondingCause cause = NotRespondingCause::Unknown);
 
     void interruptTerminalRequested();
     void kickoffTerminalProcessRequested();

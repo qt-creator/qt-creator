@@ -79,7 +79,8 @@ private:
     void applyBkptData(const GdbMi &bkpt, const Breakpoint &bp);
     void handleBreakpointModified(const GdbMi &data);
     void handleSignalReceived(const QString &name, const QString &meaning);
-    void handleNotResponding(std::chrono::seconds waited, const QStringList &pendingCommands);
+    void handleNotResponding(std::chrono::seconds waited, const QStringList &pendingCommands,
+                             NotRespondingCause cause);
     void reloadStack(int depthLimit);
     void reloadThreads();
     Utils::FilePath cleanupFullName(const QString &fileName);
