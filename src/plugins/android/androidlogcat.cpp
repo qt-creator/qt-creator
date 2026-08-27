@@ -18,6 +18,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/outputformat.h>
 #include <utils/qtcassert.h>
@@ -34,6 +35,8 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QTimer>
+
+#include <utility>
 
 using namespace Utils;
 using namespace Core;
@@ -209,10 +212,24 @@ public:
 
     void bindToApp(qint64 pid, const QString &packageName);
 
+    void addLineReader(RunControl *owner, LogcatLineHandler callback);
+
 private:
+    void removeLineReader(RunControl *owner);
+
     void start();
     void stop();
     void setStreaming(bool streaming);
+
+    bool shouldKeepRunning() const;
+
+    struct LineReader
+    {
+        LogcatLineHandler callback;
+        QPointer<RunControl> owner;
+    };
+
+    bool hasLineReaders() const;
 
     struct TabContext
     {
@@ -231,6 +248,7 @@ private:
     };
 
     void onTabDestroyed();
+    void disposeIfIdle();
 
     void postMessage(const QString &msg, Utils::OutputFormat format = Utils::StdOutFormat);
 
@@ -253,6 +271,7 @@ private:
     bool m_adbFailedBannered = false;
     bool m_pausedWhileHidden = false;
     QString m_resumeTimestamp;
+    QList<LineReader> m_lineReaders;
 
     CommandLine adbCommand(const QStringList &args) const
     {
@@ -317,7 +336,16 @@ void LogcatStream::attachTab(RunControl *tab)
 void LogcatStream::onTabDestroyed()
 {
     m_tabContext = {};
-    streamRegistry().remove(m_device->id());
+    disposeIfIdle();
+}
+
+void LogcatStream::disposeIfIdle()
+{
+    if (m_tabContext.tab || hasLineReaders())
+        return;
+    auto &registry = streamRegistry();
+    if (registry.value(m_device->id()) == this)
+        registry.remove(m_device->id());
     deleteLater();
 }
 
@@ -345,6 +373,40 @@ void LogcatStream::bindToApp(qint64 pid, const QString &packageName)
     m_tabContext.tab->setOutputFilterText(m_tabContext.filter.filterText());
     m_filterDebounce.stop();
     m_tabContext.renderFromBuffer();
+}
+
+bool LogcatStream::hasLineReaders() const
+{
+    return Utils::anyOf(m_lineReaders, [](const LineReader &reader) {
+        return !reader.owner.isNull();
+    });
+}
+
+void LogcatStream::addLineReader(RunControl *owner, LogcatLineHandler callback)
+{
+    Utils::erase(m_lineReaders, [owner](const LineReader &reader) {
+        return reader.owner == owner || reader.owner.isNull();
+    });
+    m_lineReaders.append({std::move(callback), owner});
+    QObject::connect(owner, &RunControl::stopped, this,
+                     [this, owner] { removeLineReader(owner); },
+                     Qt::SingleShotConnection);
+    start();
+}
+
+void LogcatStream::removeLineReader(RunControl *owner)
+{
+    Utils::erase(m_lineReaders, [owner](const LineReader &reader) {
+        return reader.owner == owner || reader.owner.isNull();
+    });
+    if (!shouldKeepRunning())
+        stop();
+    disposeIfIdle();
+}
+
+bool LogcatStream::shouldKeepRunning() const
+{
+    return m_tabContext.streaming || hasLineReaders();
 }
 
 void LogcatStream::populateProcesses()
@@ -401,6 +463,12 @@ void LogcatStream::start()
                 populateProcesses();
             }
             m_tabContext.appendEntry(entry);
+            if (entry.parsed) {
+                for (const LineReader &reader : std::as_const(m_lineReaders)) {
+                    if (reader.owner)
+                        reader.callback(entry.pid, line);
+                }
+            }
         });
         process.setStdErrLineCallback([this](const QString &line) {
             // adb noise while it waits to re-attach the serial; the
@@ -443,7 +511,7 @@ void LogcatStream::stop()
     // The tab's visibility flickers while the pane rearranges: only tear
     // down if streaming stayed off.
     QTimer::singleShot(0, this, [this] {
-        if (!m_tabContext.streaming && m_task) {
+        if (!shouldKeepRunning() && m_task) {
             m_task.reset();
             m_pausedWhileHidden = true;
             m_resumeTimestamp.clear();
@@ -494,7 +562,7 @@ void LogcatStream::onConnected()
         postMessage(banner(m_device->displayNameWithSerial(), QLatin1String("connected")),
                     Utils::NormalMessageFormat);
     m_disconnected = false;
-    if (m_tabContext.tab && m_tabContext.streaming)
+    if (shouldKeepRunning())
         start();
 }
 
@@ -602,6 +670,13 @@ void bindRunningAppToLogcat(RunControl *runControl, qint64 pid, const QString &p
     if (!stream)
         return;
     stream->bindToApp(pid, packageName);
+}
+
+void monitorLogcat(RunControl *runControl, const LogcatLineHandler &onLine)
+{
+    QTC_ASSERT(runControl, return);
+    if (LogcatStream *stream = ensureStream(deviceForRun(runControl)))
+        stream->addLineReader(runControl, onLine);
 }
 
 void showLogcatTab(const AndroidDevice::ConstPtr &device)
