@@ -2877,6 +2877,7 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
     {
 #ifdef WITH_TESTS
         addTest<GitTest>();
+        registerInstantBlameTests(this);
 #endif
 
         dd = new GitPluginPrivate;

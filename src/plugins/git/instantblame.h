@@ -16,6 +16,10 @@ class QLayout;
 class QTimer;
 QT_END_NAMESPACE
 
+#ifdef WITH_TESTS
+namespace ExtensionSystem { class IPlugin; }
+#endif
+
 namespace Git::Internal {
 
 class CommitInfo {
@@ -112,5 +116,9 @@ private:
     QMetaObject::Connection m_blameCursorPosConn;
     QMetaObject::Connection m_documentChangedConn;
 };
+
+#ifdef WITH_TESTS
+void registerInstantBlameTests(ExtensionSystem::IPlugin *plugin);
+#endif
 
 } // Git::Internal

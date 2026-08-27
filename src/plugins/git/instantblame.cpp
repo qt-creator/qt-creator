@@ -12,6 +12,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
+#ifdef WITH_TESTS
+#include "extensionsystem/iplugin.h"
+#endif
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
@@ -32,6 +36,10 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QTimer>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
 
 namespace Git::Internal {
 
@@ -399,6 +407,24 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const FilePath &fil
     return result;
 }
 
+static QStringList blameCommandArguments(const QString &filePath,
+                                         const QString &ref,
+                                         int line,
+                                         bool ignoreSpaceChanges,
+                                         bool detectMovedLines)
+{
+    QStringList arguments = {"blame", "-p"};
+    if (ignoreSpaceChanges)
+        arguments.append("-w");
+    if (detectMovedLines)
+        arguments.append("-M");
+    arguments.append({"-L", QString("%1,%1").arg(line)});
+    if (!ref.isEmpty())
+        arguments.append(ref);
+    arguments.append({"--", filePath});
+    return arguments;
+}
+
 void InstantBlame::once()
 {
     if (!settings().instantBlame()) {
@@ -473,16 +499,13 @@ void InstantBlame::perform()
     const FilePath filePath = !sourceFilePath.isEmpty()
                                   ? sourceFilePath
                                   : widget->textDocument()->filePath();
-    const QString lineString = QString("%1,%1").arg(line);
-
-    QStringList options = {"blame", "-p"};
-    if (settings().instantBlameIgnoreSpaceChanges())
-        options.append("-w");
-    if (settings().instantBlameIgnoreLineMoves())
-        options.append("-M");
-    if (const QVariant ref = widget->textDocument()->property("GitReference"); ref.isValid())
-        options.append(ref.toString());
-    options.append({"-L", lineString, "--", filePath.path()});
+    const QString ref = widget->textDocument()->property("GitReference").toString();
+    const QStringList options = blameCommandArguments(
+        filePath.path(),
+        ref,
+        line,
+        settings().instantBlameIgnoreSpaceChanges(),
+        settings().instantBlameIgnoreLineMoves());
     qCDebug(log) << "Running git" << options.join(' ');
 
     const Storage<CommitInfo> infoStorage;
@@ -672,16 +695,12 @@ void BaselineBlame::perform()
         return;
     m_lastLine = line;
 
-    const QString lineString = QString("%1,%1").arg(line);
-    QStringList options = {"blame", "-p"};
-    if (settings().instantBlameIgnoreSpaceChanges())
-        options.append("-w");
-    if (settings().instantBlameIgnoreLineMoves())
-        options.append("-M");
-    options.append({"-L", lineString});
-    if (!m_ref.isEmpty()) // no revision blames the working tree
-        options.append(m_ref);
-    options.append({"--", m_relativeFile});
+    const QStringList options = blameCommandArguments(
+        m_relativeFile,
+        m_ref,
+        line,
+        settings().instantBlameIgnoreSpaceChanges(),
+        settings().instantBlameIgnoreLineMoves());
     qCDebug(log) << "Running git" << options.join(' ');
 
     const Storage<CommitInfo> infoStorage;
@@ -728,4 +747,68 @@ void BaselineBlame::perform()
     });
 }
 
+#ifdef WITH_TESTS
+
+class InstantBlameTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testBlameCommandArguments();
+    void testBlameOutputParsing();
+};
+
+void InstantBlameTest::testBlameCommandArguments()
+{
+    QCOMPARE(blameCommandArguments("src/main.cpp", {}, 17, false, false),
+             QStringList({"blame", "-p", "-L", "17,17", "--", "src/main.cpp"}));
+    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 2, true, false),
+             QStringList({"blame", "-p", "-w", "-L", "2,2", "HEAD^", "--", "file.h"}));
+    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 3, false, true),
+             QStringList({"blame", "-p", "-M", "-L", "3,3", "HEAD^", "--", "file.h"}));
+    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 4, true, true),
+             QStringList({"blame", "-p", "-w", "-M", "-L", "4,4", "HEAD^", "--", "file.h"}));
+}
+
+void InstantBlameTest::testBlameOutputParsing()
+{
+    const QStringList output = {
+        "8b649d2d61416205977aba56ef93e1e1f155005e 4 5 1",
+        "author John Doe",
+        "author-mail <john.doe@example.com>",
+        "author-time 1613752276",
+        "author-tz +0100",
+        "committer John Doe",
+        "committer-mail <john.doe@example.com>",
+        "committer-time 1613752312",
+        "committer-tz +0100",
+        "summary Add greeting",
+        "previous f6b5868032a5dc0e73b82b09184086d784949646 bar.cpp",
+        "filename foo.cpp",
+        "\tcout << \"Hello World!\"",
+    };
+
+    const FilePath filePath = FilePath::fromString("/repo/foo.cpp");
+    const CommitInfo info = parseBlameOutput(output, filePath, 5,
+                                             {"John Doe", "john.doe@example.com"});
+    QCOMPARE(info.hash, "8b649d2d61416205977aba56ef93e1e1f155005e");
+    QCOMPARE(info.shortAuthor, Tr::tr("You"));
+    QCOMPARE(info.subject, "Add greeting");
+    QCOMPARE(info.filePath, filePath);
+    QCOMPARE(info.originalFileName, "foo.cpp");
+    QCOMPARE(info.previousFileName, "bar.cpp");
+    QCOMPARE(info.line, 5);
+    QCOMPARE(info.originalLine, 4);
+    QVERIFY(!info.modified);
+}
+
+void registerInstantBlameTests(ExtensionSystem::IPlugin *plugin)
+{
+    plugin->addTest<InstantBlameTest>();
+}
+
+#endif
+
 } // Git::Internal
+
+#include "instantblame.moc"
