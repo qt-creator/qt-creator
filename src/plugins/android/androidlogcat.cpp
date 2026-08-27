@@ -155,6 +155,7 @@ static bool matchesFreeText(const LogcatEntry &entry, const QString &term)
 
 static constexpr QLatin1StringView packageKey("package");
 static constexpr QLatin1StringView levelKey("level");
+static constexpr QLatin1StringView mineValue("mine");
 
 class LogcatFilter
 {
@@ -199,10 +200,17 @@ void LogcatFilter::setFromText(const QString &text)
         const bool queryKey = key == packageKey || key == levelKey;
         if (queryKey && value.isEmpty())
             continue;
-        if (key == packageKey
-            && value.compare(QLatin1String("mine"), Qt::CaseInsensitive) == 0
-            && !m_boundPackage.isEmpty()) {
-            m_predicates.append(minePredicate(m_boundPackage));
+        if (key == packageKey) {
+            if (value.compare(mineValue, Qt::CaseInsensitive) == 0) {
+                if (!m_boundPackage.isEmpty())
+                    m_predicates.append(minePredicate(m_boundPackage));
+                else
+                    m_predicates.append([](const LogcatEntry &) { return false; });
+            } else {
+                m_predicates.append([value](const LogcatEntry &e) {
+                    return e.packageName.contains(value, Qt::CaseInsensitive);
+                });
+            }
         } else if (key == levelKey) {
             const LogcatLevel level = logcatLevel(value);
             if (level != LogcatLevel::Unknown)
