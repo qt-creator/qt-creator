@@ -71,12 +71,19 @@ option(WITH_DEBUGGER_DUMPERS "Include tests for debugger pretty printers" ON)
 if (WITH_DEBUGGER_DUMPERS)
   get_target_property(qmake_binary Qt::qmake IMPORTED_LOCATION)
 
+  if (QtCreator_BINARY_DIR)
+    set(CDBEXT_BASE_PATH "${QtCreator_BINARY_DIR}/${IDE_LIBRARY_BASE_PATH}")
+  else()
+    set(CDBEXT_BASE_PATH "${CMAKE_BINARY_DIR}/${IDE_LIBRARY_BASE_PATH}")
+  endif()
+
   add_qtc_test(tst_debugger_dumpers
     EXCLUDE_FROM_PRECHECK
     TIMEOUT 0
     DEPENDS Qt::Network Utils Debugger
     DEFINES
       DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debugger"
+      CDBEXT_PATH="${CDBEXT_BASE_PATH}"
       DEFAULT_QMAKE_BINARY="${qmake_binary}"
     INCLUDES
       "${DEBUGGERDIR}"
