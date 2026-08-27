@@ -55,6 +55,7 @@ public:
 
 private:
     void setupForCurrentEditor();
+    bool setEditor(TextEditor::TextEditorWidget *widget);
     void scheduleInstantBlame();
     void stop();
     void slotDocumentChanged();

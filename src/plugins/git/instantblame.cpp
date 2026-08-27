@@ -365,13 +365,25 @@ void InstantBlame::setupForCurrentEditor()
     }
 
     TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-    if (!widget) {
-        qCInfo(log) << "Cannot get current text editor widget.";
+    if (!setEditor(widget)) {
+        qCInfo(log) << "Cannot set up instant blame for the current editor.";
         return;
     }
+
+    m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged,
+                                   this, [this] { m_controller->schedule(500); });
+    m_documentChangedConn = connect(m_document, &IDocument::changed,
+                                    this, &InstantBlame::slotDocumentChanged);
+    m_modified = m_document->isModified();
+}
+
+bool InstantBlame::setEditor(TextEditorWidget *widget)
+{
+    if (!widget)
+        return false;
     if (qobject_cast<const VcsBaseEditorWidget *>(widget)) {
         qCDebug(log) << "Deactivating in version control editors";
-        return;
+        return false;
     }
 
     m_document = widget->textDocument();
@@ -381,20 +393,21 @@ void InstantBlame::setupForCurrentEditor()
         if (!repository.isEmpty())
             topLevel = FilePath::fromString(repository);
     }
+    if (topLevel.isEmpty()) {
+        m_document = nullptr;
+        return false;
+    }
+
     const FilePath sourceFilePath = VcsBase::source(m_document);
     const FilePath workingFilePath = sourceFilePath.isEmpty() ? m_document->filePath()
                                                               : sourceFilePath;
-    const QString ref = m_document->property("GitReference").toString();
-    m_controller->setContext(widget, topLevel, ref, workingFilePath.path(), workingFilePath,
+    m_controller->setContext(widget, topLevel,
+                             m_document->property("GitReference").toString(),
+                             workingFilePath.path(), workingFilePath,
                              /*allowModifiedDocument=*/false,
                              /*useDocumentContents=*/false);
     m_controller->setEnabled(true);
-
-    m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged,
-                                   this, [this] { m_controller->schedule(500); });
-    m_documentChangedConn = connect(m_document, &IDocument::changed,
-                                    this, &InstantBlame::slotDocumentChanged);
-    m_modified = m_document->isModified();
+    return true;
 }
 
 void InstantBlame::repeat()
@@ -515,27 +528,10 @@ void InstantBlame::once()
 
     stop();
     TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-    if (!widget || qobject_cast<const VcsBaseEditorWidget *>(widget)) {
+    if (!setEditor(widget)) {
         qCWarning(log) << "Cannot get a suitable text editor widget";
         return;
     }
-
-    m_document = widget->textDocument();
-    FilePath topLevel = currentState().currentFileTopLevel();
-    if (topLevel.isEmpty()) {
-        const QString repository = m_document->property("GitRepository").toString();
-        if (!repository.isEmpty())
-            topLevel = FilePath::fromString(repository);
-    }
-    const FilePath sourceFilePath = VcsBase::source(m_document);
-    const FilePath workingFilePath = sourceFilePath.isEmpty() ? m_document->filePath()
-                                                              : sourceFilePath;
-    m_controller->setContext(widget, topLevel,
-                             m_document->property("GitReference").toString(),
-                             workingFilePath.path(), workingFilePath,
-                             /*allowModifiedDocument=*/false,
-                             /*useDocumentContents=*/false);
-    m_controller->setEnabled(true);
     m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged,
                                    this, &InstantBlame::stop, Qt::SingleShotConnection);
 }
