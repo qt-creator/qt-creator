@@ -863,6 +863,58 @@ void ModelManagerTest::testStaleHeaderReuseViaNestedDependency()
              "dependency on FLAG, external to that closure, was wrongly ignored");
 }
 
+/// Check: a header (h.h) reachable both directly by #include and via a
+/// sibling document's (x.h's) own recorded #include - a "diamond" - can end
+/// up with its own include guard already active in the environment purely
+/// via CppSourceProcessor::mergeEnvironment(), which recurses through x.h's
+/// resolvedIncludes() without going through sourceNeeded()/m_included at
+/// all. If the direct #include then finds h.h's cached document invalid for
+/// an unrelated reason (here: FLAG) and falls through to a real reparse,
+/// that reparse hits h.h's own "#ifndef H_H_INCLUDED" with the guard already
+/// defined, skips the entire body, and yields an empty document - which
+/// must not silently replace the real one (with its unconditional
+/// "alwaysHere" declaration) in the snapshot.
+///
+/// Both configA.cpp and configB.cpp #include "x.h" before "h.h", so the bug
+/// reproduces regardless of which of the two is processed first in the
+/// batch (index() has no defined order; params.sourceFiles is a QSet):
+/// whichever is processed second reaches x.h already cached (from the
+/// first), merges h.h's include guard via x.h, and then finds its own direct
+/// #include of h.h invalid (FLAG differs) and reparses into that
+/// already-guarded environment.
+void ModelManagerTest::testStaleHeaderReuseViaDiamondIncludeGuard()
+{
+    ModelManagerTestHelper helper;
+
+    const FilePath dataDir = testDataDir("testdata_stale_header_reuse_diamond");
+    const FilePath hHeader = dataDir / "h.h";
+    const FilePath configACpp = dataDir / "configA.cpp";
+    const FilePath configBCpp = dataDir / "configB.cpp";
+
+    const auto project = helper.createProject(
+                _("test_modelmanager_stale_header_reuse_diamond"),
+                FilePath::fromString("blubb.pro"));
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+            {{configACpp, ProjectFile::CXXSource},
+             {configBCpp, ProjectFile::CXXSource}});
+    const auto pi = ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part});
+    helper.updateProjectInfo(pi);
+
+    // alwaysHere is declared unconditionally in h.h, outside of any FLAG
+    // check - it must survive regardless of what happens with FLAG or with
+    // h.h's own include guard.
+    const Document::Ptr hDoc = CppModelManager::snapshot().document(hHeader);
+    QVERIFY(hDoc);
+    QVERIFY2(hDoc->globalSymbolCount() > 0,
+             "h.h was reparsed while its own include guard was already "
+             "active (via mergeEnvironment() recursing into it through "
+             "x.h's own #include, which bypasses m_included), so the "
+             "reparse skipped the entire guarded body and yielded an empty "
+             "document, silently replacing the real one in the snapshot");
+}
+
 void ModelManagerTest::testPrecompiledHeaders()
 {
     ModelManagerTestHelper helper;

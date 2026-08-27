@@ -432,7 +432,10 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     // export define) are deliberately not compared, so they cannot force a
     // needless reparse.
     if (Document::Ptr document = m_snapshot.document(absoluteFilePath)) {
-        if (document->isValidForCurrentEnvironment(m_env, m_snapshot)) {
+        // if the file's macros are in the environment already, so is its include guard
+        // re-reading it would only yield an empty document, reuse instead
+        if (m_processed.contains(absoluteFilePath)
+                || document->isValidForCurrentEnvironment(m_env, m_snapshot)) {
             mergeEnvironment(document);
             return;
         }
@@ -470,6 +473,24 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
 //        qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData());
 //    }
     document->setFingerprint(generateFingerPrint(document->definedMacros(), preprocessedCode));
+
+    // reading file whose include guard is already defined yields an empty document
+    // such result must not replace what we have, neither here nor in the model manager's snapshot
+    const Document::Ptr existing = m_snapshot.document(absoluteFilePath);
+    const bool sawOwnMacro = Utils::anyOf(document->macroUses(),
+                                          [&absoluteFilePath](const Document::MacroUse &use) {
+        return use.macro().filePath() == absoluteFilePath;
+    });
+    // Believed unreachable: whatever put this file's own macro into m_env should
+    // already have added it to m_included (fresh parse) or m_processed (merge),
+    // either of which would have returned above without reaching this reparse.
+    if (QTC_UNEXPECTED(existing && sawOwnMacro && document->definedMacros().isEmpty()
+            && document->resolvedIncludes().isEmpty())) {
+        switchCurrentDocument(previousDocument);
+        mergeEnvironment(existing);
+        m_todo.remove(absoluteFilePath);
+        return;
+    }
 
     // Re-use document from global snapshot if possible
     Document::Ptr globalDocument = m_globalSnapshot.document(absoluteFilePath);

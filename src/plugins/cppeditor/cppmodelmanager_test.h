@@ -28,6 +28,7 @@ private slots:
     void testDefinesPerEditor();
     void testStaleHeaderReuseAcrossConfigs_QTCREATORBUG_18800();
     void testStaleHeaderReuseViaNestedDependency();
+    void testStaleHeaderReuseViaDiamondIncludeGuard();
     void testUpdateEditorsAfterProjectUpdate();
     void testPrecompiledHeaders();
     void testRenameIncludes_data();
