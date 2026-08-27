@@ -46,6 +46,12 @@ Utils::FilePath lldbServerForDevice(const Utils::FilePath &sdkRoot);
 // The sysroot of the native SDK.
 Utils::FilePath sysrootPath(const Utils::FilePath &sdkRoot);
 
+// The library that holds an application at startup, built for the device from the source
+// shipped beside Qt Creator. It is built once and kept beside the settings, because the
+// kits name it as something to link against and every build resolves that same path.
+// Returns an empty path when the SDK does not have what it takes to build it.
+Utils::FilePath waitLibrary(const Utils::FilePath &sdkRoot);
+
 // The CMake toolchain file that Qt's qt.toolchain.cmake chain-loads for HarmonyOS.
 Utils::FilePath cmakeToolchainFile(const Utils::FilePath &sdkRoot);
 

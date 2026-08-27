@@ -8,8 +8,11 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include <coreplugin/icore.h>
+
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 
 using namespace Utils;
 
@@ -170,6 +173,38 @@ FilePath sysrootPath(const FilePath &sdkRoot)
         return {};
     const FilePath sysroot = native.pathAppended("sysroot");
     return sysroot.isDir() ? sysroot : FilePath();
+}
+
+FilePath waitLibrary(const FilePath &sdkRoot)
+{
+    const FilePath source = Core::ICore::resourcePath("harmonyos/qtcwait.cpp");
+    const FilePath compiler = clangCompiler(sdkRoot, true);
+    const FilePath sysroot = sysrootPath(sdkRoot);
+    if (!source.exists() || compiler.isEmpty() || sysroot.isEmpty())
+        return {};
+
+    const FilePath library = Core::ICore::userResourcePath("harmonyos")
+                                 .pathAppended(Constants::HARMONYOS_WAIT_LIBRARY);
+    if (library.exists() && library.lastModified() > source.lastModified())
+        return library;
+    if (const Result<> created = library.parentDir().ensureWritableDir(); !created)
+        return {};
+
+    Process compile;
+    compile.setCommand(
+        {compiler,
+         {"--target=aarch64-linux-ohos",
+          "--sysroot=" + sysroot.path(),
+          "-fPIC", "-shared", "-O1",
+          // The loader looks for the dependency under this name; without it the linker
+          // would record the path the application happened to be linked against.
+          "-Wl,-soname," + library.fileName(),
+          QString("-DQTC_GATE_PORT=%1").arg(Constants::HARMONYOS_GATE_PORT),
+          QString("-DQTC_SERVER_PORT=%1").arg(Constants::HARMONYOS_DEBUG_PORT),
+          QString("-DQTC_SERVER_PATH=\"%1\"").arg(Constants::HARMONYOS_DEBUG_SERVER_PATH),
+          source.path(), "-o", library.path()}});
+    compile.runBlocking();
+    return library.exists() ? library : FilePath();
 }
 
 FilePath hvigorBinPath(const FilePath &sdkRoot)

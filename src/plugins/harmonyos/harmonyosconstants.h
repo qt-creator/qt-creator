@@ -19,8 +19,19 @@ inline constexpr int HARMONYOS_SSH_PORT = 8022;
 
 // The port the application's own debug server listens on, forwarded to the host.
 inline constexpr int HARMONYOS_DEBUG_PORT = 8123;
+// The port on the device that says a launch is being debugged: an hdc reverse forward
+// leaves a listener there for as long as the debug run lasts, and the application asks
+// by connecting to it.
+inline constexpr int HARMONYOS_GATE_PORT = 8124;
 inline constexpr char HARMONYOS_DEBUG_SERVER_PACKAGE[] = "lldbserver";
 inline constexpr char HARMONYOS_DEBUG_PLUGIN[] = "qtcdebug";
+// Where the packed debug server ends up in the application's own namespace, which is the
+// only place on the device a binary of ours may be executed from.
+inline constexpr char HARMONYOS_DEBUG_SERVER_PATH[] = "/data/service/hnp/bin/lldb-server";
+// The library that holds an application until the debugger releases it, and the byte it
+// spins on.
+inline constexpr char HARMONYOS_WAIT_LIBRARY[] = "libqtcwait.so";
+inline constexpr char HARMONYOS_WAIT_FLAG[] = "qtc_waitForDebugger";
 
 inline const Utils::Id HARMONYOS_SERIAL_NUMBER = "HarmonyOS.SerialNumber";
 

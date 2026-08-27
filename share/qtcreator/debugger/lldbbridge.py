@@ -108,6 +108,7 @@ class Dumper(DumperBase):
 
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
+        self.releasedApplication_ = False
         self.interpreterBreakpointResolvers = []
         self.interpreterResolverHookBreakpoint = None
         self.objectAvailableBreakpoint = None
@@ -1170,8 +1171,11 @@ class Dumper(DumperBase):
 
             # Even if it stops it seems that LLDB assumes it is running
             # and later detects that it did stop after all, so it is be
-            # better to mirror that and wait for the spontaneous stop.
-            self.reportState('enginerunandinferiorrunok')
+            # better to mirror that and wait for the spontaneous stop. The platform that
+            # attaches said where it stands itself, and saying it again races the continue
+            # the engine answers that with.
+            if self.platform_ != "remote-ohos":
+                self.reportState('enginerunandinferiorrunok')
 
         elif self.startMode_ == DebuggerStartMode.AttachCore:
             coreFile = args.get('coreFile', '')
@@ -1201,6 +1205,32 @@ class Dumper(DumperBase):
 
         s = threading.Thread(target=self.loop, args=[])
         s.start()
+
+    # Writing one byte asks less of the session than evaluating an expression: no
+    # types and no evaluator, only the module's own symbol table and its mapping.
+    def pokeByte(self, moduleName, symbolName, value):
+        address = self.symbolLoadAddress(moduleName, symbolName)
+        if address is None:
+            return False
+        error = lldb.SBError()
+        if self.process.WriteMemory(address, bytes([value]), error) == 1 and error.Success():
+            self.report('Wrote %s to %s!%s at 0x%x.' % (value, moduleName, symbolName, address))
+            return True
+        self.report('Could not write %s!%s at 0x%x: %s'
+                    % (moduleName, symbolName, address, error.GetCString()))
+        return False
+
+    def symbolLoadAddress(self, moduleName, symbolName):
+        for module in self.target.modules:
+            if module.GetFileSpec().GetFilename() != moduleName:
+                continue
+            symbol = module.FindSymbol(symbolName)
+            if not symbol.IsValid():
+                continue
+            address = symbol.GetStartAddress().GetLoadAddress(self.target)
+            if address != lldb.LLDB_INVALID_ADDRESS:
+                return address
+        return None
 
     def execSearchPaths(self):
         result = lldb.SBCommandReturnObject()
@@ -1253,6 +1283,17 @@ class Dumper(DumperBase):
                 placed += 1
         if placed:
             self.report('Placed %s module(s) from the memory map of the process.' % placed)
+        self.releaseApplication()
+
+    # The application holds itself in a constructor of an injected library until this byte
+    # is cleared. That library is mapped together with the application's own one, which the
+    # framework opens long after the process starts, so the byte is written whenever a
+    # placement has made the module reachable, until one of the attempts lands.
+    def releaseApplication(self):
+        if self.releasedApplication_:
+            return
+        if self.pokeByte('libqtcwait.so', 'qtc_waitForDebugger', 0):
+            self.releasedApplication_ = True
 
     @staticmethod
     def isLoader(basename):

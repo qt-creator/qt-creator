@@ -180,6 +180,7 @@ void updateAutomaticKitList()
     const FilePath sysroot = Sdk::sysrootPath(settings().sdkLocation());
     const FilePath cmakeToolchainFile = Sdk::cmakeToolchainFile(settings().sdkLocation());
     const FilePath additionalPackages = settings().additionalPackages();
+    const FilePath waitLibrary = Sdk::waitLibrary(settings().sdkLocation());
 
     QList<Kit *> unhandledKits = existingKits;
     for (const ToolchainBundle &bundle : bundles) {
@@ -192,7 +193,7 @@ void updateAutomaticKitList()
             });
 
             const auto initializeKit = [&bundle, qt, debuggerId, sysroot, cmakeToolchainFile,
-                                        additionalPackages](Kit *k) {
+                                        additionalPackages, waitLibrary](Kit *k) {
                 const auto source = qt->detectionSource().isAutoDetected()
                                         ? DetectionSource::FromSystem
                                         : DetectionSource::Manual;
@@ -219,6 +220,20 @@ void updateAutomaticKitList()
                         config.insert(CMakeConfigItem("QT_ADDITIONAL_PACKAGES_PREFIX_PATH",
                                                       CMakeConfigItem::PATH,
                                                       additionalPackages.path().toUtf8()));
+                    }
+                    // Nothing may start an application under a debugger here, so a debug
+                    // build carries a library that holds itself until the debugger is
+                    // attached. Only being a dependency makes the loader initialize it
+                    // before the application, and nothing references it, so the linker
+                    // has to be told to record the dependency anyway.
+                    if (!waitLibrary.isEmpty()) {
+                        const QByteArray flags = "-Wl,--no-as-needed "
+                                                 + waitLibrary.path().toUtf8()
+                                                 + " -Wl,--as-needed";
+                        for (const QByteArray &kind : {"EXE", "MODULE", "SHARED"}) {
+                            config.insert(CMakeConfigItem("CMAKE_" + kind + "_LINKER_FLAGS_DEBUG",
+                                                          CMakeConfigItem::STRING, flags));
+                        }
                     }
                     CMakeConfigurationKitAspect::setConfiguration(k, config);
                 }

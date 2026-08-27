@@ -21,7 +21,10 @@
 
 #include <utils/qtcprocess.h>
 
+#include <QHostAddress>
 #include <QRegularExpression>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 using namespace std::chrono_literals;
 
@@ -103,6 +106,84 @@ public:
             // Nothing starts the application in debug mode, and the debugger can only attach
             // once it runs and has started the server, so this launches it and waits for it.
             const Storage<QString> pidStorage;
+            // How a launch is told it is being debugged. The library a debug build carries
+            // asks the device's own loopback, because nothing reaches an application this
+            // early: the framework passes no environment and the parameter store is
+            // root-only. A reverse forward puts this server on the device's loopback, so a
+            // connect that succeeds there is the answer.
+            const Storage<std::unique_ptr<QTcpServer>> gateStorage;
+
+            const auto openGate = [gateStorage] {
+                auto server = std::make_unique<QTcpServer>();
+                if (!server->listen(QHostAddress::LocalHost))
+                    return false;
+                QTcpServer * const gate = server.get();
+                QObject::connect(gate, &QTcpServer::newConnection,
+                                 gate, [gate] {
+                    // The connect is the whole message; nothing is sent over it.
+                    while (QTcpSocket * const socket = gate->nextPendingConnection())
+                        socket->deleteLater();
+                });
+                *gateStorage = std::move(server);
+                return true;
+            };
+            // A forward outlives the run that made it when Qt Creator does not get to clean
+            // up, and the port on the device is the one the library was built to ask, so a
+            // leftover has to go before this run can claim it. Which host port it points at
+            // is only in the list.
+            const Storage<QString> staleStorage;
+
+            const auto onGateListSetup = [command](Process &process) {
+                process.setCommand(command({"fport", "ls"}));
+                process.setEnvironment(Sdk::hdcEnvironment());
+            };
+            const auto onGateListDone = [staleStorage](const Process &process) {
+                const QString gate = QString("tcp:%1").arg(Constants::HARMONYOS_GATE_PORT);
+                const QStringList lines
+                    = process.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
+                for (const QString &line : lines) {
+                    if (!line.contains("[Reverse]"))
+                        continue;
+                    const QStringList fields = line.simplified().split(' ');
+                    const qsizetype at = fields.indexOf(gate);
+                    if (at >= 0 && at + 1 < fields.size())
+                        *staleStorage = fields.at(at + 1);
+                }
+            };
+            const auto onGateDropSetup = [command, staleStorage](Process &process) {
+                if (staleStorage->isEmpty())
+                    return SetupResult::StopWithSuccess;
+                const QString gate = QString("tcp:%1").arg(Constants::HARMONYOS_GATE_PORT);
+                process.setCommand(command({"fport", "rm", gate, *staleStorage}));
+                process.setEnvironment(Sdk::hdcEnvironment());
+                return SetupResult::Continue;
+            };
+
+            const auto onGateForwardSetup = [command, gateStorage](Process &process) {
+                if (!*gateStorage)
+                    return SetupResult::StopWithSuccess;
+                process.setCommand(command({"rport",
+                                            QString("tcp:%1").arg(Constants::HARMONYOS_GATE_PORT),
+                                            QString("tcp:%1").arg((*gateStorage)->serverPort())}));
+                process.setEnvironment(Sdk::hdcEnvironment());
+                return SetupResult::Continue;
+            };
+            const auto onGateForwardDone = [runControl](const Process &process) {
+                // Without the gate the application does not wait, which only means that
+                // the debugger arrives after it has started.
+                if (process.allOutput().contains("[Fail]")) {
+                    runControl->postMessage(
+                        Tr::tr("Could not tell the device that this launch is being debugged: "
+                               "%1").arg(process.allOutput().trimmed()), ErrorMessageFormat);
+                }
+            };
+
+            // An application that still runs is brought to the front rather than started
+            // again, and the debugger would attach to one that passed main() long ago.
+            const auto onStopSetup = [command, bundle](Process &process) {
+                process.setCommand(command({"shell", "aa", "force-stop", bundle}));
+                process.setEnvironment(Sdk::hdcEnvironment());
+            };
 
             const auto onStartSetup = [command, bundle](Process &process) {
                 const QString spec = QString("%1:%2").arg(Constants::HARMONYOS_DEBUG_PLUGIN)
@@ -158,8 +239,20 @@ public:
                 rp.setAttachPid(ProcessHandle(pidStorage->toLongLong()));
             };
 
+            const QString gate = QString("tcp:%1").arg(Constants::HARMONYOS_GATE_PORT);
+
             return Group {
                 pidStorage,
+                gateStorage,
+                Group {
+                    finishAllAndSuccess,
+                    staleStorage,
+                    QSyncTask(openGate),
+                    ProcessTask(onGateListSetup, onGateListDone),
+                    ProcessTask(onGateDropSetup),
+                    ProcessTask(onGateForwardSetup, onGateForwardDone)
+                },
+                ProcessTask(onStopSetup, [](const Process &) { return DoneResult::Success; }),
                 ProcessTask(onStartSetup),
                 Forever {
                     stopOnSuccess,
@@ -183,8 +276,13 @@ public:
                 },
                 ProcessTask(onForwardSetup, onForwardDone),
                 debuggerRecipe(runControl, debuggerRunParameters(runControl), setAttachPid),
-                onGroupDone([command, forward] {
+                onGroupDone([command, forward, gate, gateStorage] {
                     Process::startDetached(command({"fport", "rm", forward, forward}));
+                    if (*gateStorage) {
+                        Process::startDetached(command(
+                            {"fport", "rm", gate,
+                             QString("tcp:%1").arg((*gateStorage)->serverPort())}));
+                    }
                 })
             };
         });

@@ -40,7 +40,20 @@ thing.
   attaches through the `remote-ohos` platform, and the debugger stops.
 - **Breakpoints.** A breakpoint set by function or by file and line resolves,
   in the application's own library as well as in Qt's, and is hit - watched
-  with one in a widget destructor as the application was closed.
+  with one in a widget destructor as the application was closed, and with one
+  on the first line of `main()`.
+- **Stopping before `main()`.** A debug build links against a small library of
+  ours, which the loader initializes before the library that names it as a
+  dependency - so before any static initializer of the application. It asks
+  whether this launch is being debugged, starts the debug server, and then
+  spins on an exported byte until the debugger clears it. What it asks is the
+  device's own loopback: Qt Creator leaves a listener there through a reverse
+  forward for as long as a debug run lasts, because nothing else reaches an
+  application that early - the framework passes no environment, the parameter
+  store is root-only, and a file the host writes cannot be read from the
+  application sandbox. Watched stopping at the first line of `main()`, with
+  the frames above it in Qt's HarmonyOS entry point. Nothing in the library
+  comes from Qt, so a program that is not a Qt one is held the same way.
 - **Symbolised frames**, for the libraries there is a local copy of. The
   platform reports no module list for a process it did not launch, so nothing
   is loaded and, before this was dealt with, no frame could be named and no
@@ -84,12 +97,14 @@ device, but never yet watched doing their job from within Qt Creator:
   inside an installed application, and refuses `PTRACE_TRACEME` everywhere. So
   the application starts the server and the debugger attaches, rather than the
   server starting the application. This is a property of the device, not
-  something left to do.
+  something left to do. Stopping before the application's own code runs is
+  nevertheless possible, by holding it from inside - see "Stopping before
+  `main()`" above.
 
-  It decides where a breakpoint can usefully go: by the time the debugger is
-  attached the application has started, so a location reached from `main()` -
-  a constructor, `setupUi()` - resolves and is never hit. Anything reached
-  later works, a destructor or code driven from the event loop.
+  A release build has no such library and is therefore only ever caught after
+  it has started, which is where a breakpoint has to allow for: a location
+  reached from `main()` resolves and is never hit, while a destructor or
+  anything driven from the event loop works.
 
 ## What the SDK makes awkward
 

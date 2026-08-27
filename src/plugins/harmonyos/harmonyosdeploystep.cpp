@@ -481,6 +481,31 @@ private:
         return true;
     }
 
+    // The kit links a debug build against this, so it has to be beside the application's
+    // own library for the loader to find it. A build whose kit did not carry the flag has
+    // no dependency on it, and the copy then does no harm.
+    bool shipWaitLibrary(const FilePath &libraries)
+    {
+        const FilePath library = Sdk::waitLibrary(settings().sdkLocation());
+        if (library.isEmpty()) {
+            emit addOutput(Tr::tr("Cannot build the library that holds an application at "
+                                  "startup; debugging will only be able to attach to an "
+                                  "application that already runs."), OutputFormat::Stdout);
+            return true;
+        }
+        if (const Result<> created = libraries.ensureWritableDir(); !created) {
+            emit addOutput(created.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        const FilePath target = libraries.pathAppended(library.fileName());
+        target.removeFile();
+        if (const Result<> copied = library.copyFile(target); !copied) {
+            emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        return true;
+    }
+
     // Qt's project templates are copied from its source tree, which in an in-source build
     // holds CMake's own files as well. hvigor takes exception to them: with them present it
     // deletes the generated project mid-run and then reports the files it deleted as missing.
@@ -504,6 +529,8 @@ private:
     bool shipDebugPlugin()
     {
         if (!buildDebugPlugin(m_project.pathAppended("entry/libs/arm64-v8a/generic")))
+            return false;
+        if (!shipWaitLibrary(m_project.pathAppended("entry/libs/arm64-v8a")))
             return false;
 
         const FilePath moduleJson = m_project.pathAppended("entry/src/main/module.json5");
