@@ -51,6 +51,43 @@ using namespace TextEditor;
 using namespace Utils;
 using namespace VcsBase;
 
+class BlameController : public QObject
+{
+public:
+    explicit BlameController(QObject *parent = nullptr);
+
+    void setContext(TextEditor::TextEditorWidget *widget,
+                    const Utils::FilePath &topLevel,
+                    const QString &ref,
+                    const QString &commandFilePath,
+                    const Utils::FilePath &workingFilePath,
+                    bool allowModifiedDocument);
+    void setEnabled(bool enabled);
+    void schedule(int delay = 0);
+    void clear();
+
+private:
+    void loadRepositoryConfiguration();
+    void perform();
+
+    QPointer<TextEditor::TextEditorWidget> m_widget;
+    QPointer<TextEditor::TextDocument> m_document;
+    Utils::FilePath m_topLevel;
+    QString m_ref;
+    QString m_commandFilePath;
+    Utils::FilePath m_workingFilePath;
+    bool m_allowModifiedDocument = false;
+    bool m_enabled = false;
+    Utils::TextEncoding m_encoding;
+    Author m_author;
+    int m_lastLine = -1;
+    QTimer *m_timer = nullptr;
+    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
+    std::unique_ptr<BlameMark> m_blameMark;
+    quint64 m_contextGeneration = 0;
+    quint64 m_requestGeneration = 0;
+};
+
 BlameMark::BlameMark(TextEditor::TextDocument *document, int lineNumber, const CommitInfo &info)
     : TextEditor::TextMark(document,
                            lineNumber,
@@ -254,78 +291,70 @@ void BlameMark::addNewLine(const QString &newLine)
 }
 
 InstantBlame::InstantBlame()
+    : m_controller(new BlameController(this))
 {
-    m_encoding = gitClient().defaultCommitEncoding();
-    m_cursorPositionChangedTimer = new QTimer(this);
-    m_cursorPositionChangedTimer->setSingleShot(true);
-    connect(m_cursorPositionChangedTimer, &QTimer::timeout, this, &InstantBlame::perform);
-    m_scheduleTimer = new QTimer(this);
-    m_scheduleTimer->setSingleShot(true);
-    connect(m_scheduleTimer, &QTimer::timeout, this, &InstantBlame::perform);
 }
 
 void InstantBlame::setup()
 {
     qCDebug(log) << "Setup";
-
-    auto setupBlameForEditor = [this] {
-        qCDebug(log) << "Setting up blame for editor.";
-
-        if (!settings().instantBlame()) {
-            qCDebug(log) << "Instant blame is disabled.";
-            m_lastVisitedEditorLine = -1;
-            stop();
-            m_taskTreeRunner.reset();
-            return;
-        }
-
-        TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-        if (!widget) {
-            qCInfo(log) << "Cannot get current text editor widget.";
-            stop();
-            m_taskTreeRunner.reset();
-            return;
-        }
-
-        if (qobject_cast<const VcsBaseEditorWidget *>(widget)) {
-            qCDebug(log) << "Deactivating in version control editors";
-            return; // Skip in version control editors like log or blame
-        }
-
-        refreshWorkingDirectory();
-
-        qCInfo(log) << "Adding blame cursor connection";
-        m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged, this,
-                                       [this] {
-                                           if (!settings().instantBlame()) {
-                                               disconnect(m_blameCursorPosConn);
-                                               return;
-                                           }
-                                           if (!m_scheduleTimer->isActive())
-                                               m_cursorPositionChangedTimer->start(500);
-                                       });
-        m_document = widget->textDocument();
-        m_documentChangedConn = connect(m_document, &IDocument::changed,
-                                        this, &InstantBlame::slotDocumentChanged,
-                                        Qt::UniqueConnection);
-
-        scheduleInstantBlame();
-    };
-
-    connect(&settings().instantBlame, &BaseAspect::changed, this, setupBlameForEditor);
-    connect(&settings().instantBlameIgnoreSpaceChanges, &BaseAspect::changed, this, setupBlameForEditor);
-    connect(&settings().instantBlameIgnoreLineMoves, &BaseAspect::changed, this, setupBlameForEditor);
-    connect(&settings().instantBlameShowSubject, &BaseAspect::changed, this, setupBlameForEditor);
+    const auto setupForCurrentEditor = [this] { this->setupForCurrentEditor(); };
+    connect(&settings().instantBlame, &BaseAspect::changed, this, setupForCurrentEditor);
+    connect(&settings().instantBlameIgnoreSpaceChanges, &BaseAspect::changed,
+            this, setupForCurrentEditor);
+    connect(&settings().instantBlameIgnoreLineMoves, &BaseAspect::changed,
+            this, setupForCurrentEditor);
+    connect(&settings().instantBlameShowSubject, &BaseAspect::changed,
+            this, setupForCurrentEditor);
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, setupBlameForEditor);
+            this, setupForCurrentEditor);
     connect(EditorManager::instance(), &EditorManager::documentClosed,
             this, [this](IDocument *doc) {
-        if (m_document != doc)
-            return;
-        disconnect(m_documentChangedConn);
-        m_document = nullptr;
+                if (m_document == doc)
+                    stop();
     });
+    setupForCurrentEditor();
+}
+
+void InstantBlame::setupForCurrentEditor()
+{
+    stop();
+    if (!settings().instantBlame()) {
+        qCDebug(log) << "Instant blame is disabled.";
+        return;
+    }
+
+    TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+    if (!widget) {
+        qCInfo(log) << "Cannot get current text editor widget.";
+        return;
+    }
+    if (qobject_cast<const VcsBaseEditorWidget *>(widget)) {
+        qCDebug(log) << "Deactivating in version control editors";
+        return;
+    }
+
+    m_document = widget->textDocument();
+    FilePath topLevel = currentState().currentFileTopLevel();
+    if (topLevel.isEmpty()) {
+        const QString repository = m_document->property("GitRepository").toString();
+        if (!repository.isEmpty())
+            topLevel = FilePath::fromString(repository);
+    }
+    const FilePath sourceFilePath = VcsBase::source(m_document);
+    const FilePath workingFilePath = sourceFilePath.isEmpty() ? m_document->filePath()
+                                                              : sourceFilePath;
+    const QString ref = m_document->property("GitReference").toString();
+    m_controller->setContext(widget, topLevel, ref, workingFilePath.path(), workingFilePath,
+                             /*allowModifiedDocument=*/false);
+    m_controller->setEnabled(true);
+
+    m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged,
+                                   this, [this] { m_controller->schedule(500); });
+    m_documentChangedConn = connect(m_document, &IDocument::changed,
+                                    this, &InstantBlame::slotDocumentChanged);
+    m_modified = m_document->isModified();
 }
 
 void InstantBlame::repeat()
@@ -334,8 +363,7 @@ void InstantBlame::repeat()
         return;
 
     QTimer::singleShot(20, this, [this] {
-        refreshWorkingDirectory();
-        scheduleInstantBlame();
+        setupForCurrentEditor();
     });
 }
 
@@ -427,32 +455,40 @@ static QStringList blameCommandArguments(const QString &filePath,
 
 void InstantBlame::once()
 {
-    if (!settings().instantBlame()) {
-        const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-        if (!widget) {
-            qCWarning(log) << "Cannot get current text editor widget";
-            return;
-        }
-        connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
-
-        connect(widget, &PlainTextEdit::cursorPositionChanged,
-            this, [this] { m_blameMark.reset(); }, Qt::SingleShotConnection);
-
-        refreshWorkingDirectory();
+    if (settings().instantBlame()) {
+        scheduleInstantBlame();
+        return;
     }
 
-    scheduleInstantBlame();
+    stop();
+    TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
+    if (!widget || qobject_cast<const VcsBaseEditorWidget *>(widget)) {
+        qCWarning(log) << "Cannot get a suitable text editor widget";
+        return;
+    }
+
+    m_document = widget->textDocument();
+    FilePath topLevel = currentState().currentFileTopLevel();
+    if (topLevel.isEmpty()) {
+        const QString repository = m_document->property("GitRepository").toString();
+        if (!repository.isEmpty())
+            topLevel = FilePath::fromString(repository);
+    }
+    const FilePath sourceFilePath = VcsBase::source(m_document);
+    const FilePath workingFilePath = sourceFilePath.isEmpty() ? m_document->filePath()
+                                                              : sourceFilePath;
+    m_controller->setContext(widget, topLevel,
+                             m_document->property("GitReference").toString(),
+                             workingFilePath.path(), workingFilePath,
+                             /*allowModifiedDocument=*/false);
+    m_controller->setEnabled(true);
+    m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged,
+                                   this, &InstantBlame::stop, Qt::SingleShotConnection);
 }
 
 void InstantBlame::scheduleInstantBlame()
 {
-    m_lastVisitedEditorLine = -1;
-    m_cursorPositionChangedTimer->stop();
-    if (m_scheduleTimer->isActive())
-        m_taskTreeRunner.reset();
-    else
-        m_scheduleTimer->start(0);
+    m_controller->schedule();
 }
 
 // the empty block after a trailing newline is not a real line
@@ -464,176 +500,19 @@ static bool isPhantomLine(const QTextDocument *document, int line)
     return line == blockCount && blockCount > 1 && document->lastBlock().text().isEmpty();
 }
 
-void InstantBlame::perform()
-{
-    const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-    if (!widget) {
-        qCWarning(log) << "Cannot get current text editor widget";
-        return;
-    }
-
-    if (widget->textDocument()->isModified()) {
-        qCDebug(log) << "Document is modified, pausing blame";
-        m_blameMark.reset();
-        m_lastVisitedEditorLine = -1;
-        return;
-    }
-
-    const QTextCursor cursor = widget->textCursor();
-    const QTextBlock block = cursor.block();
-    const int line = block.blockNumber() + 1;
-
-    if (isPhantomLine(widget->document(), line)) {
-        m_lastVisitedEditorLine = -1;
-        m_blameMark.reset();
-        return;
-    }
-
-    if (m_lastVisitedEditorLine == line)
-        return;
-
-    qCDebug(log) << "New editor line:" << line;
-    m_lastVisitedEditorLine = line;
-
-    const FilePath sourceFilePath = VcsBase::source(widget->textDocument());
-    const FilePath filePath = !sourceFilePath.isEmpty()
-                                  ? sourceFilePath
-                                  : widget->textDocument()->filePath();
-    const QString ref = widget->textDocument()->property("GitReference").toString();
-    const QStringList options = blameCommandArguments(
-        filePath.path(),
-        ref,
-        line,
-        settings().instantBlameIgnoreSpaceChanges(),
-        settings().instantBlameIgnoreLineMoves());
-    qCDebug(log) << "Running git" << options.join(' ');
-
-    const Storage<CommitInfo> infoStorage;
-    const auto blameHandler = [this, filePath, line, infoStorage,
-                               doc = QPointer(widget->textDocument())](const CommandResult &result) {
-        if (doc.isNull())
-            return;
-        if (result.result() == ProcessResult::FinishedWithError
-                && result.cleanedStdErr().contains("no such path")) {
-            stop();
-            return;
-        }
-        const QString output = result.cleanedStdOut();
-        if (output.isEmpty()) {
-            stop();
-            return;
-        }
-        *infoStorage = parseBlameOutput(output.split('\n'), filePath, line, m_author);
-        infoStorage->topLevel = m_workingDirectory;
-        m_blameMark.reset(new BlameMark(doc.get(), line, *infoStorage));
-    };
-    const TextEncoding encoding = m_encoding;
-    const auto onLogSetup = [this, infoStorage, encoding](Process &process) -> SetupResult {
-        if (infoStorage->hash.isEmpty() || infoStorage->modified)
-            return SetupResult::StopWithSuccess;
-        // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`
-        const QString origLineString = QString("%1,%1").arg(infoStorage->originalLine);
-        const QString fileLineRange = "-L" + origLineString + ":" + infoStorage->originalFileName;
-        const QStringList logOptions = {"log", "-n 1", "-p", fileLineRange, infoStorage->hash};
-        qCDebug(log) << "Running git" << logOptions.join(' ');
-        gitClient().setupCommand(process, m_workingDirectory, logOptions);
-        process.setEncoding(encoding);
-        return SetupResult::Continue;
-    };
-    const auto onLogDone = [this](const Process &process) {
-        if (!m_blameMark)
-            return;
-        const QString error = process.cleanedStdErr().trimmed();
-        if (!error.isEmpty())
-            qCWarning(log) << error;
-        static const QRegularExpression re("^[-+][^-+].*");
-        const QStringList diffLines = process.cleanedStdOut().split("\n").filter(re);
-        for (const QString &diffLine : diffLines) {
-            if (diffLine.startsWith("-")) {
-                m_blameMark->addOldLine(diffLine);
-                qCDebug(log) << "Found removed line: " << diffLine;
-            } else if (diffLine.startsWith("+")) {
-                m_blameMark->addNewLine(diffLine);
-                qCDebug(log) << "Found added line: " << diffLine;
-            }
-        }
-    };
-
-    m_taskTreeRunner.start({
-        infoStorage,
-        gitClient().commandTask({m_workingDirectory, options, RunFlag::NoOutput, {}, m_encoding,
-                                 blameHandler}),
-        ProcessTask(onLogSetup, onLogDone, CallDoneFlag::OnSuccess)
-    });
-}
-
 void InstantBlame::stop()
 {
     qCInfo(log) << "Stopping blame now";
-    m_scheduleTimer->stop();
-    m_blameMark.reset();
-    m_cursorPositionChangedTimer->stop();
+    m_controller->setEnabled(false);
     disconnect(m_blameCursorPosConn);
     disconnect(m_documentChangedConn);
-}
-
-void InstantBlame::refreshWorkingDirectory()
-{
-    FilePath workingDirectory = currentState().currentFileTopLevel();
-
-    if (workingDirectory.isEmpty()) {
-        const TextEditorWidget *widget = TextEditorWidget::currentTextEditorWidget();
-        if (!widget)
-            return;
-        const QString repo = widget->textDocument()->property("GitRepository").toString();
-        if (!repo.isEmpty())
-            workingDirectory = FilePath::fromString(repo);
-    }
-
-    if (m_workingDirectory == workingDirectory)
-        return;
-
-    qCInfo(log) << "Setting new working directory:" << workingDirectory;
-    m_workingDirectory = workingDirectory;
-
-    const auto commitCodecHandler = [this, workingDirectory](const CommandResult &result) {
-        TextEncoding encoding;
-
-        if (result.result() == ProcessResult::FinishedWithSuccess) {
-            const QString codecName = result.cleanedStdOut().trimmed();
-            encoding = codecName.toUtf8();
-        } else {
-            encoding = gitClient().defaultCommitEncoding();
-        }
-
-        if (m_encoding != encoding) {
-            qCInfo(log) << "Setting new text codec:" << encoding.name();
-            m_encoding = encoding;
-            scheduleInstantBlame();
-        }
-    };
-    gitClient().readConfigAsync(workingDirectory, {"config", "i18n.commitEncoding"},
-                                commitCodecHandler);
-
-    const auto authorHandler = [this, workingDirectory](const CommandResult &result) {
-        if (result.result() == ProcessResult::FinishedWithSuccess) {
-            const QString authorInfo = result.cleanedStdOut().trimmed();
-            const Author author = gitClient().parseAuthor(authorInfo);
-
-            if (m_author != author) {
-                qCInfo(log) << "Setting new author name:" << author.name << author.email;
-                m_author = author;
-                scheduleInstantBlame();
-            }
-        }
-    };
-    gitClient().readConfigAsync(workingDirectory, {"var", "GIT_AUTHOR_IDENT"},
-                                authorHandler);
+    m_document = nullptr;
+    m_modified = false;
 }
 
 void InstantBlame::slotDocumentChanged()
 {
-    if (m_document == nullptr) {
+    if (!m_document) {
         qCWarning(log) << "Document is invalid, disconnecting.";
         disconnect(m_documentChangedConn);
         return;
@@ -641,50 +520,131 @@ void InstantBlame::slotDocumentChanged()
 
     const bool modified = m_document->isModified();
     qCDebug(log) << "Document is changed, modified:" << modified;
-    if (m_modified && !modified)
+    if (modified) {
+        m_controller->clear();
+    } else if (m_modified) {
         scheduleInstantBlame();
+    }
     m_modified = modified;
 }
 
-BaselineBlame::BaselineBlame(TextEditorWidget *widget,
-                             const FilePath &topLevel,
-                             const QString &ref,
-                             const QString &relativeFile,
-                             const FilePath &workingFilePath)
-    : QObject(widget)
-    , m_widget(widget)
-    , m_topLevel(topLevel)
-    , m_ref(ref)
-    , m_relativeFile(relativeFile)
-    , m_workingFilePath(workingFilePath)
+BlameController::BlameController(QObject *parent)
+    : QObject(parent)
     , m_encoding(gitClient().defaultCommitEncoding())
+    , m_timer(new QTimer(this))
 {
-    // author names and subjects are encoded with the repository's commit
-    // encoding, not necessarily the default
-    gitClient().readConfigAsync(topLevel, {"config", "i18n.commitEncoding"},
-                                [guard = QPointer<BaselineBlame>(this)](
-                                    const CommandResult &result) {
-        if (!guard || result.result() != ProcessResult::FinishedWithSuccess)
-            return;
-        const QString codecName = result.cleanedStdOut().trimmed();
-        if (!codecName.isEmpty())
-            guard->m_encoding = codecName.toUtf8();
-    });
-    m_cursorTimer = new QTimer(this);
-    m_cursorTimer->setSingleShot(true);
-    m_cursorTimer->setInterval(500);
-    connect(m_cursorTimer, &QTimer::timeout, this, &BaselineBlame::perform);
-    connect(widget, &PlainTextEdit::cursorPositionChanged,
-            this, [this] { m_cursorTimer->start(); });
-    m_cursorTimer->start();
+    m_timer->setSingleShot(true);
+    connect(m_timer, &QTimer::timeout, this, &BlameController::perform);
 }
 
-void BaselineBlame::perform()
+void BlameController::setContext(TextEditorWidget *widget,
+                                 const FilePath &topLevel,
+                                 const QString &ref,
+                                 const QString &commandFilePath,
+                                 const FilePath &workingFilePath,
+                                 bool allowModifiedDocument)
 {
-    if (!settings().instantBlame()) {
-        m_blameMark.reset();
+    clear();
+    ++m_contextGeneration;
+    m_widget = widget;
+    m_document = widget ? widget->textDocument() : nullptr;
+    m_topLevel = topLevel;
+    m_ref = ref;
+    m_commandFilePath = commandFilePath;
+    m_workingFilePath = workingFilePath;
+    m_allowModifiedDocument = allowModifiedDocument;
+    m_encoding = gitClient().defaultCommitEncoding();
+    m_author = {};
+    loadRepositoryConfiguration();
+    if (m_enabled)
+        schedule();
+}
+
+void BlameController::setEnabled(bool enabled)
+{
+    if (m_enabled == enabled)
+        return;
+    m_enabled = enabled;
+    if (enabled)
+        schedule();
+    else
+        clear();
+}
+
+void BlameController::schedule(int delay)
+{
+    if (!m_enabled)
+        return;
+    m_lastLine = -1;
+    m_timer->stop();
+    m_taskTreeRunner.reset();
+    ++m_requestGeneration;
+    m_timer->start(delay);
+}
+
+void BlameController::clear()
+{
+    m_timer->stop();
+    m_taskTreeRunner.reset();
+    m_blameMark.reset();
+    m_lastLine = -1;
+    ++m_requestGeneration;
+}
+
+void BlameController::loadRepositoryConfiguration()
+{
+    if (m_topLevel.isEmpty())
+        return;
+
+    const quint64 generation = m_contextGeneration;
+    const FilePath topLevel = m_topLevel;
+    const QPointer<BlameController> guard(this);
+    gitClient().readConfigAsync(
+        topLevel,
+        {"config", "i18n.commitEncoding"},
+        [guard, generation](const CommandResult &result) {
+            if (!guard || guard->m_contextGeneration != generation)
+                return;
+            TextEncoding encoding = gitClient().defaultCommitEncoding();
+            if (result.result() == ProcessResult::FinishedWithSuccess) {
+                const QString codecName = result.cleanedStdOut().trimmed();
+                if (!codecName.isEmpty())
+                    encoding = codecName.toUtf8();
+            }
+            if (guard->m_encoding != encoding) {
+                guard->m_encoding = encoding;
+                guard->schedule();
+            }
+        });
+    gitClient().readConfigAsync(
+        topLevel,
+        {"var", "GIT_AUTHOR_IDENT"},
+        [guard, generation](const CommandResult &result) {
+            if (!guard || guard->m_contextGeneration != generation
+                || result.result() != ProcessResult::FinishedWithSuccess) {
+                return;
+            }
+            const Author author = gitClient().parseAuthor(result.cleanedStdOut().trimmed());
+            if (guard->m_author != author) {
+                guard->m_author = author;
+                guard->schedule();
+            }
+        });
+}
+
+void BlameController::perform()
+{
+    if (!m_widget || !m_document || m_topLevel.isEmpty()) {
+        clear();
         return;
     }
+    if (!m_allowModifiedDocument && m_document->isModified()) {
+        qCDebug(log) << "Document is modified, pausing blame";
+        m_blameMark.reset();
+        m_lastLine = -1;
+        return;
+    }
+
     const int line = m_widget->textCursor().blockNumber() + 1;
     if (isPhantomLine(m_widget->document(), line)) {
         m_lastLine = -1;
@@ -696,55 +656,92 @@ void BaselineBlame::perform()
     m_lastLine = line;
 
     const QStringList options = blameCommandArguments(
-        m_relativeFile,
+        m_commandFilePath,
         m_ref,
         line,
         settings().instantBlameIgnoreSpaceChanges(),
         settings().instantBlameIgnoreLineMoves());
     qCDebug(log) << "Running git" << options.join(' ');
 
+    const quint64 generation = ++m_requestGeneration;
+    const FilePath topLevel = m_topLevel;
+    const FilePath workingFilePath = m_workingFilePath;
+    const TextEncoding encoding = m_encoding;
+    const Author author = m_author;
+    const QPointer<TextDocument> document = m_document;
+    const QPointer<BlameController> guard(this);
     const Storage<CommitInfo> infoStorage;
-    const auto blameHandler = [this, line, infoStorage](const CommandResult &result) {
+    const auto blameHandler = [guard, document, generation, workingFilePath, topLevel, line,
+                               author, infoStorage](const CommandResult &result) {
+        if (!guard || !document || guard->m_requestGeneration != generation)
+            return;
         const QString output = result.cleanedStdOut();
         if (result.result() != ProcessResult::FinishedWithSuccess || output.isEmpty()) {
-            m_blameMark.reset();
+            guard->clear();
             return;
         }
-        *infoStorage = parseBlameOutput(output.split('\n'), m_workingFilePath, line, {});
-        infoStorage->topLevel = m_topLevel;
-        m_blameMark.reset(new BlameMark(m_widget->textDocument(), line, *infoStorage));
+        *infoStorage = parseBlameOutput(output.split('\n'), workingFilePath, line, author);
+        infoStorage->topLevel = topLevel;
+        guard->m_blameMark = std::make_unique<BlameMark>(document.get(), line, *infoStorage);
     };
-    const TextEncoding encoding = m_encoding;
-    const FilePath topLevel = m_topLevel;
     const auto onLogSetup = [infoStorage, topLevel, encoding](Process &process) -> SetupResult {
-        if (infoStorage->hash.isEmpty())
+        if (infoStorage->hash.isEmpty() || infoStorage->modified)
             return SetupResult::StopWithSuccess;
+        // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`
         const QString origLineString = QString("%1,%1").arg(infoStorage->originalLine);
         const QString fileLineRange = "-L" + origLineString + ":" + infoStorage->originalFileName;
         const QStringList logOptions = {"log", "-n 1", "-p", fileLineRange, infoStorage->hash};
+        qCDebug(log) << "Running git" << logOptions.join(' ');
         gitClient().setupCommand(process, topLevel, logOptions);
         process.setEncoding(encoding);
         return SetupResult::Continue;
     };
-    const auto onLogDone = [this](const Process &process) {
-        if (!m_blameMark)
+    const auto onLogDone = [guard, generation](const Process &process) {
+        if (!guard || guard->m_requestGeneration != generation || !guard->m_blameMark)
             return;
+        const QString error = process.cleanedStdErr().trimmed();
+        if (!error.isEmpty())
+            qCWarning(log) << error;
         static const QRegularExpression re("^[-+][^-+].*");
         const QStringList diffLines = process.cleanedStdOut().split("\n").filter(re);
         for (const QString &diffLine : diffLines) {
             if (diffLine.startsWith("-"))
-                m_blameMark->addOldLine(diffLine);
+                guard->m_blameMark->addOldLine(diffLine);
             else if (diffLine.startsWith("+"))
-                m_blameMark->addNewLine(diffLine);
+                guard->m_blameMark->addNewLine(diffLine);
         }
     };
 
     m_taskTreeRunner.start({
         infoStorage,
-        gitClient().commandTask({m_topLevel, options, RunFlag::NoOutput, {}, m_encoding,
+        gitClient().commandTask({topLevel, options, RunFlag::NoOutput, {}, encoding,
                                  blameHandler}),
-        ProcessTask(onLogSetup, onLogDone, CallDoneFlag::OnSuccess)
+        ProcessTask(onLogSetup, onLogDone, CallDoneFlag::OnSuccess),
     });
+}
+
+BaselineBlame::BaselineBlame(TextEditorWidget *widget,
+                             const FilePath &topLevel,
+                             const QString &ref,
+                             const QString &relativeFile,
+                             const FilePath &workingFilePath)
+    : QObject(widget)
+    , m_controller(new BlameController(this))
+{
+    m_controller->setContext(widget, topLevel, ref, relativeFile, workingFilePath,
+                             /*allowModifiedDocument=*/true);
+    connect(widget, &PlainTextEdit::cursorPositionChanged,
+            this, [this] {
+                if (settings().instantBlame())
+                    m_controller->schedule(500);
+            });
+    connect(&settings().instantBlame, &BaseAspect::changed, this,
+            [this] { m_controller->setEnabled(settings().instantBlame()); });
+    const auto schedule = [this] { m_controller->schedule(); };
+    connect(&settings().instantBlameIgnoreSpaceChanges, &BaseAspect::changed, this, schedule);
+    connect(&settings().instantBlameIgnoreLineMoves, &BaseAspect::changed, this, schedule);
+    connect(&settings().instantBlameShowSubject, &BaseAspect::changed, this, schedule);
+    m_controller->setEnabled(settings().instantBlame());
 }
 
 #ifdef WITH_TESTS

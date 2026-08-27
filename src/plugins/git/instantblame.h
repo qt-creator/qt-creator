@@ -22,6 +22,8 @@ namespace ExtensionSystem { class IPlugin; }
 
 namespace Git::Internal {
 
+class BlameController;
+
 class CommitInfo {
 public:
     QString hash;
@@ -71,18 +73,7 @@ public:
                   const Utils::FilePath &workingFilePath);
 
 private:
-    void perform();
-
-    TextEditor::TextEditorWidget *m_widget = nullptr;
-    const Utils::FilePath m_topLevel;
-    const QString m_ref;
-    const QString m_relativeFile;
-    const Utils::FilePath m_workingFilePath;
-    Utils::TextEncoding m_encoding;
-    int m_lastLine = -1;
-    QTimer *m_cursorTimer = nullptr;
-    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
-    std::unique_ptr<BlameMark> m_blameMark;
+    BlameController *m_controller = nullptr;
 };
 
 class InstantBlame : public QObject
@@ -97,22 +88,14 @@ public:
     void once();
 
 private:
+    void setupForCurrentEditor();
     void scheduleInstantBlame();
     void stop();
-    void perform();
-    void refreshWorkingDirectory();
     void slotDocumentChanged();
 
-    Utils::FilePath m_workingDirectory;
-    Utils::TextEncoding m_encoding;
-    Author m_author;
-    int m_lastVisitedEditorLine = -1;
-    Core::IDocument *m_document = nullptr;
+    BlameController *m_controller = nullptr;
+    QPointer<TextEditor::TextDocument> m_document;
     bool m_modified = false;
-    QTimer *m_cursorPositionChangedTimer = nullptr;
-    QTimer *m_scheduleTimer = nullptr;
-    QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
-    std::unique_ptr<BlameMark> m_blameMark;
     QMetaObject::Connection m_blameCursorPosConn;
     QMetaObject::Connection m_documentChangedConn;
 };
