@@ -1262,8 +1262,8 @@ void QtVersionPrivate::updateMkspec()
     if (m_id == -1 || m_mkspecUpToDate)
         return;
 
-    m_mkspecUpToDate = true;
     m_mkspecFullPath = mkspecFromVersionInfo(versionInfo(), m_qmakeCommand);
+    m_mkspecUpToDate = true;
 
     m_mkspec = m_mkspecFullPath;
     if (m_mkspecFullPath.isEmpty())
@@ -1305,10 +1305,10 @@ void QtVersion::ensureMkSpecParsed() const
 {
     if (d->m_mkspecReadUpToDate)
         return;
-    d->m_mkspecReadUpToDate = true;
 
     if (mkspecPath().isEmpty())
         return;
+    d->m_mkspecReadUpToDate = true;
 
     QMakeVfs vfs;
     QMakeGlobals option;
@@ -1537,6 +1537,10 @@ QtVersionData &QtVersionPrivate::data()
             m_versionInfoFailed = true;
         } else {
             m_data = *data;
+            // Drop what was derived from the placeholder above.
+            m_mkspecUpToDate = false;
+            m_mkspecReadUpToDate = false;
+            m_qtAbis.reset();
         }
     }
 
