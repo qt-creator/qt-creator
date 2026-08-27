@@ -236,13 +236,13 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         case InferiorEvent::RunRequested: notifyInferiorRunRequested(); break;
         case InferiorEvent::StopOk:
             notifyInferiorStopOk();
-            reloadFullStack();
+            reloadStack(settings().maximalStackDepth());
             reloadThreads();
             break;
         case InferiorEvent::StopFailed: notifyInferiorStopFailed(); break;
         case InferiorEvent::SpontaneousStop:
             notifyInferiorSpontaneousStop();
-            reloadFullStack();
+            reloadStack(settings().maximalStackDepth());
             reloadThreads();
             break;
         case InferiorEvent::InferiorIll: notifyInferiorIll(); break;
@@ -259,7 +259,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         case InferiorEvent::EngineSpontaneousShutdown: notifyEngineSpontaneousShutdown(); break;
         case InferiorEvent::RunAndInferiorStopOk:
             notifyEngineRunAndInferiorStopOk();
-            reloadFullStack();
+            reloadStack(settings().maximalStackDepth());
             reloadThreads();
             break;
         case InferiorEvent::RunAndInferiorRunOk: notifyEngineRunAndInferiorRunOk(); break;
@@ -544,7 +544,7 @@ void GenericDebuggerEngine::selectThread(const Thread &thread)
 {
     QTC_ASSERT(thread, return);
     m_backend->selectThread(thread->id());
-    reloadFullStack();
+    reloadStack(settings().maximalStackDepth());
 }
 
 void GenericDebuggerEngine::activateFrame(int index)
@@ -577,7 +577,7 @@ void GenericDebuggerEngine::activateFrame(int index)
 void GenericDebuggerEngine::updateAll()
 {
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
-    reloadFullStack();
+    reloadStack(settings().maximalStackDepth());
     reloadThreads();
     reloadRegisters();
     reloadPeripheralRegisters();
@@ -613,12 +613,18 @@ void GenericDebuggerEngine::requestModuleSections(const FilePath &moduleName)
     m_backend->refresh(request);
 }
 
-void GenericDebuggerEngine::reloadFullStack()
+void GenericDebuggerEngine::reloadStack(int depthLimit)
 {
     RefreshRequest request;
     request.kind = RefreshKind::FullStack;
     request.requestId = m_nextRefreshRequestId++;
+    request.stackDepthLimit = depthLimit;
     m_backend->refresh(request);
+}
+
+void GenericDebuggerEngine::reloadFullStack()
+{
+    reloadStack(-1);
 }
 
 void GenericDebuggerEngine::reloadThreads()
@@ -657,7 +663,7 @@ void GenericDebuggerEngine::loadSymbolsForStack()
         }
     });
     if (needUpdate) {
-        reloadFullStack();
+        reloadStack(settings().maximalStackDepth());
         updateLocals();
     }
 }
@@ -670,7 +676,7 @@ void GenericDebuggerEngine::loadSymbols(const FilePath &moduleName)
     request.path = moduleName;
     m_backend->refresh(request);
     reloadModules();
-    reloadFullStack();
+    reloadStack(settings().maximalStackDepth());
     updateLocals();
 }
 

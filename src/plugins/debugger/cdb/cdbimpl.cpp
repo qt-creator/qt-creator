@@ -1243,7 +1243,8 @@ void CdbImpl::refresh(const RefreshRequest &request)
             emit refreshDataReceived(requestId, RefreshKind::FullStack,
                                      stackTreeFromFrames(response.data));
         });
-        cmd.args = QString("unlimited");
+        cmd.args = request.stackDepthLimit < 0 ? QString("unlimited")
+                                               : QString::number(request.stackDepthLimit);
         runCommand(cmd);
         return;
     }

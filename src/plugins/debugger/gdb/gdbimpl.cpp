@@ -774,7 +774,7 @@ void GdbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::FullStack: {
         DebuggerCommand cmd("fetchStack");
-        cmd.arg("limit", -1);
+        cmd.arg("limit", request.stackDepthLimit);
         cmd.arg("nativemixed", m_startData.isSet(GdbImplFlag::NativeMixedDebugging));
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::FullStack, response.data);
@@ -790,7 +790,7 @@ void GdbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::QmlStack: {
         DebuggerCommand cmd("fetchStack");
-        cmd.arg("limit", -1);
+        cmd.arg("limit", request.stackDepthLimit);
         cmd.arg("nativemixed", m_startData.isSet(GdbImplFlag::NativeMixedDebugging));
         cmd.arg("extraqml", true);
         cmd.callback = [this, requestId](const DebuggerResponse &response) {

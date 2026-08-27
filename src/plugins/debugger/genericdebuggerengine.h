@@ -80,6 +80,7 @@ private:
     void handleBreakpointModified(const GdbMi &data);
     void handleSignalReceived(const QString &name, const QString &meaning);
     void handleNotResponding(std::chrono::seconds waited, const QStringList &pendingCommands);
+    void reloadStack(int depthLimit);
     void reloadThreads();
     Utils::FilePath cleanupFullName(const QString &fileName);
 

@@ -695,7 +695,7 @@ void LldbImpl::refresh(const RefreshRequest &request)
     case RefreshKind::FullStack: {
         DebuggerCommand cmd("fetchStack");
         cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
-        cmd.arg("stacklimit", -1);
+        cmd.arg("stacklimit", request.stackDepthLimit);
         cmd.arg("context", request.context);
         cmd.arg("extraqml", 0);
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
@@ -707,7 +707,7 @@ void LldbImpl::refresh(const RefreshRequest &request)
     case RefreshKind::QmlStack: {
         DebuggerCommand cmd("fetchStack");
         cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
-        cmd.arg("stacklimit", -1);
+        cmd.arg("stacklimit", request.stackDepthLimit);
         cmd.arg("context", request.context);
         cmd.arg("extraqml", 1);
         cmd.callback = [this, requestId](const DebuggerResponse &response) {

@@ -486,6 +486,22 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
     return {};
 }
 
+// pdbbridge.py's stackListFrames() reports the whole stack and takes no limit,
+// so a depth limit cannot reach it yet.
+static bool limitsStackDepth(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+    case Backend::Lldb:
+    case Backend::Cdb:
+        return true;
+    case Backend::Pdb:
+    case Backend::Qml:
+        break;
+    }
+    return false;
+}
+
 // createSpecialBreakpoints() is a gdb-bridge feature; no other bridge implements
 // it, so nothing there can break on abort, qWarning or qFatal.
 static bool breaksOnSpecialFunctions(Backend backend)
@@ -705,6 +721,8 @@ private slots:
     void testCreateFullBacktraceCapability();
     void activatesFrameAndReadsItsLocals_data() { addBackendRows(); }
     void activatesFrameAndReadsItsLocals();
+    void limitsTheReportedStackDepth_data() { addBackendRows(); }
+    void limitsTheReportedStackDepth();
     void testDetachCapability_data() { addBackendRows(); }
     void testDetachCapability();
     void testDisassemblerCapability_data() { addBackendRows(); }
@@ -3847,6 +3865,70 @@ void tst_backends::honorsDumperOptionsFromTheRequest()
     QVERIFY2(plain.isValid(), "the container local was not reported without the helpers");
     QVERIFY2(fancy.toString() != plain.toString(),
              qPrintable("turning the debugging helpers off changed nothing: " + plain.toString()));
+}
+
+void tst_backends::limitsTheReportedStackDepth()
+{
+    QFETCH(Backend, backend);
+
+    if (!limitsStackDepth(backend))
+        QSKIP("This backend reports every frame regardless of the requested limit.");
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.deepRecursionBreakpointLine == 0)
+        QSKIP("inferior has no recursion chain to report frames of");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        results[requestId] = ok;
+    });
+    BreakpointChangeRequest deepRequest;
+    deepRequest.op = BreakpointOp::Insert;
+    deepRequest.requestId = 330;
+    deepRequest.params.type = BreakpointByFileAndLine;
+    deepRequest.params.fileName = testData.source;
+    deepRequest.params.textPosition.line = testData.deepRecursionBreakpointLine;
+    deepRequest.params.enabled = true;
+    engine->changeBreakpoint(deepRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(330), s_timeout);
+    QVERIFY2(results.value(330), "deep-recursion breakpoint insert failed");
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+
+    QHash<quint64, GdbMi> stacks;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&stacks](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::FullStack)
+            stacks[requestId] = data;
+    });
+
+    quint64 requestId = 340;
+    const auto frameCountWithLimit = [&](int limit) -> int {
+        const quint64 id = ++requestId;
+        RefreshRequest request;
+        request.kind = RefreshKind::FullStack;
+        request.requestId = id;
+        request.stackDepthLimit = limit;
+        engine->refresh(request);
+        [&stacks, id] { QTRY_VERIFY_WITH_TIMEOUT(stacks.contains(id), s_timeout); }();
+        if (QTest::currentTestFailed())
+            return -1;
+        return stacks.value(id)["stack"]["frames"].childCount();
+    };
+
+    const int limited = frameCountWithLimit(5);
+    const int everything = frameCountWithLimit(-1);
+    QVERIFY2(limited > 0 && everything > 0,
+             qPrintable(QString("no frames reported: %1 and %2").arg(limited).arg(everything)));
+    QVERIFY2(limited < everything,
+             qPrintable(QString("a depth limit of 5 reported %1 frames, all of them %2")
+                            .arg(limited).arg(everything)));
 }
 
 void tst_backends::activatesFrameAndReadsItsLocals()

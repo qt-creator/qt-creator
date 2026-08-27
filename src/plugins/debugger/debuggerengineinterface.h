@@ -109,6 +109,9 @@ public:
     static constexpr int defaultArrayCount = 100;
     bool allowInferiorCalls = true;
     bool autoDerefPointers = true;
+    // How many frames a stack refresh may report. -1 asks for all of them, which
+    // is what the user's "Reload Full Stack" means.
+    int stackDepthLimit = -1;
 };
 
 enum class BreakpointOp { Insert, Remove, Update, EnableSub };
