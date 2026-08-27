@@ -370,10 +370,11 @@ void InstantBlame::repeat()
 }
 
 // Porcelain format of git blame output:
-// Consists of 12 or 13 lines (line 11 can be missing, "boundary", or "previous")
-// The first line contains hash, original line, current line,
-// and optional the  number of lines in this group when blaming multiple lines.
-// The last line starts with a tab and is followed by the actual file content.
+// Each record starts with a header followed by key/value metadata. Optional
+// records such as "previous" may be absent, and a "boundary" record may occur.
+// The header contains the hash, original line, current line, and optionally the
+// number of lines in this group when blaming multiple lines. The last line
+// starts with a tab and is followed by the actual file content.
 // ----------------------------------------------------------------------------
 // 8b649d2d61416205977aba56ef93e1e1f155005e 4 5 1
 // author John Doe
@@ -394,46 +395,55 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const FilePath &fil
                                    int line, const Git::Internal::Author &author)
 {
     CommitInfo result;
-    if (blame.size() <= 12)
+    if (blame.isEmpty())
         return result;
 
-    const QStringList firstLineParts = blame.at(0).split(" ");
+    const QStringList firstLineParts = blame.first().split(" ", Qt::SkipEmptyParts);
+    if (firstLineParts.size() < 3)
+        return result;
+
     result.hash = firstLineParts.first();
+    result.originalLine = firstLineParts.at(1).toInt();
+    result.line = line;
+    result.filePath = filePath;
+
+    qint64 authorTime = 0;
+    for (const QString &entry : blame) {
+        if (entry.startsWith('\t'))
+            break;
+        if (entry.startsWith("author ")) {
+            result.author = entry.mid(7);
+        } else if (entry.startsWith("author-mail ")) {
+            result.authorMail = entry.mid(12);
+            if (result.authorMail.startsWith('<') && result.authorMail.endsWith('>'))
+                result.authorMail = result.authorMail.mid(1, result.authorMail.size() - 2);
+        } else if (entry.startsWith("author-time ")) {
+            authorTime = entry.mid(12).toLongLong();
+        } else if (entry.startsWith("summary ")) {
+            result.subject = entry.mid(8);
+        } else if (entry.startsWith("previous ")) {
+            const QString previous = entry.mid(9);
+            const int space = previous.indexOf(' ');
+            if (space > 0)
+                result.previousFileName = previous.mid(space + 1);
+        } else if (entry.startsWith("filename ")) {
+            result.originalFileName = entry.mid(9);
+        }
+    }
+
+    if (result.hash.isEmpty() || result.originalLine <= 0 || result.originalFileName.isEmpty())
+        return {};
+
     result.modified = !gitClient().isValidRevision(result.hash);
     if (result.modified) {
         result.author = Tr::tr("Not Committed Yet");
         result.subject = Tr::tr("Modified line in %1").arg(filePath.fileName());
-    } else {
-        result.author = blame.at(1).mid(7);
-        result.authorMail = blame.at(2).mid(13).chopped(1);
-        result.subject = blame.at(9).mid(8);
     }
     if (result.author == author.name || result.authorMail == author.email)
         result.shortAuthor = Tr::tr("You");
     else
         result.shortAuthor = result.author;
-    const uint timeStamp = blame.at(3).mid(12).toUInt();
-    result.authorDate = QDateTime::fromSecsSinceEpoch(timeStamp);
-    result.filePath = filePath;
-    // blame.at(10) can be "boundary", "previous" or "filename"
-    if (blame.at(10).startsWith("filename")) {
-        result.originalFileName = blame.at(10).mid(9);
-    } else {
-        // "previous <hash> <filename>" carries the file name on the parent
-        // side, which differs when the blamed commit renamed the file
-        if (blame.at(10).startsWith("previous ")) {
-            const QString previous = blame.at(10).mid(9);
-            const int space = previous.indexOf(' ');
-            if (space > 0)
-                result.previousFileName = previous.mid(space + 1);
-        }
-        result.originalFileName = blame.at(11).mid(9);
-    }
-    result.line = line;
-    if (firstLineParts.size() > 1)
-        result.originalLine = firstLineParts.at(1).toInt();
-    else
-        result.originalLine = line;
+    result.authorDate = QDateTime::fromSecsSinceEpoch(authorTime);
     return result;
 }
 
@@ -700,6 +710,11 @@ void BlameController::perform()
             return;
         }
         *infoStorage = parseBlameOutput(output.split('\n'), workingFilePath, line, author);
+        if (infoStorage->hash.isEmpty()) {
+            guard->m_blameMark.reset();
+            guard->m_lastLine = -1;
+            return;
+        }
         infoStorage->topLevel = topLevel;
         guard->m_blameMark = std::make_unique<BlameMark>(document.get(), line, *infoStorage);
     };
@@ -816,6 +831,46 @@ void InstantBlameTest::testBlameOutputParsing()
     QCOMPARE(info.line, 5);
     QCOMPARE(info.originalLine, 4);
     QVERIFY(!info.modified);
+
+    QStringList directOutput = output;
+    directOutput.removeAt(10);
+    const CommitInfo directInfo = parseBlameOutput(directOutput, filePath, 5, {});
+    QCOMPARE(directInfo.originalFileName, "foo.cpp");
+    QVERIFY(directInfo.previousFileName.isEmpty());
+
+    const QStringList modifiedOutput = {
+        "0000000000000000000000000000000000000000 7 7 1",
+        "author Not Committed Yet",
+        "author-mail <not.committed.yet>",
+        "author-time 0",
+        "author-tz +0000",
+        "committer Not Committed Yet",
+        "committer-mail <not.committed.yet>",
+        "committer-time 0",
+        "committer-tz +0000",
+        "summary Version of foo.cpp from foo.cpp",
+        "filename foo.cpp",
+        "\tchanged contents",
+    };
+    const CommitInfo modifiedInfo = parseBlameOutput(modifiedOutput, filePath, 7, {});
+    QVERIFY(modifiedInfo.modified);
+    QCOMPARE(modifiedInfo.author, Tr::tr("Not Committed Yet"));
+    QCOMPARE(modifiedInfo.subject, Tr::tr("Modified line in %1").arg(filePath.fileName()));
+    QCOMPARE(modifiedInfo.originalLine, 7);
+
+    const CommitInfo malformedInfo = parseBlameOutput({"invalid"}, filePath, 1, {});
+    QVERIFY(malformedInfo.hash.isEmpty());
+    QCOMPARE(malformedInfo.line, -1);
+
+    const CommitInfo incompleteInfo = parseBlameOutput({
+        "8b649d2d61416205977aba56ef93e1e1f155005e 4 5 1",
+        "author John Doe",
+        "author-mail <john.doe@example.com>",
+        "author-time 1613752276",
+        "\techo Hello World!",
+    }, filePath, 5, {});
+    QVERIFY(incompleteInfo.hash.isEmpty());
+    QCOMPARE(incompleteInfo.line, -1);
 }
 
 void registerInstantBlameTests(ExtensionSystem::IPlugin *plugin)
