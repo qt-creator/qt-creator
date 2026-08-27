@@ -229,6 +229,13 @@ static QString testEnvVar(const QString &suffix, const QString &variant)
     return qtcEnvironmentVariable("QTC_SSH_TEST_" + suffix);
 }
 
+// other keys may fall back to plain QTC_SSH_TEST_* value, but host decides which machine,
+// and therefore the OS
+bool hasVariantHost(const QString &variant)
+{
+    return qtcEnvironmentVariableIsSet("QTC_SSH_TEST_" + variant + "_HOST");
+}
+
 const QString getHostFromEnvironment(const QString &variant)
 {
     const QString host = testEnvVar("HOST", variant);
@@ -321,7 +328,8 @@ void printSetupHelp()
                "   QTC_SSH_TEST_USER=[your user name]\n"
                "To target a second device type from the same run, set variant-specific overrides,\n"
                "e.g. QTC_SSH_TEST_WIN_HOST / _PORT / _USER / _KEYFILE for the Windows device.\n"
-               "Unset variant keys fall back to the plain QTC_SSH_TEST_* values.\n";
+               "Unset variant keys fall back to the plain QTC_SSH_TEST_* values, but a test that\n"
+               "needs a specific operating system requires its own QTC_SSH_TEST_<VARIANT>_HOST.\n";
 }
 
 } // namespace SshTest

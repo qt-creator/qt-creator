@@ -108,6 +108,7 @@ public:
 
 #ifdef WITH_TESTS
 namespace SshTest {
+bool PROJECTEXPLORER_EXPORT hasVariantHost(const QString &variant);
 const QString PROJECTEXPLORER_EXPORT getHostFromEnvironment(const QString &variant = {});
 quint16 PROJECTEXPLORER_EXPORT getPortFromEnvironment(const QString &variant = {});
 const QString PROJECTEXPLORER_EXPORT getUserFromEnvironment(const QString &variant = {});

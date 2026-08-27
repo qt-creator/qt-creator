@@ -75,11 +75,12 @@ static FilePath findDeviceCMake(const FilePath &deviceRoot)
 
 void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
 {
+    // host must name a Windows machine - no fallback accepted
     const SshParameters params = SshTest::getParameters("WIN");
-    if (!SshTest::checkParameters(params)) {
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params)) {
         SshTest::printSetupHelp();
-        QSKIP("Set QTC_SSH_TEST_WIN_HOST/USER/... (or QTC_SSH_TEST_*) to a reachable "
-              "Windows-over-SSH host.");
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE where they differ from the "
+              "plain QTC_SSH_TEST_* values) to a reachable Windows-over-SSH host.");
     }
 
     // Build the device and register it so device-rooted process/file routing resolves to it.
