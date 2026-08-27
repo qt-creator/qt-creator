@@ -204,9 +204,21 @@ void QMakeGlobals::setCommandLineArguments(const QString &pwd, const QStringList
     useEnvironment();
 }
 
-void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir, const QString &device_root)
+// Paths of \a deviceRoot are Windows paths when \a isWindows is true, which decides how
+// the evaluator splits path lists and joins directories.
+void QMakeGlobals::setDevice(const QString &deviceRoot, bool isWindows)
 {
-    this->device_root = device_root;
+    device_root = deviceRoot;
+    if (deviceRoot.isEmpty())
+        return;
+
+    QMakeInternal::IoUtils::setDeviceOsIsWindows(deviceRoot, isWindows);
+    dirlist_sep = isWindows ? QLatin1Char(';') : QLatin1Char(':');
+    dir_sep = isWindows ? QLatin1Char('\\') : QLatin1Char('/');
+}
+
+void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir)
+{
     if (input_dir != output_dir && !output_dir.isEmpty()) {
         QString srcpath = input_dir;
         if (!srcpath.endsWith(QLatin1Char('/')))

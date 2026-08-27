@@ -26,6 +26,7 @@ public:
     static FileType fileType(const QString &device, const QString &fileName);
     static bool exists(const QString &device, const QString &fileName) { return fileType(device, fileName) != FileNotFound; }
     static bool isRelativePath(const QString &device, const QString &fileName);
+    static QString parentPath(const QString &device, const QString &path);
     static bool isAbsolutePath(const QString &device, const QString &fileName) { return !isRelativePath(device, fileName); }
     static QStringView pathName(const QString &fileName); // Requires normalized path
     static QStringView fileName(const QString &fileName); // Requires normalized path

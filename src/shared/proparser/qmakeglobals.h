@@ -103,8 +103,8 @@ public:
     void commitCommandLineArguments(QMakeCmdLineParserState &state);
     void setCommandLineArguments(const QString &pwd, const QStringList &args);
     void useEnvironment();
-    void setDirectories(const QString &input_dir, const QString &output_dir,
-                        const QString &device_root);
+    void setDevice(const QString &deviceRoot, bool isWindows);
+    void setDirectories(const QString &input_dir, const QString &output_dir);
 #ifdef QT_BUILD_QMAKE
     void setQMakeProperty(QMakeProperty *prop) { property = prop; }
     void reloadProperties() { property->reload(); }

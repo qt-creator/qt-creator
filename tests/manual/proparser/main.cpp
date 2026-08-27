@@ -170,7 +170,7 @@ int main(int argc, char **argv)
     option.useEnvironment();
     if (out_pwd.isEmpty())
         out_pwd = in_pwd;
-    option.setDirectories(in_pwd, out_pwd, {});
+    option.setDirectories(in_pwd, out_pwd);
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &evalHandler);

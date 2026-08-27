@@ -1297,9 +1297,8 @@ static void setupProparserDevice(QMakeGlobals &globals, const FilePath &qmakeCom
 {
     if (qmakeCommand.isLocal())
         return;
-    globals.device_root = qmakeCommand.withNewPath("/").toFSPathString();
-    QMakeInternal::IoUtils::setDeviceOsIsWindows(
-        globals.device_root, qmakeCommand.osType() == OsTypeWindows);
+    globals.setDevice(qmakeCommand.withNewPath("/").toFSPathString(),
+                      qmakeCommand.osType() == OsTypeWindows);
 }
 
 void QtVersion::ensureMkSpecParsed() const

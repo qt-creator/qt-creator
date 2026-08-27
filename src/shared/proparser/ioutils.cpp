@@ -7,6 +7,7 @@
 
 #include <qdir.h>
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qhash.h>
 #include <qregularexpression.h>
 
@@ -104,6 +105,25 @@ static bool isWindows(const QString &device)
     // an unregistered one is assumed Unix.
     return windowsDevices().get(
         [&device](const QHash<QString, bool> &devices) { return devices.value(device, false); });
+}
+
+// The parent directory of \a path, or an empty string at the root. Walks a path belonging to
+// \a device, which QFileInfo would interpret with host semantics.
+QString IoUtils::parentPath(const QString &device, const QString &path)
+{
+    if (device.isEmpty()) {
+        const QFileInfo fi(path);
+        return fi.isRoot() ? QString() : fi.path();
+    }
+
+    QStringView parent = pathName(path);
+    const bool isDriveRoot = isWindows(device) && parent.size() == 3
+                             && parent.at(1) == QLatin1Char(':');
+    if (parent.size() > 1 && !isDriveRoot)
+        parent.chop(1);
+
+    const QString result = parent.toString();
+    return result == path ? QString() : result;
 }
 
 bool IoUtils::isRelativePath(const QString &device, const QString &path)
