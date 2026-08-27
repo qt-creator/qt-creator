@@ -2779,6 +2779,13 @@ void GitTest::testInlineDiffFile()
     QCOMPARE(diffEditor->document()->displayName(), QString("file.txt (Unstaged)"));
     TextEditor::TextEditorWidget *diffWidget = DiffEditor::inlineDiffEditorWidget(diffEditor);
     QVERIFY(diffWidget);
+    QCOMPARE(diffWidget->findChildren<BaselineBlame *>().size(), 1);
+    QPointer<BaselineBlame> baselineBlame = diffWidget->findChild<BaselineBlame *>();
+
+    // Reopening reuses the editor and must not attach another blame controller.
+    gitClient().inlineDiffFile(repo, "file.txt");
+    QCOMPARE(EditorManager::currentEditor(), diffEditor);
+    QCOMPARE(diffWidget->findChildren<BaselineBlame *>().size(), 1);
 
     // the index baseline offers stage and revert buttons per hunk
     QList<QAbstractButton *> buttons;
@@ -2831,7 +2838,10 @@ void GitTest::testInlineDiffFile()
 
     Core::IDocument *sourceDocument = Core::DocumentModel::documentForFilePath(file);
     QVERIFY(sourceDocument);
+    cursor.movePosition(QTextCursor::Start);
+    diffWidget->setTextCursor(cursor); // leave a blame timer pending while the editor closes
     QVERIFY(EditorManager::closeDocuments({sourceDocument}, false));
+    QTRY_VERIFY(!baselineBlame);
 }
 
 // Builds a repo whose file.txt is left unmerged: "base" is committed first,
