@@ -99,6 +99,9 @@ class QmakeEvalInput;
 class QmakeEvalResult;
 using QmakeEvalResultPtr = std::shared_ptr<QmakeEvalResult>;
 class QmakePriFileEvalResult;
+#ifdef WITH_TESTS
+class QmakeParserNodesTest;
+#endif
 } // namespace Internal;
 
 class InstallsList;
@@ -328,6 +331,10 @@ private:
 
     void updateGeneratedFiles(const Utils::FilePath &buildDir);
 
+#ifdef WITH_TESTS
+    friend class Internal::QmakeParserNodesTest;
+#endif
+
     static QString uiDirPath(QtSupport::ProFileReader *reader, const Utils::FilePath &buildDir);
     static QString mocDirPath(QtSupport::ProFileReader *reader, const Utils::FilePath &buildDir);
     static QString sysrootify(const QString &path, const QString &sysroot, const QString &baseDir, const QString &outputDir);
@@ -366,5 +373,9 @@ private:
     QtSupport::ProFileReader *m_readerCumulative = nullptr;
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createQmakeParserNodesTest(); }
+#endif
 
 } // namespace QmakeProjectManager

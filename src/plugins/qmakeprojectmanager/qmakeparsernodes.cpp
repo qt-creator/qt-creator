@@ -1323,8 +1323,7 @@ static bool evaluateOne(const QmakeEvalInput &input, ProFile *pro,
         // We don't increase/decrease m_qmakeGlobalsRefCnt here, because the outer profilereaders keep m_qmakeGlobals alive anyway
         auto bpReader = new QtSupport::ProFileReader(input.qmakeGlobals, input.qmakeVfs); // needs to access m_qmakeGlobals, m_qmakeVfs
 
-        // Core parts of the ProParser hard-assert on non-local items.
-        bpReader->setOutputDir(input.buildDirectory.toFSPathString());
+        bpReader->setOutputDir(input.buildDirectory.path());
         bpReader->setCumulative(cumulative);
         bpReader->setExtraVars(basevars);
         bpReader->setExtraConfigs(basecfgs);
@@ -1788,20 +1787,24 @@ void QmakeProFile::cleanupProFileReaders()
     m_readerCumulative = nullptr;
 }
 
+// The directory \a var names, as the device holding \a buildDir spells it.
+static QString dirPathFor(QtSupport::ProFileReader *reader, const FilePath &buildDir,
+                          const QString &var)
+{
+    const QString path = reader->value(var);
+    if (buildDir.withNewPath(path).isAbsolutePath())
+        return path;
+    return buildDir.pathAppended(path).cleanPath().path();
+}
+
 QString QmakeProFile::uiDirPath(QtSupport::ProFileReader *reader, const FilePath &buildDir)
 {
-    QString path = reader->value(QLatin1String("UI_DIR"));
-    if (QFileInfo(path).isRelative())
-        path = QDir::cleanPath(buildDir.toFSPathString() + QLatin1Char('/') + path);
-    return path;
+    return dirPathFor(reader, buildDir, QLatin1String("UI_DIR"));
 }
 
 QString QmakeProFile::mocDirPath(QtSupport::ProFileReader *reader, const FilePath &buildDir)
 {
-    QString path = reader->value(QLatin1String("MOC_DIR"));
-    if (QFileInfo(path).isRelative())
-        path = QDir::cleanPath(buildDir.toFSPathString() + QLatin1Char('/') + path);
-    return path;
+    return dirPathFor(reader, buildDir, QLatin1String("MOC_DIR"));
 }
 
 QString QmakeProFile::sysrootify(const QString &path, const QString &sysroot,
@@ -1839,11 +1842,6 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
 
     bool tryUnfixified = false;
 
-    // These paths should not be checked for existence, to ensure consistent include path lists
-    // before and after building.
-    const FilePath mocDir = FilePath::fromString(mocDirPath(reader, buildDir));
-    const FilePath uiDir = FilePath::fromString(uiDirPath(reader, buildDir));
-
     /* We need to make a full valid Utils::FilePath to make sure that remote paths are compared
      * correctly. E.g. we may need to compare paths:
      *   "/C/Users/Admin/DEV/project/build"
@@ -1859,6 +1857,11 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
         }
         return result;
     };
+
+    // These paths should not be checked for existence, to ensure consistent include path lists
+    // before and after building.
+    const FilePath mocDir = createFullFilePath(mocDirPath(reader, buildDir));
+    const FilePath uiDir = createFullFilePath(uiDirPath(reader, buildDir));
 
     const QList<ProFileEvaluator::SourceFile> elList = reader->fixifiedValues(
                 QLatin1String("INCLUDEPATH"), projectDir, buildDir.path(), false);
@@ -2149,3 +2152,44 @@ void QmakeProFile::updateGeneratedFiles(const FilePath &buildDir)
     if (scxmlFactory)
         setupExtraCompiler(buildDir, FileType::StateChart, scxmlFactory);
 }
+
+#ifdef WITH_TESTS
+
+#include <QTest>
+
+namespace QmakeProjectManager::Internal {
+
+class QmakeParserNodesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testGeneratedDirsUseTheBuildDevicesSpelling();
+};
+
+void QmakeParserNodesTest::testGeneratedDirsUseTheBuildDevicesSpelling()
+{
+    QMakeVfs vfs;
+    QMakeGlobals globals;
+    QtSupport::ProFileReader reader(&globals, &vfs);
+
+    // Nothing evaluated, so UI_DIR and MOC_DIR are unset and default to the build directory.
+    const FilePath onDevice = FilePath::fromString("ssh://user@host/C:/p/build");
+    QCOMPARE(QmakeProFile::uiDirPath(&reader, onDevice), QString("C:/p/build"));
+    QCOMPARE(QmakeProFile::mocDirPath(&reader, onDevice), QString("C:/p/build"));
+
+    const FilePath local = FilePath::fromString("/p/build");
+    QCOMPARE(QmakeProFile::uiDirPath(&reader, local), QString("/p/build"));
+    QCOMPARE(QmakeProFile::mocDirPath(&reader, local), QString("/p/build"));
+}
+
+QObject *createQmakeParserNodesTest()
+{
+    return new QmakeParserNodesTest;
+}
+
+} // namespace QmakeProjectManager::Internal
+
+#include "qmakeparsernodes.moc"
+
+#endif // WITH_TESTS
