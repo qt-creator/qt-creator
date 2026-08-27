@@ -134,11 +134,29 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     env.set("_NT_DEBUGGER_EXTENSION_PATH", m_startData.extensionDir.nativePath());
     m_cdbProc.setEnvironment(env);
 
-    m_cdbProc.setStdOutLineCallback([this](const QString &line) { handleCdbOutputLine(line); });
+    m_watchdog.setSingleShot(true);
+    m_watchdog.setInterval(m_startData.watchdogTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, [this] {
+        QStringList pending;
+        for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
+            pending << cmd.function;
+        for (const DebuggerCommand &cmd : std::as_const(m_deferredCommands))
+            pending << cmd.function;
+        if (pending.isEmpty())
+            return;
+        m_watchdog.start();
+        emit notResponding(m_startData.watchdogTimeout, pending);
+    });
+
+    m_cdbProc.setStdOutLineCallback([this](const QString &line) {
+        restartWatchdog();
+        handleCdbOutputLine(line);
+    });
     m_cdbProc.setStdErrLineCallback([this](const QString &line) {
         emit message(line.endsWith('\n') ? line.chopped(1) : line, LogError);
     });
     connect(&m_cdbProc, &Process::done, this, [this] {
+        m_watchdog.stop();
         if (m_cdbProc.result() == ProcessResult::StartFailed) {
             m_isResetRestart = false;
             emit inferiorEvent(InferiorEvent::EngineSetupFailed);
@@ -1011,7 +1029,7 @@ void CdbImpl::restartSession()
     m_interruptRequested = false;
     m_inInternalStop = false;
     m_callbackStop = false;
-    m_interruptCallbacks.clear();
+    m_deferredCommands.clear();
     m_evaluatingCondition = false;
     m_expandingTracepoint = false;
     m_lastOperateByInstruction.reset();
@@ -1396,7 +1414,13 @@ void CdbImpl::executeDebuggerCommand(const QString &command,
                                      const WatchItemData &inspectorItem)
 {
     Q_UNUSED(inspectorItem)
-    runCommand({command, NoFlags});
+    // Tokenized, so that the command counts as one awaiting a reply, and its
+    // output is reported the way a plain one would print it.
+    runCommand({command, BuiltinCommand, [this](const DebuggerResponse &response) {
+        const QString output = response.data.data();
+        if (!output.isEmpty())
+            emit message(output, LogMisc);
+    }});
 }
 
 void CdbImpl::handleCdbOutputLine(const QString &rawLine)
@@ -1558,10 +1582,6 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
     }
 
     if (what == "session_idle") {
-        const QList<std::function<void()>> interrupted = m_interruptCallbacks;
-        m_interruptCallbacks.clear();
-        for (const std::function<void()> &callback : interrupted)
-            callback();
         const bool firstTime = !m_initialSessionIdleHandled;
         m_initialSessionIdleHandled = true;
         if (firstTime) {
@@ -1581,6 +1601,12 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
             return;
         }
         m_inferiorRunning = false;
+        // Held back while the session ran; cdb runs them before any resume
+        // written after them.
+        const QList<DebuggerCommand> deferred = m_deferredCommands;
+        m_deferredCommands.clear();
+        for (const DebuggerCommand &cmd : deferred)
+            runCommand(cmd);
         if (m_callbackStop) {
             // Ours, to get a command in: the client never learns about it.
             m_callbackStop = false;
@@ -1724,11 +1750,12 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
     // stop, ahead of the engine's own handling of it. Interrupt and re-issue it
     // once the inferior is back, as CdbEngine does for a non-accessible session.
     if (m_inferiorRunning && dbgCmd.flags != NoFlags) {
-        m_interruptCallbacks.append([this, dbgCmd] { runCommand(dbgCmd); });
+        m_deferredCommands.append(dbgCmd);
         if (!m_callbackStop) {
             m_callbackStop = true;
             m_cdbProc.interrupt();
         }
+        restartWatchdog();
         return;
     }
     if (dbgCmd.flags & ScriptCommand) {
@@ -1769,6 +1796,19 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
     }
     emit message(fullCmd.trimmed(), LogInput);
     m_cdbProc.write(fullCmd);
+    restartWatchdog();
+}
+
+// Only commands carrying a token are waited for: cdb answers nothing for the
+// rest, and a resumed inferior may keep it silent for as long as it likes.
+void CdbImpl::restartWatchdog()
+{
+    if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
+        return;
+    if (m_commandForToken.isEmpty() && m_deferredCommands.isEmpty())
+        m_watchdog.stop();
+    else
+        m_watchdog.start();
 }
 
 } // namespace Debugger::Internal

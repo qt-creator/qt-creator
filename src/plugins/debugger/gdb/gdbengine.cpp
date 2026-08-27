@@ -5281,7 +5281,9 @@ DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp)
                                                      ICore::resourcePath("debugger"),
                                                      mainFunctionName,
                                                      rp.isNativeMixedDebugging(),
-                                                     rp.isElfTarget()}));
+                                                     rp.isElfTarget(),
+                                                     std::chrono::seconds(
+                                                         settings().gdbWatchdogTimeout())}));
     }
     return new GdbEngine;
 }

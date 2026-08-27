@@ -10,7 +10,9 @@
 #include <utils/qtcprocess.h>
 
 #include <QHash>
+#include <QTimer>
 
+#include <chrono>
 #include <optional>
 
 namespace Debugger::Internal {
@@ -22,6 +24,7 @@ public:
     InferiorStartData inferiorStartData;
     Utils::FilePath dumperScriptsDir;
     bool nativeMixedDebugging = false;
+    std::chrono::seconds watchdogTimeout{0};
 };
 
 class DEBUGGER_EXPORT LldbImpl final : public DebuggerEngineInterface
@@ -62,10 +65,12 @@ private:
     void fetchLocationAfterStop(InferiorEvent event);
 
     void runCommand(const DebuggerCommand &command);
+    void restartWatchdog();
     void reportInferiorExitIfComplete();
 
     LldbImplStartData m_startData;
     Utils::Process m_lldbProc;
+    QTimer m_watchdog;
     QString m_inbuffer;
     QHash<int, DebuggerCommand> m_commandForToken;
     int m_lastToken = 0;

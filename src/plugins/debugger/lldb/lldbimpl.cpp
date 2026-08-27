@@ -261,6 +261,23 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
     , m_startData(startData)
 {
     m_lldbProc.setProcessMode(ProcessMode::Writer);
+
+    m_watchdog.setSingleShot(true);
+    m_watchdog.setInterval(m_startData.watchdogTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, [this] {
+        QStringList pending;
+        for (const DebuggerCommand &cmd : std::as_const(m_commandForToken)) {
+            // A resume command is answered by the next stop, which may never come.
+            if (cmd.flags & DebuggerCommand::RunRequest)
+                continue;
+            pending << cmd.function + "(" + cmd.argsToPython() + ")";
+        }
+        if (pending.isEmpty())
+            return;
+        m_watchdog.start();
+        emit notResponding(m_startData.watchdogTimeout, pending);
+    });
+
     m_lldbProc.setCommand(m_startData.debuggerRunData.command);
     Environment lldbEnvironment = m_startData.debuggerRunData.environment;
     lldbEnvironment.set("QT_CREATOR_LLDB_PROCESS", "1");
@@ -347,7 +364,7 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
                 return;
             }
             emit inferiorEvent(InferiorEvent::EngineSetupOk);
-            DebuggerCommand runCmd("runEngine");
+            DebuggerCommand runCmd("runEngine", DebuggerCommand::RunRequest);
             if (!coreFile.isEmpty())
                 runCmd.arg("coreFile", coreFile.path());
             runCommand(runCmd);
@@ -355,6 +372,7 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         runCommand(cmd);
     });
     connect(&m_lldbProc, &Process::readyReadStandardOutput, this, [this] {
+        restartWatchdog();
         m_inbuffer += m_lldbProc.readAllStandardOutput();
         while (true) {
             if (int pos = m_inbuffer.indexOf(u"@\n"); pos >= 0) {
@@ -374,6 +392,7 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         emit message(m_lldbProc.readAllStandardError(), LogError);
     });
     connect(&m_lldbProc, &Process::done, this, [this] {
+        m_watchdog.stop();
         if (m_lldbProc.result() == ProcessResult::StartFailed)
             emit inferiorEvent(InferiorEvent::EngineSetupFailed);
         emit engineProcessFinished(m_lldbProc.resultData());
@@ -430,7 +449,8 @@ void LldbImpl::execute(const ExecutionRequest &request)
             break;
         }
         emit inferiorEvent(InferiorEvent::RunRequested);
-        runCommand({"continueInferior", [this](const DebuggerResponse &response) {
+        runCommand({"continueInferior", DebuggerCommand::RunRequest,
+                    [this](const DebuggerResponse &response) {
             if (response.data["success"].toInt())
                 return;
             const QString error = response.data["error"]["status"].data()
@@ -455,15 +475,17 @@ void LldbImpl::execute(const ExecutionRequest &request)
         break;
     case ExecutionCommand::StepIn:
         emit inferiorEvent(InferiorEvent::RunRequested);
-        runCommand({QLatin1String(request.flag ? "executeStepI" : "executeStep")});
+        runCommand({QLatin1String(request.flag ? "executeStepI" : "executeStep"),
+                    DebuggerCommand::RunRequest});
         break;
     case ExecutionCommand::StepOver:
         emit inferiorEvent(InferiorEvent::RunRequested);
-        runCommand({QLatin1String(request.flag ? "executeNextI" : "executeNext")});
+        runCommand({QLatin1String(request.flag ? "executeNextI" : "executeNext"),
+                    DebuggerCommand::RunRequest});
         break;
     case ExecutionCommand::StepOut:
         emit inferiorEvent(InferiorEvent::RunRequested);
-        runCommand({"executeStepOut"});
+        runCommand({"executeStepOut", DebuggerCommand::RunRequest});
         break;
     case ExecutionCommand::Detach:
         m_detached = true;
@@ -476,11 +498,11 @@ void LldbImpl::execute(const ExecutionRequest &request)
         break;
     case ExecutionCommand::ResetInferior:
         emit inferiorEvent(InferiorEvent::RunRequested);
-        runCommand({"resetInferior"});
+        runCommand({"resetInferior", DebuggerCommand::RunRequest});
         break;
     case ExecutionCommand::RunToLine: {
         emit inferiorEvent(InferiorEvent::RunRequested);
-        DebuggerCommand cmd("executeRunToLocation");
+        DebuggerCommand cmd("executeRunToLocation", DebuggerCommand::RunRequest);
         cmd.arg("file", request.context.fileName.path());
         cmd.arg("line", request.context.textPosition.line);
         cmd.arg("address", request.context.address);
@@ -489,7 +511,7 @@ void LldbImpl::execute(const ExecutionRequest &request)
     }
     case ExecutionCommand::RunToFunction: {
         emit inferiorEvent(InferiorEvent::RunRequested);
-        DebuggerCommand cmd("executeRunToFunction");
+        DebuggerCommand cmd("executeRunToFunction", DebuggerCommand::RunRequest);
         cmd.arg("function", request.functionName);
         runCommand(cmd);
         break;
@@ -507,7 +529,8 @@ void LldbImpl::execute(const ExecutionRequest &request)
     }
     case ExecutionCommand::Return:
         emit inferiorEvent(InferiorEvent::RunRequested);
-        runCommand({"executeReturn", [this](const DebuggerResponse &response) {
+        runCommand({"executeReturn", DebuggerCommand::RunRequest,
+                    [this](const DebuggerResponse &response) {
             if (response.data["success"].toInt())
                 emit inferiorEvent(InferiorEvent::StopOk);
         }});
@@ -987,7 +1010,7 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
         // Only the attaching paths report this state, and they all leave the inferior
         // stopped. Resume it, as LldbEngine does.
-        runCommand({"continueInferior"});
+        runCommand({"continueInferior", DebuggerCommand::RunRequest});
         if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData))
             emit kickoffTerminalProcessRequested();
     }
@@ -1112,5 +1135,16 @@ void LldbImpl::runCommand(const DebuggerCommand &command)
     }
     emit message(line, LogInput);
     m_lldbProc.write(line + "\n\n");
+    restartWatchdog();
+}
+
+void LldbImpl::restartWatchdog()
+{
+    if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
+        return;
+    if (m_commandForToken.isEmpty())
+        m_watchdog.stop();
+    else
+        m_watchdog.start();
 }
 } // namespace Debugger::Internal

@@ -394,6 +394,26 @@ static bool stackHasFunction(const QString &stack, const QString &function)
            || stack.contains("function=\"" + function + '(');
 }
 
+static QString watchdogProbeCommand(Backend backend, int seconds)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        // cmd.exe has no sleep, and "timeout /t" refuses to run with redirected input.
+        if (HostOsInfo::isWindowsHost())
+            return QString("shell ping -n %1 127.0.0.1").arg(seconds + 1);
+        return QString("shell sleep %1").arg(seconds);
+    case Backend::Cdb:
+        // cdb has a wait of its own; ".shell" would need a console for its child.
+        return QString(".sleep %1").arg(seconds * 1000);
+    case Backend::Lldb:
+        return QString("platform shell sleep %1").arg(seconds);
+    case Backend::Pdb:
+    case Backend::Qml:
+        break;
+    }
+    return {};
+}
+
 static QString printCommand(Backend backend, const QString &expression)
 {
     Q_UNUSED(expression)
@@ -643,6 +663,8 @@ private slots:
     void fetchesMemoryFromInvalidAddress();
     void reportsEngineSetupFailure_data() { addBackendRows(); }
     void reportsEngineSetupFailure();
+    void reportsAnUnresponsiveDebugger_data() { addBackendRows(); }
+    void reportsAnUnresponsiveDebugger();
     void refreshesPeripherals_data() { addBackendRows(); }
     void refreshesPeripherals();
     void reloadsDebuggingHelpersAndSymbols_data() { addBackendRows(); }
@@ -718,7 +740,8 @@ private:
     std::unique_ptr<DebuggerBackend> createEngine(Backend backend,
         const std::optional<Utils::ProcessRunData> &debuggerRunDataOverride = {},
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {},
-        bool nativeMixed = false);
+        bool nativeMixed = false,
+        std::chrono::seconds watchdogTimeout = {});
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData);
     std::unique_ptr<DebuggerBackend> launchAndStopAtBreakpoint(Backend backend,
@@ -843,7 +866,8 @@ void tst_backends::addBackendRows()
 std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     const std::optional<ProcessRunData> &debuggerRunDataOverride,
     const std::optional<ProcessRunData> &inferiorRunDataOverride,
-    bool nativeMixed)
+    bool nativeMixed,
+    std::chrono::seconds watchdogTimeout)
 {
     Q_UNUSED(debuggerRunDataOverride)
     Q_UNUSED(inferiorRunDataOverride)
@@ -856,7 +880,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .inferiorStartData = inferiorRunDataOverride.value_or(
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .nativeMixedDebugging = nativeMixed}));
+            .nativeMixedDebugging = nativeMixed,
+            .watchdogTimeout = watchdogTimeout}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = debuggerRunDataOverride.value_or(
@@ -864,7 +889,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .inferiorStartData = inferiorRunDataOverride.value_or(
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .nativeMixedDebugging = nativeMixed}));
+            .nativeMixedDebugging = nativeMixed,
+            .watchdogTimeout = watchdogTimeout}));
     case Backend::Pdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<PdbImpl>(PdbImplStartData{
             .debuggerRunData = debuggerRunDataOverride.value_or(
@@ -888,7 +914,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .extensionDir = m_backendData[backend].cdbExtensionDir,
             .extensionFileName = m_backendData[backend].cdbExtensionFileName,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .nativeMixed = nativeMixed}));
+            .nativeMixed = nativeMixed,
+            .watchdogTimeout = watchdogTimeout}));
     }
     return nullptr;
 }
@@ -4262,6 +4289,41 @@ void tst_backends::reportsEngineSetupFailure()
                               "start", s_timeout);
     QVERIFY2(events.contains(InferiorEvent::EngineSetupFailed),
              "EngineSetupFailed was never emitted for an engine that could not start");
+}
+
+void tst_backends::reportsAnUnresponsiveDebugger()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const QString blockingCommand = watchdogProbeCommand(backend, 3);
+    if (blockingCommand.isEmpty())
+        QSKIP("This backend does not watch its commands for a reply.");
+
+    using namespace std::chrono_literals;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {}, {}, false, 1s);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QList<QStringList> reports;
+    connect(engine, &DebuggerEngineInterface::notResponding, this,
+            [&reports](std::chrono::seconds, const QStringList &pendingCommands) {
+        reports.append(pendingCommands);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
+    QVERIFY2(reports.isEmpty(), "the watchdog fired while the engine was answering");
+
+    engine->executeDebuggerCommand(blockingCommand, {});
+    QTRY_VERIFY_WITH_TIMEOUT(!reports.isEmpty(), s_timeout);
+    const QStringList report = reports.constFirst();
+    QVERIFY2(std::any_of(report.cbegin(), report.cend(), [&blockingCommand](const QString &cmd) {
+                 return cmd.contains(blockingCommand);
+             }),
+             qPrintable("the reported pending commands do not mention the blocking one: "
+                        + report.join(", ")));
 }
 
 void tst_backends::refreshesPeripherals()

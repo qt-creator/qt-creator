@@ -9,8 +9,11 @@
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
+#include <chrono>
 #include <functional>
 #include <optional>
+
+#include <QTimer>
 
 namespace Debugger::Internal {
 
@@ -27,6 +30,7 @@ public:
     // Only the ctrl-c stub next to the qtcreator executable makes
     // Process::interrupt() reach a console cdb.exe.
     bool useCtrlCStub = false;
+    std::chrono::seconds watchdogTimeout{0};
 };
 
 class DEBUGGER_EXPORT CdbImpl final : public DebuggerEngineInterface
@@ -87,6 +91,7 @@ private:
     void handleInterpreterMessage(const GdbMi &stopData);
     void armInterpreterMessageWatch();
     void resumeFromInternalStop();
+    void restartWatchdog();
     void insertInterpreterBreakpoint(quint64 requestId, int modelId,
                                      const BreakpointParameters &params, bool report);
     void armInterpreterHooks();
@@ -117,6 +122,7 @@ private:
 
     CdbImplStartData m_startData;
     Utils::Process m_cdbProc;
+    QTimer m_watchdog;
 
     QString m_extensionCommandPrefix = "!qtcreatorcdbext.";
     QString m_tokenPrefix = "<token>";
@@ -133,7 +139,7 @@ private:
     bool m_expectSpontaneousStop = false;
     bool m_inInternalStop = false;
     bool m_callbackStop = false;
-    QList<std::function<void()>> m_interruptCallbacks;
+    QList<DebuggerCommand> m_deferredCommands;
     bool m_interpreterMessageWatchArmed = false;
     QString m_interpreterMessageWatchId;
     bool m_inferiorRunning = false;

@@ -77,6 +77,7 @@ private:
     void applyBkptData(const GdbMi &bkpt, const Breakpoint &bp);
     void handleBreakpointModified(const GdbMi &data);
     void handleSignalReceived(const QString &name, const QString &meaning);
+    void handleNotResponding(std::chrono::seconds waited, const QStringList &pendingCommands);
     void reloadThreads();
     Utils::FilePath cleanupFullName(const QString &fileName);
 
@@ -92,5 +93,6 @@ private:
     QHash<quint64, Breakpoint> m_pendingBreakpoints;
     QHash<quint64, QPointer<MemoryAgent>> m_pendingMemoryRequests;
     QHash<quint64, QPointer<DisassemblerAgent>> m_pendingDisassemblyRequests;
+    bool m_notRespondingPending = false;
 };
 } // namespace Debugger::Internal

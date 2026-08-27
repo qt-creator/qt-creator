@@ -18,10 +18,13 @@
 #include "watchhandler.h"
 #include "watchwindow.h"
 
+#include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>
+
+#include <QMessageBox>
 
 using namespace Utils;
 
@@ -93,6 +96,8 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             this, &GenericDebuggerEngine::handleBreakpointModified);
     connect(m_backend.get(), &DebuggerEngineInterface::signalReceived,
             this, &GenericDebuggerEngine::handleSignalReceived);
+    connect(m_backend.get(), &DebuggerEngineInterface::notResponding,
+            this, &GenericDebuggerEngine::handleNotResponding);
     connect(m_backend.get(), &DebuggerEngineInterface::refreshDataReceived, this,
             [this](quint64, RefreshKind kind, const GdbMi &data) {
         switch (kind) {
@@ -479,6 +484,34 @@ void GenericDebuggerEngine::handleBreakpointModified(const GdbMi &data)
     }
     if (bp)
         bp->adjustMarker();
+}
+
+void GenericDebuggerEngine::handleNotResponding(std::chrono::seconds waited,
+                                                const QStringList &pendingCommands)
+{
+    showMessage(QString("TIMED OUT WAITING FOR A REPLY. COMMANDS STILL IN PROGRESS: %1")
+                    .arg(pendingCommands.join(", ")));
+    if (m_notRespondingPending)
+        return;
+    m_notRespondingPending = true;
+    CheckableMessageBox::question_async(
+        Tr::tr("Debugger Not Responding"),
+        Tr::tr("The debugger process has not responded to a command within %n seconds. This "
+               "could mean it is stuck in an endless loop or taking longer than expected to "
+               "perform the operation.<br/>You can choose between waiting longer or aborting "
+               "debugging.", nullptr, int(waited.count())),
+        {}, this,
+        [this](QMessageBox::StandardButton button) {
+            m_notRespondingPending = false;
+            if (button != QMessageBox::Ok)
+                return;
+            // An unresponsive debugger will not act on a graceful shutdown either.
+            showMessage("KILLING THE DEBUGGER AS REQUESTED BY THE USER");
+            m_backend->execute({ExecutionCommand::Abort});
+        },
+        QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::NoButton,
+        {{QMessageBox::Ok, Tr::tr("Stop Debugging")},
+         {QMessageBox::Cancel, Tr::tr("Give the Debugger More Time")}});
 }
 
 void GenericDebuggerEngine::handleSignalReceived(const QString &name, const QString &meaning)

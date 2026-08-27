@@ -11,11 +11,13 @@
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
+#include <chrono>
 #include <memory>
 
 #include <QHash>
 #include <QSet>
 #include <QStringDecoder>
+#include <QTimer>
 
 namespace Debugger::Internal {
 
@@ -45,6 +47,7 @@ public:
     QString mainFunctionName = "main";
     bool nativeMixedDebugging = false;
     bool isElfTarget = false;
+    std::chrono::seconds watchdogTimeout{0};
 };
 
 class DEBUGGER_EXPORT GdbImpl final : public DebuggerEngineInterface
@@ -126,6 +129,7 @@ private:
 
     void runCommand(const DebuggerCommand &command);
     void setTokenBarrier();
+    void restartWatchdog();
     bool usesOutputCollector() const;
     void requestInferiorInterrupt();
     void runCommandNow(const DebuggerCommand &command);
@@ -135,6 +139,7 @@ private:
     GdbImplStartData m_startData;
     qint64 m_inferiorPid = -1;
     Utils::Process m_gdbProc;
+    QTimer m_watchdog;
     OutputCollector m_outputCollector;
     QString m_inbuffer;
     enum class AttachPhase { Idle, AwaitingConnect, Stopped, Continuing };

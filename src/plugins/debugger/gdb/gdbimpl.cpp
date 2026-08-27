@@ -108,6 +108,18 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
 {
     m_gdbProc.setProcessMode(ProcessMode::Writer);
 
+    m_watchdog.setSingleShot(true);
+    m_watchdog.setInterval(m_startData.watchdogTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, [this] {
+        QStringList pending;
+        for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
+            pending << cmd.function;
+        if (pending.isEmpty())
+            return;
+        m_watchdog.start();
+        emit notResponding(m_startData.watchdogTimeout, pending);
+    });
+
     CommandLine gdbCommand = m_startData.debuggerRunData.command;
     gdbCommand.addArgs({"-i", "mi", "-nx", "-quiet"});
     m_gdbProc.setCommand(gdbCommand);
@@ -306,6 +318,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         }
     });
     connect(&m_gdbProc, &Process::readyReadStandardOutput, this, [this] {
+        restartWatchdog();
         m_inbuffer += m_gdbProc.readAllStandardOutput();
         int newline;
         while ((newline = m_inbuffer.indexOf('\n')) >= 0) {
@@ -320,6 +333,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         emit message(m_gdbProc.readAllStandardError(), LogError);
     });
     connect(&m_gdbProc, &Process::done, this, [this] {
+        m_watchdog.stop();
         m_outputCollector.shutdown();
         if (m_gdbProc.result() == ProcessResult::StartFailed)
             emit inferiorEvent(InferiorEvent::EngineSetupFailed);
@@ -1806,6 +1820,18 @@ void GdbImpl::runCommandNow(const DebuggerCommand &command)
     const QString line = QString::number(token) + cmd.function;
     emit message(line, LogInput);
     m_gdbProc.write(line + "\r\n");
+    if (!cmd.function.endsWith("-gdb-exit"))
+        restartWatchdog();
+}
+
+void GdbImpl::restartWatchdog()
+{
+    if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
+        return;
+    if (m_commandForToken.isEmpty())
+        m_watchdog.stop();
+    else
+        m_watchdog.start();
 }
 
 void GdbImpl::setTokenBarrier()

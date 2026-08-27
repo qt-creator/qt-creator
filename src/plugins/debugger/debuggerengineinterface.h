@@ -13,6 +13,7 @@
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
 
+#include <chrono>
 #include <functional>
 #include <variant>
 
@@ -248,6 +249,8 @@ signals:
     void breakpointModified(const GdbMi &data);
 
     void signalReceived(const QString &name, const QString &meaning);
+
+    void notResponding(std::chrono::seconds waited, const QStringList &pendingCommands);
 
     void interruptTerminalRequested();
     void kickoffTerminalProcessRequested();
