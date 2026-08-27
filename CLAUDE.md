@@ -49,6 +49,9 @@ directory in parallel; they fight over the same files.
   in an `Amends <full-sha>.` footer (full 40-character hash, trailing
   period). The `Amends` line must come before other footer fields (such as
   `Task-number` and `Change-Id`), separated from them by a blank line.
+- Commits written with AI assistance carry an `Assisted-by: Claude Code`
+  footer, placed after `Fixes`/`Task-number` and directly before
+  `Change-Id`. Never use a `Co-Authored-By` footer.
 - Never change the `Change-Id` trailer on the last line of a commit when
   editing its message. The Change-Id identifies the Gerrit review;
   changing it orphans that review and opens a new one. This requires an
