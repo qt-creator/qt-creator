@@ -733,7 +733,8 @@ Result<FilePath> Device::localSource(const FilePath &other) const
     if (!fileAccess)
         return ResultError(Tr::tr("File access is not available for this device."));
 
-    const FilePath workspaceFolderMountPoint = fileAccess->workspaceFolderMountPoint();
+    const FilePath workspaceFolderMountPoint = rootPath().withNewPath(
+        fileAccess->workspaceFolderMountPoint().path());
     const FilePath workspaceFolder = fileAccess->workspaceFolder();
 
     if (other.isChildOf(workspaceFolderMountPoint))
