@@ -124,7 +124,7 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     const bool userProvidedMkspec = mkspecIndex >= 0 && mkspecIndex + 1 < userArgs.size();
 
     const FilePath specArg = FilePath::fromString(mkspec());
-    QTC_CHECK(specArg.isSameDevice(v->qmakeFilePath()));
+    QTC_CHECK(specArg.isRelativePath() || specArg.isSameDevice(v->qmakeFilePath()));
     if (!userProvidedMkspec && !specArg.isEmpty())
         arguments << "-spec" << specArg.path();
 
