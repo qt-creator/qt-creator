@@ -16,6 +16,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/multitextcursor.h>
 #include <utils/stringutils.h>
 
@@ -5892,9 +5893,15 @@ void FakeVimTester::test_vim_script_builtins()
     QCOMPARE(echo("g:dcA[0][1]"), QLatin1String("77"));
     data.doCommand("unlet g:dcA | unlet g:dcB | unlet g:dcC");
 
-    QCOMPARE(echo("executable('sh')"), QLatin1String("1"));
+    // Neither "sh" nor a standalone "echo" is on a Windows machine's PATH, and
+    // system() starts the command itself rather than handing it to a shell
+    const bool isWindows = Utils::HostOsInfo::isWindowsHost();
+    QCOMPARE(echo(isWindows ? "executable('cmd')" : "executable('sh')"),
+             QLatin1String("1"));
     QCOMPARE(echo("executable('definitely_no_such_cmd_xyz')"), QLatin1String("0"));
-    QCOMPARE(echo("substitute(system('echo hi'), '\\n', '', 'g')"), QLatin1String("hi"));
+    QCOMPARE(echo(isWindows ? "substitute(system('cmd /c echo hi'), '\\n', '', 'g')"
+                            : "substitute(system('echo hi'), '\\n', '', 'g')"),
+             QLatin1String("hi"));
     QCOMPARE(echo("iconv('abc', 'utf-8', 'utf-8')"), QLatin1String("abc"));
     // An encoding that cannot be had leaves the string as it was.
     QCOMPARE(echo("iconv('abc', 'no-such-enc', 'utf-8')"), QLatin1String("abc"));
@@ -5987,7 +5994,10 @@ void FakeVimTester::test_vim_script_builtins()
     // alternation needs "\v", since a bare "|" is literal in a magic pattern.
     QCOMPARE(echo("strftime('%Y-%m-%d', 946684800) "
                   "=~ '\\v^(1999-12-31|2000-01-01)$'"), QLatin1String("1"));
-    QCOMPARE(echo("strlen(strftime('%a', 946684800))"), QLatin1String("3"));
+    // "%a" is the locale's abbreviated day name, so its width follows LC_TIME:
+    // 3 letters in C, 2 in de_DE, 1 in ja_JP; check only that conversion was expanded at all
+    QVERIFY(echo("strftime('%a', 946684800)") != QLatin1String("%a"));
+    QVERIFY(!echo("strftime('%a', 946684800)").isEmpty());
 
     // Buffer-backed builtins.
     data.setText("one" N "two" N "three");
