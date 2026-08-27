@@ -127,11 +127,10 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
         runData = inferiorRunData;
     }
     m_cdbProc.setCommand(cdbCommand);
-    if (m_startData.debuggerRunData.workingDirectory.isDir())
-        m_cdbProc.setWorkingDirectory(m_startData.debuggerRunData.workingDirectory);
-    const Environment &runEnvironment = m_startData.debuggerRunData.environment;
-    Environment env = runEnvironment.hasChanges() ? runEnvironment
-                                                  : Environment::systemEnvironment();
+    if (runData.workingDirectory.isDir())
+        m_cdbProc.setWorkingDirectory(runData.workingDirectory);
+    Environment env = runData.environment.hasChanges() ? runData.environment
+                                                       : Environment::systemEnvironment();
     env.set("_NT_DEBUGGER_EXTENSION_PATH", m_startData.extensionDir.nativePath());
     m_cdbProc.setEnvironment(env);
 
