@@ -410,6 +410,8 @@ public:
     }
 
     void editorOpened(Core::IEditor *);
+    void enterBuffer(Core::IEditor *editor, FakeVimHandler *handler);
+    bool enterBufferOnce(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *);
     void currentEditorAboutToChange(Core::IEditor *);
 
@@ -463,6 +465,7 @@ public:
 #endif
         FakeVimHandler *handler{nullptr};
         TextEditorWidget::SuggestionBlocker suggestionBlocker;
+        bool entered = false; // whether the buffer has been given to FakeVim
     };
 
     QHash<IEditor *, HandlerAndData> m_editorToHandler;
@@ -1211,9 +1214,15 @@ void FakeVimPlugin::initialize()
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, [this](IEditor *editor) {
         updateEditorCommandLinePlacement();
-        if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
-            handler->triggerAutocmd("WinEnter");
-            handler->triggerAutocmd("BufEnter");
+        if (!settings().useFakeVim())
+            return;
+        if (!enterBufferOnce(editor)) {
+            // Already entered once before: enterBuffer() fired WinEnter/BufEnter
+            // for the first visit, but every later visit needs them again.
+            if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
+                handler->triggerAutocmd("WinEnter");
+                handler->triggerAutocmd("BufEnter");
+            }
         }
     });
 
@@ -2027,6 +2036,32 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     handler->setCurrentFileName(editor->document()->filePath().toUrlishString());
     handler->installEventFilter();
 
+    // Nothing of the engine is asked anything while FakeVim is off - an editor
+    // keeps its handler either way, so that switching FakeVim on later reaches
+    // every buffer that is already open.
+    if (settings().useFakeVim()) {
+        enterBufferOnce(editor);
+
+        // pop up the bar
+        resetCommandBuffer();
+        handler->setupWidget();
+
+        if (settings().relativeNumber())
+            createRelativeNumberWidget(editor);
+    }
+}
+
+// What a buffer is given when FakeVim takes it over: the file type, whatever its
+// modelines say, and the autocommands Vim fires on reading a file and entering it.
+// Done when an editor is opened, and for every editor already open when FakeVim is
+// switched on.
+void FakeVimPlugin::enterBuffer(IEditor *editor, FakeVimHandler *handler)
+{
+    // Entering the window comes before entering the buffer, which comes before
+    // the buffer is actually read; mirrors the WinLeave/BufLeave pair on the way out.
+    handler->triggerAutocmd("WinEnter");
+    handler->triggerAutocmd("BufEnter");
+
     // Vim detects the file type from the buffer read autocommands, so fire
     // those first and only fill in what they left unset. That way a rule in a
     // vimrc wins over what Qt Creator guessed.
@@ -2040,11 +2075,10 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     }
     // Highlighting is always on here, and scripts check this before asking what
     // is under the cursor.
-    if (tew)
+    if (TextEditorWidget::fromEditor(editor))
         handler->handleCommand("let g:syntax_on = 1");
     // Last, so that what the file says about itself wins over both.
     handler->processModelines();
-    handler->triggerAutocmd("BufEnter");
     handler->triggerAutocmd("BufWinEnter");
 
     // Vim fires VimEnter once, after the startup is complete. There is no
@@ -2053,15 +2087,22 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         m_didVimEnter = true;
         handler->triggerAutocmd("VimEnter");
     }
+}
 
-    // pop up the bar
-    if (settings().useFakeVim()) {
-       resetCommandBuffer();
-       handler->setupWidget();
-
-       if (settings().relativeNumber())
-           createRelativeNumberWidget(editor);
-    }
+// A buffer is given to FakeVim the first time FakeVim has it: as an editor is
+// opened, or as it becomes the current one. Entering it runs autocommands and the
+// modelines of the file, so doing it for every open editor at once would set the
+// options from whichever buffer came last in the hash.
+bool FakeVimPlugin::enterBufferOnce(IEditor *editor)
+{
+    if (!editor || !settings().useFakeVim())
+        return false;
+    auto it = m_editorToHandler.find(editor);
+    if (it == m_editorToHandler.end() || it->entered || !it->handler)
+        return false;
+    it->entered = true;
+    enterBuffer(editor, it->handler);
+    return true;
 }
 
 void FakeVimPlugin::editorAboutToClose(IEditor *editor)
@@ -2074,6 +2115,11 @@ void FakeVimPlugin::editorAboutToClose(IEditor *editor)
 
 void FakeVimPlugin::currentEditorAboutToChange(IEditor *editor)
 {
+    if (!settings().useFakeVim()) {
+        if (editor)
+            m_alternateFileEditor = editor;
+        return;
+    }
     if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
         handler->enterCommandMode();
         // Vim leaves the buffer before the window, and enters them the other way
@@ -2121,8 +2167,19 @@ void FakeVimPlugin::setUseFakeVimInternal(bool on)
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(FAKEVIM_CONTEXT),
         // Context());
-        for (const HandlerAndData &handlerAndData : std::as_const(m_editorToHandler))
-            handlerAndData.handler->setupWidget();
+        const QList<IEditor *> editors = m_editorToHandler.keys();
+        for (IEditor *editor : editors) {
+            const HandlerAndData handlerAndData = m_editorToHandler.value(editor, {});
+            if (handlerAndData.handler)
+                handlerAndData.handler->setupWidget();
+        }
+        // The buffer in front is the one whose modelines have a say now; the rest
+        // are entered as they are visited.
+        IEditor *current = EditorManager::currentEditor();
+        if (!enterBufferOnce(current)) {
+            if (FakeVimHandler *handler = m_editorToHandler.value(current, {}).handler)
+                handler->triggerAutocmd("WinEnter");
+        }
     } else {
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(),
@@ -2134,6 +2191,9 @@ void FakeVimPlugin::setUseFakeVimInternal(bool on)
                 handlerAndData.handler->restoreWidget(textDocument->tabSettings().m_tabSize);
                 handlerAndData.suggestionBlocker.reset();
             }
+            // Nothing is entered while FakeVim is off, so the next "on" re-enters
+            // every buffer from scratch instead of enterBufferOnce() staying a no-op.
+            it->entered = false;
         }
     }
 }

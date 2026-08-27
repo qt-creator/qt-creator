@@ -44,6 +44,12 @@ struct ExCommand
     QString args;
     Range range;
     bool hasRange = false;
+    // ":0" names the place before the first line, which a range of positions
+    // cannot hold. ":put" asks for it by this.
+    bool zeroAddress = false;
+    // The line of the file this was read from, 1-based, or 0 where it was not
+    // read from one. What a script's frame is reported to be at.
+    int sourceLine = 0;
     int count = 1;
 };
 

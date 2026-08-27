@@ -116,6 +116,7 @@ public:
     FvBoolAspect hlSearch;
     FvBoolAspect smartTab;
     FvIntegerAspect shiftWidth;
+    FvIntegerAspect report;
     FvBoolAspect expandTab;
     FvBoolAspect autoIndent;
     FvBoolAspect smartIndent;

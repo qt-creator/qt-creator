@@ -75,6 +75,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&smartTab,       false, "SmartTab",       "sta", Tr::tr("Smart tabulators"));
     setup(&hlSearch,       true,  "HlSearch",       "hls", Tr::tr("Highlight search results"));
     setup(&shiftWidth,     8,     "ShiftWidth",     "sw",  Tr::tr("Shift width:"));
+    setup(&report,         2,     "Report",         "report", {});
     setup(&expandTab,      false, "ExpandTab",      "et",  Tr::tr("Expand tabulators"));
     setup(&autoIndent,     false, "AutoIndent",     "ai",  Tr::tr("Automatic indentation"));
     setup(&smartIndent,    false, "SmartIndent",    "si",  Tr::tr("Smart indentation"));
