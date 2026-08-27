@@ -5271,20 +5271,36 @@ InferiorStartData inferiorStartData(const DebuggerRunParameters &rp)
     return rp.inferior();
 }
 
+static GdbImplFlags gdbImplFlags(const DebuggerRunParameters &rp)
+{
+    GdbImplFlags flags;
+    flags.setFlag(GdbImplFlag::NativeMixedDebugging, rp.isNativeMixedDebugging());
+    flags.setFlag(GdbImplFlag::ElfTarget, rp.isElfTarget());
+    flags.setFlag(GdbImplFlag::LoadGdbInit, settings().loadGdbInit());
+    flags.setFlag(GdbImplFlag::LoadSystemDumpers, settings().loadGdbDumpers());
+    flags.setFlag(GdbImplFlag::UseIndexCache, settings().useIndexCache());
+    flags.setFlag(GdbImplFlag::MultiInferior, settings().multiInferior() || rp.multiProcess());
+    flags.setFlag(GdbImplFlag::ForceTargetAsync, settings().targetAsync() || rp.useTargetAsync());
+    return flags;
+}
+
+static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
+{
+    const bool windowsMain = rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal();
+    return {
+        .debuggerRunData = rp.debugger(),
+        .inferiorStartData = inferiorStartData(rp),
+        .dumperScriptsDir = ICore::resourcePath("debugger"),
+        .mainFunctionName = QLatin1String(windowsMain ? "qMain" : "main"),
+        .flags = gdbImplFlags(rp),
+        .watchdogTimeout = std::chrono::seconds(settings().gdbWatchdogTimeout()),
+    };
+}
+
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp)
 {
-    if (DebuggerEngine::isUsingGenericDebugger()) {
-        const QString mainFunctionName = QLatin1String(
-            rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal() ? "qMain" : "main");
-        return new GenericDebuggerEngine("GDB (GdbImpl)",
-                                        new GdbImpl({rp.debugger(), inferiorStartData(rp),
-                                                     ICore::resourcePath("debugger"),
-                                                     mainFunctionName,
-                                                     rp.isNativeMixedDebugging(),
-                                                     rp.isElfTarget(),
-                                                     std::chrono::seconds(
-                                                         settings().gdbWatchdogTimeout())}));
-    }
+    if (DebuggerEngine::isUsingGenericDebugger())
+        return new GenericDebuggerEngine("GDB (GdbImpl)", new GdbImpl(gdbImplStartData(rp)));
     return new GdbEngine;
 }
 

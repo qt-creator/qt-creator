@@ -436,6 +436,49 @@ static bool stackHasFunction(const QString &stack, const QString &function)
            || stack.contains("function=\"" + function + '(');
 }
 
+struct ConfiguredOptionProbe
+{
+    QString query;
+    QString expectedOutput;
+};
+
+static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return {{"show index-cache", "The index cache is currently enabled."},
+                {"show detach-on-fork", "Whether gdb will detach the child of a fork is off."},
+                {"show mi-async", "Whether MI is in asynchronous mode is on."},
+                {"python print(theDumper.usePlainDumpers)", "True"}};
+    case Backend::Lldb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Cdb:
+        break;
+    }
+    return {};
+}
+
+struct InitFileProbe
+{
+    QString fileName;
+    QString content;
+};
+
+static InitFileProbe initFileProbe(Backend backend, const QString &marker)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return {".gdbinit", "echo " + marker + "\\n\n"};
+    case Backend::Lldb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Cdb:
+        break;
+    }
+    return {};
+}
+
 static QString watchdogProbeCommand(Backend backend, int seconds)
 {
     switch (backend) {
@@ -707,6 +750,10 @@ private slots:
     void reportsEngineSetupFailure();
     void reportsAnUnresponsiveDebugger_data() { addBackendRows(); }
     void reportsAnUnresponsiveDebugger();
+    void appliesConfiguredDebuggerOptions_data() { addBackendRows(); }
+    void appliesConfiguredDebuggerOptions();
+    void readsTheDebuggerInitFileWhenConfigured_data() { addBackendRows(); }
+    void readsTheDebuggerInitFileWhenConfigured();
     void refreshesPeripherals_data() { addBackendRows(); }
     void refreshesPeripherals();
     void reloadsDebuggingHelpersAndSymbols_data() { addBackendRows(); }
@@ -788,6 +835,9 @@ private:
         std::chrono::seconds watchdogTimeout = {});
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData);
+    // Every user-configurable debugger option turned on, so a test can check they arrive.
+    std::unique_ptr<DebuggerBackend> createFullyConfiguredEngine(Backend backend,
+        const Utils::Environment &debuggerEnvironment);
     std::unique_ptr<DebuggerBackend> launchAndStopAtBreakpoint(Backend backend,
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {});
     std::unique_ptr<DebuggerBackend> stopAtBreakpoint(Backend backend, Process &helperInferior);
@@ -938,7 +988,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .inferiorStartData = inferiorRunDataOverride.value_or(
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .nativeMixedDebugging = nativeMixed,
+            .flags = nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
+                                 : GdbImplFlags(),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
@@ -974,6 +1025,30 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .nativeMixed = nativeMixed,
             .watchdogTimeout = watchdogTimeout}));
+    }
+    return nullptr;
+}
+
+std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
+    Backend backend, const Environment &debuggerEnvironment)
+{
+    Q_UNUSED(debuggerEnvironment)
+    switch (backend) {
+    case Backend::Gdb:
+        return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              debuggerEnvironment},
+            .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .flags = GdbImplFlag::LoadGdbInit | GdbImplFlag::LoadSystemDumpers
+                     | GdbImplFlag::UseIndexCache | GdbImplFlag::MultiInferior
+                     | GdbImplFlag::ForceTargetAsync}));
+    case Backend::Lldb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Cdb:
+        break;
     }
     return nullptr;
 }
@@ -4387,6 +4462,88 @@ void tst_backends::reportsAnUnresponsiveDebugger()
              }),
              qPrintable("the reported pending commands do not mention the blocking one: "
                         + report.join(", ")));
+}
+
+void tst_backends::appliesConfiguredDebuggerOptions()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend);
+    if (probes.isEmpty())
+        QSKIP("This backend has no configurable options wired yet.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend
+        = createFullyConfiguredEngine(backend, Environment::systemEnvironment());
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList messages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
+
+    for (const ConfiguredOptionProbe &probe : probes) {
+        messages.clear();
+        engine->executeDebuggerCommand(probe.query, {});
+        const QString expected = probe.expectedOutput;
+        QTRY_VERIFY2_WITH_TIMEOUT(std::any_of(messages.cbegin(), messages.cend(),
+                                              [&expected](const QString &text) {
+                                                  return text.contains(expected);
+                                              }),
+                                  qPrintable(QString("%1 never answered with \"%2\"")
+                                                 .arg(probe.query, expected)), s_timeout);
+    }
+}
+
+void tst_backends::readsTheDebuggerInitFileWhenConfigured()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    const QString marker = "QTCINITFILEMARKER";
+    const InitFileProbe probe = initFileProbe(backend, marker);
+    if (probe.fileName.isEmpty())
+        QSKIP("This backend reads no init file, or reading it is not configurable yet.");
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The debugger resolves its home directory differently on Windows.");
+
+    const FilePath home = FilePath::fromString(m_tempDir.path()) / "debuggerhome";
+    QVERIFY(home.ensureWritableDir());
+    QVERIFY((home / probe.fileName).writeFileContents(probe.content.toLocal8Bit()));
+    Environment environment = Environment::systemEnvironment();
+    environment.set("HOME", home.path());
+
+    // The init file is read before anything the engine sends, so by the time the
+    // engine is set up its output has either arrived or never will.
+    const auto markerSeen = [this, &marker](DebuggerBackend *debuggerBackend) {
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        QStringList messages;
+        connect(engine, &DebuggerEngineInterface::message, this,
+                [&messages](const QString &text, int, int) { messages.append(text); });
+        engine->start();
+        [debuggerBackend] {
+            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk),
+                                     s_timeout);
+        }();
+        return std::any_of(messages.cbegin(), messages.cend(), [&marker](const QString &text) {
+            return text.contains(marker);
+        });
+    };
+
+    std::unique_ptr<DebuggerBackend> configured
+        = createFullyConfiguredEngine(backend, environment);
+    QVERIFY(configured);
+    QVERIFY2(markerSeen(configured.get()), "the configured engine did not read the init file");
+
+    std::unique_ptr<DebuggerBackend> plain = createEngine(
+        backend, ProcessRunData{{m_backendData[backend].path, {}}, {}, environment});
+    QVERIFY(plain);
+    QVERIFY2(!markerSeen(plain.get()), "the init file was read although nothing asked for it");
 }
 
 void tst_backends::refreshesPeripherals()

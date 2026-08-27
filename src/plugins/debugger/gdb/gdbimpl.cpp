@@ -123,7 +123,9 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
     });
 
     CommandLine gdbCommand = m_startData.debuggerRunData.command;
-    gdbCommand.addArgs({"-i", "mi", "-nx", "-quiet"});
+    gdbCommand.addArgs({"-i", "mi", "-quiet"});
+    if (!m_startData.isSet(GdbImplFlag::LoadGdbInit))
+        gdbCommand.addArg("-nx");
     m_gdbProc.setCommand(gdbCommand);
     m_gdbProc.setEnvironment(m_startData.debuggerRunData.environment);
     if (m_startData.debuggerRunData.workingDirectory.isDir())
@@ -135,10 +137,10 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         if (!isPlainRun)
             emit inferiorEvent(InferiorEvent::EngineSetupOk);
 
-        if (std::holds_alternative<AttachToRemoteServerData>(m_startData.inferiorStartData))
-            runCommand({"-interpreter-exec console \"set target-async on\""});
-        else
-            runCommand({"-interpreter-exec console \"set target-async off\""});
+        const bool targetAsync = m_startData.isSet(GdbImplFlag::ForceTargetAsync)
+            || std::holds_alternative<AttachToRemoteServerData>(m_startData.inferiorStartData);
+        runCommand({QString("-interpreter-exec console \"set target-async %1\"")
+                        .arg(QLatin1String(targetAsync ? "on" : "off"))});
 
         // What GdbEngine::handleGdbStarted() sets, minus the settings-driven ones:
         // pending breakpoints for libraries that are not loaded yet, untruncated
@@ -148,11 +150,19 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         runCommand({"set unwindonsignal on"});
         runCommand({"set width 0"});
         runCommand({"set height 0"});
+        runCommand({"set max-completions 1000"});
+        if (m_startData.isSet(GdbImplFlag::UseIndexCache))
+            runCommand({"set index-cache on"});
+        if (m_startData.isSet(GdbImplFlag::MultiInferior))
+            runCommand({"set detach-on-fork off"});
 
         runCommand({"python sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')"});
         runCommand({"python from gdbbridge import *"});
         runCommand({"loadDumpers", [this, isPlainRun](const DebuggerResponse &) {
             m_dumpersReady = true;
+            runCommand({m_startData.isSet(GdbImplFlag::LoadSystemDumpers)
+                            ? QLatin1String("importPlainDumpers on")
+                            : QLatin1String("importPlainDumpers off")});
             const QList<DebuggerCommand> buffered = m_bufferedDumperCommands;
             m_bufferedDumperCommands.clear();
             for (const DebuggerCommand &cmd : buffered)
@@ -273,7 +283,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
             const bool needsFollowUp = remoteData->attachPid.isValid()
                                        || !remoteData->remoteExecutable.isEmpty();
             const bool useQnxTarget = remoteData->useQnxTarget;
-            if (HostOsInfo::isWindowsHost() && m_startData.isElfTarget)
+            if (HostOsInfo::isWindowsHost() && m_startData.isSet(GdbImplFlag::ElfTarget))
                 runCommand({"set osabi GNU/Linux"});
             auto connectToTarget = [this, channel, needsFollowUp, useQnxTarget] {
                 if (!needsFollowUp)
@@ -302,7 +312,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         }
 
         if (const auto *coreData = std::get_if<AttachToCoreData>(&m_startData.inferiorStartData)) {
-            if (HostOsInfo::isWindowsHost() && m_startData.isElfTarget)
+            if (HostOsInfo::isWindowsHost() && m_startData.isSet(GdbImplFlag::ElfTarget))
                 runCommand({"set osabi GNU/Linux"});
             runCommand({"-file-exec-file " + coreData->executable.nativePath()});
             runCommand({"-file-symbol-file " + coreData->executable.nativePath(),
@@ -566,7 +576,7 @@ void GdbImpl::execute(const ExecutionRequest &request)
 
     switch (request.command) {
     case ExecutionCommand::Continue:
-        if (m_startData.nativeMixedDebugging && request.currentFrameIsQml)
+        if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml)
             runRunRequestCommand("executeContinue");
         else
             runRunRequestCommand("-exec-continue");
@@ -584,17 +594,17 @@ void GdbImpl::execute(const ExecutionRequest &request)
         requestInferiorInterrupt();
         break;
     case ExecutionCommand::StepOver:
-        if (m_startData.nativeMixedDebugging && request.currentFrameIsQml && !request.flag)
+        if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml && !request.flag)
             runRunRequestCommand("executeNext");
         else
             runRunRequestCommand(request.flag ? QLatin1String("-exec-next-instruction")
                                               : QLatin1String("-exec-next"));
         break;
     case ExecutionCommand::StepIn:
-        if (m_startData.nativeMixedDebugging && request.currentFrameIsQml && !request.flag) {
+        if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml && !request.flag) {
             runRunRequestCommand("executeStep");
         } else if (!request.flag) {
-            if (m_startData.nativeMixedDebugging)
+            if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging))
                 runCommand({"armInterpreterStepIn"});
             runRunRequestCommand("-exec-step");
         } else {
@@ -602,9 +612,9 @@ void GdbImpl::execute(const ExecutionRequest &request)
         }
         break;
     case ExecutionCommand::StepOut:
-        if (m_startData.nativeMixedDebugging && request.currentFrameIsQml)
+        if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml)
             runRunRequestCommand("executeStepOut");
-        else if (m_startData.nativeMixedDebugging)
+        else if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging))
             runRunRequestCommand("executeNativeMixedStepOut");
         else
             runRunRequestCommand("-exec-finish");
@@ -723,7 +733,7 @@ void GdbImpl::refresh(const RefreshRequest &request)
         cmd.arg("dyntype", true);
         cmd.arg("partialvar", request.partialVariable);
         cmd.arg("context", request.context);
-        cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
+        cmd.arg("nativemixed", m_startData.isSet(GdbImplFlag::NativeMixedDebugging));
         cmd.arg("allowinferiorcalls", request.allowInferiorCalls);
         cmd.arg("expanded", QStringList());
         cmd.arg("watchers", request.watchers);
@@ -740,7 +750,7 @@ void GdbImpl::refresh(const RefreshRequest &request)
     case RefreshKind::FullStack: {
         DebuggerCommand cmd("fetchStack");
         cmd.arg("limit", -1);
-        cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
+        cmd.arg("nativemixed", m_startData.isSet(GdbImplFlag::NativeMixedDebugging));
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::FullStack, response.data);
         };
@@ -756,7 +766,7 @@ void GdbImpl::refresh(const RefreshRequest &request)
     case RefreshKind::QmlStack: {
         DebuggerCommand cmd("fetchStack");
         cmd.arg("limit", -1);
-        cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
+        cmd.arg("nativemixed", m_startData.isSet(GdbImplFlag::NativeMixedDebugging));
         cmd.arg("extraqml", true);
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::FullStack, response.data);
@@ -1282,7 +1292,7 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
         cmd.arg("autoderef", true);
         cmd.arg("dyntype", true);
         cmd.arg("qobjectnames", true);
-        cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
+        cmd.arg("nativemixed", m_startData.isSet(GdbImplFlag::NativeMixedDebugging));
         cmd.arg("stringcutoff", 10000);
         cmd.arg("displaystringlimit", 100);
 

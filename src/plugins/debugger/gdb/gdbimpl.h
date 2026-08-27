@@ -38,6 +38,17 @@ struct GdbImplTracepointInfo
     QList<GdbImplTracepointCaptureData> captures;
 };
 
+enum class GdbImplFlag {
+    NativeMixedDebugging = 1 << 0,
+    ElfTarget            = 1 << 1,
+    LoadGdbInit          = 1 << 2,
+    LoadSystemDumpers    = 1 << 3,
+    UseIndexCache        = 1 << 4,
+    MultiInferior        = 1 << 5,
+    ForceTargetAsync     = 1 << 6,
+};
+Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
+
 class DEBUGGER_EXPORT GdbImplStartData
 {
 public:
@@ -45,9 +56,10 @@ public:
     InferiorStartData inferiorStartData;
     Utils::FilePath dumperScriptsDir;
     QString mainFunctionName = "main";
-    bool nativeMixedDebugging = false;
-    bool isElfTarget = false;
+    GdbImplFlags flags;
     std::chrono::seconds watchdogTimeout{0};
+
+    bool isSet(GdbImplFlag flag) const { return flags.testFlag(flag); }
 };
 
 class DEBUGGER_EXPORT GdbImpl final : public DebuggerEngineInterface
@@ -186,3 +198,5 @@ private:
     QSet<QString> m_internalBreakpointNumbers;
 };
 } // namespace Debugger::Internal
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::GdbImplFlags)
