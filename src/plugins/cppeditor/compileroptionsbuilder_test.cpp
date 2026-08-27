@@ -37,8 +37,8 @@ public:
         tcInfo.targetTriple = targetTriple;
         tcInfo.abi = Abi::fromString(targetTriple);
         if (!tcInfo.abi.isValid()) {
-            tcInfo.abi = Abi(Abi::X86Architecture, Abi::DarwinOS, Abi::FreeBsdFlavor,
-                             Abi::MachOFormat, 64);
+            tcInfo.abi = Abi(Abi::X86Architecture, Abi::BsdOS, Abi::FreeBsdFlavor,
+                             Abi::ElfFormat, 64);
         }
         tcInfo.isMsvc2015Toolchain = isMsvc2015;
         tcInfo.extraCodeModelFlags = extraFlags;
