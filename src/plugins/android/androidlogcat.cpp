@@ -202,43 +202,51 @@ static LogcatFilter::FilterPredicate tagPredicate(const QString &tag)
     return [tag](const LogcatEntry &e) { return e.tag.contains(tag, Qt::CaseInsensitive); };
 }
 
+static LogcatFilter::FilterPredicate negate(LogcatFilter::FilterPredicate predicate)
+{
+    return [predicate = std::move(predicate)](const LogcatEntry &e) { return !predicate(e); };
+}
+
 void LogcatFilter::setFromText(const QString &text)
 {
     m_filterText = text;
     m_predicates.clear();
     const QStringList tokens = text.simplified().split(QChar::Space, Qt::SkipEmptyParts);
     for (const QString &token : tokens) {
-        const int colon = token.indexOf(u':');
-        const QString key = colon > 0 ? token.left(colon).toLower() : QString();
-        const QString value = colon > 0 ? token.mid(colon + 1) : QString();
+        const bool negated = token.startsWith(u'-');
+        const QString bare = negated ? token.mid(1) : token;
+        const int colon = bare.indexOf(u':');
+        const QString key = colon > 0 ? bare.left(colon).toLower() : QString();
+        const QString value = colon > 0 ? bare.mid(colon + 1) : QString();
         const bool queryKey = key == packageKey || key == levelKey || key == tagKey;
         if (queryKey && value.isEmpty())
             continue;
+        const auto append = [this, negated](FilterPredicate predicate) {
+            m_predicates.append(negated ? negate(std::move(predicate)) : std::move(predicate));
+        };
         if (key == packageKey) {
             if (value.compare(mineValue, Qt::CaseInsensitive) == 0) {
                 const QString package = m_boundPackage.isEmpty() ? activeProjectPackage()
                                                                  : m_boundPackage;
                 if (!package.isEmpty())
-                    m_predicates.append(minePredicate(package));
+                    append(minePredicate(package));
                 else
-                    m_predicates.append([](const LogcatEntry &) { return false; });
+                    append([](const LogcatEntry &) { return false; });
             } else {
-                m_predicates.append([value](const LogcatEntry &e) {
+                append([value](const LogcatEntry &e) {
                     return e.packageName.contains(value, Qt::CaseInsensitive);
                 });
             }
         } else if (key == levelKey) {
             const LogcatLevel level = logcatLevel(value);
             if (level != LogcatLevel::Unknown)
-                m_predicates.append(levelPredicate(level));
+                append(levelPredicate(level));
             else
-                m_predicates.append([](const LogcatEntry &) { return false; });
+                append([](const LogcatEntry &) { return false; });
         } else if (key == tagKey) {
-            m_predicates.append(tagPredicate(value));
-        } else {
-            m_predicates.append([token](const LogcatEntry &e) {
-                return matchesFreeText(e, token);
-            });
+            append(tagPredicate(value));
+        } else if (!bare.isEmpty()) {
+            append([bare](const LogcatEntry &e) { return matchesFreeText(e, bare); });
         }
     }
 }
