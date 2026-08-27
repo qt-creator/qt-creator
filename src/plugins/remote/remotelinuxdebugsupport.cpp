@@ -4,6 +4,7 @@
 #include "remotelinuxdebugsupport.h"
 
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 #include "windowsdevice.h"
 
 #include <debugger/debuggerruncontrol.h>
@@ -17,6 +18,7 @@
 #include <QtTaskTree/QBarrier>
 
 #include <utils/qtcprocess.h>
+#include <utils/url.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -164,6 +166,89 @@ public:
     }
 };
 
+// QML profiling and previewing on the native Windows device. As for a normal run, the
+// application starts on the device's interactive desktop session. Windows blocks an incoming
+// connection to the application's QML debug port, so the application binds that port to the
+// device's loopback interface and Creator reaches it through an SSH forward.
+class WindowsQmlToolingWorkerFactory final : public RunWorkerFactory
+{
+public:
+    WindowsQmlToolingWorkerFactory()
+    {
+        setId("WindowsQmlToolingWorkerFactory");
+        setRecipeProducer([](RunControl *runControl) {
+            runControl->requestQmlChannel();
+
+            const Storage<int> devicePortStorage;
+            const Storage<QUrl> localUrlStorage;
+
+            // The device port exists only once the ports gatherer has run, i.e. inside the
+            // recipe, and the channel below stops carrying it as soon as it is rewritten.
+            // The local one is taken as late as possible: nothing holds it between here and
+            // ssh binding it.
+            const auto onPorts = [runControl, devicePortStorage, localUrlStorage] {
+                *devicePortStorage = runControl->qmlChannel().port();
+                if (*devicePortStorage <= 0) {
+                    runControl->postMessage(Tr::tr("No free port found on the device."),
+                                            ErrorMessageFormat);
+                    return false;
+                }
+                *localUrlStorage = Utils::urlFromLocalHostAndFreePort();
+                if (localUrlStorage->port() <= 0) {
+                    runControl->postMessage(Tr::tr("No free port found on this host."),
+                                            ErrorMessageFormat);
+                    return false;
+                }
+                return true;
+            };
+
+            const auto modifier = [runControl, devicePortStorage, localUrlStorage](
+                                      Process &process) {
+                const QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
+
+                const QString deviceAddress = "127.0.0.1";
+                const int devicePort = *devicePortStorage;
+                const QUrl &localUrl = *localUrlStorage;
+
+                // It has to be the literal address: Qt parses the host as an IP address and
+                // falls back to every interface, with a warning, for a name it cannot parse.
+                QUrl server;
+                server.setHost(deviceAddress);
+                server.setPort(devicePort);
+
+                CommandLine cmd = runControl->commandLine();
+                cmd.addArg(qmlDebugDesktopTcpArguments(services, server));
+                process.setCommand(cmd);
+
+                process.setExtraData(Constants::RunInInteractiveSession, true);
+                process.setExtraData(Constants::SshForwardAddress, deviceAddress);
+                process.setExtraData(Constants::SshForwardPort, devicePort);
+                process.setExtraData(Constants::SshForwardLocalPort, localUrl.port());
+                process.setExtraData(Constants::SshForwardLocalAddress, localUrl.host());
+
+                QUrl channel = runControl->qmlChannel();
+                channel.setHost(localUrl.host());
+                channel.setPort(localUrl.port());
+                runControl->setQmlChannel(channel);
+            };
+            const ProcessTask processTask(runControl->processTaskWithModifier(modifier));
+            return Group {
+                devicePortStorage,
+                localUrlStorage,
+                QSyncTask(onPorts),
+                When (processTask, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                    runControl->createRecipe(runnerIdForRunMode(runControl->runMode()))
+                }
+            };
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+        addSupportedDeviceType(Constants::GenericWindowsOsType);
+        setSupportedRunConfigs(supportedRunConfigs());
+        setExecutionType(Constants::ExecutionType);
+    }
+};
+
 void setupRemoteLinuxRunAndDebugSupport()
 {
     static RemoteLinuxRunWorkerFactory runWorkerFactory;
@@ -171,6 +256,7 @@ void setupRemoteLinuxRunAndDebugSupport()
     static RemoteLinuxDebugWorkerFactory debugWorkerFactory;
     static RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory;
     static WindowsDebugWorkerFactory windowsDebugWorkerFactory;
+    static WindowsQmlToolingWorkerFactory windowsQmlToolingWorkerFactory;
 }
 
 } // Remote::Internal

@@ -633,11 +633,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 
     cmd.addArg("-q");
 
-    const auto forwardPort = q->m_setup.m_extraData.value(Constants::SshForwardPort).toString();
-    if (!forwardPort.isEmpty()) {
-        cmd.addArg("-L");
-        cmd.addArg(QString("%1:localhost:%1").arg(forwardPort));
-    }
+    cmd.addArgs(Internal::localPortForwardOptions(q->m_setup.m_extraData));
 
     // ssh keeps the first value it is given for an option.
     if (!m_socketFilePath.isEmpty()) {

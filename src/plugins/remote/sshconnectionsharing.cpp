@@ -3,6 +3,7 @@
 
 #include "sshconnectionsharing.h"
 
+#include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/devicesupport/sshparameters.h>
@@ -457,6 +458,28 @@ void closeSharedConnections(const SshParameters &parameters)
 {
     if (SshConnectionHandler *handler = connectionHandler())
         handler->closeConnections(parameters);
+}
+
+QStringList localPortForwardOptions(const QVariantHash &extraData)
+{
+    const QString devicePort = extraData.value(Constants::SshForwardPort).toString();
+    if (devicePort.isEmpty())
+        return {};
+
+    const auto bracketed = [](const QString &address) {
+        return address.contains(':') ? '[' + address + ']' : address;
+    };
+
+    QString local = extraData.value(Constants::SshForwardLocalPort, devicePort).toString();
+    const QString localAddress = extraData.value(Constants::SshForwardLocalAddress).toString();
+    if (!localAddress.isEmpty())
+        local = bracketed(localAddress) + ':' + local;
+    const QString deviceAddress
+        = extraData.value(Constants::SshForwardAddress, QString("localhost")).toString();
+
+    // Without ExitOnForwardFailure ssh carries on, silently given -q, when it cannot bind.
+    return {"-o", "ExitOnForwardFailure=yes",
+            "-L", QString("%1:%2:%3").arg(local, bracketed(deviceAddress), devicePort)};
 }
 
 } // namespace Remote::Internal

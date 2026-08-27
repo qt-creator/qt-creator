@@ -20,6 +20,9 @@ private slots:
     void testRunsInTheDeviceUsersSession();
     void testRunsWithoutADesktopSession();
     void testStopKillsTheRemoteApplication();
+    void testForwardReachesTheDeviceLoopback();
+    void testLocalPortForwardOptions_data();
+    void testLocalPortForwardOptions();
 };
 
 } // namespace Remote::Internal

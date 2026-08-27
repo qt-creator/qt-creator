@@ -21,7 +21,15 @@ inline constexpr char GenericDeployStepId[] = "RemoteLinux.RsyncDeployStep";
 inline constexpr char CustomCommandDeployStepId[] = "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
 inline constexpr char KillAppStepId[] = "RemoteLinux.KillAppStep";
 
+// Process extra data: the two ends of an ssh "-L" forward, the device port and the port it is
+// carried to on this host. Read back through QVariant::toString(), so either may be set as an
+// int or as a string. The local one defaults to the device port where it is unset. The local
+// address, if set, is the one address the local port is bound on. The device address is the
+// one the forward connects to on the device, "localhost" where it is unset.
+inline constexpr char SshForwardAddress[] = "RemoteLinux.SshForwardAddress";
 inline constexpr char SshForwardPort[] = "RemoteLinux.SshForwardPort";
+inline constexpr char SshForwardLocalPort[] = "RemoteLinux.SshForwardLocalPort";
+inline constexpr char SshForwardLocalAddress[] = "RemoteLinux.SshForwardLocalAddress";
 inline constexpr char DisableSharing[] = "RemoteLinux.DisableSharing";
 
 // Process extra-data flag (bool): launch the process on the device's interactive desktop

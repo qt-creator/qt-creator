@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QVariant>
 
 namespace ProjectExplorer { class SshParameters; }
 namespace Utils { class ProcessResultData; }
@@ -48,5 +49,10 @@ QStringList sharedConnectionOptions(const ProjectExplorer::SshParameters &parame
 
 // Ends the connections to the host instead of leaving them for the next user.
 void closeSharedConnections(const ProjectExplorer::SshParameters &parameters);
+
+// The "-L" option that carries a port on the device to a port on this host, for a process that
+// asked for a forward. The local port defaults to the device one where none was named, and
+// is bound on every loopback address unless a local address is named.
+QStringList localPortForwardOptions(const QVariantHash &extraData);
 
 } // namespace Remote::Internal
