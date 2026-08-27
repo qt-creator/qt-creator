@@ -90,7 +90,7 @@ struct LogcatEntry
     bool parsed = false;
 
     static LogcatEntry fromLine(const QString &raw);
-    QString displayText() const;
+    QString displayText(const LogcatEntry &previous) const;
 };
 
 // Matches adb's '-v threadtime -v year' line layout.
@@ -101,6 +101,22 @@ static const QRegularExpression regExpLogcat(
     "(?<tid>\\d+) +"
     "(?<level>[VDIWEF]) "
     "(?<tag>.*?) *: ");
+
+enum ColumnWidth {
+    TimestampWidth = 23,
+    PidWidth = 5,
+    TagWidth = 23,
+    PackageWidth = 35
+};
+
+static QString cell(const QString &text, int width)
+{
+    if (text.size() <= width)
+        return text.leftJustified(width);
+    const QLatin1String ellipsis("...");
+    const int head = (width - ellipsis.size()) / 2;
+    return text.left(head) + ellipsis + text.right(width - ellipsis.size() - head);
+}
 
 LogcatEntry LogcatEntry::fromLine(const QString &raw)
 {
@@ -121,30 +137,33 @@ LogcatEntry LogcatEntry::fromLine(const QString &raw)
     return entry;
 }
 
-QString LogcatEntry::displayText() const
+QString LogcatEntry::displayText(const LogcatEntry &previous) const
 {
     if (bypassFilter || !parsed)
         return line;
     const auto &settings = logcatSettings();
-    QString result = line.left(colorLength);
+    QString prefix;
     if (settings.compactView()) {
-        result += levelLetter;
-        result += QLatin1Char('/') + tag.leftJustified(8) + QLatin1Char('(')
+        prefix += levelLetter;
+        prefix += QLatin1Char('/') + tag.leftJustified(8) + QLatin1Char('(')
                   + QString::number(pid).rightJustified(5) + QLatin1String("): ");
-        result += line.mid(headerLength);
-        return result;
+    } else {
+        if (settings.showTimestamp())
+            prefix += line.mid(colorLength, timestampLength).leftJustified(TimestampWidth)
+                      + QLatin1Char(' ');
+        if (settings.showPid())
+            prefix += QString("%1-%2 ").arg(pid, PidWidth).arg(tid, -PidWidth);
+        if (settings.showTag())
+            prefix += cell(tag, TagWidth) + QLatin1Char(' ');
+        if (settings.showPackage())
+            prefix += cell(packageName, PackageWidth) + QLatin1Char(' ');
+        prefix += QLatin1Char(' ') + levelLetter + QLatin1String("  ");
     }
-    if (settings.showTimestamp())
-        result += line.mid(colorLength, timestampLength) + QLatin1Char(' ');
-    if (settings.showPid()) {
-        result += QString::number(pid) + QLatin1Char('-') + QString::number(tid)
-                  + QLatin1Char(' ');
-    }
-    if (settings.showTag())
-        result += tag + QLatin1Char(' ');
-    if (settings.showPackage() && !packageName.isEmpty())
-        result += packageName + QLatin1Char(' ');
-    result += levelLetter + QLatin1String("  ");
+    const bool sameRecord = headerLength == previous.headerLength
+                            && QStringView(line).left(headerLength)
+                                   == QStringView(previous.line).left(headerLength);
+    QString result = line.left(colorLength);
+    result += sameRecord ? QString(prefix.size(), QLatin1Char(' ')) : prefix;
     result += line.mid(headerLength);
     return result;
 }
@@ -314,11 +333,13 @@ private:
         qsizetype bufferedChars = 0;
         QHash<qint32, QString> processNames;
         QSet<qint32> askedPids;
+        LogcatEntry lastPosted;
         LogcatFilter filter;
 
         void appendEntry(const LogcatEntry &entry);
         void enforceBudget();
-        void backfillPackageNames();
+        bool backfillPackageNames();
+        void postEntry(const LogcatEntry &entry);
         void renderFromBuffer();
     };
 
@@ -432,6 +453,7 @@ void LogcatStream::attachTab(RunControl *tab)
     QObject::connect(tab, &RunControl::outputCleared, this, [this] {
         m_tabContext.buffer.clear();
         m_tabContext.bufferedChars = 0;
+        m_tabContext.lastPosted = {};
     });
     QObject::connect(tab, &QObject::destroyed, this, [this] { onTabDestroyed(); });
     setStreaming(tab->isOutputVisible());
@@ -611,7 +633,8 @@ void LogcatStream::populateProcesses()
             if (ok)
                 m_tabContext.processNames.insert(pid, fields.last());
         }
-        m_tabContext.backfillPackageNames();
+        if (m_tabContext.backfillPackageNames())
+            m_filterDebounce.start();
     };
     // The timer paces ps to one per 5s; withTimeout cancels a ps hanging past it.
     m_psRunner.start({parallel,
@@ -765,11 +788,17 @@ void LogcatStream::TabContext::appendEntry(const LogcatEntry &entry)
         return;
     LogcatEntry stamped = entry;
     stamped.packageName = processNames.value(stamped.pid);
-    buffer.append(stamped);
-    bufferedChars += stamped.line.size();
-    enforceBudget();
     if (filter.accepts(stamped))
-        tab->postMessage(stamped.displayText(), stamped.format, false);
+        postEntry(stamped);
+    bufferedChars += stamped.line.size();
+    buffer.append(std::move(stamped));
+    enforceBudget();
+}
+
+void LogcatStream::TabContext::postEntry(const LogcatEntry &entry)
+{
+    tab->postMessage(entry.displayText(lastPosted), entry.format, true);
+    lastPosted = entry;
 }
 
 void LogcatStream::TabContext::enforceBudget()
@@ -781,13 +810,18 @@ void LogcatStream::TabContext::enforceBudget()
     }
 }
 
-void LogcatStream::TabContext::backfillPackageNames()
+bool LogcatStream::TabContext::backfillPackageNames()
 {
+    bool filled = false;
     for (LogcatEntry &entry : buffer) {
         if (!entry.packageName.isEmpty())
             continue;
         entry.packageName = processNames.value(entry.pid);
+        if (entry.packageName.isEmpty())
+            continue;
+        filled = true;
     }
+    return filled;
 }
 
 void LogcatStream::TabContext::renderFromBuffer()
@@ -795,9 +829,10 @@ void LogcatStream::TabContext::renderFromBuffer()
     if (!tab)
         return;
     tab->clearOutput();
+    lastPosted = {};
     for (const LogcatEntry &entry : buffer) {
         if (filter.accepts(entry))
-            tab->postMessage(entry.displayText(), entry.format, false);
+            postEntry(entry);
     }
 }
 
