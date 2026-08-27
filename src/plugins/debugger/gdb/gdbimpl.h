@@ -47,6 +47,9 @@ enum class GdbImplFlag {
     UseIndexCache        = 1 << 4,
     MultiInferior        = 1 << 5,
     ForceTargetAsync     = 1 << 6,
+    BreakOnAbort         = 1 << 7,
+    BreakOnWarning       = 1 << 8,
+    BreakOnFatal         = 1 << 9,
 };
 Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
 
@@ -169,6 +172,7 @@ private:
     void setTokenBarrier();
     void applySearchPaths();
     void loadExtraDumpers();
+    void createSpecialBreakpoints();
     void runUserStartupCommands();
     void restartWatchdog();
     bool usesOutputCollector() const;

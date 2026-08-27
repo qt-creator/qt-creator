@@ -486,6 +486,22 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
     return {};
 }
 
+// createSpecialBreakpoints() is a gdb-bridge feature; no other bridge implements
+// it, so nothing there can break on abort, qWarning or qFatal.
+static bool breaksOnSpecialFunctions(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return true;
+    case Backend::Lldb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Cdb:
+        break;
+    }
+    return false;
+}
+
 // Whether a container local looks different with and without the debugging
 // helpers. lldb's own synthetic children shape std::vector either way, and Qml
 // has no python dumpers at all.
@@ -800,6 +816,8 @@ private slots:
     void reportsAnUnresponsiveDebugger();
     void appliesConfiguredDebuggerOptions_data() { addBackendRows(); }
     void appliesConfiguredDebuggerOptions();
+    void breaksBeforeTheInferiorAborts_data() { addBackendRows(); }
+    void breaksBeforeTheInferiorAborts();
     void readsTheDebuggerInitFileWhenConfigured_data() { addBackendRows(); }
     void readsTheDebuggerInitFileWhenConfigured();
     void refreshesPeripherals_data() { addBackendRows(); }
@@ -886,7 +904,8 @@ private:
     // Every user-configurable debugger option turned on, so a test can check they arrive.
     // Paths that have to exist for the backend to pass them on use existingDir.
     std::unique_ptr<DebuggerBackend> createFullyConfiguredEngine(Backend backend,
-        const Utils::Environment &debuggerEnvironment, const Utils::FilePath &existingDir);
+        const Utils::Environment &debuggerEnvironment, const Utils::FilePath &existingDir,
+        const QString &inferiorArguments = {});
     std::unique_ptr<DebuggerBackend> launchAndStopAtBreakpoint(Backend backend,
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {});
     std::unique_ptr<DebuggerBackend> stopAtBreakpoint(Backend backend, Process &helperInferior);
@@ -1081,21 +1100,25 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
-    Backend backend, const Environment &debuggerEnvironment, const FilePath &existingDir)
+    Backend backend, const Environment &debuggerEnvironment, const FilePath &existingDir,
+    const QString &inferiorArguments)
 {
     Q_UNUSED(debuggerEnvironment)
     Q_UNUSED(existingDir)
+    Q_UNUSED(inferiorArguments)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
                                               debuggerEnvironment},
-            .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
-                                                Environment::systemEnvironment()},
+            .inferiorStartData = ProcessRunData{
+                {inferiorTestData(backend).executable, inferiorArguments, CommandLine::Raw}, {},
+                Environment::systemEnvironment()},
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .flags = GdbImplFlag::LoadGdbInit | GdbImplFlag::LoadSystemDumpers
                      | GdbImplFlag::UseIndexCache | GdbImplFlag::MultiInferior
-                     | GdbImplFlag::ForceTargetAsync,
+                     | GdbImplFlag::ForceTargetAsync | GdbImplFlag::BreakOnAbort
+                     | GdbImplFlag::BreakOnWarning | GdbImplFlag::BreakOnFatal,
             .extraDumperFile = existingDir / "qtc_extra_dumper.py",
             .extraDumperCommands = "echo QTCEXTRADUMPERCOMMAND\\n",
             .searchPaths = {.sysRoot = FilePath::fromUserInput("/qtc-test-sysroot"),
@@ -1417,6 +1440,8 @@ void tst_backends::initTestCase()
         "#endif",
         "    if (argc > 1 && strcmp(argv[1], \"crash\") == 0)",
         "        crash();",
+        "    if (argc > 1 && strcmp(argv[1], \"abort\") == 0)",
+        "        abort();",
         "    bump();",
         "    multi(1);",
         "    multi(2.0);",
@@ -4652,6 +4677,37 @@ void tst_backends::appliesConfiguredDebuggerOptions()
                                   qPrintable(QString("%1 never answered with \"%2\"")
                                                  .arg(probe.query, expected)), s_timeout);
     }
+}
+
+void tst_backends::breaksBeforeTheInferiorAborts()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    if (!breaksOnSpecialFunctions(backend))
+        QSKIP("This backend cannot break on abort, qWarning or qFatal.");
+
+    const FilePath existingDir = FilePath::fromString(m_tempDir.path()) / "specialbreakpoints";
+    QVERIFY(existingDir.ensureWritableDir());
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createFullyConfiguredEngine(
+        backend, Environment::systemEnvironment(), existingDir, "abort");
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    // Without the special breakpoint the inferior reaches abort() and stops on
+    // SIGABRT instead, which is a stop as well - the signal is what tells them apart.
+    QStringList receivedSignals;
+    connect(engine, &DebuggerEngineInterface::signalReceived, this,
+            [&receivedSignals](const QString &name, const QString &) { receivedSignals.append(name); });
+
+    engine->start();
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "the inferior's abort() never stopped the debugger", s_timeout);
+    QVERIFY2(receivedSignals.isEmpty(),
+             qPrintable("the inferior ran into abort() instead of stopping before it: "
+                        + receivedSignals.join(", ")));
+    QVERIFY2(debuggerBackend->inferiorResults().isEmpty(), "the inferior did not survive");
 }
 
 void tst_backends::readsTheDebuggerInitFileWhenConfigured()

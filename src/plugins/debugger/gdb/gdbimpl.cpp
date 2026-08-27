@@ -166,6 +166,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                             ? QLatin1String("importPlainDumpers on")
                             : QLatin1String("importPlainDumpers off")});
             runUserStartupCommands();
+            createSpecialBreakpoints();
             const QList<DebuggerCommand> buffered = m_bufferedDumperCommands;
             m_bufferedDumperCommands.clear();
             for (const DebuggerCommand &cmd : buffered)
@@ -1829,6 +1830,23 @@ void GdbImpl::runCommandNow(const DebuggerCommand &command)
     m_gdbProc.write(line + "\r\n");
     if (!cmd.function.endsWith("-gdb-exit"))
         restartWatchdog();
+}
+
+void GdbImpl::createSpecialBreakpoints()
+{
+    // A core file has nothing to break in.
+    if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData))
+        return;
+    const bool onAbort = m_startData.isSet(GdbImplFlag::BreakOnAbort);
+    const bool onWarning = m_startData.isSet(GdbImplFlag::BreakOnWarning);
+    const bool onFatal = m_startData.isSet(GdbImplFlag::BreakOnFatal);
+    if (!onAbort && !onWarning && !onFatal)
+        return;
+    DebuggerCommand cmd("createSpecialBreakpoints");
+    cmd.arg("breakonabort", onAbort);
+    cmd.arg("breakonwarning", onWarning);
+    cmd.arg("breakonfatal", onFatal);
+    runCommand(cmd);
 }
 
 void GdbImpl::loadExtraDumpers()

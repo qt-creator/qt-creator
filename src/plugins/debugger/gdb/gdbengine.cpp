@@ -5281,6 +5281,9 @@ static GdbImplFlags gdbImplFlags(const DebuggerRunParameters &rp)
     flags.setFlag(GdbImplFlag::UseIndexCache, settings().useIndexCache());
     flags.setFlag(GdbImplFlag::MultiInferior, settings().multiInferior() || rp.multiProcess());
     flags.setFlag(GdbImplFlag::ForceTargetAsync, settings().targetAsync() || rp.useTargetAsync());
+    flags.setFlag(GdbImplFlag::BreakOnAbort, settings().breakOnAbort());
+    flags.setFlag(GdbImplFlag::BreakOnWarning, settings().breakOnWarning());
+    flags.setFlag(GdbImplFlag::BreakOnFatal, settings().breakOnFatal());
     return flags;
 }
 
