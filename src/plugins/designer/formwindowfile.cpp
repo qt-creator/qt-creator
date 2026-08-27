@@ -25,6 +25,29 @@ using namespace Utils;
 
 namespace Designer::Internal {
 
+// Clears the application override cursor stack for its lifetime. Designer loading
+// can pop up modal messages (e.g. about missing resources), which would otherwise
+// show with a wait cursor set by the editor-opening code.
+class CursorOverrideReset
+{
+public:
+    CursorOverrideReset()
+    {
+        while (const QCursor *cursor = QApplication::overrideCursor()) {
+            m_cursors.append(*cursor);
+            QApplication::restoreOverrideCursor();
+        }
+    }
+    ~CursorOverrideReset()
+    {
+        for (auto it = m_cursors.crbegin(); it != m_cursors.crend(); ++it)
+            QApplication::setOverrideCursor(*it);
+    }
+
+private:
+    QList<QCursor> m_cursors;
+};
+
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
   : m_formWindow(form)
 {
@@ -71,8 +94,11 @@ Result<> FormWindowFile::open(const FilePath &filePath, const FilePath &realFile
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);
     QString errorString;
-    if (!form->setContents(&str, &errorString))
-        return ResultError(errorString);
+    {
+        CursorOverrideReset cursorReset;
+        if (!form->setContents(&str, &errorString))
+            return ResultError(errorString);
+    }
     form->setDirty(filePath != realFilePath);
 
     syncXmlFromFormWindow();
@@ -132,19 +158,11 @@ Result<> FormWindowFile::setContents(const QByteArray &contents)
     if (contents.isEmpty())
         return ResultError(ResultAssert);
 
-    // If we have an override cursor, reset it over Designer loading,
-    // should it pop up messages about missing resources or such.
-    const bool hasOverrideCursor = QApplication::overrideCursor();
-    QCursor overrideCursor;
-    if (hasOverrideCursor) {
-        overrideCursor = QCursor(*QApplication::overrideCursor());
-        QApplication::restoreOverrideCursor();
+    bool success = false;
+    {
+        CursorOverrideReset cursorReset;
+        success = m_formWindow->setContents(QString::fromUtf8(contents));
     }
-
-    const bool success = m_formWindow->setContents(QString::fromUtf8(contents));
-
-    if (hasOverrideCursor)
-        QApplication::setOverrideCursor(overrideCursor);
 
     if (!success)
         return ResultError(ResultAssert);
