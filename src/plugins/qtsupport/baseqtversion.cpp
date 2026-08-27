@@ -743,7 +743,7 @@ FilePath QtVersion::mkspecsPath() const
 
 FilePath QtVersion::librarySearchPath() const
 {
-    return HostOsInfo::isWindowsHost() ? binPath() : libraryPath();
+    return qmakeFilePath().osType() == OsTypeWindows ? binPath() : libraryPath();
 }
 
 FilePaths QtVersion::directoriesToIgnoreInProjectTree() const
