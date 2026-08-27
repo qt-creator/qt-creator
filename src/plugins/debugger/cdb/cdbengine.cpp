@@ -2629,6 +2629,20 @@ unsigned BreakpointCorrectionContext::fixLineNumber(const FilePath &filePath,
 void CdbEngine::insertBreakpoint(const Breakpoint &bp)
 {
     BreakpointParameters parameters = bp->requestedParameters();
+    if (parameters.type == BreakpointAtThrow) {
+        // There is no code symbol to breakpoint reliably for a C++ throw: the
+        // runtime helper (_CxxThrowException) lives in a per-build-varying
+        // module and cdb's "bu" needs a module-qualified symbol. Break on the
+        // C++ EH exception event instead (see syncExceptionBreakpoints()).
+        notifyBreakpointInsertProceeding(bp);
+        parameters.pending = false;
+        bp->setParameters(parameters);
+        bp->setResponseId(breakPointCdbId(bp));
+        bp->setDisplayName(QString::number(bp->modelId()));
+        notifyBreakpointInsertOk(bp);
+        syncExceptionBreakpoints();
+        return;
+    }
     if (!parameters.isCppBreakpoint()) {
         // Native combined: a QML breakpoint is handled by the in-process
         // NativeQmlDebugger service via the bridge. Direct insertion fails
@@ -2680,10 +2694,29 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
 
 void CdbEngine::removeBreakpoint(const Breakpoint &bp)
 {
+    if (bp->type() == BreakpointAtThrow) {
+        notifyBreakpointRemoveProceeding(bp);
+        notifyBreakpointRemoveOk(bp);
+        m_pendingBreakpointMap.remove(bp);
+        syncExceptionBreakpoints();
+        return;
+    }
     runCommand({cdbClearBreakpointCommand(bp), NoFlags});
     notifyBreakpointRemoveProceeding(bp);
     notifyBreakpointRemoveOk(bp);
     m_pendingBreakpointMap.remove(bp);
+}
+
+void CdbEngine::syncExceptionBreakpoints()
+{
+    // Break on the C++ EH exception (cdb event "eh") while an enabled
+    // throw breakpoint exists, or the user configured it as a break event
+    // in the CDB options, and stop doing so otherwise.
+    bool breakOnException = settings().cdbBreakEvents().contains("eh")
+            || Utils::anyOf(breakHandler()->breakpoints(), [](const Breakpoint &bp) {
+        return bp->type() == BreakpointAtThrow && bp->isEnabled();
+    });
+    runCommand({breakOnException ? "sxe eh" : "sxn eh", NoFlags});
 }
 
 static QString enableBreakpointCommand(const QString &responseId, bool on)
@@ -2695,6 +2728,14 @@ static QString enableBreakpointCommand(const QString &responseId, bool on)
 void CdbEngine::updateBreakpoint(const Breakpoint &bp)
 {
     BreakpointParameters parameters = bp->requestedParameters();
+    if (parameters.type == BreakpointAtThrow) {
+        notifyBreakpointChangeProceeding(bp);
+        parameters.pending = false;
+        bp->setParameters(parameters);
+        notifyBreakpointChangeOk(bp);
+        syncExceptionBreakpoints();
+        return;
+    }
     const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
     BreakpointParameters response = parameters;
     const QString responseId = breakPointCdbId(bp);

@@ -150,6 +150,7 @@ private:
     void handleResolveSymbol(const DebuggerResponse &command, const QString &symbol, DisassemblerAgent *agent);
     void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
     void handleBreakInsert(const DebuggerResponse &response, const Breakpoint &bp);
+    void syncExceptionBreakpoints();
     void handleCheckWow64(const DebuggerResponse &response, const GdbMi &stack);
     void ensureUsing32BitStackInWow64(const DebuggerResponse &response, const GdbMi &stack);
     void handleSwitchWow64Stack(const DebuggerResponse &response);
