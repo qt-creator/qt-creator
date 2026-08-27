@@ -22,10 +22,10 @@ DesktopDeviceFactory::DesktopDeviceFactory()
 {
     setConstructionFunction([] { return IDevice::Ptr(new DesktopDevice); });
     setDisplayName(Tr::tr("Desktop"));
-    setIcon(Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons)
-                ? Utils::Icon::combinedIcon(
-                    {Icons::DESKTOP_DEVICE.icon(), Core::Icons::DESKTOP_DEVICE_SMALL.icon()})
-                : QApplication::style()->standardIcon(QStyle::SP_ComputerIcon));
+    const bool flatSideBarIcons = Utils::creatorTheme()->flag(Utils::Theme::FlatSideBarIcons);
+    const QIcon standardIcon = QApplication::style()->standardIcon(QStyle::SP_ComputerIcon);
+    setIcon(flatSideBarIcons ? Core::Icons::DESKTOP_DEVICE_SMALL.icon() : standardIcon);
+    setTargetSelectorIcon(flatSideBarIcons ? Icons::DESKTOP_DEVICE.icon() : standardIcon);
     setExecutionTypeId(Constants::STDPROCESS_EXECUTION_TYPE_ID);
 }
 

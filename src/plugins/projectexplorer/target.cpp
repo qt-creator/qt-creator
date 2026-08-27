@@ -276,6 +276,11 @@ QIcon Target::icon() const
     return d->m_kit->icon();
 }
 
+QIcon Target::targetSelectorIcon() const
+{
+    return d->m_kit->targetSelectorIcon();
+}
+
 QIcon Target::overlayIcon() const
 {
     static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();

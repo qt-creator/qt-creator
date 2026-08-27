@@ -1563,7 +1563,7 @@ void MiniProjectTargetSelector::updateActionAndSummary()
                 runConfig = rc->expandedDisplayName();
 
             targetToolTipText = target->overlayIconToolTip();
-            targetIcon = createCenteredIcon(target->icon(), target->overlayIcon());
+            targetIcon = createCenteredIcon(target->targetSelectorIcon(), target->overlayIcon());
         }
     }
     m_projectAction->setProperty("heading", projectName);

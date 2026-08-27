@@ -88,6 +88,7 @@ IDevice::Ptr IDeviceFactory::construct() const
 
 static QList<IDeviceFactory *> g_deviceFactories;
 static SynchronizedValue<QMap<Utils::Id, QIcon>> g_deviceTypeIcons;
+static SynchronizedValue<QMap<Utils::Id, QIcon>> g_deviceTypeTargetSelectorIcons;
 
 IDeviceFactory *IDeviceFactory::find(Utils::Id type)
 {
@@ -102,6 +103,11 @@ QIcon IDeviceFactory::iconForDeviceType(Utils::Id type)
     return g_deviceTypeIcons.readLocked()->value(type, QIcon());
 }
 
+QIcon IDeviceFactory::targetSelectorIconForDeviceType(Utils::Id type)
+{
+    return g_deviceTypeTargetSelectorIcons.readLocked()->value(type, QIcon());
+}
+
 IDeviceFactory::IDeviceFactory(Utils::Id deviceType)
     : m_deviceType(deviceType)
 {
@@ -114,13 +120,17 @@ void IDeviceFactory::setIcon(const QIcon &icon)
     g_deviceTypeIcons.writeLocked()->insert(m_deviceType, icon);
 }
 
+void IDeviceFactory::setTargetSelectorIcon(const QIcon &icon)
+{
+    m_targetSelectorIcon = icon;
+    g_deviceTypeTargetSelectorIcons.writeLocked()->insert(m_deviceType, icon);
+}
+
 void IDeviceFactory::setCombinedIcon(const FilePath &small, const FilePath &large)
 {
     using namespace Utils;
-    setIcon(
-        Icon::combinedIcon(
-            {Icon({{small, Theme::PanelTextColorDark}}, Icon::Tint),
-             Icon({{large, Theme::IconsBaseColor}})}));
+    setIcon(Icon({{small, Theme::PanelTextColorDark}}, Icon::Tint).icon());
+    setTargetSelectorIcon(Icon({{large, Theme::IconsBaseColor}}).icon());
 }
 
 void IDeviceFactory::setCreator(const std::function<IDevice::Ptr()> &creator)

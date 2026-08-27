@@ -25,6 +25,7 @@ public:
     Utils::Id deviceType() const { return m_deviceType; }
     QString displayName() const { return m_displayName; }
     QIcon icon() const { return m_icon; }
+    QIcon targetSelectorIcon() const { return m_targetSelectorIcon; }
     bool canCreate() const;
     IDevicePtr construct() const;
     IDevicePtr create() const;
@@ -35,6 +36,7 @@ public:
 
     static IDeviceFactory *find(Utils::Id type);
     static QIcon iconForDeviceType(Utils::Id type);
+    static QIcon targetSelectorIconForDeviceType(Utils::Id type);
 
 protected:
     explicit IDeviceFactory(Utils::Id deviceType);
@@ -43,6 +45,7 @@ protected:
 
     void setDisplayName(const QString &displayName);
     void setIcon(const QIcon &icon);
+    void setTargetSelectorIcon(const QIcon &icon);
     void setCombinedIcon(const Utils::FilePath &smallIcon, const Utils::FilePath &largeIcon);
     void setConstructionFunction(const std::function<IDevicePtr ()> &constructor);
     void setCreator(const std::function<IDevicePtr()> &creator);
@@ -54,6 +57,7 @@ private:
     const Utils::Id m_deviceType;
     QString m_displayName;
     QIcon m_icon;
+    QIcon m_targetSelectorIcon;
     std::function<IDevicePtr()> m_constructor;
     bool m_quickCreationAllowed = false;
     Utils::Id m_executionType;

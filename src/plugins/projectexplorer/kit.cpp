@@ -60,6 +60,7 @@ class KitPrivate : public KitData
 {
 public:
     KitPrivate(Id id, Kit *kit)
+        : m_q(kit)
     {
         m_id = id.isValid() ? id : Id::generate();
 
@@ -85,14 +86,40 @@ public:
             [kit] { return kit->id().toString(); });
     }
 
+    QIcon cachedIcon(QIcon &cachedIcon, const std::function<QIcon(Id)> &getIcon);
+
+    Kit *m_q = nullptr;
     int m_nestedBlockingLevel = 0;
     bool m_hasError = false;
     bool m_hasWarning = false;
     bool m_hasValidityInfo = false;
     bool m_mustNotify = false;
     QIcon m_cachedIcon;
+    QIcon m_cachedTargetSelectorIcon;
     MacroExpander m_macroExpander;
 };
+
+QIcon KitPrivate::cachedIcon(QIcon &cachedIcon, const std::function<QIcon(Id)> &getIcon)
+{
+    if (!cachedIcon.isNull())
+        return cachedIcon;
+
+    if (!m_deviceTypeForIcon.isValid() && !m_iconPath.isEmpty() && m_iconPath.exists()) {
+        cachedIcon = QIcon(m_iconPath.toFSPathString());
+        return cachedIcon;
+    }
+
+    const Id deviceType = m_deviceTypeForIcon.isValid() ? m_deviceTypeForIcon
+                                                        : RunDeviceTypeKitAspect::deviceTypeId(m_q);
+    const QIcon deviceTypeIcon = getIcon(deviceType);
+    if (!deviceTypeIcon.isNull()) {
+        cachedIcon = deviceTypeIcon;
+        return cachedIcon;
+    }
+
+    cachedIcon = getIcon(Constants::DESKTOP_DEVICE_TYPE);
+    return cachedIcon;
+}
 
 } // namespace Internal
 
@@ -185,6 +212,7 @@ void Kit::copyKitCommon(Kit *target, const Kit *source)
     target->d->m_iconPath = source->d->m_iconPath;
     target->d->m_deviceTypeForIcon = source->d->m_deviceTypeForIcon;
     target->d->m_cachedIcon = source->d->m_cachedIcon;
+    target->d->m_cachedTargetSelectorIcon = source->d->m_cachedTargetSelectorIcon;
     target->d->m_sticky = source->d->m_sticky;
     target->d->m_mutable = source->d->m_mutable;
     target->d->m_relevantAspects = source->d->m_relevantAspects;
@@ -223,6 +251,7 @@ void Kit::copyFrom(const KitData &src)
     d->m_id = savedId;
     d->m_hasValidityInfo = false;
     d->m_cachedIcon = {};
+    d->m_cachedTargetSelectorIcon = {};
 }
 
 KitData Kit::kitData() const
@@ -373,25 +402,13 @@ int Kit::weight() const
 
 QIcon Kit::icon() const
 {
-    if (!d->m_cachedIcon.isNull())
-        return d->m_cachedIcon;
+    return d->cachedIcon(d->m_cachedIcon, &IDeviceFactory::iconForDeviceType);
+}
 
-    if (!d->m_deviceTypeForIcon.isValid()
-            && !d->m_iconPath.isEmpty() && d->m_iconPath.exists()) {
-        d->m_cachedIcon = QIcon(d->m_iconPath.toFSPathString());
-        return d->m_cachedIcon;
-    }
-
-    const Id deviceType = d->m_deviceTypeForIcon.isValid()
-            ? d->m_deviceTypeForIcon : RunDeviceTypeKitAspect::deviceTypeId(this);
-    const QIcon deviceTypeIcon = IDeviceFactory::iconForDeviceType(deviceType);
-    if (!deviceTypeIcon.isNull()) {
-        d->m_cachedIcon = deviceTypeIcon;
-        return d->m_cachedIcon;
-    }
-
-    d->m_cachedIcon = IDeviceFactory::iconForDeviceType(Constants::DESKTOP_DEVICE_TYPE);
-    return d->m_cachedIcon;
+QIcon Kit::targetSelectorIcon() const
+{
+    return d
+        ->cachedIcon(d->m_cachedTargetSelectorIcon, &IDeviceFactory::targetSelectorIconForDeviceType);
 }
 
 QIcon Kit::displayIcon() const
@@ -798,6 +815,7 @@ void Kit::kitUpdated()
     }
     d->m_hasValidityInfo = false;
     d->m_cachedIcon = {};
+    d->m_cachedTargetSelectorIcon = {};
     KitManager::notifyAboutUpdate(this);
     d->m_mustNotify = false;
 }

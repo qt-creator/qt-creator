@@ -62,6 +62,7 @@ public:
     RunConfiguration *activeRunConfiguration() const;
 
     QIcon icon() const;
+    QIcon targetSelectorIcon() const;
     QIcon overlayIcon() const;
     QString overlayIconToolTip();
 
