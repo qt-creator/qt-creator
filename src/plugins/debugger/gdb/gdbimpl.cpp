@@ -9,6 +9,7 @@
 #include "../shared/hostutils.h"
 #include "../watchutils.h"
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
@@ -154,6 +155,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
             runCommand({"set index-cache on"});
         if (m_startData.isSet(GdbImplFlag::MultiInferior))
             runCommand({"set detach-on-fork off"});
+        applySearchPaths();
 
         runCommand({"python sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')"});
         runCommand({"python from gdbbridge import *"});
@@ -162,6 +164,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
             runCommand({m_startData.isSet(GdbImplFlag::LoadSystemDumpers)
                             ? QLatin1String("importPlainDumpers on")
                             : QLatin1String("importPlainDumpers off")});
+            runUserStartupCommands();
             const QList<DebuggerCommand> buffered = m_bufferedDumperCommands;
             m_bufferedDumperCommands.clear();
             for (const DebuggerCommand &cmd : buffered)
@@ -441,10 +444,13 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
         m_attachPhase = AttachPhase::Idle;
         if (stoppedAlready)
             return;
-        if (response.resultClass == ResultDone)
+        if (response.resultClass == ResultDone) {
+            for (const QString &command : m_startData.userCommands.afterConnect)
+                runCommand({command, DebuggerCommand::NativeCommand});
             emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
-        else
+        } else {
             emit inferiorEvent(InferiorEvent::EngineIll);
+        }
         return;
     }
 
@@ -452,6 +458,8 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
         emit inferiorEvent(InferiorEvent::EngineIll);
         return;
     }
+    for (const QString &command : m_startData.userCommands.afterConnect)
+        runCommand({command, DebuggerCommand::NativeCommand});
     if (remoteData.attachPid.isValid()) {
         m_attachPhase = AttachPhase::AwaitingConnect;
         runCommand({"attach " + QString::number(remoteData.attachPid.pid()),
@@ -636,6 +644,10 @@ void GdbImpl::execute(const ExecutionRequest &request)
         }});
         break;
     case ExecutionCommand::ResetInferior:
+        for (const QString &command : m_startData.userCommands.forReset) {
+            runCommand({command, DebuggerCommand::NativeCommand
+                                     | DebuggerCommand::NeedsTemporaryStop});
+        }
         runCommand({"kill", DebuggerCommand::NativeCommand});
         if (const auto *inferiorRunData = std::get_if<ProcessRunData>(&m_startData.inferiorStartData);
                 inferiorRunData && !inferiorRunData->command.executable().isEmpty()) {
@@ -1803,6 +1815,59 @@ void GdbImpl::runCommandNow(const DebuggerCommand &command)
     m_gdbProc.write(line + "\r\n");
     if (!cmd.function.endsWith("-gdb-exit"))
         restartWatchdog();
+}
+
+void GdbImpl::applySearchPaths()
+{
+    const GdbImplSearchPaths &paths = m_startData.searchPaths;
+    if (!paths.sysRoot.isEmpty()) {
+        runCommand({"set sysroot " + paths.sysRoot.path()});
+        // sysroot alone does not locate the sources, so relocate the most likely
+        // place for the debug source as well.
+        runCommand({"set substitute-path /usr/src " + paths.sysRoot.path() + "/usr/src"});
+    }
+    for (auto it = paths.sourcePathMap.cbegin(), end = paths.sourcePathMap.cend(); it != end; ++it)
+        runCommand({"set substitute-path " + it.key() + " " + it.value()});
+    for (const QString &directory : paths.debugSourceLocation) {
+        if (Utils::FilePath::fromUserInput(directory).isDir())
+            runCommand({"directory " + directory});
+        else
+            emit message("# directory does not exist: " + directory, LogInput);
+    }
+    if (!paths.debugInfoLocation.isEmpty() && paths.debugInfoLocation.exists()) {
+        runCommand({"show debug-file-directory", [this](const DebuggerResponse &response) {
+            if (response.resultClass != ResultDone)
+                return;
+            const QString current = response.consoleStreamOutput.split('"').value(1);
+            QString command = "set debug-file-directory "
+                              + m_startData.searchPaths.debugInfoLocation.path();
+            if (!current.isEmpty())
+                command += Utils::HostOsInfo::pathListSeparator() + current;
+            runCommand({command});
+        }});
+    }
+    if (!paths.solibSearchPath.isEmpty()) {
+        DebuggerCommand cmd("appendSolibSearchPath");
+        cmd.arg("path", Utils::transform(paths.solibSearchPath, &Utils::FilePath::path));
+        cmd.arg("separator", Utils::HostOsInfo::pathListSeparator());
+        runCommand(cmd);
+    }
+}
+
+void GdbImpl::runUserStartupCommands()
+{
+    const GdbImplUserCommands &commands = m_startData.userCommands;
+    if (!commands.startScript.isEmpty()) {
+        if (commands.startScript.isReadableFile()) {
+            runCommand({"source " + commands.startScript.path()});
+        } else {
+            emit message("The debugger start script is not accessible: "
+                             + commands.startScript.toUserOutput(), LogWarning);
+        }
+        return;
+    }
+    if (!commands.atStartup.isEmpty())
+        runCommand({commands.atStartup, DebuggerCommand::NativeCommand});
 }
 
 void GdbImpl::restartWatchdog()

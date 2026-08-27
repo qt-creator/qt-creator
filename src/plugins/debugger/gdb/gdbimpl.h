@@ -15,6 +15,7 @@
 #include <memory>
 
 #include <QHash>
+#include <QMap>
 #include <QSet>
 #include <QStringDecoder>
 #include <QTimer>
@@ -49,6 +50,25 @@ enum class GdbImplFlag {
 };
 Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
 
+class DEBUGGER_EXPORT GdbImplSearchPaths
+{
+public:
+    Utils::FilePath sysRoot;
+    Utils::FilePath debugInfoLocation;
+    Utils::FilePaths solibSearchPath;
+    QStringList debugSourceLocation;
+    QMap<QString, QString> sourcePathMap;
+};
+
+class DEBUGGER_EXPORT GdbImplUserCommands
+{
+public:
+    Utils::FilePath startScript;
+    QString atStartup;
+    QStringList afterConnect;
+    QStringList forReset;
+};
+
 class DEBUGGER_EXPORT GdbImplStartData
 {
 public:
@@ -57,6 +77,8 @@ public:
     Utils::FilePath dumperScriptsDir;
     QString mainFunctionName = "main";
     GdbImplFlags flags;
+    GdbImplSearchPaths searchPaths;
+    GdbImplUserCommands userCommands;
     std::chrono::seconds watchdogTimeout{0};
 
     bool isSet(GdbImplFlag flag) const { return flags.testFlag(flag); }
@@ -141,6 +163,8 @@ private:
 
     void runCommand(const DebuggerCommand &command);
     void setTokenBarrier();
+    void applySearchPaths();
+    void runUserStartupCommands();
     void restartWatchdog();
     bool usesOutputCollector() const;
     void requestInferiorInterrupt();

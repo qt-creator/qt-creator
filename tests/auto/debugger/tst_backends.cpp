@@ -443,14 +443,20 @@ struct ConfiguredOptionProbe
     QString expectedOutput;
 };
 
-static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend)
+static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
+                                                           const Utils::FilePath &existingDir)
 {
     switch (backend) {
     case Backend::Gdb:
         return {{"show index-cache", "The index cache is currently enabled."},
                 {"show detach-on-fork", "Whether gdb will detach the child of a fork is off."},
                 {"show mi-async", "Whether MI is in asynchronous mode is on."},
-                {"python print(theDumper.usePlainDumpers)", "True"}};
+                {"python print(theDumper.usePlainDumpers)", "True"},
+                {"show sysroot", "The current system root is \"/qtc-test-sysroot\"."},
+                {"show substitute-path", "`/qtc-test-from' -> `/qtc-test-to'."},
+                {"show directories", existingDir.path()},
+                {"show debug-file-directory", existingDir.path()},
+                {"show solib-search-path", "/qtc-test-solib"}};
     case Backend::Lldb:
     case Backend::Pdb:
     case Backend::Qml:
@@ -859,8 +865,9 @@ private:
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData);
     // Every user-configurable debugger option turned on, so a test can check they arrive.
+    // Paths that have to exist for the backend to pass them on use existingDir.
     std::unique_ptr<DebuggerBackend> createFullyConfiguredEngine(Backend backend,
-        const Utils::Environment &debuggerEnvironment);
+        const Utils::Environment &debuggerEnvironment, const Utils::FilePath &existingDir);
     std::unique_ptr<DebuggerBackend> launchAndStopAtBreakpoint(Backend backend,
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {});
     std::unique_ptr<DebuggerBackend> stopAtBreakpoint(Backend backend, Process &helperInferior);
@@ -1055,9 +1062,10 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
-    Backend backend, const Environment &debuggerEnvironment)
+    Backend backend, const Environment &debuggerEnvironment, const FilePath &existingDir)
 {
     Q_UNUSED(debuggerEnvironment)
+    Q_UNUSED(existingDir)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1068,7 +1076,13 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .flags = GdbImplFlag::LoadGdbInit | GdbImplFlag::LoadSystemDumpers
                      | GdbImplFlag::UseIndexCache | GdbImplFlag::MultiInferior
-                     | GdbImplFlag::ForceTargetAsync}));
+                     | GdbImplFlag::ForceTargetAsync,
+            .searchPaths = {.sysRoot = FilePath::fromUserInput("/qtc-test-sysroot"),
+                            .debugInfoLocation = existingDir,
+                            .solibSearchPath = {FilePath::fromUserInput("/qtc-test-solib")},
+                            .debugSourceLocation = {existingDir.path()},
+                            .sourcePathMap = {{"/qtc-test-from", "/qtc-test-to"}}},
+            .userCommands = {.atStartup = "echo QTCSTARTUPMARKER\\n"}}));
     case Backend::Lldb:
     case Backend::Pdb:
     case Backend::Qml:
@@ -4516,12 +4530,14 @@ void tst_backends::appliesConfiguredDebuggerOptions()
 
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
-    const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend);
+    const FilePath existingDir = FilePath::fromString(m_tempDir.path()) / "configured";
+    QVERIFY(existingDir.ensureWritableDir());
+    const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend, existingDir);
     if (probes.isEmpty())
         QSKIP("This backend has no configurable options wired yet.");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend
-        = createFullyConfiguredEngine(backend, Environment::systemEnvironment());
+        = createFullyConfiguredEngine(backend, Environment::systemEnvironment(), existingDir);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -4531,6 +4547,9 @@ void tst_backends::appliesConfiguredDebuggerOptions()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
+    QVERIFY2(std::any_of(messages.cbegin(), messages.cend(), [](const QString &text) {
+                 return text.contains("QTCSTARTUPMARKER");
+             }), "the configured startup commands never ran");
 
     for (const ConfiguredOptionProbe &probe : probes) {
         messages.clear();
@@ -4585,7 +4604,7 @@ void tst_backends::readsTheDebuggerInitFileWhenConfigured()
     };
 
     std::unique_ptr<DebuggerBackend> configured
-        = createFullyConfiguredEngine(backend, environment);
+        = createFullyConfiguredEngine(backend, environment, home);
     QVERIFY(configured);
     QVERIFY2(markerSeen(configured.get()), "the configured engine did not read the init file");
 

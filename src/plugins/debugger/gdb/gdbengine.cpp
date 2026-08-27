@@ -5284,6 +5284,36 @@ static GdbImplFlags gdbImplFlags(const DebuggerRunParameters &rp)
     return flags;
 }
 
+static GdbImplSearchPaths gdbImplSearchPaths(const DebuggerRunParameters &rp)
+{
+    GdbImplSearchPaths paths;
+    paths.sysRoot = rp.sysRoot();
+    paths.debugInfoLocation = rp.debugInfoLocation();
+    paths.solibSearchPath = rp.solibSearchPath();
+    paths.debugSourceLocation = rp.debugSourceLocation();
+    const SourcePathMap sourcePathMap
+        = mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+    for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it)
+        paths.sourcePathMap.insert(it.key(), rp.macroExpander()->expand(it.value()));
+    return paths;
+}
+
+static GdbImplUserCommands gdbImplUserCommands(const DebuggerRunParameters &rp)
+{
+    QStringList startupLines = settings().gdbStartupCommands().split('\n');
+    startupLines += rp.additionalStartupCommands().split('\n');
+    startupLines = Utils::filtered(startupLines, [](const QString &line) {
+        const QString trimmed = line.trimmed();
+        return !trimmed.isEmpty() && !trimmed.startsWith('#');
+    });
+    return {
+        .startScript = rp.overrideStartScript(),
+        .atStartup = startupLines.join('\n'),
+        .afterConnect = rp.commandsAfterConnect(),
+        .forReset = rp.commandsForReset(),
+    };
+}
+
 static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
 {
     const bool windowsMain = rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal();
@@ -5293,6 +5323,8 @@ static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
         .dumperScriptsDir = ICore::resourcePath("debugger"),
         .mainFunctionName = QLatin1String(windowsMain ? "qMain" : "main"),
         .flags = gdbImplFlags(rp),
+        .searchPaths = gdbImplSearchPaths(rp),
+        .userCommands = gdbImplUserCommands(rp),
         .watchdogTimeout = std::chrono::seconds(settings().gdbWatchdogTimeout()),
     };
 }
