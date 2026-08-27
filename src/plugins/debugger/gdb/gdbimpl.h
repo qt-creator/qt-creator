@@ -77,6 +77,10 @@ public:
     Utils::FilePath dumperScriptsDir;
     QString mainFunctionName = "main";
     GdbImplFlags flags;
+    int qtVersion = 0;
+    QString qtNamespace;
+    Utils::FilePath extraDumperFile;
+    QString extraDumperCommands;
     GdbImplSearchPaths searchPaths;
     GdbImplUserCommands userCommands;
     std::chrono::seconds watchdogTimeout{0};
@@ -164,6 +168,7 @@ private:
     void runCommand(const DebuggerCommand &command);
     void setTokenBarrier();
     void applySearchPaths();
+    void loadExtraDumpers();
     void runUserStartupCommands();
     void restartWatchdog();
     bool usesOutputCollector() const;
@@ -178,6 +183,7 @@ private:
     QTimer m_watchdog;
     OutputCollector m_outputCollector;
     QString m_inbuffer;
+    QString m_resultVarName;
     enum class AttachPhase { Idle, AwaitingConnect, Stopped, Continuing };
     AttachPhase m_attachPhase = AttachPhase::Idle;
     QString m_pendingConsoleStreamOutput;

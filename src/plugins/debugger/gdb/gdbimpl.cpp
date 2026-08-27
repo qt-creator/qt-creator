@@ -159,6 +159,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
 
         runCommand({"python sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')"});
         runCommand({"python from gdbbridge import *"});
+        loadExtraDumpers();
         runCommand({"loadDumpers", [this, isPlainRun](const DebuggerResponse &) {
             m_dumpersReady = true;
             runCommand({m_startData.isSet(GdbImplFlag::LoadSystemDumpers)
@@ -739,14 +740,26 @@ void GdbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::Locals: {
         DebuggerCommand cmd("fetchVariables");
-        cmd.arg("fancy", true);
+        const DumperOptions &options = request.dumperOptions;
+        cmd.arg("fancy", options.useDebuggingHelpers);
         cmd.arg("autoderef", request.autoDerefPointers);
-        cmd.arg("dyntype", true);
+        cmd.arg("dyntype", options.useDynamicType);
+        cmd.arg("qobjectnames", options.showQObjectNames);
+        cmd.arg("timestamps", options.logTimeStamps);
+        cmd.arg("stringcutoff", options.maximalStringLength);
+        cmd.arg("displaystringlimit", options.displayStringLimit);
+        cmd.arg("qtversion", m_startData.qtVersion);
+        cmd.arg("qtnamespace", m_startData.qtNamespace);
+        cmd.arg("passexceptions", qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE"));
+        cmd.arg("resultvarname", m_resultVarName);
         cmd.arg("partialvar", request.partialVariable);
         cmd.arg("context", request.context);
         cmd.arg("nativemixed", m_startData.isSet(GdbImplFlag::NativeMixedDebugging));
         cmd.arg("allowinferiorcalls", request.allowInferiorCalls);
-        cmd.arg("expanded", QStringList());
+        cmd.arg("expanded", request.expandedForDumpers());
+        cmd.arg("typeformats", request.typeFormats);
+        cmd.arg("formats", request.individualFormats);
+        cmd.arg("formattypes", request.formatTypes);
         cmd.arg("watchers", request.watchers);
 
         m_lastDebuggableCommand = cmd;
@@ -1784,7 +1797,8 @@ void GdbImpl::runCommandNow(const DebuggerCommand &command)
         || command.function.contains(' '))
         isPythonCommand = false;
 
-    if (isPythonCommand && !m_dumpersReady && command.function != "loadDumpers") {
+    if (isPythonCommand && !m_dumpersReady && command.function != "loadDumpers"
+        && command.function != "addDumperModule") {
         m_bufferedDumperCommands.append(command);
         return;
     }
@@ -1815,6 +1829,17 @@ void GdbImpl::runCommandNow(const DebuggerCommand &command)
     m_gdbProc.write(line + "\r\n");
     if (!cmd.function.endsWith("-gdb-exit"))
         restartWatchdog();
+}
+
+void GdbImpl::loadExtraDumpers()
+{
+    if (m_startData.extraDumperFile.isReadableFile()) {
+        DebuggerCommand cmd("addDumperModule");
+        cmd.arg("path", m_startData.extraDumperFile.path());
+        runCommand(cmd);
+    }
+    if (!m_startData.extraDumperCommands.isEmpty())
+        runCommand({m_startData.extraDumperCommands, DebuggerCommand::NativeCommand});
 }
 
 void GdbImpl::applySearchPaths()
@@ -1961,6 +1986,11 @@ void GdbImpl::handleOutputLine(const QString &line)
             m_inferiorRunning = false;
             m_pendingConsoleStreamOutput.clear();
             m_pendingLogStreamOutput.clear();
+
+            // A finished function leaves its value in a convenience variable, which
+            // the dumpers report as the return value of the frame just left.
+            const GdbMi resultVar = result["gdb-result-var"];
+            m_resultVarName = resultVar.isValid() ? resultVar.data() : QString();
 
             const QString reason = result["reason"].data();
 

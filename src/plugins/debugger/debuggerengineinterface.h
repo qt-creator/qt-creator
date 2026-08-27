@@ -18,6 +18,7 @@
 #include <variant>
 
 #include <QByteArray>
+#include <QJsonObject>
 #include <QList>
 #include <QObject>
 #include <QPoint>
@@ -60,6 +61,19 @@ enum class RefreshKind {
     InspectorTree,
 };
 
+// What the dumpers need to know about the user's display preferences. All of it
+// can change while a session runs, so it travels with the request.
+class DEBUGGER_EXPORT DumperOptions
+{
+public:
+    bool useDebuggingHelpers = true;
+    bool useDynamicType = true;
+    bool showQObjectNames = true;
+    bool logTimeStamps = false;
+    int maximalStringLength = 10000;
+    int displayStringLimit = 100;
+};
+
 class DEBUGGER_EXPORT RefreshRequest
 {
 public:
@@ -71,6 +85,28 @@ public:
     QList<quint64> addresses = {};
     QJsonArray watchers = {};
     QSet<QString> expandedINames = {};
+    // What WatchHandler::appendFormatRequests() produces. expandedItems is
+    // expandedINames plus each item's array count, which the dumpers index by
+    // name, so a plain list of names makes them fail on the first container.
+    QJsonObject expandedItems = {};
+    QJsonObject typeFormats = {};
+    QJsonObject individualFormats = {};
+    QJsonObject formatTypes = {};
+    DumperOptions dumperOptions = {};
+
+    // The dumpers index the expanded items by name to find each one's array count,
+    // so a caller that only knows the names gets the default count for all of them.
+    QJsonObject expandedForDumpers() const
+    {
+        if (!expandedItems.isEmpty() || expandedINames.isEmpty())
+            return expandedItems;
+        QJsonObject result;
+        for (const QString &iname : expandedINames)
+            result.insert(iname, defaultArrayCount);
+        return result;
+    }
+
+    static constexpr int defaultArrayCount = 100;
     bool allowInferiorCalls = true;
     bool autoDerefPointers = true;
 };

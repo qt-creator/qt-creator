@@ -1232,14 +1232,24 @@ bool LldbEngine::hasCapability(unsigned cap) const
     return false;
 }
 
+static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
+{
+    return {
+        .debuggerRunData = rp.debugger(),
+        .inferiorStartData = rp.inferior(),
+        .dumperScriptsDir = ICore::resourcePath("debugger"),
+        .nativeMixedDebugging = rp.isNativeMixedDebugging(),
+        .qtVersion = rp.qtVersion(),
+        .qtNamespace = rp.configuredQtNamespace(),
+        .extraDumperFile = settings().extraDumperFile(),
+        .extraDumperCommands = settings().extraDumperCommands(),
+    };
+}
+
 DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp)
 {
-    if (DebuggerEngine::isUsingGenericDebugger()) {
-        return new GenericDebuggerEngine("LLDB (LldbImpl)",
-                                         new LldbImpl({rp.debugger(), rp.inferior(),
-                                                       ICore::resourcePath("debugger"),
-                                                       rp.isNativeMixedDebugging()}));
-    }
+    if (DebuggerEngine::isUsingGenericDebugger())
+        return new GenericDebuggerEngine("LLDB (LldbImpl)", new LldbImpl(lldbImplStartData(rp)));
     return new LldbEngine;
 }
 

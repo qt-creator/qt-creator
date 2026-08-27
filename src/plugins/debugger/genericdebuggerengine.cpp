@@ -969,8 +969,22 @@ void GenericDebuggerEngine::doUpdateLocals(const UpdateParameters &params)
     watchHandler()->appendWatchersAndTooltipRequests(&watchersCmd);
     request.watchers = watchersCmd.args.toObject().value("watchers").toArray();
     request.expandedINames = watchHandler()->expandedINames();
+    DebuggerCommand formatsCmd;
+    watchHandler()->appendFormatRequests(&formatsCmd);
+    const QJsonObject formatArgs = formatsCmd.args.toObject();
+    request.expandedItems = formatArgs.value("expanded").toObject();
+    request.typeFormats = formatArgs.value("typeformats").toObject();
+    request.individualFormats = formatArgs.value("formats").toObject();
+    request.formatTypes = formatArgs.value("formattypes").toObject();
     request.allowInferiorCalls = settings().allowInferiorCalls();
     request.autoDerefPointers = settings().autoDerefPointers();
+    const DebuggerSettings &s = settings();
+    request.dumperOptions = {.useDebuggingHelpers = s.useDebuggingHelpers(),
+                             .useDynamicType = s.useDynamicType(),
+                             .showQObjectNames = s.showQObjectNames(),
+                             .logTimeStamps = s.logTimeStamps(),
+                             .maximalStringLength = int(s.maximalStringLength()),
+                             .displayStringLimit = int(s.displayStringLimit())};
     m_backend->refresh(request);
 }
 } // namespace Debugger::Internal

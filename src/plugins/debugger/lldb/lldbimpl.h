@@ -24,6 +24,10 @@ public:
     InferiorStartData inferiorStartData;
     Utils::FilePath dumperScriptsDir;
     bool nativeMixedDebugging = false;
+    int qtVersion = 0;
+    QString qtNamespace;
+    Utils::FilePath extraDumperFile;
+    QString extraDumperCommands;
     std::chrono::seconds watchdogTimeout{0};
 };
 

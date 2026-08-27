@@ -486,6 +486,23 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
     return {};
 }
 
+// Whether a container local looks different with and without the debugging
+// helpers. lldb's own synthetic children shape std::vector either way, and Qml
+// has no python dumpers at all.
+static bool debuggingHelpersChangeContainerOutput(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+    case Backend::Pdb:
+    case Backend::Cdb:
+        return true;
+    case Backend::Lldb:
+    case Backend::Qml:
+        break;
+    }
+    return false;
+}
+
 static QString watchdogProbeCommand(Backend backend, int seconds)
 {
     switch (backend) {
@@ -747,6 +764,8 @@ private slots:
     void refreshesLocalsAndStack();
     void expandsContainerLocalWhenExpanded_data() { addBackendRows(); }
     void expandsContainerLocalWhenExpanded();
+    void honorsDumperOptionsFromTheRequest_data() { addBackendRows(); }
+    void honorsDumperOptionsFromTheRequest();
     void refreshesRegisters_data() { addBackendRows(); }
     void refreshesRegisters();
     void refreshesRegistersAfterResume_data() { addBackendRows(); }
@@ -1077,6 +1096,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .flags = GdbImplFlag::LoadGdbInit | GdbImplFlag::LoadSystemDumpers
                      | GdbImplFlag::UseIndexCache | GdbImplFlag::MultiInferior
                      | GdbImplFlag::ForceTargetAsync,
+            .extraDumperFile = existingDir / "qtc_extra_dumper.py",
+            .extraDumperCommands = "echo QTCEXTRADUMPERCOMMAND\\n",
             .searchPaths = {.sysRoot = FilePath::fromUserInput("/qtc-test-sysroot"),
                             .debugInfoLocation = existingDir,
                             .solibSearchPath = {FilePath::fromUserInput("/qtc-test-solib")},
@@ -1328,6 +1349,8 @@ void tst_backends::initTestCase()
         "#include <cstdlib>",
         "#include <cstring>",
         "#include <thread>",
+        "#include <string>",
+        "#include <vector>",
         "#ifdef _WIN32",
         "#include <windows.h>",
         "#else",
@@ -1347,7 +1370,9 @@ void tst_backends::initTestCase()
         "",
         "extern \"C\" void bump()",
         "{",
+        "    std::vector<std::string> localVector{\"seven\", \"eight\"};",
         "    int localValue = globalValue + 1; // first breakpoint line",
+        "    (void) localVector.size();",
         "    globalValue = localValue;",
         "    printf(\"value=%d\\n\", globalValue);",
         "    fflush(stdout);",
@@ -1427,6 +1452,7 @@ void tst_backends::initTestCase()
     }
     QVERIFY(cppInferiorData.breakpointLine > 0);
     cppInferiorData.localMarker = "localValue";
+    cppInferiorData.expandableLocal = "localVector";
     cppInferiorData.functionMarker = "bump";
     cppInferiorData.recursionDepthVariable = "depth";
     cppInferiorData.applicationOutputMarker = "after bump";
@@ -1445,7 +1471,10 @@ void tst_backends::initTestCase()
     file.close();
 
     if (needsCompiler) {
-        QStringList compileArgs = {"-g", "-O0"};
+        // The inferior uses <chrono>, list initialization and std::move, so it
+        // needs C++11, and a compiler's default standard is not necessarily
+        // that new - Apple clang's is not.
+        QStringList compileArgs = {"-g", "-O0", "-std=c++11"};
         if (HostOsInfo::isLinuxHost())
             compileArgs << "-no-pie";
         compileArgs << "-o" << cppInferiorData.executable.nativePath()
@@ -3724,8 +3753,13 @@ void tst_backends::expandsContainerLocalWhenExpanded()
     request.expandedINames = {iname};
     engine->refresh(request);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
-    const QString expanded = responses.value(int(RefreshKind::Locals)).toString();
-    QVERIFY2(expanded.contains(iname + '.'), qPrintable("expanded: " + expanded));
+    const GdbMi expandedData = responses.value(int(RefreshKind::Locals));
+    const QString expanded = expandedData.toString();
+    // A dumper may either name each child by its iname or nest an unnamed child
+    // list under the item, whose inames the view derives from the position.
+    const GdbMi expandedItem = findItemByIName(expandedData, iname);
+    QVERIFY2(expanded.contains(iname + '.') || expandedItem["children"].childCount() > 0,
+             qPrintable("expanded: " + expanded));
 
     const QString child = inferiorTestData(backend).expandableChild;
     if (child.isEmpty())
@@ -3740,6 +3774,54 @@ void tst_backends::expandsContainerLocalWhenExpanded()
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
     const QString nested = responses.value(int(RefreshKind::Locals)).toString();
     QVERIFY2(nested.contains(childIName + '.'), qPrintable("nested: " + nested));
+}
+
+void tst_backends::honorsDumperOptionsFromTheRequest()
+{
+    QFETCH(Backend, backend);
+
+    if (!debuggingHelpersChangeContainerOutput(backend))
+        QSKIP("This backend's container output does not change with the debugging helpers.");
+    const QString local = inferiorTestData(backend).expandableLocal;
+    if (local.isEmpty())
+        QSKIP("inferior declares no container local whose dumper output to compare");
+    const QString iname = "local." + local;
+
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+
+    quint64 requestId = 130;
+    auto localsWithHelpers = [&](bool useDebuggingHelpers) -> GdbMi {
+        responses.clear();
+        RefreshRequest request;
+        request.kind = RefreshKind::Locals;
+        request.requestId = ++requestId;
+        request.dumperOptions.useDebuggingHelpers = useDebuggingHelpers;
+        // The helpers shape an item's children, so the item has to be expanded for
+        // the difference to show up at all.
+        request.expandedINames = {iname};
+        engine->refresh(request);
+        [&responses] {
+            QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+        }();
+        return findItemByIName(responses.value(int(RefreshKind::Locals)), iname);
+    };
+
+    const GdbMi fancy = localsWithHelpers(true);
+    QVERIFY2(fancy.isValid(), "the container local was not reported at all");
+
+    const GdbMi plain = localsWithHelpers(false);
+    QVERIFY2(plain.isValid(), "the container local was not reported without the helpers");
+    QVERIFY2(fancy.toString() != plain.toString(),
+             qPrintable("turning the debugging helpers off changed nothing: " + plain.toString()));
 }
 
 void tst_backends::activatesFrameAndReadsItsLocals()
@@ -4532,6 +4614,9 @@ void tst_backends::appliesConfiguredDebuggerOptions()
         QSKIP(qPrintable(result.error()));
     const FilePath existingDir = FilePath::fromString(m_tempDir.path()) / "configured";
     QVERIFY(existingDir.ensureWritableDir());
+    // Loading the module runs it, which is all the test needs to see.
+    QVERIFY((existingDir / "qtc_extra_dumper.py").writeFileContents(
+        "print(\"QTCEXTRADUMPERMODULE\")\n"));
     const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend, existingDir);
     if (probes.isEmpty())
         QSKIP("This backend has no configurable options wired yet.");
@@ -4547,9 +4632,14 @@ void tst_backends::appliesConfiguredDebuggerOptions()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
-    QVERIFY2(std::any_of(messages.cbegin(), messages.cend(), [](const QString &text) {
-                 return text.contains("QTCSTARTUPMARKER");
-             }), "the configured startup commands never ran");
+    const auto sawMessage = [&messages](const QString &marker) {
+        return std::any_of(messages.cbegin(), messages.cend(), [&marker](const QString &text) {
+            return text.contains(marker);
+        });
+    };
+    QVERIFY2(sawMessage("QTCSTARTUPMARKER"), "the configured startup commands never ran");
+    QVERIFY2(sawMessage("QTCEXTRADUMPERCOMMAND"), "the extra dumper commands never ran");
+    QVERIFY2(sawMessage("QTCEXTRADUMPERMODULE"), "the extra dumper module was never loaded");
 
     for (const ConfiguredOptionProbe &probe : probes) {
         messages.clear();

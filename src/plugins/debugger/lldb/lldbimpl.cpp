@@ -297,6 +297,14 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         runCommand({"settings set target.max-string-summary-length 10000",
                     DebuggerCommand::NativeCommand});
 
+        if (m_startData.extraDumperFile.isReadableFile()) {
+            DebuggerCommand dumperModule("addDumperModule");
+            dumperModule.arg("path", m_startData.extraDumperFile.path());
+            runCommand(dumperModule);
+        }
+        if (!m_startData.extraDumperCommands.isEmpty())
+            runCommand({m_startData.extraDumperCommands, DebuggerCommand::NativeCommand});
+
         DebuggerCommand cmd("setupInferior");
         cmd.arg("breakonmain", false);
         cmd.arg("useterminal", false);
@@ -657,13 +665,24 @@ void LldbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::Locals: {
         DebuggerCommand cmd("fetchVariables");
-        cmd.arg("fancy", true);
+        const DumperOptions &options = request.dumperOptions;
+        cmd.arg("fancy", options.useDebuggingHelpers);
         cmd.arg("autoderef", request.autoDerefPointers);
-        cmd.arg("dyntype", true);
+        cmd.arg("dyntype", options.useDynamicType);
+        cmd.arg("qobjectnames", options.showQObjectNames);
+        cmd.arg("timestamps", options.logTimeStamps);
+        cmd.arg("stringcutoff", options.maximalStringLength);
+        cmd.arg("displaystringlimit", options.displayStringLimit);
+        cmd.arg("qtversion", m_startData.qtVersion);
+        cmd.arg("qtnamespace", m_startData.qtNamespace);
+        cmd.arg("passexceptions", qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE"));
         cmd.arg("partialvar", request.partialVariable);
         cmd.arg("context", request.context);
         cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
-        cmd.arg("expanded", QStringList());
+        cmd.arg("expanded", request.expandedForDumpers());
+        cmd.arg("typeformats", request.typeFormats);
+        cmd.arg("formats", request.individualFormats);
+        cmd.arg("formattypes", request.formatTypes);
         cmd.arg("watchers", request.watchers);
         m_lastDebuggableCommand = cmd;
         m_lastDebuggableCommand.arg("passexceptions", "1");

@@ -1295,6 +1295,11 @@ void CdbImpl::refresh(const RefreshRequest &request)
                                  dumperShapedLocals(response.data));
     });
     QString args = "-v -D";
+    if (request.dumperOptions.useDebuggingHelpers)
+        args += " -c";
+    const QStringList expanded(request.expandedINames.cbegin(), request.expandedINames.cend());
+    if (!expanded.isEmpty())
+        args += " -e " + expanded.join(',');
     for (const QJsonValue &value : request.watchers) {
         const QJsonObject watcher = value.toObject();
         const QString expr = QString::fromUtf8(
