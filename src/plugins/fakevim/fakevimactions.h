@@ -145,6 +145,12 @@ public:
     FvStringAspect isKeyword;
     FvStringAspect comments;
     FvStringAspect isFileName;
+    FvStringAspect nrFormats;
+    FvStringAspect formatListPat;
+    FvStringAspect whichWrap;
+    FvBoolAspect joinSpaces;
+    FvBoolAspect ruler;
+    FvBoolAspect gDefault;
     FvStringAspect suffixesAdd;
     FvStringAspect path;
 

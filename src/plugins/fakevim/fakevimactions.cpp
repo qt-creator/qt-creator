@@ -111,6 +111,14 @@ FakeVimSettings::FakeVimSettings()
     setup(&formatOptions,  {},    "formatoptions",  "fo",  "");
     setup(&operatorFunc,   {},    "OperatorFunc",   "opfunc", "");
     setup(&indentExpr,     {},    "IndentExpr",     "inde", "");
+    setup(&nrFormats,      "bin,octal,hex",
+                                  "NrFormats",      "nf",  {});
+    setup(&formatListPat,  R"(^\s*\d\+[\]:.)}\t ]\s*)",
+                                  "FormatListPat",  "flp", {});
+    setup(&whichWrap,      "b,s", "WhichWrap",      "ww",  {});
+    setup(&joinSpaces,     false, "JoinSpaces",     "js",  {});
+    setup(&ruler,          false, "Ruler",          "ru",  {});
+    setup(&gDefault,       false, "GDefault",       "gd",  {});
     setup(&langMap,        QString(), "LangMap",       "lmap", {});
     setup(&comments,       "s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-",
                                   "Comments",       "com",  {});

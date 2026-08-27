@@ -345,6 +345,20 @@ private slots:
     void test_vim_script_list_functions();
     void test_vim_command_earlier_later();
     void test_vim_script_buffer_lines();
+    void test_vim_substitute_flags();
+    void test_vim_line_change_reports();
+    void test_vim_search_offset();
+    void test_vim_search_messages();
+    void test_vim_nrformats();
+    void test_vim_insert_ctrl_a_e_y();
+    void test_vim_visual_numbers();
+    void test_vim_joinspaces_gdefault();
+    void test_vim_matchpairs();
+    void test_vim_whichwrap();
+    void test_vim_command_startinsert();
+    void test_vim_command_file();
+    void test_vim_command_undojoin();
+    void test_vim_reflow_numbered_list();
     void test_vim_pattern_class_and_lookaround();
     void test_vim_script_changedtick();
     void test_vim_script_delfunction();
@@ -5511,27 +5525,33 @@ void FakeVimTester::test_vim_reflow()
 {
     TestData data;
     setup(&data);
-    data.doCommand("set textwidth=10");
+    data.doCommand("set textwidth=10 noautoindent");
 
-    // gqq reflows the current line to the text width.
+    // gqq reflows the current line to the text width, leaving the cursor on the
+    // first character of the last line written. Values taken from Vim 9.1.
     data.setText("one two three four five six");
-    KEYS("gqq", X "one two" N "three four" N "five six");
+    KEYS("gqq", "one two" N "three four" N X "five six");
 
-    // The indentation of the first line is kept for every wrapped line.
+    // The indentation of the first line is kept for every wrapped line only where
+    // "autoindent" asks for it.
     data.setText("  alpha beta gamma delta");
-    KEYS("gqq", "  " X "alpha" N "  beta" N "  gamma" N "  delta");
+    KEYS("gqq", "  alpha" N "beta gamma" N X "delta");
+    data.doCommand("set autoindent");
+    data.setText("  alpha beta gamma delta");
+    KEYS("gqq", "  alpha" N "  beta" N "  gamma" N "  " X "delta");
+    data.doCommand("set noautoindent");
 
     // gq with a motion reflows the spanned lines as one paragraph.
     data.setText("aaa bbb ccc" N "ddd");
-    KEYS("gqj", X "aaa bbb" N "ccc ddd");
+    KEYS("gqj", "aaa bbb" N X "ccc ddd");
 
     // Blank lines separate paragraphs and are preserved.
     data.setText("aaaa bbbb cccc" N "" N "dddd eeee ffff");
-    KEYS("VGgq", X "aaaa bbbb" N "cccc" N "" N "dddd eeee" N "ffff");
+    KEYS("VGgq", "aaaa bbbb" N "cccc" N "" N "dddd eeee" N X "ffff");
 
     // A word longer than the text width still gets its own line.
     data.setText("hi supercalifragilistic bye");
-    KEYS("gqq", X "hi" N "supercalifragilistic" N "bye");
+    KEYS("gqq", "hi" N "supercalifragilistic" N X "bye");
 
     // gw reflows like gq but keeps the cursor where it was (gq moves it to
     // the start of the reflowed text).
@@ -11703,6 +11723,563 @@ void FakeVimTester::test_vim_script_winsaveview()
     data.doCommand("call winrestview({'lnum': 4, 'col': 2})");
     QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("4,3"));
     data.doCommand("unlet! g:v");
+}
+
+void FakeVimTester::test_vim_reflow_numbered_list()
+{
+    // An "n" among 'formatoptions' lines the text of a numbered list up under
+    // itself, the number staying on the first line and what follows indented as
+    // far as 'formatlistpat' reaches. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set textwidth=30 formatoptions=tcq");
+    data.setText(X "1. alpha beta gamma delta epsilon zeta eta");
+    KEYS("gqq", "1. alpha beta gamma delta" N X "epsilon zeta eta");
+    data.doCommand("set formatoptions=tcqn");
+    data.setText(X "1. alpha beta gamma delta epsilon zeta eta");
+    KEYS("gqq", "1. alpha beta gamma delta" N "   " X "epsilon zeta eta");
+    // The indent of the line counts towards it.
+    data.setText(X "  3. alpha beta gamma delta epsilon zeta");
+    KEYS("gqq", "  3. alpha beta gamma delta" N "     " X "epsilon zeta");
+    // Another marker the option knows.
+    data.setText(X "2) alpha beta gamma delta epsilon zeta eta");
+    KEYS("gqq", "2) alpha beta gamma delta" N "   " X "epsilon zeta eta");
+    // Text that is no list is left lined up as it was.
+    data.setText(X "plain text one two three four five six seven eight");
+    KEYS("gqq", "plain text one two three four" N X "five six seven eight");
+    data.doCommand("set formatoptions=tcq textwidth=0");
+}
+
+void FakeVimTester::test_vim_command_undojoin()
+{
+    // ":undojoin" makes the change after it belong to the block before it, so
+    // that one undo takes both - which is how a script makes several changes that
+    // are undone together. A buffer of its own for each case, since an undo walks
+    // over whatever the buffer was put through before. Values taken from Vim 9.1.
+    TestData plain;
+    setup(&plain);
+    plain.setText(X "one" N "two" N "three");
+    plain.doKeys("x");
+    plain.doCommand("2s/t/T/");
+    QCOMPARE(plain.text(), QByteArray("ne\nTwo\nthree"));
+    plain.doKeys("u");
+    QCOMPARE(plain.text(), QByteArray("ne\ntwo\nthree"));
+
+    TestData joined;
+    setup(&joined);
+    joined.setText(X "one" N "two" N "three");
+    joined.doKeys("x");
+    joined.doCommand("undojoin | 2s/t/T/");
+    QCOMPARE(joined.text(), QByteArray("ne\nTwo\nthree"));
+    joined.doKeys("u");
+    QCOMPARE(joined.text(), QByteArray("one\ntwo\nthree"));
+}
+
+void FakeVimTester::test_vim_command_file()
+{
+    // ":file" says which file this is and where the cursor stands in it, the same
+    // as CTRL-G, and takes a name to call it by. Where a ruler says the place
+    // already, Vim leaves it out and says how long the file is instead.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    // The buffer of a test always counts as modified, which Vim says as well.
+    data.doCommand("set noruler");
+    data.handler->setCurrentFileName("fi.txt");
+    data.setText(X "one" N "two" N "three" N "four");
+    message.clear();
+    data.doCommand("file");
+    QCOMPARE(message, QLatin1String("\"fi.txt\" [Modified] line 1 of 4 --25%-- col 1"));
+    // Where the cursor stands is part of it.
+    KEYS("2G", "one" N X "two" N "three" N "four");
+    message.clear();
+    data.doCommand("file");
+    QCOMPARE(message, QLatin1String("\"fi.txt\" [Modified] line 2 of 4 --50%-- col 1"));
+    // CTRL-G says the same.
+    message.clear();
+    KEYS("<C-g>", "one" N X "two" N "three" N "four");
+    QCOMPARE(message, QLatin1String("\"fi.txt\" [Modified] line 2 of 4 --50%-- col 1"));
+    // With a ruler the place is left out and the length takes its place.
+    data.doCommand("set ruler");
+    message.clear();
+    data.doCommand("file");
+    QCOMPARE(message, QLatin1String("\"fi.txt\" [Modified] 4 lines --50%--"));
+    // One line is one line.
+    data.setText(X "only");
+    message.clear();
+    data.doCommand("file");
+    QCOMPARE(message, QLatin1String("\"fi.txt\" [Modified] 1 line --100%--"));
+    // A name of its own can be given.
+    data.doCommand("file other.txt");
+    QCOMPARE(message, QLatin1String("\"other.txt\" [Modified] 1 line --100%--"));
+    QCOMPARE(data.handler->currentFileName(), QLatin1String("other.txt"));
+    data.doCommand("set noruler");
+}
+
+void FakeVimTester::test_vim_command_startinsert()
+{
+    // ":startinsert" and ":startreplace" reach insert and replace mode the way a
+    // mapping or a script does, a "!" behind them beginning at the end of the
+    // line, and ":stopinsert" leaves again. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "abcd" N "efgh");
+    KEYS(":startinsert<CR>XY<Esc>", "X" X "Yabcd" N "efgh");
+    data.setText(X "abcd" N "efgh");
+    KEYS(":startinsert!<CR>XY<Esc>", "abcdX" X "Y" N "efgh");
+    data.setText(X "abcd" N "efgh");
+    KEYS(":startreplace<CR>XY<Esc>", "X" X "Ycd" N "efgh");
+    data.setText(X "abcd" N "efgh");
+    KEYS(":startreplace!<CR>XY<Esc>", "abcdX" X "Y" N "efgh");
+    // One after the other, each beginning where the cursor stands.
+    data.setText(X "abcd" N "efgh");
+    KEYS(":startinsert<CR>Q<Esc>:startinsert<CR>Z<Esc>", X "ZQabcd" N "efgh");
+    // Leaving without having begun is no error.
+    data.setText(X "abcd" N "efgh");
+    KEYS(":stopinsert<CR>x", X "bcd" N "efgh");
+    // And a mapping can leave insert mode in the middle of it.
+    data.doCommand("inoremap <C-l> <Cmd>stopinsert<CR>");
+    data.setText(X "abcd" N "efgh");
+    KEYS("2|iQ<C-l>ll", "aQb" X "cd" N "efgh");
+    data.doCommand("iunmap <C-l>");
+}
+
+void FakeVimTester::test_vim_whichwrap()
+{
+    // 'whichwrap' says which keys reach around the end of a line: a space and the
+    // backspace do by default, "h" and "l" only where the option names them, and
+    // a "~" carries on into the next line after changing the character.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    // Another test may have left "tildeop" set, which would make "~" an operator.
+    data.doCommand("set whichwrap=b,s notildeop");
+    // "l" stops at the end of the line, a space does not.
+    data.setText(X "ab" N "cd");
+    KEYS("$l", "a" X "b" N "cd");
+    data.setText(X "ab" N "cd");
+    KEYS("$ ", "ab" N X "cd");
+    // "h" stops at the start of it, the backspace does not.
+    data.setText("ab" N X "cd");
+    KEYS("0h", "ab" N X "cd");
+    data.setText("ab" N X "cd");
+    KEYS("0<BS>", "a" X "b" N "cd");
+    // With the option naming them, they reach around as well.
+    data.doCommand("set whichwrap=b,s,h,l");
+    data.setText(X "ab" N "cd");
+    KEYS("$l", "ab" N X "cd");
+    data.setText("ab" N X "cd");
+    KEYS("0h", "a" X "b" N "cd");
+    // And with none of them named, neither does the space.
+    data.doCommand("set whichwrap=");
+    data.setText(X "ab" N "cd");
+    KEYS("$ ", "a" X "b" N "cd");
+    // A "~" changes the character either way, and moves on where it is named.
+    data.setText(X "ab" N "cd");
+    KEYS("$~", "a" X "B" N "cd");
+    data.doCommand("set whichwrap=~");
+    data.setText(X "ab" N "cd");
+    KEYS("$~", "aB" N X "cd");
+    data.doCommand("set whichwrap=b,s");
+}
+
+void FakeVimTester::test_vim_matchpairs()
+{
+    // What "%" jumps between is what 'matchpairs' names, and the first such
+    // character from the cursor on is the one it starts at. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set matchpairs=(:),{:},[:]");
+    // The ones it knows by default.
+    data.setText("a " X "(b) c");
+    KEYS("%", "a (b" X ") c");
+    KEYS("%", "a " X "(b) c");
+    // A pair of its own, once the option says so.
+    data.setText("a " X "<b> c");
+    KEYS("%", "a " X "<b> c");
+    data.doCommand("set matchpairs+=<:>");
+    data.setText("a " X "<b> c");
+    KEYS("%", "a <b" X "> c");
+    KEYS("%", "a " X "<b> c");
+    // Nested ones are counted.
+    data.setText("a " X "<b <c> d> e");
+    KEYS("%", "a <b <c> d" X "> e");
+    // The first pair character from the cursor on is where it begins.
+    data.setText(X "a=b<c>d");
+    KEYS("%", "a=b<c" X ">d");
+    // Where there is none, the cursor stays.
+    data.setText(X "a=b<c");
+    KEYS("%", X "a=b<c");
+    // Letters can be a pair as well.
+    data.doCommand("set matchpairs=t:d");
+    data.setText(X "if a then b end");
+    KEYS("%", "if a then b en" X "d");
+    // With none named nothing is a pair.
+    data.doCommand("set matchpairs=");
+    data.setText("x " X "(y) z");
+    KEYS("%", "x " X "(y) z");
+    data.doCommand("set matchpairs=(:),{:},[:]");
+}
+
+void FakeVimTester::test_vim_joinspaces_gdefault()
+{
+    // 'joinspaces' puts two spaces behind what ends a sentence when lines are
+    // joined, and 'gdefault' lets a substitute reach every place of a line by
+    // itself - a "g" among the flags then saying to reach only the first.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set nojoinspaces");
+    data.setText(X "End of it." N "Next one");
+    KEYS("J", "End of it." X " Next one");
+    data.doCommand("set joinspaces");
+    data.setText(X "End of it." N "Next one");
+    KEYS("J", "End of it." X "  Next one");
+    data.setText(X "Really?" N "Yes");
+    KEYS("J", "Really?" X "  Yes");
+    data.setText(X "Wow!" N "Yes");
+    KEYS("J", "Wow!" X "  Yes");
+    // Anything else keeps the one space.
+    data.setText(X "a word" N "and more");
+    KEYS("J", "a word" X " and more");
+    data.doCommand("set nojoinspaces");
+    // A substitute reaches every place where 'gdefault' says so.
+    data.doCommand("set gdefault");
+    data.setText(X "aXbXc");
+    COMMAND("s/X/-/", X "a-b-c");
+    data.setText(X "aXbXc");
+    COMMAND("s/X/-/g", X "a-bXc");
+    data.doCommand("set nogdefault");
+    data.setText(X "aXbXc");
+    COMMAND("s/X/-/", X "a-bXc");
+}
+
+void FakeVimTester::test_vim_visual_numbers()
+{
+    // Over a selection CTRL-A and CTRL-X change the first number of every line in
+    // it, and with a "g" in front of them by one step more for each line they
+    // changed - a line without a number counting for nothing. The cursor ends up
+    // where the selection began. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "a 1" N "b 2" N "c 3");
+    KEYS("VG<C-a>", X "a 2" N "b 3" N "c 4");
+    data.setText(X "a 1" N "b 2" N "c 3");
+    KEYS("VGg<C-a>", X "a 2" N "b 4" N "c 6");
+    data.setText(X "a 1" N "b 2" N "c 3");
+    KEYS("VG3<C-a>", X "a 4" N "b 5" N "c 6");
+    data.setText(X "a 1" N "b 2" N "c 3");
+    KEYS("VG3g<C-a>", X "a 4" N "b 8" N "c 12");
+    data.setText(X "a 1" N "b 2" N "c 3");
+    KEYS("VG<C-x>", X "a 0" N "b 1" N "c 2");
+    // A line without a number is one the steps do not count.
+    data.setText(X "a 1" N "nothing" N "c 3");
+    KEYS("VGg<C-a>", X "a 2" N "nothing" N "c 5");
+    // Only what the selection covers is changed.
+    data.setText(X "a 1" N "b 2" N "c 3");
+    KEYS("vjl<C-a>", X "a 2" N "b 2" N "c 3");
+    data.setText(X "x1 y2" N "x3 y4");
+    KEYS("wvj$<C-a>", "x1 " X "y3" N "x4 y4");
+}
+
+void FakeVimTester::test_vim_insert_ctrl_a_e_y()
+{
+    // In insert mode CTRL-A puts in the text of the insert before it, CTRL-E the
+    // character below the cursor and CTRL-Y the one above - and nothing at all
+    // where that line does not reach so far. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "one" N "two");
+    KEYS("ifoo<Esc>", "fo" X "oone" N "two");
+    KEYS("ji<C-a><Esc>", "fooone" N "twfo" X "oo");
+    data.setText(X "one" N "two");
+    KEYS("ifoo<Esc>A<C-a><Esc>", "fooonefo" X "o" N "two");
+    // The characters below, one after the other.
+    data.setText(X "abcd" N "wxyz");
+    KEYS("i<C-e><C-e><Esc>", "w" X "xabcd" N "wxyz");
+    // And the ones above.
+    data.setText("abcd" N X "wxyz");
+    KEYS("i<C-y><C-y><Esc>", "abcd" N "a" X "bwxyz");
+    // Where the other line is shorter than the cursor stands, nothing comes in.
+    data.setText(X "abcd" N "wxyz");
+    KEYS("A<C-e><Esc>", "abc" X "d" N "wxyz");
+    data.setText(X "abcd");
+    KEYS("i<C-e><Esc>", X "abcd");
+    // The character taken is the one in the column the cursor stands in.
+    data.setText(X "ab" N "wxyz");
+    KEYS("llA<C-e><Esc>", "ab" X "y" N "wxyz");
+}
+
+void FakeVimTester::test_vim_nrformats()
+{
+    // What CTRL-A steps on is what 'nrformats' allows: binary and hexadecimal and
+    // octal numbers by default, letters only where "alpha" is among them. The
+    // first number or letter from the cursor on is the one taken, and the cursor
+    // ends up on its last character. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set nrformats=bin,octal,hex");
+    // Binary, with the width kept and a carry where it is needed.
+    data.setText(X "0b101");
+    KEYS("<C-a>", "0b11" X "0");
+    data.setText(X "0b111");
+    KEYS("<C-a>", "0b100" X "0");
+    data.setText(X "x0b101");
+    KEYS("<C-a>", "x0b11" X "0");
+    // Hexadecimal and octal as before, and a decimal number where the octal
+    // digits stop.
+    data.setText(X "0x0f");
+    KEYS("<C-a>", "0x1" X "0");
+    data.setText(X "007");
+    KEYS("<C-a>", "01" X "0");
+    // With "octal" allowed, a "08" is a decimal number without its leading zero.
+    data.setText(X "08");
+    KEYS("<C-a>", X "9");
+    data.setText(X "-1");
+    KEYS("<C-a>", X "0");
+    // What is left out of 'nrformats' is read as a decimal number instead.
+    data.doCommand("set nrformats=bin,octal");
+    data.setText(X "0x0f");
+    KEYS("<C-a>", X "1x0f");
+    data.doCommand("set nrformats=octal,hex");
+    data.setText(X "0b101");
+    KEYS("<C-a>", X "1b101");
+    // Where no octal number could be read, a decimal one keeps its leading zeros.
+    data.doCommand("set nrformats=bin,hex");
+    data.setText(X "08");
+    KEYS("<C-a>", "0" X "9");
+    data.setText(X "0099");
+    KEYS("<C-a>", "010" X "0");
+    data.setText(X "099");
+    KEYS("<C-a>", "10" X "0");
+    // A letter is only stepped on where "alpha" says so, and the alphabet is as
+    // far as it goes.
+    data.doCommand("set nrformats=bin,octal,hex");
+    data.setText(X "a");
+    KEYS("<C-a>", X "a");
+    data.doCommand("set nrformats=bin,octal,hex,alpha");
+    data.setText(X "a");
+    KEYS("<C-a>", X "b");
+    data.setText(X "a");
+    KEYS("3<C-a>", X "d");
+    data.setText(X "z");
+    KEYS("<C-a>", X "z");
+    data.setText(X "Y");
+    KEYS("3<C-a>", X "Z");
+    // The first number or letter from the cursor on is the one taken.
+    data.setText(X "a 5");
+    KEYS("<C-a>", X "b 5");
+    data.setText(X "5 a");
+    KEYS("<C-a>", X "6 a");
+    data.setText(X "word 5");
+    KEYS("<C-a>", X "xord 5");
+    data.doCommand("set nrformats=bin,octal,hex");
+}
+
+void FakeVimTester::test_vim_search_messages()
+{
+    // What a search says when it finds nothing, when it comes round the end of
+    // the buffer, and when 'wrapscan' forbids that - the numbers among it being
+    // what a script reads out of v:errmsg. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    data.doCommand("set wrapscan");
+    data.setText(X "one foo" N "two" N "three foo" N "four");
+    message.clear();
+    KEYS("/nomatchhere<CR>", X "one foo" N "two" N "three foo" N "four");
+    QCOMPARE(message, QLatin1String("E486: Pattern not found: nomatchhere"));
+    QCOMPARE(value("v:errmsg"), QLatin1String("E486: Pattern not found: nomatchhere"));
+    // Coming round the end of the buffer is worth a word, not an error.
+    KEYS("/foo<CR>", "one " X "foo" N "two" N "three foo" N "four");
+    KEYS("n", "one foo" N "two" N "three " X "foo" N "four");
+    message.clear();
+    KEYS("n", "one " X "foo" N "two" N "three foo" N "four");
+    QCOMPARE(message, QLatin1String("search hit BOTTOM, continuing at TOP"));
+    // With 'nowrapscan' it stops where the buffer does.
+    data.doCommand("set nowrapscan");
+    data.setText("one foo" N "two" N "three foo" N X "four");
+    message.clear();
+    KEYS("/foo<CR>", "one foo" N "two" N "three foo" N X "four");
+    QCOMPARE(message, QLatin1String("E385: Search hit BOTTOM without match for: foo"));
+    data.setText(X "one foo" N "two" N "three foo" N "four");
+    message.clear();
+    KEYS("?foo?<CR>", X "one foo" N "two" N "three foo" N "four");
+    QCOMPARE(message, QLatin1String("E384: Search hit TOP without match for: foo"));
+    data.doCommand("set wrapscan");
+}
+
+void FakeVimTester::test_vim_search_offset()
+{
+    // A search can say where to leave the cursor: an "e" at the end of the match,
+    // a "b" or "s" at its start, either with a number behind it, and a number of
+    // its own that many lines away. What "n" repeats keeps the offset, and an "e"
+    // makes an operator reach over the match itself. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("/foo/e<CR>", "alpha fo" X "o beta" N "gamma foo delta" N "epsilon");
+    // What "n" says again keeps it.
+    KEYS("n", "alpha foo beta" N "gamma fo" X "o delta" N "epsilon");
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("/foo/e+1<CR>", "alpha foo" X " beta" N "gamma foo delta" N "epsilon");
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("/foo/e-1<CR>", "alpha f" X "oo beta" N "gamma foo delta" N "epsilon");
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("/foo/b+2<CR>", "alpha fo" X "o beta" N "gamma foo delta" N "epsilon");
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("/foo/s-1<CR>", "alpha" X " foo beta" N "gamma foo delta" N "epsilon");
+    // A number of its own counts lines, and the cursor goes to the first
+    // character of the line it reaches.
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("/foo/+1<CR>", "alpha foo beta" N X "gamma foo delta" N "epsilon");
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("/foo/2<CR>", "alpha foo beta" N "gamma foo delta" N X "epsilon");
+    // Backwards as well.
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("G?foo?e<CR>", "alpha foo beta" N "gamma fo" X "o delta" N "epsilon");
+    // An "e" makes the operator reach over the last character of the match.
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("d/foo/e<CR>", X " beta" N "gamma foo delta" N "epsilon");
+    // A search without one leaves no offset behind.
+    data.setText(X "alpha foo beta" N "gamma foo delta" N "epsilon");
+    KEYS("/foo/e<CR>/foo<CR>", "alpha foo beta" N "gamma " X "foo delta" N "epsilon");
+}
+
+void FakeVimTester::test_vim_line_change_reports()
+{
+    // Vim says how many lines a command changed, in words of its own for each
+    // kind of change, and only where there are more of them than "report" says.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto after = [&](const QString &keys) {
+        message.clear();
+        data.doKeys(keys);
+        return message;
+    };
+    const auto afterCommand = [&](const QString &command) {
+        message.clear();
+        data.doCommand(command);
+        return message;
+    };
+    data.doCommand("set report=0 shiftwidth=4 expandtab");
+    const char *ten = X "1" N "2" N "3" N "4" N "5" N "6" N "7" N "8" N "9" N "10";
+
+    // Lines that go are told apart from the one line that goes.
+    data.setText(ten);
+    QCOMPARE(after("3dd"), QLatin1String("3 fewer lines"));
+    data.setText(ten);
+    QCOMPARE(afterCommand("3,5d"), QLatin1String("3 fewer lines"));
+    data.setText(ten);
+    QCOMPARE(afterCommand("3d"), QLatin1String("1 line less"));
+    // Lines yanked.
+    data.setText(ten);
+    QCOMPARE(after("5yy"), QLatin1String("5 lines yanked"));
+    data.setText(ten);
+    QCOMPARE(after("yy"), QLatin1String("1 line yanked"));
+    data.setText(ten);
+    QCOMPARE(afterCommand("3,7y"), QLatin1String("5 lines yanked"));
+    // Lines that came, whether put or copied.
+    data.setText(ten);
+    data.doKeys("yy");
+    QCOMPARE(after("3p"), QLatin1String("3 more lines"));
+    QCOMPARE(after("p"), QLatin1String("1 more line"));
+    data.setText(ten);
+    QCOMPARE(afterCommand("3,5t 8"), QLatin1String("3 more lines"));
+    // Lines shifted, and how many times.
+    data.setText(ten);
+    QCOMPARE(after("3>>"), QLatin1String("3 lines >ed 1 time"));
+    data.setText(ten);
+    QCOMPARE(afterCommand("3,6>"), QLatin1String("4 lines >ed 1 time"));
+    data.setText(ten);
+    QCOMPARE(afterCommand("3,6>>"), QLatin1String("4 lines >ed 2 times"));
+    data.setText(ten);
+    QCOMPARE(after("3<<"), QLatin1String("3 lines <ed 1 time"));
+    // Lines moved.
+    data.setText(ten);
+    QCOMPARE(afterCommand("3,5m 8"), QLatin1String("3 lines moved"));
+    data.setText(ten);
+    QCOMPARE(afterCommand("3m 8"), QLatin1String("1 line moved"));
+    // Nothing is said about as few lines as "report" allows.
+    data.doCommand("set report=3");
+    data.setText(ten);
+    QCOMPARE(after("3dd"), QString());
+    data.setText(ten);
+    QCOMPARE(after("4dd"), QLatin1String("4 fewer lines"));
+    data.doCommand("set report=2");
+}
+
+void FakeVimTester::test_vim_substitute_flags()
+{
+    // A substitute says how much it did, an "n" only counts what it would have
+    // done, an "e" keeps quiet where there was nothing to do and an "I" holds on
+    // to case however "ignorecase" stands. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    data.doCommand("set report=0 noignorecase");
+    data.setText(X "foo one foo" N "bar two" N "foo three");
+    message.clear();
+    COMMAND("%s/foo/X/g", "X one X" N "bar two" N X "X three");
+    QCOMPARE(message, QLatin1String("3 substitutions on 2 lines"));
+    // The "n" leaves the text as it is.
+    data.setText(X "foo one foo" N "bar two" N "foo three");
+    message.clear();
+    COMMAND("%s/foo/X/gn", X "foo one foo" N "bar two" N "foo three");
+    QCOMPARE(message, QLatin1String("3 matches on 2 lines"));
+    // One is one.
+    data.setText(X "foo one foo" N "bar two" N "foo three");
+    message.clear();
+    COMMAND("1s/foo/X/", X "X one foo" N "bar two" N "foo three");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    // Nothing to substitute is worth saying, unless an "e" says not to.
+    data.setText(X "foo one foo" N "bar two" N "foo three");
+    message.clear();
+    COMMAND("2s/foo/X/", X "foo one foo" N "bar two" N "foo three");
+    QCOMPARE(message, QLatin1String("E486: Pattern not found: foo"));
+    message.clear();
+    COMMAND("2s/foo/X/e", X "foo one foo" N "bar two" N "foo three");
+    QCOMPARE(message, QString());
+    // With "ignorecase" a pattern of another case still matches, but not with "I".
+    data.doCommand("set ignorecase");
+    data.setText(X "foo one foo" N "bar two" N "foo three");
+    message.clear();
+    COMMAND("%s/FOO/X/g", "X one X" N "bar two" N X "X three");
+    QCOMPARE(message, QLatin1String("3 substitutions on 2 lines"));
+    data.setText(X "foo one foo" N "bar two" N "foo three");
+    message.clear();
+    COMMAND("%s/FOO/X/gI", X "foo one foo" N "bar two" N "foo three");
+    QCOMPARE(message, QLatin1String("E486: Pattern not found: FOO"));
+    data.doCommand("set noignorecase report=2");
 }
 
 void FakeVimTester::test_vim_script_buffer_lines()
