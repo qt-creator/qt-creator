@@ -15,6 +15,10 @@ namespace HarmonyOs::Internal::Sdk {
 // The "OpenHarmony native" folder (contains "llvm" and "sysroot"), which the ohos-clang
 // mkspec expects in the NATIVE_OHOS_SDK environment variable. Derived from the SDK root
 // the user configures (a DevEco Studio or command-line-tools installation).
+// hdc writes a log file for every single invocation into the temporary directory, and the
+// device detection runs it every few seconds, so aim it at the one that goes away with us.
+Utils::Environment hdcEnvironment();
+
 Utils::FilePath nativeSdkPath(const Utils::FilePath &sdkRoot);
 
 // The clang / clang++ compiler shipped in the native SDK.

@@ -933,6 +933,7 @@ private:
         }
         cmd.addArgs({"install", hap.nativePath()});
         processParameters()->setCommandLine(cmd);
+        processParameters()->setEnvironment(Sdk::hdcEnvironment());
         processParameters()->setWorkingDirectory(bc->buildDirectory());
         return true;
     }

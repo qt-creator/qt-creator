@@ -196,10 +196,12 @@ public:
                                             // hdc runs this through a shell on the device,
                                             // which would eat the quotes JSON needs.
                                             QString(R"('["-plugin","%1"]')").arg(spec)}));
+                process.setEnvironment(Sdk::hdcEnvironment());
             };
 
             const auto onPidSetup = [command, bundle](Process &process) {
                 process.setCommand(command({"shell", "pidof", "-s", bundle}));
+                process.setEnvironment(Sdk::hdcEnvironment());
             };
             const auto onPidDone = [pidStorage](const Process &process) {
                 *pidStorage = process.cleanedStdOut().trimmed();
@@ -210,6 +212,7 @@ public:
             // attaching before it listens fails, so the port is waited for, not the process.
             const auto onListeningSetup = [command](Process &process) {
                 process.setCommand(command({"shell", "netstat", "-ln"}));
+                process.setEnvironment(Sdk::hdcEnvironment());
             };
             const auto onListeningDone = [](const Process &process) {
                 const QString port = QString(":%1").arg(Constants::HARMONYOS_DEBUG_PORT);
@@ -224,6 +227,7 @@ public:
             const QString forward = QString("tcp:%1").arg(Constants::HARMONYOS_DEBUG_PORT);
             const auto onForwardSetup = [command, forward](Process &process) {
                 process.setCommand(command({"fport", forward, forward}));
+                process.setEnvironment(Sdk::hdcEnvironment());
             };
             const auto onForwardDone = [runControl](const Process &process) {
                 // hdc reports a refused forward in its output, not in its exit code.

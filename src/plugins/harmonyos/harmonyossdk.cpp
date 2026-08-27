@@ -13,10 +13,18 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/temporarydirectory.h>
 
 using namespace Utils;
 
 namespace HarmonyOs::Internal::Sdk {
+
+Environment hdcEnvironment()
+{
+    Environment env = Environment::systemEnvironment();
+    env.set("TMPDIR", TemporaryDirectory::masterDirectoryPath());
+    return env;
+}
 
 FilePath nativeSdkPath(const FilePath &sdkRoot)
 {
