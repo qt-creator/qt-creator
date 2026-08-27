@@ -1193,22 +1193,23 @@ FilePath QtVersionPrivate::findHostBinary(HostBinaries binary) const
     if (baseDir.isEmpty())
         return {};
 
+    const OsType osType = baseDir.osType();
     QStringList possibleCommands;
     switch (binary) {
     case Designer:
-        if (HostOsInfo::isMacHost())
+        if (osType == OsTypeMac)
             possibleCommands << "Designer.app/Contents/MacOS/Designer";
         else
-            possibleCommands << HostOsInfo::withExecutableSuffix("designer");
+            possibleCommands << OsSpecificAspects::withExecutableSuffix(osType, "designer");
         break;
     case Linguist:
-        if (HostOsInfo::isMacHost())
+        if (osType == OsTypeMac)
             possibleCommands << "Linguist.app/Contents/MacOS/Linguist";
         else
-            possibleCommands << HostOsInfo::withExecutableSuffix("linguist");
+            possibleCommands << OsSpecificAspects::withExecutableSuffix(osType, "linguist");
         break;
     case Rcc:
-        if (HostOsInfo::isWindowsHost()) {
+        if (osType == OsTypeWindows) {
             possibleCommands << "rcc.exe";
         } else {
             const QString majorString = QString::number(q->qtVersion().majorVersion());
@@ -1216,7 +1217,7 @@ FilePath QtVersionPrivate::findHostBinary(HostBinaries binary) const
         }
         break;
     case Uic:
-        if (HostOsInfo::isWindowsHost()) {
+        if (osType == OsTypeWindows) {
             possibleCommands << "uic.exe";
         } else {
             const QString majorString = QString::number(q->qtVersion().majorVersion());
@@ -1224,7 +1225,7 @@ FilePath QtVersionPrivate::findHostBinary(HostBinaries binary) const
         }
         break;
     case QScxmlc:
-        possibleCommands << HostOsInfo::withExecutableSuffix("qscxmlc");
+        possibleCommands << OsSpecificAspects::withExecutableSuffix(osType, "qscxmlc");
         break;
     default:
         Q_ASSERT(false);
@@ -1632,7 +1633,7 @@ FilePath QtVersion::demosPath() const
 
 FilePath QtVersion::frameworkPath() const
 {
-    if (HostOsInfo::isMacHost())
+    if (qmakeFilePath().osType() == OsTypeMac)
         return libraryPath();
     return {};
 }
@@ -1829,10 +1830,7 @@ static FilePath qmllsForBinPath(const FilePath &binPath, const QVersionNumber &v
 {
     if (version < QVersionNumber(6, 4, 0))
         return {};
-    QString qmllsExe = "qmlls";
-    if (HostOsInfo::isWindowsHost())
-        qmllsExe = "qmlls.exe";
-    return binPath.resolvePath(qmllsExe);
+    return binPath.pathAppended("qmlls").withExecutableSuffix();
 }
 
 void QtVersion::fillExtraProjectInfo(Kit *kit, QmlCodeModelInfo &projectInfo)
