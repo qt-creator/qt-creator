@@ -76,6 +76,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&hlSearch,       true,  "HlSearch",       "hls", Tr::tr("Highlight search results"));
     setup(&shiftWidth,     8,     "ShiftWidth",     "sw",  Tr::tr("Shift width:"));
     setup(&report,         2,     "Report",         "report", {});
+    setup(&updateTime,     4000,  "UpdateTime",     "ut",  {});
     setup(&expandTab,      false, "ExpandTab",      "et",  Tr::tr("Expand tabulators"));
     setup(&autoIndent,     false, "AutoIndent",     "ai",  Tr::tr("Automatic indentation"));
     setup(&smartIndent,    false, "SmartIndent",    "si",  Tr::tr("Smart indentation"));
@@ -101,7 +102,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&timeoutlen,     1000,  "TimeoutLen",     "tm",  Tr::tr("Mapping timeout:"));
     setup(&backspace,      "indent,eol,start",
                                   "Backspace",      "bs",  Tr::tr("Backspace:"));
-    setup(&isKeyword,      "@,48-57,_,192-255,a-z,A-Z",
+    setup(&isKeyword,      "@,48-57,_,192-255",
                                   "IsKeyword",      "isk", Tr::tr("Keyword characters:"));
     setup(&tabOut,         {},    "TabOut",         {},    Tr::tr("Tab jumps over:"));
     tabOut.setToolTip(Tr::tr("Characters that Tab moves the cursor past in insert mode "
@@ -109,6 +110,15 @@ FakeVimSettings::FakeVimSettings()
     setup(&clipboard,      {},    "Clipboard",      "cb",  "");
     setup(&formatOptions,  {},    "formatoptions",  "fo",  "");
     setup(&operatorFunc,   {},    "OperatorFunc",   "opfunc", "");
+    setup(&indentExpr,     {},    "IndentExpr",     "inde", "");
+    setup(&langMap,        QString(), "LangMap",       "lmap", {});
+    setup(&comments,       "s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-",
+                                  "Comments",       "com",  {});
+    setup(&isFileName,     "@,48-57,/,.,-,_,+,,,#,$,%,~,=",
+                                  "IsFName",        "isf",  {});
+    setup(&suffixesAdd,    QString(), "SuffixesAdd",   "sua",  {});
+    setup(&path,           ".,/usr/include,,", "Path",   "pa",   {});
+    setup(&langRemap,      false, "LangRemap",      "lrm",  {});
     setup(&commentString,  "// %s", "CommentString", "cms", "");
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
     setup(&selection,      "inclusive", "Selection", "sel", "");
@@ -296,8 +306,10 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
     FvBaseAspect *aspect = m_nameToAspect.value(keyFromString(name), nullptr);
     if (!aspect)
         return Tr::tr("Unknown option: %1").arg(name);
+    // A 'shiftwidth' of zero is Vim's way of saying "as much as 'tabstop'".
     if (aspect == &tabStop || aspect == &shiftWidth) {
-        if (value.toInt() <= 0)
+        const int minimum = aspect == &shiftWidth ? 0 : 1;
+        if (value.toInt() < minimum)
             return Tr::tr("Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }

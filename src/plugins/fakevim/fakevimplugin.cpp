@@ -1964,6 +1964,14 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             }
         });
 
+    handler->fileOpenRequested.set([](const QString &fileName, int line) {
+        const FilePath path = FilePath::fromString(fileName);
+        if (line > 0)
+            EditorManager::openEditorAt(Link(path, line));
+        else
+            EditorManager::openEditor(path);
+    });
+
     handler->handleExCommandRequested.set([this, handler](bool *handled, const ExCommand &cmd) {
         handleExCommand(handler, handled, cmd);
     });

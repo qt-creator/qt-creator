@@ -197,6 +197,9 @@ public:
     Callback<void(int line, int column, QStringList *names)> syntaxNamesRequested;
     // CTRL-^: edit the alternate file, the previously active one.
     Callback<void()> alternateFileRequested;
+    // gf, gF: open the file named under the cursor, gF at the line the number
+    // behind the name says. Line 0 asks for no particular line.
+    Callback<void(const QString &fileName, int line)> fileOpenRequested;
     // Move in Qt Creator's global navigation history when the buffer-local
     // jump list is exhausted, so CTRL-O / CTRL-I cross files. Negative distance
     // goes back, positive forward (QTCREATORBUG-12114).

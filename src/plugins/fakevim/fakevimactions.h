@@ -117,6 +117,9 @@ public:
     FvBoolAspect smartTab;
     FvIntegerAspect shiftWidth;
     FvIntegerAspect report;
+    // How long nothing has to be typed before the "CursorHold" autocommand runs,
+    // in milliseconds, as Vim's 'updatetime' says.
+    FvIntegerAspect updateTime;
     FvBoolAspect expandTab;
     FvBoolAspect autoIndent;
     FvBoolAspect smartIndent;
@@ -140,6 +143,10 @@ public:
 
     // @,48-57,_,192-255
     FvStringAspect isKeyword;
+    FvStringAspect comments;
+    FvStringAspect isFileName;
+    FvStringAspect suffixesAdd;
+    FvStringAspect path;
 
     // Characters that TAB jumps over in insert mode instead of indenting.
     FvStringAspect tabOut;
@@ -158,6 +165,11 @@ public:
 
     // Name of the function "g@" calls; set from a script, no UI.
     FvStringAspect operatorFunc;
+    // The expression whose value is the indent of a line, as Vim's 'indentexpr'
+    // says. Empty leaves the indenting to the editor.
+    FvStringAspect indentExpr;
+    FvStringAspect langMap;
+    FvBoolAspect langRemap;
 
     // Fallback for 'commentstring' when the file type is not one of the known
     // ones. The effective value is buffer-local, see Private::commentString().
