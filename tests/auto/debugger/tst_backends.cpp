@@ -828,7 +828,7 @@ void tst_backends::initTestCase()
                                   / "qmlserver_inferior").withExecutableSuffix();
     if (qmlInferior.isExecutableFile()) {
         InferiorTestData qmlInferiorData;
-        qmlInferiorData.source = FilePath::fromUserInput("qmlserver_inferior.qml");
+        qmlInferiorData.source = FilePath::fromUserInput("qrc:///qmlserver_inferior.qml");
         qmlInferiorData.executable = qmlInferior;
         qmlInferiorData.breakpointLine = qmlMarkerLine("qmlserver_inferior.qml",
                                                       "// breakpoint line");

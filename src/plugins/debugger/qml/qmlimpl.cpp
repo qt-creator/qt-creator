@@ -223,7 +223,7 @@ void QmlImpl::handleBreakEvent(const QVariantMap &response)
     const QString scriptName = script.value(QLatin1String(NAME)).toString();
     const int lineNumber = body.value(QLatin1String("sourceLine")).toInt() + 1;
     if (!scriptName.isEmpty())
-        emit locationChanged(FilePath::fromUserInput(QUrl(scriptName).fileName()), lineNumber);
+        emit locationChanged(FilePath::fromUrl(QUrl(scriptName)), lineNumber);
     emit inferiorEvent(std::exchange(m_interruptRequested, false)
                        ? InferiorEvent::StopOk : InferiorEvent::SpontaneousStop);
 
@@ -242,7 +242,7 @@ void QmlImpl::handleExceptionEvent(const QVariantMap &response)
     const QString scriptName = script.value(QLatin1String(NAME)).toString();
     const int lineNumber = body.value(QLatin1String("sourceLine")).toInt() + 1;
     if (!scriptName.isEmpty())
-        emit locationChanged(FilePath::fromUserInput(QUrl(scriptName).fileName()), lineNumber);
+        emit locationChanged(FilePath::fromUrl(QUrl(scriptName)), lineNumber);
 
     const QVariantMap exception = body.value(QLatin1String("exception")).toMap();
     const QString text = exception.value(QLatin1String("text")).toString();
