@@ -229,11 +229,12 @@ static QString testEnvVar(const QString &suffix, const QString &variant)
     return qtcEnvironmentVariable("QTC_SSH_TEST_" + suffix);
 }
 
-// other keys may fall back to plain QTC_SSH_TEST_* value, but host decides which machine,
-// and therefore the OS
+// Other keys may fall back to the plain QTC_SSH_TEST_* values, but the host decides
+// which machine, and therefore the OS. An empty value names none of them, and
+// QTC_SSH_TEST_DEFAULTS would go on to turn it into a local 127.0.0.1.
 bool hasVariantHost(const QString &variant)
 {
-    return qtcEnvironmentVariableIsSet("QTC_SSH_TEST_" + variant + "_HOST");
+    return !qtcEnvironmentVariable("QTC_SSH_TEST_" + variant + "_HOST").isEmpty();
 }
 
 const QString getHostFromEnvironment(const QString &variant)
