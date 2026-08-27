@@ -566,6 +566,16 @@ void GenericDebuggerEngine::activateFrame(int index)
     reloadPeripheralRegisters();
 }
 
+void GenericDebuggerEngine::updateAll()
+{
+    QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
+    reloadFullStack();
+    reloadThreads();
+    reloadRegisters();
+    reloadPeripheralRegisters();
+    updateLocals();
+}
+
 void GenericDebuggerEngine::reloadModules()
 {
     if (state() != InferiorRunOk && state() != InferiorStopOk)

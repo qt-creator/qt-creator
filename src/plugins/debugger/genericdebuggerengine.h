@@ -70,6 +70,7 @@ private:
     void abortDebuggerProcess() final;
     void executeDebuggerCommand(const QString &command) final;
     void doUpdateLocals(const UpdateParameters &params) final;
+    void updateAll() final;
     void expandItem(const QString &iname) final;
     void refreshInspectorTree();
 
