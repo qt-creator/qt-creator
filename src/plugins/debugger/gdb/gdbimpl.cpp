@@ -126,6 +126,15 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         else
             runCommand({"-interpreter-exec console \"set target-async off\""});
 
+        // What GdbEngine::handleGdbStarted() sets, minus the settings-driven ones:
+        // pending breakpoints for libraries that are not loaded yet, untruncated
+        // values, and no paging of console command output.
+        runCommand({"set breakpoint pending on"});
+        runCommand({"set print elements 10000"});
+        runCommand({"set unwindonsignal on"});
+        runCommand({"set width 0"});
+        runCommand({"set height 0"});
+
         runCommand({"python sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')"});
         runCommand({"python from gdbbridge import *"});
         runCommand({"loadDumpers", [this, isPlainRun](const DebuggerResponse &) {

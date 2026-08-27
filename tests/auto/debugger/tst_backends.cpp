@@ -179,6 +179,9 @@ struct InferiorTestData
     QString inspectorOrphanObject;
     QString versionLine;
     QString moduleListMarker;
+    // Set only where the debugger is configured to print a value this long in
+    // full: Cdb's limit is not configured, Pdb and Qml have no such symbol.
+    QString longTextSymbol;
     QString applicationOutputMarker;
     QString environmentReportPrefix;
     QString workingDirectoryReportPrefix;
@@ -622,6 +625,8 @@ private slots:
     void selectsThreadAndActivatesFrame();
     void executesRawCommandAndAssignsValue_data() { addBackendRows(); }
     void executesRawCommandAndAssignsValue();
+    void printsALongValueWithoutTruncating_data() { addBackendRows(); }
+    void printsALongValueWithoutTruncating();
     void assignsValueToLocalVariable_data() { addBackendRows(); }
     void assignsValueToLocalVariable();
     void shutsDownCleanly_data() { addBackendRows(); }
@@ -1132,6 +1137,8 @@ void tst_backends::initTestCase()
         "volatile int globalValue = 41;",
         "volatile bool keepSpinning = true;",
         "const char *globalMessage = \"hi\";",
+        "const char *longText = \"" + QString("0123456789").repeated(200)
+            + "LONGTEXTEND\";",
         "int *globalValuePtr = const_cast<int *>(&globalValue);",
         "",
         "extern \"C\" void bump()",
@@ -1276,6 +1283,7 @@ void tst_backends::initTestCase()
 
     if (m_backendData.contains(Backend::Gdb)) {
         m_backendData[Backend::Gdb].inferiorData = cppInferiorData;
+        m_backendData[Backend::Gdb].inferiorData.longTextSymbol = "longText";
         m_backendData[Backend::Gdb].inferiorData.versionLine = gdbVersionLine;
         m_backendData[Backend::Gdb].inferiorData.moduleListMarker = "libc";
         m_backendData[Backend::Gdb].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
@@ -1285,6 +1293,7 @@ void tst_backends::initTestCase()
     }
     if (m_backendData.contains(Backend::Lldb)) {
         m_backendData[Backend::Lldb].inferiorData = cppInferiorData;
+        m_backendData[Backend::Lldb].inferiorData.longTextSymbol = "longText";
         m_backendData[Backend::Lldb].inferiorData.answersRedundantContinue = true;
         m_backendData[Backend::Lldb].inferiorData.remoteAttachMinMajorVersion = 21;
         m_backendData[Backend::Lldb].inferiorData.remoteStubHostsProcess = true;
@@ -3833,6 +3842,36 @@ void tst_backends::selectsThreadAndActivatesFrame()
     engine->refresh(stackRequest);
     QTRY_VERIFY_WITH_TIMEOUT(stackReceived, s_timeout);
     QVERIFY(stackData.toString().contains("bump"));
+}
+
+void tst_backends::printsALongValueWithoutTruncating()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const QString symbol = inferiorTestData(backend).longTextSymbol;
+    if (symbol.isEmpty())
+        QSKIP("no long value configured for this backend - see longTextSymbol");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList messages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+    engine->executeDebuggerCommand(printCommand(backend, symbol), {});
+
+    // The debuggee's string is 2011 characters long, which is past both gdb's
+    // default of 200 elements and lldb's of 1024, so a debugger left at its
+    // default stops before the end marker.
+    QTRY_VERIFY2_WITH_TIMEOUT(std::any_of(messages.cbegin(), messages.cend(),
+                                          [](const QString &text) {
+        return text.contains("LONGTEXTEND");
+    }), qPrintable("the printed value was cut short: " + messages.join(' ').right(300)),
+       s_timeout);
 }
 
 void tst_backends::executesRawCommandAndAssignsValue()

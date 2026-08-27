@@ -275,6 +275,11 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
                    DebuggerCommand::NativeCommand});
         runCommand({"script from lldbbridge import *", DebuggerCommand::NativeCommand});
 
+        // lldb's own counterpart to gdb's "set print elements": without it a value
+        // printed by a console command stops after 1024 characters.
+        runCommand({"settings set target.max-string-summary-length 10000",
+                    DebuggerCommand::NativeCommand});
+
         DebuggerCommand cmd("setupInferior");
         cmd.arg("breakonmain", false);
         cmd.arg("useterminal", false);
