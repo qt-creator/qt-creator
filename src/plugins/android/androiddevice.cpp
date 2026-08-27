@@ -712,17 +712,9 @@ void AndroidDevice::startAvd()
 {
     const Storage<QString> serialNumberStorage;
 
-    const auto onDone = [this, serialNumberStorage] {
-        if (!serialNumberStorage->isEmpty()) {
-            DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse);
-            updateDeviceFileAccess();
-        }
-    };
-
     const Group recipe {
         serialNumberStorage,
-        startAvdRecipe(avdName(), serialNumberStorage),
-        onGroupDone(onDone, CallDoneFlag::OnSuccess)
+        startAvdRecipe(avdName(), serialNumberStorage)
     };
 
     d->m_taskTreeRunner.start(recipe);
@@ -1053,12 +1045,22 @@ static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QSt
 
 ExecutableItem startAvdRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
 {
+    const auto onDone = [avdName, serialNumberStorage] {
+        if (serialNumberStorage->isEmpty())
+            return;
+        const Id avdId = androidDeviceId(avdName);
+        if (!DeviceManager::find(avdId))
+            return;
+        s_trackedAvdSerialIds.insert(*serialNumberStorage, avdId);
+        routeEmulatorEvent(*serialNumberStorage, avdId, IDevice::DeviceReadyToUse);
+    };
     return Group {
         If (serialNumberRecipe(avdName, serialNumberStorage) || startAvdAsyncRecipe(avdName)) >> Then {
             waitForAvdRecipe(avdName, serialNumberStorage)
         } >> Else {
             errorItem
-        }
+        },
+        onGroupDone(onDone, CallDoneFlag::OnSuccess)
     };
 }
 
