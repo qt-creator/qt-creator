@@ -36,8 +36,7 @@
 
     Use integrated code analysis tools to detect memory leaks, profile
     function execution, analyze CPU use, and eliminate unnecessary
-    complexity of code. Other integrated tools provide code coverage and
-    visualize trace events.
+    complexity of code. Other integrated tools provide code coverage.
 
     \details {How to analyze code}
     \generatelist creator-how-to-analyze
@@ -497,7 +496,21 @@
     \generatelist creator-how-to-models
     \enddetails
 
-    \section1 Read documentation
+     \section1 Profile
+
+    \quotation
+    \l {Profiling applications}
+    \endquotation
+
+    Use integrated profiling tools to find causes for typical performance
+    problems in your applications, analyze CPU and memory usage, and visualize
+    trace events.
+
+    \details {How to profile applications}
+    \generatelist creator-how-to-profile
+    \enddetails
+
+   \section1 Read documentation
 
     \quotation
     \l {Getting help}

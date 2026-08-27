@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -9,9 +9,9 @@
 
 /*!
     \page creator-ctf-visualizer.html
-    \previouspage creator-reference.html
+    \previouspage creator-reference-profilers.html
 
-    \ingroup creator-reference-analyzer
+    \ingroup profiling-tools
 
     \title Chrome Trace Format Visualizer
 
@@ -24,11 +24,6 @@
     running on the same system. Tracing gives insight into what a system is
     doing and why an application is performing in a particular way. It indicates
     how the hardware is utilized and what the kernel and application are doing.
-
-    Tracing information can tell you more about the data that
-    \l{Profiling QML applications}{QML Profiler} collects. For example, you
-    can check why a trivial binding evaluation is taking so long. This might
-    be caused by C++ being executed or the disk I/O being slow.
 
     Several tracing tools (such as \c {chrome://about}) can generate information
     about Chrome trace events in Chrome Trace Format (CTF). You can open CTF
@@ -222,5 +217,5 @@
     ctf2ctf -o trace.json path/to/lttng trace/
     \endcode
 
-    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}
+    \sa {Profile}{How to: Profile}, {Profilers}, {Profiling applications}
 */

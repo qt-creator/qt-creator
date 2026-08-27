@@ -107,6 +107,8 @@
                 \generatelist creator-how-to-models
             \li \l{Getting help}
                 \generatelist creator-how-to-get-help
+            \li \l{Profiling applications}
+                \generatelist creator-how-to-profile
             \li \l{Testing}
                 \generatelist creator-how-to-test
             \li \l{Using AI}
@@ -133,6 +135,8 @@
                     \li \l{Licenses and acknowledgments}
                     \li \l{Platforms}
                         \generatelist creator-reference-platforms
+                    \li \l{Profilers}
+                        \generatelist profiling-tools
                     \li \l{Qt Quick UI design}
                         \generatelist creator-reference-ui-design-qtquick
                     \li \l{SDK Tool}

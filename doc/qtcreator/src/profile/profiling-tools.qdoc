@@ -1,0 +1,19 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-reference-profilers.html
+    \previouspage creator-reference.html
+    \nextpage creator-ctf-visualizer.html
+
+    \ingroup creator-reference
+
+    \title Profilers
+
+    \summary {Tools that you can use to profile applications.}
+
+    \annotatedlist profiling-tools
+
+    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Profile}{How to: Profile},
+    {Analyzing code}, {Profiling applications}
+*/

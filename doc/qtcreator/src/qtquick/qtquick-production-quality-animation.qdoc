@@ -47,7 +47,7 @@
 
     \section1 Profiling UI code
 
-    You can use \l{Profiling QML applications}{QML Profiler} that is integrated
+    You can use \l{QML Profiler} that is integrated
     into \QC to find causes for typical performance problems in your UI. For
     example, your UI might be slow, unresponsive, or stuttering. Typically, such
     problems are caused by executing too much JavaScript in too few frames. All
@@ -66,5 +66,5 @@
     than significant performance improvements.
 
     \sa {Design Qt Quick UIs}{How to: Design Qt Quick UIs}, {Qt Quick UI design},
-    {Designing Qt Quick UIs}, {Profiling QML applications}
+    {Designing Qt Quick UIs}, {QML Profiler}
 */

@@ -1,0 +1,109 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page profiling-applications.html
+    \previouspage creator-how-to-create-package-diagrams.html
+    \nextpage creator-how-to-analyze-cpu-usage.html
+
+    \title Profiling applications
+
+    \quotation
+    \l {Profile}{How to: Profile}
+    \endquotation
+
+    Use integrated profiling tools to find causes for typical performance
+    problems in your applications, analyze CPU and memory usage, and visualize
+    trace events.
+
+    \section1 Using profiling tools
+
+    To use a profiling tool, select it in the \uicontrol Analyze menu or in the
+    pull-down menu of the \uicontrol Profile mode. The selected tool opens in the
+    \uicontrol Profile mode. Switch between tools by selecting them in the menu
+    on the toolbar.
+
+    \section1 Overview of the profiling tools
+
+    The following table describes the tools you can use in \QC to profile your
+    code. Profiling tools are built into \QC.
+
+    \table
+    \header
+        \li Tool
+        \li Language
+        \li Description
+    \row
+        \li \l{Chrome Trace Format Visualizer}
+        \li Any
+        \li Explore traces that third-party tools generate in Chrome Trace
+            Format.
+     \row
+        \li \l{Performance Analyzer}
+        \li Any
+        \li Analyze the CPU and memory usage of an application on Linux desktop
+            and embedded devices.
+    \row
+        \li \l{QML Profiler}
+        \li QML, JavaScript
+        \li Find causes for typical performance problems in your applications,
+            such as slowness and unresponsiveness.
+    \endtable
+
+    \section1 Using Chrome Trace Format Visualizer
+
+    Use the Chrome Trace Format Visualizer to view Chrome trace events. This
+    is especially useful when viewing large trace files that are difficult to
+    visualize using the built-in trace-viewer (\c{chrome://tracing}).
+
+    Tracing information can tell you more about the data that \l{QML Profiler}
+    collects. For example, you can check why a trivial binding evaluation is
+    taking so long. This might be caused by C++ being executed or the disk I/O
+    being slow.
+
+    Several tracing tools can generate information about Chrome trace events
+    in Chrome Trace Format beyond Chrome-based tools. With the visualizer, you
+    can navigate, zoom, and inspect events in the trace.
+
+    For more information, see:
+
+    \list
+        \li \l{Chrome Trace Format Visualizer}
+        \li \l{KDAB: Full Stack Tracing Part 1}
+    \endlist
+
+   \section1 Using Performance Analyzer
+
+    On Linux, use Performance Analyzer to analyze the CPU and memory
+    usage of an application on Linux desktop and embedded devices.
+
+    Performance Analyzer uses the Perf tool bundled with the Linux kernel to
+    take periodic snapshots of the call chain of an application and visualizes
+    them in a timeline view or as a flame graph.
+
+    For more information, see:
+
+    \list
+        \li \l{Analyze CPU usage}
+        \li \l{Performance Analyzer}
+    \endlist
+
+    \section1 Using QML Profiler
+
+    Use QML Profiler to inspect binding evaluations and signal handling when
+    running QML code. This helps you identify performance bottlenecks that are
+    difficult to spot through code inspection alone.
+
+    QML Profiler records events, such as signal handling, binding evaluations,
+    and JavaScript execution, and visualizes them in a timeline view. This
+    is useful for diagnosing slowness and unresponsiveness.
+
+    For more information, see:
+
+    \list
+        \li \l{Profile QML applications}
+        \li \l{QML Profiler}
+    \endlist
+
+    \sa {Profile}{How to: Profile}
+*/

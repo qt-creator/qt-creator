@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -11,12 +11,12 @@
     \page creator-how-to-analyze-cpu-usage.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-analyze
+    \ingroup creator-how-to-profile
 
     \title Analyze CPU usage
 
     With Perf, you can analyze the CPU and memory usage of an application
-    on Linux desktop and embedded devices. \l{Performance Analyzer} uses the
+    on Linux desktop and embedded devices. Performance Analyzer uses the
     Perf tool bundled with the Linux kernel to take periodic snapshots of
     the call chain of an application and visualizes them in a timeline view
     or as a flame graph.
@@ -103,15 +103,16 @@
         \li Select \uicontrol Yes to recompile the project.
     \endlist
 
-    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Performance Analyzer},
-    {Analyzing code}
+    \sa {Profile}{How to: Profile}, {Profilers}, {Profiling applications},
+    {Performance Analyzer}
 */
 
 /*!
     \page creator-cpu-usage-analyzer.html
-    \previouspage creator-reference.html
+    \previouspage creator-ctf-visualizer.html
+    \nextpage creator-qml-performance-monitor.html
 
-    \ingroup creator-reference-analyzer
+    \ingroup profiling-tools
 
     \title Performance Analyzer
 
@@ -526,5 +527,6 @@
     The \l {Application Output} view shows some information even if the
     Performance Analyzer displays error messages.
 
-    \sa {Analyze}{How to: Analyze}, {Analyzers}, {Analyzing code}, {Managing kits}
+    \sa {Profile}{How to: Profile}, {Profilers}, {Profiling applications},
+    {Managing kits}
 */

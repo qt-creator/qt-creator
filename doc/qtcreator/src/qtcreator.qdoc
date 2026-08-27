@@ -80,6 +80,7 @@
                         \li \l{Creating projects}
                         \li \l{Managing kits}
                         \li \l{Building and running projects}
+                        \li \l{Profiling applications}
                         \li \l{Developing for devices}
                     \endlist
                 \li Use tools and extensions
