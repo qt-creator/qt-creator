@@ -1015,6 +1015,11 @@ void tst_backends::initTestCase()
 {
     TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/tst_backends-XXXXXX");
 
+    // A debuginfod server in the developer's environment makes the debuggers stall on
+    // every library without debug info, starting with the version probes below. Drop it
+    // before the first snapshot of the system environment is taken.
+    Environment::modifySystemEnvironment({{"DEBUGINFOD_URLS", "", EnvironmentItem::Unset}});
+
     QString gdbVersionLine;
     QString lldbVersionLine;
 
@@ -4902,14 +4907,6 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
     if (backend == Backend::Lldb && HostOsInfo::isMacHost())
         QSKIP("QML breakpoint resolution does not work on macOS - see the comment above.");
 
-    // TODO: Fix and unskip.
-    if (backend == Backend::Gdb)
-        QSKIP("QML breakpoint resolution is red in CI: against a Qt whose QML debug "
-              "plugins carry no debug info, the interpreter send is refused at "
-              "qt_qmlDebugConnectorOpen, and gdb 10.2 does not recover at "
-              "qt_qmlDebugObjectAvailable either. Reproducible locally by pointing "
-              "QT_PLUGIN_PATH at a stripped copy of the qmltooling plugins.");
-
 #ifndef QMLSTACK_INFERIOR_EXECUTABLE
     QSKIP("Qt::Quick not available when this test binary was configured.");
 #else
@@ -4961,7 +4958,7 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
 
     QTRY_VERIFY2_WITH_TIMEOUT(hasResolvedQmlBreakpoint(modifiedReports, 42),
                               qPrintable(qmlResolutionDiagnosis(modifiedReports, wire)),
-                              s_timeout);
+                              s_qmlStartupTimeout);
 
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
                               qPrintable("the resolved QML breakpoint never signaled a stop"
@@ -5081,11 +5078,6 @@ void tst_backends::insertsQmlBreakpointBeforeDumpersLoad()
     if (backend == Backend::Lldb && HostOsInfo::isMacHost())
         QSKIP("QML breakpoint resolution does not work on macOS - see the comment there.");
 
-    // TODO: Fix and unskip.
-    if (backend == Backend::Gdb)
-        QSKIP("QML breakpoint resolution is red in CI - see "
-              "insertsQmlBreakpointAndStopsAtIt().");
-
 #ifndef QMLSTACK_INFERIOR_EXECUTABLE
     QSKIP("Qt::Quick not available when this test binary was configured.");
 #else
@@ -5158,7 +5150,7 @@ void tst_backends::insertsQmlBreakpointBeforeDumpersLoad()
 
     QTRY_VERIFY2_WITH_TIMEOUT(hasResolvedQmlBreakpoint(modifiedReports, 42),
                               qPrintable(qmlResolutionDiagnosis(modifiedReports, wire)),
-                              s_timeout);
+                              s_qmlStartupTimeout);
     QVERIFY2(!sawUndefinedDumperError,
              "QML breakpoint insert reached gdb before theDumper existed");
 
