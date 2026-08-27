@@ -163,6 +163,7 @@ static QString activeProjectPackage()
 
 static constexpr QLatin1StringView packageKey("package");
 static constexpr QLatin1StringView levelKey("level");
+static constexpr QLatin1StringView tagKey("tag");
 static constexpr QLatin1StringView mineValue("mine");
 
 class LogcatFilter
@@ -196,6 +197,11 @@ static LogcatFilter::FilterPredicate levelPredicate(LogcatLevel min)
     return [min](const LogcatEntry &e) { return e.level >= min; };
 }
 
+static LogcatFilter::FilterPredicate tagPredicate(const QString &tag)
+{
+    return [tag](const LogcatEntry &e) { return e.tag.contains(tag, Qt::CaseInsensitive); };
+}
+
 void LogcatFilter::setFromText(const QString &text)
 {
     m_filterText = text;
@@ -205,7 +211,7 @@ void LogcatFilter::setFromText(const QString &text)
         const int colon = token.indexOf(u':');
         const QString key = colon > 0 ? token.left(colon).toLower() : QString();
         const QString value = colon > 0 ? token.mid(colon + 1) : QString();
-        const bool queryKey = key == packageKey || key == levelKey;
+        const bool queryKey = key == packageKey || key == levelKey || key == tagKey;
         if (queryKey && value.isEmpty())
             continue;
         if (key == packageKey) {
@@ -227,6 +233,8 @@ void LogcatFilter::setFromText(const QString &text)
                 m_predicates.append(levelPredicate(level));
             else
                 m_predicates.append([](const LogcatEntry &) { return false; });
+        } else if (key == tagKey) {
+            m_predicates.append(tagPredicate(value));
         } else {
             m_predicates.append([token](const LogcatEntry &e) {
                 return matchesFreeText(e, token);
