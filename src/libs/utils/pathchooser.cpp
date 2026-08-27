@@ -190,7 +190,7 @@ public:
     FilePath expandedPath(const FilePath &path) const;
 
     QHBoxLayout *m_hLayout = nullptr;
-    FancyLineEdit *m_lineEdit = nullptr;
+    FancyLineEdit m_lineEdit;
 
     PathChooserKind m_acceptingKind = PathChooserKind::ExistingDirectory;
     QString m_dialogTitleOverride;
@@ -205,15 +205,14 @@ public:
     std::function<void()> m_openTerminal;
     bool m_allowPathFromDevice = false;
 
-    QMenu *m_contextMenu = nullptr;
-    OptionPushButton *m_browseButton = nullptr;
+    OptionPushButton m_browseButton;
+    QMenu m_contextMenu{&m_browseButton}; // Declared after its parent: dies first.
     QPushButton *m_alternativesButton = nullptr;
     Guard m_callGuard;
 };
 
 PathChooserPrivate::PathChooserPrivate()
     : m_hLayout(new QHBoxLayout)
-    , m_lineEdit(new FancyLineEdit)
 {
 }
 
@@ -231,44 +230,43 @@ PathChooser::PathChooser(QWidget *parent) :
 
     d->m_hLayout->setContentsMargins(0, 0, 0, 0);
 
-    d->m_lineEdit->setContextMenuPolicy(Qt::CustomContextMenu);
+    d->m_lineEdit.setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(d->m_lineEdit,
+    connect(&d->m_lineEdit,
             &FancyLineEdit::customContextMenuRequested,
             this,
             &PathChooser::contextMenuRequested);
-    connect(d->m_lineEdit, &FancyLineEdit::validReturnPressed, this, &PathChooser::returnPressed);
-    connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::rawPathChanged);
-    connect(d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
-    connect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
-    connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::textChanged);
+    connect(&d->m_lineEdit, &FancyLineEdit::validReturnPressed, this, &PathChooser::returnPressed);
+    connect(&d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::rawPathChanged);
+    connect(&d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
+    connect(&d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
+    connect(&d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::textChanged);
 
-    d->m_lineEdit->setMinimumWidth(120);
-    d->m_hLayout->addWidget(d->m_lineEdit);
+    d->m_lineEdit.setMinimumWidth(120);
+    d->m_hLayout->addWidget(&d->m_lineEdit);
     d->m_hLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    d->m_browseButton = new OptionPushButton;
-    d->m_browseButton->setText(browseButtonLabel());
-    connect(d->m_browseButton, &OptionPushButton::clicked, this, [this] { slotBrowse(false); });
+    d->m_browseButton.setText(browseButtonLabel());
+    connect(&d->m_browseButton, &OptionPushButton::clicked, this, [this] { slotBrowse(false); });
 
-    d->m_contextMenu = new QMenu(d->m_browseButton);
-    d->m_contextMenu->addAction(Tr::tr("Local"), this, [this] { slotBrowse(false); });
-    d->m_contextMenu->addAction(Tr::tr("Remote"), this, [this] { slotBrowse(true); });
+    d->m_contextMenu.addAction(Tr::tr("Local"), this, [this] { slotBrowse(false); });
+    d->m_contextMenu.addAction(Tr::tr("Remote"), this, [this] { slotBrowse(true); });
 
-    insertButton(d->m_buttons.count(), d->m_browseButton);
+    insertButton(d->m_buttons.count(), &d->m_browseButton);
 
     setLayout(d->m_hLayout);
-    setFocusProxy(d->m_lineEdit);
-    setFocusPolicy(d->m_lineEdit->focusPolicy());
+    setFocusProxy(&d->m_lineEdit);
+    setFocusPolicy(d->m_lineEdit.focusPolicy());
 
-    d->m_lineEdit->setValidationFunction(defaultValidationFunction());
+    d->m_lineEdit.setValidationFunction(defaultValidationFunction());
 }
 
 PathChooser::~PathChooser()
 {
-    // Since it is our focusProxy it can receive focus-out and emit the signal
-    // even when the possible ancestor-receiver is in mid of its destruction.
-    disconnect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
+    // The line edit outlives nothing - it dies with d below - but clearing the
+    // focus is done while it is still alive, on purpose, and that makes it emit.
+    // Every signal of this class is relayed from it, so drop its receivers first.
+    d->m_lineEdit.disconnect(this);
 
     // Clear focus now while d is still valid. Without this, ~QWidget() would emit
     // focusChanged, which propagates via ProjectTree and BuildConfiguration into
@@ -332,7 +330,7 @@ void PathChooser::setEnvironment(const Environment &env)
 
 FilePath PathChooser::unexpandedFilePath() const
 {
-    const QString text = d->m_lineEdit->text().trimmed();
+    const QString text = d->m_lineEdit.text().trimmed();
     if (text.isEmpty() && !d->m_defaultValue.isEmpty())
         return d->m_defaultValue;
     return FilePath::fromUserInput(text);
@@ -414,14 +412,14 @@ void PathChooser::setPath(const QString &path)
 {
     QTC_ASSERT(!d->m_callGuard.isLocked(), return);
     GuardLocker locker(d->m_callGuard);
-    d->m_lineEdit->setTextKeepingActiveCursor(QDir::toNativeSeparators(path));
+    d->m_lineEdit.setTextKeepingActiveCursor(QDir::toNativeSeparators(path));
 }
 
 void PathChooser::setFilePath(const FilePath &fn)
 {
     QTC_ASSERT(!d->m_callGuard.isLocked(), return);
     GuardLocker locker(d->m_callGuard);
-    d->m_lineEdit->setTextKeepingActiveCursor(fn.toUserOutput());
+    d->m_lineEdit.setTextKeepingActiveCursor(fn.toUserOutput());
 }
 
 QString PathChooser::path() const
@@ -431,13 +429,13 @@ QString PathChooser::path() const
 
 bool PathChooser::isReadOnly() const
 {
-    return d->m_lineEdit->isReadOnly();
+    return d->m_lineEdit.isReadOnly();
 }
 
 void PathChooser::setReadOnly(bool b)
 {
-    d->m_lineEdit->setReadOnly(b);
-    d->m_lineEdit->setFrame(!b);
+    d->m_lineEdit.setReadOnly(b);
+    d->m_lineEdit.setFrame(!b);
     const auto buttons = d->m_buttons;
     for (QAbstractButton *button : buttons)
         button->setVisible(!b);
@@ -535,7 +533,7 @@ void PathChooser::slotBrowse(bool remote)
         if (newPath.endsWith("/") && newPath.path().size() > 1)
             newPath = newPath.withNewPath(newPath.path().chopped(1));
         setFilePath(newPath);
-        emit d->m_lineEdit->textEdited(newPath.path());
+        emit d->m_lineEdit.textEdited(newPath.path());
     }
 
     emit browsingFinished();
@@ -546,29 +544,29 @@ static PathChooser::AboutToShowContextMenuHandler s_aboutToShowContextMenuHandle
 
 void PathChooser::contextMenuRequested(const QPoint &pos)
 {
-    if (QMenu *menu = d->m_lineEdit->createStandardContextMenu()) {
+    if (QMenu *menu = d->m_lineEdit.createStandardContextMenu()) {
         menu->setAttribute(Qt::WA_DeleteOnClose);
 
         if (s_aboutToShowContextMenuHandler)
             s_aboutToShowContextMenuHandler(this, menu);
 
-        menu->popup(d->m_lineEdit->mapToGlobal(pos));
+        menu->popup(d->m_lineEdit.mapToGlobal(pos));
     }
 }
 
 bool PathChooser::isValid() const
 {
-    return d->m_lineEdit->isValid();
+    return d->m_lineEdit.isValid();
 }
 
 QString PathChooser::errorMessage() const
 {
-    return d->m_lineEdit->errorMessage();
+    return d->m_lineEdit.errorMessage();
 }
 
 void PathChooser::triggerChanged()
 {
-    d->m_lineEdit->validate();
+    d->m_lineEdit.validate();
 }
 
 void PathChooser::setAboutToShowContextMenuHandler(PathChooser::AboutToShowContextMenuHandler handler)
@@ -589,18 +587,18 @@ std::function<void()> PathChooser::openTerminalHandler() const
 void PathChooser::setDefaultValue(const FilePath &defaultValue)
 {
     d->m_defaultValue = defaultValue;
-    d->m_lineEdit->setPlaceholderText(defaultValue.toUserOutput());
-    d->m_lineEdit->validate();
+    d->m_lineEdit.setPlaceholderText(defaultValue.toUserOutput());
+    d->m_lineEdit.validate();
 }
 
 void PathChooser::setPlaceholderText(const QString &placeholderText)
 {
-    d->m_lineEdit->setPlaceholderText(placeholderText);
+    d->m_lineEdit.setPlaceholderText(placeholderText);
 }
 
 void PathChooser::setToolTip(const QString &toolTip)
 {
-    d->m_lineEdit->setToolTip(toolTip);
+    d->m_lineEdit.setToolTip(toolTip);
 }
 
 static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, PathChooserKind kind)
@@ -700,7 +698,7 @@ FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() 
 
 void PathChooser::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
 {
-    d->m_lineEdit->setValidationFunction(fn);
+    d->m_lineEdit.setValidationFunction(fn);
 }
 
 QString PathChooser::label()
@@ -730,7 +728,7 @@ void PathChooser::setExpectedKind(PathChooserKind expected)
     if (d->m_acceptingKind == expected)
         return;
     d->m_acceptingKind = expected;
-    d->m_lineEdit->validate();
+    d->m_lineEdit.validate();
 }
 
 /*!
@@ -757,7 +755,7 @@ QString PathChooser::promptDialogTitle() const
 void PathChooser::setPromptDialogFilter(const QString &filter)
 {
     d->m_dialogFilter = filter;
-    d->m_lineEdit->validate();
+    d->m_lineEdit.validate();
 }
 
 QString PathChooser::promptDialogFilter() const
@@ -781,9 +779,9 @@ QString PathChooser::makeDialogTitle(const QString &title)
 FancyLineEdit *PathChooser::lineEdit() const
 {
     // HACK: Make it work with HistoryCompleter.
-    if (d->m_lineEdit->objectName().isEmpty())
-        d->m_lineEdit->setObjectName(objectName() + "LineEdit");
-    return d->m_lineEdit;
+    if (d->m_lineEdit.objectName().isEmpty())
+        d->m_lineEdit.setObjectName(objectName() + "LineEdit");
+    return &d->m_lineEdit;
 }
 
 void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments)
@@ -794,7 +792,7 @@ void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList
 
 void PathChooser::setHistoryCompleter(const Key &historyKey, bool restoreLastItemFromHistory)
 {
-    d->m_lineEdit->setHistoryCompleter(historyKey, restoreLastItemFromHistory);
+    d->m_lineEdit.setHistoryCompleter(historyKey, restoreLastItemFromHistory);
 }
 
 void PathChooser::setValueAlternatives(const FilePaths &candidates)
@@ -852,9 +850,9 @@ void PathChooser::setAllowPathFromDevice(bool allow)
     d->m_allowPathFromDevice = allow;
 
     if (allow && FileUtils::hasNativeFileDialog())
-        d->m_browseButton->setOptionalMenu(d->m_contextMenu);
+        d->m_browseButton.setOptionalMenu(&d->m_contextMenu);
     else
-        d->m_browseButton->setOptionalMenu(nullptr);
+        d->m_browseButton.setOptionalMenu(nullptr);
 }
 
 bool PathChooser::allowPathFromDevice() const

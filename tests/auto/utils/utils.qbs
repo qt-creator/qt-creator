@@ -20,6 +20,7 @@ Project {
         "indexedcontainerproxyconstiterator/indexedcontainerproxyconstiterator.qbs",
         "mathutils/mathutils.qbs",
         "multicursor/multicursor.qbs",
+        "pathchooser/pathchooser.qbs",
         "persistentsettings/persistentsettings.qbs",
         "process/process.qbs",
         "settings/settings.qbs",
