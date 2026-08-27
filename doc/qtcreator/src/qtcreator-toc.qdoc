@@ -77,6 +77,8 @@
                         \generatelist creator-how-to-ios
                     \li \l{Developing for MCUs}
                         \generatelist creator-how-to-mcu
+                    \li \l{Developing for Podman}
+                        \generatelist creator-how-to-podman
                     \li \l{Developing for QNX Neutrino devices}
                         \generatelist creator-how-to-qnx
                     \li \l{Developing for remote Linux devices}

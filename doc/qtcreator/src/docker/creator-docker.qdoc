@@ -32,7 +32,8 @@
     To pull images from Docker hub or other registries, use the
     \l{docker image pull}{docker pull} command.
 
-    \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker}
+    \sa {Enable and disable plugins}, {Docker}{How to: Develop for Docker},
+    {Developing for Podman}
 */
 
 /*!

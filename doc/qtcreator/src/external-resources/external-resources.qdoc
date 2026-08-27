@@ -851,6 +851,14 @@
     \externalpage https://docs.docker.com/reference/cli/docker/image/pull/
     \title docker image pull
 */
+/*!
+    \externalpage https://podman.io/
+    \title Podman overview
+*/
+/*!
+    \externalpage https://docs.podman.io/en/latest/markdown/podman-pull.1.html
+    \title podman pull
+*/
 
 // Qbs resources
 /*!

@@ -339,6 +339,19 @@
     \generatelist creator-how-to-mcu
     \enddetails
 
+    \section2 Podman
+
+    \quotation
+    \l {Developing for Podman}
+    \endquotation
+
+    Create \e {Podman devices} from \e {Podman images} and use them to build,
+    run, and debug applications.
+
+    \details {How to develop for Podman devices}
+    \generatelist creator-how-to-podman
+    \enddetails
+
     \section2 QNX Neutrino
 
     \quotation

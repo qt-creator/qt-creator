@@ -1,0 +1,157 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-reference-podman.html
+    \previouspage creator-reference.html
+
+    \title Developing for Podman
+
+    \quotation
+    \l {Podman}{How to: Develop for Podman}
+    \endquotation
+
+    \brief Create Podman devices from Podman images and use them to build,
+    run, and debug applications.
+
+    Create Podman devices from \l{Podman overview}{Podman images} and
+    use them to build, run, and debug applications. Like a Docker
+    container, a Podman container operates like a virtual machine but uses
+    less system resources at the cost of being less flexible.
+
+    Podman support reuses the same device backend as
+    \l{Developing for Docker}{Docker devices}, so the workflow, preferences,
+    and kit auto-detection are the same. The only difference is that \QC
+    uses the \c podman CLI instead of \c docker-cli to manage containers.
+
+    To build, run, and debug applications on Podman devices, install and
+    configure \c podman on the development host. \QC automatically detects
+    \l{Managing kits}{build and run kit} items, such as \l{Add debuggers}
+    {debuggers} and \l{Add Qt versions}{Qt versions}, in the Podman container
+    and creates kits for the devices.
+
+    You are advised to use CMake to build applications in the Podman container.
+
+    \note Enable the Docker plugin to use it. Podman support is part of the
+    Docker plugin.
+
+    To pull images from a registry, use the \l{podman pull} command.
+
+    \sa {Enable and disable plugins}, {Podman}{How to: Develop for Podman},
+    {Developing for Docker}
+*/
+
+/*!
+    \page creator-adding-podman-devices.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-podman
+
+    \note Enable the Docker plugin to develop for Podman devices.
+
+    \title Add Podman devices
+
+    To add a Podman image as a device:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Podman.
+        \li In \uicontrol Command, enter the path to the Podman CLI.
+        \li Go to \uicontrol Devices.
+        \li Select \uicontrol Add > \uicontrol {Podman Device} >
+            \uicontrol {Start Wizard} to search for images in your
+            local Podman installation.
+        \li Select a Podman image, and then select \uicontrol OK.
+        \li In \uicontrol Devices, check and change Podman device preferences.
+        \li Select \uicontrol Apply to save your changes.
+    \endlist
+
+    \section2 Select Podman images
+
+    The \uicontrol {Podman Image Selection} dialog displays a list of images
+    in your local Podman installation. You can sort the images according to
+    the repository name or tag or the image ID or size.
+
+    Select \uicontrol {Show unnamed images} to show images that are not tagged.
+
+    Double-click an image to select it.
+
+    \section1 Edit Podman device kits
+
+    Go to \preferences > \uicontrol Kits to check
+    that the automatically generated kits point to the appropriate kit items.
+
+    \sa {Enable and disable plugins}, {Podman}{How to: Develop for Podman},
+    {Manage kits}{How to: Manage kits}, {Developing for Podman}
+*/
+
+/*!
+    \page creator-preferences-podman.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-podman
+
+    \title Set preferences for Podman devices
+
+    \note Enable the Docker plugin to develop for Podman devices.
+
+    To set preferences for Podman devices:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
+        \li In \uicontrol Device, select a Podman device.
+    \endlist
+
+    The preferences for a Podman device are the same as for a
+    \l{Set preferences for Docker devices}{Docker device}, because both
+    device types share the same settings widget.
+
+    \sa {Enable and disable plugins}, {Podman}{How to: Develop for Podman},
+    {Manage kits}{How to: Manage kits}, {Developing for Podman},
+    {Set preferences for Docker devices}
+*/
+
+/*!
+    \page creator-how-to-build-run-podman.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-podman
+
+    \title Build for and run on Podman devices
+
+    \note Enable the Docker plugin to develop for Podman devices.
+
+    To specify build settings for Podman images:
+
+        \list 1
+            \li Open a project for an application you want to develop for the
+                device.
+            \li Go to \uicontrol Projects > \uicontrol {Build & Run}, and
+                activate the kit for Podman devices.
+        \endlist
+
+    Go to \uicontrol {Run Settings} to specify run settings. Usually, you can use
+    the default settings.
+
+    \sa {Enable and disable plugins}, {Podman}{How to: Develop for Podman},
+    {Manage kits}{How to: Manage kits}, {Developing for Podman}
+*/
+
+/*!
+    \page creator-how-to-build-on-podman.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-podman
+
+    \title Build on Podman devices
+
+    In addition to building applications \e {for} Podman, you can use the
+    toolchain in Podman to build the applications \e {on} Podman.
+
+    \note Enable the Docker plugin to develop for Podman devices.
+
+    \include linux-mobile/creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {Podman device}
+
+    \sa {Add CMake tools}, {Enable and disable plugins},
+    {Podman}{How to: Develop for Podman}, {Manage kits}{How to: Manage kits},
+    {Developing for Podman}
+*/
