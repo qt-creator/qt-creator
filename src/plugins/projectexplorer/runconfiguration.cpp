@@ -29,6 +29,7 @@
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
 #include <utils/processinterface.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/variablechooser.h>
@@ -39,6 +40,7 @@
 #include <QLayout>
 #include <QPushButton>
 #include <QLoggingCategory>
+#include <QVBoxLayout>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -1052,6 +1054,43 @@ private slots:
             QCOMPARE(tasks.first().type(), Task::Warning);
             QVERIFY(tasks.first().description().contains("Add a deploy step."));
         }
+    }
+
+    // Reading a device environment can reach back into the device and kit
+    // machinery and tear down the run settings widgets. The working directory
+    // aspect must not touch its chooser afterwards.
+    void testWorkingDirectoryAspectSurvivesReentrantTeardown()
+    {
+        auto parent = new QWidget;
+        bool armed = false;
+
+        EnvironmentAspect envAspect;
+        envAspect.addPreferredBaseEnvironment("Reentrant", [&parent, &armed] {
+            // Stand in for the announcement cascade that rebuilds the panel.
+            // Only while armed: the aspect also reads the environment while
+            // building its widgets, and the tree must exist for that.
+            if (armed) {
+                delete parent;
+                parent = nullptr;
+            }
+            return Utils::Environment();
+        });
+
+        WorkingDirectoryAspect workingDir;
+        workingDir.setEnvironment(&envAspect);
+
+        Layouting::Layout layout(new QVBoxLayout);
+        workingDir.addToLayout(layout);
+        layout.attachTo(parent);
+
+        // The chooser must be owned by the widget the fetcher tears down,
+        // otherwise this test proves nothing.
+        QVERIFY(parent->findChild<Utils::PathChooser *>());
+
+        armed = true;
+        emit envAspect.environmentChanged();
+
+        QVERIFY(parent == nullptr); // the fetcher really ran
     }
 };
 
