@@ -206,13 +206,13 @@ private:
     TextEditorWidget *editorWidget() const;
 
     const Project *m_project = nullptr;
-    QScrollArea *m_editorScrollArea = nullptr;
-    SnippetEditorWidget * const m_preview;
+    QScrollArea m_editorScrollArea;
+    SnippetEditorWidget m_preview{this};
     std::unique_ptr<Core::IEditor> m_editor;
     std::unique_ptr<ClangFormatFile> m_config;
     Guard m_ignoreChanges;
-    QLabel *m_clangVersion;
-    InfoLabel *m_clangFileIsCorrectText;
+    QLabel m_clangVersion;
+    InfoLabel m_clangFileIsCorrectText;
     ClangFormatIndenter *m_indenter;
 
     bool m_useCustomSettings = false;
@@ -231,7 +231,6 @@ bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 ClangFormatConfigWidget::ClangFormatConfigWidget(
     const Project *project, ICodeStylePreferences *codeStyle, QWidget *parent)
     : QWidget(parent)
-    , m_preview(new SnippetEditorWidget(this))
 {
     m_project = project;
     m_config = std::make_unique<ClangFormatFile>(codeStyle->currentPreferences());
@@ -240,15 +239,13 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(
 
     initPreview(codeStyle);
 
-    m_editorScrollArea = new QScrollArea;
-    m_editorScrollArea->setWidgetResizable(true);
+    m_editorScrollArea.setWidgetResizable(true);
 
-    m_clangFileIsCorrectText = new InfoLabel("", InfoLabelType::Ok);
-    m_clangFileIsCorrectText->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-    m_clangFileIsCorrectText->hide();
+    m_clangFileIsCorrectText.setType(InfoLabelType::Ok);
+    m_clangFileIsCorrectText.setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_clangFileIsCorrectText.hide();
 
-    m_clangVersion = new QLabel(Tr::tr("Current ClangFormat version: %1.").arg(LLVM_VERSION_STRING),
-                                this);
+    m_clangVersion.setText(Tr::tr("Current ClangFormat version: %1.").arg(LLVM_VERSION_STRING));
 
     using namespace Layouting;
 
@@ -299,7 +296,7 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(ICodeStylePreferences *codeSt
 void ClangFormatConfigWidget::updateReadOnlyState()
 {
     const bool isReadOnly = m_config->isReadOnly() || !m_useCustomSettings;
-    m_preview->setReadOnly(isReadOnly);
+    m_preview.setReadOnly(isReadOnly);
     if (TextEditorWidget * const widget = editorWidget())
         widget->setReadOnly(isReadOnly);
 }
@@ -324,7 +321,7 @@ void ClangFormatConfigWidget::initEditor()
     invokeMethodForLanguageClientManager("editorOpened",
                                          Q_ARG(Core::IEditor *, m_editor.get()));
 
-    m_editorScrollArea->setWidget(m_editor->widget());
+    m_editorScrollArea.setWidget(m_editor->widget());
 
     if (TextEditorWidget *editor = editorWidget())
         editor->setMinimapVisible(false);
@@ -341,14 +338,14 @@ void ClangFormatConfigWidget::initEditor()
                                         currentSettingsStyle);
 
         if (success) {
-            m_clangFileIsCorrectText->hide();
+            m_clangFileIsCorrectText.hide();
             m_indenter->setOverriddenStyle(currentSettingsStyle);
             updatePreview();
             return;
         }
-        m_clangFileIsCorrectText->show();
-        m_clangFileIsCorrectText->setText(Tr::tr("Warning:") + " " + success.error());
-        m_clangFileIsCorrectText->setType(InfoLabelType::Warning);
+        m_clangFileIsCorrectText.show();
+        m_clangFileIsCorrectText.setText(Tr::tr("Warning:") + " " + success.error());
+        m_clangFileIsCorrectText.setType(InfoLabelType::Warning);
     });
 
     QShortcut *completionSC = new QShortcut(QKeySequence("Ctrl+Space"), this);
@@ -366,18 +363,18 @@ void ClangFormatConfigWidget::initPreview(ICodeStylePreferences *codeStyle)
     FilePath fileName = m_project ? m_project->projectFilePath().pathAppended("snippet.cpp")
                                   : Core::ICore::userResourcePath("snippet.cpp");
 
-    DisplaySettingsData displaySettings = m_preview->displaySettings();
+    DisplaySettingsData displaySettings = m_preview.displaySettings();
     displaySettings.m_visualizeWhitespace = true;
-    m_preview->setDisplaySettings(displaySettings);
-    m_preview->setPlainText(QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-    m_indenter = new ClangFormatIndenter(m_preview->document());
+    m_preview.setDisplaySettings(displaySettings);
+    m_preview.setPlainText(QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
+    m_indenter = new ClangFormatIndenter(m_preview.document());
     m_indenter->setOverriddenPreferences(codeStyle);
-    m_preview->textDocument()->setIndenter(m_indenter);
-    m_preview->textDocument()->setFontSettings(globalFontSettings().data());
-    m_preview->textDocument()->resetSyntaxHighlighter(
+    m_preview.textDocument()->setIndenter(m_indenter);
+    m_preview.textDocument()->setFontSettings(globalFontSettings().data());
+    m_preview.textDocument()->resetSyntaxHighlighter(
         [] { return new CppEditor::CppHighlighter(); });
     m_indenter->setFileName(fileName);
-    m_preview->show();
+    m_preview.show();
 }
 
 static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = QByteArray())
@@ -432,10 +429,10 @@ void ClangFormatConfigWidget::createStyleFileIfNeeded(bool isGlobal)
 
 void ClangFormatConfigWidget::updatePreview()
 {
-    QTextCursor cursor(m_preview->document());
+    QTextCursor cursor(m_preview.document());
     cursor.setPosition(0);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    m_preview->textDocument()->autoFormatOrIndent(cursor);
+    m_preview.textDocument()->autoFormatOrIndent(cursor);
 }
 
 void ClangFormatConfigWidget::reopenClangFormatDocument()
