@@ -32,6 +32,7 @@ private slots:
     void testWrite();
     void testRootFromDotDot();
     void testDirtyPaths();
+    void testNativeSeparators();
 
 private:
     QString makeTestPath(QString path, bool asUrl = false);
@@ -43,6 +44,14 @@ private:
 
 template<class... Args>
 using Continuation = std::function<void(Args...)>;
+
+static QStringList g_softAsserts;
+
+static void collectSoftAsserts(QtMsgType, const QMessageLogContext &, const QString &msg)
+{
+    if (msg.startsWith("SOFT ASSERT"))
+        g_softAsserts << msg;
+}
 
 QString startWithSlash(QString s)
 {
@@ -244,6 +253,33 @@ void tst_fsengine::testDirtyPaths()
 
     // "/////__qtc_devices/device/test/..."
     QVERIFY(QFileInfo("////" + makeTestPath("")).exists());
+}
+
+void tst_fsengine::testNativeSeparators()
+{
+    // The dummy device has no file access hooks, so operations on it soft-assert in
+    // FilePath::fileAccess() either way. Count them for a path spelled with the separators of
+    // a Windows device and for the same spelling with slashes: reaching the engine with
+    // native separators must not cost anything on top.
+    const auto softAssertsWhileResolving = [](const QString &filePath) {
+        g_softAsserts.clear();
+        QtMessageHandler previousHandler = qInstallMessageHandler(collectSoftAsserts);
+        const bool exists = QFileInfo(filePath).exists();
+        qInstallMessageHandler(previousHandler);
+        return exists ? g_softAsserts.size() : -1;
+    };
+
+    const QString slashes = makeTestPath("test-separators-slash.txt");
+    const QString backslashes = makeTestPath("test-separators-native.txt");
+    for (const QString &path : {slashes, backslashes}) {
+        QFile f(path);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+    }
+
+    QString nativePath = backslashes;
+    nativePath[nativePath.lastIndexOf('/')] = '\\';
+
+    QCOMPARE(softAssertsWhileResolving(nativePath), softAssertsWhileResolving(slashes));
 }
 
 QTEST_GUILESS_MAIN(tst_fsengine)

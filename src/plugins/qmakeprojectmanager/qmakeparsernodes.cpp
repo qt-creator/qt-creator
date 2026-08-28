@@ -1851,7 +1851,7 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
      * device but it does not. In such cases device from buildDir is added to the path.
      */
     auto createFullFilePath = [&buildDir](QString path) ->FilePath {
-        FilePath result = FilePath::fromString(path);
+        FilePath result = FilePath::fromUserInput(path);
         if (!buildDir.isLocal() && result.isLocal()){
             result.setParts(buildDir.scheme(), buildDir.host(), result.path());
         }

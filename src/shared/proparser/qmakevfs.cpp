@@ -183,7 +183,7 @@ QMakeVfs::ReadResult QMakeVfs::readFile(int id, QString *contents, QString *errS
     }
 #endif
 
-    FilePath file = FilePath::fromString(fileNameForId(id));
+    FilePath file = FilePath::fromUserInput(fileNameForId(id));
         if (!file.exists()){
 #ifndef PROEVALUATOR_FULL
                 m_files[id] = m_magicMissing;

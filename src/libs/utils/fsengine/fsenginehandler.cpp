@@ -346,7 +346,7 @@ QDateTime FSEngineImpl::fileTime(FileTime time) const
 void FSEngineImpl::setFileName(const QString &file)
 {
     close();
-    m_filePath = FilePath::fromString(file);
+    m_filePath = FilePath::fromUserInput(file);
 }
 
 int FSEngineImpl::handle() const
@@ -437,17 +437,17 @@ static FilePath removeDoubleSlash(const QString &fileName)
 {
     // Reduce every two or more slashes to a single slash.
     QString result;
-    const QChar slash = QChar('/');
     bool lastWasSlash = false;
     for (const QChar &ch : fileName) {
-        if (ch == slash) {
+        // A path of a Windows device arrives with its own separators.
+        const bool isSlash = ch == QChar('/') || ch == QChar('\\');
+        if (isSlash) {
             if (!lastWasSlash)
-                result.append(ch);
-            lastWasSlash = true;
+                result.append(QChar('/'));
         } else {
             result.append(ch);
-            lastWasSlash = false;
         }
+        lastWasSlash = isSlash;
     }
     // We use fromString() here to not normalize / clean the path anymore.
     return FilePath::fromString(result);
@@ -499,7 +499,7 @@ FSEngineHandler::create(const QString &fileName) const
             }
         }
 
-        FilePath fixedPath = FilePath::fromString(fixedFileName);
+        FilePath fixedPath = FilePath::fromUserInput(fixedFileName);
 
         if (!fixedPath.isLocal())
             return std::make_unique<FSEngineImpl>(removeDoubleSlash(fileName));
