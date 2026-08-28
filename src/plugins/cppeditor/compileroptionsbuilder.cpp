@@ -333,6 +333,9 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
     if (relPaths.isEmpty())
         return;
 
+    if (!m_projectPart.topLevelProject.isLocal())
+        return;
+
     QStringList args;
     for (const QString &relPath : relPaths) {
         static const FilePath baseDir = creatorResourcePath() / "cplusplus";
