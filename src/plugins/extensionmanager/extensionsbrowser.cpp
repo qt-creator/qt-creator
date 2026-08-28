@@ -539,6 +539,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         externalRepoSwitch->setToolTip(settings().useExternalRepo.toolTip());
 
     d->searchBox = new QtcSearchBox;
+    d->searchBox->setObjectName("extensionsSearch"); // easier lookup in tests
     d->searchBox->setPlaceholderText(Tr::tr("Search"));
 
     d->searchProxyModel = new QSortFilterProxyModel(this);
@@ -560,6 +561,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
                                               &SortFilterProxyModel::SortOption::displayName));
 
     d->extensionsView = new QListView;
+    d->extensionsView->setObjectName("extensionsList"); // easier lookup in tests
     d->extensionsView->setFrameStyle(QFrame::NoFrame);
     d->extensionsView->setItemDelegate(new ExtensionItemDelegate(this));
     d->extensionsView->setResizeMode(QListView::Adjust);
