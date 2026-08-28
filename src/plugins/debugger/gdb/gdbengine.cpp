@@ -5229,11 +5229,30 @@ QString GdbEngine::mainFunction() const
 // Factory
 //
 
-static InferiorStartData inferiorStartData(const DebuggerRunParameters &rp)
+// The channel string as gdb needs it: remoteChannel() often carries a
+// QUrl::toString() form, and a gdb inside a docker container does not reach
+// the host under "localhost".
+static QString gdbRemoteChannel(const DebuggerRunParameters &rp)
+{
+    QString channel = cleanedChannel(rp.remoteChannel());
+    if (rp.debugger().command.executable().scheme() == u"docker")
+        channel.replace("localhost", "host.docker.internal");
+    return channel;
+}
+
+InferiorStartData inferiorStartData(const DebuggerRunParameters &rp)
 {
     switch (rp.startMode()) {
-    case AttachToCore:
-        return AttachToCoreData{rp.coreFile(), rp.inferior().command.executable()};
+    case AttachToCore: {
+        FilePath executable = rp.inferior().command.executable();
+        if (executable.isEmpty()) {
+            // "Attach to Last Core File" and "-debug <core>" leave it to the
+            // core file to name the binary the symbols come from.
+            executable = CoreInfo::readExecutableNameFromCore(rp.debugger(), rp.coreFile())
+                             .foundExecutableName;
+        }
+        return AttachToCoreData{rp.coreFile(), executable};
+    }
     case AttachToLocalProcess:
     case AttachToCrashedProcess:
         return AttachToProcessData{rp.attachPid()};
@@ -5243,11 +5262,9 @@ static InferiorStartData inferiorStartData(const DebuggerRunParameters &rp)
         const FilePath remoteExecutable = rp.useExtendedRemote() && !rp.attachPid().isValid()
                                               ? rp.inferior().command.executable()
                                               : FilePath();
-        return AttachToRemoteServerData{rp.remoteChannel(), rp.symbolFile(), rp.attachPid(),
+        return AttachToRemoteServerData{gdbRemoteChannel(rp), rp.symbolFile(), rp.attachPid(),
                                         remoteExecutable};
     }
-    case AttachToQmlServer:
-        return AttachToQmlServerData{rp.qmlServer()};
     default:
         break;
     }

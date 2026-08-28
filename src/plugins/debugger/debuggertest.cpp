@@ -6,6 +6,7 @@
 #include "debuggertest.h"
 
 #include "debuggercore.h"
+#include "debuggerengineinterface.h"
 #include "debuggeritem.h"
 #include "debuggerruncontrol.h"
 #include "registerhandler.h"
@@ -42,6 +43,10 @@ bool isTestRun() { return s_testRun; }
 
 #ifdef WITH_TESTS
 namespace Debugger::Internal {
+
+// gdbengine.cpp
+InferiorStartData inferiorStartData(const DebuggerRunParameters &rp);
+
 class DebuggerUnitTests : public QObject
 {
     Q_OBJECT
@@ -61,6 +66,8 @@ private slots:
 
     void testRegisterValue_data();
     void testRegisterValue();
+
+    void testInferiorStartData();
 
 private:
     CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
@@ -278,6 +285,103 @@ void DebuggerUnitTests::testRegisterValue()
     twoPow64.fromString("0x10000000000000000", HexadecimalFormat);
     QCOMPARE(twoPow64.toString(IntegerRegister, 16, DecimalFormat).trimmed(),
              QString("18446744073709551616"));
+}
+
+void DebuggerUnitTests::testInferiorStartData()
+{
+    // Attaching to a local process: the pid, not the run data, is what starts it.
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToLocalProcess);
+        rp.setInferiorExecutable("/usr/bin/tst_inferior");
+        rp.setAttachPid(ProcessHandle(4711));
+
+        const InferiorStartData data = inferiorStartData(rp);
+        const auto *attachData = std::get_if<AttachToProcessData>(&data);
+        QVERIFY(attachData);
+        QCOMPARE(attachData->pid.pid(), 4711);
+    }
+
+    // A core file has no symbols of its own; the binary provides them.
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToCore);
+        rp.setCoreFilePath("/tmp/core.4711");
+        rp.setInferiorExecutable("/usr/bin/tst_inferior");
+
+        const InferiorStartData data = inferiorStartData(rp);
+        const auto *coreData = std::get_if<AttachToCoreData>(&data);
+        QVERIFY(coreData);
+        QCOMPARE(coreData->coreFile, FilePath("/tmp/core.4711"));
+        QCOMPARE(coreData->executable, FilePath("/usr/bin/tst_inferior"));
+    }
+
+    // The channel is passed to "target remote", which does not take the URL
+    // form the debug channel is handed over as, nor a bare IPv6 host.
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToRemoteServer);
+        rp.setRemoteChannel("tcp://192.168.1.1:1234");
+        rp.setSymbolFile("/usr/bin/tst_inferior");
+
+        const InferiorStartData data = inferiorStartData(rp);
+        const auto *remoteData = std::get_if<AttachToRemoteServerData>(&data);
+        QVERIFY(remoteData);
+        QCOMPARE(remoteData->channel, QString("tcp:192.168.1.1:1234"));
+        QCOMPARE(remoteData->symbolFile, FilePath("/usr/bin/tst_inferior"));
+        QVERIFY(!remoteData->attachPid.isValid());
+        QVERIFY(remoteData->remoteExecutable.isEmpty());
+    }
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToRemoteServer);
+        rp.setRemoteChannel("fe80::1:1234");
+
+        const InferiorStartData data = inferiorStartData(rp);
+        const auto *remoteData = std::get_if<AttachToRemoteServerData>(&data);
+        QVERIFY(remoteData);
+        QCOMPARE(remoteData->channel, QString("tcp:[fe80::1]:1234"));
+    }
+    // A pipe channel, as vgdb uses, must be left alone.
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToRemoteServer);
+        rp.setRemoteChannel("| vgdb --pid=4711");
+
+        const InferiorStartData data = inferiorStartData(rp);
+        const auto *remoteData = std::get_if<AttachToRemoteServerData>(&data);
+        QVERIFY(remoteData);
+        QCOMPARE(remoteData->channel, QString("| vgdb --pid=4711"));
+    }
+
+    // With "target extended-remote" gdb starts the inferior itself, so it
+    // needs its path on the device - unless there is a pid to attach to.
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToRemoteServer);
+        rp.setRemoteChannel("192.168.1.1:1234");
+        rp.setUseExtendedRemote(true);
+        rp.setInferiorExecutable("/data/tst_inferior");
+
+        const InferiorStartData data = inferiorStartData(rp);
+        const auto *remoteData = std::get_if<AttachToRemoteServerData>(&data);
+        QVERIFY(remoteData);
+        QCOMPARE(remoteData->remoteExecutable, FilePath("/data/tst_inferior"));
+    }
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToRemoteServer);
+        rp.setRemoteChannel("192.168.1.1:1234");
+        rp.setUseExtendedRemote(true);
+        rp.setInferiorExecutable("/data/tst_inferior");
+        rp.setAttachPid(ProcessHandle(4711));
+
+        const InferiorStartData data = inferiorStartData(rp);
+        const auto *remoteData = std::get_if<AttachToRemoteServerData>(&data);
+        QVERIFY(remoteData);
+        QCOMPARE(remoteData->attachPid.pid(), 4711);
+        QVERIFY(remoteData->remoteExecutable.isEmpty());
+    }
 }
 
 QObject *createDebuggerTest()
