@@ -95,6 +95,11 @@ whole-migration is the work no per-engine number captures: flipping
 `QTC_USE_GENERIC_DEBUGGER` on by default, then making `DebuggerEngine` `final`
 and deleting the old virtual surface.
 
+`Gdb`'s figure is the only one backed by a full enumeration: the parity
+inventory below lists no open items. The other figures still rest on the
+two-step audit above, so they carry the looser error bars an unenumerated
+estimate deserves.
+
 `Cdb` is given twice on purpose. The in-tree number is what this stack's
 `CdbImpl` does and is auditable here; the higher one is reported from separate
 ongoing work against a real `cdb.exe` and cannot be checked from this tree. At
@@ -148,14 +153,158 @@ while `GenericDebuggerEngine` connected nothing, so the menu item did nothing.
 4. **QmlImpl: script-URL resolution** - the `toFileInProject` gap below. Small,
    but the only open QML defect a user would actually hit.
 5. **Flip the default**, then delete `DebuggerEngine`'s virtual surface.
-6. **Cross-cutting gaps**: no command-timeout watchdog anywhere in the new
-   stack; configurable debuginfod not wired into the Impls.
+6. **Cross-cutting gaps**: see the parity inventory below. The command-timeout
+   watchdog now exists in `GdbImpl`, `LldbImpl` and `CdbImpl`, and configurable
+   debuginfod is wired into `GdbImpl`.
+
+## GdbImpl parity inventory
+
+A gap can only hide in one of five mechanically listable surfaces. Each is
+enumerated by a `grep` a reviewer can repeat, so the count below is an
+inventory, not an estimate. `GdbImpl` reads no `settings()` at all by design -
+every *gap* means "this configuration is never injected into
+`GdbImplStartData`".
+
+| # | Surface | Measured | Gaps |
+|---|---|---|---|
+| 1 | Settings aspects `GdbEngine` reads | 27 of 53 declared, 26 reach the new arch | 0 |
+| 2 | Command literals | tied to the surface-1 gaps | 0 |
+| 3 | `DebuggerRunParameters` getters `GdbEngine` reads | 35, of which 31 reach the new arch | 0 |
+| 4 | `DebuggerEngine` virtuals overridden | 50 vs 49 | 0 |
+| 5 | Capabilities | 27 vs 27, identical name sets | 0 |
+
+### Surface 1: settings aspects
+
+Enumerate the aspects *declared* in `debuggeractions.h` and grep for each name.
+Do **not** enumerate `settings().X` call sites: this code also reads settings
+through a reference (`const DebuggerSettings &s = settings();
+s.useDebuggingHelpers()`), and an earlier version of this table missed eight
+aspects that way. The mapping helpers (`gdbImplFlags()`, `gdbImplStartData()`,
+`inferiorStartData()`, ...) live in `gdbengine.cpp`, so a per-file grep would
+count them as engine-only; extract their bodies first.
+
+Of the 27 aspects `GdbEngine` reads, 26 reach the new architecture, and the one
+that does not is not applicable:
+
+| Aspect | State |
+|---|---|
+| `showThreadNames` | not applicable, see below |
+| `skipKnownFrames` | closed: `GdbImplFlag::SkipKnownFrames` steps out of a leavable frame and into a skippable one before the stop is reported |
+| `logTimeStamps` | closed: `GdbImplFlag::LogTimeStamps` logs the per-command response time |
+| `usePseudoTracepoints` | closed: `GdbImplFlag::PseudoTracepoints` chooses between the dumpers' tracepoint and gdb's own |
+
+`logTimeStamps` does not show up here because the aspect travels as a dumper
+option. Its other half is closed now too: `LogWindow` stamps every line it
+shows for both engines, so what was actually missing was the per-command
+response time, which `GdbImpl` logs behind `GdbImplFlag::LogTimeStamps`. The two
+remaining `GdbEngine` sites - an "Output handled" marker and a bare time stamp
+at the token barrier - carry no information the log window does not already
+add.
+
+### Surface 2: command literals
+
+The literals only `GdbEngine` issues are the ones belonging to the surface-1 and
+surface-3 gaps; `-thread-list-ids` is superseded by `-thread-info`, and
+`-batch`/`-ex` are the version probe, done differently.
+
+### Surface 3: run parameters
+
+Of the 35 getters `GdbEngine` reads, 31 reach the new architecture, and the four
+a getter grep still flags are accounted for below.
+
+| Field | State |
+|---|---|
+| `breakOnMain` | closed: `GdbImplFlag::BreakOnMain` sets the temporary breakpoint before the run, on `mainFunctionName` |
+| `continueAfterAttach` | closed: a local attach reports the stop gdb makes, and resumes from it only when the run asks |
+| `runAsUser` | reaches the terminal stub on the shared path in `debuggerruncontrol.cpp`; running *gdb itself* as another user, which `GdbEngine` does for a local attach, is a Windows-host feature with no vehicle here |
+| `useCtrlCStub` | wired as `GdbImplFlag::UseCtrlCStub`, but **unverified**: only QNX sets the parameter and the stub only exists on a Windows host, so no test host can reach it. It matches `GdbEngine` by inspection |
+
+`remoteChannel` and `useContinueInsteadOfRun` reach `GdbImpl` through
+`AttachToRemoteServerData` instead of the getter, so a getter grep flags them;
+`buildDirectory` and `isLocalAttachEngine` are `GdbEngine`-internal helpers, not
+configuration.
+
+### Surface 4: engine virtuals
+
+| Method | State |
+|---|---|
+| `updateAll()` | wired - refreshes stack, threads, registers, peripheral registers and locals, as `GdbEngine` does |
+| `setState()` | not applicable - clears `GdbEngine`'s token map for a rerun; the Impl is built per run |
+| `expandItem()` | extra in `GenericDebuggerEngine`, `GdbEngine` does not need it |
+
+### Surface 5: capabilities and start modes
+
+At parity. The capability name sets of `gdbImplSetupData()` and
+`GdbEngine::hasCapability()` are identical, and every start mode `GdbEngine`
+maps is mapped by `inferiorStartData()`; `AttachToIosDevice` falls to
+`default:` in both. All `gdb` rows of `tst_backends` pass - the only start-mode
+skip is QNX, for lack of a QNX-flavored gdb.
+
+### Scoreboard: no open work items
+
+Every configuration `GdbEngine` reads now reaches `GdbImpl`, each closure
+carrying a test that was watched fail with the code disabled - except
+`useCtrlCStub`, which no test host can reach and which is marked as such above.
+What is left is not configuration:
+
+- `showThreadNames` is not applicable, see below.
+- Running *gdb itself* as another user for a local attach is a Windows-host
+  feature with no vehicle here.
+
+Two defects found while closing the last items, neither a parity gap:
+
+- `GdbImpl::shutdownEngine()` emits nothing on the normal `^exit` path, only on
+  the abnormal one where it kills the process, so a caller waiting for
+  `EngineShutdownFinished` after a clean exit waits forever. The signal that
+  does arrive is `engineProcessFinished`.
+- `LldbImpl` never calls `setUseCtrlCStub()` although `LldbEngine` does so
+  unconditionally, so the same Windows-only gap exists there, without QNX being
+  needed to reach it.
+
+### Not applicable, with the evidence
+
+- `showThreadNames`: the `threadnames` command it guards returns `'[]'` -
+  `gdbbridge.py` has the body commented out behind "FIXME: This needs a proper
+  implementation for MinGW, and only there", because Linux, Mac and QNX mirror
+  `objectName()` onto the OS thread and the name arrives with `-thread-info`,
+  which `ThreadsHandler::setThreads()` already reads. Porting it would ship a
+  command whose reply is always empty. Implementing it *properly* is MinGW work,
+  and there is no test vehicle for that here.
+- `useQnxTarget`: never set in production, see the open defects below.
+- `setState()`, `buildDirectory`, `isLocalAttachEngine`: engine-internal.
+
+Wired but not covered by a test yet: `commandsAfterConnect` (needs a gdbserver
+row), `commandsForReset`, and the `overrideStartScript` branch of the user
+commands. The dumper argument bundle is shared with `LldbImpl`; `CdbImpl` builds
+its Locals request from the cdb extension's own string arguments instead, so it
+needs its own pass.
+
+How to re-derive the counts:
+
+    # surface 1: the declared aspects, never the call sites; extract the
+    # gdbImpl* mapping helper bodies out of gdbengine.cpp before comparing
+    grep -oE "^\s+[\w:]*Aspect\s*&\s*(\w+)\s*;" debuggeractions.h
+    # surface 3
+    grep -oE "(runParameters\(\)|\brp)\.[a-zA-Z]+\(\)" gdb/gdbengine.cpp | sort -u
+    # surface 4: methods declared override/final, GdbEngine vs GenericDebuggerEngine
+    # surface 5: capability names in gdbImplSetupData() vs GdbEngine::hasCapability()
 
 ## Known open defects
 
-- **Failure-path `InferiorEvent`s never emitted**: only `StopFailed`, and only in
-  `GdbImpl` (provoking it needs a command timeout, i.e. the watchdog below) -
-  `LldbImpl` reports it from lldbbridge.py's own "inferiorstopfailed"
+- **"Load .gdbinit" is honored by gdb only**: the setting gates gdb's `-nx`, but
+  `lldb` reads `~/.lldbinit` and Python's `pdb` reads `.pdbrc` unconditionally -
+  neither `--no-lldbinit` nor any equivalent appears in the lldb sources or
+  `lldbbridge.py`. Verified: with `HOME` pointed at a directory holding a
+  `.lldbinit`, its command runs. Pre-existing, shared with `LldbEngine` and
+  `PdbEngine`, so not a parity gap, but a user's init file executes in two of
+  the five backends whatever the setting says. Wiring the setting to
+  `--no-lldbinit` would also let the lldb row join
+  `readsTheDebuggerInitFileWhenConfigured()`, whose negative half is what
+  currently keeps that row out of the probe table.
+
+- **Failure-path `InferiorEvent`s never emitted**: only `StopFailed`, and only
+  in `GdbImpl`, where the landed watchdog can now provoke it via a command
+  timeout - `LldbImpl` reports it from lldbbridge.py's own "inferiorstopfailed"
   state, mirroring `LldbEngine`. Two others are *correctly*
   never emitted by a backend and should be left alone:
   `EngineSpontaneousShutdown` is derived by
