@@ -931,6 +931,22 @@ class DapServer():
         if output:
             self.sendEvent('output', {'category': 'console', 'output': output})
 
+    def cmd_qtc_loadSymbols(self, request):
+        # 'sharedlibrary' with no argument means every library, which is what
+        # an empty module stands for.
+        args = request.get('arguments', {})
+        module = args.get('module') or '.*'
+        self._executeQuietly('sharedlibrary %s' % module)
+        self.sendResponse(request)
+
+    def cmd_qtc_reloadDumpers(self, request):
+        try:
+            self.dumperSetup = self.dumper.reloadDumpers({})
+        except Exception as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        self.sendResponse(request)
+
     def cmd_qtc_fetchModules(self, request):
         # gdb's Python API lists the objfiles but not where they are loaded or
         # whether their symbols are in, so 'info sharedlibrary' fills that in.
