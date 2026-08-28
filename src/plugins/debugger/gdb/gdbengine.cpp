@@ -5290,6 +5290,7 @@ static GdbImplFlags gdbImplFlags(const DebuggerRunParameters &rp)
     flags.setFlag(GdbImplFlag::LogTimeStamps, settings().logTimeStamps());
     flags.setFlag(GdbImplFlag::BreakOnMain, rp.breakOnMain());
     flags.setFlag(GdbImplFlag::ContinueAfterAttach, rp.continueAfterAttach());
+    flags.setFlag(GdbImplFlag::PseudoTracepoints, settings().usePseudoTracepoints());
     flags.setFlag(GdbImplFlag::IntelDisassembly, settings().intelFlavor());
     return flags;
 }

@@ -431,12 +431,24 @@ void GenericDebuggerEngine::handleBreakpointEvent(quint64 requestId, BreakpointO
 
 void GenericDebuggerEngine::applyBkptData(const GdbMi &bkpt, const Breakpoint &bp)
 {
+    // A pseudo tracepoint prints a message rather than stopping, and each of
+    // its locations does, so the message travels to them as well.
+    const bool isPseudoTracepoint = bp->isTracepoint() && settings().usePseudoTracepoints();
+    const auto applyToSub = [this, &bp, isPseudoTracepoint](const GdbMi &data,
+                                                            const SubBreakpoint &sub) {
+        sub->params.updateFromGdbOutput(data, runParameters());
+        sub->params.type = bp->type();
+        if (isPseudoTracepoint) {
+            sub->params.tracepoint = true;
+            sub->params.message = bp->message();
+        }
+    };
+
     const QString nr = bkpt["number"].data();
     if (nr.contains('.')) {
         SubBreakpoint sub = bp->findOrCreateSubBreakpoint(nr);
         QTC_ASSERT(sub, return);
-        sub->params.updateFromGdbOutput(bkpt, runParameters());
-        sub->params.type = bp->type();
+        applyToSub(bkpt, sub);
         return;
     }
 
@@ -446,13 +458,14 @@ void GenericDebuggerEngine::applyBkptData(const GdbMi &bkpt, const Breakpoint &b
             const QString subnr = location["number"].data();
             SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subnr);
             QTC_ASSERT(sub, return);
-            sub->params.updateFromGdbOutput(location, runParameters());
-            sub->params.type = bp->type();
+            applyToSub(location, sub);
         }
     }
 
     bp->setResponseId(nr);
     bp->updateFromGdbOutput(bkpt, runParameters());
+    if (isPseudoTracepoint)
+        bp->setMessage(bp->requestedParameters().message);
 }
 
 void GenericDebuggerEngine::handleBreakpointModified(const GdbMi &data)

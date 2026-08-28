@@ -56,6 +56,7 @@ enum class GdbImplFlag {
     LogTimeStamps        = 1 << 12,
     BreakOnMain          = 1 << 13,
     ContinueAfterAttach  = 1 << 14,
+    PseudoTracepoints    = 1 << 15,
 };
 Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
 

@@ -1306,7 +1306,10 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
         return;
     }
 
-    if (params.isTracepoint() && params.type == BreakpointByFileAndLine) {
+    // Without pseudo tracepoints the request falls through to gdb's own
+    // tracepoint, which the plain insert below spells with "-a".
+    if (params.isTracepoint() && params.type == BreakpointByFileAndLine
+            && m_startData.isSet(GdbImplFlag::PseudoTracepoints)) {
         DebuggerCommand cmd("createTracepoint");
         if (params.oneShot)
             cmd.arg("temporary", true);

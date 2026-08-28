@@ -550,6 +550,23 @@ static bool attachResumesInferior(Backend backend)
     return false;
 }
 
+// The wire form a backend uses for a tracepoint when it is not the debugger's
+// own pseudo one.
+static QString realTracepointMarker(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return "-break-insert";
+    case Backend::Lldb:
+    case Backend::Bridge:
+    case Backend::Cdb:
+    case Backend::Pdb:
+    case Backend::Qml:
+        break;
+    }
+    return {};
+}
+
 // A backend that reports the attach as a stop can be asked to resume from it.
 static bool continuesAfterAttachOnRequest(Backend backend)
 {
@@ -863,6 +880,8 @@ private slots:
     void stopsAtMainWhenConfigured();
     void continuesAfterAttachWhenConfigured_data() { addBackendRows(); }
     void continuesAfterAttachWhenConfigured();
+    void insertsARealTracepointWhenPseudoOnesAreOff_data() { addBackendRows(); }
+    void insertsARealTracepointWhenPseudoOnesAreOff();
     void testDetachCapability_data() { addBackendRows(); }
     void testDetachCapability();
     void testDisassemblerCapability_data() { addBackendRows(); }
@@ -1064,7 +1083,8 @@ private:
         std::chrono::seconds watchdogTimeout = {},
         bool skipKnownFrames = false,
         bool logTimeStamps = false,
-        bool breakOnMain = false);
+        bool breakOnMain = false,
+        bool pseudoTracepoints = true);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData, bool continueAfterAttach = false);
     // Every user-configurable debugger option turned on, so a test can check they arrive.
@@ -1214,7 +1234,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     std::chrono::seconds watchdogTimeout,
     bool skipKnownFrames,
     bool logTimeStamps,
-    bool breakOnMain)
+    bool breakOnMain,
+    bool pseudoTracepoints)
 {
     Q_UNUSED(debuggerRunDataOverride)
     Q_UNUSED(inferiorRunDataOverride)
@@ -1222,6 +1243,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     Q_UNUSED(skipKnownFrames)
     Q_UNUSED(logTimeStamps)
     Q_UNUSED(breakOnMain)
+    Q_UNUSED(pseudoTracepoints)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1237,7 +1259,9 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
                      | (logTimeStamps ? GdbImplFlags(GdbImplFlag::LogTimeStamps)
                                       : GdbImplFlags())
                      | (breakOnMain ? GdbImplFlags(GdbImplFlag::BreakOnMain)
-                                    : GdbImplFlags()),
+                                    : GdbImplFlags())
+                     | (pseudoTracepoints ? GdbImplFlags(GdbImplFlag::PseudoTracepoints)
+                                          : GdbImplFlags()),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
@@ -4156,6 +4180,73 @@ void tst_backends::limitsTheReportedStackDepth()
     QVERIFY2(limited < everything,
              qPrintable(QString("a depth limit of 5 reported %1 frames, all of them %2")
                             .arg(limited).arg(everything)));
+}
+
+void tst_backends::insertsARealTracepointWhenPseudoOnesAreOff()
+{
+    QFETCH(Backend, backend);
+
+    const QString marker = realTracepointMarker(backend);
+    if (marker.isEmpty())
+        QSKIP("This backend has only one kind of tracepoint.");
+    if (auto result = checkCapability(backend, Debugger::TracePointCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+    // A pseudo tracepoint is a dumper command; the debugger's own is a
+    // breakpoint flagged as a tracepoint on the wire.
+    const auto insertTracepointWith = [this, backend](bool pseudoTracepoints) {
+        QStringList sent;
+        std::unique_ptr<DebuggerBackend> debuggerBackend
+            = createEngine(backend, {}, {}, false, {}, false, false, false, pseudoTracepoints);
+        if (!debuggerBackend)
+            return sent;
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        connect(engine, &DebuggerEngineInterface::message, this,
+                [&sent](const QString &text, int channel, int) {
+            if (channel == Debugger::LogInput)
+                sent.append(text);
+        });
+        QHash<quint64, bool> results;
+        connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+                [&results](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+            results[requestId] = ok;
+        });
+        connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+                [this, engine, backend](InferiorEvent event) {
+            if (event != InferiorEvent::EngineSetupOk)
+                return;
+            BreakpointChangeRequest request;
+            request.op = BreakpointOp::Insert;
+            request.requestId = 91;
+            request.params.type = BreakpointByFileAndLine;
+            request.params.fileName = inferiorTestData(backend).source;
+            request.params.textPosition.line = inferiorTestData(backend).breakpointLine;
+            request.params.textPosition.column = 0;
+            request.params.enabled = true;
+            request.params.tracepoint = true;
+            request.params.message = "globalValue is {globalValue}";
+            engine->changeBreakpoint(request);
+        });
+
+        engine->start();
+        [&] { QTRY_VERIFY_WITH_TIMEOUT(results.contains(91), s_timeout); }();
+        if (!QTest::currentTestFailed())
+            [&] { QVERIFY2(results.value(91), "the tracepoint insert failed"); }();
+        return sent;
+    };
+
+    const QString withPseudo = insertTracepointWith(true).join('\n');
+    QVERIFY2(withPseudo.contains("createTracepoint"),
+             "a pseudo tracepoint did not go through the dumpers");
+    QVERIFY2(!withPseudo.contains(marker + " -f -a"),
+             "a pseudo tracepoint was inserted as the debugger's own");
+
+    const QString withoutPseudo = insertTracepointWith(false).join('\n');
+    QVERIFY2(!withoutPseudo.contains("createTracepoint"),
+             "the dumpers were asked although pseudo tracepoints are off");
+    QVERIFY2(withoutPseudo.contains(marker) && withoutPseudo.contains(" -a "),
+             qPrintable("no \"" + marker + " ... -a\" on the wire, sent:\n  "
+                        + insertTracepointWith(false).join("\n  ")));
 }
 
 void tst_backends::continuesAfterAttachWhenConfigured()
