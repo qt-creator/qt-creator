@@ -126,7 +126,7 @@ public:
 
     IDataProvider *dataProvider() const { return m_dataProvider; }
 
-    void postRequest(const QString &command, const QJsonObject &arguments = {});
+    int postRequest(const QString &command, const QJsonObject &arguments = {});
 
     virtual void sendInitialize();
 
@@ -146,7 +146,7 @@ public:
 
     void evaluateVariable(const QString &expression, int frameId);
 
-    void stackTrace(int threadId);
+    int stackTrace(int threadId);
     void scopes(int frameId);
     void threads();
     void variables(int variablesReference);

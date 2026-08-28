@@ -43,14 +43,15 @@ DapClient::DapClient(IDataProvider *dataProvider, QObject *parent)
 DapClient::~DapClient() = default;
 
 
-void DapClient::postRequest(const QString &command, const QJsonObject &arguments)
+int DapClient::postRequest(const QString &command, const QJsonObject &arguments)
 {
     static int seq = 1;
 
+    const int requestSeq = seq++;
     QJsonObject ob = {
         {"command", command},
         {"type", "request"},
-        {"seq", seq++},
+        {"seq", requestSeq},
         {"arguments", arguments}
     };
 
@@ -59,6 +60,7 @@ void DapClient::postRequest(const QString &command, const QJsonObject &arguments
     qCDebug(logCategory()) << msg;
 
     m_dataProvider->writeRaw(msg);
+    return requestSeq;
 }
 
 void DapClient::sendInitialize()
@@ -133,11 +135,11 @@ void DapClient::evaluateVariable(const QString &expression, int frameId)
                             {"context", "variables"}});
 }
 
-void DapClient::stackTrace(int threadId)
+int DapClient::stackTrace(int threadId)
 {
-    QTC_ASSERT(threadId != -1, return);
-    postRequest("stackTrace",
-                QJsonObject{{"threadId", threadId}, {"startFrame", 0}, {"levels", 10}});
+    QTC_ASSERT(threadId != -1, return -1);
+    return postRequest("stackTrace",
+                       QJsonObject{{"threadId", threadId}, {"startFrame", 0}, {"levels", 10}});
 }
 
 void DapClient::scopes(int frameId)
