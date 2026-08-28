@@ -2076,6 +2076,26 @@ void GdbImpl::handleOutputLine(const QString &line)
                 break;
             }
 
+            // A step that ended in a frame the user did not ask to see is
+            // continued rather than reported: out of a function that only
+            // forwards, into one that only wraps.
+            if (m_startData.isSet(GdbImplFlag::SkipKnownFrames)
+                    && (reason == u"end-stepping-range" || reason == u"function-finished")) {
+                const GdbMi frame = result["frame"];
+                // "func" in gdb's own records, "function" in a V4 frame.
+                const QString function = frame["func"].isValid() ? frame["func"].data()
+                                                                : frame["function"].data();
+                const QString file = frame["file"].data();
+                if (isLeavableFunction(function, file)) {
+                    execute({ExecutionCommand::StepOut});
+                    break;
+                }
+                if (isSkippableFunction(function, file)) {
+                    execute({ExecutionCommand::StepIn});
+                    break;
+                }
+            }
+
             if (m_expectTerminalTrap) {
                 if (HostOsInfo::isWindowsHost() && reason.isEmpty()) {
                     m_expectTerminalTrap = false;

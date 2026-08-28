@@ -5286,6 +5286,7 @@ static GdbImplFlags gdbImplFlags(const DebuggerRunParameters &rp)
     flags.setFlag(GdbImplFlag::BreakOnAbort, settings().breakOnAbort());
     flags.setFlag(GdbImplFlag::BreakOnWarning, settings().breakOnWarning());
     flags.setFlag(GdbImplFlag::BreakOnFatal, settings().breakOnFatal());
+    flags.setFlag(GdbImplFlag::SkipKnownFrames, settings().skipKnownFrames());
     flags.setFlag(GdbImplFlag::IntelDisassembly, settings().intelFlavor());
     return flags;
 }

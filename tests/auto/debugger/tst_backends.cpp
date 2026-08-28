@@ -172,6 +172,8 @@ struct InferiorTestData
     QString recursionDepthVariable;
     int multiLocationBreakpointLine = 0;
     int spinBodyLine = 0;
+    // A line whose step lands in a standard header the debugger may skip.
+    int knownFrameStepLine = 0;
     // A line the backend is expected to refuse a breakpoint on, e.g. a comment.
     int unbreakableLine = 0;
     QString localMarker;
@@ -530,6 +532,22 @@ static QString debugInfoDaemonQuery(Backend backend)
 
 // pdbbridge.py's stackListFrames() reports the whole stack and takes no limit,
 // so a depth limit cannot reach it yet.
+// Only GdbImpl steps past a frame the user did not ask to see so far.
+static bool skipsKnownFrames(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return true;
+    case Backend::Lldb:
+    case Backend::Cdb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Bridge:
+        break;
+    }
+    return false;
+}
+
 static bool limitsStackDepth(Backend backend)
 {
     switch (backend) {
@@ -770,6 +788,8 @@ private slots:
     void activatesFrameAndReadsItsLocals();
     void limitsTheReportedStackDepth_data() { addBackendRows(); }
     void limitsTheReportedStackDepth();
+    void skipsKnownFramesWhenStepping_data() { addBackendRows(); }
+    void skipsKnownFramesWhenStepping();
     void testDetachCapability_data() { addBackendRows(); }
     void testDetachCapability();
     void testDisassemblerCapability_data() { addBackendRows(); }
@@ -968,7 +988,8 @@ private:
         const std::optional<Utils::ProcessRunData> &debuggerRunDataOverride = {},
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {},
         bool nativeMixed = false,
-        std::chrono::seconds watchdogTimeout = {});
+        std::chrono::seconds watchdogTimeout = {},
+        bool skipKnownFrames = false);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData);
     // Every user-configurable debugger option turned on, so a test can check they arrive.
@@ -1115,11 +1136,13 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     const std::optional<ProcessRunData> &debuggerRunDataOverride,
     const std::optional<ProcessRunData> &inferiorRunDataOverride,
     bool nativeMixed,
-    std::chrono::seconds watchdogTimeout)
+    std::chrono::seconds watchdogTimeout,
+    bool skipKnownFrames)
 {
     Q_UNUSED(debuggerRunDataOverride)
     Q_UNUSED(inferiorRunDataOverride)
     Q_UNUSED(nativeMixed)
+    Q_UNUSED(skipKnownFrames)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1128,8 +1151,10 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .inferiorStartData = inferiorRunDataOverride.value_or(
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .flags = nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
-                                 : GdbImplFlags(),
+            .flags = (nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
+                                  : GdbImplFlags())
+                     | (skipKnownFrames ? GdbImplFlags(GdbImplFlag::SkipKnownFrames)
+                                        : GdbImplFlags()),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
@@ -1462,6 +1487,7 @@ void tst_backends::initTestCase()
         "#include <cstring>",
         "#include <thread>",
         "#include <string>",
+        "#include <utility>",
         "#include <vector>",
         "#ifdef _WIN32",
         "#include <windows.h>",
@@ -1488,6 +1514,13 @@ void tst_backends::initTestCase()
         "    globalValue = localValue;",
         "    printf(\"value=%d\\n\", globalValue);",
         "    fflush(stdout);",
+        "}",
+        "",
+        "extern \"C\" void stepIntoKnownFrame()",
+        "{",
+        "    std::string movable = \"skipped\";",
+        "    std::string moved = std::move(movable); // known frame step line",
+        "    (void) moved.size();",
         "}",
         "",
         "extern \"C\" void spin()",
@@ -1532,6 +1565,7 @@ void tst_backends::initTestCase()
         "    if (argc > 1 && strcmp(argv[1], \"abort\") == 0)",
         "        abort();",
         "    bump();",
+        "    stepIntoKnownFrame();",
         "    multi(1);",
         "    multi(2.0);",
         "    recurse(40);",
@@ -1563,6 +1597,8 @@ void tst_backends::initTestCase()
             cppInferiorData.multiLocationBreakpointLine = i + 1;
         if (inferiorLines.at(i).contains("spin body line"))
             cppInferiorData.spinBodyLine = i + 1;
+        if (inferiorLines.at(i).contains("known frame step line"))
+            cppInferiorData.knownFrameStepLine = i + 1;
     }
     QVERIFY(cppInferiorData.breakpointLine > 0);
     cppInferiorData.localMarker = "localValue";
@@ -1578,6 +1614,7 @@ void tst_backends::initTestCase()
     QVERIFY(cppInferiorData.deepRecursionBreakpointLine > 0);
     QVERIFY(cppInferiorData.multiLocationBreakpointLine > 0);
     QVERIFY(cppInferiorData.spinBodyLine > 0);
+    QVERIFY(cppInferiorData.knownFrameStepLine > 0);
 
     QFile file(cppInferiorData.source.toFSPathString());
     QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Text));
@@ -4033,6 +4070,76 @@ void tst_backends::limitsTheReportedStackDepth()
     QVERIFY2(limited < everything,
              qPrintable(QString("a depth limit of 5 reported %1 frames, all of them %2")
                             .arg(limited).arg(everything)));
+}
+
+void tst_backends::skipsKnownFramesWhenStepping()
+{
+    QFETCH(Backend, backend);
+
+    if (!skipsKnownFrames(backend))
+        QSKIP("This backend does not skip known frames.");
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.knownFrameStepLine == 0)
+        QSKIP("inferior has no line whose step lands in a standard header");
+
+    // Stepping into std::move() lands in a standard header, which is what the
+    // setting is about: unskipped the stop is reported there, skipped the
+    // debugger keeps going until it is back in the code the user wrote.
+    const auto stepIntoTheHeader = [this, backend, testData](bool skipKnownFrames) {
+        std::pair<FilePath, int> location;
+        std::unique_ptr<DebuggerBackend> debuggerBackend
+            = createEngine(backend, {}, {}, false, {}, skipKnownFrames);
+        if (!debuggerBackend)
+            return location;
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+                [engine, testData](InferiorEvent event) {
+            if (event != InferiorEvent::EngineSetupOk)
+                return;
+            BreakpointChangeRequest request;
+            request.op = BreakpointOp::Insert;
+            request.requestId = 1;
+            request.params.type = BreakpointByFileAndLine;
+            request.params.fileName = testData.source;
+            request.params.textPosition.line = testData.knownFrameStepLine;
+            request.params.textPosition.column = 0;
+            request.params.enabled = true;
+            engine->changeBreakpoint(request);
+        });
+
+        engine->start();
+        [&] {
+            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                                     s_timeout);
+        }();
+        if (QTest::currentTestFailed())
+            return location;
+
+        debuggerBackend->clearEvents();
+        debuggerBackend->execute({ExecutionCommand::StepIn});
+        [&] {
+            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                                     s_timeout);
+        }();
+        if (QTest::currentTestFailed())
+            return location;
+        location = {debuggerBackend->stoppedFile(), debuggerBackend->stoppedLine()};
+        return location;
+    };
+
+    const auto [unskippedFile, unskippedLine] = stepIntoTheHeader(false);
+    QVERIFY2(!unskippedFile.isEmpty(), "the unskipped step never reported a location");
+    QVERIFY2(unskippedFile != testData.source,
+             qPrintable("stepping into std::move() stayed in " + unskippedFile.toUserOutput()
+                        + ", so this toolchain has no known frame to skip"));
+
+    const auto [skippedFile, skippedLine] = stepIntoTheHeader(true);
+    QCOMPARE(skippedFile, testData.source);
+    QVERIFY2(skippedLine > testData.knownFrameStepLine,
+             qPrintable(QString("the skipped step landed on line %1, at or before the step "
+                                "itself on line %2")
+                            .arg(skippedLine).arg(testData.knownFrameStepLine)));
 }
 
 void tst_backends::activatesFrameAndReadsItsLocals()
