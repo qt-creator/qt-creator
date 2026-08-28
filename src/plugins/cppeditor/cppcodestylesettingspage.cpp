@@ -27,6 +27,7 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
@@ -301,7 +302,14 @@ public:
         m_originalCppCodeStyleSettings = cppCodeStyleSettings();
         m_originalTabSettings = tabSettings();
 
-        updatePreview();
+        // Re-indenting the six previews runs the C++ formatter over each of
+        // them; not worth doing while the page is off screen. Notably it is
+        // also built, and never shown, just to be scraped for the preferences
+        // search keywords.
+        Utils::onFirstShow(q, [this] {
+            m_isShown = true;
+            updatePreview();
+        });
     }
 
     void setupCheckBox(QCheckBox &checkBox, const QString &text, const QString &toolTip = {})
@@ -364,6 +372,7 @@ public:
     QWidget *m_generalSettingsRow = nullptr;
     TabSettings m_tabSettingsWidget;
     bool m_handlingStatementMacroChange = false;
+    bool m_isShown = false;
 
     CppCodeStylePreferences *m_preferences = nullptr;
     CppCodeStyleSettings m_originalCppCodeStyleSettings;
@@ -489,6 +498,9 @@ void CppCodeStylePreferencesWidgetPrivate::slotTabSettingsChanged()
 
 void CppCodeStylePreferencesWidgetPrivate::updatePreview()
 {
+    if (!m_isShown)
+        return;
+
     CppCodeStylePreferences *cppCodeStylePreferences
             = m_preferences ? m_preferences : cppCodeStyle();
 
