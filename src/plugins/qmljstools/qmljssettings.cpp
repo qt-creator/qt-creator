@@ -36,6 +36,7 @@
 #include <utils/aspects.h>
 #include <utils/commandline.h>
 #include <utils/filepath.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
@@ -1085,7 +1086,13 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
 
     setVisualizeWhitespace(true);
 
-    updatePreview();
+    // Formatting the preview can mean running qmlformat; not worth doing while
+    // the page is off screen. Notably it is also built, and never shown, just
+    // to be scraped for the preferences search keywords.
+    Utils::onFirstShow(this, [this] {
+        m_isShown = true;
+        updatePreview();
+    });
 }
 
 void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *preferences)
@@ -1139,6 +1146,9 @@ void QmlJSCodeStylePreferencesWidget::slotSettingsChanged(const QmlJSCodeStyleSe
 
 void QmlJSCodeStylePreferencesWidget::updatePreview()
 {
+    if (!m_isShown)
+        return;
+
     switch (m_formatterSelectionWidget->selection().value()) {
     case QmlJSCodeStyleSettings::Builtin:
         builtInFormatterPreview();

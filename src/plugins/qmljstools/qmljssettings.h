@@ -85,6 +85,7 @@ private:
     QStackedWidget *m_formatterSettingsStack;
     TextEditor::SnippetEditorWidget *m_previewTextEdit;
     QmlJSCodeStylePreferences *m_preferences = nullptr;
+    bool m_isShown = false;
 };
 
 class QmlJSCodeStyleSettingsPage : public Core::IOptionsPage
