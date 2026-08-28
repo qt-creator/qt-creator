@@ -484,31 +484,29 @@ class DapServer():
         self._execute('finish')
 
     def cmd_qtc_jumpToLine(self, request):
-        # Move the execution point without resuming: set $pc to the target
-        # address. The C++ side stays stopped and refreshes the views.
         args = request.get('arguments', {})
         address = args.get('address')
+        if address:
+            spec = '*0x%x' % int(str(address), 0)
+        else:
+            spec = '"%s":%d' % (args.get('file', ''), int(args.get('line', 0)))
         try:
-            if address:
-                pc = int(str(address), 0)
-            else:
-                # Resolve via a throwaway breakpoint rather than a linespec,
-                # so a source path containing spaces still resolves.
-                probe = gdb.Breakpoint(source=args.get('file', ''),
-                                       line=int(args.get('line', 0)),
-                                       temporary=True)
-                try:
-                    locations = self._locationsOf(probe)
-                    pc = int(locations[0].address) if locations else 0
-                finally:
-                    probe.delete()  # a probe left behind would stop the inferior
-                if not pc:
-                    raise gdb.error('cannot resolve the target location')
-            gdb.execute('set $pc = 0x%x' % pc, to_string=True)
+            sals = gdb.decode_line(spec)[1]
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        count = len(sals) if sals else 0
+        if count != 1:
+            self.sendResponse(request, success=False,
+                              message='%s resolves to %d locations' % (spec, count))
+            return
+        try:
+            gdb.execute('tbreak %s' % spec, to_string=True)
         except gdb.error as error:
             self.sendResponse(request, success=False, message=str(error))
             return
         self.sendResponse(request)
+        self._execute('jump %s' % spec)
 
     def cmd_qtc_runToFunction(self, request):
         # Temporary breakpoint at the function, then continue until it is hit.

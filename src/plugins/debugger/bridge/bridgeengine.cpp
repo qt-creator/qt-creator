@@ -809,8 +809,11 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         else if (command == "qtc/runToFunction" || command == "qtc/runToLine")
             success ? notifyInferiorRunOk() : notifyInferiorRunFailed();
         else if (command == "qtc/jumpToLine") {
-            if (success) // Stayed stopped; refresh stack/locals for the new $pc.
-                updateAll();
+            // The jump lands on a temporary breakpoint, and that stop refreshes
+            // the stack, the locals and the threads. The registers are this
+            // handler's part, $pc having moved.
+            if (success)
+                reloadRegisters();
         }
         else if (command == "qtc/insertBreakpoint")
             handleInsertBreakpointResponse(response);
@@ -1088,7 +1091,7 @@ void BridgeEngine::handleStoppedEvent(const QJsonObject &event)
 
     if (state() == InferiorStopRequested)
         notifyInferiorStopOk();
-    else
+    else if (state() == InferiorRunOk)
         notifyInferiorSpontaneousStop();
 
     m_dapClient->stackTrace(m_currentThreadId);
