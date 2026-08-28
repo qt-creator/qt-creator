@@ -643,6 +643,16 @@ static QString msvcRunTime(const Abi::OSFlavor flavour)
     return QLatin1String("MSVCRT"); // MinGW, others.
 }
 
+// The debug runtime that has _CrtDbgReport, empty where there is none to break in.
+static QString crtDebugReportModule(const Abi::OSFlavor flavor)
+{
+    if (flavor >= Abi::WindowsMsvc2015Flavor && flavor <= Abi::WindowsLastMsvcFlavor)
+        return QLatin1String("ucrtbased");
+    if (flavor >= Abi::WindowsMsvc2005Flavor && flavor <= Abi::WindowsMsvc2013Flavor)
+        return msvcRunTime(flavor) + 'D';
+    return {};
+}
+
 // The id tells a stop at the breakpoint apart from the ones cdb sets for itself.
 static QString breakAtFunctionCommand(const QString &function, const QString &module,
                                       const QString &id)
@@ -696,21 +706,15 @@ void CdbEngine::runEngine()
     // else the debugger will slow down considerably.
     const auto cb = [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); };
     if (settings().cdbBreakOnCrtDbgReport()) {
-        Abi::OSFlavor flavor = runParameters().toolChainAbi().osFlavor();
-        // CrtDebugReport cannot be safely resolved for vc 19
-        if ((flavor > Abi::WindowsMsvc2005Flavor && flavor <= Abi::WindowsMsvc2013Flavor) ||
-                flavor > Abi::WindowsMSysFlavor || flavor <= Abi::WindowsCEFlavor) {
-            const QString module = msvcRunTime(flavor);
-            const QString debugModule = module + 'D';
-            const QString wideFunc = QString(Constants::CRT_DEBUG_REPORT).append('W');
-            runCommand({breakAtFunctionCommand(Constants::CRT_DEBUG_REPORT, module,
-                                               nextInternalBreakpointId()),
-                        BuiltinCommand, cb});
-            runCommand({breakAtFunctionCommand(wideFunc, module, nextInternalBreakpointId()),
-                        BuiltinCommand, cb});
-            runCommand({breakAtFunctionCommand(Constants::CRT_DEBUG_REPORT, debugModule,
-                                               nextInternalBreakpointId()),
-                        BuiltinCommand, cb});
+        const QString debugModule = crtDebugReportModule(runParameters().toolChainAbi().osFlavor());
+        if (!debugModule.isEmpty()) {
+            const QString func = '_' + QString(Constants::CRT_DEBUG_REPORT);
+            const QString wideFunc = func + 'W';
+            for (const QString &function : {func, wideFunc}) {
+                runCommand({breakAtFunctionCommand(function, debugModule,
+                                                   nextInternalBreakpointId()),
+                            BuiltinCommand, cb});
+            }
         }
     }
 //    if (settings().breakOnWarning())) {
@@ -3638,13 +3642,7 @@ static QString cdbImplCrtDebugReportModule(const DebuggerRunParameters &rp)
 {
     if (!settings().cdbBreakOnCrtDbgReport())
         return {};
-    const Abi::OSFlavor flavor = rp.toolChainAbi().osFlavor();
-    // CrtDebugReport cannot be safely resolved for vc 19.
-    if ((flavor > Abi::WindowsMsvc2005Flavor && flavor <= Abi::WindowsMsvc2013Flavor)
-        || flavor > Abi::WindowsMSysFlavor || flavor <= Abi::WindowsCEFlavor) {
-        return msvcRunTime(flavor);
-    }
-    return {};
+    return crtDebugReportModule(rp.toolChainAbi().osFlavor());
 }
 
 // The extension has to match cdb's architecture. For a local cdb it ships next to

@@ -2618,13 +2618,11 @@ void CdbImpl::insertCrtDebugReportBreakpoints()
     const QString module = m_startData.crtDebugReportModule;
     if (module.isEmpty())
         return;
-    const QString report = QLatin1String(Constants::CRT_DEBUG_REPORT);
-    const QList<QPair<QString, QString>> locations = {
-        {module, report}, {module, report + 'W'}, {module + 'D', report}};
-    for (const auto &[inModule, function] : locations) {
+    const QString report = '_' + QLatin1String(Constants::CRT_DEBUG_REPORT);
+    for (const QString &function : {report, QString(report + 'W')}) {
         BreakpointParameters params(BreakpointByFunction);
         params.functionName = function;
-        params.module = inModule;
+        params.module = module;
         params.enabled = true;
         const QString id = nextBreakpointId();
         m_internalBreakpointIds.insert(id);

@@ -166,7 +166,7 @@ public:
     bool ignoreFirstChanceAccessViolation = false;
     // The program gets a console of its own, so its output goes there.
     bool useTerminal = false;
-    // The C runtime to break in when it reports a debug problem, empty for none.
+    // The debug C runtime to break in when it reports a problem, empty for none.
     QString crtDebugReportModule;
     bool reportFirstChanceExceptions = false;
     bool reportSecondChanceExceptions = false;

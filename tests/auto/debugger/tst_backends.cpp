@@ -4711,7 +4711,7 @@ void tst_backends::buildDebugCrtInferior(const FilePath &compiler,
     }
     data.debugCrtExecutable = executable;
     data.pastCrtReportMarker = "past the crt report";
-    data.crtDebugReportModule = "ucrtbase";
+    data.crtDebugReportModule = "ucrtbased";
 }
 
 void tst_backends::buildOtherWordWidthInferior(const FilePath &compiler, InferiorTestData &data)
