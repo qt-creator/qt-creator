@@ -478,6 +478,7 @@ public:
     void filter(const QString &text);
 
     bool isDirty() const { return m_isDirty; }
+    Id currentPage() const { return m_currentPage; }
     void setDirty(bool dirty);
 
     void createGui();
@@ -1044,12 +1045,13 @@ public:
             &ExtensionSystem::PluginManager::pluginsChanged,
             this,
             [this] {
+                const Id page = inner ? inner->currentPage() : Id();
                 delete inner;
                 inner = nullptr;
                 delete layout();
 
                 if (ModeManager::currentModeId() == Constants::MODE_SETTINGS)
-                    open({});
+                    open(page);
             },
             Qt::QueuedConnection);
     }
