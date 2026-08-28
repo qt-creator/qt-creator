@@ -3463,6 +3463,7 @@ class SnippetTest final : public QObject
 private slots:
     void testVariableMirroring();
     void testVariableMirrorDeletion();
+    void testVariableMirroringOnPaste();
 };
 
 void SnippetTest::testVariableMirroring()
@@ -3530,6 +3531,35 @@ void SnippetTest::testVariableMirrorDeletion()
 
     const QString text = editorWidget->textDocument()->plainText();
     QCOMPARE(text, QString("int ner READ ner WRITE setner NOTIFY nerChanged"));
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void SnippetTest::testVariableMirroringOnPaste()
+{
+    BaseTextEditor *editor = openTextEditor(QString(), "snippet.cpp");
+    QVERIFY(editor);
+    TextEditorWidget *editorWidget = editor->editorWidget();
+
+    // The "name" variable occurs twice and must stay in sync.
+    const QString snippet = "class $name$ : public QObject {\n"
+                            "    $name$() {}\n"
+                            "};";
+    editorWidget->insertCodeSnippet(0, snippet, &Snippet::parse);
+
+    // The first variable is active and selected; pasting a value must rename
+    // every occurrence, just like typing does.
+    QClipboard *clipboard = QApplication::clipboard();
+    const QString savedClipboard = clipboard->text();
+    const QScopeGuard restoreClipboard([clipboard, savedClipboard] {
+        clipboard->setText(savedClipboard);
+    });
+    clipboard->setText("Pasted");
+    editorWidget->paste();
+
+    const QString text = editorWidget->textDocument()->plainText();
+    QCOMPARE(text.count("Pasted"), 2);
+    QVERIFY(!text.contains("name")); // the "name" placeholder was filled everywhere
 
     Core::EditorManager::closeEditors({editor}, false);
 }
