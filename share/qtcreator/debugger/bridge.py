@@ -464,6 +464,10 @@ class DapServer():
     #######################################################################
 
     def cmd_continue(self, request):
+        if not gdb.selected_inferior().threads():
+            self.sendResponse(request, success=False,
+                              message='The program is not being run.')
+            return
         self.sendResponse(request, body={'allThreadsContinued': True})
         self._execute('continue')
 

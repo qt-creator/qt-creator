@@ -702,7 +702,11 @@ void BridgeEngine::handleResponse(DapResponseType type, const QJsonObject &respo
         break;
     case DapResponseType::Continue:
         showMessage("continue", LogDebug);
-        notifyInferiorRunOk();
+        // The bridge rejects a resume the inferior is gone for.
+        if (success)
+            notifyInferiorRunOk();
+        else
+            notifyInferiorRunFailed();
         break;
     case DapResponseType::StackTrace:
         handleStackTraceResponse(response);
