@@ -342,6 +342,10 @@ void BridgeEngine::handleDapEventInitialized()
 
 void BridgeEngine::handleDapConfigurationDone()
 {
+    // A failed launch has taken the engine out of this state already, and the
+    // configurationDone that went out with it is still answered.
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state(); return);
+
     // For both launch and attach the bridge reports the initial stop via a
     // 'stopped' event (attach stops the target immediately), so the inferior
     // starts out nominally running and the stopped event drives the rest.
