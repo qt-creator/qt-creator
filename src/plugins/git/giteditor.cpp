@@ -278,8 +278,8 @@ bool GitEditorWidget::replaceRebaseAction(QKeyEvent *e)
 {
     if (textDocument()->id() != Git::Constants::GIT_REBASE_EDITOR_ID)
         return false;
-    const QTextCursor cursor = textCursor();
-    if (cursor.hasSelection() || !cursor.atBlockStart() || e->text().size() != 1)
+    MultiTextCursor cursor = multiTextCursor();
+    if (cursor.isNull() || cursor.hasSelection() || e->text().size() != 1)
         return false;
 
     const QChar key = e->text().at(0);
@@ -293,34 +293,40 @@ bool GitEditorWidget::replaceRebaseAction(QKeyEvent *e)
         return false;
 
     static const QRegularExpression firstTokenPattern("^\\S+");
-    const QRegularExpressionMatch firstTokenMatch = firstTokenPattern.match(cursor.block().text());
-    if (!firstTokenMatch.hasMatch())
-        return false;
+    for (const QTextCursor &c : std::as_const(cursor)) {
+        if (!c.atBlockStart())
+            return false;
 
-    const QString currentToken = firstTokenMatch.captured();
-    const bool currentTokenIsAction = Utils::anyOf(
-        actions, [&currentToken](const GitRebaseHighlighter::RebaseAction &action) {
-            return currentToken == action.action || currentToken == QString(action.shortcut);
-        });
-    if (!currentTokenIsAction)
-        return false;
+        const QRegularExpressionMatch firstTokenMatch = firstTokenPattern.match(c.block().text());
+        if (!firstTokenMatch.hasMatch())
+            return false;
+
+        const QString currentToken = firstTokenMatch.captured();
+        const bool currentTokenIsAction = Utils::anyOf(
+            actions, [&currentToken](const GitRebaseHighlighter::RebaseAction &action) {
+                return currentToken == action.action || currentToken == QString(action.shortcut);
+            });
+        if (!currentTokenIsAction)
+            return false;
+    }
 
     // Insert the new action before removing the old token (rather than the
-    // other way round) so that undoing the replacement leaves the cursor at
-    // the start of the line: undo replays the insert last, and undoing an
+    // other way round) so that undoing the replacement leaves each cursor at
+    // the start of its line: undo replays the insert last, and undoing an
     // insert places the cursor at its insertion point.
-    const int blockPosition = cursor.block().position();
-    QTextCursor tokenCursor = cursor;
-    tokenCursor.beginEditBlock();
-    tokenCursor.setPosition(blockPosition);
-    tokenCursor.insertText(pressedAction->action);
-    tokenCursor.setPosition(blockPosition + pressedAction->action.size());
-    tokenCursor.setPosition(blockPosition + pressedAction->action.size() + currentToken.size(),
-                            QTextCursor::KeepAnchor);
-    tokenCursor.removeSelectedText();
-    tokenCursor.setPosition(blockPosition);
-    tokenCursor.endEditBlock();
-    setTextCursor(tokenCursor);
+    cursor.beginEditBlock();
+    for (QTextCursor &c : cursor) {
+        const QString currentToken = firstTokenPattern.match(c.block().text()).captured();
+        const int blockPosition = c.block().position();
+        c.insertText(pressedAction->action);
+        c.setPosition(blockPosition + pressedAction->action.size());
+        c.setPosition(blockPosition + pressedAction->action.size() + currentToken.size(),
+                      QTextCursor::KeepAnchor);
+        c.removeSelectedText();
+        c.setPosition(blockPosition);
+    }
+    cursor.endEditBlock();
+    setMultiTextCursor(cursor);
     return true;
 }
 
