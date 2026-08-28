@@ -55,6 +55,7 @@ enum class GdbImplFlag {
     SkipKnownFrames      = 1 << 11,
     LogTimeStamps        = 1 << 12,
     BreakOnMain          = 1 << 13,
+    ContinueAfterAttach  = 1 << 14,
 };
 Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
 

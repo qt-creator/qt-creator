@@ -409,9 +409,13 @@ void GdbImpl::handleLocalAttach(const DebuggerResponse &response)
     if (stoppedAlready)
         return;
     if (response.resultClass == ResultDone || response.resultClass == ResultRunning) {
-        m_inferiorRunning = true;
+        // gdb stops the inferior to attach to it, so that is what is reported;
+        // resuming is what the run asked for, or the user's next command.
+        m_inferiorRunning = false;
         runPostAttachCommands();
-        emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
+        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+        if (m_startData.isSet(GdbImplFlag::ContinueAfterAttach))
+            continueAfterAttach();
     } else {
         emit inferiorEvent(InferiorEvent::EngineIll);
     }

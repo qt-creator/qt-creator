@@ -532,6 +532,40 @@ static QString debugInfoDaemonQuery(Backend backend)
 
 // pdbbridge.py's stackListFrames() reports the whole stack and takes no limit,
 // so a depth limit cannot reach it yet.
+// Whether attaching leaves the inferior running: lldb resumes it itself, and
+// the bridge acknowledges the attach as a running inferior, while gdb reports
+// the stop that attaching causes.
+static bool attachResumesInferior(Backend backend)
+{
+    switch (backend) {
+    case Backend::Lldb:
+    case Backend::Bridge:
+        return true;
+    case Backend::Gdb:
+    case Backend::Cdb:
+    case Backend::Pdb:
+    case Backend::Qml:
+        break;
+    }
+    return false;
+}
+
+// A backend that reports the attach as a stop can be asked to resume from it.
+static bool continuesAfterAttachOnRequest(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return true;
+    case Backend::Lldb:
+    case Backend::Bridge:
+    case Backend::Cdb:
+    case Backend::Pdb:
+    case Backend::Qml:
+        break;
+    }
+    return false;
+}
+
 // The function a backend can be asked to stop at before the inferior runs.
 static QString mainFunctionMarker(Backend backend)
 {
@@ -724,6 +758,7 @@ public:
     bool isEmpty() const { return m_events.isEmpty(); }
     qsizetype size() const { return m_events.size(); }
     void clearEvents() { m_events.clear(); }
+    const QList<InferiorEvent> &events() const { return m_events; }
 
     const QList<InferiorResultData> &inferiorResults() const { return m_inferiorResults; }
     void clearInferiorResults() { m_inferiorResults.clear(); }
@@ -826,6 +861,8 @@ private slots:
     void logsTheResponseTimeWhenConfigured();
     void stopsAtMainWhenConfigured_data() { addBackendRows(); }
     void stopsAtMainWhenConfigured();
+    void continuesAfterAttachWhenConfigured_data() { addBackendRows(); }
+    void continuesAfterAttachWhenConfigured();
     void testDetachCapability_data() { addBackendRows(); }
     void testDetachCapability();
     void testDisassemblerCapability_data() { addBackendRows(); }
@@ -1029,7 +1066,7 @@ private:
         bool logTimeStamps = false,
         bool breakOnMain = false);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
-        const InferiorStartData &inferiorStartData);
+        const InferiorStartData &inferiorStartData, bool continueAfterAttach = false);
     // Every user-configurable debugger option turned on, so a test can check they arrive.
     // Paths that have to exist for the backend to pass them on use existingDir.
     std::unique_ptr<DebuggerBackend> createFullyConfiguredEngine(Backend backend,
@@ -1290,16 +1327,19 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
-    Backend backend, const InferiorStartData &inferiorStartData)
+    Backend backend, const InferiorStartData &inferiorStartData, bool continueAfterAttach)
 {
     Q_UNUSED(inferiorStartData)
+    Q_UNUSED(continueAfterAttach)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
                                               Environment::systemEnvironment()},
             .inferiorStartData = inferiorStartData,
-            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .flags = continueAfterAttach ? GdbImplFlags(GdbImplFlag::ContinueAfterAttach)
+                                         : GdbImplFlags()}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -4118,6 +4158,77 @@ void tst_backends::limitsTheReportedStackDepth()
                             .arg(limited).arg(everything)));
 }
 
+void tst_backends::continuesAfterAttachWhenConfigured()
+{
+    QFETCH(Backend, backend);
+
+    if (!continuesAfterAttachOnRequest(backend))
+        QSKIP("This backend does not report the attach as a stop to resume from.");
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToProcess); !result)
+        QSKIP(qPrintable(result.error()));
+
+    // Without target-async a running inferior leaves the debugger unable to
+    // answer anything, so the resumed case is torn down by killing the target
+    // and the stopped case is the only one a round trip is asked of.
+    const auto attachWith = [this, backend](bool continueAfterAttach) {
+        Process target;
+        target.setCommand({inferiorTestData(backend).executable, {}});
+        target.start();
+        [&] { QVERIFY(target.waitForStarted()); }();
+        if (QTest::currentTestFailed())
+            return false;
+
+        std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(
+            backend, AttachToProcessData{ProcessHandle(target.processId())}, continueAfterAttach);
+        [&] { QVERIFY(debuggerBackend); }();
+        if (QTest::currentTestFailed())
+            return false;
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        engine->start();
+        [&] {
+            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+                                     s_timeout);
+        }();
+
+        bool resumed = false;
+        if (!QTest::currentTestFailed()) {
+            if (continueAfterAttach) {
+                // The resume is an event of its own; nothing else to wait for.
+                [&] {
+                    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk),
+                                             s_timeout);
+                }();
+                resumed = debuggerBackend->contains(InferiorEvent::RunOk);
+            } else {
+                // A round trip the stopped inferior can answer: commands are
+                // answered in order, so a resume that was coming is here too.
+                bool refreshed = false;
+                connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+                        [&refreshed](quint64, RefreshKind kind, const GdbMi &) {
+                    if (kind == RefreshKind::Threads)
+                        refreshed = true;
+                });
+                engine->refresh({.requestId = 900, .kind = RefreshKind::Threads});
+                // gdb reads the target's symbols after answering the attach,
+                // and this queues behind that.
+                [&] { QTRY_VERIFY_WITH_TIMEOUT(refreshed, s_qmlStartupTimeout); }();
+                resumed = debuggerBackend->contains(InferiorEvent::RunOk);
+            }
+        }
+
+        // The debugger goes first: a resumed inferior leaves it unable to
+        // answer a shutdown, and a stopped one cannot be killed while it holds
+        // it. Dropping the debugger releases the target either way.
+        debuggerBackend.reset();
+        target.kill();
+        target.waitForFinished();
+        return resumed;
+    };
+
+    QVERIFY2(!attachWith(false), "the inferior was resumed although nothing asked for it");
+    QVERIFY2(attachWith(true), "the inferior was not resumed although the run asked for it");
+}
+
 void tst_backends::stopsAtMainWhenConfigured()
 {
     QFETCH(Backend, backend);
@@ -6782,13 +6893,17 @@ void tst_backends::attachesToRunningProcess()
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
             || debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
 
-    // lldb attaches with the inferior stopped and resumes it itself: wait for that,
-    // so the shutdown below has to kill a running inferior. gdb reports the attach
-    // as RunAndInferiorRunOk without resuming, so there this passes right away and
-    // the shutdown keeps covering a stopped one.
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk)
-                             || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
-                             s_timeout);
+    // Where the attach ends in a running inferior, wait for that resume before
+    // shutting down, so the kill below covers a running one rather than racing
+    // it. Where it ends stopped, the state is already final.
+    if (attachResumesInferior(backend)) {
+        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk)
+                                 || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+                                 s_timeout);
+    } else {
+        QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+                 "attaching neither resumed the inferior nor reported it stopped");
+    }
 
     debuggerBackend->clearEvents();
     engine->shutdownInferior(ShutdownMode::Kill);
