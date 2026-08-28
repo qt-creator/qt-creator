@@ -23,6 +23,12 @@
 #include <QPushButton>
 #include <QTreeView>
 
+#include <memory>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace QtTaskTree;
 using namespace Utils;
 
@@ -536,8 +542,7 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent)
     m_baseDirChooser->setHistoryCompleter("PE.AddToProjectDir.History");
     m_startParsingButton->setText(Tr::tr("Start Parsing"));
     layout->addWidget(m_baseDirLabel, static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 0);
-    layout->addWidget(m_baseDirChooser->lineEdit(), static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 1);
-    layout->addWidget(m_baseDirChooser->buttonAtIndex(0), static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 2);
+    layout->addWidget(m_baseDirChooser, static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 1, 1, 2);
     layout->addWidget(m_startParsingButton, static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 3);
 
     connect(m_baseDirChooser, &PathChooser::validChanged,
@@ -590,8 +595,7 @@ void SelectableFilesWidget::setAddFileFilter(const QString &filter)
 void SelectableFilesWidget::setBaseDirEditable(bool edit)
 {
     m_baseDirLabel->setVisible(edit);
-    m_baseDirChooser->lineEdit()->setVisible(edit);
-    m_baseDirChooser->buttonAtIndex(0)->setVisible(edit);
+    m_baseDirChooser->setVisible(edit);
     m_startParsingButton->setVisible(edit);
 }
 
@@ -765,4 +769,36 @@ SelectableFilesFromDirModel::SelectableFilesFromDirModel(QObject *parent)
             this, &SelectableFilesModel::checkedFilesChanged);
 }
 
+#ifdef WITH_TESTS
+namespace Internal {
+
+class SelectableFilesWidgetTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    // The widget used to move the path chooser's line edit and browse button
+    // into its own layout, which made it delete widgets the chooser owns.
+    void testTeardownLeavesThePathChooserAlone()
+    {
+        const auto widget = std::make_unique<SelectableFilesWidget>(nullptr);
+        const auto chooser = widget->findChild<PathChooser *>();
+        QVERIFY(chooser);
+        QCOMPARE(chooser->lineEdit()->parentWidget(), chooser);
+        QCOMPARE(chooser->buttonAtIndex(0)->parentWidget(), chooser);
+    }
+};
+
+QObject *createSelectableFilesWidgetTest()
+{
+    return new SelectableFilesWidgetTest;
+}
+
+} // namespace Internal
+#endif // WITH_TESTS
+
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <selectablefilesmodel.moc>
+#endif

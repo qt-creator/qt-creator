@@ -244,4 +244,10 @@ public:
                                       QWidget *parent);
 };
 
+namespace Internal {
+#ifdef WITH_TESTS
+QObject *createSelectableFilesWidgetTest();
+#endif
+} // namespace Internal
+
 } // namespace ProjectExplorer
