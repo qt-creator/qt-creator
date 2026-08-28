@@ -589,7 +589,8 @@ DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp)
 
         return new GenericDebuggerEngine("PDB (PdbImpl)",
                                          new PdbImpl({debuggerRunData, scriptRunData,
-                                                      ICore::resourcePath("debugger")}));
+                                                      ICore::resourcePath("debugger"),
+                                                      rp.breakOnMain()}));
     }
     return new PdbEngine;
 }

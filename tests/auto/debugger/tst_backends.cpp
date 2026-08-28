@@ -599,6 +599,23 @@ static QString mainFunctionMarker(Backend backend)
     return {};
 }
 
+// A backend that stops before the program runs at all, rather than at a
+// named function: pdb stops on the script's first line by itself.
+static bool stopsBeforeRunning(Backend backend)
+{
+    switch (backend) {
+    case Backend::Pdb:
+        return true;
+    case Backend::Gdb:
+    case Backend::Lldb:
+    case Backend::Cdb:
+    case Backend::Qml:
+    case Backend::Bridge:
+        break;
+    }
+    return false;
+}
+
 // The marker a backend logs per command when time stamps are configured.
 static QString responseTimeMarker(Backend backend)
 {
@@ -878,6 +895,8 @@ private slots:
     void logsTheResponseTimeWhenConfigured();
     void stopsAtMainWhenConfigured_data() { addBackendRows(); }
     void stopsAtMainWhenConfigured();
+    void stopsBeforeRunningWhenConfigured_data() { addBackendRows(); }
+    void stopsBeforeRunningWhenConfigured();
     void continuesAfterAttachWhenConfigured_data() { addBackendRows(); }
     void continuesAfterAttachWhenConfigured();
     void insertsARealTracepointWhenPseudoOnesAreOff_data() { addBackendRows(); }
@@ -1274,7 +1293,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .inferiorStartData = inferiorRunDataOverride.value_or(
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
                                Environment::systemEnvironment()}),
-            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain)}));
     case Backend::Qml:
         return std::make_unique<DebuggerBackend>(std::make_unique<QmlImpl>(QmlImplStartData{
             .inferiorStartData = AttachToQmlServerData{}}));
@@ -4306,6 +4326,42 @@ void tst_backends::continuesAfterAttachWhenConfigured()
 
     QVERIFY2(!attachWith(false), "the inferior was resumed although nothing asked for it");
     QVERIFY2(attachWith(true), "the inferior was not resumed although the run asked for it");
+}
+
+void tst_backends::stopsBeforeRunningWhenConfigured()
+{
+    QFETCH(Backend, backend);
+
+    if (!stopsBeforeRunning(backend))
+        QSKIP("This backend cannot be asked to stop before the program runs.");
+
+    // Unconfigured, the engine reports the run itself, which is the event that
+    // proves the program was not held back.
+    std::unique_ptr<DebuggerBackend> ran = createEngine(backend, {}, {}, false, {});
+    QVERIFY(ran);
+    ran->engine()->start();
+    QTRY_VERIFY2_WITH_TIMEOUT(ran->contains(InferiorEvent::RunAndInferiorRunOk),
+                              "the unconfigured run never started", s_timeout);
+
+    std::unique_ptr<DebuggerBackend> stopped
+        = createEngine(backend, {}, {}, false, {}, GdbImplFlag::BreakOnMain);
+    QVERIFY(stopped);
+    DebuggerEngineInterface *engine = stopped->engine();
+    bool refreshed = false;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&refreshed](quint64, RefreshKind kind, const GdbMi &) {
+        if (kind == RefreshKind::FullStack)
+            refreshed = true;
+    });
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(stopped->contains(InferiorEvent::RunAndInferiorStopOk), s_timeout);
+
+    // A round trip only a stopped program can answer, so the absence of a run
+    // below is a fact rather than a race.
+    engine->refresh({.requestId = 910, .kind = RefreshKind::FullStack});
+    QTRY_VERIFY_WITH_TIMEOUT(refreshed, s_timeout);
+    QVERIFY2(!stopped->contains(InferiorEvent::RunAndInferiorRunOk),
+             "the program ran although it was asked to stop first");
 }
 
 void tst_backends::stopsAtMainWhenConfigured()

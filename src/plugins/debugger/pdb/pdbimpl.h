@@ -17,6 +17,8 @@ public:
     Utils::ProcessRunData debuggerRunData;
     InferiorStartData inferiorStartData;
     Utils::FilePath dumperScriptsDir;
+    // Stay on the script's first line instead of running it.
+    bool breakOnMain = false;
 };
 
 class DEBUGGER_EXPORT PdbImpl final : public DebuggerEngineInterface

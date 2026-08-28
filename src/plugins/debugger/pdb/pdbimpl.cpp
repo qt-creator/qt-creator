@@ -103,6 +103,8 @@ PdbImpl::PdbImpl(const PdbImplStartData &startData)
         }
         emit inferiorEvent(InferiorEvent::EngineSetupOk);
         emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+        if (m_startData.breakOnMain)
+            return; // pdb stops on the script's first line by itself.
         m_inferiorRunning = true;
         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
         postDirectCommand("continue");
