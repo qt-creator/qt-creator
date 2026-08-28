@@ -88,6 +88,7 @@ class DapServer():
 
         gdb.events.stop.connect(self._onStop)
         gdb.events.exited.connect(self._onExited)
+        gdb.events.breakpoint_modified.connect(self._onBreakpointModified)
 
     #######################################################################
     # Transport
@@ -270,6 +271,11 @@ class DapServer():
 
     def _onStop(self, event):
         self.lastStopEvent = event
+
+    def _onBreakpointModified(self, bp):
+        if str(bp.number) not in self.breakpointById:
+            return
+        self.sendEvent('qtc/breakpointModified', {'bkpt': self._breakpointToMi(bp)})
 
     def _onExited(self, event):
         self.inferiorExited = True
@@ -705,6 +711,7 @@ class DapServer():
             'number': bp.number,
             'enabled': 'y' if bp.enabled else 'n',
             'disp': 'del' if bp.temporary else 'keep',
+            'times': bp.hit_count,
         }
         if bp.condition:
             result['cond'] = bp.condition

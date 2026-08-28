@@ -1068,6 +1068,14 @@ void BridgeEngine::handleEvent(DapEventType type, const QJsonObject &event)
         break;
     }
     default:
+        if (eventType == "qtc/breakpointModified") {
+            const GdbMi bkpt = parseBkpt(body);
+            const Breakpoint bp
+                = breakHandler()->findBreakpointByResponseId(bkpt["number"].data());
+            if (bp)
+                handleBkpt(bkpt, bp);
+            break;
+        }
         showMessage("UNKNOWN EVENT:" + eventType);
     }
 }
