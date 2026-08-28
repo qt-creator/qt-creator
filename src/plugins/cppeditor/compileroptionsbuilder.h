@@ -35,6 +35,7 @@ public:
 
     // Add options based on project part
     void provideAdditionalMacros(const ProjectExplorer::Macros &macros);
+    void setWrappedHeadersDir(const Utils::FilePath &dir);
     void addProjectMacros();
     void addSyntaxOnly();
     void addWordWidth();
@@ -99,6 +100,7 @@ private:
     const Utils::FilePath m_clangIncludeDirectory;
 
     ProjectExplorer::Macros m_additionalMacros;
+    Utils::FilePath m_wrappedHeadersDir;
 
     struct {
         QStringList flags;

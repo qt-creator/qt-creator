@@ -34,7 +34,8 @@ CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const CppEditor::ProjectPart &projectPart,
         const CppEditor::ClangDiagnosticConfig &warningsConfig,
         const Utils::FilePath &clangIncludeDir,
-        const ProjectExplorer::Macros &extraMacros);
+        const ProjectExplorer::Macros &extraMacros,
+        const Utils::FilePath &wrappedHeadersDir = {});
 
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const Utils::FilePath &filePath);
 

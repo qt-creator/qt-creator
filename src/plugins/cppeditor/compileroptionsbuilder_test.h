@@ -36,6 +36,8 @@ private slots:
     void testEnableCExceptions();
     void testEnableCxxExceptions();
     void testInsertWrappedQtHeaders();
+    void testInsertWrappedQtHeadersForRemoteProject();
+    void testInsertWrappedQtHeadersFromDeployedDir();
     void testInsertWrappedMingwHeadersWithNonMingwToolchain();
     void testInsertWrappedMingwHeadersWithMingwToolchain();
     void testSetLanguageVersion();

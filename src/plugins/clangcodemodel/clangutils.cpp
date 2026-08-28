@@ -68,6 +68,30 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
     return text;
 }
 
+// The headers that tag signals and slots for clangd are part of this Creator, so a clangd on a
+// device cannot read them. Put a copy beside the compile database it is pointed at, and return
+// the directory to look them up in.
+static FilePath wrappedHeadersFor(const FilePath &baseDir)
+{
+    if (baseDir.isLocal())
+        return {};
+
+    const FilePath source = Core::ICore::resourcePath("cplusplus/wrappedQtHeaders");
+    const FilePath target = baseDir / "wrappedQtHeaders";
+    const FilePaths headers = source.dirEntries(
+        {{"*.h"}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories});
+    for (const FilePath &header : headers) {
+        const Result<QByteArray> contents = header.fileContents();
+        QTC_ASSERT_RESULT(contents, return {});
+        const FilePath deployed = target.resolvePath(header.relativePathFromDir(source));
+        if (deployed.fileContents() == contents)
+            continue;
+        QTC_ASSERT_RESULT(deployed.parentDir().ensureWritableDir(), return {});
+        QTC_ASSERT_RESULT(deployed.writeFileContents(*contents), return {});
+    }
+    return baseDir;
+}
+
 void generateCompilationDB(
     QPromise<Result<FilePath>> &promise,
     const QList<ProjectInfo::ConstPtr> &projectInfoList,
@@ -77,9 +101,10 @@ void generateCompilationDB(
     const QStringList &projectOptions,
     const FilePath &clangIncludeDir)
 {
+    const FilePath wrappedHeadersDir = wrappedHeadersFor(baseDir);
     CppEditor::generateCompilationDB(
         promise, projectInfoList, baseDir, purpose, projectOptions, [&](const ProjectPart &pp) {
-            return clangOptionsBuilder(pp, warningsConfig, clangIncludeDir, {});
+            return clangOptionsBuilder(pp, warningsConfig, clangIncludeDir, {}, wrappedHeadersDir);
         });
 }
 
@@ -162,7 +187,8 @@ const QStringList globalClangOptions()
 CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
                                            const ClangDiagnosticConfig &warningsConfig,
                                            const FilePath &clangIncludeDir,
-                                           const Macros &extraMacros)
+                                           const Macros &extraMacros,
+                                           const FilePath &wrappedHeadersDir)
 {
     const auto useBuildSystemWarnings = warningsConfig.useBuildSystemWarnings()
             ? UseBuildSystemWarnings::Yes
@@ -173,6 +199,7 @@ CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
     Macros fullMacroList = extraMacros;
     fullMacroList += Macro("Q_CREATOR_RUN", "1");
     optionsBuilder.provideAdditionalMacros(fullMacroList);
+    optionsBuilder.setWrappedHeadersDir(wrappedHeadersDir);
     optionsBuilder.build(ProjectFile::Unclassified, UsePrecompiledHeaders::No);
     optionsBuilder.add("-fmessage-length=0", /*gccOnlyOption=*/true);
     optionsBuilder.add("-fdiagnostics-show-note-include-stack", /*gccOnlyOption=*/true);

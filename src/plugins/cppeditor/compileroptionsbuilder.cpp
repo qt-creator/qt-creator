@@ -146,6 +146,11 @@ QStringList CompilerOptionsBuilder::build(ProjectFile::Kind fileKind,
     return options();
 }
 
+void CompilerOptionsBuilder::setWrappedHeadersDir(const FilePath &dir)
+{
+    m_wrappedHeadersDir = dir;
+}
+
 void CompilerOptionsBuilder::provideAdditionalMacros(const ProjectExplorer::Macros &macros)
 {
     m_additionalMacros = macros;
@@ -333,12 +338,17 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
     if (relPaths.isEmpty())
         return;
 
-    if (!m_projectPart.topLevelProject.isLocal())
-        return;
+    FilePath baseDir = m_wrappedHeadersDir;
+    if (baseDir.isEmpty()) {
+        // Without a directory of their own, the headers are the ones this Creator ships, which
+        // only a code model running on the host can read.
+        if (!m_projectPart.topLevelProject.isLocal())
+            return;
+        baseDir = creatorResourcePath() / "cplusplus";
+    }
 
     QStringList args;
     for (const QString &relPath : relPaths) {
-        static const FilePath baseDir = creatorResourcePath() / "cplusplus";
         const FilePath fullPath = baseDir / relPath;
         QTC_ASSERT(fullPath.exists(), continue);
         args << (includeUserPathOption + fullPath.nativePath());

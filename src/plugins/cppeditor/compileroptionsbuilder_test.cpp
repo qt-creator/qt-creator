@@ -47,8 +47,8 @@ public:
         };
         RawProjectPartFlags rppFlags;
         rppFlags.commandLineFlags = flags;
-        projectPart = ProjectPart::create({}, rpp, {}, {}, Utils::Language::Cxx, languageExtensions,
-                                          rppFlags, tcInfo);
+        projectPart = ProjectPart::create(topLevelProject, rpp, {}, {}, Utils::Language::Cxx,
+                                          languageExtensions, rppFlags, tcInfo);
         compilerOptionsBuilder.emplace(CompilerOptionsBuilder(*projectPart));
         return *projectPart;
     }
@@ -80,6 +80,7 @@ public:
         Macro{"_MSVC_LANG", "2"}, Macro{"_MSC_BUILD", "2"}, Macro{"_MSC_FULL_VER", "1900"},
         Macro{"_MSC_VER", "19"}};
     Utils::FilePath projectConfigFile;
+    Utils::FilePath topLevelProject;
     QStringList extraFlags;
     bool isMsvc2015 = false;
 
@@ -422,6 +423,36 @@ void CompilerOptionsBuilderTest::testInsertWrappedQtHeaders()
 
     QVERIFY(Utils::contains(compilerOptionsBuilder.options(),
                             [](const QString &o) { return o.contains("wrappedQtHeaders"); }));
+}
+
+void CompilerOptionsBuilderTest::testInsertWrappedQtHeadersForRemoteProject()
+{
+    TestHelper t;
+    t.topLevelProject = Utils::FilePath::fromParts(u"device", u"host", u"/tmp/project.pro");
+    CompilerOptionsBuilder builder{t.finalize(), UseSystemHeader::Yes,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No};
+    builder.insertWrappedQtHeaders();
+
+    QVERIFY(!Utils::contains(builder.options(),
+                             [](const QString &o) { return o.contains("wrappedQtHeaders"); }));
+}
+
+void CompilerOptionsBuilderTest::testInsertWrappedQtHeadersFromDeployedDir()
+{
+    const Utils::FilePath deployedDir
+        = Utils::TemporaryDirectory::masterDirectoryFilePath() / "deployedHeaders";
+    QVERIFY(deployedDir.pathAppended("wrappedQtHeaders/QtCore").ensureWritableDir());
+
+    TestHelper t;
+    t.topLevelProject = Utils::FilePath::fromParts(u"device", u"host", u"/tmp/project.pro");
+    CompilerOptionsBuilder builder{t.finalize(), UseSystemHeader::Yes,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No};
+    builder.setWrappedHeadersDir(deployedDir);
+    builder.insertWrappedQtHeaders();
+
+    QCOMPARE(builder.options(), (QStringList{
+        "-I" + (deployedDir / "wrappedQtHeaders").nativePath(),
+        "-I" + (deployedDir / "wrappedQtHeaders" / "QtCore").nativePath()}));
 }
 
 void CompilerOptionsBuilderTest::testInsertWrappedMingwHeadersWithNonMingwToolchain()
