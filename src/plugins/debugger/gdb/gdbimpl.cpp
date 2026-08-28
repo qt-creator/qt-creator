@@ -219,6 +219,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                     m_runCommandPending = false;
                     if (response.resultClass == ResultRunning) {
                         m_inferiorRunning = true;
+                        runPostAttachCommands();
                         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
                         if (m_interruptOnceRunning) {
                             m_interruptOnceRunning = false;
@@ -405,6 +406,7 @@ void GdbImpl::handleLocalAttach(const DebuggerResponse &response)
         return;
     if (response.resultClass == ResultDone || response.resultClass == ResultRunning) {
         m_inferiorRunning = true;
+        runPostAttachCommands();
         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
     } else {
         emit inferiorEvent(InferiorEvent::EngineIll);
@@ -459,6 +461,7 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
         if (response.resultClass == ResultDone) {
             for (const QString &command : m_startData.userCommands.afterConnect)
                 runCommand({command, DebuggerCommand::NativeCommand});
+            runPostAttachCommands();
             emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
         } else {
             emit inferiorEvent(InferiorEvent::EngineIll);
@@ -472,6 +475,7 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
     }
     for (const QString &command : m_startData.userCommands.afterConnect)
         runCommand({command, DebuggerCommand::NativeCommand});
+    runPostAttachCommands();
     if (remoteData.attachPid.isValid()) {
         m_attachPhase = AttachPhase::AwaitingConnect;
         runCommand({"attach " + QString::number(remoteData.attachPid.pid()),
@@ -1924,6 +1928,12 @@ void GdbImpl::applySearchPaths()
         cmd.arg("separator", Utils::HostOsInfo::pathListSeparator());
         runCommand(cmd);
     }
+}
+
+void GdbImpl::runPostAttachCommands()
+{
+    if (!m_startData.userCommands.afterAttach.isEmpty())
+        runCommand({m_startData.userCommands.afterAttach, DebuggerCommand::NativeCommand});
 }
 
 void GdbImpl::runUserStartupCommands()

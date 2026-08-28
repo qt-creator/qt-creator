@@ -1163,7 +1163,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
                             .solibSearchPath = {FilePath::fromUserInput("/qtc-test-solib")},
                             .debugSourceLocation = {existingDir.path()},
                             .sourcePathMap = {{"/qtc-test-from", "/qtc-test-to"}}},
-            .userCommands = {.atStartup = "echo QTCSTARTUPMARKER\\n"}}));
+            .userCommands = {.atStartup = "echo QTCSTARTUPMARKER\\n",
+                             .afterAttach = "echo QTCPOSTATTACHMARKER\\n"}}));
     case Backend::Lldb:
     case Backend::Pdb:
     case Backend::Qml:
@@ -4766,6 +4767,8 @@ void tst_backends::appliesConfiguredDebuggerOptions()
     QVERIFY2(sawMessage("QTCSTARTUPMARKER"), "the configured startup commands never ran");
     QVERIFY2(sawMessage("QTCEXTRADUMPERCOMMAND"), "the extra dumper commands never ran");
     QVERIFY2(sawMessage("QTCEXTRADUMPERMODULE"), "the extra dumper module was never loaded");
+    QTRY_VERIFY2_WITH_TIMEOUT(sawMessage("QTCPOSTATTACHMARKER"),
+                              "the configured post-attach commands never ran", s_timeout);
 
     for (const ConfiguredOptionProbe &probe : probes) {
         messages.clear();

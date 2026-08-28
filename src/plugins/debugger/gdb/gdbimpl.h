@@ -69,6 +69,7 @@ class DEBUGGER_EXPORT GdbImplUserCommands
 public:
     Utils::FilePath startScript;
     QString atStartup;
+    QString afterAttach;
     QStringList afterConnect;
     QStringList forReset;
 };
@@ -177,6 +178,7 @@ private:
     void createSpecialBreakpoints();
     void applyDebugInfoDSettings();
     void runUserStartupCommands();
+    void runPostAttachCommands();
     void restartWatchdog();
     bool usesOutputCollector() const;
     void requestInferiorInterrupt();

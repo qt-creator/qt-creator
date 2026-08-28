@@ -5312,6 +5312,7 @@ static GdbImplUserCommands gdbImplUserCommands(const DebuggerRunParameters &rp)
     return {
         .startScript = rp.overrideStartScript(),
         .atStartup = startupLines.join('\n'),
+        .afterAttach = settings().gdbPostAttachCommands(),
         .afterConnect = rp.commandsAfterConnect(),
         .forReset = rp.commandsForReset(),
     };
