@@ -1240,7 +1240,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     if (settings().skipKnownFrames()) {
         if (reason == "end-stepping-range" || reason == "function-finished") {
             //showMessage(frame.toString());
-            QString funcName = frame["function"].data();
+            QString funcName = frame["function"].data(); // V4 protocol
+            if (funcName.isEmpty())
+                funcName = frame["func"].data(); // GDB's *stopped messages
             QString fileName = frame["file"].data();
             if (isLeavableFunction(funcName, fileName)) {
                 updateStateForStop();
