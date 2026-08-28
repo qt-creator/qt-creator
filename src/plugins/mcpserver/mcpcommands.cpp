@@ -58,10 +58,13 @@
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
+#include <QAbstractScrollArea>
 #include <QCheckBox>
 #include <QApplication>
 #include <QCursor>
 #include <QHeaderView>
+#include <QStyle>
+#include <QStyleOptionViewItem>
 
 #include <algorithm>
 #include <cmath>
@@ -1160,12 +1163,29 @@ static void collectItems(const QAbstractItemModel *model, const QModelIndex &par
     }
 }
 
+// The index of the row's check box. Views often keep it in a column of its own - the
+// plugin list has "Name" and a separate "Load" - so the row's own index is only the
+// first place to look.
+static QModelIndex checkableIndex(const QModelIndex &index)
+{
+    if (index.flags().testFlag(Qt::ItemIsUserCheckable))
+        return index;
+    const QAbstractItemModel *model = index.model();
+    const QModelIndex parent = index.parent();
+    for (int column = 0; column < model->columnCount(parent); ++column) {
+        const QModelIndex sibling = model->index(index.row(), column, parent);
+        if (sibling.flags().testFlag(Qt::ItemIsUserCheckable))
+            return sibling;
+    }
+    return {};
+}
+
 static QJsonObject describeItem(QAbstractItemView *view, const QModelIndex &index)
 {
     const auto tree = qobject_cast<QTreeView *>(view);
     const QRect rect = view->visualRect(index);
     const QPoint topLeft = view->viewport()->mapToGlobal(rect.topLeft());
-    return QJsonObject{
+    QJsonObject item{
         {"path", itemPath(index)},
         {"text", index.data(Qt::DisplayRole).toString()},
         {"row", index.row()},
@@ -1177,6 +1197,15 @@ static QJsonObject describeItem(QAbstractItemView *view, const QModelIndex &inde
         {"y", topLeft.y()},
         {"width", rect.width()},
         {"height", rect.height()}};
+    // Only a checkable row reports a state, so its absence says "not checkable"
+    // rather than "unchecked".
+    if (const QModelIndex checkable = checkableIndex(index); checkable.isValid()) {
+        const auto state = checkable.data(Qt::CheckStateRole).value<Qt::CheckState>();
+        item.insert("checked", state == Qt::Checked);
+        if (state == Qt::PartiallyChecked)
+            item.insert("check_state", checkStateName(state));
+    }
+    return item;
 }
 
 static Utils::Result<QAbstractItemView *> resolveSingleView(const WidgetQuery &q)
@@ -1420,6 +1449,29 @@ static void glidePointerToGlobal(const QPoint &target)
     }
 }
 
+// A scroll area never sees a mouse event sent to itself: QAbstractScrollArea handles
+// the ones its viewport receives, which is where real input arrives.
+static QWidget *mouseTarget(QWidget *w)
+{
+    if (auto scrollArea = qobject_cast<QAbstractScrollArea *>(w))
+        return scrollArea->viewport();
+    return w;
+}
+
+// Focus on click is QApplication's doing, not the widget's, so a synthetic press
+// would leave a line edit unfocused and the next keystroke elsewhere.
+static void applyClickFocus(QWidget *w)
+{
+    for (; w; w = w->parentWidget()) {
+        if (w->isEnabled() && (w->focusPolicy() & Qt::ClickFocus)) {
+            w->setFocus(Qt::MouseFocusReason);
+            return;
+        }
+        if (w->isWindow())
+            return;
+    }
+}
+
 // Runs the action, and calls onBlocked if it opens a popup or a modal widget and runs
 // its event loop, as QMenu::exec() and QDialog::exec() do. The call comes from inside
 // that loop, so it is the only chance to act before the loop ends. A handler that
@@ -1467,18 +1519,21 @@ static bool clickWidget(QWidget *w, const std::function<void()> &onBlocked)
     // button: a widget is free to act on the mouse itself, and some do - Qt Creator's
     // own buttons emit a separate signal from their mouse handler, so click() leaves
     // them looking pressed while nothing happens.
-    const QPointF center = clickPoint(w);
-    const QPointF global = w->mapToGlobal(center.toPoint());
+    applyClickFocus(w);
+    QWidget *target = mouseTarget(w);
+    const QPoint center = target->mapFrom(w, clickPoint(w));
+    const QPointF global = target->mapToGlobal(center);
     QMouseEvent press(
         QEvent::MouseButtonPress, center, global, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     QMouseEvent release(
         QEvent::MouseButtonRelease, center, global, Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
-    runNoticingBlock([&] { QApplication::sendEvent(w, &press); }, onBlocked);
+    const QPointer<QWidget> targetGuard(target);
+    runNoticingBlock([&] { QApplication::sendEvent(target, &press); }, onBlocked);
     // A press may start a timer that runs a menu, as a QToolButton's delayed popup does.
     const int holdMs = demoPace().clickHoldMs;
     runNoticingBlock([holdMs] { waitPainting(holdMs); }, onBlocked, holdMs > 0 ? 1 : 0);
-    if (guard)
-        runNoticingBlock([&] { QApplication::sendEvent(w, &release); }, onBlocked);
+    if (targetGuard)
+        runNoticingBlock([&] { QApplication::sendEvent(target, &release); }, onBlocked);
     return true;
 }
 
@@ -1494,6 +1549,16 @@ static Utils::Result<> sendMouseEventTo(
     Qt::MouseButton held,
     const std::function<void()> &onBlocked)
 {
+    QWidget *const clicked = w;
+    // A scroll area's own children (viewport, header, scroll bars) get the events
+    // at their place, which the scroll area itself never sees.
+    if (qobject_cast<QAbstractScrollArea *>(w)) {
+        if (QWidget *child = w->childAt(x, y))
+            w = child;
+    }
+    const QPoint inTarget = w->mapFrom(clicked, QPoint(x, y));
+    x = inTarget.x();
+    y = inTarget.y();
     const QPointF local(x, y);
     const QPointF global = w->mapToGlobal(QPoint(x, y));
     QEvent::Type type = QEvent::MouseMove;
@@ -1506,10 +1571,30 @@ static Utils::Result<> sendMouseEventTo(
         type = QEvent::MouseButtonRelease;
         button = held;
         buttons = Qt::NoButton;
+    } else if (action == "dblclick") {
+        // Qt synthesizes a double click from the timing of two platform clicks, which
+        // a synthetic press/release pair never produces, so the whole sequence is sent.
+        QMouseEvent press(
+            QEvent::MouseButtonPress, local, global, held, held, Qt::NoModifier);
+        QMouseEvent release(
+            QEvent::MouseButtonRelease, local, global, held, Qt::NoButton, Qt::NoModifier);
+        QMouseEvent doubleClick(
+            QEvent::MouseButtonDblClick, local, global, held, held, Qt::NoModifier);
+        applyClickFocus(w);
+        const QPointer<QWidget> guard(w);
+        for (QMouseEvent *ev : {&press, &release, &doubleClick, &release}) {
+            if (!guard)
+                break;
+            runNoticingBlock([&] { QApplication::sendEvent(w, ev); }, onBlocked);
+        }
+        return ResultOk;
     } else if (action != "move") {
-        return ResultError(QString("Unknown mouse action \"%1\" (use press, move or release).")
-                               .arg(action));
+        return ResultError(
+            QString("Unknown mouse action \"%1\" (use press, move, release or dblclick).")
+                .arg(action));
     }
+    if (type == QEvent::MouseButtonPress)
+        applyClickFocus(w);
     const QPointer<QWidget> guard(w);
     QMouseEvent ev(type, local, global, button, buttons, Qt::NoModifier);
     runNoticingBlock([&] { QApplication::sendEvent(w, &ev); }, onBlocked);
@@ -2532,20 +2617,38 @@ void McpCommands::registerCommands()
         Tool{}
             .name("editor_list_open")
             .title("List currently open files")
-            .description("Lists currently open files.")
+            .description(
+                "Lists currently open files. \"editors\" additionally reports, per open editor, "
+                "the editor factory id, the document mime type, the editor widget class and "
+                "where the text cursor is, so which editor a file was opened in and where it "
+                "looks are both assertable.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
                     .addProperty(
                         "open_files",
                         QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addProperty("editors", QJsonObject{{"type", "array"}})
                     .addRequired("open_files")),
         wrap([](const QJsonObject &) {
             const QStringList files = commands.listOpenFiles();
             QJsonArray arr;
             for (const QString &f : files)
                 arr.append(f);
-            return QJsonObject{{"open_files", arr}};
+            QJsonArray editors;
+            for (Core::IDocument *doc : Core::DocumentModel::openedDocuments()) {
+                for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(doc)) {
+                    editors.append(QJsonObject{
+                        {"path", doc->filePath().toUserOutput()},
+                        {"editor_id", doc->id().toString()},
+                        {"mime_type", doc->mimeType()},
+                        {"line", editor->currentLine()},
+                        {"column", editor->currentColumn()},
+                        {"widget_class",
+                         QString::fromLatin1(editor->widget()->metaObject()->className())}});
+                }
+            }
+            return QJsonObject{{"open_files", arr}, {"editors", editors}};
         }));
 
     ToolRegistry::registerTool(
@@ -3394,17 +3497,21 @@ void McpCommands::registerCommands()
     ToolRegistry::registerTool(
         Tool{}
             .name("ui_mouse_event")
-            .title("Send a single mouse press/move/release")
+            .title("Send a single mouse press/move/release/dblclick")
             .description(
-                "Delivers one mouse press, move or release to the widget matching the query at "
-                "widget-local coordinates (x, y). Because the three actions are separate calls, a "
-                "caller can press, do something else, then move and release - for example, hold a "
-                "drag on a QMainWindow dock separator across a relayout. A right button also "
-                "brings up the context menu, on the press or the release as the platform "
-                "does. describeWidget in the result gives the widget's screen geometry to "
-                "compute coordinates from. An event whose handler runs the event loop of a "
-                "popup menu or modal dialog is answered while that loop runs, with "
-                "\"blocking\": true in the result, as ui_click_widget does.")
+                "Delivers one mouse press, move, release or double click to the widget matching "
+                "the query at widget-local coordinates (x, y). Because press, move and release "
+                "are separate calls, a caller can press, do something else, then move and release "
+                "- for example, hold a drag on a QMainWindow dock separator across a relayout. A "
+                "right button also brings up the context menu, on the press or the release as "
+                "the platform does. A double click is sent as the whole press, release, double "
+                "click, release sequence: Qt derives it from the timing of two platform clicks, "
+                "which synthetic events never produce. describeWidget in the result gives the "
+                "widget's screen geometry to compute coordinates from. For a scroll area the "
+                "event goes to the viewport, header or scroll bar under the point, as a real "
+                "one would. An event whose handler runs the event loop of a popup menu or modal "
+                "dialog is answered while that loop runs, with \"blocking\": true in the "
+                "result, as ui_click_widget does.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})
@@ -3412,7 +3519,7 @@ void McpCommands::registerCommands()
                         "action",
                         QJsonObject{
                             {"type", "string"},
-                            {"enum", QJsonArray{"press", "move", "release"}},
+                            {"enum", QJsonArray{"press", "move", "release", "dblclick"}},
                             {"description", "Which mouse action to send."}})
                     .addProperty("x", QJsonObject{{"type", "integer"},
                                                   {"description", "Widget-local x."}})
@@ -3597,6 +3704,14 @@ void McpCommands::registerCommands()
                              "\"ctrl\", \"shift\", \"alt\" and \"meta\". This is how a "
                              "multi-selection is built: ctrl adds the row to the selection, "
                              "shift extends it to the row."}})
+                    .addProperty(
+                        "check_box",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Click the row's check box instead of the row, at the place the "
+                             "style puts it. Clicking the row itself only selects it, and "
+                             "pressing Space does not toggle a check box in every view."}})
                     .addRequired("item")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
@@ -3619,7 +3734,22 @@ void McpCommands::registerCommands()
             // Scroll it into view first: a click outside the viewport lands
             // nowhere, and visualRect() of an off-screen row is empty.
             (*view)->scrollTo(*index);
-            const QRect rect = (*view)->visualRect(*index);
+            QRect rect = (*view)->visualRect(*index);
+            if (p.value("check_box").toBool(false)) {
+                const QModelIndex checkable = checkableIndex(*index);
+                if (!checkable.isValid()) {
+                    return ResultError(
+                        QString("Item has no check box: \"%1\".").arg(itemPath(*index)));
+                }
+                (*view)->scrollTo(checkable);
+                QStyleOptionViewItem option;
+                option.initFrom(*view);
+                option.rect = (*view)->visualRect(checkable);
+                option.features |= QStyleOptionViewItem::HasCheckIndicator;
+                rect = (*view)->style()->subElementRect(QStyle::SE_ItemViewItemCheckIndicator,
+                                                        &option,
+                                                        *view);
+            }
             const QPointF center = rect.center();
             const QPointF global = (*view)->viewport()->mapToGlobal(rect.center());
             if (p.value("context_menu").toBool(false)) {
@@ -3766,9 +3896,10 @@ void McpCommands::registerCommands()
             .title("Show a caption over the window")
             .description(
                 "Puts a line of text over the main window for a while, and returns once it is "
-                "gone. For a screen recording of a driven session: a step with no visible "
-                "trigger, a mode being switched or a run being started from a tool, otherwise "
-                "just happens. An empty text removes the caption right away.")
+                "gone, or at once when seconds is 0. For a screen recording of a driven session: "
+                "a step with no visible trigger, a mode being switched or a run being started "
+                "from a tool, otherwise just happens. An empty text removes the caption right "
+                "away.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -3777,7 +3908,12 @@ void McpCommands::registerCommands()
                                              {"description", "What the caption says."}})
                     .addProperty("seconds",
                                  QJsonObject{{"type", "number"},
-                                             {"description", "How long it stays, 2 by default."}})
+                                             {"description", "How long it stays, 2 by default. "
+                                                             "Zero returns at once and leaves it "
+                                                             "up, which is how a step is labelled "
+                                                             "while it happens: the next caption "
+                                                             "replaces it, an empty one removes "
+                                                             "it."}})
                     .addRequired("text")),
         wrap([](const QJsonObject &p) -> QJsonObject {
             static QPointer<QLabel> caption;
@@ -3805,8 +3941,11 @@ void McpCommands::registerCommands()
             label->raise();
 
             const double seconds = p.contains("seconds") ? p.value("seconds").toDouble() : 2.0;
-            waitPainting(int(seconds * 1000));
-            delete caption;
+            if (seconds > 0) {
+                const QPointer<QLabel> ownCaption = label;
+                waitPainting(int(seconds * 1000));
+                delete ownCaption;
+            }
             return {{"shown", true}, {"text", text}};
         }));
 

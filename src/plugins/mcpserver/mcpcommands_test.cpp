@@ -6,6 +6,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
 
 #include <mcp/server/toolregistry.h>
 
@@ -16,12 +17,17 @@
 #include <utils/temporarydirectory.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QDialog>
 #include <QEventLoop>
 #include <QGuiApplication>
+#include <QHeaderView>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QLabel>
+#include <QLineEdit>
 #include <QListView>
+#include <QMainWindow>
 #include <QMap>
 #include <QCursor>
 #include <QMenu>
@@ -32,6 +38,7 @@
 #include <QTest>
 #include <QTextCursor>
 #include <QTimer>
+#include <QTreeView>
 
 #include <algorithm>
 
@@ -84,6 +91,16 @@ private slots:
     void testGetTextReadsAnEditorWithoutAFilePath();
     void testClickItemContextMenuKeepsAMultiSelection();
     void testClickItemShiftExtendsTheSelection();
+    void testClickItemTogglesACheckBoxInItsOwnColumn();
+    void testMouseEventOnAScrollAreaHitsTheGivenPoint();
+    void testMouseEventOnAHeaderHitsTheHeader();
+    void testMouseEventDoubleClickActivatesARow();
+    void testMouseEventDoubleClickAnswersWhileItRunsALoop();
+    void testShowCaption();
+    void testClickGivesClickFocus();
+    void testPressOnAnItemEditorKeepsItOpen();
+    void testClickItemScrollsToACheckBoxColumn();
+    void testListOpenReportsTheEditors();
     void testActivateMenuItemGoesThroughTheMenu();
     void testActivateMenuItemRefusesADisabledItem();
     void testClickWidgetReportsTheStateAfterTheClick();
@@ -503,6 +520,349 @@ void McpCommandsTest::testClickItemShiftExtendsTheSelection()
 
     // And the keys must not stay down for whatever runs next.
     QCOMPARE(QGuiApplication::keyboardModifiers(), Qt::NoModifier);
+}
+
+// As in the plugin list, where "Name" and "Load" are separate columns.
+void McpCommandsTest::testClickItemTogglesACheckBoxInItsOwnColumn()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta"}) {
+        auto load = new QStandardItem;
+        load->setCheckable(true);
+        load->setCheckState(Qt::Unchecked);
+        model.appendRow({new QStandardItem(QLatin1String(label)), load});
+    }
+    model.item(0, 1)->setCheckState(Qt::PartiallyChecked);
+
+    QTreeView view;
+    view.setObjectName("mcpCommandsTestCheckTree");
+    view.setModel(&model);
+    view.resize(300, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+
+    QString error;
+    const QJsonObject item = callTool(
+        "ui_click_item",
+        {{"object_name", "mcpCommandsTestCheckTree"}, {"item", "beta"}, {"check_box", true}},
+        &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+
+    QCOMPARE(model.item(1, 1)->checkState(), Qt::Checked);
+    QCOMPARE(model.item(0, 1)->checkState(), Qt::PartiallyChecked);
+    QCOMPARE(item.value("checked"), QJsonValue(true));
+
+    const QJsonArray items
+        = callTool("ui_find_items", {{"object_name", "mcpCommandsTestCheckTree"}}, &error)
+              .value("items")
+              .toArray();
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(items.size(), 2);
+    QCOMPARE(items.at(0).toObject().value("check_state"), QJsonValue("partially_checked"));
+    QVERIFY(!items.at(1).toObject().contains("check_state"));
+}
+
+// The coordinates are local to the view, not to the viewport below its header.
+void McpCommandsTest::testMouseEventOnAScrollAreaHitsTheGivenPoint()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta", "gamma", "delta", "epsilon"})
+        model.appendRow(new QStandardItem(QLatin1String(label)));
+
+    QTreeView view;
+    view.setObjectName("mcpCommandsTestMouseTree");
+    view.setModel(&model);
+    view.resize(300, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+
+    const QRect rect = view.visualRect(model.index(1, 0));
+    const QPoint point = view.viewport()->mapTo(&view, rect.center());
+    QString error;
+    for (const char *action : {"press", "release"}) {
+        callTool("ui_mouse_event",
+                 {{"object_name", "mcpCommandsTestMouseTree"},
+                  {"action", QLatin1String(action)},
+                  {"x", point.x()},
+                  {"y", point.y()}},
+                 &error);
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+    }
+
+    QCOMPARE(view.currentIndex().row(), 1);
+}
+
+void McpCommandsTest::testMouseEventOnAHeaderHitsTheHeader()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta"})
+        model.appendRow(new QStandardItem(QLatin1String(label)));
+
+    QTreeView view;
+    view.setObjectName("mcpCommandsTestHeaderTree");
+    view.setModel(&model);
+    view.resize(300, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+    view.setCurrentIndex(model.index(1, 0));
+    view.header()->setSectionsClickable(true);
+    int clicked = 0;
+    connect(view.header(), &QHeaderView::sectionClicked, this, [&clicked] { ++clicked; });
+
+    const QPoint point = view.header()->geometry().center();
+    QString error;
+    for (const char *action : {"press", "release"}) {
+        callTool("ui_mouse_event",
+                 {{"object_name", "mcpCommandsTestHeaderTree"},
+                  {"action", QLatin1String(action)},
+                  {"x", point.x()},
+                  {"y", point.y()}},
+                 &error);
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+    }
+
+    QCOMPARE(clicked, 1);
+    QCOMPARE(view.currentIndex().row(), 1);
+}
+
+void McpCommandsTest::testMouseEventDoubleClickActivatesARow()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta", "gamma"})
+        model.appendRow(new QStandardItem(QLatin1String(label)));
+
+    QTreeView view;
+    view.setObjectName("mcpCommandsTestDoubleClickTree");
+    view.setEditTriggers(QAbstractItemView::NoEditTriggers);
+    view.setModel(&model);
+    view.resize(300, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+    QList<int> doubleClicked;
+    connect(&view, &QAbstractItemView::doubleClicked, this, [&doubleClicked](const QModelIndex &i) {
+        doubleClicked.append(i.row());
+    });
+
+    const QPoint point = view.viewport()->mapTo(&view, view.visualRect(model.index(1, 0)).center());
+    QString error;
+    callTool("ui_mouse_event",
+             {{"object_name", "mcpCommandsTestDoubleClickTree"},
+              {"action", "dblclick"},
+              {"x", point.x()},
+              {"y", point.y()}},
+             &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+
+    QCOMPARE(doubleClicked, QList<int>{1});
+}
+
+void McpCommandsTest::testMouseEventDoubleClickAnswersWhileItRunsALoop()
+{
+    QStandardItemModel model;
+    model.appendRow(new QStandardItem("alpha"));
+    QTreeView view;
+    view.setObjectName("mcpCommandsTestBlockingDoubleClickTree");
+    view.setEditTriggers(QAbstractItemView::NoEditTriggers);
+    view.setModel(&model);
+    view.resize(300, 200);
+    QDialog dialog;
+    connect(&view, &QAbstractItemView::doubleClicked, &dialog, [&dialog] {
+        // As in testClickWidgetAnswersWhileTheClickRunsALoop.
+        QTimer guard;
+        guard.setSingleShot(true);
+        connect(&guard, &QTimer::timeout, &dialog, &QDialog::reject);
+        guard.start(0);
+        dialog.exec();
+    });
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+
+    const QPoint point = view.viewport()->mapTo(&view, view.visualRect(model.index(0, 0)).center());
+    bool answeredInsideLoop = false;
+    bool blocking = false;
+    QString error;
+    ToolRegistry::callToolForTests(
+        "ui_mouse_event",
+        Schema::CallToolRequestParams{}.arguments(
+            QJsonObject{{"object_name", "mcpCommandsTestBlockingDoubleClickTree"},
+                        {"action", "dblclick"},
+                        {"x", point.x()},
+                        {"y", point.y()}}),
+        [&](const Result<Schema::CallToolResult> &answer) {
+            answeredInsideLoop |= dialog.isVisible();
+            if (answer)
+                blocking |= answer->structuredContentAsObject().value("blocking").toBool();
+            else
+                error = answer.error();
+            dialog.reject();
+        });
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(answeredInsideLoop);
+    QVERIFY(blocking);
+}
+
+void McpCommandsTest::testShowCaption()
+{
+    const auto caption = [] {
+        return Core::ICore::mainWindow()->findChild<QLabel *>("mcpCaption");
+    };
+    QString error;
+    const QJsonObject shown
+        = callTool("ui_show_caption", {{"text", "McpCommandsTestCaption"}, {"seconds", 0}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(shown.value("shown").toBool(), true);
+    QVERIFY(caption());
+    QCOMPARE(caption()->text(), QString("McpCommandsTestCaption"));
+
+    // A caption that stays up survives the end of a timed one shown before it.
+    QString laterError;
+    QTimer::singleShot(0, [&laterError] {
+        callTool("ui_show_caption",
+                 {{"text", "McpCommandsTestLater"}, {"seconds", 0}},
+                 &laterError);
+    });
+    callTool("ui_show_caption", {{"text", "McpCommandsTestCaption"}, {"seconds", 0.2}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY2(laterError.isEmpty(), qPrintable(laterError));
+    QVERIFY(caption());
+    QCOMPARE(caption()->text(), QString("McpCommandsTestLater"));
+
+    const QJsonObject removed = callTool("ui_show_caption", {{"text", ""}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(removed.value("shown").toBool(), false);
+    QVERIFY(!caption());
+}
+
+// QApplication gives click focus only for spontaneous presses.
+void McpCommandsTest::testClickGivesClickFocus()
+{
+    QWidget window;
+    auto first = new QLineEdit(&window);
+    first->setObjectName("mcpCommandsTestFirstEdit");
+    auto second = new QLineEdit("McpCommandsTestSecondEdit", &window);
+    second->move(0, 40);
+    window.show();
+    const QScopeGuard hideWindow([&window] { window.hide(); });
+    first->setFocus();
+    QCOMPARE(window.focusWidget(), first);
+
+    QString error;
+    callTool("ui_click_widget", {{"text", "McpCommandsTestSecondEdit"}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(window.focusWidget(), second);
+
+    callTool("ui_mouse_event",
+             {{"object_name", "mcpCommandsTestFirstEdit"}, {"action", "press"}, {"x", 2}, {"y", 2}},
+             &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(window.focusWidget(), first);
+
+    auto inner = new QWidget(second);
+    inner->setObjectName("mcpCommandsTestInnerNoFocus");
+    inner->resize(5, 5);
+    inner->show();
+    QCOMPARE(inner->focusPolicy(), Qt::NoFocus);
+    for (const char *action : {"press", "release"}) {
+        callTool("ui_mouse_event",
+                 {{"object_name", "mcpCommandsTestInnerNoFocus"},
+                  {"action", QLatin1String(action)},
+                  {"x", 2},
+                  {"y", 2}},
+                 &error);
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+    }
+    QCOMPARE(window.focusWidget(), second);
+}
+
+// Focus follows the widget under the point, so the press does not close the editor.
+void McpCommandsTest::testPressOnAnItemEditorKeepsItOpen()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta"})
+        model.appendRow(new QStandardItem(QLatin1String(label)));
+
+    QTreeView view;
+    view.setObjectName("mcpCommandsTestEditorTree");
+    view.setModel(&model);
+    view.resize(300, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+    QVERIFY(QTest::qWaitForWindowActive(&view));
+    const QModelIndex index = model.index(1, 0);
+    view.edit(index);
+    QWidget *editor = view.indexWidget(index);
+    QVERIFY(editor);
+    QVERIFY(editor->hasFocus());
+
+    const QPoint point = editor->mapTo(&view, editor->rect().center());
+    QString error;
+    for (const char *action : {"press", "release"}) {
+        callTool("ui_mouse_event",
+                 {{"object_name", "mcpCommandsTestEditorTree"},
+                  {"action", QLatin1String(action)},
+                  {"x", point.x()},
+                  {"y", point.y()}},
+                 &error);
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+    }
+    QCOMPARE(view.indexWidget(index), editor);
+    QVERIFY(editor->hasFocus());
+}
+
+void McpCommandsTest::testClickItemScrollsToACheckBoxColumn()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta"}) {
+        auto load = new QStandardItem;
+        load->setCheckable(true);
+        load->setCheckState(Qt::Unchecked);
+        model.appendRow({new QStandardItem(QLatin1String(label)), load});
+    }
+
+    QTreeView view;
+    view.setObjectName("mcpCommandsTestNarrowCheckTree");
+    view.setModel(&model);
+    view.header()->setStretchLastSection(false);
+    view.header()->resizeSection(0, 400);
+    view.resize(100, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+
+    QString error;
+    callTool("ui_click_item",
+             {{"object_name", "mcpCommandsTestNarrowCheckTree"},
+              {"item", "beta"},
+              {"check_box", true}},
+             &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(model.item(1, 1)->checkState(), Qt::Checked);
+}
+
+void McpCommandsTest::testListOpenReportsTheEditors()
+{
+    TemporaryDirectory dir("qtc-mcpcommands-XXXXXX");
+    QVERIFY(dir.isValid());
+    const QScopeGuard closeEditors([] { Core::EditorManager::closeAllEditors(false); });
+    TextEditor::TextEditorWidget *widget = openText(dir, "alpha one\nbeta two\ngamma three\n");
+    QVERIFY(widget);
+
+    QTextCursor cursor(widget->document());
+    cursor.setPosition(15); // Behind "alpha one\nbeta ".
+    widget->setTextCursor(cursor);
+
+    QString error;
+    const QJsonArray editors = callTool("editor_list_open", {}, &error).value("editors").toArray();
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(editors.size(), 1);
+    const QJsonObject editor = editors.at(0).toObject();
+    QCOMPARE(editor.value("path").toString(), dir.filePath("selection.txt").toUserOutput());
+    QCOMPARE(editor.value("editor_id").toString(),
+             QString(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID));
+    QCOMPARE(editor.value("mime_type").toString(), QString("text/plain"));
+    QCOMPARE(editor.value("line").toInt(), 2);
+    QCOMPARE(editor.value("column").toInt(), 6);
+    QCOMPARE(editor.value("widget_class").toString(),
+             QString::fromLatin1(widget->metaObject()->className()));
 }
 
 void McpCommandsTest::testActivateMenuItemGoesThroughTheMenu()
