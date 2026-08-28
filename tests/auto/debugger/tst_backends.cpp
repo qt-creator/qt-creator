@@ -1076,17 +1076,17 @@ private slots:
 private:
     void addBackendRows();
     void warmUpBackends();
+    // The flags default to what the settings default to, so a test only names
+    // what it wants to be different.
     std::unique_ptr<DebuggerBackend> createEngine(Backend backend,
         const std::optional<Utils::ProcessRunData> &debuggerRunDataOverride = {},
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {},
         bool nativeMixed = false,
         std::chrono::seconds watchdogTimeout = {},
-        bool skipKnownFrames = false,
-        bool logTimeStamps = false,
-        bool breakOnMain = false,
-        bool pseudoTracepoints = true);
+        Debugger::Internal::GdbImplFlags gdbFlags = Debugger::Internal::GdbImplFlag::PseudoTracepoints);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
-        const InferiorStartData &inferiorStartData, bool continueAfterAttach = false);
+        const InferiorStartData &inferiorStartData,
+        Debugger::Internal::GdbImplFlags gdbFlags = {});
     // Every user-configurable debugger option turned on, so a test can check they arrive.
     // Paths that have to exist for the backend to pass them on use existingDir.
     std::unique_ptr<DebuggerBackend> createFullyConfiguredEngine(Backend backend,
@@ -1232,18 +1232,12 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     const std::optional<ProcessRunData> &inferiorRunDataOverride,
     bool nativeMixed,
     std::chrono::seconds watchdogTimeout,
-    bool skipKnownFrames,
-    bool logTimeStamps,
-    bool breakOnMain,
-    bool pseudoTracepoints)
+    GdbImplFlags gdbFlags)
 {
     Q_UNUSED(debuggerRunDataOverride)
     Q_UNUSED(inferiorRunDataOverride)
     Q_UNUSED(nativeMixed)
-    Q_UNUSED(skipKnownFrames)
-    Q_UNUSED(logTimeStamps)
-    Q_UNUSED(breakOnMain)
-    Q_UNUSED(pseudoTracepoints)
+    Q_UNUSED(gdbFlags)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1252,16 +1246,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .inferiorStartData = inferiorRunDataOverride.value_or(
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .flags = (nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
-                                  : GdbImplFlags())
-                     | (skipKnownFrames ? GdbImplFlags(GdbImplFlag::SkipKnownFrames)
-                                        : GdbImplFlags())
-                     | (logTimeStamps ? GdbImplFlags(GdbImplFlag::LogTimeStamps)
-                                      : GdbImplFlags())
-                     | (breakOnMain ? GdbImplFlags(GdbImplFlag::BreakOnMain)
-                                    : GdbImplFlags())
-                     | (pseudoTracepoints ? GdbImplFlags(GdbImplFlag::PseudoTracepoints)
-                                          : GdbImplFlags()),
+            .flags = gdbFlags | (nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
+                                             : GdbImplFlags()),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
@@ -1351,10 +1337,10 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
-    Backend backend, const InferiorStartData &inferiorStartData, bool continueAfterAttach)
+    Backend backend, const InferiorStartData &inferiorStartData, GdbImplFlags gdbFlags)
 {
     Q_UNUSED(inferiorStartData)
-    Q_UNUSED(continueAfterAttach)
+    Q_UNUSED(gdbFlags)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1362,8 +1348,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
                                               Environment::systemEnvironment()},
             .inferiorStartData = inferiorStartData,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .flags = continueAfterAttach ? GdbImplFlags(GdbImplFlag::ContinueAfterAttach)
-                                         : GdbImplFlags()}));
+            .flags = gdbFlags}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -4197,7 +4182,9 @@ void tst_backends::insertsARealTracepointWhenPseudoOnesAreOff()
     const auto insertTracepointWith = [this, backend](bool pseudoTracepoints) {
         QStringList sent;
         std::unique_ptr<DebuggerBackend> debuggerBackend
-            = createEngine(backend, {}, {}, false, {}, false, false, false, pseudoTracepoints);
+            = createEngine(backend, {}, {}, false, {},
+                           pseudoTracepoints ? GdbImplFlags(GdbImplFlag::PseudoTracepoints)
+                                             : GdbImplFlags());
         if (!debuggerBackend)
             return sent;
         DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -4270,7 +4257,8 @@ void tst_backends::continuesAfterAttachWhenConfigured()
             return false;
 
         std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(
-            backend, AttachToProcessData{ProcessHandle(target.processId())}, continueAfterAttach);
+            backend, AttachToProcessData{ProcessHandle(target.processId())},
+            continueAfterAttach ? GdbImplFlags(GdbImplFlag::ContinueAfterAttach) : GdbImplFlags());
         [&] { QVERIFY(debuggerBackend); }();
         if (QTest::currentTestFailed())
             return false;
@@ -4337,7 +4325,7 @@ void tst_backends::stopsAtMainWhenConfigured()
     // inferior's own output, printed past main and before it starts spinning:
     // once that is here, a stop that was coming would be here too.
     std::unique_ptr<DebuggerBackend> ran
-        = createEngine(backend, {}, {}, false, {}, false, false, false);
+        = createEngine(backend, {}, {}, false, {});
     QVERIFY(ran);
     QString output;
     connect(ran->engine(), &DebuggerEngineInterface::message, this,
@@ -4352,7 +4340,8 @@ void tst_backends::stopsAtMainWhenConfigured()
              "the inferior stopped although nothing asked it to");
 
     std::unique_ptr<DebuggerBackend> stopped
-        = createEngine(backend, {}, {}, false, {}, false, false, true);
+        = createEngine(backend, {}, {}, false, {},
+                       GdbImplFlag::PseudoTracepoints | GdbImplFlag::BreakOnMain);
     QVERIFY(stopped);
     stopped->engine()->start();
     QTRY_VERIFY2_WITH_TIMEOUT(stopped->contains(InferiorEvent::SpontaneousStop),
@@ -4379,7 +4368,10 @@ void tst_backends::logsTheResponseTimeWhenConfigured()
     const auto markersWith = [this, backend, marker, versionLine](bool logTimeStamps) {
         int seen = -1;
         std::unique_ptr<DebuggerBackend> debuggerBackend
-            = createEngine(backend, {}, {}, false, {}, false, logTimeStamps);
+            = createEngine(backend, {}, {}, false, {},
+                           logTimeStamps ? (GdbImplFlag::PseudoTracepoints
+                                            | GdbImplFlag::LogTimeStamps)
+                                         : GdbImplFlags(GdbImplFlag::PseudoTracepoints));
         if (!debuggerBackend)
             return seen;
         DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -4429,7 +4421,10 @@ void tst_backends::skipsKnownFramesWhenStepping()
     const auto stepIntoTheHeader = [this, backend, testData](bool skipKnownFrames) {
         std::pair<FilePath, int> location;
         std::unique_ptr<DebuggerBackend> debuggerBackend
-            = createEngine(backend, {}, {}, false, {}, skipKnownFrames);
+            = createEngine(backend, {}, {}, false, {},
+                           skipKnownFrames ? (GdbImplFlag::PseudoTracepoints
+                                              | GdbImplFlag::SkipKnownFrames)
+                                           : GdbImplFlags(GdbImplFlag::PseudoTracepoints));
         if (!debuggerBackend)
             return location;
         DebuggerEngineInterface *engine = debuggerBackend->engine();
