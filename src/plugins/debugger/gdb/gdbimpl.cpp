@@ -215,6 +215,9 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
 
                 emit inferiorEvent(InferiorEvent::EngineSetupOk);
 
+                if (m_startData.isSet(GdbImplFlag::BreakOnMain))
+                    runCommand({"tbreak " + m_startData.mainFunctionName});
+
                 m_runCommandPending = true;
                 runCommand({"-exec-run", [this](const DebuggerResponse &response) {
                     m_runCommandPending = false;

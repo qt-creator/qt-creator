@@ -532,6 +532,22 @@ static QString debugInfoDaemonQuery(Backend backend)
 
 // pdbbridge.py's stackListFrames() reports the whole stack and takes no limit,
 // so a depth limit cannot reach it yet.
+// The function a backend can be asked to stop at before the inferior runs.
+static QString mainFunctionMarker(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return "main";
+    case Backend::Lldb:
+    case Backend::Cdb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Bridge:
+        break;
+    }
+    return {};
+}
+
 // The marker a backend logs per command when time stamps are configured.
 static QString responseTimeMarker(Backend backend)
 {
@@ -808,6 +824,8 @@ private slots:
     void skipsKnownFramesWhenStepping();
     void logsTheResponseTimeWhenConfigured_data() { addBackendRows(); }
     void logsTheResponseTimeWhenConfigured();
+    void stopsAtMainWhenConfigured_data() { addBackendRows(); }
+    void stopsAtMainWhenConfigured();
     void testDetachCapability_data() { addBackendRows(); }
     void testDetachCapability();
     void testDisassemblerCapability_data() { addBackendRows(); }
@@ -1008,7 +1026,8 @@ private:
         bool nativeMixed = false,
         std::chrono::seconds watchdogTimeout = {},
         bool skipKnownFrames = false,
-        bool logTimeStamps = false);
+        bool logTimeStamps = false,
+        bool breakOnMain = false);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData);
     // Every user-configurable debugger option turned on, so a test can check they arrive.
@@ -1157,13 +1176,15 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     bool nativeMixed,
     std::chrono::seconds watchdogTimeout,
     bool skipKnownFrames,
-    bool logTimeStamps)
+    bool logTimeStamps,
+    bool breakOnMain)
 {
     Q_UNUSED(debuggerRunDataOverride)
     Q_UNUSED(inferiorRunDataOverride)
     Q_UNUSED(nativeMixed)
     Q_UNUSED(skipKnownFrames)
     Q_UNUSED(logTimeStamps)
+    Q_UNUSED(breakOnMain)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1177,7 +1198,9 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
                      | (skipKnownFrames ? GdbImplFlags(GdbImplFlag::SkipKnownFrames)
                                         : GdbImplFlags())
                      | (logTimeStamps ? GdbImplFlags(GdbImplFlag::LogTimeStamps)
-                                      : GdbImplFlags()),
+                                      : GdbImplFlags())
+                     | (breakOnMain ? GdbImplFlags(GdbImplFlag::BreakOnMain)
+                                    : GdbImplFlags()),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
@@ -4093,6 +4116,46 @@ void tst_backends::limitsTheReportedStackDepth()
     QVERIFY2(limited < everything,
              qPrintable(QString("a depth limit of 5 reported %1 frames, all of them %2")
                             .arg(limited).arg(everything)));
+}
+
+void tst_backends::stopsAtMainWhenConfigured()
+{
+    QFETCH(Backend, backend);
+
+    if (mainFunctionMarker(backend).isEmpty())
+        QSKIP("This backend cannot be asked to stop at the main function.");
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const QString marker = inferiorTestData(backend).applicationOutputMarker;
+    QVERIFY(!marker.isEmpty());
+
+    // No breakpoint is inserted here: a stop can only come from the temporary
+    // one the setting asks for. The unconfigured run is bounded on the
+    // inferior's own output, printed past main and before it starts spinning:
+    // once that is here, a stop that was coming would be here too.
+    std::unique_ptr<DebuggerBackend> ran
+        = createEngine(backend, {}, {}, false, {}, false, false, false);
+    QVERIFY(ran);
+    QString output;
+    connect(ran->engine(), &DebuggerEngineInterface::message, this,
+            [&output](const QString &text, int channel, int) {
+        if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+            output += text;
+    });
+    ran->engine()->start();
+    QTRY_VERIFY2_WITH_TIMEOUT(output.contains(marker),
+                              "the unconfigured inferior never got past main", s_timeout);
+    QVERIFY2(!ran->contains(InferiorEvent::SpontaneousStop),
+             "the inferior stopped although nothing asked it to");
+
+    std::unique_ptr<DebuggerBackend> stopped
+        = createEngine(backend, {}, {}, false, {}, false, false, true);
+    QVERIFY(stopped);
+    stopped->engine()->start();
+    QTRY_VERIFY2_WITH_TIMEOUT(stopped->contains(InferiorEvent::SpontaneousStop),
+                              "the inferior never stopped at the main function", s_timeout);
+    QCOMPARE(stopped->stoppedFile(), inferiorTestData(backend).source);
 }
 
 void tst_backends::logsTheResponseTimeWhenConfigured()
