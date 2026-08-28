@@ -60,6 +60,7 @@ AuthWidget::AuthWidget(QWidget *parent)
     });
 
     connect(&settings(), &CopilotSettings::applied, this, update);
+    connect(&settings().enableCopilot, &BoolAspect::volatileValueChanged, this, update);
     connect(&settings().nodeJsPath, &FilePathAspect::volatileValueChanged, this, update);
     connect(&settings().distPath, &FilePathAspect::volatileValueChanged, this, update);
 
@@ -116,7 +117,8 @@ void AuthWidget::updateClient(const FilePath &nodeJs, const FilePath &agent)
     m_client = nullptr;
     setState(Tr::tr("Sign In"), {}, false);
     m_button->setEnabled(false);
-    if (!nodeJs.isExecutableFile() || !agent.exists())
+    const bool enabled = settings().enableCopilot.volatileValue() || isCopilotEnabledByProject();
+    if (!enabled || !nodeJs.isExecutableFile() || !agent.exists())
         return;
 
     setState(Tr::tr("Sign In"), {}, true);

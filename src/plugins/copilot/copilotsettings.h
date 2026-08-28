@@ -28,6 +28,7 @@ public:
 CopilotSettings &settings();
 
 bool isCopilotEnabled(ProjectExplorer::Project *project);
+bool isCopilotEnabledByProject();
 
 void setupCopilotSettings();
 

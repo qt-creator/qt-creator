@@ -14,6 +14,8 @@
 
 #include <languageclient/languageclientmanager.h>
 
+#include <projectexplorer/projectmanager.h>
+
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 
@@ -28,6 +30,11 @@ using namespace ProjectExplorer;
 namespace Copilot::Internal {
 
 enum Direction { Previous, Next };
+
+static bool copilotEnabled()
+{
+    return settings().enableCopilot() || isCopilotEnabledByProject();
+}
 
 static void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
 {
@@ -139,6 +146,10 @@ public:
         restartClient();
 
         connect(&settings(), &AspectContainer::applied, this, &CopilotPlugin::restartClient);
+        connect(ProjectManager::instance(), &ProjectManager::projectAdded,
+                this, &CopilotPlugin::updateClient);
+        connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
+                this, &CopilotPlugin::updateClient);
 
         return true;
     }
@@ -146,10 +157,17 @@ public:
     void restartClient()
     {
         LanguageClient::LanguageClientManager::shutdownClient(m_client);
+        m_client = nullptr;
 
-        if (!settings().nodeJsPath().isExecutableFile())
+        if (!copilotEnabled() || !settings().nodeJsPath().isExecutableFile())
             return;
         m_client = new CopilotClient(settings().nodeJsPath(), settings().distPath());
+    }
+
+    void updateClient()
+    {
+        if (m_client.isNull() == copilotEnabled())
+            restartClient();
     }
 
     ShutdownFlag aboutToShutdown() final

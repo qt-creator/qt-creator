@@ -11,6 +11,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettings.h>
 #include <projectexplorer/useglobalaspect.h>
@@ -310,6 +311,14 @@ bool isCopilotEnabled(Project *project)
         return settings().enableCopilot();
 
     return ps->enableCopilot();
+}
+
+bool isCopilotEnabledByProject()
+{
+    return Utils::anyOf(ProjectManager::projects(), [](Project *project) {
+        CopilotProjectSettings * const ps = copilotProjectSettings(project);
+        return !ps->useGlobalSettings() && ps->enableCopilot();
+    });
 }
 
 void setupCopilotSettings()
