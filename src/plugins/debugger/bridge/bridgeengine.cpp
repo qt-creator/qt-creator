@@ -362,13 +362,22 @@ void BridgeEngine::interruptInferior()
     m_dapClient->dataProvider()->interrupt();
 }
 
-void BridgeEngine::executeStepIn(bool)
+// 'Operate by instruction' is a step granularity in DAP.
+QJsonObject BridgeEngine::stepArguments(bool byInstruction) const
+{
+    QJsonObject args{{"threadId", m_currentThreadId}};
+    if (byInstruction)
+        args.insert("granularity", "instruction");
+    return args;
+}
+
+void BridgeEngine::executeStepIn(bool byInstruction)
 {
     if (m_currentThreadId == -1)
         return;
 
     notifyInferiorRunRequested();
-    m_dapClient->sendStepIn(m_currentThreadId);
+    m_dapClient->postRequest("stepIn", stepArguments(byInstruction));
 }
 
 void BridgeEngine::executeStepOut()
@@ -380,13 +389,13 @@ void BridgeEngine::executeStepOut()
     m_dapClient->sendStepOut(m_currentThreadId);
 }
 
-void BridgeEngine::executeStepOver(bool)
+void BridgeEngine::executeStepOver(bool byInstruction)
 {
     if (m_currentThreadId == -1)
         return;
 
     notifyInferiorRunRequested();
-    m_dapClient->sendStepOver(m_currentThreadId);
+    m_dapClient->postRequest("next", stepArguments(byInstruction));
 }
 
 void BridgeEngine::continueInferior()

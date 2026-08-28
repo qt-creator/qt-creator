@@ -270,6 +270,9 @@ class DapServer():
     # gdb event handlers (record only; emitted after the execute returns)
     #######################################################################
 
+    def _byInstruction(self, request):
+        return request.get('arguments', {}).get('granularity') == 'instruction'
+
     def _onStop(self, event):
         self.lastStopEvent = event
 
@@ -480,11 +483,11 @@ class DapServer():
 
     def cmd_next(self, request):
         self.sendResponse(request)
-        self._execute('next')
+        self._execute('nexti' if self._byInstruction(request) else 'next')
 
     def cmd_stepIn(self, request):
         self.sendResponse(request)
-        self._execute('step')
+        self._execute('stepi' if self._byInstruction(request) else 'step')
 
     def cmd_stepOut(self, request):
         self.sendResponse(request)

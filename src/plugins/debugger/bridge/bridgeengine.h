@@ -42,9 +42,9 @@ public:
 private:
     void setupEngine() override;
 
-    void executeStepIn(bool) override;
+    void executeStepIn(bool byInstruction) override;
     void executeStepOut() override;
-    void executeStepOver(bool) override;
+    void executeStepOver(bool byInstruction) override;
 
     void shutdownInferior() override;
     void shutdownEngine() override;
@@ -87,6 +87,7 @@ private:
     QString errorMessage(QProcess::ProcessError error) const;
 
     void claimInitialBreakpoints();
+    QJsonObject stepArguments(bool byInstruction) const;
     void configureTarget();
 
     void handleDapStarted();
