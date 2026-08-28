@@ -181,6 +181,7 @@ struct InferiorTestData
     QString moduleListMarker;
     QString applicationOutputMarker;
     QString environmentReportPrefix;
+    QString workingDirectoryReportPrefix;
     FilePath moduleSymbolsPath;
     QString falseLiteral = "0";
 };
@@ -655,6 +656,8 @@ private slots:
     void passesInferiorEnvironmentDiffToDebugger();
     void passesInferiorWorkingDirectoryToDebugger_data() { addBackendRows(); }
     void passesInferiorWorkingDirectoryToDebugger();
+    void passesInferiorWorkingDirectoryToTheDebuggee_data() { addBackendRows(); }
+    void passesInferiorWorkingDirectoryToTheDebuggee();
     void loadsAdditionalQmlStack_data() { addBackendRows(); }
     void loadsAdditionalQmlStack();
     void fetchesQmlLocals_data() { addBackendRows(); }
@@ -1120,6 +1123,7 @@ void tst_backends::initTestCase()
         "#include <windows.h>",
         "#else",
         "#include <dlfcn.h>",
+        "#include <unistd.h>",
         "#endif",
         "#ifdef __linux__",
         "#include <sys/prctl.h>",
@@ -1183,6 +1187,14 @@ void tst_backends::initTestCase()
         "    recurse(40);",
         "    if (const char *marker = getenv(\"QTC_BACKEND_ENV_MARKER\"))",
         "        printf(\"env=%s\\n\", marker);",
+        "    char cwd[1024] = {0};",
+        "#ifdef _WIN32",
+        "    GetCurrentDirectoryA(DWORD(sizeof(cwd)), cwd);",
+        "#else",
+        "    if (!getcwd(cwd, sizeof(cwd)))",
+        "        cwd[0] = 0;",
+        "#endif",
+        "    printf(\"cwd=%s\\n\", cwd);",
         "    printf(\"after bump\\n\");",
         "    fflush(stdout);",
         "    spin(); // second breakpoint line",
@@ -1208,6 +1220,7 @@ void tst_backends::initTestCase()
     cppInferiorData.recursionDepthVariable = "depth";
     cppInferiorData.applicationOutputMarker = "after bump";
     cppInferiorData.environmentReportPrefix = "env=";
+    cppInferiorData.workingDirectoryReportPrefix = "cwd=";
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
     cppInferiorData.expectedExitCode = 7;
     QVERIFY(cppInferiorData.secondBreakpointLine > 0);
@@ -4533,6 +4546,61 @@ void tst_backends::passesInferiorWorkingDirectoryToDebugger()
     QVERIFY2(cwdLink.isSymLink(), "could not read the inferior's /proc/.../cwd");
     QCOMPARE(cwdLink.symLinkTarget(), workingDirectory);
 #endif
+}
+
+void tst_backends::passesInferiorWorkingDirectoryToTheDebuggee()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const InferiorTestData &data = inferiorTestData(backend);
+    if (data.workingDirectoryReportPrefix.isEmpty())
+        QSKIP("inferior does not report its working directory");
+
+    const FilePath workingDirectory = FilePath::fromString(m_tempDir.path()) / "inferior-cwd";
+    QVERIFY(workingDirectory.createDir());
+    const ProcessRunData inferiorRunData{{data.executable, {}}, workingDirectory,
+                                         Environment::systemEnvironment()};
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend,
+                                                                                inferiorRunData);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList applicationOutput;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&applicationOutput](const QString &text, int channel, int) {
+        if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+            applicationOutput.append(text);
+    });
+
+    stopInferiorSpinLoop(backend, engine);
+
+    debuggerBackend->clearInferiorResults();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(!debuggerBackend->inferiorResults().isEmpty(), s_timeout);
+
+    const QString prefix = data.workingDirectoryReportPrefix;
+    const auto reportedWorkingDirectory = [&applicationOutput, &prefix] {
+        const QStringList lines = applicationOutput.join('\n').split('\n');
+        for (const QString &line : lines) {
+            const int index = line.indexOf(prefix);
+            if (index >= 0)
+                return FilePath::fromUserInput(line.mid(index + prefix.size()).trimmed());
+        }
+        return FilePath();
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(!reportedWorkingDirectory().isEmpty(),
+                              qPrintable(QString("the debuggee never reported its working "
+                                                 "directory - looked for \"%1\" in:\n  %2")
+                                             .arg(prefix,
+                                                  applicationOutput.join("\n  ").left(600))),
+                              s_timeout);
+    // The debuggee reports what the OS hands back, which need not be spelled like the path
+    // it was given - 8.3 names on Windows, a symlinked /tmp elsewhere.
+    QCOMPARE(reportedWorkingDirectory().canonicalPath(), workingDirectory.canonicalPath());
 }
 
 void tst_backends::loadsAdditionalQmlStack()
