@@ -31,6 +31,13 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/codeassist/assistenums.h>
+#include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/assistproposaliteminterface.h>
+#include <texteditor/codeassist/completionassistprovider.h>
+#include <texteditor/codeassist/genericproposalmodel.h>
+#include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/codeassist/iassistproposal.h>
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
@@ -46,6 +53,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
 #include <utils/storekey.h>
+#include <utils/textutils.h>
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
@@ -54,7 +62,9 @@
 #include <QCursor>
 #include <QHeaderView>
 
+#include <algorithm>
 #include <cmath>
+#include <utility>
 #include <QBuffer>
 #include <QComboBox>
 #include <QContextMenuEvent>
@@ -77,6 +87,8 @@
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QTabBar>
+#include <QTextBlock>
+#include <QTextCursor>
 #include <QTextEdit>
 #include <QAction>
 #include <QDateTime>
@@ -3944,6 +3956,180 @@ void McpCommands::registerCommands()
             text.replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
             return {{"reason", "ok"}, {"text", text}};
         }));
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("editor_get_completions")
+            .title("Get code completions")
+            .description(
+                "Returns the code-completion proposals at a position in a file, as the editor "
+                "would offer them, from the engine that editor uses there - the language server "
+                "when one serves the file, otherwise the editor's own model - so it works for "
+                "any kind of file that completes in the editor: C++, QML, CMake, Python and so "
+                "on. Useful before writing code. Give the file and a 1-based line and column "
+                "(the cursor point, e.g. just after a \".\" or \"::\"); returns the candidate "
+                "completions, each with its text and any detail (signature/type), filtered and "
+                "ranked by the prefix already typed. The file is opened in an editor if it is "
+                "not already. An engine still loading the file proposes what it knows so far, "
+                "as it would to a user.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Absolute path to the file."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the cursor position."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the cursor position."}})
+                    .addProperty(
+                        "limit",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "Maximum number of completions to return (default 200, at most "
+                             "1000)."}})
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "completions",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
+                    .addRequired("completions")),
+        [](const CallToolRequestParams &params,
+           const ToolInterface &toolInterface) -> Utils::Result<> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            const int requestedLimit = args.value("limit").toInt();
+            const int limit = std::clamp(requestedLimit > 0 ? requestedLimit : 200, 1, 1000);
+            const auto fail = [toolInterface](const QString &message) {
+                toolInterface.finish(
+                    CallToolResult{}.isError(true).addContent(TextContent{}.text(message)));
+                return ResultOk;
+            };
+            if (file.isEmpty() || line <= 0 || column <= 0)
+                return fail("Requires \"file\" and 1-based \"line\" and \"column\".");
+
+            const FilePath filePath = urlishToFilePath(file);
+            // Opening a file that cannot be read puts up a modal message box.
+            if (!Core::DocumentModel::documentForFilePath(filePath)
+                && !filePath.isReadableFile()) {
+                return fail(QString("\"%1\" is not a readable file.")
+                                .arg(filePath.toUserOutput()));
+            }
+            Core::IEditor *editor = Core::EditorManager::openEditor(
+                filePath, Utils::Id(),
+                Core::EditorManager::DoNotChangeCurrentEditor
+                    | Core::EditorManager::DoNotMakeVisible);
+            TextEditor::TextEditorWidget *widget
+                = TextEditor::TextEditorWidget::fromEditor(editor);
+            if (!widget) {
+                return fail(QString("Could not open \"%1\" in a text editor.")
+                                .arg(filePath.toUserOutput()));
+            }
+
+            QTextDocument *doc = widget->document();
+            const QTextBlock block = doc->findBlockByNumber(line - 1);
+            if (!block.isValid()) {
+                return fail(QString("Line %1 is out of range in \"%2\".")
+                                .arg(line).arg(filePath.toUserOutput()));
+            }
+
+            TextEditor::CompletionAssistProvider * const provider
+                = widget->textDocument()->completionAssistProvider();
+            if (!provider) {
+                return fail(QString("No completions are offered for \"%1\".")
+                                .arg(filePath.toUserOutput()));
+            }
+
+            // The interface takes its position from the widget's cursor and keeps a
+            // copy, so the caret moves there and straight back.
+            const int cursorPos = block.position() + qMin(column - 1, block.length() - 1);
+            const QTextCursor savedCursor = widget->textCursor();
+            QTextCursor cursor(doc);
+            cursor.setPosition(cursorPos);
+            widget->setTextCursor(cursor);
+            std::unique_ptr<TextEditor::AssistInterface> interface
+                = widget->createAssistInterface(TextEditor::Completion,
+                                                TextEditor::ExplicitlyInvoked);
+            widget->setTextCursor(savedCursor);
+
+            TextEditor::IAssistProcessor * const processor = provider->createProcessor(
+                interface.get());
+            const auto report = [toolInterface, limit, cursorPos, processor,
+                                 widget = QPointer(widget),
+                                 answered = std::make_shared<bool>(false)](
+                                    TextEditor::IAssistProposal *proposal) {
+                const std::unique_ptr<TextEditor::IAssistProposal> proposalHolder(proposal);
+                // The handler runs from inside the processor, which may still use
+                // itself after it returns, so the processor goes once the event
+                // loop is back and nothing of it is running.
+                if (!processor->running()) {
+                    QMetaObject::invokeMethod(
+                        QCoreApplication::instance(), [processor] { delete processor; },
+                        Qt::QueuedConnection);
+                }
+                // An immediate proposal followed by the final one arrives here
+                // twice; the call is answered once.
+                if (std::exchange(*answered, true))
+                    return;
+
+                QJsonArray completions;
+                int total = 0;
+                if (proposal) {
+                    // A position inside a call's argument list yields a function-hint
+                    // proposal, whose model holds no completion items.
+                    if (const auto model
+                        = proposal->model().dynamicCast<TextEditor::GenericProposalModel>()) {
+                        const int base = proposal->basePosition();
+                        const QString prefix = widget
+                            ? Utils::Text::textAt(widget->document(), base, cursorPos - base)
+                            : QString();
+                        if (!prefix.isEmpty())
+                            model->filter(prefix);
+                        if (model->isSortable(prefix))
+                            model->sort(prefix);
+                        total = model->size();
+                        for (int i = 0; i < total && completions.size() < limit; ++i) {
+                            QJsonObject item{{"text", model->text(i)}};
+                            if (const TextEditor::AssistProposalItemInterface *p
+                                = model->proposalItem(i)) {
+                                const QString detail = p->detail();
+                                if (!detail.isEmpty())
+                                    item.insert("detail", detail);
+                            }
+                            completions.append(item);
+                        }
+                    }
+                }
+                toolInterface.finish(CallToolResult{}.isError(false).structuredContent(
+                    QJsonObject{{"completions", completions},
+                                {"total", total},
+                                {"truncated", total > completions.size()}}));
+            };
+            processor->setAsyncCompletionAvailableHandler(report);
+            TextEditor::IAssistProposal * const proposal = processor->start(std::move(interface));
+            // A processor that returned nothing and is not running will never call
+            // back, so that is the answer.
+            if (proposal || !processor->running())
+                report(proposal);
+            return ResultOk;
+        });
 
     ToolRegistry::registerTool(
         Tool{}

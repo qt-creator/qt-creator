@@ -4,7 +4,6 @@
 #include "mcpsupport.h"
 
 #include "cppcanonicalsymbol.h"
-#include "cppcompletionassist.h"
 #include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppindexingsupport.h"
@@ -24,16 +23,12 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/codeassist/assistenums.h>
-#include <texteditor/codeassist/assistproposaliteminterface.h>
-#include <texteditor/codeassist/genericproposalmodel.h>
-#include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/quickfix.h>
 
 #include <cplusplus/AST.h>
@@ -50,7 +45,6 @@
 #include <utils/changeset.h>
 #include <utils/filepath.h>
 #include <utils/result.h>
-#include <utils/textutils.h>
 
 #include <QFuture>
 #include <QFutureInterface>
@@ -1720,146 +1714,6 @@ void registerMcpTools()
                 {"files_changed", filesChanged},
                 {"skipped_edits", skippedEdits},
                 {"skipped_files", QJsonArray::fromStringList(skippedFiles)}}));
-        });
-
-    ToolRegistry::registerTool(
-        Tool{}
-            .name("cpp_get_completions")
-            .title("Get C++ code completions")
-            .description(
-                "Returns the C++ code-completion proposals at a position, as the editor "
-                "would offer them - useful before writing code. Give the file and a "
-                "1-based line and column (the cursor point, e.g. just after a \".\" or "
-                "\"::\"); returns the candidate completions, each with its text and any "
-                "detail (signature/type), filtered and ranked by the prefix already typed. "
-                "The file is opened in an editor if it is not already, and must belong to "
-                "an open project.")
-            .annotations(ToolAnnotations{}.readOnlyHint(true))
-            .inputSchema(
-                Tool::InputSchema{}
-                    .addProperty(
-                        "file",
-                        QJsonObject{
-                            {"type", "string"},
-                            {"description", "Absolute path to the C++ file."}})
-                    .addProperty(
-                        "line",
-                        QJsonObject{
-                            {"type", "integer"},
-                            {"description", "1-based line of the cursor position."}})
-                    .addProperty(
-                        "column",
-                        QJsonObject{
-                            {"type", "integer"},
-                            {"description", "1-based column of the cursor position."}})
-                    .addProperty("limit", limitProperty())
-                    .addRequired("file")
-                    .addRequired("line")
-                    .addRequired("column"))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty(
-                        "completions",
-                        QJsonObject{{"type", "array"},
-                                    {"items", QJsonObject{{"type", "object"}}}})
-                    .addProperty("total", QJsonObject{{"type", "integer"}})
-                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
-                    .addRequired("completions")),
-        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const QJsonObject args = params.argumentsAsObject();
-            const QString file = args.value("file").toString();
-            const int line = args.value("line").toInt();
-            const int column = args.value("column").toInt();
-            const int limit = resultLimit(args);
-            if (file.isEmpty() || line <= 0 || column <= 0) {
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
-                    "Requires \"file\" and 1-based \"line\" and \"column\"."));
-            }
-
-            const FilePath filePath = FilePath::fromUserInput(file);
-            const CPlusPlus::Document::Ptr cppDocument = CppModelManager::document(filePath);
-            if (!cppDocument) {
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
-                    QString("No C++ code model document for \"%1\". Is it a C++ file that "
-                            "belongs to an open project?").arg(filePath.toUserOutput())));
-            }
-
-            Core::IEditor *editor = Core::EditorManager::openEditor(
-                filePath, {},
-                Core::EditorManager::DoNotChangeCurrentEditor
-                    | Core::EditorManager::DoNotMakeVisible);
-            TextEditor::TextEditorWidget *widget = TextEditor::TextEditorWidget::fromEditor(editor);
-            if (!widget) {
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
-                    QString("Could not open \"%1\" in a text editor.")
-                        .arg(filePath.toUserOutput())));
-            }
-
-            QTextDocument *doc = widget->document();
-            const QTextBlock block = doc->findBlockByNumber(line - 1);
-            if (!block.isValid()) {
-                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
-                    QString("Line %1 is out of range in \"%2\".")
-                        .arg(line).arg(filePath.toUserOutput())));
-            }
-            // CppCompletionAssistInterface takes its position from the widget's
-            // cursor, so the caret has to move there and back again.
-            const int cursorPos = block.position() + qMin(column - 1, block.length() - 1);
-            const QTextCursor savedCursor = widget->textCursor();
-            const QScopeGuard restoreCursor([widget, savedCursor] {
-                widget->setTextCursor(savedCursor);
-            });
-            QTextCursor cursor(doc);
-            cursor.setPosition(cursorPos);
-            widget->setTextCursor(cursor);
-
-            CPlusPlus::LanguageFeatures features = cppDocument->languageFeatures();
-            ProjectExplorer::HeaderPaths headerPaths;
-            const QList<ProjectPart::ConstPtr> parts = CppModelManager::projectPart(filePath);
-            if (!parts.isEmpty()) {
-                features = parts.first()->languageFeatures;
-                headerPaths = parts.first()->headerPaths;
-            }
-            auto interface = std::make_unique<CppCompletionAssistInterface>(
-                filePath, widget, TextEditor::ExplicitlyInvoked, CppModelManager::snapshot(),
-                headerPaths, features);
-            interface->prepareForAsyncUse();
-            interface->recreateTextDocument();
-
-            InternalCppCompletionAssistProcessor processor;
-            processor.setupAssistInterface(std::move(interface));
-            const std::unique_ptr<TextEditor::IAssistProposal> proposal(processor.performAsync());
-
-            QJsonArray completions;
-            int total = 0;
-            if (proposal) {
-                // A position inside a call's argument list yields a function-hint
-                // proposal, whose model is not a CppAssistProposalModel.
-                if (const CppAssistProposalModelPtr model
-                        = proposal->model().dynamicCast<CppAssistProposalModel>()) {
-                    const int base = proposal->basePosition();
-                    const QString prefix = Utils::Text::textAt(doc, base, cursorPos - base);
-                    if (!prefix.isEmpty())
-                        model->filter(prefix);
-                    if (model->isSortable(prefix))
-                        model->sort(prefix);
-                    total = model->size();
-                    for (int i = 0; i < total && completions.size() < limit; ++i) {
-                        QJsonObject item{{"text", model->text(i)}};
-                        if (const TextEditor::AssistProposalItemInterface *p = model->proposalItem(i)) {
-                            const QString detail = p->detail();
-                            if (!detail.isEmpty())
-                                item.insert("detail", detail);
-                        }
-                        completions.append(item);
-                    }
-                }
-            }
-
-            return CallToolResult{}.isError(false).structuredContent(
-                QJsonObject{{"completions", completions},
-                            {"total", total},
-                            {"truncated", total > completions.size()}});
         });
 
     ToolRegistry::registerTool(
