@@ -694,7 +694,8 @@ Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
         }
     }
 
-    const FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
+    const FilePath binary
+        = env.searchInPath(QLatin1String("cl.exe"), {}, {}, FilePath::WithAnySuffix, m_vcvarsBat);
     if (binary.isEmpty()) {
         qWarning("%s: The compiler binary cl.exe could not be found in the path.", Q_FUNC_INFO);
         return predefinedMacros;
@@ -720,7 +721,7 @@ Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
     QStringList arguments;
     if (language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
         arguments << QLatin1String("/TC");
-    arguments << toProcess << QLatin1String("/EP") << saver.filePath().toUserOutput();
+    arguments << toProcess << QLatin1String("/EP") << saver.filePath().nativePath();
     cpp.setCommand({binary, arguments});
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess)
@@ -2531,7 +2532,8 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
     }
 
     const Environment environment = deviceRoot.deviceEnvironment();
-    const FilePath clangClPath = environment.searchInPath("clang-cl.exe");
+    const FilePath clangClPath
+        = environment.searchInPath("clang-cl.exe", {}, {}, FilePath::WithAnySuffix, deviceRoot);
     if (!clangClPath.isEmpty())
         results.append(detectClangClToolChainInPath(clangClPath, known, ""));
 
