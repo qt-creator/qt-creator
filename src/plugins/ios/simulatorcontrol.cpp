@@ -100,19 +100,24 @@ static Result<> runSimCtlCommand(
 static Result<> launchSimulator(const QString &simUdid, std::function<bool()> shouldStop)
 {
     QTC_ASSERT(!simUdid.isEmpty(), return make_unexpected(Tr::tr("Invalid Empty UDID.")));
-    const FilePath simulatorAppPath = IosConfigurations::developerPath()
-            .pathAppended("Applications/Simulator.app/Contents/MacOS/Simulator");
+    const FilePath simulatorAppPath = IosConfigurations::developerPath() / "Applications"
+                                      / "Simulator.app";
+    // or for Xcode 27+:
+    const FilePath deviceHubAppPath = IosConfigurations::developerPath().parentDir()
+                                      / "Applications" / "DeviceHub.app";
 
+    const QStringList openArguments = simulatorAppPath.isDir()
+                                          ? QStringList({simulatorAppPath.nativePath()})
+                                      : deviceHubAppPath.isDir()
+                                          ? QStringList({deviceHubAppPath.nativePath()})
+                                          : QStringList({"-a", "DeviceHub"});
     // boot the requested simulator device
     const Result<> bootResult = runSimCtlCommand({"boot", simUdid}, nullptr, shouldStop);
     if (!bootResult)
         return bootResult;
 
     // open Simulator.app if not running yet
-    return runCommand(
-        {"/usr/bin/open",
-         {IosConfigurations::developerPath().pathAppended("Applications/Simulator.app").nativePath()}},
-        nullptr);
+    return runCommand({"/usr/bin/open", openArguments}, nullptr);
 }
 
 static bool isAvailable(const QJsonObject &object)
