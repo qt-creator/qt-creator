@@ -305,13 +305,16 @@ static ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
             return false;
         }
 
+        const FilePath inferiorBinary = runParameters.inferior().command.executable();
+        const FilePath debuggerBinary = runParameters.debugger().command.executable();
         if (runParameters.cppEngineType() == CdbEngineType
-            && Utils::is64BitWindowsBinary(runParameters.inferior().command.executable())
-            && !Utils::is64BitWindowsBinary(runParameters.debugger().command.executable())) {
+            && inferiorBinary.isLocal() && debuggerBinary.isLocal()
+            && Utils::is64BitWindowsBinary(inferiorBinary)
+            && !Utils::is64BitWindowsBinary(debuggerBinary)) {
             runControl->postMessage(Tr::tr(
                     "%1 is a 64 bit executable which can not be debugged by a 32 bit Debugger.\n"
                     "Please select a 64 bit Debugger in the kit settings for this kit.")
-                    .arg(runParameters.inferior().command.executable().toUserOutput()),
+                    .arg(inferiorBinary.toUserOutput()),
                     ErrorMessageFormat);
             return false;
         }

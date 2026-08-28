@@ -3188,6 +3188,10 @@ void DebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 && rp.cppEngineType() == CdbEngineType
                 && rp.startMode() != AttachToRemoteServer) {
             QTC_ASSERT(!rp.symbolFile().isEmpty(), return);
+            // getPDBFiles() maps the file with Win32 calls, so it sees local files on a
+            // Windows host only. Elsewhere there is nothing to report.
+            if (!HostOsInfo::isWindowsHost() || !rp.symbolFile().isLocal())
+                return;
             if (!rp.symbolFile().exists() && !rp.symbolFile().endsWith(".exe"))
                 rp.setSymbolFile(rp.symbolFile().stringAppended(".exe"));
             QString errorMessage;
