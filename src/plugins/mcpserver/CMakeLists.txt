@@ -1,4 +1,4 @@
-add_qtc_plugin(mcpserver
+add_qtc_plugin(McpServer
   CONDITION TARGET McpServerLib
   PLUGIN_CLASS McpServerPlugin
   PLUGIN_DEPENDS
@@ -26,7 +26,7 @@ add_qtc_plugin(mcpserver
       davecotter-mcp
 )
 
-qtc_add_resources(mcpserver "images"
+qtc_add_resources(McpServer "images"
   PREFIX "/mcpserver"
   BASE "."
   FILES
@@ -34,7 +34,7 @@ qtc_add_resources(mcpserver "images"
     images/mcpicon@2x.png
 )
 
-qtc_add_resources(mcpserver "schemas"
+qtc_add_resources(McpServer "schemas"
   PREFIX "/mcpserver"
   BASE "."
   FILES

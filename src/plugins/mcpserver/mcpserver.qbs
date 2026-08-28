@@ -1,7 +1,7 @@
 import qbs
 
 QtcPlugin {
-    name: "mcpserver"
+    name: "McpServer"
 
     Depends { name: "app_version_header" }
     Depends { name: "Core" }
