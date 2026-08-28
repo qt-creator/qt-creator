@@ -1269,6 +1269,16 @@ QString LinuxDevice::userAtHostAndPort() const
     return sshParameters().userAtHostAndPort();
 }
 
+Result<FilePath> LinuxDevice::localSource(const FilePath &other) const
+{
+    const FilePath localVersion = FilePath::fromPathPart(other.path());
+    for (const FilePath &mount : mounts()) {
+        if (mount == localVersion || localVersion.isChildOf(mount))
+            return localVersion;
+    }
+    return IDevice::localSource(other);
+}
+
 Result<Environment> LinuxDevice::sourcedEnvironment(const FilePath &script) const
 {
     return getUnixEnvironment(script);

@@ -64,6 +64,7 @@ public:
 
     Utils::Result<> handlesFile(const Utils::FilePath &filePath) const override;
     Utils::Result<> ensureReachable(const Utils::FilePath &other) const override;
+    Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
     Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const override;
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
 
