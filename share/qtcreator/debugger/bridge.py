@@ -768,6 +768,18 @@ class DapServer():
             body['error'] = str(error)
         self.sendResponse(request, body=body)
 
+    def cmd_qtc_enableSubBreakpoint(self, request):
+        # A location of a multi-location breakpoint, addressed as 'N.M'.
+        # gdb.BreakpointLocation.enabled only exists from gdb 13 on.
+        args = request.get('arguments', {})
+        command = 'enable' if args.get('enabled') else 'disable'
+        try:
+            gdb.execute('%s %s' % (command, args.get('id')), to_string=True)
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        self.sendResponse(request, body={'modelid': args.get('modelid')})
+
     def cmd_qtc_updateBreakpoint(self, request):
         args = request.get('arguments', {})
         key = str(args.get('id'))
