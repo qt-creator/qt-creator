@@ -362,7 +362,7 @@ void CppEditorDocument::Private::onMimeTypeChanged()
     // ClangFormat does not indent inside comments; see QTCREATORBUG-34604.
     // TODO: It'd be preferable to be able to indent in comments everywhere.
     // If and when that happens, this code can be removed.
-    if (mt == "text/x-qdoc")
+    if (Utils::mimeTypeForName(mt).inherits(Utils::Constants::QDOC_MIMETYPE))
         q->setIndenter(createCppQtStyleIndenter(document()));
 
     initializeTimer();

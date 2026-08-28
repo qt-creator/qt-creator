@@ -26,6 +26,7 @@ Project {
         "pointeralgorithm/pointeralgorithm.qbs",
         "profilewriter/profilewriter.qbs",
         "proparser/proparser.qbs",
+        "qdoc/qdoc.qbs",
         "qml/qml.qbs",
         "qmldebug/qmldebug.qbs",
         "qtprofiler/qtprofiler.qbs",
