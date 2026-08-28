@@ -943,6 +943,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createSelectableFilesWidgetTest);
     addTestCreator(createSessionTest);
     addTestCreator(createTaskHandlingTest);
+    addTestCreator(createToolchainManagerTest);
     addTestCreator(createToolchainSettingsTest);
     addTestCreator(createUserFileAccessorTest);
     addTestCreator(createXcodebuildParserTest);

@@ -97,4 +97,8 @@ private:
     friend class Toolchain;
 };
 
+namespace Internal {
+QObject *createToolchainManagerTest();
+} // namespace Internal
+
 } // namespace ProjectExplorer
