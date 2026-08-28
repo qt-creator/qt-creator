@@ -8,6 +8,7 @@
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
 #include "androidlogcatcrashparser.h"
+#include "androidmcpsupport.h"
 #include "androidpackageinstallationstep.h"
 #include "androidqmltoolingsupport.h"
 #include "androidqtversion.h"
@@ -102,12 +103,15 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 
         setupJavaLanguageServer();
 
+        registerAndroidMcpTools();
+
 #ifdef WITH_TESTS
         addTestCreator(createAndroidSdkManagerTest);
         addTestCreator(createAndroidSdkManagerOutputParserTest);
         addTestCreator(createAndroidQtVersionTest);
         addTestCreator(createAndroidConfigurationsTest);
         addTestCreator(createAndroidLogcatCrashParserTest);
+        addTestCreator(createAndroidMcpSupportTest);
 #endif
     }
 

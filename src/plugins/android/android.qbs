@@ -7,6 +7,7 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "LanguageClient" }
     Depends { name: "LanguageServerProtocol" }
+    Depends { name: "McpServerLib" }
     Depends { name: "ProParser" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDebug" }
@@ -38,6 +39,8 @@ QtcPlugin {
         "androidmanifesteditor.h",
         "androidmanifestutils.cpp",
         "androidmanifestutils.h",
+        "androidmcpsupport.cpp",
+        "androidmcpsupport.h",
         "androidpackageinstallationstep.cpp",
         "androidpackageinstallationstep.h",
         "androidplugin.cpp",

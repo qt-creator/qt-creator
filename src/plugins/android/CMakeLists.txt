@@ -1,5 +1,5 @@
 add_qtc_plugin(Android
-  DEPENDS QmlDebug Qt::Xml LanguageServerProtocol CmdBridgeClient
+  DEPENDS QmlDebug Qt::Xml LanguageServerProtocol CmdBridgeClient McpServerLib
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
   LONG_DESCRIPTION_MD plugindescription.md
   LICENSE_MD LICENSE.md
@@ -16,6 +16,7 @@ add_qtc_plugin(Android
     androidlogcatcrashparser.cpp androidlogcatcrashparser.h
     androidmanifesteditor.cpp androidmanifesteditor.h
     androidmanifestutils.cpp androidmanifestutils.h
+    androidmcpsupport.cpp androidmcpsupport.h
     androidpackageinstallationstep.cpp androidpackageinstallationstep.h
     androidplugin.cpp
     androidqmltoolingsupport.cpp androidqmltoolingsupport.h
