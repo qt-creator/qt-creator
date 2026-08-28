@@ -31,38 +31,47 @@ type isresult struct {
 }
 
 func check(Cmd command) (bool, error) {
-	fileInfo, err := os.Stat(Cmd.Is.Path)
+	return checkPath(Cmd.Is.Path, Cmd.Is.Check)
+}
+
+func checkPath(path string, wanted int) (bool, error) {
+	fileInfo, err := os.Stat(path)
 
 	if err != nil {
 		return false, nil
 	}
 
-	if (Cmd.Is.Check == ReadableDir || Cmd.Is.Check == WritableDir || Cmd.Is.Check == Dir) {
+	if (wanted == ReadableDir || wanted == WritableDir || wanted == Dir) {
 		if !fileInfo.IsDir() {
 			return false, nil
 		}
 	}
-	if (Cmd.Is.Check == Symlink) {
+	if (wanted == ReadableFile || wanted == WritableFile || wanted == ExecutableFile) {
+		if fileInfo.IsDir() {
+			return false, nil
+		}
+	}
+	if (wanted == Symlink) {
 		return (fileInfo.Mode() & os.ModeSymlink != 0), nil;
 	}
-	if (Cmd.Is.Check == Exists) {
+	if (wanted == Exists) {
 		return true, nil
 	}
-	if (Cmd.Is.Check == File) {
+	if (wanted == File) {
 		return (!fileInfo.IsDir()), nil
 	}
 
-	switch(Cmd.Is.Check) {
+	switch(wanted) {
 	case ReadableFile:
-		return isReadable(Cmd.Is.Path), nil
+		return isReadable(path), nil
 	case WritableFile:
-		return isWritable(Cmd.Is.Path), nil
+		return isWritable(path), nil
 	case ExecutableFile:
-		return isExecutable(Cmd.Is.Path), nil
+		return isExecutable(path), nil
 	case ReadableDir:
-		return isReadable(Cmd.Is.Path), nil
+		return isReadable(path), nil
 	case WritableDir:
-		return isWritable(Cmd.Is.Path), nil
+		return isWritable(path), nil
 	}
 
 	return true, nil
