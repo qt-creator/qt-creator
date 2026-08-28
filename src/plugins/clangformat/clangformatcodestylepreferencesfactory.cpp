@@ -44,6 +44,7 @@
 #include <utils/filepath.h>
 #include <utils/fileutils.h>
 #include <utils/guard.h>
+#include <utils/guiutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/shutdownguard.h>
@@ -238,7 +239,16 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(
     createStyleFileIfNeeded(!m_project);
 
     initPreview(codeStyle);
-    initEditor();
+
+    m_editorScrollArea = new QScrollArea;
+    m_editorScrollArea->setWidgetResizable(true);
+
+    m_clangFileIsCorrectText = new InfoLabel("", InfoLabelType::Ok);
+    m_clangFileIsCorrectText->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_clangFileIsCorrectText->hide();
+
+    m_clangVersion = new QLabel(Tr::tr("Current ClangFormat version: %1.").arg(LLVM_VERSION_STRING),
+                                this);
 
     using namespace Layouting;
 
@@ -257,14 +267,19 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(
     connect(codeStyle, &ICodeStylePreferences::aboutToBeCopied,
             this, &ClangFormatFile::copyClangFormatFileBasedOnStylePreferences);
 
-    slotCodeStyleChanged(codeStyle->currentPreferences());
-
-    reopenClangFormatDocument();
-    updatePreview();
+    // Opening the style file in an editor and announcing it to the language
+    // client is by far the most expensive thing here, and pointless for a
+    // widget that is only built to be scraped for search keywords.
+    Utils::onFirstShow(this, [this, codeStyle] {
+        initEditor();
+        slotCodeStyleChanged(codeStyle->currentPreferences());
+    });
 }
 
 ClangFormatConfigWidget::~ClangFormatConfigWidget()
 {
+    if (!m_editor)
+        return;
     auto doc = qobject_cast<TextDocument *>(m_editor->document());
     invokeMethodForLanguageClientManager("documentClosed", Q_ARG(Core::IDocument *, doc));
 }
@@ -285,9 +300,8 @@ void ClangFormatConfigWidget::updateReadOnlyState()
 {
     const bool isReadOnly = m_config->isReadOnly() || !m_useCustomSettings;
     m_preview->setReadOnly(isReadOnly);
-    TextEditorWidget * const widget = editorWidget();
-    QTC_ASSERT(widget, return);
-    widget->setReadOnly(isReadOnly);
+    if (TextEditorWidget * const widget = editorWidget())
+        widget->setReadOnly(isReadOnly);
 }
 
 TextEditorWidget *ClangFormatConfigWidget::editorWidget() const
@@ -297,7 +311,6 @@ TextEditorWidget *ClangFormatConfigWidget::editorWidget() const
 
 void ClangFormatConfigWidget::initEditor()
 {
-    m_editorScrollArea = new QScrollArea();
     Core::EditorFactories factories = Core::IEditorFactory::preferredEditorTypes(
         m_config->filePath());
     Core::IEditorFactory *factory = factories.takeFirst();
@@ -312,17 +325,9 @@ void ClangFormatConfigWidget::initEditor()
                                          Q_ARG(Core::IEditor *, m_editor.get()));
 
     m_editorScrollArea->setWidget(m_editor->widget());
-    m_editorScrollArea->setWidgetResizable(true);
 
     if (TextEditorWidget *editor = editorWidget())
         editor->setMinimapVisible(false);
-
-    m_clangFileIsCorrectText = new InfoLabel("", InfoLabelType::Ok);
-    m_clangFileIsCorrectText->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-    m_clangFileIsCorrectText->hide();
-
-    m_clangVersion = new QLabel(Tr::tr("Current ClangFormat version: %1.").arg(LLVM_VERSION_STRING),
-                                this);
 
     connect(m_editor->document(), &TextDocument::contentsChanged, this, [this] {
         // A real user edit (programmatic reopens are guarded); let the hosting
@@ -435,6 +440,9 @@ void ClangFormatConfigWidget::updatePreview()
 
 void ClangFormatConfigWidget::reopenClangFormatDocument()
 {
+    if (!m_editor)
+        return;
+
     GuardLocker locker(m_ignoreChanges);
 
     if (m_editor->document()->open(m_config->filePath(), m_config->filePath())) {
@@ -445,6 +453,8 @@ void ClangFormatConfigWidget::reopenClangFormatDocument()
 
 void ClangFormatConfigWidget::apply()
 {
+    if (!m_editor)
+        return;
     TextEditorWidget * const widget = editorWidget();
     if (QTC_GUARD(widget) && widget->isReadOnly())
         return;
