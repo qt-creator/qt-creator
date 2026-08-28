@@ -77,6 +77,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(BuildConfiguration *bc,
         symbolFile.setValue(localExecutable);
 
         useLibraryPath.setEnabled(buildDevice == runDevice);
+        useLibraryPath.setOsType(runDevice->osType());
 
         // The run device can be a native Windows machine; its runtime library search path is
         // PATH (handled OS-aware by useLibraryPath), but the X11/VNC/run-as options and a remote

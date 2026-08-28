@@ -764,16 +764,25 @@ UseLibraryPathsAspect::UseLibraryPathsAspect(AspectContainer *container)
 {
     setId("UseLibraryPath");
     setSettingsKey("RunConfiguration.UseLibrarySearchPath");
-    if (HostOsInfo::isMacHost()) {
-        setLabel(Tr::tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH"),
-                 LabelPlacement::AtCheckBox);
-    } else if (HostOsInfo::isWindowsHost()) {
+    setOsType(HostOsInfo::hostOs());
+    setValue(ProjectExplorerSettings::get(container).addLibraryPathsToRunEnv());
+}
+
+void UseLibraryPathsAspect::setOsType(OsType osType)
+{
+    switch (osType) {
+    case OsTypeMac:
+        setLabel(Tr::tr("Add build library search path to DYLD_LIBRARY_PATH and "
+                        "DYLD_FRAMEWORK_PATH"), LabelPlacement::AtCheckBox);
+        break;
+    case OsTypeWindows:
         setLabel(Tr::tr("Add build library search path to PATH"), LabelPlacement::AtCheckBox);
-    } else {
+        break;
+    default:
         setLabel(Tr::tr("Add build library search path to LD_LIBRARY_PATH"),
                  LabelPlacement::AtCheckBox);
+        break;
     }
-    setValue(ProjectExplorerSettings::get(container).addLibraryPathsToRunEnv());
 }
 
 /*!

@@ -135,6 +135,8 @@ class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public Utils::BoolAspect
 public:
     UseLibraryPathsAspect(Utils::AspectContainer *container = nullptr);
 
+    void setOsType(Utils::OsType osType);
+
     bool operator()() const { return isEnabled() && Utils::BoolAspect::operator()(); }
 };
 
