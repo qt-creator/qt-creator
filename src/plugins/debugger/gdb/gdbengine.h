@@ -6,6 +6,7 @@
 #include <debugger/debuggerengine.h>
 
 #include <debugger/breakhandler.h>
+#include <debugger/debuggerengineinterface.h>
 #include <debugger/registerhandler.h>
 #include <debugger/peripheralregisterhandler.h>
 #include <debugger/watchhandler.h>
@@ -380,6 +381,7 @@ private: ////////// General Interface //////////
     QtTaskTree::QSingleTaskTreeRunner m_signalOperationRunner;
 };
 
+InferiorStartData inferiorStartData(const DebuggerRunParameters &rp);
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
 
 } // Debugger::Internal

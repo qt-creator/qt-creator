@@ -9,6 +9,7 @@
 #include "debuggerengineinterface.h"
 #include "debuggeritem.h"
 #include "debuggerruncontrol.h"
+#include "gdb/gdbengine.h"
 #include "registerhandler.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -43,9 +44,6 @@ bool isTestRun() { return s_testRun; }
 
 #ifdef WITH_TESTS
 namespace Debugger::Internal {
-
-// gdbengine.cpp
-InferiorStartData inferiorStartData(const DebuggerRunParameters &rp);
 
 class DebuggerUnitTests : public QObject
 {
