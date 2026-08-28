@@ -66,4 +66,9 @@ private:
     QHash<quint64, int> m_rowCache;
 };
 
+// Turns the console output of gdb's 'disassemble' into lines, sorted by
+// address and with each function's header line kept in front of its
+// instructions.
+DisassemblerLines parseCliDisassembly(const QString &consoleStreamOutput);
+
 } // Debugger::Internal

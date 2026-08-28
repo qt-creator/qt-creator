@@ -5,6 +5,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QMap>
 #include <QTextStream>
 
 namespace Debugger::Internal {
@@ -222,6 +223,38 @@ QString DisassemblerLines::toString() const
         str += '\n';
     }
     return str;
+}
+
+DisassemblerLines parseCliDisassembly(const QString &consoleStreamOutput)
+{
+    DisassemblerLines raw;
+    for (const QString &line : consoleStreamOutput.split('\n'))
+        raw.appendUnparsed(line);
+    const QList<DisassemblerLine> lines = raw.data();
+
+    struct LineData { int index; int function; };
+    QMap<quint64, LineData> lineForAddress;
+    int currentFunction = -1;
+    for (int i = 0, n = lines.size(); i != n; ++i) {
+        if (lines.at(i).address)
+            lineForAddress.insert(lines.at(i).address, {i, currentFunction});
+        else
+            currentFunction = i;
+    }
+
+    currentFunction = -1;
+    DisassemblerLines result;
+    result.setBytesLength(raw.bytesLength());
+    for (auto it = lineForAddress.cbegin(), last = lineForAddress.cend(); it != last; ++it) {
+        if (it->function != currentFunction && it->function != -1) {
+            DisassemblerLine functionLine = lines.at(it->function);
+            ++functionLine.hunk;
+            result.appendLine(functionLine);
+            currentFunction = it->function;
+        }
+        result.appendLine(lines.at(it->index));
+    }
+    return result;
 }
 
 } // Debugger::Internal
