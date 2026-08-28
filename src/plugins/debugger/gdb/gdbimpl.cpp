@@ -110,6 +110,12 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
     , m_startData(startData)
 {
     m_gdbProc.setProcessMode(ProcessMode::Writer);
+    // Only a remote target asks for this, and only QNX sets it: the stub is
+    // what can deliver a Ctrl+C to the debugger there.
+    if (m_startData.isSet(GdbImplFlag::UseCtrlCStub)
+            && std::holds_alternative<AttachToRemoteServerData>(m_startData.inferiorStartData)) {
+        m_gdbProc.setUseCtrlCStub(true);
+    }
 
     m_watchdog.setSingleShot(true);
     m_watchdog.setInterval(m_startData.watchdogTimeout);

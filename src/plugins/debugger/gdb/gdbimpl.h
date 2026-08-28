@@ -57,6 +57,7 @@ enum class GdbImplFlag {
     BreakOnMain          = 1 << 13,
     ContinueAfterAttach  = 1 << 14,
     PseudoTracepoints    = 1 << 15,
+    UseCtrlCStub         = 1 << 16,
 };
 Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
 
