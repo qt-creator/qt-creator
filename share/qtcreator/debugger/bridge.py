@@ -985,6 +985,59 @@ class DapServer():
             return
         self.sendResponse(request)
 
+    def _parseMsymbolLine(self, line):
+        if not line or line[0] != '[':
+            return None
+        posCode = line.find(']') + 2
+        posAddress = line.find('0x', posCode)
+        if posAddress < 0:
+            return None
+        posName = line.find(' ', posAddress)
+        posSection = line.find(' section ')
+        section = ''
+        demangled = ''
+        if posSection < 0:
+            name = line[posName:]
+        else:
+            name = line[posName:posSection]
+            posSection += 9
+            posDemangled = line.find(' ', posSection + 1)
+            if posDemangled < 0:
+                section = line[posSection:]
+            else:
+                section = line[posSection:posDemangled]
+                demangled = line[posDemangled + 1:]
+        return {'state': line[posCode:posCode + 1],
+                'address': line[posAddress:posName],
+                'name': name.strip(),
+                'section': section.strip(),
+                'demangled': demangled.strip()}
+
+    def cmd_qtc_fetchSymbols(self, request):
+        # 'maint print msymbols' only writes to a file, so it goes through one.
+        args = request.get('arguments', {})
+        module = args.get('module', '')
+        import tempfile
+        handle, path = tempfile.mkstemp(prefix='qtc-msymbols-')
+        os.close(handle)
+        try:
+            gdb.execute('maint print msymbols -objfile %s -- "%s"' % (module, path),
+                        to_string=True)
+            with open(path, 'r', errors='replace') as symbolFile:
+                text = symbolFile.read()
+        except (gdb.error, OSError) as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        finally:
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+        symbols = [entry for entry in (self._parseMsymbolLine(line)
+                                       for line in text.split('\n')) if entry]
+        self.sendResponse(request, body={'module': module, 'symbols': symbols})
+
     def cmd_qtc_fetchModules(self, request):
         # gdb's Python API lists the objfiles but not where they are loaded or
         # whether their symbols are in, so 'info sharedlibrary' fills that in.
