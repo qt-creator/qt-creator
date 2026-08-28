@@ -77,6 +77,7 @@
     \list
         \li \l{Developing for Docker}{Docker}
         \li \l{Developing for Podman}{Podman}
+        \li \l{Developing for remote Windows devices}{Remote Windows}
         \li \l{Building applications for the web}{WebAssembly}
         \li \l{Developing for the Windows desktop}{Windows desktop}
     \endlist

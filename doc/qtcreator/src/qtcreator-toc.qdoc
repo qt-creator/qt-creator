@@ -83,6 +83,7 @@
                         \generatelist creator-how-to-qnx
                     \li \l{Developing for remote Linux devices}
                         \generatelist creator-how-to-remote-linux
+                    \li \l{Developing for remote Windows devices}
                     \li \l{Building applications for the web}
                         \generatelist creator-how-to-webassembly
                     \li \l{Developing for VxWorks}
