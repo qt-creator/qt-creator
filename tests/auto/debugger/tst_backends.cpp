@@ -532,6 +532,22 @@ static QString debugInfoDaemonQuery(Backend backend)
 
 // pdbbridge.py's stackListFrames() reports the whole stack and takes no limit,
 // so a depth limit cannot reach it yet.
+// The marker a backend logs per command when time stamps are configured.
+static QString responseTimeMarker(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return "Response time";
+    case Backend::Lldb:
+    case Backend::Cdb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Bridge:
+        break;
+    }
+    return {};
+}
+
 // Only GdbImpl steps past a frame the user did not ask to see so far.
 static bool skipsKnownFrames(Backend backend)
 {
@@ -790,6 +806,8 @@ private slots:
     void limitsTheReportedStackDepth();
     void skipsKnownFramesWhenStepping_data() { addBackendRows(); }
     void skipsKnownFramesWhenStepping();
+    void logsTheResponseTimeWhenConfigured_data() { addBackendRows(); }
+    void logsTheResponseTimeWhenConfigured();
     void testDetachCapability_data() { addBackendRows(); }
     void testDetachCapability();
     void testDisassemblerCapability_data() { addBackendRows(); }
@@ -989,7 +1007,8 @@ private:
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {},
         bool nativeMixed = false,
         std::chrono::seconds watchdogTimeout = {},
-        bool skipKnownFrames = false);
+        bool skipKnownFrames = false,
+        bool logTimeStamps = false);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData);
     // Every user-configurable debugger option turned on, so a test can check they arrive.
@@ -1137,12 +1156,14 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     const std::optional<ProcessRunData> &inferiorRunDataOverride,
     bool nativeMixed,
     std::chrono::seconds watchdogTimeout,
-    bool skipKnownFrames)
+    bool skipKnownFrames,
+    bool logTimeStamps)
 {
     Q_UNUSED(debuggerRunDataOverride)
     Q_UNUSED(inferiorRunDataOverride)
     Q_UNUSED(nativeMixed)
     Q_UNUSED(skipKnownFrames)
+    Q_UNUSED(logTimeStamps)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1154,7 +1175,9 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .flags = (nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
                                   : GdbImplFlags())
                      | (skipKnownFrames ? GdbImplFlags(GdbImplFlag::SkipKnownFrames)
-                                        : GdbImplFlags()),
+                                        : GdbImplFlags())
+                     | (logTimeStamps ? GdbImplFlags(GdbImplFlag::LogTimeStamps)
+                                      : GdbImplFlags()),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
@@ -4070,6 +4093,58 @@ void tst_backends::limitsTheReportedStackDepth()
     QVERIFY2(limited < everything,
              qPrintable(QString("a depth limit of 5 reported %1 frames, all of them %2")
                             .arg(limited).arg(everything)));
+}
+
+void tst_backends::logsTheResponseTimeWhenConfigured()
+{
+    QFETCH(Backend, backend);
+
+    const QString marker = responseTimeMarker(backend);
+    if (marker.isEmpty())
+        QSKIP("This backend does not log a per-command response time.");
+
+    // The log window stamps every line on its own; what the setting adds here
+    // is how long each command took.
+    const QString versionLine = inferiorTestData(backend).versionLine;
+    QVERIFY(!versionLine.isEmpty());
+
+    // Counting the markers needs a moment the count is final at: the answer to
+    // a command sent after the ones being counted. Commands are answered in
+    // order, so once it is here, a marker that was coming would be here too.
+    const auto markersWith = [this, backend, marker, versionLine](bool logTimeStamps) {
+        int seen = -1;
+        std::unique_ptr<DebuggerBackend> debuggerBackend
+            = createEngine(backend, {}, {}, false, {}, false, logTimeStamps);
+        if (!debuggerBackend)
+            return seen;
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        int markers = 0;
+        bool answered = false;
+        connect(engine, &DebuggerEngineInterface::message, this,
+                [&markers, &answered, marker, versionLine](const QString &text, int channel, int) {
+            if (channel == Debugger::LogTime && text.contains(marker))
+                ++markers;
+            else if (text.contains(versionLine))
+                answered = true;
+        });
+        engine->start();
+        [&] {
+            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk),
+                                     s_timeout);
+        }();
+        if (QTest::currentTestFailed())
+            return seen;
+        engine->executeDebuggerCommand("show version", {});
+        [&] { QTRY_VERIFY_WITH_TIMEOUT(answered, s_timeout); }();
+        if (QTest::currentTestFailed())
+            return seen;
+        seen = markers;
+        return seen;
+    };
+
+    QCOMPARE(markersWith(false), 0);
+    QVERIFY2(markersWith(true) > 0,
+             qPrintable("no \"" + marker + "\" line arrived although time stamps are on"));
 }
 
 void tst_backends::skipsKnownFramesWhenStepping()

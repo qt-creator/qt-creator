@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QRegularExpression>
 #include <QTextStream>
+#include <QTime>
 
 #include <utility>
 
@@ -1841,6 +1842,7 @@ void GdbImpl::runCommandNow(const DebuggerCommand &command)
         cmd.function = "python theDumper." + cmd.function + "(" + cmd.argsToPython() + ")";
     }
 
+    cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
     m_commandForToken[token] = cmd;
     const QString line = QString::number(token) + cmd.function;
     emit message(line, LogInput);
@@ -2302,6 +2304,12 @@ void GdbImpl::handleResultRecord(DebuggerResponse *response)
         return;
     }
     const DebuggerCommand cmd = m_commandForToken.take(token);
+    if (m_startData.isSet(GdbImplFlag::LogTimeStamps)) {
+        const int elapsed = QTime::fromMSecsSinceStartOfDay(cmd.postTime)
+                                .msecsTo(QTime::currentTime());
+        emit message(QString("Response time: %1: %2 s").arg(cmd.function).arg(elapsed / 1000.),
+                     LogTime);
+    }
     if (token < m_oldestAcceptableToken && (cmd.flags & DebuggerCommand::Discardable)) {
         emit message(QString("GdbImpl: skipping stale result for token %1").arg(token),
                      LogMiscInput);
