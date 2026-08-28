@@ -69,6 +69,8 @@ void tst_Bridge::protocol_data()
     QTest::newRow("framing") << "framing";
     QTest::newRow("initialize reports dumpers") << "initialize-reports-dumpers";
     QTest::newRow("extra dumpers are loaded") << "extra-dumpers-are-loaded";
+    QTest::newRow("an interrupted dumper command keeps the session")
+        << "an-interrupted-dumper-command-keeps-the-session";
     QTest::newRow("launch passes cwd and environment")
         << "launch-passes-cwd-and-environment";
     QTest::newRow("stdout cannot corrupt the protocol")

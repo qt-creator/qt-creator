@@ -893,6 +893,30 @@ def check_interrupt_does_not_end_the_session(bridge):
     assert not eventsOf(messages, "exited"), "the session was ended: %s" % json.dumps(messages)
 
 
+def check_an_interrupted_dumper_command_keeps_the_session(bridge):
+    # The user's dumper commands run before the session is up, and an interrupt
+    # there is a KeyboardInterrupt too: unhandled it takes the read loop with
+    # it, and initialize is never answered.
+    peer = Peer(bridge)
+
+    def onExecute(command):
+        if command == "slow-dumper-command":
+            raise KeyboardInterrupt()
+
+    peer.server.running = True  # as the read loop has it
+    gdb.onExecute = onExecute
+    try:
+        peer.request("initialize", {"qtcDumperCommands": "slow-dumper-command"})
+    except BaseException as error:
+        raise AssertionError("the interrupt escaped the handler: %r" % error)
+    finally:
+        gdb.onExecute = None
+
+    messages = peer.messages()
+    assert len(responsesOf(messages, "initialize")) == 1, json.dumps(messages)
+    assert peer.server.running, "the server gave up on the session"
+
+
 def check_failed_breakpoint_request_carries_the_modelid(bridge):
     # A failed request has no payload, but without the modelid the C++ side
     # cannot tell which breakpoint failed - and one left in its proceeding state
@@ -1144,6 +1168,8 @@ checks = {
     "a-breakpoint-that-cannot-be-reported-is-not-left-behind":
         check_a_breakpoint_that_cannot_be_reported_is_not_left_behind,
     "extra-dumpers-are-loaded": check_extra_dumpers_are_loaded,
+    "an-interrupted-dumper-command-keeps-the-session":
+        check_an_interrupted_dumper_command_keeps_the_session,
     "target-configuration-reaches-gdb": check_target_configuration_reaches_gdb,
     "windows-paths-survive-the-payload": check_windows_paths_survive_the_payload,
     "moving-a-breakpoint-recreates-it": check_moving_a_breakpoint_recreates_it,

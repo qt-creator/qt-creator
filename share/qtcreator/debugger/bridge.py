@@ -1862,6 +1862,10 @@ class DapServer():
             output = gdb.execute(command, to_string=True)
         except gdb.error as error:
             output = '%s\n' % error
+        except KeyboardInterrupt:
+            # Not an Exception, so nothing above would catch it: letting it out
+            # takes the read loop with it, before initialize is even answered.
+            output = 'interrupted\n'
         if output:
             self.sendEvent('output', {'category': 'console', 'output': output})
 
