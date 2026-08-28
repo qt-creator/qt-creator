@@ -109,6 +109,7 @@ class Dumper(DumperBase):
         self.isInterrupting_ = False
         self.interpreterBreakpointResolvers = []
         self.interpreterResolverHookBreakpoint = None
+        self.objectAvailableBreakpoint = None
         # Internal (not user-visible) breakpoint ids - see handleBreakpointEvent().
         self.internalBreakpointIds = set()
 
@@ -1822,7 +1823,7 @@ class Dumper(DumperBase):
                     if "qt_qmlDebugObjectAvailable" in (functionName or ''):
                         self.report("OBJECT AVAILABLE")
                         self.resolvePendingInterpreterBreakpoints()
-                        if not getattr(self, 'pendingInterpreterBreakpoints', []):
+                        if not self.pendingInterpreterBreakpoints:
                             self.dropInterpreterAvailabilityHook()
                         self.process.Continue()
                         return
@@ -2739,14 +2740,14 @@ class Dumper(DumperBase):
         self.interpreterResolverHookBreakpoint = bp
 
     def ensureInterpreterAvailabilityHook(self):
-        if getattr(self, 'objectAvailableBreakpoint', None) is not None:
-            return
-        bp = self.target.BreakpointCreateByName('qt_qmlDebugObjectAvailable')
-        self.internalBreakpointIds.add(bp.GetID())
-        self.objectAvailableBreakpoint = bp
+        if self.objectAvailableBreakpoint is None:
+            bp = self.target.BreakpointCreateByName('qt_qmlDebugObjectAvailable')
+            self.internalBreakpointIds.add(bp.GetID())
+            self.objectAvailableBreakpoint = bp
+        return self.objectAvailableBreakpoint is not None
 
     def dropInterpreterAvailabilityHook(self):
-        bp = getattr(self, 'objectAvailableBreakpoint', None)
+        bp = self.objectAvailableBreakpoint
         if bp is None:
             return
         self.internalBreakpointIds.discard(bp.GetID())

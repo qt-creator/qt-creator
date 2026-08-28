@@ -147,6 +147,8 @@ private:
     QString m_pendingConsoleStreamOutput;
     QString m_pendingLogStreamOutput;
     bool m_inNativeMixedStep = false;
+    bool m_interpreterBreakpointsPending = false;
+    bool m_interpreterHookStop = false;
     QStringDecoder m_outputDecoder{"UTF-8"};
     QHash<int, DebuggerCommand> m_commandForToken;
     bool m_interruptRequested = false;

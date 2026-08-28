@@ -180,6 +180,7 @@ class DumperBase():
         self.isTesting = False
         self.allowInferiorCalls = False
         self.interpreterStepArmed = False
+        self.pendingInterpreterBreakpoints = []
         self.qtLoaded = False
 
         # Defaults for the value-fetching options, so that an early
@@ -2875,10 +2876,11 @@ typename))
         return resdict.get('event') == 'break'
 
     def ensureInterpreterAvailabilityHook(self):
-        pass
+        # Only a backend that can retry a queued breakpoint may keep one.
+        return False
 
     def resolvePendingInterpreterBreakpoints(self):
-        pending = getattr(self, 'pendingInterpreterBreakpoints', [])
+        pending = self.pendingInterpreterBreakpoints
         self.pendingInterpreterBreakpoints = []
         for args in pending:
             self.resolvePendingInterpreterBreakpoint(args)
@@ -2926,11 +2928,8 @@ typename))
         if bp:
             resdict['number'] = bp
             resdict['pending'] = 0
-        elif not response:
-            pending = getattr(self, 'pendingInterpreterBreakpoints', [])
-            pending.append(args)
-            self.pendingInterpreterBreakpoints = pending
-            self.ensureInterpreterAvailabilityHook()
+        elif not response and self.ensureInterpreterAvailabilityHook():
+            self.pendingInterpreterBreakpoints.append(args)
             resdict['number'] = -1
             resdict['pending'] = 1
             resdict['warning'] = 'Interpreter not reachable yet, still pending.'

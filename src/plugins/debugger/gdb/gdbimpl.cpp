@@ -20,6 +20,8 @@
 #include <QRegularExpression>
 #include <QTextStream>
 
+#include <utility>
+
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -1327,6 +1329,8 @@ void GdbImpl::handleInterpreterBreakpointInsert(quint64 requestId, const Debugge
         return;
     }
     if (response.data["pending"].toInt()) {
+        // Retried from the object-availability hook, which the dumpers armed.
+        m_interpreterBreakpointsPending = true;
         emit breakpointEvent(requestId, BreakpointOp::Insert, true);
         return;
     }
@@ -1921,10 +1925,18 @@ void GdbImpl::handleOutputLine(const QString &line)
             // The interpreter is reachable from here on, so a breakpoint it refused
             // earlier can be inserted now. The dumpers stay out of it: an inferior
             // call from inside this frame suspends the inferior's other threads.
-            if (result["frame"]["func"].data() == u"qt_qmlDebugObjectAvailable") {
+            // Only the hook's own stop is swallowed - the dumpers announce it,
+            // since an internal breakpoint carries no number to recognize - and a
+            // queued command or a requested interrupt is served first: the hook
+            // stays until the queue is empty, so it comes back.
+            const bool fromInterpreterHook = std::exchange(m_interpreterHookStop, false);
+            if (fromInterpreterHook && m_interpreterBreakpointsPending
+                    && m_onStopCommands.isEmpty() && !m_interruptRequested
+                    && result["frame"]["func"].data() == u"qt_qmlDebugObjectAvailable") {
                 runCommand({"resolveInterpreterBreakpoints",
                             DebuggerCommand::NeedsTemporaryStop,
-                           [this](const DebuggerResponse &) {
+                           [this](const DebuggerResponse &response) {
+                    m_interpreterBreakpointsPending = response.data["pending"].toInt() > 0;
                     runCommand({"-exec-continue", [this](const DebuggerResponse &reply) {
                         m_inferiorRunning = reply.resultClass == ResultRunning;
                     }});
@@ -2062,6 +2074,10 @@ void GdbImpl::handleOutputLine(const QString &line)
     case '~': {
         const QString data = parser.readCString();
         emit message(data, LogOutput);
+        if (data.startsWith("interpreteravailable={")) {
+            m_interpreterHookStop = true;
+            break;
+        }
         if (data.startsWith("nativemixedstep={")) {
             GdbMi allData;
             allData.fromStringMultiple(data, m_outputDecoder);
