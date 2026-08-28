@@ -433,15 +433,26 @@ class DapServer():
         self.sendResponse(request)
 
     def cmd_configurationDone(self, request):
-        self.sendResponse(request)
         if self.attachMode:
+            self.sendResponse(request)
             # Attaching already stopped the target; report the current state.
             self._reportStopped()
             self._reportProcess()
-        else:
-            # The inferior starts now and runs to the first stop.
-            self._execute('run')
-            self._reportProcess()
+            return
+
+        # 'start' rather than 'run': it stops at main, which is where the pid
+        # becomes known, and the client has to have it before the run is
+        # acknowledged. A binary without a main falls back to a plain run.
+        started = False
+        try:
+            gdb.execute('start', to_string=True)
+            started = True
+        except gdb.error as error:
+            warn('start failed, running instead: %s' % error)
+
+        self._reportProcess()
+        self.sendResponse(request)
+        self._execute('continue' if started else 'run')
 
     def _reportProcess(self):
         try:
