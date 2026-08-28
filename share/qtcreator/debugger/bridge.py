@@ -1078,52 +1078,21 @@ class DapServer():
         self.sendResponse(request)
 
     def cmd_qtc_disassemble(self, request):
-        # Disassemble the enclosing function (or a window) around the address
-        # via gdb's Python API, returning address/bytes/asm per instruction.
+        # Only the CLI form interleaves the source: /rs from gdb 7.11 on,
+        # /rm before it, /r plain.
         args = request.get('arguments', {})
         token = args.get('token', 0)
-        address = int(str(args.get('address', '0')), 0)
-        lines = []
-        try:
-            arch = gdb.selected_frame().architecture()
-        except gdb.error:
-            self.sendResponse(request, body={'token': token, 'lines': lines})
-            return
-
-        start, end, func = address, address + 64, ''
-        try:
-            block = gdb.block_for_pc(address)
-            while block and not block.function:
-                block = block.superblock
-            if block and block.function:
-                func = block.function.name
-                start, end = int(block.start), int(block.end)
-        except Exception:
-            pass
-
-        try:
-            insns = arch.disassemble(start, end - 1)
-        except Exception as error:
-            self.sendResponse(request, success=False, message=str(error))
-            return
-
-        inferior = gdb.selected_inferior()
-        for insn in insns:
-            addr = int(insn['addr'])
-            length = int(insn.get('length', 0))
-            rawbytes = ''
+        target = args.get('target', '')
+        lastError = 'no disassembly'
+        for flags in ('/rs', '/rm', '/r'):
             try:
-                mem = inferior.read_memory(addr, length)
-                rawbytes = ' '.join('%02x' % b for b in bytes(mem))
-            except Exception:
-                pass
-            lines.append({'address': '0x%x' % addr,
-                          'bytes': rawbytes,
-                          'data': insn.get('asm', ''),
-                          'function': func,
-                          'offset': addr - start if func else 0})
-
-        self.sendResponse(request, body={'token': token, 'lines': lines})
+                text = gdb.execute('disassemble %s %s' % (flags, target), to_string=True)
+            except gdb.error as error:
+                lastError = str(error)
+                continue
+            self.sendResponse(request, body={'token': token, 'text': text})
+            return
+        self.sendResponse(request, success=False, message=lastError)
 
     def cmd_evaluate(self, request):
         arguments = request.get('arguments', {})

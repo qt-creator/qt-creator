@@ -962,7 +962,7 @@ void BridgeEngine::fetchDisassembler(DisassemblerAgent *agent)
 
     QJsonObject args;
     args.insert("token", token);
-    args.insert("address", QString("0x%1").arg(agent->address(), 0, 16));
+    args.insert("target", QString("0x%1").arg(agent->address(), 0, 16));
     m_dapClient->postRequest("qtc/disassemble", args);
 }
 
@@ -974,18 +974,7 @@ void BridgeEngine::handleDisassembleResponse(const QJsonObject &response)
     if (!agent)
         return;
 
-    DisassemblerLines lines;
-    for (const QJsonValue &item : body.value("lines").toArray()) {
-        const QJsonObject obj = item.toObject();
-        DisassemblerLine line;
-        line.address = obj.value("address").toString().toULongLong(nullptr, 0);
-        line.function = obj.value("function").toString();
-        line.offset = obj.value("offset").toInt();
-        line.bytes = obj.value("bytes").toString();
-        line.data = obj.value("data").toString();
-        lines.appendLine(line);
-    }
-    agent->setContents(lines);
+    agent->setContents(parseCliDisassembly(body.value("text").toString()));
 }
 
 static GdbMi parseBkpt(const QJsonObject &body)
