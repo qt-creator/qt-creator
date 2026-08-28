@@ -427,9 +427,19 @@ class DapServer():
         if self.attachMode:
             # Attaching already stopped the target; report the current state.
             self._reportStopped()
+            self._reportProcess()
         else:
             # The inferior starts now and runs to the first stop.
             self._execute('run')
+            self._reportProcess()
+
+    def _reportProcess(self):
+        try:
+            pid = gdb.selected_inferior().pid
+        except Exception:
+            return
+        if pid:
+            self.sendEvent('process', {'systemProcessId': pid})
 
     def _shutdown(self, request, terminateDebuggee=True):
         try:
