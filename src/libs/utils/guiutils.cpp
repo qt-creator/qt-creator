@@ -7,6 +7,7 @@
 #include "hostosinfo.h"
 #include "pathchooser.h"
 #include "plaintextedit/plaintextedit.h"
+#include "qtcassert.h"
 #include "qtcolorbutton.h"
 #include "shutdownguard.h"
 
@@ -55,7 +56,46 @@ public:
     }
 };
 
+class FirstShowFilter : public QObject
+{
+public:
+    FirstShowFilter(QWidget *widget, const std::function<void()> &func)
+        : QObject(widget)
+        , m_func(func)
+    {
+        widget->installEventFilter(this);
+    }
+
+private:
+    bool eventFilter(QObject *watched, QEvent *event) override
+    {
+        if (event->type() == QEvent::Show) {
+            watched->removeEventFilter(this);
+            // func() may delete the widget, and with it this filter, so keep
+            // neither m_func nor this alive across the call.
+            const std::function<void()> func = std::move(m_func);
+            deleteLater();
+            func();
+            return false;
+        }
+        return QObject::eventFilter(watched, event);
+    }
+
+    std::function<void()> m_func;
+};
+
 } // namespace Internal
+
+void onFirstShow(QWidget *widget, const std::function<void()> &func)
+{
+    QTC_ASSERT(widget, return);
+    QTC_ASSERT(func, return);
+    if (widget->isVisible()) {
+        func();
+        return;
+    }
+    new Internal::FirstShowFilter(widget, func);
+}
 
 void QTCREATOR_UTILS_EXPORT setWheelScrollingWithoutFocusBlocked(QWidget *widget)
 {
