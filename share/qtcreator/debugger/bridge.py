@@ -19,6 +19,7 @@
 import base64
 import json
 import os
+import re
 import sys
 import threading
 import types
@@ -674,15 +675,33 @@ class DapServer():
         except Exception:
             return []
 
+    def _linespecOf(self, bp):
+        # A breakpoint created from keywords reports its location as gdb's
+        # explicit-location string ("-source x.cpp -line 12"), which is neither
+        # what decode_line takes nor what a user should be shown.
+        location = bp.location or ''
+        match = re.match(r'-source\s+(.*?)\s+-line\s+(\d+)\s*$', location)
+        if match:
+            return '%s:%s' % (match.group(1), match.group(2))
+        match = re.match(r'-function\s+(.*?)\s*$', location)
+        if match:
+            return match.group(1)
+        return location
+
     def _decodedLocations(self, bp):
         # A stand-in for gdb.Breakpoint.locations on gdb < 13: ask gdb to
-        # resolve the breakpoint's own location string.
-        if not bp.location:
+        # resolve the breakpoint's own location.
+        spec = self._linespecOf(bp)
+        if not spec:
             return []
         try:
-            sals = gdb.decode_line(bp.location)[1] or []
+            sals = gdb.decode_line(spec)[1] or []
         except gdb.error:
-            return []
+            # A path with spaces needs quoting to pass as a linespec.
+            try:
+                sals = gdb.decode_line("'%s'" % spec)[1] or []
+            except gdb.error:
+                return []
         decoded = []
         for sal in sals:
             source = None
@@ -750,7 +769,7 @@ class DapServer():
                 subs.append(sub)
             result['locations'] = subs
         else:
-            result['pending'] = bp.location or ''
+            result['pending'] = self._linespecOf(bp)
         return self.dumper.resultToMi(result)
 
     def cmd_qtc_insertBreakpoint(self, request):
