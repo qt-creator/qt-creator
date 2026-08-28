@@ -488,6 +488,22 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
 
 // Only gdb has a debug info daemon to configure, and only when built with
 // support for it, which the test probes for at runtime.
+// x86 gdb is the only backend with a disassembly flavor to configure, and the
+// setting does not exist on other architectures, which the test probes for.
+static QString disassemblyFlavorQuery(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return "show disassembly-flavor";
+    case Backend::Lldb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Cdb:
+        break;
+    }
+    return {};
+}
+
 static QString debugInfoDaemonQuery(Backend backend)
 {
     switch (backend) {
@@ -852,6 +868,8 @@ private slots:
     void appliesConfiguredDebuggerOptions();
     void configuresTheDebugInfoDaemon_data() { addBackendRows(); }
     void configuresTheDebugInfoDaemon();
+    void disassemblesInTheConfiguredFlavor_data() { addBackendRows(); }
+    void disassemblesInTheConfiguredFlavor();
     void breaksBeforeTheInferiorAborts_data() { addBackendRows(); }
     void breaksBeforeTheInferiorAborts();
     void readsTheDebuggerInitFileWhenConfigured_data() { addBackendRows(); }
@@ -1154,7 +1172,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .flags = GdbImplFlag::LoadGdbInit | GdbImplFlag::LoadSystemDumpers
                      | GdbImplFlag::UseIndexCache | GdbImplFlag::MultiInferior
                      | GdbImplFlag::ForceTargetAsync | GdbImplFlag::BreakOnAbort
-                     | GdbImplFlag::BreakOnWarning | GdbImplFlag::BreakOnFatal,
+                     | GdbImplFlag::BreakOnWarning | GdbImplFlag::BreakOnFatal
+                     | GdbImplFlag::IntelDisassembly,
             .useDebugInfoD = TriState(TriState::EnabledValue),
             .extraDumperFile = existingDir / "qtc_extra_dumper.py",
             .extraDumperCommands = "echo QTCEXTRADUMPERCOMMAND\\n",
@@ -4781,6 +4800,53 @@ void tst_backends::appliesConfiguredDebuggerOptions()
                                   qPrintable(QString("%1 never answered with \"%2\"")
                                                  .arg(probe.query, expected)), s_timeout);
     }
+}
+
+void tst_backends::disassemblesInTheConfiguredFlavor()
+{
+    QFETCH(Backend, backend);
+
+    const QString query = disassemblyFlavorQuery(backend);
+    if (query.isEmpty())
+        QSKIP("This backend has no disassembly flavor to configure.");
+    if (auto result = checkCapability(backend, Debugger::DisassemblerCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const FilePath existingDir = FilePath::fromString(m_tempDir.path()) / "disassembly";
+    QVERIFY(existingDir.ensureWritableDir());
+    QVERIFY((existingDir / "qtc_extra_dumper.py").writeFileContents("pass\n"));
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createFullyConfiguredEngine(
+        backend, Environment::systemEnvironment(), existingDir);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList messages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
+
+    // The flavor travels with the disassembly request, not with the startup.
+    bool disassembled = false;
+    connect(engine, &DebuggerEngineInterface::disassemblyReceived, this,
+            [&disassembled](quint64, const DisassemblerLines &) { disassembled = true; });
+    engine->fetchDisassembly(400, 0, inferiorTestData(backend).functionMarker);
+    QTRY_VERIFY_WITH_TIMEOUT(disassembled, s_timeout);
+
+    messages.clear();
+    engine->executeDebuggerCommand(query, {});
+    QString answer;
+    QTRY_VERIFY_WITH_TIMEOUT([&] {
+        for (const QString &text : messages) {
+            if (text.contains("disassembly flavor") || text.contains("Undefined"))
+                answer = text;
+        }
+        return !answer.isEmpty();
+    }(), s_timeout);
+    if (answer.contains("Undefined"))
+        QSKIP("This architecture has no disassembly flavor.");
+    QVERIFY2(answer.contains("\"intel\""),
+             qPrintable("the configured disassembly flavor did not arrive: " + answer));
 }
 
 void tst_backends::configuresTheDebugInfoDaemon()

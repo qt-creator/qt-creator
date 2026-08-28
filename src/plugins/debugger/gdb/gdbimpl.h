@@ -51,6 +51,7 @@ enum class GdbImplFlag {
     BreakOnAbort         = 1 << 7,
     BreakOnWarning       = 1 << 8,
     BreakOnFatal         = 1 << 9,
+    IntelDisassembly     = 1 << 10,
 };
 Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
 

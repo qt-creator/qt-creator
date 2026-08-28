@@ -1615,6 +1615,9 @@ void GdbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString
                      LogWarning);
         return;
     }
+    runCommand({m_startData.isSet(GdbImplFlag::IntelDisassembly)
+                    ? QLatin1String("set disassembly-flavor intel")
+                    : QLatin1String("set disassembly-flavor att")});
     fetchDisassemblyPointMixed(requestId, address, functionName);
 }
 
