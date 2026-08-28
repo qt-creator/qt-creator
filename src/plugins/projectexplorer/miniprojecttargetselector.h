@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QDateTime>
+#include <QPointer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -92,10 +93,10 @@ private:
     Utils::FancyLineEdit *m_filterLineEdit;
 
     Project *m_project = nullptr;
-    Target *m_target = nullptr;
-    BuildConfiguration *m_buildConfiguration = nullptr;
-    DeployConfiguration *m_deployConfiguration = nullptr;
-    RunConfiguration *m_runConfiguration = nullptr;
+    QPointer<Target> m_target;
+    QPointer<BuildConfiguration> m_buildConfiguration;
+    QPointer<DeployConfiguration> m_deployConfiguration;
+    QPointer<RunConfiguration> m_runConfiguration;
     bool m_hideOnRelease = false;
     QDateTime m_earliestHidetime;
 };
