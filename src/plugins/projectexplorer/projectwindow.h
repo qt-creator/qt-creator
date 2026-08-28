@@ -14,6 +14,10 @@ namespace ProjectExplorer::Internal {
 
 class ProjectWindowPrivate;
 
+#ifdef WITH_TESTS
+QObject *createProjectWindowTest();
+#endif
+
 class ProjectWindow : public Utils::FancyMainWindow
 {
     friend class ProjectWindowPrivate;

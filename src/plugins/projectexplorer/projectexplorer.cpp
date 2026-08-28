@@ -965,6 +965,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createRunControlStandardInputTest);
     addTestCreator(createRunControlOutputEncodingTest);
     addTestCreator(createSanitizerOutputParserTest);
+    addTestCreator(createProjectWindowTest);
     addTestCreator(createSelectableFilesWidgetTest);
     addTestCreator(createSessionTest);
     addTestCreator(createTaskHandlingTest);

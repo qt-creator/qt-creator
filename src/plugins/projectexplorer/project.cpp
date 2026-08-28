@@ -58,6 +58,7 @@
 
 #ifdef WITH_TESTS
 #include "buildaspects.h"
+#include "targetsetuppage.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -71,6 +72,7 @@
 #include <utils/qtcsettings.h>
 #include <utils/temporarydirectory.h>
 
+#include <QApplication>
 #include <QCoreApplication>
 #include <QEventLoop>
 #include <QLabel>
@@ -2894,6 +2896,60 @@ private slots:
         Core::ModeManager::activateMode(Constants::MODE_SESSION);
         QVERIFY(Utils::anyOf(TestBuildConfiguration::configWidgets,
                              [](const QPointer<QWidget> &w) { return w; }));
+    }
+
+    // The Projects page shows the setup page instead of the panels of a target
+    // whose kit has errors, so a kit update flipping that has to switch it.
+    void testKitErrorsSwitchToTheSetupPage()
+    {
+        const Utils::Id previousMode = Core::ModeManager::currentModeId();
+        const auto restoreMode = qScopeGuard([previousMode] {
+            Core::ModeManager::activateMode(previousMode);
+        });
+
+        Kit * const kit = KitManager::registerKit([](Kit *k) {
+            k->setUnexpandedDisplayName("Kit Errors Kit");
+        });
+        QVERIFY(kit);
+        const auto deregisterKit = qScopeGuard([kit] { KitManager::deregisterKit(kit); });
+
+        struct BrokenKitProject : TargetlessTestProject
+        {
+            Tasks projectIssues(const Kit *k) const final
+            {
+                if (k == brokenKit)
+                    return {BuildSystemTask(Task::Error, "Broken")};
+                return TargetlessTestProject::projectIssues(k);
+            }
+
+            const Kit *brokenKit = nullptr;
+        };
+        auto project = new BrokenKitProject;
+        ProjectManager::addProject(project);
+        const auto removeProject = qScopeGuard([project] {
+            ProjectManager::removeProject(project);
+        });
+        ProjectManager::setStartupProject(project);
+        Core::ModeManager::activateMode(Constants::MODE_SESSION);
+
+        TestBuildConfiguration::configWidgets.clear();
+        QVERIFY(project->addTargetForKit(kit));
+        const auto setupPageShown = [] {
+            return Utils::anyOf(QApplication::allWidgets(), [](QWidget *w) {
+                return qobject_cast<TargetSetupPage *>(w) && isOnTab(w);
+            });
+        };
+        QTRY_VERIFY(Utils::anyOf(TestBuildConfiguration::configWidgets,
+                                 [](const QPointer<QWidget> &w) { return w && isOnTab(w); }));
+        QVERIFY(!setupPageShown());
+
+        project->brokenKit = kit;
+        kit->setValue("ProjectTest.KitErrors", 1); // Announces the kit as updated.
+        QTRY_VERIFY(setupPageShown());
+
+        project->brokenKit = nullptr;
+        kit->setValue("ProjectTest.KitErrors", 2);
+        QTRY_VERIFY(!setupPageShown());
     }
 
 private:

@@ -3,6 +3,12 @@
 
 #include "projectwindow.h"
 
+#ifdef WITH_TESTS
+#include <QScopeGuard>
+#include <QSignalSpy>
+#include <QTest>
+#endif
+
 #include "buildinfo.h"
 #include "buildmanager.h"
 #include "buildsettingspropertiespage.h"
@@ -328,6 +334,9 @@ public:
 
     void scheduleRebuildContents();
     void rebuildContents();
+    void updateKit(Kit *kit);
+    QList<Kit *> sortedKits() const;
+    bool isShown(const Kit *kit, const Tasks &issues) const;
 
 private:
     const QPointer<Project> m_project;
@@ -814,6 +823,8 @@ public:
     {
         m_kitWarningForProject = containsType(m_kitIssues, Task::TaskType::Warning);
         m_kitErrorsForProject = containsType(m_kitIssues, Task::TaskType::Error);
+        if (const Kit * const kit = KitManager::kit(kitId))
+            m_displayName = kit->displayName();
 
         m_targetRemovedConnection = QObject::connect(
             project,
@@ -844,6 +855,14 @@ public:
     Target *target() const
     {
         return m_project->target(m_kitId);
+    }
+
+    void setKitIssues(const Tasks &issues)
+    {
+        m_kitIssues = issues;
+        m_kitWarningForProject = containsType(m_kitIssues, Task::TaskType::Warning);
+        m_kitErrorsForProject = containsType(m_kitIssues, Task::TaskType::Error);
+        update();
     }
 
     Id kitId() const final
@@ -1117,6 +1136,7 @@ public:
     QPointer<Project> m_project; // Not owned.
 
     Id m_kitId;
+    QString m_displayName;
     bool m_kitErrorsForProject = false;
     bool m_kitWarningForProject = false;
     Tasks m_kitIssues;
@@ -1152,8 +1172,8 @@ TargetGroupItem::TargetGroupItem(Project *project)
     QObject::connect(KitManager::instance(), &KitManager::kitRemoved, &m_guard, [this] {
          scheduleRebuildContents();
     });
-    QObject::connect(KitManager::instance(), &KitManager::kitUpdated, &m_guard, [this] {
-         scheduleRebuildContents();
+    QObject::connect(KitManager::instance(), &KitManager::kitUpdated, &m_guard, [this](Kit *kit) {
+         updateKit(kit);
     });
     QObject::connect(KitManager::instance(), &KitManager::kitsLoaded, &m_guard, [this] {
          scheduleRebuildContents();
@@ -1239,36 +1259,84 @@ void TargetGroupItem::scheduleRebuildContents()
     QMetaObject::invokeMethod(&m_guard, [this] { rebuildContents(); }, Qt::QueuedConnection);
 }
 
+QList<Kit *> TargetGroupItem::sortedKits() const
+{
+    const ProjectImporter * const importer = m_project->projectImporter();
+    return importer ? importer->sortedKits() : KitManager::sortedKits();
+}
+
+bool TargetGroupItem::isShown(const Kit *kit, const Tasks &issues) const
+{
+    switch (globalProjectExplorerSettings().kitFilter()) {
+    case KitFilter::ShowAll:
+        return true;
+    case KitFilter::ShowOnlyMatching:
+        return issues.isEmpty();
+    case KitFilter::ShowOnlyActive:
+        return m_project->target(kit->id()) != nullptr;
+    }
+    return true;
+}
+
+void TargetGroupItem::updateKit(Kit *kit)
+{
+    // Updating a kit leaves the other kits' verdicts alone, so refreshing its
+    // row is enough. Rebuilding would destroy the panels the user is looking
+    // at, and it is posted, so when that happens is up to the event loop.
+    // A flipped verdict for this kit adds or removes a row, and a rename can
+    // reorder them: only those need the rebuild.
+    QList<Id> shown;
+    TargetItem *item = nullptr;
+    for (int i = 0, n = childCount(); i < n; ++i) {
+        const auto child = static_cast<TargetItem *>(childAt(i));
+        shown.append(child->kitId());
+        if (child->kitId() == kit->id())
+            item = child;
+    }
+
+    const Tasks issues = m_project->projectIssues(kit);
+    if (bool(item) != isShown(kit, issues)) {
+        scheduleRebuildContents();
+        return;
+    }
+
+    // Without a row, the order of the shown ones cannot change.
+    if (!item)
+        return;
+
+    // Only a rename can move a row.
+    const QString displayName = kit->displayName();
+    if (item->m_displayName != displayName) {
+        QList<Id> expected;
+        for (const Kit *k : sortedKits()) {
+            if (shown.contains(k->id()))
+                expected.append(k->id());
+        }
+        if (shown != expected) {
+            scheduleRebuildContents();
+            return;
+        }
+        item->m_displayName = displayName;
+    }
+
+    const bool hadErrors = item->m_kitErrorsForProject;
+    item->setKitIssues(issues);
+    // activeItem() picks between the target's panels and the setup page by this.
+    if (hadErrors != item->m_kitErrorsForProject && item == currentTargetItem() && parent())
+        parent()->itemUpdatedFromBelow();
+}
+
 void TargetGroupItem::rebuildContents()
 {
     m_rebuildScheduled = false;
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    const ProjectImporter * const importer = m_project->projectImporter();
-    const auto sortedKits = importer ? importer->sortedKits() : KitManager::sortedKits();
+    const QList<Kit *> kits = sortedKits();
     removeChildren();
 
-    const KitFilter kitFilter = globalProjectExplorerSettings().kitFilter();
-
-    for (Kit *kit : sortedKits) {
-        const auto appendItem = [&] {
-            appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
-        };
-
-        if (kitFilter == KitFilter::ShowAll) {
-            appendItem();
-            continue;
-        }
-
-        if (kitFilter == KitFilter::ShowOnlyMatching) {
-            if (m_project->projectIssues(kit).isEmpty())
-                appendItem();
-            continue;
-        }
-
-        if (m_project->target(kit->id()) != nullptr) {
-            appendItem();
-            continue;
-        }
+    for (Kit *kit : kits) {
+        const Tasks issues = m_project->projectIssues(kit);
+        if (isShown(kit, issues))
+            appendChild(new TargetItem(m_project, kit->id(), issues));
     }
 
     if (parent())
@@ -1977,6 +2045,72 @@ void ProjectWindow::loadPersistentSettings()
     settings->endGroup();
     d->m_toggleRightSidebarAction.setChecked(d->m_outputDock->isVisible());
 }
+
+#ifdef WITH_TESTS
+
+class ProjectWindowTestProject : public Project
+{
+public:
+    ProjectWindowTestProject()
+        : Project("text/plain", FilePath::fromString("/tmp/projectwindow-test.project"))
+    {
+        setType("ProjectWindow.TestProject");
+        setDisplayName("projectwindow-test");
+    }
+
+    bool needsConfiguration() const final { return false; }
+};
+
+class ProjectWindowTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    // Updating a kit must leave the target items alone. Their panels are what
+    // the user is looking at, and a rebuild is posted, so the moment they would
+    // be destroyed is up to whichever nested dispatch comes first.
+    void testKitUpdateKeepsTheTargetItems()
+    {
+        QVERIFY(globalProjectExplorerSettings().kitFilter() == KitFilter::ShowAll);
+
+        Kit * const kit = KitManager::registerKit([](Kit *k) {
+            k->setUnexpandedDisplayName("Project Window Test Kit");
+        });
+        QVERIFY(kit);
+        const auto deregisterKit = qScopeGuard([kit] { KitManager::deregisterKit(kit); });
+
+        ProjectWindowTestProject project;
+        // The group is the root: its only parent in the real tree is a
+        // ProjectItemBase, and rebuildContents() calls back into it.
+        const auto group = new TargetGroupItem(&project);
+        TreeModel<> model(group);
+        const auto hasRowForKit = [group, kit] {
+            for (int i = 0, n = group->childCount(); i < n; ++i) {
+                if (static_cast<TargetItem *>(group->childAt(i))->kitId() == kit->id())
+                    return true;
+            }
+            return false;
+        };
+        QTRY_VERIFY(hasRowForKit());       // Kits arrive asynchronously.
+        QCoreApplication::processEvents(); // Let a scheduled rebuild settle.
+
+        QSignalSpy removed(&model, &QAbstractItemModel::rowsRemoved);
+        QSignalSpy changed(&model, &QAbstractItemModel::dataChanged);
+
+        kit->setValue("ProjectWindow.Test", 1); // Announces the kit as updated.
+        QCoreApplication::processEvents();      // A scheduled rebuild would run here.
+
+        QCOMPARE(removed.count(), 0);  // The items, and their panels, stayed.
+        QVERIFY(changed.count() > 0);  // The row was refreshed instead.
+    }
+};
+
+QObject *createProjectWindowTest()
+{
+    return new ProjectWindowTest;
+}
+
+#endif // WITH_TESTS
 
 } // namespace ProjectExplorer::Internal
 
