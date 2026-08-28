@@ -556,6 +556,7 @@ SettingsWidget::SettingsWidget()
     , m_headerLabel(new QLabel)
 {
     m_filterLineEdit->setFiltering(true);
+    m_filterLineEdit->setObjectName("settingsFilterLineEdit");
 
     createGui();
     setWindowTitle(Tr::tr("Preferences"));
