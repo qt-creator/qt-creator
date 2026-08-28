@@ -239,6 +239,12 @@ bool Toolchain::isValid() const
     return d->m_isValid.value_or(false);
 }
 
+bool Toolchain::refreshValid()
+{
+    d->m_isValid.reset();
+    return isValid();
+}
+
 FilePaths Toolchain::includedFiles(const QStringList &flags, const FilePath &directory) const
 {
     Q_UNUSED(flags)

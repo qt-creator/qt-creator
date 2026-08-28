@@ -146,6 +146,18 @@ void ToolchainManager::restoreToolchains()
 
         device->deregisterToolDetectionTask(token);
     });
+
+    connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, m_instance, [](Id deviceId) {
+        // A device changed, e.g. reconnected. Retry toolchains on it that were invalid, so
+        // they heal (e.g. get recognized as valid again) without requiring a manual re-detect.
+        for (Toolchain *tc : std::as_const(d->m_toolChains)) {
+            if (tc->isValid())
+                continue;
+            const IDeviceConstPtr dev = DeviceManager::deviceForPath(tc->compilerCommand());
+            if (dev && dev->id() == deviceId && tc->refreshValid())
+                notifyAboutUpdate(tc);
+        }
+    });
 }
 
 void ToolchainManager::saveToolchains()

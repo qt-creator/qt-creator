@@ -101,6 +101,7 @@ public:
     virtual bool hostPrefersToolchain() const { return true; }
 
     virtual bool isValid() const;
+    bool refreshValid();
 
     virtual Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const = 0;
     virtual Utils::WarningFlags warningFlags(const QStringList &cflags) const = 0;
