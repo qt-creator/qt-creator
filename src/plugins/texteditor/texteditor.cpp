@@ -1544,6 +1544,7 @@ TextEditorWidget::~TextEditorWidget()
 void TextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
 {
     d->setDocument(doc);
+    emit textDocumentChanged();
 }
 
 void TextEditorWidgetPrivate::updateMergeConflictController()

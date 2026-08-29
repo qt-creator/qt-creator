@@ -580,6 +580,8 @@ public:
 signals:
     void assistFinished(); // Used in tests.
 
+    void textDocumentChanged();
+
     void requestBlockUpdate(const QTextBlock &);
 
     void requestLinkAt(const QTextCursor &cursor, const Utils::LinkHandler &callback,

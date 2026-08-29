@@ -33,6 +33,9 @@ public:
     static DiffSelections polishedSelections(const DiffSelections &selections);
     static void setFoldingIndent(const QTextBlock &block, int indent);
 
+private slots:
+    void fixupTabSettings();
+
 private:
     void paintBlock(QPainter *painter,
                     const QTextBlock &block,
@@ -41,6 +44,7 @@ private:
                     const QRect &clipRect) const override;
 
     DiffSelections m_diffSelections;
+    QMetaObject::Connection m_tabSettingsConnection;
 };
 
 } // namespace DiffEditor::Internal

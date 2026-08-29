@@ -4,6 +4,7 @@
 #include "selectabletexteditorwidget.h"
 
 #include <texteditor/displaysettings.h>
+#include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
@@ -20,15 +21,9 @@ SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *pa
     : TextEditorWidget(parent)
 {
     setFrameStyle(QFrame::NoFrame);
+    connect(this, &TextEditorWidget::textDocumentChanged,
+            this, &SelectableTextEditorWidget::fixupTabSettings);
     setupFallBackEditor(id);
-
-    auto disableTabAutodetection = [this] {
-        TabSettingsData tabSettings = textDocument()->tabSettings();
-        tabSettings.m_autoDetect = false;
-        textDocument()->setTabSettings(tabSettings);
-    };
-    disableTabAutodetection();
-    connect(textDocument(), &TextDocument::tabSettingsChanged, this, disableTabAutodetection);
 
     setReadOnly(true);
 
@@ -42,6 +37,17 @@ SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *pa
 }
 
 SelectableTextEditorWidget::~SelectableTextEditorWidget() = default;
+
+void SelectableTextEditorWidget::fixupTabSettings()
+{
+    disconnect(m_tabSettingsConnection);
+    TextDocument *document = textDocument();
+    TabSettingsData tabSettings = globalCodeStyle().tabSettings();
+    tabSettings.m_autoDetect = false;
+    document->setTabSettings(tabSettings);
+    m_tabSettingsConnection = connect(document, &TextDocument::tabSettingsChanged,
+                                      this, &SelectableTextEditorWidget::fixupTabSettings);
+}
 
 void SelectableTextEditorWidget::setSelections(const DiffSelections &selections)
 {

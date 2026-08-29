@@ -24,6 +24,7 @@
 #include <utils/temporarydirectory.h>
 
 #include <QScopeGuard>
+#include <QSignalSpy>
 #include <QTest>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -102,6 +103,7 @@ private slots:
     void testIndentUnindent_data();
     void testIndentUnindent();
     void testMakefileForcesTabPolicy();
+    void testTextDocumentChanged();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -292,6 +294,18 @@ void TextEditorTest::testMakefileForcesTabPolicy()
     plain.setMimeType("text/plain");
     plain.setTabSettings(spaces);
     QCOMPARE(plain.tabSettings().m_tabPolicy, TabSettingsData::SpacesOnlyTabPolicy);
+}
+
+void TextEditorTest::testTextDocumentChanged()
+{
+    TextEditorWidget widget;
+    QSignalSpy signalSpy(&widget, &TextEditorWidget::textDocumentChanged);
+    const TextDocumentPtr document(new TextDocument);
+
+    widget.setTextDocument(document);
+
+    QCOMPARE(signalSpy.count(), 1);
+    QCOMPARE(widget.textDocument(), document.data());
 }
 
 QObject *createTextEditorTest()
