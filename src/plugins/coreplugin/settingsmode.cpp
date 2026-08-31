@@ -1064,6 +1064,10 @@ public:
         // Make sure all wizards are there when the user might access the keyboard shortcuts:
         (void) IWizardFactory::allWizardFactories();
 
+        // If open is called without a specific page and the settings widget already exists,
+        // just stay on the page.
+        const Id actualTarget = inner && !targetPage.isValid() ? inner->currentPage() : targetPage;
+
         if (!inner) {
             inner = new SettingsWidget;
             auto layout = new QVBoxLayout(this);
@@ -1073,7 +1077,7 @@ public:
             layout->addWidget(inner);
         }
 
-        inner->showPage(targetPage);
+        inner->showPage(actualTarget);
     }
 
     SettingsWidget *inner = nullptr;
