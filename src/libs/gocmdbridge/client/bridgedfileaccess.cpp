@@ -10,12 +10,13 @@
 #include <utils/futuresynchronizer.h>
 
 #include <QCoreApplication>
+#include <QDeadlineTimer>
 #include <QElapsedTimer>
-#include <QEventLoop>
 #include <QFutureWatcher>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QLoggingCategory>
+#include <QThread>
 #include <QTimer>
 #include <QUuid>
 
@@ -57,6 +58,13 @@ static ResultError logError(const QString &message)
 {
     qCWarning(faLog) << message;
     return ResultError(message);
+}
+
+// Overridable for a link slow enough to make the default a false positive.
+static std::chrono::seconds answerTimeout()
+{
+    const int seconds = qtcEnvironmentVariableIntValue("QTC_CMDBRIDGE_ANSWER_TIMEOUT");
+    return std::chrono::seconds(seconds > 0 ? seconds : 30);
 }
 
 static Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputData = {})
@@ -109,18 +117,21 @@ Result<> FileAccess::init(
     // waitForFinished() rethrows - the catch below is that expected failure path.
     // The bound only fires when the bridge neither answers nor exits; unbounded,
     // that case would block init() and, through the future synchronizer, shutdown.
+    // Waiting without an event loop is what the rest of deployAndInit() does too:
+    // this runs on the main thread for an Android device, where pumping events
+    // would let the very adb notification that got here arrive again.
     try {
         const Result<QFuture<bool>> answer = m_client->is("/", Client::Is::Dir);
         if (!answer)
             return logError(Tr::tr("The bridge did not answer: %1").arg(answer.error()));
         QFuture<bool> future = *answer;
-        QEventLoop loop;
-        QFutureWatcher<bool> watcher;
-        QObject::connect(&watcher, &QFutureWatcher<bool>::finished, &loop, &QEventLoop::quit);
-        QTimer::singleShot(std::chrono::seconds(30), &loop, [&loop] { loop.exit(1); });
-        watcher.setFuture(future);
-        if (loop.exec() != 0)
-            return logError(Tr::tr("The bridge did not answer within 30 seconds."));
+        const std::chrono::seconds timeout = answerTimeout();
+        QDeadlineTimer deadline(timeout);
+        while (!future.isFinished() && !deadline.hasExpired())
+            QThread::msleep(10);
+        if (!future.isFinished())
+            return logError(Tr::tr("The bridge did not answer within %n seconds.", nullptr,
+                                   int(timeout.count())));
         future.waitForFinished();
         if (future.isCanceled() || future.resultCount() == 0)
             return logError(Tr::tr("The bridge did not answer."));

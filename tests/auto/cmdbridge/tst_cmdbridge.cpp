@@ -19,9 +19,11 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QObject>
+#include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTest>
 #include <QThread>
+#include <QTimer>
 
 #include <atomic>
 #include <memory>
@@ -584,6 +586,99 @@ The end.
         // Above threadStopTimeout, so the bound does not race the timeout it bounds.
         QTRY_VERIFY_WITH_TIMEOUT(teardown.isFinished(), 30000);
         QVERIFY_RESULT(*startResult);
+    }
+
+    // init() asks the bridge one question before reporting success, so a binary that
+    // cannot answer must be reported rather than handed out as working file access.
+    void testInitOfSilentBridge_data()
+    {
+        QTest::addColumn<QString>("standIn");
+        // Gone before answering, cleanly and not: either way the exit is what
+        // concludes the question left pending.
+        QTest::newRow("exits") << QString("true");
+        QTest::newRow("fails") << QString("false");
+        // Answers nothing and does not exit either: only the bound ends the wait.
+        QTest::newRow("hangs") << QString("cat");
+    }
+
+    void testInitOfSilentBridge()
+    {
+        QFETCH(QString, standIn);
+
+        const FilePath standInPath = Environment::systemEnvironment().searchInPath(standIn);
+        if (standInPath.isEmpty())
+            QSKIP(qPrintable(QString("No \"%1\" to stand in for a silent bridge").arg(standIn)));
+
+        // init() reads its bound off the environment, so shorten it: the "hangs" row
+        // has to wait the whole of it, and the default is meant to be generous.
+        Environment::modifySystemEnvironment({{"QTC_CMDBRIDGE_ANSWER_TIMEOUT", "2"}});
+        const QScopeGuard resetTimeout([] {
+            Environment::modifySystemEnvironment(
+                {{"QTC_CMDBRIDGE_ANSWER_TIMEOUT", {}, EnvironmentItem::Unset}});
+        });
+
+        // Owned by the worker: when init() hangs, the test fails and leaves this scope
+        // while the worker is still running.
+        const auto initResult = std::make_shared<Result<>>(ResultOk);
+        // On a worker so that an init() that does hang fails the test instead of
+        // blocking it forever.
+        const QFuture<void> init = asyncRun([standInPath, initResult] {
+            CmdBridge::FileAccess fileAccess;
+            *initResult = fileAccess.init(standInPath, Environment::systemEnvironment(), false);
+        });
+
+        // Well above the bound applied above, so this does not race the timeout it bounds.
+        QTRY_VERIFY_WITH_TIMEOUT(init.isFinished(), 30000);
+        QVERIFY2(!*initResult, "A bridge that never answered was reported as working.");
+
+        // Whatever ended the wait, the report has to name it. A process that merely
+        // exited has no errorString(), which left the message saying no more than that
+        // there was no answer.
+        const QString error = initResult->error();
+        QVERIFY2(!error.endsWith(": "), qPrintable(error));
+        qDebug() << error;
+    }
+
+    // The wait for that first answer must not run an event loop: init() reaches the
+    // main thread for an Android device, where pumping events lets the very adb
+    // notification that started the connect arrive again, mid-deploy.
+    void testInitDoesNotPumpEvents()
+    {
+        const FilePath cat = Environment::systemEnvironment().searchInPath("cat");
+        if (cat.isEmpty())
+            QSKIP("No \"cat\" to stand in for an unresponsive bridge");
+
+        Environment::modifySystemEnvironment({{"QTC_CMDBRIDGE_ANSWER_TIMEOUT", "2"}});
+        const QScopeGuard resetTimeout([] {
+            Environment::modifySystemEnvironment(
+                {{"QTC_CMDBRIDGE_ANSWER_TIMEOUT", {}, EnvironmentItem::Unset}});
+        });
+
+        // Due well within the bound below, but only ever delivered by an event loop.
+        // A timer object rather than singleShot(): the shot must die with this
+        // stack frame, or it fires into it from a later test's event processing.
+        bool delivered = false;
+        QTimer probe;
+        probe.setSingleShot(true);
+        QObject::connect(&probe, &QTimer::timeout, [&delivered] { delivered = true; });
+        probe.start(100);
+
+        {
+            CmdBridge::FileAccess fileAccess;
+            QVERIFY(!fileAccess.init(cat, Environment::systemEnvironment(), false));
+
+            // init() has returned, so whatever it processed, it processed before now.
+            QVERIFY2(!delivered, "The wait for the first answer ran an event loop.");
+        }
+
+        // On the main thread the access hands the teardown of a bridge that has to be
+        // killed to the synchronizer, and leaving that to overlap the next test is
+        // what makes a failure there look like this one's.
+        auto emptyFlush = []() {
+            Utils::futureSynchronizer()->flushFinishedFutures();
+            return Utils::futureSynchronizer()->isEmpty();
+        };
+        QTRY_VERIFY_WITH_TIMEOUT(emptyFlush(), 10000);
     }
 
     // Job handlers run on the bridge thread, and a continuation attached without a

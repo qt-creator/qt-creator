@@ -371,8 +371,9 @@ void ClientPrivate::handleProcessDone()
     // process finished during the teardown.
     if (watchDogTimer)
         watchDogTimer->stop();
-    concludePendingJobs(
-        Tr::tr("Process exited: %1").arg(process->errorString()), process->exitCode() == 0);
+    // errorString() is cleared for a process that merely exited, so the exit message is
+    // the only thing that tells a pending caller why its answer never came.
+    concludePendingJobs(process->exitMessage(), process->exitCode() == 0);
 }
 
 void ClientPrivate::shutdown()
