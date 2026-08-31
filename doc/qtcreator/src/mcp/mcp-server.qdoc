@@ -97,8 +97,7 @@
 
     \section1 Use MCP clients
 
-    When you enable the ACP Client extension and use an ACP client in \QC, it
-    uses the MCP server automatically.
+    When you use an ACP client in \QC, it uses the MCP server automatically.
 
     To use the MCP server for other products, such as Claude Code, you must
     configure it. For more information, see the documentation of the product.

@@ -14,20 +14,18 @@
     as editing files, running commands, or triggering builds.
 
     This topic walks you through setting up and using the ACP Client extension
-    from activating the extension to having a productive chat session with
-    an agent.
+    from configuring an agent to having a productive chat session with it.
 
     \section1 Prerequisites
 
-    \list
-        \li Activate the \uicontrol {ACP Client} extension in \preferences >
-            \uicontrol Extensions > \uicontrol Browse. For more information
-            about extensions, see \l {Activate extensions}.
-        \li Recommended: Activate and set up the \uicontrol {MCP Server}
-            extension if you want the agent to trigger \QC actions such as
-            building or running your project. For more information, see
-            \l {Set up \QC MCP server}.
-    \endlist
+    The \uicontrol {ACP Client} extension is active by default. If you
+    deactivated it, activate it again in \preferences >
+    \uicontrol Extensions > \uicontrol Browse. For more information about
+    extensions, see \l {Activate extensions}.
+
+    Recommended: Activate and set up the \uicontrol {MCP Server} extension if
+    you want the agent to trigger \QC actions such as building or running your
+    project. For more information, see \l {Set up \QC MCP server}.
 
     \section1 Configure an agent
 
@@ -230,8 +228,7 @@
     \section2 Build and fix
 
     \list 1
-        \li Make sure both the \uicontrol {ACP Client} and the
-            \uicontrol {MCP Server} extensions are active.
+        \li Make sure that the \uicontrol {MCP Server} extension is active.
         \li Set \uicontrol Mode to \uicontrol {Accept Edits}.
         \li Ask: \e {Build the project and fix any compiler errors.}
         \li The agent triggers a build through the MCP server, reads the output,
