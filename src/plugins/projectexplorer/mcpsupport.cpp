@@ -1384,13 +1384,102 @@ void registerMcpTools()
     // ensures only one MCP-initiated build task has live signal connections at
     // a time; other callers wait in the heartbeat or refuse immediately,
     // depending on the on_busy parameter.
+    // BuildManager emits one buildQueueFinished per queue, so concurrent calls
+    // would share a verdict. One MCP build is live at a time, and its verdict
+    // outlives the call, for collection by build_id.
     struct BuildSlot
     {
         bool inProgress = false;
         QPointer<Project> project;
         QElapsedTimer elapsed;
+        QMetaObject::Connection outputConnection;
+        QMetaObject::Connection verdictConnection;
+
+        quint64 generation = 0; // build_id of the latest build; 0 means none yet
+        bool finished = false;  // the verdict below belongs to generation
+        bool succeeded = false;
+        bool canceled = false;  // stopped on request, not by a build error
+        qint64 durationMs = 0;
+        int errorCount = 0;
+        int warningCount = 0;
+        QJsonArray issues;
+        BoundedOutput output;
+        // queue() runs a modal loop (save files, stop applications) before the
+        // build starts, and isBuilding() is false throughout it. Without this,
+        // a slot another call just armed looks stale and gets reclaimed.
+        bool everRunning = false;
+
+        // A verdict connection outliving its slot would write the next build's
+        // outcome under this generation.
+        void release()
+        {
+            QObject::disconnect(outputConnection);
+            outputConnection = {};
+            QObject::disconnect(verdictConnection);
+            verdictConnection = {};
+            inProgress = false;
+            everRunning = false;
+            project = nullptr;
+        }
     };
     static BuildSlot buildSlot;
+    // The slot holds one build; the verdict has to outlive it, because a
+    // caller queued behind that build claims the slot as soon as it ends.
+    struct FinishedBuild
+    {
+        quint64 generation = 0;
+        bool succeeded = false;
+        bool canceled = false;
+        qint64 durationMs = 0;
+        int errorCount = 0;
+        int warningCount = 0;
+        QJsonArray issues;
+        QString output;
+    };
+    // on_busy:"queue" can stack several waiters, so one verdict deep is not
+    // enough: keep the last few and drop the oldest.
+    static QList<FinishedBuild> finishedBuilds;
+    static constexpr int keptVerdicts = 8;
+    static const auto keepVerdict = [](const FinishedBuild &v) {
+        // A launch that fails restores the slot it displaced, so the same
+        // generation can come back here. Archiving it twice would spend two
+        // of the kept slots on one build.
+        if (Utils::anyOf(finishedBuilds, [&v](const FinishedBuild &kept) {
+                return kept.generation == v.generation;
+            })) {
+            return;
+        }
+        finishedBuilds.append(v);
+        if (finishedBuilds.size() > keptVerdicts)
+            finishedBuilds.removeFirst();
+    };
+    static const auto findVerdict = [](quint64 generation) -> const FinishedBuild * {
+        const auto it = std::find_if(finishedBuilds.cbegin(),
+                                     finishedBuilds.cend(),
+                                     [generation](const FinishedBuild &v) {
+                                         return v.generation == generation;
+                                     });
+        return it == finishedBuilds.cend() ? nullptr : &*it;
+    };
+
+    // buildQueueCanceled arrives before buildQueueFinished(false), so the
+    // verdict below can tell a cancel from a compile failure.
+    static const QMetaObject::Connection buildCanceledConnection = QObject::connect(
+        BuildManager::instance(), &BuildManager::buildQueueCanceled, BuildManager::instance(), [] {
+            if (buildSlot.inProgress)
+                buildSlot.canceled = true;
+        });
+    Q_UNUSED(buildCanceledConnection)
+
+    // Seeded from the process start: a counter would hand out 1 again after
+    // every restart, so an id held across one could match a different build.
+    static quint64 lastBuildId = quint64(QDateTime::currentMSecsSinceEpoch());
+
+    // Capped under the ~60 s clients typically use: a longer wait means the
+    // transport drops the session, and the build dies with it.
+    static constexpr qint64 minBuildWaitMs = 1000;
+    static constexpr qint64 defaultBuildWaitMs = 45000;
+    static constexpr qint64 maxBuildWaitMs = 55000;
 
     // Tracks the verdict of every build since plugin load. Wired up once via
     // the immediately-invoked lambda so connectSignals() runs exactly once even
@@ -1408,12 +1497,21 @@ void registerMcpTools()
     const auto buildOutputSchema
         = Tool::OutputSchema{}
               .addProperty(
+                  "finished",
+                  QJsonObject{
+                      {"type", "boolean"},
+                      {"description",
+                       "Whether this response carries a final answer. Check it first: when "
+                       "false the build is still running and `succeeded` says nothing about "
+                       "it yet."}})
+              .addProperty(
                   "succeeded",
                   QJsonObject{
                       {"type", "boolean"},
                       {"description",
-                       "Whether the build finished without errors. Single source of truth — "
-                       "use this rather than inspecting `issues` to decide success/failure."}})
+                       "Whether the build completed without errors. Meaningful only when "
+                       "`finished` is true; then it is the single source of truth — use it "
+                       "rather than inspecting `issues` to decide success/failure."}})
               .addProperty(
                   "error_count",
                   QJsonObject{
@@ -1457,6 +1555,58 @@ void registerMcpTools()
                        "reply small. Empty when the build succeeded; the issues array "
                        "carries the diagnostics either way. Call build_get_compile_output for "
                        "more of the text."}})
+              .addProperty(
+                  "reason",
+                  QJsonObject{
+                      {"type", "string"},
+                      {"description",
+                       "Why the call returned without a verdict: \"still_building\" (the "
+                       "call answered before the build did - the build continues), "
+                       "\"waiting_for_build_slot\" (another project held the slot for the "
+                       "whole wait, so this build never started -- there is no build_id), "
+                       "\"build_in_progress\" (on_busy:\"refuse\"), \"unknown_build_id\", "
+                       "\"invalid_arguments\", \"project_unloaded\", \"build_gone\" or "
+                       "\"build_failed_to_start\". On a finished build, \"canceled\" says "
+                       "it was stopped on request rather than by an error, and "
+                       "\"call_cancelled\" that this call was cancelled while the build "
+                       "itself may still be running."}})
+              .addProperty(
+                  "build_id",
+                  QJsonObject{
+                      {"type", "integer"},
+                      {"description",
+                       "Identifies the build this response is about. Pass it back to build "
+                       "to keep waiting for that same build, or to collect its verdict once "
+                       "it has finished."}})
+              .addProperty(
+                  "elapsed_ms",
+                  QJsonObject{
+                      {"type", "integer"},
+                      {"minimum", 0},
+                      {"description", "How long the build has been running. Set only while "
+                                      "it is still running."}})
+              .addProperty(
+                  "attached",
+                  QJsonObject{
+                      {"type", "boolean"},
+                      {"description",
+                       "Present when this call joined a build that was already running "
+                       "instead of starting one. That build may predate your last edit, so "
+                       "its verdict does not necessarily cover it."}})
+              .addProperty(
+                  "running_before_call_ms",
+                  QJsonObject{
+                      {"type", "integer"},
+                      {"minimum", 0},
+                      {"description",
+                       "How long the attached build had been running when this call "
+                       "arrived. Set only with attached."}})
+              .addProperty(
+                  "progress_percent",
+                  QJsonObject{
+                      {"type", "integer"},
+                      {"description", "Build progress, 0-100, while still running."}})
+              .addRequired("finished")
               .addRequired("succeeded")
               .addRequired("error_count")
               .addRequired("warning_count")
@@ -1471,21 +1621,40 @@ void registerMcpTools()
             .title("Build project")
             .description(
                 "Builds the chosen project (or the active startup project if no name is "
-                "given) and blocks until the build finishes. Returns an explicit verdict: "
-                "{succeeded, error_count, warning_count, duration_ms, issues, "
-                "summary_text}. The TaskStatus mirrors the verdict — `completed` on "
-                "success, `failed` on build failure. The `issues` array carries any "
-                "warnings/errors recorded by the build (same shape as build_list_issues)."
+                "given) and blocks until the build finishes or wait_ms elapses, whichever "
+                "comes first. Returns an explicit verdict: {finished, succeeded, "
+                "error_count, warning_count, duration_ms, issues, summary_text}."
                 "\n\n"
-                "Use `succeeded` to decide success/failure — don't try to infer it from "
-                "the issues array. This verdict is the return value of build_project itself; "
-                "you don't need build_get_status to confirm it."
+                "Read `finished` first. When it is true, `succeeded` decides "
+                "success/failure — don't try to infer it from the issues array, and you "
+                "don't need build_get_status to confirm it. When `finished` is false the "
+                "build has not produced a verdict yet and `succeeded` means nothing."
                 "\n\n"
-                "When two build_project calls arrive concurrently, on_busy controls the "
-                "behaviour: \"queue\" (default) waits for the in-progress build to finish "
-                "before starting this one; \"refuse\" returns immediately with "
-                "succeeded:false and reason:\"build_in_progress\" so the caller can "
-                "decide when to retry.")
+                "Builds routinely outlast a client's request timeout, so this tool always "
+                "answers: if the build is still running when wait_ms is up, the call "
+                "returns normally — not an error — with finished:false, "
+                "reason:\"still_building\", a build_id, elapsed_ms and progress_percent. "
+                "The build was not cancelled and keeps running. Call build_project again with "
+                "that build_id to keep waiting, and repeat until you get a verdict. Do not "
+                "start a second build and do not sleep between calls: each call does the "
+                "waiting for you."
+                "\n\n"
+                "A build_id attaches to that build — you get its verdict when it finishes, "
+                "or its stored verdict if it already has one. Without a build_id, a call "
+                "that lands while the same project is already building attaches to that "
+                "build rather than starting a second one. That build may have started "
+                "before your last edit, so such a reply carries attached:true and "
+                "running_before_call_ms: build_project again once it is in to get a verdict "
+                "that covers your changes."
+                "\n\n"
+                "The task status describes this call, not the build: a call that answers "
+                "before the build ends completes. Only finished and succeeded describe the "
+                "build itself."
+                "\n\n"
+                "on_busy applies when another build is in progress and this call cannot "
+                "attach to it — a different project, or any build started outside this "
+                "tool: \"queue\" (default) waits for it, \"refuse\" returns immediately "
+                "with reason:\"build_in_progress\".")
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1505,10 +1674,27 @@ void registerMcpTools()
                              "same display name."},
                             {"type", "string"}})
                     .addProperty(
+                        "wait_ms",
+                        QJsonObject{
+                            {"description",
+                             "How long to block before returning reason:\"still_building\", "
+                             "in milliseconds (default 45000). Clamped to 1000-55000: a "
+                             "longer wait outlives the request timeout of typical clients, "
+                             "which drops the session and cancels the build. Poll with "
+                             "build_id instead of asking for a longer wait."},
+                            {"type", "integer"}})
+                    .addProperty(
+                        "build_id",
+                        QJsonObject{
+                            {"description",
+                             "Attach to the build with this id instead of starting one. Use "
+                             "the build_id from a previous still_building response."},
+                            {"type", "integer"}})
+                    .addProperty(
                         "on_busy",
                         QJsonObject{
                             {"description",
-                             "Behaviour when another MCP-initiated build is already running. "
+                             "Behaviour when a different project is already being built. "
                              "\"queue\" (default): wait for it to finish, then build. "
                              "\"refuse\": return immediately with reason \"build_in_progress\"."},
                             {"type", "string"},
@@ -1522,22 +1708,65 @@ void registerMcpTools()
                     .readOnlyHint(false)),
         [](const Schema::CallToolRequestParams &params,
            const ToolInterface &toolInterface) -> Utils::Result<> {
-            const QString projectName = params.arguments()->value("project_name").toString();
-            const QString projectPath = params.arguments()->value("project_path").toString();
-            const QString onBusy = params.arguments()->value("on_busy").toString("queue");
+            // arguments() is optional: a tools/call may omit it entirely.
+            const QJsonObject args = params.argumentsAsObject();
+            const QString projectName = args.value("project_name").toString();
+            const QString projectPath = args.value("project_path").toString();
+            const QString onBusy = args.value("on_busy").toString("queue");
+            // A wrongly-typed build_id would fall back to 0 and start a build
+            // instead of collecting one.
+            const auto readNumber
+                = [&args](const QString &key, qint64 fallback) -> Utils::Result<qint64> {
+                const QJsonValue v = args.value(key);
+                if (v.isUndefined() || v.isNull())
+                    return fallback;
+                if (!v.isDouble())
+                    return ResultError(QString("%1 must be a number").arg(key));
+                // Converting out of range is UB, and qint64's max has no exact
+                // double, so the bound is 2^63 -- the first double above it.
+                const double d = v.toDouble();
+                if (!(d >= -9223372036854775808.0 && d < 9223372036854775808.0))
+                    return ResultError(QString("%1 is out of range").arg(key));
+                return qint64(d);
+            };
+            const Utils::Result<qint64> buildIdArg = readNumber("build_id", 0);
+            const Utils::Result<qint64> waitMsArg = readNumber("wait_ms", defaultBuildWaitMs);
+            if (!buildIdArg || !waitMsArg || *buildIdArg < 0 || *waitMsArg < 0) {
+                const QString message = !buildIdArg  ? buildIdArg.error()
+                                        : !waitMsArg ? waitMsArg.error()
+                                        : *buildIdArg < 0
+                                            ? QString("build_id must not be negative")
+                                            : QString("wait_ms must not be negative");
+                toolInterface.finish(
+                    CallToolResult{}.isError(true).structuredContent(QJsonObject{
+                        {"finished", true},
+                        {"succeeded", false},
+                        {"reason", "invalid_arguments"},
+                        {"error_count", 0},
+                        {"warning_count", 0},
+                        {"duration_ms", 0},
+                        {"issues", QJsonArray{}},
+                        {"summary_text", message},
+                        {"output", QString()},
+                    }));
+                return ResultOk;
+            }
+            const quint64 requestedBuildId = quint64(*buildIdArg);
+            const qint64 waitMs = qBound(minBuildWaitMs, *waitMsArg, maxBuildWaitMs);
 
-            // Resolve the target the same way every other project-scoped tool
-            // does: resolveTargetProject defaults to the startup project when
-            // neither key is given, and returns a structured error (reason,
-            // message, candidates) for the not-loaded and ambiguous-name cases.
+            // A build_id names the build already; resolving would only reject a
+            // collect whose project has since closed.
             const ProjectResolution resolution
-                = resolveTargetProject(projectName, projectPath, /*defaultToStartup=*/true);
-            if (!resolution.project) {
-                // Enrich the shared resolution error with build_project's verdict fields
+                = requestedBuildId != 0
+                      ? ProjectResolution{}
+                      : resolveTargetProject(projectName, projectPath, true);
+            if (requestedBuildId == 0 && !resolution.project) {
+                // Enrich the shared resolution error with build's verdict fields
                 // so the response still satisfies the output schema, then surface
                 // it as a tool error the AI can act on (e.g. retry with project_path).
                 QJsonObject body = resolution.error;
-                body.remove("success"); // build_project reports via "succeeded", not "success"
+                body.remove("success"); // build() reports via "succeeded", not "success"
+                body["finished"] = true; // terminal: nothing is running for this call
                 body["succeeded"] = false;
                 body["error_count"] = 0;
                 body["warning_count"] = 0;
@@ -1549,76 +1778,138 @@ void registerMcpTools()
                 return ResultOk;
             }
 
-            // QPointer, not a raw pointer: the build launch is deferred into the
-            // heartbeat (and may wait in the on_busy=="queue" branch), so the
-            // project can be unloaded before we use it. The heartbeat null-checks.
+            // The launch is deferred into the heartbeat, so the project can be
+            // unloaded before we use it.
             const QPointer<Project> targetProject = resolution.project;
 
-            // State shared between the heartbeat, the buildQueueFinished
-            // handler, and the finishFn.
-            //
-            // buildStarted:  has buildProjects() been called for this invocation?
-            //   The heartbeat sets this once it has claimed the BuildSlot and
-            //   kicked off the build, so that subsequent heartbeats skip the
-            //   slot-acquisition phase.
-            //
-            // refused: set when on_busy=="refuse" and the slot was taken.
-            //   The finishFn returns a structured build_in_progress response
-            //   rather than a real build verdict.
-            //
-            // succeeded: pessimistic default.  Set to true only when
-            //   buildQueueFinished(true) fires.  If the nested loop exits
-            //   without the signal (cancellation, quit, stale wakeup), the
-            //   function correctly reports failure rather than a phantom success.
-            //
-            // earlyError: set for terminal pre-build failures (target unloaded,
-            //   or buildProjects() queued nothing so no verdict signal will ever
-            //   fire). When non-empty the finishFn returns it verbatim, so the
-            //   task fails fast instead of polling forever.
             struct State
             {
-                bool buildStarted = false;
-                bool finished = false;
+                bool bound = false;
+                bool boundedOut = false;
                 bool refused = false;
-                bool succeeded = false; // pessimistic -- true only on explicit signal
+                bool canceled = false;      // stopped on request, not by an error
+                bool startedBuild = false;  // this call launched it (may cancel it)
+                bool cancelRequested = false; // this call was cancelled, build may live on
+                bool haveVerdict = false;   // the snapshot below is filled in
+                quint64 generation = 0;
                 QJsonObject refusedBlockingInfo;
                 qint64 refusedElapsedMs = 0;
                 QJsonObject earlyError;
-                QElapsedTimer timer;
+                std::optional<Schema::TaskStatus> finalStatus;
+                QElapsedTimer waited;
+
+                // Snapshotted when the heartbeat resolves: in task mode the
+                // reply comes at tasks/result, by which point a later build may
+                // hold the slot.
+                bool succeeded = false;
+                qint64 durationMs = 0;
+                int errorCount = 0;
+                int warningCount = 0;
+                QJsonArray issues;
+                QString output;
+                bool attached = false;        // joined a build this call did not start
+                qint64 attachedAgeMs = 0;     // how long it had been running by then
+                bool ourBuildRunning = false; // false == still queued behind another project
+                qint64 boundedElapsedMs = 0;
+                std::optional<int> boundedProgress;
             };
             auto state = std::make_shared<State>();
-
-            struct Output
-            {
-                QMetaObject::Connection connection = QObject::connect(
-                    BuildManager::instance(),
-                    &BuildManager::outputText,
-                    BuildManager::instance(),
-                    [this](const QString &text) { this->text.append(text); });
-                BoundedOutput text;
-
-                ~Output() { QObject::disconnect(connection); }
-
-                Output() = default;
-                Output(const Output &) = delete;
-                Output(Output &&) = delete;
-                Output &operator=(const Output &) = delete;
-                Output &operator=(Output &&) = delete;
-            };
-
-            auto output = std::make_shared<Output>();
+            // A call queued behind someone else's build spends the budget too.
+            state->waited.start();
 
             using namespace std::chrono_literals;
 
             const auto buildTask = toolInterface.startTask(
                 1s,
-                [state, targetProject, onBusy, output](Schema::Task task) -> Schema::Task {
-                    // Phase 1 -- slot acquisition (runs each heartbeat tick until
-                    // the slot is free and the build has been launched).
-                    if (!state->buildStarted && !state->refused) {
-                        if (!targetProject) {
+                [state, targetProject, onBusy, requestedBuildId, waitMs](
+                    Schema::Task task) -> Schema::Task {
+                    // The answer is already decided; another tick would rebind
+                    // and could overwrite it -- a verdict, a refusal and a
+                    // terminal pre-build failure are all as final as a
+                    // bounded-out call.
+                    if (state->finalStatus)
+                        return task.status(*state->finalStatus);
+
+                    if (buildSlot.inProgress && BuildManager::isBuilding())
+                        buildSlot.everRunning = true;
+
+                    if (!state->bound && !state->refused) {
+                        bool waitForSlot = false;
+                        if (requestedBuildId != 0) {
+                            const FinishedBuild *kept = buildSlot.generation == requestedBuildId
+                                                            ? nullptr
+                                                            : findVerdict(requestedBuildId);
+                            if (kept) {
+                                // The slot moved on, but this build's verdict was kept.
+                                state->generation = requestedBuildId;
+                                state->haveVerdict = true;
+                                state->succeeded = kept->succeeded;
+                                state->canceled = kept->canceled;
+                                state->durationMs = kept->durationMs;
+                                state->errorCount = kept->errorCount;
+                                state->warningCount = kept->warningCount;
+                                state->issues = kept->issues;
+                                state->output = kept->output;
+                                state->finalStatus = kept->canceled
+                                                         ? Schema::TaskStatus::cancelled
+                                                     : kept->succeeded
+                                                         ? Schema::TaskStatus::completed
+                                                         : Schema::TaskStatus::failed;
+                                task.status(*state->finalStatus);
+                                task.statusMessage(QString::fromLatin1(
+                                    kept->canceled    ? "Build canceled"
+                                    : kept->succeeded ? "Build succeeded"
+                                                             : "Build failed"));
+                                Mcp::letTaskDieIn(task, 1min);
+                                return task;
+                            }
+                            if (buildSlot.generation != requestedBuildId) {
+                                state->earlyError = QJsonObject{
+                                    {"succeeded", false},
+                                    {"reason", "unknown_build_id"},
+                                    {"error_count", 0},
+                                    {"warning_count", 0},
+                                    {"duration_ms", 0},
+                                    {"issues", QJsonArray{}},
+                                    {"summary_text",
+                                     QString("No build with id %1 is known: only the last "
+                                             "%2 verdicts are kept, so it has been replaced "
+                                             "by newer builds, or it predates a restart. "
+                                             "Call build_project without build_id to start one.")
+                                         .arg(requestedBuildId)
+                                         .arg(keptVerdicts)},
+                                    {"output", QString()},
+                                };
+                                state->finalStatus = Schema::TaskStatus::failed;
+                                task.status(Schema::TaskStatus::failed);
+                                task.statusMessage("Unknown build_id");
+                                Mcp::letTaskDieIn(task, 1min);
+                                return task;
+                            }
+                            if (!buildSlot.inProgress && !buildSlot.finished) {
+                                state->earlyError = QJsonObject{
+                                    {"succeeded", false},
+                                    {"reason", "build_gone"},
+                                    {"build_id", qint64(requestedBuildId)},
+                                    {"error_count", 0},
+                                    {"warning_count", 0},
+                                    {"duration_ms", 0},
+                                    {"issues", QJsonArray{}},
+                                    {"summary_text",
+                                     "The build stopped without reporting a verdict. Call "
+                                     "build again to rebuild."},
+                                    {"output", QString()},
+                                };
+                                state->finalStatus = Schema::TaskStatus::failed;
+                                task.status(Schema::TaskStatus::failed);
+                                task.statusMessage("Build gone");
+                                Mcp::letTaskDieIn(task, 1min);
+                                return task;
+                            }
+                            state->generation = requestedBuildId;
+                            state->bound = true;
+                        } else if (!targetProject) {
                             // Project was unloaded between resolution and launch.
-                            state->finished = true;
                             state->earlyError = QJsonObject{
                                 {"succeeded", false},
                                 {"reason", "project_unloaded"},
@@ -1630,122 +1921,306 @@ void registerMcpTools()
                                  "Target project was unloaded before the build could start."},
                                 {"output", QString()},
                             };
+                            state->finalStatus = Schema::TaskStatus::failed;
                             task.status(Schema::TaskStatus::failed);
                             task.statusMessage("Target project was unloaded");
                             Mcp::letTaskDieIn(task, 1min);
                             return task;
-                        }
-                        if (buildSlot.inProgress) {
-                            // Reclaim a stale slot: if BuildManager is no longer building
-                            // (e.g. shutdown, external cancel, or missed signal), don't
-                            // block indefinitely.
-                            if (!BuildManager::isBuilding()) {
-                                buildSlot = {};
-                            } else if (onBusy == QLatin1String("refuse")) {
+                        } else if (buildSlot.inProgress && buildSlot.everRunning
+                                   && !BuildManager::isBuilding()) {
+                            // Stale slot (shutdown, external cancel, missed signal).
+                            buildSlot.release();
+                        } else if (buildSlot.inProgress && buildSlot.project == targetProject) {
+                            // This build may have started before the caller's last
+                            // edit, so its verdict is not necessarily about the
+                            // sources on disk now. The reply says so.
+                            state->generation = buildSlot.generation;
+                            state->bound = true;
+                            state->attached = true;
+                            state->attachedAgeMs = buildSlot.elapsed.elapsed();
+                        } else if (buildSlot.inProgress && onBusy == "refuse") {
+                            state->refused = true;
+                            if (buildSlot.project)
+                                state->refusedBlockingInfo = projectInfoObject(buildSlot.project);
+                            state->refusedElapsedMs = buildSlot.elapsed.elapsed();
+                            state->finalStatus = Schema::TaskStatus::failed;
+                            task.status(Schema::TaskStatus::failed);
+                            task.statusMessage("Refused: another build is in progress");
+                            Mcp::letTaskDieIn(task, 1min);
+                            return task;
+                        } else if (buildSlot.inProgress) {
+                            waitForSlot = true;
+                            task.statusMessage(
+                                QString("Waiting for '%1' build to finish (%2 ms)...")
+                                    .arg(buildSlot.project ? buildSlot.project->displayName()
+                                                           : QStringLiteral("?"))
+                                    .arg(buildSlot.elapsed.elapsed()));
+                        } else if (BuildManager::isBuilding()) {
+                            // A build nobody started through here. buildProjects()
+                            // would only append to the pending queue, and the
+                            // running queue's buildQueueFinished would be taken
+                            // for this build's verdict.
+                            if (onBusy == "refuse") {
+                                state->refusedElapsedMs = 0;
                                 state->refused = true;
-                                if (buildSlot.project)
-                                    state->refusedBlockingInfo = projectInfoObject(
-                                        buildSlot.project);
-                                state->refusedElapsedMs = buildSlot.elapsed.elapsed();
+                                state->finalStatus = Schema::TaskStatus::failed;
                                 task.status(Schema::TaskStatus::failed);
                                 task.statusMessage("Refused: another build is in progress");
                                 Mcp::letTaskDieIn(task, 1min);
                                 return task;
-                            } else {
-                                // on_busy=="queue": report wait status and come back next tick.
-                                const QString blockName = buildSlot.project
-                                                              ? buildSlot.project->displayName()
-                                                              : QStringLiteral("?");
-                                task.statusMessage(
-                                    QString("Waiting for '%1' build to finish (%2 ms)...")
-                                        .arg(blockName)
-                                        .arg(buildSlot.elapsed.elapsed()));
-                                return task.status(Schema::TaskStatus::working);
                             }
+                            waitForSlot = true;
+                            task.statusMessage("Waiting for another build to finish...");
                         }
 
-                        // Slot is free -- claim it and launch the build.
-                        buildSlot.inProgress = true;
-                        buildSlot.project = targetProject;
-                        buildSlot.elapsed.start();
-                        state->buildStarted = true;
-                        state->timer.start();
-                        // Drop anything captured while queued: the outputText
-                        // connection was live during the wait, so output->text
-                        // holds the blocking build's tail. Scope it to our build.
-                        output->text.clear();
+                        if (!state->bound && !state->refused && !waitForSlot) {
+                            const BuildSlot previous = buildSlot;
+                            buildSlot.inProgress = true;
+                            buildSlot.project = targetProject;
+                            buildSlot.elapsed.start();
+                            if (buildSlot.finished && buildSlot.generation != 0) {
+                                keepVerdict({buildSlot.generation,
+                                             buildSlot.succeeded,
+                                             buildSlot.canceled,
+                                             buildSlot.durationMs,
+                                             buildSlot.errorCount,
+                                             buildSlot.warningCount,
+                                             buildSlot.issues,
+                                             buildSlot.output.digest(maxReplyOutputSize)});
+                            }
+                            buildSlot.generation = ++lastBuildId;
+                            buildSlot.finished = false;
+                            buildSlot.succeeded = false;
+                            buildSlot.canceled = false;
+                            buildSlot.durationMs = 0;
+                            buildSlot.errorCount = 0;
+                            buildSlot.warningCount = 0;
+                            buildSlot.issues = QJsonArray{};
+                            buildSlot.output.clear();
+                            state->generation = buildSlot.generation;
+                            state->bound = true;
+                            state->startedBuild = true;
 
-                        // Connect BEFORE buildProjects() to avoid losing a
-                        // synchronously-emitted buildQueueFinished (e.g. when
-                        // everything is already up-to-date and the queue drains in
-                        // one tick).  SingleShotConnection ensures exactly one
-                        // verdict per invocation.
-                        const QMetaObject::Connection finishedConn = QObject::connect(
-                            BuildManager::instance(),
-                            &BuildManager::buildQueueFinished,
-                            BuildManager::instance(),
-                            [state](bool success) {
-                                state->succeeded = success;
-                                state->finished = true;
-                                buildSlot = {}; // release immediately so queued callers unblock
-                            },
-                            Qt::SingleShotConnection);
+                            buildSlot.outputConnection = QObject::connect(
+                                BuildManager::instance(),
+                                &BuildManager::outputText,
+                                BuildManager::instance(),
+                                [](const QString &text) { buildSlot.output.append(text); });
 
-                        // buildProjects() returns the number of build steps queued.
-                        // <= 0 means nothing started (e.g. no build configuration for
-                        // the kit): buildQueueFinished will never fire, so tear down
-                        // the pending connection, release the slot, and fail fast
-                        // instead of polling forever and leaking the slot.
-                        if (BuildManager::buildProjects({targetProject}, ConfigSelection::Active)
-                            <= 0) {
-                            QObject::disconnect(finishedConn);
-                            buildSlot = {};
-                            state->finished = true;
+                            // Before buildProjects(): an up-to-date queue emits
+                            // buildQueueFinished synchronously.
+                            buildSlot.verdictConnection = QObject::connect(
+                                BuildManager::instance(),
+                                &BuildManager::buildQueueFinished,
+                                BuildManager::instance(),
+                                [](bool success) {
+                                    buildSlot.succeeded = success;
+                                    buildSlot.durationMs = buildSlot.elapsed.elapsed();
+                                    const QJsonObject data = issuesManager.getBuildIssues();
+                                    const QJsonObject summary = data.value("summary").toObject();
+                                    buildSlot.errorCount = summary.value("errorCount").toInt();
+                                    buildSlot.warningCount = summary.value("warningCount").toInt();
+                                    buildSlot.issues = data.value("issues").toArray();
+                                    buildSlot.finished = true;
+                                    buildSlot.release();
+                                },
+                                Qt::SingleShotConnection);
+
+                            // Nothing queued means buildQueueFinished never fires.
+                            if (BuildManager::buildProjects({targetProject},
+                                                            ConfigSelection::Active)
+                                <= 0) {
+                                const QString capturedOutput
+                                    = buildSlot.output.digest(maxReplyOutputSize);
+                                buildSlot.release();
+                                // Nothing superseded the stored verdict, so leave
+                                // it collectable under its own build_id.
+                                buildSlot = previous;
+                                state->earlyError = QJsonObject{
+                                    {"succeeded", false},
+                                    {"reason", "build_failed_to_start"},
+                                    {"error_count", 0},
+                                    {"warning_count", 0},
+                                    {"duration_ms", 0},
+                                    {"issues", QJsonArray{}},
+                                    {"summary_text",
+                                     QStringLiteral("Build failed to start. Check that the "
+                                                    "project is configured for this kit.")},
+                                    {"output", capturedOutput},
+                                };
+                                state->finalStatus = Schema::TaskStatus::failed;
+                                task.status(Schema::TaskStatus::failed);
+                                task.statusMessage("Build failed to start");
+                                Mcp::letTaskDieIn(task, 1min);
+                                return task;
+                            }
+                        }
+                    }
+
+                    if (state->bound && buildSlot.generation == state->generation) {
+                        if (buildSlot.finished) {
+                            state->haveVerdict = true;
+                            state->succeeded = buildSlot.succeeded;
+                            state->canceled = buildSlot.canceled;
+                            state->durationMs = buildSlot.durationMs;
+                            state->errorCount = buildSlot.errorCount;
+                            state->warningCount = buildSlot.warningCount;
+                            state->issues = buildSlot.issues;
+                            state->output = buildSlot.output.digest(maxReplyOutputSize);
+                            state->finalStatus = buildSlot.canceled
+                                                     ? Schema::TaskStatus::cancelled
+                                                 : buildSlot.succeeded
+                                                     ? Schema::TaskStatus::completed
+                                                     : Schema::TaskStatus::failed;
+                            task.status(*state->finalStatus);
+                            task.statusMessage(QString::fromLatin1(
+                                buildSlot.canceled    ? "Build canceled"
+                                : buildSlot.succeeded ? "Build succeeded"
+                                                      : "Build failed"));
+                            Mcp::letTaskDieIn(task, 1min);
+                            return task;
+                        }
+                        if (!buildSlot.inProgress) {
+                            // Reclaimed under us: no verdict is coming for this id.
                             state->earlyError = QJsonObject{
                                 {"succeeded", false},
-                                {"reason", "build_failed_to_start"},
+                                {"reason", "build_gone"},
+                                {"build_id", qint64(state->generation)},
                                 {"error_count", 0},
                                 {"warning_count", 0},
                                 {"duration_ms", 0},
                                 {"issues", QJsonArray{}},
                                 {"summary_text",
-                                 QStringLiteral("Build failed to start. Check that the "
-                                                "project is configured for this kit.")},
-                                {"output", output->text.digest(maxReplyOutputSize)},
+                                 "The build stopped without reporting a verdict. Call build "
+                                 "again to rebuild."},
+                                {"output", QString()},
                             };
+                            state->finalStatus = Schema::TaskStatus::failed;
                             task.status(Schema::TaskStatus::failed);
-                            task.statusMessage("Build failed to start");
+                            task.statusMessage("Build stopped without a verdict");
                             Mcp::letTaskDieIn(task, 1min);
                             return task;
                         }
                     }
 
-                    // Phase 2 -- build is running; poll for completion.
-                    if (state->finished) {
-                        task.status(state->succeeded ? Schema::TaskStatus::completed
-                                                     : Schema::TaskStatus::failed);
+                    const FinishedBuild *keptForUs
+                        = state->bound && buildSlot.generation != state->generation
+                              ? findVerdict(state->generation)
+                              : nullptr;
+                    if (keptForUs) {
+                        // The slot moved on, but this build's verdict was kept.
+                        state->haveVerdict = true;
+                        state->succeeded = keptForUs->succeeded;
+                        state->canceled = keptForUs->canceled;
+                        state->durationMs = keptForUs->durationMs;
+                        state->errorCount = keptForUs->errorCount;
+                        state->warningCount = keptForUs->warningCount;
+                        state->issues = keptForUs->issues;
+                        state->output = keptForUs->output;
+                        state->finalStatus = keptForUs->canceled
+                                                 ? Schema::TaskStatus::cancelled
+                                             : keptForUs->succeeded
+                                                 ? Schema::TaskStatus::completed
+                                                 : Schema::TaskStatus::failed;
+                        task.status(*state->finalStatus);
                         task.statusMessage(QString::fromLatin1(
-                            state->succeeded ? "Build succeeded" : "Build failed"));
+                            keptForUs->canceled    ? "Build canceled"
+                            : keptForUs->succeeded ? "Build succeeded"
+                                                     : "Build failed"));
                         Mcp::letTaskDieIn(task, 1min);
                         return task;
                     }
-                    if (auto progress = BuildManager::currentProgressPercent()) {
-                        task.statusMessage(
-                            QString("%1 (%2%)").arg(progress->second).arg(progress->first));
+
+                    if (state->bound && buildSlot.generation != state->generation) {
+                        // Not the current build and not the one kept.
+                        state->earlyError = QJsonObject{
+                            {"succeeded", false},
+                            {"reason", "build_gone"},
+                            {"build_id", qint64(state->generation)},
+                            {"error_count", 0},
+                            {"warning_count", 0},
+                            {"duration_ms", 0},
+                            {"issues", QJsonArray{}},
+                            {"summary_text",
+                             "Another build replaced this one before its verdict could be "
+                             "read. Call build_project again to rebuild."},
+                            {"output", QString()},
+                        };
+                        state->finalStatus = Schema::TaskStatus::failed;
+                        task.status(Schema::TaskStatus::failed);
+                        task.statusMessage("Build superseded");
+                        Mcp::letTaskDieIn(task, 1min);
+                        return task;
+                    }
+
+                    if (state->waited.elapsed() >= waitMs) {
+                        state->boundedOut = true;
+                        state->ourBuildRunning = state->bound && buildSlot.inProgress
+                                                 && buildSlot.generation == state->generation;
+                        state->boundedElapsedMs = state->ourBuildRunning
+                                                      ? buildSlot.elapsed.elapsed()
+                                                      : state->waited.elapsed();
+                        if (auto progress = BuildManager::currentProgressPercent();
+                            progress && state->ourBuildRunning) {
+                            state->boundedProgress = progress->first;
+                        }
+                        state->finalStatus = Schema::TaskStatus::completed;
+                        task.status(Schema::TaskStatus::completed);
+                        task.statusMessage("Still building");
+                        Mcp::letTaskDieIn(task, 1min);
+                        return task;
+                    }
+
+                    // Only for a build this call is bound to: a queued caller would
+                    // otherwise report the blocking build's percentage as its own,
+                    // overwriting the "Waiting for ..." message set this tick.
+                    if (state->bound) {
+                        if (auto progress = BuildManager::currentProgressPercent()) {
+                            task.statusMessage(
+                                QString("%1 (%2%)").arg(progress->second).arg(progress->first));
+                        }
                     }
                     return task.status(Schema::TaskStatus::working);
                 },
-                [state, output]() -> Utils::Result<Schema::CallToolResult> {
+                [state]() -> Utils::Result<Schema::CallToolResult> {
+                    if (state->cancelRequested && !state->haveVerdict) {
+                        // The build may still be running; the empty snapshot reads
+                        // as a failure with no errors. Without a build_id there is
+                        // nothing to poll, so that answer is final instead.
+                        const bool pollable = state->generation != 0;
+                        QJsonObject body{
+                            {"finished", !pollable},
+                            {"succeeded", false},
+                            {"reason", "call_cancelled"},
+                            {"error_count", 0},
+                            {"warning_count", 0},
+                            {"duration_ms", 0},
+                            {"issues", QJsonArray{}},
+                            {"summary_text",
+                             pollable ? "This call was cancelled. The build it was waiting "
+                                        "for is still going -- call build_project again with "
+                                        "its build_id to collect it."
+                                      : "This call was cancelled before any build started. "
+                                        "Nothing is running; call build_project again to "
+                                        "start one."},
+                            {"output", QString()},
+                        };
+                        if (state->generation != 0)
+                            body["build_id"] = qint64(state->generation);
+                        return CallToolResult{}.structuredContent(body).isError(true);
+                    }
                     if (!state->earlyError.isEmpty()) {
-                        // Terminal pre-build failure (target unloaded, or nothing
-                        // queued): no verdict signal will ever come.
-                        return CallToolResult{}.structuredContent(state->earlyError).isError(true);
+                        // Terminal pre-build failure: no verdict signal will ever come.
+                        QJsonObject body = state->earlyError;
+                        body["finished"] = true;
+                        return CallToolResult{}.structuredContent(body).isError(true);
                     }
                     if (state->refused) {
                         const QString blockName
                             = state->refusedBlockingInfo.value("name").toString("?");
                         return CallToolResult{}
                             .structuredContent(QJsonObject{
+                                {"finished", true}, // this call is done; nothing is pending
                                 {"succeeded", false},
                                 {"reason", "build_in_progress"},
                                 {"blocking_project", state->refusedBlockingInfo},
@@ -1755,59 +2230,147 @@ void registerMcpTools()
                                 {"duration_ms", 0},
                                 {"issues", QJsonArray{}},
                                 {"summary_text",
-                                 QString("Build in progress for '%1' (%2 ms). Pass "
-                                         "on_busy:\"queue\" to wait, or retry later.")
-                                     .arg(blockName)
-                                     .arg(state->refusedElapsedMs)},
+                                 state->refusedBlockingInfo.isEmpty()
+                                     ? QString("A build started outside this tool is in "
+                                               "progress. Pass on_busy:\"queue\" to wait, "
+                                               "or retry later.")
+                                     : QString("Build in progress for '%1' (%2 ms). Pass "
+                                               "on_busy:\"queue\" to wait, or retry later.")
+                                           .arg(blockName)
+                                           .arg(state->refusedElapsedMs)},
                                 {"output", QString()}, // required by the output schema
                             })
                             .isError(true);
                     }
+                    if (state->boundedOut) {
+                        QJsonObject body{
+                            {"finished", false},
+                            {"succeeded", false},
+                            {"elapsed_ms", state->boundedElapsedMs},
+                            {"error_count", 0},
+                            {"warning_count", 0},
+                            {"duration_ms", 0},
+                            {"issues", QJsonArray{}},
+                            {"output", QString()},
+                        };
+                        if (!state->ourBuildRunning) {
+                            body["reason"] = "waiting_for_build_slot";
+                            body["summary_text"]
+                                = QString("Another project was still building after %1 ms, so "
+                                          "this build has not started. Call build_project again to "
+                                          "keep waiting for the slot.")
+                                      .arg(state->boundedElapsedMs);
+                            return CallToolResult{}.structuredContent(body).isError(false);
+                        }
+                        body["reason"] = "still_building";
+                        body["build_id"] = qint64(state->generation);
+                        // Said here as well as on the verdict: this reply is what
+                        // hands the build_id over, and the caller decides then
+                        // whether a build that predates its edits is what it wants.
+                        if (state->attached) {
+                            body["attached"] = true;
+                            body["running_before_call_ms"] = state->attachedAgeMs;
+                        }
+                        QString progressText;
+                        if (state->boundedProgress) {
+                            body["progress_percent"] = *state->boundedProgress;
+                            progressText = QString(" at %1%").arg(*state->boundedProgress);
+                        }
+                        body["summary_text"]
+                            = QString("Build still running%1 after %2 ms. It was not "
+                                      "cancelled. Call build_project again with "
+                                      "build_id:%3 to keep waiting.")
+                                  .arg(progressText)
+                                  .arg(state->boundedElapsedMs)
+                                  .arg(state->generation);
+                        return CallToolResult{}.structuredContent(body).isError(false);
+                    }
 
-                    const QJsonObject issuesData = issuesManager.getBuildIssues();
-                    const QJsonObject issuesSummary = issuesData.value("summary").toObject();
-                    const int errorCount = issuesSummary.value("errorCount").toInt();
-                    const int warningCount = issuesSummary.value("warningCount").toInt();
-                    const qint64 durationMs = state->timer.elapsed();
+                    if (!state->haveVerdict) {
+                        // The result was collected before the task went terminal.
+                        // The snapshot below is still empty, and would read as a
+                        // failure with no errors.
+                        QJsonObject body{
+                            {"finished", false},
+                            {"succeeded", false},
+                            {"reason",
+                             state->generation != 0 ? "still_building"
+                                                    : "waiting_for_build_slot"},
+                            {"error_count", 0},
+                            {"warning_count", 0},
+                            {"duration_ms", 0},
+                            {"issues", QJsonArray{}},
+                            {"output", QString()},
+                        };
+                        if (state->generation != 0) {
+                            body["build_id"] = qint64(state->generation);
+                            body["summary_text"]
+                                = QString("The build has not reported a verdict yet. Call "
+                                          "build_project again with build_id:%1 to keep "
+                                          "waiting.")
+                                      .arg(state->generation);
+                        } else {
+                            body["summary_text"] = "This call never started a build.";
+                        }
+                        return CallToolResult{}.structuredContent(body).isError(false);
+                    }
 
                     QString summaryText;
                     if (state->succeeded) {
-                        summaryText = warningCount == 0
-                                          ? QString("Build succeeded in %1 ms").arg(durationMs)
+                        summaryText = state->warningCount == 0
+                                          ? QString("Build succeeded in %1 ms")
+                                                .arg(state->durationMs)
                                           : QString("Build succeeded with %1 warning(s) in %2 ms")
-                                                .arg(warningCount)
-                                                .arg(durationMs);
+                                                .arg(state->warningCount)
+                                                .arg(state->durationMs);
+                    } else if (state->canceled) {
+                        summaryText = QString("Build canceled after %1 ms").arg(state->durationMs);
                     } else {
                         summaryText
                             = QString("Build failed with %1 error(s), %2 warning(s) in %3 ms")
-                                  .arg(errorCount)
-                                  .arg(warningCount)
-                                  .arg(durationMs);
+                                  .arg(state->errorCount)
+                                  .arg(state->warningCount)
+                                  .arg(state->durationMs);
                     }
 
-                    return CallToolResult{}
-                        .structuredContent(
-                            QJsonObject{
-                                {"succeeded", state->succeeded},
-                                {"error_count", errorCount},
-                                {"warning_count", warningCount},
-                                {"duration_ms", durationMs},
-                                {"issues", issuesData.value("issues")},
-                                {"summary_text", summaryText},
-                                {"output",
-                                 state->succeeded ? QString()
-                                                  : output->text.digest(maxReplyOutputSize)},
-                            })
-                        .isError(!state->succeeded);
+                    QJsonObject verdict{
+                        {"finished", true},
+                        {"succeeded", state->succeeded},
+                        {"build_id", qint64(state->generation)},
+                        {"error_count", state->errorCount},
+                        {"warning_count", state->warningCount},
+                        {"duration_ms", state->durationMs},
+                        {"issues", state->issues},
+                        {"summary_text", summaryText},
+                        {"output", state->succeeded ? QString() : state->output},
+                    };
+                    if (state->canceled)
+                        verdict["reason"] = "canceled";
+                    if (state->attached) {
+                        verdict["attached"] = true;
+                        verdict["running_before_call_ms"] = state->attachedAgeMs;
+                        verdict["summary_text"]
+                            = QString("%1 (from a build already in progress when this call "
+                                      "arrived, %2 ms in, so it may not include your latest "
+                                      "edits)")
+                                  .arg(summaryText)
+                                  .arg(state->attachedAgeMs);
+                    }
+                    return CallToolResult{}.structuredContent(verdict).isError(!state->succeeded);
                 },
                 [state]() {
+                    state->cancelRequested = true;
                     // Only tear down a build that is still ours. On normal
                     // completion buildQueueFinished already released the slot,
                     // and a queued build_project may now hold it -- releasing here
                     // would wipe theirs and let a third caller claim it mid-build.
-                    if (state->buildStarted && !state->finished) {
+                    // A bounded wait finishes first, so a request timeout no longer
+                    // reaches here. Once it has answered "not cancelled, poll with
+                    // build_id", the build is the next caller's, not this one's.
+                    if (state->startedBuild && !state->boundedOut && buildSlot.inProgress
+                        && buildSlot.generation == state->generation) {
                         BuildManager::cancel();
-                        buildSlot = {};
+                        buildSlot.release();
                     }
                 },
                 Mcp::progressToken(params));
