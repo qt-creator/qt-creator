@@ -63,6 +63,7 @@ namespace Android::Internal {
 static constexpr char ipRegexStr[] = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})";
 static const QRegularExpression ipRegex = QRegularExpression(ipRegexStr);
 static constexpr char wifiDevicePort[] = "5555";
+static constexpr char defaultFreePorts[] = "5555-5585";
 
 enum TagModification { CommentOut, Uncomment };
 static class AndroidDeviceManagerInstance *s_instance = nullptr;
@@ -452,6 +453,9 @@ AndroidDevice::AndroidDevice()
     setDisplayType(Tr::tr("Android"));
     setMachineType(IDevice::Hardware);
     setOsType(OsType::OsTypeOtherUnix);
+    // Also set in fromMap() for restored devices; needed here so that
+    // auto-detected devices (which never go through fromMap()) can be debugged.
+    setFreePorts(PortList::fromString(defaultFreePorts));
 
     addDeviceAction({Tr::tr("Refresh"), [](const IDevice::Ptr &device) {
         updateDeviceState(device);
@@ -527,7 +531,7 @@ void AndroidDevice::fromMap(const Store &map)
     // Add Actions for Emulator and hardware if not added already.
     // This is needed because actions for Emulators and physical devices are not the same.
     addActionsIfNotFound();
-    setFreePorts(PortList::fromString("5555-5585"));
+    setFreePorts(PortList::fromString(defaultFreePorts));
     *d->m_accessData->serialNumber.writeLocked()
         = extraData(Constants::AndroidSerialNumber).toString();
 }
