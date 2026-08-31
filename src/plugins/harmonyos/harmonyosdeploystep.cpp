@@ -21,6 +21,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/task.h>
 
 #include <utils/commandline.h>
 #include <utils/qtcprocess.h>
@@ -717,10 +718,17 @@ private:
                     emit addOutput(dropped.error(), OutputFormat::ErrorMessage);
                     return SetupResult::StopWithError;
                 }
-                for (const QString &name : *dropped) {
-                    emit addOutput(Tr::tr("Dropped the request for %1, which the provisioning "
-                                          "profile does not allow.").arg(name),
-                                   OutputFormat::Stdout);
+                if (!dropped->isEmpty()) {
+                    // The names are the answer to "what has to be in the profile", which is
+                    // worth more than a line in the output the deploy scrolls past.
+                    DeploymentTask task(
+                        Task::Warning,
+                        Tr::tr("Dropped %1, which the provisioning profile does not allow.")
+                            .arg(dropped->join(", ")));
+                    task.setDetails({Tr::tr("The device grants a restricted permission only to an "
+                                            "application whose profile lists it under "
+                                            "\"allowed-acls\".")});
+                    emit addTask(task);
                 }
             }
 
@@ -1088,6 +1096,25 @@ private slots:
         QVERIFY(contents->contains("QGenericPluginFactoryInterface_iid"));
         QVERIFY(contents->contains("lldb-server"));
         QVERIFY(Core::ICore::resourcePath("harmonyos/qtcdebug.json").exists());
+    }
+
+    // What comes back is what the deploy step reports as the permissions to have the
+    // profile allow, so a name that goes missing here takes the diagnostic with it.
+    void testDropPermissions()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath moduleJson = FilePath::fromString(dir.filePath("module.json5"));
+        QVERIFY(moduleJson.writeFileContents(manifest()));
+
+        const Result<QStringList> dropped = dropPermissions(
+            moduleJson, {"ohos.permission.STORE_PERSISTENT_DATA", "ohos.permission.CAMERA"});
+        QVERIFY(dropped);
+        QCOMPARE(*dropped, QStringList{"ohos.permission.STORE_PERSISTENT_DATA"});
+        QVERIFY(!text(moduleJson).contains("ohos.permission.STORE_PERSISTENT_DATA"));
+        // The entry beside it, and the manifest around it, have to survive.
+        QVERIFY(text(moduleJson).contains("ohos.permission.FILE_ACCESS_PERSIST"));
+        QVERIFY(text(moduleJson).contains("\"mainElement\": \"QAbility\""));
     }
 
     void testAddPermissionWithoutList()
