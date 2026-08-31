@@ -38,6 +38,11 @@ static GdbMi constMi(const QString &name, const QString &data)
 
 enum { CdbPromptLength = 7 };
 
+static QString hexAddress(quint64 address)
+{
+    return "0x" + QString::number(address, 16);
+}
+
 static bool isCdbPrompt(const QString &line)
 {
     return line.size() >= CdbPromptLength && line.at(6) == ' ' && line.at(5) == '>'
@@ -429,15 +434,15 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
                     matchedFunction.truncate(functionOffset);
                 if (functionStart > 0)
                     matchedFunction = matchedFunction.mid(functionStart);
-                const QString hexAddress = "0x" + QString::number(address, 16);
+                const QString target = hexAddress(address);
                 const QString subResponseId = QString::number(id.toInt() + ++subId);
                 m_parentForSubBreakpointId.insert(subResponseId, id);
-                runCommand({"bu" + subResponseId + ' ' + hexAddress, NoFlags});
+                runCommand({"bu" + subResponseId + ' ' + target, NoFlags});
                 GdbMi location;
                 location.m_type = GdbMi::Tuple;
                 location.addChild(constMi("number", subResponseId));
                 location.addChild(constMi("func", matchedFunction));
-                location.addChild(constMi("addr", hexAddress));
+                location.addChild(constMi("addr", target));
                 location.addChild(constMi("enabled", QLatin1String(enabled ? "y" : "n")));
                 if (!file.isEmpty()) {
                     location.addChild(constMi("file", file));
@@ -500,6 +505,7 @@ void CdbImpl::parseFunctionDisassembly(const QString &reply, ResolvedFunction *f
 {
     int declarationLine = 0;
     bool headerSeen = false;
+    bool bodySeen = false;
     for (const QString &replyLine : reply.split('\n')) {
         if (!headerSeen) {
             const QString trimmed = replyLine.trimmed();
@@ -534,7 +540,8 @@ void CdbImpl::parseFunctionDisassembly(const QString &reply, ResolvedFunction *f
         const int sourceLine = parts.at(addressIndex - 1).toInt(&lineOk);
         if (!lineOk)
             continue;
-        if (function->address == 0) {
+        if (!bodySeen) {
+            bodySeen = true;
             function->address = address;
             function->line = sourceLine;
         }
@@ -555,7 +562,7 @@ void CdbImpl::insertFunctionBreakpoint(quint64 requestId, const QString &id, boo
     runCommand({"x " + scope + functionName + '*', BuiltinCommand,
                [this, requestId, id, enabled, functionName, fallbackTarget, report]
                (const DebuggerResponse &response) {
-        QStringList qualifiedNames;
+        QList<ResolvedFunction> candidates;
         for (const QString &replyLine : response.data.data().split('\n')) {
             const QString trimmed = replyLine.trimmed();
             const int space = trimmed.indexOf(' ');
@@ -568,9 +575,21 @@ void CdbImpl::insertFunctionBreakpoint(quint64 requestId, const QString &id, boo
             const QString name = symbol.mid(symbol.indexOf('!') + 1);
             if (name != functionName && !name.startsWith(functionName + '<'))
                 continue;
-            qualifiedNames.append(symbol);
+            QString addressString = trimmed.left(space);
+            addressString.remove('`');
+            bool addressOk = false;
+            const quint64 address = addressString.toULongLong(&addressOk, 16);
+            if (!addressOk) {
+                emit message("CdbImpl: no address for " + symbol + " in: " + trimmed, LogWarning);
+                continue;
+            }
+            ResolvedFunction candidate;
+            candidate.qualifiedName = symbol;
+            candidate.name = name;
+            candidate.address = address;
+            candidates.append(candidate);
         }
-        if (qualifiedNames.isEmpty()) {
+        if (candidates.isEmpty()) {
             const QString file;
             runCommand({"bu" + id + ' ' + fallbackTarget, BuiltinCommand,
                        [this, requestId, id, enabled, functionName, file, report]
@@ -585,17 +604,17 @@ void CdbImpl::insertFunctionBreakpoint(quint64 requestId, const QString &id, boo
             QList<ResolvedFunction> functions;
         };
         const auto resolution = std::make_shared<Resolution>();
-        resolution->pending = qualifiedNames.size();
-        resolution->functions.resize(qualifiedNames.size());
-        for (int i = 0; i < qualifiedNames.size(); ++i) {
-            const QString qualifiedName = qualifiedNames.at(i);
-            runCommand({"uf " + qualifiedName, BuiltinCommand,
-                       [this, requestId, id, enabled, functionName, resolution, i, qualifiedName,
-                        report]
+        resolution->pending = candidates.size();
+        resolution->functions = candidates;
+        for (int i = 0; i < candidates.size(); ++i) {
+            // By address, not by name: cdb cannot parse the "<int>" in a template
+            // instantiation's name, and the entry address already stands in should
+            // the disassembly not yield a body line to skip the prologue.
+            const QString target = hexAddress(candidates.at(i).address);
+            runCommand({"uf " + target, BuiltinCommand,
+                       [this, requestId, id, enabled, functionName, resolution, i, report]
                        (const DebuggerResponse &ufResponse) {
                 ResolvedFunction &function = resolution->functions[i];
-                function.qualifiedName = qualifiedName;
-                function.name = qualifiedName.mid(qualifiedName.indexOf('!') + 1);
                 parseFunctionDisassembly(ufResponse.data.data(), &function);
                 if (--resolution->pending > 0)
                     return;
@@ -619,10 +638,9 @@ void CdbImpl::setResolvedFunctionBreakpoints(quint64 requestId, const QString &i
         emit breakpointEvent(requestId, BreakpointOp::Insert, false, {});
         return;
     }
-    const auto hex = [](quint64 address) { return "0x" + QString::number(address, 16); };
     if (resolved.size() == 1) {
         const ResolvedFunction &function = resolved.constFirst();
-        runCommand({"bu" + id + ' ' + hex(function.address), NoFlags});
+        runCommand({"bu" + id + ' ' + hexAddress(function.address), NoFlags});
         reportBreakpointInserted(requestId, id, enabled, function.file, function.line,
                                  function.name, {}, report);
         return;
@@ -634,12 +652,12 @@ void CdbImpl::setResolvedFunctionBreakpoints(quint64 requestId, const QString &i
     for (const ResolvedFunction &function : resolved) {
         const QString subResponseId = QString::number(id.toInt() + ++subId);
         m_parentForSubBreakpointId.insert(subResponseId, id);
-        runCommand({"bu" + subResponseId + ' ' + hex(function.address), NoFlags});
+        runCommand({"bu" + subResponseId + ' ' + hexAddress(function.address), NoFlags});
         GdbMi location;
         location.m_type = GdbMi::Tuple;
         location.addChild(constMi("number", subResponseId));
         location.addChild(constMi("func", function.name));
-        location.addChild(constMi("addr", hex(function.address)));
+        location.addChild(constMi("addr", hexAddress(function.address)));
         location.addChild(constMi("enabled", QLatin1String(enabled ? "y" : "n")));
         location.addChild(constMi("file", function.file));
         location.addChild(constMi("line", QString::number(function.line)));
