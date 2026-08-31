@@ -142,8 +142,18 @@ public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
+    Theme::Color fillColor() const;
+    void setFillColor(Theme::Color color);
+
+    Theme::Color backgroundColor() const;
+    void setBackgroundColor(Theme::Color color);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
+
+private:
+    Theme::Color m_fillColor{Theme::Token_Accent_Default};
+    Theme::Color m_backgroundColor{Theme::Token_Foreground_Subtle};
 };
 
 class QTCREATOR_UTILS_EXPORT QtcIconButton : public QAbstractButton
@@ -353,6 +363,8 @@ public:
     void setMaximum(int maximum);
     void setRange(int minimum, int maximum);
     void setValue(int value);
+    void setFillColor(Theme::Color color);
+    void setBackgroundColor(Theme::Color color);
     void onValueChanged(QObject *guard, const std::function<void(int)> &);
 };
 

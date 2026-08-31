@@ -743,6 +743,32 @@ QSize QtcProgressBar::minimumSizeHint() const
     return {progressBarTrackHeight, progressBarTrackHeight};
 }
 
+Theme::Color QtcProgressBar::fillColor() const
+{
+    return m_fillColor;
+}
+
+void QtcProgressBar::setFillColor(Theme::Color color)
+{
+    if (m_fillColor == color)
+        return;
+    m_fillColor = color;
+    update();
+}
+
+Theme::Color QtcProgressBar::backgroundColor() const
+{
+    return m_backgroundColor;
+}
+
+void QtcProgressBar::setBackgroundColor(Theme::Color color)
+{
+    if (m_backgroundColor == color)
+        return;
+    m_backgroundColor = color;
+    update();
+}
+
 void QtcProgressBar::paintEvent([[maybe_unused]] QPaintEvent *event)
 {
     const int trackY = (height() - progressBarTrackHeight) / 2;
@@ -751,15 +777,16 @@ void QtcProgressBar::paintEvent([[maybe_unused]] QPaintEvent *event)
 
     QPainter p(this);
 
-    const QBrush trackFill = creatorColor(Theme::Token_Foreground_Subtle);
+    const QBrush trackFill = creatorColor(m_backgroundColor);
     StyleHelper::drawCardBg(&p, trackR, trackFill, QPen(Qt::NoPen), rounding);
 
     const int span = maximum() - minimum();
     if (span > 0 && value() > minimum()) {
-        const int fillWidth = qRound(qreal(value() - minimum()) / span * trackR.width());
+        const int fillWidth = qMax(qRound(qreal(value() - minimum()) / span * trackR.width()),
+                                   trackR.height());
         if (fillWidth > 0) {
             const QRect fillR(trackR.x(), trackR.y(), fillWidth, trackR.height());
-            const QBrush fill = creatorColor(isEnabled() ? Theme::Token_Accent_Default
+            const QBrush fill = creatorColor(isEnabled() ? m_fillColor
                                                          : Theme::Token_Foreground_Default);
             StyleHelper::drawCardBg(&p, fillR, fill, QPen(Qt::NoPen), rounding);
         }
@@ -1383,6 +1410,16 @@ void ProgressBar::setRange(int minimum, int maximum)
 void ProgressBar::setValue(int value)
 {
     Layouting::Tools::access(this)->setValue(value);
+}
+
+void ProgressBar::setFillColor(Theme::Color color)
+{
+    Layouting::Tools::access(this)->setFillColor(color);
+}
+
+void ProgressBar::setBackgroundColor(Theme::Color color)
+{
+    Layouting::Tools::access(this)->setBackgroundColor(color);
 }
 
 void ProgressBar::onValueChanged(QObject *guard, const std::function<void(int)> &func)
