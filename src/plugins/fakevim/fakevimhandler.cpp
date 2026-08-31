@@ -64,8 +64,10 @@
 #include <QTextEdit>
 #include <QMimeData>
 #include <QDateTime>
+#include <QProcessEnvironment>
 #include <QStandardPaths>
 #include <QDir>
+#include <QFileInfo>
 
 #include <algorithm>
 #include <climits>
@@ -3455,6 +3457,8 @@ public:
     bool handleExSilentCommand(const ExCommand &cmd);
     bool handleExModifierCommand(const ExCommand &cmd);
     bool handleExAutocmdCommand(const ExCommand &cmd);
+    void removeAutoCommands(const QString &group, const QStringList &events,
+                            const QString &pattern);
     bool handleExAugroupCommand(const ExCommand &cmd);
     bool handleExDoAutocmdCommand(const ExCommand &cmd);
     bool handleExCommandDefCommand(const ExCommand &cmd);
@@ -13445,7 +13449,14 @@ static bool isBuiltinFunction(const QString &name)
         "delete", "rename", "mkdir", "tempname", "append", "json_decode", "json_encode", "glob", "globpath", "bufname", "winsaveview", "winrestview",
         "search", "searchpos", "setbufvar", "setline", "setpos", "shellescape",
         "shiftwidth", "sort",
-        "getreg", "getregtype", "hasmapto", "maparg", "setreg",
+        "getreg", "getregtype", "hasmapto", "maparg", "mapcheck", "maplist",
+        "mapset", "getcharsearch", "setcharsearch", "setreg",
+        "searchcount", "getenv", "setenv", "environ", "exepath",
+        "getbufinfo",
+        "getftype", "getfperm", "getfsize", "getftime", "resolve", "readdir",
+        "islocked", "autocmd_get", "autocmd_add", "autocmd_delete",
+        "getwinvar", "setwinvar", "gettabvar", "settabvar",
+        "gettabwinvar", "settabwinvar",
         "histnr", "histget", "histadd", "histdel", "execute",
         "getcmdline", "getcmdpos", "getcmdtype", "getcmdscreenpos", "getcmdprompt",
         "getcmdwintype", "setcmdline", "setcmdpos",
@@ -13460,8 +13471,8 @@ static bool isBuiltinFunction(const QString &name)
         "submatch", "substitute", "synID", "synIDattr", "synstack", "system",
         "byteidx", "byteidxcomp", "charidx", "strchars", "strcharlen", "strcharpart",
         "strutf16len", "utf16idx",
-        "strtrans", "tolower", "toupper", "tr", "trim", "type", "values",
-        "getreginfo", "winrestview",
+        "strtrans", "tolower", "toupper", "tr", "trim", "type", "typename", "values",
+        "getreginfo", "winrestview", "filecopy",
         "winsaveview", "writefile",
         "matchadd", "matchaddpos", "matchdelete", "clearmatches", "getmatches",
         "sqrt", "exp", "log", "log10", "sin", "cos", "tan", "asin", "acos",
@@ -13545,6 +13556,59 @@ static QList<Codepoint> charactersOf(const QString &text, bool fold)
     }
     return out;
 }
+
+// The element type of a container is the one all its members agree on. An empty
+// container has no member to ask, so its element type stays undecided - written
+// here as the empty slot in "list<>" - and takes on whatever it is compared
+// against, however deeply nested. Only a real disagreement gives up and says
+// "any"; an undecided slot that survives to the end prints as "any" too.
+static QString unifyTypes(const QString &a, const QString &b)
+{
+    if (a.isEmpty() || b.isEmpty())
+        return a.isEmpty() ? b : a;
+    if (a == b)
+        return a;
+    for (const QLatin1String kind : {QLatin1String("list<"), QLatin1String("dict<")}) {
+        if (a.startsWith(kind) && b.startsWith(kind)) {
+            const int extra = kind.size() + 1;
+            return kind + unifyTypes(a.mid(kind.size(), a.size() - extra),
+                                     b.mid(kind.size(), b.size() - extra)) + ">";
+        }
+    }
+    return "any";
+}
+
+static QString typeOf(const VimValue &value)
+{
+    switch (value.type()) {
+    case VimValue::Number: return "number";
+    case VimValue::Float: return "float";
+    case VimValue::String: return "string";
+    case VimValue::Bool: return "bool";
+    case VimValue::Special: return "special";
+    case VimValue::Func:
+        // Nothing here is declared, so there is no signature to report: a
+        // lambda has an unknown return type, a named function an untyped one.
+        if (value.funcData() && value.funcData()->isLambda)
+            return "func(...): [unknown]";
+        return "func(...): any";
+    case VimValue::List: {
+        QString element;
+        for (const VimValue &item : *value.listData())
+            element = unifyTypes(element, typeOf(item));
+        return "list<" + element + ">";
+    }
+    case VimValue::Dict: {
+        QString element;
+        for (const VimValue &item : *value.dictData())
+            element = unifyTypes(element, typeOf(item));
+        return "dict<" + element + ">";
+    }
+    }
+    return "any";
+}
+
+static bool isAutocmdEvent(const QString &word); // defined with ":autocmd"
 
 bool FakeVimHandler::Private::callFunction(const QString &name,
     const QList<VimValue> &args, VimValue *result, QString *error)
@@ -13800,6 +13864,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         case VimValue::Special: t = 7; break;
         }
         *result = VimValue(qlonglong(t));
+    } else if (name == "typename") {
+        *result = VimValue(typeOf(arg(0)).replace("<>", "<any>"));
     } else if (name == "max" || name == "min") {
         const bool isMax = name == "max";
         if (arg(0).isList() && !arg(0).listData()->isEmpty()) {
@@ -14555,7 +14621,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         else if (mode == VisualCharMode)
             answer = QLatin1String("v");
         *result = VimValue(answer);
-    } else if (name == "maparg" || name == "hasmapto") {
+    } else if (name == "maparg" || name == "hasmapto" || name == "mapcheck"
+               || name == "maplist") {
         // Vim writes the name of a key the way its documentation does, and this
         // engine holds it in upper case; the difference is only in the spelling.
         static const QMap<QString, QString> asVimWritesIt = {
@@ -14615,16 +14682,70 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             return false;
         };
         const auto text = [&](const Inputs &rhs) {
+            const QVector<Input> keys(rhs);
+            // A mapping to <Nop> holds the one sentinel input, which spells
+            // itself as nothing; Vim writes it out as "<Nop>", and something
+            // has to be written or the mapping reads as absent.
+            if (!rhs.isExCommand() && keys.size() == 1 && keys.first() == Nop)
+                return QString("<Nop>");
             QString out = rhs.isExCommand() ? ':' + rhs.exCommand() : QString();
-            out += spell(QVector<Input>(rhs));
+            out += spell(keys);
             return asVim(out);
         };
+        // maparg() answers for the keys themselves; mapcheck() also answers for
+        // a mapping the keys are the start of, or one that is the start of the
+        // keys, which is how a plugin asks whether adding a mapping would be
+        // ambiguous. Measured against Vim 9.1: with only "ab" mapped,
+        // mapcheck("a") and mapcheck("abc") both find it, mapcheck("ax") does
+        // not.
+        const bool anyPrefix = name == "mapcheck";
+        const auto matches = [&](const QVector<Input> &path) {
+            if (!anyPrefix)
+                return path == wantedKeys;
+            const int shared = qMin(path.size(), wantedKeys.size());
+            return path.mid(0, shared) == wantedKeys.mid(0, shared);
+        };
         // maparg(keys, mode, 0, 1) answers with all of it rather than the right-hand side alone,
-        // which is how a plugin reads the flags a mapping carries.
+        // which is how a plugin reads the flags a mapping carries. maplist()
+        // hands back one of these per mapping - measured, the key set is the
+        // same for both, so they are built in one place.
         const bool wantDict = args.size() > 3 && arg(3).toBool();
+        const bool wantList = name == "maplist";
+        const auto describe = [&](const QString &here, const Inputs &rhsInputs,
+                                  const QString &rhs, char forMode) {
+            QMap<QString, VimValue> about;
+            // "lhs" carries the notation, where the right-hand side has the
+            // character itself, as in Vim.
+            QString lhs = asVim(here);
+            lhs.replace(QLatin1Char(' '), QLatin1String("<Space>"));
+            about.insert("lhs", VimValue(lhs));
+            about.insert("lhsraw", VimValue(lhs));
+            about.insert("rhs", VimValue(rhs));
+            about.insert("mode", VimValue(QString(QChar(forMode))));
+            about.insert("expr", VimValue(qlonglong(rhsInputs.isExpression() ? 1 : 0)));
+            about.insert("noremap", VimValue(qlonglong(rhsInputs.noremap() ? 1 : 0)));
+            about.insert("silent", VimValue(qlonglong(rhsInputs.silent() ? 1 : 0)));
+            // Nothing here is buffer-local, waits, or is an abbreviation, and a
+            // mapping does not remember the script it came from.
+            about.insert("buffer", VimValue(qlonglong(0)));
+            about.insert("nowait", VimValue(qlonglong(0)));
+            about.insert("abbr", VimValue(qlonglong(0)));
+            about.insert("script", VimValue(qlonglong(0)));
+            // Vim numbers the modes: normal 1, visual 2, operator-pending 4,
+            // command line 8, insert 16, and "v" is visual and select together.
+            static const QMap<char, int> bits = {
+                {'n', 1}, {'x', 2}, {'o', 4}, {'c', 8}, {'i', 16}, {'v', 66}
+            };
+            about.insert("mode_bits", VimValue(qlonglong(bits.value(forMode, 0))));
+            about.insert("scriptversion", VimValue(qlonglong(1)));
+            about.insert("sid", VimValue(qlonglong(rhsInputs.scriptId())));
+            about.insert("lnum", VimValue(qlonglong(rhsInputs.scriptLine())));
+            return about;
+        };
         QMap<QString, VimValue> about;
+        QList<VimValue> listed;
         const auto walk = [&](const ModeMapping &node, const QVector<Input> &keys,
-                              const auto &recurse) -> void {
+                              char forMode, const auto &recurse) -> void {
             for (auto it = node.cbegin(); it != node.cend(); ++it) {
                 const QVector<Input> path = keys + QVector<Input>{it.key()};
                 const QString here = spell(path);
@@ -14632,57 +14753,100 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                 const QString rhs = rhsInputs.isExpression() ? rhsInputs.expression()
                                                              : text(rhsInputs);
                 if (!rhs.isEmpty()) {
-                    if (path == wantedKeys && found.isEmpty()) {
+                    if (wantList) {
+                        listed.append(VimValue::dict(describe(here, rhsInputs, rhs, forMode)));
+                    } else if (matches(path) && found.isEmpty()) {
                         found = rhs;
-                        if (wantDict) {
-                            // "lhs" carries the notation, where the right-hand
-                            // side has the character itself, as in Vim.
-                            QString lhs = asVim(here);
-                            lhs.replace(QLatin1Char(' '), QLatin1String("<Space>"));
-                            about.insert("lhs", VimValue(lhs));
-                            about.insert("lhsraw", VimValue(lhs));
-                            about.insert("rhs", VimValue(rhs));
-                            about.insert("mode", VimValue(QString(QChar(mode))));
-                            about.insert("expr",
-                                         VimValue(qlonglong(rhsInputs.isExpression() ? 1 : 0)));
-                            about.insert("noremap",
-                                         VimValue(qlonglong(rhsInputs.noremap() ? 1 : 0)));
-                            about.insert("silent",
-                                         VimValue(qlonglong(rhsInputs.silent() ? 1 : 0)));
-                            // Nothing here is buffer-local, waits, or is an abbreviation, and a
-                            // mapping does not remember the script it came from.
-                            about.insert("buffer", VimValue(qlonglong(0)));
-                            about.insert("nowait", VimValue(qlonglong(0)));
-                            about.insert("abbr", VimValue(qlonglong(0)));
-                            about.insert("script", VimValue(qlonglong(0)));
-                            // Vim numbers the modes: normal 1, visual 2, operator-pending 4,
-                            // command line 8, insert 16, and "v" is visual and select together.
-                            static const QMap<char, int> bits = {
-                                {'n', 1}, {'x', 2}, {'o', 4}, {'c', 8}, {'i', 16},
-                                {'v', 66}
-                            };
-                            about.insert("mode_bits",
-                                         VimValue(qlonglong(bits.value(mode, 0))));
-                            about.insert("scriptversion", VimValue(qlonglong(1)));
-                            about.insert("sid", VimValue(qlonglong(rhsInputs.scriptId())));
-                            about.insert("lnum", VimValue(qlonglong(rhsInputs.scriptLine())));
-                        }
+                        if (wantDict)
+                            about = describe(here, rhsInputs, rhs, forMode);
                     }
                     if (mentions(QVector<Input>(rhsInputs)))
                         anyTo = true;
                 }
-                recurse(it.value(), path, recurse);
+                recurse(it.value(), path, forMode, recurse);
             }
         };
-        const auto modeIt = g.mappings.constFind(mode == 'x' ? 'v' : mode);
-        if (modeIt != g.mappings.constEnd())
-            walk(*modeIt, QVector<Input>(), walk);
-        if (name == "hasmapto")
-            *result = VimValue(qlonglong(anyTo ? 1 : 0));
-        else if (wantDict)
-            *result = VimValue::dict(about); // empty where there is no mapping
-        else
-            *result = VimValue(found);
+        if (wantList) {
+            // maplist() is every mapping there is, in every mode at once.
+            for (auto it = g.mappings.cbegin(); it != g.mappings.cend(); ++it)
+                walk(*it, QVector<Input>(), it.key(), walk);
+            *result = VimValue::list(listed);
+        } else {
+            const auto modeIt = g.mappings.constFind(mode == 'x' ? 'v' : mode);
+            if (modeIt != g.mappings.constEnd())
+                walk(*modeIt, QVector<Input>(), mode, walk);
+            if (name == "hasmapto")
+                *result = VimValue(qlonglong(anyTo ? 1 : 0));
+            else if (wantDict)
+                *result = VimValue::dict(about); // empty where there is no mapping
+            else
+                *result = VimValue(found);
+        }
+    } else if (name == "mapset") {
+        // mapset({dict}) puts a mapping back from what maparg() or maplist()
+        // answered. mapset({mode}, {abbr}, {dict}) says which table to put it
+        // in, and that {mode} WINS over the one the dict carries - measured
+        // against Vim 9.1, which maps in insert mode for mapset('i', 0, d)
+        // even where d came from a normal-mode mapping. There are no
+        // abbreviations here, so {abbr} is nothing to act on.
+        // A dict that is not one, or carries no "lhs", is left alone rather
+        // than answered with a guessed-at error number.
+        const bool spelledOut = args.size() > 2;
+        const VimValue given = spelledOut ? arg(2) : arg(0);
+        if (given.isDict() && given.dictData()) {
+            const QMap<QString, VimValue> &about = *given.dictData();
+            const QString lhs = about.value("lhs").toString();
+            if (!lhs.isEmpty()) {
+                const QString modeName = spelledOut ? arg(0).toString()
+                                                    : about.value("mode").toString();
+                const char mode = modeName.isEmpty() ? 'n' : modeName.at(0).toLatin1();
+                Inputs rhs(about.value("rhs").toString(),
+                           about.value("noremap").toBool(),
+                           about.value("silent").toBool(),
+                           about.value("expr").toBool(), false);
+                rhs.setWrittenAt(int(about.value("sid").toNumber()),
+                                 int(about.value("lnum").toNumber()));
+                MappingsIterator(&g.mappings, mode == 'x' ? 'v' : mode)
+                    .setInputs(Inputs(lhs), rhs, false);
+            }
+        }
+        *result = VimValue(qlonglong(0));
+    } else if (name == "getcharsearch" || name == "setcharsearch") {
+        // The last "f", "F", "t" or "T" and what it looked for - the pair ";"
+        // and "," repeat, which this engine already keeps for them.
+        // "forward" tells f/t from F/T, "until" tells t/T from f/F.
+        const char type = g.semicolonType.asChar().toLatin1();
+        // Nothing looked for yet answers with both set. That is Vim's own
+        // answer, measured, rather than anything the type could give.
+        const bool nothingYet = g.semicolonKey.isEmpty();
+        const bool forward = nothingYet || type == 'f' || type == 't';
+        const bool until = nothingYet || type == 't' || type == 'T';
+        if (name == "getcharsearch") {
+            QMap<QString, VimValue> about;
+            about.insert("char", VimValue(g.semicolonKey));
+            about.insert("forward", VimValue(qlonglong(forward ? 1 : 0)));
+            about.insert("until", VimValue(qlonglong(until ? 1 : 0)));
+            *result = VimValue::dict(about);
+        } else {
+            // setcharsearch() MERGES: only the entries it is given change,
+            // the rest stay as they were (measured - passing "char" alone
+            // leaves "forward" and "until" alone).
+            const QMap<QString, VimValue> *given = arg(0).isDict() ? arg(0).dictData()
+                                                                  : nullptr;
+            if (given) {
+                const bool wantForward = given->contains("forward")
+                        ? given->value("forward").toBool() : forward;
+                const bool wantUntil = given->contains("until")
+                        ? given->value("until").toBool() : until;
+                if (given->contains("char"))
+                    g.semicolonKey = given->value("char").toString();
+                g.semicolonType = Input(wantForward ? (wantUntil ? QLatin1Char('t')
+                                                                : QLatin1Char('f'))
+                                                    : (wantUntil ? QLatin1Char('T')
+                                                                 : QLatin1Char('F')));
+            }
+            *result = VimValue(qlonglong(0));
+        }
     } else if (name == "stridx") {
         const int start = args.size() > 2 ? int(arg(2).toNumber()) : 0;
         *result = VimValue(qlonglong(arg(0).toString().indexOf(arg(1).toString(), start)));
@@ -14899,6 +15063,51 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         *result = VimValue(qlonglong(linesOnScreen()));
     } else if (name == "winwidth") {
         *result = VimValue(qlonglong(columnsOnScreen()));
+    } else if (name == "getbufinfo") {
+        // What getwininfo() is for windows, for buffers - and there is only
+        // this one. getbufinfo({buf}) names it by number or name, and
+        // getbufinfo({dict}) filters. A filter set to ZERO is off rather than
+        // inverted (measured: {'buflisted': 0} still answers with the listed
+        // buffer), so only a true one can leave it out.
+        bool wanted = true;
+        if (!args.isEmpty()) {
+            if (arg(0).isDict() && arg(0).dictData()) {
+                const QMap<QString, VimValue> &how = *arg(0).dictData();
+                // The buffer is listed and loaded; only "bufmodified" can fail.
+                if (how.value("bufmodified").toBool() && !document()->isModified())
+                    wanted = false;
+            } else {
+                wanted = namesThisBuffer(arg(0));
+            }
+        }
+        QList<VimValue> list;
+        if (wanted) {
+            QMap<QString, VimValue> info;
+            info.insert("bufnr", VimValue(qlonglong(bufferNumber())));
+            info.insert("changed", VimValue(qlonglong(document()->isModified() ? 1 : 0)));
+            info.insert("changedtick", VimValue(qlonglong(document()->revision())));
+            info.insert("command", VimValue(qlonglong(0)));
+            // The buffer is the one on show, so it is neither hidden nor
+            // unloaded, and it is listed.
+            info.insert("hidden", VimValue(qlonglong(0)));
+            info.insert("lastused", VimValue(qlonglong(QDateTime::currentSecsSinceEpoch())));
+            info.insert("linecount", VimValue(qlonglong(document()->blockCount())));
+            info.insert("listed", VimValue(qlonglong(1)));
+            info.insert("lnum", VimValue(qlonglong(cursorLine() + 1)));
+            info.insert("loaded", VimValue(qlonglong(1)));
+            info.insert("name", VimValue(m_currentFileName));
+            info.insert("popups", VimValue::list());
+            // The b: scope as a dictionary, which carries changedtick in Vim.
+            VimValue scope;
+            QMap<QString, VimValue> variables;
+            if (variableValue("b:", &scope) && scope.isDict() && scope.dictData())
+                variables = *scope.dictData();
+            variables.insert("changedtick", VimValue(qlonglong(document()->revision())));
+            info.insert("variables", VimValue::dict(variables));
+            info.insert("windows", VimValue::list({VimValue(theWindowId)}));
+            list.append(VimValue::dict(info));
+        }
+        *result = VimValue::list(list);
     } else if (name == "getwininfo") {
         // Only one window there is, so at most one entry - none at all for
         // any winid but its own 1000 (or none asked for).
@@ -14929,6 +15138,112 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "executable") {
         const QString found = QStandardPaths::findExecutable(arg(0).toString());
         *result = VimValue(qlonglong(found.isEmpty() ? 0 : 1));
+    } else if (name == "getftype" || name == "getfperm" || name == "getfsize"
+               || name == "getftime" || name == "resolve") {
+        // What the filesystem says about one path.
+        const QString path = arg(0).toString();
+        const QFileInfo about(path);
+        // A symbolic link is reported as one even where what it points at is
+        // gone, so that comes before asking whether the path exists at all.
+        const bool isLink = about.isSymLink();
+        const bool there = isLink || about.exists();
+        if (name == "getftype") {
+            *result = VimValue(isLink ? QString("link")
+                               : !there ? QString()
+                               : about.isDir() ? QString("dir") : QString("file"));
+        } else if (name == "getfperm") {
+            // Nine characters, owner then group then other, with a "-" where
+            // the permission is not given - no leading type character.
+            static const QList<QFile::Permission> order = {
+                QFile::ReadOwner, QFile::WriteOwner, QFile::ExeOwner,
+                QFile::ReadGroup, QFile::WriteGroup, QFile::ExeGroup,
+                QFile::ReadOther, QFile::WriteOther, QFile::ExeOther
+            };
+            QString spelled;
+            if (about.exists()) {
+                const QFile::Permissions held = about.permissions();
+                const char *letters = "rwxrwxrwx";
+                for (int i = 0; i < order.size(); ++i)
+                    spelled += held.testFlag(order.at(i)) ? letters[i] : '-';
+            }
+            *result = VimValue(spelled);
+        } else if (name == "getfsize") {
+            // A directory answers zero, and what is not there answers -1.
+            *result = VimValue(qlonglong(!about.exists() ? -1
+                                         : about.isDir() ? 0 : about.size()));
+        } else if (name == "getftime") {
+            *result = VimValue(qlonglong(about.exists()
+                                         ? about.lastModified().toSecsSinceEpoch() : -1));
+        } else {
+            // resolve(): what a link points at, and the path itself where
+            // there is no link to follow or nothing there to look at.
+            const QString canonical = about.canonicalFilePath();
+            *result = VimValue(canonical.isEmpty() ? path : canonical);
+        }
+    } else if (name == "readdir") {
+        // The names in a directory, without "." and "..", sorted; nothing at
+        // all where there is no such directory.
+        // The optional second argument is called for each name: a true answer
+        // keeps it, a zero leaves it out, and a -1 stops there. Vim walks the
+        // filesystem's OWN order for that stop and sorts what it kept
+        // afterwards, so which names it ends up with is not reproducible; the
+        // walk here is over the sorted order instead, which is.
+        const QDir dir(arg(0).toString());
+        QList<VimValue> names;
+        if (dir.exists()) {
+            const QStringList entries = dir.entryList(QDir::AllEntries | QDir::Hidden
+                                                      | QDir::System | QDir::NoDotAndDotDot,
+                                                      QDir::Name);
+            const bool sieve = args.size() > 1;
+            for (const QString &entry : entries) {
+                if (!sieve) {
+                    names.append(VimValue(entry));
+                    continue;
+                }
+                VimValue verdict;
+                if (!invokeCallable(arg(1), {VimValue(entry)}, &verdict, error))
+                    return false;
+                if (verdict.toNumber() == -1)
+                    break;
+                if (verdict.toBool())
+                    names.append(VimValue(entry));
+            }
+        }
+        *result = VimValue::list(names);
+    } else if (name == "exepath") {
+        // Where an executable stands along PATH, or nothing at all where
+        // there is none - the same lookup executable() answers yes or no with.
+        *result = VimValue(QStandardPaths::findExecutable(arg(0).toString()));
+    } else if (name == "environ") {
+        // Every environment variable at once, as a dictionary.
+        QMap<QString, VimValue> all;
+        const QStringList entries
+                = QProcessEnvironment::systemEnvironment().toStringList();
+        for (const QString &entry : entries) {
+            const int eq = entry.indexOf('=');
+            if (eq > 0)
+                all.insert(entry.left(eq), VimValue(entry.mid(eq + 1)));
+        }
+        *result = VimValue::dict(all);
+    } else if (name == "getenv" || name == "setenv") {
+        // The process environment itself, which is what "$NAME" in an
+        // expression already reads.
+        const QByteArray key = arg(0).toString().toLatin1();
+        if (name == "getenv") {
+            // One that is not there answers v:null, NOT an empty string -
+            // that is what tells it apart from one set to nothing (measured).
+            *result = qEnvironmentVariableIsSet(key.constData())
+                    ? VimValue(qEnvironmentVariable(key.constData()))
+                    : VimValue::special("v:null");
+        } else {
+            // setenv({name}, {val}); v:null takes the variable away again.
+            const VimValue value = arg(1);
+            if (value.type() == VimValue::Special && value.toString() == "v:null")
+                qunsetenv(key.constData());
+            else
+                qputenv(key.constData(), value.toString().toLocal8Bit());
+            *result = VimValue(qlonglong(0));
+        }
     } else if (name == "system") {
         // The same way ":!" reaches a shell, so it stays out of this file.
         QString output;
@@ -15282,6 +15597,207 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             ex = variableValue(a, &tmp);
         }
         *result = VimValue(qlonglong(ex ? 1 : 0));
+    } else if (name == "islocked") {
+        // Whether ":lockvar" holds this name: 1 held, 0 there and not held,
+        // -1 nothing of that name at all.
+        const QString asked = arg(0).toString();
+        // An entry of a container answers for the container. That is what
+        // Vim's default depth does, and ":lockvar" here reads the depth it is
+        // given and passes over it, so the shallower "lockvar 1" - which
+        // leaves the entries alone - cannot be told apart.
+        int cut = asked.size();
+        for (int i = 0; i < asked.size(); ++i) {
+            const QChar c = asked.at(i);
+            if (c == '[' || (c == '.' && i > 0 && asked.at(i - 1) != ':')) {
+                cut = i;
+                break;
+            }
+        }
+        const QString base = asked.left(cut);
+        QString key;
+        variableStore(base, &key);
+        if (g.lockedVariables.contains(key)) {
+            *result = VimValue(qlonglong(1));
+        } else {
+            // The container standing there is what says 0 rather than -1.
+            // Vim looks the ENTRY up, so it answers -1 for one that is not in
+            // an unlocked container where this answers 0; nothing here can
+            // resolve an entry path to say otherwise.
+            VimValue held;
+            *result = VimValue(qlonglong(variableValue(base, &held) ? 0 : -1));
+        }
+    } else if (name == "autocmd_get") {
+        // The autocommands there are, one dict each. {dict} narrows by
+        // "group", "event" or "pattern".
+        const QMap<QString, VimValue> *how = arg(0).isDict() ? arg(0).dictData() : nullptr;
+        // A key that is not there has to be asked about rather than read: an
+        // absent one hands back a default VimValue, and that spells itself
+        // "0", not "" - which would then be taken for a filter of its own and
+        // leave nothing behind.
+        const auto narrowing = [how](const char *key) {
+            return how && how->contains(QLatin1String(key))
+                    ? how->value(QLatin1String(key)).toString() : QString();
+        };
+        const QString wantGroup = narrowing("group");
+        const QString wantEvent = narrowing("event");
+        const QString wantPattern = narrowing("pattern");
+        if (!wantGroup.isEmpty()) {
+            // A group nothing belongs to is an error rather than an empty
+            // answer, with the message Vim gives (measured).
+            bool known = false;
+            for (const AutoCommand &ac : std::as_const(g.autoCommands)) {
+                if (ac.group == wantGroup) {
+                    known = true;
+                    break;
+                }
+            }
+            if (!known) {
+                *error = Tr::tr("E367: No such group: \"%1\"").arg(wantGroup);
+                return false;
+            }
+        }
+        QList<VimValue> out;
+        for (const AutoCommand &ac : std::as_const(g.autoCommands)) {
+            if (!wantGroup.isEmpty() && ac.group != wantGroup)
+                continue;
+            // An event is named without regard to case, as ":autocmd" takes it.
+            if (!wantEvent.isEmpty() && ac.event.compare(wantEvent, Qt::CaseInsensitive) != 0)
+                continue;
+            if (!wantPattern.isEmpty() && ac.pattern != wantPattern)
+                continue;
+            QMap<QString, VimValue> one;
+            one.insert("cmd", VimValue(ac.command));
+            // The event comes back as it was written. Vim answers with the
+            // first of the names an event goes by, so one written as
+            // "BufWritePre" reads back "BufWrite" there; the table of those
+            // synonyms is not kept here.
+            one.insert("event", VimValue(ac.event));
+            one.insert("group", VimValue(ac.group));
+            one.insert("pattern", VimValue(ac.pattern));
+            // Neither "++once" nor "++nested" is kept here, so both are false -
+            // and false rather than zero, as Vim answers with v:false.
+            one.insert("once", VimValue::boolean(false));
+            one.insert("nested", VimValue::boolean(false));
+            out.append(VimValue::dict(one));
+        }
+        *result = VimValue::list(out);
+    } else if (name == "autocmd_add" || name == "autocmd_delete") {
+        // Both take a list of dicts, and both are the ":autocmd" forms wearing a
+        // dict: an entry to add is ":au {group} {event} {pat} {cmd}", one
+        // carrying "replace" is the same with a bang, and one to delete is
+        // ":au!" - which is why a delete naming a "cmd" ADDS it, having first
+        // cleared what was registered for that event and pattern. Measured in
+        // Vim 9.1, where deleting a "cmd" that was never there leaves it behind.
+        const bool adding = name == "autocmd_add";
+        if (!arg(0).isList()) {
+            *error = Tr::tr("E1211: List required for argument 1");
+            return false;
+        }
+        // A bad event is reported, but the entries around it are still carried
+        // out, so the first complaint is kept and the walk goes on.
+        QString firstError;
+        for (const VimValue &entry : *arg(0).listData()) {
+            if (!entry.isDict())
+                continue; // silently passed over, as in Vim
+            const QMap<QString, VimValue> *what = entry.dictData();
+            // A key that is not there must be asked about rather than read: an
+            // absent one hands back a default VimValue, which spells itself "0".
+            const auto given = [what](const char *key) {
+                return what->contains(QLatin1String(key))
+                        ? what->value(QLatin1String(key)).toString() : QString();
+            };
+            // An event or a pattern may be one name or a list of them.
+            const auto names = [what](const char *key) {
+                QStringList out;
+                const QString wanted = QLatin1String(key);
+                if (!what->contains(wanted))
+                    return out;
+                const VimValue value = what->value(wanted);
+                if (!value.isList())
+                    return value.toString().split(',', Qt::SkipEmptyParts);
+                for (const VimValue &one : *value.listData())
+                    out.append(one.toString());
+                return out;
+            };
+
+            const QString group = given("group");
+            const QString command = given("cmd");
+            QStringList events = names("event");
+            QStringList patterns = names("pattern");
+            // A buffer stands in for a pattern, written the way Vim writes it.
+            if (patterns.isEmpty() && what->contains("bufnr"))
+                patterns.append("<buffer=" + given("bufnr") + ">");
+
+            // A group named for a delete has to be there, whatever else the
+            // entry says. The one nothing names is always there.
+            if (!adding && !group.isEmpty()) {
+                bool known = false;
+                for (const AutoCommand &ac : std::as_const(g.autoCommands)) {
+                    if (ac.group == group) {
+                        known = true;
+                        break;
+                    }
+                }
+                if (!known) {
+                    *error = Tr::tr("E367: No such group: \"%1\"").arg(group);
+                    return false;
+                }
+            }
+
+            // Deleting takes "*" for every event, which is how the ":au!" it
+            // stands for reads it. Adding has no use for it and says so.
+            const bool anyEvent = !adding && events.size() == 1
+                                  && events.first() == "*";
+            if (anyEvent) {
+                events.clear(); // no event named means every one
+            } else {
+                for (const QString &event : std::as_const(events)) {
+                    if (!isAutocmdEvent(event) && firstError.isEmpty())
+                        firstError = Tr::tr("E216: No such event: %1").arg(event);
+                }
+                events.removeIf([](const QString &event) {
+                    return !isAutocmdEvent(event);
+                });
+            }
+
+            if (!adding) {
+                // Whatever is not narrowed down goes: an entry naming only a
+                // group empties it, which is what removes the group as well.
+                if (patterns.isEmpty()) {
+                    removeAutoCommands(group, events, QString());
+                } else {
+                    for (const QString &pattern : std::as_const(patterns))
+                        removeAutoCommands(group, events, pattern);
+                }
+            }
+
+            // An entry with nowhere or nothing to register leaves nothing
+            // behind, and that is not an error.
+            if (command.isEmpty() || events.isEmpty() || patterns.isEmpty())
+                continue;
+            const bool clearFirst = adding
+                                    && what->value("replace").toNumber() != 0;
+            // An event and a pattern each naming several means every pairing.
+            for (const QString &event : std::as_const(events)) {
+                for (const QString &pattern : std::as_const(patterns)) {
+                    if (clearFirst)
+                        removeAutoCommands(group, {event}, pattern);
+                    AutoCommand ac;
+                    ac.group = group;
+                    ac.event = event;
+                    ac.pattern = pattern;
+                    ac.command = command;
+                    ac.scriptId = currentScriptId();
+                    g.autoCommands.append(ac);
+                }
+            }
+        }
+        if (!firstError.isEmpty()) {
+            *error = firstError;
+            return false;
+        }
+        // Both answer TRUE, and with v:true rather than 1.
+        *result = VimValue::boolean(true);
     } else if (name == "mode") {
         // What Vim answers for each of them was taken from Vim 9.1. Only the
         // first letter unless something is passed, where operator-pending is
@@ -15978,6 +16494,17 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const QString from = replaceTildeWithHome(arg(0).toString());
         const QString to = replaceTildeWithHome(arg(1).toString());
         *result = VimValue(qlonglong(QFile::rename(from, to) ? 0 : -1));
+    } else if (name == "filecopy") {
+        // filecopy({from}, {to}) - one where the copy is there now, zero where
+        // it is not. A destination that is already there is NOT written over:
+        // Vim leaves it as it was and answers zero (measured), which is what
+        // QFile::copy does too, permissions and all. Only a plain file is
+        // copied, never a directory.
+        const QString from = replaceTildeWithHome(arg(0).toString());
+        const QString to = replaceTildeWithHome(arg(1).toString());
+        *result = VimValue(qlonglong(!from.isEmpty() && !to.isEmpty()
+                                     && QFileInfo(from).isFile()
+                                     && QFile::copy(from, to) ? 1 : 0));
     } else if (name == "mkdir") {
         // mkdir({name} [, {flags}]) - one where the directory is there now, zero where it is not.
         const QString what = replaceTildeWithHome(arg(0).toString());
@@ -16354,6 +16881,114 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             }
             *result = VimValue(qlonglong(0));
         }
+    } else if (name == "getwinvar" || name == "setwinvar"
+               || name == "gettabvar" || name == "settabvar"
+               || name == "gettabwinvar" || name == "settabwinvar") {
+        // The w: and t: scoped variables of a window or a tab page, and their
+        // setters - the same shape getbufvar()/setbufvar() has for b:. There is
+        // one window and one tab page here, so any other number reads as though
+        // the variable were simply not there: the default if one was offered,
+        // an empty string otherwise (measured - an out-of-range window is not
+        // an error). An "&name" reads or writes the option instead, as there.
+        const bool isTabWin = name.endsWith("tabwinvar");
+        const bool isTab = !isTabWin && name.endsWith("tabvar");
+        const bool setting = name.startsWith("set");
+        // gettabwinvar() names the tab page first and the window second.
+        const int nameAt = isTabWin ? 2 : 1;
+        const auto namesTheWindow = [&](int at) {
+            const qlonglong w = qlonglong(arg(at).toNumber());
+            return w == 0 || w == 1; // a zero is the current window
+        };
+        const bool reachable = isTabWin
+                ? qlonglong(arg(0).toNumber()) == 1 && namesTheWindow(1)
+                : isTab ? qlonglong(arg(0).toNumber()) == 1 : namesTheWindow(0);
+        QString varName = arg(nameAt).toString();
+        const bool isOption = varName.startsWith('&');
+        if (isOption)
+            varName = varName.mid(1);
+        const QString scope = isTab ? QString("t:") : QString("w:");
+        if (setting) {
+            if (reachable) {
+                if (isOption)
+                    setOption(varName, arg(nameAt + 1));
+                else
+                    setVariable(scope + varName, arg(nameAt + 1));
+            }
+            *result = VimValue(qlonglong(0));
+        } else {
+            VimValue found;
+            bool ok = false;
+            if (reachable) {
+                ok = isOption ? optionValue(varName, &found)
+                              : variableValue(scope + varName, &found);
+            }
+            *result = ok ? found
+                         : (args.size() > nameAt + 1 ? arg(nameAt + 1)
+                                                     : VimValue(QString()));
+        }
+    } else if (name == "searchcount") {
+        // Where the cursor stands among the matches of the last search, which
+        // is what a status line shows as "[3/12]".
+        // {options} may carry "pattern" to count something else without
+        // making it the last search (measured: @/ is left alone), "pos" to
+        // count as if the cursor were elsewhere, and "maxcount" to stop
+        // counting early.
+        const QMap<QString, VimValue> *options = arg(0).isDict() ? arg(0).dictData()
+                                                                 : nullptr;
+        const QString wanted = options && options->contains("pattern")
+                ? options->value("pattern").toString() : g.lastSearch;
+        if (wanted.isEmpty()) {
+            // Nothing has been searched for, so there is nothing to report.
+            *result = VimValue::dict({});
+            return true;
+        }
+        // Vim's 'maxsearchcount' default; 0 or less means no limit.
+        qlonglong maxCount = 99;
+        if (options && options->contains("maxcount"))
+            maxCount = qlonglong(options->value("maxcount").toNumber());
+        int at = position();
+        if (options && options->contains("pos")) {
+            const VimValue where = options->value("pos");
+            if (where.isList() && where.listData()->size() >= 2) {
+                const int line = int(where.listData()->at(0).toNumber());
+                const int column = int(where.listData()->at(1).toNumber());
+                at = firstPositionInLine(line) + qMax(0, column - 1);
+            }
+        }
+        PatternPosition ignored;
+        const QRegularExpression re = vimPatternToQtPattern(wanted, &ignored, {},
+                                                           patternCursorColumn());
+        qlonglong total = 0;
+        qlonglong current = 0;
+        bool exact = false;
+        bool cut = false;
+        if (re.isValid()) {
+            QRegularExpressionMatchIterator it = re.globalMatch(document()->toPlainText());
+            while (it.hasNext()) {
+                const int start = it.next().capturedStart();
+                ++total;
+                if (start <= at)
+                    current = total;
+                if (start == at)
+                    exact = true;
+                // Counting stops one past the limit, which is what says there
+                // were more than that rather than exactly that many.
+                if (maxCount > 0 && total > maxCount) {
+                    cut = true;
+                    break;
+                }
+            }
+        }
+        QMap<QString, VimValue> about;
+        about.insert("current", VimValue(current));
+        about.insert("total", VimValue(total));
+        about.insert("exact_match", VimValue(qlonglong(exact ? 1 : 0)));
+        // A 2 says the count was cut short by "maxcount". A 1 would say the
+        // recomputing timed out, which cannot happen here: the whole buffer is
+        // counted at once, so "timeout" has nothing to act on.
+        about.insert("incomplete", VimValue(qlonglong(cut ? 2 : 0)));
+        about.insert("maxcount", VimValue(maxCount));
+        *result = VimValue::dict(about);
     } else if (name == "strftime") {
         // strftime({format} [, {time}]) - the C library does the formatting, so
         // the conversions are the ones Vim documents. The parts are filled from
@@ -16637,7 +17272,7 @@ static bool isAutocmdEvent(const QString &word)
     static const QSet<QString> events = {
         // Fired from here.
         "bufnewfile", "bufread", "bufreadpost", "bufenter", "bufleave",
-        "bufwinenter", "bufwritepre", "bufwritepost", "filetype",
+        "bufwinenter", "bufwrite", "bufwritepre", "bufwritepost", "filetype",
         "insertenter", "insertleave", "textchanged", "textchangedi",
         "cursormoved", "cursormovedi", "vimenter", "winenter", "winleave",
         "user",
@@ -16651,8 +17286,8 @@ static bool isAutocmdEvent(const QString &word)
         "cursorholdi", "dirchanged", "encodingchanged", "filechangedshell",
         "filereadpost", "filereadpre", "filewritepost", "filewritepre",
         "focusgained", "focuslost", "insertcharpre", "insertchange",
-        "menupopup", "optionset", "quitpre", "safestate", "sessionloadpost",
-        "shellcmdpost", "shellfilterpost", "sourcepost", "sourcepre",
+        "fileencoding", "menupopup", "optionset", "quitpre", "safestate",
+        "sessionloadpost", "shellcmdpost", "shellfilterpost", "sourcepost", "sourcepre",
         "stdinreadpost", "swapexists", "syntax", "tabclosed", "tabenter",
         "tableave", "tabnew", "termopen", "textyankpost", "vimleave",
         "vimleavepre", "vimresized", "winclosed", "winnew", "winresized"
@@ -16660,12 +17295,18 @@ static bool isAutocmdEvent(const QString &word)
     return events.contains(word.toLower());
 }
 
-// "BufRead" and "BufReadPost" are two names for the same event, so reduce them
-// to one before comparing a registration against a fired event.
+// Some events go by two names - "BufRead" and "BufReadPost" are one event - so
+// reduce them to one before comparing a registration against a fired event.
 static QString canonicalAutocmdEvent(const QString &event)
 {
+    static const QHash<QString, QString> synonyms = {
+        {"bufread", "bufreadpost"},
+        {"bufwrite", "bufwritepre"},
+        {"bufcreate", "bufadd"},
+        {"fileencoding", "encodingchanged"},
+    };
     const QString lower = event.toLower();
-    return lower == "bufread" ? QStringLiteral("bufreadpost") : lower;
+    return synonyms.value(lower, lower);
 }
 
 static bool autocmdPatternMatches(const QString &pattern, const QString &fileName)
@@ -16685,6 +17326,24 @@ static bool autocmdPatternMatches(const QString &pattern, const QString &fileNam
     return false;
 }
 
+// What ":autocmd!" and autocmd_delete() take away: the autocommands of one group
+// for the events named, narrowed to a pattern when one is given. No event named,
+// or "*" for one, stands for every event.
+void FakeVimHandler::Private::removeAutoCommands(const QString &group,
+    const QStringList &events, const QString &pattern)
+{
+    const bool anyEvent = events.isEmpty()
+                          || (events.size() == 1 && events.first() == "*");
+    QStringList wanted;
+    for (const QString &event : events)
+        wanted.append(canonicalAutocmdEvent(event));
+    g.autoCommands.removeIf([&](const AutoCommand &ac) {
+        return ac.group == group
+               && (anyEvent || wanted.contains(canonicalAutocmdEvent(ac.event)))
+               && (pattern.isEmpty() || ac.pattern == pattern);
+    });
+}
+
 bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
 {
     // :autocmd [group] {event} {pattern} {command} - register a command; a bare
@@ -16696,6 +17355,8 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
     // One command may be registered for several events at once, written with
     // commas between them.
     const auto namesEvents = [](const QString &token) {
+        if (token == "*") // stands for every event, in the ":au!" forms
+            return true;
         const QStringList parts = token.split(',', Qt::SkipEmptyParts);
         if (parts.isEmpty())
             return false;
@@ -16726,12 +17387,21 @@ bool FakeVimHandler::Private::handleExAutocmdCommand(const ExCommand &cmd)
         }
         return true;
     }
-    if (tokens.size() < 3)
-        return true; // nothing to register
 
     const QStringList events = tokens.takeFirst().split(',', Qt::SkipEmptyParts);
-    const QString pattern = tokens.takeFirst();
+    const QString pattern = tokens.isEmpty() ? QString() : tokens.takeFirst();
     const QString command = tokens.join(' ');
+
+    // The bang clears before it registers: what is already there for the events
+    // named goes - narrowed to one pattern when one is given - and only then
+    // does the command, if there is one, take its place. Leaving that out makes
+    // ":au!" an ordinary registration and lets duplicates pile up.
+    if (cmd.hasBang)
+        removeAutoCommands(group, events, pattern);
+
+    if (command.isEmpty() || events.isEmpty() || events.first() == "*")
+        return true; // nothing to register
+
     for (const QString &event : events) {
         AutoCommand ac;
         ac.group = group;
