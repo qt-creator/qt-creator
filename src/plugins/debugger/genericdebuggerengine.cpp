@@ -268,6 +268,14 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
     });
 }
 
+// m_backend is the first member, so it is destroyed last - after every member a
+// slot of this class touches, and before ~QObject drops the connections to it.
+// Nothing it emits on its way out may reach us any more.
+GenericDebuggerEngine::~GenericDebuggerEngine()
+{
+    m_backend->disconnect();
+}
+
 void GenericDebuggerEngine::setupEngine()
 {
     m_backend->start();

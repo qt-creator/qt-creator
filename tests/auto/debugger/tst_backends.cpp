@@ -554,6 +554,15 @@ public:
         });
     }
 
+    // The tests connect lambdas capturing their own locals to the engine's
+    // signals. Those locals are gone by the time this runs, so nothing the
+    // engine emits while it goes away may still reach them.
+    ~DebuggerBackend() override
+    {
+        if (m_engine)
+            m_engine->disconnect();
+    }
+
     DebuggerEngineInterface *engine() const { return m_engine.get(); }
 
     void execute(const ExecutionRequest &request) { m_engine->execute(request); }
@@ -4546,7 +4555,10 @@ void tst_backends::readsTheDebuggerInitFileWhenConfigured()
     const auto markerSeen = [this, &marker](DebuggerBackend *debuggerBackend) {
         DebuggerEngineInterface *engine = debuggerBackend->engine();
         QStringList messages;
-        connect(engine, &DebuggerEngineInterface::message, this,
+        // The engine outlives this call, so the connection must not: the list it
+        // appends to is gone as soon as the marker has been looked for.
+        QObject connectionScope;
+        connect(engine, &DebuggerEngineInterface::message, &connectionScope,
                 [&messages](const QString &text, int, int) { messages.append(text); });
         engine->start();
         [debuggerBackend] {

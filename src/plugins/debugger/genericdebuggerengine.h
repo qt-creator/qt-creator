@@ -18,6 +18,7 @@ class GenericDebuggerEngine final : public DebuggerEngine
 {
 public:
     explicit GenericDebuggerEngine(const QString &debuggerTypeName, DebuggerEngineInterface *backend);
+    ~GenericDebuggerEngine() override;
 
 private:
     void setupEngine() final;
