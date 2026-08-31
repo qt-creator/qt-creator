@@ -18,7 +18,8 @@ enum ItemRole {
     ItalicRole, // used only inside the delegate
     TypeRole,
     EnabledRole,
-    FailedRole  // marker for having failed in last run
+    FailedRole, // marker for having failed in last run
+    FailedChildRole // marker for having a descendant that failed in last run
 };
 
 class ITestBase;
@@ -96,6 +97,7 @@ private:
     Type m_type;
     int m_line = 0;
     bool m_failed = false;
+    bool m_failedChild = false;
 };
 
 class TestTreeItem : public ITestTreeItem

@@ -123,6 +123,37 @@ void TestTreeModel::setupParsingConnections()
     connectionsInitialized = true;
 }
 
+static bool hasFailedChild(const TreeItem *item)
+{
+    for (const TreeItem *child : *item) {
+        if (child->data(0, FailedRole).toBool() || child->data(0, FailedChildRole).toBool())
+            return true;
+    }
+    return false;
+}
+
+// re-evaluate failed child marker for item and its ancestors up to invisible root
+static void revalidateFailedState(TreeItem *item)
+{
+    for (TreeItem *it = item; it && it->parent(); it = it->parent()) {
+        if (!it->setData(0, hasFailedChild(it), FailedChildRole))
+            break; // it does not change - no need to go further up
+        it->update();
+    }
+}
+
+// re-evaluate failed child marker for whole subtree, returns whether item itself or
+// any of its descendants have failed
+static bool updateFailedState(TreeItem *item)
+{
+    bool failedChild = false;
+    for (TreeItem *child : *item)
+        failedChild |= updateFailedState(child);
+    if (item->setData(0, failedChild, FailedChildRole))
+        item->update();
+    return failedChild || item->data(0, FailedRole).toBool();
+}
+
 bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid())
@@ -149,6 +180,7 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
         } else if (role == FailedRole) {
             if (item->testBase()->type() == ITestBase::Framework)
                 m_failedStateCache.insert(static_cast<TestTreeItem *>(item), value.toBool());
+            revalidateFailedState(item->parent());
             return true;
         }
     }
@@ -286,6 +318,7 @@ void TestTreeModel::onBuildSystemTestsUpdated()
         m_checkStateCache->insert(item, item->checked());
         rootNode->appendChild(item);
     }
+    revalidateFailedState(rootNode);
     revalidateCheckState(rootNode);
     emit testTreeModelChanged();
 }
@@ -462,6 +495,7 @@ void TestTreeModel::synchronizeTestTools()
                     m_checkStateCache->insert(item, item->checked());
                     rootNode->appendChild(item);
                 }
+                revalidateFailedState(rootNode);
                 revalidateCheckState(rootNode);
             }
         }
@@ -503,6 +537,7 @@ void TestTreeModel::rebuild(const QList<Id> &frameworkIds)
                 filterAndInsert(testItem, frameworkRoot, groupingEnabled);
             }
         }
+        updateFailedState(frameworkRoot);
         revalidateCheckState(frameworkRoot);
     }
 }
@@ -517,11 +552,14 @@ bool TestTreeModel::hasFailedTests() const
 
 void TestTreeModel::clearFailedMarks()
 {
+    const auto clearMarks = [](TreeItem *item) {
+        const bool wasFailed = item->setData(0, false, FailedRole);
+        if (item->setData(0, false, FailedChildRole) || wasFailed)
+            item->update();
+    };
     for (TreeItem *rootNode : *rootItem()) {
-        rootNode->forAllChildren([](TreeItem *child) {
-            if (child->setData(0, false, FailedRole))
-                child->update();
-        });
+        clearMarks(rootNode);
+        rootNode->forAllChildren(clearMarks);
     }
     m_failedStateCache.clear();
 }
@@ -549,6 +587,7 @@ void TestTreeModel::sweep()
 {
     for (TestTreeItem *frameworkRoot : frameworkRootNodes()) {
         sweepChildren(frameworkRoot);
+        updateFailedState(frameworkRoot);
         revalidateCheckState(frameworkRoot);
     }
     // even if nothing has changed by the sweeping we might had parse which added or modified items
@@ -666,6 +705,8 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
             otherItem->appendChild(child);
             revalidateCheckState(child);
         }
+        updateFailedState(otherItem);
+        revalidateFailedState(otherItem->parent());
         delete item;
     } else {
         // restore former check state if available
@@ -680,6 +721,8 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         if (failed.has_value())
             item->setData(0, *failed, FailedRole);
         parentNode->appendChild(item);
+        updateFailedState(item);
+        revalidateFailedState(parentNode);
         revalidateCheckState(parentNode);
     }
 }
@@ -801,9 +844,10 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
         if (cached.has_value())
             childItem->setData(0, *cached, Qt::CheckStateRole);
         std::optional<bool> failed = m_failedStateCache.get(childItem);
-        if (failed.has_value())
-            childItem->setData(0, *failed, FailedRole);
+        if (failed.has_value() && *failed)
+            childItem->setData(0, true, FailedRole);
     });
+    updateFailedState(newItem);
     // it might be necessary to "split" created item
     filterAndInsert(newItem, parentNode, groupingEnabled);
 }
@@ -812,6 +856,8 @@ void TestTreeModel::removeAllTestItems()
 {
     for (TestTreeItem *item : frameworkRootNodes()) {
         item->removeChildren();
+        if (item->setData(0, false, FailedChildRole))
+            item->update();
         if (item->checked() == Qt::PartiallyChecked)
             item->setData(0, Qt::Checked, Qt::CheckStateRole);
     }
@@ -822,6 +868,8 @@ void TestTreeModel::removeAllTestToolItems()
 {
     for (ITestTreeItem *item : testToolRootNodes()) {
         item->removeChildren();
+        if (item->setData(0, false, FailedChildRole))
+            item->update();
         if (item->checked() == Qt::PartiallyChecked)
             item->setData(0, Qt::Checked, Qt::CheckStateRole);
     }

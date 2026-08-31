@@ -63,6 +63,8 @@ QVariant ITestTreeItem::data(int /*column*/, int role) const
         return true;
     case FailedRole:
         return m_failed;
+    case FailedChildRole:
+        return m_failedChild;
     }
     return QVariant();
 }
@@ -77,6 +79,10 @@ bool ITestTreeItem::setData(int /*column*/, const QVariant &data, int role)
         const bool old = m_failed;
         m_failed = data.toBool();
         return m_failed != old;
+    } else if (role == FailedChildRole) {
+        const bool old = m_failedChild;
+        m_failedChild = data.toBool();
+        return m_failedChild != old;
     }
     return false;
 }
@@ -396,6 +402,7 @@ void TestTreeItem::copyBasicDataFrom(const TestTreeItem *other)
     setLine(other->line());
     setData(0, other->checked(), Qt::CheckStateRole);
     setData(0, other->data(0, FailedRole), FailedRole);
+    setData(0, other->data(0, FailedChildRole), FailedChildRole);
 
     m_column = other->m_column;
     m_proFile = other->m_proFile;
