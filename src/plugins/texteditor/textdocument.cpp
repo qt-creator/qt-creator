@@ -380,7 +380,11 @@ void TextDocument::setTabSettings(const TabSettingsData &tabSettings)
     // (QTCREATORBUG-3408). This also covers files that only inherit the type,
     // e.g. debian/rules, which is recognized via its "#!/usr/bin/make -f"
     // shebang rather than a name or suffix.
-    if (Utils::mimeTypeForName(mimeType()).inherits("text/x-makefile"))
+    // An editor with no file - a code style preview, a snippet editor - has no
+    // mime type to inherit from, and asking anyway pulls in the whole mime
+    // database (some 60 ms on the first call).
+    if (!mimeType().isEmpty()
+        && Utils::mimeTypeForName(mimeType()).inherits("text/x-makefile"))
         candidate.m_tabPolicy = TabSettingsData::TabsOnlyTabPolicy;
     if (candidate != d->m_tabSettings) {
         d->m_tabSettings = candidate;
