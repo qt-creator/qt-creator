@@ -2560,13 +2560,13 @@ bool CdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
         case BreakpointAtSysCall:
         case BreakpointOnQmlSignalEmit:
         case BreakpointAtJavaScriptThrow:
+        case BreakpointAtCatch:
             return false;
         case WatchpointAtAddress:
         case BreakpointByFileAndLine:
         case BreakpointByFunction:
         case BreakpointByAddress:
         case BreakpointAtThrow:
-        case BreakpointAtCatch:
         case BreakpointAtMain:
         case BreakpointAtExec:
             break;
