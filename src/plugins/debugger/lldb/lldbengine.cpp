@@ -1232,11 +1232,31 @@ bool LldbEngine::hasCapability(unsigned cap) const
     return false;
 }
 
+// The Impl handles every start mode it claims; without this the run data
+// always looked like a plain launch, so attaching silently launched instead.
+static InferiorStartData lldbInferiorStartData(const DebuggerRunParameters &rp)
+{
+    switch (rp.startMode()) {
+    case AttachToCore:
+        return AttachToCoreData{rp.coreFile(), rp.inferior().command.executable()};
+    case AttachToLocalProcess:
+    case AttachToCrashedProcess:
+        return AttachToProcessData{rp.attachPid()};
+    case AttachToRemoteServer:
+    case AttachToRemoteProcess:
+    case StartRemoteProcess:
+        return AttachToRemoteServerData{rp.remoteChannel(), rp.symbolFile(), rp.attachPid()};
+    default:
+        break;
+    }
+    return rp.inferior();
+}
+
 static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
 {
     return {
         .debuggerRunData = rp.debugger(),
-        .inferiorStartData = rp.inferior(),
+        .inferiorStartData = lldbInferiorStartData(rp),
         .dumperScriptsDir = ICore::resourcePath("debugger"),
         .nativeMixedDebugging = rp.isNativeMixedDebugging(),
         .qtVersion = rp.qtVersion(),
