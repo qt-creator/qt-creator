@@ -4,7 +4,6 @@
     "Name" : "Qt Creator MCP Server",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
-    "DisabledByDefault" : true,
     "SoftLoadable" : true,
     "VendorId" : "davecotter",
     "Vendor" : "David M. Cotter",
