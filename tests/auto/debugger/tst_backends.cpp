@@ -1016,6 +1016,10 @@ private slots:
     void shutsDownCleanly();
     void executesRunToLineFunctionAndJumpsToLine_data() { addBackendRows(); }
     void executesRunToLineFunctionAndJumpsToLine();
+    void runsToAnAmbiguousLine_data() { addBackendRows(); }
+    void runsToAnAmbiguousLine();
+    void refusesJumpToAnAmbiguousLine_data() { addBackendRows(); }
+    void refusesJumpToAnAmbiguousLine();
     void insertsWatchpointAndCatchpoint_data() { addBackendRows(); }
     void insertsWatchpointAndCatchpoint();
     void insertsWatchpointAsFirstCommandAfterStop_data() { addBackendRows(); }
@@ -5107,14 +5111,148 @@ void tst_backends::executesRunToLineFunctionAndJumpsToLine()
     QTRY_VERIFY_WITH_TIMEOUT(stackReceived, s_timeout);
     QVERIFY2(stackData.toString().contains("spin"), "RunToFunction did not stop inside spin()");
 
-    if (backend != Backend::Gdb) {
-        for (const QString &number : std::as_const(modifiedNumbers)) {
-            QVERIFY2(number.isEmpty() || number == debuggerBackend->breakpointResponseId(),
-                     qPrintable("spurious breakpointModified() for internal breakpoint #" + number
-                                + " - RunToLine/RunToFunction/JumpToLine's own one-shot breakpoint "
-                                "leaked a notification the caller never asked for"));
-        }
+    for (const QString &number : std::as_const(modifiedNumbers)) {
+        QVERIFY2(number.isEmpty() || number == debuggerBackend->breakpointResponseId(),
+                 qPrintable("spurious breakpointModified() for internal breakpoint #" + number
+                            + " - RunToLine/RunToFunction/JumpToLine's own one-shot breakpoint "
+                            "leaked a notification the caller never asked for"));
     }
+}
+
+// Running to a line with one location per template instantiation: unlike a
+// jump, this has a sensible answer - stop at whichever instantiation is
+// reached first - so it must work rather than be refused, and the one-shot
+// breakpoint behind it must not leak notifications for its sub-locations.
+void tst_backends::runsToAnAmbiguousLine()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    if (auto result = checkCapability(backend, Debugger::RunToLineCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    const int ambiguousLine = inferiorTestData(backend).multiLocationBreakpointLine;
+    if (ambiguousLine == 0)
+        QSKIP("This backend's inferior has no line with several locations.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList modifiedNumbers;
+    connect(engine, &DebuggerEngineInterface::breakpointModified, this,
+            [&modifiedNumbers](const GdbMi &data) {
+        for (const GdbMi &bkpt : data)
+            modifiedNumbers.append(bkpt["number"].data());
+    });
+
+    debuggerBackend->clearEvents();
+    ExecutionRequest runToLineRequest;
+    runToLineRequest.command = ExecutionCommand::RunToLine;
+    runToLineRequest.context.type = LocationByFile;
+    runToLineRequest.context.fileName = inferiorTestData(backend).source;
+    runToLineRequest.context.textPosition.line = ambiguousLine;
+    debuggerBackend->execute(runToLineRequest);
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "RunToLine to the ambiguous line never signaled a stop", s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), ambiguousLine);
+
+    for (const QString &number : std::as_const(modifiedNumbers)) {
+        QVERIFY2(number.isEmpty() || number == debuggerBackend->breakpointResponseId(),
+                 qPrintable("spurious breakpointModified() for internal breakpoint #" + number
+                            + " - the one-shot breakpoint's sub-locations leaked notifications"));
+    }
+}
+
+// Whether a jump is refused when its line resolves to several locations.
+// CdbImpl has not been looked at: it takes a Windows host to run.
+static bool refusesAmbiguousJump(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+    case Backend::Lldb:
+    case Backend::Bridge:
+        return true;
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Cdb:
+        break;
+    }
+    return false;
+}
+
+// A line inside a template body resolves to one location per instantiation.
+// A jump cannot pick one, so it has to be refused outright - and refusing it
+// must leave nothing armed at that line, or it fires later as a stop nobody
+// asked for.
+void tst_backends::refusesJumpToAnAmbiguousLine()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    if (auto result = checkCapability(backend, Debugger::JumpToLineCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    const int ambiguousLine = inferiorTestData(backend).multiLocationBreakpointLine;
+    if (ambiguousLine == 0)
+        QSKIP("This backend's inferior has no line with several locations.");
+    if (!refusesAmbiguousJump(backend))
+        QSKIP("This backend does not refuse an ambiguous jump yet.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QList<int> reportedLines;
+    connect(engine, &DebuggerEngineInterface::locationChanged, this,
+            [&reportedLines](const Utils::FilePath &, int line) { reportedLines.append(line); });
+    GdbMi stack;
+    bool stackReceived = false;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&stack, &stackReceived](quint64, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::FullStack) {
+            stack = data;
+            stackReceived = true;
+        }
+    });
+
+    ExecutionRequest jumpRequest;
+    jumpRequest.command = ExecutionCommand::JumpToLine;
+    jumpRequest.context.type = LocationByFile;
+    jumpRequest.context.fileName = inferiorTestData(backend).source;
+    jumpRequest.context.textPosition.line = ambiguousLine;
+    debuggerBackend->execute(jumpRequest);
+
+    // A refusal has nothing of its own to wait for, so ask for the stack: the
+    // answer proves the jump was dealt with, and says where the execution point
+    // stands. A refused jump may not have moved it - a backend that picks one
+    // of the locations lands in a function it has no frame for.
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 71;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(stackReceived, s_timeout);
+    const GdbMi frames = stack["stack"]["frames"];
+    QVERIFY2(frames.childCount() > 0, qPrintable(stack.toString()));
+    QCOMPARE(frames.childAt(0)["line"].toInt(), inferiorTestData(backend).breakpointLine);
+
+    // Only now can the inferior be resumed: a breakpoint left behind at the
+    // template line would be hit on the way, before the stop asked for here.
+    const int landingLine = inferiorTestData(backend).secondBreakpointLine;
+    ExecutionRequest runToLineRequest;
+    runToLineRequest.command = ExecutionCommand::RunToLine;
+    runToLineRequest.context.type = LocationByFile;
+    runToLineRequest.context.fileName = inferiorTestData(backend).source;
+    runToLineRequest.context.textPosition.line = landingLine;
+    debuggerBackend->execute(runToLineRequest);
+    QTRY_VERIFY2_WITH_TIMEOUT(reportedLines.contains(landingLine),
+                              "RunToLine after the refused jump never signaled its stop", s_timeout);
+    QVERIFY2(!reportedLines.contains(ambiguousLine),
+             qPrintable("a stop was reported at the ambiguous line " + QString::number(ambiguousLine)
+                        + " - reported: " + Utils::transform(reportedLines, [](int line) {
+                              return QString::number(line);
+                          }).join(", ")));
 }
 
 void tst_backends::insertsWatchpointAndCatchpoint()

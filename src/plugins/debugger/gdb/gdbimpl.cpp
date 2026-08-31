@@ -43,6 +43,16 @@ static QString breakLocation(const ContextData &context)
     return '"' + context.fileName.path() + "\":" + QString::number(context.textPosition.line);
 }
 
+// The MI form of the same location: -break-insert cannot parse the quoted
+// "file":line linespec that the CLI commands take.
+static QString miBreakLocation(const ContextData &context)
+{
+    if (context.address)
+        return "*0x" + QString::number(context.address, 16);
+    return "--source \"" + context.fileName.path() + "\" --line "
+           + QString::number(context.textPosition.line);
+}
+
 static QString dotEscape(QString str)
 {
     str.replace(' ', '.');
@@ -702,14 +712,31 @@ void GdbImpl::execute(const ExecutionRequest &request)
         }});
         runRunRequestCommand("-exec-continue");
         break;
-    case ExecutionCommand::JumpToLine:
-        runCommand({"tbreak " + breakLocation(request.context),
-                   [this](const DebuggerResponse &response) {
-            registerInternalBreakpointNumber(
-                parseTemporaryBreakpointNumber(response.consoleStreamOutput));
+    case ExecutionCommand::JumpToLine: {
+        // The two commands disagree about what the location may resolve to: the
+        // temporary breakpoint takes one location per template instantiation,
+        // while "jump" refuses that as ambiguous - and the breakpoint would stay
+        // behind to fire as a stop nobody asked for. Insert it disabled, so that
+        // a resume arriving before the reply cannot hit it either, and let the
+        // reply decide: "<MULTIPLE>" is how every gdb that can be met here
+        // spells more than one location.
+        const QString location = breakLocation(request.context);
+        runCommand({"-break-insert -t -d " + miBreakLocation(request.context),
+                   [this, location](const DebuggerResponse &response) {
+            const GdbMi bkpt = response.data["bkpt"];
+            const QString number = bkpt["number"].data();
+            if (bkpt["addr"].data() == "<MULTIPLE>") {
+                runCommand({"-break-delete " + number});
+                emit message("GdbImpl: cannot jump to " + location
+                             + ", it resolves to several locations", LogError);
+                return;
+            }
+            runCommand({"-break-enable " + number});
+            registerInternalBreakpointNumber(number);
+            runRunRequestCommand("jump " + location);
         }});
-        runRunRequestCommand("jump " + breakLocation(request.context));
         break;
+    }
     case ExecutionCommand::RecordReverse:
         runCommand({request.flag ? QLatin1String("record full")
                                  : QLatin1String("record stop")});

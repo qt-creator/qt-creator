@@ -38,6 +38,31 @@ static GdbMi constMi(const QString &name, const QString &data)
 
 enum { CdbPromptLength = 7 };
 
+static QList<quint64> ambiguousMatchAddresses(const QStringList &reply)
+{
+    bool ambiguous = false;
+    for (int i = qMax(0, reply.size() - 2); i < reply.size(); ++i)
+        ambiguous |= reply.at(i).startsWith("Ambiguous symbol error");
+    QList<quint64> addresses;
+    if (!ambiguous)
+        return addresses;
+    for (const QString &replyLine : reply) {
+        if (!replyLine.startsWith("Matched: "))
+            continue;
+        const int addressStart = replyLine.lastIndexOf('(') + 1;
+        const int addressEnd = replyLine.indexOf(')', addressStart);
+        if (addressStart == 0 || addressEnd == -1)
+            continue;
+        QString addressString = replyLine.mid(addressStart, addressEnd - addressStart);
+        addressString.remove('`');
+        bool ok = false;
+        const quint64 address = addressString.toULongLong(&ok, 16);
+        if (ok)
+            addresses.append(address);
+    }
+    return addresses;
+}
+
 static QString hexAddress(quint64 address)
 {
     return "0x" + QString::number(address, 16);
@@ -267,17 +292,25 @@ void CdbImpl::execute(const ExecutionRequest &request)
         if (request.command == ExecutionCommand::RunToFunction) {
             cmd += request.functionName;
         } else if (request.context.address) {
-            cmd += "0x" + QString::number(request.context.address, 16);
+            cmd += hexAddress(request.context.address);
         } else {
             cmd += '`' + request.context.fileName.toUserOutput() + ':'
                  + QString::number(request.context.textPosition.line) + '`';
         }
-        runCommand({cmd, NoFlags});
-        m_expectSpontaneousStop = true;
-        m_inferiorRunning = true;
-        emit inferiorEvent(InferiorEvent::RunRequested);
-        emit inferiorEvent(InferiorEvent::RunOk);
-        runCommand({"g", NoFlags});
+        runCommand({cmd, BuiltinCommand, [this](const DebuggerResponse &response) {
+            // cdb refuses a breakpoint whose location is ambiguous, so a line with
+            // several of them needs one per match, as insertBreakpoint() does.
+            for (quint64 address : ambiguousMatchAddresses(response.data.data().split('\n'))) {
+                const QString subId = nextBreakpointId();
+                m_internalBreakpointIds.insert(subId);
+                runCommand({"bu" + subId + " /1 " + hexAddress(address), NoFlags});
+            }
+            m_expectSpontaneousStop = true;
+            m_inferiorRunning = true;
+            emit inferiorEvent(InferiorEvent::RunRequested);
+            emit inferiorEvent(InferiorEvent::RunOk);
+            runCommand({"g", NoFlags});
+        }});
         break;
     }
     case ExecutionCommand::JumpToLine: {

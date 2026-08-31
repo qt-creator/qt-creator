@@ -2511,13 +2511,17 @@ class Dumper(DumperBase):
             bp = self.target.BreakpointCreateByLocation(
                 str(args['file']), int(args['line']))
         self.internalBreakpointIds.add(bp.GetID())
-        if bp.GetNumLocations() == 0:
+        locations = bp.GetNumLocations()
+        if locations == 0:
             self.target.BreakpointDelete(bp.GetID())
             status = 'No target location found.'
-        else:
-            loc = bp.GetLocationAtIndex(0)
+        elif locations > 1:
             self.target.BreakpointDelete(bp.GetID())
-            res = frame.SetPC(loc.GetLoadAddress())
+            status = 'Ambiguous target location.'
+        else:
+            address = bp.GetLocationAtIndex(0).GetLoadAddress()
+            self.target.BreakpointDelete(bp.GetID())
+            res = frame.SetPC(address)
             status = 'Jumped.' if res else 'Cannot jump.'
         self.report(self.describeLocation(frame))
         self.reportResult(self.describeStatus(status), args)
