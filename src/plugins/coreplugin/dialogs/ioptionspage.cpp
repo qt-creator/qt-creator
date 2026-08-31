@@ -54,12 +54,14 @@ class IOptionsPagePrivate
 public:
     QStringList keywords();
     IOptionsPageWidget *createWidget();
+    void checkFixedKeywords() const;
 
     Id m_id;
     Id m_category;
     QString m_displayName;
     WidgetCreator m_widgetCreator;
     bool m_keywordsInitialized = false;
+    bool m_keywordsAreFixed = false;
     QStringList m_keywords;
     std::function<AspectContainer *()> m_settingsProvider;
     bool m_recreateOnCancel = false;
@@ -385,10 +387,21 @@ QStringList Internal::IOptionsPagePrivate::keywords()
     return m_keywords;
 }
 
+/*!
+    Sets \a keywords as the search keywords of the options page, instead of
+    scraping them off the page widget. Lets a page whose widget is expensive to
+    build stay out of the \uicontrol Options search, which would otherwise
+    build every page just to read its labels.
+
+    The list must cover every text the widget would have been scraped for;
+    that is checked, once the page is shown, by checkFixedKeywords(). Terms
+    that do not appear in the widget at all are welcome in addition.
+*/
 void IOptionsPage::setFixedKeywords(const QStringList &keywords)
 {
     d->m_keywords = keywords;
     d->m_keywordsInitialized = true;
+    d->m_keywordsAreFixed = true;
 }
 
 void IOptionsPage::setRecreateOnCancel(bool on)
@@ -463,10 +476,7 @@ IOptionsPageWidget *IOptionsPagePrivate::createWidget()
     if (m_widgetCreator) {
         m_widget = m_widgetCreator();
         QTC_ASSERT(m_widget, return nullptr);
-        return m_widget;
-    }
-
-    if (m_settingsProvider) {
+    } else if (m_settingsProvider) {
         AspectContainer *container = m_settingsProvider();
         QTC_ASSERT(container, return nullptr);
         std::function<Layouting::Layout()> layouter = container->layouter();
@@ -474,11 +484,36 @@ IOptionsPageWidget *IOptionsPagePrivate::createWidget()
         m_widget = new IOptionsPageWidget;
         m_widget->d->setAspects(container);
         layouter().attachTo(m_widget);
-        return m_widget;
+    } else {
+        QTC_CHECK(false);
+        return nullptr;
     }
 
-    QTC_CHECK(false);
-    return nullptr;
+    if (m_keywordsAreFixed)
+        Utils::onFirstShow(m_widget, [this] { checkFixedKeywords(); });
+
+    return m_widget;
+}
+
+// Fixed keywords are written by hand and rot silently: a setting added to the
+// page later is then not findable through the search. Once the page is really
+// on screen, compare them against what scraping the widget would have found.
+void IOptionsPagePrivate::checkFixedKeywords() const
+{
+    QTC_ASSERT(m_widget, return);
+
+    QStringList missing;
+    for (const QString &keyword : scrapeKeywords(m_widget)) {
+        // Empty labels carry nothing to search for, so nobody needs to list them.
+        if (!keyword.trimmed().isEmpty() && !m_keywords.contains(keyword))
+            missing.append(keyword);
+    }
+
+    QTC_CHECK(missing.isEmpty());
+    if (!missing.isEmpty()) {
+        qWarning("Fixed keywords of options page \"%s\" do not cover \"%s\".",
+                 qPrintable(m_id.toString()), qPrintable(missing.join("\", \"")));
+    }
 }
 
 bool IOptionsPage::matches(const QRegularExpression &regexp) const
