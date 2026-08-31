@@ -935,6 +935,14 @@ public:
         setDisplayName(Tr::tr("Keyboard"));
         setCategory(Constants::SETTINGS_CATEGORY_CORE);
         setWidgetCreator([] { return new ShortcutSettingsWidget; });
+        // Building the widget means building the whole command list, and the
+        // commands are in a model that the search does not see anyway.
+        setFixedKeywords({Tr::tr("Keyboard Shortcuts"),
+                          Tr::tr("Shortcut"),
+                          Tr::tr("Reset All"),
+                          Tr::tr("Reset"),
+                          Tr::tr("Import..."),
+                          Tr::tr("Export...")});
     }
 };
 

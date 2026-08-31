@@ -545,6 +545,13 @@ LocatorSettingsPage::LocatorSettingsPage()
     setDisplayName(Tr::tr(Constants::FILTER_OPTIONS_PAGE));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([] { return new LocatorSettingsWidget; });
+    // Building the widget means building the filter list, and the filters are
+    // in a model that the search does not see anyway.
+    setFixedKeywords({Tr::tr("Refresh interval:"),
+                      Tr::tr("Show Paths in Relation to Active Project"),
+                      Tr::tr("Add..."),
+                      Tr::tr("Remove"),
+                      Tr::tr("Edit...")});
 }
 
 } // Core::Internal
