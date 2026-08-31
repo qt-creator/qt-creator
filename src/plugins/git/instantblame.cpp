@@ -69,6 +69,7 @@ public:
 private:
     void loadRepositoryConfiguration();
     void perform();
+    void waitForRepositoryChange();
 
     QPointer<TextEditor::TextEditorWidget> m_widget;
     QPointer<TextEditor::TextDocument> m_document;
@@ -84,6 +85,7 @@ private:
     QTimer *m_timer = nullptr;
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
     std::unique_ptr<BlameMark> m_blameMark;
+    QMetaObject::Connection m_repositoryChangedConn;
     quint64 m_contextGeneration = 0;
     quint64 m_requestGeneration = 0;
 };
@@ -587,8 +589,25 @@ void BlameController::clear()
     m_timer->stop();
     m_taskTreeRunner.reset();
     m_blameMark.reset();
+    disconnect(m_repositoryChangedConn);
     m_lastLine = -1;
     ++m_requestGeneration;
+}
+
+void BlameController::waitForRepositoryChange()
+{
+    setEnabled(false);
+
+    const FilePath topLevel = m_topLevel;
+    m_repositoryChangedConn = connect(
+        VcsManager::instance(), &VcsManager::repositoryChanged, this,
+        [this, topLevel](const FilePath &repository) {
+            if (topLevel != repository && !topLevel.isChildOf(repository))
+                return;
+            disconnect(m_repositoryChangedConn);
+            m_repositoryChangedConn = {};
+            setEnabled(true);
+        });
 }
 
 void BlameController::loadRepositoryConfiguration()
@@ -677,7 +696,7 @@ void BlameController::perform()
             return;
         const QString output = result.cleanedStdOut();
         if (result.result() != ProcessResult::FinishedWithSuccess || output.isEmpty()) {
-            guard->clear();
+            guard->waitForRepositoryChange();
             return;
         }
         *infoStorage = parseBlameOutput(output.split('\n'), workingFilePath, line, author);
