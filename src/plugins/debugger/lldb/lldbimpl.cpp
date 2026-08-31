@@ -18,6 +18,8 @@
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
 #else
+#include <utility>
+
 #include <signal.h>
 #include <unistd.h>
 #endif
@@ -306,11 +308,13 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
             runCommand({m_startData.extraDumperCommands, DebuggerCommand::NativeCommand});
 
         DebuggerCommand cmd("setupInferior");
-        cmd.arg("breakonmain", false);
+        cmd.arg("breakonmain", m_startData.breakOnMain);
         cmd.arg("useterminal", false);
         cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
-        cmd.arg("deviceUuid", QString());
-        cmd.arg("platform", QString());
+        cmd.arg("deviceUuid", m_startData.deviceUuid);
+        cmd.arg("platform", m_startData.platform);
+        if (!m_startData.deviceSymbolsRoot.isEmpty())
+            cmd.arg("sysroot", m_startData.deviceSymbolsRoot);
         FilePath coreFileForRunEngine;
 
         if (const auto *inferiorRunData
@@ -372,6 +376,13 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
                 return;
             }
             emit inferiorEvent(InferiorEvent::EngineSetupOk);
+            if (!std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+                for (const QString &command : m_startData.postAttachCommands) {
+                    const QString trimmed = command.trimmed();
+                    if (!trimmed.isEmpty() && !trimmed.startsWith('#'))
+                        runCommand({trimmed, DebuggerCommand::NativeCommand});
+                }
+            }
             DebuggerCommand runCmd("runEngine", DebuggerCommand::RunRequest);
             if (!coreFile.isEmpty())
                 runCmd.arg("coreFile", coreFile.path());
@@ -893,6 +904,7 @@ void LldbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QStrin
     DebuggerCommand cmd("fetchDisassembler");
     cmd.arg("address", address);
     cmd.arg("function", functionName);
+    cmd.arg("flavor", m_startData.intelDisassembly ? "intel" : "att");
     cmd.callback = [this, requestId](const DebuggerResponse &response) {
         DisassemblerLines result;
         for (const GdbMi &line : response.data["lines"]) {
@@ -1006,6 +1018,10 @@ void LldbImpl::handleStateReport(const GdbMi &item)
     } else if (state == "inferiorrunfailed")
         emit inferiorEvent(InferiorEvent::RunFailed);
     else if (state == "stopped") {
+        if (std::exchange(m_continueAtNextSpontaneousStop, false)) {
+            runCommand({"continueInferior", DebuggerCommand::RunRequest});
+            return;
+        }
         m_inferiorRunning = false;
         fetchLocationAfterStop(InferiorEvent::SpontaneousStop);
         runCommand({"reportBreakpointHit"});
@@ -1023,6 +1039,9 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         emit inferiorEvent(InferiorEvent::EngineRunFailed);
     else if (state == "enginerunandinferiorrunok") {
         m_inferiorRunning = true;
+        // Attaching leaves the inferior running here; what the run asked for is
+        // that the stop which follows does not hold it.
+        m_continueAtNextSpontaneousStop = m_startData.continueAfterAttach;
         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
     } else if (state == "enginerunandinferiorstopok") {
         m_inferiorRunning = false;

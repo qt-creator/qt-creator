@@ -500,6 +500,24 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
 // support for it, which the test probes for at runtime.
 // x86 gdb is the only backend with a disassembly flavor to configure, and the
 // setting does not exist on other architectures, which the test probes for.
+// The configured flavor as it appears in the traffic: gdb keeps it in a
+// setting, lldb takes it with every disassembly request.
+static QString disassemblyFlavorWireMarker(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+        return "disassembly-flavor intel";
+    case Backend::Lldb:
+        return "\"flavor\":\"intel\"";
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Cdb:
+    case Backend::Bridge:
+        break;
+    }
+    return {};
+}
+
 static QString disassemblyFlavorQuery(Backend backend)
 {
     switch (backend) {
@@ -588,8 +606,8 @@ static QString mainFunctionMarker(Backend backend)
 {
     switch (backend) {
     case Backend::Gdb:
-        return "main";
     case Backend::Lldb:
+        return "main";
     case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
@@ -1284,6 +1302,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .nativeMixedDebugging = nativeMixed,
+            .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain),
+            .intelDisassembly = gdbFlags.testFlag(GdbImplFlag::IntelDisassembly),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Pdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<PdbImpl>(PdbImplStartData{
@@ -1347,6 +1367,16 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .userCommands = {.atStartup = "echo QTCSTARTUPMARKER\\n",
                              .afterAttach = "echo QTCPOSTATTACHMARKER\\n"}}));
     case Backend::Lldb:
+        return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              debuggerEnvironment},
+            .inferiorStartData = ProcessRunData{
+                {inferiorTestData(backend).executable, inferiorArguments, CommandLine::Raw}, {},
+                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .intelDisassembly = true,
+            .extraDumperFile = existingDir / "qtc_extra_dumper.py",
+            .extraDumperCommands = "script print('QTCEXTRADUMPERCOMMAND')"}));
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
@@ -5370,7 +5400,8 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
     QFETCH(Backend, backend);
 
     const QString query = disassemblyFlavorQuery(backend);
-    if (query.isEmpty())
+    const QString wireMarker = disassemblyFlavorWireMarker(backend);
+    if (wireMarker.isEmpty())
         QSKIP("This backend has no disassembly flavor to configure.");
     if (auto result = checkCapability(backend, Debugger::DisassemblerCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -5384,8 +5415,13 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     QStringList messages;
+    QStringList sent;
     connect(engine, &DebuggerEngineInterface::message, this,
-            [&messages](const QString &text, int, int) { messages.append(text); });
+            [&messages, &sent](const QString &text, int channel, int) {
+        messages.append(text);
+        if (channel == Debugger::LogInput)
+            sent.append(text);
+    });
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
 
@@ -5395,6 +5431,16 @@ void tst_backends::disassemblesInTheConfiguredFlavor()
             [&disassembled](quint64, const DisassemblerLines &) { disassembled = true; });
     engine->fetchDisassembly(400, 0, inferiorTestData(backend).functionMarker);
     QTRY_VERIFY_WITH_TIMEOUT(disassembled, s_timeout);
+
+    QVERIFY2(std::any_of(sent.cbegin(), sent.cend(), [&wireMarker](const QString &text) {
+                 return text.contains(wireMarker);
+             }),
+             qPrintable("the configured flavor did not reach the wire as \"" + wireMarker
+                        + "\", sent:\n  " + sent.mid(qMax(0, sent.size() - 6)).join("\n  ")));
+
+    // Only a backend that keeps the flavor in a setting can be asked about it.
+    if (query.isEmpty())
+        return;
 
     messages.clear();
     engine->executeDebuggerCommand(query, {});

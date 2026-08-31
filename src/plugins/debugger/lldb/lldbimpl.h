@@ -24,6 +24,14 @@ public:
     InferiorStartData inferiorStartData;
     Utils::FilePath dumperScriptsDir;
     bool nativeMixedDebugging = false;
+    bool breakOnMain = false;
+    bool continueAfterAttach = false;
+    bool intelDisassembly = false;
+    // Where an attached device's symbols live, and the platform to select.
+    QString deviceSymbolsRoot;
+    QString deviceUuid;
+    QString platform;
+    QStringList postAttachCommands;
     int qtVersion = 0;
     QString qtNamespace;
     Utils::FilePath extraDumperFile;
@@ -73,6 +81,7 @@ private:
     void reportInferiorExitIfComplete();
 
     LldbImplStartData m_startData;
+    bool m_continueAtNextSpontaneousStop = false;
     Utils::Process m_lldbProc;
     QTimer m_watchdog;
     QString m_inbuffer;
