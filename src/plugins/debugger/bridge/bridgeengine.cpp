@@ -420,8 +420,8 @@ void BridgeEngine::executeRunToFunction(const QString &functionName)
 
 void BridgeEngine::executeJumpToLine(const ContextData &data)
 {
-    // Move the execution point without resuming (Qt Creator semantics): the
-    // bridge sets $pc to the target; we stay stopped and refresh the views.
+    // The bridge lands on the target through gdb's own jump, so the move
+    // arrives as an ordinary stop.
     QJsonObject args;
     if (data.address)
         args.insert("address", QString("0x%1").arg(data.address, 0, 16));
