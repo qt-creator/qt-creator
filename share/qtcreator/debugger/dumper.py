@@ -2864,13 +2864,18 @@ typename))
 
     def parseAndEvaluateAllowingCalls(self, exp):
         # The communication with the interpreter relies on inferior calls,
-        # independently of whether they are allowed for value display.
+        # independently of whether they are allowed for value display. A failing
+        # call has to say why, too: the evaluation otherwise drops the error and
+        # leaves a missing value as the only symptom.
         savedAllowInferiorCalls = self.allowInferiorCalls
+        savedPassExceptions = self.passExceptions
         self.allowInferiorCalls = True
+        self.passExceptions = True
         try:
             return self.parseAndEvaluate(exp)
         finally:
             self.allowInferiorCalls = savedAllowInferiorCalls
+            self.passExceptions = savedPassExceptions
 
     def handleInterpreterMessage(self):
         """ Return True if inferior stopped """
@@ -3004,10 +3009,13 @@ typename))
         encoded = json.dumps({'command': command, 'arguments': args})
         attempt = self.interpreterRequestAttempts.get(command, 0) + 1
         self.interpreterRequestAttempts[command] = attempt
-        # A refusal says which attempt it was, so a log answers "how often did
-        # the service refuse" without counting identical lines. The request
-        # itself names the file and line.
-        refused = 'Interpreter command failed on attempt %d: %s' % (attempt, encoded)
+        # A refusal says which attempt it was and which path refused, both
+        # ahead of the payload: a log that truncates the line still answers
+        # "how often" and "why". The request itself names the file and line.
+        def refuse(reason):
+            self.warn('Interpreter command failed on attempt %d (%s): %s'
+                      % (attempt, reason, encoded))
+            return {}
         # A test switch for the retry path: refuse the first N requests of one
         # kind, the way a service that is not up yet does.
         refusals = os.environ.get('QTC_TEST_REFUSE_INTERPRETER_' + command.upper())
@@ -3015,22 +3023,20 @@ typename))
             forced = self.refusedInterpreterRequests.get(command, 0)
             if forced < int(refusals):
                 self.refusedInterpreterRequests[command] = forced + 1
-                self.warn(refused)
-                return {}
+                return refuse('forced by the test')
         hexdata = self.hexencode(encoded)
         try:
             res = self.callServiceFunction('qt_qmlDebugSendDataToService',
                                            ['NativeQmlDebugger', hexdata])
         except RuntimeError as error:
-            self.warn('%s: %s' % (refused, error))
-            return {}
+            return refuse('the call failed: %s' % error)
         except AttributeError as error:
             # Happens with LLDB and 'None' current thread.
-            self.warn('%s: %s' % (refused, error))
-            return {}
+            return refuse('no current thread: %s' % error)
         if not res:
-            self.warn(refused)
-            return {}
+            # Whatever the call returns is truthy, so this is the evaluation
+            # failing - the reason precedes this line.
+            return refuse('the inferior call yielded no value')
         return self.fetchInterpreterResult()
 
     def executeStep(self, args):
