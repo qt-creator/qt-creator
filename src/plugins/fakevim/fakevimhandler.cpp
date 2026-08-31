@@ -36,6 +36,7 @@
 #include "fakevimactions.h"
 #include "fakevimtr.h"
 
+#include <QCryptographicHash>
 #include <QDebug>
 #include <QFile>
 #include <QObject>
@@ -68,6 +69,8 @@
 
 #include <algorithm>
 #include <climits>
+#include <chrono>
+#include <cmath>
 #include <ctime>
 #include <functional>
 #include <optional>
@@ -168,6 +171,7 @@ enum SubMode
     InvertCaseSubMode,          // Used for g~
     DownCaseSubMode,            // Used for gu
     UpCaseSubMode,              // Used for gU
+    Rot13SubMode,               // Used for g?
     ReflowSubMode,              // Used for gq
     ReflowKeepCursorSubMode,    // Used for gw
     OperatorFuncSubMode,        // Used for g@
@@ -332,6 +336,42 @@ private:
     bool m_pastEnd = false;
 };
 using Marks = QHash<QChar, Mark>;
+
+// A place matchadd() or matchaddpos() asked to have painted: either a pattern to
+// look for or the positions themselves, each of them a line with an optional
+// column and length.
+class UserMatch
+{
+public:
+    QString group;
+    QString pattern;
+    QList<QList<int>> positions;
+    int priority = 10;
+    int id = 0;
+};
+
+// The groups Vim has a highlight for: the ones it defines itself, and the ones a
+// syntax file brings along, which here is always the case.
+static bool isKnownHighlightGroup(const QString &group)
+{
+    static const QSet<QString> groups = {
+        "ColorColumn", "Conceal", "Cursor", "CursorColumn", "CursorLine",
+        "CursorLineNr", "DiffAdd", "DiffChange", "DiffDelete", "DiffText",
+        "Directory", "EndOfBuffer", "ErrorMsg", "FoldColumn", "Folded",
+        "IncSearch", "LineNr", "MatchParen", "ModeMsg", "MoreMsg", "NonText",
+        "Normal", "Pmenu", "PmenuSbar", "PmenuSel", "PmenuThumb", "Question",
+        "QuickFixLine", "Search", "SignColumn", "SpecialKey", "StatusLine",
+        "StatusLineNC", "TabLine", "TabLineFill", "TabLineSel", "Title",
+        "VertSplit", "Visual", "VisualNOS", "WarningMsg", "WildMenu",
+        "Comment", "Constant", "String", "Character", "Number", "Boolean",
+        "Float", "Identifier", "Function", "Statement", "Conditional", "Repeat",
+        "Label", "Operator", "Keyword", "Exception", "PreProc", "Include",
+        "Define", "Macro", "PreCondit", "Type", "StorageClass", "Structure",
+        "Typedef", "Special", "SpecialChar", "Tag", "Delimiter", "SpecialComment",
+        "Debug", "Underlined", "Ignore", "Error", "Todo"
+    };
+    return groups.contains(group);
+}
 
 // What a command did to the lines, which is what it says about them afterwards.
 enum LineChange {
@@ -1689,6 +1729,8 @@ static SubMode letterCaseModeFromInput(const Input &input)
         return DownCaseSubMode;
     if (input.is('U'))
         return UpCaseSubMode;
+    if (input.is('?'))
+        return Rot13SubMode;
 
     return NoSubMode;
 }
@@ -1741,6 +1783,8 @@ static QString dotCommandFromSubMode(SubMode submode)
         return QLatin1String("gu");
     if (submode == UpCaseSubMode)
         return QLatin1String("gU");
+    if (submode == Rot13SubMode)
+        return QLatin1String("g?");
     if (submode == ReflowSubMode)
         return QLatin1String("gq");
     if (submode == ReflowKeepCursorSubMode)
@@ -2054,9 +2098,12 @@ public:
         m_anchor = m_userPos = m_pos = 0;
     }
 
-    QString display() const
+    // The prompt can be overridden for a caller that BORROWS this buffer and
+    // puts its own character in front, rather than writing that character into
+    // the buffer's own prompt where it would outlive the borrowing.
+    QString display(QChar prompt = QChar()) const
     {
-        QString msg(m_prompt);
+        QString msg(prompt.isNull() ? m_prompt : prompt);
         for (int i = 0; i != m_buffer.size(); ++i) {
             const QChar c = m_buffer.at(i);
             if (c.unicode() < 32) {
@@ -2272,13 +2319,16 @@ private:
 // state of current mapping
 struct MappingState {
     MappingState() = default;
-    MappingState(bool noremap, bool silent, bool editBlock, bool mapping = true)
-        : noremap(noremap), silent(silent), editBlock(editBlock), mapping(mapping) {}
+    MappingState(bool noremap, bool silent, bool editBlock, bool mapping = true,
+                 QChar reg = QChar())
+        : noremap(noremap), silent(silent), editBlock(editBlock), mapping(mapping), reg(reg) {}
     bool noremap = false;
     bool silent = false;
     bool editBlock = false;
     // A register is run the way a mapping is, but 'langmap' tells the two apart.
     bool mapping = true;
+    // Valid only for a register execution (see above); feeds reg_executing().
+    QChar reg;
 };
 
 struct VimFunc;
@@ -2431,7 +2481,7 @@ public:
     {
         switch (m_type) {
         case Number: return QString::number(m_number);
-        case Float:  return QString::number(m_float, 'g', 6);
+        case Float:  return floatToString(m_float);
         case String: return m_string;
         case Bool:
         case Special: return m_string; // "v:true", "v:null" and their kin
@@ -2446,11 +2496,51 @@ public:
     QString reprString() const { return repr(*this); }
 
 private:
+    // Vim writes a Float with six decimals and always keeps a decimal point,
+    // so a whole number reads "1.0" rather than "1". Fixed notation holds for
+    // 1e-3 <= |value| < 1e7 and exponential notation outside it, the exponent
+    // written without a "+" and without padding zeros: "1.0e7", "8.41e-4".
+    // Trailing zeros go, except the one that keeps the point company. Six
+    // decimals is all there is either way, so "10000001.0" reads "1.0e7" here
+    // just as it does in Vim.
+    static QString floatToString(double value)
+    {
+        if (std::isnan(value))
+            return "nan";
+        if (std::isinf(value))
+            return value < 0 ? QString("-inf") : QString("inf");
+
+        const auto stripZeros = [](QString *s) {
+            int last = s->size() - 1;
+            while (last > 0 && s->at(last) == '0' && s->at(last - 1) != '.')
+                --last;
+            s->truncate(last + 1);
+        };
+
+        const double magnitude = qAbs(value);
+        if (magnitude != 0 && (magnitude < 1e-3 || magnitude >= 1e7)) {
+            QString out = QString::number(value, 'e', 6);
+            const int at = out.indexOf('e');
+            QString mantissa = out.left(at);
+            stripZeros(&mantissa);
+            return mantissa + 'e' + QString::number(out.mid(at + 1).toInt());
+        }
+        QString out = QString::number(value, 'f', 6);
+        stripZeros(&out);
+        // QString::number() drops the sign of a negative zero (Qt's own
+        // dtoa does not distinguish it, unlike Vim's C library printf) - put
+        // it back by hand, the one case magnitude-based formatting cannot
+        // reach since qAbs() has already thrown the sign away.
+        if (std::signbit(value) && !out.startsWith('-'))
+            out.prepend('-');
+        return out;
+    }
+
     static QString repr(const VimValue &v)
     {
         switch (v.m_type) {
         case Number: return QString::number(v.m_number);
-        case Float:  return QString::number(v.m_float, 'g', 6);
+        case Float:  return floatToString(v.m_float);
         case Bool:
         case Special: return v.m_string; // shown as it is written, unquoted
         case String: return '\'' + QString(v.m_string).replace('\'', "''") + '\'';
@@ -2572,7 +2662,8 @@ public:
     CommandBuffer *m_expressionTarget = nullptr;
     EventResult handleCurrentMapAsDefault();
     void prependInputs(const QVector<Input> &inputs); // Handle inputs.
-    void prependMapping(const Inputs &inputs, bool mapping = true); // as a mapping
+    // as a mapping, or as register "reg" if "mapping" is false
+    void prependMapping(const Inputs &inputs, bool mapping = true, QChar reg = QChar());
     bool expandCompleteMapping(); // Return false if current mapping is not complete.
     bool extendMapping(const Input &input); // Return false if no suitable mappig found.
     void endMapping();
@@ -2621,6 +2712,7 @@ public:
     // vim-unimpaired emulation for the "[x" / "]x" bracket commands.
     bool handleVimUnimpaired(bool close, const Input &input);
     bool wrapsAround(const Input &input) const;
+    bool wrapsAroundInsert(const Input &input) const;
     bool moveToPreviousLineEnd();
     bool moveToNextLineStart();
     void fixSelection(); // Fix selection according to current range, move and command modes.
@@ -2688,10 +2780,12 @@ public:
     QTextBlock previousLine(const QTextBlock &block) const; // previous line (respects wrapped parts)
 
     int linesOnScreen() const;
+    int columnsOnScreen() const;
     int linesInDocument() const;
 
     // The following use all zero-based counting.
     int cursorLineOnScreen() const;
+    int cursorColumnOnScreen() const;
     int cursorLine() const;
     int cursorBlockNumber() const; // "." address
     int physicalCursorColumn() const; // as stored in the data
@@ -2945,6 +3039,7 @@ public:
             || g.submode == InvertCaseSubMode
             || g.submode == DownCaseSubMode
             || g.submode == UpCaseSubMode
+            || g.submode == Rot13SubMode
             || g.submode == ReflowSubMode
             || g.submode == ReflowKeepCursorSubMode
             || g.submode == OperatorFuncSubMode
@@ -3120,6 +3215,7 @@ public:
     void surroundCurrentRange(const Input &input, const QString &prefix = {});
 
     void upCase(const Range &range);
+    void rot13(const Range &range);
 
     void downCase(const Range &range);
 
@@ -3247,6 +3343,12 @@ public:
     void jump(int distance);
 
     QList<QTextEdit::ExtraSelection> m_extraSelections;
+
+    // What matchadd() and its kin asked to have painted, and the number the next
+    // one of them is given: Vim counts from 1000 and never counts back.
+    QList<UserMatch> m_userMatches;
+    int m_nextUserMatchId = 1000;
+    QList<QTextEdit::ExtraSelection> userMatchSelections();
     QTextCursor m_searchCursor;
     int m_searchStartPosition;
     int m_searchFromScreenLine;
@@ -3273,6 +3375,8 @@ public:
     bool handleExLockVarCommand(const ExCommand &cmd);
     void rememberMessage(const QString &msg);
     bool handleExRegisterCommand(const ExCommand &cmd);
+    bool handleExMarksCommand(const ExCommand &cmd);
+    bool handleExJumpsCommand(const ExCommand &cmd);
     bool handleExMapCommand(const ExCommand &cmd);
     bool handleExMultiRepeatCommand(const ExCommand &cmd);
     bool handleExNohlsearchCommand(const ExCommand &cmd);
@@ -3538,6 +3642,13 @@ public:
         QString recorded;
         int currentRegister = 0;
         int lastExecutedRegister = 0;
+
+        // reg_executing(): the innermost register currently being replayed is
+        // not restored when a nested "@x" call it made returns - both stay at
+        // the deepest register touched until the outermost replay ends, which
+        // is why this is a plain overwrite plus a depth count, not a stack.
+        QChar executingRegister;
+        int registerExecDepth = 0;
 
         // If empty, cx{motion} will store the range defined by {motion} here.
         // If non-empty, cx{motion} replaces the {motion} with selectText(*exchangeData)
@@ -4360,7 +4471,7 @@ void FakeVimHandler::Private::prependInputs(const QVector<Input> &inputs)
         g.pendingInput.prepend(inputs[i]);
 }
 
-void FakeVimHandler::Private::prependMapping(const Inputs &inputs, bool mapping)
+void FakeVimHandler::Private::prependMapping(const Inputs &inputs, bool mapping, QChar reg)
 {
     // FIXME: Implement Vim option maxmapdepth (default value is 1000).
     if (g.mapDepth >= 1000) {
@@ -4381,7 +4492,11 @@ void FakeVimHandler::Private::prependMapping(const Inputs &inputs, bool mapping)
     bool editBlock = m_buffer->editBlockLevel == 0 && !(isInsertMode() && isInsertStateValid());
     if (editBlock)
         beginLargeEditBlock();
-    g.mapStates << MappingState(inputs.noremap(), inputs.silent(), editBlock, mapping);
+    g.mapStates << MappingState(inputs.noremap(), inputs.silent(), editBlock, mapping, reg);
+    if (!reg.isNull()) {
+        g.executingRegister = reg;
+        ++g.registerExecDepth;
+    }
 }
 
 bool FakeVimHandler::Private::expandCompleteMapping()
@@ -4455,6 +4570,8 @@ void FakeVimHandler::Private::endMapping()
         return;
     if (g.mapStates.last().editBlock)
         endEditBlock();
+    if (!g.mapStates.last().reg.isNull() && --g.registerExecDepth == 0)
+        g.executingRegister = QChar();
     g.mapStates.pop_back();
     if (g.mapStates.isEmpty())
         g.commandBuffer.setHistoryAutoSave(true);
@@ -4463,7 +4580,13 @@ void FakeVimHandler::Private::endMapping()
 bool FakeVimHandler::Private::canHandleMapping()
 {
     // Don't handle user mapping in sub-modes that cannot be followed by movement and in "noremap".
-    return g.subsubmode == NoSubSubMode
+    // Every sub-sub-mode but the two below is waiting for a single character to
+    // be taken literally - the target of an "f", the letter of an "m" - which
+    // Vim does not put through mappings either. A search line and the "="
+    // expression prompt are command lines being edited, where it does.
+    const bool editingCommandLine = g.subsubmode == SearchSubSubMode
+                                    || g.subsubmode == ExpressionSubSubMode;
+    return (g.subsubmode == NoSubSubMode || editingCommandLine)
         && g.submode != RegisterSubMode
         && g.submode != WindowSubMode
         && g.submode != ZSubMode
@@ -4480,6 +4603,8 @@ void FakeVimHandler::Private::clearPendingInput()
     g.pendingInput.clear();
     g.mapStates.clear();
     g.mapDepth = 0;
+    g.registerExecDepth = 0;
+    g.executingRegister = QChar();
 
     // Clear all started edit blocks.
     while (m_buffer->editBlockLevel > 0)
@@ -5087,6 +5212,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         || g.submode == InvertCaseSubMode
         || g.submode == DownCaseSubMode
         || g.submode == UpCaseSubMode
+        || g.submode == Rot13SubMode
         || g.submode == ReflowSubMode
         || g.submode == ReflowKeepCursorSubMode
         || g.submode == OperatorFuncSubMode
@@ -5173,7 +5299,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         setTargetColumn();
     } else if (g.submode == InvertCaseSubMode
         || g.submode == UpCaseSubMode
-        || g.submode == DownCaseSubMode) {
+        || g.submode == DownCaseSubMode
+        || g.submode == Rot13SubMode) {
         beginEditBlock();
         if (g.submode == InvertCaseSubMode)
             invertCase(currentRange());
@@ -5181,6 +5308,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             downCase(currentRange());
         else if (g.submode == UpCaseSubMode)
             upCase(currentRange());
+        else if (g.submode == Rot13SubMode)
+            rot13(currentRange());
         if (g.movetype == MoveLineWise)
             handleStartOfLine();
         endEditBlock();
@@ -5263,6 +5392,7 @@ void FakeVimHandler::Private::clearCurrentMode()
 void FakeVimHandler::Private::updateSelection()
 {
     QList<QTextEdit::ExtraSelection> selections = m_extraSelections;
+    selections += userMatchSelections();
     if (s.showMarks()) {
         // Show only user-defined marks (a-z, A-Z). Vim does not paint the
         // automatic positional marks (', `, ., <, >, ...) into the buffer;
@@ -5285,6 +5415,70 @@ void FakeVimHandler::Private::updateSelection()
     }
     //qDebug() << "SELECTION: " << selections;
     q->selectionChanged(selections);
+}
+
+// The places the user matches cover, in the order they are to be painted: what
+// has the higher priority goes last, so that it wins.
+QList<QTextEdit::ExtraSelection> FakeVimHandler::Private::userMatchSelections()
+{
+    QList<QTextEdit::ExtraSelection> selections;
+    if (m_userMatches.isEmpty() || !hasValidEditor())
+        return selections;
+
+    QList<UserMatch> matches = m_userMatches;
+    std::stable_sort(matches.begin(), matches.end(),
+                     [](const UserMatch &one, const UserMatch &other) {
+        return one.priority < other.priority;
+    });
+
+    const QPalette pal = EDITOR(palette());
+    for (const UserMatch &match : std::as_const(matches)) {
+        QTextCharFormat format = q->highlightFormatRequested(match.group);
+        if (!format.isValid() || format.properties().isEmpty()) {
+            // Nothing said what the group looks like, so paint it the way a
+            // selection is painted.
+            format = m_cursor.blockCharFormat();
+            format.setForeground(pal.color(QPalette::HighlightedText));
+            format.setBackground(pal.color(QPalette::Highlight));
+        }
+
+        const auto add = [&](int position, int length) {
+            if (length <= 0)
+                return;
+            QTextEdit::ExtraSelection selection;
+            selection.cursor = m_cursor;
+            selection.cursor.setPosition(position, MoveAnchor);
+            selection.cursor.setPosition(position + length, KeepAnchor);
+            selection.format = format;
+            selections.append(selection);
+        };
+
+        if (!match.pattern.isEmpty()) {
+            const QRegularExpression re = vimPatternToQtPattern(match.pattern, nullptr);
+            QRegularExpressionMatchIterator it = re.globalMatch(document()->toPlainText());
+            while (it.hasNext()) {
+                const QRegularExpressionMatch found = it.next();
+                add(found.capturedStart(), found.capturedLength());
+            }
+        }
+        for (const QList<int> &position : match.positions) {
+            if (position.isEmpty())
+                continue;
+            const QTextBlock block = document()->findBlockByNumber(position.at(0) - 1);
+            if (!block.isValid())
+                continue;
+            if (position.size() == 1) {
+                add(block.position(), qMax(block.length() - 1, 0));
+            } else {
+                const int column = position.at(1) - 1;
+                const int length = position.size() > 2 ? position.at(2) : 1;
+                if (column >= 0 && column < block.length())
+                    add(block.position() + column, qMin(length, block.length() - 1 - column));
+            }
+        }
+    }
+
+    return selections;
 }
 
 void FakeVimHandler::Private::updateHighlights()
@@ -5331,7 +5525,8 @@ void FakeVimHandler::Private::updateMiniBuffer()
             anchorPos = g.searchBuffer.anchorPos() + 1;
         }
     } else if (g.subsubmode == ExpressionSubSubMode) {
-        msg = g.commandBuffer.display();
+        // The "=" belongs to this mode, not to the command buffer it borrows.
+        msg = g.commandBuffer.display('=');
         if (g.mapStates.isEmpty()) {
             cursorPos = g.commandBuffer.cursorPos() + 1;
             anchorPos = g.commandBuffer.anchorPos() + 1;
@@ -5672,6 +5867,14 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                 bracketSearchBackward(&m_cursor, "^\\}", count());
             else if (input.is(']') && g.subsubmode == CloseSquareSubSubMode)
                 bracketSearchForward(&m_cursor, "^\\{", count(), g.submode != NoSubMode);
+            else if (input.is('m') && g.subsubmode == OpenSquareSubSubMode)
+                bracketSearchBackward(&m_cursor, "\\{", count());
+            else if (input.is('m') && g.subsubmode == CloseSquareSubSubMode)
+                bracketSearchForward(&m_cursor, "\\{", count(), false);
+            else if (input.is('M') && g.subsubmode == OpenSquareSubSubMode)
+                bracketSearchBackward(&m_cursor, "\\}", count());
+            else if (input.is('M') && g.subsubmode == CloseSquareSubSubMode)
+                bracketSearchForward(&m_cursor, "\\}", count(), false);
             else if (input.is('z'))
                 q->foldGoTo(g.subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
             handled = pos != position();
@@ -5739,6 +5942,18 @@ bool FakeVimHandler::Private::wrapsAround(const Input &input) const
         return wrap.contains('<');
     if (input.isKey(Key_Right))
         return wrap.contains('>');
+    return false;
+}
+
+// Whether 'whichwrap' lets this key reach around the end of a line while in
+// Insert mode: "[" for <Left> (and <BS>), "]" for <Right> (and <Space>).
+bool FakeVimHandler::Private::wrapsAroundInsert(const Input &input) const
+{
+    const QString wrap = s.whichWrap();
+    if (input.isKey(Key_Left))
+        return wrap.contains('[');
+    if (input.isKey(Key_Right))
+        return wrap.contains(']');
     return false;
 }
 
@@ -6200,7 +6415,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleShiftSubMode(input);
     } else if (g.submode == InvertCaseSubMode
         || g.submode == DownCaseSubMode
-        || g.submode == UpCaseSubMode) {
+        || g.submode == UpCaseSubMode
+        || g.submode == Rot13SubMode) {
         handled = handleChangeCaseSubMode(input);
     } else if (g.submode == ReflowSubMode || g.submode == ReflowKeepCursorSubMode) {
         handled = handleReflowSubMode(input);
@@ -6438,6 +6654,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.isControl('g')) {
         // CTRL-G says the same as ":file".
         showFileInfo();
+    } else if (g.gflag && input.is('8')) {
+        // "g8": the bytes of the character under the cursor, in hex.
+        const QByteArray bytes = QString(characterAtCursor()).toUtf8();
+        QStringList hex;
+        for (const char byte : bytes)
+            hex.append(QString("%1").arg(uchar(byte), 2, 16, QLatin1Char('0')));
+        showMessage(MessageInfo, ' ' + hex.join(' ') + ' ');
     } else if (!g.gflag && input.is('g')) {
         g.gflag = true;
     } else if (g.gflag && (input.is('i') || input.is('I'))) {
@@ -6706,6 +6929,20 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         g.submode = ZSubMode;
     } else if (input.is('Z')) {
         g.submode = CapitalZSubMode;
+    } else if (g.gflag && input.is('?')) {
+        // "g?" (rot13) has no bare form: it always needs the "g", in normal mode
+        // and in visual mode alike.
+        g.movetype = MoveExclusive;
+        g.submode = Rot13SubMode;
+        pushUndoState();
+        if (isVisualMode()) {
+            leaveVisualMode();
+            finishMovement();
+        } else {
+            if (atEndOfLine())
+                moveLeft();
+            setAnchor();
+        }
     } else if ((input.is('~') || input.is('u') || input.is('U'))) {
         g.movetype = MoveExclusive;
         g.submode = letterCaseModeFromInput(input);
@@ -7409,11 +7646,12 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         }
     } else if (g.submode == CtrlRSubMode) {
         if (input.is('=')) {
-            // Enter the "=" expression register prompt.
+            // Enter the "=" expression register prompt. The command buffer is
+            // borrowed to type the expression into; its own ":" prompt is left
+            // alone, since g is shared and nothing puts it back.
             g.submode = NoSubMode;
             g.subsubmode = ExpressionSubSubMode;
             g.commandBuffer.clear();
-            g.commandBuffer.setPrompt('=');
             updateMiniBuffer();
         } else {
             m_cursor.insertText(registerContents(input.asChar().unicode()));
@@ -7519,7 +7757,9 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         g.mode = ReplaceMode;
         q->modeChanged(isInsertMode());
     } else if (input.isKey(Key_Left)) {
-        moveLeft();
+        // 'whichwrap' says whether <Left> may reach into the previous line.
+        if (!atBlockStart() || wrapsAroundInsert(input))
+            moveLeft();
     } else if (input.isShift(Key_Left) || input.isControl(Key_Left)) {
         moveToNextWordStart(1, false, false);
     } else if (input.isKey(Key_Down)) {
@@ -7529,7 +7769,9 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         g.submode = NoSubMode;
         moveUp();
     } else if (input.isKey(Key_Right)) {
-        moveRight();
+        // 'whichwrap' says whether <Right> may reach into the next line.
+        if (!atBlockEnd() || wrapsAroundInsert(input))
+            moveRight();
     } else if (input.isShift(Key_Right) || input.isControl(Key_Right)) {
         moveToNextWordStart(1, false, true);
     } else if (input.isKey(Key_Home)) {
@@ -7750,7 +7992,7 @@ bool FakeVimHandler::Private::executeRegister(int reg)
     //        One solution may be to call QApplication::processEvents() and check if <C-c> was
     //        used when a mapping is active.
     // According to Vim, register is executed like mapping.
-    prependMapping(Inputs(registerContents(reg), false, false), false);
+    prependMapping(Inputs(registerContents(reg), false, false), false, QChar(reg));
 
     return true;
 }
@@ -9593,6 +9835,97 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
     return true;
 }
 
+// :marks [{arg}] - the marks named in {arg}, or every one there is where it is
+// left out: "'" first, then a-z/A-Z alphabetically, then the other automatic
+// ones - the order Vim itself lists them in.
+bool FakeVimHandler::Private::handleExMarksCommand(const ExCommand &cmd)
+{
+    if (!cmd.matches("marks", "marks"))
+        return false;
+
+    const QString filter = cmd.args.trimmed();
+    QList<QChar> names;
+    if (m_buffer->marks.contains('\''))
+        names.append('\'');
+    for (const QChar &c : {QChar('a'), QChar('A')}) {
+        for (ushort u = c.unicode(); u < c.unicode() + 26; ++u) {
+            if (m_buffer->marks.contains(QChar(u)))
+                names.append(QChar(u));
+        }
+    }
+    // The "'" and "`" marks are the same mark under two names; only "'" is
+    // ever listed. """, "[" and "]" default to the start/whole-buffer
+    // sentinels a freshly loaded file already carries, even before anything
+    // in it has changed.
+    QList<QChar> others = {'"', '[', ']'};
+    for (auto it = m_buffer->marks.cbegin(), end = m_buffer->marks.cend(); it != end; ++it) {
+        const QChar c = it.key();
+        if (c != '\'' && c != '`' && !others.contains(c) && !c.isLetter())
+            others.append(c);
+    }
+    std::sort(others.begin(), others.end());
+    names += others;
+
+    QString info = "mark line  col file/text\n";
+    for (const QChar &name : std::as_const(names)) {
+        if (!filter.isEmpty() && !filter.contains(name))
+            continue;
+        CursorPosition pos;
+        if (m_buffer->marks.contains(name)) {
+            const Mark &mark = m_buffer->marks.value(name);
+            if (!mark.isValid() || !mark.isLocal(m_currentFileName))
+                continue;
+            pos = mark.position(document());
+        } else if (name == ']') {
+            pos = CursorPosition(document()->blockCount() - 1, 0);
+        } else {
+            pos = CursorPosition(0, 0);
+        }
+        info += QString(" %1%2%3 %4\n")
+                    .arg(name)
+                    .arg(pos.line + 1, 7)
+                    .arg(pos.column, 5)
+                    .arg(lineContents(pos.line + 1).trimmed());
+    }
+    showExtraInformation(info);
+
+    return true;
+}
+
+// :ju[mps] - the buffer's jump list: jumpListUndo oldest (farthest via
+// CTRL-O) first down to newest (nearest), a line for the live position, then
+// any jumpListRedo entries CTRL-I would still reach, nearest first.
+bool FakeVimHandler::Private::handleExJumpsCommand(const ExCommand &cmd)
+{
+    if (!cmd.matches("ju", "jumps"))
+        return false;
+
+    const QStack<CursorPosition> &undo = m_buffer->jumpListUndo;
+    const QStack<CursorPosition> &redo = m_buffer->jumpListRedo;
+
+    const auto row = [this](int number, const CursorPosition &pos) {
+        return QString("%1%2%3 %4\n")
+                   .arg(number, 4)
+                   .arg(pos.line + 1, 6)
+                   .arg(pos.column, 5)
+                   .arg(lineContents(pos.line + 1).trimmed());
+    };
+
+    QString info = " jump line  col file/text\n";
+    for (int i = 0; i < undo.size(); ++i)
+        info += row(undo.size() - i, undo.at(i));
+    if (redo.isEmpty()) {
+        info += ">\n";
+    } else {
+        info += ">" + row(0, CursorPosition(m_cursor)).mid(1);
+        for (int i = redo.size() - 1; i >= 0; --i)
+            info += row(redo.size() - i, redo.at(i));
+    }
+    showExtraInformation(info);
+
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExDelMarksCommand(const ExCommand &cmd)
 {
     // :delm[arks] {marks}   delete the listed marks (a range like "a-z" is
@@ -10865,8 +11198,11 @@ private:
             ++m_pos;
             VimValue r = exprUnary();
             if (c != '%' && (e.type() == VimValue::Float || r.type() == VimValue::Float)) {
+                // Float division by zero is IEEE754 division, not 0 - Vim
+                // answers inf/-inf/nan, following the sign of a negative
+                // zero divisor too.
                 const double b = r.toFloat();
-                e = VimValue(c == '*' ? e.toFloat() * b : (b != 0 ? e.toFloat() / b : 0.0));
+                e = VimValue(c == '*' ? e.toFloat() * b : e.toFloat() / b);
             } else {
                 const qlonglong b = r.toNumber();
                 if (c == '*')
@@ -12112,9 +12448,11 @@ static VimValue applyCompound(const VimValue &a, QChar op, const VimValue &b)
         return VimValue::list(items);
     }
     if (a.type() == VimValue::Float || b.type() == VimValue::Float) {
+        // Float division by zero is IEEE754 division (inf/-inf/nan), not 0 -
+        // same as the "/" operator itself.
         const double x = a.toFloat(), y = b.toFloat();
         return VimValue(op == '+' ? x + y : op == '-' ? x - y : op == '*' ? x * y
-                        : y != 0 ? x / y : 0.0);
+                        : x / y);
     }
     const qlonglong x = a.toNumber(), y = b.toNumber();
     return VimValue(op == '+' ? x + y : op == '-' ? x - y : op == '*' ? x * y
@@ -13085,33 +13423,57 @@ bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args, bool w
 static bool isBuiltinFunction(const QString &name)
 {
     static const QSet<QString> builtins = {
-        "abs", "add", "bufnr", "call", "char2nr", "col", "copy", "count",
+        "abs", "add", "bufexists", "buflisted", "bufloaded", "bufnr", "call",
+        "char2nr", "col", "copy", "count",
         "cursor", "deepcopy", "did_filetype", "empty", "escape", "eval", "executable",
-        "exists", "expand", "extend", "filereadable", "filter", "fnameescape",
+        "exists", "expand", "extend", "extendnew", "filereadable", "filter", "fnameescape",
         "feedkeys", "flatten", "flattennew", "fnamemodify", "fullcommand", "funcref",
-        "function", "get", "getbufvar", "getcurpos",
+        "function", "get", "getbufvar", "getcurpos", "getcursorcharpos",
+        "setcursorcharpos", "getmarklist", "getjumplist", "getchangelist",
+        "changenr", "reg_recording", "reg_executing",
         "getchar", "getcharstr", "getcwd", "getline", "getpos", "has", "has_key", "indexof",
         "iconv", "indent",
         "index", "insert", "isdirectory", "items", "join", "keys", "len",
         "line", "map", "match", "matchend", "matchlist", "matchstr", "max", "min",
+        "matchstrlist", "matchbufline",
         "mode", "searchpair", "searchpairpos",
         "nextnonblank", "nr2char", "prevnonblank", "printf", "range", "readfile",
         "remove", "repeat", "reverse",
         "findfile", "finddir", "line2byte", "byte2line", "simplify",
+        "glob2regpat", "pathshorten", "isabsolutepath",
+        "sha256", "uri_encode", "uri_decode",
         "delete", "rename", "mkdir", "tempname", "append", "json_decode", "json_encode", "glob", "globpath", "bufname", "winsaveview", "winrestview",
         "search", "searchpos", "setbufvar", "setline", "setpos", "shellescape",
         "shiftwidth", "sort",
         "getreg", "getregtype", "hasmapto", "maparg", "setreg",
         "histnr", "histget", "histadd", "histdel", "execute",
-        "uniq", "mapnew", "str2list", "list2str", "keytrans", "expandcmd",
-        "getbufline", "setbufline", "appendbufline", "deletebufline",
+        "getcmdline", "getcmdpos", "getcmdtype", "getcmdscreenpos", "getcmdprompt",
+        "getcmdwintype", "setcmdline", "setcmdpos",
+        "srand", "rand",
+        "uniq", "mapnew", "foreach", "str2list", "list2str", "keytrans", "expandcmd",
+        "getbufline", "setbufline", "appendbufline", "deletebufline", "getbufoneline",
+        "wordcount",
+        "charclass", "charcol", "getcharpos", "setcharpos", "virtcol2col", "slice",
+        "localtime", "strptime", "reltime", "reltimestr", "reltimefloat",
         "split", "str2nr", "strdisplaywidth", "strftime", "stridx", "string",
         "strlen", "strpart", "strridx", "strwidth", "virtcol", "visualmode",
         "submatch", "substitute", "synID", "synIDattr", "synstack", "system",
-        "byteidx", "charidx", "strchars", "strcharpart",
+        "byteidx", "byteidxcomp", "charidx", "strchars", "strcharlen", "strcharpart",
+        "strutf16len", "utf16idx",
         "strtrans", "tolower", "toupper", "tr", "trim", "type", "values",
         "getreginfo", "winrestview",
-        "winsaveview", "writefile"
+        "winsaveview", "writefile",
+        "matchadd", "matchaddpos", "matchdelete", "clearmatches", "getmatches",
+        "sqrt", "exp", "log", "log10", "sin", "cos", "tan", "asin", "acos",
+        "atan", "sinh", "cosh", "tanh", "pow", "atan2",
+        "floor", "ceil", "trunc", "round", "fmod",
+        "isinf", "isnan", "float2nr", "str2float",
+        "and", "or", "xor", "invert", "reduce", "strgetchar", "matchstrpos",
+        "winnr", "bufwinnr", "bufwinid", "winbufnr", "win_getid", "winline", "wincol",
+        "tabpagenr", "tabpagewinnr", "tabpagebuflist",
+        "win_gettype", "win_id2win", "win_id2tabwin", "win_findbuf", "win_gotoid",
+        "winlayout", "winrestcmd", "win_screenpos", "win_execute",
+        "winheight", "winwidth", "getwininfo"
     };
     return builtins.contains(name);
 }
@@ -13128,6 +13490,60 @@ static bool unprintable(ushort u)
             return true;
     }
     return false;
+}
+
+// This handler drives one editor, so there is exactly one window: number 1, in
+// tab page 1, with the id Vim would have given the first window it opened.
+const qlonglong theWindowId = 1000;
+
+static int utf8Length(uint codepoint)
+{
+    return codepoint < 0x80 ? 1 : codepoint < 0x800 ? 2 : codepoint < 0x10000 ? 3 : 4;
+}
+
+// Where each codepoint of a string starts, counted both ways, and whether it is
+// a combining mark. What Vim calls a "character" is a codepoint - a surrogate
+// pair is one of them, not the two units QString stores it in - and several of
+// the functions below additionally fold a combining mark into the character it
+// belongs to.
+struct Codepoint
+{
+    int utf16Index;
+    int byteIndex;
+    bool combining;
+};
+
+static QList<Codepoint> codepointsOf(const QString &text)
+{
+    QList<Codepoint> out;
+    int byteIndex = 0;
+    for (int i = 0; i < text.size(); ) {
+        const bool pair = text.at(i).isHighSurrogate() && i + 1 < text.size()
+                          && text.at(i + 1).isLowSurrogate();
+        const uint codepoint = pair ? QChar::surrogateToUcs4(text.at(i), text.at(i + 1))
+                                    : text.at(i).unicode();
+        const QChar::Category category = QChar::category(codepoint);
+        out.append({i, byteIndex, category == QChar::Mark_NonSpacing
+                                  || category == QChar::Mark_SpacingCombining
+                                  || category == QChar::Mark_Enclosing});
+        byteIndex += utf8Length(codepoint);
+        i += pair ? 2 : 1;
+    }
+    return out;
+}
+
+// The codepoints that start a character, with a combining mark folded into the
+// one before it when asked. A mark with nothing in front of it to belong to
+// starts a character of its own - measured, "U+0301 a" is two characters even
+// when folding.
+static QList<Codepoint> charactersOf(const QString &text, bool fold)
+{
+    QList<Codepoint> out;
+    for (const Codepoint &codepoint : codepointsOf(text)) {
+        if (!fold || !codepoint.combining || out.isEmpty())
+            out.append(codepoint);
+    }
+    return out;
 }
 
 bool FakeVimHandler::Private::callFunction(const QString &name,
@@ -13462,6 +13878,50 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         if (!ok)
             return false;
         *result = target;
+    } else if (name == "foreach") {
+        // foreach({expr1}, {expr2}): {expr2} runs for every item, but its
+        // return value is ignored and {expr1} comes back exactly as given -
+        // the SAME object, not a copy, unlike map()/filter() above.
+        const VimValue target = arg(0);
+        const VimValue callable = arg(1);
+        const bool useFunc = callable.isFunc();
+        const QString expr = callable.toString();
+        VimValue savedVal, savedKey;
+        const bool hadVal = variableValue("v:val", &savedVal);
+        const bool hadKey = variableValue("v:key", &savedKey);
+        bool ok = true;
+        const auto apply = [&](const VimValue &key, const VimValue &val) {
+            VimValue r;
+            if (useFunc)
+                return invokeCallable(callable, {key, val}, &r, error);
+            setVariable("v:key", key);
+            setVariable("v:val", val);
+            return evaluateExpression(expr, &r, error);
+        };
+        if (target.isList()) {
+            const QList<VimValue> *l = target.listData();
+            for (int i = 0; i < l->size() && ok; ++i)
+                ok = apply(VimValue(qlonglong(i)), l->at(i));
+        } else if (target.isDict()) {
+            const QMap<QString, VimValue> *d = target.dictData();
+            const QList<QString> keys = d->keys();
+            for (const QString &k : keys) {
+                if (!ok)
+                    break;
+                ok = apply(VimValue(k), d->value(k));
+            }
+        }
+        if (hadVal)
+            setVariable("v:val", savedVal);
+        else
+            unsetVariable("v:val");
+        if (hadKey)
+            setVariable("v:key", savedKey);
+        else
+            unsetVariable("v:key");
+        if (!ok)
+            return false;
+        *result = target;
     } else if (name == "uniq") {
         // Only items next to one another that are the same are left out, and the
         // list itself is the one that loses them.
@@ -13551,6 +14011,52 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                 arg(0).dictData()->insert(it.key(), it.value());
         }
         *result = arg(0);
+    } else if (name == "extendnew") {
+        // Like extend(), but the first argument is left alone - a genuinely
+        // new list/dict comes back instead of the same one changed in place.
+        if (arg(0).isList() && arg(1).isList()) {
+            QList<VimValue> items = *arg(0).listData();
+            items.append(*arg(1).listData());
+            *result = VimValue::list(items);
+        } else if (arg(0).isDict() && arg(1).isDict()) {
+            QMap<QString, VimValue> items = *arg(0).dictData();
+            const QMap<QString, VimValue> *src = arg(1).dictData();
+            for (auto it = src->cbegin(), end = src->cend(); it != end; ++it)
+                items.insert(it.key(), it.value());
+            *result = VimValue::dict(items);
+        } else {
+            *result = arg(0);
+        }
+    } else if (name == "srand") {
+        // Vim's own generator (xoshiro128**) and its seeding are explicitly
+        // not cloned here - only the STRUCTURE matters: a List of 4
+        // Numbers, reproducible from a given seed.
+        quint32 seed = args.isEmpty() ? quint32(QDateTime::currentMSecsSinceEpoch())
+                                       : quint32(arg(0).toNumber());
+        QList<VimValue> state;
+        for (int i = 0; i < 4; ++i) {
+            seed = seed * 1664525u + 1013904223u + quint32(i);
+            state.append(VimValue(qlonglong(seed)));
+        }
+        *result = VimValue::list(state);
+    } else if (name == "rand") {
+        // Draws from the state a matching srand() built, advancing it in
+        // place so repeated calls on the same state give a sequence, and
+        // the same seed always replays the same one.
+        if (args.isEmpty()) {
+            static quint32 g = quint32(QDateTime::currentMSecsSinceEpoch());
+            g = g * 1664525u + 1013904223u;
+            *result = VimValue(qlonglong(g));
+        } else if (arg(0).isList() && arg(0).listData()->size() == 4) {
+            QList<VimValue> *state = arg(0).listData();
+            quint32 x = quint32((*state)[0].toNumber());
+            x = x * 1664525u + 1013904223u;
+            (*state)[0] = VimValue(qlonglong(x));
+            *result = VimValue(qlonglong(x));
+        } else {
+            *error = Tr::tr("E475: Invalid argument: %1").arg(arg(0).toString());
+            return false;
+        }
     } else if (name == "index" || name == "count") {
         const auto equalValues = [](const VimValue &a, const VimValue &b) {
             return a.isString() && b.isString() ? a.toString() == b.toString()
@@ -13661,6 +14167,39 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         for (int i = 0; i < upto; ++i)
             column = line.at(i) == '\t' ? (column / ts + 1) * ts : column + 1;
         *result = VimValue(qlonglong(wantEnd ? column + 1 : column));
+    } else if (name == "virtcol2col") {
+        // virtcol2col({winid}, {lnum}, {col}) - the character a virtual column
+        // belongs to, on the line a window shows: this handler owns only the
+        // current one, so a winid other than 0, or a line that is not there,
+        // answers -1, as Vim does for a window or line it does not know.
+        const int winid = int(arg(0).toNumber());
+        const int wantedLine = int(arg(1).toNumber());
+        const int wantedVirtCol = int(arg(2).toNumber());
+        if (winid != 0 || wantedLine < 1 || wantedLine > document()->blockCount()) {
+            *result = VimValue(qlonglong(-1));
+            return true;
+        }
+        const QString line = lineContents(wantedLine);
+        if (line.isEmpty()) {
+            *result = VimValue(qlonglong(0));
+            return true;
+        }
+        const int ts = tabStop();
+        int column = 0;
+        // Past the end of the line, or before its start, clamps to the last or
+        // the first character.
+        int charIndex = line.size() - 1;
+        bool found = wantedVirtCol <= 0;
+        if (found)
+            charIndex = 0;
+        for (int i = 0; i < line.size() && !found; ++i) {
+            column = line.at(i) == '\t' ? (column / ts + 1) * ts : column + 1;
+            if (column >= wantedVirtCol) {
+                charIndex = i;
+                found = true;
+            }
+        }
+        *result = VimValue(qlonglong(charIndex + 1));
     } else if (name == "getchar" || name == "getcharstr") {
         // The next of the keys already typed ahead - what is left of a mapping
         // being expanded, or of a register being run. There is no waiting for
@@ -13687,35 +14226,120 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         } else {
             *result = asString ? VimValue(QString()) : VimValue(qlonglong(0));
         }
-    } else if (name == "strchars") {
+    } else if (name == "charclass") {
+        // What kind of character the first one of the string is: 0 for
+        // whitespace, 1 for punctuation, 2 for a keyword character (as
+        // 'iskeyword' says), and 0 for an empty string.
+        const QString text = arg(0).toString();
+        *result = VimValue(qlonglong(text.isEmpty() ? 0 : charClass(text.at(0), false)));
+    } else if (name == "strchars" || name == "strcharlen") {
         // How many characters the string holds, where strlen() counts what Vim counts: its bytes.
-        *result = VimValue(qlonglong(arg(0).toString().size()));
+        // strchars() counts a combining mark on its own; strcharlen(), and
+        // strchars() with {skipcc}, fold it into the character it belongs to.
+        const bool fold = name == "strcharlen" || arg(1).toBool();
+        *result = VimValue(qlonglong(charactersOf(arg(0).toString(), fold).size()));
     } else if (name == "strcharpart") {
         // A piece of the string counted in characters, which is what strpart() does here as well;
-        // in Vim strpart() counts bytes and can cut one in half.
+        // in Vim strpart() counts bytes and can cut one in half. {skipcc} folds
+        // a combining mark into the character it belongs to, so that taking one
+        // character takes the mark with it.
         const QString text = arg(0).toString();
+        const bool fold = args.size() > 3 && arg(3).toBool();
+        // Where each character starts, plus where the text ends.
+        QList<int> starts;
+        for (const Codepoint &character : charactersOf(text, fold))
+            starts.append(character.utf16Index);
+        starts.append(text.size());
+        const int count = starts.size() - 1;
         const int from = int(arg(1).toNumber());
-        const int howMany = args.size() > 2 ? int(arg(2).toNumber()) : text.size() - from;
-        *result = VimValue(text.mid(qMax(0, from), qMax(0, howMany)));
-    } else if (name == "byteidx" || name == "charidx") {
-        // Between the two ways of counting: byteidx() says which byte a character begins at,
-        // charidx() which character a byte belongs to.
-        const QString text = arg(0).toString();
-        const int wanted = int(arg(1).toNumber());
-        if (name == "byteidx") {
-            if (wanted < 0 || wanted > text.size())
-                *result = VimValue(qlonglong(-1));
-            else
-                *result = VimValue(qlonglong(text.left(wanted).toUtf8().size()));
+        const int howMany = args.size() > 2 ? int(arg(2).toNumber()) : count - from;
+        // A negative start is not moved to zero: it eats into the count, so
+        // strcharpart(s, -1, 2) is the first character alone.
+        const int begin = qBound(0, from, count);
+        const int end = qBound(begin, from + qMax(0, howMany), count);
+        *result = VimValue(text.mid(starts.at(begin), starts.at(end) - starts.at(begin)));
+    } else if (name == "slice") {
+        // slice({expr}, {start} [, {end}]) - Python-style: the end is one past
+        // what is taken (the "[a:b]" operator on the same expr is inclusive of
+        // it instead), a missing end reaches to the end of the sequence, and a
+        // negative index counts back from there.
+        const VimValue subject = arg(0);
+        const bool isList = subject.isList();
+        const int n = isList ? subject.listData()->size() : subject.toString().size();
+        const auto clamp = [n](int index) { return qBound(0, index < 0 ? index + n : index, n); };
+        const int from = clamp(int(arg(1).toNumber()));
+        const int to = args.size() > 2 ? clamp(int(arg(2).toNumber())) : n;
+        if (isList) {
+            QList<VimValue> out;
+            for (int i = from; i < to; ++i)
+                out.append(subject.listData()->at(i));
+            *result = VimValue::list(out);
         } else {
-            const QByteArray bytes = text.toUtf8();
-            if (wanted < 0 || wanted >= bytes.size()) {
-                *result = VimValue(qlonglong(-1));
-            } else {
-                *result = VimValue(qlonglong(
-                    QString::fromUtf8(bytes.left(wanted + 1)).size() - 1));
+            *result = VimValue(to > from ? subject.toString().mid(from, to - from) : QString());
+        }
+    } else if (name == "byteidx" || name == "byteidxcomp" || name == "charidx") {
+        // Between the two ways of counting: byteidx() says which byte a character begins at,
+        // charidx() which character a byte belongs to. byteidx() folds a
+        // combining mark into the character before it, byteidxcomp() counts it
+        // on its own, and charidx() does the former unless {countcc} asks for
+        // the latter.
+        const QString text = arg(0).toString();
+        const bool fold = name == "charidx" ? !arg(2).toBool() : name == "byteidx";
+        // Where each character starts in bytes, plus where the text ends - an
+        // index of exactly the character count answers that whole length.
+        QList<int> byteStarts;
+        for (const Codepoint &character : charactersOf(text, fold))
+            byteStarts.append(character.byteIndex);
+        const int total = text.toUtf8().size();
+        byteStarts.append(total);
+        const qlonglong wanted = qlonglong(arg(1).toNumber());
+        qlonglong answer = -1;
+        if (name == "charidx") {
+            // A byte inside a character answers that character, so this is the
+            // last character that does not start behind the byte asked about.
+            if (wanted >= 0 && wanted <= total) {
+                for (int i = byteStarts.size() - 1; i >= 0; --i) {
+                    if (byteStarts.at(i) <= wanted) {
+                        answer = i;
+                        break;
+                    }
+                }
+            }
+        } else if (wanted >= 0 && wanted < byteStarts.size()) {
+            answer = byteStarts.at(int(wanted));
+        }
+        *result = VimValue(answer);
+    } else if (name == "strutf16len") {
+        // strutf16len({string} [, {countcc}]): the string is already stored
+        // in UTF-16, so this is just size() - the one count where this
+        // engine's storage agrees with Vim for free. {countcc} is still not
+        // distinguished here, unlike in byteidx()/charidx() above: a
+        // combining mark always counts on its own.
+        *result = VimValue(qlonglong(arg(0).toString().size()));
+    } else if (name == "utf16idx") {
+        // utf16idx({string}, {idx} [, {countcc} [, {charidx}]]): the UTF-16
+        // code unit index of byte (or, with {charidx}, character) {idx}. An
+        // {idx} in the middle of a UTF-8 sequence, or of a surrogate pair,
+        // rounds down to where that codepoint starts, and one past the end
+        // answers the whole UTF-16 length. {countcc} is still not
+        // distinguished here, as for strutf16len() above.
+        const QString text = arg(0).toString();
+        const QList<Codepoint> codepoints = codepointsOf(text);
+        const bool byChar = arg(3).toBool();
+        const qlonglong total = byChar ? codepoints.size() : text.toUtf8().size();
+        const qlonglong wanted = qlonglong(arg(1).toNumber());
+        qlonglong answer = -1;
+        if (wanted >= 0 && wanted <= total) {
+            answer = text.size();
+            for (int i = codepoints.size() - 1; i >= 0 && wanted < total; --i) {
+                const qlonglong at = byChar ? i : codepoints.at(i).byteIndex;
+                if (at <= wanted) {
+                    answer = codepoints.at(i).utf16Index;
+                    break;
+                }
             }
         }
+        *result = VimValue(answer);
     } else if (name == "strtrans") {
         // What a string looks like where it is shown: a character below a blank
         // stands as "^" and the letter it is CTRL of, and 0x7f as "^?".
@@ -13757,15 +14381,22 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                 info.insert("points_to", VimValue(QString(QChar(g.unnamedPointsTo))));
         }
         *result = VimValue::dict(info);
-    } else if (name == "execute") {
+    } else if (name == "execute" || name == "win_execute") {
         // What the commands have to say, each line of it on a line of its own,
-        // rather than shown.
+        // rather than shown. win_execute() names the window to run them in
+        // first; there is only ever the one, and an id naming any other answers
+        // nothing at all rather than running them somewhere else.
+        const int shift = name == "win_execute" ? 1 : 0;
+        if (shift && qlonglong(arg(0).toNumber()) != theWindowId) {
+            *result = VimValue(QString());
+            return true;
+        }
         QStringList commands;
-        if (arg(0).isList()) {
-            for (const VimValue &item : *arg(0).listData())
+        if (arg(shift).isList()) {
+            for (const VimValue &item : *arg(shift).listData())
                 commands.append(item.toString());
         } else {
-            commands.append(arg(0).toString());
+            commands.append(arg(shift).toString());
         }
         QString captured;
         QString *outerSink = m_messageSink;
@@ -13803,6 +14434,74 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             const bool removed
                 = history.remove(vimPatternToQtPattern(arg(1).toString(), nullptr));
             *result = VimValue(qint64(removed ? 1 : 0));
+        }
+    } else if (name == "getcmdline" || name == "getcmdpos" || name == "getcmdtype"
+               || name == "getcmdscreenpos" || name == "getcmdprompt"
+               || name == "getcmdwintype" || name == "setcmdline" || name == "setcmdpos") {
+        // What is on the command line while it is being EDITED, and how to
+        // change it. By the time a ":" command runs, the line is finished with
+        // and every read answers empty or zero - so these only say anything
+        // from a mapping's expression or a CTRL-R = prompt, which is what Vim
+        // documents as the way to reach them too.
+        // The expression prompt wins where both are up: CTRL-R = opens it on
+        // top of the command line it will answer into.
+        CommandBuffer *line = nullptr;
+        QChar prompt;
+        if (m_expressionTarget) {
+            // CTRL-R = from a command line puts up a prompt of its own, on top
+            // of the line it will answer into.
+            line = &m_expressionBuffer;
+            prompt = m_expressionBuffer.prompt();
+        } else if (g.subsubmode == ExpressionSubSubMode) {
+            // CTRL-R = from INSERT mode borrows the command buffer instead, and
+            // the "=" belongs to the mode rather than to that buffer, so it is
+            // not read back off it.
+            line = &g.commandBuffer;
+            prompt = '=';
+        } else if (isCommandLineMode()) {
+            line = g.subsubmode == SearchSubSubMode ? &g.searchBuffer : &g.commandBuffer;
+            prompt = line->prompt();
+        }
+        const bool wantsNumber = name != "getcmdline" && name != "getcmdtype"
+                                 && name != "getcmdprompt" && name != "getcmdwintype";
+
+        if (name == "getcmdwintype") {
+            // The command-line WINDOW, which this handler never opens.
+            *result = VimValue(QString());
+        } else if (name == "getcmdprompt") {
+            // Only input() puts a prompt of its own there, and there is none.
+            *result = VimValue(QString());
+        } else if (!line) {
+            // Nothing being edited: the setters report that they could not,
+            // which Vim spells as a one rather than a zero.
+            const bool isSetter = name == "setcmdline" || name == "setcmdpos";
+            *result = wantsNumber ? VimValue(qlonglong(isSetter ? 1 : 0))
+                                  : VimValue(QString());
+        } else if (name == "getcmdtype") {
+            *result = VimValue(QString(prompt));
+        } else if (name == "getcmdline") {
+            // The text alone; the prompt is not part of it.
+            *result = VimValue(line->contents());
+        } else if (name == "getcmdpos") {
+            // Counted from one, so the cursor at the end is one past the text.
+            *result = VimValue(qlonglong(line->cursorPos() + 1));
+        } else if (name == "getcmdscreenpos") {
+            // One further along than getcmdpos(): the prompt takes a column.
+            *result = VimValue(qlonglong(line->cursorPos() + 2));
+        } else {
+            // setcmdline({str} [, {pos}]) and setcmdpos({pos}), both counting
+            // the position from one, both answering zero for "done".
+            const bool settingText = name == "setcmdline";
+            const QString text = settingText ? arg(0).toString() : line->contents();
+            const int posArg = settingText ? 1 : 0;
+            if (settingText && args.size() <= posArg) {
+                line->setContents(text); // the cursor goes to the end
+            } else {
+                line->setContents(text, qBound(0, int(arg(posArg).toNumber()) - 1,
+                                               text.size()));
+            }
+            updateMiniBuffer();
+            *result = VimValue(qlonglong(0));
         }
     } else if (name == "getreg" || name == "getregtype") {
         // What a register holds, and of what kind. An empty name is the unnamed
@@ -14123,6 +14822,110 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                 scrollToLine(int(view->value("topline").toNumber()) - 1);
         }
         *result = VimValue(qlonglong(0));
+    } else if (name == "winnr" || name == "win_getid") {
+        // Only one window there is, so it is always window 1.
+        *result = VimValue(name == "winnr" ? qlonglong(1) : theWindowId);
+    } else if (name == "win_gettype") {
+        // That one window is an ordinary one, which Vim calls "".
+        *result = VimValue(QString());
+    } else if (name == "win_id2win" || name == "win_gotoid") {
+        // The only window is window 1; any other id is not there at all, which
+        // both of these report as a zero. win_gotoid() has nowhere else to go,
+        // so it only says whether it could have gone there.
+        *result = VimValue(qlonglong(qlonglong(arg(0).toNumber()) == theWindowId ? 1 : 0));
+    } else if (name == "win_id2tabwin") {
+        // [tab page, window number], or [0, 0] for an id that is not there.
+        const qlonglong known = qlonglong(arg(0).toNumber()) == theWindowId ? 1 : 0;
+        *result = VimValue::list({VimValue(known), VimValue(known)});
+    } else if (name == "win_findbuf") {
+        // Which windows show that buffer: the one, if it is this buffer.
+        QList<VimValue> found;
+        if (qlonglong(arg(0).toNumber()) == bufferNumber())
+            found.append(VimValue(theWindowId));
+        *result = VimValue::list(found);
+    } else if (name == "winlayout") {
+        // One window is a bare leaf. Any tab page but the only one has no
+        // layout to report at all.
+        const qlonglong tab = args.isEmpty() ? 1 : qlonglong(arg(0).toNumber());
+        *result = tab == 1 ? VimValue::list({VimValue(QString("leaf")),
+                                             VimValue(theWindowId)})
+                           : VimValue::list();
+    } else if (name == "win_screenpos") {
+        // Where the window starts on screen, counted from one. The only window
+        // starts at the top left; anything else answers [0, 0]. A zero means
+        // the current window, as it does for winbufnr() above.
+        const qlonglong w = qlonglong(arg(0).toNumber());
+        const qlonglong known = w == 0 || w == 1 ? 1 : 0;
+        *result = VimValue::list({VimValue(known), VimValue(known)});
+    } else if (name == "winrestcmd") {
+        // The commands that would put the windows back the size they are now.
+        // Vim writes the whole sequence TWICE, heights and widths per window
+        // each time round - measured with two windows as well as one, so it is
+        // the format rather than an accident of having only one.
+        const QString once = QString(":1resize %1|vert :1resize %2|")
+                                 .arg(linesOnScreen()).arg(columnsOnScreen());
+        *result = VimValue(once + once);
+    } else if (name == "bufwinnr" || name == "bufwinid") {
+        // bufwinid() is bufwinnr() with the window ID instead of its number -
+        // there is only ever the one window, the same win_getid() already
+        // answers.
+        const VimValue a = args.isEmpty() ? VimValue(QString("%")) : arg(0);
+        bool known;
+        if (a.type() == VimValue::Number) {
+            known = a.toNumber() == bufferNumber();
+        } else {
+            const QString s = a.toString();
+            known = s == "%" || s.isEmpty() || s == "$"
+                    || (!m_currentFileName.isEmpty() && m_currentFileName.contains(s));
+        }
+        *result = VimValue(known ? (name == "bufwinnr" ? qlonglong(1) : theWindowId)
+                                 : qlonglong(-1));
+    } else if (name == "winbufnr") {
+        // winbufnr({winnr}): the buffer shown in that window - 0 means the
+        // current window, and there is only ever window 1.
+        const qlonglong w = qlonglong(arg(0).toNumber());
+        *result = VimValue(qlonglong(w == 0 || w == 1 ? bufferNumber() : -1));
+    } else if (name == "tabpagenr" || name == "tabpagewinnr") {
+        // Only one tab there is, and one window in it, so both are always 1.
+        *result = VimValue(qlonglong(1));
+    } else if (name == "tabpagebuflist") {
+        // Only one window in that (only) tab, showing this buffer.
+        *result = VimValue::list({VimValue(qlonglong(bufferNumber()))});
+    } else if (name == "winline") {
+        *result = VimValue(qlonglong(cursorLineOnScreen() + 1));
+    } else if (name == "wincol") {
+        *result = VimValue(qlonglong(cursorColumnOnScreen() + 1));
+    } else if (name == "winheight") {
+        *result = VimValue(qlonglong(linesOnScreen()));
+    } else if (name == "winwidth") {
+        *result = VimValue(qlonglong(columnsOnScreen()));
+    } else if (name == "getwininfo") {
+        // Only one window there is, so at most one entry - none at all for
+        // any winid but its own 1000 (or none asked for).
+        QList<VimValue> list;
+        if (args.isEmpty() || qlonglong(arg(0).toNumber()) == theWindowId) {
+            QMap<QString, VimValue> info;
+            info.insert("botline", VimValue(qlonglong(firstVisibleLine() + linesOnScreen())));
+            info.insert("bufnr", VimValue(qlonglong(bufferNumber())));
+            info.insert("height", VimValue(qlonglong(linesOnScreen())));
+            info.insert("leftcol", VimValue(qlonglong(0)));
+            info.insert("loclist", VimValue(qlonglong(0)));
+            info.insert("quickfix", VimValue(qlonglong(0)));
+            info.insert("status_height", VimValue(qlonglong(1)));
+            info.insert("tabnr", VimValue(qlonglong(1)));
+            info.insert("terminal", VimValue(qlonglong(0)));
+            info.insert("textoff", VimValue(qlonglong(0)));
+            info.insert("topline", VimValue(qlonglong(firstVisibleLine() + 1)));
+            info.insert("variables", VimValue::dict());
+            info.insert("width", VimValue(qlonglong(columnsOnScreen())));
+            info.insert("winbar", VimValue(qlonglong(0)));
+            info.insert("wincol", VimValue(qlonglong(1)));
+            info.insert("winid", VimValue(theWindowId));
+            info.insert("winnr", VimValue(qlonglong(1)));
+            info.insert("winrow", VimValue(qlonglong(1)));
+            list.append(VimValue::dict(info));
+        }
+        *result = VimValue::list(list);
     } else if (name == "executable") {
         const QString found = QStandardPaths::findExecutable(arg(0).toString());
         *result = VimValue(qlonglong(found.isEmpty() ? 0 : 1));
@@ -14164,6 +14967,277 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "abs") {
         *result = arg(0).type() == VimValue::Float ? VimValue(qAbs(arg(0).toFloat()))
                                                     : VimValue(qAbs(arg(0).toNumber()));
+    } else if (name == "sqrt" || name == "exp" || name == "log" || name == "log10"
+               || name == "sin" || name == "cos" || name == "tan"
+               || name == "asin" || name == "acos" || name == "atan"
+               || name == "sinh" || name == "cosh" || name == "tanh") {
+        // All of these answer a Float, even for a Number argument, and all
+        // reject anything that is not a Number or a Float outright.
+        const VimValue a = arg(0);
+        if (a.type() != VimValue::Number && a.type() != VimValue::Float) {
+            *error = Tr::tr("E808: Number or Float required");
+            return false;
+        }
+        const double x = a.toFloat();
+        double y = 0;
+        if (name == "sqrt")
+            y = std::sqrt(x);
+        else if (name == "exp")
+            y = std::exp(x);
+        else if (name == "log")
+            y = std::log(x);
+        else if (name == "log10")
+            y = std::log10(x);
+        else if (name == "sin")
+            y = std::sin(x);
+        else if (name == "cos")
+            y = std::cos(x);
+        else if (name == "tan")
+            y = std::tan(x);
+        else if (name == "asin")
+            y = std::asin(x);
+        else if (name == "acos")
+            y = std::acos(x);
+        else if (name == "atan")
+            y = std::atan(x);
+        else if (name == "sinh")
+            y = std::sinh(x);
+        else if (name == "cosh")
+            y = std::cosh(x);
+        else // tanh
+            y = std::tanh(x);
+        *result = VimValue(y);
+    } else if (name == "pow" || name == "atan2") {
+        // pow({x}, {y}) is x to the power y; atan2({y}, {x}) is the angle of
+        // the point (x, y) - note the argument order, y before x.
+        const VimValue a = arg(0);
+        const VimValue b = arg(1);
+        if ((a.type() != VimValue::Number && a.type() != VimValue::Float)
+            || (b.type() != VimValue::Number && b.type() != VimValue::Float)) {
+            *error = Tr::tr("E808: Number or Float required");
+            return false;
+        }
+        *result = VimValue(name == "pow" ? std::pow(a.toFloat(), b.toFloat())
+                                          : std::atan2(a.toFloat(), b.toFloat()));
+    } else if (name == "floor" || name == "ceil" || name == "trunc" || name == "round") {
+        // round() is HALF AWAY FROM ZERO, which is exactly what std::round()
+        // itself already does.
+        const VimValue a = arg(0);
+        if (a.type() != VimValue::Number && a.type() != VimValue::Float) {
+            *error = Tr::tr("E808: Number or Float required");
+            return false;
+        }
+        const double x = a.toFloat();
+        const double y = name == "floor" ? std::floor(x)
+                        : name == "ceil"  ? std::ceil(x)
+                        : name == "trunc" ? std::trunc(x)
+                        : std::round(x);
+        *result = VimValue(y);
+    } else if (name == "fmod") {
+        // The sign of the result follows the DIVIDEND, not the divisor -
+        // std::fmod() already does this.
+        const VimValue a = arg(0);
+        const VimValue b = arg(1);
+        if ((a.type() != VimValue::Number && a.type() != VimValue::Float)
+            || (b.type() != VimValue::Number && b.type() != VimValue::Float)) {
+            *error = Tr::tr("E808: Number or Float required");
+            return false;
+        }
+        *result = VimValue(std::fmod(a.toFloat(), b.toFloat()));
+    } else if (name == "isinf") {
+        const double x = arg(0).toFloat();
+        *result = VimValue(qlonglong(std::isinf(x) ? (x > 0 ? 1 : -1) : 0));
+    } else if (name == "isnan") {
+        *result = VimValue(qlonglong(std::isnan(arg(0).toFloat()) ? 1 : 0));
+    } else if (name == "float2nr") {
+        // Truncates toward zero, and saturates rather than overflowing - but
+        // asymmetrically: a NaN answers LLONG_MIN, while -inf and an
+        // overflowing negative finite value both answer -LLONG_MAX, not
+        // LLONG_MIN. Measured directly; casting a double outside qlonglong's
+        // range is undefined behavior in C++, so every case is caught before
+        // the cast.
+        const double x = arg(0).toFloat();
+        qlonglong y;
+        if (std::isnan(x))
+            y = LLONG_MIN;
+        else if (x >= double(LLONG_MAX))
+            y = LLONG_MAX;
+        else if (x <= -double(LLONG_MAX))
+            y = -LLONG_MAX;
+        else
+            y = qlonglong(x);
+        *result = VimValue(y);
+    } else if (name == "str2float") {
+        // Leading blanks are skipped, same as str2nr(); a "0x"/"0X" prefix
+        // reads as hex, "inf" on its own as infinity, and otherwise the
+        // longest valid float prefix is taken - all measured against Vim
+        // 9.1.
+        QString s = arg(0).toString();
+        int i = 0;
+        while (i < s.size() && s.at(i).isSpace())
+            ++i;
+        s = s.mid(i);
+        double value = 0.0;
+        if (s.startsWith("0x", Qt::CaseInsensitive)) {
+            const auto isHexDigit = [](QChar c) {
+                return c.isDigit() || (c.toLower().unicode() >= 'a'
+                                       && c.toLower().unicode() <= 'f');
+            };
+            int j = 2;
+            while (j < s.size() && isHexDigit(s.at(j)))
+                ++j;
+            value = double(s.mid(2, j - 2).toULongLong(nullptr, 16));
+        } else if (s.startsWith("inf")) {
+            value = HUGE_VAL;
+        } else {
+            static const QRegularExpression floatRe(
+                "^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?");
+            const QRegularExpressionMatch m = floatRe.match(s);
+            if (m.hasMatch() && !m.captured(0).isEmpty())
+                value = m.captured(0).toDouble();
+        }
+        *result = VimValue(value);
+    } else if (name == "and" || name == "or" || name == "xor") {
+        // Number in, Number out, two's complement on 64 bits - unlike the
+        // math functions, a Float argument is an error, not a conversion.
+        const VimValue a = arg(0);
+        const VimValue b = arg(1);
+        if (a.type() == VimValue::Float || b.type() == VimValue::Float) {
+            *error = Tr::tr("E805: Using a Float as a Number");
+            return false;
+        }
+        const qlonglong x = a.toNumber();
+        const qlonglong y = b.toNumber();
+        *result = VimValue(name == "and" ? (x & y) : name == "or" ? (x | y) : (x ^ y));
+    } else if (name == "invert") {
+        const VimValue a = arg(0);
+        if (a.type() == VimValue::Float) {
+            *error = Tr::tr("E805: Using a Float as a Number");
+            return false;
+        }
+        *result = VimValue(~a.toNumber());
+    } else if (name == "reduce") {
+        // reduce({list}, {func} [, {initial}]) - with no initial value the
+        // first element seeds the accumulator and the fold starts from the
+        // second; an empty list then has nothing to seed it with.
+        if (!arg(0).isList()) {
+            *error = Tr::tr("E1253: String, List, Tuple or Blob required for argument 1");
+            return false;
+        }
+        const QList<VimValue> items = *arg(0).listData();
+        const VimValue func = arg(1);
+        int i = 0;
+        VimValue acc;
+        if (args.size() > 2) {
+            acc = arg(2);
+        } else {
+            if (items.isEmpty()) {
+                *error = Tr::tr("E998: Reduce of an empty List with no initial value");
+                return false;
+            }
+            acc = items.at(0);
+            i = 1;
+        }
+        for (; i < items.size(); ++i) {
+            VimValue r;
+            if (!invokeCallable(func, {acc, items.at(i)}, &r, error))
+                return false;
+            acc = r;
+        }
+        *result = acc;
+    } else if (name == "strgetchar") {
+        // The CODEPOINT at that character index, not a lone surrogate half
+        // for one outside the Basic Multilingual Plane; -1 for anything out
+        // of range.
+        const auto codepoints = arg(0).toString().toUcs4();
+        const int index = int(arg(1).toNumber());
+        *result = VimValue(qlonglong(
+            index >= 0 && index < codepoints.size() ? qlonglong(codepoints.at(index)) : -1));
+    } else if (name == "matchstrpos") {
+        // For a String subject the answer is [match, start, end]; for a List
+        // one an extra list index goes in front of "start" - [match, listidx,
+        // start, end]. The optional third argument is a byte column to start
+        // from for a String, but a LIST INDEX to start from for a List.
+        const VimValue subject = arg(0);
+        PatternPosition wanted;
+        const QRegularExpression re = vimPatternToQtPattern(arg(1).toString(), &wanted, {},
+                                                           patternCursorColumn());
+        if (subject.isList()) {
+            const QList<VimValue> items = *subject.listData();
+            const int startIndex = args.size() > 2 ? qMax(0, int(arg(2).toNumber())) : 0;
+            QList<VimValue> out = {VimValue(QString()), VimValue(qlonglong(-1)),
+                                    VimValue(qlonglong(-1)), VimValue(qlonglong(-1))};
+            for (int i = startIndex; i < items.size(); ++i) {
+                const QString text = items.at(i).toString();
+                const QRegularExpressionMatch mm = wanted.lineOp != 0
+                    ? QRegularExpressionMatch() : re.match(text);
+                if (mm.hasMatch()) {
+                    out = {VimValue(mm.captured(0)), VimValue(qlonglong(i)),
+                           VimValue(qlonglong(mm.capturedStart())),
+                           VimValue(qlonglong(mm.capturedEnd()))};
+                    break;
+                }
+            }
+            *result = VimValue::list(out);
+        } else {
+            const QString text = subject.toString();
+            const int from = args.size() > 2 ? int(arg(2).toNumber()) : 0;
+            const QRegularExpressionMatch mm = wanted.lineOp != 0
+                ? QRegularExpressionMatch() : re.match(text, qMax(0, from));
+            const QList<VimValue> out = mm.hasMatch()
+                ? QList<VimValue>{VimValue(mm.captured(0)),
+                                   VimValue(qlonglong(mm.capturedStart())),
+                                   VimValue(qlonglong(mm.capturedEnd()))}
+                : QList<VimValue>{VimValue(QString()), VimValue(qlonglong(-1)),
+                                   VimValue(qlonglong(-1))};
+            *result = VimValue::list(out);
+        }
+    } else if (name == "matchstrlist" || name == "matchbufline") {
+        // matchstrlist({list}, {pat} [, {dict}]): every match of {pat} in
+        // every string of {list}, one dict per match (not one per string -
+        // measured directly, since the ticket's own recipe never exercised
+        // two matches on the same line). matchbufline({buf}, {pat}, {lnum},
+        // {end} [, {dict}]) is the same walk over this buffer's own lines,
+        // "lnum" standing in for "idx". Either {dict} may carry
+        // "submatches": v:true, which adds the same nine-slot, ''-padded
+        // submatch list matchlist() already builds.
+        const bool isBufline = name == "matchbufline";
+        const QRegularExpression re = vimPatternToQtPattern(arg(1).toString());
+        const VimValue dictArg = isBufline ? arg(4) : arg(2);
+        const bool wantSubmatches = dictArg.isDict() && dictArg.dictData()
+                && dictArg.dictData()->value("submatches").toBool();
+        QList<VimValue> out;
+        const auto addMatches = [&](const QString &text, qlonglong key, bool useLnum) {
+            QRegularExpressionMatchIterator it = re.globalMatch(text);
+            while (it.hasNext()) {
+                const QRegularExpressionMatch mm = it.next();
+                QMap<QString, VimValue> d;
+                d.insert(useLnum ? QString("lnum") : QString("idx"), VimValue(key));
+                d.insert("byteidx",
+                         VimValue(qlonglong(text.left(mm.capturedStart()).toUtf8().size())));
+                d.insert("text", VimValue(mm.captured(0)));
+                if (wantSubmatches) {
+                    QList<VimValue> subs;
+                    for (int k = 1; k <= 9; ++k)
+                        subs.append(VimValue(mm.captured(k)));
+                    d.insert("submatches", VimValue::list(subs));
+                }
+                out.append(VimValue::dict(d));
+            }
+        };
+        if (isBufline) {
+            if (namesThisBuffer(arg(0))) {
+                const int from = qMax(1, lineSpec(arg(2)));
+                const int to = qMin(lineSpec(arg(3)), document()->blockCount());
+                for (int line = from; line <= to; ++line)
+                    addMatches(lineContents(line), qlonglong(line), true);
+            }
+        } else if (arg(0).isList()) {
+            const QList<VimValue> items = *arg(0).listData();
+            for (int i = 0; i < items.size(); ++i)
+                addMatches(items.at(i).toString(), qlonglong(i), false);
+        }
+        *result = VimValue::list(out);
     } else if (name == "empty") {
         const VimValue v = arg(0);
         bool e;
@@ -14235,7 +15309,11 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = VimValue(qlonglong(placeFromList(arg(0), &line, &column) ? line : 0));
         else
             *result = VimValue(qlonglong(lineColArg(arg(0).toString()).line + 1));
-    } else if (name == "col") {
+    } else if (name == "col" || name == "charcol") {
+        // col() counts bytes and charcol() characters, but a position here is
+        // already a character index (QTextCursor's own unit), so the two read
+        // alike - only a real byte count, which nothing here keeps, could tell
+        // them apart on a line with a multibyte character.
         const QString a = arg(0).toString();
         int line = 0, column = 0;
         if (arg(0).isList())
@@ -14244,9 +15322,14 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = VimValue(qlonglong(lineContents(cursorLine() + 1).size() + 1));
         else
             *result = VimValue(qlonglong(lineColArg(a).column + 1));
-    } else if (name == "getpos" || name == "getcurpos") {
+    } else if (name == "getpos" || name == "getcurpos" || name == "getcharpos"
+               || name == "getcursorcharpos") {
         // [bufnum, lnum, col, off]; bufnum is 0 for the current buffer.
-        const CursorPosition pos = lineColArg(name == "getcurpos"
+        // getcursorcharpos([{winid}]) takes an optional window id instead of
+        // a position and, like getcurpos(), always answers about the
+        // cursor - a position here already being a character index.
+        const bool wantsCursor = name == "getcurpos" || name == "getcursorcharpos";
+        const CursorPosition pos = lineColArg(wantsCursor
                                               ? QString(".") : arg(0).toString());
         QList<VimValue> place = {VimValue(qlonglong(0)),
                                  VimValue(qlonglong(pos.line + 1)),
@@ -14254,17 +15337,115 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                                  VimValue(qlonglong(0))};
         // getcurpos() also says which column the cursor wants to be in, which is
         // v:maxcol where it is to stay at the end of the line.
-        if (name == "getcurpos") {
+        if (wantsCursor) {
             const qlonglong maxCol = 2147483647; // what Vim calls v:maxcol
             place.append(VimValue(m_targetColumn < 0 ? maxCol
                                                      : qlonglong(m_targetColumn + 1)));
         }
         *result = VimValue::list(place);
-    } else if (name == "setpos") {
+    } else if (name == "getmarklist") {
+        // getmarklist([{buf}]): the buffer's own lowercase and automatic
+        // marks; with no argument, the GLOBAL (uppercase) ones - none of
+        // which this handler tracks, so that form always answers empty.
+        // The order here is Vim's own for THIS function and is NOT the
+        // order ":marks" uses: letters first, then "'", """, "[", "]",
+        // "^" and "." in that fixed order - measured directly, since the
+        // two disagree.
+        QList<VimValue> out;
+        if (!args.isEmpty()) {
+            QList<QChar> names;
+            for (ushort u = 'a'; u <= 'z'; ++u) {
+                if (m_buffer->marks.contains(QChar(u)))
+                    names.append(QChar(u));
+            }
+            for (const QChar &c : {QChar('\''), QChar('"'), QChar('['),
+                                   QChar(']'), QChar('^'), QChar('.')}) {
+                const bool hasSentinel = c == '"' || c == '[' || c == ']';
+                if (m_buffer->marks.contains(c) || hasSentinel)
+                    names.append(c);
+            }
+            for (const QChar &markName : std::as_const(names)) {
+                CursorPosition pos;
+                if (m_buffer->marks.contains(markName)) {
+                    const Mark &mark = m_buffer->marks.value(markName);
+                    if (!mark.isValid() || !mark.isLocal(m_currentFileName))
+                        continue;
+                    pos = mark.position(document());
+                } else if (markName == ']') {
+                    pos = CursorPosition(document()->blockCount() - 1, 0);
+                } else {
+                    pos = CursorPosition(0, 0);
+                }
+                QMap<QString, VimValue> entry;
+                entry.insert("mark", VimValue(QString("'") + markName));
+                entry.insert("pos", VimValue::list(
+                    {VimValue(qlonglong(bufferNumber())),
+                     VimValue(qlonglong(pos.line + 1)),
+                     VimValue(qlonglong(pos.column + 1)),
+                     VimValue(qlonglong(0))}));
+                out.append(VimValue::dict(entry));
+            }
+        }
+        *result = VimValue::list(out);
+    } else if (name == "getjumplist") {
+        // getjumplist(): the buffer's jump list, oldest to newest, then the
+        // index of where the walk currently stands - the same jumpListUndo/
+        // jumpListRedo pair ":jumps" already reads (with the same, already
+        // parked mismatch against Vim after a real CTRL-O).
+        const QStack<CursorPosition> &undo = m_buffer->jumpListUndo;
+        const QStack<CursorPosition> &redo = m_buffer->jumpListRedo;
+        const auto toJumpDict = [this](const CursorPosition &pos) {
+            QMap<QString, VimValue> d;
+            d.insert("lnum", VimValue(qlonglong(pos.line + 1)));
+            d.insert("bufnr", VimValue(qlonglong(bufferNumber())));
+            d.insert("col", VimValue(qlonglong(pos.column)));
+            d.insert("coladd", VimValue(qlonglong(0)));
+            return VimValue::dict(d);
+        };
+        QList<VimValue> entries;
+        for (int i = 0; i < undo.size(); ++i)
+            entries.append(toJumpDict(undo.at(i)));
+        for (int i = redo.size() - 1; i >= 0; --i)
+            entries.append(toJumpDict(redo.at(i)));
+        *result = VimValue::list({VimValue::list(entries),
+                                  VimValue(qlonglong(undo.size()))});
+    } else if (name == "getchangelist") {
+        // getchangelist([{buf}]): the buffer's change list, oldest to
+        // newest, then the index of where the walk stands - the same
+        // changeList/changeListIndex pair "g;"/"g," already read. Unlike
+        // getjumplist()'s dicts, these carry no bufnr.
+        const QList<CursorPosition> &changes = m_buffer->changeList;
+        QList<VimValue> entries;
+        for (const CursorPosition &pos : changes) {
+            QMap<QString, VimValue> d;
+            d.insert("lnum", VimValue(qlonglong(pos.line + 1)));
+            d.insert("col", VimValue(qlonglong(pos.column)));
+            d.insert("coladd", VimValue(qlonglong(0)));
+            entries.append(VimValue::dict(d));
+        }
+        *result = VimValue::list({VimValue::list(entries),
+                                  VimValue(qlonglong(m_buffer->changeListIndex))});
+    } else if (name == "changenr") {
+        // changenr(): the position in the undo sequence, 0 on a freshly
+        // loaded buffer and incremented by one per change since - exactly
+        // what availableUndoSteps() already counts.
+        *result = VimValue(qlonglong(revision()));
+    } else if (name == "reg_recording") {
+        // reg_recording(): the register a "q{reg}" macro is being recorded
+        // into, or "" when nothing is being recorded.
+        *result = VimValue(g.isRecording ? QString(QChar(g.currentRegister)) : QString());
+    } else if (name == "reg_executing") {
+        // reg_executing(): the register a "@{reg}" macro is currently
+        // replaying, or "" otherwise. A nested "@{reg}" started from within
+        // a replay overwrites this rather than being restored when it
+        // returns - measured directly, see g.executingRegister.
+        *result = VimValue(g.executingRegister.isNull() ? QString()
+                                                         : QString(g.executingRegister));
+    } else if (name == "setpos" || name == "setcharpos") {
         // setpos({expr}, [bufnum, lnum, col, off]); only the current buffer.
         const QList<VimValue> *l = arg(1).isList() ? arg(1).listData() : nullptr;
         if (!l || l->size() < 3) {
-            *error = Tr::tr("setpos() expects a list of at least three numbers");
+            *error = Tr::tr("%1() expects a list of at least three numbers").arg(name);
             return false;
         }
         const CursorPosition pos(int(l->at(1).toNumber()) - 1,
@@ -14279,6 +15460,99 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             return false;
         }
         *result = VimValue(qlonglong(0));
+    } else if (name == "matchadd" || name == "matchaddpos") {
+        // matchadd({group}, {pattern} [, {priority} [, {id}]]) and
+        // matchaddpos({group}, {list} [, {priority} [, {id}]]) - have a place
+        // painted and hand back the number it goes by, or a -1 where it cannot.
+        const QString group = arg(0).toString();
+        if (!isKnownHighlightGroup(group)) {
+            showMessage(MessageError,
+                        Tr::tr("E28: No such highlight group name: %1").arg(group));
+            *result = VimValue(qint64(-1));
+            return true;
+        }
+        UserMatch match;
+        match.group = group;
+        if (name == "matchadd") {
+            match.pattern = arg(1).toString();
+        } else if (arg(1).isList()) {
+            for (const VimValue &place : *arg(1).listData()) {
+                QList<int> position;
+                if (place.isList()) {
+                    for (const VimValue &part : *place.listData())
+                        position.append(int(part.toNumber()));
+                } else {
+                    position.append(int(place.toNumber()));
+                }
+                match.positions.append(position);
+            }
+        }
+        match.priority = args.size() > 2 ? int(arg(2).toNumber()) : 10;
+        if (args.size() > 3 && int(arg(3).toNumber()) != -1) {
+            const int wanted = int(arg(3).toNumber());
+            if (wanted >= 1 && wanted <= 3) {
+                showMessage(MessageError,
+                            Tr::tr("E798: ID is reserved for \":match\": %1").arg(wanted));
+                *result = VimValue(qint64(-1));
+                return true;
+            }
+            for (const UserMatch &taken : std::as_const(m_userMatches)) {
+                if (taken.id == wanted) {
+                    showMessage(MessageError, Tr::tr("E801: ID already taken: %1").arg(wanted));
+                    *result = VimValue(qint64(-1));
+                    return true;
+                }
+            }
+            match.id = wanted;
+        } else {
+            match.id = m_nextUserMatchId++;
+        }
+        m_userMatches.append(match);
+        updateSelection();
+        *result = VimValue(qint64(match.id));
+    } else if (name == "matchdelete") {
+        const int wanted = int(arg(0).toNumber());
+        int at = -1;
+        for (int i = 0; i < m_userMatches.size(); ++i) {
+            if (m_userMatches.at(i).id == wanted)
+                at = i;
+        }
+        if (at == -1) {
+            showMessage(MessageError, Tr::tr("E803: ID not found: %1").arg(wanted));
+            *result = VimValue(qint64(-1));
+        } else {
+            m_userMatches.removeAt(at);
+            updateSelection();
+            *result = VimValue(qint64(0));
+        }
+    } else if (name == "clearmatches") {
+        m_userMatches.clear();
+        updateSelection();
+        *result = VimValue(qint64(0));
+    } else if (name == "getmatches") {
+        // The places that are painted, the ones of lower priority first.
+        QList<UserMatch> matches = m_userMatches;
+        std::stable_sort(matches.begin(), matches.end(),
+                         [](const UserMatch &one, const UserMatch &other) {
+            return one.priority < other.priority;
+        });
+        QList<VimValue> items;
+        for (const UserMatch &match : std::as_const(matches)) {
+            QMap<QString, VimValue> item;
+            item.insert("group", VimValue(match.group));
+            item.insert("id", VimValue(qint64(match.id)));
+            item.insert("priority", VimValue(qint64(match.priority)));
+            if (!match.pattern.isEmpty())
+                item.insert("pattern", VimValue(match.pattern));
+            for (int i = 0; i < match.positions.size(); ++i) {
+                QList<VimValue> parts;
+                for (const int part : match.positions.at(i))
+                    parts.append(VimValue(qint64(part)));
+                item.insert(QString("pos%1").arg(i + 1), VimValue::list(parts));
+            }
+            items.append(VimValue::dict(item));
+        }
+        *result = VimValue::list(items);
     } else if (name == "getline" || name == "getbufline") {
         // getline({lnum}) is that line; getline({lnum}, {end}) is the lines from
         // one to the other as a list, which is how a script reads a whole buffer.
@@ -14298,6 +15572,14 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         } else {
             *result = VimValue(lineContents(from));
         }
+    } else if (name == "getbufoneline") {
+        // getbufoneline({buf}, {lnum}): always a single line as a plain
+        // string, never a list - "buf" can only be this one, like
+        // getbufline().
+        const int line = lineSpec(arg(1));
+        *result = VimValue(namesThisBuffer(arg(0)) && line >= 1
+                                    && line <= document()->blockCount()
+                                ? lineContents(line) : QString());
     } else if (name == "deletebufline") {
         // deletebufline({buf}, {first} [, {last}]) - the lines go, and a one comes
         // back where they cannot.
@@ -14509,6 +15791,49 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             };
             *result = VimValue(write(arg(0)));
         }
+    } else if (name == "sha256") {
+        // sha256({string}): the hash, as lower-case hex - exactly what
+        // QCryptographicHash::Sha256 already gives.
+        *result = VimValue(QString::fromLatin1(
+            QCryptographicHash::hash(arg(0).toString().toUtf8(),
+                                      QCryptographicHash::Sha256).toHex()));
+    } else if (name == "uri_encode") {
+        // uri_encode({string}): alphanumerics and "-_.~" pass through
+        // unchanged; every other byte becomes "%HH" in uppercase hex - this
+        // INCLUDES an existing "%" despite what the docs claim, measured
+        // directly ("%20" encodes to "%2520", not staying "%20").
+        const QByteArray bytes = arg(0).toString().toUtf8();
+        QString out;
+        for (const uchar b : bytes) {
+            const bool safe = (b >= '0' && b <= '9') || (b >= 'A' && b <= 'Z')
+                    || (b >= 'a' && b <= 'z') || b == '-' || b == '_' || b == '.' || b == '~';
+            if (safe)
+                out += QLatin1Char(char(b));
+            else
+                out += QString("%%1").arg(b, 2, 16, QChar('0')).toUpper();
+        }
+        *result = VimValue(out);
+    } else if (name == "uri_decode") {
+        // uri_decode({string}): "%HH" becomes that byte; a "%" not followed
+        // by two hex digits is left as-is. The decoded bytes are combined as
+        // UTF-8, the same as a valid multi-byte percent sequence would be.
+        const auto isHexDigit = [](char c) {
+            return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+        };
+        const QByteArray bytes = arg(0).toString().toUtf8();
+        QByteArray out;
+        int i = 0;
+        while (i < bytes.size()) {
+            if (bytes.at(i) == '%' && i + 2 < bytes.size()
+                    && isHexDigit(bytes.at(i + 1)) && isHexDigit(bytes.at(i + 2))) {
+                out.append(char(bytes.mid(i + 1, 2).toInt(nullptr, 16)));
+                i += 3;
+            } else {
+                out.append(bytes.at(i));
+                ++i;
+            }
+        }
+        *result = VimValue(QString::fromUtf8(out));
     } else if (name == "append" || name == "appendbufline") {
         // append({lnum}, {text}) - the text goes in behind that line, a zero putting it in front of
         // the first. appendbufline() says which buffer, which can only be this one.
@@ -14603,8 +15928,10 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = VimValue(m_syntaxNames.at(id - 1));
         else
             *result = VimValue(QString());
-    } else if (name == "cursor") {
-        // cursor({lnum}, {col}) or cursor([{lnum}, {col}, ...])
+    } else if (name == "cursor" || name == "setcursorcharpos") {
+        // cursor({lnum}, {col}) or cursor([{lnum}, {col}, ...]); the same
+        // dual signature for setcursorcharpos(), a position here already
+        // being a character index.
         int line = 0;
         int column = 1;
         if (arg(0).isList()) {
@@ -14700,6 +16027,69 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         if (trailing && !simplified.endsWith('/'))
             simplified.append('/');
         *result = VimValue(given.isEmpty() ? given : simplified);
+    } else if (name == "glob2regpat") {
+        // Turn a file glob into the regexp it stands for. Anchored at both
+        // ends, except that a leading or trailing run of "*" is dropped
+        // together with the anchor it would have needed - and a pattern of
+        // "*" alone (nothing else) answers ".*", not "" (measured directly).
+        const QString text = arg(0).toString();
+        if (text.isEmpty()) {
+            *result = VimValue(QString("^$"));
+        } else if (text.count('*') == text.size()) {
+            *result = VimValue(QString(".*"));
+        } else {
+            int start = 0;
+            while (text.at(start) == '*')
+                ++start;
+            int end = text.size();
+            while (text.at(end - 1) == '*')
+                --end;
+            QString out;
+            bool prevStar = false;
+            for (int i = start; i < end; ++i) {
+                const QChar c = text.at(i);
+                if (c == '*') {
+                    if (!prevStar)
+                        out += ".*";
+                    prevStar = true;
+                } else {
+                    prevStar = false;
+                    if (c == '?')
+                        out += '.';
+                    else if (c == '.')
+                        out += "\\.";
+                    else if (c == '~')
+                        out += "\\~";
+                    else
+                        out += c;
+                }
+            }
+            if (start == 0)
+                out.prepend('^');
+            if (end == text.size())
+                out.append('$');
+            *result = VimValue(out);
+        }
+    } else if (name == "pathshorten") {
+        // Cut every directory component down to its first {len} characters
+        // (default 1) except the last, which stays whole; a leading dot in a
+        // component counts as part of that first character, not against
+        // {len}.
+        const QString given = arg(0).toString();
+        const int len = args.size() > 1 ? qMax(1, int(arg(1).toNumber())) : 1;
+        QStringList parts = given.split('/');
+        for (int i = 0; i < parts.size() - 1; ++i) {
+            const QString &part = parts.at(i);
+            parts[i] = part.startsWith('.') ? part.left(1) + part.mid(1, len)
+                                             : part.left(len);
+        }
+        *result = VimValue(parts.join('/'));
+    } else if (name == "isabsolutepath") {
+        // A path starting with "/" or "~" (home directory) counts as
+        // absolute here.
+        const QString given = arg(0).toString();
+        *result = VimValue(qlonglong(
+            !given.isEmpty() && (given.at(0) == '/' || given.at(0) == '~') ? 1 : 0));
     } else if (name == "line2byte" || name == "byte2line") {
         // Where a line starts, counted in bytes from one with every line ending counting as one,
         // and which line a byte stands in.
@@ -14724,6 +16114,36 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             }
         }
         *result = VimValue(answer);
+    } else if (name == "wordcount") {
+        // wordcount(): byte/char/word counts for the whole buffer, and again
+        // for just the text up to and including the cursor - every line,
+        // including the last, counts as newline-terminated, the same
+        // convention line2byte() above already uses. "Word" here just means
+        // a maximal run of non-whitespace, not a Vim keyword-boundary word -
+        // measured directly ("a,b c" and "foo-bar" are ONE word each).
+        const auto wordsIn = [](const QString &text) {
+            return text.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts).size();
+        };
+        const int cursorLn = cursorLine() + 1;
+        const int cursorCol = physicalCursorColumn();
+        QString fullText;
+        QString prefixText;
+        for (int line = 1; line <= document()->blockCount(); ++line) {
+            const QString withNewline = lineContents(line) + QLatin1Char('\n');
+            fullText += withNewline;
+            if (line < cursorLn)
+                prefixText += withNewline;
+            else if (line == cursorLn)
+                prefixText += withNewline.left(cursorCol + 1);
+        }
+        QMap<QString, VimValue> info;
+        info.insert("bytes", VimValue(qlonglong(fullText.toUtf8().size())));
+        info.insert("chars", VimValue(qlonglong(fullText.size())));
+        info.insert("words", VimValue(qlonglong(wordsIn(fullText))));
+        info.insert("cursor_bytes", VimValue(qlonglong(prefixText.toUtf8().size())));
+        info.insert("cursor_chars", VimValue(qlonglong(prefixText.size())));
+        info.insert("cursor_words", VimValue(qlonglong(wordsIn(prefixText))));
+        *result = VimValue::dict(info);
     } else if (name == "findfile" || name == "finddir") {
         // findfile({name} [, {path} [, {count}]]) - where the name is to be found along 'path' or
         // the list given.
@@ -14872,6 +16292,20 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = VimValue(qlonglong(bufferNumber()));
         else
             *result = VimValue(qlonglong(-1));
+    } else if (name == "bufexists" || name == "buflisted" || name == "bufloaded") {
+        // Only the buffer this handler works on can be named, and it is
+        // always both listed and loaded, so the three agree here. Unlike
+        // bufnr(), a string argument is always a buffer NAME here, never the
+        // "%" or "" that means "current buffer" - measured against Vim 9.1.
+        const VimValue a = arg(0);
+        bool known = false;
+        if (a.type() == VimValue::Number) {
+            known = a.toNumber() == bufferNumber();
+        } else {
+            const QString s = a.toString();
+            known = !s.isEmpty() && !m_currentFileName.isEmpty() && m_currentFileName.contains(s);
+        }
+        *result = VimValue(qlonglong(known ? 1 : 0));
     } else if (name == "feedkeys") {
         // feedkeys({keys} [, {mode}]): the keys are not handled here but after whatever is running
         // now, which is how a plugin arranges for something to happen once its own mapping is done.
@@ -14946,6 +16380,63 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const size_t used = std::strftime(buffer, sizeof(buffer),
                                           format.constData(), &parts);
         *result = VimValue(QString::fromLocal8Bit(buffer, int(used)));
+    } else if (name == "localtime") {
+        *result = VimValue(qlonglong(QDateTime::currentSecsSinceEpoch()));
+    } else if (name == "strptime") {
+        // strptime({format}, {timestring}) - the C library parses it, matching
+        // strftime() reading the result back the same way. What the format does
+        // not fill in stays at zero, which is where a day or month of "0" can
+        // carry a date back into the one before - as it does in Vim, which
+        // forwards to the same platform function.
+        const QByteArray format = arg(0).toString().toLocal8Bit();
+        const QByteArray text = arg(1).toString().toLocal8Bit();
+        struct tm parts = {};
+        if (!strptime(text.constData(), format.constData(), &parts)) {
+            *result = VimValue(qlonglong(0));
+        } else {
+            parts.tm_isdst = -1;
+            *result = VimValue(qlonglong(mktime(&parts)));
+        }
+    } else if (name == "reltime") {
+        // reltime() is the current instant, reltime({start}) how much of it has
+        // gone by since, and reltime({start}, {end}) the span between the two -
+        // all as the two-number List reltimestr()/reltimefloat() read, holding
+        // whole seconds and a NANOSECOND remainder that is always in
+        // [0, 999999999] even where the seconds are negative (a floor split, not
+        // a truncating one) - which is also how Vim's own reltimestr() comes to
+        // print a small negative span as e.g. "-1.999000" instead of "-0.001000".
+        const auto decode = [](const VimValue &v) -> qint64 {
+            if (!v.isList() || v.listData()->size() < 2)
+                return 0;
+            return qint64(v.listData()->at(0).toFloat()) * 1000000000
+                   + qint64(v.listData()->at(1).toFloat());
+        };
+        const auto encode = [](qint64 nanos) {
+            const qint64 sec = nanos >= 0 ? nanos / 1000000000
+                                          : -((-nanos + 999999999) / 1000000000);
+            const qint64 nsec = nanos - sec * 1000000000;
+            return VimValue::list({VimValue(qlonglong(sec)), VimValue(qlonglong(nsec))});
+        };
+        const qint64 now = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+        if (args.isEmpty())
+            *result = encode(now);
+        else if (args.size() == 1)
+            *result = encode(now - decode(arg(0)));
+        else
+            *result = encode(decode(arg(1)) - decode(arg(0)));
+    } else if (name == "reltimestr") {
+        // The remainder is cut down from nanoseconds to microseconds by
+        // truncation, not rounding, matching Vim's own C library formatting.
+        const QList<VimValue> *l = arg(0).isList() ? arg(0).listData() : nullptr;
+        const qlonglong sec = l && l->size() > 0 ? qlonglong(l->at(0).toFloat()) : 0;
+        const qlonglong nsec = l && l->size() > 1 ? qlonglong(l->at(1).toFloat()) : 0;
+        *result = VimValue(QString("%1.%2").arg(sec, 3).arg(nsec / 1000, 6, 10, QLatin1Char('0')));
+    } else if (name == "reltimefloat") {
+        const QList<VimValue> *l = arg(0).isList() ? arg(0).listData() : nullptr;
+        const double sec = l && l->size() > 0 ? l->at(0).toFloat() : 0;
+        const double nsec = l && l->size() > 1 ? l->at(1).toFloat() : 0;
+        *result = VimValue(sec + nsec / 1000000000.0);
     } else if (name == "did_filetype") {
         *result = VimValue(qlonglong(didFileType() ? 1 : 0));
     } else if (name == "eval") {
@@ -16206,6 +17697,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExMessagesCommand(cmd)
         || handleExLockVarCommand(cmd)
         || handleExRegisterCommand(cmd)
+        || handleExMarksCommand(cmd)
+        || handleExJumpsCommand(cmd)
         || handleExDelMarksCommand(cmd)
         || handleExYankDeleteCommand(cmd)
         || handleExChangeCommand(cmd)
@@ -17199,6 +18692,23 @@ int FakeVimHandler::Private::linesOnScreen() const
     return h > 0 ? EDITOR(viewport()->height()) / h : 1;
 }
 
+int FakeVimHandler::Private::cursorColumnOnScreen() const
+{
+    if (!editor())
+        return 0;
+    const QRect rect = EDITOR(cursorRect(m_cursor));
+    const int w = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
+    return w > 0 ? rect.x() / w : 0;
+}
+
+int FakeVimHandler::Private::columnsOnScreen() const
+{
+    if (!editor())
+        return 1;
+    const int w = QFontMetrics(EDITOR(font())).horizontalAdvance(' ');
+    return w > 0 ? EDITOR(viewport()->width()) / w : 1;
+}
+
 int FakeVimHandler::Private::cursorLine() const
 {
     return lineForPosition(position()) - 1;
@@ -17612,6 +19122,21 @@ void FakeVimHandler::Private::downCase(const Range &range)
 void FakeVimHandler::Private::upCase(const Range &range)
 {
     transformText(range, [](const QString &text) { return text.toUpper(); } );
+}
+
+void FakeVimHandler::Private::rot13(const Range &range)
+{
+    transformText(range, [](const QString &text) -> QString {
+        QString result = text;
+        for (int i = 0; i < result.size(); ++i) {
+            const QChar c = result.at(i);
+            if (c >= 'a' && c <= 'z')
+                result[i] = QChar('a' + (c.unicode() - 'a' + 13) % 26);
+            else if (c >= 'A' && c <= 'Z')
+                result[i] = QChar('A' + (c.unicode() - 'A' + 13) % 26);
+        }
+        return result;
+    });
 }
 
 void FakeVimHandler::Private::invertCase(const Range &range)
@@ -18744,6 +20269,11 @@ bool FakeVimHandler::Private::isPassthroughKey(const Input &input) const
 
 char FakeVimHandler::Private::currentModeCode() const
 {
+    // A search line and the "=" expression prompt are command lines being
+    // edited, whichever mode they were opened from, so a "cmap" is what
+    // applies there rather than one for the mode underneath.
+    if (g.subsubmode == SearchSubSubMode || g.subsubmode == ExpressionSubSubMode)
+        return 'c';
     if (g.mode == ExMode)
         return 'c';
     else if (isVisualMode())

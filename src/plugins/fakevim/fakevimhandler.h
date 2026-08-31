@@ -157,6 +157,9 @@ public:
     Callback<void(const QString &msg)> extraInformationChanged;
     Callback<void(const QList<QTextEdit::ExtraSelection> &selection)> selectionChanged;
     Callback<void(const QString &needle)> highlightMatches;
+    // What a highlight group of Vim's looks like here, for matchadd(). An unset
+    // callback leaves the handler to paint from the palette.
+    Callback<QTextCharFormat(const QString &group)> highlightFormatRequested;
     Callback<void(bool *moved, bool *forward, QTextCursor *cursor)> moveToMatchingParenthesis;
     Callback<void(bool *result, QChar c)> checkForElectricCharacter;
     Callback<void(int beginLine, int endLine, QChar typedChar)> indentRegion;

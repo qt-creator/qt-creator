@@ -38,6 +38,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/indenter.h>
 #include <texteditor/fontsettings.h>
@@ -1653,6 +1654,32 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         [this, handler](const QString &contents, int cursorPos, int anchorPos, int messageLevel) {
             showCommandBuffer(handler, contents, cursorPos, anchorPos, messageLevel);
         });
+
+    handler->highlightFormatRequested.set([tew](const QString &group) {
+        // What matchadd() paints with: the group names Vim uses, drawn the way
+        // this editor draws the same thing.
+        static const QHash<QString, TextStyle> styles = {
+            {"Search", C_SEARCH_RESULT},
+            {"IncSearch", C_SEARCH_RESULT},
+            {"Visual", C_SELECTION},
+            {"ErrorMsg", C_ERROR},
+            {"Error", C_ERROR},
+            {"WarningMsg", C_WARNING},
+            {"Todo", C_WARNING},
+            {"Comment", C_COMMENT},
+            {"String", C_STRING},
+            {"Number", C_NUMBER},
+            {"Type", C_TYPE},
+            {"Statement", C_KEYWORD},
+            {"Keyword", C_KEYWORD},
+            {"Function", C_FUNCTION},
+            {"Underlined", C_LINK}
+        };
+        const auto style = styles.constFind(group);
+        if (style == styles.constEnd() || !tew)
+            return QTextCharFormat();
+        return tew->textDocument()->fontSettings().toTextCharFormat(*style);
+    });
 
     handler->selectionChanged.set([tew](const QList<QTextEdit::ExtraSelection> &selection) {
         if (tew)
