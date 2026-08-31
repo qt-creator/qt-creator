@@ -195,8 +195,8 @@ SystemSettings::SystemSettings()
     disableAtomicSave.setToolTip(
         Tr::tr("Writes files directly instead of saving to a temporary file and renaming it "
                "over the original. The file keeps its inode, and with it any file-system "
-               "metadata that a freshly created file would not inherit, but saving is no "
-               "longer resilient against a crash or power failure."));
+               "metadata that a freshly created file would not inherit, but changes "
+               "might be lost if the system crashes or power fails."));
 
     autoSuspendEnabled.setSettingsKey("EditorManager/AutoSuspendEnabled");
     autoSuspendEnabled.setDefaultValue(true);
