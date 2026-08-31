@@ -49,6 +49,7 @@
 
 #include <QAbstractButton>
 #include <QAbstractItemView>
+#include <QCheckBox>
 #include <QApplication>
 #include <QCursor>
 #include <QHeaderView>
@@ -67,6 +68,8 @@
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QLabel>
+#include <QRadioButton>
+#include <QStyleOptionButton>
 #include <QCursor>
 
 #include <cmath>
@@ -925,6 +928,16 @@ static QList<QWidget *> resolveWidgets(const WidgetQuery &q)
     return result;
 }
 
+static QString checkStateName(Qt::CheckState state)
+{
+    switch (state) {
+    case Qt::Unchecked: return "unchecked";
+    case Qt::PartiallyChecked: return "partially_checked";
+    case Qt::Checked: return "checked";
+    }
+    return {};
+}
+
 static QJsonObject describeWidget(QWidget *w)
 {
     QWidget *win = w->window();
@@ -945,6 +958,14 @@ static QJsonObject describeWidget(QWidget *w)
         {"window_id", (win && win->isVisible()) ? double(win->winId()) : 0}};
     if (const QString buddy = buddyText(w); !buddy.isEmpty())
         result.insert("buddy_text", buddy);
+    if (auto button = qobject_cast<QAbstractButton *>(w); button && button->isCheckable()) {
+        result.insert("checked", button->isChecked());
+        // A tristate box answers isChecked() with true for PartiallyChecked as
+        // well, so the flag alone cannot tell the middle of the cycle from its
+        // end, and a caller cannot see that its click did anything.
+        if (auto box = qobject_cast<QCheckBox *>(w); box && box->isTristate())
+            result.insert("check_state", checkStateName(box->checkState()));
+    }
     return result;
 }
 
@@ -1174,6 +1195,23 @@ static void waitPainting(int ms)
 
 static void glidePointerToGlobal(const QPoint &target);
 
+// Where a click reaches the widget. Its centre, except for a check box or radio button
+// with no text of its own: laid out in a form it is as wide as the field column, while
+// only the indicator reacts, and the centre then lands on nothing.
+static QPoint clickPoint(QWidget *w)
+{
+    QStyle::SubElement indicator = QStyle::SE_CheckBoxIndicator;
+    if (qobject_cast<QRadioButton *>(w))
+        indicator = QStyle::SE_RadioButtonIndicator;
+    else if (!qobject_cast<QCheckBox *>(w))
+        return w->rect().center();
+
+    QStyleOptionButton option;
+    option.initFrom(w);
+    const QRect rect = w->style()->subElementRect(indicator, &option, w);
+    return rect.isValid() ? rect.center() : w->rect().center();
+}
+
 // Moves the actual pointer, so the recording shows it arrive. It travels at a set
 // speed, so that how long it takes follows how far it has to go.
 static void glidePointerTo(QWidget *w)
@@ -1181,7 +1219,9 @@ static void glidePointerTo(QWidget *w)
     const DemoPace &pace = demoPace();
     if (pace.pointerPixelsPerSecond <= 0)
         return;
-    glidePointerToGlobal(w->mapToGlobal(w->rect().center()));
+    // The same point the click will land on, so the pointer is not seen
+    // stopping somewhere the widget does not react.
+    glidePointerToGlobal(w->mapToGlobal(clickPoint(w)));
 }
 
 static void glidePointerToGlobal(const QPoint &target)
@@ -1210,8 +1250,8 @@ static void clickWidget(QWidget *w)
     // button: a widget is free to act on the mouse itself, and some do - Qt Creator's
     // own buttons emit a separate signal from their mouse handler, so click() leaves
     // them looking pressed while nothing happens.
-    const QPointF center = w->rect().center();
-    const QPointF global = w->mapToGlobal(w->rect().center());
+    const QPointF center = clickPoint(w);
+    const QPointF global = w->mapToGlobal(center.toPoint());
     QMouseEvent press(
         QEvent::MouseButtonPress, center, global, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     QMouseEvent release(
@@ -3003,7 +3043,9 @@ void McpCommands::registerCommands()
             .description(
                 "Resolves a semantic widget query against the live Qt Creator UI by walking "
                 "all widgets (including dialogs and popups). Returns every match with its "
-                "class, objectName, visible text, enabled/visible state, geometry in root "
+                "class, objectName, visible text, enabled/visible state, checked state where "
+                "the widget has one - with the three-way check_state for a tristate check box, "
+                "whose \"checked\" is true for the partial state too - geometry in root "
                 "coordinates and top-level window id. This is the addressing layer for "
                 "click_widget / type_text / select_combo_item: use it to discover selectors "
                 "and to check that a query is unambiguous before acting on it. Read-only.")
@@ -3035,10 +3077,13 @@ void McpCommands::registerCommands()
             .name("click_widget")
             .title("Click a widget")
             .description(
-                "Clicks the single widget matching the query. A button is clicked via its own "
-                "click() slot; any other widget receives a synthetic left click at its centre. "
-                "The query must resolve to exactly one visible widget - zero or multiple matches "
-                "are an error, so ambiguity never silently picks a widget.")
+                "Clicks the single widget matching the query with a synthetic left press and "
+                "release, the events a real click produces - a widget is free to act on the "
+                "mouse itself, and some do. The click lands on the widget's centre, except on a "
+                "check box or radio button, where only the indicator reacts to one. The query "
+                "must resolve to exactly one visible widget - zero or multiple matches are an "
+                "error, so ambiguity never silently picks a widget. The result describes the "
+                "widget as find_widgets does, so a toggle can be told from a miss.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(addWidgetQueryProps(Tool::InputSchema{})),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
