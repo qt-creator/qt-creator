@@ -2265,7 +2265,8 @@ void tst_backends::testDetachCapability()
 
         debuggerBackend->engine()->start();
         QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                                 || debuggerBackend->contains(InferiorEvent::EngineSetupFailed), s_timeout);
+                                 || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                                 s_qmlStartupTimeout);
         QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
 
         debuggerBackend->clearEvents();
@@ -2738,7 +2739,8 @@ void tst_backends::testRunToLineCapability()
 
         engine->start();
         QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                                 || debuggerBackend->contains(InferiorEvent::EngineSetupFailed), s_timeout);
+                                 || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                                 s_qmlStartupTimeout);
         QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
 
         QHash<quint64, bool> insertResults;
@@ -3247,7 +3249,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::stopAtBreakpoint(Backend backend,
     engine->start();
     [backendPtr = debuggerBackend.get()] {
         QTRY_VERIFY_WITH_TIMEOUT(backendPtr->contains(InferiorEvent::RunAndInferiorRunOk)
-                                 || backendPtr->contains(InferiorEvent::EngineSetupFailed), s_timeout);
+                                 || backendPtr->contains(InferiorEvent::EngineSetupFailed),
+                                 s_qmlStartupTimeout);
     }();
     if (QTest::currentTestFailed() || !debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk))
         return nullptr;
@@ -6431,7 +6434,8 @@ void tst_backends::attachesToQmlServerAndStopsAtBreakpoint()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed), s_timeout);
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_qmlStartupTimeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
 
     QHash<quint64, bool> insertResults;
@@ -6491,7 +6495,8 @@ void tst_backends::insertsBreakpointAtJavaScriptThrowAndStopsAtIt()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed), s_timeout);
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_qmlStartupTimeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
 
     QHash<quint64, bool> insertResults;
@@ -6551,7 +6556,8 @@ void tst_backends::reportsInspectorObjectTree()
     });
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+                             s_qmlStartupTimeout);
 
     const auto itemFor = [&trees](quint64 requestId, const QString &iname) {
         GdbMi found;
