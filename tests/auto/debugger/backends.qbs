@@ -45,7 +45,8 @@ Project {
                 var extDir = "qtcreatorcdbext"
                         + (qbs.architecture.contains("x86_64") ? "64" : "32");
                 defines.push('CDBEXT_LIBRARY="'
-                             + FileInfo.joinPaths(project.buildDirectory, qtc.libDirName,
+                             + FileInfo.joinPaths(qbs.installRoot,
+                                                  qbs.installPrefix, qtc.libDirName,
                                                   extDir, "qtcreatorcdbext.dll") + '"');
             }
             return defines;
