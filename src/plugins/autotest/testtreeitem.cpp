@@ -74,7 +74,9 @@ bool ITestTreeItem::setData(int /*column*/, const QVariant &data, int role)
         m_checked = Qt::CheckState(data.toInt());
         return m_checked != old;
     } else if (role == FailedRole) {
+        const bool old = m_failed;
         m_failed = data.toBool();
+        return m_failed != old;
     }
     return false;
 }

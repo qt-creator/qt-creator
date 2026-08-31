@@ -5,6 +5,8 @@
 
 #include "testtreeitem.h"
 
+#include <utils/theme/theme.h>
+
 #include <QPainter>
 
 namespace Autotest::Internal {
@@ -42,6 +44,9 @@ void TestTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
             painter->fillRect(option.rect, opt.palette.brush(cg, QPalette::Highlight));
         }
     }
+
+    if (index.data(FailedRole).toBool())
+        opt.palette.setColor(QPalette::Text, Utils::creatorColor(Utils::Theme::TextColorError));
 
     // paint disabled items in gray
     if (!index.data(EnabledRole).toBool())

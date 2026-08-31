@@ -148,7 +148,8 @@ bool TestTreeModel::setData(const QModelIndex &index, const QVariant &value, int
             return true;
         } else if (role == FailedRole) {
             if (item->testBase()->type() == ITestBase::Framework)
-                m_failedStateCache.insert(static_cast<TestTreeItem *>(item), true);
+                m_failedStateCache.insert(static_cast<TestTreeItem *>(item), value.toBool());
+            return true;
         }
     }
     return false;
@@ -518,7 +519,8 @@ void TestTreeModel::clearFailedMarks()
 {
     for (TreeItem *rootNode : *rootItem()) {
         rootNode->forAllChildren([](TreeItem *child) {
-            child->setData(0, false, FailedRole);
+            if (child->setData(0, false, FailedRole))
+                child->update();
         });
     }
     m_failedStateCache.clear();
