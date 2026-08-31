@@ -813,8 +813,8 @@ void ProgressManagerPrivate::updateSummaryProgressBar()
         if (range > 0)
             value += TASK_RANGE * (watcher->progressValue() - min) / range;
     }
-    m_summaryProgressBar->setRange(0, TASK_RANGE * m_runningTasks.size());
-    m_summaryProgressBar->setValue(value);
+    m_summaryProgressBar->progressBar()->setRange(0, TASK_RANGE * m_runningTasks.size());
+    m_summaryProgressBar->progressBar()->setValue(value);
 }
 
 void ProgressManagerPrivate::fadeAwaySummaryProgress()

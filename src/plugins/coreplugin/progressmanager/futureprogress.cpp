@@ -13,6 +13,7 @@
 #include <QFutureWatcher>
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
+#include <QProgressBar>
 #include <QSequentialAnimationGroup>
 #include <QTimer>
 
@@ -217,10 +218,11 @@ void FutureProgress::updateToolTip(const QString &text)
 
 void FutureProgress::setStarted()
 {
-    d->m_progress->reset();
+    d->m_progress->progressBar()->reset();
     d->m_progress->setError(false);
-    d->m_progress->setRange(d->m_watcher.progressMinimum(), d->m_watcher.progressMaximum());
-    d->m_progress->setValue(d->m_watcher.progressValue());
+    d->m_progress->progressBar()->setRange(d->m_watcher.progressMinimum(),
+                                           d->m_watcher.progressMaximum());
+    d->m_progress->progressBar()->setValue(d->m_watcher.progressValue());
 }
 
 
@@ -271,12 +273,12 @@ void FutureProgressPrivate::tryToFadeAway()
 
 void FutureProgress::setProgressRange(int min, int max)
 {
-    d->m_progress->setRange(min, max);
+    d->m_progress->progressBar()->setRange(min, max);
 }
 
 void FutureProgress::setProgressValue(int val)
 {
-    d->m_progress->setValue(val);
+    d->m_progress->progressBar()->setValue(val);
 }
 
 void FutureProgress::setProgressText(const QString &text)

@@ -70,8 +70,6 @@ ProgressBar::ProgressBar(Role role, QWidget *parent)
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
     m_progressBar->setTextVisible(false);
-    m_progressBar->setRange(m_minimum, m_maximum);
-    m_progressBar->setValue(m_value);
     m_progressBar->setBackgroundColor(Theme::ProgressBarBackgroundColor);
     updateColor();
 
@@ -129,32 +127,6 @@ ProgressBar::ProgressBar(Role role, QWidget *parent)
     }
 }
 
-void ProgressBar::reset()
-{
-    m_value = m_minimum;
-    m_progressBar->setValue(m_value);
-}
-
-void ProgressBar::setRange(int minimum, int maximum)
-{
-    m_minimum = minimum;
-    m_maximum = maximum;
-    if (m_value < m_minimum || m_value > m_maximum)
-        m_value = m_minimum;
-    m_progressBar->setRange(m_minimum, m_maximum);
-    m_progressBar->setValue(m_value);
-}
-
-void ProgressBar::setValue(int value)
-{
-    value = qBound(m_minimum, value, m_maximum);
-    if (m_value == value) {
-        return;
-    }
-    m_value = value;
-    m_progressBar->setValue(m_value);
-}
-
 void ProgressBar::setFinished(bool b)
 {
     if (b == m_finished)
@@ -162,6 +134,11 @@ void ProgressBar::setFinished(bool b)
     m_finished = b;
     updateColor();
     updateCancelButton();
+}
+
+QProgressBar *ProgressBar::progressBar() const
+{
+    return m_progressBar;
 }
 
 void ProgressBar::updateColor()

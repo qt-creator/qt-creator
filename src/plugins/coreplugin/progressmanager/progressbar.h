@@ -7,8 +7,9 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QLabel;
 class QAbstractButton;
+class QLabel;
+class QProgressBar;
 QT_END_NAMESPACE
 
 namespace Utils { class QtcProgressBar; }
@@ -35,14 +36,9 @@ public:
     bool isCancelEnabled() const;
     void setError(bool on);
     bool hasError() const;
-    int minimum() const { return m_minimum; }
-    int maximum() const { return m_maximum; }
-    int value() const { return m_value; }
     bool finished() const { return m_finished; }
-    void reset();
-    void setRange(int minimum, int maximum);
-    void setValue(int value);
     void setFinished(bool b);
+    QProgressBar *progressBar() const;
 
 signals:
     void clicked();
@@ -59,9 +55,6 @@ private:
     bool m_cancelEnabled = true;
     bool m_finished = false;
     bool m_error = false;
-    int m_minimum = 1;
-    int m_maximum = 100;
-    int m_value = 1;
 };
 
 } // namespace Core::Internal
