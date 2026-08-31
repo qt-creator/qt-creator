@@ -5,6 +5,7 @@
 
 #include "harmonyosconstants.h"
 #include "harmonyosdevice.h"
+#include "harmonyosrunconfiguration.h"
 #include "harmonyossdk.h"
 #include "harmonyossettings.h"
 #include "harmonyostr.h"
@@ -31,6 +32,7 @@
 #include <utils/store.h>
 #include <utils/stringutils.h>
 
+#include <QCryptographicHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -895,6 +897,110 @@ public:
     }
 };
 
+// What the deploy has to know to leave the device alone: the package it installed
+// there last time, and whether that is still what the device has. The device
+// identifies a package by its bundle name only - the hash fields of "bm dump" are
+// empty here - so the note is kept beside the package, and the device's own update
+// time is what catches a package that arrived from somewhere else.
+
+static QString forceInstallLabel()
+{
+    return Tr::tr("Install even when the device already has this package");
+}
+
+static FilePath installNote(const FilePath &hap)
+{
+    return hap.stringAppended(".installed");
+}
+
+static bool addTreeToHash(QCryptographicHash &hash, const FilePath &root)
+{
+    const FilePaths files = root.dirEntries(
+        FileFilter({}, DirFilterFlag::Files | DirFilterFlag::Hidden,
+                   DirIteratorFlag::Subdirectories));
+    if (files.isEmpty())
+        return false;
+
+    QStringList relative;
+    QHash<QString, FilePath> byName;
+    for (const FilePath &file : files) {
+        const QString name = file.relativePathFromDir(root);
+        // hvigor builds into the first and caches into the second; the package holds
+        // neither, and both change on every run.
+        if (name.startsWith("build/") || name.startsWith(".cxx/"))
+            continue;
+        relative.append(name);
+        byName.insert(name, file);
+    }
+    relative.sort();
+
+    for (const QString &name : relative) {
+        const Result<QByteArray> contents = byName.value(name).fileContents();
+        if (!contents)
+            return false;
+        hash.addData(name.toUtf8());
+        hash.addData(*contents);
+    }
+    return true;
+}
+
+// Not the .hap itself: repackaging the very same content yields different bytes every
+// time, so the answer has to come from what goes in. Measured, the generated project is
+// byte-stable across runs apart from hvigor's own scratch directories, which nothing is
+// packaged from. The debug server is added to the package from a directory beside the
+// generated project, so its staged content counts too - without it a package holding a
+// different lldb-server looks unchanged, and the install is skipped.
+static QString packagedContentFingerprint(const FilePath &project)
+{
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    if (!addTreeToHash(hash, project.pathAppended("entry")))
+        return {};
+    const FilePath staged = project.parentDir().pathAppended("harmonyos-hnp/server");
+    if (staged.isDir() && !addTreeToHash(hash, staged))
+        return {};
+    return QString::fromLatin1(hash.result().toHex());
+}
+
+// The note is three fields; all of them have to still hold for the package on the
+// device to be the one this step put there.
+static bool noteHolds(const QByteArray &note, const QString &serial, const QString &fingerprint,
+                      const QString &updated)
+{
+    if (fingerprint.isEmpty() || updated.isEmpty())
+        return false;
+
+    QHash<QString, QString> was;
+    for (const QString &line : QString::fromUtf8(note).split('\n', Qt::SkipEmptyParts)) {
+        const qsizetype at = line.indexOf('=');
+        if (at > 0)
+            was.insert(line.left(at), line.mid(at + 1));
+    }
+    return was.value("serial") == serial && was.value("package") == fingerprint
+           && was.value("updated") == updated;
+}
+
+// Empty when the device does not have the bundle at all, which is an answer too.
+static QString installedUpdateTime(const QString &serial, const QString &bundle)
+{
+    const FilePath hdc = Sdk::hdcCommand(settings().sdkLocation());
+    if (hdc.isEmpty() || bundle.isEmpty())
+        return {};
+
+    CommandLine cmd{hdc};
+    if (!serial.isEmpty())
+        cmd.addArgs({"-t", serial});
+    cmd.addArgs({"shell", "bm", "dump", "-n", bundle});
+
+    Process process;
+    process.setCommand(cmd);
+    process.setEnvironment(Sdk::hdcEnvironment());
+    process.runBlocking(std::chrono::seconds(5));
+
+    static const QRegularExpression re("\"updateTime\"\\s*:\\s*(\\d+)");
+    const QRegularExpressionMatch match = re.match(process.cleanedStdOut());
+    return match.hasMatch() ? match.captured(1) : QString();
+}
+
 // Installs the built .hap onto the connected device with hdc.
 class InstallHapStep final : public AbstractProcessStep
 {
@@ -904,6 +1010,10 @@ public:
     {
         setDisplayName(Tr::tr("Install HarmonyOS package with hdc"));
         setSummaryUpdater([] { return Tr::tr("<b>Install .hap on device with hdc</b>"); });
+
+        m_force.setSettingsKey("HarmonyOs.InstallHapStep.AlwaysInstall");
+        m_force.setLabel(forceInstallLabel(), BoolAspect::LabelPlacement::AtCheckBox);
+        m_force.setValue(false);
     }
 
 private:
@@ -929,17 +1039,20 @@ private:
         }
 
         m_hap = packageDir(bc).pathAppended(buildKey + ".hap");
-        const FilePath &hap = m_hap;
+        m_project = projectDir(bc);
+        m_bundle = bundleName(bc->buildDirectory());
+        m_serial.clear();
+        if (const auto device = std::dynamic_pointer_cast<const HarmonyOsDevice>(
+                RunDeviceKitAspect::device(kit()))) {
+            m_serial = device->serialNumber();
+        }
 
         // Target the run device explicitly so the right one is used when several
         // are connected.
         CommandLine cmd{hdc};
-        if (const auto device = std::dynamic_pointer_cast<const HarmonyOsDevice>(
-                RunDeviceKitAspect::device(kit()))) {
-            if (const QString serial = device->serialNumber(); !serial.isEmpty())
-                cmd.addArgs({"-t", serial});
-        }
-        cmd.addArgs({"install", hap.nativePath()});
+        if (!m_serial.isEmpty())
+            cmd.addArgs({"-t", m_serial});
+        cmd.addArgs({"install", m_hap.nativePath()});
         processParameters()->setCommandLine(cmd);
         processParameters()->setEnvironment(Sdk::hdcEnvironment());
         processParameters()->setWorkingDirectory(bc->buildDirectory());
@@ -965,6 +1078,14 @@ private:
                                OutputFormat::ErrorMessage);
                 return SetupResult::StopWithError;
             }
+            m_fingerprint = packagedContentFingerprint(m_project);
+            if (!m_force() && deviceHasThisPackage()) {
+                emit addOutput(Tr::tr("The device already has this package, so it was not "
+                                      "installed again. \"%1\" installs it regardless.")
+                                   .arg(forceInstallLabel()),
+                               OutputFormat::NormalMessage);
+                return SetupResult::StopWithSuccess;
+            }
             if (!setupProcess(process))
                 return SetupResult::StopWithError;
             m_output.clear();
@@ -983,13 +1104,48 @@ private:
                                OutputFormat::ErrorMessage);
                 return false;
             }
-            return handleProcessDone(process);
+            if (!handleProcessDone(process))
+                return false;
+            noteTheInstall();
+            return true;
         };
         return ProcessTask(onSetup, onDone);
     }
 
+    // Only what this step installed, on this device, and still untouched there. The
+    // device is asked last, being the only part that costs a round trip.
+    bool deviceHasThisPackage()
+    {
+        const Result<QByteArray> noted = installNote(m_hap).fileContents();
+        if (!noted || m_fingerprint.isEmpty())
+            return false;
+        return noteHolds(*noted, m_serial, m_fingerprint,
+                         installedUpdateTime(m_serial, m_bundle));
+    }
+
+    void noteTheInstall()
+    {
+        const QString updated = installedUpdateTime(m_serial, m_bundle);
+        if (m_fingerprint.isEmpty() || updated.isEmpty()) {
+            // Nothing to compare against next time, so let that run install again.
+            installNote(m_hap).removeFile();
+            return;
+        }
+        const QString note = "serial=" + m_serial + "\npackage=" + m_fingerprint
+                             + "\nupdated=" + updated + "\n";
+        if (const Result<qint64> written = installNote(m_hap).writeFileContents(note.toUtf8());
+            !written) {
+            emit addOutput(written.error(), OutputFormat::Stdout);
+        }
+    }
+
     FilePath m_hap;
+    FilePath m_project;
     QString m_output;
+    QString m_serial;
+    QString m_bundle;
+    QString m_fingerprint;
+    BoolAspect m_force{this};
 };
 
 class InstallHapStepFactory final : public BuildStepFactory
@@ -1115,6 +1271,40 @@ private slots:
         // The entry beside it, and the manifest around it, have to survive.
         QVERIFY(text(moduleJson).contains("ohos.permission.FILE_ACCESS_PERSIST"));
         QVERIFY(text(moduleJson).contains("\"mainElement\": \"QAbility\""));
+    }
+
+    void testInstallNote()
+    {
+        const QByteArray note = "serial=1.2.3.4:5\npackage=abc123\nupdated=1788191262345\n";
+        QVERIFY(noteHolds(note, "1.2.3.4:5", "abc123", "1788191262345"));
+        // Another device, another build, and a package that was replaced behind our back.
+        QVERIFY(!noteHolds(note, "9.9.9.9:9", "abc123", "1788191262345"));
+        QVERIFY(!noteHolds(note, "1.2.3.4:5", "def456", "1788191262345"));
+        QVERIFY(!noteHolds(note, "1.2.3.4:5", "abc123", "1788191262999"));
+        // No package on the device at all, which is what an empty update time means.
+        QVERIFY(!noteHolds(note, "1.2.3.4:5", "abc123", ""));
+        QVERIFY(!noteHolds("", "1.2.3.4:5", "abc123", "1788191262345"));
+    }
+
+    void testFingerprintCoversStagedServer()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath project = root.pathAppended("harmonyos-project");
+        QVERIFY(project.pathAppended("entry").ensureWritableDir());
+        QVERIFY(project.pathAppended("entry/module.json5").writeFileContents("{}"));
+        const QString bare = packagedContentFingerprint(project);
+        QVERIFY(!bare.isEmpty());
+
+        const FilePath staged = root.pathAppended("harmonyos-hnp/server/bin");
+        QVERIFY(staged.ensureWritableDir());
+        QVERIFY(staged.pathAppended("lldb-server").writeFileContents("one"));
+        const QString withServer = packagedContentFingerprint(project);
+        QVERIFY(withServer != bare);
+
+        QVERIFY(staged.pathAppended("lldb-server").writeFileContents("another"));
+        QVERIFY(packagedContentFingerprint(project) != withServer);
     }
 
     void testAddPermissionWithoutList()
