@@ -181,6 +181,8 @@ class DumperBase():
         self.allowInferiorCalls = False
         self.interpreterStepArmed = False
         self.pendingInterpreterBreakpoints = []
+        self.refusedInterpreterRequests = {}
+        self.interpreterRequestAttempts = {}
         self.qtLoaded = False
 
         # Defaults for the value-fetching options, so that an early
@@ -3000,19 +3002,34 @@ typename))
 
     def sendInterpreterRequest(self, command, args={}):
         encoded = json.dumps({'command': command, 'arguments': args})
+        attempt = self.interpreterRequestAttempts.get(command, 0) + 1
+        self.interpreterRequestAttempts[command] = attempt
+        # A refusal says which attempt it was, so a log answers "how often did
+        # the service refuse" without counting identical lines. The request
+        # itself names the file and line.
+        refused = 'Interpreter command failed on attempt %d: %s' % (attempt, encoded)
+        # A test switch for the retry path: refuse the first N requests of one
+        # kind, the way a service that is not up yet does.
+        refusals = os.environ.get('QTC_TEST_REFUSE_INTERPRETER_' + command.upper())
+        if refusals is not None:
+            forced = self.refusedInterpreterRequests.get(command, 0)
+            if forced < int(refusals):
+                self.refusedInterpreterRequests[command] = forced + 1
+                self.warn(refused)
+                return {}
         hexdata = self.hexencode(encoded)
         try:
             res = self.callServiceFunction('qt_qmlDebugSendDataToService',
                                            ['NativeQmlDebugger', hexdata])
         except RuntimeError as error:
-            self.warn('Interpreter command failed: %s: %s' % (encoded, error))
+            self.warn('%s: %s' % (refused, error))
             return {}
         except AttributeError as error:
             # Happens with LLDB and 'None' current thread.
-            self.warn('Interpreter command failed: %s: %s' % (encoded, error))
+            self.warn('%s: %s' % (refused, error))
             return {}
         if not res:
-            self.warn('Interpreter command failed: %s ' % encoded)
+            self.warn(refused)
             return {}
         return self.fetchInterpreterResult()
 

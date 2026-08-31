@@ -1873,8 +1873,14 @@ class InterpreterMessageBreakpoint(gdb.Breakpoint):
 
     def interpreterEventHandler(self):
         print('Interpreter event received.')
-        # Stay stopped if the interpreter reported a 'break' event.
-        return theDumper.handleInterpreterMessage()
+        # The message this stop is about has to be read first: a request sent
+        # before that would consume the answer it is waiting for.
+        stayStopped = theDumper.handleInterpreterMessage()
+        # A message also means the service is up and talking, which is a second
+        # chance for a breakpoint it refused earlier. Safe here: this runs from
+        # the stop handler, where inferior calls are allowed.
+        theDumper.resolvePendingInterpreterBreakpoints()
+        return stayStopped
 
 
 class ObjectAvailableBreakpoint(gdb.Breakpoint):

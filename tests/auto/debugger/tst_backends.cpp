@@ -731,7 +731,7 @@ private slots:
     void loadsAdditionalQmlStack();
     void fetchesQmlLocals_data() { addBackendRows(); }
     void fetchesQmlLocals();
-    void insertsQmlBreakpointAndStopsAtIt_data() { addBackendRows(); }
+    void insertsQmlBreakpointAndStopsAtIt_data();
     void insertsQmlBreakpointAndStopsAtIt();
     void insertsQmlBreakpointBeforeDumpersLoad_data() { addBackendRows(); }
     void insertsQmlBreakpointBeforeDumpersLoad();
@@ -905,6 +905,20 @@ void tst_backends::addBackendRows()
     QTest::addColumn<Backend>("backend");
     for (Backend backend : m_backendData.keys())
         QTest::newRow(qPrintable(backendName(backend))) << backend;
+}
+
+void tst_backends::insertsQmlBreakpointAndStopsAtIt_data()
+{
+    QTest::addColumn<Backend>("backend");
+    // The service can refuse a breakpoint until it is up, and the debugger has
+    // to keep trying. Two refusals need more than the first retry anchor, which
+    // is what the refused row is here to hold on to.
+    QTest::addColumn<int>("forcedRefusals");
+    for (Backend backend : m_backendData.keys()) {
+        const QString name = backendName(backend);
+        QTest::newRow(qPrintable(name)) << backend << 0;
+        QTest::newRow(qPrintable(name + "-refused-twice")) << backend << 2;
+    }
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
@@ -4896,6 +4910,7 @@ void tst_backends::fetchesQmlLocals()
 void tst_backends::insertsQmlBreakpointAndStopsAtIt()
 {
     QFETCH(Backend, backend);
+    QFETCH(int, forcedRefusals);
 
     if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -4917,7 +4932,15 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
 
     Environment env = Environment::systemEnvironment();
     env.set("QV4_FORCE_INTERPRETER", "1");
-    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+    // The switch is read by the dumpers, which run inside the debugger.
+    std::optional<ProcessRunData> debuggerRunData;
+    if (forcedRefusals > 0) {
+        Environment debuggerEnv = Environment::systemEnvironment();
+        debuggerEnv.set("QTC_TEST_REFUSE_INTERPRETER_SETBREAKPOINT",
+                        QString::number(forcedRefusals));
+        debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {}, debuggerEnv};
+    }
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, debuggerRunData,
         ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
                         {}, env}, true);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -4959,6 +4982,12 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
     QTRY_VERIFY2_WITH_TIMEOUT(hasResolvedQmlBreakpoint(modifiedReports, 42),
                               qPrintable(qmlResolutionDiagnosis(modifiedReports, wire)),
                               s_qmlStartupTimeout);
+
+    if (forcedRefusals > 0) {
+        // Resolving takes as many attempts as there were refusals, by which
+        // time the program has run past the line, so no stop can follow.
+        return;
+    }
 
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
                               qPrintable("the resolved QML breakpoint never signaled a stop"
