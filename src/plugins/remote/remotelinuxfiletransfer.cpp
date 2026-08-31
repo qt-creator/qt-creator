@@ -5,6 +5,7 @@
 
 #include "linuxdevice.h"
 #include "remotelinuxtr.h"
+#include "sshconnectionsharing.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
@@ -130,7 +131,7 @@ private:
                     this, &SshTransferInterface::handleDisconnected);
             auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device.lock());
             QTC_ASSERT(linuxDevice, startFailed("No Linux device"); return);
-            linuxDevice->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
+            Internal::attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
         } else {
             startImpl();
         }

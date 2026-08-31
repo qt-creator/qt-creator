@@ -55,6 +55,8 @@ QtcPlugin {
         "remotelinuxrunconfiguration.cpp",
         "remotelinuxrunconfiguration.h",
         "remotelinuxtr.h",
+        "sshconnectionsharing.cpp",
+        "sshconnectionsharing.h",
         "sshdevicewizard.cpp",
         "sshdevicewizard.h",
         "sshkeycreationdialog.cpp",

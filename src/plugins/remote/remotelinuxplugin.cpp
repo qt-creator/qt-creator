@@ -10,6 +10,7 @@
 #include "remotelinuxdeploysupport.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxtr.h"
+#include "sshconnectionsharing.h"
 #include "tarpackagecreationstep.h"
 #include "tarpackagedeploystep.h"
 #include "windowsdevice.h"
@@ -62,6 +63,7 @@ public:
 
     void initialize() final
     {
+        setupSshConnectionSharing();
         m_linuxDeviceFactory = std::make_unique<LinuxDeviceFactory>();
         m_windowsDeviceFactory = std::make_unique<WindowsDeviceFactory>();
         m_macDeviceFactory = std::make_unique<MacDeviceFactory>();

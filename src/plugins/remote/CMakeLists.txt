@@ -27,6 +27,7 @@ add_qtc_plugin(Remote
     remotelinuxplugin.cpp
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h
     remotelinuxtr.h
+    sshconnectionsharing.cpp sshconnectionsharing.h
     sshdevicewizard.cpp sshdevicewizard.h
     sshkeycreationdialog.cpp sshkeycreationdialog.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h

@@ -13,27 +13,6 @@
 namespace Utils { class ProcessResultData; }
 
 namespace Remote {
-namespace Internal {
-
-class SshConnectionHandle : public QObject
-{
-    Q_OBJECT
-
-public:
-    SshConnectionHandle(const ProjectExplorer::DeviceConstRef &device) : m_device(device) {}
-    ~SshConnectionHandle() override { emit detachFromSharedConnection(); }
-
-signals:
-    void connected(const QString &socketFilePath);
-    void disconnected(const Utils::ProcessResultData &result);
-
-    void detachFromSharedConnection();
-
-private:
-    ProjectExplorer::DeviceConstRef m_device;
-};
-
-} // Internal
 
 // ssh ProxyJump spec "[user@]host[:port]" for a device's "Access via" link
 // device, so ssh reaches the target through it. Empty for a direct connection.
@@ -82,9 +61,6 @@ public:
     void runAutoDetect(const ProjectExplorer::ToolDetectionLogger &logger,
                        const std::function<void()> &onDone) override;
     void closeConnection(bool announce) const;
-
-    void attachToSharedConnection(Internal::SshConnectionHandle *sshConnectionHandle,
-                                  const ProjectExplorer::SshParameters &sshParams) const;
 
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
