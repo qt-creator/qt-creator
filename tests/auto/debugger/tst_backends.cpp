@@ -25,6 +25,7 @@
 #include <csignal>
 #include <optional>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QEventLoop>
@@ -867,7 +868,8 @@ private:
     bool m_hasQtDeclarativeDebugInfo = false;
     bool m_hasNativeCallHook = false;
     FilePath m_inferiorLib;
-    QTemporaryDir m_tempDir;
+    QTemporaryDir m_tempDir = QTemporaryDir(QCoreApplication::applicationDirPath()
+                                            + "/qt_tst_backend_XXXXXX");
 };
 
 int tst_backends::qmlMarkerLine(const QString &relativePath, const QString &marker)
