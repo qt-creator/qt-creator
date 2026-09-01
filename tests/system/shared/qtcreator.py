@@ -39,7 +39,7 @@ source("../../shared/workarounds.py") # include this at last
 settingsPathsWithExplicitlyEnabledClangd = set()
 
 def __closeInfoBarEntry__(leftButtonText):
-    toolButton = ("text='%s' type='QToolButton' unnamed='1' visible='1' "
+    toolButton = ("text='%s' type='QToolButton' visible='1' "
                   "window=':Qt Creator_Core::Internal::MainWindow'")
     doNotShowAgain = toolButton % "Do Not Show Again"
     leftWidget = "leftWidget={%s}" % (toolButton % leftButtonText)
