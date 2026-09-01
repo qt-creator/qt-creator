@@ -690,7 +690,8 @@ void stopEtwSession(EtwCaptureContext &ctx)
 
 } // namespace
 
-Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic_bool &stop,
+Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
+                                   const std::function<bool()> &isCanceled,
                                    const std::function<void(int)> &reportProgress)
 {
     // Resolve target PID.
@@ -745,7 +746,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
     std::thread captureThread([&ctx] { runEtwCapture(ctx); });
 
     // Wait for stop signal from GUI thread.
-    while (!stop.load(std::memory_order_relaxed))
+    while (!isCanceled())
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // Stop the ETW session so ProcessTrace returns in the capture thread, then

@@ -81,7 +81,6 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
     std::atomic<qint64> pid = 0;
 
     // Runtime control and output.
-    std::atomic_bool stop = false;   // The GUI sets this to end recording.
     std::atomic<int> progress = 0;   // 0..100 post-processing percent.
     std::optional<Utils::Result<Utils::FilePath>> result; // Set on the GUI thread when done.
 
@@ -150,7 +149,7 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
     // finishing can end the other.
     void requestStop()
     {
-        stop.store(true);
+        m_stopRequested = true;
         // Taken by value and cleared first: stopping is a one-shot, and a
         // handler may start something that registers another.
         const std::vector<std::pair<QPointer<QObject>, std::function<void()>>> handlers
@@ -163,15 +162,15 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
             child->requestStop();
     }
 
-    // Runs `handler` when the recording is asked to stop. A capture whose work
-    // is driven by events on the GUI thread has no loop to notice the flag in,
-    // and this is what it hooks instead of watching it on a timer. As with a Qt
-    // connection, `context` bounds the handler's life.
+    // Runs `handler` when the recording is asked to stop: a capture driven by
+    // events hooks this to wind itself down, and one that samples in a loop of
+    // its own hooks it to cancel the task's promise, which is what that loop
+    // watches. As with a Qt connection, `context` bounds the handler's life.
     //
     // Registration and every stop request happen on the GUI thread.
     void onStopRequested(QObject *context, const std::function<void()> &handler)
     {
-        if (stop.load(std::memory_order_relaxed)) {
+        if (m_stopRequested) {
             // Already asked. Queued rather than called here, because the caller
             // is still building the task this belongs to -- a timer would not
             // have fired until after that either.
@@ -258,6 +257,11 @@ private:
     // Written by markStarted() and read through isStarted(), which is what a
     // composite has to answer for its sub-sessions rather than for itself.
     std::atomic_bool m_started = false;
+
+    // Only so a handler registered after the fact still runs. Nothing polls a
+    // stop any more: a capture with a loop of its own watches its task's
+    // promise, everyone else is called (see requestStop()).
+    bool m_stopRequested = false;
 
     std::vector<std::shared_ptr<RecordingSession>> m_children;
     std::weak_ptr<RecordingSession> m_parent;
@@ -375,8 +379,8 @@ public:
 
     // The complete recipe that records the target described by `session`: it
     // prepares and launches session->launchCommand (when set) and captures the
-    // target until session->stop, storing its Result into session->result when
-    // done. Concrete: it calls prepareLaunch() and then wraps captureRecipe() in
+    // target until a stop is requested, storing its Result into session->result
+    // when done. Concrete: it calls prepareLaunch() and then wraps captureRecipe() in
     // launchThenCapture(), so the caller never needs to know how a particular
     // backend starts its target. Backends customise the two hooks below.
     QtTaskTree::ExecutableItem recordRecipe(
@@ -390,7 +394,7 @@ public:
     virtual void prepareLaunch(const std::shared_ptr<RecordingSession> &session) const;
 
     // The capture portion of the recipe, run after the target (if any) is
-    // launched. Reads session->pid / session->serverUrl / session->stop and
+    // launched. Reads session->pid / session->serverUrl and
     // stores the trace path into session->result. recordRecipe() wraps this in
     // launchThenCapture(); a composite backend calls it directly for each
     // backend it wraps.

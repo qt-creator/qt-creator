@@ -11,13 +11,17 @@
 
 #include "profilertr.h"
 
+#include <utils/async.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/layoutbuilder.h>
 #include <utils/processinfo.h>
 #include <utils/qtdesignwidgets.h>
 
+#include <QFutureWatcher>
 #include <QGuiApplication>
+#include <QPromise>
 
-#include <QtTaskTree/QThreadFunction>
+#include <QtTaskTree/QBarrier>
 
 #include <memory>
 #include <optional>
@@ -30,7 +34,7 @@ namespace Profiler::Internal {
 #if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
 // No sampling backend on this platform. isAvailable() already reports that, but
 // captureRecipe() still has to compile.
-static Result<FilePath> recordSampleTrace(const SamplerOptions &, const std::atomic_bool &,
+static Result<FilePath> recordSampleTrace(const SamplerOptions &, const std::function<bool()> &,
                                           const std::function<void(int)> &)
 {
     return ResultError(Tr::tr("Call-stack sampling is only implemented on macOS and Windows."));
@@ -159,28 +163,59 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
     // backend that drives this capture), so the sampling worker can read it.
     const int intervalUs = session->intervalUs;
 
-    const auto onSetup = [session, intervalUs](QThreadFunction<Result<FilePath>> &sampling) {
-        // recordSampleTrace blocks until session->stop is set, so it runs on a
-        // worker thread; the target stays alive (the launched process is only
-        // terminated once this task finishes) so it can still be symbolized.
-        sampling.setThreadFunctionData([session, intervalUs] {
+    // Where the worker leaves the trace it captured. Not the promise's own
+    // result channel: stopping cancels the promise, and Qt drops a result added
+    // to a cancelled future -- while the whole point of stopping is to keep
+    // what was recorded until then. Nor the recipe's Storage, which is gone
+    // once the tree is: a capture abandoned at shutdown may still be writing.
+    auto captured = std::make_shared<std::optional<Result<FilePath>>>();
+
+    const auto onSetup = [session, intervalUs, captured](QBarrier &barrier) {
+        QBarrier *b = &barrier;
+
+        // recordSampleTrace samples until its promise is cancelled, so it runs
+        // on a worker thread; the target stays alive (the launched process is
+        // only terminated once this task finishes) so it can still be
+        // symbolized.
+        QFuture<void> capture = Utils::asyncRun(
+            [session, intervalUs, captured](QPromise<void> &promise) {
             SamplerOptions opts;
             opts.pid = session->pid.load();
             opts.processName = session->processName;
             opts.intervalUs = intervalUs;
             session->markStarted(); // capture is live; the duration clock can start
-            // Reported from this worker thread; the session queues it onto the
-            // GUI thread, so the frontend hears it without watching for it.
-            return recordSampleTrace(opts, session->stop,
-                                     [session](int percent) { session->setProgress(percent); });
+            // Progress is reported from this worker thread; the session queues
+            // it onto the GUI thread, so the frontend hears it without watching.
+            *captured = recordSampleTrace(opts,
+                                          [&promise] { return promise.isCanceled(); },
+                                          [session](int percent) { session->setProgress(percent); });
         });
+
+        // Owned by the barrier, so it goes exactly when this task does.
+        auto *watcher = new QFutureWatcher<void>(b);
+        QObject::connect(watcher, &QFutureWatcherBase::finished, b, [b, session, captured] {
+            // However the capture ended, what it wrote is what the recording
+            // produced -- and ending it is not a failure, so the task finishes
+            // with success and the rest of the recipe follows.
+            if (captured->has_value())
+                session->result = *captured;
+            b->advance();
+        });
+        watcher->setFuture(capture);
+
+        // Stopping cancels the future the sampling loop watches: it winds down,
+        // writes what it has, and the handler above ends this task.
+        session->onStopRequested(b, [watcher] { watcher->cancel(); });
+
+        // A tree torn down mid-capture (see ProfilerRecorder::stopAndWait) does
+        // not wait for the worker, so tell it to stop on the way out.
+        QObject::connect(b, &QObject::destroyed, [capture]() mutable { capture.cancel(); });
+
+        // And whatever is still running at shutdown is cancelled and waited for
+        // here, as QThreadFunction's own synchronizer used to do.
+        Utils::futureSynchronizer()->addFuture(capture);
     };
-    const auto onDone = [session](const QThreadFunction<Result<FilePath>> &sampling,
-                                  DoneWith result) {
-        if (result != DoneWith::Cancel)
-            session->result = sampling.result();
-    };
-    return QThreadFunctionTask<Result<FilePath>>(onSetup, onDone);
+    return QBarrierTask(onSetup);
 }
 
 } // namespace Profiler::Internal

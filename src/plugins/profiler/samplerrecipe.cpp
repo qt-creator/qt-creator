@@ -26,7 +26,7 @@ QtTaskTree::Group launchThenCapture(const std::shared_ptr<RecordingSession> &ses
 
     // Launch the chosen command, then capture it once it is running. The process
     // and the capture run in parallel; the capture keeps the target alive until it
-    // has finished. If the target exits on its own, session->stop is set so the
+    // has finished. If the target exits on its own, a stop is requested so the
     // trace is still written.
     const CommandLine cmd = *session->launchCommand;
     const FilePath workingDir = session->launchWorkingDir;

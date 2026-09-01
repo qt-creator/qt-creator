@@ -141,7 +141,7 @@ void walkThread(task_t task, thread_act_t thread, Sample &sample)
     }
 }
 
-// Samples the target until `stop` is set or it exits, resolving each stack into
+// Samples the target until cancelled or it exits, resolving each stack into
 // trace labels via `labeler` as it is taken (so symbolication happens while the
 // target is alive) and appending the result to `data`.
 //
@@ -152,7 +152,7 @@ void walkThread(task_t task, thread_act_t thread, Sample &sample)
 // zero rather than this call's: a capture that starts over after an exec has to
 // stay on the timeline the caller anchored, or a combined recording could not
 // line the two traces up (see RecordingSession::markStarted).
-bool capture(task_t task, const SamplerOptions &opts, const std::atomic_bool &stop,
+bool capture(task_t task, const SamplerOptions &opts, const std::function<bool()> &isCanceled,
              SampleTraceData &data, LiveLabeler &labeler, quint64 startNs)
 {
     std::vector<Sample> tick; // raw stacks gathered during one suspend window
@@ -165,7 +165,7 @@ bool capture(task_t task, const SamplerOptions &opts, const std::atomic_bool &st
     constexpr size_t kMaxSampleBytes = 512ull * 1024 * 1024;
     size_t sampleBytes = 0;
 
-    while (!stop.load(std::memory_order_relaxed)) {
+    while (!isCanceled()) {
         const quint64 elapsedNs = nowNs() - startNs;
 
         thread_act_array_t threads = nullptr;
@@ -287,7 +287,8 @@ Result<task_t> waitForNewTask(pid_t pid)
 
 } // namespace
 
-Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic_bool &stop,
+Result<FilePath> recordSampleTrace(const SamplerOptions &opts,
+                                   const std::function<bool()> &isCanceled,
                                    const std::function<void(int)> &reportProgress)
 {
     pid_t pid = 0;
@@ -323,11 +324,11 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
         // capture ends.
         Symbolicator symbolicator(task);
         LiveLabeler labeler(task, symbolicator, data);
-        const bool taskGone = capture(task, opts, stop, data, labeler, startNs);
+        const bool taskGone = capture(task, opts, isCanceled, data, labeler, startNs);
 
         mach_port_deallocate(mach_task_self(), task);
 
-        if (!taskGone || stop.load(std::memory_order_relaxed) || !isProcessAlive(pid))
+        if (!taskGone || isCanceled() || !isProcessAlive(pid))
             break;
         taskResult = waitForNewTask(pid);
         if (!taskResult)

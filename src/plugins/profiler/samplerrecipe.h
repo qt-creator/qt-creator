@@ -15,7 +15,7 @@ namespace Profiler::Internal {
 // Composes process launching around a backend's capture item. When
 // session->launchCommand is set, it launches that command, runs `capture` once
 // the process has started, and terminates the process when capture finishes.
-// If the target exits on its own before capture is stopped, session->stop is set
+// If the target exits on its own before capture is stopped, a stop is requested
 // so the in-progress trace is still written. When there is no launch command
 // (attach or connect), this is just Group{capture}.
 //
