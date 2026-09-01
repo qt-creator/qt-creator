@@ -15,13 +15,18 @@
 #include <QtTaskTree/QTaskTree>
 
 #include <QMutex>
+#include <QPointer>
 #include <QString>
 #include <QUrl>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <optional>
+#include <utility>
+#include <vector>
 
 namespace Profiler::Internal {
 
@@ -93,8 +98,83 @@ struct RecordingSession
 
     DebugInfoDownload debugInfoDownload() const
     {
+        for (const std::shared_ptr<RecordingSession> &child : m_children) {
+            const DebugInfoDownload download = child->debugInfoDownload();
+            if (download.percent >= 0)
+                return download;
+        }
         QMutexLocker lock(&m_debugInfoDownloadMutex);
         return m_debugInfoDownload;
+    }
+
+    // A composite backend captures through one sub-session per side (see
+    // CombinedSampler). Registering them here is what lets one stop request
+    // reach every capture, and lets the parent answer for the whole recording
+    // when the GUI asks -- both without a timer copying state across.
+    //
+    // Called while the recipe is built, before any capture runs, and only from
+    // the GUI thread, as every stop request is.
+    void addSubSession(const std::shared_ptr<RecordingSession> &child)
+    {
+        m_children.push_back(child);
+    }
+
+    // Ends the recording: the captures wind down and write what they have.
+    // Cascades, so stopping a composite stops both its sides, and one side
+    // finishing can end the other.
+    void requestStop()
+    {
+        stop.store(true);
+        // Taken by value and cleared first: stopping is a one-shot, and a
+        // handler may start something that registers another.
+        const std::vector<std::pair<QPointer<QObject>, std::function<void()>>> handlers
+            = std::exchange(m_stopHandlers, {});
+        for (const auto &[context, handler] : handlers) {
+            if (context)
+                handler();
+        }
+        for (const std::shared_ptr<RecordingSession> &child : m_children)
+            child->requestStop();
+    }
+
+    // Runs `handler` when the recording is asked to stop. A capture whose work
+    // is driven by events on the GUI thread has no loop to notice the flag in,
+    // and this is what it hooks instead of watching it on a timer. As with a Qt
+    // connection, `context` bounds the handler's life.
+    //
+    // Registration and every stop request happen on the GUI thread.
+    void onStopRequested(QObject *context, const std::function<void()> &handler)
+    {
+        if (stop.load(std::memory_order_relaxed)) {
+            // Already asked. Queued rather than called here, because the caller
+            // is still building the task this belongs to -- a timer would not
+            // have fired until after that either.
+            QMetaObject::invokeMethod(context, handler, Qt::QueuedConnection);
+            return;
+        }
+        m_stopHandlers.emplace_back(context, handler);
+    }
+
+    // Whether capture is live. A composite is only live once both its sides
+    // are: until then a timed recording's clock must not start.
+    bool isStarted() const
+    {
+        if (m_children.empty())
+            return started.load(std::memory_order_relaxed);
+        return std::all_of(m_children.cbegin(), m_children.cend(),
+                           [](const std::shared_ptr<RecordingSession> &child) {
+                               return child->isStarted();
+                           });
+    }
+
+    // 0..100 for the progress bar. A composite sets this to say how its sides'
+    // progress adds up to the whole, which only it knows: the captures are one
+    // phase of it, whatever it does with their results is another.
+    std::function<int()> progressProvider;
+
+    int progressPercent() const
+    {
+        return progressProvider ? progressProvider() : progress.load(std::memory_order_relaxed);
     }
 
     // Monotonic instant (steady_clock, microseconds) at which the backend went
@@ -122,6 +202,9 @@ private:
     // while the GUI polls, and the percentage and the URL have to agree.
     mutable QMutex m_debugInfoDownloadMutex;
     DebugInfoDownload m_debugInfoDownload;
+
+    std::vector<std::shared_ptr<RecordingSession>> m_children;
+    std::vector<std::pair<QPointer<QObject>, std::function<void()>>> m_stopHandlers;
 };
 
 // Backend-specific recording settings. Besides holding the options, it renders its

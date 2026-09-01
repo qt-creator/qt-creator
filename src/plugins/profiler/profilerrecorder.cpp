@@ -82,7 +82,6 @@ public:
     int downloadPolls = 0;                        // Consecutive polls seeing a download.
     static constexpr int downloadPollsBeforeReporting = 6; // ~300 ms at a 50 ms poll.
     bool recording = false;
-    bool processingShown = false;         // processingStarted() already emitted.
     bool waitingForShutdown = false;      // Set while stopAndWait() runs.
     std::optional<milliseconds> duration; // Set by startTimed(); auto-stop span.
     bool durationArmed = false;           // Stop timer armed once capture went live.
@@ -121,22 +120,16 @@ ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
     connect(&poll, &QTimer::timeout, this, [this] {
         if (!session)
             return;
-        // The recipe (or the user) may set stop on its own, e.g. because the
-        // target exited; reflect the switch to post-processing exactly once.
-        if (session->stop.load(std::memory_order_relaxed) && !processingShown) {
-            processingShown = true;
-            emit q->processingStarted();
-        }
         // For startTimed(): once capture is actually live, start the span clock
         // exactly once, so launch and connect time is not counted against it.
-        if (duration && !durationArmed && session->started.load(std::memory_order_relaxed)) {
+        if (duration && !durationArmed && session->isStarted()) {
             durationArmed = true;
             QTimer::singleShot(*duration, this, [this] {
                 if (session)
-                    session->stop.store(true);
+                    session->requestStop();
             });
         }
-        emit q->progressChanged(session->progress.load(std::memory_order_relaxed));
+        emit q->progressChanged(session->progressPercent());
 
         // A debug-info download holds up post-processing without moving the
         // progress bar, for as long as the server takes to answer -- which may be
@@ -188,8 +181,11 @@ Sampler *ProfilerRecorderPrivate::backendById(Id id) const
 void ProfilerRecorderPrivate::startRecording(const QString &target)
 {
     recording = true;
-    processingShown = false;
     downloadPolls = 0;
+    // The recipe (or the user) ends the capture; either way that is the switch
+    // from recording to post-processing. Reported from the request itself, so
+    // nothing has to watch the flag for it.
+    session->onStopRequested(this, [this] { emit q->processingStarted(); });
     emit q->started(target);
     poll.start();
 }
@@ -424,7 +420,7 @@ void ProfilerRecorder::endRunControlRecording(const std::shared_ptr<RecordingSes
 void ProfilerRecorder::stop()
 {
     if (d->session)
-        d->session->stop.store(true);
+        d->session->requestStop();
 }
 
 void ProfilerRecorder::stopAndWait()
@@ -437,7 +433,7 @@ void ProfilerRecorder::stopAndWait()
 
     // Ask the capture to end on its own terms first: the sampling worker polls
     // this flag, and perf's recipe stops "perf record" by it.
-    d->session->stop.store(true);
+    d->session->requestStop();
 
     // A capture the run machinery drives winds down with its run control, which
     // is not ours to end. Both callers are shutting down, so nothing follows

@@ -16,12 +16,9 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 
-#include <QtTaskTree/QBarrier>
-
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QTimer>
 
 using namespace QtTaskTree;
 using namespace Utils;
@@ -232,6 +229,26 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
     qmlChild->requestedFeatures = parent->requestedFeatures; // QML feature toggles
     nativeChild->intervalUs = parent->intervalUs;            // native sampler cadence
 
+    // With the two registered, a stop request reaches both, and the parent
+    // answers for them when the GUI asks whether capture is live or how far
+    // post-processing has come.
+    parent->addSubSession(qmlChild);
+    parent->addSubSession(nativeChild);
+
+    // Post-processing has two phases -- the captures' own symbolicating and
+    // writing, then the merge below -- and they share one bar, so each drives
+    // half of it rather than both running 0..100. The merge reports into the
+    // parent's own counter once it starts; until then the captures own the bar.
+    // The parent's own counter is taken by pointer, not through the session:
+    // this lambda lives on that session, so capturing it would be a cycle.
+    parent->progressProvider = [qmlChild, nativeChild, mergeProgress = &parent->progress] {
+        const int merge = mergeProgress->load(std::memory_order_relaxed);
+        if (merge > 0)
+            return merge;
+        return qMax(qmlChild->progress.load(std::memory_order_relaxed),
+                    nativeChild->progress.load(std::memory_order_relaxed)) / 2;
+    };
+
     // The capture only runs once the target has started (see launchThenCapture),
     // so by now the parent knows its pid and which debug server it came up on.
     // Neither is known when this recipe is built, so both are copied to the
@@ -243,42 +260,6 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
         qmlChild->processName = parent->processName;
         nativeChild->processName = parent->processName;
         qmlChild->serverUrl = parent->serverUrl;
-    };
-
-    // Runs in parallel with the two captures: forwards the GUI's stop request (and
-    // stops the other side once either finishes), mirrors combined progress and
-    // "started" state onto the parent, and completes once both have a result.
-    const auto onForwardSetup = [parent, qmlChild, nativeChild](QBarrier &barrier) {
-        QBarrier *b = &barrier;
-        auto *poll = new QTimer(b);
-        poll->setInterval(50);
-        QObject::connect(poll, &QTimer::timeout, b, [b, parent, qmlChild, nativeChild, poll] {
-            const bool eitherDone = qmlChild->result.has_value() || nativeChild->result.has_value();
-            if (parent->stop.load() || eitherDone) {
-                qmlChild->stop.store(true);
-                nativeChild->stop.store(true);
-            }
-            if (qmlChild->started.load() && nativeChild->started.load())
-                parent->started.store(true);
-            // Post-processing has two phases -- the captures' own symbolicating
-            // and writing, then the merge below -- and they share one bar, so
-            // each drives half of it rather than both running 0..100.
-            parent->progress.store(qMax(qmlChild->progress.load(), nativeChild->progress.load()) / 2,
-                                   std::memory_order_relaxed);
-            // Only the native capture ever reports a debug-info download, and
-            // the GUI watches the parent.
-            const RecordingSession::DebugInfoDownload download
-                = nativeChild->debugInfoDownload();
-            if (download.percent < 0)
-                parent->clearDebugInfoDownload();
-            else
-                parent->setDebugInfoDownload(download.percent, download.url);
-            if (qmlChild->result.has_value() && nativeChild->result.has_value()) {
-                poll->stop();
-                b->advance();
-            }
-        });
-        poll->start();
     };
 
     const auto assemble = [parent, qmlChild, nativeChild] {
@@ -313,9 +294,14 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
         Group {
             parallel,
             finishAllAndSuccess,
-            m_qml->captureRecipe(qmlChild),
-            m_native->captureRecipe(nativeChild),
-            QBarrierTask(onForwardSetup),
+            // Neither side is worth recording without the other, so whichever
+            // ends first ends the recording -- the request cascades through the
+            // parent to both. Not a cancel: a capture that is asked to stop
+            // still writes what it has, which is the trace half we need.
+            Group { m_qml->captureRecipe(qmlChild),
+                    onGroupDone([parent] { parent->requestStop(); }) },
+            Group { m_native->captureRecipe(nativeChild),
+                    onGroupDone([parent] { parent->requestStop(); }) },
         },
         QSyncTask(assemble),
         QTaskTreeTask(onMergeSetup),

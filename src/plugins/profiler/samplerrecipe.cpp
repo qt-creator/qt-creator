@@ -65,7 +65,7 @@ QtTaskTree::Group launchThenCapture(const std::shared_ptr<RecordingSession> &ses
         // If the target exited before the user stopped recording, end the capture
         // so the trace is written; if it is being torn down because the capture
         // already finished, this is a no-op for the backend.
-        session->stop.store(true);
+        session->requestStop();
     };
     // Once the capture is done (Stop pressed or the target exited), terminate the
     // launched process so its parallel task ends and the recording can finish.

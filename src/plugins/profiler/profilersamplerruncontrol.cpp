@@ -85,7 +85,7 @@ static Group samplerRecipe(RunControl *runControl, Id backendId)
         // The target may finish on its own; end the capture so that what it
         // recorded until then is still written.
         QObject::connect(&process, &Process::done, &process, [session] {
-            session->stop.store(true);
+            session->requestStop();
         });
     };
 
@@ -95,7 +95,7 @@ static Group samplerRecipe(RunControl *runControl, Id backendId)
     // collect over its debug connection. The process is stopped below, once the
     // capture is done with it.
     QObject::connect(runControl, &RunControl::canceled, runControl, [session = *session] {
-        session->stop.store(true);
+        session->requestStop();
     });
 
     // The group below unwinds the recording when it finishes, but it never runs

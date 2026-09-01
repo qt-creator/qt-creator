@@ -21,7 +21,6 @@
 
 #include <QDataStream>
 #include <QPointer>
-#include <QTimer>
 #include <QtEndian>
 
 #include <optional>
@@ -567,17 +566,12 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
             recordOutcome->stdErr.append(QString::fromLocal8Bit(p->readAllRawStandardError()));
         });
 
-        // Polls session->stop (set by the "Stop Recording" button) and asks
-        // perf record to finish; there is no signal to hook for this since the
-        // whole recipe is event-driven on the GUI thread (unlike
-        // CallStackSampler's worker-thread loop, which polls the same flag).
-        auto *stopPoll = new QTimer(&process);
-        stopPoll->setInterval(50);
-        QObject::connect(stopPoll, &QTimer::timeout, &process, [session, p = &process] {
-            if (session->stop.load(std::memory_order_relaxed))
-                p->stop();
-        });
-        stopPoll->start();
+        // Asks "perf record" to finish when the recording is stopped. This
+        // recipe is event-driven on the GUI thread and has no loop of its own
+        // to notice the flag in (unlike CallStackSampler's worker-thread loop),
+        // so it hooks the request instead. The process is the context, so the
+        // handler goes away with the task.
+        session->onStopRequested(&process, [p = &process] { p->stop(); });
 
         QObject::connect(&process, &Process::readyReadStandardOutput, &process,
                          [p = &process, parserProcessPtr] {

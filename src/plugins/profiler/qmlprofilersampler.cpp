@@ -23,7 +23,6 @@
 #include <QtTaskTree/QBarrier>
 
 #include <QDebug>
-#include <QTimer>
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
@@ -278,18 +277,13 @@ ExecutableItem QmlProfilerSampler::captureRecipe(const std::shared_ptr<Recording
         m_clientManager->connectToServer();
         m_stateManager->setClientRecording(true);
 
-        // The GUI thread owns session->stop; poll it and translate a stop request
-        // into "stop recording", which makes the server send its final trace.
-        auto *poll = new QTimer(b);
-        poll->setInterval(50);
-        QObject::connect(poll, &QTimer::timeout, b, [this, session, poll] {
-            if (!session->stop.load())
-                return;
-            poll->stop();
+        // Translate a stop request into "stop recording", which makes the
+        // server send its final trace. The barrier is the context, so the
+        // handler lasts exactly as long as this capture.
+        session->onStopRequested(b, [this] {
             m_stateManager->setClientRecording(false);
             m_clientManager->stopRecording();
         });
-        poll->start();
     };
 
     const auto onDone = [this] {
