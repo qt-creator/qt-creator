@@ -173,7 +173,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
         }
         return true;
     };
-    data.extraCapabilities = DebuggerExtraCapability::LibraryEvent
+    data.extraCapabilities = DebuggerExtraCapability::Detach
+                           | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess;
@@ -262,9 +263,13 @@ void CdbImpl::start()
 
 void CdbImpl::shutdownInferior(ShutdownMode mode)
 {
-    Q_UNUSED(mode)
-    if (m_cdbProc.isRunning())
+    if (m_cdbProc.isRunning()) {
+        // Quitting takes the debuggee down with it, so let go of it first.
+        if (mode == ShutdownMode::Detach)
+            runCommand({".detach", NoFlags});
+        m_shuttingDown = true;
         m_cdbProc.write("q\n");
+    }
     emit inferiorEvent(InferiorEvent::ShutdownFinished);
 }
 
@@ -400,8 +405,13 @@ void CdbImpl::execute(const ExecutionRequest &request)
         if (!m_lastDebuggableCommand.function.isEmpty())
             runCommand(m_lastDebuggableCommand);
         break;
-    case ExecutionCommand::Return:
     case ExecutionCommand::Detach:
+        runCommand({".detach", BuiltinCommand, [this](const DebuggerResponse &) {
+            m_inferiorRunning = false;
+            emit inferiorDone({0, InferiorExitStatus::Detached});
+        }});
+        break;
+    case ExecutionCommand::Return:
     case ExecutionCommand::RecordReverse:
         emit message("CdbImpl: execution command not implemented.", LogWarning);
         break;
