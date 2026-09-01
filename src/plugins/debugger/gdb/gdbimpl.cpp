@@ -98,7 +98,13 @@ static DebuggerEngineSetupData gdbImplSetupData()
                            | DebuggerExtraCapability::RunCommandDeferral
                            | DebuggerExtraCapability::SignalReceived
                            | DebuggerExtraCapability::SourceFiles
-                           | DebuggerExtraCapability::Threads;
+                           | DebuggerExtraCapability::Threads
+                           | DebuggerExtraCapability::BreakOnMain
+                           | DebuggerExtraCapability::SpecialBreakpoints
+                           | DebuggerExtraCapability::SkipKnownFrames
+                           | DebuggerExtraCapability::JumpTargetCheck
+                           | DebuggerExtraCapability::PeripheralRegisters
+                           | DebuggerExtraCapability::ContinueAfterAttach;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToTerminalStub

@@ -93,12 +93,19 @@ Q_ENUM_NS(DebuggerCapabilities)
 
 enum class DebuggerExtraCapability : unsigned
 {
-    Detach             = 1u << 0,
-    LibraryEvent       = 1u << 1,
-    RunCommandDeferral = 1u << 2,
-    SignalReceived     = 1u << 3,
-    SourceFiles        = 1u << 4,
-    Threads            = 1u << 5
+    Detach               = 1u << 0,
+    LibraryEvent         = 1u << 1,
+    RunCommandDeferral   = 1u << 2,
+    SignalReceived       = 1u << 3,
+    SourceFiles          = 1u << 4,
+    Threads              = 1u << 5,
+    BreakOnMain          = 1u << 6,
+    StopBeforeRun        = 1u << 7,
+    SpecialBreakpoints   = 1u << 8, // Breaking on abort(), qWarning(), qFatal().
+    SkipKnownFrames      = 1u << 9,
+    JumpTargetCheck      = 1u << 10, // Refusing a jump to a line of several locations.
+    PeripheralRegisters  = 1u << 11,
+    ContinueAfterAttach  = 1u << 12
 };
 Q_DECLARE_FLAGS(DebuggerExtraCapabilities, DebuggerExtraCapability)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebuggerExtraCapabilities)

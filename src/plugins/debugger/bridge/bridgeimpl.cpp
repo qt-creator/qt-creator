@@ -119,6 +119,8 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                       | RegisterCapability | ShowMemoryCapability | DisassemblerCapability
                       | OperateByInstructionCapability | JumpToLineCapability
                       | WatchpointByAddressCapability | WatchpointByExpressionCapability;
+    data.extraCapabilities = DebuggerExtraCapability::JumpTargetCheck
+                           | DebuggerExtraCapability::PeripheralRegisters;
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {

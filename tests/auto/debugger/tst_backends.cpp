@@ -172,6 +172,10 @@ struct InferiorTestData
     // "gdbserver --multi" - so its stub has to own the process from the start.
     bool remoteStubHostsProcess = false;
     QString enableToggleWireMarker;
+    // Whether the backend's bridge resolves a QML breakpoint through casts on
+    // the debug service, rather than marshalling the arguments and calling by
+    // address the way the cdb one does.
+    bool qmlBreakpointsUseServiceCasts = false;
     QString disassemblySourceMarker;
     QString alienBreakpointCommand;
     QString alienBreakpointDeleteCommand;
@@ -593,55 +597,6 @@ static QString realTracepointMarker(Backend backend)
     return {};
 }
 
-// A backend that reports the attach as a stop can be asked to resume from it.
-static bool continuesAfterAttachOnRequest(Backend backend)
-{
-    switch (backend) {
-    case Backend::Gdb:
-        return true;
-    case Backend::Lldb:
-    case Backend::Bridge:
-    case Backend::Cdb:
-    case Backend::Pdb:
-    case Backend::Qml:
-        break;
-    }
-    return false;
-}
-
-// The function a backend can be asked to stop at before the inferior runs.
-static QString mainFunctionMarker(Backend backend)
-{
-    switch (backend) {
-    case Backend::Gdb:
-    case Backend::Lldb:
-        return "main";
-    case Backend::Cdb:
-    case Backend::Pdb:
-    case Backend::Qml:
-    case Backend::Bridge:
-        break;
-    }
-    return {};
-}
-
-// A backend that stops before the program runs at all, rather than at a
-// named function: pdb stops on the script's first line by itself.
-static bool stopsBeforeRunning(Backend backend)
-{
-    switch (backend) {
-    case Backend::Pdb:
-        return true;
-    case Backend::Gdb:
-    case Backend::Lldb:
-    case Backend::Cdb:
-    case Backend::Qml:
-    case Backend::Bridge:
-        break;
-    }
-    return false;
-}
-
 // The marker a backend logs per command when time stamps are configured.
 static QString responseTimeMarker(Backend backend)
 {
@@ -658,22 +613,6 @@ static QString responseTimeMarker(Backend backend)
     return {};
 }
 
-// Only GdbImpl steps past a frame the user did not ask to see so far.
-static bool skipsKnownFrames(Backend backend)
-{
-    switch (backend) {
-    case Backend::Gdb:
-        return true;
-    case Backend::Lldb:
-    case Backend::Cdb:
-    case Backend::Pdb:
-    case Backend::Qml:
-    case Backend::Bridge:
-        break;
-    }
-    return false;
-}
-
 static bool limitsStackDepth(Backend backend)
 {
     switch (backend) {
@@ -683,23 +622,6 @@ static bool limitsStackDepth(Backend backend)
         return true;
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Bridge:
-        break;
-    }
-    return false;
-}
-
-// createSpecialBreakpoints() is a gdb-bridge feature; no other bridge implements
-// it, so nothing there can break on abort, qWarning or qFatal.
-static bool breaksOnSpecialFunctions(Backend backend)
-{
-    switch (backend) {
-    case Backend::Gdb:
-        return true;
-    case Backend::Lldb:
-    case Backend::Pdb:
-    case Backend::Qml:
-    case Backend::Cdb:
     case Backend::Bridge:
         break;
     }
@@ -1165,6 +1087,8 @@ private:
     bool hasExtraCapability(Backend backend, Debugger::DebuggerExtraCapability capability);
     bool hasStartMode(Backend backend, DebuggerStartModeFlag startMode);
     Utils::Result<> checkStartMode(Backend backend, DebuggerStartModeFlag startMode);
+    Utils::Result<> checkAcceptsBreakpoint(Backend backend, BreakpointType type,
+                                          const QString &description);
     Utils::Result<> checkCapability(Backend backend, Debugger::DebuggerCapabilities capability);
     Utils::Result<> checkExtraCapability(Backend backend, Debugger::DebuggerExtraCapability capability);
     Utils::Result<> checkAcceptsCppAndQmlBreakpoints(Backend backend);
@@ -1873,12 +1797,14 @@ void tst_backends::initTestCase()
     if (m_backendData.contains(Backend::Gdb)) {
         m_backendData[Backend::Bridge] = m_backendData[Backend::Gdb];
         m_backendData[Backend::Bridge].inferiorData = cppInferiorData;
+        m_backendData[Backend::Bridge].inferiorData.qmlBreakpointsUseServiceCasts = true;
         m_backendData[Backend::Bridge].inferiorData.versionLine = gdbVersionLine;
         m_backendData[Backend::Bridge].inferiorData.moduleListMarker = "libc";
         m_backendData[Backend::Bridge].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
         m_backendData[Backend::Bridge].inferiorData.answersRedundantContinue = true;
 
         m_backendData[Backend::Gdb].inferiorData = cppInferiorData;
+        m_backendData[Backend::Gdb].inferiorData.qmlBreakpointsUseServiceCasts = true;
         m_backendData[Backend::Gdb].inferiorData.longTextSymbol = "longText";
         m_backendData[Backend::Gdb].inferiorData.versionLine = gdbVersionLine;
         m_backendData[Backend::Gdb].inferiorData.moduleListMarker = "libc";
@@ -1889,6 +1815,7 @@ void tst_backends::initTestCase()
     }
     if (m_backendData.contains(Backend::Lldb)) {
         m_backendData[Backend::Lldb].inferiorData = cppInferiorData;
+        m_backendData[Backend::Lldb].inferiorData.qmlBreakpointsUseServiceCasts = true;
         m_backendData[Backend::Lldb].inferiorData.longTextSymbol = "longText";
         m_backendData[Backend::Lldb].inferiorData.answersRedundantContinue = true;
         m_backendData[Backend::Lldb].inferiorData.remoteAttachMinMajorVersion = 21;
@@ -2185,6 +2112,21 @@ Utils::Result<> tst_backends::checkStartMode(Backend backend, DebuggerStartModeF
     return Utils::ResultError(QString("%1 start mode not supported by %2.")
                                    .arg(startModeEnum.valueToKey(int(startMode)),
                                         backendName(backend)));
+}
+
+Utils::Result<> tst_backends::checkAcceptsBreakpoint(Backend backend, BreakpointType type,
+                                                     const QString &description)
+{
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend);
+    const DebuggerEngineSetupData &data = debuggerBackend->engine()->setupData();
+    AcceptsBreakpointQuery query;
+    query.type = type;
+    query.fileName = inferiorTestData(backend).source;
+    query.startMode = Debugger::StartInternal;
+    if (data.acceptsBreakpoint && data.acceptsBreakpoint(query))
+        return Utils::ResultOk;
+    return Utils::ResultError(QString("%1 not accepted by %2.")
+                                  .arg(description, backendName(backend)));
 }
 
 Utils::Result<> tst_backends::checkCapability(Backend backend, Debugger::DebuggerCapabilities capability)
@@ -4437,8 +4379,11 @@ void tst_backends::continuesAfterAttachWhenConfigured()
 {
     QFETCH(Backend, backend);
 
-    if (!continuesAfterAttachOnRequest(backend))
-        QSKIP("This backend does not report the attach as a stop to resume from.");
+    using Debugger::DebuggerExtraCapability;
+    if (auto result = checkExtraCapability(backend, DebuggerExtraCapability::ContinueAfterAttach);
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToProcess); !result)
         QSKIP(qPrintable(result.error()));
 
@@ -4509,8 +4454,11 @@ void tst_backends::stopsBeforeRunningWhenConfigured()
 {
     QFETCH(Backend, backend);
 
-    if (!stopsBeforeRunning(backend))
-        QSKIP("This backend cannot be asked to stop before the program runs.");
+    using Debugger::DebuggerExtraCapability;
+    if (auto result = checkExtraCapability(backend, DebuggerExtraCapability::StopBeforeRun);
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
 
     // Unconfigured, the engine reports the run itself, which is the event that
     // proves the program was not held back.
@@ -4545,8 +4493,11 @@ void tst_backends::stopsAtMainWhenConfigured()
 {
     QFETCH(Backend, backend);
 
-    if (mainFunctionMarker(backend).isEmpty())
-        QSKIP("This backend cannot be asked to stop at the main function.");
+    using Debugger::DebuggerExtraCapability;
+    if (auto result = checkExtraCapability(backend, DebuggerExtraCapability::BreakOnMain);
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
 
@@ -4641,8 +4592,11 @@ void tst_backends::skipsKnownFramesWhenStepping()
 {
     QFETCH(Backend, backend);
 
-    if (!skipsKnownFrames(backend))
-        QSKIP("This backend does not skip known frames.");
+    using Debugger::DebuggerExtraCapability;
+    if (auto result = checkExtraCapability(backend, DebuggerExtraCapability::SkipKnownFrames);
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
 
     const InferiorTestData testData = inferiorTestData(backend);
     if (testData.knownFrameStepLine == 0)
@@ -5325,23 +5279,6 @@ void tst_backends::runsToAnAmbiguousLine()
     }
 }
 
-// Whether a jump is refused when its line resolves to several locations.
-// CdbImpl has not been looked at: it takes a Windows host to run.
-static bool refusesAmbiguousJump(Backend backend)
-{
-    switch (backend) {
-    case Backend::Gdb:
-    case Backend::Lldb:
-    case Backend::Bridge:
-        return true;
-    case Backend::Pdb:
-    case Backend::Qml:
-    case Backend::Cdb:
-        break;
-    }
-    return false;
-}
-
 // A line inside a template body resolves to one location per instantiation.
 // A jump cannot pick one, so it has to be refused outright - and refusing it
 // must leave nothing armed at that line, or it fires later as a stop nobody
@@ -5354,11 +5291,14 @@ void tst_backends::refusesJumpToAnAmbiguousLine()
         QSKIP(qPrintable(result.error()));
     if (auto result = checkCapability(backend, Debugger::JumpToLineCapability); !result)
         QSKIP(qPrintable(result.error()));
+    using Debugger::DebuggerExtraCapability;
+    if (auto result = checkExtraCapability(backend, DebuggerExtraCapability::JumpTargetCheck);
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
     const int ambiguousLine = inferiorTestData(backend).multiLocationBreakpointLine;
     if (ambiguousLine == 0)
         QSKIP("This backend's inferior has no line with several locations.");
-    if (!refusesAmbiguousJump(backend))
-        QSKIP("This backend does not refuse an ambiguous jump yet.");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -5486,8 +5426,10 @@ void tst_backends::insertsWatchpointAndCatchpoint()
 {
     QFETCH(Backend, backend);
 
-    if (backend == Backend::Cdb)
-        QSKIP("BreakpointAtFork has no Windows equivalent - unsupportable for cdb.");
+    if (auto result = checkAcceptsBreakpoint(backend, BreakpointAtFork, "A fork catchpoint");
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
 
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
@@ -5921,8 +5863,11 @@ void tst_backends::breaksBeforeTheInferiorAborts()
 
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
-    if (!breaksOnSpecialFunctions(backend))
-        QSKIP("This backend cannot break on abort, qWarning or qFatal.");
+    using Debugger::DebuggerExtraCapability;
+    if (auto result = checkExtraCapability(backend, DebuggerExtraCapability::SpecialBreakpoints);
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
 
     const FilePath existingDir = FilePath::fromString(m_tempDir.path()) / "specialbreakpoints";
     QVERIFY(existingDir.ensureWritableDir());
@@ -6000,8 +5945,11 @@ void tst_backends::refreshesPeripherals()
 {
     QFETCH(Backend, backend);
 
-    if (backend == Backend::Cdb)
-        QSKIP("refresh(PeripheralRegisters) is not implemented for cdb yet.");
+    using Debugger::DebuggerExtraCapability;
+    if (auto result = checkExtraCapability(backend, DebuggerExtraCapability::PeripheralRegisters);
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
 
     if (auto result = checkCapability(backend, Debugger::RegisterCapability); !result)
         QSKIP(qPrintable(result.error()));
@@ -6632,10 +6580,10 @@ void tst_backends::resolvesQmlBreakpointWithoutServiceDebugInfo()
 
     if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
         QSKIP(qPrintable(result.error()));
-    // The CDB bridge marshals the arguments and calls by address, so it never
-    // goes through the casts this exercises.
-    if (backend == Backend::Cdb)
-        QSKIP("The CDB bridge does not use the service call casts.");
+    if (!inferiorTestData(backend).qmlBreakpointsUseServiceCasts) {
+        QSKIP("This backend's bridge marshals the arguments and calls by address, so it "
+              "never goes through the casts this exercises.");
+    }
     // Same macOS gap as insertsQmlBreakpointAndStopsAtIt() - see its comment.
     if (backend == Backend::Lldb && HostOsInfo::isMacHost())
         QSKIP("QML breakpoint resolution does not work on macOS.");

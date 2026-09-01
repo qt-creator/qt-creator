@@ -76,7 +76,10 @@ static DebuggerEngineSetupData lldbImplSetupData()
                            | DebuggerExtraCapability::RunCommandDeferral
                            | DebuggerExtraCapability::SignalReceived
                            | DebuggerExtraCapability::SourceFiles
-                           | DebuggerExtraCapability::Threads;
+                           | DebuggerExtraCapability::Threads
+                           | DebuggerExtraCapability::BreakOnMain
+                           | DebuggerExtraCapability::JumpTargetCheck
+                           | DebuggerExtraCapability::PeripheralRegisters;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToTerminalStub

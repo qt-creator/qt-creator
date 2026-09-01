@@ -74,6 +74,7 @@ static DebuggerEngineSetupData pdbImplSetupData()
                       | ResetInferiorCapability
                       | RunToLineCapability
                       | ShowModuleSymbolsCapability;
+    data.extraCapabilities = DebuggerExtraCapability::StopBeforeRun;
     data.startModes = DebuggerStartModeFlag::Launch;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
