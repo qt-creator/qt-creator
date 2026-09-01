@@ -149,7 +149,7 @@ private:
         case PerfEventType::Progress: {
             float percent;
             stream >> percent;
-            m_session->progress.store(int(percent * 100), std::memory_order_relaxed);
+            m_session->setProgress(int(percent * 100));
             break;
         }
         case PerfEventType::DebugInfoDownloadProgress: {
@@ -689,7 +689,7 @@ ExecutableItem PerfSampler::captureRecipe(const std::shared_ptr<RecordingSession
         }
 
         const auto writeProgress = [session](int percent) {
-            session->progress.store(percent, std::memory_order_relaxed);
+            session->setProgress(percent);
         };
         if (Result<> r = writeSampleTrace(*sampleData, dir, writeProgress); !r) {
             session->result = ResultError(r.error());

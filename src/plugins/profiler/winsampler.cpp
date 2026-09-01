@@ -691,7 +691,7 @@ void stopEtwSession(EtwCaptureContext &ctx)
 } // namespace
 
 Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic_bool &stop,
-                                   std::atomic<int> *progressPercent)
+                                   const std::function<void(int)> &reportProgress)
 {
     // Resolve target PID.
     DWORD targetPid = 0;
@@ -794,9 +794,9 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
 
     // Post-processing publishes 0..100: symbolication fills the first half of
     // the range, writing the trace the second.
-    const auto postProgress = [progressPercent](int percent) {
-        if (progressPercent)
-            progressPercent->store(percent, std::memory_order_relaxed);
+    const auto postProgress = [&reportProgress](int percent) {
+        if (reportProgress)
+            reportProgress(percent);
     };
 
     // Resolve function names and source info for all labels (post-capture).

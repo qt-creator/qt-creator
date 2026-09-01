@@ -280,7 +280,7 @@ ExecutableItem CombinedSampler::captureRecipe(const std::shared_ptr<RecordingSes
         }
         // The captures took the bar to 50; the merge takes it the rest of the way.
         const auto reportProgress = [parent](int percent) {
-            parent->progress.store(50 + percent / 2, std::memory_order_relaxed);
+            parent->setProgress(50 + percent / 2);
         };
         taskTree.setRecipe({mergeCombinedBundleRecipe(**parent->result, reportProgress)});
     };

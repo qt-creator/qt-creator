@@ -58,6 +58,8 @@ public:
     void startRecording(const QString &target);
     void beginRecording(const QString &target);
     void finishRecording();
+    // Passes on what the session reports; connected to its reporter.
+    void updateReports();
     Sampler *backend() const;
     Sampler *backendById(Utils::Id id) const;
 
@@ -78,9 +80,8 @@ public:
     Sampler *active = nullptr;
     QtTaskTree::QSingleTaskTreeRunner runner;
     bool ownsRecipe = false; // The recorder runs the capture itself.
-    QTimer poll;
-    int downloadPolls = 0;                        // Consecutive polls seeing a download.
-    static constexpr int downloadPollsBeforeReporting = 6; // ~300 ms at a 50 ms poll.
+    QTimer downloadDelay;    // Before a debug-info download is worth naming.
+    bool downloadNameable = false;
     bool recording = false;
     bool waitingForShutdown = false;      // Set while stopAndWait() runs.
     std::optional<milliseconds> duration; // Set by startTimed(); auto-stop span.
@@ -116,50 +117,64 @@ ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
             offered.push_back(i);
     }
 
-    poll.setInterval(50);
-    connect(&poll, &QTimer::timeout, this, [this] {
-        if (!session)
-            return;
-        // For startTimed(): once capture is actually live, start the span clock
-        // exactly once, so launch and connect time is not counted against it.
-        if (duration && !durationArmed && session->isStarted()) {
-            durationArmed = true;
-            QTimer::singleShot(*duration, this, [this] {
-                if (session)
-                    session->requestStop();
-            });
-        }
-        emit q->progressChanged(session->progressPercent());
-
-        // A debug-info download holds up post-processing without moving the
-        // progress bar, for as long as the server takes to answer -- which may be
-        // forever. Name it, so the wait is at least attributable (the Perf
-        // backend's "Download missing debug information" setting turns it off).
-        // A query answered from this machine passes through the same state in
-        // microseconds, so only report one that has lasted long enough to be a
-        // wait somebody is sitting through.
-        const RecordingSession::DebugInfoDownload download = session->debugInfoDownload();
-        if (download.percent < 0) {
-            downloadPolls = 0;
-            emit q->statusChanged({}, {});
-        } else if (++downloadPolls >= downloadPollsBeforeReporting) {
-            const QString server = debugInfoServerNames(download.url);
-            QString text;
-            if (server.isEmpty()) {
-                text = download.percent == 0
-                           ? Tr::tr("Downloading debug information...")
-                           : Tr::tr("Downloading debug information... %1%").arg(download.percent);
-            } else {
-                text = download.percent == 0
-                           ? Tr::tr("Downloading debug information from %1...").arg(server)
-                           : Tr::tr("Downloading debug information from %1... %2%")
-                                 .arg(server).arg(download.percent);
-            }
-            // The line names the servers; the whole URL, which carries a build id
-            // long enough to crowd everything else out, goes in the tool tip.
-            emit q->statusChanged(text, download.url);
-        }
+    // A query answered from this machine passes through the download state in
+    // microseconds, so a download is only named once it has lasted long enough
+    // to be a wait somebody is sitting through. One shot, armed when a download
+    // appears: a delay, not a watch.
+    downloadDelay.setSingleShot(true);
+    downloadDelay.setInterval(300ms);
+    connect(&downloadDelay, &QTimer::timeout, this, [this] {
+        downloadNameable = true;
+        updateReports();
     });
+}
+
+void ProfilerRecorderPrivate::updateReports()
+{
+    if (!session)
+        return;
+    // For startTimed(): once capture is actually live, start the span clock
+    // exactly once, so launch and connect time is not counted against it.
+    if (duration && !durationArmed && session->isStarted()) {
+        durationArmed = true;
+        QTimer::singleShot(*duration, this, [this] {
+            if (session)
+                session->requestStop();
+        });
+    }
+    emit q->progressChanged(session->progressPercent());
+
+    // A debug-info download holds up post-processing without moving the
+    // progress bar, for as long as the server takes to answer -- which may be
+    // forever. Name it, so the wait is at least attributable (the Perf
+    // backend's "Download missing debug information" setting turns it off).
+    const RecordingSession::DebugInfoDownload download = session->debugInfoDownload();
+    if (download.percent < 0) {
+        downloadDelay.stop();
+        downloadNameable = false;
+        emit q->statusChanged({}, {});
+        return;
+    }
+    if (!downloadNameable) {
+        if (!downloadDelay.isActive())
+            downloadDelay.start();
+        return;
+    }
+    const QString server = debugInfoServerNames(download.url);
+    QString text;
+    if (server.isEmpty()) {
+        text = download.percent == 0
+                   ? Tr::tr("Downloading debug information...")
+                   : Tr::tr("Downloading debug information... %1%").arg(download.percent);
+    } else {
+        text = download.percent == 0
+                   ? Tr::tr("Downloading debug information from %1...").arg(server)
+                   : Tr::tr("Downloading debug information from %1... %2%")
+                         .arg(server).arg(download.percent);
+    }
+    // The line names the servers; the whole URL, which carries a build id long
+    // enough to crowd everything else out, goes in the tool tip.
+    emit q->statusChanged(text, download.url);
 }
 
 Sampler *ProfilerRecorderPrivate::backend() const
@@ -181,13 +196,16 @@ Sampler *ProfilerRecorderPrivate::backendById(Id id) const
 void ProfilerRecorderPrivate::startRecording(const QString &target)
 {
     recording = true;
-    downloadPolls = 0;
+    downloadNameable = false;
     // The recipe (or the user) ends the capture; either way that is the switch
     // from recording to post-processing. Reported from the request itself, so
     // nothing has to watch the flag for it.
     session->onStopRequested(this, [this] { emit q->processingStarted(); });
+    // Likewise for progress, the debug-info download and capture going live:
+    // the session says when they move, rather than being asked.
+    connect(session->reporter(), &RecordingReporter::changed,
+            this, &ProfilerRecorderPrivate::updateReports);
     emit q->started(target);
-    poll.start();
 }
 
 void ProfilerRecorderPrivate::beginRecording(const QString &target)
@@ -207,7 +225,7 @@ void ProfilerRecorderPrivate::finishRecording()
         return;
     recording = false;
     ownsRecipe = false;
-    poll.stop();
+    downloadDelay.stop();
     duration.reset(); // One-shot: do not auto-stop a later manual recording.
     durationArmed = false;
 

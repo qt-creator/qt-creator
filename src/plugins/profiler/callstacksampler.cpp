@@ -31,7 +31,7 @@ namespace Profiler::Internal {
 // No sampling backend on this platform. isAvailable() already reports that, but
 // captureRecipe() still has to compile.
 static Result<FilePath> recordSampleTrace(const SamplerOptions &, const std::atomic_bool &,
-                                          std::atomic<int> *)
+                                          const std::function<void(int)> &)
 {
     return ResultError(Tr::tr("Call-stack sampling is only implemented on macOS and Windows."));
 }
@@ -169,7 +169,10 @@ ExecutableItem CallStackSampler::captureRecipe(const std::shared_ptr<RecordingSe
             opts.processName = session->processName;
             opts.intervalUs = intervalUs;
             session->markStarted(); // capture is live; the duration clock can start
-            return recordSampleTrace(opts, session->stop, &session->progress);
+            // Reported from this worker thread; the session queues it onto the
+            // GUI thread, so the frontend hears it without watching for it.
+            return recordSampleTrace(opts, session->stop,
+                                     [session](int percent) { session->setProgress(percent); });
         });
     };
     const auto onDone = [session](const QThreadFunction<Result<FilePath>> &sampling,

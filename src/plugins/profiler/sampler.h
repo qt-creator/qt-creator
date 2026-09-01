@@ -39,10 +39,22 @@ struct SamplerOptions
     int intervalUs = 200; // Target delay between samples; 0 = as fast as possible.
 };
 
+// Announces that what a frontend shows of a recording has changed. Its own
+// QObject, because a capture working on a thread of its own reports through it
+// and Qt's queued delivery is what makes that safe -- the session itself stays
+// a plain struct that any thread may hold.
+class PROFILER_EXPORT RecordingReporter : public QObject
+{
+    Q_OBJECT
+
+signals:
+    void changed();
+};
+
 // Shared state for one recording session. The GUI thread owns it and observes
 // progress while a worker thread records; the sampler task captures it. Always
 // handled through a shared_ptr, never copied.
-struct RecordingSession
+struct RecordingSession : std::enable_shared_from_this<RecordingSession>
 {
     // Inputs, set before recording starts.
     int intervalUs = 200;            // Backend-specific cadence hint.
@@ -69,7 +81,6 @@ struct RecordingSession
     std::atomic<qint64> pid = 0;
 
     // Runtime control and output.
-    std::atomic_bool started = false; // Set once the backend is actually capturing.
     std::atomic_bool stop = false;   // The GUI sets this to end recording.
     std::atomic<int> progress = 0;   // 0..100 post-processing percent.
     std::optional<Utils::Result<Utils::FilePath>> result; // Set on the GUI thread when done.
@@ -86,14 +97,26 @@ struct RecordingSession
 
     void setDebugInfoDownload(int percent, const QString &url)
     {
-        QMutexLocker lock(&m_debugInfoDownloadMutex);
-        m_debugInfoDownload = {percent, url};
+        {
+            QMutexLocker lock(&m_debugInfoDownloadMutex);
+            if (m_debugInfoDownload.percent == percent && m_debugInfoDownload.url == url)
+                return;
+            m_debugInfoDownload = {percent, url};
+        }
+        notifyReports();
     }
 
+    // Called for every message that is not a download report, so it has to be
+    // cheap and quiet when there is nothing to clear.
     void clearDebugInfoDownload()
     {
-        QMutexLocker lock(&m_debugInfoDownloadMutex);
-        m_debugInfoDownload = {};
+        {
+            QMutexLocker lock(&m_debugInfoDownloadMutex);
+            if (m_debugInfoDownload.percent < 0)
+                return;
+            m_debugInfoDownload = {};
+        }
+        notifyReports();
     }
 
     DebugInfoDownload debugInfoDownload() const
@@ -116,6 +139,9 @@ struct RecordingSession
     // the GUI thread, as every stop request is.
     void addSubSession(const std::shared_ptr<RecordingSession> &child)
     {
+        // Weak, and held by the child rather than looked up: the parent already
+        // owns the child, and a capture still running may outlive either.
+        child->m_parent = weak_from_this();
         m_children.push_back(child);
     }
 
@@ -160,7 +186,7 @@ struct RecordingSession
     bool isStarted() const
     {
         if (m_children.empty())
-            return started.load(std::memory_order_relaxed);
+            return m_started.load(std::memory_order_relaxed);
         return std::all_of(m_children.cbegin(), m_children.cend(),
                            [](const std::shared_ptr<RecordingSession> &child) {
                                return child->isStarted();
@@ -177,6 +203,31 @@ struct RecordingSession
         return progressProvider ? progressProvider() : progress.load(std::memory_order_relaxed);
     }
 
+    void setProgress(int percent)
+    {
+        if (progress.exchange(percent, std::memory_order_relaxed) != percent)
+            notifyReports();
+    }
+
+    // Emits changed() whenever what a frontend shows of this recording moves:
+    // progress, the debug-info download, or capture going live. Connect to it
+    // instead of reading those on a timer.
+    RecordingReporter *reporter() const { return m_reporter.get(); }
+
+    // Announces such a change. Safe from any thread -- the emission is queued
+    // onto the reporter's own, which is the GUI thread -- so a capture may
+    // report from wherever it happens to work.
+    void notifyReports()
+    {
+        QMetaObject::invokeMethod(m_reporter.get(),
+                                  [reporter = m_reporter] { emit reporter->changed(); },
+                                  Qt::QueuedConnection);
+        // A sub-session's report is the whole recording's, so it carries up to
+        // whoever is watching the parent.
+        if (const std::shared_ptr<RecordingSession> parent = m_parent.lock())
+            parent->notifyReports();
+    }
+
     // Monotonic instant (steady_clock, microseconds) at which the backend went
     // live, or -1 if it never did. steady_clock is a single process-wide timeline,
     // so two sessions recorded together are directly comparable -- this is what
@@ -188,11 +239,12 @@ struct RecordingSession
     // they begin capturing, in place of setting `started` directly.
     void markStarted()
     {
-        if (!started.exchange(true)) {
+        if (!m_started.exchange(true)) {
             startedMonotonicUs.store(std::chrono::duration_cast<std::chrono::microseconds>(
                                          std::chrono::steady_clock::now().time_since_epoch())
                                          .count(),
                                      std::memory_order_relaxed);
+            notifyReports();
         }
     }
 
@@ -203,8 +255,18 @@ private:
     mutable QMutex m_debugInfoDownloadMutex;
     DebugInfoDownload m_debugInfoDownload;
 
+    // Written by markStarted() and read through isStarted(), which is what a
+    // composite has to answer for its sub-sessions rather than for itself.
+    std::atomic_bool m_started = false;
+
     std::vector<std::shared_ptr<RecordingSession>> m_children;
+    std::weak_ptr<RecordingSession> m_parent;
     std::vector<std::pair<QPointer<QObject>, std::function<void()>>> m_stopHandlers;
+
+    // Deleted through deleteLater(), so that a worker thread dropping the last
+    // reference to the session does not destroy a QObject off its own thread.
+    std::shared_ptr<RecordingReporter> m_reporter{new RecordingReporter,
+                                                  [](RecordingReporter *r) { r->deleteLater(); }};
 };
 
 // Backend-specific recording settings. Besides holding the options, it renders its

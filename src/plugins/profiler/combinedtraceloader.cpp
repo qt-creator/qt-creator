@@ -49,12 +49,6 @@ public:
     FilePath pending;      // A bundle to load once that QML load has reported.
     QSingleTaskTreeRunner taskTreeRunner;
 
-    // The merge runs on a worker thread and stores its percentage here; the GUI
-    // thread polls it and turns changes into progress(). A shared_ptr because the
-    // worker outlives a cancelled task tree.
-    std::shared_ptr<std::atomic<int>> progressCell;
-    QTimer progressPoll;
-    int lastProgress = -1;
 };
 
 // The clock-correlation offset (microseconds) CombinedSampler wrote to the
@@ -110,38 +104,50 @@ static Result<> noteMergedInManifest(const FilePath &bundleDir)
 // `markComplete` is false when the QML half did not load cleanly: the result is
 // good enough to show, but recording it in the manifest would serve a QML-less
 // merge for good.
-static Result<FilePath> mergeBundle(const FilePath &bundleDir, const QList<QmlRange> &ranges,
-                                    bool markComplete,
-                                    const std::function<void(int)> &progress)
+// Runs on a worker thread. Progress goes through the promise rather than a
+// shared cell someone reads on a timer: Qt marshals it to the thread the task
+// was started on, and drops it if that task is gone.
+static void mergeBundle(QPromise<Result<FilePath>> &promise, const FilePath &bundleDir,
+                        const QList<QmlRange> &ranges, bool markComplete)
 {
+    promise.setProgressRange(0, 100);
+    const auto progress = [&promise](int percent) { promise.setProgressValue(percent); };
     // Decoding and writing are comparable in cost, so each drives half the bar.
     const auto readProgress = [&progress](int percent) { progress(percent / 2); };
     const auto writeProgress = [&progress](int percent) { progress(50 + percent / 2); };
 
     const Result<SampleTraceData> native =
         readSampleTrace(bundleDir / combinedSamplerSubdir, readProgress);
-    if (!native)
-        return ResultError(native.error());
+    if (!native) {
+        promise.addResult(ResultError(native.error()));
+        return;
+    }
 
     MergeOptions options;
     options.sampleTimeOffsetUs = readClockOffsetUs(bundleDir);
     const SampleTraceData mergedData = mergeQmlIntoSamples(*native, ranges, options);
 
     const FilePath outDir = bundleDir / combinedMergedSubdir;
-    if (const Result<> result = outDir.ensureWritableDir(); !result)
-        return ResultError(result.error());
+    if (const Result<> result = outDir.ensureWritableDir(); !result) {
+        promise.addResult(ResultError(result.error()));
+        return;
+    }
 
-    if (const Result<> result = writeSampleTrace(mergedData, outDir, writeProgress); !result)
-        return ResultError(result.error());
+    if (const Result<> result = writeSampleTrace(mergedData, outDir, writeProgress); !result) {
+        promise.addResult(ResultError(result.error()));
+        return;
+    }
 
     // Only now is the merged trace complete; a manifest entry written earlier
     // would advertise a half-written directory if the write failed.
     if (markComplete) {
-        if (const Result<> result = noteMergedInManifest(bundleDir); !result)
-            return ResultError(result.error());
+        if (const Result<> result = noteMergedInManifest(bundleDir); !result) {
+            promise.addResult(ResultError(result.error()));
+            return;
+        }
     }
 
-    return outDir;
+    promise.addResult(outDir);
 }
 
 // A readable fallback name when a range type carries no source details.
@@ -172,14 +178,6 @@ CombinedTraceLoader::CombinedTraceLoader(QObject *parent)
         qWarning().noquote() << "CombinedTraceLoader: QML trace load reported:" << message;
     });
 
-    d->progressPoll.setInterval(100);
-    connect(&d->progressPoll, &QTimer::timeout, this, [this] {
-        const int percent = d->progressCell->load(std::memory_order_relaxed);
-        if (percent != d->lastProgress) {
-            d->lastProgress = percent;
-            emit progress(percent);
-        }
-    });
 }
 
 CombinedTraceLoader::~CombinedTraceLoader()
@@ -231,7 +229,6 @@ void CombinedTraceLoader::cancel()
     // handler.
     ++d->generation;
     d->pending.clear();
-    d->progressPoll.stop();
 }
 
 void CombinedTraceLoader::onQmlLoaded()
@@ -315,19 +312,17 @@ void CombinedTraceLoader::onQmlLoaded()
     // half by far, and this slot is invoked from the QML trace file's destroyed()
     // signal, so running it inline blocked the GUI thread -- and stalled that
     // teardown -- for the entire merge.
-    d->progressCell = std::make_shared<std::atomic<int>>(0);
-    d->lastProgress = -1;
-    d->progressPoll.start();
-
-    const auto onSetup = [bundleDir = d->bundleDir, ranges, markComplete = !d->qmlFailed,
-                          cell = d->progressCell](Async<Result<FilePath>> &async) {
-        const std::function<void(int)> report = [cell](int percent) {
-            cell->store(percent, std::memory_order_relaxed);
-        };
-        async.setConcurrentCallData(mergeBundle, bundleDir, ranges, markComplete, report);
+    const auto onSetup = [this, bundleDir = d->bundleDir, ranges, markComplete = !d->qmlFailed,
+                          generation = d->generation](Async<Result<FilePath>> &async) {
+        // Qt delivers the merge's progress here, on this thread, and stops
+        // doing so once the task is gone -- so nothing has to watch for it.
+        connect(&async, &AsyncBase::progressValueChanged, this, [this, generation](int percent) {
+            if (generation == d->generation)
+                emit progress(percent);
+        });
+        async.setConcurrentCallData(mergeBundle, bundleDir, ranges, markComplete);
     };
     const auto onDone = [this, generation = d->generation](const Async<Result<FilePath>> &async) {
-        d->progressPoll.stop();
         if (generation != d->generation)
             return;
         const Result<FilePath> result = async.isResultAvailable()

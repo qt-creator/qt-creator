@@ -288,7 +288,7 @@ Result<task_t> waitForNewTask(pid_t pid)
 } // namespace
 
 Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic_bool &stop,
-                                   std::atomic<int> *progressPercent)
+                                   const std::function<void(int)> &reportProgress)
 {
     pid_t pid = 0;
     if (opts.pid > 0) {
@@ -345,11 +345,7 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
 
     // Symbolication already happened during capture, so the post-stop work is
     // just writing the trace.
-    const auto writeProgress = [progressPercent](int percent) {
-        if (progressPercent)
-            progressPercent->store(percent, std::memory_order_relaxed);
-    };
-    if (Result<> r = writeSampleTrace(data, dir, writeProgress); !r)
+    if (Result<> r = writeSampleTrace(data, dir, reportProgress); !r)
         return ResultError(r.error());
     return dir;
 }

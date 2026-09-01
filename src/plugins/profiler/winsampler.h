@@ -18,8 +18,8 @@ namespace Profiler::Internal {
 //
 // Samples until `stop` becomes true, so it must run on a worker thread while the
 // GUI thread owns `stop`. During post-processing (symbolication + writing) it
-// publishes a 0..100 percentage to `progressPercent` if non-null, which the GUI
-// thread may poll.
+// reports a 0..100 percentage through `reportProgress`, from that same worker
+// thread, whenever the whole percent changes.
 //
 // This is one of three sampler backends: the Windows ETW sampler (this file),
 // the macOS call-stack sampler (macsampler.cpp), and the Linux Perf Sampler
@@ -32,6 +32,6 @@ namespace Profiler::Internal {
 PROFILER_EXPORT Utils::Result<Utils::FilePath> recordSampleTrace(
     const SamplerOptions &opts,
     const std::atomic_bool &stop,
-    std::atomic<int> *progressPercent = nullptr);
+    const std::function<void(int)> &reportProgress = {});
 
 } // namespace Profiler::Internal
