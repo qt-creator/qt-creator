@@ -248,6 +248,8 @@ public:
     // Kept per tab and shown while this tab is current.
     void setOutputFilterText(const QString &text);
     std::optional<QString> outputFilterText() const;
+    void setFiltersOutputAtSource(bool enabled);
+    bool filtersOutputAtSource() const;
 
     void requestDebugChannel();
     bool usesDebugChannel() const;

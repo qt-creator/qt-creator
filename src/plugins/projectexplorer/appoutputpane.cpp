@@ -581,6 +581,11 @@ QList<QWidget *> AppOutputPane::toolBarWidgets() const
                 m_formatterWidget} + IOutputPane::toolBarWidgets();
 }
 
+static bool filtersAtSource(const RunControl *runControl)
+{
+    return runControl && runControl->filtersOutputAtSource();
+}
+
 void AppOutputPane::clearContents()
 {
     if (RunControl *runControl = currentRunControl()) {
@@ -619,21 +624,25 @@ void AppOutputPane::updateFilter()
         QTC_ASSERT(tab->window, return);
         tab->sourceFilterText = filter;
         tab->window->updateCategoriesProperties(tab->window->registry()->categories());
-        if (!tab->window->updateFilterProperties(
-                filter,
-                filterCaseSensitivity(),
-                filterUsesRegexp(),
-                filterIsInverted(),
-                beforeContext(),
-                afterContext())) {
-            tab->window->filterNewContent();
-        }
+        applyFilter(*tab);
     }
     if (filter == m_lastReportedFilterText)
         return;
     m_lastReportedFilterText = filter;
     if (RunControl * const runControl = currentRunControl())
         runControl->reportOutputFilterChanged(filter);
+}
+
+void AppOutputPane::applyFilter(const RunControlTab &tab)
+{
+    if (filtersAtSource(tab.runControl)) {
+        tab.window->updateFilterProperties({}, Qt::CaseInsensitive, false, false, 0, 0);
+        return;
+    }
+    if (!tab.window->updateFilterProperties(filterText(), filterCaseSensitivity(),
+                                            filterUsesRegexp(), filterIsInverted(),
+                                            beforeContext(), afterContext()))
+        tab.window->filterNewContent();
 }
 
 const QList<Core::OutputWindow *> AppOutputPane::outputWindows() const
@@ -979,7 +988,7 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, OutputForm
     }
 
     QString stringToWrite;
-    if (format == NormalMessageFormat || format == ErrorMessageFormat) {
+    if (!filtersAtSource(rc) && (format == NormalMessageFormat || format == ErrorMessageFormat)) {
         stringToWrite = QTime::currentTime().toString();
         stringToWrite += ": ";
     }
@@ -1221,6 +1230,7 @@ void AppOutputPane::enableButtons(const RunControl *rc)
 void AppOutputPane::tabChanged(int i)
 {
     RunControlTab * const controlTab = tabFor(m_tabWidget->widget(i));
+    setFilterOptionsVisible(!filtersAtSource(currentRunControl()));
     if (i != -1 && controlTab && QTC_GUARD(controlTab->window)) {
         const QString text = controlTab->sourceFilterText.value_or(QString());
         if (filterText() == text)

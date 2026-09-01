@@ -88,6 +88,7 @@ protected:
     int afterContext() const { return m_afterContext; }
     Qt::CaseSensitivity filterCaseSensitivity() const { return m_filterCaseSensitivity; }
     void setFilteringEnabled(bool enable);
+    void setFilterOptionsVisible(bool visible);
     QWidget *filterWidget() const { return m_filterOutputLineEdit; }
     void setupContext(const Utils::Id &context, QWidget *widget);
     void setupContext(const Context &context, QWidget *widget);

@@ -204,6 +204,7 @@ public:
     IDevice::ConstPtr device;
     Icon icon;
     std::optional<QString> outputFilterText;
+    bool filtersOutputAtSource = false;
     const MacroExpander *macroExpander = nullptr;
     AspectContainerData aspectData;
     QString buildKey;
@@ -474,6 +475,16 @@ void RunControl::postMessage(const QString &msg, OutputFormat format, bool appen
 void RunControl::clearOutput()
 {
     appOutputPane().clearForRunControl(this);
+}
+
+void RunControl::setFiltersOutputAtSource(bool enabled)
+{
+    d->data.filtersOutputAtSource = enabled;
+}
+
+bool RunControl::filtersOutputAtSource() const
+{
+    return d->data.filtersOutputAtSource;
 }
 
 void RunControl::setOutputFilterText(const QString &text)

@@ -141,6 +141,7 @@ private:
     const RunControlTab *currentTab() const;
     RunControl *currentRunControl() const;
     bool handleOldOutput(Core::OutputWindow *window) const;
+    void applyFilter(const RunControlTab &tab);
     void updateCloseActions();
 
     QWidget *outputWidget(QWidget *) final;

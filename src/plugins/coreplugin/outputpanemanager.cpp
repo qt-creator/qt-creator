@@ -548,6 +548,11 @@ void IOutputPane::setFilteringEnabled(bool enable)
     m_filterOutputLineEdit->setEnabled(enable);
 }
 
+void IOutputPane::setFilterOptionsVisible(bool visible)
+{
+    m_filterOutputLineEdit->setButtonVisible(FancyLineEdit::Left, visible);
+}
+
 void IOutputPane::setupContext(const Id &context, QWidget *widget)
 {
     return setupContext(Context(context), widget);
