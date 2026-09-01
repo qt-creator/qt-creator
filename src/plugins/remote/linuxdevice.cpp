@@ -640,8 +640,16 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     }
 
     cmd.addArgs(m_sshParameters.connectionOptions(sshBinary));
-    if (!m_socketFilePath.isEmpty())
+    if (!m_socketFilePath.isEmpty()) {
         cmd.addArgs({"-o", "ControlPath=" + m_socketFilePath});
+    } else {
+        // Without Creator's own control socket the command must not reuse an
+        // ambient ControlMaster from the user's ssh config: a stale but still
+        // persisted master would answer for a device that is no longer
+        // reachable, making it look connected. ControlPath=none is what forces
+        // a real connection; ControlMaster only governs master *creation*.
+        cmd.addArgs({"-o", "ControlPath=none"});
+    }
 
     cmd.addArg(m_sshParameters.host());
 
