@@ -4,6 +4,748 @@
 namespace Acp {
 
 template<>
+Utils::Result<RequestId> fromJson<RequestId>(const QJsonValue &val)
+{
+    if (val.isNull())
+        return RequestId(std::monostate{});
+    if (val.isDouble())
+        return RequestId(static_cast<int>(val.toDouble()));
+    if (val.isString())
+        return RequestId(val.toString());
+    return Utils::ResultError("Invalid RequestId");
+}
+
+QJsonValue toJsonValue(const RequestId &val)
+{
+    return std::visit([](const auto &v) -> QJsonValue {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, std::monostate>) {
+            return QJsonValue(QJsonValue::Null);
+        } else
+        {
+            return QVariant::fromValue(v).toJsonValue();
+        }
+    }, val);
+}
+
+template<>
+Utils::Result<ElicitationRequestScope> fromJson<ElicitationRequestScope>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for ElicitationRequestScope");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("requestId"))
+        co_return Utils::ResultError("Missing required field: requestId");
+    ElicitationRequestScope result;
+    if (obj.contains("requestId"))
+        result._requestId = co_await fromJson<RequestId>(obj["requestId"]);
+    co_return result;
+}
+
+QJsonObject toJson(const ElicitationRequestScope &data)
+{
+    QJsonObject obj{{"requestId", toJsonValue(data._requestId)}};
+    return obj;
+}
+
+template<>
+Utils::Result<BooleanPropertySchema> fromJson<BooleanPropertySchema>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for BooleanPropertySchema");
+    const QJsonObject obj = val.toObject();
+    BooleanPropertySchema result;
+    if (obj.contains("title"))
+        if (!obj["title"].isNull()) {
+            result._title = obj.value("title").toString();
+        }
+    if (obj.contains("description"))
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        }
+    if (obj.contains("default"))
+        if (!obj["default"].isNull()) {
+            result._default_ = obj.value("default").toBool();
+        }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const BooleanPropertySchema &data)
+{
+    QJsonObject obj;
+    if (data._title.has_value())
+        obj.insert("title", *data._title);
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<IntegerPropertySchema> fromJson<IntegerPropertySchema>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for IntegerPropertySchema");
+    const QJsonObject obj = val.toObject();
+    IntegerPropertySchema result;
+    if (obj.contains("title"))
+        if (!obj["title"].isNull()) {
+            result._title = obj.value("title").toString();
+        }
+    if (obj.contains("description"))
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        }
+    if (obj.contains("minimum"))
+        if (!obj["minimum"].isNull()) {
+            result._minimum = obj.value("minimum").toInt();
+        }
+    if (obj.contains("maximum"))
+        if (!obj["maximum"].isNull()) {
+            result._maximum = obj.value("maximum").toInt();
+        }
+    if (obj.contains("default"))
+        if (!obj["default"].isNull()) {
+            result._default_ = obj.value("default").toInt();
+        }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const IntegerPropertySchema &data)
+{
+    QJsonObject obj;
+    if (data._title.has_value())
+        obj.insert("title", *data._title);
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    if (data._minimum.has_value())
+        obj.insert("minimum", *data._minimum);
+    if (data._maximum.has_value())
+        obj.insert("maximum", *data._maximum);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<StringMultiSelectItems> fromJson<StringMultiSelectItems>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for StringMultiSelectItems");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("enum"))
+        return Utils::ResultError("Missing required field: enum");
+    StringMultiSelectItems result;
+    if (obj.contains("enum") && obj["enum"].isArray()) {
+        const QJsonArray arr = obj["enum"].toArray();
+        for (const QJsonValue &v : arr) {
+            result._enum_.append(v.toString());
+        }
+    }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const StringMultiSelectItems &data)
+{
+    QJsonObject obj;
+    QJsonArray arr_enum_;
+    for (const auto &v : data._enum_) arr_enum_.append(v);
+    obj.insert("enum", arr_enum_);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<EnumOption> fromJson<EnumOption>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for EnumOption");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("const"))
+        return Utils::ResultError("Missing required field: const");
+    if (!obj.contains("title"))
+        return Utils::ResultError("Missing required field: title");
+    EnumOption result;
+    result._const_ = obj.value("const").toString();
+    result._title = obj.value("title").toString();
+    if (obj.contains("description"))
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const EnumOption &data)
+{
+    QJsonObject obj{
+        {"const", data._const_},
+        {"title", data._title}
+    };
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<TitledMultiSelectItems> fromJson<TitledMultiSelectItems>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for TitledMultiSelectItems");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("anyOf"))
+        co_return Utils::ResultError("Missing required field: anyOf");
+    TitledMultiSelectItems result;
+    if (obj.contains("anyOf") && obj["anyOf"].isArray()) {
+        const QJsonArray arr = obj["anyOf"].toArray();
+        for (const QJsonValue &v : arr) {
+            result._anyOf.append(co_await fromJson<EnumOption>(v));
+        }
+    }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const TitledMultiSelectItems &data)
+{
+    QJsonObject obj;
+    QJsonArray arr_anyOf;
+    for (const auto &v : data._anyOf) arr_anyOf.append(toJson(v));
+    obj.insert("anyOf", arr_anyOf);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<MultiSelectItems> fromJson<MultiSelectItems>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Invalid MultiSelectItems: expected object");
+    const QJsonObject obj = val.toObject();
+    if (obj.contains("enum"))
+        co_return MultiSelectItems(co_await fromJson<StringMultiSelectItems>(val));
+    if (obj.contains("anyOf"))
+        co_return MultiSelectItems(co_await fromJson<TitledMultiSelectItems>(val));
+    if (val.isObject())
+        co_return MultiSelectItems(val.toObject());  // open union: preserve unknown variants raw
+    co_return Utils::ResultError("Invalid MultiSelectItems");
+}
+
+QJsonObject toJson(const MultiSelectItems &val)
+{
+    return std::visit([](const auto &v) -> QJsonObject {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, QJsonObject>) {
+            return v;
+        } else {
+            return toJson(v);
+        }
+    }, val);
+}
+
+QJsonValue toJsonValue(const MultiSelectItems &val)
+{
+    return toJson(val);
+}
+
+template<>
+Utils::Result<MultiSelectPropertySchema> fromJson<MultiSelectPropertySchema>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for MultiSelectPropertySchema");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("items"))
+        co_return Utils::ResultError("Missing required field: items");
+    MultiSelectPropertySchema result;
+    if (obj.contains("title"))
+        if (!obj["title"].isNull()) {
+            result._title = obj.value("title").toString();
+        }
+    if (obj.contains("description"))
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        }
+    if (obj.contains("minItems"))
+        if (!obj["minItems"].isNull()) {
+            result._minItems = obj.value("minItems").toInt();
+        }
+    if (obj.contains("maxItems"))
+        if (!obj["maxItems"].isNull()) {
+            result._maxItems = obj.value("maxItems").toInt();
+        }
+    if (obj.contains("items"))
+        result._items = co_await fromJson<MultiSelectItems>(obj["items"]);
+    if (obj.contains("default"))
+        if (!obj["default"].isNull()) {
+            result._default_ = obj.value("default").toArray();
+        }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const MultiSelectPropertySchema &data)
+{
+    QJsonObject obj{{"items", toJsonValue(data._items)}};
+    if (data._title.has_value())
+        obj.insert("title", *data._title);
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    if (data._minItems.has_value())
+        obj.insert("minItems", *data._minItems);
+    if (data._maxItems.has_value())
+        obj.insert("maxItems", *data._maxItems);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<NumberPropertySchema> fromJson<NumberPropertySchema>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for NumberPropertySchema");
+    const QJsonObject obj = val.toObject();
+    NumberPropertySchema result;
+    if (obj.contains("title"))
+        if (!obj["title"].isNull()) {
+            result._title = obj.value("title").toString();
+        }
+    if (obj.contains("description"))
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        }
+    if (obj.contains("minimum"))
+        if (!obj["minimum"].isNull()) {
+            result._minimum = obj.value("minimum").toDouble();
+        }
+    if (obj.contains("maximum"))
+        if (!obj["maximum"].isNull()) {
+            result._maximum = obj.value("maximum").toDouble();
+        }
+    if (obj.contains("default"))
+        if (!obj["default"].isNull()) {
+            result._default_ = obj.value("default").toDouble();
+        }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const NumberPropertySchema &data)
+{
+    QJsonObject obj;
+    if (data._title.has_value())
+        obj.insert("title", *data._title);
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    if (data._minimum.has_value())
+        obj.insert("minimum", *data._minimum);
+    if (data._maximum.has_value())
+        obj.insert("maximum", *data._maximum);
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+QString toString(StringFormat v)
+{
+    switch(v) {
+        case StringFormat::email: return "email";
+        case StringFormat::uri: return "uri";
+        case StringFormat::date: return "date";
+        case StringFormat::dateminustime: return "date-time";
+    }
+    return {};
+}
+
+template<>
+Utils::Result<StringFormat> fromJson<StringFormat>(const QJsonValue &val)
+{
+    const QString str = val.toString();
+    if (str == "email") return StringFormat::email;
+    if (str == "uri") return StringFormat::uri;
+    if (str == "date") return StringFormat::date;
+    if (str == "date-time") return StringFormat::dateminustime;
+    return Utils::ResultError("Invalid StringFormat value: " + str);
+}
+
+QJsonValue toJsonValue(const StringFormat &v)
+{
+    return toString(v);
+}
+
+template<>
+Utils::Result<StringPropertySchema> fromJson<StringPropertySchema>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for StringPropertySchema");
+    const QJsonObject obj = val.toObject();
+    StringPropertySchema result;
+    if (obj.contains("title"))
+        if (!obj["title"].isNull()) {
+            result._title = obj.value("title").toString();
+        }
+    if (obj.contains("description"))
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        }
+    if (obj.contains("minLength"))
+        if (!obj["minLength"].isNull()) {
+            result._minLength = obj.value("minLength").toInt();
+        }
+    if (obj.contains("maxLength"))
+        if (!obj["maxLength"].isNull()) {
+            result._maxLength = obj.value("maxLength").toInt();
+        }
+    if (obj.contains("pattern"))
+        if (!obj["pattern"].isNull()) {
+            result._pattern = obj.value("pattern").toString();
+        }
+    if (obj.contains("format") && !obj["format"].isNull())
+        result._format = co_await fromJson<StringFormat>(obj["format"]);
+    if (obj.contains("default"))
+        if (!obj["default"].isNull()) {
+            result._default_ = obj.value("default").toString();
+        }
+    if (obj.contains("enum"))
+        if (!obj["enum"].isNull()) {
+            result._enum_ = obj.value("enum").toArray();
+        }
+    if (obj.contains("oneOf"))
+        if (!obj["oneOf"].isNull()) {
+            result._oneOf = obj.value("oneOf").toArray();
+        }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const StringPropertySchema &data)
+{
+    QJsonObject obj;
+    if (data._title.has_value())
+        obj.insert("title", *data._title);
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    if (data._minLength.has_value())
+        obj.insert("minLength", *data._minLength);
+    if (data._maxLength.has_value())
+        obj.insert("maxLength", *data._maxLength);
+    if (data._pattern.has_value())
+        obj.insert("pattern", *data._pattern);
+    if (data._format.has_value())
+        obj.insert("format", toJsonValue(*data._format));
+    if (data._default_.has_value())
+        obj.insert("default", *data._default_);
+    if (data._enum_.has_value())
+        obj.insert("enum", *data._enum_);
+    if (data._oneOf.has_value())
+        obj.insert("oneOf", *data._oneOf);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<ElicitationPropertySchema> fromJson<ElicitationPropertySchema>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Invalid ElicitationPropertySchema: expected object");
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "string")
+        co_return ElicitationPropertySchema(co_await fromJson<StringPropertySchema>(val));
+    else if (dispatchValue == "number")
+        co_return ElicitationPropertySchema(co_await fromJson<NumberPropertySchema>(val));
+    else if (dispatchValue == "integer")
+        co_return ElicitationPropertySchema(co_await fromJson<IntegerPropertySchema>(val));
+    else if (dispatchValue == "boolean")
+        co_return ElicitationPropertySchema(co_await fromJson<BooleanPropertySchema>(val));
+    else if (dispatchValue == "array")
+        co_return ElicitationPropertySchema(co_await fromJson<MultiSelectPropertySchema>(val));
+    if (dispatchValue.isEmpty())
+        co_return Utils::ResultError("Invalid ElicitationPropertySchema: missing type");
+    co_return ElicitationPropertySchema(val.toObject());  // open union: preserve unknown variants raw
+}
+
+QString dispatchValue(const ElicitationPropertySchema &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, StringPropertySchema>) return "string";
+        else if constexpr (std::is_same_v<T, NumberPropertySchema>) return "number";
+        else if constexpr (std::is_same_v<T, IntegerPropertySchema>) return "integer";
+        else if constexpr (std::is_same_v<T, BooleanPropertySchema>) return "boolean";
+        else if constexpr (std::is_same_v<T, MultiSelectPropertySchema>) return "array";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("type").toString();
+        return {};
+    }, val);
+}
+
+QJsonObject toJson(const ElicitationPropertySchema &val)
+{
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, QJsonObject>) {
+            return v;
+        } else {
+            return toJson(v);
+        }
+    }, val);
+    obj.insert("type", dispatchValue(val));
+    return obj;
+}
+
+QJsonValue toJsonValue(const ElicitationPropertySchema &val)
+{
+    return toJson(val);
+}
+
+QString toString(ElicitationSchemaType v)
+{
+    switch(v) {
+        case ElicitationSchemaType::object: return "object";
+    }
+    return {};
+}
+
+template<>
+Utils::Result<ElicitationSchemaType> fromJson<ElicitationSchemaType>(const QJsonValue &val)
+{
+    const QString str = val.toString();
+    if (str == "object") return ElicitationSchemaType::object;
+    return Utils::ResultError("Invalid ElicitationSchemaType value: " + str);
+}
+
+QJsonValue toJsonValue(const ElicitationSchemaType &v)
+{
+    return toString(v);
+}
+
+template<>
+Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for ElicitationSchema");
+    const QJsonObject obj = val.toObject();
+    ElicitationSchema result;
+    if (obj.contains("type") && obj["type"].isString())
+        result._type = co_await fromJson<ElicitationSchemaType>(obj["type"]);
+    if (obj.contains("title"))
+        if (!obj["title"].isNull()) {
+            result._title = obj.value("title").toString();
+        }
+    if (obj.contains("properties") && obj["properties"].isObject()) {
+        const QJsonObject mapObj_properties = obj["properties"].toObject();
+        QMap<QString, ElicitationPropertySchema> map_properties;
+        for (auto it = mapObj_properties.constBegin(); it != mapObj_properties.constEnd(); ++it) {
+            map_properties.insert(it.key(), co_await fromJson<ElicitationPropertySchema>(it.value()));
+        }
+        result._properties = map_properties;
+    }
+    if (obj.contains("required"))
+        if (!obj["required"].isNull()) {
+            result._required = obj.value("required").toArray();
+        }
+    if (obj.contains("description"))
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const ElicitationSchema &data)
+{
+    QJsonObject obj;
+    if (data._type.has_value())
+        obj.insert("type", toJsonValue(*data._type));
+    if (data._title.has_value())
+        obj.insert("title", *data._title);
+    if (data._properties.has_value()) {
+        QJsonObject map_properties;
+        for (auto it = data._properties->constBegin(); it != data._properties->constEnd(); ++it)
+            map_properties.insert(it.key(), toJsonValue(it.value()));
+        obj.insert("properties", map_properties);
+    }
+    if (data._required.has_value())
+        obj.insert("required", *data._required);
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<> Utils::Result<SessionId> fromJson<SessionId>(const QJsonValue &val)
+{
+    if (!val.isString()) return Utils::ResultError("Expected string");
+    return val.toString();
+}
+
+template<>
+Utils::Result<ElicitationSessionScope> fromJson<ElicitationSessionScope>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for ElicitationSessionScope");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("sessionId"))
+        co_return Utils::ResultError("Missing required field: sessionId");
+    ElicitationSessionScope result;
+    if (obj.contains("sessionId") && obj["sessionId"].isString())
+        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("toolCallId") && !obj["toolCallId"].isNull())
+        result._toolCallId = co_await fromJson<ToolCallId>(obj["toolCallId"]);
+    co_return result;
+}
+
+QJsonObject toJson(const ElicitationSessionScope &data)
+{
+    QJsonObject obj{{"sessionId", data._sessionId}};
+    if (data._toolCallId.has_value())
+        obj.insert("toolCallId", *data._toolCallId);
+    return obj;
+}
+
+template<>
+Utils::Result<ElicitationFormMode> fromJson<ElicitationFormMode>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for ElicitationFormMode");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("requestedSchema"))
+        co_return Utils::ResultError("Missing required field: requestedSchema");
+    ElicitationFormMode result;
+    if (obj.contains("requestedSchema") && obj["requestedSchema"].isObject())
+        result._requestedSchema = co_await fromJson<ElicitationSchema>(obj["requestedSchema"]);
+    {
+        const QSet<QString> knownKeys{"requestedSchema"};
+        for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
+            if (!knownKeys.contains(it.key()))
+                result._additionalProperties.insert(it.key(), it.value());
+        }
+    }
+    co_return result;
+}
+
+QJsonObject toJson(const ElicitationFormMode &data)
+{
+    QJsonObject obj{{"requestedSchema", toJson(data._requestedSchema)}};
+    for (auto it = data._additionalProperties.constBegin(); it != data._additionalProperties.constEnd(); ++it)
+        obj.insert(it.key(), it.value());
+    return obj;
+}
+
+template<>
+Utils::Result<ElicitationUrlMode> fromJson<ElicitationUrlMode>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for ElicitationUrlMode");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("elicitationId"))
+        co_return Utils::ResultError("Missing required field: elicitationId");
+    if (!obj.contains("url"))
+        co_return Utils::ResultError("Missing required field: url");
+    ElicitationUrlMode result;
+    if (obj.contains("elicitationId") && obj["elicitationId"].isString())
+        result._elicitationId = co_await fromJson<ElicitationId>(obj["elicitationId"]);
+    result._url = obj.value("url").toString();
+    {
+        const QSet<QString> knownKeys{"elicitationId", "url"};
+        for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
+            if (!knownKeys.contains(it.key()))
+                result._additionalProperties.insert(it.key(), it.value());
+        }
+    }
+    co_return result;
+}
+
+QJsonObject toJson(const ElicitationUrlMode &data)
+{
+    QJsonObject obj{
+        {"elicitationId", data._elicitationId},
+        {"url", data._url}
+    };
+    for (auto it = data._additionalProperties.constBegin(); it != data._additionalProperties.constEnd(); ++it)
+        obj.insert(it.key(), it.value());
+    return obj;
+}
+
+template<>
+Utils::Result<CreateElicitationRequest> fromJson<CreateElicitationRequest>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CreateElicitationRequest");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("message"))
+        return Utils::ResultError("Missing required field: message");
+    CreateElicitationRequest result;
+    result._message = obj.value("message").toString();
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    {
+        const QSet<QString> knownKeys{"message", "_meta"};
+        for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
+            if (!knownKeys.contains(it.key()))
+                result._additionalProperties.insert(it.key(), it.value());
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CreateElicitationRequest &data)
+{
+    QJsonObject obj{{"message", data._message}};
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    for (auto it = data._additionalProperties.constBegin(); it != data._additionalProperties.constEnd(); ++it)
+        obj.insert(it.key(), it.value());
+    return obj;
+}
+
+template<>
 Utils::Result<EnvVariable> fromJson<EnvVariable>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -32,12 +774,6 @@ QJsonObject toJson(const EnvVariable &data)
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     return obj;
-}
-
-template<> Utils::Result<SessionId> fromJson<SessionId>(const QJsonValue &val)
-{
-    if (!val.isString()) return Utils::ResultError("Expected string");
-    return val.toString();
 }
 
 template<>
@@ -218,31 +954,6 @@ QJsonObject toJson(const ReleaseTerminalRequest &data)
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     return obj;
-}
-
-template<>
-Utils::Result<RequestId> fromJson<RequestId>(const QJsonValue &val)
-{
-    if (val.isNull())
-        return RequestId(std::monostate{});
-    if (val.isDouble())
-        return RequestId(static_cast<int>(val.toDouble()));
-    if (val.isString())
-        return RequestId(val.toString());
-    return Utils::ResultError("Invalid RequestId");
-}
-
-QJsonValue toJsonValue(const RequestId &val)
-{
-    return std::visit([](const auto &v) -> QJsonValue {
-        using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, std::monostate>) {
-            return QJsonValue(QJsonValue::Null);
-        } else
-        {
-            return QVariant::fromValue(v).toJsonValue();
-        }
-    }, val);
 }
 
 QString toString(PermissionOptionKind v)
@@ -1633,24 +2344,97 @@ QJsonObject toJson(const AuthMethodAgent &data)
 }
 
 template<>
+Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for AuthMethodTerminal");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("id"))
+        co_return Utils::ResultError("Missing required field: id");
+    if (!obj.contains("name"))
+        co_return Utils::ResultError("Missing required field: name");
+    AuthMethodTerminal result;
+    if (obj.contains("id") && obj["id"].isString())
+        result._id = co_await fromJson<AuthMethodId>(obj["id"]);
+    result._name = obj.value("name").toString();
+    if (obj.contains("description"))
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        }
+    if (obj.contains("args") && obj["args"].isArray()) {
+        const QJsonArray arr = obj["args"].toArray();
+        QStringList list_args;
+        for (const QJsonValue &v : arr) {
+            list_args.append(v.toString());
+        }
+        result._args = list_args;
+    }
+    if (obj.contains("env") && obj["env"].isObject()) {
+        const QJsonObject mapObj_env = obj["env"].toObject();
+        QMap<QString, QString> map_env;
+        for (auto it = mapObj_env.constBegin(); it != mapObj_env.constEnd(); ++it)
+            map_env.insert(it.key(), it.value().toString());
+        result._env = map_env;
+    }
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const AuthMethodTerminal &data)
+{
+    QJsonObject obj{
+        {"id", data._id},
+        {"name", data._name}
+    };
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    if (data._args.has_value()) {
+        QJsonArray arr_args;
+        for (const auto &v : *data._args) arr_args.append(v);
+        obj.insert("args", arr_args);
+    }
+    if (data._env.has_value()) {
+        QJsonObject map_env;
+        for (auto it = data._env->constBegin(); it != data._env->constEnd(); ++it)
+            map_env.insert(it.key(), QJsonValue(it.value()));
+        obj.insert("env", map_env);
+    }
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
 Utils::Result<AuthMethod> fromJson<AuthMethod>(const QJsonValue &val)
 {
     if (!val.isObject())
         co_return Utils::ResultError("Invalid AuthMethod: expected object");
-    const QJsonObject obj = val.toObject();
-    if (obj.contains("id"))
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "terminal")
+        co_return AuthMethod(co_await fromJson<AuthMethodTerminal>(val));
+    else if (dispatchValue == "agent")
         co_return AuthMethod(co_await fromJson<AuthMethodAgent>(val));
-    co_return Utils::ResultError("Invalid AuthMethod");
+    if (dispatchValue.isEmpty())
+        co_return AuthMethod(co_await fromJson<AuthMethodAgent>(val));
+    co_return Utils::ResultError("Invalid AuthMethod: unknown type \"" + dispatchValue + "\"");
 }
 
-QString name(const AuthMethod &val)
+QString dispatchValue(const AuthMethod &val)
 {
-    return std::visit([](const auto &v) -> QString { return v._name; }, val);
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, AuthMethodTerminal>) return "terminal";
+        else if constexpr (std::is_same_v<T, AuthMethodAgent>) return "agent";
+        return {};
+    }, val);
 }
 
 QJsonObject toJson(const AuthMethod &val)
 {
-    return std::visit([](const auto &v) -> QJsonObject {
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, QJsonObject>) {
             return v;
@@ -1658,11 +2442,18 @@ QJsonObject toJson(const AuthMethod &val)
             return toJson(v);
         }
     }, val);
+    obj.insert("type", dispatchValue(val));
+    return obj;
 }
 
 QJsonValue toJsonValue(const AuthMethod &val)
 {
     return toJson(val);
+}
+
+QString name(const AuthMethod &val)
+{
+    return std::visit([](const auto &v) -> QString { return v._name; }, val);
 }
 
 template<>
@@ -2429,6 +3220,32 @@ QJsonValue toJsonValue(const AgentResponse &val)
 }
 
 template<>
+Utils::Result<CompleteElicitationNotification> fromJson<CompleteElicitationNotification>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for CompleteElicitationNotification");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("elicitationId"))
+        co_return Utils::ResultError("Missing required field: elicitationId");
+    CompleteElicitationNotification result;
+    if (obj.contains("elicitationId") && obj["elicitationId"].isString())
+        result._elicitationId = co_await fromJson<ElicitationId>(obj["elicitationId"]);
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const CompleteElicitationNotification &data)
+{
+    QJsonObject obj{{"elicitationId", data._elicitationId}};
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
 Utils::Result<UnstructuredCommandInput> fromJson<UnstructuredCommandInput>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -3122,6 +3939,32 @@ QJsonObject toJson(const DeleteSessionRequest &data)
 }
 
 template<>
+Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for AuthCapabilities");
+    const QJsonObject obj = val.toObject();
+    AuthCapabilities result;
+    if (obj.contains("terminal"))
+        result._terminal = obj.value("terminal").toBool();
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const AuthCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._terminal.has_value())
+        obj.insert("terminal", *data._terminal);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
 Utils::Result<BooleanConfigOptionCapabilities> fromJson<BooleanConfigOptionCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -3196,6 +4039,80 @@ QJsonObject toJson(const ClientSessionCapabilities &data)
 }
 
 template<>
+Utils::Result<ElicitationFormCapabilities> fromJson<ElicitationFormCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for ElicitationFormCapabilities");
+    const QJsonObject obj = val.toObject();
+    ElicitationFormCapabilities result;
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const ElicitationFormCapabilities &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<ElicitationUrlCapabilities> fromJson<ElicitationUrlCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for ElicitationUrlCapabilities");
+    const QJsonObject obj = val.toObject();
+    ElicitationUrlCapabilities result;
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const ElicitationUrlCapabilities &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
+Utils::Result<ElicitationCapabilities> fromJson<ElicitationCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for ElicitationCapabilities");
+    const QJsonObject obj = val.toObject();
+    ElicitationCapabilities result;
+    if (obj.contains("form") && !obj["form"].isNull())
+        result._form = co_await fromJson<ElicitationFormCapabilities>(obj["form"]);
+    if (obj.contains("url") && !obj["url"].isNull())
+        result._url = co_await fromJson<ElicitationUrlCapabilities>(obj["url"]);
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    co_return result;
+}
+
+QJsonObject toJson(const ElicitationCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._form.has_value())
+        obj.insert("form", toJson(*data._form));
+    if (data._url.has_value())
+        obj.insert("url", toJson(*data._url));
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    return obj;
+}
+
+template<>
 Utils::Result<FileSystemCapabilities> fromJson<FileSystemCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -3238,6 +4155,10 @@ Utils::Result<ClientCapabilities> fromJson<ClientCapabilities>(const QJsonValue 
         result._terminal = obj.value("terminal").toBool();
     if (obj.contains("session") && !obj["session"].isNull())
         result._session = co_await fromJson<ClientSessionCapabilities>(obj["session"]);
+    if (obj.contains("auth") && obj["auth"].isObject())
+        result._auth = co_await fromJson<AuthCapabilities>(obj["auth"]);
+    if (obj.contains("elicitation") && !obj["elicitation"].isNull())
+        result._elicitation = co_await fromJson<ElicitationCapabilities>(obj["elicitation"]);
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3254,6 +4175,10 @@ QJsonObject toJson(const ClientCapabilities &data)
         obj.insert("terminal", *data._terminal);
     if (data._session.has_value())
         obj.insert("session", toJson(*data._session));
+    if (data._auth.has_value())
+        obj.insert("auth", toJson(*data._auth));
+    if (data._elicitation.has_value())
+        obj.insert("elicitation", toJson(*data._elicitation));
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     return obj;
@@ -3869,6 +4794,101 @@ QJsonObject toJson(const ClientRequest &data)
     };
     if (data._params.has_value())
         obj.insert("params", *data._params);
+    return obj;
+}
+
+template<>
+Utils::Result<ElicitationContentValue> fromJson<ElicitationContentValue>(const QJsonValue &val)
+{
+    if (val.isString())
+        return ElicitationContentValue(val.toString());
+    if (val.isDouble()) {
+        const double d = val.toDouble();
+        if (d == std::trunc(d)
+                && d >= double(std::numeric_limits<int>::min())
+                && d <= double(std::numeric_limits<int>::max())) {
+            return ElicitationContentValue(static_cast<int>(d));
+        }
+    }
+    if (val.isDouble())
+        return ElicitationContentValue(val.toDouble());
+    if (val.isBool())
+        return ElicitationContentValue(val.toBool());
+    if (val.isArray()) {
+        QList<QString> list;
+        for (const auto &elem : val.toArray())
+            list.append(elem.toString());
+        return ElicitationContentValue(std::move(list));
+    }
+    return Utils::ResultError("Invalid ElicitationContentValue");
+}
+
+QJsonValue toJsonValue(const ElicitationContentValue &val)
+{
+    return std::visit([](const auto &v) -> QJsonValue {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, QList<QString>>) {
+            QJsonArray arr;
+            for (const auto &elem : v)
+                arr.append(elem);
+            return arr;
+        } else
+        {
+            return QVariant::fromValue(v).toJsonValue();
+        }
+    }, val);
+}
+
+template<>
+Utils::Result<ElicitationAcceptAction> fromJson<ElicitationAcceptAction>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for ElicitationAcceptAction");
+    const QJsonObject obj = val.toObject();
+    ElicitationAcceptAction result;
+    if (obj.contains("content"))
+        if (!obj["content"].isNull()) {
+            result._content = obj.value("content").toObject();
+        }
+    return result;
+}
+
+QJsonObject toJson(const ElicitationAcceptAction &data)
+{
+    QJsonObject obj;
+    if (data._content.has_value())
+        obj.insert("content", *data._content);
+    return obj;
+}
+
+template<>
+Utils::Result<CreateElicitationResponse> fromJson<CreateElicitationResponse>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CreateElicitationResponse");
+    const QJsonObject obj = val.toObject();
+    CreateElicitationResponse result;
+    if (obj.contains("_meta"))
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        }
+    {
+        const QSet<QString> knownKeys{"_meta"};
+        for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
+            if (!knownKeys.contains(it.key()))
+                result._additionalProperties.insert(it.key(), it.value());
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CreateElicitationResponse &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    for (auto it = data._additionalProperties.constBegin(); it != data._additionalProperties.constEnd(); ++it)
+        obj.insert(it.key(), it.value());
     return obj;
 }
 

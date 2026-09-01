@@ -52,15 +52,32 @@ private:
 # Prevents redefinition of fromJson/toJsonValue for equivalent variant types.
 _emitted_variant_sigs: dict = {}
 
+def _relative_to_cwd(arg: str) -> str:
+    """`arg` relative to the working directory, if it denotes a path below it."""
+    try:
+        return Path(arg).resolve().relative_to(Path.cwd()).as_posix()
+    except (ValueError, OSError):
+        return arg
+
+def invocation_comment() -> str:
+    """The command line to reproduce the generated file.
+
+    The interpreter is a fixed literal and every path is recorded relative to
+    the working directory: neither the real interpreter name nor an absolute
+    path is the same on two machines, and writing them back would churn the
+    generated files for everyone else.
+    """
+    script = _relative_to_cwd(sys.argv[0])
+    args = ' '.join(_relative_to_cwd(a) for a in sys.argv[1:])
+    return f" python3 \\\n  {script} \\\n  {args}"
+
 def make_header(namespace: str, export_header: str = None) -> str:
     export_include = f'\n#include "{export_header}"\n' if export_header else ''
     return f'''/*
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- {sys.executable} \\
-  {sys.argv[0]} \\
-  {' '.join(sys.argv[1:])}
+{invocation_comment()}
 */
 #pragma once
 {export_include}
@@ -75,6 +92,8 @@ def make_header(namespace: str, export_header: str = None) -> str:
 #include <QString>
 #include <QVariant>
 
+#include <cmath>
+#include <limits>
 #include <variant>
 
 namespace {namespace} {{
@@ -565,6 +584,7 @@ def _parse_discriminated_union(name, spec, types=None):
     # Extract (ref_type_name, discriminator_const_value) for each oneOf item
     variants = []  # list of (cpp_type_name, disc_value, item_spec)
     has_fallback = False
+    optional_disc_variants = []  # variants that declare the value but do not require the field
     for item in items:
         ref = _extract_ref(item)
         if ref is None and "not" in item:
@@ -584,6 +604,8 @@ def _parse_discriminated_union(name, spec, types=None):
 
         if ref and disc_val:
             variants.append((ref_type(ref), disc_val, item))
+            if disc_field in inline_props and disc_field not in item.get("required", []):
+                optional_disc_variants.append(ref_type(ref))
         elif not ref and disc_val and item.get("properties"):
             # Inline object variant (like the "cancelled" variant in RequestPermissionOutcome)
             # This is an inline struct with only the discriminator const field
@@ -607,6 +629,11 @@ def _parse_discriminated_union(name, spec, types=None):
     has_duplicates = len(cpp_types) != len(unique_cpp_types)
     has_inline_only = any(v[0] is None for v in variants)
 
+    # A variant that names its discriminator value without requiring the field
+    # is what a payload that omits the field decodes to.
+    default_type = optional_disc_variants[0] \
+        if len(optional_disc_variants) == 1 and len(variants) > 1 else None
+
     # Check if we need a wrapper struct (duplicates exist or inline-only variants)
     if has_duplicates or has_inline_only:
         return _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types,
@@ -614,7 +641,7 @@ def _parse_discriminated_union(name, spec, types=None):
     else:
         # No duplicates — generate a using alias with discriminator-based dispatch
         return _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types,
-                                        has_fallback=has_fallback)
+                                        has_fallback=has_fallback, default_type=default_type)
 
 
 def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types,
@@ -705,7 +732,7 @@ def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_typ
 
 
 def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types,
-                             has_fallback=False):
+                             has_fallback=False, default_type=None):
     """Generate a using alias with discriminator-based dispatch for unions without duplicate types."""
     prefix = doc_comment(spec.get('description', ''))
     lines = []
@@ -732,9 +759,13 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
         fj.append(f"    {kw} (dispatchValue == \"{disc_val}\")")
         fj.append(f"        co_return {name}(co_await fromJson<{cpp_type_name}>(val));")
 
-    if has_fallback:
+    if default_type:
         fj.append(f"    if (dispatchValue.isEmpty())")
-        fj.append(f'        co_return Utils::ResultError("Invalid {name}: missing {disc_field}");')
+        fj.append(f"        co_return {name}(co_await fromJson<{default_type}>(val));")
+    if has_fallback:
+        if not default_type:
+            fj.append(f"    if (dispatchValue.isEmpty())")
+            fj.append(f'        co_return Utils::ResultError("Invalid {name}: missing {disc_field}");')
         fj.append(f"    co_return {name}(val.toObject());  // open union: preserve unknown variants raw")
     else:
         fj.append(f'    co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + dispatchValue + "\\"");')
@@ -800,6 +831,23 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
     return prefix + "\n".join(lines), variant_type_str
 
 
+def _integral_only_guard(name):
+    """Body of an `if (val.isDouble())` branch that only claims integral values.
+
+    JSON has a single number type, so a variant offering both `integer` and
+    `number` would otherwise always pick the integer alternative and truncate
+    fractional values. Values outside the range of `int` fall through to the
+    number alternative, which keeps them instead of truncating to garbage.
+    """
+    return [
+        f"        const double d = val.toDouble();",
+        f"        if (d == std::trunc(d)",
+        f"                && d >= double(std::numeric_limits<int>::min())",
+        f"                && d <= double(std::numeric_limits<int>::max())) {{",
+        f"            co_return {name}(static_cast<int>(d));",
+        f"        }}",
+    ]
+
 def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None):
     """Generate code for union types (std::variant)
     skip_to_json: if True, skip generating toJsonValue function (for duplicate signatures)
@@ -858,6 +906,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
 
     # For simple type unions (string/integer)
     if isinstance(spec.get("type"), list):
+        int_and_number = "integer" in spec["type"] and "number" in spec["type"]
         for i, json_type in enumerate(spec["type"]):
             cpp_t = cpp_type(json_type)
             if json_type == "string":
@@ -866,7 +915,10 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                 fj.append(f"    }}")
             elif json_type == "integer":
                 fj.append(f"    if (val.isDouble()) {{")
-                fj.append(f"        co_return {name}(val.toInt());")
+                if int_and_number:
+                    fj.extend(_integral_only_guard(name))
+                else:
+                    fj.append(f"        co_return {name}(val.toInt());")
                 fj.append(f"    }}")
             elif json_type == "number":
                 fj.append(f"    if (val.isDouble()) {{")
@@ -892,14 +944,21 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
 
         # If all items are plain types (no $refs), generate primitive-style fromJson
         if plain_items and not ref_names:
+            plain_types = {item["type"] for item in plain_items}
+            int_and_number = "integer" in plain_types and "number" in plain_types
             for item in plain_items:
                 json_type = item["type"]
                 if json_type == "string":
                     fj.append(f"    if (val.isString())")
                     fj.append(f"        co_return {name}(val.toString());")
                 elif json_type == "integer":
-                    fj.append(f"    if (val.isDouble())")
-                    fj.append(f"        co_return {name}(static_cast<int>(val.toDouble()));")
+                    if int_and_number:
+                        fj.append(f"    if (val.isDouble()) {{")
+                        fj.extend(_integral_only_guard(name))
+                        fj.append(f"    }}")
+                    else:
+                        fj.append(f"    if (val.isDouble())")
+                        fj.append(f"        co_return {name}(static_cast<int>(val.toDouble()));")
                 elif json_type == "number":
                     fj.append(f"    if (val.isDouble())")
                     fj.append(f"        co_return {name}(val.toDouble());")

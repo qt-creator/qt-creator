@@ -2941,21 +2941,144 @@ QJsonObject toJson(const AuthMethodAgent &data)
 }
 
 template<>
+Utils::Result<EnvVariable> fromJson<EnvVariable>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for EnvVariable");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("name"))
+        return Utils::ResultError("Missing required field: name");
+    if (!obj.contains("value"))
+        return Utils::ResultError("Missing required field: value");
+    EnvVariable result;
+    result._name = obj.value("name").toString();
+    result._value = obj.value("value").toString();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const EnvVariable &data)
+{
+    QJsonObject obj{
+        {"name", data._name},
+        {"value", data._value}
+    };
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for AuthMethodTerminal");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("methodId"))
+        co_return Utils::ResultError("Missing required field: methodId");
+    if (!obj.contains("name"))
+        co_return Utils::ResultError("Missing required field: name");
+    AuthMethodTerminal result;
+    if (obj.contains("methodId") && obj["methodId"].isString())
+        result._methodId = co_await fromJson<AuthMethodId>(obj["methodId"]);
+    result._name = obj.value("name").toString();
+    if (obj.contains("description")) {
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        } else {
+            result._description = std::nullopt;
+        }
+    }
+    if (obj.contains("args") && obj["args"].isArray()) {
+        const QJsonArray arr = obj["args"].toArray();
+        QStringList list_args;
+        for (const QJsonValue &v : arr) {
+            list_args.append(v.toString());
+        }
+        result._args = list_args;
+    }
+    if (obj.contains("env") && obj["env"].isArray()) {
+        const QJsonArray arr = obj["env"].toArray();
+        QList<EnvVariable> list_env;
+        for (const QJsonValue &v : arr) {
+            list_env.append(co_await fromJson<EnvVariable>(v));
+        }
+        result._env = list_env;
+    }
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    co_return result;
+}
+
+QJsonObject toJson(const AuthMethodTerminal &data)
+{
+    QJsonObject obj{
+        {"methodId", data._methodId},
+        {"name", data._name}
+    };
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    else if (data._description.isNull())
+        obj.insert("description", QJsonValue::Null);
+    if (data._args.has_value()) {
+        QJsonArray arr_args;
+        for (const auto &v : *data._args) arr_args.append(v);
+        obj.insert("args", arr_args);
+    }
+    if (data._env.has_value()) {
+        QJsonArray arr_env;
+        for (const auto &v : *data._env) arr_env.append(toJson(v));
+        obj.insert("env", arr_env);
+    }
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
 Utils::Result<AuthMethod> fromJson<AuthMethod>(const QJsonValue &val)
 {
     if (!val.isObject())
         co_return Utils::ResultError("Invalid AuthMethod: expected object");
-    const QJsonObject obj = val.toObject();
-    if (obj.contains("methodId"))
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "terminal")
+        co_return AuthMethod(co_await fromJson<AuthMethodTerminal>(val));
+    else if (dispatchValue == "agent")
         co_return AuthMethod(co_await fromJson<AuthMethodAgent>(val));
-    if (val.isObject())
-        co_return AuthMethod(val.toObject());  // open union: preserve unknown variants raw
-    co_return Utils::ResultError("Invalid AuthMethod");
+    if (dispatchValue.isEmpty())
+        co_return Utils::ResultError("Invalid AuthMethod: missing type");
+    co_return AuthMethod(val.toObject());  // open union: preserve unknown variants raw
+}
+
+QString dispatchValue(const AuthMethod &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, AuthMethodTerminal>) return "terminal";
+        else if constexpr (std::is_same_v<T, AuthMethodAgent>) return "agent";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("type").toString();
+        return {};
+    }, val);
 }
 
 QJsonObject toJson(const AuthMethod &val)
 {
-    return std::visit([](const auto &v) -> QJsonObject {
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, QJsonObject>) {
             return v;
@@ -2963,6 +3086,8 @@ QJsonObject toJson(const AuthMethod &val)
             return toJson(v);
         }
     }, val);
+    obj.insert("type", dispatchValue(val));
+    return obj;
 }
 
 QJsonValue toJsonValue(const AuthMethod &val)
@@ -4992,6 +5117,68 @@ QJsonObject toJson(const DeleteSessionRequest &data)
 }
 
 template<>
+Utils::Result<TerminalAuthCapabilities> fromJson<TerminalAuthCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for TerminalAuthCapabilities");
+    const QJsonObject obj = val.toObject();
+    TerminalAuthCapabilities result;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const TerminalAuthCapabilities &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        co_return Utils::ResultError("Expected JSON object for AuthCapabilities");
+    const QJsonObject obj = val.toObject();
+    AuthCapabilities result;
+    if (obj.contains("terminal") && !obj["terminal"].isNull())
+        result._terminal = co_await fromJson<TerminalAuthCapabilities>(obj["terminal"]);
+    else if (obj.contains("terminal"))
+        result._terminal = std::nullopt;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    co_return result;
+}
+
+QJsonObject toJson(const AuthCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._terminal.has_value())
+        obj.insert("terminal", toJson(*data._terminal));
+    else if (data._terminal.isNull())
+        obj.insert("terminal", QJsonValue::Null);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
 Utils::Result<ElicitationFormCapabilities> fromJson<ElicitationFormCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -5095,6 +5282,10 @@ Utils::Result<ClientCapabilities> fromJson<ClientCapabilities>(const QJsonValue 
         co_return Utils::ResultError("Expected JSON object for ClientCapabilities");
     const QJsonObject obj = val.toObject();
     ClientCapabilities result;
+    if (obj.contains("auth") && !obj["auth"].isNull())
+        result._auth = co_await fromJson<AuthCapabilities>(obj["auth"]);
+    else if (obj.contains("auth"))
+        result._auth = std::nullopt;
     if (obj.contains("elicitation") && !obj["elicitation"].isNull())
         result._elicitation = co_await fromJson<ElicitationCapabilities>(obj["elicitation"]);
     else if (obj.contains("elicitation"))
@@ -5112,6 +5303,10 @@ Utils::Result<ClientCapabilities> fromJson<ClientCapabilities>(const QJsonValue 
 QJsonObject toJson(const ClientCapabilities &data)
 {
     QJsonObject obj;
+    if (data._auth.has_value())
+        obj.insert("auth", toJson(*data._auth));
+    else if (data._auth.isNull())
+        obj.insert("auth", QJsonValue::Null);
     if (data._elicitation.has_value())
         obj.insert("elicitation", toJson(*data._elicitation));
     else if (data._elicitation.isNull())
@@ -5344,42 +5539,6 @@ QJsonObject toJson(const McpServerHttp &data)
         for (const auto &v : *data._headers) arr_headers.append(toJson(v));
         obj.insert("headers", arr_headers);
     }
-    if (data.__meta.has_value())
-        obj.insert("_meta", *data.__meta);
-    else if (data.__meta.isNull())
-        obj.insert("_meta", QJsonValue::Null);
-    return obj;
-}
-
-template<>
-Utils::Result<EnvVariable> fromJson<EnvVariable>(const QJsonValue &val)
-{
-    if (!val.isObject())
-        return Utils::ResultError("Expected JSON object for EnvVariable");
-    const QJsonObject obj = val.toObject();
-    if (!obj.contains("name"))
-        return Utils::ResultError("Missing required field: name");
-    if (!obj.contains("value"))
-        return Utils::ResultError("Missing required field: value");
-    EnvVariable result;
-    result._name = obj.value("name").toString();
-    result._value = obj.value("value").toString();
-    if (obj.contains("_meta")) {
-        if (!obj["_meta"].isNull()) {
-            result.__meta = obj.value("_meta").toObject();
-        } else {
-            result.__meta = std::nullopt;
-        }
-    }
-    return result;
-}
-
-QJsonObject toJson(const EnvVariable &data)
-{
-    QJsonObject obj{
-        {"name", data._name},
-        {"value", data._value}
-    };
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -5804,8 +5963,14 @@ Utils::Result<ElicitationContentValue> fromJson<ElicitationContentValue>(const Q
 {
     if (val.isString())
         return ElicitationContentValue(val.toString());
-    if (val.isDouble())
-        return ElicitationContentValue(static_cast<int>(val.toDouble()));
+    if (val.isDouble()) {
+        const double d = val.toDouble();
+        if (d == std::trunc(d)
+                && d >= double(std::numeric_limits<int>::min())
+                && d <= double(std::numeric_limits<int>::max())) {
+            return ElicitationContentValue(static_cast<int>(d));
+        }
+    }
     if (val.isDouble())
         return ElicitationContentValue(val.toDouble());
     if (val.isBool())

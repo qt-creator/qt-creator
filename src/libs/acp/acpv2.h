@@ -2,7 +2,7 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- C:\dev\bin\Python\313\python.exe \
+ python3 \
   scripts/generate_cpp_from_schema.py \
   src/libs/acp/schema/schema-v2.json src/libs/acp/acpv2.h --namespace Acp::V2 --cpp-output src/libs/acp/acpv2.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h --three-state
 */
@@ -21,6 +21,8 @@
 #include <QString>
 #include <QVariant>
 
+#include <cmath>
+#include <limits>
 #include <variant>
 
 namespace Acp::V2 {
@@ -2388,15 +2390,99 @@ ACPLIB_EXPORT Utils::Result<AuthMethodAgent> fromJson<AuthMethodAgent>(const QJs
 
 ACPLIB_EXPORT QJsonObject toJson(const AuthMethodAgent &data);
 
+/** An environment variable to set when launching a process. */
+struct EnvVariable {
+    QString _name;  //!< The name of the environment variable.
+    QString _value;  //!< The value to set for the environment variable.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta;
+
+    EnvVariable& name(const QString & v) { _name = v; return *this; }
+    EnvVariable& value(const QString & v) { _value = v; return *this; }
+    EnvVariable& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    EnvVariable& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const QString& name() const { return _name; }
+    const QString& value() const { return _value; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<EnvVariable> fromJson<EnvVariable>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const EnvVariable &data);
+
+/**
+ * Terminal-based authentication method.
+ *
+ * The client runs the configured agent program as a separate interactive
+ * process for the user to authenticate via a TUI. Agents MUST advertise this
+ * method only when the client enabled its terminal authentication capability.
+ * A zero exit status signals success; any other termination signals failure.
+ * The client MUST NOT pass this method to `auth/login`.
+ */
+struct AuthMethodTerminal {
+    AuthMethodId _methodId;  //!< Unique identifier for this authentication method.
+    QString _name;  //!< Human-readable name of the authentication method.
+    Patch<QString> _description;  //!< Optional description providing more details about this authentication method.
+    std::optional<QStringList> _args;  //!< Additional arguments to append to the configured agent invocation for terminal auth.
+    /**
+     * Additional environment variables to set on the configured agent invocation for terminal auth.
+     * Names MUST be unique. These values override same-named variables in the
+     * base launch configuration.
+     */
+    std::optional<QList<EnvVariable>> _env;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta;
+
+    AuthMethodTerminal& methodId(const AuthMethodId & v) { _methodId = v; return *this; }
+    AuthMethodTerminal& name(const QString & v) { _name = v; return *this; }
+    AuthMethodTerminal& description(const Patch<QString> & v) { _description = v; return *this; }
+    AuthMethodTerminal& description(const QString & v) { _description = v; return *this; }
+    AuthMethodTerminal& args(const std::optional<QStringList> & v) { _args = v; return *this; }
+    AuthMethodTerminal& addArg(const QString & v) { if (!_args) _args = QStringList{}; (*_args).append(v); return *this; }
+    AuthMethodTerminal& env(const std::optional<QList<EnvVariable>> & v) { _env = v; return *this; }
+    AuthMethodTerminal& addEnv(const EnvVariable & v) { if (!_env) _env = QList<EnvVariable>{}; (*_env).append(v); return *this; }
+    AuthMethodTerminal& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    AuthMethodTerminal& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const AuthMethodId& methodId() const { return _methodId; }
+    const QString& name() const { return _name; }
+    const Patch<QString>& description() const { return _description; }
+    const std::optional<QStringList>& args() const { return _args; }
+    const std::optional<QList<EnvVariable>>& env() const { return _env; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const AuthMethodTerminal &data);
+
 /**
  * Describes an available authentication method.
  *
  * The `type` field acts as the discriminator in the serialized JSON form.
  */
-using AuthMethod = std::variant<AuthMethodAgent, QJsonObject>;
+using AuthMethod = std::variant<AuthMethodTerminal, AuthMethodAgent, QJsonObject>;
 
 template<>
 ACPLIB_EXPORT Utils::Result<AuthMethod> fromJson<AuthMethod>(const QJsonValue &val);
+
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const AuthMethod &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const AuthMethod &val);
 
@@ -3932,6 +4018,74 @@ ACPLIB_EXPORT Utils::Result<DeleteSessionRequest> fromJson<DeleteSessionRequest>
 ACPLIB_EXPORT QJsonObject toJson(const DeleteSessionRequest &data);
 
 /**
+ * Capabilities for terminal authentication methods.
+ *
+ * Supplying `{}` means the client can reproduce the configured agent
+ * invocation in an interactive terminal and supports terminal authentication
+ * methods.
+ */
+struct TerminalAuthCapabilities {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta;
+
+    TerminalAuthCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    TerminalAuthCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<TerminalAuthCapabilities> fromJson<TerminalAuthCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const TerminalAuthCapabilities &data);
+
+/**
+ * Authentication capabilities supported by the client.
+ *
+ * Advertised during initialization to inform the agent which authentication
+ * method types the client can handle. This governs opt-in types that require
+ * additional client-side support.
+ */
+struct AuthCapabilities {
+    /**
+     * Whether the client supports `terminal` authentication methods.
+     *
+     * Optional. Omitted or `null` both mean the client does not advertise support.
+     * The client should supply `{}` only when it can reproduce the configured
+     * agent invocation in an interactive terminal. Supplying `{}` means the
+     * agent may include `terminal` entries in its authentication methods.
+     */
+    Patch<TerminalAuthCapabilities> _terminal;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta;
+
+    AuthCapabilities& terminal(const Patch<TerminalAuthCapabilities> & v) { _terminal = v; return *this; }
+    AuthCapabilities& terminal(const TerminalAuthCapabilities & v) { _terminal = v; return *this; }
+    AuthCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    AuthCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<TerminalAuthCapabilities>& terminal() const { return _terminal; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const AuthCapabilities &data);
+
+/**
  * Form-based elicitation capabilities.
  *
  * Supplying `{}` means the client supports form-based elicitation.
@@ -4041,6 +4195,15 @@ ACPLIB_EXPORT QJsonObject toJson(const ElicitationCapabilities &data);
  */
 struct ClientCapabilities {
     /**
+     * Authentication capabilities supported by the client.
+     * Determines which authentication method types the agent may include
+     * in its `InitializeResponse`.
+     *
+     * Optional. Omitted or `null` both mean the client does not advertise any
+     * authentication-method extensions.
+     */
+    Patch<AuthCapabilities> _auth;
+    /**
      * Elicitation capabilities supported by the client.
      * Determines which elicitation modes the agent may use.
      *
@@ -4057,11 +4220,14 @@ struct ClientCapabilities {
      */
     Patch<QJsonObject> __meta;
 
+    ClientCapabilities& auth(const Patch<AuthCapabilities> & v) { _auth = v; return *this; }
+    ClientCapabilities& auth(const AuthCapabilities & v) { _auth = v; return *this; }
     ClientCapabilities& elicitation(const Patch<ElicitationCapabilities> & v) { _elicitation = v; return *this; }
     ClientCapabilities& elicitation(const ElicitationCapabilities & v) { _elicitation = v; return *this; }
     ClientCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     ClientCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
+    const Patch<AuthCapabilities>& auth() const { return _auth; }
     const Patch<ElicitationCapabilities>& elicitation() const { return _elicitation; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 };
@@ -4264,34 +4430,6 @@ template<>
 ACPLIB_EXPORT Utils::Result<McpServerHttp> fromJson<McpServerHttp>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const McpServerHttp &data);
-
-/** An environment variable to set when launching a process. */
-struct EnvVariable {
-    QString _name;  //!< The name of the environment variable.
-    QString _value;  //!< The value to set for the environment variable.
-    /**
-     * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
-     */
-    Patch<QJsonObject> __meta;
-
-    EnvVariable& name(const QString & v) { _name = v; return *this; }
-    EnvVariable& value(const QString & v) { _value = v; return *this; }
-    EnvVariable& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
-    EnvVariable& _meta(const QJsonObject & v) { __meta = v; return *this; }
-
-    const QString& name() const { return _name; }
-    const QString& value() const { return _value; }
-    const Patch<QJsonObject>& _meta() const { return __meta; }
-};
-
-template<>
-ACPLIB_EXPORT Utils::Result<EnvVariable> fromJson<EnvVariable>(const QJsonValue &val);
-
-ACPLIB_EXPORT QJsonObject toJson(const EnvVariable &data);
 
 /** Stdio transport configuration for MCP. */
 struct McpServerStdio {

@@ -58,6 +58,8 @@ private slots:
     void requestIdInvalid();
     void embeddedResourceResourceText();
     void embeddedResourceResourceBlob();
+    void authMethodTypeDispatch();
+    void elicitationContentValueNumbers();
 
     // --- Structs: all-optional fields ---
     void mcpCapabilitiesEmpty();
@@ -320,6 +322,59 @@ void tst_Acp::embeddedResourceResourceBlob()
     const auto &brc = std::get<BlobResourceContents>(*r);
     QCOMPARE(brc._blob, "AQIDBA==");
     QCOMPARE(brc._uri, "file:///data.bin");
+}
+
+// The v1 auth methods share their required fields, so only `type` tells them
+// apart. An absent type means `agent`, and it survives a roundtrip.
+void tst_Acp::authMethodTypeDispatch()
+{
+    const QJsonObject terminal = jsonObj(R"({
+        "type": "terminal",
+        "id": "login-tui",
+        "name": "Log in",
+        "args": ["login"]
+    })");
+    auto parsedTerminal = fromJson<AuthMethod>(QJsonValue(terminal));
+    QVERIFY_RESULT(parsedTerminal);
+    QVERIFY(std::holds_alternative<AuthMethodTerminal>(*parsedTerminal));
+    QCOMPARE(toJson(*parsedTerminal), terminal);
+
+    const QJsonObject agent = jsonObj(R"({"type": "agent", "id": "oauth", "name": "OAuth"})");
+    auto parsedAgent = fromJson<AuthMethod>(QJsonValue(agent));
+    QVERIFY_RESULT(parsedAgent);
+    QVERIFY(std::holds_alternative<AuthMethodAgent>(*parsedAgent));
+    QCOMPARE(toJson(*parsedAgent), agent);
+
+    // No type at all is the agent method.
+    auto parsedUntyped = fromJson<AuthMethod>(QJsonValue(jsonObj(
+        R"({"id": "oauth", "name": "OAuth"})")));
+    QVERIFY_RESULT(parsedUntyped);
+    QVERIFY(std::holds_alternative<AuthMethodAgent>(*parsedUntyped));
+
+    QVERIFY(!fromJson<AuthMethod>(QJsonValue(jsonObj(
+        R"({"type": "_vendor", "id": "x", "name": "X"})"))));
+}
+
+// JSON has a single number type, so the integer and number alternatives are
+// told apart by whether the value has a fractional part.
+void tst_Acp::elicitationContentValueNumbers()
+{
+    auto integral = fromJson<ElicitationContentValue>(QJsonValue(42));
+    QVERIFY_RESULT(integral);
+    QVERIFY(std::holds_alternative<int>(*integral));
+    QCOMPARE(std::get<int>(*integral), 42);
+
+    auto fractional = fromJson<ElicitationContentValue>(QJsonValue(2.5));
+    QVERIFY_RESULT(fractional);
+    QVERIFY(std::holds_alternative<double>(*fractional));
+    QCOMPARE(std::get<double>(*fractional), 2.5);
+    QCOMPARE(toJsonValue(*fractional).toDouble(), 2.5);
+
+    // Integral, but outside the range of the integer alternative.
+    auto huge = fromJson<ElicitationContentValue>(QJsonValue(1e300));
+    QVERIFY_RESULT(huge);
+    QVERIFY(std::holds_alternative<double>(*huge));
+    QCOMPARE(std::get<double>(*huge), 1e300);
 }
 
 // =============================================================================

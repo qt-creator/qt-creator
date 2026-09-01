@@ -2,7 +2,7 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- C:\dev\bin\Python\313\python.exe \
+ python3 \
   scripts/generate_cpp_from_schema.py \
   src/libs/acp/schema/schema.json src/libs/acp/acp.h --namespace Acp --cpp-output src/libs/acp/acp.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h
 */
@@ -21,11 +21,705 @@
 #include <QString>
 #include <QVariant>
 
+#include <cmath>
+#include <limits>
 #include <variant>
 
 namespace Acp {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
+
+/**
+ * JSON RPC Request Id
+ *
+ * An identifier established by the Client that MUST contain a String, Number, or NULL value if included. If it is not included it is assumed to be a notification. The value SHOULD normally not be Null \[1\] and Numbers SHOULD NOT contain fractional parts \[2\]
+ *
+ * The Server MUST reply with the same value in the Response object if included. This member is used to correlate the context between the two objects.
+ *
+ * \[1\] The use of Null as a value for the id member in a Request object is discouraged, because this specification uses a value of Null for Responses with an unknown id. Also, because JSON-RPC 1.0 uses an id value of Null for Notifications this could cause confusion in handling.
+ *
+ * \[2\] Fractional parts may be problematic, since many decimal fractions cannot be represented exactly as binary fractions.
+ */
+using RequestId = std::variant<std::monostate, int, QString>;
+
+template<>
+ACPLIB_EXPORT Utils::Result<RequestId> fromJson<RequestId>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const RequestId &val);
+
+/**
+ * Request-scoped elicitation, tied to a specific JSON-RPC request outside of a session
+ * (e.g., during auth/configuration phases before any session is started).
+ */
+struct ElicitationRequestScope {
+    RequestId _requestId;  //!< The request this elicitation is tied to.
+
+    ElicitationRequestScope& requestId(const RequestId & v) { _requestId = v; return *this; }
+
+    const RequestId& requestId() const { return _requestId; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationRequestScope> fromJson<ElicitationRequestScope>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationRequestScope &data);
+
+/** Schema for boolean properties in an elicitation form. */
+struct BooleanPropertySchema {
+    /**
+     * Optional title for the property.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no title is provided.
+     */
+    std::optional<QString> _title;
+    /**
+     * Human-readable description.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no description is provided.
+     */
+    std::optional<QString> _description;
+    /**
+     * Default value.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no default value is provided.
+     */
+    std::optional<bool> _default_;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    BooleanPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
+    BooleanPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
+    BooleanPropertySchema& default_(std::optional<bool> v) { _default_ = v; return *this; }
+    BooleanPropertySchema& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<QString>& title() const { return _title; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<bool>& default_() const { return _default_; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<BooleanPropertySchema> fromJson<BooleanPropertySchema>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const BooleanPropertySchema &data);
+
+/** Schema for integer properties in an elicitation form. */
+struct IntegerPropertySchema {
+    /**
+     * Optional title for the property.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no title is provided.
+     */
+    std::optional<QString> _title;
+    /**
+     * Human-readable description.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no description is provided.
+     */
+    std::optional<QString> _description;
+    /**
+     * Minimum value (inclusive).
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no inclusive lower bound.
+     */
+    std::optional<int> _minimum;
+    /**
+     * Maximum value (inclusive).
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no inclusive upper bound.
+     */
+    std::optional<int> _maximum;
+    /**
+     * Default value.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no default value is provided.
+     */
+    std::optional<int> _default_;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    IntegerPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
+    IntegerPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
+    IntegerPropertySchema& minimum(std::optional<int> v) { _minimum = v; return *this; }
+    IntegerPropertySchema& maximum(std::optional<int> v) { _maximum = v; return *this; }
+    IntegerPropertySchema& default_(std::optional<int> v) { _default_ = v; return *this; }
+    IntegerPropertySchema& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<QString>& title() const { return _title; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<int>& minimum() const { return _minimum; }
+    const std::optional<int>& maximum() const { return _maximum; }
+    const std::optional<int>& default_() const { return _default_; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<IntegerPropertySchema> fromJson<IntegerPropertySchema>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const IntegerPropertySchema &data);
+
+/** String item schema for multi-select enum properties. */
+struct StringMultiSelectItems {
+    QStringList _enum_;  //!< Allowed enum values.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    StringMultiSelectItems& enum_(const QStringList & v) { _enum_ = v; return *this; }
+    StringMultiSelectItems& addEnum(const QString & v) { _enum_.append(v); return *this; }
+    StringMultiSelectItems& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const QStringList& enum_() const { return _enum_; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<StringMultiSelectItems> fromJson<StringMultiSelectItems>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const StringMultiSelectItems &data);
+
+/** A titled enum option with a const value, human-readable title, and optional description. */
+struct EnumOption {
+    QString _const_;  //!< The constant value for this option.
+    QString _title;  //!< Human-readable title for this option.
+    /**
+     * Human-readable description.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no description is provided.
+     */
+    std::optional<QString> _description;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    EnumOption& const_(const QString & v) { _const_ = v; return *this; }
+    EnumOption& title(const QString & v) { _title = v; return *this; }
+    EnumOption& description(const std::optional<QString> & v) { _description = v; return *this; }
+    EnumOption& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const QString& const_() const { return _const_; }
+    const QString& title() const { return _title; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<EnumOption> fromJson<EnumOption>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const EnumOption &data);
+
+/** Items definition for titled multi-select enum properties. */
+struct TitledMultiSelectItems {
+    QList<EnumOption> _anyOf;  //!< Titled enum options.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    TitledMultiSelectItems& anyOf(const QList<EnumOption> & v) { _anyOf = v; return *this; }
+    TitledMultiSelectItems& addAnyOf(const EnumOption & v) { _anyOf.append(v); return *this; }
+    TitledMultiSelectItems& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const QList<EnumOption>& anyOf() const { return _anyOf; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<TitledMultiSelectItems> fromJson<TitledMultiSelectItems>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const TitledMultiSelectItems &data);
+
+/** Items for a multi-select (array) property schema. */
+using MultiSelectItems = std::variant<StringMultiSelectItems, QJsonObject, TitledMultiSelectItems>;
+
+template<>
+ACPLIB_EXPORT Utils::Result<MultiSelectItems> fromJson<MultiSelectItems>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const MultiSelectItems &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const MultiSelectItems &val);
+
+/** Schema for multi-select (array) properties in an elicitation form. */
+struct MultiSelectPropertySchema {
+    /**
+     * Optional title for the property.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no title is provided.
+     */
+    std::optional<QString> _title;
+    /**
+     * Human-readable description.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no description is provided.
+     */
+    std::optional<QString> _description;
+    /**
+     * Minimum number of items to select.
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no minimum selection count.
+     */
+    std::optional<int> _minItems;
+    /**
+     * Maximum number of items to select.
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no maximum selection count.
+     */
+    std::optional<int> _maxItems;
+    MultiSelectItems _items;  //!< The items definition describing allowed values.
+    /**
+     * Default selected values.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no default selections are provided.
+     */
+    std::optional<QJsonArray> _default_;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    MultiSelectPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
+    MultiSelectPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
+    MultiSelectPropertySchema& minItems(std::optional<int> v) { _minItems = v; return *this; }
+    MultiSelectPropertySchema& maxItems(std::optional<int> v) { _maxItems = v; return *this; }
+    MultiSelectPropertySchema& items(const MultiSelectItems & v) { _items = v; return *this; }
+    MultiSelectPropertySchema& default_(const std::optional<QJsonArray> & v) { _default_ = v; return *this; }
+    MultiSelectPropertySchema& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<QString>& title() const { return _title; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<int>& minItems() const { return _minItems; }
+    const std::optional<int>& maxItems() const { return _maxItems; }
+    const MultiSelectItems& items() const { return _items; }
+    const std::optional<QJsonArray>& default_() const { return _default_; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<MultiSelectPropertySchema> fromJson<MultiSelectPropertySchema>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const MultiSelectPropertySchema &data);
+
+/** Schema for number (floating-point) properties in an elicitation form. */
+struct NumberPropertySchema {
+    /**
+     * Optional title for the property.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no title is provided.
+     */
+    std::optional<QString> _title;
+    /**
+     * Human-readable description.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no description is provided.
+     */
+    std::optional<QString> _description;
+    /**
+     * Minimum value (inclusive).
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no inclusive lower bound.
+     */
+    std::optional<double> _minimum;
+    /**
+     * Maximum value (inclusive).
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no inclusive upper bound.
+     */
+    std::optional<double> _maximum;
+    /**
+     * Default value.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no default value is provided.
+     */
+    std::optional<double> _default_;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    NumberPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
+    NumberPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
+    NumberPropertySchema& minimum(std::optional<double> v) { _minimum = v; return *this; }
+    NumberPropertySchema& maximum(std::optional<double> v) { _maximum = v; return *this; }
+    NumberPropertySchema& default_(std::optional<double> v) { _default_ = v; return *this; }
+    NumberPropertySchema& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<QString>& title() const { return _title; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<double>& minimum() const { return _minimum; }
+    const std::optional<double>& maximum() const { return _maximum; }
+    const std::optional<double>& default_() const { return _default_; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<NumberPropertySchema> fromJson<NumberPropertySchema>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const NumberPropertySchema &data);
+
+/** String format types for string properties in elicitation schemas. */
+enum class StringFormat {
+    email,
+    uri,
+    date,
+    dateminustime
+};
+
+ACPLIB_EXPORT QString toString(StringFormat v);
+
+template<>
+ACPLIB_EXPORT Utils::Result<StringFormat> fromJson<StringFormat>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const StringFormat &v);
+
+/**
+ * Schema for string properties in an elicitation form.
+ *
+ * When `enum` or `oneOf` is set, this represents a single-select enum
+ * with `"type": "string"`.
+ */
+struct StringPropertySchema {
+    /**
+     * Optional title for the property.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no title is provided.
+     */
+    std::optional<QString> _title;
+    /**
+     * Human-readable description.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no description is provided.
+     */
+    std::optional<QString> _description;
+    /**
+     * Minimum string length.
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no minimum length constraint.
+     */
+    std::optional<int> _minLength;
+    /**
+     * Maximum string length.
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no maximum length constraint.
+     */
+    std::optional<int> _maxLength;
+    /**
+     * Pattern the string must match.
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no pattern constraint.
+     */
+    std::optional<QString> _pattern;
+    /**
+     * String format.
+     *
+     * Optional. Omitted and `null` are equivalent and mean there is no format constraint.
+     */
+    std::optional<StringFormat> _format;
+    /**
+     * Default value.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no default value is provided.
+     */
+    std::optional<QString> _default_;
+    /**
+     * Enum values for untitled single-select enums.
+     * Optional. Omitted and `null` are equivalent and mean no untitled single-select choices are
+     * declared by `enum`.
+     */
+    std::optional<QJsonArray> _enum_;
+    /**
+     * Titled enum options for titled single-select enums.
+     * Optional. Omitted and `null` are equivalent and mean no titled single-select choices are
+     * declared by `oneOf`.
+     */
+    std::optional<QJsonArray> _oneOf;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    StringPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
+    StringPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
+    StringPropertySchema& minLength(std::optional<int> v) { _minLength = v; return *this; }
+    StringPropertySchema& maxLength(std::optional<int> v) { _maxLength = v; return *this; }
+    StringPropertySchema& pattern(const std::optional<QString> & v) { _pattern = v; return *this; }
+    StringPropertySchema& format(const std::optional<StringFormat> & v) { _format = v; return *this; }
+    StringPropertySchema& default_(const std::optional<QString> & v) { _default_ = v; return *this; }
+    StringPropertySchema& enum_(const std::optional<QJsonArray> & v) { _enum_ = v; return *this; }
+    StringPropertySchema& oneOf(const std::optional<QJsonArray> & v) { _oneOf = v; return *this; }
+    StringPropertySchema& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<QString>& title() const { return _title; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<int>& minLength() const { return _minLength; }
+    const std::optional<int>& maxLength() const { return _maxLength; }
+    const std::optional<QString>& pattern() const { return _pattern; }
+    const std::optional<StringFormat>& format() const { return _format; }
+    const std::optional<QString>& default_() const { return _default_; }
+    const std::optional<QJsonArray>& enum_() const { return _enum_; }
+    const std::optional<QJsonArray>& oneOf() const { return _oneOf; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<StringPropertySchema> fromJson<StringPropertySchema>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const StringPropertySchema &data);
+
+/**
+ * Property schema for elicitation form fields.
+ *
+ * Each variant corresponds to a JSON Schema `"type"` value.
+ * Single-select enums use the `String` variant with `enum` or `oneOf` set.
+ * Multi-select enums use the `Array` variant.
+ */
+using ElicitationPropertySchema = std::variant<StringPropertySchema, NumberPropertySchema, IntegerPropertySchema, BooleanPropertySchema, MultiSelectPropertySchema, QJsonObject>;
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationPropertySchema> fromJson<ElicitationPropertySchema>(const QJsonValue &val);
+
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const ElicitationPropertySchema &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationPropertySchema &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const ElicitationPropertySchema &val);
+
+/** Type discriminator for elicitation schemas. */
+enum class ElicitationSchemaType {
+    object
+};
+
+ACPLIB_EXPORT QString toString(ElicitationSchemaType v);
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationSchemaType> fromJson<ElicitationSchemaType>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const ElicitationSchemaType &v);
+
+/**
+ * Type-safe elicitation schema for requesting structured user input.
+ *
+ * This represents a JSON Schema object with primitive-typed properties,
+ * as required by the elicitation specification.
+ */
+struct ElicitationSchema {
+    std::optional<ElicitationSchemaType> _type;  //!< Type discriminator. Always `"object"`.
+    /**
+     * Optional title for the schema.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no title is provided.
+     */
+    std::optional<QString> _title;
+    std::optional<QMap<QString, ElicitationPropertySchema>> _properties;  //!< Property definitions (must be primitive types).
+    /**
+     * List of required property names.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no property names are required.
+     */
+    std::optional<QJsonArray> _required;
+    /**
+     * Optional description of what this schema represents.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no schema description is provided.
+     */
+    std::optional<QString> _description;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    ElicitationSchema& type(const std::optional<ElicitationSchemaType> & v) { _type = v; return *this; }
+    ElicitationSchema& title(const std::optional<QString> & v) { _title = v; return *this; }
+    ElicitationSchema& properties(const std::optional<QMap<QString, ElicitationPropertySchema>> & v) { _properties = v; return *this; }
+    ElicitationSchema& addProperty(const QString &key, const ElicitationPropertySchema & v) { if (!_properties) _properties = QMap<QString, ElicitationPropertySchema>{}; (*_properties)[key] = v; return *this; }
+    ElicitationSchema& required(const std::optional<QJsonArray> & v) { _required = v; return *this; }
+    ElicitationSchema& description(const std::optional<QString> & v) { _description = v; return *this; }
+    ElicitationSchema& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<ElicitationSchemaType>& type() const { return _type; }
+    const std::optional<QString>& title() const { return _title; }
+    const std::optional<QMap<QString, ElicitationPropertySchema>>& properties() const { return _properties; }
+    const std::optional<QJsonArray>& required() const { return _required; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationSchema &data);
+
+using SessionId = QString;
+template<>
+ACPLIB_EXPORT Utils::Result<SessionId> fromJson<SessionId>(const QJsonValue &val);
+
+using ToolCallId = QString;
+
+/**
+ * Session-scoped elicitation, optionally tied to a specific tool call.
+ *
+ * When `tool_call_id` is set, the elicitation is tied to a specific tool call.
+ * This is useful when an agent receives an elicitation from an MCP server
+ * during a tool call and needs to redirect it to the user.
+ */
+struct ElicitationSessionScope {
+    SessionId _sessionId;  //!< The session this elicitation is tied to.
+    /**
+     * Optional tool call within the session.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the elicitation is scoped to the
+     * session without a specific tool call.
+     */
+    std::optional<ToolCallId> _toolCallId;
+
+    ElicitationSessionScope& sessionId(const SessionId & v) { _sessionId = v; return *this; }
+    ElicitationSessionScope& toolCallId(const std::optional<ToolCallId> & v) { _toolCallId = v; return *this; }
+
+    const SessionId& sessionId() const { return _sessionId; }
+    const std::optional<ToolCallId>& toolCallId() const { return _toolCallId; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationSessionScope> fromJson<ElicitationSessionScope>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationSessionScope &data);
+
+/** Form-based elicitation mode where the client renders a form from the provided schema. */
+struct ElicitationFormMode {
+    ElicitationSchema _requestedSchema;  //!< A JSON Schema describing the form fields to present to the user.
+    QJsonObject _additionalProperties;  //!< additional properties
+
+    ElicitationFormMode& requestedSchema(const ElicitationSchema & v) { _requestedSchema = v; return *this; }
+    ElicitationFormMode& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+    ElicitationFormMode& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
+
+    const ElicitationSchema& requestedSchema() const { return _requestedSchema; }
+    const QJsonObject& additionalProperties() const { return _additionalProperties; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationFormMode> fromJson<ElicitationFormMode>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationFormMode &data);
+
+using ElicitationId = QString;
+
+/** URL-based elicitation mode where the client directs the user to a URL. */
+struct ElicitationUrlMode {
+    ElicitationId _elicitationId;  //!< The unique identifier for this elicitation.
+    QString _url;  //!< The URL to direct the user to.
+    QJsonObject _additionalProperties;  //!< additional properties
+
+    ElicitationUrlMode& elicitationId(const ElicitationId & v) { _elicitationId = v; return *this; }
+    ElicitationUrlMode& url(const QString & v) { _url = v; return *this; }
+    ElicitationUrlMode& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+    ElicitationUrlMode& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
+
+    const ElicitationId& elicitationId() const { return _elicitationId; }
+    const QString& url() const { return _url; }
+    const QJsonObject& additionalProperties() const { return _additionalProperties; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationUrlMode> fromJson<ElicitationUrlMode>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationUrlMode &data);
+
+/**
+ * Request from the agent to elicit structured user input.
+ *
+ * The agent sends this to the client to request information from the user,
+ * either via a form or by directing them to a URL.
+ * Elicitations are tied to a session (optionally a tool call) or a request.
+ */
+struct CreateElicitationRequest {
+    QString _message;  //!< A human-readable message describing what input is needed.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+    QJsonObject _additionalProperties;  //!< additional properties
+
+    CreateElicitationRequest& message(const QString & v) { _message = v; return *this; }
+    CreateElicitationRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    CreateElicitationRequest& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+    CreateElicitationRequest& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
+
+    const QString& message() const { return _message; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+    const QJsonObject& additionalProperties() const { return _additionalProperties; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CreateElicitationRequest> fromJson<CreateElicitationRequest>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CreateElicitationRequest &data);
 
 /** An environment variable to set when launching an MCP server. */
 struct EnvVariable {
@@ -53,10 +747,6 @@ template<>
 ACPLIB_EXPORT Utils::Result<EnvVariable> fromJson<EnvVariable>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const EnvVariable &data);
-
-using SessionId = QString;
-template<>
-ACPLIB_EXPORT Utils::Result<SessionId> fromJson<SessionId>(const QJsonValue &val);
 
 /** Request to create a new terminal and execute a command. */
 struct CreateTerminalRequest {
@@ -203,24 +893,6 @@ template<>
 ACPLIB_EXPORT Utils::Result<ReleaseTerminalRequest> fromJson<ReleaseTerminalRequest>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const ReleaseTerminalRequest &data);
-
-/**
- * JSON RPC Request Id
- *
- * An identifier established by the Client that MUST contain a String, Number, or NULL value if included. If it is not included it is assumed to be a notification. The value SHOULD normally not be Null \[1\] and Numbers SHOULD NOT contain fractional parts \[2\]
- *
- * The Server MUST reply with the same value in the Response object if included. This member is used to correlate the context between the two objects.
- *
- * \[1\] The use of Null as a value for the id member in a Request object is discouraged, because this specification uses a value of Null for Responses with an unknown id. Also, because JSON-RPC 1.0 uses an id value of Null for Notifications this could cause confusion in handling.
- *
- * \[2\] Fractional parts may be problematic, since many decimal fractions cannot be represented exactly as binary fractions.
- */
-using RequestId = std::variant<std::monostate, int, QString>;
-
-template<>
-ACPLIB_EXPORT Utils::Result<RequestId> fromJson<RequestId>(const QJsonValue &val);
-
-ACPLIB_EXPORT QJsonValue toJsonValue(const RequestId &val);
 
 using PermissionOptionId = QString;
 
@@ -687,8 +1359,6 @@ ACPLIB_EXPORT QString dispatchValue(const ToolCallContent &val);
 ACPLIB_EXPORT QJsonObject toJson(const ToolCallContent &val);
 
 ACPLIB_EXPORT QJsonValue toJsonValue(const ToolCallContent &val);
-
-using ToolCallId = QString;
 
 /**
  * A file location being accessed or modified by a tool.
@@ -1476,7 +2146,7 @@ ACPLIB_EXPORT QJsonObject toJson(const AgentCapabilities &data);
 using AuthMethodId = QString;
 
 /**
- * Agent handles authentication itself.
+ * Agent handles authentication itself through `authenticate`.
  *
  * This is the default authentication method type.
  */
@@ -1510,22 +2180,75 @@ ACPLIB_EXPORT Utils::Result<AuthMethodAgent> fromJson<AuthMethodAgent>(const QJs
 ACPLIB_EXPORT QJsonObject toJson(const AuthMethodAgent &data);
 
 /**
+ * Terminal-based authentication method.
+ *
+ * The client runs the configured agent program as a separate interactive
+ * process for the user to authenticate via a TUI. Agents MUST advertise this
+ * method only when the client enabled its terminal authentication capability.
+ * A zero exit status signals success; any other termination signals failure.
+ * The client MUST NOT pass this method to `authenticate`.
+ */
+struct AuthMethodTerminal {
+    AuthMethodId _id;  //!< Unique identifier for this authentication method.
+    QString _name;  //!< Human-readable name of the authentication method.
+    std::optional<QString> _description;  //!< Optional description providing more details about this authentication method.
+    std::optional<QStringList> _args;  //!< Additional arguments to append to the configured agent invocation for terminal auth.
+    /**
+     * Additional environment variables to set on the configured agent invocation for terminal auth.
+     * These values override same-named variables in the base launch configuration.
+     */
+    std::optional<QMap<QString, QString>> _env;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    AuthMethodTerminal& id(const AuthMethodId & v) { _id = v; return *this; }
+    AuthMethodTerminal& name(const QString & v) { _name = v; return *this; }
+    AuthMethodTerminal& description(const std::optional<QString> & v) { _description = v; return *this; }
+    AuthMethodTerminal& args(const std::optional<QStringList> & v) { _args = v; return *this; }
+    AuthMethodTerminal& addArg(const QString & v) { if (!_args) _args = QStringList{}; (*_args).append(v); return *this; }
+    AuthMethodTerminal& env(const std::optional<QMap<QString, QString>> & v) { _env = v; return *this; }
+    AuthMethodTerminal& addEnv(const QString &key, const QString & v) { if (!_env) _env = QMap<QString, QString>{}; (*_env)[key] = v; return *this; }
+    AuthMethodTerminal& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const AuthMethodId& id() const { return _id; }
+    const QString& name() const { return _name; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<QStringList>& args() const { return _args; }
+    const std::optional<QMap<QString, QString>>& env() const { return _env; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const AuthMethodTerminal &data);
+
+/**
  * Describes an available authentication method.
  *
  * The `type` field acts as the discriminator in the serialized JSON form.
  * When no `type` is present, the method is treated as `agent`.
  */
-using AuthMethod = std::variant<AuthMethodAgent>;
+using AuthMethod = std::variant<AuthMethodTerminal, AuthMethodAgent>;
 
 template<>
 ACPLIB_EXPORT Utils::Result<AuthMethod> fromJson<AuthMethod>(const QJsonValue &val);
 
-/** Returns the 'name' field from the active variant. */
-ACPLIB_EXPORT QString name(const AuthMethod &val);
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const AuthMethod &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const AuthMethod &val);
 
 ACPLIB_EXPORT QJsonValue toJsonValue(const AuthMethod &val);
+
+/** Returns the 'name' field from the active variant. */
+ACPLIB_EXPORT QString name(const AuthMethod &val);
 
 /**
  * Metadata about the implementation of the client or agent.
@@ -2169,6 +2892,32 @@ ACPLIB_EXPORT Utils::Result<AgentResponse> fromJson<AgentResponse>(const QJsonVa
 
 ACPLIB_EXPORT QJsonValue toJsonValue(const AgentResponse &val);
 
+/** Notification sent by the agent when a URL-based elicitation is complete. */
+struct CompleteElicitationNotification {
+    ElicitationId _elicitationId;  //!< The ID of the elicitation that completed.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    CompleteElicitationNotification& elicitationId(const ElicitationId & v) { _elicitationId = v; return *this; }
+    CompleteElicitationNotification& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const ElicitationId& elicitationId() const { return _elicitationId; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CompleteElicitationNotification> fromJson<CompleteElicitationNotification>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CompleteElicitationNotification &data);
+
 // Skipped unknown type alias: ExtNotification
 
 /** All text that was typed after the command name is provided as input. */
@@ -2786,6 +3535,43 @@ ACPLIB_EXPORT Utils::Result<DeleteSessionRequest> fromJson<DeleteSessionRequest>
 ACPLIB_EXPORT QJsonObject toJson(const DeleteSessionRequest &data);
 
 /**
+ * Authentication capabilities supported by the client.
+ *
+ * Advertised during initialization to inform the agent which authentication
+ * method types the client can handle. This governs opt-in types that require
+ * additional client-side support.
+ */
+struct AuthCapabilities {
+    /**
+     * Whether the client supports `terminal` authentication methods.
+     *
+     * The client should set this to `true` only when it can reproduce the
+     * configured agent invocation in an interactive terminal. When `true`, the
+     * agent may include `terminal` entries in its authentication methods.
+     */
+    std::optional<bool> _terminal;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    AuthCapabilities& terminal(std::optional<bool> v) { _terminal = v; return *this; }
+    AuthCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<bool>& terminal() const { return _terminal; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const AuthCapabilities &data);
+
+/**
  * Capabilities for boolean session configuration options.
  *
  * Supplying `{}` means the client supports boolean session configuration options.
@@ -2873,6 +3659,101 @@ ACPLIB_EXPORT Utils::Result<ClientSessionCapabilities> fromJson<ClientSessionCap
 ACPLIB_EXPORT QJsonObject toJson(const ClientSessionCapabilities &data);
 
 /**
+ * Form-based elicitation capabilities.
+ *
+ * Supplying `{}` means the client supports form-based elicitation.
+ */
+struct ElicitationFormCapabilities {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    ElicitationFormCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationFormCapabilities> fromJson<ElicitationFormCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationFormCapabilities &data);
+
+/**
+ * URL-based elicitation capabilities.
+ *
+ * Supplying `{}` means the client supports URL-based elicitation.
+ */
+struct ElicitationUrlCapabilities {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    ElicitationUrlCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationUrlCapabilities> fromJson<ElicitationUrlCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationUrlCapabilities &data);
+
+/** Elicitation capabilities supported by the client. */
+struct ElicitationCapabilities {
+    /**
+     * Whether the client supports form-based elicitation.
+     *
+     * Optional. Omitted and `null` are equivalent and mean form support is not advertised.
+     * Supplying `{}` explicitly advertises form support.
+     */
+    std::optional<ElicitationFormCapabilities> _form;
+    /**
+     * Whether the client supports URL-based elicitation.
+     *
+     * Optional. Omitted or `null` both mean the client does not advertise support.
+     * Supplying `{}` means the client supports URL-based elicitation.
+     */
+    std::optional<ElicitationUrlCapabilities> _url;
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+
+    ElicitationCapabilities& form(const std::optional<ElicitationFormCapabilities> & v) { _form = v; return *this; }
+    ElicitationCapabilities& url(const std::optional<ElicitationUrlCapabilities> & v) { _url = v; return *this; }
+    ElicitationCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<ElicitationFormCapabilities>& form() const { return _form; }
+    const std::optional<ElicitationUrlCapabilities>& url() const { return _url; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationCapabilities> fromJson<ElicitationCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationCapabilities &data);
+
+/**
  * File system capabilities that a client may support.
  *
  * See protocol docs: [FileSystem](https://agentclientprotocol.com/protocol/initialization#filesystem)
@@ -2926,6 +3807,20 @@ struct ClientCapabilities {
      */
     std::optional<ClientSessionCapabilities> _session;
     /**
+     * Authentication capabilities supported by the client.
+     * Determines which authentication method types the agent may include
+     * in its `InitializeResponse`.
+     */
+    std::optional<AuthCapabilities> _auth;
+    /**
+     * Elicitation capabilities supported by the client.
+     * Determines which elicitation modes the agent may use.
+     *
+     * Optional. Omitted or `null` both mean the client does not advertise
+     * elicitation support.
+     */
+    std::optional<ElicitationCapabilities> _elicitation;
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
@@ -2937,11 +3832,15 @@ struct ClientCapabilities {
     ClientCapabilities& fs(const std::optional<FileSystemCapabilities> & v) { _fs = v; return *this; }
     ClientCapabilities& terminal(std::optional<bool> v) { _terminal = v; return *this; }
     ClientCapabilities& session(const std::optional<ClientSessionCapabilities> & v) { _session = v; return *this; }
+    ClientCapabilities& auth(const std::optional<AuthCapabilities> & v) { _auth = v; return *this; }
+    ClientCapabilities& elicitation(const std::optional<ElicitationCapabilities> & v) { _elicitation = v; return *this; }
     ClientCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const std::optional<FileSystemCapabilities>& fs() const { return _fs; }
     const std::optional<bool>& terminal() const { return _terminal; }
     const std::optional<ClientSessionCapabilities>& session() const { return _session; }
+    const std::optional<AuthCapabilities>& auth() const { return _auth; }
+    const std::optional<ElicitationCapabilities>& elicitation() const { return _elicitation; }
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 };
 
@@ -3462,6 +4361,55 @@ template<>
 ACPLIB_EXPORT Utils::Result<ClientRequest> fromJson<ClientRequest>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const ClientRequest &data);
+
+/** Allowed wire representations for [`ElicitationContentValue`]. */
+using ElicitationContentValue = std::variant<QString, int, double, bool, QList<QString>>;
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationContentValue> fromJson<ElicitationContentValue>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const ElicitationContentValue &val);
+
+/** The user accepted the elicitation and provided content. */
+struct ElicitationAcceptAction {
+    std::optional<QJsonObject> _content;  //!< The user-provided content, if any, as an object matching the requested schema.
+
+    ElicitationAcceptAction& content(const std::optional<QJsonObject> & v) { _content = v; return *this; }
+
+    const std::optional<QJsonObject>& content() const { return _content; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ElicitationAcceptAction> fromJson<ElicitationAcceptAction>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ElicitationAcceptAction &data);
+
+/** Response from the client to an elicitation request. */
+struct CreateElicitationResponse {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     */
+    std::optional<QJsonObject> __meta;
+    QJsonObject _additionalProperties;  //!< additional properties
+
+    CreateElicitationResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+    CreateElicitationResponse& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+    CreateElicitationResponse& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
+
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+    const QJsonObject& additionalProperties() const { return _additionalProperties; }
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CreateElicitationResponse> fromJson<CreateElicitationResponse>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CreateElicitationResponse &data);
 
 /** Response containing the ID of the created terminal. */
 struct CreateTerminalResponse {

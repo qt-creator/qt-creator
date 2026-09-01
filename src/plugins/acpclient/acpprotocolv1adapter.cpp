@@ -95,8 +95,15 @@ QList<V2::AuthMethod> AcpProtocolV1Adapter::authMethods() const
     const QList<AuthMethod> methods
         = m_initializeResponse.authMethods().value_or(QList<AuthMethod>{});
     for (const AuthMethod &method : methods) {
+        // Terminal methods must not be answered with `authenticate`, and this
+        // client does not advertise the capability that lets an agent offer
+        // them, so there is nothing to present them as.
+        if (!std::holds_alternative<AuthMethodAgent>(method)) {
+            qCWarning(logAdapter) << "Ignoring unsupported auth method type:"
+                                  << Acp::dispatchValue(method);
+            continue;
+        }
         QJsonObject obj = Acp::toJson(method);
-        obj.insert("type", QStringLiteral("agent"));
         obj.insert("methodId", obj.value("id"));
         obj.remove("id");
         if (const auto converted = V2::fromJson<V2::AuthMethod>(obj))
