@@ -44,11 +44,13 @@
 #include <QTcpServer>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QTimer>
 
 using namespace Debugger::Internal;
 using namespace Utils;
 
 static constexpr std::chrono::seconds s_timeout{5};
+static constexpr std::chrono::seconds s_warmUpTimeout{30};
 static constexpr std::chrono::seconds s_qmlStartupTimeout{15};
 static constexpr std::chrono::seconds s_compileTimeout{120};
 
@@ -961,6 +963,7 @@ private slots:
 
 private:
     void addBackendRows();
+    void warmUpBackends();
     std::unique_ptr<DebuggerBackend> createEngine(Backend backend,
         const std::optional<Utils::ProcessRunData> &debuggerRunDataOverride = {},
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {},
@@ -1794,6 +1797,32 @@ void tst_backends::initTestCase()
     m_backendData[Backend::Pdb].inferiorData.versionLine = pythonVersionLine;
     m_backendData[Backend::Pdb].inferiorData.moduleListMarker = "sys";
     m_backendData[Backend::Pdb].inferiorData.moduleSymbolsPath = FilePath::fromString("__main__");
+
+    warmUpBackends();
+}
+
+void tst_backends::warmUpBackends()
+{
+    const QList<Backend> backends = m_backendData.keys();
+    for (Backend backend : backends) {
+        if (!hasStartMode(backend, DebuggerStartModeFlag::Launch))
+            continue;
+        const std::unique_ptr<DebuggerBackend> warmUp = createEngine(backend);
+        if (!warmUp)
+            continue;
+        QEventLoop loop;
+        connect(warmUp->engine(), &DebuggerEngineInterface::inferiorEvent, &loop,
+                [&loop](InferiorEvent event) {
+            if (event == InferiorEvent::EngineSetupOk || event == InferiorEvent::EngineSetupFailed)
+                loop.quit();
+        });
+        QTimer::singleShot(s_warmUpTimeout, &loop, &QEventLoop::quit);
+        warmUp->engine()->start();
+        if (!warmUp->contains(InferiorEvent::EngineSetupOk)
+                && !warmUp->contains(InferiorEvent::EngineSetupFailed)) {
+            loop.exec();
+        }
+    }
 }
 
 void tst_backends::cleanupTestCase()
