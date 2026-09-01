@@ -21,6 +21,7 @@ Project {
         "filesearch/filesearch.qbs",
         "json/json.qbs",
         "languageserverprotocol/languageserverprotocol.qbs",
+        "mcp/mcp.qbs",
         "pointeralgorithm/pointeralgorithm.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",

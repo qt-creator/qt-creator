@@ -15,6 +15,12 @@
 //   QHttpServerResponder → MiniHttp::HttpResponder
 //   QHttpServerResponse  → MiniHttp::HttpResponse
 //   QHttpServer          → MiniHttp::HttpServer
+//
+// Only the subset of HTTP/1.1 documented here is understood. Anything else is
+// rejected with a status code rather than reinterpreted: no chunked transfer
+// coding, no obs-fold, no HTTP/2. Requests exceeding the limits below are
+// rejected as well, so a peer that can reach the port cannot make the server
+// allocate or compute without bound.
 
 #include <QAbstractSocket>
 #include <QByteArray>
@@ -28,11 +34,20 @@
 #include <QUrl>
 #include <QUrlQuery>
 
+#include <cstring>
 #include <functional>
-#include <optional>
+#include <memory>
 #include <type_traits>
 
 namespace MiniHttp {
+
+// Ceilings on anything a peer controls. The values follow QtHttpServer's
+// documented defaults, so both configurations refuse the same requests.
+constexpr qsizetype MaxHeaderBlockSize = 64 * 1024;
+constexpr qsizetype MaxBodySize = 32 * 1024 * 1024;
+constexpr qsizetype MaxWriteBufferSize = 32 * 1024 * 1024;
+constexpr int MaxHeaderCount = 128;
+constexpr int MaxConnections = 64;
 
 enum class StatusCode : int {
     Ok = 200,
@@ -40,6 +55,10 @@ enum class StatusCode : int {
     NoContent = 204,
     BadRequest = 400,
     NotFound = 404,
+    PayloadTooLarge = 413,
+    RequestHeaderFieldsTooLarge = 431,
+    NotImplemented = 501,
+    ServiceUnavailable = 503,
 };
 
 inline QByteArray statusText(StatusCode code)
@@ -51,6 +70,10 @@ inline QByteArray statusText(StatusCode code)
     case StatusCode::NoContent: return "No Content";
     case StatusCode::BadRequest: return "Bad Request";
     case StatusCode::NotFound:  return "Not Found";
+    case StatusCode::PayloadTooLarge: return "Content Too Large";
+    case StatusCode::RequestHeaderFieldsTooLarge: return "Request Header Fields Too Large";
+    case StatusCode::NotImplemented: return "Not Implemented";
+    case StatusCode::ServiceUnavailable: return "Service Unavailable";
     }
     return "Unknown";
 }
@@ -58,7 +81,18 @@ inline QByteArray statusText(StatusCode code)
 class HttpHeaders
 {
 public:
-    void append(const QByteArray &name, const QByteArray &value) { set(name, value); }
+    // Repeated fields are combined into a comma-separated list, as HTTP
+    // defines them. A field that must be single-valued therefore fails to
+    // parse rather than resolving to one of the values by insertion order.
+    void append(const QByteArray &name, const QByteArray &value)
+    {
+        const QByteArray key = name.toLower();
+        auto it = m_map.find(key);
+        if (it == m_map.end())
+            m_map.insert(key, value.trimmed());
+        else
+            *it += ", " + value.trimmed();
+    }
 
     void set(const QByteArray &name, const QByteArray &value)
     {
@@ -95,63 +129,118 @@ class HttpRequest
 public:
     enum class Method { Get, Post, Options, Delete, Other };
 
+    enum class ParseResult {
+        Incomplete, // More data needed; nothing is wrong with what arrived so far.
+        Complete,   // Header block parsed; the body is described by bodyStart/contentLength.
+        Rejected,   // Malformed or oversized; send status and close.
+    };
+
     HttpRequest() = default;
 
-    // Parse a complete HTTP/1.1 request from raw bytes.
-    // Returns nullopt when more data is needed.
-    // On success, *consumed is set to the number of bytes consumed.
-    static std::optional<HttpRequest> parse(const QByteArray &data, int &consumed)
+    // Parse the header block of an HTTP/1.1 request. The body is left to the
+    // caller, which knows how much has arrived; nothing here depends on a byte
+    // count derived from the peer's own Content-Length.
+    //
+    // searchStart carries the offset up to which the buffer is known to hold no
+    // end of header block, so a block that arrives over many reads is scanned
+    // once rather than once per read. It is an in/out parameter; pass a zero for
+    // the first read of a request and hand the same variable back afterwards.
+    static ParseResult parseHeaders(const QByteArray &data,
+                                    HttpRequest *request,
+                                    qsizetype *searchStart,
+                                    qsizetype *bodyStart,
+                                    qsizetype *contentLength,
+                                    StatusCode *status)
     {
-        // Locate end-of-headers sentinel
-        const int headerEnd = data.indexOf("\r\n\r\n");
-        if (headerEnd < 0)
-            return std::nullopt;
+        *status = StatusCode::BadRequest;
 
-        HttpRequest req;
-        const QList<QByteArray> lines = data.left(headerEnd).split('\n');
-        if (lines.isEmpty())
-            return std::nullopt;
-
-        // Request line: METHOD SP Request-URI SP HTTP-Version
-        const QList<QByteArray> requestLine = lines[0].trimmed().split(' ');
-        if (requestLine.size() < 2)
-            return std::nullopt;
-
-        const QByteArray method = requestLine[0].trimmed().toUpper();
-        if (method == "GET")
-            req.m_method = Method::Get;
-        else if (method == "POST")
-            req.m_method = Method::Post;
-        else if (method == "OPTIONS")
-            req.m_method = Method::Options;
-        else if (method == "DELETE")
-            req.m_method = Method::Delete;
-        else
-            req.m_method = Method::Other;
-
-        req.m_url = QUrl(QString::fromUtf8(requestLine[1].trimmed()));
-
-        // Header fields
-        for (int i = 1; i < lines.size(); ++i) {
-            const QByteArray line = lines[i].trimmed();
-            if (line.isEmpty())
-                continue;
-            const int colon = line.indexOf(':');
-            if (colon < 0)
-                continue;
-            req.m_headers.set(line.left(colon).trimmed(), line.mid(colon + 1).trimmed());
+        qsizetype start = 0;
+        const qsizetype headerEnd = findHeaderEnd(data, *searchStart, &start);
+        if (headerEnd < 0) {
+            // A LF in the last two bytes cannot be decided yet: the CR or LF
+            // that would terminate the block may still be on its way. Everything
+            // before that has been ruled out for good.
+            *searchStart = qMax(qsizetype(0), data.size() - 2);
+            if (data.size() > MaxHeaderBlockSize) {
+                *status = StatusCode::RequestHeaderFieldsTooLarge;
+                return ParseResult::Rejected;
+            }
+            return ParseResult::Incomplete;
+        }
+        *searchStart = 0;
+        if (headerEnd > MaxHeaderBlockSize) {
+            *status = StatusCode::RequestHeaderFieldsTooLarge;
+            return ParseResult::Rejected;
         }
 
-        // Message body (bounded by Content-Length)
-        const int bodyStart = headerEnd + 4; // skip "\r\n\r\n"
-        const int contentLength = req.m_headers.value("content-length").toInt();
-        if (data.size() - bodyStart < contentLength)
-            return std::nullopt; // need more data
+        const QList<QByteArray> lines = data.left(headerEnd).split('\n');
 
-        req.m_body = data.mid(bodyStart, contentLength);
-        consumed = bodyStart + contentLength;
-        return req;
+        // Request line: METHOD SP Request-URI SP HTTP-Version
+        const QList<QByteArray> requestLine = lines.constFirst().simplified().split(' ');
+        if (requestLine.size() != 3 || !requestLine.at(2).startsWith("HTTP/"))
+            return ParseResult::Rejected;
+
+        const QByteArray method = requestLine.at(0).toUpper();
+        if (method == "GET")
+            request->m_method = Method::Get;
+        else if (method == "POST")
+            request->m_method = Method::Post;
+        else if (method == "OPTIONS")
+            request->m_method = Method::Options;
+        else if (method == "DELETE")
+            request->m_method = Method::Delete;
+        else
+            request->m_method = Method::Other;
+
+        request->m_url = QUrl(QString::fromUtf8(requestLine.at(1)));
+        if (!request->m_url.isValid())
+            return ParseResult::Rejected;
+
+        int headerCount = 0;
+        for (qsizetype i = 1; i < lines.size(); ++i) {
+            QByteArray line = lines.at(i);
+            if (line.endsWith('\r'))
+                line.chop(1);
+            if (line.isEmpty())
+                continue;
+            if (line.startsWith(' ') || line.startsWith('\t')) // obs-fold
+                return ParseResult::Rejected;
+            const qsizetype colon = line.indexOf(':');
+            if (colon <= 0)
+                return ParseResult::Rejected;
+            const QByteArray name = line.left(colon);
+            if (!isFieldName(name))
+                return ParseResult::Rejected;
+            if (++headerCount > MaxHeaderCount) {
+                *status = StatusCode::RequestHeaderFieldsTooLarge;
+                return ParseResult::Rejected;
+            }
+            request->m_headers.append(name, line.mid(colon + 1));
+        }
+
+        if (request->m_headers.contains("transfer-encoding")) {
+            *status = StatusCode::NotImplemented;
+            return ParseResult::Rejected;
+        }
+
+        qsizetype length = 0;
+        if (request->m_headers.contains("content-length")) {
+            bool ok = false;
+            length = request->m_headers.value("content-length").toLongLong(&ok);
+            if (!ok || length < 0)
+                return ParseResult::Rejected;
+            if (length > MaxBodySize) {
+                *status = StatusCode::PayloadTooLarge;
+                return ParseResult::Rejected;
+            }
+        }
+
+        *bodyStart = start;
+        *contentLength = length;
+        return ParseResult::Complete;
     }
+
+    void setBody(const QByteArray &body) { m_body = body; }
 
     QUrl url() const { return m_url; }
     QUrlQuery query() const { return QUrlQuery(m_url); }
@@ -160,6 +249,34 @@ public:
     QByteArray body() const { return m_body; }
 
 private:
+    // End of the header block, or -1 while it has not arrived yet. CRLFCRLF,
+    // CRLFLF, LFCRLF and LFLF all terminate it, as they do for QHttpServer, so
+    // a request cannot be terminated at a boundary its sender did not intend.
+    static qsizetype findHeaderEnd(const QByteArray &data, qsizetype from, qsizetype *bodyStart)
+    {
+        for (qsizetype i = data.indexOf('\n', from); i >= 0; i = data.indexOf('\n', i + 1)) {
+            qsizetype next = i + 1;
+            if (next < data.size() && data.at(next) == '\r')
+                ++next;
+            if (next < data.size() && data.at(next) == '\n') {
+                *bodyStart = next + 1;
+                return i > 0 && data.at(i - 1) == '\r' ? i - 1 : i;
+            }
+        }
+        return -1;
+    }
+
+    static bool isFieldName(const QByteArray &name)
+    {
+        if (name.isEmpty())
+            return false;
+        for (const char c : name) {
+            if (c <= ' ' || c == 0x7f || std::strchr("()<>@,;:\\\"/[]?={}", c))
+                return false;
+        }
+        return true;
+    }
+
     QUrl m_url;
     Method m_method = Method::Other;
     HttpHeaders m_headers;
@@ -210,37 +327,23 @@ public:
 
     void write(const QByteArray &data, const char *contentType, StatusCode status)
     {
-        if (!m_socket)
-            return;
-        QByteArray response;
-        response.reserve(128 + data.size());
-        appendStatusLine(response, status);
-        response += "Content-Type: ";
-        response += contentType;
-        response += "\r\nContent-Length: ";
-        response += QByteArray::number(data.size());
-        response += "\r\nConnection: close\r\n\r\n";
-        response += data;
-        writeToSocket(response);
-        closeSocket();
+        HttpHeaders headers;
+        headers.set("content-type", contentType);
+        write(data, headers, status);
     }
 
     void write(const QByteArray &data, const HttpHeaders &headers, StatusCode status)
     {
         if (!m_socket)
             return;
+        HttpHeaders out = headers;
+        out.set("content-length", QByteArray::number(data.size()));
+        out.set("connection", "close");
         QByteArray response;
         response.reserve(128 + data.size());
         appendStatusLine(response, status);
-        for (auto it = headers.map().constBegin(); it != headers.map().constEnd(); ++it) {
-            response += it.key();
-            response += ": ";
-            response += it.value();
-            response += "\r\n";
-        }
-        response += "Content-Length: ";
-        response += QByteArray::number(data.size());
-        response += "\r\nConnection: close\r\n\r\n";
+        appendHeaders(response, out);
+        response += "\r\n";
         response += data;
         writeToSocket(response);
         closeSocket();
@@ -248,48 +351,26 @@ public:
 
     void write(const HttpHeaders &headers, StatusCode status)
     {
-        if (!m_socket)
-            return;
-        QByteArray response;
-        appendStatusLine(response, status);
-        for (auto it = headers.map().constBegin(); it != headers.map().constEnd(); ++it) {
-            response += it.key();
-            response += ": ";
-            response += it.value();
-            response += "\r\n";
-        }
-        response += "Content-Length: 0\r\nConnection: close\r\n\r\n";
-        writeToSocket(response);
-        closeSocket();
+        write({}, headers, status);
     }
 
     void write(StatusCode status)
     {
-        if (!m_socket)
-            return;
-        QByteArray response;
-        appendStatusLine(response, status);
-        response += "Content-Length: 0\r\nConnection: close\r\n\r\n";
-        writeToSocket(response);
-        closeSocket();
+        write({}, HttpHeaders{}, status);
     }
 
     void writeBeginChunked(const HttpHeaders &headers, StatusCode status)
     {
         if (!m_socket)
             return;
+        HttpHeaders out = headers;
+        out.set("transfer-encoding", "chunked");
+        out.set("cache-control", "no-cache");
+        out.set("connection", "keep-alive");
         QByteArray response;
         appendStatusLine(response, status);
-        for (auto it = headers.map().constBegin(); it != headers.map().constEnd(); ++it) {
-            response += it.key();
-            response += ": ";
-            response += it.value();
-            response += "\r\n";
-        }
-        response += "\r\nTransfer-Encoding: chunked\r\n"
-                    "Cache-Control: no-cache\r\n"
-                    "Connection: keep-alive\r\n"
-                    "\r\n";
+        appendHeaders(response, out);
+        response += "\r\n";
         writeToSocket(response);
         m_chunked = true;
     }
@@ -334,10 +415,34 @@ private:
         out += "\r\n";
     }
 
+    // Strips CR and LF, so that a value reaching here cannot terminate the
+    // header block early or inject a field of its own.
+    void appendHeaders(QByteArray &out, const HttpHeaders &headers) const
+    {
+        for (auto it = headers.map().constBegin(); it != headers.map().constEnd(); ++it) {
+            out += sanitized(it.key());
+            out += ": ";
+            out += sanitized(it.value());
+            out += "\r\n";
+        }
+    }
+
+    static QByteArray sanitized(const QByteArray &field)
+    {
+        QByteArray result = field;
+        result.removeIf([](char c) { return c == '\r' || c == '\n'; });
+        return result;
+    }
+
     void writeToSocket(const QByteArray &data)
     {
         if (!m_socket)
             return;
+        if (m_socket->bytesToWrite() > MaxWriteBufferSize) {
+            m_socket->abort();
+            m_socket = nullptr;
+            return;
+        }
         m_socket->write(data);
         m_socket->flush();
     }
@@ -365,7 +470,7 @@ public:
         : m_data(data)
         , m_status(status)
     {
-        m_headers.append("Content-Type:", contentType);
+        m_headers.set("Content-Type", contentType);
     }
 
     // Convenience for HTML strings
@@ -373,13 +478,13 @@ public:
         : m_data(html)
         , m_status(status)
     {
-        m_headers.append("Content-Type:", "text/html");
+        m_headers.set("Content-Type", "text/html");
     }
 
     HttpResponse(StatusCode status)
         : m_status(status)
     {
-        m_headers.append("Content-Type:", "text/plain");
+        m_headers.set("Content-Type", "text/plain");
     }
 
     void writeTo(HttpResponder &responder) const
@@ -482,10 +587,16 @@ private:
         std::function<void(const HttpRequest &, HttpResponder &)> handler;
     };
 
+    // Per-connection parse state. Once the header block is parsed it is not
+    // parsed again while the body arrives, and the search for the end of the
+    // header block resumes where it stopped instead of restarting at byte 0.
     struct Connection
     {
-        QPointer<QTcpSocket> socket;
         QByteArray buffer;
+        HttpRequest request;
+        qsizetype searchStart = 0;
+        qsizetype bodyStart = -1;
+        qsizetype contentLength = 0;
     };
 
     void onNewConnection(QTcpServer *server)
@@ -495,29 +606,74 @@ private:
             if (!socket)
                 continue;
 
-            // Each socket gets its own heap-allocated read buffer.
-            auto *buf = new QByteArray();
+            if (m_connectionCount >= MaxConnections) {
+                socket->abort();
+                socket->deleteLater();
+                continue;
+            }
+            ++m_connectionCount;
+            connect(socket, &QObject::destroyed, this, [this]() { --m_connectionCount; });
 
-            connect(socket, &QTcpSocket::readyRead, this, [this, socket, buf]() {
-                buf->append(socket->readAll());
-                int consumed = 0;
-                auto req = HttpRequest::parse(*buf, consumed);
-                if (!req)
-                    return; // need more data
-                *buf = buf->mid(consumed);
-                dispatchRequest(*req, socket);
+            // The state is shared with the handlers instead of owned by one of
+            // them, so no handler can leave the others with a dangling pointer.
+            auto state = std::make_shared<Connection>();
+
+            connect(socket, &QTcpSocket::readyRead, this, [this, socket, state]() {
+                state->buffer += socket->readAll();
+                processBuffer(socket, *state);
             });
 
-            connect(socket, &QTcpSocket::disconnected, this, [socket, buf]() {
-                delete buf;
+            connect(socket, &QTcpSocket::disconnected, this, [socket]() {
                 socket->deleteLater();
             });
 
-            // Guard against premature socket closure before readyRead fires
-            connect(socket, &QTcpSocket::errorOccurred, this, [socket, buf](auto) {
-                Q_UNUSED(buf);
+            connect(socket, &QTcpSocket::errorOccurred, this, [socket](auto) {
                 socket->deleteLater();
             });
+        }
+    }
+
+    void processBuffer(QTcpSocket *socket, Connection &state)
+    {
+        QPointer<QTcpSocket> guard(socket);
+        while (guard && guard->state() == QAbstractSocket::ConnectedState) {
+            if (state.bodyStart < 0) {
+                state.request = {};
+                StatusCode status = StatusCode::BadRequest;
+                const HttpRequest::ParseResult result
+                    = HttpRequest::parseHeaders(state.buffer,
+                                                &state.request,
+                                                &state.searchStart,
+                                                &state.bodyStart,
+                                                &state.contentLength,
+                                                &status);
+                if (result == HttpRequest::ParseResult::Rejected) {
+                    HttpResponder responder(socket);
+                    responder.write(status);
+                    return;
+                }
+                if (result == HttpRequest::ParseResult::Incomplete)
+                    return;
+            }
+
+            if (state.buffer.size() - state.bodyStart < state.contentLength)
+                return; // need more data
+
+            state.request.setBody(state.buffer.mid(state.bodyStart, state.contentLength));
+            state.buffer.remove(0, state.bodyStart + state.contentLength);
+            state.searchStart = 0;
+            state.bodyStart = -1;
+            state.contentLength = 0;
+
+            dispatchRequest(state.request, socket);
+
+            // A handler may run a nested event loop - an MCP tool that opens a
+            // modal dialog does. QAbstractSocket does not emit readyRead while
+            // one is already being handled, so whatever arrived meanwhile is
+            // still in the socket, and no further read is coming for it if the
+            // peer has said all it had to say.
+            if (guard)
+                state.buffer += guard->readAll();
         }
     }
 
@@ -544,6 +700,7 @@ private:
     QList<QTcpServer *> m_servers;
     QList<Route> m_routes;
     std::function<void(const HttpRequest &, HttpResponder &)> m_missingHandler;
+    int m_connectionCount = 0;
 };
 
 } // namespace MiniHttp
