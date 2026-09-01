@@ -49,6 +49,7 @@
 #include <QTextStream>
 #include <QTimer>
 #include <QStack>
+#include <QSysInfo>
 
 #include <QApplication>
 #include <QClipboard>
@@ -356,9 +357,12 @@ public:
 
 // The groups Vim has a highlight for: the ones it defines itself, and the ones a
 // syntax file brings along, which here is always the case.
-static bool isKnownHighlightGroup(const QString &group)
+// In an order of their own, so a group's place in it is a stable id - what
+// hlID() answers with, one added to the index since zero means "no such
+// group" there.
+static const QStringList &highlightGroups()
 {
-    static const QSet<QString> groups = {
+    static const QStringList groups = {
         "ColorColumn", "Conceal", "Cursor", "CursorColumn", "CursorLine",
         "CursorLineNr", "DiffAdd", "DiffChange", "DiffDelete", "DiffText",
         "Directory", "EndOfBuffer", "ErrorMsg", "FoldColumn", "Folded",
@@ -374,7 +378,18 @@ static bool isKnownHighlightGroup(const QString &group)
         "Typedef", "Special", "SpecialChar", "Tag", "Delimiter", "SpecialComment",
         "Debug", "Underlined", "Ignore", "Error", "Todo"
     };
-    return groups.contains(group);
+    return groups;
+}
+
+static bool isKnownHighlightGroup(const QString &group)
+{
+    return highlightGroups().contains(group);
+}
+
+static int highlightGroupId(const QString &group)
+{
+    const int index = highlightGroups().indexOf(group);
+    return index < 0 ? 0 : index + 1;
 }
 
 // What a command did to the lines, which is what it says about them afterwards.
@@ -3506,6 +3521,9 @@ public:
     int bufferNumber();
     bool loadAutoloadScript(const QString &functionName);
     QString expandKeyword(const QString &what) const;
+    // What an assert_*() that fails appends to v:errors: the same prefix an
+    // uncaught exception gets, then the message itself.
+    void reportAssertFailure(const QString &message);
     bool invokeCallable(const VimValue &callable, const QList<VimValue> &args,
                         VimValue *result, QString *error);
     bool handleExLetCommand(const ExCommand &cmd);
@@ -11095,6 +11113,11 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         return true;
     }
 
+    // A script is given its number as soon as it starts being read, whether
+    // or not anything in it ever asks for "s:" or "<SID>" - which is what
+    // getscriptinfo() lists.
+    scriptIdFor(canonicalPath);
+
     // The file is there and is about to be read. Both of these name it, so the
     // pattern is matched against the file being sourced rather than the one in
     // the window.
@@ -11345,6 +11368,41 @@ public:
         : m_h(h), m_in(input)
     {}
 
+    // Vim compares what a container holds by type as well, so a Number and a
+    // String are never equal there, unlike on their own.
+    static bool valuesEqual(const VimValue &a, const VimValue &b, bool cs)
+    {
+        if (a.isList() && b.isList()) {
+            const QList<VimValue> &x = *a.listData();
+            const QList<VimValue> &y = *b.listData();
+            if (x.size() != y.size())
+                return false;
+            for (int i = 0; i < x.size(); ++i) {
+                if (!valuesEqual(x.at(i), y.at(i), cs))
+                    return false;
+            }
+            return true;
+        }
+        if (a.isDict() && b.isDict()) {
+            const QMap<QString, VimValue> &x = *a.dictData();
+            const QMap<QString, VimValue> &y = *b.dictData();
+            if (x.size() != y.size())
+                return false;
+            for (auto it = x.cbegin(), end = x.cend(); it != end; ++it) {
+                const auto other = y.constFind(it.key());
+                if (other == y.cend() || !valuesEqual(it.value(), other.value(), cs))
+                    return false;
+            }
+            return true;
+        }
+        if (a.type() != b.type())
+            return false;
+        if (a.isFunc())
+            return a.reprString() == b.reprString();
+        return compare(a, "==", b, cs);
+    }
+
+
     bool vim9() const { return m_h->m_vim9; }
 
     VimValue parseExpr() { return exprTernary(); }
@@ -11572,40 +11630,6 @@ private:
             return {};
         }
         return VimValue(qlonglong(valuesEqual(l, r, cs) == (op == "==") ? 1 : 0));
-    }
-
-    // Vim compares what a container holds by type as well, so a Number and a
-    // String are never equal there, unlike on their own.
-    static bool valuesEqual(const VimValue &a, const VimValue &b, bool cs)
-    {
-        if (a.isList() && b.isList()) {
-            const QList<VimValue> &x = *a.listData();
-            const QList<VimValue> &y = *b.listData();
-            if (x.size() != y.size())
-                return false;
-            for (int i = 0; i < x.size(); ++i) {
-                if (!valuesEqual(x.at(i), y.at(i), cs))
-                    return false;
-            }
-            return true;
-        }
-        if (a.isDict() && b.isDict()) {
-            const QMap<QString, VimValue> &x = *a.dictData();
-            const QMap<QString, VimValue> &y = *b.dictData();
-            if (x.size() != y.size())
-                return false;
-            for (auto it = x.cbegin(), end = x.cend(); it != end; ++it) {
-                const auto other = y.constFind(it.key());
-                if (other == y.cend() || !valuesEqual(it.value(), other.value(), cs))
-                    return false;
-            }
-            return true;
-        }
-        if (a.type() != b.type())
-            return false;
-        if (a.isFunc())
-            return a.reprString() == b.reprString();
-        return compare(a, "==", b, cs);
     }
 
     static bool compare(const VimValue &l, const QString &op, const VimValue &r, bool cs)
@@ -12852,7 +12876,14 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
         *result = VimValue(QString());
         return true;
     }
-    if (name == "v:errors" || name == "v:oldfiles" || name == "v:argv") {
+    if (name == "v:errors") {
+        QString key;
+        QHash<QString, VimValue> *store = variableStore(name, &key);
+        const auto it = store->constFind(key);
+        *result = (it != store->constEnd() && it->isList()) ? *it : VimValue::list();
+        return true;
+    }
+    if (name == "v:oldfiles" || name == "v:argv") {
         *result = VimValue::list();
         return true;
     }
@@ -13683,6 +13714,16 @@ QString FakeVimHandler::Private::sourceChain(bool asThrowPoint, bool bareInnermo
     return value;
 }
 
+void FakeVimHandler::Private::reportAssertFailure(const QString &message)
+{
+    QString key;
+    QHash<QString, VimValue> *store = variableStore(QStringLiteral("v:errors"), &key);
+    const auto it = store->find(key);
+    VimValue list = (it != store->end() && it->isList()) ? it.value() : VimValue::list();
+    list.listData()->append(VimValue(sourceChain(true) + ": " + message));
+    store->insert(key, list);
+}
+
 QString FakeVimHandler::Private::expandKeyword(const QString &what) const
 {
     // What is being asked about comes first, then any ":" modifiers, so
@@ -14103,7 +14144,28 @@ static bool isBuiltinFunction(const QString &name)
         "byteidx", "byteidxcomp", "charidx", "strchars", "strcharlen", "strcharpart",
         "strutf16len", "utf16idx",
         "strtrans", "tolower", "toupper", "tr", "trim", "type", "typename", "values",
-        "getreginfo", "winrestview", "filecopy",
+        "getreginfo", "winrestview", "filecopy", "systemlist", "hostname",
+        "getpid", "file_readable", "filewritable", "setfperm", "argc",
+        "argidx", "argv", "arglistid", "buffer_exists", "buffer_name",
+        "buffer_number", "last_buffer_nr", "foldclosed", "foldclosedend",
+        "foldlevel", "foldtext", "foldtextresult", "setmatches", "matcharg",
+        "state", "getcharmod", "assert_equal", "assert_notequal",
+        "assert_true", "assert_false", "assert_match", "assert_notmatch",
+        "assert_inrange", "assert_report", "assert_exception", "assert_equalfile",
+        "hlexists", "highlight_exists", "hlID", "highlightID", "synIDtrans",
+        "gettext", "ngettext", "bindtextdomain", "err_teapot", "pumvisible",
+        "wildmenumode", "eventhandler", "garbagecollect", "id",
+        "haslocaldir", "chdir", "undofile", "getwinpos", "getwinposx",
+        "getwinposy", "getfontname", "getcmdcomplpat", "getcmdcompltype",
+        "getcellwidths", "setcellwidths", "cscope_connection", "tagfiles",
+        "swapname", "swapinfo", "swapfilelist", "getmousepos",
+        "win_move_separator", "win_move_statusline", "win_splitmove",
+        "wildtrigger", "foreground", "searchdecl", "instanceof", "hlget",
+        "hlset", "assert_fails", "diff_filler", "diff_hlID", "getcellpixels",
+        "getmouseshape", "gettabinfo", "gettagstack", "settagstack",
+        "server2client", "serverlist", "synconcealed", "terminalprops",
+        "cmdcomplete_info", "getregion", "getregionpos", "readdirex",
+        "getscriptinfo",
         "winsaveview", "writefile",
         "matchadd", "matchaddpos", "matchdelete", "clearmatches", "getmatches",
         "sqrt", "exp", "log", "log10", "sin", "cos", "tan", "asin", "acos",
@@ -15883,11 +15945,255 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                 qputenv(key.constData(), value.toString().toLocal8Bit());
             *result = VimValue(qlonglong(0));
         }
-    } else if (name == "system") {
+    } else if (name == "system" || name == "systemlist") {
         // The same way ":!" reaches a shell, so it stays out of this file.
         QString output;
         q->processOutput(arg(0).toString(), arg(1).toString(), &output);
-        *result = VimValue(output);
+        if (name == "system") {
+            *result = VimValue(output);
+        } else {
+            // systemlist() hands back the lines, and the break at the end of
+            // the last one is not a line of its own.
+            if (output.endsWith('\n'))
+                output.chop(1);
+            QList<VimValue> lines;
+            if (!output.isEmpty()) {
+                for (const QString &line : output.split('\n'))
+                    lines.append(VimValue(line));
+            }
+            *result = VimValue::list(lines);
+        }
+    } else if (name == "argc" || name == "argidx" || name == "argv"
+               || name == "arglistid") {
+        // The argument list. One file is open at a time here, so the list holds
+        // that one, the place in it is the first and there is only ever the one
+        // list - which is the list a window with no list of its own uses, and
+        // Vim numbers that nothing.
+        const QString only = m_currentFileName;
+        if (name == "argc") {
+            *result = VimValue(qlonglong(only.isEmpty() ? 0 : 1));
+        } else if (name == "argidx" || name == "arglistid") {
+            *result = VimValue(qlonglong(0));
+        } else if (args.isEmpty()) {
+            QList<VimValue> list;
+            if (!only.isEmpty())
+                list.append(VimValue(only));
+            *result = VimValue::list(list);
+        } else {
+            // argv({nr}) names one of them, and nothing for a number past the
+            // end rather than an error.
+            *result = VimValue(arg(0).toNumber() == 0 ? only : QString());
+        }
+    } else if (name == "foldclosed" || name == "foldclosedend"
+               || name == "foldlevel" || name == "foldtext"
+               || name == "foldtextresult") {
+        // There is no folding here, so each of these answers what Vim answers
+        // where the line asked about is in no fold: a line number of minus one
+        // for the two that name one, no depth, and no text.
+        // FIXME: Give these real answers if folding ever arrives; a script
+        // calling one must not fail in the meantime, which is why they are here.
+        if (name == "foldclosed" || name == "foldclosedend")
+            *result = VimValue(qlonglong(-1));
+        else if (name == "foldlevel")
+            *result = VimValue(qlonglong(0));
+        else
+            *result = VimValue(QString());
+    } else if (name == "setmatches") {
+        // Put back what getmatches() handed out. Zero says it worked, as Vim
+        // answers; anything that is not a list of dicts is refused with -1.
+        if (!arg(0).isList()) {
+            *result = VimValue(qlonglong(-1));
+        } else {
+            QList<UserMatch> restored;
+            bool sound = true;
+            for (const VimValue &item : *arg(0).listData()) {
+                if (!item.isDict()) {
+                    sound = false;
+                    break;
+                }
+                const QMap<QString, VimValue> *one = item.dictData();
+                UserMatch match;
+                match.group = one->value("group").toString();
+                match.pattern = one->value("pattern").toString();
+                match.priority = one->contains("priority")
+                        ? int(one->value("priority").toNumber()) : 10;
+                match.id = one->contains("id") ? int(one->value("id").toNumber())
+                                               : m_nextUserMatchId++;
+                restored.append(match);
+            }
+            if (sound) {
+                m_userMatches = restored;
+                updateHighlights();
+            }
+            *result = VimValue(qlonglong(sound ? 0 : -1));
+        }
+    } else if (name == "matcharg") {
+        // Only the three that ":match", ":2match" and ":3match" set can be
+        // asked about; any other number is an empty list rather than a pair
+        // (measured in Vim 9.1). Neither of those commands is here, so the
+        // three are always a pair of empty strings.
+        // FIXME: Fill these in if ":match" and its numbered kin arrive.
+        const qlonglong which = arg(0).toNumber();
+        if (which < 1 || which > 3) {
+            *result = VimValue::list();
+        } else {
+            *result = VimValue::list({VimValue(QString()), VimValue(QString())});
+        }
+    } else if (name == "state") {
+        // What Vim is busy with. Nothing here waits on anything a script could
+        // see, so the answer is that it is doing none of it.
+        // FIXME: "m" while a mapping is being replayed, "o" for a pending
+        // operator, "S" where SafeState is not being triggered - all of which
+        // this engine knows but does not report yet.
+        *result = VimValue(QString());
+    } else if (name == "getcharmod") {
+        // The modifiers of the last character read, which nothing here keeps.
+        *result = VimValue(qlonglong(0));
+    } else if (name == "assert_equal" || name == "assert_notequal") {
+        // Deep, type-sensitive equality, the same rule "==" uses for a List or
+        // Dictionary - a Number and a String holding the same text are never
+        // equal, and "ignorecase" does not reach in here either (measured).
+        const bool equal = VimExpr::valuesEqual(arg(0), arg(1), true);
+        const bool wantEqual = name == "assert_equal";
+        if (equal != wantEqual) {
+            const QString prefix = args.size() > 2 && !arg(2).toString().isEmpty()
+                    ? arg(2).toString() + ": " : QString();
+            reportAssertFailure(prefix
+                    + (wantEqual ? Tr::tr("Expected %1 but got %2")
+                                       .arg(arg(0).reprString(), arg(1).reprString())
+                                : Tr::tr("Expected not equal to %1").arg(arg(0).reprString())));
+        }
+        *result = VimValue(qlonglong(equal != wantEqual ? 1 : 0));
+    } else if (name == "assert_true" || name == "assert_false") {
+        // Only a Number or a Bool is accepted at all - a String that reads as
+        // the right number still fails, which is the part worth measuring.
+        const VimValue value = arg(0);
+        const bool rightType = value.type() == VimValue::Number
+                              || value.type() == VimValue::Bool;
+        const bool wantTrue = name == "assert_true";
+        const bool pass = rightType && (value.toNumber() != 0) == wantTrue;
+        if (!pass) {
+            const QString prefix = args.size() > 1 && !arg(1).toString().isEmpty()
+                    ? arg(1).toString() + ": " : QString();
+            reportAssertFailure(prefix
+                    + Tr::tr("Expected %1 but got %2")
+                          .arg(wantTrue ? "True" : "False", value.reprString()));
+        }
+        *result = VimValue(qlonglong(pass ? 0 : 1));
+    } else if (name == "assert_match" || name == "assert_notmatch") {
+        const QString pattern = arg(0).toString();
+        const QString text = arg(1).toString();
+        PatternPosition wanted;
+        const QRegularExpression re = vimPatternToQtPattern(pattern, &wanted, {}, 0);
+        const bool matches = re.match(text).hasMatch();
+        const bool wantMatch = name == "assert_match";
+        if (matches != wantMatch) {
+            const QString prefix = args.size() > 2 && !arg(2).toString().isEmpty()
+                    ? arg(2).toString() + ": " : QString();
+            reportAssertFailure(prefix
+                    + Tr::tr("Pattern %1 does %2match %3")
+                          .arg(arg(0).reprString(), wantMatch ? QString("not ") : QString(),
+                               arg(1).reprString()));
+        }
+        *result = VimValue(qlonglong(matches != wantMatch ? 1 : 0));
+    } else if (name == "assert_inrange") {
+        const qlonglong lo = arg(0).toNumber();
+        const qlonglong hi = arg(1).toNumber();
+        const qlonglong value = arg(2).toNumber();
+        const bool pass = value >= lo && value <= hi;
+        if (!pass) {
+            const QString prefix = args.size() > 3 && !arg(3).toString().isEmpty()
+                    ? arg(3).toString() + ": " : QString();
+            reportAssertFailure(prefix
+                    + Tr::tr("Expected range %1 - %2, but got %3")
+                          .arg(lo).arg(hi).arg(value));
+        }
+        *result = VimValue(qlonglong(pass ? 0 : 1));
+    } else if (name == "assert_report") {
+        // Always fails: it exists to add a message of the caller's own choosing.
+        reportAssertFailure(arg(0).toString());
+        *result = VimValue(qlonglong(1));
+    } else if (name == "assert_exception") {
+        // Only meaningful in a :catch, where v:exception is set; the message
+        // asked for is checked for IN it, as a plain substring.
+        VimValue exception;
+        const bool inCatch = variableValue("v:exception", &exception)
+                            && !exception.toString().isEmpty();
+        const bool pass = inCatch && exception.toString().contains(arg(0).toString());
+        if (!pass) {
+            const QString prefix = args.size() > 1 && !arg(1).toString().isEmpty()
+                    ? arg(1).toString() + ": " : QString();
+            reportAssertFailure(prefix
+                    + (inCatch ? Tr::tr("Expected %1 but got %2")
+                                     .arg(arg(0).reprString(), exception.reprString())
+                              : Tr::tr("v:exception is not set")));
+        }
+        *result = VimValue(qlonglong(pass ? 0 : 1));
+    } else if (name == "assert_equalfile") {
+        // The content of the two files, compared whole.
+        QFile fileA(replaceTildeWithHome(arg(0).toString()));
+        QFile fileB(replaceTildeWithHome(arg(1).toString()));
+        const bool openedA = fileA.open(QIODevice::ReadOnly);
+        const bool openedB = fileB.open(QIODevice::ReadOnly);
+        const bool pass = openedA && openedB && fileA.readAll() == fileB.readAll();
+        if (!pass) {
+            reportAssertFailure(!openedA
+                    ? Tr::tr("First file %1 does not exist").arg(arg(0).reprString())
+                    : !openedB
+                          ? Tr::tr("Second file %1 does not exist").arg(arg(1).reprString())
+                          : Tr::tr("Files %1 and %2 differ")
+                                .arg(arg(0).reprString(), arg(1).reprString()));
+        }
+        *result = VimValue(qlonglong(pass ? 0 : 1));
+    } else if (name == "hlexists" || name == "highlight_exists") {
+        *result = VimValue(qlonglong(isKnownHighlightGroup(arg(0).toString()) ? 1 : 0));
+    } else if (name == "hlID" || name == "highlightID") {
+        *result = VimValue(qlonglong(highlightGroupId(arg(0).toString())));
+    } else if (name == "synIDtrans") {
+        // Nothing here links one highlight group to another, so what comes
+        // back is the id that was given - which is also what Vim answers
+        // where nothing is linked.
+        *result = VimValue(arg(0).toNumber());
+    } else if (name == "gettext") {
+        // No message catalog is read here, so the text comes back as it was
+        // given, which is what Vim answers for one it has no translation of.
+        *result = VimValue(arg(0).toString());
+    } else if (name == "ngettext") {
+        *result = VimValue(arg(2).toNumber() == 1 ? arg(0).toString() : arg(1).toString());
+    } else if (name == "bindtextdomain") {
+        *result = VimValue::boolean(true);
+    } else if (name == "err_teapot") {
+        // A fixed pair of errors that exist only to be raised on purpose, which
+        // is why they are worth having: a script testing its own error
+        // handling needs one it can always reach.
+        *error = args.size() > 0 && arg(0).toBool()
+                ? Tr::tr("E503: Coffee is currently not available")
+                : Tr::tr("E418: I'm a teapot");
+        return false;
+    } else if (name == "pumvisible" || name == "wildmenumode"
+               || name == "eventhandler" || name == "garbagecollect") {
+        // None of these is ever the case here: no popup menu, no wildmenu, no
+        // event running that a script could be inside of, and nothing to
+        // collect. A script asking may go on rather than stop.
+        *result = VimValue(qlonglong(0));
+    } else if (name == "id") {
+        // A List, Dictionary, Blob or Funcref has an identity of its own here,
+        // which is the address the shared container sits at; anything else -
+        // a Number, a String - has none, and Vim answers an empty string for
+        // those rather than zero.
+        const VimValue value = arg(0);
+        QString address;
+        if (value.isList())
+            address = QString::number(quintptr(value.listData()), 16);
+        else if (value.isDict())
+            address = QString::number(quintptr(value.dictData()), 16);
+        else if (value.isFunc())
+            address = QString::number(quintptr(value.funcData()), 16);
+        *result = VimValue(address);
+    } else if (name == "hostname") {
+        *result = VimValue(QSysInfo::machineHostName());
+    } else if (name == "getpid") {
+        *result = VimValue(qlonglong(QCoreApplication::applicationPid()));
     } else if (name == "iconv") {
         // Vim hands the string back untouched when it cannot convert, which is
         // also what happens here for an encoding Qt does not know.
@@ -16787,7 +17093,11 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             setTargetColumn();
             *result = VimValue(qlonglong(0));
         }
-    } else if (name == "bufname") {
+    } else if (name == "last_buffer_nr") {
+        // The highest number a buffer has been given, which is the one this
+        // buffer has where nothing else was ever opened.
+        *result = VimValue(qlonglong(qMax(bufferNumber(), g.lastBufferNumber)));
+    } else if (name == "bufname" || name == "buffer_name") {
         // The name of a buffer, shortened against the directory the editor was started in as Vim
         // shortens it.
         const VimValue which = arg(0);
@@ -17411,14 +17721,342 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     } else if (name == "fnamemodify") {
         *result = VimValue(applyFileNameModifiers(
             replaceTildeWithHome(arg(0).toString()), arg(1).toString()));
-    } else if (name == "filereadable") {
+    } else if (name == "filereadable" || name == "file_readable") {
+        // "file_readable" is the older name for the same question.
         const QFileInfo fi(replaceTildeWithHome(arg(0).toString()));
         *result = VimValue(qlonglong(fi.isFile() && fi.isReadable() ? 1 : 0));
+    } else if (name == "filewritable") {
+        // One for a file that may be written, TWO for a directory that may be
+        // added to, and nothing where neither holds (measured in Vim 9.1).
+        const QFileInfo fi(replaceTildeWithHome(arg(0).toString()));
+        const int answer = !fi.isWritable() ? 0 : fi.isDir() ? 2 : fi.isFile() ? 1 : 0;
+        *result = VimValue(qlonglong(answer));
+    } else if (name == "setfperm") {
+        // The nine characters getfperm() answers with, read back into the
+        // permissions themselves. Anything but nine is refused.
+        const QString path = replaceTildeWithHome(arg(0).toString());
+        const QString wanted = arg(1).toString();
+        if (wanted.size() != 9) {
+            *result = VimValue(qlonglong(0));
+        } else {
+            static const QList<QFile::Permission> order = {
+                QFile::ReadOwner, QFile::WriteOwner, QFile::ExeOwner,
+                QFile::ReadGroup, QFile::WriteGroup, QFile::ExeGroup,
+                QFile::ReadOther, QFile::WriteOther, QFile::ExeOther
+            };
+            QFile::Permissions permissions;
+            for (int i = 0; i < order.size(); ++i) {
+                if (wanted.at(i) != '-')
+                    permissions |= order.at(i);
+            }
+            *result = VimValue(qlonglong(QFile::setPermissions(path, permissions) ? 1 : 0));
+        }
     } else if (name == "isdirectory") {
         *result = VimValue(qlonglong(
             QFileInfo(replaceTildeWithHome(arg(0).toString())).isDir() ? 1 : 0));
     } else if (name == "getcwd") {
         *result = VimValue(QDir::currentPath());
+    } else if (name == "haslocaldir") {
+        // Nothing here ever narrows the working directory to one window or
+        // tab on its own, so it is always the global one.
+        *result = VimValue(qlonglong(0));
+    } else if (name == "chdir") {
+        // The directory this and every other window shares, changed for
+        // real - which is what getcwd() already answers with. What comes
+        // back is the one it was before, so a script may go back to it;
+        // a target that is not there is refused rather than followed.
+        const QString wanted = replaceTildeWithHome(arg(0).toString());
+        if (!QFileInfo(wanted).isDir()) {
+            *error = Tr::tr("E344: Can't find directory \"%1\" in cdpath").arg(wanted);
+            return false;
+        }
+        const QString was = QDir::currentPath();
+        QDir::setCurrent(wanted);
+        *result = VimValue(was);
+    } else if (name == "undofile") {
+        // The name Vim would keep an undo file under, in the file's own
+        // directory - a dot in front, "un~" behind. Nothing here writes one.
+        const QFileInfo fi(replaceTildeWithHome(arg(0).toString()));
+        *result = VimValue(fi.path() + "/." + fi.fileName() + ".un~");
+    } else if (name == "getwinpos" || name == "getwinposx" || name == "getwinposy") {
+        // Where the window sits on the screen, which nothing here keeps -
+        // minus one is what Vim itself answers when it does not know either.
+        *result = name == "getwinpos"
+                ? VimValue::list({VimValue(qlonglong(-1)), VimValue(qlonglong(-1))})
+                : VimValue(qlonglong(-1));
+    } else if (name == "getfontname") {
+        *result = VimValue(QString());
+    } else if (name == "getcmdcomplpat" || name == "getcmdcompltype") {
+        // What a command line being completed is matching against, and how -
+        // nothing here is ever mid-completion, so both are empty, as Vim
+        // answers outside one.
+        *result = VimValue(QString());
+    } else if (name == "getcellwidths") {
+        *result = VimValue::list();
+    } else if (name == "setcellwidths") {
+        // Taken and not acted on: character width is Qt's to decide here.
+        *result = VimValue(qlonglong(0));
+    } else if (name == "cscope_connection") {
+        *result = VimValue(qlonglong(0));
+    } else if (name == "tagfiles") {
+        *result = VimValue::list();
+    } else if (name == "swapname") {
+        // No swap file is ever kept, so there is never a name for one.
+        *result = VimValue(QString());
+    } else if (name == "swapinfo") {
+        QMap<QString, VimValue> info;
+        info.insert("error", VimValue(QString("Cannot open file")));
+        *result = VimValue::dict(info);
+    } else if (name == "swapfilelist") {
+        *result = VimValue::list();
+    } else if (name == "getmousepos") {
+        // Nothing here is mid mouse-click, so every part of where one would
+        // be is zero, as Vim answers between clicks.
+        QMap<QString, VimValue> pos;
+        for (const char *k : {"screenrow", "screencol", "winid", "winrow",
+                              "wincol", "line", "column", "coladd"})
+            pos.insert(QLatin1String(k), VimValue(qlonglong(0)));
+        *result = VimValue::dict(pos);
+    } else if (name == "win_move_separator" || name == "win_move_statusline") {
+        // One window is all there ever is, so there is nothing beside it to
+        // make room for by moving anything - but the window named is a real
+        // one, so this still succeeds, doing nothing.
+        *result = VimValue(qlonglong(1));
+    } else if (name == "win_splitmove") {
+        // There is never a SECOND window to move into.
+        *error = Tr::tr("E957: Invalid window number");
+        return false;
+    } else if (name == "wildtrigger") {
+        *result = VimValue(qlonglong(0));
+    } else if (name == "foreground") {
+        *result = VimValue(qlonglong(0));
+    } else if (name == "searchdecl") {
+        // No real declaration search runs here, so what is asked for is
+        // always answered as not found - never a false positive.
+        *result = VimValue(qlonglong(1));
+    } else if (name == "instanceof") {
+        // Nothing here is ever an Object, there being no classes, so asking
+        // is always refused the way Vim refuses it for anything else that is
+        // not one.
+        *error = Tr::tr("E616: Object required for argument 1");
+        return false;
+    } else if (name == "hlget") {
+        // A group this engine knows of but has never been asked to colour
+        // answers the way Vim answers for one nothing has styled: known, but
+        // "cleared". Asking about all of them walks the same table hlID()
+        // does; one that was never named at all is an empty list.
+        QList<VimValue> items;
+        const auto describe = [](const QString &group) {
+            QMap<QString, VimValue> item;
+            item.insert("id", VimValue(qlonglong(highlightGroupId(group))));
+            item.insert("name", VimValue(group));
+            item.insert("cleared", VimValue::boolean(true));
+            return VimValue::dict(item);
+        };
+        if (args.isEmpty()) {
+            for (const QString &group : highlightGroups())
+                items.append(describe(group));
+        } else if (isKnownHighlightGroup(arg(0).toString())) {
+            items.append(describe(arg(0).toString()));
+        }
+        *result = VimValue::list(items);
+    } else if (name == "hlset") {
+        // Nothing here is ever actually recoloured, so there is nothing to
+        // fail on.
+        *result = VimValue(qlonglong(0));
+    } else if (name == "assert_fails") {
+        // Run the command; it PASSES the check by failing, and what is asked
+        // for is that a particular error came up, not that none did. An error
+        // only becomes something catchable HERE while a real ":try" is
+        // running (m_tryDepth), which this is not, so one is put on around the
+        // run - the same thing a ":try" itself would do.
+        const bool savedThrowing = m_throwing;
+        const QString savedException = m_exception;
+        m_throwing = false;
+        ++m_tryDepth;
+        runNestedExCommands(arg(0).toString());
+        --m_tryDepth;
+        const bool threw = m_throwing;
+        const QString thrown = m_exception;
+        m_throwing = savedThrowing;
+        m_exception = savedException;
+        const bool wantedSpecific = args.size() > 1 && !arg(1).toString().isEmpty();
+        const bool rightOne = !wantedSpecific || thrown.contains(arg(1).toString());
+        const bool pass = threw && rightOne;
+        if (!pass) {
+            reportAssertFailure(!threw
+                    ? Tr::tr("command did not fail: %1").arg(arg(0).toString())
+                    : Tr::tr("Expected %1 but got %2")
+                          .arg(arg(1).reprString(), VimValue(thrown).reprString()));
+        }
+        *result = VimValue(qlonglong(pass ? 0 : 1));
+    } else if (name == "diff_filler" || name == "diff_hlID") {
+        // There is no diff mode here, so a line is never behind a filler and
+        // never has a diff highlight of its own.
+        *result = VimValue(qlonglong(0));
+    } else if (name == "getcellpixels") {
+        *result = VimValue::list();
+    } else if (name == "getmouseshape") {
+        *result = VimValue(QString());
+    } else if (name == "gettabinfo") {
+        // One tab, holding the one window there is.
+        QMap<QString, VimValue> tab;
+        tab.insert("tabnr", VimValue(qlonglong(1)));
+        tab.insert("windows", VimValue::list({VimValue(theWindowId)}));
+        tab.insert("variables", VimValue::dict());
+        *result = VimValue::list({VimValue::dict(tab)});
+    } else if (name == "gettagstack") {
+        QMap<QString, VimValue> stack;
+        stack.insert("length", VimValue(qlonglong(0)));
+        stack.insert("curidx", VimValue(qlonglong(1)));
+        stack.insert("items", VimValue::list());
+        *result = VimValue::dict(stack);
+    } else if (name == "settagstack") {
+        // Nothing here keeps a tag stack, so there is nothing to fail on.
+        *result = VimValue(qlonglong(0));
+    } else if (name == "server2client") {
+        // No server is ever started here, so nothing can ever be replied to.
+        *error = Tr::tr("E1565: Socket server is not online, "
+                        "call remote_startserver() first");
+        return false;
+    } else if (name == "serverlist") {
+        *result = VimValue(QString());
+    } else if (name == "synconcealed") {
+        // No conceal support here, so a character is never concealed.
+        *result = VimValue::list({VimValue(qlonglong(0)), VimValue(QString()),
+                                 VimValue(qlonglong(0))});
+    } else if (name == "terminalprops") {
+        QMap<QString, VimValue> props;
+        for (const char *k : {"cursor_style", "cursor_blink_mode", "underline_rgb",
+                              "mouse", "kitty"})
+            props.insert(QLatin1String(k), VimValue(QString("u")));
+        *result = VimValue::dict(props);
+    } else if (name == "cmdcomplete_info") {
+        *result = VimValue::dict();
+    } else if (name == "getregion" || name == "getregionpos") {
+        // Both take the ends of a range the way getpos() writes one, or the
+        // name of a mark; with no {'type'} of its own, the type is the one
+        // the last visual selection used - the marks and the mode agree,
+        // since leaving visual mode is what sets both.
+        const auto resolve = [this](const VimValue &v) -> CursorPosition {
+            if (v.isList() && v.listData()->size() >= 3) {
+                return CursorPosition(int(v.listData()->at(1).toNumber()) - 1,
+                                      int(v.listData()->at(2).toNumber()) - 1);
+            }
+            return lineColArg(v.toString());
+        };
+        const auto toChar = [this](const CursorPosition &p) {
+            QTextCursor tc(document());
+            setCursorPosition(&tc, p);
+            return tc.position();
+        };
+        QString typeOpt;
+        if (args.size() > 2 && arg(2).isDict() && arg(2).dictData()->contains("type"))
+            typeOpt = arg(2).dictData()->value("type").toString();
+        else if (m_buffer->lastVisualMode == VisualLineMode)
+            typeOpt = "V";
+        else if (m_buffer->lastVisualMode == VisualBlockMode)
+            typeOpt = QString(QChar(22));
+        else
+            typeOpt = "v";
+        const RangeMode mode = typeOpt == "V" ? RangeLineMode
+                              : typeOpt.startsWith(QChar(22)) ? RangeBlockMode
+                                                              : RangeCharMode;
+        const int p1 = toChar(resolve(arg(0)));
+        const int p2 = toChar(resolve(arg(1)));
+        const Range range(qMin(p1, p2), qMax(p1, p2), mode);
+        QString text = selectText(range);
+        if (text.endsWith('\n'))
+            text.chop(1);
+        const QStringList lines = text.isEmpty() ? QStringList() : text.split('\n');
+        if (name == "getregion") {
+            QList<VimValue> items;
+            for (const QString &line : lines)
+                items.append(VimValue(line));
+            *result = VimValue::list(items);
+        } else {
+            // One [start, end] pair per line, [bufnum, lnum, col, off]. Measured
+            // for a single charwise line only.
+            // FIXME: A multi-line or blockwise span is not separately verified
+            // against Vim - each line here spans from where the range enters it
+            // to where it leaves, which is the same reasoning selectText() uses,
+            // but the exact column Vim reports at either edge was not measured
+            // for those shapes.
+            QList<VimValue> items;
+            QTextCursor tc(document());
+            tc.setPosition(range.beginPos);
+            const int firstLine = tc.blockNumber();
+            tc.setPosition(range.endPos);
+            const int lastLine = tc.blockNumber();
+            for (int line = firstLine; line <= lastLine; ++line) {
+                const QTextBlock block = document()->findBlockByNumber(line);
+                const int from = line == firstLine
+                        ? range.beginPos - block.position() + 1 : 1;
+                const int to = line == lastLine
+                        ? range.endPos - block.position() : block.length() - 1;
+                items.append(VimValue::list({
+                    VimValue::list({VimValue(qlonglong(0)), VimValue(qlonglong(line + 1)),
+                                    VimValue(qlonglong(from)), VimValue(qlonglong(0))}),
+                    VimValue::list({VimValue(qlonglong(0)), VimValue(qlonglong(line + 1)),
+                                    VimValue(qlonglong(to)), VimValue(qlonglong(0))})
+                }));
+            }
+            *result = VimValue::list(items);
+        }
+    } else if (name == "getscriptinfo") {
+        // Every script sourced this session, by the id it was given - the
+        // registry sourcing already keeps, walked in that same order. Nothing
+        // here counts how many times one has been sourced, so that is always
+        // zero, and there is no separate Vim9 script version to report either.
+        QList<VimValue> items;
+        QList<QString> byId(g.scriptIds.size() + 1);
+        for (auto it = g.scriptIds.constBegin(); it != g.scriptIds.constEnd(); ++it) {
+            if (it.value() >= 1 && it.value() < byId.size())
+                byId[it.value()] = it.key();
+        }
+        for (int sid = 1; sid < byId.size(); ++sid) {
+            if (byId.at(sid).isEmpty())
+                continue;
+            QMap<QString, VimValue> item;
+            item.insert("sid", VimValue(qlonglong(sid)));
+            item.insert("name", VimValue(byId.at(sid)));
+            item.insert("version", VimValue(qlonglong(1)));
+            item.insert("sourced", VimValue(qlonglong(0)));
+            item.insert("autoload", VimValue::boolean(byId.at(sid).contains("/autoload/")));
+            items.append(VimValue::dict(item));
+        }
+        *result = VimValue::list(items);
+    } else if (name == "readdirex") {
+        // readdir() with the details each entry answers with instead of just
+        // a name: what getftype()/getfperm()/getfsize()/getftime() already
+        // answer, gathered per file.
+        const QString dirPath = replaceTildeWithHome(arg(0).toString());
+        QList<VimValue> items;
+        const QDir dir(dirPath);
+        for (const QFileInfo &fi : dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot)) {
+            QMap<QString, VimValue> item;
+            item.insert("name", VimValue(fi.fileName()));
+            item.insert("type", VimValue(fi.isSymLink() ? QString("link")
+                                        : fi.isDir() ? QString("dir") : QString("file")));
+            item.insert("size", VimValue(qlonglong(fi.size())));
+            item.insert("time", VimValue(qlonglong(fi.lastModified().toSecsSinceEpoch())));
+            QString permString;
+            {
+                static const QList<QFile::Permission> order = {
+                    QFile::ReadOwner, QFile::WriteOwner, QFile::ExeOwner,
+                    QFile::ReadGroup, QFile::WriteGroup, QFile::ExeGroup,
+                    QFile::ReadOther, QFile::WriteOther, QFile::ExeOther
+                };
+                const QFile::Permissions have = fi.permissions();
+                for (QFile::Permission bit : order)
+                    permString += have & bit ? "rwxrwxrwx"[permString.size()] : '-';
+            }
+            item.insert("perm", VimValue(permString));
+            item.insert("user", VimValue(fi.owner()));
+            item.insert("group", VimValue(fi.group()));
+            items.append(VimValue::dict(item));
+        }
+        *result = VimValue::list(items);
     } else if (name == "fnameescape" || name == "shellescape") {
         const QString in = arg(0).toString();
         if (name == "shellescape") {
@@ -17437,7 +18075,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             }
             *result = VimValue(out);
         }
-    } else if (name == "bufnr") {
+    } else if (name == "bufnr" || name == "buffer_number") {
         // bufnr([{buf}]) - only the buffer this handler works on can be named,
         // since there is no list of the others to look through.
         const QString a = args.isEmpty() ? QString("%") : arg(0).toString();
@@ -17447,7 +18085,9 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = VimValue(qlonglong(bufferNumber()));
         else
             *result = VimValue(qlonglong(-1));
-    } else if (name == "bufexists" || name == "buflisted" || name == "bufloaded") {
+    } else if (name == "bufexists" || name == "buflisted" || name == "bufloaded"
+               || name == "buffer_exists") {
+        // "buffer_exists" is the older name for "bufexists".
         // Only the buffer this handler works on can be named, and it is
         // always both listed and loaded, so the three agree here. Unlike
         // bufnr(), a string argument is always a buffer NAME here, never the

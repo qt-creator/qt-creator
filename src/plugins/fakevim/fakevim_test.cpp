@@ -325,6 +325,14 @@ private slots:
     void test_vim_script_type_constants();
     void test_vim_script_searchforward();
     void test_vim_script_environment_vars();
+    void test_vim_script_system_functions();
+    void test_vim_script_arglist();
+    void test_vim_script_fold_queries();
+    void test_vim_script_setmatches_and_state();
+    void test_vim_script_assert_functions();
+    void test_vim_script_misc_builtins();
+    void test_vim_script_directory_and_window_stubs();
+    void test_vim_script_more_stubs_and_region();
     void test_vim_line_address_zero_and_counts();
     void test_vim_operator_motion_at_the_edge();
     void test_vim_script_characters_and_bytes();
@@ -12946,6 +12954,745 @@ void FakeVimTester::test_vim_substitute_print_flags()
     // What it then reaches is asserted in test_vim_substitute_count().
     data.setText("ab" N "ab" N "ab");
     QVERIFY(!run("1substitute/a/X/ 2").contains("E488"));
+}
+
+void FakeVimTester::test_vim_script_more_stubs_and_region()
+{
+    // assert_fails(), a handful more "nothing here does that" answers, and
+    // getregion()/getregionpos()/readdirex(). All values measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("alpha beta" N "gamma delta" N "epsilon zeta");
+
+    // assert_fails() PASSES when the command throws, and fails when it does
+    // not - the opposite sense from most of the assert_*() family.
+    data.doCommand("let v:errors = []");
+    QCOMPARE(value("assert_fails('echo 1')"), QLatin1String("1"));
+    data.doCommand("let v:errors = []");
+    QCOMPARE(value("assert_fails('call NoSuchFuncXyz()')"), QLatin1String("0"));
+    QCOMPARE(value("len(v:errors)"), QLatin1String("0"));
+    // What is checked is that a PARTICULAR error came up.
+    data.doCommand("let v:errors = []");
+    QCOMPARE(value("assert_fails('call NoSuchFuncXyz()', 'E999')"),
+             QLatin1String("1"));
+    data.doCommand("let v:errors = []");
+    QCOMPARE(value("assert_fails('call NoSuchFuncXyz()', 'E117')"),
+             QLatin1String("0"));
+
+    // No diff mode is ever on.
+    QCOMPARE(value("diff_filler(1)"), QLatin1String("0"));
+    QCOMPARE(value("diff_hlID(1, 1)"), QLatin1String("0"));
+    QCOMPARE(value("getcellpixels()"), QLatin1String("[]"));
+    QCOMPARE(value("getmouseshape()"), QLatin1String(""));
+
+    // One tab, holding the one window there is.
+    QCOMPARE(value("len(gettabinfo())"), QLatin1String("1"));
+    QCOMPARE(value("gettabinfo()[0].tabnr"), QLatin1String("1"));
+    QCOMPARE(value("len(gettabinfo()[0].windows)"), QLatin1String("1"));
+
+    // No tag stack is ever kept.
+    QCOMPARE(value("gettagstack()"),
+             QLatin1String("{'curidx': 1, 'items': [], 'length': 0}"));
+    QCOMPARE(value("settagstack(1, {})"), QLatin1String("0"));
+
+    // No server is ever started, so nothing can ever reply, and none is ever
+    // listed.
+    QVERIFY(value("server2client('x', 'y')").contains("E1565"));
+    QCOMPARE(value("serverlist()"), QLatin1String(""));
+
+    // No conceal support, so nothing is ever concealed.
+    QCOMPARE(value("synconcealed(1, 1)"), QLatin1String("[0, '', 0]"));
+
+    QCOMPARE(value("terminalprops().mouse"), QLatin1String("u"));
+    QCOMPARE(value("cmdcomplete_info()"), QLatin1String("{}"));
+
+    // getregion(): a single-line charwise selection.
+    data.doKeys("gg0vey");
+    QCOMPARE(value("getregion(getpos(\"'<\"), getpos(\"'>\"))"),
+             QLatin1String("['alpha']"));
+    // A linewise one spans whole lines.
+    data.doKeys("gg0Vjy");
+    QCOMPARE(value("getregion(getpos(\"'<\"), getpos(\"'>\"))"),
+             QLatin1String("['alpha beta', 'gamma delta']"));
+    // A blockwise one takes the same column from each line.
+    data.doKeys("gg0<c-v>jly");
+    QCOMPARE(value("getregion(getpos(\"'<\"), getpos(\"'>\"))"),
+             QLatin1String("['al', 'ga']"));
+    // An explicit type overrides what the last visual mode was.
+    data.doKeys("gg0vey");
+    QCOMPARE(value("getregion(getpos(\"'<\"), getpos(\"'>\"), {'type': 'V'})"),
+             QLatin1String("['alpha beta']"));
+
+    // getregionpos(): the one shape actually measured, a single charwise line.
+    data.doKeys("gg0vey");
+    QCOMPARE(value("getregionpos(getpos(\"'<\"), getpos(\"'>\"))"),
+             QLatin1String("[[[0, 1, 1, 0], [0, 1, 5, 0]]]"));
+
+    // readdirex(): the same names readdir() gives, with details alongside.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/probe.txt");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("hello\n");
+    f.close();
+    QVERIFY(QDir().mkpath(dir.path() + "/subdir"));
+    QCOMPARE(value("sort(map(readdirex('" + dir.path() + "'), {_, v -> v.name}))"),
+             QLatin1String("['probe.txt', 'subdir']"));
+    QCOMPARE(value("sort(keys(readdirex('" + dir.path() + "')[0]))"),
+             QLatin1String("['group', 'name', 'perm', 'size', 'time', 'type', 'user']"));
+    data.doCommand("let g:rd = readdirex('" + dir.path() + "')");
+    data.doCommand("let g:probe = filter(copy(g:rd), {_, v -> v.name ==# 'probe.txt'})[0]");
+    QCOMPARE(value("g:probe.type"), QLatin1String("file"));
+    QCOMPARE(value("g:probe.size"), QLatin1String("6"));
+    data.doCommand("let g:subdir = filter(copy(g:rd), {_, v -> v.name ==# 'subdir'})[0]");
+    QCOMPARE(value("g:subdir.type"), QLatin1String("dir"));
+
+    for (const QString &fn : QStringList{"assert_fails", "diff_filler",
+                                         "diff_hlID", "getcellpixels",
+                                         "getmouseshape", "gettabinfo",
+                                         "gettagstack", "settagstack",
+                                         "server2client", "serverlist",
+                                         "synconcealed", "terminalprops",
+                                         "cmdcomplete_info", "getregion",
+                                         "getregionpos", "readdirex",
+                                         "getscriptinfo"}) {
+        QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
+    }
+
+    // getscriptinfo(): the registry sourcing keeps, walked by id. Shared with
+    // every other test slot the way the command history is, so only THIS
+    // script's own entry is asserted, found by name rather than by number.
+    QTemporaryDir scriptDir;
+    QVERIFY(scriptDir.isValid());
+    const QString scriptPath = scriptDir.path() + "/gsi_probe.vim";
+    QFile sf(scriptPath);
+    QVERIFY(sf.open(QIODevice::WriteOnly));
+    sf.write("let g:gsi_touched = 1\n");
+    sf.close();
+    data.doCommand("source " + scriptPath);
+    data.doCommand("let g:gsi = filter(getscriptinfo(), {_, v -> v.name ==# '"
+                   + scriptPath + "'})");
+    QCOMPARE(value("len(g:gsi)"), QLatin1String("1"));
+    QCOMPARE(value("g:gsi[0].version"), QLatin1String("1"));
+    QCOMPARE(value("g:gsi[0].sourced"), QLatin1String("0"));
+    QCOMPARE(value("g:gsi[0].autoload"), QLatin1String("v:false"));
+    QCOMPARE(value("g:gsi[0].sid > 0"), QLatin1String("1"));
+    QCOMPARE(value("type(getscriptinfo()) == v:t_list"), QLatin1String("1"));
+    // A script under an "autoload" directory is named as one.
+    QVERIFY(QDir().mkpath(scriptDir.path() + "/autoload"));
+    const QString autoPath = scriptDir.path() + "/autoload/gsi_auto.vim";
+    QFile af(autoPath);
+    QVERIFY(af.open(QIODevice::WriteOnly));
+    af.write("let g:gsi_auto_touched = 1\n");
+    af.close();
+    data.doCommand("source " + autoPath);
+    data.doCommand("let g:gsiauto = filter(getscriptinfo(), {_, v -> v.name ==# '"
+                   + autoPath + "'})");
+    QCOMPARE(value("g:gsiauto[0].autoload"), QLatin1String("v:true"));
+
+    data.doCommand("unlet! g:rd g:probe g:subdir g:gsi g:gsi_touched g:gsiauto"
+                   " g:gsi_auto_touched");
+    data.doCommand("let v:errors = []");
+}
+
+void FakeVimTester::test_vim_script_directory_and_window_stubs()
+{
+    // chdir(), and the family of things this engine has no real answer for -
+    // window position, swap files, cellwidths, cscope, tags, mouse position,
+    // and the single-window layout functions. All values measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("x");
+
+    // haslocaldir() is always zero - nothing here narrows a directory to one
+    // window on its own.
+    QCOMPARE(value("haslocaldir()"), QLatin1String("0"));
+
+    // chdir() changes the real working directory and hands back the one it
+    // was before, so it is put back afterwards - this is shared with every
+    // other test slot in the process.
+    const QString before = value("getcwd()");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QCOMPARE(value("chdir('" + dir.path() + "') != ''"), QLatin1String("1"));
+    QCOMPARE(value("getcwd()"), dir.path());
+    QVERIFY(value("chdir('" + before + "')").contains(dir.path()));
+    QCOMPARE(value("getcwd()"), before);
+    // A directory that is not there is refused rather than followed.
+    QVERIFY(value("chdir('/no/such/directory/xyz')").contains("E344"));
+    QCOMPARE(value("getcwd()"), before);
+
+    // undofile() names where an undo file WOULD go, in the file's own
+    // directory - a dot in front, "un~" behind.
+    QCOMPARE(value("undofile('" + dir.path() + "/probe.txt')"),
+             QLatin1String(dir.path().toUtf8() + "/.probe.txt.un~"));
+
+    // Nothing here knows where the window sits, or what its font is, so both
+    // answer what Vim answers when it does not know either.
+    QCOMPARE(value("getwinpos()"), QLatin1String("[-1, -1]"));
+    QCOMPARE(value("getwinposx()"), QLatin1String("-1"));
+    QCOMPARE(value("getwinposy()"), QLatin1String("-1"));
+    QCOMPARE(value("getfontname()"), QLatin1String(""));
+
+    // Nothing is ever mid command-line-completion here.
+    QCOMPARE(value("getcmdcomplpat()"), QLatin1String(""));
+    QCOMPARE(value("getcmdcompltype()"), QLatin1String(""));
+
+    // Character widths are Qt's question, not this engine's.
+    QCOMPARE(value("getcellwidths()"), QLatin1String("[]"));
+    QCOMPARE(value("setcellwidths([])"), QLatin1String("0"));
+
+    // No cscope connection, no tag files, no swap file, ever.
+    QCOMPARE(value("cscope_connection()"), QLatin1String("0"));
+    QCOMPARE(value("tagfiles()"), QLatin1String("[]"));
+    QCOMPARE(value("swapname('%')"), QLatin1String(""));
+    QCOMPARE(value("swapinfo('nosuchfile').error"), QLatin1String("Cannot open file"));
+    QCOMPARE(value("swapfilelist()"), QLatin1String("[]"));
+
+    // Nothing here is mid mouse-click, so every part of where one would be
+    // is zero.
+    QCOMPARE(value("sort(keys(getmousepos()))"),
+             QLatin1String("['coladd', 'column', 'line', 'screencol', "
+                           "'screenrow', 'wincol', 'winid', 'winrow']"));
+    QCOMPARE(value("getmousepos().line"), QLatin1String("0"));
+
+    // One window is all there ever is: moving a separator or a status line
+    // succeeds trivially, since the window named is real, but there is never
+    // a second window to move INTO.
+    QCOMPARE(value("win_move_separator(0, 0)"), QLatin1String("1"));
+    QCOMPARE(value("win_move_statusline(0, 0)"), QLatin1String("1"));
+    QVERIFY(value("win_splitmove(0, 0)").contains("E957"));
+
+    QCOMPARE(value("wildtrigger()"), QLatin1String("0"));
+    QCOMPARE(value("foreground()"), QLatin1String("0"));
+
+    // No real declaration search runs, so it is always "not found" and never
+    // a false positive.
+    QCOMPARE(value("searchdecl('nothing')"), QLatin1String("1"));
+
+    // There are no classes, so nothing is ever an Object.
+    QVERIFY(value("instanceof(1, 'Foo')").contains("E616"));
+
+    // hlget()/hlset(): a group this engine knows of but has never coloured
+    // answers the way Vim answers for one nothing has styled - known, but
+    // "cleared". One that was never named at all is an empty list.
+    QCOMPARE(value("hlget('Comment')[0].name"), QLatin1String("Comment"));
+    QCOMPARE(value("hlget('Comment')[0].cleared"), QLatin1String("v:true"));
+    QCOMPARE(value("hlget('Comment')[0].id > 0"), QLatin1String("1"));
+    QCOMPARE(value("hlget('NoSuchGroupXyz')"), QLatin1String("[]"));
+    QCOMPARE(value("len(hlget()) > 1"), QLatin1String("1"));
+    QCOMPARE(value("hlset([])"), QLatin1String("0"));
+
+    for (const QString &fn : QStringList{"haslocaldir", "chdir", "undofile",
+                                         "getwinpos", "getwinposx", "getwinposy",
+                                         "getfontname", "getcmdcomplpat",
+                                         "getcmdcompltype", "getcellwidths",
+                                         "setcellwidths", "cscope_connection",
+                                         "tagfiles", "swapname", "swapinfo",
+                                         "swapfilelist", "getmousepos",
+                                         "win_move_separator",
+                                         "win_move_statusline", "win_splitmove",
+                                         "wildtrigger", "foreground",
+                                         "searchdecl", "instanceof", "hlget",
+                                         "hlset"}) {
+        QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
+    }
+}
+
+void FakeVimTester::test_vim_script_misc_builtins()
+{
+    // hlexists/hlID and kin, gettext/ngettext/bindtextdomain, err_teapot, and
+    // the "nothing is going on" family: pumvisible, wildmenumode, eventhandler,
+    // garbagecollect, id(). All values measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("x");
+
+    // A group this engine knows (it treats syntax as always active) exists;
+    // one that was never named does not.
+    QCOMPARE(value("hlexists('Comment')"), QLatin1String("1"));
+    QCOMPARE(value("highlight_exists('Comment')"), QLatin1String("1"));
+    QCOMPARE(value("hlexists('NoSuchGroupXyz')"), QLatin1String("0"));
+    // hlID() answers a POSITIVE id for one that exists, zero for one that does
+    // not, and highlightID() is the older name for the same question.
+    QCOMPARE(value("hlID('Comment') > 0"), QLatin1String("1"));
+    QCOMPARE(value("hlID('NoSuchGroupXyz')"), QLatin1String("0"));
+    QCOMPARE(value("highlightID('Comment') == hlID('Comment')"), QLatin1String("1"));
+    // Two different groups get two different ids.
+    QCOMPARE(value("hlID('Comment') == hlID('String')"), QLatin1String("0"));
+    // Nothing links one group to another here, so synIDtrans() hands back
+    // what it was given.
+    QCOMPARE(value("synIDtrans(hlID('Comment')) == hlID('Comment')"),
+             QLatin1String("1"));
+    QCOMPARE(value("synIDtrans(0)"), QLatin1String("0"));
+
+    // No message catalog is read, so the text comes back untranslated.
+    QCOMPARE(value("gettext('hello')"), QLatin1String("hello"));
+    QCOMPARE(value("ngettext('one', 'many', 1)"), QLatin1String("one"));
+    QCOMPARE(value("ngettext('one', 'many', 5)"), QLatin1String("many"));
+    QCOMPARE(value("bindtextdomain('x', '/tmp')"), QLatin1String("v:true"));
+
+    // err_teapot() is a fixed, catchable error meant to be raised on purpose.
+    QVERIFY(value("err_teapot()").contains("E418"));
+    QVERIFY(value("err_teapot(1)").contains("E503"));
+    data.doCommand("let g:caught = ''");
+    data.doCommand("try | call err_teapot() | catch | let g:caught = v:exception | endtry");
+    QCOMPARE(value("g:caught =~# 'E418'"), QLatin1String("1"));
+
+    // Nothing here is ever the case, so a script asking may go on.
+    QCOMPARE(value("pumvisible()"), QLatin1String("0"));
+    QCOMPARE(value("wildmenumode()"), QLatin1String("0"));
+    QCOMPARE(value("eventhandler()"), QLatin1String("0"));
+    QCOMPARE(value("garbagecollect()"), QLatin1String("0"));
+
+    // id(): a container has an identity, a scalar has none - measured as an
+    // empty string rather than zero. The same list twice over shares its id,
+    // as copies of one Vim List do.
+    QCOMPARE(value("id(1)"), QLatin1String(""));
+    QCOMPARE(value("id('x')"), QLatin1String(""));
+    data.doCommand("let g:l = [1, 2]");
+    QCOMPARE(value("id(g:l) != ''"), QLatin1String("1"));
+    QCOMPARE(value("id(g:l) ==# id(g:l)"), QLatin1String("1"));
+    data.doCommand("let g:l2 = g:l");
+    QCOMPARE(value("id(g:l) ==# id(g:l2)"), QLatin1String("1"));
+    data.doCommand("let g:l3 = [1, 2]");
+    QCOMPARE(value("id(g:l) ==# id(g:l3)"), QLatin1String("0"));
+
+    for (const QString &fn : QStringList{"hlexists", "highlight_exists", "hlID",
+                                         "highlightID", "synIDtrans", "gettext",
+                                         "ngettext", "bindtextdomain",
+                                         "err_teapot", "pumvisible", "wildmenumode",
+                                         "eventhandler", "garbagecollect", "id"}) {
+        QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
+    }
+    data.doCommand("unlet! g:l g:l2 g:l3 g:caught");
+}
+
+void FakeVimTester::test_vim_script_assert_functions()
+{
+    // The assert_*() family, and v:errors. All values measured in Vim 9.1: each
+    // pushes onto v:errors the same "command line..." prefix an uncaught
+    // exception gets, then ": " and the message, and returns 1 on failure.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto lastError = [&] { return value("v:errors[-1]"); };
+    const auto reset = [&] { data.doCommand("let v:errors = []"); };
+
+    data.setText("x");
+
+    // A pass returns 0 and adds nothing.
+    reset();
+    QCOMPARE(value("assert_equal(1, 1)"), QLatin1String("0"));
+    QCOMPARE(value("len(v:errors)"), QLatin1String("0"));
+
+    // A failure returns 1 and describes what it expected, quoting a string the
+    // way string() does.
+    reset();
+    QCOMPARE(value("assert_equal(1, 2)"), QLatin1String("1"));
+    QVERIFY(lastError().contains("Expected 1 but got 2"));
+    reset();
+    QCOMPARE(value("assert_equal('a', 'b')"), QLatin1String("1"));
+    QVERIFY(lastError().contains("Expected 'a' but got 'b'"));
+
+    // A message argument comes BEFORE the "Expected" text.
+    reset();
+    data.doCommand("call assert_equal(1, 2, 'mine')");
+    QVERIFY(lastError().contains("mine: Expected 1 but got 2"));
+
+    // Equality is deep, and TYPE-SENSITIVE: a Number and a Float holding the
+    // same value are not equal, matching what "==" does for a List already.
+    reset();
+    QCOMPARE(value("assert_equal(1.0, 1)"), QLatin1String("1"));
+    // But a List and a Dict compare by their own content.
+    reset();
+    QCOMPARE(value("assert_equal([1, 2], [1, 2])"), QLatin1String("0"));
+    QCOMPARE(value("assert_equal({'a': 1}, {'a': 1})"), QLatin1String("0"));
+
+    // assert_notequal is the mirror, and names only what was expected NOT to
+    // equal, not what it actually was.
+    reset();
+    QCOMPARE(value("assert_notequal(1, 1)"), QLatin1String("1"));
+    QVERIFY(lastError().contains("Expected not equal to 1"));
+    reset();
+    QCOMPARE(value("assert_notequal(1, 2)"), QLatin1String("0"));
+
+    // assert_true/false take only a Number or a Bool - a STRING that reads as
+    // the right number still fails, which is the part easy to get wrong.
+    reset();
+    QCOMPARE(value("assert_true(v:true)"), QLatin1String("0"));
+    QCOMPARE(value("assert_true(2)"), QLatin1String("0")); // any nonzero Number
+    QCOMPARE(value("assert_true(0)"), QLatin1String("1"));
+    reset();
+    QCOMPARE(value("assert_true('1')"), QLatin1String("1"));
+    QVERIFY(lastError().contains("Expected True but got '1'"));
+    reset();
+    QCOMPARE(value("assert_false(v:false)"), QLatin1String("0"));
+    QCOMPARE(value("assert_false(1)"), QLatin1String("1"));
+
+    // assert_match/notmatch use a Vim pattern, not a literal string.
+    reset();
+    QCOMPARE(value("assert_match('al', 'alpha')"), QLatin1String("0"));
+    QCOMPARE(value("assert_match('zz', 'alpha')"), QLatin1String("1"));
+    QVERIFY(lastError().contains("Pattern 'zz' does not match 'alpha'"));
+    reset();
+    QCOMPARE(value("assert_notmatch('zz', 'alpha')"), QLatin1String("0"));
+    QCOMPARE(value("assert_notmatch('al', 'alpha')"), QLatin1String("1"));
+    QVERIFY(lastError().contains("Pattern 'al' does match 'alpha'"));
+
+    // assert_inrange is inclusive at both ends.
+    reset();
+    QCOMPARE(value("assert_inrange(1, 3, 2)"), QLatin1String("0"));
+    QCOMPARE(value("assert_inrange(1, 3, 1)"), QLatin1String("0"));
+    QCOMPARE(value("assert_inrange(1, 3, 3)"), QLatin1String("0"));
+    QCOMPARE(value("assert_inrange(1, 3, 9)"), QLatin1String("1"));
+    QVERIFY(lastError().contains("Expected range 1 - 3, but got 9"));
+
+    // assert_report ALWAYS fails, and its argument is the whole message.
+    reset();
+    QCOMPARE(value("assert_report('boom')"), QLatin1String("1"));
+    QVERIFY(lastError().contains("boom"));
+
+    // assert_exception looks inside v:exception, which is only there in a
+    // :catch; outside one it is its own failure.
+    reset();
+    QCOMPARE(value("assert_exception('nope')"), QLatin1String("1"));
+    QVERIFY(lastError().contains("v:exception is not set"));
+    reset();
+    data.doCommand("try | throw 'my custom error' | catch | call assert_exception('custom') | endtry");
+    QCOMPARE(value("len(v:errors)"), QLatin1String("0"));
+    reset();
+    data.doCommand("try | throw 'my custom error' | catch | call assert_exception('nope') | endtry");
+    QCOMPARE(value("len(v:errors)"), QLatin1String("1"));
+
+    // v:errors accumulates across separate calls rather than being replaced.
+    reset();
+    data.doCommand("call assert_equal(1, 2)");
+    data.doCommand("call assert_report('second')");
+    QCOMPARE(value("len(v:errors)"), QLatin1String("2"));
+
+    // assert_equalfile compares the content of two files.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString pathA = dir.path() + "/a.txt";
+    const QString pathB = dir.path() + "/b.txt";
+    QFile fa(pathA);
+    QVERIFY(fa.open(QIODevice::WriteOnly));
+    fa.write("same\n");
+    fa.close();
+    QFile fb(pathB);
+    QVERIFY(fb.open(QIODevice::WriteOnly));
+    fb.write("same\n");
+    fb.close();
+    reset();
+    QCOMPARE(value("assert_equalfile('" + pathA + "', '" + pathB + "')"),
+             QLatin1String("0"));
+    QFile fc(pathB);
+    QVERIFY(fc.open(QIODevice::WriteOnly | QIODevice::Truncate));
+    fc.write("different\n");
+    fc.close();
+    reset();
+    QCOMPARE(value("assert_equalfile('" + pathA + "', '" + pathB + "')"),
+             QLatin1String("1"));
+
+    for (const QString &fn : QStringList{"assert_equal", "assert_notequal",
+                                         "assert_true", "assert_false",
+                                         "assert_match", "assert_notmatch",
+                                         "assert_inrange", "assert_report",
+                                         "assert_exception", "assert_equalfile"}) {
+        QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
+    }
+    reset();
+}
+
+void FakeVimTester::test_vim_script_setmatches_and_state()
+{
+    // setmatches() puts back what getmatches() handed out; matcharg() answers
+    // only for the three ":match" commands; state() and getcharmod() answer
+    // that nothing is going on. All measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("alpha beta alpha");
+    data.doCommand("call clearmatches()");
+
+    // Round trip: what getmatches() hands out goes back in.
+    data.doCommand("call matchadd('Search', 'alpha')");
+    data.doCommand("call matchadd('Search', 'beta')");
+    QCOMPARE(value("len(getmatches())"), QLatin1String("2"));
+    data.doCommand("let g:m = getmatches()");
+    data.doCommand("call clearmatches()");
+    QCOMPARE(value("len(getmatches())"), QLatin1String("0"));
+    QCOMPARE(value("setmatches(g:m)"), QLatin1String("0"));
+    QCOMPARE(value("len(getmatches())"), QLatin1String("2"));
+    // What came back is what went in.
+    QCOMPARE(value("getmatches()[0].group"), QLatin1String("Search"));
+    QCOMPARE(value("getmatches()[0].pattern"), QLatin1String("alpha"));
+    QCOMPARE(value("string(getmatches()) ==# string(g:m)"), QLatin1String("1"));
+    // An empty list leaves none behind, and that is not a failure.
+    QCOMPARE(value("setmatches([])"), QLatin1String("0"));
+    QCOMPARE(value("len(getmatches())"), QLatin1String("0"));
+    // Something that is no list of dicts is refused with minus one.
+    QCOMPARE(value("setmatches('nonsense')"), QLatin1String("-1"));
+    QCOMPARE(value("setmatches(['nonsense'])"), QLatin1String("-1"));
+
+    // matcharg() answers a PAIR for one, two and three, and an empty list for
+    // anything else - which is how a script tells "no match" from "no such
+    // number".
+    QCOMPARE(value("matcharg(1)"), QLatin1String("['', '']"));
+    QCOMPARE(value("matcharg(3)"), QLatin1String("['', '']"));
+    QCOMPARE(value("matcharg(4)"), QLatin1String("[]"));
+    QCOMPARE(value("matcharg(0)"), QLatin1String("[]"));
+    QCOMPARE(value("len(matcharg(1))"), QLatin1String("2"));
+    QCOMPARE(value("len(matcharg(9))"), QLatin1String("0"));
+
+    // Nothing is going on, and both say so with a value of the right type.
+    QCOMPARE(value("state()"), QLatin1String(""));
+    QCOMPARE(value("type(state()) == v:t_string"), QLatin1String("1"));
+    QCOMPARE(value("getcharmod()"), QLatin1String("0"));
+    QCOMPARE(value("type(getcharmod()) == v:t_number"), QLatin1String("1"));
+
+    for (const QString &fn : QStringList{"setmatches", "matcharg", "state",
+                                         "getcharmod"}) {
+        QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
+    }
+    data.doCommand("call clearmatches()");
+    data.doCommand("unlet! g:m");
+}
+
+void FakeVimTester::test_vim_script_fold_queries()
+{
+    // The fold questions. There is no folding here, so each answers what Vim
+    // answers where the line asked about is in no fold - measured in Vim 9.1 on
+    // a buffer with no folds. The point is that a script asking may go on
+    // rather than stop with an unknown function.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("a" N "b" N "c");
+
+    // A line in no fold is minus one, not zero - which is what tells "no fold"
+    // from "the first line".
+    QCOMPARE(value("foldclosed(1)"), QLatin1String("-1"));
+    QCOMPARE(value("foldclosed(99)"), QLatin1String("-1"));
+    QCOMPARE(value("foldclosedend(1)"), QLatin1String("-1"));
+    QCOMPARE(value("type(foldclosed(1)) == v:t_number"), QLatin1String("1"));
+
+    // No depth, and no text.
+    QCOMPARE(value("foldlevel(1)"), QLatin1String("0"));
+    QCOMPARE(value("foldlevel(99)"), QLatin1String("0"));
+    QCOMPARE(value("foldtext()"), QLatin1String(""));
+    QCOMPARE(value("foldtextresult(1)"), QLatin1String(""));
+    QCOMPARE(value("foldtextresult(99)"), QLatin1String(""));
+    QCOMPARE(value("type(foldtext()) == v:t_string"), QLatin1String("1"));
+
+    for (const QString &fn : QStringList{"foldclosed", "foldclosedend",
+                                         "foldlevel", "foldtext",
+                                         "foldtextresult"}) {
+        QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
+    }
+}
+
+void FakeVimTester::test_vim_script_arglist()
+{
+    // The argument list. One file is open at a time here, so the list holds
+    // that one. Shapes and edges measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("x");
+    data.doCommand("file thefile.txt");
+
+    QCOMPARE(value("argc()"), QLatin1String("1"));
+    QCOMPARE(value("type(argc()) == v:t_number"), QLatin1String("1"));
+    QCOMPARE(value("argidx()"), QLatin1String("0"));
+    QCOMPARE(value("arglistid()"), QLatin1String("0"));
+    QCOMPARE(value("type(argv()) == v:t_list"), QLatin1String("1"));
+    QCOMPARE(value("len(argv())"), QLatin1String("1"));
+    QCOMPARE(value("argv()[0]"), QLatin1String("thefile.txt"));
+    // argv({nr}) names one of them, and a number past the end is nothing
+    // rather than an error.
+    QCOMPARE(value("argv(0)"), QLatin1String("thefile.txt"));
+    QCOMPARE(value("argv(9)"), QLatin1String(""));
+    // The list and the numbered form agree.
+    QCOMPARE(value("argv(0) ==# argv()[0]"), QLatin1String("1"));
+    QCOMPARE(value("argc() == len(argv())"), QLatin1String("1"));
+
+    // The older names for the buffer questions answer as the newer ones do.
+    // Measured in Vim 9.1, where they are the same functions under two names.
+    QCOMPARE(value("buffer_number('') == bufnr('')"), QLatin1String("1"));
+    QCOMPARE(value("buffer_name('%') ==# bufname('%')"), QLatin1String("1"));
+    QCOMPARE(value("buffer_exists(bufnr('')) == bufexists(bufnr(''))"),
+             QLatin1String("1"));
+    QCOMPARE(value("buffer_exists(bufnr(''))"), QLatin1String("1"));
+    // A number nothing goes by is not there.
+    QCOMPARE(value("buffer_exists(9999)"), QLatin1String("0"));
+    // The highest number handed out is at least this buffer's own.
+    QCOMPARE(value("last_buffer_nr() >= bufnr('')"), QLatin1String("1"));
+    QCOMPARE(value("type(last_buffer_nr()) == v:t_number"), QLatin1String("1"));
+
+    // Answering is one thing and being KNOWN is another: the two live in
+    // different places here, so both are asked about.
+    for (const QString &fn : QStringList{"argc", "argidx", "argv", "arglistid",
+                                         "buffer_exists", "buffer_name",
+                                         "buffer_number", "last_buffer_nr",
+                                         "systemlist", "hostname", "getpid",
+                                         "file_readable", "filewritable",
+                                         "setfperm"}) {
+        QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
+    }
+}
+
+void FakeVimTester::test_vim_script_system_functions()
+{
+    // hostname(), getpid() and systemlist(). Measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    // Nothing here reaches a shell, so the command is answered from a table.
+    data.handler->processOutput.set(
+        [](const QString &command, const QString &input, QString *output) {
+            Q_UNUSED(input)
+            if (command == "two")
+                *output = "a\nb\n";
+            else if (command == "one")
+                *output = "only\n";
+            else if (command == "nobreak")
+                *output = "tail";
+        });
+
+    QCOMPARE(value("hostname() != ''"), QLatin1String("1"));
+    QCOMPARE(value("type(hostname()) == v:t_string"), QLatin1String("1"));
+    QCOMPARE(value("getpid() > 0"), QLatin1String("1"));
+    QCOMPARE(value("type(getpid()) == v:t_number"), QLatin1String("1"));
+
+    // systemlist() hands back the lines, and the break ending the last one is
+    // not a line of its own.
+    QCOMPARE(value("systemlist('two')"), QLatin1String("['a', 'b']"));
+    QCOMPARE(value("systemlist('one')"), QLatin1String("['only']"));
+    QCOMPARE(value("systemlist('nobreak')"), QLatin1String("['tail']"));
+    // Nothing written means no lines at all, not one empty one.
+    QCOMPARE(value("systemlist('says nothing')"), QLatin1String("[]"));
+    // system() still hands back the text as it stands, break and all.
+    QCOMPARE(value("system('two') ==# \"a\nb\n\""), QLatin1String("1"));
+
+    // file_readable() is the older name for the same question, and
+    // filewritable() answers ONE for a file, TWO for a directory and nothing
+    // where neither holds. Measured in Vim 9.1.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + "/perm.txt";
+    QFile f(path);
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("x\n");
+    f.close();
+
+    QCOMPARE(value("file_readable('" + path + "')"), QLatin1String("1"));
+    QCOMPARE(value("file_readable('" + dir.path() + "/nope')"), QLatin1String("0"));
+    QCOMPARE(value("filewritable('" + path + "')"), QLatin1String("1"));
+    QCOMPARE(value("filewritable('" + dir.path() + "')"), QLatin1String("2"));
+    QCOMPARE(value("filewritable('" + dir.path() + "/nope')"), QLatin1String("0"));
+
+    // setfperm() reads back the nine characters getfperm() writes.
+    QCOMPARE(value("setfperm('" + path + "', 'rwxr-xr-x')"), QLatin1String("1"));
+    QCOMPARE(value("getfperm('" + path + "')"), QLatin1String("rwxr-xr-x"));
+    QCOMPARE(value("setfperm('" + path + "', 'rw-r--r--')"), QLatin1String("1"));
+    QCOMPARE(value("getfperm('" + path + "')"), QLatin1String("rw-r--r--"));
+    // Anything but nine characters is refused.
+    QCOMPARE(value("setfperm('" + path + "', 'rw-')"), QLatin1String("0"));
+    QCOMPARE(value("getfperm('" + path + "')"), QLatin1String("rw-r--r--"));
+    // A file that is not there cannot be given permissions.
+    QCOMPARE(value("setfperm('" + dir.path() + "/nope', 'rw-r--r--')"),
+             QLatin1String("0"));
 }
 
 void FakeVimTester::test_vim_script_environment_vars()
