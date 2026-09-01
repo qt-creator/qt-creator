@@ -216,26 +216,96 @@ public:
         return headers;
     }
 
-    Result<void> validateOrigin(const QHttpServerRequest &req)
+    static bool isLoopbackHost(const QString &host)
     {
-        if (!enableCors || !req.headers().contains("Origin"))
+        if (host.compare("localhost", Qt::CaseInsensitive) == 0)
+            return true;
+        const QHostAddress address(host);
+        return !address.isNull() && address.isLoopback();
+    }
+
+    // A peer that reaches the port is not necessarily the one the developer
+    // meant to serve. A browser can be made to send requests here by any page
+    // it renders, and a DNS name rebound to 127.0.0.1 makes a remote page
+    // same-origin with this server. Requiring the Origin, when there is one,
+    // to be loopback refuses the first; refusing a Host that names anything
+    // but an address or localhost refuses the second, since rebinding needs a
+    // name. Clients that are not browsers send no Origin and are unaffected.
+    Result<void> validateRequest(const QHttpServerRequest &req)
+    {
+        if (req.headers().contains("Host")) {
+            const QString host
+                = QUrl("http://" + QString::fromUtf8(req.headers().value("Host"))).host();
+            if (QHostAddress(host).isNull() && !isLoopbackHost(host))
+                return ResultError(QString("Host not allowed: %1").arg(host));
+        }
+
+        if (!req.headers().contains("Origin"))
             return {};
 
-        const auto originHeader = req.headers().value("Origin");
+        const QString originHeader = QString::fromUtf8(req.headers().value("Origin"));
         if (originHeader.isEmpty())
             return ResultError("Empty origin header");
 
-        const QUrl origin(QString::fromUtf8(originHeader));
+        const QUrl origin(originHeader);
         if (!origin.isValid())
-            return ResultError(
-                QString("Invalid Origin header: %1").arg(QString::fromUtf8(originHeader)));
+            return ResultError(QString("Invalid Origin header: %1").arg(originHeader));
 
-        // Check origin is localhost.
-        QHostAddress originHost(origin.host());
-        if (origin.host() != "localhost" && !originHost.isLoopback() && !enableCors)
+        if (!isLoopbackHost(origin.host()))
             return ResultError(QString("Origin not allowed: %1").arg(origin.toString()));
 
         return {};
+    }
+
+    // Routes registered through here run only for requests that passed the
+    // transport-level checks, so a new route cannot forget them.
+    template<typename Path>
+    void routeChecked(
+        const Path &path,
+        QHttpServerRequest::Method method,
+        std::function<void(const QHttpServerRequest &, QHttpServerResponder &)> handler)
+    {
+        m_server.route(
+            path,
+            method,
+            [this, handler = std::move(handler)](
+                const QHttpServerRequest &req, QHttpServerResponder &responder) {
+                if (const Result<void> valid = validateRequest(req); !valid) {
+                    qCWarning(mcpServerLog) << "Rejected request:" << valid.error();
+                    QHttpHeaders headers = corsHeaders({});
+                    headers.append("content-type", "text/plain");
+                    responder.write(
+                        "Request rejected", headers, QHttpServerResponse::StatusCode::BadRequest);
+                    return;
+                }
+                handler(req, responder);
+            });
+    }
+
+    // A session whose peer walked away without DELETE would keep its slot for
+    // the rest of the run, so the cap alone would trade an unbounded leak for a
+    // permanent refusal. validateSession() stamps lastSeen on every request, so
+    // a session that is still in use can never be the one reclaimed here.
+    void reclaimIdleSessions()
+    {
+        const QDateTime now = QDateTime::currentDateTime();
+        QStringList idle;
+        for (auto it = m_sessions.cbegin(); it != m_sessions.cend(); ++it) {
+            if (it.value() && it.value()->lastSeen.secsTo(now) > kSessionIdleTimeoutSecs)
+                idle.append(it.key());
+        }
+        for (const QString &sessionId : std::as_const(idle)) {
+            qCInfo(mcpServerLog) << "Reclaiming idle session" << sessionId;
+            deleteSession(sessionId);
+        }
+    }
+
+    bool sessionLimitReached()
+    {
+        if (m_sessions.size() < kMaxSessions)
+            return false;
+        reclaimIdleSessions();
+        return m_sessions.size() >= kMaxSessions;
     }
 
     void sendDataTo(const QByteArray &data, const QString &sessionId)
@@ -1352,6 +1422,13 @@ public:
 
     bool enableCors = false;
 
+    // Sessions are handed out to any peer that asks, so their number is a
+    // resource the peer controls unless it is bounded here. Only a DELETE ends
+    // a streamable-HTTP session, so the bound needs a way to give a slot back;
+    // see reclaimIdleSessions().
+    static constexpr int kMaxSessions = 64;
+    static constexpr int kSessionIdleTimeoutSecs = 30 * 60;
+
     Inspector *m_inspector = nullptr;
 };
 
@@ -1370,11 +1447,18 @@ Server::Server(Schema::Implementation serverInfo)
             responder.write(QHttpServerResponse::StatusCode::NotFound);
         });
 
-    d->m_server.route(
+    d->routeChecked(
         "/sse",
         QHttpServerRequest::Method::Get,
         [this](const QHttpServerRequest &request, QHttpServerResponder &responder) {
             Q_UNUSED(request);
+            if (d->sessionLimitReached()) {
+                qCWarning(mcpServerLog)
+                    << "Refusing new sse session, session limit reached:" << d->m_sessions.size();
+                responder.write(
+                    d->corsHeaders({}), QHttpServerResponse::StatusCode::ServiceUnavailable);
+                return;
+            }
             const QString sessionId = d->createNewSessionId();
             qCDebug(mcpServerLog) << "Starting new sse session with Id " << sessionId;
             d->m_sessions.insert(sessionId, std::nullopt);
@@ -1397,7 +1481,7 @@ Server::Server(Schema::Implementation serverInfo)
             return;
         });
 
-    d->m_server.route(
+    d->routeChecked(
         "/message",
         QHttpServerRequest::Method::Post,
         [this](const QHttpServerRequest &req, QHttpServerResponder &responder) {
@@ -1437,7 +1521,7 @@ Server::Server(Schema::Implementation serverInfo)
             responder.write(d->corsHeaders(sessionId), QHttpServerResponse::StatusCode::Ok);
         });
 
-    d->m_server.route(
+    d->routeChecked(
         "/",
         QHttpServerRequest::Method::Options,
         [this](const QHttpServerRequest &req, QHttpServerResponder &responder) {
@@ -1446,7 +1530,7 @@ Server::Server(Schema::Implementation serverInfo)
             responder.write(headers, QHttpServerResponse::StatusCode::Ok);
         });
 
-    d->m_server.route(
+    d->routeChecked(
         "/sse",
         QHttpServerRequest::Method::Options,
         [this](const QHttpServerRequest &req, QHttpServerResponder &responder) {
@@ -1455,13 +1539,15 @@ Server::Server(Schema::Implementation serverInfo)
             responder.write(headers, QHttpServerResponse::StatusCode::Ok);
         });
 
-    d->m_server.route("/message", QHttpServerRequest::Method::Options, [this]() {
-        QHttpServerResponse response(QHttpServerResponse::StatusCode::Ok);
-        response.setHeaders(d->corsHeaders({}));
-        return response;
-    });
+    d->routeChecked(
+        "/message",
+        QHttpServerRequest::Method::Options,
+        [this](const QHttpServerRequest &req, QHttpServerResponder &responder) {
+            Q_UNUSED(req)
+            responder.write(d->corsHeaders({}), QHttpServerResponse::StatusCode::Ok);
+        });
 
-    d->m_server.route(
+    d->routeChecked(
         "/",
         QHttpServerRequest::Method::Delete,
         [this](const QHttpServerRequest &req, QHttpServerResponder &responder) {
@@ -1486,7 +1572,7 @@ Server::Server(Schema::Implementation serverInfo)
             responder.write(d->corsHeaders(sessionId), QHttpServerResponse::StatusCode::Ok);
         });
 
-    d->m_server.route(
+    d->routeChecked(
         "/",
         QHttpServerRequest::Method::Get,
         [this](const QHttpServerRequest &req, QHttpServerResponder &responder) {
@@ -1518,23 +1604,12 @@ Server::Server(Schema::Implementation serverInfo)
             responder.write(QHttpServerResponse::StatusCode::NotFound);
         });
 
-    d->m_server.route(
+    d->routeChecked(
         "/",
         QHttpServerRequest::Method::Post,
         [this](const QHttpServerRequest &req, QHttpServerResponder &responder) -> void {
             auto errorHeaders = d->corsHeaders({});
             errorHeaders.append("content-type", "text/plain");
-
-            Result<void> originValid = d->validateOrigin(req);
-            if (!originValid) {
-                qCWarning(mcpServerLog) << "Rejected request with invalid Origin header:"
-                                        << req.headers().value("Origin") << originValid.error();
-                responder.write(
-                    QString("Invalid origin header: %s").arg(originValid.error()).toUtf8(),
-                    errorHeaders,
-                    QHttpServerResponse::StatusCode::BadRequest);
-                return;
-            }
 
             // Check header contains "Accept" with only "application/json" and "text/event-stream"
             if (!req.headers().contains("Accept")) {
@@ -1565,6 +1640,16 @@ Server::Server(Schema::Implementation serverInfo)
                     "Unsupported MCP protocol version",
                     errorHeaders,
                     QHttpServerResponse::StatusCode::BadRequest);
+                return;
+            }
+
+            if (!req.headers().contains("mcp-session-id") && d->sessionLimitReached()) {
+                qCWarning(mcpServerLog)
+                    << "Refusing new session, session limit reached:" << d->m_sessions.size();
+                responder.write(
+                    "Too many sessions",
+                    errorHeaders,
+                    QHttpServerResponse::StatusCode::ServiceUnavailable);
                 return;
             }
 
