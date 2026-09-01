@@ -101,6 +101,14 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
     connect(m_permissionHandler, &AcpPermissionHandler::permissionCancelledByAgent,
             this, &AcpChatController::permissionCancelledByAgent);
 
+    m_elicitationHandler = new AcpElicitationHandler(m_client, this);
+    connect(m_elicitationHandler, &AcpElicitationHandler::elicitationRequested,
+            this, &AcpChatController::elicitationRequested);
+    connect(m_elicitationHandler, &AcpElicitationHandler::elicitationCancelledByAgent,
+            this, &AcpChatController::elicitationCancelledByAgent);
+    connect(m_elicitationHandler, &AcpElicitationHandler::elicitationCompletedByAgent,
+            this, &AcpChatController::elicitationCompletedByAgent);
+
     connect(m_client, &AcpClientObject::stateChanged,
             this, &AcpChatController::connectionStateChanged);
     connect(m_client, &AcpClientObject::errorOccurred,
@@ -131,7 +139,10 @@ QJsonObject AcpChatController::buildInitializeParams()
     v2Request.info(V2::Implementation()
                        .name(QStringLiteral("QtCreator"))
                        .version(QStringLiteral("1.0")));
-    v2Request.capabilities(V2::ClientCapabilities());
+    V2::ElicitationCapabilities v2ElicitationCaps;
+    v2ElicitationCaps.form(V2::ElicitationFormCapabilities());
+    v2ElicitationCaps.url(V2::ElicitationUrlCapabilities());
+    v2Request.capabilities(V2::ClientCapabilities().elicitation(v2ElicitationCaps));
     QJsonObject params = V2::toJson(v2Request);
 
     Implementation clientInfoImpl;
@@ -151,6 +162,11 @@ QJsonObject AcpChatController::buildInitializeParams()
     ClientSessionCapabilities sessionCaps;
     sessionCaps.configOptions(configOptionsCaps);
     caps.session(sessionCaps);
+
+    ElicitationCapabilities elicitationCaps;
+    elicitationCaps.form(ElicitationFormCapabilities());
+    elicitationCaps.url(ElicitationUrlCapabilities());
+    caps.elicitation(elicitationCaps);
     params.insert(QStringLiteral("clientCapabilities"), toJson(caps));
 
     return params;
@@ -171,6 +187,10 @@ void AcpChatController::disconnectFromServer()
     if (m_permissionHandler) {
         m_permissionHandler->deleteLater();
         m_permissionHandler = nullptr;
+    }
+    if (m_elicitationHandler) {
+        m_elicitationHandler->deleteLater();
+        m_elicitationHandler = nullptr;
     }
     if (m_filesystemHandler) {
         m_filesystemHandler->deleteLater();
@@ -368,6 +388,24 @@ void AcpChatController::sendPermissionCancelled(const QJsonValue &id)
 {
     if (m_permissionHandler)
         m_permissionHandler->sendPermissionCancelled(id);
+}
+
+void AcpChatController::sendElicitationAccepted(const QJsonValue &id, const QJsonObject &content)
+{
+    if (m_elicitationHandler)
+        m_elicitationHandler->sendElicitationAccepted(id, content);
+}
+
+void AcpChatController::sendElicitationDeclined(const QJsonValue &id)
+{
+    if (m_elicitationHandler)
+        m_elicitationHandler->sendElicitationDeclined(id);
+}
+
+void AcpChatController::sendElicitationCancelled(const QJsonValue &id)
+{
+    if (m_elicitationHandler)
+        m_elicitationHandler->sendElicitationCancelled(id);
 }
 
 void AcpChatController::onInitializeResult(const QJsonObject &result)

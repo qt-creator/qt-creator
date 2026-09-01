@@ -27,6 +27,8 @@ Project {
             "acpclientobject.h",
             "acpclientplugin.cpp",
             "acpclienttr.h",
+            "acpelicitationhandler.cpp",
+            "acpelicitationhandler.h",
             "acpfilesystemhandler.cpp",
             "acpfilesystemhandler.h",
             "acpinspector.cpp",

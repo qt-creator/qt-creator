@@ -4,6 +4,7 @@
 #include "acpmessageview.h"
 
 #include "acpclienttr.h"
+#include "acpelicitationhandler.h"
 #include "acpsettings.h"
 #include "collapsibleframe.h"
 #include "sessionpickerwidget.h"
@@ -26,13 +27,19 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
 
 #include <QAbstractTextDocumentLayout>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDateTime>
+#include <QDoubleSpinBox>
+#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QLocale>
 #include <QtMath>
 #include <QPushButton>
@@ -41,6 +48,7 @@
 #include <QPainterPath>
 #include <QPalette>
 #include <QScrollBar>
+#include <QSpinBox>
 #include <QTextDocument>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -729,6 +737,374 @@ private:
 };
 
 // ---------------------------------------------------------------------------
+// ElicitationWidget — form or URL input requested by the agent
+// ---------------------------------------------------------------------------
+
+// Digits a number field offers even when the schema names no fractional value,
+// and the ceiling beyond which a double carries no further decimal digit.
+constexpr int NumberFieldDecimals = 6;
+constexpr int MaxFieldDecimals = 17;
+
+class ElicitationWidget : public CollapsibleFrame
+{
+    Q_OBJECT
+
+public:
+    explicit ElicitationWidget(const ElicitationRequest &request, QWidget *parent = nullptr)
+        : CollapsibleFrame(parent)
+    {
+        setFrameShape(QFrame::NoFrame);
+        setCollapsible(false);
+
+        auto *icon = new QLabel(QStringLiteral("\U0001F4DD"), this); // 📝
+        m_headerLayout->addWidget(icon);
+        auto *title = new QLabel(
+            QStringLiteral("<b>%1</b>").arg(Tr::tr("Input Requested").toHtmlEscaped()), this);
+        title->setTextFormat(Qt::RichText);
+        m_headerLayout->addWidget(title, 1);
+
+        if (!request.message.isEmpty()) {
+            auto *message = new QLabel(request.message, this);
+            message->setTextFormat(Qt::PlainText);
+            message->setWordWrap(true);
+            m_bodyLayout->addWidget(message);
+        }
+
+        if (request.mode == ElicitationRequest::Mode::Form)
+            buildForm(request.requestedSchema);
+        else
+            buildUrl(request.url);
+
+        m_errorLabel = new Utils::InfoLabel({}, Utils::InfoLabelType::Error, this);
+        m_errorLabel->setFilled(true);
+        m_errorLabel->setElideMode(Qt::ElideNone);
+        m_errorLabel->setWordWrap(true);
+        m_errorLabel->hide();
+        m_bodyLayout->addWidget(m_errorLabel);
+
+        auto *buttonLayout = new QHBoxLayout;
+        buttonLayout->setSpacing(PaddingHS);
+        m_submitButton = new Utils::QtcButton(
+            request.mode == ElicitationRequest::Mode::Form ? Tr::tr("Submit") : Tr::tr("Done"),
+            Utils::QtcButton::SmallPrimary, this);
+        m_declineButton = new Utils::QtcButton(Tr::tr("Decline"),
+                                               Utils::QtcButton::SmallSecondary, this);
+        buttonLayout->addWidget(m_submitButton);
+        buttonLayout->addWidget(m_declineButton);
+        buttonLayout->addStretch();
+        m_bodyLayout->addLayout(buttonLayout);
+
+        // A required field this client cannot render can never be filled in,
+        // so the form can only be declined.
+        if (m_hasUnsupportedRequiredField) {
+            m_submitButton->setEnabled(false);
+            m_submitButton->setToolTip(
+                Tr::tr("A required field has an unsupported type."));
+        }
+
+        m_statusLabel = new QLabel(this);
+        m_statusLabel->setTextFormat(Qt::RichText);
+        m_statusLabel->hide();
+        m_bodyLayout->addWidget(m_statusLabel);
+
+        QObject::connect(m_submitButton, &Utils::QtcButton::clicked, this, [this] {
+            const QStringList missing = missingRequiredFields();
+            if (!missing.isEmpty()) {
+                m_errorLabel->setText(
+                    Tr::tr("Required: %1").arg(missing.join(QStringLiteral(", "))));
+                m_errorLabel->show();
+                return;
+            }
+            resolve(Tr::tr("Submitted"));
+            emit accepted(collectContent());
+        });
+        QObject::connect(m_declineButton, &Utils::QtcButton::clicked, this, [this] {
+            resolve(Tr::tr("Declined"));
+            emit declined();
+        });
+    }
+
+    void resolve(const QString &statusText)
+    {
+        m_submitButton->setEnabled(false);
+        m_declineButton->setEnabled(false);
+        for (QWidget *input : std::as_const(m_inputs))
+            input->setEnabled(false);
+        m_errorLabel->hide();
+        m_statusLabel->setText(QStringLiteral("<i>%1</i>").arg(statusText.toHtmlEscaped()));
+        m_statusLabel->show();
+    }
+
+signals:
+    void accepted(const QJsonObject &content);
+    void declined();
+
+protected:
+    void paintEvent(QPaintEvent *) override
+    {
+        QPainter p(this);
+        const QColor bg = Utils::creatorColor(Utils::Theme::ChatToolCallBackground);
+        Utils::StyleHelper::drawCardBg(&p, rect(), bg);
+        QRect clipRect = rect();
+        clipRect.setWidth(3);
+        p.setClipRect(clipRect);
+        const QColor accent = Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Muted);
+        Utils::StyleHelper::drawCardBg(&p, rect(), accent);
+    }
+
+private:
+    struct Field
+    {
+        QString key;
+        QString label;
+        bool required = false;
+        std::function<bool()> hasValue;
+        std::function<QJsonValue()> value;
+    };
+
+    static QString propertyLabel(const std::optional<QString> &title, const QString &key)
+    {
+        return title.value_or(key);
+    }
+
+    void addField(QFormLayout *form, const QString &label, const QString &description,
+                  QWidget *input, Field field)
+    {
+        form->addRow(label + QStringLiteral(":"), input);
+        if (!description.isEmpty()) {
+            input->setToolTip(description);
+            if (QWidget *rowLabel = form->labelForField(input))
+                rowLabel->setToolTip(description);
+        }
+        m_inputs.append(input);
+        m_fields.append(std::move(field));
+    }
+
+    void buildForm(const ElicitationSchema &schema)
+    {
+        QStringList required;
+        for (const QJsonValue &entry : schema.required().asOptional().value_or(QJsonArray()))
+            required.append(entry.toString());
+
+        auto *form = new QFormLayout;
+        form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+        m_bodyLayout->addLayout(form);
+
+        const QMap<QString, ElicitationPropertySchema> properties
+            = schema.properties().value_or(QMap<QString, ElicitationPropertySchema>());
+        for (auto it = properties.constBegin(); it != properties.constEnd(); ++it) {
+            const QString key = it.key();
+            Field field;
+            field.key = key;
+            field.required = required.contains(key);
+
+            if (const auto *str = std::get_if<StringPropertySchema>(&it.value())) {
+                field.label = propertyLabel(str->title().asOptional(), key);
+                const QString description = str->description().asOptional().value_or(QString());
+                const QJsonArray options = singleSelectOptions(*str);
+                if (!options.isEmpty()) {
+                    auto *combo = comboForOptions(options, str->default_().asOptional());
+                    field.hasValue = [] { return true; };
+                    field.value = [combo] { return QJsonValue(combo->currentData().toString()); };
+                    addField(form, field.label, description, combo, field);
+                } else {
+                    auto *edit = new Utils::QtcLineEdit(this);
+                    edit->setText(str->default_().asOptional().value_or(QString()));
+                    edit->setPlaceholderText(description);
+                    field.hasValue = [edit] { return !edit->text().isEmpty(); };
+                    field.value = [edit] { return QJsonValue(edit->text()); };
+                    addField(form, field.label, description, edit, field);
+                }
+            } else if (const auto *num = std::get_if<NumberPropertySchema>(&it.value())) {
+                field.label = propertyLabel(num->title().asOptional(), key);
+                const double minimum = num->minimum().asOptional().value_or(
+                    std::numeric_limits<double>::lowest());
+                const double maximum = num->maximum().asOptional().value_or(
+                    std::numeric_limits<double>::max());
+                const double defaultValue = num->default_().asOptional().value_or(0.0);
+                auto *spin = new Utils::QtcDoubleSpinBox(this);
+                spin->setDecimals(std::max({NumberFieldDecimals,
+                                            requiredDecimals(defaultValue),
+                                            requiredDecimals(minimum),
+                                            requiredDecimals(maximum)}));
+                spin->setRange(minimum, maximum);
+                spin->setValue(defaultValue);
+                field.hasValue = [] { return true; };
+                field.value = [spin] { return QJsonValue(spin->value()); };
+                addField(form, field.label, num->description().asOptional().value_or(QString()),
+                         spin, field);
+            } else if (const auto *integer = std::get_if<IntegerPropertySchema>(&it.value())) {
+                field.label = propertyLabel(integer->title().asOptional(), key);
+                auto *spin = new Utils::QtcSpinBox(this);
+                spin->setRange(integer->minimum().asOptional().value_or(
+                                   std::numeric_limits<int>::min()),
+                               integer->maximum().asOptional().value_or(
+                                   std::numeric_limits<int>::max()));
+                spin->setValue(integer->default_().asOptional().value_or(0));
+                field.hasValue = [] { return true; };
+                field.value = [spin] { return QJsonValue(spin->value()); };
+                addField(form, field.label,
+                         integer->description().asOptional().value_or(QString()), spin, field);
+            } else if (const auto *boolean = std::get_if<BooleanPropertySchema>(&it.value())) {
+                field.label = propertyLabel(boolean->title().asOptional(), key);
+                auto *check = new Utils::QtcCheckBox({}, this);
+                check->setChecked(boolean->default_().asOptional().value_or(false));
+                field.hasValue = [] { return true; };
+                field.value = [check] { return QJsonValue(check->isChecked()); };
+                addField(form, field.label,
+                         boolean->description().asOptional().value_or(QString()), check, field);
+            } else if (const auto *multi = std::get_if<MultiSelectPropertySchema>(&it.value())) {
+                field.label = propertyLabel(multi->title().asOptional(), key);
+                addMultiSelectField(form, *multi, field);
+            } else {
+                auto *label = new QLabel(Tr::tr("Unsupported field type"), this);
+                label->setEnabled(false);
+                form->addRow(propertyLabel({}, key) + QStringLiteral(":"), label);
+                if (field.required)
+                    m_hasUnsupportedRequiredField = true;
+            }
+        }
+    }
+
+    // QDoubleSpinBox quantizes to decimals(), whose default of 2 would turn a
+    // JSON number the agent named into a different one and make it unenterable.
+    static int requiredDecimals(double value)
+    {
+        if (!std::isfinite(value))
+            return 0;
+        for (int decimals = 0; decimals < MaxFieldDecimals; ++decimals) {
+            if (QString::number(value, 'f', decimals).toDouble() == value)
+                return decimals;
+        }
+        return MaxFieldDecimals;
+    }
+    // A single-select enum is a string property with enum (plain values) or
+    // oneOf (titled options); both are normalized to {value, label} pairs.
+    static QJsonArray singleSelectOptions(const StringPropertySchema &schema)
+    {
+        QJsonArray result;
+        for (const QJsonValue &value : schema.enum_().asOptional().value_or(QJsonArray())) {
+            result.append(QJsonObject{{"value", value.toString()},
+                                      {"label", value.toString()}});
+        }
+        for (const EnumOption &option :
+             schema.oneOf().asOptional().value_or(QList<EnumOption>())) {
+            result.append(QJsonObject{{"value", option.const_()},
+                                      {"label", option.title()},
+                                      {"description",
+                                       option.description().asOptional().value_or(QString())}});
+        }
+        return result;
+    }
+
+    QComboBox *comboForOptions(const QJsonArray &options,
+                               const std::optional<QString> &defaultValue)
+    {
+        auto *combo = new Utils::QtcComboBox(Utils::QtcComboBox::SmallPrimary, this);
+        for (const QJsonValue &entry : options) {
+            const QJsonObject option = entry.toObject();
+            combo->addItem(option.value("label").toString(), option.value("value").toString());
+            const QString description = option.value("description").toString();
+            if (!description.isEmpty())
+                combo->setItemData(combo->count() - 1, description, Qt::ToolTipRole);
+        }
+        if (defaultValue) {
+            const int index = combo->findData(*defaultValue);
+            if (index >= 0)
+                combo->setCurrentIndex(index);
+        }
+        return combo;
+    }
+
+    void addMultiSelectField(QFormLayout *form, const MultiSelectPropertySchema &schema,
+                             Field field)
+    {
+        auto *group = new QWidget(this);
+        auto *layout = new QVBoxLayout(group);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(PaddingVXxs);
+
+        auto boxes = std::make_shared<QList<QPair<QString, Utils::QtcCheckBox *>>>();
+        const QJsonArray defaults = schema.default_().asOptional().value_or(QJsonArray());
+        const auto addBox = [&](const QString &value, const QString &label,
+                                const QString &description) {
+            auto *box = new Utils::QtcCheckBox(label, group);
+            box->setChecked(defaults.contains(QJsonValue(value)));
+            box->setToolTip(description);
+            layout->addWidget(box);
+            boxes->append({value, box});
+        };
+        if (const auto *plain = std::get_if<StringMultiSelectItems>(&schema.items())) {
+            for (const QString &value : plain->enum_())
+                addBox(value, value, {});
+        } else if (const auto *titled = std::get_if<TitledMultiSelectItems>(&schema.items())) {
+            for (const EnumOption &option : titled->anyOf()) {
+                addBox(option.const_(), option.title(),
+                       option.description().asOptional().value_or(QString()));
+            }
+        }
+
+        const int minItems = schema.minItems().asOptional().value_or(field.required ? 1 : 0);
+        field.hasValue = [boxes, minItems] {
+            int selected = 0;
+            for (const auto &[value, box] : *boxes)
+                selected += box->isChecked() ? 1 : 0;
+            return selected >= minItems;
+        };
+        field.value = [boxes] {
+            QJsonArray selected;
+            for (const auto &[value, box] : *boxes) {
+                if (box->isChecked())
+                    selected.append(value);
+            }
+            return QJsonValue(selected);
+        };
+        addField(form, field.label, schema.description().asOptional().value_or(QString()),
+                 group, field);
+    }
+
+    void buildUrl(const QString &url)
+    {
+        auto *link = new QLabel(this);
+        link->setTextFormat(Qt::RichText);
+        link->setOpenExternalLinks(true);
+        link->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        const QColor linkColor = Utils::creatorColor(Utils::Theme::TextColorLink);
+        link->setText(QStringLiteral("<a href=\"%1\" style=\"color:%2;\">%1</a>")
+                          .arg(url.toHtmlEscaped(), linkColor.name()));
+        m_bodyLayout->addWidget(link);
+    }
+
+    QStringList missingRequiredFields() const
+    {
+        QStringList missing;
+        for (const Field &field : m_fields) {
+            if (field.required && !field.hasValue())
+                missing.append(field.label);
+        }
+        return missing;
+    }
+
+    QJsonObject collectContent() const
+    {
+        QJsonObject content;
+        for (const Field &field : m_fields) {
+            if (field.hasValue())
+                content.insert(field.key, field.value());
+        }
+        return content;
+    }
+
+    QList<Field> m_fields;
+    QList<QWidget *> m_inputs;
+    bool m_hasUnsupportedRequiredField = false;
+    Utils::InfoLabel *m_errorLabel = nullptr;
+    Utils::QtcButton *m_submitButton = nullptr;
+    Utils::QtcButton *m_declineButton = nullptr;
+    QLabel *m_statusLabel = nullptr;
+};
+
+// ---------------------------------------------------------------------------
 // MessageViewFindSupport searches across all MarkdownBrowser widgets
 // ---------------------------------------------------------------------------
 
@@ -1093,6 +1469,14 @@ void AcpMessageView::addTurnStats(int contextDelta, const std::optional<double> 
 
 void AcpMessageView::clear()
 {
+    // The agent blocks on requests it has not been answered. Their widgets are
+    // about to go away, so answer them here - clear() also runs on session
+    // switch, where the handlers stay alive and would keep the ids pending.
+    for (const auto &pending : std::as_const(m_pendingPermissionRequests))
+        emit permissionCancelled(pending.first);
+    for (const auto &pending : std::as_const(m_pendingElicitationRequests))
+        emit elicitationCancelled(pending.first);
+
     // Remove all widgets except the trailing elapsed label and bottom stretch
     while (m_layout->count() > 2) {
         QLayoutItem *item = m_layout->takeAt(0);
@@ -1108,6 +1492,8 @@ void AcpMessageView::clear()
     m_thoughtWidgets.clear();
     m_turnStatsLabels.clear();
     m_toolCallDetailWidgets.clear();
+    m_pendingPermissionRequests.clear();
+    m_pendingElicitationRequests.clear();
     m_toolCallGroups.clear();
     m_terminalWidgets.clear();
     m_autoScroll = true;
@@ -1319,6 +1705,52 @@ void AcpMessageView::cancelPermissionRequest(const QJsonValue &id)
 
     it->second->resolvePermission(Tr::tr("Cancelled"), false);
     m_pendingPermissionRequests.erase(it);
+}
+
+void AcpMessageView::addElicitationRequest(const QJsonValue &id, const ElicitationRequest &request)
+{
+    finishAgentMessage();
+    finishToolCallGroup();
+
+    auto *widget = new ElicitationWidget(request, m_container);
+    addWidget(widget);
+    m_pendingElicitationRequests.append({id, widget});
+
+    const auto drop = [this, id] {
+        m_pendingElicitationRequests.removeIf(
+            [&id](const auto &entry) { return entry.first == id; });
+    };
+    connect(widget, &ElicitationWidget::accepted, this,
+            [this, id, drop](const QJsonObject &content) {
+                drop();
+                emit elicitationAccepted(id, content);
+            });
+    connect(widget, &ElicitationWidget::declined, this, [this, id, drop] {
+        drop();
+        emit elicitationDeclined(id);
+    });
+}
+
+void AcpMessageView::cancelElicitationRequest(const QJsonValue &id)
+{
+    const auto it = std::find_if(m_pendingElicitationRequests.begin(),
+                                 m_pendingElicitationRequests.end(),
+                                 [&id](const auto &entry) { return entry.first == id; });
+    if (it == m_pendingElicitationRequests.end())
+        return;
+    it->second->resolve(Tr::tr("Cancelled"));
+    m_pendingElicitationRequests.erase(it);
+}
+
+void AcpMessageView::completeElicitationRequest(const QJsonValue &id)
+{
+    const auto it = std::find_if(m_pendingElicitationRequests.begin(),
+                                 m_pendingElicitationRequests.end(),
+                                 [&id](const auto &entry) { return entry.first == id; });
+    if (it == m_pendingElicitationRequests.end())
+        return;
+    it->second->resolve(Tr::tr("Completed"));
+    m_pendingElicitationRequests.erase(it);
 }
 
 void AcpMessageView::addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &methods)

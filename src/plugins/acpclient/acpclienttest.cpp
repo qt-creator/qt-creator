@@ -23,9 +23,13 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QDoubleSpinBox>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <utils/qtdesignwidgets.h>
+
 #include <QLabel>
+#include <QLineEdit>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QScopeGuard>
@@ -294,6 +298,17 @@ public:
                          });
         QObject::connect(&controller, &AcpChatController::permissionCancelledByAgent, &controller,
                          [this](const QJsonValue &id) { cancelledPermissionIds.append(id); });
+        QObject::connect(&controller, &AcpChatController::elicitationRequested, &controller,
+                         [this](const QJsonValue &id, const ElicitationRequest &request) {
+                             elicitationIds.append(id);
+                             elicitationRequests.append(request);
+                         });
+        QObject::connect(&controller, &AcpChatController::elicitationCancelledByAgent,
+                         &controller,
+                         [this](const QJsonValue &id) { cancelledElicitationIds.append(id); });
+        QObject::connect(&controller, &AcpChatController::elicitationCompletedByAgent,
+                         &controller,
+                         [this](const QJsonValue &id) { completedElicitationIds.append(id); });
         QObject::connect(&controller, &AcpChatController::errorOccurred, &controller,
                          [this](const QString &error) { errors.append(error); });
     }
@@ -392,6 +407,10 @@ public:
     QList<QJsonValue> permissionIds;
     QList<V2::RequestPermissionRequest> permissionRequests;
     QList<QJsonValue> cancelledPermissionIds;
+    QList<QJsonValue> elicitationIds;
+    QList<ElicitationRequest> elicitationRequests;
+    QList<QJsonValue> cancelledElicitationIds;
+    QList<QJsonValue> completedElicitationIds;
     QStringList errors;
 };
 
@@ -463,6 +482,11 @@ private slots:
     void testControllerCancelPrompt();
     void testControllerServerCrash();
     void testControllerDisconnect();
+    void testControllerElicitation();
+    void testControllerElicitationDecline();
+    void testControllerElicitationPromptCancel();
+    void testControllerElicitationUrl();
+    void testControllerElicitationUnknownMode();
 
     // Tier 3b: v2 chat workflows against acptestserver --protocol-version 2
     void testV2InitializeNegotiation();
@@ -471,12 +495,18 @@ private slots:
     void testV2PermissionRequest();
     void testV2SessionResume();
     void testV2UnknownSessionUpdateIgnored();
+    void testV2Elicitation();
 
     // Tier 4: chat panel presentation
     void testChatPanelTurnStats();
     void testChatPanelFirstTurnStats();
     void testChatPanelUnchangedUsageElapsedOnly();
     void testChatPanelTokenUsageToggle();
+    void testChatPanelElicitationForm();
+    void testChatPanelElicitationDecline();
+    void testChatPanelElicitationUnsupportedRequired();
+    void testChatPanelElicitationNumberPrecision();
+    void testChatPanelClearAnswersPendingRequests();
 };
 
 // --- Tier 1a -----------------------------------------------------------------
@@ -1735,6 +1765,141 @@ void AcpClientTest::testControllerDisconnect()
     QVERIFY(fixture.controller.sessionId().isEmpty());
 }
 
+static bool hasChunkText(const ControllerFixture &fixture, const QString &text)
+{
+    return Utils::anyOf(fixture.updates, [&text](const V2::SessionUpdate &update) {
+        if (update.kind() != QLatin1String("agent_message_chunk"))
+            return false;
+        const auto *chunk = update.get<V2::ContentChunk>();
+        if (!chunk)
+            return false;
+        const auto *content = std::get_if<V2::TextContent>(&chunk->content());
+        return content && content->text() == text;
+    });
+}
+
+// Sends a prompt and waits for the mid-turn elicitation request the
+// --elicitation scenario raises for it.
+static void promptUntilElicitation(ControllerFixture &fixture)
+{
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_COMPARE(fixture.elicitationRequests.size(), 1);
+    QCOMPARE(fixture.promptFinishedCount, 0); // the turn is blocked on the elicitation
+}
+
+// The elicitation flow is identical for both protocol versions: the turn is
+// blocked on the form request, the accepted content reaches the agent, and
+// the agent's follow-up chunk echoes it.
+static void runElicitationRound(ControllerFixture &fixture)
+{
+    promptUntilElicitation(fixture);
+    if (QTest::currentTestFailed())
+        return;
+
+    const ElicitationRequest &request = fixture.elicitationRequests.first();
+    QCOMPARE(request.message, "Please enter your name");
+    QVERIFY(request.mode == ElicitationRequest::Mode::Form);
+    const auto &properties = request.requestedSchema.properties();
+    QVERIFY(properties.has_value());
+    QVERIFY(properties->contains("name"));
+    const V2::ElicitationPropertySchema nameProperty = properties->value("name");
+    const auto *nameSchema = std::get_if<V2::StringPropertySchema>(&nameProperty);
+    QVERIFY(nameSchema);
+    QCOMPARE(nameSchema->title().asOptional().value_or(QString()), "Your name");
+
+    fixture.controller.sendElicitationAccepted(fixture.elicitationIds.first(),
+                                               QJsonObject{{"name", "Alice"}});
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    QVERIFY(hasChunkText(fixture, "elicited:Alice"));
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+void AcpClientTest::testControllerElicitation()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--elicitation", "form"});
+    runElicitationRound(fixture);
+}
+
+// A declined elicitation still finishes the turn; the agent sees the decline
+// action.
+void AcpClientTest::testControllerElicitationDecline()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--elicitation", "form"});
+    promptUntilElicitation(fixture);
+
+    fixture.controller.sendElicitationDeclined(fixture.elicitationIds.first());
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    QVERIFY(hasChunkText(fixture, "elicited:decline"));
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// Cancelling the prompt makes the agent withdraw the pending elicitation via
+// $/cancel_request, which surfaces as an agent-side cancellation.
+void AcpClientTest::testControllerElicitationPromptCancel()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--elicitation", "form"});
+    promptUntilElicitation(fixture);
+
+    fixture.controller.cancelPrompt();
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+    QTRY_COMPARE(fixture.cancelledElicitationIds.size(), 1);
+    QCOMPARE(fixture.cancelledElicitationIds.first(), fixture.elicitationIds.first());
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// A URL elicitation is auto-accepted once the agent reports completion via
+// elicitation/complete. The completion arrives right after the request, so
+// the turn is not observably blocked in between.
+void AcpClientTest::testControllerElicitationUrl()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--elicitation", "url"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_COMPARE(fixture.elicitationRequests.size(), 1);
+
+    const ElicitationRequest &request = fixture.elicitationRequests.first();
+    QVERIFY(request.mode == ElicitationRequest::Mode::Url);
+    QCOMPARE(request.url, "https://example.com/login");
+    QCOMPARE(request.elicitationId, "elic-1");
+
+    QTRY_COMPARE(fixture.completedElicitationIds.size(), 1);
+    QCOMPARE(fixture.completedElicitationIds.first(), fixture.elicitationIds.first());
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+    QVERIFY(hasChunkText(fixture, "elicited:accepted"));
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// An unknown elicitation mode is not rendered but answered with an error, so
+// the turn continues.
+void AcpClientTest::testControllerElicitationUnknownMode()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--elicitation", "unknown"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    // The turn ended, so a rendered request would already have arrived.
+    QVERIFY(fixture.elicitationRequests.isEmpty());
+    QVERIFY(hasChunkText(fixture, "elicited:error"));
+    QVERIFY(fixture.errors.isEmpty());
+}
+
 // --- Tier 3b -----------------------------------------------------------------
 
 static bool isStateUpdate(const V2::SessionUpdate &update, const QString &state)
@@ -1940,6 +2105,13 @@ void AcpClientTest::testV2UnknownSessionUpdateIgnored()
     QVERIFY(fixture.errors.isEmpty());
 }
 
+void AcpClientTest::testV2Elicitation()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--elicitation", "form"});
+    runElicitationRound(fixture);
+}
+
 // Collects the texts of the stats lines the message view appended for finished
 // turns.
 static QStringList turnStatsTexts(const ChatPanel &panel)
@@ -2043,6 +2215,227 @@ void AcpClientTest::testChatPanelUnchangedUsageElapsedOnly()
     QCOMPARE(stats.size(), 1);
     QVERIFY2(!stats.first().contains("context"), qPrintable(stats.first()));
     QVERIFY2(!stats.first().contains("USD"), qPrintable(stats.first()));
+}
+
+// The elicitation form renders the requested schema, refuses to submit while
+// a required field is empty, and reports the entered values.
+void AcpClientTest::testChatPanelElicitationForm()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.message = "Please enter your name";
+    request.mode = ElicitationRequest::Mode::Form;
+    request.requestedSchema
+        = V2::ElicitationSchema()
+              .addProperty("name",
+                           V2::StringPropertySchema()
+                               .title(QStringLiteral("Your name"))
+                               .description(QStringLiteral("The name used in the greeting")))
+              .addProperty("verbose", V2::BooleanPropertySchema().default_(true))
+              .addProperty("colors",
+                           V2::MultiSelectPropertySchema().items(
+                               V2::TitledMultiSelectItems().addAnyOf(
+                                   V2::EnumOption()
+                                       .const_(QStringLiteral("red"))
+                                       .title(QStringLiteral("Red"))
+                                       .description(QStringLiteral("The warm one")))))
+              .required(QJsonArray{"name"});
+
+    QList<QJsonValue> acceptedIds;
+    QList<QJsonObject> acceptedContents;
+    QObject::connect(&panel, &ChatPanel::elicitationAccepted, &panel,
+                     [&](const QJsonValue &id, const QJsonObject &content) {
+                         acceptedIds.append(id);
+                         acceptedContents.append(content);
+                     });
+
+    panel.addElicitationRequest(QJsonValue(7), request);
+
+    auto *edit = panel.messageView()->findChild<QLineEdit *>();
+    QVERIFY(edit);
+
+    // Descriptions surface as tooltips on the input, on its form row label,
+    // and on multi-select items.
+    QCOMPARE(edit->toolTip(), "The name used in the greeting");
+    const QList<QLabel *> labels = panel.messageView()->findChildren<QLabel *>();
+    QVERIFY(Utils::anyOf(labels, [](const QLabel *label) {
+        return label->text() == QLatin1String("Your name:")
+               && label->toolTip() == QLatin1String("The name used in the greeting");
+    }));
+    const QList<Utils::QtcCheckBox *> checkBoxes
+        = panel.messageView()->findChildren<Utils::QtcCheckBox *>();
+    QVERIFY(Utils::anyOf(checkBoxes, [](const Utils::QtcCheckBox *box) {
+        return box->text() == QLatin1String("Red")
+               && box->toolTip() == QLatin1String("The warm one");
+    }));
+
+    Utils::QtcButton *submit = nullptr;
+    const QList<Utils::QtcButton *> buttons
+        = panel.messageView()->findChildren<Utils::QtcButton *>();
+    for (Utils::QtcButton *button : buttons) {
+        if (button->text() == QLatin1String("Submit"))
+            submit = button;
+    }
+    QVERIFY(submit);
+
+    // The required field is empty, so nothing is emitted yet.
+    submit->click();
+    QVERIFY(acceptedIds.isEmpty());
+
+    edit->setText("Alice");
+    submit->click();
+    QCOMPARE(acceptedIds.size(), 1);
+    QCOMPARE(acceptedIds.first(), QJsonValue(7));
+    QCOMPARE(acceptedContents.first().value("name").toString(), "Alice");
+    QCOMPARE(acceptedContents.first().value("verbose").toBool(), true);
+
+    // The resolved form no longer accepts input.
+    QVERIFY(!submit->isEnabled());
+    QVERIFY(!edit->isEnabled());
+}
+
+static Utils::QtcButton *findButton(const QWidget *parent, const QString &text)
+{
+    const QList<Utils::QtcButton *> buttons = parent->findChildren<Utils::QtcButton *>();
+    for (Utils::QtcButton *button : buttons) {
+        if (button->text() == text)
+            return button;
+    }
+    return nullptr;
+}
+
+// Declining an elicitation form reports the request id and locks the form.
+void AcpClientTest::testChatPanelElicitationDecline()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.message = "Please enter your name";
+    request.mode = ElicitationRequest::Mode::Form;
+    request.requestedSchema = V2::ElicitationSchema().addProperty(
+        "name", V2::StringPropertySchema());
+
+    QList<QJsonValue> declinedIds;
+    QObject::connect(&panel, &ChatPanel::elicitationDeclined, &panel,
+                     [&](const QJsonValue &id) { declinedIds.append(id); });
+
+    panel.addElicitationRequest(QJsonValue(8), request);
+    Utils::QtcButton *decline = findButton(panel.messageView(), "Decline");
+    QVERIFY(decline);
+    decline->click();
+
+    QCOMPARE(declinedIds.size(), 1);
+    QCOMPARE(declinedIds.first(), QJsonValue(8));
+    QVERIFY(!decline->isEnabled());
+}
+
+// A required field of an unsupported type can never be filled in, so the form
+// only offers to decline.
+void AcpClientTest::testChatPanelElicitationUnsupportedRequired()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.message = "Future input";
+    request.mode = ElicitationRequest::Mode::Form;
+    request.requestedSchema = V2::ElicitationSchema()
+                                  .addProperty("blob", QJsonObject{{"type", "_future_type"}})
+                                  .required(QJsonArray{"blob"});
+
+    panel.addElicitationRequest(QJsonValue(9), request);
+
+    Utils::QtcButton *submit = findButton(panel.messageView(), "Submit");
+    QVERIFY(submit);
+    QVERIFY(!submit->isEnabled());
+    Utils::QtcButton *decline = findButton(panel.messageView(), "Decline");
+    QVERIFY(decline);
+    QVERIFY(decline->isEnabled());
+}
+
+// A "number" property is a plain double: the entered and reported value keeps
+// the precision the agent asked for instead of the spin box default of two
+// decimals.
+void AcpClientTest::testChatPanelElicitationNumberPrecision()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    request.requestedSchema
+        = V2::ElicitationSchema()
+              .addProperty("threshold", V2::NumberPropertySchema().default_(0.001))
+              .addProperty("ratio", V2::NumberPropertySchema());
+
+    QList<QJsonObject> acceptedContents;
+    QObject::connect(&panel, &ChatPanel::elicitationAccepted, &panel,
+                     [&](const QJsonValue &, const QJsonObject &content) {
+                         acceptedContents.append(content);
+                     });
+
+    panel.addElicitationRequest(QJsonValue(20), request);
+
+    // QtcDoubleSpinBox has no Q_OBJECT of its own; the base class is enough to
+    // find it and no other double spin box is in the form.
+    const QList<QDoubleSpinBox *> spins
+        = panel.messageView()->findChildren<QDoubleSpinBox *>();
+    QCOMPARE(spins.size(), 2);
+    // The form is built in property order: "ratio" sorts before "threshold".
+    QDoubleSpinBox *ratio = spins.first();
+    QDoubleSpinBox *threshold = spins.last();
+    QCOMPARE(threshold->value(), 0.001);
+
+    ratio->setValue(3.14159);
+    QCOMPARE(ratio->value(), 3.14159);
+
+    Utils::QtcButton *submit = findButton(panel.messageView(), "Submit");
+    QVERIFY(submit);
+    submit->click();
+
+    QCOMPARE(acceptedContents.size(), 1);
+    QCOMPARE(acceptedContents.first().value("threshold").toDouble(), 0.001);
+    QCOMPARE(acceptedContents.first().value("ratio").toDouble(), 3.14159);
+}
+
+// Clearing the view - on session switch as well as on disconnect - takes the
+// request widgets away, so requests still waiting for an answer are cancelled
+// instead of leaving the agent blocked forever.
+void AcpClientTest::testChatPanelClearAnswersPendingRequests()
+{
+    ChatPanel panel;
+
+    QList<QJsonValue> cancelledPermissions;
+    QList<QJsonValue> cancelledElicitations;
+    QObject::connect(&panel, &ChatPanel::permissionCancelled, &panel,
+                     [&](const QJsonValue &id) { cancelledPermissions.append(id); });
+    QObject::connect(&panel, &ChatPanel::elicitationCancelled, &panel,
+                     [&](const QJsonValue &id) { cancelledElicitations.append(id); });
+
+    panel.addPermissionRequest(
+        QJsonValue(21),
+        V2::RequestPermissionRequest()
+            .sessionId("session-1")
+            .title("Test tool")
+            .addOption(V2::PermissionOption()
+                           .optionId("allow")
+                           .name("Allow")
+                           .kind(V2::PermissionOptionKind::allow_once)));
+
+    ElicitationRequest elicitation;
+    elicitation.mode = ElicitationRequest::Mode::Form;
+    elicitation.requestedSchema = V2::ElicitationSchema().addProperty(
+        "name", V2::StringPropertySchema());
+    panel.addElicitationRequest(QJsonValue(22), elicitation);
+
+    panel.clear();
+
+    QCOMPARE(cancelledPermissions, QList<QJsonValue>{QJsonValue(21)});
+    QCOMPARE(cancelledElicitations, QList<QJsonValue>{QJsonValue(22)});
+
+    // An answered request is not answered a second time.
+    panel.clear();
+    QCOMPARE(cancelledPermissions.size(), 1);
+    QCOMPARE(cancelledElicitations.size(), 1);
 }
 
 QObject *createAcpClientTest()

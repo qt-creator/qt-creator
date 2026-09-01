@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "acpelicitationhandler.h"
+
 #include <acp/acpv2.h>
 
 #include <QHash>
@@ -26,6 +28,7 @@ namespace AcpClient::Internal {
 
 class AgentMessageWidget;
 class AuthenticationWidget;
+class ElicitationWidget;
 class SessionPickerWidget;
 class TerminalDisplayWidget;
 class ThoughtWidget;
@@ -68,6 +71,10 @@ public:
                               const Acp::V2::RequestPermissionRequest &request);
     void cancelPermissionRequest(const QJsonValue &id);
 
+    void addElicitationRequest(const QJsonValue &id, const ElicitationRequest &request);
+    void cancelElicitationRequest(const QJsonValue &id);
+    void completeElicitationRequest(const QJsonValue &id);
+
     void addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &methods);
     void showAuthenticationError(const QString &error);
     void resolveAuthentication();
@@ -77,6 +84,9 @@ public:
 signals:
     void permissionOptionSelected(const QJsonValue &id, const QString &optionId);
     void permissionCancelled(const QJsonValue &id);
+    void elicitationAccepted(const QJsonValue &id, const QJsonObject &content);
+    void elicitationDeclined(const QJsonValue &id);
+    void elicitationCancelled(const QJsonValue &id);
     void authenticateRequested(const QString &methodId);
 
 protected:
@@ -110,6 +120,7 @@ private:
     ToolCallGroupWidget *m_currentToolCallGroup = nullptr;
     QHash<QString, ToolCallDetailWidget *> m_toolCallDetailWidgets;
     QList<QPair<QJsonValue, ToolCallDetailWidget *>> m_pendingPermissionRequests;
+    QList<QPair<QJsonValue, ElicitationWidget *>> m_pendingElicitationRequests;
     QHash<QString, ToolCallGroupWidget *> m_toolCallGroups; // toolCallId -> owning group
     QHash<QString, TerminalDisplayWidget *> m_terminalWidgets;
     AuthenticationWidget *m_currentAuthWidget = nullptr;

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "acpelicitationhandler.h"
+
 #include <acp/acpv2.h>
 
 #include <utils/filepath.h>
@@ -105,6 +107,9 @@ public:
     void addPermissionRequest(const QJsonValue &id,
                               const Acp::V2::RequestPermissionRequest &request);
     void cancelPermissionRequest(const QJsonValue &id);
+    void addElicitationRequest(const QJsonValue &id, const ElicitationRequest &request);
+    void cancelElicitationRequest(const QJsonValue &id);
+    void completeElicitationRequest(const QJsonValue &id);
 
     void addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &methods);
     void showAuthenticationError(const QString &error);
@@ -118,6 +123,9 @@ signals:
     void configOptionChanged(const QString &configId, const QJsonValue &value);
     void permissionOptionSelected(const QJsonValue &id, const QString &optionId);
     void permissionCancelled(const QJsonValue &id);
+    void elicitationAccepted(const QJsonValue &id, const QJsonObject &content);
+    void elicitationDeclined(const QJsonValue &id);
+    void elicitationCancelled(const QJsonValue &id);
     void authenticateRequested(const QString &methodId);
     void inspectRequested();
     void closeSessionRequested();

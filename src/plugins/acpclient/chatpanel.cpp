@@ -1030,6 +1030,29 @@ void ChatPanel::cancelPermissionRequest(const QJsonValue &id)
     m_messageView->cancelPermissionRequest(id);
 }
 
+void ChatPanel::addElicitationRequest(const QJsonValue &id, const ElicitationRequest &request)
+{
+    m_messageView->addElicitationRequest(id, request);
+    QApplication::alert(m_messageView);
+
+    connect(m_messageView, &AcpMessageView::elicitationAccepted,
+            this, &ChatPanel::elicitationAccepted, Qt::UniqueConnection);
+    connect(m_messageView, &AcpMessageView::elicitationDeclined,
+            this, &ChatPanel::elicitationDeclined, Qt::UniqueConnection);
+    connect(m_messageView, &AcpMessageView::elicitationCancelled,
+            this, &ChatPanel::elicitationCancelled, Qt::UniqueConnection);
+}
+
+void ChatPanel::cancelElicitationRequest(const QJsonValue &id)
+{
+    m_messageView->cancelElicitationRequest(id);
+}
+
+void ChatPanel::completeElicitationRequest(const QJsonValue &id)
+{
+    m_messageView->completeElicitationRequest(id);
+}
+
 void ChatPanel::addAuthenticationRequest(const QList<Acp::V2::AuthMethod> &methods)
 {
     m_messageView->addAuthenticationRequest(methods);

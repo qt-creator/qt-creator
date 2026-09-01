@@ -4,6 +4,7 @@
 #pragma once
 
 #include "acpclientobject.h"
+#include "acpelicitationhandler.h"
 #include "acpsettings.h"
 #include "chatpanel.h"
 
@@ -52,6 +53,9 @@ public:
     void setConfigOption(const QString &configId, const QJsonValue &value);
     void sendPermissionResponse(const QJsonValue &id, const QString &optionId);
     void sendPermissionCancelled(const QJsonValue &id);
+    void sendElicitationAccepted(const QJsonValue &id, const QJsonObject &content);
+    void sendElicitationDeclined(const QJsonValue &id);
+    void sendElicitationCancelled(const QJsonValue &id);
     void deleteSession(const QString &sessionId);
     void closeSession();
 
@@ -81,6 +85,9 @@ signals:
     void authenticationFailed(const QString &error);
     void permissionRequested(const QJsonValue &id, const Acp::V2::RequestPermissionRequest &request);
     void permissionCancelledByAgent(const QJsonValue &id);
+    void elicitationRequested(const QJsonValue &id, const ElicitationRequest &request);
+    void elicitationCancelledByAgent(const QJsonValue &id);
+    void elicitationCompletedByAgent(const QJsonValue &id);
     void promptFinished();
     void errorOccurred(const QString &error);
 
@@ -103,6 +110,7 @@ private:
     AcpTerminalHandler *m_terminalHandler = nullptr;
     AcpFilesystemHandler *m_filesystemHandler = nullptr;
     AcpPermissionHandler *m_permissionHandler = nullptr;
+    AcpElicitationHandler *m_elicitationHandler = nullptr;
 
     Utils::FilePath m_workingDirectory;
     QString m_sessionId;

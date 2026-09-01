@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
     parser.addOption({"sessions", "Seed <count> sessions and advertise session "
                                   "list/load/delete/close capabilities.", "count"});
     parser.addOption({"permission", "Request permission during session/prompt."});
+    parser.addOption({"elicitation", "Request input during session/prompt "
+                                     "(<mode>: form, url, unknown).", "mode"});
     parser.addOption({"cancel", "Wait for session/cancel during session/prompt."});
     parser.addOption({"crash-on-prompt", "Exit with code 1 on session/prompt."});
     parser.addOption({"config-options", "Report session config options."});
@@ -49,6 +51,8 @@ int main(int argc, char *argv[])
     if (parser.isSet("sessions"))
         scenario.seededSessions = parser.value("sessions").toInt();
     scenario.permission = parser.isSet("permission");
+    if (parser.isSet("elicitation"))
+        scenario.elicitation = parser.value("elicitation");
     scenario.waitForCancel = parser.isSet("cancel");
     scenario.crashOnPrompt = parser.isSet("crash-on-prompt");
     scenario.configOptions = parser.isSet("config-options");

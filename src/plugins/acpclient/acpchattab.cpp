@@ -461,6 +461,18 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_controller, &AcpChatController::sendPermissionCancelled);
     connect(m_controller, &AcpChatController::permissionCancelledByAgent,
             m_chatPanel, &ChatPanel::cancelPermissionRequest);
+    connect(m_controller, &AcpChatController::elicitationRequested,
+            m_chatPanel, &ChatPanel::addElicitationRequest);
+    connect(m_chatPanel, &ChatPanel::elicitationAccepted,
+            m_controller, &AcpChatController::sendElicitationAccepted);
+    connect(m_chatPanel, &ChatPanel::elicitationDeclined,
+            m_controller, &AcpChatController::sendElicitationDeclined);
+    connect(m_chatPanel, &ChatPanel::elicitationCancelled,
+            m_controller, &AcpChatController::sendElicitationCancelled);
+    connect(m_controller, &AcpChatController::elicitationCancelledByAgent,
+            m_chatPanel, &ChatPanel::cancelElicitationRequest);
+    connect(m_controller, &AcpChatController::elicitationCompletedByAgent,
+            m_chatPanel, &ChatPanel::completeElicitationRequest);
 
     connect(m_controller, &AcpChatController::sessionSelectionRequired, this, [this] {
         m_chatPanel->clear();

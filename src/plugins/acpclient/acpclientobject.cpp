@@ -229,6 +229,8 @@ void AcpClientObject::handleRequest(const QJsonValue &id, const QString &method,
             emit requestPermissionRequested(id, *req);
         else if (!Acp::V2::fromJson<Acp::V2::RequestPermissionRequest>(paramsVal))
             sendErrorResponse(id, ErrorCode::Invalid_params, req.error());
+    } else if (method == QLatin1String("elicitation/create")) {
+        // Answered by the elicitation handler via requestReceived.
     } else {
         qCWarning(logClient) << "Unknown agent request method:" << method;
         sendErrorResponse(id, ErrorCode::Method_not_found,

@@ -21,6 +21,7 @@ public:
     bool emitUnknownUpdate = false; // --emit-unknown-update
     int seededSessions = 0;        // --sessions <N>
     bool permission = false;       // --permission
+    QString elicitation;           // --elicitation <form|url|unknown>
     bool waitForCancel = false;    // --cancel
     bool crashOnPrompt = false;    // --crash-on-prompt
     bool configOptions = false;    // --config-options

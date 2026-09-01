@@ -285,6 +285,49 @@ void Server::handleCloseSession(const QJsonValue &id, const QJsonObject &params)
     sendResult(id, toJson(CloseSessionResponse()));
 }
 
+// The same wire shape serves protocol v1 and v2.
+static QJsonObject elicitationParams(const QString &sessionId, const QString &mode)
+{
+    if (mode == QLatin1String("url")) {
+        return QJsonObject{{"sessionId", sessionId},
+                           {"message", "Log in externally"},
+                           {"mode", "url"},
+                           {"url", "https://example.com/login"},
+                           {"elicitationId", "elic-1"}};
+    }
+    if (mode == QLatin1String("unknown")) {
+        return QJsonObject{{"sessionId", sessionId},
+                           {"message", "Future input mode"},
+                           {"mode", "_test_future_mode"}};
+    }
+    return QJsonObject{
+        {"sessionId", sessionId},
+        {"message", "Please enter your name"},
+        {"mode", "form"},
+        {"requestedSchema",
+         QJsonObject{{"type", "object"},
+                     {"properties",
+                      QJsonObject{{"name", QJsonObject{{"type", "string"},
+                                                       {"title", "Your name"}}}}},
+                     {"required", QJsonArray{"name"}}}}};
+}
+
+// The word the agent echoes back for a given elicitation answer, so tests can
+// observe which response the client sent.
+static QString elicitationOutcome(const QJsonObject &answer)
+{
+    if (answer.contains("error"))
+        return "error";
+    const QJsonObject result = answer.value("result").toObject();
+    const QString action = result.value("action").toString();
+    if (action == QLatin1String("accept")) {
+        const QJsonObject content = result.value("content").toObject();
+        return content.contains("name") ? content.value("name").toString()
+                                        : QString("accepted");
+    }
+    return action;
+}
+
 void Server::handlePrompt(const QJsonValue &id, const QJsonObject &params)
 {
     if (m_scenario.crashOnPrompt) {
@@ -394,6 +437,42 @@ void Server::handlePrompt(const QJsonValue &id, const QJsonObject &params)
         } else {
             sendResult(id, toJson(PromptResponse().stopReason(StopReason::cancelled)));
         }
+        return;
+    }
+
+    if (!m_scenario.elicitation.isEmpty()) {
+        const qint64 elicitationId = m_nextOutgoingId++;
+        QJsonObject requestMessage;
+        requestMessage["jsonrpc"] = "2.0";
+        requestMessage["id"] = static_cast<double>(elicitationId);
+        requestMessage["method"] = "elicitation/create";
+        requestMessage["params"] = elicitationParams(sessionId, m_scenario.elicitation);
+        writeLine(requestMessage);
+        if (m_scenario.elicitation == QLatin1String("url")) {
+            sendNotification("elicitation/complete",
+                             QJsonObject{{"elicitationId", "elic-1"}});
+        }
+
+        const auto answer = readUntil([elicitationId](const QJsonObject &message) {
+            if (message.value("method").toString() == QLatin1String("session/cancel"))
+                return true;
+            return !message.contains("method")
+                   && message.value("id").toDouble() == elicitationId;
+        });
+        if (!answer)
+            return; // stdin closed
+
+        if (answer->value("method").toString() == QLatin1String("session/cancel")) {
+            sendNotification("$/cancel_request",
+                             toJson(CancelRequestNotification().requestId(
+                                 RequestId(static_cast<int>(elicitationId)))));
+            sendResult(id, toJson(PromptResponse().stopReason(StopReason::cancelled)));
+            return;
+        }
+
+        sendAgentMessageChunk(sessionId,
+                              QString("elicited:%1").arg(elicitationOutcome(*answer)));
+        sendResult(id, toJson(PromptResponse().stopReason(StopReason::end_turn)));
         return;
     }
 
@@ -644,6 +723,42 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
         } else {
             sendStateUpdate(sessionId, "idle", "cancelled");
         }
+        return;
+    }
+
+    if (!m_scenario.elicitation.isEmpty()) {
+        const qint64 elicitationId = m_nextOutgoingId++;
+        QJsonObject requestMessage;
+        requestMessage["jsonrpc"] = "2.0";
+        requestMessage["id"] = static_cast<double>(elicitationId);
+        requestMessage["method"] = "elicitation/create";
+        requestMessage["params"] = elicitationParams(sessionId, m_scenario.elicitation);
+        writeLine(requestMessage);
+        if (m_scenario.elicitation == QLatin1String("url")) {
+            sendNotification("elicitation/complete",
+                             QJsonObject{{"elicitationId", "elic-1"}});
+        }
+
+        const auto answer = readUntil([elicitationId](const QJsonObject &message) {
+            if (message.value("method").toString() == QLatin1String("session/cancel"))
+                return true;
+            return !message.contains("method")
+                   && message.value("id").toDouble() == elicitationId;
+        });
+        if (!answer)
+            return; // stdin closed
+
+        if (answer->value("method").toString() == QLatin1String("session/cancel")) {
+            sendNotification("$/cancel_request",
+                             toJson(CancelRequestNotification().requestId(
+                                 RequestId(static_cast<int>(elicitationId)))));
+            sendStateUpdate(sessionId, "idle", "cancelled");
+            return;
+        }
+
+        sendAgentMessageChunkV2(sessionId, messageId,
+                                QString("elicited:%1").arg(elicitationOutcome(*answer)));
+        sendStateUpdate(sessionId, "idle", "end_turn");
         return;
     }
 

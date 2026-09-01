@@ -21,6 +21,7 @@ add_qtc_plugin(AcpClient
     acpclientplugin.cpp
     acpclienttr.h
     acpsettings.cpp acpsettings.h
+    acpelicitationhandler.cpp acpelicitationhandler.h
     acpfilesystemhandler.cpp acpfilesystemhandler.h
     acpmessageview.cpp acpmessageview.h
     acppermissionhandler.cpp acppermissionhandler.h
