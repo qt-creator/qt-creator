@@ -185,8 +185,8 @@ void KitManager::restoreKits()
     connect(ICore::instance(), &ICore::saveSettingsRequested, &KitManager::saveKits);
 
     // Remove the kits that were auto-created for a build device when that device goes away.
-    // They are identified by the detection source id set in createKitsFromToolchains(), so
-    // only our own auto-created kits for this device are affected, not SDK or manual kits.
+    // They are identified by the detection source ID set in createKitsFromToolchains(), so
+    // only our own auto-created kits for this device are affected.
     connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, instance(), [](Id deviceId) {
         const QString sourcePrefix = deviceKitDetectionSourceId(deviceId, {});
         const QList<Kit *> obsolete = Utils::filtered(KitManager::kits(), [&](const Kit *k) {
@@ -440,9 +440,10 @@ void KitManager::createKitsFromToolchains(
         if (dev) {
             BuildDeviceTypeKitAspect::setDeviceTypeId(kit.get(), dev->type());
             BuildDeviceKitAspect::setDevice(kit.get(), dev);
-            // The kit is auto-detected from this build device. Tie its detection source to
+            // The kit is auto-created for this build device. Tie its detection source ID to
             // the device and ABI so a re-detection recognizes and reuses the existing kit
-            // instead of creating a duplicate.
+            // instead of creating a duplicate, and the kit can automatically be removed if the
+            // device is removed.
             kit->setDetectionSource(
                 {DetectionSource::Manual, deviceKitDetectionSourceId(dev->id(), abiString)});
         } else {
