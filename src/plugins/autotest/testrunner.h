@@ -46,13 +46,16 @@ public:
 
     static TestRunner* instance();
 
-    void runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests);
+    void runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests,
+                  bool suppressPopups = false);
     void runTest(TestRunMode mode, const ITestTreeItem *item);
     bool isTestRunning() const
     {
         return m_buildConnect || m_taskTreeRunner.isRunning()
                || !m_currentRunControl.isNull();
     }
+
+    bool suppressPopups() const { return m_suppressPopups; }
 
 signals:
     void testRunStarted();
@@ -112,6 +115,8 @@ private:
     int m_runControlIndex = 0;
     QPointer<ProjectExplorer::RunControl> m_currentRunControl;
     bool m_stopRequested = false;
+
+    bool m_suppressPopups = false;
 };
 
 } // namespace Internal

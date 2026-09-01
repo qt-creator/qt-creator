@@ -183,11 +183,13 @@ void TestRunner::cancelCurrent(TestRunner::CancelReason reason)
     }
 }
 
-void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests)
+void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests,
+                          bool suppressPopups)
 {
     QTC_ASSERT(!isTestRunning(), return);
     qDeleteAll(m_selectedTests);
     m_selectedTests = selectedTests;
+    m_suppressPopups = suppressPopups;
 
     m_skipTargetsCheck = false;
     m_runMode = mode;
@@ -514,7 +516,7 @@ void TestRunner::runTestsHelper()
             progress->deleteLater();
             cancelCurrent(UserCanceled);
         });
-        if (testSettings().popupOnStart())
+        if (!m_suppressPopups && testSettings().popupOnStart())
             popupResultsPane();
     };
     const auto onTaskTreeDone = [this] { onFinished(); };

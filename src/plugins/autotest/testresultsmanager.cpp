@@ -204,7 +204,7 @@ bool TestResultsManager::runTests(
     m_buildFailed = false;
     m_running = true;
 
-    runner->runTests(mode, configs);
+    runner->runTests(mode, configs, true /* suppressPopups */);
     return true;
 }
 
