@@ -12,6 +12,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QProgressBar>
+#include <QSpinBox>
 #include <QTabBar>
 
 QT_FORWARD_DECLARE_CLASS(QVariantAnimation)
@@ -94,6 +95,34 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 };
 
+class QTCREATOR_UTILS_EXPORT QtcSpinBox : public QSpinBox
+{
+public:
+    explicit QtcSpinBox(QWidget *parent = nullptr);
+
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+};
+
+class QTCREATOR_UTILS_EXPORT QtcDoubleSpinBox : public QDoubleSpinBox
+{
+public:
+    explicit QtcDoubleSpinBox(QWidget *parent = nullptr);
+
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+};
+
 class QTCREATOR_UTILS_EXPORT QtcComboBox : public QComboBox
 {
     Q_OBJECT // Needed for the Q_ENUM(Role) to work
@@ -126,6 +155,19 @@ class QTCREATOR_UTILS_EXPORT QtcSwitch : public QAbstractButton
 {
 public:
     explicit QtcSwitch(const QString &text, QWidget *parent = nullptr);
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+};
+
+class QTCREATOR_UTILS_EXPORT QtcCheckBox : public QAbstractButton
+{
+    Q_OBJECT
+
+public:
+    explicit QtcCheckBox(const QString &text, QWidget *parent = nullptr);
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
@@ -352,6 +394,32 @@ public:
     void onClicked(QObject *guard, const std::function<void()> &);
 };
 
+class QTCREATOR_UTILS_EXPORT CheckBox : public Layouting::Widget
+{
+public:
+    using Implementation = QtcCheckBox;
+    using I = Building::BuilderItem<CheckBox>;
+    CheckBox();
+    CheckBox(std::initializer_list<I> ps);
+    void setText(const QString &text);
+    void setChecked(bool checked);
+    void onClicked(QObject *guard, const std::function<void()> &);
+};
+
+class QTCREATOR_UTILS_EXPORT SpinBox : public Layouting::Widget
+{
+public:
+    using Implementation = QtcSpinBox;
+    using I = Building::BuilderItem<SpinBox>;
+    SpinBox();
+    SpinBox(std::initializer_list<I> ps);
+    void setMinimum(int minimum);
+    void setMaximum(int maximum);
+    void setRange(int minimum, int maximum);
+    void setValue(int value);
+    void onValueChanged(QObject *guard, const std::function<void(int)> &);
+};
+
 class QTCREATOR_UTILS_EXPORT ProgressBar : public Layouting::Widget
 {
 public:
@@ -460,5 +528,8 @@ inline constexpr auto maximum = Building::setter([](auto &x, auto &&...a) { x.se
 inline constexpr auto range = Building::setter([](auto &x, auto &&...a) { x.setRange(a...); });
 inline constexpr auto infoType = Building::setter(
     [](auto &x, auto &&...a) { x.setInfoType(a...); });
+inline constexpr auto checked = Building::setter([](auto &x, auto &&...a) { x.setChecked(a...); });
+inline constexpr auto onValueChanged = Building::setter(
+    [](auto &x, auto &&...a) { x.onValueChanged(a...); });
 
 } // namespace Utils

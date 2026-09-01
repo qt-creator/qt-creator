@@ -64,6 +64,16 @@ static QWidget *widgets()
     auto switchOff = new QtcSwitch(withMnemonic("Qt::LeftToRight"));
     switchOff->setLayoutDirection(Qt::LeftToRight);
 
+    auto checkBoxChecked = new QtcCheckBox("Checked");
+    checkBoxChecked->setChecked(true);
+    auto checkBoxUnchecked = new QtcCheckBox("Unchecked");
+
+    auto spinBox = new QtcSpinBox;
+    spinBox->setRange(-10, 10);
+    auto doubleSpinBox = new QtcDoubleSpinBox;
+    doubleSpinBox->setRange(-1, 1);
+    doubleSpinBox->setSingleStep(0.1);
+
     auto tabBar = new QtcTabBar;
     tabBar->setExpanding(false);
     tabBar->setMovable(true);
@@ -184,10 +194,25 @@ static QWidget *widgets()
                 },
             },
             Group {
+                title("CheckBox"),
+                Column {
+                    checkBoxChecked,
+                    checkBoxUnchecked,
+                },
+            },
+            Group {
                 title("TabBar"),
                 Row {
                     tabBar,
                 },
+            },
+        },
+        Group {
+            title("SpinBox"),
+            Row {
+                spinBox,
+                doubleSpinBox,
+                st,
             },
         },
         Group {

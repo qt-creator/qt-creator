@@ -68,8 +68,12 @@ class QtDesignSystemStyle : public QCommonStyle
 public:
     void drawControl(ControlElement element, const QStyleOption *opt, QPainter *painter,
                      const QWidget *widget = nullptr) const override;
+    void drawComplexControl(ComplexControl control, const QStyleOptionComplex *opt,
+                            QPainter *painter, const QWidget *widget = nullptr) const override;
     void drawPrimitive(PrimitiveElement element, const QStyleOption *opt, QPainter *painter,
                        const QWidget *widget = nullptr) const override;
+    QRect subControlRect(ComplexControl control, const QStyleOptionComplex *opt,
+                         SubControl subControl, const QWidget *widget = nullptr) const override;
     int pixelMetric(PixelMetric metric, const QStyleOption *opt = nullptr,
                     const QWidget *widget = nullptr) const override;
     QIcon standardIcon(StandardPixmap sp, const QStyleOption *opt,
@@ -535,6 +539,131 @@ void QtcSearchBox::paintEvent(QPaintEvent *event)
     }
 }
 
+// The step buttons for the up and the down direction, in the states default,
+// hovered/pressed, and disabled.
+static const QPixmap &spinBoxArrow(bool up, WidgetState state)
+{
+    static const auto makePixmap = [](bool up, Theme::Color color) {
+        const QPixmap down = Icon({{FilePath::fromString(":/core/images/expandarrow.png"),
+                                    color}}, Icon::Tint).pixmap();
+        return up ? down.transformed(QTransform::fromScale(1, -1)) : down;
+    };
+    static const QPixmap pixmaps[2][3] = {
+        {makePixmap(false, Theme::Token_Text_Muted),
+         makePixmap(false, Theme::Token_Text_Default),
+         makePixmap(false, Theme::Token_Text_Subtle)},
+        {makePixmap(true, Theme::Token_Text_Muted),
+         makePixmap(true, Theme::Token_Text_Default),
+         makePixmap(true, Theme::Token_Text_Subtle)},
+    };
+    const int stateIndex = state == WidgetStateDisabled ? 2
+                           : state == WidgetStateDefault ? 0 : 1;
+    return pixmaps[up ? 1 : 0][stateIndex];
+}
+
+static int spinBoxButtonWidth()
+{
+    const QSize iconS = spinBoxArrow(false, WidgetStateDefault).deviceIndependentSize().toSize();
+    return GapHXs + iconS.width() + PaddingHM;
+}
+
+static void setupSpinBox(QAbstractSpinBox *spinBox)
+{
+    spinBox->setStyle(QtDesignSystemStyle::instance());
+    spinBox->setAttribute(Qt::WA_Hover);
+    spinBox->setAttribute(Qt::WA_MacShowFocusRect, false);
+    spinBox->setAutoFillBackground(false);
+    spinBox->setFont(lineEditTextTF.font());
+    spinBox->setFrame(false);
+    spinBox->setMouseTracking(true);
+
+    QPalette pal = spinBox->palette();
+    pal.setColor(QPalette::Base, Qt::transparent);
+    pal.setColor(QPalette::Text, lineEditTextTF.color());
+    pal.setColor(QPalette::Disabled, QPalette::Text, creatorColor(Theme::Token_Text_Subtle));
+    spinBox->setPalette(pal);
+
+    spinBox->setFixedHeight(PaddingVS + lineEditTextTF.lineHeight() + PaddingVS);
+}
+
+static QSize spinBoxSizeHint(const QSize &parentHint)
+{
+    return {PaddingHM + parentHint.width() + spinBoxButtonWidth(),
+            PaddingVS + lineEditTextTF.lineHeight() + PaddingVS};
+}
+
+QtcSpinBox::QtcSpinBox(QWidget *parent)
+    : QSpinBox(parent)
+{
+    setupSpinBox(this);
+    lineEdit()->setTextMargins({PaddingHM, 0, 0, 0});
+}
+
+QSize QtcSpinBox::sizeHint() const
+{
+    return spinBoxSizeHint(QSpinBox::sizeHint());
+}
+
+QSize QtcSpinBox::minimumSizeHint() const
+{
+    return spinBoxSizeHint(QSpinBox::minimumSizeHint());
+}
+
+void QtcSpinBox::paintEvent(QPaintEvent *event)
+{
+    QPainter p(this);
+    paintCommonBackground(&p, rect(), this);
+    QSpinBox::paintEvent(event);
+}
+
+void QtcSpinBox::enterEvent(QEnterEvent *event)
+{
+    QSpinBox::enterEvent(event);
+    update();
+}
+
+void QtcSpinBox::leaveEvent(QEvent *event)
+{
+    QSpinBox::leaveEvent(event);
+    update();
+}
+
+QtcDoubleSpinBox::QtcDoubleSpinBox(QWidget *parent)
+    : QDoubleSpinBox(parent)
+{
+    setupSpinBox(this);
+    lineEdit()->setTextMargins({PaddingHM, 0, 0, 0});
+}
+
+QSize QtcDoubleSpinBox::sizeHint() const
+{
+    return spinBoxSizeHint(QDoubleSpinBox::sizeHint());
+}
+
+QSize QtcDoubleSpinBox::minimumSizeHint() const
+{
+    return spinBoxSizeHint(QDoubleSpinBox::minimumSizeHint());
+}
+
+void QtcDoubleSpinBox::paintEvent(QPaintEvent *event)
+{
+    QPainter p(this);
+    paintCommonBackground(&p, rect(), this);
+    QDoubleSpinBox::paintEvent(event);
+}
+
+void QtcDoubleSpinBox::enterEvent(QEnterEvent *event)
+{
+    QDoubleSpinBox::enterEvent(event);
+    update();
+}
+
+void QtcDoubleSpinBox::leaveEvent(QEvent *event)
+{
+    QDoubleSpinBox::leaveEvent(event);
+    update();
+}
+
 constexpr TextFormat comboBoxTf {
     .themeColor = Theme::Token_Text_Default, // All states except disabled
     .uiElement = StyleHelper::UiElementLabelMedium,
@@ -734,6 +863,77 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
             p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(),
                                        mnemonicTextFlag(this));
         p.drawText(textR, textFlags(SwitchLabelTf, this), elidedLabel);
+    }
+}
+
+constexpr QSize checkBoxBoxS(16, 16);
+
+QtcCheckBox::QtcCheckBox(const QString &text, QWidget *parent)
+    : QAbstractButton(parent)
+{
+    setText(text);
+    setCheckable(true);
+    setAttribute(Qt::WA_Hover);
+    setAttribute(Qt::WA_LayoutUsesWidgetRect);
+}
+
+QSize QtcCheckBox::sizeHint() const
+{
+    const QFontMetrics fm(SwitchLabelTf.font());
+    const int textWidth = fm.size(Qt::TextShowMnemonic, text()).width();
+    const int width = checkBoxBoxS.width() + GapHM + textWidth;
+    return {width, PaddingVS + SwitchLabelTf.lineHeight() + PaddingVS};
+}
+
+QSize QtcCheckBox::minimumSizeHint() const
+{
+    return checkBoxBoxS;
+}
+
+void QtcCheckBox::paintEvent([[maybe_unused]] QPaintEvent *event)
+{
+    const int boxY = (height() - checkBoxBoxS.height()) / 2;
+    const QRect boxR(QPoint(0, boxY), checkBoxBoxS);
+    const bool checkedEnabled = isChecked() && isEnabled();
+    const bool hovered = underMouse();
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+
+    { // box
+        const QBrush fill = creatorColor(
+            checkedEnabled ? (isDown()  ? Theme::Token_Accent_Subtle
+                              : hovered ? Theme::Token_Accent_Muted
+                                        : Theme::Token_Accent_Default)
+                           : isEnabled() && isDown() ? Theme::Token_Foreground_Muted
+                                                     : Theme::Token_Foreground_Subtle);
+        const QPen outline = checkedEnabled ? QPen(Qt::NoPen)
+                                            : creatorColor(hovered && isEnabled()
+                                                               ? Theme::Token_Stroke_Muted
+                                                               : Theme::Token_Stroke_Subtle);
+        StyleHelper::drawCardBg(&p, boxR, fill, outline, RadiusS);
+    }
+    if (isChecked()) { // check mark
+        const QColor color = creatorColor(isEnabled() ? Theme::Token_Text_On_Accent
+                                                      : Theme::Token_Text_Subtle);
+        QPen pen(color, 2);
+        pen.setCapStyle(Qt::RoundCap);
+        pen.setJoinStyle(Qt::RoundJoin);
+        p.setPen(pen);
+        p.setBrush(Qt::NoBrush);
+        const QPointF check[] = {boxR.topLeft() + QPointF(4, 8.5),
+                                 boxR.topLeft() + QPointF(6.75, 11.25),
+                                 boxR.topLeft() + QPointF(12, 5)};
+        p.drawPolyline(check, 3);
+    }
+    { // text label
+        const int boxAndGapWidth = checkBoxBoxS.width() + GapHM;
+        const QRect textR(boxAndGapWidth, 0, width() - boxAndGapWidth,
+                          boxY + checkBoxBoxS.height());
+        p.setFont(SwitchLabelTf.font());
+        p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
+        const QString elidedLabel =
+            p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);
+        p.drawText(textR, SwitchLabelTf.drawTextFlags, elidedLabel);
     }
 }
 
@@ -1396,6 +1596,68 @@ void Switch::onClicked(QObject *guard, const std::function<void()> &func)
     QObject::connect(Layouting::Tools::access(this), &QtcSwitch::clicked, guard, func);
 }
 
+CheckBox::CheckBox()
+{
+    ptr = new Implementation({});
+}
+
+CheckBox::CheckBox(std::initializer_list<I> ps)
+    : CheckBox()
+{
+    Layouting::Tools::apply(this, ps);
+}
+
+void CheckBox::setText(const QString &text)
+{
+    Layouting::Tools::access(this)->setText(text);
+}
+
+void CheckBox::setChecked(bool checked)
+{
+    Layouting::Tools::access(this)->setChecked(checked);
+}
+
+void CheckBox::onClicked(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcCheckBox::clicked, guard, func);
+}
+
+SpinBox::SpinBox()
+{
+    ptr = new Implementation();
+}
+
+SpinBox::SpinBox(std::initializer_list<I> ps)
+    : SpinBox()
+{
+    Layouting::Tools::apply(this, ps);
+}
+
+void SpinBox::setMinimum(int minimum)
+{
+    Layouting::Tools::access(this)->setMinimum(minimum);
+}
+
+void SpinBox::setMaximum(int maximum)
+{
+    Layouting::Tools::access(this)->setMaximum(maximum);
+}
+
+void SpinBox::setRange(int minimum, int maximum)
+{
+    Layouting::Tools::access(this)->setRange(minimum, maximum);
+}
+
+void SpinBox::setValue(int value)
+{
+    Layouting::Tools::access(this)->setValue(value);
+}
+
+void SpinBox::onValueChanged(QObject *guard, const std::function<void(int)> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcSpinBox::valueChanged, guard, func);
+}
+
 ProgressBar::ProgressBar()
 {
     ptr = new Implementation();
@@ -1634,6 +1896,66 @@ void QtDesignSystemStyle::drawControl(ControlElement element, const QStyleOption
         QCommonStyle::drawControl(element, opt, painter, widget);
         break;
     }
+}
+
+void QtDesignSystemStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *opt,
+                                             QPainter *painter, const QWidget *widget) const
+{
+    switch (control) {
+    case CC_SpinBox: {
+        // The common background including the frame is painted by QtcSpinBox;
+        // only the step buttons are drawn here.
+        const auto *spinOpt = qstyleoption_cast<const QStyleOptionSpinBox *>(opt);
+        if (!spinOpt)
+            break;
+        const auto drawArrow = [&](SubControl sc, bool up,
+                                   QAbstractSpinBox::StepEnabledFlag stepFlag) {
+            if (!(spinOpt->subControls & sc))
+                return;
+            const bool enabled = (spinOpt->state & State_Enabled)
+                                 && (spinOpt->stepEnabled & stepFlag);
+            const bool active = enabled && (spinOpt->activeSubControls & sc);
+            const WidgetState state = !enabled ? WidgetStateDisabled
+                                      : active ? WidgetStateHovered : WidgetStateDefault;
+            const QPixmap &icon = spinBoxArrow(up, state);
+            const QRect r = subControlRect(CC_SpinBox, opt, sc, widget)
+                                .translated(0, up ? PaddingVXxs : -PaddingVXxs);
+            const QSize iconS = icon.deviceIndependentSize().toSize();
+            const QPoint pos(r.x() + (r.width() - iconS.width()) / 2,
+                             r.y() + (r.height() - iconS.height()) / 2);
+            painter->drawPixmap(pos, icon);
+        };
+        drawArrow(SC_SpinBoxUp, true, QAbstractSpinBox::StepUpEnabled);
+        drawArrow(SC_SpinBoxDown, false, QAbstractSpinBox::StepDownEnabled);
+        break;
+    }
+    default:
+        QCommonStyle::drawComplexControl(control, opt, painter, widget);
+        break;
+    }
+}
+
+QRect QtDesignSystemStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *opt,
+                                          SubControl subControl, const QWidget *widget) const
+{
+    if (control == CC_SpinBox) {
+        const QRect r = opt->rect;
+        const int buttonW = spinBoxButtonWidth();
+        switch (subControl) {
+        case SC_SpinBoxFrame:
+            return r;
+        case SC_SpinBoxEditField:
+            return r.adjusted(0, 0, -buttonW, 0);
+        case SC_SpinBoxUp:
+            return {r.x() + r.width() - buttonW, r.y(), buttonW, r.height() / 2};
+        case SC_SpinBoxDown:
+            return {r.x() + r.width() - buttonW, r.y() + r.height() / 2, buttonW,
+                    r.height() - r.height() / 2};
+        default:
+            break;
+        }
+    }
+    return QCommonStyle::subControlRect(control, opt, subControl, widget);
 }
 
 void QtDesignSystemStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *opt,
