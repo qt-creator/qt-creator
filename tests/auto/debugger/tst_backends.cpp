@@ -726,7 +726,8 @@ static QString watchdogProbeCommand(Backend backend, int seconds)
         return QString("shell sleep %1").arg(seconds);
     case Backend::Cdb:
         // cdb has a wait of its own; ".shell" would need a console for its child.
-        return QString(".sleep %1").arg(seconds * 1000);
+        // "0n" spells the milliseconds out in decimal: cdb reads a number as hex.
+        return QString(".sleep 0n%1").arg(seconds * 1000);
     case Backend::Lldb:
         return QString("platform shell sleep %1").arg(seconds);
     case Backend::Pdb:
