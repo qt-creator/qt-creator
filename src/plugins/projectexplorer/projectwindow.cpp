@@ -710,7 +710,7 @@ class TargetSetupPageWrapper final : public QWidget
 public:
     explicit TargetSetupPageWrapper(Project *project)
         : m_project(project)
-        , m_configureButton(Tr::tr("Configure Project"), QtcButton::MediumPrimary)
+        , m_configureButton(Tr::tr("&Configure Project"), QtcButton::MediumPrimary)
     {
         setWindowTitle(Tr::tr("Configure Project"));
 
