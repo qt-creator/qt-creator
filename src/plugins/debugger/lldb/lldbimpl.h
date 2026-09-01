@@ -91,7 +91,12 @@ private:
     bool m_inferiorExited = false;
     std::optional<int> m_inferiorExitCode;
     bool m_inferiorExitReported = false;
+    void interruptInferior();
+
     bool m_inferiorRunning = false;
+    bool m_interruptOnceRunning = false;
+    bool m_resumeAfterAttachPending = false;
+
     bool m_detached = false;
     qint64 m_inferiorPid = -1;
 };

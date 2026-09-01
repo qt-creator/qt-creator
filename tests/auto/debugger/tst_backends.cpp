@@ -1021,6 +1021,8 @@ private slots:
     void executesRunToLineFunctionAndJumpsToLine();
     void runsToAnAmbiguousLine_data() { addBackendRows(); }
     void runsToAnAmbiguousLine();
+    void interruptsRightAfterAttaching_data() { addBackendRows(); }
+    void interruptsRightAfterAttaching();
     void refusesJumpToAnAmbiguousLine_data() { addBackendRows(); }
     void refusesJumpToAnAmbiguousLine();
     void insertsWatchpointAndCatchpoint_data() { addBackendRows(); }
@@ -5263,6 +5265,72 @@ void tst_backends::refusesJumpToAnAmbiguousLine()
                         + " - reported: " + Utils::transform(reportedLines, [](int line) {
                               return QString::number(line);
                           }).join(", ")));
+}
+
+// Asking for a stop the moment an attach is reported: a backend that resumes
+// the inferior on attach is in the middle of doing so, and the debugger may
+// refuse an interrupt in that window - which must not be answered with a stop
+// that did not happen.
+void tst_backends::interruptsRightAfterAttaching()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToProcess); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    Process target;
+    target.setCommand({testData.executable, {}});
+    target.start();
+    QVERIFY(target.waitForStarted());
+    QString targetOutput;
+    auto sawOutput = [&] {
+        targetOutput += target.readAllStandardOutput();
+        return targetOutput.contains(testData.applicationOutputMarker);
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(sawOutput(), s_timeout);
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(
+        backend, AttachToProcessData{ProcessHandle(target.processId())});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+                             || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed), "attaching failed");
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Interrupt});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk),
+                              "the interrupt right after attaching never reported a stop",
+                              s_timeout);
+
+    // The stop has to be real, which only the stack can say: a backend that
+    // reports one without holding the inferior has no frames to show.
+    GdbMi stack;
+    bool stackReceived = false;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&stack, &stackReceived](quint64, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::FullStack) {
+            stack = data;
+            stackReceived = true;
+        }
+    });
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 341;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(stackReceived, s_timeout);
+    QVERIFY2(stack["stack"]["frames"].childCount() > 0,
+             qPrintable("the reported stop has no stack: " + stack.toString()));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
 }
 
 void tst_backends::insertsWatchpointAndCatchpoint()

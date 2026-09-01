@@ -481,7 +481,11 @@ void LldbImpl::execute(const ExecutionRequest &request)
         }});
         break;
     case ExecutionCommand::Interrupt:
-        if (!m_inferiorRunning) {
+        // Attaching reports its stop and resumes right after, so "not running"
+        // does not mean the inferior is being held: with a resume in flight,
+        // lldb refuses the interrupt, and the caller would wait for a stop that
+        // is never coming. Ask again once the inferior really runs.
+        if (!m_inferiorRunning && !m_resumeAfterAttachPending) {
             emit inferiorEvent(InferiorEvent::StopOk);
             break;
         }
@@ -490,7 +494,11 @@ void LldbImpl::execute(const ExecutionRequest &request)
             emit interruptTerminalRequested();
             break;
         }
-        runCommand({"interruptInferior"});
+        if (!m_inferiorRunning) {
+            m_interruptOnceRunning = true;
+            break;
+        }
+        interruptInferior();
         break;
     case ExecutionCommand::StepIn:
         emit inferiorEvent(InferiorEvent::RunRequested);
@@ -1009,15 +1017,37 @@ void LldbImpl::handleTracepointHit(const GdbMi &item)
     emit message(formatted, LogMisc);
 }
 
+void LldbImpl::interruptInferior()
+{
+    runCommand({"interruptInferior", [this](const DebuggerResponse &response) {
+        if (response.data["success"].toInt())
+            return;
+        // A refusal has to be heard: nothing else reports this stop as failed.
+        emit message("LldbImpl: cannot interrupt the inferior: "
+                     + response.data["error"]["status"].data(), LogError);
+        emit inferiorEvent(InferiorEvent::StopFailed);
+    }});
+}
+
 void LldbImpl::handleStateReport(const GdbMi &item)
 {
     const QString state = item.data();
     if (state == "running") {
+        m_resumeAfterAttachPending = false;
         m_inferiorRunning = true;
         emit inferiorEvent(InferiorEvent::RunOk);
+        if (std::exchange(m_interruptOnceRunning, false))
+            interruptInferior();
     } else if (state == "inferiorrunfailed")
         emit inferiorEvent(InferiorEvent::RunFailed);
     else if (state == "stopped") {
+        m_resumeAfterAttachPending = false;
+        if (std::exchange(m_interruptOnceRunning, false)) {
+            m_inferiorRunning = false;
+            fetchLocationAfterStop(InferiorEvent::StopOk);
+            runCommand({"reportBreakpointHit"});
+            return;
+        }
         if (std::exchange(m_continueAtNextSpontaneousStop, false)) {
             runCommand({"continueInferior", DebuggerCommand::RunRequest});
             return;
@@ -1047,7 +1077,9 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         m_inferiorRunning = false;
         emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
         // Only the attaching paths report this state, and they all leave the inferior
-        // stopped. Resume it, as LldbEngine does.
+        // stopped. Resume it, as LldbEngine does - and note that it is on its way to
+        // running, or an interrupt arriving in between is refused and then lost.
+        m_resumeAfterAttachPending = true;
         runCommand({"continueInferior", DebuggerCommand::RunRequest});
         if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData))
             emit kickoffTerminalProcessRequested();
