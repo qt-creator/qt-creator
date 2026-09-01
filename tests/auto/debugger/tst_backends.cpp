@@ -154,6 +154,14 @@ struct InferiorTestData
 {
     FilePath source;
     FilePath executable;
+    // A second, small inferior built for the other word width, which the host
+    // debugs through a compatibility layer. Empty where no toolchain for it was
+    // found. It burns CPU rather than sleeping, so that interrupting it lands in
+    // its own code instead of inside the layer's syscall thunk.
+    FilePath otherWordWidthSource;
+    FilePath otherWordWidthExecutable;
+    int otherWordWidthBreakpointLine = 0;
+    QString otherWordWidthFunction;
     int breakpointLine = 0;
     int secondBreakpointLine = 0;
     int deepRecursionBreakpointLine = 0;
@@ -1101,6 +1109,10 @@ private slots:
     void attachesToRunningProcess();
     void reportsTheStackOfASelectedThread_data() { addBackendRows(); }
     void reportsTheStackOfASelectedThread();
+    void stopsAtABreakpointInAnInferiorOfTheOtherWordWidth_data() { addBackendRows(); }
+    void stopsAtABreakpointInAnInferiorOfTheOtherWordWidth();
+    void reportsTheStackOfAnInferiorOfTheOtherWordWidth_data() { addBackendRows(); }
+    void reportsTheStackOfAnInferiorOfTheOtherWordWidth();
     void attachesToTerminalRunProcess_data() { addBackendRows(); }
     void attachesToTerminalRunProcess();
     void attachesToRunningRemoteServer_data() { addBackendRows(); }
@@ -1124,6 +1136,7 @@ private slots:
 private:
     void addBackendRows();
     void warmUpBackends();
+    void buildOtherWordWidthInferior(const FilePath &compiler, InferiorTestData &data);
     // The flags default to what the settings default to, so a test only names
     // what it wants to be different.
     std::unique_ptr<DebuggerBackend> createEngine(Backend backend,
@@ -1877,6 +1890,7 @@ void tst_backends::initTestCase()
         cdbCompileTimer.start();
         cdbCompile.runBlocking(s_compileTimeout);
         if (cdbCompile.result() == ProcessResult::FinishedWithSuccess) {
+            buildOtherWordWidthInferior(cdbCompiler, msvcInferiorData);
             m_backendData[Backend::Cdb].inferiorData = msvcInferiorData;
             m_backendData[Backend::Cdb].inferiorData.versionLine = cdbVersionLine;
             m_backendData[Backend::Cdb].inferiorData.answersRedundantContinue = true;
@@ -2002,6 +2016,92 @@ void tst_backends::initTestCase()
     m_backendData[Backend::Pdb].inferiorData.moduleSymbolsPath = FilePath::fromString("__main__");
 
     warmUpBackends();
+}
+
+// The inferior a host debugs through its compatibility layer for the other word
+// width. Built with the toolchain's own environment for that width, which the
+// tests skip without.
+void tst_backends::buildOtherWordWidthInferior(const FilePath &compiler, InferiorTestData &data)
+{
+    const QString configured = qtcEnvironmentVariable("QTC_MSVC_ENV_BAT_32");
+    FilePath batchFile = configured.isEmpty() ? FilePath() : FilePath::fromUserInput(configured);
+    for (FilePath dir = compiler.parentDir();
+         batchFile.isEmpty() && !dir.isEmpty() && dir != dir.parentDir(); dir = dir.parentDir()) {
+        const FilePath candidate = dir / "Auxiliary" / "Build" / "vcvarsamd64_x86.bat";
+        if (candidate.isFile())
+            batchFile = candidate;
+    }
+    if (!batchFile.isFile()) {
+        qWarning("No 32-bit MSVC environment found next to %s - set QTC_MSVC_ENV_BAT_32 to "
+                 "build an inferior of the other word width.", qPrintable(compiler.toUserOutput()));
+        return;
+    }
+
+    Environment env = Environment::systemEnvironment();
+    const QMap<QString, QString> pairs = environmentFromBatchFile(env, batchFile.nativePath());
+    for (auto it = pairs.cbegin(); it != pairs.cend(); ++it)
+        env.set(it.key(), it.value());
+    const FilePath compiler32 = env.searchInPath("cl.exe");
+    if (!compiler32.isExecutableFile() || !env.hasKey("INCLUDE")) {
+        qWarning("%s left no usable cl.exe for the other word width.",
+                 qPrintable(batchFile.toUserOutput()));
+        return;
+    }
+
+    const QStringList lines = {
+        "#include <cstdio>",
+        "",
+        "volatile bool keepSpinning = true;",
+        "volatile double sink = 0;",
+        "",
+        "int burn()",
+        "{",
+        "    for (int i = 1; i < 100000; ++i)",
+        "        sink += 1.0 / i; // breakpoint line",
+        "    return int(sink);",
+        "}",
+        "",
+        "int main()",
+        "{",
+        "    printf(\"started\\n\");",
+        "    fflush(stdout);",
+        "    while (keepSpinning)",
+        "        burn();",
+        "    return 0;",
+        "}",
+        "",
+    };
+    const FilePath source = FilePath::fromString(m_tempDir.path()) / "inferior_otherwidth.cpp";
+    if (!source.writeFileContents(lines.join('\n').toUtf8())) {
+        qWarning("Could not write %s.", qPrintable(source.toUserOutput()));
+        return;
+    }
+    const FilePath executable = (FilePath::fromString(m_tempDir.path()) / "inferior_otherwidth")
+                                    .withExecutableSuffix();
+    const FilePath pdb = FilePath::fromString(m_tempDir.path()) / "inferior_otherwidth.pdb";
+    Process compile;
+    compile.setCommand({compiler32, {"/nologo", "/Zi", "/Od", "/EHsc",
+                                     "/Fe:" + executable.nativePath(),
+                                     "/Fd:" + pdb.nativePath(),
+                                     "/Fo:" + FilePath::fromString(m_tempDir.path()).nativePath()
+                                         + "\\",
+                                     source.nativePath()}});
+    compile.setEnvironment(env);
+    QElapsedTimer timer;
+    timer.start();
+    compile.runBlocking(s_compileTimeout);
+    if (compile.result() != ProcessResult::FinishedWithSuccess) {
+        qWarning("%s", qPrintable(compileFailure("compiling the inferior of the other word width",
+                                                 compile, timer.elapsed())));
+        return;
+    }
+    data.otherWordWidthSource = source;
+    data.otherWordWidthExecutable = executable;
+    data.otherWordWidthFunction = "burn";
+    for (int i = 0; i < lines.size(); ++i) {
+        if (lines.at(i).contains("breakpoint line"))
+            data.otherWordWidthBreakpointLine = i + 1;
+    }
 }
 
 void tst_backends::warmUpBackends()
@@ -7457,6 +7557,162 @@ void tst_backends::reportsTheStackOfASelectedThread()
     QVERIFY2(functions.contains("main"),
              qPrintable("the selected thread's stack does not reach main, only: "
                         + functions.join(", ")));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
+    target.waitForFinished();
+}
+
+void tst_backends::stopsAtABreakpointInAnInferiorOfTheOtherWordWidth()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.otherWordWidthExecutable.isEmpty())
+        QSKIP("No inferior of the other word width was built for this backend.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{testData.otherWordWidthExecutable, {}}, {},
+                       Environment::systemEnvironment()});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        insertResults[requestId] = ok;
+    });
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, testData](InferiorEvent event) {
+        if (event == InferiorEvent::EngineSetupOk) {
+            BreakpointChangeRequest request;
+            request.op = BreakpointOp::Insert;
+            request.requestId = 320;
+            request.params.type = BreakpointByFileAndLine;
+            request.params.fileName = testData.otherWordWidthSource;
+            request.params.textPosition.line = testData.otherWordWidthBreakpointLine;
+            request.params.enabled = true;
+            engine->changeBreakpoint(request);
+        }
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(320)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY2(insertResults.value(320), "the breakpoint was never inserted");
+
+    // The layer breaks once on its own account while starting up. Where that stop
+    // is not waved through, the inferior never reaches this breakpoint.
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "never stopped at the breakpoint in the inferior of the other "
+                              "word width", s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), testData.otherWordWidthBreakpointLine);
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 321;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+
+    // Stopped in its own code the inferior is read directly, and steering the
+    // layer here would take the frames below the current one apart.
+    const GdbMi frames = responses.value(int(RefreshKind::FullStack))["stack"]["frames"];
+    QStringList functions;
+    for (int i = 0; i < frames.childCount(); ++i)
+        functions << frames.childAt(i)["function"].data();
+    QVERIFY2(functions.contains(testData.otherWordWidthFunction) && functions.contains("main"),
+             qPrintable("the stack does not run from " + testData.otherWordWidthFunction
+                        + " to main, only: " + functions.join(", ")));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
+}
+
+void tst_backends::reportsTheStackOfAnInferiorOfTheOtherWordWidth()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToProcess); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.otherWordWidthExecutable.isEmpty())
+        QSKIP("No inferior of the other word width was built for this backend.");
+
+    Process target;
+    target.setCommand({testData.otherWordWidthExecutable, {}});
+    target.start();
+    QVERIFY(target.waitForStarted());
+    // Output of its own means it is past the loader and burning CPU in its own code.
+    QString targetOutput;
+    auto sawOutput = [&] {
+        targetOutput += target.readAllStandardOutput();
+        return targetOutput.contains("started");
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(sawOutput(), s_timeout);
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(
+        backend, AttachToProcessData{ProcessHandle(target.processId())});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+                             || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+             "attaching to the inferior of the other word width failed");
+    if (!debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)) {
+        debuggerBackend->clearEvents();
+        debuggerBackend->execute({ExecutionCommand::Interrupt});
+        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+    }
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    // A stack is read for the thread in focus, and attaching parks the debugger on
+    // the thread it injected to break in with, not on one of the inferior's own.
+    RefreshRequest threadsRequest;
+    threadsRequest.kind = RefreshKind::Threads;
+    threadsRequest.requestId = 322;
+    engine->refresh(threadsRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Threads)), s_timeout);
+    const GdbMi threads = responses.value(int(RefreshKind::Threads))["threads"];
+    QVERIFY2(threads.childCount() > 0, "the inferior reported no threads");
+    engine->selectThread(threads.childAt(0)["id"].data());
+
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 323;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+
+    // Read through the compatibility layer, only the innermost frame comes out
+    // right and every caller below it is garbage.
+    const GdbMi frames = responses.value(int(RefreshKind::FullStack))["stack"]["frames"];
+    QStringList functions;
+    for (int i = 0; i < frames.childCount(); ++i)
+        functions << frames.childAt(i)["function"].data();
+    QVERIFY2(functions.contains(testData.otherWordWidthFunction) && functions.contains("main"),
+             qPrintable("the stack does not run from " + testData.otherWordWidthFunction
+                        + " to main, only: " + functions.join(", ")));
 
     debuggerBackend->clearEvents();
     engine->shutdownInferior(ShutdownMode::Kill);

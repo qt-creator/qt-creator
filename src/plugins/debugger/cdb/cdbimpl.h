@@ -82,6 +82,10 @@ private:
     void restartSession();
     bool isAttach() const;
     bool isCore() const;
+    enum class Wow64State { Unknown, None, Stack32Bit };
+    void ensureStackBitness(const std::function<void()> &whenReady);
+    void checkStackBitness(bool maySwitch);
+    void settleStackBitness(Wow64State state);
     void resumeAfterSetup();
     class InterpreterBreakpoint
     {
@@ -142,6 +146,8 @@ private:
     bool m_inInternalStop = false;
     bool m_callbackStop = false;
     QList<DebuggerCommand> m_deferredCommands;
+    Wow64State m_wow64State = Wow64State::Unknown;
+    QList<std::function<void()>> m_pendingStackBitness;
     bool m_interpreterMessageWatchArmed = false;
     QString m_interpreterMessageWatchId;
     bool m_inferiorRunning = false;

@@ -1154,6 +1154,8 @@ void CdbImpl::restartSession()
     m_inInternalStop = false;
     m_callbackStop = false;
     m_deferredCommands.clear();
+    m_wow64State = Wow64State::Unknown;
+    m_pendingStackBitness.clear();
     m_evaluatingCondition = false;
     m_expandingTracepoint = false;
     m_lastOperateByInstruction.reset();
@@ -1184,6 +1186,61 @@ bool CdbImpl::isCore() const
     return std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData);
 }
 
+// A 32-bit inferior on a 64-bit host runs behind the wow64 layer, and until cdb
+// is switched over to it, the layer's own frames and registers are all it reads
+// of the inferior.
+void CdbImpl::ensureStackBitness(const std::function<void()> &whenReady)
+{
+    if (m_wow64State != Wow64State::Unknown) {
+        whenReady();
+        return;
+    }
+    m_pendingStackBitness.append(whenReady);
+    if (m_pendingStackBitness.size() > 1) // A check is already on its way.
+        return;
+    runCommand({"lm m wow64", BuiltinCommand, [this](const DebuggerResponse &response) {
+        if (!response.data.data().contains("wow64")) {
+            settleStackBitness(Wow64State::None);
+            return;
+        }
+        checkStackBitness(true);
+    }});
+}
+
+void CdbImpl::settleStackBitness(Wow64State state)
+{
+    m_wow64State = state;
+    const QList<std::function<void()>> pending = m_pendingStackBitness;
+    m_pendingStackBitness.clear();
+    for (const std::function<void()> &callback : pending)
+        callback();
+}
+
+// The header of "k" names the frame pointer of the mode cdb is in: "ChildEBP" for
+// the 32-bit stack, "Child-SP" for the 64-bit one. CdbEngine reads the reply of
+// the switch instead, which no longer says what it expects.
+void CdbImpl::checkStackBitness(bool maySwitch)
+{
+    runCommand({"k", BuiltinCommand, [this, maySwitch](const DebuggerResponse &response) {
+        const QStringList lines = response.data.data().split('\n');
+        for (const QString &line : lines) {
+            if (line.startsWith("ChildEBP")) {
+                settleStackBitness(Wow64State::Stack32Bit);
+                return;
+            }
+            if (line.startsWith("Child-SP")) {
+                if (!maySwitch)
+                    break;
+                runCommand({"!wow64exts.sw", BuiltinCommand, [this](const DebuggerResponse &) {
+                    checkStackBitness(false);
+                }});
+                return;
+            }
+        }
+        settleStackBitness(Wow64State::None);
+    }});
+}
+
 void CdbImpl::resumeAfterSetup()
 {
     if (!m_commandForToken.isEmpty()) {
@@ -1200,6 +1257,7 @@ void CdbImpl::initializeSession(const std::function<void()> &whenReady)
 {
     runCommand({"sxn ibp", NoFlags});
     runCommand({"sxn ud", NoFlags});
+    runCommand({"sxn 0x4000001f", NoFlags}); // The wow64 layer's own breakpoint.
     runCommand({".asm source_line", NoFlags});
     if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
         const FilePath inferiorDir = std::get<ProcessRunData>(
@@ -1320,6 +1378,10 @@ static GdbMi stackTreeFromFrames(const GdbMi &reply)
 
 void CdbImpl::refresh(const RefreshRequest &request)
 {
+    if (m_wow64State == Wow64State::Unknown) {
+        ensureStackBitness([this, request] { refresh(request); });
+        return;
+    }
     if (request.kind == RefreshKind::FullBacktrace) {
         const quint64 requestId = request.requestId;
         runCommand({"~*kp", BuiltinCommand,
@@ -1864,6 +1926,10 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
 
 void CdbImpl::reportStop(const GdbMi &stopData)
 {
+    if (m_wow64State == Wow64State::Unknown) {
+        ensureStackBitness([this, stopData] { reportStop(stopData); });
+        return;
+    }
     const GdbMi stack = stopData["stack"];
     if (stack.childCount() > 0) {
         const GdbMi &topFrame = stack.childAt(0);
