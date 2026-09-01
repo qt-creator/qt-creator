@@ -482,6 +482,7 @@ static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
                 {"show debug-file-directory", existingDir.path()},
                 {"show solib-search-path", "/qtc-test-solib"}};
     case Backend::Lldb:
+        return {{"settings show target.exec-search-paths", "/qtc-test-solib"}};
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
@@ -518,6 +519,17 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
 // setting does not exist on other architectures, which the test probes for.
 // The configured flavor as it appears in the traffic: gdb keeps it in a
 // setting, lldb takes it with every disassembly request.
+// The markers a fully configured engine must produce. A backend that runs the
+// post-attach commands only when it really attaches has nothing to show for
+// them on a plain run.
+static QStringList configuredOptionMarkers(Backend backend)
+{
+    QStringList markers{"QTCSTARTUPMARKER", "QTCEXTRADUMPERCOMMAND"};
+    if (backend == Backend::Gdb)
+        markers << "QTCPOSTATTACHMARKER";
+    return markers;
+}
+
 static QString disassemblyFlavorWireMarker(Backend backend)
 {
     switch (backend) {
@@ -1340,6 +1352,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
                 Environment::systemEnvironment()},
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .intelDisassembly = true,
+            .startupCommands = {"script print('QTCSTARTUPMARKER')"},
+            .solibSearchPath = {FilePath::fromUserInput("/qtc-test-solib")},
             .extraDumperFile = existingDir / "qtc_extra_dumper.py",
             .extraDumperCommands = "script print('QTCEXTRADUMPERCOMMAND')"}));
     case Backend::Pdb:
@@ -5872,8 +5886,11 @@ void tst_backends::appliesConfiguredDebuggerOptions()
     const FilePath existingDir = FilePath::fromString(m_tempDir.path()) / "configured";
     QVERIFY(existingDir.ensureWritableDir());
     // Loading the module runs it, which is all the test needs to see.
+    // The module says it ran by writing a file: a print reaches the log through
+    // gdb's console records, while lldb keeps the bridge's own output to itself.
+    const FilePath moduleTrace = existingDir / "qtc_extra_dumper_loaded";
     QVERIFY((existingDir / "qtc_extra_dumper.py").writeFileContents(
-        "print(\"QTCEXTRADUMPERMODULE\")\n"));
+        QString("open(r\"%1\", \"w\").close()\n").arg(moduleTrace.path()).toUtf8()));
     const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend, existingDir);
     if (probes.isEmpty())
         QSKIP("This backend has no configurable options wired yet.");
@@ -5894,11 +5911,13 @@ void tst_backends::appliesConfiguredDebuggerOptions()
             return text.contains(marker);
         });
     };
-    QVERIFY2(sawMessage("QTCSTARTUPMARKER"), "the configured startup commands never ran");
-    QVERIFY2(sawMessage("QTCEXTRADUMPERCOMMAND"), "the extra dumper commands never ran");
-    QVERIFY2(sawMessage("QTCEXTRADUMPERMODULE"), "the extra dumper module was never loaded");
-    QTRY_VERIFY2_WITH_TIMEOUT(sawMessage("QTCPOSTATTACHMARKER"),
-                              "the configured post-attach commands never ran", s_timeout);
+    for (const QString &marker : configuredOptionMarkers(backend)) {
+        QTRY_VERIFY2_WITH_TIMEOUT(sawMessage(marker),
+                                  qPrintable("a configured option left no " + marker),
+                                  s_timeout);
+    }
+    QTRY_VERIFY2_WITH_TIMEOUT(moduleTrace.exists(),
+                              "the extra dumper module was never imported", s_timeout);
 
     for (const ConfiguredOptionProbe &probe : probes) {
         messages.clear();

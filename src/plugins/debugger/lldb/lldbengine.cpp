@@ -1268,7 +1268,12 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
         .deviceSymbolsRoot = rp.deviceSymbolsRoot(),
         .deviceUuid = rp.deviceUuid(),
         .platform = rp.lldbPlatform(),
+        .startupCommands = Utils::filtered(
+            QString(settings().gdbStartupCommands() + '\n' + rp.additionalStartupCommands())
+                .split('\n', Qt::SkipEmptyParts),
+            [](const QString &line) { return !line.trimmed().startsWith('#'); }),
         .postAttachCommands = settings().gdbPostAttachCommands().split('\n', Qt::SkipEmptyParts),
+        .solibSearchPath = rp.solibSearchPath(),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
         .extraDumperFile = settings().extraDumperFile(),

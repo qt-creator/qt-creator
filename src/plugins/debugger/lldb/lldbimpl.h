@@ -31,7 +31,10 @@ public:
     QString deviceSymbolsRoot;
     QString deviceUuid;
     QString platform;
+    QStringList startupCommands;
     QStringList postAttachCommands;
+    // Where to look for the shared libraries the inferior loads.
+    Utils::FilePaths solibSearchPath;
     int qtVersion = 0;
     QString qtNamespace;
     Utils::FilePath extraDumperFile;

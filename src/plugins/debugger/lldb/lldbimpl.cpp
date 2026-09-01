@@ -266,6 +266,8 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
     , m_startData(startData)
 {
     m_lldbProc.setProcessMode(ProcessMode::Writer);
+    // Interrupting a Windows inferior goes through the stub, as in LldbEngine.
+    m_lldbProc.setUseCtrlCStub(true);
 
     m_watchdog.setSingleShot(true);
     m_watchdog.setInterval(m_startData.watchdogTimeout);
@@ -302,13 +304,26 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         runCommand({"settings set target.max-string-summary-length 10000",
                     DebuggerCommand::NativeCommand});
 
+        // Through the same path the engine used: it reports what the command
+        // printed, which a native command drops on the floor.
+        for (const QString &command : m_startData.startupCommands)
+            executeDebuggerCommand(command, {});
+
+        for (const Utils::FilePath &path : m_startData.solibSearchPath) {
+            runCommand({"settings append target.exec-search-paths " + path.path(),
+                        DebuggerCommand::NativeCommand});
+        }
+
         if (m_startData.extraDumperFile.isReadableFile()) {
             DebuggerCommand dumperModule("addDumperModule");
             dumperModule.arg("path", m_startData.extraDumperFile.path());
             runCommand(dumperModule);
         }
         if (!m_startData.extraDumperCommands.isEmpty())
-            runCommand({m_startData.extraDumperCommands, DebuggerCommand::NativeCommand});
+            executeDebuggerCommand(m_startData.extraDumperCommands, {});
+
+        // addDumperModule only remembers the module; this is what imports it.
+        runCommand({"loadDumpers"});
 
         DebuggerCommand cmd("setupInferior");
         cmd.arg("breakonmain", m_startData.breakOnMain);
