@@ -7560,7 +7560,11 @@ void tst_backends::attachesToCoreFile()
 
     const FilePath gcorePath = FilePath::fromString("gcore").searchInPath();
     const FilePath lldbPath = lldbPathForTest();
-    if (HostOsInfo::isMacHost() ? !lldbPath.isExecutableFile() : !gcorePath.isExecutableFile())
+    const FilePath cdbPath = m_backendData[Backend::Cdb].path;
+    const bool haveGenerator = HostOsInfo::isMacHost() ? lldbPath.isExecutableFile()
+                             : HostOsInfo::isWindowsHost() ? cdbPath.isExecutableFile()
+                                                           : gcorePath.isExecutableFile();
+    if (!haveGenerator)
         QSKIP("No tool found to generate a core file for this test.");
 
     Process target;
@@ -7576,12 +7580,17 @@ void tst_backends::attachesToCoreFile()
     QTRY_VERIFY_WITH_TIMEOUT(sawAfterBump(), s_timeout);
 
     const FilePath coreFileBase = FilePath::fromString(m_tempDir.path()) / "core";
-    const FilePath coreFile = FilePath::fromString(coreFileBase.nativePath() + "." + QString::number(pid));
+    const FilePath coreFile = coreFileBase.stringAppended("." + QString::number(pid));
     Process coreGenerator;
     if (HostOsInfo::isMacHost()) {
         coreGenerator.setCommand({lldbPath, {"--batch",
             "-o", "process save-core " + coreFile.nativePath(),
             "-o", "detach", "-o", "quit", "--attach-pid", QString::number(pid)}});
+    } else if (HostOsInfo::isWindowsHost()) {
+        // A non-invasive attach puts no thread of its own into the dump, so the
+        // recorded current thread is the debuggee's own one.
+        coreGenerator.setCommand({cdbPath, {"-pv", "-p", QString::number(pid),
+            "-c", ".dump /m " + coreFile.nativePath() + ";q"}});
     } else {
         coreGenerator.setCommand({gcorePath, {"-o", coreFileBase.nativePath(), QString::number(pid)}});
     }

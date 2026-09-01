@@ -177,7 +177,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch
-                    | DebuggerStartModeFlag::AttachToProcess;
+                    | DebuggerStartModeFlag::AttachToProcess
+                    | DebuggerStartModeFlag::AttachToCore;
     return data;
 }
 
@@ -202,6 +203,15 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     } else if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
         const auto &attachData = std::get<AttachToProcessData>(m_startData.inferiorStartData);
         cdbCommand.addArgs({"-p", QString::number(attachData.pid.pid())});
+    } else if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData)) {
+        const auto &coreData = std::get<AttachToCoreData>(m_startData.inferiorStartData);
+        // Loading the dump resolves the modules in it, before any command of
+        // ours can run, so where their symbols are has to be on the command
+        // line: cdb's default of "srv*" would walk the symbol server for each.
+        const FilePath symbolDir = coreData.executable.parentDir();
+        if (!symbolDir.isEmpty())
+            cdbCommand.addArgs({"-y", symbolDir.nativePath()});
+        cdbCommand.addArgs({"-z", coreData.coreFile.nativePath()});
     }
     m_cdbProc.setCommand(cdbCommand);
     if (runData.workingDirectory.isDir())
@@ -284,6 +294,13 @@ void CdbImpl::shutdownEngine()
 void CdbImpl::execute(const ExecutionRequest &request)
 {
     if (m_inferiorExited && request.command != ExecutionCommand::Abort) {
+        emit inferiorEvent(InferiorEvent::InferiorIll);
+        return;
+    }
+    // A dump has nothing to run: cdb answers anything that would resume it with
+    // "No runnable debuggees", and drops whatever was written after it.
+    if (isCore() && request.command != ExecutionCommand::Interrupt
+            && request.command != ExecutionCommand::Abort) {
         emit inferiorEvent(InferiorEvent::InferiorIll);
         return;
     }
@@ -1162,6 +1179,11 @@ bool CdbImpl::isAttach() const
     return std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData);
 }
 
+bool CdbImpl::isCore() const
+{
+    return std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData);
+}
+
 void CdbImpl::resumeAfterSetup()
 {
     if (!m_commandForToken.isEmpty()) {
@@ -1191,7 +1213,7 @@ void CdbImpl::initializeSession(const std::function<void()> &whenReady)
     runCommand({"pid", ExtensionCommand, [this, whenReady](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone)
             emit inferiorPidKnown(response.data.toProcessHandle());
-        else
+        else if (!isCore()) // A dump has no process to ask.
             emit message(QString("CdbImpl: failed to determine the inferior pid: %1")
                              .arg(response.data["msg"].data()), LogError);
         if (whenReady)
@@ -1726,6 +1748,10 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
                     const QHash<QString, BreakpointParameters> restored = m_insertedBreakpoints;
                     for (auto it = restored.cbegin(); it != restored.cend(); ++it)
                         insertBreakpoint(0, it.key(), 0, it.value(), false);
+                } else if (isCore()) {
+                    emit inferiorEvent(InferiorEvent::EngineSetupOk);
+                    emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
+                    return;
                 } else if (isAttach()) {
                     emit inferiorEvent(InferiorEvent::EngineSetupOk);
                     emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);

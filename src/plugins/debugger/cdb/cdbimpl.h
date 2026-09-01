@@ -81,6 +81,7 @@ private:
     void initializeSession(const std::function<void()> &whenReady);
     void restartSession();
     bool isAttach() const;
+    bool isCore() const;
     void resumeAfterSetup();
     class InterpreterBreakpoint
     {
