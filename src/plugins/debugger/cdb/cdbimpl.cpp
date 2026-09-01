@@ -63,6 +63,46 @@ static QList<quint64> ambiguousMatchAddresses(const QStringList &reply)
     return addresses;
 }
 
+// "ModLoad: 00007ffb`842b0000 00007ffb`843ee000   C:\Windows\system32\KERNEL32.DLL",
+// with a bare address pair on 32 bit.
+static std::optional<QString> loadedModule(const QString &line)
+{
+    static const QLatin1String prefix("ModLoad: ");
+    if (!line.startsWith(prefix))
+        return {};
+    static const QRegularExpression addresses(
+        "^[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? +(.*)$");
+    const QRegularExpressionMatch match = addresses.match(line.mid(prefix.size()));
+    if (!match.hasMatch())
+        return {};
+    const QString module = match.captured(3).trimmed();
+    return module.isEmpty() ? std::optional<QString>() : module;
+}
+
+// "Unload module C:\Windows\System32\wininet.dll at 00007ffa`0b670000", which
+// cdb reports only while the unload event is on.
+static std::optional<QString> unloadedModule(const QString &line)
+{
+    static const QLatin1String prefix("Unload module ");
+    if (!line.startsWith(prefix))
+        return {};
+    const int at = line.lastIndexOf(" at ");
+    if (at <= int(prefix.size()))
+        return {};
+    const QString module = line.mid(prefix.size(), at - prefix.size()).trimmed();
+    return module.isEmpty() ? std::optional<QString>() : module;
+}
+
+static GdbMi libraryEventData(const QString &module)
+{
+    GdbMi data;
+    data.m_type = GdbMi::Tuple;
+    data.addChild(constMi("id", FilePath::fromUserInput(module).fileName()));
+    data.addChild(constMi("target-name", module));
+    data.addChild(constMi("host-name", module));
+    return data;
+}
+
 static QString hexAddress(quint64 address)
 {
     return "0x" + QString::number(address, 16);
@@ -133,7 +173,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
         }
         return true;
     };
-    data.extraCapabilities = DebuggerExtraCapability::Threads;
+    data.extraCapabilities = DebuggerExtraCapability::LibraryEvent
+                           | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch;
     return data;
 }
@@ -1117,6 +1158,7 @@ void CdbImpl::resumeAfterSetup()
 void CdbImpl::initializeSession(const std::function<void()> &whenReady)
 {
     runCommand({"sxn ibp", NoFlags});
+    runCommand({"sxn ud", NoFlags});
     runCommand({".asm source_line", NoFlags});
     if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
         const FilePath inferiorDir = std::get<ProcessRunData>(
@@ -1572,10 +1614,18 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
         emit message(line, LogMisc);
         return;
     }
-    // What cdb relays inline while the inferior runs is the debuggee's own output,
-    // except for cdb's own notifications - ModLoad being by far the most frequent.
-    const bool isDebuggeeOutput = m_inferiorRunning && !line.startsWith("ModLoad: ");
-    emit message(line, isDebuggeeOutput ? AppOutput : LogMisc);
+    if (const std::optional<QString> module = loadedModule(line)) {
+        emit libraryEvent(LibraryEvent::Loaded, libraryEventData(*module));
+        emit message(line, LogMisc);
+        return;
+    }
+    if (const std::optional<QString> module = unloadedModule(line)) {
+        emit libraryEvent(LibraryEvent::Unloaded, libraryEventData(*module));
+        emit message(line, LogMisc);
+        return;
+    }
+    // What cdb relays inline while the inferior runs is the debuggee's own output.
+    emit message(line, m_inferiorRunning ? AppOutput : LogMisc);
 }
 
 void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,

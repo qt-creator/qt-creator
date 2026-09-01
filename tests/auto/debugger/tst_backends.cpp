@@ -2838,10 +2838,10 @@ void tst_backends::testLibraryEventCapability()
     const QString marker = inferiorTestData(backend).moduleListMarker;
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(std::any_of(loaded.cbegin(), loaded.cend(), [&marker](const GdbMi &data) {
-        return data["target-name"].data().contains(marker);
+        return data["target-name"].data().contains(marker, Qt::CaseInsensitive);
     }), s_timeout);
     QTRY_VERIFY_WITH_TIMEOUT(std::any_of(unloaded.cbegin(), unloaded.cend(), [](const GdbMi &data) {
-        return data["target-name"].data().contains("inferiorlib");
+        return data["target-name"].data().contains("inferiorlib", Qt::CaseInsensitive);
     }), s_timeout);
 }
 
