@@ -176,6 +176,10 @@ struct InferiorTestData
     // the debug service, rather than marshalling the arguments and calling by
     // address the way the cdb one does.
     bool qmlBreakpointsUseServiceCasts = false;
+    // Whether the inferior throws a C++ exception once it is past the markers
+    // above, and what it prints after catching it again.
+    bool throwsAnException = false;
+    QString afterThrowOutputMarker;
     QString disassemblySourceMarker;
     QString alienBreakpointCommand;
     QString alienBreakpointDeleteCommand;
@@ -832,6 +836,12 @@ private slots:
     void testBreakIndividualLocationsCapability();
     void testBreakModuleCapability_data() { addBackendRows(); }
     void testBreakModuleCapability();
+    void honorsTheConfiguredBreakEvents_data() { addBackendRows(); }
+    void honorsTheConfiguredBreakEvents();
+    void stopsAtACaughtException_data() { addBackendRows(); }
+    void stopsAtACaughtException();
+    void stopsAtAThrownException_data() { addBackendRows(); }
+    void stopsAtAThrownException();
     void testBreakOnThrowAndCatchCapability_data() { addBackendRows(); }
     void testBreakOnThrowAndCatchCapability();
     void testCreateFullBacktraceCapability_data() { addBackendRows(); }
@@ -1069,6 +1079,8 @@ private:
         bool nativeMixed = false,
         std::chrono::seconds watchdogTimeout = {},
         Debugger::Internal::GdbImplFlags gdbFlags = Debugger::Internal::GdbImplFlag::PseudoTracepoints);
+    std::unique_ptr<DebuggerBackend> createEngineWithBreakEvents(
+        Backend backend, const QStringList &breakEvents);
     std::unique_ptr<DebuggerBackend> createEngineWithConfiguredPaths(
         Backend backend, const QList<QPair<QString, QString>> &sourcePathMap);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
@@ -1337,6 +1349,23 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
         break;
     }
     return nullptr;
+}
+
+// The debugger's own list of events to break on, where it has one.
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithBreakEvents(
+    Backend backend, const QStringList &breakEvents)
+{
+    if (backend != Backend::Cdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                            Environment::systemEnvironment()},
+        .extensionDir = m_backendData[backend].cdbExtensionDir,
+        .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .breakEvents = breakEvents}));
 }
 
 // Configures the debugger's own symbol and source paths next to the mapping, so
@@ -1635,6 +1664,16 @@ void tst_backends::initTestCase()
             + "LONGTEXTEND\";",
         "int *globalValuePtr = const_cast<int *>(&globalValue);",
         "",
+        "void throwAndCatch()",
+        "{",
+        "    try {",
+        "        throw 42; // throw line",
+        "    } catch (int value) {",
+        "        printf(\"caught %d\\n\", value);",
+        "        fflush(stdout);",
+        "    }",
+        "}",
+        "",
         "extern \"C\" void bump()",
         "{",
         "    std::vector<std::string> localVector{\"seven\", \"eight\"};",
@@ -1710,6 +1749,7 @@ void tst_backends::initTestCase()
         "    printf(\"cwd=%s\\n\", cwd);",
         "    printf(\"after bump\\n\");",
         "    fflush(stdout);",
+        "    throwAndCatch();",
         "    spin(); // second breakpoint line",
         "    return 7;",
         "}",
@@ -1735,6 +1775,8 @@ void tst_backends::initTestCase()
     cppInferiorData.functionMarker = "bump";
     cppInferiorData.recursionDepthVariable = "depth";
     cppInferiorData.applicationOutputMarker = "after bump";
+    cppInferiorData.throwsAnException = true;
+    cppInferiorData.afterThrowOutputMarker = "caught 42";
     cppInferiorData.environmentReportPrefix = "env=";
     cppInferiorData.workingDirectoryReportPrefix = "cwd=";
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
@@ -2629,12 +2671,133 @@ void tst_backends::testBreakModuleCapability()
     }
 }
 
+void tst_backends::honorsTheConfiguredBreakEvents()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (!testData.throwsAnException)
+        QSKIP("This backend's inferior raises nothing that could be configured.");
+
+    // "eh" is the C++ exception, which the inferior raises on its own once it
+    // runs, so no breakpoint of any kind is involved here.
+    std::unique_ptr<DebuggerBackend> debuggerBackend =
+        createEngineWithBreakEvents(backend, {"eh"});
+    if (!debuggerBackend)
+        QSKIP("This backend has no configurable break events.");
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed), "the engine never ran");
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                              || debuggerBackend->contains(InferiorEvent::StopOk),
+                              "the configured event never stopped the inferior", s_timeout);
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
+}
+
+void tst_backends::stopsAtACaughtException()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::BreakOnThrowAndCatchCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    if (auto result = checkAcceptsBreakpoint(backend, BreakpointAtCatch, "A catch breakpoint");
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (!testData.throwsAnException)
+        QSKIP("This backend's inferior throws nothing to catch.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        results[requestId] = ok;
+    });
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 351;
+    request.params.type = BreakpointAtCatch;
+    request.params.enabled = true;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(351), s_timeout);
+    QVERIFY2(results.value(351), "catch breakpoint insert failed");
+
+    // A breakpoint reported as inserted but never armed leaves the inferior in
+    // its spin loop, where nothing at all is reported back.
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                              || debuggerBackend->contains(InferiorEvent::StopOk),
+                              "the inferior never stopped where it catches", s_timeout);
+}
+
+void tst_backends::stopsAtAThrownException()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::BreakOnThrowAndCatchCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (!testData.throwsAnException)
+        QSKIP("This backend's inferior throws nothing to break on.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        results[requestId] = ok;
+    });
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 350;
+    request.params.type = BreakpointAtThrow;
+    request.params.enabled = true;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(350), s_timeout);
+    QVERIFY2(results.value(350), "throw breakpoint insert failed");
+
+    // A breakpoint that is reported as inserted and then never fires leaves the
+    // inferior to run to its end, so the exit is what tells the two apart.
+    // A breakpoint reported as inserted but never armed leaves the inferior in
+    // its spin loop, where nothing at all is reported back.
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                              || debuggerBackend->contains(InferiorEvent::StopOk),
+                              "the inferior never stopped at the throw", s_timeout);
+}
+
 void tst_backends::testBreakOnThrowAndCatchCapability()
 {
     QFETCH(Backend, backend);
 
     if (auto result = checkCapability(backend, Debugger::BreakOnThrowAndCatchCapability); !result)
         QSKIP(qPrintable(result.error()));
+    // The capability names both, while a backend may only have an answer for one
+    // of them, so each half is asked for separately.
+    const Utils::Result<> takesThrow =
+        checkAcceptsBreakpoint(backend, BreakpointAtThrow, "A throw breakpoint");
+    const Utils::Result<> takesCatch =
+        checkAcceptsBreakpoint(backend, BreakpointAtCatch, "A catch breakpoint");
+    if (!takesThrow && !takesCatch)
+        QSKIP(qPrintable(takesThrow.error() + QLatin1Char(' ') + takesCatch.error()));
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -2646,21 +2809,25 @@ void tst_backends::testBreakOnThrowAndCatchCapability()
         results[requestId] = ok;
     });
 
-    BreakpointChangeRequest throwRequest;
-    throwRequest.op = BreakpointOp::Insert;
-    throwRequest.requestId = 74;
-    throwRequest.params.type = BreakpointAtThrow;
-    engine->changeBreakpoint(throwRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(results.contains(74), s_timeout);
-    QVERIFY2(results.value(74), "throw breakpoint insert failed");
+    if (takesThrow) {
+        BreakpointChangeRequest throwRequest;
+        throwRequest.op = BreakpointOp::Insert;
+        throwRequest.requestId = 74;
+        throwRequest.params.type = BreakpointAtThrow;
+        engine->changeBreakpoint(throwRequest);
+        QTRY_VERIFY_WITH_TIMEOUT(results.contains(74), s_timeout);
+        QVERIFY2(results.value(74), "throw breakpoint insert failed");
+    }
 
-    BreakpointChangeRequest catchRequest;
-    catchRequest.op = BreakpointOp::Insert;
-    catchRequest.requestId = 75;
-    catchRequest.params.type = BreakpointAtCatch;
-    engine->changeBreakpoint(catchRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(results.contains(75), s_timeout);
-    QVERIFY2(results.value(75), "catch breakpoint insert failed");
+    if (takesCatch) {
+        BreakpointChangeRequest catchRequest;
+        catchRequest.op = BreakpointOp::Insert;
+        catchRequest.requestId = 75;
+        catchRequest.params.type = BreakpointAtCatch;
+        engine->changeBreakpoint(catchRequest);
+        QTRY_VERIFY_WITH_TIMEOUT(results.contains(75), s_timeout);
+        QVERIFY2(results.value(75), "catch breakpoint insert failed");
+    }
 }
 
 void tst_backends::testCreateFullBacktraceCapability()

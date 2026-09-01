@@ -163,6 +163,7 @@ static DebuggerEngineSetupData cdbImplSetupData()
         if (!query.isCppBreakpoint())
             return query.isNativeMixedEnabled;
         switch (query.type) {
+        case BreakpointAtCatch:
         case BreakpointAtFork:
         case BreakpointAtSysCall:
         case WatchpointAtExpression:
@@ -466,14 +467,17 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
     if (!params.condition.isEmpty())
         m_conditionForBreakpointId.insert(id, params.condition);
     m_insertedBreakpoints.insert(id, params);
-    BreakpointType type = params.type;
-    QString functionName = params.functionName;
+    const BreakpointType type = params.type;
+    const QString functionName = params.functionName;
+    // cdb reports a C++ throw as an event of its own, which is what CdbEngine
+    // breaks on. The runtime helper behind it is a symbol in whichever module
+    // the inferior took its runtime from - resolvable here, but against a
+    // dynamically linked runtime it matches an import thunk as well.
     if (type == BreakpointAtThrow) {
-        type = BreakpointByFunction;
-        functionName = "CxxThrowException";
-    } else if (type == BreakpointAtCatch) {
-        type = BreakpointByFunction;
-        functionName = "__CxxCallCatchBlock";
+        m_throwBreakpoints.insert(id, params.enabled);
+        syncExceptionEvents();
+        reportBreakpointInserted(requestId, id, params.enabled, {}, 0, {}, {}, report);
+        return;
     }
     QString cmd = QLatin1String(type == WatchpointAtAddress ? "ba" : "bu") + id + ' ';
     if (params.oneShot)
@@ -580,6 +584,11 @@ void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             emit breakpointEvent(request.requestId, request.op, false, {});
             break;
         }
+        if (m_throwBreakpoints.remove(request.responseId)) {
+            syncExceptionEvents();
+            emit breakpointEvent(request.requestId, request.op, true, {});
+            break;
+        }
         runCommand({"bc" + request.responseId, NoFlags});
         m_insertedBreakpoints.remove(request.responseId);
         m_conditionForBreakpointId.remove(request.responseId);
@@ -591,6 +600,12 @@ void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     case BreakpointOp::Update:
         if (request.responseId.isEmpty()) {
             emit breakpointEvent(request.requestId, request.op, false, {});
+            break;
+        }
+        if (m_throwBreakpoints.contains(request.responseId)) {
+            m_throwBreakpoints.insert(request.responseId, request.params.enabled);
+            syncExceptionEvents();
+            emit breakpointEvent(request.requestId, request.op, true, {});
             break;
         }
         if (request.params.condition.isEmpty())
@@ -1160,6 +1175,7 @@ void CdbImpl::restartSession()
     m_inInternalStop = false;
     m_callbackStop = false;
     m_deferredCommands.clear();
+    m_throwBreakpoints.clear();
     m_wow64State = Wow64State::Unknown;
     m_pendingStackBitness.clear();
     m_evaluatingCondition = false;
@@ -1252,6 +1268,16 @@ void CdbImpl::checkStackBitness(bool maySwitch)
     }});
 }
 
+// cdb breaks on the C++ EH exception while it is armed, so it is armed exactly
+// while a throw breakpoint wants it or the configuration asks for it.
+void CdbImpl::syncExceptionEvents()
+{
+    const bool wanted = m_startData.breakEvents.contains("eh")
+                        || std::any_of(m_throwBreakpoints.cbegin(), m_throwBreakpoints.cend(),
+                                       [](bool enabled) { return enabled; });
+    runCommand({QLatin1String(wanted ? "sxe eh" : "sxn eh"), NoFlags});
+}
+
 void CdbImpl::resumeAfterSetup()
 {
     if (!m_commandForToken.isEmpty()) {
@@ -1269,6 +1295,12 @@ void CdbImpl::initializeSession(const std::function<void()> &whenReady)
     runCommand({"sxn ibp", NoFlags});
     runCommand({"sxn ud", NoFlags});
     runCommand({"sxn 0x4000001f", NoFlags}); // The wow64 layer's own breakpoint.
+    runCommand({"sxn 0x40010005", NoFlags}); // The interrupt this side sends itself.
+    for (const QString &event : m_startData.breakEvents) {
+        if (event != "eh") // Kept in step with the throw breakpoints instead.
+            runCommand({"sxe " + event, NoFlags});
+    }
+    syncExceptionEvents();
     runCommand({".asm source_line", NoFlags});
     if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
         const FilePath inferiorDir = std::get<ProcessRunData>(

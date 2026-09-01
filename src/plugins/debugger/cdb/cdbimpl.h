@@ -35,6 +35,8 @@ public:
     QString extensionFileName;
     Utils::FilePath dumperScriptsDir;
     CdbImplSearchPaths searchPaths;
+    // cdb event codes to break on, as the options page spells them.
+    QStringList breakEvents;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     // Only the ctrl-c stub next to the qtcreator executable makes
@@ -97,6 +99,7 @@ private:
     void ensureStackBitness(const std::function<void()> &whenReady);
     void checkStackBitness(bool maySwitch);
     void settleStackBitness(Wow64State state);
+    void syncExceptionEvents();
     void resumeAfterSetup();
     class InterpreterBreakpoint
     {
@@ -157,6 +160,7 @@ private:
     bool m_inInternalStop = false;
     bool m_callbackStop = false;
     QList<DebuggerCommand> m_deferredCommands;
+    QHash<QString, bool> m_throwBreakpoints;
     Wow64State m_wow64State = Wow64State::Unknown;
     QList<std::function<void()>> m_pendingStackBitness;
     bool m_interpreterMessageWatchArmed = false;
