@@ -1449,7 +1449,7 @@ void CdbImpl::activateFrame(int index)
 
 void CdbImpl::selectThread(const QString &threadId)
 {
-    Q_UNUSED(threadId)
+    runCommand({'~' + threadId + " s", NoFlags});
 }
 
 void CdbImpl::setRegisterValue(const QString &name, const QString &value)

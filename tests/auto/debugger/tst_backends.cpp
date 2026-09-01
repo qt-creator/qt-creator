@@ -1099,6 +1099,8 @@ private slots:
     void togglesBreakpointEnabledInPlace();
     void attachesToRunningProcess_data() { addBackendRows(); }
     void attachesToRunningProcess();
+    void reportsTheStackOfASelectedThread_data() { addBackendRows(); }
+    void reportsTheStackOfASelectedThread();
     void attachesToTerminalRunProcess_data() { addBackendRows(); }
     void attachesToTerminalRunProcess();
     void attachesToRunningRemoteServer_data() { addBackendRows(); }
@@ -4889,18 +4891,36 @@ void tst_backends::selectsThreadAndActivatesFrame()
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
-    engine->selectThread("1");
-    engine->activateFrame(0);
-
     GdbMi stackData;
     bool stackReceived = false;
+    GdbMi threadsData;
+    bool threadsReceived = false;
     connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
-            [&stackData, &stackReceived](quint64, RefreshKind kind, const GdbMi &data) {
+            [&](quint64, RefreshKind kind, const GdbMi &data) {
         if (kind == RefreshKind::FullStack) {
             stackData = data;
             stackReceived = true;
+        } else if (kind == RefreshKind::Threads) {
+            threadsData = data;
+            threadsReceived = true;
         }
     });
+
+    // Whichever thread the debugger counts as current is the one stopped where
+    // this looks, and the numbering is the debugger's own: gdb starts at one,
+    // cdb at zero. A backend that reports no threads has none to pick from.
+    if (engine->hasExtraCapability(Debugger::DebuggerExtraCapability::Threads)) {
+        RefreshRequest threadsRequest;
+        threadsRequest.kind = RefreshKind::Threads;
+        threadsRequest.requestId = 29;
+        engine->refresh(threadsRequest);
+        QTRY_VERIFY_WITH_TIMEOUT(threadsReceived, s_timeout);
+        const QString currentThread = threadsData["current-thread-id"].data();
+        QVERIFY2(!currentThread.isEmpty(), "the backend reported no current thread");
+        engine->selectThread(currentThread);
+    }
+    engine->activateFrame(0);
+
     RefreshRequest stackRequest;
     stackRequest.kind = RefreshKind::FullStack;
     stackRequest.requestId = 30;
@@ -7363,6 +7383,86 @@ void tst_backends::attachesToRunningProcess()
 
     target.waitForFinished();
     QCOMPARE(target.state(), ProcessState::NotRunning);
+}
+
+void tst_backends::reportsTheStackOfASelectedThread()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToProcess); !result)
+        QSKIP(qPrintable(result.error()));
+    if (auto result = checkExtraCapability(backend, Debugger::DebuggerExtraCapability::Threads);
+        !result) {
+        QSKIP(qPrintable(result.error()));
+    }
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    Process target;
+    target.setCommand({testData.executable, {}});
+    target.start();
+    QVERIFY(target.waitForStarted());
+    QString targetOutput;
+    auto sawOutput = [&] {
+        targetOutput += target.readAllStandardOutput();
+        return targetOutput.contains(testData.applicationOutputMarker);
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(sawOutput(), s_timeout);
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(
+        backend, AttachToProcessData{ProcessHandle(target.processId())});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+                             || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed), "attaching failed");
+    // A backend that resumes the inferior on attach reports the stop it caused
+    // and lets it run again, so that event alone does not mean it is held.
+    if (attachResumesInferior(backend)
+        || !debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)) {
+        debuggerBackend->clearEvents();
+        debuggerBackend->execute({ExecutionCommand::Interrupt});
+        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+    }
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    RefreshRequest threadsRequest;
+    threadsRequest.kind = RefreshKind::Threads;
+    threadsRequest.requestId = 330;
+    engine->refresh(threadsRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Threads)), s_timeout);
+    const GdbMi threads = responses.value(int(RefreshKind::Threads))["threads"];
+    QVERIFY2(threads.childCount() > 0, "the inferior reported no threads");
+
+    // Attaching parks the debugger on a thread of its own making, so the stack of
+    // the inferior's own first thread only shows up once it has been asked for.
+    engine->selectThread(threads.childAt(0)["id"].data());
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 331;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+
+    const GdbMi frames = responses.value(int(RefreshKind::FullStack))["stack"]["frames"];
+    QStringList functions;
+    for (int i = 0; i < frames.childCount(); ++i)
+        functions << frames.childAt(i)["function"].data();
+    QVERIFY2(functions.contains("main"),
+             qPrintable("the selected thread's stack does not reach main, only: "
+                        + functions.join(", ")));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
+    target.waitForFinished();
 }
 
 void tst_backends::attachesToTerminalRunProcess()
