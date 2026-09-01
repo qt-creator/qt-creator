@@ -1422,7 +1422,13 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
         return std::make_unique<DebuggerBackend>(std::make_unique<QmlImpl>(QmlImplStartData{
             .inferiorStartData = inferiorStartData}));
     case Backend::Cdb:
-        break;
+        return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = inferiorStartData,
+            .extensionDir = m_backendData[backend].cdbExtensionDir,
+            .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
     }
     return nullptr;
 }

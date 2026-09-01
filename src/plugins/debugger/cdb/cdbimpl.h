@@ -80,6 +80,7 @@ private:
     void runCommand(const DebuggerCommand &command);
     void initializeSession(const std::function<void()> &whenReady);
     void restartSession();
+    bool isAttach() const;
     void resumeAfterSetup();
     class InterpreterBreakpoint
     {

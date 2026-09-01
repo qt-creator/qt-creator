@@ -175,7 +175,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
     };
     data.extraCapabilities = DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::Threads;
-    data.startModes = DebuggerStartModeFlag::Launch;
+    data.startModes = DebuggerStartModeFlag::Launch
+                    | DebuggerStartModeFlag::AttachToProcess;
     return data;
 }
 
@@ -197,6 +198,9 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
         cdbCommand.addArg(inferiorRunData.command.executable().toUserOutput());
         cdbCommand.addArgs(inferiorRunData.command.arguments(), CommandLine::Raw);
         runData = inferiorRunData;
+    } else if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
+        const auto &attachData = std::get<AttachToProcessData>(m_startData.inferiorStartData);
+        cdbCommand.addArgs({"-p", QString::number(attachData.pid.pid())});
     }
     m_cdbProc.setCommand(cdbCommand);
     if (runData.workingDirectory.isDir())
@@ -1143,6 +1147,11 @@ void CdbImpl::restartSession()
     m_cdbProc.start();
 }
 
+bool CdbImpl::isAttach() const
+{
+    return std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData);
+}
+
 void CdbImpl::resumeAfterSetup()
 {
     if (!m_commandForToken.isEmpty()) {
@@ -1707,6 +1716,10 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
                     const QHash<QString, BreakpointParameters> restored = m_insertedBreakpoints;
                     for (auto it = restored.cbegin(); it != restored.cend(); ++it)
                         insertBreakpoint(0, it.key(), 0, it.value(), false);
+                } else if (isAttach()) {
+                    emit inferiorEvent(InferiorEvent::EngineSetupOk);
+                    emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+                    return;
                 } else {
                     emit inferiorEvent(InferiorEvent::EngineSetupOk);
                     emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
