@@ -5,6 +5,8 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
+#include <vcsbase/diffandloghighlighter.h>
+
 #include <QRegularExpression>
 
 namespace Git::Internal {
@@ -69,6 +71,19 @@ public:
 private:
     const QString m_commentMarker;
     const QRegularExpression m_changeNumberPattern;
+};
+
+// Highlighter for reflog output. Reflog entries contain several pieces of
+// information on one line, so highlighting the complete line would hide the
+// structure of the entry.
+class GitReflogHighlighter : public VcsBase::DiffAndLogHighlighter
+{
+public:
+    GitReflogHighlighter();
+
+    void highlightBlock(const QString &text) override;
+
+    static const QRegularExpression &entryPattern();
 };
 
 } // Git::Internal

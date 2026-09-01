@@ -169,4 +169,48 @@ void GitRebaseHighlighter::highlightBlock(const QString &text)
     formatSpaces(text);
 }
 
+GitReflogHighlighter::GitReflogHighlighter()
+    : VcsBase::DiffAndLogHighlighter(QRegularExpression("(?!)"), entryPattern())
+{
+}
+
+const QRegularExpression &GitReflogHighlighter::entryPattern()
+{
+    static const QRegularExpression pattern("^([0-9a-f]{7,40}) [^}]*\\}: .*$");
+    return pattern;
+}
+
+void GitReflogHighlighter::highlightBlock(const QString &text)
+{
+    VcsBase::DiffAndLogHighlighter::highlightBlock(text);
+
+    const QRegularExpressionMatch entryMatch = entryPattern().match(text);
+    if (!entryMatch.hasMatch())
+        return;
+
+    // DiffAndLogHighlighter colors the complete log-entry line. Reflog
+    // entries are more useful when only their individual fields are colored.
+    setFormatWithSpaces(text, 0, text.size(), formatForCategory(TextEditor::C_TEXT));
+    setFormat(entryMatch.capturedStart(1), entryMatch.capturedLength(1),
+              formatForCategory(TextEditor::C_LOG_COMMIT_HASH));
+
+    const QRegularExpression selectorPattern(R"(\S+@\{[^}]*\})");
+    const QRegularExpressionMatch selectorMatch = selectorPattern.match(
+        text, entryMatch.capturedEnd(1));
+    if (!selectorMatch.hasMatch())
+        return;
+
+    const QRegularExpression decorationPattern(R"(\([^)]*\))");
+    const QRegularExpressionMatch decorationMatch = decorationPattern.match(
+        text, entryMatch.capturedEnd(1));
+    if (decorationMatch.hasMatch()
+        && decorationMatch.capturedEnd() <= selectorMatch.capturedStart()) {
+        setFormat(decorationMatch.capturedStart(), decorationMatch.capturedLength(),
+                  formatForCategory(TextEditor::C_LOG_DECORATION));
+    }
+
+    setFormat(selectorMatch.capturedStart(), selectorMatch.capturedLength(),
+              formatForCategory(TextEditor::C_LOG_COMMIT_DATE));
+}
+
 } // Git::Internal

@@ -231,7 +231,8 @@ void GitEditorWidget::init()
     Id editorId = textDocument()->id();
     const bool isCommitEditor = editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID;
     const bool isRebaseEditor = editorId == Git::Constants::GIT_REBASE_EDITOR_ID;
-    if (!isCommitEditor && !isRebaseEditor)
+    const bool isReflogEditor = editorId == Git::Constants::GIT_REFLOG_EDITOR_ID;
+    if (!isCommitEditor && !isRebaseEditor && !isReflogEditor)
         return;
     const QString commentMarker = gitClient().commentMarker(source());
     if (isCommitEditor)
@@ -240,6 +241,8 @@ void GitEditorWidget::init()
     else if (isRebaseEditor)
         textDocument()->resetSyntaxHighlighter(
             [commentMarker] { return new GitRebaseHighlighter(commentMarker); });
+    else if (isReflogEditor)
+        textDocument()->resetSyntaxHighlighter([] { return new GitReflogHighlighter; });
 }
 
 void GitEditorWidget::keyPressEvent(QKeyEvent *e)

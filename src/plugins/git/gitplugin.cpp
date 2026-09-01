@@ -11,6 +11,7 @@
 #include "giteditor.h"
 #include "gitgraphview.h"
 #include "gitgrep.h"
+#include "githighlighters.h"
 #include "gitsettings.h"
 #include "gitsubmiteditor.h"
 #include "gittr.h"
@@ -107,7 +108,7 @@ class GitReflogEditorWidget : public GitEditorWidget
 public:
     GitReflogEditorWidget()
     {
-        setLogEntryPattern("^([0-9a-f]{8,}) [^}]*\\}: .*$");
+        setLogEntryPattern(GitReflogHighlighter::entryPattern().pattern());
     }
 
     QString revisionSubject(const QTextBlock &inBlock) const override
@@ -2633,6 +2634,15 @@ void GitTest::testLogResolving()
     VcsBaseEditorWidget::testLogResolving(dd->logEditorFactory, data,
                             "50a6b54c - Merge branch 'for-junio' of git://bogomips.org/git-svn",
                             "3587b513 - Update draft release notes to 1.8.2");
+
+    const QByteArray reflogData(
+                "50a6b54 (HEAD -> feature, tag: v1.8.2) HEAD@{0}: commit: "
+                "Update draft release notes to 1.8.2\n"
+                "3587b51 HEAD@{1}: checkout: moving from master to feature");
+    VcsBaseEditorWidget::testLogResolving(dd->reflogEditorFactory, reflogData,
+                            "50a6b54 - (HEAD -> feature, tag: v1.8.2) HEAD@{0}: commit: "
+                            "Update draft release notes to 1.8.2",
+                            "3587b51 - HEAD@{1}: checkout: moving from master to feature");
 }
 
 class RemoteTest {
