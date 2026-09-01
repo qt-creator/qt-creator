@@ -9,6 +9,10 @@
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
+#include <QTimer>
+
+#include <chrono>
+
 namespace Debugger::Internal {
 
 class DEBUGGER_EXPORT PdbImplStartData
@@ -19,6 +23,8 @@ public:
     Utils::FilePath dumperScriptsDir;
     // Stay on the script's first line instead of running it.
     bool breakOnMain = false;
+    // Zero leaves the commands unwatched.
+    std::chrono::seconds watchdogTimeout{0};
 };
 
 class DEBUGGER_EXPORT PdbImpl final : public DebuggerEngineInterface
@@ -100,6 +106,12 @@ private:
 
     void runCommand(const DebuggerCommand &command);
     void postDirectCommand(const QString &command);
+    // pdb answers nothing it can be asked about, so a command is watched by
+    // bracketing it with a round trip: while a fence is outstanding, whatever
+    // was sent before it has not been dealt with.
+    void watchCommand(const QString &description);
+    void handleWatchdogFence(quint64 token);
+    void restartWatchdog();
 
     PdbImplStartData m_startData;
     Utils::Process m_pdbProc;
@@ -116,6 +128,9 @@ private:
     int m_currentFrame = 0;
 
     quint64 m_pendingLocalsRequestId = 0;
+    quint64 m_lastWatchdogToken = 0;
+    QList<QPair<quint64, QString>> m_watchedCommands;
+    QTimer m_watchdog;
     quint64 m_pendingModulesRequestId = 0;
     quint64 m_pendingModuleSymbolsRequestId = 0;
 

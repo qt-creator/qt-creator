@@ -731,6 +731,8 @@ static QString watchdogProbeCommand(Backend backend, int seconds)
     case Backend::Lldb:
         return QString("platform shell sleep %1").arg(seconds);
     case Backend::Pdb:
+        // pdb runs a statement typed at its prompt, which blocks it just as well.
+        return QString("import time; time.sleep(%1)").arg(seconds);
     case Backend::Qml:
     case Backend::Bridge:
         break;
@@ -1319,7 +1321,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
                                Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain)}));
+            .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain),
+            .watchdogTimeout = watchdogTimeout}));
     case Backend::Qml:
         return std::make_unique<DebuggerBackend>(std::make_unique<QmlImpl>(QmlImplStartData{
             .inferiorStartData = AttachToQmlServerData{}}));
@@ -5467,7 +5470,11 @@ void tst_backends::reportsAnUnresponsiveDebugger()
         QSKIP("This backend does not watch its commands for a reply.");
 
     using namespace std::chrono_literals;
-    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {}, {}, false, 1s);
+    // Stopping at the start keeps a backend that would otherwise run its
+    // program to the end alive for the round trip at the end of this test.
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(
+        backend, {}, {}, false, 1s,
+        GdbImplFlag::PseudoTracepoints | GdbImplFlag::BreakOnMain);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     QList<QStringList> reports;
@@ -5488,6 +5495,46 @@ void tst_backends::reportsAnUnresponsiveDebugger()
              }),
              qPrintable("the reported pending commands do not mention the blocking one: "
                         + report.join(", ")));
+
+    // And it has to go quiet once the answer arrives, which a round trip that
+    // does answer proves: a watchdog that never clears what it watches would
+    // keep reporting from here on.
+    bool inserted = false;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&inserted](quint64 requestId, BreakpointOp op, bool, const GdbMi &) {
+        if (op == BreakpointOp::Insert && requestId == 81)
+            inserted = true;
+    });
+    BreakpointChangeRequest insertRequest;
+    insertRequest.op = BreakpointOp::Insert;
+    insertRequest.requestId = 81;
+    insertRequest.params.type = BreakpointByFileAndLine;
+    insertRequest.params.fileName = inferiorTestData(backend).source;
+    insertRequest.params.textPosition.line = inferiorTestData(backend).breakpointLine;
+    insertRequest.params.enabled = true;
+    engine->changeBreakpoint(insertRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(inserted, s_timeout);
+
+    // Commands are answered in order, so the round trip above means the blocking
+    // one was answered too. Block a second time: the fresh report may name only
+    // the command still outstanding, or nothing is ever taken off the list.
+    const QString secondCommand = watchdogProbeCommand(backend, 2);
+    reports.clear();
+    engine->executeDebuggerCommand(secondCommand, {});
+    QTRY_VERIFY_WITH_TIMEOUT(!reports.isEmpty(), s_timeout);
+    const QStringList secondReport = reports.constLast();
+    QVERIFY2(std::any_of(secondReport.cbegin(), secondReport.cend(),
+                         [&secondCommand](const QString &cmd) {
+                             return cmd.contains(secondCommand);
+                         }),
+             qPrintable("the second report does not mention the blocking command: "
+                        + secondReport.join(", ")));
+    QVERIFY2(std::none_of(secondReport.cbegin(), secondReport.cend(),
+                          [&blockingCommand](const QString &cmd) {
+                              return cmd.contains(blockingCommand);
+                          }),
+             qPrintable("the watchdog still reports a command that was answered: "
+                        + secondReport.join(", ")));
 }
 
 void tst_backends::appliesConfiguredDebuggerOptions()

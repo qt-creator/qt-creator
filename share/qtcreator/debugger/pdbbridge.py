@@ -1743,6 +1743,9 @@ class QtcInternalDumper():
     def warn(self, msg):
         self.putField('warning', msg)
 
+    def watchdogFence(self, args):
+        self.report('watchdogfence={token="%s"}' % args.get('token', 0))
+
     def breakpointFence(self, args):
         # Answers a command issued right after a "break", so that the caller can tell a
         # location pdb silently refused from one whose answer is still on its way.

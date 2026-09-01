@@ -90,6 +90,18 @@ PdbImpl::PdbImpl(const PdbImplStartData &startData)
 {
     m_pdbProc.setProcessMode(ProcessMode::Writer);
 
+    m_watchdog.setSingleShot(true);
+    m_watchdog.setInterval(m_startData.watchdogTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, [this] {
+        if (m_watchedCommands.isEmpty())
+            return;
+        QStringList pending;
+        for (const auto &[token, description] : std::as_const(m_watchedCommands))
+            pending << description;
+        m_watchdog.start();
+        emit notResponding(m_startData.watchdogTimeout, pending, NotRespondingCause::Unknown);
+    });
+
     connect(&m_pdbProc, &Process::started, this, [this] {
         emit inferiorPidKnown(ProcessHandle(m_pdbProc.processId()));
         if (m_isResetRestart) {
@@ -479,6 +491,7 @@ void PdbImpl::createSnapshot(quint64)
 void PdbImpl::executeDebuggerCommand(const QString &command, const WatchItemData &)
 {
     postDirectCommand(command);
+    watchCommand(command);
 }
 
 void PdbImpl::requestInterrupt()
@@ -497,6 +510,40 @@ void PdbImpl::postDirectCommand(const QString &command)
     QTC_ASSERT(m_pdbProc.isRunning(), return);
     emit message(command, LogInput);
     m_pdbProc.write(command + '\n');
+}
+
+void PdbImpl::watchCommand(const QString &description)
+{
+    if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
+        return;
+    const quint64 token = ++m_lastWatchdogToken;
+    m_watchedCommands.append({token, description});
+    DebuggerCommand fence("watchdogFence");
+    fence.arg("token", QString::number(token));
+    const QString command = "qdebug('" + fence.function + "'," + fence.argsToPython() + ")";
+    m_pdbProc.write(command + '\n');
+    restartWatchdog();
+}
+
+void PdbImpl::handleWatchdogFence(quint64 token)
+{
+    // Commands are answered in order, so the fence clears everything up to it.
+    const auto after = std::find_if(m_watchedCommands.cbegin(), m_watchedCommands.cend(),
+                                    [token](const QPair<quint64, QString> &watched) {
+        return watched.first > token;
+    });
+    m_watchedCommands.erase(m_watchedCommands.cbegin(), after);
+    restartWatchdog();
+}
+
+void PdbImpl::restartWatchdog()
+{
+    if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
+        return;
+    if (m_watchedCommands.isEmpty())
+        m_watchdog.stop();
+    else
+        m_watchdog.start();
 }
 
 void PdbImpl::runCommand(const DebuggerCommand &cmd)
@@ -586,6 +633,8 @@ void PdbImpl::handleOutputLine(const QString &line)
         handleBreakpointReply(line);
     } else if (line.startsWith("breakpointfence={")) {
         handleBreakpointFence(item["token"].data().toULongLong());
+    } else if (line.startsWith("watchdogfence={")) {
+        handleWatchdogFence(item["token"].data().toULongLong());
     } else if (line.startsWith("breakpointmodified=")) {
         const QString responseId = responseIdFor(item["number"].data());
         const auto it = std::find_if(m_activeBreakpoints.cbegin(), m_activeBreakpoints.cend(),
