@@ -448,6 +448,18 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
             clangdTextCaps.setReferences(DynamicRegistrationCapabilities(obj));
         }
 
+        // clangd handles the LSP 3.18 proposed symbol tags, which we use for
+        // more precise symbol icons.
+        if (auto symbolCaps = textCaps->documentSymbol()) {
+            SymbolCapabilities::SymbolTagCapabilities symbolTagCaps;
+            QList<SymbolTag> symbolTags;
+            for (int i = int(SymbolTag::FirstTag); i <= int(SymbolTag::LastTag); ++i)
+                symbolTags << static_cast<SymbolTag>(i);
+            symbolTagCaps.setValueSet(symbolTags);
+            symbolCaps->setSymbolTag(symbolTagCaps);
+            clangdTextCaps.setDocumentSymbol(*symbolCaps);
+        }
+
         caps.setTextDocument(clangdTextCaps);
     }
     caps.clearExperimental();

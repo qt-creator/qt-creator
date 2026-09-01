@@ -450,10 +450,9 @@ static ClientCapabilities generateClientCapabilities()
          SymbolKind::Operator,   SymbolKind::TypeParameter});
     symbolCapabilities.setSymbolKind(symbolKindCapabilities);
     SymbolCapabilities::SymbolTagCapabilities symbolTagCapabilities;
-    QList<SymbolTag> valueSet;
-    for (int i = int(SymbolTag::FirstTag); i <= int(SymbolTag::LastTag); ++i)
-        valueSet << static_cast<SymbolTag>(i);
-    symbolTagCapabilities.setValueSet(valueSet);
+    // Only Deprecated exists in LSP 3.17; the other tags are still proposals,
+    // and strict servers refuse to initialize when they are advertised.
+    symbolTagCapabilities.setValueSet({SymbolTag::Deprecated});
     symbolCapabilities.setSymbolTag(symbolTagCapabilities);
     symbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
     documentCapabilities.setDocumentSymbol(symbolCapabilities);
