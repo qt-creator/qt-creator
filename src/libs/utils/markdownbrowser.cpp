@@ -38,6 +38,8 @@
 #include <QTextTable>
 #include <QTimer>
 
+#include <algorithm>
+
 using namespace QtTaskTree;
 
 namespace Utils {
@@ -469,6 +471,248 @@ private:
     QNetworkAccessManager *m_networkAccessManager = NetworkAccessManager::instance();
 };
 
+static bool isBlankLine(QStringView line)
+{
+    return std::all_of(line.cbegin(), line.cend(), [](QChar c) { return c.isSpace(); });
+}
+
+// The characters a backslash can escape in Markdown. QChar::isPunct() is not
+// the same set: '<' and '=' are symbols to it.
+static bool isAsciiPunctuation(QChar c)
+{
+    static const QLatin1StringView punctuation(R"(!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~)");
+    return punctuation.contains(c);
+}
+
+// Leading spaces of a block, capped at the 3 that keep it out of indented code.
+static qsizetype blockIndent(QStringView line)
+{
+    qsizetype indent = 0;
+    while (indent < line.size() && indent < 3 && line.at(indent) == u' ')
+        ++indent;
+    return indent;
+}
+
+// The line without the '>' markers of the blockquotes it sits in, so that
+// fences inside a blockquote are recognized as such.
+static QStringView withoutBlockQuoteMarkers(QStringView line)
+{
+    for (;;) {
+        const QStringView rest = line.mid(blockIndent(line));
+        if (!rest.startsWith(u'>'))
+            return line;
+        line = rest.mid(1);
+        if (line.startsWith(u' '))
+            line = line.mid(1);
+    }
+}
+
+static QStringView fenceOpener(QStringView line)
+{
+    line = withoutBlockQuoteMarkers(line);
+    const qsizetype indent = blockIndent(line);
+    if (indent >= line.size())
+        return {};
+    const QChar fenceChar = line.at(indent);
+    if (fenceChar != u'`' && fenceChar != u'~')
+        return {};
+    qsizetype length = 0;
+    while (indent + length < line.size() && line.at(indent + length) == fenceChar)
+        ++length;
+    if (length < 3)
+        return {};
+    // The info string of a backtick fence cannot contain a backtick, so a line
+    // carrying another run of them holds an inline code span instead.
+    if (fenceChar == u'`' && line.mid(indent + length).contains(u'`'))
+        return {};
+    return line.mid(indent, length);
+}
+
+static bool isFenceCloser(QStringView line, QStringView opener)
+{
+    line = withoutBlockQuoteMarkers(line);
+    QStringView rest = line.mid(blockIndent(line));
+    if (!rest.startsWith(opener))
+        return false;
+    rest = rest.mid(opener.size());
+    qsizetype extra = 0;
+    while (extra < rest.size() && rest.at(extra) == opener.at(0))
+        ++extra;
+    return isBlankLine(rest.mid(extra));
+}
+
+// Whether `line` starts a new block, which ends the paragraph before it - and
+// with it any code span left open in that paragraph.
+static bool startsNewBlock(QStringView line)
+{
+    if (isBlankLine(line))
+        return true;
+    if (!fenceOpener(line).isEmpty())
+        return true;
+    const QStringView rest = line.mid(blockIndent(line));
+    const QChar first = rest.at(0);
+    if (first == u'>')
+        return true;
+    if (first == u'#') {
+        qsizetype level = 0;
+        while (level < rest.size() && rest.at(level) == u'#')
+            ++level;
+        return level <= 6 && (level == rest.size() || rest.at(level).isSpace());
+    }
+    if (first == u'=') {
+        // A setext heading underlines the paragraph above it, which ends it.
+        return std::all_of(rest.cbegin(), rest.cend(), [](QChar c) {
+            return c == u'=' || c.isSpace();
+        });
+    }
+    if (first == u'_') {
+        // Underscores only ever start a thematic break.
+        qsizetype count = 0;
+        for (const QChar c : rest) {
+            if (c == u'_')
+                ++count;
+            else if (!c.isSpace())
+                return false;
+        }
+        return count >= 3;
+    }
+    if (first == u'-' || first == u'+' || first == u'*') {
+        // List markers as well as thematic breaks.
+        return rest.size() == 1 || rest.at(1).isSpace()
+               || std::all_of(rest.cbegin(), rest.cend(), [first](QChar c) {
+                      return c == first || c.isSpace();
+                  });
+    }
+    if (first.isDigit()) {
+        qsizetype digits = 0;
+        while (digits < rest.size() && rest.at(digits).isDigit())
+            ++digits;
+        return digits < rest.size() && (rest.at(digits) == u'.' || rest.at(digits) == u')')
+               && (digits + 1 == rest.size() || rest.at(digits + 1).isSpace());
+    }
+    return false;
+}
+
+// Position after the backtick run closing the code span that starts with
+// `runLength` backticks at `runStart`, or -1 if the span is not closed before
+// the end of its paragraph.
+static qsizetype codeSpanEnd(QStringView text, qsizetype runStart, qsizetype runLength)
+{
+    for (qsizetype pos = runStart + runLength; pos < text.size();) {
+        const QChar c = text.at(pos);
+        if (c == u'\n') {
+            qsizetype lineEnd = text.indexOf(u'\n', pos + 1);
+            if (lineEnd < 0)
+                lineEnd = text.size();
+            if (startsNewBlock(text.mid(pos + 1, lineEnd - pos - 1)))
+                return -1;
+            ++pos;
+        } else if (c == u'`') {
+            qsizetype length = 0;
+            while (pos + length < text.size() && text.at(pos + length) == u'`')
+                ++length;
+            if (length == runLength)
+                return pos + length;
+            pos += length;
+        } else {
+            ++pos;
+        }
+    }
+    return -1;
+}
+
+QString escapeMarkdownHtml(const QString &markdown)
+{
+    // Autolinks are the one construct where a bare '<' carries meaning outside
+    // of code, so they are kept as they are.
+    static const QRegularExpression autolink(QRegularExpression::anchoredPattern(
+        R"(<(?:[A-Za-z][A-Za-z0-9+.\-]*:[^<>\s]*|[^\s<>@]+@[^\s<>@]+)>)"));
+
+    const QStringView text(markdown);
+    QString result;
+    result.reserve(markdown.size());
+
+    QStringView openFence;
+    qsizetype pos = 0;
+    while (pos < text.size()) {
+        qsizetype lineEnd = text.indexOf(u'\n', pos);
+        if (lineEnd < 0)
+            lineEnd = text.size();
+        const QStringView line = text.mid(pos, lineEnd - pos);
+
+        if (!openFence.isEmpty()) {
+            if (isFenceCloser(line, openFence))
+                openFence = {};
+            result += line;
+        } else if (const QStringView opener = fenceOpener(line); !opener.isEmpty()) {
+            openFence = opener;
+            result += line;
+        } else {
+            qsizetype i = pos;
+            while (i < lineEnd) {
+                const QChar c = text.at(i);
+                if (c == u'`') {
+                    qsizetype length = 0;
+                    while (i + length < text.size() && text.at(i + length) == u'`')
+                        ++length;
+                    const qsizetype spanEnd = codeSpanEnd(text, i, length);
+                    if (spanEnd < 0) {
+                        result += text.mid(i, length);
+                        i += length;
+                        continue;
+                    }
+                    result += text.mid(i, spanEnd - i);
+                    i = spanEnd;
+                    if (i > lineEnd) { // The span spilled over into later lines.
+                        lineEnd = text.indexOf(u'\n', i);
+                        if (lineEnd < 0)
+                            lineEnd = text.size();
+                    }
+                    continue;
+                }
+                if (c == u'\\' && i + 1 < lineEnd && isAsciiPunctuation(text.at(i + 1))) {
+                    // A backslash escape already keeps its '<' out of HTML.
+                    result += text.mid(i, 2);
+                    i += 2;
+                    continue;
+                }
+                if (c == u'<') {
+                    // An autolink holds neither whitespace nor another '<'
+                    // before its '>', so only that stretch needs matching.
+                    qsizetype close = i + 1;
+                    while (close < lineEnd && text.at(close) != u'>' && text.at(close) != u'<'
+                           && !text.at(close).isSpace()) {
+                        ++close;
+                    }
+                    if (close < lineEnd && text.at(close) == u'>') {
+                        const QStringView candidate = text.mid(i, close + 1 - i);
+                        if (autolink.matchView(candidate).hasMatch()) {
+                            result += candidate;
+                            i = close + 1;
+                            continue;
+                        }
+                    }
+                    result += QLatin1String("&lt;");
+                    ++i;
+                    continue;
+                }
+                if (c == u'&') {
+                    result += QLatin1String("&amp;");
+                    ++i;
+                    continue;
+                }
+                result += c;
+                ++i;
+            }
+        }
+
+        if (lineEnd < text.size())
+            result += u'\n';
+        pos = lineEnd + 1;
+    }
+    return result;
+}
+
 MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
     , m_enableCodeCopyButton(false)
@@ -616,6 +860,11 @@ void MarkdownBrowser::setMargins(const QMargins &margins)
 void MarkdownBrowser::setEnableCodeCopyButton(bool enable)
 {
     m_enableCodeCopyButton = enable;
+}
+
+void MarkdownBrowser::setAllowEmbeddedHtml(bool allow)
+{
+    m_allowEmbeddedHtml = allow;
 }
 
 void MarkdownBrowser::setShowRulersForHeadings(bool show)
@@ -777,7 +1026,7 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
             e.button->deleteLater();
     }
     m_codeBlocks.clear();
-    document()->setMarkdown(markdown);
+    document()->setMarkdown(m_allowEmbeddedHtml ? markdown : escapeMarkdownHtml(markdown));
     postProcessDocument(true);
     updateCopyButtonPositions();
 
