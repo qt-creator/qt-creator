@@ -133,6 +133,7 @@ static DebuggerEngineSetupData cdbImplSetupData()
         }
         return true;
     };
+    data.extraCapabilities = DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch;
     return data;
 }
@@ -1307,6 +1308,13 @@ void CdbImpl::refresh(const RefreshRequest &request)
             }});
         };
         runCommand(cmd);
+        return;
+    }
+    if (request.kind == RefreshKind::Threads) {
+        const quint64 requestId = request.requestId;
+        runCommand({"threads", ExtensionCommand, [this, requestId](const DebuggerResponse &response) {
+            emit refreshDataReceived(requestId, RefreshKind::Threads, response.data);
+        }});
         return;
     }
     if (request.kind == RefreshKind::DebuggingHelpers) {

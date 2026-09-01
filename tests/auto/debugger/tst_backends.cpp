@@ -3399,20 +3399,20 @@ void tst_backends::testThreadsCapability()
     const GdbMi threads = threadsData["threads"];
     QVERIFY2(threads.childCount() > 0, qPrintable(threadsData.toString()));
 
-    // A thread is identified by a small ordinal and the main thread is 1, but
-    // where it sits in the list is up to the backend. Its raw OS thread id
-    // stays in the target id, which each backend spells its own way.
-    GdbMi mainThread;
+    // A thread is identified by a small ordinal, which the backend numbers its
+    // own way, while its raw OS thread id stays in the target id.
+    const QString currentId = threadsData["current-thread-id"].data();
+    QVERIFY2(!currentId.isEmpty(), qPrintable(threadsData.toString()));
+    GdbMi currentThread;
     for (const GdbMi &thread : threads) {
-        if (thread["id"].data() == "1") {
-            mainThread = thread;
+        if (thread["id"].data() == currentId) {
+            currentThread = thread;
             break;
         }
     }
-    QVERIFY2(mainThread.isValid(), qPrintable(threadsData.toString()));
-    QCOMPARE(threadsData["current-thread-id"].data(), QString("1"));
-    const QString targetId = mainThread["target-id"].data();
-    QVERIFY2(!targetId.isEmpty() && targetId != mainThread["id"].data(),
+    QVERIFY2(currentThread.isValid(), qPrintable(threadsData.toString()));
+    const QString targetId = currentThread["target-id"].data();
+    QVERIFY2(!targetId.isEmpty() && targetId != currentThread["id"].data(),
              qPrintable(threadsData.toString()));
 }
 
