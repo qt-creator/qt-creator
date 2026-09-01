@@ -687,4 +687,10 @@ QVariant QmlProfilerFindingsModel::headerData(int section, Qt::Orientation orien
     }
 }
 
+bool findingIsInSource(const QModelIndex &index)
+{
+    return index.data(QmlProfilerFindingsModel::LineRole).toInt() > 0
+           && !index.data(QmlProfilerFindingsModel::FilenameRole).toString().isEmpty();
+}
+
 } // namespace Profiler::Internal

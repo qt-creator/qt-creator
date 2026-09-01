@@ -145,6 +145,8 @@ QmlProfilerTool::QmlProfilerTool()
 
     connect(&d->m_traceView, &QmlProfilerTraceView::typeSelected,
             this, [this](int typeId) { d->selectByTypeId(typeId); });
+    connect(&d->m_dashboardView, &QmlProfilerDashboardView::typeSelected,
+            this, [this](int typeId) { d->selectByTypeId(typeId); });
 
     // Route the flame graph's details into the shared range details view.
     Timeline::RangeDetailsWidget *rangeDetails = d->m_traceView.rangeDetailsWidget();
@@ -227,6 +229,8 @@ QmlProfilerTool::QmlProfilerTool()
     connect(&d->m_quick3dView, &QmlProfilerEventsView::gotoSourceLocation,
             this, &QmlProfilerTool::gotoSourceLocation);
     connect(&d->m_findingsView, &QmlProfilerEventsView::gotoSourceLocation,
+            this, &QmlProfilerTool::gotoSourceLocation);
+    connect(&d->m_dashboardView, &QmlProfilerDashboardView::gotoSourceLocation,
             this, &QmlProfilerTool::gotoSourceLocation);
 
     //

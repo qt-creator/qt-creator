@@ -110,13 +110,9 @@ QmlProfilerFindingsMainView::QmlProfilerFindingsMainView(QmlProfilerFindingsMode
     setModel(sortModel);
 
     connect(this, &QAbstractItemView::activated, this, [this](const QModelIndex &index) {
-        // Only findings that carry a line can be shown in an editor. A failed image load is
-        // located by its URL and has none; the trace reports line 0 for those, and for
-        // Compiling ranges, so anything below 1 must not be turned into a jump.
-        const int line = index.data(QmlProfilerFindingsModel::LineRole).toInt();
-        const QString fileName = index.data(QmlProfilerFindingsModel::FilenameRole).toString();
-        if (line > 0 && !fileName.isEmpty()) {
-            emit gotoSourceLocation(fileName, line,
+        if (findingIsInSource(index)) {
+            emit gotoSourceLocation(index.data(QmlProfilerFindingsModel::FilenameRole).toString(),
+                                    index.data(QmlProfilerFindingsModel::LineRole).toInt(),
                                     index.data(QmlProfilerFindingsModel::ColumnRole).toInt());
         }
 

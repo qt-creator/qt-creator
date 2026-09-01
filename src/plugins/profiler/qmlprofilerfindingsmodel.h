@@ -59,4 +59,9 @@ private:
     QList<Finding> m_findings;
 };
 
+// Only findings that carry a line can be shown in an editor. A failed image load is located
+// by its URL and has none; the trace reports line 0 for those, and for Compiling ranges, so
+// anything below 1 must not be turned into a jump.
+bool findingIsInSource(const QModelIndex &index);
+
 } // namespace Profiler::Internal

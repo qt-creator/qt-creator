@@ -20,6 +20,10 @@ public:
 
     void updateValues();
 
+signals:
+    void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
+    void typeSelected(int typeIndex);
+
 private:
     QmlProfilerDashboardViewPrivate *d;
 };

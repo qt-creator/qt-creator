@@ -58,6 +58,10 @@ QmlProfilerPlainViewManager::QmlProfilerPlainViewManager(Timeline::RangeDetailsW
 QWidgetList QmlProfilerPlainViewManager::views(QWidget *parent)
 {
     auto dashboardView = new Internal::QmlProfilerDashboardView(&d->modelManager, parent);
+    connect(dashboardView, &Internal::QmlProfilerDashboardView::gotoSourceLocation,
+            this, &QmlProfilerPlainViewManager::gotoSourceLocation);
+    connect(dashboardView, &Internal::QmlProfilerDashboardView::typeSelected,
+            this, &QmlProfilerPlainViewManager::typeSelected);
 
     auto traceView = new Internal::QmlProfilerTraceView(&d->modelManager, d->rangeDetails);
     traceView->setParent(parent);
