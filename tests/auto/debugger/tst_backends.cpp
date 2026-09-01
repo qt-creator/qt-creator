@@ -1109,6 +1109,8 @@ private slots:
     void attachesToRunningProcess();
     void reportsTheStackOfASelectedThread_data() { addBackendRows(); }
     void reportsTheStackOfASelectedThread();
+    void mapsTheReportedSourcePath_data() { addBackendRows(); }
+    void mapsTheReportedSourcePath();
     void stopsAtABreakpointInAnInferiorOfTheOtherWordWidth_data() { addBackendRows(); }
     void stopsAtABreakpointInAnInferiorOfTheOtherWordWidth();
     void reportsTheStackOfAnInferiorOfTheOtherWordWidth_data() { addBackendRows(); }
@@ -1145,6 +1147,8 @@ private:
         bool nativeMixed = false,
         std::chrono::seconds watchdogTimeout = {},
         Debugger::Internal::GdbImplFlags gdbFlags = Debugger::Internal::GdbImplFlag::PseudoTracepoints);
+    std::unique_ptr<DebuggerBackend> createEngineWithConfiguredPaths(
+        Backend backend, const QList<QPair<QString, QString>> &sourcePathMap);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData,
         Debugger::Internal::GdbImplFlags gdbFlags = {});
@@ -1409,6 +1413,28 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
         break;
     }
     return nullptr;
+}
+
+// Configures the debugger's own symbol and source paths next to the mapping, so
+// that a session which cannot start with them set fails the test that uses this.
+// Only backends whose start data carries them can be built here.
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithConfiguredPaths(
+    Backend backend, const QList<QPair<QString, QString>> &sourcePathMap)
+{
+    if (backend != Backend::Cdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                            Environment::systemEnvironment()},
+        .extensionDir = m_backendData[backend].cdbExtensionDir,
+        .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .searchPaths = CdbImplSearchPaths{
+            .symbolPaths = {inferiorTestData(backend).executable.parentDir().nativePath()},
+            .sourcePaths = {inferiorTestData(backend).source.parentDir().nativePath()},
+            .sourcePathMap = sourcePathMap}}));
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
@@ -7563,6 +7589,76 @@ void tst_backends::reportsTheStackOfASelectedThread()
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
     engine->shutdownEngine();
     target.waitForFinished();
+}
+
+void tst_backends::mapsTheReportedSourcePath()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    // Where the sources sit now, against the place they were built from, which is
+    // all the debug information knows about.
+    const FilePath mappedDir = FilePath::fromString(m_tempDir.path()) / "mapped";
+    QVERIFY(mappedDir.ensureWritableDir());
+    const FilePath mappedSource = mappedDir / testData.source.fileName();
+    if (!mappedSource.exists())
+        QVERIFY(testData.source.copyFile(mappedSource));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngineWithConfiguredPaths(backend,
+        {{testData.source.parentDir().nativePath(), mappedDir.nativePath()}});
+    if (!debuggerBackend)
+        QSKIP("This backend's start data carries no source path map yet.");
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        insertResults[requestId] = ok;
+    });
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, testData](InferiorEvent event) {
+        if (event == InferiorEvent::EngineSetupOk) {
+            BreakpointChangeRequest request;
+            request.op = BreakpointOp::Insert;
+            request.requestId = 340;
+            request.params.type = BreakpointByFileAndLine;
+            request.params.fileName = testData.source;
+            request.params.textPosition.line = testData.breakpointLine;
+            request.params.enabled = true;
+            engine->changeBreakpoint(request);
+        }
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(340)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY2(insertResults.value(340), "the breakpoint was never inserted");
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+
+    QCOMPARE(debuggerBackend->stoppedFile(), mappedSource);
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 341;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    const GdbMi frames = responses.value(int(RefreshKind::FullStack))["stack"]["frames"];
+    QVERIFY(frames.childCount() > 0);
+    QCOMPARE(FilePath::fromUserInput(frames.childAt(0)["file"].data()), mappedSource);
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
 }
 
 void tst_backends::stopsAtABreakpointInAnInferiorOfTheOtherWordWidth()

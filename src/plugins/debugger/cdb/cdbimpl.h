@@ -17,6 +17,15 @@
 
 namespace Debugger::Internal {
 
+class DEBUGGER_EXPORT CdbImplSearchPaths
+{
+public:
+    QStringList symbolPaths;
+    QStringList sourcePaths;
+    // What the debugger reports against where the sources are, in native form.
+    QList<QPair<QString, QString>> sourcePathMap;
+};
+
 class DEBUGGER_EXPORT CdbImplStartData
 {
 public:
@@ -25,6 +34,7 @@ public:
     Utils::FilePath extensionDir;
     QString extensionFileName;
     Utils::FilePath dumperScriptsDir;
+    CdbImplSearchPaths searchPaths;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     // Only the ctrl-c stub next to the qtcreator executable makes
@@ -82,6 +92,7 @@ private:
     void restartSession();
     bool isAttach() const;
     bool isCore() const;
+    QList<QPair<QString, QString>> sourcePathMap() const;
     enum class Wow64State { Unknown, None, Stack32Bit };
     void ensureStackBitness(const std::function<void()> &whenReady);
     void checkStackBitness(bool maySwitch);

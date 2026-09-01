@@ -10,6 +10,7 @@
 
 #include <utils/qtcassert.h>
 
+#include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -192,6 +193,11 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     CommandLine cdbCommand = m_startData.debuggerRunData.command;
     cdbCommand.addArg("-a" + m_startData.extensionFileName);
     cdbCommand.addArgs({"-lines", "-G", "-c", ".idle_cmd " + m_extensionCommandPrefix + "idle"});
+    const CdbImplSearchPaths &paths = m_startData.searchPaths;
+    if (!paths.sourcePaths.isEmpty())
+        cdbCommand.addArgs({"-srcpath", paths.sourcePaths.join(';')});
+    if (!paths.symbolPaths.isEmpty())
+        cdbCommand.addArgs({"-y", paths.symbolPaths.join(';')});
     // cdb launches the inferior itself, so the inferior's environment and working directory
     // have to be the ones cdb is started with.
     ProcessRunData runData = m_startData.debuggerRunData;
@@ -1181,6 +1187,11 @@ bool CdbImpl::isAttach() const
     return std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData);
 }
 
+QList<QPair<QString, QString>> CdbImpl::sourcePathMap() const
+{
+    return m_startData.searchPaths.sourcePathMap;
+}
+
 bool CdbImpl::isCore() const
 {
     return std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData);
@@ -1333,12 +1344,23 @@ static GdbMi interpreterStackFrames(const GdbMi &msg)
     return frames;
 }
 
+// What a pdb records is where the sources were when the inferior was built; the
+// mapping says where they are now.
+static QString mappedFromDebugger(const QString &file,
+                                  const QList<QPair<QString, QString>> &sourcePathMap)
+{
+    if (file.isEmpty() || sourcePathMap.isEmpty())
+        return file;
+    return cdbSourcePathMapping(QDir::toNativeSeparators(file), sourcePathMap, DebuggerToSource);
+}
+
 // The extension reports the full path as "fullname" and the plain base name as "file", and
 // the module as "from". StackFrame::parseFrame() expects the path in "file" and the module
 // in "module" - a base name there would be resolved against the build directory.
-static GdbMi normalizedFrame(const GdbMi &frameMi)
+static GdbMi normalizedFrame(const GdbMi &frameMi,
+                             const QList<QPair<QString, QString>> &sourcePathMap)
 {
-    const QString fullName = frameMi["fullname"].data();
+    const QString fullName = mappedFromDebugger(frameMi["fullname"].data(), sourcePathMap);
     const QString module = frameMi["from"].data();
     if (fullName.isEmpty() && module.isEmpty())
         return frameMi;
@@ -1346,11 +1368,12 @@ static GdbMi normalizedFrame(const GdbMi &frameMi)
     frame.m_type = GdbMi::Tuple;
     frame.m_name = frameMi.m_name;
     for (const GdbMi &child : frameMi) {
-        if (child.m_name == "file" && !fullName.isEmpty())
+        if ((child.m_name == "file" || child.m_name == "fullname") && !fullName.isEmpty())
             continue;
         frame.addChild(child);
     }
     if (!fullName.isEmpty()) {
+        frame.addChild(constMi("fullname", fullName));
         frame.addChild(constMi("file", FilePath::fromUserInput(fullName)
                                            .normalizedPathName().toUrlishString()));
     }
@@ -1359,12 +1382,13 @@ static GdbMi normalizedFrame(const GdbMi &frameMi)
     return frame;
 }
 
-static GdbMi stackTreeFromFrames(const GdbMi &reply)
+static GdbMi stackTreeFromFrames(const GdbMi &reply,
+                                 const QList<QPair<QString, QString>> &sourcePathMap)
 {
     GdbMi frames;
     frames.m_type = GdbMi::List;
     for (const GdbMi &frameMi : reply)
-        frames.addChild(normalizedFrame(frameMi));
+        frames.addChild(normalizedFrame(frameMi, sourcePathMap));
     frames.m_name = "frames";
     GdbMi stack;
     stack.m_type = GdbMi::Tuple;
@@ -1420,7 +1444,7 @@ void CdbImpl::refresh(const RefreshRequest &request)
         DebuggerCommand cmd("stack", ExtensionCommand,
                            [this, requestId](const DebuggerResponse &response) {
             emit refreshDataReceived(requestId, RefreshKind::FullStack,
-                                     stackTreeFromFrames(response.data));
+                                     stackTreeFromFrames(response.data, sourcePathMap()));
         });
         cmd.args = request.stackDepthLimit < 0 ? QString("unlimited")
                                                : QString::number(request.stackDepthLimit);
@@ -1437,7 +1461,7 @@ void CdbImpl::refresh(const RefreshRequest &request)
                                      : GdbMi();
             if (frames.childCount() != 0) {
                 emit refreshDataReceived(requestId, RefreshKind::FullStack,
-                                         stackTreeFromFrames(frames));
+                                         stackTreeFromFrames(frames, sourcePathMap()));
                 return;
             }
             runCommand({"qmlstack", ExtensionCommand,
@@ -1449,7 +1473,7 @@ void CdbImpl::refresh(const RefreshRequest &request)
                     return;
                 }
                 emit refreshDataReceived(requestId, RefreshKind::FullStack,
-                                         stackTreeFromFrames(fallback.data));
+                                         stackTreeFromFrames(fallback.data, sourcePathMap()));
             }});
         };
         runCommand(cmd);
@@ -1933,7 +1957,8 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     const GdbMi stack = stopData["stack"];
     if (stack.childCount() > 0) {
         const GdbMi &topFrame = stack.childAt(0);
-        const QString fullName = topFrame["fullname"].data();
+        const QString fullName = mappedFromDebugger(topFrame["fullname"].data(),
+                                                    sourcePathMap());
         if (!fullName.isEmpty())
             emit locationChanged(FilePath::fromUserInput(fullName), topFrame["line"].toInt());
     }
