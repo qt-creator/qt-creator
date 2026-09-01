@@ -87,6 +87,8 @@ using PlainTextEdit = QPlainTextEdit;
 #endif
 #include <utils/hostosinfo.h>
 
+#include <limits>
+
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
 #   define KEY_DEBUG(s) qDebug() << s
@@ -3771,6 +3773,13 @@ public:
         QList<AutoCommand> autoCommands;
         EventContext event;
         QString insertMode;
+        // What "v:operator" answers: the last operator that ran, written the
+        // way it is typed. It keeps the last one, as Vim does.
+        QString lastOperator;
+        // What "v:statusmsg" answers: the last thing the engine itself had to
+        // say about how many lines a command touched. An ":echo" does not go in
+        // here, as it does not in Vim.
+        QString statusMessage;
         QHash<QString, UserCommand> userCommands; // by the name it is called by
         QString currentAutoGroup; // group ":augroup" left current
         int lastBufferNumber = 0; // hands out the number bufnr() reports
@@ -5315,6 +5324,21 @@ bool FakeVimHandler::Private::finishSearch()
 void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
 {
     //dump("FINISH MOVEMENT");
+    // Which operator ran, written the way it is typed, which is what
+    // "v:operator" answers. The ones Vim has no name for are left alone rather
+    // than given one of their own.
+    static const QHash<int, QString> operatorNames = {
+        {ChangeSubMode, "c"}, {DeleteSubMode, "d"}, {YankSubMode, "y"},
+        {FilterSubMode, "!"}, {IndentSubMode, "="}, {ShiftLeftSubMode, "<"},
+        {ShiftRightSubMode, ">"}, {InvertCaseSubMode, "g~"},
+        {DownCaseSubMode, "gu"}, {UpCaseSubMode, "gU"}, {Rot13SubMode, "g?"},
+        {ReflowSubMode, "gq"}, {ReflowKeepCursorSubMode, "gw"},
+        {OperatorFuncSubMode, "g@"}
+    };
+    if (const auto it = operatorNames.constFind(g.submode);
+            it != operatorNames.constEnd()) {
+        g.lastOperator = it.value();
+    }
     if (g.submode == FilterSubMode) {
         int beginLine = lineForPosition(anchor());
         int endLine = lineForPosition(position());
@@ -5768,6 +5792,7 @@ void FakeVimHandler::Private::reportLineChange(LineChange what, int lines, int t
                        times == 1 ? Tr::tr("1 time") : Tr::tr("%1 times").arg(times));
         break;
     }
+    g.statusMessage = msg;
     showMessage(MessageInfo, msg);
 }
 
@@ -12755,12 +12780,118 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
         return true;
     }
     if (name == "v:version") { *result = VimValue(qlonglong(900)); return true; }
+    // The numbers type() answers with, under the names a script compares
+    // against: "type(x) == v:t_string". Values taken from Vim 9.1, where the
+    // order is not the one the names are in - a Blob is 10 and comes after a
+    // Job and a Channel. The types this engine has no values of are named all
+    // the same, since a comparison against one has to be false rather than an
+    // error.
+    static const QHash<QString, qlonglong> typeNumbers = {
+        {"v:t_number", 0}, {"v:t_string", 1}, {"v:t_func", 2}, {"v:t_list", 3},
+        {"v:t_dict", 4}, {"v:t_float", 5}, {"v:t_bool", 6}, {"v:t_none", 7},
+        {"v:t_job", 8}, {"v:t_channel", 9}, {"v:t_blob", 10}, {"v:t_class", 12},
+        {"v:t_object", 13}, {"v:t_typealias", 14}, {"v:t_enum", 15},
+        {"v:t_enumvalue", 16}, {"v:t_tuple", 17}
+    };
+    if (const auto it = typeNumbers.constFind(name); it != typeNumbers.constEnd()) {
+        *result = VimValue(it.value());
+        return true;
+    }
+    // How far a number reaches and how wide the things it is held in are. A
+    // Number is a 64-bit signed one here as it is in Vim, and "v:maxcol" is
+    // what a column may be at most, which is a 32-bit signed maximum rather
+    // than a 64-bit one. Values taken from Vim 9.1 on a 64-bit build.
+    static const QHash<QString, qlonglong> limits = {
+        {"v:numbermax", std::numeric_limits<qlonglong>::max()},
+        {"v:numbermin", std::numeric_limits<qlonglong>::min()},
+        {"v:numbersize", 64},
+        {"v:maxcol", std::numeric_limits<int>::max()},
+        {"v:sizeofint", 4}, {"v:sizeoflong", 8}, {"v:sizeofpointer", 8}
+    };
+    if (const auto it = limits.constFind(name); it != limits.constEnd()) {
+        *result = VimValue(it.value());
+        return true;
+    }
+    // What a script asks to find out where it is running. The numbers this
+    // engine has no answer for are the ones Vim itself reports as zero when
+    // nothing is going on, so a script reading one is not told a story.
+    static const QHash<QString, qlonglong> zeroes = {
+        {"v:vim_did_enter", 1}, {"v:windowid", 0}, {"v:dying", 0},
+        {"v:profiling", 0}, {"v:testing", 0}, {"v:shell_error", 0},
+        {"v:prevcount", 0}, {"v:echospace", 0},
+        // FIXME: v:prevcount should be the count of the last but one command.
+        // The count is already spent by the time the modes are cleared, so
+        // recording it means hooking wherever a count is used, which is
+        // scattered - it holds zero rather than a wrong number.
+        // Only meaningful while 'foldtext' is being worked out, and there is no
+        // folding here, so they hold what Vim holds outside one.
+        // FIXME: Give these real values if folding ever arrives.
+        {"v:foldlevel", 0}, {"v:foldstart", 0}, {"v:foldend", 0}
+    };
+    if (const auto it = zeroes.constFind(name); it != zeroes.constEnd()) {
+        *result = VimValue(it.value());
+        return true;
+    }
+    if (name == "v:progname") {
+        *result = VimValue(QString("vim"));
+        return true;
+    }
+    if (name == "v:versionlong") {
+        // Written as Vim writes it - major, then minor and patch in four each -
+        // and kept in step with what v:version says rather than naming a patch
+        // level this engine does not have.
+        *result = VimValue(qlonglong(9010000));
+        return true;
+    }
+    static const QSet<QString> emptyStrings = {
+        "v:warningmsg", "v:this_session", "v:servername",
+        "v:folddashes", "v:swapname", "v:swapcommand", "v:cmdarg",
+        "v:termresponse", "v:scrollstart"
+    };
+    if (emptyStrings.contains(name)) {
+        *result = VimValue(QString());
+        return true;
+    }
+    if (name == "v:errors" || name == "v:oldfiles" || name == "v:argv") {
+        *result = VimValue::list();
+        return true;
+    }
+    if (name == "v:exiting") {
+        // Nothing is exiting, which Vim answers with v:null rather than zero.
+        *result = VimValue::special("v:null");
+        return true;
+    }
+    if (name == "v:lang" || name == "v:ctype" || name == "v:collate"
+            || name == "v:lc_time") {
+        *result = VimValue(QLocale().name() + ".UTF-8");
+        return true;
+    }
     if (name == "v:event") {
         *result = VimValue::dict(g.event.data);
         return true;
     }
     if (name == "v:char") {
         *result = VimValue(g.event.typedChar);
+        return true;
+    }
+    if (name == "v:operator") {
+        *result = VimValue(g.lastOperator);
+        return true;
+    }
+    if (name == "v:statusmsg") {
+        *result = VimValue(g.statusMessage);
+        return true;
+    }
+    if (name == "v:searchforward") {
+        // Which way the last search went, which is also what "n" follows. A
+        // script may write it to turn "n" around without searching again.
+        *result = VimValue(qlonglong(g.lastSearchForward ? 1 : 0));
+        return true;
+    }
+    if (name == "v:register") {
+        // The register the command in hand was given, which is the unnamed one
+        // where none was named.
+        *result = VimValue(QString(QChar(m_register == 0 ? '"' : m_register)));
         return true;
     }
     if (name == "v:insertmode") {
@@ -12880,6 +13011,15 @@ void FakeVimHandler::Private::setVariable(const QString &name, const VimValue &v
         // nothing at all where it empties it, more than one character where it
         // says so.
         g.event.typedChar = value.toString();
+        return;
+    }
+    if (name == "v:statusmsg") {
+        g.statusMessage = value.toString();
+        return;
+    }
+    if (name == "v:searchforward") {
+        // Writing it turns "n" around, as in Vim, without searching again.
+        g.lastSearchForward = value.toNumber() != 0;
         return;
     }
     if (name == "v:hlsearch") {

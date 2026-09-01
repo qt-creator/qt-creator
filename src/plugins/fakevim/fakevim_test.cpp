@@ -322,6 +322,9 @@ private slots:
     void test_vim_ex_join_count();
     void test_vim_command_nargs();
     void test_vim_autocmd_filewrite();
+    void test_vim_script_type_constants();
+    void test_vim_script_searchforward();
+    void test_vim_script_environment_vars();
     void test_vim_line_address_zero_and_counts();
     void test_vim_operator_motion_at_the_edge();
     void test_vim_script_characters_and_bytes();
@@ -12943,6 +12946,220 @@ void FakeVimTester::test_vim_substitute_print_flags()
     // What it then reaches is asserted in test_vim_substitute_count().
     data.setText("ab" N "ab" N "ab");
     QVERIFY(!run("1substitute/a/X/ 2").contains("E488"));
+}
+
+void FakeVimTester::test_vim_script_environment_vars()
+{
+    // The v: variables a script reads to find out where it is running. Vim 9.1
+    // answers each of these, and a script that reads one before anything has
+    // happened must not be met with an undefined variable.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    QCOMPARE(value("v:progname"), QLatin1String("vim"));
+    QCOMPARE(value("v:shell_error"), QLatin1String("0"));
+    QCOMPARE(value("v:dying"), QLatin1String("0"));
+    QCOMPARE(value("v:profiling"), QLatin1String("0"));
+    QCOMPARE(value("v:testing"), QLatin1String("0"));
+    // v:prevcount holds zero. Vim has it hold the count of the last but one
+    // command, which is not reproduced here - see the note in the source.
+    QCOMPARE(value("v:prevcount"), QLatin1String("0"));
+    QCOMPARE(value("v:windowid"), QLatin1String("0"));
+    QCOMPARE(value("v:vim_did_enter"), QLatin1String("1"));
+
+    // Empty strings rather than nothing at all.
+    QCOMPARE(value("v:warningmsg"), QLatin1String(""));
+    QCOMPARE(value("v:this_session"), QLatin1String(""));
+    QCOMPARE(value("v:servername"), QLatin1String(""));
+    QCOMPARE(value("v:folddashes"), QLatin1String(""));
+
+    // Lists, and empty ones.
+    QCOMPARE(value("type(v:errors) == v:t_list"), QLatin1String("1"));
+    QCOMPARE(value("len(v:errors)"), QLatin1String("0"));
+    QCOMPARE(value("type(v:oldfiles) == v:t_list"), QLatin1String("1"));
+    QCOMPARE(value("type(v:argv) == v:t_list"), QLatin1String("1"));
+
+    // Nothing is exiting, which Vim answers with v:null and not with zero -
+    // the two are told apart by their type.
+    QCOMPARE(value("v:exiting"), QLatin1String("v:null"));
+    QCOMPARE(value("type(v:exiting) == v:t_none"), QLatin1String("1"));
+    QCOMPARE(value("v:exiting is v:null"), QLatin1String("1"));
+
+    // The version, written as Vim writes it, and in step with v:version.
+    QCOMPARE(value("v:versionlong"), QLatin1String("9010000"));
+    QCOMPARE(value("v:versionlong / 1000000"), QLatin1String("9"));
+
+    // The locale, which is a name with an encoding behind it.
+    QCOMPARE(value("v:lang =~# '\\.UTF-8$'"), QLatin1String("1"));
+    QCOMPARE(value("v:ctype ==# v:lang"), QLatin1String("1"));
+    QCOMPARE(value("v:collate ==# v:lang"), QLatin1String("1"));
+
+    // v:statusmsg holds what the engine itself last had to say about how many
+    // lines a command touched - measured in Vim 9.1 with 'report' at zero, so
+    // every count is reported.
+    data.setText("a" N "b" N "c" N "d" N "e" N "f");
+    // Options are shared with every other test slot, so this one is put back
+    // afterwards: leaving 'report' at zero makes line counts appear in tests
+    // that ran fine without them.
+    const QString wasReport = value("&report");
+    data.doCommand("set report=0");
+    data.doKeys("gg03yy");
+    QCOMPARE(value("v:statusmsg"), QLatin1String("3 lines yanked"));
+    data.doKeys("gg02dd");
+    QCOMPARE(value("v:statusmsg"), QLatin1String("2 fewer lines"));
+    // An ":echo" does not go in there, so the last one stands.
+    data.doCommand("echo 'plain'");
+    QCOMPARE(value("v:statusmsg"), QLatin1String("2 fewer lines"));
+    // A script may write it.
+    data.doCommand("let v:statusmsg = 'mine'");
+    QCOMPARE(value("v:statusmsg"), QLatin1String("mine"));
+    data.doCommand("set report=" + wasReport);
+
+    // The fold ones hold what Vim holds outside a 'foldtext'.
+    QCOMPARE(value("v:foldlevel"), QLatin1String("0"));
+    QCOMPARE(value("v:foldstart"), QLatin1String("0"));
+    QCOMPARE(value("v:foldend"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_script_searchforward()
+{
+    // v:searchforward says which way the last search went and may be written to
+    // turn "n" around; v:register is the register the command in hand was
+    // given. Both measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("alpha" N "beta" N "alpha" N "beta");
+
+    // Searching forward and back says so.
+    data.doKeys("gg0/beta<CR>");
+    QCOMPARE(value("v:searchforward"), QLatin1String("1"));
+    data.doKeys("G$?alpha<CR>");
+    QCOMPARE(value("v:searchforward"), QLatin1String("0"));
+    data.doKeys("gg0/beta<CR>");
+    QCOMPARE(value("v:searchforward"), QLatin1String("1"));
+
+    // Writing it turns "n" around without searching again: from line 1 a
+    // forward "n" reaches the next "beta" below, and a backward one the one
+    // above.
+    data.setText("beta" N "x" N "beta" N "x" N "beta");
+    data.doKeys("gg0/beta<CR>");     // on line 3 now
+    QCOMPARE(value("line('.')"), QLatin1String("3"));
+    data.doKeys("n");                // forward again, line 5
+    QCOMPARE(value("line('.')"), QLatin1String("5"));
+    data.doCommand("let v:searchforward = 0");
+    QCOMPARE(value("v:searchforward"), QLatin1String("0"));
+    data.doKeys("n");                // now backwards, line 3
+    QCOMPARE(value("line('.')"), QLatin1String("3"));
+
+    // The register the command in hand was given: the unnamed one by default,
+    // which is written as a quote.
+    QCOMPARE(value("v:register"), QLatin1String("\""));
+
+    // v:operator is the last operator that ran, written the way it is typed,
+    // and it keeps the last one. Values measured in Vim 9.1.
+    data.setText("alpha beta" N "second line" N "third line");
+    data.doKeys("gg0dd");
+    QCOMPARE(value("v:operator"), QLatin1String("d"));
+    data.doKeys("gg0yy");
+    QCOMPARE(value("v:operator"), QLatin1String("y"));
+    data.doKeys("gg0cwZ<Esc>");
+    QCOMPARE(value("v:operator"), QLatin1String("c"));
+    data.doKeys("gg0guu");
+    QCOMPARE(value("v:operator"), QLatin1String("gu"));
+    data.doKeys("gg0gUU");
+    QCOMPARE(value("v:operator"), QLatin1String("gU"));
+    data.doKeys("gg0>>");
+    QCOMPARE(value("v:operator"), QLatin1String(">"));
+    // That it KEEPS the last one is not asserted: nothing reachable from here
+    // clears it either way, so an assertion would hold whatever the code did.
+    // Writing the value unconditionally instead of only for a known operator
+    // passes every check above.
+}
+
+void FakeVimTester::test_vim_script_type_constants()
+{
+    // The v:t_* names a script compares type() against. All values measured in
+    // Vim 9.1, where the numbers are NOT in the order the names are: a Blob is
+    // 10, after a Job and a Channel, and there is no 11.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    QCOMPARE(value("v:t_number"), QLatin1String("0"));
+    QCOMPARE(value("v:t_string"), QLatin1String("1"));
+    QCOMPARE(value("v:t_func"), QLatin1String("2"));
+    QCOMPARE(value("v:t_list"), QLatin1String("3"));
+    QCOMPARE(value("v:t_dict"), QLatin1String("4"));
+    QCOMPARE(value("v:t_float"), QLatin1String("5"));
+    QCOMPARE(value("v:t_bool"), QLatin1String("6"));
+    QCOMPARE(value("v:t_none"), QLatin1String("7"));
+    QCOMPARE(value("v:t_job"), QLatin1String("8"));
+    QCOMPARE(value("v:t_channel"), QLatin1String("9"));
+    QCOMPARE(value("v:t_blob"), QLatin1String("10"));
+    QCOMPARE(value("v:t_class"), QLatin1String("12"));
+    QCOMPARE(value("v:t_object"), QLatin1String("13"));
+    QCOMPARE(value("v:t_typealias"), QLatin1String("14"));
+    QCOMPARE(value("v:t_enum"), QLatin1String("15"));
+    QCOMPARE(value("v:t_enumvalue"), QLatin1String("16"));
+    QCOMPARE(value("v:t_tuple"), QLatin1String("17"));
+
+    // What they are for: they line up with what type() answers.
+    QCOMPARE(value("type(0) == v:t_number"), QLatin1String("1"));
+    QCOMPARE(value("type('x') == v:t_string"), QLatin1String("1"));
+    QCOMPARE(value("type([]) == v:t_list"), QLatin1String("1"));
+    QCOMPARE(value("type({}) == v:t_dict"), QLatin1String("1"));
+    QCOMPARE(value("type(1.5) == v:t_float"), QLatin1String("1"));
+    QCOMPARE(value("type(v:true) == v:t_bool"), QLatin1String("1"));
+    QCOMPARE(value("type(v:null) == v:t_none"), QLatin1String("1"));
+    QCOMPARE(value("type(function('strlen')) == v:t_func"), QLatin1String("1"));
+    // A type this engine has no values of compares false rather than failing.
+    QCOMPARE(value("type('x') == v:t_blob"), QLatin1String("0"));
+
+    // How far a number reaches, and how wide what holds it is. Measured in Vim
+    // 9.1 on a 64-bit build. "v:maxcol" is a 32-bit maximum, not a 64-bit one.
+    QCOMPARE(value("v:numbermax"), QLatin1String("9223372036854775807"));
+    QCOMPARE(value("v:numbermin"), QLatin1String("-9223372036854775808"));
+    QCOMPARE(value("v:numbersize"), QLatin1String("64"));
+    QCOMPARE(value("v:maxcol"), QLatin1String("2147483647"));
+    QCOMPARE(value("v:sizeofint"), QLatin1String("4"));
+    QCOMPARE(value("v:sizeoflong"), QLatin1String("8"));
+    QCOMPARE(value("v:sizeofpointer"), QLatin1String("8"));
+    // They line up with what arithmetic here actually does.
+    QCOMPARE(value("v:numbermax + 0 == v:numbermax"), QLatin1String("1"));
+    QCOMPARE(value("v:numbermax > v:maxcol"), QLatin1String("1"));
 }
 
 void FakeVimTester::test_vim_autocmd_filewrite()
