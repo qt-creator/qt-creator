@@ -25,6 +25,7 @@ private slots:
 
     void testRangeLength_data();
     void testRangeLength();
+
 };
 
 void tst_Text::testPositionFromFileName_data()

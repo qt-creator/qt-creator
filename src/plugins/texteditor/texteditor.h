@@ -351,6 +351,7 @@ public:
     static Utils::Id UndefinedSymbolSelection;
     static Utils::Id UnusedSymbolSelection;
     static Utils::Id OtherSelection;
+    static Utils::Id DecodingErrorSelection;
     static Utils::Id ObjCSelection;
     static Utils::Id DebuggerExceptionSelection;
 

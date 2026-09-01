@@ -255,6 +255,7 @@ TextDocument::TextDocument(Id id)
     : d(new TextDocumentPrivate)
 {
     setDecodingFallbackEnabled(true);
+    setCollectDecodingErrorDetails(true);
     d->m_document.setParent(this);
     connect(&d->m_document, &QTextDocument::modificationChanged,
             this, &TextDocument::modificationChanged);

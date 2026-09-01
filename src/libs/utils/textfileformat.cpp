@@ -90,6 +90,185 @@ QByteArray TextFileFormat::decodingErrorSample(const QByteArray &data)
     return p < 0 ? data : data.left(p);
 }
 
+static int utf8SequenceLength(const QByteArray &data, qsizetype offset)
+{
+    const auto byte = static_cast<unsigned char>(data.at(offset));
+    if (byte <= 0x7f)
+        return 1;
+
+    int length = 0;
+    unsigned char secondByteMin = 0x80;
+    unsigned char secondByteMax = 0xbf;
+    if (byte >= 0xc2 && byte <= 0xdf) {
+        length = 2;
+    } else if (byte == 0xe0) {
+        length = 3;
+        secondByteMin = 0xa0;
+    } else if ((byte >= 0xe1 && byte <= 0xec) || (byte >= 0xee && byte <= 0xef)) {
+        length = 3;
+    } else if (byte == 0xed) {
+        length = 3;
+        secondByteMax = 0x9f;
+    } else if (byte == 0xf0) {
+        length = 4;
+        secondByteMin = 0x90;
+    } else if (byte >= 0xf1 && byte <= 0xf3) {
+        length = 4;
+    } else if (byte == 0xf4) {
+        length = 4;
+        secondByteMax = 0x8f;
+    }
+
+    bool valid = length > 0 && offset + length <= data.size();
+    for (int i = 1; valid && i < length; ++i) {
+        const auto continuation = static_cast<unsigned char>(data.at(offset + i));
+        const unsigned char minimum = i == 1 ? secondByteMin : 0x80;
+        const unsigned char maximum = i == 1 ? secondByteMax : 0xbf;
+        valid = continuation >= minimum && continuation <= maximum;
+    }
+    return valid ? length : 0;
+}
+
+/*!
+    Maps ascending byte offsets to UTF-16 positions in the decoded text.
+*/
+QList<qsizetype> TextFileFormat::decodedPositionsForByteOffsets(
+    const QByteArray &data, const TextEncoding &encoding,
+    const QList<qsizetype> &byteOffsets, LineTerminationMode lineTerminationMode)
+{
+    QStringDecoder decoder(encoding.name());
+    QList<qsizetype> positions;
+    positions.reserve(byteOffsets.size());
+    qsizetype decodedPosition = 0;
+    qsizetype decodedByteOffset = encoding.isUtf8() && data.startsWith("\xef\xbb\xbf") ? 3 : 0;
+    bool previousCarriageReturn = false;
+    const auto countCharacters = [&](QStringView decoded) {
+        for (QChar character : decoded) {
+            if (character == QLatin1Char('\n') && previousCarriageReturn
+                && lineTerminationMode != CRLFLineTerminator) {
+                --decodedPosition;
+            }
+            if (character != QLatin1Char('\r') || lineTerminationMode != CRLFLineTerminator)
+                ++decodedPosition;
+            previousCarriageReturn = character == QLatin1Char('\r');
+        }
+    };
+
+    for (qsizetype offset : byteOffsets) {
+        const qsizetype targetOffset = qBound(decodedByteOffset, offset, qsizetype(data.size()));
+        if (encoding.isUtf8()) {
+            while (decodedByteOffset < targetOffset) {
+                const int length = qMax(1, utf8SequenceLength(data, decodedByteOffset));
+                if (decodedByteOffset + length > targetOffset)
+                    break;
+                const auto byte = static_cast<unsigned char>(data.at(decodedByteOffset));
+                if (byte < 0x80) {
+                    const QChar character{char16_t(byte)};
+                    countCharacters(QStringView(&character, 1));
+                } else {
+                    decodedPosition += length == 4 ? 2 : 1;
+                    previousCarriageReturn = false;
+                }
+                decodedByteOffset += length;
+            }
+        } else {
+            const QString decoded = decoder.decode(QByteArrayView(data).sliced(
+                decodedByteOffset, targetOffset - decodedByteOffset));
+            countCharacters(decoded);
+            decodedByteOffset = targetOffset;
+        }
+        positions.append(decodedPosition);
+    }
+    return positions;
+}
+
+static QList<qsizetype> findDecodingErrorOffsets(const QByteArray &data,
+                                                 const TextEncoding &encoding)
+{
+    constexpr qsizetype maximumOffsets = TextFileFormat::MaximumDecodingErrorOffsets + 1;
+
+    if (encoding.isUtf8()) {
+        QList<qsizetype> offsets;
+        for (qsizetype offset = 0; offset < data.size() && offsets.size() < maximumOffsets;) {
+            const int length = utf8SequenceLength(data, offset);
+            if (length) {
+                offset += length;
+            } else {
+                offsets.append(offset);
+                ++offset;
+            }
+        }
+        return offsets;
+    }
+
+    QStringDecoder decoder(encoding.name());
+    QList<qsizetype> offsets;
+    qsizetype pendingSequenceOffset = -1;
+    qsizetype decoderResetOffset = 0;
+    const auto decodeByte = [&](qsizetype offset) {
+        const QString decoded = decoder.decode(QByteArrayView(data).sliced(offset, 1));
+        if (decoder.hasError()) {
+            const qsizetype errorOffset = pendingSequenceOffset >= 0
+                                              ? pendingSequenceOffset : offset;
+            offsets.append(errorOffset);
+            decoder = QStringDecoder(encoding.name());
+            decoderResetOffset = offset + 1;
+            pendingSequenceOffset = -1;
+
+            // Some decoders only report an incomplete sequence when they see the next byte.
+            // Retry that byte from a clean state so it is not lost from the decoded stream.
+            if (errorOffset < offset) {
+                QStringDecoder retryDecoder(encoding.name());
+                const QString retried
+                    = retryDecoder.decode(QByteArrayView(data).sliced(offset, 1));
+                decoderResetOffset = offset;
+                if (retryDecoder.hasError()) {
+                    offsets.append(offset);
+                    decoder = QStringDecoder(encoding.name());
+                    decoderResetOffset = offset + 1;
+                } else {
+                    decoder = std::move(retryDecoder);
+                    if (retried.isEmpty())
+                        pendingSequenceOffset = offset;
+                }
+            }
+        } else if (decoded.isEmpty() && pendingSequenceOffset < 0) {
+            pendingSequenceOffset = offset;
+        } else if (!decoded.isEmpty()) {
+            pendingSequenceOffset = -1;
+        }
+    };
+
+    QStringDecoder chunkDecoder(encoding.name());
+    constexpr qsizetype chunkSize = 4096;
+    constexpr qsizetype sequenceTailSize = 64;
+    for (qsizetype start = 0; start < data.size() && offsets.size() < maximumOffsets;
+         start += chunkSize) {
+        const qsizetype end = qMin(start + chunkSize, data.size());
+        const QByteArrayView chunk = QByteArrayView(data).sliced(start, end - start);
+        const QString decoded = chunkDecoder.decode(chunk);
+        qsizetype byteStart = start;
+        if (!chunkDecoder.hasError()) {
+            // Keep the sequence start for a character spanning the next chunk boundary.
+            const qsizetype bulkSize = qMax(qsizetype(0), chunk.size() - sequenceTailSize);
+            const QString bulk = decoder.decode(chunk.first(bulkSize));
+            if (!bulk.isEmpty())
+                pendingSequenceOffset = -1;
+            byteStart += bulkSize;
+        }
+        for (qsizetype offset = byteStart; offset < end && offsets.size() < maximumOffsets;
+             ++offset) {
+            decodeByte(offset);
+        }
+        if (chunkDecoder.hasError()) {
+            chunkDecoder = QStringDecoder(encoding.name());
+            const QString restored = chunkDecoder.decode(QByteArrayView(data).sliced(
+                decoderResetOffset, end - decoderResetOffset));
+        }
+    }
+    return offsets.sliced(0, qMin(offsets.size(), maximumOffsets));
+}
+
 TextEncoding TextFileFormat::encoding() const
 {
     return m_encoding;
@@ -111,13 +290,10 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
     QStringDecoder decoder(m_encoding.name());
     *target = decoder.decode(data);
 
-    if (decoder.hasError())
-        return false;
-
     if (lineTerminationMode == TextFileFormat::CRLFLineTerminator)
         target->remove(QLatin1Char('\r'));
 
-    return true;
+    return !decoder.hasError();
 }
 
 /*!
@@ -131,14 +307,19 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
     primary encoding. On a successful retry, \a retryEncoding becomes the
     format's encoding and \c ReadResult::usedDecodingFallback is set.
 
+    With \a errorDetails set to Collect, retains the failed input and collects
+    the first 1001 error offsets for editor diagnostics. Other callers skip
+    the diagnostic scan.
+
     Returns whether decoding was possible without errors. If an error occurs,
     it is returned together with a decoding error sample.
 */
 
 TextFileFormat::ReadResult
 TextFileFormat::readFile(const FilePath &filePath,
-                         const TextEncoding &defaultEncoding,
-                         const TextEncoding &retryEncoding)
+                        const TextEncoding &defaultEncoding,
+                        const TextEncoding &retryEncoding,
+                        DecodingErrorDetails errorDetails)
 {
     QByteArray data;
     try {
@@ -175,6 +356,18 @@ TextFileFormat::readFile(const FilePath &filePath,
         result.code = TextFileFormat::ReadEncodingError;
         result.error = Tr::tr("An encoding error was encountered.");
         result.decodingErrorSample = TextFileFormat::decodingErrorSample(data);
+        if (errorDetails == DecodingErrorDetails::Skip)
+            return result;
+        result.decodingErrorOffsets = findDecodingErrorOffsets(data, m_encoding);
+        result.decodingErrorData = data;
+        if (!result.decodingErrorOffsets.isEmpty()) {
+            result.decodingErrorOffset = result.decodingErrorOffsets.first();
+            result.decodingErrorPosition
+                = decodedPositionsForByteOffsets(data, m_encoding,
+                                                 {result.decodingErrorOffset},
+                                                 lineTerminationMode).value(0);
+        }
+
         return result;
     }
     return result;

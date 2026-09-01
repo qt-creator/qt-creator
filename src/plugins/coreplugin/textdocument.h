@@ -7,6 +7,8 @@
 
 #include <utils/textfileformat.h>
 
+#include <QList>
+
 namespace Core {
 
 namespace Internal { class TextDocumentPrivate; }
@@ -52,6 +54,10 @@ public:
     //! Returns the encoding that failed when the last read used fallback decoding.
     Utils::TextEncoding failedPrimaryEncoding() const;
     QByteArray decodingErrorSample() const;
+    QByteArray decodingErrorData() const;
+    qsizetype decodingErrorOffset() const;
+    qsizetype decodingErrorPosition() const;
+    QList<qsizetype> decodingErrorOffsets() const;
     //! Returns whether reads may retry with the configured fallback encoding.
     bool isDecodingFallbackEnabled() const;
     //! Enables or disables retrying reads with the configured fallback encoding.
@@ -69,6 +75,10 @@ signals:
 
 protected:
     void restoreDecodingFallbackState(const Utils::TextEncoding &failedPrimaryEncoding);
+
+    // Collect byte offsets and retain the original bytes for editor diagnostics.
+    // General BaseTextDocument users skip this additional work by default.
+    void setCollectDecodingErrorDetails(bool collect);
 
 private:
     Internal::TextDocumentPrivate *d;

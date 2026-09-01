@@ -89,6 +89,7 @@
 #include <QDesktopServices>
 #include <QDrag>
 #include <QGridLayout>
+#include <QHash>
 #include <QKeyEvent>
 #include <QLoggingCategory>
 #include <QMap>
@@ -98,6 +99,7 @@
 #include <QMimeData>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPalette>
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QPropertyAnimation>
@@ -105,6 +107,7 @@
 #include <QScopeGuard>
 #include <QScreen>
 #include <QScrollBar>
+#include <QSet>
 #include <QSequentialAnimationGroup>
 #include <QShortcut>
 #include <QStyle>
@@ -118,6 +121,8 @@
 #include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
+
+#include <algorithm>
 
 /*!
     \namespace TextEditor
@@ -152,16 +157,49 @@ namespace TextEditor {
 
 using namespace Internal;
 
+static QHash<TextDocument *, QSet<TextEditorWidget *>> &textEditorWidgetsByDocument()
+{
+    static QHash<TextDocument *, QSet<TextEditorWidget *>> widgets;
+    return widgets;
+}
+
+static void unregisterTextEditorWidget(TextEditorWidget *widget, TextDocument *document)
+{
+    if (!document)
+        return;
+    auto &widgets = textEditorWidgetsByDocument();
+    auto it = widgets.find(document);
+    if (it == widgets.end())
+        return;
+    it->remove(widget);
+    if (it->isEmpty())
+        widgets.erase(it);
+}
+
+static void registerTextEditorWidget(TextEditorWidget *widget, TextDocument *document)
+{
+    if (document)
+        textEditorWidgetsByDocument()[document].insert(widget);
+}
+
+static QList<TextEditorWidget *> registeredTextEditorWidgetsForDocument(TextDocument *document)
+{
+    return textEditorWidgetsByDocument().value(document).values();
+}
+
 namespace Internal {
 
 class TextEditorWidgetFind;
 
-enum { NExtraSelectionKinds = 12 };
+enum { NExtraSelectionKinds = 13 };
 
 using TransformationMethod = QString(const QString &);
 using ListTransformationMethod = void(QStringList &);
 
 static constexpr char dropProperty[] = "dropProp";
+static const Id decodingErrorScrollBarHighlight("TextEditor.DecodingErrorScrollBarHighlight");
+static constexpr qsizetype maximumDecodingErrorMarkers
+    = TextFileFormat::MaximumDecodingErrorOffsets;
 
 class LineColumnButtonPrivate
 {
@@ -758,6 +796,17 @@ public:
     void extendSelectionToLines();
     void duplicateSelection(bool comment);
     void updateCannotDecodeInfo();
+    void handOffDecodingErrorInfo(TextDocument *document);
+    static TextEditorWidgetPrivate *forDocument(TextDocument *document);
+    static void clearDecodingErrorsForDocument(TextDocument *document);
+    static void clearDecodingErrorByteDataForDocument(TextDocument *document);
+    static void replicateDecodingErrorInfo(TextDocument *document,
+                                           TextEditorWidgetPrivate *source);
+    void addDecodingErrorMarkers(const QList<qsizetype> &byteOffsets,
+                                 const QByteArray &data = {});
+    void updateDecodingErrorHighlights();
+    void clearManualDecodingErrors();
+    void navigateDecodingError(int direction);
     void collectToCircularClipboard();
     void setClipboardSelection();
 
@@ -1142,6 +1191,26 @@ public:
 
     QList<SearchResult> m_searchResults;
     QList<SearchResult> m_selectionResults;
+    QList<SearchResult> m_decodingErrorResults;
+    struct DecodingErrorMarker
+    {
+        QTextCursor cursor;
+        QString originalText;
+    };
+    struct DecodingErrorInfo
+    {
+        QList<DecodingErrorMarker> markers;
+        QList<qsizetype> byteOffsets;
+        QByteArray data;
+        bool markersTruncated = false;
+        int currentError = -1;
+        bool cleanupActive = false;
+    };
+    static bool decodingErrorMarkerWasEdited(const DecodingErrorMarker &marker);
+    DecodingErrorInfo m_decodingErrorInfo;
+    bool m_updatingDecodingErrorInfo = false;
+    bool m_ownsDecodingErrorInfo = false;
+    bool m_documentReloading = false;
     QTimer m_scrollBarUpdateTimer;
     HighlightScrollBarController *m_highlightScrollBarController = nullptr;
     QHash<Id, QList<TextEditorWidget::ScrollBarHighlight>> m_scrollBarHighlights;
@@ -1480,6 +1549,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
 TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
 {
+    handOffDecodingErrorInfo(m_document.data());
     QTextDocument *doc = m_document->document();
     QTC_CHECK(doc);
     auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
@@ -1494,6 +1564,57 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     delete m_toolBarWidget;
     delete m_highlightScrollBarController;
     delete m_minimapController;
+}
+
+TextEditorWidgetPrivate *TextEditorWidgetPrivate::forDocument(TextDocument *document)
+{
+    TextEditorWidgetPrivate *fallback = nullptr;
+    for (TextEditorWidget *textEditorWidget : registeredTextEditorWidgetsForDocument(document)) {
+        TextEditorWidgetPrivate *widget = textEditorWidget->d.get();
+        if (widget->m_ownsDecodingErrorInfo)
+            return widget;
+        if (!widget->m_decodingErrorInfo.markers.isEmpty())
+            fallback = widget;
+        else if (!fallback)
+            fallback = widget;
+    }
+    return fallback;
+}
+
+void TextEditorWidgetPrivate::clearDecodingErrorsForDocument(TextDocument *document)
+{
+    for (TextEditorWidget *textEditorWidget : registeredTextEditorWidgetsForDocument(document)) {
+        TextEditorWidgetPrivate *widget = textEditorWidget->d.get();
+        widget->m_ownsDecodingErrorInfo = false;
+        widget->clearManualDecodingErrors();
+    }
+}
+
+void TextEditorWidgetPrivate::clearDecodingErrorByteDataForDocument(TextDocument *document)
+{
+    for (TextEditorWidget *textEditorWidget : registeredTextEditorWidgetsForDocument(document)) {
+        DecodingErrorInfo &info = textEditorWidget->d->m_decodingErrorInfo;
+        info.byteOffsets.clear();
+        info.data.clear();
+    }
+}
+
+bool TextEditorWidgetPrivate::decodingErrorMarkerWasEdited(const DecodingErrorMarker &marker)
+{
+    return !marker.cursor.hasSelection()
+           || marker.cursor.selectedText() != marker.originalText;
+}
+
+void TextEditorWidgetPrivate::replicateDecodingErrorInfo(TextDocument *document,
+                                                          TextEditorWidgetPrivate *source)
+{
+    for (TextEditorWidget *textEditorWidget : registeredTextEditorWidgetsForDocument(document)) {
+        TextEditorWidgetPrivate *target = textEditorWidget->d.get();
+        if (target == source)
+            continue;
+        target->m_decodingErrorInfo = source->m_decodingErrorInfo;
+        target->updateDecodingErrorHighlights();
+    }
 }
 
 static QFrame *createSeparator(const QString &styleSheet)
@@ -1594,6 +1715,7 @@ Id TextEditorWidget::CursorSelection("TextEdit.CursorSelection");
 Id TextEditorWidget::UndefinedSymbolSelection("TextEdit.UndefinedSymbolSelection");
 Id TextEditorWidget::UnusedSymbolSelection("TextEdit.UnusedSymbolSelection");
 Id TextEditorWidget::OtherSelection("TextEdit.OtherSelection");
+Id TextEditorWidget::DecodingErrorSelection("TextEdit.DecodingErrorSelection");
 Id TextEditorWidget::ObjCSelection("TextEdit.ObjCSelection");
 Id TextEditorWidget::DebuggerExceptionSelection("TextEdit.DebuggerExceptionSelection");
 Id TextEditorWidget::FakeVimSelection("TextEdit.FakeVimSelection");
@@ -1613,6 +1735,7 @@ TextEditorWidget::TextEditorWidget(QWidget *parent)
 TextEditorWidget::~TextEditorWidget()
 {
     abortAssist();
+    unregisterTextEditorWidget(this, textDocument());
 }
 
 void TextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
@@ -1678,15 +1801,30 @@ void TextEditorWidgetPrivate::setupScrollBar()
 void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &doc)
 {
     QSharedPointer<TextDocument> previousDocument = m_document;
+    if (previousDocument == doc)
+        return;
     if (previousDocument) {
         if (SyntaxHighlighter *highlighter = previousDocument->syntaxHighlighter())
             highlighter->removeViewer(q);
+        handOffDecodingErrorInfo(previousDocument.data());
     }
     for (const QMetaObject::Connection &connection : std::as_const(m_documentConnections))
         disconnect(connection);
     m_documentConnections.clear();
 
+    clearManualDecodingErrors();
+    m_ownsDecodingErrorInfo = false;
+    unregisterTextEditorWidget(q, m_document.data());
     m_document = doc;
+    registerTextEditorWidget(q, m_document.data());
+    for (TextEditorWidget *textEditorWidget : registeredTextEditorWidgetsForDocument(
+             m_document.data())) {
+        TextEditorWidgetPrivate *other = textEditorWidget->d.get();
+        if (other == this || other->m_decodingErrorInfo.markers.isEmpty())
+            continue;
+        m_decodingErrorInfo = other->m_decodingErrorInfo;
+        break;
+    }
     q->PlainTextEdit::setDocument(doc->document());
     m_undoCursors.clear();
     m_redoCursors.clear();
@@ -1822,6 +1960,58 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
         // Save As may have switched to the encoding and line endings of the new location.
         q->updateTextCodecLabel();
         q->updateTextLineEndingLabel();
+    });
+
+    m_documentConnections << connect(m_document.data(), &IDocument::saved, this,
+                                     [this](const FilePath &, IDocument::SaveOption option) {
+        if (option != IDocument::SaveOption::AutoSave)
+            clearDecodingErrorByteDataForDocument(m_document.data());
+    });
+
+    m_documentConnections << connect(m_document->infoBar(), &InfoBar::changed, this, [this] {
+        if (m_ownsDecodingErrorInfo && !m_updatingDecodingErrorInfo
+            && !m_decodingErrorInfo.markers.isEmpty()
+            && !m_document->infoBar()->containsInfo(Constants::SELECT_ENCODING)) {
+            m_ownsDecodingErrorInfo = false;
+            clearDecodingErrorsForDocument(m_document.data());
+            clearManualDecodingErrors();
+        }
+    });
+
+    m_documentConnections << connect(m_document->document(), &QTextDocument::contentsChange,
+                                     this, [this](int position, int charsRemoved, int) {
+        if (m_decodingErrorInfo.markers.isEmpty())
+            return;
+        if (!m_decodingErrorInfo.cleanupActive) {
+            updateDecodingErrorHighlights();
+            return;
+        }
+        const qsizetype originalCount = m_decodingErrorInfo.markers.size();
+        const int originalCurrent = m_decodingErrorInfo.currentError;
+        for (qsizetype i = m_decodingErrorInfo.markers.size() - 1; i >= 0; --i) {
+            const DecodingErrorMarker &marker = m_decodingErrorInfo.markers.at(i);
+            const int start = marker.cursor.selectionStart();
+            const int end = marker.cursor.selectionEnd();
+            const bool overlapsEdit = !marker.cursor.hasSelection()
+                                     || (charsRemoved
+                                             ? start < position + charsRemoved && end > position
+                                             : position >= start && position <= end);
+            if (overlapsEdit && decodingErrorMarkerWasEdited(marker)) {
+                m_decodingErrorInfo.markers.removeAt(i);
+            }
+        }
+        if (m_decodingErrorInfo.markers.isEmpty()) {
+            if (m_ownsDecodingErrorInfo)
+                m_document->infoBar()->removeInfo(Constants::SELECT_ENCODING);
+            clearManualDecodingErrors();
+        } else {
+            m_decodingErrorInfo.currentError = qBound(0, m_decodingErrorInfo.currentError,
+                                            int(m_decodingErrorInfo.markers.size()) - 1);
+            updateDecodingErrorHighlights();
+            if (originalCount != m_decodingErrorInfo.markers.size()
+                || originalCurrent != m_decodingErrorInfo.currentError)
+                updateCannotDecodeInfo();
+        }
     });
 
     m_documentConnections << connect(m_document.data(),
@@ -2362,9 +2552,30 @@ void TextEditorWidget::selectEncoding()
     const CodecSelectorResult result = Core::askForCodec(doc);
     switch (result.action) {
     case Core::CodecSelectorResult::Reload: {
+        QList<qsizetype> decodingErrorOffsets = doc->decodingErrorOffsets();
+        QByteArray decodingErrorData = doc->decodingErrorData();
+        if (decodingErrorOffsets.isEmpty()) {
+            decodingErrorOffsets = d->m_decodingErrorInfo.byteOffsets;
+            decodingErrorData = d->m_decodingErrorInfo.data;
+        }
         if (Result<> res = doc->reload(result.encoding); !res) {
+            d->clearManualDecodingErrors();
+            doc->infoBar()->removeInfo(Constants::SELECT_ENCODING);
+            d->updateCannotDecodeInfo();
             QMessageBox::critical(this, Tr::tr("File Error"), res.error());
             break;
+        }
+        updateTextCodecLabel();
+        if (doc->hasDecodingError())
+            break;
+
+        d->clearManualDecodingErrors();
+        d->addDecodingErrorMarkers(decodingErrorOffsets, decodingErrorData);
+        if (!d->m_decodingErrorInfo.markers.isEmpty()) {
+            d->m_decodingErrorInfo.currentError = 0;
+            d->m_decodingErrorInfo.cleanupActive = false;
+            TextEditorWidgetPrivate::replicateDecodingErrorInfo(doc, d.get());
+            d->updateCannotDecodeInfo();
         }
         break;
     }
@@ -2426,6 +2637,23 @@ void TextEditorWidget::updateUndoRedoActions()
     d->updateRedoAction();
 }
 
+void TextEditorWidgetPrivate::handOffDecodingErrorInfo(TextDocument *document)
+{
+    if (!m_ownsDecodingErrorInfo || !document)
+        return;
+
+    m_ownsDecodingErrorInfo = false;
+    for (TextEditorWidget *widget : registeredTextEditorWidgetsForDocument(document)) {
+        TextEditorWidgetPrivate *other = widget->d.get();
+        if (other == this)
+            continue;
+        other->m_ownsDecodingErrorInfo = true;
+        other->updateCannotDecodeInfo();
+        return;
+    }
+    document->infoBar()->removeInfo(Id(Constants::SELECT_ENCODING));
+}
+
 void TextEditorWidgetPrivate::updateCannotDecodeInfo()
 {
     updateReadOnlyState();
@@ -2451,17 +2679,332 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
         });
         infoBar->addInfo(info);
     }
-    if (m_document->hasDecodingError()) {
-        if (!infoBar->canInfoBeAdded(selectEncodingId))
+    if (m_document->hasDecodingError() && m_decodingErrorInfo.markers.isEmpty()
+        && !infoBar->containsInfo(selectEncodingId)
+        && !infoBar->canInfoBeAdded(selectEncodingId)) {
+        m_ownsDecodingErrorInfo = false;
+        return;
+    }
+    if (!m_documentReloading && m_document->hasDecodingError()
+        && m_decodingErrorInfo.markers.isEmpty()) {
+        addDecodingErrorMarkers(m_document->decodingErrorOffsets(),
+                                m_document->decodingErrorData());
+    }
+    if (infoBar->containsInfo(selectEncodingId) && !m_ownsDecodingErrorInfo) {
+        updateDecodingErrorHighlights();
+        if (TextEditorWidgetPrivate *owner = forDocument(m_document.data());
+            owner && owner != this && owner->m_ownsDecodingErrorInfo) {
+            owner->updateCannotDecodeInfo();
+        }
+        return;
+    }
+    const QPointer<TextDocument> document = m_document.data();
+    const auto withDocumentWidget = [document, self = QPointer<TextEditorWidget>(q)](auto callback) {
+        if (!document)
             return;
-        InfoBarEntry info(selectEncodingId,
-            Tr::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
-                .arg(m_document->displayName(), m_document->encoding().displayName()));
-        info.addCustomButton(Tr::tr("Select Encoding"), [this] { q->selectEncoding(); });
+        auto *currentEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+        if (currentEditor && currentEditor->textDocument() == document) {
+            if (TextEditorWidget *widget = TextEditorWidget::fromEditor(currentEditor))
+                callback(widget->d.get());
+            return;
+        }
+        if (TextEditorWidgetPrivate *widget = TextEditorWidgetPrivate::forDocument(document.data()))
+            callback(widget);
+        else if (self && self->textDocument() == document)
+            callback(self->d.get());
+    };
+    const auto finishDecodingErrorCleanup = [selectEncodingId](TextEditorWidgetPrivate *widget) {
+        TextEditorWidgetPrivate::clearDecodingErrorsForDocument(widget->m_document.data());
+        widget->m_ownsDecodingErrorInfo = false;
+        widget->clearManualDecodingErrors();
+        widget->m_document->infoBar()->removeInfo(selectEncodingId);
+    };
+    const auto addNavigationButtons = [withDocumentWidget](InfoBarEntry &info) {
+        info.addCustomButton(Tr::tr("Previous Error"), [withDocumentWidget] {
+            withDocumentWidget([](TextEditorWidgetPrivate *widget) {
+                widget->navigateDecodingError(-1);
+            });
+        });
+        info.addCustomButton(Tr::tr("Next Error"), [withDocumentWidget] {
+            withDocumentWidget([](TextEditorWidgetPrivate *widget) {
+                widget->navigateDecodingError(1);
+            });
+        });
+    };
+    if (!m_decodingErrorInfo.markers.isEmpty() && !m_document->hasDecodingError()) {
+        const int count = m_decodingErrorInfo.markers.size();
+        InfoBarEntry info;
+        if (m_decodingErrorInfo.cleanupActive) {
+            const int current = m_decodingErrorInfo.currentError + 1;
+            const QString infoText = m_decodingErrorInfo.markersTruncated
+                ? Tr::tr("Possible decoding error %1 of at least %2").arg(current).arg(count)
+                : Tr::tr("Possible decoding error %1 of %2").arg(current).arg(count);
+            info = InfoBarEntry(selectEncodingId, infoText);
+            info.addCustomButton(Tr::tr("Select Encoding"), [withDocumentWidget] {
+                withDocumentWidget([](TextEditorWidgetPrivate *widget) {
+                    widget->q->selectEncoding();
+                });
+            });
+            addNavigationButtons(info);
+            info.addCustomButton(Tr::tr("Finish Cleanup"), [withDocumentWidget,
+                                                              finishDecodingErrorCleanup] {
+                withDocumentWidget([finishDecodingErrorCleanup](TextEditorWidgetPrivate *widget) {
+                    finishDecodingErrorCleanup(widget);
+                });
+            });
+        } else {
+            const QString infoText = m_decodingErrorInfo.markersTruncated
+                ? Tr::tr("The file was loaded with %1. Found at least %n possible decoding errors. You can keep this encoding or clean them up.",
+                         nullptr, count).arg(m_document->encoding().displayName())
+                : Tr::tr("The file was loaded with %1. Found %n possible decoding errors. You can keep this encoding or clean them up.",
+                         nullptr, count).arg(m_document->encoding().displayName());
+            info = InfoBarEntry(selectEncodingId, infoText);
+            info.addCustomButton(Tr::tr("Keep Encoding"), [withDocumentWidget,
+                                                              finishDecodingErrorCleanup] {
+                withDocumentWidget([finishDecodingErrorCleanup](TextEditorWidgetPrivate *widget) {
+                    finishDecodingErrorCleanup(widget);
+                });
+            });
+            info.addCustomButton(Tr::tr("Select Encoding"), [withDocumentWidget] {
+                withDocumentWidget([](TextEditorWidgetPrivate *widget) {
+                    widget->q->selectEncoding();
+                });
+            });
+            info.addCustomButton(Tr::tr("Save as UTF-8"), [withDocumentWidget,
+                                                            finishDecodingErrorCleanup] {
+                withDocumentWidget([finishDecodingErrorCleanup](TextEditorWidgetPrivate *widget) {
+                    const TextEncoding previousEncoding = widget->m_document->encoding();
+                    const bool wasModified = widget->m_document->document()->isModified();
+                    widget->m_document->setEncoding(TextEncoding(TextEncoding::Utf8));
+                    widget->m_document->document()->setModified(true);
+                    if (EditorManager::saveDocument(widget->m_document.data())) {
+                        widget->q->updateTextCodecLabel();
+                        finishDecodingErrorCleanup(widget);
+                    } else {
+                        widget->m_document->setEncoding(previousEncoding);
+                        widget->m_document->document()->setModified(wasModified);
+                        widget->q->updateTextCodecLabel();
+                    }
+                });
+            });
+            info.addCustomButton(Tr::tr("Clean Up"), [withDocumentWidget,
+                                                       finishDecodingErrorCleanup] {
+                withDocumentWidget([finishDecodingErrorCleanup](TextEditorWidgetPrivate *widget) {
+                for (qsizetype i = widget->m_decodingErrorInfo.markers.size() - 1; i >= 0; --i) {
+                    const DecodingErrorMarker &marker = widget->m_decodingErrorInfo.markers.at(i);
+                    if (TextEditorWidgetPrivate::decodingErrorMarkerWasEdited(marker)) {
+                        widget->m_decodingErrorInfo.markers.removeAt(i);
+                    }
+                }
+                if (widget->m_decodingErrorInfo.markers.isEmpty()) {
+                    finishDecodingErrorCleanup(widget);
+                    return;
+                }
+                widget->m_decodingErrorInfo.cleanupActive = true;
+                TextEditorWidgetPrivate::replicateDecodingErrorInfo(
+                    widget->m_document.data(), widget);
+                widget->updateCannotDecodeInfo();
+                widget->navigateDecodingError(0);
+                });
+            });
+        }
+        m_updatingDecodingErrorInfo = true;
+        m_document->infoBar()->removeInfo(selectEncodingId);
+        m_document->infoBar()->addInfo(info);
+        m_updatingDecodingErrorInfo = false;
+        m_ownsDecodingErrorInfo = true;
+        updateDecodingErrorHighlights();
+        return;
+    }
+    if (m_document->hasDecodingError()) {
+        m_updatingDecodingErrorInfo = true;
+        infoBar->removeInfo(selectEncodingId);
+        m_updatingDecodingErrorInfo = false;
+        QString errorDetails;
+        const qsizetype errorOffset = m_document->decodingErrorOffset();
+        if (errorOffset >= 0) {
+            errorDetails += Tr::tr("First invalid byte at offset %1.").arg(errorOffset);
+        }
+
+        const qsizetype errorPosition = m_document->decodingErrorPosition();
+        int errorLine = 0;
+        int errorColumn = 0;
+        if (errorPosition >= 0) {
+            q->convertPosition(int(errorPosition), &errorLine, &errorColumn);
+            if (errorLine > 0) {
+                if (!errorDetails.isEmpty())
+                    errorDetails += QLatin1Char(' ');
+                errorDetails += Tr::tr("The decoded position is line %1, column %2.")
+                                    .arg(errorLine)
+                                    .arg(errorColumn + 1);
+            }
+        }
+
+        QString infoText
+            = Tr::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
+                  .arg(m_document->displayName(), m_document->encoding().displayName());
+        if (!m_decodingErrorInfo.markers.isEmpty()) {
+            infoText += m_decodingErrorInfo.markersTruncated
+                            ? Tr::tr("<br>Found at least %n possible decoding errors.",
+                                     nullptr, m_decodingErrorInfo.markers.size())
+                            : Tr::tr("<br>Found %n possible decoding errors.",
+                                     nullptr, m_decodingErrorInfo.markers.size());
+        }
+        if (!errorDetails.isEmpty())
+            infoText += QLatin1String("<br>") + errorDetails;
+        InfoBarEntry info(selectEncodingId, infoText);
+        info.addCustomButton(Tr::tr("Select Encoding"), [withDocumentWidget] {
+            withDocumentWidget([](TextEditorWidgetPrivate *widget) {
+                widget->q->selectEncoding();
+            });
+        });
+        if (!m_decodingErrorInfo.markers.isEmpty())
+            addNavigationButtons(info);
+        m_updatingDecodingErrorInfo = true;
         infoBar->addInfo(info);
+        m_updatingDecodingErrorInfo = false;
+        m_ownsDecodingErrorInfo = true;
+        updateDecodingErrorHighlights();
     } else {
         infoBar->removeInfo(selectEncodingId);
+        m_ownsDecodingErrorInfo = false;
     }
+}
+
+void TextEditorWidgetPrivate::addDecodingErrorMarkers(const QList<qsizetype> &byteOffsets,
+                                                       const QByteArray &data)
+{
+    if (!byteOffsets.isEmpty()) {
+        m_decodingErrorInfo.byteOffsets = byteOffsets;
+        m_decodingErrorInfo.data = data;
+    }
+    m_decodingErrorInfo.markersTruncated = false;
+
+    if (m_document->hasDecodingError() && byteOffsets.isEmpty()) {
+        QTextDocument *document = m_document->document();
+        for (QTextBlock block = document->begin(); block.isValid(); block = block.next()) {
+            const QString text = block.text();
+            int from = 0;
+            while (true) {
+                const int position = text.indexOf(QChar::ReplacementCharacter, from);
+                if (position < 0)
+                    break;
+                if (m_decodingErrorInfo.markers.size() == maximumDecodingErrorMarkers) {
+                    m_decodingErrorInfo.markersTruncated = true;
+                    break;
+                }
+                QTextCursor cursor(document);
+                cursor.setPosition(block.position() + position);
+                cursor.setPosition(block.position() + position + 1, QTextCursor::KeepAnchor);
+                cursor.setKeepPositionOnInsert(true);
+                m_decodingErrorInfo.markers.append({cursor, cursor.selectedText()});
+                from = position + 1;
+            }
+            if (m_decodingErrorInfo.markersTruncated)
+                break;
+        }
+        if (!m_decodingErrorInfo.markers.isEmpty()) {
+            m_decodingErrorInfo.markersTruncated = m_decodingErrorInfo.markersTruncated
+                                              || m_decodingErrorInfo.byteOffsets.size()
+                                                     > maximumDecodingErrorMarkers;
+            return;
+        }
+    }
+
+    if (byteOffsets.isEmpty())
+        return;
+    if (data.isEmpty())
+        return;
+
+    const QList<qsizetype> offsets = byteOffsets.sliced(
+        0, qMin(byteOffsets.size(), maximumDecodingErrorMarkers));
+    TextFileFormat detectedFormat;
+    detectedFormat.detectFromData(data);
+    const QList<qsizetype> positions = TextFileFormat::decodedPositionsForByteOffsets(
+        data, m_document->encoding(), offsets, detectedFormat.lineTerminationMode);
+    QSet<int> addedPositions;
+    const int documentEnd = m_document->document()->characterCount() - 1;
+    for (qsizetype position : positions) {
+        const int start = qBound(0, int(position), documentEnd);
+        if (addedPositions.contains(start))
+            continue;
+        const int end = start < documentEnd
+                            && m_document->document()->characterAt(start).isHighSurrogate()
+                        ? start + 2 : start + 1;
+        QTextCursor cursor(m_document->document());
+        cursor.setPosition(start);
+        cursor.setPosition(qMin(end, documentEnd), QTextCursor::KeepAnchor);
+        cursor.setKeepPositionOnInsert(true);
+        if (cursor.hasSelection()) {
+            if (m_document->hasDecodingError()
+                && m_document->document()->characterAt(start) != QChar::ReplacementCharacter)
+                continue;
+            addedPositions.insert(start);
+            m_decodingErrorInfo.markers.append({cursor, cursor.selectedText()});
+        }
+    }
+    m_decodingErrorInfo.markersTruncated = byteOffsets.size() > maximumDecodingErrorMarkers;
+}
+
+void TextEditorWidgetPrivate::updateDecodingErrorHighlights()
+{
+    QList<QTextEdit::ExtraSelection> selections;
+    QList<SearchResult> results;
+    for (const DecodingErrorMarker &marker : std::as_const(m_decodingErrorInfo.markers)) {
+        if (!marker.cursor.hasSelection())
+            continue;
+        if (!selections.isEmpty()
+            && selections.last().cursor.selectionEnd() == marker.cursor.selectionStart()) {
+            selections.last().cursor.setPosition(marker.cursor.selectionEnd(),
+                                                 QTextCursor::KeepAnchor);
+        } else {
+            QTextEdit::ExtraSelection selection;
+            selection.cursor = marker.cursor;
+            selection.format.setForeground(creatorColor(Theme::TextColorError));
+            selection.format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+            selection.format.setUnderlineColor(creatorColor(Theme::TextColorError));
+            selections.append(selection);
+        }
+        results.append({marker.cursor.selectionStart(),
+                        marker.cursor.selectionEnd() - marker.cursor.selectionStart()});
+    }
+    q->setExtraSelections(TextEditorWidget::DecodingErrorSelection, selections);
+    m_decodingErrorResults = results;
+    scheduleUpdateHighlightScrollBar();
+}
+
+void TextEditorWidgetPrivate::clearManualDecodingErrors()
+{
+    m_decodingErrorInfo.markers.clear();
+    m_decodingErrorInfo.byteOffsets.clear();
+    m_decodingErrorInfo.data.clear();
+    m_decodingErrorResults.clear();
+    m_decodingErrorInfo.currentError = -1;
+    m_decodingErrorInfo.cleanupActive = false;
+    m_decodingErrorInfo.markersTruncated = false;
+    q->setExtraSelections(TextEditorWidget::DecodingErrorSelection, {});
+    if (m_highlightScrollBarController)
+        m_highlightScrollBarController->removeHighlights(decodingErrorScrollBarHighlight);
+}
+
+void TextEditorWidgetPrivate::navigateDecodingError(int direction)
+{
+    if (m_decodingErrorInfo.markers.isEmpty())
+        return;
+    if (m_decodingErrorInfo.currentError < 0) {
+        m_decodingErrorInfo.currentError = direction < 0 ? int(m_decodingErrorInfo.markers.size()) - 1 : 0;
+    } else if (direction) {
+        m_decodingErrorInfo.currentError = (m_decodingErrorInfo.currentError + direction
+                                  + m_decodingErrorInfo.markers.size())
+                                 % m_decodingErrorInfo.markers.size();
+    }
+    QTextCursor cursor = m_decodingErrorInfo.markers.at(m_decodingErrorInfo.currentError).cursor;
+    cursor.setKeepPositionOnInsert(false);
+    replicateDecodingErrorInfo(m_document.data(), this);
+    q->setTextCursor(cursor);
+    q->setFocus();
+    q->ensureCursorVisible();
+    updateCannotDecodeInfo();
 }
 
 // Skip over shebang to license header (Python, Perl, sh)
@@ -4247,6 +4790,8 @@ void TextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
 void TextEditorWidgetPrivate::documentAboutToBeReloaded()
 {
+    m_documentReloading = true;
+    clearManualDecodingErrors();
     //memorize cursor position
     m_tempState = q->saveState();
 
@@ -4270,11 +4815,11 @@ void TextEditorWidgetPrivate::documentAboutToBeReloaded()
 
 void TextEditorWidgetPrivate::documentReloadFinished(bool success)
 {
-    if (!success)
-        return;
+    m_documentReloading = false;
 
     // restore cursor position
-    q->restoreState(m_tempState);
+    if (success)
+        q->restoreState(m_tempState);
     updateCannotDecodeInfo();
 }
 
@@ -9724,6 +10269,11 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
 
     // update search results
     addSearchResultsToScrollBar(m_searchResults);
+
+    addSearchResultsToScrollBar(decodingErrorScrollBarHighlight,
+                                m_decodingErrorResults,
+                                Theme::IconsErrorColor,
+                                Highlight::HighPriority);
 
     // update search selection
     addSelectionHighlightToScrollBar(m_selectionResults);

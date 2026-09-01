@@ -7,6 +7,7 @@
 #include "textcodec.h"
 #include "utils_global.h"
 
+#include <QList>
 #include <QStringList>
 
 namespace Utils {
@@ -46,7 +47,13 @@ public:
         QString content;
         QString error;
         QByteArray decodingErrorSample;
+        QByteArray decodingErrorData;
         bool usedDecodingFallback = false;
+        // Zero-based byte offset and UTF-16 position of the first decoding error.
+        // A value of -1 means that the position could not be determined.
+        qsizetype decodingErrorOffset = -1;
+        qsizetype decodingErrorPosition = -1;
+        QList<qsizetype> decodingErrorOffsets;
     };
 
     TextFileFormat();
@@ -55,10 +62,15 @@ public:
 
     bool decode(const QByteArray &data, QString *target) const;
 
+    static constexpr qsizetype MaximumDecodingErrorOffsets = 1000;
+
+    enum class DecodingErrorDetails { Skip, Collect };
+
     // If retryEncoding is valid, retries with it after a decoding error.
     ReadResult readFile(const FilePath &filePath,
                         const TextEncoding &defaultEncoding,
-                        const TextEncoding &retryEncoding = {});
+                        const TextEncoding &retryEncoding = {},
+                        DecodingErrorDetails errorDetails = DecodingErrorDetails::Skip);
 
     static Result<> readFileUtf8(const FilePath &filePath,
                                  const TextEncoding &fallbackEncoding,
@@ -67,6 +79,9 @@ public:
     Result<> writeFile(const FilePath &filePath, QString plainText) const;
 
     static QByteArray decodingErrorSample(const QByteArray &data);
+    static QList<qsizetype> decodedPositionsForByteOffsets(
+        const QByteArray &data, const TextEncoding &encoding,
+        const QList<qsizetype> &byteOffsets, LineTerminationMode lineTerminationMode);
 
     LineTerminationMode lineTerminationMode = NativeLineTerminator;
     bool hasUtf8Bom = false;

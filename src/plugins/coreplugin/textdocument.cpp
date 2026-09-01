@@ -39,7 +39,12 @@ public:
     bool m_hasDecodingError = false;
     TextEncoding m_failedPrimaryEncoding;
     QByteArray m_decodingErrorSample;
+    QByteArray m_decodingErrorData;
+    qsizetype m_decodingErrorOffset = -1;
+    qsizetype m_decodingErrorPosition = -1;
+    QList<qsizetype> m_decodingErrorOffsets;
     bool m_decodingFallbackEnabled = false;
+    bool m_collectDecodingErrorDetails = false;
 };
 
 } // namespace Internal
@@ -74,6 +79,26 @@ TextEncoding BaseTextDocument::failedPrimaryEncoding() const
 QByteArray BaseTextDocument::decodingErrorSample() const
 {
     return d->m_decodingErrorSample;
+}
+
+QByteArray BaseTextDocument::decodingErrorData() const
+{
+    return d->m_decodingErrorData;
+}
+
+qsizetype BaseTextDocument::decodingErrorOffset() const
+{
+    return d->m_decodingErrorOffset;
+}
+
+qsizetype BaseTextDocument::decodingErrorPosition() const
+{
+    return d->m_decodingErrorPosition;
+}
+
+QList<qsizetype> BaseTextDocument::decodingErrorOffsets() const
+{
+    return d->m_decodingErrorOffsets;
 }
 
 bool BaseTextDocument::isDecodingFallbackEnabled() const
@@ -147,12 +172,18 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath,
     const TextEncoding retryEncoding = fallbackEnabled
                                            ? Core::EditorManager::fallbackTextEncoding()
                                            : TextEncoding();
-    ReadResult res = d->m_format.readFile(filePath, primaryEncoding,
-                                          supportsEncoding(retryEncoding)
-                                              ? retryEncoding : TextEncoding());
+    ReadResult res = d->m_format.readFile(
+        filePath, primaryEncoding,
+        supportsEncoding(retryEncoding) ? retryEncoding : TextEncoding(),
+        d->m_collectDecodingErrorDetails ? TextFileFormat::DecodingErrorDetails::Collect
+                                         : TextFileFormat::DecodingErrorDetails::Skip);
     d->m_hasDecodingError = res.code == TextFileFormat::ReadEncodingError;
     d->m_failedPrimaryEncoding = res.usedDecodingFallback ? primaryEncoding : TextEncoding();
     d->m_decodingErrorSample = res.decodingErrorSample;
+    d->m_decodingErrorData = res.decodingErrorData;
+    d->m_decodingErrorOffset = res.decodingErrorOffset;
+    d->m_decodingErrorPosition = res.decodingErrorPosition;
+    d->m_decodingErrorOffsets = res.decodingErrorOffsets;
     if (previousFailedPrimaryEncoding != d->m_failedPrimaryEncoding)
         emit decodingFallbackChanged();
     return res;
@@ -181,6 +212,11 @@ void BaseTextDocument::restoreDecodingFallbackState(const TextEncoding &failedPr
     d->m_failedPrimaryEncoding = failedPrimaryEncoding;
     if (changed)
         emit decodingFallbackChanged();
+}
+
+void BaseTextDocument::setCollectDecodingErrorDetails(bool collect)
+{
+    d->m_collectDecodingErrorDetails = collect;
 }
 
 TextEncoding BaseTextDocument::encoding() const

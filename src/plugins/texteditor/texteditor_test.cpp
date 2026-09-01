@@ -23,6 +23,8 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -33,29 +35,40 @@
 #include <coreplugin/find/textfindconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include "texteditorconstants.h"
 
 #include <utils/aggregate.h>
 #include <utils/filepath.h>
+#include <utils/infobar.h>
 #include <utils/multitextcursor.h>
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/temporarydirectory.h>
+#include <utils/qtcsettings.h>
+#include <utils/textfileformat.h>
 #include <utils/tooltip/tooltip.h>
 
 #include <QAction>
 #include <QApplication>
+#include <QDialog>
 #include <QDropEvent>
 #include <QHelpEvent>
 #include <QImage>
 #include <QLabel>
+#include <QListWidget>
 #include <QMainWindow>
 #include <QMimeData>
 #include <QPaintEvent>
+#include <QPointer>
+#include <QPushButton>
 #include <QScopeGuard>
 #include <QScrollBar>
+#include <QStringDecoder>
 #include <QSignalSpy>
+#include <QTimer>
 #include <QTest>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QToolButton>
 
 #include <memory>
 #include <optional>
@@ -137,6 +150,21 @@ private slots:
     void testIndentUnindent();
     void testMakefileForcesTabPolicy();
     void testTextDocumentChanged();
+    void testDecodingErrorOffsets();
+    void testDecodingErrorOffsetsMultibyte();
+    void testDecodingErrorEmbeddedWidget_data();
+    void testDecodingErrorEmbeddedWidget();
+    void testDecodingErrorInfoRemovedWhenLastWidgetIsDestroyed();
+    void testDecodingErrorOffsetsMixedLineEndings_data();
+    void testDecodingErrorOffsetsMixedLineEndings();
+    void testDecodingErrorOffsetsAfterSave();
+    void testDecodingErrorMarkersAreLimited();
+    void testDecodingErrorDetailsAreOptIn();
+    void testDecodingErrorMarkersAfterLargeReload();
+    void testDecodingErrorInfoSurvivesSplit();
+    void testValidReplacementCharacterIsNotDecodingError();
+    void testDecodingErrorCleanupSurvivesSplitReload_data();
+    void testDecodingErrorCleanupSurvivesSplitReload();
     void testIndentationGuides_data();
     void testIndentationGuides();
     void testTabStopOffset_data();
@@ -351,6 +379,720 @@ void TextEditorTest::testTextDocumentChanged()
 
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(widget.textDocument(), document.data());
+}
+
+void TextEditorTest::testDecodingErrorInfoSurvivesSplit()
+{
+    using namespace Utils;
+    const QByteArray editorState = Core::EditorManager::saveState();
+    TemporaryDirectory directory("decoding-error-split");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("invalid.txt");
+    QVERIFY(path.writeFileContents(QByteArray::fromHex("efbbbf636166e9ff")));
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(path);
+    QVERIFY(editor);
+    auto *baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    QPointer<TextDocument> document = baseEditor->textDocument();
+    QVERIFY(document->hasDecodingError());
+    QCOMPARE(document->decodingErrorOffsets().size(), 2);
+    const QScopeGuard cleanup([document, editorState] {
+        if (document)
+            Core::EditorManager::closeDocuments({document.data()}, false);
+        Core::EditorManager::restoreState(editorState);
+    });
+    QVERIFY(document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
+    const int firstView = Core::EditorManager::viewIdForEditor(editor);
+    const int secondView = Core::EditorManager::splitView(
+        firstView, Qt::Horizontal, Core::EditorManager::DuplicateCurrentEditor);
+    QVERIFY(secondView != firstView);
+    QTRY_COMPARE(BaseTextEditor::textEditorsForDocument(document.data()).size(), 2);
+
+    const QList<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(document.data());
+    QVERIFY(editors.size() == 2);
+    QPointer<BaseTextEditor> survivingEditor;
+    for (BaseTextEditor *candidate : editors) {
+        if (candidate != baseEditor)
+            survivingEditor = candidate;
+    }
+    QVERIFY(survivingEditor);
+
+    QToolButton *nextError = nullptr;
+    QTRY_VERIFY(([&] {
+        for (QWidget *widget : QApplication::allWidgets()) {
+            if (auto *button = qobject_cast<QToolButton *>(widget);
+                button && button->text() == QStringLiteral("Next Error")) {
+                nextError = button;
+                return true;
+            }
+        }
+        return false;
+    })());
+    QVERIFY(nextError->isEnabled());
+    Core::EditorManager::activateEditor(survivingEditor);
+    nextError->click();
+    QCOMPARE(Core::EditorManager::currentEditor(), survivingEditor.data());
+    QVERIFY(Core::EditorManager::closeEditors({editor}, false));
+    QVERIFY(survivingEditor);
+    QCoreApplication::processEvents();
+    QTRY_VERIFY(!survivingEditor->editorWidget()->extraSelections(
+                     TextEditorWidget::DecodingErrorSelection).isEmpty());
+    QVERIFY(document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
+    const auto selections = survivingEditor->editorWidget()->extraSelections(
+        TextEditorWidget::DecodingErrorSelection);
+    QVERIFY(!selections.isEmpty());
+    QCOMPARE(survivingEditor->editorWidget()->textCursor().selectionStart(),
+             selections.first().cursor.selectionStart());
+}
+
+void TextEditorTest::testValidReplacementCharacterIsNotDecodingError()
+{
+    using namespace Utils;
+    const QByteArray editorState = Core::EditorManager::saveState();
+    TemporaryDirectory directory("valid-replacement-character");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("invalid.txt");
+    QVERIFY(path.writeFileContents(QByteArray::fromHex("efbfbdff")));
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(path);
+    QVERIFY(editor);
+    auto *baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    QPointer<TextDocument> document = baseEditor->textDocument();
+    QVERIFY(document->hasDecodingError());
+    const QScopeGuard cleanup([document, editorState] {
+        if (document)
+            Core::EditorManager::closeDocuments({document.data()}, false);
+        Core::EditorManager::restoreState(editorState);
+    });
+
+    const auto markers = baseEditor->editorWidget()->extraSelections(
+        TextEditorWidget::DecodingErrorSelection);
+    QCOMPARE(markers.size(), 1);
+    QCOMPARE(markers.first().cursor.selectedText(), QString(QChar::ReplacementCharacter));
+    QCOMPARE(markers.first().cursor.selectionStart(), 1);
+}
+
+void TextEditorTest::testDecodingErrorOffsets()
+{
+    using namespace Utils;
+    TemporaryDirectory directory("decoding-error-offsets");
+    QVERIFY(directory.isValid());
+
+    const auto read = [&](const QString &name, const QByteArray &contents) {
+        const FilePath path = directory.filePath(name);
+        if (!path.writeFileContents(contents))
+            return TextFileFormat::ReadResult(TextFileFormat::ReadIOError);
+        TextFileFormat format;
+        format.setEncoding(TextEncoding(TextEncoding::Utf8));
+        return format.readFile(path, TextEncoding(TextEncoding::Utf8), {},
+                               TextFileFormat::DecodingErrorDetails::Collect);
+    };
+
+    QByteArray crossingChunk(4095, 'a');
+    crossingChunk.append(char(0xe9));
+    crossingChunk.append('X');
+    const auto chunkError = read("chunk-boundary.txt", crossingChunk);
+    QCOMPARE(chunkError.code, TextFileFormat::ReadEncodingError);
+    QCOMPARE(chunkError.decodingErrorOffset, 4095);
+
+    const auto incompleteSequence = read("incomplete-sequence.txt", QByteArray::fromHex("e28241"));
+    QCOMPARE(incompleteSequence.code, TextFileFormat::ReadEncodingError);
+    QCOMPARE(incompleteSequence.decodingErrorOffset, 0);
+    QCOMPARE(incompleteSequence.decodingErrorOffsets.first(),
+             incompleteSequence.decodingErrorOffset);
+
+    const QByteArray consecutiveErrors = QByteArray::fromHex("e7e36fff");
+    const auto consecutive = read("consecutive-errors.txt", consecutiveErrors);
+    QCOMPARE(consecutive.code, TextFileFormat::ReadEncodingError);
+    QCOMPARE(consecutive.decodingErrorOffsets, QList<qsizetype>({0, 1, 3}));
+    QCOMPARE(TextFileFormat::decodedPositionsForByteOffsets(
+                 consecutiveErrors, TextEncoding(TextEncoding::Utf8),
+                 consecutive.decodingErrorOffsets, TextFileFormat::LFLineTerminator),
+             QList<qsizetype>({0, 1, 3}));
+    QCOMPARE(TextFileFormat::decodedPositionsForByteOffsets(
+                 QByteArray::fromHex("efbbbff09f988041e7e36fff"),
+                 TextEncoding(TextEncoding::Utf8), {8, 9, 11}, TextFileFormat::LFLineTerminator),
+             QList<qsizetype>({3, 4, 6}));
+}
+
+void TextEditorTest::testDecodingErrorOffsetsMultibyte()
+{
+    using namespace Utils;
+    if (!QStringDecoder("Shift_JIS").isValid())
+        QSKIP("Shift-JIS requires a Qt build with ICU.");
+    QCOMPARE(TextFileFormat::decodedPositionsForByteOffsets(
+                 QByteArray::fromHex("93fa967b8cea0a414243"), TextEncoding("Shift_JIS"),
+                 {0, 1, 2, 4, 5}, TextFileFormat::LFLineTerminator),
+             QList<qsizetype>({0, 0, 1, 2, 2}));
+}
+
+void TextEditorTest::testDecodingErrorEmbeddedWidget_data()
+{
+    QTest::addColumn<QString>("action");
+    QTest::newRow("keep encoding") << QString("Keep Encoding");
+    QTest::newRow("finish cleanup") << QString("Finish Cleanup");
+    QTest::newRow("save as UTF-8") << QString("Save as UTF-8");
+    QTest::newRow("dismiss") << QString();
+}
+
+void TextEditorTest::testDecodingErrorEmbeddedWidget()
+{
+    using namespace Utils;
+    TemporaryDirectory directory("decoding-error-embedded");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("invalid.txt");
+    QVERIFY(path.writeFileContents(QByteArray::fromHex("616263ff")));
+    const TextDocumentPtr document(new TextDocument);
+    TextEditorWidget widget;
+    widget.setTextDocument(document);
+    QVERIFY(document->open(path, path));
+    QVERIFY(document->hasDecodingError());
+    QVERIFY(BaseTextEditor::textEditorsForDocument(document.data()).isEmpty());
+    const QList<InfoBarEntry> entries = document->infoBar()->entries();
+    const auto entry = std::find_if(entries.cbegin(), entries.cend(), [](const InfoBarEntry &e) {
+        return e.id() == Id(Constants::SELECT_ENCODING);
+    });
+    QVERIFY(entry != entries.cend());
+    const QList<InfoBarEntry::Button> buttons = entry->buttons();
+    const auto next = std::find_if(buttons.cbegin(), buttons.cend(), [](const auto &button) {
+        return button.text == "Next Error";
+    });
+    QVERIFY(next != buttons.cend());
+    next->callback();
+    QCOMPARE(widget.textCursor().selectionStart(), 3);
+    QCOMPARE(widget.textCursor().selectedText(), QString(QChar::ReplacementCharacter));
+
+    QFETCH(QString, action);
+    QTimer::singleShot(0, [] {
+        auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+        if (!dialog)
+            return;
+        auto *encodings = dialog->findChild<QListWidget *>();
+        if (encodings) {
+            for (int row = 0; row < encodings->count(); ++row) {
+                if (!encodings->item(row)->text().contains("ISO-8859-1", Qt::CaseInsensitive))
+                    continue;
+                encodings->setCurrentRow(row);
+                for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+                    if (button->text() == "Reload with Encoding") {
+                        button->click();
+                        return;
+                    }
+                }
+            }
+        }
+        dialog->reject();
+    });
+    widget.selectEncoding();
+    QCOMPARE(document->encoding(), TextEncoding(TextEncoding::Latin1));
+    QVERIFY(!document->hasDecodingError());
+    QVERIFY(!widget.extraSelections(TextEditorWidget::DecodingErrorSelection).isEmpty());
+    const auto clickButton = [&](const QString &text) {
+        for (const InfoBarEntry &info : document->infoBar()->entries()) {
+            if (info.id() != Id(Constants::SELECT_ENCODING))
+                continue;
+            for (const InfoBarEntry::Button &button : info.buttons()) {
+                if (button.text == text) {
+                    button.callback();
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    if (action == "Finish Cleanup")
+        QVERIFY(clickButton("Clean Up"));
+    if (action.isEmpty())
+        document->infoBar()->removeInfo(Constants::SELECT_ENCODING);
+    else
+        QVERIFY(clickButton(action));
+    if (action == "Save as UTF-8") {
+        QCOMPARE(document->encoding(), TextEncoding(TextEncoding::Utf8));
+        QCOMPARE(path.fileContents().value_or(QByteArray()), QByteArray::fromHex("616263c3bf"));
+    }
+    QVERIFY(!document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
+    QVERIFY(widget.extraSelections(TextEditorWidget::DecodingErrorSelection).isEmpty());
+}
+
+void TextEditorTest::testDecodingErrorInfoRemovedWhenLastWidgetIsDestroyed()
+{
+    using namespace Utils;
+    TemporaryDirectory directory("decoding-error-widget-destroyed");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("invalid.txt");
+    QVERIFY(path.writeFileContents(QByteArray::fromHex("616263ff")));
+
+    const TextDocumentPtr document(new TextDocument);
+    {
+        TextEditorWidget widget;
+        widget.setTextDocument(document);
+        QVERIFY(document->open(path, path));
+        QVERIFY(document->hasDecodingError());
+        QVERIFY(document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
+    }
+    QVERIFY(!document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
+}
+
+void TextEditorTest::testDecodingErrorOffsetsMixedLineEndings_data()
+{
+    QTest::addColumn<QByteArray>("contents");
+    QTest::newRow("mixed") << QByteArray("first\nsecond\r\ncaf\xE9" "X");
+    QTest::newRow("CRLF with LF editorconfig") << QByteArray("first\r\nsecond\r\ncaf\xE9" "X");
+}
+
+void TextEditorTest::testDecodingErrorOffsetsMixedLineEndings()
+{
+    using namespace Utils;
+    const QByteArray editorState = Core::EditorManager::saveState();
+    QFETCH(QByteArray, contents);
+    TemporaryDirectory directory("decoding-error-mixed-line-endings");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("mixed.txt");
+    QVERIFY(directory.filePath(".editorconfig").writeFileContents(
+        "root = true\n[*]\nend_of_line = lf\ncharset = utf-8\n"));
+    QVERIFY(path.writeFileContents(contents));
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(path);
+    QVERIFY(editor);
+    auto *baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    QPointer<TextDocument> document = baseEditor->textDocument();
+    QVERIFY(document->hasDecodingError());
+    QCOMPARE(document->decodingErrorData(), contents);
+    const QList<qsizetype> byteOffsets = document->decodingErrorOffsets();
+    QVERIFY(!byteOffsets.isEmpty());
+    QCOMPARE(TextFileFormat::decodedPositionsForByteOffsets(
+                 contents, TextEncoding(TextEncoding::Latin1), byteOffsets,
+                 document->lineTerminationMode()).first(), qsizetype(16));
+    const QScopeGuard cleanup([document, editorState] {
+        if (document)
+            Core::EditorManager::closeDocuments({document.data()}, false);
+        Core::EditorManager::restoreState(editorState);
+    });
+
+    const auto reloadWithEncoding = [&](const QString &encodingName) {
+        QTimer::singleShot(0, [encodingName] {
+            QDialog *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+            if (!dialog)
+                return;
+            QListWidget *encodings = dialog->findChild<QListWidget *>();
+            if (!encodings)
+                return;
+            for (int row = 0; row < encodings->count(); ++row) {
+                if (!encodings->item(row)->text().contains(encodingName, Qt::CaseInsensitive))
+                    continue;
+                encodings->setCurrentRow(row);
+                for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+                    if (button->text() == QStringLiteral("Reload with Encoding")) {
+                        button->click();
+                        return;
+                    }
+                }
+            }
+        });
+        baseEditor->editorWidget()->selectEncoding();
+    };
+    reloadWithEncoding("ISO-8859-1");
+    QCOMPARE(document->encoding(), TextEncoding(TextEncoding::Latin1));
+    QCOMPARE(document->lineTerminationMode(), TextFileFormat::LFLineTerminator);
+    QVERIFY(document->plainText().contains(QChar(0xe9)));
+    QCOMPARE(document->document()->characterAt(16), QChar(0xe9));
+    const QList<QTextEdit::ExtraSelection> markers
+        = baseEditor->editorWidget()->extraSelections(
+            TextEditorWidget::DecodingErrorSelection);
+    QVERIFY(!markers.isEmpty());
+    QCOMPARE(markers.first().cursor.selectedText(), QString(QChar(0xe9)));
+
+    reloadWithEncoding("windows-1252");
+    const auto remapped = baseEditor->editorWidget()->extraSelections(
+        TextEditorWidget::DecodingErrorSelection);
+    QVERIFY(!remapped.isEmpty());
+    QCOMPARE(remapped.first().cursor.selectedText(), QString(QChar(0xe9)));
+}
+
+void TextEditorTest::testDecodingErrorOffsetsAfterSave()
+{
+    using namespace Utils;
+    const QByteArray editorState = Core::EditorManager::saveState();
+    TemporaryDirectory directory("decoding-error-offsets-after-save");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("invalid.txt");
+    const QByteArray contents("first\ncaf\xE9X\nlast\n", 17);
+    QVERIFY(path.writeFileContents(contents));
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(path);
+    QVERIFY(editor);
+    auto *baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    QPointer<TextDocument> document = baseEditor->textDocument();
+    QVERIFY(document->hasDecodingError());
+    const QScopeGuard cleanup([document, editorState] {
+        if (document)
+            Core::EditorManager::closeDocuments({document.data()}, false);
+        Core::EditorManager::restoreState(editorState);
+    });
+
+    QTimer::singleShot(0, [] {
+        auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+        if (!dialog)
+            return;
+        const auto encodings = dialog->findChild<QListWidget *>();
+        if (!encodings)
+            return;
+        for (int row = 0; row < encodings->count(); ++row) {
+            if (!encodings->item(row)->text().contains("ISO-8859-1", Qt::CaseInsensitive))
+                continue;
+            encodings->setCurrentRow(row);
+            for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+                if (button->text() == QStringLiteral("Reload with Encoding")) {
+                    button->click();
+                    return;
+                }
+            }
+        }
+    });
+    baseEditor->editorWidget()->selectEncoding();
+    QCOMPARE(document->encoding(), TextEncoding(TextEncoding::Latin1));
+    auto *widget = baseEditor->editorWidget();
+    QVERIFY(!widget->extraSelections(TextEditorWidget::DecodingErrorSelection).isEmpty());
+    QTextCursor cursor(document->document());
+    cursor.movePosition(QTextCursor::Start);
+    cursor.insertText("new line\n");
+    QVERIFY(Core::DocumentManager::saveDocument(document.data(), path));
+    QVERIFY(!widget->extraSelections(TextEditorWidget::DecodingErrorSelection).isEmpty());
+
+    QTimer::singleShot(0, [] {
+        auto *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+        if (!dialog)
+            return;
+        const auto encodings = dialog->findChild<QListWidget *>();
+        if (!encodings)
+            return;
+        for (int row = 0; row < encodings->count(); ++row) {
+            if (!encodings->item(row)->text().contains("windows-1252", Qt::CaseInsensitive))
+                continue;
+            encodings->setCurrentRow(row);
+            for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+                if (button->text() == QStringLiteral("Reload with Encoding")) {
+                    button->click();
+                    return;
+                }
+            }
+        }
+    });
+    widget->selectEncoding();
+    QVERIFY(widget->extraSelections(TextEditorWidget::DecodingErrorSelection).isEmpty());
+}
+
+void TextEditorTest::testDecodingErrorMarkersAreLimited()
+{
+    using namespace Utils;
+    const QByteArray editorState = Core::EditorManager::saveState();
+    TemporaryDirectory directory("decoding-error-marker-limit");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("many-invalid-bytes.txt");
+    QByteArray manyInvalidBytes;
+    for (int i = 0; i < 1100; ++i) {
+        manyInvalidBytes.append(char(0xff));
+        manyInvalidBytes.append('a');
+    }
+    QVERIFY(path.writeFileContents(manyInvalidBytes));
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(path);
+    QVERIFY(editor);
+    auto *baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    QPointer<TextDocument> document = baseEditor->textDocument();
+    QVERIFY(document->hasDecodingError());
+    const QScopeGuard cleanup([document, editorState] {
+        if (document)
+            Core::EditorManager::closeDocuments({document.data()}, false);
+        Core::EditorManager::restoreState(editorState);
+    });
+
+    const QList<QTextEdit::ExtraSelection> markers
+        = baseEditor->editorWidget()->extraSelections(
+            TextEditorWidget::DecodingErrorSelection);
+    QCOMPARE(markers.size(), 1000);
+    const QList<InfoBarEntry> entries = document->infoBar()->entries();
+    const auto entry = std::find_if(entries.cbegin(), entries.cend(), [](const InfoBarEntry &e) {
+        return e.id() == Utils::Id(Constants::SELECT_ENCODING);
+    });
+    QVERIFY(entry != entries.cend());
+    QVERIFY(entry->text().contains("Found at least 1000 possible decoding errors."));
+}
+
+void TextEditorTest::testDecodingErrorDetailsAreOptIn()
+{
+    using namespace Utils;
+    TemporaryDirectory directory("decoding-error-details-opt-in");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("invalid.txt");
+    QVERIFY(path.writeFileContents(QByteArray::fromHex("ff")));
+
+    Core::BaseTextDocument genericDocument;
+    genericDocument.setEncoding(TextEncoding(TextEncoding::Utf8));
+    genericDocument.setDecodingFallbackEnabled(false);
+    QCOMPARE(genericDocument.read(path).code, TextFileFormat::ReadEncodingError);
+    QVERIFY(genericDocument.hasDecodingError());
+    QVERIFY(genericDocument.decodingErrorOffsets().isEmpty());
+    QVERIFY(genericDocument.decodingErrorData().isEmpty());
+}
+
+void TextEditorTest::testDecodingErrorMarkersAfterLargeReload()
+{
+    using namespace Utils;
+    const QByteArray editorState = Core::EditorManager::saveState();
+    QtcSettings *settings = Core::ICore::settings();
+    const Key fallbackKey(Core::Constants::SETTINGS_FALLBACKTEXTENCODING);
+    const QVariant previousFallback = settings->value(fallbackKey);
+    const bool hadFallback = settings->contains(fallbackKey);
+    const QScopeGuard restoreFallback([=] {
+        if (hadFallback)
+            settings->setValue(fallbackKey, previousFallback);
+        else
+            settings->remove(fallbackKey);
+    });
+    settings->setValue(fallbackKey, TextEncoding(TextEncoding::Latin1).name());
+    TemporaryDirectory directory("decoding-error-large-reload");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("large-invalid.txt");
+    QByteArray contents(70 * 1024, 'a');
+    contents.append(char(0xff));
+    QVERIFY(path.writeFileContents(contents));
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(path);
+    QVERIFY(editor);
+    auto *baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    QPointer<TextDocument> document = baseEditor->textDocument();
+    QVERIFY(document->decodedWithFallback());
+    const QScopeGuard cleanup([document, editorState] {
+        if (document)
+            Core::EditorManager::closeDocuments({document.data()}, false);
+        Core::EditorManager::restoreState(editorState);
+    });
+
+    QTimer::singleShot(0, [] {
+        QDialog *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+        if (!dialog)
+            return;
+        QListWidget *encodings = dialog->findChild<QListWidget *>();
+        if (!encodings)
+            return;
+        for (int row = 0; row < encodings->count(); ++row) {
+            if (!encodings->item(row)->text().contains("UTF-8", Qt::CaseInsensitive))
+                continue;
+            encodings->setCurrentRow(row);
+            for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+                if (button->text() == QStringLiteral("Reload with Encoding")) {
+                    button->click();
+                    return;
+                }
+            }
+        }
+    });
+    baseEditor->editorWidget()->selectEncoding();
+
+    QVERIFY(document->hasDecodingError());
+    const QList<QTextEdit::ExtraSelection> markers
+        = baseEditor->editorWidget()->extraSelections(TextEditorWidget::DecodingErrorSelection);
+    QVERIFY(!markers.isEmpty());
+    QCOMPARE(markers.last().cursor.selectionStart(), contents.size() - 1);
+    QCOMPARE(markers.last().cursor.selectedText(), QString(QChar(0xfffd)));
+}
+
+void TextEditorTest::testDecodingErrorCleanupSurvivesSplitReload_data()
+{
+    QTest::addColumn<QByteArray>("invalidBytes");
+    QTest::addColumn<bool>("replaceFirst");
+    QTest::addColumn<bool>("insertAtBoundaries");
+    QTest::newRow("replace first") << QByteArray::fromHex("e9ff") << true << false;
+    QTest::newRow("replace second") << QByteArray::fromHex("e9ff") << false << false;
+    QTest::newRow("equal errors replace first") << QByteArray::fromHex("ffff") << true << false;
+    QTest::newRow("equal errors replace second") << QByteArray::fromHex("ffff") << false << false;
+    QTest::newRow("boundaries replace first") << QByteArray::fromHex("e9ff") << true << true;
+    QTest::newRow("boundaries replace second") << QByteArray::fromHex("e9ff") << false << true;
+}
+
+void TextEditorTest::testDecodingErrorCleanupSurvivesSplitReload()
+{
+    using namespace Utils;
+    QFETCH(QByteArray, invalidBytes);
+    QFETCH(bool, replaceFirst);
+    QFETCH(bool, insertAtBoundaries);
+    const QByteArray editorState = Core::EditorManager::saveState();
+    TemporaryDirectory directory("decoding-error-split-reload");
+    QVERIFY(directory.isValid());
+    const FilePath path = directory.filePath("invalid.txt");
+    QByteArray bytes("before ");
+    bytes.append(invalidBytes);
+    bytes.append("\nafter\nlast line\n");
+    QVERIFY(path.writeFileContents(bytes));
+
+    Core::IEditor *editor = Core::EditorManager::openEditor(path);
+    QVERIFY(editor);
+    auto *baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    QPointer<TextDocument> document = baseEditor->textDocument();
+    QVERIFY(document->hasDecodingError());
+    const QScopeGuard cleanup([document, editorState] {
+        if (document)
+            Core::EditorManager::closeDocuments({document.data()}, false);
+        Core::EditorManager::restoreState(editorState);
+    });
+
+    const int firstView = Core::EditorManager::viewIdForEditor(editor);
+    const int secondView = Core::EditorManager::splitView(
+        firstView, Qt::Horizontal, Core::EditorManager::DuplicateCurrentEditor);
+    QVERIFY(secondView != firstView);
+    QTRY_COMPARE(BaseTextEditor::textEditorsForDocument(document.data()).size(), 2);
+
+    QTimer::singleShot(0, [] {
+        QDialog *dialog = qobject_cast<QDialog *>(QApplication::activeModalWidget());
+        if (!dialog)
+            return;
+        QListWidget *encodings = dialog->findChild<QListWidget *>();
+        if (!encodings)
+            return;
+        for (int row = 0; row < encodings->count(); ++row) {
+            if (!encodings->item(row)->text().contains("ISO-8859-1"))
+                continue;
+            encodings->setCurrentRow(row);
+            for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+                if (button->text() == QStringLiteral("Reload with Encoding")) {
+                    button->click();
+                    return;
+                }
+            }
+        }
+    });
+    baseEditor->editorWidget()->selectEncoding();
+    QVERIFY(!document->hasDecodingError());
+    QVERIFY(document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
+    const QList<BaseTextEditor *> views = BaseTextEditor::textEditorsForDocument(document.data());
+    QCOMPARE(views.size(), 2);
+    for (BaseTextEditor *view : views) {
+        QVERIFY(!view->editorWidget()->extraSelections(
+                     TextEditorWidget::DecodingErrorSelection).isEmpty());
+    }
+    TextEditorWidget externalWidget;
+    externalWidget.setTextDocument(baseEditor->editorWidget()->textDocumentPtr());
+    QVERIFY(!externalWidget.extraSelections(TextEditorWidget::DecodingErrorSelection).isEmpty());
+    const QList<TextEditorWidget *> documentWidgets
+        = TextEditorWidget::textEditorWidgetsForDocument(document.data());
+    QCOMPARE(documentWidgets.size(), views.size());
+    for (BaseTextEditor *view : views)
+        QVERIFY(documentWidgets.contains(view->editorWidget()));
+    QVERIFY(!documentWidgets.contains(&externalWidget));
+
+    const int markerPosition = baseEditor->editorWidget()
+                                   ->extraSelections(TextEditorWidget::DecodingErrorSelection)
+                                   .first().cursor.selectionStart();
+    QTextCursor insertBeforeCleanup(document->document());
+    insertBeforeCleanup.setPosition(0);
+    insertBeforeCleanup.insertText("prefix\n");
+    for (BaseTextEditor *view : views) {
+        const QList<QTextEdit::ExtraSelection> selections = view->editorWidget()->extraSelections(
+            TextEditorWidget::DecodingErrorSelection);
+        QVERIFY(!selections.isEmpty());
+        QCOMPARE(selections.first().cursor.selectionStart(), markerPosition + 7);
+    }
+
+    const QString originalErrors = QString::fromLatin1(invalidBytes);
+    const auto insertAtBoundary = [&](bool atEnd) {
+        const auto markers = baseEditor->editorWidget()->extraSelections(
+            TextEditorWidget::DecodingErrorSelection);
+        QTextCursor cursor(document->document());
+        cursor.setPosition(atEnd ? markers.first().cursor.selectionEnd()
+                                 : markers.first().cursor.selectionStart());
+        cursor.insertText("x");
+    };
+    if (insertAtBoundaries) {
+        insertAtBoundary(false);
+        insertAtBoundary(true);
+    }
+    for (BaseTextEditor *view : views) {
+        const auto markers = view->editorWidget()->extraSelections(
+            TextEditorWidget::DecodingErrorSelection);
+        QCOMPARE(markers.size(), 1);
+        QCOMPARE(markers.first().cursor.selectedText(), originalErrors);
+    }
+
+    QToolButton *cleanUp = nullptr;
+    QTRY_VERIFY(([&] {
+        for (QWidget *widget : QApplication::allWidgets()) {
+            if (auto *button = qobject_cast<QToolButton *>(widget);
+                button && button->text() == QStringLiteral("Clean Up") && button->isVisible()) {
+                cleanUp = button;
+                return true;
+            }
+        }
+        return false;
+    })());
+    for (BaseTextEditor *view : views) {
+        if (view != baseEditor)
+            Core::EditorManager::activateEditor(view);
+    }
+    cleanUp->click();
+    auto *activeEditor = qobject_cast<BaseTextEditor *>(Core::EditorManager::currentEditor());
+    QVERIFY(activeEditor);
+    QVERIFY(!activeEditor->editorWidget()->textCursor().keepPositionOnInsert());
+    QTRY_VERIFY(([&] {
+        for (QWidget *widget : QApplication::allWidgets()) {
+            if (auto *button = qobject_cast<QToolButton *>(widget);
+                button && button->isVisible()
+                && button->text() == QStringLiteral("Finish Cleanup")) {
+                return true;
+            }
+        }
+        return false;
+    })());
+    QVERIFY(document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
+
+    QTextCursor edit(document->document());
+    edit.setPosition(0);
+    edit.insertText("prefix\n");
+    QVERIFY(document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
+    for (BaseTextEditor *view : views) {
+        QVERIFY(!view->editorWidget()->extraSelections(
+                     TextEditorWidget::DecodingErrorSelection).isEmpty());
+    }
+
+    if (insertAtBoundaries) {
+        insertAtBoundary(false);
+        insertAtBoundary(true);
+    }
+    for (BaseTextEditor *view : views) {
+        const auto markers = view->editorWidget()->extraSelections(
+            TextEditorWidget::DecodingErrorSelection);
+        QCOMPARE(markers.size(), 1);
+        QCOMPARE(markers.first().cursor.selectedText(), originalErrors);
+    }
+    const auto markers = baseEditor->editorWidget()->extraSelections(
+        TextEditorWidget::DecodingErrorSelection);
+    const int replacePosition = markers.first().cursor.selectionStart() + (replaceFirst ? 0 : 1);
+    QTextCursor replacement(document->document());
+    replacement.setPosition(replacePosition);
+    replacement.setPosition(replacePosition + 1, QTextCursor::KeepAnchor);
+    replacement.insertText("fixed");
+    for (BaseTextEditor *view : views) {
+        const QList<QTextEdit::ExtraSelection> selections = view->editorWidget()->extraSelections(
+            TextEditorWidget::DecodingErrorSelection);
+        QCOMPARE(selections.size(), 1);
+        QCOMPARE(selections.first().cursor.selectedText(), originalErrors.mid(replaceFirst ? 1 : 0, 1));
+    }
+    const auto remaining = baseEditor->editorWidget()->extraSelections(
+        TextEditorWidget::DecodingErrorSelection);
+    QTextCursor deletion(document->document());
+    deletion.setPosition(remaining.first().cursor.selectionStart());
+    deletion.deleteChar();
+    for (BaseTextEditor *view : views)
+        QVERIFY(view->editorWidget()->extraSelections(TextEditorWidget::DecodingErrorSelection).isEmpty());
+    QVERIFY(externalWidget.extraSelections(TextEditorWidget::DecodingErrorSelection).isEmpty());
+    QVERIFY(!document->infoBar()->containsInfo(Constants::SELECT_ENCODING));
 }
 
 void TextEditorTest::testIndentationGuides_data()
