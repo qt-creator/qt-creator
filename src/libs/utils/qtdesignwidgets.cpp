@@ -12,6 +12,7 @@
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/QTaskTree>
 
+#include <QApplication>
 #include <QCache>
 #include <QCommonStyle>
 #include <QEvent>
@@ -22,6 +23,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmapCache>
+#include <QStyle>
 #include <QStyleOption>
 #include <QVariantAnimation>
 #include <QWidget>
@@ -47,6 +49,18 @@ enum WidgetState {
     WidgetStateHovered,
     WidgetStateDisabled,
 };
+
+static int mnemonicTextFlag(const QWidget *widget)
+{
+    return QApplication::style()->styleHint(QStyle::SH_UnderlineShortcut, nullptr, widget)
+               ? Qt::TextShowMnemonic : Qt::TextHideMnemonic;
+}
+
+static int textFlags(const TextFormat &tf, const QWidget *widget)
+{
+    constexpr int mnemonicFlags = Qt::TextShowMnemonic | Qt::TextHideMnemonic;
+    return (tf.drawTextFlags & ~mnemonicFlags) | mnemonicTextFlag(widget);
+}
 
 namespace {
 class QtDesignSystemStyle : public QCommonStyle
@@ -176,7 +190,7 @@ QSize QtcButton::minimumSizeHint() const
     for (WidgetState state : {WidgetStateDefault, WidgetStateChecked, WidgetStateHovered} ) {
         const TextFormat &tf = buttonTF(m_role, state);
         const QFontMetrics fm(tf.font());
-        const QSize textS = fm.size(Qt::TextShowMnemonic, text());
+        const QSize textS = fm.size(mnemonicTextFlag(this), text());
         maxTextWidth = qMax(maxTextWidth, textS.width());
     }
     const TextFormat &tf = buttonTF(m_role, WidgetStateDefault);
@@ -340,12 +354,12 @@ void QtcButton::paintEvent(QPaintEvent *event)
     const QFont font = tf.font();
     const QFontMetrics fm(font);
     const QString elidedLabelText = fm.elidedText(text(), Qt::ElideRight, availableLabelWidth,
-                                                  Qt::TextShowMnemonic);
+                                                  mnemonicTextFlag(this));
     const QRect labelR(margins.left(), margins.top(), availableLabelWidth, tf.lineHeight());
     p.setFont(font);
     const QColor textColor = isEnabled() ? tf.color() : creatorColor(Theme::Token_Text_Subtle);
     p.setPen(textColor);
-    p.drawText(labelR, tf.drawTextFlags, elidedLabelText);
+    p.drawText(labelR, textFlags(tf, this), elidedLabelText);
 }
 
 void QtcButton::setPixmap(const QPixmap &pixmap)
@@ -650,7 +664,7 @@ QtcSwitch::QtcSwitch(const QString &text, QWidget *parent)
 QSize QtcSwitch::sizeHint() const
 {
     const QFontMetrics fm(SwitchLabelTf.font());
-    const int textWidth = fm.size(Qt::TextShowMnemonic, text()).width();
+    const int textWidth = fm.size(mnemonicTextFlag(this), text()).width();
     const int width = switchTrackS.width() + GapHM + textWidth;
     return {width, PaddingVS + SwitchLabelTf.lineHeight() + PaddingVS};
 }
@@ -717,8 +731,9 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
         p.setFont(SwitchLabelTf.font());
         p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
         const QString elidedLabel =
-            p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);
-        p.drawText(textR, SwitchLabelTf.drawTextFlags, elidedLabel);
+            p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(),
+                                       mnemonicTextFlag(this));
+        p.drawText(textR, textFlags(SwitchLabelTf, this), elidedLabel);
     }
 }
 

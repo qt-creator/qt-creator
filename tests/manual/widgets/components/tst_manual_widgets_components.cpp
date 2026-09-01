@@ -5,6 +5,7 @@
 
 #include <QApplication>
 #include <QMetaEnum>
+#include <QRandomGenerator>
 #include <QTimer>
 
 #include <utils/icon.h>
@@ -13,11 +14,18 @@
 
 using namespace Utils;
 
+static QString withMnemonic(const QString &text)
+{
+    QString result = text;
+    result.insert(QRandomGenerator::global()->bounded(result.size() - 1), '&'); // Never at the end
+    return result;
+}
+
 static QWidget *button(QtcButton::Role role, bool withPixmap = false)
 {
     static const int roleEnumIndex = QtcButton::staticMetaObject.indexOfEnumerator("Role");
     static const QMetaEnum roleEnum = QtcButton::staticMetaObject.enumerator(roleEnumIndex);
-    auto button = new QtcButton(roleEnum.key(role), role);
+    auto button = new QtcButton(withMnemonic(roleEnum.key(role)), role);
     button->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     if (withPixmap) {
         static const QPixmap pixmap =
@@ -51,9 +59,9 @@ static QWidget *widgets()
 {
     auto widget = new QWidget;
 
-    auto switchOn = new QtcSwitch("Qt::RightToLeft");
+    auto switchOn = new QtcSwitch(withMnemonic("Qt::RightToLeft"));
     switchOn->setChecked(true);
-    auto switchOff = new QtcSwitch("Qt::LeftToRight");
+    auto switchOff = new QtcSwitch(withMnemonic("Qt::LeftToRight"));
     switchOff->setLayoutDirection(Qt::LeftToRight);
 
     auto tabBar = new QtcTabBar;
