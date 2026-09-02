@@ -147,7 +147,7 @@ public:
     void evaluateVariable(const QString &expression, int frameId);
 
     int stackTrace(int threadId);
-    void scopes(int frameId);
+    int scopes(int frameId);
     void threads();
     void variables(int variablesReference);
     void setBreakpoints(const QJsonArray &breakpoints, const Utils::FilePath &fileName);

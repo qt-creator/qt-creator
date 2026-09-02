@@ -142,9 +142,9 @@ int DapClient::stackTrace(int threadId)
                        QJsonObject{{"threadId", threadId}, {"startFrame", 0}, {"levels", 10}});
 }
 
-void DapClient::scopes(int frameId)
+int DapClient::scopes(int frameId)
 {
-    postRequest("scopes", QJsonObject{{"frameId", frameId}});
+    return postRequest("scopes", QJsonObject{{"frameId", frameId}});
 }
 
 void DapClient::threads()

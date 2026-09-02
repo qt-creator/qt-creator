@@ -62,6 +62,7 @@ DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createUvscEngine();
 DebuggerEngine *createDapEngine(Id runMode = ProjectExplorer::Constants::NO_RUN_MODE);
+DebuggerEngine *createDapAdapterEngine(const DapStartData &data);
 
 static QString noEngineMessage()
 {
@@ -591,6 +592,15 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
         case BridgeEngineType:
             engines << createBridgeEngine(rp);
             break;
+        case DapAdapterEngineType: {
+            const std::optional<DapStartData> adapter = rp.dapAdapter();
+            if (!adapter) {
+                return make_unexpected(Tr::tr("No debug adapter was named for the session "
+                                              "to speak to."));
+            }
+            engines << createDapAdapterEngine(*adapter);
+            break;
+        }
         case UvscEngineType:
             engines << createUvscEngine();
             break;

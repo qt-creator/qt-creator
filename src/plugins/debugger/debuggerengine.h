@@ -7,6 +7,7 @@
 #include "debuggerconstants.h"
 #include "debuggerprotocol.h"
 #include "breakhandler.h"
+#include "dap/dapstartdata.h"
 #include "threadshandler.h"
 
 #include <coreplugin/icontext.h>
@@ -181,6 +182,11 @@ public:
     // plugin driving an adapter of its own.
     void setCppEngineType(DebuggerEngineType engineType) { m_cppEngineType = engineType; }
 
+    // Set together with DapAdapterEngineType: the adapter to speak to, which
+    // the engine type alone cannot name.
+    void setDapAdapter(const Internal::DapStartData &adapter) { m_dapAdapter = adapter; }
+    std::optional<Internal::DapStartData> dapAdapter() const { return m_dapAdapter; }
+
     QString version() const { return m_version; }
 
     bool isPythonDebugging() const { return m_isPythonDebugging; }
@@ -340,6 +346,7 @@ private:
     DebuggerStartMode m_startMode = NoStartMode;
     DebuggerCloseMode m_closeMode = KillAtClose;
     DebuggerEngineType m_cppEngineType = NoEngineType;
+    std::optional<Internal::DapStartData> m_dapAdapter;
     int m_testCase = 0; // For Debugger testing.
     int m_qtVersion = 0;
     std::optional<int> m_exitCode = {};

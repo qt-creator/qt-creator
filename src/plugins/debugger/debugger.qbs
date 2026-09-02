@@ -141,6 +141,7 @@ QtcPlugin {
             "dapdataproviders.cpp", "dapdataproviders.h",
             "dapengine.cpp", "dapengine.h",
             "dapengines.cpp",
+            "dapimpl.cpp", "dapimpl.h",
             "dapstartdata.h",
             "pydapengine.cpp", "pydapengine.h",
         ]

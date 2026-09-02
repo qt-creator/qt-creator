@@ -349,6 +349,7 @@ void GenericDebuggerEngine::removeBreakpoint(const Breakpoint &bp)
     request.requestId = m_nextBreakpointRequestId++;
     request.responseId = bp->responseId();
     request.params = bp->requestedParameters();
+    request.modelId = bp->modelId();
     m_pendingBreakpoints[request.requestId] = bp;
     m_backend->changeBreakpoint(request);
 }
@@ -361,6 +362,7 @@ void GenericDebuggerEngine::updateBreakpoint(const Breakpoint &bp)
     request.requestId = m_nextBreakpointRequestId++;
     request.responseId = bp->responseId();
     request.params = bp->requestedParameters();
+    request.modelId = bp->modelId();
     m_pendingBreakpoints[request.requestId] = bp;
     m_backend->changeBreakpoint(request);
 }

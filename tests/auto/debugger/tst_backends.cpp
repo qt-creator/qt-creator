@@ -4,6 +4,7 @@
 #include "debuggerengineinterface.h"
 
 #include "bridge/bridgeimpl.h"
+#include "dap/dapimpl.h"
 #include "cdb/cdbimpl.h"
 #include "gdb/gdbimpl.h"
 #include "lldb/lldbimpl.h"
@@ -33,6 +34,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QHash>
+#include <QJsonDocument>
 #include <QLibraryInfo>
 #include <QMap>
 #include <QMetaEnum>
@@ -41,6 +43,7 @@
 #include <QScopeGuard>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QHostAddress>
 #include <QTcpServer>
 #include <QTemporaryDir>
 #include <QTest>
@@ -918,6 +921,18 @@ class tst_backends : public QObject
 private slots:
     void initTestCase();
     void cleanupTestCase();
+
+    void stopsAtBreakpointThroughDapAdapter();
+    void reportsADapAdapterThatQuitsAtOnce();
+    void reportsTheRunBeforeItsOutcomeThroughDapAdapter();
+    void followsAResumeTheDapAdapterMakesOnItsOwn();
+    void readsOnlyTheLocalScopeFromADapAdapter();
+    void reportsASocketThatCannotConnect();
+    void dropsALocalsWalkThatWasStartedOver();
+    void sendsTheProtocolsStepRequestsThroughADapAdapter();
+    void sendsNoRequestADapAdapterCannotAnswer();
+    void reportsTheThreadsADapAdapterListsAgainstTheStoppedOne();
+    void stepsTheThreadThatWasSelectedFromADapAdapter();
 
     void testAdditionalQmlStackCapability_data() { addBackendRows(); }
     void testAdditionalQmlStackCapability();
@@ -9175,6 +9190,822 @@ void tst_backends::reportsInspectorObjectTree()
 
     inferiorProcess.kill();
     inferiorProcess.waitForFinished();
+    engine->shutdownEngine();
+}
+
+// The foreign-adapter backend, against a real stock-DAP adapter: gdb speaks the
+// protocol itself, so nothing has to be installed to find out whether what it
+// answers is understood. This is not one of the rows above - those assert the
+// values the Qt dumpers produce, and an adapter Qt Creator does not own prints
+// its own.
+// An adapter that runs and gives up is not a session that came up: the engine
+// has to hear about it rather than wait for an answer that cannot arrive.
+void tst_backends::reportsADapAdapterThatQuitsAtOnce()
+{
+    const CommandLine quitting = quittingDebuggerCommand();
+    if (quitting.isEmpty())
+        QSKIP("Nothing on this platform to stand in for an adapter that quits at once.");
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Executable;
+    startData.adapter.command = quitting;
+    startData.adapter.runData.environment = Environment::systemEnvironment();
+    startData.adapterId = "quitting";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    bool processFinished = false;
+    connect(debuggerBackend.engine(), &DebuggerEngineInterface::engineProcessFinished,
+            &debuggerBackend, [&processFinished](const Utils::ProcessResultData &) {
+        processFinished = true;
+    });
+
+    debuggerBackend.engine()->start();
+    QTRY_VERIFY2_WITH_TIMEOUT(processFinished, "the adapter process never finished", s_timeout);
+    QVERIFY2(debuggerBackend.contains(InferiorEvent::EngineRunFailed)
+                 || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+             "an adapter that quit before answering was not reported as a failure");
+}
+
+void tst_backends::stopsAtBreakpointThroughDapAdapter()
+{
+    const FilePath gdb = m_backendData.value(Backend::Gdb).path;
+    if (gdb.isEmpty())
+        QSKIP("No gdb to speak DAP to.");
+    const InferiorTestData testData = inferiorTestData(Backend::Gdb);
+    if (!testData.executable.isExecutableFile())
+        QSKIP("The test inferior was not built.");
+    const int dapInterpreterMajorVersion = 14;
+    if (dapInterpreterMajorVersion > debuggerMajorVersion(testData.versionLine)) {
+        QSKIP(qPrintable(QString("speaking DAP needs a debugger version >= %1, this is \"%2\"")
+                             .arg(dapInterpreterMajorVersion).arg(testData.versionLine)));
+    }
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Executable;
+    startData.adapter.command = CommandLine{gdb, {"-i", "dap"}};
+    startData.adapter.runData.environment = Environment::systemEnvironment();
+    startData.adapterId = "gdb";
+    startData.configuration = QJsonObject{{"program", testData.executable.path()}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    // The breakpoint is offered before the adapter has said it is ready for
+    // one, which is what the protocol's configuration sequence is about: it is
+    // held back until then rather than sent and lost.
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, &debuggerBackend,
+            [engine, testData](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = testData.source;
+        request.params.textPosition.line = testData.breakpointLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend.contains(InferiorEvent::EngineRunFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+    QCOMPARE(debuggerBackend.stoppedFile().fileName(), testData.source.fileName());
+    QCOMPARE(debuggerBackend.stoppedLine(), testData.breakpointLine);
+    QVERIFY(!debuggerBackend.breakpointResponseId().isEmpty());
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 10;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    const GdbMi frames = responses.value(int(RefreshKind::FullStack))["stack"]["frames"];
+    QVERIFY2(frames.childCount() > 0, qPrintable(responses.value(int(RefreshKind::FullStack))
+                                                     .toString()));
+    QCOMPARE(frames.childAt(0)["line"].toInt(), testData.breakpointLine);
+    QCOMPARE(frames.childAt(0)["function"].data(), testData.functionMarker);
+    QVERIFY(frames.childAt(0)["address"].toAddress() != 0);
+
+    RefreshRequest threadsRequest;
+    threadsRequest.kind = RefreshKind::Threads;
+    threadsRequest.requestId = 11;
+    engine->refresh(threadsRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Threads)), s_timeout);
+    QVERIFY(responses.value(int(RefreshKind::Threads))["threads"].childCount() > 0);
+
+    // The locals walk asks for the scopes, then for a level at a time, so the
+    // answer only arrives once every queued level has been fetched.
+    RefreshRequest localsRequest;
+    localsRequest.kind = RefreshKind::Locals;
+    localsRequest.requestId = 12;
+    engine->refresh(localsRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+    const GdbMi locals = responses.value(int(RefreshKind::Locals))["data"];
+    QStringList localNames;
+    for (const GdbMi &item : locals) {
+        QVERIFY(item["iname"].data().startsWith("local."));
+        localNames.append(item["name"].data());
+    }
+    QVERIFY2(localNames.contains("localValue"), qPrintable(localNames.join(' ')));
+    // The adapter reports its registers and globals as scopes too, and neither
+    // belongs in this view.
+    QVERIFY2(!localNames.contains("rax"), qPrintable(localNames.join(' ')));
+    QVERIFY2(!localNames.contains("globalValue"), qPrintable(localNames.join(' ')));
+
+    // Removing a breakpoint has no answer of its own in the protocol, so the
+    // backend owes the engine one: without it the breakpoint stays in the view
+    // and in the adapter.
+    QList<BreakpointOp> breakpointOps;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&breakpointOps](quint64, BreakpointOp op, bool, const GdbMi &) {
+        breakpointOps.append(op);
+    });
+    BreakpointChangeRequest removeRequest;
+    removeRequest.op = BreakpointOp::Remove;
+    removeRequest.requestId = 2;
+    removeRequest.responseId = debuggerBackend.breakpointResponseId();
+    removeRequest.params.type = BreakpointByFileAndLine;
+    removeRequest.params.fileName = testData.source;
+    removeRequest.params.textPosition.line = testData.breakpointLine;
+    engine->changeBreakpoint(removeRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(breakpointOps.contains(BreakpointOp::Remove), s_timeout);
+
+    // The engine takes the run being requested before the run itself, whoever
+    // asked for it.
+    debuggerBackend.clearEvents();
+    debuggerBackend.execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::RunOk), s_timeout);
+    QCOMPARE(debuggerBackend.events().first(), InferiorEvent::RunRequested);
+
+    engine->shutdownInferior(ShutdownMode::Kill);
+    engine->shutdownEngine();
+}
+
+// The framing and the plain answers the fake adapters below have in common.
+// A subclass says only what it does beyond that.
+class FakeDapAdapter : public QObject
+{
+public:
+    bool listen()
+    {
+        connect(&m_server, &QTcpServer::newConnection, this, [this] {
+            m_socket = m_server.nextPendingConnection();
+            connect(m_socket, &QTcpSocket::readyRead, this, &FakeDapAdapter::read);
+        });
+        return m_server.listen(QHostAddress::LocalHost);
+    }
+
+    quint16 port() const { return m_server.serverPort(); }
+
+protected:
+    void respond(const QJsonObject &request, const QJsonObject &body)
+    {
+        send(QJsonObject{{"type", "response"},
+                         {"request_seq", request.value("seq")},
+                         {"command", request.value("command")},
+                         {"success", true},
+                         {"body", body}});
+    }
+
+    void sendEvent(const QString &event, const QJsonObject &body = {})
+    {
+        QJsonObject message{{"type", "event"}, {"event", event}};
+        if (!body.isEmpty())
+            message.insert("body", body);
+        send(message);
+    }
+
+    virtual void handle(const QJsonObject &request) = 0;
+
+private:
+    void send(const QJsonObject &message)
+    {
+        QJsonObject full = message;
+        full.insert("seq", ++m_sequence);
+        const QByteArray body = QJsonDocument(full).toJson(QJsonDocument::Compact);
+        m_socket->write("Content-Length: " + QByteArray::number(body.size()) + "\r\n\r\n"
+                        + body);
+    }
+
+    void read()
+    {
+        m_buffer += m_socket->readAll();
+        for (;;) {
+            const int headerEnd = m_buffer.indexOf("\r\n\r\n");
+            if (headerEnd < 0)
+                return;
+            const QByteArray header = m_buffer.left(headerEnd);
+            const int marker = header.indexOf("Content-Length: ");
+            if (marker < 0)
+                return;
+            const int length = header.mid(marker + 16).trimmed().toInt();
+            if (m_buffer.size() < headerEnd + 4 + length)
+                return;
+            const QJsonObject request
+                = QJsonDocument::fromJson(m_buffer.mid(headerEnd + 4, length)).object();
+            m_buffer.remove(0, headerEnd + 4 + length);
+            handle(request);
+        }
+    }
+
+    QTcpServer m_server;
+    QTcpSocket *m_socket = nullptr;
+    QByteArray m_buffer;
+    int m_sequence = 0;
+};
+
+// An adapter shaped like cortex-debug's where the locals are concerned: it
+// offers four scopes and hints at none of them, and it reports each stop
+// twice. Only the one named "Local" holds locals; the rest are what the other
+// views are for.
+class ScopedDapAdapter : public FakeDapAdapter
+{
+    static QJsonObject variable(const QString &name, const QString &value)
+    {
+        // cortex-debug answers with a whole hover text where a type name is
+        // asked for, the value in every format it knows below it.
+        const QString type = QString("int %1;\ndec: 1\nhex: 0x00000001").arg(name);
+        return QJsonObject{{"name", name}, {"value", value}, {"type", type},
+                           {"variablesReference", 0}};
+    }
+
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        if (command == "initialize") {
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true}});
+            sendEvent("initialized");
+        } else if (command == "stackTrace") {
+            respond(request, QJsonObject{
+                {"stackFrames", QJsonArray{QJsonObject{{"id", 1000},
+                                                       {"name", "main"},
+                                                       {"line", 11},
+                                                       {"column", 1}}}},
+                {"totalFrames", 1}});
+        } else if (command == "scopes") {
+            respond(request, QJsonObject{{"scopes", QJsonArray{
+                QJsonObject{{"name", "Local"}, {"variablesReference", 4096}},
+                QJsonObject{{"name", "Global"}, {"variablesReference", 4097}},
+                QJsonObject{{"name", "Static: ./main.c"}, {"variablesReference", 4098}},
+                QJsonObject{{"name", "Registers"}, {"variablesReference", 4099}}}}});
+        } else if (command == "variables") {
+            const int reference = request.value("arguments").toObject()
+                                      .value("variablesReference").toInt();
+            const QString name = reference == 4096 ? "counter"
+                               : reference == 4097 ? "aGlobal"
+                               : reference == 4098 ? "aStatic" : "r0";
+            respond(request, QJsonObject{{"variables", QJsonArray{variable(name, "1")}}});
+        } else {
+            respond(request, QJsonObject{});
+            if (command == "configurationDone") {
+                // Twice, as cortex-debug does.
+                for (int i = 0; i < 2; ++i) {
+                    sendEvent("stopped", QJsonObject{{"reason", "breakpoint"},
+                                                     {"threadId", 1}});
+                }
+            }
+        }
+    }
+};
+
+// An adapter that stops the debuggee and then lets it run again by itself,
+// which is what a real one does when it resets a board before running to an
+// entry point. Nothing asks it to: the resume is only announced.
+class ResumingDapAdapter : public FakeDapAdapter
+{
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        respond(request, command == "initialize"
+                             ? QJsonObject{{"supportsConfigurationDoneRequest", true}}
+                             : QJsonObject{});
+        if (command == "initialize")
+            sendEvent("initialized");
+        if (command == "configurationDone") {
+            sendEvent("stopped", QJsonObject{{"reason", "entry"}, {"threadId", 1}});
+            sendEvent("continued", QJsonObject{{"threadId", 1},
+                                               {"allThreadsContinued", true}});
+        }
+    }
+};
+
+// An adapter that speaks only what this is about: it ends the session while
+// answering the launch, which is before the configuration it was also asked
+// about has been answered. Nothing real is debugged, and nothing needs to be.
+class AdverseDapAdapter : public FakeDapAdapter
+{
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        respond(request, command == "initialize"
+                             ? QJsonObject{{"supportsConfigurationDoneRequest", true}}
+                             : QJsonObject{});
+        if (command == "initialize")
+            sendEvent("initialized");
+        // The point of this adapter: over before the configuration is done.
+        if (command == "launch")
+            sendEvent("terminated");
+    }
+};
+
+// An adapter that can be driven: it keeps every request it was sent, it stops
+// when the configuration is done and again after each step, and it has two
+// threads. It offers no capability beyond the configuration request, so a jump
+// has nothing to go on. A resume is answered but never followed by a stop.
+class DrivenDapAdapter : public FakeDapAdapter
+{
+public:
+    static constexpr int stoppedThreadId = 7;
+
+    QStringList commands() const
+    {
+        QStringList commands;
+        for (const QJsonObject &request : m_requests)
+            commands.append(request.value("command").toString());
+        return commands;
+    }
+
+    QJsonObject argumentsOf(const QString &command, int nth = 0) const
+    {
+        for (const QJsonObject &request : m_requests) {
+            if (request.value("command").toString() == command && nth-- == 0)
+                return request.value("arguments").toObject();
+        }
+        return {};
+    }
+
+private:
+    void handle(const QJsonObject &request) override
+    {
+        m_requests.append(request);
+        const QString command = request.value("command").toString();
+        if (command == "initialize") {
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true}});
+            sendEvent("initialized");
+            return;
+        }
+        if (command == "threads") {
+            // Named, and neither of them the ordinal a caller might assume.
+            respond(request, QJsonObject{{"threads", QJsonArray{
+                QJsonObject{{"id", 4}, {"name", "main"}},
+                QJsonObject{{"id", stoppedThreadId}, {"name", "worker"}}}}});
+            return;
+        }
+        respond(request, QJsonObject{});
+        if (command == "configurationDone") {
+            sendEvent("stopped", QJsonObject{{"reason", "breakpoint"},
+                                             {"threadId", stoppedThreadId}});
+        } else if (command == "stepIn" || command == "next" || command == "stepOut") {
+            // A step stops the thread it was asked to step, not another.
+            sendEvent("stopped", QJsonObject{
+                {"reason", "step"},
+                {"threadId", request.value("arguments").toObject().value("threadId")}});
+        }
+    }
+
+    QList<QJsonObject> m_requests;
+};
+
+// The engine takes the run being reported and its outcome only in that order,
+// so an outcome that arrives first has to wait for the run.
+void tst_backends::reportsTheRunBeforeItsOutcomeThroughDapAdapter()
+{
+    AdverseDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "adverse";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    // Taken when the outcome arrives, so what had been reported by then is what
+    // is checked rather than what has been reported by the time the wait ends.
+    bool runWasReportedFirst = false;
+    connect(engine, &DebuggerEngineInterface::inferiorDone, &debuggerBackend,
+            [&debuggerBackend, &runWasReportedFirst](const InferiorResultData &) {
+        runWasReportedFirst = debuggerBackend.contains(InferiorEvent::RunAndInferiorRunOk);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(!debuggerBackend.inferiorResults().isEmpty()
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend.contains(InferiorEvent::EngineRunFailed),
+                             s_timeout);
+    QVERIFY(!debuggerBackend.inferiorResults().isEmpty());
+    QVERIFY(runWasReportedFirst);
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::followsAResumeTheDapAdapterMakesOnItsOwn()
+{
+    ResumingDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "resuming";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    // The stop comes first, so waiting for the run rather than for the stop is
+    // what tells the two apart: only the announced resume reports RunOk here.
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::RunOk)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend.contains(InferiorEvent::EngineRunFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::RunOk));
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop),
+                              "the stop the adapter announced was never reported", s_timeout);
+    const QList<InferiorEvent> &events = debuggerBackend.events();
+    QCOMPARE(events.indexOf(InferiorEvent::RunRequested),
+             events.indexOf(InferiorEvent::RunOk) - 1);
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::readsOnlyTheLocalScopeFromADapAdapter()
+{
+    ScopedDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "scoped";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> localsById;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&localsById](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Locals)
+            localsById[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    request.requestId = 420;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(localsById.contains(420), s_timeout);
+
+    const GdbMi locals = localsById.value(420);
+    QStringList names;
+    for (const GdbMi &item : locals["data"])
+        names.append(item["name"].data());
+
+    // The registers, the globals and the file statics have views of their own,
+    // and a stop reported twice is still one stop.
+    QCOMPARE(names, QStringList{"counter"});
+
+    // The type column is one line, whatever the adapter puts in the type.
+    QCOMPARE(locals["data"].childAt(0)["type"].data(), QString("int counter;"));
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::dropsALocalsWalkThatWasStartedOver()
+{
+    ScopedDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "scoped";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> localsById;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&localsById](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Locals)
+            localsById[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    // Two asks in a row, as two reports of the same stop produce: the first
+    // walk is still in flight when the second starts it over.
+    RefreshRequest first;
+    first.kind = RefreshKind::Locals;
+    first.requestId = 430;
+    engine->refresh(first);
+    RefreshRequest second = first;
+    second.requestId = 431;
+    engine->refresh(second);
+
+    QTRY_VERIFY_WITH_TIMEOUT(localsById.contains(431), s_timeout);
+
+    const GdbMi locals = localsById.value(431);
+    QStringList names;
+    for (const GdbMi &item : locals["data"])
+        names.append(item["name"].data());
+
+    // What the abandoned walk read must not be added to what this one did.
+    QCOMPARE(names, QStringList{"counter"});
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::reportsASocketThatCannotConnect()
+{
+    // A port with nothing behind it: taking one and giving it back is the way
+    // to be sure nothing is listening on it.
+    quint16 port = 0;
+    {
+        QTcpServer server;
+        QVERIFY(server.listen(QHostAddress::LocalHost));
+        port = server.serverPort();
+    }
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = port;
+    startData.adapterId = "absent";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QStringList errors;
+    connect(engine, &DebuggerEngineInterface::message, &debuggerBackend,
+            [&errors](const QString &text, int channel) {
+        if (channel == Debugger::LogError)
+            errors.append(text);
+    });
+
+    engine->start();
+    // No adapter is coming, so the setup has to fail rather than wait: an
+    // error on the socket is the end of the connection.
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    // And with a reason, or it fails in silence.
+    QVERIFY(!errors.isEmpty());
+    QVERIFY(!errors.first().trimmed().isEmpty());
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::sendsTheProtocolsStepRequestsThroughADapAdapter()
+{
+    DrivenDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "stepping";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    const auto stepped = [&debuggerBackend] {
+        return debuggerBackend.contains(InferiorEvent::SpontaneousStop);
+    };
+    const auto step = [&debuggerBackend](ExecutionCommand command, bool byInstruction) {
+        debuggerBackend.clearEvents();
+        ExecutionRequest request;
+        request.command = command;
+        request.flag = byInstruction;
+        debuggerBackend.execute(request);
+    };
+
+    step(ExecutionCommand::StepIn, false);
+    QTRY_VERIFY_WITH_TIMEOUT(stepped(), s_timeout);
+    step(ExecutionCommand::StepOver, false);
+    QTRY_VERIFY_WITH_TIMEOUT(stepped(), s_timeout);
+    step(ExecutionCommand::StepOut, false);
+    QTRY_VERIFY_WITH_TIMEOUT(stepped(), s_timeout);
+    step(ExecutionCommand::StepIn, true);
+    QTRY_VERIFY_WITH_TIMEOUT(stepped(), s_timeout);
+
+    QStringList steps;
+    for (const QString &command : adapter.commands()) {
+        if (command == "stepIn" || command == "next" || command == "stepOut")
+            steps.append(command);
+    }
+    // The protocol names a step over "next", and only a step out is a request
+    // of its own for the client.
+    QCOMPARE(steps, QStringList({"stepIn", "next", "stepOut", "stepIn"}));
+
+    // The thread to step is the one the stop named, not a default.
+    QCOMPARE(adapter.argumentsOf("stepIn").value("threadId").toInt(),
+             DrivenDapAdapter::stoppedThreadId);
+
+    // Instruction granularity is what the flag asks for, and only that step.
+    QVERIFY(!adapter.argumentsOf("stepIn").contains("granularity"));
+    QVERIFY(!adapter.argumentsOf("next").contains("granularity"));
+    QCOMPARE(adapter.argumentsOf("stepIn", 1).value("granularity").toString(),
+             QString("instruction"));
+
+    // A step is a run, so it is announced before it is answered for.
+    const QList<InferiorEvent> events = debuggerBackend.events();
+    QVERIFY(events.contains(InferiorEvent::RunRequested));
+    QCOMPARE(events.indexOf(InferiorEvent::RunRequested),
+             events.indexOf(InferiorEvent::RunOk) - 1);
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::sendsNoRequestADapAdapterCannotAnswer()
+{
+    DrivenDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "stepping";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    debuggerBackend.clearEvents();
+    debuggerBackend.execute({ExecutionCommand::Interrupt});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::StopOk),
+                              "an interrupt of an already stopped debuggee was not answered",
+                              s_timeout);
+
+    // Nothing stops what already stands still, and this adapter offers no jump.
+    ExecutionRequest jump;
+    jump.command = ExecutionCommand::JumpToLine;
+    jump.context.fileName = FilePath::fromString("/nonexistent/main.c");
+    jump.context.textPosition = Text::Position{12, 0};
+    debuggerBackend.execute(jump);
+
+    // A step the adapter answers is what proves the two above reached it first.
+    debuggerBackend.clearEvents();
+    debuggerBackend.execute({ExecutionCommand::StepIn});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop),
+                             s_timeout);
+
+    QVERIFY(!adapter.commands().contains("pause"));
+    QVERIFY(!adapter.commands().contains("gotoTargets"));
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::reportsTheThreadsADapAdapterListsAgainstTheStoppedOne()
+{
+    DrivenDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "driven";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> threadsById;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&threadsById](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Threads)
+            threadsById[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    engine->refresh({.requestId = 510, .kind = RefreshKind::Threads});
+    QTRY_VERIFY_WITH_TIMEOUT(threadsById.contains(510), s_timeout);
+
+    const GdbMi stopped = threadsById.value(510);
+    const GdbMi threads = stopped["threads"];
+    QCOMPARE(threads.childCount(), 2);
+    QCOMPARE(threads.childAt(0)["id"].data(), QString("4"));
+    QCOMPARE(threads.childAt(1)["id"].data(),
+             QString::number(DrivenDapAdapter::stoppedThreadId));
+
+    // The view names a thread by its target id, which is all the protocol says
+    // about one.
+    QCOMPARE(threads.childAt(0)["target-id"].data(), QString("main"));
+    QCOMPARE(threads.childAt(1)["target-id"].data(), QString("worker"));
+
+    // The protocol has no notion of a current thread, nor of a thread's state:
+    // both are the session's, and the current one is whichever stopped.
+    QCOMPARE(stopped["current-thread-id"].data(),
+             QString::number(DrivenDapAdapter::stoppedThreadId));
+    QCOMPARE(threads.childAt(0)["state"].data(), QString("stopped"));
+    QCOMPARE(threads.childAt(1)["state"].data(), QString("stopped"));
+
+    debuggerBackend.clearEvents();
+    debuggerBackend.execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::RunOk), s_timeout);
+
+    engine->refresh({.requestId = 511, .kind = RefreshKind::Threads});
+    QTRY_VERIFY_WITH_TIMEOUT(threadsById.contains(511), s_timeout);
+
+    // The same list, and the same adapter answering it, now that it runs.
+    const GdbMi running = threadsById.value(511)["threads"];
+    QCOMPARE(running.childCount(), 2);
+    QCOMPARE(running.childAt(0)["state"].data(), QString("running"));
+    QCOMPARE(running.childAt(1)["state"].data(), QString("running"));
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::stepsTheThreadThatWasSelectedFromADapAdapter()
+{
+    DrivenDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "driven";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> threadsById;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&threadsById](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Threads)
+            threadsById[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    engine->selectThread("4");
+    engine->refresh({.requestId = 520, .kind = RefreshKind::Threads});
+    QTRY_VERIFY_WITH_TIMEOUT(threadsById.contains(520), s_timeout);
+    QCOMPARE(threadsById.value(520)["current-thread-id"].data(), QString("4"));
+
+    debuggerBackend.clearEvents();
+    debuggerBackend.execute({ExecutionCommand::StepIn});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop),
+                             s_timeout);
+
+    // The thread the user picked is the one that steps, whatever last stopped.
+    QCOMPARE(adapter.argumentsOf("stepIn").value("threadId").toInt(), 4);
+
     engine->shutdownEngine();
 }
 
