@@ -28,7 +28,7 @@ QtcPlugin {
     // the libraries it needs are linked for all of them.
     Properties {
         condition: qbs.targetOS.contains("windows")
-        cpp.dynamicLibraries: ["dbghelp", "psapi"]
+        cpp.dynamicLibraries: ["advapi32", "dbghelp", "psapi"]
     }
 
     // Only part of the build on Windows: the sources use Windows APIs without
