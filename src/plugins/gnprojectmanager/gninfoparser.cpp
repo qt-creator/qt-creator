@@ -33,6 +33,11 @@ static GNTarget extractTarget(const QString &label,
         res.sources << resolveGNPath(src.toString(), rootPath);
     }
 
+    const QJsonArray publicArray = targetObj["public"].toArray();
+    for (const auto &src : publicArray) {
+        res.sources << resolveGNPath(src.toString(), rootPath);
+    }
+
     const QJsonArray dataArray = targetObj["data"].toArray();
     for (const auto &data : dataArray) {
         res.datas << resolveGNPath(data.toString(), rootPath);
