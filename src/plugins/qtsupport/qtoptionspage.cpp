@@ -1234,12 +1234,17 @@ public:
         setFixedKeywords({
             Tr::tr("Add..."),
             Tr::tr("Remove"),
+            Tr::tr("Clone"),
             Tr::tr("Clean Up"),
-            Tr::tr("Link with Qt"),
+            Tr::tr("Re-detect"),
+            Tr::tr("Link with Qt..."),
             Tr::tr("Remove Link"),
+            Tr::tr("Name:"),
+            Tr::tr("Device:"),
             Tr::tr("Qt installation path:"),
             Tr::tr("qmake path:"),
-            Tr::tr("Register documentation:")
+            Tr::tr("Register documentation:"),
+            PathChooser::browseButtonLabel()
         });
     }
 };
