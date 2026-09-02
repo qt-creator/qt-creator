@@ -225,7 +225,8 @@ private:
     static IEditor *createEditor(IEditorFactory *factory, const Utils::FilePath &filePath);
     static void addEditor(IEditor *editor);
     static DocumentModel::Entry *removeEditor(IEditor *editor, bool removeSusependedEntry);
-    static IEditor *placeEditor(EditorView *view, IEditor *editor);
+    static IEditor *placeEditor(EditorView *view, IEditor *editor,
+                                EditorManager::OpenEditorFlags flags = EditorManager::NoFlags);
     static void restoreEditorState(IEditor *editor);
     static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = nullptr);
     static IEditor *pickUnusedEditor(Internal::EditorView **foundView = nullptr);

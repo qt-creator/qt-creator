@@ -997,14 +997,19 @@ bool EditorView::event(QEvent *e)
     return QWidget::event(e);
 }
 
-void EditorView::addEditor(IEditor *editor)
+void EditorView::addEditor(IEditor *editor, bool makeMostRecent)
 {
     if (m_editors.contains(editor))
         return;
     QTC_ASSERT(
         !Utils::contains(m_editors, Utils::equal(&IEditor::document, editor->document())), return);
 
-    m_editors.append(editor);
+    // m_editors is ordered by "recency", and the last editor is the current & visible one for
+    // this view
+    if (makeMostRecent)
+        m_editors.append(editor);
+    else
+        m_editors.prepend(editor);
 
     m_container->addWidget(editor->widget());
     m_widgetEditorMap.insert(editor->widget(), editor);

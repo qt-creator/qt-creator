@@ -1423,7 +1423,8 @@ DocumentModel::Entry *EditorManagerPrivate::removeEditor(IEditor *editor, bool r
     return entryToDelete;
 }
 
-IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
+IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor,
+                                           EditorManager::OpenEditorFlags flags)
 {
     Q_ASSERT(view && editor);
 
@@ -1433,6 +1434,8 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
         return e;
 
     QTC_CHECK(DocumentModel::editorsForDocument(editor->document()).contains(editor));
+
+    const bool makeMostRecent = !(flags & EditorManager::DoNotChangeCurrentEditor);
 
     const QByteArray state = editor->saveState();
     if (EditorView *sourceView = viewForEditor(editor)) {
@@ -1446,7 +1449,7 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
                 {{sourceView, editor}},
                 !duplicateSupported ? EditorView::RemoveTab : EditorView::KeepTab,
                 RemoveEditorFlag::EnsureNewEditor);
-            view->addEditor(editor);
+            view->addEditor(editor, makeMostRecent);
             // possibly adapts old state to new layout
             editor->restoreState(state);
             return editor;
@@ -1455,7 +1458,7 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
                 editor = duplicate;
         }
     }
-    view->addEditor(editor);
+    view->addEditor(editor, makeMostRecent);
     // possibly adapts old state to new layout
     editor->restoreState(state);
     return editor;
@@ -1482,7 +1485,7 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
     if (!editor)
         return nullptr;
 
-    editor = placeEditor(view, editor);
+    editor = placeEditor(view, editor, flags);
 
     if (!(flags & EditorManager::DoNotChangeCurrentEditor)) {
         setCurrentEditor(editor, (flags & EditorManager::IgnoreNavigationHistory));

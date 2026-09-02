@@ -60,6 +60,7 @@ private slots:
     void testMoveEditorToNextSplitWithExistingEditor();
     void testMoveEditorToNextSplitWhenAlreadyVisible();
     void testMoveEditorToNextSplitRestoresSuspendedTab();
+    void testDoNotChangeCurrentEditor();
 };
 
 QObject *createEditorManagerTest()
@@ -640,6 +641,36 @@ void EditorManagerTest::testMoveEditorToNextSplitRestoresSuspendedTab()
     QCOMPARE(views.at(0)->currentEditor()->document()->filePath(), a.filePath());
     QCOMPARE(views.at(1)->currentEditor(), editorC);
     QCOMPARE(EMP::currentEditorView(), views.at(1));
+}
+
+void EditorManagerTest::testDoNotChangeCurrentEditor()
+{
+    // open A
+    // open B with DoNotChangeCurrentEditor|DoNotMakeVisible
+    // open C
+    // close C
+    // -> A should become current, not B
+    TestFile a;
+    TestFile b;
+    TestFile c;
+    EditorView *view = mainAreaViews().at(0);
+    IEditor *editorA = EMP::openEditor(view, a.filePath());
+    QCOMPARE(view->currentEditor(), editorA);
+
+    IEditor *editorB = EMP::openEditor(
+        view,
+        b.filePath(),
+        {},
+        EditorManager::DoNotChangeCurrentEditor | EditorManager::DoNotMakeVisible);
+    QVERIFY(editorB);
+    QCOMPARE(view->currentEditor(), editorA);
+
+    IEditor *editorC = EMP::openEditor(view, c.filePath());
+    QCOMPARE(view->currentEditor(), editorC);
+
+    EMP::closeEditorOrDocument(editorC);
+
+    QCOMPARE(view->currentEditor(), editorA);
 }
 
 } // namespace Core::Internal

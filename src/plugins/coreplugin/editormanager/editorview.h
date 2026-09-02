@@ -89,7 +89,7 @@ public:
     EditorView *findPreviousView() const;
 
     int editorCount() const;
-    void addEditor(IEditor *editor);
+    void addEditor(IEditor *editor, bool makeMostRecent = true);
     void removeEditor(IEditor *editor, RemovalOption option = RemoveTab);
     IEditor *currentEditor() const;
     void setCurrentEditor(IEditor *editor);
