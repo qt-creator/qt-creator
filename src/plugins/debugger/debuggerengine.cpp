@@ -10,6 +10,7 @@
 #include "debuggericons.h"
 #include "debuggerkitaspect.h"
 #include "debuggerrunconfigurationaspect.h"
+#include "debuggersourcepathmappingwidget.h"
 #include "debuggertooltipmanager.h"
 #include "debuggertr.h"
 
@@ -265,6 +266,11 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
             m_debugSourceLocation.append(base + "qt5base/src/network");
         }
     }
+
+    // Only here are the sysroot and the debug information location final: the
+    // start dialogs set them after fromRunControl().
+    if (QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(runControl->kit()))
+        m_qtBuildSourceRoots = Internal::qtBuildSourceRoots(*this, qt);
 
     if (m_isQmlDebugging) {
         const auto device = runControl->device();

@@ -7,6 +7,11 @@
 #include "debuggerengine.h"
 #include "debuggertr.h"
 
+#include <projectexplorer/abi.h>
+
+#include <qtsupport/baseqtversion.h>
+
+#include <utils/elfreader.h>
 #include <utils/fileutils.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
@@ -436,20 +441,150 @@ SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,
     return rc;
 }
 
-/* Merge settings for an installed Qt (unless another setting is already in the map. */
-SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourcePathMap &in)
+static bool hasQtSources(const FilePath &qtSourceLocation)
 {
     static const QString qglobal = "qtbase/src/corelib/global/qglobal.h";
-    const FilePath sourceLocation = sp.qtSourceLocation();
-    if (!(sourceLocation / qglobal).exists())
-        return in;
+    return (qtSourceLocation / qglobal).exists();
+}
 
+QStringList qtBuildSourceRoots(const QByteArray &debugStrings)
+{
+    static const QByteArray marker = "/qtbase/src/";
+    QStringList roots;
+    for (qsizetype hit = debugStrings.indexOf(marker); hit >= 0;
+         hit = debugStrings.indexOf(marker, hit + marker.size())) {
+        // The recorded path is the NUL terminated string around the marker, its
+        // root everything before the marker. Only absolute roots can be mapped.
+        const qsizetype start = debugStrings.lastIndexOf('\0', hit) + 1;
+        if (hit <= start || debugStrings.at(start) != '/')
+            continue;
+        const QString root = QString::fromUtf8(debugStrings.constData() + start, hit - start);
+        if (!roots.contains(root))
+            roots.append(root);
+    }
+    return roots;
+}
+
+// Source paths live in .debug_str (DWARF <= 4) or .debug_line_str (DWARF 5).
+static QStringList sourceRootsFromSections(ElfReader &reader, const FilePath &binary)
+{
+    static const QByteArray sections[] = {".debug_str", ".debug_line_str"};
+    const ElfData elfData = reader.readHeaders();
+    QStringList roots;
+    for (const QByteArray &section : sections) {
+        if (elfData.indexOf(section) == -1)
+            continue;
+        const std::unique_ptr<ElfMapper> mapper = reader.readSection(section);
+        if (!mapper) {
+            qWarning() << "Cannot read" << section << "of" << binary << ":"
+                       << reader.errorString();
+            continue;
+        }
+        roots += qtBuildSourceRoots(
+            QByteArray::fromRawData(mapper->start, qsizetype(mapper->fdlen)));
+    }
+    roots.removeDuplicates();
+    return roots;
+}
+
+// An installed Qt library usually carries no debug information itself, only a
+// .gnu_debuglink or a build id naming a companion file. The candidates and their
+// order are gdb's, minus the checksum in the debug link.
+FilePath debugInfoFile(const FilePath &library, const QByteArray &debugLink,
+                       const QByteArray &buildId, const FilePath &debugInfoDir)
+{
+    const FilePath dir = library.parentDir();
+    FilePaths candidates;
+    // The build id comes first because it identifies the companion exactly,
+    // where the debug link is only a name. Distributions ship the companion in
+    // the build id tree and name it without a directory in the debug link, so
+    // this is also the only candidate that finds it there.
+    if (buildId.size() > 2 && !debugInfoDir.isEmpty()) {
+        const QString id = QString::fromLatin1(buildId);
+        candidates << debugInfoDir / ".build-id" / id.left(2) / (id.mid(2) + ".debug");
+    }
+    if (!debugLink.isEmpty()) {
+        const QString name = QString::fromUtf8(debugLink);
+        candidates << dir / name << dir / ".debug" / name;
+        if (!debugInfoDir.isEmpty())
+            candidates << debugInfoDir.pathAppended(dir.path()) / name;
+    }
+
+    for (const FilePath &candidate : candidates) {
+        if (candidate != library && candidate.isReadableFile())
+            return candidate;
+    }
+    return library;
+}
+
+static QStringList sourceRootsFromLibrary(const FilePath &library, const FilePath &debugInfoDir)
+{
+    ElfReader reader(library);
+    const ElfData elfData = reader.readHeaders();
+    const FilePath companion = debugInfoFile(library, elfData.debugLink, elfData.buildId,
+                                             debugInfoDir);
+    if (companion == library)
+        return sourceRootsFromSections(reader, library);
+
+    ElfReader companionReader(companion);
+    return sourceRootsFromSections(companionReader, companion);
+}
+
+// gdb's own debug-file-directory default does not depend on the
+// autoEnrichParameters() setting that fills debugInfoLocation() in, so the
+// companion of a distro-packaged Qt has to be looked for either way.
+FilePath debugInfoDirectory(const DebuggerRunParameters &sp)
+{
+    const FilePath location = sp.debugInfoLocation();
+    return location.isEmpty() ? sp.sysRoot() / "/usr/lib/debug" : location;
+}
+
+QStringList qtBuildSourceRoots(const DebuggerRunParameters &sp, const QtSupport::QtVersion *qt)
+{
+    if (!qt || sp.toolChainAbi().binaryFormat() != ProjectExplorer::Abi::ElfFormat)
+        return {};
+    if (!hasQtSources(sp.qtSourceLocation()))
+        return {};
+
+    const FilePath library = qt->libraryPath()
+        / QString("libQt%1Core.so.%1").arg(qt->qtVersion().majorVersion());
+    if (!library.isLocal())
+        return {};
+
+    const FilePath debugInfoDir = debugInfoDirectory(sp);
+    // The library is local, so a companion on another device is of no use.
+    if (!debugInfoDir.isLocal())
+        return {};
+
+    return sourceRootsFromLibrary(library, debugInfoDir);
+}
+
+/* Merge settings for an installed Qt (unless another setting is already in the map. */
+SourcePathMap mergePlatformQtPath(const QString &qtSourceLocation,
+                                  const QStringList &qtBuildSourceRoots,
+                                  const SourcePathMap &in)
+{
     SourcePathMap rc = in;
+    // The root recorded in the debug information covers builds whose path is
+    // not one of the qtBuildPaths() guesses.
+    for (const QString &buildRoot : qtBuildSourceRoots) {
+        if (buildRoot != qtSourceLocation && !rc.contains(buildRoot))
+            rc.insert(buildRoot, qtSourceLocation);
+    }
     for (const QString &buildPath : qtBuildPaths()) {
         if (!rc.contains(buildPath)) // Do not overwrite user settings.
-            rc.insert(buildPath, sourceLocation.path());
+            rc.insert(buildPath, qtSourceLocation);
     }
     return rc;
+}
+
+SourcePathMap mergePlatformQtPath(const DebuggerRunParameters &sp, const SourcePathMap &in)
+{
+    const FilePath sourceLocation = sp.qtSourceLocation();
+    if (!hasQtSources(sourceLocation))
+        return in;
+
+    return mergePlatformQtPath(sourceLocation.path(), sp.qtBuildSourceRoots(), in);
 }
 
 //

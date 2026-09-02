@@ -9,6 +9,7 @@
 #include "debuggerengineinterface.h"
 #include "debuggeritem.h"
 #include "debuggerruncontrol.h"
+#include "debuggersourcepathmappingwidget.h"
 #include "enginemanager.h"
 #include "gdb/gdbengine.h"
 #include "registerhandler.h"
@@ -24,10 +25,12 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/filepath.h>
+#include <utils/hostosinfo.h>
 
 #include <QTest>
 #include <QVersionNumber>
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTestEventLoop>
 
 #include <memory>
@@ -73,6 +76,13 @@ private slots:
 
     void testInferiorStartData();
     void testMapsAnEmptyFileNameToNothing();
+
+    void testQtBuildSourceRoots_data();
+    void testQtBuildSourceRoots();
+
+    void testDebugInfoDirectory();
+    void testDebugInfoFile();
+    void testMergePlatformQtPath();
 
 private:
     CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
@@ -471,6 +481,150 @@ void DebuggerUnitTests::testMapsAnEmptyFileNameToNothing()
 
     // What a stack frame that names no file would otherwise be opened from.
     QVERIFY(rp.mapToProjectPath({}).isEmpty());
+}
+
+static QByteArray debugStrings(const QStringList &strings)
+{
+    QByteArray result;
+    for (const QString &string : strings)
+        result += string.toUtf8() + '\0';
+    return result;
+}
+
+void DebuggerUnitTests::testQtBuildSourceRoots_data()
+{
+    QTest::addColumn<QByteArray>("blob");
+    QTest::addColumn<QStringList>("roots");
+
+    QTest::newRow("empty") << QByteArray() << QStringList();
+
+    QTest::newRow("no marker")
+        << debugStrings({"/usr/include/stdio.h", "int"}) << QStringList();
+
+    QTest::newRow("one root")
+        << debugStrings({"/home/qt/work/qt/qtbase/src/corelib/global/qglobal.h"})
+        << QStringList{"/home/qt/work/qt"};
+
+    QTest::newRow("directory only")
+        << debugStrings({"/opt/src/qt/qtbase/src/corelib/global"})
+        << QStringList{"/opt/src/qt"};
+
+    QTest::newRow("two roots")
+        << debugStrings({"/build/a/qtbase/src/corelib/kernel/qobject.cpp",
+                         "/build/b/qtbase/src/gui/kernel/qwindow.cpp"})
+        << QStringList{"/build/a", "/build/b"};
+
+    QTest::newRow("same root twice")
+        << debugStrings({"/build/a/qtbase/src/corelib/kernel/qobject.cpp",
+                         "/build/a/qtbase/src/gui/kernel/qwindow.cpp"})
+        << QStringList{"/build/a"};
+
+    QTest::newRow("relative path")
+        << debugStrings({"../../qtbase/src/corelib/global/qglobal.h"}) << QStringList();
+
+    QTest::newRow("empty root")
+        << debugStrings({"/qtbase/src/corelib/global/qglobal.h"}) << QStringList();
+
+    QTest::newRow("marker in a neighbor string")
+        << debugStrings({"/build/a", "/qtbase/src/corelib"}) << QStringList();
+}
+
+void DebuggerUnitTests::testQtBuildSourceRoots()
+{
+    QFETCH(QByteArray, blob);
+    QFETCH(QStringList, roots);
+
+    QCOMPARE(qtBuildSourceRoots(blob), roots);
+}
+
+void DebuggerUnitTests::testDebugInfoDirectory()
+{
+    DebuggerRunParameters rp;
+
+    // Without a location of its own, gdb's default is used, whether or not the
+    // parameters were enriched.
+    QCOMPARE(debugInfoDirectory(rp), FilePath::fromString("/usr/lib/debug"));
+
+    rp.setSysRoot(FilePath::fromString("/sysroots/target"));
+    QCOMPARE(debugInfoDirectory(rp), FilePath::fromString("/sysroots/target/usr/lib/debug"));
+
+    rp.setDebugInfoLocation(FilePath::fromString("/elsewhere/debug"));
+    QCOMPARE(debugInfoDirectory(rp), FilePath::fromString("/elsewhere/debug"));
+}
+
+void DebuggerUnitTests::testDebugInfoFile()
+{
+    if (HostOsInfo::isWindowsHost()) {
+        QSKIP("The lookup is for ELF binaries, and the debug file directory candidate "
+              "cannot be built from a path carrying a drive letter.");
+    }
+
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath root = FilePath::fromString(tmp.path());
+    const FilePath libDir = root / "lib";
+    const FilePath library = libDir / "libQt6Core.so.6";
+    const FilePath debugInfoDir = root / "debug";
+    const QByteArray link = "libQt6Core.so.6.debug";
+    const QByteArray buildId = "abcdef0123";
+
+    QVERIFY(libDir.ensureWritableDir());
+    QVERIFY(library.ensureExistingFile());
+
+    // Nothing to find yet, and neither a missing link nor a stub of a build id
+    // may send it anywhere else.
+    QCOMPARE(debugInfoFile(library, link, buildId, debugInfoDir), library);
+    QCOMPARE(debugInfoFile(library, {}, {}, debugInfoDir), library);
+    QCOMPARE(debugInfoFile(library, link, "ab", debugInfoDir), library);
+
+    // Create the candidates in reverse order of precedence, so each one has to
+    // take over from the one created before it.
+    const FilePath byBuildId = debugInfoDir / ".build-id" / "ab" / "cdef0123.debug";
+    const FilePath global = debugInfoDir.pathAppended(libDir.path()) / QString::fromUtf8(link);
+    const FilePath subdir = libDir / ".debug" / QString::fromUtf8(link);
+    const FilePath adjacent = libDir / QString::fromUtf8(link);
+
+    for (const FilePath &candidate : {global, subdir, adjacent, byBuildId}) {
+        QVERIFY(candidate.parentDir().ensureWritableDir());
+        QVERIFY(candidate.ensureExistingFile());
+        QCOMPARE(debugInfoFile(library, link, buildId, debugInfoDir), candidate);
+    }
+
+    // Without a debug information directory only the candidates next to the
+    // library remain, and the build id cannot be resolved at all.
+    QCOMPARE(debugInfoFile(library, link, buildId, {}), adjacent);
+    QCOMPARE(debugInfoFile(library, {}, buildId, {}), library);
+}
+
+void DebuggerUnitTests::testMergePlatformQtPath()
+{
+    const QString sources = "/home/dev/qt-src";
+    const QString elsewhere = "/elsewhere";
+    const SourcePathMap empty;
+
+    // A build root read from the debug information is mapped onto the sources.
+    QCOMPARE(mergePlatformQtPath(sources, {"/build/qt"}, empty).value("/build/qt"), sources);
+
+    // A developer build records the source location itself. Mapping that onto
+    // itself is pointless, so it is skipped.
+    QVERIFY(!mergePlatformQtPath(sources, {sources}, empty).contains(sources));
+
+    // A user setting for the same root wins.
+    SourcePathMap user;
+    user.insert("/build/qt", elsewhere);
+    QCOMPARE(mergePlatformQtPath(sources, {"/build/qt"}, user).value("/build/qt"), elsewhere);
+
+    // The hardcoded build paths are added even without a root from the debug
+    // information, and are left alone where the user has set one.
+    const SourcePathMap platform = mergePlatformQtPath(sources, {}, empty);
+    QVERIFY(!platform.isEmpty());
+    for (auto it = platform.cbegin(), end = platform.cend(); it != end; ++it)
+        QCOMPARE(it.value(), sources);
+
+    SourcePathMap platformUser;
+    platformUser.insert(platform.firstKey(), elsewhere);
+    QCOMPARE(mergePlatformQtPath(sources, {}, platformUser).value(platform.firstKey()),
+             elsewhere);
 }
 
 QObject *createDebuggerTest()

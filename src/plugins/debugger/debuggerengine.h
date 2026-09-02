@@ -223,6 +223,7 @@ public:
     QStringList debugSourceLocation() const { return m_debugSourceLocation; }
 
     Utils::FilePath qtSourceLocation() const { return m_qtSourceLocation; }
+    QStringList qtBuildSourceRoots() const { return m_qtBuildSourceRoots; }
 
     void setToolChainAbi(const ProjectExplorer::Abi &abi) { m_toolChainAbi = abi; }
     ProjectExplorer::Abi toolChainAbi() const { return m_toolChainAbi; }
@@ -326,6 +327,7 @@ private:
     Utils::FilePath m_overrideStartScript; // Used in attach to core and remote debugging
     Utils::FilePath m_debugInfoLocation; // Gdb "set-debug-file-directory".
     Utils::FilePath m_qtSourceLocation;
+    QStringList m_qtBuildSourceRoots;
     Utils::FilePath m_projectSourceDirectory;
     Utils::FilePath m_buildDirectory;
     Utils::FilePath m_interpreter; // Used by Script debugging
