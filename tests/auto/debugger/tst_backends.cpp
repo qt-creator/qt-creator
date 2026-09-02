@@ -190,6 +190,9 @@ struct InferiorTestData
     int spinBodyLine = 0;
     // A line whose step lands in a standard header the debugger may skip.
     int knownFrameStepLine = 0;
+    // A line whose step-into first lands where the linker jumps from, which has
+    // no source of its own.
+    int thunkStepLine = 0;
     // A line the backend is expected to refuse a breakpoint on, e.g. a comment.
     int unbreakableLine = 0;
     QString localMarker;
@@ -766,6 +769,7 @@ public:
     bool isEmpty() const { return m_events.isEmpty(); }
     qsizetype size() const { return m_events.size(); }
     void clearEvents() { m_events.clear(); }
+    void clearStoppedLocation() { m_stoppedFile = {}; m_stoppedLine = 0; }
     const QList<InferiorEvent> &events() const { return m_events; }
 
     const QList<InferiorResultData> &inferiorResults() const { return m_inferiorResults; }
@@ -869,6 +873,8 @@ private slots:
     void activatesFrameAndReadsItsLocals();
     void limitsTheReportedStackDepth_data() { addBackendRows(); }
     void limitsTheReportedStackDepth();
+    void stepsPastTheLinkersJumpToAFunction_data() { addBackendRows(); }
+    void stepsPastTheLinkersJumpToAFunction();
     void skipsKnownFramesWhenStepping_data() { addBackendRows(); }
     void skipsKnownFramesWhenStepping();
     void logsTheResponseTimeWhenConfigured_data() { addBackendRows(); }
@@ -1110,8 +1116,10 @@ private:
     std::unique_ptr<DebuggerBackend> createFullyConfiguredEngine(Backend backend,
         const Utils::Environment &debuggerEnvironment, const Utils::FilePath &existingDir,
         const QString &inferiorArguments = {});
+    // The line defaults to the one the inferior declares for a breakpoint.
     std::unique_ptr<DebuggerBackend> launchAndStopAtBreakpoint(Backend backend,
-        const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {});
+        const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {},
+        int line = 0);
     std::unique_ptr<DebuggerBackend> stopAtBreakpoint(Backend backend, Process &helperInferior);
     bool hasCapability(Backend backend, Debugger::DebuggerCapabilities capability,
                        Debugger::DebuggerStartMode startMode = Debugger::NoStartMode);
@@ -1784,7 +1792,7 @@ void tst_backends::initTestCase()
         "    if (!getcwd(cwd, sizeof(cwd)))",
         "        cwd[0] = 0;",
         "#endif",
-        "    printf(\"cwd=%s\\n\", cwd);",
+        "    printf(\"cwd=%s\\n\", cwd); // thunk step line",
         "    printf(\"after bump\\n\");",
         "    fflush(stdout);",
         "    throwAndCatch();",
@@ -1793,6 +1801,7 @@ void tst_backends::initTestCase()
         "}",
         "",
     };
+    int thunkStepLine = 0;
     for (int i = 0; i < inferiorLines.size(); ++i) {
         if (inferiorLines.at(i).contains("first breakpoint line"))
             cppInferiorData.breakpointLine = i + 1;
@@ -1806,6 +1815,8 @@ void tst_backends::initTestCase()
             cppInferiorData.spinBodyLine = i + 1;
         if (inferiorLines.at(i).contains("known frame step line"))
             cppInferiorData.knownFrameStepLine = i + 1;
+        if (inferiorLines.at(i).contains("thunk step line"))
+            thunkStepLine = i + 1;
     }
     QVERIFY(cppInferiorData.breakpointLine > 0);
     cppInferiorData.localMarker = "localValue";
@@ -1824,6 +1835,7 @@ void tst_backends::initTestCase()
     QVERIFY(cppInferiorData.multiLocationBreakpointLine > 0);
     QVERIFY(cppInferiorData.spinBodyLine > 0);
     QVERIFY(cppInferiorData.knownFrameStepLine > 0);
+    QVERIFY(thunkStepLine > 0);
 
     QFile file(cppInferiorData.source.toFSPathString());
     QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Text));
@@ -1907,6 +1919,7 @@ void tst_backends::initTestCase()
     }
     if (m_backendData.contains(Backend::Cdb)) {
         InferiorTestData msvcInferiorData = cppInferiorData;
+        msvcInferiorData.thunkStepLine = thunkStepLine;
         msvcInferiorData.executable = (FilePath::fromString(m_tempDir.path()) / "inferior_msvc")
                                      .withExecutableSuffix();
         const FilePath pdbPath = FilePath::fromString(m_tempDir.path()) / "inferior_msvc.pdb";
@@ -3909,21 +3922,22 @@ void tst_backends::testWatchpointByExpressionCapability()
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::launchAndStopAtBreakpoint(Backend backend,
-    const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride)
+    const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride, int line)
 {
     std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
                                                                    inferiorRunDataOverride);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
-            [this, engine, backend](InferiorEvent event) {
+            [this, engine, backend, line](InferiorEvent event) {
         if (event == InferiorEvent::EngineSetupOk) {
             BreakpointChangeRequest request;
             request.op = BreakpointOp::Insert;
             request.requestId = 1;
             request.params.type = BreakpointByFileAndLine;
             request.params.fileName = inferiorTestData(backend).source;
-            request.params.textPosition.line = inferiorTestData(backend).breakpointLine;
+            request.params.textPosition.line = line > 0 ? line
+                                                        : inferiorTestData(backend).breakpointLine;
             request.params.textPosition.column = 0;
             request.params.enabled = true;
             engine->changeBreakpoint(request);
@@ -4816,6 +4830,31 @@ void tst_backends::logsTheResponseTimeWhenConfigured()
     QCOMPARE(markersWith(false), 0);
     QVERIFY2(markersWith(true) > 0,
              qPrintable("no \"" + marker + "\" line arrived although time stamps are on"));
+}
+
+void tst_backends::stepsPastTheLinkersJumpToAFunction()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.thunkStepLine == 0)
+        QSKIP("This backend's inferior has no line whose step lands without source.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend =
+        launchAndStopAtBreakpoint(backend, {}, testData.thunkStepLine);
+    QVERIFY(debuggerBackend);
+
+    // Stepping into a library call can land on the jump the linker put in front
+    // of it, which has no source at all - a stop with nowhere to show.
+    debuggerBackend->clearEvents();
+    debuggerBackend->clearStoppedLocation();
+    debuggerBackend->execute({ExecutionCommand::StepIn});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+    QVERIFY2(!debuggerBackend->stoppedFile().isEmpty(),
+             "the step reported a stop with no file to show it in");
 }
 
 void tst_backends::skipsKnownFramesWhenStepping()

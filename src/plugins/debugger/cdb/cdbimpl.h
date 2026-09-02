@@ -176,6 +176,8 @@ private:
     bool m_interpreterMessageWatchArmed = false;
     QString m_interpreterMessageWatchId;
     Utils::ProcessHandle m_inferiorPid;
+    bool m_sourceStepInto = false;
+    int m_thunkStepsTaken = 0;
     bool m_inferiorRunning = false;
     bool m_interruptRequested = false;
     bool m_inferiorExited = false;

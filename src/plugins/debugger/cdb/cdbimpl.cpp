@@ -358,6 +358,8 @@ void CdbImpl::execute(const ExecutionRequest &request)
         emit inferiorEvent(InferiorEvent::RunRequested);
         emit inferiorEvent(InferiorEvent::RunOk);
         adjustOperateByInstruction(request.flag);
+        m_sourceStepInto = !request.flag;
+        m_thunkStepsTaken = 0;
         runCommand({"t", NoFlags});
         break;
     case ExecutionCommand::StepOver:
@@ -2065,12 +2067,31 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
     }
 }
 
+// Stepping into a call can land on the jump the linker put in front of the
+// function, which has no source of its own. CdbEngine steps once more from
+// there, so that what gets reported is the function itself.
+static bool landedOnLinkerThunk(const GdbMi &stopData)
+{
+    const GdbMi stack = stopData["stack"];
+    if (stack.childCount() == 0)
+        return false;
+    const GdbMi &top = stack.childAt(0);
+    return top["fullname"].data().isEmpty() && top["function"].data().contains("ILT+");
+}
+
 void CdbImpl::reportStop(const GdbMi &stopData)
 {
     if (m_wow64State == Wow64State::Unknown) {
         ensureStackBitness([this, stopData] { reportStop(stopData); });
         return;
     }
+    if (m_sourceStepInto && landedOnLinkerThunk(stopData) && m_thunkStepsTaken < 3) {
+        ++m_thunkStepsTaken;
+        m_inferiorRunning = true;
+        runCommand({"t", NoFlags});
+        return;
+    }
+    m_sourceStepInto = false;
     const GdbMi stack = stopData["stack"];
     if (stack.childCount() > 0) {
         const GdbMi &topFrame = stack.childAt(0);
