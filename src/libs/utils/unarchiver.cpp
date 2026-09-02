@@ -113,6 +113,24 @@ static int64_t _seek(struct archive *a, void *client_data, int64_t request, int 
     return data->file.pos();
 }
 
+static Result<> checkContained(const QString &path)
+{
+    if (path.isEmpty())
+        return ResultError(Tr::tr("The name is empty."));
+
+    const bool hasDriveLetter = path.size() > 2 && path.at(0).isLetter() && path.at(1) == ':'
+                                && (path.at(2) == '/' || path.at(2) == '\\');
+    if (path.startsWith('/') || path.startsWith('\\') || hasDriveLetter)
+        return ResultError(Tr::tr("The path \"%1\" is absolute.").arg(path));
+
+    QString normalized = path;
+    normalized.replace('\\', '/');
+    if (normalized.split('/').contains(".."))
+        return ResultError(Tr::tr("The path \"%1\" points outside the destination.").arg(path));
+
+    return ResultOk;
+}
+
 static Result<> unarchive(
     QPromise<Result<>> &promise, const Utils::FilePath &archive, const Utils::FilePath &destination)
 {
@@ -125,6 +143,12 @@ static Result<> unarchive(
     flags |= ARCHIVE_EXTRACT_PERM;
     flags |= ARCHIVE_EXTRACT_ACL;
     flags |= ARCHIVE_EXTRACT_FFLAGS;
+    // Not NOABSOLUTEPATHS: the pathname below is rewritten to an absolute path
+    // under the destination, which that flag would refuse.
+    flags |= ARCHIVE_EXTRACT_SECURE_NODOTDOT;
+    flags |= ARCHIVE_EXTRACT_SECURE_SYMLINKS;
+
+    const FilePath root = destination.absoluteFilePath().cleanPath().resolveSymlinks();
 
     ReadData data{QFile(archive.toFSPathString()), {}};
     std::unique_ptr<struct archive, decltype(&readFree)> a(archive_read_new(), readFree);
@@ -178,14 +202,39 @@ static Result<> unarchive(
             return ResultError(QString::fromUtf8(archive_error_string(a.get())));
         }
 
+        const char *pathname = archive_entry_pathname_utf8(entry);
+        if (!pathname)
+            return ResultError(Tr::tr("Rejected archive entry: The name is not valid UTF-8."));
+        const QString entryPath = QString::fromUtf8(pathname);
+
         ++fileNumber;
         promise.setProgressRange(0, fileNumber);
-        promise.setProgressValueAndText(
-            fileNumber, QString::fromUtf8(archive_entry_pathname_utf8(entry)));
+        promise.setProgressValueAndText(fileNumber, entryPath);
 
-        archive_entry_set_pathname_utf8(
-            entry,
-            (destination / QString::fromUtf8(archive_entry_pathname_utf8(entry))).path().toUtf8());
+        if (const Result<> contained = checkContained(entryPath); !contained)
+            return ResultError(Tr::tr("Rejected archive entry: %1").arg(contained.error()));
+
+        const bool isSymlink = archive_entry_filetype(entry) == AE_IFLNK;
+        const bool isHardlink = !isSymlink && archive_entry_hardlink(entry) != nullptr;
+        if (isSymlink || isHardlink) {
+            const char *link = isSymlink ? archive_entry_symlink_utf8(entry)
+                                         : archive_entry_hardlink_utf8(entry);
+            if (!link) {
+                return ResultError(
+                    Tr::tr("Rejected archive link target: The name is not valid UTF-8."));
+            }
+            const QString linkPath = QString::fromUtf8(link);
+            if (const Result<> contained = checkContained(linkPath); !contained) {
+                return ResultError(
+                    Tr::tr("Rejected archive link target: %1").arg(contained.error()));
+            }
+            // A hard link is created relative to the current directory, which is
+            // not the destination.
+            if (isHardlink)
+                archive_entry_set_hardlink_utf8(entry, (root / linkPath).path().toUtf8());
+        }
+
+        archive_entry_set_pathname_utf8(entry, (root / entryPath).path().toUtf8());
 
         r = archive_write_header(ext.get(), entry);
         if (r < ARCHIVE_OK) {
