@@ -606,6 +606,15 @@ static bool attachResumesInferior(Backend backend)
     return false;
 }
 
+// Stands in for a debugger that is there but never opens a session: whatever a
+// backend appends to it, it exits at once instead of taking commands.
+static CommandLine quittingDebuggerCommand()
+{
+    const QString name = HostOsInfo::isWindowsHost() ? "hostname.exe" : "true";
+    const FilePath tool = FilePath::fromString(name).searchInPath();
+    return tool.isExecutableFile() ? CommandLine{tool, {}} : CommandLine{};
+}
+
 // The wire form a backend uses for a tracepoint when it is not the debugger's
 // own pseudo one.
 static QString realTracepointMarker(Backend backend)
@@ -998,6 +1007,8 @@ private slots:
     void clearedBreakpointConditionStopsAgain();
     void fetchesMemoryFromInvalidAddress_data() { addBackendRows(); }
     void fetchesMemoryFromInvalidAddress();
+    void reportsSetupFailureWhenTheDebuggerQuitsAtOnce_data() { addBackendRows(); }
+    void reportsSetupFailureWhenTheDebuggerQuitsAtOnce();
     void reportsEngineSetupFailure_data() { addBackendRows(); }
     void reportsEngineSetupFailure();
     void reportsAnUnresponsiveDebugger_data() { addBackendRows(); }
@@ -5857,6 +5868,38 @@ void tst_backends::fetchesMemoryFromInvalidAddress()
 
     QCOMPARE(memoryChunks.constFirst().size(), 16);
     QCOMPARE(memoryChunks.constFirst(), QByteArray(16, char(0)));
+}
+
+void tst_backends::reportsSetupFailureWhenTheDebuggerQuitsAtOnce()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    const CommandLine quitting = quittingDebuggerCommand();
+    if (quitting.isEmpty())
+        QSKIP("Nothing on this platform to stand in for a debugger that quits at once.");
+
+    // Starting works, so nothing reports a failure to start; the session simply
+    // never opens, which is the failure the engine has to pass on.
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend,
+        ProcessRunData{quitting, {}, Environment::systemEnvironment()});
+    if (!debuggerBackend)
+        QSKIP("This backend cannot be given a debugger of its own here.");
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    bool processFinished = false;
+    connect(engine, &DebuggerEngineInterface::engineProcessFinished, this,
+            [&processFinished](const Utils::ProcessResultData &) { processFinished = true; });
+
+    engine->start();
+    QTRY_VERIFY2_WITH_TIMEOUT(processFinished, "the debugger process never finished", s_timeout);
+    if (debuggerBackend->contains(InferiorEvent::EngineSetupOk)) {
+        QSKIP("This backend calls its setup done before the debugger has answered for "
+              "itself, so a session that never opened cannot be told apart here.");
+    }
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+             "a session that never opened was not reported as a setup failure");
 }
 
 void tst_backends::reportsEngineSetupFailure()

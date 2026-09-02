@@ -270,7 +270,10 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     });
     connect(&m_cdbProc, &Process::done, this, [this] {
         m_watchdog.stop();
-        if (m_cdbProc.result() == ProcessResult::StartFailed) {
+        // A session that ends before it ever opened never came up, whatever the
+        // process made of it: a debugger that cannot be run at all and one that
+        // runs and gives up are the same failure from here.
+        if (m_cdbProc.result() == ProcessResult::StartFailed || !m_initialSessionIdleHandled) {
             m_isResetRestart = false;
             emit inferiorEvent(InferiorEvent::EngineSetupFailed);
             emit engineProcessFinished(m_cdbProc.resultData());
