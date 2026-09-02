@@ -49,8 +49,6 @@ static Group qmlPreviewRecipe(RunControl *runControl)
 
         QObject::connect(plugin, &QmlPreviewPlugin::updatePreviews,
                          &task, &QmlPreviewConnectionManager::loadFile);
-        QObject::connect(plugin, &QmlPreviewPlugin::rerunPreviews,
-                         &task, &QmlPreviewConnectionManager::rerun);
         QObject::connect(plugin, &QmlPreviewPlugin::zoomFactorChanged,
                          &task, &QmlPreviewConnectionManager::zoom);
         QObject::connect(plugin, &QmlPreviewPlugin::localeIsoCodeChanged,

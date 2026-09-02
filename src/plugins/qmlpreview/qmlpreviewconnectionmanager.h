@@ -36,7 +36,6 @@ signals:
     void loadFile(const QString &filename, const QString &changedFile, const QByteArray &contents);
     void zoom(float zoomFactor);
     void language(const QString &locale);
-    void rerun();
     void restart();
 
 protected:

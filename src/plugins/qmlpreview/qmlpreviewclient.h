@@ -18,19 +18,19 @@ class QMLPREVIEW_EXPORT QmlPreviewClient : public QmlDebug::QmlDebugClient
     Q_OBJECT
 public:
     enum Command {
-        File,
-        Load,
-        Request,
-        Error,
-        Rerun,
-        Directory,
-        ClearCache,
-        Zoom,
-        Fps,
-        AnimationSpeed,
-        Configuration,
-        Confirmation,
-        HotReloadFailure
+        File             = 0,
+        Load             = 1,
+        Request          = 2,
+        Error            = 3,
+        // Gap, used to be Rerun
+        Directory        = 5,
+        ClearCache       = 6,
+        Zoom             = 7,
+        Fps              = 8,
+        AnimationSpeed   = 9,
+        Configuration    = 10,
+        Confirmation     = 11,
+        HotReloadFailure = 12,
     };
 
     struct Settings {
@@ -52,7 +52,6 @@ public:
     explicit QmlPreviewClient(QmlDebug::QmlDebugConnection *connection);
 
     void loadUrl(const QUrl &url);
-    void rerun();
     void zoom(float zoomFactor);
     void announceFile(const QString &path, const QByteArray &contents);
     void announceDirectory(const QString &path, const QStringList &entries);

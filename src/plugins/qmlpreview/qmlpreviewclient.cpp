@@ -38,13 +38,6 @@ void QmlPreviewClient::doLoad(const QUrl &url)
     sendMessage(packet.data());
 }
 
-void QmlPreviewClient::rerun()
-{
-    QmlDebug::QPacket packet(dataStreamVersion());
-    packet << static_cast<qint8>(Rerun);
-    sendMessage(packet.data());
-}
-
 void QmlPreviewClient::zoom(float zoomFactor)
 {
     QmlDebug::QPacket packet(dataStreamVersion());

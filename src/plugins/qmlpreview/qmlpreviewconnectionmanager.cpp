@@ -152,9 +152,6 @@ void QmlPreviewConnectionManager::createPreviewClient()
         emit language(m_lastUsedLanguage);
     });
 
-    connect(this, &QmlPreviewConnectionManager::rerun,
-                     m_qmlPreviewClient.data(), &QmlPreviewClient::rerun);
-
     connect(this, &QmlPreviewConnectionManager::zoom,
                      m_qmlPreviewClient.data(), &QmlPreviewClient::zoom);
 

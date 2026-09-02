@@ -88,7 +88,6 @@ signals:
                         const QByteArray &contents);
     void previewedFileChanged(const QString &previewedFile);
     void runningPreviewsChanged(const QmlPreviewRunControlList &runningPreviews);
-    void rerunPreviews();
     void fileLoaderChanged(QmlPreviewFileLoader fileLoader);
     void fileClassifierChanged(QmlPreviewFileClassifier fileClassifer);
     void fpsHandlerChanged(QmlPreview::QmlPreviewFpsHandler fpsHandler);
