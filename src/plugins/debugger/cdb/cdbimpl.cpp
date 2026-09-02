@@ -197,8 +197,27 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     const CdbImplSearchPaths &paths = m_startData.searchPaths;
     if (!paths.sourcePaths.isEmpty())
         cdbCommand.addArgs({"-srcpath", paths.sourcePaths.join(';')});
-    if (!paths.symbolPaths.isEmpty())
-        cdbCommand.addArgs({"-y", paths.symbolPaths.join(';')});
+    // The inferior's own directory belongs to the symbol path, and the whole path
+    // has to be passed at once: ".sympath" later would replace what is set here.
+    QStringList symbolPaths = paths.symbolPaths;
+    FilePath inferiorDir;
+    if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+        inferiorDir = std::get<ProcessRunData>(m_startData.inferiorStartData)
+                          .command.executable().parentDir();
+    } else if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData)) {
+        // Opening a dump resolves the modules in it, which against cdb's default
+        // of "srv*" is a walk to the symbol server for every one of them.
+        inferiorDir = std::get<AttachToCoreData>(m_startData.inferiorStartData)
+                          .executable.parentDir();
+    }
+    if (!inferiorDir.isEmpty())
+        symbolPaths.append(inferiorDir.nativePath());
+    // An empty argument reaches cdb as a literal '""', which it rejects, leaving
+    // it without any symbol path at all.
+    if (!symbolPaths.isEmpty())
+        cdbCommand.addArgs({"-y", symbolPaths.join(';')});
+    if (!m_startData.additionalArguments.isEmpty())
+        cdbCommand.addArgs(m_startData.additionalArguments, CommandLine::Raw);
     // cdb launches the inferior itself, so the inferior's environment and working directory
     // have to be the ones cdb is started with.
     ProcessRunData runData = m_startData.debuggerRunData;
@@ -212,12 +231,6 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
         cdbCommand.addArgs({"-p", QString::number(attachData.pid.pid())});
     } else if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData)) {
         const auto &coreData = std::get<AttachToCoreData>(m_startData.inferiorStartData);
-        // Loading the dump resolves the modules in it, before any command of
-        // ours can run, so where their symbols are has to be on the command
-        // line: cdb's default of "srv*" would walk the symbol server for each.
-        const FilePath symbolDir = coreData.executable.parentDir();
-        if (!symbolDir.isEmpty())
-            cdbCommand.addArgs({"-y", symbolDir.nativePath()});
         cdbCommand.addArgs({"-z", coreData.coreFile.nativePath()});
     }
     m_cdbProc.setCommand(cdbCommand);
@@ -1118,6 +1131,29 @@ void CdbImpl::flushPendingBridgeWork()
         work();
 }
 
+// addDumperModule() only takes the name down; loadDumpers() is what imports it.
+void CdbImpl::loadConfiguredDumpers()
+{
+    if (m_startData.extraDumperFile.isReadableFile()) {
+        DebuggerCommand cmd("theDumper.addDumperModule", ScriptCommand);
+        cmd.arg("path", m_startData.extraDumperFile.path());
+        runCommand(cmd);
+    }
+    const QStringList commands
+        = m_startData.extraDumperCommands.split('\n', Qt::SkipEmptyParts);
+    for (const QString &command : commands) {
+        // What a configured command printed is worth seeing, as it is for one
+        // typed into the console.
+        runCommand({command, ScriptCommand, [this](const DebuggerResponse &response) {
+            // The extension reports what a script printed line by line.
+            const GdbMi output = response.data["msg"];
+            for (int i = 0; i < output.childCount(); ++i)
+                emit message(output.childAt(i).data(), LogMisc);
+        }});
+    }
+    runCommand({"theDumper.loadDumpers(None)", ScriptCommand});
+}
+
 void CdbImpl::setupScripting()
 {
     runCommand({"print(sys.version)", ScriptCommand, [this](const DebuggerResponse &response) {
@@ -1154,7 +1190,10 @@ void CdbImpl::setupScripting()
                 emit message(QString("CdbImpl: could not construct the dumper bridge: %1")
                                  .arg(response.data["msg"].data()), LogError);
                 m_pythonVersion = 0;
+                flushPendingBridgeWork();
+                return;
             }
+            loadConfiguredDumpers();
             flushPendingBridgeWork();
         }});
     }});
@@ -1302,12 +1341,6 @@ void CdbImpl::initializeSession(const std::function<void()> &whenReady)
     }
     syncExceptionEvents();
     runCommand({".asm source_line", NoFlags});
-    if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
-        const FilePath inferiorDir = std::get<ProcessRunData>(
-            m_startData.inferiorStartData).command.executable().parentDir();
-        if (!inferiorDir.isEmpty())
-            runCommand({".sympath \"" + inferiorDir.nativePath() + '"', NoFlags});
-    }
     if (m_startData.nativeMixed)
         armInterpreterHooks();
     setupScripting();
@@ -1860,6 +1893,8 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         m_initialSessionIdleHandled = true;
         if (firstTime) {
             initializeSession([this] {
+                for (const QString &command : m_startData.startupCommands)
+                    runCommand({command, NoFlags});
                 if (m_isResetRestart) {
                     m_isResetRestart = false;
                     // insertBreakpoint() writes back into m_insertedBreakpoints.

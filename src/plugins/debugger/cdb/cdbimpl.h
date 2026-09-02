@@ -37,6 +37,11 @@ public:
     CdbImplSearchPaths searchPaths;
     // cdb event codes to break on, as the options page spells them.
     QStringList breakEvents;
+    // One raw string, as the options page takes it.
+    QString additionalArguments;
+    QStringList startupCommands;
+    Utils::FilePath extraDumperFile;
+    QString extraDumperCommands;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     // Only the ctrl-c stub next to the qtcreator executable makes
@@ -115,6 +120,7 @@ private:
     void insertInterpreterBreakpoint(quint64 requestId, int modelId,
                                      const BreakpointParameters &params, bool report);
     void armInterpreterHooks();
+    void loadConfiguredDumpers();
     void setupScripting();
     void flushPendingBridgeWork();
     void adjustOperateByInstruction(bool operateByInstruction);

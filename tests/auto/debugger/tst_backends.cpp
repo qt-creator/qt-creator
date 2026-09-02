@@ -483,9 +483,12 @@ static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
                 {"show solib-search-path", "/qtc-test-solib"}};
     case Backend::Lldb:
         return {{"settings show target.exec-search-paths", "/qtc-test-solib"}};
+    // Cdb has none: a query goes to a debugger whose inferior runs, which takes
+    // the interrupt the ctrl-c stub provides. What it was configured with shows
+    // up in the startup traffic instead - see configuredOptionMarkers().
+    case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Cdb:
     case Backend::Bridge:
         break;
     }
@@ -522,11 +525,15 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
 // The markers a fully configured engine must produce. A backend that runs the
 // post-attach commands only when it really attaches has nothing to show for
 // them on a plain run.
-static QStringList configuredOptionMarkers(Backend backend)
+static QStringList configuredOptionMarkers(Backend backend, const Utils::FilePath &existingDir)
 {
     QStringList markers{"QTCSTARTUPMARKER", "QTCEXTRADUMPERCOMMAND"};
     if (backend == Backend::Gdb)
         markers << "QTCPOSTATTACHMARKER";
+    // What cdb says about its symbol path while starting up. Asking it later
+    // would need the running inferior interrupted, which takes the ctrl-c stub.
+    if (backend == Backend::Cdb)
+        markers << existingDir.nativePath();
     return markers;
 }
 
@@ -1356,9 +1363,25 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .solibSearchPath = {FilePath::fromUserInput("/qtc-test-solib")},
             .extraDumperFile = existingDir / "qtc_extra_dumper.py",
             .extraDumperCommands = "script print('QTCEXTRADUMPERCOMMAND')"}));
+    case Backend::Cdb:
+        return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              debuggerEnvironment},
+            .inferiorStartData = ProcessRunData{
+                {inferiorTestData(backend).executable, inferiorArguments, CommandLine::Raw}, {},
+                Environment::systemEnvironment()},
+            .extensionDir = m_backendData[backend].cdbExtensionDir,
+            .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .searchPaths = CdbImplSearchPaths{.symbolPaths = {existingDir.nativePath()},
+                                              .sourcePaths = {existingDir.nativePath()}},
+            .startupCommands = {".echo QTCSTARTUPMARKER"},
+            .extraDumperFile = existingDir / "qtc_extra_dumper.py",
+            // Split, so that the extension's echo of the command cannot pass for
+            // its output.
+            .extraDumperCommands = "print('QTC' + 'EXTRADUMPERCOMMAND')"}));
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Cdb:
     case Backend::Bridge:
         break;
     }
@@ -5892,17 +5915,19 @@ void tst_backends::appliesConfiguredDebuggerOptions()
     QVERIFY((existingDir / "qtc_extra_dumper.py").writeFileContents(
         QString("open(r\"%1\", \"w\").close()\n").arg(moduleTrace.path()).toUtf8()));
     const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend, existingDir);
-    if (probes.isEmpty())
-        QSKIP("This backend has no configurable options wired yet.");
-
     std::unique_ptr<DebuggerBackend> debuggerBackend
         = createFullyConfiguredEngine(backend, Environment::systemEnvironment(), existingDir);
-    QVERIFY(debuggerBackend);
+    if (!debuggerBackend)
+        QSKIP("This backend has no configurable options wired yet.");
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     QStringList messages;
     connect(engine, &DebuggerEngineInterface::message, this,
-            [&messages](const QString &text, int, int) { messages.append(text); });
+            [&messages](const QString &text, int channel, int) {
+        // What was sent is not evidence that it was carried out.
+        if (channel != Debugger::LogInput)
+            messages.append(text);
+    });
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
@@ -5911,7 +5936,7 @@ void tst_backends::appliesConfiguredDebuggerOptions()
             return text.contains(marker);
         });
     };
-    for (const QString &marker : configuredOptionMarkers(backend)) {
+    for (const QString &marker : configuredOptionMarkers(backend, existingDir)) {
         QTRY_VERIFY2_WITH_TIMEOUT(sawMessage(marker),
                                   qPrintable("a configured option left no " + marker),
                                   s_timeout);
