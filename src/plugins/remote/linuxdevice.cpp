@@ -639,7 +639,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
         cmd.addArg(QString("%1:localhost:%1").arg(forwardPort));
     }
 
-    cmd.addArgs(m_sshParameters.connectionOptions(sshBinary));
+    // ssh keeps the first value it is given for an option.
     if (!m_socketFilePath.isEmpty()) {
         cmd.addArgs({"-o", "ControlPath=" + m_socketFilePath});
     } else {
@@ -650,6 +650,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
         // a real connection; ControlMaster only governs master *creation*.
         cmd.addArgs({"-o", "ControlPath=none"});
     }
+    cmd.addArgs(m_sshParameters.connectionOptions(sshBinary));
 
     cmd.addArg(m_sshParameters.host());
 
