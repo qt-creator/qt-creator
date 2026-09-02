@@ -297,6 +297,8 @@ QtcPlugin {
             "documentmanager_test.cpp",
             "documentmanager_test.h",
             "editormanager/editormanager_test.cpp",
+            "externaltool_test.cpp",
+            "externaltool_test.h",
             "locator/locatorfiltertest.cpp",
             "locator/locatorfiltertest.h",
             "locator/locator_test.cpp",

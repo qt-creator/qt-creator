@@ -14,6 +14,7 @@
 #include "documentmanager_test.h"
 #include "editmode.h"
 #include "editormanager/editormanager_p.h"
+#include "externaltool_test.h"
 #include "fileutils.h"
 #include "find/findplugin.h"
 #include "foldernavigationwidget.h"
@@ -508,6 +509,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
 #ifdef WITH_TESTS
     addTestCreator(createActionManagerTest);
     addTestCreator(createDocumentManagerTest);
+    addTestCreator(createExternalToolTest);
     addTestCreator(createLocatorTest);
     addTestCreator(createVcsManagerTest);
     addTestCreator(createEditorManagerTest);

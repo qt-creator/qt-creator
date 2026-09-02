@@ -59,6 +59,12 @@ public:
     // (unknown variables without a default value), i.e. would be left in the string as-is.
     QStringList unresolvedVariables(const QString &stringWithVariables) const;
 
+    // Returns the names of the %{...} variables in the string that resolve to an empty
+    // value (e.g. a current-document variable when there is no current document).
+    // Prefix variables such as %{Env:...} are not reported: what follows the prefix
+    // is user input, for which an empty result is a legitimate answer.
+    QStringList emptyVariables(const QString &stringWithVariables) const;
+
     Result<QString> expandProcessArgs(
         const QString &argsWithVariables, Utils::OsType osType = Utils::HostOsInfo::hostOs()) const;
 

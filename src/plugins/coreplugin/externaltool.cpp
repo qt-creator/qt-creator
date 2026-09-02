@@ -112,6 +112,37 @@ FilePath ExternalTool::workingDirectory() const
     return m_data.workingDirectory;
 }
 
+static QStringList commandStrings(const ExternalTool &tool)
+{
+    QStringList strings;
+    for (const FilePath &executable : tool.executables())
+        strings << executable.toUrlishString();
+    strings << tool.arguments() << tool.input() << tool.workingDirectory().toUrlishString();
+    return strings;
+}
+
+QStringList ExternalTool::emptyVariables() const
+{
+    MacroExpander *expander = Utils::globalMacroExpander();
+    QStringList empty;
+    const QStringList strings = commandStrings(*this);
+    for (const QString &string : strings)
+        empty += expander->emptyVariables(string);
+    empty.removeDuplicates();
+    return empty;
+}
+
+QStringList ExternalTool::unresolvedVariables() const
+{
+    MacroExpander *expander = Utils::globalMacroExpander();
+    QStringList unresolved;
+    const QStringList strings = commandStrings(*this);
+    for (const QString &string : strings)
+        unresolved += expander->unresolvedVariables(string);
+    unresolved.removeDuplicates();
+    return unresolved;
+}
+
 Id ExternalTool::baseEnvironmentProviderId() const
 {
     return m_data.baseEnvironmentProviderId;
@@ -538,13 +569,7 @@ Result<> ExecuteData::resolve()
 
     // Refuse to run when the command references variables that cannot be expanded
     // (QTCREATORBUG-8490), instead of silently running with the unexpanded "%{...}".
-    QStringList unresolved;
-    for (const FilePath &executable : m_tool.executables())
-        unresolved += expander->unresolvedVariables(executable.toUrlishString());
-    unresolved += expander->unresolvedVariables(m_tool.arguments());
-    unresolved += expander->unresolvedVariables(m_tool.input());
-    unresolved += expander->unresolvedVariables(m_tool.workingDirectory().toUrlishString());
-    unresolved.removeDuplicates();
+    const QStringList unresolved = m_tool.unresolvedVariables();
     if (!unresolved.isEmpty())
         return ResultError(Tr::tr("Failed to expand the variables: %1").arg(unresolved.join(", ")));
 

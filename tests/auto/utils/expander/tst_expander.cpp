@@ -71,6 +71,29 @@ private slots:
         QCOMPARE(expander.expand(input), expected);
     }
 
+    void emptyVariables()
+    {
+        MacroExpander expander;
+        expander.registerVariable("Full", "", [] { return QString("value"); });
+        expander.registerVariable("Empty", "", [] { return QString(); });
+        expander.registerPrefix("Echo:", "", "", [](const QString &s) { return s; });
+
+        // A registered variable resolving to an empty value is reported; a
+        // non-empty one is not; an unknown variable is "unresolved", not empty.
+        QCOMPARE(expander.emptyVariables("%{Empty}"), QStringList("Empty"));
+        QCOMPARE(expander.emptyVariables("%{Full}"), QStringList());
+        QCOMPARE(expander.emptyVariables("%{Unknown}"), QStringList());
+        QCOMPARE(expander.unresolvedVariables("%{Unknown}"), QStringList("Unknown"));
+
+        // What follows a prefix is user input, so an empty result is legitimate
+        // and does not mean the context is missing.
+        QCOMPARE(expander.emptyVariables("%{Echo:}"), QStringList());
+        QCOMPARE(expander.emptyVariables("%{Echo:text}"), QStringList());
+
+        // A default value fills in for the empty value, so nothing is missing.
+        QCOMPARE(expander.emptyVariables("%{Empty:-fallback}"), QStringList());
+    }
+
     void expandString_data()
     {
         QTest::addColumn<QString>("input");
@@ -582,6 +605,7 @@ private slots:
             Val{"%{JS:foo/b/c}", "%{JS:foo/b/c}"}, // No replacement for JS (all considered varName)
             Val{"%{%{a}%{a}/b/c}", "car"},
             Val{"%{nonsense:-sense}", "sense"},
+            Val{"%{empty:-sense}", "sense"}, // a variable resolving to nothing is "not set" too
         };
 
         for (const auto &val : vals)
@@ -598,6 +622,7 @@ private slots:
         expander.registerVariable("a", "", [] { return "hi"; });
         expander.registerVariable("hi", "", [] { return "ho"; });
         expander.registerVariable("hihi", "", [] { return "bar"; });
+        expander.registerVariable("empty", "", [] { return QString(); });
         expander.registerVariable("slash", "", [] { return "foo/bar"; });
         expander.registerVariable("sl/sh", "", [] { return "slash"; });
         expander.registerVariable("JS:foor", "", [] { return "bar"; });

@@ -48,6 +48,8 @@ static void parseDirectory(const FilePath &directory,
                          QMap<QString, ExternalTool *> *tools,
                          bool isPreset = false);
 
+static void updateActionStates();
+
 ExternalToolManager::ExternalToolManager()
     : QObject(ICore::instance())
 {
@@ -66,6 +68,12 @@ ExternalToolManager::ExternalToolManager()
     mexternaltools->menu()->setTitle(Tr::tr("&External"));
     ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
+
+    connect(mexternaltools->menu(), &QMenu::aboutToShow,
+            this, updateActionStates);
+    // Shortcuts and the locator reach the actions without opening the menu.
+    connect(ICore::instance(), &ICore::contextChanged,
+            this, updateActionStates);
 
     QMap<QString, QMultiMap<int, ExternalTool*> > categoryPriorityMap;
     QMap<QString, ExternalTool *> tools;
@@ -134,6 +142,15 @@ static void parseDirectory(const FilePath &directory,
         }
         tools->insert(tool->id(), tool);
         (*categoryMenus)[tool->displayCategory()].insert(tool->order(), tool);
+    }
+}
+
+static void updateActionStates()
+{
+    for (auto it = d->m_actions.cbegin(), end = d->m_actions.cend(); it != end; ++it) {
+        const ExternalTool *tool = d->m_tools.value(it.key());
+        it.value()->setEnabled(tool && tool->emptyVariables().isEmpty()
+                               && tool->unresolvedVariables().isEmpty());
     }
 }
 
@@ -231,6 +248,8 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
     // (re)add the configure menu item
     mexternaltools->menu()->addAction(d->m_configureSeparator);
     mexternaltools->menu()->addAction(d->m_configureAction);
+
+    updateActionStates();
 }
 
 static void readSettings(const QMap<QString, ExternalTool *> &tools,

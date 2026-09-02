@@ -63,7 +63,8 @@ public:
                     return true;
                 }
                 QSet<MacroExpanderPrivate *> seen;
-                if (resolveMacro(varName, ret, seen)) {
+                bool fromPrefix = false;
+                if (resolveMacro(varName, ret, seen, &fromPrefix)) {
                     *pos = i;
                     if (!pattern.isEmpty() && currArg == &replace) {
                         const QRegularExpression regexp(pattern);
@@ -81,6 +82,12 @@ public:
                             }
                         }
                     }
+                    if (ret->isEmpty() && !defaultValue.isEmpty()) {
+                        *ret = defaultValue;
+                        return true;
+                    }
+                    if (m_empty && !fromPrefix && ret->isEmpty())
+                        m_empty->append(varName);
                     return true;
                 }
                 if (!defaultValue.isEmpty()) {
@@ -132,7 +139,8 @@ public:
         }
     }
 
-    bool resolveMacro(const QString &name, QString *ret, QSet<MacroExpanderPrivate *> &seen)
+    bool resolveMacro(const QString &name, QString *ret, QSet<MacroExpanderPrivate *> &seen,
+                      bool *fromPrefix = nullptr)
     {
         // Prevent loops:
         const int count = seen.count();
@@ -141,14 +149,15 @@ public:
             return false;
 
         bool found;
-        *ret = value(name.toUtf8(), &found);
+        *ret = value(name.toUtf8(), &found, fromPrefix);
         if (found)
             return true;
 
-        found = Utils::anyOf(m_subProviders, [name, ret, &seen] (const MacroExpanderProvider &p) -> bool {
-            MacroExpander *expander = p();
-            return expander && expander->d->resolveMacro(name, ret, seen);
-        });
+        found = Utils::anyOf(
+            m_subProviders, [name, ret, &seen, fromPrefix](const MacroExpanderProvider &p) -> bool {
+                MacroExpander *expander = p();
+                return expander && expander->d->resolveMacro(name, ret, seen, fromPrefix);
+            });
 
         if (found)
             return true;
@@ -160,10 +169,12 @@ public:
         if (found)
             return true;
 
-        return this == globalMacroExpander()->d ? false : globalMacroExpander()->d->resolveMacro(name, ret, seen);
+        return this == globalMacroExpander()->d
+                   ? false
+                   : globalMacroExpander()->d->resolveMacro(name, ret, seen, fromPrefix);
     }
 
-    QString value(const QByteArray &variable, bool *found) const
+    QString value(const QByteArray &variable, bool *found, bool *fromPrefix = nullptr) const
     {
         MacroExpander::StringFunction sf = m_map.value(variable);
         if (sf) {
@@ -177,6 +188,8 @@ public:
                 MacroExpander::PrefixFunction pf = it.value();
                 if (found)
                     *found = true;
+                if (fromPrefix)
+                    *fromPrefix = true;
                 return pf(QString::fromUtf8(variable.mid(it.key().size())));
             }
         }
@@ -202,6 +215,7 @@ public:
     bool m_aborted = false;
     int m_lockDepth = 0;
     QStringList *m_unresolved = nullptr; // collects unresolvable variable names when set
+    QStringList *m_empty = nullptr; // collects variable names resolving to empty when set
 };
 
 } // Internal
@@ -412,6 +426,16 @@ QStringList MacroExpander::unresolvedVariables(const QString &stringWithVariable
     d->m_unresolved = nullptr;
     unresolved.removeDuplicates();
     return unresolved;
+}
+
+QStringList MacroExpander::emptyVariables(const QString &stringWithVariables) const
+{
+    QStringList empty;
+    d->m_empty = &empty;
+    expand(stringWithVariables);
+    d->m_empty = nullptr;
+    empty.removeDuplicates();
+    return empty;
 }
 
 QVariant MacroExpander::expandVariant(const QVariant &v) const

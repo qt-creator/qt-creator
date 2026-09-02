@@ -41,6 +41,12 @@ public:
     QString arguments() const;
     QString input() const;
     Utils::FilePath workingDirectory() const;
+
+    // Referenced macro variables that resolve to an empty value in the current
+    // context, e.g. %{CurrentDocument:...} with no current document.
+    QStringList emptyVariables() const;
+    // Referenced macro variables that do not resolve at all, e.g. a typo.
+    QStringList unresolvedVariables() const;
     Utils::Id baseEnvironmentProviderId() const;
     Utils::Environment baseEnvironment() const;
     Utils::EnvironmentChanges environmentUserChanges() const;
