@@ -35,6 +35,7 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QScrollBar>
 #include <QTextEdit>
 
 #include <memory>
@@ -245,7 +246,16 @@ public:
 
         const auto onUnarchiverSetup = [this](Unarchiver &unarchiver) {
             connect(&unarchiver, &Unarchiver::progress, this, [this](const FilePath &filePath) {
-                m_output->append(filePath.toUserOutput());
+                // append() would interpret the entry name as rich text, and
+                // insertPlainText() would insert at the text cursor, which a click
+                // moves even in a read-only view.
+                QScrollBar *scrollBar = m_output->verticalScrollBar();
+                const bool atBottom = scrollBar->value() == scrollBar->maximum();
+                QTextCursor cursor(m_output->document());
+                cursor.movePosition(QTextCursor::End);
+                cursor.insertText(filePath.toUserOutput() + '\n');
+                if (atBottom)
+                    scrollBar->setValue(scrollBar->maximum());
             });
 
             unarchiver.setArchive(m_data->sourcePath);
