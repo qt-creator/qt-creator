@@ -3902,6 +3902,11 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const FilePath &c)
     return dbg << c.toUrlishString();
 }
 
+// Explicit rather than implicit, for an exported polymorphic class. Not to move
+// the vtable: Q_OBJECT declares metaObject() above, so that stays the key
+// function and the vtable stays wherever moc's output for filepath.h is.
+FilePathWatcher::~FilePathWatcher() = default;
+
 FilePaths firstPaths(const FilePairs &pairs)
 {
     return transform(pairs, &FilePair::first);

@@ -120,6 +120,7 @@ class QTCREATOR_UTILS_EXPORT FilePathWatcher : public QObject
     Q_OBJECT
 public:
     using QObject::QObject;
+    ~FilePathWatcher() override;
 
 signals:
     void pathChanged(const Utils::FilePath &path);
