@@ -140,6 +140,8 @@ private:
 
     ItemList toUserOutput(const Kit *k) const override;
 
+    QList<Candidate> candidateValues(const Kit *k) const override;
+
     void addToBuildEnvironment(const Kit *k, Environment &env) const override;
     QList<OutputLineParser *> createOutputParsers(const Kit *k) const override;
     void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
@@ -338,6 +340,16 @@ KitAspectFactory::ItemList QtKitAspectFactory::toUserOutput(const Kit *k) const
     QtVersion *version = QtKitAspect::qtVersion(k);
     return {
         {Tr::tr("Qt version"), version ? version->displayName() : Tr::tr("None", "No Qt version")}};
+}
+
+QList<KitAspectFactory::Candidate> QtKitAspectFactory::candidateValues(const Kit *) const
+{
+    QList<Candidate> result;
+    const QtVersions versions = QtVersionManager::versions();
+    result.reserve(versions.size());
+    for (QtVersion *v : versions)
+        result.append({v->uniqueId(), v->displayName()});
+    return result;
 }
 
 void QtKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
