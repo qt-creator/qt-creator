@@ -1941,6 +1941,7 @@ void tst_backends::initTestCase()
             m_backendData[Backend::Cdb].inferiorData.versionLine = cdbVersionLine;
             m_backendData[Backend::Cdb].inferiorData.answersRedundantContinue = true;
             m_backendData[Backend::Cdb].inferiorData.moduleListMarker = "kernel32";
+            m_backendData[Backend::Cdb].inferiorData.enableToggleWireMarker = "bd";
             m_backendData[Backend::Cdb].inferiorData.moduleSymbolsPath
                 = msvcInferiorData.executable;
         } else {
