@@ -95,7 +95,8 @@ public:
                     const QString &ref,
                     const QString &commandFilePath,
                     const Utils::FilePath &workingFilePath,
-                    bool allowModifiedDocument);
+                    bool allowModifiedDocument,
+                    bool useDocumentContents);
     void setEnabled(bool enabled);
     void schedule(int delay = 0);
     void clear();
@@ -113,6 +114,7 @@ private:
     QString m_commandFilePath;
     Utils::FilePath m_workingFilePath;
     bool m_allowModifiedDocument = false;
+    bool m_useDocumentContents = false;
     bool m_enabled = false;
     Utils::TextEncoding m_encoding;
     Author m_author;
@@ -384,7 +386,8 @@ void InstantBlame::setupForCurrentEditor()
                                                               : sourceFilePath;
     const QString ref = m_document->property("GitReference").toString();
     m_controller->setContext(widget, topLevel, ref, workingFilePath.path(), workingFilePath,
-                             /*allowModifiedDocument=*/false);
+                             /*allowModifiedDocument=*/false,
+                             /*useDocumentContents=*/false);
     m_controller->setEnabled(true);
 
     m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged,
@@ -486,9 +489,12 @@ static QStringList blameCommandArguments(const QString &filePath,
                                          const QString &ref,
                                          int line,
                                          bool ignoreSpaceChanges,
-                                         bool detectMovedLines)
+                                         bool detectMovedLines,
+                                         bool useDocumentContents)
 {
     QStringList arguments = {"blame", "-p"};
+    if (useDocumentContents)
+        arguments.append({"--contents", "-"});
     if (ignoreSpaceChanges)
         arguments.append("-w");
     if (detectMovedLines)
@@ -527,7 +533,8 @@ void InstantBlame::once()
     m_controller->setContext(widget, topLevel,
                              m_document->property("GitReference").toString(),
                              workingFilePath.path(), workingFilePath,
-                             /*allowModifiedDocument=*/false);
+                             /*allowModifiedDocument=*/false,
+                             /*useDocumentContents=*/false);
     m_controller->setEnabled(true);
     m_blameCursorPosConn = connect(widget, &PlainTextEdit::cursorPositionChanged,
                                    this, &InstantBlame::stop, Qt::SingleShotConnection);
@@ -589,7 +596,8 @@ void BlameController::setContext(TextEditorWidget *widget,
                                  const QString &ref,
                                  const QString &commandFilePath,
                                  const FilePath &workingFilePath,
-                                 bool allowModifiedDocument)
+                                 bool allowModifiedDocument,
+                                 bool useDocumentContents)
 {
     clear();
     ++m_contextGeneration;
@@ -600,6 +608,7 @@ void BlameController::setContext(TextEditorWidget *widget,
     m_commandFilePath = commandFilePath;
     m_workingFilePath = workingFilePath;
     m_allowModifiedDocument = allowModifiedDocument;
+    m_useDocumentContents = useDocumentContents;
     m_encoding = gitClient().defaultCommitEncoding();
     m_author = {};
     loadRepositoryConfiguration();
@@ -730,7 +739,8 @@ void BlameController::perform()
         m_ref,
         line,
         settings().instantBlameIgnoreSpaceChanges(),
-        settings().instantBlameIgnoreLineMoves());
+        settings().instantBlameIgnoreLineMoves(),
+        m_useDocumentContents);
     qCDebug(log) << "Running git" << options.join(' ');
 
     const quint64 generation = ++m_requestGeneration;
@@ -739,6 +749,15 @@ void BlameController::perform()
     const TextEncoding encoding = m_encoding;
     const Author author = m_author;
     const QPointer<TextDocument> document = m_document;
+    const QString editorText = document->plainText();
+    const TextEncoding sourceEncoding = document->encoding();
+    const QByteArray writeData = [this, sourceEncoding, editorText] {
+        if (!m_useDocumentContents)
+            return QByteArray();
+        if (sourceEncoding.isUtf8())
+            return editorText.toUtf8();
+        return sourceEncoding.encode(editorText);
+    }();
     const QPointer<BlameController> guard(this);
     const Storage<CommitInfo> infoStorage;
     const auto blameHandler = [guard, document, generation, workingFilePath, topLevel, line,
@@ -790,7 +809,7 @@ void BlameController::perform()
     m_taskTreeRunner.start({
         infoStorage,
         gitClient().commandTask({topLevel, options, RunFlag::NoOutput, {}, encoding,
-                                 blameHandler}),
+                                 blameHandler, writeData}),
         ProcessTask(onLogSetup, onLogDone, CallDoneFlag::OnSuccess),
     });
 }
@@ -804,7 +823,8 @@ BaselineBlame::BaselineBlame(TextEditorWidget *widget,
     , m_controller(new BlameController(this))
 {
     m_controller->setContext(widget, topLevel, ref, relativeFile, workingFilePath,
-                             /*allowModifiedDocument=*/true);
+                             /*allowModifiedDocument=*/true,
+                             /*useDocumentContents=*/false);
     connect(widget, &PlainTextEdit::cursorPositionChanged,
             this, [this] {
                 if (settings().instantBlame())
@@ -832,14 +852,16 @@ private slots:
 
 void InstantBlameTest::testBlameCommandArguments()
 {
-    QCOMPARE(blameCommandArguments("src/main.cpp", {}, 17, false, false),
+    QCOMPARE(blameCommandArguments("src/main.cpp", {}, 17, false, false, false),
              QStringList({"blame", "-p", "-L", "17,17", "--", "src/main.cpp"}));
-    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 2, true, false),
+    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 2, true, false, false),
              QStringList({"blame", "-p", "-w", "-L", "2,2", "HEAD^", "--", "file.h"}));
-    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 3, false, true),
+    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 3, false, true, false),
              QStringList({"blame", "-p", "-M", "-L", "3,3", "HEAD^", "--", "file.h"}));
-    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 4, true, true),
+    QCOMPARE(blameCommandArguments("file.h", "HEAD^", 4, true, true, false),
              QStringList({"blame", "-p", "-w", "-M", "-L", "4,4", "HEAD^", "--", "file.h"}));
+    QCOMPARE(blameCommandArguments("index.cpp", {}, 9, false, false, true),
+             QStringList({"blame", "-p", "--contents", "-", "-L", "9,9", "--", "index.cpp"}));
 }
 
 void InstantBlameTest::testBlameOutputParsing()
