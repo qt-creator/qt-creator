@@ -138,8 +138,9 @@ static Result<> unarchive(
 
     std::unique_ptr<struct archive, decltype(&writeFree)> ext(archive_write_disk_new(), writeFree);
 
-    if (archive_write_disk_set_options(ext.get(), flags) != ARCHIVE_OK
-        || archive_write_disk_set_standard_lookup(ext.get()) != ARCHIVE_OK) {
+    // No standard lookup: ownership is not among the restored attributes, so the
+    // uname/gname lookup would only pass the archive's strings to getpwnam().
+    if (archive_write_disk_set_options(ext.get(), flags) != ARCHIVE_OK) {
         return ResultError(QString("archive_write_disk_ setup failed: %1")
                                  .arg(QString::fromUtf8(archive_error_string(ext.get()))));
     }
