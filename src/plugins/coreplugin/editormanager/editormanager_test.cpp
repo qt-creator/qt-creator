@@ -37,6 +37,22 @@ private slots:
     void testAlwaysSwitchToTab();
     void testCloseSplit();
     void testPinned();
+    void testMoveEditorToNextSplitWithTabs();
+};
+
+QObject *createTabbedEditorTest()
+{
+    return new TabbedEditorTest;
+}
+
+class EditorManagerTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void init();
+    void cleanup();
+
     void testDisambiguateUnnamedDuplicates();
     void testNavigationHistoryDedup();
     void testMoveEditorToNextSplit();
@@ -46,9 +62,9 @@ private slots:
     void testMoveEditorToNextSplitRestoresSuspendedTab();
 };
 
-QObject *createTabbedEditorTest()
+QObject *createEditorManagerTest()
 {
-    return new TabbedEditorTest;
+    return new EditorManagerTest;
 }
 
 static int fileCount = 0;
@@ -387,7 +403,17 @@ void TabbedEditorTest::testPinned()
     QCOMPARE(view0->tabs().size(), 1);
 }
 
-void TabbedEditorTest::testDisambiguateUnnamedDuplicates()
+void EditorManagerTest::init()
+{
+    closeAll();
+}
+
+void EditorManagerTest::cleanup()
+{
+    closeAll();
+}
+
+void EditorManagerTest::testDisambiguateUnnamedDuplicates()
 {
     // Editors without a file path that share a display name must get stable,
     // distinct names. Re-running disambiguation (here by opening a third one)
@@ -417,7 +443,7 @@ void TabbedEditorTest::testDisambiguateUnnamedDuplicates()
 
 // Adding the current position again without moving must not create a duplicate
 // "Go Back" entry (e.g. Follow Symbol on the symbol's own declaration).
-void TabbedEditorTest::testNavigationHistoryDedup()
+void EditorManagerTest::testNavigationHistoryDedup()
 {
     TestFile a;
     TestFile b;
@@ -445,7 +471,7 @@ void TabbedEditorTest::testNavigationHistoryDedup()
     A! in first view, B! in second view, first view current.
     After moving: first view empty, second view has A! (and B), second view current.
 */
-void TabbedEditorTest::testMoveEditorToNextSplit()
+void TabbedEditorTest::testMoveEditorToNextSplitWithTabs()
 {
     TestFile a;
     TestFile b;
@@ -468,11 +494,40 @@ void TabbedEditorTest::testMoveEditorToNextSplit()
 }
 
 /*
+    Move the current editor to the next split.
+    A! in first view, B! in second view, first view current.
+    After moving: first view shows duplicate of B (so the view isn't empty),
+                  second view has A! (and B), second view current.
+*/
+void EditorManagerTest::testMoveEditorToNextSplit()
+{
+    TestFile a;
+    TestFile b;
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    IEditor *editorB = EMP::openEditor(views.at(1), b.filePath());
+    IEditor *editorA = EMP::openEditor(views.at(0), a.filePath());
+    QCOMPARE(EMP::currentEditorView(), views.at(0));
+    QCOMPARE(views.at(0)->currentEditor(), editorA);
+
+    EMP::moveEditorToNextSplit();
+
+    QVERIFY(!views.at(0)->hasEditor(editorA));
+    QCOMPARE(views.at(0)->editorCount(), 1);
+    QCOMPARE(views.at(0)->editors().first()->document(), editorB->document());
+    QVERIFY(views.at(1)->hasEditor(editorA));
+    QVERIFY(views.at(1)->hasEditor(editorB));
+    QCOMPARE(views.at(1)->currentEditor(), editorA);
+    QCOMPARE(EMP::currentEditorView(), views.at(1));
+}
+
+/*
     Moving the current editor out of a split shows the previously current editor there.
     A and C! in first view, B! in second view, first view current.
     After moving C to the next split: A! in first view, C! (and B) in second view.
 */
-void TabbedEditorTest::testMoveEditorToNextSplitKeepsPrevious()
+void EditorManagerTest::testMoveEditorToNextSplitKeepsPrevious()
 {
     TestFile a;
     TestFile b;
@@ -500,7 +555,7 @@ void TabbedEditorTest::testMoveEditorToNextSplitKeepsPrevious()
     A! in first view, A and B! in second view, first view current.
     After moving A to the next split: none in first view, A! (and B) in second view.
 */
-void TabbedEditorTest::testMoveEditorToNextSplitWithExistingEditor()
+void EditorManagerTest::testMoveEditorToNextSplitWithExistingEditor()
 {
     TestFile a;
     TestFile b;
@@ -534,7 +589,7 @@ void TabbedEditorTest::testMoveEditorToNextSplitWithExistingEditor()
     A! in first view, A! in second view, first view current.
     After moving A to the next split: none in first view, A! in second view.
 */
-void TabbedEditorTest::testMoveEditorToNextSplitWhenAlreadyVisible()
+void EditorManagerTest::testMoveEditorToNextSplitWhenAlreadyVisible()
 {
     TestFile a;
     EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
@@ -561,7 +616,7 @@ void TabbedEditorTest::testMoveEditorToNextSplitWhenAlreadyVisible()
     A(s) and C! in first view, A! in second view, first view current.
     After moving C to the next split: A! in first view, C! in second view.
 */
-void TabbedEditorTest::testMoveEditorToNextSplitRestoresSuspendedTab()
+void EditorManagerTest::testMoveEditorToNextSplitRestoresSuspendedTab()
 {
     TestFile a;
     TestFile c;

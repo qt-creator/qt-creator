@@ -43,6 +43,7 @@ enum MakeWritableResult { OpenedWithVersionControl, MadeWritable, SavedAs, Faile
 
 #ifdef WITH_TESTS
 QObject *createTabbedEditorTest();
+QObject *createEditorManagerTest();
 #endif
 
 class EditorManagerPrivate : public QObject

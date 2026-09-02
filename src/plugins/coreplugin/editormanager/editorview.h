@@ -43,6 +43,7 @@ class EditorArea;
 class SplitterOrView;
 class TabBarInfo;
 #if WITH_TESTS
+class EditorManagerTest;
 class TabbedEditorTest;
 #endif
 
@@ -164,7 +165,8 @@ protected:
 private:
     friend class SplitterOrView; // for setParentSplitterOrView
 #if WITH_TESTS
-    friend class Core::Internal::TabbedEditorTest; // tabCloseRequested
+    friend class Core::Internal::EditorManagerTest;
+    friend class Core::Internal::TabbedEditorTest;
 #endif
 
     void closeCurrentEditor();

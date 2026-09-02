@@ -510,6 +510,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createDocumentManagerTest);
     addTestCreator(createLocatorTest);
     addTestCreator(createVcsManagerTest);
+    addTestCreator(createEditorManagerTest);
     addTestCreator(createTabbedEditorTest);
     addTestCreator(createOutputFormatterTest);
 #endif
