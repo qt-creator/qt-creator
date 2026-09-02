@@ -54,6 +54,9 @@ public:
     void once();
 
 private:
+#ifdef WITH_TESTS
+    friend class InstantBlameTest;
+#endif
     void setupForCurrentEditor();
     bool setEditor(TextEditor::TextEditorWidget *widget);
     void scheduleInstantBlame();

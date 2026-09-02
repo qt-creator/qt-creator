@@ -64,6 +64,7 @@
 #include <QHash>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPromise>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QTimer>
@@ -1417,18 +1418,74 @@ GitClient::stageHunkCallback(const FilePath &workingDirectory, const QString &re
     };
 }
 
-static DiffEditor::InlineDiffRenderModel diffAgainstEditorText(const QString &baseText,
-                                                               const QString &editorText)
+static DiffEditor::ChunkData diffChunkAgainstEditorText(
+    const QString &baseText, const QString &editorText,
+    const std::optional<QFuture<void>> &future = {})
 {
-    Utils::Differ differ;
+    Utils::Differ differ(future);
     const QList<Utils::Diff> diffList
         = Utils::Differ::cleanupSemantics(differ.diff(baseText, editorText));
     QList<Utils::Diff> leftDiffList;
     QList<Utils::Diff> rightDiffList;
     Utils::Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
+    return DiffEditor::DiffUtils::calculateOriginalData(leftDiffList, rightDiffList);
+}
+
+static DiffEditor::InlineDiffRenderModel diffAgainstEditorText(const QString &baseText,
+                                                               const QString &editorText)
+{
     return DiffEditor::mapChunkToRenderModel(
-        DiffEditor::DiffUtils::calculateOriginalData(leftDiffList, rightDiffList),
+        diffChunkAgainstEditorText(baseText, editorText),
         baseText.endsWith('\n'), editorText.endsWith('\n'));
+}
+
+static EditorLineDiff editorLineDiff(const DiffEditor::ChunkData &chunk, int editorLine)
+{
+    EditorLineDiff result;
+    QStringList pendingOldLines;
+    int currentEditorLine = 0;
+    for (const DiffEditor::RowData &row : chunk.rows) {
+        if (row.equal) {
+            pendingOldLines.clear();
+            if (row.line[DiffEditor::RightSide].textLineType
+                == DiffEditor::TextLineData::TextLine) {
+                ++currentEditorLine;
+            }
+            continue;
+        }
+
+        const DiffEditor::TextLineData &oldLine = row.line[DiffEditor::LeftSide];
+        if (oldLine.textLineType == DiffEditor::TextLineData::TextLine)
+            pendingOldLines.append(oldLine.text);
+
+        const DiffEditor::TextLineData &newLine = row.line[DiffEditor::RightSide];
+        if (newLine.textLineType != DiffEditor::TextLineData::TextLine)
+            continue;
+        if (++currentEditorLine == editorLine) {
+            result.oldLines = pendingOldLines;
+            result.newLine = newLine.text;
+            result.isValid = true;
+            return result;
+        }
+        pendingOldLines.clear();
+    }
+    return result;
+}
+
+EditorLineDiff editorLineDiffAgainstEditorText(const QString &baseText,
+                                               const QString &editorText, int editorLine)
+{
+    return editorLineDiff(diffChunkAgainstEditorText(baseText, editorText), editorLine);
+}
+
+void computeEditorLineDiff(QPromise<EditorLineDiff> &promise,
+                           const QString &baseText, const QString &editorText,
+                           int editorLine)
+{
+    const DiffEditor::ChunkData chunk = diffChunkAgainstEditorText(
+        baseText, editorText, QFuture<void>(promise.future()));
+    if (!promise.isCanceled())
+        promise.addResult(editorLineDiff(chunk, editorLine));
 }
 
 // Fetches the index contents of relativeFile and reports the in-process diff

@@ -26,6 +26,8 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
+template <typename T>
+class QPromise;
 
 namespace QtTaskTree { class GroupItem; }
 QT_END_NAMESPACE
@@ -48,6 +50,19 @@ struct ColorNames
     QString subject;
     QString body;
 };
+
+struct EditorLineDiff
+{
+    QStringList oldLines;
+    QString newLine;
+    bool isValid = false;
+};
+
+EditorLineDiff editorLineDiffAgainstEditorText(const QString &baseText,
+                                               const QString &editorText, int editorLine);
+void computeEditorLineDiff(QPromise<EditorLineDiff> &promise,
+                           const QString &baseText, const QString &editorText,
+                           int editorLine);
 
 enum StatusMode
 {
