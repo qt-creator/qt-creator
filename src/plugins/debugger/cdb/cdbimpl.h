@@ -105,6 +105,7 @@ private:
     void checkStackBitness(bool maySwitch);
     void settleStackBitness(Wow64State state);
     void syncExceptionEvents();
+    void interruptInferior();
     void resumeAfterSetup();
     class InterpreterBreakpoint
     {
@@ -171,6 +172,7 @@ private:
     QList<std::function<void()>> m_pendingStackBitness;
     bool m_interpreterMessageWatchArmed = false;
     QString m_interpreterMessageWatchId;
+    Utils::ProcessHandle m_inferiorPid;
     bool m_inferiorRunning = false;
     bool m_interruptRequested = false;
     bool m_inferiorExited = false;

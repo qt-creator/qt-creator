@@ -16,6 +16,10 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -344,7 +348,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
             break;
         }
         m_interruptRequested = true;
-        m_cdbProc.interrupt();
+        interruptInferior();
         break;
     case ExecutionCommand::StepIn:
         m_expectSpontaneousStop = true;
@@ -1317,6 +1321,28 @@ void CdbImpl::syncExceptionEvents()
     runCommand({QLatin1String(wanted ? "sxe eh" : "sxn eh"), NoFlags});
 }
 
+// A console event would need the ctrl-c stub, and reaches every process in the
+// group rather than the inferior alone. A break-in thread stops the inferior
+// itself, and cdb reports it as the break instruction it is.
+void CdbImpl::interruptInferior()
+{
+#ifdef Q_OS_WIN
+    if (m_inferiorPid.isValid()) {
+        const DWORD access = PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION
+                             | PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ;
+        if (HANDLE inferior = OpenProcess(access, FALSE, DWORD(m_inferiorPid.pid()))) {
+            const bool broke = DebugBreakProcess(inferior);
+            CloseHandle(inferior);
+            if (broke)
+                return;
+        }
+        emit message(QString("CdbImpl: could not break into process %1, asking cdb instead.")
+                         .arg(m_inferiorPid.pid()), LogWarning);
+    }
+#endif
+    m_cdbProc.interrupt();
+}
+
 void CdbImpl::resumeAfterSetup()
 {
     if (!m_commandForToken.isEmpty()) {
@@ -1345,11 +1371,13 @@ void CdbImpl::initializeSession(const std::function<void()> &whenReady)
         armInterpreterHooks();
     setupScripting();
     runCommand({"pid", ExtensionCommand, [this, whenReady](const DebuggerResponse &response) {
-        if (response.resultClass == ResultDone)
-            emit inferiorPidKnown(response.data.toProcessHandle());
-        else if (!isCore()) // A dump has no process to ask.
+        if (response.resultClass == ResultDone) {
+            m_inferiorPid = response.data.toProcessHandle();
+            emit inferiorPidKnown(m_inferiorPid);
+        } else if (!isCore()) { // A dump has no process to ask.
             emit message(QString("CdbImpl: failed to determine the inferior pid: %1")
                              .arg(response.data["msg"].data()), LogError);
+        }
         if (whenReady)
             whenReady();
     }});
@@ -2075,7 +2103,7 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
         m_deferredCommands.append(dbgCmd);
         if (!m_callbackStop) {
             m_callbackStop = true;
-            m_cdbProc.interrupt();
+            interruptInferior();
         }
         restartWatchdog();
         return;

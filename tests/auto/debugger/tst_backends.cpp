@@ -829,7 +829,7 @@ static bool canInterruptRunningInferior(Backend backend)
 {
     if (!HostOsInfo::isWindowsHost())
         return true;
-    static const QList<Backend> uninterruptibleOnWindows = {Backend::Pdb, Backend::Cdb};
+    static const QList<Backend> uninterruptibleOnWindows = {Backend::Pdb};
     return !uninterruptibleOnWindows.contains(backend);
 }
 
@@ -4054,11 +4054,6 @@ void tst_backends::stepsContinuesAndInterrupts()
     if (backend == Backend::Pdb && HostOsInfo::isWindowsHost())
         QSKIP("Interrupting a running inferior is not supported by pdb on Windows.");
 
-    if (backend == Backend::Cdb) {
-        QSKIP("Interrupting cdb.exe needs the ctrl-c stub, which sits next to the qtcreator "
-              "executable, not next to this test binary.");
-    }
-
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Interrupt});
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk),
@@ -7246,10 +7241,6 @@ void tst_backends::continuesPastNativeMixedCppBreakpoint()
 {
     QFETCH(Backend, backend);
 
-    if (backend == Backend::Cdb) {
-        QSKIP("Interrupting a running inferior is not testable for cdb - "
-              "see stepsContinuesAndInterrupts().");
-    }
 
     if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
         QSKIP(qPrintable(result.error()));
