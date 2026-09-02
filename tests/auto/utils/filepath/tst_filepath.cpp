@@ -114,6 +114,8 @@ private slots:
     void schemeAndHostLength_data();
     void schemeAndHostLength();
 
+    void removeRecursivelyDoesNotFollowSymlinks();
+
     void asyncLocalCopy();
     void startsWithDriveLetter();
     void startsWithDriveLetter_data();
@@ -1806,6 +1808,32 @@ void tst_filepath::relativeChildPath()
     const FilePath result = child.relativeChildPath(parent);
 
     QCOMPARE(result, expected);
+}
+
+void tst_filepath::removeRecursivelyDoesNotFollowSymlinks()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Creating a symlink needs privileges there.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath root = FilePath::fromString(dir.path());
+
+    const FilePath outside = root / "outside";
+    QVERIFY(outside.createDir());
+    const FilePath keep = outside / "keep.txt";
+    QVERIFY(keep.writeFileContents("keep"));
+
+    const FilePath victim = root / "victim";
+    QVERIFY(victim.createDir());
+    QVERIFY(outside.createSymLink(victim / "link"));
+
+    const Result<> removed = victim.removeRecursively();
+
+    QVERIFY2(keep.exists(), "removeRecursively() deleted a file through a symlink");
+    QVERIFY2(outside.exists(), "removeRecursively() removed a symlink's target directory");
+    QVERIFY2(removed, qPrintable(removed ? QString() : removed.error()));
+    QVERIFY(!victim.exists());
 }
 
 void tst_filepath::asyncLocalCopy()
