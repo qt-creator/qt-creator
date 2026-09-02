@@ -609,8 +609,8 @@ SettingsWidget::SettingsWidget()
 
     Utils::Internal::setCheckSettingsDirtyHook([widget = QPointer<SettingsWidget>(this), this] {
         QTC_ASSERT(widget, return);
-        SettingsTab *tab = s_tabForPage.value(m_currentPage);
-        setDirty(tab->isDirty());
+        if (SettingsTab *tab = s_tabForPage.value(m_currentPage))
+            setDirty(tab->isDirty());
     });
     Utils::Internal::setMarkSettingsDirtyHook([widget = QPointer<SettingsWidget>(this), this](bool dirty) {
         QTC_ASSERT(widget, return);
