@@ -1294,7 +1294,9 @@ public:
             Tr::tr("&Add"),
             Tr::tr("&Delete"),
             Tr::tr("&Clean Up"),
-            Tr::tr("&Make Default")
+            Tr::tr("&Make Default"),
+            Tr::tr("&Generate Kit"),
+            PathChooser::browseButtonLabel()
         });
     }
 };
