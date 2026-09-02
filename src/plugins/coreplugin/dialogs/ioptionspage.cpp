@@ -370,7 +370,7 @@ static QStringList scrapeKeywords(QWidget *widget)
     for (const QGroupBox *groupBox : widget->findChildren<QGroupBox *>())
         keywords << groupBox->title();
 
-    return transform(keywords, stripAccelerator);
+    return Utils::transform(keywords, stripAccelerator);
 }
 
 QStringList Internal::IOptionsPagePrivate::keywords()
@@ -399,7 +399,7 @@ QStringList Internal::IOptionsPagePrivate::keywords()
 */
 void IOptionsPage::setFixedKeywords(const QStringList &keywords)
 {
-    d->m_keywords = keywords;
+    d->m_keywords = Utils::transform(keywords, stripAccelerator);
     d->m_keywordsInitialized = true;
     d->m_keywordsAreFixed = true;
 }
