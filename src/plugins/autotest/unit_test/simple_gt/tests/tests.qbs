@@ -9,6 +9,8 @@ Project {
     references: [
         "gt1/gt1.qbs",
         "gt2/gt2.qbs",
-        "gt3/gt3.qbs"
+        "gt3/gt3.qbs",
+        "gt4/gt4.qbs",
+        "gtlib/gtlib.qbs"
     ]
 }

@@ -1,0 +1,15 @@
+QT += testlib
+QT -= gui
+
+CONFIG += qt console warn_on depend_includepath testcase
+CONFIG -= app_bundle
+
+TEMPLATE = app
+
+TARGET = tst_libtest
+
+INCLUDEPATH += $$PWD/../lib
+LIBS += -L$$OUT_PWD/../lib -linlibtests
+
+SOURCES += \
+    main.cpp

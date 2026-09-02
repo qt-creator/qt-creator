@@ -142,12 +142,19 @@ void AutotestUnitTests::testCodeParser_data()
     QTest::newRow("mixedAutoTestAndQuickTests")
             << base / "mixed_atp/mixed_atp.pro"
             << 4 << 10 << 5 << 10;
+    // the test is declared in a library the application target links against
+    QTest::newRow("libraryAutoTest")
+            << base / "lib_atp/lib_atp.pro"
+            << 1 << 0 << 0 << 0;
     QTest::newRow("plainAutoTestQbs")
             << base / "plain/plain.qbs"
             << 1 << 0 << 0 << 0;
     QTest::newRow("mixedAutoTestAndQuickTestsQbs")
             << base / "mixed_atp/mixed_atp.qbs"
             << 4 << 10 << 5 << 10;
+    QTest::newRow("libraryAutoTestQbs")
+            << base / "lib_atp/lib_atp.qbs"
+            << 1 << 0 << 0 << 0;
 }
 
 void AutotestUnitTests::testCodeParserSwitchStartup()
@@ -228,7 +235,7 @@ void AutotestUnitTests::testCodeParserGTest()
     QVERIFY(parserSpy.wait(20000));
     QVERIFY(modelUpdateSpy.wait());
 
-    QCOMPARE(m_model->gtestNamesCount(), 8);
+    QCOMPARE(m_model->gtestNamesCount(), 9);
 
     QMultiMap<QString, int> expectedNamesAndSets;
     expectedNamesAndSets.insert(QStringLiteral("FactorialTest"), 3);
@@ -239,6 +246,7 @@ void AutotestUnitTests::testCodeParserGTest()
     expectedNamesAndSets.insert(QStringLiteral("DummyTest"), 1); // used as 'normal' test
     expectedNamesAndSets.insert(QStringLiteral("NumberAsNameStart"), 1);
     expectedNamesAndSets.insert(QStringLiteral("NamespaceTest"), 1);
+    expectedNamesAndSets.insert(QStringLiteral("InLibTest"), 2); // in a linked library
 
     QMultiMap<QString, int> foundNamesAndSets = m_model->gtestNamesAndSets();
     QCOMPARE(expectedNamesAndSets.size(), foundNamesAndSets.size());
