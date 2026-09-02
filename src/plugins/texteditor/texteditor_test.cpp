@@ -569,6 +569,14 @@ void RewrapParagraphTest::testRewrapParagraph_data()
     QTest::newRow("doxygenComment")
         << "/// alpha beta\n/// gamma delta\n" << 0
         << "/// alpha beta gamma delta\n";
+
+    // A single "//" comment line too long for the margin wraps into several
+    // lines that each keep the "//" leader (QTCREATORBUG-5674).
+    QTest::newRow("singleLineCommentWraps")
+        << "// aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa "
+           "aaaaaaaaa aaaaaaaaa\n" << 0
+        << "// aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa "
+           "aaaaaaaaa\n// aaaaaaaaa\n";
 }
 
 void RewrapParagraphTest::testRewrapParagraph()
