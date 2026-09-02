@@ -70,7 +70,7 @@ public:
                     continue;
                 RCsPerBuildConfig rcsForTarget;
                 for (const BuildConfiguration * const bc : t->buildConfigurations()) {
-                    if (p == thisRc->project() && bc != thisRc->buildConfiguration()
+                    if (t == thisRc->target() && bc != thisRc->buildConfiguration()
                         && !considerOtherBuildConfigs) {
                         continue;
                     }
@@ -157,7 +157,7 @@ private:
     {
     public:
         RCTreeItem(const RunConfiguration *rc, bool sameBuildKey)
-            : StaticTreeItem(rc->displayName()), m_rc(rc), m_sameBuildKey(sameBuildKey) {}
+            : StaticTreeItem(rc->expandedDisplayName()), m_rc(rc), m_sameBuildKey(sameBuildKey) {}
         const RunConfiguration *runConfig() const { return m_rc; }
     private:
         QVariant data(int column, int role) const override
