@@ -537,6 +537,10 @@ void RunConfiguration::update()
     if (m_updater)
         m_updater();
 
+    // build configuration that was never parsed provides no name for the updater to use
+    if (displayName().isEmpty() && !m_buildKey.isEmpty())
+        setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(m_buildKey, kit()));
+
     emit enabledChanged();
 
     if (activeRunConfigForActiveProject() == this)

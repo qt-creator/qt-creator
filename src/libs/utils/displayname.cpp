@@ -18,7 +18,7 @@ bool DisplayName::setValue(const QString &name)
 
 bool DisplayName::setDefaultValue(const QString &name)
 {
-    if (m_defaultValue == name)
+    if (name.isEmpty() || m_defaultValue == name)
         return false;
     const QString originalName = value();
     m_defaultValue = name;
