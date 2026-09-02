@@ -1,5 +1,6 @@
 import qbs.FileInfo
 import qbs.TextFile
+import qbs.Utilities
 
 QtApplication {
     name: "qmlmix_inferior"
@@ -33,8 +34,9 @@ QtApplication {
         fileTags: ["qt.qml.qml", "qt.core.resource_data"]
     }
 
-    // qbs registers the C++ types, but does not generate a qmldir
+    // qbs < 3.4 registers the C++ types, but does not generate a qmldir
     Rule {
+        condition: Utilities.versionCompare(qbs.version, "3.4") < 0
         multiplex: true
         inputs: ["qt.qml.qml"]
         Artifact {
