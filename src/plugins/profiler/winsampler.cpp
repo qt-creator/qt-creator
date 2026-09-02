@@ -21,6 +21,7 @@
 #include <utils/synchronizedvalue.h>
 
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QScopeGuard>
 
 #include <evntcons.h>
@@ -595,7 +596,8 @@ Result<> startEtwSession(EtwCaptureContext &ctx)
         ctx.sessionHandle = 0;
         if (status == ERROR_ACCESS_DENIED) {
             return ResultError(Tr::tr("Access denied when starting the kernel logger. "
-                                      "Run Qt Creator as administrator."));
+                                      "Run %1 as administrator.")
+                                   .arg(QGuiApplication::applicationDisplayName()));
         }
         return ResultError(Tr::tr("Cannot start the NT Kernel Logger (error 0x%1). Another "
                                   "profiler may be using it.").arg(status, 0, 16));
@@ -715,7 +717,8 @@ Result<FilePath> recordSampleTrace(const SamplerOptions &opts, const std::atomic
     // Elevate privilege for kernel profiling.
     if (!elevateProfilePrivilege())
         return ResultError(Tr::tr("Cannot enable profiling privilege. "
-                                  "Run Qt Creator as administrator."));
+                                  "Run %1 as administrator.")
+                               .arg(QGuiApplication::applicationDisplayName()));
 
     // Initialize capture context. Declared after closeTarget so it is destroyed
     // before the process handle it holds is closed.
