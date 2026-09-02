@@ -960,6 +960,24 @@
                 respected yet.
             \li Pointer Variable
         \row
+            \li Move to Function
+            \li Moves a lambda passed to \c connect() into a new free
+                function and replaces the lambda with a reference to it.
+            \li Lambda passed to \c connect(), in a free function
+        \row
+            \li Move to Member Function
+            \li Moves a lambda passed to \c connect() into a new private
+                member function of the enclosing class and replaces the
+                lambda with a pointer to the new member function.
+            \li Lambda passed to \c connect(), in a member function
+        \row
+            \li Move to Slot
+            \li Moves a lambda passed to \c connect() into a new private slot
+                of the enclosing class and replaces the lambda with a
+                pointer to the new slot.
+            \li Lambda passed to \c connect(), in a member function of a
+                class that inherits \c QObject
+        \row
             \li Reformat Pointers or References
             \li Reformats declarations with pointers or references according
                 to the code style settings for the current project. In case no
