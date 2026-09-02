@@ -495,10 +495,19 @@ struct PatternPosition
     bool cursor = false;
 };
 
+// How much punctuation in a pattern carries meaning. Very magic is close to
+// what QRegularExpression already reads, magic is Vim's default and wants a
+// backslash on "(){}+|?", and the nomagic levels take more and more of it
+// literally. A pattern can switch level part way through with "\v", "\m",
+// "\M" or "\V"; ":smagic"/":snomagic" force the level it STARTS at, which
+// such an atom then still overrides (measured).
+enum MagicLevel { VeryMagic, Magic, NoMagic, VeryNoMagic };
+
 static QRegularExpression vimPatternToQtPattern(const QString &needle,
                                                 PatternPosition *wanted = nullptr,
                                                 std::optional<bool> forceIgnoreCase = {},
-                                                int cursorColumn = 0)
+                                                int cursorColumn = 0,
+                                                std::optional<MagicLevel> forceMagic = {})
 {
     /* Transformations (Vim regexp -> QRegularExpression):
      *   \a -> [A-Za-z]
@@ -561,12 +570,9 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
     bool anyNewline = false; // saw "\_", waiting for the atom it applies to
     bool newlineAtom = false; // the atom being read has to take in a line break
     int classNewline = -1; // where a "\_[" class starts, so it can take one too
-    // How much punctuation carries meaning, set by "\v", "\m", "\M" and "\V".
-    // Very magic is close to what QRegularExpression already reads, magic is
-    // Vim's default and wants a backslash on "(){}+|?", and the nomagic levels
-    // take more and more of it literally.
-    enum MagicLevel { VeryMagic, Magic, NoMagic, VeryNoMagic };
-    MagicLevel magic = Magic;
+    // Where the pattern starts out, which a "\v"/"\m"/"\M"/"\V" in it still
+    // overrides below - so ":snomagic /\ma.b/" is magic after all (measured).
+    MagicLevel magic = forceMagic.value_or(Magic);
     bool percent = false; // saw "%" in very magic, waiting for the "("
     // "\%d123" and its kin name a character by its number.
     int numberBase = 0; // which base is being read, 0 for none
@@ -3448,6 +3454,7 @@ public:
     bool handleExCopyCommand(const ExCommand &cmd);
     bool handleExAlignCommand(const ExCommand &cmd);
     bool handleExPrintCommand(const ExCommand &cmd);
+    bool handleExZCommand(const ExCommand &cmd);
     bool handleExPutCommand(const ExCommand &cmd);
     bool handleExJoinCommand(const ExCommand &cmd);
     bool handleExGotoCommand(const ExCommand &cmd);
@@ -3459,8 +3466,12 @@ public:
     void rememberMessage(const QString &msg);
     bool handleExRegisterCommand(const ExCommand &cmd);
     bool handleExMarksCommand(const ExCommand &cmd);
+    bool handleExMarkCommand(const ExCommand &cmd);
     bool handleExJumpsCommand(const ExCommand &cmd);
     bool handleExMapCommand(const ExCommand &cmd);
+    bool handleExMapClearCommand(const ExCommand &cmd);
+    bool handleExAbbreviateCommand(const ExCommand &cmd);
+    void expandInsertAbbreviation();
     bool handleExMultiRepeatCommand(const ExCommand &cmd);
     bool handleExNohlsearchCommand(const ExCommand &cmd);
     bool handleExNormalCommand(const ExCommand &cmd);
@@ -3472,12 +3483,15 @@ public:
     bool handleExUndoRedoCommand(const ExCommand &cmd);
     bool handleExStartStopInsertCommand(const ExCommand &cmd);
     bool handleExFileCommand(const ExCommand &cmd);
+    bool handleExChdirCommand(const ExCommand &cmd);
+    bool handleExPwdCommand(const ExCommand &cmd);
     bool handleExUndoJoinCommand(const ExCommand &cmd);
     bool handleExEarlierLaterCommand(const ExCommand &cmd);
     bool handleExRetabCommand(const ExCommand &cmd);
     bool handleExSetCommand(const ExCommand &cmd);
     void applySetOption(const QString &arg);
     bool handleExSortCommand(const ExCommand &cmd);
+    bool handleExUniqCommand(const ExCommand &cmd);
     bool handleExShiftCommand(const ExCommand &cmd);
     bool handleExSourceCommand(const ExCommand &cmd);
     bool handleExImportCommand(const ExCommand &cmd);
@@ -3734,6 +3748,14 @@ public:
         QStringList messageHistory;
         // What ":lockvar" holds against being given another value.
         QSet<QString> lockedVariables;
+        // Insert-mode abbreviations: what ":iabbrev" wrote down, keyed by the
+        // word that triggers it. Only the insert-mode ones are here - see
+        // handleExAbbreviateCommand().
+        QHash<QString, QString> insertAbbreviations;
+        // What ":cd -" returns to - the directory a ":cd"/":lcd"/":tcd" left,
+        // one value shared across all three since the working directory
+        // itself is one process-global thing here.
+        QString previousDirectory;
 
         // Search state.
         QString lastSearch; // last search expression as entered by user
@@ -7689,6 +7711,10 @@ void FakeVimHandler::Private::overwriteText(const QString &text)
 
 void FakeVimHandler::Private::finishInsertMode()
 {
+    // Leaving insert mode ends the word too, so an abbreviation typed with
+    // nothing after it still takes effect (measured).
+    expandInsertAbbreviation();
+
     bool newLineAfter = m_buffer->insertState.newLineAfter;
     bool newLineBefore = m_buffer->insertState.newLineBefore;
 
@@ -8079,6 +8105,11 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         // (QTCREATORBUG-24094).
         const QString typed = input.text();
         const QString toInsert = charToInsert(typed);
+        // A character that is no keyword character ends a word, which is
+        // where an abbreviation takes the place of what was typed. The
+        // character itself is still inserted below, as in Vim.
+        if (!toInsert.isEmpty() && charClass(toInsert.at(0), false) != 2)
+            expandInsertAbbreviation();
         m_buffer->insertState.insertingSpaces =
             toInsert == QLatin1String(" ") || toInsert == QLatin1String("\t");
         if (toInsert != typed) {
@@ -8611,10 +8642,19 @@ static QString shownAsTyped(const QString &text);
 bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 {
     // :[range]s[ubstitute]/{pattern}/{string}/[flags] [count]
-    if (!cmd.matches("s", "substitute")
+    // :[range]sm[agic] and :[range]sno[magic] are the same command with the
+    // level the pattern starts at forced on or off for this one command; an
+    // explicit "\v"/"\m"/"\M"/"\V" in the pattern still wins over it.
+    const bool forceMagicOn = cmd.matches("sm", "smagic");
+    const bool forceMagicOff = cmd.matches("sno", "snomagic");
+    if (!cmd.matches("s", "substitute") && !forceMagicOn && !forceMagicOff
         && !(cmd.cmd.isEmpty() && !cmd.args.isEmpty() && QString("&~").contains(cmd.args[0]))) {
         return false;
     }
+    const std::optional<MagicLevel> forcedMagic
+        = forceMagicOn  ? std::optional<MagicLevel>(Magic)
+          : forceMagicOff ? std::optional<MagicLevel>(NoMagic)
+                          : std::nullopt;
 
     int count = 1;
     bool hasCount = false;
@@ -8712,7 +8752,8 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
     PatternPosition wanted;
     const QRegularExpression pattern = vimPatternToQtPattern(needle, &wanted, {},
-                                                             patternCursorColumn());
+                                                             patternCursorColumn(),
+                                                             forcedMagic);
 
     QTextBlock lastBlock;
     QTextBlock firstBlock;
@@ -8859,7 +8900,13 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     QByteArray cmd = cmd0.cmd.toLatin1();
 
     // Strange formatting. But everything else is even uglier.
-    if (cmd == "map") { modes = "nvo"; type = Map; } else
+    // The bare forms (map/noremap/unmap) take a "!" to mean the
+    // insert+command-line pair instead of Normal+Visual+Operator-pending.
+    // That "!" never reaches cmd as a literal suffix - the general parser
+    // strips a trailing "!" into cmd0.hasBang before this function ever
+    // sees cmd - so it is read from there instead of matched as "map!" and
+    // its kin, which could never fire.
+    if (cmd == "map") { modes = cmd0.hasBang ? "ic" : "nvo"; type = Map; } else
     if (cmd == "nm" || cmd == "nmap") { modes = "n"; type = Map; } else
     if (cmd == "vm" || cmd == "vmap") { modes = "v"; type = Map; } else
     // Vim's "x" is Visual mode and "v" is Visual plus Select mode. There is no
@@ -8868,29 +8915,28 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
     if (cmd == "xm" || cmd == "xmap") { modes = "v"; type = Map; } else
     if (cmd == "smap") { modes = "s"; type = Map; } else
     if (cmd == "omap") { modes = "o"; type = Map; } else
-    if (cmd == "map!") { modes = "ic"; type = Map; } else
     if (cmd == "im" || cmd == "imap") { modes = "i"; type = Map; } else
     if (cmd == "lm" || cmd == "lmap") { modes = "l"; type = Map; } else
     if (cmd == "cm" || cmd == "cmap") { modes = "c"; type = Map; } else
 
-    if (cmd == "no" || cmd == "noremap") { modes = "nvo"; type = Noremap; } else
+    if (cmd == "no" || cmd == "noremap") {
+        modes = cmd0.hasBang ? "ic" : "nvo"; type = Noremap;
+    } else
     if (cmd == "nn" || cmd == "nnoremap") { modes = "n"; type = Noremap; } else
     if (cmd == "vn" || cmd == "vnoremap") { modes = "v"; type = Noremap; } else
     if (cmd == "xn" || cmd == "xnoremap") { modes = "v"; type = Noremap; } else
     if (cmd == "snor" || cmd == "snoremap") { modes = "s"; type = Noremap; } else
     if (cmd == "ono" || cmd == "onoremap") { modes = "o"; type = Noremap; } else
-    if (cmd == "no!" || cmd == "noremap!") { modes = "ic"; type = Noremap; } else
     if (cmd == "ino" || cmd == "inoremap") { modes = "i"; type = Noremap; } else
     if (cmd == "ln" || cmd == "lnoremap") { modes = "l"; type = Noremap; } else
     if (cmd == "cno" || cmd == "cnoremap") { modes = "c"; type = Noremap; } else
 
-    if (cmd == "unm" || cmd == "unmap") { modes = "nvo"; type = Unmap; } else
+    if (cmd == "unm" || cmd == "unmap") { modes = cmd0.hasBang ? "ic" : "nvo"; type = Unmap; } else
     if (cmd == "nun" || cmd == "nunmap") { modes = "n"; type = Unmap; } else
     if (cmd == "vu" || cmd == "vunmap") { modes = "v"; type = Unmap; } else
     if (cmd == "xu" || cmd == "xunmap") { modes = "v"; type = Unmap; } else
     if (cmd == "sunm" || cmd == "sunmap") { modes = "s"; type = Unmap; } else
     if (cmd == "ou" || cmd == "ounmap") { modes = "o"; type = Unmap; } else
-    if (cmd == "unm!" || cmd == "unmap!") { modes = "ic"; type = Unmap; } else
     if (cmd == "iu" || cmd == "iunmap") { modes = "i"; type = Unmap; } else
     if (cmd == "lu" || cmd == "lunmap") { modes = "l"; type = Unmap; } else
     if (cmd == "cu" || cmd == "cunmap") { modes = "c"; type = Unmap; }
@@ -8961,6 +9007,117 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
         }
     }
     return true;
+}
+
+// :mapc[lear][!], :nmapc[lear], :vmapc[lear], :xmapc[lear], :smapc[lear],
+// :omapc[lear], :imapc[lear], :lmapc[lear], :cmapc[lear] - remove every
+// mapping for the modes the command applies to. The mode-scope table is
+// ":map"'s own; unlike that function, this one reads cmd.hasBang for the
+// "!" (insert+command-line) form rather than matching a "!"-suffixed
+// literal - ":map!" itself does that and it is dead code, since the general
+// parser strips a trailing "!" into hasBang before either function sees it
+// (ticket 206, found while writing this one; not fixed here).
+bool FakeVimHandler::Private::handleExMapClearCommand(const ExCommand &cmd0)
+{
+    QByteArray modes;
+    QByteArray cmd = cmd0.cmd.toLatin1();
+
+    if (cmd == "mapc" || cmd == "mapclear")
+        modes = cmd0.hasBang ? "ic" : "nvo";
+    else if (cmd == "nmapc" || cmd == "nmapclear")
+        modes = "n";
+    else if (cmd == "vmapc" || cmd == "vmapclear")
+        modes = "v";
+    else if (cmd == "xmapc" || cmd == "xmapclear")
+        modes = "v";
+    else if (cmd == "smapc" || cmd == "smapclear")
+        modes = "s";
+    else if (cmd == "omapc" || cmd == "omapclear")
+        modes = "o";
+    else if (cmd == "imapc" || cmd == "imapclear")
+        modes = "i";
+    else if (cmd == "lmapc" || cmd == "lmapclear")
+        modes = "l";
+    else if (cmd == "cmapc" || cmd == "cmapclear")
+        modes = "c";
+    else
+        return false;
+
+    for (char c : std::as_const(modes))
+        g.mappings.remove(c);
+    return true;
+}
+
+// :ia[bbrev] {lhs} {rhs}, :inorea[bbrev] {lhs} {rhs}, :iuna[bbrev] {lhs} and
+// :iabc[lear] - the INSERT-mode abbreviations. Typing the word and then any
+// character that is not a keyword character puts the expansion in its place,
+// keeping the character that ended it; leaving insert mode expands too.
+// Only the insert-mode spellings are taken. Vim's bare ":abbreviate" family
+// covers command-line mode as well and ":cabbrev" is that mode alone, and
+// nothing expands on the command line here - taking those names would say
+// this engine abbreviates there when it does not.
+// "nore" makes no difference here: an expansion is inserted as text, never
+// looked up again, so there is nothing to remap.
+bool FakeVimHandler::Private::handleExAbbreviateCommand(const ExCommand &cmd)
+{
+    const bool clear = cmd.matches("iabc", "iabclear");
+    const bool remove = cmd.matches("iuna", "iunabbrev");
+    const bool define = cmd.matches("ia", "iabbrev") || cmd.matches("inorea", "inoreabbrev");
+    if (!clear && !remove && !define)
+        return false;
+
+    if (clear) {
+        g.insertAbbreviations.clear();
+        return true;
+    }
+
+    static const QRegularExpression space("\\s+");
+    const QString args = cmd.args.trimmed();
+    const QString lhs = args.section(space, 0, 0);
+    if (lhs.isEmpty()) {
+        // Vim lists what there is; nothing here shows a list, so say nothing
+        // rather than pretending the list is empty.
+        return true;
+    }
+    if (remove) {
+        g.insertAbbreviations.remove(lhs);
+        return true;
+    }
+    const QString rhs = args.section(space, 1);
+    if (rhs.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E471: Argument required"));
+        return true;
+    }
+    g.insertAbbreviations.insert(lhs, rhs);
+    return true;
+}
+
+// The keyword run ending at the cursor, put back as its expansion where one
+// is written down for it. Read off the buffer rather than tracked as the keys
+// arrive: what was typed is already there to look at.
+void FakeVimHandler::Private::expandInsertAbbreviation()
+{
+    if (g.insertAbbreviations.isEmpty())
+        return;
+    const QTextBlock b = block();
+    const QString text = b.text();
+    const int col = position() - b.position();
+    if (col <= 0 || col > text.size())
+        return;
+    int start = col;
+    while (start > 0 && charClass(text.at(start - 1), false) == 2)
+        --start;
+    if (start == col)
+        return; // no keyword run ends here
+    const auto it = g.insertAbbreviations.constFind(text.mid(start, col - start));
+    if (it == g.insertAbbreviations.constEnd())
+        return;
+
+    const int from = b.position() + start;
+    setAnchorAndPosition(from, b.position() + col);
+    removeText(currentRange());
+    setPosition(from);
+    insertText(it.value());
 }
 
 bool FakeVimHandler::Private::handleExLockVarCommand(const ExCommand &cmd)
@@ -9243,7 +9400,7 @@ static bool unimplementedOption(const QString &name, OptionKind *kind)
     "completeslash concealcursor cot cpm cpo cpoptions cpp cpt cryptmethod cscopeprg "
     "cscopequickfix csl csprg csqf culopt cursorlineopt debug def define dex dia dict "
     "dictionary diffanchors diffexpr diffopt dip dir directory display dy ead eadirection "
-    "ef efm ei eiw enc encoding ep equalprg errorfile errorformat eventignore "
+    "ef efm ei eiw ep equalprg errorfile errorformat eventignore "
     "eventignorewin fcl fcs fde fdi fdm fdo fdt fenc fencs fex ff ffs ffu fileencoding "
     "fileencodings fileformat fileformats filetype fillchars findfunc flp fmr fo "
     "foldclose foldexpr foldignore foldmarker foldmethod foldopen foldtext formatexpr "
@@ -9539,6 +9696,12 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
                             VimValue(how == "setglobal" ? QString() : before.toString()));
         context.vars.insert("v:option_oldglobal",
                             VimValue(local ? QString() : before.toString()));
+        // Changing 'encoding' announces itself before the generic OptionSet -
+        // measured, both the fact and the order. One firing reaches
+        // FileEncoding's registrations too: Vim treats the two event names as
+        // one, which canonicalAutocmdEvent() already pairs.
+        if (shown == "encoding")
+            triggerAutocmd("EncodingChanged");
         triggerAutocmd("OptionSet", context);
     }
 
@@ -9976,6 +10139,98 @@ bool FakeVimHandler::Private::handleExAlignCommand(const ExCommand &cmd)
 // :[range]l[ist] [count] - show the lines: with their numbers for ":number", and
 // with tabs as "^I" and an end-of-line "$" for ":list". The cursor ends up on the
 // last line shown.
+// :[range]z[+-^.=][count] - print a window of lines around the address (one
+// line past the current line if none is given at all - measured directly,
+// not the current line itself). Despite the doc's own "no mark is the same
+// as +" line, the two are NOT the same, in either range or cursor: "+"
+// starts AFTER the address, the no-mark form starts AT it - caught only by
+// measuring each form in isolation with a fresh cursor position rather than
+// trusting that line.
+// Requires an explicit count: the count-less default (a window size derived
+// from 'scroll' or the window's own height) was not measured here.
+bool FakeVimHandler::Private::handleExZCommand(const ExCommand &cmd)
+{
+    if (cmd.cmd != "z")
+        return false;
+
+    QString args = cmd.args;
+    QChar mark;
+    if (!args.isEmpty() && QString("+-^.=").contains(args.at(0))) {
+        mark = args.at(0);
+        args = args.mid(1);
+    }
+    bool ok = false;
+    const int count = args.trimmed().toInt(&ok);
+    if (!ok || count <= 0)
+        return true;
+
+    // With no address at all this is one line further than the current
+    // line, not the current line itself - measured directly (":z3" with no
+    // address gives a different window than an explicit address naming the
+    // current line would), not assumed from how other commands default.
+    const int address = blockAt(cmd.range.endPos).blockNumber() + (cmd.hasRange ? 0 : 1);
+    const int lastValid = document()->blockCount() - 1;
+
+    int firstLine;
+    int lastLine;
+    int cursorLine;
+    const bool decorate = mark == '=';
+    if (mark == '-') {
+        firstLine = address - count + 1;
+        lastLine = address;
+        cursorLine = address;
+    } else if (mark == '.') {
+        firstLine = address - count / 2;
+        lastLine = firstLine + count - 1;
+        cursorLine = qMin(lastLine, lastValid);
+    } else if (mark == '^') {
+        // A window further back than "-"'s own, i.e. "-"'s firstLine minus
+        // count - measured with enough headroom that nothing clamps, since
+        // the clamped case alone cannot tell this from an off-by-one.
+        firstLine = address - 2 * count;
+        lastLine = address - count;
+        cursorLine = qMin(lastLine, lastValid);
+    } else if (mark == '=') {
+        const int half = (count + 1) / 2;
+        firstLine = address - half;
+        lastLine = address + half;
+        cursorLine = address;
+    } else if (mark == '+') {
+        // Starts AFTER the address (not at it) - unlike every other mark,
+        // this one does NOT share its range with the no-mark form below,
+        // despite the doc's own "no mark is the same as +" line.
+        firstLine = address + 1;
+        lastLine = address + count;
+        cursorLine = qMin(lastLine, lastValid);
+    } else {
+        // No mark at all: starts AT the address.
+        firstLine = address;
+        lastLine = address + count - 1;
+        cursorLine = qMin(lastLine, lastValid);
+    }
+    firstLine = qMax(0, firstLine);
+    lastLine = qMin(lastLine, lastValid);
+
+    QStringList shown;
+    for (int i = firstLine; i <= lastLine; ++i) {
+        const QTextBlock block = document()->findBlockByNumber(i);
+        if (!block.isValid())
+            break;
+        if (decorate && i == address)
+            shown.append(QString(79, '-'));
+        shown.append(block.text());
+        if (decorate && i == address)
+            shown.append(QString(79, '-'));
+    }
+    showExtraInformation(shown.join('\n'));
+
+    setPosition(firstPositionInLine(qMax(0, cursorLine) + 1));
+    moveToFirstNonBlankOnLine();
+    setTargetColumn();
+
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExPrintCommand(const ExCommand &cmd)
 {
     // ":#" has no name a command could be told by, only the "#" of its arguments.
@@ -10135,6 +10390,54 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
     if (cmd.cmd != "w" && cmd.cmd != "x" && cmd.cmd != "wq")
         return false;
 
+    // :w[!] >> [file] - append instead of overwrite, to the current file if
+    // none is named. Its own pair of events fires regardless of whether the
+    // range covers the whole buffer or part of it - there is no "append
+    // part of the buffer" event the way there is for an ordinary write
+    // (ticket 75). "!" allows creating a file that does not exist yet;
+    // without it, appending to a missing file is refused.
+    const QString trimmedArgs = cmd.args.trimmed();
+    if (trimmedArgs.startsWith(">>")) {
+        QString fileName = replaceTildeWithHome(trimmedArgs.mid(2).trimmed());
+        if (fileName.isEmpty())
+            fileName = m_currentFileName;
+        const bool forced = cmd.hasBang;
+
+        EventContext appending;
+        appending.target = fileName;
+        triggerAutocmd("FileAppendPre", appending);
+
+        QFile file(fileName);
+        if ((!file.exists() && !forced) || !file.open(QIODevice::Append)) {
+            showMessage(MessageError,
+                Tr::tr("E212: Can't open file for writing (%1)").arg(fileName));
+            return true;
+        }
+
+        // No explicit range at all means the WHOLE buffer, not just the
+        // current line - cmd.range itself always names a real line (the
+        // current one) even where none was typed, so the whole-buffer
+        // case has to be recognized from cmd.hasRange, not from cmd.range.
+        int beginLine;
+        int endLine;
+        if (cmd.hasRange) {
+            beginLine = lineForPosition(cmd.range.beginPos);
+            endLine = lineForPosition(cmd.range.endPos);
+        } else {
+            beginLine = 1;
+            endLine = linesInDocument();
+        }
+        const Range range(firstPositionInLine(beginLine),
+            firstPositionInLine(endLine), RangeLineMode);
+        QTextStream ts(&file);
+        ts << selectText(range);
+        ts.flush();
+        file.close();
+
+        triggerAutocmd("FileAppendPost", appending);
+        return true;
+    }
+
     // A RANGE is what makes this a write of part of the buffer rather than of
     // the buffer itself, whatever file it goes to - writing the whole buffer
     // somewhere else is still a buffer write (measured). The two are announced
@@ -10149,13 +10452,27 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
     triggerAutocmd(partial ? QLatin1String("FileWritePre")
                            : QLatin1String("BufWritePre"), writing);
 
-    int beginLine = lineForPosition(cmd.range.beginPos);
-    int endLine = lineForPosition(cmd.range.endPos);
-    const bool noArgs = (beginLine == -1);
-    if (beginLine == -1)
-        beginLine = 0;
-    if (endLine == -1)
+    // No explicit range at all means the WHOLE buffer, not just the current
+    // line - cmd.range itself always names a real line (the current one)
+    // even where none was typed, so the whole-buffer case has to be
+    // recognized from cmd.hasRange, not from a beginLine/endLine that is
+    // never actually -1. A previous version of this check assumed it could
+    // be, which silently wrote only the current line instead of the whole
+    // buffer whenever no range was given.
+    int beginLine;
+    int endLine;
+    if (cmd.hasRange) {
+        beginLine = lineForPosition(cmd.range.beginPos);
+        endLine = lineForPosition(cmd.range.endPos);
+    } else {
+        beginLine = 1;
         endLine = linesInDocument();
+    }
+    // This function is reached only when cmd.args is non-empty (a bare ":w"
+    // is handleExPluginCommand's job), so there is always a filename or a
+    // "!" in hand - "no arguments at all" cannot happen here, and the
+    // overwrite guard below is unconditional accordingly.
+    const bool noArgs = false;
     //qDebug() << "LINES: " << beginLine << endLine;
     //QString prefix = cmd.args;
     const bool forced = cmd.hasBang;
@@ -10262,10 +10579,19 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
 
     // Reading a file does not rename the buffer, so the name is only looked at
     // here rather than kept.
-    const QString fileName = replaceTildeWithHome(cmd.args);
+    const QString fileName = replaceTildeWithHome(cmd.args.trimmed());
+    if (fileName.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E32: No file name"));
+        return true;
+    }
     QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
+    if (!file.open(QIODevice::ReadOnly)) {
+        // Returning false here would tell the dispatcher "not my command",
+        // which reports the unrelated "E492: Not an editor command" for what
+        // is really a file problem.
+        showMessage(MessageError, Tr::tr("E484: Can't open file %1").arg(fileName));
+        return true;
+    }
 
     // Both of these name the file being read rather than the one in the window.
     // Reading from a COMMAND announces neither: that is a filter, and said so
@@ -10294,10 +10620,23 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
     const QString command = QString(cmd.cmd.mid(1) + ' ' + cmd.args).trimmed();
     const QString input = replaceText ? selectText(cmd.range) : QString();
 
+    // A range is a filter (measured), which real Vim runs by writing the
+    // range to a temporary file, running the command, and reading its
+    // output back from another one - two pairs of events around those
+    // steps. This engine filters in process (processOutput is a plugin
+    // callback, no real file on either side), so there is no honest name
+    // for <afile>/<amatch> to give - both fall back to the current file
+    // name here, the same as ShellCmdPost/ShellFilterPost already do,
+    // rather than inventing a temporary path that does not exist.
+    if (replaceText)
+        triggerAutocmd("FilterWritePre");
+
     QString result;
     q->processOutput(command, input, &result);
 
     if (replaceText) {
+        triggerAutocmd("FilterWritePost");
+        triggerAutocmd("FilterReadPre");
         setCurrentRange(cmd.range);
         int targetPosition = firstPositionInLine(lineForPosition(cmd.range.beginPos));
         beginEditBlock();
@@ -10308,6 +10647,7 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
         leaveVisualMode();
         //qDebug() << "FILTER: " << command;
         reportLineChange(LinesFiltered, input.count('\n'));
+        triggerAutocmd("FilterReadPost");
     } else if (!result.isEmpty()) {
         showExtraInformation(result);
     }
@@ -10373,6 +10713,42 @@ bool FakeVimHandler::Private::handleExMarksCommand(const ExCommand &cmd)
                     .arg(lineContents(pos.line + 1).trimmed());
     }
     showExtraInformation(info);
+
+    return true;
+}
+
+// :[range]ma[rk] {name} - sets a mark, as "m" already does from normal mode.
+// :[range]k{name} - the same command under its historic name, with the name
+// glued directly onto "k" with no space at all. The general word-splitter in
+// parseExCommand() stops only at the first NON-letter character, so a glued
+// "ku" is swallowed whole into cmd.cmd rather than split into "k" + "u" - the
+// spaced form ("k u") already reaches here as cmd.cmd=="k", cmd.args=="u",
+// so only the no-space form needs unglueing.
+// ":mark" without a space is a name Vim itself does not recognise either
+// ("markv" is "E492: Not an editor command: markv"), so it needs no
+// special-case here - the shared splitter already requires the space.
+bool FakeVimHandler::Private::handleExMarkCommand(const ExCommand &cmd)
+{
+    QString name;
+    if (cmd.matches("ma", "mark")) {
+        name = cmd.args.trimmed();
+    } else if (cmd.cmd.size() == 2 && cmd.cmd.at(0) == 'k' && cmd.args.isEmpty()) {
+        name = cmd.cmd.at(1);
+    } else {
+        return false;
+    }
+
+    if (name.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E471: Argument required"));
+        return true;
+    }
+    if (name.size() > 1) {
+        showMessage(MessageError, Tr::tr("E488: Trailing characters: %1").arg(name));
+        return true;
+    }
+
+    const int line = blockAt(cmd.range.endPos).blockNumber();
+    setMark(name.at(0), CursorPosition(line, 0));
 
     return true;
 }
@@ -10491,6 +10867,13 @@ bool FakeVimHandler::Private::handleExMultiRepeatCommand(const ExCommand &cmd)
     if (!hasG && !hasV)
         return false;
 
+    // No separator at all (bare ":global") is missing a pattern outright;
+    // an empty one BETWEEN separators ("g//d") reuses the last search below.
+    if (cmd.args.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E148: Regular expression missing from :global"));
+        return true;
+    }
+
     // Force operation on full lines, and full document if only
     // one line (the current one...) is specified
     int beginLine = lineForPosition(cmd.range.beginPos);
@@ -10504,7 +10887,9 @@ bool FakeVimHandler::Private::handleExMultiRepeatCommand(const ExCommand &cmd)
 
     const QChar delim = cmd.args.front();
     const QString pattern = cmd.args.section(delim, 1, 1);
-    const QRegularExpression re(pattern);
+    if (!pattern.isEmpty())
+        g.lastSearch = pattern;
+    const QRegularExpression re(pattern.isEmpty() ? g.lastSearch : pattern);
 
     QString innerCmd = cmd.args.section(delim, 2, 2);
     if (innerCmd.isEmpty())
@@ -10681,6 +11066,108 @@ bool FakeVimHandler::Private::handleExSortCommand(const ExCommand &cmd)
     return true;
 }
 
+// :[range]uni[q][!] [i][l][r][u] [/{pattern}/] - remove lines that are
+// ADJACENT duplicates, comparing the whole line unless [r] or a pattern
+// narrows the comparison to part of it. If [!] and [u] are both given, [u]
+// is ignored and [!] takes effect - measured, matching the doc's own note.
+// [l] (locale-aware comparison) is accepted and has no effect: no locale
+// collation exists here, the same shape as several of ":sort"'s own flags.
+bool FakeVimHandler::Private::handleExUniqCommand(const ExCommand &cmd)
+{
+    if (!cmd.matches("uni", "uniq"))
+        return false;
+
+    QString args = cmd.args.trimmed();
+    QString pattern;
+    bool hasPattern = false;
+    const int patternAt = args.indexOf('/');
+    if (patternAt != -1) {
+        const int patternEnd = args.indexOf('/', patternAt + 1);
+        if (patternEnd == -1) {
+            showMessage(MessageError, Tr::tr("E682: Invalid search pattern or delimiter"));
+            return true;
+        }
+        pattern = args.mid(patternAt + 1, patternEnd - patternAt - 1);
+        hasPattern = true;
+        args.remove(patternAt, patternEnd - patternAt + 1);
+        // An EMPTY pattern reuses the last search pattern; either way it
+        // becomes the new one, as ":substitute" and ":global" already do.
+        if (pattern.isEmpty())
+            pattern = g.lastSearch;
+        else
+            g.lastSearch = pattern;
+    }
+
+    const QString flags = args.simplified().remove(' ');
+    const bool ignoreCase = flags.contains('i');
+    const bool byMatch = flags.contains('r');
+    const bool onlyUnique = !cmd.hasBang && flags.contains('u');
+    const Qt::CaseSensitivity sensitivity = ignoreCase ? Qt::CaseInsensitive : Qt::CaseSensitive;
+
+    // Force operation on full lines, and full document if only
+    // one line (the current one...) is specified
+    int beginLine = lineForPosition(cmd.range.beginPos);
+    int endLine = lineForPosition(cmd.range.endPos);
+    if (beginLine == endLine) {
+        beginLine = 1;
+        endLine = lineForPosition(lastPositionInDocument());
+    }
+    Range range(firstPositionInLine(beginLine),
+                firstPositionInLine(endLine), RangeLineMode);
+    const bool reachesLastLine = endLine >= lineForPosition(lastPositionInDocument());
+
+    QString input = selectText(range);
+    if (input.endsWith('\n'))
+        input.chop(1);
+
+    const QRegularExpression matchRe
+        = pattern.isEmpty() ? QRegularExpression() : vimPatternToQtPattern(pattern, nullptr);
+
+    const QStringList lines = input.split('\n');
+    QStringList keys;
+    keys.reserve(lines.size());
+    for (const QString &line : lines) {
+        QString key = line;
+        if (hasPattern) {
+            const QRegularExpressionMatch match = matchRe.match(line);
+            // Without [r] comparison is on what comes AFTER the match, which
+            // is what a line with no match at all trivially satisfies (the
+            // whole line comes "after" nothing that matched).
+            key = !match.hasMatch() ? line
+                  : byMatch          ? match.captured()
+                                     : line.mid(match.capturedEnd());
+        }
+        keys.append(key);
+    }
+
+    QStringList result;
+    for (int i = 0; i < lines.size(); ++i) {
+        const bool sameAsPrev = i > 0 && keys.at(i).compare(keys.at(i - 1), sensitivity) == 0;
+        const bool sameAsNext = i + 1 < lines.size()
+                                 && keys.at(i).compare(keys.at(i + 1), sensitivity) == 0;
+        if (cmd.hasBang) {
+            // One line per run that repeats, not one per adjacent pair -
+            // the FIRST of the run, same as the ordinary case below.
+            if (sameAsNext && !sameAsPrev)
+                result.append(lines.at(i));
+        } else if (onlyUnique) {
+            if (!sameAsPrev && !sameAsNext)
+                result.append(lines.at(i));
+        } else if (!sameAsPrev) {
+            // The ordinary case: the FIRST of each run survives.
+            result.append(lines.at(i));
+        }
+    }
+
+    replaceText(range, result.join('\n') + (reachesLastLine ? "" : "\n"));
+
+    setPosition(firstPositionInLine(beginLine));
+    moveToFirstNonBlankOnLine();
+    setTargetColumn();
+
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExNohlsearchCommand(const ExCommand &cmd)
 {
     // :noh, :nohl, ..., :nohlsearch
@@ -10760,11 +11247,86 @@ bool FakeVimHandler::Private::handleExFileCommand(const ExCommand &cmd)
     if (!cmd.matches("f", "file"))
         return false;
 
+    // With no argument this only shows the current name, and fires neither
+    // event - measured directly, rather than assumed from the rename case.
     const QString name = cmd.args.trimmed();
-    if (!name.isEmpty())
+    if (!name.isEmpty()) {
+        EventContext pre;
+        pre.target = m_currentFileName;
+        triggerAutocmd("BufFilePre", pre);
+
         m_currentFileName = replaceTildeWithHome(name);
+
+        EventContext post;
+        post.target = m_currentFileName;
+        triggerAutocmd("BufFilePost", post);
+    }
     showFileInfo();
 
+    return true;
+}
+
+// :cd[!] [path], :chd[ir][!] [path], :lc[d][!] [path], :tc[d][!] [path] -
+// change the working directory. The directory is one process-global thing
+// here (chdir(), the VimScript function, already made it so), and there is
+// no window or tab of this engine's own to scope :lcd/:tcd to - they alias
+// :cd, distinguished only by the DirChanged/DirChangedPre pattern they fire.
+// "-" returns to whatever directory the previous :cd/:lcd/:tcd left, and no
+// argument at all goes home, as real Vim does on Unix.
+bool FakeVimHandler::Private::handleExChdirCommand(const ExCommand &cmd)
+{
+    QString scope;
+    if (cmd.cmd == "cd" || cmd.matches("chd", "chdir"))
+        scope = "global";
+    else if (cmd.matches("lc", "lcd"))
+        scope = "window";
+    else if (cmd.matches("tc", "tcd"))
+        scope = "tabpage";
+    else
+        return false;
+
+    QString target = cmd.args.trimmed();
+    if (target == "-") {
+        if (g.previousDirectory.isEmpty()) {
+            showMessage(MessageError, Tr::tr("E186: No previous directory"));
+            return true;
+        }
+        target = g.previousDirectory;
+    } else if (target.isEmpty()) {
+        target = QDir::homePath();
+    } else {
+        target = replaceTildeWithHome(target);
+    }
+
+    if (!QFileInfo(target).isDir()) {
+        showMessage(MessageError,
+                    Tr::tr("E344: Can't find directory \"%1\" in cdpath").arg(target));
+        return true;
+    }
+
+    EventContext pre;
+    pre.target = scope;
+    pre.data.insert("directory", VimValue(target));
+    triggerAutocmd("DirChangedPre", pre);
+
+    const QString was = QDir::currentPath();
+    QDir::setCurrent(target);
+    g.previousDirectory = was;
+
+    EventContext post;
+    post.target = scope;
+    triggerAutocmd("DirChanged", post);
+
+    return true;
+}
+
+// :pw[d] - the working directory, on its own line.
+bool FakeVimHandler::Private::handleExPwdCommand(const ExCommand &cmd)
+{
+    if (!cmd.matches("pw", "pwd"))
+        return false;
+
+    showMessage(MessageInfo, QDir::currentPath());
     return true;
 }
 
@@ -13127,7 +13689,13 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
 {
     // :let {lhs} = {expr} with compound forms (+= -= *= /= %= .=). {lhs} is a
     // variable, an option (&opt), a register (@r) or an environment variable.
-    if (cmd.cmd != "let")
+    // :const {name} = {expr} - the same, immediately locked so a later write
+    // is E741, reusing the lock ":lockvar" already bites with.
+    // Only the plain scalar "name = expr" form below is measured for
+    // :const; the "[a, b] = list" unpack form and an indexed lhs stay
+    // unlocked for it rather than guessing whether Vim locks their entries.
+    const bool isConst = cmd.matches("cons", "const");
+    if (cmd.cmd != "let" && !isConst)
         return false;
 
     // :let [a, b, ...] = listexpr - unpack a list into several variables.
@@ -13225,6 +13793,11 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
         qputenv(name.mid(1).toLatin1().constData(), value.toString().toLocal8Bit());
     } else {
         setVariable(name, value);
+        if (isConst) {
+            QString key;
+            variableStore(name, &key);
+            g.lockedVariables.insert(key);
+        }
     }
     return true;
 }
@@ -18376,6 +18949,17 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = callUserFunction(name, g.userFunctions.value(name), args);
             return true;
         }
+        // Vim's own use for this event is autoloading: an autocommand may
+        // define the function, in which case the call succeeds after all -
+        // measured directly, not assumed.
+        EventContext undefined;
+        undefined.target = name;
+        triggerAutocmd("FuncUndefined", undefined);
+        if (g.userFunctions.contains(functionKey(name))) {
+            const QString key = functionKey(name);
+            *result = callUserFunction(key, g.userFunctions.value(key), args);
+            return true;
+        }
         *error = Tr::tr("E117: Unknown function: %1").arg(name);
         return false;
     }
@@ -18542,22 +19126,28 @@ static bool isAutocmdEvent(const QString &word)
         "sourcepost", "cmdlineleavepre", "insertleavepre", "shellcmdpost",
         "modechanged", "filereadpre", "filereadpost", "filewritepre",
         "filewritepost",
-        "shellfilterpost",
+        "shellfilterpost", "funcundefined", "cmdundefined",
+        "dirchanged", "dirchangedpre", "fileappendpre", "fileappendpost",
+        "filterwritepre", "filterwritepost", "filterreadpre", "filterreadpost",
+        "encodingchanged", "fileencoding",
+        "bufnew", "bufadd", "bufcreate", "bufreadpre",
+        "bufwinleave", "bufunload", "bufdelete", "bufhidden",
+        "winnew", "winclosed",
         // Accepted so that a list naming one of these alongside an event that
         // does fire is still understood. Registering for one of them is not an
         // error, it simply never comes up.
-        "bufadd", "bufcreate", "bufdelete", "buffilepre", "buffilepost",
-        "bufhidden", "bufnew", "bufreadcmd", "bufreadpre", "bufunload",
-        "bufwinleave", "bufwipeout", "bufwritecmd",
+        "buffilepre", "buffilepost",
+        "bufreadcmd",
+        "bufwipeout", "bufwritecmd",
         "colorscheme", "completedone", "cursorhold",
-        "cursorholdi", "dirchanged", "encodingchanged", "filechangedshell",
+        "cursorholdi", "filechangedshell",
 
         "focusgained", "focuslost",
-        "fileencoding", "menupopup", "quitpre", "safestate",
+        "menupopup", "quitpre", "safestate",
         "sessionloadpost",
         "stdinreadpost", "swapexists", "syntax", "tabclosed", "tabenter",
         "tableave", "tabnew", "termopen", "vimleave",
-        "vimleavepre", "vimresized", "winclosed", "winnew", "winresized"
+        "vimleavepre", "vimresized", "winresized"
     };
     return events.contains(word.toLower());
 }
@@ -18815,7 +19405,9 @@ bool FakeVimHandler::Private::handleExDoAutocmdCommand(const ExCommand &cmd)
     // fires an event of its own with ":doautocmd User Foo". Without one the
     // current file name is used, so an event registered for "*.c" comes up for
     // a ":doautocmd BufRead thing.c" and not otherwise.
-    if (!cmd.matches("doau", "doautocmd"))
+    // ":doautoall" is the same command over every loaded buffer; there is
+    // only ever one here, so it is this command's behaviour by construction.
+    if (!cmd.matches("doau", "doautocmd") && !cmd.matches("doautoa", "doautoall"))
         return false;
 
     QStringList tokens = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
@@ -19179,8 +19771,17 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         } else {
             if (active) {
                 ExCommand cmd = c;
-                if (!handleExCommandHelper(cmd))
+                if (!handleExCommandHelper(cmd)) {
+                    // Vim's own use for this event is a plugin defining the
+                    // command on demand, which would make the error not
+                    // happen - NOT MEASURED whether a retry then succeeds
+                    // with this engine's own command dispatch, so only the
+                    // firing is implemented; the error still follows.
+                    EventContext undefined;
+                    undefined.target = c.cmd;
+                    triggerAutocmd("CmdUndefined", undefined);
                     showMessage(MessageError, Tr::tr("E492: Not an editor command: %1").arg(c.cmd));
+                }
             }
             ++index;
         }
@@ -19713,6 +20314,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExLockVarCommand(cmd)
         || handleExRegisterCommand(cmd)
         || handleExMarksCommand(cmd)
+        || handleExMarkCommand(cmd)
         || handleExJumpsCommand(cmd)
         || handleExDelMarksCommand(cmd)
         || handleExYankDeleteCommand(cmd)
@@ -19721,6 +20323,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExCopyCommand(cmd)
         || handleExAlignCommand(cmd)
         || handleExPrintCommand(cmd)
+        || handleExZCommand(cmd)
         || handleExPutCommand(cmd)
         || handleExJoinCommand(cmd)
         || handleExSilentCommand(cmd)
@@ -19737,6 +20340,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExExecuteCommand(cmd)
         || handleExRedirCommand(cmd)
         || handleExMapCommand(cmd)
+        || handleExMapClearCommand(cmd)
+        || handleExAbbreviateCommand(cmd)
         || handleExMultiRepeatCommand(cmd)
         || handleExNohlsearchCommand(cmd)
         || handleExNormalCommand(cmd)
@@ -19744,12 +20349,15 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExUndoRedoCommand(cmd)
         || handleExStartStopInsertCommand(cmd)
         || handleExFileCommand(cmd)
+        || handleExChdirCommand(cmd)
+        || handleExPwdCommand(cmd)
         || handleExUndoJoinCommand(cmd)
         || handleExEarlierLaterCommand(cmd)
         || handleExRetabCommand(cmd)
         || handleExSetCommand(cmd)
         || handleExShiftCommand(cmd)
         || handleExSortCommand(cmd)
+        || handleExUniqCommand(cmd)
         || handleExSourceCommand(cmd)
         || handleExImportCommand(cmd)
         || handleExSubstituteCommand(cmd)
@@ -23806,9 +24414,11 @@ void FakeVimHandler::showMessage(MessageLevel level, const QString &msg)
     d->showMessage(level, msg);
 }
 
-void FakeVimHandler::triggerAutocmd(const QString &event)
+void FakeVimHandler::triggerAutocmd(const QString &event, const QString &target)
 {
-    d->triggerAutocmd(event);
+    Private::EventContext context;
+    context.target = target;
+    d->triggerAutocmd(event, context);
 }
 
 void FakeVimHandler::processModelines()

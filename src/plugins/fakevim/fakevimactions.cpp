@@ -131,6 +131,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
     setup(&selection,      "inclusive", "Selection", "sel", "");
     setup(&bufType,        {},    "BufType",        "bt",  "");
+    setup(&encoding,       "utf-8", "Encoding",     "enc", "");
     setup(&matchPairs,     "(:),{:},[:]", "MatchPairs", "mps", "");
     setup(&cpoOptions,     "aABceFsz", "CpOptions", "cpo", "");
     setup(&runtimePath,    {},    "RuntimePath",    "rtp", "");

@@ -113,7 +113,10 @@ public:
 
     // Fire the autocommands registered for an event (e.g. from the plugin's
     // save path so BufWritePre/BufWritePost run on a real save).
-    void triggerAutocmd(const QString &event);
+    // "target" is what the pattern is matched against and what "<afile>"
+    // stands for, where the event is about something that is no file - a
+    // window id for WinClosed, say. Empty means the current file name.
+    void triggerAutocmd(const QString &event, const QString &target = {});
 
     // Obey a "vim:" line in the first or last lines of the buffer. Called when
     // a document is opened, after the file type has been established.

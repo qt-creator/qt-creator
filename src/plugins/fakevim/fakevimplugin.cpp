@@ -412,6 +412,7 @@ public:
 
     void editorOpened(Core::IEditor *);
     void enterBuffer(Core::IEditor *editor, FakeVimHandler *handler);
+    void triggerAutocmdInAnyBuffer(const QString &event, const QString &target);
     bool enterBufferOnce(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *);
     void currentEditorAboutToChange(Core::IEditor *);
@@ -1210,6 +1211,15 @@ void FakeVimPlugin::initialize()
             this, &FakeVimPlugin::editorAboutToClose);
     connect(EditorManager::instance(), &EditorManager::editorOpened,
             this, &FakeVimPlugin::editorOpened);
+    // A split is Vim's window. WinNew carries nothing; WinClosed names the
+    // window that went, which Vim reports as its id (measured), so the id
+    // Qt Creator hands out is passed straight through as the target.
+    connect(EditorManager::instance(), &EditorManager::editorViewCreated,
+            this, [this](int) { triggerAutocmdInAnyBuffer("WinNew", {}); });
+    connect(EditorManager::instance(), &EditorManager::editorViewClosed,
+            this, [this](int viewId) {
+        triggerAutocmdInAnyBuffer("WinClosed", QString::number(viewId));
+    });
     connect(EditorManager::instance(), &EditorManager::currentEditorAboutToChange,
             this, &FakeVimPlugin::currentEditorAboutToChange);
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
@@ -2086,6 +2096,24 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     }
 }
 
+// An event that is about the WINDOW LAYOUT rather than about one buffer, so
+// there is no buffer of its own to fire it through. The autocommand table is
+// one static GlobalData shared by every handler, so any one of them reaches
+// every registration exactly once - going through all of them would announce
+// a single split once per buffer instead.
+void FakeVimPlugin::triggerAutocmdInAnyBuffer(const QString &event, const QString &target)
+{
+    if (!settings().useFakeVim())
+        return;
+    FakeVimHandler *handler = nullptr;
+    if (IEditor *current = EditorManager::currentEditor())
+        handler = m_editorToHandler.value(current, {}).handler;
+    if (!handler && !m_editorToHandler.isEmpty())
+        handler = m_editorToHandler.constBegin()->handler;
+    if (handler)
+        handler->triggerAutocmd(event, target);
+}
+
 // What a buffer is given when FakeVim takes it over: the file type, whatever its
 // modelines say, and the autocommands Vim fires on reading a file and entering it.
 // Done when an editor is opened, and for every editor already open when FakeVim is
@@ -2097,11 +2125,23 @@ void FakeVimPlugin::enterBuffer(IEditor *editor, FakeVimHandler *handler)
     handler->triggerAutocmd("WinEnter");
     handler->triggerAutocmd("BufEnter");
 
+    // A buffer coming into existence, then joining the buffer list. Both
+    // name the file, and both come before it is read.
+    handler->triggerAutocmd("BufNew");
+    handler->triggerAutocmd("BufAdd");
+
+
     // Vim detects the file type from the buffer read autocommands, so fire
     // those first and only fill in what they left unset. That way a rule in a
     // vimrc wins over what Qt Creator guessed.
-    handler->triggerAutocmd(editor->document()->filePath().exists()
-                            ? QLatin1String("BufReadPost") : QLatin1String("BufNewFile"));
+    // A file that is there is read, which is announced before and after; one
+    // that is not is a new file, which only announces itself once and gets no
+    // BufReadPre at all (measured).
+    const bool fileExists = editor->document()->filePath().exists();
+    if (fileExists)
+        handler->triggerAutocmd("BufReadPre");
+    handler->triggerAutocmd(fileExists ? QLatin1String("BufReadPost")
+                                       : QLatin1String("BufNewFile"));
     const QString fileType = vimFileType(editor->document());
     if (!fileType.isEmpty()) {
         // FALLBACK: this is what the MIME database guessed, so a ":setf" from a
@@ -2143,6 +2183,17 @@ bool FakeVimPlugin::enterBufferOnce(IEditor *editor)
 void FakeVimPlugin::editorAboutToClose(IEditor *editor)
 {
     //qDebug() << "CLOSING: " << editor << editor->widget();
+    // The buffer leaving its window, then being unloaded, then dropped from
+    // the buffer list - Vim's order on ":bdelete", all three naming the file.
+    // Vim also has BufWipeout after these for ":bwipeout", which is a
+    // distinction Qt Creator does not draw: closing an editor here is the
+    // only way a buffer goes, so only the ":bdelete" three are fired and
+    // BufWipeout is left alone rather than guessing which close is which.
+    if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
+        handler->triggerAutocmd("BufWinLeave");
+        handler->triggerAutocmd("BufUnload");
+        handler->triggerAutocmd("BufDelete");
+    }
     m_editorToHandler.remove(editor);
     if (m_alternateFileEditor == editor)
         m_alternateFileEditor.clear();
@@ -2161,6 +2212,15 @@ void FakeVimPlugin::currentEditorAboutToChange(IEditor *editor)
         // round, so this pairs with the WinEnter/BufEnter on the way in.
         handler->triggerAutocmd("BufLeave");
         handler->triggerAutocmd("WinLeave");
+        // The buffer is out of its window but still loaded, which is what
+        // Vim calls hidden - every editor Qt Creator has open is loaded, so
+        // switching away from one is exactly that. Vim fires this only for a
+        // buffer that STAYS, never for one being closed, and that falls out
+        // here rather than needing a flag: editorAboutToClose runs BEFORE
+        // this on a close (measured) and has already taken the editor out of
+        // m_editorToHandler, so the lookup above finds no handler and none of
+        // this runs. Vim's order has BufLeave before BufHidden, which holds.
+        handler->triggerAutocmd("BufHidden");
     }
     if (editor)
         m_alternateFileEditor = editor;

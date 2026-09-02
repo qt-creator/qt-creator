@@ -190,6 +190,12 @@ public:
     // every buffer here is; scripts check it before touching one.
     FvStringAspect bufType;
 
+    // The charset Vim would work in. Qt Creator owns what a document is really
+    // read and written as, so nothing here acts on this - it is recorded so a
+    // script can set it, read it back and put it back as it found it, and so
+    // that changing it announces EncodingChanged as Vim does.
+    FvStringAspect encoding;
+
     // The pairs "%" jumps between, as Vim writes them. Scripts read this to
     // extend what they match; the jumping here does not consult it yet.
     FvStringAspect matchPairs;
