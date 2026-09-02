@@ -84,13 +84,11 @@ private:
 
 static QIcon taskTypeIcon(Task::TaskType t)
 {
-    static QIcon icons[3] = {QIcon(),
-                             Utils::Icons::CRITICAL.icon(),
-                             Utils::Icons::WARNING.icon()};
+    static const QIcon icons[] = {{},
+                                  Utils::Icons::CRITICAL.icon(),
+                                  Utils::Icons::WARNING.icon()};
 
-    if (t < 0 || t > 2)
-        t = Task::Unknown;
-
+    QTC_ASSERT(size_t(t) < std::size(icons), return {});
     return icons[t];
 }
 
