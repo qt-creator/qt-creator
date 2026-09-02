@@ -1109,13 +1109,8 @@ SettingsMode::SettingsMode()
 SettingsMode::~SettingsMode()
 {
     delete m_settingsModeWidget;
-    // Delete any widgets that have been created e.g. for IOptionsPage::keywords, but
-    // were never parented to the mode.
-    // Otherwise these would only be deleted when the corresponding static IOptionsPage
-    // is deleted, which is too late and can lead to crashes.
-    for (QWidget *widget : std::as_const(s_tabForPage))
-        delete widget;
-    s_tabForPage.clear();
+    for (IOptionsPage *page : IOptionsPage::allOptionsPages())
+        page->deleteWidget();
 }
 
 void SettingsMode::open(Id initialPage)

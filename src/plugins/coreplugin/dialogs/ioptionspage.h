@@ -53,6 +53,7 @@ public:
     static const QList<IOptionsPage *> allOptionsPages();
 
     IOptionsPageWidget *createWidget();
+    void deleteWidget();
 
     Utils::Id id() const;
     QString displayName() const;

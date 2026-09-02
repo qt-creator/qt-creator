@@ -468,6 +468,20 @@ IOptionsPageWidget *IOptionsPage::createWidget()
     return d->createWidget();
 }
 
+/*!
+    Deletes the cached page widget, if there is one, so that the next
+    createWidget() builds a fresh one.
+
+    The \uicontrol Options search builds pages that are never shown, to read
+    their labels; those have no tab to take them down again. They must not be
+    left to the static IOptionsPage's own destructor, which runs after
+    QApplication is gone.
+*/
+void IOptionsPage::deleteWidget()
+{
+    delete d->m_widget;
+}
+
 IOptionsPageWidget *IOptionsPagePrivate::createWidget()
 {
     if (m_widget)
