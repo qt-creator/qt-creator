@@ -3035,6 +3035,7 @@ public:
     void updateCursorShape();
     void setThinCursor(bool enable = true);
     bool hasThinCursor() const;
+    bool editorTakesKeys() const;
     QWidget *editor() const;
     QTextDocument *document() const { return EDITOR(document()); }
     QChar characterAt(int pos) const { return document()->characterAt(pos); }
@@ -4116,22 +4117,16 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     }
 
 #ifndef FAKEVIM_STANDALONE
-    bool inSnippetMode = false;
-    QMetaObject::invokeMethod(editor(),
-        "inSnippetMode", Q_ARG(bool *, &inSnippetMode));
-
-    if (inSnippetMode)
-        return EventPassedToCore;
-
     // Let an inline rename (e.g. "Rename Symbol Under Cursor") consume keys
     // itself, so Esc/Enter finish it instead of being handled by Vim
     // (QTCREATORBUG-20619).
-    bool inInlineRename = false;
-    QMetaObject::invokeMethod(editor(),
-        "inInlineRename", Q_ARG(bool *, &inInlineRename));
-
-    if (inInlineRename)
+    if (editorTakesKeys()) {
+        // Starting an inline rename does not move the cursor, so nothing has
+        // recomputed the shape yet and the first key would still overwrite.
+        if (!hasThinCursor())
+            setThinCursor();
         return EventPassedToCore;
+    }
 #endif
 
     // Fake "End of line"
@@ -22811,7 +22806,8 @@ void FakeVimHandler::Private::onCursorPositionChanged()
         // Selecting text with mouse disables the thick cursor so it's more obvious
         // that extra character under cursor is not selected when moving text around or
         // making operations on text outside FakeVim mode.
-        setThinCursor(g.mode == InsertMode || editorCursor().hasSelection());
+        setThinCursor(g.mode == InsertMode || editorCursor().hasSelection()
+                      || editorTakesKeys());
     }
 
     queueChangeAutocmds(false, true);
@@ -23045,6 +23041,23 @@ void FakeVimHandler::Private::setThinCursor(bool enable)
 bool FakeVimHandler::Private::hasThinCursor() const
 {
     return !EDITOR(overwriteMode());
+}
+
+// Snippet mode and an inline rename let the editor insert keys itself.
+bool FakeVimHandler::Private::editorTakesKeys() const
+{
+#ifdef FAKEVIM_STANDALONE
+    return false;
+#else
+    if (!editor())
+        return false;
+    bool active = false;
+    QMetaObject::invokeMethod(editor(), "inSnippetMode", Q_ARG(bool *, &active));
+    if (active)
+        return true;
+    QMetaObject::invokeMethod(editor(), "inInlineRename", Q_ARG(bool *, &active));
+    return active;
+#endif
 }
 
 void FakeVimHandler::Private::enterReplaceMode()

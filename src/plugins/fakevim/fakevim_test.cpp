@@ -18,6 +18,7 @@
 
 #include <mcp/server/toolregistry.h>
 
+#include <texteditor/snippets/snippet.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -542,6 +543,7 @@ private slots:
     void test_map();
     void test_vim_command_mapclear();
     void test_vim_command_iabbrev();
+    void test_vim_no_overwrite_when_editor_takes_keys();
     void test_vim_command_map_bang();
 
 //private:
@@ -6501,6 +6503,34 @@ void FakeVimTester::test_vim_command_mapclear()
     data.doCommand("lnoremap zq foo");
     data.doCommand("lmapclear");
     QCOMPARE(value("maparg('zq', 'l')"), QString());
+}
+
+void FakeVimTester::test_vim_no_overwrite_when_editor_takes_keys()
+{
+    // An inline rename reaches the same branch but needs the C++ code
+    // model, so snippet mode is what is driven here. The key has to be a
+    // real event: handleInput() goes straight to handleKey() and never
+    // through the event filter this branch lives in.
+    TestData data;
+    setup(&data);
+
+    data.setText("one two");
+    data.doKeys("<Esc>");
+    QVERIFY2(data.editor()->overwriteMode(),
+             "command mode should draw a block cursor, which is overwrite mode");
+
+    data.editor()->insertCodeSnippet(0, "$name$ tail", &TextEditor::Snippet::parse);
+    bool inSnippetMode = false;
+    QMetaObject::invokeMethod(data.editor(), "inSnippetMode", Q_ARG(bool *, &inSnippetMode));
+    QVERIFY2(inSnippetMode, "snippet mode did not start - the test cannot say anything");
+
+    QTest::keyClick(data.editor(), Qt::Key_X, Qt::NoModifier);
+    QVERIFY2(!data.editor()->overwriteMode(),
+             "editor left in overwrite mode while it is the one taking keys");
+    // The first key replaces the selected placeholder, which happens with or
+    // without overwrite mode; the second is the one that shows the damage.
+    QTest::keyClick(data.editor(), Qt::Key_Y, Qt::NoModifier);
+    QCOMPARE(data.text(), QByteArray("xy tailone two"));
 }
 
 void FakeVimTester::test_vim_command_iabbrev()
