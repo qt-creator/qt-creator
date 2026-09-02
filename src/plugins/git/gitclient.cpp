@@ -1330,8 +1330,10 @@ static IEditor *openInlineDiff(const FilePath &topLevel,
                                const QString &title,
                                int line = -1)
 {
-    auto textEditor
-        = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::openEditor(filePath));
+    // Open the main editor, but in the background, so when closing the inline diff
+    // it switches back to the editor that the user had open
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::openEditor(
+        filePath, {}, EditorManager::DoNotChangeCurrentEditor | EditorManager::DoNotMakeVisible));
     if (!textEditor || !textEditor->editorWidget())
         return nullptr;
     IEditor *diffEditor = DiffEditor::openInlineDiffEditor(
