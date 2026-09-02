@@ -6,6 +6,7 @@
 #include "debuggertest.h"
 
 #include "debuggercore.h"
+#include "enginemanager.h"
 #include "debuggerengineinterface.h"
 #include "debuggeritem.h"
 #include "debuggerruncontrol.h"
@@ -24,6 +25,7 @@
 #include <utils/filepath.h>
 
 #include <QTest>
+#include <QVersionNumber>
 #include <QSignalSpy>
 #include <QTestEventLoop>
 
@@ -61,6 +63,7 @@ private slots:
 
     void testBenchmark();
     void testStateMachine();
+    void testGdbDapEngineRunsASession();
 
     void testRegisterValue_data();
     void testRegisterValue();
@@ -126,6 +129,58 @@ void DebuggerUnitTests::testStateMachine()
     runControl->start();
 
     QTestEventLoop::instance().enterLoop(5);
+}
+
+// The DAP engines are reachable only through a run mode, so whether one still
+// works is answered by having it debug something. gdb speaks the protocol
+// itself, which is what its DAP engine is for, so nothing else is needed.
+void DebuggerUnitTests::testGdbDapEngineRunsASession()
+{
+    FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
+
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(proFile));
+
+    QEventLoop loop;
+    connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+            &loop, &QEventLoop::quit);
+    BuildManager::buildProjectWithDependencies(ProjectManager::startupProject());
+    loop.exec();
+
+    const QScopeGuard cleanup([] { EditorManager::closeAllEditors(false); });
+
+    RunConfiguration *rc = activeRunConfigForActiveProject();
+    QVERIFY(rc);
+
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->copyDataFromRunConfiguration(rc);
+
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    rp.setInferior(rc->runnable());
+    // gdb only grew its DAP mode along the way, and the engine refuses an older
+    // one rather than talking to something that will not answer.
+    if (QVersionNumber::fromString(rp.version()) < QVersionNumber(14, 0, 50))
+        QSKIP("The debugger of this kit is too old for its DAP mode.");
+    // What sends the session to the DAP engine instead of the native one.
+    rp.setCppEngineType(GdbDapEngineType);
+
+    connect(runControl, &RunControl::stopped,
+            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
+    runControl->start();
+
+    // The debuggee faults on purpose, so a session that got through to the
+    // adapter ends up holding it there. Nothing short of the whole exchange -
+    // the adapter started, the initialize answered, the launch taken and the
+    // stop reported - arrives at a stopped inferior.
+    QTRY_VERIFY_WITH_TIMEOUT(!EngineManager::engines().isEmpty(), 10000);
+    const QPointer<DebuggerEngine> engine = EngineManager::engines().constFirst();
+    QVERIFY(engine);
+    QTRY_VERIFY_WITH_TIMEOUT(engine && engine->state() == InferiorStopOk, 30000);
+
+    runControl->initiateStop();
+    QTestEventLoop::instance().enterLoop(30);
 }
 
 enum FakeEnum { FakeDebuggerCommonSettingsId };
