@@ -14,7 +14,10 @@
 #include "gdb/gdbengine.h"
 #include "registerhandler.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
 
 #include <cppeditor/cpptoolstestcase.h>
 
@@ -83,6 +86,8 @@ private slots:
     void testDebugInfoDirectory();
     void testDebugInfoFile();
     void testMergePlatformQtPath();
+
+    void testScratchEditorAdoptsSavedName();
 
 private:
     CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
@@ -625,6 +630,28 @@ void DebuggerUnitTests::testMergePlatformQtPath()
     platformUser.insert(platform.firstKey(), elsewhere);
     QCOMPARE(mergePlatformQtPath(sources, {}, platformUser).value(platform.firstKey()),
              elsewhere);
+}
+
+void DebuggerUnitTests::testScratchEditorAdoptsSavedName()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+
+    // Declared after the directory so the editor is gone before the file it
+    // was saved to.
+    const QScopeGuard cleanup([] { EditorManager::closeAllEditors(false); });
+
+    openTextEditor("Backtrace$", "line1\nline2\n");
+    IEditor *editor = EditorManager::currentEditor();
+    QVERIFY(editor);
+    IDocument *doc = editor->document();
+    QVERIFY(doc);
+    QVERIFY(!doc->preferredDisplayName().isEmpty());
+    QVERIFY(doc->isTemporary());
+
+    QVERIFY(DocumentManager::saveDocument(doc, FilePath::fromString(tmp.path()) / "bt.txt"));
+    QVERIFY(doc->preferredDisplayName().isEmpty());
+    QVERIFY(!doc->isTemporary());
 }
 
 QObject *createDebuggerTest()

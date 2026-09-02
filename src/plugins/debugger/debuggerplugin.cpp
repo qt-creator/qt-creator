@@ -2013,11 +2013,16 @@ void openTextEditor(const QString &titlePattern0, const QString &contents)
         QString suggestion = titlePattern;
         if (!suggestion.contains('.'))
             suggestion.append(".txt");
-        textEditor->textDocument()->setFallbackSaveAsFileName(suggestion);
+        TextDocument *doc = textEditor->textDocument();
+        doc->setFallbackSaveAsFileName(suggestion);
         // This is a scratch copy of view contents, not a real file. Mark it
         // temporary so it is not offered in the "save modified files" prompt on
         // build or close (QTCREATORBUG-33271).
-        textEditor->textDocument()->setTemporary(true);
+        doc->setTemporary(true);
+        QObject::connect(doc, &IDocument::filePathChanged, doc, [doc] {
+            doc->setPreferredDisplayName({});
+            doc->setTemporary(false);
+        }, Qt::SingleShotConnection);
     }
     QTC_ASSERT(editor, return);
 }
