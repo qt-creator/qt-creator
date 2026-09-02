@@ -2136,6 +2136,10 @@ void tst_backends::buildOtherWordWidthInferior(const FilePath &compiler, Inferio
     }
 }
 
+// The first session of a backend pays for everything that is still cold: the
+// debugger itself, its extension and dumpers, and the debug information of the
+// inferior, which a breakpoint on a source line is what pulls in. Pay it here,
+// once, rather than in whichever row happens to run first.
 void tst_backends::warmUpBackends()
 {
     const QList<Backend> backends = m_backendData.keys();
@@ -2145,18 +2149,44 @@ void tst_backends::warmUpBackends()
         const std::unique_ptr<DebuggerBackend> warmUp = createEngine(backend);
         if (!warmUp)
             continue;
+        DebuggerEngineInterface *engine = warmUp->engine();
+        const InferiorTestData testData = inferiorTestData(backend);
         QEventLoop loop;
-        connect(warmUp->engine(), &DebuggerEngineInterface::inferiorEvent, &loop,
-                [&loop](InferiorEvent event) {
-            if (event == InferiorEvent::EngineSetupOk || event == InferiorEvent::EngineSetupFailed)
+        bool finished = false;
+        connect(engine, &DebuggerEngineInterface::inferiorEvent, &loop,
+                [&loop, &finished, engine, testData](InferiorEvent event) {
+            switch (event) {
+            case InferiorEvent::EngineSetupOk: {
+                if (testData.breakpointLine == 0) {
+                    finished = true;
+                    loop.quit();
+                    break;
+                }
+                BreakpointChangeRequest request;
+                request.op = BreakpointOp::Insert;
+                request.requestId = 1;
+                request.params.type = BreakpointByFileAndLine;
+                request.params.fileName = testData.source;
+                request.params.textPosition.line = testData.breakpointLine;
+                request.params.enabled = true;
+                engine->changeBreakpoint(request);
+                break;
+            }
+            case InferiorEvent::SpontaneousStop:
+            case InferiorEvent::StopOk:
+            case InferiorEvent::EngineSetupFailed:
+            case InferiorEvent::EngineRunFailed:
+                finished = true;
                 loop.quit();
+                break;
+            default:
+                break;
+            }
         });
         QTimer::singleShot(s_warmUpTimeout, &loop, &QEventLoop::quit);
-        warmUp->engine()->start();
-        if (!warmUp->contains(InferiorEvent::EngineSetupOk)
-                && !warmUp->contains(InferiorEvent::EngineSetupFailed)) {
+        engine->start();
+        if (!finished) // pdb answers from inside start(), before there is a loop.
             loop.exec();
-        }
     }
 }
 
