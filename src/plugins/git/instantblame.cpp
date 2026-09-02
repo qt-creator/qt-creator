@@ -778,9 +778,25 @@ void BlameController::perform()
         infoStorage->topLevel = topLevel;
         guard->m_blameMark = std::make_unique<BlameMark>(document.get(), line, *infoStorage);
     };
-    const auto onLogSetup = [infoStorage, topLevel, encoding](Process &process) -> SetupResult {
-        if (infoStorage->hash.isEmpty() || infoStorage->modified)
+    const auto onLogSetup = [infoStorage, topLevel, ref, encoding,
+                             sourceEncoding](Process &process) -> SetupResult {
+        if (infoStorage->hash.isEmpty())
             return SetupResult::StopWithSuccess;
+
+        if (infoStorage->modified) {
+            const QString baselineRef = ref.isEmpty() ? QString("HEAD") : ref;
+            const QStringList showOptions
+                = {"show", baselineRef + ":" + infoStorage->originalFileName};
+            qCDebug(log) << "Running git" << showOptions.join(' ');
+            gitClient().setupCommand(process, topLevel, showOptions);
+            Environment environment = process.environment();
+            environment.set("LANG", "C");
+            environment.set("LANGUAGE", "C");
+            process.setEnvironment(environment);
+            process.setEncoding(sourceEncoding);
+            return SetupResult::Continue;
+        }
+
         // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`
         const QString origLineString = QString("%1,%1").arg(infoStorage->originalLine);
         const QString fileLineRange = "-L" + origLineString + ":" + infoStorage->originalFileName;
@@ -824,7 +840,7 @@ BaselineBlame::BaselineBlame(TextEditorWidget *widget,
 {
     m_controller->setContext(widget, topLevel, ref, relativeFile, workingFilePath,
                              /*allowModifiedDocument=*/true,
-                             /*useDocumentContents=*/false);
+                             /*useDocumentContents=*/true);
     connect(widget, &PlainTextEdit::cursorPositionChanged,
             this, [this] {
                 if (settings().instantBlame())
@@ -848,6 +864,7 @@ class InstantBlameTest final : public QObject
 private slots:
     void testBlameCommandArguments();
     void testBlameOutputParsing();
+    void testBlameDocumentContents();
 };
 
 void InstantBlameTest::testBlameCommandArguments()
@@ -934,6 +951,114 @@ void InstantBlameTest::testBlameOutputParsing()
     }, filePath, 5, {});
     QVERIFY(incompleteInfo.hash.isEmpty());
     QCOMPARE(incompleteInfo.line, -1);
+}
+
+void InstantBlameTest::testBlameDocumentContents()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+        == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    const FilePath file = repo / "file.txt";
+    QVERIFY(file.writeFileContents("committed\n"));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"commit", "-m", "initial"}));
+    QVERIFY(file.writeFileContents("working tree\n"));
+
+    bool done = false;
+    CommandResult result;
+    gitClient().enqueueCommand(
+        {repo,
+         blameCommandArguments("file.txt", {}, 1, false, false, true),
+         RunFlag::NoOutput,
+         {},
+         {},
+         [&done, &result](const CommandResult &commandResult) {
+             result = commandResult;
+             done = true;
+         },
+         QByteArray("displayed snapshot\n")});
+    QTRY_VERIFY(done);
+    QCOMPARE(result.result(), ProcessResult::FinishedWithSuccess);
+    QVERIFY(result.cleanedStdOut().contains("\tdisplayed snapshot"));
+
+    auto document = QSharedPointer<TextDocument>::create();
+    document->setFilePath(file);
+    QVERIFY(document->setPlainText("first\nworking tree\n"));
+    document->document()->setModified(false);
+    TextEditorWidget widget;
+    widget.setTextDocument(document);
+    QTextCursor cursor(widget.document());
+    cursor.movePosition(QTextCursor::NextBlock);
+    widget.setTextCursor(cursor);
+
+    BlameController controller;
+    controller.setContext(&widget, repo, {}, "file.txt", file, true, true);
+    controller.setEnabled(true);
+
+    const auto markToolTip = [&document](int line) {
+        for (const TextMark *mark : document->marks()) {
+            if (mark->lineNumber() == line) {
+                if (const auto blameMark = dynamic_cast<const BlameMark *>(mark))
+                    return blameMark->toolTip();
+            }
+        }
+        return QString();
+    };
+
+    QTRY_VERIFY(markToolTip(2).contains("-committed"));
+    QVERIFY(markToolTip(2).contains("+working tree"));
+
+    QVERIFY(document->setPlainText("inserted\nfirst\nworking tree\n"));
+    document->document()->setModified(true);
+    cursor = QTextCursor(widget.document());
+    widget.setTextCursor(cursor);
+    controller.schedule();
+    QTRY_VERIFY(markToolTip(1).contains("+inserted"));
+
+    const QByteArray latin1Contents = "caf\xe9\ncaf\xe9 old\n";
+    QVERIFY(file.writeFileContents(latin1Contents));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"commit", "-m", "latin1"}));
+
+    auto latinDocument = QSharedPointer<TextDocument>::create();
+    latinDocument->setFilePath(file);
+    latinDocument->setEncoding(TextEncoding::Latin1);
+    QVERIFY(latinDocument->setPlainText(QString::fromUtf8("café\ncafé changed\n")));
+    TextEditorWidget latinWidget;
+    latinWidget.setTextDocument(latinDocument);
+    QTextCursor latinCursor(latinWidget.document());
+    latinWidget.setTextCursor(latinCursor);
+
+    BlameController latinController;
+    latinController.setContext(&latinWidget, repo, {}, "file.txt", file, true, true);
+    latinController.setEnabled(true);
+
+    const auto latinMarkToolTip = [&latinDocument](int line) {
+        for (const TextMark *mark : latinDocument->marks()) {
+            if (mark->lineNumber() == line) {
+                if (const auto blameMark = dynamic_cast<const BlameMark *>(mark))
+                    return blameMark->toolTip();
+            }
+        }
+        return QString();
+    };
+
+    QTRY_VERIFY(latinMarkToolTip(1).contains("latin1"));
+
+    latinCursor = QTextCursor(latinWidget.document());
+    latinCursor.movePosition(QTextCursor::NextBlock);
+    latinWidget.setTextCursor(latinCursor);
+    latinController.schedule();
+    QTRY_VERIFY(latinMarkToolTip(2).contains("-café old"));
+    QVERIFY(latinMarkToolTip(2).contains("+café changed"));
 }
 
 void registerInstantBlameTests(ExtensionSystem::IPlugin *plugin)
