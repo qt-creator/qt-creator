@@ -309,6 +309,15 @@ bool DefaultImpl::ensureProgramExists(const QString &program)
     if (programFilePath.exists() && programFilePath.isExecutableFile())
         return true;
 
+#ifdef Q_OS_OHOS
+    // The only place an application may execute a binary from is its own native package,
+    // and what the platform installs there are symlinks into a directory the application
+    // may execute from but not stat. Every check above then says the program is not there
+    // while running it works, so this cannot be the last word: let the launch decide.
+    if (programFilePath.isAbsolutePath())
+        return true;
+#endif
+
     const QString errorString
         = Tr::tr("The program \"%1\" does not exist or is not executable.").arg(program);
     const ProcessResultData result = { 0, ProcessExitStatus::NormalExit, ProcessError::FailedToStart,
