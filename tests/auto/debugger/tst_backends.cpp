@@ -1313,6 +1313,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .extensionDir = m_backendData[backend].cdbExtensionDir,
             .extensionFileName = m_backendData[backend].cdbExtensionFileName,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain),
             .nativeMixed = nativeMixed,
             .watchdogTimeout = watchdogTimeout}));
     }

@@ -182,7 +182,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
     data.extraCapabilities = DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::RunCommandDeferral
-                           | DebuggerExtraCapability::Threads;
+                           | DebuggerExtraCapability::Threads
+                           | DebuggerExtraCapability::BreakOnMain;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToCore;
@@ -1344,6 +1345,24 @@ void CdbImpl::interruptInferior()
     m_cdbProc.interrupt();
 }
 
+// One shot, and qualified by the module the program starts in: an unqualified
+// "main" makes cdb search every module it has symbols for.
+void CdbImpl::insertMainBreakpoint()
+{
+    BreakpointParameters params(BreakpointByFunction);
+    params.functionName = "main";
+    params.oneShot = true;
+    params.enabled = true;
+    if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+        const QString fileName = std::get<ProcessRunData>(m_startData.inferiorStartData)
+                                     .command.executable().fileName();
+        params.module = fileName.left(fileName.indexOf('.'));
+    }
+    const QString id = nextBreakpointId();
+    m_internalBreakpointIds.insert(id);
+    insertBreakpoint(0, id, 0, params, false);
+}
+
 void CdbImpl::resumeAfterSetup()
 {
     if (!m_commandForToken.isEmpty()) {
@@ -1939,6 +1958,8 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
                     emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
                     return;
                 } else {
+                    if (m_startData.breakOnMain)
+                        insertMainBreakpoint();
                     emit inferiorEvent(InferiorEvent::EngineSetupOk);
                     emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
                 }

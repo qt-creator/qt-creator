@@ -42,6 +42,8 @@ public:
     QStringList startupCommands;
     Utils::FilePath extraDumperFile;
     QString extraDumperCommands;
+    // Stop where the program starts, before anything of it has run.
+    bool breakOnMain = false;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     // Only the ctrl-c stub next to the qtcreator executable makes
@@ -106,6 +108,7 @@ private:
     void settleStackBitness(Wow64State state);
     void syncExceptionEvents();
     void interruptInferior();
+    void insertMainBreakpoint();
     void resumeAfterSetup();
     class InterpreterBreakpoint
     {
