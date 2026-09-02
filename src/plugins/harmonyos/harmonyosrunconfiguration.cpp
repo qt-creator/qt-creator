@@ -10,6 +10,8 @@
 #include "harmonyostr.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
@@ -121,6 +123,55 @@ public:
     HarmonyOsRunConfiguration(BuildConfiguration *bc, Id id)
         : RunConfiguration(bc, id)
     {}
+};
+
+class HarmonyOsBuildDeviceRunConfiguration final : public RunConfiguration
+{
+public:
+    HarmonyOsBuildDeviceRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
+    {
+        executable.setDeviceSelector(kit(), ExecutableAspect::RunDevice);
+        executable.setLabelText(Tr::tr("Executable on device:"));
+        executable.setPlaceHolderText(Tr::tr("Path on the device not set"));
+
+        setUpdater([this] {
+            const BuildTargetInfo bti = buildTargetInfo();
+            executable.setExecutable(bti.targetFilePath);
+            workingDir.setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
+        });
+    }
+
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+};
+
+class HarmonyOsBuildDeviceRunConfigurationFactory final : public RunConfigurationFactory
+{
+public:
+    HarmonyOsBuildDeviceRunConfigurationFactory()
+    {
+        registerRunConfiguration<HarmonyOsBuildDeviceRunConfiguration>(
+            Constants::HARMONYOS_BUILD_RUNCONFIG_ID);
+        addSupportedTargetDeviceType(Constants::HARMONYOS_BUILD_DEVICE_TYPE);
+        setDecorateDisplayNames(true);
+    }
+};
+
+class HarmonyOsBuildDeviceRunWorkerFactory final : public RunWorkerFactory
+{
+public:
+    HarmonyOsBuildDeviceRunWorkerFactory()
+    {
+        setId("HarmonyOsBuildDeviceRunWorkerFactory");
+        setRecipeProducer([](RunControl *runControl) {
+            return runControl->processRecipe(runControl->processTask());
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::HARMONYOS_BUILD_RUNCONFIG_ID);
+        addSupportedDeviceType(Constants::HARMONYOS_BUILD_DEVICE_TYPE);
+    }
 };
 
 class HarmonyOsRunConfigurationFactory final : public RunConfigurationFactory
@@ -392,6 +443,8 @@ void setupHarmonyOsRunSupport()
 {
     static HarmonyOsRunConfigurationFactory theHarmonyOsRunConfigurationFactory;
     static HarmonyOsRunWorkerFactory theHarmonyOsRunWorkerFactory;
+    static HarmonyOsBuildDeviceRunConfigurationFactory theBuildDeviceRunConfigurationFactory;
+    static HarmonyOsBuildDeviceRunWorkerFactory theBuildDeviceRunWorkerFactory;
 }
 
 } // namespace HarmonyOs::Internal

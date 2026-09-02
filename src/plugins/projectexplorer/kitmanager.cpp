@@ -21,6 +21,7 @@
 
 #include <android/androidconstants.h>
 #include <baremetal/baremetalconstants.h>
+#include <harmonyos/harmonyosconstants.h>
 #include <qnx/qnxconstants.h>
 #include <remote/remotelinux_constants.h>
 
@@ -157,6 +158,8 @@ static Id runDeviceTypeForKit(const Kit *kit)
         case Abi::LinuxOS:
             if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
                 return Android::Constants::ANDROID_DEVICE_TYPE;
+            if (buildDeviceType == HarmonyOs::Constants::HARMONYOS_BUILD_DEVICE_TYPE)
+                return buildDeviceType;
             return Remote::Constants::GenericLinuxOsType;
         case Abi::QnxOS:
             return Qnx::Constants::QNX_QNX_OS_TYPE;

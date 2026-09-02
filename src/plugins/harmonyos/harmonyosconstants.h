@@ -26,6 +26,10 @@ inline constexpr int HARMONYOS_GATE_PORT = 8124;
 inline constexpr char HARMONYOS_NATIVE_PACKAGE[] = "qtctools";
 inline constexpr char HARMONYOS_NATIVE_PACKAGE_VERSION[] = "1.0";
 inline constexpr char HARMONYOS_DEBUG_PLUGIN[] = "qtcdebug";
+// User storage, which the application and the terminal application that builds for it see
+// under the same path.
+inline constexpr char HARMONYOS_USER_STORAGE[] = "/storage/Users/";
+inline constexpr char HARMONYOS_USER_DOCUMENTS[] = "/storage/Users/currentUser/Documents";
 inline constexpr char HARMONYOS_NATIVE_PACKAGE_BIN[] = "/data/app/qtctools.org/qtctools_1.0/bin";
 inline constexpr char HARMONYOS_DEBUG_SERVER_PATH[]
     = "/data/app/qtctools.org/qtctools_1.0/bin/lldb-server";
@@ -50,6 +54,8 @@ inline constexpr char HARMONYOS_PACKAGE_HAP_STEP_ID[] = "HarmonyOS.PackageHapSte
 inline constexpr char HARMONYOS_SIGN_HAP_STEP_ID[] = "HarmonyOS.SignHapStep";
 inline constexpr char HARMONYOS_INSTALL_HAP_STEP_ID[] = "HarmonyOS.InstallHapStep";
 inline constexpr char HARMONYOS_RUNCONFIG_ID[] = "HarmonyOS.RunConfiguration";
+inline constexpr char HARMONYOS_BUILD_RUNCONFIG_ID[]
+    = "HarmonyOS.BuildDevice.RunConfiguration";
 
 // The ability and module the Qt for HarmonyOS template generates; used to launch.
 inline constexpr char HARMONYOS_ABILITY_NAME[] = "QAbility";

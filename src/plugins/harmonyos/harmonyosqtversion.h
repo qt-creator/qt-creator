@@ -13,6 +13,7 @@ public:
     HarmonyOsQtVersion();
 
     QString description() const override;
+    ProjectExplorer::Abis detectQtAbis() const override;
     QSet<Utils::Id> targetDeviceTypes() const override;
     QSet<Utils::Id> availableFeatures() const override;
 };
