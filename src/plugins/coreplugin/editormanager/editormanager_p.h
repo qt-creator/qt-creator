@@ -161,6 +161,11 @@ public:
         EditorView *view = nullptr,
         EditorManager::ContextMenuFlags flags = EditorManager::DefaultContextMenu);
 
+    // Whether the editor manager is being torn down, in which case views
+    // are going away with it rather than being closed by anyone - see
+    // ~EditorManagerPrivate.
+    static bool isShuttingDown();
+
 public slots:
     static bool saveDocument(
         Core::IDocument *document,
@@ -185,6 +190,10 @@ signals:
     void placeholderTextChanged(const QString &text);
     void currentViewChanged();
     void viewCountChanged();
+    // One view arriving or going, as against viewCountChanged() saying only
+    // that the number of them is different now.
+    void editorViewCreated(int viewId);
+    void editorViewClosed(int viewId);
 
 private:
     static void gotoNextDocHistory();

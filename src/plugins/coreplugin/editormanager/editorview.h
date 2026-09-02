@@ -119,6 +119,11 @@ public:
     bool isShowingTabs() const;
     void setTabsVisible(bool visible);
 
+    // Identifies this view for as long as it exists, and is not handed out
+    // again after it goes. What EditorManager::editorViewCreated() and
+    // editorViewClosed() report, so a plugin can pair the two up.
+    int viewId() const { return m_viewId; }
+
     bool canGoForward() const;
     bool canGoBack() const;
     bool canReopen() const;
@@ -204,6 +209,7 @@ private:
     QList<EditLocation> m_editorHistory;
     QList<EditLocation> m_closedEditorHistory;
     int m_currentNavigationHistoryPosition = 0;
+    const int m_viewId;
 };
 
 class SplitterOrView  : public QWidget

@@ -604,6 +604,10 @@ private:
     bool m_ensuringPinnedOrder = false;
 };
 
+// Handed out once each and never again, so a closed view is not confused
+// with a later one. Zero is left unused so it can mean "no view".
+static int g_lastViewId = 0;
+
 EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     : QWidget(parent)
     , m_parentSplitterOrView(parentSplitterOrView)
@@ -615,6 +619,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     , m_statusWidget(new QFrame(this))
     , m_backMenu(new QMenu(this))
     , m_forwardMenu(new QMenu(this))
+    , m_viewId(++g_lastViewId)
 {
     auto tl = new QVBoxLayout(this);
     tl->setSpacing(0);
@@ -738,6 +743,9 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
         &EditorManagerPrivate::viewCountChanged,
         currentViewOverlay,
         updateCurrentViewOverlay);
+
+    // Last, so that whoever listens sees a view that is fully built.
+    emit EditorManagerPrivate::instance()->editorViewCreated(m_viewId);
 }
 
 bool EditorView::isInSplit() const
@@ -764,7 +772,23 @@ EditorArea *EditorView::editorArea() const
     return nullptr;
 }
 
-EditorView::~EditorView() = default;
+EditorView::~EditorView()
+{
+    // Not while the editor manager is being torn down: then the views are
+    // going away with it rather than being closed, and whoever is listening
+    // would be reached through an object already half gone. The null check
+    // alone does NOT cover this - measured: the last view is destroyed from
+    // ~EditorManagerPrivate with instance() still non-null, because it
+    // clears itself only after deleting the areas.
+    // PluginManager::isShuttingDown() happens to be true there as well, but
+    // is deliberately not what this asks: the flag below is set by the very
+    // destructor that causes the hazard, so the reasoning stays local
+    // instead of resting on the order two subsystems shut down in.
+    if (EditorManagerPrivate *d = EditorManagerPrivate::instance();
+        d && !EditorManagerPrivate::isShuttingDown()) {
+        emit d->editorViewClosed(m_viewId);
+    }
+}
 
 EditorToolBar *EditorView::toolBar() const
 {
