@@ -3,11 +3,7 @@
 
 #include "dapengine.h"
 
-#include "cmakedapengine.h"
 #include "dapclient.h"
-#include "gdbdapengine.h"
-#include "lldbdapengine.h"
-#include "pydapengine.h"
 
 #include <debugger/breakhandler.h>
 #include <debugger/debuggerinternalconstants.h>
@@ -1046,19 +1042,4 @@ void DapEngine::connectDataGeneratorSignals()
     connect(m_dapClient, &DapClient::responseReady, this, &DapEngine::handleResponse);
     connect(m_dapClient, &DapClient::eventReady, this, &DapEngine::handleEvent);
 }
-
-DebuggerEngine *createDapEngine(Id runMode)
-{
-    if (runMode == ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE)
-        return new CMakeDapEngine;
-    if (runMode == ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE)
-        return new GdbDapEngine;
-    if (runMode == ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE)
-        return new LldbDapEngine;
-    if (runMode == ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE)
-        return new PyDapEngine;
-
-    return nullptr;
-}
-
 } // Debugger::Internal
