@@ -215,6 +215,38 @@ FilePath waitLibrary(const FilePath &sdkRoot)
     return library.exists() ? library : FilePath();
 }
 
+FilePath runnerLibrary(const FilePath &sdkRoot)
+{
+    const FilePath loader = Core::ICore::resourcePath("harmonyos/qtcload.cpp");
+    const FilePath source = Core::ICore::resourcePath("harmonyos/qtcrunner.cpp");
+    const FilePath compiler = clangCompiler(sdkRoot, true);
+    const FilePath sysroot = sysrootPath(sdkRoot);
+    if (!loader.exists() || !source.exists() || compiler.isEmpty() || sysroot.isEmpty())
+        return {};
+
+    const FilePath library = Core::ICore::userResourcePath("harmonyos")
+                                 .pathAppended(Constants::HARMONYOS_RUNNER_LIBRARY);
+    const QDateTime newest = std::max(loader.lastModified(), source.lastModified());
+    if (library.exists() && library.lastModified() > newest)
+        return library;
+    if (const Result<> created = library.parentDir().ensureWritableDir(); !created)
+        return {};
+
+    Process compile;
+    compile.setCommand(
+        {compiler,
+         {"--target=aarch64-linux-ohos",
+          "--sysroot=" + sysroot.path(),
+          "-fPIC", "-shared", "-O1", "-std=c++17",
+          // The template dlopens the application by this name and calls its main().
+          "-Wl,-soname," + library.fileName(),
+          "-I" + source.parentDir().path(),
+          QString("-DQTC_CHANNEL_PORT=%1").arg(Constants::HARMONYOS_CHANNEL_PORT),
+          loader.path(), source.path(), "-o", library.path()}});
+    compile.runBlocking();
+    return library.exists() ? library : FilePath();
+}
+
 FilePath hvigorBinPath(const FilePath &sdkRoot)
 {
     if (sdkRoot.isEmpty())

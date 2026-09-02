@@ -19,6 +19,8 @@ public:
 
     Utils::FilePathAspect additionalPackages{this};
 
+    Utils::BoolAspect runWithoutInstalling{this};
+
     Utils::FilePathAspect signingCertificate{this};
     Utils::FilePathAspect signingProfile{this};
     Utils::FilePathAspect signingKeystore{this};

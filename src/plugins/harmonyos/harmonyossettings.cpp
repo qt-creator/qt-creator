@@ -49,6 +49,18 @@ HarmonyOsSettings::HarmonyOsSettings()
         Tr::tr("Directory holding the third-party libraries built for HarmonyOS that Qt needs "
                "at run time. Their contents are added to the application package."));
 
+    runWithoutInstalling.setSettingsKey("RunWithoutInstalling");
+    runWithoutInstalling.setLabelText(Tr::tr("Run without installing"));
+    runWithoutInstalling.setToolTip(
+        Tr::tr("Installs a package that holds a runner instead of the application, and hands "
+               "the application to it over a channel at every run. Installing a package costs "
+               "a minute of packaging, signing and installing; this way only the changed "
+               "application library travels. The package keeps the bundle name, the "
+               "permissions and the signature of a normal one, so what a run exercises is "
+               "still the application - but it runs under the runner's identity, which is "
+               "why anything that depends on the application's own manifest has to be "
+               "checked with an installed package."));
+
     signingCertificate.setSettingsKey("SigningCertificate");
     signingCertificate.setExpectedKind(PathChooserKind::File);
     signingCertificate.setLabelText(Tr::tr("Certificate (.cer):"));
@@ -112,6 +124,10 @@ HarmonyOsSettings::HarmonyOsSettings()
                     Form { additionalPackages, br },
                     automaticKitCreation,
                 },
+            },
+            Group {
+                title(Tr::tr("Running")),
+                Column { runWithoutInstalling },
             },
             Group {
                 title(Tr::tr("Package Signing")),

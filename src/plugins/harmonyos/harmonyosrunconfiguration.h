@@ -5,12 +5,16 @@
 
 #include <QString>
 
-namespace Utils { class FilePath; }
+#include <utils/filepath.h>
 
 namespace HarmonyOs::Internal {
 
 // The application bundle name from the generated harmonyos-build/AppScope/app.json5.
 QString bundleName(const Utils::FilePath &buildDir);
+
+// The library the build produced, as harmonydeployqt was told about it. Empty when the
+// deployment settings are not there yet.
+Utils::FilePath applicationLibrary(const Utils::FilePath &buildDir);
 
 void setupHarmonyOsRunSupport();
 

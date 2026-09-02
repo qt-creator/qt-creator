@@ -20,7 +20,11 @@
 
 #include <QtTaskTree/qtasktree.h>
 
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QRegularExpression>
+#include <QTcpServer>
+#include <QTcpSocket>
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
@@ -40,6 +44,22 @@ QString bundleName(const FilePath &buildDir)
     const QString text = QString::fromUtf8(Utils::removeCommentsFromJson(*contents));
     const QRegularExpressionMatch match = re.match(text);
     return match.hasMatch() ? match.captured(1) : QString();
+}
+
+// The library the build produced, which is what a run hands to the runner. harmonydeployqt
+// is told where it is, and writes it down beside the rest of what it was told.
+FilePath applicationLibrary(const FilePath &buildDir)
+{
+    const FilePaths settingsFiles = buildDir.dirEntries(
+        FileFilter({"*-harmony-deployment-settings.json"}, DirFilterFlag::Files));
+    if (settingsFiles.isEmpty())
+        return {};
+    const Result<QByteArray> contents = settingsFiles.first().fileContents();
+    if (!contents)
+        return {};
+    const QString path = QJsonDocument::fromJson(*contents)
+                             .object().value("application-binary").toString();
+    return path.isEmpty() ? FilePath() : FilePath::fromUserInput(path);
 }
 
 class HarmonyOsRunConfiguration final : public RunConfiguration
@@ -99,6 +119,125 @@ public:
                 return cmd;
             };
 
+            // Running without installing: the package holds the runner, and this is the
+            // channel it asks on. A reverse forward puts this listener on the device's own
+            // loopback, the runner connects to it, and the library the build just produced
+            // goes over as a length and that many bytes. Read at connect time, so a rebuild
+            // between runs needs no new package.
+            const bool viaChannel = settings().runWithoutInstalling();
+            const FilePath library = viaChannel ? applicationLibrary(bc->buildDirectory())
+                                                : FilePath();
+            if (viaChannel && library.isEmpty()) {
+                return runControl->errorTask(
+                    Tr::tr("Could not find the application library to hand to the runner. "
+                           "Build and deploy the package first."));
+            }
+
+            const Storage<std::unique_ptr<QTcpServer>> channelStorage;
+            const auto openChannel = [channelStorage, runControl, library] {
+                auto server = std::make_unique<QTcpServer>();
+                if (!server->listen(QHostAddress::LocalHost)) {
+                    runControl->postMessage(
+                        Tr::tr("Could not open the channel the runner asks on: %1")
+                            .arg(server->errorString()), ErrorMessageFormat);
+                    return false;
+                }
+                QTcpServer * const channel = server.get();
+                QObject::connect(channel, &QTcpServer::newConnection, channel,
+                                 [channel, runControl, library] {
+                    while (QTcpSocket * const socket = channel->nextPendingConnection()) {
+                        QObject::connect(socket, &QTcpSocket::disconnected,
+                                         socket, &QTcpSocket::deleteLater);
+                        // Whatever the runner reports about the handover belongs in the
+                        // application's own output.
+                        QObject::connect(socket, &QTcpSocket::readyRead, socket,
+                                         [socket, runControl] {
+                            const QString text = QString::fromUtf8(socket->readAll());
+                            for (const QString &line : text.split('\n', Qt::SkipEmptyParts))
+                                runControl->postMessage(line, StdOutFormat);
+                        });
+
+                        const Result<QByteArray> contents = library.fileContents();
+                        if (!contents) {
+                            runControl->postMessage(contents.error(), ErrorMessageFormat);
+                            socket->disconnectFromHost();
+                            continue;
+                        }
+                        const quint32 size = quint32(contents->size());
+                        const char header[4] = {char((size >> 24) & 0xff),
+                                                char((size >> 16) & 0xff),
+                                                char((size >> 8) & 0xff),
+                                                char(size & 0xff)};
+                        socket->write(header, sizeof(header));
+                        socket->write(*contents);
+                        runControl->postMessage(
+                            Tr::tr("Handed %1 to the runner (%2 bytes).")
+                                .arg(library.fileName()).arg(size), NormalMessageFormat);
+                    }
+                });
+                *channelStorage = std::move(server);
+                return true;
+            };
+
+            // A forward outlives a run that Qt Creator did not get to clean up after, and
+            // the port on the device is the one the runner was built to ask, so a leftover
+            // has to go before this run can claim it.
+            const Storage<QString> staleStorage;
+            const QString channelPort = QString("tcp:%1").arg(Constants::HARMONYOS_CHANNEL_PORT);
+
+            const auto onChannelListSetup = [command](Process &process) {
+                process.setCommand(command({"fport", "ls"}));
+                process.setEnvironment(Sdk::hdcEnvironment());
+            };
+            const auto onChannelListDone = [staleStorage, channelPort](const Process &process) {
+                const QStringList lines = process.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
+                for (const QString &line : lines) {
+                    if (!line.contains("[Reverse]"))
+                        continue;
+                    const QStringList fields = line.simplified().split(' ');
+                    const qsizetype at = fields.indexOf(channelPort);
+                    if (at >= 0 && at + 1 < fields.size())
+                        *staleStorage = fields.at(at + 1);
+                }
+            };
+            const auto onChannelDropSetup = [command, staleStorage, channelPort](Process &process) {
+                if (staleStorage->isEmpty())
+                    return SetupResult::StopWithSuccess;
+                process.setCommand(command({"fport", "rm", channelPort, *staleStorage}));
+                process.setEnvironment(Sdk::hdcEnvironment());
+                return SetupResult::Continue;
+            };
+            const auto onChannelForwardSetup
+                = [command, channelStorage, channelPort](Process &process) {
+                if (!*channelStorage)
+                    return SetupResult::StopWithSuccess;
+                const QString host
+                    = QString("tcp:%1").arg((*channelStorage)->serverPort());
+                process.setCommand(command({"rport", channelPort, host}));
+                process.setEnvironment(Sdk::hdcEnvironment());
+                return SetupResult::Continue;
+            };
+            const auto onChannelForwardDone = [runControl](const Process &process) {
+                if (process.allOutput().contains("[Fail]")) {
+                    runControl->postMessage(
+                        Tr::tr("Could not offer the application to the device: %1")
+                            .arg(process.allOutput().trimmed()), ErrorMessageFormat);
+                }
+            };
+
+            const auto channelGroup = [=] {
+                if (!viaChannel)
+                    return Group { nullItem };
+                return Group {
+                    finishAllAndSuccess,
+                    staleStorage,
+                    QSyncTask(openChannel),
+                    ProcessTask(onChannelListSetup, onChannelListDone),
+                    ProcessTask(onChannelDropSetup),
+                    ProcessTask(onChannelForwardSetup, onChannelForwardDone)
+                };
+            };
+
             const auto forceStopTask = [command, bundle] {
                 const auto onSetup = [command, bundle](Process &process) {
                     process.setCommand(command({"shell", "aa", "force-stop", bundle}));
@@ -142,6 +281,8 @@ public:
 
             return Group {
                 pidStorage,
+                channelStorage,
+                channelGroup(),
                 forceStopTask(),
                 Group {
                     ProcessTask(onStartSetup),
@@ -160,6 +301,13 @@ public:
                     return makeObjectSignal(runControl, &RunControl::canceled);
                 }),
                 forceStopTask(),
+                onGroupDone([command, channelPort, channelStorage] {
+                    if (*channelStorage) {
+                        Process::startDetached(command(
+                            {"fport", "rm", channelPort,
+                             QString("tcp:%1").arg((*channelStorage)->serverPort())}));
+                    }
+                })
             };
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);

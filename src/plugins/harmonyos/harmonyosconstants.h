@@ -33,6 +33,14 @@ inline constexpr char HARMONYOS_DEBUG_SERVER_PATH[] = "/data/service/hnp/bin/lld
 inline constexpr char HARMONYOS_WAIT_LIBRARY[] = "libqtcwait.so";
 inline constexpr char HARMONYOS_WAIT_FLAG[] = "qtc_waitForDebugger";
 
+// The port a run offers the application on, when the package holds the runner instead of
+// the application: a reverse forward puts Qt Creator's own listener there, and the runner
+// asks for what to run by connecting to it.
+inline constexpr int HARMONYOS_CHANNEL_PORT = 8126;
+// The library that takes the application's place in the package and maps whatever the
+// channel offers, so that a run needs no package of its own.
+inline constexpr char HARMONYOS_RUNNER_LIBRARY[] = "libqtcrunner.so";
+
 inline const Utils::Id HARMONYOS_SERIAL_NUMBER = "HarmonyOS.SerialNumber";
 
 inline constexpr char HARMONYOS_DEPLOY_CONFIG_ID[] = "HarmonyOS.DeployConfiguration";

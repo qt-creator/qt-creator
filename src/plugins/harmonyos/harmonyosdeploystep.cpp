@@ -277,6 +277,33 @@ static Result<QString> setBundleName(const FilePath &appJson, const QString &bun
     return previous;
 }
 
+// What the template dlopens and calls main() on. Retargeting it is what turns a package
+// into a runner: the same package, the same bundle name and signature, but what it starts
+// is the library that maps whatever the channel offers. Returns what it named before.
+static Result<QString> setApplicationLibrary(const FilePath &constants, const QString &fileName)
+{
+    const Result<QByteArray> contents = constants.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+
+    static const QRegularExpression re("(APP_LIBRARY_NAME\\s*=\\s*')([^']*)(')");
+    QString text = QString::fromUtf8(*contents);
+    const QRegularExpressionMatch match = re.match(text);
+    if (!match.hasMatch()) {
+        return ResultError(Tr::tr("No application library name in \"%1\".")
+                               .arg(constants.toUserOutput()));
+    }
+    const QString previous = match.captured(2);
+    if (previous == fileName)
+        return previous;
+
+    text.replace(match.capturedStart(), match.capturedLength(),
+                 match.captured(1) + fileName + match.captured(3));
+    if (const Result<qint64> written = constants.writeFileContents(text.toUtf8()); !written)
+        return ResultError(written.error());
+    return previous;
+}
+
 static FilePath packageDir(const BuildConfiguration *bc)
 {
     return bc->buildDirectory().pathAppended("harmonyos-package");
@@ -285,6 +312,89 @@ static FilePath packageDir(const BuildConfiguration *bc)
 static FilePath projectDir(const BuildConfiguration *bc)
 {
     return bc->buildDirectory().pathAppended("harmonyos-build");
+}
+
+static bool addTreeToHash(QCryptographicHash &hash, const FilePath &root)
+{
+    const FilePaths files = root.dirEntries(
+        FileFilter({}, DirFilterFlag::Files | DirFilterFlag::Hidden,
+                   DirIteratorFlag::Subdirectories));
+    if (files.isEmpty())
+        return false;
+
+    QStringList relative;
+    QHash<QString, FilePath> byName;
+    for (const FilePath &file : files) {
+        const QString name = file.relativePathFromDir(root);
+        // hvigor builds into the first and caches into the second; the package holds
+        // neither, and both change on every run.
+        if (name.startsWith("build/") || name.startsWith(".cxx/"))
+            continue;
+        relative.append(name);
+        byName.insert(name, file);
+    }
+    relative.sort();
+
+    for (const QString &name : relative) {
+        const Result<QByteArray> contents = byName.value(name).fileContents();
+        if (!contents)
+            return false;
+        hash.addData(name.toUtf8());
+        hash.addData(*contents);
+    }
+    return true;
+}
+
+// Not the .hap itself: repackaging the very same content yields different bytes every
+// time, so the answer has to come from what goes in. Measured, the generated project is
+// byte-stable across runs apart from hvigor's own scratch directories, which nothing is
+// packaged from. The debug server is added to the package from a directory beside the
+// generated project, so its staged content counts too - without it a package holding a
+// different lldb-server looks unchanged, and the install is skipped.
+static QString packagedContentFingerprint(const FilePath &project)
+{
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    if (!addTreeToHash(hash, project.pathAppended("entry")))
+        return {};
+    const FilePath staged = project.parentDir().pathAppended("harmonyos-hnp/server");
+    if (staged.isDir() && !addTreeToHash(hash, staged))
+        return {};
+    return QString::fromLatin1(hash.result().toHex());
+}
+
+// Beside the signed package: what it was built from. hvigor and the signature cost seconds
+// each, and in a run that only changed the application library the package does not change
+// at all - with a runner in it, the library does not travel in the package.
+static FilePath packageNote(const FilePath &hap)
+{
+    return hap.stringAppended(".packaged");
+}
+
+// The signature does not follow from the packaged content, so a changed certificate or
+// profile has to invalidate the package as well.
+static QString signingFingerprint()
+{
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    for (const FilePath &path : {settings().signingCertificate(), settings().signingProfile(),
+                                 settings().signingKeystore()}) {
+        hash.addData(path.path().toUtf8());
+        hash.addData(path.lastModified().toString(Qt::ISODate).toUtf8());
+    }
+    hash.addData(settings().signingKeyAlias().toUtf8());
+    return QString::fromLatin1(hash.result().toHex());
+}
+
+static QString packageNoteFor(const QString &content, const QString &signing)
+{
+    return "package=" + content + "\nsigning=" + signing + "\n";
+}
+
+static bool packageIsCurrent(const FilePath &hap, const QString &content, const QString &signing)
+{
+    if (content.isEmpty() || !hap.exists())
+        return false;
+    const Result<QByteArray> noted = packageNote(hap).fileContents();
+    return noted && QString::fromUtf8(*noted) == packageNoteFor(content, signing);
 }
 
 // Builds the .hap via the Qt-generated CMake "<target>_make_hap" target.
@@ -509,6 +619,54 @@ private:
         return true;
     }
 
+    // Takes the application's place in the package. The application library is dropped from
+    // it in return: nothing loads it any more, and leaving it out is what keeps the package
+    // identical across edits, so it is installed once instead of once per run.
+    bool shipRunnerLibrary(const FilePath &libraries)
+    {
+        const FilePath library = Sdk::runnerLibrary(settings().sdkLocation());
+        if (library.isEmpty()) {
+            emit addOutput(Tr::tr("Cannot build the runner library; the application will be "
+                                  "installed as usual."), OutputFormat::Stdout);
+            return true;
+        }
+        if (const Result<> created = libraries.ensureWritableDir(); !created) {
+            emit addOutput(created.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        const FilePath target = libraries.pathAppended(library.fileName());
+        target.removeFile();
+        if (const Result<> copied = library.copyFile(target); !copied) {
+            emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+
+        const FilePath constants = m_project.pathAppended(
+            "entry/src/main/ets/common/QtAppConstants.ets");
+        const Result<QString> previous = setApplicationLibrary(constants, library.fileName());
+        if (!previous) {
+            emit addOutput(previous.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        // Which library to leave out does not follow from what the constant said before:
+        // the generated project is replaced on every run, so a second run would find the
+        // runner named there already. harmonydeployqt's own settings say it instead.
+        const FilePath application = applicationLibrary(buildConfiguration()->buildDirectory());
+        const QString name = !application.isEmpty() ? application.fileName() : *previous;
+        if (name != library.fileName() && !name.isEmpty())
+            libraries.pathAppended(name).removeFile();
+
+        // The channel is a socket on the device's own loopback.
+        const FilePath moduleJson = m_project.pathAppended("entry/src/main/module.json5");
+        if (const Result<> added = addPermission(moduleJson, "ohos.permission.INTERNET"); !added) {
+            emit addOutput(added.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        emit addOutput(Tr::tr("Packaging a runner: the application is handed over at every "
+                              "run instead of being installed."), OutputFormat::Stdout);
+        return true;
+    }
+
     // Qt's project templates are copied from its source tree, which in an in-source build
     // holds CMake's own files as well. hvigor takes exception to them: with them present it
     // deletes the generated project mid-run and then reports the files it deleted as missing.
@@ -674,6 +832,10 @@ private:
                 && !shipDebugPlugin()) {
                 return SetupResult::StopWithError;
             }
+            if (settings().runWithoutInstalling()
+                && !shipRunnerLibrary(m_project.pathAppended("entry/libs/arm64-v8a"))) {
+                return SetupResult::StopWithError;
+            }
             dropStaleModuleOutput();
             const ProvisioningProfile profile
                 = readProvisioningProfile(settings().signingProfile());
@@ -732,6 +894,17 @@ private:
                                             "\"allowed-acls\".")});
                     emit addTask(task);
                 }
+            }
+
+            // Everything above patches the generated project, so what goes into the package
+            // is only settled now.
+            const FilePath signedPackage = packageDir(buildConfiguration())
+                                               .pathAppended(m_buildKey + ".hap");
+            if (packageIsCurrent(signedPackage, packagedContentFingerprint(m_project),
+                                 signingFingerprint())) {
+                emit addOutput(Tr::tr("The package is already built from this content, so it "
+                                      "was not packaged again."), OutputFormat::NormalMessage);
+                return SetupResult::StopWithSuccess;
             }
 
             if (!setupProcess(process))
@@ -825,6 +998,7 @@ private:
         }
 
         const QString buildKey = bc->activeBuildKey();
+        m_project = projectDir(bc);
         m_unsignedPackage = packageDir(bc).pathAppended(buildKey + "-unsigned.hap");
         m_signedPackage = packageDir(bc).pathAppended(buildKey + ".hap");
 
@@ -853,6 +1027,13 @@ private:
         using namespace QtTaskTree;
 
         const auto onSetup = [this](Process &process) {
+            m_content = packagedContentFingerprint(m_project);
+            m_signing = signingFingerprint();
+            // The step before this one leaves the package alone when it is already the
+            // right one, and then there is nothing to sign either.
+            if (packageIsCurrent(m_signedPackage, m_content, m_signing))
+                return SetupResult::StopWithSuccess;
+
             // Checked here rather than in init(), which runs before the step that packages.
             if (!m_unsignedPackage.exists()) {
                 emit addOutput(Tr::tr("The package \"%1\" was not built.")
@@ -861,6 +1042,7 @@ private:
                 return SetupResult::StopWithError;
             }
             m_signedPackage.removeFile();
+            packageNote(m_signedPackage).removeFile();
             return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
         };
         const auto onDone = [this](const Process &process) {
@@ -869,7 +1051,16 @@ private:
                 emit addOutput(Tr::tr("Signing the package failed."), OutputFormat::ErrorMessage);
                 return false;
             }
-            return handleProcessDone(process);
+            if (!handleProcessDone(process))
+                return false;
+            if (!m_content.isEmpty()) {
+                const QByteArray note = packageNoteFor(m_content, m_signing).toUtf8();
+                if (const Result<qint64> written
+                        = packageNote(m_signedPackage).writeFileContents(note); !written) {
+                    emit addOutput(written.error(), OutputFormat::Stdout);
+                }
+            }
+            return true;
         };
         return ProcessTask(onSetup, onDone);
     }
@@ -880,8 +1071,11 @@ private:
         AbstractProcessStep::setupOutputFormatter(formatter);
     }
 
+    FilePath m_project;
     FilePath m_unsignedPackage;
     FilePath m_signedPackage;
+    QString m_content;
+    QString m_signing;
 };
 
 class SignHapStepFactory final : public BuildStepFactory
@@ -911,54 +1105,6 @@ static QString forceInstallLabel()
 static FilePath installNote(const FilePath &hap)
 {
     return hap.stringAppended(".installed");
-}
-
-static bool addTreeToHash(QCryptographicHash &hash, const FilePath &root)
-{
-    const FilePaths files = root.dirEntries(
-        FileFilter({}, DirFilterFlag::Files | DirFilterFlag::Hidden,
-                   DirIteratorFlag::Subdirectories));
-    if (files.isEmpty())
-        return false;
-
-    QStringList relative;
-    QHash<QString, FilePath> byName;
-    for (const FilePath &file : files) {
-        const QString name = file.relativePathFromDir(root);
-        // hvigor builds into the first and caches into the second; the package holds
-        // neither, and both change on every run.
-        if (name.startsWith("build/") || name.startsWith(".cxx/"))
-            continue;
-        relative.append(name);
-        byName.insert(name, file);
-    }
-    relative.sort();
-
-    for (const QString &name : relative) {
-        const Result<QByteArray> contents = byName.value(name).fileContents();
-        if (!contents)
-            return false;
-        hash.addData(name.toUtf8());
-        hash.addData(*contents);
-    }
-    return true;
-}
-
-// Not the .hap itself: repackaging the very same content yields different bytes every
-// time, so the answer has to come from what goes in. Measured, the generated project is
-// byte-stable across runs apart from hvigor's own scratch directories, which nothing is
-// packaged from. The debug server is added to the package from a directory beside the
-// generated project, so its staged content counts too - without it a package holding a
-// different lldb-server looks unchanged, and the install is skipped.
-static QString packagedContentFingerprint(const FilePath &project)
-{
-    QCryptographicHash hash(QCryptographicHash::Sha256);
-    if (!addTreeToHash(hash, project.pathAppended("entry")))
-        return {};
-    const FilePath staged = project.parentDir().pathAppended("harmonyos-hnp/server");
-    if (staged.isDir() && !addTreeToHash(hash, staged))
-        return {};
-    return QString::fromLatin1(hash.result().toHex());
 }
 
 // The note is three fields; all of them have to still hold for the package on the
@@ -1284,6 +1430,55 @@ private slots:
         // No package on the device at all, which is what an empty update time means.
         QVERIFY(!noteHolds(note, "1.2.3.4:5", "abc123", ""));
         QVERIFY(!noteHolds("", "1.2.3.4:5", "abc123", "1788191262345"));
+    }
+
+    void testSetApplicationLibrary()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath constants = FilePath::fromString(dir.filePath("QtAppConstants.ets"));
+        QVERIFY(constants.writeFileContents(
+            "export const APP_LIBRARY_NAME = 'libhostutorial.so';\n"
+            "export const LOG_DOMAIN = 0x0000;\n"));
+
+        const Result<QString> previous = setApplicationLibrary(constants, "libqtcrunner.so");
+        QVERIFY(previous);
+        QCOMPARE(*previous, QString("libhostutorial.so"));
+        const Result<QByteArray> contents = constants.fileContents();
+        QVERIFY(contents);
+        QVERIFY(contents->contains("APP_LIBRARY_NAME = 'libqtcrunner.so'"));
+        QVERIFY(contents->contains("LOG_DOMAIN"));
+
+        // Idempotent, and it still reports what is there.
+        const Result<QString> again = setApplicationLibrary(constants, "libqtcrunner.so");
+        QVERIFY(again);
+        QCOMPARE(*again, QString("libqtcrunner.so"));
+
+        const FilePath other = FilePath::fromString(dir.filePath("Other.ets"));
+        QVERIFY(other.writeFileContents("export const LOG_TAG = 'nothing here';\n"));
+        QVERIFY(!setApplicationLibrary(other, "libqtcrunner.so"));
+    }
+
+    void testPackageNote()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath hap = FilePath::fromString(dir.filePath("entry.hap"));
+        QVERIFY(hap.writeFileContents("not really a package"));
+
+        // Nothing noted yet: the package has to be built.
+        QVERIFY(!packageIsCurrent(hap, "content", "signing"));
+        QVERIFY(packageNote(hap).writeFileContents(packageNoteFor("content", "signing").toUtf8()));
+        QVERIFY(packageIsCurrent(hap, "content", "signing"));
+
+        // Either half changing invalidates it: new content, or new signing material.
+        QVERIFY(!packageIsCurrent(hap, "other", "signing"));
+        QVERIFY(!packageIsCurrent(hap, "content", "other"));
+        // A content hash that could not be computed is never current.
+        QVERIFY(!packageIsCurrent(hap, {}, "signing"));
+        // Nor is a package that is not there, however good the note.
+        QVERIFY(hap.removeFile());
+        QVERIFY(!packageIsCurrent(hap, "content", "signing"));
     }
 
     void testFingerprintCoversStagedServer()
