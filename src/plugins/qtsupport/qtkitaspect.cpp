@@ -256,7 +256,9 @@ void QtKitAspectFactory::fix(Kit *k)
     QTC_ASSERT(QtVersionManager::isLoaded(), return);
     QtVersion *version = QtKitAspect::qtVersion(k);
     if (!version) {
-        if (QtKitAspect::qtVersionId(k) >= 0) {
+        const int id = QtKitAspect::qtVersionId(k);
+        // A version still waiting for its factory reappears once the plugin is soft-loaded.
+        if (id >= 0 && !QtVersionManager::isVersionWithUnknownType(id)) {
             qWarning("Qt version is no longer known, removing from kit \"%s\".",
                      qPrintable(k->displayName()));
             QtKitAspect::setQtVersionId(k, -1);

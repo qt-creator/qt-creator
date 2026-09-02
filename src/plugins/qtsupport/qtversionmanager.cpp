@@ -631,6 +631,13 @@ void QtVersionManager::restoreVersionsWithUnknownType()
         qtVersionManagerImpl().restoreVersionsWithUnknownType();
 }
 
+bool QtVersionManager::isVersionWithUnknownType(int id)
+{
+    return Utils::anyOf(qtVersionManagerImpl().m_versionsWithUnknownType, [id](const Store &s) {
+        return s.value(Constants::QTVERSIONID).toInt() == id;
+    });
+}
+
 void QtVersionManager::removeVersion(QtVersion *version)
 {
     QTC_ASSERT(version, return);

@@ -40,6 +40,9 @@ public:
     // type. Call this after registering a QtVersionFactory from a soft-loaded plugin.
     static void restoreVersionsWithUnknownType();
 
+    // True while such a version is waiting for its factory, so its id is neither in use nor free.
+    static bool isVersionWithUnknownType(int id);
+
     // Call latest in extensionsInitialized of plugin depending on QtSupport
     static void registerExampleSet(const QString &displayName,
                                    const QString &manifestPath,
