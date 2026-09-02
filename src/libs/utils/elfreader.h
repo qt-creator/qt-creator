@@ -11,6 +11,7 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QList>
+#include <QStringList>
 
 namespace Utils {
 
@@ -48,6 +49,12 @@ enum ElfSectionHeaderType
     Elf_SHT_PREINIT_ARRAY = 16,
     Elf_SHT_GROUP         = 17,
     Elf_SHT_SYMTAB_SHNDX  = 18
+};
+
+enum ElfDynamicTag
+{
+    Elf_DT_NULL   = 0,
+    Elf_DT_NEEDED = 1
 };
 
 enum ElfEndian
@@ -141,6 +148,7 @@ public:
 
     ElfData readHeaders();
     std::unique_ptr<ElfMapper> readSection(const QByteArray &sectionName);
+    QStringList neededLibraries();
     QString errorString() const { return m_errorString; }
     // QByteArray readCoreName(bool *isCore);
 

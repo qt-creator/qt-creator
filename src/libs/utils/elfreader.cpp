@@ -298,6 +298,41 @@ std::unique_ptr<ElfMapper> ElfReader::readSection(const QByteArray &name)
     return mapper;
 }
 
+QStringList ElfReader::neededLibraries()
+{
+    if (readIt() != Ok)
+        return {};
+    const int dynamicIndex = m_elfData.indexOf(".dynamic");
+    const int stringsIndex = m_elfData.indexOf(".dynstr");
+    if (dynamicIndex == -1 || stringsIndex == -1)
+        return {};
+
+    ElfMapper mapper(this);
+    if (!mapper.map())
+        return {};
+    const ElfSectionHeader &dynamic = m_elfData.sectionHeaders.at(dynamicIndex);
+    const ElfSectionHeader &strings = m_elfData.sectionHeaders.at(stringsIndex);
+    if (dynamic.offset + dynamic.size > mapper.fdlen
+        || strings.offset + strings.size > mapper.fdlen) {
+        return {};
+    }
+
+    const quint64 entrySize = m_elfData.elfclass == Elf_ELFCLASS32 ? 8 : 16;
+    QStringList libraries;
+    for (quint64 offset = 0; offset + entrySize <= dynamic.size; offset += entrySize) {
+        const uchar *s = mapper.ustart + dynamic.offset + offset;
+        const quint64 tag = getAddress(s, m_elfData);
+        const quint64 value = getAddress(s, m_elfData);
+        if (tag == Elf_DT_NULL)
+            break;
+        if (tag != Elf_DT_NEEDED || value >= strings.size)
+            continue;
+        const char *name = mapper.start + strings.offset + value;
+        libraries.append(QString::fromUtf8(name, qstrnlen(name, strings.size - value)));
+    }
+    return libraries;
+}
+
 // static QByteArray cutout(const char *s)
 // {
 //     QByteArray res(s, 80);
