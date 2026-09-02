@@ -800,6 +800,7 @@ void ExtensionsBrowser::fetchExtensions()
 
     Storage<FilePaths> unpackedRepositories;
     Storage<QTemporaryFile> storage;
+    Storage<FilePath> unpackedPath;
 
     ListIterator urlIterator(urls);
 
@@ -815,15 +816,26 @@ void ExtensionsBrowser::fetchExtensions()
     };
 
     const auto setupUnarchiver =
-        [storage, unpackDestination, urlIterator, unpackedRepositories](Unarchiver &unarchiver) {
+        [storage, unpackDestination, urlIterator, unpackedPath](Unarchiver &unarchiver) {
             const FilePath archive = FilePath::fromString(storage->fileName());
-            const FilePath destination = unpackDestination / archive.baseName();
+            *unpackedPath = unpackDestination / archive.baseName();
             storage->flush();
-            qCDebug(browserLog) << "Unpacking" << archive << "to" << destination;
+            qCDebug(browserLog) << "Unpacking" << archive << "to" << *unpackedPath;
             unarchiver.setArchive(archive);
-            unarchiver.setDestination(destination);
-            *unpackedRepositories << destination;
+            unarchiver.setDestination(*unpackedPath);
         };
+
+    // An extraction that stopped part way leaves a partial tree behind, which is
+    // not a repository. Only take one that finished.
+    const auto doneUnarchiver = [unpackedPath, unpackedRepositories](const Unarchiver &unarchiver) {
+        if (unarchiver.result()) {
+            *unpackedRepositories << *unpackedPath;
+            return DoneResult::Success;
+        }
+        qCWarning(browserLog) << "Unpacking to" << *unpackedPath
+                              << "failed, ignoring it:" << unarchiver.result().error();
+        return DoneResult::Error;
+    };
 
     const auto isRemoteUrl = [urlIterator]() {
         return urlIterator->scheme() == QLatin1String("http")
@@ -849,8 +861,9 @@ void ExtensionsBrowser::fetchExtensions()
             continueOnError,
             If (isRemoteUrl) >> Then {
                 storage,
+                unpackedPath,
                 DownloadTask { setupDownloader },
-                UnarchiverTask { setupUnarchiver },
+                UnarchiverTask { setupUnarchiver, doneUnarchiver },
             } >> ElseIf(isDirectory) >> Then {
                 QSyncTask(addDirectory)
             } >> Else {
